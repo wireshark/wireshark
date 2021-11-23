@@ -185,6 +185,7 @@ typedef struct _e_prefs {
   gchar       *gui_interfaces_hide_types;
   gboolean     gui_interfaces_show_hidden;
   gboolean     gui_interfaces_remote_display;
+  gboolean     gui_io_graph_automatic_update;
   gchar       *capture_device;
   gchar       *capture_devices_linktypes;
   gchar       *capture_devices_descr;

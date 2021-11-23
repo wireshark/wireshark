@@ -16,7 +16,7 @@ find_package( XSLTPROC )
 
 function(set_docbook_target_properties _target)
 	set_target_properties(${_target} PROPERTIES
-		FOLDER "Docbook"
+		FOLDER "Documentation"
 		EXCLUDE_FROM_DEFAULT_BUILD True
 		)
 endfunction(set_docbook_target_properties)
@@ -38,12 +38,12 @@ set(GUIDE_INSTALL_DIRS)
 add_custom_target(update_tools_help
 	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 		${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/update-tools-help.py
-		--program-path ${WS_PROGRAM_PATH}
+		--program-path $<TARGET_FILE_DIR:tshark>
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_docbook_target_properties(update_tools_help)
 
-set(WSUG_TITLE "Wireshark User’s Guide")
+set(WSUG_TITLE "Wireshark User's Guide")
 
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.adoc
@@ -78,7 +78,7 @@ set(WSUG_FILES
 	${COMMON_FILES}
 )
 
-# Note: Images should be minimized using tools/compress-pngs.sh.
+# Note: Images should be minimized using tools/compress-pngs.py.
 set(WSUG_GRAPHICS
 	wsug_graphics/related-ack.png
 	wsug_graphics/related-current.png
@@ -223,7 +223,7 @@ set(WSUG_GRAPHICS
 	${COMMON_GRAPHICS}
 )
 
-set(WSDG_TITLE "Wireshark Developer’s Guide")
+set(WSDG_TITLE "Wireshark Developer's Guide")
 
 set(WSDG_FILES
 	wsdg_src/WSDG_chapter_asn2wrs.adoc
@@ -504,7 +504,7 @@ add_custom_target(
 set_docbook_target_properties(news)
 
 if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( release-notes.adoc copy_ws.css )
+	ASCIIDOCTOR2HTML( release-notes.adoc )
 	ASCIIDOCTOR2TXT( release-notes.adoc )
 endif()
 
@@ -518,7 +518,7 @@ set_docbook_target_properties(faq)
 add_dependencies ( faq faq_html )
 
 if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( faq.adoc copy_ws.css )
+	ASCIIDOCTOR2HTML( faq.adoc )
 endif()
 
 #

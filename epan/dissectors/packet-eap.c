@@ -615,6 +615,9 @@ static int hf_eap_tls_fragment_too_long_fragment = -1;
 static int hf_eap_tls_fragment_error = -1;
 static int hf_eap_tls_fragment_count = -1;
 static int hf_eap_tls_reassembled_length = -1;
+static int hf_eap_fast_type = -1;
+static int hf_eap_fast_length = -1;
+static int hf_eap_fast_aidd = -1;
 static gint ett_eap_tls_fragment  = -1;
 static gint ett_eap_tls_fragments = -1;
 static gint ett_eap_sim_attr = -1;
@@ -1735,6 +1738,30 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           offset += 4;
         }
 
+        /* 4.1.1 Authority ID Data https://datatracker.ietf.org/doc/html/rfc4851#section-4.1.1 */
+        if (eap_type == EAP_TYPE_FAST && is_start) {
+          guint32 length, type;
+
+          proto_tree_add_item_ret_uint(eap_tree, hf_eap_fast_type, tvb, offset, 2, ENC_BIG_ENDIAN, &type);
+          size   -= 2;
+          offset += 2;
+
+          proto_tree_add_item_ret_uint(eap_tree, hf_eap_fast_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+          size   -= 2;
+          offset += 2;
+
+          proto_tree_add_item(eap_tree, hf_eap_data, tvb, offset, length, ENC_NA);
+
+          switch (type) {
+            case 4:
+              proto_tree_add_item(eap_tree, hf_eap_fast_aidd, tvb, offset, length, ENC_NA);
+            break;
+          }
+          size   -= length;
+          offset += length;
+
+        }
+
         if (size > 0) {
 
           tvbuff_t *next_tvb = NULL;
@@ -2740,6 +2767,21 @@ proto_register_eap(void)
 
     { &hf_eap_data, {
       "EAP Data", "eap.data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_fast_type, {
+      "EAP-FAST Type", "eap.fast.type",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_fast_length, {
+      "EAP-FAST Length", "eap.fast.length",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_fast_aidd, {
+      "Authority ID Data", "eap.fast.authority_id_data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 

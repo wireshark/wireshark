@@ -12,6 +12,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+#include "config.h"
 
 #include "wslua_file_common.h"
 
@@ -26,7 +27,7 @@ WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_OR_EXPIRED("CaptureInfo"));
     A `CaptureInfo` object, passed into Lua as an argument by `FileHandler` callback
     function `read_open()`, `read()`, `seek_read()`, `seq_read_close()`, and `read_close()`.
     This object represents capture file data and meta-data (data about the
-    capture file) being read into Wireshark/Tshark.
+    capture file) being read into Wireshark/TShark.
 
     This object's fields can be written-to by Lua during the read-based function callbacks.
     In other words, when the Lua plugin's `FileHandler.read_open()` function is invoked, a
@@ -302,7 +303,7 @@ WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_OR_EXPIRED("CaptureInfoConst"))
     function `write_open()`.
 
     This object represents capture file data and meta-data (data about the
-    capture file) for the current capture in Wireshark/Tshark.
+    capture file) for the current capture in Wireshark/TShark.
 
     This object's fields are read-from when used by `write_open` function callback.
     In other words, when the Lua plugin's FileHandler `write_open` function is invoked, a

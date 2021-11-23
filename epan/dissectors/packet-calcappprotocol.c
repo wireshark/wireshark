@@ -95,6 +95,8 @@ dissect_calcappprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
   tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown CalcAppProtocol message type");
   tap_queue_packet(tap_calcappprotocol, pinfo, tap_rec);
 
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", tap_rec->type_string);
+
   proto_tree_add_item(calcappprotocol_tree, hf_message_type,      message_tvb, MESSAGE_TYPE_OFFSET,      MESSAGE_TYPE_LENGTH,      ENC_BIG_ENDIAN);
   proto_tree_add_item(calcappprotocol_tree, hf_message_flags,     message_tvb, MESSAGE_FLAGS_OFFSET,     MESSAGE_FLAGS_LENGTH,     ENC_BIG_ENDIAN);
   proto_tree_add_item(calcappprotocol_tree, hf_message_length,    message_tvb, MESSAGE_LENGTH_OFFSET,    MESSAGE_LENGTH_LENGTH,    ENC_BIG_ENDIAN);

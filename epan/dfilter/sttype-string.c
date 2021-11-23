@@ -10,21 +10,21 @@
 #include "syntax-tree.h"
 
 static gpointer
-string_new(gpointer string)
-{
-	return (gpointer) g_strdup((char*) string);
-}
-
-static gpointer
 string_dup(gconstpointer string)
 {
-	return (gpointer) g_strdup((const char*) string);
+	return g_strdup(string);
 }
 
 static void
 string_free(gpointer value)
 {
 	g_free(value);
+}
+
+static char *
+string_tostr(const void *data, gboolean pretty _U_)
+{
+	return g_strdup(data);
 }
 
 
@@ -34,29 +34,22 @@ sttype_register_string(void)
 	static sttype_t string_type = {
 		STTYPE_STRING,
 		"STRING",
-		string_new,
+		NULL,
 		string_free,
-		string_dup
-	};
-
-	static sttype_t charconst_type = {
-		STTYPE_CHARCONST,
-		"CHARCONST",
-		string_new,
-		string_free,
-		string_dup
+		string_dup,
+		string_tostr
 	};
 
 	static sttype_t unparsed_type = {
 		STTYPE_UNPARSED,
 		"UNPARSED",
-		string_new,
+		NULL,
 		string_free,
-		string_dup
+		string_dup,
+		string_tostr
 	};
 
 	sttype_register(&string_type);
-	sttype_register(&charconst_type);
 	sttype_register(&unparsed_type);
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # create the enterprises file from
-# http://www.iana.org/assignments/enterprise-numbers
+# https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -17,7 +17,7 @@ chdir($root_dir) || die("Can't find $root_dir");
 
 my $in = shift;
 
-$in = "http://www.iana.org/assignments/enterprise-numbers" unless(defined $in);
+$in = "https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers" unless(defined $in);
 
 my @in_lines;
 my $revision = '2014-04-27';
@@ -25,7 +25,7 @@ my $revision = '2014-04-27';
 my $min_entries = 100;
 my $smi_total = 0;
 
-if($in =~ m/^http:/i) {
+if($in =~ m/^https?:/i) {
 	eval "require LWP::UserAgent;";
 	die "LWP isn't installed. It is part of the standard Perl module libwww." if $@;
 
@@ -81,7 +81,7 @@ open OUT, "> enterprises.tsv";
 
 print OUT <<"_SMINMPEC";
 #
-# generated from http://www.iana.org/assignments/enterprise-numbers
+# generated from https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
 # run "tools/make-sminmpec.pl [infile]" to regenerate
 #
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>

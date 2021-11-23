@@ -44,6 +44,7 @@
 #define RECENT_GUI_ZOOM_LEVEL                   "gui.zoom_level"
 #define RECENT_GUI_BYTES_VIEW                   "gui.bytes_view"
 #define RECENT_GUI_BYTES_ENCODING               "gui.bytes_encoding"
+#define RECENT_GUI_ALLOW_HOVER_SELECTION        "gui.allow_hover_selection"
 #define RECENT_GUI_PACKET_DIAGRAM_FIELD_VALUES  "gui.packet_diagram_field_values"
 #define RECENT_GUI_GEOMETRY_MAIN_X              "gui.geometry_main_x"
 #define RECENT_GUI_GEOMETRY_MAIN_Y              "gui.geometry_main_y"
@@ -887,6 +888,10 @@ write_profile_recent(void)
             RECENT_GUI_PACKET_DIAGRAM_FIELD_VALUES,
             recent.gui_packet_diagram_field_values);
 
+    write_recent_boolean(rf, "Allow hover selection in byte view",
+            RECENT_GUI_ALLOW_HOVER_SELECTION,
+            recent.gui_allow_hover_selection);
+
     fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
     fprintf(rf, "# Decimal number.\n");
     if (recent.gui_geometry_main_upper_pane != 0) {
@@ -1092,6 +1097,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
             (bytes_encoding_type)str_to_val(value, bytes_encoding_type_values, BYTES_ENC_FROM_PACKET);
     } else if (strcmp(key, RECENT_GUI_PACKET_DIAGRAM_FIELD_VALUES) == 0) {
         parse_recent_boolean(value, &recent.gui_packet_diagram_field_values);
+    } else if (strcmp(key, RECENT_GUI_ALLOW_HOVER_SELECTION) == 0) {
+        parse_recent_boolean(value, &recent.gui_allow_hover_selection);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
         parse_recent_boolean(value, &recent.gui_geometry_main_maximized);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
@@ -1346,6 +1353,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_zoom_level            = 0;
     recent.gui_bytes_view            = BYTES_HEX;
     recent.gui_bytes_encoding        = BYTES_ENC_FROM_PACKET;
+    recent.gui_allow_hover_selection = TRUE;
 
     /* pane size of zero will autodetect */
     recent.gui_geometry_main_upper_pane   = 0;

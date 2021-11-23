@@ -1599,7 +1599,7 @@ static void
 sip_proto_set_format_text(const proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int length)
 {
     if (tree != item && item && PTREE_DATA(item)->visible)
-        proto_item_set_text(item, "%s", tvb_format_text(tvb, offset, length));
+        proto_item_set_text(item, "%s", tvb_format_text(wmem_packet_scope(), tvb, offset, length));
 }
 /*
  * XXXX If/when more parameters are added consider doing something similar to what's done in
@@ -3501,7 +3501,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         const gchar *proto_name;
         void *tmp;
 
-        /* For SIP messages with other sip messages embeded in the body, dont export those individually.
+        /* For SIP messages with other sip messages embeded in the body, don't export those individually.
          * E.g. if we are called from the mime_multipart dissector don't export the message.
          */
         cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
@@ -3522,22 +3522,22 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         descr = is_known_request ? "Request" : "Unknown request";
         col_add_lstr(pinfo->cinfo, COL_INFO,
                      descr, ": ",
-                     tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1),
+                     tvb_format_text(pinfo->pool, tvb, offset, linelen - SIP2_HDR_LEN - 1),
                      COL_ADD_LSTR_TERMINATOR);
         DPRINT(("got %s: %s", descr,
-                tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1)));
+                tvb_format_text(pinfo->pool, tvb, offset, linelen - SIP2_HDR_LEN - 1)));
         break;
 
     case STATUS_LINE:
         descr = "Status";
         col_add_lstr(pinfo->cinfo, COL_INFO,
                      "Status: ",
-                     tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1),
+                     tvb_format_text(pinfo->pool, tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1),
                      COL_ADD_LSTR_TERMINATOR);
         stat_info->reason_phrase = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 5,
                                                       linelen - (SIP2_HDR_LEN + 5),ENC_UTF_8|ENC_NA);
         DPRINT(("got Response: %s",
-                tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1)));
+                tvb_format_text(pinfo->pool, tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1)));
         break;
 
     case OTHER_LINE:
@@ -3576,7 +3576,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         if (sip_tree) {
             reqresp_tree = proto_tree_add_subtree_format(sip_tree, tvb, offset, next_offset,
                                      ett_sip_reqresp, NULL, "%s line: %s", descr,
-                                     tvb_format_text(tvb, offset, linelen));
+                                     tvb_format_text(pinfo->pool, tvb, offset, linelen));
             /* XXX: Is adding to 'reqresp_tree as intended ? Changed from original 'sip_tree' */
             proto_tree_add_item(reqresp_tree, hf_sip_continuation, tvb, offset, -1, ENC_NA);
         }
@@ -3678,7 +3678,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     proto_item *ti_c;
                     proto_tree *ti_tree = proto_tree_add_subtree(hdr_tree, tvb,
                                                          offset, next_offset - offset, ett_sip_ext_hdr, &ti_c,
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         tvb_format_text(pinfo->pool, tvb, offset, linelen));
 
                     ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
                     if (ext_hdr_handle != NULL) {
@@ -4690,20 +4690,27 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     }
 
     /* Registration responses - this info only makes sense in 2xx responses */
-    if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0) &&
-        stat_info && stat_info->response_code > 199 && stat_info->response_code < 300)
+    if (line_type == STATUS_LINE && stat_info)
     {
-        if (contacts_expires_0 > 0) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  (removed %d binding%s)",
-                contacts_expires_0, contacts_expires_0 == 1 ? "":"s");
-            if (contacts > contacts_expires_0) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " (%d binding%s kept)",
-                    contacts - contacts_expires_0,
-                    (contacts - contacts_expires_0 == 1) ? "":"s");
+        if (stat_info->response_code == 200)
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", cseq_method);
+        }
+        if ((strcmp(cseq_method, "REGISTER") == 0) &&
+            stat_info->response_code > 199 && stat_info->response_code < 300)
+        {
+            if (contacts_expires_0 > 0) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  (removed %d binding%s)",
+                    contacts_expires_0, contacts_expires_0 == 1 ? "":"s");
+                if (contacts > contacts_expires_0) {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " (%d binding%s kept)",
+                        contacts - contacts_expires_0,
+                        (contacts - contacts_expires_0 == 1) ? "":"s");
+                }
+            } else {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  (%d binding%s)",
+                    contacts, contacts == 1 ? "":"s");
             }
-        } else {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "  (%d binding%s)",
-                contacts, contacts == 1 ? "":"s");
         }
     }
 
@@ -4769,7 +4776,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
             /* The body is gzip:ed */
             next_tvb = tvb_uncompress(tvb, offset,  datalen);
             if (next_tvb) {
-                add_new_data_source(pinfo, next_tvb, "gunziped data");
+                add_new_data_source(pinfo, next_tvb, "gunzipped data");
                 if(sip_tree) {
                     ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
                                          ENC_NA);
@@ -5200,7 +5207,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
             if (global_sip_raw_text_without_crlf)
                 str = tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, linelen);
             else
-                str = tvb_format_text(tvb, offset, linelen);
+                str = tvb_format_text(wmem_packet_scope(), tvb, offset, linelen);
             proto_tree_add_string_format(raw_tree, hf_sip_raw_line, tvb, offset, linelen,
                              str,
                              "%s",

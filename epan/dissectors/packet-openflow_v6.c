@@ -2948,7 +2948,7 @@ dissect_openflow_port_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
     /* uint8_t hw_addr[OFP_ETH_ALEN]; */
     proto_tree_add_item(port_tree, hf_openflow_v6_port_hw_addr, tvb, offset, OFP_ETH_ALEN, ENC_NA);
-    proto_item_append_text(port_tree, ": %s", tvb_ether_to_str(tvb, offset));
+    proto_item_append_text(port_tree, ": %s", tvb_ether_to_str(pinfo->pool, tvb, offset));
     offset+=OFP_ETH_ALEN;
 
     /* uint8_t pad2[2]; */

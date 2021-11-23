@@ -20,15 +20,9 @@ class CaptureFilterSyntaxWorker : public QObject
 
 public:
     CaptureFilterSyntaxWorker(QObject *parent = 0) : QObject(parent) {}
-    void checkFilter(const QString &filter);
 
 public slots:
-    void start();
-
-private:
-    QMutex data_mtx_;
-    QWaitCondition data_cond_;
-    QString filter_text_;
+    void checkFilter(const QString filter);
 
 signals:
     void syntaxResult(QString filter, int state, QString err_msg);

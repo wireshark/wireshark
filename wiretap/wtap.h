@@ -290,6 +290,7 @@ extern "C" {
 #define WTAP_ENCAP_SLL2                         210
 #define WTAP_ENCAP_ZWAVE_SERIAL                 211
 #define WTAP_ENCAP_ETW                          212
+#define WTAP_ENCAP_ERI_ENB_LOG                  213
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -1323,7 +1324,16 @@ typedef struct {
     guint32   length;           /* length of the record */
     guint32   pen;              /* private enterprise number */
     gboolean  copy_allowed;     /* CB can be written */
+    union {
+        struct nflx {
+            guint32   type;             /* block type */
+            guint32   skipped;          /* Used if type == BBLOG_TYPE_SKIPPED_BLOCK */
+        } nflx_custom_data_header;
+    } custom_data_header;
 } wtap_custom_block_header;
+
+#define BBLOG_TYPE_EVENT_BLOCK   1
+#define BBLOG_TYPE_SKIPPED_BLOCK 2
 
 typedef struct {
     guint     rec_type;          /* what type of record is this? */
@@ -1752,6 +1762,10 @@ gboolean wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
 WS_DLL_PUBLIC
 void wtap_rec_init(wtap_rec *rec);
 
+/*** Re-initialize a wtap_rec structure ***/
+WS_DLL_PUBLIC
+void wtap_rec_reset(wtap_rec *rec);
+
 /*** clean up a wtap_rec structure, freeing what wtap_rec_init() allocated */
 WS_DLL_PUBLIC
 void wtap_rec_cleanup(wtap_rec *rec);
@@ -1761,7 +1775,9 @@ void wtap_rec_cleanup(wtap_rec *rec);
  */
 typedef enum {
     WTAP_UNCOMPRESSED,
-    WTAP_GZIP_COMPRESSED
+    WTAP_GZIP_COMPRESSED,
+    WTAP_ZSTD_COMPRESSED,
+    WTAP_LZ4_COMPRESSED
 } wtap_compression_type;
 
 WS_DLL_PUBLIC
@@ -2220,6 +2236,8 @@ WS_DLL_PUBLIC
 void wtap_register_open_info(struct open_info *oi, const gboolean first_routine);
 WS_DLL_PUBLIC
 gboolean wtap_has_open_info(const gchar *name);
+WS_DLL_PUBLIC
+gboolean wtap_uses_lua_filehandler(const wtap* wth);
 WS_DLL_PUBLIC
 void wtap_deregister_open_info(const gchar *name);
 

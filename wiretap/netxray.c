@@ -1621,6 +1621,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, wtap_rec *rec,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	if (netxray->version_major == 0) {
 		rec->presence_flags = WTAP_HAS_TS;
 		t = (double)pletoh32(&hdr.old_hdr.timelo)

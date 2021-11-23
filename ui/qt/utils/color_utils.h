@@ -22,7 +22,6 @@
 
 class ColorUtils : public QObject
 {
-    Q_OBJECT
 public:
     explicit ColorUtils(QObject *parent = 0);
 
@@ -76,10 +75,6 @@ public:
      * @return The background color.
      */
     static const QColor warningBackground();
-
-signals:
-
-public slots:
 
 private:
     static QList<QRgb> graph_colors_;

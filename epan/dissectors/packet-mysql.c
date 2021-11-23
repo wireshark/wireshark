@@ -1201,6 +1201,7 @@ typedef struct mysql_conn_data {
 	gboolean is_mariadb_client; /* set to 1, if connected from a MariaDB client */
 	guint32 mariadb_server_ext_caps;
 	guint32 mariadb_client_ext_caps;
+	guint64 remaining_field_packet_count;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -1375,6 +1376,21 @@ static void mysql_set_conn_state(packet_info *pinfo, mysql_conn_data_t *conn_dat
 	}
 }
 
+static guint64 mysql_get_remaining_field_packet_count(mysql_conn_data_t *conn_data)
+{
+	return conn_data->remaining_field_packet_count;
+}
+
+static void mysql_dec_remaining_field_packet_count(mysql_conn_data_t *conn_data)
+{
+	conn_data->remaining_field_packet_count--;
+}
+
+static void mysql_set_remaining_field_packet_count(mysql_conn_data_t *conn_data, guint64 num_fields)
+{
+	conn_data->remaining_field_packet_count = num_fields;
+}
+
 static int
 mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		       proto_tree *tree, mysql_conn_data_t *conn_data)
@@ -1415,7 +1431,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s ",
-			tvb_format_text(tvb, conn_data->is_mariadb_server ? offset + 6 : offset, conn_data->is_mariadb_server ? lenstr - 7 : lenstr-1));
+			tvb_format_text(pinfo->pool, tvb, conn_data->is_mariadb_server ? offset + 6 : offset, conn_data->is_mariadb_server ? lenstr - 7 : lenstr-1));
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
@@ -1583,7 +1599,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	/* User name */
 	lenstr = my_tvb_strsize(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s ",
-			tvb_format_text(tvb, offset, lenstr-1));
+			tvb_format_text(pinfo->pool, tvb, offset, lenstr-1));
 	proto_tree_add_item(login_tree, hf_mysql_user, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 	offset += lenstr;
 
@@ -1614,7 +1630,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 
 		col_append_fstr(pinfo->cinfo, COL_INFO, "db=%s ",
-			tvb_format_text(tvb, offset, lenstr-1));
+			tvb_format_text(pinfo->pool, tvb, offset, lenstr-1));
 		col_set_fence(pinfo->cinfo, COL_INFO);
 
 		proto_tree_add_item(login_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
@@ -1875,7 +1891,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		if (mysql_showquery) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",
-					tvb_format_text(tvb, offset, lenstr));
+					tvb_format_text(pinfo->pool, tvb, offset, lenstr));
 			col_set_fence(pinfo->cinfo, COL_INFO);
 		}
 		offset += lenstr;
@@ -2217,8 +2233,12 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		/* pre-4.1 packet ends here */
 		if (tvb_reported_length_remaining(tvb, offset)) {
-			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			offset = mysql_dissect_server_status(tvb, offset+2, tree, &server_status);
+			if (conn_data->clnt_caps_ext & MYSQL_CAPS_DE) {
+				offset = mysql_dissect_ok_packet(tvb, pinfo, offset, tree, conn_data);
+			} else {
+				proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
+			}
 		}
 
 		switch (current_state) {
@@ -2284,6 +2304,10 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		case RESPONSE_PREPARE:
 		case PREPARED_PARAMETERS:
 			offset = mysql_dissect_field_packet(tvb, offset, tree, conn_data);
+			mysql_dec_remaining_field_packet_count(conn_data);
+			if ((conn_data->clnt_caps_ext & MYSQL_CAPS_DE) && (mysql_get_remaining_field_packet_count(conn_data) == 0)) {
+				mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
+			}
 			break;
 
 		case ROW_PACKET:
@@ -2588,6 +2612,7 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	if (num_fields) {
 		mysql_set_conn_state(pinfo, conn_data, FIELD_PACKET);
+		mysql_set_remaining_field_packet_count(conn_data, num_fields);
 	} else {
 		mysql_set_conn_state(pinfo, conn_data, ROW_PACKET);
 	}

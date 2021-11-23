@@ -860,7 +860,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
            case AT_ETHER:
              proto_tree_add_bytes_format_value( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32,
                                           NULL, "%s",
-                                          tvb_ether_to_str(tvb, offset));
+                                          tvb_ether_to_str(pinfo->pool, tvb, offset));
              break;
 
            default:

@@ -811,7 +811,7 @@ static const unit_name_string mb_unit = {"MB", NULL};
 static int
 dissect_loginserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, gboolean first_fragment )
 {
-    ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+    ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 
     col_append_str(pinfo->cinfo, COL_INFO, first_fragment ? " commands:" : ",");
     len += offset;
@@ -966,7 +966,7 @@ dissect_coord(ptvcursor_t *ptvc, gboolean with_stackpos)
 static int
 dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, gboolean first_fragment)
 {
-    ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+    ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 
     col_append_str(pinfo->cinfo, COL_INFO, first_fragment ? " commands:" : ",");
     len += offset;
@@ -1169,7 +1169,7 @@ dissect_gameserv_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, in
 static int
 dissect_client_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, int len, packet_info *pinfo, proto_tree *tree, gboolean first_fragment)
 {
-    ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+    ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 
     col_append_str(pinfo->cinfo, COL_INFO, first_fragment ? " commands:" : ",");
     len += offset;

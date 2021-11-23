@@ -234,7 +234,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
 /* returns register number */
 static int
-dfw_append_put_pcre(dfwork_t *dfw, GRegex *pcre)
+dfw_append_put_pcre(dfwork_t *dfw, ws_regex_t *pcre)
 {
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2;
@@ -427,7 +427,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		reg = dfw_append_function(dfw, st_arg, p_jmp);
 	}
 	else if (e_type == STTYPE_PCRE) {
-		reg = dfw_append_put_pcre(dfw, (GRegex *)stnode_steal_data(st_arg));
+		reg = dfw_append_put_pcre(dfw, stnode_steal_data(st_arg));
 	}
 	else {
 		/* printf("sttype_id is %u\n", (unsigned)e_type); */
@@ -507,11 +507,15 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			val1->value.numeric = dfw->next_insn_id;
 			break;
 
-		case TEST_OP_EQ:
+		case TEST_OP_ANY_EQ:
 			gen_relation(dfw, ANY_EQ, st_arg1, st_arg2);
 			break;
 
-		case TEST_OP_NE:
+		case TEST_OP_ALL_NE:
+			gen_relation(dfw, ALL_NE, st_arg1, st_arg2);
+			break;
+
+		case TEST_OP_ANY_NE:
 			gen_relation(dfw, ANY_NE, st_arg1, st_arg2);
 			break;
 

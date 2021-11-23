@@ -167,13 +167,26 @@ static guint32 calling_AP_title_len = 0;
 static guint32 key_id_element_len = 0;
 static guint32 iv_element_len = 0;
 
+/* these are the related allocation sizes (which might be different from the lengths) */
+static guint32 aSO_context_allocated = 0;
+static guint32 called_AP_title_allocated = 0;
+static guint32 called_AP_invocation_id_allocated = 0;
+static guint32 calling_AE_qualifier_allocated = 0;
+static guint32 calling_AP_invocation_id_allocated = 0;
+static guint32 mechanism_name_allocated = 0;
+static guint32 calling_authentication_value_allocated = 0;
+static guint32 user_information_allocated = 0;
+static guint32 calling_AP_title_allocated = 0;
+static guint32 key_id_element_allocated = 0;
+static guint32 iv_element_allocated = 0;
+
 #include "packet-c1222-ett.c"
 
 static expert_field ei_c1222_command_truncated = EI_INIT;
 static expert_field ei_c1222_bad_checksum = EI_INIT;
 static expert_field ei_c1222_epsem_missing = EI_INIT;
 static expert_field ei_c1222_epsem_failed_authentication = EI_INIT;
-static expert_field ei_c1222_epsem_not_decryped = EI_INIT;
+static expert_field ei_c1222_epsem_not_decrypted = EI_INIT;
 static expert_field ei_c1222_ed_class_missing = EI_INIT;
 static expert_field ei_c1222_epsem_ber_length_error = EI_INIT;
 static expert_field ei_c1222_epsem_field_length_error = EI_INIT;
@@ -300,11 +313,13 @@ static uat_t *c1222_uat;
 #define FILL_TABLE(fieldname)  \
   length = offset - start_offset; \
   fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
-  fieldname##_len = length;
+  fieldname##_len = length; \
+  fieldname##_allocated = length;
 #define FILL_TABLE_TRUNCATE(fieldname, len)  \
   length = 1 + 2*(offset - start_offset); \
   fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
-  fieldname##_len = len;
+  fieldname##_len = len; \
+  fieldname##_allocated = length;
 #define FILL_TABLE_APTITLE(fieldname) \
   length = offset - start_offset; \
   switch (tvb_get_guint8(tvb, start_offset)) { \
@@ -312,6 +327,7 @@ static uat_t *c1222_uat;
       tvb_ensure_bytes_exist(tvb, start_offset, length); \
       fieldname##_len = length + c1222_baseoid_len; \
       fieldname = (guint8 *)wmem_alloc(actx->pinfo->pool, fieldname##_len); \
+      fieldname##_allocated = fieldname##_len; \
       fieldname[0] = 0x06;  /* create absolute OID tag */ \
       fieldname[1] = (fieldname##_len - 2) & 0xff;  \
       memcpy(&(fieldname[2]), c1222_baseoid, c1222_baseoid_len); \
@@ -321,6 +337,7 @@ static uat_t *c1222_uat;
     default: \
       fieldname = (guint8 *)tvb_memdup(actx->pinfo->pool, tvb, start_offset, length); \
       fieldname##_len = length; \
+      fieldname##_allocated = length; \
       break; \
   }
 
@@ -641,21 +658,23 @@ typedef struct tagTOP_ELEMENT_CONTROL
   guint8 **element;
   /* pointer to element length */
   guint32 *length;
+  /* pointer to element allocated size */
+  guint32 *allocated;
 } TOP_ELEMENT_CONTROL;
 
 static const TOP_ELEMENT_CONTROL canonifyTable[] = {
-  { FALSE, FALSE, 0xA1, TRUE, &aSO_context, &aSO_context_len },
-  { TRUE , FALSE, 0xA2, TRUE, &called_AP_title, &called_AP_title_len },
-  { FALSE, FALSE, 0xA4, TRUE, &called_AP_invocation_id, &called_AP_invocation_id_len },
-  { FALSE, FALSE, 0xA7, TRUE, &calling_AE_qualifier, &calling_AE_qualifier_len },
-  { TRUE,  FALSE, 0xA8, TRUE, &calling_AP_invocation_id, &calling_AP_invocation_id_len },
-  { FALSE, FALSE, 0x8B, TRUE, &mechanism_name, &mechanism_name_len },
-  { FALSE, FALSE, 0xAC, TRUE, &calling_authentication_value, &calling_authentication_value_len },
-  { TRUE , TRUE , 0xBE, TRUE, &user_information, &user_information_len },
-  { FALSE, FALSE, 0xA6, TRUE, &calling_AP_title, &calling_AP_title_len },
-  { FALSE, FALSE, 0xAC, FALSE, &key_id_element, &key_id_element_len },
-  { FALSE, FALSE, 0xAC, FALSE, &iv_element, &iv_element_len },
-  { FALSE, FALSE, 0x0,  TRUE, NULL, NULL }
+  { FALSE, FALSE, 0xA1, TRUE, &aSO_context, &aSO_context_len, &aSO_context_allocated },
+  { TRUE , FALSE, 0xA2, TRUE, &called_AP_title, &called_AP_title_len, &called_AP_title_allocated },
+  { FALSE, FALSE, 0xA4, TRUE, &called_AP_invocation_id, &called_AP_invocation_id_len, &called_AP_invocation_id_allocated },
+  { FALSE, FALSE, 0xA7, TRUE, &calling_AE_qualifier, &calling_AE_qualifier_len, &calling_AE_qualifier_allocated },
+  { TRUE,  FALSE, 0xA8, TRUE, &calling_AP_invocation_id, &calling_AP_invocation_id_len, &calling_AP_invocation_id_allocated },
+  { FALSE, FALSE, 0x8B, TRUE, &mechanism_name, &mechanism_name_len, &mechanism_name_allocated },
+  { FALSE, FALSE, 0xAC, TRUE, &calling_authentication_value, &calling_authentication_value_len, &calling_authentication_value_allocated },
+  { TRUE , TRUE , 0xBE, TRUE, &user_information, &user_information_len, &user_information_allocated },
+  { FALSE, FALSE, 0xA6, TRUE, &calling_AP_title, &calling_AP_title_len, &calling_AP_title_allocated },
+  { FALSE, FALSE, 0xAC, FALSE, &key_id_element, &key_id_element_len, &key_id_element_allocated },
+  { FALSE, FALSE, 0xAC, FALSE, &iv_element, &iv_element_len, &iv_element_allocated },
+  { FALSE, FALSE, 0x0,  TRUE, NULL, NULL, NULL }
 };
 
 static void
@@ -765,11 +784,12 @@ static gboolean
 canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
 {
   const TOP_ELEMENT_CONTROL *t = canonifyTable;
-  guint32 len;
+  guint32 len, allocated;
 
   for (t = canonifyTable; t->element != NULL; t++)
   {
     len = *(t->length);
+    allocated = *(t->allocated);
     if (t->required && *(t->element) == NULL)
       return FALSE;
     if (*(t->element) != NULL) {
@@ -784,6 +804,11 @@ canonify_unencrypted_header(guchar *buff, guint32 *offset, guint32 buffsize)
       /* bail out if the cannonization buffer is too small */
       /* this should never happen! */
       if (buffsize < *offset + len) {
+        return FALSE;
+      }
+      /* bail out if our we're trying to read past the end of our element */
+      /* the network is always hostile */
+      if (allocated < len) {
         return FALSE;
       }
       memcpy(&buff[*offset], *(t->element), len);
@@ -990,7 +1015,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   /* it's only encrypted if we have an undecrypted payload */
   if (encrypted) {
     proto_tree_add_item(tree, hf_c1222_epsem_total, tvb, offset, -1, ENC_NA);
-    expert_add_info(pinfo, tree, &ei_c1222_epsem_not_decryped);
+    expert_add_info(pinfo, tree, &ei_c1222_epsem_not_decrypted);
     local_offset = offset+len2-4;
     epsem_buffer = tvb;
   } else {  /* it's not (now) encrypted */
@@ -1368,7 +1393,7 @@ void proto_register_c1222(void) {
     { &ei_c1222_bad_checksum, { "c1222.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_c1222_epsem_missing, { "c1222.epsem.missing", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM missing", EXPFILL }},
     { &ei_c1222_epsem_failed_authentication, { "c1222.epsem.failed_authentication", PI_SECURITY, PI_ERROR, "C12.22 EPSEM failed authentication", EXPFILL }},
-    { &ei_c1222_epsem_not_decryped, { "c1222.epsem.not_decryped", PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted", EXPFILL }},
+    { &ei_c1222_epsem_not_decrypted, { "c1222.epsem.not_decrypted", PI_UNDECODED, PI_WARN, "C12.22 EPSEM could not be decrypted", EXPFILL }},
     { &ei_c1222_ed_class_missing, { "c1222.ed_class_missing", PI_SECURITY, PI_ERROR, "C12.22 ED Class missing", EXPFILL }},
     { &ei_c1222_epsem_ber_length_error, { "c1222.epsem.ber_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM BER length error", EXPFILL }},
     { &ei_c1222_epsem_field_length_error, { "c1222.epsem.field_length_error", PI_MALFORMED, PI_ERROR, "C12.22 EPSEM field length error", EXPFILL }},

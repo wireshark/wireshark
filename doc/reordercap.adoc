@@ -1,0 +1,78 @@
+include::../docbook/attributes.adoc[]
+= reordercap(1)
+:doctype: manpage
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
+
+== NAME
+
+reordercap - Reorder input file by timestamp into output file
+
+== SYNOPSIS
+
+[manarg]
+*reordercap*
+[ *-n* ]
+[ *-v* ]
+<__infile__> <__outfile__>
+
+== DESCRIPTION
+
+*Reordercap* is a program that reads an input capture file and rewrites the
+frames to an output capture file, but with the frames sorted by increasing
+timestamp.
+
+This functionality may be useful when capture files have been created by
+combining frames from more than one well-synchronised source, but the
+frames have not been combined in strict time order.
+
+*Reordercap* writes the output capture file in the same format as the input
+capture file.
+
+*Reordercap* is able to detect, read and write the same capture files that
+are supported by *Wireshark*.
+The input file doesn't need a specific filename extension; the file
+format and an optional gzip, zstd or lz4 compression will be automatically detected.
+Near the beginning of the DESCRIPTION section of xref:wireshark.html[wireshark](1) or
+https://www.wireshark.org/docs/man-pages/wireshark.html
+is a detailed description of the way *Wireshark* handles this, which is
+the same way *reordercap* handles this.
+
+== OPTIONS
+
+-n::
++
+--
+When the *-n* option is used, *reordercap* will not write out the output
+file if it finds that the input file is already in order.
+--
+
+-v::
++
+--
+Print the version and exit.
+--
+
+== SEE ALSO
+
+xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:editcap.html[editcap](1), xref:mergecap.html[mergecap](1),
+xref:text2pcap.html[text2pcap](1), xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8)
+
+== NOTES
+
+This is the manual page for *Reordercap* {wireshark-version}.
+*Reordercap* is part of the *Wireshark* distribution.
+The latest version of *Wireshark* can be found at https://www.wireshark.org.
+
+It may make sense to move this functionality into *editcap*, or perhaps *mergecap*, in which case *reordercap* could be retired.
+
+HTML versions of the Wireshark project man pages are available at
+https://www.wireshark.org/docs/man-pages.
+
+== AUTHORS
+
+.Original Author
+[%hardbreaks]
+Martin Mathieson <martin.r.mathieson[AT]googlemail.com>
+

@@ -12,25 +12,13 @@
 #ifndef __EXTCAP_BASE_H__
 #define __EXTCAP_BASE_H__
 
-#include "config.h"
 
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <stdlib.h>
 #include <stdint.h>
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-	#include <getopt.h>
-#else
-	#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #ifdef _WIN32
 	#include <io.h>
@@ -52,16 +40,16 @@
 
 
 #define EXTCAP_BASE_OPTIONS \
-	{ "extcap-interfaces", no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
-	{ "extcap-version", optional_argument, NULL, EXTCAP_OPT_VERSION}, \
-	{ "extcap-dlts", no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
-	{ "extcap-interface", required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
-	{ "extcap-config", no_argument, NULL, EXTCAP_OPT_CONFIG}, \
-	{ "capture", no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
-	{ "extcap-capture-filter", required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
-	{ "fifo", required_argument, NULL, EXTCAP_OPT_FIFO}, \
-	{ "debug", no_argument, NULL, EXTCAP_OPT_DEBUG}, \
-	{ "debug-file", required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
+	{ "extcap-interfaces", ws_no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
+	{ "extcap-version", ws_optional_argument, NULL, EXTCAP_OPT_VERSION}, \
+	{ "extcap-dlts", ws_no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
+	{ "extcap-interface", ws_required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
+	{ "extcap-config", ws_no_argument, NULL, EXTCAP_OPT_CONFIG}, \
+	{ "capture", ws_no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
+	{ "extcap-capture-filter", ws_required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
+	{ "fifo", ws_required_argument, NULL, EXTCAP_OPT_FIFO}, \
+	{ "debug", ws_no_argument, NULL, EXTCAP_OPT_DEBUG}, \
+	{ "debug-file", ws_required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
 
 typedef struct _extcap_parameters
 {

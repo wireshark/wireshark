@@ -47,6 +47,7 @@ static gboolean hcidump_read_packet(FILE_T fh, wtap_rec *rec,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 	rec->ts.secs = GUINT32_FROM_LE(dh.ts_sec);
 	rec->ts.nsecs = GUINT32_FROM_LE(dh.ts_usec) * 1000;

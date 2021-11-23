@@ -231,9 +231,9 @@
      <addaction name="actionHelpMPDumpcap"/>
      <addaction name="actionHelpMPEditcap"/>
      <addaction name="actionHelpMPMergecap"/>
-     <addaction name="actionHelpMPRawShark"/>
+     <addaction name="actionHelpMPRawshark"/>
      <addaction name="actionHelpMPReordercap"/>
-     <addaction name="actionHelpMPText2cap"/>
+     <addaction name="actionHelpMPText2pcap"/>
      <addaction name="actionHelpMPTShark"/>
     </widget>
     <addaction name="actionHelpContents"/>
@@ -622,6 +622,8 @@
     <addaction name="menuTelephonySCTP"/>
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
+    <addaction name="actionTelephonyF1APMessages"/>
+    <addaction name="actionTelephonyNGAPMessages"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -898,9 +900,9 @@
     <string>TShark</string>
    </property>
   </action>
-  <action name="actionHelpMPRawShark">
+  <action name="actionHelpMPRawshark">
    <property name="text">
-    <string>RawShark</string>
+    <string>Rawshark</string>
    </property>
   </action>
   <action name="actionHelpMPDumpcap">
@@ -918,9 +920,9 @@
     <string>Editcap</string>
    </property>
   </action>
-  <action name="actionHelpMPText2cap">
+  <action name="actionHelpMPText2pcap">
    <property name="text">
-    <string>Text2cap</string>
+    <string>Text2pcap</string>
    </property>
   </action>
   <action name="actionHelpWebsite">
@@ -1964,6 +1966,22 @@
    </property>
    <property name="toolTip">
     <string>UCP message statistics</string>
+   </property>
+  </action>
+  <action name="actionTelephonyF1APMessages">
+   <property name="text">
+    <string>F1AP</string>
+   </property>
+   <property name="toolTip">
+    <string>F1AP Messages</string>
+   </property>
+  </action>
+  <action name="actionTelephonyNGAPMessages">
+   <property name="text">
+    <string>NGAP</string>
+   </property>
+   <property name="toolTip">
+    <string>NGAP Messages</string>
    </property>
   </action>
   <action name="actionAnalyzeDecodeAs">

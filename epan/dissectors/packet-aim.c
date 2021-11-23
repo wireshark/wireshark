@@ -853,7 +853,7 @@ dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 	{
 		buddy_tree = proto_tree_add_subtree_format(tree, tvb, offset-1, 1+buddyname_length,
 					 ett_aim_buddyname, NULL, "Buddy: %s",
-					 tvb_format_text(tvb, offset, buddyname_length));
+					 tvb_format_text(pinfo->pool, tvb, offset, buddyname_length));
 		proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
 	}
@@ -1235,7 +1235,7 @@ dissect_aim_tlv_value_uint16 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb
 static int
 dissect_aim_tlv_value_ipv4 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb, packet_info *pinfo _U_)
 {
-	proto_item_set_text(ti, "Value: %s", tvb_ip_to_str(tvb, 0));
+	proto_item_set_text(ti, "Value: %s", tvb_ip_to_str(pinfo->pool, tvb, 0));
 	return 4;
 }
 

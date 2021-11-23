@@ -802,18 +802,18 @@ call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 }
 
 static kerberos_private_data_t*
-kerberos_new_private_data(void)
+kerberos_new_private_data(packet_info *pinfo)
 {
 	kerberos_private_data_t *p;
 
-	p = wmem_new0(wmem_packet_scope(), kerberos_private_data_t);
+	p = wmem_new0(pinfo->pool, kerberos_private_data_t);
 	if (p == NULL) {
 		return NULL;
 	}
 
-	p->decryption_keys = wmem_list_new(wmem_packet_scope());
-	p->learnt_keys = wmem_list_new(wmem_packet_scope());
-	p->missing_keys = wmem_list_new(wmem_packet_scope());
+	p->decryption_keys = wmem_list_new(pinfo->pool);
+	p->learnt_keys = wmem_list_new(pinfo->pool);
+	p->missing_keys = wmem_list_new(pinfo->pool);
 
 	return p;
 }
@@ -822,7 +822,7 @@ static kerberos_private_data_t*
 kerberos_get_private_data(asn1_ctx_t *actx)
 {
 	if (!actx->private_data) {
-		actx->private_data = kerberos_new_private_data();
+		actx->private_data = kerberos_new_private_data(actx->pinfo);
 	}
 	return (kerberos_private_data_t *)(actx->private_data);
 }
@@ -1998,7 +1998,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int keytype,
 					int *datalen)
 {
-	kerberos_private_data_t *zero_private = kerberos_new_private_data();
+	kerberos_private_data_t *zero_private = kerberos_new_private_data(pinfo);
 	return decrypt_krb5_data_private(tree, pinfo, zero_private,
 					 usage, cryptotvb, keytype,
 					 datalen);
@@ -2148,7 +2148,7 @@ decrypt_krb5_krb_cfx_dce(proto_tree *tree,
 			 tvbuff_t *checksum_tvb)
 {
 	struct decrypt_krb5_krb_cfx_dce_state state;
-	kerberos_private_data_t *zero_private = kerberos_new_private_data();
+	kerberos_private_data_t *zero_private = kerberos_new_private_data(pinfo);
 	tvbuff_t *gssapi_decrypted_tvb = NULL;
 	krb5_error_code ret;
 
@@ -2825,7 +2825,7 @@ decrypt_krb5_data(proto_tree *tree _U_, packet_info *pinfo,
 					int keytype,
 					int *datalen)
 {
-	kerberos_private_data_t *zero_private = kerberos_new_private_data();
+	kerberos_private_data_t *zero_private = kerberos_new_private_data(pinfo);
 	krb5_error_code ret;
 	krb5_data data;
 	enc_key_t *ek;
@@ -5342,7 +5342,7 @@ dissect_kerberos_T_address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   switch(private_data->addr_type){
   case KERBEROS_ADDR_TYPE_IPV4:
     it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-    address_str = tvb_ip_to_str(tvb, offset);
+    address_str = tvb_ip_to_str(actx->pinfo->pool, tvb, offset);
     break;
   case KERBEROS_ADDR_TYPE_NETBIOS:
     {
@@ -5357,7 +5357,7 @@ dissect_kerberos_T_address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     break;
   case KERBEROS_ADDR_TYPE_IPV6:
     it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
-    address_str = tvb_ip6_to_str(tvb, offset);
+    address_str = tvb_ip6_to_str(actx->pinfo->pool, tvb, offset);
     break;
   default:
     proto_tree_add_expert(tree, actx->pinfo, &ei_kerberos_address, tvb, offset, len);

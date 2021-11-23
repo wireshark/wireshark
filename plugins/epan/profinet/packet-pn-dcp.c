@@ -1258,8 +1258,6 @@ dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item *block_item;
     proto_tree *block_tree;
     int         ori_offset = offset;
-    guint8      suboption;
-    guint16     block_length;
 
     /* subtree for block */
     block_item = proto_tree_add_none_format(tree, hf_pn_dcp_block,
@@ -1301,9 +1299,7 @@ dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo,
     {
         pn_append_info(pinfo, dcp_item, ", Reserved");
         proto_item_append_text(block_item, "Reserved");
-        offset = dissect_pn_uint8(tvb, offset, pinfo, block_tree, hf_pn_dcp_suboption_control, &suboption);
-        offset = dissect_pn_uint16(tvb, offset, pinfo, block_tree, hf_pn_dcp_block_length, &block_length);
-        offset = dissect_pn_undecoded(tvb, offset, pinfo, block_tree, block_length);
+        /* there isn't a predefined suboption type for reserved option, rest of the block will be seen as padding */
     }
 
     proto_item_set_len(block_item, offset-ori_offset);

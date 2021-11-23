@@ -368,7 +368,7 @@ tvb_arphrdaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
   if (ARP_HW_IS_ETHER(type, ad_len)) {
     /* Ethernet address (or IEEE 802.x address, which is the same type of
        address). */
-    return tvb_ether_to_str(tvb, offset);
+    return tvb_ether_to_str(wmem_packet_scope(), tvb, offset);
   }
   return tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, ad_len);
 }

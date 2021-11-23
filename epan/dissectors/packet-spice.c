@@ -275,6 +275,7 @@ enum {
     SPICE_DISPLAY_CAP_CODEC_H264,
     SPICE_DISPLAY_CAP_PREF_VIDEO_CODEC_TYPE,
     SPICE_DISPLAY_CAP_CODEC_VP9,
+    SPICE_DISPLAY_CAP_CODEC_H265,
     /* Number of bits to display for capabilities of the display channel. */
     DISPLAY_CAP_NBITS
 };
@@ -293,7 +294,9 @@ enum {
     SPICE_DISPLAY_CAP_CODEC_VP8_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_VP8),
     SPICE_DISPLAY_CAP_CODEC_H264_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_H264),
     SPICE_DISPLAY_CAP_PREF_VIDEO_CODEC_TYPE_MASK = (1 << SPICE_DISPLAY_CAP_PREF_VIDEO_CODEC_TYPE),
-    SPICE_DISPLAY_CAP_CODEC_VP9_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_VP9)
+    SPICE_DISPLAY_CAP_CODEC_VP9_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_VP9),
+    SPICE_DISPLAY_CAP_CODEC_H265_MASK = (1 << SPICE_DISPLAY_CAP_CODEC_H265)
+
 };
 
 /* display channel */
@@ -687,6 +690,7 @@ static int hf_display_cap_codec_vp8 = -1;
 static int hf_display_cap_codec_h264 = -1;
 static int hf_display_cap_pref_video_codec_type = -1;
 static int hf_display_cap_codec_vp9 = -1;
+static int hf_display_cap_codec_h265 = -1;
 static int hf_main_uuid = -1;
 static int hf_main_name = -1;
 static int hf_main_name_len = -1;
@@ -2974,6 +2978,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
                     &hf_display_cap_codec_h264,
                     &hf_display_cap_pref_video_codec_type,
                     &hf_display_cap_codec_vp9,
+                    &hf_display_cap_codec_h265,
                     NULL
                 };
 
@@ -3676,6 +3681,11 @@ proto_register_spice(void)
         { &hf_display_cap_codec_vp9,
           { "VP9 codec display channel support", "spice.display_cap_codec_vp9",
             FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_CODEC_VP9_MASK,
+            NULL, HFILL }
+        },
+        { &hf_display_cap_codec_h265,
+          { "H265 codec display channel support", "spice.display_cap_codec_h265",
+            FT_BOOLEAN, DISPLAY_CAP_NBITS, TFS(&tfs_set_notset), SPICE_DISPLAY_CAP_CODEC_H265_MASK,
             NULL, HFILL }
         },
         { &hf_cursor_cap,

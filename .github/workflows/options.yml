@@ -13,7 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Install deps
-        run: sudo tools/debian-setup.sh ninja-build -y
+        run: |
+          sudo tools/debian-setup.sh --install-optional ninja-build -y
+          sudo gem install asciidoctor
       - run: mkdir build
       - name: CMake
         run: >-

@@ -67,6 +67,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
   }
 
   rec->rec_type = REC_TYPE_PACKET;
+  rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 
   /* The next 4 bytes are the packet length */
   packet_size = pntoh32(&stanag_pkt_hdr[2]);

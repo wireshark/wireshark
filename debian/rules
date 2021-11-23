@@ -31,10 +31,10 @@ else
 endif
 
 %:
-	dh $@ --with python3 --buildsystem $(DH_BUILDSYSTEM) --with quilt --parallel
+	dh $@ --with python3 --buildsystem $(DH_BUILDSYSTEM) --with quilt
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DBUILD_xxx2deb=ON
+	dh_auto_configure -- -DBUILD_xxx2deb=ON -DBUILD_corbaidl2wrs=ON
 
 override_dh_auto_build:
 	# Ignore warnings from asn2wrs.py about duplicate field names.
@@ -48,6 +48,10 @@ ifneq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
 	# Required for the "unittests" suite.
 	$(MAKE) -C $(CURDIR)/obj-* test-programs
 endif
+
+override_dh_dwz:
+	# run dh_dwz only with debhelper (>= 12.6) to work around https://bugs.debian.org/939164
+	dpkg -l debhelper | awk '/debhelper/ {print $$3}' | xargs dpkg --compare-versions 12.6 gt || dh_dwz
 
 override_dh_strip:
 	dh_strip --dbg-package=wireshark-dbg

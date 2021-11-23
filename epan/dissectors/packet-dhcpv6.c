@@ -228,6 +228,7 @@ static int hf_capabilities_encoding_bytes = -1;
 static int hf_capabilities_encoding_number = -1;
 static int hf_cablelabs_ipv6_server = -1;
 static int hf_cablelabs_docsis_version_number = -1;
+static int hf_cablelabs_dpoe_server_version_number = -1;
 static int hf_cablelabs_interface_id = -1;
 static int hf_cablelabs_interface_id_link_address = -1;
 static int hf_option_s46_rule_flags = -1;
@@ -790,6 +791,7 @@ static const value_string lq_query_vals[] = {
 
 /** CableLabs TLVs for DOCS_CMTS_CAP Vendor Option **/
 #define CL_OPTION_DOCS_CMTS_TLV_VERS_NUM 0x01 /* 1 */
+#define CL_OPTION_DOCS_DPOE_TLV_VERS_NUM 0x02 /* 2 */
 
 static const value_string cl_vendor_subopt_values[] = {
     /*    1 */ { CL_OPTION_ORO,                     "Option Request = " },
@@ -1584,7 +1586,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 opt_len = tlv_len;
                 field_len = tlv_len;
                 proto_item_append_text(ti, "\"%s\"",
-                                       tvb_format_stringzpad(tvb, sub_off, field_len));
+                                       tvb_format_stringzpad(pinfo->pool, tvb, sub_off, field_len));
                 break;
             case CL_OPTION_VENDOR_OUI:
                 /* CableLabs specs treat 17.8 inconsistently
@@ -1594,7 +1596,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     proto_item_append_text(ti, "%s",
                         tvb_bytes_to_str_punct(pinfo->pool, tvb, sub_off, 3, ':'));
                 } else if (tlv_len == 6) {
-                    proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(tvb, sub_off, tlv_len));
+                    proto_item_append_text(ti, "\"%s\"", tvb_format_stringzpad(pinfo->pool, tvb, sub_off, tlv_len));
                 } else {
                     expert_add_info_format(pinfo, ti, &ei_dhcpv6_bogus_length, "Suboption %d: suboption length isn't 3 or 6", type);
                 }
@@ -1724,6 +1726,11 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                                 2, ENC_BIG_ENDIAN);
                             sub_off += 2;
                         }
+                        else if ((tag == CL_OPTION_DOCS_DPOE_TLV_VERS_NUM) && (tagLen == 2)) {
+                            proto_tree_add_item(subtree, hf_cablelabs_dpoe_server_version_number, tvb, sub_off,
+                                2, ENC_BIG_ENDIAN);
+                            sub_off += 2;
+                        }
                         else
                             sub_off += tagLen;
 
@@ -1798,6 +1805,13 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
 
 static void
 cablelabs_fmt_docsis_version( gchar *result, guint32 revision )
+{
+   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+}
+
+
+static void
+cablelabs_fmt_dpoe_server_version( gchar *result, guint32 revision )
 {
    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
@@ -2180,7 +2194,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
 
         proto_tree_add_item(subtree, hf_iaaddr_ip, tvb, off, 16, ENC_NA);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "IAA: %s ", tvb_ip6_to_str(tvb, off));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "IAA: %s ", tvb_ip6_to_str(pinfo->pool, tvb, off));
 
         preferred_lifetime = tvb_get_ntohl(tvb, off + 16);
         valid_lifetime = tvb_get_ntohl(tvb, off + 20);
@@ -2927,7 +2941,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           expert_add_info_format(pinfo, previous_pi, &ei_dhcpv6_error_hopcount, "hopcount is not correctly incremented by 1 (expected : %d, actual : %d)", hpi.hopcount + 1, previous_hopcount);
         }
         hpi.relay_message_previously_detected = TRUE;
-        col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", tvb_ip6_to_str(tvb, off + 2));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", tvb_ip6_to_str(pinfo->pool, tvb, off + 2));
         off += 34;
     } else {
         /* Check the inner hopcount equals 0 */
@@ -3412,6 +3426,8 @@ proto_register_dhcpv6(void)
           { "IPv6 address", "dhcpv6.cablelabs.ipv6_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_cablelabs_docsis_version_number,
           { "DOCSIS Version Number", "dhcpv6.cablelabs.docsis_version_number", FT_UINT16, BASE_CUSTOM, CF_FUNC(cablelabs_fmt_docsis_version), 0x0, NULL, HFILL}},
+        { &hf_cablelabs_dpoe_server_version_number,
+          { "DPoE Server Version Number", "dhcpv6.cablelabs.dpoe_server_version_number", FT_UINT16, BASE_CUSTOM, CF_FUNC(cablelabs_fmt_dpoe_server_version), 0x0, NULL, HFILL}},
         { &hf_cablelabs_interface_id,
           { "Interface-ID", "dhcpv6.cablelabs.interface_id", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_cablelabs_interface_id_link_address,

@@ -1,0 +1,184 @@
+include::../docbook/attributes.adoc[]
+= randpktdump(1)
+:doctype: manpage
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
+
+== NAME
+
+randpktdump - Provide an interface to generate random captures using randpkt
+
+== SYNOPSIS
+
+[manarg]
+*randpktdump*
+[ *--help* ]
+[ *--version* ]
+[ *--extcap-interfaces* ]
+[ *--extcap-dlts* ]
+[ *--extcap-interface*=<interface> ]
+[ *--extcap-config* ]
+[ *--capture* ]
+[ *--fifo*=<path to file or pipe> ]
+[ *--maxbytes*=<bytes> ]
+[ *--count*=<num> ]
+[ *--delay*=<ms> ]
+[ *--random-type*=<true|false> ]
+[ *--all-random*=<true|false> ]
+[ *--type*=<packet type> ]
+
+== DESCRIPTION
+
+*randpktdump* is a extcap tool that provides access to the random
+packet generator (randpkt). It is mainly used for testing and
+educational purpose.
+
+== OPTIONS
+
+--help::
++
+--
+Print program arguments.
+--
+
+--version::
++
+--
+Print program version.
+--
+
+--extcap-interfaces::
++
+--
+List available interfaces.
+--
+
+--extcap-interface=<interface>::
++
+--
+Use specified interfaces.
+--
+
+--extcap-dlts::
++
+--
+List DLTs of specified interface.
+--
+
+--extcap-config::
++
+--
+List configuration options of specified interface.
+--
+
+--capture::
++
+--
+Start capturing from specified interface save saved it in place specified by --fifo.
+--
+
+--fifo=<path to file or pipe>::
++
+--
+Save captured packet to file or send it through pipe.
+--
+
+--maxbytes=<bytes>::
++
+--
+Set the max number of bytes per packet.
+--
+
+--count=<num>::
++
+--
+Number of packets to generate (-1 for infinite).
+--
+
+--delay=<ms>::
++
+--
+Wait a number of milliseconds after writing each packet.
+--
+
+--random-type::
++
+--
+Choose a random packet type for all packets if set to true.
+--
+
+--all-random::
++
+--
+Choose a different random packet type for each packet if set to true.
+--
+
+--type=<packet type>::
++
+--
+Use the selected packet type. To list all the available packet type, run randpktdump --help.
+--
+
+== EXAMPLES
+
+To see program arguments:
+
+    randpktdump --help
+
+To see program version:
+
+    randpktdump --version
+
+To see interfaces:
+
+    randpktdump --extcap-interfaces
+
+.Example output
+    interface {value=randpkt}{display=Random packet generator}
+
+To see interface DLTs:
+
+    randpktdump --extcap-interface=randpkt --extcap-dlts
+
+.Example output
+    dlt {number=1}{name=randpkt}{display=Ethernet}
+
+To see interface configuration options:
+
+    randpktdump --extcap-interface=randpkt --extcap-config
+
+.Example output
+    arg {number=0}{call=--maxbytes}{display=Max bytes in a packet}{type=unsigned}{range=1,5000}{default=5000}{tooltip=The max number of bytes in a packet}
+    arg {number=1}{call=--count}{display=Number of packets}{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}
+    arg {number=2}{call=--delay}{display=Packet delay (ms)}{type=long}{default=0}{tooltip=Milliseconds to wait after writing each packet}
+    arg {number=3}{call=--random-type}{display=Random type}{type=boolflag}{default=false}{tooltip=The packets type is randomly chosen}
+    arg {number=4}{call=--all-random}{display=All random packets}{type=boolflag}{default=false}{tooltip=Packet type for each packet is randomly chosen}
+    arg {number=5}{call=--type}{display=Type of packet}{type=selector}{tooltip=Type of packet to generate}
+    value {arg=5}{value=arp}{display=Address Resolution Protocol}
+    [...]
+    value {arg=5}{value=usb-linux}{display=Universal Serial Bus with Linux specific header}
+
+To capture:
+
+    randpktdump --extcap-interface=randpkt --fifo=/tmp/randpkt.pcapng --capture
+
+NOTE: To stop capturing CTRL+C/kill/terminate application.
+
+== SEE ALSO
+
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4), xref:randpkt.html[randpkt](1)
+
+== NOTES
+
+*randpktdump* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
+
+HTML versions of the Wireshark project man pages are available at
+https://www.wireshark.org/docs/man-pages.
+
+== AUTHORS
+
+.Original Author
+[%hardbreaks]
+Dario Lombardo <lomato[AT]gmail.com>

@@ -38,5 +38,12 @@ OMA-LPPe-WLAN-LocationDataLCI/altitude          ABBREV=oMA-LPPe-WLAN-LocationDat
                                                       NO_BOUND, NO_BOUND, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~%%", 85,
                                                       NULL);
 
+#.FN_BODY OMA-LPPe-CivicLocation-pidf-lo/civicLocation VAL_PTR = &xml_tvb
+  tvbuff_t *xml_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (xml_tvb && xml_handle) {
+    proto_tree *xml_tree = proto_item_add_subtree(actx->created_item, ett_lppe_civicLocation);
+    call_dissector(xml_handle, xml_tvb, actx->pinfo, xml_tree);
+  }
 #.END
 

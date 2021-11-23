@@ -292,7 +292,7 @@ raknet_dissect_system_address(proto_tree *tree, int hf,
         proto_item_append_text(ti, "%s:%" G_GUINT16_FORMAT, addr_str, port);
         break;
     case 6:
-        addr_str = tvb_ip6_to_str(tvb, *offset);
+        addr_str = tvb_ip6_to_str(pinfo->pool, tvb, *offset);
         proto_tree_add_item(sub_tree, hf_raknet_ipv6_address, tvb, *offset, 16, ENC_NA);
         *offset += 16;
         port = tvb_get_ntohs(tvb, *offset);

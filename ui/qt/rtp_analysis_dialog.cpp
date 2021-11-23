@@ -840,6 +840,27 @@ void RtpAnalysisDialog::rtpPlayerRemove()
     emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpIds());
 }
 
+void RtpAnalysisDialog::saveCsvHeader(QFile *save_file, QTreeWidget *tree)
+{
+    QList<QVariant> row_data;
+    QStringList values;
+
+    for (int col = 0; col < tree->columnCount(); col++) {
+            row_data << tree->headerItem()->text(col);
+    }
+    foreach (QVariant v, row_data) {
+        if (!v.isValid()) {
+            values << "\"\"";
+        } else if ((int) v.type() == (int) QMetaType::QString) {
+            values << QString("\"%1\"").arg(v.toString());
+        } else {
+            values << v.toString();
+        }
+    }
+    save_file->write(values.join(",").toUtf8());
+    save_file->write("\n");
+}
+
 void RtpAnalysisDialog::saveCsvData(QFile *save_file, QTreeWidget *tree)
 {
     for (int row = 0; row < tree->topLevelItemCount(); row++) {
@@ -891,6 +912,8 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
             tab_info_t *tab_data = getTabInfoForCurrentTab();
             if (tab_data) {
 
+                saveCsvHeader(&save_file, tab_data->tree_widget);
+
                 QString n = QString(*tab_data->tab_name);
                 n.replace("\n"," ");
                 save_file.write("\"");
@@ -902,6 +925,10 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
         break;
     case dir_all_:
     default:
+        if (tabs_.count() > 0) {
+            saveCsvHeader(&save_file, tabs_[0]->tree_widget);
+        }
+
         for(int i=0; i<tabs_.count(); i++) {
             QString n = QString(*tabs_[i]->tab_name);
             n.replace("\n"," ");

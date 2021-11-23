@@ -121,6 +121,10 @@ static int hf_twamp_control_keyid  = -1;
 static int hf_twamp_control_sessionid  = -1;
 static int hf_twamp_control_iv = -1;
 static int hf_twamp_control_ipvn = -1;
+static int hf_twamp_control_conf_sender = -1;
+static int hf_twamp_control_conf_receiver = -1;
+static int hf_twamp_control_number_of_schedule_slots = -1;
+static int hf_twamp_control_number_of_packets = -1;
 static int hf_twamp_control_start_time = -1;
 static int hf_twamp_control_accept = -1;
 static int hf_twamp_control_timeout = -1;
@@ -211,6 +215,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     proto_tree *item;
     guint32 modes;
     guint32 type_p;
+    guint8 command_number;
     guint8 ipvn;
 
     if (pinfo->destport == TWAMP_CONTROL_PORT) {
@@ -304,7 +309,19 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                 }
             }
         } else if (ct->last_state == CONTROL_STATE_ACCEPT_SESSION) {
-            ct->last_state = CONTROL_STATE_START_SESSIONS;
+            /* We shall check the Command Number to determine current CONTROL_STATE_XXX */
+            command_number = tvb_get_guint8(tvb, 0);
+            switch(command_number){
+                case 2: /* Start-Sessions */
+                    ct->last_state = CONTROL_STATE_START_SESSIONS;
+                    break;
+                case 3: /* Stop-Sessions */
+                    ct->last_state = CONTROL_STATE_STOP_SESSIONS;
+                    break;
+                case 5: /* Request-Session */
+                    ct->last_state = CONTROL_STATE_REQUEST_SESSION;
+                    break;
+            }
         } else if (ct->last_state == CONTROL_STATE_START_SESSIONS) {
             ct->last_state = CONTROL_STATE_START_SESSIONS_ACK;
         } else if (ct->last_state == CONTROL_STATE_START_SESSIONS_ACK) {
@@ -372,8 +389,20 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
         ipvn = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_uint(twamp_tree, hf_twamp_control_ipvn, tvb, offset, 1, ipvn);
+        offset += 1;
 
-        offset = 12;
+        proto_tree_add_item(twamp_tree, hf_twamp_control_conf_sender, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(twamp_tree, hf_twamp_control_conf_receiver, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(twamp_tree, hf_twamp_control_number_of_schedule_slots, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(twamp_tree, hf_twamp_control_number_of_packets, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
         proto_tree_add_item(twamp_tree, hf_twamp_control_sender_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(twamp_tree, hf_twamp_control_receiver_port, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -734,6 +763,18 @@ void proto_register_twamp(void)
         },
         {&hf_twamp_control_ipvn,
             {"IP Version", "twamp.control.ipvn", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_conf_sender,
+            {"Conf-Sender", "twamp.control.conf_sender", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_conf_receiver,
+            {"Conf-Receiver", "twamp.control.conf_receiver", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_number_of_schedule_slots,
+            {"Number of Schedule Slots", "twamp.control.number_of_schedule_slots", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_twamp_control_number_of_packets,
+            {"Number of Packets", "twamp.control.number_of_packets", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         {&hf_twamp_control_sender_ipv4,
             {"Sender Address", "twamp.control.sender_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,

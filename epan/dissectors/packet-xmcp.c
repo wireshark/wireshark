@@ -622,7 +622,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       } else {
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv4, tvb,
                             (offset+4), 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(attr_tree, ": %s:%u", tvb_ip_to_str(tvb, offset+4),
+        proto_item_append_text(attr_tree, ": %s:%u", tvb_ip_to_str(pinfo->pool, tvb, offset+4),
                                tvb_get_ntohs(tvb, (offset+2)));
       }
       break;
@@ -632,7 +632,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       } else {
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv6, tvb,
                             (offset+4), 16, ENC_NA);
-        proto_item_append_text(attr_tree, ": [%s]:%u", tvb_ip6_to_str(tvb, (offset+4)),
+        proto_item_append_text(attr_tree, ": [%s]:%u", tvb_ip6_to_str(pinfo->pool, tvb, (offset+4)),
                                tvb_get_ntohs(tvb, (offset+2)));
       }
       break;

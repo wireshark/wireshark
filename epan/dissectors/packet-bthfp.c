@@ -2209,7 +2209,7 @@ dissect_bthfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (role == ROLE_UNKNOWN) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Data: %s",
-                tvb_format_text(tvb, 0, tvb_reported_length(tvb)));
+                tvb_format_text(pinfo->pool, tvb, 0, tvb_reported_length(tvb)));
         proto_tree_add_item(main_tree, hf_data, tvb, 0, tvb_captured_length(tvb), ENC_NA | ENC_ASCII);
         return tvb_reported_length(tvb);
     }
@@ -2873,7 +2873,7 @@ proto_register_bthfp(void)
            NULL, HFILL}
         },
         { &hf_ccwa_show_result_code,
-           { "Show Result Code Presentation Status",       "bthfp.ccwa.presentaion_status",
+           { "Show Result Code Presentation Status",       "bthfp.ccwa.presentation_status",
            FT_UINT32, BASE_DEC, VALS(ccwa_show_result_code_vals), 0,
            NULL, HFILL}
         },

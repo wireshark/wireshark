@@ -622,6 +622,7 @@ static int hf_nvme_get_logpage_sanitize_rsvd = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_dword0 = -1;
+static int hf_nvme_cqe_aev_dword0[6] = { NEG_LST_6 };
 static int hf_nvme_cqe_dword0_sf_pm[4] = { NEG_LST_4 };
 static int hf_nvme_cqe_dword0_sf_lbart[3] = { NEG_LST_3 };
 static int hf_nvme_cqe_dword0_sf_nq[3] = { NEG_LST_3 };
@@ -1850,7 +1851,7 @@ static void dissect_nvme_identify_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
 }
 
 static const value_string logpage_tbl[] = {
-    { 0, "Reserved" },
+    { 0, "Unspecified" },
     { 1, "Error Information" },
     { 2, "SMART/Health Information" },
     { 3, "Firmware Slot Information" },
@@ -1882,7 +1883,6 @@ static const char *get_logpage_name(guint lid)
         return "Vendor Specific Page";
     else
         return val_to_str_const(lid, logpage_tbl, "Reserved Page Name");
-
 }
 
 static void add_logpage_lid(gchar *result, guint32 val)
@@ -3832,6 +3832,51 @@ static const value_string nvme_cqe_sc_sf_err_dword0_tbl[] = {
     { 0, NULL },
 };
 
+static const value_string nvme_cqe_aev_aet_dword0_tbl[] = {
+    { 0x0, "Error status" },
+    { 0x1, "SMART / Health status" },
+    { 0x2, "Notice" },
+    { 0x6, "IO Command Set specific status" },
+    { 0x7, "Vendor specific" },
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_aev_status_error_tbl[] = {
+    { 0x0, "Write to Invalid Doorbell Register" },
+    { 0x1, "Invalid Doorbell Write Value" },
+    { 0x2, "Diagnostic Failure" },
+    { 0x3, "Persistent Internal Error"},
+    { 0x3, "Transient Internal Error"},
+    { 0x4, "Persistent Internal Error"},
+    { 0x5, "Firmware Image Load Error"},
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_aev_status_smart_tbl[] = {
+    { 0x0, "NVM subsystem Reliability" },
+    { 0x1, "Temperature Threshold" },
+    { 0x2, "Spare Below Threshold" },
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_aev_status_notice_tbl[] = {
+    { 0x0, "Namespace Attribute Changed" },
+    { 0x1, "Firmware Activation Starting" },
+    { 0x2, "Telemetry Log Changed" },
+    { 0x3, "Asymmetric Namespace Access Change" },
+    { 0x4, "Predictable Latency Event Aggregate Log Change" },
+    { 0x5, "LBA Status Information Alert" },
+    { 0x6, "Endurance Group Event Aggregate Log Page Change" },
+    { 0, NULL },
+};
+
+static const value_string nvme_cqe_aev_status_nvm_tbl[] = {
+    { 0x0, "Reservation Log Page Available" },
+    { 0x1, "Sanitize Operation Completed" },
+    { 0x2, "Sanitize Operation Completed With Unexpected Deallocation" },
+    { 0, NULL },
+};
+
 static void decode_dword0_cqe(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, struct nvme_cmd_ctx *cmd_ctx)
 {
     switch (cmd_ctx->opcode) {
@@ -3856,6 +3901,29 @@ static void decode_dword0_cqe(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, struct n
                         proto_tree_add_item(cqe_tree, hf_nvme_cqe_dword0, nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
                 }
             }
+            break;
+        }
+        case NVME_AQ_OPC_ASYNC_EVE_REQ:
+        {
+            proto_item *ti;
+            proto_tree *grp;
+            guint i;
+            guint8 aet;
+            guint8 aei;
+            ti = proto_tree_add_item(cqe_tree, hf_nvme_cqe_aev_dword0[0], nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+            grp =  proto_item_add_subtree(ti, ett_data);
+            for (i = 1; i < 4; i++)
+                ti = proto_tree_add_item(grp, hf_nvme_cqe_aev_dword0[i], nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+            aet = tvb_get_guint8(nvme_tvb, 0) & 0x7;
+            aei = tvb_get_guint8(nvme_tvb, 2);
+            switch (aet) {
+                case 0: proto_item_append_text(ti, " (%s)", val_to_str_const(aei, nvme_cqe_aev_status_error_tbl, "Unknown")); break;
+                case 1: proto_item_append_text(ti, " (%s)", val_to_str_const(aei, nvme_cqe_aev_status_smart_tbl, "Unknown")); break;
+                case 2: proto_item_append_text(ti, " (%s)", val_to_str_const(aei, nvme_cqe_aev_status_notice_tbl, "Unknown")); break;
+                case 6: proto_item_append_text(ti, " (%s)", val_to_str_const(aei, nvme_cqe_aev_status_nvm_tbl, "Unknown")); break;
+            }
+            proto_tree_add_item(grp, hf_nvme_cqe_aev_dword0[4], nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(grp, hf_nvme_cqe_aev_dword0[5], nvme_tvb, 0, 4, ENC_LITTLE_ENDIAN);
             break;
         }
         default:
@@ -7322,6 +7390,30 @@ proto_register_nvme(void)
         { &hf_nvme_cqe_dword0_sf_err,
             { "Set Features Error Specific Code", "nvme.cqe.dword0.set_features.err",
                FT_UINT32, BASE_HEX, VALS(nvme_cqe_sc_sf_err_dword0_tbl), 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_aev_dword0[0],
+            { "DWORD0", "nvme.cqe.dword0.aev",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_aev_dword0[1],
+            { "Asynchronous Event Type", "nvme.cqe.dword0.aev.aet",
+               FT_UINT32, BASE_HEX, VALS(nvme_cqe_aev_aet_dword0_tbl), 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_aev_dword0[2],
+            { "Reserved", "nvme.cqe.dword0.aev.rsvd0",
+               FT_UINT32, BASE_HEX, NULL, 0xf8, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_aev_dword0[3],
+            { "Asynchronous Event Information", "nvme.cqe.dword0.aev.aei",
+               FT_UINT32, BASE_HEX, NULL, 0xff00, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_aev_dword0[4],
+            { "Log Page Identifier", "nvme.cqe.dword0.aev.lpi",
+               FT_UINT32, BASE_CUSTOM, CF_FUNC(add_logpage_lid), 0xff0000, NULL, HFILL}
+        },
+        { &hf_nvme_cqe_aev_dword0[5],
+            { "Reserved", "nvme.cqe.dword0.aev.rsvd1",
+               FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL}
         },
         { &hf_nvme_cqe_dword0_sf_pm[0],
             { "DWORD0: Set Feature Power Management Result", "nvme.cqe.dword0.set_features.pm",

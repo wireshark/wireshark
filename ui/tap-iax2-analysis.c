@@ -99,7 +99,7 @@ iax2_packet_analyse(tap_iax2_stat_t *statinfo,
         if (statinfo->jitter > statinfo->max_jitter) {
             statinfo->max_jitter = statinfo->jitter;
         }
-        statinfo->mean_jitter = (statinfo->mean_jitter*statinfo->total_nr + current_diff) / (statinfo->total_nr+1);
+        statinfo->mean_jitter = (statinfo->mean_jitter*statinfo->total_nr + current_jitter) / (statinfo->total_nr+1);
     }
     /* regular payload change? (CN ignored) */
     if (!(statinfo->flags & STAT_FLAG_FIRST)

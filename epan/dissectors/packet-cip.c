@@ -105,6 +105,7 @@ static int hf_cip_cm_timeout_tick = -1;
 static int hf_cip_cm_timeout = -1;
 static int hf_cip_cm_ot_connid = -1;
 static int hf_cip_cm_to_connid = -1;
+static int hf_cip_connid = -1;
 static int hf_cip_cm_conn_serial_num = -1;
 static int hf_cip_cm_orig_serial_num = -1;
 static int hf_cip_cm_vendor = -1;
@@ -4288,7 +4289,7 @@ static int dissect_segment_symbolic(tvbuff_t *tvb, proto_tree *path_seg_tree,
    if (symbol_size != 0)
    {
       gchar *symbol_name;
-      symbol_name = tvb_format_text(tvb, offset + 1, symbol_size);
+      symbol_name = tvb_format_text(wmem_packet_scope(), tvb, offset + 1, symbol_size);
 
       proto_item_append_text(path_seg_item, " (Symbolic Segment)");
 
@@ -4505,7 +4506,7 @@ static int dissect_segment_port(tvbuff_t* tvb, int offset, gboolean generate,
          proto_item* it = proto_tree_add_uint(path_seg_item, hf_cip_link_address_size, tvb, 0, 0, opt_link_size);
          proto_item_set_generated(it);
          /* Add extended link address */
-         it = proto_tree_add_string(path_seg_item, hf_cip_link_address_string, tvb, 0, 0, tvb_format_text(tvb, offset + offset_link_address, opt_link_size));
+         it = proto_tree_add_string(path_seg_item, hf_cip_link_address_string, tvb, 0, 0, tvb_format_text(wmem_packet_scope(), tvb, offset + offset_link_address, opt_link_size));
          proto_item_set_generated(it);
       }
       else
@@ -4514,7 +4515,7 @@ static int dissect_segment_port(tvbuff_t* tvb, int offset, gboolean generate,
          proto_tree_add_item(path_seg_item, hf_cip_link_address_string, tvb, offset + offset_link_address, opt_link_size, ENC_ASCII | ENC_NA);
       }
 
-      proto_item_append_text(epath_item, ", Address: %s", tvb_format_text(tvb, offset + offset_link_address, opt_link_size));
+      proto_item_append_text(epath_item, ", Address: %s", tvb_format_text(wmem_packet_scope(), tvb, offset + offset_link_address, opt_link_size));
 
       /* Pad byte */
       if (opt_link_size % 2)
@@ -4763,7 +4764,7 @@ static int dissect_segment_ansi_extended_symbol(packet_info* pinfo, tvbuff_t* tv
    /* Segment data  */
    if (seg_size != 0)
    {
-      gchar* symbol_name = tvb_format_text(tvb, offset + 2, seg_size);
+      gchar* symbol_name = tvb_format_text(pinfo->pool, tvb, offset + 2, seg_size);
 
       if (generate)
       {
@@ -6469,6 +6470,12 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    proto_tree_add_item_ret_uint( cmd_tree, hf_cip_cm_ot_connid, tvb, offset+2, 4, ENC_LITTLE_ENDIAN, &O2T_info.connID);
    proto_tree_add_item_ret_uint( cmd_tree, hf_cip_cm_to_connid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN, &T2O_info.connID);
 
+   // Add Connection IDs as hidden items so that it's easy to find all Connection IDs in different fields.
+   pi = proto_tree_add_item(cmd_tree, hf_cip_connid, tvb, offset + 2, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
+   pi = proto_tree_add_item(cmd_tree, hf_cip_connid, tvb, offset + 6, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
+
    cip_connection_triad_t conn_triad;
    dissect_connection_triad(tvb, offset + 10, cmd_tree,
       hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
@@ -6597,6 +6604,12 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    /* Display target to originator connection ID */
    T2OConnID = tvb_get_letohl( tvb, offset+4 );
    proto_tree_add_item( tree, hf_cip_cm_to_connid, tvb, offset+4, 4, ENC_LITTLE_ENDIAN);
+
+   // Add Connection IDs as hidden items so that it's easy to find all Connection IDs in different fields.
+   proto_item* pi = proto_tree_add_item(tree, hf_cip_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
+   pi = proto_tree_add_item(tree, hf_cip_connid, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+   proto_item_set_hidden(pi);
 
    cip_connection_triad_t conn_triad;
    dissect_connection_triad(tvb, offset + 8, tree,
@@ -8407,7 +8420,7 @@ proto_register_cip(void)
       { &hf_cip_sc_mult_serv_pack_num_services, { "Number of Services", "cip.msp.num_services", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_mult_serv_pack_offset, { "Offset", "cip.msp.offset", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_find_next_object_max_instance, { "Maximum ID", "cip.find_next_object.max_instance", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_find_next_object_num_instances, { "Number of Instances:", "cip.find_next_object.num_instances", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_find_next_object_num_instances, { "Number of Instances", "cip.find_next_object.num_instances", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_find_next_object_instance_item, { "Instance", "cip.find_next_object.instance", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_group_sync_is_sync, { "IsSynchronized", "cip.group_sync.is_sync", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_data, { "Data", "cip.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -8576,6 +8589,7 @@ proto_register_cip(void)
       { &hf_cip_cm_timeout, { "Actual Time Out", "cip.cm.timeout", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_milliseconds, 0, NULL, HFILL }},
       { &hf_cip_cm_ot_connid, { "O->T Network Connection ID", "cip.cm.ot_connid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_to_connid, { "T->O Network Connection ID", "cip.cm.to_connid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_connid, { "Connection ID", "cip.connid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_conn_serial_num, { "Connection Serial Number", "cip.cm.conn_serial_num", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_vendor, { "Originator Vendor ID", "cip.cm.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_cm_timeout_multiplier, { "Connection Timeout Multiplier", "cip.cm.timeout_multiplier", FT_UINT8, BASE_DEC, VALS(cip_con_time_mult_vals), 0, NULL, HFILL }},

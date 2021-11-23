@@ -341,7 +341,7 @@ Instead of a strings it is possible to provide tables with fields 'name' and 'va
     g_ptr_array_add(field_names, NULL);
     g_ptr_array_add(field_values, NULL);
 
-    ops->new_dialog(title, (const gchar**)(field_names->pdata), (const gchar**)(field_values->pdata), lua_dialog_cb, dcbd, g_free);
+    ops->new_dialog(ops->ops_id, title, (const gchar**)(field_names->pdata), (const gchar**)(field_values->pdata), lua_dialog_cb, dcbd, g_free);
 
     g_ptr_array_free(field_names, TRUE);
     g_ptr_array_free(field_values, TRUE);
@@ -606,7 +606,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /*
     title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE, "Untitled Window");
     tw = g_new(struct _wslua_tw, 1);
     tw->expired = FALSE;
-    tw->ws_tw = ops->new_text_window(title);
+    tw->ws_tw = ops->new_text_window(ops->ops_id, title);
 
     default_cbd = g_new(struct _close_cb_data, 1);
 

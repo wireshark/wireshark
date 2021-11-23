@@ -79,13 +79,13 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "DX" );
 
-	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", tvb_format_text( tvb, offset, 15 ) );
+	col_add_fstr( pinfo->cinfo, COL_INFO, "%s", tvb_format_text( pinfo->pool, tvb, offset, 15 ) );
 
 	if ( parent_tree )
 		{
 		/* create display subtree for the protocol */
 		ti = proto_tree_add_protocol_format( parent_tree, proto_dx, tvb, 0, -1,
-		    "DX (%s)", tvb_format_text( tvb, offset, 15 ) );
+		    "DX (%s)", tvb_format_text( pinfo->pool, tvb, offset, 15 ) );
 		dx_tree = proto_item_add_subtree( ti, ett_dx );
 		offset = 0;
 

@@ -113,12 +113,12 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     if ( len >= 106 && len < 108 )
     {
         len = 106;
-        passwd = tvb_ip_to_str(tvb, 102);
+        passwd = tvb_ip_to_str(pinfo->pool, tvb, 102);
     }
     else if ( len >= 108 )
     {
         len = 108;
-        passwd = tvb_ether_to_str(tvb, 102);
+        passwd = tvb_ether_to_str(pinfo->pool, tvb, 102);
     }
     else
     {

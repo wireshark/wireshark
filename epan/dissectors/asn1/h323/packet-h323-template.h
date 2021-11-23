@@ -43,10 +43,10 @@ typedef struct _gef_ctx_t {
   const gchar *key;
 } gef_ctx_t;
 
-extern gef_ctx_t* gef_ctx_alloc(gef_ctx_t *parent, const gchar *type);
+extern gef_ctx_t* gef_ctx_alloc(wmem_allocator_t *pool, gef_ctx_t *parent, const gchar *type);
 extern gboolean gef_ctx_check_signature(gef_ctx_t *gefx);
 extern gef_ctx_t* gef_ctx_get(void *ptr);
-extern void gef_ctx_update_key(gef_ctx_t *gefx);
+extern void gef_ctx_update_key(wmem_allocator_t *pool, gef_ctx_t *gefx);
 
 #endif  /* PACKET_H323_H */
 

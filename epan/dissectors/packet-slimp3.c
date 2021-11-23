@@ -529,7 +529,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Server Address: %s. Server Port: %u",
-                        tvb_ip_to_str(tvb, offset+2),
+                        tvb_ip_to_str(pinfo->pool, tvb, offset+2),
                         tvb_get_ntohs(tvb, offset + 6));
         break;
 

@@ -72,7 +72,7 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     ui->auths->setSortingEnabled(true);
     ui->auths->sortByColumn(CredentialsModel::COL_NUM, Qt::AscendingOrder);
 
-    connect(ui->auths, SIGNAL(clicked(const QModelIndex&)), this, SLOT(actionGoToPacket(const QModelIndex&)));
+    connect(ui->auths, &QTreeView::clicked, this, &CredentialsDialog::actionGoToPacket);
 
     registerTapListener("credentials", this, "", 0, tapReset, tapPacket, Q_NULLPTR);
     cf.retapPackets();

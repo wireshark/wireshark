@@ -250,6 +250,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 			{
 				/* We've got a full packet! */
 				rec->rec_type = REC_TYPE_PACKET;
+				rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 				rec->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
 				rec->ts.secs = 0;
 				rec->ts.nsecs = 0;

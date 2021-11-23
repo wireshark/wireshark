@@ -277,7 +277,7 @@ dissect_string_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, in
     if (len > 0) {
       proto_tree_add_item(tree, hf_telnet_string_subopt_value, tvb, offset, len, ENC_NA|ENC_ASCII);
     }
-    check_for_tn3270(pinfo, optname, tvb_format_text(tvb, offset, len));
+    check_for_tn3270(pinfo, optname, tvb_format_text(pinfo->pool, tvb, offset, len));
     break;
 
   case 1:       /* SEND */
@@ -419,7 +419,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
                   datalen = connect_offset - (offset + 1);
                   if (datalen > 0) {
                     proto_tree_add_item( tree, hf_tn3270_is, tvb, offset + 1, datalen, ENC_NA|ENC_ASCII );
-                    check_tn3270_model(pinfo, tvb_format_text(tvb, offset + 1, datalen));
+                    check_tn3270_model(pinfo, tvb_format_text(pinfo->pool, tvb, offset + 1, datalen));
                     offset += datalen;
                     len -= datalen;
                   }

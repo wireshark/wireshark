@@ -4626,7 +4626,7 @@ dissect_ulp_T_mdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ulp_thirdPartyId);
-    proto_tree_add_string(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_wmem_packet_str(mdn_tvb, 0, 8, NULL, FALSE));
+    proto_tree_add_string(subtree, hf_ulp_mobile_directory_number, mdn_tvb, 0, 8, tvb_bcd_dig_to_str(actx->pinfo->pool, mdn_tvb, 0, 8, NULL, FALSE));
   }
 
 

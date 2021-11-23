@@ -83,6 +83,15 @@ echo "$COMMIT_FILES" | $PYBIN "$bad_alloc_patterns"
 CHECK_FILES=$( echo "$CHECK_FILES" | tr -d '\r' )
 
 for FILE in $CHECK_FILES; do
+    # Skip some special cases
+    FILE_BASENAME="$( basename "$FILE" )"
+    # This should only be done on code that's part of one or more
+    # Wireshark programs; idl2wrs.c is a developer tool, not a
+    # Wireshark program, so these tests don't apply.
+    if test "$FILE_BASENAME" = "idl2wrs.c"
+    then
+        continue
+    fi
 
     #Check if checkhf is good
     ./tools/checkhf.pl "$FILE"            || exit_status=1

@@ -44,7 +44,7 @@ void proto_register_PROTOABBREV(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_PROTOABBREV = -1;
-static int hf_PROTOABBREV_FIELDABBREV = -1;
+static int hf_FIELDABBREV = -1;
 static expert_field ei_PROTOABBREV_EXPERTABBREV = EI_INIT;
 
 /* Global sample preference ("controls" display of numbers) */
@@ -166,13 +166,13 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Add an item to the subtree, see section 1.5 of README.dissector for more
      * information. */
-    expert_ti = proto_tree_add_item(PROTOABBREV_tree, hf_PROTOABBREV_FIELDABBREV, tvb,
+    expert_ti = proto_tree_add_item(PROTOABBREV_tree, hf_FIELDABBREV, tvb,
             offset, len, ENC_xxx);
     offset += len;
     /* Some fields or situations may require "expert" analysis that can be
      * specifically highlighted. */
     if ( TEST_EXPERT_condition )
-        /* value of hf_PROTOABBREV_FIELDABBREV isn't what's expected */
+        /* value of hf_FIELDABBREV isn't what's expected */
         expert_add_info(pinfo, expert_ti, &ei_PROTOABBREV_EXPERTABBREV);
 
     /* Continue adding tree items to process the packet here... */
@@ -199,8 +199,8 @@ proto_register_PROTOABBREV(void)
     /* Setup list of header fields  See Section 1.5 of README.dissector for
      * details. */
     static hf_register_info hf[] = {
-        { &hf_PROTOABBREV_FIELDABBREV,
-          { "FIELDNAME", "PROTOABBREV.FIELDABBREV",
+        { &hf_FIELDABBREV,
+          { "FIELDNAME", "FIELDFILTERNAME",
             FT_FIELDTYPE, FIELDDISPLAY, FIELDCONVERT, BITMASK,
             "FIELDDESCR", HFILL }
         }
@@ -221,7 +221,7 @@ proto_register_PROTOABBREV(void)
 
     /* Register the protocol name and description */
     proto_PROTOABBREV = proto_register_protocol("PROTONAME",
-            "PROTOSHORTNAME", "PROTOABBREV");
+            "PROTOSHORTNAME", "PROTOFILTERNAME");
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));

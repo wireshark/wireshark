@@ -144,8 +144,8 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			val_to_str_const(type, type_vals, "Unknown"),
 			id,
 			udp_port_to_display(pinfo->pool, cport),
-			tvb_ip_to_str(tvb, 8),
-			tvb_ip_to_str(tvb, 12));
+			tvb_ip_to_str(pinfo->pool, tvb, 8),
+			tvb_ip_to_str(pinfo->pool, tvb, 12));
 
 	if (version == TPCP_VER_1)
 		return TPCP_VER_1_LENGTH;

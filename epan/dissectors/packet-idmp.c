@@ -108,14 +108,14 @@ static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
     if(session != NULL) {
 
-        if((!saved_protocolID) && (op == (ROS_OP_BIND | ROS_OP_RESULT))) {
-            /* save for subsequent operations - should be into session data */
-            saved_protocolID = wmem_strdup(wmem_file_scope(), protocolID);
+        /* XXX saved_protocolID should be part of session data */
+        if (!saved_protocolID) {
+            saved_protocolID = "[ unknown ]";
         }
 
         /* mimic ROS! */
         session->ros_op = op;
-        offset = call_ros_oid_callback(saved_protocolID ? saved_protocolID : protocolID, tvb, offset, pinfo, tree, session);
+        offset = call_ros_oid_callback(saved_protocolID, tvb, offset, pinfo, tree, session);
     }
 
     return offset;
@@ -215,9 +215,13 @@ static const ber_sequence_t IdmBind_sequence[] = {
 
 static int
 dissect_idmp_IdmBind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	protocolID = saved_protocolID = NULL;
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IdmBind_sequence, hf_index, ett_idmp_IdmBind);
 
+	if (protocolID) {
+		saved_protocolID = wmem_strdup(wmem_epan_scope(), protocolID);
+	}
   return offset;
 }
 
@@ -720,8 +724,8 @@ static int dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 
 static void idmp_reassemble_cleanup(void)
 {
-    protocolID = NULL;
-    saved_protocolID = NULL;
+    protocolID = NULL; // packet scoped
+    saved_protocolID = NULL; // epan scoped copy of protocolID
     opcode = -1;
 }
 

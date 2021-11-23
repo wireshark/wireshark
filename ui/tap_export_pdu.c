@@ -65,7 +65,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     if (pinfo->fd->has_modified_block) {
         rec.block = epan_get_modified_block(edt->session, pinfo->fd);
         rec.block_was_modified = TRUE;
-    } else if (pinfo->fd->has_phdr_block) {
+    } else {
         rec.block = pinfo->rec->block;
     }
 

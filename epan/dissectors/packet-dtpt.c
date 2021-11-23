@@ -270,7 +270,7 @@ dissect_dtpt_guid(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex)
 		}
 		dtpt_guid_item = proto_tree_add_guid(tree, hfindex, tvb, offset, 4 + guid_length, &guid);
 		if (dtpt_guid_item) {
-			guid_name = guids_get_guid_name(&guid);
+			guid_name = guids_get_guid_name(&guid, wmem_packet_scope());
 			if (guid_name != NULL)
 				proto_item_set_text(dtpt_guid_item, "%s: %s (%s)",
 				proto_registrar_get_name(hfindex), guid_name, guid_to_str(wmem_packet_scope(), &guid));
@@ -350,7 +350,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
 											tvb, offset+4,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+8, 8, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(tvb,offset+4), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb,offset+4), port);
 					}
 					break;
 				}
@@ -373,7 +373,7 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_sockaddr_address,
 							tvb, offset+10,4,ENC_BIG_ENDIAN);
 						proto_tree_add_item(sockaddr_tree, hf_dtpt_padding, tvb, offset+14, 16, ENC_NA);
-						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(tvb,offset+10), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", tvb_ip_to_str(wmem_packet_scope(), tvb,offset+10), port);
 					}
 					break;
 				}

@@ -726,7 +726,7 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
 					  hf_dcom_extent_id, &uuidExtend);
 
 			/* look for a registered uuid name */
-			if((uuid_name = guids_get_uuid_name(&uuidExtend)) != NULL) {
+			if((uuid_name = guids_get_uuid_name(&uuidExtend, pinfo->pool)) != NULL) {
 				proto_tree_add_guid_format_value(sub_tree, hf_dcom_extent_id, tvb,
 								 offset, sizeof(e_guid_t), (e_guid_t *) &uuidExtend,
 								 "%s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
@@ -804,13 +804,13 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, ", V%u.%u, Causality ID: %s",
-		u16VersionMajor, u16VersionMinor, guids_resolve_guid_to_str(&uuidCausality));
+		u16VersionMajor, u16VersionMinor, guids_resolve_guid_to_str(&uuidCausality, pinfo->pool));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
 	if(memcmp(&di->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
-			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
+			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid, pinfo->pool));
 		proto_item_set_generated(pi);
 	}
 
@@ -844,7 +844,7 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 	if(memcmp(&di->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
-			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
+			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid, pinfo->pool));
 		proto_item_set_generated(pi);
 	}
 
@@ -1472,7 +1472,7 @@ dissect_dcom_UUID(tvbuff_t *tvb, int offset,
 
 	/* add to the tree */
 	hfi = proto_registrar_get_nth(hfindex);
-	uuid_name = guids_get_uuid_name(&uuid);
+	uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
 	if(uuid_name) {
 		proto_tree_add_guid_format(tree, hfindex, tvb, offset-16, 16, (e_guid_t *) &uuid,
 			  "%s: %s (%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x)",
@@ -1518,7 +1518,7 @@ dissect_dcom_append_UUID(tvbuff_t *tvb, int offset,
 						hfindex, uuid);
 
 	/* look for a registered uuid name */
-	uuid_name = guids_get_uuid_name(uuid);
+	uuid_name = guids_get_uuid_name(uuid, pinfo->pool);
 
 	/* add to the tree */
 	hfi = proto_registrar_get_nth(hfindex);
@@ -1912,7 +1912,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* append info to subtree header */
 	proto_item_append_text(sub_item, ": PublicRefs=%u IPID=%s",
-		u32PublicRefs, guids_resolve_guid_to_str(ipid));
+		u32PublicRefs, guids_resolve_guid_to_str(ipid, pinfo->pool));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
 	return offset;

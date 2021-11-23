@@ -32,6 +32,14 @@
 #include <QDateTime>
 #include <QMap>
 
+/* Whether we are using minizip-ng and it uses an incompatible 'dos_date'
+ * struct member. */
+#ifdef HAVE_MZCOMPAT_DOS_DATE
+#define _MZDOSDATE dos_date
+#else
+#define _MZDOSDATE dosDate
+#endif
+
 bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCheck)(QString, int), QString (*cleanName)(QString))
 {
     unzFile uf = Q_NULLPTR;
@@ -67,7 +75,17 @@ bool WiresharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
 
             /* Sanity check for the file */
             if (fileInZip.length() == 0 || (fileCheck && ! fileCheck(fileInZip, fileSize)) )
+            {
+                if ((cnt + 1) < nmbr)
+                {
+                    err = unzGoToNextFile(uf);
+                    if (err != UNZ_OK)
+                    {
+                        break;
+                    }
+                }
                 continue;
+            }
 
             if (di.exists())
             {
@@ -199,7 +217,7 @@ void WiresharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString file
     memset(&zi, 0, sizeof(zi));
 
     QDateTime fTime = fi.lastModified();
-    zi.dosDate = qDateToDosDate(fTime);
+    zi._MZDOSDATE = qDateToDosDate(fTime);
 
     QFile fh(filepath);
     /* Checks if a large file block has to be written */

@@ -1589,7 +1589,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
             {
               if (tvb_get_guint8(tvb, addr_data_offset + 1) == QNET_LR_SA_FAMILY_MAC && len >= 2 + 6)
                 {
-                  name[i] = tvb_ether_to_str(tvb, addr_data_offset + 2);
+                  name[i] = tvb_ether_to_str(pinfo->pool, tvb, addr_data_offset + 2);
                   ti = proto_tree_add_item(sstree, hf_index, tvb, addr_data_offset + 2, 6, ENC_NA);
                   proto_item_set_generated(ti);
                 }

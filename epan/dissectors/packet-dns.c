@@ -525,7 +525,8 @@ static dissector_handle_t ntlmssp_handle;
 enum DnsTransport {
   DNS_TRANSPORT_UDP,    /* includes compatible transports like SCTP */
   DNS_TRANSPORT_TCP,
-  DNS_TRANSPORT_HTTP
+  DNS_TRANSPORT_HTTP,
+  DNS_TRANSPORT_QUIC
 };
 
 /* Structure containing transaction specific information */
@@ -2088,7 +2089,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       const char *addr;
 
-      addr = tvb_ip_to_str(tvb, cur_offset);
+      addr = tvb_ip_to_str(pinfo->pool, tvb, cur_offset);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", addr);
 
       proto_item_append_text(trr, ", addr %s", addr);
@@ -2255,7 +2256,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item     *ti_wks;
       wmem_strbuf_t *bitnames = wmem_strbuf_new_label(wmem_packet_scope());
 
-      wks_addr = tvb_ip_to_str(tvb, cur_offset);
+      wks_addr = tvb_ip_to_str(pinfo->pool, tvb, cur_offset);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", wks_addr);
       proto_item_append_text(trr, ", addr %s", wks_addr);
       proto_tree_add_item(rr_tree, hf_dns_wks_address, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
@@ -2623,7 +2624,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       const char        *addr6;
 
-      addr6 = tvb_ip6_to_str(tvb, cur_offset);
+      addr6 = tvb_ip6_to_str(pinfo->pool, tvb, cur_offset);
       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", addr6);
 
       proto_item_append_text(trr, ", addr %s", addr6);
@@ -3564,7 +3565,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             case DNS_SVCB_KEY_IPV4HINT:
               for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 4) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv4hint_ip, tvb, cur_offset, 4, ENC_NA);
-                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip_to_str(tvb, cur_offset));
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip_to_str(pinfo->pool, tvb, cur_offset));
                 cur_offset += 4;
               }
               break;
@@ -3575,7 +3576,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             case DNS_SVCB_KEY_IPV6HINT:
               for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 16) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv6hint_ip, tvb, cur_offset, 16, ENC_NA);
-                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip6_to_str(tvb, cur_offset));
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip6_to_str(pinfo->pool, tvb, cur_offset));
                 cur_offset += 16;
               }
               break;
@@ -3586,7 +3587,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             default:
               if (svc_param_length > 0) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_value, tvb, cur_offset, svc_param_length, ENC_NA);
-                proto_item_append_text(svcb_param_ti, "=%s", tvb_format_text(tvb, cur_offset, svc_param_length));
+                proto_item_append_text(svcb_param_ti, "=%s", tvb_format_text(pinfo->pool, tvb, cur_offset, svc_param_length));
                 cur_offset += svc_param_length;
               }
               break;
@@ -4073,7 +4074,7 @@ static void
 dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     enum DnsTransport transport, gboolean is_mdns, gboolean is_llmnr)
 {
-  int                offset   = transport == DNS_TRANSPORT_TCP ? 2 : 0;
+  int                offset   = (transport == DNS_TRANSPORT_TCP || transport == DNS_TRANSPORT_QUIC) ? 2 : 0;
   int                dns_data_offset;
   proto_tree        *dns_tree, *field_tree;
   proto_item        *ti, *tf, *transaction_item;
@@ -4484,6 +4485,15 @@ dissect_dns_doh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 }
 
 static int
+dissect_dns_doq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
+
+  dissect_dns_common(tvb, pinfo, tree, DNS_TRANSPORT_QUIC, FALSE, FALSE);
+  return tvb_captured_length(tvb);
+}
+
+static int
 dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
@@ -4704,9 +4714,11 @@ proto_reg_handoff_dns(void)
 {
   dissector_handle_t mdns_udp_handle;
   dissector_handle_t llmnr_udp_handle;
+  dissector_handle_t doq_handle;
 
   mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
   llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
+  doq_handle  = create_dissector_handle(dissect_dns_doq, proto_dns);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
   dissector_add_uint_with_preference("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_handle);
@@ -4723,7 +4735,7 @@ proto_reg_handoff_dns(void)
   dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DNS_TCP_PORT_RANGE, dns_handle);
   dissector_add_uint_range_with_preference("udp.port", DEFAULT_DNS_PORT_RANGE, dns_handle);
   dissector_add_string("media_type", "application/dns-message", dns_handle); /* since draft-ietf-doh-dns-over-https-07 */
-  dissector_add_string("quic.proto", "doq", dns_handle); /* https://www.ietf.org/archive/id/draft-ietf-dprive-dnsoquic-01.txt */
+  dissector_add_string("quic.proto", "doq", doq_handle); /* https://www.ietf.org/archive/id/draft-ietf-dprive-dnsoquic-03.txt */
   heur_dissector_add("udp", dissect_dns_heur, "DNS over UDP", "dns_udp", proto_dns, HEURISTIC_ENABLE);
 }
 

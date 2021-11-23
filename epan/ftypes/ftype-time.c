@@ -30,67 +30,12 @@
 #include "wsutil/strptime.h"
 #endif
 
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
-{
-	return ((a->value.time.secs) ==(b->value.time.secs))
-	     &&((a->value.time.nsecs)==(b->value.time.nsecs));
-}
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
-{
-	return (a->value.time.secs !=b->value.time.secs)
-	     ||(a->value.time.nsecs!=b->value.time.nsecs);
-}
-static gboolean
-cmp_gt(const fvalue_t *a, const fvalue_t *b)
-{
-	if (a->value.time.secs > b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs < b->value.time.secs) {
-		return FALSE;
-	}
 
-	return a->value.time.nsecs > b->value.time.nsecs;
-}
-static gboolean
-cmp_ge(const fvalue_t *a, const fvalue_t *b)
+static int
+cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	if (a->value.time.secs > b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs < b->value.time.secs) {
-		return FALSE;
-	}
-
-	return a->value.time.nsecs >= b->value.time.nsecs;
+	return nstime_cmp(&(a->value.time), &(b->value.time));
 }
-static gboolean
-cmp_lt(const fvalue_t *a, const fvalue_t *b)
-{
-	if (a->value.time.secs < b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs > b->value.time.secs) {
-		return FALSE;
-	}
-
-	return a->value.time.nsecs < b->value.time.nsecs;
-}
-static gboolean
-cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	if (a->value.time.secs < b->value.time.secs) {
-		return TRUE;
-	}
-	if (a->value.time.secs > b->value.time.secs) {
-		return FALSE;
-	}
-
-	return a->value.time.nsecs <= b->value.time.nsecs;
-}
-
 
 /*
  * Get a nanoseconds value, starting at "p".
@@ -238,7 +183,13 @@ parse_month_name(const char *s, int *tm_mon)
 	return FALSE;
 }
 
-
+/* Parses an absolute time value from a string. The string cannot have
+ * a time zone suffix and is always interpreted in local time.
+ *
+ * OS-dependent; e.g., on 32 bit versions of Windows when compiled to use
+ * _mktime32 treats dates before January 1, 1970 as invalid.
+ * (https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mktime-mktime32-mktime64)
+ */
 static gboolean
 absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 {
@@ -338,61 +289,44 @@ value_get(fvalue_t *fv)
 	return &(fv->value.time);
 }
 
-static int
-absolute_val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
+static char *
+absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	gchar *rep;
-	int ret;
+	char *buf;
 
-	rep = abs_time_to_str(NULL, &fv->value.time, (absolute_time_display_e)field_display,
-		rtype == FTREPR_DISPLAY);
+	switch (rtype) {
+		case FTREPR_DISPLAY:
+			rep = abs_time_to_str(scope, &fv->value.time,
+					(absolute_time_display_e)field_display, TRUE);
+			break;
 
-	ret = (int)strlen(rep) + ((rtype == FTREPR_DFILTER) ? 2 : 0);	/* 2 for opening and closing quotes */
+		case FTREPR_DFILTER:
+			/* absolute_val_from_string only accepts local time,
+			 * with no time zone, so match that. */
+			rep = abs_time_to_str(scope, &fv->value.time,
+					ABSOLUTE_TIME_LOCAL, FALSE);
+			break;
 
-	wmem_free(NULL, rep);
-
-	return ret;
-}
-
-static void
-absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size)
-{
-	gchar *rep = abs_time_to_str(NULL, &fv->value.time, (absolute_time_display_e)field_display,
-		rtype == FTREPR_DISPLAY);
-	if (rtype == FTREPR_DFILTER) {
-		*buf++ = '\"';
+		default:
+			ws_assert_not_reached();
+			break;
 	}
 
-	(void) g_strlcpy(buf, rep, size);
-
 	if (rtype == FTREPR_DFILTER) {
-		buf += strlen(rep);
-		*buf++ = '\"';
-		*buf++ = '\0';
+		buf = wmem_strdup_printf(scope, "\"%s\"", rep);
+		wmem_free(scope, rep);
 	}
-	wmem_free(NULL, rep);
+	else {
+		buf = rep;
+	}
+	return buf;
 }
 
-static int
-relative_val_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+relative_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	gchar *rep;
-	int ret;
-
-	rep = rel_time_to_secs_str(NULL, &fv->value.time);
-	ret = (int)strlen(rep);
-	wmem_free(NULL, rep);
-
-	return ret;
-}
-
-static void
-relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-	gchar *rep;
-	rep = rel_time_to_secs_str(NULL, &fv->value.time);
-	(void) g_strlcpy(buf, rep, size);
-	wmem_free(NULL, rep);
+	return rel_time_to_secs_str(scope, &fv->value.time);
 }
 
 void
@@ -409,17 +343,11 @@ ftype_register_time(void)
 		absolute_val_from_unparsed,	/* val_from_unparsed */
 		absolute_val_from_string,	/* val_from_string */
 		absolute_val_to_repr,		/* val_to_string_repr */
-		absolute_val_repr_len,		/* len_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
@@ -437,17 +365,11 @@ ftype_register_time(void)
 		relative_val_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		relative_val_to_repr,		/* val_to_string_repr */
-		relative_val_repr_len,		/* len_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */

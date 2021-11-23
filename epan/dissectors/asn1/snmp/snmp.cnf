@@ -188,7 +188,7 @@ BulkPDU/request-id bulkPDU_request-id
 			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
 			offset = get_ber_length(tvb, offset, NULL, NULL);
 			offset = dissect_snmp_UsmSecurityParameters(FALSE, tvb, offset, actx, tree, -1);
-			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb);
+			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb, actx->pinfo);
 			break;
 		case SNMP_SEC_ANY:	/* 0 */
 		case SNMP_SEC_V1:	/* 1 */
@@ -208,7 +208,7 @@ BulkPDU/request-id bulkPDU_request-id
 		guint8* calc_auth = NULL;
 		guint calc_auth_len = 0;
 
-		usm_p.authOK = snmp_usm_auth(usm_p.user_assoc->user.authModel, &usm_p, &calc_auth, &calc_auth_len, &error );
+		usm_p.authOK = snmp_usm_auth(actx->pinfo, usm_p.user_assoc->user.authModel, &usm_p, &calc_auth, &calc_auth_len, &error );
 
 		if (error) {
 			expert_add_info_format( actx->pinfo, usm_p.auth_item, &ei_snmp_verify_authentication_error, "Error while verifying Message authenticity: %s", error );

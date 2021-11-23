@@ -660,12 +660,12 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
              * and the group mask the length "mask_len"?
              */
             tigroup = proto_tree_add_ipv4_format(pimopt_tree, hf_pim_group_ip4, tvb, offset, 4,
-                                tvb_get_ipv4(tvb, offset), "Group %d: %s", i, tvb_ip_to_str(tvb, offset));
+                                tvb_get_ipv4(tvb, offset), "Group %d: %s", i, tvb_ip_to_str(pinfo->pool, tvb, offset));
             grouptree = proto_item_add_subtree(tigroup, ett_pim);
             offset += 4;
 
             proto_tree_add_ipv4_format(grouptree, hf_pim_group_mask_ip4, tvb, offset, 4,
-                                tvb_get_ipv4(tvb, offset), "Group %d Mask: %s", i, tvb_ip_to_str(tvb, offset));
+                                tvb_get_ipv4(tvb, offset), "Group %d Mask: %s", i, tvb_ip_to_str(pinfo->pool, tvb, offset));
             offset += 4;
 
             njoin = tvb_get_ntohs(tvb, offset);
@@ -784,7 +784,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv4_format(tree, hf_ip4, tvb, offset, 2 + len,
-                                ipv4, "%s: %s", label, tvb_ip_to_str(tvb, offset + 2));
+                                ipv4, "%s: %s", label, tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 2));
             }
             else
             {
@@ -798,7 +798,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 2 + len,
-                        &ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 2));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 2));
             }
             else
             {
@@ -839,14 +839,14 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
-                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
                                 break;
                             case AFNUM_INET6:
                                 rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
-                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);
@@ -874,7 +874,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv4_format(tree, hf_ip4, tvb, offset, 4 + len,
-                                ipv4, "%s: %s", label, tvb_ip_to_str(tvb, offset + 4));
+                                ipv4, "%s: %s", label, tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 4));
             }
             else
             {
@@ -890,7 +890,7 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 4 + len,
-                        &ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 4));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 4));
             }
             else
             {
@@ -926,12 +926,12 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv4_format(tree, hf_ip4, tvb, offset, 4 + len,
-                                ipv4, "%s: %s", label, tvb_ip_to_str(tvb, offset + 4));
+                                ipv4, "%s: %s", label, tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 4));
             }
             else
             {
                 ti = proto_tree_add_ipv4_format_value(tree, hf_ip4, tvb, offset, 4 + len, ipv4,
-                                                      "%s", tvb_ip_to_str(tvb, offset + 4));
+                                                      "%s", tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 4));
             }
             proto_item_append_text(ti, "/%u", mask_len);
             break;
@@ -942,12 +942,12 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
             if (label)
             {
                 ti = proto_tree_add_ipv6_format(tree, hf_ip6, tvb, offset, 4 + len,
-                        &ipv6, "%s: %s", label, tvb_ip6_to_str(tvb, offset + 4));
+                        &ipv6, "%s: %s", label, tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 4));
             }
             else
             {
                 ti = proto_tree_add_ipv6_format_value(tree, hf_ip6, tvb, offset, 4 + len, &ipv6,
-                                                      "%s", tvb_ip6_to_str(tvb, offset + 4));
+                                                      "%s", tvb_ip6_to_str(wmem_packet_scope(), tvb, offset + 4));
             }
             proto_item_append_text(ti, "/%u", mask_len);
             break;
@@ -1002,14 +1002,14 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
-                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
                                 break;
                             case AFNUM_INET6:
                                 rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
-                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(tvb, ja_offset+ 1));
+                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(wmem_packet_scope(), tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);

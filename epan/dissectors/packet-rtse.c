@@ -317,7 +317,7 @@ dissect_rtse_T_octetString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
                                        &string);
 
   if(open_request && string)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(string, 0, tvb_reported_length(string)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(actx->pinfo->pool, string, 0, tvb_reported_length(string)));
 
 
 
@@ -355,7 +355,7 @@ dissect_rtse_CommonReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, NULL, NULL);
 
   if(open_request && string)
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(string, 0, tvb_reported_length(string)));
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(actx->pinfo->pool, string, 0, tvb_reported_length(string)));
 
 
 

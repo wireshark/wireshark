@@ -47,6 +47,6 @@ common data structures.
 ____
 
 GLib contains lots of useful things for platform independent development.
-See https://developer.gnome.org/glib/[] for details about GLib.
+See https://developer.gnome.org/glib/ and https://docs.gtk.org/glib/ for details about GLib.
 
 // End of WSDG Chapter Build Introduction

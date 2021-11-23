@@ -25,6 +25,9 @@ void proto_register_flexray(void);
 
 static gboolean prefvar_try_heuristic_first = FALSE;
 
+static dissector_table_t subdissector_table;
+static dissector_table_t flexrayid_subdissector_table;
+
 static heur_dissector_list_t heur_subdissector_list;
 static heur_dtbl_entry_t *heur_dtbl_entry;
 
@@ -49,6 +52,7 @@ static int hf_flexray_pl = -1;
 static int hf_flexray_hcrc = -1;
 static int hf_flexray_cc = -1;
 static int hf_flexray_sl = -1;
+static int hf_flexray_flexray_id = -1;
 
 static gint ett_flexray = -1;
 static gint ett_flexray_measurement_header = -1;
@@ -78,8 +82,6 @@ static expert_field ei_flexray_symbol_frame = EI_INIT;
 static expert_field ei_flexray_error_flag = EI_INIT;
 static expert_field ei_flexray_stfi_flag = EI_INIT;
 
-static dissector_table_t subdissector_table;
-
 #define FLEXRAY_FRAME 0x01
 #define FLEXRAY_SYMBOL 0x02
 
@@ -101,6 +103,61 @@ static const true_false_string flexray_nfi = {
 	"True"
 };
 
+guint32
+flexray_calc_flexrayid(guint16 bus_id, guint8 channel, guint16 frame_id, guint8 cycle) {
+	/* Bus-ID 4bit->4bit | Channel 1bit->4bit | Frame ID 11bit->16bit | Cycle 6bit->8bit */
+
+	return (guint32)(bus_id & 0xf) << 28 |
+	       (guint32)(channel & 0x0f) << 24 |
+	       (guint32)(frame_id & 0xffff) << 8 |
+	       (guint32)(cycle & 0xff);
+}
+
+guint32
+flexray_flexrayinfo_to_flexrayid(flexray_info_t *flexray_info) {
+	return flexray_calc_flexrayid(flexray_info->bus_id, flexray_info->ch, flexray_info->id, flexray_info->cc);
+}
+
+gboolean
+flexray_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, flexray_info_t *flexray_info, const gboolean use_heuristics_first) {
+	guint32 flexray_id = flexray_flexrayinfo_to_flexrayid(flexray_info);
+
+	/* lets try an exact match first */
+	if (dissector_try_uint_new(flexrayid_subdissector_table, flexray_id, tvb, pinfo, tree, TRUE, flexray_info)) {
+		return TRUE;
+	}
+
+	/* lets try with BUS-ID = 0 (any) */
+	if (dissector_try_uint_new(flexrayid_subdissector_table, flexray_id & ~FLEXRAY_ID_BUS_ID_MASK, tvb, pinfo, tree, TRUE, flexray_info)) {
+		return TRUE;
+	}
+
+	/* lets try with cycle = 0xff (any) */
+	if (dissector_try_uint_new(flexrayid_subdissector_table, flexray_id | FLEXRAY_ID_CYCLE_MASK, tvb, pinfo, tree, TRUE, flexray_info)) {
+		return TRUE;
+	}
+
+	/* lets try with BUS-ID = 0 (any) and cycle = 0xff (any) */
+	if (dissector_try_uint_new(flexrayid_subdissector_table, (flexray_id & ~FLEXRAY_ID_BUS_ID_MASK) | FLEXRAY_ID_CYCLE_MASK, tvb, pinfo, tree, TRUE, flexray_info)) {
+		return TRUE;
+	}
+
+	if (!use_heuristics_first) {
+		if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, FALSE, flexray_info)) {
+			if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, flexray_info)) {
+				return FALSE;
+			}
+		}
+	} else {
+		if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, flexray_info)) {
+			if (!dissector_try_payload_new(subdissector_table, tvb, pinfo, tree, FALSE, flexray_info)) {
+				return FALSE;
+			}
+		}
+	}
+	return TRUE;
+}
+
 static int
 dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -119,14 +176,14 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	guint8 stfi;
 	guint8 nfi;
 	gboolean call_subdissector;
-	flexray_identifier flexray_id;
+	flexray_info_t flexray_info;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FLEXRAY");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	frame_length = tvb_captured_length(tvb);
 	frame_type = tvb_get_guint8(tvb, 0) & 0x7f;
-	flexray_id.ch = tvb_get_guint8(tvb, 0) & 0x80;
+	flexray_info.ch = tvb_get_guint8(tvb, 0) & 0x80;
 	call_subdissector = TRUE;
 
 	ti = proto_tree_add_item(tree, proto_flexray, tvb, 0, -1, ENC_NA);
@@ -134,6 +191,9 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	ti = proto_tree_add_item(flexray_tree, hf_flexray_measurement_header_field, tvb, 0, 1, ENC_BIG_ENDIAN);
 	type_info_tree = proto_item_add_subtree(ti, ett_flexray_measurement_header);
+
+	/* TODO: Added by later patch */
+	flexray_info.bus_id = 0;
 
 	proto_tree_add_item(type_info_tree, hf_flexray_ch, tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(type_info_tree, hf_flexray_ti, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -178,13 +238,13 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 		if (flexray_frame_length > 1) {
 
-			flexray_id.id = tvb_get_ntohs(tvb, 2) & 0x07ff;
+			flexray_info.id = tvb_get_ntohs(tvb, 2) & 0x07ff;
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, " ID %4d", flexray_id.id);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " ID %4d", flexray_info.id);
 
 			proto_tree_add_item(flexray_frame_tree, hf_flexray_fid, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-			if (flexray_id.id == 0) {
+			if (flexray_info.id == 0) {
 				call_subdissector = FALSE;
 			}
 		}
@@ -199,13 +259,15 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			flexray_reported_payload_length = tvb_get_guint8(tvb, 4) & 0xfe;
 			flexray_reported_payload_length = 2 * (flexray_reported_payload_length >> 1);
 			flexray_current_payload_length = flexray_frame_length - FLEXRAY_HEADER_LENGTH;
-			flexray_id.cc = tvb_get_guint8(tvb, 6) & 0x3f;
+			flexray_info.cc = tvb_get_guint8(tvb, 6) & 0x3f;
 			nfi = tvb_get_guint8(tvb, 2) & 0x20;
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, " CC %2d", flexray_id.cc);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " CC %2d", flexray_info.cc);
 
 			proto_tree_add_item(flexray_frame_tree, hf_flexray_hcrc, tvb, 4, 3, ENC_BIG_ENDIAN);
 			proto_tree_add_item(flexray_frame_tree, hf_flexray_cc, tvb, 6, 1, ENC_BIG_ENDIAN);
+                        ti = proto_tree_add_uint(flexray_frame_tree, hf_flexray_flexray_id, tvb, 0, 7, flexray_flexrayinfo_to_flexrayid(&flexray_info));
+                        proto_item_set_hidden(ti);
 
 			if (nfi) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 7, flexray_current_payload_length, ' '));
@@ -224,23 +286,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 			next_tvb = tvb_new_subset_length(tvb, 7, flexray_current_payload_length);
 
-			if (call_subdissector) {
-				if (!prefvar_try_heuristic_first){
-					if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &flexray_id)) {
-						if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &flexray_id)) {
-							call_data_dissector(next_tvb, pinfo, tree);
-						}
-					}
-				}
-				else {
-					if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &flexray_id)) {
-						if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &flexray_id)) {
-							call_data_dissector(next_tvb, pinfo, tree);
-						}
-					}
-				}
-			}
-			else {
+			if (!call_subdissector || !flexray_call_subdissectors(next_tvb, pinfo, tree, &flexray_info, prefvar_try_heuristic_first)) {
 				call_data_dissector(next_tvb, pinfo, tree);
 			}
 		}
@@ -388,7 +434,13 @@ proto_register_flexray(void)
 			FT_UINT8, BASE_DEC,
 			NULL, 0x7f,
 			NULL, HFILL }
-		}
+		},
+		{ &hf_flexray_flexray_id,
+			{ "FlexRay ID (combined)", "flexray.combined_id",
+			FT_UINT32, BASE_HEX,
+			NULL, 0,
+			NULL, HFILL }
+		},
 	};
 
 	static gint *ett[] = {
@@ -451,6 +503,7 @@ proto_register_flexray(void)
 		);
 
 	subdissector_table = register_decode_as_next_proto(proto_flexray, "flexray.subdissector", "FLEXRAY next level dissector", NULL);
+	flexrayid_subdissector_table = register_dissector_table("flexray.combined_id", "FlexRay ID (combined)", proto_flexray, FT_UINT32, BASE_HEX);
 	heur_subdissector_list = register_heur_dissector_list("flexray", proto_flexray);
 }
 
@@ -467,11 +520,11 @@ proto_reg_handoff_flexray(void)
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 4
+ * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: nil
+ * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
  */

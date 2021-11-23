@@ -404,6 +404,7 @@ static const value_string DIS_PDU_Category_AirPlatform_Strings[] =
     {   6, "Electronic Warfare (EW)" },
     {   7, "Reconnaissance" },
     {   8, "Surveillance/C2 (Airborne Early Warning)" },
+    {   9, "Air-Sea Rescue (ASR)" },
     {  20, "Attack Helicopter" },
     {  21, "Utility Helicopter" },
     {  22, "Antisubmarine Warfare/Patrol Helicopter" },
@@ -475,6 +476,8 @@ static const value_string DIS_PDU_Category_SurfacePlatform_Strings[] =
     { 85, "Private Sailboat" },
     { 86, "Fishing Vessel" },
     { 87, "Other Vessels" },
+    { 100, "Search and Rescue Vessels" },
+    { 101, "Life-Saving Equipment" },
     {  0, NULL }
 };
 
@@ -490,9 +493,17 @@ static const value_string DIS_PDU_Category_SubsurfacePlatform_Strings[] =
     {  6, "SSAN (Nuclear Auxiliary)" },
     {  7, "SSA (Conventional Auxiliary)" },
     {  8, "Unmanned Underwater Vehicle (UUV)" },
-    { 80, "Submarines" },
-    { 81, "Submersibles" },
-    { 82, "Semi-Submersible Boats" },
+    {  9, "SSB (Submarine Ballistic, Ballistic Missile Submarine)" },
+    {  10, "SSC (Coastal Submarine, over 150 tons)" },
+    {  11, "SSP (Attack Submarine - Diesel Air-Independent Propulsion)" },
+    {  12, "SSM (Midget Submarine, under 150 tons)" },
+    {  13, "SSNR (Special Attack Submarine)" },
+    {  14, "SSNR (Special Attack Submarine)" },
+    {  15, "AGSS (Auxiliary Submarine)" },
+    {  16, "Semi-Submersible Boats" },
+    { 80, "Civilian Submarines" },
+    { 81, "Civilian Submersibles" },
+    { 82, "Civilian Semi-Submersible Boats" },
     {  0, NULL }
 };
 
@@ -612,6 +623,7 @@ typedef enum
     DIS_TDL_TYPE_TCDL                         = 64,
     DIS_TDL_TYPE_LLAPI                        = 65,
     DIS_TDL_TYPE_WEAPONS_DL                   = 66,
+    DIS_TDL_TYPE_AIS                          = 67, 
     DIS_TDL_TYPE_GC3                          = 99,
     DIS_TDL_TYPE_LINK16_STD                   = 100,
     DIS_TDL_TYPE_LINK16_EDR                   = 101,
@@ -625,7 +637,17 @@ typedef enum
     DIS_TDL_TYPE_MADL                         = 109,
     DIS_TDL_TYPE_CURSOR_ON_TARGET             = 110,
     DIS_TDL_TYPE_ASTERIX                      = 111,
-    DIS_TDL_TYPE_VMF_OVER_CNR                 = 112
+    DIS_TDL_TYPE_VMF_OVER_CNR                 = 112,
+    DIS_TDL_TYPE_LINK16_TDL                   = 113,
+    DIS_TDL_TYPE_C_BAND_LOS_UPLINK            = 114,
+    DIS_TDL_TYPE_C_BAND_LOS_DOWNLINK          = 115,
+    DIS_TDL_TYPE_KU_BAND_SAT_UPLINK           = 116,
+    DIS_TDL_TYPE_KU_BAND_SAT_DOWNLINK         = 117,
+    DIS_TDL_TYPE_WEAPONS_SDB_II               = 118,
+    DIS_TDL_TYPE_CIB                          = 120,
+    DIS_TDL_TYPE_JREAP_A                      = 121,
+    DIS_TDL_TYPE_JPALS_DL                     = 125,
+    DIS_TDL_TYPE_IADS_COMM_LINK               = 126
 } DIS_PDU_TDL_Type;
 
 static const value_string DIS_PDU_TDL_Type_Strings[] =
@@ -697,6 +719,7 @@ static const value_string DIS_PDU_TDL_Type_Strings[] =
     {DIS_TDL_TYPE_TCDL,                      "Tactical Common Data Link (TCDL)" },
     {DIS_TDL_TYPE_LLAPI,                     "Low Level Air Picture Interface (LLAPI)" },
     {DIS_TDL_TYPE_WEAPONS_DL,                "Weapons Data Link (AGM-130)" },
+    {DIS_TDL_TYPE_AIS,                       "Sutomatic Identification System (AIS)" },
     {DIS_TDL_TYPE_GC3,                       "GC3" },
     {DIS_TDL_TYPE_LINK16_STD,                "Link 16 Standardized Format (JTIDS/MIDS/TADIL J)" },
     {DIS_TDL_TYPE_LINK16_EDR,                "Link 16 Enhanced Data Rate (EDR JTIDS/MIDS/TADIL-J)" },
@@ -711,6 +734,16 @@ static const value_string DIS_PDU_TDL_Type_Strings[] =
     {DIS_TDL_TYPE_CURSOR_ON_TARGET,          "Cursor on Target" },
     {DIS_TDL_TYPE_ASTERIX,                   "All Purpose Structured Eurocontrol Surveillance Information Exchange (ASTERIX)" },
     {DIS_TDL_TYPE_VMF_OVER_CNR,              "Variable Message Format (VMF) over Combat Net Radio (VMF over CNR)" },
+    {DIS_TDL_TYPE_LINK16_TDL,                "Link 16 Surrogate for Non-NATO TDL" },
+    {DIS_TDL_TYPE_C_BAND_LOS_UPLINK,         "MQ-1/9 C-Band LOS Uplink" },
+    {DIS_TDL_TYPE_C_BAND_LOS_DOWNLINK,       "MQ-1/9 C-Band LOS Downlink" },
+    {DIS_TDL_TYPE_KU_BAND_SAT_UPLINK,        "MQ-1/9 Ku-Band SATCOM Uplink" },
+    {DIS_TDL_TYPE_KU_BAND_SAT_DOWNLINK,      "MQ-1/9 Ku-Band SATCOM Downlink" },
+    {DIS_TDL_TYPE_WEAPONS_SDB_II,            "Weapons Datalink (SDB II)" },
+    {DIS_TDL_TYPE_CIB,                       "Common Interactive Broadcast (CIB)" },
+    {DIS_TDL_TYPE_JREAP_A,                   "Joint Range Extension Application Protocol A (JREAP A)" },
+    {DIS_TDL_TYPE_JPALS_DL,                  "JPALS Data Link" },
+    {DIS_TDL_TYPE_IADS_COMM_LINK,            "OneSAF IADS Communications LInk" },
     { 0,                                     NULL }
 };
 
@@ -752,6 +785,15 @@ static const value_string DIS_PDU_RadioCategory_Strings[] =
     {30,    "GPS" },
     {31,    "Tactical Video" },
     {32,    "Air-to-Air Missile Datalink" },
+    {33,    "Link 16 Surrogate for Non-NATO TDL Terminal" },
+    {34,    "MQ-1/9 C-Band LOS Datalink" },
+    {35,    "MQ-1/9 Ku-Band SATCOM Datalink" },
+    {36,    "MQ-1/9 Ku-Band SATCOM Datalink" },
+    {37,    "Automatic Identification System (AIS)" },
+    {38,    "JPALS Data Link" },
+    {40,    "Combat Search and Rescue (CSAR) Radio" },
+    {41,    "Counter Unmanned Aircraft System (C-UAS) Radio" },
+    {50,    "Electronic Attack Systems" },
     {0,     NULL }
 };
 
@@ -887,7 +929,8 @@ typedef enum
     DIS_MAJOR_MOD_COMBINATION                = 4,
     DIS_MAJOR_MOD_PULSE                      = 5,
     DIS_MAJOR_MOD_UNMODULATED                = 6,
-    DIS_MAJOR_MOD_CPSM                       = 7
+    DIS_MAJOR_MOD_CPSM                       = 7,
+    DIS_MAJOR_MOD_SATCOM                     = 8
 } DIS_PDU_MAJOR_MODULATION_TYPE;
 
 static const value_string DIS_PDU_MajorModulation_Strings[] =
@@ -4058,6 +4101,25 @@ static const value_string DIS_PDU_Country_Strings[] =
 };
 
 /* SISO-REF-010 [UID 82] */
+typedef enum
+{
+    DIS_PDU_IFFSystemType_NOT_USED = 0,
+    DIS_PDU_IFFSystemType_MARK_X_XII_ATCRBS_TRANSPONDER = 1,
+    DIS_PDU_IFFSystemType_MARK_X_XII_ATCRBS_INTERROGATOR = 2,
+    DIS_PDU_IFFSystemType_SOVIET_TRANSPONDER = 3,
+    DIS_PDU_IFFSystemType_SOVIET_INTERROGATOR = 4,
+    DIS_PDU_IFFSystemType_RRB_TRANSPONDER = 5,
+    DIS_PDU_IFFSystemType_MARK_XIIA_INTERROGATOR = 6,
+    DIS_PDU_IFFSystemType_MODE_5_INTERROGATOR = 7,
+    DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR = 8,
+    DIS_PDU_IFFSystemType_MARK_XIIA_TRANSPONDER = 9,
+    DIS_PDU_IFFSystemType_MODE_5_TRANSPONDER = 10,
+    DIS_PDU_IFFSystemType_MODE_S_TRANSPONDER = 11,
+    DIS_PDU_IFFSystemType_MARK_XIIA_COMBINED_INTERROGATOR_TRANSPONDER_CIT = 12,
+    DIS_PDU_IFFSystemType_MARK_XII_COMBINED_INTERROGATOR_TRANSPONDER_CIT = 13,
+    DIS_PDU_IFFSystemType_TCAS_ACAS_TRANSCEIVER = 14
+} DIS_PDU_IFFSystemType;
+
 static const value_string DIS_PDU_IffSystemType_Strings[] =
 {
     {  0, "Not Used (Invalid Value)" },
@@ -4130,10 +4192,97 @@ static const value_string DIS_PDU_IffNoYes_Strings[] =
     {  0, NULL }
 };
 
+static const value_string DIS_PDU_IffHeartbeat_Strings[] =
+{
+    {  0, "No Heartbeat" },
+    {  1, "Heartbeat" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 337] */
+static const value_string DIS_PDU_IffTransponder_Interrogator_Strings[] =
+{
+    {  0, "Transponder" },
+    {  1, "Interrogator" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 338] */
+static const value_string DIS_PDU_IffSimulation_Mode_Strings[] =
+{
+    {  0, "Regeneration" },
+    {  1, "Interactive" },
+    {  0, NULL }
+};
+
 static const value_string DIS_PDU_IffOffOn_Strings[] =
 {
     {  0, "Off" },
     {  1, "On" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 348] */
+typedef enum
+{
+    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_II = 0,
+    DIS_MODE_S_INTERROGATOR_IDENTIFIER_IC_TYPE_SI = 1
+} DIS_PDU_IFFModeSInterrogatorIdentifierICType;
+
+static const value_string DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings[] =
+{
+    {  0, "Interrogator Identifier (II)" },
+    {  1, "Surveillance Identifier (SI)" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 340] */
+static const value_string DIS_PDU_IffModeCAltitudeIndicator_Strings[] =
+{
+    {  0, "Positive Altitude Above MSL" },
+    {  1, "Negative Altitude Below MSL" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 341] */
+static const value_string DIS_PDU_IffTCASACASBasicAdvanced_Strings[] =
+{
+    {  0, "Basic" },
+    {  1, "Advanced" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 342] */
+static const value_string DIS_PDU_IffTCASACASIndicator_Strings[] =
+{
+    {  0, "TCAS" },
+    {  1, "ACAS" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 343] */
+static const value_string DIS_PDU_IffTCASACASSoftwareVersion_Strings[] =
+{
+    {  0, "No Statement" },
+    {  1, "6.0.2" },
+    {  2, "7.0" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 344] */
+static const value_string DIS_PDU_IffTCASACASType_Strings[] =
+{
+    {  0, "No Statement" },
+    {  1, "ACAS I" },
+    {  2, "ACAS II" },
+    {  0, NULL }
+};
+
+/* SISO-REF-010 [UID 345] */
+static const value_string DIS_PDU_IffTCASType_Strings[] =
+{
+    {  0, "TCAS I" },
+    {  1, "TCAS II" },
     {  0, NULL }
 };
 
@@ -4189,6 +4338,11 @@ static const value_string DIS_PDU_IffMode4_Strings[] =
     {    0, NULL }
 };
 
+static const value_string DIS_PDU_IffModeC_Strings[] =
+{
+    { 2047, "No Mode C Altitude. Use Alternate Mode C value" },
+    {    0, NULL }
+};
 
 /******************************************************************************
 *
@@ -4616,6 +4770,13 @@ static int hf_dis_iff_change_options = -1;
 static int hf_dis_iff_change_indicator = -1;
 static int hf_dis_iff_alternate_mode_4 = -1;
 static int hf_dis_iff_alternate_mode_c = -1;
+static int hf_dis_iff_heartbeat_indicator = -1;
+static int hf_dis_iff_transponder_interrogator_indicator = -1;
+static int hf_dis_iff_simulation_mode = -1;
+static int hf_dis_iff_interactive_capable = -1;
+static int hf_dis_iff_test_mode = -1;
+static int hf_dis_iff_system_designator = -1;
+static int hf_dis_iff_system_specific_data = -1;
 static int hf_dis_iff_system_status = -1;
 static int hf_dis_iff_system_status_system_onoff = -1;
 static int hf_dis_iff_system_status_parameter_1 = -1;
@@ -4629,22 +4790,44 @@ static int hf_dis_iff_alternate_parameter_4 = -1;
 static int hf_dis_iff_information_layers = -1;
 static int hf_dis_iff_information_layers_layer_1 = -1;
 static int hf_dis_iff_information_layers_layer_2 = -1;
+static int hf_dis_iff_information_layers_layer_3 = -1;
+static int hf_dis_iff_information_layers_layer_4 = -1;
+static int hf_dis_iff_information_layers_layer_5 = -1;
+static int hf_dis_iff_information_layers_layer_6 = -1;
+static int hf_dis_iff_information_layers_layer_7 = -1;
 static int hf_dis_iff_modifier = -1;
-static int hf_dis_iff_modifier_other = -1;
 static int hf_dis_iff_modifier_emergency = -1;
 static int hf_dis_iff_modifier_ident = -1;
 static int hf_dis_iff_modifier_sti = -1;
+static int hf_dis_iff_modifier_unmanned_aircraft = -1;
 static int hf_dis_iff_parameter_1 = -1;
 static int hf_dis_iff_parameter_2 = -1;
 static int hf_dis_iff_parameter_3 = -1;
 static int hf_dis_iff_parameter_4 = -1;
 static int hf_dis_iff_parameter_5 = -1;
 static int hf_dis_iff_parameter_6 = -1;
-static int hf_dis_iff_mode_1 = -1;
-static int hf_dis_iff_mode_2 = -1;
-static int hf_dis_iff_mode_3 = -1;
+static int hf_dis_iff_mode_code_element_1 = -1;
+static int hf_dis_iff_mode_code_element_2 = -1;
+static int hf_dis_iff_mode_code_element_3 = -1;
+static int hf_dis_iff_mode_code_element_4 = -1;
+static int hf_dis_iff_rrb = -1;
+static int hf_dis_iff_rrb_rrb_code = -1;
+static int hf_dis_iff_rrb_power_reduction_indicator = -1;
+static int hf_dis_iff_rrb_radar_enhancement_indicator = -1;
 static int hf_dis_iff_mode_4 = -1;
-static int hf_dis_iff_mode_c = -1;
+static int hf_dis_iff_mode_s_interrogator_identifier = -1;
+static int hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type;
+static int hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code;
+static int hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type;
+static int hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code;
+static int hf_dis_iff_mode_c_altitude_indicator = -1;
+static int hf_dis_iff_mode_c_altitude = -1;
+static int hf_dis_iff_tcas_acas = -1;
+static int hf_dis_iff_tcas_acas_basic_advanced_indicator = -1;
+static int hf_dis_iff_tcas_acas_tcas_acas_indicator = -1;
+static int hf_dis_iff_tcas_acas_software_version = -1;
+static int hf_dis_iff_tcas_acas_tcas_acas_type = -1;
+static int hf_dis_iff_tcas_acas_tcas_type = -1;
 static int hf_dis_iff_mode_status = -1;
 static int hf_dis_iff_mode_damage = -1;
 static int hf_dis_iff_mode_malfunction = -1;
@@ -4730,16 +4913,23 @@ static gint ett_iff_system_status = -1;
 static gint ett_iff_information_layers = -1;
 static gint ett_iff_modifier = -1;
 static gint ett_iff_parameter_1 = -1;
+static gint ett_iff_rrb = -1;
 static gint ett_iff_parameter_2 = -1;
 static gint ett_iff_parameter_3 = -1;
 static gint ett_iff_parameter_4 = -1;
+static gint ett_iff_mode_s_interrogator_identifier = -1;
 static gint ett_iff_parameter_5 = -1;
 static gint ett_iff_parameter_6 = -1;
 
 static dissector_handle_t link16_handle;
 
-typedef int DIS_Parser_func(tvbuff_t *, packet_info *, proto_tree *, int);
-
+typedef struct dis_header
+{
+    guint8 version;
+    guint8 pduType;
+    guint8 family;
+}
+dis_header_t;
 
 /* Forward declarations */
 static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name);
@@ -6506,14 +6696,21 @@ static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info
     return offset;
 }
 
-/* DIS IFF PDUs
- */
-static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, dis_header_t* header)
 {
-    proto_item *ti;
-    proto_tree *sub_tree,*field_tree;
-    guint16 site, application, entity, parameter_5, mode1, mode2, mode3;
-    gint16 altitude;
+    proto_item *ti = NULL;
+    proto_tree *sub_tree = NULL,*field_tree = NULL;
+    guint16 site = 0, application = 0, entity = 0;
+    guint16 systemType = 0;
+    guint16 mode1 = 0, mode1_element1 = 0, mode1_element2 = 0;
+    guint16 rrb = 0, rrb_code = 0;
+    guint16 mode2 = 0, mode2_element1 = 0, mode2_element2 = 0, mode2_element3 = 0, mode2_element4 = 0;
+    guint16 mode3 = 0, mode3_element1 = 0, mode3_element2 = 0, mode3_element3 = 0, mode3_element4 = 0;
+    guint16 mode4 = 0;
+    guint16 modeS = 0, modeS_primary_type = 0, modeS_primary_code = 0, modeS_secondary_type = 0, modeS_secondary_code = 0;
+    guint16 parameter_5 = 0;
+    gint16 altitude = 0;
+    guint16 parameter_6 = 0, tcas_acas_indicator = 0, tcas_acas_type = 0, tcas_I_II_type = 0;
 
     site = tvb_get_ntohs(tvb, offset);
     application = tvb_get_ntohs(tvb, offset+2);
@@ -6534,6 +6731,7 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_iff_system_id, NULL, "System ID");
 
+    systemType = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(sub_tree, hf_dis_iff_system_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -6545,27 +6743,43 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_change_options, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_change_options);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_change_indicator, tvb, offset*8+7, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_alternate_mode_4, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_alternate_mode_c, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(field_tree, hf_dis_iff_change_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_alternate_mode_4, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_alternate_mode_c, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_heartbeat_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_transponder_interrogator_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_simulation_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_interactive_capable, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_test_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
-    offset += 2;
+    if (header->version < DIS_VERSION_IEEE_1278_1_2012)
+    {
+        proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+        offset += 2;
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_dis_iff_system_designator, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_dis_iff_system_specific_data, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+    }
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, 16, ett_iff_fundamental_operational_data, NULL, "Fundamental Operational Data");
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_system_status, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_system_status);
 
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_system_onoff, tvb, offset*8+7, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_1, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_2, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_3, tvb, offset*8+4, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_4, tvb, offset*8+3, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_5, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_parameter_6, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_system_status_operational, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_system_onoff, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_4, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_5, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_parameter_6, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_system_status_operational, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(sub_tree, hf_dis_iff_alternate_parameter_4, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6573,72 +6787,201 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_information_layers, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_information_layers);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_information_layers_layer_1, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_information_layers_layer_2, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_4, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_5, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_6, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_information_layers_layer_7, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_modifier, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_modifier);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_other, tvb, offset*8+7, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_emergency, tvb, offset*8+6, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_ident, tvb, offset*8+5, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_modifier_sti, tvb, offset*8+4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_modifier_emergency, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_modifier_ident, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_modifier_sti, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_modifier_unmanned_aircraft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    mode1 = tvb_get_ntohs(tvb, offset) & 0x3f;
-    ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_1, tvb, offset, 2, ENC_BIG_ENDIAN);
-    field_tree = proto_item_add_subtree(ti, ett_iff_parameter_1);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_1, tvb, offset*8+10, 6, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    if (systemType == DIS_PDU_IFFSystemType_RRB_TRANSPONDER)
+    {
+        rrb = tvb_get_ntohs(tvb, offset);
+        rrb_code = rrb & 0x1f;
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_rrb, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_rrb);
+        proto_tree_add_item(field_tree, hf_dis_iff_rrb_rrb_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_rrb_power_reduction_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_rrb_radar_enhancement_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        mode1 = tvb_get_ntohs(tvb, offset) & 0x3f;
+        mode1_element1 = (mode1) & 0x7;
+        mode1_element2 = ((mode1) >> 3) & 0x7;
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_parameter_1);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     mode2 = tvb_get_ntohs(tvb, offset) & 0xfff;
+    mode2_element1 = (mode2) & 0x7;
+    mode2_element2 = ((mode2) >> 3) & 0x7;
+    mode2_element3 = ((mode2) >> 6) & 0x7;
+    mode2_element4 = ((mode2) >> 9) & 0x7;
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_2, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_2);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_2, tvb, offset*8+4, 12, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     mode3 = tvb_get_ntohs(tvb, offset) & 0xfff;
+    mode3_element1 = (mode3) & 0x7;
+    mode3_element2 = ((mode3) >> 3) & 0x7;
+    mode3_element4 = ((mode3) >> 9) & 0x7;
+    mode3_element3 = ((mode3) >> 6) & 0x7;
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_3, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_3);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_3, tvb, offset*8+4, 12, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_1, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_code_element_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_4, tvb, offset, 2, ENC_BIG_ENDIAN);
-    field_tree = proto_item_add_subtree(ti, ett_iff_parameter_4);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_4, tvb, offset*8+4, 12, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    if (systemType == DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR)
+    {
+        modeS = tvb_get_ntohs(tvb, offset) & 0xffff;
+        modeS_primary_type = (modeS) & 0x1;
+        modeS_primary_code = ((modeS) >> 1) & 0x7f;
+        modeS_secondary_type = ((modeS) >> 8)& 0x1;
+        modeS_secondary_code = ((modeS) >> 9) & 0x7f;
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_mode_s_interrogator_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_mode_s_interrogator_identifier);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        mode4 = tvb_get_ntohs(tvb, offset) & 0xfff;
+        ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(ti, ett_iff_parameter_4);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
     offset += 2;
 
     ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_5, tvb, offset, 2, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree(ti, ett_iff_parameter_5);
     parameter_5 = tvb_get_ntohs(tvb, offset);
     altitude = ((parameter_5 >> 1) & 0x7ff) * ((parameter_5 & 1) ? -1: 1);
-    proto_tree_add_int(field_tree, hf_dis_iff_mode_c, tvb, offset, 2, altitude);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_status, tvb, offset*8+2, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_damage, tvb, offset*8+1, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_c_altitude_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_c_altitude, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    /*ti = */proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
-    /*field_tree = proto_item_add_subtree(ti, ett_iff_parameter_6);*/
+    parameter_6 = tvb_get_ntohs(tvb, offset);
+    tcas_acas_indicator = tvb_get_ntohs(tvb, offset) & 0x2;
+    tcas_acas_type = (tvb_get_ntohs(tvb, offset) >> 9) & 0x7;
+    tcas_I_II_type = (tvb_get_ntohs(tvb, offset) >> 12) & 0x1;
+    ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
+    field_tree = proto_item_add_subtree(ti, ett_iff_parameter_6);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_acas_basic_advanced_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_acas_tcas_acas_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_acas_software_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_acas_tcas_acas_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_tcas_acas_tcas_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_damage, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d-%d-%d", site, application, entity);
-    if (mode1) col_append_fstr(pinfo->cinfo, COL_INFO, ", 1=%02o", mode1);
-    if (mode2) col_append_fstr(pinfo->cinfo, COL_INFO, ", 2=%04o", mode2);
-    if (mode3) col_append_fstr(pinfo->cinfo, COL_INFO, ", 3=%04o", mode3);
+
+    if (mode1)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", 1=%o%o", mode1_element1, mode1_element2);
+    }
+    else if (rrb)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", RRB=%d", rrb_code);
+    }
+
+    if (mode2) col_append_fstr(pinfo->cinfo, COL_INFO, ", 2=%o%o%o%o", mode2_element1, mode2_element2, mode2_element3, mode2_element4);
+    if (mode3) col_append_fstr(pinfo->cinfo, COL_INFO, ", 3=%o%o%o%o", mode3_element1, mode3_element2, mode3_element3, mode3_element4);
+
+    if (systemType == DIS_PDU_IFFSystemType_MODE_S_INTERROGATOR)
+    {
+        if (modeS_primary_type == 0)
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", P=II ");
+        }
+        else
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", P=SI");
+        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_primary_code);
+
+        if (modeS_secondary_type == 0)
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", S=II");
+        }
+        else
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, ", S=SI");
+        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %d", modeS_secondary_code);
+    }
+    else if (mode4)
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", 4=%d", mode4);
+    }
+
     if (altitude || (parameter_5 & 0x2000)) col_append_fstr(pinfo->cinfo, COL_INFO, ", C=FL%d", altitude);
+   
+    if (parameter_6)
+    {
+        if (tcas_acas_indicator == 0)
+        {
+            if (tcas_I_II_type == 0)
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, ", TCAS I");
+            }
+            else
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, ", TCAS II");
+            }
+        }
+        else 
+        {
+            if (tcas_acas_type == 1)
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, ", ACAS I");
+            }
+            else if (tcas_acas_type == 2)
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, ", ACAS II");
+            }
+        }
+    }
 
     return offset;
 }
@@ -7725,7 +8068,7 @@ static gint alignOffset(gint offset, guint fieldLength)
     return offset;
 }
 
-/* Parse the Timestamp -- defined in spec in microsecods: DIS 1278.1-2012: sec 5.2.5, detailed in sec 6.2.88 */
+/* Parse the Timestamp -- defined in spec in microseconds: DIS 1278.1-2012: sec 5.2.5, detailed in sec 6.2.88 */
 static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf_relative)
 {
    /* some consts */
@@ -7912,14 +8255,6 @@ static const true_false_string dis_time_hopping_value = {
     "Time hopping modulation not used"
 };
 
-typedef struct dis_header
-{
-    guint8 version;
-    guint8 pduType;
-    guint8 family;
-}
-dis_header_t;
-
 static int parsePDUStatus(tvbuff_t *tvb, proto_tree *tree, int offset, dis_header_t* header)
 {
     if ((header->pduType == DIS_PDUTYPE_ENTITY_STATE)
@@ -8016,10 +8351,13 @@ static int parseDISHeader(tvbuff_t *tvb, proto_tree *tree, int offset, dis_heade
     /* starting in DIS v7, the high-order byte of padding is
     *  converted to a status bitmap field
     */
-    if (header->version < DIS_VERSION_IEEE_1278_1_2012) {
+    if (header->version < DIS_VERSION_IEEE_1278_1_2012)
+    {
         proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
         offset += 2;
-    } else {
+    }
+    else
+    {
         /* add a node to contain the PDU status fields
         */
         pdu_status = proto_tree_add_item(tree, hf_dis_pdu_status, tvb, offset, 1, ENC_NA);
@@ -8059,6 +8397,124 @@ static int parsePOHeader(tvbuff_t *tvb, proto_tree *tree, int offset, guint8* pd
 }
 
 
+static gint parse_persistent_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, guint8 persistentObjectPduType)
+{
+    switch (persistentObjectPduType)
+    {
+    case DIS_PERSISTENT_OBJECT_TYPE_SIMULATOR_PRESENT:
+        return dissect_DIS_PARSER_SIMULATOR_PRESENT_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_DESCRIBE_OBJECT:
+        return dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_OBJECTS_PRESENT:
+        return dissect_DIS_PARSER_OBJECTS_PRESENT_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_OBJECT_REQUEST:
+        return dissect_DIS_PARSER_OBJECT_REQUEST_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_DELETE_OBJECTS:
+        return dissect_DIS_PARSER_DELETE_OBJECTS_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_SET_WORLD_STATE:
+        return dissect_DIS_PARSER_SET_WORLD_STATE_PO_PDU(tvb, pinfo, tree, offset);
+    case DIS_PERSISTENT_OBJECT_TYPE_NOMINATION:
+        return dissect_DIS_PARSER_NOMINATION_PO_PDU(tvb, pinfo, tree, offset);
+    default:
+        return offset;
+    }
+}
+
+static gint parse_pdu_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, guint8 pduType)
+{
+    switch (pduType)
+    {
+    /* DIS Entity Information / Interaction PDUs */
+    case DIS_PDUTYPE_ENTITY_STATE:
+        return dissect_DIS_PARSER_ENTITY_STATE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_COLLISION:
+        return dissect_DIS_PARSER_COLLISION_PDU(tvb, pinfo, tree, offset);
+    /* DIS Distributed Emission Regeneration PDUs */
+    case DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION:
+        return dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
+        return dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvb, pinfo, tree, offset);
+    
+    /* IFF PDU needs the header information to be parsed, so it is handled separately. 
+     *    case DIS_PDUTYPE_IFF:
+     */
+
+    case DIS_PDUTYPE_DESIGNATOR:
+        return dissect_DIS_PARSER_DESIGNATOR_PDU(tvb, pinfo, tree, offset);
+    /* DIS Radio Communications protocol (RCP) family PDUs */
+    case DIS_PDUTYPE_TRANSMITTER:
+        return dissect_DIS_PARSER_TRANSMITTER_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_SIGNAL:
+    case DIS_PDUTYPE_INTERCOM_SIGNAL:
+        return dissect_DIS_PARSER_SIGNAL_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_INTERCOM_CONTROL:
+        return dissect_DIS_PARSER_INTERCOM_CONTROL_PDU(tvb, pinfo, tree, offset);
+    /* DIS Warfare PDUs */
+    case DIS_PDUTYPE_FIRE:
+        return dissect_DIS_PARSER_FIRE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DETONATION:
+        /* TODO: Version 7 (header.version >= DIS_VERSION_IEEE_1278_1_2012)
+         *       changed the Detonation PDU format
+         *       Need a different parser
+         */
+        return dissect_DIS_PARSER_DETONATION_PDU(tvb, pinfo, tree, offset);
+    /* DIS Simulation Management PDUs */
+    case DIS_PDUTYPE_START_RESUME:
+        return dissect_DIS_PARSER_START_RESUME_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_STOP_FREEZE:
+        return dissect_DIS_PARSER_STOP_FREEZE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACKNOWLEDGE:
+        return dissect_DIS_PARSER_ACKNOWLEDGE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_REQUEST:
+        return dissect_DIS_PARSER_ACTION_REQUEST_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_RESPONSE:
+        return dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA:
+    case DIS_PDUTYPE_SET_DATA:
+        return dissect_DIS_PARSER_DATA_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_EVENT_REPORT:
+        return dissect_DIS_PARSER_EVENT_REPORT_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA_QUERY:
+        return dissect_DIS_PARSER_DATA_QUERY_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_COMMENT:
+        return dissect_DIS_PARSER_COMMENT_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_CREATE_ENTITY:
+    case DIS_PDUTYPE_REMOVE_ENTITY:
+        return dissect_DIS_PARSER_SIMAN_ENTITY_PDU(tvb, pinfo, tree, offset);
+    /* DIS Simulation Management with Reliability PDUs */
+    case DIS_PDUTYPE_START_RESUME_R:
+        return dissect_DIS_PARSER_START_RESUME_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_STOP_FREEZE_R:
+        return dissect_DIS_PARSER_STOP_FREEZE_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACKNOWLEDGE_R:
+        return dissect_DIS_PARSER_ACKNOWLEDGE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_REQUEST_R:
+        return dissect_DIS_PARSER_ACTION_REQUEST_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ACTION_RESPONSE_R:
+        return dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA_R:
+    case DIS_PDUTYPE_SET_DATA_R:
+        return dissect_DIS_PARSER_DATA_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_DATA_QUERY_R:
+        return dissect_DIS_PARSER_DATA_QUERY_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_COMMENT_R:
+        return dissect_DIS_PARSER_COMMENT_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_CREATE_ENTITY_R:
+    case DIS_PDUTYPE_REMOVE_ENTITY_R:
+        return dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ENTITY_STATE_UPDATE:
+        return dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU(tvb, pinfo, tree, offset);
+    /* DIS Experimental V-DIS PDUs */
+    case DIS_PDUTYPE_APPLICATION_CONTROL:
+        return dissect_DIS_PARSER_APPLICATION_CONTROL_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_ENVIRONMENTAL_PROCESS:
+        return dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU(tvb, pinfo, tree, offset);
+    case DIS_PDUTYPE_AGGREGATE_STATE:
+        return dissect_DIS_PARSER_AGGREGATE_STATE_PDU(tvb, pinfo, tree, offset);
+    default:
+        return offset;
+    }
+}
 
 /* Main dissector routine to be invoked for a DIS PDU.
  */
@@ -8068,12 +8524,14 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_item *dis_node;
     proto_tree *dis_payload_tree = NULL;
     proto_item *dis_payload_node = NULL;
+
     gint offset = 0;
+    gint offsetBeforePayloadParse = 0;
+
     const gchar *pduString = 0;
-    DIS_Parser_func* pduFunc = NULL;
+
     dis_header_t header;
     guint8 persistentObjectPduType;
-
 
     /* DIS packets must be at least 12 bytes long.  DIS uses port 3000, by
      * default, but the Cisco Redundant Link Management protocol can also use
@@ -8102,215 +8560,64 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* Locate the string name for the PDU type enumeration,
      * or default to "Unknown".
-    */
+      */
     pduString = val_to_str_ext_const(header.pduType, &DIS_PDU_Type_Strings_Ext, "Unknown");
+    
+    /* set the basic info column (pdu type) */
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PDUType: %d \t ", header.pduType);
 
     /* Locate the appropriate PDU parser, if type is known.
      */
-    switch (header.family)
+    if (header.family == DIS_PROTOCOLFAMILY_PERSISTENT_OBJECT)
     {
-    case DIS_PROTOCOLFAMILY_PERSISTENT_OBJECT:
-        {
-            proto_item *dis_po_header_tree;
+        proto_item *dis_po_header_tree;
 
-            dis_po_header_tree = proto_tree_add_subtree(dis_header_tree, tvb, offset, 8, ett_dis_po_header, NULL, "PO Header");
-            offset = parsePOHeader(tvb, dis_po_header_tree, offset, &persistentObjectPduType);
+        dis_po_header_tree = proto_tree_add_subtree(dis_header_tree, tvb, offset, 8, ett_dis_po_header, NULL, "PO Header");
+        offset = parsePOHeader(tvb, dis_po_header_tree, offset, &persistentObjectPduType);
+        /* Locate the string name for the PO PDU type enumeration,
+         * or default to "Unknown".
+         */
+        pduString = val_to_str(persistentObjectPduType, DIS_PDU_PersistentObjectType_Strings, "Unknown");
 
-            /* Locate the appropriate PO PDU parser, if type is known.
-             */
-            switch (persistentObjectPduType)
-            {
-            case DIS_PERSISTENT_OBJECT_TYPE_SIMULATOR_PRESENT:
-                pduFunc = &dissect_DIS_PARSER_SIMULATOR_PRESENT_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_DESCRIBE_OBJECT:
-                pduFunc = &dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_OBJECTS_PRESENT:
-                pduFunc = &dissect_DIS_PARSER_OBJECTS_PRESENT_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_OBJECT_REQUEST:
-                pduFunc = &dissect_DIS_PARSER_OBJECT_REQUEST_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_DELETE_OBJECTS:
-                pduFunc = &dissect_DIS_PARSER_DELETE_OBJECTS_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_SET_WORLD_STATE:
-                pduFunc = &dissect_DIS_PARSER_SET_WORLD_STATE_PO_PDU;
-                break;
-            case DIS_PERSISTENT_OBJECT_TYPE_NOMINATION:
-                pduFunc = &dissect_DIS_PARSER_NOMINATION_PO_PDU;
-                break;
-            default:
-                pduFunc = NULL;
-                break;
-            }
+        /* Append name of persistent PDU to the basic info column */
+        col_append_str(pinfo->cinfo, COL_INFO, pduString);
 
-            /* Locate the string name for the PO PDU type enumeration,
-             * or default to "Unknown".
-             */
-            pduString = val_to_str
-                (persistentObjectPduType,
-                 DIS_PDU_PersistentObjectType_Strings, "Unknown");
+        /* Add a node to contain the DIS PDU fields.
+         */
+        dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
+            ett_dis_payload, &dis_payload_node, "%s PO PDU", pduString);
 
-            /* Add a node to contain the DIS PDU fields.
-             */
-            dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
-                ett_dis_payload, &dis_payload_node, "%s PO PDU", pduString);
-        }
-        break;
-    default:
+        offsetBeforePayloadParse = offset;
+        /* Parse using the appropriate PO PDU parser, if type is known.
+         */
+        offset = parse_persistent_pdu_payload(tvb, pinfo, dis_payload_tree, offset, persistentObjectPduType);
+    }
+    else
+    {
+        /* Append name of persistent PDU to the basic info column */
+        col_append_str(pinfo->cinfo, COL_INFO, pduString);
 
         /* Add a node to contain the DIS PDU fields.
          */
         dis_payload_tree = proto_tree_add_subtree_format(dis_tree, tvb, offset, -1,
             ett_dis_payload, &dis_payload_node, "%s PDU", pduString);
 
-        switch (header.pduType)
+        offsetBeforePayloadParse = offset;
+
+        if (header.pduType == DIS_PDUTYPE_IFF)
         {
-        /* DIS Entity Information / Interaction PDUs */
-        case DIS_PDUTYPE_ENTITY_STATE:
-            pduFunc = &dissect_DIS_PARSER_ENTITY_STATE_PDU;
-            break;
-        case DIS_PDUTYPE_COLLISION:
-            pduFunc = &dissect_DIS_PARSER_COLLISION_PDU;
-            break;
-
-        /* DIS Distributed Emission Regeneration PDUs */
-        case DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION:
-            pduFunc = &dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU;
-            break;
-
-        case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
-            pduFunc = &dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU;
-            break;
-
-        case DIS_PDUTYPE_IFF:
-            pduFunc = &dissect_DIS_PARSER_IFF_PDU;
-            break;
-
-        case DIS_PDUTYPE_DESIGNATOR:
-            pduFunc = &dissect_DIS_PARSER_DESIGNATOR_PDU;
-            break;
-
-        /* DIS Radio Communications protocol (RCP) family PDUs */
-        case DIS_PDUTYPE_TRANSMITTER:
-            pduFunc = &dissect_DIS_PARSER_TRANSMITTER_PDU;
-            break;
-        case DIS_PDUTYPE_SIGNAL:
-        case DIS_PDUTYPE_INTERCOM_SIGNAL:
-            pduFunc = &dissect_DIS_PARSER_SIGNAL_PDU;
-            break;
-
-        case DIS_PDUTYPE_INTERCOM_CONTROL:
-            pduFunc = &dissect_DIS_PARSER_INTERCOM_CONTROL_PDU;
-            break;
-
-
-        /* DIS Warfare PDUs */
-        case DIS_PDUTYPE_FIRE:
-            pduFunc = &dissect_DIS_PARSER_FIRE_PDU;
-            break;
-        case DIS_PDUTYPE_DETONATION:
-            /* TODO: Version 7 (header.version >= DIS_VERSION_IEEE_1278_1_2012)
-             *       changed the Detonation PDU format
-             *       Need a different parser
-             */
-            pduFunc = &dissect_DIS_PARSER_DETONATION_PDU;
-
-            break;
-
-        /* DIS Simulation Management PDUs */
-        case DIS_PDUTYPE_START_RESUME:
-            pduFunc = &dissect_DIS_PARSER_START_RESUME_PDU;
-            break;
-        case DIS_PDUTYPE_STOP_FREEZE:
-            pduFunc = &dissect_DIS_PARSER_STOP_FREEZE_PDU;
-            break;
-        case DIS_PDUTYPE_ACKNOWLEDGE:
-            pduFunc = &dissect_DIS_PARSER_ACKNOWLEDGE_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_REQUEST:
-            pduFunc = &dissect_DIS_PARSER_ACTION_REQUEST_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_RESPONSE:
-            pduFunc = &dissect_DIS_PARSER_ACTION_RESPONSE_PDU;
-            break;
-        case DIS_PDUTYPE_DATA:
-        case DIS_PDUTYPE_SET_DATA:
-            pduFunc = &dissect_DIS_PARSER_DATA_PDU;
-            break;
-        case DIS_PDUTYPE_EVENT_REPORT:
-            pduFunc = &dissect_DIS_PARSER_EVENT_REPORT_PDU;
-            break;
-        case DIS_PDUTYPE_DATA_QUERY:
-            pduFunc = &dissect_DIS_PARSER_DATA_QUERY_PDU;
-            break;
-        case DIS_PDUTYPE_COMMENT:
-            pduFunc = &dissect_DIS_PARSER_COMMENT_PDU;
-            break;
-        case DIS_PDUTYPE_CREATE_ENTITY:
-        case DIS_PDUTYPE_REMOVE_ENTITY:
-            pduFunc = &dissect_DIS_PARSER_SIMAN_ENTITY_PDU;
-            break;
-
-        /* DIS Simulation Management with Reliability PDUs */
-        case DIS_PDUTYPE_START_RESUME_R:
-            pduFunc = &dissect_DIS_PARSER_START_RESUME_R_PDU;
-            break;
-        case DIS_PDUTYPE_STOP_FREEZE_R:
-            pduFunc = &dissect_DIS_PARSER_STOP_FREEZE_R_PDU;
-            break;
-        case DIS_PDUTYPE_ACKNOWLEDGE_R:
-            pduFunc = &dissect_DIS_PARSER_ACKNOWLEDGE_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_REQUEST_R:
-            pduFunc = &dissect_DIS_PARSER_ACTION_REQUEST_R_PDU;
-            break;
-        case DIS_PDUTYPE_ACTION_RESPONSE_R:
-            pduFunc = &dissect_DIS_PARSER_ACTION_RESPONSE_PDU;
-            break;
-        case DIS_PDUTYPE_DATA_R:
-        case DIS_PDUTYPE_SET_DATA_R:
-            pduFunc = &dissect_DIS_PARSER_DATA_R_PDU;
-            break;
-        case DIS_PDUTYPE_DATA_QUERY_R:
-            pduFunc = &dissect_DIS_PARSER_DATA_QUERY_R_PDU;
-            break;
-        case DIS_PDUTYPE_COMMENT_R:
-            pduFunc = &dissect_DIS_PARSER_COMMENT_PDU;
-            break;
-        case DIS_PDUTYPE_CREATE_ENTITY_R:
-        case DIS_PDUTYPE_REMOVE_ENTITY_R:
-            pduFunc = &dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU;
-            break;
-        case DIS_PDUTYPE_ENTITY_STATE_UPDATE:
-            pduFunc = &dissect_DIS_PARSER_ENTITY_STATE_UPDATE_PDU;
-            break;
-        /* DIS Experimental V-DIS PDUs */
-        case DIS_PDUTYPE_APPLICATION_CONTROL:
-            pduFunc = &dissect_DIS_PARSER_APPLICATION_CONTROL_PDU;
-            break;
-        case DIS_PDUTYPE_ENVIRONMENTAL_PROCESS:
-            pduFunc = &dissect_DIS_PARSER_ENVIRONMENTAL_PROCESS_PDU;
-            break;
-        case DIS_PDUTYPE_AGGREGATE_STATE:
-            pduFunc = &dissect_DIS_PARSER_AGGREGATE_STATE_PDU;
-            break;
-        default:
-            pduFunc = NULL;
-            break;
+            offset = dissect_DIS_PARSER_IFF_PDU(tvb, pinfo, dis_payload_tree, offset, &header);
         }
-        break;
+        else
+        {
+            offset = parse_pdu_payload(tvb, pinfo, dis_payload_tree, offset, header.pduType);
+        }
     }
 
-    /* set the basic info column (pdu type) */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "PDUType: %d \t %s", header.pduType , pduString );
-    /* If a parser was located, invoke it on the data packet.
+    /* If pdu parsing moved the offset, then set the length.
      */
-    if (pduFunc != NULL)
+    if (offset != offsetBeforePayloadParse)
     {
-        offset = (*pduFunc)(tvb, pinfo, dis_payload_tree, offset);
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
 
@@ -9023,7 +9330,7 @@ void proto_register_dis(void)
                 NULL, HFILL}
             },
             { &hf_dis_mod_param_ts_allocation_mode,
-              { "Time Slot Allocaton Mode", "dis.radio.mod_param.jtids.ts_alloc_mode",
+              { "Time Slot Allocation Mode", "dis.radio.mod_param.jtids.ts_alloc_mode",
                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_TSAllocationFidelity_Strings), 0x0,
                 NULL, HFILL }
             },
@@ -9434,12 +9741,12 @@ void proto_register_dis(void)
             },
             { &hf_dis_environment_status_last,
               { "Environment Status Last", "dis.environmental.environment_status_last",
-                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_last_vals), 0x00000001,
+                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_last_vals), 0x01,
                 NULL, HFILL }
             },
             { &hf_dis_environment_status_on,
               { "Environment Status Last", "dis.environmental.environment_status_last",
-                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_on_vals), 0x00000002,
+                FT_UINT8, BASE_DEC, VALS(environmental_environment_status_on_vals), 0x02,
                 NULL, HFILL }
             },
             { &hf_dis_aggregate_formation,
@@ -10270,67 +10577,102 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_change_options,
               { "Change/Options",  "dis.iff.change_options",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_iff_change_indicator,
               { "Change Indicator",  "dis.iff.change_indicator",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffChangeIndicator_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffChangeIndicator_Strings), 0x1,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_mode_4,
               { "Alternate Mode 4",  "dis.iff.alternate_mode_4",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_mode_c,
               { "Alternate Mode C",  "dis.iff.alternate_mode_c",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x0,
+               FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffNoYes_Strings), 0x4,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_heartbeat_indicator,
+             { "Heartbeat Indicator",  "dis.iff.heartbeat_indicator",
+               FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffHeartbeat_Strings), 0x8,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_transponder_interrogator_indicator,
+             { "Transponder/Interrogator Indicator",  "dis.iff.transponder_interrogator_indicator",
+              FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffTransponder_Interrogator_Strings), 0x10,
+              NULL, HFILL }
+            },
+            { &hf_dis_iff_simulation_mode,
+             { "Simulation Mode",  "dis.iff.simulation_mode",
+              FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffSimulation_Mode_Strings), 0x20,
+              NULL, HFILL }
+            },
+            { &hf_dis_iff_interactive_capable,
+             { "Interactive Capable",  "dis.iff.interactive_capable",
+              FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x40,
+              NULL, HFILL }
+            },
+            { &hf_dis_iff_test_mode,
+              { "Test Mode",  "dis.iff.test_mode",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x80,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_system_designator,
+              { "System Designator",  "dis.iff.system_designator",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_system_specific_data,
+              { "System Specific Data",  "dis.iff.system_specific_data",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status,
               { "System Status",  "dis.iff.system_status",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_system_onoff,
               { "System On/Off",  "dis.iff.system_status.system_onoff",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_1,
               { "Parameter 1",  "dis.iff.system_status.parameter_1",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_2,
               { "Parameter 2",  "dis.iff.system_status.parameter_2",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x4,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_3,
               { "Parameter 3",  "dis.iff.system_status.parameter_3",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x8,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_4,
               { "Parameter 4",  "dis.iff.system_status.parameter_4",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x10,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_5,
               { "Parameter 5",  "dis.iff.system_status.parameter_5",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x20,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_parameter_6,
               { "Parameter 6",  "dis.iff.system_status.parameter_6",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffCapable_Strings), 0x40,
                 NULL, HFILL }
             },
             { &hf_dis_iff_system_status_operational,
               { "Operational",  "dis.iff.system_status.operational",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOperational_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOperational_Strings), 0x80,
                 NULL, HFILL }
             },
             { &hf_dis_iff_alternate_parameter_4,
@@ -10345,12 +10687,37 @@ void proto_register_dis(void)
             },
             { &hf_dis_iff_information_layers_layer_1,
               { "Layer 1",  "dis.iff.information_layers.layer_1",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_information_layers_layer_2,
               { "Layer 2",  "dis.iff.information_layers.layer_2",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x0,
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x4,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_3,
+              { "Layer 3",  "dis.iff.information_layers.layer_3",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x8,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_4,
+              { "Layer 4",  "dis.iff.information_layers.layer_4",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x10,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_5,
+              { "Layer 5",  "dis.iff.information_layers.layer_5",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x20,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_6,
+              { "Layer 6",  "dis.iff.information_layers.layer_6",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x40,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_information_layers_layer_7,
+              { "Layer 7",  "dis.iff.information_layers.layer_7",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffPresent_Strings), 0x80,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier,
@@ -10358,24 +10725,24 @@ void proto_register_dis(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_modifier_other,
-              { "Other",  "dis.iff.modifier.other",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }
-            },
             { &hf_dis_iff_modifier_emergency,
-              { "Emergency",  "dis.iff.modifier.emergency",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+              { "Military Emergency",  "dis.iff.modifier.emergency",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x2,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier_ident,
-              { "Ident/Squawk Flash",  "dis.iff.modifier.ident",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+              { "Ident/Squawk Flash",  "dis.iff.modifier_ident",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x4,
                 NULL, HFILL }
             },
             { &hf_dis_iff_modifier_sti,
-              { "STI",  "dis.iff.modifier.sti",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+              { "STI",  "dis.iff.modifier_sti",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x8,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_modifier_unmanned_aircraft,
+              { "Unmanned Aircraft",  "dis.iff.modifier_unmanned_aircraft",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x10,
                 NULL, HFILL }
             },
             { &hf_dis_iff_parameter_1,
@@ -10408,44 +10775,129 @@ void proto_register_dis(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_1,
-              { "IFF Mode 1",  "dis.iff.mode_1",
-                FT_UINT16, BASE_OCT, NULL, 0x0,
+            { &hf_dis_iff_mode_code_element_1,
+              { "Code Element 1",  "dis.iff.mode_code.element_1",
+                FT_UINT16, BASE_OCT, NULL, 0x7,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_2,
-              { "IFF Mode 2",  "dis.iff.mode_2",
-                FT_UINT16, BASE_OCT, NULL, 0x0,
+            { &hf_dis_iff_mode_code_element_2,
+              { "Code Element 2",  "dis.iff.mode_code.element_2",
+                FT_UINT16, BASE_OCT, NULL, 0x38,
                 NULL, HFILL }
             },
-            { &hf_dis_iff_mode_3,
-              { "IFF Mode 3",  "dis.iff.mode_3",
-                FT_UINT16, BASE_OCT, NULL, 0x0,
+            { &hf_dis_iff_mode_code_element_3,
+              { "Code Element 3",  "dis.iff.mode_code.element_3",
+                FT_UINT16, BASE_OCT, NULL, 0x1C0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_code_element_4,
+              { "Code Element 4",  "dis.iff.mode_code.element_4",
+                FT_UINT16, BASE_OCT, NULL, 0xE00,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_rrb,
+              { "RRB Transponder",  "dis.iff.rrb",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_rrb_rrb_code,
+              { "RRB Code",  "dis.iff.rrb.rrb_code",
+                FT_UINT16, BASE_DEC, NULL, 0x1F,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_rrb_power_reduction_indicator,
+              { "Power Reduction Indicator",  "dis.iff.rrb.power_reduction_indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x800,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_rrb_radar_enhancement_indicator,
+              { "Radar Enhancement Indicator",  "dis.iff.rrb.radar_enhancement_indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x1000,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier,
+              { "Mode S Interrogator Identifier",  "dis.iff.mode_s_interrogator_identifier",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_primary_ic_type,
+              { "Primary IC Type",  "dis.iff.mode_s_interrogator_identifier.primary_ic_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x1,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_primary_ic_code,
+              { "Primary IC Code",  "dis.iff.mode_s_interrogator_identifier.primary_ic_code",
+                 FT_UINT16, BASE_DEC, NULL, 0xFE,
+                 NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_type,
+              { "Secondary IC Type",  "dis.iff.mode_s_interrogator_identifier.secondary_ic_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeSInterrogatorIdentifierICType_Strings), 0x100,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_s_interrogator_identifier_secondary_ic_code,
+              { "Secondary IC Code",  "dis.iff.mode_s_interrogator_identifier.secondary_ic_code",
+                 FT_UINT16, BASE_DEC, NULL, 0xFE00,
+                 NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_4,
+              { "Mode 4 Code",  "dis.iff.mode_4",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0xFFF,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_c_altitude_indicator,
+              { "Altitude Indicator",  "dis.iff.mode_c.altitude_indicator",
+               FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeCAltitudeIndicator_Strings), 0x1,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_mode_c_altitude,
+              { "Mode C Altitude",  "dis.iff.mode_c.altitude",
+               FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffModeC_Strings), 0xFFE,
+               NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas,
+             { "TCAS",  "dis.iff.tcas_acas",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas_basic_advanced_indicator,
+              { "Basic/Advanced",  "dis.iff.tcas_acas.basic_advanced_indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASBasicAdvanced_Strings), 0x1,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas_tcas_acas_indicator,
+              { "TCAS/ACAS",  "dis.iff.tcas_acas.tcas_acas_indicator",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASIndicator_Strings), 0x2,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas_software_version,
+              { "Software Version",  "dis.iff.tcas_acas.software_version",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASSoftwareVersion_Strings), 0x1C,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas_tcas_acas_type,
+              { "TCAS/ACAS Type",  "dis.iff.tcas_acas.tcas_acas_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASACASType_Strings), 0xE00,
+                NULL, HFILL }
+            },
+            { &hf_dis_iff_tcas_acas_tcas_type,
+              { "TCAS I/II",  "dis.iff.tcas_acas.tcas_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffTCASType_Strings), 0x1000,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_status,
-              { "Status",  "dis.iff.mode.status",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x0,
+              { "Status",  "dis.iff.mode_status",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffOffOn_Strings), 0x2000,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_damage,
-              { "Damage",  "dis.iff.mode.damage",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffDamaged_Strings), 0x0,
+              { "Damage",  "dis.iff.mode_damage",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffDamaged_Strings), 0x4000,
                 NULL, HFILL }
             },
             { &hf_dis_iff_mode_malfunction,
-              { "Malfunction",  "dis.iff.mode.malfunction",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMalfunction_Strings), 0x0,
-                NULL, HFILL }
-            },
-            { &hf_dis_iff_mode_4,
-              { "IFF Mode 4 Pseudo Crypto",  "dis.iff.mode_4",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMode4_Strings), 0x0,
-                NULL, HFILL }
-            },
-            { &hf_dis_iff_mode_c,
-              { "IFF Mode C (FL)",  "dis.iff.mode_c",
-                FT_INT16, BASE_DEC, NULL, 0x0,
+              { "Malfunction",  "dis.iff.mode_malfunction",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_IffMalfunction_Strings), 0x8000,
                 NULL, HFILL }
             },
             { &hf_dis_collision_type,
@@ -10549,9 +11001,11 @@ void proto_register_dis(void)
         &ett_iff_information_layers,
         &ett_iff_modifier,
         &ett_iff_parameter_1,
+        &ett_iff_rrb,
         &ett_iff_parameter_2,
         &ett_iff_parameter_3,
         &ett_iff_parameter_4,
+        & ett_iff_mode_s_interrogator_identifier,
         &ett_iff_parameter_5,
         &ett_iff_parameter_6,
     };

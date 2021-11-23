@@ -161,6 +161,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	unit_strings.h
 	value_string.h
 	wmem_scopes.h
+	wscbor.h
 	x264_prt_id.h
 	xdlc.h
 )
@@ -255,8 +256,10 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbuff_lz77.c
 	tvbuff_lz77huff.c
 	tvbuff_lznt1.c
+	tvbuff_rdp.c
 	uat.c
 	value_string.c
+	wscbor.c
 	unit_strings.c
 	wmem_scopes.c
 	xdlc.c
@@ -296,6 +299,7 @@ add_library(epan
 	$<TARGET_OBJECTS:dfilter>
 	$<TARGET_OBJECTS:dissectors>
 	$<TARGET_OBJECTS:dissectors-corba>
+	$<TARGET_OBJECTS:dissector-registration>
 	$<TARGET_OBJECTS:ftypes>
 	$<$<BOOL:${LUA_FOUND}>:$<TARGET_OBJECTS:wslua>>
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
@@ -320,12 +324,12 @@ target_link_libraries(epan
 	PUBLIC
 		wiretap
 		wsutil
+		${GLIB2_LIBRARIES}
 	PRIVATE
 		${BROTLI_LIBRARIES}
 		${CARES_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${GIO2_LIBRARIES}
-		${GLIB2_LIBRARIES}
 		${GNUTLS_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
 		${KERBEROS_LIBRARIES}
@@ -340,6 +344,11 @@ target_link_libraries(epan
 		${WIN_WS2_32_LIBRARY}
 		${ZLIB_LIBRARIES}
 		${ZSTD_LIBRARIES}
+)
+
+target_include_directories(epan
+	SYSTEM PUBLIC
+		${GLIB2_INCLUDE_DIRS}
 )
 
 target_include_directories(epan
@@ -410,6 +419,13 @@ set_target_properties(tvbtest PROPERTIES
 	FOLDER "Tests"
 	EXCLUDE_FROM_DEFAULT_BUILD True
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
+)
+
+add_executable(wscbor_test EXCLUDE_FROM_ALL wscbor_test.c)
+target_link_libraries(wscbor_test epan)
+set_target_properties(wscbor_test PROPERTIES
+    FOLDER "Tests"
+    EXCLUDE_FROM_DEFAULT_BUILD True
 )
 
 CHECKAPI(

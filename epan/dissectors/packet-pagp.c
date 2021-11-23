@@ -178,13 +178,13 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (raw_octet == PAGP_FLUSH_PDU) {
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "; Local DevID: %s",
-                        tvb_ether_to_str(tvb, PAGP_FLUSH_LOCAL_DEVICE_ID));
+                        tvb_ether_to_str(pinfo->pool, tvb, PAGP_FLUSH_LOCAL_DEVICE_ID));
 
         proto_tree_add_item(pagp_tree, hf_pagp_flush_local_device_id, tvb,
                             PAGP_FLUSH_LOCAL_DEVICE_ID, 6, ENC_NA);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Partner DevID: %s",
-                        tvb_ether_to_str(tvb, PAGP_FLUSH_PARTNER_DEVICE_ID));
+                        tvb_ether_to_str(pinfo->pool, tvb, PAGP_FLUSH_PARTNER_DEVICE_ID));
 
         proto_tree_add_item(pagp_tree, hf_pagp_flush_partner_device_id, tvb,
                             PAGP_FLUSH_PARTNER_DEVICE_ID, 6, ENC_NA);
@@ -205,7 +205,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_bitmask(pagp_tree, tvb, PAGP_FLAGS, hf_pagp_flags, ett_pagp_flags, pagp_flags, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "; Local DevID: %s",
-                    tvb_ether_to_str(tvb, PAGP_LOCAL_DEVICE_ID));
+                    tvb_ether_to_str(pinfo->pool, tvb, PAGP_LOCAL_DEVICE_ID));
 
     proto_tree_add_item(pagp_tree, hf_pagp_local_device_id, tvb,
                         PAGP_LOCAL_DEVICE_ID, 6, ENC_NA);
@@ -228,7 +228,7 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Partner DevID: %s",
-                    tvb_ether_to_str(tvb, PAGP_PARTNER_DEVICE_ID));
+                    tvb_ether_to_str(pinfo->pool, tvb, PAGP_PARTNER_DEVICE_ID));
 
     proto_tree_add_item(pagp_tree, hf_pagp_partner_device_id, tvb,
                         PAGP_PARTNER_DEVICE_ID, 6, ENC_NA);

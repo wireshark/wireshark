@@ -1133,7 +1133,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     if (att_length < 8)
                         break;
                     proto_tree_add_item(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                    proto_item_append_text(att_tree, " (Deprecated): %s:%d", tvb_ip_to_str(tvb, offset+4),tvb_get_ntohs(tvb,offset+2));
+                    proto_item_append_text(att_tree, " (Deprecated): %s:%d", tvb_ip_to_str(pinfo->pool, tvb, offset+4),tvb_get_ntohs(tvb,offset+2));
 
                     break;
 
@@ -1177,14 +1177,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 1:
                     if (att_length < 8)
                         break;
-                    addr_str = tvb_ip_to_str(tvb, offset + 4);
+                    addr_str = tvb_ip_to_str(pinfo->pool, tvb, offset + 4);
                     proto_tree_add_item(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case 2:
                     if (att_length < 20)
                         break;
-                    addr_str = tvb_ip6_to_str(tvb, offset + 4);
+                    addr_str = tvb_ip6_to_str(pinfo->pool, tvb, offset + 4);
                     proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
                     break;
                 }

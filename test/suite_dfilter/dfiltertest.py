@@ -51,9 +51,27 @@ def checkDFilterFail(cmd_dftest, base_env):
                                 universal_newlines=True,
                                 env=base_env)
         outs, errs = proc.communicate()
-        assert errs.strip() == 'dftest: %s' % (error_message,), \
+        assert error_message in errs, \
             'Unexpected dftest stderr:\n%s\nstdout:\n%s' % (errs, outs)
         assert proc.returncode == 2, \
             'Unexpected dftest exit code: %d. stdout:\n%s\n' % \
             (proc.returncode, outs)
     return checkDFilterFail_real
+
+@fixtures.fixture
+def checkDFilterSucceed(cmd_dftest, base_env):
+    def checkDFilterSucceed_real(dfilter, expect_stdout=None):
+        """Run a display filter and expect dftest to succeed."""
+        proc = subprocess.Popen([cmd_dftest, dfilter],
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                universal_newlines=True,
+                                env=base_env)
+        outs, errs = proc.communicate()
+        assert proc.returncode == 0, \
+            'Unexpected dftest exit code: %d. stderr:\n%s\n' % \
+            (proc.returncode, errs)
+        if expect_stdout:
+            assert expect_stdout in outs, \
+                'Expected the string %s in the output' % expect_stdout
+    return checkDFilterSucceed_real

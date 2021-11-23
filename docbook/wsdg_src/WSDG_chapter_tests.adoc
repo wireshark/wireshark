@@ -234,7 +234,7 @@ test failures since the `SubprocessTestCase.tearDown` method is not
 executed. This limitation might be addressed in the future.
 
 [[ChTestsDevelop]]
-=== Adding Or Modifying Tests
+=== Adding Or Modifying Built-In Tests
 
 Tests must be in a Python module whose name matches “suite_*.py”. The
 module must contain one or more subclasses of “SubprocessTestCase” or
@@ -301,3 +301,82 @@ Tests can be run in parallel. This means that any files you create must
 be unique for each test. “subprocesstest.filename_from_id” can be used
 to generate a filename based on the current test name. It also ensures
 that the file will be automatically removed after the test has run.
+
+[[ChTestsExternal]]
+=== Adding Or Modifying External Tests
+
+You can test the dissection of files outside the Wireshark source code repository by using the external test generator, which creates tests using a JSON configuration file.
+The file must have the following format:
+
+[source]
+----
+{
+  "case_name": "<test case name>",
+  "tests": [
+    {
+      "test_name": "<test name>",
+      "tshark_args": [ <tshark argument array> ],
+      "requirements": [ <one or more requirements> ]
+    }
+  ]
+}
+----
+
+`tshark_args` elements can use `${case_dir}` to specify the path to the JSON configuration file.
+`requirements` can be one or more of
+
+`[ "count", "<pattern>", <count> ]`::
+Require `count` occurrences of `pattern` in the dissection output.
+Equivalent to the built-in Python `assertEqual(countOutput('<pattern'), <count>)`
+
+`[ "grep", "<pattern>" ]`::
+Dissection output must contain `pattern`.
+Equivalent to `assertTrue(grepOutput('<pattern>'))`.
+
+`[ "!grep", "<pattern>" ]`::
+Dissection output must _not_ contain `pattern`.
+Equivalent to `assertFalse(grepOutput('<pattern>'))`.
+
+`[ "in", "<string>", <line> ]`::
+Zero-indexed line `line` of the dissection output must contain `string`.
+Equivalent to `assertIn('<pattern>', lines[<line>])`.
+
+`[ "!in", "<string>", <line> ]`::
+Zero-indexed line `line` of the dissection output must _not_ contain `string`.
+Equivalent to `assertNotIn('<pattern>', lines[<line>])`.
+
+Patterns can be any valid Python regular expression.
+
+The example below defines a single test case, named “external_example”.
+The case has a single test named “dns”, which runs TShark on `tests/dns-1/dns.pcapng`, relative to the JSON configuration file.
+
+[source,json]
+----
+{
+  "case_name": "external_example",
+  "tests": [
+    {
+      "test_name": "dns",
+      "tshark_args": [ "-r", "${case_dir}/tests/dns-1/dns.pcapng",
+        "-Y", "dns", "-T", "fields", "-e", "dns.qry.name"
+     ],
+      "requirements": [
+        [ "count", "in.m.yahoo.com", 1 ],
+        [ "grep", "in.m.yahoo.com" ],
+        [ "!grep", "in.m.notyahoo.com" ],
+        [ "in", "in.m.yahoo.com", 0 ],
+        [ "!in", "in.m.notyahoo.com", 0 ]
+      ]
+    }
+  ]
+}
+----
+
+You can specify external tests using the `test.py --add-external-test`.
+For example, if the JSON file above is named `wireshark-tests.json` you can list its test by running the following:
+
+[source,sh]
+----
+$ ./test/test.py -p ./build/run --add-external-test /path/to/wireshark-tests.json --list external
+suite_external.case_external_example.test_dns
+----

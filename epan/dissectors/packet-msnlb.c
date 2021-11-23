@@ -289,12 +289,12 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             switch(address_family){
               case 0x2: /* IPv4 */
                 proto_tree_add_item(hb_tree, hf_msnlb_host_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset));
+                proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
                 offset += 4;
                 break;
               case 0x17: /* IPv6 */
                 proto_tree_add_item(hb_tree, hf_msnlb_host_ipv6, tvb, offset, 16, ENC_NA);
-                proto_item_append_text(ti, ": %s", tvb_ip6_to_str(tvb, offset));
+                proto_item_append_text(ti, ": %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
                 offset += 16;
                 break;
               default: /* Unknown */

@@ -49,6 +49,7 @@ set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/dpa400.c
 	${CMAKE_CURRENT_SOURCE_DIR}/dct3trace.c
 	${CMAKE_CURRENT_SOURCE_DIR}/erf.c
+	${CMAKE_CURRENT_SOURCE_DIR}/eri_enb_log.c
 	${CMAKE_CURRENT_SOURCE_DIR}/eyesdn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/hcidump.c
 	${CMAKE_CURRENT_SOURCE_DIR}/i4btrace.c
@@ -183,11 +184,15 @@ target_link_libraries(wiretap
 		wsutil
 	PRIVATE
 		${ZLIB_LIBRARIES}
+		${ZSTD_LIBRARIES}
+		${LZ4_LIBRARIES}
 )
 
 target_include_directories(wiretap SYSTEM
 	PRIVATE
 		${ZLIB_INCLUDE_DIRS}
+		${ZSTD_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
 )
 
 target_include_directories(wiretap PUBLIC

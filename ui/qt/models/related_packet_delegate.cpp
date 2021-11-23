@@ -18,6 +18,15 @@
 #include <QApplication>
 #include <QPainter>
 
+typedef enum {
+    CT_NONE,        // Not within the selected conversation.
+    CT_STARTING,    // First packet in a conversation.
+    CT_CONTINUING,  // Part of the selected conversation.
+    CT_BYPASSING,   // *Not* part of the selected conversation.
+    CT_ENDING,      // Last packet in a conversation.
+    CT_NUM_TYPES,
+} ct_conversation_trace_type_t;
+
 // To do:
 // - Add other frame types and symbols. If `tshark -G fields | grep FT_FRAMENUM`
 //   is any indication, we should add "reassembly" and "reassembly error"
@@ -75,6 +84,21 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
         return;
     }
 
+    ct_conversation_trace_type_t conversation_trace_type = CT_NONE;
+    ft_framenum_type_t related_frame_type =
+        related_frames_.contains(fd->num) ? related_frames_[fd->num] : FT_FRAMENUM_NUM_TYPES;
+
+    if (setup_frame > 0 && last_frame > 0 && setup_frame != last_frame) {
+        if (fd->num == setup_frame) {
+            conversation_trace_type = CT_STARTING;
+        } else if (fd->num > setup_frame && fd->num < last_frame) {
+            conversation_trace_type =
+                conv_->conv_index == record->conversation() ?  CT_CONTINUING : CT_BYPASSING;
+        } else if (fd->num == last_frame) {
+            conversation_trace_type = CT_ENDING;
+        }
+    }
+
     painter->save();
 
     if (QApplication::style()->objectName().contains("vista")) {
@@ -126,39 +150,51 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     // Vertical line. Lower and upper half for the start and end of the
     // conversation respectively, solid for conversation member, dashed
     // for other packets in the start-end range.
-    if (setup_frame > 0 && last_frame > 0 && setup_frame != last_frame) {
-        if (fd->num == setup_frame) {
-            QPoint start_line[] = {
-                QPoint(en_w - 1, height / 2),
-                QPoint(0, height / 2),
-                QPoint(0, height)
-            };
-            painter->drawPolyline(start_line, 3);
-        } else if (fd->num > setup_frame && fd->num < last_frame) {
-            painter->save();
-            if (conv_->conv_index != record->conversation()) {
-                QPen other_pen(line_pen);
-                other_pen.setStyle(Qt::DashLine);
-                painter->setPen(other_pen);
-            }
-            painter->drawLine(0, 0, 0, height);
-            painter->restore();
-        } else if (fd->num == last_frame) {
-            QPoint end_line[] = {
-                QPoint(en_w - 1, height / 2),
-                QPoint(0, height / 2),
-                QPoint(0, 0)
-            };
-            painter->drawPolyline(end_line, 3);
+    switch (conversation_trace_type) {
+    case CT_STARTING:
+    {
+        QPoint start_line[] = {
+            QPoint(en_w - 1, height / 2),
+            QPoint(0, height / 2),
+            QPoint(0, height)
+        };
+        painter->drawPolyline(start_line, 3);
+        break;
+    }
+    case CT_CONTINUING:
+    case CT_BYPASSING:
+    {
+        painter->save();
+        if (conversation_trace_type == CT_BYPASSING) {
+            // Dashed line as we bypass packets not part of the conv.
+            QPen other_pen(line_pen);
+            other_pen.setStyle(Qt::DashLine);
+            painter->setPen(other_pen);
         }
+        painter->drawLine(0, 0, 0, height);
+        painter->restore();
+        break;
+    }
+    case CT_ENDING:
+    {
+        QPoint end_line[] = {
+            QPoint(en_w - 1, height / 2),
+            QPoint(0, height / 2),
+            QPoint(0, 0)
+        };
+        painter->drawPolyline(end_line, 3);
+        break;
+    }
+    default:
+        break;
     }
 
     // Related packet indicator. Rightward arrow for requests, leftward
     // arrow for responses, circle for others.
     // XXX These are comically oversized when we have multi-line rows.
-    if (related_frames_.contains(fd->num)) {
+    if (related_frame_type != FT_FRAMENUM_NUM_TYPES) {
         painter->setBrush(fg);
-        switch (related_frames_[fd->num]) {
+        switch (related_frame_type) {
         // Request and response arrows are moved forward one pixel in order to
         // maximize white space between the heads and the conversation line.
         case FT_FRAMENUM_REQUEST:

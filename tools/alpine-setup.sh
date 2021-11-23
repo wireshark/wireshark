@@ -50,6 +50,7 @@ BASIC_LIST="cmake \
 	perl \
 	tiff-dev \
 	c-ares-dev \
+	pcre2-dev \
 	qt5-qtbase-dev \
 	qt5-qttools-dev \
 	qt5-qtmultimedia-dev \
@@ -76,6 +77,13 @@ ADDITIONAL_LIST="
 	speexdsp-dev \
 	brotli-dev \
 	"
+
+# Uncomment to add PNG compression utilities used by compress-pngs:
+# ADDITIONAL_LIST="$ADDITIONAL_LIST \
+#	advancecomp \
+#	optipng \
+#	oxipng \
+#	pngcrush"
 
 # Adds package $2 to list variable $1 if the package is found.
 # If $3 is given, then this version requirement must be satisfied.

@@ -1208,7 +1208,7 @@ dissect_wccp2_web_cache_view_info(tvbuff_t *tvb, int offset, gint length,
 /* 6.2 Router Assignment Element */
 static void
 dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
-                                        gint length, packet_info *pinfo, proto_tree *info_tree, wccp_address_table* addr_table)
+                                        gint length _U_, packet_info *pinfo, proto_tree *info_tree, wccp_address_table* addr_table)
 {
   dissect_wccp2_router_identity_element(tvb,offset,pinfo,info_tree, addr_table);
   EAT(8);
@@ -1507,7 +1507,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
     switch (family) {
     case 1:
       /* IPv4 */
-      addr  =  tvb_ip_to_str(tvb, offset);
+      addr  =  tvb_ip_to_str(pinfo->pool, tvb, offset);
       if ((wccp_wccp_address_table->in_use == FALSE) &&
           (wccp_wccp_address_table->table_ipv4 != NULL) &&
           (i < wccp_wccp_address_table->table_length))
@@ -1515,7 +1515,7 @@ dissect_wccp2r1_address_table_info(tvbuff_t *tvb, int offset, int length,
       break;
     case 2:
       /* IPv6 */
-      addr = tvb_ip6_to_str(tvb, offset);
+      addr = tvb_ip6_to_str(pinfo->pool, tvb, offset);
       if ((wccp_wccp_address_table->in_use == FALSE) &&
           (wccp_wccp_address_table->table_ipv6 != NULL) &&
           (i < wccp_wccp_address_table->table_length))
@@ -2732,7 +2732,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    hf_cache_ip, tvb, offset, 4,
                                    ipaddr,
                                    "Web Cache %d IP Address: %s", i,
-                                   tvb_ip_to_str(tvb, offset));
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset));
         offset += 4;
       }
 

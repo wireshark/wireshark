@@ -81,28 +81,16 @@ guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
     return TRUE;
 }
 
+static char *
+guid_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+{
+    return guid_to_str(scope, &fv->value.guid);
+}
+
 static int
-guid_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-    return GUID_STR_LEN;
-}
-
-static void
-guid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-    guid_to_str_buf(&fv->value.guid, buf, size);
-}
-
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
-{
-    return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t)) == 0;
-}
-
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
-{
-    return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t)) != 0;
+    return memcmp(&a->value.guid, &b->value.guid, sizeof(e_guid_t));
 }
 
 void
@@ -119,17 +107,11 @@ ftype_register_guid(void)
         guid_from_unparsed,  /* val_from_unparsed */
         NULL,                /* val_from_string */
         guid_to_repr,        /* val_to_string_repr */
-        guid_repr_len,       /* len_string_repr */
 
         { .set_value_guid = guid_fvalue_set_guid }, /* union set_value */
         { .get_value_ptr = value_get },             /* union get_value */
 
-        cmp_eq,
-        cmp_ne,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+        cmp_order,
         NULL,
         NULL,
         NULL,                /* cmp_matches */

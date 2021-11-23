@@ -766,6 +766,73 @@ static int hf_mbim_ms_device_slot_mapping_info_executor_slot_index = -1;
 static int hf_mbim_ms_slot_info_req_slot_index = -1;
 static int hf_mbim_ms_slot_info_slot_index = -1;
 static int hf_mbim_ms_slot_info_state = -1;
+static int hf_mbim_base_station_max_gsm_count = -1;
+static int hf_mbim_base_station_max_umts_count = -1;
+static int hf_mbim_base_station_max_td_scdma_count = -1;
+static int hf_mbim_base_station_max_lte_count = -1;
+static int hf_mbim_base_station_max_cdma_count = -1;
+static int hf_mbim_base_station_max_nr_count = -1;
+static int hf_mbim_base_station_provider_id_offset = -1;
+static int hf_mbim_base_station_provider_id_size = -1;
+static int hf_mbim_base_station_location_area_code = -1;
+static int hf_mbim_base_station_cell_id = -1;
+static int hf_mbim_base_station_timing_advance = -1;
+static int hf_mbim_base_station_arfcn = -1;
+static int hf_mbim_base_station_base_station_id = -1;
+static int hf_mbim_base_station_rx_level = -1;
+static int hf_mbim_base_station_provider_id = -1;
+static int hf_mbim_base_station_frequency_info_ul = -1;
+static int hf_mbim_base_station_frequency_info_dl = -1;
+static int hf_mbim_base_station_frequency_info_nt = -1;
+static int hf_mbim_base_station_uarfcn = -1;
+static int hf_mbim_base_station_primary_scrambling_code = -1;
+static int hf_mbim_base_station_rscp = -1;
+static int hf_mbim_base_station_ecno = -1;
+static int hf_mbim_base_station_path_loss = -1;
+static int hf_mbim_base_station_call_parameter = -1;
+static int hf_mbim_base_station_earfcn = -1;
+static int hf_mbim_base_station_physical_cell_id = -1;
+static int hf_mbim_base_station_tac = -1;
+static int hf_mbim_base_station_rsrp = -1;
+static int hf_mbim_base_station_rsrq = -1;
+static int hf_mbim_base_station_serving_cell_flag = -1;
+static int hf_mbim_base_station_nid = -1;
+static int hf_mbim_base_station_sid = -1;
+static int hf_mbim_base_station_base_latitude = -1;
+static int hf_mbim_base_station_base_longitude = -1;
+static int hf_mbim_base_station_ref_pn = -1;
+static int hf_mbim_base_station_gps_seconds = -1;
+static int hf_mbim_base_station_pilot_strength = -1;
+static int hf_mbim_base_station_nci = -1;
+static int hf_mbim_base_station_cell_id_offset = -1;
+static int hf_mbim_base_station_cell_id_size = -1;
+static int hf_mbim_base_station_sinr = -1;
+static int hf_mbim_base_station_cell_id_string = -1;
+static int hf_mbim_base_station_system_type = -1;
+static int hf_mbim_base_station_system_sub_type = -1;
+static int hf_mbim_base_station_gsm_serving_cell_offset = -1;
+static int hf_mbim_base_station_gsm_serving_cell_size = -1;
+static int hf_mbim_base_station_umts_serving_cell_offset = -1;
+static int hf_mbim_base_station_umts_serving_cell_size = -1;
+static int hf_mbim_base_station_td_scdma_serving_cell_offset = -1;
+static int hf_mbim_base_station_td_scdma_serving_cell_size = -1;
+static int hf_mbim_base_station_lte_serving_cell_offset = -1;
+static int hf_mbim_base_station_lte_serving_cell_size = -1;
+static int hf_mbim_base_station_gsm_nmr_offset = -1;
+static int hf_mbim_base_station_gsm_nmr_size = -1;
+static int hf_mbim_base_station_umts_mrl_offset = -1;
+static int hf_mbim_base_station_umts_mrl_size = -1;
+static int hf_mbim_base_station_td_scdma_mrl_offset = -1;
+static int hf_mbim_base_station_td_scdma_mrl_size = -1;
+static int hf_mbim_base_station_lte_mrl_offset = -1;
+static int hf_mbim_base_station_lte_mrl_size = -1;
+static int hf_mbim_base_station_cdma_mrl_offset = -1;
+static int hf_mbim_base_station_cdma_mrl_size = -1;
+static int hf_mbim_base_station_nr_serving_cell_offset = -1;
+static int hf_mbim_base_station_nr_serving_cell_size = -1;
+static int hf_mbim_base_station_nr_neighbor_cells_offset = -1;
+static int hf_mbim_base_station_nr_neighbor_cells_size = -1;
+static int hf_mbim_base_station_count = -1;
 static int hf_mbim_ms_modem_config_config_status = -1;
 static int hf_mbim_ms_registration_params_info_mico_mode = -1;
 static int hf_mbim_ms_registration_params_info_drx_params = -1;
@@ -981,13 +1048,20 @@ static gint preferred_mbim_extended_version = MBIM_Extended_Version_1;
             (mbim_conv->mbim_extended_version == MBIM_Extended_Version_2 || \
             (mbim_conv->mbim_extended_version == MBIM_Extended_Version_Unknown && preferred_mbim_extended_version == MBIM_Extended_Version_2)) ? 1 : 0
 
+#define SHOULD_MBIM_EX2_AND_HIGHER_BE_APPLIED(mbim_conv) \
+            (mbim_conv->mbim_extended_version >= MBIM_Extended_Version_2 || \
+            (mbim_conv->mbim_extended_version == MBIM_Extended_Version_Unknown && preferred_mbim_extended_version >= MBIM_Extended_Version_2)) ? 1 : 0
+
 #define SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv) \
             (mbim_conv->mbim_extended_version == MBIM_Extended_Version_3 || \
             (mbim_conv->mbim_extended_version == MBIM_Extended_Version_Unknown && preferred_mbim_extended_version == MBIM_Extended_Version_3)) ? 1 : 0
 
-#define SHOULD_MBIM_EX2_AND_HIGHER_BE_APPLIED(mbim_conv) \
-            (mbim_conv->mbim_extended_version >= MBIM_Extended_Version_2 || \
-            (mbim_conv->mbim_extended_version == MBIM_Extended_Version_Unknown && preferred_mbim_extended_version >= MBIM_Extended_Version_2)) ? 1 : 0
+#define SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv) \
+            (mbim_conv->mbim_extended_version >= MBIM_Extended_Version_3 || \
+            (mbim_conv->mbim_extended_version == MBIM_Extended_Version_Unknown && preferred_mbim_extended_version >= MBIM_Extended_Version_3)) ? 1 : 0
+
+#define ROUND_UP_COUNT(Count,Pow2) \
+        ( ((Count)+(Pow2)-1) & (~(((int)(Pow2))-1)) )
 
 static reassembly_table mbim_reassembly_table;
 
@@ -2744,6 +2818,11 @@ static const value_string mbim_ms_uiccslot_state_vals[] = {
     { 0, NULL}
 };
 
+static const value_string mbim_base_station_serving_cell_flag_vals[] = {
+    { 0, "Neighbor Cell"},
+    { 1, "Serving cell"},
+    { 0, NULL}
+};
 static const value_string mbim_ms_uicc_app_type_vals[] = {
     { 0, "Unknown"},
     { 1, "Mf"},
@@ -5649,6 +5728,459 @@ mbim_dissect_ms_device_slot_mapping_info(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 static void
+mbim_dissect_base_station_info_req(tvbuff_t* tvb, proto_tree* tree, gint offset,
+    struct mbim_conv_info* mbim_conv)
+{
+    proto_tree_add_item(tree, hf_mbim_base_station_max_gsm_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_max_umts_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_max_td_scdma_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_max_lte_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_max_cdma_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_base_station_max_nr_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void mbim_dissect_base_station_gsm_serving_cell_info(tvbuff_t* tvb, proto_tree* tree, gint offset)
+{
+    gint base_offset = offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_location_area_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_timing_advance, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_arfcn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_base_station_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rx_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+}
+
+static void mbim_dissect_base_station_gsm_nmr_info(tvbuff_t* tvb, proto_tree* tree, gint* offset)
+{
+    gint base_offset = *offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_location_area_code, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_arfcn, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_base_station_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rx_level, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+    *offset += ROUND_UP_COUNT(provider_id_size, 4);
+}
+
+static void mbim_dissect_base_station_umts_serving_cell_info(tvbuff_t* tvb, proto_tree* tree, gint offset)
+{
+    gint base_offset = offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_location_area_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_frequency_info_ul, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_frequency_info_dl, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_frequency_info_nt, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_uarfcn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_primary_scrambling_code, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rscp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_ecno, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_path_loss, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+}
+
+static void mbim_dissect_base_station_umts_mrl_info(tvbuff_t* tvb, proto_tree* tree, gint* offset)
+{
+    gint base_offset = *offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_location_area_code, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_uarfcn, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_primary_scrambling_code, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rscp, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_ecno, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_path_loss, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+    *offset += ROUND_UP_COUNT(provider_id_size, 4);
+}
+
+static void mbim_dissect_base_station_td_scdma_serving_cell_and_mrl_info(tvbuff_t* tvb, proto_tree* tree, gint* offset)
+{
+    gint base_offset = *offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_location_area_code, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_uarfcn, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_call_parameter, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_timing_advance, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rscp, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_path_loss, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+    *offset += ROUND_UP_COUNT(provider_id_size, 4);
+}
+
+static void mbim_dissect_base_station_lte_serving_cell_info(tvbuff_t* tvb, proto_tree* tree, gint offset)
+{
+    gint base_offset = offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_earfcn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_physical_cell_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_tac, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_timing_advance, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+}
+
+static void mbim_dissect_base_station_lte_mrl_info(tvbuff_t* tvb, proto_tree* tree, gint *offset)
+{
+    gint base_offset = *offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_earfcn, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_physical_cell_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_tac, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrp, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrq, tvb,* offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+    *offset += ROUND_UP_COUNT(provider_id_size, 4);
+}
+
+static void mbim_dissect_base_station_cdma_mrl_info(tvbuff_t* tvb, proto_tree* tree, gint* offset)
+{
+    proto_tree_add_item(tree, hf_mbim_base_station_serving_cell_flag, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_nid, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_sid, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_base_station_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_base_latitude, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_base_longitude, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_ref_pn, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_gps_seconds, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_pilot_strength, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+}
+
+static void mbim_dissect_base_station_nr_serving_cell_info(tvbuff_t* tvb, proto_tree* tree, gint* offset)
+{
+    gint base_offset = *offset;
+    guint32 provider_id_offset, provider_id_size;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_nci, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_mbim_base_station_physical_cell_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_arfcn, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_tac, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrp, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrq, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_sinr, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_timing_advance, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+    *offset += ROUND_UP_COUNT(provider_id_size, 4);
+}
+
+static void mbim_dissect_base_station_nr_neighbor_cell_info(tvbuff_t* tvb, proto_tree* tree, gint* offset)
+{
+    gint base_offset = *offset;
+    guint32 provider_id_offset, provider_id_size, cell_id_offset, cell_id_size;
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_mbim_base_station_system_sub_type, ett_mbim_bitmap,
+        mbim_data_subclass_fields, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_offset);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_provider_id_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &provider_id_size);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_cell_id_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &cell_id_offset);
+    *offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_cell_id_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &cell_id_size);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_physical_cell_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_tac, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrp, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_rsrq, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_sinr, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
+        provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+    *offset += ROUND_UP_COUNT(provider_id_size, 4);
+    proto_tree_add_item(tree, hf_mbim_base_station_cell_id_string, tvb, base_offset + cell_id_offset,
+        cell_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+    *offset += ROUND_UP_COUNT(cell_id_size, 4);
+}
+
+static void
+mbim_dissect_base_station_info(tvbuff_t* tvb, proto_tree* tree, gint offset,
+    struct mbim_conv_info* mbim_conv)
+{
+    proto_tree* subtree, *sub_subtree;
+    gint base_offset = offset;
+    guint32 gsm_serving_cell_offset, gsm_serving_cell_size, umts_serving_cell_offset, umts_serving_cell_size, td_scdma_serving_cell_offset, td_scdma_serving_cell_size,
+        lte_serving_cell_offset, lte_serving_cell_size, gsm_nmr_offset, gsm_nmr_size, umts_mrl_offset, umts_mrl_size, td_scdma_mrl_offset, td_scdma_mrl_size,
+        lte_mrl_offset, lte_mrl_size, cdma_mrl_offset, cdma_mrl_size, nr_serving_cells_offset, nr_serving_cells_size, nr_neighbor_cells_offset, nr_neighbor_cells_size;
+
+    guint32 count;
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_base_station_system_type, ett_mbim_bitmap,
+        mbim_data_class_fields, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_base_station_system_sub_type, ett_mbim_bitmap,
+            mbim_data_subclass_fields, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_gsm_serving_cell_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &gsm_serving_cell_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_gsm_serving_cell_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &gsm_serving_cell_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_umts_serving_cell_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &umts_serving_cell_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_umts_serving_cell_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &umts_serving_cell_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_td_scdma_serving_cell_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &td_scdma_serving_cell_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_td_scdma_serving_cell_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &td_scdma_serving_cell_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_lte_serving_cell_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &lte_serving_cell_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_lte_serving_cell_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &lte_serving_cell_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_gsm_nmr_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &gsm_nmr_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_gsm_nmr_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &gsm_nmr_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_umts_mrl_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &umts_mrl_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_umts_mrl_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &umts_mrl_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_td_scdma_mrl_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &td_scdma_mrl_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_td_scdma_mrl_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &td_scdma_mrl_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_lte_mrl_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &lte_mrl_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_lte_mrl_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &lte_mrl_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_cdma_mrl_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cdma_mrl_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_cdma_mrl_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cdma_mrl_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_serving_cell_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_serving_cells_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_serving_cell_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_serving_cells_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_neighbor_cells_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_neighbor_cells_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_neighbor_cells_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_neighbor_cells_size);
+
+    if (gsm_serving_cell_offset && gsm_serving_cell_size) {
+        offset = base_offset + gsm_serving_cell_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, gsm_serving_cell_size, ett_mbim_pair_list, NULL, "Gsm Serving Cell");
+        mbim_dissect_base_station_gsm_serving_cell_info(tvb, subtree, offset);
+    }
+
+    if (umts_serving_cell_offset && umts_serving_cell_size) {
+        offset = base_offset + umts_serving_cell_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, umts_serving_cell_size, ett_mbim_pair_list, NULL, "Umts Serving Cell");
+        mbim_dissect_base_station_umts_serving_cell_info(tvb, subtree, offset);
+    }
+
+    if (td_scdma_serving_cell_offset && td_scdma_serving_cell_size) {
+        offset = base_offset + td_scdma_serving_cell_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, td_scdma_serving_cell_size, ett_mbim_pair_list, NULL, "Td Scdma Serving Cell");
+        mbim_dissect_base_station_td_scdma_serving_cell_and_mrl_info(tvb, subtree, &offset);
+    }
+
+    if (lte_serving_cell_offset && lte_serving_cell_size) {
+        offset = base_offset + lte_serving_cell_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lte_serving_cell_size, ett_mbim_pair_list, NULL, "Lte Serving Cell");
+        mbim_dissect_base_station_lte_serving_cell_info(tvb, subtree, offset);
+    }
+
+    if (gsm_nmr_offset && gsm_nmr_size) {
+        offset = base_offset + gsm_nmr_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, gsm_nmr_size, ett_mbim_pair_list, NULL, "Gsm Nmr");
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_base_station_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
+        offset += 4;
+        for (guint32 i = 0; i < count; i++) {
+            sub_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Nmr Info #%u", i);
+            mbim_dissect_base_station_gsm_nmr_info(tvb, sub_subtree, &offset);
+        }
+    }
+
+    if (umts_mrl_offset && umts_mrl_size) {
+        offset = base_offset + umts_mrl_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, umts_mrl_size, ett_mbim_pair_list, NULL, "Umts Mrl");
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_base_station_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
+        offset += 4;
+        for (guint32 i = 0; i < count; i++) {
+            sub_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Mrl Info #%u", i);
+            mbim_dissect_base_station_umts_mrl_info(tvb, sub_subtree, &offset);
+        }
+    }
+
+    if (td_scdma_mrl_offset && td_scdma_mrl_size) {
+        offset = base_offset + td_scdma_mrl_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, td_scdma_mrl_size, ett_mbim_pair_list, NULL, "Td Scdma Mrl");
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_base_station_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
+        offset += 4;
+        for (guint32 i = 0; i < count; i++) {
+            sub_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Mrl Info #%u", i);
+            mbim_dissect_base_station_td_scdma_serving_cell_and_mrl_info(tvb, sub_subtree, &offset);
+        }
+    }
+
+    if (lte_mrl_offset && lte_mrl_size) {
+        offset = base_offset + lte_mrl_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lte_mrl_size, ett_mbim_pair_list, NULL, "Lte Mrl");
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_base_station_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
+        offset += 4;
+        for (guint32 i = 0; i < count; i++) {
+            sub_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Mrl Info #%u", i);
+            mbim_dissect_base_station_lte_mrl_info(tvb, sub_subtree, &offset);
+        }
+    }
+
+    if (cdma_mrl_offset && cdma_mrl_size) {
+        offset = base_offset + cdma_mrl_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lte_mrl_size, ett_mbim_pair_list, NULL, "Cdma Mrl");
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_base_station_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
+        offset += 4;
+        for (guint32 i = 0; i < count; i++) {
+            sub_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Mrl Info #%u", i);
+            mbim_dissect_base_station_cdma_mrl_info(tvb, sub_subtree, &offset);
+        }
+    }
+
+    if (nr_serving_cells_offset && nr_serving_cells_size)
+    {
+        offset = base_offset + nr_serving_cells_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lte_mrl_size, ett_mbim_pair_list, NULL, "Nr Serving Cells");
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_base_station_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
+        offset += 4;
+        for (guint32 i = 0; i < count; i++) {
+            sub_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Cell Info #%u", i);
+            mbim_dissect_base_station_nr_serving_cell_info(tvb, sub_subtree, &offset);
+        }
+    }
+
+    if (nr_neighbor_cells_offset && nr_neighbor_cells_size)
+    {
+        offset = base_offset + nr_neighbor_cells_offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, lte_mrl_size, ett_mbim_pair_list, NULL, "Nr Neighbor Cells");
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_base_station_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
+        offset += 4;
+        for (guint32 i = 0; i < count; i++) {
+            sub_subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Cell Info #%u", i);
+            mbim_dissect_base_station_nr_neighbor_cell_info(tvb, sub_subtree, &offset);
+        }
+    }
+}
+
+static void
 mbim_dissect_version(tvbuff_t* tvb, proto_tree* tree, gint offset, struct mbim_conv_info* mbim_conv)
 {
     guint32 extended_version;
@@ -6800,7 +7332,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 if (cmd_type == MBIM_COMMAND_SET) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 } else if (info_buff_len) {
-                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                    mbim_dissect_base_station_info_req(frag_tvb, subtree, offset, mbim_conv);
                                 }
                                 break;
                             case MBIM_CID_LOCATION_INFO_STATUS:
@@ -7716,7 +8248,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 } else {
-                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                    mbim_dissect_base_station_info(frag_tvb, subtree, offset, mbim_conv);
                                 }
                                 break;
                             case MBIM_CID_LOCATION_INFO_STATUS:
@@ -11794,6 +12326,341 @@ proto_register_mbim(void)
         { &hf_mbim_ms_slot_info_state,
             { "State", "mbim.control.ms_slot_info.state",
                FT_UINT32, BASE_DEC, VALS(mbim_ms_uiccslot_state_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_max_gsm_count,
+            { "Max GSM Count", "mbim.control.base_station.max_gsm_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_max_umts_count,
+            { "Max UMTS Count", "mbim.control.base_station.max_umts_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_max_td_scdma_count,
+            { "Max TD-SCDMA Count", "mbim.control.base_station.max_td_scdma_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_max_lte_count,
+            { "Max LTE Count", "mbim.control.base_station.max_lte_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_max_cdma_count,
+            { "Max CDMA Count", "mbim.control.base_station.max_cdma_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_max_nr_count,
+            { "Max NR Count", "mbim.control.base_station.max_nr_count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_provider_id_offset,
+            { "Provider Id Offset", "mbim.control.base_station.provider_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_provider_id_size,
+            { "Provider Id Size", "mbim.control.base_station.provider_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_location_area_code,
+            { "Location Area Code", "mbim.control.base_station.location_area_code",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_cell_id,
+            { "Cell Id", "mbim.control.base_station.cell_id",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_timing_advance,
+            { "Timing Advance", "mbim.control.base_station.provider_timing_advance",
+               FT_UINT64, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_arfcn,
+            { "ARFCN", "mbim.control.base_station.arfcn",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_base_station_id,
+            { "Base Station Id", "mbim.control.base_station.base_station_id",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_rx_level,
+            { "Rx Level", "mbim.control.base_station.rx_level",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_provider_id,
+            { "Provider Id", "mbim.control.base_station.provider_id",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_frequency_info_ul,
+            { "Frequency Info Ul", "mbim.control.base_station.frequency_info_ul",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_frequency_info_dl,
+            { "Frequency Info Dl", "mbim.control.base_station.frequency_info_dl",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_frequency_info_nt,
+            { "Frequency Info Nt", "mbim.control.base_station.frequency_info_nt",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_uarfcn,
+            { "UARFCN", "mbim.control.base_station.uarfcn",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_primary_scrambling_code,
+            { "Primary Scrambling Code", "mbim.control.base_station.primary_scrambling_code",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_ecno,
+            { "EcNo", "mbim.control.base_station.ecno",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_rscp,
+            { "RSCP", "mbim.control.base_station.rscp",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_path_loss,
+            { "Path Loss", "mbim.control.base_station.path_loss",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_call_parameter,
+            { "Call Parameter", "mbim.control.base_station.call_parameter",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_earfcn,
+            { "EARFCN", "mbim.control.base_station.earfcn",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_physical_cell_id,
+            { "Physical Cell Id", "mbim.control.base_station.physical_cell_id",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_tac,
+            { "TAC", "mbim.control.base_station.tac",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_rsrp,
+            { "RSRP", "mbim.control.base_station.rsrp",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_rsrq,
+            { "RSRQ", "mbim.control.base_station.rsrq",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_serving_cell_flag,
+            { "Serving Cell Flag", "mbim.control.ms_slot_info.serving_cell_flag",
+               FT_UINT32, BASE_DEC, VALS(mbim_base_station_serving_cell_flag_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_nid,
+            { "NID", "mbim.control.base_station.nid",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_sid,
+            { "SID", "mbim.control.base_station.sid",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_base_latitude,
+            { "Base Latitude", "mbim.control.base_station.base_latitude",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_base_longitude,
+            { "Base Longitude", "mbim.control.base_station.base_longitude",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_ref_pn,
+            { "Ref PN", "mbim.control.base_station.ref_pn",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_gps_seconds,
+            { "GPS Seconds", "mbim.control.base_station.gps_seconds",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_pilot_strength,
+            { "Pilot Strength", "mbim.control.base_station.pilot_strength",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_nci,
+            { "NCI", "mbim.control.base_station.nci",
+               FT_UINT64, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_sinr,
+            { "SINR", "mbim.control.base_station.sinr",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_cell_id_offset,
+            { "Cell Id Offset", "mbim.control.base_station.cell_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_cell_id_size,
+            { "Cell Id Size", "mbim.control.base_station.cell_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_cell_id_string,
+            { "Cell Id", "mbim.control.ms_app_info.cell_id",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_system_type,
+            { "System Type", "mbim.control.base_station.system_type",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_system_sub_type,
+            { "System Sub Type", "mbim.control.base_station.system_sub_type",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_gsm_serving_cell_offset,
+            { "GSM Serving Cell Offset", "mbim.control.base_station.gsm_serving_cell_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_gsm_serving_cell_size,
+            { "GSM Serving Cell size", "mbim.control.base_station.gsm_serving_cell_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_umts_serving_cell_offset,
+            { "UMTS Serving Cell Offset", "mbim.control.base_station.umts_serving_cell_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_umts_serving_cell_size,
+            { "UMTS Serving Cell Size", "mbim.control.base_station.umts_serving_cell_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_td_scdma_serving_cell_offset,
+            { "TD-SCDMA Serving Cell Offset", "mbim.control.base_station.td_scdma_serving_cell_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_td_scdma_serving_cell_size,
+            { "TD-SCDMA Serving Cell Size", "mbim.control.base_station.td_scdma_serving_cell_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_lte_serving_cell_offset,
+            { "LTE Serving Cell Offset", "mbim.control.base_station.lte_serving_cell_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_lte_serving_cell_size,
+            { "LTE Serving Cell Size", "mbim.control.base_station.lte_serving_cell_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_gsm_nmr_offset,
+            { "GSM NMR Offset", "mbim.control.base_station.gsm_nmr_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_gsm_nmr_size,
+            { "GSM NMR Size", "mbim.control.base_station.gsm_nmr_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_umts_mrl_offset,
+            { "UMTS MRL Offset", "mbim.control.base_station.umts_mrl_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_umts_mrl_size,
+            { "UMTS MRL Size", "mbim.control.base_station.umts_mrl_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_td_scdma_mrl_offset,
+            { "TD-SCDMA MRL Offset", "mbim.control.base_station.td_scdma_mrl_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_td_scdma_mrl_size,
+            { "TD-SCDMA MRL Offset", "mbim.control.base_station.td_scdma_mrl_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_lte_mrl_offset,
+            { "LTE MRL Offset", "mbim.control.base_station.lte_mrl_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_lte_mrl_size,
+            { "LTE MRL Size", "mbim.control.base_station.lte_mrl_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_cdma_mrl_offset,
+            { "CDMA MRL Offset", "mbim.control.base_station.cdma_mrl_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_cdma_mrl_size,
+            { "CDMA MRL Size", "mbim.control.base_station.cdma_mrl_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_nr_serving_cell_offset,
+            { "NR Serving Cell Offset", "mbim.control.base_station.nr_serving_cell_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_nr_serving_cell_size,
+            { "NR Serving Cell Size", "mbim.control.base_station.nr_serving_cell_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_nr_neighbor_cells_offset,
+            { "NR Neighbor Cells Offset", "mbim.control.base_station.nr_neighbor_cells_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_nr_neighbor_cells_size,
+            { "NR Neighbor Cells Size", "mbim.control.base_station.nr_neighbor_cells_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_base_station_count,
+            { "Count", "mbim.control.base_station.count",
+               FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_version,

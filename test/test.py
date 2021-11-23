@@ -17,6 +17,7 @@
 import argparse
 import codecs
 import os.path
+import suite_external
 import sys
 import unittest
 import fixtures
@@ -43,6 +44,7 @@ def main():
     release_group = parser.add_mutually_exclusive_group()
     release_group.add_argument('--enable-release', action='store_true', help='Enable release tests')
     parser.add_argument('-p', '--program-path', default=os.path.curdir, help='Path to Wireshark executables.')
+    parser.add_argument('-x', '--add-external-tests', action='append', help='Path to an external test definition (.json) file.')
     parser.add_argument('--skip-missing-programs',
         help='Skip tests that lack programs from this list instead of failing'
              ' them. Use "all" to ignore all missing programs.')
@@ -54,6 +56,9 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_const', const=2, default=1, help='Verbose tests.')
     parser.add_argument('tests_to_run', nargs='*', metavar='test', default=['all'], help='Tests to run. One of "all" or a full or partial test name. Default is "all".')
     args = parser.parse_args()
+
+    # XXX This should be a fixture.
+    suite_external.add_external_configs(args.add_external_tests)
 
     all_tests = unittest.defaultTestLoader.discover(os.path.dirname(__file__), pattern='suite_*')
 

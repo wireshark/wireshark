@@ -1856,7 +1856,7 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_gmsi,
-			{ "GMSI, GAN Mode Support Indicator)","uma.urr.gmsi",
+			{ "GMSI, GAN Mode Support Indicator","uma.urr.gmsi",
 			FT_UINT8,BASE_DEC, VALS(uma_gmsi_vals), 0x06,
 			"GMSI, GAN Mode Support Indicator", HFILL }
 		},

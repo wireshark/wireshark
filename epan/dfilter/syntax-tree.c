@@ -8,8 +8,12 @@
 
 #include "config.h"
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
+
 #include "syntax-tree.h"
-#include <wsutil/ws_assert.h>
+#include <wsutil/wmem/wmem.h>
+#include <wsutil/str_util.h>
+#include "sttype-test.h"
 
 /* Keep track of sttype_t's via their sttype_id_t number */
 static sttype_t* type_list[STTYPE_NUM_TYPES];
@@ -22,7 +26,6 @@ void
 sttype_init(void)
 {
 	sttype_register_function();
-	sttype_register_integer();
 	sttype_register_pointer();
 	sttype_register_range();
 	sttype_register_set();
@@ -69,67 +72,26 @@ sttype_lookup(sttype_id_t type_id)
 	return result;
 }
 
-
-stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data)
+void
+stnode_clear(stnode_t *node)
 {
-	sttype_t	*type;
-	stnode_t	*node;
-
-	node = g_new(stnode_t, 1);
-	node->magic = STNODE_MAGIC;
-	node->deprecated_token = NULL;
-	node->inside_brackets = FALSE;
-
-	if (type_id == STTYPE_UNINITIALIZED) {
-		node->type = NULL;
-		node->data = NULL;
+	ws_assert_magic(node, STNODE_MAGIC);
+	if (node->type) {
+		if (node->type->func_free && node->data) {
+			node->type->func_free(node->data);
+		}
 	}
 	else {
-		type = sttype_lookup(type_id);
-		ws_assert(type);
-		node->type = type;
-		if (type->func_new) {
-			node->data = type->func_new(data);
-		}
-		else {
-			node->data = data;
-		}
-
+		ws_assert(!node->data);
 	}
 
-	return node;
-}
-
-void
-stnode_set_bracket(stnode_t *node, gboolean bracket)
-{
-	node->inside_brackets = bracket;
-}
-
-stnode_t*
-stnode_dup(const stnode_t *org)
-{
-	sttype_t	*type;
-	stnode_t	*node;
-
-	if (!org)
-		return NULL;
-
-	type = org->type;
-
-	node = g_new(stnode_t, 1);
-	node->magic = STNODE_MAGIC;
-	node->deprecated_token = NULL;
-	node->type = type;
-	if (type && type->func_dup)
-		node->data = type->func_dup(org->data);
-	else
-		node->data = org->data;
-	node->value = org->value;
-	node->inside_brackets = org->inside_brackets;
-
-	return node;
+	node->type = NULL;
+	node->flags = 0;
+	node->data = NULL;
+	g_free(node->repr_display);
+	node->repr_display = NULL;
+	g_free(node->repr_debug);
+	node->repr_debug = NULL;
 }
 
 void
@@ -140,37 +102,116 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 	ws_assert_magic(node, STNODE_MAGIC);
 	ws_assert(!node->type);
 	ws_assert(!node->data);
+	node->flags = 0;
+	node->repr_display = NULL;
+	node->repr_debug = NULL;
 
-	type = sttype_lookup(type_id);
-	ws_assert(type);
-	node->type = type;
-	if (type->func_new) {
-		node->data = type->func_new(data);
+	if (type_id == STTYPE_UNINITIALIZED) {
+		node->type = NULL;
+		node->data = NULL;
 	}
 	else {
-		node->data = data;
+		/* Creating an initialized node with a NULL pointer is
+		 * allowed and needs to be safe. The parser relies on that. */
+		type = sttype_lookup(type_id);
+		ws_assert(type);
+		node->type = type;
+		if (type->func_new) {
+			node->data = type->func_new(data);
+		}
+		else {
+			node->data = data;
+		}
 	}
 }
 
 void
-stnode_init_int(stnode_t *node, sttype_id_t type_id, gint32 value)
+stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 {
-	stnode_init(node, type_id, NULL);
-	node->value = value;
+	uint16_t flags = node->flags; /* Save flags. */
+	stnode_clear(node);
+	stnode_init(node, type_id, data);
+	node->flags = flags;
+}
+
+void
+stnode_replace_string(stnode_t *node, const char *str)
+{
+	stnode_replace(node, STTYPE_STRING, g_strdup(str));
+}
+
+void
+stnode_replace_unparsed(stnode_t *node, const char *str)
+{
+	stnode_replace(node, STTYPE_UNPARSED, g_strdup(str));
+}
+
+stnode_t*
+stnode_new(sttype_id_t type_id, gpointer data)
+{
+	stnode_t	*node;
+
+	node = g_new0(stnode_t, 1);
+	node->magic = STNODE_MAGIC;
+
+	stnode_init(node, type_id, data);
+
+	return node;
+}
+
+stnode_t *
+stnode_new_test(test_op_t op, stnode_t *val1, stnode_t *val2)
+{
+	stnode_t *node;
+
+	node = stnode_new(STTYPE_TEST, NULL);
+	if (val2 != NULL)
+		sttype_test_set2(node, op, val1, val2);
+	else
+		sttype_test_set1(node, op, val1);
+	return node;
+}
+
+stnode_t *
+stnode_new_string(const char *str)
+{
+	return stnode_new(STTYPE_STRING, g_strdup(str));
+}
+
+stnode_t *
+stnode_new_unparsed(const char *str)
+{
+	return stnode_new(STTYPE_UNPARSED, g_strdup(str));
+}
+
+stnode_t*
+stnode_dup(const stnode_t *node)
+{
+	stnode_t *new;
+
+	ws_assert_magic(node, STNODE_MAGIC);
+	new = g_new(stnode_t, 1);
+	new->magic = STNODE_MAGIC;
+	new->flags = node->flags;
+	new->repr_display = NULL;
+	new->repr_debug = NULL;
+
+	new->type = node->type;
+	if (node->type == NULL)
+		new->data = NULL;
+	else if (node->type->func_dup)
+		new->data = node->type->func_dup(node->data);
+	else
+		new->data = node->data;
+
+	return new;
 }
 
 void
 stnode_free(stnode_t *node)
 {
 	ws_assert_magic(node, STNODE_MAGIC);
-	if (node->type) {
-		if (node->type->func_free) {
-			node->type->func_free(node->data);
-		}
-	}
-	else {
-		ws_assert(!node->data);
-	}
+	stnode_clear(node);
 	g_free(node);
 }
 
@@ -211,20 +252,168 @@ stnode_steal_data(stnode_t *node)
 	return data;
 }
 
-gint32
-stnode_value(stnode_t *node)
+gboolean
+stnode_inside_parens(stnode_t *node)
 {
-	ws_assert_magic(node, STNODE_MAGIC);
-	return node->value;
+	return node->flags & STNODE_F_INSIDE_PARENS;
+}
+
+void
+stnode_set_inside_parens(stnode_t *node, gboolean inside)
+{
+	if (inside) {
+		node->flags |= STNODE_F_INSIDE_PARENS;
+	}
+	else {
+		node->flags &= ~STNODE_F_INSIDE_PARENS;
+	}
+}
+
+static char *
+_node_tostr(stnode_t *node, gboolean pretty)
+{
+	char *s, *repr;
+
+	if (node->type->func_tostr == NULL)
+		s = g_strdup("FIXME");
+	else
+		s = node->type->func_tostr(node->data, pretty);
+
+	if (pretty)
+		return s;
+
+	if (stnode_type_id(node) == STTYPE_TEST) {
+		repr = s;
+	}
+	else {
+		repr = g_strdup_printf("%s<%s>", stnode_type_name(node), s);
+		g_free(s);
+	}
+
+	return repr;
 }
 
 const char *
-stnode_deprecated(stnode_t *node)
+stnode_tostr(stnode_t *node, gboolean pretty)
 {
-	if (!node) {
-		return NULL;
+	ws_assert_magic(node, STNODE_MAGIC);
+
+	if (pretty && node->repr_display != NULL)
+		return node->repr_display;
+
+	if (!pretty && node->repr_debug != NULL)
+		return node->repr_debug;
+
+	char *str = _node_tostr(node, pretty);
+
+	if (pretty)
+		node->repr_display = str;
+	else
+		node->repr_debug = str;
+	return str;
+}
+
+static char *
+sprint_node(stnode_t *node)
+{
+	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
+
+	wmem_strbuf_append_printf(buf, "stnode{ ");
+	wmem_strbuf_append_printf(buf, "magic=0x%"PRIx32", ", node->magic);
+	wmem_strbuf_append_printf(buf, "type=%s, ", stnode_type_name(node));
+	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todisplay(node));
+	wmem_strbuf_append_printf(buf, "flags=0x%04"PRIx16" }", node->flags);
+	return wmem_strbuf_finalize(buf);
+}
+
+void
+log_test_full(enum ws_log_level level,
+			const char *file _U_, int line _U_, const char *func,
+			stnode_t *node, const char *msg)
+{
+	if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
+		return;
+
+	if (node == NULL) {
+		ws_log_write_always_full(WS_LOG_DOMAIN, level,
+					NULL, -1, func, "%s is NULL", msg);
+		return;
 	}
-	return node->deprecated_token;
+
+	test_op_t st_op;
+	stnode_t *st_lhs = NULL, *st_rhs = NULL;
+	char *lhs = NULL, *rhs = NULL;
+
+	sttype_test_get(node, &st_op, &st_lhs, &st_rhs);
+
+	if (st_lhs)
+		lhs = sprint_node(st_lhs);
+	if (st_rhs)
+		rhs = sprint_node(st_rhs);
+
+	ws_log_write_always_full(WS_LOG_DOMAIN, level, NULL, -1, func,
+				"%s: LHS = %s; RHS = %s",
+				stnode_todebug(node),
+				lhs ? lhs : "NULL",
+				rhs ? rhs : "NULL");
+
+	g_free(lhs);
+	g_free(rhs);
+}
+
+static void
+indent(wmem_strbuf_t *buf, int level)
+{
+	for (int i = 0; i < level * 2; i++) {
+		wmem_strbuf_append_c(buf, ' ');
+	}
+}
+
+static void
+visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
+{
+	stnode_t *left, *right;
+
+	if (stnode_type_id(node) == STTYPE_TEST) {
+		wmem_strbuf_append_printf(buf, "%s(", stnode_todebug(node));
+		sttype_test_get(node, NULL, &left, &right);
+		if (left && right) {
+			wmem_strbuf_append_c(buf, '\n');
+			indent(buf, level + 1);
+			wmem_strbuf_append(buf, "LHS = ");
+			visit_tree(buf, left, level + 1);
+			wmem_strbuf_append_c(buf, '\n');
+			indent(buf, level + 1);
+			wmem_strbuf_append(buf, "RHS = ");
+			visit_tree(buf, right, level + 1);
+			wmem_strbuf_append(buf, "\n");
+			indent(buf, level);
+		}
+		else if (left) {
+			visit_tree(buf, left, level);
+		}
+		else if (right) {
+			visit_tree(buf, right, level);
+		}
+		wmem_strbuf_append(buf, ")");
+	}
+	else {
+		wmem_strbuf_append(buf, stnode_todebug(node));
+	}
+}
+
+void
+log_syntax_tree(enum ws_log_level level, stnode_t *root, const char *msg)
+{
+	if (!ws_log_msg_is_active(LOG_DOMAIN_DFILTER, level))
+		return;
+
+	wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
+
+	visit_tree(buf, root, 0);
+	ws_log_write_always_full(LOG_DOMAIN_DFILTER, level, NULL, -1, NULL,
+				"%s:\n%s", msg, wmem_strbuf_get_str(buf));
+	wmem_strbuf_destroy(buf);
 }
 
 /*

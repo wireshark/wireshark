@@ -262,8 +262,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "MIP %s, MMAC %s, ifIdx %d",
-			tvb_ip_to_str(tvb, offset+2),
-			tvb_ether_to_str(tvb, offset+6),
+			tvb_ip_to_str(pinfo->pool, tvb, offset+2),
+			tvb_ether_to_str(pinfo->pool, tvb, offset+6),
 			tvb_get_ntohl(tvb, offset+12));
 
 		proto_tree_add_item(edp_tree, hf_ismp_edp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -454,7 +454,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 						case EDP_TUPLE_INT_NAME:
 							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_interface_name, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);
 							col_append_fstr(pinfo->cinfo, COL_INFO, ", ifName %s",
-								tvb_format_text(tvb, offset, tuple_length));
+								tvb_format_text(pinfo->pool, tvb, offset, tuple_length));
 							break;
 						case EDP_TUPLE_SYS_DESCRIPT:
 							proto_tree_add_item(edp_tuples_leaf_tree, hf_ismp_system_description, tvb, offset, tuple_length, ENC_NA|ENC_ASCII);

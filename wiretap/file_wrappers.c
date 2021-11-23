@@ -14,19 +14,33 @@
  *
  */
 
-#include <config.h>
+#include "config.h"
+#include "file_wrappers.h"
 
+#include <assert.h>
 #include <errno.h>
 #include <string.h>
 #include "wtap-int.h"
-#include "file_wrappers.h"
+
 #include <wsutil/file_util.h>
-#include <wsutil/ws_assert.h>
 
 #ifdef HAVE_ZLIB
 #define ZLIB_CONST
 #include <zlib.h>
 #endif /* HAVE_ZLIB */
+
+#ifdef HAVE_ZSTD
+#include <zstd.h>
+#endif
+
+#ifdef HAVE_LZ4
+#include <lz4.h>
+
+#if LZ4_VERSION_NUMBER >= 10703
+#define USE_LZ4
+#include <lz4frame.h>
+#endif
+#endif
 
 /*
  * See RFC 1952:
@@ -55,16 +69,21 @@ static struct compression_type {
 #ifdef HAVE_ZLIB
     { WTAP_GZIP_COMPRESSED, "gz", "gzip compressed" },
 #endif
+#ifdef HAVE_ZSTD
+    { WTAP_ZSTD_COMPRESSED, "zst", "zstd compressed" },
+#endif
+#ifdef USE_LZ4
+    { WTAP_LZ4_COMPRESSED, "lz4", "lz4 compressed" },
+#endif
     { WTAP_UNCOMPRESSED, NULL, NULL }
 };
+
+static wtap_compression_type file_get_compression_type(FILE_T stream);
 
 wtap_compression_type
 wtap_get_compression_type(wtap *wth)
 {
-	gboolean is_compressed;
-
-	is_compressed = file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
-	return is_compressed ? WTAP_GZIP_COMPRESSED : WTAP_UNCOMPRESSED;
+	return file_get_compression_type((wth->fh == NULL) ? wth->random_fh : wth->fh);
 }
 
 const char *
@@ -108,13 +127,37 @@ wtap_get_all_compression_type_extensions_list(void)
 
 /* values for wtap_reader compression */
 typedef enum {
-    UNKNOWN,       /* unknown - look for a gzip header */
+    UNKNOWN,       /* unknown - look for a compression header */
     UNCOMPRESSED,  /* uncompressed - copy input directly */
-#ifdef HAVE_ZLIB
     ZLIB,          /* decompress a zlib stream */
-    GZIP_AFTER_HEADER
-#endif
+    GZIP_AFTER_HEADER,
+    ZSTD,
+    LZ4,
 } compression_t;
+
+/*
+ * We limit the size of our input and output buffers to 2^30 bytes,
+ * because:
+ *
+ *    1) on Windows with MSVC, the return value of _read() is int,
+ *       so the biggest read you can do is INT_MAX, and the biggest
+ *       power of 2 below that is 2^30;
+ *
+ *    2) the "avail_in" and "avail_out" values in a z_stream structure
+ *       in zlib are uInts, and those are unsigned ints, and that
+ *       imposes a limit on the buffer size when we're reading a
+ *       gzipped file.
+ *
+ * Thus, we use guint for the buffer sizes, offsets, amount available
+ * from the buffer, etc.
+ *
+ * If we want an even bigger buffer for uncompressed data, or for
+ * some other form of compression, then the guint-sized values should
+ * be in structure values used only for reading gzipped files, and
+ * other values should be used for uncompressed data or data
+ * compressed using other algorithms (e.g., in a union).
+ */
+#define MAX_READ_BUF_SIZE	(1U << 30)
 
 struct wtap_reader_buf {
     guint8 *buf;  /* buffer */
@@ -135,6 +178,7 @@ struct wtap_reader {
     gint64 start;               /* where the gzip data started, for rewinding */
     gint64 raw;                 /* where the raw data started, for seeking */
     compression_t compression;  /* type of compression, if any */
+    compression_t last_compression; /* last known compression type */
     gboolean is_compressed;     /* FALSE if completely uncompressed, TRUE otherwise */
 
     /* seek request */
@@ -153,6 +197,12 @@ struct wtap_reader {
     /* fast seeking */
     GPtrArray *fast_seek;
     void *fast_seek_cur;
+#ifdef HAVE_ZSTD
+    ZSTD_DCtx *zstd_dctx;
+#endif
+#ifdef USE_LZ4
+    LZ4F_dctx *lz4_dctx;
+#endif
 };
 
 /* Current read offset within a buffer. */
@@ -177,8 +227,8 @@ bytes_in_buffer(struct wtap_reader_buf *buf)
        Thus, (buf->next + buf->avail) - buf->buf is the number of bytes
        of data in the buffer.
 
-       This will fit in an unsigned int, because it can't be bigger
-       than the size of the buffer, which is an unsigned int. */
+       This will fit in an guint, because it can't be bigger
+       than the size of the buffer, which is a guint. */
     return (guint)((buf->next + buf->avail) - buf->buf);
 }
 
@@ -636,6 +686,7 @@ DIAG_ON(cast-qual)
                 state->err_info = "length field wrong";
             }
         }
+        state->last_compression = state->compression;
         state->compression = UNKNOWN;      /* ready for next stream, once have is 0 */
         g_free(state->fast_seek_cur);
         state->fast_seek_cur = NULL;
@@ -810,6 +861,52 @@ gz_head(FILE_T state)
     /* FD 37 7A 58 5A 00 */
 #endif
 
+    if (state->in.avail >= 4
+        && state->in.buf[0] == 0x28 && state->in.buf[1] == 0xb5
+        && state->in.buf[2] == 0x2f && state->in.buf[3] == 0xfd) {
+#ifdef HAVE_ZSTD
+        const size_t ret = ZSTD_initDStream(state->zstd_dctx);
+        if (ZSTD_isError(ret)) {
+            state->err = WTAP_ERR_DECOMPRESS;
+            state->err_info = ZSTD_getErrorName(ret);
+            return -1;
+        }
+
+        state->compression = ZSTD;
+        state->is_compressed = TRUE;
+        return 0;
+#else
+        state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
+        state->err_info = "reading zstd-compressed files isn't supported";
+        return -1;
+#endif
+    }
+
+    if (state->in.avail >= 4
+        && state->in.buf[0] == 0x04 && state->in.buf[1] == 0x22
+        && state->in.buf[2] == 0x4d && state->in.buf[3] == 0x18) {
+#ifdef USE_LZ4
+#if LZ4_VERSION_NUMBER >= 10800
+        LZ4F_resetDecompressionContext(state->lz4_dctx);
+#else
+        LZ4F_freeDecompressionContext(state->lz4_dctx);
+        const LZ4F_errorCode_t ret = LZ4F_createDecompressionContext(&state->lz4_dctx, LZ4F_VERSION);
+        if (LZ4F_isError(ret)) {
+            state->err = WTAP_ERR_INTERNAL;
+            state->err_info = LZ4F_getErrorName(ret);
+            return -1;
+        }
+#endif
+        state->compression = LZ4;
+        state->is_compressed = TRUE;
+        return 0;
+#else
+        state->err = WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED;
+        state->err_info = "reading lz4-compressed files isn't supported";
+        return -1;
+#endif
+    }
+
     if (state->fast_seek)
         fast_seek_header(state, state->raw_pos - state->in.avail - state->out.avail, state->pos, UNCOMPRESSED);
 
@@ -835,7 +932,7 @@ gz_head(FILE_T state)
 static int /* gz_make */
 fill_out_buffer(FILE_T state)
 {
-    if (state->compression == UNKNOWN) {           /* look for gzip header */
+    if (state->compression == UNKNOWN) {          /* look for compression header */
         if (gz_head(state) == -1)
             return -1;
         if (state->out.avail != 0)                /* got some data from gz_head() */
@@ -848,6 +945,66 @@ fill_out_buffer(FILE_T state)
 #ifdef HAVE_ZLIB
     else if (state->compression == ZLIB) {      /* decompress */
         zlib_read(state, state->out.buf, state->size << 1);
+    }
+#endif
+#ifdef HAVE_ZSTD
+    else if (state->compression == ZSTD) {
+        ws_assert(state->out.avail == 0);
+
+        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+            return -1;
+
+        ZSTD_outBuffer output = {state->out.buf, state->size << 1, 0};
+        ZSTD_inBuffer input = {state->in.next, state->in.avail, 0};
+        const size_t ret = ZSTD_decompressStream(state->zstd_dctx, &output, &input);
+        if (ZSTD_isError(ret)) {
+            state->err = WTAP_ERR_DECOMPRESS;
+            state->err_info = ZSTD_getErrorName(ret);
+            return -1;
+        }
+
+        state->in.next = state->in.next + input.pos;
+        state->in.avail -= (guint)input.pos;
+
+        state->out.next = output.dst;
+        state->out.avail = (guint)output.pos;
+
+        if (ret == 0) {
+            state->last_compression = state->compression;
+            state->compression = UNKNOWN;
+        }
+    }
+#endif
+#ifdef USE_LZ4
+    else if (state->compression == LZ4) {
+        ws_assert(state->out.avail == 0);
+
+        if (state->in.avail == 0 && fill_in_buffer(state) == -1)
+            return -1;
+
+        size_t outBufSize = state->size << 1;
+        size_t inBufSize = state->in.avail;
+        const size_t ret = LZ4F_decompress(state->lz4_dctx, state->out.buf, &outBufSize, state->in.next, &inBufSize, NULL);
+        if (LZ4F_isError(ret)) {
+            state->err = WTAP_ERR_DECOMPRESS;
+            state->err_info = LZ4F_getErrorName(ret);
+            return -1;
+        }
+
+        /*
+         * We assume LZ4F_decompress() will not set inBufSize to a
+         * value > state->in.avail.
+         */
+        state->in.next = state->in.next + inBufSize;
+        state->in.avail -= (guint)inBufSize;
+
+        state->out.next = state->out.buf;
+        state->out.avail = (guint)outBufSize;
+
+        if (ret == 0) {
+            state->last_compression = state->compression;
+            state->compression = UNKNOWN;
+        }
     }
 #endif
     return 0;
@@ -894,7 +1051,7 @@ gz_reset(FILE_T state)
 {
     buf_reset(&state->out);       /* no output data available */
     state->eof = FALSE;           /* not at end of file */
-    state->compression = UNKNOWN; /* look for gzip header */
+    state->compression = UNKNOWN; /* look for compression header */
 
     state->seek_pending = FALSE;  /* no seek request pending */
     state->err = 0;               /* clear error */
@@ -927,8 +1084,14 @@ file_fdopen(int fd)
 #ifdef _STATBUF_ST_BLKSIZE
     ws_statb64 st;
 #endif
-    int want = GZBUFSIZE;
+#ifdef HAVE_ZSTD
+    size_t zstd_buf_size;
+#endif
+    guint want = GZBUFSIZE;
     FILE_T state;
+#ifdef USE_LZ4
+    size_t ret;
+#endif
 
     if (fd == -1)
         return NULL;
@@ -946,6 +1109,7 @@ file_fdopen(int fd)
 
     /* we don't yet know whether it's compressed */
     state->is_compressed = FALSE;
+    state->last_compression = UNKNOWN;
 
     /* save the current position for rewinding (only if reading) */
     state->start = ws_lseek64(state->fd, 0, SEEK_CUR);
@@ -956,34 +1120,71 @@ file_fdopen(int fd)
     gz_reset(state);
 
 #ifdef _STATBUF_ST_BLKSIZE
+    /*
+     * See what I/O size the file system recommends using, and if
+     * it's bigger than what we're using and isn't too big, use
+     * it.
+     */
     if (ws_fstat64(fd, &st) >= 0) {
         /*
          * Yes, st_blksize can be bigger than an int; apparently,
          * it's a long on LP64 Linux, for example.
          *
-         * If the value is too big to fit into an int, just
-         * use the default.
+         * If the value is too big to fit into a guint,
+         * just use the maximum read buffer size.
+         *
+         * On top of that, the Single UNIX Speification says that
+         * st_blksize is of type blksize_t, which is a *signed*
+         * integer type, and, at minimum, macOS 11.6 and Linux 5.14.11's
+         * include/uapi/asm-generic/stat.h define it as such.
+         *
+         * However, other OSes might make it unsigned, and older versions
+         * of OSes that currently make it signed might make it unsigned,
+         * so we try to avoid warnings from that.
+         *
+         * We cast MAX_READ_BUF_SIZE to long in order to avoid the
+         * warning, although it might introduce warnings on platforms
+         * where st_blocksize is unsigned; we'll deal with that if
+         * it ever shows up as an issue.
+         *
+         * MAX_READ_BUF_SIZE is < the largest *signed* 32-bt integer,
+         * so casting it to long won't turn it into a negative number.
+         * (We only support 32-bit and 64-bit 2's-complement platforms.)
          */
-        if (st.st_blksize <= G_MAXINT)
-            want = (int)st.st_blksize;
+        if (st.st_blksize <= (long)MAX_READ_BUF_SIZE)
+            want = (guint)st.st_blksize;
+        else
+            want = MAX_READ_BUF_SIZE;
         /* XXX, verify result? */
     }
 #endif
-
+#ifdef HAVE_ZSTD
+    /* we should have separate input and output buf sizes */
+    zstd_buf_size = ZSTD_DStreamInSize();
+    if (zstd_buf_size > want) {
+        if (zstd_buf_size <= MAX_READ_BUF_SIZE)
+            want = (guint)zstd_buf_size;
+        else
+            want = MAX_READ_BUF_SIZE;
+    }
+    zstd_buf_size = ZSTD_DStreamOutSize();
+    if (zstd_buf_size > want) {
+        if (zstd_buf_size <= MAX_READ_BUF_SIZE)
+            want = (guint)zstd_buf_size;
+        else
+            want = MAX_READ_BUF_SIZE;
+    }
+#endif
     /* allocate buffers */
-    state->in.buf = (unsigned char *)g_try_malloc((gsize)want);
+    state->in.buf = (unsigned char *)g_try_malloc(want);
     state->in.next = state->in.buf;
     state->in.avail = 0;
-    state->out.buf = (unsigned char *)g_try_malloc(((gsize)want) << 1);
+    state->out.buf = (unsigned char *)g_try_malloc(want << 1);
     state->out.next = state->out.buf;
     state->out.avail = 0;
     state->size = want;
     if (state->in.buf == NULL || state->out.buf == NULL) {
-        g_free(state->out.buf);
-        g_free(state->in.buf);
-        g_free(state);
-        errno = ENOMEM;
-        return NULL;
+       goto err;
     }
 
 #ifdef HAVE_ZLIB
@@ -994,18 +1195,45 @@ file_fdopen(int fd)
     state->strm.avail_in = 0;
     state->strm.next_in = Z_NULL;
     if (inflateInit2(&(state->strm), -15) != Z_OK) {    /* raw inflate */
-        g_free(state->out.buf);
-        g_free(state->in.buf);
-        g_free(state);
-        errno = ENOMEM;
-        return NULL;
+        goto err;
     }
 
     /* for now, assume we should check the crc */
     state->dont_check_crc = FALSE;
 #endif
+
+#ifdef HAVE_ZSTD
+    state->zstd_dctx = ZSTD_createDCtx();
+    if (state->zstd_dctx == NULL) {
+        goto err;
+    }
+#endif
+
+#ifdef USE_LZ4
+    ret = LZ4F_createDecompressionContext(&state->lz4_dctx, LZ4F_VERSION);
+    if (LZ4F_isError(ret)) {
+        goto err;
+    }
+#endif
+
     /* return stream */
     return state;
+
+err:
+#ifdef HAVE_ZLIB
+    inflateEnd(&state->strm);
+#endif
+#ifdef HAVE_ZSTD
+    ZSTD_freeDCtx(state->zstd_dctx);
+#endif
+#ifdef USE_LZ4
+    LZ4F_freeDecompressionContext(state->lz4_dctx);
+#endif
+    g_free(state->out.buf);
+    g_free(state->in.buf);
+    g_free(state);
+    errno = ENOMEM;
+    return NULL;
 }
 
 FILE_T
@@ -1382,6 +1610,38 @@ file_iscompressed(FILE_T stream)
     return stream->is_compressed;
 }
 
+/* Returns a wtap compression type. If we don't know the compression type,
+ * return WTAP_UNCOMPRESSED, but if our compression state is temporarily
+ * UNKNOWN because we need to reread compression headers, return the last
+ * known compression type.
+ */
+static wtap_compression_type
+file_get_compression_type(FILE_T stream)
+{
+    if (stream->is_compressed) {
+        switch ((stream->compression == UNKNOWN) ? stream->last_compression : stream->compression) {
+
+        case ZLIB:
+        case GZIP_AFTER_HEADER:
+            return WTAP_GZIP_COMPRESSED;
+
+        case ZSTD:
+            return WTAP_ZSTD_COMPRESSED;
+
+        case LZ4:
+            return WTAP_LZ4_COMPRESSED;
+
+        case UNCOMPRESSED:
+            return WTAP_UNCOMPRESSED;
+
+        default: /* UNKNOWN, should never happen if is_compressed is set */
+            ws_assert_not_reached();
+            return WTAP_UNCOMPRESSED;
+        }
+    }
+    return WTAP_UNCOMPRESSED;
+}
+
 int
 file_read(void *buf, unsigned int len, FILE_T file)
 {
@@ -1649,6 +1909,12 @@ file_close(FILE_T file)
     if (file->size) {
 #ifdef HAVE_ZLIB
         inflateEnd(&(file->strm));
+#endif
+#ifdef HAVE_ZSTD
+        ZSTD_freeDCtx(file->zstd_dctx);
+#endif
+#ifdef USE_LZ4
+        LZ4F_freeDecompressionContext(file->lz4_dctx);
 #endif
         g_free(file->out.buf);
         g_free(file->in.buf);

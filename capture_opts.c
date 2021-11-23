@@ -101,6 +101,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->has_file_duration               = FALSE;
     capture_opts->file_duration                   = 60.0;             /* 1 min */
     capture_opts->has_file_interval               = FALSE;
+    capture_opts->has_nametimenum                 = FALSE;
     capture_opts->file_interval                   = 60;               /* 1 min */
     capture_opts->has_file_packets                = FALSE;
     capture_opts->file_packets                    = 0;
@@ -252,6 +253,7 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
     ws_log(log_domain, log_level, "FileDuration    (%u) : %.3f", capture_opts->has_file_duration, capture_opts->file_duration);
     ws_log(log_domain, log_level, "FileInterval    (%u) : %u", capture_opts->has_file_interval, capture_opts->file_interval);
     ws_log(log_domain, log_level, "FilePackets     (%u) : %u", capture_opts->has_file_packets, capture_opts->file_packets);
+    ws_log(log_domain, log_level, "FileNameType        : %s", (capture_opts->has_nametimenum) ? "prefix_time_num.suffix"  : "prefix_num_time.suffix");
     ws_log(log_domain, log_level, "RingNumFiles    (%u) : %u", capture_opts->has_ring_num_files, capture_opts->ring_num_files);
     ws_log(log_domain, log_level, "RingPrintFiles  (%u) : %s", capture_opts->print_file_names, (capture_opts->print_file_names ? capture_opts->print_name_to : ""));
 
@@ -414,6 +416,9 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
     } else if (strcmp(arg,"interval") == 0) {
         capture_opts->has_file_interval = TRUE;
         capture_opts->file_interval = get_positive_int(p, "ring buffer interval");
+    } else if (strcmp(arg,"nametimenum") == 0) {
+        int val = get_positive_int(p, "file name: time before num");
+        capture_opts->has_nametimenum = (val > 1);
     } else if (strcmp(arg,"packets") == 0) {
         capture_opts->has_file_packets = TRUE;
         capture_opts->file_packets = get_positive_int(p, "ring buffer packet count");

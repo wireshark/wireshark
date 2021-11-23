@@ -28,10 +28,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[sttype-integer.[ch]]
-indent_style = tab
-indent_size = tab
-
 [sttype-pointer.[ch]]
 indent_style = tab
 indent_size = tab

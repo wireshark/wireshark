@@ -721,6 +721,10 @@
 <context>
     <name>ByteViewText</name>
     <message>
+        <source>Allow hover selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show bytes as hexadecimal</source>
         <translation>将字节显示为十六进制</translation>
     </message>
@@ -3642,6 +3646,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>对数刻度</translation>
     </message>
     <message>
+        <source>Automatic Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset</source>
         <translation>复位</translation>
     </message>
@@ -4322,10 +4330,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>encodingRegexExample</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4376,6 +4380,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>None</source>
         <translation>无</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
@@ -6388,8 +6396,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>TShark</translation>
     </message>
     <message>
-        <source>RawShark</source>
-        <translation>RawShark</translation>
+        <source>Rawshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -6404,8 +6412,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Editcap</translation>
     </message>
     <message>
-        <source>Text2cap</source>
-        <translation>Text2cap</translation>
+        <source>Text2pcap</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Website</source>
@@ -7121,6 +7129,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>UCP message statistics</source>
         <translation>UCP 消息统计</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8213,8 +8237,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Delete packet comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
@@ -8668,8 +8706,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet %1 Comment</source>
-        <translation>分组 %1 注释</translation>
+        <source>Edit Packet Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Packet Comment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12714,6 +12756,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>压缩</translation>
     </message>
     <message>
+        <source>Hex Digits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Quoted-Printable</source>
         <translation>可打印引用</translation>
     </message>
@@ -12911,11 +12957,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
+        <source>%1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

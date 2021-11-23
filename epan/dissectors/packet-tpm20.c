@@ -10,6 +10,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #include <stdbool.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>

@@ -559,6 +559,44 @@ void ManageInterfacesDialog::on_addRemote_clicked()
     dlg->show();
 }
 
+int  ManageInterfacesDialog::remoteInterfacesExists(char* device_name){
+    int exists = 0;
+    QTreeWidgetItemIterator it(ui->remoteList);
+
+    while (*it) {
+        QTreeWidgetItem * item = *it;
+
+        if ( 0 == strcmp( device_name , item->text(col_r_host_dev_).toStdString().c_str() ) ){
+            exists = 1;
+            break;
+        }
+        it++;
+
+    }
+
+    return exists;
+}
+
+QTreeWidgetItem* ManageInterfacesDialog::getRemoteHostItem( char* name ){
+    QTreeWidgetItemIterator it(ui->remoteList);
+
+    while (*it) {
+        QTreeWidgetItem * item = *it;
+
+        if ( item->text(col_r_host_dev_) == QString( name ) ){
+            return item;
+        }
+
+        it++;
+    }
+
+    QTreeWidgetItem* item = new QTreeWidgetItem(ui->remoteList);
+    item->setText(col_r_host_dev_, QString(name));
+    item->setExpanded(true);
+
+    return item;
+}
+
 void ManageInterfacesDialog::showRemoteInterfaces()
 {
     guint i;
@@ -570,11 +608,15 @@ void ManageInterfacesDialog::showRemoteInterfaces()
         QTreeWidgetItem *child;
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!device->local) {
-            if (!item || item->text(col_r_host_dev_).compare(device->remote_opts.remote_host_opts.remote_host) != 0) {
-                item = new QTreeWidgetItem(ui->remoteList);
-                item->setText(col_r_host_dev_, device->remote_opts.remote_host_opts.remote_host);
-                item->setExpanded(true);
+
+            // check if the QTreeWidgetItem for that interface already exists
+            if ( 1 == remoteInterfacesExists( device->name )){
+               continue;
             }
+
+            // get or create the QTreeWidgetItem for the host
+            item = getRemoteHostItem( device->remote_opts.remote_host_opts.remote_host );
+
             child = new QTreeWidgetItem(item);
             child->setCheckState(col_r_show_, device->hidden ? Qt::Unchecked : Qt::Checked);
             child->setText(col_r_host_dev_, QString(device->name));

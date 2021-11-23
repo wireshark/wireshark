@@ -104,8 +104,15 @@ typedef void (*tvbuff_free_cb_t)(void*);
 /** Extracts 'number of bits' starting at 'bit offset'.
  * Returns a pointer to a newly initialized g_malloc'd REAL_DATA
  * tvbuff with the bits octet aligned.
+ * Bits are counted from MSB (0) to LSB (7) within octets.
  */
 WS_DLL_PUBLIC tvbuff_t *tvb_new_octet_aligned(tvbuff_t *tvb,
+    guint32 bit_offset, gint32 no_of_bits);
+
+/** Extracts 'number of bits' starting at 'bit offset'.
+ * Bits are counted from LSB (0) to MSB (7) within octets.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_new_octet_right_aligned(tvbuff_t *tvb,
     guint32 bit_offset, gint32 no_of_bits);
 
 WS_DLL_PUBLIC tvbuff_t *tvb_new_chain(tvbuff_t *parent, tvbuff_t *backing);
@@ -269,7 +276,9 @@ WS_DLL_PUBLIC guint tvb_offset_from_real_beginning(const tvbuff_t *tvb);
 /* Returns the offset from the first byte of real data. */
 WS_DLL_PUBLIC gint tvb_raw_offset(tvbuff_t *tvb);
 
-/** Set the "this is a fragment" flag. */
+/** Set the "this is a fragment" flag. This affects whether
+ * FragmentBoundsError is thrown instead of ContainedBoundsError
+ * or ReportedBoundsError. */
 WS_DLL_PUBLIC void tvb_set_fragment(tvbuff_t *tvb);
 
 WS_DLL_PUBLIC struct tvbuff *tvb_get_ds_tvb(tvbuff_t *tvb);
@@ -414,7 +423,7 @@ WS_DLL_PUBLIC void tvb_get_guid(tvbuff_t *tvb, const gint offset,
 
 /* Fetches a byte array given a bit offset in a tvb */
 WS_DLL_PUBLIC guint8* tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const gint offset, size_t length, size_t *data_length);
+    const gint offset, size_t length, size_t *data_length, const guint encoding);
 
 /* Fetch a specified number of bits from bit offset in a tvb.  All of these
  * functions are equivalent, except for the type of the return value.  Note
@@ -544,10 +553,9 @@ WS_DLL_PUBLIC gint tvb_strnlen(tvbuff_t *tvb, const gint offset,
     const guint maxlength);
 
 /**
- * Format the data in the tvb from offset for size.  Returned string is
- * wmem packet_scoped so call must be in that scope.
+ * Format the data in the tvb from offset for size.
  */
-WS_DLL_PUBLIC gchar *tvb_format_text(tvbuff_t *tvb, const gint offset,
+WS_DLL_PUBLIC gchar *tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
     const gint size);
 
 /**
@@ -559,10 +567,9 @@ WS_DLL_PUBLIC gchar *tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *
 
 /**
  * Like "tvb_format_text()", but for null-padded strings; don't show
- * the null padding characters as "\000".  Returned string is wmem packet_scoped
- * so call must be in that scope.
+ * the null padding characters as "\000".
  */
-extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, const gint offset,
+extern gchar *tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
     const gint size);
 
 /**
@@ -931,7 +938,7 @@ WS_DLL_PUBLIC gchar *tvb_bytes_to_str(wmem_allocator_t *allocator, tvbuff_t *tvb
  * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
  * the low or high half byte, formatting the digits according to an input digit
  * set, if NUL a default digit set of 0-9 returning "?" for overdecadic digits
- * will be used.  A pointer to the packet-scope (WMEM-allocated) string will
+ * will be used.  A pointer to the WMEM-allocated string will
  * be returned. Note a tvbuff content of 0xf is considered a 'filler' and will
  * end the conversion.
  */
@@ -941,8 +948,8 @@ typedef struct dgt_set_t
 }
 dgt_set_t;
 
-WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
-    const gint offset, const gint len, const dgt_set_t *dgt,
+WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_str(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt,
     gboolean skip_first);
 
 /**
@@ -951,13 +958,13 @@ WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
  * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
  * the low or high half byte, formatting the digits according to an input digit
  * set, if NUL a default digit set of 0-9 returning "?" for overdecadic digits
- * will be used.  A pointer to the packet-scope (WMEM-allocated) string will
+ * will be used.  A pointer to the WMEM-allocated string will
  * be returned. Note a tvbuff content of 0xf is considered a 'filler' and will
  * end the conversion. Function uses big endian convetion: first digit is based
  * on high order nibble, second digit is based on low order nibble.
  */
-WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str_be(tvbuff_t *tvb,
-    const gint offset, const gint len, const dgt_set_t *dgt,
+WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_str_be(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt,
     gboolean skip_first);
 
 /**

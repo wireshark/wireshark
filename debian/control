@@ -6,7 +6,7 @@ Standards-Version: 3.9.8
 Build-Depends:
  qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools,
  qtmultimedia5-dev,
- libpcap0.8-dev, flex, libz-dev, debhelper (>= 9), po-debconf,
+ libpcap0.8-dev, flex, libz-dev, debhelper (>= 12), po-debconf,
  python3, python3-ply, libc-ares-dev, xsltproc, dh-python,
  docbook-xsl (>= 1.64.1.0-0), docbook-xml, libxml2-utils, libpcre3-dev,
  libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any], lsb-release,
@@ -29,12 +29,10 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark0 (>= ${binary:Version}),
  libwiretap0 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
-Breaks: ethereal (<< 1.0.0-3),
-        wireshark (<< 2.0.0~),
+Breaks: wireshark (<< 2.0.0~),
         wireshark-gtk (<< 3.0.0),
         wireshark-qt (<< 2.0.0~rc3+g841d5e1)
-Replaces: ethereal (<< 1.0.0-3),
-        wireshark (<< 2.0.0~),
+Replaces: wireshark (<< 2.0.0~),
         wireshark-qt (<< 2.0.0~rc3+g841d5e1)
 Description: network traffic analyzer - common files
  Wireshark is a network "sniffer" - a tool that captures and analyzes
@@ -46,9 +44,7 @@ Description: network traffic analyzer - common files
 
 Package: wireshark
 Architecture: any
-Depends: wireshark-qt, ${misc:Depends}
-Replaces: ethereal (<< 1.0.0-3)
-Conflicts: ethereal (<< 1.0.0-3)
+Depends: wireshark-qt (= ${binary:Version}), ${misc:Depends}
 Description: network traffic analyzer - meta-package
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -61,8 +57,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}),
  libqt5svg5
 Recommends: libqt5multimedia5-plugins
-Replaces: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
-Breaks: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
+Replaces: wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
+Breaks: wireshark (<< 2.0.0~), wireshark-gtk (<< 3.0.0~)
 Description: network traffic analyzer - Qt version
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -73,8 +69,6 @@ Description: network traffic analyzer - Qt version
 Package: tshark
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version})
-Replaces: tethereal (<< 1.0.0-3)
-Conflicts: tethereal (<< 1.0.0-3)
 Description: network traffic analyzer - console version
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -89,8 +83,6 @@ Section: devel
 Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev,
  libglib2.0-dev, python3:any, python3-ply, snacc,
  libwireshark-dev, libwiretap-dev
-Replaces: ethereal-dev (<< 1.0.0-3)
-Conflicts: ethereal-dev (<< 1.0.0-3)
 Description: network traffic analyzer - development tools
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -132,8 +124,6 @@ Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark-data (>= ${source:Version}),
  libwsutil0 (>= ${source:Version})
 Suggests: wireshark-doc (>= ${source:Version})
-Conflicts: wireshark-common (<< 1.4.0~rc2-1)
-Replaces: wireshark-common (<< 1.4.0~rc2-1)
 Description: network packet dissection library -- shared library
  The libwireshark library provides the network packet dissection services
  developed by the Wireshark project.
@@ -144,8 +134,6 @@ Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
-Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
 Description: network packet dissection utilities library -- shared library
  The libwsutil library provides utility functions for libwireshark0.
 
@@ -153,10 +141,6 @@ Package: libwsutil-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends} , libwsutil0 (= ${binary:Version})
-Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
- wireshark-dev (<< 1.4.0~rc2-1)
-Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
- wireshark-dev (<< 1.4.0~rc2-1)
 Description: network packet dissection utilities library -- development files
  The libwsutil library provides utility functions for libwireshark6.
  .
@@ -168,8 +152,6 @@ Section: libs
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
-Conflicts: wireshark-common (<< 1.4.0~rc2-1)
-Replaces: wireshark-common (<< 1.4.0~rc2-1)
 #Recommends: geoip-database-contrib # Only includes legacy?
 Suggests: snmp-mibs-downloader
 Description: network packet dissection library -- data files
@@ -182,8 +164,6 @@ Package: libwireshark-dev
 Section: libdevel
 Depends: ${misc:Depends}, libwsutil-dev, libwiretap-dev,
  libwireshark0 (= ${binary:Version})
-Conflicts: wireshark-dev (<< 1.4.0~rc2-1)
-Replaces: wireshark-dev (<< 1.4.0~rc2-1)
 Architecture: any
 Description: network packet dissection library -- development files
  The "libwireshark" library provides the network packet dissection services
@@ -198,7 +178,6 @@ Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Conflicts: wireshark-common (<< 1.4.0~rc2-1)
 Description: network packet capture library -- shared library
  Wiretap, part of the Wireshark project, is a library that allows one to
  read and write several packet capture file formats.
@@ -228,8 +207,6 @@ Description: network packet capture library -- shared library
 Package: libwiretap-dev
 Section: libdevel
 Depends: ${misc:Depends}, libwiretap0 (= ${binary:Version})
-Conflicts: wireshark-dev (<< 1.4.0~rc2-1)
-Replaces: wireshark-dev (<< 1.4.0~rc2-1)
 Architecture: any
 Description: network packet capture library -- development files
  Wiretap, part of the Wireshark project, is a library that allows one to

@@ -11,7 +11,7 @@
 #ifndef __WS80211_UTILS_H__
 #define __WS80211_UTILS_H__
 
-#include "ws_attributes.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

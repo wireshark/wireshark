@@ -598,6 +598,27 @@ backslash as a literal character.
 +
 `http.user_agent matches r"\(X11;"`
 
+Date and time::
+`frame.time == "Sep 26, 2004 23:18:04.954975"`
++
+`ntp.xmt ge "2020-07-04 12:34:56"`
++
+The value of an absolute time field is expressed as a string, using one of the
+two formats above. Fractional seconds can be omitted or specified up to
+nanosecond precision; extra trailing zeros are allowed but not other digits.
+The string cannot take a time zone suffix, and is always parsed as in the local
+time zone, even for fields that are displayed in UTC.
++
+In the first format, the abbreviated month names must be in English regardless
+of locale. In the second format, any number of time fields may be omitted, in
+the order from least significant (seconds) to most, but at least the entire
+date must be specified:
++
+`frame.time < "2022-01-01"`
++
+In the second format, a `T` may appear between the date and time as in
+ISO 8601, but not when less significant times are dropped.
+
 [[ChWorkFilterExamples]]
 
 ===== Some Examples
@@ -636,7 +657,7 @@ as the pattern. In this case both expressions give the same result because Wires
 both support the same byte escape sequence (0x43 is the ASCII hex code for `C`).
 
 An example where this fails badly is `+foo matches "bar\x28"+`. Because 0x28 is the ASCII
-code for `(` the pattern input to PCRE is `+"bar("+`. This regular expression is synctatically
+code for `(` the pattern input to PCRE is `+"bar("+`. This regular expression is syntactically
 invalid (missing closing parenthesis). To match a literal parenthesis in a display filter regular
 expression it must be escaped (twice) with backslashes.
 
@@ -660,7 +681,7 @@ You can combine filter expressions in Wireshark using the logical operators show
 |xor     |^^        | Logical XOR   | `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
 |not     |!         | Logical NOT   | `not llc`
 |[...]   |          | Subsequence   | See “Slice Operator” below.
-|in      |          | Set Membership| http.request.method in {"HEAD" "GET"}. See “Membership Operator” below.
+|in      |          | Set Membership| http.request.method in {"HEAD", "GET"}. See “Membership Operator” below.
 |===
 
 ==== Slice Operator
@@ -703,14 +724,15 @@ to form compound ranges as shown above.
 Wireshark allows you to test a field for membership in a set of values or
 fields. After the field name, use the `in` operator followed by the set items
 surrounded by braces {}. For example, to display packets with a TCP source or
-destination port of 80, 443, or 8080, you can use `tcp.port in {80 443 8080}`.
-The set of values can also contain ranges: `tcp.port in {443 4430..4434}`.
+destination port of 80, 443, or 8080, you can use `tcp.port in {80, 443, 8080}`.
+Set elements must be separated by commas.
+The set of values can also contain ranges: `tcp.port in {443,4430..4434}`.
 
 [NOTE]
 ====
 The display filter
 ----
-tcp.port in {80 443 8080}
+tcp.port in {80, 443, 8080}
 ----
 is equivalent to
 ----
@@ -718,7 +740,7 @@ tcp.port == 80 || tcp.port == 443 || tcp.port == 8080
 ----
 However, the display filter
 ----
-tcp.port in {443 4430..4434}
+tcp.port in {443, 4430..4434}
 ----
 is not equivalent to
 ----
@@ -735,8 +757,8 @@ membership operator tests a single field against the range condition.
 
 Sets are not just limited to numbers, other types can be used as well:
 ----
-http.request.method in {"HEAD" "GET"}
-ip.addr in {10.0.0.5 .. 10.0.0.9 192.168.1.1..192.168.1.9}
+http.request.method in {"HEAD", "GET"}
+ip.addr in {10.0.0.5 .. 10.0.0.9, 192.168.1.1..192.168.1.9}
 frame.time_delta in {10 .. 10.5}
 ----
 
@@ -782,34 +804,6 @@ To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 ----
 string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
 ----
-
-[[ChWorkBuildDisplayFilterMistake]]
-
-==== A Common Mistake with !=
-
-Using the != operator on combined expressions like `eth.addr`, `ip.addr`,
-`tcp.port`, and `udp.port` will probably not work as expected. Wireshark
-will show the warning “"!=" may have unexpected results” when you use it.
-
-People often use a filter string like `ip.addr == 1.2.3.4`
-to display all packets containing the IP address 1.2.3.4.
-
-Then they use `ip.addr != 1.2.3.4` expecting to see all packets not containing the IP
-address 1.2.3.4 in it. Unfortunately, this does _not_ do the expected.
-
-Instead, that expression will even be true for packets where either the source or
-destination IP address equals 1.2.3.4. The reason for this is because the
-expression `ip.addr != 1.2.3.4` is read as “the packet contains a field
-named ip.addr with a value different from 1.2.3.4”. As an IP datagram contains
-both a source and a destination address, the expression will evaluate to true
-whenever at least one of the two addresses differs from 1.2.3.4.
-
-If you want to filter out all packets containing IP datagrams to or from IP
-address 1.2.3.4, then the correct filter is `!(ip.addr == 1.2.3.4)` as it is read
-“show me all the packets for which it is not true that a field named ip.addr
-exists with a value of 1.2.3.4”, or in other words, “filter out all packets
-for which there are no occurrences of a field named ip.addr with the value
-1.2.3.4”.
 
 [[ChWorkBuildDisplayFilterTransitional]]
 

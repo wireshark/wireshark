@@ -250,8 +250,12 @@ Npcap you won’t be able to capture anything with Wireshark.
 We strongly recommended using the binary installer for Windows unless you
 want to start developing Wireshark on the Windows platform.
 
-For further information how to build Wireshark for Windows from the sources
-see the Developer’s Guide at {wireshark-developers-guide-url}.
+For further information how to obtain sources and build Wireshark for Windows
+from the sources see the Developer’s Guide at:
+
+* {wireshark-developers-guide-url}ChSrcObtain
+
+* {wireshark-developers-guide-url}ChSetupWin32
 
 You may also want to have a look at the Development Wiki
 ({wireshark-wiki-url}Development) for the latest available development
@@ -273,67 +277,6 @@ You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg o
 
 The installer package includes Wireshark along with ChmodBPF and system path packages.
 See the included _Read me first.html_ file for more details.
-
-[[ChBuildInstallUnixBuild]]
-
-=== Building Wireshark from source under UNIX
-
-Building Wireshark requires the proper build environment including a
-compiler and many supporting libraries. See the Developer’s Guide at
-{wireshark-developers-guide-url} for more information.
-
-Use the following general steps to build Wireshark from source under UNIX
-or Linux:
-
-. Unpack the source from its compressed `tar` file. If you are using Linux or
-  your version of UNIX uses GNU `tar` you can use the following command:
-+
---
-----
-tar xJf wireshark-2.9.0.tar.xz
-----
-In other cases you will have to use the following commands:
-----
-xz -d wireshark-2.9.0.tar.xz
-tar xf wireshark-2.9.0.tar
-----
---
-
-. Create a directory to build Wireshark in and change to it.
-+
-----
-mkdir build
-cd build
-----
-
-. Configure your source so it will build correctly for your version of UNIX. You
-  can do this with the following command:
-+
-----
-cmake ../wireshark-2.9.0
-----
-+
-If this step fails you will have to look into the logs and rectify the problems,
-then rerun `cmake`.
-Troubleshooting hints are provided in <<ChBuildInstallUnixTrouble>>.
-
-. Build the sources.
-+
-----
-make
-----
-+
-Once you have build Wireshark with `make` above, you should be able to run it
-by entering `run/wireshark`.
-
-. Install the software in its final destination.
-+
-----
-make install
-----
-
-Once you have installed Wireshark with `make install` above, you should be able
-to run it by entering `wireshark`.
 
 [[ChBuildInstallUnixInstallBins]]
 
@@ -411,28 +354,19 @@ pkg_add -r wireshark
 
 pkg_add should take care of all of the dependency issues for you.
 
-[[ChBuildInstallUnixTrouble]]
+[[ChBuildInstallUnixBuild]]
 
-=== Troubleshooting during the build and install on Unix
+=== Building from source under UNIX or Linux
 
-A number of errors can occur during the build and installation process.
-Some hints on solving these are provided here.
+We recommended using the binary installer for your platform unless you
+want to start developing Wireshark.
 
-If the `cmake` stage fails you will need to find out why. You can check the
-file `CMakeOutput.log` and `CMakeError.log` in the build directory to find
-out what failed. The last few lines of this file should help in determining the
-problem.
+Building Wireshark requires the proper build environment including a
+compiler and many supporting libraries. For more information, see the Developer’s Guide at:
 
-The standard problems are that you do not have a required development package on
-your system or that the development package isn’t new enough. Note that
-installing a library package isn’t enough. You need to install its development
-package as well. `cmake` will also fail if you do not have libpcap (at least
-the required include files) on your system.
+* {wireshark-developers-guide-url}ChSrcObtain
 
-If you cannot determine what the problems are, send an email to the
-_wireshark-dev_ mailing list explaining your problem. Include the output from
-`cmake` and anything else you think is relevant such as a trace of the
-`make` stage.
+* {wireshark-developers-guide-url}ChapterSetup#ChSetupUNIX
 
 // End of WSUG Chapter 2
 

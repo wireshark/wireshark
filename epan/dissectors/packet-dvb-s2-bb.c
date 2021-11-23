@@ -30,7 +30,7 @@
  *
  * Copyright 2012, Tobias Rutz <tobias.rutz@work-microwave.de>
  * Copyright 2013-2020, Thales Alenia Space
- * Copyright 2013-2020, Viveris Technologies <adrien.destugues@opensource.viveris.fr>
+ * Copyright 2013-2021, Viveris Technologies <adrien.destugues@opensource.viveris.fr>
  * Copyright 2021, John Thacker <johnthacker@gmail.com>
  *
  * Wireshark - Network traffic analyzer
@@ -107,6 +107,10 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t dvb_s2_table_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t mp2t_handle;
+static dissector_handle_t dvb_s2_modeadapt_handle;
+
+/* The dynamic payload type range which will be dissected as H.264 */
+static range_t *temp_dynamic_payload_type_range = NULL;
 
 void proto_register_dvb_s2_modeadapt(void);
 void proto_reg_handoff_dvb_s2_modeadapt(void);
@@ -1462,7 +1466,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_item *ti;
     proto_tree *dvb_s2_bb_tree;
 
-    tvbuff_t   *sync_tvb, *tsp_tvb, *next_tvb;
+    tvbuff_t   *sync_tvb = NULL, *tsp_tvb = NULL, *next_tvb = NULL;
 
     conversation_t *conv, *subcircuit;
     stream_t *ts_stream;
@@ -1470,7 +1474,7 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     fragment_head *fd_head;
     dvbs2_bb_data *pdata;
 
-    gboolean    npd;
+    gboolean    npd, composite_init = FALSE;
     guint8      input8, matype1, crc8, isi = 0, issyi;
     guint8      sync_flag = 0;
     guint16     input16, bb_data_len = 0, user_packet_length, syncd;
@@ -1793,7 +1797,6 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         if (dvb_s2_df_dissection && user_packet_length) {
             sync_tvb = tvb_new_subset_length(tvb, DVB_S2_BB_OFFS_SYNC, 1);
-            tsp_tvb = tvb_new_composite();
             ts_stream = find_stream(subcircuit, pinfo->p2p_dir);
             if (ts_stream == NULL) {
                 ts_stream = stream_new(subcircuit, pinfo->p2p_dir);
@@ -1831,6 +1834,8 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL,
                             tree);
                     if (next_tvb && tvb_reported_length(next_tvb) == user_packet_length) {
+                        tsp_tvb = tvb_new_composite();
+                        composite_init = TRUE;
                         tvb_composite_append(tsp_tvb, sync_tvb);
                         proto_tree_add_checksum(dvb_s2_bb_tree, next_tvb, 0,
                                 hf_dvb_s2_bb_up_crc, hf_dvb_s2_bb_up_crc_status,
@@ -1863,6 +1868,10 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_tree_add_checksum(dvb_s2_bb_tree, tvb, new_off,
                         hf_dvb_s2_bb_up_crc, hf_dvb_s2_bb_up_crc_status,
                         &ei_dvb_s2_bb_crc, pinfo, crc8, ENC_NA, flags);
+                if (!composite_init) {
+                    tsp_tvb = tvb_new_composite();
+                    composite_init = TRUE;
+                }
                 tvb_composite_append(tsp_tvb, sync_tvb);
                 new_off++;
                 crc8 = compute_crc8(tvb, user_packet_length - 1, new_off);
@@ -1890,11 +1899,11 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     ts_frag = stream_add_frag(ts_stream, pinfo->num, new_off,
                             next_tvb, pinfo, TRUE);
                 }
-                next_tvb = stream_process_reassembled(next_tvb, 0, pinfo,
+                stream_process_reassembled(next_tvb, 0, pinfo,
                         "Reassembled TSP", ts_frag, &dvbs2_frag_items, NULL, tree);
             }
-            tvb_composite_finalize(tsp_tvb);
-            if (tvb_reported_length(tsp_tvb)) {
+            if (composite_init) {
+                tvb_composite_finalize(tsp_tvb);
                 add_new_data_source(pinfo, tsp_tvb, "Sync-swapped TS");
                 /* The way the MP2T dissector handles reassembly (using the
                  * offsets into the TVB to store per-packet information), it
@@ -1921,6 +1930,46 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return new_off;
 }
 
+static int detect_dvb_s2_modeadapt(tvbuff_t *tvb)
+{
+    int matched_headers = 0;
+
+    /* Check that there's enough data */
+    if (tvb_captured_length(tvb) < DVB_S2_MODEADAPT_MINSIZE)
+        return 0;
+
+    /* There are four different mode adaptation formats, with different
+       length headers. Two of them have a sync byte at the beginning, but
+       the other two do not. In every case, the mode adaptation header is
+       followed by the baseband header, which is protected by a CRC-8.
+       The CRC-8 is weak protection, so it can match by accident, leading
+       to an ambiguity in identifying which format is in use. We will
+       check for ambiguity and report it. */
+    /* Try L.1 format: no header. */
+    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L1SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L1);
+    }
+
+    /* Try L.2 format: header includes sync byte */
+    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L2SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L2);
+    }
+
+    /* Try L.4 format: header does not include sync byte */
+    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L4SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L4);
+    }
+
+    /* Try L.3 format: header includes sync byte */
+    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
+        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L3SIZE)) {
+        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L3);
+    }
+
+    return matched_headers;
+}
+
 static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int         cur_off = 0, modeadapt_len, modeadapt_type, matched_headers = 0;
@@ -1937,55 +1986,24 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         NULL
     };
 
-    /* Check that there's enough data */
-    if (tvb_captured_length(tvb) < DVB_S2_MODEADAPT_MINSIZE)
-        return 0;
-
-    /* There are four different mode adaptation formats, with different
-       length headers. Two of them have a sync byte at the beginning, but
-       the other two do not. In every case, the mode adaptation header is
-       followed by the baseband header, which is protected by a CRC-8.
-       The CRC-8 is weak protection, so it can match by accident, leading
-       to an ambiguity in identifying which format is in use. We will
-       check for ambiguity and report it. */
-    /* Try L.1 format: no header. */
-    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L1SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L1);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L1;
-    }
-
-    /* Try L.2 format: header includes sync byte */
-    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
-        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L2SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L2);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
-    }
-
-    /* Try L.4 format: header does not include sync byte */
-    if (test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L4SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L4);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
-    }
-
-    /* In my experience and in product data sheets, L.3 format is the most
-     * common for outputting over UDP or RTP, so give it highest priority
-     * (or second highest if another is set to default) by trying it last.
-     */
-    /* Try L.3 format: header includes sync byte */
-    if ((tvb_get_guint8(tvb, DVB_S2_MODEADAPT_OFFS_SYNCBYTE) == DVB_S2_MODEADAPT_SYNCBYTE) &&
-        test_dvb_s2_crc(tvb, DVB_S2_MODEADAPT_L3SIZE)) {
-        matched_headers |= (1 << DVB_S2_MODEADAPT_TYPE_L3);
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
-    }
-
-    if (matched_headers == 0) {
-        /* This does not look like a DVB-S2-BB frame at all. We are a
-           heuristic dissector, so we should just punt and let another
-           dissector have a try at this one. */
-        return 0;
-    }
+    matched_headers = detect_dvb_s2_modeadapt(tvb);
 
     if (matched_headers & (1 << dvb_s2_default_modeadapt)) {
+        /* If the default value from preferences matches, use it first */
+        modeadapt_type = dvb_s2_default_modeadapt;
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L3SIZE)) {
+        /* In my experience and in product data sheets, L.3 format is the most
+         * common for outputting over UDP or RTP, so give it highest priority
+         * (or second highest if another is set to default) by trying it last.
+         */
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L4SIZE)) {
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L2SIZE)) {
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
+    } else {
+        /* If nothing matches, use the default value from preferences.
+         */
         modeadapt_type = dvb_s2_default_modeadapt;
     }
     modeadapt_len = dvb_s2_modeadapt_sizes[modeadapt_type];
@@ -2054,6 +2072,24 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return cur_off;
 }
 
+static gboolean dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    int matched_headers = detect_dvb_s2_modeadapt(tvb);
+    if (matched_headers == 0) {
+        /* This does not look like a DVB-S2-BB frame at all. We are a
+           heuristic dissector, so we should just punt and let another
+           dissector have a try at this one. */
+        return FALSE;
+    }
+
+    int dissected_bytes;
+    dissected_bytes = dissect_dvb_s2_modeadapt(tvb, pinfo, tree, data);
+    if (dissected_bytes > 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
 
 /* Register the protocol with Wireshark */
 void proto_register_dvb_s2_modeadapt(void)
@@ -2491,26 +2527,46 @@ void proto_register_dvb_s2_modeadapt(void)
         "The preferred Mode Adaptation Interface in the case of ambiguity",
         &dvb_s2_default_modeadapt, dvb_s2_modeadapt_enum, FALSE);
 
+    prefs_register_range_preference(dvb_s2_modeadapt_module, "dynamic.payload.type",
+                            "DVB-S2 RTP dynamic payload types",
+                            "RTP Dynamic payload types which will be interpreted as DVB-S2"
+                            "; values must be in the range 1 - 127",
+                            &temp_dynamic_payload_type_range, 127);
+
     register_init_routine(dvb_s2_gse_defragment_init);
     register_init_routine(&virtual_stream_init);
 
     virtual_stream_hashtable = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), virtual_stream_hash, virtual_stream_equal);
+
+    dvb_s2_modeadapt_handle = register_dissector("DVB-S2 Mode adaptation header", dissect_dvb_s2_modeadapt, proto_dvb_s2_modeadapt);
 }
 
 void proto_reg_handoff_dvb_s2_modeadapt(void)
 {
+    static range_t  *dynamic_payload_type_range = NULL;
     static gboolean prefs_initialized = FALSE;
 
     if (!prefs_initialized) {
-        heur_dissector_add("udp", dissect_dvb_s2_modeadapt, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
+        heur_dissector_add("udp", dissect_dvb_s2_modeadapt_heur, "DVB-S2 over UDP", "dvb_s2_udp", proto_dvb_s2_modeadapt, HEURISTIC_DISABLE);
+        dissector_add_for_decode_as("udp.port", dvb_s2_modeadapt_handle);
         ip_handle   = find_dissector_add_dependency("ip", proto_dvb_s2_bb);
         ipv6_handle = find_dissector_add_dependency("ipv6", proto_dvb_s2_bb);
         dvb_s2_table_handle = find_dissector("dvb-s2_table");
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
         data_handle = find_dissector("data");
         mp2t_handle = find_dissector_add_dependency("mp2t", proto_dvb_s2_bb);
+
+        dissector_add_string("rtp_dyn_payload_type","DVB-S2", dvb_s2_modeadapt_handle);
+
         prefs_initialized = TRUE;
+    } else {
+        dissector_delete_uint_range("rtp.pt", dynamic_payload_type_range, dvb_s2_modeadapt_handle);
+        wmem_free(wmem_epan_scope(), dynamic_payload_type_range);
     }
+
+    dynamic_payload_type_range = range_copy(wmem_epan_scope(), temp_dynamic_payload_type_range);
+    range_remove_value(wmem_epan_scope(), &dynamic_payload_type_range, 0);
+    dissector_add_uint_range("rtp.pt", dynamic_payload_type_range, dvb_s2_modeadapt_handle);
 }
 
 /*

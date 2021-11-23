@@ -195,6 +195,9 @@ my $default_ignore_regex = qr!
 \.shelf|_MTN|\.bzr(?:\.backup|tags)?)(?:$|/.*$)
 !x;
 
+# The original Debian version checks Markdown (.md and .markdown) files.
+# If we add those extensions back, we should add Asciidoctor (.adoc) as
+# well, and add SPDX IDs to all of those files.
 my $default_check_regex =
 		qr!
 		\.(                          # search for file suffix
@@ -224,7 +227,6 @@ my $default_check_regex =
 			 |dtd|xsl
 			 |mod
 			 |m
-			 |md|markdown
 			 |tex
 			 |mli?
 			 |(c|l)?hs

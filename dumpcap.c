@@ -22,18 +22,7 @@
 #include <netinet/in.h>
 #endif
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #if defined(__APPLE__) && defined(__LP64__)
 #include <sys/utsname.h>
@@ -126,6 +115,7 @@ static gint64 pcap_queue_byte_limit = 0;
 static gint64 pcap_queue_packet_limit = 0;
 
 static gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
+static const char *report_capture_filename = NULL; /* capture child file name */
 #ifdef _WIN32
 static gchar *sig_pipe_name = NULL;
 static HANDLE sig_pipe_handle = NULL;
@@ -3579,7 +3569,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                 *save_file_fd = ringbuf_init(capfile_name,
                                              (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0,
                                              capture_opts->group_read_access,
-                                             capture_opts->compress_type);
+                                             capture_opts->compress_type,
+                                             capture_opts->has_nametimenum);
 
                 /* capfile_name is unused as the ringbuffer provides its own filename. */
                 if (*save_file_fd != -1) {
@@ -3769,9 +3760,11 @@ do_file_switch_or_stop(capture_options *capture_opts)
                 global_ld.next_interval_time = get_next_time_interval(global_ld.interval_s);
             }
             fflush(global_ld.pdh);
-            if (!quiet)
-                report_packet_count(global_ld.inpkts_to_sync_pipe);
-            global_ld.inpkts_to_sync_pipe = 0;
+            if (global_ld.inpkts_to_sync_pipe) {
+                if (!quiet)
+                    report_packet_count(global_ld.inpkts_to_sync_pipe);
+                global_ld.inpkts_to_sync_pipe = 0;
+            }
             report_new_capture_file(capture_opts->save_file);
         } else {
             /* File switch failed: stop here */
@@ -3847,9 +3840,12 @@ capture_loop_dequeue_packet(void) {
 
 /*
  * Note: this code will never be run on any OS other than Windows.
+ *
+ * We keep the arguments in case there's something in the future
+ * that needs to be reported as an NPCAP bug.
  */
 static char *
-please_report_npcap_bug(char *adapter_name, char *cap_err_str)
+handle_npcap_bug(char *adapter_name _U_, char *cap_err_str _U_)
 {
     GString *pcap_info_str;
     GString *windows_info_str;
@@ -3868,22 +3864,11 @@ please_report_npcap_bug(char *adapter_name, char *cap_err_str)
     windows_info_str = g_string_new("");
     get_os_version_info(windows_info_str);
     msg = g_strdup_printf("If you have not removed that adapter, this "
-                          "may be a bug in Npcap: please report it "
-                          "as an issue at https://github.com/nmap/npcap/issues\n\n"
-                          "Give all details, such as:\n\n"
-                          "The name of the adapter on which the error occurred (\"%s\");\n"
-                          "The error message \"%s\";\n"
-                          "The full version of Windows on which this occurred (\"%s\");\n"
-                          "The version of Npcap with which this occurred (\"%s\");\n"
-                          "Any indication of whether the machine went to sleep "
-                          "during the capture;\n"
-                          "Any indication of whether any other interfaces "
-                          "were added to or removed from the machine while "
-                          "the capture was taking place.",
-                          adapter_name,
-                          cap_err_str,
-                          windows_info_str->str,
-                          pcap_info_str->str);
+                          "is probably a known issue in Npcap resulting from "
+                          "the behavior of the Windows networking stack. "
+                          "Work is being done in Npcap to improve the "
+                          "handling of this issue; it does not need to "
+                          "be reported as a Wireshark or Npcap bug.");
     g_string_free(windows_info_str, TRUE);
     g_string_free(pcap_info_str, TRUE);
     return msg;
@@ -4090,8 +4075,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #endif
 
         if (inpkts > 0) {
-            global_ld.inpkts_to_sync_pipe += inpkts;
-
             if (capture_opts->output_to_pipe) {
                 fflush(global_ld.pdh);
             }
@@ -4170,7 +4153,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             if (!dequeued) {
                 break;
             }
-            global_ld.inpkts_to_sync_pipe += 1;
             if (capture_opts->output_to_pipe) {
                 fflush(global_ld.pdh);
             }
@@ -4251,8 +4233,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
-                secondary_msg = please_report_npcap_bug(interface_opts->display_name,
-                                                        cap_err_str);
+                secondary_msg = handle_npcap_bug(interface_opts->display_name,
+                                                 cap_err_str);
             } else if (g_str_has_prefix(cap_err_str, "PacketReceivePacket error:") &&
                        g_str_has_suffix(cap_err_str, "(1617)")) {
                 /*
@@ -4276,8 +4258,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
-                secondary_msg = please_report_npcap_bug(interface_opts->display_name,
-                                                        "The interface disappeared (error code ERROR_DEVICE_REMOVED/STATUS_DEVICE_REMOVED)");
+                secondary_msg = handle_npcap_bug(interface_opts->display_name,
+                                                 "The interface disappeared (error code ERROR_DEVICE_REMOVED/STATUS_DEVICE_REMOVED)");
             } else if (strcmp(cap_err_str, "The other host terminated the connection") == 0) {
                 primary_msg = g_strdup(cap_err_str);
                 secondary_msg = g_strdup("This may be a problem with the "
@@ -4484,7 +4466,11 @@ static void
 capture_loop_wrote_one_packet(capture_src *pcap_src) {
     global_ld.packets_captured++;
     global_ld.packets_written++;
-    pcap_src->received++;
+    global_ld.inpkts_to_sync_pipe++;
+
+    if (!use_threads) {
+        pcap_src->received++;
+    }
 
     /* check -c NUM / -a packets:NUM */
     if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
@@ -4564,6 +4550,13 @@ capture_loop_write_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
                    bh->block_type, bh->block_total_length, pcap_src->interface_id);
 #endif
             capture_loop_wrote_one_packet(pcap_src);
+        } else if (bh->block_type == BLOCK_TYPE_SHB && report_capture_filename) {
+#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
+            ws_info("Sending SP_FILE on first SHB");
+#endif
+            /* SHB is now ready for capture parent to read on SP_FILE message */
+            pipe_write_block(2, SP_FILE, report_capture_filename);
+            report_capture_filename = NULL;
         }
     }
 }
@@ -4824,13 +4817,13 @@ main(int argc, char *argv[])
 {
     char             *err_msg;
     int               opt;
-    static const struct option long_options[] = {
-        {"help", no_argument, NULL, 'h'},
-        {"version", no_argument, NULL, 'v'},
+    static const struct ws_option long_options[] = {
+        {"help", ws_no_argument, NULL, 'h'},
+        {"version", ws_no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
-        {"ifname", required_argument, NULL, LONGOPT_IFNAME},
-        {"ifdescr", required_argument, NULL, LONGOPT_IFDESCR},
-        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+        {"ifname", ws_required_argument, NULL, LONGOPT_IFNAME},
+        {"ifdescr", ws_required_argument, NULL, LONGOPT_IFDESCR},
+        {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
         {0, 0, 0, 0 }
     };
 
@@ -5117,7 +5110,7 @@ main(int argc, char *argv[])
     global_capture_opts.capture_child = capture_child;
 
     /* Now get our args */
-    while ((opt = getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, OPTSTRING, long_options, NULL)) != -1) {
         switch (opt) {
         case 'h':        /* Print help and exit */
             show_help_header("Capture network packets and dump them into a pcapng or pcap file.");
@@ -5157,7 +5150,7 @@ main(int argc, char *argv[])
         case 'I':        /* Monitor mode */
 #endif
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
-            status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
+            status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
             if (status != 0) {
                 exit_main(status);
             }
@@ -5168,7 +5161,7 @@ main(int argc, char *argv[])
                 interface_options *interface_opts;
 
                 interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1);
-                interface_opts->ifname = g_strdup(optarg);
+                interface_opts->ifname = g_strdup(ws_optarg);
             } else {
                 cmdarg_err("--ifname must be specified after a -i option");
                 exit_main(1);
@@ -5179,7 +5172,7 @@ main(int argc, char *argv[])
                 interface_options *interface_opts;
 
                 interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1);
-                interface_opts->descr = g_strdup(optarg);
+                interface_opts->descr = g_strdup(ws_optarg);
             } else {
                 cmdarg_err("--ifdescr must be specified after a -i option");
                 exit_main(1);
@@ -5189,7 +5182,7 @@ main(int argc, char *argv[])
             if (capture_comments == NULL) {
                 capture_comments = g_ptr_array_new_with_free_func(g_free);
             }
-            g_ptr_array_add(capture_comments, g_strdup(optarg));
+            g_ptr_array_add(capture_comments, g_strdup(ws_optarg));
             break;
         case 'Z':
             capture_child = TRUE;
@@ -5197,11 +5190,11 @@ main(int argc, char *argv[])
             /* set output pipe to binary mode, to avoid ugly text conversions */
             _setmode(2, O_BINARY);
             /*
-             * optarg = the control ID, aka the PPID, currently used for the
+             * ws_optarg = the control ID, aka the PPID, currently used for the
              * signal pipe name.
              */
-            if (strcmp(optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
-                sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, optarg);
+            if (strcmp(ws_optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
+                sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, ws_optarg);
                 sig_pipe_handle = CreateFile(utf_8to16(sig_pipe_name),
                                              GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -5251,7 +5244,7 @@ main(int argc, char *argv[])
         case 'k':        /* Set wireless channel */
             if (!set_chan) {
                 set_chan = TRUE;
-                set_chan_arg = optarg;
+                set_chan_arg = ws_optarg;
                 run_once_args++;
             } else {
                 cmdarg_err("Only one -k flag may be specified");
@@ -5262,13 +5255,13 @@ main(int argc, char *argv[])
             machine_readable = TRUE;
             break;
         case 'C':
-            pcap_queue_byte_limit = get_positive_int(optarg, "byte_limit");
+            pcap_queue_byte_limit = get_positive_int(ws_optarg, "byte_limit");
             break;
         case 'N':
-            pcap_queue_packet_limit = get_positive_int(optarg, "packet_limit");
+            pcap_queue_packet_limit = get_positive_int(ws_optarg, "packet_limit");
             break;
         default:
-            cmdarg_err("Invalid Option: %s", argv[optind-1]);
+            cmdarg_err("Invalid Option: %s", argv[ws_optind-1]);
             /* FALLTHROUGH */
         case '?':        /* Bad flag - print usage message */
             arg_error = TRUE;
@@ -5276,8 +5269,8 @@ main(int argc, char *argv[])
         }
     }
     if (!arg_error) {
-        argc -= optind;
-        argv += optind;
+        argc -= ws_optind;
+        argv += ws_optind;
         if (argc >= 1) {
             /* user specified file name as regular command-line argument */
             /* XXX - use it as the capture file name (or something else)? */
@@ -5634,7 +5627,15 @@ report_new_capture_file(const char *filename)
 {
     if (capture_child) {
         ws_debug("File: %s", filename);
-        pipe_write_block(2, SP_FILE, filename);
+        if (global_ld.pcapng_passthrough) {
+            /* Save filename for sending SP_FILE to capture parent after SHB is passed-through */
+#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
+            ws_info("Delaying SP_FILE until first SHB");
+#endif
+            report_capture_filename = filename;
+        } else {
+            pipe_write_block(2, SP_FILE, filename);
+        }
     } else {
 #ifdef SIGINFO
         /*

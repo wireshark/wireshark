@@ -19,7 +19,6 @@ class ScsiServiceResponseTimeDialog : public ServiceResponseTimeDialog
     Q_OBJECT
 
 public:
-
     ScsiServiceResponseTimeDialog(QWidget &parent, CaptureFile &cf, struct register_srt *srt, const QString filter);
     static TapParameterDialog *createScsiSrtDialog(QWidget &parent, const QString, const QString opt_arg, CaptureFile &cf);
 

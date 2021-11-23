@@ -8,10 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <config.h>
-
+#include "config.h"
 #include "str_util.h"
-#include <wsutil/ws_assert.h>
 
 int
 ws_xton(char ch)

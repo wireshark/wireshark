@@ -28,7 +28,7 @@
 #
 # Strategy (sneaky but ...)
 #
-# problem: I dont know what variables to declare until AFTER the helper functions
+# problem: I don't know what variables to declare until AFTER the helper functions
 # have been built, so ...
 #
 # There are 2 passes through genHelpers, the first one is there just to
@@ -1408,7 +1408,7 @@ class wireshark_gen_C:
 
                 #print "//XXX clv = ",clv
 
-                # if char, dont convert to int, but put inside single quotes so that it is understood by C.
+                # if char, don't convert to int, but put inside single quotes so that it is understood by C.
                 # eg: if (disc == 'b')..
                 #
                 # TODO : handle \xxx chars generically from a function or table lookup rather than

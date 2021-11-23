@@ -16,16 +16,16 @@
 
 #include "next_tvb.h"
 
-void next_tvb_init(next_tvb_list_t *list) {
-  list->first = NULL;
-  list->last = NULL;
-  list->count = 0;
+next_tvb_list_t* next_tvb_list_new(wmem_allocator_t *pool) {
+  next_tvb_list_t *list = wmem_new0(pool, next_tvb_list_t);
+  list->pool = pool;
+  return list;
 }
 
 void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle) {
   next_tvb_item_t *item;
 
-  item = wmem_new(wmem_packet_scope(), next_tvb_item_t);
+  item = wmem_new(list->pool, next_tvb_item_t);
 
   item->type = NTVB_HANDLE;
   item->handle = handle;
@@ -46,7 +46,7 @@ void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree,
 void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 uint_val) {
   next_tvb_item_t *item;
 
-  item = wmem_new(wmem_packet_scope(), next_tvb_item_t);
+  item = wmem_new(list->pool, next_tvb_item_t);
 
   item->type = NTVB_UINT;
   item->table = table;
@@ -68,7 +68,7 @@ void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, d
 void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, const gchar *string) {
   next_tvb_item_t *item;
 
-  item = wmem_new(wmem_packet_scope(), next_tvb_item_t);
+  item = wmem_new(list->pool, next_tvb_item_t);
 
   item->type = NTVB_STRING;
   item->table = table;

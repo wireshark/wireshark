@@ -125,10 +125,13 @@ private:
     int line_height_;           // Font line spacing
     QList<QRect> hover_outlines_; // Hovered byte outlines.
 
+    bool allow_hover_selection_;
+
     // Data selection
     QVector<int> x_pos_to_column_;
 
     // Context menu actions
+    QAction *action_allow_hover_selection_;
     QAction *action_bytes_hex_;
     QAction *action_bytes_bits_;
     QAction *action_bytes_enc_from_packet_;
@@ -139,6 +142,7 @@ private slots:
     void copyBytes(bool);
     void setHexDisplayFormat(QAction *action);
     void setCharacterEncoding(QAction *action);
+    void toggleHoverAllowed(bool);
 
 };
 

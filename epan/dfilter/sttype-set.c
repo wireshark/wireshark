@@ -10,6 +10,7 @@
 
 #include "syntax-tree.h"
 #include "sttype-set.h"
+#include <wsutil/ws_assert.h>
 
 /*
  * The GSList stores a list of elements of the set. Each element is represented
@@ -21,7 +22,7 @@ static void
 slist_stnode_free(gpointer data)
 {
 	if (data) {
-		stnode_free((stnode_t *)data);
+		stnode_free(data);
 	}
 }
 
@@ -36,25 +37,37 @@ sttype_set_free(gpointer value)
 {
 	/* If the data was not claimed with stnode_steal_data(), free it. */
 	if (value) {
-		set_nodelist_free((GSList *)value);
+		set_nodelist_free(value);
 	}
 }
 
-void
-sttype_set_replace_element(stnode_t *node, stnode_t *oldnode, stnode_t *newnode)
+static char *
+sttype_set_tostr(const void *data, gboolean pretty)
 {
-	GSList	*nodelist = (GSList*)stnode_data(node);
+	const GSList* nodelist = data;
+	stnode_t *lower, *upper;
+	GString *repr = g_string_new("");
 
-	/* This deliberately checks both the left and right nodes, covering both
-	 * the lower and upper bound for ranges. NULL right nodes (in case of
-	 * normal, non-range elements) will usually not match "oldnode". */
 	while (nodelist) {
-		if (nodelist->data == oldnode) {
-			nodelist->data = newnode;
-			break;
-		}
+		lower = nodelist->data;
+		g_string_append(repr, stnode_tostr(lower, pretty));
+
+		/* Set elements are always in pairs; upper may be null. */
 		nodelist = g_slist_next(nodelist);
+		ws_assert(nodelist);
+		upper = nodelist->data;
+		if (upper != NULL) {
+			g_string_append(repr, "..");
+			g_string_append(repr, stnode_tostr(upper, pretty));
+		}
+
+		nodelist = g_slist_next(nodelist);
+		if (nodelist != NULL) {
+			g_string_append_c(repr, ' ');
+		}
 	}
+
+	return g_string_free(repr, FALSE);
 }
 
 void
@@ -65,7 +78,8 @@ sttype_register_set(void)
 		"SET",
 		NULL,
 		sttype_set_free,
-		NULL
+		NULL,
+		sttype_set_tostr
 	};
 
 	sttype_register(&set_type);

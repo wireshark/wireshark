@@ -2664,8 +2664,8 @@ CSN_DESCR_END         (DTM_EGPRS_HighMultislotClass_t)
 
 static const
 CSN_DESCR_BEGIN       (DownlinkDualCarrierCapability_r7_t)
-  M_NEXT_EXIST        (DownlinkDualCarrierCapability_r7_t, MultislotCapabilityReductionForDL_DualCarrier, 1, &hf_content_multislot_capability_reduction_for_dl_dual_carrier),
-  M_UINT              (DownlinkDualCarrierCapability_r7_t, DL_DualCarrierForDTM,  3, &hf_content_dual_carrier_for_dtm),
+  M_UINT              (DownlinkDualCarrierCapability_r7_t, MultislotCapabilityReductionForDL_DualCarrier, 3, &hf_content_multislot_capability_reduction_for_dl_dual_carrier),
+  M_UINT              (DownlinkDualCarrierCapability_r7_t, DL_DualCarrierForDTM,  1, &hf_content_dual_carrier_for_dtm),
 CSN_DESCR_END         (DownlinkDualCarrierCapability_r7_t)
 
 static const
@@ -2750,7 +2750,7 @@ CSN_DESCR_BEGIN       (Content_t)
   /* additions in release 7 */
   M_UINT_OR_NULL      (Content_t,  DTM_Handover_Capability,  1, &hf_content_dtm_handover_capability),
   M_NEXT_EXIST_OR_NULL(Content_t, Exist_DownlinkDualCarrierCapability_r7, 1, &hf_content_multislot_capability_reduction_for_dl_dual_carrier_exist),
-  M_TYPE              (Content_t, DownlinkDualCarrierCapability_r7, DownlinkDualCarrierCapability_r7_t),
+  M_TYPE_OR_NULL      (Content_t, DownlinkDualCarrierCapability_r7, DownlinkDualCarrierCapability_r7_t),
 
   M_UINT_OR_NULL      (Content_t,  FlexibleTimeslotAssignment,  1, &hf_content_flexible_timeslot_assignment),
   M_UINT_OR_NULL      (Content_t,  GAN_PS_HandoverCapability,  1, &hf_content_gan_ps_handover_capability),
@@ -12245,7 +12245,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_egprs_prr_additionsr7_16qam_hsr_mean_bep_exist,
-      { "Exist_16QAM_HSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_esixt_16qam_hsr_mean_bep",
+      { "Exist_16QAM_HSR_MEAN_BEP",        "gsm_rlcmac.ul.prr_exist_16qam_hsr_mean_bep",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

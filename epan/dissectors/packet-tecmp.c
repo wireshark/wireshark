@@ -44,8 +44,6 @@ static gboolean heuristic_first = FALSE;
 
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
-static heur_dtbl_entry_t *fr_heur_dtbl_entry;
-
 static dissector_table_t lin_subdissector_table;
 
 
@@ -423,6 +421,13 @@ static const value_string tecmp_bus_status_link_quality[] = {
 #define DATA_FLAG_CAN_ERR 0x0008
 #define DATA_FLAG_CAN_BRS 0x0010
 
+#define DATA_FLAG_FR_NF   0x0001
+#define DATA_FLAG_FR_ST   0x0002
+#define DATA_FLAG_FR_SYNC 0x0004
+#define DATA_FLAG_FR_WUS  0x0008
+#define DATA_FLAG_FR_PPI  0x0010
+#define DATA_FLAG_FR_CAS  0x0020
+
 /********* UATs *********/
 
 typedef struct _generic_one_id_string {
@@ -444,7 +449,7 @@ static GHashTable *data_tecmp_cms = NULL;
 static generic_one_id_string_t* tecmp_cms = NULL;
 static guint tecmp_cms_num = 0;
 
-UAT_DEC_CB_DEF(tecmp_cms, id, generic_one_id_string_t)
+UAT_HEX_CB_DEF(tecmp_cms, id, generic_one_id_string_t)
 UAT_CSTRING_CB_DEF(tecmp_cms, name, generic_one_id_string_t)
 
 static GHashTable *data_tecmp_channels = NULL;
@@ -1187,7 +1192,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gdouble analog_value_scale_factor;
 
     struct can_info can_info;
-    flexray_identifier fr_info;
+    flexray_info_t fr_info;
     lin_info_t lin_info;
 
     static int * const tecmp_payload_id_flags_can_11[] = {
@@ -1239,7 +1244,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 if (length2 > 0) {
                     lin_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2) - 1);
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2 - 1);
                     guint32 bus_frame_id = lin_info.id | (lin_info.bus_id << 16);
                     if (!dissector_try_uint_new(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
                         if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
@@ -1272,15 +1277,16 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
 
                 if (length2 > 0) {
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
 
                     can_info.fd = (msg_type == TECMP_DATA_TYPE_CAN_FD_DATA);
                     can_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
+                    can_info.bus_id = ht_channel_config_to_bus_id(channel_id);
 
                     /* luckely TECMP and SocketCAN share the first bit as indicator for 11 vs 29bit Identifiers */
                     can_info.id = tmp;
 
-                    if ((dataflags & DATA_FLAG_CAN_RTR) == DATA_FLAG_CAN_RTR) {
+                    if (msg_type == TECMP_DATA_TYPE_CAN_DATA && (dataflags & DATA_FLAG_CAN_RTR) == DATA_FLAG_CAN_RTR) {
                         can_info.id |= CAN_RTR_FLAG;
                     }
 
@@ -1296,6 +1302,9 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 break;
 
             case TECMP_DATA_TYPE_FR_DATA:
+                /* lets set it based on config */
+                fr_info.bus_id = ht_channel_config_to_bus_id(channel_id);
+
                 /* we assume "channel A" since we cannot know */
                 fr_info.ch = 0;
 
@@ -1313,21 +1322,11 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     length2 = MAX(0, MIN((gint)length2, tvb_captured_length_remaining(sub_tvb, offset2)));
                 }
 
-                if (length2 > 0) {
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
+                if ((dataflags & DATA_FLAG_FR_NF) == 0 && length2 > 0) {
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
 
-                    if (!heuristic_first) {
-                        if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, TRUE, &fr_info)) {
-                            if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
-                                call_data_dissector(payload_tvb, pinfo, tree);
-                            }
-                        }
-                    } else {
-                        if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
-                            if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, FALSE, &fr_info)) {
-                                call_data_dissector(payload_tvb, pinfo, tree);
-                            }
-                        }
+                    if (!flexray_call_subdissectors(payload_tvb, pinfo, tree, &fr_info, heuristic_first)) {
+                        call_data_dissector(payload_tvb, pinfo, tree);
                     }
                 }
                 break;
@@ -1680,22 +1679,22 @@ proto_register_tecmp_payload(void) {
         /* FlexRay Data */
         { &hf_tecmp_payload_data_flags_nf,
             { "Null Frame", "tecmp.payload.data_flags.null_frame",
-            FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_NF, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_sf,
             { "Startup Frame", "tecmp.payload.data_flags.startup_frame",
-            FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_ST, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_sync,
             { "Sync Frame", "tecmp.payload.data_flags.sync_frame",
-            FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_SYNC, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_wus,
             { "Wakeup Symbol", "tecmp.payload.data_flags.wakeup_symbol",
-            FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_WUS, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_ppi,
             { "Payload Preamble Indicator", "tecmp.payload.data_flags.payload_preamble_indicator",
-            FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_PPI, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_cas,
             { "Collision Avoidance Symbol", "tecmp.payload.data_flags.collision_avoidance_symbol",
-            FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
+            FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_CAS, NULL, HFILL } },
 
         /* UART/RS232 ASCII */
         { &hf_tecmp_payload_data_flags_dl,
@@ -1816,7 +1815,7 @@ proto_register_tecmp(void) {
 
     /* UATs for user_data fields */
     static uat_field_t tecmp_cm_id_uat_fields[] = {
-        UAT_FLD_DEC(tecmp_cms, id, "ID", "ID of the Capture Module (decimal uint16)"),
+        UAT_FLD_HEX(tecmp_cms, id, "ID", "ID of the Capture Module (hex uint16 without leading 0x)"),
         UAT_FLD_CSTRING(tecmp_cms, name, "Capture Module Name", "Name of the Capture Module (string)"),
         UAT_END_FIELDS
     };

@@ -768,6 +768,7 @@ void tap_cleanup(void)
 		head_lq = head_lq->next;
 		free_tap_listener(elem_lq);
 	}
+	tap_listener_queue = NULL;
 
 	while(head_dl){
 		elem_dl = head_dl;
@@ -775,6 +776,7 @@ void tap_cleanup(void)
 		g_free(elem_dl->name);
 		g_free((gpointer)elem_dl);
 	}
+	tap_dissector_list = NULL;
 
 	g_slist_free(tap_plugins);
 	tap_plugins = NULL;

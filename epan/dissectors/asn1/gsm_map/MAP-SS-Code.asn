@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 -- 17.7.5	Supplementary service codes
 
 MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version18 (18)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version20 (20)}
 
 DEFINITIONS
 
@@ -21,28 +21,28 @@ SS-Code ::= OCTET STRING (SIZE (1))
 	-- bits 87654321: group (bits 8765), and specific service
 	-- (bits 4321)
 
-allSS		SS-Code ::= '00000000'B
+allSS	SS-Code ::= '00000000'B
 	-- reserved for possible future use
 	-- all SS
 
 allLineIdentificationSS	SS-Code ::= '00010000'B
 	-- reserved for possible future use
 	-- all line identification SS
-clip		SS-Code ::= '00010001'B
+clip	SS-Code ::= '00010001'B
 	-- calling line identification presentation
-clir		SS-Code ::= '00010010'B
+clir	SS-Code ::= '00010010'B
 	-- calling line identification restriction
-colp		SS-Code ::= '00010011'B
+colp	SS-Code ::= '00010011'B
 	-- connected line identification presentation
-colr		SS-Code ::= '00010100'B
+colr	SS-Code ::= '00010100'B
 	-- connected line identification restriction
-mci		SS-Code ::= '00010101'B
+mci	SS-Code ::= '00010101'B
 	-- reserved for possible future use
 	-- malicious call identification
 
 allNameIdentificationSS	SS-Code ::= '00011000'B
 	-- all name identification SS
-cnap		SS-Code ::= '00011001'B
+cnap	SS-Code ::= '00011001'B
 	-- calling name presentation
 
 	-- SS-Codes '00011010'B to '00011111'B are reserved for future 
@@ -50,91 +50,91 @@ cnap		SS-Code ::= '00011001'B
 
 allForwardingSS	SS-Code ::= '00100000'B
 	-- all forwarding SS
-cfu		SS-Code ::= '00100001'B
+cfu	SS-Code ::= '00100001'B
 	-- call forwarding unconditional
 allCondForwardingSS	SS-Code ::= '00101000'B
 	-- all conditional forwarding SS
-cfb		SS-Code ::= '00101001'B
+cfb	SS-Code ::= '00101001'B
 	-- call forwarding on mobile subscriber busy
-cfnry		SS-Code ::= '00101010'B
+cfnry	SS-Code ::= '00101010'B
 	-- call forwarding on no reply
-cfnrc		SS-Code ::= '00101011'B
+cfnrc	SS-Code ::= '00101011'B
 	-- call forwarding on mobile subscriber not reachable 
-cd		SS-Code ::= '00100100'B
+cd	SS-Code ::= '00100100'B
 	-- call deflection
 
 allCallOfferingSS	SS-Code ::= '00110000'B
 	-- reserved for possible future use
 	-- all call offering SS includes also all forwarding SS
-ect		SS-Code ::= '00110001'B
+ect	SS-Code ::= '00110001'B
 	-- explicit call transfer
-mah		SS-Code ::= '00110010'B
+mah	SS-Code ::= '00110010'B
 	-- reserved for possible future use
 	-- mobile access hunting
 
 allCallCompletionSS	SS-Code ::= '01000000'B
 	-- reserved for possible future use
 	-- all Call completion SS
-cw		SS-Code ::= '01000001'B
+cw	SS-Code ::= '01000001'B
 	-- call waiting
-hold		SS-Code ::= '01000010'B
+hold	SS-Code ::= '01000010'B
 	-- call hold
-ccbs-A		SS-Code ::= '01000011'B
+ccbs-A	SS-Code ::= '01000011'B
 	-- completion of call to busy subscribers, originating side
 	-- this SS-Code is used only in InsertSubscriberData, DeleteSubscriberData 
 	-- and InterrogateSS
-ccbs-B		SS-Code ::= '01000100'B
+ccbs-B	SS-Code ::= '01000100'B
 	-- completion of call to busy subscribers, destination side
 	-- this SS-Code is used only in InsertSubscriberData and DeleteSubscriberData
-mc		SS-Code ::= '01000101'B
+mc	SS-Code ::= '01000101'B
 	-- multicall
 
 allMultiPartySS	SS-Code ::= '01010000'B
 	-- reserved for possible future use
 	-- all multiparty SS
-multiPTY		SS-Code ::= '01010001'B
+multiPTY	SS-Code ::= '01010001'B
 	-- multiparty
 
 allCommunityOfInterest-SS	SS-Code ::= '01100000'B
 	-- reserved for possible future use
 	-- all community of interest SS
-cug		SS-Code ::= '01100001'B
+cug	SS-Code ::= '01100001'B
 	-- closed user group
 
 allChargingSS	SS-Code ::= '01110000'B
 	-- reserved for possible future use
 	-- all charging SS
-aoci		SS-Code ::= '01110001'B
+aoci	SS-Code ::= '01110001'B
 	-- advice of charge information
-aocc		SS-Code ::= '01110010'B
+aocc	SS-Code ::= '01110010'B
 	-- advice of charge charging
 
 allAdditionalInfoTransferSS	SS-Code ::= '10000000'B
 	-- reserved for possible future use
 	-- all additional information transfer SS
-uus1		SS-Code ::= '10000001'B
+uus1	SS-Code ::= '10000001'B
 	-- UUS1 user-to-user signalling 
-uus2		SS-Code ::= '10000010'B
+uus2	SS-Code ::= '10000010'B
 	-- UUS2 user-to-user signalling
-uus3		SS-Code ::= '10000011'B
+uus3	SS-Code ::= '10000011'B
 	-- UUS3 user-to-user signalling
 
 allBarringSS	SS-Code ::= '10010000'B
 	-- all barring SS
 barringOfOutgoingCalls	SS-Code ::= '10010001'B
 	-- barring of outgoing calls
-baoc		SS-Code ::= '10010010'B
+baoc	SS-Code ::= '10010010'B
 	-- barring of all outgoing calls
-boic		SS-Code ::= '10010011'B
+boic	SS-Code ::= '10010011'B
 	-- barring of outgoing international calls
-boicExHC		SS-Code ::= '10010100'B
+boicExHC	SS-Code ::= '10010100'B
 	-- barring of outgoing international calls except those directed
 	-- to the home PLMN Country
 barringOfIncomingCalls	SS-Code ::= '10011001'B
 	-- barring of incoming calls
-baic		SS-Code ::= '10011010'B
+baic	SS-Code ::= '10011010'B
 	-- barring of all incoming calls
-bicRoam		SS-Code ::= '10011011'B
+bicRoam	SS-Code ::= '10011011'B
 	-- barring of incoming calls when roaming outside home PLMN
 	-- Country
 
@@ -158,12 +158,12 @@ plmn-specificSS-F	SS-Code ::= '11111111'B
 allCallPrioritySS	SS-Code ::= '10100000'B
 	-- reserved for possible future use
 	-- all call priority SS
-emlpp		SS-Code ::= '10100001'B
+emlpp	SS-Code ::= '10100001'B
 	-- enhanced Multilevel Precedence Pre-emption (EMLPP) service
 
 allLCSPrivacyException	SS-Code ::= '10110000'B
 	-- all LCS Privacy Exception Classes
-universal		SS-Code ::= '10110001'B
+universal	SS-Code ::= '10110001'B
 	-- allow location by any LCS client
 callSessionRelated	SS-Code ::= '10110010'B
 	-- allow location by any value added LCS client to which a call/session 

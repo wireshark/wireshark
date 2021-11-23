@@ -30,6 +30,13 @@
 #include <packet-flexray.h>
 #include <packet-pdu-transport.h>
 #include <packet-lin.h>
+#include <packet-autosar-ipdu-multiplexer.h>
+
+
+void proto_reg_handoff_signal_pdu_can(void);
+void proto_reg_handoff_signal_pdu_lin(void);
+void proto_reg_handoff_signal_pdu_someip(void);
+void proto_reg_handoff_signal_pdu_pdu_transport(void);
 
 /*
  * Dissector for CAN, FlexRay, and other message payloads.
@@ -57,6 +64,7 @@
 #define DATAFILE_SPDU_FLEXRAY_MAPPING                       "Signal_PDU_Binding_FlexRay"
 #define DATAFILE_SPDU_LIN_MAPPING                           "Signal_PDU_Binding_LIN"
 #define DATAFILE_SPDU_PDU_TRANSPORT_MAPPING                 "Signal_PDU_Binding_PDU_Transport"
+#define DATAFILE_SPDU_IPDUM_MAPPING                         "Signal_PDU_Binding_AUTOSAR_IPduM"
 
 /* ID wireshark identifies the dissector by */
 static int proto_signal_pdu                                 = -1;
@@ -66,6 +74,7 @@ static dissector_handle_t signal_pdu_handle_can             = NULL;
 static dissector_handle_t signal_pdu_handle_flexray         = NULL;
 static dissector_handle_t signal_pdu_handle_lin             = NULL;
 static dissector_handle_t signal_pdu_handle_pdu_transport   = NULL;
+static dissector_handle_t signal_pdu_handle_ipdum           = NULL;
 
 static int hf_payload_unparsed                              = -1;
 
@@ -90,6 +99,7 @@ static GHashTable *data_spdu_can_mappings                   = NULL;
 static GHashTable *data_spdu_flexray_mappings               = NULL;
 static GHashTable *data_spdu_lin_mappings                   = NULL;
 static GHashTable *data_spdu_pdu_transport_mappings         = NULL;
+static GHashTable *data_spdu_ipdum_mappings                 = NULL;
 
 static hf_register_info *dynamic_hf                         = NULL;
 static guint dynamic_hf_size                                = 0;
@@ -206,6 +216,7 @@ typedef spdu_someip_mapping_t spdu_someip_mapping_uat_t;
 
 typedef struct _spdu_can_mapping {
     guint32     can_id;
+    guint32     bus_id;
     guint32     message_id;
 } spdu_can_mapping_t;
 typedef spdu_can_mapping_t spdu_can_mapping_uat_t;
@@ -235,6 +246,13 @@ typedef struct _spdu_pdu_transport_mapping {
 typedef spdu_pdu_transport_mapping_t spdu_pdu_transport_mapping_uat_t;
 
 
+typedef struct _spdu_ipdum_mapping {
+    guint32     pdu_id;
+    guint32     message_id;
+} spdu_ipdum_mapping_t;
+typedef spdu_ipdum_mapping_t spdu_ipdum_mapping_uat_t;
+
+
 static generic_one_id_string_t *spdu_message_ident = NULL;
 static guint spdu_message_ident_num = 0;
 
@@ -258,6 +276,9 @@ static guint spdu_lin_mapping_num = 0;
 
 static spdu_pdu_transport_mapping_t *spdu_pdu_transport_mapping = NULL;
 static guint spdu_pdu_transport_mapping_num = 0;
+
+static spdu_ipdum_mapping_t *spdu_ipdum_mapping = NULL;
+static guint spdu_ipdum_mapping_num = 0;
 
 void proto_register_signal_pdu(void);
 void proto_reg_handoff_signal_pdu(void);
@@ -346,6 +367,26 @@ proto_reg_handoff_signal_pdu_pdu_transport(void) {
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
             gint64 *id = (gint64*)tmp->data;
             dissector_add_uint("pdu_transport.id", ((guint32)((guint64)(*id)) & 0xffffffff), signal_pdu_handle_pdu_transport);
+        }
+    }
+}
+
+static void
+register_signal_pdu_ipdum_ids(void) {
+    if (signal_pdu_handle_ipdum == NULL) {
+        return;
+    }
+
+    dissector_delete_all("ipdum.pdu.id", signal_pdu_handle_ipdum);
+
+    /* IPduM: loop over all messages IDs in HT */
+    if (data_spdu_ipdum_mappings != NULL) {
+        GList *keys = g_hash_table_get_keys(data_spdu_ipdum_mappings);
+
+        GList *tmp;
+        for (tmp = keys; tmp != NULL; tmp = tmp->next) {
+            gint64 *id = (gint64*)tmp->data;
+            dissector_add_uint("ipdum.pdu.id", ((guint32)((guint64)(*id)) & 0xffffffff), signal_pdu_handle_ipdum);
         }
     }
 }
@@ -990,7 +1031,7 @@ post_update_spdu_someip_mapping_cb(void) {
         data_spdu_someip_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_someip_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_someip_mappings == NULL || spdu_someip_mapping == NULL) {
@@ -1030,6 +1071,7 @@ get_someip_mapping(guint16 service_id, guint16 method_id, guint8 major_version, 
 
 /* UAT: CAN Mapping */
 UAT_HEX_CB_DEF(spdu_can_mapping, can_id, spdu_can_mapping_uat_t)
+UAT_HEX_CB_DEF(spdu_can_mapping, bus_id, spdu_can_mapping_uat_t)
 UAT_HEX_CB_DEF(spdu_can_mapping, message_id, spdu_can_mapping_uat_t)
 
 static void *
@@ -1038,6 +1080,7 @@ copy_spdu_can_mapping_cb(void *n, const void *o, size_t size _U_) {
     const spdu_can_mapping_uat_t *old_rec = (const spdu_can_mapping_uat_t *)o;
 
     new_rec->can_id = old_rec->can_id;
+    new_rec->bus_id = old_rec->bus_id;
     new_rec->message_id = old_rec->message_id;
 
     return new_rec;
@@ -1051,7 +1094,7 @@ post_update_spdu_can_mapping_cb(void) {
         data_spdu_can_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_can_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_can_mappings == NULL || spdu_can_mapping == NULL) {
@@ -1063,6 +1106,7 @@ post_update_spdu_can_mapping_cb(void) {
         for (i = 0; i < spdu_can_mapping_num; i++) {
             gint64 *key = wmem_new(wmem_epan_scope(), gint64);
             *key = spdu_can_mapping[i].can_id;
+            *key |= ((gint64)(spdu_can_mapping[i].bus_id & 0xffff)) << 32;
 
             g_hash_table_insert(data_spdu_can_mappings, key, &spdu_can_mapping[i]);
         }
@@ -1073,14 +1117,21 @@ post_update_spdu_can_mapping_cb(void) {
 }
 
 static spdu_can_mapping_t*
-get_can_mapping(guint32 id) {
+get_can_mapping(guint32 id, guint16 bus_id) {
     if (data_spdu_can_mappings == NULL) {
         return NULL;
     }
 
     gint64 *key = wmem_new(wmem_epan_scope(), gint64);
     *key = id & CAN_EFF_MASK;
+    *key |= ((gint64)bus_id << 32);
     spdu_can_mapping_t *tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, key);
+    if (tmp == NULL) {
+        /* try again without Bus ID set */
+        *key = id & CAN_EFF_MASK;
+        tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, key);
+    }
+
     wmem_free(wmem_epan_scope(), key);
 
     return tmp;
@@ -1131,7 +1182,7 @@ post_update_spdu_flexray_mapping_cb(void) {
         data_spdu_flexray_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_flexray_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_flexray_mappings == NULL || spdu_flexray_mapping == NULL) {
@@ -1209,7 +1260,7 @@ post_update_spdu_lin_mapping_cb(void) {
         data_spdu_lin_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_lin_mappings = g_hash_table_new_full(g_int_hash, g_int_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_lin_mappings == NULL || spdu_lin_mapping == NULL) {
@@ -1289,7 +1340,7 @@ post_update_spdu_pdu_transport_mapping_cb(void) {
         data_spdu_pdu_transport_mappings = NULL;
     }
 
-    /* we dont need to free the data as long as we don't alloc it first */
+    /* we don't need to free the data as long as we don't alloc it first */
     data_spdu_pdu_transport_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
 
     if (data_spdu_pdu_transport_mappings == NULL || spdu_pdu_transport_mapping == NULL) {
@@ -1325,6 +1376,76 @@ get_pdu_transport_mapping(guint32 pdu_transport_id) {
     return tmp;
 }
 
+/* UAT: IPduM Mapping */
+UAT_HEX_CB_DEF(spdu_ipdum_mapping, pdu_id, spdu_ipdum_mapping_uat_t)
+UAT_HEX_CB_DEF(spdu_ipdum_mapping, message_id, spdu_ipdum_mapping_uat_t)
+
+static void *
+copy_spdu_ipdum_mapping_cb(void *n, const void *o, size_t size _U_) {
+    spdu_ipdum_mapping_uat_t *new_rec = (spdu_ipdum_mapping_uat_t*)n;
+    const spdu_ipdum_mapping_uat_t *old_rec = (const spdu_ipdum_mapping_uat_t*)o;
+
+    new_rec->pdu_id = old_rec->pdu_id;
+    new_rec->message_id = old_rec->message_id;
+
+    return new_rec;
+}
+
+static gboolean
+update_spdu_ipdum_mapping(void *r, char **err) {
+    spdu_ipdum_mapping_uat_t *rec = (spdu_ipdum_mapping_uat_t *)r;
+
+    if (rec->pdu_id > 0xffffffff) {
+        *err = g_strdup_printf("IPduM IDs are only uint32 (ID: %i)", rec->pdu_id);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void
+post_update_spdu_ipdum_mapping_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (data_spdu_ipdum_mappings) {
+        g_hash_table_destroy(data_spdu_ipdum_mappings);
+        data_spdu_ipdum_mappings = NULL;
+    }
+
+    /* we don't need to free the data as long as we don't alloc it first */
+    data_spdu_ipdum_mappings = g_hash_table_new_full(g_int64_hash, g_int64_equal, &spdu_payload_free_key, NULL);
+
+    if (data_spdu_ipdum_mappings == NULL || spdu_ipdum_mapping == NULL) {
+        return;
+    }
+
+    if (spdu_ipdum_mapping_num > 0) {
+        guint i;
+        for (i = 0; i < spdu_ipdum_mapping_num; i++) {
+            gint64 *key = wmem_new(wmem_epan_scope(), gint64);
+            *key = spdu_ipdum_mapping[i].pdu_id;
+
+            g_hash_table_insert(data_spdu_ipdum_mappings, key, &spdu_ipdum_mapping[i]);
+        }
+    }
+
+    /* we need to make sure we register again */
+    register_signal_pdu_ipdum_ids();
+}
+
+static spdu_ipdum_mapping_uat_t*
+get_ipdum_mapping(guint32 pdu_id) {
+    if (data_spdu_ipdum_mappings == NULL) {
+        return NULL;
+    }
+
+    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
+    *key = pdu_id;
+
+    spdu_ipdum_mapping_uat_t *tmp = (spdu_ipdum_mapping_uat_t*)g_hash_table_lookup(data_spdu_ipdum_mappings, key);
+    wmem_free(wmem_epan_scope(), key);
+
+    return tmp;
+}
 
 /**************************************
  ********     Expert Infos     ********
@@ -1420,14 +1541,14 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         signal_length++;
     }
 
-    if (tvb_captured_length_remaining(tvb, offset) < signal_length) {
-        expert_spdu_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
-        return -1;
-    }
-
     if (item->multiplex_value_only != -1 && item->multiplex_value_only != *multiplexer) {
         /* multiplexer set and we are in the wrong multiplex */
         return 0;
+    }
+
+    if (tvb_captured_length_remaining(tvb, offset) < signal_length) {
+        expert_spdu_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+        return -1;
     }
 
     if (!spdu_derserializer_show_hidden && item->hidden) {
@@ -1539,16 +1660,24 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
         }
     }
 
-    if (!spdu_derserializer_activated) {
+    spdu_signal_list_t *paramlist = get_parameter_config(id);
+
+    if (name == NULL && paramlist == NULL) {
+        /* unknown message, lets skip */
         return 0;
+    }
+
+    if (root_tree == NULL && !proto_field_is_referenced(root_tree, proto_signal_pdu)) {
+        /* we only receive subtvbs with nothing behind us */
+        return tvb_captured_length(tvb);
+    }
+
+    if (paramlist == NULL || !spdu_derserializer_activated) {
+        /* we only receive subtvbs with nothing behind us */
+        return tvb_captured_length(tvb);
     }
 
     gint length = tvb_captured_length_remaining(tvb, 0);
-    spdu_signal_list_t *paramlist = get_parameter_config(id);
-
-    if (paramlist == NULL) {
-        return 0;
-    }
 
     guint i;
     for (i = 0; i < paramlist->num_of_items; i++) {
@@ -1593,7 +1722,7 @@ dissect_spdu_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         return 0;
     }
 
-    spdu_can_mapping_t *can_mapping = get_can_mapping(can_info->id);
+    spdu_can_mapping_t *can_mapping = get_can_mapping(can_info->id, can_info->bus_id);
     if (can_mapping == NULL) {
         return 0;
     }
@@ -1608,7 +1737,7 @@ dissect_spdu_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 static int
 dissect_spdu_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    struct flexray_identifier *flexray_data = (struct flexray_identifier*)data;
+    struct flexray_info *flexray_data = (struct flexray_info*)data;
     DISSECTOR_ASSERT(flexray_data);
 
     spdu_flexray_mapping_t *flexray_mapping = get_flexray_mapping(flexray_data->ch, flexray_data->cc, flexray_data->id);
@@ -1637,7 +1766,7 @@ dissect_spdu_message_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         return 0;
     }
 
-    return dissect_spdu_payload(tvb, pinfo, tree, lin_mapping->message_id, FALSE);
+    return dissect_spdu_payload(tvb, pinfo, tree, lin_mapping->message_id, TRUE);
 }
 
 static int
@@ -1652,6 +1781,20 @@ dissect_spdu_message_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     return dissect_spdu_payload(tvb, pinfo, tree, pdu_transport_mapping->message_id, FALSE);
+}
+
+static int
+dissect_spdu_message_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    autosar_ipdu_multiplexer_info_t *pdu_info = (autosar_ipdu_multiplexer_info_t*)data;
+    DISSECTOR_ASSERT(pdu_info);
+
+    spdu_ipdum_mapping_uat_t *ipdum_mapping = get_ipdum_mapping(pdu_info->pdu_id);
+
+    if (ipdum_mapping == NULL) {
+        return 0;
+    }
+
+    return dissect_spdu_payload(tvb, pinfo, tree, ipdum_mapping->message_id, TRUE);
 }
 
 
@@ -1677,6 +1820,7 @@ proto_register_signal_pdu(void) {
     uat_t  *spdu_flexray_mapping_uat;
     uat_t  *spdu_lin_mapping_uat;
     uat_t  *spdu_pdu_transport_mapping_uat;
+    uat_t  *spdu_ipdum_mapping_uat;
 
 
     /* data fields */
@@ -1738,6 +1882,7 @@ proto_register_signal_pdu(void) {
 
     static uat_field_t spdu_can_mapping_uat_fields[] = {
         UAT_FLD_HEX(spdu_can_mapping, can_id,                           "CAN ID",                "CAN ID (32bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_can_mapping, bus_id,                           "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_can_mapping, message_id,                       "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
     };
@@ -1752,7 +1897,7 @@ proto_register_signal_pdu(void) {
 
     static uat_field_t spdu_lin_mapping_uat_fields[] = {
         UAT_FLD_HEX(spdu_lin_mapping, frame_id,                         "Frame ID",              "LIN Frame ID (6bit hex without leading 0x)"),
-        UAT_FLD_HEX(spdu_lin_mapping, bus_id  ,                         "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_lin_mapping, bus_id,                           "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_lin_mapping, message_id,                       "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
     };
@@ -1760,6 +1905,12 @@ proto_register_signal_pdu(void) {
     static uat_field_t spdu_pdu_transport_mapping_uat_fields[] = {
         UAT_FLD_HEX(spdu_pdu_transport_mapping, pdu_id,                 "PDU ID",                "PDU ID (32bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_pdu_transport_mapping, message_id,             "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
+        UAT_END_FIELDS
+    };
+
+    static uat_field_t spdu_ipdum_mapping_uat_fields[] = {
+        UAT_FLD_HEX(spdu_ipdum_mapping, pdu_id,                         "PDU ID",                "PDU ID (32bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_ipdum_mapping, message_id,                     "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
     };
 
@@ -1947,6 +2098,24 @@ proto_register_signal_pdu(void) {
 
     prefs_register_uat_preference(spdu_module, "_spdu_pdu_transport_mapping", "PDU Transport Mappings",
         "A table to map PDU Transport payloads to Signal PDUs", spdu_pdu_transport_mapping_uat);
+
+
+    spdu_ipdum_mapping_uat = uat_new("AUTOSAR I-PduM",
+        sizeof(spdu_ipdum_mapping_uat_t), DATAFILE_SPDU_IPDUM_MAPPING, TRUE,
+        (void**)&spdu_ipdum_mapping,
+        &spdu_ipdum_mapping_num,
+        UAT_AFFECTS_DISSECTION,
+        NULL, /* help */
+        copy_spdu_ipdum_mapping_cb,
+        update_spdu_ipdum_mapping,
+        NULL,
+        post_update_spdu_ipdum_mapping_cb,
+        NULL, /* reset */
+        spdu_ipdum_mapping_uat_fields
+    );
+
+    prefs_register_uat_preference(spdu_module, "_spdu_ipdum_mapping", "IPduM Mappings",
+        "A table to map AUTOSAR I-PduM PDUs to Signal PDUs", spdu_ipdum_mapping_uat);
 }
 
 void
@@ -1967,6 +2136,8 @@ proto_reg_handoff_signal_pdu(void) {
         signal_pdu_handle_lin = register_dissector("signal_pdu_over_lin", dissect_spdu_message_lin, proto_signal_pdu);
 
         signal_pdu_handle_pdu_transport = register_dissector("signal_pdu_over_pdu_transport", dissect_spdu_message_pdu_transport, proto_signal_pdu);
+
+        signal_pdu_handle_ipdum = register_dissector("signal_pdu_over_IPduM", dissect_spdu_message_ipdum, proto_signal_pdu);
 
         initialized = TRUE;
     }

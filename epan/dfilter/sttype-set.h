@@ -14,9 +14,6 @@
 
 #include "ws_attributes.h"
 
-void
-sttype_set_replace_element(stnode_t *node, stnode_t *oldnode, stnode_t *newnode);
-
 gboolean
 sttype_set_convert_to_range(stnode_t **node_left, stnode_t **node_right);
 

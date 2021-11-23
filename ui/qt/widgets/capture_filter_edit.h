@@ -24,6 +24,7 @@ class CaptureFilterEdit : public SyntaxLineEdit
     Q_OBJECT
 public:
     explicit CaptureFilterEdit(QWidget *parent = 0, bool plain = false);
+    ~CaptureFilterEdit();
     void setConflict(bool conflict = false);
     // No selections: (QString(), false)
     // Selections, same filter: (filter, false)
@@ -63,11 +64,13 @@ private:
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;
     CaptureFilterSyntaxWorker *syntax_worker_;
+    QThread *syntax_thread_;
 
     void buildCompletionList(const QString& primitive_word);
 
 signals:
     void captureFilterSyntaxChanged(bool valid);
+    void captureFilterChanged(const QString filter);
     void startCapture();
     void addBookmark(const QString filter);
 

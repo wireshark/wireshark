@@ -110,7 +110,7 @@ static expert_field ei_roofnet_too_much_data = EI_INIT;
 static guint16 dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
   guint16 flags;
-  ptvcursor_t *cursor = ptvcursor_new(tree, tvb, *offset);
+  ptvcursor_t *cursor = ptvcursor_new(wmem_packet_scope(), tree, tvb, *offset);
 
   ptvcursor_add(cursor, hf_roofnet_version, 1, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_type, 1, ENC_BIG_ENDIAN);
@@ -158,7 +158,7 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
   proto_tree_add_ipv4(subtree, hf_roofnet_link_src, tvb, *offset, 4, addr_src);
   *offset += 4;
 
-  cursor = ptvcursor_new(subtree, tvb, *offset);
+  cursor = ptvcursor_new(wmem_packet_scope(), subtree, tvb, *offset);
 
   ptvcursor_add(cursor, hf_roofnet_link_forward, 4, ENC_BIG_ENDIAN);
   ptvcursor_add(cursor, hf_roofnet_link_rev, 4, ENC_BIG_ENDIAN);

@@ -32,7 +32,6 @@ private:
 
 class ColumnTypeDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
 public:
     ColumnTypeDelegate(QObject * parent = Q_NULLPTR);
 

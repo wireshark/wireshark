@@ -142,7 +142,7 @@ esis_dissect_esh_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *
     while ( no_sa-- > 0 ) {
       proto_tree_add_item_ret_uint(esis_area_tree, hf_esis_sal, tvb, offset, 1, ENC_NA, &sal);
       offset++;
-      proto_tree_add_string(esis_area_tree, hf_esis_sa, tvb, offset, sal, print_nsap_net(tvb, offset, sal ) );
+      proto_tree_add_string(esis_area_tree, hf_esis_sa, tvb, offset, sal, print_nsap_net( pinfo->pool, tvb, offset, sal ) );
       offset += sal;
       len    -= ( sal + 1 );
     }
@@ -163,7 +163,7 @@ esis_dissect_ish_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_info *
     network_tree = proto_tree_add_subtree( tree, tvb, offset, netl + 1, ett_esis_network, NULL,
                          "### Network Entity Title Section ###");
     proto_tree_add_uint(network_tree, hf_esis_netl, tvb, offset++, 1, netl);
-    proto_tree_add_string(network_tree, hf_esis_net, tvb, offset, netl, print_nsap_net( tvb, offset, netl ) );
+    proto_tree_add_string(network_tree, hf_esis_net, tvb, offset, netl, print_nsap_net( pinfo->pool, tvb, offset, netl ) );
     offset += netl;
     len    -= ( netl + 1 );
 
@@ -184,7 +184,7 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_i
                          "### Destination Address Section ###" );
     proto_tree_add_uint(dest_tree, hf_esis_dal, tvb, offset++, 1, tmpl);
     proto_tree_add_string( dest_tree, hf_esis_da, tvb, offset, tmpl,
-                         print_nsap_net( tvb, offset, tmpl ) );
+                         print_nsap_net( pinfo->pool, tvb, offset, tmpl ) );
     offset += tmpl;
     len    -= ( tmpl + 1 );
     tmpl    = (int) tvb_get_guint8(tvb, offset);
@@ -208,7 +208,7 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_i
                            "### Network Entity Title Section ###" );
       proto_tree_add_uint(network_tree, hf_esis_netl, tvb, offset++, 1, tmpl);
       proto_tree_add_string( network_tree, hf_esis_net, tvb, offset, tmpl,
-                           print_nsap_net( tvb, offset, tmpl ) );
+                           print_nsap_net( pinfo->pool, tvb, offset, tmpl ) );
       offset += tmpl;
       len    -= ( tmpl + 1 );
     }

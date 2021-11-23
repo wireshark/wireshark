@@ -722,10 +722,10 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	%(DEFAULT_BODY)s
 
 	if (ctx && ctx->do_address) {
-		proto_item_append_text(actx->subtree.tree, " %%s", tvb_format_text(mtaname, 0, tvb_reported_length(mtaname)));
+		proto_item_append_text(actx->subtree.tree, " %%s", tvb_format_text(actx->pinfo->pool, mtaname, 0, tvb_reported_length(mtaname)));
 	} else {
 		if (mtaname) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(mtaname, 0, tvb_reported_length(mtaname)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(actx->pinfo->pool, mtaname, 0, tvb_reported_length(mtaname)));
 		}
 	}
 
@@ -1079,10 +1079,10 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 	if(id) {
 		if (ctx && ctx->do_address)
-			proto_item_append_text(actx->subtree.tree, " $ %%s)", tvb_format_text(id, 0, tvb_reported_length(id)));
+			proto_item_append_text(actx->subtree.tree, " $ %%s)", tvb_format_text(actx->pinfo->pool, id, 0, tvb_reported_length(id)));
 
 		if (hf_index == hf_p1_subject_identifier)
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(id, 0, tvb_reported_length(id)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %%s)", tvb_format_text(actx->pinfo->pool, id, 0, tvb_reported_length(id)));
 	}
 
 #.FN_BODY MTSIdentifier
@@ -1151,7 +1151,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	%(DEFAULT_BODY)s
 
 	if(arrival && ctx && ctx->do_address)
-		proto_item_append_text(actx->subtree.tree, " %%s", tvb_format_text(arrival, 0, tvb_reported_length(arrival)));
+		proto_item_append_text(actx->subtree.tree, " %%s", tvb_format_text(actx->pinfo->pool, arrival, 0, tvb_reported_length(arrival)));
 
 #.FN_PARS RoutingAction
 	VAL_PTR = &action

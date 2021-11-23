@@ -53,6 +53,9 @@ static int hf_evs_sid_cng = -1;
 static int hf_evs_celp_sample_rate = -1;
 static int hf_evs_core_sample_rate = -1;
 static int hf_evs_132_bwctrf_idx = -1;
+static int hf_evs_28_frame_type = -1;
+static int hf_evs_28_bw_ppp_nelp = -1;
+static int hf_evs_72_80_bwct_idx = -1;
 
 static int ett_evs = -1;
 static int ett_evs_header = -1;
@@ -332,14 +335,14 @@ static const value_string evs_celp_or_mdct_core_values[] = {
 };
 
 static const value_string evs_tcx_or_hq_mdct_core_values[] = {
-    { 0x0, "TCX Core" },
-    { 0x1, "HQ-MDCT core" },
+    { 0x0, "HQ-MDCT core" },
+    { 0x1, "TCX Core" },
     { 0, NULL }
 };
 
 static const value_string evs_sid_cng_values[] = {
-    { 0x0, "FD-CNG" },
-    { 0x1, "LP-CNG SID" },
+    { 0x0, "LP-CNG SID" },
+    { 0x1, "FD-CNG" },
     { 0, NULL }
 };
 
@@ -385,7 +388,38 @@ static const value_string evs_132_bwctrf_idx_vals[] = {
     { 0, NULL }
 };
 
+static const value_string evs_28_frame_type_vals[] = {
+    { 0x0, "Primary PPP/NELP" },
+    { 0x1, "AMR-WB IO SID" },
+    { 0, NULL }
+};
 
+static const value_string evs_28_bw_ppp_nelp_vals[] = {
+    { 0x00, "NB PPP" },
+    { 0x01, "WB PPP" },
+    { 0x02, "NB NELP" },
+    { 0x03, "WB NELP" },
+    { 0, NULL }
+};
+
+static const value_string evs_72_80_bwct_idx_vals[] = {
+    { 0x0, "NB generic" },
+    { 0x1, "NB unvoiced" },
+    { 0x2, "NB voiced" },
+    { 0x3, "NB transition" },
+    { 0x4, "NB audio" },
+    { 0x5, "NB inactive" },
+    { 0x6, "WB generic" },
+    { 0x7, "WB unvoiced" },
+    { 0x8, "WB voiced" },
+    { 0x9, "WB transition" },
+    { 0xa, "WB audio" },
+    { 0xb, "WB inactive" },
+    { 0xc, "NB generic" },
+    { 0xd, "WB generic" },
+    { 0xe, "NB lrMDCT" },
+    { 0, NULL }
+};
 
 static void
 dissect_evs_cmr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *evs_tree, int offset, guint8 cmr_oct)
@@ -587,7 +621,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             /* CNG type flag 1 bit */
             proto_tree_add_bits_ret_val(vd_tree, hf_evs_sid_cng, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
             bit_offset++;
-            if (value == 0) {
+            if (value == 1) {
                 /* FD-CNG SID frame */
                 /* Bandwidth indicator 2 bits */
                 proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
@@ -600,9 +634,8 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 /* LP-CNG SID frame */
                 /* Bandwidth indicator 1 bit */
                 oct = tvb_get_bits8(tvb, bit_offset, 1);
-                proto_tree_add_uint_bits_format_value(vd_tree, hf_evs_bw, tvb, bit_offset, 1, 1,"BW: %s (%u)",
-                    val_to_str_const(oct << 1, evs_bw_values, "Unknown value"),
-                    oct << 1);
+                proto_tree_add_uint_bits_format_value(vd_tree, hf_evs_bw, tvb, bit_offset, 1, 1, ENC_BIG_ENDIAN, "%s (%u)",
+                    val_to_str_const(1 << oct, evs_bw_values, "Unknown value"), oct);
                 bit_offset++;
                 /* Core sampling rate indicator */
                 proto_tree_add_bits_item(vd_tree, hf_evs_core_sample_rate, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -639,12 +672,50 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                  /* CMR */
             proto_tree_add_item(evs_tree, hf_evs_cmr_amr_io, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
-        case 56:
+        case 7:
             /* A.2.1.3 Special case for 56 bit payload size (EVS Primary or EVS AMR-WB IO SID) */
             /* The resulting ambiguity between EVS Primary 2.8 kbps and EVS AMR-WB IO SID frames is resolved through the
                most significant bit (MSB) of the first byte of the payload. By definition, the first data bit d(0) of the EVS Primary 2.8
                kbps is always set to '0'.
              */
+            proto_tree_add_bits_ret_val(vd_tree, hf_evs_28_frame_type, tvb, bit_offset, 1, &value, ENC_BIG_ENDIAN);
+            bit_offset++;
+            if (value == 0) {
+                /* Primary PPP/NELP frame */
+                proto_tree_add_bits_item(vd_tree, hf_evs_28_bw_ppp_nelp, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 18: /* 144 EVS Primary 7.2 */
+        case 20: /* 160 EVS Primary 8.0 */
+            /* 7.1.1 Bit allocation at VBR 5.9, 7.2 – 9.6 kbps
+             * Note that the BW and CT parameters are combined together to form a single index at 7.2 and 8.0 kbps. This index
+             * conveys the information whether CELP core or HQ-MDCT core is used.
+             */
+            /* BW, CT, 4*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_72_80_bwct_idx, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+            break;
+        case 24: /* 192 EVS Primary 9.6 */
+            /* 7.1.1 Bit allocation at VBR 5.9, 7.2 – 9.6 kbps */
+            /* BW 2 bits */
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            break;
+        case 41: /* 328 EVS Primary 16.4 */
+            /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            bit_offset+=2;
+            /* Reserved 1 bit */
+            proto_tree_add_bits_item(vd_tree, hf_evs_reserved_1bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case 120: /* 960 EVS Primary 48 */
+        case 240: /* 1920 EVS Primary 96 */
+        case 320: /* 2560 EVS Primary 128 */
+            /* 7.1.5 Bit allocation at 48, 64, 96 and 128 kbps */
+            /* BW 2 bits*/
+            proto_tree_add_bits_item(vd_tree, hf_evs_bw, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+            bit_offset+=2;
+            /* Reserved 1 bit */
+            proto_tree_add_bits_item(vd_tree, hf_evs_reserved_1bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             break;
         case 61: /* 488 EVS Primary 24.4 */
             /* 7.1.3	Bit allocation at 16.4 and 24.4 kbps */
@@ -882,6 +953,21 @@ proto_register_evs(void)
     { &hf_evs_132_bwctrf_idx,
     { "BW CT RF Index", "evs.132.bwctrf_idx",
         FT_UINT8, BASE_DEC, VALS(evs_132_bwctrf_idx_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_28_frame_type,
+    { "Frame type", "evs.28.frame_type",
+        FT_UINT8, BASE_DEC, VALS(evs_28_frame_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_28_bw_ppp_nelp,
+    { "BW PPP/NELP", "evs.28.bw_ppp_nelp",
+        FT_UINT8, BASE_DEC, VALS(evs_28_bw_ppp_nelp_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_evs_72_80_bwct_idx,
+    { "BW CT Index", "evs.72.80.bwct_idx",
+        FT_UINT8, BASE_DEC, VALS(evs_72_80_bwct_idx_vals), 0x0,
         NULL, HFILL }
     },
 };

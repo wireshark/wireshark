@@ -1136,7 +1136,7 @@ dissect_option_route(proto_tree *tree, tvbuff_t *tvb, int offset, int hf,
   if (next)
     proto_tree_add_ipv4_format_value(tree, hf, tvb, offset, 4, route,
                                      "%s <- (next)",
-                                     tvb_ip_to_str(tvb, offset));
+                                     tvb_ip_to_str(wmem_packet_scope(), tvb, offset));
   else
     proto_tree_add_ipv4(tree, hf, tvb, offset, 4, route);
   ti = proto_tree_add_string(tree, hf_host, tvb, offset, 4, get_hostname(route));
@@ -1889,7 +1889,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
                  "Bogus IP header length (%u, must be at least %u)",
                  hlen, IPH_MIN_LEN);
     tf = proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
-                                               "%u bytes (%u)", hlen, hlen>>2);
+                                               ENC_BIG_ENDIAN, "%u bytes (%u)", hlen, hlen>>2);
     expert_add_info_format(pinfo, tf, &ei_ip_bogus_header_length,
                            "Bogus IP header length (%u, must be at least %u)", hlen, IPH_MIN_LEN);
     return tvb_captured_length(tvb);
@@ -1897,7 +1897,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
   // This should be consistent with tcp.hdr_len.
   proto_tree_add_uint_bits_format_value(ip_tree, hf_ip_hdr_len, tvb, (offset<<3)+4, 4, hlen,
-                               "%u bytes (%u)", hlen, hlen>>2);
+                               ENC_BIG_ENDIAN, "%u bytes (%u)", hlen, hlen>>2);
 
   iph->ip_tos = tvb_get_guint8(tvb, offset + 1);
   if (g_ip_dscp_actif) {

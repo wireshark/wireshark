@@ -40,10 +40,6 @@ typedef struct _user_data_field_t {
 } user_data_field_t;
 
 static int proto_autosar_nm = -1;
-static int proto_can = -1;
-static int proto_canfd = -1;
-static int proto_caneth = -1;
-static int proto_udp = -1;
 
 static dissector_handle_t nm_handle;
 static dissector_handle_t nm_handle_can;
@@ -135,6 +131,8 @@ static guint32 g_autosar_nm_can_id_mask = 0xffffffff;
 
 /* Relevant PDUs */
 static range_t *g_autosar_nm_pdus = NULL;
+static range_t *g_autosar_nm_ipdum_pdus = NULL;
+
 
 /*******************************
  ****** User data fields  ******
@@ -341,14 +339,14 @@ user_data_post_update_cb(void)
 
       if (user_data_fields[i].udf_mask == 0 || user_data_fields[i].udf_length <= 0 || user_data_fields[i].udf_length>8) {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_name);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s", user_data_fields[i].udf_name);
+        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("autosar-nm.user_data.%s", user_data_fields[i].udf_name);
         dynamic_hf[i].hfinfo.type = FT_BYTES;
         dynamic_hf[i].hfinfo.display = BASE_NONE;
         dynamic_hf[i].hfinfo.bitmask = 0;
         dynamic_hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_desc);
       } else {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_value_desc);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
+        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("autosar-nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
         dynamic_hf[i].hfinfo.type = FT_BOOLEAN;
         dynamic_hf[i].hfinfo.display = 8 * (user_data_fields[i].udf_length);
         /* dynamic_hf[i].hfinfo.bitmask = 0; */
@@ -569,7 +567,6 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
           proto_tree_add_item(autosar_nm_subtree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
         }
       }
-      offset += length;
     } else {
       /* should we warn? */
     }
@@ -725,6 +722,11 @@ void proto_register_autosar_nm(void)
   prefs_register_range_preference(autosar_nm_module, "pdu_transport.ids", "AUTOSAR NM PDU IDs",
       "PDU Transport IDs.",
       &g_autosar_nm_pdus, 0xffffffff);
+
+  range_convert_str(wmem_epan_scope(), &g_autosar_nm_ipdum_pdus, "", 0xffffffff);
+  prefs_register_range_preference(autosar_nm_module, "ipdum.pdu.id", "AUTOSAR I-PduM PDU IDs",
+      "I-PDU Multiplexer PDU IDs.",
+      &g_autosar_nm_ipdum_pdus, 0xffffffff);
 }
 
 void proto_reg_handoff_autosar_nm(void)
@@ -738,20 +740,17 @@ void proto_reg_handoff_autosar_nm(void)
       nm_handle_can = create_dissector_handle(dissect_autosar_nm_can, proto_autosar_nm);
       dissector_add_for_decode_as("can.subdissector", nm_handle_can);
 
-      proto_can = proto_get_id_by_filter_name("can");
-      proto_canfd = proto_get_id_by_filter_name("canfd");
-      proto_caneth = proto_get_id_by_filter_name("caneth");
-      proto_udp = proto_get_id_by_filter_name("udp");
-
       /* heuristics default on since they do nothing without IDs being configured */
       heur_dissector_add("can", dissect_autosar_nm_can_heur, "AUTOSAR_NM_Heuristic", "autosar_nm_can_heur", proto_autosar_nm, HEURISTIC_ENABLE);
 
       initialized = TRUE;
   } else {
       dissector_delete_all("pdu_transport.id", nm_handle);
+      dissector_delete_all("ipdum.pdu.id", nm_handle);
   }
 
   dissector_add_uint_range("pdu_transport.id", g_autosar_nm_pdus, nm_handle);
+  dissector_add_uint_range("ipdum.pdu.id", g_autosar_nm_ipdum_pdus, nm_handle);
 }
 
 /*

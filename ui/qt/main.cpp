@@ -21,19 +21,6 @@
 #include "ui/win32/console_win32.h"
 #endif
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
-
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
 #include <ui/exit_codes.h>
@@ -1053,17 +1040,25 @@ int main(int argc, char *qt_argv[])
     }
 #endif /* HAVE_LIBPCAP */
 
-    // UAT files used in configuration profiles which are used in Qt dialogs
-    // are not registered during startup because they only get loaded when
-    // the dialog is shown.  Register them here.
-    g_free(get_persconffile_path("io_graphs", TRUE));
+    // UAT and UI settings files used in configuration profiles which are used
+    // in Qt dialogs are not registered during startup because they only get
+    // loaded when the dialog is shown.  Register them here.
+    profile_register_persconffile("io_graphs");
+    profile_register_persconffile("import_hexdump.json");
 
     profile_store_persconffiles(FALSE);
 
+    // If the wsApp->exec() event loop exits cleanly, we call
+    // WiresharkApplication::cleanup().
     ret_val = wsApp->exec();
     wsApp = NULL;
 
+    // Many widgets assume that they always have valid epan data, so this
+    // must be called before epan_cleanup().
+    // XXX We need to clean up the Lua GUI here. We currently paper over
+    // this in FunnelStatistics::~FunnelStatistics, which leaks memory.
     delete main_w;
+
     recent_cleanup();
     epan_cleanup();
 
@@ -1088,5 +1083,6 @@ clean_exit:
     codecs_cleanup();
     wtap_cleanup();
     free_progdirs();
+    commandline_options_free();
     exit_application(ret_val);
 }

@@ -523,7 +523,8 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	proto_tree_add_item(tree, hf_sv_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
 	offset = 8;
-	while ((tvb_reported_length_remaining(tvb, offset) > 0) && ((guint)offset < sv_length)) {
+	set_actual_length(tvb, sv_length);
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		old_offset = offset;
 		offset = dissect_sv_SampledValues(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if (offset == old_offset) {
@@ -671,7 +672,7 @@ void proto_register_sv(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-sv-hfarr.c ---*/
-#line 318 "./asn1/sv/packet-sv-template.c"
+#line 319 "./asn1/sv/packet-sv-template.c"
 	};
 
 	/* List of subtrees */
@@ -690,7 +691,7 @@ void proto_register_sv(void) {
     &ett_sv_ASDU,
 
 /*--- End of included file: packet-sv-ettarr.c ---*/
-#line 328 "./asn1/sv/packet-sv-template.c"
+#line 329 "./asn1/sv/packet-sv-template.c"
 	};
 
 	static ei_register_info ei[] = {

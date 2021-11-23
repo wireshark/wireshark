@@ -26,6 +26,7 @@
 #include <wsutil/wslog.h>
 #include <ui/cmdarg_err.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/exported_pdu_tlvs.h>
 
 #include "ui/failure_message.h"
 
@@ -97,8 +98,6 @@
     #define EXTCAP_ENCAP_IEEE802_11_RADIO       WTAP_ENCAP_IEEE_802_11_RADIOTAP
     #define EXTCAP_ENCAP_NETLINK                WTAP_ENCAP_NETLINK
 #endif
-
-#define WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME  0x000C
 
 #define INTERFACE_ANDROID_LOGCAT_MAIN                   "android-logcat-main"
 #define INTERFACE_ANDROID_LOGCAT_SYSTEM                 "android-logcat-system"
@@ -199,19 +198,19 @@ enum {
     OPT_CONFIG_BT_LOCAL_TCP_PORT
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
     EXTCAP_BASE_OPTIONS,
-    { "help",                     no_argument,       NULL, OPT_HELP},
-    { "version",                  no_argument,       NULL, OPT_VERSION},
-    { "adb-server-ip",            required_argument, NULL, OPT_CONFIG_ADB_SERVER_IP},
-    { "adb-server-tcp-port",      required_argument, NULL, OPT_CONFIG_ADB_SERVER_TCP_PORT},
-    { "logcat-text",              optional_argument, NULL, OPT_CONFIG_LOGCAT_TEXT},
-    { "logcat-ignore-log-buffer", optional_argument, NULL, OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER},
-    { "logcat-custom-options",    required_argument, NULL, OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS},
-    { "bt-server-tcp-port",       required_argument, NULL, OPT_CONFIG_BT_SERVER_TCP_PORT},
-    { "bt-forward-socket",        required_argument, NULL, OPT_CONFIG_BT_FORWARD_SOCKET},
-    { "bt-local-ip",              required_argument, NULL, OPT_CONFIG_BT_LOCAL_IP},
-    { "bt-local-tcp-port",        required_argument, NULL, OPT_CONFIG_BT_LOCAL_TCP_PORT},
+    { "help",                     ws_no_argument,       NULL, OPT_HELP},
+    { "version",                  ws_no_argument,       NULL, OPT_VERSION},
+    { "adb-server-ip",            ws_required_argument, NULL, OPT_CONFIG_ADB_SERVER_IP},
+    { "adb-server-tcp-port",      ws_required_argument, NULL, OPT_CONFIG_ADB_SERVER_TCP_PORT},
+    { "logcat-text",              ws_optional_argument, NULL, OPT_CONFIG_LOGCAT_TEXT},
+    { "logcat-ignore-log-buffer", ws_optional_argument, NULL, OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER},
+    { "logcat-custom-options",    ws_required_argument, NULL, OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS},
+    { "bt-server-tcp-port",       ws_required_argument, NULL, OPT_CONFIG_BT_SERVER_TCP_PORT},
+    { "bt-forward-socket",        ws_required_argument, NULL, OPT_CONFIG_BT_FORWARD_SOCKET},
+    { "bt-local-ip",              ws_required_argument, NULL, OPT_CONFIG_BT_LOCAL_IP},
+    { "bt-local-tcp-port",        ws_required_argument, NULL, OPT_CONFIG_BT_LOCAL_TCP_PORT},
     { 0, 0, 0, 0 }
 };
 
@@ -2029,7 +2028,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(EXP_PDU_TAG_PROTO_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_text) + 2);
 
     serial_number = get_serial_from_interface(interface);
@@ -2182,10 +2181,10 @@ static int capture_android_logcat(char *interface, char *fifo,
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    exported_pdu_header_protocol_events.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_events.tag = GUINT16_TO_BE(EXP_PDU_TAG_PROTO_NAME);
     exported_pdu_header_protocol_events.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_events) + 2);
 
-    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(EXP_PDU_TAG_PROTO_NAME);
     exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat) + 2);
 
     serial_number = get_serial_from_interface(interface);
@@ -2544,7 +2543,7 @@ int main(int argc, char *argv[]) {
      */
     err_msg = init_progfile_dir(argv[0]);
     if (err_msg != NULL) {
-        ws_warning("Can't get pathname of directory containing the captype program: %s.",
+        ws_warning("Can't get pathname of directory containing the extcap program: %s.",
                   err_msg);
         g_free(err_msg);
     }
@@ -2599,8 +2598,8 @@ int main(int argc, char *argv[]) {
     extcap_help_add_option(extcap_conf, "--bt-local-ip <IP>", "the bluetooth local IP");
     extcap_help_add_option(extcap_conf, "--bt-local-tcp-port <port>", "the bluetooth local TCP port");
 
-    opterr = 0;
-    optind = 0;
+    ws_opterr = 0;
+    ws_optind = 0;
 
     if (argc == 1) {
         extcap_help_print(extcap_conf);
@@ -2608,7 +2607,7 @@ int main(int argc, char *argv[]) {
         goto end;
     }
 
-    while ((result = getopt_long(argc, argv, "", longopts, &option_idx)) != -1) {
+    while ((result = ws_getopt_long(argc, argv, "", longopts, &option_idx)) != -1) {
         switch (result) {
 
         case OPT_VERSION:
@@ -2620,77 +2619,77 @@ int main(int argc, char *argv[]) {
             ret = EXIT_CODE_SUCCESS;
             goto end;
         case OPT_CONFIG_ADB_SERVER_IP:
-            adb_server_ip = optarg;
+            adb_server_ip = ws_optarg;
             break;
         case OPT_CONFIG_ADB_SERVER_TCP_PORT:
             adb_server_tcp_port = &local_adb_server_tcp_port;
-            if (!optarg){
+            if (!ws_optarg){
                 ws_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            if (!ws_strtou16(optarg, NULL, adb_server_tcp_port)) {
-                ws_warning("Invalid adb server TCP port: %s", optarg);
+            if (!ws_strtou16(ws_optarg, NULL, adb_server_tcp_port)) {
+                ws_warning("Invalid adb server TCP port: %s", ws_optarg);
                 goto end;
             }
             break;
         case OPT_CONFIG_LOGCAT_TEXT:
-            if (optarg && !*optarg)
+            if (ws_optarg && !*ws_optarg)
                 logcat_text = TRUE;
             else
-                logcat_text = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+                logcat_text = (g_ascii_strncasecmp(ws_optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_LOGCAT_IGNORE_LOG_BUFFER:
-            if (optarg == NULL || (optarg && !*optarg))
+            if (ws_optarg == NULL || (ws_optarg && !*ws_optarg))
                 logcat_ignore_log_buffer = TRUE;
             else
-                logcat_ignore_log_buffer = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+                logcat_ignore_log_buffer = (g_ascii_strncasecmp(ws_optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_LOGCAT_CUSTOM_OPTIONS:
-            if (optarg == NULL || (optarg && *optarg == '\0')) {
+            if (ws_optarg == NULL || (ws_optarg && *ws_optarg == '\0')) {
                 logcat_custom_parameter = NULL;
                 break;
             }
 
-            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", optarg, G_REGEX_RAW, (GRegexMatchFlags)0)) {
+            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", ws_optarg, G_REGEX_RAW, (GRegexMatchFlags)0)) {
                 ws_error("Found prohibited option in logcat-custom-options");
                 return EXIT_CODE_GENERIC;
             }
 
-            logcat_custom_parameter = optarg;
+            logcat_custom_parameter = ws_optarg;
 
             break;
         case OPT_CONFIG_BT_SERVER_TCP_PORT:
             bt_server_tcp_port = &local_bt_server_tcp_port;
-            if (!optarg){
+            if (!ws_optarg){
                 ws_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            if (!ws_strtou16(optarg, NULL, bt_server_tcp_port)) {
-                ws_warning("Invalid bluetooth server TCP port: %s", optarg);
+            if (!ws_strtou16(ws_optarg, NULL, bt_server_tcp_port)) {
+                ws_warning("Invalid bluetooth server TCP port: %s", ws_optarg);
                 goto end;
             }
             break;
         case OPT_CONFIG_BT_FORWARD_SOCKET:
-            bt_forward_socket = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
+            bt_forward_socket = (g_ascii_strncasecmp(ws_optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_BT_LOCAL_IP:
-            bt_local_ip = optarg;
+            bt_local_ip = ws_optarg;
             break;
         case OPT_CONFIG_BT_LOCAL_TCP_PORT:
             bt_local_tcp_port = &local_bt_local_tcp_port;
-            if (!optarg){
+            if (!ws_optarg){
                 ws_warning("Impossible exception. Parameter required argument, but there is no it right now.");
                 goto end;
             }
-            if (!ws_strtou16(optarg, NULL, bt_local_tcp_port)) {
-                ws_warning("Invalid bluetooth local tcp port: %s", optarg);
+            if (!ws_strtou16(ws_optarg, NULL, bt_local_tcp_port)) {
+                ws_warning("Invalid bluetooth local tcp port: %s", ws_optarg);
                 goto end;
             }
             break;
         default:
-            if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg))
+            if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg))
             {
-                ws_warning("Invalid argument <%s>. Try --help.\n", argv[optind - 1]);
+                ws_warning("Invalid argument <%s>. Try --help.\n", argv[ws_optind - 1]);
                 goto end;
             }
         }

@@ -41,26 +41,26 @@ range_new(gpointer junk _U_)
 	range->entity = NULL;
 	range->drange = NULL;
 
-	return (gpointer) range;
+	return range;
 }
 
 static gpointer
 range_dup(gconstpointer data)
 {
-	const range_t *org = (const range_t *)data;
+	const range_t *org = data;
 	range_t       *range;
 
-	range = (range_t *)range_new(NULL);
+	range = range_new(NULL);
 	range->entity = stnode_dup(org->entity);
 	range->drange = drange_dup(org->drange);
 
-	return (gpointer) range;
+	return range;
 }
 
 static void
 range_free(gpointer value)
 {
-	range_t	*range = (range_t*)value;
+	range_t *range = value;
 	ws_assert_magic(range, RANGE_MAGIC);
 
 	if (range->drange)
@@ -72,12 +72,29 @@ range_free(gpointer value)
 	g_free(range);
 }
 
+static char *
+range_tostr(const void *data, gboolean pretty)
+{
+	const range_t *range = data;
+	ws_assert_magic(range, RANGE_MAGIC);
+
+	char *repr, *drange_str;
+
+	drange_str = drange_tostr(range->drange);
+	repr = g_strdup_printf("%s[%s]",
+			stnode_tostr(range->entity, pretty),
+			drange_str);
+	g_free(drange_str);
+
+	return repr;
+}
+
 void
 sttype_range_remove_drange(stnode_t *node)
 {
 	range_t		*range;
 
-	range = (range_t*)stnode_data(node);
+	range = stnode_data(node);
 	ws_assert_magic(range, RANGE_MAGIC);
 
 	range->drange = NULL;
@@ -90,7 +107,7 @@ sttype_range_set(stnode_t *node, stnode_t *entity, GSList* drange_list)
 {
 	range_t		*range;
 
-	range = (range_t*)stnode_data(node);
+	range = stnode_data(node);
 	ws_assert_magic(range, RANGE_MAGIC);
 
 	range->entity = entity;
@@ -104,9 +121,21 @@ sttype_range_set1(stnode_t *node, stnode_t *entity, drange_node *rn)
 	sttype_range_set(node, entity, g_slist_append(NULL, rn));
 }
 
-STTYPE_ACCESSOR(stnode_t*, range, entity, RANGE_MAGIC)
-STTYPE_ACCESSOR(drange_t*, range, drange, RANGE_MAGIC)
+stnode_t *
+sttype_range_entity(stnode_t *node)
+{
+	range_t *range = node->data;
+	ws_assert_magic(range, RANGE_MAGIC);
+	return range->entity;
+}
 
+drange_t *
+sttype_range_drange(stnode_t *node)
+{
+	range_t *range = node->data;
+	ws_assert_magic(range, RANGE_MAGIC);
+	return range->drange;
+}
 
 void
 sttype_register_range(void)
@@ -116,7 +145,8 @@ sttype_register_range(void)
 		"RANGE",
 		range_new,
 		range_free,
-		range_dup
+		range_dup,
+		range_tostr
 	};
 
 	sttype_register(&range_type);

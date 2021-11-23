@@ -371,7 +371,7 @@ void SCTPGraphDialog::drawGraph(const sctp_assoc_info_t* selected_assoc)
     ui->sctpPlot->xAxis->setLabel(tr("time [secs]"));
     ui->sctpPlot->yAxis->setLabel(tr("TSNs"));
     ui->sctpPlot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag | QCP::iSelectPlottables);
-    connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
+    connect(ui->sctpPlot, &QCustomPlot::plottableClick, this, &SCTPGraphDialog::graphClicked);
     // set axes ranges, so we see all data:
     QCPRange myXRange(selected_assoc->min_secs, (selected_assoc->max_secs+1));
     if (relative) {
@@ -425,7 +425,7 @@ void SCTPGraphDialog::on_pushButton_4_clicked()
     ui->sctpPlot->replot();
 }
 
-void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent* event)
+void SCTPGraphDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMouseEvent* event)
 {
     frame_num = 0;
     int i=0;

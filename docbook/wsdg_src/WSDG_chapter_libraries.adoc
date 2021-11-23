@@ -151,7 +151,7 @@ C-Ares is used for asynchronous DNS resolution and lets us resolve names with a 
 ==== Unix
 
 If this library isn't already installed or available as a package for your
-platform, you can get it at https://c-ares.haxx.se/[].
+platform, you can get it at https://c-ares.org/[].
 
 [[ChLibsWin32Cares]]
 
@@ -339,9 +339,9 @@ https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsLua]]
 
-=== LUA (Optional)
+=== Lua (Optional)
 
-The LUA library is used to add scripting support to Wireshark.
+The Lua library is used to add scripting support to Wireshark.
 
 [[ChLibsUnixLua]]
 

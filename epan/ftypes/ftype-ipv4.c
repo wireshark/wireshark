@@ -76,7 +76,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 			return FALSE;
 		}
 		nmask_bits = fvalue_get_uinteger(nmask_fvalue);
-		FVALUE_FREE(nmask_fvalue);
+		fvalue_free(nmask_fvalue);
 
 		if (nmask_bits > 32) {
 			if (err_msg != NULL) {
@@ -95,21 +95,11 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	return TRUE;
 }
 
-static int
-val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
-{
-	/*
-	 * 15 characters for "XXX.XXX.XXX.XXX".
-	 */
-	return 15;
-}
-
-/* We're assuming the buffer is at least WS_INET_ADDRSTRLEN (16 bytes) */
-static void
-val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+static char *
+val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	guint32	ipv4_net_order = g_htonl(fv->value.ipv4.addr);
-	ip_to_str_buf((guint8*)&ipv4_net_order, buf, WS_INET_ADDRSTRLEN);
+	return ip_to_str(scope, (guint8*)&ipv4_net_order);
 }
 
 
@@ -119,70 +109,17 @@ val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, 
  * So, for example, w.x.y.z/32 eq w.x.y.0/24 is TRUE.
  */
 
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	guint32		addr_a, addr_b, nmask;
 
 	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
 	addr_a = fv_a->value.ipv4.addr & nmask;
 	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a == addr_b);
-}
-
-static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a != addr_b);
-}
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a > addr_b);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a >= addr_b);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a < addr_b);
-}
-
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	guint32		addr_a, addr_b, nmask;
-
-	nmask = MIN(fv_a->value.ipv4.nmask, fv_b->value.ipv4.nmask);
-	addr_a = fv_a->value.ipv4.addr & nmask;
-	addr_b = fv_b->value.ipv4.addr & nmask;
-	return (addr_a <= addr_b);
+	if (addr_a == addr_b)
+		return 0;
+	return addr_a < addr_b ? -1 : 1;
 }
 
 static gboolean
@@ -219,17 +156,11 @@ ftype_register_ipv4(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		val_to_repr,			/* val_to_string_repr */
-		val_repr_len,			/* len_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */
 		{ .get_value_uinteger = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */

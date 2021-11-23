@@ -21,6 +21,7 @@
 
 #define FC0_AAD_MASK 0x8f
 #define FC1_AAD_MASK 0xc7
+#define FC1_AAD_QOS_MASK 0x47
 
 /****************************************************************************/
 /* Internal macros                                                          */
@@ -41,7 +42,7 @@ void dot11decrypt_construct_aad(
     int alen = 22;
 
     /* AAD:
-    * FC with bits 4..6 and 11..13 masked to zero; 14 is always one
+    * FC with bits 4..6 and 11..13 masked to zero; 14 is always one; 15 zero when QoS Control field present
     * A1 | A2 | A3
     * SC with bits 4..15 (seq#) masked to zero
     * A4 (if present)
@@ -54,7 +55,11 @@ void dot11decrypt_construct_aad(
     } else {
         aad[0] = wh->fc[0];
     }
-    aad[1] = (UINT8)(wh->fc[1] & FC1_AAD_MASK);
+    if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
+        aad[1] = (UINT8)((wh->fc[1] & FC1_AAD_QOS_MASK) | 0x40);
+    } else {
+        aad[1] = (UINT8)((wh->fc[1] & FC1_AAD_MASK) | 0x40);
+    }
     memcpy(aad + 2, (guint8 *)wh->addr1, DOT11DECRYPT_MAC_LEN);
     memcpy(aad + 8, (guint8 *)wh->addr2, DOT11DECRYPT_MAC_LEN);
     memcpy(aad + 14, (guint8 *)wh->addr3, DOT11DECRYPT_MAC_LEN);
@@ -238,13 +243,13 @@ static gboolean sha256(const guint8 *data, size_t len, guint8 output[32])
  * @param ssid_len Length of SSID in bytes.
  * @param mdid MDID (Mobility Domain Identifier).
  * @param r0kh_id PMK-R0 key holder identifier in the Authenticator.
- * @param r0kh_id_len Lenth of r0kh_id in bytes.
+ * @param r0kh_id_len Length of r0kh_id in bytes.
  * @param s0kh_id PMK-R0 key holder in the Supplicant (STA mac address)
- * @param s0kd_id_len Length of s0kh_id in bytes.
  * @param hash_algo Hash algorithm to use for the KDF.
  *        See gcrypt available hash algorithms:
  *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
  * @param[out] pmk_r0 Pairwise master key, first level
+ * @param pmk_r0_len Length of pmk_r0 in bytes.
  * @param[out] pmk_r0_name Pairwise master key (PMK) R0 name.
  */
 gboolean

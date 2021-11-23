@@ -52,6 +52,8 @@ IF(SMI_FOUND)
   cmake_push_check_state()
   set(CMAKE_REQUIRED_INCLUDES ${SMI_INCLUDE_DIRS})
   set(CMAKE_REQUIRED_LIBRARIES ${SMI_LIBRARIES})
+  # On Windows symbol visibility for global variables defaults to hidden
+  # and libsmi doesn't use any visibility decorators.
   check_symbol_exists("smi_version_string" "smi.h" HAVE_SMI_VERSION_STRING)
   cmake_pop_check_state()
 

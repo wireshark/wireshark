@@ -286,6 +286,7 @@ gboolean log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
             /* All packets go to 3GPP protocol stub dissector */
             rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LOG_3GPP;
             rec->rec_type = REC_TYPE_PACKET;
+            rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
             rec->presence_flags = WTAP_HAS_TS;
 
             /* Set data_offset to the beginning of the line we're returning.
@@ -411,6 +412,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
         /* Make sure all packets go to log3gpp dissector */
         rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LOG_3GPP;
         rec->rec_type = REC_TYPE_PACKET;
+        rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
         rec->presence_flags = WTAP_HAS_TS;
 
         /* Fill in timestamp (capture base + packet offset) */

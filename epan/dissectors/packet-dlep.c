@@ -30,6 +30,8 @@
 #include <epan/tfs.h>
 #include <glib.h>
 
+#include "packet-tcp.h"
+
 /* Section 13: DLEP Data Items */
 
 /* DLEP Data Item Lengths (bytes) */
@@ -188,6 +190,10 @@
 
 /* Section 15.16: DLEP IPv6 Link-Local Multicast Address */
 #define DLEP_IPV6_ADDR "FF02:0:0:0:0:0:1:7"
+
+#define DLEP_MSG_HEADER_LEN 4
+
+static gboolean dlep_desegment = TRUE;
 
 static dissector_handle_t dlep_msg_handle;
 static dissector_handle_t dlep_sig_handle;
@@ -417,7 +423,7 @@ decode_dataitem_v4conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V4CONN_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4conn_addr, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, ", Addr: %s", tvb_ip_to_str(tvb, offset));
+  proto_item_append_text(pi, ", Addr: %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv4_LEN;
 
   if (len == DLEP_DIT_V4CONN_WPORT_LEN) {
@@ -449,7 +455,7 @@ decode_dataitem_v6conn(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V6CONN_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6conn_addr, tvb, offset, FT_IPv6_LEN, ENC_NA);
-  proto_item_append_text(pi, ", Addr: %s", tvb_ip6_to_str(tvb, offset));
+  proto_item_append_text(pi, ", Addr: %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv6_LEN;
 
   if (len == DLEP_DIT_V6CONN_WPORT_LEN) {
@@ -535,11 +541,11 @@ decode_dataitem_macaddr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
   switch(len) {
     case FT_ETHER_LEN:
       proto_tree_add_item(pt, hf_dlep_dataitem_macaddr_eui48, tvb, offset, len, ENC_NA);
-      proto_item_append_text(pi, ": %s", tvb_ether_to_str(tvb, offset));
+      proto_item_append_text(pi, ": %s", tvb_ether_to_str(wmem_packet_scope(), tvb, offset));
       break;
     case FT_EUI64_LEN:
       proto_tree_add_item(pt, hf_dlep_dataitem_macaddr_eui64, tvb, offset, len, ENC_BIG_ENDIAN);
-      proto_item_append_text(pi, ": %s", tvb_eui64_to_str(tvb, offset));
+      proto_item_append_text(pi, ": %s", tvb_eui64_to_str(wmem_packet_scope(), tvb, offset));
       break;
     default:
       proto_tree_add_expert(pt, NULL, &ei_dlep_dataitem_macaddr_unexpected_length, tvb, offset, len);
@@ -567,7 +573,7 @@ decode_dataitem_v4addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V4ADDR_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4addr_addr, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, " %s", tvb_ip_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv4_LEN;
 
   if (len != DLEP_DIT_V4ADDR_LEN)
@@ -593,7 +599,7 @@ decode_dataitem_v6addr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   offset+=DLEP_DIT_V6ADDR_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6addr_addr, tvb, offset, FT_IPv6_LEN, ENC_NA);
-  proto_item_append_text(pi, " %s", tvb_ip6_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv6_LEN;
 
   if (len != DLEP_DIT_V6ADDR_LEN)
@@ -620,7 +626,7 @@ decode_dataitem_v4subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   offset+=DLEP_DIT_V4SUBNET_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v4subnet_subnet, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
-  proto_item_append_text(pi, " %s", tvb_ip_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv4_LEN;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_v4subnet_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN, &prefixlen);
@@ -651,7 +657,7 @@ decode_dataitem_v6subnet(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   offset+=DLEP_DIT_V6SUBNET_FLAGS_LEN;
 
   proto_tree_add_item(pt, hf_dlep_dataitem_v6subnet_subnet, tvb, offset, FT_IPv6_LEN, ENC_NA);
-  proto_item_append_text(pi, " %s", tvb_ip6_to_str(tvb, offset));
+  proto_item_append_text(pi, " %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
   offset+=FT_IPv6_LEN;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_dataitem_v6subnet_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN, &prefixlen);
@@ -1050,6 +1056,16 @@ decode_signal_header(tvbuff_t *tvb, int offset, proto_item* pi, proto_tree *pt, 
 }
 
 /* Section 11.2: DLEP Message Header */
+static guint
+get_dlep_message_header_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+  guint message_length;
+
+  message_length = tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
+
+  return message_length + DLEP_MSG_HEADER_LEN;
+}
+
 static int
 decode_message_header(tvbuff_t *tvb, int offset, proto_item* pi, proto_tree *pt, packet_info *pinfo)
 {
@@ -1124,9 +1140,17 @@ dissect_dlep_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pt, void *data _
   return tvb_captured_length(tvb);
 }
 
+static gboolean
+dissect_dlep_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  tcp_dissect_pdus(tvb, pinfo, tree, dlep_desegment, DLEP_MSG_HEADER_LEN, get_dlep_message_header_len, dissect_dlep_msg, data);
+  return tvb_reported_length(tvb);
+}
+
 void
 proto_register_dlep(void)
 {
+  module_t* dlep_module;
   expert_module_t* dlep_expert_module;
 
   static hf_register_info hf[] = {
@@ -1354,11 +1378,18 @@ proto_register_dlep(void)
   };
 
   proto_dlep = proto_register_protocol("Dynamic Link Exchange Protocol", "DLEP", "dlep");
-  dlep_msg_handle = register_dissector ("dlep.tcp", dissect_dlep_msg, proto_dlep);
+  dlep_msg_handle = register_dissector ("dlep.tcp", dissect_dlep_tcp, proto_dlep);
   dlep_sig_handle = register_dissector ("dlep.udp", dissect_dlep_sig, proto_dlep);
 
   proto_register_field_array(proto_dlep, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  dlep_module = prefs_register_protocol(proto_dlep, NULL);
+  prefs_register_bool_preference(dlep_module, "desegment",
+                                  "Reassemble DLEP messages spanning multiple TCP segments",
+                                  "Whether the DLEP dissector should reassemble messages spanning multiple TCP segments."
+                                  " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+                                  &dlep_desegment);
 
   dlep_expert_module = expert_register_protocol(proto_dlep);
   expert_register_field_array(dlep_expert_module, ei, array_length(ei));

@@ -1320,7 +1320,11 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_ms_CancelVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 37: /*reset*/
-    offset=dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
+      if (application_context_version == 1) {
+          offset = dissect_gsm_old_ResetArgV1(FALSE, tvb, offset, actx, tree, -1);
+      } else {
+          offset = dissect_gsm_map_ms_ResetArg(FALSE, tvb, offset, actx, tree, -1);
+      }
     break;
   case 38: /*forwardCheckSS-Indication*/
     return offset;
@@ -1374,8 +1378,10 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 47: /*reportSM-DeliveryStatus*/
     offset=dissect_gsm_map_sm_ReportSM_DeliveryStatusArg(FALSE, tvb, offset, actx, tree, -1);
     break;
-    /* reserved noteSubscriberPresent (48) */
-    /* reserved alertServiceCentreWithoutResult (49)
+  case 48: /*noteSubscriberPresent*/
+      offset = dissect_gsm_map_IMSI(FALSE, tvb, offset, actx, tree, hf_gsm_map_imsi);
+      break;
+      /* reserved alertServiceCentreWithoutResult (49)
      * ETS 300 599: December 2000 (GSM 09.02 version 4.19.1)
      * -- alertServiceCentreWithoutResult must not be used in
      * -- version greater 1
@@ -1966,7 +1972,11 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
     offset=dissect_gsm_map_er_SubBusyForMT_SMS_Param(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 32: /* SM-DeliveryFailureCause */
-    offset=dissect_gsm_map_er_SM_DeliveryFailureCause(FALSE, tvb, offset, actx, tree, -1);
+    offset = dissect_mc_message(tvb, offset, actx, tree,
+                              FALSE, dissect_gsm_map_er_SM_EnumeratedDeliveryFailureCause, hf_gsm_map_er_sm_EnumeratedDeliveryFailureCause,
+                              FALSE, dissect_gsm_map_er_SM_DeliveryFailureCause, -1,
+                              FALSE, NULL, -1);
+
     break;
   case 33: /* MessageWaitListFullParam */
     offset=dissect_gsm_map_er_MessageWaitListFullParam(FALSE, tvb, offset, actx, tree, -1);

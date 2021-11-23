@@ -18,10 +18,10 @@ do
     case $OPTCHAR in
     c)
         CLANG_CHECK_CMD="clang-check-$OPTARG"
-        exit 0
         ;;
     *)
         echo "Usage: $( basename "$0" ) [ -c <clang version> ]"
+        exit 0
     esac
 done
 
@@ -33,11 +33,18 @@ for FILE in $COMMIT_FILES; do
     then
         continue
     fi
+    # This is a template file, not a final '.c' file.
+    if test "$FILE_BASENAME" = "packet-asterix-template.c"
+    then
+        continue
+    fi
     # extcap/{etwdump.c,etl.c,etw_message.c}: those compile, and are compiled,
     # only on Windows
+    # The same applies to capture-wpcap.c
     if test \( "$FILE_BASENAME" = "etwdump.c" -o \
                "$FILE_BASENAME" = "etl.c" -o \
-               "$FILE_BASENAME" = "etw_message.c" \)
+               "$FILE_BASENAME" = "etw_message.c" -o \
+               "$FILE_BASENAME" = "capture-wpcap.c" \)
     then
         continue
     fi

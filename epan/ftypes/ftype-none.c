@@ -25,17 +25,11 @@ ftype_register_none(void)
 		NULL,				/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
 
 		{ NULL },			/* union set_value */
 		{ NULL },			/* union get_value */
 
-		NULL,				/* cmp_eq */
-		NULL,				/* cmp_ne */
-		NULL,				/* cmp_gt */
-		NULL,				/* cmp_ge */
-		NULL,				/* cmp_lt */
-		NULL,				/* cmp_le */
+		NULL,				/* cmp_order */
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */

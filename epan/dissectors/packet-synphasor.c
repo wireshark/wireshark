@@ -2168,7 +2168,7 @@ void proto_register_synphasor(void)
 
 		{ &hf_conf_phasor_user_data,
 		{ "Binary format", "synphasor.conf.phasor_user_flags", FT_BOOLEAN, 8,
-		  TFS(&conf_phasor_user_defined), 0x00ff, NULL, HFILL }},
+		  TFS(&conf_phasor_user_defined), 0xff, NULL, HFILL }},
 
 		{ &hf_conf_phasor_scale_factor,
 		{ "Phasor scale factor", "synphasor.conf.phasor_scale_factor", FT_FLOAT,

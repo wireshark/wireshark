@@ -21,6 +21,8 @@
 #include <epan/tvbuff.h>
 #include <epan/packet_info.h>
 
+#include <wsutil/exported_pdu_tlvs.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -38,144 +40,6 @@ extern "C" {
    It returns the registered tap */
 WS_DLL_PUBLIC gint register_export_pdu_tap(const char *name);
 WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
-
-/**
- * This struct is used as the data part of tap_queue_packet() and contains a
- * buffer with metadata of the protocol PDU included in the tvb in the struct.
- * the meta data is in TLV form, at least one tag MUST indicate what protocol is
- * in the PDU.
- * Buffer layout:
- *   0                   1                   2                   3
- *  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |      Option Code              |         Option Length         |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * /                       Option Value                            /
- * /             variable length, aligned to 32 bits               /
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * /                                                               /
- * /                 . . . other options . . .                     /
- * /                                                               /
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- * |   Option Code == opt_endofopt  |  Option Length == 0          |
- * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- */
-
-/*  Tag values
- *
- *  Do NOT add new values to this list without asking
- *  wireshark-dev[AT]wireshark.org for a value. Otherwise, you run the risk of
- *  using a value that's already being used for some other purpose, and of
- *  having tools that read exported_pdu captures not being able to handle
- *  captures with your new tag value, with no hope that they will ever be
- *  changed to do so (as that would destroy their ability to read captures
- *  using that value for that other purpose).
- */
-#define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
-/* 1 - 9 reserved */
-#define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV */
-#define EXP_PDU_TAG_LINKTYPE          11 /**< Deprecated - do not use */
-#define EXP_PDU_TAG_PROTO_NAME        12 /**< The value part should be an ASCII non NULL terminated string
-                                          * of the registered dissector used by Wireshark e.g "sip"
-                                          * Will be used to call the next dissector.
-                                          */
-#define EXP_PDU_TAG_HEUR_PROTO_NAME   13 /**< The value part should be an ASCII non NULL terminated string
-                                          * containing the heuristic unique short protocol name given
-                                          * during registration, e.g "sip_udp"
-                                          * Will be used to call the next dissector.
-                                          */
-#define EXP_PDU_TAG_DISSECTOR_TABLE_NAME 14 /**< The value part should be an ASCII non NULL terminated string
-                                          * containing the dissector table name given
-                                          * during registration, e.g "gsm_map.v3.arg.opcode"
-                                          * Will be used to call the next dissector.
-                                          */
-
-/* Add protocol type related tags here.
- * NOTE Only one protocol type tag may be present in a packet, the first one
- * found will be used*/
-/* 13 - 19 reserved */
-#define EXP_PDU_TAG_IPV4_SRC        20
-#define EXP_PDU_TAG_IPV4_DST        21
-#define EXP_PDU_TAG_IPV6_SRC        22
-#define EXP_PDU_TAG_IPV6_DST        23
-
-#define EXP_PDU_TAG_PORT_TYPE       24  /**< value part is port_type enum from epan/address.h */
-#define EXP_PDU_TAG_SRC_PORT        25
-#define EXP_PDU_TAG_DST_PORT        26
-
-#define EXP_PDU_TAG_SS7_OPC         28
-#define EXP_PDU_TAG_SS7_DPC         29
-
-#define EXP_PDU_TAG_ORIG_FNO        30
-
-#define EXP_PDU_TAG_DVBCI_EVT       31
-
-#define EXP_PDU_TAG_DISSECTOR_TABLE_NAME_NUM_VAL 32 /**< value part is the numeric value to be used calling the dissector table
-                                                      *  given with tag EXP_PDU_TAG_DISSECTOR_TABLE_NAME, must follow immediately after the table tag.
-                                                      */
-
-#define EXP_PDU_TAG_COL_PROT_TEXT   33 /**< Text string to put in COL_PROTOCOL, one use case is in conjunction with dissector tables where
-                                        *   COL_PROTOCOL might not be filled in.
-                                        */
-
-/**< value part is structure passed into TCP subdissectors.  Format is:
-    guint16 version          Export PDU version of structure (for backwards/forwards compatibility)
-    guint32 seq              Sequence number of first byte in the data
-    guint32 nxtseq           Sequence number of first byte after data
-    guint32 lastackseq       Sequence number of last ack
-    guint8 is_reassembled    This is reassembled data.
-    guint16 flags            TCP flags
-    guint16 urgent_pointer   Urgent pointer value for the current packet.
-*/
-#define EXP_PDU_TAG_TCP_INFO_DATA  34
-
-#define EXP_PDU_TAG_P2P_DIRECTION  35  /**< The packet direction (P2P_DIR_SENT, P2P_DIR_RECV). */
-
-typedef struct _exp_pdu_data_t {
-    guint        tlv_buffer_len;
-    guint8      *tlv_buffer;
-    guint        tvb_captured_length;
-    guint        tvb_reported_length;
-    tvbuff_t    *pdu_tvb;
-} exp_pdu_data_t;
-
-#define EXP_PDU_TAG_IPV4_LEN            4
-#define EXP_PDU_TAG_IPV6_LEN            16
-
-#define EXP_PDU_TAG_PORT_TYPE_LEN       4
-#define EXP_PDU_TAG_PORT_LEN            4
-
-#define EXP_PDU_TAG_SS7_OPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
-#define EXP_PDU_TAG_SS7_DPC_LEN         8 /* 4 bytes PC, 2 bytes standard type, 1 byte NI, 1 byte padding */
-
-#define EXP_PDU_TAG_ORIG_FNO_LEN        4
-
-#define EXP_PDU_TAG_DVBCI_EVT_LEN       1
-
-#define EXP_PDU_TAG_DISSECTOR_TABLE_NUM_VAL_LEN     4
-
-/* Port types are no longer used for conversation/endpoints so
-   many of the enumerated values have been eliminated
-   Since export PDU functionality is serializing them,
-   keep the old values around for conversion */
-#define OLD_PT_NONE         0
-#define OLD_PT_SCTP         1
-#define OLD_PT_TCP          2
-#define OLD_PT_UDP          3
-#define OLD_PT_DCCP         4
-#define OLD_PT_IPX          5
-#define OLD_PT_NCP          6
-#define OLD_PT_EXCHG        7
-#define OLD_PT_DDP          8
-#define OLD_PT_SBCCS        9
-#define OLD_PT_IDP          10
-#define OLD_PT_TIPC         11
-#define OLD_PT_USB          12
-#define OLD_PT_I2C          13
-#define OLD_PT_IBQP         14
-#define OLD_PT_BLUETOOTH    15
-#define OLD_PT_TDMOP        16
-
 
 /** Compute the size (in bytes) of a pdu item
 *
@@ -201,6 +65,21 @@ typedef struct exp_pdu_data_item
     exp_pdu_populate_data populate_data;
     void* data;
 } exp_pdu_data_item_t;
+
+/*
+ * This struct is used as the data part of tap_queue_packet() and contains a
+ * buffer with metadata of the protocol PDU included in the tvb in the struct.
+ *
+ * The metadata is a sequence of TLVs in the format for the header of
+ * LINKTYPE_WIRESHARK_UPPER_PDU packets in pcap pcapng files.
+ */
+typedef struct _exp_pdu_data_t {
+    guint        tlv_buffer_len;
+    guint8      *tlv_buffer;
+    guint        tvb_captured_length;
+    guint        tvb_reported_length;
+    tvbuff_t    *pdu_tvb;
+} exp_pdu_data_t;
 
 /**
  Allocates and fills the exp_pdu_data_t struct according to the list of items

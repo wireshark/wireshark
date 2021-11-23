@@ -95,18 +95,13 @@ License: BSD-3-clause
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  SUCH DAMAGE.
 
-Files: wsutil/inet_ntop.c
-       wsutil/inet_pton.c
-Copyright: 1996-1999 by Internet Software Consortium.
-License: ISC
-
 Files: epan/dissectors/packet-enc.c
        epan/dissectors/packet-etherip.c
        epan/dissectors/packet-ipsec-udp.c
 Copyright: 2003 Markus Friedl
 License: BSD-2-clause
 
-Files: epan/dissectors/packet-pflog.c:
+Files: epan/dissectors/packet-pflog.c
 Copyright: 2001 Mike Frantzen
 License: BSD-2-clause-no-conditions
  Redistribution and use in source and binary forms, with or without

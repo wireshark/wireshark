@@ -23,6 +23,7 @@
 class CredentialsModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
     CredentialsModel(QObject *parent);
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const ;

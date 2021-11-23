@@ -52,6 +52,7 @@ struct epan_uat {
     uat_reset_cb_t reset_cb;
 
     uat_field_t* fields;
+    const char** default_values;
     guint ncols;
     GArray* user_data;  /**< An array of valid records that will be exposed to the dissector. */
     GArray* raw_data;   /**< An array of records containing possibly invalid data. For internal use only. */

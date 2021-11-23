@@ -256,7 +256,7 @@ static const value_string vals_exif_tags[] = {
     { 0x0110, "Model" },
     { 0x0131, "Software" },
     { 0x013B, "Artist" },
-    { 0x8296, "Copyright" },
+    { 0x8298, "Copyright" },
     /*
      * Exif-specific IFD:
      */
@@ -267,17 +267,28 @@ static const value_string vals_exif_tags[] = {
     { 0x0000, NULL }
 };
 
-static const value_string vals_exif_types[] = {
-    { 0x0001, "BYTE" },
-    { 0x0002, "ASCII" },
-    { 0x0003, "SHORT" },
-    { 0x0004, "LONG" },
-    { 0x0005, "RATIONAL" },
+enum {
+    EXIF_TYPE_BYTE      = 0x0001,
+    EXIF_TYPE_ASCII     = 0x0002,
+    EXIF_TYPE_SHORT     = 0x0003,
+    EXIF_TYPE_LONG      = 0x0004,
+    EXIF_TYPE_RATIONAL  = 0x0005,
     /* 0x0006 */
-    { 0x0007, "UNDEFINED" },
+    EXIF_TYPE_UNDEFINED = 0x0007,
     /* 0x0008 */
-    { 0x0009, "SLONG" },
-    { 0x000A, "SRATIONAL" },
+    EXIF_TYPE_SLONG     = 0x0009,
+    EXIF_TYPE_SRATIONAL = 0x000A,
+};
+
+static const value_string vals_exif_types[] = {
+    { EXIF_TYPE_BYTE,      "BYTE" },
+    { EXIF_TYPE_ASCII,     "ASCII" },
+    { EXIF_TYPE_SHORT,     "SHORT" },
+    { EXIF_TYPE_LONG,      "LONG" },
+    { EXIF_TYPE_RATIONAL,  "RATIONAL" },
+    { EXIF_TYPE_UNDEFINED, "UNDEFINED" },
+    { EXIF_TYPE_SLONG,     "SLONG" },
+    { EXIF_TYPE_SRATIONAL, "SRATIONAL" },
 
     { 0x0000, NULL }
 };
@@ -339,16 +350,23 @@ static gint hf_entropy_coded_segment = -1;
 static gint hf_fill_bytes = -1;
 static gint hf_skipped_tiff_data = -1;
 static gint hf_ifd_num_fields = -1;
-static gint hf_idf_tag = -1;
-static gint hf_idf_type = -1;
-static gint hf_idf_count = -1;
-static gint hf_idf_offset = -1;
+static gint hf_ifd_tag = -1;
+static gint hf_ifd_type = -1;
+static gint hf_ifd_count = -1;
+static gint hf_ifd_offset = -1;
+static gint hf_ifd_value_byte = -1;
+static gint hf_ifd_value_ascii = -1;
+static gint hf_ifd_value_short = -1;
+static gint hf_ifd_value_long = -1;
+static gint hf_ifd_value_undefined = -1;
+static gint hf_ifd_value_slong = -1;
 
 
 /* Initialize the subtree pointers */
 static gint ett_jfif = -1;
 static gint ett_marker_segment = -1;
 static gint ett_details = -1;
+static gint ett_ifd = -1;
 
 static expert_field ei_file_jpeg_first_identifier_not_jfif   = EI_INIT;
 static expert_field ei_start_ifd_offset   = EI_INIT;
@@ -613,7 +631,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
          */
         int encoding;
         guint16 val_16;
-        guint32 val_32, num_fields;
+        guint32 val_32;
         proto_item* tiff_item;
 
         offset++; /* Skip a byte supposed to be 0x00 */
@@ -661,27 +679,68 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
             proto_tree_add_bytes_format_value(subtree, hf_skipped_tiff_data, tvb, offset, val_32 + tiff_start - offset, NULL, "%u bytes",
                 val_32 + tiff_start - offset);
         }
-        for (;;) {
+        for (unsigned ifd_index = 0;; ++ifd_index) {
+            guint32 num_fields;
+            proto_tree *subtree_ifd;
+
             offset = val_32 + tiff_start;
             /*
              * Process the IFD
              */
-            proto_tree_add_item_ret_uint(subtree, hf_ifd_num_fields, tvb, offset, 2, encoding, &num_fields);
+            num_fields = tvb_get_guint16(tvb, offset, encoding);
+            subtree_ifd = proto_tree_add_subtree_format(subtree, tvb, offset, num_fields * 12 + 6,
+                    ett_ifd, NULL, "Image File Directory #%u", ifd_index);
+            proto_tree_add_item(subtree_ifd, hf_ifd_num_fields, tvb, offset, 2, encoding);
             offset += 2;
             while (num_fields-- > 0) {
-                proto_tree_add_item(subtree, hf_idf_tag, tvb, offset, 2, encoding);
+                guint32 field_type, value_count, value_size;
+                gint value_hf;
+
+                proto_tree_add_item(subtree_ifd, hf_ifd_tag, tvb, offset, 2, encoding);
                 offset += 2;
-                proto_tree_add_item(subtree, hf_idf_type, tvb, offset, 2, encoding);
+                proto_tree_add_item_ret_uint(subtree_ifd, hf_ifd_type, tvb, offset, 2, encoding, &field_type);
                 offset += 2;
-                proto_tree_add_item(subtree, hf_idf_count, tvb, offset, 4, encoding);
+                proto_tree_add_item_ret_uint(subtree_ifd, hf_ifd_count, tvb, offset, 4, encoding, &value_count);
                 offset += 4;
-                proto_tree_add_item(subtree, hf_idf_offset, tvb, offset, 4, encoding);
+
+                switch (field_type) {
+                case EXIF_TYPE_BYTE:
+                    value_size = 1; value_hf = hf_ifd_value_byte; break;
+                case EXIF_TYPE_ASCII:
+                    value_size = 1; value_hf = hf_ifd_value_ascii; break;
+                case EXIF_TYPE_SHORT:
+                    value_size = 2; value_hf = hf_ifd_value_short; break;
+                case EXIF_TYPE_LONG:
+                    value_size = 4; value_hf = hf_ifd_value_long; break;
+                case EXIF_TYPE_UNDEFINED:
+                    value_size = 1; value_hf = hf_ifd_value_undefined; break;
+                case EXIF_TYPE_SLONG:
+                    value_size = 4; value_hf = hf_ifd_value_slong; break;
+                /* We don't need special handling for RATIONAL/SRATIONAL,
+                   since they never fit into the offset field,
+                   so the default branch works for them. */
+                default:
+                    value_size = 0; break;
+                }
+
+                if (value_size == 0 || 4 / value_size < value_count) {
+                    proto_tree_add_item(subtree_ifd, hf_ifd_offset, tvb, offset, 4, encoding);
+                } else {
+                    /* The value(s) are small enough to fit directly in the offset field. */
+
+                    if (value_hf == hf_ifd_value_ascii || value_hf == hf_ifd_value_undefined)
+                        proto_tree_add_item(subtree_ifd, value_hf, tvb, offset, value_count, ENC_NA);
+                    else
+                        for (guint32 i = 0; i < value_count; ++i)
+                            proto_tree_add_item(subtree_ifd, value_hf, tvb,
+                                    offset + i * value_size, value_size, encoding);
+                }
                 offset += 4;
             }
             /*
              * Offset to the next IFD
              */
-            tiff_item = proto_tree_add_item_ret_uint(subtree, hf_next_ifd_offset, tvb, offset, 4, encoding, &val_32);
+            tiff_item = proto_tree_add_item_ret_uint(subtree_ifd, hf_next_ifd_offset, tvb, offset, 4, encoding, &val_32);
             offset += 4;
             if (val_32 != 0 &&
                 val_32 + tiff_start < (guint32)offset) {
@@ -731,7 +790,6 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
         proto_tree_add_bytes_format_value(subtree, hf_remain_seg_data, tvb, 4 + str_size, -1, NULL, "%u bytes", len - 2 - str_size);
         proto_item_append_text(ti, " (Unknown identifier)");
     }
-    wmem_free(NULL, str);
 }
 
 static gint
@@ -1244,7 +1302,7 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_tag,
+        { &hf_ifd_tag,
           {   "Exif Tag",
               "image-jfif.ifd.tag",
               FT_UINT16, BASE_DEC, VALS(vals_exif_tags), 0x0,
@@ -1252,7 +1310,7 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_type,
+        { &hf_ifd_type,
           {   "Type",
               "image-jfif.ifd.type",
               FT_UINT16, BASE_DEC, VALS(vals_exif_types), 0x0,
@@ -1260,7 +1318,7 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_count,
+        { &hf_ifd_count,
           {   "Count",
               "image-jfif.ifd.count",
               FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1268,10 +1326,58 @@ proto_register_jfif(void)
               HFILL
           }
         },
-        { &hf_idf_offset,
+        { &hf_ifd_offset,
           {   "Value offset from start of TIFF header",
               "image-jfif.ifd.offset",
               FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_byte,
+          {   "Value",
+              "image-jfif.ifd.value_byte",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_ascii,
+          {   "Value",
+              "image-jfif.ifd.value_ascii",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_short,
+          {   "Value",
+              "image-jfif.ifd.value_short",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_long,
+          {   "Value",
+              "image-jfif.ifd.value_long",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_undefined,
+          {   "Value (raw)",
+              "image-jfif.ifd.value_undefined",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_value_slong,
+          {   "Value",
+              "image-jfif.ifd.value_slong",
+              FT_INT32, BASE_DEC, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1283,6 +1389,7 @@ proto_register_jfif(void)
         &ett_jfif,
         &ett_marker_segment,
         &ett_details,
+        &ett_ifd,
     };
 
     static ei_register_info ei[] = {

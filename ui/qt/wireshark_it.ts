@@ -722,6 +722,10 @@
 <context>
     <name>ByteViewText</name>
     <message>
+        <source>Allow hover selection</source>
+        <translation>Consenti la selezione al passaggio del mouse </translation>
+    </message>
+    <message>
         <source>Show bytes as hexadecimal</source>
         <translation>Mostra byte in esadecimale</translation>
     </message>
@@ -3663,6 +3667,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Scala logaritmica</translation>
     </message>
     <message>
+        <source>Automatic Update</source>
+        <translation>Aggiornamento automatico</translation>
+    </message>
+    <message>
         <source>Reset</source>
         <translation>Ripristina</translation>
     </message>
@@ -4343,10 +4351,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Come sono codificati i dati</translation>
     </message>
     <message>
-        <source>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;espressione regolare consigliata:&lt;/small&gt;&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>encodingRegexExample</source>
         <translation>esempioEspressioneRegolareCodifica</translation>
     </message>
@@ -4397,6 +4401,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>None</source>
         <translation>Nessuno</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
+        <translation>&lt;small&gt;&lt;i&gt;espressione regolare consigliata:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
@@ -6413,8 +6421,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>TShark</translation>
     </message>
     <message>
-        <source>RawShark</source>
-        <translation>RawShark</translation>
+        <source>Rawshark</source>
+        <translation>Rawshark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -6429,8 +6437,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Editcap</translation>
     </message>
     <message>
-        <source>Text2cap</source>
-        <translation>Text2cap</translation>
+        <source>Text2pcap</source>
+        <translation>Text2pcap</translation>
     </message>
     <message>
         <source>Website</source>
@@ -7146,6 +7154,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>UCP message statistics</source>
         <translation>Statistiche dei messaggi UCP</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation>F1AP</translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation>Messaggi F1AP</translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation>NGAP</translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation>Messaggi NGAP</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8239,8 +8263,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Elimina &quot;%1&quot;</translation>
     </message>
     <message>
+        <source>Delete packet comments</source>
+        <translation>Elimina i commenti dei pacchetti</translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation>
+            <numerusform>Elimina i commenti da %n pacchetto</numerusform>
+            <numerusform>Elimina i commenti da %n pacchetti</numerusform>
+        </translation>
+    </message>
+    <message>
         <source> before starting a new capture</source>
         <translation> prima di iniziare una nuova cattura</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation> prima di ricaricare i plugin Lua</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
@@ -8695,8 +8734,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet %1 Comment</source>
-        <translation>Commento del pacchetto %1</translation>
+        <source>Edit Packet Comment</source>
+        <translation>Modifica commento del pacchetto</translation>
+    </message>
+    <message>
+        <source>Add Packet Comment</source>
+        <translation>Aggiungi commento del pacchetto</translation>
     </message>
 </context>
 <context>
@@ -12757,6 +12800,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Compresso</translation>
     </message>
     <message>
+        <source>Hex Digits</source>
+        <translation>Cifre esadecimali</translation>
+    </message>
+    <message>
         <source>Quoted-Printable</source>
         <translation>Quoted-Printable</translation>
     </message>
@@ -12955,12 +13002,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi il Manuale utente.</translation>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation>&quot;%1&quot; è sconsigliato in favore di &quot;%2&quot;. Vedi la sezione 6.4.8 della guida per i dettagli.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; potrebbe avere dei risultati inattesi. Vedi il Manuale utente.</translation>
+        <source>%1</source>
+        <translation>%1</translation>
     </message>
 </context>
 <context>

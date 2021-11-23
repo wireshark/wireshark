@@ -609,8 +609,10 @@ static int hf_nas_5gs_vlan_tag_pcp = -1;
 static int hf_nas_5gs_vlan_tag_dei = -1;
 static int hf_nas_5gs_ethertype = -1;
 static int hf_nas_5gs_updp_ue_pol_sect_sublst_len = -1;
+static int hf_nas_5gs_updp_ue_pol_sect_subresult_len = -1;
 static int hf_nas_5gs_updp_instr_len = -1;
 static int hf_nas_5gs_updp_upsc = -1;
+static int hf_nas_5gs_updp_failed_instruction_order = -1;
 static int hf_nas_5gs_updp_policy_len = -1;
 static int hf_nas_5gs_updp_ue_policy_part_type = -1;
 static int hf_nas_5gs_updp_ue_policy_part_cont = -1;
@@ -1037,7 +1039,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
             /* Routing indicator octet 8-9 */
             new_tvb = tvb_new_subset_length(tvb, offset, 2);
-            route_id_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, (tvb_get_guint8(new_tvb, 1) == 0xff) ? 1 : 2, NULL, FALSE);
+            route_id_str = tvb_bcd_dig_to_str(pinfo->pool, new_tvb, 0, (tvb_get_guint8(new_tvb, 1) == 0xff) ? 1 : 2, NULL, FALSE);
             proto_tree_add_string(tree, hf_nas_5gs_mm_routing_indicator, new_tvb, 0, -1, route_id_str);
             offset += 2;
             /* Protection scheme id octet 10 */
@@ -6768,7 +6770,7 @@ nas_5gs_sm_pdu_ses_est_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* 6F    UE-DS-TT residence time    UE-DS-TT residence time 9.11.4.26    O    TLV    10 */
     ELEM_OPT_TLV(0x6F, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_UE_DS_TT_RESIDENCE_T, NULL);
     /* 74    Port management information container    Port management information container 9.11.4.27    O    TLV-E    8-65538 */
-    ELEM_OPT_TLV(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
+    ELEM_OPT_TLV_E(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
     /* 1F    Ethernet header compression configuration    Ethernet header compression configuration 9.11.4.28    O    TLV    3 */
     ELEM_OPT_TLV(0x1F, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ETH_HDR_COMP_CONF, NULL);
     /* 29    Suggested interface identifier    PDU address 9.11.4.10    O    TLV    11 */
@@ -7002,7 +7004,7 @@ nas_5gs_sm_pdu_ses_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
     /* 74    Port management information container    Port management information container 9.11.4.27    O    TLV-E    4-65538 */
-    ELEM_OPT_TLV(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
+    ELEM_OPT_TLV_E(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
 
     /* 66    IP header compression configuration    Header compression configuration 9.11.4.24    O    TLV    5-257 */
     ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_IP_HDR_COMP_CONF, NULL);
@@ -7090,7 +7092,7 @@ nas_5gs_sm_pdu_ses_mod_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_IP_HDR_COMP_CONF, NULL);
 
     /* 74    Port management information container    Port management information container 9.11.4.27    O    TLV-E    4-65538 */
-    ELEM_OPT_TLV(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
+    ELEM_OPT_TLV_E(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
 
     /* 1E    Serving PLMN rate control    Serving PLMN rate control 9.11.4.20    O    TLV    4 */
     ELEM_OPT_TLV(0x1E, NAS_PDU_TYPE_ESM, DE_ESM_SERV_PLMN_RATE_CTRL, NULL);
@@ -7125,7 +7127,7 @@ nas_5gs_sm_pdu_ses_mod_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     /* 7B    Extended protocol configuration options    Extended protocol configuration options 9.11.4.6    O    TLV-E    4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
     /* 74    Port management information container    Port management information container 9.11.4.27    O    TLV-E    4-65538 */
-    ELEM_OPT_TLV(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
+    ELEM_OPT_TLV_E(0x74, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PORT_MGNT_INF_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -7770,8 +7772,8 @@ de_nas_5gs_updp_ue_policy_section_mgm_lst(tvbuff_t* tvb, proto_tree* tree, packe
     guint32 sub_list_len, instr_len, policy_len;
 
     /* UE policy section management list contents Octet 4 - Octet z*/
+    int i = 0;
     while ((curr_offset - offset) < len) {
-        int i = 0;
         /* UE policy section management sublist (PLMN X) */
         i++;
         sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_updp_ue_policy_section_mgm_lst, &item,
@@ -7840,7 +7842,45 @@ de_nas_5gs_updp_ue_policy_section_mgm_res(tvbuff_t* tvb, proto_tree* tree, packe
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree *sub_tree, *sub_tree2;
+    proto_item* item;
+    guint32 curr_offset = offset;
+    guint32 number_of_result;
+
+    /* UE policy section management result contents Octet 4 - Octet z*/
+    int i = 0;
+    while ((curr_offset - offset) < len) {
+        /* UE policy section management subresult (PLMN X) */
+        i++;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_updp_ue_policy_section_mgm_lst, &item,
+            "UE policy section management subresult (PLMN %u)", i);
+        /* Number of result */
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_updp_ue_pol_sect_subresult_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &number_of_result);
+        curr_offset += 1;
+        /* MCC digit 2    MCC digit 1
+         * MNC digit 3    MCC digit 3
+         * MNC digit 2    MNC digit 1
+         */
+        curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, TRUE);
+        /* UE policy section management subresult contents*/
+        /* Result X */
+        int j = 1;
+        while (number_of_result > 0){
+            sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_updp_ue_policy_section_mgm_sublst, &item,
+                "Result %u", j);
+            /* UPSC */
+            proto_tree_add_item(sub_tree2, hf_nas_5gs_updp_upsc, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            curr_offset += 2;
+            /* Failed instruction order */
+            proto_tree_add_item(sub_tree2, hf_nas_5gs_updp_failed_instruction_order, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            curr_offset += 2;
+            /* Cause */
+            proto_tree_add_item(sub_tree2, hf_nas_5gs_upds_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            curr_offset += 1;
+            j++;
+            number_of_result--;
+        }
+    }
 
     return len;
 }
@@ -11288,6 +11328,11 @@ proto_register_nas_5gs(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_updp_ue_pol_sect_subresult_len,
+        { "Number of results", "nas_5gs.updp.ue_pol_sect_sublst_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_updp_instr_len,
         { "Length", "nas_5gs.updp.instr_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -11295,6 +11340,11 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_updp_upsc,
         { "UPSC", "nas_5gs.updp.upsc",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_updp_failed_instruction_order,
+        { "Failed instruction order", "nas_5gs.updp.failed_instruction_order",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },

@@ -299,6 +299,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
+	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS;
 	rec->ts.secs = secs;
 	rec->ts.nsecs = usecs * 1000;

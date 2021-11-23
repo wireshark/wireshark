@@ -107,8 +107,8 @@ static dissector_handle_t h4501_handle=NULL;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t tp_handle;
 
-static next_tvb_list_t h245_list;
-static next_tvb_list_t tp_list;
+static next_tvb_list_t *h245_list;
+static next_tvb_list_t *tp_list;
 
 /* Initialize the protocol and registered fields */
 static int h225_tap = -1;
@@ -3885,7 +3885,7 @@ dissect_h225_GenericIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
                                  NULL);
 
 #line 885 "./asn1/h225/h225.cnf"
-  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  gef_ctx_update_key(actx->pinfo->pool, gef_ctx_get(actx->private_data));
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) {
     ti = proto_tree_add_string(tree, hf_h225_debug_dissector_try_string, tvb, offset>>3, 0, gefx->key);
@@ -4023,7 +4023,7 @@ dissect_h225_EnumeratedParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
-  actx->private_data = gef_ctx_alloc(parent_gefx, NULL);
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, parent_gefx, NULL);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_EnumeratedParameter, EnumeratedParameter_sequence);
@@ -4050,7 +4050,7 @@ dissect_h225_GenericData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   /* check if not inherited from FeatureDescriptor */
   gefx = gef_ctx_get(actx->private_data);
   if (!gefx) {
-    gefx = gef_ctx_alloc(NULL, "GenericData");
+    gefx = gef_ctx_alloc(actx->pinfo->pool, NULL, "GenericData");
     actx->private_data = gefx;
   }
 
@@ -4098,7 +4098,7 @@ static int
 dissect_h225_FeatureDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 874 "./asn1/h225/h225.cnf"
   void *priv_data = actx->private_data;
-  actx->private_data = gef_ctx_alloc(NULL, "FeatureDescriptor");
+  actx->private_data = gef_ctx_alloc(actx->pinfo->pool, NULL, "FeatureDescriptor");
 
   offset = dissect_h225_GenericData(tvb, offset, actx, tree, hf_index);
 
@@ -4131,7 +4131,7 @@ dissect_h225_ParallelH245Control_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &h245_tvb);
 
-  next_tvb_add_handle(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
+  next_tvb_add_handle(h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
 
   return offset;
@@ -5057,7 +5057,7 @@ dissect_h225_H245Control_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &h245_tvb);
 
-  next_tvb_add_handle(&h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
+  next_tvb_add_handle(h245_list, h245_tvb, (h225_h245_in_tree)?tree:NULL, h245dg_handle);
 
 
   return offset;
@@ -5114,7 +5114,7 @@ dissect_h225_T_messageContent_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &next_tvb);
 
-  next_tvb_add_handle(&tp_list, next_tvb, (h225_tp_in_tree)?tree:NULL, tp_handle);
+  next_tvb_add_handle(tp_list, next_tvb, (h225_tp_in_tree)?tree:NULL, tp_handle);
 
 
   return offset;
@@ -7903,8 +7903,8 @@ static void
 h225_frame_end(void)
 {
   /* next_tvb pointers are allocated in packet scope, clear it. */
-  next_tvb_init(&h245_list);
-  next_tvb_init(&tp_list);
+  h245_list = NULL;
+  tp_list = NULL;
 }
 
 static int
@@ -7921,8 +7921,8 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   p_add_proto_data(pinfo->pool, pinfo, proto_h225, 0, h225_pi);
 
   register_frame_end_routine(pinfo, h225_frame_end);
-  next_tvb_init(&h245_list);
-  next_tvb_init(&tp_list);
+  h245_list = next_tvb_list_new(pinfo->pool);
+  tp_list = next_tvb_list_new(pinfo->pool);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(pinfo->cinfo, COL_INFO);
@@ -7932,13 +7932,13 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   offset = dissect_H323_UserInformation_PDU(tvb, pinfo, tr, NULL);
 
-  if (h245_list.count){
+  if (h245_list->count){
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
     col_set_fence(pinfo->cinfo, COL_PROTOCOL);
   }
 
-  next_tvb_call(&h245_list, pinfo, tree, h245dg_handle, data_handle);
-  next_tvb_call(&tp_list, pinfo, tree, NULL, data_handle);
+  next_tvb_call(h245_list, pinfo, tree, h245dg_handle, data_handle);
+  next_tvb_call(tp_list, pinfo, tree, NULL, data_handle);
 
   tap_queue_packet(h225_tap, pinfo, h225_pi);
 
@@ -7957,6 +7957,8 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   p_add_proto_data(pinfo->pool, pinfo, proto_h225, 0, h225_pi);
 
   register_frame_end_routine(pinfo, h225_frame_end);
+  h245_list = next_tvb_list_new(pinfo->pool);
+  tp_list = next_tvb_list_new(pinfo->pool);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -7966,6 +7968,9 @@ dissect_h225_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   offset = dissect_RasMessage_PDU(tvb, pinfo, tr, NULL);
 
   ras_call_matching(tvb, pinfo, tr, h225_pi);
+
+  next_tvb_call(h245_list, pinfo, tree, h245dg_handle, data_handle);
+  next_tvb_call(tp_list, pinfo, tree, NULL, data_handle);
 
   tap_queue_packet(h225_tap, pinfo, h225_pi);
 
@@ -11496,7 +11501,7 @@ void proto_register_h225(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h225-hfarr.c ---*/
-#line 822 "./asn1/h225/packet-h225-template.c"
+#line 827 "./asn1/h225/packet-h225-template.c"
   };
 
   /* List of subtrees */
@@ -11746,7 +11751,7 @@ void proto_register_h225(void) {
     &ett_h225_T_result,
 
 /*--- End of included file: packet-h225-ettarr.c ---*/
-#line 828 "./asn1/h225/packet-h225-template.c"
+#line 833 "./asn1/h225/packet-h225-template.c"
   };
 
   static tap_param h225_stat_params[] = {

@@ -90,7 +90,7 @@
 #include <wsutil/inet_addr.h>
 
 #include <epan/strutil.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include <epan/maxmind_db.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
@@ -3353,15 +3353,6 @@ add_ether_byip(const guint ip, const guint8 *eth)
     }
 
 } /* add_ether_byip */
-
-gchar *
-ipxnet_to_str_punct(wmem_allocator_t *allocator, const guint32 ad, const char punct)
-{
-    gchar *buf = (gchar *)wmem_alloc(allocator, 12);
-
-    *dword_to_hex_punct(buf, ad, punct) = '\0';
-    return buf;
-}
 
 gchar *
 get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr)

@@ -18,7 +18,6 @@
 
 class WiresharkPreference : public QObject
 {
-    Q_OBJECT
 public:
     explicit Q_INVOKABLE WiresharkPreference(QObject * parent = Q_NULLPTR);
 

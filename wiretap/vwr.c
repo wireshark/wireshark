@@ -68,6 +68,12 @@
  */
 #define VW_RECORD_HEADER_LENGTH 16
 
+/*
+ * Maximum number of bytes to read looking for a valid frame starting
+ * with a command byte to determine if this is our file type. Arbitrary.
+ */
+#define VW_BYTES_TO_CHECK 0x3FFFFFFFU
+
 /* Command byte values */
 #define COMMAND_RX   0x21
 #define COMMAND_TX   0x31
@@ -967,6 +973,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     guint8  *s_510024_ptr = NULL;
     guint8  *s_510012_ptr = NULL; /* stats pointers */
     gint64   filePos      = -1;
+    guint64  bytes_read   = 0;
     guint32  frame_type   = 0;
     int      f_len, v_type;
     guint16  data_length  = 0;
@@ -1103,6 +1110,12 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     return fpga_version;
                 }
             }
+        }
+        bytes_read += VW_RECORD_HEADER_LENGTH;
+        if (bytes_read > VW_BYTES_TO_CHECK) {
+            /* no frame found in VW_BYTES_TO_CHECK - not a vwr file */
+            g_free(rec);
+            return UNKNOWN_FPGA;
         }
     }
 
@@ -1285,6 +1298,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
     record->rec_header.packet_header.pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
     record->rec_type = REC_TYPE_PACKET;
+    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
     record->presence_flags = WTAP_HAS_TS;
 
     ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
@@ -1700,6 +1714,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
     record->ts.nsecs  = (int)(s_usec * 1000);
 
     record->rec_type = REC_TYPE_PACKET;
+    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
     record->presence_flags = WTAP_HAS_TS;
 
     ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
@@ -1880,6 +1895,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         record->ts.nsecs  = (int)(s_usec * 1000);
 
         record->rec_type = REC_TYPE_PACKET;
+        record->block = wtap_block_create(WTAP_BLOCK_PACKET);
         record->presence_flags = WTAP_HAS_TS;
 
         ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
@@ -2212,6 +2228,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         record->ts.nsecs  = (int)(s_usec * 1000);
 
         record->rec_type = REC_TYPE_PACKET;
+        record->block = wtap_block_create(WTAP_BLOCK_PACKET);
         record->presence_flags = WTAP_HAS_TS;
 
         ws_buffer_assure_space(buf, record->rec_header.packet_header.caplen);
@@ -2721,6 +2738,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
     record->ts.nsecs  = (int)(s_usec * 1000);
 
     record->rec_type = REC_TYPE_PACKET;
+    record->block = wtap_block_create(WTAP_BLOCK_PACKET);
     record->presence_flags = WTAP_HAS_TS;
 
     /*etap_hdr.vw_ip_length = (guint16)ip_len;*/

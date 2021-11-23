@@ -1009,7 +1009,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree_add_item(system_tree, hf_netmon_system_config_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
-			col_add_fstr(pinfo->cinfo, COL_INFO, "NIC: %s, Address: %s", str_field1, tvb_ip_to_str(tvb, offset));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "NIC: %s, Address: %s", str_field1, tvb_ip_to_str(pinfo->pool, tvb, offset));
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_subnet_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
@@ -1221,7 +1221,7 @@ dissect_netmon_system_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			proto_tree_add_item(system_tree, hf_netmon_system_config_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
-			col_add_fstr(pinfo->cinfo, COL_INFO, "NIC: %s, Address: %s", str_field1, tvb_ip_to_str(tvb, offset));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "NIC: %s, Address: %s", str_field1, tvb_ip_to_str(pinfo->pool, tvb, offset));
 			offset += 4;
 			proto_tree_add_item(system_tree, hf_netmon_system_config_subnet_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;

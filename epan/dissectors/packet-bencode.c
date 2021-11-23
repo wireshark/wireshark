@@ -72,11 +72,11 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
 
             if (treeadd == 1) {
                proto_item_append_text(ti, " Key: %s",
-                                      tvb_format_text(tvb, offset + used, stringlen));
+                                      tvb_format_text(pinfo->pool, tvb, offset + used, stringlen));
             }
             if (treeadd == 2) {
                proto_item_append_text(ti, "  Value: %s",
-                                      tvb_format_text(tvb, offset + used, stringlen));
+                                      tvb_format_text(pinfo->pool, tvb, offset + used, stringlen));
             }
          }
          return used + stringlen;
@@ -183,9 +183,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
    }
 
    op = tvb_get_guint8(tvb, offset);
-   oplen = dissect_bencoding_rec(tvb, pinfo, offset, length, NULL, level + 1, NULL, 0);
-   if (oplen < 0)
-      oplen = length;
+   oplen = length;
 
    switch (op) {
    case 'd':

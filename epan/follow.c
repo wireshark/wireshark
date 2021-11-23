@@ -134,6 +134,7 @@ follow_reset_stream(follow_info_t* info)
     info->server_ip.len = 0;
     info->fragments[0] = info->fragments[1] = NULL;
     info->seq[0] = info->seq[1] = 0;
+    info->substream_id = SUBSTREAM_UNUSED;
 }
 
 void

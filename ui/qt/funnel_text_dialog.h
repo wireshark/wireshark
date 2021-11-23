@@ -31,13 +31,13 @@ class FunnelTextDialog : public GeometryStateDialog
     Q_OBJECT
 
 public:
-    explicit FunnelTextDialog(const QString &title = QString());
+    explicit FunnelTextDialog(QWidget *parent, const QString &title = QString());
     ~FunnelTextDialog();
 
     void reject();
 
     // Funnel ops
-    static struct _funnel_text_window_t *textWindowNew(const QString title);
+    static struct _funnel_text_window_t *textWindowNew(QWidget *parent, const QString title);
     void setText(const QString text);
     void appendText(const QString text);
     void prependText(const QString text);
@@ -60,7 +60,6 @@ private:
 };
 
 extern "C" {
-struct _funnel_text_window_t* text_window_new(const char* title);
 void text_window_set_text(funnel_text_window_t* ftw, const char* text);
 void text_window_append(funnel_text_window_t *ftw, const char* text);
 void text_window_prepend(funnel_text_window_t* ftw, const char* text);

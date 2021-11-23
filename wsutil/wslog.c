@@ -30,13 +30,17 @@
 #endif
 
 #include "file_util.h"
+#include "to_str.h"
 
 
 /* Runtime log level. */
 #define ENV_VAR_LEVEL       "WIRESHARK_LOG_LEVEL"
 
 /* Log domains enabled/disabled. */
-#define ENV_VAR_DOMAINS     "WIRESHARK_LOG_DOMAINS"
+#define ENV_VAR_DOMAIN      "WIRESHARK_LOG_DOMAIN"
+
+/* Alias "domain" and "domains". */
+#define ENV_VAR_DOMAIN_S    "WIRESHARK_LOG_DOMAINS"
 
 /* Log level that generates a trap and aborts. Can be "critical"
  * or "warning". */
@@ -295,7 +299,8 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
 
 
 static const char *opt_level   = "--log-level";
-static const char *opt_domains = "--log-domains";
+/* Alias "domain" and "domains". */
+static const char *opt_domain  = "--log-domain";
 static const char *opt_file    = "--log-file";
 static const char *opt_fatal   = "--log-fatal";
 static const char *opt_debug   = "--log-debug";
@@ -340,9 +345,13 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
             option = opt_level;
             optlen = strlen(opt_level);
         }
-        else if (g_str_has_prefix(*ptr, opt_domains)) {
-            option = opt_domains;
-            optlen = strlen(opt_domains);
+        else if (g_str_has_prefix(*ptr, opt_domain)) {
+            option = opt_domain;
+            optlen = strlen(opt_domain);
+            /* Alias "domain" and "domains". Last form wins. */
+            if (*(*ptr + optlen) == 's') {
+                optlen += 1;
+            }
         }
         else if (g_str_has_prefix(*ptr, opt_file)) {
             option = opt_file;
@@ -406,10 +415,10 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
                 ret += 1;
             }
         }
-        else if (option == opt_domains) {
+        else if (option == opt_domain) {
             ws_log_set_domain_filter(value);
         }
-        else if (option == opt_file) {
+        else if (value && option == opt_file) {
             FILE *fp = ws_fopen(value, "w");
             if (fp == NULL) {
                 print_err(vcmdarg_err, exit_failure,
@@ -642,8 +651,10 @@ void ws_log_init(const char *progname,
         }
     }
 
-    env = g_getenv(ENV_VAR_DOMAINS);
-    if (env != NULL)
+    /* Alias "domain" and "domains". The plural form wins. */
+    if ((env = g_getenv(ENV_VAR_DOMAIN_S)) != NULL)
+        ws_log_set_domain_filter(env);
+    else if ((env = g_getenv(ENV_VAR_DOMAIN)) != NULL)
         ws_log_set_domain_filter(env);
 
     env = g_getenv(ENV_VAR_DEBUG);
@@ -727,8 +738,6 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
                                 const char *file, int line, const char *func,
                                 const char *user_format, va_list user_ap)
 {
-    gboolean doextra = (level != DEFAULT_LOG_LEVEL);
-
 #ifndef WS_DISABLE_DEBUG
     if (!init_complete)
         fputs(" ** (noinit)", fp);
@@ -755,15 +764,15 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
                                 color_off(use_color));
 
     /* File/line */
-    if (doextra && file != NULL && line >= 0)
+    if (file != NULL && line >= 0)
         fprintf(fp, "%s:%d ", file, line);
-    else if (doextra && file != NULL)
+    else if (file != NULL)
         fprintf(fp, "%s ", file);
 
     fputs("-- ", fp);
 
     /* Function name */
-    if (doextra && func != NULL)
+    if (func != NULL)
         fprintf(fp, "%s(): ", func);
 
     /* User message */
@@ -905,6 +914,28 @@ void ws_log_write_always_full(const char *domain, enum ws_log_level level,
     va_start(ap, format);
     log_write_dispatch(domain, level, file, line, func, format, ap);
     va_end(ap);
+}
+
+
+void ws_log_buffer_full(const char *domain, enum ws_log_level level,
+                    const char *file, int line, const char *func,
+                    const guint8 *ptr, size_t size,  size_t max_bytes_len,
+                    const char *msg)
+{
+    if (!ws_log_msg_is_active(domain, level))
+        return;
+
+    char *bufstr = bytes_to_str_maxlen(NULL, ptr, size, max_bytes_len);
+
+    if (G_UNLIKELY(msg == NULL))
+        ws_log_write_always_full(domain, level, file, line, func,
+                                "<buffer:%p>: %s (%zu bytes)",
+                                ptr, bufstr, size);
+    else
+        ws_log_write_always_full(domain, level, file, line, func,
+                                "%s: %s (%zu bytes)",
+                                msg, bufstr, size);
+    wmem_free(NULL, bufstr);
 }
 
 

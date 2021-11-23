@@ -200,7 +200,7 @@ PIDL_dissect_ipv4address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 	if (param & PIDL_SET_COL_INFO) {
-		const char *ip = tvb_ip_to_str(tvb, offset);
+		const char *ip = tvb_ip_to_str(pinfo->pool, tvb, offset);
 		header_field_info *hf_info = proto_registrar_get_nth(hfindex);
 
 		proto_item_append_text(proto_tree_get_parent(tree), " %s:%s", hf_info->name, ip);
@@ -226,7 +226,7 @@ PIDL_dissect_ipv6address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	proto_tree_add_item(tree, hfindex, tvb, offset, 16, ENC_BIG_ENDIAN);
 
 	if (param & PIDL_SET_COL_INFO) {
-		const char *ip = tvb_ip6_to_str(tvb, offset);
+		const char *ip = tvb_ip6_to_str(pinfo->pool, tvb, offset);
 		header_field_info *hf_info = proto_registrar_get_nth(hfindex);
 
 		proto_item_append_text(proto_tree_get_parent(tree), " %s:%s", hf_info->name, ip);

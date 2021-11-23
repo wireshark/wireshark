@@ -38,7 +38,7 @@ CompiledFilterOutput::CompiledFilterOutput(QWidget *parent, QStringList &intList
 
     copy_bt_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     copy_bt_->setToolTip(tr("Copy filter text to the clipboard."));
-    connect(copy_bt_, SIGNAL(clicked()), this, SLOT(copyFilterText()));
+    connect(copy_bt_, &QPushButton::clicked, this, &CompiledFilterOutput::copyFilterText);
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     close_bt->setDefault(true);

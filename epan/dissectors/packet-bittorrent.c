@@ -18,6 +18,7 @@
 #include <epan/strutil.h>
 
 #include "packet-tcp.h"
+#include "packet-bt-utp.h"
 
 void proto_register_bittorrent(void);
 void proto_reg_handoff_bittorrent(void);
@@ -162,6 +163,7 @@ static gint hf_azureus_jpc_addr         = -1;
 static gint hf_azureus_jpc_port         = -1;
 static gint hf_azureus_jpc_session      = -1;
 static gint hf_bittorrent_port          = -1;
+static gint hf_bittorrent_extended_id   = -1;
 static gint hf_bittorrent_extended      = -1;
 static gint hf_bittorrent_continuous_data = -1;
 static gint hf_bittorrent_version       = -1;
@@ -266,6 +268,113 @@ static struct client_information peer_id[] = {
    {"",     0, NULL}
 };
 
+/* Tests a given length for a message type to see if it looks valid.
+ * The exact length is known for many message types, which prevents us
+ * from returning a false positive match based on a single byte when
+ * we're in the middle of Continuation Data or an encrypted transfer.
+ */
+static gboolean
+test_type_length(guint16 type, guint32 length)
+{
+   switch (type) {
+
+   case BITTORRENT_MESSAGE_UNCHOKE:
+   case BITTORRENT_MESSAGE_INTERESTED:
+   case BITTORRENT_MESSAGE_NOT_INTERESTED:
+   case BITT_FAST_EX_HAVE_ALL:
+   case BITT_FAST_EX_HAVE_NONE:
+      /* No payload */
+      if (length != 1) {
+         return FALSE;
+      }
+      return TRUE;
+      break;
+
+   case BITTORRENT_MESSAGE_PORT:
+      if (length != 3) {
+         return FALSE;
+      }
+      return TRUE;
+      break;
+
+   case BITTORRENT_MESSAGE_HAVE:
+   case BITT_FAST_EX_SUGGEST_PIECE:
+   case BITT_FAST_EX_ALLOWED_FAST:
+      if (length != 5) {
+         return FALSE;
+      }
+      return TRUE;
+      break;
+
+   case BITTORRENT_MESSAGE_REQUEST:
+   case BITTORRENT_MESSAGE_CANCEL:
+   case BITT_FAST_EX_REJECT_REQUEST:
+      if (length != 13) {
+         return FALSE;
+      }
+      return TRUE;
+      break;
+
+   /* Now to the messages that can have variable and longer lengths. */
+
+   case BITTORRENT_MESSAGE_EXTENDED:
+   case BITTORRENT_MESSAGE_PIECE:
+      /* All known implementations use 0x4000 for the piece length by default
+       * (only smaller for the last piece at EOF), and disconnect from clients
+       * that use a larger value, which is mentioned in BEP-3. Including the
+       * other parts of the message, that yields a length of 0x4009. There
+       * might exist some non-standard traffic somewhere, I suppose.
+       *
+       * This is excessively long for any extension message.
+       */
+      if (length > 0x4009) {
+         return FALSE;
+      }
+      return TRUE;
+      break;
+
+   case BITTORRENT_MESSAGE_CHOKE:
+      /* Choke could be an Azureus message instead, which could be any
+       * of the other messages, so it has to be as long as our longest
+       * message. XXX: To reduce false positives (since 0 is a common
+       * byte to see), a pref to disable Azureus support could be useful.
+       * Alternatively, if we tracked conversations, we could disable
+       * support for AMP if the extension bits in the handshake (if seen)
+       * indicated that it's not supported.
+       */
+   case AZUREUS_MESSAGE_HANDSHAKE:
+   case AZUREUS_MESSAGE_KEEP_ALIVE:
+   case AZUREUS_MESSAGE_BT_HANDSHAKE:
+   case AZUREUS_MESSAGE_PEER_EXCHANGE:
+   case AZUREUS_MESSAGE_JPC_HELLO:
+   case AZUREUS_MESSAGE_JPC_REPLY:
+   case BITTORRENT_MESSAGE_BITFIELD:
+      /* A bitfield length is N bits, where N is the number of pieces
+       * in the torrent. The absolute boundary is 2^32 pieces (because
+       * it has to fit in the piece message). In practice the piece
+       * length varies to balance a number of factors. (Some clients
+       * don't work with too many pieces; at one point 2^16 was a common
+       * maximum.) The minimum common piece length is 2^18 bytes, and higher
+       * powers of two are also frequently used.
+       *
+       * 0x20000 allows 0x100000 pieces, or over a million. That's more
+       * than most clients support, and cuts down on false positives.
+       */
+      if (length > 0x20000) {
+         return FALSE;
+      }
+      return TRUE;
+      break;
+
+   default:
+      if (!try_val_to_str(type, bittorrent_messages)) {
+         return FALSE;
+      }
+   }
+
+   return TRUE;
+}
+
 static guint
 get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
                           int offset, void *data _U_)
@@ -291,9 +400,9 @@ get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
       /* Do some sanity checking of the message, if we have the ID byte */
       if(tvb_offset_exists(tvb, offset + BITTORRENT_HEADER_LENGTH)) {
          type = tvb_get_guint8(tvb, offset + BITTORRENT_HEADER_LENGTH);
-         if((type <= BITTORRENT_MESSAGE_PORT || (type >= BITT_FAST_EX_SUGGEST_PIECE && type <= BITT_FAST_EX_ALLOWED_FAST) || type == BITTORRENT_MESSAGE_EXTENDED) && length<0x1000000) {
+         if (test_type_length(type, length)) {
             /* This seems to be a valid BitTorrent header with a known
-               type identifier */
+               type identifier and valid length */
             return BITTORRENT_HEADER_LENGTH + length;
          } else {
             /* The type is not known, so this message cannot be decoded
@@ -325,6 +434,7 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    guint16     type    = 0;
    guint32     typelen = 0;
    guint8      prio    = 0;
+   guint32     ext_id  = 0;
    guint32     length;
    const char *msgtype = NULL;
    proto_item *ti;
@@ -372,7 +482,12 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          msgtype = try_val_to_str(type, azureus_messages);
       }
 #endif
-      if (msgtype == NULL) {
+      if (msgtype == NULL || !(test_type_length(type, length))) {
+         /* In modern captures, this is likely Protocol Encryption/
+          * Message Stream Encryption, particularly if we're actually
+          * desegmenting and have the whole connection starting from
+          * the SYN. We don't try to do that yet.
+          */
          proto_tree_add_item(tree, hf_bittorrent_continuous_data, tvb, offset, -1, ENC_NA);
          col_set_str(pinfo->cinfo, COL_INFO, "Continuation data");
          return;
@@ -448,7 +563,14 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    case BITTORRENT_MESSAGE_EXTENDED:
       /* extended message content */
-      proto_tree_add_item(mtree, hf_bittorrent_extended, tvb, offset, length, ENC_NA);
+      proto_tree_add_item_ret_uint(mtree, hf_bittorrent_extended_id, tvb, offset, 1, ENC_NA, &ext_id);
+      offset += 1;
+      length -= 1;
+      if (ext_id == 0) {
+         call_dissector(bencode_handle, tvb_new_subset_length(tvb, offset, length), pinfo, mtree);
+      } else {
+         proto_tree_add_item(mtree, hf_bittorrent_extended, tvb, offset, length, ENC_NA);
+      }
       break;
 
    case BITTORRENT_MESSAGE_HAVE:
@@ -574,6 +696,14 @@ int dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static
+int dissect_bittorrent_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+   utp_dissect_pdus(tvb, pinfo, tree, bittorrent_desegment, BITTORRENT_HEADER_LENGTH,
+                    get_bittorrent_pdu_length, dissect_bittorrent_tcp_pdu, data);
+   return tvb_reported_length(tvb);
+}
+
+static
 gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree, void *data)
 {
@@ -668,6 +798,9 @@ proto_register_bittorrent(void)
       { &hf_bittorrent_port,
         { "Port", "bittorrent.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
+      { &hf_bittorrent_extended_id,
+        { "Extended Message ID", "bittorrent.extended.id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+      },
       { &hf_bittorrent_extended,
         { "Extended Message", "bittorrent.extended", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
@@ -692,6 +825,7 @@ proto_register_bittorrent(void)
    proto_register_subtree_array(ett, array_length(ett));
 
    dissector_handle = register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
+   register_dissector("bittorrent.utp", dissect_bittorrent_utp, proto_bittorrent);
 
    bittorrent_module = prefs_register_protocol(proto_bittorrent, NULL);
    prefs_register_bool_preference(bittorrent_module, "desegment",

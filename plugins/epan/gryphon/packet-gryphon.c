@@ -379,8 +379,8 @@ static gboolean gryphon_desegment = TRUE;
 #define GRYPHON_FRAME_HEADER_LEN    8
 
 static int dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_msgresp_add);
-static int cmd_ioctl(tvbuff_t*, int, proto_tree*, guint32 ui_command);
-static int cmd_ioctl_resp(tvbuff_t*, int, proto_tree*, guint32 ui_command);
+static int cmd_ioctl(tvbuff_t*, packet_info*, int, proto_tree*, guint32 ui_command);
+static int cmd_ioctl_resp(tvbuff_t*, packet_info*, int, proto_tree*, guint32 ui_command);
 
 static const value_string action_vals[] = {
     { FR_RESP_AFTER_EVENT,
@@ -977,7 +977,18 @@ static const value_string protocol_types[] = {
     {0,                             NULL},
 };
 
-/* Note: using external tfs strings doesn't work in a plugin */
+/*
+ * Note: using external tfs strings doesn't work in a plugin.
+ * The address of a data item exported from a shared library
+ * such as libwireshark is not known until the library is
+ * loaded, so "&data_item" is not a constant; MSVC complains
+ * about that.
+ *
+ * (*Direct* references to the item in code can execute a
+ * different code sequence to get the address and then load
+ * from that address, but references from a data structure
+ * can't do that.)
+ */
 static const true_false_string tfs_wait_response = { "Wait", "Don't Wait" };
 static const true_false_string true_false = { "True", "False" };
 static const true_false_string register_unregister_action_flags = { "Register", "Unregister" };
@@ -1209,7 +1220,7 @@ cmd_setfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
-cmd_ioctl_details(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command, int msglen)
+cmd_ioctl_details(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt, guint32 ui_command, int msglen)
 {
     char *string;
     int length;
@@ -1322,7 +1333,7 @@ cmd_ioctl_details(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command,
         break;
     case GLINDELSCHED:
         {
-        string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
+        string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
         /*proto_tree_add_debug_text(pt, "cmd_ioctl_details() debug offset=%d length=%d string='%s'",offset,length,string); */
         if(string[0] == '\0') {
             proto_tree_add_string(pt, hf_gryphon_ldf_schedule_name, tvb, offset, 32, "All schedules");
@@ -1608,7 +1619,7 @@ cmd_ioctl_details(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command,
  * calls cmd_ioctl_details()
  */
 static int
-cmd_ioctl(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command)
+cmd_ioctl(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt, guint32 ui_command)
 {
     int  msglen;
     /*guint32 ioctl;*/
@@ -1625,7 +1636,7 @@ cmd_ioctl(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command)
     msglen -= 4;
 
     if (msglen > 0) {
-        offset = cmd_ioctl_details(tvb, offset, pt, ui_command,  msglen);
+        offset = cmd_ioctl_details(tvb, pinfo, offset, pt, ui_command, msglen);
     }
 
     padding = tvb_reported_length_remaining(tvb, offset);
@@ -1646,7 +1657,7 @@ cmd_ioctl(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command)
  * the IOCTL response to the request.
  */
 static int
-cmd_ioctl_resp(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command)
+cmd_ioctl_resp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt, guint32 ui_command)
 {
     int  msglen = tvb_reported_length_remaining(tvb, offset);
 
@@ -1656,7 +1667,7 @@ cmd_ioctl_resp(tvbuff_t *tvb, int offset, proto_tree *pt, guint32 ui_command)
     if (msglen > 0) {
         /*proto_tree_add_item(pt, hf_gryphon_ioctl_data, tvb, offset, msglen, ENC_NA);*/
         /*offset += msglen;*/
-        offset = cmd_ioctl_details(tvb, offset, pt, ui_command,  msglen);
+        offset = cmd_ioctl_details(tvb, pinfo, offset, pt, ui_command,  msglen);
     }
     return offset;
 }
@@ -2420,12 +2431,12 @@ resp_ldf_get_frames(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
-cmd_ldf_get_frame_info(tvbuff_t *tvb, int offset, proto_tree *pt)
+cmd_ldf_get_frame_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     char *string;
     int length;
     guint8 id;
-    string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
+    string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
     if(length > 1) {
         proto_tree_add_string(pt, hf_gryphon_ldf_get_frame, tvb, offset, length, string);
         offset += length;
@@ -2495,12 +2506,12 @@ cmd_ldf_get_signal_detail(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
-resp_ldf_do_encoding_block(tvbuff_t *tvb, int offset, proto_tree *pt)
+resp_ldf_do_encoding_block(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     char *string;
     int length;
     /* encoding */
-    string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
+    string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
     proto_tree_add_string(pt, hf_gryphon_ldf_signal_encoding_type, tvb, offset, 12, string);
     offset += 12;
     if(string[0] == 'l') {
@@ -2536,7 +2547,7 @@ resp_ldf_do_encoding_block(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
-resp_ldf_get_signal_detail(tvbuff_t *tvb, int offset, proto_tree *pt)
+resp_ldf_get_signal_detail(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     guint16 us_num;
 /* offset */
@@ -2552,7 +2563,7 @@ resp_ldf_get_signal_detail(tvbuff_t *tvb, int offset, proto_tree *pt)
     proto_tree_add_item(pt, hf_gryphon_ldf_num_encodings, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     while(us_num > 0) {
-        offset = resp_ldf_do_encoding_block(tvb, offset, pt);
+        offset = resp_ldf_do_encoding_block(tvb, pinfo, offset, pt);
         us_num -= 1;
     }
 
@@ -2569,7 +2580,7 @@ cmd_ldf_get_encoding_info(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
-resp_ldf_get_encoding_info(tvbuff_t *tvb, int offset, proto_tree *pt)
+resp_ldf_get_encoding_info(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     guint16 us_num;
     /* number */
@@ -2578,7 +2589,7 @@ resp_ldf_get_encoding_info(tvbuff_t *tvb, int offset, proto_tree *pt)
     offset += 2;
     while(us_num > 0) {
         /* encoding data */
-        offset = resp_ldf_do_encoding_block(tvb, offset, pt);
+        offset = resp_ldf_do_encoding_block(tvb, pinfo, offset, pt);
         us_num -= 1;
     }
     return offset;
@@ -2595,7 +2606,7 @@ cmd_ldf_save_session(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
-cmd_ldf_emulate_nodes(tvbuff_t *tvb, int offset, proto_tree *pt)
+cmd_ldf_emulate_nodes(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     int nnodes;
     int node_numb=1;
@@ -2612,7 +2623,7 @@ cmd_ldf_emulate_nodes(tvbuff_t *tvb, int offset, proto_tree *pt)
     for(i=0;i<nnodes;i++) {
         /* first, find the end of the string, then use that string len to build a subtree */
 
-        string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset+1, &length, ENC_ASCII);
+        string = tvb_get_stringz_enc(pinfo->pool, tvb, offset+1, &length, ENC_ASCII);
 
         tree2 = proto_tree_add_subtree_format(pt, tvb, offset, 1+length, ett_gryphon_lin_emulate_node, NULL, "Node %u", node_numb);
 
@@ -2940,7 +2951,7 @@ resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
 }
 
 static int
-cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
+cmd_start(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pt)
 {
     char      *string;
     gint      length;
@@ -2950,7 +2961,7 @@ cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
     msglen = tvb_reported_length_remaining(tvb, offset);
     offset = cmd_delete(tvb, offset, pt);       /* decode the name */
     if (offset < msglen + hdr_stuff) {
-        string = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &length, ENC_ASCII);
+        string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &length, ENC_ASCII);
         if (length > 1) {
             proto_tree_add_string(pt, hf_gryphon_start_arguments, tvb, offset,
                 length, string);
@@ -3562,9 +3573,8 @@ cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 static int
 cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int          msglen, value;
+    int          value;
 
-    msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
         static int * const digital_values[] = {
@@ -3580,16 +3590,14 @@ cmd_bits_in (tvbuff_t *tvb, int offset, proto_tree *pt)
     }
 
     offset++;
-    msglen--;
     return offset;
 }
 
 static int
 cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
-    int          msglen, value;
+    int          value;
 
-    msglen = tvb_reported_length_remaining(tvb, offset);
     value = tvb_get_guint8(tvb, offset);
     if (value) {
         static int * const digital_values[] = {
@@ -3603,7 +3611,6 @@ cmd_bits_out (tvbuff_t *tvb, int offset, proto_tree *pt)
     }
 
     offset++;
-    msglen--;
     return offset;
 }
 
@@ -3704,7 +3711,9 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
     if (cmd > 0x3F)
         cmd += dst * 256;
 
-    if (!pinfo->fd->visited) {
+    pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
+
+    if (!pkt_info) {
         /* Find a conversation, create a new if no one exists */
         gryphon_conversation *conv_data = get_conversation_data(pinfo);
 
@@ -3718,8 +3727,6 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
         wmem_list_prepend(conv_data->request_frame_data, pkt_info);
 
         p_add_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb), pkt_info);
-    } else {
-        pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
     }
 
     proto_tree_add_uint(pt, hf_gryphon_command, tvb, offset, 1, cmd);
@@ -3811,7 +3818,7 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
             offset = cmd_ldf_get_frames(tvb, offset, ft);
             break;
         case CMD_GET_FRAME_INFO:
-            offset = cmd_ldf_get_frame_info(tvb, offset, ft);
+            offset = cmd_ldf_get_frame_info(tvb, pinfo, offset, ft);
             break;
         case CMD_GET_SIGNAL_INFO:
             offset = cmd_ldf_get_signal_info(tvb, offset, ft);
@@ -3826,7 +3833,7 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
             offset = cmd_ldf_save_session(tvb, offset, ft);
             break;
         case CMD_EMULATE_NODES:
-            offset = cmd_ldf_emulate_nodes(tvb, offset, ft);
+            offset = cmd_ldf_emulate_nodes(tvb, pinfo, offset, ft);
             break;
         case CMD_START_SCHEDULE:
             offset = cmd_ldf_start_schedule(tvb, offset, ft);
@@ -3877,7 +3884,7 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
             offset = cmd_list(tvb, offset, ft);
             break;
         case CMD_PGM_START:
-            offset = cmd_start(tvb, offset, ft);
+            offset = cmd_start(tvb, pinfo, offset, ft);
             break;
         case CMD_PGM_STOP:
             offset = resp_start(tvb, offset, ft);
@@ -3941,7 +3948,7 @@ decode_command(tvbuff_t *tvb, packet_info* pinfo, int msglen, int offset, int ds
             if (!pinfo->fd->visited) {
                 pkt_info->ioctl_command = ioctl_command;
             }
-            offset = cmd_ioctl(tvb, offset, ft, ioctl_command);
+            offset = cmd_ioctl(tvb, pinfo, offset, ft, ioctl_command);
             break;
         default:
             proto_tree_add_item(ft, hf_gryphon_data, tvb, offset, msglen, ENC_NA);
@@ -3967,7 +3974,9 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
     if (cmd > 0x3F)
         cmd += src * 256;
 
-    if (!pinfo->fd->visited) {
+    pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
+
+    if (!pkt_info) {
         /* Find a conversation, create a new if no one exists */
         gryphon_conversation *conv_data = get_conversation_data(pinfo);
 
@@ -3991,9 +4000,6 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
         }
 
         p_add_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb), pkt_info);
-    }
-    else {
-        pkt_info = (gryphon_pkt_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_gryphon, (guint32)tvb_raw_offset(tvb));
     }
 
     /* this is the old original way of displaying */
@@ -4096,10 +4102,10 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
             offset = resp_ldf_get_signal_info(tvb, offset, ft);
             break;
         case CMD_GET_SIGNAL_DETAIL:
-            offset = resp_ldf_get_signal_detail(tvb, offset, ft);
+            offset = resp_ldf_get_signal_detail(tvb, pinfo, offset, ft);
             break;
         case CMD_GET_ENCODING_INFO:
-            offset = resp_ldf_get_encoding_info(tvb, offset, ft);
+            offset = resp_ldf_get_encoding_info(tvb, pinfo, offset, ft);
             break;
         case CMD_GET_SCHEDULES:
             offset = resp_ldf_get_schedules(tvb, offset, ft);
@@ -4170,7 +4176,7 @@ decode_response(tvbuff_t *tvb, packet_info* pinfo, int offset, int src, proto_tr
             offset = cmd_init_strat(tvb, offset, ft);
             break;
         case CMD_CARD_IOCTL:
-            offset = cmd_ioctl_resp(tvb, offset, ft, pkt_info->ioctl_command);
+            offset = cmd_ioctl_resp(tvb, pinfo, offset, ft, pkt_info->ioctl_command);
             break;
         default:
             proto_tree_add_item(ft, hf_gryphon_data, tvb, offset, msglen, ENC_NA);

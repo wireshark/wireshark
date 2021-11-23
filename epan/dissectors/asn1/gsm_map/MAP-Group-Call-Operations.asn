@@ -1,10 +1,10 @@
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
 -- 17.6.7	Group Call operations
  
 MAP-Group-Call-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-Group-Call-Operations (22)
-   version18 (18)}
+   version20 (20)}
 
 DEFINITIONS
 
@@ -35,7 +35,7 @@ joint-iso-itu-t remote-operations(4)
 	dataMissing
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version18 (18)}
+   gsm-Network (1) modules (3) map-Errors (10) version20 (20)}
 
 	PrepareGroupCallArg,
 	PrepareGroupCallRes,
@@ -47,11 +47,11 @@ FROM MAP-Errors {
 	SendGroupCallInfoRes
 FROM MAP-GR-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-GR-DataTypes (23) version18 (18)}
+   gsm-Network (1) modules (3) map-GR-DataTypes (23) version20 (20)}
 
 ;
 
-prepareGroupCall  OPERATION ::= {		--Timer m
+prepareGroupCall  OPERATION ::= {	--Timer m
 	ARGUMENT
 	PrepareGroupCallArg
 	RESULT
@@ -62,24 +62,24 @@ prepareGroupCall  OPERATION ::= {		--Timer m
 	unexpectedDataValue}
 	CODE	local:39 }
 
-sendGroupCallEndSignal  OPERATION ::= {		--Timer l
+sendGroupCallEndSignal  OPERATION ::= {	--Timer l
 	ARGUMENT
 	SendGroupCallEndSignalArg
 	RESULT
 	SendGroupCallEndSignalRes
 	CODE	local:40 }
 
-processGroupCallSignalling  OPERATION ::= {		--Timer s
+processGroupCallSignalling  OPERATION ::= {	--Timer s
 	ARGUMENT
 	ProcessGroupCallSignallingArg
 	CODE	local:41 }
 
-forwardGroupCallSignalling  OPERATION ::= {		--Timer s
+forwardGroupCallSignalling  OPERATION ::= {	--Timer s
 	ARGUMENT
 	ForwardGroupCallSignallingArg
 	CODE	local:42 }
 
-sendGroupCallInfo  OPERATION ::= {		--Timer m
+sendGroupCallInfo  OPERATION ::= {	--Timer m
 	ARGUMENT
 	SendGroupCallInfoArg
 	RESULT

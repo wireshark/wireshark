@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v16.6.0 (2021-07)
+ * References: 3GPP TS 38.413 v16.7.0 (2021-10)
  */
 
 #include "config.h"
@@ -24,6 +24,8 @@
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/tap.h>
+#include <epan/stats_tree.h>
 #include <wsutil/wsjson.h>
 
 #include "packet-ngap.h"
@@ -183,6 +185,224 @@ enum{
   UNSUCCESSFUL_OUTCOME
 };
 
+/* NGAP stats - Tap interface */
+
+static void set_stats_message_type(packet_info *pinfo, int type);
+
+static const guint8 *st_str_packets        = "Total Packets";
+static const guint8 *st_str_packet_types   = "NGAP Packet Types";
+
+static int st_node_packets = -1;
+static int st_node_packet_types = -1;
+static int ngap_tap = -1;
+
+struct ngap_tap_t {
+    gint ngap_mtype;
+};
+
+#define MTYPE_AMF_CONFIGURATION_UPDATE                    1
+#define MTYPE_AMF_CONFIGURATION_UPDATE_ACK                2
+#define MTYPE_AMF_CONFIGURATION_UPDATE_FAILURE            3
+#define MTYPE_AMF_CP_RELOCATION_IND                       4
+#define MTYPE_AMF_STATUS_IND                              5
+#define MTYPE_CELL_TRAFFIC_TRACE                          6
+#define MTYPE_CONNECTION_ESTAB_IND                        7
+#define MTYPE_DEACTIVATE_TRACE                            8
+#define MTYPE_DOWNLINK_NAS_TRANSPORT                      9
+#define MTYPE_DOWNLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT 10
+#define MTYPE_DOWNLINK_RAN_CONFIGURATION_TRANSFER         11
+#define MTYPE_DOWNLINK_RAN_EARLY_STATUS_TRANSFER          12
+#define MTYPE_DOWNLINK_RAN_STATUS_TRANSFER                13
+#define MTYPE_DOWNLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT     14
+#define MTYPE_ERROR_INDICATION                            15
+#define MTYPE_HANDOVER_CANCEL                             16
+#define MTYPE_HANDOVER_CANCEL_ACK                         17
+#define MTYPE_HANDOVER_NOTIFY                             18
+#define MTYPE_HANDOVER_REQUIRED                           19
+#define MTYPE_HANDOVER_COMMAND                            20
+#define MTYPE_HANDOVER_PREPARATION_FAILURE                21
+#define MTYPE_HANDOVER_REQUEST                            22
+#define MTYPE_HANDOVER_REQUEST_ACK                        23
+#define MTYPE_HANDOVER_FAILURE                            24
+#define MTYPE_HANDOVER_SUCCESS                            25
+#define MTYPE_INITIAL_CONTEXT_SETUP_REQUEST               26
+#define MTYPE_INITIAL_CONTEXT_SETUP_RESPONSE              27
+#define MTYPE_INITIAL_CONTEXT_SETUP_FAILURE               28
+#define MTYPE_INITIAL_UE_MESSAGE                          29
+#define MTYPE_LOCATION_REPORT                             30
+#define MTYPE_LOCATION_REPORTING_CONTROL                  31
+#define MTYPE_LOCATION_REPORTING_FAILURE_IND              32
+#define MTYPE_NAS_NON_DELIVERY_IND                        33
+#define MTYPE_NG_RESET                                    34
+#define MTYPE_NG_RESET_ACK                                35
+#define MTYPE_NG_SETUP_REQUEST                            36
+#define MTYPE_NG_SETUP_RESPONSE                           37
+#define MTYPE_NG_SETUP_FAILURE                            38
+#define MTYPE_OVERLOAD_START                              39
+#define MTYPE_OVERLOAD_STOP                               40
+#define MTYPE_PAGING                                      41
+#define MTYPE_PATH_SWITCH_REQUEST                         42
+#define MTYPE_PATH_SWITCH_REQUEST_ACK                     43
+#define MTYPE_PATH_SWITCH_REQUEST_FAILURE                 44
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_REQUEST         45
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_RESPONSE        46
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_IND             47
+#define MTYPE_PDU_SESSION_RESOURCE_MODIFY_CONFIRM         48
+#define MTYPE_PDU_SESSION_RESOURCE_NOTIFY                 49
+#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_COMMAND        50
+#define MTYPE_PDU_SESSION_RESOURCE_RELEASE_RESPONSE       51
+#define MTYPE_PDU_SESSION_RESOURCE_SETUP_REQUEST          52
+#define MTYPE_PDU_SESSION_RESOURCE_SETUP_RESPONSE         53
+#define MTYPE_PRIVATE_MESSAGE                             54
+#define MTYPE_PWS_CANCEL_REQUEST                          55
+#define MTYPE_PWS_CANCEL_RESPONSE                         56
+#define MTYPE_PWS_FAILURE_INDICATION                      57
+#define MTYPE_PWS_RESTART_INDICATION                      58
+#define MTYPE_RAN_CONFIGURATION_UPDATE                    59
+#define MTYPE_RAN_CONFIGURATION_UPDATE_ACK                60
+#define MTYPE_RAN_CONFIGURATION_UPDATE_FAILURE            61
+#define MTYPE_RAN_CP_RELOCATION_IND                       62
+#define MTYPE_REROUTE_NAS_REQUEST                         63
+#define MTYPE_RETRIEVE_UE_INFORMATION                     64
+#define MTYPE_RRC_INACTIVE_TRANSITION_REPORT              65
+#define MTYPE_SECONDARY_RAT_DATA_USAGE_REPORT             66
+#define MTYPE_TRACE_FAILURE_IND                           67
+#define MTYPE_TRACE_START                                 68
+#define MTYPE_UE_CONTEXT_MODIFICATION_REQUEST             69
+#define MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE            70
+#define MTYPE_UE_CONTEXT_MODIFICATION_FAILURE             71
+#define MTYPE_UE_CONTEXT_RELEASE_COMMAND                  72
+#define MTYPE_UE_CONTEXT_RELEASE_COMPLETE                 73
+#define MTYPE_UE_CONTEXT_RELEASE_REQUEST                  74
+#define MTYPE_UE_CONTEXT_RESUME_REQUEST                   75
+#define MTYPE_UE_CONTEXT_RESUME_RESPONSE                  76
+#define MTYPE_UE_CONTEXT_RESUME_FAILURE                   77
+#define MTYPE_UE_CONTEXT_SUSPEND_REQUEST                  78
+#define MTYPE_UE_CONTEXT_SUSPEND_RESPONSE                 79
+#define MTYPE_UE_CONTEXT_SUSPEND_FAILURE                  80
+#define MTYPE_UE_INFORMATION_TRANSFER                     81
+#define MTYPE_UE_RADIO_CAPABILITY_CHECK_REQUEST           82
+#define MTYPE_UE_RADIO_CAPABILITY_CHECK_RESPONSE          83
+#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_REQUEST      84
+#define MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_RESPONSE     85
+#define MTYPE_UE_RADIO_CAPABILITY_INFO_IND                86
+#define MTYPE_UE_TN_LAB_BINDING_RELEASE_REQUEST           87
+#define MTYPE_UPLINK_NAS_TRANSPORT                        88
+#define MTYPE_UPLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT   89
+#define MTYPE_UPLINK_RAN_CONFIGURATION_TRANSFER           90
+#define MTYPE_UPLINK_RAN_EARLY_STATUS_TRANSFER            91
+#define MTYPE_UPLINK_RAN_STATUS_TRANSFER                  92
+#define MTYPE_UPLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT       93
+#define MTYPE_WRITE_REPLACE_WARNING_REQUEST               94
+#define MTYPE_WRITE_REPLACE_WARNING_RESPONSE              95
+#define MTYPE_UPLINK_RIM_INFORMATION_TRANSFER             96
+#define MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER           97
+
+
+/* Value Strings. TODO: ext? */
+static const value_string mtype_names[] = {
+    { MTYPE_AMF_CONFIGURATION_UPDATE,         "AMFConfigurationUpdate" },
+    { MTYPE_AMF_CONFIGURATION_UPDATE_ACK,     "AMFConfigurationUpdateAcknowledge" },
+    { MTYPE_AMF_CONFIGURATION_UPDATE_FAILURE, "AMFConfigurationUpdateFailure" },
+    { MTYPE_AMF_CP_RELOCATION_IND,        "AMFCPRelocationIndication" },
+    { MTYPE_AMF_STATUS_IND,            "AMFStatusIndication" },
+    { MTYPE_CELL_TRAFFIC_TRACE,            "CellTrafficTrace" },
+    { MTYPE_CONNECTION_ESTAB_IND,            "ConnectionEstablishmentIndication" },
+    { MTYPE_DEACTIVATE_TRACE,            "DeactivateTrace" },
+    { MTYPE_DOWNLINK_NAS_TRANSPORT,                      "DownlinkNASTransport" },
+    { MTYPE_DOWNLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT, "DownlinkNonUEAssociatedNRPPaTransport" },
+    { MTYPE_DOWNLINK_RAN_CONFIGURATION_TRANSFER,         "DownlinkRANConfigurationTransfer" },
+    { MTYPE_DOWNLINK_RAN_EARLY_STATUS_TRANSFER,          "DownlinkRANEarlyStatusTransfer" },
+    { MTYPE_DOWNLINK_RAN_STATUS_TRANSFER,                "DownlinkRANStatusTransfer" },
+    { MTYPE_DOWNLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT,     "DownlinkUEAssociatedNRPPaTransport" },
+    { MTYPE_ERROR_INDICATION,    "ErrorIndication" },
+    { MTYPE_HANDOVER_CANCEL,               "HandoverCancel" },
+    { MTYPE_HANDOVER_CANCEL_ACK,           "HandoverCancelAcknowledge" },
+    { MTYPE_HANDOVER_NOTIFY,               "HandoverNotify" },
+    { MTYPE_HANDOVER_REQUIRED,             "HandoverRequired" },
+    { MTYPE_HANDOVER_COMMAND,              "HandoverCommand" },
+    { MTYPE_HANDOVER_PREPARATION_FAILURE,  "HandoverPreparationFailure" },
+    { MTYPE_HANDOVER_REQUEST,              "HandoverRequest" },
+    { MTYPE_HANDOVER_REQUEST_ACK,          "HandoverRequestAcknowledge" },
+    { MTYPE_HANDOVER_FAILURE,              "HandoverFailure" },
+    { MTYPE_HANDOVER_SUCCESS,               "HandoverSuccess" },
+    { MTYPE_INITIAL_CONTEXT_SETUP_REQUEST,         "InitialContextSetupRequest" },
+    { MTYPE_INITIAL_CONTEXT_SETUP_RESPONSE,        "InitialContextSetupResponse" },
+    { MTYPE_INITIAL_CONTEXT_SETUP_FAILURE,         "InitialContextSetupFailure" },
+    { MTYPE_INITIAL_CONTEXT_SETUP_FAILURE,         "InitialContextSetupFailure" },
+    { MTYPE_INITIAL_UE_MESSAGE,                    "InitialUEMessage" },
+    { MTYPE_LOCATION_REPORT,                    "LocationReport" },
+    { MTYPE_LOCATION_REPORTING_CONTROL,         "LocationReportingControl" },
+    { MTYPE_LOCATION_REPORTING_FAILURE_IND,     "LocationReportingFailureIndication" },
+    { MTYPE_NAS_NON_DELIVERY_IND,       "NASNonDeliveryIndication" },
+    { MTYPE_NG_RESET,         "NGReset" },
+    { MTYPE_NG_RESET_ACK,     "NGResetAcknowledge" },
+    { MTYPE_NG_SETUP_REQUEST,          "NGSetupRequest" },
+    { MTYPE_NG_SETUP_RESPONSE,         "NGSetupResponse" },
+    { MTYPE_NG_SETUP_FAILURE,          "NGSetupFailure" },
+    { MTYPE_OVERLOAD_START,       "OverloadStart" },
+    { MTYPE_OVERLOAD_STOP,        "OverloadStop" },
+    { MTYPE_PAGING,                  "Paging" },
+    { MTYPE_PATH_SWITCH_REQUEST,           "PathSwitchRequest" },
+    { MTYPE_PATH_SWITCH_REQUEST_ACK,       "PathSwitchRequestAcknowledge" },
+    { MTYPE_PATH_SWITCH_REQUEST_FAILURE,   "PathSwitchRequestFailure" },
+    { MTYPE_PDU_SESSION_RESOURCE_MODIFY_REQUEST,       "PDUSessionResourceModifyRequest" },
+    { MTYPE_PDU_SESSION_RESOURCE_MODIFY_RESPONSE,      "PDUSessionResourceModifyResponse" },
+    { MTYPE_PDU_SESSION_RESOURCE_MODIFY_IND,           "PDUSessionResourceModifyIndication" },
+    { MTYPE_PDU_SESSION_RESOURCE_MODIFY_CONFIRM,       "PDUSessionResourceModifyConfirm" },
+    { MTYPE_PDU_SESSION_RESOURCE_NOTIFY,               "PDUSessionResourceNotify" },
+    { MTYPE_PDU_SESSION_RESOURCE_RELEASE_COMMAND,      "PDUSessionResourceReleaseCommand" },
+    { MTYPE_PDU_SESSION_RESOURCE_RELEASE_RESPONSE,     "PDUSessionResourceReleaseResponse" },
+    { MTYPE_PDU_SESSION_RESOURCE_SETUP_REQUEST,        "PDUSessionResourceSetupRequest" },
+    { MTYPE_PDU_SESSION_RESOURCE_SETUP_RESPONSE,       "PDUSessionResourceSetupResponse" },
+    { MTYPE_PRIVATE_MESSAGE,       "PrivateMessage" },
+    { MTYPE_PWS_CANCEL_REQUEST,       "PWSCancelRequest" },
+    { MTYPE_PWS_CANCEL_RESPONSE,      "PWSCancelResponse" },
+    { MTYPE_PWS_FAILURE_INDICATION,       "PWSFailureIndication" },
+    { MTYPE_PWS_RESTART_INDICATION,       "PWSRestartIndication" },
+    { MTYPE_RAN_CONFIGURATION_UPDATE,           "RANConfigurationUpdate" },
+    { MTYPE_RAN_CONFIGURATION_UPDATE_ACK,       "RANConfigurationUpdateAcknowledge" },
+    { MTYPE_RAN_CONFIGURATION_UPDATE_FAILURE,   "RANConfigurationUpdateFailure" },
+    { MTYPE_RAN_CP_RELOCATION_IND,       "RANCPRelocationIndication" },
+    { MTYPE_REROUTE_NAS_REQUEST,       "RerouteNASRequest" },
+    { MTYPE_RETRIEVE_UE_INFORMATION,       "RetrieveUEInformation" },
+    { MTYPE_RRC_INACTIVE_TRANSITION_REPORT,       "RRCInactiveTransitionReport" },
+    { MTYPE_SECONDARY_RAT_DATA_USAGE_REPORT,       "SecondaryRATDataUsageReport" },
+    { MTYPE_TRACE_FAILURE_IND,                "TraceFailureIndication" },
+    { MTYPE_TRACE_START,                      "TraceStart" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_REQUEST,       "UEContextModificationRequest" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE,      "UEContextModificationResponse" },
+    { MTYPE_UE_CONTEXT_MODIFICATION_FAILURE,       "UEContextModificationFailure" },
+    { MTYPE_UE_CONTEXT_RELEASE_COMMAND,        "UEContextReleaseCommand" },
+    { MTYPE_UE_CONTEXT_RELEASE_COMPLETE,       "UEContextReleaseComplete" },
+    { MTYPE_UE_CONTEXT_RELEASE_REQUEST,        "UEContextReleaseRequest" },
+    { MTYPE_UE_CONTEXT_RESUME_REQUEST,     "UEContextResumeRequest" },
+    { MTYPE_UE_CONTEXT_RESUME_RESPONSE,    "UEContextResumeResponse" },
+    { MTYPE_UE_CONTEXT_RESUME_FAILURE,     "UEContextResumeFailure" },
+    { MTYPE_UE_CONTEXT_SUSPEND_REQUEST,       "UEContextSuspendRequest" },
+    { MTYPE_UE_CONTEXT_SUSPEND_RESPONSE,      "UEContextSuspendResponse" },
+    { MTYPE_UE_CONTEXT_SUSPEND_FAILURE,       "UEContextSuspendFailure" },
+    { MTYPE_UE_INFORMATION_TRANSFER,       "UEInformationTransfer" },
+    { MTYPE_UE_RADIO_CAPABILITY_CHECK_REQUEST,        "UERadioCapabilityCheckRequest" },
+    { MTYPE_UE_RADIO_CAPABILITY_CHECK_RESPONSE,       "UERadioCapabilityCheckResponse" },
+    { MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_REQUEST,   "UERadioCapabilityIDMappingRequest" },
+    { MTYPE_UE_RADIO_CAPABILITY_ID_MAPPING_RESPONSE,  "UERadioCapabilityIDMappingResponse" },
+    { MTYPE_UE_RADIO_CAPABILITY_INFO_IND,       "UERadioCapabilityInfoIndication" },
+    { MTYPE_UE_TN_LAB_BINDING_RELEASE_REQUEST,       "UETNLABindingReleaseRequest" },
+    { MTYPE_UPLINK_NAS_TRANSPORT,       "UplinkNASTransport" },
+    { MTYPE_UPLINK_NON_UE_ASSOCIATED_NR_PPA_TRANSPORT,       "UplinkNonUEAssociatedNRPPaTransport" },
+    { MTYPE_UPLINK_RAN_CONFIGURATION_TRANSFER,       "UplinkRANConfigurationTransfer" },
+    { MTYPE_UPLINK_RAN_EARLY_STATUS_TRANSFER,        "UplinkRANEarlyStatusTransfer" },
+    { MTYPE_UPLINK_RAN_STATUS_TRANSFER,              "UplinkRANStatusTransfer" },
+    { MTYPE_UPLINK_UE_ASSOCIATED_NR_PPA_TRANSPORT,       "UplinkUEAssociatedNRPPaTransport" },
+    { MTYPE_WRITE_REPLACE_WARNING_REQUEST,       "WriteReplaceWarningRequest" },
+    { MTYPE_WRITE_REPLACE_WARNING_RESPONSE,      "WriteReplaceWarningResponse" },
+    { MTYPE_UPLINK_RIM_INFORMATION_TRANSFER,         "UplinkRIMInformationTransfer" },
+    { MTYPE_DOWNLINK_RIM_INFORMATION_TRANSFER,       "DownlinkRIMInformationTransfer" },
+    { 0,  NULL }
+};
+
+
 typedef struct _ngap_ctx_t {
     guint32 message_type;
     guint32 ProcedureCode;
@@ -229,6 +449,7 @@ struct ngap_private_data {
   struct ngap_tai *tai;
   guint32 ran_ue_ngap_id;
   e212_number_type_t number_type;
+  struct ngap_tap_t *stats_tap;
 };
 
 enum {
@@ -272,6 +493,17 @@ static dissector_table_t ngap_proc_imsg_dissector_table;
 static dissector_table_t ngap_proc_sout_dissector_table;
 static dissector_table_t ngap_proc_uout_dissector_table;
 static dissector_table_t ngap_n2_ie_type_dissector_table;
+
+static proto_tree *top_tree = NULL;
+
+static void set_message_label(asn1_ctx_t *actx, int type)
+{
+  const char *label = val_to_str_const(type, mtype_names, "Unknown");
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, label);
+  /* N.B. would like to be able to use actx->subTree.top_tree, but not easy to set.. */
+  proto_item_append_text(top_tree, " (%s)", label);
+}
+
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 /* Currently not used
@@ -549,6 +781,33 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
+static void
+ngap_stats_tree_init(stats_tree *st)
+{
+    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
+    st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
+}
+
+static tap_packet_status
+ngap_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
+                       epan_dissect_t* edt _U_ , const void* p)
+{
+    const struct ngap_tap_t *pi = (const struct ngap_tap_t *) p;
+
+    tick_stat_node(st, st_str_packets, 0, FALSE);
+    stats_tree_tick_pivot(st, st_node_packet_types,
+                          val_to_str(pi->ngap_mtype, mtype_names,
+                                     "Unknown packet type (%d)"));
+    return TAP_PACKET_REDRAW;
+}
+
+static void set_stats_message_type(packet_info *pinfo, int type)
+{
+    struct ngap_private_data* priv_data = ngap_get_private_data(pinfo);
+    priv_data->stats_tap->ngap_mtype = type;
+}
+
+
 static int
 dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -557,6 +816,7 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   conversation_t *conversation;
   struct ngap_private_data *ngap_data;
   wmem_list_frame_t *prev_layer;
+  struct ngap_tap_t *ngap_info;
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NGAP");
@@ -566,9 +826,19 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_clear_fence(pinfo->cinfo, COL_INFO);
   col_clear(pinfo->cinfo, COL_INFO);
 
+  ngap_info = wmem_new(pinfo->pool, struct ngap_tap_t);
+  ngap_info->ngap_mtype = 0; /* unknown/invalid */
+
   /* create the ngap protocol tree */
   ngap_item = proto_tree_add_item(tree, proto_ngap, tvb, 0, -1, ENC_NA);
   ngap_tree = proto_item_add_subtree(ngap_item, ett_ngap);
+
+  /* Store top-level tree */
+  top_tree = ngap_tree;
+
+  /* Add stats tap to private struct */
+  struct ngap_private_data *priv_data = ngap_get_private_data(pinfo);
+  priv_data->stats_tap = ngap_info;
 
   ngap_data = ngap_get_private_data(pinfo);
   conversation = find_or_create_conversation(pinfo);
@@ -586,7 +856,10 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     conversation_add_proto_data(conversation, proto_ngap, ngap_data->ngap_conv);
   }
 
-  return dissect_NGAP_PDU_PDU(tvb, pinfo, ngap_tree, NULL);
+  dissect_NGAP_PDU_PDU(tvb, pinfo, ngap_tree, NULL);
+
+  tap_queue_packet(ngap_tap, pinfo, ngap_info);
+  return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -767,6 +1040,9 @@ proto_reg_handoff_ngap(void)
   if (SctpPort != 0) {
     dissector_add_uint("sctp.port", SctpPort, ngap_handle);
   }
+
+  stats_tree_register("ngap", "ngap", "NGAP", 0,
+                      ngap_stats_tree_packet, ngap_stats_tree_init, NULL);
 }
 
 /*--- proto_register_ngap -------------------------------------------*/
@@ -1118,6 +1394,8 @@ void proto_register_ngap(void) {
   prefs_register_enum_preference(ngap_module, "dissect_lte_container_as", "Dissect LTE container as",
                                  "Select whether LTE container should be dissected as NB-IOT or legacy LTE",
                                  &ngap_dissect_lte_container_as, ngap_lte_container_vals, FALSE);
+
+  ngap_tap = register_tap("ngap");
 }
 
 /*

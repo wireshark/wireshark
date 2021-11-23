@@ -122,6 +122,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
+#include <epan/sminmpec.h>
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
 void proto_register_dhcp(void);
@@ -439,11 +440,12 @@ static int hf_dhcp_option82_vi = -1;					/* 82:9 */
 									/* 82:9 suboptions */
 static int hf_dhcp_option82_vi_enterprise = -1;
 static int hf_dhcp_option82_vi_data_length = -1;
-static int hf_dhcp_option82_vi_cl_option = -1;
-static int hf_dhcp_option82_vi_cl_length = -1;
-static int hf_dhcp_option82_vi_cl_tag = -1;
-static int hf_dhcp_option82_vi_cl_tag_length = -1;
-static int hf_dhcp_option82_vi_cl_docsis_version = -1;
+static int hf_dhcp_option82_vi_cl_docsis_version = -1;			/* 82:9:4491:1 */
+static int hf_dhcp_option82_vi_cl_dpoe_system_version = -1;		/* 82:9:4491:2 */
+static int hf_dhcp_option82_vi_cl_dpoe_system_pbb_service = -1;		/* 82:9:4491:4 */
+static int hf_dhcp_option82_vi_cl_service_class_name = -1;		/* 82:9:4491:5 */
+static int hf_dhcp_option82_vi_cl_mso_defined_text = -1;		/* 82:9:4491:6 */
+static int hf_dhcp_option82_vi_cl_secure_file_transfer_uri = -1;	/* 82:9:4491:7 */
 									/* 82:9 suboptions end */
 static int hf_dhcp_option82_flags = -1;					/* 82:10 */
 static int hf_dhcp_option82_server_id_override = -1;			/* 82:11 */
@@ -1744,7 +1746,7 @@ dhcp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item, 
 			proto_tree_add_item(tree, *hf_default->ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		/* Show IP address in root of option */
-		proto_item_append_text(tree, " (%s)", tvb_ip_to_str(tvb, offset));
+		proto_item_append_text(tree, " (%s)", tvb_ip_to_str(pinfo->pool, tvb, offset));
 		consumed = 4;
 		break;
 
@@ -2991,7 +2993,7 @@ dissect_dhcpopt_classless_static_route(tvbuff_t *tvb, packet_info *pinfo, proto_
 				proto_item_append_text(route_item, ".0");
 			proto_item_append_text(route_item, "/%d", mask_width);
 		}
-		proto_item_append_text(route_item, "-%s", tvb_ip_to_str(tvb, offset));
+		proto_item_append_text(route_item, "-%s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 		offset += 4;
 	}
 
@@ -3331,6 +3333,13 @@ static const value_string option82_suboption_vals[] = {
 	{ 0, NULL }
 };
 
+#define CL_AI_OPTION_DOCSIS_VERSION			1	/* 82:9:4491:1 */
+#define CL_AI_OPTION_DPOE_SYSTEM_VERSION		2	/* 82:9:4491:2 */
+#define CL_AI_OPTION_DPOE_SYSTEM_DHCPV4_PBB_SERVICE	4	/* 82:9:4491:4 */
+#define CL_AI_OPTION_CMTS_CM_SERVICE_CLASS		5	/* 82:9:4491:5 */
+#define CL_AI_OPTION_CMTS_MSO_DEFINED_TEXT		6	/* 82:9:4491:6 */
+#define	CL_AI_OPTION_SECURE_FILE_TRANSFER_URI		7	/* 82:9:4491:7 */
+
 static int
 dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 			     int optend)
@@ -3341,7 +3350,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	guint32	    enterprise;
 	proto_item *vti, *ti;
 	proto_tree *o82_v_tree, *o82_sub_tree;
-	guint8	    tag, tag_len;
+	int 	clsuboptoff, clsubopt_end;
 
 	struct basic_types_hfs default_hfs = {
 		&hf_dhcp_option82_value,
@@ -3436,42 +3445,48 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 					suboptoff++;
 
 					switch (enterprise) {
-					case 4491: /* CableLab */
-						vs_opt = tvb_get_guint8(tvb, suboptoff);
-						proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_option, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-						suboptoff++;
-						vs_len = tvb_get_guint8(tvb, suboptoff);
-						proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-						suboptoff++;
-
-						switch (vs_opt) {
-
-						case 1:
-							if (vs_len == 4) {
-								tag = tvb_get_guint8(tvb, suboptoff);
-								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_tag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-								tag_len = tvb_get_guint8(tvb, suboptoff+1);
-								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_tag_length, tvb, suboptoff+1, 1, ENC_BIG_ENDIAN);
-								suboptoff+=2;
-								if (tag == 1) {
-									proto_tree_add_uint_format_value(o82_sub_tree, hf_dhcp_option82_vi_cl_docsis_version,
-											  tvb, suboptoff, 2, 0, "%d.%d",
-											  tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1));
-									suboptoff+=2;
-								} else {
-									expert_add_info_format(pinfo, vti, &ei_dhcp_option82_vi_cl_tag_unknown, "Unknown tag %d (%d bytes)", tag, tag_len);
-									suboptoff += tag_len;
-								}
-							} else {
-								suboptoff += vs_len;
+					case VENDOR_CABLELABS: /* CableLab */
+						clsuboptoff = suboptoff;
+						clsubopt_end = clsuboptoff + datalen;
+						while (clsuboptoff < clsubopt_end) {
+							vs_opt = tvb_get_guint8(tvb, clsuboptoff);
+							vs_len = tvb_get_guint8(tvb, clsuboptoff+1);
+							clsuboptoff += 2;
+							switch (vs_opt) {
+							case CL_AI_OPTION_DOCSIS_VERSION:
+								proto_tree_add_uint_format_value(o82_sub_tree, hf_dhcp_option82_vi_cl_docsis_version,
+										  tvb, clsuboptoff, 2, 0, "%d.%d",
+										  tvb_get_guint8(tvb, clsuboptoff), tvb_get_guint8(tvb, clsuboptoff+1));
+								clsuboptoff+=2;
+								break;
+							case CL_AI_OPTION_DPOE_SYSTEM_VERSION:
+								proto_tree_add_uint_format_value(o82_sub_tree, hf_dhcp_option82_vi_cl_dpoe_system_version,
+										  tvb, clsuboptoff, 2, 0, "%d.%d",
+										  tvb_get_guint8(tvb, clsuboptoff), tvb_get_guint8(tvb, clsuboptoff+1));
+								clsuboptoff+=2;
+								break;
+							case CL_AI_OPTION_DPOE_SYSTEM_DHCPV4_PBB_SERVICE:
+								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_dpoe_system_pbb_service, tvb, clsuboptoff, vs_len, ENC_NA);
+								break;
+							case CL_AI_OPTION_CMTS_CM_SERVICE_CLASS:
+								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_service_class_name, tvb, clsuboptoff, vs_len, ENC_ASCII|ENC_NA);
+								clsuboptoff += vs_len;
+								break;
+							case CL_AI_OPTION_CMTS_MSO_DEFINED_TEXT:
+								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_mso_defined_text, tvb, clsuboptoff, vs_len, ENC_ASCII|ENC_NA);
+								clsuboptoff += vs_len;
+								break;
+							case CL_AI_OPTION_SECURE_FILE_TRANSFER_URI:
+								proto_tree_add_item(o82_sub_tree, hf_dhcp_option82_vi_cl_secure_file_transfer_uri, tvb, clsuboptoff, vs_len, ENC_ASCII|ENC_NA);
+								clsuboptoff += vs_len;
+								break;
+							default:
+								expert_add_info_format(pinfo, vti, &ei_dhcp_option82_vi_cl_tag_unknown, "Unknown tag %d (%d bytes)", vs_opt, vs_len);
+								clsuboptoff += vs_len;
+								break;
 							}
-							break;
-
-						default:
-							expert_add_info_format(pinfo, vti, &ei_dhcp_suboption_invalid, "Invalid suboption %d (%d bytes)", vs_opt, vs_len);
-							suboptoff += vs_len;
-							break;
 						}
+						suboptoff = clsuboptoff;
 						break;
 					default:
 						proto_tree_add_item(o82_v_tree, hf_dhcp_option82_value, tvb, suboptoff, datalen, ENC_NA);
@@ -5695,7 +5710,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 
 				ti = proto_tree_add_uint_format(v_tree, hf_dhcp_pkt_mta_cap_type,
 				    tvb, off, 2, raw_val, "0x%s: %s = ",
-				    tvb_format_text(tvb, off, 2),
+				    tvb_format_text(pinfo->pool, tvb, off, 2),
 				    val_to_str_const(raw_val, pkt_mdc_type_vals, "unknown"));
 				proto_item_set_len(ti, (tlv_len * 2) + 4);
 				switch (raw_val) {
@@ -5705,14 +5720,14 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_version_vals, "Reserved"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_TEL_END:
 				case PKT_MDC_IF_INDEX:
 					proto_item_append_text(ti,
 							       "%s",
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_TGT:
@@ -5742,7 +5757,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_boolean_vals, "unknown"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_SUPP_CODECS:
@@ -5753,7 +5768,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 								       "%s%s (%s)",
 								       plurality(i + 1, "", ", "),
 								       val_to_str_const(raw_val, pkt_mdc_codec_vals, "unknown"),
-								       tvb_format_stringzpad(tvb, off + 4 + (i * 2), 2) );
+								       tvb_format_stringzpad(pinfo->pool, tvb, off + 4 + (i * 2), 2) );
 					}
 					break;
 
@@ -5771,7 +5786,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_t38_version_vals, "unknown"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_T38_EC:
@@ -5779,7 +5794,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 					proto_item_append_text(ti,
 							       "%s (%s)",
 							       val_to_str_const(raw_val, pkt_mdc_t38_ec_vals, "unknown"),
-							       tvb_format_stringzpad(tvb, off + 4, 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, 2) );
 					break;
 
 				case PKT_MDC_MIBS:
@@ -5789,7 +5804,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, packet_info *pinfo, tvbuff_t *tv
 				default:
 					proto_item_append_text(ti,
 							       "%s",
-							       tvb_format_stringzpad(tvb, off + 4, tlv_len * 2) );
+							       tvb_format_stringzpad(pinfo->pool, tvb, off + 4, tlv_len * 2) );
 					break;
 				}
 			}
@@ -6639,7 +6654,7 @@ dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	case PKT_CCC_KRB_REALM:
 	case PKT_CCC_CMS_FQDN:
 		proto_item_append_text(vti, "%s (%u byte%s)",
-				       tvb_format_stringzpad(tvb, suboptoff, subopt_len),
+				       tvb_format_stringzpad(pinfo->pool, tvb, suboptoff, subopt_len),
 				       subopt_len,
 				       plurality(subopt_len, "", "s") );
 		suboptoff += subopt_len;
@@ -6771,7 +6786,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 			return (optend);
 		}
 		proto_item_append_text(vti, "%s (%u byte%s%s)",
-				       tvb_ip_to_str(tvb, suboptoff),
+				       tvb_ip_to_str(pinfo->pool, tvb, suboptoff),
 				       subopt_len,
 				       plurality(subopt_len, "", "s"),
 				       subopt_len != 4 ? " [Invalid]" : "");
@@ -6799,7 +6814,7 @@ dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				return (optend);
 			}
 			proto_item_append_text(vti, "%s (%u byte%s%s)",
-					       tvb_ip_to_str(tvb, suboptoff),
+					       tvb_ip_to_str(pinfo->pool, tvb, suboptoff),
 					       subopt_len,
 					       plurality(subopt_len, "", "s"),
 					       subopt_len != 5 ? " [Invalid]" : "");
@@ -9035,30 +9050,35 @@ proto_register_dhcp(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 82:9 VI Data Length", HFILL }},
 
-		{ &hf_dhcp_option82_vi_cl_option,
-		  { "Option", "dhcp.option.agent_information_option.vi.cl.option",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Option 82:9 VI CL Option", HFILL }},
-
-		{ &hf_dhcp_option82_vi_cl_length,
-		  { "Length", "dhcp.option.agent_information_option.vi.cl.length",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Option 82:9 VI CL Length", HFILL }},
-
-		{ &hf_dhcp_option82_vi_cl_tag,
-		  { "Tag", "dhcp.option.agent_information_option.vi.cl.tag",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Option 82:9 VI CL Tag", HFILL }},
-
-		{ &hf_dhcp_option82_vi_cl_tag_length,
-		  { "Tag Length", "dhcp.option.agent_information_option.vi.cl.tag_length",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Option 82:9 VI CL Tag Length", HFILL }},
-
 		{ &hf_dhcp_option82_vi_cl_docsis_version,
 		  { "DOCSIS Version Number", "dhcp.option.agent_information_option.vi.cl.docsis_version",
 		    FT_UINT16, BASE_HEX, NULL, 0x0,
 		    "Option 82:9 VI CL DOCSIS Version Number", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_dpoe_system_version,
+		  { "DPoE System Version Number", "dhcp.option.agent_information_option.vi.cl.dpoe_system_version",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    "Option 82:9 VI CL DPoE System Version Number", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_dpoe_system_pbb_service,
+		  { "DPoE System PBB Service", "dhcp.option.agent_information_option.vi.cl.dpoe_system_pbb_service",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    "Option 82:9 VI CL DPoE System PBB Service", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_service_class_name,
+		  { "Service Class Name", "dhcp.option.agent_information_option.vi.cl.service_class_name",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 82:9 VI CL Service Class Name", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_mso_defined_text,
+		  { "MSO Defined Text", "dhcp.option.agent_information_option.vi.cl.mso_defined_text",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 82:9 VI CL MSO Defined Text", HFILL }},
+
+		{ &hf_dhcp_option82_vi_cl_secure_file_transfer_uri,
+		  { "Secure File Transfer URI", "dhcp.option.agent_information_option.vi.cl.secure_file_transfer_uri",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Option 82:9 VI CL Secure File Transfer URI", HFILL }},
 
 		{ &hf_dhcp_option82_flags,
 		  { "Flags", "dhcp.option.agent_information_option.flags",

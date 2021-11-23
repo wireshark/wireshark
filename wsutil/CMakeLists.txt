@@ -38,6 +38,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	curve25519.h
 	eax.h
 	epochs.h
+	exported_pdu_tlvs.h
 	filesystem.h
 	g711.h
 	inet_addr.h
@@ -55,6 +56,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	pow2.h
 	privileges.h
 	processes.h
+	regex.h
 	report_message.h
 	sign_ext.h
 	sober128.h
@@ -71,10 +73,13 @@ set(WSUTIL_PUBLIC_HEADERS
 	ws_assert.h
 	ws_cpuid.h
 	glib-compat.h
+	ws_getopt.h
 	ws_mempbrk.h
 	ws_mempbrk_int.h
 	ws_pipe.h
 	ws_roundup.h
+	ws_return.h
+	wsgcrypt.h
 	wsjson.h
 	wslog.h
 	xtea.h
@@ -113,6 +118,7 @@ set(WSUTIL_COMMON_FILES
 	os_version_info.c
 	please_report_bug.c
 	privileges.c
+	regex.c
 	rsa.c
 	sober128.c
 	socket.c
@@ -125,8 +131,8 @@ set(WSUTIL_COMMON_FILES
 	to_str.c
 	type_util.c
 	unicode-utils.c
-	glib-compat.c
 	ws_assert.c
+	ws_getopt.c
 	ws_mempbrk.c
 	ws_pipe.c
 	wsgcrypt.c
@@ -219,10 +225,6 @@ if(HAVE_SSE4_2)
 	list(APPEND WSUTIL_FILES ws_mempbrk_sse42.c)
 endif()
 
-if(NOT HAVE_GETOPT_LONG)
-	list(APPEND WSUTIL_FILES getopt_long.c)
-endif()
-
 if(NOT HAVE_STRPTIME)
 	list(APPEND WSUTIL_FILES strptime.c)
 endif()
@@ -280,6 +282,7 @@ target_link_libraries(wsutil
 		${CMAKE_DL_LIBS}
 		${GCRYPT_LIBRARIES}
 		${GNUTLS_LIBRARIES}
+		${PCRE2_LIBRARIES}
 		${M_LIBRARIES}
 		${WIN_IPHLPAPI_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
@@ -289,6 +292,7 @@ target_include_directories(wsutil
 	SYSTEM PRIVATE
 		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
+		${PCRE2_INCLUDE_DIRS}
 )
 
 install(TARGETS wsutil

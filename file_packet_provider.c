@@ -7,6 +7,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
+#include "config.h"
 
 #include <glib.h>
 
@@ -80,7 +81,7 @@ cap_file_provider_get_modified_block(struct packet_provider_data *prov, const fr
 }
 
 void
-cap_file_provider_set_modified_block(struct packet_provider_data *prov, frame_data *fd, wtap_block_t new_block)
+cap_file_provider_set_modified_block(struct packet_provider_data *prov, frame_data *fd, const wtap_block_t new_block)
 {
   if (!prov->frames_modified_blocks)
     prov->frames_modified_blocks = g_tree_new_full(frame_cmp, NULL, NULL, (GDestroyNotify)wtap_block_unref);

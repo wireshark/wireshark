@@ -134,7 +134,7 @@ void SCTPGraphArwndDialog::drawGraph(const sctp_assoc_info_t *selected_assoc)
     ui->sctpPlot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag | QCP::iSelectPlottables);
     ui->sctpPlot->axisRect(0)->setRangeZoomAxes(ui->sctpPlot->xAxis, ui->sctpPlot->yAxis);
     ui->sctpPlot->axisRect(0)->setRangeZoom(Qt::Horizontal);
-    connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
+    connect(ui->sctpPlot, &QCustomPlot::plottableClick, this, &SCTPGraphArwndDialog::graphClicked);
     ui->sctpPlot->replot();
 }
 
@@ -149,7 +149,7 @@ void SCTPGraphArwndDialog::on_pushButton_4_clicked()
     ui->sctpPlot->replot();
 }
 
-void SCTPGraphArwndDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent* event)
+void SCTPGraphArwndDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMouseEvent* event)
 {
     if (plottable->name().contains("Arwnd", Qt::CaseInsensitive)) {
         double times = ui->sctpPlot->xAxis->pixelToCoord(event->pos().x());

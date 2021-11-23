@@ -87,7 +87,7 @@ PCRE_VERSION=8.44
 # version (currently 3.19.7).
 #
 if [[ $DARWIN_MAJOR_VERSION -gt 13 ]]; then
-    CMAKE_VERSION=${CMAKE_VERSION-3.19.7}
+    CMAKE_VERSION=${CMAKE_VERSION-3.21.4}
 else
     CMAKE_VERSION=${CMAKE_VERSION-3.18.6}
 fi
@@ -103,7 +103,7 @@ NINJA_VERSION=${NINJA_VERSION-1.10.2}
 # The following libraries and tools are required even to build only TShark.
 #
 GETTEXT_VERSION=0.21
-GLIB_VERSION=2.58.3
+GLIB_VERSION=2.68.4
 if [ "$GLIB_VERSION" ]; then
     GLIB_MAJOR_VERSION="`expr $GLIB_VERSION : '\([0-9][0-9]*\).*'`"
     GLIB_MINOR_VERSION="`expr $GLIB_VERSION : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
@@ -120,6 +120,10 @@ LIBGPG_ERROR_VERSION=1.39
 # libgcrypt is required.
 #
 LIBGCRYPT_VERSION=1.8.7
+#
+# libpcre2 is required.
+#
+PCRE2_VERSION=10.39
 
 #
 # One or more of the following libraries are required to build Wireshark.
@@ -229,13 +233,13 @@ BROTLI_VERSION=1.0.9
 # minizip
 ZLIB_VERSION=1.2.11
 # Uncomment to enable automatic updates using Sparkle
-#SPARKLE_VERSION=1.26.0
+#SPARKLE_VERSION=1.27.0
 
 #
 # Asciidoctor is required to build the documentation.
 #
-ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.10}
-ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.5.0.beta.5}
+ASCIIDOCTOR_VERSION=${ASCIIDOCTOR_VERSION-2.0.16}
+ASCIIDOCTORPDF_VERSION=${ASCIIDOCTORPDF_VERSION-1.6.1}
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -285,7 +289,7 @@ uninstall_curl() {
 install_xz() {
     if [ "$XZ_VERSION" -a ! -f xz-$XZ_VERSION-done ] ; then
         echo "Downloading, building, and installing xz:"
-        [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -L -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
+        [ -f xz-$XZ_VERSION.tar.bz2 ] || curl -L -O https://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
         $no_build && echo "Skipping installation" && return
         bzcat xz-$XZ_VERSION.tar.bz2 | tar xf - || exit 1
         cd xz-$XZ_VERSION
@@ -326,7 +330,7 @@ uninstall_xz() {
 install_lzip() {
     if [ "$LZIP_VERSION" -a ! -f lzip-$LZIP_VERSION-done ] ; then
         echo "Downloading, building, and installing lzip:"
-        [ -f lzip-$LZIP_VERSION.tar.gz ] || curl -L -O http://download.savannah.gnu.org/releases/lzip/lzip-$LZIP_VERSION.tar.gz || exit 1
+        [ -f lzip-$LZIP_VERSION.tar.gz ] || curl -L -O https://download.savannah.gnu.org/releases/lzip/lzip-$LZIP_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat lzip-$LZIP_VERSION.tar.gz | tar xf - || exit 1
         cd lzip-$LZIP_VERSION
@@ -392,6 +396,45 @@ uninstall_pcre() {
         fi
 
         installed_pcre_version=""
+    fi
+}
+
+install_pcre2() {
+    if [ "$PCRE2_VERSION" -a ! -f "pcre2-$PCRE2_VERSION-done" ] ; then
+        echo "Downloading, building, and installing pcre2:"
+        [ -f "pcre2-$PCRE2_VERSION.tar.bz2" ] || curl -L -O "https://github.com/PhilipHazel/pcre2/releases/download/pcre2-$PCRE2_VERSION/pcre2-10.39.tar.bz2" || exit 1
+        $no_build && echo "Skipping installation" && return
+        bzcat "pcre2-$PCRE2_VERSION.tar.bz2" | tar xf - || exit 1
+        cd "pcre2-$PCRE2_VERSION"
+        mkdir build_dir
+        cd build_dir
+        # https://github.com/Homebrew/homebrew-core/blob/master/Formula/pcre2.rb
+        # https://github.com/microsoft/vcpkg/blob/master/ports/pcre2/portfile.cmake
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" \
+            cmake -DBUILD_STATIC_LIBS=OFF -DBUILD_SHARED_LIBS=ON -DPCRE2_SUPPORT_JIT=ON -DPCRE2_SUPPORT_UNICODE=ON .. || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ../..
+        touch "pcre2-$PCRE2_VERSION-done"
+    fi
+}
+
+uninstall_pcre2() {
+    if [ -n "$installed_pcre2_version" ] && [ -s "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt" ] ; then
+        echo "Uninstalling pcre2:"
+        # PCRE2 10.39 installs pcre2unicode.3 twice, so this will return an error.
+        while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat "pcre2-$installed_pcre2_version/build_dir/install_manifest.txt"; echo)
+        rm "pcre2-$installed_pcre2_version-done"
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf "pcre2-$installed_pcre2_version"
+            rm -rf "pcre2-$installed_pcre2_version.tar.bz2"
+        fi
+
+        installed_pcre2_version=""
     fi
 }
 
@@ -575,7 +618,7 @@ install_asciidoctorpdf() {
         ## record them for uninstallation
         ## ttfunk, pdf-core, prawn, prawn-table, Ascii85, ruby-rc4, hashery, afm, pdf-reader, prawn-templates, public_suffix, addressable, css_parser, prawn-svg, prawn-icon, safe_yaml, thread_safe, polyglot, treetop, asciidoctor-pdf
         echo "Downloading and installing Asciidoctor-pdf:"
-        sudo gem install -V asciidoctor-pdf --prerelease --version "=${ASCIIDOCTORPDF_VERSION}"
+        sudo gem install -V asciidoctor-pdf --version "=${ASCIIDOCTORPDF_VERSION}"
         touch asciidoctorpdf-${ASCIIDOCTORPDF_VERSION}-done
     fi
 }
@@ -728,7 +771,7 @@ uninstall_meson() {
 install_gettext() {
     if [ ! -f gettext-$GETTEXT_VERSION-done ] ; then
         echo "Downloading, building, and installing GNU gettext:"
-        [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -L -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
+        [ -f gettext-$GETTEXT_VERSION.tar.gz ] || curl -L -O https://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat gettext-$GETTEXT_VERSION.tar.gz | tar xf - || exit 1
         cd gettext-$GETTEXT_VERSION
@@ -809,12 +852,12 @@ install_glib() {
         #
         # Starting with GLib 2.28.8, xz-compressed tarballs are available.
         #
-        [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
+        [ -f glib-$GLIB_VERSION.tar.xz ] || curl -L -O https://download.gnome.org/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
         $no_build && echo "Skipping installation" && return
         xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
         cd glib-$GLIB_VERSION
         #
-        # First, determine where the system include files are. 
+        # First, determine where the system include files are.
         # (It's not necessarily /usr/include.)  There's a bit of a
         # greasy hack here; pre-5.x versions of the developer tools
         # don't support the --show-sdk-path option, and will produce
@@ -1058,7 +1101,7 @@ install_qt() {
         # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
         # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
         # 5.15 - 6.0: Offline installers no longer provided.
-        # ( http://download.qt.io/archive/qt/5.15/5.15.0/OFFLINE_README.txt )
+        # ( https://download.qt.io/archive/qt/5.15/5.15.0/OFFLINE_README.txt )
         # XXX: We need a different approach for QT >= 5.15
         #
         case $QT_MAJOR_VERSION in
@@ -1086,7 +1129,7 @@ install_qt() {
                 ;;
 
             esac
-            [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
+            [ -f $QT_VOLUME.dmg ] || curl -L -O https://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
             $no_build && echo "Skipping installation" && return
             sudo hdiutil attach $QT_VOLUME.dmg || exit 1
 
@@ -1253,7 +1296,7 @@ install_libgcrypt() {
         # libgcrypt expects gnu89, not c99/gnu99, semantics for
         # "inline".  See, for example:
         #
-        #    http://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
+        #    https://lists.freebsd.org/pipermail/freebsd-ports-bugs/2010-October/198809.html
         #
         CFLAGS="$CFLAGS -std=gnu89 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --disable-asm || exit 1
         make $MAKE_BUILD_OPTS || exit 1
@@ -1527,7 +1570,7 @@ uninstall_gnutls() {
 install_lua() {
     if [ "$LUA_VERSION" -a ! -f lua-$LUA_VERSION-done ] ; then
         echo "Downloading, building, and installing Lua:"
-        [ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
+        [ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O https://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat lua-$LUA_VERSION.tar.gz | tar xf - || exit 1
         cd lua-$LUA_VERSION
@@ -1600,17 +1643,21 @@ uninstall_snappy() {
         # just remove what we know it installs.
         #
         # $DO_MAKE_UNINSTALL || exit 1
-        $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
-                  /usr/local/lib/libsnappy.1.dylib \
-                  /usr/local/lib/libsnappy.dylib \
-                  /usr/local/include/snappy-c.h \
-                  /usr/local/include/snappy-sinksource.h \
-                  /usr/local/include/snappy-stubs-public.h \
-                  /usr/local/include/snappy.h \
-                  /usr/local/lib/cmake/Snappy/SnappyConfig.cmake \
-                  /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake \
-                  /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
-                  /usr/local/lib/cmake/Snappy/SnappyTargets.cmake || exit 1
+        if [ -s build_dir/install_manifest.txt] ; then
+            while read -r ; do $DO_RM -v "$REPLY" ; done < <(cat build_dir/install_manifest.txt; echo)
+        else
+            $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
+                    /usr/local/lib/libsnappy.1.dylib \
+                    /usr/local/lib/libsnappy.dylib \
+                    /usr/local/include/snappy-c.h \
+                    /usr/local/include/snappy-sinksource.h \
+                    /usr/local/include/snappy-stubs-public.h \
+                    /usr/local/include/snappy.h \
+                    /usr/local/lib/cmake/Snappy/SnappyConfig.cmake \
+                    /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake \
+                    /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
+                    /usr/local/lib/cmake/Snappy/SnappyTargets.cmake || exit 1
+        fi
         #
         # snappy uses cmake and doesn't support "make distclean";
         #.just remove the entire build directory.
@@ -1866,7 +1913,7 @@ uninstall_maxminddb() {
 install_c_ares() {
     if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ] ; then
         echo "Downloading, building, and installing C-Ares API:"
-        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O https://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz || exit 1
+        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O https://c-ares.org/download/c-ares-$CARES_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat c-ares-$CARES_VERSION.tar.gz | tar xf - || exit 1
         cd c-ares-$CARES_VERSION
@@ -1992,7 +2039,7 @@ uninstall_nghttp2() {
 install_libtiff() {
     if [ "$LIBTIFF_VERSION" -a ! -f tiff-$LIBTIFF_VERSION-done ] ; then
         echo "Downloading, building, and installing libtiff:"
-        [ -f libtiff-$LIBTIFF_VERSION.tar.gz ] || curl -L -O http://dl.maptools.org/dl/libtiff/tiff-$LIBTIFF_VERSION.tar.gz || exit 1
+        [ -f libtiff-$LIBTIFF_VERSION.tar.gz ] || curl -L -O https://download.osgeo.org/libtiff/tiff-$LIBTIFF_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat tiff-$LIBTIFF_VERSION.tar.gz | tar xf - || exit 1
         cd tiff-$LIBTIFF_VERSION
@@ -2070,7 +2117,7 @@ uninstall_spandsp() {
 install_speexdsp() {
     if [ "$SPEEXDSP_VERSION" -a ! -f speexdsp-$SPEEXDSP_VERSION-done ] ; then
         echo "Downloading, building, and installing SpeexDSP:"
-        [ -f speexdsp-$SPEEXDSP_VERSION.tar.gz ] || curl -L -O http://downloads.us.xiph.org/releases/speex/speexdsp-$SPEEXDSP_VERSION.tar.gz || exit 1
+        [ -f speexdsp-$SPEEXDSP_VERSION.tar.gz ] || curl -L -O https://ftp.osuosl.org/pub/xiph/releases/speex/speexdsp-$SPEEXDSP_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat speexdsp-$SPEEXDSP_VERSION.tar.gz | tar xf - || exit 1
         cd speexdsp-$SPEEXDSP_VERSION
@@ -2106,7 +2153,7 @@ uninstall_speexdsp() {
 install_bcg729() {
     if [ "$BCG729_VERSION" -a ! -f bcg729-$BCG729_VERSION-done ] ; then
         echo "Downloading, building, and installing bcg729:"
-        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl -L -O http://download-mirror.savannah.gnu.org/releases/linphone/plugins/sources/bcg729-$BCG729_VERSION.tar.gz || exit 1
+        [ -f bcg729-$BCG729_VERSION.tar.gz ] || curl -L -O https://download.savannah.gnu.org/releases/linphone/plugins/sources/bcg729-$BCG729_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat bcg729-$BCG729_VERSION.tar.gz | tar xf - || exit 1
         cd bcg729-$BCG729_VERSION
@@ -2842,6 +2889,17 @@ install_all() {
         uninstall_pcre -r
     fi
 
+    if [ -n "$installed_pcre2_version" -a \
+              "$installed_pcre2_version" != "$PCRE2_VERSION" ] ; then
+        echo "Installed pcre2 version is $installed_pcre2_version"
+        if [ -z "$PCRE2_VERSION" ] ; then
+            echo "pcre2 is not requested"
+        else
+            echo "Requested pcre2 version is $PCRE2_VERSION"
+        fi
+        uninstall_pcre2 -r
+    fi
+
     if [ ! -z "$installed_lzip_version" -a \
               "$installed_lzip_version" != "$LZIP_VERSION" ] ; then
         echo "Installed lzip version is $installed_lzip_version"
@@ -2918,6 +2976,8 @@ install_all() {
     install_libtool
 
     install_cmake
+
+    install_pcre2
 
     #
     # Install Python 3 now; not only is it needed for the Wireshark
@@ -3247,6 +3307,7 @@ then
     installed_xz_version=`ls xz-*-done 2>/dev/null | sed 's/xz-\(.*\)-done/\1/'`
     installed_lzip_version=`ls lzip-*-done 2>/dev/null | sed 's/lzip-\(.*\)-done/\1/'`
     installed_pcre_version=`ls pcre-*-done 2>/dev/null | sed 's/pcre-\(.*\)-done/\1/'`
+    installed_pcre2_version=$(ls pcre2-*-done 2>/dev/null | sed 's/pcre2-\(.*\)-done/\1/')
     installed_autoconf_version=`ls autoconf-*-done 2>/dev/null | sed 's/autoconf-\(.*\)-done/\1/'`
     installed_automake_version=`ls automake-*-done 2>/dev/null | sed 's/automake-\(.*\)-done/\1/'`
     installed_libtool_version=`ls libtool-*-done 2>/dev/null | sed 's/libtool-\(.*\)-done/\1/'`

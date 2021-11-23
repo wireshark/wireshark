@@ -1906,14 +1906,14 @@ guint c_dissect_sockaddr(proto_tree *root, c_sockaddr *out,
 	switch (d.af) {
 	case C_IPv4:
 		d.port	   = tvb_get_ntohs(tvb, off+2);
-		d.addr_str = tvb_ip_to_str(tvb, off+4);
+		d.addr_str = tvb_ip_to_str(wmem_packet_scope(), tvb, off+4);
 
 		proto_tree_add_item(tree, hf_port, tvb, off+2, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_addr_ipv4, tvb, off+4, 4, ENC_BIG_ENDIAN);
 		break;
 	case C_IPv6:
 		d.port	   = tvb_get_ntohs (tvb, off+2);
-		d.addr_str = tvb_ip6_to_str(tvb, off+8);
+		d.addr_str = tvb_ip6_to_str(wmem_packet_scope(), tvb, off+8);
 
 		proto_tree_add_item(tree, hf_port, tvb, off+2, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_addr_ipv6, tvb, off+8, 16, ENC_NA);

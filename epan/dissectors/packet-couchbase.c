@@ -115,6 +115,9 @@
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_CANT_MODIFY_VATTR    0xd2
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE_DELETED 0xd3
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER        0xd4
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO  0xd5
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS 0xd6
+#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE  0xd7
 
  /* Command Opcodes */
 #define PROTOCOL_BINARY_CMD_GET                     0x00
@@ -273,6 +276,7 @@
 #define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP     0xd0
 #define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION   0xd1
 #define PROTOCOL_BINARY_CMD_SUBDOC_GET_COUNT        0xd2
+#define PROTOCOL_BINARY_CMD_SUBDOC_REPLACE_BODY_WITH_XATTR 0xd3
 
 /* DCP commands */
 #define PROTOCOL_BINARY_DCP_OPEN_CONNECTION         0x50
@@ -382,6 +386,7 @@ static int hf_subdoc_doc_flags_mkdoc = -1;
 static int hf_subdoc_doc_flags_add = -1;
 static int hf_subdoc_doc_flags_accessdeleted = -1;
 static int hf_subdoc_doc_flags_createasdeleted = -1;
+static int hf_subdoc_doc_flags_revivedocument = -1;
 static int hf_subdoc_doc_flags_reserved = -1;
 static int hf_subdoc_flags = -1;
 static int hf_subdoc_flags_mkdirp = -1;
@@ -675,6 +680,12 @@ static const value_string status_vals[] = {
     "Subdoc: Specified key was found as a deleted document, but one or more path operations failed."},
   { PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER,
     "Subdoc: According to the spec all xattr commands should come first, followed by the commands for the document body."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO,
+    "Subdoc: The server does not know about this virtual macro."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS,
+    "Subdoc: The document isn't dead (and we wanted to revive the document)."},
+  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE,
+    "Subdoc: A deleted document can't have a user value."},
   { 0, NULL }
 };
 
@@ -838,6 +849,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP,        "Subdoc Multipath Lookup"  },
   { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION,      "Subdoc Multipath Mutation"},
   { PROTOCOL_BINARY_CMD_SUBDOC_GET_COUNT,           "Subdoc Get Count"         },
+  { PROTOCOL_BINARY_CMD_SUBDOC_REPLACE_BODY_WITH_XATTR, "Subdoc Replace Body With Xattr"},
   { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
   { PROTOCOL_BINARY_CMD_ISASL_REFRESH,              "isasl Refresh"            },
   { PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
@@ -893,6 +905,7 @@ static int * const subdoc_doc_flags[] = {
   &hf_subdoc_doc_flags_add,
   &hf_subdoc_doc_flags_accessdeleted,
   &hf_subdoc_doc_flags_createasdeleted,
+  &hf_subdoc_doc_flags_revivedocument,
   &hf_subdoc_doc_flags_reserved,
   NULL
 };
@@ -2990,6 +3003,7 @@ proto_register_couchbase(void)
     { &hf_subdoc_doc_flags_add, { "ADD", "couchbase.extras.subdoc.doc_flags.add", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, "Fail if doc already exists", HFILL} },
     { &hf_subdoc_doc_flags_accessdeleted, { "ACCESS_DELETED", "couchbase.extras.subdoc.doc_flags.access_deleted", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, "Allow access to XATTRs for deleted documents", HFILL} },
     { &hf_subdoc_doc_flags_createasdeleted, { "CREATE_AS_DELETED", "couchbase.extras.subdoc.doc_flags.create_as_deleted", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, "If the document does not exist then create it in the Deleted state, instead of the normal Alive state", HFILL} },
+    { &hf_subdoc_doc_flags_revivedocument, { "REVIVE_DOCUMENT", "couchbase.extras.subdoc.doc_flags.revive_document", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10, "If the document exists in the Deleted state, revive it to the normal Alive state", HFILL} },
     { &hf_subdoc_doc_flags_reserved, {"Reserved fields", "couchbase.extras.subdoc.doc_flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xF0, "A reserved field", HFILL} },
     { &hf_extras_pathlen, { "Path Length", "couchbase.extras.pathlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 

@@ -74,6 +74,7 @@ typedef struct _skinny_info_t
   gint32                  multimediaTransmissionStatus;
   gint32                  multicastReceptionStatus;
   //skinny_conv_info_t    * skinny_conv;
+  gchar                 * additionalInfo;
 } skinny_info_t;
 
 /*

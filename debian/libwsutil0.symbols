@@ -10,8 +10,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  bitswap_buf_inplace@Base 1.12.0~rc1
  bytes_to_hexstr@Base 3.5.0
  bytes_to_hexstr_punct@Base 3.5.0
- bytes_to_str_max@Base 3.5.0
- bytes_to_str_punct_max@Base 3.5.0
+ bytes_to_str_maxlen@Base 3.7.0
+ bytes_to_str_punct_maxlen@Base 3.7.0
  codec_decode@Base 3.1.0
  codec_get_channels@Base 3.1.0
  codec_get_frequency@Base 3.1.0
@@ -65,6 +65,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  decrypt_xtea_le_ecb@Base 2.5.0
  delete_persconffile_profile@Base 1.12.0~rc1
  deregister_codec@Base 3.1.0
+ dword_to_hex@Base 3.5.1
+ dword_to_hex_punct@Base 3.5.1
+ eui64_to_str@Base 3.5.1
  file_exists@Base 1.12.0~rc1
  file_needs_reopen@Base 3.0.6
  file_open_error_message@Base 1.12.0~rc1
@@ -75,7 +78,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size_wmem@Base 3.5.0
  free_progdirs@Base 2.3.0
- g_memdup2@Base 3.5.0
  get_basename@Base 1.12.0~rc1
  get_copyright_info@Base 1.99.0
  get_cur_groupname@Base 1.10.0
@@ -100,7 +102,12 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_progfile_dir@Base 1.12.0~rc1
  get_resource_usage@Base 2.3.0
  get_systemfile_dir@Base 1.12.0~rc1
+ guint32_to_str_buf@Base 3.5.1
+ guint64_to_str_buf@Base 3.5.1
+ guint8_to_hex@Base 3.5.1
  has_global_profiles@Base 1.12.0~rc1
+ hex64_to_str_back_len@Base 3.5.1
+ hex_to_str_back_len@Base 3.5.1
  hkdf_expand@Base 2.5.1
  ieee80211_chan_to_mhz@Base 1.99.7
  ieee80211_mhz_to_chan@Base 1.99.7
@@ -108,6 +115,14 @@ libwsutil.so.0 libwsutil0 #MINVER#
  init_process_policies@Base 1.10.0
  init_progfile_dir@Base 1.12.0~rc1
  init_report_message@Base 2.3.0
+ int64_to_str_back@Base 3.5.1
+ int_compare@Base 3.6.0
+ int_to_str_back@Base 3.5.1
+ ip6_to_str@Base 3.5.1
+ ip6_to_str_buf@Base 3.5.1
+ ip_to_str@Base 3.5.1
+ ip_to_str_buf@Base 3.5.1
+ ipxnet_to_str_punct@Base 3.5.1
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
  iso8601_to_nstime@Base 3.5.0
@@ -157,6 +172,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_sum@Base 1.12.0~rc1
  nstime_to_msec@Base 1.12.0~rc1
  nstime_to_sec@Base 1.12.0~rc1
+ oct64_to_str_back@Base 3.5.1
+ oct_to_str_back@Base 3.5.1
  please_report_bug@Base 3.1.0
  please_report_bug_short@Base 3.1.0
  plugins_cleanup@Base 2.3.0
@@ -165,7 +182,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  plugins_get_descriptions@Base 1.12.0~rc1
  printable_char_or_period@Base 1.99.0
  profile_exists@Base 1.12.0~rc1
+ profile_register_persconffile@Base 3.5.1
  profile_store_persconffiles@Base 1.12.0~rc1
+ qword_to_hex@Base 3.5.1
+ qword_to_hex_punct@Base 3.5.1
  register_codec@Base 3.1.0
  relinquish_special_privs_perm@Base 1.10.0
  rename_persconffile_profile@Base 1.12.0~rc1
@@ -199,7 +219,11 @@ libwsutil.so.0 libwsutil0 #MINVER#
  tm_is_valid@Base 3.5.0
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
- uint64_compare@Base 3.5.0
+ uint_compare@Base 3.6.0
+ uint64_to_str_back@Base 3.5.1
+ uint64_to_str_back_len@Base 3.5.1
+ uint_to_str_back@Base 3.5.1
+ uint_to_str_back_len@Base 3.5.1
  ulaw2linear@Base 1.12.0~rc1
  unix_epoch_to_nstime@Base 3.5.0
  update_adler32@Base 1.12.0~rc1
@@ -263,6 +287,15 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_map_size@Base 3.5.0
  wmem_map_steal@Base 3.5.0
  wmem_memdup@Base 3.5.0
+ wmem_multimap_count@Base 3.7.0
+ wmem_multimap_get_keys@Base 3.7.0
+ wmem_multimap_insert32@Base 3.7.0
+ wmem_multimap_lookup32@Base 3.7.0
+ wmem_multimap_lookup32_le@Base 3.7.0
+ wmem_multimap_new@Base 3.7.0
+ wmem_multimap_new_autoreset@Base 3.7.0
+ wmem_multimap_remove32@Base 3.7.0
+ wmem_multimap_size@Base 3.7.0
  wmem_realloc@Base 3.5.0
  wmem_register_callback@Base 3.5.0
  wmem_stack_peek@Base 3.5.0
@@ -307,6 +340,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_tree_remove_string@Base 3.5.0
  wmem_tree_remove32@Base 3.5.0
  wmem_unregister_callback@Base 3.5.0
+ word_to_hex@Base 3.5.1
+ word_to_hex_npad@Base 3.5.1
+ word_to_hex_punct@Base 3.5.1
  write_file_binary_mode@Base 3.5.0
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
@@ -325,6 +361,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_buffer_remove_start@Base 1.99.0
  ws_cleanup_sockets@Base 3.1.0
  ws_cmac_buffer@Base 3.1.0
+ ws_getopt@Base 3.5.1
+ ws_getopt_long@Base 3.5.1
+ ws_getopt_long_only@Base 3.5.1
  ws_buffer_cleanup@Base 2.3.0
  ws_hexstrtou16@Base 2.3.0
  ws_hexstrtou32@Base 2.3.0
@@ -339,6 +378,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_init_sockets@Base 3.1.0
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0
+ ws_log_buffer_full@Base 3.5.1
  ws_log_default_writer@Base 3.5.0
  ws_log_full@Base 3.5.0
  ws_log_get_level@Base 3.5.0
@@ -361,12 +401,22 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_logv_full@Base 3.5.0
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
+ ws_optarg@Base 3.5.1
+ ws_opterr@Base 3.5.1
+ ws_optind@Base 3.5.1
+ ws_optopt@Base 3.5.1
+ ws_optpos@Base 3.5.1
+ ws_optreset@Base 3.5.1
  ws_pipe_close@Base 2.6.5
  ws_pipe_data_available@Base 2.5.0
  ws_pipe_init@Base 2.5.1
  ws_pipe_spawn_async@Base 2.5.1
  ws_pipe_spawn_sync@Base 2.5.1
  ws_read_string_from_pipe@Base 2.5.0
+ ws_regex_compile@Base 3.7.0
+ ws_regex_free@Base 3.7.0
+ ws_regex_matches@Base 3.7.0
+ ws_regex_pattern@Base 3.7.0
  ws_socket_ptoa@Base 3.1.1
  ws_strtoi16@Base 2.3.0
  ws_strtoi32@Base 2.3.0

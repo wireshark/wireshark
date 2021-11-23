@@ -308,7 +308,7 @@ ajp13_get_nstring(tvbuff_t *tvb, gint offset, guint16* ret_len)
   if (len == 0xFFFF)
     len = 0;
 
-  return tvb_format_text(tvb, offset+2, MIN(len, ITEM_LABEL_LENGTH));
+  return tvb_format_text(wmem_packet_scope(), tvb, offset+2, MIN(len, ITEM_LABEL_LENGTH));
 }
 
 

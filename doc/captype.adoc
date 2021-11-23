@@ -1,0 +1,71 @@
+include::../docbook/attributes.adoc[]
+= captype(1)
+:doctype: manpage
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
+
+== NAME
+
+captype - Prints the types of capture files
+
+== SYNOPSIS
+
+[manarg]
+*captype*
+[ *-h* ]
+[ *-v* ]
+<__infile__>
+__...__
+
+== DESCRIPTION
+
+*Captype* is a program that opens one or more capture files and
+prints the capture file type of each <__infile__>.
+
+*Captype* is able to detect and read the same capture files that are
+supported by *Wireshark*.
+The input files don't need a specific filename extension; the file
+format and an optional gzip, zstd or lz4 compression will be automatically detected.
+Near the beginning of the DESCRIPTION section of xref:wireshark.html[wireshark](1) or
+https://www.wireshark.org/docs/man-pages/wireshark.html
+is a detailed description of the way *Wireshark* handles this, which is
+the same way *Captype* handles this.
+
+== OPTIONS
+
+-h|--help::
++
+--
+Print the version number and options and exit.
+--
+
+-v|--version::
++
+--
+Print the full version information and exit.
+--
+
+== SEE ALSO
+
+xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:wireshark.html[wireshark](1), xref:mergecap.html[mergecap](1), xref:editcap.html[editcap](1), xref:tshark.html[tshark](1),
+xref:dumpcap.html[dumpcap](1), xref:capinfos.html[capinfos](1), xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8)
+
+== NOTES
+
+*Captype* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
+
+HTML versions of the Wireshark project man pages are available at
+https://www.wireshark.org/docs/man-pages.
+
+== AUTHORS
+
+.Original Author
+[%hardbreaks]
+Ian Schorr <ian[AT]ianschorr.com>
+
+.Contributors
+[%hardbreaks]
+Gerald Combs <gerald[AT]wireshark.org>
+Jim Young <jyoung[AT]gsu.edu>

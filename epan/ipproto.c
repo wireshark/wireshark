@@ -165,7 +165,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_SHIM6,   "Shim6 header" },           /* 140 Shim6 Shim6 Protocol [RFC5533] */
     { IP_PROTO_WESP,    "WESP" },                   /* 141 WESP Wrapped Encapsulating Security Payload [RFC5840] */
     { IP_PROTO_ROHC,    "ROHC" },                   /* 142 ROHC Robust Header Compression [RFC5858] */
-    { 143, "Unassigned" },                          /* 143 Unassigned */
+    { IP_PROTO_ETHERNET,"Ethernet" },               /* 143 Ethernet [RFC8986] */
     { 144, "Unassigned" },                          /* 144 Unassigned */
     { 145, "Unassigned" },                          /* 145 Unassigned */
     { 146, "Unassigned" },                          /* 146 Unassigned */

@@ -973,7 +973,7 @@ static void do_address(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx)
             wmem_strbuf_append(ctx->oraddress, addr);
         }
         if (tvb_string) {
-            wmem_strbuf_append(ctx->oraddress, tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
+            wmem_strbuf_append(ctx->oraddress, tvb_format_text(actx->pinfo->pool, tvb_string, 0, tvb_captured_length(tvb_string)));
         }
     }
 }
@@ -986,7 +986,7 @@ static void do_address_str(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* a
     do_address(addr, tvb_string, actx);
 
     if (ctx && ctx->do_address && ddatype && tvb_string)
-        wmem_strbuf_append(ddatype, tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
+        wmem_strbuf_append(ddatype, tvb_format_text(actx->pinfo->pool, tvb_string, 0, tvb_captured_length(tvb_string)));
 }
 
 static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx_t* actx, proto_tree* tree)
@@ -998,7 +998,7 @@ static void do_address_str_tree(const char* addr, tvbuff_t* tvb_string, asn1_ctx
 
     if (ctx && ctx->do_address && tvb_string && ddatype) {
         if (wmem_strbuf_get_len(ddatype) > 0) {
-            proto_item_append_text (tree, " (%s=%s)", wmem_strbuf_get_str(ddatype), tvb_format_text(tvb_string, 0, tvb_captured_length(tvb_string)));
+            proto_item_append_text (tree, " (%s=%s)", wmem_strbuf_get_str(ddatype), tvb_format_text(actx->pinfo->pool, tvb_string, 0, tvb_captured_length(tvb_string)));
         }
     }
 }
@@ -1029,10 +1029,10 @@ dissect_p1_MTAName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 	if (ctx && ctx->do_address) {
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(mtaname, 0, tvb_reported_length(mtaname)));
+		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(actx->pinfo->pool, mtaname, 0, tvb_reported_length(mtaname)));
 	} else {
 		if (mtaname) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(mtaname, 0, tvb_reported_length(mtaname)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(actx->pinfo->pool, mtaname, 0, tvb_reported_length(mtaname)));
 		}
 	}
 
@@ -1764,10 +1764,10 @@ dissect_p1_LocalIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 	if(id) {
 		if (ctx && ctx->do_address)
-			proto_item_append_text(actx->subtree.tree, " $ %s)", tvb_format_text(id, 0, tvb_reported_length(id)));
+			proto_item_append_text(actx->subtree.tree, " $ %s)", tvb_format_text(actx->pinfo->pool, id, 0, tvb_reported_length(id)));
 
 		if (hf_index == hf_p1_subject_identifier)
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %s)", tvb_format_text(id, 0, tvb_reported_length(id)));
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " $ %s)", tvb_format_text(actx->pinfo->pool, id, 0, tvb_reported_length(id)));
 	}
 
 
@@ -2772,7 +2772,7 @@ dissect_p1_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 
 	if(arrival && ctx && ctx->do_address)
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(arrival, 0, tvb_reported_length(arrival)));
+		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(actx->pinfo->pool, arrival, 0, tvb_reported_length(arrival)));
 
 
 

@@ -21,6 +21,10 @@ Ieee1609Dot2Data
 
 #.NO_EMIT
 
+#.NO_EMIT ONLY_VALS
+NinetyDegreeInt
+OneEightyDegreeInt
+
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
 TestCertificate
@@ -65,6 +69,13 @@ SymmRecipientInfo/encKey             sriEncKey
 EncryptedDataEncryptionKey/eciesNistP256 edeEciesNistP256
 
 EncryptedDataEncryptionKey/eciesBrainpoolP256r1 edekEciesBrainpoolP256r1
+
+#.TYPE_ATTR
+NinetyDegreeInt     DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ieee1609dot2_NinetyDegreeInt_fmt)
+OneEightyDegreeInt  DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ieee1609dot2_OneEightyDegreeInt_fmt)
+ElevInt             DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ieee1609dot2_ElevInt_fmt)
+Time32              DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ieee1609dot2_Time32_fmt)
+Time64              DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ieee1609dot2_Time64_fmt)
 
 #.FIELD_ATTR
 SspRange/opaque                      ABBREV=srRange.opaque
@@ -172,6 +183,7 @@ psid-infrastructure-to-vehicle-information-service                  Psid
 psid-traffic-light-control-service                                  Psid
 psid-geonetworking-management-communications                        Psid
 psid-certificate-revocation-list-application                        Psid
+psid-collective-perception-service                                  Psid
 psid-vehicle-initiated-distress-notivication                        Psid
 psid-fast-service-advertisement-protocol                            Psid
 psid-its-station-internal-management-communications-protocol        Psid

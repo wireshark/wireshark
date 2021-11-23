@@ -1360,7 +1360,7 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
         return;
     }
     proto_tree_add_item(hello_tree, hf_isis_hello_source_id, tvb, offset, isis->system_id_len, ENC_NA);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len ));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", tvb_print_system_id( pinfo->pool, tvb, offset, isis->system_id_len ));
     offset += isis->system_id_len;
 
     if (isis->header_length < 8 + 1 + isis->system_id_len + 2) {

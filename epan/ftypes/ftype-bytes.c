@@ -14,7 +14,7 @@
 #include <epan/strutil.h>
 #include <epan/oids.h>
 #include <epan/osi-utils.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 
 #define CMP_MATCHES cmp_matches
 
@@ -43,90 +43,26 @@ bytes_fvalue_set(fvalue_t *fv, GByteArray *value)
 	fv->value.bytes = value;
 }
 
-static int
-bytes_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+static char *
+oid_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	if (fv->value.bytes->len == 0) {
-		/* An empty array of bytes is represented as "" in a
-		   display filter and as an empty string otherwise. */
-		return (rtype == FTREPR_DFILTER) ? 2 : 0;
-	} else {
-		/* 3 bytes for each byte of the byte "NN<separator character>" minus 1 byte
-		 * as there's no trailing "<separator character>". */
-		return fv->value.bytes->len * 3 - 1;
-	}
+	return oid_encoded2string(scope, fv->value.bytes->data,fv->value.bytes->len);
 }
 
-/*
- * OID_REPR_LEN:
- *
- * 5 for the first byte ([0-2].[0-39].)
- *
- * REL_OID_REPR_LEN:
- * for each extra byte if the sub-id is:
- *   1 byte it can be at most "127." (4 bytes we give it 4)
- *   2 bytes it can be at most "16383." (6 bytes we give it 8)
- *   3 bytes it can be at most "2097151." (8 bytes we give it 12)
- *   4 bytes it can be at most "268435456." (10 bytes we give it 16)
- *   5 bytes it can be at most "34359738368." (12 bytes we give it 20)
- *
- *  a 5 bytes encoded subid can already overflow the guint32 that holds a sub-id,
- *  making it a completely different issue!
- */
-#define REL_OID_REPR_LEN(fv) (4 * ((fv)->value.bytes->len))
-#define OID_REPR_LEN(fv) (1 + REL_OID_REPR_LEN(fv))
-
-static int
-oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+rel_oid_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return OID_REPR_LEN(fv);
+	return rel_oid_encoded2string(scope, fv->value.bytes->data,fv->value.bytes->len);
 }
 
-static void
-oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
+static char *
+system_id_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	char* oid_str = oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
-	/*
-	 * XXX:
-	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
-	 * or else we might have a BO.
-	 * I guess that is why this callback is not passed a length.
-	 *    -- lego
-	 */
-	(void) g_strlcpy(buf,oid_str,OID_REPR_LEN(fv));
-	wmem_free(NULL, oid_str);
+	return print_system_id(scope, fv->value.bytes->data, fv->value.bytes->len);
 }
 
-static int
-rel_oid_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
-{
-	return REL_OID_REPR_LEN(fv);
-}
-
-static void
-rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size _U_)
-{
-	char* oid_str = rel_oid_encoded2string(NULL, fv->value.bytes->data,fv->value.bytes->len);
-	/*
-	 * XXX:
-	 * I'm assuming that oid_repr_len is going to be called before to set buf's size.
-	 * or else we might have a BO.
-	 * I guess that is why this callback is not passed a length.
-	 *    -- lego
-	 */
-	*buf++ = '.';
-	(void) g_strlcpy(buf,oid_str,REL_OID_REPR_LEN(fv));
-	wmem_free(NULL, oid_str);
-}
-
-static void
-system_id_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-	print_system_id_buf(fv->value.bytes->data,fv->value.bytes->len, buf, size);
-}
-
-static void
-bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsigned int size _U_)
+static char *
+bytes_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	char separator;
 
@@ -147,16 +83,15 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf, unsign
 	}
 
 	if (fv->value.bytes->len) {
-		buf = bytes_to_hexstr_punct(buf, fv->value.bytes->data, fv->value.bytes->len, separator);
+		return bytes_to_str_punct_maxlen(scope, fv->value.bytes->data, fv->value.bytes->len, separator, 0);
 	}
-	else {
-		if (rtype == FTREPR_DFILTER) {
-			/* An empty byte array in a display filter is represented as "" */
-			*buf++ = '"';
-			*buf++ = '"';
-		}
+
+	if (rtype == FTREPR_DFILTER) {
+		/* An empty byte array in a display filter is represented as "" */
+		return wmem_strdup(scope, "\"\"");
 	}
-	*buf = '\0';
+
+	return wmem_strdup(scope, "");
 }
 
 static void
@@ -233,11 +168,34 @@ bytes_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 	return TRUE;
 }
 
-static gboolean
-bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+GByteArray *
+byte_array_from_unparsed(const char *s, gchar **err_msg)
 {
 	GByteArray	*bytes;
 	gboolean	res;
+
+	if (s[0] == '\'') {
+		/*
+		 * byte array with length 1 represented as a C-style character constant.
+		 */
+		unsigned long value;
+		if (!parse_charconst(s, &value, err_msg))
+			return NULL;
+		ws_assert(value <= UINT8_MAX);
+		uint8_t one_byte = (uint8_t)value;
+		bytes = g_byte_array_new();
+		g_byte_array_append(bytes, &one_byte, 1);
+		return bytes;
+	}
+
+	/*
+	 * Special case where the byte string is specified using a one byte
+	 * hex literal. We can't allow this for byte strings that are longer
+	 * than one byte, because then we'd have to know which endianness the
+	 * byte string should be in.
+	 */
+	if (strlen(s) == 4 && s[0] == '0' && s[1] == 'x')
+		s = s + 2;
 
 	bytes = g_byte_array_new();
 
@@ -247,8 +205,20 @@ bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 		if (err_msg != NULL)
 			*err_msg = g_strdup_printf("\"%s\" is not a valid byte string.", s);
 		g_byte_array_free(bytes, TRUE);
-		return FALSE;
+		return NULL;
 	}
+
+	return bytes;
+}
+
+static gboolean
+bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+{
+	GByteArray	*bytes;
+
+	bytes = byte_array_from_unparsed(s, err_msg);
+	if (bytes == NULL)
+		return FALSE;
 
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
@@ -516,101 +486,16 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
-
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	GByteArray	*a = fv_a->value.bytes;
 	GByteArray	*b = fv_b->value.bytes;
 
-	if (a->len != b->len) {
-		return FALSE;
-	}
+	if (a->len != b->len)
+		return a->len < b->len ? -1 : 1;
 
-	return (memcmp(a->data, b->data, a->len) == 0);
-}
-
-
-static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len != b->len) {
-		return TRUE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) != 0);
-}
-
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len > b->len) {
-		return TRUE;
-	}
-
-	if (a->len < b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) > 0);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len > b->len) {
-		return TRUE;
-	}
-
-	if (a->len < b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) >= 0);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len < b->len) {
-		return TRUE;
-	}
-
-	if (a->len > b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) < 0);
-}
-
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len < b->len) {
-		return TRUE;
-	}
-
-	if (a->len > b->len) {
-		return FALSE;
-	}
-
-	return (memcmp(a->data, b->data, a->len) <= 0);
+	return memcmp(a->data, b->data, a->len);
 }
 
 static gboolean
@@ -650,20 +535,11 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const GRegex *regex)
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 {
 	GByteArray *a = fv->value.bytes;
 
-	return g_regex_match_full(
-		regex,			/* Compiled PCRE */
-		(char *)a->data,	/* The data to check for the pattern... */
-		(int)a->len,		/* ... and its length */
-		0,			/* Start offset within data */
-		(GRegexMatchFlags)0,	/* GRegexMatchFlags */
-		NULL,			/* We are not interested in the match information */
-		NULL			/* We don't want error information */
-		);
-	/* NOTE - DO NOT g_free(data) */
+	return ws_regex_matches(regex, a->data, a->len);
 }
 
 void
@@ -680,17 +556,11 @@ ftype_register_bytes(void)
 		bytes_from_unparsed,		/* val_from_unparsed */
 		bytes_from_string,		/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -709,17 +579,11 @@ ftype_register_bytes(void)
 		bytes_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = bytes_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -738,17 +602,11 @@ ftype_register_bytes(void)
 		ax25_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ax25_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -767,17 +625,11 @@ ftype_register_bytes(void)
 		vines_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = vines_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -796,17 +648,11 @@ ftype_register_bytes(void)
 		ether_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ether_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,
@@ -825,17 +671,11 @@ ftype_register_bytes(void)
 		oid_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		oid_to_repr,			/* val_to_string_repr */
-		oid_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -854,17 +694,11 @@ ftype_register_bytes(void)
 		rel_oid_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		rel_oid_to_repr,		/* val_to_string_repr */
-		rel_oid_repr_len,		/* len_string_repr */
 
 		{ .set_value_byte_array = oid_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -883,17 +717,11 @@ ftype_register_bytes(void)
 		system_id_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		system_id_to_repr,		/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_byte_array = system_id_fvalue_set }, /* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
@@ -912,17 +740,11 @@ ftype_register_bytes(void)
 		fcwwn_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
-		bytes_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = fcwwn_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },			/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		cmp_contains,
 		CMP_MATCHES,

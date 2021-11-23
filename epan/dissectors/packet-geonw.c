@@ -63,7 +63,7 @@
 #include <epan/address_types.h>
 #include <epan/addr_resolv.h>
 #include <epan/to_str.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/etypes.h>
@@ -1213,7 +1213,7 @@ dissect_sec_var_len(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree 
     ti = proto_tree_add_item(tree, hf_sgeonw_var_len, tvb, start, (*offset) - start, ENC_NA); // Length cannot be determined now
     subtree = proto_item_add_subtree(ti, ett_sgeonw_var_len);
     proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
-    proto_tree_add_uint_bits_format_value(subtree, hf_sgeonw_var_len_val, tvb, (start << 3) + (*offset) - start, (((*offset) - start) << 3) - ((*offset) - start),var_len,"%u",var_len);
+    proto_tree_add_uint_bits_format_value(subtree, hf_sgeonw_var_len_val, tvb, (start << 3) + (*offset) - start, (((*offset) - start) << 3) - ((*offset) - start),var_len,ENC_BIG_ENDIAN,"%u",var_len);
     // EI Error if !mask (more than 32 bits)
     if (!mask)
         expert_add_info(pinfo, ti, &ei_sgeonw_len_unsupported);
@@ -1248,11 +1248,11 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
     proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
     if ((hf != hf_sgeonw_app_id) || ((*offset) - start) > 4) {
         proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
-            (((*offset) - start) << 3) - ((*offset) - start), tmp_val, "%" G_GUINT64_FORMAT, tmp_val);
+            (((*offset) - start) << 3) - ((*offset) - start), tmp_val, ENC_BIG_ENDIAN, "%" G_GUINT64_FORMAT, tmp_val);
     }
     else {
         proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
-            (((*offset) - start) << 3) - ((*offset) - start), (guint32)tmp_val, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (guint32)tmp_val);
+            (((*offset) - start) << 3) - ((*offset) - start), (guint32)tmp_val, ENC_BIG_ENDIAN, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (guint32)tmp_val);
     }
     // ETSI TS 103 097 V1.2.1: The encoding of the length shall use at most 7 bits set to 1.
     if (!mask)
@@ -2964,6 +2964,7 @@ void
 proto_register_geonw(void)
 {
     static const value_string bh_next_header_names[] = {
+        { 0, "ANY" },
         { 1, "Common Header" },
         { 2, "Secured Packet" },
         { 0, NULL}
@@ -2978,6 +2979,7 @@ proto_register_geonw(void)
     };
 
     static const value_string ch_next_header_names[] = {
+        { 0, "ANY" },
         { CH_NH_BTP_A, "BTP-A Transport protocol" },
         { CH_NH_BTP_B, "BTP-B Transport protocol" },
         { CH_NH_IPV6, "IPv6 header" },
@@ -3650,7 +3652,10 @@ proto_reg_handoff_geonw(void)
     dissector_add_uint("ieee1609dot2.psid", psid_road_and_lane_topology_service, sgeonw_handle_);
     dissector_add_uint("ieee1609dot2.psid", psid_infrastructure_to_vehicle_information_service, sgeonw_handle_);
     dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_control_requests_service, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_geonetworking_management_communications, sgeonw_handle_);
     dissector_add_uint("ieee1609dot2.psid", psid_traffic_light_control_status_service, sgeonw_handle_);
+    dissector_add_uint("ieee1609dot2.psid", psid_collective_perception_service, sgeonw_handle_);
+
 }
 
 /*

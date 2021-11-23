@@ -11,13 +11,13 @@
 #ifndef __WSLOG_H__
 #define __WSLOG_H__
 
-#include <ws_symbol_export.h>
-#include <ws_attributes.h>
-#include <glib.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
+#include <glib.h>
 
+#include <ws_symbol_export.h>
+#include <ws_attributes.h>
 #include <ws_log_defs.h>
 
 #ifdef WS_LOG_DOMAIN
@@ -234,8 +234,14 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap);
 
 
-#define _LOG_FULL(level, ...) ws_log_full(_LOG_DOMAIN, level,  \
-                                   __FILE__, __LINE__, G_STRFUNC, __VA_ARGS__)
+#define _LOG_FULL(level, ...) \
+            ws_log_full(_LOG_DOMAIN, level,  \
+                        __FILE__, __LINE__, __func__, __VA_ARGS__)
+
+#define _LOG_SIMPLE(level, ...) \
+            ws_log_full(_LOG_DOMAIN, level,  \
+                        NULL, -1, NULL, __VA_ARGS__)
+
 
 /** Logs with "error" level.
  *
@@ -259,9 +265,10 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
 
 /** Logs with "message" level.
  *
- * Accepts a format string and includes the file and function name.
+ * Accepts a format string and *does not* include the file and function
+ * name. This is the default log level.
  */
-#define ws_message(...)  _LOG_FULL(LOG_LEVEL_MESSAGE, __VA_ARGS__)
+#define ws_message(...)  _LOG_SIMPLE(LOG_LEVEL_MESSAGE, __VA_ARGS__)
 
 /** Logs with "info" level.
  *
@@ -294,6 +301,32 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  * Accepts a format string and includes the file and function name.
  */
 #define ws_noisy(...)    _LOG_DEBUG(LOG_LEVEL_NOISY, __VA_ARGS__)
+
+
+/** This function is called to log a buffer (bytes array).
+ *
+ * Accepts an optional 'msg' argument to provide a description.
+ */
+WS_DLL_PUBLIC
+void ws_log_buffer_full(const char *domain, enum ws_log_level level,
+                    const char *file, int line, const char *func,
+                    const guint8 *buffer, size_t size,
+                    size_t max_bytes_len, const char *msg);
+
+
+#define _LOG_BUFFER(buf, size) \
+    ws_log_buffer_full(_LOG_DOMAIN, LOG_LEVEL_DEBUG, \
+                        __FILE__, __LINE__, __func__, \
+                        buf, size, 36, #buf)
+
+#ifdef WS_DISABLE_DEBUG
+#define ws_log_buffer(buf, size) \
+          G_STMT_START { \
+               if (0) _LOG_BUFFER(buf, size); \
+          } G_STMT_END
+#else
+#define ws_log_buffer(buf, size) _LOG_BUFFER(buf, size)
+#endif
 
 
 /** Auxiliary function to write custom logging functions.

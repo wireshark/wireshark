@@ -16,6 +16,8 @@
 #include <epan/decode_as.h>
 #include <ui/language.h>
 #include <ui/preference_utils.h>
+#include <cfile.h>
+#include <ui/commandline.h>
 #include <ui/simple_dialog.h>
 #include <ui/recent.h>
 #include <main_window.h>
@@ -43,6 +45,7 @@ module_prefs_unstash(module_t *module, gpointer data)
 
         unstashed_data.module = module;
         pref_unstash(pref, &unstashed_data);
+        commandline_options_drop(module->name, prefs_get_name(pref));
     }
 
     /* If any of them changed, indicate that we must redissect and refilter
@@ -129,7 +132,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     pd_ui_->filterExpressonsFrame->setUat(uat_get_table_by_name("Display expressions"));
     pd_ui_->expertFrame->setUat(uat_get_table_by_name("Expert Info Severity Level Configuration"));
 
-    connect(pd_ui_->prefsView, SIGNAL(goToPane(QString)), this, SLOT(selectPane(QString)));
+    connect(pd_ui_->prefsView, &PrefModuleTreeView::goToPane, this, &PreferencesDialog::selectPane);
 
     /* Create a single-shot timer for debouncing calls to
      * updateSearchLineEdit() */
@@ -141,6 +144,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 PreferencesDialog::~PreferencesDialog()
 {
     delete pd_ui_;
+    delete searchLineEditTimer;
     prefs_modules_foreach_submodules(NULL, module_prefs_clean_stash, NULL);
 }
 

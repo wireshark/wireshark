@@ -17,7 +17,8 @@
 typedef gboolean (*DFFuncType)(GList *arg1list, GList *arg2list, GList **retval);
 
 /* The semantic check for the dfilter function */
-typedef void (*DFSemCheckType)(dfwork_t *dfw, int param_num, stnode_t *st_node);
+typedef void (*DFSemCheckType)(dfwork_t *dfw, const char *func_name,
+                                int param_num, stnode_t *st_node);
 
 /* If a function needs more args than this, increase
  * this macro and add more arg members to the dfvm_insn_t
@@ -37,6 +38,6 @@ typedef struct {
 } df_func_def_t;
 
 /* Return the function definition record for a function of named "name" */
-df_func_def_t* df_func_lookup(char *name);
+df_func_def_t* df_func_lookup(const char *name);
 
 #endif

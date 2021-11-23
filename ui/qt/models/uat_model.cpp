@@ -237,6 +237,58 @@ int UatModel::columnCount(const QModelIndex &parent) const
     return uat_->ncols;
 }
 
+QModelIndex UatModel::appendEntry(QVariantList rowData)
+{
+    // A row with less entries could be added, where the remaining entries are empty
+    if (rowData.count() == 0 || rowData.count() < rowCount())
+        return QModelIndex();
+
+    QModelIndex newIndex;
+    int row = rowCount();
+    emit beginInsertRows(QModelIndex(), row, row);
+
+    // Initialize with given values
+    void *record = g_malloc0(uat_->record_size);
+    for (int col = 0; col < columnCount(); col++) {
+        uat_field_t *field = &uat_->fields[col];
+
+        QString data;
+        if (rowData.count() > col) {
+            if (field->mode != PT_TXTMOD_BOOL) {
+                data = rowData[col].toString();
+            } else {
+                if (rowData[col] == Qt::Checked) {
+                    data = QString("TRUE");
+                } else {
+                    data = QString("FALSE");
+                }
+            }
+        }
+
+        QByteArray bytes = field->mode == PT_TXTMOD_HEXBYTES ? QByteArray::fromHex(data.toUtf8()) : data.toUtf8();
+        field->cb.set(record, bytes.constData(), (unsigned) bytes.size(), field->cbdata.set, field->fld_data);
+    }
+    uat_insert_record_idx(uat_, row, record);
+    if (uat_->free_cb) {
+        uat_->free_cb(record);
+    }
+    g_free(record);
+
+    record_errors.insert(row, QMap<int, QString>());
+    // a new row is created. For the moment all fields are empty, so validation
+    // will likely mark everything as invalid. Ideally validation should be
+    // postponed until the row (in the view) is not selected anymore
+    checkRow(row);
+    dirty_records.insert(row, true);
+    uat_->changed = TRUE;
+
+    emit endInsertRows();
+
+    newIndex = index(row, 0, QModelIndex());
+
+    return newIndex;
+}
+
 bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid())
@@ -367,15 +419,37 @@ void UatModel::clearAll()
     endResetModel();
 }
 
-
-bool UatModel::copyRow(int dst_row, int src_row)
+QModelIndex UatModel::copyRow(QModelIndex original)
 {
-    if (src_row < 0 || src_row >= rowCount() || dst_row < 0 || dst_row >= rowCount()) {
-        return false;
-    }
+    if (! original.isValid())
+        return QModelIndex();
 
-    const void *src_record = UAT_INDEX_PTR(uat_, src_row);
-    void *dst_record = UAT_INDEX_PTR(uat_, dst_row);
+    int newRow = rowCount();
+
+    beginInsertRows(QModelIndex(), newRow, newRow);
+
+    // Initialize with empty values, caller should use setData to populate it.
+    void *record = g_malloc0(uat_->record_size);
+    for (int col = 0; col < columnCount(); col++) {
+        uat_field_t *field = &uat_->fields[col];
+        field->cb.set(record, "", 0, field->cbdata.set, field->fld_data);
+    }
+    uat_insert_record_idx(uat_, newRow, record);
+    if (uat_->free_cb) {
+        uat_->free_cb(record);
+    }
+    g_free(record);
+
+    record_errors.insert(newRow, QMap<int, QString>());
+    // a new row is created. For the moment all fields are empty, so validation
+    // will likely mark everything as invalid. Ideally validation should be
+    // postponed until the row (in the view) is not selected anymore
+    checkRow(newRow);
+    dirty_records.insert(newRow, true);
+
+    // the UAT record has been created, now it is filled with the infromation
+    const void *src_record = UAT_INDEX_PTR(uat_, original.row());
+    void *dst_record = UAT_INDEX_PTR(uat_, newRow);
     // insertRows always initializes the record with empty value. Before copying
     // over the new values, be sure to clear the old fields.
     if (uat_->free_cb) {
@@ -387,16 +461,16 @@ bool UatModel::copyRow(int dst_row, int src_row)
       /* According to documentation of uat_copy_cb_t memcpy should be used if uat_->copy_cb is NULL */
       memcpy(dst_record, src_record, uat_->record_size);
     }
-    gboolean src_valid = g_array_index(uat_->valid_data, gboolean, src_row);
+    gboolean src_valid = g_array_index(uat_->valid_data, gboolean, original.row());
     uat_update_record(uat_, dst_record, src_valid);
-    record_errors[dst_row] = record_errors[src_row];
-    dirty_records[dst_row] = true;
+    record_errors[newRow] = record_errors[original.row()];
+    dirty_records[newRow] = true;
 
-    QVector<int> roles;
-    roles << Qt::EditRole << Qt::BackgroundRole;
-    emit dataChanged(index(dst_row, 0), index(dst_row, columnCount()), roles);
+    uat_->changed = TRUE;
 
-    return true;
+    endInsertRows();    
+
+    return index(newRow, 0, QModelIndex());
 }
 
 bool UatModel::moveRow(int src_row, int dst_row)

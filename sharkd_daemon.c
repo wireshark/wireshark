@@ -30,18 +30,7 @@
 #include <wsutil/inet_addr.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #ifndef _WIN32
 #include <sys/un.h>
@@ -233,11 +222,11 @@ sharkd_init(int argc, char **argv)
 	static const char    optstring[] = OPTSTRING;
 
 	// right now we don't have any long options
-	static const struct option long_options[] = {
-	  {"api", required_argument, NULL, 'a'},
-	  {"help", no_argument, NULL, 'h'},
-	  {"version", no_argument, NULL, 'v'},
-	  {"config-profile", required_argument, NULL, 'C'},
+	static const struct ws_option long_options[] = {
+	  {"api", ws_required_argument, NULL, 'a'},
+	  {"help", ws_no_argument, NULL, 'h'},
+	  {"version", ws_no_argument, NULL, 'v'},
+	  {"config-profile", ws_required_argument, NULL, 'C'},
 	  {0, 0, 0, 0 }
 	};
 
@@ -295,29 +284,29 @@ sharkd_init(int argc, char **argv)
 		*/
 
 		do {
-			if (optind > (argc - 1))
+			if (ws_optind > (argc - 1))
 				break;
 
-			opt = getopt_long(argc, argv, optstring, long_options, NULL);
+			opt = ws_getopt_long(argc, argv, optstring, long_options, NULL);
 
 			switch (opt) {
 			case 'C':        /* Configuration Profile */
-				if (profile_exists(optarg, FALSE)) {
-					set_profile_name(optarg);  // In Daemon Mode, we may need to do this again in the child process
+				if (profile_exists(ws_optarg, FALSE)) {
+					set_profile_name(ws_optarg);  // In Daemon Mode, we may need to do this again in the child process
 				}
 				else {
-					fprintf(stderr, "Configuration Profile \"%s\" does not exist\n", optarg);
+					fprintf(stderr, "Configuration Profile \"%s\" does not exist\n", ws_optarg);
 					return -1;
 				}
 				break;
 
 			case 'a':
-				fd = socket_init(optarg);
+				fd = socket_init(ws_optarg);
 				if (fd == INVALID_SOCKET)
 					return -1;
 				_server_fd = fd;
 
-				fprintf(stderr, "Sharkd listening on: %s\n", optarg);
+				fprintf(stderr, "Sharkd listening on: %s\n", ws_optarg);
 
 				mode = SHARKD_MODE_GOLD_DAEMON;
 				break;
@@ -338,8 +327,8 @@ sharkd_init(int argc, char **argv)
 				break;
 
 			default:
-				if (!optopt)
-					fprintf(stderr, "This option isn't supported: %s\n", argv[optind]);
+				if (!ws_optopt)
+					fprintf(stderr, "This option isn't supported: %s\n", argv[ws_optind]);
 				fprintf(stderr, "Use sharkd -h for details of supported options\n");
 				exit(0);
 				break;

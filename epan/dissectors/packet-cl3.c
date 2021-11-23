@@ -123,7 +123,7 @@ dissect_cl3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   /* CL3 version agnostic fields: (pretty much just the first byte; like ipv4, version + length) */
   proto_tree_add_item(cl3_tree, hf_cl3_version,    tvb, 0, 1, ENC_NA);
   proto_tree_add_uint_bits_format_value(cl3_tree, hf_cl3_headerlen, tvb, 0 + 4, 4, header_length,
-                                        "%u bytes (%u)", header_length, header_length >> 2);
+                                        ENC_BIG_ENDIAN, "%u bytes (%u)", header_length, header_length >> 2);
 
   /* validate the header length... */
   if ((header_length < 1) || (header_length > tvb_captured_length(tvb))) {

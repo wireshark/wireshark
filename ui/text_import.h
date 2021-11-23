@@ -17,7 +17,8 @@
 #ifndef __TEXT_IMPORT_H__
 #define __TEXT_IMPORT_H__
 
-#include <glib.h>
+#include <stdio.h>
+#include <wireshark.h>
 
 #include <wiretap/wtap.h>
 

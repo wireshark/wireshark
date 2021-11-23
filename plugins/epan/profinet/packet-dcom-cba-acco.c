@@ -470,11 +470,11 @@ cba_pdev_find(packet_info *pinfo, const address *addr, e_guid_t *ipid)
         pdev = (cba_pdev_t *)interf->parent->private_data;
         if (pdev == NULL) {
             expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find, "pdev_find: no pdev for IP:%s IPID:%s",
-                address_to_str(pinfo->pool, addr), guids_resolve_guid_to_str(ipid));
+                address_to_str(pinfo->pool, addr), guids_resolve_guid_to_str(ipid, pinfo->pool));
         }
     } else {
         expert_add_info_format(pinfo, NULL, &ei_cba_acco_pdev_find_unknown_interface, "pdev_find: unknown interface of IP:%s IPID:%s",
-            address_to_str(pinfo->pool, addr), guids_resolve_guid_to_str(ipid));
+            address_to_str(pinfo->pool, addr), guids_resolve_guid_to_str(ipid, pinfo->pool));
         pdev = NULL;
     }
 

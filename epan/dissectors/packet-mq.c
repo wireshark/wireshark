@@ -2538,7 +2538,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                                 ptvcursor_t* cursor;
                                 mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSizeCONN, ett_mq_conn, NULL, MQ_TEXT_CONN);
 
-                                cursor = ptvcursor_new(mq_tree, tvb, offset);
+                                cursor = ptvcursor_new(pinfo->pool, mq_tree, tvb, offset);
 
                                 ptvcursor_add(cursor, hf_mq_conn_QMgr, 48, iEnc);
                                 ptvcursor_add(cursor, hf_mq_conn_appname, 28, iEnc);

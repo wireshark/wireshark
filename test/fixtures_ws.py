@@ -63,7 +63,9 @@ def program_path(request):
     '''
     curdir_run = os.path.join(os.curdir, 'run')
     if sys.platform == 'win32':
-        curdir_run = os.path.join(curdir_run, 'RelWithDebInfo')
+        curdir_run_config = os.path.join(curdir_run, 'RelWithDebInfo')
+        if os.path.exists(curdir_run_config):
+            curdir_run = curdir_run_config
     paths = (
         request.config.getoption('--program-path', default=None),
         os.environ.get('WS_BIN_PATH'),
@@ -240,6 +242,11 @@ def make_env():
             # This directory is supposed not to be written and is used by
             # "readonly" tests that do not read any other preferences.
             env[home_env] = "/wireshark-tests-unused"
+        # XDG_CONFIG_HOME takes precedence over HOME, which we don't want.
+        try:
+            del env['XDG_CONFIG_HOME']
+        except KeyError:
+            pass
         return env
     return make_env_real
 

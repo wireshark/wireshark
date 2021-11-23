@@ -16,8 +16,6 @@
 
 /* See wslua_file_common.c for details */
 
-#include "config.h"
-
 #include "wslua.h"
 #include <wiretap/wtap_opttypes.h>
 #include <wiretap/wtap-int.h>

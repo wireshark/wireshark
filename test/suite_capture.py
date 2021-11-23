@@ -70,10 +70,13 @@ def wireshark_k(wireshark_command):
     return tuple(list(wireshark_command) + ['-k'])
 
 
-def capture_command(*cmd_args, shell=False):
+def capture_command(*args, shell=False):
+    cmd_args = list(args)
     if type(cmd_args[0]) != str:
         # Assume something like ['wireshark', '-k']
         cmd_args = list(cmd_args[0]) + list(cmd_args)[1:]
+    if sys.platform == "win32":
+        cmd_args[0] = '"{}"'.format(cmd_args[0])
     if shell:
         cmd_args = ' '.join(cmd_args)
     return cmd_args
@@ -243,7 +246,8 @@ def check_dumpcap_autostop_stdin(cmd_dumpcap):
         elif filesize is not None:
             condition = 'filesize:{}'.format(filesize)
 
-        capture_cmd = ' '.join((cmd_dumpcap,
+        cmd_ = '"{}"'.format(cmd_dumpcap)
+        capture_cmd = ' '.join((cmd_,
             '-i', '-',
             '-w', testout_file,
             '-a', condition,
@@ -277,7 +281,8 @@ def check_dumpcap_ringbuffer_stdin(cmd_dumpcap):
         elif filesize is not None:
             condition = 'filesize:{}'.format(filesize)
 
-        capture_cmd = ' '.join((cmd_dumpcap,
+        cmd_ = '"{}"'.format(cmd_dumpcap)
+        capture_cmd = ' '.join((cmd_,
             '-i', '-',
             '-w', testout_file,
             '-a', 'files:2',

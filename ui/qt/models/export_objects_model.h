@@ -69,7 +69,6 @@ private:
 
 class ExportObjectProxyModel : public QSortFilterProxyModel
 {
-    Q_OBJECT
 public:
 
     explicit ExportObjectProxyModel(QObject * parent = Q_NULLPTR);

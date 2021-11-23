@@ -125,12 +125,16 @@ class case_string(unittest.TestCase):
         checkDFilterCount(dfilter, 0)
 
     def test_contains_5(self, checkDFilterCount):
-        dfilter = 'http.request.method contains 50:4f:53:54' # "POST"
+        dfilter = 'http.request.method contains "\x50\x4f\x53\x54"' # "POST"
         checkDFilterCount(dfilter, 0)
 
     def test_contains_6(self, checkDFilterCount):
-        dfilter = 'http.request.method contains 48:45:41:44' # "HEAD"
+        dfilter = 'http.request.method contains "\x48\x45\x41\x44"' # "HEAD"
         checkDFilterCount(dfilter, 1)
+
+    def test_contains_7(self, checkDFilterCount):
+        dfilter = 'http.request.method contains 48:45:41:44' # "48:45:41:44"
+        checkDFilterCount(dfilter, 0)
 
     def test_contains_fail_0(self, checkDFilterCount):
         dfilter = 'http.user_agent contains "update"'
@@ -150,8 +154,7 @@ class case_string(unittest.TestCase):
 
     def test_contains_upper_2(self, checkDFilterFail):
         dfilter = 'upper(tcp.seq) == 4'
-        error = 'Only strings can be used in upper() or lower() or len()'
-        checkDFilterFail(dfilter, error)
+        checkDFilterFail(dfilter, 'Only string type fields can be used')
 
     def test_contains_lower_0(self, checkDFilterCount):
         dfilter = 'lower(http.user_agent) contains "UPDATE"'
@@ -163,8 +166,7 @@ class case_string(unittest.TestCase):
 
     def test_eq_lower_1(self, checkDFilterFail):
         dfilter = 'lower(tcp.seq) == 4'
-        error = 'Only strings can be used in upper() or lower() or len()'
-        checkDFilterFail(dfilter, error)
+        checkDFilterFail(dfilter, 'Only string type fields can be used')
 
     def test_string_len(self, checkDFilterCount):
         dfilter = 'len(http.request.method) == 4'
@@ -176,4 +178,8 @@ class case_string(unittest.TestCase):
 
     def test_contains_unicode(self, checkDFilterCount):
         dfilter = 'tcp.flags.str contains "·······AP···"'
+        checkDFilterCount(dfilter, 1)
+
+    def test_value_string_1(self, checkDFilterCount):
+        dfilter = 'tcp.checksum.status == "Unverified" || tcp.checksum.status == "Good"'
         checkDFilterCount(dfilter, 1)

@@ -1,6 +1,11 @@
 %top {
 /* Include this before everything else, for various large-file definitions */
 #include "config.h"
+#include <wireshark.h>
+
+#define WS_LOG_DOMAIN LOG_DOMAIN_UAT
+
+/* #define DEBUG_UAT_LOAD 1 */
 }
 
 /*
@@ -213,6 +218,7 @@ typedef struct {
 %}
 
 quoted_string \042([^\042]|\134\042)*\042
+extra_records_string (\042.*\042)
 binstring ([0-9a-zA-Z][0-9a-zA-Z])*
 separator [ \t]*,
 newline [ \t]*[\r]?\n
@@ -240,7 +246,7 @@ comment #[^\n]*\n
 	BEGIN NEXT_FIELD;
 }
 
-<START_OF_LINE,NEXT_FIELD>{newline}   {
+<START_OF_LINE,NEXT_FIELD>{newline} {
 	yyextra->ptrx = g_strdup("");
 	yyextra->len = 0;
 
@@ -292,16 +298,44 @@ comment #[^\n]*\n
 }
 
 <SEPARATOR>{newline} {
+	DUMP("separator->newline");
+
+	/*
+	 * We've run out of fields. Check to see if we have any default
+	 * values that we can fill in. The field for the current column
+	 * will be filled in below in <END_OF_RECORD>{newline}.
+	 */
+	guint save_colnum = yyextra->colnum;
+	yyextra->colnum++;
+	while (yyextra->colnum < yyextra->uat->ncols) {
+		const char *default_value = yyextra->uat->default_values[yyextra->colnum];
+		if (!default_value) {
+			break;
+		}
+		yyextra->uat->fields[yyextra->colnum].cb.set(yyextra->record, default_value, (guint) strlen(default_value), yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data);
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "%s:%d: Set %s to %s.",
+			yyextra->uat->filename, yyextra->linenum, yyextra->uat->fields[yyextra->colnum].name, default_value);
+		yyextra->colnum++;
+	}
+
+	if (yyextra->colnum < yyextra->uat->ncols) {
+		ERROR(("expecting field %s", yyextra->uat->fields[yyextra->colnum].name));
+	}
+
+	yyextra->colnum = save_colnum;
 	yyextra->linenum++;
-	ERROR(("expecting field %s in previous line",yyextra->uat->fields[yyextra->colnum].name));
+	BEGIN END_OF_RECORD;
+	yyless(0);
 }
 
 <SEPARATOR>. {
 	ERROR(("unexpected char '%s' while looking for field %s",yytext,yyextra->uat->fields[yyextra->colnum].name));
 }
 
-<END_OF_RECORD>{separator} {
-	ERROR(("more fields than required"));
+<END_OF_RECORD>{separator}{extra_records_string} {
+	/* If we wanted to be really fancy we could retain the extra data. */
+	ws_log(WS_LOG_DOMAIN, LOG_LEVEL_WARNING, "%s:%d: More fields than required. Discarding '%s'.",
+		yyextra->uat->filename, yyextra->linenum, yytext);
 }
 
 <END_OF_RECORD>{newline} {
@@ -340,7 +374,7 @@ comment #[^\n]*\n
  }
 
 <END_OF_RECORD>. {
-	ERROR(("unexpected char while looking for end of line"));
+	ERROR(("unexpected char %s while looking for end of line", yytext));
 }
 
 <ERRORED>{newline} { yyextra->linenum++; BEGIN START_OF_LINE; }

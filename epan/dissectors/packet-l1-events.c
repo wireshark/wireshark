@@ -46,7 +46,7 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			    pinfo->pseudo_header->l1event.uton? "TE" : "NT");
 	len = tvb_find_line_end(tvb, 0, -1, &next_offset, FALSE);
 	if(len>0)
-		col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, 0, len));
+		col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(pinfo->pool, tvb, 0, len));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_l1_events,

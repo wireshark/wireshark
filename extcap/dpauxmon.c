@@ -13,6 +13,8 @@
 #include "config.h"
 #define WS_LOG_DOMAIN "dpauxmon"
 
+#include <wireshark.h>
+
 #include "extcap-base.h"
 
 #include <wsutil/strtoi.h>
@@ -51,13 +53,13 @@ enum {
 	OPT_INTERFACE_ID,
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	/* Generic application options */
-	{ "help", no_argument, NULL, OPT_HELP},
-	{ "version", no_argument, NULL, OPT_VERSION},
+	{ "help", ws_no_argument, NULL, OPT_HELP},
+	{ "version", ws_no_argument, NULL, OPT_VERSION},
 	/* Interfaces options */
-	{ "interface_id", required_argument, NULL, OPT_INTERFACE_ID},
+	{ "interface_id", ws_required_argument, NULL, OPT_INTERFACE_ID},
 	{ 0, 0, 0, 0 }
 };
 
@@ -288,7 +290,7 @@ static int send_start(struct nl_sock *sock, int family, unsigned int interface_i
 	}
 
 	if ((err = nl_send_auto_complete(sock, msg)) < 0)
-		ws_debug("Starting monitor failed, already running?");
+		ws_debug("Starting monitor failed, already running? :%s", nl_geterror(err));
 
 out_free:
 	nlmsg_free(msg);
@@ -430,19 +432,22 @@ static void run_listener(const char* fifo, unsigned int interface_id)
 	}
 
 	if ((err = genl_register_family(&ops)) < 0) {
-		ws_critical("Unable to register Generic Netlink family");
+		ws_critical("Unable to register Generic Netlink family: %s",
+			   nl_geterror(err));
 		goto err_out;
 	}
 
 	if ((err = genl_ops_resolve(sock, &ops)) < 0) {
-		ws_critical("Unable to resolve family name");
+		ws_critical("Unable to resolve family name: %s",
+			   nl_geterror(err));
 		goto err_out;
 	}
 
 	/* register notification handler callback */
 	if ((err = nl_socket_modify_cb(sock, NL_CB_VALID, NL_CB_CUSTOM,
 			parse_cb, NULL)) < 0) {
-		ws_critical("Unable to modify valid message callback");
+		ws_critical("Unable to modify valid message callback %s",
+			   nl_geterror(err));
 		goto err_out;
 	}
 
@@ -506,7 +511,7 @@ int main(int argc, char *argv[])
 	 */
 	init_progfile_dir_error = init_progfile_dir(argv[0]);
 	if (init_progfile_dir_error != NULL) {
-		ws_warning("Can't get pathname of directory containing the captype program: %s.",
+		ws_warning("Can't get pathname of directory containing the extcap program: %s.",
 			init_progfile_dir_error);
 		g_free(init_progfile_dir_error);
 	}
@@ -527,15 +532,15 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
 	extcap_help_add_option(extcap_conf, "--port <port> ", "the dpauxmon interface index");
 
-	opterr = 0;
-	optind = 0;
+	ws_opterr = 0;
+	ws_optind = 0;
 
 	if (argc == 1) {
 		extcap_help_print(extcap_conf);
 		goto end;
 	}
 
-	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
 
 		case OPT_HELP:
@@ -548,20 +553,20 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_INTERFACE_ID:
-			if (!ws_strtou32(optarg, NULL, &interface_id)) {
-				ws_warning("Invalid interface id: %s", optarg);
+			if (!ws_strtou32(ws_optarg, NULL, &interface_id)) {
+				ws_warning("Invalid interface id: %s", ws_optarg);
 				goto end;
 			}
 			break;
 
 		case ':':
 			/* missing option argument */
-			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[ws_optind - 1]);
 			break;
 
 		default:
-			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				ws_warning("Invalid option: %s", argv[optind - 1]);
+			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg)) {
+				ws_warning("Invalid option: %s", argv[ws_optind - 1]);
 				goto end;
 			}
 		}
@@ -569,8 +574,8 @@ int main(int argc, char *argv[])
 
 	extcap_cmdline_debug(argv, argc);
 
-	if (optind != argc) {
-		ws_warning("Unexpected extra option: %s", argv[optind]);
+	if (ws_optind != argc) {
+		ws_warning("Unexpected extra option: %s", argv[ws_optind]);
 		goto end;
 	}
 

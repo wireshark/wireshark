@@ -94,15 +94,29 @@ PROTOSHORTNAME  An abbreviated name for the protocol; this is displayed
                 any preferences, in the dialog box of enabled protocols,
                 and in the dialog box for filter fields when constructing
                 a filter expression.
-PROTOABBREV     A name for the protocol for use in filter expressions;
-                it may contain only lower-case letters, digits, and hyphens,
-                underscores, and periods.
+PROTOFILTERNAME A name for the protocol for use in filter expressions;
+                it may contain only letters, digits, hyphens, underscores and
+                periods. Names should use lower case only. (Support for
+                upper/mixed case may be removed in the future.)
+PROTOABBREV     An abbreviation for the protocol; this is used in code and
+                must be a valid C identifier. Additionally it should follow
+                any applicable C style guidelines. It is usually the same as
+                PROTOFILTERNAME with all lower-case letters and
+                non-alphanumerics replaced with underscores.
 LICENSE         The license this dissector is under. Please use a SPDX License
                 identifier.
 YEARS           The years the above license is valid for.
 FIELDNAME       The displayed name for the header field.
-FIELDABBREV     The abbreviated name for the header field; it may contain
-                only letters, digits, hyphens, underscores, and periods.
+FIELDFILTERNAME A name for the header field for use in filter expressions;
+                it may contain only letters, digits, hyphens, underscores and
+                periods. It must start with PROTOFILTERNAME followed by a dot.
+                Names should use lower case only. (Support for upper/mixed case
+                may be removed in the future.)
+FIELDABBREV     An abbreviation for the header field; this is used in code and
+                must be a valid C identifier. Additionally it should follow
+                any applicable C style guidelines. It is usually the same as
+                FIELDFILTERNAME with all lower-case letters and
+                non-alphanumerics replaced with underscores.
 FIELDTYPE       FT_NONE, FT_BOOLEAN, FT_CHAR, FT_UINT8, FT_UINT16, FT_UINT24,
                 FT_UINT32, FT_UINT40, FT_UINT48, FT_UINT56, FT_UINT64,
                 FT_INT8, FT_INT16, FT_INT24, FT_INT32, FT_INT40, FT_INT48,
@@ -195,7 +209,7 @@ BITMASK         Used to mask a field not 8-bit aligned or with a size other
 FIELDDESCR      A brief description of the field, or NULL. [Please do not use ""].
 
 If, for example, PROTONAME is "Internet Bogosity Discovery Protocol",
-PROTOSHORTNAME would be "IBDP", and PROTOABBREV would be "ibdp". Try to
+PROTOSHORTNAME would be "IBDP", and PROTOFILTERNAME would be "ibdp". Try to
 conform with IANA names.
 
 1.2.1 Automatic substitution in code skeleton
@@ -400,8 +414,8 @@ wrong answer on the PC on which you're doing development, and try
 "tvb_get_letohl()" instead, as "tvb_get_letohl()" will give the wrong
 answer on big-endian machines.
 
-gchar *tvb_ip_to_str(tvbuff_t *tvb, const gint offset)
-gchar *tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)
+gchar *tvb_ip_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
+gchar *tvb_ip6_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset)
 
 Returns a null-terminated buffer containing a string with IPv4 or IPv6 Address
 from the specified tvbuff, starting at the specified offset.
@@ -578,9 +592,9 @@ anyway, so it's best to use 'col_add_str' rather than 'col_set_str' in
 that case.
 
 For example, to set the "Protocol" column
-to "PROTOABBREV":
+to "PROTOFILTERNAME":
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOABBREV");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROTOFILTERNAME");
 
 
 1.4.2 The col_add_str function.
@@ -828,18 +842,16 @@ A string representing the name of the field. This is the name
 that will appear in the graphical protocol tree. It must be a non-empty
 string.
 
-abbrev (FIELDABBREV)
+abbrev (FIELDFILTERNAME)
 --------------------
-A string with an abbreviation of the field. The abbreviation should start
-with the abbreviation of the parent protocol followed by a period as a
+A string with a filter name for the field. The name should start
+with the filter name of the parent protocol followed by a period as a
 separator. For example, the "src" field in an IP packet would have "ip.src"
-as an abbreviation. It is acceptable to have multiple levels of periods if,
+as a filter name. It is acceptable to have multiple levels of periods if,
 for example, you have fields in your protocol that are then subdivided into
-subfields. For example, TRMAC has multiple error fields, so the abbreviations
+subfields. For example, TRMAC has multiple error fields, so the names
 follow this pattern: "trmac.errors.iso", "trmac.errors.noniso", etc.
-
-The abbreviation is the identifier used in a display filter. As such it
-cannot be an empty string.
+It must be a non-empty string.
 
 type (FIELDTYPE)
 ----------------
@@ -2488,7 +2500,7 @@ Where:
     next_tvb is the new TVBUFF_SUBSET.
 
     offset is the byte offset of 'tvb' at which the new tvbuff
-    should start. The first byte is the 0th byte.
+    should start. The first byte is the byte at offset 0.
 
 To create a new TVBUFF_SUBSET that begins at a specified offset in a
 parent tvbuff, with a specified number of bytes in the payload, the
@@ -2503,7 +2515,7 @@ Where:
     next_tvb is the new TVBUFF_SUBSET.
 
     offset is the byte offset of 'tvb' at which the new tvbuff
-    should start. The first byte is the 0th byte.
+    should start. The first byte is the byte at offset 0.
 
     reported_length is the number of bytes that the current protocol
     says should be in the payload.
@@ -2522,7 +2534,7 @@ Where:
     next_tvb is the new TVBUFF_SUBSET.
 
     offset is the byte offset of 'tvb' at which the new tvbuff
-    should start. The first byte is the 0th byte.
+    should start. The first byte is the byte at offset 0.
 
     length is the number of bytes in the new TVBUFF_SUBSET. A length
     argument of -1 says to use as many bytes as are available in
@@ -2560,7 +2572,7 @@ table using their unique identifier using one of the following APIs:
     table, but it lets the user add it from the command line or, in Wireshark,
     through the "Decode As" UI.
 
-Then when the dissector hits the common identifier field, it will useone of the
+Then when the dissector hits the common identifier field, it will use one of the
 following APIs to invoke the subdissector:
 
     int dissector_try_uint(dissector_table_t sub_dissectors,
@@ -2696,7 +2708,7 @@ function. The ptype variable is used to differentiate between
 conversations over different protocols, i.e. TCP and UDP. The options
 variable is used to define a conversation that will accept any destination
 address and/or port. Set options = 0 if the destination port and address
-are know when conversation_new is called. See section 2.4 for more
+are known when conversation_new is called. See section 2.4 for more
 information on usage of the options parameter.
 
 The conversation_new prototype:

@@ -15,11 +15,14 @@
 
 /*
  * This dissector tries to dissect the RTP protocol according to Annex A
- * of ITU-T Recommendation H.225.0 (02/98) or RFC 1889
+ * of ITU-T Recommendation H.225.0 (02/98) or RFC 3550 (obsoleting 1889).
  *
- * RTP traffic is handled by an even UDP portnumber. This can be any
- * port number, but there is a registered port available, port 5004
+ * RTP traffic is traditionally handled by an even UDP portnumber. This can
+ * be any port number, but there is a registered port available, port 5004
  * See Annex B of ITU-T Recommendation H.225.0, section B.7
+ *
+ * Note that nowadays RTP and RTCP are often multiplexed onto a single port,
+ * per RFC 5671.
  *
  * This doesn't dissect older versions of RTP, such as:
  *
@@ -1192,9 +1195,14 @@ rtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int po
 static gboolean
 dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    guint8       octet1;
-    unsigned int version;
+    guint8       octet1, octet2;
+    unsigned int version, payload_type;
     unsigned int offset = 0;
+    gint         padding_count;
+
+    if (tvb_captured_length_remaining(tvb, offset) < 2) {
+        return FALSE;
+    }
 
     /* Get the fields in the first octet */
     octet1 = tvb_get_guint8( tvb, offset );
@@ -1230,6 +1238,44 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     } else if (version != 2) {
         /* Unknown or unsupported version */
         return FALSE;
+    }
+
+    octet2 = tvb_get_guint8( tvb, offset + 1 );
+    payload_type = RTP_PAYLOAD_TYPE( octet2 );
+
+    if (payload_type >= 72 && payload_type <= 76) {
+        /* XXX: This range is definitely excluded by RFCs 3550, 3551.
+         * There's an argument, per RFC 5761, for expanding the
+         * excluded range to [FIRST_RTCP_CONFLICT_PAYLOAD_TYPE,
+         * LAST_RTCP_CONFLICT_PAYLOAD_TYPE] in the heuristic dissector,
+         * leaving those values only when specificed by other means
+         * (SDP, Decode As, etc.)
+         */
+        return FALSE;
+    }
+
+    /* Skip fixed header */
+    offset += 12;
+
+    offset += 4 * RTP_CSRC_COUNT( octet1 );
+    if (RTP_EXTENSION( octet1 )) {
+        if (tvb_captured_length_remaining(tvb, offset) < 4) {
+            return FALSE;
+        }
+        offset += 4 + 4*tvb_get_guint16(tvb, offset+2, ENC_BIG_ENDIAN);
+    }
+    if (tvb_reported_length(tvb) < offset) {
+        return FALSE;
+    }
+    if (RTP_PADDING( octet1 )) {
+        if (tvb_captured_length(tvb) == tvb_reported_length(tvb)) {
+            /* We can test the padding if the last octet is present. */
+            padding_count = tvb_get_guint8(tvb, tvb_reported_length(tvb) - 1);
+            if (tvb_reported_length_remaining(tvb, offset) < padding_count ||
+                    padding_count == 0) {
+                return FALSE;
+            }
+        }
     }
 
     /* Create a conversation in case none exists so as to allow reassembly code to work */

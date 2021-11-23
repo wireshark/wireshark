@@ -18,7 +18,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V16.6.0 (2021-07)
+ * References: 3GPP TS 36.413 V16.7.0 (2021-10)
  */
 
 #include "config.h"
@@ -5883,7 +5883,7 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   is_ascii = tvb_ascii_isprint(parameter_tvb, 0, length);
   if (is_ascii)
-     proto_item_append_text(actx->created_item," (%s)",tvb_format_text(parameter_tvb, 0, length));
+     proto_item_append_text(actx->created_item," (%s)",tvb_format_text(actx->pinfo->pool, parameter_tvb, 0, length));
 
 
 
@@ -8240,7 +8240,7 @@ dissect_s1ap_MMEname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
   is_ascii = tvb_ascii_isprint(parameter_tvb, 0, length);
   if (is_ascii)
-     proto_item_append_text(actx->created_item," (%s)",tvb_format_text(parameter_tvb, 0, length));
+     proto_item_append_text(actx->created_item," (%s)",tvb_format_text(actx->pinfo->pool, parameter_tvb, 0, length));
 
 
 

@@ -10,7 +10,7 @@
 
 #include <ftypes-int.h>
 #include <epan/strutil.h>
-#include <wsutil/to_str.h>
+#include <epan/to_str.h>
 #include <string.h>
 #include <wsutil/glib-compat.h>
 
@@ -80,6 +80,7 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 static gboolean
 val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
+	GByteArray *bytes;
 	tvbuff_t *new_tvb;
 
 	/* Free up the old value, if we have one */
@@ -88,8 +89,8 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	fv->value.protocol.proto_string = NULL;
 
 	/* Does this look like a byte string? */
-	GByteArray *bytes = g_byte_array_new();
-	if (hex_str_to_bytes(s, bytes, TRUE)) {
+	bytes = byte_array_from_unparsed(s, err_msg);
+	if (bytes != NULL) {
 		/* Make a tvbuff from the bytes */
 		new_tvb = tvb_new_real_data(bytes->data, bytes->len, bytes->len);
 
@@ -111,50 +112,29 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	}
 
 	/* Not a byte array, forget about it. */
-	g_byte_array_free(bytes, TRUE);
-
-	/* Treat it as a string. */
-	return val_from_string(fv, s, err_msg);
+	return FALSE;
 }
 
-static int
-val_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
-{
-	volatile guint length = 0;
-
-	if (rtype != FTREPR_DFILTER) return -1;
-
-	TRY {
-		/* 3 bytes for each byte of the byte "NN:" minus 1 byte
-		 * as there's no trailing ":". */
-		length = tvb_captured_length(fv->value.protocol.tvb) * 3 - 1;
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return (int) length;
-}
-
-static void
-val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char * volatile buf, unsigned int size _U_)
+static char *
+val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
 	guint length;
+	char *volatile buf = NULL;
 
-	ws_assert(rtype == FTREPR_DFILTER);
+	if (rtype != FTREPR_DFILTER)
+		return NULL;
 
 	TRY {
 		length = tvb_captured_length(fv->value.protocol.tvb);
 
 		if (length)
-			buf = bytes_to_hexstr_punct(buf, tvb_get_ptr(fv->value.protocol.tvb, 0, length), length, ':');
-		*buf = '\0';
+			buf = bytes_to_str_punct_maxlen(scope, tvb_get_ptr(fv->value.protocol.tvb, 0, length), length, ':', 0);
 	}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
+	return buf;
 }
 
 static gpointer
@@ -198,46 +178,29 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	}
 }
 
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+_tvbcmp(tvbuff_t *a, tvbuff_t *b)
 {
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	eq = FALSE;
+	guint	a_len = tvb_captured_length(a);
+	guint	b_len = tvb_captured_length(b);
 
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-
-			if (a_len == tvb_captured_length(b->tvb))
-				eq = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) == 0);
-		} else {
-			eq = (strcmp(a->proto_string, b->proto_string) == 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return eq;
+	if (a_len != b_len)
+		return a_len < b_len ? -1 : 1;
+	return memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len);
 }
 
-static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
 	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	ne = TRUE;
+	volatile int		c = 0;
 
 	TRY {
 		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-
-			if (a_len == tvb_captured_length(b->tvb))
-				ne = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) != 0);
+			c = _tvbcmp(a->tvb, b->tvb);
 		} else {
-			ne = (strcmp(a->proto_string, b->proto_string) != 0);
+			c = strcmp(a->proto_string, b->proto_string);
 		}
 	}
 	CATCH_ALL {
@@ -245,123 +208,7 @@ cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	}
 	ENDTRY;
 
-	return ne;
-}
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	gt = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len > b_len) {
-				gt = TRUE;
-			} else if (a_len == b_len) {
-				gt = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) > 0);
-			}
-		} else {
-			gt = (strcmp(a->proto_string, b->proto_string) > 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return gt;
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	ge = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len > b_len) {
-				ge = TRUE;
-			} else if (a_len == b_len) {
-				ge = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) >= 0);
-			}
-		} else {
-			ge = (strcmp(a->proto_string, b->proto_string) >= 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return ge;
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	lt = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len < b_len) {
-				lt = TRUE;
-			} else if (a_len == b_len) {
-				lt = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) < 0);
-			}
-		} else {
-			lt = (strcmp(a->proto_string, b->proto_string) < 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return lt;
-}
-
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	const protocol_value_t	*a = (const protocol_value_t *)&fv_a->value.protocol;
-	const protocol_value_t	*b = (const protocol_value_t *)&fv_b->value.protocol;
-	volatile gboolean	le = FALSE;
-
-	TRY {
-		if ((a->tvb != NULL) && (b->tvb != NULL)) {
-			guint	a_len = tvb_captured_length(a->tvb);
-			guint	b_len = tvb_captured_length(b->tvb);
-
-			if (a_len < b_len) {
-				le = TRUE;
-			} else if (a_len == b_len) {
-				le = (memcmp(tvb_get_ptr(a->tvb, 0, a_len), tvb_get_ptr(b->tvb, 0, a_len), a_len) <= 0);
-			}
-		} else {
-			le = (strcmp(a->proto_string, b->proto_string) <= 0);
-		}
-	}
-	CATCH_ALL {
-		/* nothing */
-	}
-	ENDTRY;
-
-	return le;
+	return c;
 }
 
 static gboolean
@@ -392,7 +239,7 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const GRegex *regex)
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 {
 	const protocol_value_t *a = (const protocol_value_t *)&fv->value.protocol;
 	volatile gboolean rc = FALSE;
@@ -406,26 +253,9 @@ cmp_matches(const fvalue_t *fv, const GRegex *regex)
 		if (a->tvb != NULL) {
 			tvb_len = tvb_captured_length(a->tvb);
 			data = (const char *)tvb_get_ptr(a->tvb, 0, tvb_len);
-			rc = g_regex_match_full(
-				regex,		/* Compiled PCRE */
-				data,		/* The data to check for the pattern... */
-				tvb_len,	/* ... and its length */
-				0,		/* Start offset within data */
-				(GRegexMatchFlags)0,		/* GRegexMatchFlags */
-				NULL,		/* We are not interested in the match information */
-				NULL		/* We don't want error information */
-				);
-			/* NOTE - DO NOT g_free(data) */
+			rc = ws_regex_matches(regex, data, tvb_len);
 		} else {
-			rc = g_regex_match_full(
-			regex,		/* Compiled PCRE */
-			a->proto_string,		/* The data to check for the pattern... */
-			(int)strlen(a->proto_string),	/* ... and its length */
-			0,		/* Start offset within data */
-			(GRegexMatchFlags)0,		/* GRegexMatchFlags */
-			NULL,		/* We are not interested in the match information */
-			NULL		/* We don't want error information */
-			);
+			rc = ws_regex_matches(regex, a->proto_string, -1);
 		}
 	}
 	CATCH_ALL {
@@ -449,17 +279,11 @@ ftype_register_tvbuff(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		val_to_repr,			/* val_to_string_repr */
-		val_repr_len,			/* len_string_repr */
 
 		{ .set_value_protocol = value_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
 		CMP_MATCHES,

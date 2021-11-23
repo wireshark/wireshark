@@ -54,9 +54,9 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     eo_ui_->progressBar->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    connect(&model_, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this, SLOT(modelDataChanged(QModelIndex, int, int)));
-    connect(&model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+    connect(&model_, &ExportObjectModel::rowsInserted,
+            this, &ExportObjectDialog::modelDataChanged);
+    connect(&model_, &ExportObjectModel::modelReset, this, &ExportObjectDialog::modelRowsReset);
     connect(eo_ui_->filterLine, &QLineEdit::textChanged, &proxyModel_, &ExportObjectProxyModel::setTextFilterString);
     connect(eo_ui_->objectTree, &ExportObjectsTreeView::currentIndexChanged, this, &ExportObjectDialog::currentHasChanged);
 
@@ -79,8 +79,8 @@ ExportObjectDialog::ExportObjectDialog(QWidget &parent, CaptureFile &cf, registe
     if (save_all_bt_) save_all_bt_->setEnabled(false);
     if (close_bt) close_bt->setDefault(true);
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
-            this, SLOT(captureEvent(CaptureEvent)));
+    connect(&cap_file_, &CaptureFile::captureEvent,
+            this, &ExportObjectDialog::captureEvent);
 }
 
 ExportObjectDialog::~ExportObjectDialog()

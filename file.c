@@ -110,7 +110,6 @@ static gboolean find_packet(capture_file *cf, ws_match_function match_function,
     void *criterion, search_direction dir);
 
 static void cf_rename_failure_alert_box(const char *filename, int err);
-static void ref_time_packets(capture_file *cf);
 
 /* Seconds spent processing packets between pushing UI updates. */
 #define PROGBAR_UPDATE_INTERVAL 0.150
@@ -653,6 +652,7 @@ cf_read(capture_file *cf, gboolean reloading)
         break;
       }
       read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset);
+      wtap_rec_reset(&rec);
     }
   }
   CATCH(OutOfMemoryError) {
@@ -842,6 +842,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
       }
       to_read--;
     }
+    wtap_rec_reset(rec);
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -968,6 +969,7 @@ cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err)
       break;
     }
     read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset);
+    wtap_rec_reset(rec);
   }
 
   /* Cleanup and release all dfilter resources */
@@ -1551,12 +1553,6 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
 }
 
 void
-cf_reftime_packets(capture_file *cf)
-{
-  ref_time_packets(cf);
-}
-
-void
 cf_redissect_packets(capture_file *cf)
 {
   if (cf->read_lock || cf->redissection_queued == RESCAN_SCAN) {
@@ -1895,6 +1891,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
        on the next pass through the loop. */
     prev_frame_num = fdata->num;
     prev_frame = fdata;
+    wtap_rec_reset(&rec);
   }
 
   epan_dissect_cleanup(&edt);
@@ -2018,8 +2015,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
  * without rereading the file.
  * XXX - do we need a progres bar or is this fast enough?
  */
-static void
-ref_time_packets(capture_file *cf)
+void
+cf_reftime_packets(capture_file* cf)
 {
   guint32     framenum;
   frame_data *fdata;
@@ -2212,6 +2209,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
       ret = PSP_FAILED;
       break;
     }
+    wtap_rec_reset(&rec);
   }
 
   /* We're done printing the packets; destroy the progress bar if
@@ -3024,7 +3022,7 @@ cf_write_json_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  ret = process_specified_records(cf, &print_args->range, "Writing PDML",
+  ret = process_specified_records(cf, &print_args->range, "Writing JSON",
                                   "selected packets", TRUE,
                                   write_json_packet, &callback_args, TRUE);
 
@@ -4006,13 +4004,12 @@ cf_get_packet_block(capture_file *cf, const frame_data *fd)
   /* If this block has been modified, fetch the modified version */
   if (fd->has_modified_block)
     return wtap_block_ref(cap_file_provider_get_modified_block(&cf->provider, fd));
-
-  /* fetch phdr block */
-  if (fd->has_phdr_block) {
+  else {
     wtap_rec rec; /* Record metadata */
     Buffer buf;   /* Record data */
     wtap_block_t block;
 
+    /* fetch record block */
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
 
@@ -4026,7 +4023,6 @@ cf_get_packet_block(capture_file *cf, const frame_data *fd)
     ws_buffer_free(&buf);
     return block;
   }
-  return NULL;
 }
 
 /*
@@ -4769,7 +4765,6 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
         fdata = frame_data_sequence_find(cf->provider.frames, framenum);
 
         // XXX: This also ignores non-comment options like verdict
-        fdata->has_phdr_block = FALSE;
         fdata->has_modified_block = FALSE;
       }
 
@@ -4967,15 +4962,16 @@ cf_rename_failure_alert_box(const char *filename, int err)
 }
 
 /* Reload the current capture file. */
-void
+cf_status_t
 cf_reload(capture_file *cf) {
   gchar    *filename;
   gboolean  is_tempfile;
+  cf_status_t cf_status = CF_OK;
   int       err;
 
   if (cf->read_lock) {
     ws_warning("Failing cf_reload(\"%s\") since a read is in progress", cf->filename);
-    return;
+    return CF_ERROR;
   }
 
   /* If the file could be opened, "cf_open()" calls "cf_close()"
@@ -5003,11 +4999,8 @@ cf_reload(capture_file *cf) {
 
     case CF_READ_ABORTED:
       /* The user bailed out of re-reading the capture file; the
-         capture file has been closed - just free the capture file name
-         string and return (without changing the last containing
-         directory). */
-      g_free(filename);
-      return;
+         capture file has been closed. */
+      break;
     }
   } else {
     /* The open failed, so "cf->is_tempfile" wasn't set to "is_tempfile".
@@ -5017,10 +5010,12 @@ cf_reload(capture_file *cf) {
        XXX - change the menu?  Presumably "cf_open()" will do that;
        make sure it does! */
     cf->is_tempfile = is_tempfile;
+    cf_status = CF_ERROR;
   }
   /* "cf_open()" made a copy of the file name we handed it, so
      we should free up our copy. */
   g_free(filename);
+  return cf_status;
 }
 
 /*

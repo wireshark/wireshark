@@ -53,6 +53,9 @@ static int hf_gprscdr_manufacturerSpecificCause = -1;  /* ManagementExtension */
 static int hf_gprscdr_positionMethodFailureCause = -1;  /* PositionMethodFailure_Diagnostic */
 static int hf_gprscdr_unauthorizedLCSClientCause = -1;  /* UnauthorizedLCSClient_Diagnostic */
 static int hf_gprscdr_diameterResultCodeAndExperimentalResult = -1;  /* INTEGER */
+static int hf_gprscdr_plmnId = -1;                /* PLMN_Id */
+static int hf_gprscdr_eutraCellId = -1;           /* EutraCellId */
+static int hf_gprscdr_nid = -1;                   /* Nid */
 static int hf_gprscdr_rANNASCause = -1;           /* SEQUENCE_OF_RANNASCause */
 static int hf_gprscdr_rANNASCause_item = -1;      /* RANNASCause */
 static int hf_gprscdr_sIP_URI = -1;               /* GraphicString */
@@ -89,7 +92,10 @@ static int hf_gprscdr_mBMSGWAddress = -1;         /* GSNAddress */
 static int hf_gprscdr_cNIPMulticastDistribution = -1;  /* CNIPMulticastDistribution */
 static int hf_gprscdr_mBMSDataTransferStart = -1;  /* MBMSTime */
 static int hf_gprscdr_mBMSDataTransferStop = -1;  /* MBMSTime */
+static int hf_gprscdr_nrCellId = -1;              /* NrCellId */
 static int hf_gprscdr_iPAddress = -1;             /* IPAddress */
+static int hf_gprscdr_nRcgi = -1;                 /* Ncgi */
+static int hf_gprscdr_ecgi = -1;                  /* Ecgi */
 static int hf_gprscdr_sCSAddress = -1;            /* IPAddress */
 static int hf_gprscdr_sCSRealm = -1;              /* DiameterIdentity */
 static int hf_gprscdr_serviceSpecificData = -1;   /* GraphicString */
@@ -251,6 +257,7 @@ static int hf_gprscdr_pDPPDNTypeExtension = -1;   /* PDPPDNTypeExtension */
 static int hf_gprscdr_mOExceptionDataCounter = -1;  /* MOExceptionDataCounter */
 static int hf_gprscdr_listOfRANSecondaryRATUsageReports = -1;  /* SEQUENCE_OF_RANSecondaryRATUsageReport */
 static int hf_gprscdr_listOfRANSecondaryRATUsageReports_item = -1;  /* RANSecondaryRATUsageReport */
+static int hf_gprscdr_pSCellInformation = -1;     /* PSCellInformation */
 static int hf_gprscdr_p_GWAddress = -1;           /* GSNAddress */
 static int hf_gprscdr_userLocationInformation_07 = -1;  /* T_userLocationInformation_07 */
 static int hf_gprscdr_listOfServiceData_02 = -1;  /* SEQUENCE_OF_ChangeOfServiceCondition */
@@ -535,6 +542,7 @@ static int ett_gprscdr_userlocationinformation = -1;
 /*--- Included file: packet-gprscdr-ett.c ---*/
 #line 1 "./asn1/gprscdr/packet-gprscdr-ett.c"
 static gint ett_gprscdr_Diagnostics = -1;
+static gint ett_gprscdr_Ecgi = -1;
 static gint ett_gprscdr_EnhancedDiagnostics = -1;
 static gint ett_gprscdr_SEQUENCE_OF_RANNASCause = -1;
 static gint ett_gprscdr_InvolvedParty = -1;
@@ -548,7 +556,9 @@ static gint ett_gprscdr_LevelOfCAMELService = -1;
 static gint ett_gprscdr_LocationAreaAndCell = -1;
 static gint ett_gprscdr_ManagementExtensions = -1;
 static gint ett_gprscdr_MBMSInformation = -1;
+static gint ett_gprscdr_Ncgi = -1;
 static gint ett_gprscdr_PDPAddress = -1;
+static gint ett_gprscdr_PSCellInformation = -1;
 static gint ett_gprscdr_SCSASAddress = -1;
 static gint ett_gprscdr_ServiceSpecificInfo = -1;
 static gint ett_gprscdr_SubscriptionID = -1;
@@ -843,6 +853,7 @@ dissect_gprscdr_CellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static const value_string gprscdr_CauseForRecClosing_vals[] = {
   {   0, "normalRelease" },
+  {   1, "partialRecord" },
   {   4, "abnormalRelease" },
   {   5, "cAMELInitCallRelease" },
   {  16, "volumeLimit" },
@@ -1022,6 +1033,67 @@ static int
 dissect_gprscdr_DiameterIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 130 "./asn1/gprscdr/gprscdr.cnf"
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb);
+
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_EutraCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_gprscdr_Nid(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Ecgi_sequence[] = {
+  { &hf_gprscdr_plmnId      , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_eutraCellId , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_EutraCellId },
+  { &hf_gprscdr_nid         , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_Nid },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_Ecgi(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Ecgi_sequence, hf_index, ett_gprscdr_Ecgi);
 
   return offset;
 }
@@ -1584,6 +1656,33 @@ dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
+dissect_gprscdr_NrCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t Ncgi_sequence[] = {
+  { &hf_gprscdr_plmnId      , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_PLMN_Id },
+  { &hf_gprscdr_nrCellId    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_NrCellId },
+  { &hf_gprscdr_nid         , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_Nid },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_Ncgi(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Ncgi_sequence, hf_index, ett_gprscdr_Ncgi);
+
+  return offset;
+}
+
+
+
+static int
 dissect_gprscdr_NodeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             actx, tree, tvb, offset, hf_index,
@@ -1615,32 +1714,24 @@ dissect_gprscdr_PDPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "./asn1/gprscdr/gprscdr.cnf"
-  tvbuff_t *parameter_tvb;
-  proto_tree *subtree;
-
+dissect_gprscdr_PositioningData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &parameter_tvb);
-
-
-  if (!parameter_tvb)
-    return offset;
-
-  subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
-
-
+                                       NULL);
 
   return offset;
 }
 
 
+static const ber_sequence_t PSCellInformation_sequence[] = {
+  { &hf_gprscdr_nRcgi       , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_Ncgi },
+  { &hf_gprscdr_ecgi        , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_Ecgi },
+  { NULL, 0, 0, 0, NULL }
+};
 
 static int
-dissect_gprscdr_PositioningData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+dissect_gprscdr_PSCellInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PSCellInformation_sequence, hf_index, ett_gprscdr_PSCellInformation);
 
   return offset;
 }
@@ -4222,6 +4313,7 @@ static const ber_sequence_t SGWRecord_set[] = {
   { &hf_gprscdr_pDPPDNTypeExtension, BER_CLASS_CON, 62, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PDPPDNTypeExtension },
   { &hf_gprscdr_mOExceptionDataCounter, BER_CLASS_CON, 63, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_MOExceptionDataCounter },
   { &hf_gprscdr_listOfRANSecondaryRATUsageReports, BER_CLASS_CON, 64, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_RANSecondaryRATUsageReport },
+  { &hf_gprscdr_pSCellInformation, BER_CLASS_CON, 65, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PSCellInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5106,6 +5198,18 @@ proto_register_gprscdr(void)
       { "diameterResultCodeAndExperimentalResult", "gprscdr.diameterResultCodeAndExperimentalResult",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
+    { &hf_gprscdr_plmnId,
+      { "plmnId", "gprscdr.plmnId",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "PLMN_Id", HFILL }},
+    { &hf_gprscdr_eutraCellId,
+      { "eutraCellId", "gprscdr.eutraCellId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_nid,
+      { "nid", "gprscdr.nid",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_rANNASCause,
       { "rANNASCause", "gprscdr.rANNASCause",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5250,9 +5354,21 @@ proto_register_gprscdr(void)
       { "mBMSDataTransferStop", "gprscdr.mBMSDataTransferStop",
         FT_BYTES, BASE_NONE, NULL, 0,
         "MBMSTime", HFILL }},
+    { &hf_gprscdr_nrCellId,
+      { "nrCellId", "gprscdr.nrCellId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_iPAddress,
       { "iPAddress", "gprscdr.iPAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPAddress_vals), 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_nRcgi,
+      { "nRcgi", "gprscdr.nRcgi_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Ncgi", HFILL }},
+    { &hf_gprscdr_ecgi,
+      { "ecgi", "gprscdr.ecgi_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_sCSAddress,
       { "sCSAddress", "gprscdr.sCSAddress",
@@ -5896,6 +6012,10 @@ proto_register_gprscdr(void)
         "SEQUENCE_OF_RANSecondaryRATUsageReport", HFILL }},
     { &hf_gprscdr_listOfRANSecondaryRATUsageReports_item,
       { "RANSecondaryRATUsageReport", "gprscdr.RANSecondaryRATUsageReport_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_pSCellInformation,
+      { "pSCellInformation", "gprscdr.pSCellInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_p_GWAddress,
@@ -6988,6 +7108,7 @@ proto_register_gprscdr(void)
 /*--- Included file: packet-gprscdr-ettarr.c ---*/
 #line 1 "./asn1/gprscdr/packet-gprscdr-ettarr.c"
     &ett_gprscdr_Diagnostics,
+    &ett_gprscdr_Ecgi,
     &ett_gprscdr_EnhancedDiagnostics,
     &ett_gprscdr_SEQUENCE_OF_RANNASCause,
     &ett_gprscdr_InvolvedParty,
@@ -7001,7 +7122,9 @@ proto_register_gprscdr(void)
     &ett_gprscdr_LocationAreaAndCell,
     &ett_gprscdr_ManagementExtensions,
     &ett_gprscdr_MBMSInformation,
+    &ett_gprscdr_Ncgi,
     &ett_gprscdr_PDPAddress,
+    &ett_gprscdr_PSCellInformation,
     &ett_gprscdr_SCSASAddress,
     &ett_gprscdr_ServiceSpecificInfo,
     &ett_gprscdr_SubscriptionID,

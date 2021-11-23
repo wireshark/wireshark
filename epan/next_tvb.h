@@ -44,10 +44,11 @@ typedef struct next_tvb_item {
 typedef struct {
   next_tvb_item_t *first;
   next_tvb_item_t *last;
+  wmem_allocator_t *pool;
   int count;
 } next_tvb_list_t;
 
-WS_DLL_PUBLIC void next_tvb_init(next_tvb_list_t *list);
+WS_DLL_PUBLIC next_tvb_list_t* next_tvb_list_new(wmem_allocator_t *pool);
 WS_DLL_PUBLIC void next_tvb_add_handle(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_handle_t handle);
 WS_DLL_PUBLIC void next_tvb_add_uint(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, guint32 uint_val);
 WS_DLL_PUBLIC void next_tvb_add_string(next_tvb_list_t *list, tvbuff_t *tvb, proto_tree *tree, dissector_table_t table, const gchar *string);

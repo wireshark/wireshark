@@ -1079,10 +1079,10 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data _U_, struct packet_net
 		case WS_IFA_LOCAL:
 		case WS_IFA_BROADCAST:
 			if (len == 4) {
-				proto_item_append_text(tree, ": %s", tvb_ip_to_str(tvb, offset));
+				proto_item_append_text(tree, ": %s", tvb_ip_to_str(wmem_packet_scope(), tvb, offset));
 				proto_tree_add_item(tree, &hfi_netlink_route_ifa_addr4, tvb, offset, len, ENC_BIG_ENDIAN);
 			} else {
-				proto_item_append_text(tree, ": %s", tvb_ip6_to_str(tvb, offset));
+				proto_item_append_text(tree, ": %s", tvb_ip6_to_str(wmem_packet_scope(), tvb, offset));
 				proto_tree_add_item(tree, &hfi_netlink_route_ifa_addr6, tvb, offset, len, ENC_NA);
 			}
 			return 1;

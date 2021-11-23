@@ -12,8 +12,8 @@
 #include "config.h"
 #include <wtap-int.h>
 #include <file_wrappers.h>
-#include <epan/exported_pdu.h>
 #include <epan/dissectors/packet-socketcan.h>
+#include <wsutil/exported_pdu_tlvs.h>
 #include "busmaster.h"
 #include "busmaster_priv.h"
 #include <inttypes.h>
@@ -85,8 +85,8 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
 
     memset(buf_data, 0, packet_length);
 
-    buf_data[1] = EXP_PDU_TAG_PROTO_NAME;
-    buf_data[3] = proto_name_length;
+    phton16(buf_data + 0, EXP_PDU_TAG_PROTO_NAME);
+    phton16(buf_data + 2, proto_name_length);
     memcpy(buf_data + 4, proto_name, strlen(proto_name));
 
     if (!priv_entry)
@@ -180,6 +180,7 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     }
 
     rec->rec_type       = REC_TYPE_PACKET;
+    rec->block          = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = has_ts ? WTAP_HAS_TS : 0;
     rec->ts.secs        = secs;
     rec->ts.nsecs       = nsecs;

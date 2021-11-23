@@ -19,7 +19,7 @@
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/to_str.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/column.h>
 #include <epan/column-info.h>
@@ -31,7 +31,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
-#include <ftypes/ftypes-int.h>
+#include <ftypes/ftypes.h>
 
 #define PDML_VERSION "0"
 #define PSML_VERSION "0"
@@ -580,7 +580,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                 fputs("\" value=\"", pdata->fh);
 
                 if (fi->hfinfo->bitmask!=0) {
-                    switch (fi->value.ftype->ftype) {
+                    switch (fvalue_type_ftenum(&fi->value)) {
                         case FT_INT8:
                         case FT_INT16:
                         case FT_INT24:
@@ -943,7 +943,7 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
     json_dumper_begin_array(pdata->dumper);
 
     if (fi->hfinfo->bitmask!=0) {
-        switch (fi->value.ftype->ftype) {
+        switch (fvalue_type_ftenum(&fi->value)) {
             case FT_INT8:
             case FT_INT16:
             case FT_INT24:
@@ -981,7 +981,7 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
     json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", fi->start);
     json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", fi->length);
     json_dumper_value_anyf(pdata->dumper, "%" G_GUINT64_FORMAT, fi->hfinfo->bitmask);
-    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", (gint32)fi->value.ftype->ftype);
+    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", (gint32)fvalue_type_ftenum(&fi->value));
 
     json_dumper_end_array(pdata->dumper);
 }
@@ -1266,7 +1266,7 @@ static void
 ek_write_hex(field_info *fi, write_json_data *pdata)
 {
     if (fi->hfinfo->bitmask != 0) {
-        switch (fi->value.ftype->ftype) {
+        switch (fvalue_type_ftenum(&fi->value)) {
             case FT_INT8:
             case FT_INT16:
             case FT_INT24:
@@ -1365,7 +1365,8 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
             tm = gmtime_r(&t->secs, &tm_time);
 #endif
             if (tm != NULL) {
-                strftime(time_string, sizeof(time_string), "%FT%T", tm);
+                /* Some platforms (MinGW-w64) do not support %F or %T. */
+                strftime(time_string, sizeof(time_string), "%Y-%m-%dT%H:%M:%S", tm);
                 json_dumper_value_anyf(pdata->dumper, "\"%s.%09uZ\"", time_string, t->nsecs);
             } else {
                 json_dumper_value_anyf(pdata->dumper, "\"Not representable\"");

@@ -10,10 +10,10 @@
 #include "config.h"
 
 #include <string.h>     /* for memcmp */
+#include <stdio.h>
 #include "packet.h"
 #include "address_types.h"
 #include "to_str.h"
-#include "to_str-int.h"
 #include "addr_resolv.h"
 #include "wsutil/pint.h"
 #include "wsutil/str_util.h"
@@ -236,7 +236,8 @@ static int ipv4_name_res_len(void)
  ******************************************************************************/
 static int ipv6_to_str(const address* addr, gchar *buf, int buf_len)
 {
-    return ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len) + 1;
+    ip6_to_str_buf((const ws_in6_addr *)addr->data, buf, buf_len);
+    return (int)(strlen(buf) + 1);
 }
 
 static int ipv6_str_len(const address* addr _U_)
@@ -426,12 +427,16 @@ static int eui64_len(void)
 static int
 ib_addr_to_str(const address *addr, gchar *buf, int buf_len)
 {
-    if (addr->len >= 16) { /* GID is 128bits */
-        return ip6_to_str_buf_with_pfx((const ws_in6_addr *)addr->data, buf, buf_len, "GID: ");
-    }
+    char buf_ip6[WS_INET6_ADDRSTRLEN];
 
-    /* this is a LID (16 bits) */
-    g_snprintf(buf,buf_len,"LID: %u", *(const guint16 *)addr->data);
+    if (addr->len >= 16) { /* GID is 128bits */
+        ws_inet_ntop6((const ws_in6_addr *)addr->data, buf_ip6, sizeof(buf_ip6));
+        snprintf(buf, buf_len, "GID: %s", buf_ip6);
+    }
+    else {
+        /* this is a LID (16 bits) */
+        snprintf(buf,buf_len,"LID: %u", *(const guint16 *)addr->data);
+    }
 
     return (int)(strlen(buf)+1);
 }

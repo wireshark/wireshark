@@ -84,6 +84,10 @@ typedef struct blf_logobjectheader {
     guint64 object_timestamp;
 } blf_logobjectheader_t;
 
+#define BLF_DIR_RX    0
+#define BLF_DIR_TX    1
+#define BLF_DIR_TX_RQ 2
+
 typedef struct blf_ethernetframeheader {
     guint8  src_addr[6];
     guint16 channel;
@@ -108,6 +112,17 @@ typedef struct blf_ethernetframeheader_ex {
     guint32 frame_handle;
     guint32 error;
 } blf_ethernetframeheader_ex_t;
+
+typedef struct blf_wlanframeheader {
+    guint16 channel;
+    guint16 flags;
+    guint8  direction;
+    guint8  radio_channel;
+    guint16 signal_strength;
+    guint16 signal_quality;
+    guint16 frame_length;
+    guint32 res;
+} blf_wlanframeheader_t;
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/CanMessage.h */
 
@@ -275,7 +290,7 @@ typedef struct blf_flexrayrcvmessage {
     guint16 channel;
     guint16 version;
     guint16 channelMask;    /* 0 res, 1 A, 2 B, 3 A+B */
-    guint16  dir;           /* 0 RX, 1 TX, 2 TX Req, 3 internal, 4 internal*/ /* high byte reserved! */
+    guint16 dir;            /* 0 RX, 1 TX, 2 TX Req, 3 internal, 4 internal*/ /* high byte reserved! */
     guint32 clientIndex;
     guint32 clusterNo;
     guint16 frameId;
@@ -331,6 +346,25 @@ typedef struct blf_flexrayrcvmessageex {
     /* payload bytes */
 } blf_flexrayrcvmessageex_t;
 
+
+/* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/LinMessage.h */
+
+typedef struct blf_linmessage {
+    guint16 channel;
+    guint8  id;
+    guint8  dlc;
+} blf_linmessage_t;
+
+typedef struct blf_linmessage_trailer {
+    guint8  fsmId;
+    guint8  fsmState;
+    guint8  headerTime;
+    guint8  fullTime;
+    guint16 crc;
+    guint8  dir;            /* 0 RX, 1 TX Receipt, 2 TX Req */
+    guint8  res1;
+    guint32 res2;
+} blf_linmessage_trailer_t;
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/ObjectHeaderBase.h */
 

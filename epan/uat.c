@@ -85,6 +85,7 @@ uat_t* uat_new(const char* name,
     uat->post_update_cb = post_update_cb;
     uat->reset_cb = reset_cb;
     uat->fields = flds_array;
+    uat->default_values = NULL;
     uat->user_data = g_array_new(FALSE,FALSE,(guint)uat->record_size);
     uat->raw_data = g_array_new(FALSE,FALSE,(guint)uat->record_size);
     uat->valid_data = g_array_new(FALSE,FALSE,sizeof(gboolean));
@@ -263,6 +264,11 @@ uat_t* uat_get_table_by_name(const char* name) {
     }
 
     return NULL;
+}
+
+void uat_set_default_values(uat_t *uat_in, const char *default_values[])
+{
+    uat_in->default_values = default_values;
 }
 
 char *uat_fld_tostr(void *rec, uat_field_t *f) {

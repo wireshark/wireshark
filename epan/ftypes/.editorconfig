@@ -8,6 +8,10 @@
 indent_style = tab
 indent_size = tab
 
+[ftype-double.[ch]]
+indent_style = tab
+indent_size = tab
+
 [ftype-integer.[ch]]
 indent_style = tab
 indent_size = tab

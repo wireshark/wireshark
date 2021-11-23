@@ -480,7 +480,7 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
   g_offset = startOffset + 1 + CIMD_PC_LENGTH + 1;
   g_size   = endOffset - g_offset;
 
-  payloadText = tvb_format_text(tvb, g_offset, g_size);
+  payloadText = tvb_format_text(wmem_packet_scope(), tvb, g_offset, g_size);
   size = (int)strlen(payloadText);
   tmpBuffer = (gchar*)wmem_alloc(wmem_packet_scope(), size+1);
   for (loop = 0; loop < size; loop++)

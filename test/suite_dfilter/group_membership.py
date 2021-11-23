@@ -11,21 +11,49 @@ from suite_dfilter.dfiltertest import *
 class case_membership(unittest.TestCase):
     trace_file = "http.pcap"
 
-    def test_membership_1_match(self, checkDFilterCount):
-        dfilter = 'tcp.port in {80 3267}'
+    def test_membership_match_1(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80, 3267}'
         checkDFilterCount(dfilter, 1)
 
-    def test_membership_2_range_match(self, checkDFilterCount):
+    def test_membership_match_2(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80,3267}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_match_3(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80 ,3267}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_match_4(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80 , 3267}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_match_5(self, checkDFilterCount):
+        dfilter = 'tcp.port in {  80  ,  3267  }'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_range_match_1(self, checkDFilterCount):
         dfilter = 'tcp.port in {80..81}'
         checkDFilterCount(dfilter, 1)
 
+    def test_membership_range_match_2(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80 ..81}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_range_match_3(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80.. 81}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_range_match_4(self, checkDFilterCount):
+        dfilter = 'tcp.port in {80 .. 81}'
+        checkDFilterCount(dfilter, 1)
+
     def test_membership_3_range_no_match(self, checkDFilterCount):
-        dfilter = 'tcp.dstport in {1 .. 79 81 .. 65535}'
+        dfilter = 'tcp.dstport in {1 .. 79, 81 .. 65535}'
         checkDFilterCount(dfilter, 0)
 
     def test_membership_4_range_no_match_multiple(self, checkDFilterCount):
         # Verifies that multiple fields cannot satisfy different conditions.
-        dfilter = 'tcp.port in {1 .. 79 81 .. 3266 3268 .. 65535}'
+        dfilter = 'tcp.port in {1 .. 79,81 .. 3266,3268 .. 65535}'
         checkDFilterCount(dfilter, 0)
 
     def test_membership_5_negative_range_float(self, checkDFilterCount):
@@ -37,11 +65,11 @@ class case_membership(unittest.TestCase):
         checkDFilterCount(dfilter, 0)
 
     def test_membership_7_string(self, checkDFilterCount):
-        dfilter = 'http.request.method in {"GET" "HEAD"}'
+        dfilter = 'http.request.method in {"GET", "HEAD"}'
         checkDFilterCount(dfilter, 1)
 
     def test_membership_8_ip_range(self, checkDFilterCount):
-        dfilter = 'ip.addr in { 10.0.0.5 .. 10.0.0.9 10.0.0.1..10.0.0.1 }'
+        dfilter = 'ip.addr in { 10.0.0.5 .. 10.0.0.9 , 10.0.0.1..10.0.0.1 }'
         checkDFilterCount(dfilter, 1)
 
     def test_membership_9_range_weird_float(self, checkDFilterCount):
@@ -55,6 +83,10 @@ class case_membership(unittest.TestCase):
         checkDFilterFail(dfilter, error)
 
     def test_membership_11_bad_rhs_string(self, checkDFilterFail):
-        dfilter = 'frame.number in {1 "foo"}'
+        dfilter = 'frame.number in {1, "foo"}'
         error = '"foo" cannot be converted to Unsigned integer, 4 bytes.'
         checkDFilterFail(dfilter, error)
+
+    def test_membership_12_value_string(self, checkDFilterCount):
+        dfilter = 'tcp.checksum.status in {"Unverified", "Good"}'
+        checkDFilterCount(dfilter, 1)

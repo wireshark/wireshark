@@ -13,7 +13,6 @@
 #define __W_ETW_MESSAGE_H__
 
 #include <glib.h>
-#include "config.h"
 
 #include <windows.h>
 #include <SDKDDKVer.h>

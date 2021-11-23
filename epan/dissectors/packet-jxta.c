@@ -1095,7 +1095,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
              */
             if (headernamelen > 0) {
                 proto_item_append_text(framing_header_tree_item, " \"%s\"",
-                                       tvb_format_text(tvb, tree_offset + 1, headernamelen));
+                                       tvb_format_text(pinfo->pool, tvb, tree_offset + 1, headernamelen));
             }
 
             tree_offset += 1 + headernamelen;
@@ -1646,7 +1646,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
     tree_offset += 1;
 
     name_len = tvb_get_ntohs(tvb, tree_offset);
-    proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + 2, name_len));
+    proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(pinfo->pool, tvb, tree_offset + 2, name_len));
     proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
     tree_offset += 2 + name_len;
 
@@ -1921,7 +1921,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
     } else {
         /* literal name */
         guint16 name_len = tvb_get_ntohs(tvb, tree_offset);
-        proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(tvb, tree_offset + 2, name_len));
+        proto_item_append_text(jxta_elem_tree_item, " \"%s\"", tvb_format_text(pinfo->pool, tvb, tree_offset + 2, name_len));
         proto_tree_add_item(jxta_elem_tree, hf_jxta_element_name, tvb, tree_offset, 2, ENC_ASCII|ENC_BIG_ENDIAN);
         tree_offset += 2 + name_len;
     }

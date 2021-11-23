@@ -133,7 +133,7 @@ dissect_gdb_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gdb_tree = proto_item_add_subtree(ti, ett_gdb);
 
     /* XXX support multiple sub-trees */
-    tt = tvbparse_init(tvb, 0, -1, (void *)gdb_tree, NULL);
+    tt = tvbparse_init(pinfo->pool, tvb, 0, -1, (void *)gdb_tree, NULL);
 
     while(tvbparse_get(tt, want)) {
         ;

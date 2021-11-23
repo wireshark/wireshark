@@ -8387,7 +8387,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_attribute_value,
-          { "Value",    "ndps.attribue_value",
+          { "Value",    "ndps.attribute_value",
             FT_UINT32,    BASE_HEX,   NULL,   0x0,
             NULL, HFILL }},
 

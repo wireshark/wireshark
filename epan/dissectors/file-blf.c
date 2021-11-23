@@ -115,7 +115,7 @@ static const value_string blf_object_names[] = {
     { BLF_OBJTYPE_FLEXRAY_STATUS,                   "FlexRay Status" },
     { BLF_OBJTYPE_GPS_EVENT,                        "GPS Event" },
     { BLF_OBJTYPE_FLEXRAY_ERROR,                    "FlexRay Error" },
-    { BLF_OBJTYPE_FLEXRAY_STATUS,                   "FlexRay Status" },
+    { BLF_OBJTYPE_FLEXRAY_STATUS2,                  "FlexRay Status 2" },
     { BLF_OBJTYPE_FLEXRAY_STARTCYCLE,               "FlexRay Start Cycle" },
     { BLF_OBJTYPE_FLEXRAY_RCVMESSAGE,               "FlexRay Receive Message" },
     { BLF_OBJTYPE_REALTIMECLOCK,                    "Realtime Clock" },

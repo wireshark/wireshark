@@ -162,12 +162,6 @@ struct tcapsrt_info_t {
 };
 
 /**
- * Routine called when the TAP is initialized.
- * so hash table are (re)created
- */
-void tcapsrt_init_routine(void);
-
-/**
  * Initialize the Message Info used by the main dissector
  * Data are linked to a TCAP transaction
  */

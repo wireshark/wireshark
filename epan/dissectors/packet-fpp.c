@@ -374,7 +374,30 @@ drop_conversation(conversation_t *conv) {
 static void
 drop_fragments(packet_info *pinfo) {
     tvbuff_t *tvbuf;
-    tvbuf = fragment_delete(&fpp_reassembly_table, pinfo, pinfo->p2p_dir, NULL);
+    guint interface_id;
+    guint packet_direction;
+
+    switch (pinfo->p2p_dir) {
+    case P2P_DIR_RECV:
+	    packet_direction = 0x1;
+	    break;
+    case P2P_DIR_SENT:
+	    packet_direction = 0x2;
+	    break;
+    case P2P_DIR_UNKNOWN:
+	    packet_direction = 0x0;
+	    break;
+    default:
+            packet_direction = 0x0;
+    }
+
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+	    interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+    else
+	    interface_id = 0;
+    interface_id = interface_id << 0x2;
+    tvbuf = fragment_delete(&fpp_reassembly_table, pinfo, interface_id | packet_direction, NULL);
+
     if (tvbuf != NULL) {
         tvb_free(tvbuf);
     }
@@ -404,10 +427,31 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
     gboolean save_fragmented;
     conversation_t *conv;
     fpp_ctx_t *ctx;
+    guint interface_id;
+    guint packet_direction;
 
-    conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, pinfo->p2p_dir, 0);
+    switch (pinfo->p2p_dir) {
+    case P2P_DIR_RECV:
+	    packet_direction = 0x1;
+	    break;
+    case P2P_DIR_SENT:
+	    packet_direction = 0x2;
+	    break;
+    case P2P_DIR_UNKNOWN:
+	    packet_direction = 0x0;
+	    break;
+    default:
+	    packet_direction = 0x0;
+    }
+
+    if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
+	   interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+    else
+	    interface_id = 0;
+    interface_id = interface_id << 0x2;
+    conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction, 0);
     if (!conv) {
-        conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, pinfo->p2p_dir, 0);
+        conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction, 0);
     }
 
     /* Create a tree for the preamble. */
@@ -476,7 +520,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
             }
 
             fragment_add_check(&fpp_reassembly_table,
-                               tvb, preamble_length, pinfo, pinfo->p2p_dir, NULL,
+                               tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
                                0, frag_size, TRUE);
 
             set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, 8);
@@ -504,7 +548,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
                 if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
                     fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
                     fpp_pdata->offset = ctx->size;
-                    p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir, fpp_pdata);
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
 
                     ctx->size += frag_size;
                     ctx->frag_cnt = smd2;
@@ -514,10 +558,10 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
                 }
             }
 
-            fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir);
+            fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction);
             if (fpp_pdata) {
                 fragment_add_check(&fpp_reassembly_table,
-                                   tvb, preamble_length, pinfo, pinfo->p2p_dir, NULL,
+                                   tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
                                    fpp_pdata->offset, frag_size, TRUE);
             } else {
                 drop_fragments(pinfo);
@@ -535,18 +579,18 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
                 if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
                     fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
                     fpp_pdata->offset = ctx->size;
-                    p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir, fpp_pdata);
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
                 }
 
                 drop_conversation(conv);
             }
 
-            fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir);
+            fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction);
             if (fpp_pdata) {
                 save_fragmented = pinfo->fragmented;
                 pinfo->fragmented = TRUE;
                 frag_data = fragment_add_check(&fpp_reassembly_table,
-                                               tvb, preamble_length, pinfo, pinfo->p2p_dir, NULL,
+                                               tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
                                                fpp_pdata->offset, frag_size, FALSE);
                 // Attempt reassembly.
                 new_tvb = process_reassembled_data(tvb, preamble_length, pinfo,

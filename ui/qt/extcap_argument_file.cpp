@@ -75,8 +75,8 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
         buttonSelect->setToolTip(QString().fromUtf8(_argument->tooltip));
     }
 
-    connect(buttonSelect, SIGNAL(clicked()), (QObject *)this, SLOT(openFileDialog()));
-    connect(buttonClear, SIGNAL(clicked()), (QObject *)this, SLOT(clearFilename()));
+    connect(buttonSelect, &QPushButton::clicked, this, &ExtcapArgumentFileSelection::openFileDialog);
+    connect(buttonClear, &QPushButton::clicked, this, &ExtcapArgumentFileSelection::clearFilename);
 
     editLayout->addWidget(textBox);
     editLayout->addWidget(buttonSelect);

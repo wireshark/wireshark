@@ -33,6 +33,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     enc - OpenBSD enc(4) encapsulating interface
     epon - Ethernet Passive Optical Network
     erf - Extensible Record Format
+    eri_enb_log - Ericsson eNode-B raw log
     ether - Ethernet
     ether-mpacket - IEEE 802.3br mPackets
     ether-nettl - Ethernet with nettl headers

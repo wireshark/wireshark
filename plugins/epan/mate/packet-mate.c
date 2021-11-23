@@ -16,6 +16,8 @@
  * It is intended for this to be just the user interface to the module. ***
  **************************************************************************/
 
+#include "config.h"
+
 #include "mate.h"
 #include <epan/expert.h>
 

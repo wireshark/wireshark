@@ -12,9 +12,10 @@
 #ifndef __FTYPES_H__
 #define __FTYPES_H__
 
-#include <glib.h>
+#include <wireshark.h>
+
+#include <wsutil/regex.h>
 #include <epan/wmem_scopes.h>
-#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -176,23 +177,7 @@ ftype_can_eq(enum ftenum ftype);
 
 WS_DLL_PUBLIC
 gboolean
-ftype_can_ne(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_gt(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_ge(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_lt(enum ftenum ftype);
-
-WS_DLL_PUBLIC
-gboolean
-ftype_can_le(enum ftenum ftype);
+ftype_can_cmp(enum ftenum ftype);
 
 gboolean
 ftype_can_bitwise_and(enum ftenum ftype);
@@ -227,7 +212,6 @@ typedef struct _fvalue_t {
 		/* Put a few basic types in here */
 		guint32			uinteger;
 		gint32			sinteger;
-		guint64			integer64;
 		guint64			uinteger64;
 		gint64			sinteger64;
 		gdouble			floating;
@@ -255,22 +239,18 @@ fvalue_new(ftenum_t ftype);
 void
 fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
+void
+fvalue_cleanup(fvalue_t *fv);
+
+void
+fvalue_free(fvalue_t *fv);
+
 WS_DLL_PUBLIC
 fvalue_t*
 fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg);
 
 fvalue_t*
 fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg);
-
-/* Returns the length of the string required to hold the
- * string representation of the the field value.
- *
- * Returns -1 if the string cannot be represented in the given rtype.
- *
- * The length DOES NOT include the terminating NUL. */
-WS_DLL_PUBLIC
-int
-fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 /* Creates the string representation of the field value.
  * Memory for the buffer is allocated based on wmem allocator
@@ -281,13 +261,13 @@ fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display);
  *
  * Returns NULL if the string cannot be represented in the given rtype.*/
 WS_DLL_PUBLIC char *
-fvalue_to_string_repr(wmem_allocator_t *scope, fvalue_t *fv, ftrepr_t rtype, int field_display);
+fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display);
 
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);
 
 const char*
-fvalue_type_name(fvalue_t *fv);
+fvalue_type_name(const fvalue_t *fv);
 
 void
 fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
@@ -368,7 +348,7 @@ gboolean
 fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_matches(const fvalue_t *a, const GRegex *b);
+fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
 
 guint
 fvalue_length(fvalue_t *fv);

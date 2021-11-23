@@ -15,6 +15,8 @@
 #include <epan/prefs-int.h>
 #include <epan/proto.h>
 
+#include <cfile.h>
+#include <ui/commandline.h>
 #include <ui/preference_utils.h>
 #include <wsutil/utf8_entities.h>
 
@@ -45,6 +47,8 @@ public:
         return prefs_set_bool_value(pref_, isChecked(), pref_current);
     }
 
+    pref_t *getPref() { return pref_; }
+
 private:
     pref_t *pref_;
 };
@@ -65,6 +69,8 @@ public:
     unsigned int setEnumValue() {
         return prefs_set_enum_value(pref_, enumval_, pref_current);
     }
+
+    pref_t *getPref() { return pref_; }
 
 private:
     pref_t *pref_;
@@ -88,6 +94,8 @@ public:
         uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
         uat_dlg->show();
     }
+
+    pref_t *getPref() { return pref_; }
 
 private:
     pref_t *pref_;
@@ -285,6 +293,7 @@ void ProtocolPreferencesMenu::boolPreferenceTriggered()
 
     prefs_apply(module_);
     prefs_main_write();
+    commandline_options_drop(module_->name, prefs_get_name(bpa->getPref()));
 
     if (changed_flags & PREF_EFFECT_FIELDS) {
         wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
@@ -304,6 +313,7 @@ void ProtocolPreferencesMenu::enumPreferenceTriggered()
         module_->prefs_changed_flags |= changed_flags;
         prefs_apply(module_);
         prefs_main_write();
+        commandline_options_drop(module_->name, prefs_get_name(epa->getPref()));
 
         if (changed_flags & PREF_EFFECT_FIELDS) {
             wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);

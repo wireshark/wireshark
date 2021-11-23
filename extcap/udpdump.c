@@ -44,6 +44,8 @@
 #include <wsutil/socket.h>
 #include <wsutil/please_report_bug.h>
 #include <wsutil/wslog.h>
+#include <wsutil/pint.h>
+#include <wsutil/exported_pdu_tlvs.h>
 
 #include <cli_main.h>
 
@@ -60,13 +62,6 @@
 
 #define UDPDUMP_EXPORT_HEADER_LEN 40
 
-/* Tags (from exported_pdu.h) */
-#define EXP_PDU_TAG_PROTO_NAME	12
-#define EXP_PDU_TAG_IPV4_SRC	20
-#define EXP_PDU_TAG_IPV4_DST	21
-#define EXP_PDU_TAG_SRC_PORT	25
-#define EXP_PDU_TAG_DST_PORT	26
-
 static gboolean run_loop = TRUE;
 
 enum {
@@ -77,14 +72,14 @@ enum {
 	OPT_PAYLOAD
 };
 
-static struct option longopts[] = {
+static struct ws_option longopts[] = {
 	EXTCAP_BASE_OPTIONS,
 	/* Generic application options */
-	{ "help", no_argument, NULL, OPT_HELP},
-	{ "version", no_argument, NULL, OPT_VERSION},
+	{ "help", ws_no_argument, NULL, OPT_HELP},
+	{ "version", ws_no_argument, NULL, OPT_VERSION},
 	/* Interfaces options */
-	{ "port", required_argument, NULL, OPT_PORT},
-	{ "payload", required_argument, NULL, OPT_PAYLOAD},
+	{ "port", ws_required_argument, NULL, OPT_PORT},
+	{ "payload", ws_required_argument, NULL, OPT_PAYLOAD},
     { 0, 0, 0, 0 }
 };
 
@@ -190,11 +185,9 @@ static void add_proto_name(guint8* mbuf, guint* offset, const char* proto_name)
 	size_t proto_str_len = strlen(proto_name);
 	guint16 proto_name_len = (guint16)((proto_str_len + 3) & 0xfffffffc);
 
-	mbuf[*offset] = 0;
-	mbuf[*offset+1] = EXP_PDU_TAG_PROTO_NAME;
+	phton16(mbuf + *offset, EXP_PDU_TAG_PROTO_NAME);
 	*offset += 2;
-	mbuf[*offset] = proto_name_len >> 8;
-	mbuf[*offset+1] = proto_name_len & 0xff;
+	phton16(mbuf + *offset, proto_name_len);
 	*offset += 2;
 
 	memcpy(mbuf + *offset, proto_name, proto_str_len);
@@ -203,22 +196,20 @@ static void add_proto_name(guint8* mbuf, guint* offset, const char* proto_name)
 
 static void add_ip_source_address(guint8* mbuf, guint* offset, uint32_t source_address)
 {
-	mbuf[*offset] = 0x00;
-	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_SRC;
-	mbuf[*offset+2] = 0;
-	mbuf[*offset+3] = 4;
-	*offset += 4;
+	phton16(mbuf + *offset, EXP_PDU_TAG_IPV4_SRC);
+	*offset += 2;
+	phton16(mbuf + *offset, 4);
+	*offset += 2;
 	memcpy(mbuf + *offset, &source_address, 4);
 	*offset += 4;
 }
 
 static void add_ip_dest_address(guint8* mbuf, guint* offset, uint32_t dest_address)
 {
-	mbuf[*offset] = 0;
-	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_DST;
-	mbuf[*offset+2] = 0;
-	mbuf[*offset+3] = 4;
-	*offset += 4;
+	phton16(mbuf + *offset, EXP_PDU_TAG_IPV4_DST);
+	*offset += 2;
+	phton16(mbuf + *offset, 4);
+	*offset += 2;
 	memcpy(mbuf + *offset, &dest_address, 4);
 	*offset += 4;
 }
@@ -227,11 +218,10 @@ static void add_udp_source_port(guint8* mbuf, guint* offset, uint16_t src_port)
 {
 	uint32_t port = htonl(src_port);
 
-	mbuf[*offset] = 0;
-	mbuf[*offset+1] = EXP_PDU_TAG_SRC_PORT;
-	mbuf[*offset+2] = 0;
-	mbuf[*offset+3] = 4;
-	*offset += 4;
+	phton16(mbuf + *offset, EXP_PDU_TAG_SRC_PORT);
+	*offset += 2;
+	phton16(mbuf + *offset, 4);
+	*offset += 2;
 	memcpy(mbuf + *offset, &port, 4);
 	*offset += 4;
 }
@@ -240,11 +230,10 @@ static void add_udp_dst_port(guint8* mbuf, guint* offset, uint16_t dst_port)
 {
 	uint32_t port = htonl(dst_port);
 
-	mbuf[*offset] = 0;
-	mbuf[*offset+1] = EXP_PDU_TAG_DST_PORT;
-	mbuf[*offset+2] = 0;
-	mbuf[*offset+3] = 4;
-	*offset += 4;
+	phton16(mbuf + *offset, EXP_PDU_TAG_DST_PORT);
+	*offset += 2;
+	phton16(mbuf + *offset, 4);
+	*offset += 2;
 	memcpy(mbuf + *offset, &port, 4);
 	*offset += 4;
 }
@@ -385,7 +374,7 @@ int main(int argc, char *argv[])
 	 */
 	err_msg = init_progfile_dir(argv[0]);
 	if (err_msg != NULL) {
-		ws_warning("Can't get pathname of directory containing the captype program: %s.",
+		ws_warning("Can't get pathname of directory containing the extcap program: %s.",
 			err_msg);
 		g_free(err_msg);
 	}
@@ -410,15 +399,15 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--port <port>", port_msg);
 	g_free(port_msg);
 
-	opterr = 0;
-	optind = 0;
+	ws_opterr = 0;
+	ws_optind = 0;
 
 	if (argc == 1) {
 		extcap_help_print(extcap_conf);
 		goto end;
 	}
 
-	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+	while ((result = ws_getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
 		switch (result) {
 
 		case OPT_HELP:
@@ -431,25 +420,25 @@ int main(int argc, char *argv[])
 			goto end;
 
 		case OPT_PORT:
-			if (!ws_strtou16(optarg, NULL, &port)) {
-				ws_warning("Invalid port: %s", optarg);
+			if (!ws_strtou16(ws_optarg, NULL, &port)) {
+				ws_warning("Invalid port: %s", ws_optarg);
 				goto end;
 			}
 			break;
 
 		case OPT_PAYLOAD:
 			g_free(payload);
-			payload = g_strdup(optarg);
+			payload = g_strdup(ws_optarg);
 			break;
 
 		case ':':
 			/* missing option argument */
-			ws_warning("Option '%s' requires an argument", argv[optind - 1]);
+			ws_warning("Option '%s' requires an argument", argv[ws_optind - 1]);
 			break;
 
 		default:
-			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, optarg)) {
-				ws_warning("Invalid option: %s", argv[optind - 1]);
+			if (!extcap_base_parse_options(extcap_conf, result - EXTCAP_OPT_LIST_INTERFACES, ws_optarg)) {
+				ws_warning("Invalid option: %s", argv[ws_optind - 1]);
 				goto end;
 			}
 		}
@@ -457,8 +446,8 @@ int main(int argc, char *argv[])
 
 	extcap_cmdline_debug(argv, argc);
 
-	if (optind != argc) {
-		ws_warning("Unexpected extra option: %s", argv[optind]);
+	if (ws_optind != argc) {
+		ws_warning("Unexpected extra option: %s", argv[ws_optind]);
 		goto end;
 	}
 

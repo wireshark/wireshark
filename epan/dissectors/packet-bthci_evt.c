@@ -395,6 +395,10 @@ static int hf_bthci_evt_le_features_isochronous_channels_host_support = -1;
 static int hf_bthci_evt_le_features_power_control_request = -1;
 static int hf_bthci_evt_le_features_power_change_indication = -1;
 static int hf_bthci_evt_le_features_path_loss_monitoring = -1;
+static int hf_bthci_evt_le_features_periodic_advertising_adi = -1;
+static int hf_bthci_evt_le_features_connection_subrating = -1;
+static int hf_bthci_evt_le_features_connection_subrating_host_support = -1;
+static int hf_bthci_evt_le_features_channel_classification = -1;
 static int hf_bthci_evt_le_features_reserved = -1;
 static int hf_bthci_evt_mws_number_of_transports = -1;
 static int hf_bthci_evt_mws_transport_layers = -1;
@@ -554,6 +558,8 @@ static int hf_bthci_evt_sdu_interval = -1;
 static int hf_bthci_evt_max_sdu = -1;
 static int hf_bthci_evt_framing = -1;
 static int hf_bthci_evt_peer_clock_accuracy = -1;
+static int hf_bthci_evt_subrate_factor = -1;
+static int hf_bthci_evt_continuation_number = -1;
 static int hf_packet_type_acl = -1;
 static int hf_packet_type_acl_dh5 = -1;
 static int hf_packet_type_acl_dm5 = -1;
@@ -613,6 +619,10 @@ static int * const hfx_bthci_evt_le_features[] = {
     &hf_bthci_evt_le_features_power_control_request,
     &hf_bthci_evt_le_features_power_change_indication,
     &hf_bthci_evt_le_features_path_loss_monitoring,
+    &hf_bthci_evt_le_features_periodic_advertising_adi,
+    &hf_bthci_evt_le_features_connection_subrating,
+    &hf_bthci_evt_le_features_connection_subrating_host_support,
+    &hf_bthci_evt_le_features_channel_classification,
     &hf_bthci_evt_le_features_reserved,
     NULL
 };
@@ -892,6 +902,7 @@ const value_string bthci_evt_lmp_version[] = {
     {0x09, "5.0"},
     {0x0a, "5.1"},
     {0x0b, "5.2"},
+    {0x0c, "5.3"},
     {0, NULL }
 };
 
@@ -911,6 +922,7 @@ const value_string bthci_evt_hci_version[] = {
     {0x09, "5.0"},
     {0x0a, "5.1"},
     {0x0b, "5.2"},
+    {0x0c, "5.3"},
     {0, NULL }
 };
 
@@ -1080,6 +1092,7 @@ static const value_string evt_le_meta_subevent[] = {
     { 0x20, "LE Path Loss Threshold" },
     { 0x21, "LE Transmit Power Reporting" },
     { 0x22, "LE BIGInfo Advertising Report" },
+    { 0x23, "LE Subrate Change" },
     { 0, NULL }
 };
 
@@ -3304,6 +3317,29 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_item(tree, hf_bthci_evt_encryption_mode, tvb, offset, 1, ENC_NA);
             offset += 1;
             break;
+        case 0x23: /* LE Subrate Change */
+            {
+            guint32 underlying_events;
+            proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_NA);
+            status = tvb_get_guint8(tvb, offset);
+            send_hci_summary_status_tap(status, pinfo, bluetooth_data);
+            offset += 1;
+            proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_bthci_evt_subrate_factor, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_con_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            underlying_events = (tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) + 1)*
+                                                tvb_get_guint16(tvb, offset - 2, ENC_LITTLE_ENDIAN) - 1;
+            proto_item_append_text(item, ", %u underlying events", underlying_events);
+            offset += 2;
+            proto_tree_add_item(tree, hf_bthci_evt_continuation_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            item = proto_tree_add_item(tree, hf_bthci_evt_le_supervision_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(item, " (%g sec)", tvb_get_letohs(tvb, offset)*0.01);
+            offset += 2;
+            }
+            break;
         default:
             break;
     }
@@ -3741,6 +3777,8 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         case 0x205D: /* LE Set Default Periodic Advertising Sync Transfer Parameters */
         case 0x205F: /* LE Modify Sleep Clock Accuracy */
         case 0x2074: /* LE Set Host Feature */
+        case 0x207C: /* LE Set Data Related Address Changes */
+        case 0x207D: /* LE Set Default Subrate */
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
@@ -5679,6 +5717,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         case 0x206B: /* LE BIG Create Sync */
         case 0x206D: /* LE Request Peer SCA */
         case 0x2077: /* LE Read Remote Transmit Power Level */
+        case 0x207E: /* LE Subrate Request */
             proto_tree_add_expert(tree, pinfo, &ei_event_unexpected_event, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             offset += tvb_reported_length_remaining(tvb, offset);
 
@@ -8873,9 +8912,29 @@ proto_register_bthci_evt(void)
             FT_BOOLEAN, 64, NULL, 0x0800000000,
             NULL, HFILL }
         },
+        { &hf_bthci_evt_le_features_periodic_advertising_adi,
+          { "Periodic Advertising ADI", "bthci_evt.le_features.periodic_advertising_adi",
+            FT_BOOLEAN, 64, NULL, 0x1000000000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_connection_subrating,
+          { "Connection Subrating", "bthci_evt.le_features.connection_subrating",
+            FT_BOOLEAN, 64, NULL, 0x2000000000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_connection_subrating_host_support,
+          { "Connection Subrating (Host support)", "bthci_evt.le_features.connection_subrating_host_support",
+            FT_BOOLEAN, 64, NULL, 0x4000000000,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_le_features_channel_classification,
+          { "Channel Classification", "bthci_evt.le_features.channel_classification",
+            FT_BOOLEAN, 64, NULL, 0x8000000000,
+            NULL, HFILL }
+        },
         { &hf_bthci_evt_le_features_reserved,
             { "Reserved",                                  "bthci_evt.le_features.reserved",
-            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFF000000000),
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFF0000000000),
             NULL, HFILL }
         },
         { &hf_bthci_evt_mws_number_of_transports,
@@ -9766,6 +9825,16 @@ proto_register_bthci_evt(void)
         { &hf_bthci_evt_peer_clock_accuracy,
           { "Peer Clock Accuracy", "bthci_evt.peer_clock_accuracy",
             FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_clock_accuray_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_subrate_factor,
+          { "Subrate Factor", "bthci_evt.subrate_factor",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_number_events, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_evt_continuation_number,
+          { "Continuation Number", "bthci_evt.continuation_number",
+            FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_number_events, 0x0,
             NULL, HFILL }
         },
 

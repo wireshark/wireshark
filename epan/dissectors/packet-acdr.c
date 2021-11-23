@@ -55,6 +55,8 @@
 // Signaling Packet Macros:
 #define HEADER_FIELD_SIG_OPCODE_BYTE_NO 0
 #define HEADER_FIELD_SIG_OPCODE_BYTE_COUNT 2
+#define HEADER_FIELD_SIG_SIZE_BYTE_NO 2
+#define HEADER_FIELD_SIG_SIZE_BYTE_COUNT 2
 #define HEADER_FIELD_SIG_TIME_BYTE_NO 2
 #define HEADER_FIELD_SIG_TIME_BYTE_COUNT 4
 #define HEADER_FIELD_SIG_MESSAGE_BYTE_NO 6
@@ -351,6 +353,7 @@ static int hf_ac5x_packet = -1;
 
 static int hf_signaling_packet = -1;
 static int hf_acdr_signaling_opcode = -1;
+static int hf_acdr_signaling_size = -1;
 static int hf_acdr_signaling_timestamp = -1;
 
 
@@ -403,7 +406,6 @@ static dissector_handle_t lix2x3_dissector_handle;
 
 static void dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                guint8 media_type, guint16 payload_type);
-static int  dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void create_5x_analysis_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 static void create_5x_hpi_packet_header_subtree(proto_tree *tree, tvbuff_t *tvb);
 
@@ -924,30 +926,33 @@ dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 m
 }
 
 static int
-dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_signaling_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 trace_point)
 {
     tvbuff_t *next_tvb = NULL;
-    proto_item *ti = NULL;
-    guint32 tmp;
-    gint64 timestamp;
+    gint32 offset = 0;
+    gint remaining;
+    const gboolean is_incoming = trace_point == Host2Pstn || trace_point == DspIncoming;
 
     proto_tree_add_item(tree, hf_acdr_signaling_opcode, tvb, HEADER_FIELD_SIG_OPCODE_BYTE_NO,
                         HEADER_FIELD_SIG_OPCODE_BYTE_COUNT, ENC_BIG_ENDIAN);
-    ti = proto_tree_add_item(tree, hf_acdr_signaling_timestamp, tvb, HEADER_FIELD_SIG_TIME_BYTE_NO,
-                             HEADER_FIELD_SIG_TIME_BYTE_COUNT, ENC_NA);
+    offset += HEADER_FIELD_SIG_OPCODE_BYTE_COUNT;
+    if (is_incoming) {
+        proto_tree_add_item(tree, hf_acdr_signaling_size, tvb, HEADER_FIELD_SIG_SIZE_BYTE_NO,
+                            HEADER_FIELD_SIG_SIZE_BYTE_COUNT, ENC_BIG_ENDIAN);
+        offset += HEADER_FIELD_SIG_SIZE_BYTE_COUNT;
+    } else {
+        const guint32 timestamp = tvb_get_ntohl(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO);
+        nstime_t time = {timestamp / 1000000, (timestamp % 1000000) * 1000};
+        proto_tree_add_time_format_value(
+                    tree, hf_acdr_signaling_timestamp, tvb, HEADER_FIELD_SIG_TIME_BYTE_NO,
+                    HEADER_FIELD_SIG_TIME_BYTE_COUNT, &time, "%f sec", timestamp / 1000000.0f);
+        offset += HEADER_FIELD_SIG_TIME_BYTE_COUNT;
+    }
 
-    tmp = tvb_get_ntohl(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO);
-
-    timestamp = (((gint64) tmp) << 16);
-    tmp = tvb_get_ntohs(tvb, HEADER_FIELD_SIG_TIME_BYTE_NO + 2);
-    timestamp |= tmp;
-
-    proto_item_append_text(ti, " (%f sec)", timestamp / 1000000.0);
-
-    next_tvb = tvb_new_subset_length_caplen(
-        tvb, HEADER_FIELD_SIG_MESSAGE_BYTE_NO,
-        tvb_reported_length_remaining(tvb, HEADER_FIELD_SIG_OPCODE_BYTE_COUNT +
-                                      HEADER_FIELD_SIG_TIME_BYTE_COUNT), -1);
+    remaining = tvb_reported_length_remaining(tvb, offset);
+    if (remaining == 0)
+        return tvb_reported_length(tvb);
+    next_tvb = tvb_new_subset_length_caplen(tvb, offset, remaining, -1);
 
     return call_data_dissector(next_tvb, pinfo, tree);
 }
@@ -971,10 +976,8 @@ static void
 create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
     proto_item *header_ti = NULL;
-    proto_item *ti = NULL;
     proto_tree *acdr_tree;
     tvbuff_t *next_tvb = NULL;
-    guint32 tmp;
     gint offset = 0;
     gint header_byte_length = 15;
     gint cid_byte_length = 2;
@@ -983,6 +986,8 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
     guint8 media_type, extra_data;
     gboolean medium_mii = 0;
     gint64 timestamp;
+    nstime_t time = NSTIME_INIT_ZERO;
+    gint time_size = 0;
     int acdr_header_length;
     gboolean header_added;
     gboolean li_packet;
@@ -1023,18 +1028,17 @@ create_acdr_tree(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 
     // Timestamp
     if ((version & 0xF) <= 3) {
-        ti = proto_tree_add_item(acdr_tree, hf_acdr_timestamp, tvb, offset, 6, ENC_NA);
-        tmp = tvb_get_ntohl(tvb, offset);
-        timestamp = (((gint64) tmp) << 16);
-        tmp = tvb_get_ntohs(tvb, offset + 4);
-        timestamp |= tmp;
-        offset += 6;
+        timestamp = (tvb_get_ntohl(tvb, offset) << 16) | tvb_get_ntohs(tvb, offset + 4);
+        time_size = 6;
     } else {
-        ti = proto_tree_add_item(acdr_tree, hf_acdr_timestamp, tvb, offset, 4, ENC_NA);
         timestamp = tvb_get_ntohl(tvb, offset);
-        offset += 4;
+        time_size = 4;
     }
-    proto_item_append_text(ti, " (%f sec)", timestamp / 1000000.0);
+    time.secs = timestamp / 1000000;
+    time.nsecs = (timestamp % 1000000) * 1000;
+    proto_tree_add_time_format_value(acdr_tree, hf_acdr_timestamp, tvb, offset, time_size, &time,
+                                     "%f sec", timestamp / 1000000.0f);
+    offset += time_size;
 
     // Sequence Number
     if ((version & 0xF) >= 4) {
@@ -1362,7 +1366,7 @@ proto_register_acdr(void)
         },
         { &hf_acdr_timestamp,
             { "Time Stamp", "acdr.timestamp",
-                FT_BYTES, BASE_NONE,
+                FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 "timestamp in us resolution", HFILL }
         },
@@ -1752,14 +1756,20 @@ proto_register_acdr(void)
             NULL, HFILL }
         },
         { &hf_acdr_signaling_opcode,
-            { "Signaling OpCode", "acdr.signaling_opcode",
+            { "OpCode", "acdr.signaling_opcode",
                 FT_UINT16, BASE_HEX,
                 NULL, 0x0,
                 NULL, HFILL }
         },
+        { &hf_acdr_signaling_size,
+            { "Size", "acdr.signaling_size",
+                FT_UINT16, BASE_DEC,
+                NULL, 0x0,
+                NULL, HFILL }
+        },
         { &hf_acdr_signaling_timestamp,
-            { "Signaling Timestamp", "acdr.signaling_timestamp",
-                FT_BYTES, BASE_NONE,
+            { "Timestamp", "acdr.signaling_timestamp",
+                FT_RELATIVE_TIME, BASE_NONE,
                 NULL, 0x0,
                 "Timestamp in us resolution", HFILL }
         }
@@ -1918,7 +1928,7 @@ dissect_acdr_signaling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_item *packet_item = proto_tree_add_item(tree, hf_signaling_packet, tvb, 0, -1, ENC_NA);
     proto_tree *packet_tree = proto_item_add_subtree(packet_item, ett_signaling_packet);
 
-    int res = dissect_signaling_packet(tvb, pinfo, packet_tree);
+    int res = dissect_signaling_packet(tvb, pinfo, packet_tree, acdr_data->trace_point);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Signaling");
     col_clear(pinfo->cinfo, COL_INFO);

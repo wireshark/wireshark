@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <glib.h>
 
+#include <ws_attributes.h>
+
 #include "capture/capture-wpcap.h"
 
 gboolean has_wpcap = FALSE;

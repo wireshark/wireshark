@@ -150,7 +150,7 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     prefix_length = tvb_get_guint8(tvb, offset);
     prefix_afi = tvb_get_ntohs(tvb, offset + 1);
 
-    prefix = get_addr_str(tvb, offset + 3, prefix_afi, &addr_len);
+    prefix = get_addr_str(pinfo->pool, tvb, offset + 3, prefix_afi, &addr_len);
 
     if (prefix == NULL) {
         expert_add_info_format(pinfo, message_tree, &ei_lisp_tcp_unexpected_afi,
@@ -412,15 +412,15 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         switch (afi) {
         case AFNUM_INET:
             proto_tree_add_item(message_tree, hf_lisp_tcp_message_rloc_ipv4, tvb, offset, INET_ADDRLEN, ENC_NA);
-            proto_item_append_text(tim, ", RLOC: %s", tvb_ip_to_str(tvb, offset));
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%u] %s", iid, tvb_ip_to_str(tvb, offset));
+            proto_item_append_text(tim, ", RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [%u] %s", iid, tvb_ip_to_str(pinfo->pool, tvb, offset));
             offset += INET_ADDRLEN;
             data_len -= INET_ADDRLEN;
             break;
         case AFNUM_INET6:
             proto_tree_add_item(message_tree, hf_lisp_tcp_message_rloc_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
-            proto_item_append_text(tim, ", RLOC: %s", tvb_ip6_to_str(tvb, offset));
-            col_append_fstr(pinfo->cinfo, COL_INFO, " [%u] %s", iid, tvb_ip6_to_str(tvb, offset));
+            proto_item_append_text(tim, ", RLOC: %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [%u] %s", iid, tvb_ip6_to_str(pinfo->pool, tvb, offset));
             offset += INET6_ADDRLEN;
             data_len -= INET6_ADDRLEN;
             break;

@@ -296,7 +296,7 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_in
                     /* XXX - the IrCOMM V1.0 spec says this "Normally
                        human readable text, but not required". */
                     proto_item_append_text(ti, ": Port Name (\"%s\")",
-                        tvb_format_text(tvb, offset+2, p_len));
+                        tvb_format_text(pinfo->pool, tvb, offset+2, p_len));
 
                     break;
 

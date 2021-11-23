@@ -15,10 +15,12 @@
 
 #include <string.h>
 
-#include <ftypes/ftypes-int.h>
 #include <ftypes/ftypes.h>
 #include <epan/exceptions.h>
 #include <wsutil/ws_assert.h>
+
+#define FAIL(dfw, ...) \
+	dfilter_fail_throw(dfw, TypeError, __VA_ARGS__)
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
@@ -168,157 +170,100 @@ df_func_string(GList* arg1list, GList *arg2junk _U_, GList **retval)
 /* For upper() and lower() checks that the parameter passed to
  * it is an FT_STRING */
 static void
-ul_semcheck_params(dfwork_t *dfw, int param_num, stnode_t *st_node)
+ul_semcheck_is_field_string(dfwork_t *dfw, const char *func_name,
+                            int param_num, stnode_t *st_node)
 {
-    sttype_id_t type;
-    ftenum_t    ftype;
     header_field_info *hfinfo;
 
-    type = stnode_type_id(st_node);
+    ws_assert(param_num == 0);
 
-    if (param_num == 0) {
-        switch(type) {
-            case STTYPE_FIELD:
-                hfinfo = (header_field_info *)stnode_data(st_node);
-                ftype = hfinfo->type;
-                if (!IS_FT_STRING(ftype)) {
-                    dfilter_fail(dfw, "Only strings can be used in upper() or lower() or len()");
-                    THROW(TypeError);
-                }
-                break;
-            default:
-                dfilter_fail(dfw, "Only string-type fields can be used in upper() or lower() or len()");
-                THROW(TypeError);
+    if (stnode_type_id(st_node) == STTYPE_FIELD) {
+        hfinfo = stnode_data(st_node);
+        if (IS_FT_STRING(hfinfo->type)) {
+            return;
         }
     }
-    else {
-        ws_assert_not_reached();
-    }
-}
-
-/* For len() checks that the parameter passed is valid */
-static void
-ul_semcheck_len_params(dfwork_t *dfw, int param_num, stnode_t *st_node)
-{
-    sttype_id_t type;
-
-    type = stnode_type_id(st_node);
-
-    if (param_num == 0) {
-        switch(type) {
-            case STTYPE_FIELD:
-                break;
-            default:
-                dfilter_fail(dfw, "invalid type in function len()");
-                THROW(TypeError);
-        }
-    }
-    else {
-        ws_assert_not_reached();
-    }
+    FAIL(dfw, "Only string type fields can be used as parameter for %s()", func_name);
 }
 
 static void
-ul_semcheck_field_param(dfwork_t *dfw, int param_num, stnode_t *st_node)
+ul_semcheck_is_field(dfwork_t *dfw, const char *func_name,
+                            int param_num, stnode_t *st_node)
 {
-    sttype_id_t type;
+    ws_assert(param_num == 0);
 
-    type = stnode_type_id(st_node);
+    if (stnode_type_id(st_node) == STTYPE_FIELD)
+        return;
 
-    if (param_num == 0) {
-        switch(type) {
-            case STTYPE_FIELD:
-                break;
-            default:
-                dfilter_fail(dfw, "Only type fields can be used as parameter for count()");
-                THROW(TypeError);
-        }
-    }
-    else {
-        ws_assert_not_reached();
-    }
+    FAIL(dfw, "Only fields can be used as parameter for %s()", func_name);
 }
 
 static void
-ul_semcheck_string_param(dfwork_t *dfw, int param_num, stnode_t *st_node)
+ul_semcheck_string_param(dfwork_t *dfw, const char *func_name,
+                            int param_num, stnode_t *st_node)
 {
-    sttype_id_t type;
-    ftenum_t    ftype;
     header_field_info *hfinfo;
-    const char* msg = "To string conversion for this field is not supported";
 
-    type = stnode_type_id(st_node);
+    ws_assert(param_num == 0);
 
-    if (param_num == 0) {
-        switch(type) {
-            case STTYPE_FIELD:
-                hfinfo = (header_field_info *)stnode_data(st_node);
-                ftype = hfinfo->type;
-                switch (ftype)
-                {
-                case FT_UINT8:
-                case FT_UINT16:
-                case FT_UINT24:
-                case FT_UINT32:
-                case FT_UINT40:
-                case FT_UINT48:
-                case FT_UINT56:
-                case FT_UINT64:
-                case FT_INT8:
-                case FT_INT16:
-                case FT_INT32:
-                case FT_INT40:
-                case FT_INT48:
-                case FT_INT56:
-                case FT_INT64:
-                case FT_IPv4:
-                case FT_IPv6:
-                case FT_FLOAT:
-                case FT_DOUBLE:
-                case FT_ETHER:
-                case FT_FRAMENUM:
-                case FT_AX25:
-                case FT_IPXNET:
-                case FT_GUID:
-                case FT_OID:
-                case FT_EUI64:
-                case FT_VINES:
-                case FT_REL_OID:
-                case FT_SYSTEM_ID:
-                case FT_FCWWN:
-                case FT_IEEE_11073_SFLOAT:
-                case FT_IEEE_11073_FLOAT:
-                    break;
-                default:
-                    dfilter_fail(dfw, "%s", msg);
-                    THROW(TypeError);
-                    break;
-                }
-                break;
+    if (stnode_type_id(st_node) == STTYPE_FIELD) {
+        hfinfo = stnode_data(st_node);
+        switch (hfinfo->type) {
+            case FT_UINT8:
+            case FT_UINT16:
+            case FT_UINT24:
+            case FT_UINT32:
+            case FT_UINT40:
+            case FT_UINT48:
+            case FT_UINT56:
+            case FT_UINT64:
+            case FT_INT8:
+            case FT_INT16:
+            case FT_INT32:
+            case FT_INT40:
+            case FT_INT48:
+            case FT_INT56:
+            case FT_INT64:
+            case FT_IPv4:
+            case FT_IPv6:
+            case FT_FLOAT:
+            case FT_DOUBLE:
+            case FT_ETHER:
+            case FT_FRAMENUM:
+            case FT_AX25:
+            case FT_IPXNET:
+            case FT_GUID:
+            case FT_OID:
+            case FT_EUI64:
+            case FT_VINES:
+            case FT_REL_OID:
+            case FT_SYSTEM_ID:
+            case FT_FCWWN:
+            case FT_IEEE_11073_SFLOAT:
+            case FT_IEEE_11073_FLOAT:
+                return;
             default:
-                dfilter_fail(dfw, "%s", msg);
-                THROW(TypeError);
+                break;
         }
+        FAIL(dfw, "String conversion for field \"%s\" is not supported", hfinfo->abbrev);
     }
-    else {
-        ws_assert_not_reached();
-    }
+    FAIL(dfw, "Only fields can be used as parameter for %s()", func_name);
 }
 
 /* The table of all display-filter functions */
 static df_func_def_t
 df_functions[] = {
-    { "lower",  df_func_lower,  FT_STRING, 1, 1, ul_semcheck_params },
-    { "upper",  df_func_upper,  FT_STRING, 1, 1, ul_semcheck_params },
-    { "len",    df_func_len,    FT_UINT32, 1, 1, ul_semcheck_len_params },
-    { "count",  df_func_count,  FT_UINT32, 1, 1, ul_semcheck_field_param },
+    { "lower",  df_func_lower,  FT_STRING, 1, 1, ul_semcheck_is_field_string },
+    { "upper",  df_func_upper,  FT_STRING, 1, 1, ul_semcheck_is_field_string },
+    { "len",    df_func_len,    FT_UINT32, 1, 1, ul_semcheck_is_field },
+    { "count",  df_func_count,  FT_UINT32, 1, 1, ul_semcheck_is_field },
     { "string", df_func_string, FT_STRING, 1, 1, ul_semcheck_string_param },
     { NULL, NULL, FT_NONE, 0, 0, NULL }
 };
 
 /* Lookup a display filter function record by name */
 df_func_def_t*
-df_func_lookup(char *name)
+df_func_lookup(const char *name)
 {
     df_func_def_t *func_def;
 

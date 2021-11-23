@@ -1023,7 +1023,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     case DPNSS_CAUSE:
 */
     default:
-        par_data = tvb_format_text(tvb,par_start_offset, par_len);
+        par_data = tvb_format_text(wmem_packet_scope(), tvb,par_start_offset, par_len);
         /* Used to print all pars without any special handling */
         proto_tree_add_string_format(tree, hf_dpnss_parameter, tvb, par_start_offset, par_len, par_data, "Parameter %s: %s",
             val_to_str(par_type_num, dpnss_sup_serv_par_str_vals, "Unknown (%d)" ), par_data);
@@ -1090,7 +1090,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             hash_offset = tvb_find_guint8(tvb, offset, -1, '#');
             sup_str_tree = proto_tree_add_subtree_format(tree, tvb, start_offset, hash_offset-start_offset+1,
                                                ett_dpnss_sup_str, NULL, "Supplementary Information %u: %s",str_no,
-                                               tvb_format_text(tvb,start_offset,hash_offset-start_offset+1));
+                                               tvb_format_text(pinfo->pool, tvb,start_offset,hash_offset-start_offset+1));
             /* SUPPLEMENTARY INFORMATION STRING IDENTIFIER
              * Get the parameter number string and translate it to an index into the dpnns_sup_serv_set.
              * The number may have a trailing alpha character at the end.
@@ -1102,7 +1102,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
                 sup_inf_str_end_offset = hash_offset;
             }
             sup_inf_str_len = sup_inf_str_end_offset - offset;
-            ws_strtou32(tvb_format_text(tvb, offset, sup_inf_str_len), NULL, &sup_str_num);
+            ws_strtou32(tvb_format_text(pinfo->pool, tvb, offset, sup_inf_str_len), NULL, &sup_str_num);
             if ((sup_str_num != 0) && (sup_str_num < array_length(dpnns_sup_serv_set))) {
                 proto_tree_add_string(sup_str_tree, hf_dpnss_sup_str, tvb, offset, sup_inf_str_len,
                                     dpnns_sup_serv_set[sup_str_num].compact_name);

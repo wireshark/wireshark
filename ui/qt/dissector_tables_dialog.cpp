@@ -36,6 +36,8 @@ DissectorTablesDialog::DissectorTablesDialog(QWidget *parent) :
     //expand the "type" tables
     ui->tableTree->expandToDepth(0);
     ui->tableTree->resizeColumnToContents(DissectorTablesModel::colTableName);
+
+    ui->txtSearchLine->setFocus();
 }
 
 DissectorTablesDialog::~DissectorTablesDialog()

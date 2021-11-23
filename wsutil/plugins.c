@@ -10,6 +10,7 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+#include "plugins.h"
 
 #include <time.h>
 
@@ -18,7 +19,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <glib.h>
 #include <gmodule.h>
 
 #include <wsutil/filesystem.h>
@@ -26,9 +26,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
-
-#include <wsutil/plugins.h>
-#include <wsutil/ws_assert.h>
 
 typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */

@@ -18,24 +18,13 @@
 /* Debug section: internal function to print debug information						*/
 /*																										*/
 #ifndef WS_DISABLE_DEBUG
-#include <epan/to_str.h>
 
-static inline void
-debug_dump(const char *file, int line, const char* func,
-           const char* x, const guint8* y, size_t z, enum ws_log_level level)
-{
-    if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
-        return;
-    char* tmp_str = bytes_to_str(NULL, y, (z));
-    ws_log_write_always_full(WS_LOG_DOMAIN, level, file, line, func, "%s: %s", x, tmp_str);
-    wmem_free(NULL, tmp_str);
-}
-
-#define DEBUG_DUMP(x, y, z, level) debug_dump(__FILE__, __LINE__, G_STRFUNC, x, y, z, level)
+#define DEBUG_DUMP(name, ptr, size, level) \
+    ws_log_buffer_full(WS_LOG_DOMAIN, level, __FILE__, __LINE__, G_STRFUNC, ptr, size, 72, name);
 
 #else	/* defined WS_DISABLE_DEBUG */
 
-#define DEBUG_DUMP(x, y, z, level)
+#define DEBUG_DUMP(name, ptr, size, level)
 
 #endif	/* ?defined WS_DISABLE_DEBUG */
 

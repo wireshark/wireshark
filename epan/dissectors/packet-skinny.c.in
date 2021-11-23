@@ -248,11 +248,35 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6)
   }
 }
 
+/* Reads address to provided variable */
+static void
+read_skinny_ipv4or6(ptvcursor_t *cursor, address *media_addr)
+{
+  guint32            ipversion   = IPADDRTYPE_IPV4;
+  guint32            offset      = ptvcursor_current_offset(cursor);
+  guint32            offset2     = 0;
+  tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
+  guint32            hdr_version = tvb_get_letohl(tvb, 4);
+
+  /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
+  if (hdr_version >= V17_MSG_TYPE) {
+    ipversion = tvb_get_letohl(tvb, offset);
+    offset2 = 4;
+  }
+  if (ipversion == IPADDRTYPE_IPV4) {
+    set_address_tvb(media_addr, AT_IPv4, 4, tvb, offset+offset2);
+  } else if (ipversion == IPADDRTYPE_IPV6 || ipversion == IPADDRTYPE_IPV4_V6) {
+    set_address_tvb(media_addr, AT_IPv6, 16, tvb, offset+offset2);
+  } else {
+    clear_address(media_addr);
+  }
+}
+
 /**
  * Parse a displayLabel string and check if it is using any embedded labels, if so lookup the label and add a user readable translation to the item_tree
  */
 static void
-dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
+dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex, gint length)
 {
   proto_item    *item             = NULL;
   proto_tree    *tree             = ptvcursor_tree(cursor);
@@ -297,6 +321,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, int hfindex, gint length)
     }
   }
   if (show_replaced_str) {
+    si->additionalInfo = g_strdup_printf("\"%s\"", wmem_strbuf_get_str(wmem_new));
     proto_item_append_text(item, " => \"%s\"" , wmem_strbuf_get_str(wmem_new));
   }
   ptvcursor_advance(cursor, length);
@@ -313,7 +338,7 @@ static void skinny_reqrep_add_request(ptvcursor_t *cursor, packet_info * pinfo, 
     req_resp = wmem_new0(wmem_file_scope(), skinny_req_resp_t);
     req_resp->request_frame = pinfo->num;
     req_resp->response_frame = 0;
-    req_resp->request_time = pinfo->fd->abs_ts;
+    req_resp->request_time = pinfo->abs_ts;
     wmem_map_insert(skinny_conv->pending_req_resp, GINT_TO_POINTER(request_key), (void *)req_resp);
     DPRINT(("SKINNY: setup_request: frame=%d add key=%d to map\n", pinfo->num, request_key));
   }
@@ -356,7 +381,7 @@ static void skinny_reqrep_add_response(ptvcursor_t *cursor, packet_info * pinfo,
     it = proto_tree_add_uint(tree, hf_skinny_response_to, tvb, 0, 0, req_resp->request_frame);
     proto_item_set_generated(it);
 
-    nstime_delta(&ns, &pinfo->fd->abs_ts, &req_resp->request_time);
+    nstime_delta(&ns, &pinfo->abs_ts, &req_resp->request_time);
     it = proto_tree_add_time(tree, hf_skinny_response_time, tvb, 0, 0, &ns);
     proto_item_set_generated(it);
   } else {
@@ -461,6 +486,8 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   si->multimediaReceptionStatus = -1;
   si->multimediaTransmissionStatus = -1;
   si->multicastReceptionStatus = -1;
+  g_free(si->additionalInfo);
+  si->additionalInfo = NULL;
 
   col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", si->messageName);
   col_set_fence(pinfo->cinfo, COL_INFO);
@@ -486,7 +513,7 @@ static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   }
   offset += 12;
 
-  cursor = ptvcursor_new(skinny_tree, tvb, offset);
+  cursor = ptvcursor_new(pinfo->pool, skinny_tree, tvb, offset);
   if (opcode_entry && opcode_entry->handler) {
     opcode_entry->handler(cursor, pinfo, skinny_conv);
   }

@@ -1,6 +1,6 @@
 /* packet-isobus.c
  * Routines for ISObus dissection (Based on CANOpen Dissector)
- * Copyright 2016, Jeroen Sack <jsack@lely.com>
+ * Copyright 2016, Jeroen Sack <jeroen@jeroensack.nl>
  * ISO 11783
  *
  * Wireshark - Network traffic analyzer

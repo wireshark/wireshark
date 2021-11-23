@@ -89,8 +89,8 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
             if (wtWidget && qobject_cast<WirelessTimeline *>(wtWidget))
             {
                 WirelessTimeline * wt = qobject_cast<WirelessTimeline *>(wtWidget);
-                connect(this, SIGNAL(bgColorizationProgress(int, int)),
-                        wt, SLOT(bgColorizationProgress(int, int)));
+                connect(this, &PacketListModel::bgColorizationProgress,
+                        wt, &WirelessTimeline::bgColorizationProgress);
             }
 
     }

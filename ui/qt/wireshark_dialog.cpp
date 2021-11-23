@@ -39,8 +39,7 @@ WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
     setWindowIcon(wsApp->normalIcon());
     setWindowSubtitle(QString());
 
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
-            this, SLOT(captureEvent(CaptureEvent)));
+    connect(&cap_file_, &CaptureFile::captureEvent, this, &WiresharkDialog::captureEvent);
 }
 
 void WiresharkDialog::accept()

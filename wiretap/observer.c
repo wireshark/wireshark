@@ -546,6 +546,7 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
 {
     /* set the wiretap record metadata fields */
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.pkt_encap = observer_to_wtap_encap(packet_header->network_type);
     if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {

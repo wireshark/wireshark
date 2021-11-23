@@ -31,7 +31,7 @@ struct _funnel_text_window_t {
 
 static GPtrArray *text_windows = NULL;
 
-static funnel_text_window_t *new_text_window(const gchar *title) {
+static funnel_text_window_t *new_text_window(funnel_ops_id_t *ops_id _U_, const gchar *title) {
     funnel_text_window_t *tw = g_new(funnel_text_window_t, 1);
     tw->title = g_strdup(title);
     tw->text = g_string_new("");

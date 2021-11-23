@@ -76,7 +76,6 @@ static struct tcapsrt_info_t tcapsrt_global_info[MAX_TCAP_INSTANCE];
 static range_t *global_ssn_range;
 static range_t *ssn_range;
 
-gboolean gtcap_HandleSRT=FALSE;
 /* These two timeout (in second) are used when some message are lost,
    or when the same TCAP transcation identifier is reused */
 guint gtcap_RepetitionTimeout = 10;
@@ -1883,7 +1882,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
   gp_tcap_context=NULL;
   dissect_tcap_TCMessage(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 
-  if (gtcap_HandleSRT && !tcap_subdissector_used ) {
+  if (!tcap_subdissector_used ) {
     p_tcap_context=tcapsrt_call_matching(tvb, pinfo, tcap_stat_tree, gp_tcapsrt_info);
     p_tcap_private->context=p_tcap_context;
 
@@ -1899,7 +1898,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         p_tcap_context->subdissector_present=TRUE;
       }
     }
-    if (gtcap_HandleSRT && p_tcap_context && p_tcap_context->callback) {
+    if (p_tcap_context && p_tcap_context->callback) {
       /* Callback fonction for the upper layer */
       (p_tcap_context->callback)(tvb, pinfo, tcap_stat_tree, p_tcap_context);
     }
@@ -2046,10 +2045,7 @@ proto_register_tcap(void)
                                   "SCCP (and SUA) SSNs to decode as TCAP",
                                   &global_ssn_range, MAX_SSN);
 
-  prefs_register_bool_preference(tcap_module, "srt",
-                                 "Service Response Time Analyse",
-                                 "Activate the analyse for Response Time",
-                                 &gtcap_HandleSRT);
+  prefs_register_obsolete_preference(tcap_module, "srt");
 
   prefs_register_bool_preference(tcap_module, "persistentsrt",
                                  "Persistent stats for SRT",
@@ -2106,8 +2102,11 @@ static void init_tcap(void)
   /* Reset the session counter */
   tcapsrt_global_SessionId=1;
 
-  /* Display of SRT only if Persistent Stat */
-  gtcap_DisplaySRT=gtcap_PersistentSRT || gtcap_HandleSRT&gtcap_StatSRT;
+  /* Display of SRT is enabled
+   * 1) For wireshark only if Persistent Stat is enabled
+   * 2) For tshark, if the CLI SRT tap is registered
+   */
+  gtcap_DisplaySRT=gtcap_PersistentSRT || gtcap_StatSRT;
 }
 
 static void cleanup_tcap(void)
@@ -2210,17 +2209,15 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
   /*
    * Handle The TCAP Service Response Time
    */
-  if ( gtcap_HandleSRT ) {
-    if (!tcap_subdissector_used) {
-      p_tcap_context=tcapsrt_call_matching(tvb, actx->pinfo, tcap_stat_tree, gp_tcapsrt_info);
-      tcap_subdissector_used=TRUE;
-      gp_tcap_context=p_tcap_context;
-      p_tcap_private->context=p_tcap_context;
-    } else {
-      /* Take the last TCAP context */
-      p_tcap_context = gp_tcap_context;
-      p_tcap_private->context=p_tcap_context;
-    }
+  if (!tcap_subdissector_used) {
+    p_tcap_context=tcapsrt_call_matching(tvb, actx->pinfo, tcap_stat_tree, gp_tcapsrt_info);
+    tcap_subdissector_used=TRUE;
+    gp_tcap_context=p_tcap_context;
+    p_tcap_private->context=p_tcap_context;
+  } else {
+    /* Take the last TCAP context */
+    p_tcap_context = gp_tcap_context;
+    p_tcap_private->context=p_tcap_context;
   }
   if (p_tcap_context) {
       if (cur_oid) {

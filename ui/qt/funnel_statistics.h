@@ -13,7 +13,6 @@
 #include <QObject>
 
 #include "capture_file.h"
-#include "funnel_text_dialog.h"
 #include <ui/qt/filter_action.h>
 
 struct _funnel_ops_t;

@@ -34,11 +34,19 @@ static int hf_http3_push_id = -1;
 static int hf_http3_frame_type = -1;
 static int hf_http3_frame_length = -1;
 static int hf_http3_frame_payload = -1;
+static int hf_http3_settings = -1;
+static int hf_http3_settings_identifier = -1;
+static int hf_http3_settings_value = -1;
+static int hf_http3_settings_qpack_max_table_capacity = -1;
+static int hf_http3_settings_max_field_section_size = -1;
+static int hf_http3_settings_qpack_blocked_streams = -1;
+
 static expert_field ei_http3_unknown_stream_type = EI_INIT;
 static expert_field ei_http3_data_not_decoded = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_http3 = -1;
+static gint ett_http3_settings = -1;
 
 /**
  * Unidirectional stream types.
@@ -70,26 +78,49 @@ static const val64_string http3_stream_types[] = {
  * Frame type codes (62-bit code space).
  * https://tools.ietf.org/html/draft-ietf-quic-http-29#section-11.2.1
  */
+#define HTTP3_DATA            0x0
+#define HTTP3_HEADERS         0x1
+#define HTTP3_CANCEL_PUSH     0x3
+#define HTTP3_SETTINGS        0x4
+#define HTTP3_PUSH_PROMISE    0x5
+#define HTTP3_GOAWAY          0x7
+#define HTTP3_MAX_PUSH_ID     0xD
+
 static const val64_string http3_frame_types[] = {
     /* 0x00 - 0x3f Assigned via Standards Action or IESG Approval. */
-    { 0x00, "DATA" },
-    { 0x01, "HEADERS" },
+    { HTTP3_DATA, "DATA" },
+    { HTTP3_HEADERS, "HEADERS" },
     { 0x02, "Reserved" },       // "PRIORITY" in draft-22 and before
-    { 0x03, "CANCEL_PUSH" },
-    { 0x04, "SETTINGS" },
-    { 0x05, "PUSH_PROMISE" },
+    { HTTP3_CANCEL_PUSH, "CANCEL_PUSH" },
+    { HTTP3_SETTINGS, "SETTINGS" },
+    { HTTP3_PUSH_PROMISE, "PUSH_PROMISE" },
     { 0x06, "Reserved" },
-    { 0x07, "GOAWAY" },
+    { HTTP3_GOAWAY, "GOAWAY" },
     { 0x08, "Reserved" },
     { 0x09, "Reserved" },
-    { 0x0d, "MAX_PUSH_ID" },
-    { 0x0e, "DUPLICATE_PUSH" }, // Removed in draft-26
+    { HTTP3_MAX_PUSH_ID, "MAX_PUSH_ID" },
+    { 0x0e, "Reserved" }, // "DUPLICATE_PUSH" in draft-26 and before
     { 0xF0700, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
     { 0xF0701, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
     /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
     { 0, NULL }
 };
 
+/*
+ * Frame type codes (62-bit code space).
+ * https://tools.ietf.org/html/draft-ietf-quic-http-29#name-http-2-settings-parameters
+ */
+
+#define HTTP3_QPACK_MAX_TABLE_CAPACITY          0x01
+#define HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE   0x06
+#define HTTP3_QPACK_BLOCKED_STREAMS             0x07
+
+static const val64_string http3_settings_vals[] = {
+    { HTTP3_QPACK_MAX_TABLE_CAPACITY, "Max Table Capacity" },
+    { HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE, "Max Field Section Size" },
+    { HTTP3_QPACK_BLOCKED_STREAMS, "Blocked Streams" },
+    { 0, NULL }
+};
 
 typedef struct _http3_stream_info {
     guint64 uni_stream_type;
@@ -165,6 +196,54 @@ http3_check_frame_size(tvbuff_t *tvb, packet_info *pinfo, int offset)
 }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
+/* Settings */
+static int
+dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_tree, guint offset)
+{
+    guint64 settingsid, value;
+    proto_item *ti_settings, *pi;
+    int lenvar;
+    proto_tree *settings_tree;
+    while(tvb_reported_length_remaining(tvb, offset) > 0){
+
+        ti_settings = proto_tree_add_item(http3_tree, hf_http3_settings, tvb, offset, 2, ENC_NA);
+        settings_tree = proto_item_add_subtree(ti_settings, ett_http3_settings);
+        pi = proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &settingsid, &lenvar);
+        /* Check if it is a GREASE Settings ID */
+        if (http3_is_reserved_code(settingsid)) {
+            proto_item_set_text(pi, "Type: GREASE (%#" G_GINT64_MODIFIER "x)", settingsid);
+            proto_item_append_text(ti_settings, " - GREASE" );
+        } else {
+            proto_item_append_text(ti_settings, " - %s",
+                                   val64_to_str_const(settingsid, http3_settings_vals, "Unknown") );
+        }
+        offset += lenvar;
+
+
+        proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_value, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+        switch(settingsid){
+            case HTTP3_QPACK_MAX_TABLE_CAPACITY:
+                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_max_table_capacity, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
+                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
+            break;
+            case HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE:
+                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_max_field_section_size, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
+                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
+            break;
+            case HTTP3_QPACK_BLOCKED_STREAMS:
+                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_blocked_streams, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
+                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
+            break;
+            default:
+                /* No Default */
+            break;
+        }
+        offset += lenvar;
+    }
+
+    return offset;
+}
+
 static int
 dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
@@ -185,8 +264,18 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     if (frame_length) {
         proto_tree_add_item(tree, hf_http3_frame_payload, tvb, offset, (int)frame_length, ENC_NA);
+
+        switch (frame_type) {
+            case HTTP3_SETTINGS: { /* Settings Frame */
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
+                dissect_http3_settings(next_tvb, pinfo,tree, 0);
+            }
+            break;
+        }
+
         offset += (int)frame_length;
     }
+
 
     return offset;
 }
@@ -373,10 +462,44 @@ proto_register_http3(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+
+        /* Settings */
+        { &hf_http3_settings,
+            { "Settings", "http3.settings",
+               FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_settings_identifier,
+            { "Settings Identifier", "http3.settings.id",
+               FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS64(http3_settings_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_settings_value,
+            { "Settings Value", "http3.settings.value",
+               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_settings_qpack_max_table_capacity,
+            { "Max Table Capacity", "http3.settings.qpack.max_table_capacity",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_settings_max_field_section_size,
+            { "Max header list size", "http3.settings.max_field_section_size",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "The default value is unlimited.", HFILL }
+        },
+        { &hf_http3_settings_qpack_blocked_streams,
+            { "Blocked Streams", "http3.settings.qpak.blocked_streams",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+
     };
 
     static gint *ett[] = {
         &ett_http3,
+        &ett_http3_settings,
     };
 
     static ei_register_info ei[] = {

@@ -45,7 +45,7 @@ project(${_project_name} C CXX)
 # Updated by tools/make-version.pl
 set(GIT_REVISION 0)
 set(PROJECT_MAJOR_VERSION 3)
-set(PROJECT_MINOR_VERSION 5)
+set(PROJECT_MINOR_VERSION 7)
 set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION ${GIT_REVISION})
 set(PROJECT_VERSION_EXTENSION "")
@@ -65,8 +65,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
+# Avoid an empty build type. If this is already set it does nothing.
+set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
+		"Choose the build configuration (one of Debug, MinSizeRel, RelWithDebInfo, Release)")
+# Build type is ignored by multi-config generators.
+message(STATUS "Using ${CMAKE_GENERATOR} generator and build type ${CMAKE_BUILD_TYPE}")
+
 #Where to find local cmake scripts
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+set(WS_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
+set(CMAKE_MODULE_PATH ${WS_CMAKE_MODULE_PATH})
 
 # CMake >= 3.9.0 supports LTO/IPO.
 if (ENABLE_LTO)
@@ -87,80 +94,106 @@ endif()
 # %WIRESHARK_TARGET_PLATFORM%.
 
 if(WIN32)
-	find_package(PowerShell REQUIRED)
+	# Are we using MSYS2? If we are we don't use our own third party
+	# libraries.
+	if(DEFINED ENV{MSYSTEM})
+		set(_msystem $ENV{MSYSTEM})
+		set(_repository False)
+		message(STATUS "Using MSYS2 with MSYSTEM=${_msystem}")
+	else()
+		set(_msystem False)
+		set(_repository True)
+		message(STATUS "Using 3rd party repository")
+	endif()
+	set(USE_MSYSTEM ${_msystem} CACHE INTERNAL "Use MSYS2 subsystem")
+	set(USE_REPOSITORY ${_repository} CACHE INTERNAL "Use Wireshark 3rd Party Repository")
 
-	if(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
+	if(DEFINED ENV{WIRESHARK_TARGET_PLATFORM})
+		string(TOLOWER $ENV{WIRESHARK_TARGET_PLATFORM} _target_platform)
+		set(WIRESHARK_TARGET_PLATFORM ${_target_platform})
+	elseif(USE_MSYSTEM MATCHES "MINGW64")
+		set(WIRESHARK_TARGET_PLATFORM win64)
+	elseif(USE_MSYSTEM MATCHES "MINGW32")
+		set(WIRESHARK_TARGET_PLATFORM win32)
+	elseif(USE_MSYSTEM)
+		message(WARNING "Building for MSYSTEM=${USE_MSYSTEM} is not officially supported")
+	elseif(CMAKE_CL_64 OR CMAKE_GENERATOR MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 	elseif(CMAKE_GENERATOR MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
 	else()
-		set(WIRESHARK_TARGET_PLATFORM $ENV{WIRESHARK_TARGET_PLATFORM})
+		message(WARNING "Assuming \"win64\" target platform")
+		set(WIRESHARK_TARGET_PLATFORM win64)
 	endif()
 
 	if(WIRESHARK_TARGET_PLATFORM MATCHES "win64")
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE amd64)
-	else()
+	elseif(WIRESHARK_TARGET_PLATFORM MATCHES "win32")
 		set(WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE x86)
+	else()
+		message(FATAL_ERROR "Invalid target platform: ${WIRESHARK_TARGET_PLATFORM}")
 	endif()
 
 	# Sanity check
-	if(DEFINED ENV{PLATFORM})
-		string(TOLOWER $ENV{PLATFORM} _vs_platform)
-	else()
-		set(_vs_platform "[undefined]") # x86
+	if(MSVC)
+		if(DEFINED ENV{PLATFORM})
+			string(TOLOWER $ENV{PLATFORM} _vs_platform)
+		else()
+			set(_vs_platform "[undefined]") # x86
+		endif()
+		if(
+			(_vs_platform STREQUAL "x64" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
+			OR
+			(_vs_platform STREQUAL "[undefined]" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
+		)
+			message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
+				" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
+		endif()
 	endif()
-	if(
-		(_vs_platform STREQUAL "x64" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
-		OR
-		(_vs_platform STREQUAL "[undefined]" AND NOT WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
+	message(STATUS
+		"Building for ${WIRESHARK_TARGET_PLATFORM} \
+and CPU target ${WIRESHARK_TARGET_PROCESSOR_ARCHITECTURE}"
 	)
-		message(FATAL_ERROR "The PLATFORM environment variable (${_vs_platform})"
-			" doesn't match the generator platform (${WIRESHARK_TARGET_PLATFORM})")
-	endif()
-	message(STATUS "Building for ${WIRESHARK_TARGET_PLATFORM} using ${CMAKE_GENERATOR}")
 
 	# Determine where the 3rd party libraries will be
-	if( DEFINED ENV{WIRESHARK_LIB_DIR} )
-		# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
-		file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
-	elseif( DEFINED ENV{WIRESHARK_BASE_DIR} )
-		file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
-		set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
-	else()
-		# Don't know what to do
-		message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
+	if(USE_REPOSITORY)
+		find_package(PowerShell REQUIRED)
+
+		if( DEFINED ENV{WIRESHARK_LIB_DIR} )
+			# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
+			file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
+		elseif( DEFINED ENV{WIRESHARK_BASE_DIR} )
+			file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
+			set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
+		else()
+			# Don't know what to do
+			message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
+		endif()
+
+		# Download third-party libraries
+		file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
+		file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
+
+		# Is it possible to have a one-time, non-cached option in CMake? If
+		# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
+		# win-setup.ps1.
+		execute_process(
+			COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM}
+			RESULT_VARIABLE _win_setup_failed
+			ERROR_VARIABLE _win_setup_error_output
+		)
+		if(_win_setup_failed)
+			message(FATAL_ERROR "Windows setup (win-setup.ps1) failed: ${_win_setup_error_output}.")
+		endif()
+
+		set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
+
+		# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
 	endif()
-
-	# Download third-party libraries
-	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/win-setup.ps1 _win_setup)
-	file (TO_NATIVE_PATH ${_PROJECT_LIB_DIR} _ws_lib_dir)
-
-	# Is it possible to have a one-time, non-cached option in CMake? If
-	# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
-	# win-setup.ps1.
-	execute_process(
-		COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM}
-		RESULT_VARIABLE _win_setup_failed
-	)
-	if(_win_setup_failed)
-		message(FATAL_ERROR "Windows setup (win-setup.ps1) failed.")
-	endif()
-
-	set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
-
-	# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
 endif(WIN32)
 
 include(UseCustomIncludes)
 ADD_CUSTOM_CMAKE_INCLUDE()
-
-# This cannot be implemented via option(...)
-if( NOT CMAKE_BUILD_TYPE )
-	set( CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-		FORCE)
-endif()
-message(STATUS "CMake build type: ${CMAKE_BUILD_TYPE}")
 
 # Ensure that all executables and libraries end up in the same directory. Actual
 # files might end up in a configuration subdirectory, e.g. run/Debug or
@@ -258,11 +291,11 @@ endif()
 # build directory location). (Requires CMake 3.14)
 set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
 
-if(WIN32)
+if(MSVC)
     # Linking with wsetargv.obj enables "wildcard expansion" of
     # command-line arguments.
     set(WILDCARD_OBJ wsetargv.obj)
-endif(WIN32)
+endif()
 
 include(CheckSymbolExists)
 
@@ -359,6 +392,7 @@ endif()
 include_directories(
 	${CMAKE_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/include
 )
 
 if( DUMPCAP_INSTALL_OPTION STREQUAL "suid" )
@@ -412,13 +446,6 @@ endif()
 # -fPIC/-fPIE (so set CMAKE_POSITION_INDEPENDENT_CODE to enable that).
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# Path to our generated executables (or wrapper scripts)
-if(WIN32)
-	set(WS_PROGRAM_PATH ./run/$<CONFIG>)
-else()
-	set(WS_PROGRAM_PATH ./run)
-endif()
-
 # Preprocessor definitions common to all compilers
 set_property(DIRECTORY
 	PROPERTY COMPILE_DEFINITIONS
@@ -428,17 +455,55 @@ set_property(DIRECTORY
 		$<$<OR:$<BOOL:${DISABLE_DEBUG}>,$<CONFIG:Release>>:WS_DISABLE_DEBUG>
 )
 
+if(WIN32)
+	#
+	# NOTE: Because of the way Qt moc is including "config.h" (not as the
+	# first header) this *MUST* be defined on the command line to precede
+	# every included header and not trigger symbol redefinition errors.
+	#
+	add_definitions(
+		-DWIN32_LEAN_AND_MEAN
+		#
+		# Use Unicode in Windows runtime functions.
+		#
+		-DUNICODE
+		-D_UNICODE
+		#
+		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
+		# This avoids conflicts with the C++ standard library.
+		#
+		-DNOMINMAX
+		#
+		# Make sure everyone is using the same API and that it's sufficient
+		# for our needs.
+		# This should match the following:
+		# - The <compatibility><application> section in image\wireshark.exe.manifest.in
+		# - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
+		# - The VersionNT parts of packaging\wix\Prerequisites.wxi
+		#
+		-DNTDDI_VERSION=NTDDI_WIN7
+		-D_WIN32_WINNT=_WIN32_WINNT_WIN7
+	)
+endif()
+
+if(MINGW)
+	add_definitions(
+		#
+		# Enable POSIX APIs. This will switch stdio to ANSI C functions and
+		# enable C99 conformant vsnprintf() among other things.
+		#
+		-D_POSIX
+	)
+	list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_POSIX)
+endif()
+
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if ((MSVC_VERSION LESS "1900") OR (MSVC_VERSION GREATER_EQUAL "2000"))
 		message(FATAL_ERROR "You are using an unsupported version of MSVC")
 	endif()
 
 	add_definitions(
-		/DWIN32_LEAN_AND_MEAN
 		/D_CRT_SECURE_NO_DEPRECATE
-		# NOMINMAX keeps windows.h from defining "min" and "max" via windef.h.
-		# This avoids conflicts with the C++ standard library.
-		/DNOMINMAX
 		# -DPSAPI_VERSION=1                 Programs that must run on earlier versions of Windows as well as Windows 7 and later
 		#                                   versions should always call this function as GetProcessMemoryInfo. To ensure correct
 		#                                   resolution of symbols, add Psapi.lib to the TARGETLIBS macro and compile the program
@@ -450,6 +515,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   in pcap-stdinc.h when compiling C++ files, e.g. the Qt UI
 		/DPSAPI_VERSION=1
 		/D_ALLOW_KEYWORD_MACROS
+		# Disable deprecation of POSIX function names.
 		# https://stackoverflow.com/questions/37845163/what-is-the-purpose-of-microsofts-underscore-c-functions
 		/D_CRT_NONSTDC_NO_WARNINGS
 	)
@@ -637,6 +703,17 @@ else() # ! MSVC
 		-Wcomma
 		-Wshorten-64-to-32
 		-Wredundant-decls
+		#
+		# -Wmaybe-uninitialized is enabled with -Wall. This is a low
+		# priority warning, sometimes with false positives, that
+		# can lay dormant and be triggered by increasing the optimization
+		# level to O3. This is a major inconvenience for developers
+		# (because the warning is typically unrelated to their code)
+		# and for end users it is a build breakage (with -Werror).
+		# For these reasons we disable the fatal error for this warning,
+		# until these procedural issues can be fixed or at least mitigated.
+		#
+		-Wno-error=maybe-uninitialized
 	)
 
 	#
@@ -1116,6 +1193,7 @@ reset_find_package(CARES)
 find_package(CARES "1.5.0" REQUIRED)
 find_package(LEX REQUIRED)
 find_package(Perl REQUIRED)
+find_package(PCRE2 REQUIRED)
 
 if(CMAKE_VERSION VERSION_LESS "3.12")
 	# Locate the Python interpreter. Finds the wrong (Python 2) version if:
@@ -1172,7 +1250,6 @@ if(BUILD_wireshark)
 		Qt5Widgets
 	)
 	if(APPLE)
-		list(APPEND QT_PACKAGELIST Qt5MacExtras)
 		ws_find_package(Sparkle ENABLE_SPARKLE HAVE_SOFTWARE_UPDATE)
 	endif()
 	if(WIN32)
@@ -1194,9 +1271,6 @@ if(BUILD_wireshark)
 		list(APPEND QT_INCLUDE_DIRS /usr/local/opt/qt5/include)
 	endif()
 	set(QT_FOUND ON)
-	if(Qt5MacExtras_FOUND)
-		set(QT_MACEXTRAS_LIB 1)
-	endif()
 endif()
 
 # MaxMind DB address resolution
@@ -1279,13 +1353,16 @@ ws_find_package(WinSparkle ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
 find_package( Asciidoctor 1.5 )
 
-find_package(POD REQUIRED)
-
 find_package(DOXYGEN)
 
 # The SpeexDSP resampler is required iff building wireshark or sharkd.
 if(BUILD_wireshark OR BUILD_sharkd)
-	find_package(SpeexDSP)
+	# We don't provide a binary package for SpeexDSP in our repository.
+	# If using the repository don't bother searching for a system SpeexDSP
+	# installation and just use the bundled resampler code instead.
+	if (NOT USE_REPOSITORY)
+		find_package(SpeexDSP)
+	endif()
 	if(SpeexDSP_FOUND)
 		set(HAVE_SPEEXDSP 1)
 	else()
@@ -1701,9 +1778,9 @@ set_package_properties(LIBSSH PROPERTIES
 	PURPOSE "extcap remote SSH interfaces (sshdump, ciscodump)"
 )
 set_package_properties(LZ4 PROPERTIES
-	DESCRIPTION "LZ4 is lossless compression algorithm used in some protocol (CQL...)"
+	DESCRIPTION "LZ4 is a fast lossless compression algorithm"
 	URL "http://www.lz4.org"
-	PURPOSE "LZ4 decompression in CQL and Kafka dissectors"
+	PURPOSE "LZ4 decompression in CQL and Kafka dissectors, read compressed capture files"
 )
 set_package_properties(SNAPPY PROPERTIES
 	DESCRIPTION "A fast compressor/decompressor from Google"
@@ -1713,7 +1790,7 @@ set_package_properties(SNAPPY PROPERTIES
 set_package_properties(ZSTD PROPERTIES
 	DESCRIPTION "A compressor/decompressor from Facebook providing better compression than Snappy at a cost of speed"
 	URL "https://facebook.github.io/zstd/"
-	PURPOSE "Zstd decompression in Kafka dissector"
+	PURPOSE "Zstd decompression in Kafka dissector, read compressed capture files"
 )
 set_package_properties(NGHTTP2 PROPERTIES
 	DESCRIPTION "HTTP/2 C library and tools"
@@ -1722,7 +1799,7 @@ set_package_properties(NGHTTP2 PROPERTIES
 )
 set_package_properties(CARES PROPERTIES
 	DESCRIPTION "Library for asynchronous DNS requests"
-	URL "https://c-ares.haxx.se/"
+	URL "https://c-ares.org/"
 	PURPOSE "DNS name resolution for captures"
 )
 set_package_properties(Systemd PROPERTIES
@@ -1746,14 +1823,19 @@ set_package_properties(SpeexDSP PROPERTIES
 	PURPOSE "RTP audio resampling"
 )
 set_package_properties(Minizip PROPERTIES
-	URL "https://www.winimage.com/zLibDll/minizip.html"
-	DESCRIPTION "C library for supporting zip/unzip functionality"
+	URL "https://github.com/madler/zlib"
+	DESCRIPTION "Mini zip and unzip based on zlib"
 	PURPOSE "Support for profiles import/export"
 )
 set_package_properties(SMI PROPERTIES
 	URL "https://www.ibr.cs.tu-bs.de/projects/libsmi/"
 	DESCRIPTION "Library to access SMI management information"
 	PURPOSE "Support MIB and PIB parsing and OID resolution"
+)
+set_package_properties(PCRE2 PROPERTIES
+	URL "https://www.pcre.org"
+	DESCRIPTION "Regular expression pattern matching using the same syntax and semantics as Perl 5"
+	PURPOSE "Support for regular expressions"
 )
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
@@ -1869,41 +1951,45 @@ set(INSTALL_FILES
 	smi_modules
 	wka
 	docbook/ws.css
-	${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
-	${CMAKE_BINARY_DIR}/doc/androiddump.html
-	${CMAKE_BINARY_DIR}/doc/udpdump.html
-	${CMAKE_BINARY_DIR}/doc/capinfos.html
-	${CMAKE_BINARY_DIR}/doc/captype.html
-	${CMAKE_BINARY_DIR}/doc/ciscodump.html
-	${CMAKE_BINARY_DIR}/doc/dftest.html
-	${CMAKE_BINARY_DIR}/doc/dumpcap.html
-	${CMAKE_BINARY_DIR}/doc/editcap.html
-	${CMAKE_BINARY_DIR}/doc/extcap.html
-	${CMAKE_BINARY_DIR}/doc/mergecap.html
-	${CMAKE_BINARY_DIR}/doc/randpkt.html
-	${CMAKE_BINARY_DIR}/doc/randpktdump.html
-	${CMAKE_BINARY_DIR}/doc/etwdump.html
-	${CMAKE_BINARY_DIR}/doc/rawshark.html
-	${CMAKE_BINARY_DIR}/doc/reordercap.html
-	${CMAKE_BINARY_DIR}/doc/sshdump.html
-	${CMAKE_BINARY_DIR}/doc/text2pcap.html
-	${CMAKE_BINARY_DIR}/doc/tshark.html
-	${CMAKE_BINARY_DIR}/doc/wireshark.html
-	${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
 )
 
-if(MAXMINDDB_FOUND)
-	list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/mmdbresolve.html)
-endif()
-
-if (BUILD_corbaidl2wrs)
-	list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/idl2wrs.html)
-endif()
-if (BUILD_xxx2deb)
+if (ASCIIDOCTOR_FOUND)
 	list(APPEND INSTALL_FILES
-		${CMAKE_BINARY_DIR}/doc/asn2deb.html
-		${CMAKE_BINARY_DIR}/doc/idl2deb.html
+		${CMAKE_BINARY_DIR}/doc/AUTHORS-SHORT
+		${CMAKE_BINARY_DIR}/doc/androiddump.html
+		${CMAKE_BINARY_DIR}/doc/udpdump.html
+		${CMAKE_BINARY_DIR}/doc/capinfos.html
+		${CMAKE_BINARY_DIR}/doc/captype.html
+		${CMAKE_BINARY_DIR}/doc/ciscodump.html
+		${CMAKE_BINARY_DIR}/doc/dftest.html
+		${CMAKE_BINARY_DIR}/doc/dumpcap.html
+		${CMAKE_BINARY_DIR}/doc/editcap.html
+		${CMAKE_BINARY_DIR}/doc/extcap.html
+		${CMAKE_BINARY_DIR}/doc/mergecap.html
+		${CMAKE_BINARY_DIR}/doc/randpkt.html
+		${CMAKE_BINARY_DIR}/doc/randpktdump.html
+		${CMAKE_BINARY_DIR}/doc/etwdump.html
+		${CMAKE_BINARY_DIR}/doc/rawshark.html
+		${CMAKE_BINARY_DIR}/doc/reordercap.html
+		${CMAKE_BINARY_DIR}/doc/sshdump.html
+		${CMAKE_BINARY_DIR}/doc/text2pcap.html
+		${CMAKE_BINARY_DIR}/doc/tshark.html
+		${CMAKE_BINARY_DIR}/doc/wireshark.html
+		${CMAKE_BINARY_DIR}/doc/wireshark-filter.html
 	)
+	if(MAXMINDDB_FOUND)
+		list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/mmdbresolve.html)
+	endif()
+
+	if (BUILD_corbaidl2wrs)
+		list(APPEND INSTALL_FILES ${CMAKE_BINARY_DIR}/doc/idl2wrs.html)
+	endif()
+	if (BUILD_xxx2deb)
+		list(APPEND INSTALL_FILES
+			${CMAKE_BINARY_DIR}/doc/asn2deb.html
+			${CMAKE_BINARY_DIR}/doc/idl2deb.html
+		)
+	endif()
 endif()
 
 if(NOT WIN32)
@@ -1911,7 +1997,7 @@ if(NOT WIN32)
 	list(APPEND INSTALL_FILES COPYING)
 endif()
 
-if(WIN32)
+if(USE_REPOSITORY)
 	set(_dll_output_dir "${DATAFILE_DIR}")
 	add_custom_target(copy_cli_dlls)
 	set_target_properties(copy_cli_dlls PROPERTIES FOLDER "Copy Tasks")
@@ -1983,6 +2069,10 @@ if(WIN32)
 		list (APPEND THIRD_PARTY_DLLS "${NGHTTP2_DLL_DIR}/${NGHTTP2_DLL}")
 		list (APPEND THIRD_PARTY_PDBS "${NGHTTP2_DLL_DIR}/${NGHTTP2_PDB}")
 	endif(NGHTTP2_FOUND)
+	if (PCRE2_FOUND)
+		list (APPEND THIRD_PARTY_DLLS "${PCRE2_DLL_DIR}/${PCRE2_DLL}")
+		list (APPEND THIRD_PARTY_PDBS "${PCRE2_DLL_DIR}/${PCRE2_PDB}")
+	endif(PCRE2_FOUND)
 	if (SBC_FOUND)
 		list (APPEND THIRD_PARTY_DLLS "${SBC_DLL_DIR}/${SBC_DLL}")
 	endif(SBC_FOUND)
@@ -2111,7 +2201,7 @@ if(WIN32)
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
 	endif()
-endif(WIN32)
+endif()
 
 # List of extra dependencies for the "copy_data_files" target
 set(copy_data_files_depends)
@@ -2148,7 +2238,7 @@ foreach(_install_file ${INSTALL_FILES})
 	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
 
-# Install LUA files in staging directory such that LUA can used when Wireshark
+# Install Lua files in staging directory such that Lua can used when Wireshark
 # is ran from the build directory. For install targets, see
 # epan/wslua/CMakeLists.txt
 if(LUA_FOUND AND ENABLE_LUA)
@@ -2447,7 +2537,11 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	if(ENABLE_APPLICATION_BUNDLE)
-		add_dependencies(wireshark manpages)
+		if(ASCIIDOCTOR_FOUND)
+			# Make sure to generate files referenced by
+			# BUNDLE_RESOURCE_SHARE_MAN1_FILES
+			add_dependencies(wireshark manpages)
+		endif()
 		set_target_properties(
 			wireshark PROPERTIES
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/Info.plist
@@ -2487,11 +2581,9 @@ if(BUILD_wireshark AND QT_FOUND)
 			POST_BUILD
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 			COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
-				$<$<CONFIG:Debug>:--debug>
-				$<$<NOT:$<CONFIG:Debug>>:--release>
 				--no-compiler-runtime
 				--verbose 10
-				--pdb
+				$<$<BOOL:${MSVC}>:--pdb>
 				"$<TARGET_FILE:wireshark>"
 		)
 		add_dependencies(copy_qt_dlls wireshark)
@@ -2540,6 +2632,13 @@ macro(set_extra_executable_properties _executable _folder)
 	endif()
 endmacro()
 
+macro(executable_link_mingw_unicode _target)
+	# target_link_options() requires CMake >= 3.13
+	if (MINGW)
+		target_link_options(${_target} PRIVATE "-municode")
+	endif()
+endmacro()
+
 register_tap_files(tshark-tap-register.c
 	${TSHARK_TAP_SRC}
 )
@@ -2570,6 +2669,7 @@ if(BUILD_tshark)
 	add_executable(tshark ${tshark_FILES})
 	set_extra_executable_properties(tshark "Executables")
 	target_link_libraries(tshark ${tshark_LIBS})
+	executable_link_mingw_unicode(tshark)
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2616,6 +2716,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 	add_executable(rawshark ${rawshark_FILES})
 	set_extra_executable_properties(rawshark "Executables")
 	target_link_libraries(rawshark ${rawshark_LIBS})
+	executable_link_mingw_unicode(rawshark)
 	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2682,6 +2783,7 @@ if(BUILD_randpkt)
 	add_executable(randpkt ${randpkt_FILES})
 	set_extra_executable_properties(randpkt "Executables")
 	target_link_libraries(randpkt ${randpkt_LIBS})
+	executable_link_mingw_unicode(randpkt)
 	install(TARGETS randpkt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2709,6 +2811,7 @@ if(BUILD_text2pcap)
 	add_executable(text2pcap ${text2pcap_FILES})
 	set_extra_executable_properties(text2pcap "Executables")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
+	executable_link_mingw_unicode(text2pcap)
 	install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2728,6 +2831,7 @@ if(BUILD_mergecap)
 	add_executable(mergecap ${mergecap_FILES})
 	set_extra_executable_properties(mergecap "Executables")
 	target_link_libraries(mergecap ${mergecap_LIBS})
+	executable_link_mingw_unicode(mergecap)
 	install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2747,6 +2851,7 @@ if(BUILD_reordercap)
 	add_executable(reordercap ${reordercap_FILES})
 	set_extra_executable_properties(reordercap "Executables")
 	target_link_libraries(reordercap ${reordercap_LIBS})
+	executable_link_mingw_unicode(reordercap)
 	install(TARGETS reordercap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2769,6 +2874,7 @@ if(BUILD_capinfos)
 	set_extra_executable_properties(capinfos "Executables")
 	target_link_libraries(capinfos ${capinfos_LIBS})
 	target_include_directories(capinfos SYSTEM PRIVATE ${GCRYPT_INCLUDE_DIRS})
+	executable_link_mingw_unicode(capinfos)
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2789,6 +2895,7 @@ if(BUILD_captype)
 	add_executable(captype ${captype_FILES})
 	set_extra_executable_properties(captype "Executables")
 	target_link_libraries(captype ${captype_LIBS})
+	executable_link_mingw_unicode(captype)
 	install(TARGETS captype RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2810,6 +2917,7 @@ if(BUILD_editcap)
 	set_extra_executable_properties(editcap "Executables")
 	target_link_libraries(editcap ${editcap_LIBS})
 	target_include_directories(editcap SYSTEM PRIVATE ${GCRYPT_INCLUDE_DIRS})
+	executable_link_mingw_unicode(editcap)
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
@@ -2840,6 +2948,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	target_include_directories(dumpcap SYSTEM PRIVATE ${ZLIB_INCLUDE_DIRS})
+	executable_link_mingw_unicode(dumpcap)
 	install(TARGETS dumpcap
 			RUNTIME	DESTINATION ${CMAKE_INSTALL_BINDIR}
 			PERMISSIONS ${DUMPCAP_SETUID}
@@ -3096,7 +3205,6 @@ endif()
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_program(RPMBUILD_EXECUTABLE rpmbuild)
-	find_program(DPKG_BUILDPACKAGE_EXECUTABLE dpkg-buildpackage)
 	find_program(GIT_EXECUTABLE git)
 	# Should we add appimaged's monitored directories
 	# as HINTS?
@@ -3237,13 +3345,6 @@ if(RPMBUILD_EXECUTABLE)
 	)
 endif()
 
-if(DPKG_BUILDPACKAGE_EXECUTABLE)
-	add_custom_target(deb-package
-		COMMAND ${DPKG_BUILDPACKAGE_EXECUTABLE} -us -uc
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	)
-endif()
-
 if(LINUXDEPLOYQT_EXECUTABLE AND APPIMAGETOOL_EXECUTABLE)
 	# The documentation at https://github.com/probonopd/linuxdeployqt
 	# says that you need to set CMAKE_BUILD_TYPE=Release and
@@ -3344,12 +3445,12 @@ set(SHARK_PUBLIC_HEADERS
 	cfile.h
 	cli_main.h
 	file.h
-	globals.h
-	ws_attributes.h
-	ws_compiler_tests.h
-	ws_diag_control.h
-	ws_log_defs.h
-	ws_symbol_export.h
+	include/ws_attributes.h
+	include/ws_compiler_tests.h
+	include/ws_diag_control.h
+	include/ws_log_defs.h
+	include/ws_symbol_export.h
+	include/wireshark.h
 	${CMAKE_BINARY_DIR}/ws_version.h
 )
 
@@ -3418,12 +3519,13 @@ endif()
 
 install(
 	FILES
-		${CMAKE_MODULE_PATH}/FindGLIB2.cmake
-		${CMAKE_MODULE_PATH}/FindWSLibrary.cmake
-		${CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
-		${CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
-		${CMAKE_MODULE_PATH}/LocatePythonModule.cmake
-		${CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
+		# Qt6 extends CMAKE_MODULE_PATH, so use our local version
+		${WS_CMAKE_MODULE_PATH}/FindGLIB2.cmake
+		${WS_CMAKE_MODULE_PATH}/FindWSLibrary.cmake
+		${WS_CMAKE_MODULE_PATH}/FindWSWinLibs.cmake
+		${WS_CMAKE_MODULE_PATH}/UseAsn2Wrs.cmake
+		${WS_CMAKE_MODULE_PATH}/LocatePythonModule.cmake
+		${WS_CMAKE_MODULE_PATH}/UseMakePluginReg.cmake
 	DESTINATION
 		${WIRESHARK_INSTALL_CMAKEDIR}
 )
@@ -3484,7 +3586,7 @@ if (DOXYGEN_EXECUTABLE)
 		DEPENDS wsar_html_perms
 	)
 	set_target_properties(wsar_html wsar_html_zip PROPERTIES
-		FOLDER "Docs"
+		FOLDER "Documentation"
 		EXCLUDE_FROM_DEFAULT_BUILD True
 	)
 endif(DOXYGEN_EXECUTABLE)
@@ -3495,6 +3597,7 @@ add_custom_target(test-programs
 		reassemble_test
 		tvbtest
 		wmem_test
+		wscbor_test
 		test_wsutil
 	COMMENT "Building unit test programs and wrapper"
 )
@@ -3526,6 +3629,7 @@ set(_test_group_list
 	suite_dfilter.group_scanner
 	suite_dfilter.group_string_type
 	suite_dfilter.group_stringz
+	suite_dfilter.group_syntax
 	suite_dfilter.group_time_relative
 	suite_dfilter.group_time_type
 	suite_dfilter.group_tvb
@@ -3536,6 +3640,7 @@ set(_test_group_list
 	suite_fileformats
 	suite_follow
 	suite_follow_dccp
+	suite_follow_multistream
 	suite_io
 	suite_mergecap
 	suite_netperfmeter
@@ -3560,7 +3665,7 @@ foreach(_group_name ${_test_group_list})
 		COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
 			${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/test/test.py
 			--verbose
-			--program-path ${WS_PROGRAM_PATH}
+			--program-path $<TARGET_FILE_DIR:wmem_test>
 			${TEST_EXTRA_ARGS}
 			${_group_name}
 		)
@@ -3586,7 +3691,7 @@ if (GIT_EXECUTABLE)
 else (GIT_EXECUTABLE)
 	add_custom_target( gen-authors COMMAND ${CMAKE_COMMAND} -E echo "Git not found." )
 endif (GIT_EXECUTABLE)
-set_target_properties(gen-authors PROPERTIES FOLDER "Docs")
+set_target_properties(gen-authors PROPERTIES FOLDER "Documentation")
 
 if (WIN32)
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/Get-HardenFlags.ps1 _win_harden_flags)
@@ -3642,7 +3747,6 @@ if(SHELLCHECK_EXECUTABLE)
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in
 			packaging/source/git-export-release.sh.in
-			tools/compress-pngs.sh
 			tools/debian-setup.sh
 			tools/fuzz-test.sh
 			tools/gen-bugnote
@@ -3655,6 +3759,15 @@ if(SHELLCHECK_EXECUTABLE)
 		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 	)
 endif()
+
+# uninstall target
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+	IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+	COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html

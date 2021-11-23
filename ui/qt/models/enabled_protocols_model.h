@@ -99,8 +99,8 @@ private:
 class EnabledProtocolsProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
-public:
 
+public:
     enum SearchType
     {
         EveryWhere,

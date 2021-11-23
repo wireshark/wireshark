@@ -835,14 +835,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 1:
                 l = LMPF_VAL_LOCAL_NODE_ID;
-                proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
                                     offset2, 4, ENC_BIG_ENDIAN);
                 break;
 
             case 2:
                 l = LMPF_VAL_REMOTE_NODE_ID;
-                proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
                                     offset2, 4, ENC_BIG_ENDIAN);
                 break;
@@ -861,7 +861,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 2:
                 l = (type == 1)? LMPF_VAL_LOCAL_LINK_ID_IPV4:
                 LMPF_VAL_REMOTE_LINK_ID_IPV4;
-                proto_item_append_text(ti, ": IPv4 %s", tvb_ip_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
                                     offset2, 4, ENC_BIG_ENDIAN);
                 break;
@@ -870,7 +870,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 4:
                 l = (type == 3)? LMPF_VAL_LOCAL_LINK_ID_IPV6:
                 LMPF_VAL_REMOTE_LINK_ID_IPV6;
-                proto_item_append_text(ti, ": IPv6 %s", tvb_ip6_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
                                     offset2, 16, ENC_NA);
                 break;
@@ -898,7 +898,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 2:
                 l = (type == 1)? LMPF_VAL_LOCAL_INTERFACE_ID_IPV4:
                 LMPF_VAL_REMOTE_INTERFACE_ID_IPV4;
-                proto_item_append_text(ti, ": IPv4 %s", tvb_ip_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
                                     offset2, 4, ENC_BIG_ENDIAN);
                 break;
@@ -907,7 +907,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case 4:
                 l = (type == 3)? LMPF_VAL_LOCAL_INTERFACE_ID_IPV6:
                 LMPF_VAL_REMOTE_INTERFACE_ID_IPV6;
-                proto_item_append_text(ti, ": IPv6 %s", tvb_ip6_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
                                     offset2, 16, ENC_NA);
                 break;
@@ -1085,8 +1085,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 1:
                 proto_item_append_text(ti, ": IPv4: Local %s, Remote %s",
-                                       tvb_ip_to_str(tvb, offset2+4),
-                                       tvb_ip_to_str(tvb, offset2+8));
+                                       tvb_ip_to_str(pinfo->pool, tvb, offset2+4),
+                                       tvb_ip_to_str(pinfo->pool, tvb, offset2+8));
                 proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
                                     tvb, offset2+4, 4, ENC_BIG_ENDIAN);
@@ -1097,8 +1097,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 2:
                 proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
-                                       tvb_ip6_to_str(tvb, offset2+4),
-                                       tvb_ip6_to_str(tvb, offset2+20));
+                                       tvb_ip6_to_str(pinfo->pool, tvb, offset2+4),
+                                       tvb_ip6_to_str(pinfo->pool, tvb, offset2+20));
                 proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV6],
                                     tvb, offset2+4, 16, ENC_NA);
@@ -1144,8 +1144,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 1:
                 proto_item_append_text(ti, ": IPv4: Local %s, Remote %s",
-                                       tvb_ip_to_str(tvb, offset2+4),
-                                       tvb_ip_to_str(tvb, offset2+8));
+                                       tvb_ip_to_str(pinfo->pool, tvb, offset2+4),
+                                       tvb_ip_to_str(pinfo->pool, tvb, offset2+8));
 
                 proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_IPV4],
@@ -1159,8 +1159,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
             case 2:
                 proto_item_append_text(ti, ": IPv6: Local %s, Remote %s",
-                                       tvb_ip6_to_str(tvb, offset2+4),
-                                       tvb_ip6_to_str(tvb, offset2+8));
+                                       tvb_ip6_to_str(pinfo->pool, tvb, offset2+4),
+                                       tvb_ip6_to_str(pinfo->pool, tvb, offset2+8));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_data_link_local_id_ipv6, tvb, offset2+4, 16, ENC_NA);
                 proto_tree_add_item(lmp_object_tree, hf_lmp_data_link_remote_id_ipv6, tvb, offset2+20, 16, ENC_NA);
                 l = 36;
@@ -1267,17 +1267,17 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 case 1:
                     if (j < 4)
                         proto_item_append_text(ti, ": [IPv4-%s",
-                                               tvb_ip_to_str(tvb, offset2+l));
+                                               tvb_ip_to_str(pinfo->pool, tvb, offset2+l));
                     proto_item_append_text(ti2, ": IPv4 %s",
-                                           tvb_ip_to_str(tvb, offset2+l));
+                                           tvb_ip_to_str(pinfo->pool, tvb, offset2+l));
                     proto_tree_add_item(lmp_subobj_tree, hf_lmp_interface_id_ipv4, tvb, offset2+l, 4, ENC_BIG_ENDIAN);
                     l += 4;
                     break;
 
                 case 2:
                     if (j < 4)
-                        proto_item_append_text(ti, ": [IPv6-%s", tvb_ip6_to_str(tvb, offset2+l));
-                    proto_item_append_text(ti2, ": IPv6 %s", tvb_ip6_to_str(tvb, offset2+l));
+                        proto_item_append_text(ti, ": [IPv6-%s", tvb_ip6_to_str(pinfo->pool, tvb, offset2+l));
+                    proto_item_append_text(ti2, ": IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset2+l));
                     proto_tree_add_item(lmp_subobj_tree, hf_lmp_interface_id_ipv6, tvb, offset2, 16, ENC_NA);
                     l += 16;
                     break;
@@ -1459,10 +1459,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                     tvb, offset2+2, 2, l);
                 if (l && l <= obj_length - 8) {
                     proto_item_append_text(lmp_object_tree, " = %s",
-                                           tvb_format_text(tvb, offset2+4, l));
+                                           tvb_format_text(pinfo->pool, tvb, offset2+4, l));
                     proto_tree_add_string(lmp_object_tree,
                                           hf_lmp_filter[LMPF_VAL_TRACE_LOCAL_MSG],
-                                          tvb, offset2+4, l, tvb_format_text(tvb,
+                                          tvb, offset2+4, l, tvb_format_text(pinfo->pool, tvb,
                                                                              offset2+4,l));
                 }
                 else
@@ -1482,10 +1482,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                     hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_LEN],
                                     tvb, offset2+2, 2, l);
                 proto_item_append_text(lmp_object_tree, " = %s",
-                                       tvb_format_text(tvb, offset2+4, l));
+                                       tvb_format_text(pinfo->pool, tvb, offset2+4, l));
                 proto_tree_add_string(lmp_object_tree,
                                       hf_lmp_filter[LMPF_VAL_TRACE_REMOTE_MSG],
-                                      tvb, offset2+4, l, tvb_format_text(tvb, offset2+4,l));
+                                      tvb, offset2+4, l, tvb_format_text(pinfo->pool, tvb, offset2+4,l));
                 break;
 
             default:
@@ -1628,7 +1628,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                 /* Local interface ID */
                 proto_item_append_text(ti, ": Local Interface ID %s",
-                                       tvb_ip_to_str(tvb, offset2+12));
+                                       tvb_ip_to_str(pinfo->pool, tvb, offset2+12));
 
                 proto_tree_add_item(lmp_object_tree,
                                     hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_INTERFACE_ID],
@@ -1697,13 +1697,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             switch(type) {
 
             case 1:
-                proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_LOCAL_DA_DCN_ADDR], tvb,
                                     offset2, 4, ENC_BIG_ENDIAN);
                 break;
 
             case 2:
-                proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
+                proto_item_append_text(ti, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset2));
                 proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_REMOTE_DA_DCN_ADDR], tvb,
                                     offset2, 4, ENC_BIG_ENDIAN);
                 break;
@@ -1761,9 +1761,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         proto_item_set_text(ti2, "Primary Routing Controller: "
                                             "Area ID: %s, RC PC ID: %s, "
                                             "RC PC Addr: %s",
-                                            tvb_ip_to_str(tvb, offset2+l+4),
-                                            tvb_ip_to_str(tvb, offset2+l+8),
-                                            tvb_ip_to_str(tvb, offset2+l+12));
+                                            tvb_ip_to_str(pinfo->pool, tvb, offset2+l+4),
+                                            tvb_ip_to_str(pinfo->pool, tvb, offset2+l+8),
+                                            tvb_ip_to_str(pinfo->pool, tvb, offset2+l+12));
                         proto_tree_add_item(lmp_subobj_tree,
                                             hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
                                             tvb, offset2+l+4, 4, ENC_BIG_ENDIAN);
@@ -1779,9 +1779,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         proto_item_set_text(ti2, "Secondary Routing Controller: "
                                             "Area ID: %s, RC PC ID: %s, "
                                             "RC PC Addr: %s",
-                                            tvb_ip_to_str(tvb, offset2+l+4),
-                                            tvb_ip_to_str(tvb, offset2+l+8),
-                                            tvb_ip_to_str(tvb, offset2+l+12));
+                                            tvb_ip_to_str(pinfo->pool, tvb, offset2+l+4),
+                                            tvb_ip_to_str(pinfo->pool, tvb, offset2+l+8),
+                                            tvb_ip_to_str(pinfo->pool, tvb, offset2+l+12));
                         proto_tree_add_item(lmp_subobj_tree,
                                             hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
                                             tvb, offset2+l+4, 4, ENC_BIG_ENDIAN);

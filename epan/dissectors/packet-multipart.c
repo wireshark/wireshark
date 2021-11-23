@@ -547,7 +547,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
 
     gchar *content_type_str = NULL;
     gchar *content_trans_encoding_str = NULL;
+#ifdef HAVE_ZLIB
     gchar *content_encoding_str = NULL;
+#endif
     char *filename = NULL;
     char *mimetypename = NULL;
     gboolean last_field = FALSE;
@@ -629,7 +631,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                       hf_header_array[hf_index], tvb,
                       offset, next_offset - offset,
                       (const char *)value_str, "%s",
-                      tvb_format_text(tvb, offset, next_offset - offset));
+                      tvb_format_text(pinfo->pool, tvb, offset, next_offset - offset));
 
                 switch (hf_index) {
                     case POS_ORIGINALCONTENT:
@@ -694,8 +696,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             if (crp != NULL) {
                                 *crp = '\0';
                             }
-
+#ifdef HAVE_ZLIB
                             content_encoding_str = wmem_ascii_strdown(pinfo->pool, value_str, -1);
+#endif
                         }
                         break;
                     case POS_CONTENT_TRANSFER_ENCODING:
@@ -798,7 +801,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                     tvbuff_t *uncompress_tvb = tvb_uncompress(tmp_tvb, 0, body_len);
                     if (uncompress_tvb) {
                         tmp_tvb = uncompress_tvb;
-                        add_new_data_source(pinfo, tmp_tvb, "gunziped data");
+                        add_new_data_source(pinfo, tmp_tvb, "gunzipped data");
                     }
                 }
             }

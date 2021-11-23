@@ -481,8 +481,8 @@ dissect_lapd_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static int
 dissect_lapd_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	guint32 flags = 0;
-	guint32 pack_flags = 0;
+	guint32 flags;
+	guint32 lapd_flags = 0;
 
 	/*
 	 * If we have direction flags, we have a direction;
@@ -490,22 +490,22 @@ dissect_lapd_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 	 * "inbound" packets are presumed to be Network->User.
 	 * Other packets, we have no idea.
 	 */
-	if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &pack_flags)) {
-		switch (PACK_FLAGS_DIRECTION(pack_flags)) {
+	if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_uint32_option_value(pinfo->rec->block, OPT_PKT_FLAGS, &flags)) {
+		switch (PACK_FLAGS_DIRECTION(flags)) {
 
 		case PACK_FLAGS_DIRECTION_OUTBOUND:
-			flags |= LAPD_HAS_DIRECTION | LAPD_USER_TO_NETWORK;
+			lapd_flags |= LAPD_HAS_DIRECTION | LAPD_USER_TO_NETWORK;
 			break;
 
 		case PACK_FLAGS_DIRECTION_INBOUND:
-			flags |= LAPD_HAS_DIRECTION;
+			lapd_flags |= LAPD_HAS_DIRECTION;
 			break;
 
 		default:
 			break;
 		}
 	}
-	dissect_lapd_full(tvb, pinfo, tree, flags);
+	dissect_lapd_full(tvb, pinfo, tree, lapd_flags);
 	return tvb_captured_length(tvb);
 }
 

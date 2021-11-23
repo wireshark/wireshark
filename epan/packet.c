@@ -508,7 +508,14 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		break;
 
 	case REC_TYPE_CUSTOM_BLOCK:
-		record_type = "PCAPNG Custom Block";
+		switch (rec->rec_header.custom_block_header.pen) {
+		case PEN_NFLX:
+			record_type = "Black Box Log Block";
+			break;
+		default:
+			record_type = "PCAPNG Custom Block";
+			break;
+		}
 		break;
 
 	default:
@@ -560,8 +567,16 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 		break;
 
 	case REC_TYPE_CUSTOM_BLOCK:
-		edt->pi.pseudo_header = NULL;
+		switch (rec->rec_header.custom_block_header.pen) {
+		case PEN_NFLX:
+			edt->pi.pseudo_header = NULL;
+			break;
+		default:
+			edt->pi.pseudo_header = NULL;
+			break;
+		}
 		break;
+
 	}
 
 	edt->pi.fd            = fd;
@@ -578,6 +593,8 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.conv_endpoint = NULL;
 	edt->pi.p2p_dir = P2P_DIR_UNKNOWN;
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
+	edt->pi.src_win_scale = -1; /* unknown Rcv.Wind.Shift */
+	edt->pi.dst_win_scale = -1; /* unknown Rcv.Wind.Shift */
 	edt->pi.layers = wmem_list_new(edt->pi.pool);
 	edt->tvb = tvb;
 
@@ -590,11 +607,8 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	if (fd->has_modified_block) {
 		frame_dissector_data.pkt_block = epan_get_modified_block(edt->session, fd);
 	}
-	else if (fd->has_phdr_block) {
-		frame_dissector_data.pkt_block = rec->block;
-	}
 	else {
-		frame_dissector_data.pkt_block = NULL;
+		frame_dissector_data.pkt_block = rec->block;
 	}
 	frame_dissector_data.file_type_subtype = file_type_subtype;
 	frame_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
@@ -667,11 +681,8 @@ dissect_file(epan_dissect_t *edt, wtap_rec *rec,
 		if (fd->has_modified_block) {
 			file_dissector_data.pkt_block = epan_get_modified_block(edt->session, fd);
 		}
-		else if (fd->has_phdr_block) {
-			file_dissector_data.pkt_block = rec->block;
-		}
 		else {
-			file_dissector_data.pkt_block = NULL;
+			file_dissector_data.pkt_block = rec->block;
 		}
 		file_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
 
@@ -1394,6 +1405,22 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 	}
 }
 
+/* Return TRUE if an entry in a uint dissector table is found and has been
+ * changed (i.e. dissector_change_uint() has been called, such as from
+ * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
+ * etc.), otherwise return FALSE.
+ */
+gboolean
+dissector_is_uint_changed(dissector_table_t const sub_dissectors, const guint32 uint_val)
+{
+	if (sub_dissectors != NULL) {
+		dtbl_entry_t *dtbl_entry = find_uint_dtbl_entry(sub_dissectors, uint_val);
+		if (dtbl_entry != NULL)
+			return (dtbl_entry->current != dtbl_entry->initial);
+	}
+	return FALSE;
+}
+
 /* Look for a given value in a given uint dissector table and, if found,
    call the dissector with the arguments supplied, and return the number
    of bytes consumed by the dissector, otherwise return 0. */
@@ -1699,6 +1726,22 @@ dissector_reset_string(const char *name, const gchar *pattern)
 	} else {
 		g_hash_table_remove(sub_dissectors->hash_table, pattern);
 	}
+}
+
+/* Return TRUE if an entry in a uint dissector table is found and has been
+ * changed (i.e. dissector_change_uint() has been called, such as from
+ * Decode As, prefs registered via dissector_add_uint_[range_]with_preference),
+ * etc.), otherwise return FALSE.
+ */
+gboolean
+dissector_is_string_changed(dissector_table_t const sub_dissectors, const gchar *string)
+{
+	if (sub_dissectors != NULL) {
+		dtbl_entry_t *dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
+		if (dtbl_entry != NULL)
+			return (dtbl_entry->current != dtbl_entry->initial);
+	}
+	return FALSE;
 }
 
 /* Look for a given string in a given dissector table and, if found, call
@@ -2630,19 +2673,7 @@ get_dissector_table_param(const char *name)
 static void
 check_valid_heur_name_or_fail(const char *heur_name)
 {
-	gboolean found_invalid = proto_check_field_name(heur_name);
-
-	/* Additionally forbid upper case characters. */
-	if (!found_invalid) {
-		for (guint i = 0; heur_name[i]; i++) {
-			if (g_ascii_isupper(heur_name[i])) {
-				found_invalid = TRUE;
-				break;
-			}
-		}
-	}
-
-	if (found_invalid) {
+	if (proto_check_field_name_lower(heur_name)) {
 		ws_error("Heuristic Protocol internal name \"%s\" has one or more invalid characters."
 			" Allowed are lowercase, digits, '-', '_' and non-repeating '.'."
 			" This might be caused by an inappropriate plugin or a development error.", heur_name);
@@ -2772,10 +2803,10 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 
 	if (found_entry) {
 		heur_dtbl_entry_t *found_hdtbl_entry = (heur_dtbl_entry_t *)(found_entry->data);
-		g_free(found_hdtbl_entry->list_name);
+		proto_add_deregistered_data(found_hdtbl_entry->list_name);
 		g_hash_table_remove(heuristic_short_names, found_hdtbl_entry->short_name);
-		g_free(found_hdtbl_entry->short_name);
-		g_slice_free(heur_dtbl_entry_t, found_entry->data);
+		proto_add_deregistered_data(found_hdtbl_entry->short_name);
+		proto_add_deregistered_slice(sizeof(heur_dtbl_entry_t), found_hdtbl_entry);
 		sub_dissectors->dissectors = g_slist_delete_link(sub_dissectors->dissectors,
 		    found_entry);
 	}

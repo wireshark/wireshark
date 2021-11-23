@@ -403,6 +403,7 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
         ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
     {
       *opt_argp += len;
+      follow_info->substream_id = cli_follow_info->sub_stream_index;
     }
   }
   else
@@ -521,6 +522,7 @@ static void follow_stream(const char *opt_argp, void *userdata)
   }
   follow_info = g_new0(follow_info_t, 1);
   follow_info->gui_data = cli_follow_info;
+  follow_info->substream_id = SUBSTREAM_UNUSED;
   cli_follow_info->follower = follower;
 
   follow_arg_mode(&opt_argp, follow_info);

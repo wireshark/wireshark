@@ -129,7 +129,7 @@ WS_DLL_PUBLIC FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode,
  * @return TRUE if we were able to call SetDllDirectory, FALSE otherwise.
  */
 WS_DLL_PUBLIC
-gboolean ws_init_dll_search_path();
+gboolean ws_init_dll_search_path(void);
 
 /** Load a DLL using LoadLibrary.
  * Only the system and program directories are searched.
@@ -155,11 +155,11 @@ GModule *ws_module_open(gchar *module_name, GModuleFlags flags);
  * Create or open a mutex which signals that Wireshark or its associated
  * executables is running. Used by the installer to test for a running application.
  */
-WS_DLL_PUBLIC void create_app_running_mutex();
+WS_DLL_PUBLIC void create_app_running_mutex(void);
 
 /** Close our "Wireshark is running" mutex.
  */
-WS_DLL_PUBLIC void close_app_running_mutex();
+WS_DLL_PUBLIC void close_app_running_mutex(void);
 
 #else	/* _WIN32 */
 

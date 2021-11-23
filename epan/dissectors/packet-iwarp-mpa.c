@@ -920,6 +920,9 @@ dissect_iwarp_mpa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		return FALSE;
 	}
 
+	/* Set the port type for this packet to be iWarp MPA */
+	pinfo->ptype = PT_IWARP_MPA;
+
 	tcp_dissect_pdus(tvb, pinfo, tree,
 			 TRUE, /* proto_desegment*/
 			 MPA_SMALLEST_FPDU_LEN,

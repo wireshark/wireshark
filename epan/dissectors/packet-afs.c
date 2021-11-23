@@ -1462,7 +1462,7 @@ afs_hash (gconstpointer v)
  *
  * Should this just scan the string itself, rather than using "sscanf()"?
  */
-#define GETSTR (tvb_format_text(tvb,ptvcursor_current_offset(cursor),tvb_captured_length_remaining(tvb,ptvcursor_current_offset(cursor))))
+#define GETSTR (tvb_format_text(wmem_packet_scope(),tvb,ptvcursor_current_offset(cursor),tvb_captured_length_remaining(tvb,ptvcursor_current_offset(cursor))))
 
 static void
 dissect_acl(ptvcursor_t *cursor, struct rxinfo *rxinfo _U_)
@@ -3015,7 +3015,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			/* Process the packet according to what service it is */
 			/* Only for first packet in an rx data stream or the full reassembled stream */
 			if ( dissector && ( rxinfo->seq == 1 || reassembled ) ) {
-				cursor = ptvcursor_new(afs_op_tree, tvb, offset);
+				cursor = ptvcursor_new(pinfo->pool, afs_op_tree, tvb, offset);
 				(*dissector)(cursor, rxinfo, opcode);
 			}
 		}

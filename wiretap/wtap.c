@@ -1173,6 +1173,10 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_ETW */
 	{ "etw", "Event Tracing for Windows messages" },
+
+	/* WTAP_ENCAP_ERI_ENB_LOG */
+	{ "eri_enb_log", "Ericsson eNode-B raw log" },
+
 };
 
 WS_DLL_LOCAL
@@ -1542,6 +1546,13 @@ wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		 */
 		if (*err == 0)
 			*err = file_error(wth->fh, err_info);
+		if (rec->block != NULL) {
+			/*
+			 * Unreference any block created for this record.
+			 */
+			wtap_block_unref(rec->block);
+			rec->block = NULL;
+		}
 		return FALSE;	/* failure */
 	}
 
@@ -1669,13 +1680,20 @@ wtap_rec_init(wtap_rec *rec)
 	 */
 }
 
-/* clean up record metadata */
+/* re-initialize record */
 void
-wtap_rec_cleanup(wtap_rec *rec)
+wtap_rec_reset(wtap_rec *rec)
 {
 	wtap_block_unref(rec->block);
 	rec->block = NULL;
 	rec->block_was_modified = FALSE;
+}
+
+/* clean up record metadata */
+void
+wtap_rec_cleanup(wtap_rec *rec)
+{
+	wtap_rec_reset(rec);
 	ws_buffer_free(&rec->options_buf);
 }
 
@@ -1690,8 +1708,16 @@ wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 
 	*err = 0;
 	*err_info = NULL;
-	if (!wth->subtype_seek_read(wth, seek_off, rec, buf, err, err_info))
+	if (!wth->subtype_seek_read(wth, seek_off, rec, buf, err, err_info)) {
+		if (rec->block != NULL) {
+			/*
+			 * Unreference any block created for this record.
+			 */
+			wtap_block_unref(rec->block);
+			rec->block = NULL;
+		}
 		return FALSE;
+	}
 
 	/*
 	 * Is this a packet record?

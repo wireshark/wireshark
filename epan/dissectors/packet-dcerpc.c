@@ -3502,7 +3502,7 @@ dissect_sec_vt_pcontext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
     const char *uuid_name;
 
     tvb_get_letohguid(tvb, offset, &uuid);
-    uuid_name = guids_get_uuid_name(&uuid);
+    uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
     if (!uuid_name) {
             uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
@@ -3516,7 +3516,7 @@ dissect_sec_vt_pcontext(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
     offset += 4;
 
     tvb_get_letohguid(tvb, offset, &uuid);
-    uuid_name = guids_get_uuid_name(&uuid);
+    uuid_name = guids_get_uuid_name(&uuid, pinfo->pool);
     if (!uuid_name) {
             uuid_name = guid_to_str(pinfo->pool, &uuid);
     }
@@ -3762,7 +3762,7 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
                                              tvb, offset, 0, TRUE);
         proto_item_set_hidden(hidden_item);
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u",
-        guids_resolve_guid_to_str(&info->call_data->uuid), info->call_data->ver);
+        guids_resolve_guid_to_str(&info->call_data->uuid, pinfo->pool), info->call_data->ver);
 
         show_stub_data(pinfo, tvb, 0, dcerpc_tree, auth_info, !decrypted);
         return -1;
@@ -4063,7 +4063,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
 
             uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&if_id);
-            uuid_name = guids_get_uuid_name(&if_id);
+            uuid_name = guids_get_uuid_name(&if_id, pinfo->pool);
             if (uuid_name) {
                 proto_tree_add_guid_format(iface_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                            offset, 16, (e_guid_t *) &if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);
@@ -4107,7 +4107,7 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
 
                 uuid_str = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
-                uuid_name = guids_get_uuid_name(&trans_id);
+                uuid_name = guids_get_uuid_name(&trans_id, pinfo->pool);
 
                 /* check for [MS-RPCE] 3.3.1.5.3 Bind Time Feature Negotiation */
                 if (trans_id.data1 == 0x6cb71c2c && trans_id.data2 == 0x9812 && trans_id.data3 == 0x4540) {
@@ -4173,8 +4173,8 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (i > 0)
             col_append_fstr(pinfo->cinfo, COL_INFO, ",");
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u (%s)",
-                        guids_resolve_guid_to_str(&if_id), if_ver, if_ver_minor,
-                        guids_resolve_guid_to_str(&trans_id));
+                        guids_resolve_guid_to_str(&if_id, pinfo->pool), if_ver, if_ver_minor,
+                        guids_resolve_guid_to_str(&trans_id, pinfo->pool));
 
         if (ctx_tree) {
             proto_item_set_len(ctx_item, offset - ctx_offset);
@@ -4271,7 +4271,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         if (ctx_tree) {
             dcerpc_tvb_get_uuid(tvb, offset, hdr->drep, &trans_id);
-            uuid_name = guids_get_uuid_name(&trans_id);
+            uuid_name = guids_get_uuid_name(&trans_id, pinfo->pool);
             if (! uuid_name) {
                 uuid_name = guid_to_str(pinfo->pool, (e_guid_t *) &trans_id);
             }
@@ -5438,6 +5438,7 @@ dissect_dcerpc_cn_rts(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     }
 }
 
+/* Test to see if this looks like a connection oriented PDU */
 static gboolean
 is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
 {
@@ -5445,6 +5446,7 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
     guint8 rpc_ver_minor;
     guint8 ptype;
     guint8 drep[4];
+    guint16 frag_len;
 
     if (!tvb_bytes_exist(tvb, offset, sizeof(e_dce_cn_common_hdr_t)))
         return FALSE;   /* not enough information to check */
@@ -5466,6 +5468,11 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
         return FALSE;
     if (drep[1] > DCE_RPC_DREP_FP_IBM)
         return FALSE;
+    offset += (int)sizeof(drep);
+    frag_len = dcerpc_tvb_get_ntohs(tvb, offset, drep);
+    if (frag_len < sizeof(e_dce_cn_common_hdr_t)) {
+        return FALSE;
+    }
 
     return TRUE;
 }
@@ -5861,15 +5868,24 @@ dissect_dcerpc_cn_bs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 static guint
 get_dcerpc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
-                   int offset _U_, void *data _U_)
+                   int offset, void *data _U_)
 {
     guint8 drep[4];
     guint16 frag_len;
 
-    /* XXX: why does htis not take offset into account? */
-    tvb_memcpy(tvb, (guint8 *)drep, 4, sizeof(drep));
-    frag_len = dcerpc_tvb_get_ntohs(tvb, 8, drep);
+    tvb_memcpy(tvb, (guint8 *)drep, offset+4, sizeof(drep));
+    frag_len = dcerpc_tvb_get_ntohs(tvb, offset+8, drep);
 
+    if (!frag_len) {
+        /* tcp_dissect_pdus() interprets a 0 return value as meaning
+         * "a PDU starts here, but the length cannot be determined yet, so
+         * we need at least one more segment." However, a frag_len of 0 here
+         * is instead a bogus length. Instead return 1, another bogus length
+         * also less than our fixed length, so that the TCP dissector will
+         * correctly interpret it as a bogus and report an error.
+         */
+        frag_len = 1;
+    }
     return frag_len;
 }
 
@@ -5895,7 +5911,7 @@ dissect_dcerpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     decode_data = dcerpc_get_decode_data(pinfo);
     decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, 10, get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, sizeof(e_dce_cn_common_hdr_t), get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
     return TRUE;
 }
 
@@ -5907,7 +5923,7 @@ dissect_dcerpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     decode_data = dcerpc_get_decode_data(pinfo);
     decode_data->dcetransporttype = DCE_TRANSPORT_UNKNOWN;
 
-    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, 10, get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
+    tcp_dissect_pdus(tvb, pinfo, tree, dcerpc_cn_desegment, sizeof(e_dce_cn_common_hdr_t), get_dcerpc_pdu_len, dissect_dcerpc_pdu, data);
     return tvb_captured_length(tvb);
 }
 
@@ -6525,7 +6541,7 @@ dissect_dcerpc_dg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (tree) {
         uuid_str = guid_to_str(pinfo->pool, (e_guid_t*)&hdr.if_id);
-        uuid_name = guids_get_uuid_name(&hdr.if_id);
+        uuid_name = guids_get_uuid_name(&hdr.if_id, pinfo->pool);
         if (uuid_name) {
             proto_tree_add_guid_format(dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
                                        offset, 16, (e_guid_t *) &hdr.if_id, "Interface: %s UUID: %s", uuid_name, uuid_str);

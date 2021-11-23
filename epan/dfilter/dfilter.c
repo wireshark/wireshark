@@ -7,7 +7,7 @@
  */
 
 #include "config.h"
-#define WS_LOG_DOMAIN "Dfilter"
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
 #include <stdio.h>
 #include <string.h>
@@ -18,14 +18,19 @@
 #include "semcheck.h"
 #include "dfvm.h"
 #include <epan/epan_dissect.h>
+#include <epan/exceptions.h>
 #include "dfilter.h"
 #include "dfilter-macro.h"
 #include "scanner_lex.h"
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
+#include "grammar.h"
 
 
 #define DFILTER_TOKEN_ID_OFFSET	1
+
+/* Scanner's lval */
+extern df_lval_t *df_lval;
 
 /* Holds the singular instance of our Lemon parser object */
 static void*	ParserObj = NULL;
@@ -37,17 +42,78 @@ static void*	ParserObj = NULL;
 dfwork_t *global_dfw;
 
 void
-dfilter_fail(dfwork_t *dfw, const char *format, ...)
+dfilter_vfail(dfwork_t *dfw, const char *format, va_list args)
 {
-	va_list	args;
-
 	/* If we've already reported one error, don't overwite it */
 	if (dfw->error_message != NULL)
 		return;
 
-	va_start(args, format);
 	dfw->error_message = g_strdup_vprintf(format, args);
+}
+
+void
+dfilter_fail(dfwork_t *dfw, const char *format, ...)
+{
+	va_list	args;
+
+	va_start(args, format);
+	dfilter_vfail(dfw, format, args);
 	va_end(args);
+}
+
+void
+dfilter_fail_throw(dfwork_t *dfw, long code, const char *format, ...)
+{
+	va_list	args;
+
+	va_start(args, format);
+	dfilter_vfail(dfw, format, args);
+	va_end(args);
+	THROW(code);
+}
+
+void
+dfilter_fail_parse(dfwork_t *dfw, const char *format, ...)
+{
+	va_list	args;
+
+	va_start(args, format);
+	dfilter_vfail(dfw, format, args);
+	va_end(args);
+	dfw->syntax_error = TRUE;
+}
+
+/*
+ * Tries to convert an STTYPE_UNPARSED to a STTYPE_FIELD. If it's not registered as
+ * a field pass UNPARSED to the semantic check.
+ */
+stnode_t *
+dfilter_resolve_unparsed(dfwork_t *dfw, stnode_t *node)
+{
+	const char *name;
+	header_field_info *hfinfo;
+
+	ws_assert(stnode_type_id(node) == STTYPE_UNPARSED);
+
+	name = stnode_data(node);
+
+	hfinfo = proto_registrar_get_byname(name);
+	if (hfinfo != NULL) {
+		/* It's a field name */
+		stnode_replace(node, STTYPE_FIELD, hfinfo);
+		return node;
+	}
+
+	hfinfo = proto_registrar_get_byalias(name);
+	if (hfinfo != NULL) {
+		/* It's an aliased field name */
+		add_deprecated_token(dfw, name);
+		stnode_replace(node, STTYPE_FIELD, hfinfo);
+		return node;
+	}
+
+	/* It's not a field. */
+	return node;
 }
 
 /* Initialize the dfilter module */
@@ -92,13 +158,15 @@ dfilter_cleanup(void)
 }
 
 static dfilter_t*
-dfilter_new(void)
+dfilter_new(GPtrArray *deprecated)
 {
 	dfilter_t	*df;
 
 	df = g_new0(dfilter_t, 1);
 	df->insns = NULL;
-	df->deprecated = NULL;
+
+	if (deprecated)
+		df->deprecated = g_ptr_array_ref(deprecated);
 
 	return df;
 }
@@ -141,13 +209,8 @@ dfilter_free(dfilter_t *df)
 		g_list_free(df->registers[i]);
 	}
 
-	if (df->deprecated) {
-		for (i = 0; i < df->deprecated->len; ++i) {
-			gchar *depr = (gchar *)g_ptr_array_index(df->deprecated, i);
-			g_free(depr);
-		}
-		g_ptr_array_free(df->deprecated, TRUE);
-	}
+	if (df->deprecated)
+		g_ptr_array_unref(df->deprecated);
 
 	g_free(df->registers);
 	g_free(df->attempted_load);
@@ -190,6 +253,9 @@ dfwork_free(dfwork_t *dfw)
 		free_insns(dfw->consts);
 	}
 
+	if (dfw->deprecated)
+		g_ptr_array_unref(dfw->deprecated);
+
 	/*
 	 * We don't free the error message string; our caller will return
 	 * it to its caller.
@@ -197,8 +263,59 @@ dfwork_free(dfwork_t *dfw)
 	g_free(dfw);
 }
 
+const char *tokenstr(int token)
+{
+	switch (token) {
+		case TOKEN_TEST_AND:	return "TEST_AND";
+		case TOKEN_TEST_OR: 	return "TEST_OR";
+		case TOKEN_TEST_EQ:	return "TEST_EQ";
+		case TOKEN_TEST_NE:	return "TEST_NE";
+		case TOKEN_TEST_LT:	return "TEST_LT";
+		case TOKEN_TEST_LE:	return "TEST_LE";
+		case TOKEN_TEST_GT:	return "TEST_GT";
+		case TOKEN_TEST_GE:	return "TEST_GE";
+		case TOKEN_TEST_CONTAINS: return "TEST_CONTAINS";
+		case TOKEN_TEST_MATCHES: return "TEST_MATCHES";
+		case TOKEN_TEST_BITWISE_AND: return "TEST_BITWISE_AND";
+		case TOKEN_TEST_NOT:	return "TEST_NOT";
+		case TOKEN_STRING:	return "STRING";
+		case TOKEN_CHARCONST:	return "CHARCONST";
+		case TOKEN_UNPARSED:	return "UNPARSED";
+		case TOKEN_LBRACKET:	return "LBRACKET";
+		case TOKEN_RBRACKET:	return "RBRACKET";
+		case TOKEN_COMMA:	return "COMMA";
+		case TOKEN_TEST_IN:	return "TEST_IN";
+		case TOKEN_LBRACE:	return "LBRACE";
+		case TOKEN_RBRACE:	return "RBRACE";
+		case TOKEN_DOTDOT:	return "DOTDOT";
+		case TOKEN_LPAREN:	return "LPAREN";
+		case TOKEN_RPAREN:	return "RPAREN";
+		default:		return "<unknown>";
+	}
+	ws_assert_not_reached();
+}
+
+void
+add_deprecated_token(dfwork_t *dfw, const char *token)
+{
+	if (dfw->deprecated == NULL)
+		dfw->deprecated  = g_ptr_array_new_full(0, g_free);
+
+	GPtrArray *deprecated = dfw->deprecated;
+
+	for (guint i = 0; i < deprecated->len; i++) {
+		const char *str = g_ptr_array_index(deprecated, i);
+		if (g_ascii_strcasecmp(token, str) == 0) {
+			/* It's already in our list */
+			return;
+		}
+	}
+	g_ptr_array_add(deprecated, g_strdup(token));
+}
+
 gboolean
-dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
+dfilter_compile_real(const gchar *text, dfilter_t **dfp,
+			gchar **error_ret, const char *caller)
 {
 	gchar		*expanded_text;
 	int		token;
@@ -208,49 +325,57 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	yyscan_t	scanner;
 	YY_BUFFER_STATE in_buffer;
 	gboolean failure = FALSE;
-	const char	*depr_test;
-	guint		i;
-	/* XXX, GHashTable */
-	GPtrArray	*deprecated;
+	unsigned token_count = 0;
 
 	ws_assert(dfp);
+	*dfp = NULL;
 
-	if (!text) {
-		*dfp = NULL;
-		if (err_msg != NULL)
-			*err_msg = g_strdup("BUG: NULL text pointer passed to dfilter_compile()");
+	if (text == NULL) {
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
+			"%s() called from %s() with null filter",
+			__func__, caller);
+		if (error_ret != NULL) {
+			/* XXX This BUG happens often. Some callers are ignoring these errors. */
+			*error_ret = g_strdup("BUG: NULL text pointer passed to dfilter_compile");
+		}
 		return FALSE;
 	}
-
-	if ( !( expanded_text = dfilter_macro_apply(text, err_msg) ) ) {
-		*dfp = NULL;
-		return FALSE;
+	else if (*text == '\0') {
+		/* An empty filter is considered a valid input. */
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
+			"%s() called from %s() with empty filter",
+			__func__, caller);
 	}
+	else {
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_DEBUG,
+			"%s() called from %s(), compiling filter: %s",
+			__func__, caller, text);
+	}
+
+	dfw = dfwork_new();
+
+	expanded_text = dfilter_macro_apply(text, &dfw->error_message);
+	if (expanded_text == NULL) {
+		goto FAILURE;
+	}
+
+	ws_noisy("Expanded text: %s", expanded_text);
 
 	if (df_lex_init(&scanner) != 0) {
-		wmem_free(NULL, expanded_text);
-		*dfp = NULL;
-		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("Can't initialize scanner: %s",
-			    g_strerror(errno));
-		return FALSE;
+		dfw->error_message = g_strdup_printf("Can't initialize scanner: %s", g_strerror(errno));
+		goto FAILURE;
 	}
 
 	in_buffer = df__scan_string(expanded_text, scanner);
 
-	dfw = dfwork_new();
-
 	state.dfw = dfw;
 	state.quoted_string = NULL;
-	state.in_set = FALSE;
 	state.raw_string = FALSE;
 
 	df_set_extra(&state, scanner);
 
-	deprecated = g_ptr_array_new();
-
 	while (1) {
-		df_lval = stnode_new(STTYPE_UNINITIALIZED, NULL);
+		df_lval = df_lval_new();
 		token = df_lex(scanner);
 
 		/* Check for scanner failure */
@@ -264,25 +389,13 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 			break;
 		}
 
-		/* See if the node is deprecated */
-		depr_test = stnode_deprecated(df_lval);
-
-		if (depr_test) {
-			for (i = 0; i < deprecated->len; i++) {
-				if (g_ascii_strcasecmp(depr_test, (const gchar *)g_ptr_array_index(deprecated, i)) == 0) {
-					/* It's already in our list */
-					depr_test = NULL;
-				}
-			}
-		}
-
-		if (depr_test) {
-			g_ptr_array_add(deprecated, g_strdup(depr_test));
-		}
+		ws_noisy("(%u) Token %d %s %s",
+				++token_count, token, tokenstr(token),
+				df_lval_value(df_lval));
 
 		/* Give the token to the parser */
 		Dfilter(ParserObj, token, df_lval, dfw);
-		/* We've used the stnode_t, so we don't want to free it */
+		/* The parser has freed the lval for us. */
 		df_lval = NULL;
 
 		if (dfw->syntax_error) {
@@ -292,10 +405,10 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 
 	} /* while (1) */
 
-	/* If we created an stnode_t but didn't use it, free it; the
+	/* If we created a df_lval_t but didn't use it, free it; the
 	 * parser doesn't know about it and won't free it for us. */
 	if (df_lval) {
-		stnode_free(df_lval);
+		df_lval_free(df_lval);
 		df_lval = NULL;
 	}
 
@@ -324,24 +437,22 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	 * it and set *dfp to NULL */
 	if (dfw->st_root == NULL) {
 		*dfp = NULL;
-		for (i = 0; i < deprecated->len; ++i) {
-			gchar* depr = (gchar*)g_ptr_array_index(deprecated,i);
-			g_free(depr);
-		}
-		g_ptr_array_free(deprecated, TRUE);
 	}
 	else {
+		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree before semantic check");
 
 		/* Check semantics and do necessary type conversion*/
-		if (!dfw_semcheck(dfw, deprecated)) {
+		if (!dfw_semcheck(dfw)) {
 			goto FAILURE;
 		}
+
+		log_syntax_tree(LOG_LEVEL_NOISY, dfw->st_root, "Syntax tree after successful semantic check");
 
 		/* Create bytecode */
 		dfw_gencode(dfw);
 
 		/* Tuck away the bytecode in the dfilter_t */
-		dfilter = dfilter_new();
+		dfilter = dfilter_new(dfw->deprecated);
 		dfilter->insns = dfw->insns;
 		dfilter->consts = dfw->consts;
 		dfw->insns = NULL;
@@ -359,42 +470,37 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 		/* Initialize constants */
 		dfvm_init_const(dfilter);
 
-		/* Add any deprecated items */
-		dfilter->deprecated = deprecated;
-
 		/* And give it to the user. */
 		*dfp = dfilter;
 	}
 	/* SUCCESS */
 	global_dfw = NULL;
 	dfwork_free(dfw);
+	if (*dfp != NULL)
+		ws_log(WS_LOG_DOMAIN, LOG_LEVEL_INFO, "Compiled display filter: %s", text);
+	else
+		ws_debug("Compiled empty filter (successfully).");
 	wmem_free(NULL, expanded_text);
 	return TRUE;
 
 FAILURE:
-	if (dfw) {
-		if (err_msg != NULL)
-			*err_msg = dfw->error_message;
-		else
+	ws_assert(dfw);
+	if (dfw->error_message == NULL) {
+		/* We require an error message. */
+		ws_critical("Unknown error compiling filter: %s", text);
+	}
+	else {
+		ws_debug("Compiling filter failed with error: %s.", dfw->error_message);
+		if (error_ret != NULL) {
+			*error_ret = dfw->error_message;
+		}
+		else {
 			g_free(dfw->error_message);
-		global_dfw = NULL;
-		dfwork_free(dfw);
+		}
 	}
-	for (i = 0; i < deprecated->len; ++i) {
-		gchar* depr = (gchar*)g_ptr_array_index(deprecated,i);
-		g_free(depr);
-	}
-	g_ptr_array_free(deprecated, TRUE);
-	if (err_msg != NULL) {
-		/*
-		 * Default error message.
-		 *
-		 * XXX - we should really make sure that this is never the
-		 * case for any error.
-		 */
-		if (*err_msg == NULL)
-			*err_msg = g_strdup_printf("Unable to parse filter string \"%s\".", expanded_text);
-	}
+
+	global_dfw = NULL;
+	dfwork_free(dfw);
 	wmem_free(NULL, expanded_text);
 	*dfp = NULL;
 	return FALSE;

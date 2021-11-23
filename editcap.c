@@ -40,18 +40,7 @@
 #include <unistd.h>
 #endif
 
-/*
- * If we have getopt_long() in the system library, include <getopt.h>.
- * Otherwise, we're using our own getopt_long() (either because the
- * system has getopt() but not getopt_long(), as with some UN*Xes,
- * or because it doesn't even have getopt(), as with Windows), so
- * include our getopt_long()'s header.
- */
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#else
-#include <wsutil/wsgetopt.h>
-#endif
+#include <wsutil/ws_getopt.h>
 
 #include <wiretap/secrets-types.h>
 #include <wiretap/wtap.h>
@@ -1020,18 +1009,43 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
                                               WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
         for (guint i = 0; i < idbs_seen->len; i++) {
             wtap_block_t if_data = g_array_index(idbs_seen, wtap_block_t, i);
+            wtap_block_t if_data_copy;
 
             /*
-             * Add this IDB to the file to which we're currently writing.
+             * Make a copy of this IDB, so that we can change the
+             * encapsulation type without trashing the original.
              */
-            if (!wtap_dump_add_idb(pdh, if_data, err, err_info)) {
+            if_data_copy = wtap_block_make_copy(if_data);
+
+            /*
+             * If an encapsulation type was specified, override the
+             * encapsulation type of the interface.
+             */
+            if (out_frame_type != -2) {
+                wtapng_if_descr_mandatory_t *if_mand;
+
+                if_mand = (wtapng_if_descr_mandatory_t *)wtap_block_get_mandatory_data(if_data_copy);
+                if_mand->wtap_encap = out_frame_type;
+            }
+
+            /*
+             * Add this possibly-modified IDB to the file to which
+             * we're currently writing.
+             */
+            if (!wtap_dump_add_idb(pdh, if_data_copy, err, err_info)) {
                 int close_err;
                 gchar *close_err_info;
 
                 wtap_dump_close(pdh, &close_err, &close_err_info);
                 g_free(close_err_info);
+                wtap_block_unref(if_data_copy);
                 return NULL;
             }
+
+            /*
+             * Release the copy - wtap_dump_add_idb() makes its own copy.
+             */
+            wtap_block_unref(if_data_copy);
         }
     }
 
@@ -1057,16 +1071,39 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
             wtap_block_t if_data_copy;
 
             /*
-             * Add this IDB to the file to which we're currently writing.
+             * Make a copy of this IDB, so that we can change the
+             * encapsulation type without trashing the original.
              */
-            if (!wtap_dump_add_idb(pdh, if_data, err, err_info))
+            if_data_copy = wtap_block_make_copy(if_data);
+
+            /*
+             * If an encapsulation type was specified, override the
+             * encapsulation type of the interface.
+             */
+            if (out_frame_type != -2) {
+                wtapng_if_descr_mandatory_t *if_mand;
+
+                if_mand = (wtapng_if_descr_mandatory_t *)wtap_block_get_mandatory_data(if_data_copy);
+                if_mand->wtap_encap = out_frame_type;
+            }
+
+            /*
+             * Add this possibly-modified IDB to the file to which
+             * we're currently writing.
+             */
+            if (!wtap_dump_add_idb(pdh, if_data_copy, err, err_info))
                 return FALSE;
 
             /*
-             * Also add it to the set of IDBs we've seen, in case we
-             * start writing to another file (which would be of the
-             * same type as the current file, and thus will also require
-             * interface IDs).
+             * Release the copy - wtap_dump_add_idb() makes its own copy.
+             */
+            wtap_block_unref(if_data_copy);
+
+            /*
+             * Also add an unmodified copy to the set of IDBs we've seen,
+             * in case we start writing to another file (which would be
+             * of the same type as the current file, and thus will also
+             * require interface IDs).
              */
             if_data_copy = wtap_block_make_copy(if_data);
             g_array_append_val(idbs_seen, if_data_copy);
@@ -1104,16 +1141,16 @@ main(int argc, char *argv[])
 #define LONGOPT_CAPTURE_COMMENT      LONGOPT_BASE_APPLICATION+6
 #define LONGOPT_DISCARD_CAPTURE_COMMENT LONGOPT_BASE_APPLICATION+7
 
-    static const struct option long_options[] = {
-        {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
-        {"skip-radiotap-header", no_argument, NULL, LONGOPT_SKIP_RADIOTAP_HEADER},
-        {"seed", required_argument, NULL, LONGOPT_SEED},
-        {"inject-secrets", required_argument, NULL, LONGOPT_INJECT_SECRETS},
-        {"discard-all-secrets", no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
-        {"help", no_argument, NULL, 'h'},
-        {"version", no_argument, NULL, 'V'},
-        {"capture-comment", required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
-        {"discard-capture-comment", no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
+    static const struct ws_option long_options[] = {
+        {"novlan", ws_no_argument, NULL, LONGOPT_NO_VLAN},
+        {"skip-radiotap-header", ws_no_argument, NULL, LONGOPT_SKIP_RADIOTAP_HEADER},
+        {"seed", ws_required_argument, NULL, LONGOPT_SEED},
+        {"inject-secrets", ws_required_argument, NULL, LONGOPT_INJECT_SECRETS},
+        {"discard-all-secrets", ws_no_argument, NULL, LONGOPT_DISCARD_ALL_SECRETS},
+        {"help", ws_no_argument, NULL, 'h'},
+        {"version", ws_no_argument, NULL, 'V'},
+        {"capture-comment", ws_required_argument, NULL, LONGOPT_CAPTURE_COMMENT},
+        {"discard-capture-comment", ws_no_argument, NULL, LONGOPT_DISCARD_CAPTURE_COMMENT},
         {0, 0, 0, 0 }
     };
 
@@ -1155,6 +1192,7 @@ main(int argc, char *argv[])
     unsigned int                 seed = 0;
 
     cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
+    memset(&read_rec, 0, sizeof *rec);
 
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init("editcap", vcmdarg_err);
@@ -1191,7 +1229,7 @@ main(int argc, char *argv[])
     wtap_init(TRUE);
 
     /* Process the options */
-    while ((opt = getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
+    while ((opt = ws_getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
         case LONGOPT_NO_VLAN:
         {
@@ -1207,9 +1245,9 @@ main(int argc, char *argv[])
 
         case LONGOPT_SEED:
         {
-            if (sscanf(optarg, "%u", &seed) != 1) {
+            if (sscanf(ws_optarg, "%u", &seed) != 1) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid seed\n\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1221,11 +1259,11 @@ main(int argc, char *argv[])
         {
             guint32 secrets_type_id = 0;
             const char *secrets_filename = NULL;
-            if (strcmp("help", optarg) == 0) {
+            if (strcmp("help", ws_optarg) == 0) {
                 list_secrets_types(stdout);
                 goto clean_exit;
             }
-            gchar **splitted = g_strsplit(optarg, ",", 2);
+            gchar **splitted = g_strsplit(ws_optarg, ",", 2);
             if (splitted[0] && splitted[0][0] != '\0') {
                 secrets_type_id = lookup_secrets_type(splitted[0]);
                 if (secrets_type_id == 0) {
@@ -1264,7 +1302,7 @@ main(int argc, char *argv[])
             if (!capture_comments) {
                 capture_comments = g_ptr_array_new_with_free_func(g_free);
             }
-            g_ptr_array_add(capture_comments, g_strdup(optarg));
+            g_ptr_array_add(capture_comments, g_strdup(ws_optarg));
             break;
         }
 
@@ -1279,9 +1317,9 @@ main(int argc, char *argv[])
             guint frame_number;
             gint string_start_index = 0;
 
-            if ((sscanf(optarg, "%u:%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
+            if ((sscanf(ws_optarg, "%u:%n", &frame_number, &string_start_index) < 1) || (string_start_index == 0)) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid <frame>:<comment>\n\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1292,7 +1330,7 @@ main(int argc, char *argv[])
             }
 
             /* Insert this entry (framenum -> comment) */
-            g_tree_replace(frames_user_comments, GUINT_TO_POINTER(frame_number), g_strdup(optarg+string_start_index));
+            g_tree_replace(frames_user_comments, GUINT_TO_POINTER(frame_number), g_strdup(ws_optarg+string_start_index));
             break;
         }
 
@@ -1302,7 +1340,7 @@ main(int argc, char *argv[])
             nstime_t in_time;
 
             check_startstop = TRUE;
-            if ((0 < iso8601_to_nstime(&in_time, optarg)) || (0 < unix_epoch_to_nstime(&in_time, optarg))) {
+            if ((0 < iso8601_to_nstime(&in_time, ws_optarg)) || (0 < unix_epoch_to_nstime(&in_time, ws_optarg))) {
                 if (opt == 'A') {
                     nstime_copy(&starttime, &in_time);
                     have_starttime = TRUE;
@@ -1314,21 +1352,21 @@ main(int argc, char *argv[])
             }
             else {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid date and time\n\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
         }
 
         case 'c':
-            split_packet_count = get_nonzero_guint32(optarg, "packet count");
+            split_packet_count = get_nonzero_guint32(ws_optarg, "packet count");
             break;
 
         case 'C':
         {
             int choplen = 0, chopoff = 0;
 
-            switch (sscanf(optarg, "%d:%d", &chopoff, &choplen)) {
+            switch (sscanf(ws_optarg, "%d:%d", &chopoff, &choplen)) {
             case 1: /* only the chop length was specififed */
                 choplen = chopoff;
                 chopoff = 0;
@@ -1339,7 +1377,7 @@ main(int argc, char *argv[])
 
             default:
                 fprintf(stderr, "editcap: \"%s\" isn't a valid chop length or offset:length\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
                 break;
@@ -1370,7 +1408,7 @@ main(int argc, char *argv[])
         case 'D':
             dup_detect = TRUE;
             dup_detect_by_time = FALSE;
-            dup_window = get_guint32(optarg, "duplicate window");
+            dup_window = get_guint32(ws_optarg, "duplicate window");
             if (dup_window > MAX_DUP_DEPTH) {
                 fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
                         dup_window, MAX_DUP_DEPTH);
@@ -1380,20 +1418,20 @@ main(int argc, char *argv[])
             break;
 
         case 'E':
-            err_prob = g_ascii_strtod(optarg, &p);
-            if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
+            err_prob = g_ascii_strtod(ws_optarg, &p);
+            if (p == ws_optarg || err_prob < 0.0 || err_prob > 1.0) {
                 fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
-                        optarg);
+                        ws_optarg);
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
             break;
 
         case 'F':
-            out_file_type_subtype = wtap_name_to_file_type_subtype(optarg);
+            out_file_type_subtype = wtap_name_to_file_type_subtype(ws_optarg);
             if (out_file_type_subtype < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
-                        optarg);
+                        ws_optarg);
                 list_capture_types(stderr);
                 ret = INVALID_OPTION;
                 goto clean_exit;
@@ -1408,7 +1446,7 @@ main(int argc, char *argv[])
 
         case 'i': /* break capture file based on time interval */
         {
-            double spb = get_positive_double(optarg, "time interval");
+            double spb = get_positive_double(ws_optarg, "time interval");
             if (spb == 0.0) {
               cmdarg_err("The specified interval is zero");
               ret = INVALID_OPTION;
@@ -1423,7 +1461,7 @@ main(int argc, char *argv[])
             break;
 
         case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
-            ignored_bytes = get_guint32(optarg, "number of bytes to ignore");
+            ignored_bytes = get_guint32(ws_optarg, "number of bytes to ignore");
             break;
 
         case 'L':
@@ -1431,7 +1469,7 @@ main(int argc, char *argv[])
             break;
 
         case 'o':
-            change_offset = get_guint32(optarg, "change offset");
+            change_offset = get_guint32(ws_optarg, "change offset");
             break;
 
         case 'r':
@@ -1444,11 +1482,11 @@ main(int argc, char *argv[])
             break;
 
         case 's':
-            snaplen = get_nonzero_guint32(optarg, "snapshot length");
+            snaplen = get_nonzero_guint32(ws_optarg, "snapshot length");
             break;
 
         case 'S':
-            if (!set_strict_time_adj(optarg)) {
+            if (!set_strict_time_adj(ws_optarg)) {
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1456,17 +1494,17 @@ main(int argc, char *argv[])
             break;
 
         case 't':
-            if (!set_time_adjustment(optarg)) {
+            if (!set_time_adjustment(ws_optarg)) {
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
             break;
 
         case 'T':
-            out_frame_type = wtap_name_to_encap(optarg);
+            out_frame_type = wtap_name_to_encap(ws_optarg);
             if (out_frame_type < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
-                        optarg);
+                        ws_optarg);
                 list_encap_types(stderr);
                 ret = INVALID_OPTION;
                 goto clean_exit;
@@ -1491,7 +1529,7 @@ main(int argc, char *argv[])
             dup_detect = FALSE;
             dup_detect_by_time = TRUE;
             dup_window = MAX_DUP_DEPTH;
-            if (!set_rel_time(optarg)) {
+            if (!set_rel_time(ws_optarg)) {
                 ret = INVALID_OPTION;
                 goto clean_exit;
             }
@@ -1499,7 +1537,7 @@ main(int argc, char *argv[])
 
         case '?':              /* Bad options if GNU getopt */
         case ':':              /* missing option argument */
-            switch(optopt) {
+            switch(ws_optopt) {
             case'F':
                 list_capture_types(stdout);
                 break;
@@ -1508,9 +1546,9 @@ main(int argc, char *argv[])
                 break;
             default:
                 if (opt == '?') {
-                    fprintf(stderr, "editcap: invalid option -- '%c'\n", optopt);
+                    fprintf(stderr, "editcap: invalid option -- '%c'\n", ws_optopt);
                 } else {
-                    fprintf(stderr, "editcap: option requires an argument -- '%c'\n", optopt);
+                    fprintf(stderr, "editcap: option requires an argument -- '%c'\n", ws_optopt);
                 }
                 print_usage(stderr);
                 ret = INVALID_OPTION;
@@ -1522,10 +1560,10 @@ main(int argc, char *argv[])
     } /* processing commmand-line options */
 
 #ifdef DEBUG
-    fprintf(stderr, "Optind = %i, argc = %i\n", optind, argc);
+    fprintf(stderr, "Optind = %i, argc = %i\n", ws_optind, argc);
 #endif
 
-    if ((argc - optind) < 2) {
+    if ((argc - ws_optind) < 2) {
         print_usage(stderr);
         ret = INVALID_OPTION;
         goto clean_exit;
@@ -1560,16 +1598,16 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-    wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
+    wth = wtap_open_offline(argv[ws_optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
 
     if (!wth) {
-        cfile_open_failure_message(argv[optind], read_err, read_err_info);
+        cfile_open_failure_message(argv[ws_optind], read_err, read_err_info);
         ret = INVALID_FILE;
         goto clean_exit;
     }
 
     if (verbose) {
-        fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
+        fprintf(stderr, "File %s is a %s capture file.\n", argv[ws_optind],
                 wtap_file_type_subtype_description(wtap_file_type_subtype(wth)));
     }
 
@@ -1691,7 +1729,7 @@ main(int argc, char *argv[])
      * Now process the arguments following the input and output file
      * names, if any; they specify packets to include/exclude.
      */
-    for (i = optind + 2; i < argc; i++)
+    for (i = ws_optind + 2; i < argc; i++)
         if (add_selection(argv[i], &max_packet_number) == FALSE)
             break;
 
@@ -1729,14 +1767,14 @@ main(int argc, char *argv[])
         /* Extra actions for the first packet */
         if (read_count == 1) {
             if (split_packet_count != 0 || !nstime_is_unset(&secs_per_block)) {
-                if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix)) {
+                if (!fileset_extract_prefix_suffix(argv[ws_optind+1], &fprefix, &fsuffix)) {
                     ret = CANT_EXTRACT_PREFIX;
                     goto clean_exit;
                 }
 
                 filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
             } else {
-                filename = g_strdup(argv[optind+1]);
+                filename = g_strdup(argv[ws_optind+1]);
             }
             ws_assert(filename);
 
@@ -1761,7 +1799,7 @@ main(int argc, char *argv[])
          * Process whatever IDBs we haven't seen yet.
          */
         if (!process_new_idbs(wth, pdh, idbs_seen, &write_err, &write_err_info)) {
-            cfile_write_failure_message(argv[optind], filename,
+            cfile_write_failure_message(argv[ws_optind], filename,
                                         write_err, write_err_info,
                                         read_count,
                                         out_file_type_subtype);
@@ -2206,7 +2244,7 @@ main(int argc, char *argv[])
 
             /* Attempt to dump out current frame to the output file */
             if (!wtap_dump(pdh, rec, buf, &write_err, &write_err_info)) {
-                cfile_write_failure_message(argv[optind], filename,
+                cfile_write_failure_message(argv[ws_optind], filename,
                                             write_err, write_err_info,
                                             read_count,
                                             out_file_type_subtype);
@@ -2216,6 +2254,7 @@ main(int argc, char *argv[])
             written_count++;
         }
         count++;
+        wtap_rec_reset(&read_rec);
     }
     wtap_rec_cleanup(&read_rec);
     ws_buffer_free(&read_buf);
@@ -2226,14 +2265,14 @@ main(int argc, char *argv[])
     if (read_err != 0) {
         /* Print a message noting that the read failed somewhere along the
          * line. */
-        cfile_read_failure_message(argv[optind], read_err, read_err_info);
+        cfile_read_failure_message(argv[ws_optind], read_err, read_err_info);
     }
 
     if (!pdh) {
         /* No valid packages found, open the outfile so we can write an
          * empty header */
         g_free (filename);
-        filename = g_strdup(argv[optind+1]);
+        filename = g_strdup(argv[ws_optind+1]);
 
         pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
                                 &write_err_info);
@@ -2285,6 +2324,7 @@ clean_exit:
     wtap_dump_params_cleanup(&params);
     if (wth != NULL)
         wtap_close(wth);
+    wtap_rec_reset(&read_rec);
     wtap_cleanup();
     free_progdirs();
     if (capture_comments != NULL) {

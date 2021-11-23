@@ -417,7 +417,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
       root_identifier_system_id_extension = root_identifier_bridge_priority & 0x0fff;
       root_identifier_bridge_priority &= 0xf000;
     }
-    root_identifier_mac_str = tvb_ether_to_str(tvb, BPDU_ROOT_IDENTIFIER + 2);
+    root_identifier_mac_str = tvb_ether_to_str(pinfo->pool, tvb, BPDU_ROOT_IDENTIFIER + 2);
     root_path_cost = tvb_get_ntohl(tvb, BPDU_ROOT_PATH_COST);
     port_identifier = tvb_get_ntohs(tvb, BPDU_PORT_IDENTIFIER);
     break;
@@ -526,7 +526,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
       bridge_identifier_system_id_extension = bridge_identifier_bridge_priority & 0x0fff;
       bridge_identifier_bridge_priority &= 0xf000;
     }
-    bridge_identifier_mac_str = tvb_ether_to_str(tvb, BPDU_BRIDGE_IDENTIFIER + 2);
+    bridge_identifier_mac_str = tvb_ether_to_str(pinfo->pool, tvb, BPDU_BRIDGE_IDENTIFIER + 2);
 
     if (bpdu_type == BPDU_TYPE_RST) {
        proto_tree_add_bitmask_value_with_flags(bpdu_tree, tvb, BPDU_FLAGS, hf_bpdu_flags, ett_bpdu_flags, rst_flags, flags, BMT_NO_FALSE|BMT_NO_TFS);
@@ -723,7 +723,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                             BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
         cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_CIST_BRIDGE_IDENTIFIER);
-        cist_bridge_identifier_mac_str = tvb_ether_to_str(tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2);
+        cist_bridge_identifier_mac_str = tvb_ether_to_str(pinfo->pool, tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2);
 
         /* add Identifier with format based on preference value
          * bpdu_use_system_id_extensions
@@ -767,7 +767,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
 
       case MSTI_FORMAT_ALTERNATIVE:
         cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,ALT_BPDU_CIST_BRIDGE_IDENTIFIER);
-        cist_bridge_identifier_mac_str = tvb_ether_to_str(tvb, ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2);
+        cist_bridge_identifier_mac_str = tvb_ether_to_str(pinfo->pool, tvb, ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2);
 
         /* add Identifier with format based on preference value
          * bpdu_use_system_id_extensions
@@ -826,7 +826,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
           msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
                                      tvb_get_guint8(tvb,  offset+ MSTI_REGIONAL_ROOT+1);
-          msti_regional_root_mac_str = tvb_ether_to_str(tvb, offset + MSTI_REGIONAL_ROOT + 2);
+          msti_regional_root_mac_str = tvb_ether_to_str(pinfo->pool, tvb, offset + MSTI_REGIONAL_ROOT + 2);
 
           msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, 16, ett_msti, NULL,
                                           "MSTID %d, Regional Root Identifier %d / %s",
@@ -868,7 +868,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
           msti_regional_root_priority = (msti_regional_root_mstid &0xf0) << 8;
           msti_regional_root_mstid = ((msti_regional_root_mstid & 0x0f) << 8) +
                                      tvb_get_guint8(tvb,  offset+ ALT_MSTI_REGIONAL_ROOT+1);
-          msti_regional_root_mac_str = tvb_ether_to_str(tvb, offset+ ALT_MSTI_REGIONAL_ROOT + 2);
+          msti_regional_root_mac_str = tvb_ether_to_str(pinfo->pool, tvb, offset+ ALT_MSTI_REGIONAL_ROOT + 2);
 
           msti_tree = proto_tree_add_subtree_format(mstp_tree, tvb, offset, 16, ett_msti, NULL,
                                           "MSTID %d, Regional Root Identifier %d / %s",

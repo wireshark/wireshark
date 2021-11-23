@@ -1,0 +1,103 @@
+include::../docbook/attributes.adoc[]
+= idl2deb(1)
+:doctype: manpage
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
+
+== NAME
+
+idl2deb - Create a Debian package for CORBA monitoring from IDL
+
+== SYNOPSIS
+
+[manarg]
+*idl2deb*
+[ *-d* <opts> ]
+[ *--dbopts*=<opts> ]
+[ *-e* <address> ]
+[ *--email*=<address> ]
+[ *-h* ]
+[ *--help* ]
+[ *-i* <idlfile> ]
+[ *--idl*=<idlfile> ]
+[ *-n* <name> ]
+[ *--name*=<name> ]
+[ *-p* ]
+[ *--preserve* ]
+[ *-v* ]
+[ *--version* ]
+
+== DESCRIPTION
+
+This manual page documents briefly the *idl2deb* command. *idl2deb*
+takes an CORBA IDL file as input and creates a Debian package from it. The
+package contains a loadable module for the Wireshark network analyser.
+
+== OPTIONS
+
+-d <opts> --dbopts=<opts>::
++
+--
+options for dpkg-buildpackage.
+--
+
+-e <address> --email=<address>::
++
+--
+use e-mail address.
+--
+
+-h --help::
++
+--
+print help and exit.
+--
+
+-i <idlfile> --idl=<idlfile>::
++
+--
+IDL file to use (mandatory)
+--
+
+-n <name> --name=<name>::
++
+--
+use user name.
+--
+
+-p --preserve::
++
+--
+do not overwrite files.
+--
+
+-v --version::
++
+--
+print version and exit.
+--
+
+== EXAMPLES
+
+/usr/bin/idl2deb -e me@foo.net -i bar.idl \-n "My Name" -d "-rfakeroot -uc -us"-d "-rfakeroot -uc -us"
+
+== SEE ALSO
+
+A lot of tools are used, which you have to *apt-get install*: wireshark-dev, python, cdbs, autotools-dev, debhelper, dpkg-dev.
+
+== COPYING
+
+This manual page was written by W. Borgert debacle@debian.org
+for Debian GNU/Linux (but may be used by others). Permission is granted
+to copy, distribute and/or modify this document under the terms of the
+GNU General Public License, Version 2 or any later version published by
+the Free Software Foundation.
+
+== AUTHOR
+
+*W. Borgert* Author.
+
+== COPYRIGHT
+
+Copyright (C) 2003, 2005 W. Borger

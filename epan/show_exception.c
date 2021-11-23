@@ -68,7 +68,7 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		"Dissector writer didn't bother saying what the error was";
 	proto_item *item;
 
-	if (exception == ReportedBoundsError && pinfo->fragmented)
+	if ((exception == ReportedBoundsError || exception == ContainedBoundsError) && pinfo->fragmented)
 		exception = FragmentBoundsError;
 
 	switch (exception) {
@@ -114,7 +114,10 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    pinfo->noreassembly_reason, pinfo->current_proto);
 		/* Don't record FragmentBoundsError exceptions as expert events - they merely
 		 * reflect dissection done with reassembly turned off
-		 * (any case where it's caused by something else is a bug). */
+		 * (any case where it's caused by something else is a bug).
+		 * XXX: It's not malformed, but perhaps an expert info at a lower
+		 * severity like PI_NOTE would be useful to suggest trying to
+		 * change reassembly preferences. */
 		break;
 
 	case ContainedBoundsError:

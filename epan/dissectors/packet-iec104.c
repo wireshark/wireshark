@@ -620,6 +620,24 @@ static const value_string qoi_r_types[] = {
 	{ 0, NULL }
 };
 
+static const value_string rqt_r_types[] = {
+	{ 0,		"Not specified" },
+	{ 1,		"Group 1 counter interrogation" },
+	{ 2,		"Group 2 counter interrogation" },
+	{ 3,		"Group 3 counter interrogation" },
+	{ 4,		"Group 4 counter interrogation" },
+	{ 5,		"General counter interrogation" },
+	{ 0, NULL }
+};
+
+static const value_string frz_r_types[] = {
+	{ 0,		"Read only (no freeze or reset)" },
+	{ 1,		"Counter freeze without reset (value frozen represents integrated total)" },
+	{ 2,		"Counter freeze with reset (value frozen represents incremental information)" },
+	{ 3,		"Counter reset" },
+	{ 0, NULL }
+};
+
 static const value_string qrp_r_types[] = {
 	{ 0,		"Not used" },
 	{ 1,		"General reset of process" },
@@ -665,6 +683,7 @@ static int hf_cp24time_iv  = -1;
 static int hf_cp56time  = -1;
 static int hf_cp56time_ms  = -1;
 static int hf_cp56time_min  = -1;
+static int hf_cp56time_gen  = -1;
 static int hf_cp56time_iv  = -1;
 static int hf_cp56time_hour  = -1;
 static int hf_cp56time_su  = -1;
@@ -716,6 +735,9 @@ static int hf_coi  = -1;
 static int hf_coi_r  = -1;
 static int hf_coi_i  = -1;
 static int hf_qoi  = -1;
+static int hf_qcc = -1;
+static int hf_qcc_rqt = -1;
+static int hf_qcc_frz = -1;
 static int hf_qrp  = -1;
 static int hf_bcr_count = -1;
 static int hf_bcr_sq = -1;
@@ -743,6 +765,7 @@ static gint ett_dco = -1;
 static gint ett_rco = -1;
 static gint ett_qpm = -1;
 static gint ett_coi = -1;
+static gint ett_qcc = -1;
 static gint ett_cp24time = -1;
 static gint ett_cp56time = -1;
 
@@ -1193,6 +1216,7 @@ static void get_CP56Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_heade
 	(*offset) += 2;
 
 	proto_tree_add_item(cp56time_tree, hf_cp56time_min, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(cp56time_tree, hf_cp56time_gen, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(cp56time_tree, hf_cp56time_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 	(*offset) ++;
 
@@ -1567,6 +1591,23 @@ static void get_QOI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 }
 
 /* ====================================================================
+    QCC: Qualifier of counter interrogation
+   ==================================================================== */
+static void get_QCC(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
+{
+	proto_item* ti;
+	proto_tree* qcc_tree;
+
+	ti = proto_tree_add_item(iec104_header_tree, hf_qcc, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	qcc_tree = proto_item_add_subtree(ti, ett_qcc);
+
+	proto_tree_add_item(qcc_tree, hf_qcc_rqt, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qcc_tree, hf_qcc_frz, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+
+	(*offset)++;
+}
+
+/* ====================================================================
     QRP: Qualifier of reset process command
    ==================================================================== */
 static void get_QRP(tvbuff_t* tvb, guint8* offset, proto_tree* iec104_header_tree)
@@ -1743,6 +1784,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		case C_BO_TA_1:
 		case M_EI_NA_1:
 		case C_IC_NA_1:
+		case C_CI_NA_1:
 		case C_CS_NA_1:
 		case C_RP_NA_1:
 		case P_ME_NA_1:
@@ -1964,6 +2006,9 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					break;
 				case C_IC_NA_1: /* 100   Interrogation command  */
 					get_QOI(tvb, &offset, trSignal);
+					break;
+				case C_CI_NA_1: /* 101   Counter interrogation command  */
+					get_QCC(tvb, &offset, trSignal);
 					break;
 				case C_CS_NA_1: /* 103   Clock synchronization command  */
 					get_CP56Time(tvb, &offset, trSignal);
@@ -2329,6 +2374,10 @@ proto_register_iec60870_asdu(void)
 		  { "Min", "iec60870_asdu.cp56time.min", FT_UINT8, BASE_DEC, NULL, 0x3F,
 		    "CP56Time minutes", HFILL }},
 
+		{ &hf_cp56time_gen,
+		  { "GEN", "iec60870_asdu.cp56time.gen", FT_BOOLEAN, 8, TFS(&tfs_substituted_not_substituted), 0x40,
+		    "CP56Time substituted", HFILL }},
+
 		{ &hf_cp56time_iv,
 		  { "IV", "iec60870_asdu.cp56time.iv", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid), 0x80,
 		    "CP56Time invalid", HFILL }},
@@ -2533,6 +2582,18 @@ proto_register_iec60870_asdu(void)
 		  { "QOI", "iec60870_asdu.qoi", FT_UINT8, BASE_DEC, VALS(qoi_r_types), 0,
 		    NULL, HFILL }},
 
+		{ &hf_qcc,
+		  { "QCC", "iec60870_asdu.qcc", FT_UINT8, BASE_HEX, NULL, 0,
+		    NULL, HFILL } },
+
+		{ &hf_qcc_rqt,
+		  { "RQT", "iec60870_asdu.rqt", FT_UINT8, BASE_DEC, VALS(rqt_r_types), 0x3F,
+		    NULL, HFILL } },
+
+		{ &hf_qcc_frz,
+		  { "FRZ", "iec60870_asdu.frz", FT_UINT8, BASE_DEC, VALS(frz_r_types), 0xC0,
+		    NULL, HFILL } },
+
 		{ &hf_qrp,
 		  { "QRP", "iec60870_asdu.qrp", FT_UINT8, BASE_DEC, VALS(qrp_r_types), 0,
 		    NULL, HFILL }},
@@ -2595,6 +2656,7 @@ proto_register_iec60870_asdu(void)
 		&ett_rco,
 		&ett_qpm,
 		&ett_coi,
+		&ett_qcc,
 		&ett_cp24time,
 		&ett_cp56time
 	};

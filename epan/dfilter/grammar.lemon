@@ -18,6 +18,9 @@
 #pragma warning(disable:4671)
 #endif
 
+static stnode_t *
+new_function(dfwork_t *dfw, df_lval_t *lval);
+
 /* End of C code */
 }
 
@@ -27,10 +30,10 @@
 %extra_argument	{dfwork_t *dfw}
 
 /* Terminal and Non-Terminal types and destructors */
-%token_type			{stnode_t*}
+%token_type			{df_lval_t*}
 %token_destructor		{
-	(void) dfw; /* Mark unused, similar to Q_UNUSED */
-	stnode_free($$);
+	(void)dfw;
+	df_lval_free($$);
 }
 
 %type		sentence	{stnode_t*}
@@ -42,87 +45,52 @@
 %type		entity		{stnode_t*}
 %destructor	entity		{stnode_free($$);}
 
+%type		function	{stnode_t*}
+%destructor	function	{stnode_free($$);}
+
 %type		relation_test	{stnode_t*}
 %destructor	relation_test	{stnode_free($$);}
+
+%type		comparison_test	{stnode_t*}
+%destructor	comparison_test	{stnode_free($$);}
 
 %type		logical_test	{stnode_t*}
 %destructor	logical_test	{stnode_free($$);}
 
-%type		rel_op2		{test_op_t}
+%type		rel_binop	{test_op_t}
+
+%type		cmp_op		{test_op_t}
 
 %type		range		{stnode_t*}
 %destructor	range		{stnode_free($$);}
 
-%type		drnode		{drange_node*}
-%destructor	drnode		{drange_node_free($$);}
+%type		range_node	{drange_node*}
+%destructor	range_node	{drange_node_free($$);}
 
-%type		drnode_list	{GSList*}
-%destructor	drnode_list	{drange_node_free_list($$);}
+%type		range_node_list	{GSList*}
+%destructor	range_node_list	{drange_node_free_list($$);}
 
-%type		funcparams	{GSList*}
-%destructor	funcparams	{st_funcparams_free($$);}
+%type		function_params	{GSList*}
+%destructor	function_params	{st_funcparams_free($$);}
 
-%type		setnode_list	{GSList*}
-%destructor	setnode_list	{set_nodelist_free($$);}
+%type		set		{stnode_t*}
+%destructor	set		{stnode_free($$);}
+
+%type		set_list	{GSList*}
+%destructor	set_list	{set_nodelist_free($$);}
+
+%type		set_element	{GSList*}
+%destructor	set_element	{set_nodelist_free($$);}
 
 /* This is called as soon as a syntax error happens. After that, 
 any "error" symbols are shifted, if possible. */
 %syntax_error {
-
-	header_field_info	*hfinfo;
-
 	if (!TOKEN) {
-		dfilter_fail(dfw, "Unexpected end of filter string.");
-		dfw->syntax_error = TRUE;
+		dfilter_fail_parse(dfw, "Unexpected end of filter expression.");
 		return;
 	}
-
-	switch(stnode_type_id(TOKEN)) {
-		case STTYPE_UNINITIALIZED:
-			dfilter_fail(dfw, "Syntax error.");
-			break;
-		case STTYPE_TEST:
-			dfilter_fail(dfw, "Syntax error, TEST.");
-			break;
-		case STTYPE_STRING:
-			dfilter_fail(dfw, "The string \"%s\" was unexpected in this context.",
-				(char *)stnode_data(TOKEN));
-			break;
-		case STTYPE_CHARCONST:
-			dfilter_fail(dfw, "The character constant \"%s\" was unexpected in this context.",
-				(char *)stnode_data(TOKEN));
-			break;
-		case STTYPE_UNPARSED:
-			dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
-				(char *)stnode_data(TOKEN));
-			break;
-		case STTYPE_INTEGER:
-			dfilter_fail(dfw, "The integer %d was unexpected in this context.",
-				stnode_value(TOKEN));
-			break;
-		case STTYPE_FIELD:
-			hfinfo = (header_field_info *)stnode_data(TOKEN);
-			dfilter_fail(dfw, "Syntax error near \"%s\".", hfinfo->abbrev);
-			break;
-		case STTYPE_FUNCTION:
-			dfilter_fail(dfw, "The function \"%s\" was unexpected in this context.",
-				sttype_function_funcdef(TOKEN)->name);
-			break;
-		case STTYPE_SET:
-			dfilter_fail(dfw, "Syntax error, SET.");
-			break;
-
-		/* These aren't handed to use as terminal tokens from
-		   the scanner, so was can assert that we'll never
-		   see them here. */
-		case STTYPE_NUM_TYPES:
-		case STTYPE_RANGE:
-		case STTYPE_FVALUE:
-		case STTYPE_PCRE:
-			ws_assert_not_reached();
-			break;
-	}
-	dfw->syntax_error = TRUE;
+	dfilter_fail_parse(dfw, "\"%s\" was unexpected in this context.",
+				df_lval_value(TOKEN));
 }
 
 /* When a parse fails, mark an error. This occurs after
@@ -152,126 +120,100 @@ expr(X) ::= logical_test(L).	{ X = L; }
 /* Logical tests */
 logical_test(T) ::= expr(E) TEST_AND expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, TEST_OP_AND, E, F);
+	T = stnode_new_test(TEST_OP_AND, E, F);
 }
 
 logical_test(T) ::= expr(E) TEST_OR expr(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, TEST_OP_OR, E, F);
+	T = stnode_new_test(TEST_OP_OR, E, F);
 }
 
 logical_test(T) ::= TEST_NOT expr(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set1(T, TEST_OP_NOT, E);
+	T = stnode_new_test(TEST_OP_NOT, E, NULL);
 }
 
 logical_test(T) ::= entity(E).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set1(T, TEST_OP_EXISTS, E);
+	T = stnode_new_test(TEST_OP_EXISTS, E, NULL);
 }
 
 
 
 /* Entities, or things that can be compared/tested/checked */
-entity(E) ::= FIELD(F).		{ E = F; }
-entity(E) ::= STRING(S).	{ E = S; }
-entity(E) ::= CHARCONST(C).	{ E = C; }
-entity(E) ::= UNPARSED(U).	{ E = U; }
+entity(E) ::= STRING(S).
+{
+	E = stnode_new_string(df_lval_value(S));
+	df_lval_free(S);
+}
+entity(E) ::= CHARCONST(C).
+{
+	/* A charconst uses "unparsed" semantic rules. */
+	E = stnode_new_unparsed(df_lval_value(C));
+	df_lval_free(C);
+}
+entity(E) ::= UNPARSED(U).
+{
+	E = stnode_new_unparsed(df_lval_value(U));
+	dfilter_resolve_unparsed(dfw, E);
+	df_lval_free(U);
+}
 entity(E) ::= range(R).		{ E = R; }
+entity(E) ::= function(F).	{ E = F; }
 
-range_body(B) ::= FIELD(F).	{ B = F; }
-range_body(B) ::= STRING(S).	{ B = S; }
-range_body(B) ::= range(R).	{ B = R; }
 
 /* Ranges */
-range(R) ::= range_body(B) LBRACKET drnode_list(L) RBRACKET.
+range(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
 	R = stnode_new(STTYPE_RANGE, NULL);
-	sttype_range_set(R, B, L);
+	sttype_range_set(R, E, L);
 
 	/* Delete the list, but not the drange_nodes that
 	 * the list contains. */
 	g_slist_free(L);
 }
 
-drnode_list(L) ::= drnode(D).
+range_node_list(L) ::= range_node(D).
 {
 	L = g_slist_append(NULL, D);
 }
 
-drnode_list(L) ::= drnode_list(P) COMMA drnode(D).
+range_node_list(L) ::= range_node_list(P) COMMA range_node(D).
 {
 	L = g_slist_append(P, D);
 }
 
-/* x:y is offset:length */
-drnode(D) ::= INTEGER(X) COLON INTEGER(Y).
+range_node(D) ::= RANGE(R).
 {
-	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
-	drange_node_set_length(D, stnode_value(Y));
+	char *err = NULL;
 
-	stnode_free(X);
-	stnode_free(Y);
+	D = drange_node_from_str(df_lval_value(R), &err);
+	if (err != NULL) {
+		dfilter_fail_parse(dfw, "%s", err);
+		g_free(err);
+	}
+
+	df_lval_free(R);
 }
-
-/* x-y == offset:offset */
-drnode(D) ::= INTEGER(X) HYPHEN INTEGER(Y).
-{
-	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
-	drange_node_set_end_offset(D, stnode_value(Y));
-
-	stnode_free(X);
-	stnode_free(Y);
-}
-
-
-/* :y == from start to offset */
-drnode(D) ::= COLON INTEGER(Y).
-{
-	D = drange_node_new();
-	drange_node_set_start_offset(D, 0);
-	drange_node_set_length(D, stnode_value(Y));
-
-	stnode_free(Y);
-}
-
-/* x: from offset to end */
-drnode(D) ::= INTEGER(X) COLON.
-{
-	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
-	drange_node_set_to_the_end(D);
-
-	stnode_free(X);
-}
-
-/* x == x:1 */
-drnode(D) ::= INTEGER(X).
-{
-	D = drange_node_new();
-	drange_node_set_start_offset(D, stnode_value(X));
-	drange_node_set_length(D, 1);
-
-	stnode_free(X);
-}
-
 
 
 /* Relational tests */
-relation_test(T) ::= entity(E) rel_op2(O) entity(F).
+cmp_op(O) ::= TEST_ANY_EQ.	{ O = TEST_OP_ANY_EQ; }
+cmp_op(O) ::= TEST_ALL_NE.	{ O = TEST_OP_ALL_NE; }
+cmp_op(O) ::= TEST_ANY_NE.	{ O = TEST_OP_ANY_NE; }
+cmp_op(O) ::= TEST_GT.		{ O = TEST_OP_GT; }
+cmp_op(O) ::= TEST_GE.		{ O = TEST_OP_GE; }
+cmp_op(O) ::= TEST_LT.		{ O = TEST_OP_LT; }
+cmp_op(O) ::= TEST_LE.		{ O = TEST_OP_LE; }
+cmp_op(O) ::= TEST_BITWISE_AND. { O = TEST_OP_BITWISE_AND; }
+
+comparison_test(T) ::= entity(E) cmp_op(O) entity(F).
 {
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, O, E, F);
+	T = stnode_new_test(O, E, F);
 }
 
 /* 'a == b == c' or 'a < b <= c <= d < e' */
-relation_test(T) ::= entity(E) rel_op2(O) relation_test(R).
+comparison_test(T) ::= entity(E) cmp_op(O) comparison_test(R).
 {
 	stnode_t *L, *F;
 	/* for now generate it like E O F  TEST_OP_AND  F P G, later it could be optimized
@@ -284,77 +226,97 @@ relation_test(T) ::= entity(E) rel_op2(O) relation_test(R).
 		sttype_test_get(F, NULL, &F, NULL);
 	} while (stnode_type_id(F) == STTYPE_TEST);
 
-	L = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(L, O, E, stnode_dup(F));
+	L = stnode_new_test(O, E, stnode_dup(F));
 
-	T = stnode_new(STTYPE_TEST, NULL);
-	sttype_test_set2(T, TEST_OP_AND, L, R);
+	T = stnode_new_test(TEST_OP_AND, L, R);
 }
 
-rel_op2(O) ::= TEST_EQ.  { O = TEST_OP_EQ; }
-rel_op2(O) ::= TEST_NE.  { O = TEST_OP_NE; }
-rel_op2(O) ::= TEST_GT.  { O = TEST_OP_GT; }
-rel_op2(O) ::= TEST_GE.  { O = TEST_OP_GE; }
-rel_op2(O) ::= TEST_LT.  { O = TEST_OP_LT; }
-rel_op2(O) ::= TEST_LE.  { O = TEST_OP_LE; }
-rel_op2(O) ::= TEST_BITWISE_AND.  { O = TEST_OP_BITWISE_AND; }
-rel_op2(O) ::= TEST_CONTAINS.  { O = TEST_OP_CONTAINS; }
-rel_op2(O) ::= TEST_MATCHES.  { O = TEST_OP_MATCHES; }
+relation_test(T) ::= comparison_test(C).	{ T = C; }
 
-relation_test(T) ::= entity(E) TEST_IN LBRACE setnode_list(L) RBRACE.
+/* Does not chain like math comparisons. */
+rel_binop(O) ::= TEST_CONTAINS.		{ O = TEST_OP_CONTAINS; }
+rel_binop(O) ::= TEST_MATCHES.		{ O = TEST_OP_MATCHES; }
+
+relation_test(T) ::= entity(E) rel_binop(O) entity(F).
 {
-	stnode_t *S;
-	T = stnode_new(STTYPE_TEST, NULL);
+	T = stnode_new_test(O, E, F);
+}
+
+relation_test(T) ::= entity(E) TEST_IN set(S).
+{
+	T = stnode_new_test(TEST_OP_IN, E, S);
+}
+
+relation_test(T) ::= entity(E) TEST_NOT TEST_IN set(S).
+{
+	stnode_t *R = stnode_new_test(TEST_OP_IN, E, S);
+
+	T = stnode_new_test(TEST_OP_NOT, R, NULL);
+}
+
+set(S) ::= LBRACE set_list(L) RBRACE.
+{
 	S = stnode_new(STTYPE_SET, L);
-	sttype_test_set2(T, TEST_OP_IN, E, S);
 }
 
-setnode_list(L) ::= entity(E).
+set_list(L) ::= set_element(N).
 {
-	L = g_slist_append(NULL, E);
-	L = g_slist_append(L, NULL);
+	L = g_slist_concat(NULL, N);
 }
 
-setnode_list(L) ::= setnode_list(P) WHITESPACE entity(E).
+set_list(L) ::= set_list(P) COMMA set_element(N).
 {
-	L = g_slist_append(P, E);
-	L = g_slist_append(L, NULL);
+	L = g_slist_concat(P, N);
 }
 
-/* Range elements. */
-setnode_list(L) ::= entity(X) DOTDOT entity(Y).
+set_element(N) ::= entity(X).
 {
-	L = g_slist_append(NULL, X);
-	L = g_slist_append(L, Y);
+	N = g_slist_append(NULL, X);
+	N = g_slist_append(N, NULL);
 }
 
-setnode_list(L) ::= setnode_list(P) WHITESPACE entity(X) DOTDOT entity(Y).
+set_element(N) ::= entity(X) DOTDOT entity(Y).
 {
-	L = g_slist_append(P, X);
-	L = g_slist_append(L, Y);
+	N = g_slist_append(NULL, X);
+	N = g_slist_append(N, Y);
 }
 
 /* Functions */
 
+%code {
+	static stnode_t *
+	new_function(dfwork_t *dfw, df_lval_t *lval)
+	{
+		const char *name = df_lval_value(lval);
+		df_func_def_t *def = df_func_lookup(name);
+		if (!def) {
+			dfilter_fail_parse(dfw, "Function '%s' does not exist", name);
+		}
+		return stnode_new(STTYPE_FUNCTION, def);
+	}
+}
+
 /* A function can have one or more parameters */
-entity(E) ::= FUNCTION(F) LPAREN funcparams(P) RPAREN.
+function(F) ::= UNPARSED(U) LPAREN function_params(P) RPAREN.
 {
-	E = F;
-	sttype_function_set_params(E, P);
+	F = new_function(dfw, U);
+	sttype_function_set_params(F, P);
+	df_lval_free(U);
 }
 
 /* A function can have zero parameters. */
-entity(E) ::= FUNCTION(F) LPAREN RPAREN.
+function(F) ::= UNPARSED(U) LPAREN RPAREN.
 {
-	E = F;
+	F = new_function(dfw, U);
+	df_lval_free(U);
 }
 
-funcparams(P) ::= entity(E).
+function_params(P) ::= entity(E).
 {
 	P = g_slist_append(NULL, E);
 }
 
-funcparams(P) ::= funcparams(L) COMMA entity(E).
+function_params(P) ::= function_params(L) COMMA entity(E).
 {
 	P = g_slist_append(L, E);
 }
@@ -364,6 +326,6 @@ funcparams(P) ::= funcparams(L) COMMA entity(E).
 expr(X) ::= LPAREN expr(Y) RPAREN.
 {
 	X = Y;
-	stnode_set_bracket(X, TRUE);
+	stnode_set_inside_parens(X, TRUE);
 }
 

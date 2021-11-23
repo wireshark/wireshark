@@ -412,7 +412,7 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             // Buffer is in SAMPLEs
             spx_uint32_t in_len = (spx_uint32_t) (write_bytes / SAMPLE_BYTES);
             // Output is audio_out_rate_/sample_rate bigger than input
-            spx_uint32_t out_len = (spx_uint32_t) (in_len * audio_out_rate_ / sample_rate);
+            spx_uint32_t out_len = (spx_uint32_t) ((guint64)in_len * audio_out_rate_ / sample_rate);
             resample_buff = resizeBufferIfNeeded(resample_buff, &resample_buff_bytes, out_len * SAMPLE_BYTES);
 
             speex_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
@@ -453,7 +453,7 @@ void RtpAudioStream::decodeVisual()
     // Loop over every frame record
     // readFrameSamples() maintains size of buffer for us
     while (audio_file_->readFrameSamples(&read_buff_bytes, &read_buff, &read_len, &frame_num, &type)) {
-        out_len = (spx_uint32_t)((read_len * visual_sample_rate_ ) / audio_out_rate_);
+        out_len = (spx_uint32_t)(((guint64)read_len * visual_sample_rate_ ) / audio_out_rate_);
 
         if (type == RTP_FRAME_AUDIO) {
             // We resample only audio samples
@@ -719,7 +719,7 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
         temp_file_->seek(start_pos);
         if (audio_output_) delete audio_output_;
         audio_output_ = new QAudioOutput(out_device, format, this);
-        connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
+        connect(audio_output_, &QAudioOutput::stateChanged, this, &RtpAudioStream::outputStateChanged);
         return true;
     } else {
         // Report stopped audio if start position is later than stream ends

@@ -40,31 +40,17 @@ string_fvalue_set_string(fvalue_t *fv, const gchar *value)
 	fv->value.string = (gchar *)g_strdup(value);
 }
 
-static int
-string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+static char *
+string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
 {
-	switch (rtype) {
-		case FTREPR_DISPLAY:
-			return (int)strlen(fv->value.string);
-
-		case FTREPR_DFILTER:
-			return escape_string_len(fv->value.string);
+	if (rtype == FTREPR_DISPLAY) {
+		return wmem_strdup(scope, fv->value.string);
 	}
-	ws_assert_not_reached();
-	return -1;
-}
-
-static void
-string_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
-{
-	switch (rtype) {
-		case FTREPR_DISPLAY:
-			(void) g_strlcpy(buf, fv->value.string, size);
-			return;
-
-		case FTREPR_DFILTER:
-			escape_string(buf, fv->value.string);
-			return;
+	if (rtype == FTREPR_DFILTER) {
+		int len = escape_string_len(fv->value.string);
+		char *buf = wmem_alloc(scope, len + 1);
+		escape_string(buf, fv->value.string);
+		return buf;
 	}
 	ws_assert_not_reached();
 }
@@ -89,29 +75,11 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 static gboolean
 val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
-	fvalue_t *fv_bytes;
-
-	/* Does this look like a byte-string? */
-	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);
-	if (fv_bytes) {
-		/* Free up the old value, if we have one */
-		string_fvalue_free(fv);
-
-		/* Copy the bytes over to a string and terminate it
-		 * with a NUL. XXX - what if the user embeds a NUL
-		 * in the middle of the byte string? */
-		int num_bytes = fv_bytes->value.bytes->len;
-
-		fv->value.string = (gchar *)g_malloc(num_bytes + 1);
-		memcpy(fv->value.string, fv_bytes->value.bytes->data, num_bytes);
-		fv->value.string[num_bytes] = '\0';
-
-		FVALUE_FREE(fv_bytes);
-		return TRUE;
-	} else {
-		/* Just turn it into a string */
-		return val_from_string(fv, s, err_msg);
-	}
+	/* Just turn it into a string */
+	/* XXX Should probably be a syntax error instead. It's more user-friendly to ask the
+	 * user to be explicit about the meaning of unparsed than them trying to figure out
+	 * why a valid filter expression is giving wrong results. */
+	return val_from_string(fv, s, err_msg);
 }
 
 static guint
@@ -130,41 +98,10 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	g_byte_array_append(bytes, data, length);
 }
 
-
-static gboolean
-cmp_eq(const fvalue_t *a, const fvalue_t *b)
+static int
+cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
-	return (strcmp(a->value.string, b->value.string) == 0);
-}
-
-static gboolean
-cmp_ne(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) != 0);
-}
-
-static gboolean
-cmp_gt(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) > 0);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) >= 0);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) < 0);
-}
-
-static gboolean
-cmp_le(const fvalue_t *a, const fvalue_t *b)
-{
-	return (strcmp(a->value.string, b->value.string) <= 0);
+	return strcmp(a->value.string, b->value.string);
 }
 
 static gboolean
@@ -187,22 +124,14 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv, const GRegex *regex)
+cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 {
 	char *str = fv->value.string;
 
 	if (! regex) {
 		return FALSE;
 	}
-	return g_regex_match_full(
-			regex,		/* Compiled PCRE */
-			str,		/* The data to check for the pattern... */
-			(int)strlen(str),	/* ... and its length */
-			0,		/* Start offset within data */
-			(GRegexMatchFlags)0,		/* GRegexMatchFlags */
-			NULL,		/* We are not interested in the match information */
-			NULL		/* We don't want error information */
-			);
+	return ws_regex_matches(regex, str, -1);
 }
 
 void
@@ -219,17 +148,11 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
 		CMP_MATCHES,
@@ -247,17 +170,11 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
@@ -275,17 +192,11 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
@@ -303,17 +214,11 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,
@@ -331,17 +236,11 @@ ftype_register_string(void)
 		val_from_unparsed,		/* val_from_unparsed */
 		val_from_string,		/* val_from_string */
 		string_to_repr,			/* val_to_string_repr */
-		string_repr_len,		/* len_string_repr */
 
 		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
 		{ .get_value_ptr = value_get },	/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,			/* cmp_contains */
 		CMP_MATCHES,

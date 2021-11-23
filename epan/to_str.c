@@ -18,7 +18,6 @@
 #include <epan/wmem_scopes.h>
 #include "proto.h"
 #include "to_str.h"
-#include "to_str-int.h"
 #include "strutil.h"
 #include <wsutil/pint.h>
 #include <wsutil/utf8_entities.h>
@@ -30,214 +29,6 @@
  * useful.
  */
 #define BUF_TOO_SMALL_ERR "[Buffer too small]"
-
-static inline char
-low_nibble_of_octet_to_hex(guint8 oct)
-{
-	/* At least one version of Apple's C compiler/linker is buggy, causing
-	   a complaint from the linker about the "literal C string section"
-	   not ending with '\0' if we initialize a 16-element "char" array with
-	   a 16-character string, the fact that initializing such an array with
-	   such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-	   '\0' byte in the string nonwithstanding. */
-	static const gchar hex_digits[16] =
-	{ '0', '1', '2', '3', '4', '5', '6', '7',
-	  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-
-	return hex_digits[oct & 0xF];
-}
-
-static inline char *
-byte_to_hex(char *out, guint32 dword)
-{
-	*out++ = low_nibble_of_octet_to_hex(dword >> 4);
-	*out++ = low_nibble_of_octet_to_hex(dword);
-	return out;
-}
-
-char *
-guint8_to_hex(char *out, guint8 val)
-{
-	return byte_to_hex(out, val);
-}
-
-char *
-word_to_hex(char *out, guint16 word)
-{
-	out = byte_to_hex(out, word >> 8);
-	out = byte_to_hex(out, word);
-	return out;
-}
-
-char *
-word_to_hex_punct(char *out, guint16 word, char punct)
-{
-	out = byte_to_hex(out, word >> 8);
-	*out++ = punct;
-	out = byte_to_hex(out, word);
-	return out;
-}
-
-char *
-word_to_hex_npad(char *out, guint16 word)
-{
-	if (word >= 0x1000)
-		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 12));
-	if (word >= 0x0100)
-		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 8));
-	if (word >= 0x0010)
-		*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 4));
-	*out++ = low_nibble_of_octet_to_hex((guint8)(word >> 0));
-	return out;
-}
-
-char *
-dword_to_hex(char *out, guint32 dword)
-{
-	out = word_to_hex(out, dword >> 16);
-	out = word_to_hex(out, dword);
-	return out;
-}
-
-char *
-dword_to_hex_punct(char *out, guint32 dword, char punct)
-{
-	out = word_to_hex_punct(out, dword >> 16, punct);
-	*out++ = punct;
-	out = word_to_hex_punct(out, dword, punct);
-	return out;
-}
-
-char *
-qword_to_hex(char *out, guint64 qword)
-{
-	out = dword_to_hex(out, (guint32)(qword >> 32));
-	out = dword_to_hex(out, (guint32)(qword & 0xffffffff));
-	return out;
-}
-
-char *
-qword_to_hex_punct(char *out, guint64 qword, char punct)
-{
-	out = dword_to_hex_punct(out, (guint32)(qword >> 32), punct);
-	*out++ = punct;
-	out = dword_to_hex_punct(out, (guint32)(qword & 0xffffffff), punct);
-	return out;
-}
-
-static int
-guint32_to_str_buf_len(const guint32 u)
-{
-	/* ((2^32)-1) == 2147483647 */
-	if (u >= 1000000000)return 10;
-	if (u >= 100000000) return 9;
-	if (u >= 10000000)  return 8;
-	if (u >= 1000000)   return 7;
-	if (u >= 100000)    return 6;
-	if (u >= 10000)     return 5;
-	if (u >= 1000)      return 4;
-	if (u >= 100)       return 3;
-	if (u >= 10)        return 2;
-
-	return 1;
-}
-
-static int
-guint64_to_str_buf_len(const guint64 u)
-{
-	/* ((2^64)-1) == 18446744073709551615 */
-
-	if (u >= G_GUINT64_CONSTANT(10000000000000000000)) return 20;
-	if (u >= G_GUINT64_CONSTANT(1000000000000000000))  return 19;
-	if (u >= G_GUINT64_CONSTANT(100000000000000000))   return 18;
-	if (u >= G_GUINT64_CONSTANT(10000000000000000))    return 17;
-	if (u >= G_GUINT64_CONSTANT(1000000000000000))     return 16;
-	if (u >= G_GUINT64_CONSTANT(100000000000000))      return 15;
-	if (u >= G_GUINT64_CONSTANT(10000000000000))       return 14;
-	if (u >= G_GUINT64_CONSTANT(1000000000000))        return 13;
-	if (u >= G_GUINT64_CONSTANT(100000000000))         return 12;
-	if (u >= G_GUINT64_CONSTANT(10000000000))          return 11;
-	if (u >= G_GUINT64_CONSTANT(1000000000))           return 10;
-	if (u >= G_GUINT64_CONSTANT(100000000))            return 9;
-	if (u >= G_GUINT64_CONSTANT(10000000))             return 8;
-	if (u >= G_GUINT64_CONSTANT(1000000))              return 7;
-	if (u >= G_GUINT64_CONSTANT(100000))               return 6;
-	if (u >= G_GUINT64_CONSTANT(10000))                return 5;
-	if (u >= G_GUINT64_CONSTANT(1000))                 return 4;
-	if (u >= G_GUINT64_CONSTANT(100))                  return 3;
-	if (u >= G_GUINT64_CONSTANT(10))                   return 2;
-
-	return 1;
-}
-
-static const char fast_strings[][4] = {
-	"0", "1", "2", "3", "4", "5", "6", "7",
-	"8", "9", "10", "11", "12", "13", "14", "15",
-	"16", "17", "18", "19", "20", "21", "22", "23",
-	"24", "25", "26", "27", "28", "29", "30", "31",
-	"32", "33", "34", "35", "36", "37", "38", "39",
-	"40", "41", "42", "43", "44", "45", "46", "47",
-	"48", "49", "50", "51", "52", "53", "54", "55",
-	"56", "57", "58", "59", "60", "61", "62", "63",
-	"64", "65", "66", "67", "68", "69", "70", "71",
-	"72", "73", "74", "75", "76", "77", "78", "79",
-	"80", "81", "82", "83", "84", "85", "86", "87",
-	"88", "89", "90", "91", "92", "93", "94", "95",
-	"96", "97", "98", "99", "100", "101", "102", "103",
-	"104", "105", "106", "107", "108", "109", "110", "111",
-	"112", "113", "114", "115", "116", "117", "118", "119",
-	"120", "121", "122", "123", "124", "125", "126", "127",
-	"128", "129", "130", "131", "132", "133", "134", "135",
-	"136", "137", "138", "139", "140", "141", "142", "143",
-	"144", "145", "146", "147", "148", "149", "150", "151",
-	"152", "153", "154", "155", "156", "157", "158", "159",
-	"160", "161", "162", "163", "164", "165", "166", "167",
-	"168", "169", "170", "171", "172", "173", "174", "175",
-	"176", "177", "178", "179", "180", "181", "182", "183",
-	"184", "185", "186", "187", "188", "189", "190", "191",
-	"192", "193", "194", "195", "196", "197", "198", "199",
-	"200", "201", "202", "203", "204", "205", "206", "207",
-	"208", "209", "210", "211", "212", "213", "214", "215",
-	"216", "217", "218", "219", "220", "221", "222", "223",
-	"224", "225", "226", "227", "228", "229", "230", "231",
-	"232", "233", "234", "235", "236", "237", "238", "239",
-	"240", "241", "242", "243", "244", "245", "246", "247",
-	"248", "249", "250", "251", "252", "253", "254", "255"
-};
-
-void
-guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
-{
-	int str_len = guint32_to_str_buf_len(u)+1;
-
-	gchar *bp = &buf[str_len];
-
-	if (buf_len < str_len) {
-		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
-		return;
-	}
-
-	*--bp = '\0';
-
-	uint_to_str_back(bp, u);
-}
-
-void
-guint64_to_str_buf(guint64 u, gchar *buf, int buf_len)
-{
-	int str_len = guint64_to_str_buf_len(u)+1;
-
-	gchar *bp = &buf[str_len];
-
-	if (buf_len < str_len) {
-		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
-		return;
-	}
-
-	*--bp = '\0';
-
-	uint64_to_str_back(bp, u);
-}
 
 static const char mon_names[12][4] = {
 	"Jan",
@@ -854,19 +645,30 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
  */
 
 char *
-decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value)
+decode_bits_in_field(wmem_allocator_t *scope, const guint bit_offset, const gint no_of_bits, const guint64 value, const guint encoding)
 {
 	guint64 mask;
 	char *str;
 	int bit, str_p = 0;
 	int i;
 	int max_bits = MIN(64, no_of_bits);
+	int no_leading_dots;
 
 	mask = G_GUINT64_CONSTANT(1) << (max_bits-1);
 
+	if(encoding & ENC_LITTLE_ENDIAN){
+		/* Bits within octet are numbered from LSB (0) to MSB (7).
+		 * The value in string is from most significant bit to lowest.
+		 * Calculate how many dots have to be printed at the beginning of string.
+		 */
+		no_leading_dots = (8 - ((bit_offset + no_of_bits) % 8)) % 8;
+	} else {
+		no_leading_dots = bit_offset % 8;
+	}
+
 	/* Prepare the string, 256 pos for the bits and zero termination, + 64 for the spaces */
-	str=(char *)wmem_alloc0(wmem_packet_scope(), 256+64);
-	for(bit=0;bit<((int)(bit_offset&0x07));bit++){
+	str=(char *)wmem_alloc0(scope, 256+64);
+	for(bit=0;bit<no_leading_dots;bit++){
 		if(bit&&(!(bit%4))){
 			str[str_p] = ' ';
 			str_p++;
@@ -907,83 +709,6 @@ decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint6
 	return str;
 }
 
-/*
-   This function is very fast and this function is called a lot.
-   XXX update the address_to_str stuff to use this function.
-   */
-void
-ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
-{
-	register gchar const *p;
-	register gchar *b=buf;
-
-	if (buf_len < WS_INET_ADDRSTRLEN) {
-		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);  /* Let the unexpected value alert user */
-		return;
-	}
-
-	p=fast_strings[*ad++];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b++='.';
-
-	p=fast_strings[*ad++];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b++='.';
-
-	p=fast_strings[*ad++];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b++='.';
-
-	p=fast_strings[*ad];
-	do {
-		*b++=*p;
-		p++;
-	} while(*p);
-	*b=0;
-}
-
-int
-ip6_to_str_buf_with_pfx(const ws_in6_addr *addr, gchar *buf, int buf_size, const char *prefix)
-{
-	int bytes;    /* the number of bytes which would be produced if the buffer was large enough. */
-	gchar addr_buf[WS_INET6_ADDRSTRLEN];
-	int len;
-
-	if (prefix == NULL)
-		prefix = "";
-	bytes = g_snprintf(buf, buf_size, "%s%s", prefix, ws_inet_ntop6(addr, addr_buf, sizeof(addr_buf)));
-	len = bytes - 1;
-
-	if (len > buf_size - 1) { /* size minus nul terminator */
-		len = (int)g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_size);  /* Let the unexpected value alert user */
-	}
-	return len;
-}
-
-int
-ip6_to_str_buf(const ws_in6_addr *addr, gchar *buf, int buf_size)
-{
-	gchar addr_buf[WS_INET6_ADDRSTRLEN];
-	int len;
-
-	/* slightly more efficient than ip6_to_str_buf_with_pfx(addr, buf, buf_size, NULL) */
-	len = (int)g_strlcpy(buf, ws_inet_ntop6(addr, addr_buf, sizeof(addr_buf)), buf_size);     /* this returns len = strlen(addr_buf) */
-
-	if (len > buf_size - 1) { /* size minus nul terminator */
-		len = (int)g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_size);  /* Let the unexpected value alert user */
-	}
-	return len;
-}
-
 gchar *
 guid_to_str(wmem_allocator_t *scope, const e_guid_t *guid)
 {
@@ -1018,23 +743,6 @@ guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len)
 	return buf;
 }
 
-gchar *
-eui64_to_str(wmem_allocator_t *scope, const guint64 ad) {
-	gchar *buf, *tmp;
-	guint8 *p_eui64;
-
-	p_eui64=(guint8 *)wmem_alloc(NULL, 8);
-	buf=(gchar *)wmem_alloc(scope, EUI64_STR_LEN);
-
-	/* Copy and convert the address to network byte order. */
-	*(guint64 *)(void *)(p_eui64) = pntoh64(&(ad));
-
-	tmp = bytes_to_hexstr_punct(buf, p_eui64, 8, ':');
-	*tmp = '\0'; /* NULL terminate */
-	wmem_free(NULL, p_eui64);
-	return buf;
-}
-
 const gchar *
 port_type_to_str (port_type type)
 {
@@ -1051,187 +759,9 @@ port_type_to_str (port_type type)
 		case PT_I2C:		return "I2C";
 		case PT_IBQP:		return "IBQP";
 		case PT_BLUETOOTH:	return "BLUETOOTH";
+		case PT_IWARP_MPA:	return "IWARP_MPA";
 		default:		return "[Unknown]";
 	}
-}
-
-char *
-oct_to_str_back(char *ptr, guint32 value)
-{
-	while (value) {
-		*(--ptr) = '0' + (value & 0x7);
-		value >>= 3;
-	}
-
-	*(--ptr) = '0';
-	return ptr;
-}
-
-char *
-oct64_to_str_back(char *ptr, guint64 value)
-{
-	while (value) {
-		*(--ptr) = '0' + (value & 0x7);
-		value >>= 3;
-	}
-
-	*(--ptr) = '0';
-	return ptr;
-}
-
-char *
-hex_to_str_back(char *ptr, int len, guint32 value)
-{
-	do {
-		*(--ptr) = low_nibble_of_octet_to_hex(value);
-		value >>= 4;
-		len--;
-	} while (value);
-
-	/* pad */
-	while (len > 0) {
-		*(--ptr) = '0';
-		len--;
-	}
-
-	*(--ptr) = 'x';
-	*(--ptr) = '0';
-
-	return ptr;
-}
-
-char *
-hex64_to_str_back(char *ptr, int len, guint64 value)
-{
-	do {
-		*(--ptr) = low_nibble_of_octet_to_hex(value & 0xF);
-		value >>= 4;
-		len--;
-	} while (value);
-
-	/* pad */
-	while (len > 0) {
-		*(--ptr) = '0';
-		len--;
-	}
-
-	*(--ptr) = 'x';
-	*(--ptr) = '0';
-
-	return ptr;
-}
-
-char *
-uint_to_str_back(char *ptr, guint32 value)
-{
-	char const *p;
-
-	/* special case */
-	if (value == 0)
-		*(--ptr) = '0';
-
-	while (value >= 10) {
-		p = fast_strings[100 + (value % 100)];
-
-		value /= 100;
-
-		*(--ptr) = p[2];
-		*(--ptr) = p[1];
-	}
-
-	if (value)
-		*(--ptr) = (value) | '0';
-
-	return ptr;
-}
-
-char *
-uint64_to_str_back(char *ptr, guint64 value)
-{
-	char const *p;
-
-	/* special case */
-	if (value == 0)
-		*(--ptr) = '0';
-
-	while (value >= 10) {
-		p = fast_strings[100 + (value % 100)];
-
-		value /= 100;
-
-		*(--ptr) = p[2];
-		*(--ptr) = p[1];
-	}
-
-	/* value will be 0..9, so using '& 0xF' is safe, and faster than '% 10' */
-	if (value)
-		*(--ptr) = (value & 0xF) | '0';
-
-	return ptr;
-}
-
-char *
-uint_to_str_back_len(char *ptr, guint32 value, int len)
-{
-	char *new_ptr;
-
-	new_ptr = uint_to_str_back(ptr, value);
-
-	/* substract from len number of generated characters */
-	len -= (int)(ptr - new_ptr);
-
-	/* pad remaining with '0' */
-	while (len > 0)
-	{
-		*(--new_ptr) = '0';
-		len--;
-	}
-
-	return new_ptr;
-}
-
-char *
-uint64_to_str_back_len(char *ptr, guint64 value, int len)
-{
-	char *new_ptr;
-
-	new_ptr = uint64_to_str_back(ptr, value);
-
-	/* substract from len number of generated characters */
-	len -= (int)(ptr - new_ptr);
-
-	/* pad remaining with '0' */
-	while (len > 0)
-	{
-		*(--new_ptr) = '0';
-		len--;
-	}
-
-	return new_ptr;
-}
-
-char *
-int_to_str_back(char *ptr, gint32 value)
-{
-	if (value < 0) {
-		ptr = uint_to_str_back(ptr, -value);
-		*(--ptr) = '-';
-	} else
-		ptr = uint_to_str_back(ptr, value);
-
-	return ptr;
-}
-
-char *
-int64_to_str_back(char *ptr, gint64 value)
-{
-	if (value < 0) {
-		ptr = uint64_to_str_back(ptr, -value);
-		*(--ptr) = '-';
-	} else
-		ptr = uint64_to_str_back(ptr, value);
-
-	return ptr;
 }
 
 /*

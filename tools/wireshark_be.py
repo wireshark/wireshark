@@ -219,7 +219,7 @@ def run(tree, args):
     #
     # Assumption: Name is of the form   abcdefg.xyz  (eg: CosNaming.idl)
 
-    fname = path.basename(tree.file())  # grab basename only, dont care about path
+    fname = path.basename(tree.file())  # grab basename only, don't care about path
     nl = fname.split(".")[0]  # split name of main IDL file using "." as separator
                                       # and grab first field (eg: CosNaming)
 

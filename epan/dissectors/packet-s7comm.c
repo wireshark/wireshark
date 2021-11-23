@@ -3165,7 +3165,7 @@ s7comm_decode_pistart_parameters(tvbuff_t *tvb,
         offset += 1;
         proto_tree_add_item(param_tree, hf[i], tvb, offset, len, ENC_ASCII|ENC_NA);
         wmem_strbuf_append(args_buf, "\"");
-        wmem_strbuf_append(args_buf, tvb_format_text(tvb, offset, len));
+        wmem_strbuf_append(args_buf, tvb_format_text(pinfo->pool, tvb, offset, len));
         if (i < nfields-1) {
             wmem_strbuf_append(args_buf, "\", ");
         } else {

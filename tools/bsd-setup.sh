@@ -43,7 +43,8 @@ done
 BASIC_LIST="\
 	cmake \
 	qt5 \
-	git"
+	git \
+	pcre2"
 
 ADDITIONAL_LIST="\
 	gettext-tools \
@@ -57,6 +58,12 @@ ADDITIONAL_LIST="\
 	zstd \
 	lua52 \
 	"
+
+# Uncomment to add PNG compression utilities used by compress-pngs:
+# ADDITIONAL_LIST="$ADDITIONAL_LIST \
+#	advancecomp \
+#	optipng \
+#	pngcrush"
 
 # Guess which package manager we will use
 PM=`which pkgin 2> /dev/null || which pkg 2> /dev/null || which pkg_add 2> /dev/null`

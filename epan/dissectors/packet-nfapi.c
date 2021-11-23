@@ -670,7 +670,7 @@ static const value_string csi_mode_vals[] = {
 static const value_string hi_dci0_pdu_type_vals[] = {
 	{ 0, "HI" },
 	{ 1, "DCI UL" },
-	{ 2, "EDPCCH DCI UL" },
+	{ 2, "EPDCCH DCI UL" },
 	{ 3, "MDPCCH DCI UL" },
 	{ 0, NULL }
 };
@@ -1133,7 +1133,7 @@ static int hf_prs_muting = -1;
 static int hf_nfapi_csi_rs_resource_index = -1;
 static int hf_nfapi_csi_rs_class = -1;
 static int hf_nfapi_cdm_type = -1;
-static int hf_nfapi_edpcch_prb_index = -1;
+static int hf_nfapi_epdcch_prb_index = -1;
 static int hf_nfapi_epdcch_resource_assignment_flag = -1;
 static int hf_nfapi_epdcch_id = -1;
 static int hf_nfapi_epdcch_start_symbol = -1;
@@ -1778,7 +1778,7 @@ static void dissect_pnf_phy_rel11_instance_value(ptvcursor_t * ptvc, packet_info
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_epdcch_supported, 2, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 1)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid edpcch supported value [0..1]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid epdcch supported value [0..1]");
 	}
 
 	// Multi ACK CSI reporting
@@ -4098,13 +4098,13 @@ static void dissect_epdcch_prb_index_value(ptvcursor_t * ptvc, packet_info* pinf
 	guint32 test_value;
 
 	// EPDCCH PRB index
-	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_edpcch_prb_index, 1, ENC_BIG_ENDIAN, &test_value);
+	proto_item* item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_epdcch_prb_index, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 99)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid epdcch prb_index value [0..99]");
 	}
 }
-static void dissect_dl_config_request_edpcch_params_rel11_value(ptvcursor_t * ptvc, packet_info* pinfo)
+static void dissect_dl_config_request_depdcch_params_rel11_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
 	proto_item* item;
 	guint32 test_value, count;
@@ -4141,7 +4141,7 @@ static void dissect_dl_config_request_edpcch_params_rel11_value(ptvcursor_t * pt
 
 	dissect_bf_vector_type_value(ptvc, pinfo);
 }
-static void dissect_dl_config_request_edpcch_params_rel13_value(ptvcursor_t * ptvc, packet_info* pinfo)
+static void dissect_dl_config_request_depdcch_params_rel13_value(ptvcursor_t * ptvc, packet_info* pinfo)
 {
 	proto_item* item;
 	guint32 test_value;
@@ -7903,8 +7903,8 @@ static const tlv_t p7_tags[] =
 	{ 0x203E, "DLSCH PDU Release 13", dissect_dl_config_request_dlsch_pdu_rel13_value },
 	{ 0x203F, "PCH PDU Release 13", dissect_dl_config_request_pch_pdu_rel13_value },
 	{ 0x2040, "CSI-RS PDU Release 13", dissect_dl_config_request_csi_rs_pdu_rel13_value },
-	{ 0x2041, "EDPCCH PDU Release 11 Parameters", dissect_dl_config_request_edpcch_params_rel11_value },
-	{ 0x2042, "EDPCCH PDU Release 13 Parameters", dissect_dl_config_request_edpcch_params_rel13_value },
+	{ 0x2041, "depdcch PDU Release 11 Parameters", dissect_dl_config_request_depdcch_params_rel11_value },
+	{ 0x2042, "depdcch PDU Release 13 Parameters", dissect_dl_config_request_depdcch_params_rel13_value },
 	{ 0x2043, "ULSCH PDU Release 11", dissect_ul_config_ulsch_pdu_rel11_value },
 	{ 0x2044, "ULSCH PDU Release 13", dissect_ul_config_ulsch_pdu_rel13_value },
 	{ 0x2045, "CQI RI Information Release 13", dissect_ul_config_cqi_ri_info_rel13_value },
@@ -8025,7 +8025,7 @@ static void dissect_tlv_list(ptvcursor_t* ptvc, packet_info* pinfo, gint len)
 				{
 					// Create a sub buff with the correct length, so we can detect reading off the end
 					tvbuff_t* sub_tvbuff = tvb_new_subset_length(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), tlv_len);
-					ptvcursor_t* sub_ptvc = ptvcursor_new(ptvcursor_tree(ptvc), sub_tvbuff, 0);
+					ptvcursor_t* sub_ptvc = ptvcursor_new(pinfo->pool, ptvcursor_tree(ptvc), sub_tvbuff, 0);
 
 					tlv->decode(sub_ptvc, pinfo);
 
@@ -8165,7 +8165,7 @@ static int dissect_p45_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static int dissect_p45_header_with_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	int offset = dissect_p45_header(tvb, pinfo, tree, data);
-	ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
@@ -8189,7 +8189,7 @@ static int dissect_p45_header_with_error_and_list(tvbuff_t *tvb, packet_info *pi
 	proto_tree_add_item(tree, hf_nfapi_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8213,7 +8213,7 @@ static int dissect_p45_header_with_p4_error_and_list(tvbuff_t *tvb, packet_info 
 	proto_tree_add_item(tree, hf_nfapi_p4_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8228,7 +8228,7 @@ static int dissect_p45_header_with_rat_type_list(tvbuff_t *tvb, packet_info *pin
 	proto_tree_add_item(tree, hf_nfapi_rat_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8245,7 +8245,7 @@ static int dissect_p45_param_response_msg_id(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree_add_item(tree, hf_nfapi_num_tlv, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8260,7 +8260,7 @@ static int dissect_p45_config_request_msg_id(tvbuff_t *tvb, packet_info *pinfo, 
 	proto_tree_add_item(tree, hf_nfapi_num_tlv, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	ptvc = ptvcursor_new(tree, tvb, offset);
+	ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 	dissect_tlv_list(ptvc, pinfo, tvb_reported_length(tvb));
 	ptvcursor_free(ptvc);
 
@@ -8464,7 +8464,7 @@ static int dissect_nfapi_ul_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case NFAPI_RX_SR_INDICATION_MSG_ID:
 		case NFAPI_RX_CQI_INDICATION_MSG_ID:
 		{
-			ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+			ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 			ptvcursor_add(ptvc, hf_nfapi_sfn_sf, 2, ENC_BIG_ENDIAN);
 			dissect_tlv_list(ptvc, pinfo, msg_len);
 			ptvcursor_free(ptvc);
@@ -8532,7 +8532,7 @@ static int dissect_nfapi_dl_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case NFAPI_LBT_DL_CONFIG_REQUEST_MSG_ID:
 		case NFAPI_LBT_DL_INDICATION_MSG_ID:
 		{
-			ptvcursor_t *ptvc = ptvcursor_new(tree, tvb, offset);
+			ptvcursor_t *ptvc = ptvcursor_new(pinfo->pool, tree, tvb, offset);
 			ptvcursor_add(ptvc, hf_nfapi_sfn_sf, 2, ENC_BIG_ENDIAN);
 			dissect_tlv_list(ptvc, pinfo, msg_len);
 			ptvcursor_free(ptvc);
@@ -9979,12 +9979,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_csi_rs_zero_tx_power_resource_config_bitmap_r10,
 			{ "CSI-RS Number of NZP configuration", "nfapi.csi.rs.num.of.nzp.configurations",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Bitmap of 16 bits. Encoding format of bitmap follows section 6.10.5.2 of 36.211", HFILL }
 		},
 		{ &hf_nfapi_csi_rs_number_of_nzp_configurations,
 			{ "CSI RS zero Tx Power Resource config bitmap R10", "nfapi.csi.rs.zero.tx.power.resource.config.bitmap.r10",
-			FT_UINT16, BASE_DEC, NULL, 0x0,
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Indicates the number of Non-Zero power CSI-RS configurations.", HFILL }
 		},
 		{ &hf_nfapi_pdsch_start,
@@ -10088,8 +10088,8 @@ void proto_register_nfapi(void)
 			FT_UINT8, BASE_DEC, VALS(csi_rs_cdm_type_vals), 0x0,
 			"Indicates CDM type for CSI-RS. See [36.211] section 6.10.5.2. Valid for Class A", HFILL }
 		},
-		{ &hf_nfapi_edpcch_prb_index,
-			{ "EPDCCH PRB Index", "nfapi.edpcch.prb.index",
+		{ &hf_nfapi_epdcch_prb_index,
+			{ "EPDCCH PRB Index", "nfapi.epdcch.prb.index",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"PRB Index", HFILL }
 		},
@@ -10640,7 +10640,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_harq_size_2,
 			{ "HARQ Size 2", "nfapi.harq.size2",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"The size of the ACK/NACK in bits.", HFILL }
 		},
 		{ &hf_nfapi_delta_offset_harq_2,
@@ -10930,7 +10930,7 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_tpc_bitmap,
 			{ "TPC bitmap", "nfapi.tpc_bitmap",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
+			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"TPC commands for PUCCH and PUSCH", HFILL }
 		},
 		{ &hf_nfapi_number_of_antenna_ports,

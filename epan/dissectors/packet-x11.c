@@ -5207,7 +5207,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             if (x11_desegment && pinfo->can_desegment) {
                   /*
-                   * Yes - is the X11 reply header split across
+                   * Yes - is the X11 Reply or GenericEvent header split across
                    * segment boundaries?
                    */
                   if (length_remaining < 8) {
@@ -5279,6 +5279,24 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               THROW_ON(tmp_plen < 32, ReportedBoundsError);
                               HANDLE_REPLY(plen, length_remaining,
                                            "Reply", dissect_x11_reply);
+                              break;
+                        }
+
+                        case GenericEvent:
+                        {
+                              /* An Event, but with a length field like a Reply. */
+
+                              /* To avoid an "assert w/side-effect" warning,
+                               * use a non-volatile temp variable instead. */
+                              int tmp_plen;
+
+                              /* GenericEvent's length is also in units of four. */
+                              tmp_plen = plen = 32 + tvb_get_guint32(tvb, offset + 4, byte_order) * 4;
+                              /* If tmp_plen < 32, we got an overflow;
+                               * the event length is too long. */
+                              THROW_ON(tmp_plen < 32, ReportedBoundsError);
+                              HANDLE_REPLY(plen, length_remaining,
+                                           "Event", dissect_x11_event);
                               break;
                         }
 

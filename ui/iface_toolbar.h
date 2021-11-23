@@ -10,7 +10,6 @@
 #ifndef __IFACE_TOOLBAR_H__
 #define __IFACE_TOOLBAR_H__
 
-#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {

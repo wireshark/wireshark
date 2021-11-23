@@ -30,6 +30,7 @@
 #include "packet-s1ap.h"
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
+#include "packet-ngap.h"
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
 #include "packet-radius.h"
@@ -174,6 +175,10 @@ static int hf_gtpv2_5gcnrs = -1;
 static int hf_gtpv2_5gcnri = -1;
 static int hf_gtpv2_5srhoi = -1;
 
+static int hf_gtpv2_nspusi = -1;
+static int hf_gtpv2_pgwrnsi = -1;
+static int hf_gtpv2_rppcsi = -1;
+static int hf_gtpv2_pgwchi= -1;
 static int hf_gtpv2_sissme = -1;
 static int hf_gtpv2_nsenbi = -1;
 static int hf_gtpv2_idfupf = -1;
@@ -428,6 +433,7 @@ static int hf_gtpv2_mm_context_nrusrna = -1;
 static int hf_gtpv2_mm_context_nrna = -1;
 static int hf_gtpv2_mm_context_ussrna = -1;
 static int hf_gtpv2_mm_context_nrsrna = -1;
+static int hf_gtpv2_mm_context_ensct = -1;
 
 static int hf_gtpv2_mm_context_samb_ri = -1;
 static int hf_gtpv2_mm_context_unipa = -1;
@@ -442,6 +448,7 @@ static int hf_gtpv2_sai_sac= -1;
 static int hf_gtpv2_rai_lac= -1;
 static int hf_gtpv2_rai_rac= -1;
 static int hf_gtpv2_tai_tac= -1;
+static int hf_gtpv2_5gs_tai_tac = -1;
 static int hf_gtpv2_ecgi_eci= -1;
 static int hf_gtpv2_ncgi_nrci= -1;
 static int hf_gtpv2_uli_lai_lac = -1;
@@ -670,6 +677,7 @@ static int hf_gtpv2_dcnr = -1;
 
 static int hf_gtpv2_secondary_rat_usage_data_report = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_spare_bits = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_bit3 = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_bit2 = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_bit1 = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_rat_type = -1;
@@ -677,6 +685,8 @@ static int hf_gtpv2_secondary_rat_usage_data_report_start_timestamp = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_end_timestamp = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_dl = -1;
 static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_srudn_length = -1;
+static int hf_gtpv2_secondary_rat_usage_data_report_srudn_value = -1;
 static int hf_gtpv2_csg_info_rep_action_b0 = -1;
 static int hf_gtpv2_csg_info_rep_action_b1 = -1;
 static int hf_gtpv2_csg_info_rep_action_b2 = -1;
@@ -1713,8 +1723,10 @@ static const value_string gtpv2_cause_vals[] = {
     {127, "Request rejected due to UE capability"},
     {128, "S1-U Path Failure" },
     {129, "5GC not allowed" },
+    {130, "PGW mismatch with network slice subscribed by the UE" },
+    {131, "Rejection due to paging restriction" },
 
-    /* 130-239 Spare. For future use in a triggered/response message  */
+    /* 132-239 Spare. For future use in a triggered/response message  */
     /* 240-255 Spare. For future use in an initial/request message */
     {0, NULL}
 };
@@ -2276,12 +2288,12 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     if (length == 4)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv4, tvb, offset, length, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
     }
     else if (length == 16)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv6, tvb, offset, length, ENC_NA);
-        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
     }
 }
 /*
@@ -2507,7 +2519,10 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     }
 
     static int* const oct13_flags[] = {
-        &hf_gtpv2_spare_b7_b4,
+        &hf_gtpv2_nspusi,
+        &hf_gtpv2_pgwrnsi,
+        &hf_gtpv2_rppcsi,
+        &hf_gtpv2_pgwchi,
         &hf_gtpv2_sissme,
         &hf_gtpv2_nsenbi,
         &hf_gtpv2_idfupf,
@@ -2515,7 +2530,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         NULL
     };
 
-    /* Octet 13 Spare Spare Spare Spare SISSME NSENBI IDFUPF EMCI */
+    /* Octet 13 NSOUSI PGWRNSI RPPCSI PGWCHI SISSME NSENBI IDFUPF EMCI */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct13_flags, ENC_NA);
     offset += 1;
 
@@ -2596,7 +2611,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
             return;
         }
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         break;
     case 2:
         /* IPv6*/
@@ -2613,7 +2628,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         break;
     case 3:
         /* IPv4/IPv6 */
@@ -2633,10 +2648,10 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, "IPv6 %s, ", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv6 %s, ", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(tvb, offset));
+        proto_item_append_text(item, "IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         break;
     case 4: /* Non IP */
     case 5: /* Ethernet */
@@ -2776,17 +2791,21 @@ dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
  * to 23.003 in a future version.
  */
 gchar*
-dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset)
+dissect_gtpv2_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, gboolean is_5gs)
 {
     gchar      *str = NULL;
     gchar      *mcc_mnc_str;
-    guint16 tac;
+    guint32     tac;
 
     mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_TAI, TRUE);
     *offset += 3;
-    tac = tvb_get_ntohs(tvb, *offset);
-    proto_tree_add_item(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN);
-    *offset += 2;
+    if (is_5gs) {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_5gs_tai_tac, tvb, *offset, 3, ENC_BIG_ENDIAN, &tac);
+        *offset += 3;
+    } else {
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_tai_tac, tvb, *offset, 2, ENC_BIG_ENDIAN, &tac);
+        *offset += 2;
+    }
     str = wmem_strdup_printf(pinfo->pool, "%s, TAC 0x%x",
         mcc_mnc_str,
         tac);
@@ -3006,7 +3025,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         part_tree = proto_tree_add_subtree(tree, tvb, offset, 5,
             ett_gtpv2_uli_field, NULL, "Tracking Area Identity (TAI)");
 
-        str = dissect_gtpv2_tai(tvb, pinfo, part_tree, &offset);
+        str = dissect_gtpv2_tai(tvb, pinfo, part_tree, &offset, FALSE);
 
         if (offset == length)
             return str;
@@ -3207,9 +3226,9 @@ dissect_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gchar **av
         {
             proto_tree *subtree;
 
-            subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_gtpv2_uli_field, NULL,
                                              "Tracking Area Identity (TAI)");
-            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset, TRUE);
         }
         return length;
     case 137:
@@ -3219,9 +3238,9 @@ dissect_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gchar **av
             guint64 nr_cell_id;
             proto_tree *subtree;
 
-            subtree = proto_tree_add_subtree(tree, tvb, offset, 5, ett_gtpv2_uli_field, NULL,
+            subtree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_gtpv2_uli_field, NULL,
                                              "Tracking Area Identity (TAI)");
-            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset);
+            *avp_str = dissect_gtpv2_tai(tvb, pinfo, subtree, &offset, TRUE);
             subtree = proto_tree_add_subtree(tree, tvb, offset, 8, ett_gtpv2_uli_field, NULL,
                                              "NR Cell Global Identifier (NCGI)");
             mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, subtree, offset, E212_NRCGI, TRUE);
@@ -3284,7 +3303,7 @@ static const value_string gtpv2_f_teid_interface_type_vals[] = {
     {16, "S4 SGW GTP-U interface"},
     {17, "S4 SGSN GTP-C interface"},
     {18, "S16 SGSN GTP-C interface"},
-    {19, "eNodeB GTP-U interface for DL data forwarding"},
+    {19, "eNodeB/gNodeB GTP-U interface for DL data forwarding"},
     {20, "eNodeB GTP-U interface for UL data forwarding"},
     {21, "RNC GTP-U interface for data forwarding"},
     {22, "SGSN GTP-U interface for data forwarding"},
@@ -3348,7 +3367,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     {
         ipv4 = wmem_new0(pinfo->pool, address);
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         set_address_tvb(ipv4, AT_IPv4, 4, tvb, offset);
         offset += 4;
     }
@@ -3356,7 +3375,7 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     {
         ipv6 = wmem_new0(pinfo->pool, address);
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         set_address_tvb(ipv6, AT_IPv6, 16, tvb, offset);
     }
 
@@ -3978,6 +3997,14 @@ static const value_string gtpv2_mm_context_unipa_vals[] = {
     {5, "EIA5"},
     {6, "EIA6"},
     {7, "EIA7"},
+    {0, NULL}
+};
+
+/* Table 8.38-6: EPS NAS Security Context Type Values */
+static const value_string gtpv2_mm_context_eps_nas_security_context_type_vals[] = {
+    {0, "Reporting EPS NAS Security Context Type is not supported"},
+    {1, "Native EPS NAS Security Context Type"},
+    {2, "Mapped EPS NAS Security Context Type"},
     {0, NULL}
 };
 
@@ -4870,6 +4897,15 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         de_nas_5gs_mm_ue_radio_cap_id(tvb, tree, pinfo, offset, ie_len, NULL, 0);
         offset += ie_len;
     }
+
+    if (offset == (gint)length) {
+        return;
+    }
+
+    /*(a) ENSCT */
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_ensct, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
     if (offset < (gint)length){
         proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
     }
@@ -6233,12 +6269,12 @@ dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     if ((tvb_get_guint8(tvb, offset) & 0x3f) == 4) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_dist_addrv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, " IPv4 Dist %s", tvb_ip_to_str(tvb, offset));
+        proto_item_append_text(item, " IPv4 Dist %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         offset += 4;
     } else if ((tvb_get_guint8(tvb, offset) & 0x3f) == 16) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_dist_addrv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, " IPv6 Dist %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, " IPv6 Dist %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
 
@@ -6248,12 +6284,12 @@ dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     if ((tvb_get_guint8(tvb, offset) & 0x3f) == 4) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_src_addrv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(item, " IPv4 Src %s", tvb_ip_to_str(tvb, offset));
+        proto_item_append_text(item, " IPv4 Src %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
         offset += 4;
     } else if ((tvb_get_guint8(tvb, offset) & 0x3f) == 16) {
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_src_addrv6, tvb, offset, 16, ENC_NA);
-        proto_item_append_text(item, " IPv6 Src %s", tvb_ip6_to_str(tvb, offset));
+        proto_item_append_text(item, " IPv6 Src %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         offset += 16;
     }
 
@@ -7126,7 +7162,7 @@ dissect_diameter_3gpp_presence_reporting_area_elements_list(tvbuff_t *tvb, packe
     i = 1;
     while (no_tai > 0){
         sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 5, ett_gtpv2_preaa_tais, &item, "Tracking Area Identity (TAI) Number %u",i);
-        append_str = dissect_gtpv2_tai(tvb, pinfo, sub_tree, &offset);
+        append_str = dissect_gtpv2_tai(tvb, pinfo, sub_tree, &offset, FALSE);
         proto_item_append_text(item, " %s",append_str);
         i++;
         no_tai--;
@@ -7694,9 +7730,15 @@ static const value_string gtpv2_secondary_rat_type_vals[] = {
 static void
 dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
+   tvbuff_t   *new_tvb;
+   proto_tree *sub_tree;
    int offset = 0;
+   guint32 srudn_len;
+   guint64 gtpv2_secondary_rat_usage_data_report_flags_val = 0;
+
    static int * const secondary_rat_usage_data_report_flags[] = {
        &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
+       &hf_gtpv2_secondary_rat_usage_data_report_bit3,
        &hf_gtpv2_secondary_rat_usage_data_report_bit2,
        &hf_gtpv2_secondary_rat_usage_data_report_bit1,
        NULL
@@ -7705,11 +7747,12 @@ dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo,
   /*
    * The following bits within Octet 5 shall indicate:
    * Bit 8 to 3 - Spare, for future use and set to zero.
+   * Bit 3 - SRUDN (Secondary RAT Usage Report from NG-RAN)
    * Bit 2 - IRSGW (Intended Receiver SGW)
    * Bit 1 - IRPGW (Intended Receiver PGW)
    */
-   proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_gtpv2_secondary_rat_usage_data_report,
-     ett_gtpv2_secondary_rat_usage_data_report, secondary_rat_usage_data_report_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+   proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, 0, hf_gtpv2_secondary_rat_usage_data_report, ett_gtpv2_secondary_rat_usage_data_report,
+        secondary_rat_usage_data_report_flags, ENC_BIG_ENDIAN, BMT_NO_APPEND, &gtpv2_secondary_rat_usage_data_report_flags_val);
    offset += 1;
 
     /* Octet 6 RAT Type */
@@ -7743,6 +7786,19 @@ dissect_gtpv2_secondary_rat_usage_data_report(tvbuff_t *tvb, packet_info *pinfo,
     /* 24 to 32 Usage Data UL */
     proto_tree_add_item(tree, hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
+
+    if(gtpv2_secondary_rat_usage_data_report_flags_val & 0x04) {
+        /* Octet k Length of Secondary RAT Data Usage Report Transfer */
+        proto_tree_add_item_ret_uint(tree, hf_gtpv2_secondary_rat_usage_data_report_srudn_length, tvb, offset, 1, ENC_BIG_ENDIAN, &srudn_len);
+        offset++;
+        /* Octet (k+1) to a SRUDN */
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, srudn_len, ett_gtpv2_son_con, NULL, "SecondaryRATDataUsageReportTransfer");
+        new_tvb = tvb_new_subset_length(tvb, offset, srudn_len);
+        asn1_ctx_t asn1_ctx;
+        asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+        dissect_ngap_SecondaryRATDataUsageReportTransfer(new_tvb, 0, &asn1_ctx, sub_tree, hf_gtpv2_secondary_rat_usage_data_report_srudn_value);
+        offset = offset + srudn_len;
+    }
 
    if (length - offset) {
       proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
@@ -9275,7 +9331,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
         {&hf_gtpv2_sqci,
-         {"SQCI (Subscribed QoS Change Indication", "gtpv2.sqci",
+         {"SQCI (Subscribed QoS Change Indication)", "gtpv2.sqci",
           FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
         },
         {&hf_gtpv2_uimsi,
@@ -9287,11 +9343,11 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
         },
         {&hf_gtpv2_crsi,
-         {"CRSI (Change Reporting support indication):", "gtpv2.crsi",
+         {"CRSI (Change Reporting support indication)", "gtpv2.crsi",
           FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         {&hf_gtpv2_ps,
-         {"PS (Piggybacking Supported).)", "gtpv2.ps",
+         {"PS (Piggybacking Supported)", "gtpv2.ps",
           FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         {&hf_gtpv2_pt,
@@ -9323,7 +9379,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
         },
         {&hf_gtpv2_s4af,
-         {"S4AF (Static IPv4 Address Flag))", "gtpv2.s4af",
+         {"S4AF (Static IPv4 Address Flag)", "gtpv2.s4af",
           FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
         },
         {&hf_gtpv2_mbmdt,
@@ -9364,7 +9420,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
         },
         {&hf_gtpv2_clii,
-         {"CLII (Change of Location Information Indication):", "gtpv2.clii",
+         {"CLII (Change of Location Information Indication)", "gtpv2.clii",
           FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
         },
         {&hf_gtpv2_cpsr,
@@ -9501,6 +9557,22 @@ void proto_register_gtpv2(void)
          {"ETHPDN (Ethernet PDN Support Indication)", "gtpv2.ethpdn",
           FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL}
         },
+        { &hf_gtpv2_nspusi,
+         {"NSPUSI (Notify Start of Pause of Charging via User plane Support Indication)", "gtpv2.nspusi",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}
+        },
+        { &hf_gtpv2_pgwrnsi,
+         {"PGWRNSI (PGW Redirection due to mismatch with Network Slice subscribed by UE Support Indication)", "gtpv2.pgwrnsi",
+          FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL}
+        },
+        { &hf_gtpv2_rppcsi,
+         {"RPPCSI (Restoration of PDN connections after an PGW-C/SMF change Support Indication)", "gtpv2.rppcsi",
+          FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        { &hf_gtpv2_pgwchi,
+         {"PGWCHI (PGW CHange Indication)", "gtpv2.pgwchi",
+          FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
         { &hf_gtpv2_sissme,
          {"SISSME (Same IWK-SCEF Selected for Monitoring Event Indication)", "gtpv2.sissme",
           FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
@@ -9586,7 +9658,7 @@ void proto_register_gtpv2(void)
            "SGSN", HFILL}
         },
         { &hf_gtpv2_tra_info_ggsn_pdp,
-          {"PDP Cpntext", "gtpv2.tra_info_ggsn_pdp",
+          {"PDP Context", "gtpv2.tra_info_ggsn_pdp",
            FT_UINT8, BASE_DEC, NULL, 0x01,
            "GGSN", HFILL}
         },
@@ -10165,6 +10237,11 @@ void proto_register_gtpv2(void)
            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
            NULL, HFILL}
         },
+        { &hf_gtpv2_5gs_tai_tac,
+          {"5GS Tracking Area Code", "gtpv2.5gs_tai_tac",
+           FT_UINT24, BASE_HEX_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
         {&hf_gtpv2_ecgi_eci,
          {"ECI (E-UTRAN Cell Identifier)", "gtpv2.ecgi_eci",
           FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -10601,8 +10678,13 @@ void proto_register_gtpv2(void)
            "Unlicensed Spectrum in the form of LAA or LWA/LWIP as Secondary RAT Not Allowed", HFILL}
         },
         { &hf_gtpv2_mm_context_nrsrna,
-          {"NRSRNA((NR as Secondary RAT Not Allowed)", "gtpv2.mm_context_nrsrna",
+          {"NRSRNA(NR as Secondary RAT Not Allowed)", "gtpv2.mm_context_nrsrna",
            FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_mm_context_ensct,
+          {"ENSCT (EPS NAS Security Context Type)", "gtpv2.mm_context_ensct",
+           FT_UINT8, BASE_DEC, VALS(gtpv2_mm_context_eps_nas_security_context_type_vals), 0x01,
            NULL, HFILL}
         },
         { &hf_gtpv2_mm_context_samb_ri,
@@ -11329,7 +11411,7 @@ void proto_register_gtpv2(void)
           NULL, HFILL }
       },
       { &hf_gtpv2_ciot_support_ind_bit1,
-          { "SGNIPDN (SGi Non-IP PDN Support", "gtpv2.ciot_support_ind.sgnipdn",
+          { "SGNIPDN (SGi Non-IP PDN Support)", "gtpv2.ciot_support_ind.sgnipdn",
           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
           NULL, HFILL }
       },
@@ -11425,42 +11507,42 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_rohc_profiles_bit0,
       { "Profile Identifier: 0x0002, UDP/IP", "gtpv2.rohc_profiles.b0",
-          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x0001,
+          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x01,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profiles_bit1,
       { "Profile Identifier: 0x0003, ESP/IP", "gtpv2.rohc_profiles.b1",
-          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x0002,
+          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x02,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profiles_bit2,
       { "Profile Identifier: 0x0004, IP", "gtpv2.rohc_profiles.b2",
-          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x0004,
+          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x04,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profiles_bit3,
       { "Profile Identifier: 0x0006, TCP/IP", "gtpv2.rohc_profiles.b3",
-          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x0008,
+          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x08,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profiles_bit4,
       { "Profile Identifier: 0x0102, UDP/IP", "gtpv2.rohc_profiles.b4",
-          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x0010,
+          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x10,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profiles_bit5,
       { "Profile Identifier: 0x0103, ESP/IP", "gtpv2.rohc_profiles.b5",
-          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x0020,
+          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x20,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profiles_bit6,
       { "Profile Identifier: 0x0104, IP", "gtpv2.rohc_profiles.b6",
-          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x0040,
+          FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x40,
           NULL, HFILL }
       },
       { &hf_gtpv2_rohc_profiles_bit7,
       { "Spare", "gtpv2.rohc_profiles.b7",
-          FT_BOOLEAN, 8, NULL, 0x0080,
+          FT_BOOLEAN, 8, NULL, 0x80,
           NULL, HFILL }
       },
       { &hf_gtpv2_max_cid,
@@ -11510,7 +11592,12 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_spare_bits,
           { "Spare", "gtpv2.secondary_rat_usage_data_report.spare_bits",
-          FT_UINT8, BASE_HEX, NULL, 0xFC,
+          FT_UINT8, BASE_HEX, NULL, 0xF8,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_bit3,
+          { "SRUDN  (Secondary RAT Usage Report from NG-RAN)", "gtpv2.secondary_rat_usage_data_report.srudn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
           NULL, HFILL }
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_bit2,
@@ -11546,6 +11633,16 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul,
       { "Usage Data UL", "gtpv2.secondary_rat_usage_data_report.usage_data_ul",
           FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_srudn_length,
+          { "SRUDN length", "gtpv2.mon_event_inf.srudn_length",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_secondary_rat_usage_data_report_srudn_value,
+          { "SecondaryRATDataUsageReportTransfer", "gtpv2.mon_event_inf.srudn_value",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_gtpv2_csg_info_rep_action_b0,

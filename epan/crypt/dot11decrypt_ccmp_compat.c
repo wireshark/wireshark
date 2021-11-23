@@ -33,6 +33,9 @@
 
 #define AES_BLOCK_LEN 16
 
+#define FC1_AAD_MASK 0xc7
+#define FC1_AAD_QOS_MASK 0x47
+
 /****************************************************************************/
 /* Internal macros								*/
 
@@ -106,7 +109,7 @@ static void ccmp_init_blocks(
 	b0[15] = (UINT8)(dlen & 0xff);
 
 	/* AAD:
-	* FC with bits 4..6 and 11..13 masked to zero; 14 is always one
+	* FC with bits 4..6 and 11..13 masked to zero; 14 is always one; 15 zero when QoS Control field present
 	* A1 | A2 | A3
 	* SC with bits 4..15 (seq#) masked to zero
 	* A4 (if present)
@@ -118,7 +121,12 @@ static void ccmp_init_blocks(
 		aad[2] = (UINT8)(wh->fc[0] & 0x8f);    /* XXX magic #s */
 	else
 		aad[2] = wh->fc[0];
-	aad[3] = (UINT8)(wh->fc[1] & 0xc7);    /* XXX magic #s */
+	if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
+		aad[3] = (UINT8)((wh->fc[1] & FC1_AAD_QOS_MASK) | 0x40);
+	} else {
+		aad[3] = (UINT8)((wh->fc[1] & FC1_AAD_MASK) | 0x40);
+	}
+
 	/* NB: we know 3 addresses are contiguous */
 	memcpy(aad + 4, (guint8 *)wh->addr1, 3 * DOT11DECRYPT_MAC_LEN);
 	aad[22] = (UINT8)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);

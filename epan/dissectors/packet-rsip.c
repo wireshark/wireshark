@@ -285,7 +285,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_ipv4, tvb,
 				    off + 4, paramlen - 1, ENC_BIG_ENDIAN);
 				proto_item_append_text(pti, ": %s",
-				    tvb_ip_to_str(tvb, off + 4));
+				    tvb_ip_to_str(wmem_packet_scope(), tvb, off + 4));
 			} else
 				proto_item_append_text(pti,
 				    ": Any IPv4 Address");
@@ -296,7 +296,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_ipv4_netmask,
 				    tvb, off + 4, paramlen - 1, ENC_BIG_ENDIAN);
 				proto_item_append_text(pti, "(netmask): %s",
-				    tvb_ip_to_str(tvb, off + 4));
+				    tvb_ip_to_str(wmem_packet_scope(), tvb, off + 4));
 			} else
 				proto_item_append_text(pti,
 				    ": Any IPv4 Netmask");
@@ -307,7 +307,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_ipv6, tvb,
 				    off + 4, paramlen - 1, ENC_NA);
 				proto_item_append_text(pti, ": %s",
-				    tvb_ip6_to_str(tvb, off + 4));
+				    tvb_ip6_to_str(wmem_packet_scope(), tvb, off + 4));
 			} else
 				proto_item_append_text(pti,
 				    ": Any IPv6 Address");
@@ -318,7 +318,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				    hf_rsip_parameter_address_fqdn, tvb,
 				    off + 4, paramlen - 1, ENC_ASCII|ENC_NA);
 				proto_item_append_text(pti, ": %s",
-				    tvb_format_text(tvb, off + 4, paramlen - 1));
+				    tvb_format_text(wmem_packet_scope(), tvb, off + 4, paramlen - 1));
 			} else
 				proto_item_append_text(pti,
 				    ": Any Fully Qualified Domain Name");

@@ -458,7 +458,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "assigned ip address is not 4 bytes long");
 				break;
 			}
-			proto_item_append_text(oi, ", %s ", tvb_ip_to_str(tvb, offset));
+			proto_item_append_text(oi, ", %s ", tvb_ip_to_str(pinfo->pool, tvb, offset));
 
 			proto_tree_add_item(option_tree,
 			    hf_dhcpfo_assigned_ip_address, tvb,	offset,

@@ -130,7 +130,7 @@ main(int argc, char **argv)
 	/* Get filter text */
 	text = get_args_as_string(argc, argv, 1);
 
-	printf("Filter: \"%s\"\n", text);
+	printf("Filter: %s\n", text);
 
 	/* Compile it */
 	if (!dfilter_compile(text, &df, &err_msg)) {

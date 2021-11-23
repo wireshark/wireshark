@@ -469,7 +469,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     max_frame_size_code = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
     proto_tree_add_uint_bits_format_value(prot_inf_tree,
             hf_iso14443_max_frame_size_code,
-            tvb, offset*8, 4, max_frame_size_code, "%d",
+            tvb, offset*8, 4, max_frame_size_code, ENC_BIG_ENDIAN, "%d",
             max_frame_size_code);
     if (max_frame_size_code < LEN_CODE_MAX) {
         pi = proto_tree_add_uint(prot_inf_tree, hf_iso14443_max_frame_size,
@@ -487,7 +487,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     offset++;
     fwi = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
     proto_tree_add_uint_bits_format_value(prot_inf_tree, hf_iso14443_fwi,
-            tvb, offset*8, 4, fwi, "%d", fwi);
+            tvb, offset*8, 4, fwi, ENC_BIG_ENDIAN, "%d", fwi);
     iso14443_adc = tvb_get_guint8(tvb, offset) & 0x04;
     proto_tree_add_item(prot_inf_tree, hf_iso14443_adc,
             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -508,11 +508,11 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     nad_supported = tvb_get_guint8(tvb, offset) & 0x02;
     proto_tree_add_boolean_bits_format_value(prot_inf_tree,
             hf_iso14443_nad_supported, tvb, 8*offset+6, 1, nad_supported,
-            "%s", tfs_get_string(nad_supported, &tfs_supported_not_supported));
+            ENC_BIG_ENDIAN, "%s", tfs_get_string(nad_supported, &tfs_supported_not_supported));
     cid_supported = tvb_get_guint8(tvb, offset) & 0x01;
     proto_tree_add_boolean_bits_format_value(prot_inf_tree,
             hf_iso14443_cid_supported, tvb, 8*offset+7, 1, cid_supported,
-            "%s", tfs_get_string(cid_supported, &tfs_supported_not_supported));
+            ENC_BIG_ENDIAN, "%s", tfs_get_string(cid_supported, &tfs_supported_not_supported));
     offset++;
 
     /* XXX - extended ATQB */
@@ -559,7 +559,7 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_append_text(ti, ": %s", msg_type);
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_n,
                 tvb, offset*8+5, 3, pow2(guint32, param&0x07),
-                "%u", pow2(guint32, param&0x07));
+                ENC_BIG_ENDIAN, "%u", pow2(guint32, param&0x07));
         offset++;
 
         if (!crc_dropped) {
@@ -740,10 +740,10 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         tb1_tree = proto_item_add_subtree(tb1_it, ett_iso14443_ats_tb1);
         fwi = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
         proto_tree_add_uint_bits_format_value(tb1_tree, hf_iso14443_fwi,
-                tvb, offset*8, 4, fwi, "%d", fwi);
+                tvb, offset*8, 4, fwi, ENC_BIG_ENDIAN, "%d", fwi);
         sfgi = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_uint_bits_format_value(tb1_tree, hf_iso14443_sfgi,
-                tvb, offset*8+4, 4, sfgi, "%d", sfgi);
+                tvb, offset*8+4, 4, sfgi, ENC_BIG_ENDIAN, "%d", sfgi);
         offset++;
     }
     if (t0 & HAVE_TC1) {
@@ -754,11 +754,11 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         cid_supported = tvb_get_guint8(tvb, offset) & 0x02;
         proto_tree_add_boolean_bits_format_value(tc1_tree,
                 hf_iso14443_cid_supported, tvb, 8*offset+6, 1, cid_supported,
-                "%s", tfs_get_string(cid_supported, &tfs_supported_not_supported));
+                ENC_BIG_ENDIAN, "%s", tfs_get_string(cid_supported, &tfs_supported_not_supported));
         nad_supported = tvb_get_guint8(tvb, offset) & 0x01;
         proto_tree_add_boolean_bits_format_value(tc1_tree,
                 hf_iso14443_nad_supported, tvb, 8*offset+7, 1, nad_supported,
-                "%s", tfs_get_string(nad_supported, &tfs_supported_not_supported));
+                ENC_BIG_ENDIAN, "%s", tfs_get_string(nad_supported, &tfs_supported_not_supported));
         offset++;
     }
     hist_len = tl - (offset - offset_tl);
@@ -798,7 +798,7 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         offset++;
         fsdi = tvb_get_guint8(tvb, offset) >> 4;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_fsdi,
-                tvb, offset*8, 4, fsdi, "%d", fsdi);
+                tvb, offset*8, 4, fsdi, ENC_BIG_ENDIAN, "%d", fsdi);
         if (fsdi < LEN_CODE_MAX) {
             pi = proto_tree_add_uint(tree, hf_iso14443_fsd,
                     tvb, offset, 1, code_to_len[fsdi]);
@@ -806,7 +806,7 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         }
         cid = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
-                tvb, offset*8+4, 4, cid, "%d", cid);
+                tvb, offset*8+4, 4, cid, ENC_BIG_ENDIAN, "%d", cid);
         offset++;
         if (!crc_dropped) {
             proto_tree_add_checksum(tree, tvb, offset,
@@ -866,7 +866,7 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     max_frame_size_code = tvb_get_guint8(tvb, offset) & 0x0F;
     proto_tree_add_uint_bits_format_value(p2_tree,
             hf_iso14443_max_frame_size_code,
-            tvb, offset*8+4, 4, max_frame_size_code, "%d",
+            tvb, offset*8+4, 4, max_frame_size_code, ENC_BIG_ENDIAN, "%d",
             max_frame_size_code);
     if (max_frame_size_code < LEN_CODE_MAX) {
         pi = proto_tree_add_uint(p2_tree, hf_iso14443_max_frame_size,
@@ -889,7 +889,7 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     p4_tree = proto_item_add_subtree(p4_it, ett_iso14443_attr_p4);
     cid = tvb_get_guint8(tvb, offset) & 0x0F;
     proto_tree_add_uint_bits_format_value(p4_tree, hf_iso14443_cid,
-            tvb, offset*8+4, 4, cid, "%d", cid);
+            tvb, offset*8+4, 4, cid, ENC_BIG_ENDIAN, "%d", cid);
     offset++;
 
     hl_inf_len = crc_dropped ?
@@ -934,10 +934,10 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
 
         mbli = tvb_get_guint8(tvb, offset) >> 4;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_mbli,
-                tvb, offset*8, 4, mbli, "%d", mbli);
+                tvb, offset*8, 4, mbli, ENC_BIG_ENDIAN, "%d", mbli);
         cid = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
-                tvb, offset*8+4, 4, cid, "%d", cid);
+                tvb, offset*8+4, 4, cid, ENC_BIG_ENDIAN, "%d", cid);
         offset++;
 
         hl_resp_len = crc_dropped ?

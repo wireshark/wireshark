@@ -846,7 +846,7 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	/* GPS Assistance Data 9.1.7 C (note 2) 3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_REQUESTED_GPS_ASSISTANCE_DATA, GSM_A_PDU_TYPE_BSSMAP, BE_GPS_ASSIST_DATA, NULL);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
+	ELEM_OPT_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 	/* LCS Capability 9.1.9 O */
 	ELEM_OPT_TLV(BSSMAP_LE_LCS_CAPABILITY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAPABILITY, NULL);
 	/* Packet Measurement Report 9.1.10 O*/
@@ -948,7 +948,7 @@ bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	/* Cell Identifier 9.12.1 M */
 	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL, ei_gsm_a_bssmap_le_missing_mandatory_element);
+	ELEM_OPT_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_le_extraneous_data);
 }
@@ -1313,7 +1313,7 @@ proto_register_gsm_bssmap_le(void)
 void
 proto_reg_handoff_gsm_bssmap_le(void)
 {
-	dissector_add_uint("bssap.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_le_handle);
+	dissector_add_uint("bssap_le.pdu_type",  BSSAP_PDU_TYPE_BSSMAP, bssmap_le_handle);
 
 	gsm_bsslap_handle = find_dissector_add_dependency("gsm_bsslap", proto_bssmap_le);
 }

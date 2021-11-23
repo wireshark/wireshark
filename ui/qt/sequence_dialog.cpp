@@ -355,18 +355,19 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
                 }
             }
         }
+
+        switch (event->button()) {
+        case Qt::LeftButton:
+            on_actionGoToPacket_triggered();
+            break;
+        case Qt::RightButton:
+            ctx_menu_.exec(event->globalPos());
+            break;
+        default:
+            break;
+        }
     }
 
-    switch (event->button()) {
-    case Qt::LeftButton:
-        on_actionGoToPacket_triggered();
-        break;
-    case Qt::RightButton:
-        ctx_menu_.exec(event->globalPos());
-        break;
-    default:
-        break;
-    }
 }
 
 void SequenceDialog::mouseMoved(QMouseEvent *event)

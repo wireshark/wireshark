@@ -533,7 +533,7 @@ static inline gint dissect_zvt_tlv_characters_per_line(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
 {
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 1, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 1, NULL, FALSE);
     proto_tree_add_string(tree, hf_zvt_characters_per_line, tvb, offset, 1, str);
     return len;
 }
@@ -730,7 +730,7 @@ static inline gint dissect_zvt_card_type(
 static inline gint dissect_zvt_terminal_id(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 4, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 4, NULL, FALSE);
     proto_tree_add_string(tree, hf_zvt_terminal_id, tvb, offset, 4, str);
     return 4;
 }
@@ -739,7 +739,7 @@ static inline gint dissect_zvt_terminal_id(
 static inline gint dissect_zvt_amount(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 6, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 6, NULL, FALSE);
     proto_tree_add_uint64(tree, hf_zvt_amount, tvb, offset, 6, g_ascii_strtoll(str,NULL,10));
     return 6;
 }
@@ -748,7 +748,7 @@ static inline gint dissect_zvt_amount(
 static inline gint dissect_zvt_time(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 3, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 3, NULL, FALSE);
     gchar  *fstr = (char *)wmem_alloc(pinfo->pool, 9);
     fstr[0] = str[0];
     fstr[1] = str[1];
@@ -767,7 +767,7 @@ static inline gint dissect_zvt_time(
 static inline gint dissect_zvt_date(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 2, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 2, NULL, FALSE);
     gchar  *fstr = (char *)wmem_alloc(pinfo->pool, 6);
     fstr[0] = str[0];
     fstr[1] = str[1];
@@ -783,7 +783,7 @@ static inline gint dissect_zvt_date(
 static inline gint dissect_zvt_expiry_date(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 2, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 2, NULL, FALSE);
     gchar  *fstr = (char *)wmem_alloc(pinfo->pool, 6);
     fstr[0] = str[0];
     fstr[1] = str[1];
@@ -799,7 +799,7 @@ static inline gint dissect_zvt_expiry_date(
 static inline gint dissect_zvt_trace_number(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 3, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 3, NULL, FALSE);
     proto_tree_add_string(tree, hf_zvt_trace_number, tvb, offset, 3, str);
     return 3;
 }
@@ -811,7 +811,7 @@ static inline gint dissect_zvt_card_number(
     guint8 tens = tvb_get_guint8(tvb, offset) & 0x0f;
     guint8 ones = tvb_get_guint8(tvb, offset + 1) & 0x0f;
     guint8 length = tens * 10 + ones;
-    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset + 2, length, NULL, FALSE);
+    const gchar *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset + 2, length, NULL, FALSE);
     proto_tree_add_string(tree, hf_zvt_card_number, tvb, offset + 2, length, str);
     return 2 + length;
 }

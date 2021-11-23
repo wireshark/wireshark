@@ -14,8 +14,8 @@
 #ifndef __MATE_H_
 #define __MATE_H_
 
-#include "config.h"
 #define WS_LOG_DOMAIN "MATE"
+#include <wireshark.h>
 
 #include <gmodule.h>
 

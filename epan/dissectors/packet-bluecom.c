@@ -171,7 +171,7 @@ dissect_bcp_connect_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
         bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                                                     "BCP Connect Request: Name=%s IpAddr=%s",
                                                     tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 16, BCP_NAME_LEN, ENC_ASCII),
-                                                    tvb_ip_to_str(tvb, offset + 12));
+                                                    tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 12));
 
         proto_tree_add_item(bcp_subtree, hf_bcp_connectreq_lenin, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
@@ -231,8 +231,8 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
             case BCP_SEARCH_IPADDR:
                 bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                                   "BCP Search Request: IpAddrFirst=%s, IpAddrLast=%s",
-                                  tvb_ip_to_str(tvb, offset + 8),
-                                  tvb_ip_to_str(tvb, offset + 12)
+                                  tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 8),
+                                  tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 12)
                                   );
                 break;
 
@@ -278,7 +278,7 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
         bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                           "BCP Search Response: Name=%s, IpAddr=%s Error=%d",
                           tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 16, BCP_NAME_LEN, ENC_ASCII),
-                          tvb_ip_to_str(tvb, offset + 12),
+                          tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 12),
                           tvb_get_letohl(tvb, offset)
                           );
 
@@ -320,7 +320,7 @@ dissect_bcp_identify_data(proto_tree *bcp_tree, tvbuff_t *tvb)
     bcp_subtree = proto_tree_add_subtree_format(bcp_tree, tvb, offset, len, ett_bcp_data, NULL,
                     "BCP Identify Request: Name=%s, IpAddr=%s",
                     tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 12, BCP_NAME_LEN, ENC_ASCII),
-                    tvb_ip_to_str(tvb, offset + 8)
+                    tvb_ip_to_str(wmem_packet_scope(), tvb, offset + 8)
                     );
 
     proto_tree_add_item(bcp_subtree, hf_bcp_identify_error, tvb, offset, 4, ENC_BIG_ENDIAN);

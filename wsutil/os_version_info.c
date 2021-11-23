@@ -363,6 +363,10 @@ get_os_version_info(GString *str)
 			case 0:
 				g_string_append_printf(str, is_nt_workstation ? "Windows 10" : "Windows Server 2016");
                                 if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+                                                L"DisplayVersion", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
+                                        g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
+                                }
+                                else if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
                                                 L"ReleaseId", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
                                         g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
                                 }

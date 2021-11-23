@@ -77,7 +77,6 @@ private:
 
 class SupportedProtocolsProxyModel : public QSortFilterProxyModel
 {
-    Q_OBJECT
 public:
 
     explicit SupportedProtocolsProxyModel(QObject * parent = Q_NULLPTR);

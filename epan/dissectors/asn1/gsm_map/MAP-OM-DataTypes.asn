@@ -1,9 +1,9 @@
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V15.5.0 (2019-06)
+-- 3GPP TS 29.002 V17.1.0 (2021-06)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-OM-DataTypes (12) version18 (18)}
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version20 (20)}
 
 DEFINITIONS
 
@@ -33,17 +33,17 @@ IMPORTS
 	PLMN-Id
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version20 (20)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version20 (20)}
 
 ;
 
 ActivateTraceModeArg ::= SEQUENCE {
-	imsi		[0] IMSI	OPTIONAL,
+	imsi	[0] IMSI	OPTIONAL,
 	traceReference	[1] TraceReference,
 	traceType	[2] TraceType,
 	omc-Id	[3] AddressString	OPTIONAL,
@@ -82,7 +82,7 @@ MDT-Configuration ::= SEQUENCE {
 	mdt-Allowed-PLMN-List	[14] MDT-Allowed-PLMNId-List	OPTIONAL }
 
 MDT-Allowed-PLMNId-List ::= SEQUENCE SIZE (1..16) OF
-		PLMN-Id
+	PLMN-Id
 PeriodUMTS ::= ENUMERATED {
 	d250ms (0),
 	d500ms (1),
@@ -137,19 +137,19 @@ AreaScope ::= SEQUENCE {
 	... }
 
 CGI-List ::= SEQUENCE SIZE (1..32) OF
-		GlobalCellId
+	GlobalCellId
 
 E-UTRAN-CGI-List ::= SEQUENCE SIZE (1..32) OF
-		E-UTRAN-CGI
+	E-UTRAN-CGI
 
 RoutingAreaId-List ::= SEQUENCE SIZE (1..8) OF
-		RAIdentity
+	RAIdentity
 
 LocationAreaId-List ::= SEQUENCE SIZE (1..8) OF
-		LAIFixedLength
+	LAIFixedLength
 
 TrackingAreaId-List ::= SEQUENCE SIZE (1..8) OF
-		TA-Id
+	TA-Id
 
 ListOfMeasurements ::= OCTET STRING (SIZE (4))
 	-- Octets are coded as described in 3GPP TS 32.422.
@@ -478,7 +478,7 @@ ActivateTraceModeRes ::= SEQUENCE {
 	}
 
 DeactivateTraceModeArg ::= SEQUENCE {
-	imsi		[0] IMSI	OPTIONAL,
+	imsi	[0] IMSI	OPTIONAL,
 	traceReference	[1] TraceReference,
 	extensionContainer	[2] ExtensionContainer	OPTIONAL,
 	...,

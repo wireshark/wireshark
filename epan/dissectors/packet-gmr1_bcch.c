@@ -649,14 +649,14 @@ Seg3A_LAI_Dissector(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data
 	LAI->MSC_ID = (LAI->LAC >> 10) & 0x3f;
 	LAI->Spot_Beam_ID = LAI->LAC & 0x03ff;
 
-	proto_tree_add_uint_bits_format_value(tree, hf_seg3a_lai_mcc, tvb, ar->bit_offset, 16, (guint32)LAI->MCC, "%d", LAI->MCC);
-	proto_tree_add_uint_bits_format_value(tree, hf_seg3a_lai_mnc, tvb, ar->bit_offset+16, 8, (guint32)LAI->MNC, "%d", LAI->MNC);
+	proto_tree_add_uint_bits_format_value(tree, hf_seg3a_lai_mcc, tvb, ar->bit_offset, 16, (guint32)LAI->MCC, ENC_BIG_ENDIAN, "%d", LAI->MCC);
+	proto_tree_add_uint_bits_format_value(tree, hf_seg3a_lai_mnc, tvb, ar->bit_offset+16, 8, (guint32)LAI->MNC, ENC_BIG_ENDIAN, "%d", LAI->MNC);
 
-	lac_item = proto_tree_add_uint_bits_format_value(tree, hf_seg3a_lai_lac, tvb, ar->bit_offset+24, 16, (guint32)LAI->LAC, "0x%04x", LAI->LAC);
+	lac_item = proto_tree_add_uint_bits_format_value(tree, hf_seg3a_lai_lac, tvb, ar->bit_offset+24, 16, (guint32)LAI->LAC, ENC_BIG_ENDIAN, "0x%04x", LAI->LAC);
 	lac_tree = proto_item_add_subtree(lac_item, ett_csn1);
 
-	proto_tree_add_uint_bits_format_value(lac_tree, hf_seg3a_lai_msc_id, tvb, ar->bit_offset+24, 6, (guint32)LAI->MSC_ID, "%d", LAI->MSC_ID);
-	proto_tree_add_uint_bits_format_value(lac_tree, hf_seg3a_lai_spot_beam_id, tvb, ar->bit_offset+30, 10, (guint32)LAI->Spot_Beam_ID, "%d", LAI->Spot_Beam_ID);
+	proto_tree_add_uint_bits_format_value(lac_tree, hf_seg3a_lai_msc_id, tvb, ar->bit_offset+24, 6, (guint32)LAI->MSC_ID, ENC_BIG_ENDIAN, "%d", LAI->MSC_ID);
+	proto_tree_add_uint_bits_format_value(lac_tree, hf_seg3a_lai_spot_beam_id, tvb, ar->bit_offset+30, 10, (guint32)LAI->Spot_Beam_ID, ENC_BIG_ENDIAN, "%d", LAI->Spot_Beam_ID);
 
 	ar->remaining_bits_len -= 5*8;
 	ar->bit_offset += 5*8;

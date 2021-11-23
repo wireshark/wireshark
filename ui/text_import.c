@@ -89,6 +89,7 @@
 #    define _XOPEN_SOURCE 600
 #  endif
 #endif
+#include "text_import.h"
 
 /*
  * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
@@ -121,11 +122,12 @@
 #include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
+#include <wsutil/exported_pdu_tlvs.h>
+
 #ifndef HAVE_STRPTIME
 # include "wsutil/strptime.h"
 #endif
 
-#include "text_import.h"
 #include "text_import_scanner.h"
 #include "text_import_scanner_lex.h"
 #include "text_import_regex.h"
@@ -588,7 +590,7 @@ write_current_packet (void)
         /* Write ExportPDU header */
         if (hdr_export_pdu) {
             guint payload_len = (guint)strlen(hdr_export_pdu_payload);
-            HDR_EXPORT_PDU.tag_type = g_htons(0x0c); // EXP_PDU_TAG_PROTO_NAME;
+            HDR_EXPORT_PDU.tag_type = g_htons(EXP_PDU_TAG_PROTO_NAME);
             HDR_EXPORT_PDU.payload_len = g_htons(payload_len);
             memcpy(&packet_buf[prefix_index], &HDR_EXPORT_PDU, sizeof(HDR_EXPORT_PDU));
             prefix_index += sizeof(HDR_EXPORT_PDU);

@@ -78,6 +78,8 @@ struct _follow_info;
 typedef gboolean (*follow_print_line_func)(char *, size_t, gboolean, void *);
 typedef frs_return_t (*follow_read_stream_func)(struct _follow_info *follow_info, follow_print_line_func follow_print, void *arg);
 
+#define SUBSTREAM_UNUSED	G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)
+
 typedef struct {
     gboolean is_server;
     guint32 packet_num;
@@ -98,6 +100,7 @@ typedef struct _follow_info {
     address         client_ip;
     address         server_ip;
     void*           gui_data;
+    guint64         substream_id;  /**< Sub-stream; used only by HTTP2 and QUIC */
 } follow_info_t;
 
 struct register_follow;

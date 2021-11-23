@@ -262,9 +262,40 @@ static const value_string vals_ctype[] = {
 	{ 42, "application/octet-stream" },
 	{ 47, "application/exi" },
 	{ 50, "application/json" },
+	{ 51, "application/json-patch+json" },
+	{ 52, "application/merge-patch+json" },
 	{ 60, "application/cbor" },
+	{ 61, "application/cwt" },
+	{ 62, "application/multipart-core" },
+	{ 96, "application/cose; cose-type=\"cose-encrypt\"" },
+	{ 97, "application/cose; cose-type=\"cose-mac\"" },
+	{ 98, "application/cose; cose-type=\"cose-sign\"" },
+	{ 101, "application/cose-key" },
+	{ 102, "application/cose-key-set" },
+	{ 110, "application/senml+json" },
+	{ 111, "application/sensml+json" },
+	{ 112, "application/senml+cbor" },
+	{ 113, "application/sensml+cbor" },
+	{ 114, "application/senml-exi" },
+	{ 115, "application/sensml-exi" },
+	{ 256, "application/coap-group+json" },
+	{ 271, "application/dots+cbor" },
+	{ 272, "application/missing-blocks+cbor-seq" },
+	{ 280, "application/pkcs7-mime; smime-type=server-generated-key" },
+	{ 281, "application/pkcs7-mime; smime-type=certs-only" },
+	{ 284, "application/pkcs8" },
+	{ 285, "application/csrattrs" },
+	{ 286, "application/pkcs10" },
+	{ 287, "application/pkix-cert" },
+	{ 310, "application/senml+xml" },
+	{ 311, "application/sensml+xml" },
+	{ 320, "application/senml-etch+json" },
+	{ 322, "application/senml-etch+cbor" },
+	{ 432, "application/td+json" },
 	{ 1542, "application/vnd.oma.lwm2m+tlv" },
 	{ 1543, "application/vnd.oma.lwm2m+json" },
+	{ 10000, "application/vnd.ocf+cbor" },
+	{ 10001, "application/oscore" },
 	{ 11542, "application/vnd.oma.lwm2m+tlv" },
 	{ 11543, "application/vnd.oma.lwm2m+json" },
 	{ 0, NULL },
@@ -665,6 +696,24 @@ dissect_coap_opt_ctype(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree
 }
 
 static void
+dissect_coap_opt_accept(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, int hf)
+{
+	const guint8 *str = NULL;
+
+	if (opt_length == 0) {
+		str = nullstr;
+	} else {
+		guint value = coap_get_opt_uint(tvb, offset, opt_length);
+		str = val_to_str(value, vals_ctype, "Unknown Type %u");
+	}
+
+	proto_tree_add_string(subtree, hf, tvb, offset, opt_length, str);
+
+	/* add info to the head of the packet detail */
+	proto_item_append_text(head_item, ": %s", str);
+}
+
+static void
 dissect_coap_opt_block(tvbuff_t *tvb, proto_item *head_item, proto_tree *subtree, gint offset, gint opt_length, coap_info *coinfo, coap_common_dissect_t *dissect_hf)
 {
 	guint8      val = 0;
@@ -923,8 +972,8 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		    opt_length, dissect_hf->hf.opt_hop_limit);
 		break;
 	case COAP_OPT_ACCEPT:
-		dissect_coap_opt_ctype(tvb, item, subtree, offset,
-		    opt_length, dissect_hf->hf.opt_accept, coinfo);
+		dissect_coap_opt_accept(tvb, item, subtree, offset,
+		    opt_length, dissect_hf->hf.opt_accept);
 		break;
 	case COAP_OPT_IF_MATCH:
 		dissect_coap_opt_hex_string(tvb, pinfo, item, subtree, offset,

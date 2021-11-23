@@ -230,8 +230,8 @@
 #define AL_OBJ_VAR_MASK 0x00FF
 
 /* Accessors for group and mask */
-#define AL_OBJ_GROUP(GV)        ((GV & AL_OBJ_GRP_MASK) >> 8)
-#define AL_OBJ_VARIATION(GV)    (GV & AL_OBJ_VAR_MASK)
+#define AL_OBJ_GROUP(GV)        (((GV) & AL_OBJ_GRP_MASK) >> 8)
+#define AL_OBJ_VARIATION(GV)    ((GV) & AL_OBJ_VAR_MASK)
 
 /* Data Type values */
 #define AL_DATA_TYPE_NONE         0x0
@@ -1870,9 +1870,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       data_pos   = offset;
       prefixbytes = dnp3_al_obj_procprefix(tvb, offset, al_objq_prefix, &al_ptaddr, point_tree);
 
-      /* If this is an 'empty' object type and the num_items field is not equal to zero,
+      /* If this is an 'empty' object type as the num_items field is not equal to zero,
          then the packet is potentially malicious */
-      if ((num_items != 0) && (dnp3_al_empty_obj(al_obj))) {
+      if (dnp3_al_empty_obj(al_obj)) {
         proto_item_append_text(range_item, " (bogus)");
         expert_add_info(pinfo, range_item, &ei_dnp3_num_items_invalid);
         num_items = 0;
@@ -2008,6 +2008,10 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             case AL_OBJ_AIC_ALL:     /* Analog Input Change Default Variation (Obj:32 Var:Default) */
             case AL_OBJ_AIDB_ALL:    /* Analog Input Deadband Default Variation (Obj:34, Var:Default) */
             case AL_OBJ_AOC_ALL:     /* Analog Output Event Default Variation (Obj:42 Var:Default) */
+            case AL_OBJ_CLASS0:      /* Class Data Objects */
+            case AL_OBJ_CLASS1:
+            case AL_OBJ_CLASS2:
+            case AL_OBJ_CLASS3:
 
               offset = data_pos;
               break;
@@ -2738,15 +2742,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               offset = data_pos;
               break;
 
-            case AL_OBJ_CLASS0:  /* Class Data Objects */
-            case AL_OBJ_CLASS1:
-            case AL_OBJ_CLASS2:
-            case AL_OBJ_CLASS3:
-
-              /* No data here */
-              offset = data_pos;
-              break;
-
             case AL_OBJ_FILE_CMD: /* File Control - File Command (Obj:70, Var:03) */
               /* File name offset and length */
               proto_tree_add_item(point_tree, hf_dnp3_al_file_string_offset, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
@@ -2793,7 +2788,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               if (al_file_ctrl_mode == AL_OBJ_FILE_MODE_WRITE || al_file_ctrl_mode == AL_OBJ_FILE_MODE_APPEND) {
                 proto_tree_add_item(point_tree, hf_dnp3_al_file_size, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
               }
-              data_pos += 4;
+              data_pos += 4; //-V525
 
               /* Mode */
               proto_tree_add_item(point_tree, hf_dnp3_al_file_mode, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
@@ -3320,7 +3315,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
      or 'Reset Link' we don't expect any Transport or Application Layer Data
      NOTE: This code should probably check what DOES have TR or AL data */
   if ((dl_func != DL_FUNC_LINK_STAT) && (dl_func != DL_FUNC_STAT_LINK) &&
-      (dl_func != DL_FUNC_RESET_LINK) && (dl_func != DL_FUNC_ACK))
+      (dl_func != DL_FUNC_RESET_LINK) && (dl_func != DL_FUNC_ACK)) //-V560 (both codes are the same value but semantically different)
   {
     proto_tree *data_tree;
     proto_item *data_ti;

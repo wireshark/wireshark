@@ -56,6 +56,9 @@
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
+static guint64
+_tvb_get_bits64_le(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
+
 static inline gint
 _tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset);
 
@@ -188,29 +191,14 @@ validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 	 * artificial boundary imposed by packet slicing, that
 	 * we're past.
 	 */
-	if (abs_offset <= tvb->reported_length) {
-		/*
-		 * We're within the bounds of what this tvbuff
-		 * purportedly contains, based on some length
-		 * value, but we're not within the bounds of
-		 * something from which this tvbuff was
-		 * extracted, so that length value ran past
-		 * the end of some parent tvbuff.
-		 */
-		return ContainedBoundsError;
-	}
 
-	/*
-	 * OK, we're past the bounds of what this tvbuff
-	 * purportedly contains.
-	 */
 	if (tvb->flags & TVBUFF_FRAGMENT) {
 		/*
 		 * This tvbuff is the first fragment of a larger
 		 * packet that hasn't been reassembled, so we
-		 * assume that's the source of the prblem - if
-		 * we'd reassembled the packet, we wouldn't
-		 * have gone past the end.
+		 * assume that's the source of the problem - if
+		 * we'd reassembled the packet, we wouldn't have
+		 * gone past the end.
 		 *
 		 * That might not be true, but for at least
 		 * some forms of reassembly, such as IP
@@ -221,6 +209,19 @@ validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 		 * had we reassembled the packet.
 		 */
 		return FragmentBoundsError;
+	}
+
+	/* OK, we're not an unreassembled fragment (that we know of). */
+	if (abs_offset <= tvb->reported_length) {
+		/*
+		 * We're within the bounds of what this tvbuff
+		 * purportedly contains, based on some length
+		 * value, but we're not within the bounds of
+		 * something from which this tvbuff was
+		 * extracted, so that length value ran past
+		 * the end of some parent tvbuff.
+		 */
+		return ContainedBoundsError;
 	}
 
 	/*
@@ -239,10 +240,10 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 			*offset_ptr = offset;
 		} else if ((guint) offset <= tvb->contained_length) {
 			return BoundsError;
-		} else if ((guint) offset <= tvb->reported_length) {
-			return ContainedBoundsError;
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			return FragmentBoundsError;
+		} else if ((guint) offset <= tvb->reported_length) {
+			return ContainedBoundsError;
 		} else {
 			return ReportedBoundsError;
 		}
@@ -253,10 +254,10 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 			*offset_ptr = tvb->length + offset;
 		} else if ((guint) -offset <= tvb->contained_length) {
 			return BoundsError;
-		} else if ((guint) -offset <= tvb->reported_length) {
-			return ContainedBoundsError;
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			return FragmentBoundsError;
+		} else if ((guint) -offset <= tvb->reported_length) {
+			return ContainedBoundsError;
 		} else {
 			return ReportedBoundsError;
 		}
@@ -434,6 +435,72 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	return sub_tvb;
 }
 
+tvbuff_t *
+tvb_new_octet_right_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
+{
+	tvbuff_t     *sub_tvb = NULL;
+	guint32       byte_offset;
+	gint          src_len, dst_len, i;
+	guint8        left, right, remaining_bits, *buf;
+	const guint8 *data;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	byte_offset = bit_offset / 8;
+	/* right shift to put bits in place and discard least significant bits */
+	right = bit_offset % 8;
+	/* left shift to get most significant bits from next octet */
+	left = 8 - right;
+
+	if (no_of_bits == -1) {
+		dst_len = _tvb_captured_length_remaining(tvb, byte_offset);
+		remaining_bits = 0;
+	} else {
+		dst_len = no_of_bits / 8;
+		remaining_bits = no_of_bits % 8;
+		if (remaining_bits) {
+			dst_len++;
+		}
+	}
+
+	/* already aligned -> shortcut */
+	if ((right == 0) && (remaining_bits == 0)) {
+		return tvb_new_subset_length_caplen(tvb, byte_offset, dst_len, dst_len);
+	}
+
+	DISSECTOR_ASSERT(dst_len>0);
+
+	if (_tvb_captured_length_remaining(tvb, byte_offset) > dst_len) {
+		/* last octet will get data from trailing octet */
+		src_len = dst_len + 1;
+	} else {
+		/* last octet will be zero padded */
+		src_len = dst_len;
+	}
+
+	data = ensure_contiguous(tvb, byte_offset, src_len); /* tvb_get_ptr */
+
+	/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
+	buf = (guint8 *)g_malloc(dst_len);
+
+	for (i = 0; i < (dst_len - 1); i++)
+		buf[i] = (data[i] >> right) | (data[i+1] << left);
+
+	/* Special handling for last octet */
+	buf[i] = (data[i] >> right);
+	/* Shift most significant bits from trailing octet if available */
+	if (src_len > dst_len)
+		buf[i] |= (data[i+1] << left);
+	/* Preserve only remaining bits in last octet if not multiple of 8 */
+	if (remaining_bits)
+		buf[i] &= ((1 << remaining_bits) - 1);
+
+	sub_tvb = tvb_new_child_real_data(tvb, buf, dst_len, dst_len);
+	tvb_set_free_cb(sub_tvb, g_free);
+
+	return sub_tvb;
+}
+
 static tvbuff_t *
 tvb_generic_clone_offset_len(tvbuff_t *tvb, guint offset, guint len)
 {
@@ -529,10 +596,10 @@ tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 		 */
 		if (abs_offset < tvb->contained_length) {
 			THROW(BoundsError);
-		} else if (abs_offset < tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if (abs_offset < tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
@@ -616,10 +683,10 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 			real_offset = offset;
 		} else if ((guint) offset <= tvb->contained_length) {
 			THROW(BoundsError);
-		} else if ((guint) offset <= tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if ((guint) offset <= tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
@@ -630,10 +697,10 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 			real_offset = tvb->length + offset;
 		} else if ((guint) -offset <= tvb->contained_length) {
 			THROW(BoundsError);
-		} else if ((guint) -offset <= tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if ((guint) -offset <= tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
@@ -654,10 +721,10 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 		return;
 	else if (end_offset <= tvb->contained_length)
 		THROW(BoundsError);
-	else if (end_offset <= tvb->reported_length)
-		THROW(ContainedBoundsError);
 	else if (tvb->flags & TVBUFF_FRAGMENT)
 		THROW(FragmentBoundsError);
+	else if (end_offset <= tvb->reported_length)
+		THROW(ContainedBoundsError);
 	else
 		THROW(ReportedBoundsError);
 }
@@ -835,10 +902,10 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 		return tvb->real_data + u_offset;
 	} else if (end_offset <= tvb->contained_length) {
 		THROW(BoundsError);
-	} else if (end_offset <= tvb->reported_length) {
-		THROW(ContainedBoundsError);
 	} else if (tvb->flags & TVBUFF_FRAGMENT) {
 		THROW(FragmentBoundsError);
+	} else if (end_offset <= tvb->reported_length) {
+		THROW(ContainedBoundsError);
 	} else {
 		THROW(ReportedBoundsError);
 	}
@@ -1661,14 +1728,17 @@ GByteArray*
 tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 		     const guint encoding, GByteArray *bytes, gint *endoff)
 {
-	const gchar *ptr    = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
-	const gchar *begin  = ptr;
+	gchar *ptr;
+	const gchar *begin;
 	const gchar *end    = NULL;
 	GByteArray  *retval = NULL;
 
 	errno = EDOM;
 
 	validate_single_byte_ascii_encoding(encoding);
+
+	ptr = (gchar*) tvb_get_raw_string(NULL, tvb, offset, length);
+	begin = ptr;
 
 	if (endoff) *endoff = 0;
 
@@ -1683,6 +1753,8 @@ tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 			}
 		}
 	}
+
+	wmem_free(NULL, ptr);
 
 	return retval;
 }
@@ -1706,8 +1778,8 @@ nstime_t*
 tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 		    const guint encoding, nstime_t *ns, gint *endoff)
 {
-	const gchar *begin     = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
-	const gchar *ptr       = begin;
+	gchar *begin;
+	const gchar *ptr;
 	const gchar *end       = NULL;
 	struct tm    tm;
 	nstime_t*    retval    = NULL;
@@ -1722,6 +1794,9 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 	validate_single_byte_ascii_encoding(encoding);
 
 	DISSECTOR_ASSERT(ns);
+
+	begin = (gchar*) tvb_get_raw_string(NULL, tvb, offset, length);
+	ptr = begin;
 
 	memset(&tm, 0, sizeof(tm));
 	tm.tm_isdst = -1;
@@ -1916,6 +1991,8 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 		    *endoff = (gint)(offset + (end - begin));
 	}
 
+	wmem_free(NULL, begin);
+
 	return retval;
 }
 
@@ -1997,12 +2074,20 @@ static const guint8 bit_mask8[] = {
 
 /* Get a variable ammount of bits
  *
- * Return a byte array with bit limited data. The data is aligned to the right.
+ * Return a byte array with bit limited data.
+ * When encoding is ENC_BIG_ENDIAN, the data is aligned to the left.
+ * When encoding is ENC_LITTLE_ENDIAN, the data is aligned to the right.
  */
 guint8 *
-tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const gint bit_offset, size_t no_of_bits, size_t *data_length)
+tvb_get_bits_array(wmem_allocator_t *scope, tvbuff_t *tvb, const gint bit_offset,
+		   size_t no_of_bits, size_t *data_length, const guint encoding)
 {
-	tvbuff_t *sub_tvb = tvb_new_octet_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	tvbuff_t *sub_tvb;
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		sub_tvb = tvb_new_octet_right_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	} else {
+		sub_tvb = tvb_new_octet_aligned(tvb, bit_offset, (gint32) no_of_bits);
+	}
 	*data_length = tvb_reported_length(sub_tvb);
 	return (guint8*)tvb_memdup(scope, sub_tvb, 0, *data_length);
 }
@@ -2014,33 +2099,37 @@ tvb_get_bits8(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits)
 	return (guint8)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
-/* Get 9 - 16 bits */
+/* Get 1 - 16 bits */
 guint16
-tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits,const guint encoding _U_)
+tvb_get_bits16(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return (guint16)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	return (guint16)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
 /* Get 1 - 32 bits */
 guint32
-tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits32(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	return (guint32)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
 /* Get 1 - 64 bits */
 guint64
-tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	/* encoding determines bit numbering within octet array */
+	if (encoding & ENC_LITTLE_ENDIAN) {
+		return _tvb_get_bits64_le(tvb, bit_offset, no_of_bits);
+	} else {
+		return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	}
 }
+
 /*
  * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
  * set will be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
  * Offset should be given in bits from the start of the tvb.
+ * Bits within octet are numbered from MSB (0) to LSB (7). Bit at bit_offset is return value most significant bit.
  * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
  */
 static guint64
@@ -2116,12 +2205,84 @@ _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits)
 	}
 	return value;
 }
+
+/*
+ * Offset should be given in bits from the start of the tvb.
+ * Bits within octet are numbered from LSB (0) to MSB (7). Bit at bit_offset is return value least significant bit.
+ * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
+ */
+static guint64
+_tvb_get_bits64_le(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits)
+{
+	guint64 value = 0;
+	guint octet_offset = bit_offset / 8;
+	gint remaining_bits = total_no_of_bits;
+	gint shift = 0;
+
+	if (remaining_bits > 64)
+	{
+		remaining_bits = 64;
+	}
+
+	if (bit_offset % 8)
+	{
+		/* not aligned, extract bits from first octet */
+		shift = 8 - (bit_offset % 8);
+		value = tvb_get_guint8(tvb, octet_offset) >> (bit_offset % 8);
+		if (shift > total_no_of_bits)
+		{
+			/* keep only the requested bits */
+			value &= (G_GUINT64_CONSTANT(1) << total_no_of_bits) - 1;
+			remaining_bits = 0;
+		}
+		else
+		{
+			remaining_bits = total_no_of_bits - shift;
+		}
+		octet_offset++;
+	}
+
+	while (remaining_bits > 0)
+	{
+		/* take the biggest words, shorts or octets that we can */
+		if (remaining_bits >= 32)
+		{
+			value |= ((guint64)tvb_get_letohl(tvb, octet_offset) << shift);
+			shift += 32;
+			remaining_bits -= 32;
+			octet_offset += 4;
+		}
+		else if (remaining_bits >= 16)
+		{
+			value |= ((guint64)tvb_get_letohs(tvb, octet_offset) << shift);
+			shift += 16;
+			remaining_bits -= 16;
+			octet_offset += 2;
+		}
+		else if (remaining_bits >= 8)
+		{
+			value |= ((guint64)tvb_get_guint8(tvb, octet_offset) << shift);
+			shift += 8;
+			remaining_bits -= 8;
+			octet_offset += 1;
+		}
+		else
+		{
+			guint mask = (1 << remaining_bits) - 1;
+			value |= (((guint64)tvb_get_guint8(tvb, octet_offset) & mask) << shift);
+			shift += remaining_bits;
+			remaining_bits = 0;
+			octet_offset += 1;
+		}
+	}
+	return value;
+}
+
 /* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
 guint32
-tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const guint encoding _U_)
+tvb_get_bits(tvbuff_t *tvb, const guint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	return (guint32)tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 }
 
 static gint
@@ -2310,10 +2471,10 @@ tvb_strsize(tvbuff_t *tvb, const gint offset)
 		 */
 		if (tvb->length < tvb->contained_length) {
 			THROW(BoundsError);
-		} else if (tvb->length < tvb->reported_length) {
-			THROW(ContainedBoundsError);
 		} else if (tvb->flags & TVBUFF_FRAGMENT) {
 			THROW(FragmentBoundsError);
+		} else if (tvb->length < tvb->reported_length) {
+			THROW(ContainedBoundsError);
 		} else {
 			THROW(ReportedBoundsError);
 		}
@@ -2455,7 +2616,7 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
  * wmem packet_scoped so call must be in that scope.
  */
 gchar *
-tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_text(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr;
 	gint          len;
@@ -2463,7 +2624,7 @@ tvb_format_text(tvbuff_t *tvb, const gint offset, const gint size)
 	len = (size > 0) ? size : 0;
 
 	ptr = ensure_contiguous(tvb, offset, size);
-	return format_text(wmem_packet_scope(), ptr, len);
+	return format_text(scope, ptr, len);
 }
 
 /*
@@ -2487,7 +2648,7 @@ tvb_format_text_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint offse
  * so call must be in that scope.
  */
 gchar *
-tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
+tvb_format_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint size)
 {
 	const guint8 *ptr, *p;
 	gint          len;
@@ -2498,7 +2659,7 @@ tvb_format_stringzpad(tvbuff_t *tvb, const gint offset, const gint size)
 	ptr = ensure_contiguous(tvb, offset, size);
 	for (p = ptr, stringlen = 0; stringlen < len && *p != '\0'; p++, stringlen++)
 		;
-	return format_text(wmem_packet_scope(), ptr, stringlen);
+	return format_text(scope, ptr, stringlen);
 }
 
 /*
@@ -4305,21 +4466,21 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 
 /* XXXX Fix me - needs odd indicator added */
 const gchar *
-tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
+tvb_bcd_dig_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
 {
 	if (!dgt)
 		dgt = &Dgt0_9_bcd;
 
-	return tvb_get_bcd_string(wmem_packet_scope(), tvb, offset, len, dgt, skip_first, FALSE, FALSE);
+	return tvb_get_bcd_string(scope, tvb, offset, len, dgt, skip_first, FALSE, FALSE);
 }
 
 const gchar *
-tvb_bcd_dig_to_wmem_packet_str_be(tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
+tvb_bcd_dig_to_str_be(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
 {
 	if (!dgt)
 		dgt = &Dgt0_9_bcd;
 
-	return tvb_get_bcd_string(wmem_packet_scope(), tvb, offset, len, dgt, skip_first, FALSE, TRUE);
+	return tvb_get_bcd_string(scope, tvb, offset, len, dgt, skip_first, FALSE, TRUE);
 }
 
 /*

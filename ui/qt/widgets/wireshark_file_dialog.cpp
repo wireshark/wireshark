@@ -7,6 +7,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #include "wireshark_file_dialog.h"
 
 #ifdef Q_OS_WIN

@@ -731,10 +731,10 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     }
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.len    = length;
     rec->rec_header.packet_header.caplen = sliceLength;
-    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     if (saw_flags_and_status) {
         guint32 flags = 0;
         if (flags_and_status & FLAGS_HAS_CRC_ERROR)

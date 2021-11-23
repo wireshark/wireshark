@@ -296,6 +296,7 @@ struct _wslua_filehandler {
     int write_close_ref;
     int file_type;
     gboolean registered;
+    gboolean removed; /* This is set during reload Lua plugins */
 };
 
 struct _wslua_dir {
@@ -691,7 +692,7 @@ extern C shift##C(lua_State* L,int i)
 #define THROW_LUA_ERROR(...) \
     THROW_FORMATTED(DissectorError, __VA_ARGS__)
 
-/* Catches any Wireshark exceptions in code and convert it into a LUA error.
+/* Catches any Wireshark exceptions in code and convert it into a Lua error.
  * Normal restrictions for TRY/CATCH apply, in particular, do not return! */
 #define WRAP_NON_LUA_EXCEPTIONS(code) \
 { \

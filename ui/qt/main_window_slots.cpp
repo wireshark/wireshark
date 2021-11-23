@@ -296,7 +296,6 @@ void MainWindow::filterPackets(QString new_filter, bool force)
     cf_status = cf_filter_packets(CaptureFile::globalCapFile(), new_filter.toUtf8().data(), force);
 
     if (cf_status == CF_OK) {
-        emit displayFilterSuccess(true);
         if (new_filter.length() > 0) {
             int index = df_combo_box_->findText(new_filter);
             if (index == -1) {
@@ -308,6 +307,9 @@ void MainWindow::filterPackets(QString new_filter, bool force)
         } else {
             df_combo_box_->lineEdit()->clear();
         }
+        // Only after the display filter has been updated,
+        // disable the arrow button
+        emit displayFilterSuccess(true);
     } else {
         emit displayFilterSuccess(false);
     }
@@ -1158,15 +1160,21 @@ void MainWindow::setEditCommentsMenu()
                         this, SLOT(actionDeletePacketComment()));
                 aPtr->setData(i);
             }
+            main_ui_->menuPacketComment->addSeparator();
+            main_ui_->menuPacketComment->addAction(tr("Delete packet comments"), this, SLOT(actionDeleteCommentsFromPackets()));
         }
         wtap_block_unref(pkt_block);
+    }
+    if (selectedRows().count() > 1) {
+        main_ui_->menuPacketComment->addSeparator();
+        main_ui_->menuPacketComment->addAction(tr("Delete comments from %n packet(s)", nullptr, selectedRows().count()), this, SLOT(actionDeleteCommentsFromPackets()));
     }
 }
 
 void MainWindow::setMenusForSelectedPacket()
 {
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
-             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE;
+             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE, is_exported_pdu = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1241,6 +1249,13 @@ void MainWindow::setMenusForSelectedPacket()
             /* TODO: to follow a QUIC stream we need a *decrypted* QUIC connection, i.e. checking for "quic" in the protocol stack is not enough */
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
             is_sip = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "sip");
+            is_exported_pdu = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "exported_pdu");
+            /* For Exported PDU there is a tag inserting IP addresses into the SRC and DST columns */
+            if (is_exported_pdu &&
+               (capture_file_.capFile()->edt->pi.net_src.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_src.type == AT_IPv6) &&
+               (capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv4 || capture_file_.capFile()->edt->pi.net_dst.type == AT_IPv6)) {
+                is_ip = TRUE;
+            }
         }
     }
 
@@ -1262,8 +1277,8 @@ void MainWindow::setMenusForSelectedPacket()
     if (capture_file_.capFile() && capture_file_.capFile()->linktypes)
         linkTypes = capture_file_.capFile()->linktypes;
 
-    bool enableEditComments = frame_selected && linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET);
-    main_ui_->menuPacketComment->setEnabled(enableEditComments);
+    bool enableEditComments = linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET);
+    main_ui_->menuPacketComment->setEnabled(enableEditComments && selectedRows().count() > 0);
     main_ui_->actionDeleteAllPacketComments->setEnabled(enableEditComments);
 
     main_ui_->actionEditIgnorePacket->setEnabled(frame_selected || multi_selection);
@@ -1284,7 +1299,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
     main_ui_->actionAnalyzeFollowDCCPStream->setEnabled(is_dccp);
-    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls);
+    main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls && !is_quic);
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
     main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
     main_ui_->actionAnalyzeFollowQUICStream->setEnabled(is_quic);
@@ -1516,6 +1531,22 @@ void MainWindow::reloadLuaPlugins()
     if (wsApp->isReloadingLua())
         return;
 
+    gboolean uses_lua_filehandler = FALSE;
+
+    if (capture_file_.capFile()) {
+        // Check if the current capture file is opened with a Lua FileHandler
+        capture_file *cf = capture_file_.capFile();
+        uses_lua_filehandler = wtap_uses_lua_filehandler(cf->provider.wth);
+
+        if (uses_lua_filehandler && cf->unsaved_changes) {
+            // Prompt to save the file before reloading, in case the FileHandler has changed
+            QString before_what(tr(" before reloading Lua plugins"));
+            if (!testCaptureFileClose(before_what, Reload)) {
+                return;
+            }
+        }
+    }
+
     wsApp->setReloadingLua(true);
 
     wslua_reload_plugins(NULL, NULL);
@@ -1527,10 +1558,20 @@ void MainWindow::reloadLuaPlugins()
     main_ui_->preferenceEditorFrame->animatedHide();
 
     wsApp->readConfigurationFiles(true);
+    commandline_options_reapply();
 
-    prefs_apply_all();
     fieldsChanged();
-    redissectPackets();
+    prefs_apply_all();
+
+    if (uses_lua_filehandler) {
+        // Reload the file in case the FileHandler has changed
+        if (cf_reload(capture_file_.capFile()) != CF_OK) {
+            cf_close(capture_file_.capFile());
+        }
+        proto_free_deregistered_fields();
+    } else {
+        redissectPackets();
+    }
 
     wsApp->setReloadingLua(false);
     SimpleDialog::displayQueuedMessages();
@@ -2209,7 +2250,7 @@ void MainWindow::editTimeShiftFinished(int)
 void MainWindow::actionAddPacketComment()
 {
     QList<int> rows = selectedRows();
-    if (rows.count() != 1)
+    if (rows.count() == 0)
         return;
 
     frame_data * fdata = frameDataForRow(rows.at(0));
@@ -2217,7 +2258,7 @@ void MainWindow::actionAddPacketComment()
         return;
 
     PacketCommentDialog* pc_dialog;
-    pc_dialog = new PacketCommentDialog(fdata->num, this, NULL);
+    pc_dialog = new PacketCommentDialog(false, this, NULL);
     connect(pc_dialog, &QDialog::finished, std::bind(&MainWindow::addPacketCommentFinished, this, pc_dialog, std::placeholders::_1));
     pc_dialog->setWindowModality(Qt::ApplicationModal);
     pc_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -2238,14 +2279,10 @@ void MainWindow::actionEditPacketComment()
     if (rows.count() != 1)
         return;
 
-    frame_data * fdata = frameDataForRow(rows.at(0));
-    if (! fdata)
-        return;
-
     QAction *ra = qobject_cast<QAction*>(sender());
     guint nComment = ra->data().toUInt();
     PacketCommentDialog* pc_dialog;
-    pc_dialog = new PacketCommentDialog(fdata->num, this, packet_list_->getPacketComment(nComment));
+    pc_dialog = new PacketCommentDialog(true, this, packet_list_->getPacketComment(nComment));
     connect(pc_dialog, &QDialog::finished, std::bind(&MainWindow::editPacketCommentFinished, this, pc_dialog, std::placeholders::_1, nComment));
     pc_dialog->setWindowModality(Qt::ApplicationModal);
     pc_dialog->setAttribute(Qt::WA_DeleteOnClose);
@@ -2265,6 +2302,12 @@ void MainWindow::actionDeletePacketComment()
     QAction *ra = qobject_cast<QAction*>(sender());
     guint nComment = ra->data().toUInt();
     packet_list_->setPacketComment(nComment, QString(""));
+    updateForUnsavedChanges();
+}
+
+void MainWindow::actionDeleteCommentsFromPackets()
+{
+    packet_list_->deleteCommentsFromPackets();
     updateForUnsavedChanges();
 }
 
@@ -3213,6 +3256,7 @@ void MainWindow::on_actionStatisticsANCP_triggered()
     openStatisticsTreeDialog("ancp");
 }
 
+
 void MainWindow::on_actionStatisticsBACappInstanceId_triggered()
 {
     openStatisticsTreeDialog("bacapp_instanceid");
@@ -3555,6 +3599,16 @@ void MainWindow::on_actionTelephonyUCPMessages_triggered()
     openStatisticsTreeDialog("ucp_messages");
 }
 
+void MainWindow::on_actionTelephonyF1APMessages_triggered()
+{
+	openStatisticsTreeDialog("f1ap");
+}
+
+void MainWindow::on_actionTelephonyNGAPMessages_triggered()
+{
+    openStatisticsTreeDialog("ngap");
+}
+
 void MainWindow::on_actionTelephonySipFlows_triggered()
 {
     openTelephonyVoipCallsDialogSip();
@@ -3637,7 +3691,7 @@ void MainWindow::on_actionHelpMPMergecap_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_MERGECAP);
 }
 
-void MainWindow::on_actionHelpMPRawShark_triggered() {
+void MainWindow::on_actionHelpMPRawshark_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_RAWSHARK);
 }
 
@@ -3645,7 +3699,7 @@ void MainWindow::on_actionHelpMPReordercap_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_REORDERCAP);
 }
 
-void MainWindow::on_actionHelpMPText2cap_triggered() {
+void MainWindow::on_actionHelpMPText2pcap_triggered() {
     wsApp->helpTopicAction(LOCALPAGE_MAN_TEXT2PCAP);
 }
 

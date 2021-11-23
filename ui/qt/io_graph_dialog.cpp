@@ -130,6 +130,11 @@ static io_graph_settings_t *iog_settings_ = NULL;
 static guint num_io_graphs_ = 0;
 static uat_t *iog_uat_ = NULL;
 
+// y_axis_factor was added in 3.6. Provide backward compatibility.
+static const char *iog_uat_defaults_[] = {
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, "1"
+};
+
 extern "C" {
 
 //Allow the enable/disable field to be a checkbox, but for backwards compatibility,
@@ -349,6 +354,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
         close_bt->setDefault(true);
     }
 
+    ui->automaticUpdateCheckBox->setChecked(prefs.gui_io_graph_automatic_update ? true : false);
+
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     stat_timer_->start(stat_update_interval_);
@@ -480,29 +487,26 @@ void IOGraphDialog::copyFromProfile(QString filename)
 
 void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, int y_axis_factor)
 {
-    // should not fail, but you never know.
-    if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
+
+    QVariantList newRowData;
+    newRowData.append(checked ? Qt::Checked : Qt::Unchecked);
+    newRowData.append(name);
+    newRowData.append(dfilter);
+    newRowData.append(QColor(color_idx));
+    newRowData.append(val_to_str_const(style, graph_style_vs, "None"));
+    newRowData.append(val_to_str_const(value_units, y_axis_vs, "Packets"));
+    newRowData.append(yfield);
+    newRowData.append(val_to_str_const((guint32) moving_average, moving_avg_vs, "None"));
+    newRowData.append(y_axis_factor);
+
+    QModelIndex newIndex = uat_model_->appendEntry(newRowData);
+    if ( !newIndex.isValid() )
+    {
         qDebug() << "Failed to add a new record";
         return;
     }
-    int currentRow = uat_model_->rowCount() - 1;
-    const QModelIndex &new_index = uat_model_->index(currentRow, 0);
-
-    //populate model with data
-    uat_model_->setData(uat_model_->index(currentRow, colEnabled), checked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
-    uat_model_->setData(uat_model_->index(currentRow, colName), name);
-    uat_model_->setData(uat_model_->index(currentRow, colDFilter), dfilter);
-    uat_model_->setData(uat_model_->index(currentRow, colColor), QColor(color_idx), Qt::DecorationRole);
-    uat_model_->setData(uat_model_->index(currentRow, colStyle), val_to_str_const(style, graph_style_vs, "None"));
-    uat_model_->setData(uat_model_->index(currentRow, colYAxis), val_to_str_const(value_units, y_axis_vs, "Packets"));
-    uat_model_->setData(uat_model_->index(currentRow, colYField), yfield);
-    uat_model_->setData(uat_model_->index(currentRow, colSMAPeriod), val_to_str_const((guint32) moving_average, moving_avg_vs, "None"));
-    uat_model_->setData(uat_model_->index(currentRow, colYAxisFactor), (guint32) y_axis_factor);
-
-    // due to an EditTrigger, this will also start editing.
-    ui->graphUat->setCurrentIndex(new_index);
-
-    createIOGraph(currentRow);
+    ui->graphUat->setCurrentIndex(newIndex);
+    createIOGraph(newIndex.row());
 }
 
 void IOGraphDialog::addGraph(bool copy_from_current)
@@ -511,22 +515,24 @@ void IOGraphDialog::addGraph(bool copy_from_current)
     if (copy_from_current && !current.isValid())
         return;
 
+    QModelIndex copyIdx;
+
     if (copy_from_current) {
-        // should not fail, but you never know.
-        if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
+        copyIdx = uat_model_->copyRow(current);
+        if (!copyIdx.isValid())
+        {
             qDebug() << "Failed to add a new record";
             return;
         }
-        const QModelIndex &new_index = uat_model_->index(uat_model_->rowCount() - 1, 0);
-        uat_model_->copyRow(new_index.row(), current.row());
-        createIOGraph(new_index.row());
+        createIOGraph(copyIdx.row());
 
-        ui->graphUat->setCurrentIndex(new_index);
+        ui->graphUat->setCurrentIndex(copyIdx);
     } else {
         addDefaultGraph(false);
-        const QModelIndex &new_index = uat_model_->index(uat_model_->rowCount() - 1, 0);
-        ui->graphUat->setCurrentIndex(new_index);
+        copyIdx = uat_model_->index(uat_model_->rowCount() - 1, 0);
     }
+
+    ui->graphUat->setCurrentIndex(copyIdx);
 }
 
 void IOGraphDialog::createIOGraph(int currentRow)
@@ -1142,13 +1148,13 @@ void IOGraphDialog::updateStatistics()
 {
     if (!isVisible()) return;
 
-    if (need_retap_ && !file_closed_) {
+    if (need_retap_ && !file_closed_ && prefs.gui_io_graph_automatic_update) {
         need_retap_ = false;
         cap_file_.retapPackets();
         // The user might have closed the window while tapping, which means
         // we might no longer exist.
     } else {
-        if (need_recalc_ && !file_closed_) {
+        if (need_recalc_ && !file_closed_ && prefs.gui_io_graph_automatic_update) {
             need_recalc_ = false;
             need_replot_ = true;
             int enabled_graphs = 0;
@@ -1200,6 +1206,8 @@ void IOGraphDialog::loadProfileGraphs()
                            NULL,
                            NULL,
                            io_graph_fields);
+
+        uat_set_default_values(iog_uat_, iog_uat_defaults_);
 
         char* err = NULL;
         if (!uat_load(iog_uat_, NULL, &err)) {
@@ -1370,6 +1378,18 @@ void IOGraphDialog::on_logCheckBox_toggled(bool checked)
 
     iop->yAxis->setScaleType(checked ? QCPAxis::stLogarithmic : QCPAxis::stLinear);
     iop->replot();
+}
+
+void IOGraphDialog::on_automaticUpdateCheckBox_toggled(bool checked)
+{
+    prefs.gui_io_graph_automatic_update = checked ? TRUE : FALSE;
+
+    prefs_main_write();
+
+    if(prefs.gui_io_graph_automatic_update)
+    {
+        updateStatistics();
+    }
 }
 
 void IOGraphDialog::on_actionReset_triggered()

@@ -289,9 +289,9 @@ static void rtitcp_util_add_locator_t(proto_tree *tree, packet_info *pinfo _U_, 
             col_append_str(pinfo->cinfo, COL_INFO, " (");
         }
         proto_item_append_text(rtitcp_message, "%s%s:%u",
-            *first_attribute ? "" : ", ", tvb_ip_to_str(tvb, offset + 12), port);
+            *first_attribute ? "" : ", ", tvb_ip_to_str(pinfo->pool, tvb, offset + 12), port);
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s:%u",
-                *first_attribute ? "" : ", ", tvb_ip_to_str(tvb, offset + 12), port);
+                *first_attribute ? "" : ", ", tvb_ip_to_str(pinfo->pool, tvb, offset + 12), port);
     } else {
         proto_tree_add_item(tree, hf_rtitcp_locator_ipv6, tvb, offset, 16, ENC_NA);
         if (*first_attribute) {
@@ -299,9 +299,9 @@ static void rtitcp_util_add_locator_t(proto_tree *tree, packet_info *pinfo _U_, 
             col_append_str(pinfo->cinfo, COL_INFO, " (");
         }
         proto_item_append_text(rtitcp_message, "%s%s",
-            *first_attribute ? "" : ", ", tvb_ip6_to_str(tvb, offset));
+            *first_attribute ? "" : ", ", tvb_ip6_to_str(pinfo->pool, tvb, offset));
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-                *first_attribute ? "" : ", ", tvb_ip6_to_str(tvb, offset));
+                *first_attribute ? "" : ", ", tvb_ip6_to_str(pinfo->pool, tvb, offset));
     }
 }
 

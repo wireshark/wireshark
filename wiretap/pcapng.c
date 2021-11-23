@@ -16,7 +16,6 @@
  */
 
 #include "config.h"
-#include "wtap_opttypes.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
@@ -167,7 +166,7 @@ typedef struct pcapng_option_header_s {
     /* ... Padding ... */
 } pcapng_option_header_t;
 
-struct option {
+struct pcapng_option {
     guint16 type;
     guint16 value_length;
 };
@@ -231,15 +230,6 @@ typedef struct wtapng_simple_packet_s {
     /* XXX - put the packet data / pseudo_header here as well? */
 } wtapng_simple_packet_t;
 
-/* Section data in private struct */
-typedef struct section_info_t {
-    gboolean byte_swapped; /**< TRUE if this section is not in our byte order */
-    guint16 version_major; /**< Major version number of this section */
-    guint16 version_minor; /**< Minor version number of this section */
-    GArray *interfaces;    /**< Interfaces found in this section */
-    gint64 shb_off;        /**< File offset of the SHB for this section */
-} section_info_t;
-
 /* Interface data in private struct */
 typedef struct interface_info_s {
     int wtap_encap;
@@ -299,10 +289,11 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_CB_NO_COPY:
     case BLOCK_TYPE_SYSDIG_EVENT:
     case BLOCK_TYPE_SYSDIG_EVENT_V2:
+    case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
     case BLOCK_TYPE_SYSTEMD_JOURNAL_EXPORT:
         /*
          * Yes; we already handle it, and don't allow a replacement to
-         * be registeted (if there's a bug in our code, or there's
+         * be registered (if there's a bug in our code, or there's
          * something we don't handle in that block, submit a change
          * to the main Wireshark source).
          */
@@ -313,6 +304,8 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_IRIG_TS:
     case BLOCK_TYPE_ARINC_429:
     case BLOCK_TYPE_SYSDIG_EVF:
+    case BLOCK_TYPE_SYSDIG_EVF_V2:
+    case BLOCK_TYPE_SYSDIG_EVF_V2_LARGE:
         /*
          * Yes, and we don't already handle it.  Allow a plugin to
          * handle it.
@@ -457,6 +450,7 @@ get_block_type_index(guint block_type, guint *bt_index)
 
         case BLOCK_TYPE_SYSDIG_EVENT:
         case BLOCK_TYPE_SYSDIG_EVENT_V2:
+        case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
         /* case BLOCK_TYPE_SYSDIG_EVF: */
             *bt_index = BT_INDEX_EVT;
             break;
@@ -511,7 +505,7 @@ register_pcapng_option_handler(guint block_type, guint option_code,
                         GUINT_TO_POINTER(option_code), handler);
 }
 
-static void
+void
 pcapng_process_uint8_option(wtapng_block_t *wblock,
                             guint16 option_code, guint16 option_length,
                             const guint8 *option_content)
@@ -526,24 +520,67 @@ pcapng_process_uint8_option(wtapng_block_t *wblock,
     }
 }
 
-static void
+void
 pcapng_process_uint32_option(wtapng_block_t *wblock,
-                            guint16 option_code, guint16 option_length,
-                            guint32 option_content)
+                             const section_info_t *section_info,
+                             pcapng_opt_byte_order_e byte_order,
+                             guint16 option_code, guint16 option_length,
+                             const guint8 *option_content)
 {
+    guint32 uint32;
+
     if (option_length == 4) {
+        /*  Don't cast a guint8 * into a guint32 *--the
+         *  guint8 * may not point to something that's
+         *  aligned correctly.
+         *
+         * XXX - options are aligned on 32-bit boundaries, so, while
+         * it may be true that 64-bit options aren't guaranteed to be
+         * aligned on 64-bit bounaries, it shouldn't be true that 32-bit
+         * options aren't guaranteed to be aligned on 32-bit boundaries.
+         */
+        memcpy(&uint32, option_content, sizeof(guint32));
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                uint32 = GUINT32_SWAP_LE_BE(uint32);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            uint32 = GUINT32_FROM_BE(uint32);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
+            uint32 = GUINT32_FROM_LE(uint32);
+            break;
+
+        default:
+            /*
+             * This should not happen - this is called by pcapng_process_options(),
+             * which returns an error for an invalid byte_order argument, and
+             * otherwise passes the known-to-be-valid byte_order argument to
+             * us.
+             *
+             * Just ignore the option.
+             */
+            return;
+        }
+
         /*
          * If this option can appear only once in a block, this call
          * will fail on the second and later occurrences of the option;
          * we silently ignore the failure.
          */
-        wtap_block_add_uint32_option(wblock->block, option_code, option_content);
+        wtap_block_add_uint32_option(wblock->block, option_code, uint32);
     }
 }
 
-static void
+void
 pcapng_process_timestamp_option(wtapng_block_t *wblock,
                                 const section_info_t *section_info,
+                                pcapng_opt_byte_order_e byte_order,
                                 guint16 option_code, guint16 option_length,
                                 const guint8 *option_content)
 {
@@ -557,9 +594,35 @@ pcapng_process_timestamp_option(wtapng_block_t *wblock,
          */
         memcpy(&high, option_content, sizeof(guint32));
         memcpy(&low, option_content + sizeof(guint32), sizeof(guint32));
-        if (section_info->byte_swapped) {
-            high = GUINT32_SWAP_LE_BE(high);
-            low = GUINT32_SWAP_LE_BE(low);
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                high = GUINT32_SWAP_LE_BE(high);
+                low = GUINT32_SWAP_LE_BE(low);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            high = GUINT32_FROM_BE(high);
+            low = GUINT32_FROM_BE(low);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
+            high = GUINT32_FROM_LE(high);
+            low = GUINT32_FROM_LE(low);
+            break;
+
+        default:
+            /*
+             * This should not happen - this is called by pcapng_process_options(),
+             * which returns an error for an invalid byte_order argument, and
+             * otherwise passes the known-to-be-valid byte_order argument to
+             * us.
+             *
+             * Just ignore the option.
+             */
+            return;
         }
         timestamp = (guint64)high;
         timestamp <<= 32;
@@ -573,9 +636,10 @@ pcapng_process_timestamp_option(wtapng_block_t *wblock,
     }
 }
 
-static void
+void
 pcapng_process_uint64_option(wtapng_block_t *wblock,
                              const section_info_t *section_info,
+                             pcapng_opt_byte_order_e byte_order,
                              guint16 option_code, guint16 option_length,
                              const guint8 *option_content)
 {
@@ -587,8 +651,34 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
          *  aligned correctly.
          */
         memcpy(&uint64, option_content, sizeof(guint64));
-        if (section_info->byte_swapped)
-            uint64 = GUINT64_SWAP_LE_BE(uint64);
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                uint64 = GUINT64_SWAP_LE_BE(uint64);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            uint64 = GUINT64_FROM_BE(uint64);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
+            uint64 = GUINT64_FROM_LE(uint64);
+            break;
+
+        default:
+            /*
+             * This should not happen - this is called by pcapng_process_options(),
+             * which returns an error for an invalid byte_order argument, and
+             * otherwise passes the known-to-be-valid byte_order argument to
+             * us.
+             *
+             * Just ignore the option.
+             */
+            return;
+        }
+
         /*
          * If this option can appear only once in a block, this call
          * will fail on the second and later occurrences of the option;
@@ -598,28 +688,112 @@ pcapng_process_uint64_option(wtapng_block_t *wblock,
     }
 }
 
-static void
+void
 pcapng_process_string_option(wtapng_block_t *wblock, guint16 option_code,
                              guint16 option_length, const guint8 *option_content)
 {
     wtap_block_add_string_option(wblock->block, option_code, (const char *)option_content, option_length);
 }
 
-static void
+void
 pcapng_process_bytes_option(wtapng_block_t *wblock, guint16 option_code,
-                             guint16 option_length, const guint8 *option_content)
+                            guint16 option_length, const guint8 *option_content)
 {
     wtap_block_add_bytes_option(wblock->block, option_code, (const char *)option_content, option_length);
 }
 
 static gboolean
+pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
+                                  section_info_t *section_info,
+                                  const guint8 *value, guint16 length)
+{
+    struct nflx_dumpinfo dumpinfo;
+    guint32 type, version;
+    gint64 dumptime, temp;
+
+    if (length < 4) {
+        ws_debug("Length = %u too small", length);
+        return FALSE;
+    }
+    memcpy(&type, value, sizeof(guint32));
+    type = GUINT32_FROM_LE(type);
+    value += 4;
+    length -= 4;
+    ws_debug("Handling type = %u, payload of length = %u", type, length);
+    switch (type) {
+    case NFLX_OPT_TYPE_VERSION:
+        if (length == sizeof(guint32)) {
+            memcpy(&version, value, sizeof(guint32));
+            version = GUINT32_FROM_LE(version);
+            ws_debug("BBLog version: %u", version);
+            section_info->bblog_version = version;
+        } else {
+            ws_debug("BBLog version parameter has strange length: %u", length);
+        }
+        break;
+    case NFLX_OPT_TYPE_TCPINFO:
+        ws_debug("BBLog tcpinfo of length: %u", length);
+        if (wblock->type == BLOCK_TYPE_CB_COPY) {
+            ws_buffer_assure_space(wblock->frame_buffer, length);
+            wblock->rec->rec_header.custom_block_header.length = length + 4;
+            memcpy(ws_buffer_start_ptr(wblock->frame_buffer), value, length);
+            memcpy(&temp, value, sizeof(guint64));
+            temp = GUINT64_FROM_LE(temp);
+            wblock->rec->ts.secs = section_info->bblog_offset_tv_sec + temp;
+            memcpy(&temp, value + sizeof(guint64), sizeof(guint64));
+            temp = GUINT64_FROM_LE(temp);
+            wblock->rec->ts.nsecs = (guint32)(section_info->bblog_offset_tv_usec + temp) * 1000;
+            if (wblock->rec->ts.nsecs >= 1000000000) {
+                wblock->rec->ts.secs += 1;
+                wblock->rec->ts.nsecs -= 1000000000;
+            }
+            wblock->rec->presence_flags = WTAP_HAS_TS;
+            wblock->internal = FALSE;
+        }
+        break;
+    case NFLX_OPT_TYPE_DUMPINFO:
+        if (length == sizeof(struct nflx_dumpinfo)) {
+            memcpy(&dumpinfo, value, sizeof(struct nflx_dumpinfo));
+            section_info->bblog_offset_tv_sec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_sec);
+            section_info->bblog_offset_tv_usec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_usec);
+            ws_debug("BBLog dumpinfo time offset: %" G_GUINT64_FORMAT, section_info->bblog_offset_tv_sec);
+        } else {
+            ws_debug("BBLog dumpinfo parameter has strange length: %u", length);
+        }
+        break;
+    case NFLX_OPT_TYPE_DUMPTIME:
+        if (length == sizeof(gint64)) {
+            memcpy(&dumptime, value, sizeof(gint64));
+            dumptime = GINT64_FROM_LE(dumptime);
+            ws_debug("BBLog dumpinfo time offset: %" G_GUINT64_FORMAT, dumptime);
+        } else {
+            ws_debug("BBLog dumptime parameter has strange length: %u", length);
+        }
+        break;
+    case NFLX_OPT_TYPE_STACKNAME:
+        if (length >= 2) {
+            ws_debug("BBLog stack name: %.*s(%u)", length - 1, value + 1, *(guint8 *)value);
+        } else {
+            ws_debug("BBLog stack name has strange length: %u)", length);
+        }
+        break;
+    default:
+        ws_debug("Unknown type: %u, length: %u", type, length);
+        break;
+    }
+    return wtap_block_add_nflx_custom_option(wblock->block, type, value, length) == WTAP_OPTTYPE_SUCCESS;
+}
+
+static gboolean
 pcapng_process_custom_option(wtapng_block_t *wblock,
-                             const section_info_t *section_info,
+                             section_info_t *section_info,
                              guint16 option_code, guint16 option_length,
                              const guint8 *option_content,
+                             pcapng_opt_byte_order_e byte_order,
                              int *err, gchar **err_info)
 {
     guint32 pen;
+    gboolean ret;
 
     if (option_length < 4) {
         *err = WTAP_ERR_BAD_FILE;
@@ -628,18 +802,45 @@ pcapng_process_custom_option(wtapng_block_t *wblock,
         return FALSE;
     }
     memcpy(&pen, option_content, sizeof(guint32));
-    if (section_info->byte_swapped) {
-        pen = GUINT32_SWAP_LE_BE(pen);
-    }
-    switch (pen) {
-    default:
-        ws_debug("Custom option type 0x%04x with unknown pen %u with custom data of length %u", option_code, pen, option_length - 4);
-        if (wtap_block_add_custom_option(wblock->block, option_code, pen, option_content + 4, option_length - 4) != WTAP_OPTTYPE_SUCCESS) {
-            return FALSE;
+    switch (byte_order) {
+
+    case OPT_SECTION_BYTE_ORDER:
+        if (section_info->byte_swapped) {
+            pen = GUINT32_SWAP_LE_BE(pen);
         }
         break;
+
+    case OPT_BIG_ENDIAN:
+        pen = GUINT32_FROM_BE(pen);
+        break;
+
+    case OPT_LITTLE_ENDIAN:
+        pen = GUINT32_FROM_LE(pen);
+        break;
+
+    default:
+        /*
+         * This should not happen - this is called by pcapng_process_options(),
+         * which returns an error for an invalid byte_order argument, and
+         * otherwise passes the known-to-be-valid byte_order argument to
+         * us.
+         */
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = g_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_custom_option()",
+                                    byte_order);
+        return FALSE;
     }
-    return TRUE;
+    switch (pen) {
+    case PEN_NFLX:
+        ret = pcapng_process_nflx_custom_option(wblock, section_info, option_content + 4, option_length - 4);
+        break;
+    default:
+        ret = wtap_block_add_custom_option(wblock->block, option_code, pen, option_content + 4, option_length - 4) == WTAP_OPTTYPE_SUCCESS;
+        ws_debug("Custom option type 0x%04x with unknown pen %u with custom data of length %u", option_code, pen, option_length - 4);
+        break;
+    }
+    ws_debug("returning %d", ret);
+    return ret;
 }
 
 #ifdef HAVE_PLUGINS
@@ -680,15 +881,16 @@ pcapng_process_unhandled_option(wtapng_block_t *wblock _U_,
 }
 #endif
 
-static gboolean
+gboolean
 pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
-                       const section_info_t *section_info,
+                       section_info_t *section_info,
                        guint opt_cont_buf_len,
                        gboolean (*process_option)(wtapng_block_t *,
                                                   const section_info_t *,
                                                   guint16, guint16,
                                                   const guint8 *,
                                                   int *, gchar **),
+                       pcapng_opt_byte_order_e byte_order,
                        int *err, gchar **err_info)
 {
     guint8 *option_content; /* Allocate as large as the options block */
@@ -738,9 +940,31 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
         }
         option_code = oh->option_code;
         option_length = oh->option_length;
-        if (section_info->byte_swapped) {
-            option_code = GUINT16_SWAP_LE_BE(option_code);
-            option_length = GUINT16_SWAP_LE_BE(option_length);
+        switch (byte_order) {
+
+        case OPT_SECTION_BYTE_ORDER:
+            if (section_info->byte_swapped) {
+                option_code = GUINT16_SWAP_LE_BE(option_code);
+                option_length = GUINT16_SWAP_LE_BE(option_length);
+            }
+            break;
+
+        case OPT_BIG_ENDIAN:
+            option_code = GUINT16_FROM_BE(option_code);
+            option_length = GUINT16_FROM_BE(option_length);
+            break;
+
+        case OPT_LITTLE_ENDIAN:
+            option_code = GUINT16_FROM_LE(option_code);
+            option_length = GUINT16_FROM_LE(option_length);
+            break;
+
+        default:
+            /* Don't do that. */
+            *err = WTAP_ERR_INTERNAL;
+            *err_info = g_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_options()",
+                                        byte_order);
+            return FALSE;
         }
         option_ptr += sizeof (*oh); /* 4 bytes, so it remains aligned */
         opt_bytes_remaining -= sizeof (*oh);
@@ -776,6 +1000,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 if (!pcapng_process_custom_option(wblock, section_info,
                                                   option_code, option_length,
                                                   option_ptr,
+                                                  byte_order,
                                                   err, err_info)) {
                     g_free(option_content);
                     return FALSE;
@@ -783,7 +1008,8 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                 break;
 
             default:
-                if (!(*process_option)(wblock, section_info, option_code,
+                if (process_option == NULL ||
+                    !(*process_option)(wblock, (const section_info_t *)section_info, option_code,
                                        option_length, option_ptr,
                                        err, err_info)) {
                     g_free(option_content);
@@ -995,7 +1221,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     opt_cont_buf_len = bh->block_total_length - MIN_SHB_SIZE;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_section_header_block_option,
-                                err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return PCAPNG_BLOCK_ERROR;
 
     /*
@@ -1043,8 +1269,10 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
                                          option_content);
             break;
         case(OPT_IDB_SPEED): /* if_speed */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_IDB_TSRESOL): /* if_tsresol */
             pcapng_process_uint8_option(wblock, option_code, option_length,
@@ -1190,7 +1418,7 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
 /* "Interface Description Block" */
 static gboolean
 pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
-                           const section_info_t *section_info,
+                           section_info_t *section_info,
                            wtapng_block_t *wblock, int *err, gchar **err_info)
 {
     guint64 time_units_per_second = 1000000; /* default = 10^6 */
@@ -1258,7 +1486,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     opt_cont_buf_len = bh->block_total_length - MIN_IDB_SIZE;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_if_descr_block_option,
-                                err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     /*
@@ -1414,8 +1642,8 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                                    const guint8 *option_content,
                                    int *err, gchar **err_info)
 {
-    guint32 tmp32;
     guint64 tmp64;
+    packet_verdict_opt_t packet_verdict;
 
     /*
      * Handle option content.
@@ -1443,15 +1671,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            /*  Don't cast a guint8 * into a guint32 *--the
-             *  guint8 * may not point to something that's
-             *  aligned correctly.
-             */
-            memcpy(&tmp32, option_content, sizeof(guint32));
-            if (section_info->byte_swapped)
-                tmp32 = GUINT32_SWAP_LE_BE(tmp32);
-            pcapng_process_uint32_option(wblock, option_code, option_length, tmp32);
-            ws_debug("pack_flags 0x%08x", tmp32);
+            pcapng_process_uint32_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_HASH):
             ws_debug("epb_hash %u currently not handled - ignoring %u bytes",
@@ -1465,7 +1688,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            pcapng_process_uint64_option(wblock, section_info, option_code, option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_PACKETID):
             if (option_length != 8) {
@@ -1475,7 +1701,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            pcapng_process_uint64_option(wblock, section_info, option_code, option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_QUEUE):
             if (option_length != 4) {
@@ -1485,15 +1714,10 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 /* XXX - free anything? */
                 return FALSE;
             }
-            /*  Don't cast a guint8 * into a guint32 *--the
-             *  guint8 * may not point to something that's
-             *  aligned correctly.
-             */
-            memcpy(&tmp32, option_content, sizeof(guint32));
-            if (section_info->byte_swapped)
-                tmp32 = GUINT32_SWAP_LE_BE(tmp32);
-            pcapng_process_uint32_option(wblock, option_code, option_length, tmp32);
-            ws_debug("queue %u", tmp32);
+            pcapng_process_uint32_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_EPB_VERDICT):
             if (option_length < 1) {
@@ -1506,7 +1730,11 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
             switch (option_content[0]) {
 
                 case(OPT_VERDICT_TYPE_HW):
-                    /* No byte swapping needed */
+                    packet_verdict.type = packet_verdict_hardware;
+                    packet_verdict.data.verdict_bytes =
+                        g_byte_array_new_take((guint8 *)g_memdup2(&option_content[1],
+                                                                  option_length - 1),
+                                              option_length - 1);
                     break;
 
                 case(OPT_VERDICT_TYPE_TC):
@@ -1517,11 +1745,15 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                         /* XXX - free anything? */
                         return FALSE;
                     }
-                    if (section_info->byte_swapped) {
-                        memcpy(&tmp64, option_content + 1, sizeof(tmp64));
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
+                     */
+                    memcpy(&tmp64, &option_content[1], sizeof(guint64));
+                    if (section_info->byte_swapped)
                         tmp64 = GUINT64_SWAP_LE_BE(tmp64);
-                        memcpy((void *)(option_content + 1), &tmp64, sizeof(tmp64));
-                    }
+                    packet_verdict.type = packet_verdict_linux_ebpf_tc;
+                    packet_verdict.data.verdict_linux_ebpf_tc = tmp64;
                     break;
 
                 case(OPT_VERDICT_TYPE_XDP):
@@ -1532,24 +1764,32 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                         /* XXX - free anything? */
                         return FALSE;
                     }
-                    if (section_info->byte_swapped) {
-                        memcpy(&tmp64, option_content + 1, sizeof(tmp64));
+                    /*  Don't cast a guint8 * into a guint64 *--the
+                     *  guint8 * may not point to something that's
+                     *  aligned correctly.
+                     */
+                    memcpy(&tmp64, &option_content[1], sizeof(guint64));
+                    if (section_info->byte_swapped)
                         tmp64 = GUINT64_SWAP_LE_BE(tmp64);
-                        memcpy((void*)(option_content + 1), &tmp64, sizeof(tmp64));
-                    }
+                    packet_verdict.type = packet_verdict_linux_ebpf_xdp;
+                    packet_verdict.data.verdict_linux_ebpf_xdp = tmp64;
                     break;
 
                 default:
                     /* Silently ignore unknown verdict types */
                     return TRUE;
             }
-            pcapng_process_bytes_option(wblock, option_code, option_length, (void*)option_content);
+            wtap_block_add_packet_verdict_option(wblock->block, option_code, &packet_verdict);
+            wtap_packet_verdict_free(&packet_verdict);
             ws_debug("verdict type %u, data len %u",
                      option_content[0], option_length - 1);
             break;
         default:
-            ws_debug("unknown option %u - ignoring %u bytes",
-                     option_code, option_length);
+            if (!pcapng_process_unhandled_option(wblock, BT_INDEX_PBS,
+                                                 section_info, option_code,
+                                                 option_length, option_content,
+                                                 err, err_info))
+                return FALSE;
             break;
     }
     return TRUE;
@@ -1557,7 +1797,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
 
 static gboolean
 pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
-                         const section_info_t *section_info,
+                         section_info_t *section_info,
                          wtapng_block_t *wblock,
                          int *err, gchar **err_info, gboolean enhanced)
 {
@@ -1669,7 +1909,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of EPB is too small for %u bytes of packet data",
+            *err_info = g_strdup_printf("pcapng: total block length %u of an EPB is too small for %u bytes of packet data",
                                         bh->block_total_length, packet.cap_len);
             return FALSE;
         }
@@ -1680,7 +1920,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of PB is too small for %u bytes of packet data",
+            *err_info = g_strdup_printf("pcapng: total block length %u of a PB is too small for %u bytes of packet data",
                                         bh->block_total_length, packet.cap_len);
             return FALSE;
         }
@@ -1763,7 +2003,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         (int)sizeof(bh->block_total_length);
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_packet_block_option,
-                                err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     /*
@@ -1877,7 +2117,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
          * not a *minimum* length.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of PB is too small for %u bytes of packet data",
+        *err_info = g_strdup_printf("pcapng: total block length %u of an SPB is too small for %u bytes of packet data",
                                     bh->block_total_length, simple_packet.packet_len);
         return FALSE;
     }
@@ -2033,7 +2273,7 @@ pcapng_process_name_resolution_block_option(wtapng_block_t *wblock,
 static gboolean
 pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                                   pcapng_t *pn,
-                                  const section_info_t *section_info,
+                                  section_info_t *section_info,
                                   wtapng_block_t *wblock,
                                   int *err, gchar **err_info)
 {
@@ -2246,7 +2486,6 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
         }
     }
 
-
 read_options:
     to_read -= block_read;
 
@@ -2254,7 +2493,7 @@ read_options:
     opt_cont_buf_len = to_read;
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_name_resolution_block_option,
-                                err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     ws_buffer_free(&nrb_rec);
@@ -2294,32 +2533,46 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
      */
     switch (option_code) {
         case(OPT_ISB_STARTTIME): /* isb_starttime */
-            pcapng_process_timestamp_option(wblock, section_info, option_code,
-                                            option_length, option_content);
+            pcapng_process_timestamp_option(wblock, section_info,
+                                            OPT_SECTION_BYTE_ORDER,
+                                            option_code, option_length,
+                                            option_content);
             break;
         case(OPT_ISB_ENDTIME): /* isb_endtime */
-            pcapng_process_timestamp_option(wblock, section_info, option_code,
-                                            option_length, option_content);
+            pcapng_process_timestamp_option(wblock, section_info,
+                                            OPT_SECTION_BYTE_ORDER,
+                                            option_code, option_length,
+                                            option_content);
             break;
         case(OPT_ISB_IFRECV): /* isb_ifrecv */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_IFDROP): /* isb_ifdrop */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_FILTERACCEPT): /* isb_filteraccept 6 */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_OSDROP): /* isb_osdrop 7 */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         case(OPT_ISB_USRDELIV): /* isb_usrdeliv 8  */
-            pcapng_process_uint64_option(wblock, section_info, option_code,
-                                         option_length, option_content);
+            pcapng_process_uint64_option(wblock, section_info,
+                                         OPT_SECTION_BYTE_ORDER,
+                                         option_code, option_length,
+                                         option_content);
             break;
         default:
             if (!pcapng_process_unhandled_option(wblock, BT_INDEX_ISB,
@@ -2334,7 +2587,7 @@ pcapng_process_interface_statistics_block_option(wtapng_block_t *wblock,
 
 static gboolean
 pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
-                                       const section_info_t *section_info,
+                                       section_info_t *section_info,
                                        wtapng_block_t *wblock,
                                        int *err, gchar **err_info)
 {
@@ -2350,7 +2603,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of an ISB is too small (< %u)",
                                     bh->block_total_length, MIN_ISB_SIZE);
         return FALSE;
     }
@@ -2386,13 +2639,97 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
         (MIN_BLOCK_SIZE + (guint)sizeof isb);    /* fixed and variable part, including padding */
     if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
                                 pcapng_process_interface_statistics_block_option,
-                                err, err_info))
+                                OPT_SECTION_BYTE_ORDER, err, err_info))
         return FALSE;
 
     /*
      * We don't return these to the caller in pcapng_read().
      */
     wblock->internal = TRUE;
+
+    return TRUE;
+}
+
+#define NFLX_BLOCK_TYPE_EVENT   1
+#define NFLX_BLOCK_TYPE_SKIP    2
+
+typedef struct pcapng_nflx_custom_block_s {
+    guint32 nflx_type;
+} pcapng_nflx_custom_block_t;
+
+#define MIN_NFLX_CB_SIZE ((guint32)(MIN_CB_SIZE + sizeof(pcapng_nflx_custom_block_t)))
+
+static gboolean
+pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
+                              section_info_t *section_info,
+                              wtapng_block_t *wblock,
+                              int *err, gchar **err_info)
+{
+    pcapng_nflx_custom_block_t nflx_cb;
+    guint opt_cont_buf_len;
+    guint32 type, skipped;
+
+    if (bh->block_total_length < MIN_NFLX_CB_SIZE) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup_printf("pcapng: total block length %u of a Netflix CB is too small (< %u)",
+                                    bh->block_total_length, MIN_NFLX_CB_SIZE);
+        return FALSE;
+    }
+
+    wblock->rec->rec_type = REC_TYPE_CUSTOM_BLOCK;
+    wblock->rec->rec_header.custom_block_header.pen = PEN_NFLX;
+    /* "NFLX Custom Block" read fixed part */
+    if (!wtap_read_bytes(fh, &nflx_cb, sizeof nflx_cb, err, err_info)) {
+        ws_debug("Failed to read nflx type");
+        return FALSE;
+    }
+    type = GUINT32_FROM_LE(nflx_cb.nflx_type);
+    ws_debug("BBLog type: %u", type);
+    switch (type) {
+        case NFLX_BLOCK_TYPE_EVENT:
+            /*
+             * The fixed-length portion is MIN_NFLX_CB_SIZE bytes.
+             * We already know we have that much data in the block.
+             */
+            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_EVENT_BLOCK;
+            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE;
+            ws_debug("event");
+            break;
+        case NFLX_BLOCK_TYPE_SKIP:
+            /*
+             * The fixed-length portion is MIN_NFLX_CB_SIZE bytes plus a
+             * 32-bit value.
+             *
+             * Make sure we have that much data in the block.
+             */
+            if (bh->block_total_length < MIN_NFLX_CB_SIZE + (guint32)sizeof(guint32)) {
+                *err = WTAP_ERR_BAD_FILE;
+                *err_info = g_strdup_printf("pcapng: total block length %u of a Netflix skip CB is too small (< %u)",
+                                            bh->block_total_length,
+                                            MIN_NFLX_CB_SIZE + (guint32)sizeof(guint32));
+                return FALSE;
+            }
+            if (!wtap_read_bytes(fh, &skipped, sizeof(guint32), err, err_info)) {
+                ws_debug("Failed to read skipped");
+                return FALSE;
+            }
+            wblock->rec->presence_flags = 0;
+            wblock->rec->rec_header.custom_block_header.length = 4;
+            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type = BBLOG_TYPE_SKIPPED_BLOCK;
+            wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped = GUINT32_FROM_LE(skipped);
+            wblock->internal = FALSE;
+            opt_cont_buf_len = bh->block_total_length - MIN_NFLX_CB_SIZE - sizeof(guint32);
+            ws_debug("skipped: %u", wblock->rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+            break;
+        default:
+            ws_debug("Unknown type %u", type);
+            return FALSE;
+    }
+
+    /* Options */
+    if (!pcapng_process_options(fh, wblock, section_info, opt_cont_buf_len,
+                                NULL, OPT_LITTLE_ENDIAN, err, err_info))
+        return FALSE;
 
     return TRUE;
 }
@@ -2425,9 +2762,10 @@ pcapng_handle_generic_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->internal = FALSE;
     return TRUE;
 }
+
 static gboolean
 pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
-                         const section_info_t *section_info,
+                         section_info_t *section_info,
                          wtapng_block_t *wblock,
                          int *err, gchar **err_info)
 {
@@ -2440,10 +2778,12 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng_read_custom_block: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of a CB is too small (< %u)",
                                     bh->block_total_length, MIN_CB_SIZE);
         return FALSE;
     }
+
+    wblock->block = wtap_block_create(WTAP_BLOCK_CUSTOM);
 
     /* Custom block read fixed part */
     if (!wtap_read_bytes(fh, &cb, sizeof cb, err, err_info)) {
@@ -2458,12 +2798,20 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
     ws_debug("pen %u, custom data and option length %u", pen, bh->block_total_length - MIN_CB_SIZE);
 
     switch (pen) {
+        case PEN_NFLX:
+            if (!pcapng_read_nflx_custom_block(fh, bh, section_info, wblock, err, err_info))
+                return FALSE;
+            break;
         default:
             if (!pcapng_handle_generic_custom_block(fh, bh, pen, wblock, err, err_info)) {
                 return FALSE;
             }
             break;
     }
+
+    wblock->rec->block = wblock->block;
+    wblock->block = NULL;
+    wblock->internal = FALSE;
 
     return TRUE;
 }
@@ -2484,15 +2832,19 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     guint32 nparams = 0;
     guint min_event_size;
 
-    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
-        min_event_size = MIN_SYSDIG_EVENT_V2_SIZE;
-    } else {
-        min_event_size = MIN_SYSDIG_EVENT_SIZE;
+    switch (bh->block_type) {
+        case BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE:
+        case BLOCK_TYPE_SYSDIG_EVENT_V2:
+            min_event_size = MIN_SYSDIG_EVENT_V2_SIZE;
+            break;
+        default:
+            min_event_size = MIN_SYSDIG_EVENT_SIZE;
+            break;
     }
 
     if (bh->block_total_length < min_event_size) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of a Sysdig event block is too small (< %u)",
                                     bh->block_total_length, min_event_size);
         return FALSE;
     }
@@ -2522,7 +2874,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
         ws_debug("failed to read sysdig event type");
         return FALSE;
     }
-    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
+    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2 || bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE) {
         if (!wtap_read_bytes(fh, &nparams, sizeof nparams, err, err_info)) {
             ws_debug("failed to read sysdig number of parameters");
             return FALSE;
@@ -2544,6 +2896,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
         wblock->rec->rec_header.syscall_header.thread_id = GUINT64_SWAP_LE_BE(thread_id);
         wblock->rec->rec_header.syscall_header.event_len = GUINT32_SWAP_LE_BE(event_len);
         wblock->rec->rec_header.syscall_header.event_type = GUINT16_SWAP_LE_BE(event_type);
+        wblock->rec->rec_header.syscall_header.nparams = GUINT32_SWAP_LE_BE(nparams);
     } else {
         wblock->rec->rec_header.syscall_header.cpu_id = cpu_id;
         ts = wire_ts;
@@ -2584,7 +2937,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 
     if (bh->block_total_length < MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too small (< %u)",
+        *err_info = g_strdup_printf("pcapng: total block length %u of a systemd journal export block is too small (< %u)",
                                     bh->block_total_length, MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE);
         return FALSE;
     }
@@ -2664,7 +3017,6 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 
 static gboolean
 pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
-#
 #ifdef HAVE_PLUGINS
     const section_info_t *section_info,
 #else
@@ -2915,6 +3267,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                 break;
             case(BLOCK_TYPE_SYSDIG_EVENT):
             case(BLOCK_TYPE_SYSDIG_EVENT_V2):
+            case(BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE):
             /* case(BLOCK_TYPE_SYSDIG_EVF): */
                 if (!pcapng_read_sysdig_event_block(fh, &bh, section_info, wblock, err, err_info))
                     return FALSE;
@@ -3200,7 +3553,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
-
 /* classic wtap: read packet */
 static gboolean
 pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
@@ -3360,7 +3712,6 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     return TRUE;
 }
 
-
 /* classic wtap: seek to file position and read packet */
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
@@ -3431,7 +3782,6 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     wtap_block_unref(wblock.block);
     return TRUE;
 }
-
 
 /* classic wtap: close capture file */
 static void
@@ -3521,7 +3871,18 @@ static guint32 pcapng_compute_custom_option_size(wtap_optval_t *optval)
 {
     size_t size, pad;
 
-    size = optval->custom_opt.custom_data_len + sizeof(guint32);
+    /* PEN */
+    size = sizeof(guint32);
+    switch (optval->custom_opt.pen) {
+    case PEN_NFLX:
+        /* NFLX type */
+        size += sizeof(guint32);
+        size += optval->custom_opt.data.nflx_data.custom_data_len;
+        break;
+    default:
+        size += optval->custom_opt.data.generic_data.custom_data_len;
+        break;
+    }
     if (size > 65535) {
         size = 65535;
     }
@@ -3534,6 +3895,39 @@ static guint32 pcapng_compute_custom_option_size(wtap_optval_t *optval)
     size += pad;
 
     return (guint32)size;
+}
+
+static guint32 pcapng_compute_packet_verdict_option_size(wtap_optval_t *optval)
+{
+    packet_verdict_opt_t* verdict = &optval->packet_verdictval;
+    guint32 size;
+    guint32 pad;
+
+    switch (verdict->type) {
+
+    case packet_verdict_hardware:
+        size = verdict->data.verdict_bytes->len;
+        break;
+
+    case packet_verdict_linux_ebpf_tc:
+        size = 9;
+        break;
+
+    case packet_verdict_linux_ebpf_xdp:
+        size = 9;
+        break;
+
+    default:
+        size = 0;
+        break;
+    }
+    if ((size % 4)) {
+        pad = 4 - (size % 4);
+    } else {
+        pad = 0;
+    }
+    size += pad;
+    return size;
 }
 
 static gboolean
@@ -3782,6 +4176,7 @@ static gboolean pcapng_write_string_option(wtap_dumper *wdh, guint option_id, wt
     return TRUE;
 }
 
+#if 0
 static gboolean pcapng_write_bytes_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
     struct pcapng_option_header option_hdr;
@@ -3862,6 +4257,7 @@ static gboolean pcapng_write_ipv6_option(wtap_dumper *wdh, guint option_id, wtap
 
     return TRUE;
 }
+#endif
 
 static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
@@ -3957,13 +4353,28 @@ static gboolean pcapng_write_if_filter_option(wtap_dumper *wdh, guint option_id,
 static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
 {
     struct pcapng_option_header option_hdr;
+    gsize pad;
+    gsize size;
     const guint32 zero_pad = 0;
-    size_t pad;
+    guint32 pen, type;
+    gboolean use_little_endian;
 
     if ((option_id == OPT_CUSTOM_STR_NO_COPY) ||
         (option_id == OPT_CUSTOM_BIN_NO_COPY))
         return TRUE;
-    if (optval->custom_opt.custom_data_len + sizeof(guint32) > 65535) {
+    ws_debug("PEN %d", optval->custom_opt.pen);
+    switch (optval->custom_opt.pen) {
+    case PEN_NFLX:
+        size = sizeof(guint32) + sizeof(guint32) + optval->custom_opt.data.nflx_data.custom_data_len;
+        use_little_endian = optval->custom_opt.data.nflx_data.use_little_endian;
+        break;
+    default:
+        size = sizeof(guint32) + optval->custom_opt.data.generic_data.custom_data_len;
+        use_little_endian = false;
+        break;
+    }
+    ws_debug("use_little_endian %d", use_little_endian);
+    if (size > 65535) {
         /*
          * Too big to fit in the option.
          * Don't write anything.
@@ -3975,34 +4386,154 @@ static gboolean pcapng_write_custom_option(wtap_dumper *wdh, guint option_id, wt
 
     /* write option header */
     option_hdr.type         = (guint16)option_id;
-    option_hdr.value_length = (guint16)(optval->custom_opt.custom_data_len + sizeof(guint32));
+    option_hdr.value_length = (guint16)size;
+    if (use_little_endian) {
+        option_hdr.type = GUINT16_TO_LE(option_hdr.type);
+        option_hdr.value_length = GUINT16_TO_LE(option_hdr.value_length);
+    }
     if (!wtap_dump_file_write(wdh, &option_hdr, sizeof(struct pcapng_option_header), err))
         return FALSE;
     wdh->bytes_dumped += sizeof(struct pcapng_option_header);
 
     /* write PEN */
-    if (!wtap_dump_file_write(wdh, &optval->custom_opt.pen, sizeof(guint32), err))
+    pen = optval->custom_opt.pen;
+    if (use_little_endian) {
+        pen = GUINT32_TO_LE(pen);
+    }
+    if (!wtap_dump_file_write(wdh, &pen, sizeof(guint32), err))
         return FALSE;
     wdh->bytes_dumped += sizeof(guint32);
 
-    /* write custom data */
-    if (!wtap_dump_file_write(wdh, optval->custom_opt.custom_data, optval->custom_opt.custom_data_len, err))
-        return FALSE;
-    wdh->bytes_dumped += optval->custom_opt.custom_data_len;
+    switch (optval->custom_opt.pen) {
+    case PEN_NFLX:
+        /* write NFLX type */
+        type = GUINT32_TO_LE(optval->custom_opt.data.nflx_data.type);
+        ws_debug("type=%d", type);
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint32), err))
+            return FALSE;
+        wdh->bytes_dumped += sizeof(guint32);
+        /* write custom data */
+        if (!wtap_dump_file_write(wdh, optval->custom_opt.data.nflx_data.custom_data, optval->custom_opt.data.nflx_data.custom_data_len, err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += optval->custom_opt.data.nflx_data.custom_data_len;
+        break;
+    default:
+        /* write custom data */
+        if (!wtap_dump_file_write(wdh, optval->custom_opt.data.generic_data.custom_data, optval->custom_opt.data.generic_data.custom_data_len, err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += optval->custom_opt.data.generic_data.custom_data_len;
+        break;
+    }
 
     /* write padding (if any) */
-    if ((optval->custom_opt.custom_data_len % 4)) {
-        pad = 4 - (optval->custom_opt.custom_data_len % 4);
+    if (size % 4 != 0) {
+        pad = 4 - (size % 4);
     } else {
         pad = 0;
     }
     if (pad != 0) {
-        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err)) {
             return FALSE;
+        }
         wdh->bytes_dumped += pad;
     }
     ws_debug("Wrote custom option: type %u, length %u", option_hdr.type, option_hdr.value_length);
 
+    return TRUE;
+}
+
+static gboolean pcapng_write_packet_verdict_option(wtap_dumper *wdh, guint option_id, wtap_optval_t *optval, int *err)
+{
+    packet_verdict_opt_t* verdict = &optval->packet_verdictval;
+    struct pcapng_option_header option_hdr;
+    guint8 type;
+    size_t size;
+    const guint32 zero_pad = 0;
+    guint32 pad;
+
+    switch (verdict->type) {
+
+    case packet_verdict_hardware:
+        size = verdict->data.verdict_bytes->len;
+        if (size > 65535) {
+            /*
+             * Too big to fit in the option.
+             * Don't write anything.
+             *
+             * XXX - truncate it?  Report an error?
+             */
+            return TRUE;
+        }
+        option_hdr.type         = option_id;
+        option_hdr.value_length = (guint16)size;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+
+        type = packet_verdict_hardware;
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
+            return FALSE;
+        wdh->bytes_dumped += 1;
+
+        if (!wtap_dump_file_write(wdh, verdict->data.verdict_bytes->data, size,
+                                  err))
+            return FALSE;
+        wdh->bytes_dumped += size;
+        break;
+
+    case packet_verdict_linux_ebpf_tc:
+        size = 9;
+        option_hdr.type         = option_id;
+        option_hdr.value_length = (guint16)size;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+
+        type = packet_verdict_linux_ebpf_tc;
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
+            return FALSE;
+        wdh->bytes_dumped += 1;
+
+        if (!wtap_dump_file_write(wdh, &verdict->data.verdict_linux_ebpf_tc,
+                                  sizeof(guint64), err))
+            return FALSE;
+        wdh->bytes_dumped += 8;
+        break;
+
+    case packet_verdict_linux_ebpf_xdp:
+        size = 9;
+        option_hdr.type         = option_id;
+        option_hdr.value_length = (guint16)size;
+        if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+            return FALSE;
+        wdh->bytes_dumped += 4;
+
+        type = packet_verdict_linux_ebpf_xdp;
+        if (!wtap_dump_file_write(wdh, &type, sizeof(guint8), err))
+            return FALSE;
+        wdh->bytes_dumped += 1;
+
+        if (!wtap_dump_file_write(wdh, &verdict->data.verdict_linux_ebpf_xdp,
+                                  sizeof(guint64), err))
+            return FALSE;
+        wdh->bytes_dumped += 8;
+        break;
+
+    default:
+        /* Unknown - don't write it out. */
+        return TRUE;
+    }
+
+    /* write padding (if any) */
+    if ((size % 4)) {
+        pad = 4 - (size % 4);
+        if (!wtap_dump_file_write(wdh, &zero_pad, pad, err))
+            return FALSE;
+
+        wdh->bytes_dumped += pad;
+    }
     return TRUE;
 }
 
@@ -4036,8 +4567,9 @@ static gboolean write_block_option(wtap_block_t block, guint option_id, wtap_opt
          */
         break;
     default:
-        /* Block-type dependent; call the callback. */
-        if (!(*write_options->write_option)(write_options->wdh, block, option_id, option_type, optval, write_options->err))
+        /* Block-type dependent; call the callback, if we have one. */
+        if (write_options->write_option != NULL &&
+            !(*write_options->write_option)(write_options->wdh, block, option_id, option_type, optval, write_options->err))
             return FALSE;
         break;
     }
@@ -4128,8 +4660,8 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     wdh->bytes_dumped += sizeof shb;
 
     if (wdh_shb) {
+        /* Write options, if we have any */
         if (options_size != 0) {
-            /* Write options */
             if (!write_options(wdh, wdh_shb, write_wtap_shb_option, err))
                 return FALSE;
         }
@@ -4144,66 +4676,114 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
     return TRUE;
 }
 
-typedef struct pcapng_write_block_s
-{
-    wtap_dumper *wdh;
-    int *err;
-}
-pcapng_write_block_t;
-/* Helper function used in pcapng_write_enhanced_packet_block().
- * Meant to be generic enough to be used elsewhere too, but currently,
- * only WTAP_OPTTYPE_STRING and WTAP_OPTTYPE_BYTES are exercised (and thus tested).
- * This is a wtap_block_foreach_func.
+/* options defined in Section 2.5 (Options)
+ * Name           Code Length     Description
+ * opt_comment    1    variable   A UTF-8 string containing a comment that is associated to the current block.
+ *
+ * Enhanced Packet Block options
+ * epb_flags      2    4          A flags word containing link-layer information. A complete specification of
+ *                                the allowed flags can be found in Appendix A (Packet Block Flags Word).
+ * epb_hash       3    variable   This option contains a hash of the packet. The first byte specifies the hashing algorithm,
+ *                                while the following bytes contain the actual hash, whose size depends on the hashing algorithm,
+ *                                                                and hence from the value in the first bit. The hashing algorithm can be: 2s complement
+ *                                                                (algorithm byte = 0, size=XXX), XOR (algorithm byte = 1, size=XXX), CRC32 (algorithm byte = 2, size = 4),
+ *                                                                MD-5 (algorithm byte = 3, size=XXX), SHA-1 (algorithm byte = 4, size=XXX).
+ *                                                                The hash covers only the packet, not the header added by the capture driver:
+ *                                                                this gives the possibility to calculate it inside the network card.
+ *                                                                The hash allows easier comparison/merging of different capture files, and reliable data transfer between the
+ *                                                                data acquisition system and the capture library.
+ * epb_dropcount   4   8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system)
+ *                                between this packet and the preceding one.
+ * epb_packetid    5   8          The epb_packetid option is a 64-bit unsigned integer that
+ *                                uniquely identifies the packet.  If the same packet is seen
+ *                                by multiple interfaces and there is a way for the capture
+ *                                application to correlate them, the same epb_packetid value
+ *                                must be used.  An example could be a router that captures
+ *                                packets on all its interfaces in both directions.  When a
+ *                                packet hits interface A on ingress, an EPB entry gets
+ *                                created, TTL gets decremented, and right before it egresses
+ *                                on interface B another EPB entry gets created in the trace
+ *                                file.  In this case, two packets are in the capture file,
+ *                                which are not identical but the epb_packetid can be used to
+ *                                correlate them.
+ * epb_queue       6   4          The epb_queue option is a 32-bit unsigned integer that
+ *                                identifies on which queue of the interface the specific
+ *                                packet was received.
+ * epb_verdict     7   variable   The epb_verdict option stores a verdict of the packet.  The
+ *                                verdict indicates what would be done with the packet after
+ *                                processing it.  For example, a firewall could drop the
+ *                                packet.  This verdict can be set by various components, i.e.
+ *                                Hardware, Linux's eBPF TC or XDP framework, etc.  etc.  The
+ *                                first octet specifies the verdict type, while the following
+ *                                octets contain the actual verdict data, whose size depends on
+ *                                the verdict type, and hence from the value in the first
+ *                                octet.  The verdict type can be: Hardware (type octet = 0,
+ *                                size = variable), Linux_eBPF_TC (type octet = 1, size = 8
+ *                                (64-bit unsigned integer), value = TC_ACT_* as defined in the
+ *                                Linux pck_cls.h include), Linux_eBPF_XDP (type octet = 2,
+ *                                size = 8 (64-bit unsigned integer), value = xdp_action as
+ *                                defined in the Linux pbf.h include).
+ * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
  */
-static gboolean
-pcapng_write_option_cb(wtap_block_t block _U_, guint option_id _U_, wtap_opttype_e option_type, wtap_optval_t *option, void *user_data)
+static guint32
+compute_epb_option_size(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t* optval)
 {
-    pcapng_write_block_t* write_block = (pcapng_write_block_t*)user_data;
-    gboolean ok = TRUE;
+    guint32 size;
 
-    /* The functions below write their option type and length fields, and any needed padding. */
-    switch(option_type)
+    switch(option_id)
     {
-
-    case WTAP_OPTTYPE_UINT8:
-        ok = pcapng_write_uint8_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_FLAGS:
+        size = 4;
         break;
-
-    case WTAP_OPTTYPE_UINT32:
-        ok = pcapng_write_uint32_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_DROPCOUNT:
+        size = 8;
         break;
-
-    case WTAP_OPTTYPE_UINT64:
-        ok = pcapng_write_uint64_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_PACKETID:
+        size = 8;
         break;
-
-    case WTAP_OPTTYPE_IPv4:
-        // wtap_opttypes.h implies this is stored in network byte order
-        ok = pcapng_write_ipv4_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_QUEUE:
+        size = 4;
         break;
-
-    case WTAP_OPTTYPE_IPv6:
-        ok = pcapng_write_ipv6_option(write_block->wdh, option_id, option, write_block->err);
+    case OPT_EPB_VERDICT:
+        size = pcapng_compute_packet_verdict_option_size(optval);
         break;
-
-    case WTAP_OPTTYPE_STRING:
-        ok = pcapng_write_string_option(write_block->wdh, option_id, option, write_block->err);
-        break;
-
-    case WTAP_OPTTYPE_BYTES:
-        ok = pcapng_write_bytes_option(write_block->wdh, option_id, option, write_block->err);
-        break;
-
-    case WTAP_OPTTYPE_IF_FILTER:
-        ok = pcapng_write_if_filter_option(write_block->wdh, option_id, option, write_block->err);
-        break;
-
-    case WTAP_OPTTYPE_CUSTOM:
-        ok = pcapng_write_custom_option(write_block->wdh, option_id, option, write_block->err);
+    default:
+        /* Unknown options - size by datatype? */
+        size = 0;
         break;
     }
+    return size;
+}
 
-    return ok;
+static gboolean write_wtap_epb_option(wtap_dumper *wdh, wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *optval, int *err)
+{
+    switch(option_id)
+    {
+    case OPT_PKT_FLAGS:
+        if (!pcapng_write_uint32_option(wdh, OPT_EPB_FLAGS, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_DROPCOUNT:
+        if (!pcapng_write_uint64_option(wdh, OPT_EPB_DROPCOUNT, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_PACKETID:
+        if (!pcapng_write_uint64_option(wdh, OPT_EPB_PACKETID, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_QUEUE:
+        if (!pcapng_write_uint32_option(wdh, OPT_EPB_QUEUE, optval, err))
+            return FALSE;
+        break;
+    case OPT_PKT_VERDICT:
+        if (!pcapng_write_packet_verdict_option(wdh, OPT_EPB_QUEUE, optval,
+                                                err))
+        break;
+    default:
+        /* Unknown options - write by datatype? */
+        break;
+    }
+    return TRUE; /* success */
 }
 
 static gboolean
@@ -4213,19 +4793,14 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
     pcapng_block_header_t bh;
     pcapng_enhanced_packet_block_t epb;
+    guint32 options_size = 0;
     guint64 ts;
     const guint32 zero_pad = 0;
     guint32 pad_len;
     guint32 phdr_len;
-    gboolean have_options = FALSE;
     guint32 options_total_length = 0;
-    gsize options_len = 0;
     wtap_block_t int_data;
     wtapng_if_descr_mandatory_t *int_data_mand;
-    pcapng_write_block_t block_data;
-
-    block_data.wdh = wdh;
-    block_data.err = err;
 
     /* Don't write anything we're not willing to read. */
     if (rec->rec_header.packet_header.caplen > wtap_max_snaplen_for_encap(wdh->encap)) {
@@ -4239,24 +4814,15 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     } else {
         pad_len = 0;
     }
-    if (rec->block != NULL) {
-        // Remember to also add newly-supported option types to packet_block_options_supported
-        // below.
-        options_len = wtap_block_get_options_size_padded(rec->block);
-        if (options_len > 0) {
-            have_options = TRUE;
-            options_total_length += (guint32)options_len;
-        }
-    }
 
-    if (have_options) {
-        /* End-of options tag */
-        options_total_length += 4;
+    if (rec->block != NULL) {
+        /* Compute size of all the options */
+        options_size = compute_options_size(rec->block, compute_epb_option_size);
     }
 
     /* write (enhanced) packet block header */
     bh.block_type = BLOCK_TYPE_EPB;
-    bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_total_length + 4;
+    bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + rec->rec_header.packet_header.caplen + pad_len + options_total_length + options_size + 4;
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
         return FALSE;
@@ -4329,65 +4895,9 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
         wdh->bytes_dumped += pad_len;
     }
 
-    /* XXX - write (optional) block options */
-    /* options defined in Section 2.5 (Options)
-     * Name           Code  Length     Description
-     * opt_comment    1     variable   A UTF-8 string containing a comment that is associated to the current block.
-     * opt_custom     2988  variable   A UTF-8 string which can be copied.
-     * opt_custom     2989  variable   Binary octets which can be copied.
-     * opt_custom     19372 variable   A UTF-8 string which should not be copied.
-     * opt_custom     19373 variable   Binary octets which should not be copied.
-     * Enhanced Packet Block options
-     * epb_flags      2     4          A flags word containing link-layer information. A complete specification of
-     *                                 the allowed flags can be found in Appendix A (Packet Block Flags Word).
-     * epb_hash       3     variable   This option contains a hash of the packet. The first byte specifies the hashing algorithm,
-     *                                 while the following bytes contain the actual hash, whose size depends on the hashing algorithm,
-     *                                 and hence from the value in the first bit. The hashing algorithm can be: 2s complement
-     *                                 (algorithm byte = 0, size=XXX), XOR (algorithm byte = 1, size=XXX), CRC32 (algorithm byte = 2, size = 4),
-     *                                 MD-5 (algorithm byte = 3, size=XXX), SHA-1 (algorithm byte = 4, size=XXX).
-     *                                 The hash covers only the packet, not the header added by the capture driver:
-     *                                 this gives the possibility to calculate it inside the network card.
-     *                                 The hash allows easier comparison/merging of different capture files, and reliable data transfer between the
-     *                                 data acquisition system and the capture library.
-     * epb_dropcount   4    8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system)
-     *                                 between this packet and the preceding one.
-     * epb_packetid    5    8          The epb_packetid option is a 64-bit unsigned integer that
-     *                                 uniquely identifies the packet.  If the same packet is seen
-     *                                 by multiple interfaces and there is a way for the capture
-     *                                 application to correlate them, the same epb_packetid value
-     *                                 must be used.  An example could be a router that captures
-     *                                 packets on all its interfaces in both directions.  When a
-     *                                 packet hits interface A on ingress, an EPB entry gets
-     *                                 created, TTL gets decremented, and right before it egresses
-     *                                 on interface B another EPB entry gets created in the trace
-     *                                 file.  In this case, two packets are in the capture file,
-     *                                 which are not identical but the epb_packetid can be used to
-     *                                 correlate them.
-     * epb_queue       6    4          The epb_queue option is a 32-bit unsigned integer that
-     *                                 identifies on which queue of the interface the specific
-     *                                 packet was received.
-     * epb_verdict     7    variable   The epb_verdict option stores a verdict of the packet.  The
-     *                                 verdict indicates what would be done with the packet after
-     *                                 processing it.  For example, a firewall could drop the
-     *                                 packet.  This verdict can be set by various components, i.e.
-     *                                 Hardware, Linux's eBPF TC or XDP framework, etc.  etc.  The
-     *                                 first octet specifies the verdict type, while the following
-     *                                 octets contain the actual verdict data, whose size depends on
-     *                                 the verdict type, and hence from the value in the first
-     *                                 octet.  The verdict type can be: Hardware (type octet = 0,
-     *                                 size = variable), Linux_eBPF_TC (type octet = 1, size = 8
-     *                                 (64-bit unsigned integer), value = TC_ACT_* as defined in the
-     *                                 Linux pck_cls.h include), Linux_eBPF_XDP (type octet = 2,
-     *                                 size = 8 (64-bit unsigned integer), value = xdp_action as
-     *                                 defined in the Linux pbf.h include).
-     * opt_endofopt    0    0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
-     */
-    if (!wtap_block_foreach_option(rec->block, pcapng_write_option_cb, &block_data)) {
-        return FALSE;
-    }
-    /* Write end of options if we have options */
-    if (have_options) {
-        if (!pcapng_write_option_eofopt(wdh, err))
+    /* Write options, if we have any */
+    if (options_size != 0) {
+        if (!write_options(wdh, rec->block, write_wtap_epb_option, err))
             return FALSE;
     }
 
@@ -4409,7 +4919,7 @@ pcapng_write_sysdig_event_block(wtap_dumper *wdh, const wtap_rec *rec,
     guint32 pad_len;
 #if 0
     gboolean have_options = FALSE;
-    struct option option_hdr;
+    struct pcapng_option option_hdr;
     guint32 comment_len = 0, comment_pad_len = 0;
 #endif
     guint32 options_total_length = 0;
@@ -4591,9 +5101,9 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
     /* write block header */
     bh.block_type = BLOCK_TYPE_CB_COPY;
     bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(cb) + rec->rec_header.custom_block_header.length + pad_len + 4;
-    ws_debug("writing %u bytes, %u padded",
+    ws_debug("writing %u bytes, %u padded, PEN %u",
              rec->rec_header.custom_block_header.length,
-             bh.block_total_length);
+             bh.block_total_length, rec->rec_header.custom_block_header.pen);
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err)) {
         return FALSE;
     }
@@ -4605,6 +5115,7 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
         return FALSE;
     }
     wdh->bytes_dumped += sizeof cb;
+    ws_debug("wrote PEN = %u", cb.pen);
 
     /* write custom data */
     if (!wtap_dump_file_write(wdh, pd, rec->rec_header.custom_block_header.length, err)) {
@@ -4625,6 +5136,76 @@ pcapng_write_custom_block(wtap_dumper *wdh, const wtap_rec *rec,
                               sizeof bh.block_total_length, err)) {
         return FALSE;
     }
+    wdh->bytes_dumped += sizeof bh.block_total_length;
+
+    return TRUE;
+}
+
+static gboolean
+pcapng_write_bblog_block(wtap_dumper *wdh, const wtap_rec *rec,
+                         const guint8 *pd _U_, int *err)
+{
+    pcapng_block_header_t bh;
+    guint32 options_size = 0;
+    guint32 pen, skipped, type;
+
+    /* Compute size of all the options */
+    options_size = compute_options_size(rec->block, compute_epb_option_size);
+
+    /* write block header */
+    bh.block_type = BLOCK_TYPE_CB_COPY;
+    bh.block_total_length = (guint32)(sizeof(bh) + sizeof(guint32) + sizeof(guint32) + options_size + 4);
+    if (rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type == BBLOG_TYPE_SKIPPED_BLOCK) {
+        bh.block_total_length += (guint32)sizeof(guint32);
+    }
+    ws_debug("writing %u bytes, type %u",
+             bh.block_total_length, rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+    if (!wtap_dump_file_write(wdh, &bh, sizeof(bh), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof bh;
+
+    /* write PEN */
+    pen = PEN_NFLX;
+    if (!wtap_dump_file_write(wdh, &pen, sizeof(guint32), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof(guint32);
+    ws_debug("wrote PEN = %u", pen);
+
+    /* write type */
+    type = GUINT32_TO_LE(rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+    if (!wtap_dump_file_write(wdh, &type, sizeof(guint32), err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof(guint32);
+    ws_debug("wrote type = %u", rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type);
+
+    if (rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.type == BBLOG_TYPE_SKIPPED_BLOCK) {
+        skipped = GUINT32_TO_LE(rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+        if (!wtap_dump_file_write(wdh, &skipped, sizeof(guint32), err)) {
+            return FALSE;
+        }
+        wdh->bytes_dumped += sizeof(guint32);
+        ws_debug("wrote skipped = %u", rec->rec_header.custom_block_header.custom_data_header.nflx_custom_data_header.skipped);
+    }
+
+    /* Write options, if we have any */
+    if (options_size != 0) {
+        /*
+         * This block type supports only comments and custom options,
+         * so it doesn't need a callback.
+         */
+        if (!write_options(wdh, rec->block, NULL, err))
+            return FALSE;
+    }
+
+    /* write block footer */
+    if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+                              sizeof bh.block_total_length, err)) {
+        return FALSE;
+    }
+    wdh->bytes_dumped += sizeof bh.block_total_length;
 
     return TRUE;
 }
@@ -4734,7 +5315,7 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
         memcpy(*opt_ptrp, &option_hdr, 4);
         *opt_ptrp += 4;
 
-        memcpy(*opt_ptrp, optval, size);
+        memcpy(*opt_ptrp, optval->stringval, size);
         *opt_ptrp += size;
 
         if ((size % 4)) {
@@ -4752,7 +5333,7 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
     case OPT_CUSTOM_STR_COPY:
     case OPT_CUSTOM_BIN_COPY:
         /* Custom options don't consider pad bytes part of the length */
-        size = (guint32)(optval->custom_opt.custom_data_len + sizeof(guint32)) & 0xffff;
+        size = (guint32)(optval->custom_opt.data.generic_data.custom_data_len + sizeof(guint32)) & 0xffff;
         option_hdr.type         = (guint16)option_id;
         option_hdr.value_length = (guint16)size;
         memcpy(*opt_ptrp, &option_hdr, 4);
@@ -4761,8 +5342,8 @@ put_nrb_option(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_ty
         memcpy(*opt_ptrp, &optval->custom_opt.pen, sizeof(guint32));
         *opt_ptrp += sizeof(guint32);
 
-        memcpy(*opt_ptrp, optval->custom_opt.custom_data, size);
-        *opt_ptrp += size;
+        memcpy(*opt_ptrp, optval->custom_opt.data.generic_data.custom_data, optval->custom_opt.data.generic_data.custom_data_len);
+        *opt_ptrp += optval->custom_opt.data.generic_data.custom_data_len;
 
         if ((size % 4)) {
             pad = 4 - (size % 4);
@@ -4806,7 +5387,7 @@ put_nrb_options(wtap_dumper *wdh, guint8 *opt_ptr)
 {
     if (wdh->nrb_hdrs && wdh->nrb_hdrs->len > 0) {
         wtap_block_t nrb_hdr = g_array_index(wdh->nrb_hdrs, wtap_block_t, 0);
-        struct option option_hdr;
+        struct pcapng_option option_hdr;
 
         wtap_block_foreach_option(nrb_hdr, put_nrb_option, &opt_ptr);
 
@@ -4963,8 +5544,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             block_off += namelen;
             memset(block_data + block_off, 0, PADDING4(namelen));
             block_off += PADDING4(namelen);
-            ws_debug("added IPv4 record for %s",
-                     ipv4_hash_list_entry->name);
+            ws_debug("added IPv4 record for %s", ipv4_hash_list_entry->name);
 
             i++;
             ipv4_hash_list_entry = (hashipv4_t *)g_list_nth_data(wdh->addrinfo_lists->ipv4_addr_list, i);
@@ -5045,8 +5625,7 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, int *err)
             block_off += namelen;
             memset(block_data + block_off, 0, PADDING4(namelen));
             block_off += PADDING4(namelen);
-            ws_debug("added IPv6 record for %s",
-                     ipv6_hash_list_entry->name);
+            ws_debug("added IPv6 record for %s", ipv6_hash_list_entry->name);
 
             i++;
             ipv6_hash_list_entry = (hashipv6_t *)g_list_nth_data(wdh->addrinfo_lists->ipv6_addr_list, i);
@@ -5398,8 +5977,17 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
             break;
 
         case REC_TYPE_CUSTOM_BLOCK:
-            if (!pcapng_write_custom_block(wdh, rec, pd, err)) {
-                return FALSE;
+            switch (rec->rec_header.custom_block_header.pen) {
+            case PEN_NFLX:
+                if (!pcapng_write_bblog_block(wdh, rec, pd, err)) {
+                    return FALSE;
+                }
+                break;
+            default:
+                if (!pcapng_write_custom_block(wdh, rec, pd, err)) {
+                    return FALSE;
+                }
+                break;
             }
             break;
 
@@ -5411,7 +5999,6 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
     return TRUE;
 }
-
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
@@ -5447,7 +6034,6 @@ static gboolean pcapng_dump_finish(wtap_dumper *wdh, int *err,
     ws_debug("leaving function");
     return TRUE;
 }
-
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
@@ -5497,7 +6083,6 @@ pcapng_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 
     return TRUE;
 }
-
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */

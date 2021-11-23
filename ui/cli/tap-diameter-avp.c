@@ -198,7 +198,7 @@ diameteravp_draw(void *pds)
 {
 	diameteravp_t *ds = (diameteravp_t *)pds;
 	/* printing results */
-	printf("=== Diameter Summary ===\nrequset count:\t%u\nanswer count:\t%u\nreq/ans pairs:\t%u\n", ds->req_count, ds->ans_count, ds->paired_ans_count);
+	printf("=== Diameter Summary ===\nrequest count:\t%u\nanswer count:\t%u\nreq/ans pairs:\t%u\n", ds->req_count, ds->ans_count, ds->paired_ans_count);
 }
 
 

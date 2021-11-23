@@ -36,6 +36,7 @@
 #include "packet-x509ce.h"
 #include "packet-ber.h"
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/pint.h>
 
 void proto_register_dvbci(void);
 void proto_reg_handoff_dvbci(void);
@@ -3353,10 +3354,8 @@ static int exp_pdu_data_dvbci_size(packet_info *pinfo _U_, void* data _U_)
 
 static int exp_pdu_data_dvbci_populate_data(packet_info *pinfo, void* data, guint8 *tlv_buffer, guint32 buffer_size _U_)
 {
-  tlv_buffer[0] = 0;
-  tlv_buffer[1] = EXP_PDU_TAG_DVBCI_EVT;
-  tlv_buffer[2] = 0;
-  tlv_buffer[3] = EXP_PDU_TAG_DVBCI_EVT_LEN;
+  phton16(&tlv_buffer[0], EXP_PDU_TAG_DVBCI_EVT);
+  phton16(&tlv_buffer[2], EXP_PDU_TAG_DVBCI_EVT_LEN);
   tlv_buffer[4] = dvbci_get_evt_from_addrs(pinfo);
 
   return exp_pdu_data_dvbci_size(pinfo, data);

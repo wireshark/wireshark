@@ -2149,7 +2149,7 @@ dissect_batadv_icmp_rr(proto_tree *batadv_icmp_tree, tvbuff_t *tvb, int offset)
 	offset++;
 	for (i = 0; i < BAT_RR_LEN; i++) {
 		proto_tree_add_ether_format(field_tree, hf_batadv_icmp_rr_ether, tvb, offset, 6, tvb_get_ptr(tvb, offset, 6),
-				    "%s%s", (i > ptr) ? "-" : tvb_ether_to_str(tvb, offset),
+				    "%s%s", (i > ptr) ? "-" : tvb_ether_to_str(wmem_packet_scope(), tvb, offset),
 				    (i == ptr) ? " <- (current)" : "");
 
 		offset += 6;
@@ -2174,7 +2174,7 @@ dissect_batadv_icmp_rr_v15(proto_tree *batadv_icmp_tree, tvbuff_t *tvb,
 					    tvb, offset, 6,
 					    tvb_get_ptr(tvb, offset, 6),
 					    "%s%s",
-					    (i > ptr) ? "-" : tvb_ether_to_str(tvb, offset),
+					    (i > ptr) ? "-" : tvb_ether_to_str(wmem_packet_scope(), tvb, offset),
 					    (i == ptr) ? " <- (current)" : "");
 
 		offset += 6;

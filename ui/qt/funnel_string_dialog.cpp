@@ -17,11 +17,11 @@
 #include "wireshark_application.h"
 
 // Helper object used for sending close signal to open dialogs from a C function
-static FunnelStringDialogHelper dialogHelper;
+static FunnelStringDialogHelper dialog_helper_;
 
 const int min_edit_width_ = 20; // em widths
-FunnelStringDialog::FunnelStringDialog(const QString title, const QList<QPair<QString, QString>> field_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_data_free_cb) :
-    QDialog(NULL),
+FunnelStringDialog::FunnelStringDialog(QWidget *parent, const QString title, const QList<QPair<QString, QString>> field_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_data_free_cb) :
+    QDialog(parent),
     ui(new Ui::FunnelStringDialog),
     dialog_cb_(dialog_cb),
     dialog_cb_data_(dialog_cb_data),
@@ -85,10 +85,10 @@ void FunnelStringDialog::on_buttonBox_accepted()
     dialog_cb_(user_input, dialog_cb_data_);
 }
 
-void FunnelStringDialog::stringDialogNew(const QString title, QList<QPair<QString, QString>> field_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_cb_data_free)
+void FunnelStringDialog::stringDialogNew(QWidget *parent, const QString title, QList<QPair<QString, QString>> field_list, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_cb_data_free)
 {
-    FunnelStringDialog* fsd = new FunnelStringDialog(title, field_list, dialog_cb, dialog_cb_data, dialog_cb_data_free);
-    connect(&dialogHelper, SIGNAL(closeDialogs()), fsd, SLOT(close()));
+    FunnelStringDialog* fsd = new FunnelStringDialog(parent, title, field_list, dialog_cb, dialog_cb_data, dialog_cb_data_free);
+    connect(&dialog_helper_, &FunnelStringDialogHelper::closeDialogs, fsd, &FunnelStringDialog::close);
     fsd->show();
 }
 
@@ -97,22 +97,7 @@ void FunnelStringDialogHelper::emitCloseDialogs()
     emit closeDialogs();
 }
 
-void string_dialog_new(const gchar* title, const gchar** field_names, const gchar** field_values, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_cb_data_free)
-{
-    QList<QPair<QString, QString>> field_list;
-    for (int i = 0; field_names[i]; i++) {
-        QPair<QString, QString> field = QPair<QString, QString>(QString(field_names[i]), QString(""));
-        if (field_values != NULL && field_values[i])
-        {
-            field.second = QString(field_values[i]);
-        }
-
-        field_list << field;
-    }
-    FunnelStringDialog::stringDialogNew(title, field_list, dialog_cb, dialog_cb_data, dialog_cb_data_free);
-}
-
 void string_dialogs_close(void)
 {
-    dialogHelper.emitCloseDialogs();
+    dialog_helper_.emitCloseDialogs();
 }

@@ -302,7 +302,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     addr = tvb_get_ipv4(tvb, 4);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
                      val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
-                     get_hostname(addr), tvb_ip_to_str(tvb, 8));
+                     get_hostname(addr), tvb_ip_to_str(pinfo->pool, tvb, 8));
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       proto_tree_add_item(slarp_tree, hf_slarp_address, tvb, 4, 4, ENC_BIG_ENDIAN);

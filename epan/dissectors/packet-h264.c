@@ -246,6 +246,7 @@ static int ett_h264_ni_mtap                                = -1;
 
 static expert_field ei_h264_undecoded = EI_INIT;
 static expert_field ei_h264_ms_layout_wrong_length = EI_INIT;
+static expert_field ei_h264_oversized_exp_golomb_code = EI_INIT;
 static expert_field ei_h264_bad_nal_length = EI_INIT;
 static expert_field ei_h264_nal_unit_type_reserved = EI_INIT;
 static expert_field ei_h264_nal_unit_type_unspecified = EI_INIT;
@@ -536,6 +537,8 @@ static guint32
 dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint *start_bit_offset, h264_golomb_descriptors descriptor)
 /*(tvbuff_t *tvb, gint *start_bit_offset) */
 {
+    proto_item *ti;
+
     gint     leading_zero_bits, bit_offset, start_offset;
     guint32  codenum, mask, value, tmp;
     gint32   se_value = 0;
@@ -543,12 +546,23 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
     char    *str;
     int      bit;
     int      i;
+    gboolean overflow = FALSE;
     header_field_info *hf_field = NULL;
 
     start_offset = *start_bit_offset>>3;
 
     if (hf_index > -1)
         hf_field = proto_registrar_get_nth(hf_index);
+
+    switch (descriptor) {
+    case H264_SE_V:
+        DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_INT32);
+        break;
+
+    default:
+        DISSECTOR_ASSERT_FIELD_TYPE(hf_field, FT_UINT32);
+        break;
+    }
 
     bit_offset = *start_bit_offset;
 
@@ -581,6 +595,8 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
         bit_offset++;
     }
 
+    /* XXX: This could be handled in the general case and reduce code
+     * duplication. */
     if (leading_zero_bits == 0) {
         codenum = 0;
         *start_bit_offset = bit_offset;
@@ -672,19 +688,82 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
     where the value returned from read_bits( leadingZeroBits ) is interpreted as a binary representation of an unsigned
     integer with most significant bit written first.
     */
-    codenum = 1;
-    codenum = codenum << leading_zero_bits;
-    mask = codenum>>1;
-    if (leading_zero_bits > 32)
-        DISSECTOR_ASSERT_NOT_REACHED();
-    else if (leading_zero_bits > 16)
+    if (leading_zero_bits > 32) {
+        overflow = TRUE;
+        codenum = G_MAXUINT32;
+        if (descriptor == H264_SE_V) {
+            value = tvb_get_bits32(tvb, bit_offset + leading_zero_bits / 32, leading_zero_bits % 32, ENC_BIG_ENDIAN);
+            if (value % 1) {
+                se_value = G_MININT32;
+            } else {
+                se_value = G_MAXINT32;
+            }
+        }
+    } else if (leading_zero_bits == 32) {
         value = tvb_get_bits32(tvb, bit_offset, leading_zero_bits, ENC_BIG_ENDIAN);
-    else if (leading_zero_bits > 8)
-        value = tvb_get_bits16(tvb, bit_offset, leading_zero_bits, ENC_BIG_ENDIAN);
-    else
-        value = tvb_get_bits8(tvb, bit_offset, leading_zero_bits);
-    codenum = (codenum-1) + value;
+        codenum = G_MAXUINT32;
+        /* Only one value doesn't overflow a 32 bit integer, but they're
+         * different for unsigned and signed (because codenum G_MAXUINT32 maps
+         * to G_MAXINT32 + 1 and G_MAXUINT32 + 1 maps to G_MININT32.) */
+        if (descriptor == H264_SE_V) {
+            if (value != 1) {
+                overflow = TRUE;
+            }
+            if (value % 1) {
+                se_value = G_MININT32;
+            } else {
+                se_value = G_MAXINT32;
+            }
+        } else {
+            if (value != 0) {
+                overflow = TRUE;
+            }
+        }
+        mask = 1U << 31;
+    } else {
+        if (leading_zero_bits > 16)
+            value = tvb_get_bits32(tvb, bit_offset, leading_zero_bits, ENC_BIG_ENDIAN);
+        else if (leading_zero_bits > 8)
+            value = tvb_get_bits16(tvb, bit_offset, leading_zero_bits, ENC_BIG_ENDIAN);
+        else
+            value = tvb_get_bits8(tvb, bit_offset, leading_zero_bits);
+
+        codenum = 1;
+        codenum = codenum << leading_zero_bits;
+        mask = codenum>>1;
+        codenum = (codenum-1) + value;
+
+        if (descriptor == H264_SE_V) {
+            /* if the syntax element is coded as se(v),
+             * the value of the syntax element is derived by invoking the
+             * mapping process for signed Exp-Golomb codes as specified in
+             * subclause 9.1.1 with codeNum as the input.
+             *      k+1
+             * (-1)    Ceil( k/2 )
+             */
+            if (codenum & 1) {
+                se_value = (codenum + 1) >> 1;
+            } else {
+                se_value = 0 - (codenum >> 1);
+            }
+        }
+    }
+
     bit_offset = bit_offset + leading_zero_bits;
+
+    if (overflow) {
+        *start_bit_offset = bit_offset;
+        /* We will probably get a BoundsError later in the packet. */
+        if (descriptor == H264_SE_V) {
+            ti = proto_tree_add_int_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" G_GINT32_MODIFIER "d", leading_zero_bits, se_value);
+            expert_add_info(NULL, ti, &ei_h264_oversized_exp_golomb_code);
+            return se_value;
+        } else {
+            ti = proto_tree_add_uint_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" G_GINT32_MODIFIER "u", leading_zero_bits, codenum);
+            expert_add_info(NULL, ti, &ei_h264_oversized_exp_golomb_code);
+            return codenum;
+        }
+    }
 
     /* read the bits for the int */
     for (i=0; i<leading_zero_bits; i++) {
@@ -710,25 +789,6 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
         (void) g_strlcat(str,".", 256);
     }
 
-    switch (descriptor) {
-    case H264_SE_V:
-        /* if the syntax element is coded as se(v),
-         * the value of the syntax element is derived by invoking the
-         * mapping process for signed Exp-Golomb codes as specified in
-         * subclause 9.1.1 with codeNum as the input.
-         *      k+1
-         * (-1)    Ceil( k/2 )
-         */
-        if (codenum & 1) {
-            se_value = (codenum + 1) >> 1;
-        } else {
-            se_value = 0 - (codenum >> 1);
-        }
-        break;
-    default:
-        break;
-    }
-
     if (hf_field) {
         (void) g_strlcat(str," = ", 256);
         (void) g_strlcat(str, hf_field->name, 256);
@@ -744,7 +804,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
         default:
         break;
         }
-        if ((hf_field->type == FT_UINT32) && (descriptor == H264_UE_V)) {
+        if (descriptor == H264_UE_V) {
             if (hf_field->strings) {
                 proto_tree_add_uint_format(tree, hf_index, tvb, start_offset, 1, codenum,
                           "%s: %s (%u)",
@@ -770,7 +830,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
                         break;
                 }
             }
-        } else if ((hf_field->type == FT_INT32) && (descriptor == H264_SE_V)) {
+        } else if (descriptor == H264_SE_V) {
             if (hf_field->strings) {
                 proto_tree_add_int_format(tree, hf_index, tvb, start_offset, 1, codenum,
                           "%s: %s (%d)",
@@ -794,7 +854,6 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
             return se_value;
 
         } else {
-            /* Only allow guint32 */
             DISSECTOR_ASSERT_NOT_REACHED();
         }
     }
@@ -3673,6 +3732,7 @@ proto_register_h264(void)
     static ei_register_info ei[] = {
         { &ei_h264_undecoded, { "h264.undecoded", PI_UNDECODED, PI_WARN, "[Not decoded yet]", EXPFILL }},
         { &ei_h264_ms_layout_wrong_length, { "h264.ms_layout.wrong_length", PI_PROTOCOL, PI_WARN, "[Wrong Layer Description Table Length]", EXPFILL }},
+        { &ei_h264_oversized_exp_golomb_code, {"h264.oversized_exp_golomb_code", PI_MALFORMED, PI_ERROR, "Exponential Golomb encoded value greater than 32 bit integer, clamped", EXPFILL }},
         { &ei_h264_bad_nal_length, { "h264.bad_nalu_length", PI_MALFORMED, PI_ERROR, "[Bad NAL Unit Length]", EXPFILL }},
         { &ei_h264_nal_unit_type_reserved, { "h264.nal_unit_type.reserved", PI_PROTOCOL, PI_WARN, "Reserved NAL unit type", EXPFILL }},
         { &ei_h264_nal_unit_type_unspecified, { "h264.nal_unit_type.unspecified", PI_PROTOCOL, PI_WARN, "Unspecified NAL unit type", EXPFILL }},

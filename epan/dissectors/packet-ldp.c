@@ -1714,7 +1714,7 @@ dissect_tlv_path_vector(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_t
         proto_tree_add_ipv4_format(val_tree,
                                    hf_ldp_tlv_pv_lsrid, tvb, offset, 4,
                                    addr, "LSR Id %u: %s", ix,
-                                   tvb_ip_to_str(tvb, offset));
+                                   tvb_ip_to_str(pinfo->pool, tvb, offset));
     }
     if (rem)
         proto_tree_add_expert_format(tree, pinfo, &ei_ldp_tlv_fec_len, tvb, offset, rem, "Error processing TLV: Extra data at end of path vector");
@@ -3804,7 +3804,7 @@ proto_register_ldp(void)
             NULL, 0, NULL, HFILL }},
 
         { &hf_ldp_tlv_generic_label,
-          { "Generic Label", "ldp.msg.tlv.generic.label", FT_UINT32, BASE_HEX,
+          { "Generic Label", "ldp.msg.tlv.generic.label", FT_UINT32, BASE_DEC_HEX,
             NULL, 0x000FFFFF, NULL, HFILL }},
 
         { &hf_ldp_tlv_atm_label_vbits,

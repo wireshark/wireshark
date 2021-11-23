@@ -721,6 +721,10 @@
 <context>
     <name>ByteViewText</name>
     <message>
+        <source>Allow hover selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Show bytes as hexadecimal</source>
         <translation>16進数でバイト列を表示</translation>
     </message>
@@ -3645,6 +3649,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>ログのスケール</translation>
     </message>
     <message>
+        <source>Automatic Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset</source>
         <translation>リセット</translation>
     </message>
@@ -4325,10 +4333,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>どのようにデータがエンコードされたか</translation>
     </message>
     <message>
-        <source>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;推奨された正規表現:&lt;/small&gt;&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>encodingRegexExample</source>
         <translation>エンコード正規表現例</translation>
     </message>
@@ -4379,6 +4383,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>None</source>
         <translation>なし</translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
@@ -6395,8 +6403,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Tshark</translation>
     </message>
     <message>
-        <source>RawShark</source>
-        <translation>RawShark</translation>
+        <source>Rawshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -6411,8 +6419,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Mergecap</translation>
     </message>
     <message>
-        <source>Text2cap</source>
-        <translation>Text2cap</translation>
+        <source>Text2pcap</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Website</source>
@@ -7128,6 +7136,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>UCP message statistics</source>
         <translation>UCPメッセージ統計</translation>
+    </message>
+    <message>
+        <source>F1AP</source>
+        <translation>F1AP</translation>
+    </message>
+    <message>
+        <source>F1AP Messages</source>
+        <translation>F1AP メッセージ</translation>
+    </message>
+    <message>
+        <source>NGAP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NGAP Messages</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8220,8 +8244,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>削除 &quot;%1&quot;</translation>
     </message>
     <message>
+        <source>Delete packet comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>Delete comments from %n packet(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
+    </message>
+    <message>
+        <source> before reloading Lua plugins</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
@@ -8675,8 +8713,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>PacketCommentDialog</name>
     <message>
-        <source>Packet %1 Comment</source>
-        <translation>パケット %1 コメント</translation>
+        <source>Edit Packet Comment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Packet Comment</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12728,6 +12770,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>圧縮済</translation>
     </message>
     <message>
+        <source>Hex Digits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Quoted-Printable</source>
         <translation>節に分けて印刷可能</translation>
     </message>
@@ -12925,12 +12971,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>SyntaxLineEdit</name>
     <message>
-        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; は非推奨で &quot;%2&quot; が推奨されます。ユーザーズガイドを参照ください</translation>
+        <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; may have unexpected results. See the User&apos;s Guide.</source>
-        <translation>&quot;%1&quot; は予期せぬ結果となるかもしれません。ユーザーズガイドを参照ください</translation>
+        <source>%1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -133,7 +133,7 @@ void SCTPGraphByteDialog::drawGraph()
     ui->sctpPlot->clearGraphs();
     drawBytesGraph(selected_assoc);
     ui->sctpPlot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag | QCP::iSelectPlottables);
-    connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
+    connect(ui->sctpPlot, &QCustomPlot::plottableClick, this, &SCTPGraphByteDialog::graphClicked);
     ui->sctpPlot->replot();
 }
 
@@ -152,7 +152,7 @@ void SCTPGraphByteDialog::on_pushButton_4_clicked()
     ui->sctpPlot->replot();
 }
 
-void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, QMouseEvent* event)
+void SCTPGraphByteDialog::graphClicked(QCPAbstractPlottable* plottable, int, QMouseEvent* event)
 {
     if (plottable->name().contains(tr("Bytes"), Qt::CaseInsensitive)) {
         double bytes = ui->sctpPlot->yAxis->pixelToCoord(event->pos().y());

@@ -28,12 +28,20 @@ file_type_to_testout = {
     'pcapng': testout_pcapng,
 }
 
-encap_to_link_type = {
+encap_to_link_type_long = {
     'Ethernet': 1,
     'Raw IP': 14,
     'Linux cooked-mode capture v1': 113,
     'IEEE 802.11 plus radiotap radio header': 127,
     'DVB-CI (Common Interface)': 235,
+}
+
+encap_to_link_type = {
+    'ether': 1,
+    'rawip': 14,
+    'linux-sll': 113,
+    'ieee-802-11-radiotap': 127,
+    'dvbci': 235,
 }
 
 def check_capinfos_info(self, cap_file):
@@ -244,7 +252,7 @@ class case_text2pcap_pcapng(subprocesstest.SubprocessTestCase):
 def check_rawip(run_text2pcap_capinfos_tshark, request):
     def check_rawip_real(pdata, packets, datasize):
         self = request.instance
-        self.assertEqual({'encapsulation': 'Raw IPv4', 'packets': packets,
+        self.assertEqual({'encapsulation': 'rawip4', 'packets': packets,
             'datasize': datasize, 'expert': ''},
             run_text2pcap_capinfos_tshark(pdata, ("-l228",)))
     return check_rawip_real
@@ -266,7 +274,7 @@ class case_text2pcap_parsing(subprocesstest.SubprocessTestCase):
         ))
         self.assertFalse(self.grepOutput('Inconsistent offset'), 'text2pcap failed to parse the hash sign at the end of the line')
         self.assertTrue(self.grepOutput(r'Directive \[ test_directive'), 'text2pcap failed to parse #TEXT2PCAP test_directive')
-        pre_cmp_info = {'encapsulation': 'Ethernet', 'packets': 1, 'datasize': 96, 'timeend': '2015-10-01 21:16:24.317453000'}
+        pre_cmp_info = {'encapsulation': 'ether', 'packets': 1, 'datasize': 96, 'timeend': '2015-10-01 21:16:24.317453000'}
         post_cmp_info = check_capinfos_info(self, testout_file)
         compare_capinfos_info(self, pre_cmp_info, post_cmp_info, txt_fname, testout_pcap)
 
@@ -359,21 +367,21 @@ class case_text2pcap_headers(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_tcp(self, run_text2pcap_capinfos_tshark):
         '''Test TCP over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 60, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000: ff ff ff ff\n", ("-T", "1234,1234")))
 
     def test_text2pcap_udp(self, run_text2pcap_capinfos_tshark):
         '''Test UDP over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 60, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000: ff ff ff ff\n", ("-u", "1234,1234")))
 
     def test_text2pcap_sctp(self, run_text2pcap_capinfos_tshark):
         '''Test SCTP over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 70, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000   00 03 00 18 00 00 00 00 00 00 00 00 00 00 00 03\n" +
@@ -382,7 +390,7 @@ class case_text2pcap_headers(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_sctp_data(self, run_text2pcap_capinfos_tshark):
         '''Test SCTP DATA over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 70, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000: 01 00 03 03 00 00 00 08\n",
@@ -405,19 +413,19 @@ class case_text2pcap_ipv4(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_ipv4_tcp(self, run_text2pcap_ipv4):
         '''Test TCP over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 60, 'expert': ''},
             run_text2pcap_ipv4("0000: ff ff ff ff\n", ("-T", "1234,1234")))
 
     def test_text2pcap_ipv4_udp(self, run_text2pcap_ipv4):
         '''Test UDP over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 60, 'expert': ''},
             run_text2pcap_ipv4("0000: ff ff ff ff\n", ("-u", "1234,1234")))
 
     def test_text2pcap_ipv4_sctp(self, run_text2pcap_ipv4):
         '''Test SCTP over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 70, 'expert': ''},
             run_text2pcap_ipv4(
                 "0000   00 03 00 18 00 00 00 00 00 00 00 00 00 00 00 03\n" +
@@ -426,7 +434,7 @@ class case_text2pcap_ipv4(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_ipv4_sctp_data(self, run_text2pcap_ipv4):
         '''Test SCTP DATA over IPv4'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 70, 'expert': ''},
             run_text2pcap_ipv4("0000: 01 00 03 03 00 00 00 08\n",
                 ("-S", "2905,2905,3")))
@@ -462,21 +470,21 @@ class case_text2pcap_ipv6(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_ipv6_tcp(self, run_text2pcap_ipv6):
         '''Test TCP over IPv6'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 78, 'expert': '',
             'ipv6': {'plen': '24', 'plen_tree': None}},
             run_text2pcap_ipv6("0000: ff ff ff ff\n", ("-T", "1234,1234")))
 
     def test_text2pcap_ipv6_udp(self, run_text2pcap_ipv6):
         '''Test UDP over IPv6'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 66, 'expert': '',
             'ipv6': {'plen': '12', 'plen_tree': None}},
             run_text2pcap_ipv6("0000: ff ff ff ff\n", ("-u", "1234,1234")))
 
     def test_text2pcap_ipv6_sctp(self, run_text2pcap_ipv6):
         '''Test SCTP over IPv6'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 90, 'expert': '',
             'ipv6': {'plen': '36', 'plen_tree': None}},
             run_text2pcap_ipv6(
@@ -486,7 +494,7 @@ class case_text2pcap_ipv6(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_ipv6_sctp_data(self, run_text2pcap_ipv6):
         '''Test SCTP DATA over IPv6'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 90, 'expert': '',
             'ipv6': {'plen': '36', 'plen_tree': None}},
             run_text2pcap_ipv6("0000: 01 00 03 03 00 00 00 08\n",
@@ -501,7 +509,7 @@ class case_text2pcap_i_proto(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_i_icmp(self, run_text2pcap_capinfos_tshark):
         '''Test -i <proto> without -4 or -6'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 98, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000   08 00 bb b3 d7 3b 00 00 51 a7 d6 7d 00 04 51 e4\n" +
@@ -512,7 +520,7 @@ class case_text2pcap_i_proto(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_i_icmp_ipv4(self, run_text2pcap_capinfos_tshark):
         '''Test -i <proto> with IPv4 (-4) header'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 98, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000   08 00 bb b3 d7 3b 00 00 51 a7 d6 7d 00 04 51 e4\n" +
@@ -523,7 +531,7 @@ class case_text2pcap_i_proto(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_i_icmpv6_ipv6(self, run_text2pcap_capinfos_tshark):
         '''Test -i <proto> with IPv6 (-6) header'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 86, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000   87 00 f2 62 00 00 00 00 fe 80 00 00 00 00 00 00\n" +
@@ -532,7 +540,7 @@ class case_text2pcap_i_proto(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_i_sctp_ipv6(self, run_text2pcap_capinfos_tshark):
         '''Test -i <proto> with IPv6 (-6) header'''
-        self.assertEqual({'encapsulation': 'Ethernet', 'packets': 1,
+        self.assertEqual({'encapsulation': 'ether', 'packets': 1,
             'datasize': 90, 'expert': ''},
             run_text2pcap_capinfos_tshark(
                 "0000   0b 59 0b 59 00 00 00 00 26 98 58 51 00 03 00 18\n" +

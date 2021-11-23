@@ -852,13 +852,13 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 						proto_tree_add_ipv4_format(tag_tree, hf_ipdc_ipv4, tvb,
 							    offset, len + 2, tvb_get_ntohl(tvb, offset + 2),
 							    "%s (0x%2.2x): %s",
-							    des, tag, tvb_ip_to_str(tvb, offset + 2));
+							    des, tag, tvb_ip_to_str(pinfo->pool, tvb, offset + 2));
 						break;
 					case 6:
 						proto_tree_add_ipv4_format(tag_tree, hf_ipdc_ipv4, tvb,
 							    offset, len + 2, tvb_get_ntohl(tvb, offset + 2),
 							    "%s (0x%2.2x): %s:%u",
-							    des, tag, tvb_ip_to_str(tvb, offset + 2), tvb_get_ntohs(tvb, offset + 6));
+							    des, tag, tvb_ip_to_str(pinfo->pool, tvb, offset + 2), tvb_get_ntohs(tvb, offset + 6));
 						break;
 					default:
 						proto_tree_add_expert_format(tag_tree, pinfo, &ei_ipdc_ipv4, tvb, offset, len + 2, "%s (0x%2.2x): Invalid IP address length %u",

@@ -1264,6 +1264,7 @@ PositioningInformationUpdate             N f1ap.proc.imsg id-PositioningInformat
       case id_InitialULRRCMessageTransfer:
         col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
         col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+        col_set_fence(actx->pinfo->cinfo, COL_INFO);
         call_dissector(nr_rrc_ul_ccch_handle, param_tvb, actx->pinfo, subtree);
         break;
       case id_ULRRCMessageTransfer:
@@ -1273,6 +1274,7 @@ PositioningInformationUpdate             N f1ap.proc.imsg id-PositioningInformat
         case 3:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
           col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
           add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_UPLINK, f1ap_data->srb_id);
           call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
           break;
@@ -1286,6 +1288,7 @@ PositioningInformationUpdate             N f1ap.proc.imsg id-PositioningInformat
         case 0:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
           col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
           call_dissector(nr_rrc_dl_ccch_handle, param_tvb, actx->pinfo, subtree);
           break;
         case 1:
@@ -1293,6 +1296,7 @@ PositioningInformationUpdate             N f1ap.proc.imsg id-PositioningInformat
         case 3:
           col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
           col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+          col_set_fence(actx->pinfo->cinfo, COL_INFO);
           add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_DOWNLINK, f1ap_data->srb_id);
           call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
           break;
@@ -1321,6 +1325,7 @@ PositioningInformationUpdate             N f1ap.proc.imsg id-PositioningInformat
     subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RRCContainer_RRCSetupComplete);
     col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
     col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+    col_set_fence(actx->pinfo->cinfo, COL_INFO);
     call_dissector(nr_rrc_ul_dcch_handle, param_tvb, actx->pinfo, subtree);
   }
 
@@ -1952,253 +1957,350 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
   }
 
 #.FN_HDR Reset
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
+  set_message_label(actx, MTYPE_RESET);
+  set_stats_message_type(actx->pinfo, MTYPE_RESET);
 #.FN_HDR ResetAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetAcknowledge");
+  set_message_label(actx, MTYPE_RESET_ACK);
+  set_stats_message_type(actx->pinfo, MTYPE_RESET_ACK);
 #.FN_HDR F1SetupRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1SetupRequest");
+  set_message_label(actx, MTYPE_F1_SETUP_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_SETUP_REQUEST);
 #.FN_HDR F1SetupResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1SetupResponse");
+  set_message_label(actx, MTYPE_F1_SETUP_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_SETUP_RESPONSE);
 #.FN_HDR F1SetupFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1SetupFailure");
+  set_message_label(actx, MTYPE_F1_SETUP_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_SETUP_FAILURE);
 #.FN_HDR GNBDUConfigurationUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUConfigurationUpdate");
+  set_message_label(actx, MTYPE_GNB_DU_CONFIGURATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_CONFIGURATION_UPDATE);
 #.FN_HDR GNBDUConfigurationUpdateAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUConfigurationUpdateAcknowledge");
+  set_message_label(actx, MTYPE_GNB_DU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
 #.FN_HDR GNBDUConfigurationUpdateFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUConfigurationUpdateFailure");
+  set_message_label(actx, MTYPE_GNB_DU_CONFIGURATION_UPDATE_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_CONFIGURATION_UPDATE_FAILURE);
 #.FN_HDR GNBCUConfigurationUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBCUConfigurationUpdate");
+  set_message_label(actx, MTYPE_GNB_CU_CONFIGURATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_CU_CONFIGURATION_UPDATE);
 #.FN_HDR GNBCUConfigurationUpdateAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBCUConfigurationUpdateAcknowledge");
+  set_message_label(actx, MTYPE_GNB_CU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_CU_CONFIGURATION_UPDATE_ACKNOWLEDGE);
 #.FN_HDR GNBCUConfigurationUpdateFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBCUConfigurationUpdateFailure");
+  set_message_label(actx, MTYPE_GNB_CU_CONFIGURATION_UPDATE_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_CU_CONFIGURATION_UPDATE_FAILURE);
 #.FN_HDR UEContextSetupRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSetupRequest");
+  set_message_label(actx, MTYPE_UE_CONTEXT_SETUP_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_SETUP_REQUEST);
 #.FN_HDR UEContextSetupResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSetupResponse");
+  set_message_label(actx, MTYPE_UE_CONTEXT_SETUP_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_SETUP_RESPONSE);
 #.FN_HDR UEContextSetupFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextSetupFailure");
+  set_message_label(actx, MTYPE_UE_CONTEXT_SETUP_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_SETUP_FAILURE);
 #.FN_HDR UEContextReleaseCommand
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseCommand");
+  set_message_label(actx, MTYPE_UE_CONTEXT_RELEASE_COMMAND);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_RELEASE_COMMAND);
 #.FN_HDR UEContextReleaseComplete
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseComplete");
+  set_message_label(actx, MTYPE_UE_CONTEXT_RELEASE_COMPLETE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_RELEASE_COMPLETE);
 #.FN_HDR UEContextModificationRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRequest");
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_REQUEST);
 #.FN_HDR UEContextModificationResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationResponse");
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_RESPONSE);
 #.FN_HDR UEContextModificationFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationFailure");
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_FAILURE);
 #.FN_HDR UEContextModificationRequired
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRequired");
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_REQUIRED);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_REQUIRED);
 #.FN_HDR UEContextModificationConfirm
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationConfirm");
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_CONFIRM);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_CONFIRM);
 #.FN_HDR UEContextModificationRefuse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRefuse");
+  set_message_label(actx, MTYPE_UE_CONTEXT_MODIFICATION_REFUSE);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_MODIFICATION_REFUSE);
 #.FN_HDR WriteReplaceWarningRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningRequest");
+  set_message_label(actx, MTYPE_WRITE_REPLACE_WARNING_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_WRITE_REPLACE_WARNING_REQUEST);
 #.FN_HDR WriteReplaceWarningResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningResponse");
+  set_message_label(actx, MTYPE_WRITE_REPLACE_WARNING_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_WRITE_REPLACE_WARNING_RESPONSE);
 #.FN_HDR PWSCancelRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSCancelRequest");
+  set_message_label(actx, MTYPE_PWS_CANCEL_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_CANCEL_REQUEST);
 #.FN_HDR PWSCancelResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSCancelResponse");
+  set_message_label(actx, MTYPE_PWS_CANCEL_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_CANCEL_RESPONSE);
 #.FN_HDR ErrorIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
+  set_message_label(actx, MTYPE_ERROR_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_ERROR_INDICATION);
 #.FN_HDR UEContextReleaseRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextReleaseRequest");
+  set_message_label(actx, MTYPE_UE_CONTEXT_RELEASE_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_CONTEXT_RELEASE_REQUEST);
 #.FN_HDR InitialULRRCMessageTransfer
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "InitialULRRCMessageTransfer");
+  set_message_label(actx, MTYPE_INITIAL_UL_RRC_MESSAGE_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_INITIAL_UL_RRC_MESSAGE_TRANSFER);
 #.FN_HDR DLRRCMessageTransfer
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DLRRCMessageTransfer");
+  set_message_label(actx, MTYPE_DL_RRC_MESSAGE_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_DL_RRC_MESSAGE_TRANSFER);
 #.FN_HDR ULRRCMessageTransfer
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ULRRCMessageTransfer");
+  set_message_label(actx, MTYPE_UL_RRC_MESSAGE_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_UL_RRC_MESSAGE_TRANSFER);
 #.FN_HDR UEInactivityNotification
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEInactivityNotification");
+  set_message_label(actx, MTYPE_UE_INACTIVITY_NOTIFICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_UE_INACTIVITY_NOTIFICATION);
 #.FN_HDR GNBDUResourceCoordinationRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceCoordinationRequest");
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_COORDINATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_COORDINATION_REQUEST);
 #.FN_HDR GNBDUResourceCoordinationResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceCoordinationResponse");
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_COORDINATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_COORDINATION_RESPONSE);
 #.FN_HDR PrivateMessage
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
+  set_message_label(actx, MTYPE_PRIVATE_MESSAGE);
+  set_stats_message_type(actx->pinfo, MTYPE_PRIVATE_MESSAGE);
 #.FN_HDR SystemInformationDeliveryCommand
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SystemInformationDeliveryCommand");
+  set_message_label(actx, MTYPE_SYSTEM_INFORMATION_DELIVERY_COMMAND);
+  set_stats_message_type(actx->pinfo, MTYPE_SYSTEM_INFORMATION_DELIVERY_COMMAND);
 #.FN_HDR Paging
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
+  set_message_label(actx, MTYPE_PAGING);
+  set_stats_message_type(actx->pinfo, MTYPE_PAGING);
 #.FN_HDR Notify
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Notify");
+  set_message_label(actx, MTYPE_NOTIFY);
+  set_stats_message_type(actx->pinfo, MTYPE_NOTIFY);
 #.FN_HDR NetworkAccessRateReduction
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NetworkAccessRateReduction");
+  set_message_label(actx, MTYPE_NETWORK_ACCESS_RATE_REDUCTION);
+  set_stats_message_type(actx->pinfo, MTYPE_NETWORK_ACCESS_RATE_REDUCTION);
 #.FN_HDR PWSRestartIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSRestartIndication");
+  set_message_label(actx, MTYPE_PWS_RESTART_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_RESTART_INDICATION);
 #.FN_HDR PWSFailureIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSFailureIndication");
+  set_message_label(actx, MTYPE_PWS_FAILURE_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_PWS_FAILURE_INDICATION);
 #.FN_HDR GNBDUStatusIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUStatusIndication");
+  set_message_label(actx, MTYPE_GNB_DU_STATUS_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_STATUS_INDICATION);
 #.FN_HDR RRCDeliveryReport
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCDeliveryReport");
+  set_message_label(actx, MTYPE_RRC_DELIVERY_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_RRC_DELIVERY_REPORT);
 #.END
 #.FN_HDR F1RemovalRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalRequest");
+  set_message_label(actx, MTYPE_F1_REMOVAL_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_REMOVAL_REQUEST);
 #.END
 #.FN_HDR F1RemovalResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalResponse");
+  set_message_label(actx, MTYPE_F1_REMOVAL_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_REMOVAL_RESPONSE);
 #.END
 #.FN_HDR F1RemovalFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalFailure");
+  set_message_label(actx, MTYPE_F1_REMOVAL_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_F1_REMOVAL_FAILURE);
 #.END
 #.FN_HDR TraceStart
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
+  set_message_label(actx, MTYPE_TRACE_START);
+  set_stats_message_type(actx->pinfo, MTYPE_TRACE_START);
 #.END
 #.FN_HDR DeactivateTrace
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
+  set_message_label(actx, MTYPE_DEACTIVATE_TRACE);
+  set_stats_message_type(actx->pinfo, MTYPE_DEACTIVATE_TRACE);
 #.END
 #.FN_HDR DUCURadioInformationTransfer
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DUCURadioInformationTransfer");
+  set_message_label(actx, MTYPE_DU_CU_RADIO_INFORMATION_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_DU_CU_RADIO_INFORMATION_TRANSFER);
 #.END
 #.FN_HDR CUDURadioInformationTransfer
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CUDURadioInformationTransfer");
+  set_message_label(actx, MTYPE_CU_DU_RADIO_INFORMATION_TRANSFER);
+  set_stats_message_type(actx->pinfo, MTYPE_CU_DU_RADIO_INFORMATION_TRANSFER);
 #.END
 #.FN_HDR BAPMappingConfiguration
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfiguration");
+  set_message_label(actx, MTYPE_BAP_MAPPING_CONFIGURATION);
+  set_stats_message_type(actx->pinfo, MTYPE_BAP_MAPPING_CONFIGURATION);
 #.END
 #.FN_HDR BAPMappingConfigurationAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfigurationAcknowledge");
+  set_message_label(actx, MTYPE_BAP_MAPPING_CONFIGURATION_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_BAP_MAPPING_CONFIGURATION_ACKNOWLEDGE);
 #.END
 #.FN_HDR BAPMappingConfigurationFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfigurationFailure");
+  set_message_label(actx, MTYPE_BAP_MAPPING_CONFIGURATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_BAP_MAPPING_CONFIGURATION_FAILURE);
 #.END
 #.FN_HDR GNBDUResourceConfiguration
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfiguration");
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_CONFIGURATION);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_CONFIGURATION);
 #.END
 #.FN_HDR GNBDUResourceConfigurationAcknowledge
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfigurationAcknowledge");
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_ACKNOWLEDGE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_ACKNOWLEDGE);
 #.END
 #.FN_HDR GNBDUResourceConfigurationFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfigurationFailure");
+  set_message_label(actx, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_GNB_DU_RESOURCE_CONFIGURATION_FAILURE);
 #.END
 #.FN_HDR IABTNLAddressRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressRequest");
+  set_message_label(actx, MTYPE_IAB_TNL_ADDRESS_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_TNL_ADDRESS_REQUEST);
 #.END
 #.FN_HDR IABTNLAddressResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressResponse");
+  set_message_label(actx, MTYPE_IAB_TNL_ADDRESS_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_TNL_ADDRESS_RESPONSE);
 #.END
 #.FN_HDR IABTNLAddressFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressFailure");
+  set_message_label(actx, MTYPE_IAB_TNL_ADDRESS_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_TNL_ADDRESS_FAILURE);
 #.END
 #.FN_HDR IABUPConfigurationUpdateRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABUPConfigurationUpdateRequest");
+  set_message_label(actx, MTYPE_IAB_UP_CONFIGURATION_UPDATE_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_UP_CONFIGURATION_UPDATE_REQUEST);
 #.END
 #.FN_HDR IABUPConfigurationUpdateResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABUPConfigurationUpdateResponse");
+  set_message_label(actx, MTYPE_IAB_UP_CONFIGURATION_UPDATE_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_UP_CONFIGURATION_UPDATE_RESPONSE);
 #.END
 #.FN_HDR IABUPConfigurationUpdateFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABUPConfigurationUpdateFailure");
+  set_message_label(actx, MTYPE_IAB_UP_CONFIGURATION_UPDATE_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_IAB_UP_CONFIGURATION_UPDATE_FAILURE);
 #.END
 #.FN_HDR ResourceStatusRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusRequest");
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_REQUEST);
 #.END
 #.FN_HDR ResourceStatusResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusResponse");
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_RESPONSE);
 #.END
 #.FN_HDR ResourceStatusFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusFailure");
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_FAILURE);
 #.END
 #.FN_HDR ResourceStatusUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusUpdate");
+  set_message_label(actx, MTYPE_RESOURCE_STATUS_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_RESOURCE_STATUS_UPDATE);
 #.END
 #.FN_HDR AccessAndMobilityIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AccessAndMobilityIndication");
+  set_message_label(actx, MTYPE_ACCESS_AND_MOBILITY_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_ACCESS_AND_MOBILITY_INDICATION);
 #.END
 #.FN_HDR ReferenceTimeInformationReportingControl
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ReferenceTimeInformationReportingControl");
+  set_message_label(actx, MTYPE_REFERENCE_TIME_INFORMATION_REPORTING_CONTROL);
+  set_stats_message_type(actx->pinfo, MTYPE_REFERENCE_TIME_INFORMATION_REPORTING_CONTROL);
 #.END
 #.FN_HDR ReferenceTimeInformationReport
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ReferenceTimeInformationReport");
+  set_message_label(actx, MTYPE_REFERENCE_TIME_INFORMATION_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_REFERENCE_TIME_INFORMATION_REPORT);
 #.END
 #.FN_HDR AccessSuccess
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AccessSuccess");
+  set_message_label(actx, MTYPE_ACCESS_SUCCESS);
+  set_stats_message_type(actx->pinfo, MTYPE_ACCESS_SUCCESS);
 #.END
 #.FN_HDR CellTrafficTrace
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
+  set_message_label(actx, MTYPE_CELL_TRAFFIC_TRACE);
+  set_stats_message_type(actx->pinfo, MTYPE_CELL_TRAFFIC_TRACE);
 #.END
 #.FN_HDR PositioningAssistanceInformationControl
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningAssistanceInformationControl");
+  set_message_label(actx, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_CONTROL);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_CONTROL);
 #.END
 #.FN_HDR PositioningAssistanceInformationFeedback
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningAssistanceInformationFeedback");
+  set_message_label(actx, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_FEEDBACK);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ASSISTANCE_INFORMATION_FEEDBACK);
 #.END
 #.FN_HDR PositioningMeasurementRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementRequest");
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_REQUEST);
 #.END
 #.FN_HDR PositioningMeasurementResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementResponse");
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_RESPONSE);
 #.END
 #.FN_HDR PositioningMeasurementFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementFailure");
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_FAILURE);
 #.END
 #.FN_HDR PositioningMeasurementReport
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementReport");
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_REPORT);
 #.END
 #.FN_HDR PositioningMeasurementAbort
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementAbort");
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_ABORT);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_ABORT);
 #.END
 #.FN_HDR PositioningMeasurementFailureIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementFailureIndication");
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_FAILURE_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_FAILURE_INDICATION);
 #.END
 #.FN_HDR PositioningMeasurementUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementUpdate");
+  set_message_label(actx, MTYPE_POSITIONING_MEASUREMENT_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_MEASUREMENT_UPDATE);
 #.END
 #.FN_HDR TRPInformationRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationRequest");
+  set_message_label(actx, MTYPE_TRP_INFORMATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_TRP_INFORMATION_REQUEST);
 #.END
 #.FN_HDR TRPInformationResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationResponse");
+  set_message_label(actx, MTYPE_TRP_INFORMATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_TRP_INFORMATION_RESPONSE);
 #.END
 #.FN_HDR TRPInformationFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationFailure");
+  set_message_label(actx, MTYPE_TRP_INFORMATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_TRP_INFORMATION_FAILURE);
 #.END
 #.FN_HDR PositioningInformationRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationRequest");
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_REQUEST);
 #.END
 #.FN_HDR PositioningInformationResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationResponse");
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_RESPONSE);
 #.END
 #.FN_HDR PositioningInformationFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationFailure");
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_FAILURE);
 #.END
 #.FN_HDR PositioningActivationRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationRequest");
+  set_message_label(actx, MTYPE_POSITIONING_ACTIVATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ACTIVATION_REQUEST);
 #.END
 #.FN_HDR PositioningActivationResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationResponse");
+  set_message_label(actx, MTYPE_POSITIONING_ACTIVATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ACTIVATION_RESPONSE);
 #.END
 #.FN_HDR PositioningActivationFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationFailure");
+  set_message_label(actx, MTYPE_POSITIONING_ACTIVATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_ACTIVATION_FAILURE);
 #.END
 #.FN_HDR PositioningDeactivation
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningDeactivation");
+  set_message_label(actx, MTYPE_POSITIONING_DEACTIVATION);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_DEACTIVATION);
 #.END
 #.FN_HDR E-CIDMeasurementInitiationRequest
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationRequest");
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_INITIATION_REQUEST);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_INITIATION_REQUEST);
 #.END
 #.FN_HDR E-CIDMeasurementInitiationResponse
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationResponse");
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_INITIATION_RESPONSE);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_INITIATION_RESPONSE);
 #.END
 #.FN_HDR E-CIDMeasurementInitiationFailure
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationFailure");
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_INITIATION_FAILURE);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_INITIATION_FAILURE);
 #.END
 #.FN_HDR E-CIDMeasurementFailureIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementFailureIndication");
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_FAILURE_INDICATION);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_FAILURE_INDICATION);
 #.END
 #.FN_HDR E-CIDMeasurementReport
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementReport");
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_REPORT);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_REPORT);
 #.END
 #.FN_HDR E-CIDMeasurementTerminationCommand
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementTerminationCommand");
+  set_message_label(actx, MTYPE_E_CID_MEASUREMENT_TERMINATION_COMMAND);
+  set_stats_message_type(actx->pinfo, MTYPE_E_CID_MEASUREMENT_TERMINATION_COMMAND);
 #.END
 #.FN_HDR PositioningInformationUpdate
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationUpdate");
+  set_message_label(actx, MTYPE_POSITIONING_INFORMATION_UPDATE);
+  set_stats_message_type(actx->pinfo, MTYPE_POSITIONING_INFORMATION_UPDATE);
 #.END
 
 #

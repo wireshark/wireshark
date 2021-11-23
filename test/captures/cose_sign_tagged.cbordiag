@@ -1,0 +1,39 @@
+98(
+  [
+    / protected h'a2687265736572766564f40281687265736572766564' / 
+    << {
+        "reserved":false, 
+        / crit / 2:[
+          "reserved"
+        ]
+      } >>, 
+    / unprotected / {}, 
+    / payload / 'This is the content.', 
+    / signatures / [
+      [
+        / protected h'a10126' / << {
+            / alg / 1:-7 / ECDSA 256 /
+          } >>, 
+        / unprotected / {
+          / kid / 4:'11'
+        }, 
+        / signature / h'e2aeafd40d69d19dfe6e52077c5d7ff4e408282cbefb
+5d06cbf414af2e19d982ac45ac98b8544c908b4507de1e90b717c3d34816fe926a2b
+98f53afd2fa0f30a'
+      ], 
+      [
+        / protected h'a1013823' / << {
+            / alg / 1:-36 / ECDSA 521 /
+          } >> , 
+        / unprotected / {
+          / kid / 4:'bilbo.baggins@hobbiton.example'
+        }, 
+        / signature / h'00a2d28a7c2bdb1587877420f65adf7d0b9a06635dd1
+de64bb62974c863f0b160dd2163734034e6ac003b01e8705524c5c4ca479a952f024
+7ee8cb0b4fb7397ba08d009e0c8bf482270cc5771aa143966e5a469a09f613488030
+c5b07ec6d722e3835adb5b2d8c44e95ffb13877dd2582866883535de3bb03d01753f
+83ab87bb4f7a0297'
+      ]
+    ]
+  ]
+)

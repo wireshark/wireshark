@@ -572,7 +572,7 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if((type == PP_ARP_REPLY) && (len >= 36))
         {
             guint32 id = tvb_get_ntohl(tvb, 24);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", resolve_pp_id(id), tvb_ip_to_str(tvb, 28));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", resolve_pp_id(id), tvb_ip_to_str(pinfo->pool, tvb, 28));
         }
         else if((type == PP_DATA) && (len >= 32))
         {

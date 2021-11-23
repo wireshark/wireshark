@@ -1,0 +1,169 @@
+include::../docbook/attributes.adoc[]
+= dpauxmon(1)
+:doctype: manpage
+:stylesheet: ws.css
+:linkcss:
+:copycss: ../docbook/{stylesheet}
+
+== NAME
+
+dpauxmon - Provide interfaces to capture DisplayPort AUX channel data.
+
+== SYNOPSIS
+
+[manarg]
+*dpauxmon*
+[ *--help* ]
+[ *--version* ]
+[ *--extcap-interfaces* ]
+[ *--extcap-dlts* ]
+[ *--extcap-interface*=<interface> ]
+[ *--extcap-config* ]
+[ *--extcap-capture-filter*=<capture filter> ]
+[ *--capture* ]
+[ *--fifo*=<path to file or pipe> ]
+[ *--interface_id*=<Interface ID to capture> ]
+
+[manarg]
+*dpauxmon*
+*--extcap-interfaces*
+
+[manarg]
+*dpauxmon*
+*--extcap-interface*=<interface>
+*--extcap-dlts*
+
+[manarg]
+*dpauxmon*
+*--extcap-interface*=<interface>
+*--extcap-config*
+
+[manarg]
+*dpauxmon*
+*--extcap-interface*=<interface>
+*--fifo*=<path to file or pipe>
+*--capture*
+*--interface_id=interface_id*
+
+== DESCRIPTION
+
+*dpauxmon* is an extcap tool that can capture DisplayPort AUX channel data
+from linux kernel drivers using the generic netlink interface.
+
+Supported interfaces:
+
+1. dpauxmon
+
+== OPTIONS
+
+--help::
++
+--
+Print program arguments.
+--
+
+--version::
++
+--
+Print program version.
+--
+
+--extcap-interfaces::
++
+--
+List available interfaces.
+--
+
+--extcap-interface=<interface>::
++
+--
+Use specified interfaces.
+--
+
+--extcap-dlts::
++
+--
+List DLTs of specified interface.
+--
+
+--extcap-config::
++
+--
+List configuration options of specified interface.
+--
+
+--capture::
++
+--
+Start capturing from specified interface and save it in place specified by --fifo.
+--
+
+--fifo=<path to file or pipe>::
++
+--
+Save captured packet to file or send it through pipe.
+--
+
+--interface_idt=<interface id>::
++
+--
+The interface for capture.
+--
+
+== EXAMPLES
+
+To see program arguments:
+
+    dpauxmon --help
+
+To see program version:
+
+    dpauxmon --version
+
+To see interfaces:
+
+    dpauxmon --extcap-interfaces
+
+Only one interface (dpauxmon) is supported.
+
+.Example output
+    interface {value=dpauxmon}{display=DisplayPort AUX channel capture}
+
+To see interface DLTs:
+
+    dpauxmon --extcap-interface=dpauxmon --extcap-dlts
+
+.Example output
+    dlt {number=275}{name=dpauxmon}{display=DisplayPort AUX channel monitor DLT}
+
+To see interface configuration options:
+
+    dpauxmon --extcap-interface=dpauxmon --extcap-config
+
+.Example output
+    dpauxmon --extcap-interface=dpauxmon --extcap-config
+    arg {number=0}{call=--interface_id}{display=Interface Id}
+        {type=unsigned}{tooltip=The Interface Id}
+        {required=true}
+
+To capture:
+
+    dpauxmon --extcap-interface=dpauxmon --fifo=/tmp/dpauxmon.pcap --capture --interface_id 0
+
+== SEE ALSO
+
+xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:extcap.html[extcap](4)
+
+== NOTES
+
+*dpauxmon* is part of the *Wireshark* distribution.  The latest version
+of *Wireshark* can be found at https://www.wireshark.org.
+
+HTML versions of the Wireshark project man pages are available at
+https://www.wireshark.org/docs/man-pages.
+
+== AUTHORS
+
+.Original Author
+[%hardbreaks]
+Dirk Eibach <dirk.eibach[AT]gdsys.cc>

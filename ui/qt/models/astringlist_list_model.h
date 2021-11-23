@@ -21,8 +21,6 @@
 
 class AStringListListModel : public QAbstractTableModel
 {
-    Q_OBJECT
-
 public:
     explicit AStringListListModel(QObject * parent = Q_NULLPTR);
     virtual ~AStringListListModel();
@@ -93,7 +91,6 @@ private:
 
 class AStringListListUrlProxyModel : public QIdentityProxyModel
 {
-    Q_OBJECT
 public:
     explicit AStringListListUrlProxyModel(QObject * parent = Q_NULLPTR);
 

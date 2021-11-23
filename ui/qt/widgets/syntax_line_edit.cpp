@@ -196,10 +196,10 @@ bool SyntaxLineEdit::checkDisplayFilter(QString filter)
             header_field_info *hfi = proto_registrar_get_byalias(token_str);
             if (hfi)
                 syntax_error_message_ = tr("\"%1\" is deprecated in favour of \"%2\". "
-                                           "See the User's Guide.").arg(token_str).arg(hfi->abbrev);
+                                           "See Help section 6.4.8 for details.").arg(token_str).arg(hfi->abbrev);
             else
-                syntax_error_message_ = tr("\"%1\" may have unexpected results. "
-                                           "See the User's Guide.").arg(token_str);
+                // The token_str is the message.
+                syntax_error_message_ = tr("%1").arg(token_str);
             g_free(token_str);
         } else {
             setSyntaxState(SyntaxLineEdit::Valid);

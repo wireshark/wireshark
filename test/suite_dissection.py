@@ -14,6 +14,125 @@ import unittest
 import fixtures
 import sys
 
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_dtn_tcpcl(subprocesstest.SubprocessTestCase):
+
+    def test_tcpclv3_xfer(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_tcpclv3_bpv6_transfer.pcapng'),
+                '-Tfields', '-etcpcl.ack.length',
+            ))
+        self.assertEqual(self.countOutput(r'1064'), 2)
+
+    def test_tcpclv4_xfer(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_tcpclv4_bpv7_transfer.pcapng'),
+                '-Tfields', '-etcpcl.v4.xfer_ack.ack_len',
+            ))
+        self.assertEqual(self.countOutput(r'199'), 2)
+
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_bpv7(subprocesstest.SubprocessTestCase):
+
+    def test_bpv7_admin_status(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
+                '-Tfields', '-ebpv7.status_rep.identity',
+            ))
+        self.assertTrue(self.grepOutput(r'Source: ipn:93.185, DTN Time: 1396536125, Seq: 281'))
+
+    def test_bpv7_bpsec_bib(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
+                '-Tfields', '-ebpsec.asb.ctxid',
+            ))
+        self.assertEqual(self.countOutput(r'1'), 1)
+
+    def test_bpv7_bpsec_bib_admin_type(self, cmd_tshark, features, dirs, capture_file):
+        # BIB doesn't alter payload
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bib_admin.pcapng'),
+                '-Tfields', '-ebpv7.admin_rec.type_code',
+            ))
+        self.assertEqual(self.countOutput(r'1'), 1)
+
+    def test_bpv7_bpsec_bcb(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcapng'),
+                '-Tfields', '-ebpsec.asb.ctxid',
+            ))
+        self.assertEqual(self.countOutput(r'2'), 1)
+
+    def test_bpv7_bpsec_bcb_admin_type(self, cmd_tshark, features, dirs, capture_file):
+        # BCB inhibits payload dissection
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtn_udpcl_bpv7_bpsec_bcb_admin.pcapng'),
+                '-Tfields', '-ebpv7.admin_rec.type_code',
+            ))
+        self.assertEqual(self.countOutput(r'1'), 0)
+
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_cose(subprocesstest.SubprocessTestCase):
+    '''
+    These test captures were generated from the COSE example files with command:
+    for FN in test/captures/cose*.cbordiag; do python3 tools/generate_cbor_pcap.py --content-type 'application/cose' --infile $FN --outfile ${FN%.cbordiag}.pcap; done
+    '''
+    def test_cose_sign_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_sign_tagged.pcap'),
+                '-Tfields', '-ecose.msg.signature',
+            ))
+        self.assertTrue(self.grepOutput('e2aeafd40d69d19dfe6e52077c5d7ff4e408282cbefb5d06cbf414af2e19d982ac45ac98b8544c908b4507de1e90b717c3d34816fe926a2b98f53afd2fa0f30a'))
+
+    def test_cose_sign1_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_sign1_tagged.pcap'),
+                '-Tfields', '-ecose.msg.signature',
+            ))
+        self.assertTrue(self.grepOutput('8eb33e4ca31d1c465ab05aac34cc6b23d58fef5c083106c4d25a91aef0b0117e2af9a291aa32e14ab834dc56ed2a223444547e01f11d3b0916e5a4c345cacb36'))
+
+    def test_cose_encrypt_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_encrypt_tagged.pcap'),
+                '-Tfields', '-ecose.kid',
+            ))
+        self.assertTrue(self.grepOutput('6f75722d736563726574'))
+
+    def test_cose_encrypt0_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_encrypt0_tagged.pcap'),
+                '-Tfields', '-ecose.iv',
+            ))
+        self.assertTrue(self.grepOutput('89f52f65a1c580933b5261a78c'))
+
+    def test_cose_mac_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_mac_tagged.pcap'),
+                '-Tfields', '-ecose.kid',
+            ))
+        self.assertTrue(self.grepOutput('30313863306165352d346439622d343731622d626664362d656566333134626337303337'))
+
+    def test_cose_mac0_tagged(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_mac0_tagged.pcap'),
+                '-Tfields', '-ecose.msg.mac_tag',
+            ))
+        self.assertTrue(self.grepOutput('726043745027214f'))
+
+    def test_cose_keyset(self, cmd_tshark, features, dirs, capture_file):
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('cose_keyset.pcap'),
+                '-Tfields', '-ecose.key.k',
+            ))
+        self.assertTrue(self.grepOutput('849b57219dae48de646d07dbb533566e976686457c1491be3a76dcea6c427188'))
+
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_grpc(subprocesstest.SubprocessTestCase):
@@ -45,6 +164,36 @@ class case_dissect_grpc(subprocesstest.SubprocessTestCase):
             ))
         self.assertTrue(self.grepOutput('tutorial.PersonSearchService/Search')) # grpc request
         self.assertTrue(self.grepOutput('tutorial.Person')) # grpc response
+
+    def test_grpc_streaming_mode_reassembly(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC/HTTP2 streaming mode reassembly'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_stream_reassembly_sample.pcapng.gz'),
+                '-d', 'tcp.port==50051,http2',
+                '-d', 'tcp.port==44363,http2',
+                '-2', # make http2.body.reassembled.in available
+                '-Y', # Case1: In frame28, one http DATA contains 4 completed grpc messages (json data seq=1,2,3,4).
+                      '(frame.number == 28 && grpc && json.value.number == "1" && json.value.number == "2"'
+                      ' && json.value.number == "3" && json.value.number == "4" && http2.body.reassembled.in == 45) ||'
+                      # Case2: In frame28, last grpc message (the 5th) only has 4 bytes, which need one more byte
+                      # to be a message head. a completed message is reassembled in frame45. (json data seq=5)
+                      '(frame.number == 45 && grpc && http2.body.fragment == 28 && json.value.number == "5"'
+                      ' && http2.body.reassembled.in == 61) ||'
+                      # Case3: In frame45, one http DATA frame contains two partial fragment, one is part of grpc
+                      # message of previous http DATA (frame28), another is first part of grpc message of next http
+                      # DATA (which will be reassembled in next http DATA frame61). (json data seq=6)
+                      '(frame.number == 61 && grpc && http2.body.fragment == 45 && json.value.number == "6") ||'
+                      # Case4: A big grpc message across frame100, frame113, frame126 and finally reassembled in frame139.
+                      '(frame.number == 100 && grpc && http2.body.reassembled.in == 139) ||'
+                      '(frame.number == 113 && !grpc && http2.body.reassembled.in == 139) ||'
+                      '(frame.number == 126 && !grpc && http2.body.reassembled.in == 139) ||'
+                      '(frame.number == 139 && grpc && json.value.number == "9") ||'
+                      # Case5: An large grpc message of 200004 bytes.
+                      '(frame.number == 164 && grpc && grpc.message_length == 200004)',
+            ))
+        self.assertEqual(self.countOutput('DATA'), 8)
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
@@ -363,6 +512,31 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
             '-r', capture_file('retrans-tls.pcap'),
             '-Ytls', '-Tfields', '-eframe.number', '-etls.record.length', '-2'))
         self.assertEqual(proc.stdout_str, '2\t16\n')
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_git(subprocesstest.SubprocessTestCase):
+    def test_git_prot(self, cmd_tshark, capture_file, features):
+        '''
+        Check for Git protocol version 2, flush and delimiter packets.
+        Ensure there are no malformed packets.
+        '''
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('gitOverTCP.pcap'),
+                '-Ygit', '-Tfields', '-egit.version', '-egit.packet_type',
+                '-zexpert', '-e_ws.expert',
+            ))
+        # `epan/dissectors/packet-git.c` parses the Git Protocol version
+        # from ASCII '1' or '2' to integers 49 or 50 in grep output.
+        # 0x0000 are flush packets.
+        # 0x0001 are delimiter packets.
+        # Pre-existing git Malformed Packets in this pcap were addressed
+        # with the parsing of the delimiter packets. This test ensures
+        # pcap gitOverTCP's delim packets are parsed and that there are no
+        # malformed packets with "Expert Info/Errors" in the same pcap.
+        # Additional test cases for other scenarios, i.e actually malformed
+        # git packets, might be required.
+        self.assertEqual(proc.stdout_str, '50\t\t\n\t0\t\n\t\t\n\t1,0\t\n')
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures

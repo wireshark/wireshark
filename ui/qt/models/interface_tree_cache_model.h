@@ -19,8 +19,6 @@
 
 class InterfaceTreeCacheModel : public QIdentityProxyModel
 {
-    Q_OBJECT
-
 public:
     explicit InterfaceTreeCacheModel(QObject *parent);
     ~InterfaceTreeCacheModel();

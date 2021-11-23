@@ -89,6 +89,7 @@
 #include "candump.h"
 #include "busmaster.h"
 #include "blf.h"
+#include "eri_enb_log.h"
 
 
 /*
@@ -435,6 +436,8 @@ static const struct open_info open_info_base[] = {
 	{ "Android Logcat Text formats",            OPEN_INFO_HEURISTIC, logcat_text_open,         "txt",      NULL, NULL },
 	{ "Candump log",                            OPEN_INFO_HEURISTIC, candump_open,             NULL,       NULL, NULL },
 	{ "Busmaster log",                          OPEN_INFO_HEURISTIC, busmaster_open,           NULL,       NULL, NULL },
+	{ "Ericsson eNode-B raw log",               OPEN_INFO_MAGIC,     eri_enb_log_open,         NULL,       NULL, NULL },
+
 	/* ASCII trace files from Telnet sessions. */
 	{ "Lucent/Ascend access server trace",      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL, NULL },
 	{ "Toshiba Compact ISDN Router snoop",      OPEN_INFO_HEURISTIC, toshiba_open,             "txt",      NULL, NULL },
@@ -586,6 +589,20 @@ wtap_has_open_info(const gchar *name)
 		if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
 			return TRUE;
 		}
+	}
+
+	return FALSE;
+}
+
+gboolean
+wtap_uses_lua_filehandler(const wtap* wth)
+{
+	if (wth && wth->wslua_data != NULL) {
+		/*
+		 * Currently, wslua_data is set if and only if using a Lua
+		 * file handler.
+		 */
+		return TRUE;
 	}
 
 	return FALSE;
@@ -1396,7 +1413,7 @@ wtap_deregister_file_type_subtype(const int subtype)
 		ws_error("invalid file type to de-register");
 		return;
 	}
-	if ((guint)subtype >= wtap_num_builtin_file_types_subtypes) {
+	if ((guint)subtype < wtap_num_builtin_file_types_subtypes) {
 		ws_error("built-in file types cannot be de-registered");
 		return;
 	}

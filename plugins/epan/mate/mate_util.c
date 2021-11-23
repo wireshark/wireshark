@@ -11,6 +11,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
+
 #include "mate.h"
 #include "mate_util.h"
 #include <wsutil/file_util.h>

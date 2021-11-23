@@ -324,7 +324,7 @@ static const value_string ctrl_peer_status_selection_types[] = {
 	{ 1,		"passed sanity checks (tests 1 through 8 in Section 3.4.3)" },
 	{ 2,		"passed correctness checks (intersection algorithm in Section 4.2.1)" },
 	{ 3,		"passed candidate checks (if limit check implemented)" },
-	{ 4,		"passed outlyer checks (clustering algorithm in Section 4.2.2)" },
+	{ 4,		"passed outlier checks (clustering algorithm in Section 4.2.2)" },
 	{ 5,		"current synchronization source; max distance exceeded (if limit check implemented)" },
 	{ 6,		"current synchronization source; max distance okay" },
 	{ 7,		"reserved" },
@@ -1551,7 +1551,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		case NTPCTRL_OP_WRITEVAR:
 		case NTPCTRL_OP_READCLOCK:
 		case NTPCTRL_OP_WRITECLOCK:
-			tt = tvbparse_init(tvb, data_offset, datalen, NULL, want_ignore);
+			tt = tvbparse_init(pinfo->pool, tvb, data_offset, datalen, NULL, want_ignore);
 			while( (element = tvbparse_get(tt, want)) != NULL ) {
 				tvbparse_tree_add_elem(data_tree, element);
 			}
@@ -1777,7 +1777,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 
 				mode7_item = proto_tree_add_string_format(ntp_tree, hf_ntppriv_mode7_item, tvb, offset,
 					(gint)itemsize, "Monlist Item", "Monlist item: address: %s:%u",
-					tvb_ip_to_str(tvb, offset + 16), tvb_get_ntohs(tvb, offset + ((reqcode == PRIV_RC_MON_GETLIST_1) ? 28 : 20)));
+					tvb_ip_to_str(pinfo->pool, tvb, offset + 16), tvb_get_ntohs(tvb, offset + ((reqcode == PRIV_RC_MON_GETLIST_1) ? 28 : 20)));
 				mode7_item_tree = proto_item_add_subtree(mode7_item, ett_mode7_item);
 
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_avgint, tvb, offset, 4, ENC_BIG_ENDIAN);

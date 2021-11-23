@@ -135,8 +135,9 @@ void cf_close(capture_file *cf);
  * Reload a capture file.
  *
  * @param cf the capture file to be reloaded
+ * @return one of cf_status_t
  */
-void cf_reload(capture_file *cf);
+cf_status_t cf_reload(capture_file *cf);
 
 /**
  * Read all packets of a capture file into the internal structures.
@@ -395,7 +396,8 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
 cf_status_t cf_filter_packets(capture_file *cf, gchar *dfilter, gboolean force);
 
 /**
- * At least one "Refence Time" flag has changed, rescan all packets.
+ * Scan through all frame data and recalculate the ref time
+ * without rereading the file.
  *
  * @param cf the capture file
  */
@@ -706,7 +708,7 @@ wtap_block_t cf_get_packet_block(capture_file *cf, const frame_data *fd);
  * @param fd the frame_data structure for the frame
  * @param new_block the block replacing the old block
  */
-gboolean cf_set_modified_block(capture_file *cf, frame_data *fd, wtap_block_t new_block);
+gboolean cf_set_modified_block(capture_file *cf, frame_data *fd, const wtap_block_t new_block);
 
 /**
  * What types of comments does this file have?

@@ -1,6 +1,6 @@
 /* packet-isobus-vt.c
  * Routines for ISObus VT dissection (Based on CANOpen Dissector)
- * Copyright 2016, Jeroen Sack <jsack@lely.com>
+ * Copyright 2016, Jeroen Sack <jeroen@jeroensack.nl>
  * ISO 11783-6
  *
  * Wireshark - Network traffic analyzer
@@ -1545,8 +1545,16 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             }
             else
             {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to enabled",
-                    get_object_id_string(auxiliary_input_object_id));
+                if (status == 0)
+                {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to disabled",
+                        get_object_id_string(auxiliary_input_object_id));
+                }
+                else if (status == 1)
+                {
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "Status of Auxiliary Input %s was successfully changed to enabled",
+                        get_object_id_string(auxiliary_input_object_id));
+                }
             }
         }
     }
@@ -5436,12 +5444,12 @@ proto_register_isobus_vt(void)
             NULL, HFILL }
         },
         { &hf_isobus_vt_graphicscontext_copycanvastopicturegraphic_objectidpicturegraphic,
-          { "Object ID of Picture Grahpic", "isobus.vt.graphics_context.copy_canvas_to_picture_graphic.object_id_picture_graphic",
+          { "Object ID of Picture Graphic", "isobus.vt.graphics_context.copy_canvas_to_picture_graphic.object_id_picture_graphic",
             FT_UINT16, BASE_DEC_HEX, VALS(object_id_strings), 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_graphicscontext_copyviewporttopicturegraphic_objectidpicturegraphic,
-          { "Object ID of Picture Grahpic", "isobus.vt.graphics_context.copy_viewport_to_picture_graphic.object_id_picture_graphic",
+          { "Object ID of Picture Graphic", "isobus.vt.graphics_context.copy_viewport_to_picture_graphic.object_id_picture_graphic",
             FT_UINT16, BASE_DEC_HEX, VALS(object_id_strings), 0x0,
             NULL, HFILL }
         },

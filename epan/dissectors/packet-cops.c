@@ -1349,7 +1349,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             ifindex = tvb_get_ntohl(tvb, offset + 4);
             itf_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett_cops_itf, NULL,
                                      "Contents: IPv4 address %s, ifIndex: %u",
-                                     tvb_ip_to_str(tvb, offset), ifindex);
+                                     tvb_ip_to_str(pinfo->pool, tvb, offset), ifindex);
             proto_tree_add_item(itf_tree,
                                 (c_num == COPS_OBJ_IN_INT) ? hf_cops_in_int_ipv4 : hf_cops_out_int_ipv4,
                                 tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1358,7 +1358,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             ifindex = tvb_get_ntohl(tvb, offset + (int)sizeof ipv6addr);
             itf_tree = proto_tree_add_subtree_format(tree, tvb, offset, 20, ett_cops_itf, NULL,
                                      "Contents: IPv6 address %s, ifIndex: %u",
-                                     tvb_ip6_to_str(tvb, offset), ifindex);
+                                     tvb_ip6_to_str(pinfo->pool, tvb, offset), ifindex);
             proto_tree_add_item(itf_tree,
                                 (c_num == COPS_OBJ_IN_INT) ? hf_cops_in_int_ipv6 : hf_cops_out_int_ipv6,
                                 tvb, offset, 16, ENC_NA);
@@ -1484,7 +1484,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             tcp_port = tvb_get_ntohs(tvb, offset + 4 + 2);
             pdp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 8, ett_cops_pdp, NULL,
                                      "Contents: IPv4 address %s, TCP Port Number: %u",
-                                     tvb_ip_to_str(tvb, offset), tcp_port);
+                                     tvb_ip_to_str(pinfo->pool, tvb, offset), tcp_port);
             proto_tree_add_item(pdp_tree,
                                 (c_num == COPS_OBJ_PDPREDIRADDR) ? hf_cops_pdprediraddr_ipv4 : hf_cops_lastpdpaddr_ipv4,
                                 tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1493,7 +1493,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             tcp_port = tvb_get_ntohs(tvb, offset + (int)sizeof ipv6addr + 2);
             pdp_tree = proto_tree_add_subtree_format(tree, tvb, offset, 20, ett_cops_pdp, NULL,
                                      "Contents: IPv6 address %s, TCP Port Number: %u",
-                                     tvb_ip6_to_str(tvb, offset), tcp_port);
+                                     tvb_ip6_to_str(pinfo->pool, tvb, offset), tcp_port);
             proto_tree_add_item(pdp_tree,
                                 (c_num == COPS_OBJ_PDPREDIRADDR) ? hf_cops_pdprediraddr_ipv6 : hf_cops_lastpdpaddr_ipv6,
                                 tvb, offset, 16, ENC_NA);

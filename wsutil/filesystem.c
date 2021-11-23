@@ -1218,6 +1218,15 @@ profile_store_persconffiles(gboolean store)
     do_store_persconffiles = store;
 }
 
+void
+profile_register_persconffile(const char *filename)
+{
+    if (do_store_persconffiles && !g_hash_table_lookup (profile_files, filename)) {
+        /* Store filenames so we know which filenames belongs to a configuration profile */
+        g_hash_table_insert (profile_files, g_strdup(filename), g_strdup(filename));
+    }
+}
+
 /*
  * Get the directory in which personal configuration files reside.
  *
@@ -1846,12 +1855,10 @@ get_persconffile_path(const char *filename, gboolean from_profile)
 {
     char *path, *dir = NULL;
 
-    if (do_store_persconffiles && from_profile && !g_hash_table_lookup (profile_files, filename)) {
-        /* Store filenames so we know which filenames belongs to a configuration profile */
-        g_hash_table_insert (profile_files, g_strdup(filename), g_strdup(filename));
-    }
-
     if (from_profile) {
+        /* Store filenames so we know which filenames belongs to a configuration profile */
+        profile_register_persconffile(filename);
+
         dir = get_persconffile_dir(persconfprofile);
     } else {
         dir = get_persconffile_dir(NULL);

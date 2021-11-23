@@ -34,9 +34,6 @@
 /* Enable AirPcap */
 #cmakedefine HAVE_AIRPCAP 1
 
-/* Define to 1 if you have the <alloca.h> header file. */
-#cmakedefine HAVE_ALLOCA_H 1
-
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #cmakedefine HAVE_ARPA_INET_H 1
 
@@ -67,9 +64,6 @@
 /* Define if you have the 'getexecname' function. */
 #cmakedefine HAVE_GETEXECNAME 1
 
-/* Define to 1 if you have the getopt_long function. */
-#cmakedefine HAVE_GETOPT_LONG 1
-
 /* Define to 1 if you have the <grp.h> header file. */
 #cmakedefine HAVE_GRP_H 1
 
@@ -96,6 +90,9 @@
 
 /* Define to use kerberos */
 #cmakedefine HAVE_KERBEROS 1
+
+/* Define to use PCRE2 library */
+#define HAVE_PCRE2 1
 
 /* Define to use nghttp2 */
 #cmakedefine HAVE_NGHTTP2 1
@@ -135,6 +132,9 @@
 
 /* Define to use the minizip library */
 #cmakedefine HAVE_MINIZIP 1
+
+/* Define if `dos_date' (with underscore) field exists in `zip_fileinfo'  */
+#cmakedefine HAVE_MZCOMPAT_DOS_DATE 1
 
 /* Define to use brotli library */
 #cmakedefine HAVE_BROTLI 1
@@ -217,9 +217,6 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #cmakedefine HAVE_PWD_H 1
 
-/* Define to 1 if you have the optreset variable */
-#cmakedefine HAVE_OPTRESET 1
-
 /* Define to 1 if you want to playing SBC by standalone BlueZ SBC library */
 #cmakedefine HAVE_SBC 1
 
@@ -286,9 +283,6 @@
 /* Define if we have QtMultimedia */
 #define QT_MULTIMEDIA_LIB 1
 
-/* Define if we have QtMacExtras */
-#cmakedefine QT_MACEXTRAS_LIB 1
-
 /* Build androiddump with libpcap instead of wireshark stuff */
 #cmakedefine ANDROIDDUMP_USE_LIBPCAP 1
 
@@ -297,31 +291,23 @@
 /* Note: not use in the code */
 #cmakedefine YYTEXT_POINTER
 
-#if defined(_WIN32)
-   /*
-    * Make sure everyone is using the same API and that it's sufficient
-    * for our needs.
-    * This should match the following:
-    * - The <compatibility><application> section in image\wireshark.exe.manifest.in
-    * - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
-    * - The VersionNT parts of packaging\wix\Prerequisites.wxi
-    */
-#  if defined(NTDDI_VERSION)
-#    error NTDDI_VERSION already defined.
-#  endif
-#  define NTDDI_VERSION NTDDI_WIN7
-#  if defined(_WIN32_WINNT)
-#    error _WIN32_WINNT already defined.
-#  endif
-#  define _WIN32_WINNT _WIN32_WINNT_WIN7
+/* Define to 1 if the 'ssize_t' type exists. */
+#cmakedefine HAVE_SSIZE_T 1
 
+#ifndef HAVE_SSIZE_T
+#  define ssize_t long int
+#endif
+
+#if defined(_MSC_VER)
+#  define strncasecmp strnicmp
+#  define popen       _popen
+#  define pclose      _pclose
+#endif
+
+#if defined(_WIN32)
    /* WpdPack/INclude/pcap/pcap.h checks for "#if defined(WIN32)" */
 #  ifndef WIN32
 #    define WIN32	1
-#  endif
-
-#  if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
-   typedef int ssize_t;
 #  endif
 
    /*
@@ -329,19 +315,15 @@
     */
 #  define YY_NO_UNISTD_H
 
-#  define strncasecmp strnicmp
-#  define popen       _popen
-#  define pclose      _pclose
-
 #  ifndef __STDC__
 #    define __STDC__ 0
 #  endif
-   /* Use Unicode in Windows runtime functions. */
-#  define UNICODE 1
-#  define _UNICODE 1
 #endif
 
-#include <ws_diag_control.h>
+#ifdef HAVE_PCRE2
+#define PCRE2_CODE_UNIT_WIDTH  8
+#endif
+
 #include <ws_log_defs.h>
 
 #endif /* __CONFIG_H__ */

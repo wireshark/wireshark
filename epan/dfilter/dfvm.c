@@ -10,7 +10,7 @@
 
 #include "dfvm.h"
 
-#include <ftypes/ftypes-int.h>
+#include <ftypes/ftypes.h>
 #include <wsutil/ws_assert.h>
 
 dfvm_insn_t*
@@ -32,13 +32,13 @@ dfvm_value_free(dfvm_value_t *v)
 {
 	switch (v->type) {
 		case FVALUE:
-			FVALUE_FREE(v->value.fvalue);
+			fvalue_free(v->value.fvalue);
 			break;
 		case DRANGE:
 			drange_free(v->value.drange);
 			break;
 		case PCRE:
-			g_regex_unref(v->value.pcre);
+			ws_regex_free(v->value.pcre);
 			break;
 		default:
 			/* nothing */
@@ -110,9 +110,9 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				wmem_free(NULL, value_str);
 				break;
 			case PUT_PCRE:
-				fprintf(f, "%05d PUT_PCRE\t%s -> reg#%u\n",
+				fprintf(f, "%05d PUT_PCRE  \t%s <GRegex> -> reg#%u\n",
 					id,
-					g_regex_get_pattern(arg1->value.pcre),
+					ws_regex_pattern(arg1->value.pcre),
 					arg2->value.numeric);
 				break;
 			case CHECK_EXISTS:
@@ -120,6 +120,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 			case CALL_FUNCTION:
 			case MK_RANGE:
 			case ANY_EQ:
+			case ALL_NE:
 			case ANY_NE:
 			case ANY_GT:
 			case ANY_GE:
@@ -225,6 +226,11 @@ dfvm_dump(FILE *f, dfilter_t *df)
 
 			case ANY_EQ:
 				fprintf(f, "%05d ANY_EQ\t\treg#%u == reg#%u\n",
+					id, arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ALL_NE:
+				fprintf(f, "%05d ALL_NE\t\treg#%u == reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
@@ -365,33 +371,81 @@ put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 /* Put a constant PCRE in a register. These will not be cleared by
  * free_register_overhead. */
 static gboolean
-put_pcre(dfilter_t *df, GRegex *pcre, int reg)
+put_pcre(dfilter_t *df, ws_regex_t *pcre, int reg)
 {
 	df->registers[reg] = g_list_append(NULL, pcre);
 	df->owns_memory[reg] = FALSE;
 	return TRUE;
 }
 
-typedef gboolean (*FvalueCmpFunc)(const fvalue_t*, const fvalue_t*);
+enum match_how {
+	MATCH_ANY,
+	MATCH_ALL
+};
+
+typedef gboolean (*DFVMMatchFunc)(const fvalue_t*, const fvalue_t*);
 
 static gboolean
-any_test(dfilter_t *df, FvalueCmpFunc cmp, int reg1, int reg2)
+cmp_test(dfilter_t *df, enum match_how how, DFVMMatchFunc match_func, int reg1, int reg2)
 {
 	GList	*list_a, *list_b;
+	gboolean want_all = (how == MATCH_ALL);
+	gboolean want_any = (how == MATCH_ANY);
+	gboolean have_match;
 
 	list_a = df->registers[reg1];
 
 	while (list_a) {
 		list_b = df->registers[reg2];
 		while (list_b) {
-			if (cmp((fvalue_t *)list_a->data, (fvalue_t *)list_b->data)) {
+			have_match = match_func(list_a->data, list_b->data);
+			if (want_all && !have_match) {
+				return FALSE;
+			}
+			else if (want_any && have_match) {
 				return TRUE;
 			}
 			list_b = g_list_next(list_b);
 		}
 		list_a = g_list_next(list_a);
 	}
-	return FALSE;
+	/* want_all || !want_any */
+	return want_all;
+}
+
+static inline gboolean
+any_test(dfilter_t *df, DFVMMatchFunc cmp, int reg1, int reg2)
+{
+	/* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
+	return cmp_test(df, MATCH_ANY, cmp, reg1, reg2);
+}
+
+static inline gboolean
+all_test(dfilter_t *df, DFVMMatchFunc cmp, int reg1, int reg2)
+{
+	/* cmp(A) <=> cmp(a1) AND cmp(a2) AND cmp(a3) AND ... */
+	return cmp_test(df, MATCH_ALL, cmp, reg1, reg2);
+}
+
+static inline gboolean
+any_eq(dfilter_t *df, int reg1, int reg2)
+{
+	/* A any_eq B <=> a1 == b1 OR a2 == b2 OR a3 == b3 OR ... */
+	return any_test(df, fvalue_eq, reg1, reg2);
+}
+
+static inline gboolean
+any_ne(dfilter_t *df, int reg1, int reg2)
+{
+	/* A any_ne B <=> a1 != b1 OR a2 != b2 OR a3 != b3 OR ... */
+	return any_test(df, fvalue_ne, reg1, reg2);
+}
+
+static inline gboolean
+all_ne(dfilter_t *df, int reg1, int reg2)
+{
+	/* A all_ne B <=> a1 != b1 AND a2 != b2 AND a3 != b3 AND ... */
+	return all_test(df, fvalue_ne, reg1, reg2);
 }
 
 static gboolean
@@ -404,7 +458,7 @@ any_matches(dfilter_t *df, int reg1, int reg2)
 	while (list_a) {
 		list_b = df->registers[reg2];
 		while (list_b) {
-			if (fvalue_matches((fvalue_t *)list_a->data, (GRegex *)list_b->data)) {
+			if (fvalue_matches((fvalue_t *)list_a->data, list_b->data)) {
 				return TRUE;
 			}
 			list_b = g_list_next(list_b);
@@ -450,7 +504,7 @@ static void
 free_owned_register(gpointer data, gpointer user_data _U_)
 {
 	fvalue_t *value = (fvalue_t *)data;
-	FVALUE_FREE(value);
+	fvalue_free(value);
 }
 
 /* Clear registers that were populated during evaluation (leaving constants
@@ -573,13 +627,15 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case ANY_EQ:
-				accum = any_test(df, fvalue_eq,
-						arg1->value.numeric, arg2->value.numeric);
+				accum = any_eq(df, arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ALL_NE:
+				accum = all_ne(df, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_NE:
-				accum = any_test(df, fvalue_ne,
-						arg1->value.numeric, arg2->value.numeric);
+				accum = any_ne(df, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_GT:
@@ -702,6 +758,7 @@ dfvm_init_const(dfilter_t *df)
 			case CALL_FUNCTION:
 			case MK_RANGE:
 			case ANY_EQ:
+			case ALL_NE:
 			case ANY_NE:
 			case ANY_GT:
 			case ANY_GE:

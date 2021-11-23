@@ -63,8 +63,8 @@ private:
 class DissectorTablesProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
-public:
 
+public:
     explicit DissectorTablesProxyModel(QObject * parent = Q_NULLPTR);
 
     virtual bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;

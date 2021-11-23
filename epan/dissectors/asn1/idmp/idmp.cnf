@@ -35,6 +35,15 @@ IdmResult/invokeID ABBREV=idmResult.invokeID
 
 #.FN_PARS	OBJECT_IDENTIFIER	FN_VARIANT = _str VAL_PTR = &protocolID
 
+#.FN_HDR	IdmBind
+	protocolID = saved_protocolID = NULL;
+#.END
+
+#.FN_FTR	IdmBind
+	if (protocolID) {
+		saved_protocolID = wmem_strdup(wmem_epan_scope(), protocolID);
+	}
+#.END
 
 #.FN_BODY	IdmBindResult/result
 	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;

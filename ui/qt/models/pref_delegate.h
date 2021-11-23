@@ -20,8 +20,6 @@
 
 class AdvancedPrefDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     AdvancedPrefDelegate(QObject *parent = 0);
 

@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.6.0 (2021-07)﻿
+-- 3GPP TS 38.423 V16.7.0 (2021-10)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -57,6 +57,7 @@ IMPORTS
 	DRBsSubjectToStatusTransfer-List,
 	DRBToQoSFlowMapping-List,
 	E-UTRA-CGI,
+	ExpectedUEActivityBehaviour,
 	ExpectedUEBehaviour,
 	ExtendedUEIdentityIndexValue,
 	FiveGCMobilityRestrictionListContainer,
@@ -381,6 +382,7 @@ FROM XnAP-Containers
 	id-UERadioCapabilityID,
 	id-SCGIndicator,
 	id-UESpecificDRX,
+	id-PDUSessionExpectedUEActivityBehaviour,
 
 
 
@@ -412,8 +414,8 @@ HandoverRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-UEHistoryInformation				CRITICALITY ignore	TYPE UEHistoryInformation						PRESENCE mandatory}|
 	{ ID id-UEContextRefAtSN-HORequest			CRITICALITY ignore	TYPE UEContextRefAtSN-HORequest				PRESENCE optional }|
 	{ ID id-CHOinformation-Req					CRITICALITY reject	TYPE CHOinformation-Req							PRESENCE optional }|
-{ ID id-NRV2XServicesAuthorized				CRITICALITY ignore	TYPE NRV2XServicesAuthorized					PRESENCE optional }|
-{ ID id-LTEV2XServicesAuthorized			CRITICALITY ignore	TYPE LTEV2XServicesAuthorized					PRESENCE optional }|
+     { ID id-NRV2XServicesAuthorized				CRITICALITY ignore	TYPE NRV2XServicesAuthorized					PRESENCE optional }|
+     { ID id-LTEV2XServicesAuthorized			CRITICALITY ignore	TYPE LTEV2XServicesAuthorized					PRESENCE optional }|
 { ID id-PC5QoSParameters					CRITICALITY ignore	TYPE PC5QoSParameters					PRESENCE optional }|
 	{ ID id-MobilityInformation				CRITICALITY ignore	TYPE MobilityInformation								PRESENCE optional}|
 	{ ID id-UEHistoryInformationFromTheUE	CRITICALITY ignore	TYPE UEHistoryInformationFromTheUE				PRESENCE optional }|
@@ -709,8 +711,8 @@ RetrieveUEContextResponse-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-MaskedIMEISV							CRITICALITY ignore		TYPE MaskedIMEISV									PRESENCE optional }|
 	{ ID id-LocationReportingInformation			CRITICALITY ignore		TYPE LocationReportingInformation				PRESENCE optional }|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional }|
-{ ID id-NRV2XServicesAuthorized			CRITICALITY ignore	TYPE NRV2XServicesAuthorized		PRESENCE optional}|
-{ ID id-LTEV2XServicesAuthorized		CRITICALITY ignore	TYPE LTEV2XServicesAuthorized		PRESENCE optional}|
+     { ID id-NRV2XServicesAuthorized			CRITICALITY ignore	TYPE NRV2XServicesAuthorized		PRESENCE optional}|
+     { ID id-LTEV2XServicesAuthorized		CRITICALITY ignore	TYPE LTEV2XServicesAuthorized		PRESENCE optional}|
 	{ ID id-PC5QoSParameters				CRITICALITY ignore	TYPE PC5QoSParameters			PRESENCE optional }|
 	{ ID id-UEHistoryInformation				CRITICALITY ignore	TYPE UEHistoryInformation						PRESENCE optional}|
 	{ ID id-UEHistoryInformationFromTheUE	CRITICALITY ignore	TYPE UEHistoryInformationFromTheUE				PRESENCE optional }|
@@ -1041,6 +1043,7 @@ PDUSessionsToBeAdded-SNModRequest-Item ::= SEQUENCE {
 }
 
 PDUSessionsToBeAdded-SNModRequest-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ID id-PDUSessionExpectedUEActivityBehaviour		CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour		PRESENCE optional},
 	...
 }
 
@@ -1059,7 +1062,8 @@ PDUSessionsToBeModified-SNModRequest-Item ::= SEQUENCE {
 }
 
 PDUSessionsToBeModified-SNModRequest-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ID id-S-NSSAI		CRITICALITY reject	EXTENSION S-NSSAI		PRESENCE optional},
+	{ID id-S-NSSAI		CRITICALITY reject	EXTENSION S-NSSAI		PRESENCE optional}|
+	{ID id-PDUSessionExpectedUEActivityBehaviour		CRITICALITY ignore	EXTENSION ExpectedUEActivityBehaviour		PRESENCE optional},
 	...
 }
 
@@ -2417,7 +2421,7 @@ ResourceStatusUpdate ::= SEQUENCE {
 ResourceStatusUpdate-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-NGRAN-Node1-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
 	{ ID id-NGRAN-Node2-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
-{ ID id-CellMeasurementResult			CRITICALITY ignore	TYPE CellMeasurementResult			PRESENCE mandatory},
+     { ID id-CellMeasurementResult			CRITICALITY ignore	TYPE CellMeasurementResult			PRESENCE mandatory},
 	...
 }
 

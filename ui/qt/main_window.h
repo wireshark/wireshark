@@ -397,6 +397,7 @@ private slots:
     void actionAddPacketComment();
     void actionEditPacketComment();
     void actionDeletePacketComment();
+    void actionDeleteCommentsFromPackets();
     QString commentToMenuText(QString text, int max_len = 40);
     void setEditCommentsMenu();
     void setMenusForSelectedPacket();
@@ -602,9 +603,9 @@ private slots:
     void on_actionHelpMPDumpcap_triggered();
     void on_actionHelpMPEditcap_triggered();
     void on_actionHelpMPMergecap_triggered();
-    void on_actionHelpMPRawShark_triggered();
+    void on_actionHelpMPRawshark_triggered();
     void on_actionHelpMPReordercap_triggered();
-    void on_actionHelpMPText2cap_triggered();
+    void on_actionHelpMPText2pcap_triggered();
     void on_actionHelpMPTShark_triggered();
     void on_actionHelpWebsite_triggered();
     void on_actionHelpFAQ_triggered();
@@ -706,6 +707,8 @@ private slots:
     void on_actionTelephonyRTSPPacketCounter_triggered();
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();
+    void on_actionTelephonyF1APMessages_triggered();
+    void on_actionTelephonyNGAPMessages_triggered();
     void on_actionTelephonySipFlows_triggered();
 
     void on_actionBluetoothATT_Server_Attributes_triggered();

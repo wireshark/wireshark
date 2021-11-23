@@ -34,6 +34,7 @@ void proto_reg_handoff_nsh(void);
 void proto_register_nsh(void);
 
 static const value_string nsh_next_protocols[] = {
+	{ NSH_NONE, "None" },
 	{ NSH_IPV4, "IPv4" },
 	{ NSH_IPV6, "IPv6" },
 	{ NSH_ETHERNET, "Ethernet" },

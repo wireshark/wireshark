@@ -407,7 +407,7 @@ add_ppi_field_header(tvbuff_t *tvb, proto_tree *tree, int *offset)
 {
     ptvcursor_t *csr;
 
-    csr = ptvcursor_new(tree, tvb, *offset);
+    csr = ptvcursor_new(wmem_packet_scope(), tree, tvb, *offset);
     ptvcursor_add(csr, hf_ppi_field_type, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add(csr, hf_ppi_field_len, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_free(csr);
@@ -445,7 +445,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     else
         phdr->fcs_len = 0;
 
-    csr = ptvcursor_new(ftree, tvb, offset);
+    csr = ptvcursor_new(pinfo->pool, ftree, tvb, offset);
 
     tsft_raw = tvb_get_letoh64(tvb, offset);
     if (tsft_raw != 0) {
@@ -620,7 +620,7 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
         return;
     }
 
-    csr = ptvcursor_new(ftree, tvb, offset);
+    csr = ptvcursor_new(pinfo->pool, ftree, tvb, offset);
 
     flags = tvb_get_letohl(tvb, ptvcursor_current_offset(csr));
     *n_mac_flags = flags;
@@ -687,7 +687,7 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                        FALSE, n_mac_flags, ampdu_id, phdr);
     offset += PPI_80211N_MAC_PHY_OFF;
 
-    csr = ptvcursor_new(ftree, tvb, offset);
+    csr = ptvcursor_new(pinfo->pool, ftree, tvb, offset);
 
     mcs = tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
     if (mcs != 255) {
@@ -762,7 +762,7 @@ dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         return;
     }
 
-    csr = ptvcursor_new(ftree, tvb, offset);
+    csr = ptvcursor_new(pinfo->pool, ftree, tvb, offset);
 
     ptvcursor_add(csr, hf_aggregation_extension_interface_id, 4, ENC_LITTLE_ENDIAN); /* Last */
     ptvcursor_free(csr);
@@ -783,7 +783,7 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
         return;
     }
 
-    csr = ptvcursor_new(ftree, tvb, offset);
+    csr = ptvcursor_new(pinfo->pool, ftree, tvb, offset);
 
     ptvcursor_add_with_subtree(csr, hf_8023_extension_flags, 4, ENC_LITTLE_ENDIAN, ett_8023_extension_flags);
     ptvcursor_add(csr, hf_8023_extension_flags_fcs_present, 4, ENC_LITTLE_ENDIAN);

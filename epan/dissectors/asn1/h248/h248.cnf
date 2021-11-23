@@ -108,7 +108,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_FTR Message
-    col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
+    col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,actx->pinfo->pool,keep_persistent_data));
 
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, actx->pinfo, tvb, curr_info.msg, &h248_arrel, &ei_h248_errored_command);
@@ -121,32 +121,32 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.FN_BODY TransactionRequest/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
-    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REQUEST, keep_persistent_data);
+    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REQUEST, actx->pinfo, keep_persistent_data);
     error_code = 0;
 #.END
 
 #.FN_BODY TransactionPending/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
-    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_PENDING, keep_persistent_data);
+    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_PENDING, actx->pinfo, keep_persistent_data);
     error_code = 0;
 
 #.FN_BODY TransactionReply/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
-    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REPLY, keep_persistent_data);
+    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REPLY, actx->pinfo, keep_persistent_data);
     error_code = 0;
 
 #.FN_BODY SegmentReply/transactionId
     guint32 trx_id = 0;
 	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
-    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_ACK, keep_persistent_data);
+    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_ACK, actx->pinfo, keep_persistent_data);
     error_code = 0;
 
 #.FN_BODY ActionRequest/contextId
     guint32 ctx_id = 0;
 	offset = dissect_h248_ctx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &ctx_id);
-    curr_info.ctx = gcp_ctx(curr_info.msg,curr_info.trx,ctx_id,keep_persistent_data);
+    curr_info.ctx = gcp_ctx(curr_info.msg,curr_info.trx,ctx_id,actx->pinfo,keep_persistent_data);
     curr_info.cmd = NULL;
     curr_info.term = NULL;
 #.END
@@ -154,13 +154,13 @@ SigParameterV1/value                ABBREV=sig_param_value
 
 #.FN_FTR ActionReply
     if (!curr_info.cmd) {
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_REPLY,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 	}
 #.END
 
 #.FN_HDR Command/addReq
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_ADD_REQ,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_ADD_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
@@ -169,7 +169,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR Command/moveReq
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOVE_REQ,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOVE_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 
 #.END
@@ -179,7 +179,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR Command/modReq
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOD_REQ,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOD_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR Command/modReq
@@ -187,7 +187,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR Command/subtractReq
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SUB_REQ,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SUB_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR Command/subtractReq
@@ -195,7 +195,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR Command/auditCapRequest
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITCAP_REQ,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITCAP_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR Command/auditCapRequest
@@ -203,7 +203,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR Command/auditValueRequest
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITVAL_REQ,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITVAL_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR Command/auditValueRequest
@@ -211,7 +211,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR Command/notifyReq
-	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_NOTIFY_REQ,offset,keep_persistent_data);
+	  curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_NOTIFY_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR Command/notifyReq
@@ -219,7 +219,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR ServiceChangeRequest
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SVCCHG_REQ,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SVCCHG_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR ServiceChangeRequest
@@ -227,7 +227,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR ContextRequest/topologyReq
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_TOPOLOGY_REQ,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_TOPOLOGY_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR ContextRequest/topologyReq
@@ -235,7 +235,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR ActionRequest/contextAttrAuditReq
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_CTX_ATTR_AUDIT_REQ,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_CTX_ATTR_AUDIT_REQ,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 #.FN_FTR ActionRequest/contextAttrAuditReq
@@ -243,37 +243,37 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR CommandReply/addReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_ADD_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_ADD_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/moveReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOVE_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOVE_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/modReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOD_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_MOD_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/subtractReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SUB_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SUB_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/notifyReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_NOTIFY_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_NOTIFY_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
 #.FN_HDR ServiceChangeReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SVCCHG_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_SVCCHG_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
 #.FN_HDR CommandReply/auditCapReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITCAP_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITCAP_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
@@ -288,7 +288,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.END
 
 #.FN_HDR CommandReply/auditValueReply
-      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITVAL_REPLY,offset,keep_persistent_data);
+      curr_info.cmd = gcp_cmd(curr_info.msg,curr_info.trx,curr_info.ctx,GCP_CMD_AUDITVAL_REPLY,offset,actx->pinfo,keep_persistent_data);
       H248_TAP();
 #.END
 
@@ -370,7 +370,7 @@ SigParameterV1/value                ABBREV=sig_param_value
 		}
 
 
-		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
+		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, actx->pinfo, keep_persistent_data);
 
 	} else {
 		curr_info.term->len = 0;

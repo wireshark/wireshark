@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.3.0 (2021-04)﻿
+-- 3GPP TS 38.455 V16.5.0 (2021-10)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -25,7 +25,6 @@ IMPORTS
 	id-ResultCSI-RSRP,
 	id-ResultCSI-RSRQ,
 	id-AngleOfArrivalNR,
-	id-SRSSpatialRelation,
 	id-ResultNR,
 	id-ResultEUTRA,
 	maxCellinRANnode,
@@ -1709,7 +1708,7 @@ Search-window-information-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 }
 
 
-SFNInitialisationTime ::= BIT STRING (SIZE (64))
+RelativeTime1900 ::= BIT STRING (SIZE (64))
 
 
 SFNInitialisationTime-EUTRA ::= BIT STRING (SIZE (64))
@@ -1861,15 +1860,6 @@ SRSResourceTrigger-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-SRSSpatialRelation ::= SEQUENCE {
-	spatialRelationforResourceID				SpatialRelationforResourceID,
-	iE-Extensions		ProtocolExtensionContainer { {SRSSpatialRelation-ExtIEs} }	OPTIONAL,
-	...
-}
-
-SRSSpatialRelation-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 
 SSBInfo ::= SEQUENCE {
@@ -1962,7 +1952,7 @@ TF-Configuration ::= SEQUENCE {
 	sSB-half-frame-offset		INTEGER(0..1),
 	sSB-SFN-offset				INTEGER(0..15),
 	sSB-BurstPosition			SSBBurstPosition	OPTIONAL,
-	sFN-initialisation-time		SFNInitialisationTime	 OPTIONAL,
+	sFN-initialisation-time		RelativeTime1900	 OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { { TF-Configuration-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -1975,7 +1965,7 @@ TF-Configuration-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 TimeStamp ::= SEQUENCE {
 	systemFrameNumber		SystemFrameNumber,
 	slotIndex				TimeStampSlotIndex,
-	measurementTime			SFNInitialisationTime	OPTIONAL,
+	measurementTime			RelativeTime1900	OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { { TimeStamp-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2175,7 +2165,7 @@ TRPInformationTypeResponseItem ::= CHOICE {
 	aRFCN										INTEGER (0..3279165), 
 	pRSConfiguration							PRSConfiguration,
 	sSBinformation								SSBInfo,
-	sFNInitialisationTime						SFNInitialisationTime,
+	sFNInitialisationTime						RelativeTime1900,
 	spatialDirectionInformation					SpatialDirectionInformation,
 	geographicalCoordinates						GeographicalCoordinates,
 	choice-extension							ProtocolIE-Single-Container { { TRPInformationTypeResponseItem-ExtIEs } }
@@ -2286,7 +2276,7 @@ TypeOfError ::= ENUMERATED {
 
 UARFCN ::= INTEGER (0..16383, ...)
 
-UE-Measurement-ID ::= INTEGER (1..15, ..., 256)
+UE-Measurement-ID ::= INTEGER (1..15, ..., 16..256)
 
 UTRA-EcN0 ::= INTEGER (0..49, ...)
 

@@ -309,7 +309,7 @@ dissect_winsrepl_wins_ip(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 	/* IP */
 	*addr = tvb_get_ipv4(winsrepl_tvb, winsrepl_offset);
 	proto_tree_add_ipv4(ip_tree, hf_winsrepl_ip_ip, winsrepl_tvb, winsrepl_offset, 4, *addr);
-	proto_item_append_text(ip_item, ": %s", tvb_ip_to_str(winsrepl_tvb, winsrepl_offset));
+	proto_item_append_text(ip_item, ": %s", tvb_ip_to_str(pinfo->pool, winsrepl_tvb, winsrepl_offset));
 	winsrepl_offset += 4;
 
 	return winsrepl_offset;
@@ -442,7 +442,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	case WREPL_NAME_TYPE_NORMAL_GROUP:
 		/* Single address */
 		proto_tree_add_item(name_tree, hf_winsrepl_ip_ip, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
-		proto_item_append_text(name_item, ": %s", tvb_ip_to_str(winsrepl_tvb, winsrepl_offset));
+		proto_item_append_text(name_item, ": %s", tvb_ip_to_str(pinfo->pool, winsrepl_tvb, winsrepl_offset));
 		winsrepl_offset += 4;
 		break;
 

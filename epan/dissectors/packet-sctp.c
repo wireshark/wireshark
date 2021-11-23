@@ -1352,9 +1352,9 @@ dissect_ipv4_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 {
   if (parameter_tree) {
     proto_tree_add_item(parameter_tree, hf_ipv4_address, parameter_tvb, IPV4_ADDRESS_OFFSET, IPV4_ADDRESS_LENGTH, ENC_BIG_ENDIAN);
-    proto_item_append_text(parameter_item, " (Address: %s)", tvb_ip_to_str(parameter_tvb, IPV4_ADDRESS_OFFSET));
+    proto_item_append_text(parameter_item, " (Address: %s)", tvb_ip_to_str(wmem_packet_scope(), parameter_tvb, IPV4_ADDRESS_OFFSET));
     if (additional_item)
-        proto_item_append_text(additional_item, "%s", tvb_ip_to_str(parameter_tvb, IPV4_ADDRESS_OFFSET));
+        proto_item_append_text(additional_item, "%s", tvb_ip_to_str(wmem_packet_scope(), parameter_tvb, IPV4_ADDRESS_OFFSET));
   }
   if (dissecting_init_init_ack_chunk) {
     if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
@@ -1372,9 +1372,9 @@ dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
 {
   if (parameter_tree) {
     proto_tree_add_item(parameter_tree, hf_ipv6_address, parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH, ENC_NA);
-    proto_item_append_text(parameter_item, " (Address: %s)", tvb_ip6_to_str(parameter_tvb, IPV6_ADDRESS_OFFSET));
+    proto_item_append_text(parameter_item, " (Address: %s)", tvb_ip6_to_str(wmem_packet_scope(), parameter_tvb, IPV6_ADDRESS_OFFSET));
     if (additional_item)
-      proto_item_append_text(additional_item, "%s", tvb_ip6_to_str(parameter_tvb, IPV6_ADDRESS_OFFSET));
+      proto_item_append_text(additional_item, "%s", tvb_ip6_to_str(wmem_packet_scope(), parameter_tvb, IPV6_ADDRESS_OFFSET));
   }
   if (dissecting_init_init_ack_chunk) {
     if (sctp_info.number_of_tvbs < MAXIMUM_NUMBER_OF_TVBS)
@@ -1423,7 +1423,7 @@ dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
 
   hostname_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   proto_tree_add_item(parameter_tree, hf_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII|ENC_NA);
-  proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length, tvb_format_text(parameter_tvb, HOSTNAME_OFFSET, hostname_length));
+  proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length, tvb_format_text(wmem_packet_scope(), parameter_tvb, HOSTNAME_OFFSET, hostname_length));
 
 }
 
@@ -2438,9 +2438,55 @@ static gboolean
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint32 ppi)
 {
   guint32 low_port, high_port;
+  gboolean try_ppi, try_low_port, try_high_port;
   heur_dtbl_entry_t *hdtbl_entry;
 
   if (enable_ulp_dissection) {
+
+    /* XXX - we ignore port numbers of 0, as some dissectors use a port
+       number of 0 to disable the port. */
+    if (pinfo->srcport > pinfo->destport) {
+      low_port = pinfo->destport;
+      high_port = pinfo->srcport;
+    } else {
+      low_port = pinfo->srcport;
+      high_port = pinfo->destport;
+    }
+
+    try_ppi = FALSE;
+    if (dissector_is_uint_changed(sctp_ppi_dissector_table, ppi)) {
+      if (dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
+	return TRUE;
+      }
+    } else {
+      /* The default; try it later */
+      try_ppi = TRUE;
+    }
+
+    try_low_port = FALSE;
+    if (low_port != 0) {
+      if (dissector_is_uint_changed(sctp_port_dissector_table, low_port)) {
+        if (dissector_try_uint_new(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
+	  return TRUE;
+	}
+      } else {
+	/* The default; try it later */
+	try_low_port = TRUE;
+      }
+    }
+
+    try_high_port = FALSE;
+    if (high_port != 0) {
+      if (dissector_is_uint_changed(sctp_port_dissector_table, high_port)) {
+        if (dissector_try_uint_new(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
+	  return TRUE;
+	}
+      } else {
+	/* The default; try it later */
+	try_high_port = TRUE;
+      }
+    }
+
     if (try_heuristic_first) {
       /* do lookup with the heuristic subdissector table */
       if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, GUINT_TO_POINTER(ppi)))
@@ -2448,6 +2494,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     }
 
     /* Do lookups with the subdissector table.
+       First try the PPI.
 
        When trying port numbers, we try the port number with the lower value
        first, followed by the port number with the higher value.  This means
@@ -2460,23 +2507,15 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
        one (as that prefers well-known ports to reserved ports);
 
        although there is, of course, no guarantee that any such strategy
-       will always pick the right port number.
-
-       XXX - we ignore port numbers of 0, as some dissectors use a port
-       number of 0 to disable the port. */
-    if (dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi)))
+       will always pick the right port number. */
+    if (try_ppi &&
+        dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi)))
       return TRUE;
-    if (pinfo->srcport > pinfo->destport) {
-      low_port = pinfo->destport;
-      high_port = pinfo->srcport;
-    } else {
-      low_port = pinfo->srcport;
-      high_port = pinfo->destport;
-    }
-    if (low_port != 0 &&
+
+    if (try_low_port &&
         dissector_try_uint_new(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi)))
       return TRUE;
-    if (high_port != 0 &&
+    if (try_high_port &&
         dissector_try_uint_new(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi)))
       return TRUE;
 

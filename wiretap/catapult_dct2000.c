@@ -1278,6 +1278,7 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
     guint8 *frame_buffer;
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->presence_flags = WTAP_HAS_TS;
 
     /* Make sure all packets go to Catapult DCT2000 dissector */

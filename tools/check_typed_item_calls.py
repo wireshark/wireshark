@@ -18,7 +18,6 @@ import subprocess
 # is assigned to a different variable or a macro is used, it isn't tracked.
 
 # TODO:
-# Attempt to check length (where literal value is given). Arg position differs among functions.
 # Currently assuming we'll find call + first 2 args in same line...
 # Attempt to check for allowed encoding types (most likely will be literal values |'d)?
 
@@ -57,7 +56,11 @@ class APICheck:
         self.fun_name = fun_name
         self.allowed_types = allowed_types
         self.calls = []
-        if fun_name.find('add_bitmask') == -1:
+
+        if fun_name.startswith('ptvcursor'):
+            # RE captures function name + 1st 2 args (always ptvc + hfindex)
+            self.p = re.compile('.*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
+        elif fun_name.find('add_bitmask') == -1:
             # RE captures function name + 1st 2 args (always tree + hfindex)
             self.p = re.compile('.*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
         else:
@@ -90,12 +93,23 @@ class APICheck:
 
 
 class ProtoTreeAddItemCheck(APICheck):
-    def __init__(self):
-        # proto_item *
-        # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-        #                     const gint start, gint length, const guint encoding)
+    def __init__(self, ptv=None):
+
         # RE will capture whole call.  N.B. only looking at calls with literal numerical length field.
-        self.p = re.compile('.*proto_tree_add_item\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+
+        if not ptv:
+            # proto_item *
+            # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+            #                     const gint start, gint length, const guint encoding)
+            self.fun_name = 'proto_tree_add_item'
+            self.p = re.compile('.*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+        else:
+            # proto_item *
+            # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
+            #               const guint encoding)
+            self.fun_name = 'ptvcursor_add'
+            self.p = re.compile('.*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+
 
         self.lengths = {}
         self.lengths['FT_CHAR']  = 1
@@ -128,7 +142,7 @@ class ProtoTreeAddItemCheck(APICheck):
             for line_number, line in enumerate(f, start=1):
                 m = self.p.match(line)
                 if m:
-                    self.calls.append(Call(m.group(2), line_number=line_number, length=m.group(5)))
+                    self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
 
     def check_against_items(self, items):
         # For now, only complaining if length if call is longer than the item type implies.
@@ -141,7 +155,7 @@ class ProtoTreeAddItemCheck(APICheck):
                 if call.length and items[call.hf_name].item_type in self.lengths:
                     if self.lengths[items[call.hf_name].item_type] < call.length:
                         print('Warning:', self.file + ':' + str(call.line_number),
-                              'proto_tree_add_item called for', call.hf_name, ' - ',
+                              self.fun_name + ' called for', call.hf_name, ' - ',
                               'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
 
                         global warnings_found
@@ -222,7 +236,13 @@ class Item:
         # Optionally check label.
         if check_label:
             if label.startswith(' ') or label.endswith(' '):
-                print('Warning:  ' + filename + 'filter=' + filter +  ' \"' + label + '\" begins or ends with a space')
+                print('Warning: ' + filename + ' filter "' + filter +  '" label' + label + '" begins or ends with a space')
+            if (label.count('(') != label.count(')') or
+                label.count('[') != label.count(']') or
+                label.count('{') != label.count('}')):
+                print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'has unbalanced parens/braces/brackets')
+            if item_type != 'FT_NONE' and label.endswith(':'):
+                print('Warning: ' + filename + ': - filter "' + filter + '" label', '"' + label + '"', 'ends with an unnecessary colon')
 
         self.item_type = item_type
         self.type_modifier = type_modifier
@@ -301,7 +321,7 @@ class Item:
             return
         while n <= 63:
             if self.check_bit(self.mask_value, n):
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
+                print('Warning:', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
                 return
             n += 1
 
@@ -311,8 +331,11 @@ class Item:
                 return 8  # i.e. 1 byte
             elif self.type_modifier == 'BASE_NONE':
                 return 8
+            elif self.type_modifier == 'SEP_DOT':
+                return 64
             else:
-                return int(self.type_modifier)
+                # Round up to next nibble.
+                return int(self.type_modifier)+3
         else:
             return field_widths[self.item_type]
 
@@ -323,25 +346,36 @@ class Item:
             # There may be good reasons for having a wider field/mask, e.g. if there are 32 related flags, showing them
             # all lined up as part of the same word may make it clearer.  But some cases have been found
             # where the grouping does not seem to be natural..
-            print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
+            print('Warning:', self.filename, 'filter=', self.filter, ' - mask with leading or trailing 0 bytes suggests field', self.item_type, 'may be wider than necessary?', mask)
             global warnings_found
             warnings_found += 1
 
     def check_num_digits(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             global warnings_found
+            global errors_found
             if len(mask) % 2:
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
-                      'expected max for', self.item_type, 'is', int(self.get_field_width_in_bits()/4))
+                print('Warning:', self.filename, 'filter=', self.filter, ' - mask has odd number of digits', mask,
+                      'expected max for', self.item_type, 'is', int((self.get_field_width_in_bits())/4))
                 warnings_found += 1
 
             if self.item_type in field_widths:
                 if len(mask)-2 > self.get_field_width_in_bits()/4:
-                    print('Warning: ', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
-                          "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
-                    warnings_found += 1
+                    extra_digits = mask[2:2+(len(mask)-2 - int(self.get_field_width_in_bits()/4))]
+                    # Its an error if any of these are non-zero, as they won't have any effect!
+                    if extra_digits != '0'*len(extra_digits):
+                        print('Error:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                              "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4),
+                              "and extra digits are non-zero (" + extra_digits + ")")
+                        errors_found += 1
+                    else:
+                        # If has leading zeros, still confusing, so warn.
+                        print('Warning:', self.filename, 'filter=', self.filter, self.mask, "with len is", len(mask)-2,
+                              "but type", self.item_type, " indicates max of", int(self.get_field_width_in_bits()/4))
+                        warnings_found += 1
+
             else:
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
+                print('Warning:', self.filename, 'filter=', self.filter, ' - item has type', self.item_type, 'but mask set:', mask)
                 warnings_found += 1
 
     def check_digits_all_zeros(self, mask):
@@ -417,9 +451,16 @@ apiChecks.append(APICheck('proto_tree_add_bitmask_value_with_flags', bitmask_typ
 apiChecks.append(APICheck('proto_tree_add_bitmask_len', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_text', bitmask_types))
 
+# Check some ptvcuror calls too.
+apiChecks.append(APICheck('ptvcursor_add_ret_uint', { 'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
+apiChecks.append(APICheck('ptvcursor_add_ret_int', { 'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32'}))
+apiChecks.append(APICheck('ptvcursor_add_ret_boolean', { 'FT_BOOLEAN'}))
+
 
 # Also try to check proto_tree_add_item() calls (for length)
 apiChecks.append(ProtoTreeAddItemCheck())
+apiChecks.append(ProtoTreeAddItemCheck(True)) # for ptvcursor_add()
+
 
 
 def removeComments(code_string):
@@ -444,7 +485,8 @@ def isGeneratedFile(filename):
             line.find('automatically generated by Pidl') != -1 or
             line.find('Created by: The Qt Meta Object Compiler') != -1 or
             line.find('This file was generated') != -1 or
-            line.find('This filter was automatically generated') != -1):
+            line.find('This filter was automatically generated') != -1 or
+            line.find('This file is auto generated, do not edit!') != -1):
 
 
             f_read.close()
@@ -463,7 +505,7 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*(.*),\s*([A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*(.*),\s*([&A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
@@ -527,6 +569,8 @@ def checkFile(filename, check_mask=False, check_label=False, check_consecutive=F
 parser = argparse.ArgumentParser(description='Check calls in dissectors')
 parser.add_argument('--file', action='store', default='',
                     help='specify individual dissector file to test')
+parser.add_argument('--folder', action='store', default='',
+                    help='specify folder to test')
 parser.add_argument('--commits', action='store',
                     help='last N commits to check')
 parser.add_argument('--open', action='store_true',
@@ -545,11 +589,20 @@ args = parser.parse_args()
 # Get files from wherever command-line args indicate.
 files = []
 if args.file:
-    # Add single specified file..
-    if not args.file.startswith('epan'):
+    # Add single specified file
+    if not args.file.startswith('epan') and not os.path.exists(args.file):
         files.append(os.path.join('epan', 'dissectors', args.file))
     else:
         files.append(args.file)
+elif args.folder:
+    # Add all files from a given folder.
+    folder = args.folder
+    if not os.path.isdir(folder):
+        print('Folder', folder, 'not found!')
+        exit(1)
+    # Find files from folder.
+    print('Looking for files in', folder)
+    files = findDissectorFilesInFolder(folder, recursive=True)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', '--diff-filter=d', 'HEAD~' + args.commits]

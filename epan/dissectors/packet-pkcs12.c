@@ -153,16 +153,16 @@ static gint ett_pkcs12_PBMAC1Params = -1;
 /*--- End of included file: packet-pkcs12-ett.c ---*/
 #line 67 "./asn1/pkcs12/packet-pkcs12-template.c"
 
-static void append_oid(proto_tree *tree, const char *oid)
+static void append_oid(wmem_allocator_t *pool, proto_tree *tree, const char *oid)
 {
   	const char *name = NULL;
 
-	name = oid_resolved_from_string(wmem_packet_scope(), oid);
+	name = oid_resolved_from_string(pool, oid);
 	proto_item_append_text(tree, " (%s)", name ? name : oid);
 }
 
 static int
-generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
+generate_key_or_iv(packet_info *pinfo, unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
 		       const char *pw, unsigned int req_keylen, char * keybuf)
 {
   int rc;
@@ -180,7 +180,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   cur_keylen = 0;
 
   salt_size = tvb_captured_length(salt_tvb);
-  salt_p = (char *)tvb_memdup(wmem_packet_scope(), salt_tvb, 0, salt_size);
+  salt_p = (char *)tvb_memdup(pinfo->pool, salt_tvb, 0, salt_size);
 
   if (pw == NULL)
     pwlen = 0;
@@ -347,14 +347,14 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 	/* allocate buffers */
 	key = (char *)wmem_alloc(pinfo->pool, keylen);
 
-	if(!generate_key_or_iv(1 /*LEY */, salt, iteration_count, password, keylen, key))
+	if(!generate_key_or_iv(pinfo, 1 /*LEY */, salt, iteration_count, password, keylen, key))
 		return FALSE;
 
 	if(ivlen) {
 
 		iv = (char *)wmem_alloc(pinfo->pool, ivlen);
 
-		if(!generate_key_or_iv(2 /* IV */, salt, iteration_count, password, ivlen, iv))
+		if(!generate_key_or_iv(pinfo, 2 /* IV */, salt, iteration_count, password, ivlen, iv))
 			return FALSE;
 	}
 
@@ -563,7 +563,7 @@ dissect_pkcs12_T_bagId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 #line 84 "./asn1/pkcs12/pkcs12.cnf"
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 
   return offset;
 }
@@ -588,7 +588,7 @@ dissect_pkcs12_T_attrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 #line 104 "./asn1/pkcs12/pkcs12.cnf"
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 
   return offset;
 }
@@ -799,7 +799,7 @@ dissect_pkcs12_T_certId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 #line 89 "./asn1/pkcs12/pkcs12.cnf"
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 
   return offset;
 }
@@ -839,7 +839,7 @@ dissect_pkcs12_T_crlId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 #line 94 "./asn1/pkcs12/pkcs12.cnf"
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 
   return offset;
 }
@@ -879,7 +879,7 @@ dissect_pkcs12_T_secretTypeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 #line 99 "./asn1/pkcs12/pkcs12.cnf"
-  append_oid(tree, object_identifier_id);
+  append_oid(actx->pinfo->pool, tree, object_identifier_id);
 
   return offset;
 }

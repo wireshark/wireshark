@@ -312,7 +312,7 @@ void proto_register_opa_snc(void)
         },
         { &hf_opa_snc_rhf_eccerr, {
                 "Internal memory Uncorrectable error", "opa.snc.rhf.eccerr",
-                FT_BOOLEAN, 32, TFS(&tfs_error_ok), 0x200000000, NULL, HFILL }
+                FT_BOOLEAN, 32, TFS(&tfs_error_ok), 0x20000000, NULL, HFILL }
         },
         { &hf_opa_snc_rhf_lenerr, {
                 "Length Error", "opa.snc.rhf.lenerr",

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.6.0 (2021-07)﻿
+-- 3GPP TS 36.413 V16.7.0 (2021-10)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-S1AP-PDU-Descriptions  { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+S1AP-PDU-Descriptions  {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
 eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-PDU-Descriptions (0)}
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -66,7 +66,7 @@ FROM S1AP-CommonDataTypes
 	Paging,
 	PathSwitchRequest,
 	PathSwitchRequestAcknowledge,
-	PathSwitchRequestFailure,	
+	PathSwitchRequestFailure,
 	PrivateMessage,
 	Reset,
 	ResetAcknowledge,
@@ -126,7 +126,7 @@ FROM S1AP-CommonDataTypes
 
 
 FROM S1AP-PDU-Contents
-	
+
 	id-CellTrafficTrace,
 	id-DeactivateTrace,
 	id-downlinkUEAssociatedLPPaTransport,
@@ -259,7 +259,7 @@ UnsuccessfulOutcome ::= SEQUENCE {
 
 S1AP-ELEMENTARY-PROCEDURES S1AP-ELEMENTARY-PROCEDURE ::= {
 	S1AP-ELEMENTARY-PROCEDURES-CLASS-1			|
-	S1AP-ELEMENTARY-PROCEDURES-CLASS-2,	
+	S1AP-ELEMENTARY-PROCEDURES-CLASS-2,
 	...
 }
 
@@ -290,7 +290,7 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uERadioCapabilityIDMapping
 }
 
-S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {	
+S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	handoverNotification			|
 	e-RABReleaseIndication			|
 	paging 							|

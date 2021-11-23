@@ -1,4 +1,4 @@
--- 3GPP TS 37.355 V16.5.0 (2021-06)
+-- ﻿3GPP TS 37.355 V16.6.0 (2021-09)
 
 LPP-PDU-Definitions {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
@@ -887,10 +887,13 @@ NR-DL-PRS-AssistanceDataPerTRP-r16 ::= SEQUENCE {
 	nr-ARFCN-r16					ARFCN-ValueNR-r15			OPTIONAL,	-- Need ON
 	nr-DL-PRS-SFN0-Offset-r16		NR-DL-PRS-SFN0-Offset-r16,
 	nr-DL-PRS-ExpectedRSTD-r16		INTEGER (-3841..3841),
-	nr-DL-PRS-ExpectedRSTD-Uncertainty-r16	
+	nr-DL-PRS-ExpectedRSTD-Uncertainty-r16
 									INTEGER (0..246),
 	nr-DL-PRS-Info-r16				NR-DL-PRS-Info-r16,
-	...
+	...,
+	[[
+		prs-OnlyTP-r16				ENUMERATED { true }		OPTIONAL	-- Need ON	
+	]]
 }
 
 NR-DL-PRS-PositioningFrequencyLayer-r16 ::= SEQUENCE {
@@ -1266,15 +1269,15 @@ NR-SelectedDL-PRS-PerFreq-r16 ::= SEQUENCE {
 	nr-SelectedDL-PRS-FrequencyLayerIndex-r16	INTEGER (0..nrMaxFreqLayers-1-r16),
 	nr-SelectedDL-PRS-IndexListPerFreq-r16 		SEQUENCE (SIZE (1..nrMaxTRPsPerFreq-r16)) OF
 														NR-SelectedDL-PRS-IndexPerTRP-r16
-																			OPTIONAL,	--Need ON
+																			OPTIONAL,	--Need OP
 	...
 }
 
 NR-SelectedDL-PRS-IndexPerTRP-r16 ::= SEQUENCE {
 	nr-SelectedTRP-Index-r16					INTEGER (0..nrMaxTRPsPerFreq-1-r16),
-	dl-SelectedPRS-ResourceSetIndexList-r16		SEQUENCE (SIZE (1..nrMaxSetsPerTrpPerFreqLayer-r16)) OF
-														DL-SelectedPRS-ResourceSetIndex-r16
-																			OPTIONAL,	--Need ON
+	dl-SelectedPRS-ResourceSetIndexList-r16		SEQUENCE (SIZE (1..nrMaxSetsPerTrpPerFreqLayer-r16))
+													OF	DL-SelectedPRS-ResourceSetIndex-r16
+																			OPTIONAL,	--Need OP
 	...
 }
 
@@ -1282,7 +1285,7 @@ DL-SelectedPRS-ResourceSetIndex-r16 ::= SEQUENCE {
 	nr-DL-SelectedPRS-ResourceSetIndex-r16		INTEGER (0..nrMaxSetsPerTrpPerFreqLayer-1-r16),
 	dl-SelectedPRS-ResourceIndexList-r16		SEQUENCE (SIZE (1..nrMaxResourcesPerSet-r16)) OF
 														DL-SelectedPRS-ResourceIndex-r16
-																			OPTIONAL	--Need ON
+																			OPTIONAL	--Need OP
 }
 
 DL-SelectedPRS-ResourceIndex-r16 ::= SEQUENCE {

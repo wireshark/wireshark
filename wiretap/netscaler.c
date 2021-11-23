@@ -1128,6 +1128,7 @@ static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
             return FALSE;\
         }\
         (rec)->rec_type = REC_TYPE_PACKET;\
+        (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),type,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
@@ -1307,6 +1308,7 @@ static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
             return FALSE;\
         }\
         (rec)->rec_type = REC_TYPE_PACKET;\
+        (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
@@ -1507,6 +1509,7 @@ static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
             return FALSE;\
         }\
         (rec)->rec_type = REC_TYPE_PACKET;\
+        (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
@@ -1706,6 +1709,7 @@ static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) pd;\
         (rec)->rec_type = REC_TYPE_PACKET;\
+        (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),type,ver);\
         TRACE_V##ver##_REC_LEN_OFF(rec,v##ver##_##fullpart,type,pktrace##fullpart##_v##ver);\
@@ -1800,6 +1804,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
         (rec)->rec_type = REC_TYPE_PACKET;\
+        (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
@@ -1924,6 +1929,7 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)pd;\
         (rec)->rec_type = REC_TYPE_PACKET;\
+        (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
         SETETHOFFSET_##ver(rec);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\

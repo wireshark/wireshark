@@ -42,6 +42,7 @@ typedef struct {
 	int		next_const_id;
 	int		next_register;
 	int		first_constant; /* first register used as a constant */
+	GPtrArray	*deprecated;
 } dfwork_t;
 
 /*
@@ -51,26 +52,69 @@ typedef struct {
 	dfwork_t *dfw;
 	GString* quoted_string;
 	gboolean raw_string;
-	gboolean in_set;	/* true if parsing set elements for the membership operator */
 } df_scanner_state_t;
+
+typedef struct {
+	char *value;
+} df_lval_t;
+
+static inline df_lval_t *
+df_lval_new(void)
+{
+	return g_new0(df_lval_t, 1);
+}
+
+static inline const char *
+df_lval_value(df_lval_t *lval)
+{
+	if (!lval || !lval->value)
+		return "(fixme: null)";
+	return lval->value;
+}
+
+static inline void
+df_lval_free(df_lval_t *lval)
+{
+	if (lval) {
+		g_free(lval->value);
+		g_free(lval);
+	}
+}
 
 /* Constructor/Destructor prototypes for Lemon Parser */
 void *DfilterAlloc(void* (*)(gsize));
 
 void DfilterFree(void*, void (*)(void *));
-void Dfilter(void*, int, stnode_t*, dfwork_t*);
 
-/* Scanner's lval */
-extern stnode_t *df_lval;
+void Dfilter(void*, int, df_lval_t*, dfwork_t*);
 
 /* Return value for error in scanner. */
 #define SCAN_FAILED	-1	/* not 0, as that means end-of-input */
 
-/* Set dfw->error_message */
+void
+dfilter_vfail(dfwork_t *dfw, const char *format, va_list args);
+
 void
 dfilter_fail(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
 
 void
+dfilter_fail_throw(dfwork_t *dfw, long code, const char *format, ...) G_GNUC_PRINTF(3, 4);
+
+void
+dfilter_fail_parse(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
+
+void
+add_deprecated_token(dfwork_t *dfw, const char *token);
+
+void
+free_deprecated(GPtrArray *deprecated);
+
+void
 DfilterTrace(FILE *TraceFILE, char *zTracePrompt);
+
+stnode_t *
+dfilter_resolve_unparsed(dfwork_t *dfw, stnode_t *node);
+
+const char *tokenstr(int token);
 
 #endif

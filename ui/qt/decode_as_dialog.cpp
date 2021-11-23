@@ -79,7 +79,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
 
     fillTable();
 
-    connect(model_, SIGNAL(modelReset()), this, SLOT(modelRowsReset()));
+    connect(model_, &DecodeAsModel::modelReset, this, &DecodeAsDialog::modelRowsReset);
     ui->clearToolButton->setEnabled(model_->rowCount() > 0);
 
     if (create_new)

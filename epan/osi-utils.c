@@ -33,11 +33,11 @@ static void print_address_prefix_buf ( const guint8 *, int, gchar *, int);
  * "dissect_nsap()" in epan/dissectors/packet-isup.c.
  */
 gchar *
-print_nsap_net( tvbuff_t *tvb, const gint offset, int length )
+print_nsap_net( wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, int length )
 {
   gchar *cur;
 
-  cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_NSAP_LEN * 3 + 50);
+  cur = (gchar *)wmem_alloc(scope, MAX_NSAP_LEN * 3 + 50);
   print_nsap_net_buf( tvb_get_ptr(tvb, offset, length), length, cur, MAX_NSAP_LEN * 3 + 50);
   return( cur );
 }
@@ -82,9 +82,9 @@ print_system_id(wmem_allocator_t* scope, const guint8 *ad, int length )
 }
 
 gchar *
-tvb_print_system_id( tvbuff_t *tvb, const gint offset, int length )
+tvb_print_system_id( wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, int length )
 {
-  return( print_system_id(wmem_packet_scope(), tvb_get_ptr(tvb, offset, length), length) );
+  return( print_system_id(scope, tvb_get_ptr(tvb, offset, length), length) );
 }
 
 void
@@ -133,11 +133,11 @@ print_system_id_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
 }
 
 gchar *
-print_area(tvbuff_t *tvb, const gint offset, int length)
+print_area(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, int length)
 {
   gchar *cur;
 
-  cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_AREA_LEN * 3 + 20);
+  cur = (gchar *)wmem_alloc(scope, MAX_AREA_LEN * 3 + 20);
   print_area_buf(tvb_get_ptr(tvb, offset, length), length, cur, MAX_AREA_LEN * 3 + 20);
   return cur;
 }
@@ -146,11 +146,11 @@ print_area(tvbuff_t *tvb, const gint offset, int length)
  * Note: length is in units of half-octets.
  */
 gchar *
-print_address_prefix(tvbuff_t *tvb, const gint offset, int length)
+print_address_prefix(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, int length)
 {
   gchar *cur;
 
-  cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_AREA_LEN * 3 + 20);
+  cur = (gchar *)wmem_alloc(scope, MAX_AREA_LEN * 3 + 20);
   print_address_prefix_buf(tvb_get_ptr(tvb, offset, (length+1)/2), length, cur, MAX_AREA_LEN * 3 + 20);
   return cur;
 }

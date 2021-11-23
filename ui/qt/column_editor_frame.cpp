@@ -43,8 +43,8 @@ ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
         ui->typeComboBox->addItem(col_format_desc(i), QVariant(i));
     }
 
-    connect(ui->fieldsNameLineEdit, SIGNAL(textChanged(QString)),
-            ui->fieldsNameLineEdit, SLOT(checkCustomColumn(QString)));
+    connect(ui->fieldsNameLineEdit, &FieldFilterEdit::textChanged,
+            ui->fieldsNameLineEdit, &FieldFilterEdit::checkCustomColumn);
 }
 
 ColumnEditorFrame::~ColumnEditorFrame()

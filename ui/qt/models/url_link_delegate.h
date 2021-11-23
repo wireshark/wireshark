@@ -19,8 +19,6 @@ class QRegExp;
 
 class UrlLinkDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     explicit UrlLinkDelegate(QObject *parent = Q_NULLPTR);
     ~UrlLinkDelegate();

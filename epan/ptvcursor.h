@@ -25,7 +25,7 @@ typedef struct ptvcursor ptvcursor_t;
  * proto_tree, tvbuff, and offset. */
 WS_DLL_PUBLIC
 ptvcursor_t*
-ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset);
+ptvcursor_new(wmem_allocator_t *scope, proto_tree* tree, tvbuff_t* tvb, gint offset);
 
 /* Gets data from tvbuff, adds it to proto_tree, increments offset,
  * and returns proto_item* */

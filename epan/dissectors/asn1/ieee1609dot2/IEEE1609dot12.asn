@@ -64,6 +64,7 @@ psid-infrastructure-to-vehicle-information-service                  Psid ::= 139
 psid-traffic-light-control-requests-service                         Psid ::= 140           -- ISO-19091-ETSI-TS-103-301
 psid-geonetworking-management-communications                        Psid ::= 141           -- ETSI-EN-302-636-4-1
 psid-traffic-light-control-status-service                           Psid ::= 637           -- ISO-19091-ETSI-TS-103-301
+psid-collective-perception-service                                  Psid ::= 639           -- ETSI-TS-103-324
 
 -- 0x8e to 0xFF 0p80-09 to 0p80-7F Not allocated
 

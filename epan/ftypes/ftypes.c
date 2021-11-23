@@ -8,10 +8,8 @@
 
 #include "config.h"
 
-#include <ftypes-int.h>
-#include <glib.h>
+#include "ftypes-int.h"
 
-#include "ftypes.h"
 #include <wsutil/ws_assert.h>
 
 /* Keep track of ftype_t's via their ftenum number */
@@ -173,52 +171,16 @@ ftype_can_eq(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_eq ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
-ftype_can_ne(enum ftenum ftype)
+ftype_can_cmp(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_ne ? TRUE : FALSE;
-}
-
-gboolean
-ftype_can_gt(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_gt ? TRUE : FALSE;
-}
-
-gboolean
-ftype_can_ge(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_ge ? TRUE : FALSE;
-}
-
-gboolean
-ftype_can_lt(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_lt ? TRUE : FALSE;
-}
-
-gboolean
-ftype_can_le(enum ftenum ftype)
-{
-	ftype_t	*ft;
-
-	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_le ? TRUE : FALSE;
+	return ft->cmp_order != NULL;
 }
 
 gboolean
@@ -286,6 +248,21 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype)
 	}
 }
 
+void
+fvalue_cleanup(fvalue_t *fv)
+{
+	if (!fv->ftype->free_value)
+		return;
+	fv->ftype->free_value(fv);
+}
+
+void
+fvalue_free(fvalue_t *fv)
+{
+	fvalue_cleanup(fv);
+	g_slice_free(fvalue_t, fv);
+}
+
 fvalue_t*
 fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
@@ -306,7 +283,7 @@ fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value
 					s, ftype_pretty_name(ftype));
 		}
 	}
-	FVALUE_FREE(fv);
+	fvalue_free(fv);
 	return NULL;
 }
 
@@ -330,7 +307,7 @@ fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg)
 					s, ftype_pretty_name(ftype));
 		}
 	}
-	FVALUE_FREE(fv);
+	fvalue_free(fv);
 	return NULL;
 }
 
@@ -341,7 +318,7 @@ fvalue_type_ftenum(fvalue_t *fv)
 }
 
 const char*
-fvalue_type_name(fvalue_t *fv)
+fvalue_type_name(const fvalue_t *fv)
 {
 	return fv->ftype->name;
 }
@@ -356,32 +333,15 @@ fvalue_length(fvalue_t *fv)
 		return fv->ftype->wire_size;
 }
 
-int
-fvalue_string_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display)
-{
-	ws_assert(fv->ftype->len_string_repr);
-	return fv->ftype->len_string_repr(fv, rtype, field_display);
-}
-
 char *
-fvalue_to_string_repr(wmem_allocator_t *scope, fvalue_t *fv, ftrepr_t rtype, int field_display)
+fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
-	char *buf;
-	int len;
 	if (fv->ftype->val_to_string_repr == NULL) {
 		/* no value-to-string-representation function, so the value cannot be represented */
 		return NULL;
 	}
 
-	if ((len = fvalue_string_repr_len(fv, rtype, field_display)) >= 0) {
-		buf = (char *)wmem_alloc0(scope, len + 1);
-	} else {
-		/* the value cannot be represented in the given representation type (rtype) */
-		return NULL;
-	}
-
-	fv->ftype->val_to_string_repr(fv, rtype, field_display, buf, (unsigned int)len+1);
-	return buf;
+	return fv->ftype->val_to_string_repr(scope, fv, rtype, field_display);
 }
 
 typedef struct {
@@ -686,52 +646,48 @@ fvalue_get_floating(fvalue_t *fv)
 	return fv->ftype->get_value.get_value_floating(fv);
 }
 
+static inline int
+_fvalue_cmp(const fvalue_t *a, const fvalue_t *b)
+{
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->cmp_order);
+	return a->ftype->cmp_order(a, b);
+}
+
 gboolean
 fvalue_eq(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_eq);
-	return a->ftype->cmp_eq(a, b);
+	return _fvalue_cmp(a, b) == 0;
 }
 
 gboolean
 fvalue_ne(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_ne);
-	return a->ftype->cmp_ne(a, b);
+	return _fvalue_cmp(a, b) != 0;
 }
 
 gboolean
 fvalue_gt(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_gt);
-	return a->ftype->cmp_gt(a, b);
+	return _fvalue_cmp(a, b) > 0;
 }
 
 gboolean
 fvalue_ge(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_ge);
-	return a->ftype->cmp_ge(a, b);
+	return _fvalue_cmp(a, b) >= 0;
 }
 
 gboolean
 fvalue_lt(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_lt);
-	return a->ftype->cmp_lt(a, b);
+	return _fvalue_cmp(a, b) < 0;
 }
 
 gboolean
 fvalue_le(const fvalue_t *a, const fvalue_t *b)
 {
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_le);
-	return a->ftype->cmp_le(a, b);
+	return _fvalue_cmp(a, b) <= 0;
 }
 
 gboolean
@@ -751,11 +707,10 @@ fvalue_contains(const fvalue_t *a, const fvalue_t *b)
 }
 
 gboolean
-fvalue_matches(const fvalue_t *a, const GRegex *b)
+fvalue_matches(const fvalue_t *a, const ws_regex_t *re)
 {
-	/* XXX - check compatibility of a and b */
 	ws_assert(a->ftype->cmp_matches);
-	return a->ftype->cmp_matches(a, b);
+	return a->ftype->cmp_matches(a, re);
 }
 
 /*

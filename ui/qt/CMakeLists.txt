@@ -612,6 +612,7 @@ set(WIRESHARK_QT_TS
 	wireshark_pl.ts
 	wireshark_ru.ts
 	wireshark_sv.ts
+	wireshark_tr_TR.ts
 	wireshark_uk.ts
 	wireshark_zh_CN.ts
 )

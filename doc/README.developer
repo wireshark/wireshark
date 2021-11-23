@@ -426,6 +426,16 @@ platform-dependent implementations and platform-independent APIs, such
 as the routines in epan/filesystem.c, allowing the code that calls it to
 be written portably without #ifdefs.
 
+We support building on Windows using MinGW-w64 (experimental) so be mindful
+of the difference between an #ifdef on _WIN32 and _MSC_VER. The first tests
+if the platform is some version of Windows and also applies to MinGW. The
+latter tests if the toolchain is Microsoft Visual Studio. Sometimes you need
+one or the other, depending on whether the condition applies to all Windows
+compilers or only Microsoft's compiler. Use #ifdef __MINGW32__ to test for
+a MinGW toolchain, including MinGW-w64. The same concern applies to CMake
+code. Depending on the particular situation you may need to use if(WIN32) or
+if(MSVC) or if(MINGW).
+
 Wireshark uses Libgcrypt as general-purpose crypto library. To use it from
 your dissector, do not include gcrypt.h directly, but use the wrapper file
 wsutil/wsgcrypt.h instead.
@@ -755,7 +765,143 @@ to avoid warnings at all.
 The compiler flags in the Makefiles are set to "treat warnings as errors",
 so your code won't even compile when warnings occur.
 
-7. Miscellaneous notes
+7. General observations about architecture
+
+7.1 The global header "wireshark.h"
+
+You should include the global header <wireshark.h> in your code. However
+there are some things to keep in mind when using it and especially
+if you are considering modifying it.
+
+** wireshark.h needs to be minimal: for efficiency reasons, to reduce the
+error surface and because every time this header changes everything must be
+rebuilt. Consider carefully if another header/module should be included
+globally with every project file and exported as public header.
+
+** No configuration: configuration is specific to the build environment
+and target machine. wireshark.h must not depend on that.
+
+** Only wireshark system headers allowed: plugins use this header and
+cannot depend on any header (even indirectly) that is not installed on the
+target system.
+
+** Only global definitions allowed: for example it is acceptable to include
+'wsutil' headers in wireshark.h because every component of Wireshark is allowed
+to depend on wsutil. wiretap is not acceptable because we cannot introduce
+dependencies on wiretap globally (and wireshark.h must be usable everywhere).
+
+7.2 Best practices using headers
+
+C files can be categorized in three types: source files, private headers and
+public headers.
+
+A module "foobar" can have only a private header, only a public header, or
+both. If it's only one it is named "foobar.h" in both cases. If it is both they
+are named "foobar-int.h" and "foobar.h" respectively.
+
+In general the order of #include's for a C module source files (foobar.c),
+assuming foobar implements any kind of interface should be:
+
+  #include "config.h"
+  #define WS_LOG_DOMAIN "mydomain"
+  #include "foobar-int.h"
+
+  followed by <system headers>
+  followed by <wireshark public headers>
+  followed by <wireshark private headers>
+
+For header files (private and public) config.h must NOT be included. A public
+header file (foobar.h) looks like this:
+
+  #ifndef __FOOBAR_H__
+  #define __FOOBAR_H__
+  #include <wireshark.h>
+  followed by <system headers>
+  followed by <wireshark public headers>
+
+  #ifdef __cplusplus
+  extern "C" { 
+  #endif
+  (declarations)
+  #ifdef __cplusplus
+  }
+  #endif
+  #endif /* FOOBAR_H */
+
+A private header (foobar-int.h) is the public header plus the declarations
+with private scope:
+
+  #ifndef __FOOBAR_INT_H__
+  #define __FOOBAR_INT_H__
+  #include "foobar.h"
+  followed by <system headers>
+  followed by <wireshark public headers>
+  followed by <wireshark private headers>
+  (etc.)
+
+Again if there are only public or private declarations the name foobar-int.h
+is not used. The macro symbol WS_LOG_DOMAIN can be defined in source files or
+private headers as long as it comes before wireshark.h.
+
+7.3 Wireshark internal and external API policy
+
+Wireshark has several APIs. We need to distinguish between internal
+Wireshark library APIs and external Wireshark APIs. Wireshark the project is
+composed of many different programs and these executable binaries use a number
+of internal libraries to share code efficiently. These internal shared
+libraries need to be installed on the system to run the programs (wireshark,
+tshark, etc).
+
+A library's public API includes the symbols exported by the DSO (wsutil,
+libwireshark, etc). The internal API is made available in the shared libraries
+and exists to support the goals of the project. It is public from the point
+of view of Wireshark programs (client users of the internal API). The
+external API exists to support plugins (client users of the external API)
+and is a loosely defined subset of the internal API plus any infrastructure
+required to support a plugin system. Note that these two uses of shared
+libraries coexist with a lot of overlap, but are nevertheless distinct.
+
+The internal (public) API is not considered to be stable and will regularly
+change as a normal part of development to support new features, remove cruft,
+and whatever else is necessary to make the project sustainable and ease the
+burden on developers. There is less freedom to change something that could
+break a lot of plugins but this is also acceptable (with cause).
+
+The plugin ABI policy is to be compatible only between micro releases (also
+called patch releases). That means we try to make it unnecessary to recompile
+plugins with each micro release (on a best-effort basis). For major.minor
+releases it is explicitly required to recompile plugins. There is no stable
+ABI contract of any kind in that case.
+
+Keep in mind that APIs can exist in different scopes and levels of abstraction.
+Don't get stuck thinking the words public/private have a very specific
+meaning, like being decorated or not with WS_DLL_PUBLIC, although that is a
+big part of it usually.
+
+Also the Wireshark developers have historically tried to keep the Lua API
+very stable and provide strong backward-compatibility guarantees. Under this
+policy moving from Lua 5.2 is unlikely to happen in the foreseeable future.
+
+7.4 libwireshark is not a single monolithic entity
+
+One day we might conceivably wish to load dissectors on demand and do other
+more sophisticated kinds of unit test. Plus other scenarios not immediately
+obvious. For this to be possible it is important that the code in epan/ does
+not depend on code in epan/dissectors, i.e it is possible to compile epan
+without linking with dissector code. It helps to view dissectors as clients
+of an API provided by epan (libwireshark being constituted by two distinct
+components "epan" and "dissectors" bundled together, plus other bits and
+pieces). The reverse is not* true; epan should not be the client of an API
+provided by dissectors.
+
+The main way this separation of concerns is achieved is by using runtime
+registration interfaces in epan for dissectors, preferences, etc. that are
+dynamic and do not have any dissector routines hard coded. Naturally this
+is also an essential component of a plugin system (libwireshark has plugins
+for taps, dissectors and an experimental interface to augment dissection with
+new extension languages).
+
+8. Miscellaneous notes
 
 Each commit in your branch corresponds to a different VCSVERSION string
 automatically defined in the header 'vcs_version.h' during the build. If you happen

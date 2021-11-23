@@ -61,7 +61,7 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 			return FALSE;
 		}
 		nmask_bits = fvalue_get_uinteger(nmask_fvalue);
-		FVALUE_FREE(nmask_fvalue);
+		fvalue_free(nmask_fvalue);
 
 		if (nmask_bits > 128) {
 			if (err_msg != NULL) {
@@ -79,16 +79,10 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 	return TRUE;
 }
 
-static int
-ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
+static char *
+ipv6_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-	return WS_INET6_ADDRSTRLEN;
-}
-
-static void
-ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
-{
-	ip6_to_str_buf(&(fv->value.ipv6.addr), buf, size);
+	return ip6_to_str(scope, &(fv->value.ipv6.addr));
 }
 
 static gpointer
@@ -100,8 +94,8 @@ value_get(fvalue_t *fv)
 static const guint8 bitmasks[9] =
 	{ 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 
-static gint
-cmp_compare(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static int
+cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
 	const ipv6_addr_and_prefix *a = &(fv_a->value.ipv6);
 	const ipv6_addr_and_prefix *b = &(fv_b->value.ipv6);
@@ -130,42 +124,6 @@ cmp_compare(const fvalue_t *fv_a, const fvalue_t *fv_b)
 			return byte_a - byte_b;
 	}
 	return 0;
-}
-
-static gboolean
-cmp_eq(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) == 0);
-}
-
-static gboolean
-cmp_ne(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) != 0);
-}
-
-static gboolean
-cmp_gt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) > 0);
-}
-
-static gboolean
-cmp_ge(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) >= 0);
-}
-
-static gboolean
-cmp_lt(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) < 0);
-}
-
-static gboolean
-cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
-{
-	return (cmp_compare(fv_a, fv_b) <= 0);
 }
 
 static gboolean
@@ -220,17 +178,11 @@ ftype_register_ipv6(void)
 		ipv6_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		ipv6_to_repr,			/* val_to_string_repr */
-		ipv6_repr_len,			/* len_string_repr */
 
 		{ .set_value_bytes = ipv6_fvalue_set },	/* union set_value */
 		{ .get_value_ptr = value_get },		/* union get_value */
 
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
+		cmp_order,
 		cmp_bitwise_and,
 		NULL, 				/* XXX, cmp_contains, needed? ipv4 doesn't support it */
 		NULL,				/* cmp_matches */

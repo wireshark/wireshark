@@ -109,7 +109,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) { /* Creates a new <<lua_class_Proto,`
         return 0;
     }
 
-    proto = g_new(wslua_proto_t, 1);
+    proto = g_new0(wslua_proto_t, 1);
 
     proto->name = hiname;
     proto->loname = loname;
@@ -652,7 +652,7 @@ int wslua_deregister_protocols(lua_State* L) {
         }
         lua_pop(L, 1);
 
-        if (proto->hfa->len) {
+        if (proto->hfa && proto->hfa->len) {
             proto_add_deregistered_data(g_array_free(proto->hfa,FALSE));
         } else {
             g_array_free(proto->hfa,TRUE);
@@ -661,7 +661,7 @@ int wslua_deregister_protocols(lua_State* L) {
         /* No need for deferred deletion of subtree indexes */
         g_array_free(proto->etta,TRUE);
 
-        if (proto->eia->len) {
+        if (proto->eia && proto->eia->len) {
             proto_add_deregistered_data(g_array_free(proto->eia,FALSE));
         } else {
             g_array_free(proto->eia,TRUE);

@@ -60,6 +60,7 @@ BrandingText "Wireshark${U+00ae} Installer"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_WELCOMEPAGE_TITLE_3LINES
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of ${PROGRAM_NAME}.$\r$\n$\r$\nBefore starting the installation, make sure ${PROGRAM_NAME} is not running.$\r$\n$\r$\nClick 'Next' to continue."
 ;!define MUI_FINISHPAGE_LINK "Install Npcap to be able to capture packets from a network."
 ;!define MUI_FINISHPAGE_LINK_LOCATION "https://nmap.org/npcap/"
@@ -68,6 +69,7 @@ BrandingText "Wireshark${U+00ae} Installer"
 ; the file's extension. "README.win32" won't work in most cases, because extension "win32"
 ; is usually not associated with an appropriate text editor. We should use extension "txt"
 ; for a text file or "html" for an html README file.
+!define MUI_FINISHPAGE_TITLE_3LINES
 !define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\NEWS.txt"
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Show News"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
@@ -1139,6 +1141,13 @@ File "${STAGING_DIR}\capinfos.exe"
 File "${STAGING_DIR}\capinfos.html"
 SectionEnd
 
+Section "Captype" SecCaptype
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\captype.exe"
+File "${STAGING_DIR}\captype.html"
+SectionEnd
+
 Section "Rawshark" SecRawshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
@@ -1247,12 +1256,13 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface that gets UDP packets from network devices"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdump} "Provide random packet generator"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEtwdump} "Provide ETW reader"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimming packets, omitting them, or saving to a different format."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Shows display filter byte-code, for debugging dfilter routines"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCaptype} "Print the types capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Random packet generator."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool"

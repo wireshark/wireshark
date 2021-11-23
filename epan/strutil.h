@@ -358,6 +358,13 @@ gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
 WS_DLL_PUBLIC
 gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
 
+/*
+ * Check name is valid. This covers names for display filter fields, dissector
+ * tables, preference modules, etc. Lower case is preferred.
+ */
+WS_DLL_LOCAL guchar
+module_check_valid_name(const char *name, gboolean lower_only);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

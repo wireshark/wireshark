@@ -193,4 +193,4 @@ extern gboolean dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 /* Read a string from an "xml" file, dropping xml comment blocks */
 #include <stdio.h>
-extern char *pn_fgets(char *str, int n, FILE *stream);
+extern char *pn_fgets(char *str, int n, FILE *stream, wmem_allocator_t *scope);

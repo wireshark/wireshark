@@ -429,12 +429,12 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 				/* Get the length of the key */
 				keylen = get_content_item_length(tvb, offset);
 				/* Extract the key */
-				keybuf = tvb_format_text(tvb, offset, keylen);
+				keybuf = tvb_format_text(pinfo->pool, tvb, offset, keylen);
 
 				/* Get the length of the value */
 				vallen = get_content_item_length(tvb, offset+keylen+2);
 				/* Extract the value */
-				valbuf = tvb_format_text(tvb, offset+keylen+2, vallen);
+				valbuf = tvb_format_text(pinfo->pool, tvb, offset+keylen+2, vallen);
 
 				/* Add a text item with the key... */
 				ti_2 =  proto_tree_add_string_format(content_tree, hf_ymsg_content_line, tvb,

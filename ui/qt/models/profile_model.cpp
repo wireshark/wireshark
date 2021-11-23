@@ -1091,7 +1091,8 @@ bool ProfileModel::acceptFile(QString fileName, int fileSize)
     if (fileName.toLower().endsWith(".zip"))
         return false;
 
-    if (fileSize > 1024 * 512)
+    /* Arbitrary maximum config file size accepted: 256MB */
+    if (fileSize > 1024 * 1024 * 256)
         return false;
 
     return true;

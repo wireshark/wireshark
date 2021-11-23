@@ -4201,7 +4201,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
         FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
     { &hf_radiotap_vw_tx_factorydebug,
         { "Factory Debug", "ixveriwave.tx.factorydebug",
-        FT_UINT8, BASE_HEX, NULL, 0x7f80, NULL, HFILL } },
+        FT_UINT16, BASE_HEX, NULL, 0x7f80, NULL, HFILL } },
     };
 
     static gint *ett[] = {

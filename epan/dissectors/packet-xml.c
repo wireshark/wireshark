@@ -270,7 +270,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         decoded = tvb;
     }
 
-    tt = tvbparse_init(decoded, 0, -1, stack, want_ignore);
+    tt = tvbparse_init(pinfo->pool, decoded, 0, -1, stack, want_ignore);
     current_frame->start_offset = 0;
     current_frame->length = tvb_captured_length(decoded);
 
@@ -307,7 +307,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (tvbparse_peek(tvbparse_init(tvb, 0, -1, NULL, want_ignore), want_heur)) {
+    if (tvbparse_peek(tvbparse_init(pinfo->pool, tvb, 0, -1, NULL, want_ignore), want_heur)) {
         dissect_xml(tvb, pinfo, tree, data);
         return TRUE;
     } else if (pref_heuristic_unicode) {
@@ -329,7 +329,7 @@ static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         data_str    = tvb_get_string_enc(pinfo->pool, tvb, 0, tvb_captured_length(tvb), enc);
         l           = strlen(data_str);
         unicode_tvb = tvb_new_child_real_data(tvb, data_str, (guint)l, (gint)l);
-        if (tvbparse_peek(tvbparse_init(unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
+        if (tvbparse_peek(tvbparse_init(pinfo->pool, unicode_tvb, 0, -1, NULL, want_ignore), want_heur)) {
             add_new_data_source(pinfo, unicode_tvb, "UTF8");
             dissect_xml(unicode_tvb, pinfo, tree, data);
             return TRUE;
@@ -413,7 +413,7 @@ static void after_token(void *tvbparse_data, const void *wanted_data _U_, tvbpar
     pi = proto_tree_add_item(current_frame->tree, hfid, tok->tvb, tok->offset, tok->len, ENC_UTF_8|ENC_NA);
 
     proto_item_set_text(pi, "%s",
-                        tvb_format_text(tok->tvb, tok->offset, tok->len));
+                        tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len));
 
     if (is_cdata) {
         new_frame                 = wmem_new(wmem_packet_scope(), xml_frame_t);
@@ -457,7 +457,7 @@ static void before_xmpli(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 
     pi = proto_tree_add_item(current_frame->tree, hf_tag, tok->tvb, tok->offset, tok->len, ENC_UTF_8|ENC_NA);
 
-    proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb, tok->offset, (name_tok->offset - tok->offset) + name_tok->len));
+    proto_item_set_text(pi, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, (name_tok->offset - tok->offset) + name_tok->len));
 
     pt = proto_item_add_subtree(pi, ett);
 
@@ -545,7 +545,7 @@ static void before_tag(void *tvbparse_data, const void *wanted_data _U_, tvbpars
     }
 
     pi = proto_tree_add_item(current_frame->tree, ns->hf_tag, tok->tvb, tok->offset, tok->len, ENC_UTF_8|ENC_NA);
-    proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb,
+    proto_item_set_text(pi, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb,
                                                   tok->offset,
                                                   (name_tok->offset - tok->offset) + name_tok->len));
 
@@ -620,7 +620,7 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
                                                          name_tok->tvb, name_tok->offset,
                                                          name_tok->len, ENC_ASCII|ENC_NA);
 
-    proto_item_set_text(dtd_item, "%s", tvb_format_text(tok->tvb, tok->offset, tok->len));
+    proto_item_set_text(dtd_item, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len));
 
     new_frame = wmem_new(wmem_packet_scope(), xml_frame_t);
     new_frame->type           = XML_FRAME_DTD_DOCTYPE;
@@ -698,7 +698,7 @@ static void after_attrib(void *tvbparse_data, const void *wanted_data _U_, tvbpa
     }
 
     pi = proto_tree_add_item(current_frame->tree, hfid, value->tvb, value->offset, value->len, ENC_UTF_8|ENC_NA);
-    proto_item_set_text(pi, "%s", tvb_format_text(tok->tvb, tok->offset, tok->len));
+    proto_item_set_text(pi, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len));
 
     current_frame->last_item = pi;
 

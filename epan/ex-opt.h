@@ -22,7 +22,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /* will be called by main each time a -X option is found */
-WS_DLL_PUBLIC gboolean ex_opt_add(const gchar* optarg);
+WS_DLL_PUBLIC gboolean ex_opt_add(const gchar* ws_optarg);
 
 /* yields the number of arguments of a given key obviously returns 0 if there aren't */
 WS_DLL_PUBLIC gint ex_opt_count(const gchar* key);

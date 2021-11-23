@@ -78,6 +78,7 @@ capture_info    *cinfo)
 {
     CaptureInfoDialog *ci_dlg = qobject_cast<CaptureInfoDialog *>((QObject *)cinfo->ui);
     if (!ci_dlg) return;
+    cinfo->ui = NULL;
     delete ci_dlg;
 }
 

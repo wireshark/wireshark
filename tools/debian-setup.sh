@@ -63,6 +63,7 @@ BASIC_LIST="gcc \
 	qtbase5-dev-tools \
 	libc-ares-dev \
 	libpcap-dev \
+	libpcre2-dev \
 	flex \
 	make \
 	python3 \
@@ -72,7 +73,6 @@ BASIC_LIST="gcc \
 ADDITIONAL_LIST="libnl-3-dev \
 	libkrb5-dev \
 	libsmi2-dev \
-	asciidoctor \
 	libsbc-dev \
 	liblua5.2-dev \
 	libnl-cli-3-dev \
@@ -89,8 +89,15 @@ ADDITIONAL_LIST="libnl-3-dev \
 	xsltproc \
 	libspeexdsp-dev"
 
+# Uncomment to add PNG compression utilities used by compress-pngs:
+# ADDITIONAL_LIST="$ADDITIONAL_LIST \
+#	advancecomp \
+#	optipng \
+#	pngcrush"
+
 DEBDEPS_LIST="debhelper \
 	dh-python \
+	asciidoctor \
 	docbook-xml \
 	docbook-xsl \
 	libxml2-utils \

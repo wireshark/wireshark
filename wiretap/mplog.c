@@ -175,6 +175,7 @@ static gboolean mplog_read_packet(FILE_T fh, wtap_rec *rec,
     start_p[3] = pkt_bytes & 0xFF;
 
     rec->rec_type = REC_TYPE_PACKET;
+    rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
     rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ISO14443;
     rec->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
     rec->ts.secs = (time_t)((pkt_ctr*10)/(1000*1000*1000));

@@ -302,6 +302,13 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             argv = sync_pipe_add_arg(argv, &argc, sring_num_files);
         }
 
+        if (capture_opts->has_nametimenum) {
+            char nametimenum[ARGV_NUMBER_LEN];
+            argv = sync_pipe_add_arg(argv, &argc, "-b");
+            g_snprintf(nametimenum, ARGV_NUMBER_LEN, "nametimenum:2");
+            argv = sync_pipe_add_arg(argv, &argc, nametimenum);
+        }
+
         if (capture_opts->has_autostop_files) {
             char sautostop_files[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-a");
@@ -1105,9 +1112,9 @@ sync_pipe_run_command(char* const argv[], gchar **data, gchar **primary_msg,
     logging_enabled = ws_log_msg_is_active(WS_LOG_DOMAIN, LOG_LEVEL_INFO);
     if (logging_enabled) {
         start_time = g_get_monotonic_time();
-        ws_info("sync_pipe_run_command() starts");
+        ws_debug("sync_pipe_run_command() starts");
         for (i=0; argv[i] != 0; i++) {
-            ws_debug("  argv[%d]: %s", i, argv[i]);
+            ws_noisy("  argv[%d]: %s", i, argv[i]);
         }
     }
     /* do the actual sync pipe run command */
@@ -1116,7 +1123,7 @@ sync_pipe_run_command(char* const argv[], gchar **data, gchar **primary_msg,
     if (logging_enabled) {
         elapsed = (g_get_monotonic_time() - start_time) / 1e6;
 
-        ws_info("sync_pipe_run_command() ends, taking %.3fs, result=%d", elapsed, ret);
+        ws_debug("sync_pipe_run_command() ends, taking %.3fs, result=%d", elapsed, ret);
 
     }
     return ret;
