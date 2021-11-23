@@ -79,7 +79,7 @@ df_lval_t *df_lval;
 
 static int set_lval_str(int token, const char *token_value);
 #define simple(token) set_lval_str(token, yytext)
-static GString *append_escaped_char(GString *str, char c);
+static gboolean append_escaped_char(dfwork_t *dfw, GString *str, char c);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -255,8 +255,8 @@ static GString *append_escaped_char(GString *str, char c);
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);
 	}
-	else {
-		append_escaped_char(yyextra->quoted_string, yytext[1]);
+	else if (!append_escaped_char(yyextra->dfw, yyextra->quoted_string, yytext[1])) {
+		return SCAN_FAILED;
 	}
 }
 
@@ -348,8 +348,8 @@ set_lval_str(int token, const char *token_value)
 	return token;
 }
 
-static GString *
-append_escaped_char(GString *str, char c)
+static gboolean
+append_escaped_char(dfwork_t *dfw, GString *str, char c)
 {
 	switch (c) {
 		case 'a':
@@ -373,14 +373,15 @@ append_escaped_char(GString *str, char c)
 		case 'v':
 			c = '\v';
 			break;
-		default:
-			/* Unrecognized escapes are treated as a literal character.
-			 * If this is turned into an error instead (which is a backward
-			 * incompatibility but arguably the right thing to do)
-			 * we need to take care to accept all valid sequences
-			 * (like \" and \\). */
+		case '\\':
+		case '\'':
+		case '\"':
 			break;
+		default:
+			dfilter_fail(dfw, "\\%c is not a valid character escape sequence", c);
+			return FALSE;
 	}
 
-	return g_string_append_c(str, c);
+	g_string_append_c(str, c);
+	return TRUE;
 }

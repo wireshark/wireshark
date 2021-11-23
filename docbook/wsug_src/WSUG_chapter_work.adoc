@@ -648,7 +648,7 @@ i.e. the SYN bit, set.
 ==== Possible Pitfalls Using Regular Expressions
 
 String literals containing regular expressions are parsed twice. Once by Wireshark's display
-filter engine and again by the PCRE library. It's important to keep this in mind when using
+filter engine and again by the PCRE2 library. It's important to keep this in mind when using
 the "matches" operator with regex escape sequences and special characters.
 
 For example the filter expression `+frame matches "AB\x43"+` uses the string `+"ABC"+` as input
@@ -661,10 +661,7 @@ code for `(` the pattern input to PCRE is `+"bar("+`. This regular expression is
 invalid (missing closing parenthesis). To match a literal parenthesis in a display filter regular
 expression it must be escaped (twice) with backslashes.
 
-Another common pitfall is using `\.` instead of `\\.` in a regular expression. The former
-will match any character (the backslash is superfluous) while the latter will match a literal dot.
-
-TIP: Using raw strings avoids most problem with the "matches" operator and double escapes.
+TIP: Using raw strings avoids most problem with the "matches" operator and double escape requirements.
 
 ==== Combining Expressions
 
