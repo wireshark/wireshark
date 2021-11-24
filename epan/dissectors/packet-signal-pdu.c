@@ -306,6 +306,8 @@ register_signal_pdu_can(void) {
                 dissector_add_uint("can.id", *id, signal_pdu_handle_can);
             }
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -327,6 +329,8 @@ register_signal_pdu_lin(void) {
             /* we register the combination of bus and frame id */
             dissector_add_uint("lin.frame_id", *id, signal_pdu_handle_lin);
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -348,6 +352,8 @@ register_signal_pdu_someip(void) {
             guint32 message_id = (guint32)((guint64)(*id)) & 0xffffffff;
             dissector_add_uint("someip.messageid", message_id, signal_pdu_handle_someip);
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -368,6 +374,8 @@ register_signal_pdu_pdu_transport(void) {
             gint64 *id = (gint64*)tmp->data;
             dissector_add_uint("pdu_transport.id", ((guint32)((guint64)(*id)) & 0xffffffff), signal_pdu_handle_pdu_transport);
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -388,6 +396,8 @@ register_signal_pdu_ipdum_ids(void) {
             gint64 *id = (gint64*)tmp->data;
             dissector_add_uint("ipdum.pdu.id", ((guint32)((guint64)(*id)) & 0xffffffff), signal_pdu_handle_ipdum);
         }
+
+        g_list_free(keys);
     }
 }
 
