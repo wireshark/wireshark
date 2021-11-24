@@ -63,14 +63,15 @@ static gchar* st_str_udp_term = "UDP terminations";
 /* this one initializes the tree, creating the root nodes */
 extern void udp_term_stats_tree_init(stats_tree* st) {
 	/* we create a node under which we'll add every termination */
-	st_udp_term = stats_tree_create_node(st, st_str_udp_term, 0, TRUE);
+	st_udp_term = stats_tree_create_node(st, st_str_udp_term, 0, STAT_DT_INT, TRUE);
 }
 
 /* this one will be called with every udp packet */
-extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */
-                                      packet_info *pinfo,  /* we'll fetch the addresses from here */
-                                      epan_dissect_t *edt _U_, /* unused */
-                                      const void *p) /* we'll use this to fetch the ports */
+extern tap_packet_status
+udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */
+                           packet_info *pinfo,  /* we'll fetch the addresses from here */
+                           epan_dissect_t *edt _U_, /* unused */
+                           const void *p) /* we'll use this to fetch the ports */
 {
 	static guint8 str[128];
 	e_udphdr* udphdr = (e_udphdr*) p;
@@ -112,10 +113,13 @@ the stats_tree API
  data structure which should be passed to the api functions.
 
 stats_tree_register(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
- registers a new stats tree
+ registers a new stats tree with default group REGISTER_STAT_GROUP_UNSORTED
 
 stats_tree_register_plugin(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
- registers a new stats tree from a plugin
+ registers a new stats tree from a plugin with the default group
+
+stats_tree_register_with_group(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb, stat_group);
+ registers a new stats tree under a particular stat group
 
 stats_tree_parent_id_by_name( st, parent_name)
   returns the id of a candidate parent node given its name
@@ -126,15 +130,17 @@ Node functions
 
 All the functions that operate on nodes return a parent_id
 
-stats_tree_create_node(st, name, parent_id, with_children)
+stats_tree_create_node(st, name, parent_id, datatype, with_children)
   Creates a node in the tree (to be used in the in init_cb)
     name: the name of the new node
     parent_id: the id of the parent_node (NULL for root)
+    datatype: datatype of the new node, STAT_DT_INT or STAT_DT_FLOAT. The only
+              methods implemented for floats are averages.
     with_children: TRUE if this node will have "dynamically created" children
                    (i.e. it will be a candidate parent)
 
 
-stats_tree_create_node_by_pname(st, name, parent_name, with_children);
+stats_tree_create_node_by_pname(st, name, parent_name, datatype, with_children);
   As before but creates a node using its parent's name
 
 
@@ -146,8 +152,8 @@ stats_tree_range_node_with_pname(st, name, parent_name, ...)
        stats_tree_create_range_node(st,name,parent_id,
 				"-99","100-199","200-299","300-399","400-", NULL);
 
-stats_tree_tick_range( st, name,  parent_id, value_in_range);
-stats_tree_tick_range_by_pname(st,name,parent_name,value_in_range)
+stats_tree_tick_range(st, name, parent_id, value_in_range);
+stats_tree_tick_range_by_pname(st, name, parent_name, value_in_range)
    Increases by one the ranged node and the sub node to whose range the value belongs
 
 
@@ -159,19 +165,18 @@ stats_tree_tick_pivot(st, pivot_id, pivoted_string);
  Each time a pivot node will be ticked it will get increased, and, it will
  increase (or create) the children named as pivoted_string
 
-
 the following will either increase or create a node (with value 1) when called
 
-tick_stat_node(st,name,parent_id,with_children)
+tick_stat_node(st, name, parent_id, with_children)
 increases by one a stat_node
 
-increase_stat_node(st,name,parent_id,with_children,value)
+increase_stat_node(st, name, parent_id, with_children, value)
 increases by value a stat_node
 
-set_stat_node(st,name,parent_id,with_children,value)
+set_stat_node(st, name, parent_id, with_children, value)
 sets the value of a stat_node
 
-zero_stat_node(st,name,parent_id,with_children)
+zero_stat_node(st, name, parent_id, with_children)
 resets to zero a stat_node
 
 Averages work by tracking both the number of items added to node (the ticking
@@ -179,8 +184,9 @@ action) and the value of each item added to the node. This is done
 automatically for ranged nodes; for other node types you need to call one of
 the functions below to associate item values with each tick.
 
-avg_stat_node_add_value_notick(st,name,parent_id,with_children,value)
-avg_stat_node_add_value(st,name,parent_id,with_children,value)
+avg_stat_node_add_value_notick(st, name, parent_id, with_children, value)
+avg_stat_node_add_value_int(st, name, parent_id, with_children, value)
+avg_stat_node_add_value_float(st, name, parent_id, with_children, value)
 
 The difference between the above functions is whether the item count is
 increased or not. To properly compute the average you need to either call
@@ -191,11 +197,14 @@ it does not understand the command. This would result in 0 counts for all
 nodes. It is preferred to use avg_stat_node_add_value if you are not writing
 a plug-in.
 
-avg_stat_node_add_value is used the same way as tick_stat_node with the
+avg_stat_node_add_value_int is used the same way as tick_stat_node with the
 exception that you now specify an additional value associated with the tick.
 
+avg_stat_node_add_value_float is used to compute averages of floats, for nodes
+with the STAT_DT_FLOAT datatype.
+
 Do not mix increase_stat_node, set_stat_node or zero_stat_node
-with avg_stat_node_add_value as this will lead to incorrect results for the
+with avg_stat_node_add_value_int as this will lead to incorrect results for the
 average value.
 
 stats_tree now also support setting flags per node to control the behaviour
@@ -204,11 +213,25 @@ stat_node_clear_flags functions. Currently these flags are defined:
 
 	ST_FLG_DEF_NOEXPAND: By default the top-level nodes in a tree are
 			automatically expanded in the GUI. Setting this flag on
-			such a node	prevents the node from automatically expanding.
+			such a node prevents the node from automatically
+			expanding.
 	ST_FLG_SORT_TOP: Nodes with this flag is sorted separately from nodes
-			without this flag (in effect partitioning tree into a top and
-			bottom half. Each half is sorted normally. Top always appear
-			first :)
+			without this flag (in effect partitioning tree into a top
+			and bottom half. Each half is sorted normally. Top always
+			appear first :)
+
+The same node manipulations can also be performed via generic functions:
+
+stats_tree_manip_node_int(mode, st, name, parent_id, with_children, value);
+stats_tree_manip_node_float(mode, st, name, parent_id, with_children, value);
+
+mode is an enum with the following set of values:
+    MN_INCREASE
+    MN_SET
+    MN_AVERAGE
+    MN_AVERAGE_NOTICK
+    MN_SET_FLAGS
+    MN_CLEAR_FLAGS
 
 You can find more examples of these in $srcdir/plugins/epan/stats_tree/pinfo_stats_tree.c
 
