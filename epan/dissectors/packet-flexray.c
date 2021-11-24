@@ -270,7 +270,9 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                         proto_item_set_hidden(ti);
 
 			if (nfi) {
-				col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 7, flexray_current_payload_length, ' '));
+				if (tvb != NULL && flexray_current_payload_length > 0) {
+					col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, 7, flexray_current_payload_length, ' '));
+				}
 				if (flexray_current_payload_length != flexray_reported_payload_length) {
 					expert_add_info(pinfo, flexray_frame_tree, &ei_flexray_frame_payload);
 					call_subdissector = FALSE;
