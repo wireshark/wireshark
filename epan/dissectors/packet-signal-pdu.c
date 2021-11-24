@@ -33,11 +33,6 @@
 #include <packet-autosar-ipdu-multiplexer.h>
 
 
-void proto_reg_handoff_signal_pdu_can(void);
-void proto_reg_handoff_signal_pdu_lin(void);
-void proto_reg_handoff_signal_pdu_someip(void);
-void proto_reg_handoff_signal_pdu_pdu_transport(void);
-
 /*
  * Dissector for CAN, FlexRay, and other message payloads.
  * This includes such PDUs being transported on top of TECMP,
@@ -289,7 +284,7 @@ void proto_register_signal_pdu(void);
 void proto_reg_handoff_signal_pdu(void);
 
 void
-proto_reg_handoff_signal_pdu_can(void) {
+register_signal_pdu_can(void) {
     if (signal_pdu_handle_can == NULL) {
         return;
     }
@@ -315,7 +310,7 @@ proto_reg_handoff_signal_pdu_can(void) {
 }
 
 void
-proto_reg_handoff_signal_pdu_lin(void) {
+register_signal_pdu_lin(void) {
     if (signal_pdu_handle_lin == NULL) {
         return;
     }
@@ -336,7 +331,7 @@ proto_reg_handoff_signal_pdu_lin(void) {
 }
 
 void
-proto_reg_handoff_signal_pdu_someip(void) {
+register_signal_pdu_someip(void) {
     if (signal_pdu_handle_someip == NULL) {
         return;
     }
@@ -357,7 +352,7 @@ proto_reg_handoff_signal_pdu_someip(void) {
 }
 
 void
-proto_reg_handoff_signal_pdu_pdu_transport(void) {
+register_signal_pdu_pdu_transport(void) {
     if (signal_pdu_handle_pdu_transport == NULL) {
         return;
     }
@@ -1063,7 +1058,7 @@ post_update_spdu_someip_mapping_cb(void) {
     }
 
     /* we need to make sure we register again */
-    proto_reg_handoff_signal_pdu_someip();
+    register_signal_pdu_someip();
 }
 
 static spdu_someip_mapping_t*
@@ -1120,7 +1115,7 @@ post_update_spdu_can_mapping_cb(void) {
     }
 
     /* we need to make sure we register again */
-    proto_reg_handoff_signal_pdu_can();
+    register_signal_pdu_can();
 }
 
 static spdu_can_mapping_t*
@@ -1277,7 +1272,7 @@ post_update_spdu_lin_mapping_cb(void) {
     }
 
     /* we need to make sure we register again */
-    proto_reg_handoff_signal_pdu_lin();
+    register_signal_pdu_lin();
 }
 
 static spdu_lin_mapping_t*
@@ -1352,7 +1347,7 @@ post_update_spdu_pdu_transport_mapping_cb(void) {
     }
 
     /* we need to make sure we register again */
-    proto_reg_handoff_signal_pdu_pdu_transport();
+    register_signal_pdu_pdu_transport();
 }
 
 static spdu_pdu_transport_mapping_t*
