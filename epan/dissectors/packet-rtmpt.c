@@ -1879,6 +1879,11 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
         if (pinfo->fd->visited) {
                 /* Already done the work, so just dump the existing state */
+                /* XXX: If there's bogus sequence numbers and the
+                 * tcp.analyze_sequence_numbers pref is TRUE, we can't actually
+                 * assume that we processed this frame the first time around,
+                 * since the TCP dissector might not have given it to us.
+                 */
                 wmem_stack_t *packets;
 
                 /* List all RTMP packets terminating in this TCP segment, from end to beginning */
@@ -1887,10 +1892,18 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                 wmem_stack_push(packets, 0);
 
                 tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], seq+remain-1);
-                while (tp && tp->lastseq >= seq) {
+                while (tp && GE_SEQ(tp->lastseq, seq)) {
+                        /* Sequence numbers can wrap around (especially with
+                         * tcp.relative_sequence_numbers FALSE), so use the
+                         * wrap around aware comparison from packet-tcp.h
+                         */
                         wmem_stack_push(packets, tp);
                         if (tp->seq == 0) {
                                 // reached first segment.
+                                /* XXX: Assuming tcp.relative_sequence_numbers
+                                 * is TRUE, that is, since on TCP we just
+                                 * reuse the sequence numbers from tcpinfo.
+                                 */
                                 break;
                         }
                         tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], tp->seq-1);
