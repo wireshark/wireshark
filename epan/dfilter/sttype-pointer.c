@@ -31,11 +31,6 @@ pcre_free(gpointer value)
 
 	/* If the data was not claimed with stnode_steal_data(), free it. */
 	if (pcre) {
-		/*
-		 * They're reference-counted, so just drop the reference
-		 * count; it'll get freed when the reference count drops
-		 * to 0.
-		 */
 		ws_regex_free(pcre);
 	}
 }
