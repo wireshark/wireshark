@@ -398,6 +398,11 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 	unsigned long value;
 
 	cp = s + 1;	/* skip the leading ' */
+	if (*cp == '\'') {
+		dfilter_fail(dfw, "Empty character constant.");
+		return FALSE;
+	}
+
 	if (*cp == '\\') {
 		/*
 		 * C escape sequence.
@@ -410,7 +415,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 		switch (*cp) {
 
 		case '\0':
-			dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+			dfilter_fail(dfw, "%s isn't a valid character constant.", s);
 			return FALSE;
 
 		case 'a':
@@ -462,7 +467,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 			else if (*cp >= 'a' && *cp <= 'f')
 				value = 10 + (*cp - 'a');
 			else {
-				dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+				dfilter_fail(dfw, "%s isn't a valid character constant.", s);
 				return FALSE;
 			}
 			cp++;
@@ -475,7 +480,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 				else if (*cp >= 'a' && *cp <= 'f')
 					value |= 10 + (*cp - 'a');
 				else {
-					dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+					dfilter_fail(dfw, "%s isn't a valid character constant.", s);
 					return FALSE;
 				}
 			}
@@ -486,7 +491,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 			if (*cp >= '0' && *cp <= '7')
 				value = *cp - '0';
 			else {
-				dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+				dfilter_fail(dfw, "%s isn't a valid character constant.", s);
 				return FALSE;
 			}
 			if (*(cp + 1) != '\'') {
@@ -495,7 +500,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 				if (*cp >= '0' && *cp <= '7')
 					value |= *cp - '0';
 				else {
-					dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+					dfilter_fail(dfw, "%s isn't a valid character constant.", s);
 					return FALSE;
 				}
 				if (*(cp + 1) != '\'') {
@@ -504,26 +509,26 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 					if (*cp >= '0' && *cp <= '7')
 						value |= *cp - '0';
 					else {
-						dfilter_fail(dfw, "\"%s\" isn't a valid character constant.", s);
+						dfilter_fail(dfw, "%s isn't a valid character constant.", s);
 						return FALSE;
 					}
 				}
 			}
 			if (value > 0xFF) {
-				dfilter_fail(dfw, "\"%s\" is too large to be a valid character constant.", s);
+				dfilter_fail(dfw, "%s is too large to be a valid character constant.", s);
 				return FALSE;
 			}
 		}
 	} else {
 		value = *cp;
 		if (!g_ascii_isprint(value)) {
-			dfilter_fail(dfw, "Non-printable character '\\x%02lx' in character constant.", value);
+			dfilter_fail(dfw, "Non-printable character '0x%2lx' in character constant.", value);
 			return FALSE;
 		}
 	}
 	cp++;
 	if ((*cp != '\'') || (*(cp + 1) != '\0')){
-		dfilter_fail(dfw, "\"%s\" is too long to be a valid character constant.", s);
+		dfilter_fail(dfw, "%s is too long to be a valid character constant.", s);
 		return FALSE;
 	}
 
