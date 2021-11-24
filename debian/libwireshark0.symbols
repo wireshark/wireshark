@@ -586,6 +586,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_get_version@Base 1.9.1
  epan_get_version_number@Base 2.5.0
  epan_init@Base 2.9.0
+ epan_inspect_enums@Base 3.7.0
  epan_load_settings@Base 2.3.0
  epan_memmem@Base 1.9.1
  epan_new@Base 1.12.0~rc1
