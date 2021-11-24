@@ -904,7 +904,7 @@ void proto_register_pkix1explicit(void) {
         NULL, HFILL }},
     { &hf_pkix1explicit_generalTime,
       { "generalTime", "pkix1explicit.generalTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_pkix1explicit_Extensions_item,
       { "Extension", "pkix1explicit.Extension_element",

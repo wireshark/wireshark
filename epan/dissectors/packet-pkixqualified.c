@@ -386,7 +386,7 @@ void proto_register_pkixqualified(void) {
 #line 1 "./asn1/pkixqualified/packet-pkixqualified-hfarr.c"
     { &hf_pkixqualified_Generalizedtime_PDU,
       { "Generalizedtime", "pkixqualified.Generalizedtime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_pkixqualified_Directorystring_PDU,
       { "Directorystring", "pkixqualified.Directorystring",

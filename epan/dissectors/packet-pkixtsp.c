@@ -550,7 +550,7 @@ void proto_register_pkixtsp(void) {
         "INTEGER", HFILL }},
     { &hf_pkixtsp_genTime,
       { "genTime", "pkixtsp.genTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_pkixtsp_accuracy,
       { "accuracy", "pkixtsp.accuracy_element",

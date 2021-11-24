@@ -18500,7 +18500,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
     { &hf_ansi_map_generalizedTime,
       { "generalizedTime", "ansi_map.generalizedTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_ansi_map_geographicPosition,
       { "geographicPosition", "ansi_map.geographicPosition",

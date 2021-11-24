@@ -3567,15 +3567,8 @@ dissect_ber_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_t
 int
 dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
 {
-    char          str[35];
-    int           tmp_int;
+    nstime_t      ts;
     const guint8 *tmpstr;
-    char         *strptr;
-    char          first_delim[2];
-    int           first_digits;
-    char          second_delim[2];
-    int           second_digits;
-    int           ret;
     gint8         ber_class;
     gboolean      pc;
     gint32        tag;
@@ -3622,7 +3615,33 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
         end_offset = offset+len;
     }
 
-    if ((len < 14) || (len > 23)) {
+    /* ASN.1 GeneralizedTime is a ISO 8601 Basic profile that omits the T
+     * between date and time. BER allows accuracy of hours, minutes, seconds,
+     * fractions of a second "to any degree of accuracy", and even
+     * fractional minutes or hours (see ITU-T X.680 46.2 and ITU-T X.690 8.25.)
+     *
+     * CER/DER (and PER) require that the seconds field be present (cf.
+     * ITU-T X.690 11.7 and ITU-T X.691 10.6.5), that the decimal point
+     * element be ".", that fractional seconds trailing zeros MUST be omitted,
+     * and that the decimal point shall also be omitted if the entire fractional
+     * second is 0 (in order to have a unique representation.)
+     *
+     * RFC 5280 says that X.509 certificate validity dates after 2050, which
+     * MUST use GeneralizedTime, MUST be expressed in Z and MUST include
+     * seconds but MUST NOT include fractional seconds.
+     *
+     * The minimum that iso8601_to_nstime() handles currently is
+     * YYYYMMDDhhmm = 12 digits
+     * and the maximimum is
+     * YYYYMMDDhhmmss.sssssssss+hhmm = 29 digits
+     *
+     * That doesn't handle everything that BER technically supports, but
+     * everything seen in practice. For the protocols that are more restrictive
+     * if someone really wants to validate and complain about e.g. fractional
+     * seconds in a X.509 certificate, that could be added to the conformance
+     * file.
+     */
+    if ((len < 12) || (len > 29)) {
         cause = proto_tree_add_expert_format(
             tree, actx->pinfo, &ei_ber_error_length,
             tvb, len_offset, len_len,
@@ -3636,121 +3655,26 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
     }
 
     tmpstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-    strptr = str;
-    /* those fields are allways present */
-    strptr += g_snprintf(str, 20, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s",
-                         tmpstr, tmpstr+4, tmpstr+6, tmpstr+8,
-                         tmpstr+10, tmpstr+12);
-
-    first_delim[0]  = 0;
-    second_delim[0] = 0;
-    ret = sscanf(tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", &tmp_int, first_delim, &first_digits, second_delim, &second_digits);
-    /* tmp_int does not contain valid value because of overflow but we use it just for format checking */
-    if (ret < 1) {
-        /* Nothing matched */
-        goto invalid;
-    }
-
-    if (ret >= 2) {
-        /*
-         * We saw the date+time and the first delimiter.
-         *
-         * Either:
-         *
-         *    it's '.' or ',', in which case we have a fraction of a
-         *    minute or hour;
-         *
-         *    it's '+' or '-', in which case we have an offset from UTC;
-         *
-         *    it's 'Z', in which case the time is UTC.
-         */
-        switch (first_delim[0]) {
-        case '.':
-        case ',':
-            /*
-             * Fraction of a minute or an hour.
-             */
-            if (ret == 2 || first_digits < 0 || first_digits > 999) {
-                /*
-                 * We saw the decimal sign, but didn't see the fraction
-                 * or
-                 * we got a number outside the valid range.
-                 */
-                goto invalid;
-            }
-            strptr += g_snprintf(strptr, 5, "%c%.3d", first_delim[0], first_digits);
-            if (ret >= 4) {
-                /*
-                 * We saw the fraction and the second delimiter.
-                 *
-                 * Either:
-                 *
-                 *    it's '+' or '-', in which case we have an offset
-                 *    from UTC;
-                 *
-                 *    it's 'Z', in which case the time is UTC.
-                 */
-                switch (second_delim[0]) {
-                case '+':
-                case '-':
-                    if (ret == 4) {
-                        /*
-                         * We saw the + or -, but didn't see the offset
-                         * from UTC.
-                         */
-                        goto invalid;
-                    }
-                    g_snprintf(strptr, 12, " (UTC%c%.4d)", second_delim[0], second_digits);
-                    break;
-                case 'Z':
-                    g_snprintf(strptr, 7, " (UTC)");
-                    break;
-                default:
-                    /* handle the malformed field */
-                    break;
-                }
-            }
-            break;
-        case '+':
-        case '-':
-            /*
-             * Offset from UTC.
-             */
-            if (ret == 2) {
-                /*
-                 * We saw the + or -1, but didn't see the offset.
-                 */
-                goto invalid;
-            }
-            g_snprintf(strptr, 12, " (UTC%c%.4d)", first_delim[0], first_digits);
-            break;
-        case 'Z':
-            g_snprintf(strptr, 7, " (UTC)");
-            break;
-        default:
-            /* handle the malformed field */
-            break;
+    if (!iso8601_to_nstime(&ts, tmpstr, ISO8601_DATETIME_BASIC)) {
+        cause = proto_tree_add_expert_format(
+            tree, actx->pinfo, &ei_ber_invalid_format_generalized_time,
+            tvb, offset, len,
+            "BER Error: GeneralizedTime invalid format: %s",
+            tmpstr);
+        if (decode_unexpected) {
+            proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
+            dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
         }
+        return end_offset;
     }
 
     if (hf_id >= 0) {
-        proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
+        proto_tree_add_time(tree, hf_id, tvb, offset, len, &ts);
     }
 
     offset+=len;
     return offset;
 
-invalid:
-    cause = proto_tree_add_expert_format(
-        tree, actx->pinfo, &ei_ber_invalid_format_generalized_time,
-        tvb, offset, len,
-        "BER Error: GeneralizedTime invalid format: %s",
-        tmpstr);
-    if (decode_unexpected) {
-        proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
-        dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
-    }
-    return end_offset;
 }
 
 /* datestrptr: if not NULL return datetime string instead of adding to tree or NULL when packet is malformed

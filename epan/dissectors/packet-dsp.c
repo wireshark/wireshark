@@ -2306,7 +2306,7 @@ void proto_register_dsp(void) {
         NULL, HFILL }},
     { &hf_dsp_generalizedTime,
       { "generalizedTime", "dsp.generalizedTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_dsp_crossReferences,
       { "crossReferences", "dsp.crossReferences",

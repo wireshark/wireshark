@@ -9711,7 +9711,7 @@ void proto_register_mms(void) {
         "Unsigned32", HFILL }},
     { &hf_mms_lastModified,
       { "lastModified", "mms.lastModified",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_mms_ParameterSupportOptions_str1,
       { "str1", "mms.ParameterSupportOptions.str1",
