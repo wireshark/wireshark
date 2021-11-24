@@ -361,15 +361,40 @@ get_os_version_info(GString *str)
 			is_nt_workstation = (win_version_info.wProductType == VER_NT_WORKSTATION);
 			switch (win_version_info.dwMinorVersion) {
 			case 0:
-				g_string_append_printf(str, is_nt_workstation ? "Windows 10/11" : "Windows Server 2016/2019");
-                                if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-                                                L"DisplayVersion", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
-                                        g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
-                                }
-                                else if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
-                                                L"ReleaseId", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
-                                        g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
-                                }
+				/* List of BuildNumber from https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
+				 * and https://docs.microsoft.com/en-us/windows/release-health/windows11-release-information */
+				if (is_nt_workstation) {
+					if (win_version_info.dwBuildNumber >= 10240 && win_version_info.dwBuildNumber < 22000){
+						g_string_append_printf(str, "Windows 10");
+					} else if (win_version_info.dwBuildNumber == 22000) {
+						g_string_append_printf(str, "Windows 11");
+					} else {
+						g_string_append_printf(str, "Windows");
+					}
+				} else {
+					switch (win_version_info.dwBuildNumber) {
+					case 14393:
+						g_string_append_printf(str, "Windows Server 2016");
+						break;
+					case 17763:
+						g_string_append_printf(str, "Windows Server 2019");
+						break;
+					case 20348:
+						g_string_append_printf(str, "Windows Server 2022");
+						break;
+					default:
+						g_string_append_printf(str, "Windows Server");
+						break;
+					}
+				}
+				if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+				                L"DisplayVersion", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
+					g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
+				}
+				else if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+				                L"ReleaseId", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
+					g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
+				}
 				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
