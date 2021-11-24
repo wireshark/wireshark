@@ -1589,7 +1589,7 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
         proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset + 1, length - (offset + 1), ENC_NA);
     }
 
-    return length - (offset + 1);
+    return offset;
 }
 
 static int
