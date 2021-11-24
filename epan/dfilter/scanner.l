@@ -257,6 +257,8 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 		g_string_append(yyextra->quoted_string, yytext);
 	}
 	else if (!append_escaped_char(yyextra->dfw, yyextra->quoted_string, yytext[1])) {
+		g_string_free(yyextra->quoted_string, TRUE);
+		yyextra->quoted_string = NULL;
 		return SCAN_FAILED;
 	}
 }
