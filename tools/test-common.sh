@@ -138,8 +138,12 @@ function ws_exit_error() {
         uname -srvm
         lsb_release -a 2> /dev/null
 
+        if [ -n "$CI_COMMIT_BRANCH" ] ; then
+            echo -e "\nBranch: $CI_COMMIT_BRANCH"
+        fi
+
         if [ -n "$CI_JOB_NAME" ] ; then
-            echo -e "\nCI job name: $CI_JOB_NAME, ID: $CI_JOB_ID "
+            echo -e "\nCI job name: $CI_JOB_NAME, ID: $CI_JOB_ID"
         fi
 
         echo -e "\nReturn value: " $RETVAL
