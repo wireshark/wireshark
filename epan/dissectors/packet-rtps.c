@@ -5863,7 +5863,7 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
         tvbuff_t * tvb, gint offset, const guint encoding, dissection_info * info) {
   proto_tree * member;
   guint32 member_id = 0, member_length = 0;
-  guint32 long_number, i, max_elements = 0;
+  guint32 long_number, i;
   gint offset_tmp, member_size;
 
   offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
@@ -5880,16 +5880,12 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
 
   offset_tmp += 4;
 
-  max_elements = (enable_max_data_type_elements)
-          ? MIN(long_number, rtps_max_data_type_elements)
-          : long_number;
-
   if (info) {
       info->elements = (dissection_element*)wmem_alloc0(
             wmem_file_scope(),
-            sizeof(dissection_element) * max_elements);
+            sizeof(dissection_element) * long_number);
   }
-  for (i = 0; i < max_elements; i++) {
+  for (i = 0; i < long_number; i++) {
       member_size = offset_tmp;
       member = proto_tree_add_subtree(tree, tvb, offset_tmp, 0,
           ett_rtps_type_enum_constant, NULL, "");
