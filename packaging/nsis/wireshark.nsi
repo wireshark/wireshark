@@ -560,7 +560,7 @@ ${Switch} $0
     SetRebootFlag true
     ${Break}
   ${Default}
-      MessageBox MB_OK "The Visual C++ Redistributable installer failed with error $0.$\nPlease make sure you have KB2999226 or KB3118401 installed.$\nUnable to continue installation." /SD IDOK
+      MessageBox MB_OK "The Visual C++ Redistributable installer failed with error $0.$\nUnable to continue installation." /SD IDOK
       Abort
     ${Break}
 ${EndSwitch}
