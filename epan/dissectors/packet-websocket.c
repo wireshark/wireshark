@@ -985,7 +985,7 @@ proto_register_websocket(void)
 
   websocket_handle = register_dissector("websocket", dissect_websocket, proto_websocket);
 
-  websocket_module = prefs_register_protocol(proto_websocket, proto_reg_handoff_websocket);
+  websocket_module = prefs_register_protocol(proto_websocket, NULL);
 
   prefs_register_enum_preference(websocket_module, "text_type",
         "Dissect websocket text as",
