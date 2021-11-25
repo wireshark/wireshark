@@ -53,7 +53,7 @@
 #include <QKeySequence>
 #include <QTextStream>
 #include <QUrl>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QAbstractItemModel>
 #include <QHash>
 #include <QDesktopServices>
@@ -73,7 +73,7 @@ AStringListListModel(parent)
     QTextStream ReadFile_authors(&f_authors);
     ReadFile_authors.setCodec("UTF-8");
 
-    QRegExp rx("(.*)[<(]([\\s'a-zA-Z0-9._%+-]+(\\[[Aa][Tt]\\])?[a-zA-Z0-9._%+-]+)[>)]");
+    QRegularExpression rx("(.*)[<(]([\\s'a-zA-Z0-9._%+-]+(\\[[Aa][Tt]\\])?[a-zA-Z0-9._%+-]+)[>)]");
     acknowledgement_.clear();
     while (!ReadFile_authors.atEnd()) {
         QString line = ReadFile_authors.readLine();
@@ -83,13 +83,14 @@ AStringListListModel(parent)
         if (line.startsWith("------"))
             continue;
 
-        if (line.contains("Acknowledgements"))
-        {
+        if (line.contains("Acknowledgements")) {
             readAck = true;
             continue;
+        } else {
+            QRegularExpressionMatch match = rx.match(line);
+            if (match.hasMatch())
+                appendRow(QStringList() << match.captured(1).trimmed() << match.captured(2).trimmed());
         }
-        else if (rx.indexIn(line) != -1)
-            appendRow(QStringList() << rx.cap(1).trimmed() << rx.cap(2).trimmed());
 
         if (readAck && (!line.isEmpty() || !acknowledgement_.isEmpty()))
             acknowledgement_.append(QString("%1\n").arg(line));
@@ -626,7 +627,7 @@ void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
     }
     const int row = index.row();
     const QAbstractItemModel *model = index.model();
-    if (model->index(row, path_col).data().toString().contains(QRegExp(script_pattern))) {
+    if (model->index(row, path_col).data().toString().contains(QRegularExpression(script_pattern))) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(model->index(row, path_col).data().toString()));
     }
 }

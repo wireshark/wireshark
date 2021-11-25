@@ -32,7 +32,7 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpacerItem>
-#include <QRegExp>
+#include <QRegularExpression>
 
 const char *pref_prop_ = "pref_ptr";
 
@@ -345,7 +345,7 @@ void ModulePreferencesScrollArea::updateWidgets()
         pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
         if (!pref) continue;
 
-        le->setText(gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed)).remove(QRegExp("\n\t")));
+        le->setText(gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed)).remove(QRegularExpression("\n\t")));
     }
 
     foreach (QCheckBox *cb, findChildren<QCheckBox *>()) {

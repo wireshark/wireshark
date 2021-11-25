@@ -13,8 +13,8 @@
 
 #include <ui/qt/utils/color_utils.h>
 
-#include <QRegExp>
-#include <QRegExpValidator>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QStyle>
 
 ApplyLineEdit::ApplyLineEdit(QString linePlaceholderText, QWidget * parent)
@@ -90,8 +90,8 @@ bool ApplyLineEdit::isValidText(QString & text, bool ignoreEmptyCheck)
 
     if (regex_.length() > 0)
     {
-        QRegExp rx (regex_);
-        QRegExpValidator v(rx, 0);
+        QRegularExpression rx (regex_);
+        QRegularExpressionValidator v(rx, 0);
 
         int pos = 0;
         if (! rx.isValid() || v.validate(text, pos) != QValidator::Acceptable)

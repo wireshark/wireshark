@@ -12,7 +12,7 @@
 #include <QPalette>
 #include <QApplication>
 #include <QBrush>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <ui/qt/models/supported_protocols_model.h>
 
@@ -210,7 +210,7 @@ bool SupportedProtocolsProxyModel::lessThan(const QModelIndex &left, const QMode
 
 bool SupportedProtocolsProxyModel::filterAcceptItem(SupportedProtocolsItem& item) const
 {
-    QRegExp regex(filter_, Qt::CaseInsensitive);
+    QRegularExpression regex(filter_, QRegularExpression::CaseInsensitiveOption);
 
     if (item.name().contains(regex))
         return true;

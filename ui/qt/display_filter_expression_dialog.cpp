@@ -28,7 +28,7 @@
 #include <QDialogButtonBox>
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
-#include <QRegExp>
+#include <QRegularExpression>
 
 // To do:
 // - Speed up initialization.
@@ -422,7 +422,7 @@ void DisplayFilterExpressionDialog::on_searchLineEdit_textChanged(const QString 
 {
     ui->fieldTreeWidget->setUpdatesEnabled(false);
     QTreeWidgetItemIterator it(ui->fieldTreeWidget);
-    QRegExp regex(search_re, Qt::CaseInsensitive);
+    QRegularExpression regex(search_re, QRegularExpression::CaseInsensitiveOption);
     while (*it) {
         bool hidden = true;
         if (search_re.isEmpty() || (*it)->text(0).contains(regex)) {

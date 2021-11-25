@@ -1119,7 +1119,7 @@ void MainWindow::recentActionTriggered() {
 
 QString MainWindow::commentToMenuText(QString text, int max_len)
 {
-    text = text.trimmed().replace(QRegExp("(\\r?\\n|\\r\\n?)+"), " ");
+    text = text.trimmed().replace(QRegularExpression("(\\r?\\n|\\r\\n?)+"), " ");
     if (text.size() > 0) {
         if (text.size() > max_len) {
             text.truncate(max_len);

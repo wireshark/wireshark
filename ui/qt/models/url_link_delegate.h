@@ -14,8 +14,7 @@
 #include <QStyledItemDelegate>
 #include <QStyleOptionViewItem>
 #include <QModelIndex>
-
-class QRegExp;
+#include <QRegularExpression>
 
 class UrlLinkDelegate : public QStyledItemDelegate
 {
@@ -31,6 +30,6 @@ protected:
 
 private:
     int re_col_;
-    QRegExp *url_re_;
+    QRegularExpression *url_re_;
 };
 #endif // URL_LINK_DELEGATE_H

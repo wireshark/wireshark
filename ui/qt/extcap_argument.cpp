@@ -29,7 +29,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include <glib.h>
 
@@ -351,9 +351,9 @@ QWidget * ExtArgBool::createEditor(QWidget * parent)
     const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
     if (prefval)
     {
-        QRegExp regexp(EXTCAP_BOOLEAN_REGEX);
-
-        bool savedstate = (regexp.indexIn(QString(prefval[0]), 0) != -1);
+        QRegularExpression regexp(EXTCAP_BOOLEAN_REGEX);
+        QRegularExpressionMatch match = regexp.match(QString(prefval[0]));
+        bool savedstate = match.hasMatch();
         if (savedstate != state)
             state = savedstate;
     }
@@ -498,8 +498,8 @@ bool ExtArgText::isValid()
         QString regexp = QString().fromUtf8(_argument->regexp);
         if (regexp.length() > 0)
         {
-            QRegExp expr(regexp);
-            if (! expr.isValid() || expr.indexIn(value(), 0) == -1)
+            QRegularExpression expr(regexp, QRegularExpression::UseUnicodePropertiesOption);
+            if (! expr.isValid() || ! expr.match(value()).hasMatch())
                 valid = false;
         }
     }

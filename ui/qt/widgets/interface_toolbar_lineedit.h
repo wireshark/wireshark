@@ -11,7 +11,7 @@
 #define INTERFACE_TOOLBAR_LINEEDIT_H
 
 #include <QLineEdit>
-#include <QRegExp>
+#include <QRegularExpression>
 
 class StockIconToolButton;
 
@@ -39,7 +39,7 @@ private:
     void updateStyleSheet(bool is_valid);
 
     StockIconToolButton *apply_button_;
-    QRegExp regex_expr_;
+    QRegularExpression regex_expr_;
     bool is_required_;
     bool text_edited_;
 };

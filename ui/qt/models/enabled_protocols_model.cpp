@@ -16,7 +16,7 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include "wireshark_application.h"
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 class ProtocolTreeItem : public EnabledProtocolItem
 {
@@ -419,7 +419,7 @@ bool EnabledProtocolsProxyModel::filterAcceptsSelf(int sourceRow, const QModelIn
     if (! item)
         return false;
 
-    QRegExp regex(filter_, Qt::CaseInsensitive);
+    QRegularExpression regex(filter_, QRegularExpression::CaseInsensitiveOption);
 
     if ((type_ != EnabledProtocolsProxyModel::EnabledItems && type_ != EnabledProtocolsProxyModel::DisabledItems) &&
         (protocolType_ == EnabledProtocolItem::Any || protocolType_ == item->type()) )

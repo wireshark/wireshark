@@ -19,7 +19,7 @@
 
 #include <QFont>
 #include <QColor>
-#include <QRegExp>
+#include <QRegularExpression>
 
 // XXX Should we move this to ui/preference_utils?
 static GHashTable * pref_ptr_to_pref_ = NULL;
@@ -231,7 +231,7 @@ QVariant PrefsModel::data(const QModelIndex &index, int role) const
         if (item->getPref() == NULL)
             return QVariant();
 
-        return QString(gchar_free_to_qstring(prefs_pref_to_str(item->getPref(), pref_stashed)).remove(QRegExp("\n\t")));
+        return QString(gchar_free_to_qstring(prefs_pref_to_str(item->getPref(), pref_stashed)).remove(QRegularExpression("\n\t")));
     default:
         break;
     }

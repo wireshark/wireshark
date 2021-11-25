@@ -2349,7 +2349,7 @@ QString MainWindow::replaceWindowTitleVariables(QString title)
             // Substitute HOME with ~
             QString homedir(g_getenv("HOME"));
             if (!homedir.isEmpty()) {
-                homedir.remove(QRegExp("[/]+$"));
+                homedir.remove(QRegularExpression("[/]+$"));
                 file.replace(homedir, "~");
             }
 #endif
@@ -2363,8 +2363,8 @@ QString MainWindow::replaceWindowTitleVariables(QString title)
     if (title.contains("%S")) {
         // %S is a conditional separator (" - ") that only shows when surrounded by variables
         // with values or static text. Remove repeating, leading and trailing separators.
-        title.replace(QRegExp("(%S)+"), "%S");
-        title.remove(QRegExp("^%S|%S$"));
+        title.replace(QRegularExpression("(%S)+"), "%S");
+        title.remove(QRegularExpression("^%S|%S$"));
 #ifdef __APPLE__
         // On macOS we separate with a unicode em dash
         title.replace("%S", " " UTF8_EM_DASH " ");

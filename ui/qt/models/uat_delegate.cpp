@@ -13,7 +13,7 @@
 #include <ui/qt/models/uat_delegate.h>
 #include "epan/value_string.h"
 #include <wsutil/ws_assert.h>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QComboBox>
 #include <QEvent>
 #include <QFileDialog>
@@ -110,14 +110,14 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
     {
         // Requires input of the form "ab cd ef" (with possibly no or a colon
         // separator instead of a single whitespace) for the editor to accept.
-        QRegExp hexbytes_regex("([0-9a-f]{2}[ :]?)*");
-        hexbytes_regex.setCaseSensitivity(Qt::CaseInsensitive);
+        QRegularExpression hexbytes_regex("([0-9a-f]{2}[ :]?)*");
+        hexbytes_regex.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         // QString types from QStyledItemDelegate are documented to return a
         // QLineEdit. Note that Qt returns a subclass from QLineEdit which
         // automatically adapts the width to the typed contents.
         QLineEdit *le_editor = static_cast<QLineEdit *>(
                 QStyledItemDelegate::createEditor(parent, option, index));
-        le_editor->setValidator(new QRegExpValidator(hexbytes_regex, le_editor));
+        le_editor->setValidator(new QRegularExpressionValidator(hexbytes_regex, le_editor));
         editor = le_editor;
         break;
     }

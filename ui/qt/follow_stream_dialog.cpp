@@ -287,7 +287,11 @@ void FollowStreamDialog::findText(bool go_back)
 
     bool found;
     if (use_regex_find_) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+        QRegularExpression regex(ui->leFind->text(), QRegularExpression::UseUnicodePropertiesOption);
+#else
         QRegExp regex(ui->leFind->text());
+#endif
         found = ui->teStreamContent->find(regex);
     } else {
         found = ui->teStreamContent->find(ui->leFind->text());

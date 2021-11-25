@@ -29,7 +29,7 @@
 
 #include <QPushButton>
 #include <QKeyEvent>
-#include <QRegExp>
+#include <QRegularExpression>
 
 PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     AccordionFrame(parent),
@@ -113,7 +113,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
     }
 
     if (show) {
-        ui->preferenceLineEdit->setText(gchar_free_to_qstring(prefs_pref_to_str(pref_, pref_stashed)).remove(QRegExp("\n\t")));
+        ui->preferenceLineEdit->setText(gchar_free_to_qstring(prefs_pref_to_str(pref_, pref_stashed)).remove(QRegularExpression("\n\t")));
         ui->preferenceBrowseButton->setHidden(!browse_button);
         animatedShow();
     }
