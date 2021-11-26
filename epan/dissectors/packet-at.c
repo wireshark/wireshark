@@ -231,7 +231,7 @@ static const value_string cme_error_vals[] = {
     {  40,   "Network Personalization PIN Required" },
     {  41,   "Network Personalization PUK Required" },
     {  42,   "Network Subset Personalization PIN Required" },
-    {  43,   "Network Subset upersonalization PUK Required" },
+    {  43,   "Network Subset Personalization PUK Required" },
     {  44,   "Service Provider Personalization PIN Required" },
     {  45,   "Service Provider Personalization PUK Required" },
     {  46,   "Corporate Personalization PIN Required" },
