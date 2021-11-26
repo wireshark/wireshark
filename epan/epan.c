@@ -21,6 +21,7 @@
 
 #include <wsutil/report_message.h>
 
+#include <wiretap/wtap.h>
 #include <epan/exceptions.h>
 
 #include "epan.h"
@@ -246,6 +247,8 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		wireshark_abort_on_too_many_items = FALSE;
 	}
 
+	wtap_init(load_plugins);
+
 	/*
 	 * proto_init -> register_all_protocols -> g_async_queue_new which
 	 * requires threads to be initialized. This happens automatically with
@@ -428,6 +431,8 @@ epan_cleanup(void)
 	}
 
 	wmem_cleanup_scopes();
+
+	wtap_cleanup();
 }
 
 struct epan_session {

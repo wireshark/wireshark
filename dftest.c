@@ -31,8 +31,6 @@
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>
 
-#include <wiretap/wtap.h>
-
 #include "ui/util.h"
 #include "ui/cmdarg_err.h"
 #include "ui/failure_message.h"
@@ -88,13 +86,6 @@ main(int argc, char **argv)
 
 	timestamp_set_type(TS_RELATIVE);
 	timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
-
-	/*
-	 * Libwiretap must be initialized before libwireshark is, so that
-	 * dissection-time handlers for file-type-dependent blocks can
-	 * register using the file type/subtype value for the file type.
-	 */
-	wtap_init(TRUE);
 
 	/* Register all dissectors; we must do this before checking for the
 	   "-g" flag, as the "-g" flag dumps a list of fields registered
