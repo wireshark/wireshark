@@ -1260,9 +1260,9 @@ if(BUILD_wireshark)
 		set(CMAKE_CXX_STANDARD 17)
 		# Setting CMAKE_CXX_STANDARD is not sufficient with MSVC, see
 		#   https://gitlab.kitware.com/cmake/cmake/-/issues/18837
-		# The below snippet can be found in Qt6, lib/cmake/Qt6/QtFeature.cmake
+		# The below test can be found in Qt6, lib/cmake/Qt6/QtFeature.cmake
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND MSVC_VERSION GREATER_EQUAL 1913)
-			list(APPEND CMAKE_REQUIRED_FLAGS "-Zc:__cplusplus")
+			add_definitions("-Zc:__cplusplus")
 		endif()
 		list(APPEND QT_PACKAGELIST Qt6Core5Compat)
 		if(APPLE)
