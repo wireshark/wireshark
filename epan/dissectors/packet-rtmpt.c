@@ -1906,6 +1906,20 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                  */
                                 break;
                         }
+                        if (tp->seq > tp->lastseq) {
+                                /* XXX: There are some problems with sequence
+                                 * numbers that wraparound in the middle of
+                                 * a segment and using wmem_tree_lookup32_le
+                                 * below. Break out here to guarantee that there
+                                 * is a limit to the tree lookups and we don't
+                                 * have infinite loops. Really a lot of this
+                                 * code should be rewritten to deal with
+                                 * sequence numbers that wrap around (especially
+                                 * (SYN packets with altered sequence numbers
+                                 * and out of order packets.)
+                                 */
+                                break;
+                        }
                         tp = (rtmpt_packet_t *)wmem_tree_lookup32_le(rconv->packets[cdir], tp->seq-1);
                 }
 
