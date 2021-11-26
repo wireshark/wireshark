@@ -41,17 +41,7 @@
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 #include "exceptions.h"
 
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
 #include <time.h>
-/*#ifndef HAVE_STRPTIME*/
-#ifndef strptime
-#include "wsutil/strptime.h"
-#endif
- /*#endif*/
 
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
@@ -1798,194 +1788,135 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 	begin = (gchar*) tvb_get_raw_string(NULL, tvb, offset, length);
 	ptr = begin;
 
-	memset(&tm, 0, sizeof(tm));
-	tm.tm_isdst = -1;
-	ns->secs    = 0;
-	ns->nsecs   = 0;
-
 	while (*ptr == ' ') ptr++;
 
 	if (*ptr) {
-		/* note: sscanf is known to be inconsistent across platforms with respect
-		   to whether a %n is counted as a return value or not, so we have to use
-		   '>=' a lot */
 		if ((encoding & ENC_ISO_8601_DATE_TIME) == ENC_ISO_8601_DATE_TIME) {
-			/* TODO: using sscanf this many times is probably slow; might want
-			   to parse it by hand in the future */
-			/* 2014-04-07T05:41:56+00:00 */
-			if (sscanf(ptr, "%d-%d-%d%*c%d:%d:%d%c%d:%d%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &tm.tm_sec,
-			    &sign,
-			    &off_hr,
-			    &off_min,
-			    &num_chars) >= 9)
-			{
-				matched = TRUE;
+			if ((num_chars = iso8601_to_nstime(ns, ptr))) {
+				errno = 0;
+				end = ptr + num_chars;
 			}
-			/* no seconds is ok */
-			else if (sscanf(ptr, "%d-%d-%d%*c%d:%d%c%d:%d%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &sign,
-			    &off_hr,
-			    &off_min,
-			    &num_chars) >= 8)
-			{
-				matched = TRUE;
-			}
-			/* 2007-04-05T14:30:56Z */
-			else if (sscanf(ptr, "%d-%d-%d%*c%d:%d:%dZ%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &tm.tm_sec,
-			    &num_chars) >= 6)
-			{
-				matched = TRUE;
-				off_hr = 0;
-				off_min = 0;
-			}
-			/* 2007-04-05T14:30Z no seconds is ok */
-			else if (sscanf(ptr, "%d-%d-%d%*c%d:%dZ%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &num_chars) >= 5)
-			{
-				matched = TRUE;
-				off_hr = 0;
-				off_min = 0;
-			}
+		} else {
+			memset(&tm, 0, sizeof(tm));
+			tm.tm_isdst = -1;
+			ns->secs    = 0;
+			ns->nsecs   = 0;
 
-			if (matched) {
-				errno = 0;
-				end = ptr + num_chars;
-				tm.tm_mon--;
-				if (tm.tm_year > 1900) tm.tm_year -= 1900;
-				if (sign == '-') off_hr = -off_hr;
-			}
-		}
-		else if (encoding & ENC_ISO_8601_DATE) {
-			/* 2014-04-07 */
-			if (sscanf(ptr, "%d-%d-%d%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &num_chars) >= 3)
-			{
-				errno = 0;
-				end = ptr + num_chars;
-				tm.tm_mon--;
-				if (tm.tm_year > 1900) tm.tm_year -= 1900;
-			}
-		}
-		else if (encoding & ENC_ISO_8601_TIME) {
-			/* 2014-04-07 */
-			if (sscanf(ptr, "%d:%d:%d%n",
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &tm.tm_sec,
-			    &num_chars) >= 2)
-			{
-				/* what should we do about day/month/year? */
-				/* setting it to "now" for now */
-				time_t time_now = time(NULL);
-				struct tm *tm_now = gmtime(&time_now);
-				if (tm_now != NULL) {
-					tm.tm_year = tm_now->tm_year;
-					tm.tm_mon  = tm_now->tm_mon;
-					tm.tm_mday = tm_now->tm_mday;
-				} else {
-					/* The second before the Epoch */
-					tm.tm_year = 69;
-					tm.tm_mon = 12;
-					tm.tm_mday = 31;
+			/* note: sscanf is known to be inconsistent across platforms with respect
+			   to whether a %n is counted as a return value or not, so we have to use
+			   '>=' a lot */
+			if (encoding & ENC_ISO_8601_DATE) {
+				/* 2014-04-07 */
+				if (sscanf(ptr, "%d-%d-%d%n",
+				    &tm.tm_year,
+				    &tm.tm_mon,
+				    &tm.tm_mday,
+				    &num_chars) >= 3)
+				{
+					errno = 0;
+					end = ptr + num_chars;
+					tm.tm_mon--;
+					if (tm.tm_year > 1900) tm.tm_year -= 1900;
 				}
-				end = ptr + num_chars;
-				errno = 0;
-
 			}
-		}
-		else if (encoding & ENC_RFC_822 || encoding & ENC_RFC_1123) {
-			/*
-			 * Match [dow,] day month year hh:mm[:ss] with two-digit
-			 * years (RFC 822) or four-digit years (RFC 1123). Skip
-			 * the day of week since it is locale dependent and does
-			 * not affect the resulting date anyway.
-			 */
-			if (g_ascii_isalpha(ptr[0]) && g_ascii_isalpha(ptr[1]) && g_ascii_isalpha(ptr[2]) && ptr[3] == ',')
-				ptr += 4;   /* Skip day of week. */
-			char month_name[4] = { 0 };
-			if (sscanf(ptr, "%d %3s %d %d:%d%n:%d%n",
-			    &tm.tm_mday,
-			    month_name,
-			    &tm.tm_year,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &num_chars,
-			    &tm.tm_sec,
-			    &num_chars) >= 5)
-			{
-				if (encoding & ENC_RFC_822) {
-					/* Match strptime behavior: years 00-68
-					 * are in the 21th century. */
-					if (tm.tm_year <= 68) {
-						tm.tm_year += 100;
-						matched = TRUE;
-					} else if (tm.tm_year <= 99) {
+			else if (encoding & ENC_ISO_8601_TIME) {
+				/* 2014-04-07 */
+				if (sscanf(ptr, "%d:%d:%d%n",
+				    &tm.tm_hour,
+				    &tm.tm_min,
+				    &tm.tm_sec,
+				    &num_chars) >= 2)
+				{
+					/* what should we do about day/month/year? */
+					/* setting it to "now" for now */
+					time_t time_now = time(NULL);
+					struct tm *tm_now = gmtime(&time_now);
+					if (tm_now != NULL) {
+						tm.tm_year = tm_now->tm_year;
+						tm.tm_mon  = tm_now->tm_mon;
+						tm.tm_mday = tm_now->tm_mday;
+					} else {
+						/* The second before the Epoch */
+						tm.tm_year = 69;
+						tm.tm_mon = 12;
+						tm.tm_mday = 31;
+					}
+					end = ptr + num_chars;
+					errno = 0;
+
+				}
+			}
+			else if (encoding & ENC_RFC_822 || encoding & ENC_RFC_1123) {
+				/*
+				 * Match [dow,] day month year hh:mm[:ss] with two-digit
+				 * years (RFC 822) or four-digit years (RFC 1123). Skip
+				 * the day of week since it is locale dependent and does
+				 * not affect the resulting date anyway.
+				 */
+				if (g_ascii_isalpha(ptr[0]) && g_ascii_isalpha(ptr[1]) && g_ascii_isalpha(ptr[2]) && ptr[3] == ',')
+					ptr += 4;   /* Skip day of week. */
+				char month_name[4] = { 0 };
+				if (sscanf(ptr, "%d %3s %d %d:%d%n:%d%n",
+				    &tm.tm_mday,
+				    month_name,
+				    &tm.tm_year,
+				    &tm.tm_hour,
+				    &tm.tm_min,
+				    &num_chars,
+				    &tm.tm_sec,
+				    &num_chars) >= 5)
+				{
+					if (encoding & ENC_RFC_822) {
+						/* Match strptime behavior: years 00-68
+						 * are in the 21th century. */
+						if (tm.tm_year <= 68) {
+							tm.tm_year += 100;
+							matched = TRUE;
+						} else if (tm.tm_year <= 99) {
+							matched = TRUE;
+						}
+					} else if (encoding & ENC_RFC_1123) {
+						tm.tm_year -= 1900;
 						matched = TRUE;
 					}
-				} else if (encoding & ENC_RFC_1123) {
-					tm.tm_year -= 1900;
-					matched = TRUE;
+					if (!parse_month_name(month_name, &tm.tm_mon))
+						matched = FALSE;
+					if (matched)
+						end = ptr + num_chars;
 				}
-				if (!parse_month_name(month_name, &tm.tm_mon))
-					matched = FALSE;
-				if (matched)
-					end = ptr + num_chars;
+				if (end) {
+					errno = 0;
+					if (*end == ' ') end++;
+					if (g_ascii_strncasecmp(end, "UT", 2) == 0)
+					{
+						end += 2;
+					}
+					else if (g_ascii_strncasecmp(end, "GMT", 3) == 0)
+					{
+						end += 3;
+					}
+					else if (sscanf(end, "%c%2d%2d%n",
+					    &sign,
+					    &off_hr,
+					    &off_min,
+					    &num_chars) < 3)
+					{
+						errno = ERANGE;
+					}
+					if (sign == '-') off_hr = -off_hr;
+				}
 			}
-			if (end) {
-				errno = 0;
-				if (*end == ' ') end++;
-				if (g_ascii_strncasecmp(end, "UT", 2) == 0)
-				{
-					end += 2;
-				}
-				else if (g_ascii_strncasecmp(end, "GMT", 3) == 0)
-				{
-					end += 3;
-				}
-				else if (sscanf(end, "%c%2d%2d%n",
-				    &sign,
-				    &off_hr,
-				    &off_min,
-				    &num_chars) < 3)
-				{
-					errno = ERANGE;
-				}
-				if (sign == '-') off_hr = -off_hr;
+			if (errno == 0) {
+				ns->secs = mktime_utc (&tm);
+				if (off_hr > 0)
+					ns->secs += (off_hr * 3600) + (off_min * 60);
+				else if (off_hr < 0)
+					ns->secs -= ((-off_hr) * 3600) + (off_min * 60);
 			}
 		}
 	}
 
 	if (errno == 0) {
-		ns->secs = mktime_utc (&tm);
-		if (off_hr > 0)
-			ns->secs += (off_hr * 3600) + (off_min * 60);
-		else if (off_hr < 0)
-			ns->secs -= ((-off_hr) * 3600) + (off_min * 60);
 		retval = ns;
 		if (endoff)
 		    *endoff = (gint)(offset + (end - begin));
