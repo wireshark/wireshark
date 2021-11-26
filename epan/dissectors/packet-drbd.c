@@ -644,7 +644,7 @@ static guint get_drbd_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
     return 0;
 }
 
-static int dissect_drbd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void* data _U_)
+static int dissect_drbd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_drbd_message(tvb, pinfo, tree);
     return tvb_reported_length(tvb);
@@ -787,12 +787,12 @@ static void decode_payload_connection_features(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(tree, hf_drbd_receiver_node_id, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_auth_challenge(tvbuff_t *tvb _U_, proto_tree *tree _U_)
+static void decode_payload_auth_challenge(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_bytes_format(tree, hf_drbd_auth_challenge_nonce, tvb, 0, CHALLENGE_LEN, NULL, "Nonce");
 }
 
-static void decode_payload_auth_response(tvbuff_t *tvb _U_, proto_tree *tree _U_)
+static void decode_payload_auth_response(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_bytes_format(tree, hf_drbd_auth_response_hash, tvb, 0, -1, NULL, "Hash");
 }
