@@ -34,23 +34,32 @@
 
 /*
  * 1601-01-01 (proleptic Gregorian) 00:00:00 (proleptic?) UTC.
- * The Windows NT epoch, used in a number of places.
+ * The Windows NT epoch, used in a number of places, as it is
+ * the start of a 400 year Gregorian cycle.
  *
  * This is
  *
  *     369*365.25*24*60*60-(3*24*60*60+6*60*60)
  *
+ * or equivalently,
+ *
+ *     (89*4*365.25+(3*4+1)*365)*24*60*60
+ *
  * 1970-1601 is 369; 365.25 is the average length of a year in days,
  * including leap years.
  *
- * 3 days are subtracted because 1700, 1800, and 1900 were not leap
- * years, as, while they're all evenly divisible by 4, they're also
- * evently divisible by 100, but not evently divisible by 400, so
- * we need to compensate for using the average length of a year in
- * days, which assumes a leap year every 4 years, *including* every
- * 100 years.
+ * 369 = 4*92 + 1, so there are 92 groups of 4 consecutive years plus
+ * one leftover year, 1969, with 365 days.
  *
- * I'm not sure what the extra 6 hours are that are being subtracted.
+ * All but three of the groups of 4 consecutive years average 365.25 days
+ * per year, as they have one leap year in the group. However, 1700, 1800,
+ * and 1900 were not leap years, as, while they're all evenly divisible by 4,
+ * they're also evenly divisible by 100, but not evenly divisible by 400.
+ *
+ * So we have 89 groups of 4 consecutive years that average 365.25
+ * days per year, 3 groups of 4 consecutive years that average 365 days
+ * (as they lack a leap year), and one leftover year, 1969, that is
+ * 365 days long.
  */
 #define EPOCH_DELTA_1601_01_01_00_00_00_UTC G_GUINT64_CONSTANT(11644473600)
 
