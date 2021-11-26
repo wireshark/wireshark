@@ -1,4 +1,4 @@
-/* packet.h
+/** @file
  * Definitions for packet disassembly structures and routines
  *
  * Wireshark - Network traffic analyzer

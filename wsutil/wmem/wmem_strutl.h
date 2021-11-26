@@ -1,4 +1,4 @@
-/* wmem_strutl.h
+/** @file
  * Definitions for the Wireshark Memory Manager String Utilities
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

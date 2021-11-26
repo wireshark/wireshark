@@ -1,4 +1,4 @@
-/* wmem_core.h
+/** @file
  * Definitions for the Wireshark Memory Manager Core
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

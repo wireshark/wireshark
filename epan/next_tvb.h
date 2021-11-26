@@ -1,4 +1,4 @@
-/* next_tvb.h
+/** @file
  * Definitions for "next tvb" list
  *
  * Wireshark - Network traffic analyzer

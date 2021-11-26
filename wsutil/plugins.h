@@ -1,4 +1,4 @@
-/* plugins.h
+/** @file
  * definitions for plugins structures
  *
  * Wireshark - Network traffic analyzer

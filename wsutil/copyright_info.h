@@ -1,4 +1,4 @@
-/* copyright_info.h
+/** @file
  * Declarations of outines to report copyright information for stuff used
  * by Wireshark
  *

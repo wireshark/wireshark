@@ -1,4 +1,4 @@
-/* column-utils.h
+/** @file
  * Definitions for column utility structures and routines
  *
  * Wireshark - Network traffic analyzer

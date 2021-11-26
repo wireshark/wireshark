@@ -1,4 +1,4 @@
-/* rtd_table.h
+/** @file
  * GUI independent helper routines common to all Response Time Delay (RTD) taps.
  * Based on srt_table.h
  *

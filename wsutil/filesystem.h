@@ -1,4 +1,4 @@
-/* filesystem.h
+/** @file
  * Filesystem utility definitions
  *
  * Wireshark - Network traffic analyzer

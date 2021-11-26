@@ -1,4 +1,4 @@
-/* stats_tree.h
+/** @file
  * A counter tree API for Wireshark dissectors
  * 2005, Luis E. G. Ontanon
  *

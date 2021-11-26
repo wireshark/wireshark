@@ -1,5 +1,4 @@
-/*
- * wslua_pinfo_common.h
+/** @file
  *
  * Wireshark's interface to the Lua Programming Language
  *

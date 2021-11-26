@@ -1,4 +1,4 @@
-/* eap.h
+/** @file
  * Extenal definitions for EAP Extensible Authentication Protocol dissection
  * RFC 2284, RFC 3748
  *

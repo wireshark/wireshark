@@ -1,4 +1,4 @@
-/* maxmind_db.h
+/** @file
  * Maxmind database support
  *
  * Copyright 2018, Gerald Combs <gerald@wireshark.org>

@@ -1,4 +1,4 @@
-/* crash_info.h
+/** @file
  * Routines to try to provide more useful information in crash dumps.
  *
  * Wireshark - Network traffic analyzer

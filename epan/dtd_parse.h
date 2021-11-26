@@ -1,4 +1,4 @@
-/* dtd_parse.h
+/** @file
  * an XML dissector for Wireshark
  * header file to declare functions defined in lexer and used in parser,
  * or vice versa

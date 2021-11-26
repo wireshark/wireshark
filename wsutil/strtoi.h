@@ -1,4 +1,4 @@
-/* strtoi.h
+/** @file
  * Utilities to convert strings to integers
  *
  * Copyright 2016, Dario Lombardo

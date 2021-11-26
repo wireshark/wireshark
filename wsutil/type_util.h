@@ -1,4 +1,4 @@
-/* type_util.h
+/** @file
  * Types utility definitions
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-/* ipproto.h
+/** @file
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *

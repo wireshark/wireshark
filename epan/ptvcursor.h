@@ -1,4 +1,4 @@
-/* ptvcursor.h
+/** @file
  *
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@alumni.rice.edu>

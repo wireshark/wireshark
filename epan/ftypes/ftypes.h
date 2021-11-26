@@ -1,4 +1,4 @@
-/* ftypes.h
+/** @file
  * Definitions for field types
  *
  * Wireshark - Network traffic analyzer

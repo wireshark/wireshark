@@ -1,4 +1,4 @@
-/* str_util.h
+/** @file
  * String utility definitions
  *
  * Wireshark - Network traffic analyzer

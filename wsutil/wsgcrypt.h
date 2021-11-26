@@ -1,4 +1,4 @@
-/* wsgcrypt.h
+/** @file
  *
  * Wrapper around libgcrypt's include file gcrypt.h.
  * For libgcrypt 1.5.0, including gcrypt.h directly brings up lots of

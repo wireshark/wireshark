@@ -1,4 +1,4 @@
-/* bitswap.h
+/** @file
  * Macro to bitswap a byte by looking it up in a table
  *
  * Wireshark - Network traffic analyzer

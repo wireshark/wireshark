@@ -1,4 +1,4 @@
-/* merge.h
+/** @file
  * Definitions for routines for merging files.
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-/* follow.h
+/** @file
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *

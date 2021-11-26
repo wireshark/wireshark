@@ -1,4 +1,4 @@
-/* srt_table.h
+/** @file
  * GUI independent helper routines common to all service response time (SRT) taps.
  *
  * Wireshark - Network traffic analyzer

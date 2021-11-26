@@ -1,4 +1,4 @@
-/* wmem_interval_tree.h
+/** @file
  * Definitions for the Wireshark Memory Manager Red-Black Tree
  * Based on the red-black tree implementation in epan/emem.*
  * Copyright 2015, Matthieu coudron <matthieu.coudron@lip6.fr>

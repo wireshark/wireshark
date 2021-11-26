@@ -1,4 +1,4 @@
-/* export_object.h
+/** @file
  * GUI independent helper routines common to all export object taps.
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-/* conversation_debug.h
+/** @file
  * A file of debug printing stuff for conversation-related things,
  * although really anything can use this so long as it includes this
  * header file and defines DEBUG_CONVERSATION in conversation.c

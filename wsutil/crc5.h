@@ -1,4 +1,4 @@
-/* crc5.h
+/** @file
  * Declaration of CRC-5 routines and table
  *
  * 2019 Tomasz Mon <desowin@gmail.com>

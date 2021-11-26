@@ -1,4 +1,4 @@
-/* mpeg-audio.h
+/** @file
  *
  * MPEG Audio header dissection
  * Written by Shaun Jackman <sjackman@gmail.com>

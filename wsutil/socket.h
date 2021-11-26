@@ -1,4 +1,4 @@
-/* socket.h
+/** @file
  * Socket wrappers
  *
  * Copyright 2016, Dario Lombardo

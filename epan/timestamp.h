@@ -1,4 +1,4 @@
-/* timestamp.h
+/** @file
  * Defines for packet timestamps
  *
  * Wireshark - Network traffic analyzer

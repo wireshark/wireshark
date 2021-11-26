@@ -1,4 +1,4 @@
-/* tvbuff.h
+/** @file
  *
  * Testy, Virtual(-izable) Buffer of guint8*'s
  *

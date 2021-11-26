@@ -1,4 +1,4 @@
-/* eax.h
+/** @file
  * Encryption and decryption routines implementing the EAX' encryption mode
  * Copyright 2010, Edward J. Beroset, edward.j.beroset@us.elster.com
  *

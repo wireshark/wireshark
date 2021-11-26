@@ -1,4 +1,4 @@
-/* charsets.h
+/** @file
  * Routines for handling character sets
  *
  * Wireshark - Network traffic analyzer

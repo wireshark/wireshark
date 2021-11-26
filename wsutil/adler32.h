@@ -1,4 +1,4 @@
-/* adler32.h
+/** @file
  * Compute the Adler32 checksum (RFC 1950)
  * 2003 Tomas Kukosa
  *

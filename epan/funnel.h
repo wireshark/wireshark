@@ -1,5 +1,4 @@
-/*
- *  funnel.h
+/** @file
  *
  * EPAN's GUI mini-API
  *

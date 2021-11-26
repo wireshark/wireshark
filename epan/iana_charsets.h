@@ -1,4 +1,4 @@
-/* iana_charsets.h
+/** @file
  *
  * Declarations for IANA-registered character sets
  *

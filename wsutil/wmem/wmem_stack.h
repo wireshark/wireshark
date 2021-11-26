@@ -1,4 +1,4 @@
-/* wmem_stack.h
+/** @file
  * Definitions for the Wireshark Memory Manager Stack
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

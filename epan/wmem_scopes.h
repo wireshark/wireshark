@@ -1,4 +1,4 @@
-/* wmem_scopes.h
+/** @file
  * Definitions for the Wireshark Memory Manager Scopes
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

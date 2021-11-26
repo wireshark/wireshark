@@ -1,4 +1,4 @@
-/* tap.h
+/** @file
  * packet tap interface   2002 Ronnie Sahlberg
  *
  * Wireshark - Network traffic analyzer

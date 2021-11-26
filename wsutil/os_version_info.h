@@ -1,4 +1,4 @@
-/* os_version_info.h
+/** @file
  * Declarations of outines to report operating system version information
  *
  * Wireshark - Network traffic analyzer

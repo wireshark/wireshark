@@ -1,4 +1,4 @@
-/* addr_resolv.h
+/** @file
  * Definitions for network object lookup
  *
  * Laurent Deniel <laurent.deniel@free.fr>

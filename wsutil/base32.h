@@ -1,4 +1,4 @@
-/* base32.h
+/** @file
  * Base-32 conversion
  *
  * Wireshark - Network traffic analyzer

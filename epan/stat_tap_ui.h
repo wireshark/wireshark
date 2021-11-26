@@ -1,4 +1,4 @@
-/* stat_tap_ui.h
+/** @file
  * Declarations of routines to register UI information for stats
  *
  * Wireshark - Network traffic analyzer

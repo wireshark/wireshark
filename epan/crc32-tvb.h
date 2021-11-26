@@ -1,4 +1,4 @@
-/* crc32-tvb.h
+/** @file
  * Declaration of CRC-32 tvbuff routines
  *
  * Wireshark - Network traffic analyzer

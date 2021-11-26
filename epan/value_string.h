@@ -1,4 +1,4 @@
-/* value_string.h
+/** @file
  * Definitions for value_string structures and routines
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-/* wscbor.h
+/** @file
  * Definitions for the Wireshark CBOR item decoding API.
  * References:
  *     RFC 8949: https://tools.ietf.org/html/rfc8949

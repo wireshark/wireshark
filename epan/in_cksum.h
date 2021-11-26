@@ -1,4 +1,4 @@
-/* in_cksum.h
+/** @file
  * Declaration of Internet checksum routine.
  *
  * Copyright (c) 1988, 1992, 1993

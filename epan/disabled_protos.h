@@ -1,4 +1,4 @@
-/* disabled_protos.h
+/** @file
  * Declarations of routines for reading and writing protocols file that determine
  * enabling and disabling of protocols.
  *

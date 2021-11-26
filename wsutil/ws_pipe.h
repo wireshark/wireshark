@@ -1,4 +1,4 @@
-/* ws_pipe.h
+/** @file
  *
  * Routines for handling pipes.
  *

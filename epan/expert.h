@@ -1,4 +1,4 @@
-/* expert.h
+/** @file
  * Collecting of Expert information.
  *
  * For further info, see:

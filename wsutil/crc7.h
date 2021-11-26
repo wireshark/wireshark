@@ -1,5 +1,4 @@
-/*
- * crc7.h
+/** @file
  *
  * Functions and types for CRC checks.
  *

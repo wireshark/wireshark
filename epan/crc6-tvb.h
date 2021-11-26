@@ -1,4 +1,4 @@
-/* crc6-tvb.h
+/** @file
  * Declaration of CRC-6 tvbuff routines
  *
  * Wireshark - Network traffic analyzer

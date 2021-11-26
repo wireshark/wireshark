@@ -1,4 +1,4 @@
-/* rtp_pt.h
+/** @file
  * Defines RTP payload types
  *
  * Wireshark - Network traffic analyzer

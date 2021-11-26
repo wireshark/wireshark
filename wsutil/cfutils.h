@@ -1,4 +1,4 @@
-/* cfutils.h
+/** @file
  * Declarations of routines to work around deficiencies in Core Foundation,
  * such as the lack of a routine to convert a CFString to a C string of
  * arbitrary size.
