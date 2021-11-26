@@ -325,7 +325,7 @@ static const value_string cme_error_vals[] = {
     {  40,   "Network Personalization PIN Required" },
     {  41,   "Network Personalization PUK Required" },
     {  42,   "Network Subset Personalization PIN Required" },
-    {  43,   "Network Subset upersonalization PUK Required" },
+    {  43,   "Network Subset Personalization PUK Required" },
     {  44,   "Service Provider Personalization PIN Required" },
     {  45,   "Service Provider Personalization PUK Required" },
     {  46,   "Corporate Personalization PIN Required" },
@@ -378,7 +378,7 @@ static const value_string cops_act_vals[] = {
 
 static const range_string at_type_vals[] = {
     { 128, 143,  "The phone number format may be a national or international format, and may contain prefix and/or escape digits. No changes on the number presentation are required." },
-    { 144, 159,  " The phone number format is an international number, including the country code prefix. If the plus sign (\"+\") is not included as part of the number and shall be added by the AG as needed." },
+    { 144, 159,  "The phone number format is an international number, including the country code prefix. If the plus sign (\"+\") is not included as part of the number and shall be added by the AG as needed." },
     { 160, 175,  "National number. No prefix nor escape digits included." },
     { 0, 0, NULL }
 };
