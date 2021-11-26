@@ -1,4 +1,4 @@
-/* wmem_map.h
+/* wmem_multimap.h
  * Definitions for the Wireshark Memory Manager Hash Multimap
  * Copyright 2021, John Thacker <johnthacker@gmail.com>
  * Copyright 2014, Evan Huus <eapache@gmail.com>
