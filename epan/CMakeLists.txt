@@ -432,6 +432,7 @@ set_target_properties(wscbor_test PROPERTIES
 
 set(ENUM_FILES
 	epan/address.h
+	epan/ipproto.h
 	epan/proto.h
 	epan/ftypes/ftypes.h
 )
