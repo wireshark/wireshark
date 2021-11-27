@@ -103,3 +103,7 @@ class case_syntax(unittest.TestCase):
     def test_charconst_invalid(self, checkDFilterFail):
         dfilter = r"ip.proto == '\Z'"
         checkDFilterFail(dfilter, "isn't a valid character constant")
+
+    def test_charconst_lhs(self, checkDFilterCount):
+        dfilter = "'H' == frame[54]"
+        checkDFilterCount(dfilter, 1)
