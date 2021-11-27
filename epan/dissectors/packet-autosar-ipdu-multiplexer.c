@@ -758,7 +758,6 @@ dissect_ipdum_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static gboolean
 dissect_ipdum_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_ipdum_message_can(tvb, pinfo, tree, data) != 0;
-    return 0;
 }
 
 static int
