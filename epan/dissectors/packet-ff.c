@@ -33,6 +33,8 @@
 #include "packet-ff.h"
 #include "packet-tcp.h"
 
+#define FDA_MSG_HDR_LENGTH  12
+
 void proto_register_ff(void);
 void proto_reg_handoff_ff(void);
 
@@ -10938,7 +10940,7 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
     proto_item_set_hidden(hidden_item);
 
     sub_tree = proto_tree_add_subtree(tree,
-        tvb, offset, 12, ett_ff_fda_msg_hdr, NULL, "FDA Message Header");
+        tvb, offset, FDA_MSG_HDR_LENGTH, ett_ff_fda_msg_hdr, NULL, "FDA Message Header");
 
     /* FDA Message Version */
     proto_tree_add_item(sub_tree,
@@ -11022,8 +11024,8 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * Header
      */
     dissect_ff_msg_hdr(tvb, sub_tree, ProtocolAndType, Service);
-    offset += 12;
-    length -= 12;
+    offset += FDA_MSG_HDR_LENGTH;
+    length -= FDA_MSG_HDR_LENGTH;
 
     /*
      * Service-Specific Parameters + User Data (optional)
@@ -11038,10 +11040,10 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (trailer_len) {
         dissect_ff_msg_trailer(tvb,
             offset, trailer_len, sub_tree, Options);
-        /*offset += trailer_len;*/
+        offset += trailer_len;
     }
 
-    return tvb_captured_length(tvb);
+    return offset;
 }
 
 
@@ -11073,7 +11075,7 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
  */
 
     tcp_dissect_pdus(tvb, pinfo, tree, ff_desegment,
-        12, get_ff_pdu_len, dissect_ff, data);
+        FDA_MSG_HDR_LENGTH, get_ff_pdu_len, dissect_ff, data);
 
     return tvb_reported_length(tvb);
 }
@@ -11083,21 +11085,29 @@ dissect_ff_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 static int
 dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint32 length;
+    gint offset = 0;
 
-    /* Make sure at least the header is there */
-    if (tvb_captured_length(tvb) < 12)
-        return 0;
+    while (tvb_reported_length_remaining(tvb, offset) > FDA_MSG_HDR_LENGTH)
+    {
+        tvbuff_t *pdu_tvb;
+        gint length;
 
-    length = tvb_get_ntohl(tvb, 8);
+        /* Make sure at least the header is there */
+        if (tvb_captured_length_remaining(tvb, offset) < FDA_MSG_HDR_LENGTH)
+            break;
 
-    /* Make sure the length field is valid */
-    if ((length > tvb_reported_length(tvb)) ||
-        (length < 12))
-        return 0;
+        length = get_ff_pdu_len(pinfo, tvb, offset, data);
 
-    dissect_ff(tvb, pinfo, tree, data);
-    return tvb_reported_length(tvb);
+        /* Make sure the length field is valid */
+        if ((length > tvb_reported_length_remaining(tvb, offset)) ||
+            (length < FDA_MSG_HDR_LENGTH))
+            break;
+
+        pdu_tvb = tvb_new_subset_length(tvb, offset, length);
+        offset += dissect_ff(pdu_tvb, pinfo, tree, data);
+    }
+
+    return offset;
 }
 
 
