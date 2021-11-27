@@ -299,6 +299,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
     gint off_min = 0;
     guint8 ret_val = 0;
     const char *start = ptr;
+    char sign = '\0';
     gboolean has_separator = FALSE;
     gboolean have_offset = FALSE;
 
@@ -431,6 +432,9 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
 
     /* Check for a time zone offset */
     if (*ptr == '-' || *ptr == '+' || *ptr == 'Z') {
+        /* Just in case somewhere decides to observe a timezone of -00:30 or
+         * some such. */
+        sign = *ptr;
         /* We have a UTC-relative offset */
         if (*ptr == 'Z') {
             off_hr = off_min = 0;
@@ -463,9 +467,12 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
         }
     }
     if (have_offset) {
-        tm.tm_hour -= off_hr;
-        tm.tm_min -= (off_hr < 0 ? -off_min : off_min);
         nstime->secs = mktime_utc(&tm);
+        if (sign == '+') {
+            nstime->secs += (off_hr * 3600) + (off_min * 60);
+        } else if (sign == '-') {
+            nstime->secs -= ((-off_hr) * 3600) + (off_min * 60);
+        }
     }
     else {
         /* No UTC offset given; ISO 8601 says this means localtime */
