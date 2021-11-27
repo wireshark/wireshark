@@ -44,11 +44,11 @@ G_GNUC_MALLOC;
  */
 WS_DLL_PUBLIC
 gint
-int_compare(gconstpointer a, gconstpointer b);
+wmem_compare_int(gconstpointer a, gconstpointer b);
 
 WS_DLL_PUBLIC
 gint
-uint_compare(gconstpointer a, gconstpointer b);
+wmem_compare_uint(gconstpointer a, gconstpointer b);
 
 /**   @}
  *  @} */

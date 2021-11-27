@@ -844,11 +844,11 @@ wmem_test_list(void)
     wmem_destroy_list(list);
 
     list = wmem_list_new(NULL);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(5), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(8), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(1), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(9), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(5), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(8), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(1), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(9), wmem_compare_int);
     frame = wmem_list_head(list);
     int1 = GPOINTER_TO_INT(wmem_list_frame_data(frame));
     while ((frame = wmem_list_frame_next(frame))) {
@@ -859,12 +859,12 @@ wmem_test_list(void)
     wmem_destroy_list(list);
 
     list = wmem_list_new(NULL);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(5), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(1), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(7), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(3), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), int_compare);
-    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), int_compare);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(5), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(1), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(7), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(3), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), wmem_compare_int);
+    wmem_list_insert_sorted(list, GINT_TO_POINTER(2), wmem_compare_int);
     frame = wmem_list_head(list);
     int1 = GPOINTER_TO_INT(wmem_list_frame_data(frame));
     while ((frame = wmem_list_frame_next(frame))) {

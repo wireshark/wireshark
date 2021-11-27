@@ -3844,7 +3844,7 @@ quic_streams_add(packet_info *pinfo, quic_info_data_t *quic_info, guint64 stream
     }
     if (!wmem_list_find(quic_info->streams_list, GUINT_TO_POINTER(stream_id))) {
         wmem_list_insert_sorted(quic_info->streams_list, GUINT_TO_POINTER(stream_id),
-                                uint_compare);
+                                wmem_compare_uint);
     }
 
     /* Map: first Stream ID for each UDP payload */

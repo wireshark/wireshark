@@ -116,7 +116,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  init_progfile_dir@Base 1.12.0~rc1
  init_report_message@Base 2.3.0
  int64_to_str_back@Base 3.5.1
- int_compare@Base 3.6.0
  int_to_str_back@Base 3.5.1
  ip6_to_str@Base 3.5.1
  ip6_to_str_buf@Base 3.5.1
@@ -219,7 +218,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  tm_is_valid@Base 3.5.0
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
- uint_compare@Base 3.6.0
  uint64_to_str_back@Base 3.5.1
  uint64_to_str_back_len@Base 3.5.1
  uint_to_str_back@Base 3.5.1
@@ -244,6 +242,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_array_try_index@Base 3.5.0
  wmem_ascii_strdown@Base 3.5.0
  wmem_cleanup@Base 3.5.0
+ wmem_compare_int@Base 3.7.0
+ wmem_compare_uint@Base 3.7.0
  wmem_destroy_allocator@Base 3.5.0
  wmem_destroy_array@Base 3.5.0
  wmem_destroy_list@Base 3.5.0
