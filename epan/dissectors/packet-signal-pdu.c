@@ -113,11 +113,16 @@ typedef struct _generic_one_id_string {
     gchar      *name;
 } generic_one_id_string_t;
 
+typedef enum _spdu_data_type {
+    SPDU_DATA_TYPE_NONE,
+    SPDU_DATA_TYPE_UINT,
+    SPDU_DATA_TYPE_INT,
+} spdu_dt_t;
 
 typedef struct _spdu_signal_item {
     guint32     pos;
     gchar      *name;
-    gchar      *data_type;
+    spdu_dt_t   data_type;
     gboolean    big_endian;
     guint32     bitlength_base_type;
     guint32     bitlength_encoded_type;
@@ -671,7 +676,7 @@ deregister_user_data(void)
 static spdu_signal_value_name_t* get_signal_value_name_config(guint32 id, guint16 pos);
 
 static gint*
-create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_string, gchar *data_type, gboolean scale_or_offset, gboolean raw) {
+create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_string, spdu_dt_t data_type, gboolean scale_or_offset, gboolean raw) {
     val64_string *vs = NULL;
 
     gint *hf_id = g_new(gint, 1);
@@ -703,12 +708,20 @@ create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_str
         dynamic_hf[i].hfinfo.display = BASE_NONE;
         dynamic_hf[i].hfinfo.type = FT_DOUBLE;
     } else {
-        if (g_strcmp0(data_type, "uint") == 0) {
+        switch (data_type) {
+        case SPDU_DATA_TYPE_UINT:
             dynamic_hf[i].hfinfo.display = BASE_DEC;
             dynamic_hf[i].hfinfo.type = FT_UINT64;
-        } else if (g_strcmp0(data_type, "int") == 0) {
+            break;
+
+        case SPDU_DATA_TYPE_INT:
             dynamic_hf[i].hfinfo.display = BASE_DEC;
             dynamic_hf[i].hfinfo.type = FT_INT64;
+            break;
+
+        case SPDU_DATA_TYPE_NONE:
+            /* do nothing */
+            break;
         }
     }
 
@@ -768,7 +781,13 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
                 /* we do not care if we overwrite param */
                 item->name = g_strdup(data[i].name);
                 item->pos = data[i].pos;
-                item->data_type = g_strdup(data[i].data_type);
+                if (g_strcmp0("uint", data[i].data_type) == 0) {
+                    item->data_type = SPDU_DATA_TYPE_UINT;
+                } else if (g_strcmp0("int", data[i].data_type) == 0) {
+                    item->data_type = SPDU_DATA_TYPE_INT;
+                } else {
+                    item->data_type = SPDU_DATA_TYPE_NONE;
+                }
                 item->big_endian = data[i].big_endian;
                 item->bitlength_base_type = data[i].bitlength_base_type;
                 item->bitlength_encoded_type = data[i].bitlength_encoded_type;
@@ -778,8 +797,8 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
                 item->multiplexer = data[i].multiplexer;
                 item->multiplex_value_only = data[i].multiplex_value_only;
                 item->hidden = data[i].hidden;
-                item->hf_id_effective = create_hf_entry(2 * i, data[i].id, data[i].pos, data[i].name, data[i].filter_string, data[i].data_type, item->scale_or_offset, FALSE);
-                item->hf_id_raw = create_hf_entry(2 * i + 1, data[i].id, data[i].pos, data[i].name, data[i].filter_string, data[i].data_type, item->scale_or_offset, TRUE);
+                item->hf_id_effective = create_hf_entry(2 * i, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, FALSE);
+                item->hf_id_raw = create_hf_entry(2 * i + 1, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, TRUE);
             }
         }
 
@@ -1538,7 +1557,8 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     guint64 value_guint64 = dissect_shifted_and_shortened_uint(tvb, offset, offset_bits, offset_end, offset_end_bits, item->big_endian);
 
-    if (g_strcmp0("uint", item->data_type) == 0) {
+    switch (item->data_type) {
+    case SPDU_DATA_TYPE_UINT: {
         gdouble value_gdouble = (gdouble)value_guint64;
 
         if (item->multiplexer) {
@@ -1571,7 +1591,10 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
         ti = proto_tree_add_uint64(subtree, hf_id_raw, tvb, offset, signal_length, value_guint64);
         proto_item_append_text(ti, " (0x%" G_GINT64_MODIFIER "x)", value_guint64);
-    } else if (g_strcmp0("int", item->data_type) == 0) {
+     }
+        break;
+
+    case SPDU_DATA_TYPE_INT: {
         gint64 value_gint64 = ws_sign_ext64(value_guint64, (gint)item->bitlength_encoded_type);
         gdouble value_gdouble = (gdouble)value_gint64;
 
@@ -1595,6 +1618,12 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         subtree = proto_item_add_subtree(ti, ett_spdu_signal);
         ti = proto_tree_add_int64(subtree, hf_id_raw, tvb, offset, signal_length, value_gint64);
         proto_item_append_text(ti, " (0x%" G_GINT64_MODIFIER "x)", value_gint64);
+    }
+        break;
+
+    case SPDU_DATA_TYPE_NONE:
+        /* do nothing */
+        break;
     }
 
     /* hide raw value per default, if effective value is present */
