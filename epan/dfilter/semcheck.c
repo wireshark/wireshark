@@ -434,12 +434,9 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			break;
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
+		case STTYPE_CHARCONST:
 			FAIL(dfw, "\"%s\" is neither a field nor a protocol name.",
 					stnode_todisplay(st_arg1));
-			break;
-
-		case STTYPE_CHARCONST:
-			FAIL(dfw, "You cannot test whether a character constant is present.");
 			break;
 
 		case STTYPE_RANGE:

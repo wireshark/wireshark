@@ -524,7 +524,7 @@ parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
 	} else {
 		value = *cp;
 		if (!g_ascii_isprint(value)) {
-			dfilter_fail(dfw, "Non-printable character '0x%2lx' in character constant.", value);
+			dfilter_fail(dfw, "Non-printable value '0x%02lx' in character constant.", value);
 			return FALSE;
 		}
 	}
