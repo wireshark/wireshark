@@ -14,8 +14,6 @@
  * requirement to re-run the generator script.
  *
  */
-#include "config.h"
-#include "introspection.h"
 #include <epan/address.h>
 #include <epan/ipproto.h>
 #include <epan/proto.h>
@@ -428,8 +426,3 @@ static ws_enum_t all_enums[] = {
     ENUM(STR_UNICODE),
     { NULL, 0 },
 };
-
-const ws_enum_t *epan_inspect_enums(void)
-{
-    return all_enums;
-}

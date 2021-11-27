@@ -44,8 +44,6 @@ source = """\
  * requirement to re-run the generator script.
  *
  */
-#include "config.h"
-#include "introspection.h"
 """ % (os.path.basename(sys.argv[0]))
 
 for f in args.infiles:
@@ -68,11 +66,6 @@ for s in symbols:
 source += """\
     { NULL, 0 },
 };
-
-const ws_enum_t *epan_inspect_enums(void)
-{
-    return all_enums;
-}
 """
 
 try:

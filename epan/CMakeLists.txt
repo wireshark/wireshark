@@ -211,7 +211,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	guid-utils.c
 	iana_charsets.c
 	in_cksum.c
-	introspection-enums.c
+	introspection.c
 	ipproto.c
 	maxmind_db.c
 	media_params.c

@@ -11,6 +11,7 @@
 #ifndef _INTROSPECTION_H_
 #define _INTROSPECTION_H_
 
+#include <stddef.h>
 #include <ws_symbol_export.h>
 
 typedef struct {
@@ -27,5 +28,13 @@ typedef struct {
  */
 WS_DLL_PUBLIC
 const ws_enum_t *epan_inspect_enums(void);
+
+/** Returns size of enums array not including null terminator. */
+WS_DLL_PUBLIC
+size_t epan_inspect_enums_count(void);
+
+/** Performs a binary search for the magic constant "needle". */
+WS_DLL_PUBLIC
+const ws_enum_t *epan_inspect_enums_bsearch(const char *needle);
 
 #endif
