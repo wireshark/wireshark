@@ -545,7 +545,7 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	GByteArray	*a = fv_a->value.bytes;
 	GByteArray	*b = fv_b->value.bytes;
 
-	if (epan_memmem(a->data, a->len, b->data, b->len)) {
+	if (ws_memmem(a->data, a->len, b->data, b->len)) {
 		return TRUE;
 	}
 	else {

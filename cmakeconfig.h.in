@@ -250,6 +250,12 @@
 /* Define if you have the 'strptime' function. */
 #cmakedefine HAVE_STRPTIME 1
 
+/* Define if you have the 'memmem' function. */
+#cmakedefine HAVE_MEMMEM 1
+
+/* Define if you have the 'strcasestr' function. */
+#cmakedefine HAVE_STRCASESTR 1
+
 /* Define to 1 if `st_birthtime' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT_ST_BIRTHTIME 1
 

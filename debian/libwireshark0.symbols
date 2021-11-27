@@ -590,12 +590,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_inspect_enums_bsearch@Base 3.7.0
  epan_inspect_enums_count@Base 3.7.0
  epan_load_settings@Base 2.3.0
- epan_memmem@Base 1.9.1
  epan_new@Base 1.12.0~rc1
  epan_plugins_supported@Base 3.5.0
  epan_register_plugin@Base 2.5.0
  epan_set_always_visible@Base 3.5.1
- epan_strcasestr@Base 1.9.1
  escape_string@Base 1.9.1
  escape_string_len@Base 1.9.1
  esp_sa_record_add_from_dissector@Base 1.12.0~rc1

@@ -92,6 +92,13 @@ if (APPLE)
 	check_function_exists("CFPropertyListCreateWithStream" HAVE_CFPROPERTYLISTCREATEWITHSTREAM)
 	cmake_pop_check_state()
 endif()
+if(UNIX)
+	cmake_push_check_state()
+	list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+	check_function_exists("memmem"           HAVE_MEMMEM)
+	check_function_exists("strcasestr"       HAVE_STRCASESTR)
+	cmake_pop_check_state()
+endif()
 
 #Struct members
 include(CheckStructHasMember)

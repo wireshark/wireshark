@@ -261,22 +261,6 @@ gboolean byte_array_equal(GByteArray *ba1, GByteArray *ba2);
 WS_DLL_PUBLIC
 gchar*     xml_escape(const gchar *unescaped);
 
-/**
- * Return the first occurrence of needle in haystack.
- * Algorithm copied from GNU's glibc 2.3.2 memcmp()
- *
- * @param haystack The data to search
- * @param haystack_len The length of the search data
- * @param needle The string to look for
- * @param needle_len The length of the search string
- * @return A pointer to the first occurrence of "needle" in
- *         "haystack".  If "needle" isn't found or is NULL, or if
- *         "needle_len" is 0, NULL is returned.
- */
-WS_DLL_PUBLIC
-const guint8 * epan_memmem(const guint8 *haystack, guint haystack_len,
-		const guint8 *needle, guint needle_len);
-
 /** Scan a string to make sure it's valid hex.
  *
  * @param string The string to validate
@@ -298,17 +282,6 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
 WS_DLL_PUBLIC
 char * convert_string_case(const char *string, gboolean case_insensitive);
 
-/** Finds the first occurrence of string 'needle' in string 'haystack'.
- *  The matching is done in a case insensitive manner.
- *
- * @param haystack The string possibly containing the substring
- * @param needle The substring to be searched
- * @return A pointer into 'haystack' where 'needle' is first found.
- *   Otherwise it returns NULL.
- */
-WS_DLL_PUBLIC
-const char * epan_strcasestr(const char *haystack, const char *needle);
-
 /** Guarantee a non-null string.
  *
  * @param string The string to check
@@ -319,6 +292,7 @@ const char * string_or_null(const char *string);
 
 WS_DLL_PUBLIC
 int escape_string_len(const char *string);
+
 WS_DLL_PUBLIC
 char * escape_string(char *dst, const char *string);
 

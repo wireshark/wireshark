@@ -8,8 +8,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define _GNU_SOURCE
 #include "config.h"
 #include "str_util.h"
+
+#include <string.h>
 
 int
 ws_xton(char ch)
@@ -114,6 +117,60 @@ isdigit_string(const guchar *str)
 
 	/* The string contains only digits */
 	return TRUE;
+}
+
+/* Return the first occurrence of needle in haystack.
+ * If not found, return NULL.
+ * If either haystack or needle has 0 length, return NULL.*/
+const guint8 *
+ws_memmem(const void *_haystack, size_t haystack_len,
+        const void *_needle, size_t needle_len)
+{
+#ifdef HAVE_MEMMEM
+    return memmem(_haystack, haystack_len, _needle, needle_len);
+#else
+    /* Algorithm copied from GNU's glibc 2.3.2 memmem() under LGPL 2.1+ */
+    const guint8 *haystack = _haystack;
+    const guint8 *needle = _needle;
+    const guint8 *begin;
+    const guint8 *const last_possible = haystack + haystack_len - needle_len;
+
+    if (needle_len == 0) {
+        return NULL;
+    }
+
+    if (needle_len > haystack_len) {
+        return NULL;
+    }
+
+    for (begin = haystack ; begin <= last_possible; ++begin) {
+        if (begin[0] == needle[0] &&
+                !memcmp(&begin[1], needle + 1,
+                    needle_len - 1)) {
+            return begin;
+        }
+    }
+
+    return NULL;
+#endif /* HAVE_MEMMEM */
+}
+
+const char *
+ws_strcasestr(const char *haystack, const char *needle)
+{
+#ifdef HAVE_STRCASESTR
+    return strcasestr(haystack, needle);
+#else
+    gsize hlen = strlen(haystack);
+    gsize nlen = strlen(needle);
+
+    while (hlen-- >= nlen) {
+        if (!g_ascii_strncasecmp(haystack, needle, nlen))
+            return haystack;
+        haystack++;
+    }
+    return NULL;
+#endif /* HAVE_STRCASESTR */
 }
 
 #define FORMAT_SIZE_UNIT_MASK 0x00ff

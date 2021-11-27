@@ -1357,37 +1357,6 @@ xml_escape(const gchar *unescaped)
     return g_string_free(buffer, FALSE);
 }
 
-
-/* Return the first occurrence of needle in haystack.
- * If not found, return NULL.
- * If either haystack or needle has 0 length, return NULL.
- * Algorithm copied from GNU's glibc 2.3.2 memmem() under LGPL 2.1+ */
-const guint8 *
-epan_memmem(const guint8 *haystack, guint haystack_len,
-        const guint8 *needle, guint needle_len)
-{
-    const guint8 *begin;
-    const guint8 *const last_possible = haystack + haystack_len - needle_len;
-
-    if (needle_len == 0) {
-        return NULL;
-    }
-
-    if (needle_len > haystack_len) {
-        return NULL;
-    }
-
-    for (begin = haystack ; begin <= last_possible; ++begin) {
-        if (begin[0] == needle[0] &&
-                !memcmp(&begin[1], needle + 1,
-                    needle_len - 1)) {
-            return begin;
-        }
-    }
-
-    return NULL;
-}
-
 /*
  * Scan the search string to make sure it's valid hex.  Return the
  * number of bytes in nbytes.
@@ -1477,20 +1446,6 @@ convert_string_case(const char *string, gboolean case_insensitive)
     } else {
         return g_strdup(string);
     }
-}
-
-const char *
-epan_strcasestr(const char *haystack, const char *needle)
-{
-    gsize hlen = strlen(haystack);
-    gsize nlen = strlen(needle);
-
-    while (hlen-- >= nlen) {
-        if (!g_ascii_strncasecmp(haystack, needle, nlen))
-            return haystack;
-        haystack++;
-    }
-    return NULL;
 }
 
 const char *

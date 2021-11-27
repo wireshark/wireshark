@@ -4448,7 +4448,7 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const gint haystack_o
 	check_offset_length(haystack_tvb, haystack_offset, -1,
 			&haystack_abs_offset, &haystack_abs_length);
 
-	location = epan_memmem(haystack_data + haystack_abs_offset, haystack_abs_length,
+	location = ws_memmem(haystack_data + haystack_abs_offset, haystack_abs_length,
 			needle_data, needle_len);
 
 	if (location) {
