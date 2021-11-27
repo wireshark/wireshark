@@ -813,12 +813,8 @@ get_parameter_config(guint64 id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = id;
-    spdu_signal_list_t *tmp = (spdu_signal_list_t*)g_hash_table_lookup(data_spdu_signal_list, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = (gint64)id;
+    return (spdu_signal_list_t*)g_hash_table_lookup(data_spdu_signal_list, &key);
 }
 
 /* UAT: Value Names */
@@ -960,12 +956,8 @@ get_signal_value_name_config(guint32 id, guint16 pos) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = (guint64)id | (guint64)pos << 32;
-    spdu_signal_value_name_t *tmp = (spdu_signal_value_name_t*)g_hash_table_lookup(data_spdu_signal_value_names, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = (guint64)id | (guint64)pos << 32;
+    return (spdu_signal_value_name_t*)g_hash_table_lookup(data_spdu_signal_value_names, &key);
 }
 
 /* UAT: SOME/IP Mapping */
@@ -1061,12 +1053,8 @@ get_someip_mapping(guint16 service_id, guint16 method_id, guint8 major_version, 
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = spdu_someip_key(service_id, method_id, major_version, message_type);
-    spdu_someip_mapping_t *tmp = (spdu_someip_mapping_t*)g_hash_table_lookup(data_spdu_someip_mappings, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = spdu_someip_key(service_id, method_id, major_version, message_type);
+    return (spdu_someip_mapping_t*)g_hash_table_lookup(data_spdu_someip_mappings, &key);
 }
 
 /* UAT: CAN Mapping */
@@ -1122,17 +1110,13 @@ get_can_mapping(guint32 id, guint16 bus_id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = id & CAN_EFF_MASK;
-    *key |= ((gint64)bus_id << 32);
-    spdu_can_mapping_t *tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, key);
+    gint64 key = ((gint64)id & CAN_EFF_MASK) | ((gint64)bus_id << 32);
+    spdu_can_mapping_t *tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, &key);
     if (tmp == NULL) {
         /* try again without Bus ID set */
-        *key = id & CAN_EFF_MASK;
-        tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, key);
+        key = (gint64)id & CAN_EFF_MASK;
+        tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, &key);
     }
-
-    wmem_free(wmem_epan_scope(), key);
 
     return tmp;
 }
@@ -1208,13 +1192,8 @@ get_flexray_mapping(guint8 channel, guint8 cycle, guint16 flexray_id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = (channel << 24) | (cycle << 16) | flexray_id;
-
-    spdu_flexray_mapping_t *tmp = (spdu_flexray_mapping_t*)g_hash_table_lookup(data_spdu_flexray_mappings, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = (channel << 24) | (cycle << 16) | flexray_id;
+    return (spdu_flexray_mapping_t*)g_hash_table_lookup(data_spdu_flexray_mappings, &key);
 }
 
 
@@ -1288,19 +1267,15 @@ get_lin_mapping(lin_info_t *lininfo) {
         return NULL;
     }
 
-    gint32 *key = wmem_new(wmem_epan_scope(), gint32);
-    *key = (lininfo->id)&LIN_ID_MASK;
-    *key |= ((lininfo->bus_id) & 0xffff) << 16;
+    gint32 key = ((lininfo->id)&LIN_ID_MASK) | (((lininfo->bus_id) & 0xffff) << 16);
 
-    spdu_lin_mapping_uat_t *tmp = (spdu_lin_mapping_uat_t*)g_hash_table_lookup(data_spdu_lin_mappings, key);
+    spdu_lin_mapping_uat_t *tmp = (spdu_lin_mapping_uat_t*)g_hash_table_lookup(data_spdu_lin_mappings, &key);
 
     if (tmp == NULL) {
         /* try again without Bus ID set */
-        *key = (lininfo->id) & LIN_ID_MASK;
-        tmp = (spdu_lin_mapping_uat_t*)g_hash_table_lookup(data_spdu_lin_mappings, key);
+        key = (lininfo->id) & LIN_ID_MASK;
+        tmp = (spdu_lin_mapping_uat_t*)g_hash_table_lookup(data_spdu_lin_mappings, &key);
     }
-
-    wmem_free(wmem_epan_scope(), key);
 
     return tmp;
 }
@@ -1367,13 +1342,8 @@ get_pdu_transport_mapping(guint32 pdu_transport_id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = pdu_transport_id;
-
-    spdu_pdu_transport_mapping_uat_t *tmp = (spdu_pdu_transport_mapping_uat_t*)g_hash_table_lookup(data_spdu_pdu_transport_mappings, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = pdu_transport_id;
+    return (spdu_pdu_transport_mapping_uat_t*)g_hash_table_lookup(data_spdu_pdu_transport_mappings, &key);
 }
 
 /* UAT: IPduM Mapping */
@@ -1438,13 +1408,8 @@ get_ipdum_mapping(guint32 pdu_id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = pdu_id;
-
-    spdu_ipdum_mapping_uat_t *tmp = (spdu_ipdum_mapping_uat_t*)g_hash_table_lookup(data_spdu_ipdum_mappings, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = pdu_id;
+    return (spdu_ipdum_mapping_uat_t*)g_hash_table_lookup(data_spdu_ipdum_mappings, &key);
 }
 
 /**************************************
