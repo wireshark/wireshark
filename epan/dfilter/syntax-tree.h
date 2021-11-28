@@ -77,6 +77,7 @@ typedef struct {
 	sttype_t	*type;
 	uint16_t	flags;
 	gpointer	data;
+	char 		*repr_token;
 	char 		*repr_display;
 	char 		*repr_debug;
 } stnode_t;
@@ -100,19 +101,19 @@ void
 sttype_register(sttype_t *type);
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data);
+stnode_new(sttype_id_t type_id, gpointer data, const char *token);
 
 stnode_t *
-stnode_new_test(test_op_t op, stnode_t *val1, stnode_t *val2);
+stnode_new_test(test_op_t op, const char *token);
 
 stnode_t *
-stnode_new_string(const char *str);
+stnode_new_string(const char *str, const char *token);
 
 stnode_t *
-stnode_new_unparsed(const char *str);
+stnode_new_unparsed(const char *str, const char *token);
 
 stnode_t *
-stnode_new_charconst(unsigned long number);
+stnode_new_charconst(unsigned long number, const char *token);
 
 stnode_t*
 stnode_dup(const stnode_t *org);
@@ -121,7 +122,7 @@ void
 stnode_clear(stnode_t *node);
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data);
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, const char *token);
 
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);

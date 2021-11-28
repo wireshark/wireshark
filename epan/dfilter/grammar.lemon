@@ -21,6 +21,9 @@
 static stnode_t *
 new_function(dfwork_t *dfw, df_lval_t *lval);
 
+static stnode_t *
+new_test(dfwork_t *dfw, test_op_t op, df_lval_t *lval);
+
 /* End of C code */
 }
 
@@ -57,9 +60,11 @@ new_function(dfwork_t *dfw, df_lval_t *lval);
 %type		logical_test	{stnode_t*}
 %destructor	logical_test	{stnode_free($$);}
 
-%type		rel_binop	{test_op_t}
+%type		rel_binop	{stnode_t*}
+%destructor	rel_binop	{stnode_free($$);}
 
-%type		cmp_op		{test_op_t}
+%type		cmp_op		{stnode_t*}
+%destructor	cmp_op		{stnode_free($$);}
 
 %type		range		{stnode_t*}
 %destructor	range		{stnode_free($$);}
@@ -116,26 +121,39 @@ sentence ::= .			{ dfw->st_root = NULL; }
 expr(X) ::= relation_test(R).	{ X = R; }
 expr(X) ::= logical_test(L).	{ X = L; }
 
+%code {
+	static stnode_t *
+	new_test(dfwork_t *dfw _U_, test_op_t op, df_lval_t *lval)
+	{
+		stnode_t *node = stnode_new_test(op, df_lval_value(lval));
+		df_lval_free(lval);
+		return node;
+	}
+}
 
 /* Logical tests */
-logical_test(T) ::= expr(E) TEST_AND expr(F).
+logical_test(T) ::= expr(E) TEST_AND(L) expr(F).
 {
-	T = stnode_new_test(TEST_OP_AND, E, F);
+	T = new_test(dfw, TEST_OP_AND, L);
+	sttype_test_set2_args(T, E, F);
 }
 
-logical_test(T) ::= expr(E) TEST_OR expr(F).
+logical_test(T) ::= expr(E) TEST_OR(L) expr(F).
 {
-	T = stnode_new_test(TEST_OP_OR, E, F);
+	T = new_test(dfw, TEST_OP_OR, L);
+	sttype_test_set2_args(T, E, F);
 }
 
-logical_test(T) ::= TEST_NOT expr(E).
+logical_test(T) ::= TEST_NOT(L) expr(E).
 {
-	T = stnode_new_test(TEST_OP_NOT, E, NULL);
+	T = new_test(dfw, TEST_OP_NOT, L);
+	sttype_test_set1_args(T, E);
 }
 
 logical_test(T) ::= entity(E).
 {
-	T = stnode_new_test(TEST_OP_EXISTS, E, NULL);
+	T = new_test(dfw, TEST_OP_EXISTS, NULL);
+	sttype_test_set1_args(T, E);
 }
 
 
@@ -143,17 +161,17 @@ logical_test(T) ::= entity(E).
 /* Entities, or things that can be compared/tested/checked */
 entity(E) ::= STRING(S).
 {
-	E = stnode_new_string(df_lval_value(S));
+	E = stnode_new_string(df_lval_value(S), df_lval_value(S));
 	df_lval_free(S);
 }
 entity(E) ::= CHARCONST(C).
 {
-	E = stnode_new_charconst(df_lval_number(C));
+	E = stnode_new_charconst(df_lval_number(C), df_lval_value(C));
 	df_lval_free(C);
 }
 entity(E) ::= UNPARSED(U).
 {
-	E = stnode_new_unparsed(df_lval_value(U));
+	E = stnode_new_unparsed(df_lval_value(U), df_lval_value(U));
 	dfilter_resolve_unparsed(dfw, E);
 	df_lval_free(U);
 }
@@ -164,7 +182,7 @@ entity(E) ::= function(F).	{ E = F; }
 /* Ranges */
 range(R) ::= entity(E) LBRACKET range_node_list(L) RBRACKET.
 {
-	R = stnode_new(STTYPE_RANGE, NULL);
+	R = stnode_new(STTYPE_RANGE, NULL, NULL);
 	sttype_range_set(R, E, L);
 
 	/* Delete the list, but not the drange_nodes that
@@ -195,20 +213,20 @@ range_node(D) ::= RANGE(R).
 	df_lval_free(R);
 }
 
-
 /* Relational tests */
-cmp_op(O) ::= TEST_ANY_EQ.	{ O = TEST_OP_ANY_EQ; }
-cmp_op(O) ::= TEST_ALL_NE.	{ O = TEST_OP_ALL_NE; }
-cmp_op(O) ::= TEST_ANY_NE.	{ O = TEST_OP_ANY_NE; }
-cmp_op(O) ::= TEST_GT.		{ O = TEST_OP_GT; }
-cmp_op(O) ::= TEST_GE.		{ O = TEST_OP_GE; }
-cmp_op(O) ::= TEST_LT.		{ O = TEST_OP_LT; }
-cmp_op(O) ::= TEST_LE.		{ O = TEST_OP_LE; }
-cmp_op(O) ::= TEST_BITWISE_AND. { O = TEST_OP_BITWISE_AND; }
+cmp_op(O) ::= TEST_ANY_EQ(L).		{ O = new_test(dfw, TEST_OP_ANY_EQ, L); }
+cmp_op(O) ::= TEST_ALL_NE(L).		{ O = new_test(dfw, TEST_OP_ALL_NE, L); }
+cmp_op(O) ::= TEST_ANY_NE(L).		{ O = new_test(dfw, TEST_OP_ANY_NE, L); }
+cmp_op(O) ::= TEST_GT(L).		{ O = new_test(dfw, TEST_OP_GT, L); }
+cmp_op(O) ::= TEST_GE(L).		{ O = new_test(dfw, TEST_OP_GE, L); }
+cmp_op(O) ::= TEST_LT(L).		{ O = new_test(dfw, TEST_OP_LT, L); }
+cmp_op(O) ::= TEST_LE(L).		{ O = new_test(dfw, TEST_OP_LE, L); }
+cmp_op(O) ::= TEST_BITWISE_AND(L).	{ O = new_test(dfw, TEST_OP_BITWISE_AND, L); }
 
 comparison_test(T) ::= entity(E) cmp_op(O) entity(F).
 {
-	T = stnode_new_test(O, E, F);
+	T = O;
+	sttype_test_set2_args(O, E, F);
 }
 
 /* 'a == b == c' or 'a < b <= c <= d < e' */
@@ -225,37 +243,43 @@ comparison_test(T) ::= entity(E) cmp_op(O) comparison_test(R).
 		sttype_test_get(F, NULL, &F, NULL);
 	} while (stnode_type_id(F) == STTYPE_TEST);
 
-	L = stnode_new_test(O, E, stnode_dup(F));
+	L = O;
+	sttype_test_set2_args(L, E, stnode_dup(F));
 
-	T = stnode_new_test(TEST_OP_AND, L, R);
+	T = stnode_new_test(TEST_OP_AND, NULL);
+	sttype_test_set2_args(T, L, R);
 }
 
 relation_test(T) ::= comparison_test(C).	{ T = C; }
 
 /* Does not chain like math comparisons. */
-rel_binop(O) ::= TEST_CONTAINS.		{ O = TEST_OP_CONTAINS; }
-rel_binop(O) ::= TEST_MATCHES.		{ O = TEST_OP_MATCHES; }
+rel_binop(O) ::= TEST_CONTAINS(L).	{ O = new_test(dfw, TEST_OP_CONTAINS, L); }
+rel_binop(O) ::= TEST_MATCHES(L).	{ O = new_test(dfw, TEST_OP_MATCHES, L); }
 
 relation_test(T) ::= entity(E) rel_binop(O) entity(F).
 {
-	T = stnode_new_test(O, E, F);
+	T = O;
+	sttype_test_set2_args(O, E, F);
 }
 
-relation_test(T) ::= entity(E) TEST_IN set(S).
+relation_test(T) ::= entity(E) TEST_IN(O) set(S).
 {
-	T = stnode_new_test(TEST_OP_IN, E, S);
+	T = new_test(dfw, TEST_OP_IN, O);
+	sttype_test_set2_args(T, E, S);
 }
 
-relation_test(T) ::= entity(E) TEST_NOT TEST_IN set(S).
+relation_test(T) ::= entity(E) TEST_NOT(P) TEST_IN(O) set(S).
 {
-	stnode_t *R = stnode_new_test(TEST_OP_IN, E, S);
+	stnode_t *R = new_test(dfw, TEST_OP_IN, O);
+	sttype_test_set2_args(R, E, S);
 
-	T = stnode_new_test(TEST_OP_NOT, R, NULL);
+	T = new_test(dfw, TEST_OP_NOT, P);
+	sttype_test_set1_args(T, R);
 }
 
 set(S) ::= LBRACE set_list(L) RBRACE.
 {
-	S = stnode_new(STTYPE_SET, L);
+	S = stnode_new(STTYPE_SET, L, NULL);
 }
 
 set_list(L) ::= set_element(N).
@@ -291,7 +315,9 @@ set_element(N) ::= entity(X) DOTDOT entity(Y).
 		if (!def) {
 			dfilter_fail(dfw, "Function '%s' does not exist", name);
 		}
-		return stnode_new(STTYPE_FUNCTION, def);
+		stnode_t *node = stnode_new(STTYPE_FUNCTION, def, df_lval_value(lval));
+		df_lval_free(lval);
+		return node;
 	}
 }
 
@@ -300,14 +326,12 @@ function(F) ::= UNPARSED(U) LPAREN function_params(P) RPAREN.
 {
 	F = new_function(dfw, U);
 	sttype_function_set_params(F, P);
-	df_lval_free(U);
 }
 
 /* A function can have zero parameters. */
 function(F) ::= UNPARSED(U) LPAREN RPAREN.
 {
 	F = new_function(dfw, U);
-	df_lval_free(U);
 }
 
 function_params(P) ::= entity(E).

@@ -64,148 +64,8 @@ test_free(gpointer value)
 	g_free(test);
 }
 
-static char *
-test_tostr(const void *value, gboolean pretty)
-{
-	const test_t *test = value;
-	ws_assert_magic(test, TEST_MAGIC);
-
-	if (pretty)
-		return g_strdup(sttype_test_todisplay(test->op));
-
-	const char *s = "<null>";
-
-	switch(test->op) {
-		case TEST_OP_EXISTS:
-			s = "TEST_EXISTS";
-			break;
-		case TEST_OP_NOT:
-			s = "TEST_NOT";
-			break;
-		case TEST_OP_AND:
-			s = "TEST_AND";
-			break;
-		case TEST_OP_OR:
-			s = "TEST_OR";
-			break;
-		case TEST_OP_ANY_EQ:
-			s = "TEST_ANY_EQ";
-			break;
-		case TEST_OP_ALL_NE:
-			s = "TEST_ALL_NE";
-			break;
-		case TEST_OP_ANY_NE:
-			s = "TEST_ANY_NE";
-			break;
-		case TEST_OP_GT:
-			s = "TEST_GT";
-			break;
-		case TEST_OP_GE:
-			s = "TEST_GE";
-			break;
-		case TEST_OP_LT:
-			s = "TEST_LT";
-			break;
-		case TEST_OP_LE:
-			s = "TEST_LE";
-			break;
-		case TEST_OP_BITWISE_AND:
-			s = "TEST_BITAND";
-			break;
-		case TEST_OP_CONTAINS:
-			s = "TEST_CONTAINS";
-			break;
-		case TEST_OP_MATCHES:
-			s = "TEST_MATCHES";
-			break;
-		case TEST_OP_IN:
-			s = "TEST_IN";
-			break;
-		case TEST_OP_UNINITIALIZED:
-			s = "<uninitialized>";
-			break;
-		default:
-			break;
-	}
-	return g_strdup(s);
-}
-
-static int
-num_operands(test_op_t op)
-{
-	switch(op) {
-		case TEST_OP_UNINITIALIZED:
-			break;
-		case TEST_OP_EXISTS:
-		case TEST_OP_NOT:
-			return 1;
-		case TEST_OP_AND:
-		case TEST_OP_OR:
-		case TEST_OP_ANY_EQ:
-		case TEST_OP_ALL_NE:
-		case TEST_OP_ANY_NE:
-		case TEST_OP_GT:
-		case TEST_OP_GE:
-		case TEST_OP_LT:
-		case TEST_OP_LE:
-		case TEST_OP_BITWISE_AND:
-		case TEST_OP_CONTAINS:
-		case TEST_OP_MATCHES:
-		case TEST_OP_IN:
-			return 2;
-	}
-	g_assert_not_reached();
-	return -1;
-}
-
-
-void
-sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1)
-{
-	test_t *test = stnode_data(node);
-	ws_assert_magic(test, TEST_MAGIC);
-
-	g_assert_true(num_operands(op) == 1);
-	test->op = op;
-	test->val1 = val1;
-}
-
-void
-sttype_test_set2(stnode_t *node, test_op_t op, stnode_t *val1, stnode_t *val2)
-{
-	test_t *test = stnode_data(node);
-	ws_assert_magic(test, TEST_MAGIC);
-
-	g_assert_true(num_operands(op) == 2);
-	test->op = op;
-	test->val1 = val1;
-	test->val2 = val2;
-}
-
-void
-sttype_test_set2_args(stnode_t *node, stnode_t *val1, stnode_t *val2)
-{
-	test_t	*test;
-
-	test = (test_t*)stnode_data(node);
-	ws_assert_magic(test, TEST_MAGIC);
-
-	if (num_operands(test->op) == 1) {
-		g_assert_true(val2 == NULL);
-	}
-	test->val1 = val1;
-	test->val2 = val2;
-}
-
-test_op_t
-sttype_test_get_op(stnode_t *node)
-{
-	ws_assert_magic(node, TEST_MAGIC);
-	return ((test_t *)node)->op;
-}
-
-const char *
-sttype_test_todisplay(test_op_t op)
+static const char *
+test_todisplay(test_op_t op)
 {
 	const char *s;
 
@@ -263,6 +123,174 @@ sttype_test_todisplay(test_op_t op)
 			break;
 	}
 	return s;
+}
+
+static const char *
+test_todebug(test_op_t op)
+{
+	const char *s;
+
+	switch(op) {
+		case TEST_OP_EXISTS:
+			s = "TEST_EXISTS";
+			break;
+		case TEST_OP_NOT:
+			s = "TEST_NOT";
+			break;
+		case TEST_OP_AND:
+			s = "TEST_AND";
+			break;
+		case TEST_OP_OR:
+			s = "TEST_OR";
+			break;
+		case TEST_OP_ANY_EQ:
+			s = "TEST_ANY_EQ";
+			break;
+		case TEST_OP_ALL_NE:
+			s = "TEST_ALL_NE";
+			break;
+		case TEST_OP_ANY_NE:
+			s = "TEST_ANY_NE";
+			break;
+		case TEST_OP_GT:
+			s = "TEST_GT";
+			break;
+		case TEST_OP_GE:
+			s = "TEST_GE";
+			break;
+		case TEST_OP_LT:
+			s = "TEST_LT";
+			break;
+		case TEST_OP_LE:
+			s = "TEST_LE";
+			break;
+		case TEST_OP_BITWISE_AND:
+			s = "TEST_BITAND";
+			break;
+		case TEST_OP_CONTAINS:
+			s = "TEST_CONTAINS";
+			break;
+		case TEST_OP_MATCHES:
+			s = "TEST_MATCHES";
+			break;
+		case TEST_OP_IN:
+			s = "TEST_IN";
+			break;
+		case TEST_OP_UNINITIALIZED:
+			s = "<uninitialized>";
+			break;
+		default:
+			s = "<null>";
+			break;
+	}
+	return s;
+}
+
+static char *
+test_tostr(const void *value, gboolean pretty)
+{
+	const test_t *test = value;
+	ws_assert_magic(test, TEST_MAGIC);
+	const char *s;
+
+	if (pretty)
+		s = test_todisplay(test->op);
+	else
+		s = test_todebug(test->op);
+	return g_strdup(s);
+}
+
+static int
+num_operands(test_op_t op)
+{
+	switch(op) {
+		case TEST_OP_UNINITIALIZED:
+			break;
+		case TEST_OP_EXISTS:
+		case TEST_OP_NOT:
+			return 1;
+		case TEST_OP_AND:
+		case TEST_OP_OR:
+		case TEST_OP_ANY_EQ:
+		case TEST_OP_ALL_NE:
+		case TEST_OP_ANY_NE:
+		case TEST_OP_GT:
+		case TEST_OP_GE:
+		case TEST_OP_LT:
+		case TEST_OP_LE:
+		case TEST_OP_BITWISE_AND:
+		case TEST_OP_CONTAINS:
+		case TEST_OP_MATCHES:
+		case TEST_OP_IN:
+			return 2;
+	}
+	g_assert_not_reached();
+	return -1;
+}
+
+
+void
+sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1)
+{
+	test_t *test = stnode_data(node);
+	ws_assert_magic(test, TEST_MAGIC);
+
+	g_assert_true(num_operands(op) == 1);
+	test->op = op;
+	test->val1 = val1;
+}
+
+void
+sttype_test_set2(stnode_t *node, test_op_t op, stnode_t *val1, stnode_t *val2)
+{
+	test_t *test = stnode_data(node);
+	ws_assert_magic(test, TEST_MAGIC);
+
+	g_assert_true(num_operands(op) == 2);
+	test->op = op;
+	test->val1 = val1;
+	test->val2 = val2;
+}
+
+void
+sttype_test_set1_args(stnode_t *node, stnode_t *val1)
+{
+	test_t	*test;
+
+	test = (test_t*)stnode_data(node);
+	ws_assert_magic(test, TEST_MAGIC);
+
+	g_assert_true(num_operands(test->op) == 1);
+	test->val1 = val1;
+}
+
+void
+sttype_test_set2_args(stnode_t *node, stnode_t *val1, stnode_t *val2)
+{
+	test_t	*test;
+
+	test = (test_t*)stnode_data(node);
+	ws_assert_magic(test, TEST_MAGIC);
+
+	g_assert_true(num_operands(test->op) == 2);
+	test->val1 = val1;
+	test->val2 = val2;
+}
+
+void
+sttype_test_set_op(stnode_t *node, test_op_t op)
+{
+	test_t *test = stnode_data(node);
+	ws_assert_magic(test, TEST_MAGIC);
+	ws_assert(test->op == TEST_OP_UNINITIALIZED);
+	test->op = op;
+}
+
+test_op_t
+sttype_test_get_op(stnode_t *node)
+{
+	ws_assert_magic(node, TEST_MAGIC);
+	return ((test_t *)node)->op;
 }
 
 void
