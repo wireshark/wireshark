@@ -337,6 +337,8 @@ post_update_register_can(void) {
                 dissector_add_uint("can.id", *id, ipdum_handle_can);
             }
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -520,6 +522,8 @@ post_update_register_lin(void) {
             /* we register the combination of bus and frame id */
             dissector_add_uint("lin.frame_id", *id, ipdum_handle_lin);
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -617,6 +621,8 @@ post_update_register_pdu_transport(void) {
             gint64 *id = (gint64*)tmp->data;
             dissector_add_uint("pdu_transport.id", ((guint32)((guint64)(*id)) & 0xffffffff), ipdum_handle_pdu_transport);
         }
+
+        g_list_free(keys);
     }
 }
 
