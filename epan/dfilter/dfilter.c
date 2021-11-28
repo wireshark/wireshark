@@ -402,7 +402,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	/* If we created a df_lval_t but didn't use it, free it; the
 	 * parser doesn't know about it and won't free it for us. */
 	if (df_lval) {
-		df_lval_free(df_lval);
+		df_lval_free(df_lval, TRUE);
 		df_lval = NULL;
 	}
 

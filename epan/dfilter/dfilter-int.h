@@ -66,11 +66,11 @@ df_lval_new(void)
 	return g_new0(df_lval_t, 1);
 }
 
-static inline const char *
+static inline char *
 df_lval_value(df_lval_t *lval)
 {
 	if (!lval || !lval->value)
-		return "(fixme: null)";
+		return NULL;
 	return lval->value;
 }
 
@@ -81,10 +81,12 @@ df_lval_number(df_lval_t *lval)
 }
 
 static inline void
-df_lval_free(df_lval_t *lval)
+df_lval_free(df_lval_t *lval, gboolean free_value)
 {
 	if (lval) {
-		g_free(lval->value);
+		if (free_value) {
+			g_free(lval->value);
+		}
 		g_free(lval);
 	}
 }

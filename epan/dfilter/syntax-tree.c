@@ -98,7 +98,7 @@ stnode_clear(stnode_t *node)
 }
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, const char *token)
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token)
 {
 	sttype_t	*type;
 
@@ -108,7 +108,7 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, const char *toke
 	node->flags = 0;
 	node->repr_display = NULL;
 	node->repr_debug = NULL;
-	node->repr_token = g_strdup(token);
+	node->repr_token = token;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -141,7 +141,7 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 }
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, const char *token)
+stnode_new(sttype_id_t type_id, gpointer data, char *token)
 {
 	stnode_t	*node;
 
@@ -154,7 +154,7 @@ stnode_new(sttype_id_t type_id, gpointer data, const char *token)
 }
 
 stnode_t *
-stnode_new_test(test_op_t op, const char *token)
+stnode_new_test(test_op_t op, char *token)
 {
 	stnode_t *node;
 
@@ -164,19 +164,19 @@ stnode_new_test(test_op_t op, const char *token)
 }
 
 stnode_t *
-stnode_new_string(const char *str, const char *token)
+stnode_new_string(const char *str, char *token)
 {
 	return stnode_new(STTYPE_STRING, g_strdup(str), token);
 }
 
 stnode_t *
-stnode_new_unparsed(const char *str, const char *token)
+stnode_new_unparsed(const char *str, char *token)
 {
 	return stnode_new(STTYPE_UNPARSED, g_strdup(str), token);
 }
 
 stnode_t *
-stnode_new_charconst(unsigned long number, const char *token)
+stnode_new_charconst(unsigned long number, char *token)
 {
 	return stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token);
 }

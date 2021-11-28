@@ -101,19 +101,19 @@ void
 sttype_register(sttype_t *type);
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data, const char *token);
+stnode_new(sttype_id_t type_id, gpointer data, char *token);
 
 stnode_t *
-stnode_new_test(test_op_t op, const char *token);
+stnode_new_test(test_op_t op, char *token);
 
 stnode_t *
-stnode_new_string(const char *str, const char *token);
+stnode_new_string(const char *str, char *token);
 
 stnode_t *
-stnode_new_unparsed(const char *str, const char *token);
+stnode_new_unparsed(const char *str, char *token);
 
 stnode_t *
-stnode_new_charconst(unsigned long number, const char *token);
+stnode_new_charconst(unsigned long number, char *token);
 
 stnode_t*
 stnode_dup(const stnode_t *org);
@@ -122,7 +122,7 @@ void
 stnode_clear(stnode_t *node);
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, const char *token);
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token);
 
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
