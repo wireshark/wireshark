@@ -722,7 +722,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover selection</source>
-        <translation type="unfinished"></translation>
+        <translation>ホーバー選択を許可</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -3650,7 +3650,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation type="unfinished"></translation>
+        <translation>自動アップデート</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -4386,7 +4386,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;推奨された正規表現:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
@@ -6404,7 +6404,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Rawshark</source>
-        <translation type="unfinished"></translation>
+        <translation>RawShark</translation>
     </message>
     <message>
         <source>Dumpcap</source>
@@ -6420,7 +6420,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Text2pcap</source>
-        <translation type="unfinished"></translation>
+        <translation>Text2cap</translation>
     </message>
     <message>
         <source>Website</source>
@@ -7147,11 +7147,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>NGAP</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP メッセージ</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8245,12 +8245,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Delete packet comments</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメントを削除</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n パケットよりコメントを削除</numerusform>
         </translation>
     </message>
     <message>
@@ -8259,7 +8259,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua プラグインの再読込前</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
@@ -8714,11 +8714,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketCommentDialog</name>
     <message>
         <source>Edit Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメントを編集</translation>
     </message>
     <message>
         <source>Add Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメントを追加</translation>
     </message>
 </context>
 <context>
@@ -12771,7 +12771,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hex Digits</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数字</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
@@ -12972,11 +12972,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>SyntaxLineEdit</name>
     <message>
         <source>&quot;%1&quot; is deprecated in favour of &quot;%2&quot;. See Help section 6.4.8 for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; は非推奨で &quot;%2&quot; が推奨されます。詳細はヘルプ 6.4.8をご覧ください</translation>
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>

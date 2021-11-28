@@ -31,15 +31,27 @@ Wireshark 3.7.0 Release Notes
        double quoted strings. Besides octal and hex byte specification
        the following C escape sequences are now supported with the same
        meaning: \a, \b, \f, \n, \r, \t, \v. Previously they were only
-       supported with character constants. Note that unrecognized escape
-       sequences are treated as a literal character. This has not
-       changed from previous versions.
+       supported with character constants.
+
+        • Unrecognized escape sequences are now treated as a syntax
+       error. Previously they were treated as a literal character. In
+       addition to the sequences indicated above, backslash, single
+       quotation and double quotation mark are also valid sequences: \\,
+       \', \".
 
         • The display filter engine now uses PCRE2 instead of GRegex
        (GLib bindings to the older end-of-life PCRE library). PCRE2 is
        compatible with PCRE so the user-visible changes should be
        minimal. Some exotic patterns may now be invalid and require
        rewriting.
+
+     • HTTP2 dissector now supports using fake headers to parse the
+       DATAs of streams captured without first HEADERS frames of a
+       long-lived stream (like gRPC streaming call which allows sending
+       many request or response messages in one HTTP2 stream). User can
+       specify fake headers according to the server port, stream id and
+       direction of the long-lived stream that we start capturing
+       packets after it is established.
 
   New File Format Decoding Support
 
@@ -89,7 +101,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-11-21 16:06:47 UTC
+  Last updated 2021-11-28 16:07:10 UTC
 
  References
 

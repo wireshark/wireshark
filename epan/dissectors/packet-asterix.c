@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 1179a9386ac9588e887f4a1e6c1d6d192a858ac2
+git revision: 9c280477fae1cb1909794b2da8412d1b5cb38def
 
 
 */
@@ -6459,6 +6459,1232 @@ static const AsterixField **I009[] = {
 };
 DIAG_ON_PEDANTIC
 
+/* Category 010, edition 1.1 */
+static gint hf_010_V1_1_000 = -1;
+static gint hf_010_V1_1_000_VALUE = -1;
+static const value_string valstr_010_V1_1_000_VALUE[] = {
+    { 1, "Target Report" },
+    { 2, "Start of Update Cycle" },
+    { 3, "Periodic Status Message" },
+    { 4, "Event-triggered Status Message" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_010_V1_1_000_VALUE, NULL };
+static const FieldPart *I010_V1_1_000_PARTS[] = {
+    &I010_V1_1_000_VALUE,
+    NULL
+};
+static const AsterixField I010_V1_1_000 = { FIXED, 1, 0, 0, &hf_010_V1_1_000, I010_V1_1_000_PARTS, { NULL } };
+static gint hf_010_V1_1_010 = -1;
+static gint hf_010_V1_1_010_SAC = -1;
+static const FieldPart I010_V1_1_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_010_V1_1_010_SAC, NULL };
+static gint hf_010_V1_1_010_SIC = -1;
+static const FieldPart I010_V1_1_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_010_V1_1_010_SIC, NULL };
+static const FieldPart *I010_V1_1_010_PARTS[] = {
+    &I010_V1_1_010_SAC,
+    &I010_V1_1_010_SIC,
+    NULL
+};
+static const AsterixField I010_V1_1_010 = { FIXED, 2, 0, 0, &hf_010_V1_1_010, I010_V1_1_010_PARTS, { NULL } };
+static gint hf_010_V1_1_020 = -1;
+static gint hf_010_V1_1_020_TYP = -1;
+static const value_string valstr_010_V1_1_020_TYP[] = {
+    { 0, "SSR multilateration" },
+    { 1, "Mode S multilateration" },
+    { 2, "ADS-B" },
+    { 3, "PSR" },
+    { 4, "Magnetic Loop System" },
+    { 5, "HF multilateration" },
+    { 6, "Not defined" },
+    { 7, "Other types" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_TYP = { 3, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_TYP, NULL };
+static gint hf_010_V1_1_020_DCR = -1;
+static const value_string valstr_010_V1_1_020_DCR[] = {
+    { 0, "No differential correction (ADS-B)" },
+    { 1, "Differential correction (ADS-B)" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_DCR = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_DCR, NULL };
+static gint hf_010_V1_1_020_CHN = -1;
+static const value_string valstr_010_V1_1_020_CHN[] = {
+    { 0, "Chain 1" },
+    { 1, "Chain 2" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_CHN = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_CHN, NULL };
+static gint hf_010_V1_1_020_GBS = -1;
+static const value_string valstr_010_V1_1_020_GBS[] = {
+    { 0, "Transponder Ground bit not set" },
+    { 1, "Transponder Ground bit set" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_GBS = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_GBS, NULL };
+static gint hf_010_V1_1_020_CRT = -1;
+static const value_string valstr_010_V1_1_020_CRT[] = {
+    { 0, "No Corrupted reply in multilateration" },
+    { 1, "Corrupted replies in multilateration" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_CRT = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_CRT, NULL };
+static gint hf_010_V1_1_020_SIM = -1;
+static const value_string valstr_010_V1_1_020_SIM[] = {
+    { 0, "Actual target report" },
+    { 1, "Simulated target report" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_SIM = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_SIM, NULL };
+static gint hf_010_V1_1_020_TST = -1;
+static const value_string valstr_010_V1_1_020_TST[] = {
+    { 0, "Default" },
+    { 1, "Test Target" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_TST = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_TST, NULL };
+static gint hf_010_V1_1_020_RAB = -1;
+static const value_string valstr_010_V1_1_020_RAB[] = {
+    { 0, "Report from target transponder" },
+    { 1, "Report from field monitor (fixed transponder)" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_RAB = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_RAB, NULL };
+static gint hf_010_V1_1_020_LOP = -1;
+static const value_string valstr_010_V1_1_020_LOP[] = {
+    { 0, "Undetermined" },
+    { 1, "Loop start" },
+    { 2, "Loop finish" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_LOP = { 2, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_LOP, NULL };
+static gint hf_010_V1_1_020_TOT = -1;
+static const value_string valstr_010_V1_1_020_TOT[] = {
+    { 0, "Undetermined" },
+    { 1, "Aircraft" },
+    { 2, "Ground vehicle" },
+    { 3, "Helicopter" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_TOT = { 2, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_TOT, NULL };
+static gint hf_010_V1_1_020_SPI = -1;
+static const value_string valstr_010_V1_1_020_SPI[] = {
+    { 0, "Absence of SPI" },
+    { 1, "Special Position Identification" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_020_SPI = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_020_SPI, NULL };
+static const FieldPart *I010_V1_1_020_PARTS[] = {
+    &I010_V1_1_020_TYP,
+    &I010_V1_1_020_DCR,
+    &I010_V1_1_020_CHN,
+    &I010_V1_1_020_GBS,
+    &I010_V1_1_020_CRT,
+    &IXXX_FX,
+    &I010_V1_1_020_SIM,
+    &I010_V1_1_020_TST,
+    &I010_V1_1_020_RAB,
+    &I010_V1_1_020_LOP,
+    &I010_V1_1_020_TOT,
+    &IXXX_FX,
+    &I010_V1_1_020_SPI,
+    &IXXX_6bit_spare,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I010_V1_1_020 = { FX, 1, 0, 0, &hf_010_V1_1_020, I010_V1_1_020_PARTS, { NULL } };
+static gint hf_010_V1_1_040 = -1;
+static gint hf_010_V1_1_040_RHO = -1;
+static const FieldPart I010_V1_1_040_RHO = { 16, 1.0, FIELD_PART_UFLOAT, &hf_010_V1_1_040_RHO, NULL };
+static gint hf_010_V1_1_040_TH = -1;
+static const FieldPart I010_V1_1_040_TH = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_010_V1_1_040_TH, NULL };
+static const FieldPart *I010_V1_1_040_PARTS[] = {
+    &I010_V1_1_040_RHO,
+    &I010_V1_1_040_TH,
+    NULL
+};
+static const AsterixField I010_V1_1_040 = { FIXED, 4, 0, 0, &hf_010_V1_1_040, I010_V1_1_040_PARTS, { NULL } };
+static gint hf_010_V1_1_041 = -1;
+static gint hf_010_V1_1_041_LAT = -1;
+static const FieldPart I010_V1_1_041_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_010_V1_1_041_LAT, NULL };
+static gint hf_010_V1_1_041_LON = -1;
+static const FieldPart I010_V1_1_041_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_010_V1_1_041_LON, NULL };
+static const FieldPart *I010_V1_1_041_PARTS[] = {
+    &I010_V1_1_041_LAT,
+    &I010_V1_1_041_LON,
+    NULL
+};
+static const AsterixField I010_V1_1_041 = { FIXED, 8, 0, 0, &hf_010_V1_1_041, I010_V1_1_041_PARTS, { NULL } };
+static gint hf_010_V1_1_042 = -1;
+static gint hf_010_V1_1_042_X = -1;
+static const FieldPart I010_V1_1_042_X = { 16, 1.0, FIELD_PART_FLOAT, &hf_010_V1_1_042_X, NULL };
+static gint hf_010_V1_1_042_Y = -1;
+static const FieldPart I010_V1_1_042_Y = { 16, 1.0, FIELD_PART_FLOAT, &hf_010_V1_1_042_Y, NULL };
+static const FieldPart *I010_V1_1_042_PARTS[] = {
+    &I010_V1_1_042_X,
+    &I010_V1_1_042_Y,
+    NULL
+};
+static const AsterixField I010_V1_1_042 = { FIXED, 4, 0, 0, &hf_010_V1_1_042, I010_V1_1_042_PARTS, { NULL } };
+static gint hf_010_V1_1_060 = -1;
+static gint hf_010_V1_1_060_V = -1;
+static const value_string valstr_010_V1_1_060_V[] = {
+    { 0, "Code validated" },
+    { 1, "Code not validated" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_060_V = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_060_V, NULL };
+static gint hf_010_V1_1_060_G = -1;
+static const value_string valstr_010_V1_1_060_G[] = {
+    { 0, "Default" },
+    { 1, "Garbled code" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_060_G = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_060_G, NULL };
+static gint hf_010_V1_1_060_L = -1;
+static const value_string valstr_010_V1_1_060_L[] = {
+    { 0, "Mode-3/A code derived from the reply of the transponder" },
+    { 1, "Mode-3/A code not extracted during the last scan" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_060_L = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_060_L, NULL };
+static gint hf_010_V1_1_060_MODE3A = -1;
+static const FieldPart I010_V1_1_060_MODE3A = { 12, 1.0, FIELD_PART_SQUAWK, &hf_010_V1_1_060_MODE3A, NULL };
+static const FieldPart *I010_V1_1_060_PARTS[] = {
+    &I010_V1_1_060_V,
+    &I010_V1_1_060_G,
+    &I010_V1_1_060_L,
+    &IXXX_1bit_spare,
+    &I010_V1_1_060_MODE3A,
+    NULL
+};
+static const AsterixField I010_V1_1_060 = { FIXED, 2, 0, 0, &hf_010_V1_1_060, I010_V1_1_060_PARTS, { NULL } };
+static gint hf_010_V1_1_090 = -1;
+static gint hf_010_V1_1_090_V = -1;
+static const value_string valstr_010_V1_1_090_V[] = {
+    { 0, "Code validated" },
+    { 1, "Code not validated" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_090_V = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_090_V, NULL };
+static gint hf_010_V1_1_090_G = -1;
+static const value_string valstr_010_V1_1_090_G[] = {
+    { 0, "Default" },
+    { 1, "Garbled code" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_090_G = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_090_G, NULL };
+static gint hf_010_V1_1_090_FL = -1;
+static const FieldPart I010_V1_1_090_FL = { 14, 0.25, FIELD_PART_FLOAT, &hf_010_V1_1_090_FL, NULL };
+static const FieldPart *I010_V1_1_090_PARTS[] = {
+    &I010_V1_1_090_V,
+    &I010_V1_1_090_G,
+    &I010_V1_1_090_FL,
+    NULL
+};
+static const AsterixField I010_V1_1_090 = { FIXED, 2, 0, 0, &hf_010_V1_1_090, I010_V1_1_090_PARTS, { NULL } };
+static gint hf_010_V1_1_091 = -1;
+static gint hf_010_V1_1_091_VALUE = -1;
+static const FieldPart I010_V1_1_091_VALUE = { 16, 6.25, FIELD_PART_FLOAT, &hf_010_V1_1_091_VALUE, NULL };
+static const FieldPart *I010_V1_1_091_PARTS[] = {
+    &I010_V1_1_091_VALUE,
+    NULL
+};
+static const AsterixField I010_V1_1_091 = { FIXED, 2, 0, 0, &hf_010_V1_1_091, I010_V1_1_091_PARTS, { NULL } };
+static gint hf_010_V1_1_131 = -1;
+static gint hf_010_V1_1_131_VALUE = -1;
+static const FieldPart I010_V1_1_131_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_010_V1_1_131_VALUE, NULL };
+static const FieldPart *I010_V1_1_131_PARTS[] = {
+    &I010_V1_1_131_VALUE,
+    NULL
+};
+static const AsterixField I010_V1_1_131 = { FIXED, 1, 0, 0, &hf_010_V1_1_131, I010_V1_1_131_PARTS, { NULL } };
+static gint hf_010_V1_1_140 = -1;
+static gint hf_010_V1_1_140_VALUE = -1;
+static const FieldPart I010_V1_1_140_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_010_V1_1_140_VALUE, NULL };
+static const FieldPart *I010_V1_1_140_PARTS[] = {
+    &I010_V1_1_140_VALUE,
+    NULL
+};
+static const AsterixField I010_V1_1_140 = { FIXED, 3, 0, 0, &hf_010_V1_1_140, I010_V1_1_140_PARTS, { NULL } };
+static gint hf_010_V1_1_161 = -1;
+static gint hf_010_V1_1_161_TRK = -1;
+static const FieldPart I010_V1_1_161_TRK = { 12, 1.0, FIELD_PART_HEX, &hf_010_V1_1_161_TRK, NULL };
+static const FieldPart *I010_V1_1_161_PARTS[] = {
+    &IXXX_4bit_spare,
+    &I010_V1_1_161_TRK,
+    NULL
+};
+static const AsterixField I010_V1_1_161 = { FIXED, 2, 0, 0, &hf_010_V1_1_161, I010_V1_1_161_PARTS, { NULL } };
+static gint hf_010_V1_1_170 = -1;
+static gint hf_010_V1_1_170_CNF = -1;
+static const value_string valstr_010_V1_1_170_CNF[] = {
+    { 0, "Confirmed track" },
+    { 1, "Track in initialisation phase" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_CNF = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_CNF, NULL };
+static gint hf_010_V1_1_170_TRE = -1;
+static const value_string valstr_010_V1_1_170_TRE[] = {
+    { 0, "Default" },
+    { 1, "Last report for a track" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_TRE = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_TRE, NULL };
+static gint hf_010_V1_1_170_CST = -1;
+static const value_string valstr_010_V1_1_170_CST[] = {
+    { 0, "No extrapolation" },
+    { 1, "Predictable extrapolation due to sensor refresh period (see NOTE)" },
+    { 2, "Predictable extrapolation in masked area" },
+    { 3, "Extrapolation due to unpredictable absence of detection" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_CST = { 2, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_CST, NULL };
+static gint hf_010_V1_1_170_MAH = -1;
+static const value_string valstr_010_V1_1_170_MAH[] = {
+    { 0, "Default" },
+    { 1, "Horizontal manoeuvre" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_MAH = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_MAH, NULL };
+static gint hf_010_V1_1_170_TCC = -1;
+static const value_string valstr_010_V1_1_170_TCC[] = {
+    { 0, "Tracking performed in 'Sensor Plane', i.e. neither slant range correction nor projection was applied" },
+    { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Sensor Site co-ordinates" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_TCC = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_TCC, NULL };
+static gint hf_010_V1_1_170_STH = -1;
+static const value_string valstr_010_V1_1_170_STH[] = {
+    { 0, "Measured position" },
+    { 1, "Smoothed position" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_STH = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_STH, NULL };
+static gint hf_010_V1_1_170_TOM = -1;
+static const value_string valstr_010_V1_1_170_TOM[] = {
+    { 0, "Unknown type of movement" },
+    { 1, "Taking-off" },
+    { 2, "Landing" },
+    { 3, "Other types of movement" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_TOM = { 2, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_TOM, NULL };
+static gint hf_010_V1_1_170_DOU = -1;
+static const value_string valstr_010_V1_1_170_DOU[] = {
+    { 0, "No doubt" },
+    { 1, "Doubtful correlation (undetermined reason)" },
+    { 2, "Doubtful correlation in clutter" },
+    { 3, "Loss of accuracy" },
+    { 4, "Loss of accuracy in clutter" },
+    { 5, "Unstable track" },
+    { 6, "Previously coasted" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_DOU = { 3, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_DOU, NULL };
+static gint hf_010_V1_1_170_MRS = -1;
+static const value_string valstr_010_V1_1_170_MRS[] = {
+    { 0, "Merge or split indication undetermined" },
+    { 1, "Track merged by association to plot" },
+    { 2, "Track merged by non-association to plot" },
+    { 3, "Split track" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_MRS = { 2, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_MRS, NULL };
+static gint hf_010_V1_1_170_GHO = -1;
+static const value_string valstr_010_V1_1_170_GHO[] = {
+    { 0, "Default" },
+    { 1, "Ghost track" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_170_GHO = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_GHO, NULL };
+static const FieldPart *I010_V1_1_170_PARTS[] = {
+    &I010_V1_1_170_CNF,
+    &I010_V1_1_170_TRE,
+    &I010_V1_1_170_CST,
+    &I010_V1_1_170_MAH,
+    &I010_V1_1_170_TCC,
+    &I010_V1_1_170_STH,
+    &IXXX_FX,
+    &I010_V1_1_170_TOM,
+    &I010_V1_1_170_DOU,
+    &I010_V1_1_170_MRS,
+    &IXXX_FX,
+    &I010_V1_1_170_GHO,
+    &IXXX_6bit_spare,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I010_V1_1_170 = { FX, 1, 0, 0, &hf_010_V1_1_170, I010_V1_1_170_PARTS, { NULL } };
+static gint hf_010_V1_1_200 = -1;
+static gint hf_010_V1_1_200_GSP = -1;
+static const FieldPart I010_V1_1_200_GSP = { 16, 0.00006103515625, FIELD_PART_UFLOAT, &hf_010_V1_1_200_GSP, NULL };
+static gint hf_010_V1_1_200_TRA = -1;
+static const FieldPart I010_V1_1_200_TRA = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_010_V1_1_200_TRA, NULL };
+static const FieldPart *I010_V1_1_200_PARTS[] = {
+    &I010_V1_1_200_GSP,
+    &I010_V1_1_200_TRA,
+    NULL
+};
+static const AsterixField I010_V1_1_200 = { FIXED, 4, 0, 0, &hf_010_V1_1_200, I010_V1_1_200_PARTS, { NULL } };
+static gint hf_010_V1_1_202 = -1;
+static gint hf_010_V1_1_202_VX = -1;
+static const FieldPart I010_V1_1_202_VX = { 16, 0.0625, FIELD_PART_FLOAT, &hf_010_V1_1_202_VX, NULL };
+static gint hf_010_V1_1_202_VY = -1;
+static const FieldPart I010_V1_1_202_VY = { 16, 0.0625, FIELD_PART_FLOAT, &hf_010_V1_1_202_VY, NULL };
+static const FieldPart *I010_V1_1_202_PARTS[] = {
+    &I010_V1_1_202_VX,
+    &I010_V1_1_202_VY,
+    NULL
+};
+static const AsterixField I010_V1_1_202 = { FIXED, 4, 0, 0, &hf_010_V1_1_202, I010_V1_1_202_PARTS, { NULL } };
+static gint hf_010_V1_1_210 = -1;
+static gint hf_010_V1_1_210_AX = -1;
+static const FieldPart I010_V1_1_210_AX = { 8, 0.0625, FIELD_PART_FLOAT, &hf_010_V1_1_210_AX, NULL };
+static gint hf_010_V1_1_210_AY = -1;
+static const FieldPart I010_V1_1_210_AY = { 8, 0.0625, FIELD_PART_FLOAT, &hf_010_V1_1_210_AY, NULL };
+static const FieldPart *I010_V1_1_210_PARTS[] = {
+    &I010_V1_1_210_AX,
+    &I010_V1_1_210_AY,
+    NULL
+};
+static const AsterixField I010_V1_1_210 = { FIXED, 2, 0, 0, &hf_010_V1_1_210, I010_V1_1_210_PARTS, { NULL } };
+static gint hf_010_V1_1_220 = -1;
+static gint hf_010_V1_1_220_VALUE = -1;
+static const FieldPart I010_V1_1_220_VALUE = { 24, 1.0, FIELD_PART_HEX, &hf_010_V1_1_220_VALUE, NULL };
+static const FieldPart *I010_V1_1_220_PARTS[] = {
+    &I010_V1_1_220_VALUE,
+    NULL
+};
+static const AsterixField I010_V1_1_220 = { FIXED, 3, 0, 0, &hf_010_V1_1_220, I010_V1_1_220_PARTS, { NULL } };
+static gint hf_010_V1_1_245 = -1;
+static gint hf_010_V1_1_245_STI = -1;
+static const value_string valstr_010_V1_1_245_STI[] = {
+    { 0, "Callsign or registration downlinked from transponder" },
+    { 1, "Callsign not downlinked from transponder" },
+    { 2, "Registration not downlinked from transponder" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_245_STI = { 2, 1.0, FIELD_PART_UINT, &hf_010_V1_1_245_STI, NULL };
+static gint hf_010_V1_1_245_CHR = -1;
+static const FieldPart I010_V1_1_245_CHR = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_010_V1_1_245_CHR, NULL };
+static const FieldPart *I010_V1_1_245_PARTS[] = {
+    &I010_V1_1_245_STI,
+    &IXXX_6bit_spare,
+    &I010_V1_1_245_CHR,
+    NULL
+};
+static const AsterixField I010_V1_1_245 = { FIXED, 7, 0, 0, &hf_010_V1_1_245, I010_V1_1_245_PARTS, { NULL } };
+static gint hf_010_V1_1_250 = -1;
+static gint hf_010_V1_1_250_MBDATA = -1;
+static const FieldPart I010_V1_1_250_MBDATA = { 56, 1.0, FIELD_PART_HEX, &hf_010_V1_1_250_MBDATA, NULL };
+static gint hf_010_V1_1_250_BDS1 = -1;
+static const FieldPart I010_V1_1_250_BDS1 = { 4, 1.0, FIELD_PART_HEX, &hf_010_V1_1_250_BDS1, NULL };
+static gint hf_010_V1_1_250_BDS2 = -1;
+static const FieldPart I010_V1_1_250_BDS2 = { 4, 1.0, FIELD_PART_HEX, &hf_010_V1_1_250_BDS2, NULL };
+static const FieldPart *I010_V1_1_250_PARTS[] = {
+    &I010_V1_1_250_MBDATA,
+    &I010_V1_1_250_BDS1,
+    &I010_V1_1_250_BDS2,
+    NULL
+};
+static const AsterixField I010_V1_1_250 = { REPETITIVE, 8, 1, 0, &hf_010_V1_1_250, I010_V1_1_250_PARTS, { NULL } };
+static gint hf_010_V1_1_270 = -1;
+static gint hf_010_V1_1_270_LENGTH = -1;
+static const FieldPart I010_V1_1_270_LENGTH = { 7, 1.0, FIELD_PART_UFLOAT, &hf_010_V1_1_270_LENGTH, NULL };
+static gint hf_010_V1_1_270_ORIENTATION = -1;
+static const FieldPart I010_V1_1_270_ORIENTATION = { 7, 2.8125, FIELD_PART_UFLOAT, &hf_010_V1_1_270_ORIENTATION, NULL };
+static gint hf_010_V1_1_270_WIDTH = -1;
+static const FieldPart I010_V1_1_270_WIDTH = { 7, 1.0, FIELD_PART_UFLOAT, &hf_010_V1_1_270_WIDTH, NULL };
+static const FieldPart *I010_V1_1_270_PARTS[] = {
+    &I010_V1_1_270_LENGTH,
+    &IXXX_FX,
+    &I010_V1_1_270_ORIENTATION,
+    &IXXX_FX,
+    &I010_V1_1_270_WIDTH,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I010_V1_1_270 = { FX, 1, 0, 0, &hf_010_V1_1_270, I010_V1_1_270_PARTS, { NULL } };
+static gint hf_010_V1_1_280 = -1;
+static gint hf_010_V1_1_280_DRHO = -1;
+static const FieldPart I010_V1_1_280_DRHO = { 8, 1.0, FIELD_PART_FLOAT, &hf_010_V1_1_280_DRHO, NULL };
+static gint hf_010_V1_1_280_DTHETA = -1;
+static const FieldPart I010_V1_1_280_DTHETA = { 8, 0.15, FIELD_PART_FLOAT, &hf_010_V1_1_280_DTHETA, NULL };
+static const FieldPart *I010_V1_1_280_PARTS[] = {
+    &I010_V1_1_280_DRHO,
+    &I010_V1_1_280_DTHETA,
+    NULL
+};
+static const AsterixField I010_V1_1_280 = { REPETITIVE, 2, 1, 0, &hf_010_V1_1_280, I010_V1_1_280_PARTS, { NULL } };
+static gint hf_010_V1_1_300 = -1;
+static gint hf_010_V1_1_300_VALUE = -1;
+static const value_string valstr_010_V1_1_300_VALUE[] = {
+    { 0, "Unknown" },
+    { 1, "ATC equipment maintenance" },
+    { 2, "Airport maintenance" },
+    { 3, "Fire" },
+    { 4, "Bird scarer" },
+    { 5, "Snow plough" },
+    { 6, "Runway sweeper" },
+    { 7, "Emergency" },
+    { 8, "Police" },
+    { 9, "Bus" },
+    { 10, "Tug (push/tow)" },
+    { 11, "Grass cutter" },
+    { 12, "Fuel" },
+    { 13, "Baggage" },
+    { 14, "Catering" },
+    { 15, "Aircraft maintenance" },
+    { 16, "Flyco (follow me)" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_300_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_010_V1_1_300_VALUE, NULL };
+static const FieldPart *I010_V1_1_300_PARTS[] = {
+    &I010_V1_1_300_VALUE,
+    NULL
+};
+static const AsterixField I010_V1_1_300 = { FIXED, 1, 0, 0, &hf_010_V1_1_300, I010_V1_1_300_PARTS, { NULL } };
+static gint hf_010_V1_1_310 = -1;
+static gint hf_010_V1_1_310_TRB = -1;
+static const value_string valstr_010_V1_1_310_TRB[] = {
+    { 0, "Default" },
+    { 1, "In Trouble" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_310_TRB = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_310_TRB, NULL };
+static gint hf_010_V1_1_310_MSG = -1;
+static const value_string valstr_010_V1_1_310_MSG[] = {
+    { 1, "Towing aircraft" },
+    { 2, "Follow me operation" },
+    { 3, "Runway check" },
+    { 4, "Emergency operation (fire, medical...)" },
+    { 5, "Work in progress (maintenance, birds scarer, sweepers...)" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_310_MSG = { 7, 1.0, FIELD_PART_UINT, &hf_010_V1_1_310_MSG, NULL };
+static const FieldPart *I010_V1_1_310_PARTS[] = {
+    &I010_V1_1_310_TRB,
+    &I010_V1_1_310_MSG,
+    NULL
+};
+static const AsterixField I010_V1_1_310 = { FIXED, 1, 0, 0, &hf_010_V1_1_310, I010_V1_1_310_PARTS, { NULL } };
+static gint hf_010_V1_1_500 = -1;
+static gint hf_010_V1_1_500_DEVX = -1;
+static const FieldPart I010_V1_1_500_DEVX = { 8, 0.25, FIELD_PART_FLOAT, &hf_010_V1_1_500_DEVX, NULL };
+static gint hf_010_V1_1_500_DEVY = -1;
+static const FieldPart I010_V1_1_500_DEVY = { 8, 0.25, FIELD_PART_FLOAT, &hf_010_V1_1_500_DEVY, NULL };
+static gint hf_010_V1_1_500_COVXY = -1;
+static const FieldPart I010_V1_1_500_COVXY = { 8, 0.25, FIELD_PART_FLOAT, &hf_010_V1_1_500_COVXY, NULL };
+static const FieldPart *I010_V1_1_500_PARTS[] = {
+    &I010_V1_1_500_DEVX,
+    &I010_V1_1_500_DEVY,
+    &I010_V1_1_500_COVXY,
+    NULL
+};
+static const AsterixField I010_V1_1_500 = { FIXED, 3, 0, 0, &hf_010_V1_1_500, I010_V1_1_500_PARTS, { NULL } };
+static gint hf_010_V1_1_550 = -1;
+static gint hf_010_V1_1_550_NOGO = -1;
+static const value_string valstr_010_V1_1_550_NOGO[] = {
+    { 0, "Operational" },
+    { 1, "Degraded" },
+    { 2, "NOGO" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_550_NOGO = { 2, 1.0, FIELD_PART_UINT, &hf_010_V1_1_550_NOGO, NULL };
+static gint hf_010_V1_1_550_OVL = -1;
+static const value_string valstr_010_V1_1_550_OVL[] = {
+    { 0, "No overload" },
+    { 1, "Overload" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_550_OVL = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_550_OVL, NULL };
+static gint hf_010_V1_1_550_TSV = -1;
+static const value_string valstr_010_V1_1_550_TSV[] = {
+    { 0, "Valid" },
+    { 1, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_550_TSV = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_550_TSV, NULL };
+static gint hf_010_V1_1_550_DIV = -1;
+static const value_string valstr_010_V1_1_550_DIV[] = {
+    { 0, "Normal Operation" },
+    { 1, "Diversity degraded" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_550_DIV = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_550_DIV, NULL };
+static gint hf_010_V1_1_550_TTF = -1;
+static const value_string valstr_010_V1_1_550_TTF[] = {
+    { 0, "Test Target Operative" },
+    { 1, "Test Target Failure" },
+    { 0, NULL }
+};
+static const FieldPart I010_V1_1_550_TTF = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_550_TTF, NULL };
+static const FieldPart *I010_V1_1_550_PARTS[] = {
+    &I010_V1_1_550_NOGO,
+    &I010_V1_1_550_OVL,
+    &I010_V1_1_550_TSV,
+    &I010_V1_1_550_DIV,
+    &I010_V1_1_550_TTF,
+    &IXXX_2bit_spare,
+    NULL
+};
+static const AsterixField I010_V1_1_550 = { FIXED, 1, 0, 0, &hf_010_V1_1_550, I010_V1_1_550_PARTS, { NULL } };
+static gint hf_010_V1_1_RE = -1;
+static const AsterixField I010_V1_1_RE = { EXP, 0, 0, 1, &hf_010_V1_1_RE, NULL, { NULL } };
+static gint hf_010_V1_1_SP = -1;
+static const AsterixField I010_V1_1_SP = { EXP, 0, 0, 1, &hf_010_V1_1_SP, NULL, { NULL } };
+
+/* Category 010, edition 1.1 (latest) */
+static gint hf_010_000 = -1;
+static gint hf_010_000_VALUE = -1;
+static const value_string valstr_010_000_VALUE[] = {
+    { 1, "Target Report" },
+    { 2, "Start of Update Cycle" },
+    { 3, "Periodic Status Message" },
+    { 4, "Event-triggered Status Message" },
+    { 0, NULL }
+};
+static const FieldPart I010_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_010_000_VALUE, NULL };
+static const FieldPart *I010_000_PARTS[] = {
+    &I010_000_VALUE,
+    NULL
+};
+static const AsterixField I010_000 = { FIXED, 1, 0, 0, &hf_010_000, I010_000_PARTS, { NULL } };
+static gint hf_010_010 = -1;
+static gint hf_010_010_SAC = -1;
+static const FieldPart I010_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_010_010_SAC, NULL };
+static gint hf_010_010_SIC = -1;
+static const FieldPart I010_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_010_010_SIC, NULL };
+static const FieldPart *I010_010_PARTS[] = {
+    &I010_010_SAC,
+    &I010_010_SIC,
+    NULL
+};
+static const AsterixField I010_010 = { FIXED, 2, 0, 0, &hf_010_010, I010_010_PARTS, { NULL } };
+static gint hf_010_020 = -1;
+static gint hf_010_020_TYP = -1;
+static const value_string valstr_010_020_TYP[] = {
+    { 0, "SSR multilateration" },
+    { 1, "Mode S multilateration" },
+    { 2, "ADS-B" },
+    { 3, "PSR" },
+    { 4, "Magnetic Loop System" },
+    { 5, "HF multilateration" },
+    { 6, "Not defined" },
+    { 7, "Other types" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_TYP = { 3, 1.0, FIELD_PART_UINT, &hf_010_020_TYP, NULL };
+static gint hf_010_020_DCR = -1;
+static const value_string valstr_010_020_DCR[] = {
+    { 0, "No differential correction (ADS-B)" },
+    { 1, "Differential correction (ADS-B)" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_DCR = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_DCR, NULL };
+static gint hf_010_020_CHN = -1;
+static const value_string valstr_010_020_CHN[] = {
+    { 0, "Chain 1" },
+    { 1, "Chain 2" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_CHN = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_CHN, NULL };
+static gint hf_010_020_GBS = -1;
+static const value_string valstr_010_020_GBS[] = {
+    { 0, "Transponder Ground bit not set" },
+    { 1, "Transponder Ground bit set" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_GBS = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_GBS, NULL };
+static gint hf_010_020_CRT = -1;
+static const value_string valstr_010_020_CRT[] = {
+    { 0, "No Corrupted reply in multilateration" },
+    { 1, "Corrupted replies in multilateration" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_CRT = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_CRT, NULL };
+static gint hf_010_020_SIM = -1;
+static const value_string valstr_010_020_SIM[] = {
+    { 0, "Actual target report" },
+    { 1, "Simulated target report" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_SIM = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_SIM, NULL };
+static gint hf_010_020_TST = -1;
+static const value_string valstr_010_020_TST[] = {
+    { 0, "Default" },
+    { 1, "Test Target" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_TST = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_TST, NULL };
+static gint hf_010_020_RAB = -1;
+static const value_string valstr_010_020_RAB[] = {
+    { 0, "Report from target transponder" },
+    { 1, "Report from field monitor (fixed transponder)" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_RAB = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_RAB, NULL };
+static gint hf_010_020_LOP = -1;
+static const value_string valstr_010_020_LOP[] = {
+    { 0, "Undetermined" },
+    { 1, "Loop start" },
+    { 2, "Loop finish" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_LOP = { 2, 1.0, FIELD_PART_UINT, &hf_010_020_LOP, NULL };
+static gint hf_010_020_TOT = -1;
+static const value_string valstr_010_020_TOT[] = {
+    { 0, "Undetermined" },
+    { 1, "Aircraft" },
+    { 2, "Ground vehicle" },
+    { 3, "Helicopter" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_TOT = { 2, 1.0, FIELD_PART_UINT, &hf_010_020_TOT, NULL };
+static gint hf_010_020_SPI = -1;
+static const value_string valstr_010_020_SPI[] = {
+    { 0, "Absence of SPI" },
+    { 1, "Special Position Identification" },
+    { 0, NULL }
+};
+static const FieldPart I010_020_SPI = { 1, 1.0, FIELD_PART_UINT, &hf_010_020_SPI, NULL };
+static const FieldPart *I010_020_PARTS[] = {
+    &I010_020_TYP,
+    &I010_020_DCR,
+    &I010_020_CHN,
+    &I010_020_GBS,
+    &I010_020_CRT,
+    &IXXX_FX,
+    &I010_020_SIM,
+    &I010_020_TST,
+    &I010_020_RAB,
+    &I010_020_LOP,
+    &I010_020_TOT,
+    &IXXX_FX,
+    &I010_020_SPI,
+    &IXXX_6bit_spare,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I010_020 = { FX, 1, 0, 0, &hf_010_020, I010_020_PARTS, { NULL } };
+static gint hf_010_040 = -1;
+static gint hf_010_040_RHO = -1;
+static const FieldPart I010_040_RHO = { 16, 1.0, FIELD_PART_UFLOAT, &hf_010_040_RHO, NULL };
+static gint hf_010_040_TH = -1;
+static const FieldPart I010_040_TH = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_010_040_TH, NULL };
+static const FieldPart *I010_040_PARTS[] = {
+    &I010_040_RHO,
+    &I010_040_TH,
+    NULL
+};
+static const AsterixField I010_040 = { FIXED, 4, 0, 0, &hf_010_040, I010_040_PARTS, { NULL } };
+static gint hf_010_041 = -1;
+static gint hf_010_041_LAT = -1;
+static const FieldPart I010_041_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_010_041_LAT, NULL };
+static gint hf_010_041_LON = -1;
+static const FieldPart I010_041_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_010_041_LON, NULL };
+static const FieldPart *I010_041_PARTS[] = {
+    &I010_041_LAT,
+    &I010_041_LON,
+    NULL
+};
+static const AsterixField I010_041 = { FIXED, 8, 0, 0, &hf_010_041, I010_041_PARTS, { NULL } };
+static gint hf_010_042 = -1;
+static gint hf_010_042_X = -1;
+static const FieldPart I010_042_X = { 16, 1.0, FIELD_PART_FLOAT, &hf_010_042_X, NULL };
+static gint hf_010_042_Y = -1;
+static const FieldPart I010_042_Y = { 16, 1.0, FIELD_PART_FLOAT, &hf_010_042_Y, NULL };
+static const FieldPart *I010_042_PARTS[] = {
+    &I010_042_X,
+    &I010_042_Y,
+    NULL
+};
+static const AsterixField I010_042 = { FIXED, 4, 0, 0, &hf_010_042, I010_042_PARTS, { NULL } };
+static gint hf_010_060 = -1;
+static gint hf_010_060_V = -1;
+static const value_string valstr_010_060_V[] = {
+    { 0, "Code validated" },
+    { 1, "Code not validated" },
+    { 0, NULL }
+};
+static const FieldPart I010_060_V = { 1, 1.0, FIELD_PART_UINT, &hf_010_060_V, NULL };
+static gint hf_010_060_G = -1;
+static const value_string valstr_010_060_G[] = {
+    { 0, "Default" },
+    { 1, "Garbled code" },
+    { 0, NULL }
+};
+static const FieldPart I010_060_G = { 1, 1.0, FIELD_PART_UINT, &hf_010_060_G, NULL };
+static gint hf_010_060_L = -1;
+static const value_string valstr_010_060_L[] = {
+    { 0, "Mode-3/A code derived from the reply of the transponder" },
+    { 1, "Mode-3/A code not extracted during the last scan" },
+    { 0, NULL }
+};
+static const FieldPart I010_060_L = { 1, 1.0, FIELD_PART_UINT, &hf_010_060_L, NULL };
+static gint hf_010_060_MODE3A = -1;
+static const FieldPart I010_060_MODE3A = { 12, 1.0, FIELD_PART_SQUAWK, &hf_010_060_MODE3A, NULL };
+static const FieldPart *I010_060_PARTS[] = {
+    &I010_060_V,
+    &I010_060_G,
+    &I010_060_L,
+    &IXXX_1bit_spare,
+    &I010_060_MODE3A,
+    NULL
+};
+static const AsterixField I010_060 = { FIXED, 2, 0, 0, &hf_010_060, I010_060_PARTS, { NULL } };
+static gint hf_010_090 = -1;
+static gint hf_010_090_V = -1;
+static const value_string valstr_010_090_V[] = {
+    { 0, "Code validated" },
+    { 1, "Code not validated" },
+    { 0, NULL }
+};
+static const FieldPart I010_090_V = { 1, 1.0, FIELD_PART_UINT, &hf_010_090_V, NULL };
+static gint hf_010_090_G = -1;
+static const value_string valstr_010_090_G[] = {
+    { 0, "Default" },
+    { 1, "Garbled code" },
+    { 0, NULL }
+};
+static const FieldPart I010_090_G = { 1, 1.0, FIELD_PART_UINT, &hf_010_090_G, NULL };
+static gint hf_010_090_FL = -1;
+static const FieldPart I010_090_FL = { 14, 0.25, FIELD_PART_FLOAT, &hf_010_090_FL, NULL };
+static const FieldPart *I010_090_PARTS[] = {
+    &I010_090_V,
+    &I010_090_G,
+    &I010_090_FL,
+    NULL
+};
+static const AsterixField I010_090 = { FIXED, 2, 0, 0, &hf_010_090, I010_090_PARTS, { NULL } };
+static gint hf_010_091 = -1;
+static gint hf_010_091_VALUE = -1;
+static const FieldPart I010_091_VALUE = { 16, 6.25, FIELD_PART_FLOAT, &hf_010_091_VALUE, NULL };
+static const FieldPart *I010_091_PARTS[] = {
+    &I010_091_VALUE,
+    NULL
+};
+static const AsterixField I010_091 = { FIXED, 2, 0, 0, &hf_010_091, I010_091_PARTS, { NULL } };
+static gint hf_010_131 = -1;
+static gint hf_010_131_VALUE = -1;
+static const FieldPart I010_131_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_010_131_VALUE, NULL };
+static const FieldPart *I010_131_PARTS[] = {
+    &I010_131_VALUE,
+    NULL
+};
+static const AsterixField I010_131 = { FIXED, 1, 0, 0, &hf_010_131, I010_131_PARTS, { NULL } };
+static gint hf_010_140 = -1;
+static gint hf_010_140_VALUE = -1;
+static const FieldPart I010_140_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_010_140_VALUE, NULL };
+static const FieldPart *I010_140_PARTS[] = {
+    &I010_140_VALUE,
+    NULL
+};
+static const AsterixField I010_140 = { FIXED, 3, 0, 0, &hf_010_140, I010_140_PARTS, { NULL } };
+static gint hf_010_161 = -1;
+static gint hf_010_161_TRK = -1;
+static const FieldPart I010_161_TRK = { 12, 1.0, FIELD_PART_HEX, &hf_010_161_TRK, NULL };
+static const FieldPart *I010_161_PARTS[] = {
+    &IXXX_4bit_spare,
+    &I010_161_TRK,
+    NULL
+};
+static const AsterixField I010_161 = { FIXED, 2, 0, 0, &hf_010_161, I010_161_PARTS, { NULL } };
+static gint hf_010_170 = -1;
+static gint hf_010_170_CNF = -1;
+static const value_string valstr_010_170_CNF[] = {
+    { 0, "Confirmed track" },
+    { 1, "Track in initialisation phase" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_CNF = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_CNF, NULL };
+static gint hf_010_170_TRE = -1;
+static const value_string valstr_010_170_TRE[] = {
+    { 0, "Default" },
+    { 1, "Last report for a track" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_TRE = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_TRE, NULL };
+static gint hf_010_170_CST = -1;
+static const value_string valstr_010_170_CST[] = {
+    { 0, "No extrapolation" },
+    { 1, "Predictable extrapolation due to sensor refresh period (see NOTE)" },
+    { 2, "Predictable extrapolation in masked area" },
+    { 3, "Extrapolation due to unpredictable absence of detection" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_CST = { 2, 1.0, FIELD_PART_UINT, &hf_010_170_CST, NULL };
+static gint hf_010_170_MAH = -1;
+static const value_string valstr_010_170_MAH[] = {
+    { 0, "Default" },
+    { 1, "Horizontal manoeuvre" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_MAH = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_MAH, NULL };
+static gint hf_010_170_TCC = -1;
+static const value_string valstr_010_170_TCC[] = {
+    { 0, "Tracking performed in 'Sensor Plane', i.e. neither slant range correction nor projection was applied" },
+    { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Sensor Site co-ordinates" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_TCC = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_TCC, NULL };
+static gint hf_010_170_STH = -1;
+static const value_string valstr_010_170_STH[] = {
+    { 0, "Measured position" },
+    { 1, "Smoothed position" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_STH = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_STH, NULL };
+static gint hf_010_170_TOM = -1;
+static const value_string valstr_010_170_TOM[] = {
+    { 0, "Unknown type of movement" },
+    { 1, "Taking-off" },
+    { 2, "Landing" },
+    { 3, "Other types of movement" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_TOM = { 2, 1.0, FIELD_PART_UINT, &hf_010_170_TOM, NULL };
+static gint hf_010_170_DOU = -1;
+static const value_string valstr_010_170_DOU[] = {
+    { 0, "No doubt" },
+    { 1, "Doubtful correlation (undetermined reason)" },
+    { 2, "Doubtful correlation in clutter" },
+    { 3, "Loss of accuracy" },
+    { 4, "Loss of accuracy in clutter" },
+    { 5, "Unstable track" },
+    { 6, "Previously coasted" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_DOU = { 3, 1.0, FIELD_PART_UINT, &hf_010_170_DOU, NULL };
+static gint hf_010_170_MRS = -1;
+static const value_string valstr_010_170_MRS[] = {
+    { 0, "Merge or split indication undetermined" },
+    { 1, "Track merged by association to plot" },
+    { 2, "Track merged by non-association to plot" },
+    { 3, "Split track" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_MRS = { 2, 1.0, FIELD_PART_UINT, &hf_010_170_MRS, NULL };
+static gint hf_010_170_GHO = -1;
+static const value_string valstr_010_170_GHO[] = {
+    { 0, "Default" },
+    { 1, "Ghost track" },
+    { 0, NULL }
+};
+static const FieldPart I010_170_GHO = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_GHO, NULL };
+static const FieldPart *I010_170_PARTS[] = {
+    &I010_170_CNF,
+    &I010_170_TRE,
+    &I010_170_CST,
+    &I010_170_MAH,
+    &I010_170_TCC,
+    &I010_170_STH,
+    &IXXX_FX,
+    &I010_170_TOM,
+    &I010_170_DOU,
+    &I010_170_MRS,
+    &IXXX_FX,
+    &I010_170_GHO,
+    &IXXX_6bit_spare,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I010_170 = { FX, 1, 0, 0, &hf_010_170, I010_170_PARTS, { NULL } };
+static gint hf_010_200 = -1;
+static gint hf_010_200_GSP = -1;
+static const FieldPart I010_200_GSP = { 16, 0.00006103515625, FIELD_PART_UFLOAT, &hf_010_200_GSP, NULL };
+static gint hf_010_200_TRA = -1;
+static const FieldPart I010_200_TRA = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_010_200_TRA, NULL };
+static const FieldPart *I010_200_PARTS[] = {
+    &I010_200_GSP,
+    &I010_200_TRA,
+    NULL
+};
+static const AsterixField I010_200 = { FIXED, 4, 0, 0, &hf_010_200, I010_200_PARTS, { NULL } };
+static gint hf_010_202 = -1;
+static gint hf_010_202_VX = -1;
+static const FieldPart I010_202_VX = { 16, 0.0625, FIELD_PART_FLOAT, &hf_010_202_VX, NULL };
+static gint hf_010_202_VY = -1;
+static const FieldPart I010_202_VY = { 16, 0.0625, FIELD_PART_FLOAT, &hf_010_202_VY, NULL };
+static const FieldPart *I010_202_PARTS[] = {
+    &I010_202_VX,
+    &I010_202_VY,
+    NULL
+};
+static const AsterixField I010_202 = { FIXED, 4, 0, 0, &hf_010_202, I010_202_PARTS, { NULL } };
+static gint hf_010_210 = -1;
+static gint hf_010_210_AX = -1;
+static const FieldPart I010_210_AX = { 8, 0.0625, FIELD_PART_FLOAT, &hf_010_210_AX, NULL };
+static gint hf_010_210_AY = -1;
+static const FieldPart I010_210_AY = { 8, 0.0625, FIELD_PART_FLOAT, &hf_010_210_AY, NULL };
+static const FieldPart *I010_210_PARTS[] = {
+    &I010_210_AX,
+    &I010_210_AY,
+    NULL
+};
+static const AsterixField I010_210 = { FIXED, 2, 0, 0, &hf_010_210, I010_210_PARTS, { NULL } };
+static gint hf_010_220 = -1;
+static gint hf_010_220_VALUE = -1;
+static const FieldPart I010_220_VALUE = { 24, 1.0, FIELD_PART_HEX, &hf_010_220_VALUE, NULL };
+static const FieldPart *I010_220_PARTS[] = {
+    &I010_220_VALUE,
+    NULL
+};
+static const AsterixField I010_220 = { FIXED, 3, 0, 0, &hf_010_220, I010_220_PARTS, { NULL } };
+static gint hf_010_245 = -1;
+static gint hf_010_245_STI = -1;
+static const value_string valstr_010_245_STI[] = {
+    { 0, "Callsign or registration downlinked from transponder" },
+    { 1, "Callsign not downlinked from transponder" },
+    { 2, "Registration not downlinked from transponder" },
+    { 0, NULL }
+};
+static const FieldPart I010_245_STI = { 2, 1.0, FIELD_PART_UINT, &hf_010_245_STI, NULL };
+static gint hf_010_245_CHR = -1;
+static const FieldPart I010_245_CHR = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_010_245_CHR, NULL };
+static const FieldPart *I010_245_PARTS[] = {
+    &I010_245_STI,
+    &IXXX_6bit_spare,
+    &I010_245_CHR,
+    NULL
+};
+static const AsterixField I010_245 = { FIXED, 7, 0, 0, &hf_010_245, I010_245_PARTS, { NULL } };
+static gint hf_010_250 = -1;
+static gint hf_010_250_MBDATA = -1;
+static const FieldPart I010_250_MBDATA = { 56, 1.0, FIELD_PART_HEX, &hf_010_250_MBDATA, NULL };
+static gint hf_010_250_BDS1 = -1;
+static const FieldPart I010_250_BDS1 = { 4, 1.0, FIELD_PART_HEX, &hf_010_250_BDS1, NULL };
+static gint hf_010_250_BDS2 = -1;
+static const FieldPart I010_250_BDS2 = { 4, 1.0, FIELD_PART_HEX, &hf_010_250_BDS2, NULL };
+static const FieldPart *I010_250_PARTS[] = {
+    &I010_250_MBDATA,
+    &I010_250_BDS1,
+    &I010_250_BDS2,
+    NULL
+};
+static const AsterixField I010_250 = { REPETITIVE, 8, 1, 0, &hf_010_250, I010_250_PARTS, { NULL } };
+static gint hf_010_270 = -1;
+static gint hf_010_270_LENGTH = -1;
+static const FieldPart I010_270_LENGTH = { 7, 1.0, FIELD_PART_UFLOAT, &hf_010_270_LENGTH, NULL };
+static gint hf_010_270_ORIENTATION = -1;
+static const FieldPart I010_270_ORIENTATION = { 7, 2.8125, FIELD_PART_UFLOAT, &hf_010_270_ORIENTATION, NULL };
+static gint hf_010_270_WIDTH = -1;
+static const FieldPart I010_270_WIDTH = { 7, 1.0, FIELD_PART_UFLOAT, &hf_010_270_WIDTH, NULL };
+static const FieldPart *I010_270_PARTS[] = {
+    &I010_270_LENGTH,
+    &IXXX_FX,
+    &I010_270_ORIENTATION,
+    &IXXX_FX,
+    &I010_270_WIDTH,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I010_270 = { FX, 1, 0, 0, &hf_010_270, I010_270_PARTS, { NULL } };
+static gint hf_010_280 = -1;
+static gint hf_010_280_DRHO = -1;
+static const FieldPart I010_280_DRHO = { 8, 1.0, FIELD_PART_FLOAT, &hf_010_280_DRHO, NULL };
+static gint hf_010_280_DTHETA = -1;
+static const FieldPart I010_280_DTHETA = { 8, 0.15, FIELD_PART_FLOAT, &hf_010_280_DTHETA, NULL };
+static const FieldPart *I010_280_PARTS[] = {
+    &I010_280_DRHO,
+    &I010_280_DTHETA,
+    NULL
+};
+static const AsterixField I010_280 = { REPETITIVE, 2, 1, 0, &hf_010_280, I010_280_PARTS, { NULL } };
+static gint hf_010_300 = -1;
+static gint hf_010_300_VALUE = -1;
+static const value_string valstr_010_300_VALUE[] = {
+    { 0, "Unknown" },
+    { 1, "ATC equipment maintenance" },
+    { 2, "Airport maintenance" },
+    { 3, "Fire" },
+    { 4, "Bird scarer" },
+    { 5, "Snow plough" },
+    { 6, "Runway sweeper" },
+    { 7, "Emergency" },
+    { 8, "Police" },
+    { 9, "Bus" },
+    { 10, "Tug (push/tow)" },
+    { 11, "Grass cutter" },
+    { 12, "Fuel" },
+    { 13, "Baggage" },
+    { 14, "Catering" },
+    { 15, "Aircraft maintenance" },
+    { 16, "Flyco (follow me)" },
+    { 0, NULL }
+};
+static const FieldPart I010_300_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_010_300_VALUE, NULL };
+static const FieldPart *I010_300_PARTS[] = {
+    &I010_300_VALUE,
+    NULL
+};
+static const AsterixField I010_300 = { FIXED, 1, 0, 0, &hf_010_300, I010_300_PARTS, { NULL } };
+static gint hf_010_310 = -1;
+static gint hf_010_310_TRB = -1;
+static const value_string valstr_010_310_TRB[] = {
+    { 0, "Default" },
+    { 1, "In Trouble" },
+    { 0, NULL }
+};
+static const FieldPart I010_310_TRB = { 1, 1.0, FIELD_PART_UINT, &hf_010_310_TRB, NULL };
+static gint hf_010_310_MSG = -1;
+static const value_string valstr_010_310_MSG[] = {
+    { 1, "Towing aircraft" },
+    { 2, "Follow me operation" },
+    { 3, "Runway check" },
+    { 4, "Emergency operation (fire, medical...)" },
+    { 5, "Work in progress (maintenance, birds scarer, sweepers...)" },
+    { 0, NULL }
+};
+static const FieldPart I010_310_MSG = { 7, 1.0, FIELD_PART_UINT, &hf_010_310_MSG, NULL };
+static const FieldPart *I010_310_PARTS[] = {
+    &I010_310_TRB,
+    &I010_310_MSG,
+    NULL
+};
+static const AsterixField I010_310 = { FIXED, 1, 0, 0, &hf_010_310, I010_310_PARTS, { NULL } };
+static gint hf_010_500 = -1;
+static gint hf_010_500_DEVX = -1;
+static const FieldPart I010_500_DEVX = { 8, 0.25, FIELD_PART_FLOAT, &hf_010_500_DEVX, NULL };
+static gint hf_010_500_DEVY = -1;
+static const FieldPart I010_500_DEVY = { 8, 0.25, FIELD_PART_FLOAT, &hf_010_500_DEVY, NULL };
+static gint hf_010_500_COVXY = -1;
+static const FieldPart I010_500_COVXY = { 8, 0.25, FIELD_PART_FLOAT, &hf_010_500_COVXY, NULL };
+static const FieldPart *I010_500_PARTS[] = {
+    &I010_500_DEVX,
+    &I010_500_DEVY,
+    &I010_500_COVXY,
+    NULL
+};
+static const AsterixField I010_500 = { FIXED, 3, 0, 0, &hf_010_500, I010_500_PARTS, { NULL } };
+static gint hf_010_550 = -1;
+static gint hf_010_550_NOGO = -1;
+static const value_string valstr_010_550_NOGO[] = {
+    { 0, "Operational" },
+    { 1, "Degraded" },
+    { 2, "NOGO" },
+    { 0, NULL }
+};
+static const FieldPart I010_550_NOGO = { 2, 1.0, FIELD_PART_UINT, &hf_010_550_NOGO, NULL };
+static gint hf_010_550_OVL = -1;
+static const value_string valstr_010_550_OVL[] = {
+    { 0, "No overload" },
+    { 1, "Overload" },
+    { 0, NULL }
+};
+static const FieldPart I010_550_OVL = { 1, 1.0, FIELD_PART_UINT, &hf_010_550_OVL, NULL };
+static gint hf_010_550_TSV = -1;
+static const value_string valstr_010_550_TSV[] = {
+    { 0, "Valid" },
+    { 1, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I010_550_TSV = { 1, 1.0, FIELD_PART_UINT, &hf_010_550_TSV, NULL };
+static gint hf_010_550_DIV = -1;
+static const value_string valstr_010_550_DIV[] = {
+    { 0, "Normal Operation" },
+    { 1, "Diversity degraded" },
+    { 0, NULL }
+};
+static const FieldPart I010_550_DIV = { 1, 1.0, FIELD_PART_UINT, &hf_010_550_DIV, NULL };
+static gint hf_010_550_TTF = -1;
+static const value_string valstr_010_550_TTF[] = {
+    { 0, "Test Target Operative" },
+    { 1, "Test Target Failure" },
+    { 0, NULL }
+};
+static const FieldPart I010_550_TTF = { 1, 1.0, FIELD_PART_UINT, &hf_010_550_TTF, NULL };
+static const FieldPart *I010_550_PARTS[] = {
+    &I010_550_NOGO,
+    &I010_550_OVL,
+    &I010_550_TSV,
+    &I010_550_DIV,
+    &I010_550_TTF,
+    &IXXX_2bit_spare,
+    NULL
+};
+static const AsterixField I010_550 = { FIXED, 1, 0, 0, &hf_010_550, I010_550_PARTS, { NULL } };
+static gint hf_010_RE = -1;
+static const AsterixField I010_RE = { EXP, 0, 0, 1, &hf_010_RE, NULL, { NULL } };
+static gint hf_010_SP = -1;
+static const AsterixField I010_SP = { EXP, 0, 0, 1, &hf_010_SP, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I010_V1_1_uap[] = {
+    &I010_V1_1_010,
+    &I010_V1_1_000,
+    &I010_V1_1_020,
+    &I010_V1_1_140,
+    &I010_V1_1_041,
+    &I010_V1_1_040,
+    &I010_V1_1_042,
+    &I010_V1_1_200,
+    &I010_V1_1_202,
+    &I010_V1_1_161,
+    &I010_V1_1_170,
+    &I010_V1_1_060,
+    &I010_V1_1_220,
+    &I010_V1_1_245,
+    &I010_V1_1_250,
+    &I010_V1_1_300,
+    &I010_V1_1_090,
+    &I010_V1_1_091,
+    &I010_V1_1_270,
+    &I010_V1_1_550,
+    &I010_V1_1_310,
+    &I010_V1_1_500,
+    &I010_V1_1_280,
+    &I010_V1_1_131,
+    &I010_V1_1_210,
+    &IX_SPARE,
+    &I010_V1_1_SP,
+    &I010_V1_1_RE,
+    NULL
+};
+static const AsterixField **I010_V1_1[] = {
+    I010_V1_1_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I010_uap[] = {
+    &I010_010,
+    &I010_000,
+    &I010_020,
+    &I010_140,
+    &I010_041,
+    &I010_040,
+    &I010_042,
+    &I010_200,
+    &I010_202,
+    &I010_161,
+    &I010_170,
+    &I010_060,
+    &I010_220,
+    &I010_245,
+    &I010_250,
+    &I010_300,
+    &I010_090,
+    &I010_091,
+    &I010_270,
+    &I010_550,
+    &I010_310,
+    &I010_500,
+    &I010_280,
+    &I010_131,
+    &I010_210,
+    &IX_SPARE,
+    &I010_SP,
+    &I010_RE,
+    NULL
+};
+static const AsterixField **I010[] = {
+    I010_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
 /* Category 011, edition 1.2 */
 static gint hf_011_V1_2_000 = -1;
 static gint hf_011_V1_2_000_VALUE = -1;
@@ -10053,6 +11279,2220 @@ static const AsterixField *I011_uap[] = {
 };
 static const AsterixField **I011[] = {
     I011_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+/* Category 015, edition 1.0 */
+static gint hf_015_V1_0_000 = -1;
+static gint hf_015_V1_0_000_MT = -1;
+static const value_string valstr_015_V1_0_000_MT[] = {
+    { 1, "Measurement Plot" },
+    { 2, "Measurement Track" },
+    { 3, "Sensor Centric Plot" },
+    { 4, "Sensor Centric Track" },
+    { 5, "Track End Message" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_000_MT = { 7, 1.0, FIELD_PART_UINT, &hf_015_V1_0_000_MT, NULL };
+static gint hf_015_V1_0_000_RG = -1;
+static const value_string valstr_015_V1_0_000_RG[] = {
+    { 0, "Periodic Report" },
+    { 1, "Event Driven Report" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_000_RG = { 1, 1.0, FIELD_PART_UINT, &hf_015_V1_0_000_RG, NULL };
+static const FieldPart *I015_V1_0_000_PARTS[] = {
+    &I015_V1_0_000_MT,
+    &I015_V1_0_000_RG,
+    NULL
+};
+static const AsterixField I015_V1_0_000 = { FIXED, 1, 0, 0, &hf_015_V1_0_000, I015_V1_0_000_PARTS, { NULL } };
+static gint hf_015_V1_0_010 = -1;
+static gint hf_015_V1_0_010_SAC = -1;
+static const FieldPart I015_V1_0_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_015_V1_0_010_SAC, NULL };
+static gint hf_015_V1_0_010_SIC = -1;
+static const FieldPart I015_V1_0_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_015_V1_0_010_SIC, NULL };
+static const FieldPart *I015_V1_0_010_PARTS[] = {
+    &I015_V1_0_010_SAC,
+    &I015_V1_0_010_SIC,
+    NULL
+};
+static const AsterixField I015_V1_0_010 = { FIXED, 2, 0, 0, &hf_015_V1_0_010, I015_V1_0_010_PARTS, { NULL } };
+static gint hf_015_V1_0_015 = -1;
+static gint hf_015_V1_0_015_VALUE = -1;
+static const FieldPart I015_V1_0_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_015_V1_0_015_VALUE, NULL };
+static const FieldPart *I015_V1_0_015_PARTS[] = {
+    &I015_V1_0_015_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_015 = { FIXED, 1, 0, 0, &hf_015_V1_0_015, I015_V1_0_015_PARTS, { NULL } };
+static gint hf_015_V1_0_020 = -1;
+static gint hf_015_V1_0_020_MOMU = -1;
+static const value_string valstr_015_V1_0_020_MOMU[] = {
+    { 0, "Mono-Static Sensor" },
+    { 1, "Multi-Static Sensor" },
+    { 2, "Other" },
+    { 3, "Unknown" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_020_MOMU = { 2, 1.0, FIELD_PART_UINT, &hf_015_V1_0_020_MOMU, NULL };
+static gint hf_015_V1_0_020_TTAX = -1;
+static const value_string valstr_015_V1_0_020_TTAX[] = {
+    { 0, "Actual Target Report" },
+    { 1, "Reference Target" },
+    { 2, "Synthetic Target" },
+    { 3, "Simulated / Replayed Target" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_020_TTAX = { 2, 1.0, FIELD_PART_UINT, &hf_015_V1_0_020_TTAX, NULL };
+static gint hf_015_V1_0_020_SCD = -1;
+static const value_string valstr_015_V1_0_020_SCD[] = {
+    { 0, "Unknown" },
+    { 1, "Forward" },
+    { 2, "Backward" },
+    { 3, "Static" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_020_SCD = { 2, 1.0, FIELD_PART_UINT, &hf_015_V1_0_020_SCD, NULL };
+static const FieldPart *I015_V1_0_020_PARTS[] = {
+    &I015_V1_0_020_MOMU,
+    &I015_V1_0_020_TTAX,
+    &I015_V1_0_020_SCD,
+    &IXXX_1bit_spare,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I015_V1_0_020 = { FX, 1, 0, 0, &hf_015_V1_0_020, I015_V1_0_020_PARTS, { NULL } };
+static gint hf_015_V1_0_030 = -1;
+static gint hf_015_V1_0_030_WE = -1;
+static const FieldPart I015_V1_0_030_WE = { 7, 1.0, FIELD_PART_HEX, &hf_015_V1_0_030_WE, NULL };
+static const FieldPart *I015_V1_0_030_PARTS[] = {
+    &I015_V1_0_030_WE,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I015_V1_0_030 = { FX, 1, 0, 0, &hf_015_V1_0_030, I015_V1_0_030_PARTS, { NULL } };
+static gint hf_015_V1_0_050 = -1;
+static gint hf_015_V1_0_050_UPD = -1;
+static const FieldPart I015_V1_0_050_UPD = { 14, 0.0078125, FIELD_PART_UFLOAT, &hf_015_V1_0_050_UPD, NULL };
+static const FieldPart *I015_V1_0_050_PARTS[] = {
+    &IXXX_2bit_spare,
+    &I015_V1_0_050_UPD,
+    NULL
+};
+static const AsterixField I015_V1_0_050 = { FIXED, 2, 0, 0, &hf_015_V1_0_050, I015_V1_0_050_PARTS, { NULL } };
+static gint hf_015_V1_0_145 = -1;
+static gint hf_015_V1_0_145_VALUE = -1;
+static const FieldPart I015_V1_0_145_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_015_V1_0_145_VALUE, NULL };
+static const FieldPart *I015_V1_0_145_PARTS[] = {
+    &I015_V1_0_145_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_145 = { FIXED, 3, 0, 0, &hf_015_V1_0_145, I015_V1_0_145_PARTS, { NULL } };
+static gint hf_015_V1_0_161 = -1;
+static gint hf_015_V1_0_161_VALUE = -1;
+static const FieldPart I015_V1_0_161_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_015_V1_0_161_VALUE, NULL };
+static const FieldPart *I015_V1_0_161_PARTS[] = {
+    &I015_V1_0_161_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_161 = { FIXED, 2, 0, 0, &hf_015_V1_0_161, I015_V1_0_161_PARTS, { NULL } };
+static gint hf_015_V1_0_170 = -1;
+static gint hf_015_V1_0_170_BIZ = -1;
+static const value_string valstr_015_V1_0_170_BIZ[] = {
+    { 0, "Target not in Blind Zone" },
+    { 1, "Target in Blind Zone" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_170_BIZ = { 1, 1.0, FIELD_PART_UINT, &hf_015_V1_0_170_BIZ, NULL };
+static gint hf_015_V1_0_170_BAZ = -1;
+static const value_string valstr_015_V1_0_170_BAZ[] = {
+    { 0, "Target not in Blanked Zone" },
+    { 1, "Target in Blanked Zone" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_170_BAZ = { 1, 1.0, FIELD_PART_UINT, &hf_015_V1_0_170_BAZ, NULL };
+static gint hf_015_V1_0_170_TUR = -1;
+static const value_string valstr_015_V1_0_170_TUR[] = {
+    { 0, "Track Alive" },
+    { 1, "Track Terminated by User Request" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_170_TUR = { 1, 1.0, FIELD_PART_UINT, &hf_015_V1_0_170_TUR, NULL };
+static gint hf_015_V1_0_170_CSTP = -1;
+static const value_string valstr_015_V1_0_170_CSTP[] = {
+    { 0, "Not extrapolated" },
+    { 1, "Extrapolated" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_170_CSTP = { 1, 1.0, FIELD_PART_UINT, &hf_015_V1_0_170_CSTP, NULL };
+static gint hf_015_V1_0_170_CSTH = -1;
+static const value_string valstr_015_V1_0_170_CSTH[] = {
+    { 0, "Not extrapolated" },
+    { 1, "Extrapolated" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_170_CSTH = { 1, 1.0, FIELD_PART_UINT, &hf_015_V1_0_170_CSTH, NULL };
+static gint hf_015_V1_0_170_CNF = -1;
+static const value_string valstr_015_V1_0_170_CNF[] = {
+    { 0, "Confirmed Track" },
+    { 1, "Tentative Track" },
+    { 0, NULL }
+};
+static const FieldPart I015_V1_0_170_CNF = { 1, 1.0, FIELD_PART_UINT, &hf_015_V1_0_170_CNF, NULL };
+static const FieldPart *I015_V1_0_170_PARTS[] = {
+    &I015_V1_0_170_BIZ,
+    &I015_V1_0_170_BAZ,
+    &I015_V1_0_170_TUR,
+    &IXXX_1bit_spare,
+    &I015_V1_0_170_CSTP,
+    &I015_V1_0_170_CSTH,
+    &I015_V1_0_170_CNF,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I015_V1_0_170 = { FX, 1, 0, 0, &hf_015_V1_0_170, I015_V1_0_170_PARTS, { NULL } };
+static gint hf_015_V1_0_270 = -1;
+static gint hf_015_V1_0_270_LEN = -1;
+static gint hf_015_V1_0_270_LEN_VALUE = -1;
+static const FieldPart I015_V1_0_270_LEN_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_270_LEN_VALUE, NULL };
+static const FieldPart *I015_V1_0_270_LEN_PARTS[] = {
+    &I015_V1_0_270_LEN_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_270_LEN = { FIXED, 2, 0, 0, &hf_015_V1_0_270_LEN, I015_V1_0_270_LEN_PARTS, { NULL } };
+static gint hf_015_V1_0_270_WDT = -1;
+static gint hf_015_V1_0_270_WDT_VALUE = -1;
+static const FieldPart I015_V1_0_270_WDT_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_270_WDT_VALUE, NULL };
+static const FieldPart *I015_V1_0_270_WDT_PARTS[] = {
+    &I015_V1_0_270_WDT_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_270_WDT = { FIXED, 2, 0, 0, &hf_015_V1_0_270_WDT, I015_V1_0_270_WDT_PARTS, { NULL } };
+static gint hf_015_V1_0_270_HGT = -1;
+static gint hf_015_V1_0_270_HGT_VALUE = -1;
+static const FieldPart I015_V1_0_270_HGT_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_270_HGT_VALUE, NULL };
+static const FieldPart *I015_V1_0_270_HGT_PARTS[] = {
+    &I015_V1_0_270_HGT_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_270_HGT = { FIXED, 2, 0, 0, &hf_015_V1_0_270_HGT, I015_V1_0_270_HGT_PARTS, { NULL } };
+static gint hf_015_V1_0_270_ORT = -1;
+static gint hf_015_V1_0_270_ORT_VALUE = -1;
+static const FieldPart I015_V1_0_270_ORT_VALUE = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_V1_0_270_ORT_VALUE, NULL };
+static const FieldPart *I015_V1_0_270_ORT_PARTS[] = {
+    &I015_V1_0_270_ORT_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_270_ORT = { FIXED, 2, 0, 0, &hf_015_V1_0_270_ORT, I015_V1_0_270_ORT_PARTS, { NULL } };
+static const AsterixField I015_V1_0_270 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_270, NULL, { &I015_V1_0_270_LEN, &I015_V1_0_270_WDT, &I015_V1_0_270_HGT, &I015_V1_0_270_ORT, NULL } };
+static gint hf_015_V1_0_300 = -1;
+static gint hf_015_V1_0_300_CLS = -1;
+static const FieldPart I015_V1_0_300_CLS = { 8, 1.0, FIELD_PART_HEX, &hf_015_V1_0_300_CLS, NULL };
+static gint hf_015_V1_0_300_PRB = -1;
+static const FieldPart I015_V1_0_300_PRB = { 8, 1.0, FIELD_PART_HEX, &hf_015_V1_0_300_PRB, NULL };
+static const FieldPart *I015_V1_0_300_PARTS[] = {
+    &I015_V1_0_300_CLS,
+    &I015_V1_0_300_PRB,
+    NULL
+};
+static const AsterixField I015_V1_0_300 = { REPETITIVE, 2, 1, 0, &hf_015_V1_0_300, I015_V1_0_300_PARTS, { NULL } };
+static gint hf_015_V1_0_400 = -1;
+static gint hf_015_V1_0_400_PID = -1;
+static const FieldPart I015_V1_0_400_PID = { 16, 1.0, FIELD_PART_UINT, &hf_015_V1_0_400_PID, NULL };
+static gint hf_015_V1_0_400_ON = -1;
+static const FieldPart I015_V1_0_400_ON = { 24, 1.0, FIELD_PART_UINT, &hf_015_V1_0_400_ON, NULL };
+static const FieldPart *I015_V1_0_400_PARTS[] = {
+    &I015_V1_0_400_PID,
+    &I015_V1_0_400_ON,
+    NULL
+};
+static const AsterixField I015_V1_0_400 = { FIXED, 5, 0, 0, &hf_015_V1_0_400, I015_V1_0_400_PARTS, { NULL } };
+static gint hf_015_V1_0_480 = -1;
+static gint hf_015_V1_0_480_VALUE = -1;
+static const FieldPart I015_V1_0_480_VALUE = { 40, 1.0, FIELD_PART_HEX, &hf_015_V1_0_480_VALUE, NULL };
+static const FieldPart *I015_V1_0_480_PARTS[] = {
+    &I015_V1_0_480_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_480 = { REPETITIVE, 5, 1, 0, &hf_015_V1_0_480, I015_V1_0_480_PARTS, { NULL } };
+static gint hf_015_V1_0_600 = -1;
+static gint hf_015_V1_0_600_P84 = -1;
+static gint hf_015_V1_0_600_P84_LATITUDE = -1;
+static const FieldPart I015_V1_0_600_P84_LATITUDE = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_015_V1_0_600_P84_LATITUDE, NULL };
+static gint hf_015_V1_0_600_P84_LONGITUDE = -1;
+static const FieldPart I015_V1_0_600_P84_LONGITUDE = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_015_V1_0_600_P84_LONGITUDE, NULL };
+static const FieldPart *I015_V1_0_600_P84_PARTS[] = {
+    &I015_V1_0_600_P84_LATITUDE,
+    &I015_V1_0_600_P84_LONGITUDE,
+    NULL
+};
+static const AsterixField I015_V1_0_600_P84 = { FIXED, 8, 0, 0, &hf_015_V1_0_600_P84, I015_V1_0_600_P84_PARTS, { NULL } };
+static gint hf_015_V1_0_600_HPR = -1;
+static gint hf_015_V1_0_600_HPR_RSHPX = -1;
+static const FieldPart I015_V1_0_600_HPR_RSHPX = { 16, 0.5, FIELD_PART_UFLOAT, &hf_015_V1_0_600_HPR_RSHPX, NULL };
+static gint hf_015_V1_0_600_HPR_RSHPY = -1;
+static const FieldPart I015_V1_0_600_HPR_RSHPY = { 16, 0.5, FIELD_PART_UFLOAT, &hf_015_V1_0_600_HPR_RSHPY, NULL };
+static gint hf_015_V1_0_600_HPR_CORSHPXY = -1;
+static const FieldPart I015_V1_0_600_HPR_CORSHPXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_600_HPR_CORSHPXY, NULL };
+static const FieldPart *I015_V1_0_600_HPR_PARTS[] = {
+    &I015_V1_0_600_HPR_RSHPX,
+    &I015_V1_0_600_HPR_RSHPY,
+    &I015_V1_0_600_HPR_CORSHPXY,
+    NULL
+};
+static const AsterixField I015_V1_0_600_HPR = { FIXED, 5, 0, 0, &hf_015_V1_0_600_HPR, I015_V1_0_600_HPR_PARTS, { NULL } };
+static gint hf_015_V1_0_600_HPP = -1;
+static gint hf_015_V1_0_600_HPP_SDHPX = -1;
+static const FieldPart I015_V1_0_600_HPP_SDHPX = { 16, 0.25, FIELD_PART_UFLOAT, &hf_015_V1_0_600_HPP_SDHPX, NULL };
+static gint hf_015_V1_0_600_HPP_SDHPY = -1;
+static const FieldPart I015_V1_0_600_HPP_SDHPY = { 16, 0.25, FIELD_PART_UFLOAT, &hf_015_V1_0_600_HPP_SDHPY, NULL };
+static gint hf_015_V1_0_600_HPP_CSDHPXY = -1;
+static const FieldPart I015_V1_0_600_HPP_CSDHPXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_600_HPP_CSDHPXY, NULL };
+static const FieldPart *I015_V1_0_600_HPP_PARTS[] = {
+    &I015_V1_0_600_HPP_SDHPX,
+    &I015_V1_0_600_HPP_SDHPY,
+    &I015_V1_0_600_HPP_CSDHPXY,
+    NULL
+};
+static const AsterixField I015_V1_0_600_HPP = { FIXED, 5, 0, 0, &hf_015_V1_0_600_HPP, I015_V1_0_600_HPP_PARTS, { NULL } };
+static const AsterixField I015_V1_0_600 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_600, NULL, { &I015_V1_0_600_P84, &I015_V1_0_600_HPR, &I015_V1_0_600_HPP, NULL } };
+static gint hf_015_V1_0_601 = -1;
+static gint hf_015_V1_0_601_GH = -1;
+static gint hf_015_V1_0_601_GH_VALUE = -1;
+static const FieldPart I015_V1_0_601_GH_VALUE = { 24, 0.01, FIELD_PART_FLOAT, &hf_015_V1_0_601_GH_VALUE, NULL };
+static const FieldPart *I015_V1_0_601_GH_PARTS[] = {
+    &I015_V1_0_601_GH_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_601_GH = { FIXED, 3, 0, 0, &hf_015_V1_0_601_GH, I015_V1_0_601_GH_PARTS, { NULL } };
+static gint hf_015_V1_0_601_RSGH = -1;
+static gint hf_015_V1_0_601_RSGH_VALUE = -1;
+static const FieldPart I015_V1_0_601_RSGH_VALUE = { 24, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_601_RSGH_VALUE, NULL };
+static const FieldPart *I015_V1_0_601_RSGH_PARTS[] = {
+    &I015_V1_0_601_RSGH_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_601_RSGH = { FIXED, 3, 0, 0, &hf_015_V1_0_601_RSGH, I015_V1_0_601_RSGH_PARTS, { NULL } };
+static gint hf_015_V1_0_601_SDGH = -1;
+static gint hf_015_V1_0_601_SDGH_VALUE = -1;
+static const FieldPart I015_V1_0_601_SDGH_VALUE = { 24, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_601_SDGH_VALUE, NULL };
+static const FieldPart *I015_V1_0_601_SDGH_PARTS[] = {
+    &I015_V1_0_601_SDGH_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_601_SDGH = { FIXED, 3, 0, 0, &hf_015_V1_0_601_SDGH, I015_V1_0_601_SDGH_PARTS, { NULL } };
+static gint hf_015_V1_0_601_CI6 = -1;
+static gint hf_015_V1_0_601_CI6_UCI6 = -1;
+static const FieldPart I015_V1_0_601_CI6_UCI6 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_V1_0_601_CI6_UCI6, NULL };
+static gint hf_015_V1_0_601_CI6_LCI6 = -1;
+static const FieldPart I015_V1_0_601_CI6_LCI6 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_V1_0_601_CI6_LCI6, NULL };
+static const FieldPart *I015_V1_0_601_CI6_PARTS[] = {
+    &I015_V1_0_601_CI6_UCI6,
+    &I015_V1_0_601_CI6_LCI6,
+    NULL
+};
+static const AsterixField I015_V1_0_601_CI6 = { FIXED, 3, 0, 0, &hf_015_V1_0_601_CI6, I015_V1_0_601_CI6_PARTS, { NULL } };
+static gint hf_015_V1_0_601_CI9 = -1;
+static gint hf_015_V1_0_601_CI9_UCI9 = -1;
+static const FieldPart I015_V1_0_601_CI9_UCI9 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_V1_0_601_CI9_UCI9, NULL };
+static gint hf_015_V1_0_601_CI9_LCI9 = -1;
+static const FieldPart I015_V1_0_601_CI9_LCI9 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_V1_0_601_CI9_LCI9, NULL };
+static const FieldPart *I015_V1_0_601_CI9_PARTS[] = {
+    &I015_V1_0_601_CI9_UCI9,
+    &I015_V1_0_601_CI9_LCI9,
+    NULL
+};
+static const AsterixField I015_V1_0_601_CI9 = { FIXED, 3, 0, 0, &hf_015_V1_0_601_CI9, I015_V1_0_601_CI9_PARTS, { NULL } };
+static gint hf_015_V1_0_601_COGHHP = -1;
+static gint hf_015_V1_0_601_COGHHP_X = -1;
+static const FieldPart I015_V1_0_601_COGHHP_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_601_COGHHP_X, NULL };
+static gint hf_015_V1_0_601_COGHHP_Y = -1;
+static const FieldPart I015_V1_0_601_COGHHP_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_601_COGHHP_Y, NULL };
+static const FieldPart *I015_V1_0_601_COGHHP_PARTS[] = {
+    &I015_V1_0_601_COGHHP_X,
+    &I015_V1_0_601_COGHHP_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_601_COGHHP = { FIXED, 2, 0, 0, &hf_015_V1_0_601_COGHHP, I015_V1_0_601_COGHHP_PARTS, { NULL } };
+static gint hf_015_V1_0_601_COGHHV = -1;
+static gint hf_015_V1_0_601_COGHHV_X = -1;
+static const FieldPart I015_V1_0_601_COGHHV_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_601_COGHHV_X, NULL };
+static gint hf_015_V1_0_601_COGHHV_Y = -1;
+static const FieldPart I015_V1_0_601_COGHHV_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_601_COGHHV_Y, NULL };
+static const FieldPart *I015_V1_0_601_COGHHV_PARTS[] = {
+    &I015_V1_0_601_COGHHV_X,
+    &I015_V1_0_601_COGHHV_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_601_COGHHV = { FIXED, 2, 0, 0, &hf_015_V1_0_601_COGHHV, I015_V1_0_601_COGHHV_PARTS, { NULL } };
+static gint hf_015_V1_0_601_COGHHA = -1;
+static gint hf_015_V1_0_601_COGHHA_X = -1;
+static const FieldPart I015_V1_0_601_COGHHA_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_601_COGHHA_X, NULL };
+static gint hf_015_V1_0_601_COGHHA_Y = -1;
+static const FieldPart I015_V1_0_601_COGHHA_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_601_COGHHA_Y, NULL };
+static const FieldPart *I015_V1_0_601_COGHHA_PARTS[] = {
+    &I015_V1_0_601_COGHHA_X,
+    &I015_V1_0_601_COGHHA_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_601_COGHHA = { FIXED, 2, 0, 0, &hf_015_V1_0_601_COGHHA, I015_V1_0_601_COGHHA_PARTS, { NULL } };
+static const AsterixField I015_V1_0_601 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_601, NULL, { &I015_V1_0_601_GH, &I015_V1_0_601_RSGH, &I015_V1_0_601_SDGH, &I015_V1_0_601_CI6, &I015_V1_0_601_CI9, &I015_V1_0_601_COGHHP, &I015_V1_0_601_COGHHV, &I015_V1_0_601_COGHHA, NULL } };
+static gint hf_015_V1_0_602 = -1;
+static gint hf_015_V1_0_602_HV = -1;
+static gint hf_015_V1_0_602_HV_X = -1;
+static const FieldPart I015_V1_0_602_HV_X = { 20, 0.01, FIELD_PART_FLOAT, &hf_015_V1_0_602_HV_X, NULL };
+static gint hf_015_V1_0_602_HV_Y = -1;
+static const FieldPart I015_V1_0_602_HV_Y = { 20, 0.01, FIELD_PART_FLOAT, &hf_015_V1_0_602_HV_Y, NULL };
+static const FieldPart *I015_V1_0_602_HV_PARTS[] = {
+    &I015_V1_0_602_HV_X,
+    &I015_V1_0_602_HV_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_602_HV = { FIXED, 5, 0, 0, &hf_015_V1_0_602_HV, I015_V1_0_602_HV_PARTS, { NULL } };
+static gint hf_015_V1_0_602_RSHV = -1;
+static gint hf_015_V1_0_602_RSHV_X = -1;
+static const FieldPart I015_V1_0_602_RSHV_X = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_602_RSHV_X, NULL };
+static gint hf_015_V1_0_602_RSHV_Y = -1;
+static const FieldPart I015_V1_0_602_RSHV_Y = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_602_RSHV_Y, NULL };
+static gint hf_015_V1_0_602_RSHV_CORSHVXY = -1;
+static const FieldPart I015_V1_0_602_RSHV_CORSHVXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_602_RSHV_CORSHVXY, NULL };
+static const FieldPart *I015_V1_0_602_RSHV_PARTS[] = {
+    &I015_V1_0_602_RSHV_X,
+    &I015_V1_0_602_RSHV_Y,
+    &I015_V1_0_602_RSHV_CORSHVXY,
+    NULL
+};
+static const AsterixField I015_V1_0_602_RSHV = { FIXED, 5, 0, 0, &hf_015_V1_0_602_RSHV, I015_V1_0_602_RSHV_PARTS, { NULL } };
+static gint hf_015_V1_0_602_SDHV = -1;
+static gint hf_015_V1_0_602_SDHV_X = -1;
+static const FieldPart I015_V1_0_602_SDHV_X = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_602_SDHV_X, NULL };
+static gint hf_015_V1_0_602_SDHV_Y = -1;
+static const FieldPart I015_V1_0_602_SDHV_Y = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_602_SDHV_Y, NULL };
+static gint hf_015_V1_0_602_SDHV_COHVXY = -1;
+static const FieldPart I015_V1_0_602_SDHV_COHVXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_602_SDHV_COHVXY, NULL };
+static const FieldPart *I015_V1_0_602_SDHV_PARTS[] = {
+    &I015_V1_0_602_SDHV_X,
+    &I015_V1_0_602_SDHV_Y,
+    &I015_V1_0_602_SDHV_COHVXY,
+    NULL
+};
+static const AsterixField I015_V1_0_602_SDHV = { FIXED, 5, 0, 0, &hf_015_V1_0_602_SDHV, I015_V1_0_602_SDHV_PARTS, { NULL } };
+static gint hf_015_V1_0_602_COHVHP = -1;
+static gint hf_015_V1_0_602_COHVHP_COHVXHPX = -1;
+static const FieldPart I015_V1_0_602_COHVHP_COHVXHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_602_COHVHP_COHVXHPX, NULL };
+static gint hf_015_V1_0_602_COHVHP_COHVXHPY = -1;
+static const FieldPart I015_V1_0_602_COHVHP_COHVXHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_602_COHVHP_COHVXHPY, NULL };
+static gint hf_015_V1_0_602_COHVHP_COHVYHPX = -1;
+static const FieldPart I015_V1_0_602_COHVHP_COHVYHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_602_COHVHP_COHVYHPX, NULL };
+static gint hf_015_V1_0_602_COHVHP_COHVYHPY = -1;
+static const FieldPart I015_V1_0_602_COHVHP_COHVYHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_602_COHVHP_COHVYHPY, NULL };
+static const FieldPart *I015_V1_0_602_COHVHP_PARTS[] = {
+    &I015_V1_0_602_COHVHP_COHVXHPX,
+    &I015_V1_0_602_COHVHP_COHVXHPY,
+    &I015_V1_0_602_COHVHP_COHVYHPX,
+    &I015_V1_0_602_COHVHP_COHVYHPY,
+    NULL
+};
+static const AsterixField I015_V1_0_602_COHVHP = { FIXED, 4, 0, 0, &hf_015_V1_0_602_COHVHP, I015_V1_0_602_COHVHP_PARTS, { NULL } };
+static const AsterixField I015_V1_0_602 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_602, NULL, { &I015_V1_0_602_HV, &I015_V1_0_602_RSHV, &I015_V1_0_602_SDHV, &I015_V1_0_602_COHVHP, NULL } };
+static gint hf_015_V1_0_603 = -1;
+static gint hf_015_V1_0_603_HA = -1;
+static gint hf_015_V1_0_603_HA_X = -1;
+static const FieldPart I015_V1_0_603_HA_X = { 12, 0.0625, FIELD_PART_FLOAT, &hf_015_V1_0_603_HA_X, NULL };
+static gint hf_015_V1_0_603_HA_Y = -1;
+static const FieldPart I015_V1_0_603_HA_Y = { 12, 0.0625, FIELD_PART_FLOAT, &hf_015_V1_0_603_HA_Y, NULL };
+static const FieldPart *I015_V1_0_603_HA_PARTS[] = {
+    &I015_V1_0_603_HA_X,
+    &I015_V1_0_603_HA_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_603_HA = { FIXED, 3, 0, 0, &hf_015_V1_0_603_HA, I015_V1_0_603_HA_PARTS, { NULL } };
+static gint hf_015_V1_0_603_SDHA = -1;
+static gint hf_015_V1_0_603_SDHA_X = -1;
+static const FieldPart I015_V1_0_603_SDHA_X = { 12, 0.0625, FIELD_PART_UFLOAT, &hf_015_V1_0_603_SDHA_X, NULL };
+static gint hf_015_V1_0_603_SDHA_Y = -1;
+static const FieldPart I015_V1_0_603_SDHA_Y = { 12, 0.0625, FIELD_PART_UFLOAT, &hf_015_V1_0_603_SDHA_Y, NULL };
+static gint hf_015_V1_0_603_SDHA_COAXY = -1;
+static const FieldPart I015_V1_0_603_SDHA_COAXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_SDHA_COAXY, NULL };
+static const FieldPart *I015_V1_0_603_SDHA_PARTS[] = {
+    &I015_V1_0_603_SDHA_X,
+    &I015_V1_0_603_SDHA_Y,
+    &I015_V1_0_603_SDHA_COAXY,
+    NULL
+};
+static const AsterixField I015_V1_0_603_SDHA = { FIXED, 4, 0, 0, &hf_015_V1_0_603_SDHA, I015_V1_0_603_SDHA_PARTS, { NULL } };
+static gint hf_015_V1_0_603_COHAHP = -1;
+static gint hf_015_V1_0_603_COHAHP_COHAXHPX = -1;
+static const FieldPart I015_V1_0_603_COHAHP_COHAXHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHP_COHAXHPX, NULL };
+static gint hf_015_V1_0_603_COHAHP_CHAXHPY = -1;
+static const FieldPart I015_V1_0_603_COHAHP_CHAXHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHP_CHAXHPY, NULL };
+static gint hf_015_V1_0_603_COHAHP_CHAYHPX = -1;
+static const FieldPart I015_V1_0_603_COHAHP_CHAYHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHP_CHAYHPX, NULL };
+static gint hf_015_V1_0_603_COHAHP_COAYHPY = -1;
+static const FieldPart I015_V1_0_603_COHAHP_COAYHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHP_COAYHPY, NULL };
+static const FieldPart *I015_V1_0_603_COHAHP_PARTS[] = {
+    &I015_V1_0_603_COHAHP_COHAXHPX,
+    &I015_V1_0_603_COHAHP_CHAXHPY,
+    &I015_V1_0_603_COHAHP_CHAYHPX,
+    &I015_V1_0_603_COHAHP_COAYHPY,
+    NULL
+};
+static const AsterixField I015_V1_0_603_COHAHP = { FIXED, 4, 0, 0, &hf_015_V1_0_603_COHAHP, I015_V1_0_603_COHAHP_PARTS, { NULL } };
+static gint hf_015_V1_0_603_COHAHV = -1;
+static gint hf_015_V1_0_603_COHAHV_COHAXHVX = -1;
+static const FieldPart I015_V1_0_603_COHAHV_COHAXHVX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHV_COHAXHVX, NULL };
+static gint hf_015_V1_0_603_COHAHV_COHAXHVY = -1;
+static const FieldPart I015_V1_0_603_COHAHV_COHAXHVY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHV_COHAXHVY, NULL };
+static gint hf_015_V1_0_603_COHAHV_COHAYHVX = -1;
+static const FieldPart I015_V1_0_603_COHAHV_COHAYHVX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHV_COHAYHVX, NULL };
+static gint hf_015_V1_0_603_COHAHV_COHAYHVY = -1;
+static const FieldPart I015_V1_0_603_COHAHV_COHAYHVY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_603_COHAHV_COHAYHVY, NULL };
+static const FieldPart *I015_V1_0_603_COHAHV_PARTS[] = {
+    &I015_V1_0_603_COHAHV_COHAXHVX,
+    &I015_V1_0_603_COHAHV_COHAXHVY,
+    &I015_V1_0_603_COHAHV_COHAYHVX,
+    &I015_V1_0_603_COHAHV_COHAYHVY,
+    NULL
+};
+static const AsterixField I015_V1_0_603_COHAHV = { FIXED, 4, 0, 0, &hf_015_V1_0_603_COHAHV, I015_V1_0_603_COHAHV_PARTS, { NULL } };
+static const AsterixField I015_V1_0_603 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_603, NULL, { &I015_V1_0_603_HA, &I015_V1_0_603_SDHA, &I015_V1_0_603_COHAHP, &I015_V1_0_603_COHAHV, NULL } };
+static gint hf_015_V1_0_604 = -1;
+static gint hf_015_V1_0_604_VV = -1;
+static gint hf_015_V1_0_604_VV_VALUE = -1;
+static const FieldPart I015_V1_0_604_VV_VALUE = { 24, 0.01, FIELD_PART_FLOAT, &hf_015_V1_0_604_VV_VALUE, NULL };
+static const FieldPart *I015_V1_0_604_VV_PARTS[] = {
+    &I015_V1_0_604_VV_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_604_VV = { FIXED, 3, 0, 0, &hf_015_V1_0_604_VV, I015_V1_0_604_VV_PARTS, { NULL } };
+static gint hf_015_V1_0_604_RSVV = -1;
+static gint hf_015_V1_0_604_RSVV_VALUE = -1;
+static const FieldPart I015_V1_0_604_RSVV_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_604_RSVV_VALUE, NULL };
+static const FieldPart *I015_V1_0_604_RSVV_PARTS[] = {
+    &I015_V1_0_604_RSVV_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_604_RSVV = { FIXED, 2, 0, 0, &hf_015_V1_0_604_RSVV, I015_V1_0_604_RSVV_PARTS, { NULL } };
+static gint hf_015_V1_0_604_SDVV = -1;
+static gint hf_015_V1_0_604_SDVV_SDVV = -1;
+static const FieldPart I015_V1_0_604_SDVV_SDVV = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_604_SDVV_SDVV, NULL };
+static gint hf_015_V1_0_604_SDVV_COVVGH = -1;
+static const FieldPart I015_V1_0_604_SDVV_COVVGH = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_604_SDVV_COVVGH, NULL };
+static const FieldPart *I015_V1_0_604_SDVV_PARTS[] = {
+    &I015_V1_0_604_SDVV_SDVV,
+    &I015_V1_0_604_SDVV_COVVGH,
+    NULL
+};
+static const AsterixField I015_V1_0_604_SDVV = { FIXED, 3, 0, 0, &hf_015_V1_0_604_SDVV, I015_V1_0_604_SDVV_PARTS, { NULL } };
+static gint hf_015_V1_0_604_COVVHP = -1;
+static gint hf_015_V1_0_604_COVVHP_X = -1;
+static const FieldPart I015_V1_0_604_COVVHP_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_604_COVVHP_X, NULL };
+static gint hf_015_V1_0_604_COVVHP_Y = -1;
+static const FieldPart I015_V1_0_604_COVVHP_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_604_COVVHP_Y, NULL };
+static const FieldPart *I015_V1_0_604_COVVHP_PARTS[] = {
+    &I015_V1_0_604_COVVHP_X,
+    &I015_V1_0_604_COVVHP_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_604_COVVHP = { FIXED, 2, 0, 0, &hf_015_V1_0_604_COVVHP, I015_V1_0_604_COVVHP_PARTS, { NULL } };
+static gint hf_015_V1_0_604_COVVHV = -1;
+static gint hf_015_V1_0_604_COVVHV_X = -1;
+static const FieldPart I015_V1_0_604_COVVHV_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_604_COVVHV_X, NULL };
+static gint hf_015_V1_0_604_COVVHV_Y = -1;
+static const FieldPart I015_V1_0_604_COVVHV_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_604_COVVHV_Y, NULL };
+static const FieldPart *I015_V1_0_604_COVVHV_PARTS[] = {
+    &I015_V1_0_604_COVVHV_X,
+    &I015_V1_0_604_COVVHV_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_604_COVVHV = { FIXED, 2, 0, 0, &hf_015_V1_0_604_COVVHV, I015_V1_0_604_COVVHV_PARTS, { NULL } };
+static gint hf_015_V1_0_604_COVVHA = -1;
+static gint hf_015_V1_0_604_COVVHA_X = -1;
+static const FieldPart I015_V1_0_604_COVVHA_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_604_COVVHA_X, NULL };
+static gint hf_015_V1_0_604_COVVHA_Y = -1;
+static const FieldPart I015_V1_0_604_COVVHA_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_604_COVVHA_Y, NULL };
+static const FieldPart *I015_V1_0_604_COVVHA_PARTS[] = {
+    &I015_V1_0_604_COVVHA_X,
+    &I015_V1_0_604_COVVHA_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_604_COVVHA = { FIXED, 2, 0, 0, &hf_015_V1_0_604_COVVHA, I015_V1_0_604_COVVHA_PARTS, { NULL } };
+static const AsterixField I015_V1_0_604 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_604, NULL, { &I015_V1_0_604_VV, &I015_V1_0_604_RSVV, &I015_V1_0_604_SDVV, &I015_V1_0_604_COVVHP, &I015_V1_0_604_COVVHV, &I015_V1_0_604_COVVHA, NULL } };
+static gint hf_015_V1_0_605 = -1;
+static gint hf_015_V1_0_605_VA = -1;
+static gint hf_015_V1_0_605_VA_VALUE = -1;
+static const FieldPart I015_V1_0_605_VA_VALUE = { 16, 0.01, FIELD_PART_FLOAT, &hf_015_V1_0_605_VA_VALUE, NULL };
+static const FieldPart *I015_V1_0_605_VA_PARTS[] = {
+    &I015_V1_0_605_VA_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_605_VA = { FIXED, 2, 0, 0, &hf_015_V1_0_605_VA, I015_V1_0_605_VA_PARTS, { NULL } };
+static gint hf_015_V1_0_605_RSVA = -1;
+static gint hf_015_V1_0_605_RSVA_SDVA = -1;
+static const FieldPart I015_V1_0_605_RSVA_SDVA = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_V1_0_605_RSVA_SDVA, NULL };
+static gint hf_015_V1_0_605_RSVA_COVAGH = -1;
+static const FieldPart I015_V1_0_605_RSVA_COVAGH = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_RSVA_COVAGH, NULL };
+static gint hf_015_V1_0_605_RSVA_COVAVV = -1;
+static const FieldPart I015_V1_0_605_RSVA_COVAVV = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_RSVA_COVAVV, NULL };
+static const FieldPart *I015_V1_0_605_RSVA_PARTS[] = {
+    &I015_V1_0_605_RSVA_SDVA,
+    &I015_V1_0_605_RSVA_COVAGH,
+    &I015_V1_0_605_RSVA_COVAVV,
+    NULL
+};
+static const AsterixField I015_V1_0_605_RSVA = { FIXED, 4, 0, 0, &hf_015_V1_0_605_RSVA, I015_V1_0_605_RSVA_PARTS, { NULL } };
+static gint hf_015_V1_0_605_COVAHP = -1;
+static gint hf_015_V1_0_605_COVAHP_X = -1;
+static const FieldPart I015_V1_0_605_COVAHP_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_COVAHP_X, NULL };
+static gint hf_015_V1_0_605_COVAHP_Y = -1;
+static const FieldPart I015_V1_0_605_COVAHP_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_COVAHP_Y, NULL };
+static const FieldPart *I015_V1_0_605_COVAHP_PARTS[] = {
+    &I015_V1_0_605_COVAHP_X,
+    &I015_V1_0_605_COVAHP_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_605_COVAHP = { FIXED, 2, 0, 0, &hf_015_V1_0_605_COVAHP, I015_V1_0_605_COVAHP_PARTS, { NULL } };
+static gint hf_015_V1_0_605_COVAHV = -1;
+static gint hf_015_V1_0_605_COVAHV_X = -1;
+static const FieldPart I015_V1_0_605_COVAHV_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_COVAHV_X, NULL };
+static gint hf_015_V1_0_605_COVAHV_Y = -1;
+static const FieldPart I015_V1_0_605_COVAHV_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_COVAHV_Y, NULL };
+static const FieldPart *I015_V1_0_605_COVAHV_PARTS[] = {
+    &I015_V1_0_605_COVAHV_X,
+    &I015_V1_0_605_COVAHV_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_605_COVAHV = { FIXED, 2, 0, 0, &hf_015_V1_0_605_COVAHV, I015_V1_0_605_COVAHV_PARTS, { NULL } };
+static gint hf_015_V1_0_605_COVAHA = -1;
+static gint hf_015_V1_0_605_COVAHA_X = -1;
+static const FieldPart I015_V1_0_605_COVAHA_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_COVAHA_X, NULL };
+static gint hf_015_V1_0_605_COVAHA_Y = -1;
+static const FieldPart I015_V1_0_605_COVAHA_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_605_COVAHA_Y, NULL };
+static const FieldPart *I015_V1_0_605_COVAHA_PARTS[] = {
+    &I015_V1_0_605_COVAHA_X,
+    &I015_V1_0_605_COVAHA_Y,
+    NULL
+};
+static const AsterixField I015_V1_0_605_COVAHA = { FIXED, 2, 0, 0, &hf_015_V1_0_605_COVAHA, I015_V1_0_605_COVAHA_PARTS, { NULL } };
+static const AsterixField I015_V1_0_605 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_605, NULL, { &I015_V1_0_605_VA, &I015_V1_0_605_RSVA, &I015_V1_0_605_COVAHP, &I015_V1_0_605_COVAHV, &I015_V1_0_605_COVAHA, NULL } };
+static gint hf_015_V1_0_625 = -1;
+static gint hf_015_V1_0_625_R = -1;
+static gint hf_015_V1_0_625_R_VALUE = -1;
+static const FieldPart I015_V1_0_625_R_VALUE = { 24, 0.1, FIELD_PART_FLOAT, &hf_015_V1_0_625_R_VALUE, NULL };
+static const FieldPart *I015_V1_0_625_R_PARTS[] = {
+    &I015_V1_0_625_R_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_625_R = { FIXED, 3, 0, 0, &hf_015_V1_0_625_R, I015_V1_0_625_R_PARTS, { NULL } };
+static gint hf_015_V1_0_625_RSR = -1;
+static gint hf_015_V1_0_625_RSR_VALUE = -1;
+static const FieldPart I015_V1_0_625_RSR_VALUE = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_V1_0_625_RSR_VALUE, NULL };
+static const FieldPart *I015_V1_0_625_RSR_PARTS[] = {
+    &I015_V1_0_625_RSR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_625_RSR = { FIXED, 3, 0, 0, &hf_015_V1_0_625_RSR, I015_V1_0_625_RSR_PARTS, { NULL } };
+static gint hf_015_V1_0_625_SDR = -1;
+static gint hf_015_V1_0_625_SDR_VALUE = -1;
+static const FieldPart I015_V1_0_625_SDR_VALUE = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_V1_0_625_SDR_VALUE, NULL };
+static const FieldPart *I015_V1_0_625_SDR_PARTS[] = {
+    &I015_V1_0_625_SDR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_625_SDR = { FIXED, 3, 0, 0, &hf_015_V1_0_625_SDR, I015_V1_0_625_SDR_PARTS, { NULL } };
+static gint hf_015_V1_0_625_RR = -1;
+static gint hf_015_V1_0_625_RR_VALUE = -1;
+static const FieldPart I015_V1_0_625_RR_VALUE = { 24, 0.1, FIELD_PART_FLOAT, &hf_015_V1_0_625_RR_VALUE, NULL };
+static const FieldPart *I015_V1_0_625_RR_PARTS[] = {
+    &I015_V1_0_625_RR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_625_RR = { FIXED, 3, 0, 0, &hf_015_V1_0_625_RR, I015_V1_0_625_RR_PARTS, { NULL } };
+static gint hf_015_V1_0_625_RSRR = -1;
+static gint hf_015_V1_0_625_RSRR_VALUE = -1;
+static const FieldPart I015_V1_0_625_RSRR_VALUE = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_V1_0_625_RSRR_VALUE, NULL };
+static const FieldPart *I015_V1_0_625_RSRR_PARTS[] = {
+    &I015_V1_0_625_RSRR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_625_RSRR = { FIXED, 3, 0, 0, &hf_015_V1_0_625_RSRR, I015_V1_0_625_RSRR_PARTS, { NULL } };
+static gint hf_015_V1_0_625_SDRR = -1;
+static gint hf_015_V1_0_625_SDRR_SDRR = -1;
+static const FieldPart I015_V1_0_625_SDRR_SDRR = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_V1_0_625_SDRR_SDRR, NULL };
+static gint hf_015_V1_0_625_SDRR_CORRR = -1;
+static const FieldPart I015_V1_0_625_SDRR_CORRR = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_625_SDRR_CORRR, NULL };
+static const FieldPart *I015_V1_0_625_SDRR_PARTS[] = {
+    &I015_V1_0_625_SDRR_SDRR,
+    &I015_V1_0_625_SDRR_CORRR,
+    NULL
+};
+static const AsterixField I015_V1_0_625_SDRR = { FIXED, 4, 0, 0, &hf_015_V1_0_625_SDRR, I015_V1_0_625_SDRR_PARTS, { NULL } };
+static gint hf_015_V1_0_625_RA = -1;
+static gint hf_015_V1_0_625_RA_VALUE = -1;
+static const FieldPart I015_V1_0_625_RA_VALUE = { 16, 0.015625, FIELD_PART_FLOAT, &hf_015_V1_0_625_RA_VALUE, NULL };
+static const FieldPart *I015_V1_0_625_RA_PARTS[] = {
+    &I015_V1_0_625_RA_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_625_RA = { FIXED, 2, 0, 0, &hf_015_V1_0_625_RA, I015_V1_0_625_RA_PARTS, { NULL } };
+static gint hf_015_V1_0_625_SDRA = -1;
+static gint hf_015_V1_0_625_SDRA_SDRA = -1;
+static const FieldPart I015_V1_0_625_SDRA_SDRA = { 16, 0.0078125, FIELD_PART_UFLOAT, &hf_015_V1_0_625_SDRA_SDRA, NULL };
+static gint hf_015_V1_0_625_SDRA_CORAR = -1;
+static const FieldPart I015_V1_0_625_SDRA_CORAR = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_625_SDRA_CORAR, NULL };
+static gint hf_015_V1_0_625_SDRA_CORARR = -1;
+static const FieldPart I015_V1_0_625_SDRA_CORARR = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_625_SDRA_CORARR, NULL };
+static const FieldPart *I015_V1_0_625_SDRA_PARTS[] = {
+    &I015_V1_0_625_SDRA_SDRA,
+    &I015_V1_0_625_SDRA_CORAR,
+    &I015_V1_0_625_SDRA_CORARR,
+    NULL
+};
+static const AsterixField I015_V1_0_625_SDRA = { FIXED, 4, 0, 0, &hf_015_V1_0_625_SDRA, I015_V1_0_625_SDRA_PARTS, { NULL } };
+static const AsterixField I015_V1_0_625 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_625, NULL, { &I015_V1_0_625_R, &I015_V1_0_625_RSR, &I015_V1_0_625_SDR, &I015_V1_0_625_RR, &I015_V1_0_625_RSRR, &I015_V1_0_625_SDRR, &I015_V1_0_625_RA, &I015_V1_0_625_SDRA, NULL } };
+static gint hf_015_V1_0_626 = -1;
+static gint hf_015_V1_0_626_DV = -1;
+static gint hf_015_V1_0_626_DV_VALUE = -1;
+static const FieldPart I015_V1_0_626_DV_VALUE = { 24, 0.01, FIELD_PART_FLOAT, &hf_015_V1_0_626_DV_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_DV_PARTS[] = {
+    &I015_V1_0_626_DV_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_DV = { FIXED, 3, 0, 0, &hf_015_V1_0_626_DV, I015_V1_0_626_DV_PARTS, { NULL } };
+static gint hf_015_V1_0_626_SDDV = -1;
+static gint hf_015_V1_0_626_SDDV_VALUE = -1;
+static const FieldPart I015_V1_0_626_SDDV_VALUE = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_015_V1_0_626_SDDV_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_SDDV_PARTS[] = {
+    &I015_V1_0_626_SDDV_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_SDDV = { FIXED, 2, 0, 0, &hf_015_V1_0_626_SDDV, I015_V1_0_626_SDDV_PARTS, { NULL } };
+static gint hf_015_V1_0_626_DA = -1;
+static gint hf_015_V1_0_626_DA_VALUE = -1;
+static const FieldPart I015_V1_0_626_DA_VALUE = { 16, 0.015625, FIELD_PART_FLOAT, &hf_015_V1_0_626_DA_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_DA_PARTS[] = {
+    &I015_V1_0_626_DA_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_DA = { FIXED, 2, 0, 0, &hf_015_V1_0_626_DA, I015_V1_0_626_DA_PARTS, { NULL } };
+static gint hf_015_V1_0_626_SDDA = -1;
+static gint hf_015_V1_0_626_SDDA_SDDA = -1;
+static const FieldPart I015_V1_0_626_SDDA_SDDA = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_015_V1_0_626_SDDA_SDDA, NULL };
+static gint hf_015_V1_0_626_SDDA_CODADV = -1;
+static const FieldPart I015_V1_0_626_SDDA_CODADV = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_626_SDDA_CODADV, NULL };
+static const FieldPart *I015_V1_0_626_SDDA_PARTS[] = {
+    &I015_V1_0_626_SDDA_SDDA,
+    &I015_V1_0_626_SDDA_CODADV,
+    NULL
+};
+static const AsterixField I015_V1_0_626_SDDA = { FIXED, 3, 0, 0, &hf_015_V1_0_626_SDDA, I015_V1_0_626_SDDA_PARTS, { NULL } };
+static gint hf_015_V1_0_626_CODVR = -1;
+static gint hf_015_V1_0_626_CODVR_VALUE = -1;
+static const FieldPart I015_V1_0_626_CODVR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_626_CODVR_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_CODVR_PARTS[] = {
+    &I015_V1_0_626_CODVR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_CODVR = { FIXED, 1, 0, 0, &hf_015_V1_0_626_CODVR, I015_V1_0_626_CODVR_PARTS, { NULL } };
+static gint hf_015_V1_0_626_CODVRR = -1;
+static gint hf_015_V1_0_626_CODVRR_VALUE = -1;
+static const FieldPart I015_V1_0_626_CODVRR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_626_CODVRR_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_CODVRR_PARTS[] = {
+    &I015_V1_0_626_CODVRR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_CODVRR = { FIXED, 1, 0, 0, &hf_015_V1_0_626_CODVRR, I015_V1_0_626_CODVRR_PARTS, { NULL } };
+static gint hf_015_V1_0_626_CODVRA = -1;
+static gint hf_015_V1_0_626_CODVRA_VALUE = -1;
+static const FieldPart I015_V1_0_626_CODVRA_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_626_CODVRA_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_CODVRA_PARTS[] = {
+    &I015_V1_0_626_CODVRA_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_CODVRA = { FIXED, 1, 0, 0, &hf_015_V1_0_626_CODVRA, I015_V1_0_626_CODVRA_PARTS, { NULL } };
+static gint hf_015_V1_0_626_CODAR = -1;
+static gint hf_015_V1_0_626_CODAR_VALUE = -1;
+static const FieldPart I015_V1_0_626_CODAR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_626_CODAR_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_CODAR_PARTS[] = {
+    &I015_V1_0_626_CODAR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_CODAR = { FIXED, 1, 0, 0, &hf_015_V1_0_626_CODAR, I015_V1_0_626_CODAR_PARTS, { NULL } };
+static gint hf_015_V1_0_626_CODARR = -1;
+static gint hf_015_V1_0_626_CODARR_VALUE = -1;
+static const FieldPart I015_V1_0_626_CODARR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_626_CODARR_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_CODARR_PARTS[] = {
+    &I015_V1_0_626_CODARR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_CODARR = { FIXED, 1, 0, 0, &hf_015_V1_0_626_CODARR, I015_V1_0_626_CODARR_PARTS, { NULL } };
+static gint hf_015_V1_0_626_CODARA = -1;
+static gint hf_015_V1_0_626_CODARA_VALUE = -1;
+static const FieldPart I015_V1_0_626_CODARA_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_626_CODARA_VALUE, NULL };
+static const FieldPart *I015_V1_0_626_CODARA_PARTS[] = {
+    &I015_V1_0_626_CODARA_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_626_CODARA = { FIXED, 1, 0, 0, &hf_015_V1_0_626_CODARA, I015_V1_0_626_CODARA_PARTS, { NULL } };
+static const AsterixField I015_V1_0_626 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_626, NULL, { &I015_V1_0_626_DV, &I015_V1_0_626_SDDV, &I015_V1_0_626_DA, &I015_V1_0_626_SDDA, &I015_V1_0_626_CODVR, &I015_V1_0_626_CODVRR, &I015_V1_0_626_CODVRA, &I015_V1_0_626_CODAR, &I015_V1_0_626_CODARR, &I015_V1_0_626_CODARA, NULL } };
+static gint hf_015_V1_0_627 = -1;
+static gint hf_015_V1_0_627_AZ = -1;
+static gint hf_015_V1_0_627_AZ_VALUE = -1;
+static const FieldPart I015_V1_0_627_AZ_VALUE = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_V1_0_627_AZ_VALUE, NULL };
+static const FieldPart *I015_V1_0_627_AZ_PARTS[] = {
+    &I015_V1_0_627_AZ_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_627_AZ = { FIXED, 2, 0, 0, &hf_015_V1_0_627_AZ, I015_V1_0_627_AZ_PARTS, { NULL } };
+static gint hf_015_V1_0_627_RSAZ = -1;
+static gint hf_015_V1_0_627_RSAZ_VALUE = -1;
+static const FieldPart I015_V1_0_627_RSAZ_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_V1_0_627_RSAZ_VALUE, NULL };
+static const FieldPart *I015_V1_0_627_RSAZ_PARTS[] = {
+    &I015_V1_0_627_RSAZ_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_627_RSAZ = { FIXED, 2, 0, 0, &hf_015_V1_0_627_RSAZ, I015_V1_0_627_RSAZ_PARTS, { NULL } };
+static gint hf_015_V1_0_627_SDASZ = -1;
+static gint hf_015_V1_0_627_SDASZ_VALUE = -1;
+static const FieldPart I015_V1_0_627_SDASZ_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_V1_0_627_SDASZ_VALUE, NULL };
+static const FieldPart *I015_V1_0_627_SDASZ_PARTS[] = {
+    &I015_V1_0_627_SDASZ_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_627_SDASZ = { FIXED, 2, 0, 0, &hf_015_V1_0_627_SDASZ, I015_V1_0_627_SDASZ_PARTS, { NULL } };
+static gint hf_015_V1_0_627_AZR = -1;
+static gint hf_015_V1_0_627_AZR_VALUE = -1;
+static const FieldPart I015_V1_0_627_AZR_VALUE = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_V1_0_627_AZR_VALUE, NULL };
+static const FieldPart *I015_V1_0_627_AZR_PARTS[] = {
+    &I015_V1_0_627_AZR_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_627_AZR = { FIXED, 2, 0, 0, &hf_015_V1_0_627_AZR, I015_V1_0_627_AZR_PARTS, { NULL } };
+static gint hf_015_V1_0_627_SDAZR = -1;
+static gint hf_015_V1_0_627_SDAZR_SDAZR = -1;
+static const FieldPart I015_V1_0_627_SDAZR_SDAZR = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_V1_0_627_SDAZR_SDAZR, NULL };
+static gint hf_015_V1_0_627_SDAZR_COAZRAZ = -1;
+static const FieldPart I015_V1_0_627_SDAZR_COAZRAZ = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_627_SDAZR_COAZRAZ, NULL };
+static const FieldPart *I015_V1_0_627_SDAZR_PARTS[] = {
+    &I015_V1_0_627_SDAZR_SDAZR,
+    &I015_V1_0_627_SDAZR_COAZRAZ,
+    NULL
+};
+static const AsterixField I015_V1_0_627_SDAZR = { FIXED, 3, 0, 0, &hf_015_V1_0_627_SDAZR, I015_V1_0_627_SDAZR_PARTS, { NULL } };
+static gint hf_015_V1_0_627_AZEX = -1;
+static gint hf_015_V1_0_627_AZEX_S = -1;
+static const FieldPart I015_V1_0_627_AZEX_S = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_V1_0_627_AZEX_S, NULL };
+static gint hf_015_V1_0_627_AZEX_E = -1;
+static const FieldPart I015_V1_0_627_AZEX_E = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_V1_0_627_AZEX_E, NULL };
+static const FieldPart *I015_V1_0_627_AZEX_PARTS[] = {
+    &I015_V1_0_627_AZEX_S,
+    &I015_V1_0_627_AZEX_E,
+    NULL
+};
+static const AsterixField I015_V1_0_627_AZEX = { FIXED, 4, 0, 0, &hf_015_V1_0_627_AZEX, I015_V1_0_627_AZEX_PARTS, { NULL } };
+static const AsterixField I015_V1_0_627 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_627, NULL, { &I015_V1_0_627_AZ, &I015_V1_0_627_RSAZ, &I015_V1_0_627_SDASZ, &I015_V1_0_627_AZR, &I015_V1_0_627_SDAZR, &I015_V1_0_627_AZEX, NULL } };
+static gint hf_015_V1_0_628 = -1;
+static gint hf_015_V1_0_628_EL = -1;
+static gint hf_015_V1_0_628_EL_VALUE = -1;
+static const FieldPart I015_V1_0_628_EL_VALUE = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_V1_0_628_EL_VALUE, NULL };
+static const FieldPart *I015_V1_0_628_EL_PARTS[] = {
+    &I015_V1_0_628_EL_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_628_EL = { FIXED, 2, 0, 0, &hf_015_V1_0_628_EL, I015_V1_0_628_EL_PARTS, { NULL } };
+static gint hf_015_V1_0_628_RSEL = -1;
+static gint hf_015_V1_0_628_RSEL_VALUE = -1;
+static const FieldPart I015_V1_0_628_RSEL_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_V1_0_628_RSEL_VALUE, NULL };
+static const FieldPart *I015_V1_0_628_RSEL_PARTS[] = {
+    &I015_V1_0_628_RSEL_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_628_RSEL = { FIXED, 2, 0, 0, &hf_015_V1_0_628_RSEL, I015_V1_0_628_RSEL_PARTS, { NULL } };
+static gint hf_015_V1_0_628_SDEL = -1;
+static gint hf_015_V1_0_628_SDEL_VALUE = -1;
+static const FieldPart I015_V1_0_628_SDEL_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_V1_0_628_SDEL_VALUE, NULL };
+static const FieldPart *I015_V1_0_628_SDEL_PARTS[] = {
+    &I015_V1_0_628_SDEL_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_628_SDEL = { FIXED, 2, 0, 0, &hf_015_V1_0_628_SDEL, I015_V1_0_628_SDEL_PARTS, { NULL } };
+static gint hf_015_V1_0_628_ER = -1;
+static gint hf_015_V1_0_628_ER_VALUE = -1;
+static const FieldPart I015_V1_0_628_ER_VALUE = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_V1_0_628_ER_VALUE, NULL };
+static const FieldPart *I015_V1_0_628_ER_PARTS[] = {
+    &I015_V1_0_628_ER_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_628_ER = { FIXED, 2, 0, 0, &hf_015_V1_0_628_ER, I015_V1_0_628_ER_PARTS, { NULL } };
+static gint hf_015_V1_0_628_SDER = -1;
+static gint hf_015_V1_0_628_SDER_SDELR = -1;
+static const FieldPart I015_V1_0_628_SDER_SDELR = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_V1_0_628_SDER_SDELR, NULL };
+static gint hf_015_V1_0_628_SDER_COELREL = -1;
+static const FieldPart I015_V1_0_628_SDER_COELREL = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_V1_0_628_SDER_COELREL, NULL };
+static const FieldPart *I015_V1_0_628_SDER_PARTS[] = {
+    &I015_V1_0_628_SDER_SDELR,
+    &I015_V1_0_628_SDER_COELREL,
+    NULL
+};
+static const AsterixField I015_V1_0_628_SDER = { FIXED, 3, 0, 0, &hf_015_V1_0_628_SDER, I015_V1_0_628_SDER_PARTS, { NULL } };
+static gint hf_015_V1_0_628_ELEX = -1;
+static gint hf_015_V1_0_628_ELEX_S = -1;
+static const FieldPart I015_V1_0_628_ELEX_S = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_V1_0_628_ELEX_S, NULL };
+static gint hf_015_V1_0_628_ELEX_E = -1;
+static const FieldPart I015_V1_0_628_ELEX_E = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_V1_0_628_ELEX_E, NULL };
+static const FieldPart *I015_V1_0_628_ELEX_PARTS[] = {
+    &I015_V1_0_628_ELEX_S,
+    &I015_V1_0_628_ELEX_E,
+    NULL
+};
+static const AsterixField I015_V1_0_628_ELEX = { FIXED, 4, 0, 0, &hf_015_V1_0_628_ELEX, I015_V1_0_628_ELEX_PARTS, { NULL } };
+static const AsterixField I015_V1_0_628 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_628, NULL, { &I015_V1_0_628_EL, &I015_V1_0_628_RSEL, &I015_V1_0_628_SDEL, &I015_V1_0_628_ER, &I015_V1_0_628_SDER, &I015_V1_0_628_ELEX, NULL } };
+static gint hf_015_V1_0_630 = -1;
+static gint hf_015_V1_0_630_DPP = -1;
+static gint hf_015_V1_0_630_DPP_VALUE = -1;
+static const FieldPart I015_V1_0_630_DPP_VALUE = { 8, 1.0, FIELD_PART_FLOAT, &hf_015_V1_0_630_DPP_VALUE, NULL };
+static const FieldPart *I015_V1_0_630_DPP_PARTS[] = {
+    &I015_V1_0_630_DPP_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_630_DPP = { FIXED, 1, 0, 0, &hf_015_V1_0_630_DPP, I015_V1_0_630_DPP_PARTS, { NULL } };
+static gint hf_015_V1_0_630_DPS = -1;
+static gint hf_015_V1_0_630_DPS_VALUE = -1;
+static const FieldPart I015_V1_0_630_DPS_VALUE = { 8, 1.0, FIELD_PART_FLOAT, &hf_015_V1_0_630_DPS_VALUE, NULL };
+static const FieldPart *I015_V1_0_630_DPS_PARTS[] = {
+    &I015_V1_0_630_DPS_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_630_DPS = { FIXED, 1, 0, 0, &hf_015_V1_0_630_DPS, I015_V1_0_630_DPS_PARTS, { NULL } };
+static gint hf_015_V1_0_630_RPP = -1;
+static gint hf_015_V1_0_630_RPP_RPP = -1;
+static const FieldPart I015_V1_0_630_RPP_RPP = { 9, 1.0, FIELD_PART_FLOAT, &hf_015_V1_0_630_RPP_RPP, NULL };
+static const FieldPart *I015_V1_0_630_RPP_PARTS[] = {
+    &IXXX_7bit_spare,
+    &I015_V1_0_630_RPP_RPP,
+    NULL
+};
+static const AsterixField I015_V1_0_630_RPP = { FIXED, 2, 0, 0, &hf_015_V1_0_630_RPP, I015_V1_0_630_RPP_PARTS, { NULL } };
+static gint hf_015_V1_0_630_RPS = -1;
+static gint hf_015_V1_0_630_RPS_VALUE = -1;
+static const FieldPart I015_V1_0_630_RPS_VALUE = { 8, 1.0, FIELD_PART_FLOAT, &hf_015_V1_0_630_RPS_VALUE, NULL };
+static const FieldPart *I015_V1_0_630_RPS_PARTS[] = {
+    &I015_V1_0_630_RPS_VALUE,
+    NULL
+};
+static const AsterixField I015_V1_0_630_RPS = { FIXED, 1, 0, 0, &hf_015_V1_0_630_RPS, I015_V1_0_630_RPS_PARTS, { NULL } };
+static const AsterixField I015_V1_0_630 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_630, NULL, { &I015_V1_0_630_DPP, &I015_V1_0_630_DPS, &I015_V1_0_630_RPP, &I015_V1_0_630_RPS, NULL } };
+static gint hf_015_V1_0_631 = -1;
+static gint hf_015_V1_0_631_AZCON = -1;
+static const FieldPart I015_V1_0_631_AZCON = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_V1_0_631_AZCON, NULL };
+static gint hf_015_V1_0_631_ELCON = -1;
+static const FieldPart I015_V1_0_631_ELCON = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_V1_0_631_ELCON, NULL };
+static gint hf_015_V1_0_631_RGCONSTOP = -1;
+static const FieldPart I015_V1_0_631_RGCONSTOP = { 16, 0.152587890625, FIELD_PART_UFLOAT, &hf_015_V1_0_631_RGCONSTOP, NULL };
+static gint hf_015_V1_0_631_RGCONSTART = -1;
+static const FieldPart I015_V1_0_631_RGCONSTART = { 16, 0.152587890625, FIELD_PART_UFLOAT, &hf_015_V1_0_631_RGCONSTART, NULL };
+static const FieldPart *I015_V1_0_631_PARTS[] = {
+    &I015_V1_0_631_AZCON,
+    &I015_V1_0_631_ELCON,
+    &I015_V1_0_631_RGCONSTOP,
+    &I015_V1_0_631_RGCONSTART,
+    NULL
+};
+static const AsterixField I015_V1_0_631 = { REPETITIVE, 8, 1, 0, &hf_015_V1_0_631, I015_V1_0_631_PARTS, { NULL } };
+static gint hf_015_V1_0_SP = -1;
+static const AsterixField I015_V1_0_SP = { EXP, 0, 0, 1, &hf_015_V1_0_SP, NULL, { NULL } };
+
+/* Category 015, edition 1.0 (latest) */
+static gint hf_015_000 = -1;
+static gint hf_015_000_MT = -1;
+static const value_string valstr_015_000_MT[] = {
+    { 1, "Measurement Plot" },
+    { 2, "Measurement Track" },
+    { 3, "Sensor Centric Plot" },
+    { 4, "Sensor Centric Track" },
+    { 5, "Track End Message" },
+    { 0, NULL }
+};
+static const FieldPart I015_000_MT = { 7, 1.0, FIELD_PART_UINT, &hf_015_000_MT, NULL };
+static gint hf_015_000_RG = -1;
+static const value_string valstr_015_000_RG[] = {
+    { 0, "Periodic Report" },
+    { 1, "Event Driven Report" },
+    { 0, NULL }
+};
+static const FieldPart I015_000_RG = { 1, 1.0, FIELD_PART_UINT, &hf_015_000_RG, NULL };
+static const FieldPart *I015_000_PARTS[] = {
+    &I015_000_MT,
+    &I015_000_RG,
+    NULL
+};
+static const AsterixField I015_000 = { FIXED, 1, 0, 0, &hf_015_000, I015_000_PARTS, { NULL } };
+static gint hf_015_010 = -1;
+static gint hf_015_010_SAC = -1;
+static const FieldPart I015_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_015_010_SAC, NULL };
+static gint hf_015_010_SIC = -1;
+static const FieldPart I015_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_015_010_SIC, NULL };
+static const FieldPart *I015_010_PARTS[] = {
+    &I015_010_SAC,
+    &I015_010_SIC,
+    NULL
+};
+static const AsterixField I015_010 = { FIXED, 2, 0, 0, &hf_015_010, I015_010_PARTS, { NULL } };
+static gint hf_015_015 = -1;
+static gint hf_015_015_VALUE = -1;
+static const FieldPart I015_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_015_015_VALUE, NULL };
+static const FieldPart *I015_015_PARTS[] = {
+    &I015_015_VALUE,
+    NULL
+};
+static const AsterixField I015_015 = { FIXED, 1, 0, 0, &hf_015_015, I015_015_PARTS, { NULL } };
+static gint hf_015_020 = -1;
+static gint hf_015_020_MOMU = -1;
+static const value_string valstr_015_020_MOMU[] = {
+    { 0, "Mono-Static Sensor" },
+    { 1, "Multi-Static Sensor" },
+    { 2, "Other" },
+    { 3, "Unknown" },
+    { 0, NULL }
+};
+static const FieldPart I015_020_MOMU = { 2, 1.0, FIELD_PART_UINT, &hf_015_020_MOMU, NULL };
+static gint hf_015_020_TTAX = -1;
+static const value_string valstr_015_020_TTAX[] = {
+    { 0, "Actual Target Report" },
+    { 1, "Reference Target" },
+    { 2, "Synthetic Target" },
+    { 3, "Simulated / Replayed Target" },
+    { 0, NULL }
+};
+static const FieldPart I015_020_TTAX = { 2, 1.0, FIELD_PART_UINT, &hf_015_020_TTAX, NULL };
+static gint hf_015_020_SCD = -1;
+static const value_string valstr_015_020_SCD[] = {
+    { 0, "Unknown" },
+    { 1, "Forward" },
+    { 2, "Backward" },
+    { 3, "Static" },
+    { 0, NULL }
+};
+static const FieldPart I015_020_SCD = { 2, 1.0, FIELD_PART_UINT, &hf_015_020_SCD, NULL };
+static const FieldPart *I015_020_PARTS[] = {
+    &I015_020_MOMU,
+    &I015_020_TTAX,
+    &I015_020_SCD,
+    &IXXX_1bit_spare,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I015_020 = { FX, 1, 0, 0, &hf_015_020, I015_020_PARTS, { NULL } };
+static gint hf_015_030 = -1;
+static gint hf_015_030_WE = -1;
+static const FieldPart I015_030_WE = { 7, 1.0, FIELD_PART_HEX, &hf_015_030_WE, NULL };
+static const FieldPart *I015_030_PARTS[] = {
+    &I015_030_WE,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I015_030 = { FX, 1, 0, 0, &hf_015_030, I015_030_PARTS, { NULL } };
+static gint hf_015_050 = -1;
+static gint hf_015_050_UPD = -1;
+static const FieldPart I015_050_UPD = { 14, 0.0078125, FIELD_PART_UFLOAT, &hf_015_050_UPD, NULL };
+static const FieldPart *I015_050_PARTS[] = {
+    &IXXX_2bit_spare,
+    &I015_050_UPD,
+    NULL
+};
+static const AsterixField I015_050 = { FIXED, 2, 0, 0, &hf_015_050, I015_050_PARTS, { NULL } };
+static gint hf_015_145 = -1;
+static gint hf_015_145_VALUE = -1;
+static const FieldPart I015_145_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_015_145_VALUE, NULL };
+static const FieldPart *I015_145_PARTS[] = {
+    &I015_145_VALUE,
+    NULL
+};
+static const AsterixField I015_145 = { FIXED, 3, 0, 0, &hf_015_145, I015_145_PARTS, { NULL } };
+static gint hf_015_161 = -1;
+static gint hf_015_161_VALUE = -1;
+static const FieldPart I015_161_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_015_161_VALUE, NULL };
+static const FieldPart *I015_161_PARTS[] = {
+    &I015_161_VALUE,
+    NULL
+};
+static const AsterixField I015_161 = { FIXED, 2, 0, 0, &hf_015_161, I015_161_PARTS, { NULL } };
+static gint hf_015_170 = -1;
+static gint hf_015_170_BIZ = -1;
+static const value_string valstr_015_170_BIZ[] = {
+    { 0, "Target not in Blind Zone" },
+    { 1, "Target in Blind Zone" },
+    { 0, NULL }
+};
+static const FieldPart I015_170_BIZ = { 1, 1.0, FIELD_PART_UINT, &hf_015_170_BIZ, NULL };
+static gint hf_015_170_BAZ = -1;
+static const value_string valstr_015_170_BAZ[] = {
+    { 0, "Target not in Blanked Zone" },
+    { 1, "Target in Blanked Zone" },
+    { 0, NULL }
+};
+static const FieldPart I015_170_BAZ = { 1, 1.0, FIELD_PART_UINT, &hf_015_170_BAZ, NULL };
+static gint hf_015_170_TUR = -1;
+static const value_string valstr_015_170_TUR[] = {
+    { 0, "Track Alive" },
+    { 1, "Track Terminated by User Request" },
+    { 0, NULL }
+};
+static const FieldPart I015_170_TUR = { 1, 1.0, FIELD_PART_UINT, &hf_015_170_TUR, NULL };
+static gint hf_015_170_CSTP = -1;
+static const value_string valstr_015_170_CSTP[] = {
+    { 0, "Not extrapolated" },
+    { 1, "Extrapolated" },
+    { 0, NULL }
+};
+static const FieldPart I015_170_CSTP = { 1, 1.0, FIELD_PART_UINT, &hf_015_170_CSTP, NULL };
+static gint hf_015_170_CSTH = -1;
+static const value_string valstr_015_170_CSTH[] = {
+    { 0, "Not extrapolated" },
+    { 1, "Extrapolated" },
+    { 0, NULL }
+};
+static const FieldPart I015_170_CSTH = { 1, 1.0, FIELD_PART_UINT, &hf_015_170_CSTH, NULL };
+static gint hf_015_170_CNF = -1;
+static const value_string valstr_015_170_CNF[] = {
+    { 0, "Confirmed Track" },
+    { 1, "Tentative Track" },
+    { 0, NULL }
+};
+static const FieldPart I015_170_CNF = { 1, 1.0, FIELD_PART_UINT, &hf_015_170_CNF, NULL };
+static const FieldPart *I015_170_PARTS[] = {
+    &I015_170_BIZ,
+    &I015_170_BAZ,
+    &I015_170_TUR,
+    &IXXX_1bit_spare,
+    &I015_170_CSTP,
+    &I015_170_CSTH,
+    &I015_170_CNF,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I015_170 = { FX, 1, 0, 0, &hf_015_170, I015_170_PARTS, { NULL } };
+static gint hf_015_270 = -1;
+static gint hf_015_270_LEN = -1;
+static gint hf_015_270_LEN_VALUE = -1;
+static const FieldPart I015_270_LEN_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_270_LEN_VALUE, NULL };
+static const FieldPart *I015_270_LEN_PARTS[] = {
+    &I015_270_LEN_VALUE,
+    NULL
+};
+static const AsterixField I015_270_LEN = { FIXED, 2, 0, 0, &hf_015_270_LEN, I015_270_LEN_PARTS, { NULL } };
+static gint hf_015_270_WDT = -1;
+static gint hf_015_270_WDT_VALUE = -1;
+static const FieldPart I015_270_WDT_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_270_WDT_VALUE, NULL };
+static const FieldPart *I015_270_WDT_PARTS[] = {
+    &I015_270_WDT_VALUE,
+    NULL
+};
+static const AsterixField I015_270_WDT = { FIXED, 2, 0, 0, &hf_015_270_WDT, I015_270_WDT_PARTS, { NULL } };
+static gint hf_015_270_HGT = -1;
+static gint hf_015_270_HGT_VALUE = -1;
+static const FieldPart I015_270_HGT_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_270_HGT_VALUE, NULL };
+static const FieldPart *I015_270_HGT_PARTS[] = {
+    &I015_270_HGT_VALUE,
+    NULL
+};
+static const AsterixField I015_270_HGT = { FIXED, 2, 0, 0, &hf_015_270_HGT, I015_270_HGT_PARTS, { NULL } };
+static gint hf_015_270_ORT = -1;
+static gint hf_015_270_ORT_VALUE = -1;
+static const FieldPart I015_270_ORT_VALUE = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_270_ORT_VALUE, NULL };
+static const FieldPart *I015_270_ORT_PARTS[] = {
+    &I015_270_ORT_VALUE,
+    NULL
+};
+static const AsterixField I015_270_ORT = { FIXED, 2, 0, 0, &hf_015_270_ORT, I015_270_ORT_PARTS, { NULL } };
+static const AsterixField I015_270 = { COMPOUND, 0, 0, 0, &hf_015_270, NULL, { &I015_270_LEN, &I015_270_WDT, &I015_270_HGT, &I015_270_ORT, NULL } };
+static gint hf_015_300 = -1;
+static gint hf_015_300_CLS = -1;
+static const FieldPart I015_300_CLS = { 8, 1.0, FIELD_PART_HEX, &hf_015_300_CLS, NULL };
+static gint hf_015_300_PRB = -1;
+static const FieldPart I015_300_PRB = { 8, 1.0, FIELD_PART_HEX, &hf_015_300_PRB, NULL };
+static const FieldPart *I015_300_PARTS[] = {
+    &I015_300_CLS,
+    &I015_300_PRB,
+    NULL
+};
+static const AsterixField I015_300 = { REPETITIVE, 2, 1, 0, &hf_015_300, I015_300_PARTS, { NULL } };
+static gint hf_015_400 = -1;
+static gint hf_015_400_PID = -1;
+static const FieldPart I015_400_PID = { 16, 1.0, FIELD_PART_UINT, &hf_015_400_PID, NULL };
+static gint hf_015_400_ON = -1;
+static const FieldPart I015_400_ON = { 24, 1.0, FIELD_PART_UINT, &hf_015_400_ON, NULL };
+static const FieldPart *I015_400_PARTS[] = {
+    &I015_400_PID,
+    &I015_400_ON,
+    NULL
+};
+static const AsterixField I015_400 = { FIXED, 5, 0, 0, &hf_015_400, I015_400_PARTS, { NULL } };
+static gint hf_015_480 = -1;
+static gint hf_015_480_VALUE = -1;
+static const FieldPart I015_480_VALUE = { 40, 1.0, FIELD_PART_HEX, &hf_015_480_VALUE, NULL };
+static const FieldPart *I015_480_PARTS[] = {
+    &I015_480_VALUE,
+    NULL
+};
+static const AsterixField I015_480 = { REPETITIVE, 5, 1, 0, &hf_015_480, I015_480_PARTS, { NULL } };
+static gint hf_015_600 = -1;
+static gint hf_015_600_P84 = -1;
+static gint hf_015_600_P84_LATITUDE = -1;
+static const FieldPart I015_600_P84_LATITUDE = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_015_600_P84_LATITUDE, NULL };
+static gint hf_015_600_P84_LONGITUDE = -1;
+static const FieldPart I015_600_P84_LONGITUDE = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_015_600_P84_LONGITUDE, NULL };
+static const FieldPart *I015_600_P84_PARTS[] = {
+    &I015_600_P84_LATITUDE,
+    &I015_600_P84_LONGITUDE,
+    NULL
+};
+static const AsterixField I015_600_P84 = { FIXED, 8, 0, 0, &hf_015_600_P84, I015_600_P84_PARTS, { NULL } };
+static gint hf_015_600_HPR = -1;
+static gint hf_015_600_HPR_RSHPX = -1;
+static const FieldPart I015_600_HPR_RSHPX = { 16, 0.5, FIELD_PART_UFLOAT, &hf_015_600_HPR_RSHPX, NULL };
+static gint hf_015_600_HPR_RSHPY = -1;
+static const FieldPart I015_600_HPR_RSHPY = { 16, 0.5, FIELD_PART_UFLOAT, &hf_015_600_HPR_RSHPY, NULL };
+static gint hf_015_600_HPR_CORSHPXY = -1;
+static const FieldPart I015_600_HPR_CORSHPXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_600_HPR_CORSHPXY, NULL };
+static const FieldPart *I015_600_HPR_PARTS[] = {
+    &I015_600_HPR_RSHPX,
+    &I015_600_HPR_RSHPY,
+    &I015_600_HPR_CORSHPXY,
+    NULL
+};
+static const AsterixField I015_600_HPR = { FIXED, 5, 0, 0, &hf_015_600_HPR, I015_600_HPR_PARTS, { NULL } };
+static gint hf_015_600_HPP = -1;
+static gint hf_015_600_HPP_SDHPX = -1;
+static const FieldPart I015_600_HPP_SDHPX = { 16, 0.25, FIELD_PART_UFLOAT, &hf_015_600_HPP_SDHPX, NULL };
+static gint hf_015_600_HPP_SDHPY = -1;
+static const FieldPart I015_600_HPP_SDHPY = { 16, 0.25, FIELD_PART_UFLOAT, &hf_015_600_HPP_SDHPY, NULL };
+static gint hf_015_600_HPP_CSDHPXY = -1;
+static const FieldPart I015_600_HPP_CSDHPXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_600_HPP_CSDHPXY, NULL };
+static const FieldPart *I015_600_HPP_PARTS[] = {
+    &I015_600_HPP_SDHPX,
+    &I015_600_HPP_SDHPY,
+    &I015_600_HPP_CSDHPXY,
+    NULL
+};
+static const AsterixField I015_600_HPP = { FIXED, 5, 0, 0, &hf_015_600_HPP, I015_600_HPP_PARTS, { NULL } };
+static const AsterixField I015_600 = { COMPOUND, 0, 0, 0, &hf_015_600, NULL, { &I015_600_P84, &I015_600_HPR, &I015_600_HPP, NULL } };
+static gint hf_015_601 = -1;
+static gint hf_015_601_GH = -1;
+static gint hf_015_601_GH_VALUE = -1;
+static const FieldPart I015_601_GH_VALUE = { 24, 0.01, FIELD_PART_FLOAT, &hf_015_601_GH_VALUE, NULL };
+static const FieldPart *I015_601_GH_PARTS[] = {
+    &I015_601_GH_VALUE,
+    NULL
+};
+static const AsterixField I015_601_GH = { FIXED, 3, 0, 0, &hf_015_601_GH, I015_601_GH_PARTS, { NULL } };
+static gint hf_015_601_RSGH = -1;
+static gint hf_015_601_RSGH_VALUE = -1;
+static const FieldPart I015_601_RSGH_VALUE = { 24, 0.01, FIELD_PART_UFLOAT, &hf_015_601_RSGH_VALUE, NULL };
+static const FieldPart *I015_601_RSGH_PARTS[] = {
+    &I015_601_RSGH_VALUE,
+    NULL
+};
+static const AsterixField I015_601_RSGH = { FIXED, 3, 0, 0, &hf_015_601_RSGH, I015_601_RSGH_PARTS, { NULL } };
+static gint hf_015_601_SDGH = -1;
+static gint hf_015_601_SDGH_VALUE = -1;
+static const FieldPart I015_601_SDGH_VALUE = { 24, 0.01, FIELD_PART_UFLOAT, &hf_015_601_SDGH_VALUE, NULL };
+static const FieldPart *I015_601_SDGH_PARTS[] = {
+    &I015_601_SDGH_VALUE,
+    NULL
+};
+static const AsterixField I015_601_SDGH = { FIXED, 3, 0, 0, &hf_015_601_SDGH, I015_601_SDGH_PARTS, { NULL } };
+static gint hf_015_601_CI6 = -1;
+static gint hf_015_601_CI6_UCI6 = -1;
+static const FieldPart I015_601_CI6_UCI6 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_601_CI6_UCI6, NULL };
+static gint hf_015_601_CI6_LCI6 = -1;
+static const FieldPart I015_601_CI6_LCI6 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_601_CI6_LCI6, NULL };
+static const FieldPart *I015_601_CI6_PARTS[] = {
+    &I015_601_CI6_UCI6,
+    &I015_601_CI6_LCI6,
+    NULL
+};
+static const AsterixField I015_601_CI6 = { FIXED, 3, 0, 0, &hf_015_601_CI6, I015_601_CI6_PARTS, { NULL } };
+static gint hf_015_601_CI9 = -1;
+static gint hf_015_601_CI9_UCI9 = -1;
+static const FieldPart I015_601_CI9_UCI9 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_601_CI9_UCI9, NULL };
+static gint hf_015_601_CI9_LCI9 = -1;
+static const FieldPart I015_601_CI9_LCI9 = { 12, 16.0, FIELD_PART_UFLOAT, &hf_015_601_CI9_LCI9, NULL };
+static const FieldPart *I015_601_CI9_PARTS[] = {
+    &I015_601_CI9_UCI9,
+    &I015_601_CI9_LCI9,
+    NULL
+};
+static const AsterixField I015_601_CI9 = { FIXED, 3, 0, 0, &hf_015_601_CI9, I015_601_CI9_PARTS, { NULL } };
+static gint hf_015_601_COGHHP = -1;
+static gint hf_015_601_COGHHP_X = -1;
+static const FieldPart I015_601_COGHHP_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_601_COGHHP_X, NULL };
+static gint hf_015_601_COGHHP_Y = -1;
+static const FieldPart I015_601_COGHHP_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_601_COGHHP_Y, NULL };
+static const FieldPart *I015_601_COGHHP_PARTS[] = {
+    &I015_601_COGHHP_X,
+    &I015_601_COGHHP_Y,
+    NULL
+};
+static const AsterixField I015_601_COGHHP = { FIXED, 2, 0, 0, &hf_015_601_COGHHP, I015_601_COGHHP_PARTS, { NULL } };
+static gint hf_015_601_COGHHV = -1;
+static gint hf_015_601_COGHHV_X = -1;
+static const FieldPart I015_601_COGHHV_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_601_COGHHV_X, NULL };
+static gint hf_015_601_COGHHV_Y = -1;
+static const FieldPart I015_601_COGHHV_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_601_COGHHV_Y, NULL };
+static const FieldPart *I015_601_COGHHV_PARTS[] = {
+    &I015_601_COGHHV_X,
+    &I015_601_COGHHV_Y,
+    NULL
+};
+static const AsterixField I015_601_COGHHV = { FIXED, 2, 0, 0, &hf_015_601_COGHHV, I015_601_COGHHV_PARTS, { NULL } };
+static gint hf_015_601_COGHHA = -1;
+static gint hf_015_601_COGHHA_X = -1;
+static const FieldPart I015_601_COGHHA_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_601_COGHHA_X, NULL };
+static gint hf_015_601_COGHHA_Y = -1;
+static const FieldPart I015_601_COGHHA_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_601_COGHHA_Y, NULL };
+static const FieldPart *I015_601_COGHHA_PARTS[] = {
+    &I015_601_COGHHA_X,
+    &I015_601_COGHHA_Y,
+    NULL
+};
+static const AsterixField I015_601_COGHHA = { FIXED, 2, 0, 0, &hf_015_601_COGHHA, I015_601_COGHHA_PARTS, { NULL } };
+static const AsterixField I015_601 = { COMPOUND, 0, 0, 0, &hf_015_601, NULL, { &I015_601_GH, &I015_601_RSGH, &I015_601_SDGH, &I015_601_CI6, &I015_601_CI9, &I015_601_COGHHP, &I015_601_COGHHV, &I015_601_COGHHA, NULL } };
+static gint hf_015_602 = -1;
+static gint hf_015_602_HV = -1;
+static gint hf_015_602_HV_X = -1;
+static const FieldPart I015_602_HV_X = { 20, 0.01, FIELD_PART_FLOAT, &hf_015_602_HV_X, NULL };
+static gint hf_015_602_HV_Y = -1;
+static const FieldPart I015_602_HV_Y = { 20, 0.01, FIELD_PART_FLOAT, &hf_015_602_HV_Y, NULL };
+static const FieldPart *I015_602_HV_PARTS[] = {
+    &I015_602_HV_X,
+    &I015_602_HV_Y,
+    NULL
+};
+static const AsterixField I015_602_HV = { FIXED, 5, 0, 0, &hf_015_602_HV, I015_602_HV_PARTS, { NULL } };
+static gint hf_015_602_RSHV = -1;
+static gint hf_015_602_RSHV_X = -1;
+static const FieldPart I015_602_RSHV_X = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_602_RSHV_X, NULL };
+static gint hf_015_602_RSHV_Y = -1;
+static const FieldPart I015_602_RSHV_Y = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_602_RSHV_Y, NULL };
+static gint hf_015_602_RSHV_CORSHVXY = -1;
+static const FieldPart I015_602_RSHV_CORSHVXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_602_RSHV_CORSHVXY, NULL };
+static const FieldPart *I015_602_RSHV_PARTS[] = {
+    &I015_602_RSHV_X,
+    &I015_602_RSHV_Y,
+    &I015_602_RSHV_CORSHVXY,
+    NULL
+};
+static const AsterixField I015_602_RSHV = { FIXED, 5, 0, 0, &hf_015_602_RSHV, I015_602_RSHV_PARTS, { NULL } };
+static gint hf_015_602_SDHV = -1;
+static gint hf_015_602_SDHV_X = -1;
+static const FieldPart I015_602_SDHV_X = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_602_SDHV_X, NULL };
+static gint hf_015_602_SDHV_Y = -1;
+static const FieldPart I015_602_SDHV_Y = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_602_SDHV_Y, NULL };
+static gint hf_015_602_SDHV_COHVXY = -1;
+static const FieldPart I015_602_SDHV_COHVXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_602_SDHV_COHVXY, NULL };
+static const FieldPart *I015_602_SDHV_PARTS[] = {
+    &I015_602_SDHV_X,
+    &I015_602_SDHV_Y,
+    &I015_602_SDHV_COHVXY,
+    NULL
+};
+static const AsterixField I015_602_SDHV = { FIXED, 5, 0, 0, &hf_015_602_SDHV, I015_602_SDHV_PARTS, { NULL } };
+static gint hf_015_602_COHVHP = -1;
+static gint hf_015_602_COHVHP_COHVXHPX = -1;
+static const FieldPart I015_602_COHVHP_COHVXHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_602_COHVHP_COHVXHPX, NULL };
+static gint hf_015_602_COHVHP_COHVXHPY = -1;
+static const FieldPart I015_602_COHVHP_COHVXHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_602_COHVHP_COHVXHPY, NULL };
+static gint hf_015_602_COHVHP_COHVYHPX = -1;
+static const FieldPart I015_602_COHVHP_COHVYHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_602_COHVHP_COHVYHPX, NULL };
+static gint hf_015_602_COHVHP_COHVYHPY = -1;
+static const FieldPart I015_602_COHVHP_COHVYHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_602_COHVHP_COHVYHPY, NULL };
+static const FieldPart *I015_602_COHVHP_PARTS[] = {
+    &I015_602_COHVHP_COHVXHPX,
+    &I015_602_COHVHP_COHVXHPY,
+    &I015_602_COHVHP_COHVYHPX,
+    &I015_602_COHVHP_COHVYHPY,
+    NULL
+};
+static const AsterixField I015_602_COHVHP = { FIXED, 4, 0, 0, &hf_015_602_COHVHP, I015_602_COHVHP_PARTS, { NULL } };
+static const AsterixField I015_602 = { COMPOUND, 0, 0, 0, &hf_015_602, NULL, { &I015_602_HV, &I015_602_RSHV, &I015_602_SDHV, &I015_602_COHVHP, NULL } };
+static gint hf_015_603 = -1;
+static gint hf_015_603_HA = -1;
+static gint hf_015_603_HA_X = -1;
+static const FieldPart I015_603_HA_X = { 12, 0.0625, FIELD_PART_FLOAT, &hf_015_603_HA_X, NULL };
+static gint hf_015_603_HA_Y = -1;
+static const FieldPart I015_603_HA_Y = { 12, 0.0625, FIELD_PART_FLOAT, &hf_015_603_HA_Y, NULL };
+static const FieldPart *I015_603_HA_PARTS[] = {
+    &I015_603_HA_X,
+    &I015_603_HA_Y,
+    NULL
+};
+static const AsterixField I015_603_HA = { FIXED, 3, 0, 0, &hf_015_603_HA, I015_603_HA_PARTS, { NULL } };
+static gint hf_015_603_SDHA = -1;
+static gint hf_015_603_SDHA_X = -1;
+static const FieldPart I015_603_SDHA_X = { 12, 0.0625, FIELD_PART_UFLOAT, &hf_015_603_SDHA_X, NULL };
+static gint hf_015_603_SDHA_Y = -1;
+static const FieldPart I015_603_SDHA_Y = { 12, 0.0625, FIELD_PART_UFLOAT, &hf_015_603_SDHA_Y, NULL };
+static gint hf_015_603_SDHA_COAXY = -1;
+static const FieldPart I015_603_SDHA_COAXY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_SDHA_COAXY, NULL };
+static const FieldPart *I015_603_SDHA_PARTS[] = {
+    &I015_603_SDHA_X,
+    &I015_603_SDHA_Y,
+    &I015_603_SDHA_COAXY,
+    NULL
+};
+static const AsterixField I015_603_SDHA = { FIXED, 4, 0, 0, &hf_015_603_SDHA, I015_603_SDHA_PARTS, { NULL } };
+static gint hf_015_603_COHAHP = -1;
+static gint hf_015_603_COHAHP_COHAXHPX = -1;
+static const FieldPart I015_603_COHAHP_COHAXHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHP_COHAXHPX, NULL };
+static gint hf_015_603_COHAHP_CHAXHPY = -1;
+static const FieldPart I015_603_COHAHP_CHAXHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHP_CHAXHPY, NULL };
+static gint hf_015_603_COHAHP_CHAYHPX = -1;
+static const FieldPart I015_603_COHAHP_CHAYHPX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHP_CHAYHPX, NULL };
+static gint hf_015_603_COHAHP_COAYHPY = -1;
+static const FieldPart I015_603_COHAHP_COAYHPY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHP_COAYHPY, NULL };
+static const FieldPart *I015_603_COHAHP_PARTS[] = {
+    &I015_603_COHAHP_COHAXHPX,
+    &I015_603_COHAHP_CHAXHPY,
+    &I015_603_COHAHP_CHAYHPX,
+    &I015_603_COHAHP_COAYHPY,
+    NULL
+};
+static const AsterixField I015_603_COHAHP = { FIXED, 4, 0, 0, &hf_015_603_COHAHP, I015_603_COHAHP_PARTS, { NULL } };
+static gint hf_015_603_COHAHV = -1;
+static gint hf_015_603_COHAHV_COHAXHVX = -1;
+static const FieldPart I015_603_COHAHV_COHAXHVX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHV_COHAXHVX, NULL };
+static gint hf_015_603_COHAHV_COHAXHVY = -1;
+static const FieldPart I015_603_COHAHV_COHAXHVY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHV_COHAXHVY, NULL };
+static gint hf_015_603_COHAHV_COHAYHVX = -1;
+static const FieldPart I015_603_COHAHV_COHAYHVX = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHV_COHAYHVX, NULL };
+static gint hf_015_603_COHAHV_COHAYHVY = -1;
+static const FieldPart I015_603_COHAHV_COHAYHVY = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_603_COHAHV_COHAYHVY, NULL };
+static const FieldPart *I015_603_COHAHV_PARTS[] = {
+    &I015_603_COHAHV_COHAXHVX,
+    &I015_603_COHAHV_COHAXHVY,
+    &I015_603_COHAHV_COHAYHVX,
+    &I015_603_COHAHV_COHAYHVY,
+    NULL
+};
+static const AsterixField I015_603_COHAHV = { FIXED, 4, 0, 0, &hf_015_603_COHAHV, I015_603_COHAHV_PARTS, { NULL } };
+static const AsterixField I015_603 = { COMPOUND, 0, 0, 0, &hf_015_603, NULL, { &I015_603_HA, &I015_603_SDHA, &I015_603_COHAHP, &I015_603_COHAHV, NULL } };
+static gint hf_015_604 = -1;
+static gint hf_015_604_VV = -1;
+static gint hf_015_604_VV_VALUE = -1;
+static const FieldPart I015_604_VV_VALUE = { 24, 0.01, FIELD_PART_FLOAT, &hf_015_604_VV_VALUE, NULL };
+static const FieldPart *I015_604_VV_PARTS[] = {
+    &I015_604_VV_VALUE,
+    NULL
+};
+static const AsterixField I015_604_VV = { FIXED, 3, 0, 0, &hf_015_604_VV, I015_604_VV_PARTS, { NULL } };
+static gint hf_015_604_RSVV = -1;
+static gint hf_015_604_RSVV_VALUE = -1;
+static const FieldPart I015_604_RSVV_VALUE = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_604_RSVV_VALUE, NULL };
+static const FieldPart *I015_604_RSVV_PARTS[] = {
+    &I015_604_RSVV_VALUE,
+    NULL
+};
+static const AsterixField I015_604_RSVV = { FIXED, 2, 0, 0, &hf_015_604_RSVV, I015_604_RSVV_PARTS, { NULL } };
+static gint hf_015_604_SDVV = -1;
+static gint hf_015_604_SDVV_SDVV = -1;
+static const FieldPart I015_604_SDVV_SDVV = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_604_SDVV_SDVV, NULL };
+static gint hf_015_604_SDVV_COVVGH = -1;
+static const FieldPart I015_604_SDVV_COVVGH = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_604_SDVV_COVVGH, NULL };
+static const FieldPart *I015_604_SDVV_PARTS[] = {
+    &I015_604_SDVV_SDVV,
+    &I015_604_SDVV_COVVGH,
+    NULL
+};
+static const AsterixField I015_604_SDVV = { FIXED, 3, 0, 0, &hf_015_604_SDVV, I015_604_SDVV_PARTS, { NULL } };
+static gint hf_015_604_COVVHP = -1;
+static gint hf_015_604_COVVHP_X = -1;
+static const FieldPart I015_604_COVVHP_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_604_COVVHP_X, NULL };
+static gint hf_015_604_COVVHP_Y = -1;
+static const FieldPart I015_604_COVVHP_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_604_COVVHP_Y, NULL };
+static const FieldPart *I015_604_COVVHP_PARTS[] = {
+    &I015_604_COVVHP_X,
+    &I015_604_COVVHP_Y,
+    NULL
+};
+static const AsterixField I015_604_COVVHP = { FIXED, 2, 0, 0, &hf_015_604_COVVHP, I015_604_COVVHP_PARTS, { NULL } };
+static gint hf_015_604_COVVHV = -1;
+static gint hf_015_604_COVVHV_X = -1;
+static const FieldPart I015_604_COVVHV_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_604_COVVHV_X, NULL };
+static gint hf_015_604_COVVHV_Y = -1;
+static const FieldPart I015_604_COVVHV_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_604_COVVHV_Y, NULL };
+static const FieldPart *I015_604_COVVHV_PARTS[] = {
+    &I015_604_COVVHV_X,
+    &I015_604_COVVHV_Y,
+    NULL
+};
+static const AsterixField I015_604_COVVHV = { FIXED, 2, 0, 0, &hf_015_604_COVVHV, I015_604_COVVHV_PARTS, { NULL } };
+static gint hf_015_604_COVVHA = -1;
+static gint hf_015_604_COVVHA_X = -1;
+static const FieldPart I015_604_COVVHA_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_604_COVVHA_X, NULL };
+static gint hf_015_604_COVVHA_Y = -1;
+static const FieldPart I015_604_COVVHA_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_604_COVVHA_Y, NULL };
+static const FieldPart *I015_604_COVVHA_PARTS[] = {
+    &I015_604_COVVHA_X,
+    &I015_604_COVVHA_Y,
+    NULL
+};
+static const AsterixField I015_604_COVVHA = { FIXED, 2, 0, 0, &hf_015_604_COVVHA, I015_604_COVVHA_PARTS, { NULL } };
+static const AsterixField I015_604 = { COMPOUND, 0, 0, 0, &hf_015_604, NULL, { &I015_604_VV, &I015_604_RSVV, &I015_604_SDVV, &I015_604_COVVHP, &I015_604_COVVHV, &I015_604_COVVHA, NULL } };
+static gint hf_015_605 = -1;
+static gint hf_015_605_VA = -1;
+static gint hf_015_605_VA_VALUE = -1;
+static const FieldPart I015_605_VA_VALUE = { 16, 0.01, FIELD_PART_FLOAT, &hf_015_605_VA_VALUE, NULL };
+static const FieldPart *I015_605_VA_PARTS[] = {
+    &I015_605_VA_VALUE,
+    NULL
+};
+static const AsterixField I015_605_VA = { FIXED, 2, 0, 0, &hf_015_605_VA, I015_605_VA_PARTS, { NULL } };
+static gint hf_015_605_RSVA = -1;
+static gint hf_015_605_RSVA_SDVA = -1;
+static const FieldPart I015_605_RSVA_SDVA = { 16, 0.01, FIELD_PART_UFLOAT, &hf_015_605_RSVA_SDVA, NULL };
+static gint hf_015_605_RSVA_COVAGH = -1;
+static const FieldPart I015_605_RSVA_COVAGH = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_RSVA_COVAGH, NULL };
+static gint hf_015_605_RSVA_COVAVV = -1;
+static const FieldPart I015_605_RSVA_COVAVV = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_RSVA_COVAVV, NULL };
+static const FieldPart *I015_605_RSVA_PARTS[] = {
+    &I015_605_RSVA_SDVA,
+    &I015_605_RSVA_COVAGH,
+    &I015_605_RSVA_COVAVV,
+    NULL
+};
+static const AsterixField I015_605_RSVA = { FIXED, 4, 0, 0, &hf_015_605_RSVA, I015_605_RSVA_PARTS, { NULL } };
+static gint hf_015_605_COVAHP = -1;
+static gint hf_015_605_COVAHP_X = -1;
+static const FieldPart I015_605_COVAHP_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_COVAHP_X, NULL };
+static gint hf_015_605_COVAHP_Y = -1;
+static const FieldPart I015_605_COVAHP_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_COVAHP_Y, NULL };
+static const FieldPart *I015_605_COVAHP_PARTS[] = {
+    &I015_605_COVAHP_X,
+    &I015_605_COVAHP_Y,
+    NULL
+};
+static const AsterixField I015_605_COVAHP = { FIXED, 2, 0, 0, &hf_015_605_COVAHP, I015_605_COVAHP_PARTS, { NULL } };
+static gint hf_015_605_COVAHV = -1;
+static gint hf_015_605_COVAHV_X = -1;
+static const FieldPart I015_605_COVAHV_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_COVAHV_X, NULL };
+static gint hf_015_605_COVAHV_Y = -1;
+static const FieldPart I015_605_COVAHV_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_COVAHV_Y, NULL };
+static const FieldPart *I015_605_COVAHV_PARTS[] = {
+    &I015_605_COVAHV_X,
+    &I015_605_COVAHV_Y,
+    NULL
+};
+static const AsterixField I015_605_COVAHV = { FIXED, 2, 0, 0, &hf_015_605_COVAHV, I015_605_COVAHV_PARTS, { NULL } };
+static gint hf_015_605_COVAHA = -1;
+static gint hf_015_605_COVAHA_X = -1;
+static const FieldPart I015_605_COVAHA_X = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_COVAHA_X, NULL };
+static gint hf_015_605_COVAHA_Y = -1;
+static const FieldPart I015_605_COVAHA_Y = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_605_COVAHA_Y, NULL };
+static const FieldPart *I015_605_COVAHA_PARTS[] = {
+    &I015_605_COVAHA_X,
+    &I015_605_COVAHA_Y,
+    NULL
+};
+static const AsterixField I015_605_COVAHA = { FIXED, 2, 0, 0, &hf_015_605_COVAHA, I015_605_COVAHA_PARTS, { NULL } };
+static const AsterixField I015_605 = { COMPOUND, 0, 0, 0, &hf_015_605, NULL, { &I015_605_VA, &I015_605_RSVA, &I015_605_COVAHP, &I015_605_COVAHV, &I015_605_COVAHA, NULL } };
+static gint hf_015_625 = -1;
+static gint hf_015_625_R = -1;
+static gint hf_015_625_R_VALUE = -1;
+static const FieldPart I015_625_R_VALUE = { 24, 0.1, FIELD_PART_FLOAT, &hf_015_625_R_VALUE, NULL };
+static const FieldPart *I015_625_R_PARTS[] = {
+    &I015_625_R_VALUE,
+    NULL
+};
+static const AsterixField I015_625_R = { FIXED, 3, 0, 0, &hf_015_625_R, I015_625_R_PARTS, { NULL } };
+static gint hf_015_625_RSR = -1;
+static gint hf_015_625_RSR_VALUE = -1;
+static const FieldPart I015_625_RSR_VALUE = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_625_RSR_VALUE, NULL };
+static const FieldPart *I015_625_RSR_PARTS[] = {
+    &I015_625_RSR_VALUE,
+    NULL
+};
+static const AsterixField I015_625_RSR = { FIXED, 3, 0, 0, &hf_015_625_RSR, I015_625_RSR_PARTS, { NULL } };
+static gint hf_015_625_SDR = -1;
+static gint hf_015_625_SDR_VALUE = -1;
+static const FieldPart I015_625_SDR_VALUE = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_625_SDR_VALUE, NULL };
+static const FieldPart *I015_625_SDR_PARTS[] = {
+    &I015_625_SDR_VALUE,
+    NULL
+};
+static const AsterixField I015_625_SDR = { FIXED, 3, 0, 0, &hf_015_625_SDR, I015_625_SDR_PARTS, { NULL } };
+static gint hf_015_625_RR = -1;
+static gint hf_015_625_RR_VALUE = -1;
+static const FieldPart I015_625_RR_VALUE = { 24, 0.1, FIELD_PART_FLOAT, &hf_015_625_RR_VALUE, NULL };
+static const FieldPart *I015_625_RR_PARTS[] = {
+    &I015_625_RR_VALUE,
+    NULL
+};
+static const AsterixField I015_625_RR = { FIXED, 3, 0, 0, &hf_015_625_RR, I015_625_RR_PARTS, { NULL } };
+static gint hf_015_625_RSRR = -1;
+static gint hf_015_625_RSRR_VALUE = -1;
+static const FieldPart I015_625_RSRR_VALUE = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_625_RSRR_VALUE, NULL };
+static const FieldPart *I015_625_RSRR_PARTS[] = {
+    &I015_625_RSRR_VALUE,
+    NULL
+};
+static const AsterixField I015_625_RSRR = { FIXED, 3, 0, 0, &hf_015_625_RSRR, I015_625_RSRR_PARTS, { NULL } };
+static gint hf_015_625_SDRR = -1;
+static gint hf_015_625_SDRR_SDRR = -1;
+static const FieldPart I015_625_SDRR_SDRR = { 24, 0.1, FIELD_PART_UFLOAT, &hf_015_625_SDRR_SDRR, NULL };
+static gint hf_015_625_SDRR_CORRR = -1;
+static const FieldPart I015_625_SDRR_CORRR = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_625_SDRR_CORRR, NULL };
+static const FieldPart *I015_625_SDRR_PARTS[] = {
+    &I015_625_SDRR_SDRR,
+    &I015_625_SDRR_CORRR,
+    NULL
+};
+static const AsterixField I015_625_SDRR = { FIXED, 4, 0, 0, &hf_015_625_SDRR, I015_625_SDRR_PARTS, { NULL } };
+static gint hf_015_625_RA = -1;
+static gint hf_015_625_RA_VALUE = -1;
+static const FieldPart I015_625_RA_VALUE = { 16, 0.015625, FIELD_PART_FLOAT, &hf_015_625_RA_VALUE, NULL };
+static const FieldPart *I015_625_RA_PARTS[] = {
+    &I015_625_RA_VALUE,
+    NULL
+};
+static const AsterixField I015_625_RA = { FIXED, 2, 0, 0, &hf_015_625_RA, I015_625_RA_PARTS, { NULL } };
+static gint hf_015_625_SDRA = -1;
+static gint hf_015_625_SDRA_SDRA = -1;
+static const FieldPart I015_625_SDRA_SDRA = { 16, 0.0078125, FIELD_PART_UFLOAT, &hf_015_625_SDRA_SDRA, NULL };
+static gint hf_015_625_SDRA_CORAR = -1;
+static const FieldPart I015_625_SDRA_CORAR = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_625_SDRA_CORAR, NULL };
+static gint hf_015_625_SDRA_CORARR = -1;
+static const FieldPart I015_625_SDRA_CORARR = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_625_SDRA_CORARR, NULL };
+static const FieldPart *I015_625_SDRA_PARTS[] = {
+    &I015_625_SDRA_SDRA,
+    &I015_625_SDRA_CORAR,
+    &I015_625_SDRA_CORARR,
+    NULL
+};
+static const AsterixField I015_625_SDRA = { FIXED, 4, 0, 0, &hf_015_625_SDRA, I015_625_SDRA_PARTS, { NULL } };
+static const AsterixField I015_625 = { COMPOUND, 0, 0, 0, &hf_015_625, NULL, { &I015_625_R, &I015_625_RSR, &I015_625_SDR, &I015_625_RR, &I015_625_RSRR, &I015_625_SDRR, &I015_625_RA, &I015_625_SDRA, NULL } };
+static gint hf_015_626 = -1;
+static gint hf_015_626_DV = -1;
+static gint hf_015_626_DV_VALUE = -1;
+static const FieldPart I015_626_DV_VALUE = { 24, 0.01, FIELD_PART_FLOAT, &hf_015_626_DV_VALUE, NULL };
+static const FieldPart *I015_626_DV_PARTS[] = {
+    &I015_626_DV_VALUE,
+    NULL
+};
+static const AsterixField I015_626_DV = { FIXED, 3, 0, 0, &hf_015_626_DV, I015_626_DV_PARTS, { NULL } };
+static gint hf_015_626_SDDV = -1;
+static gint hf_015_626_SDDV_VALUE = -1;
+static const FieldPart I015_626_SDDV_VALUE = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_015_626_SDDV_VALUE, NULL };
+static const FieldPart *I015_626_SDDV_PARTS[] = {
+    &I015_626_SDDV_VALUE,
+    NULL
+};
+static const AsterixField I015_626_SDDV = { FIXED, 2, 0, 0, &hf_015_626_SDDV, I015_626_SDDV_PARTS, { NULL } };
+static gint hf_015_626_DA = -1;
+static gint hf_015_626_DA_VALUE = -1;
+static const FieldPart I015_626_DA_VALUE = { 16, 0.015625, FIELD_PART_FLOAT, &hf_015_626_DA_VALUE, NULL };
+static const FieldPart *I015_626_DA_PARTS[] = {
+    &I015_626_DA_VALUE,
+    NULL
+};
+static const AsterixField I015_626_DA = { FIXED, 2, 0, 0, &hf_015_626_DA, I015_626_DA_PARTS, { NULL } };
+static gint hf_015_626_SDDA = -1;
+static gint hf_015_626_SDDA_SDDA = -1;
+static const FieldPart I015_626_SDDA_SDDA = { 16, 0.015625, FIELD_PART_UFLOAT, &hf_015_626_SDDA_SDDA, NULL };
+static gint hf_015_626_SDDA_CODADV = -1;
+static const FieldPart I015_626_SDDA_CODADV = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_626_SDDA_CODADV, NULL };
+static const FieldPart *I015_626_SDDA_PARTS[] = {
+    &I015_626_SDDA_SDDA,
+    &I015_626_SDDA_CODADV,
+    NULL
+};
+static const AsterixField I015_626_SDDA = { FIXED, 3, 0, 0, &hf_015_626_SDDA, I015_626_SDDA_PARTS, { NULL } };
+static gint hf_015_626_CODVR = -1;
+static gint hf_015_626_CODVR_VALUE = -1;
+static const FieldPart I015_626_CODVR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_626_CODVR_VALUE, NULL };
+static const FieldPart *I015_626_CODVR_PARTS[] = {
+    &I015_626_CODVR_VALUE,
+    NULL
+};
+static const AsterixField I015_626_CODVR = { FIXED, 1, 0, 0, &hf_015_626_CODVR, I015_626_CODVR_PARTS, { NULL } };
+static gint hf_015_626_CODVRR = -1;
+static gint hf_015_626_CODVRR_VALUE = -1;
+static const FieldPart I015_626_CODVRR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_626_CODVRR_VALUE, NULL };
+static const FieldPart *I015_626_CODVRR_PARTS[] = {
+    &I015_626_CODVRR_VALUE,
+    NULL
+};
+static const AsterixField I015_626_CODVRR = { FIXED, 1, 0, 0, &hf_015_626_CODVRR, I015_626_CODVRR_PARTS, { NULL } };
+static gint hf_015_626_CODVRA = -1;
+static gint hf_015_626_CODVRA_VALUE = -1;
+static const FieldPart I015_626_CODVRA_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_626_CODVRA_VALUE, NULL };
+static const FieldPart *I015_626_CODVRA_PARTS[] = {
+    &I015_626_CODVRA_VALUE,
+    NULL
+};
+static const AsterixField I015_626_CODVRA = { FIXED, 1, 0, 0, &hf_015_626_CODVRA, I015_626_CODVRA_PARTS, { NULL } };
+static gint hf_015_626_CODAR = -1;
+static gint hf_015_626_CODAR_VALUE = -1;
+static const FieldPart I015_626_CODAR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_626_CODAR_VALUE, NULL };
+static const FieldPart *I015_626_CODAR_PARTS[] = {
+    &I015_626_CODAR_VALUE,
+    NULL
+};
+static const AsterixField I015_626_CODAR = { FIXED, 1, 0, 0, &hf_015_626_CODAR, I015_626_CODAR_PARTS, { NULL } };
+static gint hf_015_626_CODARR = -1;
+static gint hf_015_626_CODARR_VALUE = -1;
+static const FieldPart I015_626_CODARR_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_626_CODARR_VALUE, NULL };
+static const FieldPart *I015_626_CODARR_PARTS[] = {
+    &I015_626_CODARR_VALUE,
+    NULL
+};
+static const AsterixField I015_626_CODARR = { FIXED, 1, 0, 0, &hf_015_626_CODARR, I015_626_CODARR_PARTS, { NULL } };
+static gint hf_015_626_CODARA = -1;
+static gint hf_015_626_CODARA_VALUE = -1;
+static const FieldPart I015_626_CODARA_VALUE = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_626_CODARA_VALUE, NULL };
+static const FieldPart *I015_626_CODARA_PARTS[] = {
+    &I015_626_CODARA_VALUE,
+    NULL
+};
+static const AsterixField I015_626_CODARA = { FIXED, 1, 0, 0, &hf_015_626_CODARA, I015_626_CODARA_PARTS, { NULL } };
+static const AsterixField I015_626 = { COMPOUND, 0, 0, 0, &hf_015_626, NULL, { &I015_626_DV, &I015_626_SDDV, &I015_626_DA, &I015_626_SDDA, &I015_626_CODVR, &I015_626_CODVRR, &I015_626_CODVRA, &I015_626_CODAR, &I015_626_CODARR, &I015_626_CODARA, NULL } };
+static gint hf_015_627 = -1;
+static gint hf_015_627_AZ = -1;
+static gint hf_015_627_AZ_VALUE = -1;
+static const FieldPart I015_627_AZ_VALUE = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_627_AZ_VALUE, NULL };
+static const FieldPart *I015_627_AZ_PARTS[] = {
+    &I015_627_AZ_VALUE,
+    NULL
+};
+static const AsterixField I015_627_AZ = { FIXED, 2, 0, 0, &hf_015_627_AZ, I015_627_AZ_PARTS, { NULL } };
+static gint hf_015_627_RSAZ = -1;
+static gint hf_015_627_RSAZ_VALUE = -1;
+static const FieldPart I015_627_RSAZ_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_627_RSAZ_VALUE, NULL };
+static const FieldPart *I015_627_RSAZ_PARTS[] = {
+    &I015_627_RSAZ_VALUE,
+    NULL
+};
+static const AsterixField I015_627_RSAZ = { FIXED, 2, 0, 0, &hf_015_627_RSAZ, I015_627_RSAZ_PARTS, { NULL } };
+static gint hf_015_627_SDASZ = -1;
+static gint hf_015_627_SDASZ_VALUE = -1;
+static const FieldPart I015_627_SDASZ_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_627_SDASZ_VALUE, NULL };
+static const FieldPart *I015_627_SDASZ_PARTS[] = {
+    &I015_627_SDASZ_VALUE,
+    NULL
+};
+static const AsterixField I015_627_SDASZ = { FIXED, 2, 0, 0, &hf_015_627_SDASZ, I015_627_SDASZ_PARTS, { NULL } };
+static gint hf_015_627_AZR = -1;
+static gint hf_015_627_AZR_VALUE = -1;
+static const FieldPart I015_627_AZR_VALUE = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_627_AZR_VALUE, NULL };
+static const FieldPart *I015_627_AZR_PARTS[] = {
+    &I015_627_AZR_VALUE,
+    NULL
+};
+static const AsterixField I015_627_AZR = { FIXED, 2, 0, 0, &hf_015_627_AZR, I015_627_AZR_PARTS, { NULL } };
+static gint hf_015_627_SDAZR = -1;
+static gint hf_015_627_SDAZR_SDAZR = -1;
+static const FieldPart I015_627_SDAZR_SDAZR = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_627_SDAZR_SDAZR, NULL };
+static gint hf_015_627_SDAZR_COAZRAZ = -1;
+static const FieldPart I015_627_SDAZR_COAZRAZ = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_627_SDAZR_COAZRAZ, NULL };
+static const FieldPart *I015_627_SDAZR_PARTS[] = {
+    &I015_627_SDAZR_SDAZR,
+    &I015_627_SDAZR_COAZRAZ,
+    NULL
+};
+static const AsterixField I015_627_SDAZR = { FIXED, 3, 0, 0, &hf_015_627_SDAZR, I015_627_SDAZR_PARTS, { NULL } };
+static gint hf_015_627_AZEX = -1;
+static gint hf_015_627_AZEX_S = -1;
+static const FieldPart I015_627_AZEX_S = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_627_AZEX_S, NULL };
+static gint hf_015_627_AZEX_E = -1;
+static const FieldPart I015_627_AZEX_E = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_627_AZEX_E, NULL };
+static const FieldPart *I015_627_AZEX_PARTS[] = {
+    &I015_627_AZEX_S,
+    &I015_627_AZEX_E,
+    NULL
+};
+static const AsterixField I015_627_AZEX = { FIXED, 4, 0, 0, &hf_015_627_AZEX, I015_627_AZEX_PARTS, { NULL } };
+static const AsterixField I015_627 = { COMPOUND, 0, 0, 0, &hf_015_627, NULL, { &I015_627_AZ, &I015_627_RSAZ, &I015_627_SDASZ, &I015_627_AZR, &I015_627_SDAZR, &I015_627_AZEX, NULL } };
+static gint hf_015_628 = -1;
+static gint hf_015_628_EL = -1;
+static gint hf_015_628_EL_VALUE = -1;
+static const FieldPart I015_628_EL_VALUE = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_628_EL_VALUE, NULL };
+static const FieldPart *I015_628_EL_PARTS[] = {
+    &I015_628_EL_VALUE,
+    NULL
+};
+static const AsterixField I015_628_EL = { FIXED, 2, 0, 0, &hf_015_628_EL, I015_628_EL_PARTS, { NULL } };
+static gint hf_015_628_RSEL = -1;
+static gint hf_015_628_RSEL_VALUE = -1;
+static const FieldPart I015_628_RSEL_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_628_RSEL_VALUE, NULL };
+static const FieldPart *I015_628_RSEL_PARTS[] = {
+    &I015_628_RSEL_VALUE,
+    NULL
+};
+static const AsterixField I015_628_RSEL = { FIXED, 2, 0, 0, &hf_015_628_RSEL, I015_628_RSEL_PARTS, { NULL } };
+static gint hf_015_628_SDEL = -1;
+static gint hf_015_628_SDEL_VALUE = -1;
+static const FieldPart I015_628_SDEL_VALUE = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_628_SDEL_VALUE, NULL };
+static const FieldPart *I015_628_SDEL_PARTS[] = {
+    &I015_628_SDEL_VALUE,
+    NULL
+};
+static const AsterixField I015_628_SDEL = { FIXED, 2, 0, 0, &hf_015_628_SDEL, I015_628_SDEL_PARTS, { NULL } };
+static gint hf_015_628_ER = -1;
+static gint hf_015_628_ER_VALUE = -1;
+static const FieldPart I015_628_ER_VALUE = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_628_ER_VALUE, NULL };
+static const FieldPart *I015_628_ER_PARTS[] = {
+    &I015_628_ER_VALUE,
+    NULL
+};
+static const AsterixField I015_628_ER = { FIXED, 2, 0, 0, &hf_015_628_ER, I015_628_ER_PARTS, { NULL } };
+static gint hf_015_628_SDER = -1;
+static gint hf_015_628_SDER_SDELR = -1;
+static const FieldPart I015_628_SDER_SDELR = { 16, 0.0006866455078125, FIELD_PART_UFLOAT, &hf_015_628_SDER_SDELR, NULL };
+static gint hf_015_628_SDER_COELREL = -1;
+static const FieldPart I015_628_SDER_COELREL = { 8, 0.0078125, FIELD_PART_FLOAT, &hf_015_628_SDER_COELREL, NULL };
+static const FieldPart *I015_628_SDER_PARTS[] = {
+    &I015_628_SDER_SDELR,
+    &I015_628_SDER_COELREL,
+    NULL
+};
+static const AsterixField I015_628_SDER = { FIXED, 3, 0, 0, &hf_015_628_SDER, I015_628_SDER_PARTS, { NULL } };
+static gint hf_015_628_ELEX = -1;
+static gint hf_015_628_ELEX_S = -1;
+static const FieldPart I015_628_ELEX_S = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_628_ELEX_S, NULL };
+static gint hf_015_628_ELEX_E = -1;
+static const FieldPart I015_628_ELEX_E = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_628_ELEX_E, NULL };
+static const FieldPart *I015_628_ELEX_PARTS[] = {
+    &I015_628_ELEX_S,
+    &I015_628_ELEX_E,
+    NULL
+};
+static const AsterixField I015_628_ELEX = { FIXED, 4, 0, 0, &hf_015_628_ELEX, I015_628_ELEX_PARTS, { NULL } };
+static const AsterixField I015_628 = { COMPOUND, 0, 0, 0, &hf_015_628, NULL, { &I015_628_EL, &I015_628_RSEL, &I015_628_SDEL, &I015_628_ER, &I015_628_SDER, &I015_628_ELEX, NULL } };
+static gint hf_015_630 = -1;
+static gint hf_015_630_DPP = -1;
+static gint hf_015_630_DPP_VALUE = -1;
+static const FieldPart I015_630_DPP_VALUE = { 8, 1.0, FIELD_PART_FLOAT, &hf_015_630_DPP_VALUE, NULL };
+static const FieldPart *I015_630_DPP_PARTS[] = {
+    &I015_630_DPP_VALUE,
+    NULL
+};
+static const AsterixField I015_630_DPP = { FIXED, 1, 0, 0, &hf_015_630_DPP, I015_630_DPP_PARTS, { NULL } };
+static gint hf_015_630_DPS = -1;
+static gint hf_015_630_DPS_VALUE = -1;
+static const FieldPart I015_630_DPS_VALUE = { 8, 1.0, FIELD_PART_FLOAT, &hf_015_630_DPS_VALUE, NULL };
+static const FieldPart *I015_630_DPS_PARTS[] = {
+    &I015_630_DPS_VALUE,
+    NULL
+};
+static const AsterixField I015_630_DPS = { FIXED, 1, 0, 0, &hf_015_630_DPS, I015_630_DPS_PARTS, { NULL } };
+static gint hf_015_630_RPP = -1;
+static gint hf_015_630_RPP_RPP = -1;
+static const FieldPart I015_630_RPP_RPP = { 9, 1.0, FIELD_PART_FLOAT, &hf_015_630_RPP_RPP, NULL };
+static const FieldPart *I015_630_RPP_PARTS[] = {
+    &IXXX_7bit_spare,
+    &I015_630_RPP_RPP,
+    NULL
+};
+static const AsterixField I015_630_RPP = { FIXED, 2, 0, 0, &hf_015_630_RPP, I015_630_RPP_PARTS, { NULL } };
+static gint hf_015_630_RPS = -1;
+static gint hf_015_630_RPS_VALUE = -1;
+static const FieldPart I015_630_RPS_VALUE = { 8, 1.0, FIELD_PART_FLOAT, &hf_015_630_RPS_VALUE, NULL };
+static const FieldPart *I015_630_RPS_PARTS[] = {
+    &I015_630_RPS_VALUE,
+    NULL
+};
+static const AsterixField I015_630_RPS = { FIXED, 1, 0, 0, &hf_015_630_RPS, I015_630_RPS_PARTS, { NULL } };
+static const AsterixField I015_630 = { COMPOUND, 0, 0, 0, &hf_015_630, NULL, { &I015_630_DPP, &I015_630_DPS, &I015_630_RPP, &I015_630_RPS, NULL } };
+static gint hf_015_631 = -1;
+static gint hf_015_631_AZCON = -1;
+static const FieldPart I015_631_AZCON = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_015_631_AZCON, NULL };
+static gint hf_015_631_ELCON = -1;
+static const FieldPart I015_631_ELCON = { 16, 0.00274658203125, FIELD_PART_FLOAT, &hf_015_631_ELCON, NULL };
+static gint hf_015_631_RGCONSTOP = -1;
+static const FieldPart I015_631_RGCONSTOP = { 16, 0.152587890625, FIELD_PART_UFLOAT, &hf_015_631_RGCONSTOP, NULL };
+static gint hf_015_631_RGCONSTART = -1;
+static const FieldPart I015_631_RGCONSTART = { 16, 0.152587890625, FIELD_PART_UFLOAT, &hf_015_631_RGCONSTART, NULL };
+static const FieldPart *I015_631_PARTS[] = {
+    &I015_631_AZCON,
+    &I015_631_ELCON,
+    &I015_631_RGCONSTOP,
+    &I015_631_RGCONSTART,
+    NULL
+};
+static const AsterixField I015_631 = { REPETITIVE, 8, 1, 0, &hf_015_631, I015_631_PARTS, { NULL } };
+static gint hf_015_SP = -1;
+static const AsterixField I015_SP = { EXP, 0, 0, 1, &hf_015_SP, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I015_V1_0_uap[] = {
+    &I015_V1_0_010,
+    &I015_V1_0_000,
+    &I015_V1_0_015,
+    &I015_V1_0_020,
+    &I015_V1_0_030,
+    &I015_V1_0_145,
+    &I015_V1_0_161,
+    &I015_V1_0_170,
+    &I015_V1_0_050,
+    &I015_V1_0_270,
+    &I015_V1_0_300,
+    &I015_V1_0_400,
+    &I015_V1_0_600,
+    &I015_V1_0_601,
+    &I015_V1_0_602,
+    &I015_V1_0_603,
+    &I015_V1_0_604,
+    &I015_V1_0_605,
+    &I015_V1_0_480,
+    &I015_V1_0_625,
+    &I015_V1_0_626,
+    &I015_V1_0_627,
+    &I015_V1_0_628,
+    &I015_V1_0_630,
+    &I015_V1_0_631,
+    &I015_V1_0_SP,
+    NULL
+};
+static const AsterixField **I015_V1_0[] = {
+    I015_V1_0_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I015_uap[] = {
+    &I015_010,
+    &I015_000,
+    &I015_015,
+    &I015_020,
+    &I015_030,
+    &I015_145,
+    &I015_161,
+    &I015_170,
+    &I015_050,
+    &I015_270,
+    &I015_300,
+    &I015_400,
+    &I015_600,
+    &I015_601,
+    &I015_602,
+    &I015_603,
+    &I015_604,
+    &I015_605,
+    &I015_480,
+    &I015_625,
+    &I015_626,
+    &I015_627,
+    &I015_628,
+    &I015_630,
+    &I015_631,
+    &I015_SP,
+    NULL
+};
+static const AsterixField **I015[] = {
+    I015_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+/* Category 016, edition 1.0 */
+static gint hf_016_V1_0_000 = -1;
+static gint hf_016_V1_0_000_VALUE = -1;
+static const value_string valstr_016_V1_0_000_VALUE[] = {
+    { 1, "System Configuration" },
+    { 2, "Transmitter / Receiver Configuration" },
+    { 0, NULL }
+};
+static const FieldPart I016_V1_0_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_016_V1_0_000_VALUE, NULL };
+static const FieldPart *I016_V1_0_000_PARTS[] = {
+    &I016_V1_0_000_VALUE,
+    NULL
+};
+static const AsterixField I016_V1_0_000 = { FIXED, 1, 0, 0, &hf_016_V1_0_000, I016_V1_0_000_PARTS, { NULL } };
+static gint hf_016_V1_0_010 = -1;
+static gint hf_016_V1_0_010_SAC = -1;
+static const FieldPart I016_V1_0_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_016_V1_0_010_SAC, NULL };
+static gint hf_016_V1_0_010_SIC = -1;
+static const FieldPart I016_V1_0_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_016_V1_0_010_SIC, NULL };
+static const FieldPart *I016_V1_0_010_PARTS[] = {
+    &I016_V1_0_010_SAC,
+    &I016_V1_0_010_SIC,
+    NULL
+};
+static const AsterixField I016_V1_0_010 = { FIXED, 2, 0, 0, &hf_016_V1_0_010, I016_V1_0_010_PARTS, { NULL } };
+static gint hf_016_V1_0_015 = -1;
+static gint hf_016_V1_0_015_VALUE = -1;
+static const FieldPart I016_V1_0_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_016_V1_0_015_VALUE, NULL };
+static const FieldPart *I016_V1_0_015_PARTS[] = {
+    &I016_V1_0_015_VALUE,
+    NULL
+};
+static const AsterixField I016_V1_0_015 = { FIXED, 1, 0, 0, &hf_016_V1_0_015, I016_V1_0_015_PARTS, { NULL } };
+static gint hf_016_V1_0_140 = -1;
+static gint hf_016_V1_0_140_VALUE = -1;
+static const FieldPart I016_V1_0_140_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_016_V1_0_140_VALUE, NULL };
+static const FieldPart *I016_V1_0_140_PARTS[] = {
+    &I016_V1_0_140_VALUE,
+    NULL
+};
+static const AsterixField I016_V1_0_140 = { FIXED, 3, 0, 0, &hf_016_V1_0_140, I016_V1_0_140_PARTS, { NULL } };
+static gint hf_016_V1_0_200 = -1;
+static gint hf_016_V1_0_200_VALUE = -1;
+static const FieldPart I016_V1_0_200_VALUE = { 8, 1.0, FIELD_PART_UFLOAT, &hf_016_V1_0_200_VALUE, NULL };
+static const FieldPart *I016_V1_0_200_PARTS[] = {
+    &I016_V1_0_200_VALUE,
+    NULL
+};
+static const AsterixField I016_V1_0_200 = { FIXED, 1, 0, 0, &hf_016_V1_0_200, I016_V1_0_200_PARTS, { NULL } };
+static gint hf_016_V1_0_300 = -1;
+static gint hf_016_V1_0_300_PID = -1;
+static const FieldPart I016_V1_0_300_PID = { 16, 1.0, FIELD_PART_HEX, &hf_016_V1_0_300_PID, NULL };
+static gint hf_016_V1_0_300_TID = -1;
+static const FieldPart I016_V1_0_300_TID = { 16, 1.0, FIELD_PART_HEX, &hf_016_V1_0_300_TID, NULL };
+static gint hf_016_V1_0_300_RID = -1;
+static const FieldPart I016_V1_0_300_RID = { 16, 1.0, FIELD_PART_HEX, &hf_016_V1_0_300_RID, NULL };
+static const FieldPart *I016_V1_0_300_PARTS[] = {
+    &I016_V1_0_300_PID,
+    &I016_V1_0_300_TID,
+    &I016_V1_0_300_RID,
+    NULL
+};
+static const AsterixField I016_V1_0_300 = { REPETITIVE, 6, 1, 0, &hf_016_V1_0_300, I016_V1_0_300_PARTS, { NULL } };
+static gint hf_016_V1_0_400 = -1;
+static gint hf_016_V1_0_400_LAT = -1;
+static const FieldPart I016_V1_0_400_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_V1_0_400_LAT, NULL };
+static gint hf_016_V1_0_400_LON = -1;
+static const FieldPart I016_V1_0_400_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_V1_0_400_LON, NULL };
+static const FieldPart *I016_V1_0_400_PARTS[] = {
+    &I016_V1_0_400_LAT,
+    &I016_V1_0_400_LON,
+    NULL
+};
+static const AsterixField I016_V1_0_400 = { FIXED, 8, 0, 0, &hf_016_V1_0_400, I016_V1_0_400_PARTS, { NULL } };
+static gint hf_016_V1_0_405 = -1;
+static gint hf_016_V1_0_405_VALUE = -1;
+static const FieldPart I016_V1_0_405_VALUE = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_V1_0_405_VALUE, NULL };
+static const FieldPart *I016_V1_0_405_PARTS[] = {
+    &I016_V1_0_405_VALUE,
+    NULL
+};
+static const AsterixField I016_V1_0_405 = { FIXED, 2, 0, 0, &hf_016_V1_0_405, I016_V1_0_405_PARTS, { NULL } };
+static gint hf_016_V1_0_410 = -1;
+static gint hf_016_V1_0_410_TID = -1;
+static const FieldPart I016_V1_0_410_TID = { 16, 1.0, FIELD_PART_HEX, &hf_016_V1_0_410_TID, NULL };
+static gint hf_016_V1_0_410_LAT = -1;
+static const FieldPart I016_V1_0_410_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_V1_0_410_LAT, NULL };
+static gint hf_016_V1_0_410_LON = -1;
+static const FieldPart I016_V1_0_410_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_V1_0_410_LON, NULL };
+static gint hf_016_V1_0_410_ALT = -1;
+static const FieldPart I016_V1_0_410_ALT = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_V1_0_410_ALT, NULL };
+static gint hf_016_V1_0_410_TTO = -1;
+static const FieldPart I016_V1_0_410_TTO = { 32, 2.0, FIELD_PART_UFLOAT, &hf_016_V1_0_410_TTO, NULL };
+static gint hf_016_V1_0_410_ATO = -1;
+static const FieldPart I016_V1_0_410_ATO = { 20, 1.0, FIELD_PART_UFLOAT, &hf_016_V1_0_410_ATO, NULL };
+static gint hf_016_V1_0_410_PCI = -1;
+static const FieldPart I016_V1_0_410_PCI = { 16, 1.0, FIELD_PART_UINT, &hf_016_V1_0_410_PCI, NULL };
+static const FieldPart *I016_V1_0_410_PARTS[] = {
+    &I016_V1_0_410_TID,
+    &I016_V1_0_410_LAT,
+    &I016_V1_0_410_LON,
+    &I016_V1_0_410_ALT,
+    &I016_V1_0_410_TTO,
+    &IXXX_4bit_spare,
+    &I016_V1_0_410_ATO,
+    &I016_V1_0_410_PCI,
+    NULL
+};
+static const AsterixField I016_V1_0_410 = { REPETITIVE, 21, 1, 0, &hf_016_V1_0_410, I016_V1_0_410_PARTS, { NULL } };
+static gint hf_016_V1_0_420 = -1;
+static gint hf_016_V1_0_420_RID = -1;
+static const FieldPart I016_V1_0_420_RID = { 16, 1.0, FIELD_PART_HEX, &hf_016_V1_0_420_RID, NULL };
+static gint hf_016_V1_0_420_LAT = -1;
+static const FieldPart I016_V1_0_420_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_V1_0_420_LAT, NULL };
+static gint hf_016_V1_0_420_LON = -1;
+static const FieldPart I016_V1_0_420_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_V1_0_420_LON, NULL };
+static gint hf_016_V1_0_420_ALT = -1;
+static const FieldPart I016_V1_0_420_ALT = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_V1_0_420_ALT, NULL };
+static const FieldPart *I016_V1_0_420_PARTS[] = {
+    &I016_V1_0_420_RID,
+    &I016_V1_0_420_LAT,
+    &I016_V1_0_420_LON,
+    &I016_V1_0_420_ALT,
+    NULL
+};
+static const AsterixField I016_V1_0_420 = { REPETITIVE, 12, 1, 0, &hf_016_V1_0_420, I016_V1_0_420_PARTS, { NULL } };
+static gint hf_016_V1_0_SP = -1;
+static const AsterixField I016_V1_0_SP = { EXP, 0, 0, 1, &hf_016_V1_0_SP, NULL, { NULL } };
+
+/* Category 016, edition 1.0 (latest) */
+static gint hf_016_000 = -1;
+static gint hf_016_000_VALUE = -1;
+static const value_string valstr_016_000_VALUE[] = {
+    { 1, "System Configuration" },
+    { 2, "Transmitter / Receiver Configuration" },
+    { 0, NULL }
+};
+static const FieldPart I016_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_016_000_VALUE, NULL };
+static const FieldPart *I016_000_PARTS[] = {
+    &I016_000_VALUE,
+    NULL
+};
+static const AsterixField I016_000 = { FIXED, 1, 0, 0, &hf_016_000, I016_000_PARTS, { NULL } };
+static gint hf_016_010 = -1;
+static gint hf_016_010_SAC = -1;
+static const FieldPart I016_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_016_010_SAC, NULL };
+static gint hf_016_010_SIC = -1;
+static const FieldPart I016_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_016_010_SIC, NULL };
+static const FieldPart *I016_010_PARTS[] = {
+    &I016_010_SAC,
+    &I016_010_SIC,
+    NULL
+};
+static const AsterixField I016_010 = { FIXED, 2, 0, 0, &hf_016_010, I016_010_PARTS, { NULL } };
+static gint hf_016_015 = -1;
+static gint hf_016_015_VALUE = -1;
+static const FieldPart I016_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_016_015_VALUE, NULL };
+static const FieldPart *I016_015_PARTS[] = {
+    &I016_015_VALUE,
+    NULL
+};
+static const AsterixField I016_015 = { FIXED, 1, 0, 0, &hf_016_015, I016_015_PARTS, { NULL } };
+static gint hf_016_140 = -1;
+static gint hf_016_140_VALUE = -1;
+static const FieldPart I016_140_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_016_140_VALUE, NULL };
+static const FieldPart *I016_140_PARTS[] = {
+    &I016_140_VALUE,
+    NULL
+};
+static const AsterixField I016_140 = { FIXED, 3, 0, 0, &hf_016_140, I016_140_PARTS, { NULL } };
+static gint hf_016_200 = -1;
+static gint hf_016_200_VALUE = -1;
+static const FieldPart I016_200_VALUE = { 8, 1.0, FIELD_PART_UFLOAT, &hf_016_200_VALUE, NULL };
+static const FieldPart *I016_200_PARTS[] = {
+    &I016_200_VALUE,
+    NULL
+};
+static const AsterixField I016_200 = { FIXED, 1, 0, 0, &hf_016_200, I016_200_PARTS, { NULL } };
+static gint hf_016_300 = -1;
+static gint hf_016_300_PID = -1;
+static const FieldPart I016_300_PID = { 16, 1.0, FIELD_PART_HEX, &hf_016_300_PID, NULL };
+static gint hf_016_300_TID = -1;
+static const FieldPart I016_300_TID = { 16, 1.0, FIELD_PART_HEX, &hf_016_300_TID, NULL };
+static gint hf_016_300_RID = -1;
+static const FieldPart I016_300_RID = { 16, 1.0, FIELD_PART_HEX, &hf_016_300_RID, NULL };
+static const FieldPart *I016_300_PARTS[] = {
+    &I016_300_PID,
+    &I016_300_TID,
+    &I016_300_RID,
+    NULL
+};
+static const AsterixField I016_300 = { REPETITIVE, 6, 1, 0, &hf_016_300, I016_300_PARTS, { NULL } };
+static gint hf_016_400 = -1;
+static gint hf_016_400_LAT = -1;
+static const FieldPart I016_400_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_400_LAT, NULL };
+static gint hf_016_400_LON = -1;
+static const FieldPart I016_400_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_400_LON, NULL };
+static const FieldPart *I016_400_PARTS[] = {
+    &I016_400_LAT,
+    &I016_400_LON,
+    NULL
+};
+static const AsterixField I016_400 = { FIXED, 8, 0, 0, &hf_016_400, I016_400_PARTS, { NULL } };
+static gint hf_016_405 = -1;
+static gint hf_016_405_VALUE = -1;
+static const FieldPart I016_405_VALUE = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_405_VALUE, NULL };
+static const FieldPart *I016_405_PARTS[] = {
+    &I016_405_VALUE,
+    NULL
+};
+static const AsterixField I016_405 = { FIXED, 2, 0, 0, &hf_016_405, I016_405_PARTS, { NULL } };
+static gint hf_016_410 = -1;
+static gint hf_016_410_TID = -1;
+static const FieldPart I016_410_TID = { 16, 1.0, FIELD_PART_HEX, &hf_016_410_TID, NULL };
+static gint hf_016_410_LAT = -1;
+static const FieldPart I016_410_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_410_LAT, NULL };
+static gint hf_016_410_LON = -1;
+static const FieldPart I016_410_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_410_LON, NULL };
+static gint hf_016_410_ALT = -1;
+static const FieldPart I016_410_ALT = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_410_ALT, NULL };
+static gint hf_016_410_TTO = -1;
+static const FieldPart I016_410_TTO = { 32, 2.0, FIELD_PART_UFLOAT, &hf_016_410_TTO, NULL };
+static gint hf_016_410_ATO = -1;
+static const FieldPart I016_410_ATO = { 20, 1.0, FIELD_PART_UFLOAT, &hf_016_410_ATO, NULL };
+static gint hf_016_410_PCI = -1;
+static const FieldPart I016_410_PCI = { 16, 1.0, FIELD_PART_UINT, &hf_016_410_PCI, NULL };
+static const FieldPart *I016_410_PARTS[] = {
+    &I016_410_TID,
+    &I016_410_LAT,
+    &I016_410_LON,
+    &I016_410_ALT,
+    &I016_410_TTO,
+    &IXXX_4bit_spare,
+    &I016_410_ATO,
+    &I016_410_PCI,
+    NULL
+};
+static const AsterixField I016_410 = { REPETITIVE, 21, 1, 0, &hf_016_410, I016_410_PARTS, { NULL } };
+static gint hf_016_420 = -1;
+static gint hf_016_420_RID = -1;
+static const FieldPart I016_420_RID = { 16, 1.0, FIELD_PART_HEX, &hf_016_420_RID, NULL };
+static gint hf_016_420_LAT = -1;
+static const FieldPart I016_420_LAT = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_420_LAT, NULL };
+static gint hf_016_420_LON = -1;
+static const FieldPart I016_420_LON = { 32, 0.00000008381903171539306640625, FIELD_PART_FLOAT, &hf_016_420_LON, NULL };
+static gint hf_016_420_ALT = -1;
+static const FieldPart I016_420_ALT = { 16, 0.25, FIELD_PART_FLOAT, &hf_016_420_ALT, NULL };
+static const FieldPart *I016_420_PARTS[] = {
+    &I016_420_RID,
+    &I016_420_LAT,
+    &I016_420_LON,
+    &I016_420_ALT,
+    NULL
+};
+static const AsterixField I016_420 = { REPETITIVE, 12, 1, 0, &hf_016_420, I016_420_PARTS, { NULL } };
+static gint hf_016_SP = -1;
+static const AsterixField I016_SP = { EXP, 0, 0, 1, &hf_016_SP, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I016_V1_0_uap[] = {
+    &I016_V1_0_010,
+    &I016_V1_0_015,
+    &I016_V1_0_000,
+    &I016_V1_0_140,
+    &I016_V1_0_200,
+    &I016_V1_0_300,
+    &I016_V1_0_400,
+    &I016_V1_0_405,
+    &I016_V1_0_410,
+    &I016_V1_0_420,
+    &I016_V1_0_SP,
+    NULL
+};
+static const AsterixField **I016_V1_0[] = {
+    I016_V1_0_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I016_uap[] = {
+    &I016_010,
+    &I016_015,
+    &I016_000,
+    &I016_140,
+    &I016_200,
+    &I016_300,
+    &I016_400,
+    &I016_405,
+    &I016_410,
+    &I016_420,
+    &I016_SP,
+    NULL
+};
+static const AsterixField **I016[] = {
+    I016_uap,
     NULL
 };
 DIAG_ON_PEDANTIC
@@ -35857,6 +39297,16 @@ static const enum_val_t I009_versions[] = {
 };
 
 DIAG_OFF_PEDANTIC
+static const AsterixField ***I010all[] = { I010, I010_V1_1 };
+DIAG_ON_PEDANTIC
+
+static const enum_val_t I010_versions[] = {
+    { "I010", "Version 1.1 (latest)", 0 },
+    { "I010_v1_1", "Version 1.1", 1 },
+    { NULL, NULL, 0 }
+};
+
+DIAG_OFF_PEDANTIC
 static const AsterixField ***I011all[] = { I011, I011_V1_3, I011_V1_2 };
 DIAG_ON_PEDANTIC
 
@@ -35864,6 +39314,26 @@ static const enum_val_t I011_versions[] = {
     { "I011", "Version 1.3 (latest)", 0 },
     { "I011_v1_3", "Version 1.3", 1 },
     { "I011_v1_2", "Version 1.2", 2 },
+    { NULL, NULL, 0 }
+};
+
+DIAG_OFF_PEDANTIC
+static const AsterixField ***I015all[] = { I015, I015_V1_0 };
+DIAG_ON_PEDANTIC
+
+static const enum_val_t I015_versions[] = {
+    { "I015", "Version 1.0 (latest)", 0 },
+    { "I015_v1_0", "Version 1.0", 1 },
+    { NULL, NULL, 0 }
+};
+
+DIAG_OFF_PEDANTIC
+static const AsterixField ***I016all[] = { I016, I016_V1_0 };
+DIAG_ON_PEDANTIC
+
+static const enum_val_t I016_versions[] = {
+    { "I016", "Version 1.0 (latest)", 0 },
+    { "I016_v1_0", "Version 1.0", 1 },
     { NULL, NULL, 0 }
 };
 
@@ -35998,13 +39468,13 @@ static const AsterixField ****categories[] = {
     NULL, /* 007 */
     I008all, /* 008 */
     I009all, /* 009 */
-    NULL, /* 010 */
+    I010all, /* 010 */
     I011all, /* 011 */
     NULL, /* 012 */
     NULL, /* 013 */
     NULL, /* 014 */
-    NULL, /* 015 */
-    NULL, /* 016 */
+    I015all, /* 015 */
+    I016all, /* 016 */
     NULL, /* 017 */
     I018all, /* 018 */
     I019all, /* 019 */
@@ -37456,8 +40926,8 @@ void proto_register_asterix (void)
         { &hf_004_V1_12_120_CD, { "CD, Conflict Duration", "asterix.004_V1_12_120_CD", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_120_CD_VALUE, { "VALUE, Conflict Duration, [s]", "asterix.004_V1_12_120_CD_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_170, { "170, Aircraft Identification and Characteristics 1", "asterix.004_V1_12_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_V1_12_170_AI1, { "AI1, Aircraft Identifier (in 7 characters) of Aircraft 1 Involved in the Conflict", "asterix.004_V1_12_170_AI1", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_V1_12_170_AI1_VALUE, { "VALUE, Aircraft Identifier (in 7 characters) of Aircraft 1 Involved in the Conflict", "asterix.004_V1_12_170_AI1_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_V1_12_170_AI1, { "AI1, Aircraft Identifier (in 7 Characters) of Aircraft 1 Involved in the Conflict", "asterix.004_V1_12_170_AI1", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_V1_12_170_AI1_VALUE, { "VALUE, Aircraft Identifier (in 7 Characters) of Aircraft 1 Involved in the Conflict", "asterix.004_V1_12_170_AI1_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_170_M31, { "M31, Mode 3/A Code Aircraft 1", "asterix.004_V1_12_170_M31", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_170_M31_MODE3A, { "MODE3A, Mode-3/A Code (Converted Into Octal Representation) of Aircraft 1 Involved in the Conflict", "asterix.004_V1_12_170_M31_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
         { &hf_004_V1_12_170_CPW, { "CPW, Predicted Conflict Position Target 1 in WGS-84 Coordinates", "asterix.004_V1_12_170_CPW", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -37487,8 +40957,8 @@ void proto_register_asterix (void)
         { &hf_004_V1_12_170_CF1, { "CF1, Cleared Flight Level for Aircraft 1 Involved in the Conflict", "asterix.004_V1_12_170_CF1", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_170_CF1_VALUE, { "VALUE, Cleared Flight Level for Aircraft 1 Involved in the Conflict, [fl]", "asterix.004_V1_12_170_CF1_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_171, { "171, Aircraft Identification and Characteristics 2", "asterix.004_V1_12_171", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_V1_12_171_AI2, { "AI2, Aircraft Identifier (in 7 characters) of Aircraft 2 Involved in the Conflict", "asterix.004_V1_12_171_AI2", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_V1_12_171_AI2_VALUE, { "VALUE, Aircraft Identifier (in 7 characters) of Aircraft 2 Involved in the Conflict", "asterix.004_V1_12_171_AI2_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_V1_12_171_AI2, { "AI2, Aircraft Identifier (in 7 Characters) of Aircraft 2 Involved in the Conflict", "asterix.004_V1_12_171_AI2", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_V1_12_171_AI2_VALUE, { "VALUE, Aircraft Identifier (in 7 Characters) of Aircraft 2 Involved in the Conflict", "asterix.004_V1_12_171_AI2_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_171_M32, { "M32, Mode 3/A Code Aircraft 2", "asterix.004_V1_12_171_M32", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_V1_12_171_M32_MODE3A, { "MODE3A, Mode-3/A Code (Converted Into Octal Representation) of Aircraft 2 Involved in the Conflict", "asterix.004_V1_12_171_M32_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
         { &hf_004_V1_12_171_CPW, { "CPW, Predicted Conflict Position Target 2 in WGS-84 Coordinates", "asterix.004_V1_12_171_CPW", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -37653,8 +41123,8 @@ void proto_register_asterix (void)
         { &hf_004_120_CD, { "CD, Conflict Duration", "asterix.004_120_CD", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_120_CD_VALUE, { "VALUE, Conflict Duration, [s]", "asterix.004_120_CD_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_170, { "170, Aircraft Identification and Characteristics 1", "asterix.004_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_170_AI1, { "AI1, Aircraft Identifier (in 7 characters) of Aircraft 1 Involved in the Conflict", "asterix.004_170_AI1", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_170_AI1_VALUE, { "VALUE, Aircraft Identifier (in 7 characters) of Aircraft 1 Involved in the Conflict", "asterix.004_170_AI1_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_170_AI1, { "AI1, Aircraft Identifier (in 7 Characters) of Aircraft 1 Involved in the Conflict", "asterix.004_170_AI1", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_170_AI1_VALUE, { "VALUE, Aircraft Identifier (in 7 Characters) of Aircraft 1 Involved in the Conflict", "asterix.004_170_AI1_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_170_M31, { "M31, Mode 3/A Code Aircraft 1", "asterix.004_170_M31", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_170_M31_MODE3A, { "MODE3A, Mode-3/A Code (Converted Into Octal Representation) of Aircraft 1 Involved in the Conflict", "asterix.004_170_M31_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
         { &hf_004_170_CPW, { "CPW, Predicted Conflict Position Target 1 in WGS-84 Coordinates", "asterix.004_170_CPW", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -37684,8 +41154,8 @@ void proto_register_asterix (void)
         { &hf_004_170_CF1, { "CF1, Cleared Flight Level for Aircraft 1 Involved in the Conflict", "asterix.004_170_CF1", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_170_CF1_VALUE, { "VALUE, Cleared Flight Level for Aircraft 1 Involved in the Conflict, [fl]", "asterix.004_170_CF1_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_171, { "171, Aircraft Identification and Characteristics 2", "asterix.004_171", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_171_AI2, { "AI2, Aircraft Identifier (in 7 characters) of Aircraft 2 Involved in the Conflict", "asterix.004_171_AI2", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_004_171_AI2_VALUE, { "VALUE, Aircraft Identifier (in 7 characters) of Aircraft 2 Involved in the Conflict", "asterix.004_171_AI2_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_171_AI2, { "AI2, Aircraft Identifier (in 7 Characters) of Aircraft 2 Involved in the Conflict", "asterix.004_171_AI2", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_004_171_AI2_VALUE, { "VALUE, Aircraft Identifier (in 7 Characters) of Aircraft 2 Involved in the Conflict", "asterix.004_171_AI2_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_171_M32, { "M32, Mode 3/A Code Aircraft 2", "asterix.004_171_M32", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_004_171_M32_MODE3A, { "MODE3A, Mode-3/A Code (Converted Into Octal Representation) of Aircraft 2 Involved in the Conflict", "asterix.004_171_M32_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
         { &hf_004_171_CPW, { "CPW, Predicted Conflict Position Target 2 in WGS-84 Coordinates", "asterix.004_171_CPW", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -37906,6 +41376,198 @@ void proto_register_asterix (void)
         { &hf_009_090_R, { "R, Reduction Step in Use By Radar  Concerned", "asterix.009_090_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_009_100, { "100, Vector Count", "asterix.009_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_009_100_VALUE, { "VALUE, Vector Count", "asterix.009_100_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_000, { "000, Message Type", "asterix.010_V1_1_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_000_VALUE, { "VALUE, Message Type", "asterix.010_V1_1_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_010, { "010, Data Source Identifier", "asterix.010_V1_1_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_010_SAC, { "SAC, System Area Code", "asterix.010_V1_1_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_010_SIC, { "SIC, System Identification Code", "asterix.010_V1_1_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_020, { "020, Target Report Descriptor", "asterix.010_V1_1_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_020_TYP, { "TYP", "asterix.010_V1_1_020_TYP", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_TYP), 0xe0, NULL, HFILL } },
+        { &hf_010_V1_1_020_DCR, { "DCR", "asterix.010_V1_1_020_DCR", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_DCR), 0x10, NULL, HFILL } },
+        { &hf_010_V1_1_020_CHN, { "CHN", "asterix.010_V1_1_020_CHN", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_CHN), 0x08, NULL, HFILL } },
+        { &hf_010_V1_1_020_GBS, { "GBS", "asterix.010_V1_1_020_GBS", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_GBS), 0x04, NULL, HFILL } },
+        { &hf_010_V1_1_020_CRT, { "CRT", "asterix.010_V1_1_020_CRT", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_CRT), 0x02, NULL, HFILL } },
+        { &hf_010_V1_1_020_SIM, { "SIM", "asterix.010_V1_1_020_SIM", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_SIM), 0x80, NULL, HFILL } },
+        { &hf_010_V1_1_020_TST, { "TST", "asterix.010_V1_1_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_TST), 0x40, NULL, HFILL } },
+        { &hf_010_V1_1_020_RAB, { "RAB", "asterix.010_V1_1_020_RAB", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_RAB), 0x20, NULL, HFILL } },
+        { &hf_010_V1_1_020_LOP, { "LOP", "asterix.010_V1_1_020_LOP", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_LOP), 0x18, NULL, HFILL } },
+        { &hf_010_V1_1_020_TOT, { "TOT", "asterix.010_V1_1_020_TOT", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_TOT), 0x06, NULL, HFILL } },
+        { &hf_010_V1_1_020_SPI, { "SPI", "asterix.010_V1_1_020_SPI", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_020_SPI), 0x80, NULL, HFILL } },
+        { &hf_010_V1_1_040, { "040, Measured Position in Polar Co-ordinates", "asterix.010_V1_1_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_040_RHO, { "RHO, RHO, [m]", "asterix.010_V1_1_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_040_TH, { "TH, Theta, [deg]", "asterix.010_V1_1_040_TH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_041, { "041, Position in WGS-84 Co-ordinates", "asterix.010_V1_1_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_041_LAT, { "LAT, Latitude, [deg]", "asterix.010_V1_1_041_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_041_LON, { "LON, Longitude, [deg]", "asterix.010_V1_1_041_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_042, { "042, Position in Cartesian Co-ordinates", "asterix.010_V1_1_042", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_042_X, { "X, X Coordinate, [m]", "asterix.010_V1_1_042_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_042_Y, { "Y, Y Coordinate, [m]", "asterix.010_V1_1_042_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_060, { "060, Mode-3/A Code in Octal Representation", "asterix.010_V1_1_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_060_V, { "V, Validated", "asterix.010_V1_1_060_V", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_060_V), 0x80, NULL, HFILL } },
+        { &hf_010_V1_1_060_G, { "G, Garbled", "asterix.010_V1_1_060_G", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_060_G), 0x40, NULL, HFILL } },
+        { &hf_010_V1_1_060_L, { "L", "asterix.010_V1_1_060_L", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_060_L), 0x20, NULL, HFILL } },
+        { &hf_010_V1_1_060_MODE3A, { "MODE3A, Mode-3/A Reply in Octal Representation", "asterix.010_V1_1_060_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_010_V1_1_090, { "090, Flight Level in Binary Representation", "asterix.010_V1_1_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_090_V, { "V, Validated", "asterix.010_V1_1_090_V", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_090_V), 0x80, NULL, HFILL } },
+        { &hf_010_V1_1_090_G, { "G, Garbled", "asterix.010_V1_1_090_G", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_090_G), 0x40, NULL, HFILL } },
+        { &hf_010_V1_1_090_FL, { "FL, Flight Level, [FL]", "asterix.010_V1_1_090_FL", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_091, { "091, Measured Height", "asterix.010_V1_1_091", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_091_VALUE, { "VALUE, Measured Height, [ft]", "asterix.010_V1_1_091_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_131, { "131, Amplitude of Primary Plot", "asterix.010_V1_1_131", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_131_VALUE, { "VALUE, Amplitude of Primary Plot", "asterix.010_V1_1_131_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_140, { "140, Time of Day", "asterix.010_V1_1_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_140_VALUE, { "VALUE, Time of Day, [s]", "asterix.010_V1_1_140_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_161, { "161, Track Number", "asterix.010_V1_1_161", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_161_TRK, { "TRK, Track Number", "asterix.010_V1_1_161_TRK", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_010_V1_1_170, { "170, Track Status", "asterix.010_V1_1_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_170_CNF, { "CNF", "asterix.010_V1_1_170_CNF", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_CNF), 0x80, NULL, HFILL } },
+        { &hf_010_V1_1_170_TRE, { "TRE", "asterix.010_V1_1_170_TRE", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_TRE), 0x40, NULL, HFILL } },
+        { &hf_010_V1_1_170_CST, { "CST", "asterix.010_V1_1_170_CST", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_CST), 0x30, NULL, HFILL } },
+        { &hf_010_V1_1_170_MAH, { "MAH", "asterix.010_V1_1_170_MAH", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_MAH), 0x08, NULL, HFILL } },
+        { &hf_010_V1_1_170_TCC, { "TCC", "asterix.010_V1_1_170_TCC", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_TCC), 0x04, NULL, HFILL } },
+        { &hf_010_V1_1_170_STH, { "STH", "asterix.010_V1_1_170_STH", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_STH), 0x02, NULL, HFILL } },
+        { &hf_010_V1_1_170_TOM, { "TOM", "asterix.010_V1_1_170_TOM", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_TOM), 0xc0, NULL, HFILL } },
+        { &hf_010_V1_1_170_DOU, { "DOU", "asterix.010_V1_1_170_DOU", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_DOU), 0x38, NULL, HFILL } },
+        { &hf_010_V1_1_170_MRS, { "MRS", "asterix.010_V1_1_170_MRS", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_MRS), 0x06, NULL, HFILL } },
+        { &hf_010_V1_1_170_GHO, { "GHO", "asterix.010_V1_1_170_GHO", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_170_GHO), 0x80, NULL, HFILL } },
+        { &hf_010_V1_1_200, { "200, Calculated Track Velocity in Polar Co-ordinates", "asterix.010_V1_1_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_200_GSP, { "GSP, Ground Speed, [NM/s]", "asterix.010_V1_1_200_GSP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_200_TRA, { "TRA, Track Angle, [deg]", "asterix.010_V1_1_200_TRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_202, { "202, Calculated Track Velocity in Cartesian Co-ordinates", "asterix.010_V1_1_202", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_202_VX, { "VX, X Velocity, [m/s]", "asterix.010_V1_1_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_202_VY, { "VY, Y Velocity, [m/s]", "asterix.010_V1_1_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_210, { "210, Calculated Acceleration", "asterix.010_V1_1_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_210_AX, { "AX, X Acceleration, [m/s2]", "asterix.010_V1_1_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_210_AY, { "AY, Y Acceleration, [m/s2]", "asterix.010_V1_1_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_220, { "220, Target Address", "asterix.010_V1_1_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_220_VALUE, { "VALUE, Target Address", "asterix.010_V1_1_220_VALUE", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_245, { "245, Target Identification", "asterix.010_V1_1_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_245_STI, { "STI", "asterix.010_V1_1_245_STI", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_245_STI), 0xc0, NULL, HFILL } },
+        { &hf_010_V1_1_245_CHR, { "CHR, Characters 1-8 (Coded on 6 Bits Each) Defining Target Identification", "asterix.010_V1_1_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_250, { "250, Mode S MB Data", "asterix.010_V1_1_250", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_250_MBDATA, { "MBDATA", "asterix.010_V1_1_250_MBDATA", FT_UINT56, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_250_BDS1, { "BDS1", "asterix.010_V1_1_250_BDS1", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
+        { &hf_010_V1_1_250_BDS2, { "BDS2", "asterix.010_V1_1_250_BDS2", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
+        { &hf_010_V1_1_270, { "270, Target Size and Orientation", "asterix.010_V1_1_270", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_270_LENGTH, { "LENGTH, Length, [m]", "asterix.010_V1_1_270_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_270_ORIENTATION, { "ORIENTATION, Orientation, [deg]", "asterix.010_V1_1_270_ORIENTATION", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_270_WIDTH, { "WIDTH, Width, [m]", "asterix.010_V1_1_270_WIDTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_280, { "280, Presence", "asterix.010_V1_1_280", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_280_DRHO, { "DRHO, [m]", "asterix.010_V1_1_280_DRHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_280_DTHETA, { "DTHETA, [deg]", "asterix.010_V1_1_280_DTHETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_300, { "300, Vehicle Fleet Identification", "asterix.010_V1_1_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_300_VALUE, { "VALUE, Vehicle Fleet Identification", "asterix.010_V1_1_300_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_300_VALUE), 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_310, { "310, Pre-programmed Message", "asterix.010_V1_1_310", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_310_TRB, { "TRB", "asterix.010_V1_1_310_TRB", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_310_TRB), 0x80, NULL, HFILL } },
+        { &hf_010_V1_1_310_MSG, { "MSG", "asterix.010_V1_1_310_MSG", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_310_MSG), 0x7f, NULL, HFILL } },
+        { &hf_010_V1_1_500, { "500, Standard Deviation of Position", "asterix.010_V1_1_500", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_500_DEVX, { "DEVX, Standard Deviation of X Component, [m]", "asterix.010_V1_1_500_DEVX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_500_DEVY, { "DEVY, Standard Deviation of Y Component, [m]", "asterix.010_V1_1_500_DEVY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_500_COVXY, { "COVXY, Covariance in Two’s Complement Form, [m]", "asterix.010_V1_1_500_COVXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_550, { "550, System Status", "asterix.010_V1_1_550", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_550_NOGO, { "NOGO, Operational Release Status of the System", "asterix.010_V1_1_550_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_550_NOGO), 0xc0, NULL, HFILL } },
+        { &hf_010_V1_1_550_OVL, { "OVL, Overload Indicator", "asterix.010_V1_1_550_OVL", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_550_OVL), 0x20, NULL, HFILL } },
+        { &hf_010_V1_1_550_TSV, { "TSV, Time Source Validity", "asterix.010_V1_1_550_TSV", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_550_TSV), 0x10, NULL, HFILL } },
+        { &hf_010_V1_1_550_DIV, { "DIV", "asterix.010_V1_1_550_DIV", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_550_DIV), 0x08, NULL, HFILL } },
+        { &hf_010_V1_1_550_TTF, { "TTF", "asterix.010_V1_1_550_TTF", FT_UINT8, BASE_DEC, VALS (valstr_010_V1_1_550_TTF), 0x04, NULL, HFILL } },
+        { &hf_010_V1_1_RE, { "RE, Reserved Expansion Field", "asterix.010_V1_1_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_V1_1_SP, { "SP, Special Purpose Field", "asterix.010_V1_1_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_000, { "000, Message Type", "asterix.010_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_000_VALUE, { "VALUE, Message Type", "asterix.010_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_010_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_010_010, { "010, Data Source Identifier", "asterix.010_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_010_SAC, { "SAC, System Area Code", "asterix.010_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_010_SIC, { "SIC, System Identification Code", "asterix.010_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_020, { "020, Target Report Descriptor", "asterix.010_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_020_TYP, { "TYP", "asterix.010_020_TYP", FT_UINT8, BASE_DEC, VALS (valstr_010_020_TYP), 0xe0, NULL, HFILL } },
+        { &hf_010_020_DCR, { "DCR", "asterix.010_020_DCR", FT_UINT8, BASE_DEC, VALS (valstr_010_020_DCR), 0x10, NULL, HFILL } },
+        { &hf_010_020_CHN, { "CHN", "asterix.010_020_CHN", FT_UINT8, BASE_DEC, VALS (valstr_010_020_CHN), 0x08, NULL, HFILL } },
+        { &hf_010_020_GBS, { "GBS", "asterix.010_020_GBS", FT_UINT8, BASE_DEC, VALS (valstr_010_020_GBS), 0x04, NULL, HFILL } },
+        { &hf_010_020_CRT, { "CRT", "asterix.010_020_CRT", FT_UINT8, BASE_DEC, VALS (valstr_010_020_CRT), 0x02, NULL, HFILL } },
+        { &hf_010_020_SIM, { "SIM", "asterix.010_020_SIM", FT_UINT8, BASE_DEC, VALS (valstr_010_020_SIM), 0x80, NULL, HFILL } },
+        { &hf_010_020_TST, { "TST", "asterix.010_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_010_020_TST), 0x40, NULL, HFILL } },
+        { &hf_010_020_RAB, { "RAB", "asterix.010_020_RAB", FT_UINT8, BASE_DEC, VALS (valstr_010_020_RAB), 0x20, NULL, HFILL } },
+        { &hf_010_020_LOP, { "LOP", "asterix.010_020_LOP", FT_UINT8, BASE_DEC, VALS (valstr_010_020_LOP), 0x18, NULL, HFILL } },
+        { &hf_010_020_TOT, { "TOT", "asterix.010_020_TOT", FT_UINT8, BASE_DEC, VALS (valstr_010_020_TOT), 0x06, NULL, HFILL } },
+        { &hf_010_020_SPI, { "SPI", "asterix.010_020_SPI", FT_UINT8, BASE_DEC, VALS (valstr_010_020_SPI), 0x80, NULL, HFILL } },
+        { &hf_010_040, { "040, Measured Position in Polar Co-ordinates", "asterix.010_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_040_RHO, { "RHO, RHO, [m]", "asterix.010_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_040_TH, { "TH, Theta, [deg]", "asterix.010_040_TH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_041, { "041, Position in WGS-84 Co-ordinates", "asterix.010_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_041_LAT, { "LAT, Latitude, [deg]", "asterix.010_041_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_041_LON, { "LON, Longitude, [deg]", "asterix.010_041_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_042, { "042, Position in Cartesian Co-ordinates", "asterix.010_042", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_042_X, { "X, X Coordinate, [m]", "asterix.010_042_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_042_Y, { "Y, Y Coordinate, [m]", "asterix.010_042_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_060, { "060, Mode-3/A Code in Octal Representation", "asterix.010_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_060_V, { "V, Validated", "asterix.010_060_V", FT_UINT8, BASE_DEC, VALS (valstr_010_060_V), 0x80, NULL, HFILL } },
+        { &hf_010_060_G, { "G, Garbled", "asterix.010_060_G", FT_UINT8, BASE_DEC, VALS (valstr_010_060_G), 0x40, NULL, HFILL } },
+        { &hf_010_060_L, { "L", "asterix.010_060_L", FT_UINT8, BASE_DEC, VALS (valstr_010_060_L), 0x20, NULL, HFILL } },
+        { &hf_010_060_MODE3A, { "MODE3A, Mode-3/A Reply in Octal Representation", "asterix.010_060_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_010_090, { "090, Flight Level in Binary Representation", "asterix.010_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_090_V, { "V, Validated", "asterix.010_090_V", FT_UINT8, BASE_DEC, VALS (valstr_010_090_V), 0x80, NULL, HFILL } },
+        { &hf_010_090_G, { "G, Garbled", "asterix.010_090_G", FT_UINT8, BASE_DEC, VALS (valstr_010_090_G), 0x40, NULL, HFILL } },
+        { &hf_010_090_FL, { "FL, Flight Level, [FL]", "asterix.010_090_FL", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_091, { "091, Measured Height", "asterix.010_091", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_091_VALUE, { "VALUE, Measured Height, [ft]", "asterix.010_091_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_131, { "131, Amplitude of Primary Plot", "asterix.010_131", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_131_VALUE, { "VALUE, Amplitude of Primary Plot", "asterix.010_131_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_140, { "140, Time of Day", "asterix.010_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_140_VALUE, { "VALUE, Time of Day, [s]", "asterix.010_140_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_161, { "161, Track Number", "asterix.010_161", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_161_TRK, { "TRK, Track Number", "asterix.010_161_TRK", FT_UINT16, BASE_DEC, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_010_170, { "170, Track Status", "asterix.010_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_170_CNF, { "CNF", "asterix.010_170_CNF", FT_UINT8, BASE_DEC, VALS (valstr_010_170_CNF), 0x80, NULL, HFILL } },
+        { &hf_010_170_TRE, { "TRE", "asterix.010_170_TRE", FT_UINT8, BASE_DEC, VALS (valstr_010_170_TRE), 0x40, NULL, HFILL } },
+        { &hf_010_170_CST, { "CST", "asterix.010_170_CST", FT_UINT8, BASE_DEC, VALS (valstr_010_170_CST), 0x30, NULL, HFILL } },
+        { &hf_010_170_MAH, { "MAH", "asterix.010_170_MAH", FT_UINT8, BASE_DEC, VALS (valstr_010_170_MAH), 0x08, NULL, HFILL } },
+        { &hf_010_170_TCC, { "TCC", "asterix.010_170_TCC", FT_UINT8, BASE_DEC, VALS (valstr_010_170_TCC), 0x04, NULL, HFILL } },
+        { &hf_010_170_STH, { "STH", "asterix.010_170_STH", FT_UINT8, BASE_DEC, VALS (valstr_010_170_STH), 0x02, NULL, HFILL } },
+        { &hf_010_170_TOM, { "TOM", "asterix.010_170_TOM", FT_UINT8, BASE_DEC, VALS (valstr_010_170_TOM), 0xc0, NULL, HFILL } },
+        { &hf_010_170_DOU, { "DOU", "asterix.010_170_DOU", FT_UINT8, BASE_DEC, VALS (valstr_010_170_DOU), 0x38, NULL, HFILL } },
+        { &hf_010_170_MRS, { "MRS", "asterix.010_170_MRS", FT_UINT8, BASE_DEC, VALS (valstr_010_170_MRS), 0x06, NULL, HFILL } },
+        { &hf_010_170_GHO, { "GHO", "asterix.010_170_GHO", FT_UINT8, BASE_DEC, VALS (valstr_010_170_GHO), 0x80, NULL, HFILL } },
+        { &hf_010_200, { "200, Calculated Track Velocity in Polar Co-ordinates", "asterix.010_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_200_GSP, { "GSP, Ground Speed, [NM/s]", "asterix.010_200_GSP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_200_TRA, { "TRA, Track Angle, [deg]", "asterix.010_200_TRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_202, { "202, Calculated Track Velocity in Cartesian Co-ordinates", "asterix.010_202", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_202_VX, { "VX, X Velocity, [m/s]", "asterix.010_202_VX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_202_VY, { "VY, Y Velocity, [m/s]", "asterix.010_202_VY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_210, { "210, Calculated Acceleration", "asterix.010_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_210_AX, { "AX, X Acceleration, [m/s2]", "asterix.010_210_AX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_210_AY, { "AY, Y Acceleration, [m/s2]", "asterix.010_210_AY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_220, { "220, Target Address", "asterix.010_220", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_220_VALUE, { "VALUE, Target Address", "asterix.010_220_VALUE", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_245, { "245, Target Identification", "asterix.010_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_245_STI, { "STI", "asterix.010_245_STI", FT_UINT8, BASE_DEC, VALS (valstr_010_245_STI), 0xc0, NULL, HFILL } },
+        { &hf_010_245_CHR, { "CHR, Characters 1-8 (Coded on 6 Bits Each) Defining Target Identification", "asterix.010_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_250, { "250, Mode S MB Data", "asterix.010_250", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_250_MBDATA, { "MBDATA", "asterix.010_250_MBDATA", FT_UINT56, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_250_BDS1, { "BDS1", "asterix.010_250_BDS1", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
+        { &hf_010_250_BDS2, { "BDS2", "asterix.010_250_BDS2", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
+        { &hf_010_270, { "270, Target Size and Orientation", "asterix.010_270", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_270_LENGTH, { "LENGTH, Length, [m]", "asterix.010_270_LENGTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_270_ORIENTATION, { "ORIENTATION, Orientation, [deg]", "asterix.010_270_ORIENTATION", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_270_WIDTH, { "WIDTH, Width, [m]", "asterix.010_270_WIDTH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_280, { "280, Presence", "asterix.010_280", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_280_DRHO, { "DRHO, [m]", "asterix.010_280_DRHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_280_DTHETA, { "DTHETA, [deg]", "asterix.010_280_DTHETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_300, { "300, Vehicle Fleet Identification", "asterix.010_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_300_VALUE, { "VALUE, Vehicle Fleet Identification", "asterix.010_300_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_010_300_VALUE), 0x00, NULL, HFILL } },
+        { &hf_010_310, { "310, Pre-programmed Message", "asterix.010_310", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_310_TRB, { "TRB", "asterix.010_310_TRB", FT_UINT8, BASE_DEC, VALS (valstr_010_310_TRB), 0x80, NULL, HFILL } },
+        { &hf_010_310_MSG, { "MSG", "asterix.010_310_MSG", FT_UINT8, BASE_DEC, VALS (valstr_010_310_MSG), 0x7f, NULL, HFILL } },
+        { &hf_010_500, { "500, Standard Deviation of Position", "asterix.010_500", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_500_DEVX, { "DEVX, Standard Deviation of X Component, [m]", "asterix.010_500_DEVX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_500_DEVY, { "DEVY, Standard Deviation of Y Component, [m]", "asterix.010_500_DEVY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_500_COVXY, { "COVXY, Covariance in Two’s Complement Form, [m]", "asterix.010_500_COVXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_550, { "550, System Status", "asterix.010_550", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_550_NOGO, { "NOGO, Operational Release Status of the System", "asterix.010_550_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_010_550_NOGO), 0xc0, NULL, HFILL } },
+        { &hf_010_550_OVL, { "OVL, Overload Indicator", "asterix.010_550_OVL", FT_UINT8, BASE_DEC, VALS (valstr_010_550_OVL), 0x20, NULL, HFILL } },
+        { &hf_010_550_TSV, { "TSV, Time Source Validity", "asterix.010_550_TSV", FT_UINT8, BASE_DEC, VALS (valstr_010_550_TSV), 0x10, NULL, HFILL } },
+        { &hf_010_550_DIV, { "DIV", "asterix.010_550_DIV", FT_UINT8, BASE_DEC, VALS (valstr_010_550_DIV), 0x08, NULL, HFILL } },
+        { &hf_010_550_TTF, { "TTF", "asterix.010_550_TTF", FT_UINT8, BASE_DEC, VALS (valstr_010_550_TTF), 0x04, NULL, HFILL } },
+        { &hf_010_RE, { "RE, Reserved Expansion Field", "asterix.010_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_010_SP, { "SP, Special Purpose Field", "asterix.010_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_000, { "000, Message Type", "asterix.011_V1_2_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_V1_2_000_VALUE, { "VALUE, Message Type", "asterix.011_V1_2_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_011_V1_2_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_011_V1_2_010, { "010, Data Source Identifier", "asterix.011_V1_2_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -38503,6 +42165,540 @@ void proto_register_asterix (void)
         { &hf_011_610_I12, { "I12, Indicator 12", "asterix.011_610_I12", FT_UINT8, BASE_DEC, VALS (valstr_011_610_I12), 0x01, NULL, HFILL } },
         { &hf_011_SP, { "SP, Special Purpose Field", "asterix.011_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_011_RE, { "RE, Reserved Expansion Field", "asterix.011_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_000, { "000, Message Type", "asterix.015_V1_0_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_000_MT, { "MT, Message Type", "asterix.015_V1_0_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_000_MT), 0xfe, NULL, HFILL } },
+        { &hf_015_V1_0_000_RG, { "RG, Report Generation", "asterix.015_V1_0_000_RG", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_000_RG), 0x01, NULL, HFILL } },
+        { &hf_015_V1_0_010, { "010, Data Source Identifier", "asterix.015_V1_0_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_010_SAC, { "SAC, System Area Code", "asterix.015_V1_0_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_010_SIC, { "SIC, System Identification Code", "asterix.015_V1_0_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_015, { "015, Service Identification", "asterix.015_V1_0_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_015_VALUE, { "VALUE, Service Identification", "asterix.015_V1_0_015_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_020, { "020, Target Report Descriptor", "asterix.015_V1_0_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_020_MOMU, { "MOMU, Mono-Static Target Report or Multi-Static Target Report", "asterix.015_V1_0_020_MOMU", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_020_MOMU), 0xc0, NULL, HFILL } },
+        { &hf_015_V1_0_020_TTAX, { "TTAX, Target Taxonomy", "asterix.015_V1_0_020_TTAX", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_020_TTAX), 0x30, NULL, HFILL } },
+        { &hf_015_V1_0_020_SCD, { "SCD, Scanning Direction", "asterix.015_V1_0_020_SCD", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_020_SCD), 0x0c, NULL, HFILL } },
+        { &hf_015_V1_0_030, { "030, Warning/Error Conditions", "asterix.015_V1_0_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_030_WE, { "WE, Warning/Error Condition Value", "asterix.015_V1_0_030_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_015_V1_0_050, { "050, Update Period", "asterix.015_V1_0_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_050_UPD, { "UPD, Update Period, [s]", "asterix.015_V1_0_050_UPD", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_145, { "145, Time of Applicability", "asterix.015_V1_0_145", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_145_VALUE, { "VALUE, Time of Applicability, [s]", "asterix.015_V1_0_145_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_161, { "161, Track/Plot Number", "asterix.015_V1_0_161", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_161_VALUE, { "VALUE, Track/Plot Number", "asterix.015_V1_0_161_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_170, { "170, Track/Plot Status", "asterix.015_V1_0_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_170_BIZ, { "BIZ", "asterix.015_V1_0_170_BIZ", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_170_BIZ), 0x80, NULL, HFILL } },
+        { &hf_015_V1_0_170_BAZ, { "BAZ", "asterix.015_V1_0_170_BAZ", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_170_BAZ), 0x40, NULL, HFILL } },
+        { &hf_015_V1_0_170_TUR, { "TUR", "asterix.015_V1_0_170_TUR", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_170_TUR), 0x20, NULL, HFILL } },
+        { &hf_015_V1_0_170_CSTP, { "CSTP, Coasted - Position", "asterix.015_V1_0_170_CSTP", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_170_CSTP), 0x08, NULL, HFILL } },
+        { &hf_015_V1_0_170_CSTH, { "CSTH, Coasted – Height", "asterix.015_V1_0_170_CSTH", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_170_CSTH), 0x04, NULL, HFILL } },
+        { &hf_015_V1_0_170_CNF, { "CNF, Confirmed vs. Tentative Track", "asterix.015_V1_0_170_CNF", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_170_CNF), 0x02, NULL, HFILL } },
+        { &hf_015_V1_0_270, { "270, Target Size & Orientation", "asterix.015_V1_0_270", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_LEN, { "LEN, Target Length", "asterix.015_V1_0_270_LEN", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_LEN_VALUE, { "VALUE, Target Length, [m]", "asterix.015_V1_0_270_LEN_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_WDT, { "WDT, Target Width", "asterix.015_V1_0_270_WDT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_WDT_VALUE, { "VALUE, Target Width, [m]", "asterix.015_V1_0_270_WDT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_HGT, { "HGT, Target Height", "asterix.015_V1_0_270_HGT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_HGT_VALUE, { "VALUE, Target Height, [m]", "asterix.015_V1_0_270_HGT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_ORT, { "ORT, Target Orientation", "asterix.015_V1_0_270_ORT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_270_ORT_VALUE, { "VALUE, Target Orientation, [deg]", "asterix.015_V1_0_270_ORT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_300, { "300, Object Classification", "asterix.015_V1_0_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_300_CLS, { "CLS, Classification", "asterix.015_V1_0_300_CLS", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_300_PRB, { "PRB, Probability", "asterix.015_V1_0_300_PRB", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_400, { "400, Measurement Identifier", "asterix.015_V1_0_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_400_PID, { "PID, Pair Identifier", "asterix.015_V1_0_400_PID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_400_ON, { "ON, Observation Number", "asterix.015_V1_0_400_ON", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_480, { "480, Associations", "asterix.015_V1_0_480", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_480_VALUE, { "VALUE, Associations", "asterix.015_V1_0_480_VALUE", FT_UINT40, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600, { "600, Horizontal Position Information", "asterix.015_V1_0_600", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_P84, { "P84, Horizontal Position in WGS-84 Coordinates", "asterix.015_V1_0_600_P84", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_P84_LATITUDE, { "LATITUDE, [deg]", "asterix.015_V1_0_600_P84_LATITUDE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_P84_LONGITUDE, { "LONGITUDE, [deg]", "asterix.015_V1_0_600_P84_LONGITUDE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPR, { "HPR, Horizontal Position Resolution", "asterix.015_V1_0_600_HPR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPR_RSHPX, { "RSHPX, [m]", "asterix.015_V1_0_600_HPR_RSHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPR_RSHPY, { "RSHPY, [m]", "asterix.015_V1_0_600_HPR_RSHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPR_CORSHPXY, { "CORSHPXY, [%]", "asterix.015_V1_0_600_HPR_CORSHPXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPP, { "HPP, Horizontal Position Precision", "asterix.015_V1_0_600_HPP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPP_SDHPX, { "SDHPX, [m]", "asterix.015_V1_0_600_HPP_SDHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPP_SDHPY, { "SDHPY, [m]", "asterix.015_V1_0_600_HPP_SDHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_600_HPP_CSDHPXY, { "CSDHPXY, [%]", "asterix.015_V1_0_600_HPP_CSDHPXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601, { "601, Geometric Height Information", "asterix.015_V1_0_601", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_GH, { "GH, Geometric Height (WGS-84)", "asterix.015_V1_0_601_GH", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_GH_VALUE, { "VALUE, Geometric Height (WGS-84), [m]", "asterix.015_V1_0_601_GH_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_RSGH, { "RSGH, Geometric Height Resolution", "asterix.015_V1_0_601_RSGH", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_RSGH_VALUE, { "VALUE, Geometric Height Resolution, [m]", "asterix.015_V1_0_601_RSGH_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_SDGH, { "SDGH, Geometric Height Precision", "asterix.015_V1_0_601_SDGH", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_SDGH_VALUE, { "VALUE, Geometric Height Precision, [m]", "asterix.015_V1_0_601_SDGH_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_CI6, { "CI6, Confidence Interval for Geometric Height (67%)", "asterix.015_V1_0_601_CI6", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_CI6_UCI6, { "UCI6, [m]", "asterix.015_V1_0_601_CI6_UCI6", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_CI6_LCI6, { "LCI6, [m]", "asterix.015_V1_0_601_CI6_LCI6", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_CI9, { "CI9, Confidence Interval for Geometric Height (95%)", "asterix.015_V1_0_601_CI9", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_CI9_UCI9, { "UCI9, [m]", "asterix.015_V1_0_601_CI9_UCI9", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_CI9_LCI9, { "LCI9, [m]", "asterix.015_V1_0_601_CI9_LCI9", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHP, { "COGHHP, Correlation of Geometric Height and Horizontal Position", "asterix.015_V1_0_601_COGHHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHP_X, { "X, [%]", "asterix.015_V1_0_601_COGHHP_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHP_Y, { "Y, [%]", "asterix.015_V1_0_601_COGHHP_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHV, { "COGHHV, Correlation of Geometric Height and Horizontal Velocity", "asterix.015_V1_0_601_COGHHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHV_X, { "X, [%]", "asterix.015_V1_0_601_COGHHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHV_Y, { "Y, [%]", "asterix.015_V1_0_601_COGHHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHA, { "COGHHA, Correlation of Geometric Height and Horizontal Acceleration", "asterix.015_V1_0_601_COGHHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHA_X, { "X, [%]", "asterix.015_V1_0_601_COGHHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_601_COGHHA_Y, { "Y, [%]", "asterix.015_V1_0_601_COGHHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602, { "602, Horizontal Velocity Information", "asterix.015_V1_0_602", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_HV, { "HV, Horizontal Velocity Vector", "asterix.015_V1_0_602_HV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_HV_X, { "X, [m/s]", "asterix.015_V1_0_602_HV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_HV_Y, { "Y, [m/s]", "asterix.015_V1_0_602_HV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_RSHV, { "RSHV, Horizontal Velocity Resolution", "asterix.015_V1_0_602_RSHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_RSHV_X, { "X, [m/s]", "asterix.015_V1_0_602_RSHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_RSHV_Y, { "Y, [m/s]", "asterix.015_V1_0_602_RSHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_RSHV_CORSHVXY, { "CORSHVXY, [%]", "asterix.015_V1_0_602_RSHV_CORSHVXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_SDHV, { "SDHV, Horizontal Velocity Precision", "asterix.015_V1_0_602_SDHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_SDHV_X, { "X, [m/s]", "asterix.015_V1_0_602_SDHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_SDHV_Y, { "Y, [m/s]", "asterix.015_V1_0_602_SDHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_SDHV_COHVXY, { "COHVXY, [%]", "asterix.015_V1_0_602_SDHV_COHVXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_COHVHP, { "COHVHP, Correlation of Horizontal Velocity and Horizontal Position", "asterix.015_V1_0_602_COHVHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_COHVHP_COHVXHPX, { "COHVXHPX, [%]", "asterix.015_V1_0_602_COHVHP_COHVXHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_COHVHP_COHVXHPY, { "COHVXHPY, [%]", "asterix.015_V1_0_602_COHVHP_COHVXHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_COHVHP_COHVYHPX, { "COHVYHPX, [%]", "asterix.015_V1_0_602_COHVHP_COHVYHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_602_COHVHP_COHVYHPY, { "COHVYHPY, [%]", "asterix.015_V1_0_602_COHVHP_COHVYHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603, { "603, Horizontal Acceleration Information", "asterix.015_V1_0_603", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_HA, { "HA, Horizontal Acceleration Vector", "asterix.015_V1_0_603_HA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_HA_X, { "X, [m/s2]", "asterix.015_V1_0_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_HA_Y, { "Y, [m/s2]", "asterix.015_V1_0_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_SDHA, { "SDHA, Horizontal Acceleration Precision", "asterix.015_V1_0_603_SDHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_SDHA_X, { "X, [m/s2]", "asterix.015_V1_0_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_SDHA_Y, { "Y, [m/s2]", "asterix.015_V1_0_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_SDHA_COAXY, { "COAXY, [%]", "asterix.015_V1_0_603_SDHA_COAXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHP, { "COHAHP, Correlation of Horizontal Acceleration and Horizontal Position", "asterix.015_V1_0_603_COHAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHP_COHAXHPX, { "COHAXHPX, [%]", "asterix.015_V1_0_603_COHAHP_COHAXHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHP_CHAXHPY, { "CHAXHPY, [%]", "asterix.015_V1_0_603_COHAHP_CHAXHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHP_CHAYHPX, { "CHAYHPX, [%]", "asterix.015_V1_0_603_COHAHP_CHAYHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHP_COAYHPY, { "COAYHPY, [%]", "asterix.015_V1_0_603_COHAHP_COAYHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHV, { "COHAHV, Correlation of Horizontal Acceleration and Horizontal Velocity", "asterix.015_V1_0_603_COHAHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHV_COHAXHVX, { "COHAXHVX, [%]", "asterix.015_V1_0_603_COHAHV_COHAXHVX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHV_COHAXHVY, { "COHAXHVY, [%]", "asterix.015_V1_0_603_COHAHV_COHAXHVY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHV_COHAYHVX, { "COHAYHVX, [%]", "asterix.015_V1_0_603_COHAHV_COHAYHVX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_603_COHAHV_COHAYHVY, { "COHAYHVY, [%]", "asterix.015_V1_0_603_COHAHV_COHAYHVY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604, { "604, Vertical Velocity Information", "asterix.015_V1_0_604", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_VV, { "VV, Vertical Velocity", "asterix.015_V1_0_604_VV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_VV_VALUE, { "VALUE, Vertical Velocity, [m/s]", "asterix.015_V1_0_604_VV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_RSVV, { "RSVV, Vertical Velocity Resolution", "asterix.015_V1_0_604_RSVV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_RSVV_VALUE, { "VALUE, Vertical Velocity Resolution, [m/s]", "asterix.015_V1_0_604_RSVV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_SDVV, { "SDVV, Vertical Velocity Precision", "asterix.015_V1_0_604_SDVV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_SDVV_SDVV, { "SDVV, [m/s]", "asterix.015_V1_0_604_SDVV_SDVV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_SDVV_COVVGH, { "COVVGH, [%]", "asterix.015_V1_0_604_SDVV_COVVGH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHP, { "COVVHP, Correlation of Vertical Velocity and Horizontal Position", "asterix.015_V1_0_604_COVVHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHP_X, { "X, [%]", "asterix.015_V1_0_604_COVVHP_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHP_Y, { "Y, [%]", "asterix.015_V1_0_604_COVVHP_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHV, { "COVVHV, Correlation of Vertical Velocity and Horizontal Velocity", "asterix.015_V1_0_604_COVVHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHV_X, { "X, [%]", "asterix.015_V1_0_604_COVVHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHV_Y, { "Y, [%]", "asterix.015_V1_0_604_COVVHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHA, { "COVVHA, Correlation of Vertical Velocity and Horizontal Acceleration", "asterix.015_V1_0_604_COVVHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHA_X, { "X, [%]", "asterix.015_V1_0_604_COVVHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_604_COVVHA_Y, { "Y, [%]", "asterix.015_V1_0_604_COVVHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605, { "605, Vertical Velocity Information", "asterix.015_V1_0_605", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_VA, { "VA, Vertical Acceleration", "asterix.015_V1_0_605_VA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_VA_VALUE, { "VALUE, Vertical Acceleration, [m/s2]", "asterix.015_V1_0_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_RSVA, { "RSVA, Vertical Acceleration Precision", "asterix.015_V1_0_605_RSVA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_RSVA_SDVA, { "SDVA, [m/s2]", "asterix.015_V1_0_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_RSVA_COVAGH, { "COVAGH, [%]", "asterix.015_V1_0_605_RSVA_COVAGH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_RSVA_COVAVV, { "COVAVV, [%]", "asterix.015_V1_0_605_RSVA_COVAVV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHP, { "COVAHP, Correlation of Vertical Acceleration and Horizontal Position", "asterix.015_V1_0_605_COVAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHP_X, { "X, [%]", "asterix.015_V1_0_605_COVAHP_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHP_Y, { "Y, [%]", "asterix.015_V1_0_605_COVAHP_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHV, { "COVAHV, Correlation of Vertical Acceleration and Horizontal Velocity", "asterix.015_V1_0_605_COVAHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHV_X, { "X, [%]", "asterix.015_V1_0_605_COVAHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHV_Y, { "Y, [%]", "asterix.015_V1_0_605_COVAHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHA, { "COVAHA, Correlation of Vertical Acceleration and Horizontal Acceleration", "asterix.015_V1_0_605_COVAHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHA_X, { "X, [%]", "asterix.015_V1_0_605_COVAHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_605_COVAHA_Y, { "Y, [%]", "asterix.015_V1_0_605_COVAHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625, { "625, Range Information", "asterix.015_V1_0_625", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_R, { "R, Range", "asterix.015_V1_0_625_R", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_R_VALUE, { "VALUE, Range, [m]", "asterix.015_V1_0_625_R_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RSR, { "RSR, Range Resolution", "asterix.015_V1_0_625_RSR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RSR_VALUE, { "VALUE, Range Resolution, [m]", "asterix.015_V1_0_625_RSR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDR, { "SDR, Range Precision", "asterix.015_V1_0_625_SDR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDR_VALUE, { "VALUE, Range Precision, [m]", "asterix.015_V1_0_625_SDR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RR, { "RR, Range Rate", "asterix.015_V1_0_625_RR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RR_VALUE, { "VALUE, Range Rate, [m/s]", "asterix.015_V1_0_625_RR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RSRR, { "RSRR, Range Rate Resolution", "asterix.015_V1_0_625_RSRR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RSRR_VALUE, { "VALUE, Range Rate Resolution, [m/s]", "asterix.015_V1_0_625_RSRR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRR, { "SDRR, Range Rate Precision", "asterix.015_V1_0_625_SDRR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRR_SDRR, { "SDRR, [m/s]", "asterix.015_V1_0_625_SDRR_SDRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRR_CORRR, { "CORRR, [%]", "asterix.015_V1_0_625_SDRR_CORRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RA, { "RA, Range Acceleration", "asterix.015_V1_0_625_RA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_RA_VALUE, { "VALUE, Range Acceleration, [m/s2]", "asterix.015_V1_0_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRA, { "SDRA, Range Acceleration Precision", "asterix.015_V1_0_625_SDRA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRA_SDRA, { "SDRA, [m/s2]", "asterix.015_V1_0_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRA_CORAR, { "CORAR, [%]", "asterix.015_V1_0_625_SDRA_CORAR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_625_SDRA_CORARR, { "CORARR, [%]", "asterix.015_V1_0_625_SDRA_CORARR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626, { "626, Doppler Information", "asterix.015_V1_0_626", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_DV, { "DV, Doppler Velocity", "asterix.015_V1_0_626_DV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_DV_VALUE, { "VALUE, Doppler Velocity, [m/s]", "asterix.015_V1_0_626_DV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_SDDV, { "SDDV, Precision of Doppler Velocity", "asterix.015_V1_0_626_SDDV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_SDDV_VALUE, { "VALUE, Precision of Doppler Velocity, [m/s]", "asterix.015_V1_0_626_SDDV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_DA, { "DA, Doppler Acceleration", "asterix.015_V1_0_626_DA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_DA_VALUE, { "VALUE, Doppler Acceleration, [m/s2]", "asterix.015_V1_0_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_SDDA, { "SDDA, Precision of Doppler Acceleration", "asterix.015_V1_0_626_SDDA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_SDDA_SDDA, { "SDDA, [m/s2]", "asterix.015_V1_0_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_SDDA_CODADV, { "CODADV, [%]", "asterix.015_V1_0_626_SDDA_CODADV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODVR, { "CODVR, Correlation of Doppler Velocity and Range", "asterix.015_V1_0_626_CODVR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODVR_VALUE, { "VALUE, Correlation of Doppler Velocity and Range, [%]", "asterix.015_V1_0_626_CODVR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODVRR, { "CODVRR, Correlation of Doppler Velocity and Range Rate", "asterix.015_V1_0_626_CODVRR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODVRR_VALUE, { "VALUE, Correlation of Doppler Velocity and Range Rate, [%]", "asterix.015_V1_0_626_CODVRR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODVRA, { "CODVRA, Correlation of Doppler Velocity and Range Acceleration", "asterix.015_V1_0_626_CODVRA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODVRA_VALUE, { "VALUE, Correlation of Doppler Velocity and Range Acceleration, [%]", "asterix.015_V1_0_626_CODVRA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODAR, { "CODAR, Correlation of Doppler Acceleration and Range", "asterix.015_V1_0_626_CODAR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODAR_VALUE, { "VALUE, Correlation of Doppler Acceleration and Range, [%]", "asterix.015_V1_0_626_CODAR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODARR, { "CODARR, Correlation of Doppler Acceleration and Range Rate", "asterix.015_V1_0_626_CODARR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODARR_VALUE, { "VALUE, Correlation of Doppler Acceleration and Range Rate, [%]", "asterix.015_V1_0_626_CODARR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODARA, { "CODARA, Correlation of Doppler Acceleration and Range Acceleration", "asterix.015_V1_0_626_CODARA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_626_CODARA_VALUE, { "VALUE, Correlation of Doppler Acceleration and Range Acceleration, [%]", "asterix.015_V1_0_626_CODARA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627, { "627, Azimuth Information", "asterix.015_V1_0_627", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_AZ, { "AZ, Azimuth", "asterix.015_V1_0_627_AZ", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_AZ_VALUE, { "VALUE, Azimuth, [deg]", "asterix.015_V1_0_627_AZ_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_RSAZ, { "RSAZ, Azimuth Resolution", "asterix.015_V1_0_627_RSAZ", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_RSAZ_VALUE, { "VALUE, Azimuth Resolution, [deg]", "asterix.015_V1_0_627_RSAZ_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_SDASZ, { "SDASZ, Standard Deviation of Azimuth", "asterix.015_V1_0_627_SDASZ", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_SDASZ_VALUE, { "VALUE, Standard Deviation of Azimuth, [deg]", "asterix.015_V1_0_627_SDASZ_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_AZR, { "AZR, Azimuth Rate", "asterix.015_V1_0_627_AZR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_AZR_VALUE, { "VALUE, Azimuth Rate, [deg]", "asterix.015_V1_0_627_AZR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_SDAZR, { "SDAZR, Standard Deviation of Azimuth Rate", "asterix.015_V1_0_627_SDAZR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_SDAZR_SDAZR, { "SDAZR, [deg]", "asterix.015_V1_0_627_SDAZR_SDAZR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_SDAZR_COAZRAZ, { "COAZRAZ, [%]", "asterix.015_V1_0_627_SDAZR_COAZRAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_AZEX, { "AZEX, Azimuth Extent", "asterix.015_V1_0_627_AZEX", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_AZEX_S, { "S, [deg]", "asterix.015_V1_0_627_AZEX_S", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_627_AZEX_E, { "E, [deg]", "asterix.015_V1_0_627_AZEX_E", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628, { "628, Elevation Information", "asterix.015_V1_0_628", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_EL, { "EL, Elevation", "asterix.015_V1_0_628_EL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_EL_VALUE, { "VALUE, Elevation, [deg]", "asterix.015_V1_0_628_EL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_RSEL, { "RSEL, Elevation Resolution", "asterix.015_V1_0_628_RSEL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_RSEL_VALUE, { "VALUE, Elevation Resolution, [deg]", "asterix.015_V1_0_628_RSEL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_SDEL, { "SDEL, Standard Deviation of Elevation", "asterix.015_V1_0_628_SDEL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_SDEL_VALUE, { "VALUE, Standard Deviation of Elevation, [deg]", "asterix.015_V1_0_628_SDEL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_ER, { "ER, Elevation Rate", "asterix.015_V1_0_628_ER", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_ER_VALUE, { "VALUE, Elevation Rate, [deg]", "asterix.015_V1_0_628_ER_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_SDER, { "SDER, Standard Deviation of Elevation Rate", "asterix.015_V1_0_628_SDER", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_SDER_SDELR, { "SDELR, [deg]", "asterix.015_V1_0_628_SDER_SDELR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_SDER_COELREL, { "COELREL, [%]", "asterix.015_V1_0_628_SDER_COELREL", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_ELEX, { "ELEX, Elevation Extent", "asterix.015_V1_0_628_ELEX", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_ELEX_S, { "S, [deg]", "asterix.015_V1_0_628_ELEX_S", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_628_ELEX_E, { "E, [deg]", "asterix.015_V1_0_628_ELEX_E", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630, { "630, Path Quality", "asterix.015_V1_0_630", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_DPP, { "DPP, Direct Path - Power", "asterix.015_V1_0_630_DPP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_DPP_VALUE, { "VALUE, Direct Path - Power, [dB]", "asterix.015_V1_0_630_DPP_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_DPS, { "DPS, Direct Path - Signal to Noise Ratio (SNR)", "asterix.015_V1_0_630_DPS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_DPS_VALUE, { "VALUE, Direct Path - Signal to Noise Ratio (SNR), [dB]", "asterix.015_V1_0_630_DPS_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_RPP, { "RPP, Reflected Path - Power", "asterix.015_V1_0_630_RPP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_RPP_RPP, { "RPP, [dB]", "asterix.015_V1_0_630_RPP_RPP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_RPS, { "RPS, Reflected Path - Signal to Noise Ratio (SNR)", "asterix.015_V1_0_630_RPS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_630_RPS_VALUE, { "VALUE, Reflected Path - Signal to Noise Ratio (SNR), [dB]", "asterix.015_V1_0_630_RPS_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_631, { "631, Contour (Azimuth, Elevation Angle, Range Extent)", "asterix.015_V1_0_631", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_631_AZCON, { "AZCON, [deg]", "asterix.015_V1_0_631_AZCON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_631_ELCON, { "ELCON, [deg]", "asterix.015_V1_0_631_ELCON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_631_RGCONSTOP, { "RGCONSTOP, [m]", "asterix.015_V1_0_631_RGCONSTOP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_631_RGCONSTART, { "RGCONSTART, [m]", "asterix.015_V1_0_631_RGCONSTART", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_SP, { "SP, Special Purpose Field", "asterix.015_V1_0_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_000, { "000, Message Type", "asterix.015_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_000_MT, { "MT, Message Type", "asterix.015_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_015_000_MT), 0xfe, NULL, HFILL } },
+        { &hf_015_000_RG, { "RG, Report Generation", "asterix.015_000_RG", FT_UINT8, BASE_DEC, VALS (valstr_015_000_RG), 0x01, NULL, HFILL } },
+        { &hf_015_010, { "010, Data Source Identifier", "asterix.015_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_010_SAC, { "SAC, System Area Code", "asterix.015_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_010_SIC, { "SIC, System Identification Code", "asterix.015_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_015, { "015, Service Identification", "asterix.015_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_015_VALUE, { "VALUE, Service Identification", "asterix.015_015_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_020, { "020, Target Report Descriptor", "asterix.015_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_020_MOMU, { "MOMU, Mono-Static Target Report or Multi-Static Target Report", "asterix.015_020_MOMU", FT_UINT8, BASE_DEC, VALS (valstr_015_020_MOMU), 0xc0, NULL, HFILL } },
+        { &hf_015_020_TTAX, { "TTAX, Target Taxonomy", "asterix.015_020_TTAX", FT_UINT8, BASE_DEC, VALS (valstr_015_020_TTAX), 0x30, NULL, HFILL } },
+        { &hf_015_020_SCD, { "SCD, Scanning Direction", "asterix.015_020_SCD", FT_UINT8, BASE_DEC, VALS (valstr_015_020_SCD), 0x0c, NULL, HFILL } },
+        { &hf_015_030, { "030, Warning/Error Conditions", "asterix.015_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_030_WE, { "WE, Warning/Error Condition Value", "asterix.015_030_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_015_050, { "050, Update Period", "asterix.015_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_050_UPD, { "UPD, Update Period, [s]", "asterix.015_050_UPD", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_145, { "145, Time of Applicability", "asterix.015_145", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_145_VALUE, { "VALUE, Time of Applicability, [s]", "asterix.015_145_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_161, { "161, Track/Plot Number", "asterix.015_161", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_161_VALUE, { "VALUE, Track/Plot Number", "asterix.015_161_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_170, { "170, Track/Plot Status", "asterix.015_170", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_170_BIZ, { "BIZ", "asterix.015_170_BIZ", FT_UINT8, BASE_DEC, VALS (valstr_015_170_BIZ), 0x80, NULL, HFILL } },
+        { &hf_015_170_BAZ, { "BAZ", "asterix.015_170_BAZ", FT_UINT8, BASE_DEC, VALS (valstr_015_170_BAZ), 0x40, NULL, HFILL } },
+        { &hf_015_170_TUR, { "TUR", "asterix.015_170_TUR", FT_UINT8, BASE_DEC, VALS (valstr_015_170_TUR), 0x20, NULL, HFILL } },
+        { &hf_015_170_CSTP, { "CSTP, Coasted - Position", "asterix.015_170_CSTP", FT_UINT8, BASE_DEC, VALS (valstr_015_170_CSTP), 0x08, NULL, HFILL } },
+        { &hf_015_170_CSTH, { "CSTH, Coasted – Height", "asterix.015_170_CSTH", FT_UINT8, BASE_DEC, VALS (valstr_015_170_CSTH), 0x04, NULL, HFILL } },
+        { &hf_015_170_CNF, { "CNF, Confirmed vs. Tentative Track", "asterix.015_170_CNF", FT_UINT8, BASE_DEC, VALS (valstr_015_170_CNF), 0x02, NULL, HFILL } },
+        { &hf_015_270, { "270, Target Size & Orientation", "asterix.015_270", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_LEN, { "LEN, Target Length", "asterix.015_270_LEN", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_LEN_VALUE, { "VALUE, Target Length, [m]", "asterix.015_270_LEN_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_WDT, { "WDT, Target Width", "asterix.015_270_WDT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_WDT_VALUE, { "VALUE, Target Width, [m]", "asterix.015_270_WDT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_HGT, { "HGT, Target Height", "asterix.015_270_HGT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_HGT_VALUE, { "VALUE, Target Height, [m]", "asterix.015_270_HGT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_ORT, { "ORT, Target Orientation", "asterix.015_270_ORT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_270_ORT_VALUE, { "VALUE, Target Orientation, [deg]", "asterix.015_270_ORT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_300, { "300, Object Classification", "asterix.015_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_300_CLS, { "CLS, Classification", "asterix.015_300_CLS", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_300_PRB, { "PRB, Probability", "asterix.015_300_PRB", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_400, { "400, Measurement Identifier", "asterix.015_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_400_PID, { "PID, Pair Identifier", "asterix.015_400_PID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_400_ON, { "ON, Observation Number", "asterix.015_400_ON", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_480, { "480, Associations", "asterix.015_480", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_480_VALUE, { "VALUE, Associations", "asterix.015_480_VALUE", FT_UINT40, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600, { "600, Horizontal Position Information", "asterix.015_600", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_P84, { "P84, Horizontal Position in WGS-84 Coordinates", "asterix.015_600_P84", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_P84_LATITUDE, { "LATITUDE, [deg]", "asterix.015_600_P84_LATITUDE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_P84_LONGITUDE, { "LONGITUDE, [deg]", "asterix.015_600_P84_LONGITUDE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPR, { "HPR, Horizontal Position Resolution", "asterix.015_600_HPR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPR_RSHPX, { "RSHPX, [m]", "asterix.015_600_HPR_RSHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPR_RSHPY, { "RSHPY, [m]", "asterix.015_600_HPR_RSHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPR_CORSHPXY, { "CORSHPXY, [%]", "asterix.015_600_HPR_CORSHPXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPP, { "HPP, Horizontal Position Precision", "asterix.015_600_HPP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPP_SDHPX, { "SDHPX, [m]", "asterix.015_600_HPP_SDHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPP_SDHPY, { "SDHPY, [m]", "asterix.015_600_HPP_SDHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_600_HPP_CSDHPXY, { "CSDHPXY, [%]", "asterix.015_600_HPP_CSDHPXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601, { "601, Geometric Height Information", "asterix.015_601", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_GH, { "GH, Geometric Height (WGS-84)", "asterix.015_601_GH", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_GH_VALUE, { "VALUE, Geometric Height (WGS-84), [m]", "asterix.015_601_GH_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_RSGH, { "RSGH, Geometric Height Resolution", "asterix.015_601_RSGH", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_RSGH_VALUE, { "VALUE, Geometric Height Resolution, [m]", "asterix.015_601_RSGH_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_SDGH, { "SDGH, Geometric Height Precision", "asterix.015_601_SDGH", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_SDGH_VALUE, { "VALUE, Geometric Height Precision, [m]", "asterix.015_601_SDGH_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_CI6, { "CI6, Confidence Interval for Geometric Height (67%)", "asterix.015_601_CI6", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_CI6_UCI6, { "UCI6, [m]", "asterix.015_601_CI6_UCI6", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_CI6_LCI6, { "LCI6, [m]", "asterix.015_601_CI6_LCI6", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_CI9, { "CI9, Confidence Interval for Geometric Height (95%)", "asterix.015_601_CI9", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_CI9_UCI9, { "UCI9, [m]", "asterix.015_601_CI9_UCI9", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_CI9_LCI9, { "LCI9, [m]", "asterix.015_601_CI9_LCI9", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHP, { "COGHHP, Correlation of Geometric Height and Horizontal Position", "asterix.015_601_COGHHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHP_X, { "X, [%]", "asterix.015_601_COGHHP_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHP_Y, { "Y, [%]", "asterix.015_601_COGHHP_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHV, { "COGHHV, Correlation of Geometric Height and Horizontal Velocity", "asterix.015_601_COGHHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHV_X, { "X, [%]", "asterix.015_601_COGHHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHV_Y, { "Y, [%]", "asterix.015_601_COGHHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHA, { "COGHHA, Correlation of Geometric Height and Horizontal Acceleration", "asterix.015_601_COGHHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHA_X, { "X, [%]", "asterix.015_601_COGHHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_601_COGHHA_Y, { "Y, [%]", "asterix.015_601_COGHHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602, { "602, Horizontal Velocity Information", "asterix.015_602", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_HV, { "HV, Horizontal Velocity Vector", "asterix.015_602_HV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_HV_X, { "X, [m/s]", "asterix.015_602_HV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_HV_Y, { "Y, [m/s]", "asterix.015_602_HV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_RSHV, { "RSHV, Horizontal Velocity Resolution", "asterix.015_602_RSHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_RSHV_X, { "X, [m/s]", "asterix.015_602_RSHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_RSHV_Y, { "Y, [m/s]", "asterix.015_602_RSHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_RSHV_CORSHVXY, { "CORSHVXY, [%]", "asterix.015_602_RSHV_CORSHVXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_SDHV, { "SDHV, Horizontal Velocity Precision", "asterix.015_602_SDHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_SDHV_X, { "X, [m/s]", "asterix.015_602_SDHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_SDHV_Y, { "Y, [m/s]", "asterix.015_602_SDHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_SDHV_COHVXY, { "COHVXY, [%]", "asterix.015_602_SDHV_COHVXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_COHVHP, { "COHVHP, Correlation of Horizontal Velocity and Horizontal Position", "asterix.015_602_COHVHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_COHVHP_COHVXHPX, { "COHVXHPX, [%]", "asterix.015_602_COHVHP_COHVXHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_COHVHP_COHVXHPY, { "COHVXHPY, [%]", "asterix.015_602_COHVHP_COHVXHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_COHVHP_COHVYHPX, { "COHVYHPX, [%]", "asterix.015_602_COHVHP_COHVYHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_602_COHVHP_COHVYHPY, { "COHVYHPY, [%]", "asterix.015_602_COHVHP_COHVYHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603, { "603, Horizontal Acceleration Information", "asterix.015_603", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_HA, { "HA, Horizontal Acceleration Vector", "asterix.015_603_HA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_HA_X, { "X, [m/s2]", "asterix.015_603_HA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_HA_Y, { "Y, [m/s2]", "asterix.015_603_HA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_SDHA, { "SDHA, Horizontal Acceleration Precision", "asterix.015_603_SDHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_SDHA_X, { "X, [m/s2]", "asterix.015_603_SDHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_SDHA_Y, { "Y, [m/s2]", "asterix.015_603_SDHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_SDHA_COAXY, { "COAXY, [%]", "asterix.015_603_SDHA_COAXY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHP, { "COHAHP, Correlation of Horizontal Acceleration and Horizontal Position", "asterix.015_603_COHAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHP_COHAXHPX, { "COHAXHPX, [%]", "asterix.015_603_COHAHP_COHAXHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHP_CHAXHPY, { "CHAXHPY, [%]", "asterix.015_603_COHAHP_CHAXHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHP_CHAYHPX, { "CHAYHPX, [%]", "asterix.015_603_COHAHP_CHAYHPX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHP_COAYHPY, { "COAYHPY, [%]", "asterix.015_603_COHAHP_COAYHPY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHV, { "COHAHV, Correlation of Horizontal Acceleration and Horizontal Velocity", "asterix.015_603_COHAHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHV_COHAXHVX, { "COHAXHVX, [%]", "asterix.015_603_COHAHV_COHAXHVX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHV_COHAXHVY, { "COHAXHVY, [%]", "asterix.015_603_COHAHV_COHAXHVY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHV_COHAYHVX, { "COHAYHVX, [%]", "asterix.015_603_COHAHV_COHAYHVX", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_603_COHAHV_COHAYHVY, { "COHAYHVY, [%]", "asterix.015_603_COHAHV_COHAYHVY", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604, { "604, Vertical Velocity Information", "asterix.015_604", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_VV, { "VV, Vertical Velocity", "asterix.015_604_VV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_VV_VALUE, { "VALUE, Vertical Velocity, [m/s]", "asterix.015_604_VV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_RSVV, { "RSVV, Vertical Velocity Resolution", "asterix.015_604_RSVV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_RSVV_VALUE, { "VALUE, Vertical Velocity Resolution, [m/s]", "asterix.015_604_RSVV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_SDVV, { "SDVV, Vertical Velocity Precision", "asterix.015_604_SDVV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_SDVV_SDVV, { "SDVV, [m/s]", "asterix.015_604_SDVV_SDVV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_SDVV_COVVGH, { "COVVGH, [%]", "asterix.015_604_SDVV_COVVGH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHP, { "COVVHP, Correlation of Vertical Velocity and Horizontal Position", "asterix.015_604_COVVHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHP_X, { "X, [%]", "asterix.015_604_COVVHP_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHP_Y, { "Y, [%]", "asterix.015_604_COVVHP_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHV, { "COVVHV, Correlation of Vertical Velocity and Horizontal Velocity", "asterix.015_604_COVVHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHV_X, { "X, [%]", "asterix.015_604_COVVHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHV_Y, { "Y, [%]", "asterix.015_604_COVVHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHA, { "COVVHA, Correlation of Vertical Velocity and Horizontal Acceleration", "asterix.015_604_COVVHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHA_X, { "X, [%]", "asterix.015_604_COVVHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_604_COVVHA_Y, { "Y, [%]", "asterix.015_604_COVVHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605, { "605, Vertical Velocity Information", "asterix.015_605", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_VA, { "VA, Vertical Acceleration", "asterix.015_605_VA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_VA_VALUE, { "VALUE, Vertical Acceleration, [m/s2]", "asterix.015_605_VA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_RSVA, { "RSVA, Vertical Acceleration Precision", "asterix.015_605_RSVA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_RSVA_SDVA, { "SDVA, [m/s2]", "asterix.015_605_RSVA_SDVA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_RSVA_COVAGH, { "COVAGH, [%]", "asterix.015_605_RSVA_COVAGH", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_RSVA_COVAVV, { "COVAVV, [%]", "asterix.015_605_RSVA_COVAVV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHP, { "COVAHP, Correlation of Vertical Acceleration and Horizontal Position", "asterix.015_605_COVAHP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHP_X, { "X, [%]", "asterix.015_605_COVAHP_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHP_Y, { "Y, [%]", "asterix.015_605_COVAHP_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHV, { "COVAHV, Correlation of Vertical Acceleration and Horizontal Velocity", "asterix.015_605_COVAHV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHV_X, { "X, [%]", "asterix.015_605_COVAHV_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHV_Y, { "Y, [%]", "asterix.015_605_COVAHV_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHA, { "COVAHA, Correlation of Vertical Acceleration and Horizontal Acceleration", "asterix.015_605_COVAHA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHA_X, { "X, [%]", "asterix.015_605_COVAHA_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_605_COVAHA_Y, { "Y, [%]", "asterix.015_605_COVAHA_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625, { "625, Range Information", "asterix.015_625", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_R, { "R, Range", "asterix.015_625_R", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_R_VALUE, { "VALUE, Range, [m]", "asterix.015_625_R_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RSR, { "RSR, Range Resolution", "asterix.015_625_RSR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RSR_VALUE, { "VALUE, Range Resolution, [m]", "asterix.015_625_RSR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDR, { "SDR, Range Precision", "asterix.015_625_SDR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDR_VALUE, { "VALUE, Range Precision, [m]", "asterix.015_625_SDR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RR, { "RR, Range Rate", "asterix.015_625_RR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RR_VALUE, { "VALUE, Range Rate, [m/s]", "asterix.015_625_RR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RSRR, { "RSRR, Range Rate Resolution", "asterix.015_625_RSRR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RSRR_VALUE, { "VALUE, Range Rate Resolution, [m/s]", "asterix.015_625_RSRR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRR, { "SDRR, Range Rate Precision", "asterix.015_625_SDRR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRR_SDRR, { "SDRR, [m/s]", "asterix.015_625_SDRR_SDRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRR_CORRR, { "CORRR, [%]", "asterix.015_625_SDRR_CORRR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RA, { "RA, Range Acceleration", "asterix.015_625_RA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_RA_VALUE, { "VALUE, Range Acceleration, [m/s2]", "asterix.015_625_RA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRA, { "SDRA, Range Acceleration Precision", "asterix.015_625_SDRA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRA_SDRA, { "SDRA, [m/s2]", "asterix.015_625_SDRA_SDRA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRA_CORAR, { "CORAR, [%]", "asterix.015_625_SDRA_CORAR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_625_SDRA_CORARR, { "CORARR, [%]", "asterix.015_625_SDRA_CORARR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626, { "626, Doppler Information", "asterix.015_626", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_DV, { "DV, Doppler Velocity", "asterix.015_626_DV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_DV_VALUE, { "VALUE, Doppler Velocity, [m/s]", "asterix.015_626_DV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_SDDV, { "SDDV, Precision of Doppler Velocity", "asterix.015_626_SDDV", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_SDDV_VALUE, { "VALUE, Precision of Doppler Velocity, [m/s]", "asterix.015_626_SDDV_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_DA, { "DA, Doppler Acceleration", "asterix.015_626_DA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_DA_VALUE, { "VALUE, Doppler Acceleration, [m/s2]", "asterix.015_626_DA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_SDDA, { "SDDA, Precision of Doppler Acceleration", "asterix.015_626_SDDA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_SDDA_SDDA, { "SDDA, [m/s2]", "asterix.015_626_SDDA_SDDA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_SDDA_CODADV, { "CODADV, [%]", "asterix.015_626_SDDA_CODADV", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODVR, { "CODVR, Correlation of Doppler Velocity and Range", "asterix.015_626_CODVR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODVR_VALUE, { "VALUE, Correlation of Doppler Velocity and Range, [%]", "asterix.015_626_CODVR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODVRR, { "CODVRR, Correlation of Doppler Velocity and Range Rate", "asterix.015_626_CODVRR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODVRR_VALUE, { "VALUE, Correlation of Doppler Velocity and Range Rate, [%]", "asterix.015_626_CODVRR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODVRA, { "CODVRA, Correlation of Doppler Velocity and Range Acceleration", "asterix.015_626_CODVRA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODVRA_VALUE, { "VALUE, Correlation of Doppler Velocity and Range Acceleration, [%]", "asterix.015_626_CODVRA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODAR, { "CODAR, Correlation of Doppler Acceleration and Range", "asterix.015_626_CODAR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODAR_VALUE, { "VALUE, Correlation of Doppler Acceleration and Range, [%]", "asterix.015_626_CODAR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODARR, { "CODARR, Correlation of Doppler Acceleration and Range Rate", "asterix.015_626_CODARR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODARR_VALUE, { "VALUE, Correlation of Doppler Acceleration and Range Rate, [%]", "asterix.015_626_CODARR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODARA, { "CODARA, Correlation of Doppler Acceleration and Range Acceleration", "asterix.015_626_CODARA", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_626_CODARA_VALUE, { "VALUE, Correlation of Doppler Acceleration and Range Acceleration, [%]", "asterix.015_626_CODARA_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627, { "627, Azimuth Information", "asterix.015_627", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_AZ, { "AZ, Azimuth", "asterix.015_627_AZ", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_AZ_VALUE, { "VALUE, Azimuth, [deg]", "asterix.015_627_AZ_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_RSAZ, { "RSAZ, Azimuth Resolution", "asterix.015_627_RSAZ", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_RSAZ_VALUE, { "VALUE, Azimuth Resolution, [deg]", "asterix.015_627_RSAZ_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_SDASZ, { "SDASZ, Standard Deviation of Azimuth", "asterix.015_627_SDASZ", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_SDASZ_VALUE, { "VALUE, Standard Deviation of Azimuth, [deg]", "asterix.015_627_SDASZ_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_AZR, { "AZR, Azimuth Rate", "asterix.015_627_AZR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_AZR_VALUE, { "VALUE, Azimuth Rate, [deg]", "asterix.015_627_AZR_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_SDAZR, { "SDAZR, Standard Deviation of Azimuth Rate", "asterix.015_627_SDAZR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_SDAZR_SDAZR, { "SDAZR, [deg]", "asterix.015_627_SDAZR_SDAZR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_SDAZR_COAZRAZ, { "COAZRAZ, [%]", "asterix.015_627_SDAZR_COAZRAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_AZEX, { "AZEX, Azimuth Extent", "asterix.015_627_AZEX", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_AZEX_S, { "S, [deg]", "asterix.015_627_AZEX_S", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_627_AZEX_E, { "E, [deg]", "asterix.015_627_AZEX_E", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628, { "628, Elevation Information", "asterix.015_628", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_EL, { "EL, Elevation", "asterix.015_628_EL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_EL_VALUE, { "VALUE, Elevation, [deg]", "asterix.015_628_EL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_RSEL, { "RSEL, Elevation Resolution", "asterix.015_628_RSEL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_RSEL_VALUE, { "VALUE, Elevation Resolution, [deg]", "asterix.015_628_RSEL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_SDEL, { "SDEL, Standard Deviation of Elevation", "asterix.015_628_SDEL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_SDEL_VALUE, { "VALUE, Standard Deviation of Elevation, [deg]", "asterix.015_628_SDEL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_ER, { "ER, Elevation Rate", "asterix.015_628_ER", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_ER_VALUE, { "VALUE, Elevation Rate, [deg]", "asterix.015_628_ER_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_SDER, { "SDER, Standard Deviation of Elevation Rate", "asterix.015_628_SDER", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_SDER_SDELR, { "SDELR, [deg]", "asterix.015_628_SDER_SDELR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_SDER_COELREL, { "COELREL, [%]", "asterix.015_628_SDER_COELREL", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_ELEX, { "ELEX, Elevation Extent", "asterix.015_628_ELEX", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_ELEX_S, { "S, [deg]", "asterix.015_628_ELEX_S", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_628_ELEX_E, { "E, [deg]", "asterix.015_628_ELEX_E", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630, { "630, Path Quality", "asterix.015_630", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_DPP, { "DPP, Direct Path - Power", "asterix.015_630_DPP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_DPP_VALUE, { "VALUE, Direct Path - Power, [dB]", "asterix.015_630_DPP_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_DPS, { "DPS, Direct Path - Signal to Noise Ratio (SNR)", "asterix.015_630_DPS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_DPS_VALUE, { "VALUE, Direct Path - Signal to Noise Ratio (SNR), [dB]", "asterix.015_630_DPS_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_RPP, { "RPP, Reflected Path - Power", "asterix.015_630_RPP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_RPP_RPP, { "RPP, [dB]", "asterix.015_630_RPP_RPP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_RPS, { "RPS, Reflected Path - Signal to Noise Ratio (SNR)", "asterix.015_630_RPS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_630_RPS_VALUE, { "VALUE, Reflected Path - Signal to Noise Ratio (SNR), [dB]", "asterix.015_630_RPS_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_631, { "631, Contour (Azimuth, Elevation Angle, Range Extent)", "asterix.015_631", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_631_AZCON, { "AZCON, [deg]", "asterix.015_631_AZCON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_631_ELCON, { "ELCON, [deg]", "asterix.015_631_ELCON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_631_RGCONSTOP, { "RGCONSTOP, [m]", "asterix.015_631_RGCONSTOP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_631_RGCONSTART, { "RGCONSTART, [m]", "asterix.015_631_RGCONSTART", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_SP, { "SP, Special Purpose Field", "asterix.015_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_000, { "000, Message Type", "asterix.016_V1_0_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_000_VALUE, { "VALUE, Message Type", "asterix.016_V1_0_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_016_V1_0_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_010, { "010, Data Source Identifier", "asterix.016_V1_0_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_010_SAC, { "SAC, System Area Code", "asterix.016_V1_0_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_010_SIC, { "SIC, System Identification Code", "asterix.016_V1_0_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_015, { "015, Service Identification", "asterix.016_V1_0_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_015_VALUE, { "VALUE, Service Identification", "asterix.016_V1_0_015_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_140, { "140, Time of Day", "asterix.016_V1_0_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_140_VALUE, { "VALUE, Time of Day, [s]", "asterix.016_V1_0_140_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_200, { "200, System Configuration Reporting Period", "asterix.016_V1_0_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_200_VALUE, { "VALUE, System Configuration Reporting Period, [s]", "asterix.016_V1_0_200_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_300, { "300, Pair Identification", "asterix.016_V1_0_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_300_PID, { "PID, Pair Identification", "asterix.016_V1_0_300_PID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_300_TID, { "TID, Transmitter Identification", "asterix.016_V1_0_300_TID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_300_RID, { "RID, Receiver Identification", "asterix.016_V1_0_300_RID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_400, { "400, Position of the System Reference Point", "asterix.016_V1_0_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_400_LAT, { "LAT, Latitude, [deg]", "asterix.016_V1_0_400_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_400_LON, { "LON, Longitude, [deg]", "asterix.016_V1_0_400_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_405, { "405, Height of System Reference Point", "asterix.016_V1_0_405", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_405_VALUE, { "VALUE, Height of System Reference Point, [m]", "asterix.016_V1_0_405_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410, { "410, Transmitter Properties", "asterix.016_V1_0_410", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410_TID, { "TID, Transmitter ID", "asterix.016_V1_0_410_TID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410_LAT, { "LAT, Latitude, [deg]", "asterix.016_V1_0_410_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410_LON, { "LON, Longitude, [deg]", "asterix.016_V1_0_410_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410_ALT, { "ALT, Altitude, [m]", "asterix.016_V1_0_410_ALT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410_TTO, { "TTO, Transmission Time Offset, [ns]", "asterix.016_V1_0_410_TTO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410_ATO, { "ATO, Accuracy of Transmission Time Offset, [ns]", "asterix.016_V1_0_410_ATO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_410_PCI, { "PCI, Parallel Transmitter Index", "asterix.016_V1_0_410_PCI", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_420, { "420, Receiver Properties", "asterix.016_V1_0_420", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_420_RID, { "RID, Receiver Component ID", "asterix.016_V1_0_420_RID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_420_LAT, { "LAT, Latitude, [deg]", "asterix.016_V1_0_420_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_420_LON, { "LON, Longitude, [deg]", "asterix.016_V1_0_420_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_420_ALT, { "ALT, Altitude, [m]", "asterix.016_V1_0_420_ALT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_V1_0_SP, { "SP, Special Purpose Field", "asterix.016_V1_0_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_000, { "000, Message Type", "asterix.016_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_000_VALUE, { "VALUE, Message Type", "asterix.016_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_016_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_016_010, { "010, Data Source Identifier", "asterix.016_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_010_SAC, { "SAC, System Area Code", "asterix.016_010_SAC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_010_SIC, { "SIC, System Identification Code", "asterix.016_010_SIC", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_015, { "015, Service Identification", "asterix.016_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_015_VALUE, { "VALUE, Service Identification", "asterix.016_015_VALUE", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_140, { "140, Time of Day", "asterix.016_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_140_VALUE, { "VALUE, Time of Day, [s]", "asterix.016_140_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_200, { "200, System Configuration Reporting Period", "asterix.016_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_200_VALUE, { "VALUE, System Configuration Reporting Period, [s]", "asterix.016_200_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_300, { "300, Pair Identification", "asterix.016_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_300_PID, { "PID, Pair Identification", "asterix.016_300_PID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_300_TID, { "TID, Transmitter Identification", "asterix.016_300_TID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_300_RID, { "RID, Receiver Identification", "asterix.016_300_RID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_400, { "400, Position of the System Reference Point", "asterix.016_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_400_LAT, { "LAT, Latitude, [deg]", "asterix.016_400_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_400_LON, { "LON, Longitude, [deg]", "asterix.016_400_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_405, { "405, Height of System Reference Point", "asterix.016_405", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_405_VALUE, { "VALUE, Height of System Reference Point, [m]", "asterix.016_405_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410, { "410, Transmitter Properties", "asterix.016_410", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410_TID, { "TID, Transmitter ID", "asterix.016_410_TID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410_LAT, { "LAT, Latitude, [deg]", "asterix.016_410_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410_LON, { "LON, Longitude, [deg]", "asterix.016_410_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410_ALT, { "ALT, Altitude, [m]", "asterix.016_410_ALT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410_TTO, { "TTO, Transmission Time Offset, [ns]", "asterix.016_410_TTO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410_ATO, { "ATO, Accuracy of Transmission Time Offset, [ns]", "asterix.016_410_ATO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_410_PCI, { "PCI, Parallel Transmitter Index", "asterix.016_410_PCI", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_420, { "420, Receiver Properties", "asterix.016_420", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_420_RID, { "RID, Receiver Component ID", "asterix.016_420_RID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_420_LAT, { "LAT, Latitude, [deg]", "asterix.016_420_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_420_LON, { "LON, Longitude, [deg]", "asterix.016_420_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_420_ALT, { "ALT, Altitude, [m]", "asterix.016_420_ALT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_016_SP, { "SP, Special Purpose Field", "asterix.016_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_000, { "000, Message Type", "asterix.018_V1_7_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_000_VALUE, { "VALUE, Message Type", "asterix.018_V1_7_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_018_V1_7_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_018_V1_7_001, { "001, Result", "asterix.018_V1_7_001", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -42755,7 +46951,10 @@ void proto_register_asterix (void)
     prefs_register_enum_preference (asterix_prefs_module, "i004_version", "I004 version", "Select the CAT004 version", &global_categories_version[4], I004_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i008_version", "I008 version", "Select the CAT008 version", &global_categories_version[8], I008_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i009_version", "I009 version", "Select the CAT009 version", &global_categories_version[9], I009_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i010_version", "I010 version", "Select the CAT010 version", &global_categories_version[10], I010_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i011_version", "I011 version", "Select the CAT011 version", &global_categories_version[11], I011_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i015_version", "I015 version", "Select the CAT015 version", &global_categories_version[15], I015_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i016_version", "I016 version", "Select the CAT016 version", &global_categories_version[16], I016_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i018_version", "I018 version", "Select the CAT018 version", &global_categories_version[18], I018_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i019_version", "I019 version", "Select the CAT019 version", &global_categories_version[19], I019_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i020_version", "I020 version", "Select the CAT020 version", &global_categories_version[20], I020_versions, FALSE);
