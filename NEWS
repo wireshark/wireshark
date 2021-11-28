@@ -1,4 +1,4 @@
-Wireshark 3.6.0 Release Notes
+Wireshark 3.6.1 Release Notes
 
  What is Wireshark?
 
@@ -7,220 +7,25 @@ Wireshark 3.6.0 Release Notes
 
  What’s New
 
-  Many improvements have been made. See the “New and Updated Features”
-  section below for more details. You might want to pay particular
-  attention to the display filter syntax updates.
+  Bug Fixes
+
+   The following bugs have been fixed:
 
   New and Updated Features
 
-   The following features are new (or have been significantly updated)
-   since version 3.6.0rc3:
-
-     • The macOS Intel packages now ship with Qt 5.15.3 and require
-       macOS 10.13 or later.
-
-   The following features are new (or have been significantly updated)
-   since version 3.6.0rc2:
-
-     • Display filter set elements must now be comma-separated. See
-       below for more details.
-
-   The following features are new (or have been significantly updated)
-   since version 3.6.0rc1:
-
-     • The display filter expression “a != b” now has the same meaning
-       as “!(a == b)”.
-
-   The following features are new (or have been significantly updated)
-   since version 3.5.0:
-
-     • Nothing of note.
-
-   The following features are new (or have been significantly updated)
-   since version 3.4.0:
-
-     • Several changes have been made to the display filter syntax:
-
-        • The expression “a != b” now always has the same meaning as
-       “!(a == b)”. In particular this means filter expressions with
-       multi-value fields like “ip.addr != 1.1.1.1” will work as
-       expected (the result is the same as typing “ip.src != 1.1.1.1 and
-       ip.dst != 1.1.1.1”). This avoids the contradiction (a == b and a
-       != b) being true.
-
-        • It is possible to use the syntax “a ~= b” or “a any_ne b” to
-       recover the previous (inconsistent with "==") logic for not
-       equal.
-
-        • Literal strings can now be specified using raw string syntax,
-       identical to raw strings in the Python programming language. This
-       can be used to avoid the complexity of using two levels of
-       character escapes with regular expressions.
-
-        • Set elements must now be separated using a comma. A filter
-       such as http.request.method in {"GET" "HEAD"} must be written as
-       …​ in {"GET", "HEAD"}. Whitespace is not significant. The
-       previous use of whitespace as separator is deprecated and will be
-       removed in a future version.
-
-        • Support for the syntax "a not in b" with the same meaning as
-       "not a in b" has been added.
-
-     • Packaging updates:
-
-        • A macOS Arm 64 (Apple Silicon) package is now available.
-
-        • The macOS Intel packages now ship with Qt 5.15.3 and require
-       macOS 10.13 or later.
-
-        • The Windows installers now ship with Npcap 1.55.
-
-        • A 64-bit Windows PortableApps package is now available.
-
-     • TCP conversations now support a completeness criteria, which
-       facilitates the identification of TCP streams having any of
-       opening or closing handshakes, a payload, in any combination. It
-       can be accessed with the new tcp.completeness filter.
-
-     • Protobuf fields that are not serialized on the wire or otherwise
-       missing in capture files can now be displayed with default values
-       by setting the new “add_default_value” preference. The default
-       values might be explicitly declared in “proto2” files, or false
-       for bools, first value for enums, zero for numeric types.
-
-     • Wireshark now supports reading Event Tracing for Windows (ETW). A
-       new extcap named ETW reader is created that now can open an etl
-       file, convert all events in the file to DLT_ETW packets and write
-       to a specified FIFO destination. Also, a new packet_etw dissector
-       is created to dissect DLT_ETW packets so Wireshark can display
-       the DLT_ETW packet header, its message and packet_etw dissector
-       calls packet_mbim sub_dissector if its provider matches the MBIM
-       provider GUID.
-
-     • “Follow DCCP stream” feature to filter for and extract the
-       contents of DCCP streams.
-
-     • Wireshark now supports dissecting RTP packets with OPUS payloads.
-
-     • Importing captures from text files based on regular expressions
-       is now possible. By specifying a regex capturing a single packet
-       including capturing groups for relevant fields a textfile can be
-       converted to a libpcap capture file. Supported data encodings are
-       plain-hexadecimal, -octal, -binary and base64. Also the timestamp
-       format now allows the second-fractions to be placed anywhere in
-       the timestamp and it will be stored with nanosecond instead of
-       microsecond precision.
-
-     • The RTP Player has been significatnly redesigned and improved.
-       See Playing VoIP Calls[1] and RTP Player Window[2] in the User’s
-       Guide for more details.
-
-        • The RTP Player can play many streams in row.
-
-        • The UI is more responsive.
-
-        • The RTP Player maintains playlist and other tools can add and
-       remove streams to and from it.
-
-        • Every stream can be muted or routed to the left or right
-       channel for replay.
-
-        • The option to save audio has been moved from the RTP Analysis
-       dialog to the RTP Player. The RTP Player also saves what was
-       played, and it can save in multichannel .au or .wav.
-
-        • The RTP Player is now accessible from the Telephony › RTP ›
-       RTP Player menu.
-
-     • The VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP
-       Player, SIP Flows) are non-modal and can stay opened on
-       background.
-
-        • The same tools are provided across all dialogs (Prepare
-       Filter, Analyse, RTP Player …​)
-
-     • The “Follow Stream” dialog is now able to follow SIP calls based
-       on their Call-ID value.
-
-     • The “Follow Stream” dialog’s YAML output format has been updated
-       to add timestamps and peers information For more details see
-       Following Protocol Streams[3] in the User’s Guide.
-
-     • IP fragments between public IPv4 addresses are now reassembled
-       even if they have different VLAN IDs. Reassembly of IP fragments
-       where one endpoint is a private (RFC 1918 section 3) or
-       link-local (RFC 3927) IPv4 address continues to take the VLAN ID
-       into account, as those addresses can be reused. To revert to the
-       previous behavior and not reassemble fragments with different
-       VLAN IDs, turn on the “Enable stricter conversation tracking
-       heuristics” top level protocol preference.
-
-     • USB Link Layer reassembly has been added, which allows hardware
-       captures to be analyzed at the same level as software captures.
-
-     • TShark can now export TLS session keys with the
-       --export-tls-session-keys option.
-
-     • Wireshark participated in the Google Season of Docs 2020 and the
-       User’s Guide has been extensively updated.
-
-     • The “RTP Stream Analysis” dialog CSV export format was slightly
-       changed. The first line of the export contains column titles as
-       in other CSV exports.
-
-     • Wireshark now supports the Turkish language.
-
-     • The settings in the “Import from Hex Dump” dialog is now stored
-       in a profile import_hexdump.json file.
-
-     • Analyze › Reload Lua Plugins has been improved to properly
-       support FileHandler.
-
-     • The “RTP Stream Analysis” and “IAX2 Stream Analysis” dialogs now
-       show correct calculation mean jitter calculations.
-
-     • RTP streams are now created based on Skinny protocol messages in
-       addition to other types of messages.
-
-     • The “VoIP Calls Flow Sequence” window shows more information
-       about various Skinny messages.
-
-     • Initial support for building Wireshark on Windows using GCC and
-       MinGW-w64 has been added. See README.msys2 in the sources for
-       more information.
-
-  New File Format Decoding Support
-
-   Vector Informatik Binary Log File (BLF)
-
   New Protocol Support
 
-   5G Lawful Interception (5GLI), Bluetooth Link Manager Protocol (BT
-   LMP), Bundle Protocol version 7 (BPv7), Bundle Protocol version 7
-   Security (BPSec), CBOR Object Signing and Encryption (COSE), E2
-   Application Protocol (E2AP), Event Tracing for Windows (ETW), EXtreme
-   extra Eth Header (EXEH), High-Performance Connectivity Tracer
-   (HiPerConTracer), ISO 10681, Kerberos SPAKE, Linux psample protocol,
-   Local Interconnect Network (LIN), Microsoft Task Scheduler Service,
-   O-RAN E2AP, O-RAN fronthaul UC-plane (O-RAN), Opus Interactive Audio
-   Codec (OPUS), PDU Transport Protocol, R09.x (R09), RDP Dynamic
-   Channel Protocol (DRDYNVC), RDP Graphic pipeline channel Protocol
-   (EGFX), RDP Multi-transport (RDPMT), Real-Time Publish-Subscribe
-   Virtual Transport (RTPS-VT), Real-Time Publish-Subscribe Wire
-   Protocol (processed) (RTPS-PROC), Shared Memory Communications (SMC),
-   Signal PDU, SparkplugB, State Synchronization Protocol (SSyncP),
-   Tagged Image File Format (TIFF), TP-Link Smart Home Protocol, UAVCAN
-   DSDL, UAVCAN/CAN, UDP Remote Desktop Protocol (RDPUDP), Van Jacobson
-   PPP compression (VJC), World of Warcraft World (WOWW), and X2 xIRI
-   payload (xIRI)
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
-   Too many protocols have been updated to list here.
-
   New and Updated Capture File Support
 
-   Vector Informatik Binary Log File (BLF)
+   There is no new or updated capture file support in this release.
+
+  New File Format Decoding Support
+
+   There is no new or updated file format support in this release.
 
  Getting Wireshark
 
@@ -232,7 +37,7 @@ Wireshark 3.6.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[4] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -247,28 +52,22 @@ Wireshark 3.6.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[5] and on the
+  Community support is available on Wireshark’s Q&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[6].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Bugs and feature requests can be reported on the issue tracker[7].
+  Bugs and feature requests can be reported on the issue tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-11-22 18:33:14 UTC
+  Last updated 2021-11-28 16:07:08 UTC
 
  References
 
-   1. https://www.wireshark.org/docs/wsug_html_chunked/ChTelPlayingCalls
-  .html
-   2. https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRt
-  pPlayer
-   3. https://www.wireshark.org/docs/wsug_html_chunked/ChAdvFollowStream
-  Section.html
-   4. https://www.wireshark.org/download.html
-   5. https://ask.wireshark.org/
-   6. https://www.wireshark.org/lists/
-   7. https://gitlab.com/wireshark/wireshark/-/issues
-   8. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://gitlab.com/wireshark/wireshark/-/issues
+   5. https://www.wireshark.org/faq.html

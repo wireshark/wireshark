@@ -722,7 +722,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover selection</source>
-        <translation type="unfinished"></translation>
+        <translation>ホーバー選択を許可</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -801,6 +801,26 @@
     <message>
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%Ln パケットの後に %1, エラー </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%Ln パケットにて %1, タイムアウト</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln パケット</numerusform>
+        </translation>
     </message>
     <message>
         <source>Prepend packets</source>
@@ -3079,6 +3099,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>印刷</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln クライアントパケット, </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln サーバーパケット, </numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII形式</translation>
@@ -3618,7 +3650,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation type="unfinished"></translation>
+        <translation>自動アップデート</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -4354,7 +4386,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;recommended regex:&lt;/small&gt;&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;推奨された正規表現:&lt;/small&gt;&lt;/i&gt;</translation>
     </message>
     <message>
         <source>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</source>
@@ -7115,11 +7147,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>NGAP</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP</translation>
     </message>
     <message>
         <source>NGAP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>NGAP メッセージ</translation>
     </message>
     <message>
         <source>Change the way packets are dissected</source>
@@ -8145,6 +8177,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>SSLセッション鍵をエクスポート (%Ln keys)</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
@@ -8206,12 +8245,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Delete packet comments</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメントを削除</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n パケットよりコメントを削除</numerusform>
         </translation>
     </message>
     <message>
@@ -8220,7 +8259,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source> before reloading Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua プラグインの再読込前</translation>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
@@ -8675,11 +8714,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketCommentDialog</name>
     <message>
         <source>Edit Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメントを編集</translation>
     </message>
     <message>
         <source>Add Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットコメントを追加</translation>
     </message>
 </context>
 <context>
@@ -9199,6 +9238,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Select zip file for export</source>
         <translation>エキスポートするzipファイルを選択します</translation>
+    </message>
+    <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln 選択された個人プロファイル</numerusform>
+        </translation>
     </message>
     <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
@@ -12726,7 +12771,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hex Digits</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数字</translation>
     </message>
     <message>
         <source>Quoted-Printable</source>
@@ -12931,7 +12976,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>%1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1</translation>
     </message>
 </context>
 <context>
