@@ -941,7 +941,6 @@ UAT_VS_DEF(header_fields, header_type, header_field_t, enum header_field_type, v
 UAT_CSTRING_CB_DEF(header_fields, header_desc, header_field_t)
 
 static hf_register_info* hf_uat = NULL;
-#endif
 
 /* message/stream direction (to or from server) vals */
 #define http2_direction_type_vals_VALUE_STRING_LIST(XXX)    \
@@ -1078,6 +1077,7 @@ get_fake_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_
 
     return NULL;
 }
+#endif
 
 static void
 http2_init_protocol(void)
