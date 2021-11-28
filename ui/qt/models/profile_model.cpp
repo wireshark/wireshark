@@ -988,7 +988,7 @@ QFileInfoList ProfileModel::uniquePaths(QFileInfoList lst)
         {
             if (entry.exists() && entry.isDir())
             {
-                newLst << entry.absoluteFilePath();
+                newLst << QFileInfo(entry.absoluteFilePath());
                 files << entry.absoluteFilePath();
             }
         }
@@ -1260,7 +1260,8 @@ bool ProfileModel::checkNameValidity(QString name, QString *msg)
 
     for (int cnt = 0; cnt < invalid_dir_chars.length() && ! invalid; cnt++)
     {
-        msgChars += invalid_dir_chars[cnt] + " ";
+        msgChars += invalid_dir_chars[cnt];
+        msgChars += ' ';
         if (name.contains(invalid_dir_chars[cnt]))
             invalid = true;
     }

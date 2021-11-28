@@ -390,7 +390,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     int max_tvb_pos = qMin(offset + row_width_, tvb_len) - 1;
     QList<QTextLayout::FormatRange> fmt_list;
 
-    static const guchar hexchars[16] = {
+    static const char hexchars[16] = {
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
@@ -463,7 +463,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
         bool in_non_printable = false;
         int np_start = 0;
         int np_len = 0;
-        guchar c;
+        char c;
 
         for (int tvb_pos = offset; tvb_pos <= max_tvb_pos; tvb_pos++) {
             /* insert a space every separator_interval_ bytes */

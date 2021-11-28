@@ -67,7 +67,7 @@ void CopyFromProfileButton::setFilename(QString filename)
         if (! profileDir.exists())
             continue;
 
-        QFileInfo fi = profileDir.filePath(filename);
+        QFileInfo fi(profileDir.filePath(filename));
         if (! fi.exists())
             continue;
 

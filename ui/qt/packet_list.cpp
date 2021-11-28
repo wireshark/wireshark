@@ -956,9 +956,15 @@ int PacketList::sizeHintForColumn(int column) const
     // This is a bit hacky but Qt does a fine job of column sizing and
     // reimplementing QTreeView::sizeHintForColumn seems like a worse idea.
     if (itemDelegateForColumn(column)) {
+        QStyleOptionViewItem option;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        initViewItemOption(&option);
+#else
+        option = viewOptions();
+#endif
         // In my (gcc) testing this results in correct behavior on Windows but adds extra space
         // on macOS and Linux. We might want to add Q_OS_... #ifdefs accordingly.
-        size_hint = itemDelegateForColumn(column)->sizeHint(viewOptions(), QModelIndex()).width();
+        size_hint = itemDelegateForColumn(column)->sizeHint(option, QModelIndex()).width();
     }
     size_hint += QTreeView::sizeHintForColumn(column); // Decoration padding
     return size_hint;
@@ -988,7 +994,13 @@ void PacketList::setRecentColumnWidth(int col)
 #endif
         // Custom delegate padding
         if (itemDelegateForColumn(col)) {
-            col_width += itemDelegateForColumn(col)->sizeHint(viewOptions(), QModelIndex()).width();
+            QStyleOptionViewItem option;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            initViewItemOption(&option);
+#else
+            option = viewOptions();
+#endif
+            col_width += itemDelegateForColumn(col)->sizeHint(option, QModelIndex()).width();
         }
     }
 
@@ -1866,7 +1878,12 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
 
 void PacketList::updateRowHeights(const QModelIndex &ih_index)
 {
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItem option;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    initViewItemOption(&option);
+#else
+    option = viewOptions();
+#endif
     int max_height = 0;
 
     // One of our columns increased the maximum row height. Find out which one.

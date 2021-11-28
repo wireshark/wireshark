@@ -71,7 +71,11 @@ AStringListListModel(parent)
     f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
     f_authors.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_authors(&f_authors);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    ReadFile_authors.setEncoding(QStringConverter::Utf8);
+#else
     ReadFile_authors.setCodec("UTF-8");
+#endif
 
     QRegularExpression rx("(.*)[<(]([\\s'a-zA-Z0-9._%+-]+(\\[[Aa][Tt]\\])?[a-zA-Z0-9._%+-]+)[>)]");
     acknowledgement_.clear();

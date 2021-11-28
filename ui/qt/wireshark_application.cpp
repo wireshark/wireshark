@@ -223,7 +223,7 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
         QString cf_name;
         /* get capture filename from the menu item label */
         cf_name = rii.previous()->filename;
-        if (cf_name != NULL) {
+        if (!cf_name.isNull()) {
             fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", qUtf8Printable(cf_name));
         }
     }

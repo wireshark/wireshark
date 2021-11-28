@@ -119,8 +119,10 @@ public slots:
     void rtpAnalysisAdd();
     void rtpAnalysisRemove();
 
+#endif
 protected:
     explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running);
+#ifdef QT_MULTIMEDIA_LIB
     ~RtpPlayerDialog();
 
     virtual void showEvent(QShowEvent *);
@@ -197,10 +199,12 @@ private slots:
     void on_actionPrepareFilter_triggered();
     void on_actionReadCapture_triggered();
 
+#endif
 private:
     static RtpPlayerDialog *pinstance_;
     static std::mutex mutex_;
 
+#ifdef QT_MULTIMEDIA_LIB
     Ui::RtpPlayerDialog *ui;
     QMenu *graph_ctx_menu_;
     QMenu *list_ctx_menu_;

@@ -62,7 +62,7 @@ typedef enum {
     _T("C Arrays (packet bytes) (*.c)\0")                _T("*.c\0")     \
     _T("JSON (*.json)\0")                                _T("*.json\0")
 
-static TCHAR *FILE_EXT_EXPORT[] =
+static const TCHAR *FILE_EXT_EXPORT[] =
 {
     _T(""), /* export type starts at 1 */
     _T("txt"),

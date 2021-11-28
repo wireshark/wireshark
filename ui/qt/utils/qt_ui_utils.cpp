@@ -226,7 +226,7 @@ void desktop_show_in_folder(const QString file_path)
     // Is there a way to highlight the file using xdg-open?
 #endif
     if (!success) { // Last resort
-        QFileInfo file_info = file_path;
+        QFileInfo file_info(file_path);
         QDesktopServices::openUrl(QUrl::fromLocalFile(file_info.dir().absolutePath()));
     }
 }

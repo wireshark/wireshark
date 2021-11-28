@@ -133,8 +133,6 @@ public:
     }
 };
 
-
-#ifdef QT_MULTIMEDIA_LIB
 RtpPlayerDialog *RtpPlayerDialog::pinstance_{nullptr};
 std::mutex RtpPlayerDialog::mutex_;
 
@@ -149,7 +147,6 @@ RtpPlayerDialog *RtpPlayerDialog::openRtpPlayerDialog(QWidget &parent, CaptureFi
     }
     return pinstance_;
 }
-#endif // QT_MULTIMEDIA_LIB
 
 RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running) :
     WiresharkDialog(parent, cf)

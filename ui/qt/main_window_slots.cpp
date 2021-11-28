@@ -1058,7 +1058,7 @@ void MainWindow::updateRecentCaptures() {
         recentMenu->insertAction(NULL, ra);
         action_cf_name = ra->data().toString();
         if (shortcut <= Qt::Key_9) {
-            ra->setShortcut(Qt::META | shortcut);
+            ra->setShortcut(Qt::META | (Qt::Key)shortcut);
             shortcut++;
         }
         ra->setText(action_cf_name);
@@ -1135,7 +1135,7 @@ QString MainWindow::commentToMenuText(QString text, int max_len)
 void MainWindow::setEditCommentsMenu()
 {
     main_ui_->menuPacketComment->clear();
-    main_ui_->menuPacketComment->addAction(tr("Add New Comment…"), this, SLOT(actionAddPacketComment()), QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_C));
+    main_ui_->menuPacketComment->addAction(tr("Add New Comment…"), this, SLOT(actionAddPacketComment()), QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_C));
     if (selectedRows().count() == 1) {
         const int thisRow = selectedRows().first();
         frame_data * current_frame = frameDataForRow(thisRow);
@@ -3550,7 +3550,7 @@ void MainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
     } else {
         err = findRtpStreams(&stream_ids, false);
     }
-    if (err != NULL) {
+    if (!err.isNull()) {
         QMessageBox::warning(this, tr("RTP packet search failed"),
                              err,
                              QMessageBox::Ok);
@@ -3572,7 +3572,7 @@ void MainWindow::on_actionTelephonyRtpPlayer_triggered()
     } else {
         err = findRtpStreams(&stream_ids, false);
     }
-    if (err != NULL) {
+    if (!err.isNull()) {
         QMessageBox::warning(this, tr("RTP packet search failed"),
                              err,
                              QMessageBox::Ok);
@@ -4167,22 +4167,26 @@ void MainWindow::activatePluginIFToolbar(bool)
     }
 }
 
-#ifdef QT_MULTIMEDIA_LIB
 void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+#ifdef QT_MULTIMEDIA_LIB
     openTelephonyRtpPlayerDialog()->replaceRtpStreams(stream_ids);
+#endif
 }
 
 void MainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+#ifdef QT_MULTIMEDIA_LIB
     openTelephonyRtpPlayerDialog()->addRtpStreams(stream_ids);
+#endif
 }
 
 void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
+#ifdef QT_MULTIMEDIA_LIB
     openTelephonyRtpPlayerDialog()->removeRtpStreams(stream_ids);
+#endif
 }
-#endif // QT_MULTIMEDIA_LIB
 
 void MainWindow::rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
