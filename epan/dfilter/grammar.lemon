@@ -39,35 +39,8 @@ new_test(dfwork_t *dfw, test_op_t op, df_lval_t *lval);
 	df_lval_free($$, TRUE);
 }
 
-%type		sentence	{stnode_t*}
-
-
-%type		expr		{stnode_t*}
-%destructor	expr		{stnode_free($$);}
-
-%type		entity		{stnode_t*}
-%destructor	entity		{stnode_free($$);}
-
-%type		function	{stnode_t*}
-%destructor	function	{stnode_free($$);}
-
-%type		relation_test	{stnode_t*}
-%destructor	relation_test	{stnode_free($$);}
-
-%type		comparison_test	{stnode_t*}
-%destructor	comparison_test	{stnode_free($$);}
-
-%type		logical_test	{stnode_t*}
-%destructor	logical_test	{stnode_free($$);}
-
-%type		rel_binop	{stnode_t*}
-%destructor	rel_binop	{stnode_free($$);}
-
-%type		cmp_op		{stnode_t*}
-%destructor	cmp_op		{stnode_free($$);}
-
-%type		range		{stnode_t*}
-%destructor	range		{stnode_free($$);}
+%default_type			{stnode_t*}
+%default_destructor		{stnode_free($$);}
 
 %type		range_node	{drange_node*}
 %destructor	range_node	{drange_node_free($$);}
@@ -77,9 +50,6 @@ new_test(dfwork_t *dfw, test_op_t op, df_lval_t *lval);
 
 %type		function_params	{GSList*}
 %destructor	function_params	{st_funcparams_free($$);}
-
-%type		set		{stnode_t*}
-%destructor	set		{stnode_free($$);}
 
 %type		set_list	{GSList*}
 %destructor	set_list	{set_nodelist_free($$);}
