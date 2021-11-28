@@ -127,12 +127,6 @@ void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
 
 void
-stnode_replace_string(stnode_t *node, const char *str);
-
-void
-stnode_replace_unparsed(stnode_t *node, const char *str);
-
-void
 stnode_free(stnode_t *node);
 
 const char*

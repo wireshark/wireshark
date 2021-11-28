@@ -135,18 +135,6 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 	node->flags = flags;
 }
 
-void
-stnode_replace_string(stnode_t *node, const char *str)
-{
-	stnode_replace(node, STTYPE_STRING, g_strdup(str));
-}
-
-void
-stnode_replace_unparsed(stnode_t *node, const char *str)
-{
-	stnode_replace(node, STTYPE_UNPARSED, g_strdup(str));
-}
-
 stnode_t*
 stnode_new(sttype_id_t type_id, gpointer data)
 {

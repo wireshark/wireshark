@@ -1060,7 +1060,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 			 * functions will take care of it as if it didn't
 			 * match a protocol string.
 			 */
-			stnode_replace_unparsed(st_arg2, hfinfo->abbrev);
+			stnode_replace(st_arg2, STTYPE_UNPARSED, g_strdup(hfinfo->abbrev));
 		}
 	}
 
