@@ -44,6 +44,11 @@ dfwork_t *global_dfw;
 void
 dfilter_vfail(dfwork_t *dfw, const char *format, va_list args)
 {
+	/* Flag a syntax error. This is currently only used in
+	 * the grammar parsing stage to terminate the parsing
+	 * loop. */
+	dfw->syntax_error = TRUE;
+
 	/* If we've already reported one error, don't overwite it */
 	if (dfw->error_message != NULL)
 		return;
@@ -70,17 +75,6 @@ dfilter_fail_throw(dfwork_t *dfw, long code, const char *format, ...)
 	dfilter_vfail(dfw, format, args);
 	va_end(args);
 	THROW(code);
-}
-
-void
-dfilter_fail_parse(dfwork_t *dfw, const char *format, ...)
-{
-	va_list	args;
-
-	va_start(args, format);
-	dfilter_vfail(dfw, format, args);
-	va_end(args);
-	dfw->syntax_error = TRUE;
 }
 
 /*

@@ -109,9 +109,6 @@ void
 dfilter_fail_throw(dfwork_t *dfw, long code, const char *format, ...) G_GNUC_PRINTF(3, 4);
 
 void
-dfilter_fail_parse(dfwork_t *dfw, const char *format, ...) G_GNUC_PRINTF(2, 3);
-
-void
 add_deprecated_token(dfwork_t *dfw, const char *token);
 
 void

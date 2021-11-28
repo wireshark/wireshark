@@ -86,10 +86,10 @@ new_function(dfwork_t *dfw, df_lval_t *lval);
 any "error" symbols are shifted, if possible. */
 %syntax_error {
 	if (!TOKEN) {
-		dfilter_fail_parse(dfw, "Unexpected end of filter expression.");
+		dfilter_fail(dfw, "Unexpected end of filter expression.");
 		return;
 	}
-	dfilter_fail_parse(dfw, "\"%s\" was unexpected in this context.",
+	dfilter_fail(dfw, "\"%s\" was unexpected in this context.",
 				df_lval_value(TOKEN));
 }
 
@@ -188,7 +188,7 @@ range_node(D) ::= RANGE(R).
 
 	D = drange_node_from_str(df_lval_value(R), &err);
 	if (err != NULL) {
-		dfilter_fail_parse(dfw, "%s", err);
+		dfilter_fail(dfw, "%s", err);
 		g_free(err);
 	}
 
@@ -289,7 +289,7 @@ set_element(N) ::= entity(X) DOTDOT entity(Y).
 		const char *name = df_lval_value(lval);
 		df_func_def_t *def = df_func_lookup(name);
 		if (!def) {
-			dfilter_fail_parse(dfw, "Function '%s' does not exist", name);
+			dfilter_fail(dfw, "Function '%s' does not exist", name);
 		}
 		return stnode_new(STTYPE_FUNCTION, def);
 	}
