@@ -594,8 +594,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_plugins_supported@Base 3.5.0
  epan_register_plugin@Base 2.5.0
  epan_set_always_visible@Base 3.5.1
- escape_string@Base 1.9.1
- escape_string_len@Base 1.9.1
  esp_sa_record_add_from_dissector@Base 1.12.0~rc1
  etype_vals@Base 1.9.1
  ex_opt_add@Base 1.9.1
