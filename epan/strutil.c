@@ -828,7 +828,8 @@ format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
  *
  * This does *not* treat the input string as UTF-8.
  *
- * XXX - is there any reason to use this?
+ * This is useful for displaying binary data that frequently but not always
+ * contains text; otherwise the number of C escape codes makes it unreadable.
  */
 gchar *
 format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr)
