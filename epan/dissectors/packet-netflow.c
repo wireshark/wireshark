@@ -1684,6 +1684,10 @@ static const value_string v10_template_types_ixia[] = {
     {  277, "DNS Mail Exchange Domain"},
     {  278, "DHCP Agent Circuit ID"},
     {  279, "JA3 fingerprint string"},
+    {  280, "TCP Connection Setup Time (us)"},
+    {  281, "TCP Application Response Time (us)"},
+    {  282, "TCP Count of Retransmitted Packets"},
+    {  283, "Connection Average Round Trip Time (us)"},    
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
@@ -3463,6 +3467,10 @@ static int      hf_pie_ixia_email_msg_cc                = -1;
 static int      hf_pie_ixia_email_msg_bcc               = -1;
 static int      hf_pie_ixia_email_msg_attachments       = -1;
 static int      hf_pie_ixia_ja3_fingerprint_string      = -1;
+static int      hf_pie_ixia_tcp_conn_setup_time         = -1;
+static int      hf_pie_ixia_tcp_app_response_time       = -1;
+static int      hf_pie_ixia_tcp_retrans_pkt_count       = -1;
+static int      hf_pie_ixia_conn_avg_rtt                = -1;
 
 static int      hf_pie_netscaler                                         = -1;
 static int      hf_pie_netscaler_roundtriptime                           = -1;
@@ -10710,6 +10718,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case ((VENDOR_IXIA << 16) | 279):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_ja3_fingerprint_string,
                                      tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 280):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tcp_conn_setup_time,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 281):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tcp_app_response_time,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 282):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tcp_retrans_pkt_count,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 283):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_conn_avg_rtt,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
             break;
             /* END Ixia Communications */
 
@@ -18780,6 +18804,34 @@ proto_register_netflow(void)
          {"JA3 fingerprint", "cflow.pie.ixia.ja3-fingerprint",
           FT_STRING, STR_ASCII, NULL, 0x0,
           "JA3 fingerprint string", HFILL}
+        },
+
+        /* ixia, 3054 / 280 */
+        {&hf_pie_ixia_tcp_conn_setup_time,
+         {"TCP Conn Setup Time (us)", "cflow.pie.ixia.tcp-conn-setup-time",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "TCP Connection Setup Time (us)", HFILL}
+        },
+
+        /* ixia, 3054 / 281 */
+        {&hf_pie_ixia_tcp_app_response_time,
+         {"TCP App Response Time", "cflow.pie.ixia.tcp-app-response-time",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "TCP Application Response Time (us)", HFILL}
+        },
+
+        /* ixia, 3054 / 282 */
+        {&hf_pie_ixia_tcp_retrans_pkt_count,
+         {"TCP Retransmitted Pkt Count", "cflow.pie.ixia.tcp-retrans-pkt-count",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "TCP Count of Retransmitted Packets", HFILL}
+        },
+
+        /* ixia, 3054 / 283 */
+        {&hf_pie_ixia_conn_avg_rtt,
+         {"Connection Average RTT (us)", "cflow.pie.ixia.conn-avg-rtt",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Connection Average Round Trip Time (us)", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
