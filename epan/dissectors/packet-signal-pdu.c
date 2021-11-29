@@ -283,7 +283,7 @@ static guint spdu_ipdum_mapping_num = 0;
 void proto_register_signal_pdu(void);
 void proto_reg_handoff_signal_pdu(void);
 
-void
+static void
 register_signal_pdu_can(void) {
     if (signal_pdu_handle_can == NULL) {
         return;
@@ -311,7 +311,7 @@ register_signal_pdu_can(void) {
     }
 }
 
-void
+static void
 register_signal_pdu_lin(void) {
     if (signal_pdu_handle_lin == NULL) {
         return;
@@ -334,7 +334,7 @@ register_signal_pdu_lin(void) {
     }
 }
 
-void
+static void
 register_signal_pdu_someip(void) {
     if (signal_pdu_handle_someip == NULL) {
         return;
@@ -357,7 +357,7 @@ register_signal_pdu_someip(void) {
     }
 }
 
-void
+static void
 register_signal_pdu_pdu_transport(void) {
     if (signal_pdu_handle_pdu_transport == NULL) {
         return;
