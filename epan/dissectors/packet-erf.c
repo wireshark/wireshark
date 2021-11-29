@@ -2775,7 +2775,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_if_speed:
       case ERF_META_TAG_if_tx_speed:
         value64 = tvb_get_ntoh64(tvb, offset + 4);
-        tmp = format_size((gint64) value64, (format_size_flags_e)(format_size_unit_bits_s|format_size_prefix_si));
+        tmp = format_size((int64_t)value64, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI);
         tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" G_GINT64_MODIFIER "u bps)", tmp, value64);
         g_free(tmp);
         break;
@@ -2806,7 +2806,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       case ERF_META_TAG_mem:
         value64 = tvb_get_ntoh64(tvb, offset + 4);
-        tmp = format_size((gint64) value64, (format_size_flags_e)(format_size_unit_bytes|format_size_prefix_iec));
+        tmp = format_size((int64_t)value64, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
         tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" G_GINT64_MODIFIER"u bytes)", tmp, value64);
         g_free(tmp);
         break;

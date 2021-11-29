@@ -35,11 +35,6 @@
 #include <QUuid>
 #include <QScreen>
 
-/* Make the format_size_flags_e enum usable in C++ */
-format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
-    return (format_size_flags_e) ((int)lhs| (int)rhs);
-}
-
 /*
  * We might want to create our own "wsstring" class with convenience
  * methods for handling g_malloc()ed strings, GStrings, and a shortcut
@@ -148,13 +143,13 @@ const QString range_to_qstring(const epan_range *range)
 const QString bits_s_to_qstring(const double bits_s)
 {
     return gchar_free_to_qstring(
-                format_size(bits_s, format_size_unit_none|format_size_prefix_si));
+                format_size(bits_s, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
 }
 
 const QString file_size_to_qstring(const gint64 size)
 {
     return gchar_free_to_qstring(
-                format_size(size, format_size_unit_bytes|format_size_prefix_si));
+                format_size(size, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
 }
 
 const QString time_t_to_qstring(time_t ti_time)

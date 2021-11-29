@@ -1152,7 +1152,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
             .arg(hostname1).arg(port1)
             .arg(gchar_free_to_qstring(format_size(
                                             follow_info_.bytes_written[0],
-                                        format_size_unit_bytes|format_size_prefix_si)));
+                                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
     client_to_server_string =
             QString("%1:%2 %3 %4:%5 (%6)")
@@ -1161,7 +1161,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
             .arg(hostname0).arg(port0)
             .arg(gchar_free_to_qstring(format_size(
                                             follow_info_.bytes_written[1],
-                                        format_size_unit_bytes|format_size_prefix_si)));
+                                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
     wmem_free(NULL, port0);
     wmem_free(NULL, port1);
@@ -1169,7 +1169,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     both_directions_string = tr("Entire conversation (%1)")
             .arg(gchar_free_to_qstring(format_size(
                                             follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
-                    format_size_unit_bytes|format_size_prefix_si)));
+                    FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
     setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))))
                                                  .arg(follow_filter));
 

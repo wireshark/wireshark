@@ -622,11 +622,11 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
 
     stream_desc_ = tr("%1 %2 pkts, %3 %4 %5 pkts, %6 ")
             .arg(UTF8_RIGHTWARDS_ARROW)
-            .arg(gchar_free_to_qstring(format_size(pkts_fwd, format_size_unit_none|format_size_prefix_si)))
-            .arg(gchar_free_to_qstring(format_size(bytes_fwd, format_size_unit_bytes|format_size_prefix_si)))
+            .arg(gchar_free_to_qstring(format_size(pkts_fwd, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI)))
+            .arg(gchar_free_to_qstring(format_size(bytes_fwd, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)))
             .arg(UTF8_LEFTWARDS_ARROW)
-            .arg(gchar_free_to_qstring(format_size(pkts_rev, format_size_unit_none|format_size_prefix_si)))
-            .arg(gchar_free_to_qstring(format_size(bytes_rev, format_size_unit_bytes|format_size_prefix_si)));
+            .arg(gchar_free_to_qstring(format_size(pkts_rev, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI)))
+            .arg(gchar_free_to_qstring(format_size(bytes_rev, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
     mouseMoved(NULL);
     if (reset_axes)
         resetAxes();

@@ -1483,7 +1483,7 @@ QString PacketList::allPacketComments()
                     buf_str.append(QString(tr("Frame %1: %2\n\n")).arg(framenum).arg(comment_text));
                     if (buf_str.length() > max_comments_to_fetch_) {
                         buf_str.append(QString(tr("[ Comment text exceeds %1. Stopping. ]"))
-                                .arg(format_size(max_comments_to_fetch_, format_size_unit_bytes|format_size_prefix_si)));
+                                .arg(format_size(max_comments_to_fetch_, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
                         return buf_str;
                     }
                 }

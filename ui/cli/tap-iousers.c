@@ -98,9 +98,9 @@ iousers_draw(void *arg)
 			if (tot_frames == last_frames) {
 				char *rx_bytes, *tx_bytes, *total_bytes;
 
-				rx_bytes = format_size(iui->rx_bytes, format_size_unit_bytes);
-				tx_bytes = format_size(iui->tx_bytes, format_size_unit_bytes);
-				total_bytes = format_size(iui->tx_bytes + iui->rx_bytes, format_size_unit_bytes);
+				rx_bytes = format_size(iui->rx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
+				tx_bytes = format_size(iui->tx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
+				total_bytes = format_size(iui->tx_bytes + iui->rx_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
 
 				/* XXX - TODO: make name / port resolution configurable (through gbl_resolv_flags?) */
 				src_addr = get_conversation_address(NULL, &iui->src_address, TRUE);

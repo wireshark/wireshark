@@ -197,8 +197,9 @@ DIAG_ON(format)
 
 /* Given a size, return its value in a human-readable format */
 /* This doesn't handle fractional values. We might want to make size a double. */
-gchar *
-format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e flags)
+char *
+format_size_wmem(wmem_allocator_t *allocator, int64_t size,
+                        format_size_units_e unit, uint16_t flags)
 {
     wmem_strbuf_t *human_str = wmem_strbuf_new(allocator, NULL);
     int power = 1000;
@@ -210,7 +211,7 @@ format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e f
     if (thousands_grouping_fmt == NULL)
         test_printf_thousands_grouping();
 
-    if ((flags & FORMAT_SIZE_PFX_MASK) == format_size_prefix_iec) {
+    if (flags & FORMAT_SIZE_PREFIX_IEC) {
         pfx_off = 4;
         power = 1024;
     }
@@ -232,25 +233,25 @@ format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e f
         is_small = TRUE;
     }
 
-    switch (flags & FORMAT_SIZE_UNIT_MASK) {
-        case format_size_unit_none:
+    switch (unit) {
+        case FORMAT_SIZE_UNIT_NONE:
             break;
-        case format_size_unit_bytes:
+        case FORMAT_SIZE_UNIT_BYTES:
             wmem_strbuf_append(human_str, is_small ? " bytes" : "B");
             break;
-        case format_size_unit_bits:
+        case FORMAT_SIZE_UNIT_BITS:
             wmem_strbuf_append(human_str, is_small ? " bits" : "b");
             break;
-        case format_size_unit_bits_s:
+        case FORMAT_SIZE_UNIT_BITS_S:
             wmem_strbuf_append(human_str, is_small ? " bits/s" : "bps");
             break;
-        case format_size_unit_bytes_s:
+        case FORMAT_SIZE_UNIT_BYTES_S:
             wmem_strbuf_append(human_str, is_small ? " bytes/s" : "Bps");
             break;
-        case format_size_unit_packets:
+        case FORMAT_SIZE_UNIT_PACKETS:
             wmem_strbuf_append(human_str, is_small ? " packets" : "packets");
             break;
-        case format_size_unit_packets_s:
+        case FORMAT_SIZE_UNIT_PACKETS_S:
             wmem_strbuf_append(human_str, is_small ? " packets/s" : "packets/s");
             break;
         default:

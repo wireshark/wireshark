@@ -331,15 +331,15 @@ public:
             case ENDP_COLUMN_PACKETS:
                 return QString("%L1").arg(endp_item->tx_frames + endp_item->rx_frames);
             case ENDP_COLUMN_BYTES:
-                return gchar_free_to_qstring(format_size(endp_item->tx_bytes + endp_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
+                return gchar_free_to_qstring(format_size(endp_item->tx_bytes + endp_item->rx_bytes, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
             case ENDP_COLUMN_PKT_AB:
                 return QString("%L1").arg(endp_item->tx_frames);
             case ENDP_COLUMN_BYTES_AB:
-                return gchar_free_to_qstring(format_size(endp_item->tx_bytes, format_size_unit_none|format_size_prefix_si));
+                return gchar_free_to_qstring(format_size(endp_item->tx_bytes, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
             case ENDP_COLUMN_PKT_BA:
                 return QString("%L1").arg(endp_item->rx_frames);
             case ENDP_COLUMN_BYTES_BA:
-                return gchar_free_to_qstring(format_size(endp_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
+                return gchar_free_to_qstring(format_size(endp_item->rx_bytes, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
             default:
                 QVariant col_data = colData(column, resolve_names);
                 if (col_data.isValid()) return col_data;

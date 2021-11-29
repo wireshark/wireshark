@@ -674,7 +674,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
     if (machine_readable) {
       printf ("%u\n", cf_info->packet_count);
     } else {
-      size_string = format_size(cf_info->packet_count, format_size_unit_none);
+      size_string = format_size(cf_info->packet_count, FORMAT_SIZE_UNIT_NONE, 0);
       printf ("%s\n", size_string);
       g_free(size_string);
     }
@@ -684,7 +684,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
     if (machine_readable) {
       printf     ("%" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
     } else {
-      size_string = format_size(cf_info->filesize, format_size_unit_bytes);
+      size_string = format_size(cf_info->filesize, FORMAT_SIZE_UNIT_BYTES, 0);
       printf ("%s\n", size_string);
       g_free(size_string);
     }
@@ -694,7 +694,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
     if (machine_readable) {
       printf     ("%" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
     } else {
-      size_string = format_size(cf_info->packet_bytes, format_size_unit_bytes);
+      size_string = format_size(cf_info->packet_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
       printf ("%s\n", size_string);
       g_free(size_string);
     }
@@ -711,7 +711,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       if (machine_readable) {
         print_value("", 2, " bytes/sec",   cf_info->data_rate);
       } else {
-        size_string = format_size((gint64)cf_info->data_rate, format_size_unit_bytes_s);
+        size_string = format_size((int64_t)cf_info->data_rate, FORMAT_SIZE_UNIT_BYTES_S, 0);
         printf ("%s\n", size_string);
         g_free(size_string);
       }
@@ -721,7 +721,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       if (machine_readable) {
         print_value("", 2, " bits/sec",    cf_info->data_rate*8);
       } else {
-        size_string = format_size((gint64)(cf_info->data_rate*8), format_size_unit_bits_s);
+        size_string = format_size((int64_t)(cf_info->data_rate*8), FORMAT_SIZE_UNIT_BITS_S, 0);
         printf ("%s\n", size_string);
         g_free(size_string);
       }
@@ -734,7 +734,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
       if (machine_readable) {
         print_value("", 2, " packets/sec", cf_info->packet_rate);
       } else {
-        size_string = format_size((gint64)cf_info->packet_rate, format_size_unit_packets_s);
+        size_string = format_size((int64_t)cf_info->packet_rate, FORMAT_SIZE_UNIT_PACKETS_S, 0);
         printf ("%s\n", size_string);
         g_free(size_string);
       }

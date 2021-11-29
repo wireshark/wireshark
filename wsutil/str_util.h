@@ -112,17 +112,17 @@ WS_DLL_PUBLIC
 int ws_xton(char ch);
 
 typedef enum {
-    format_size_unit_none      = 0,     /**< No unit will be appended. You must supply your own. */
-    format_size_unit_bytes     = 1,     /**< "bytes" for un-prefixed sizes, "B" otherwise. */
-    format_size_unit_bits      = 2,     /**< "bits" for un-prefixed sizes, "b" otherwise. */
-    format_size_unit_bits_s    = 3,     /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
-    format_size_unit_bytes_s   = 4,     /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
-    format_size_unit_packets   = 5,     /**< "packets" */
-    format_size_unit_packets_s = 6,     /**< "packets/s" */
-    format_size_prefix_si    = 0 << 8,  /**< SI (power of 1000) prefixes will be used. */
-    format_size_prefix_iec   = 1 << 8   /**< IEC (power of 1024) prefixes will be used. */
-    /* XXX format_size_prefix_default_for_this_particular_os ? */
-} format_size_flags_e;
+    FORMAT_SIZE_UNIT_NONE,          /**< No unit will be appended. You must supply your own. */
+    FORMAT_SIZE_UNIT_BYTES,         /**< "bytes" for un-prefixed sizes, "B" otherwise. */
+    FORMAT_SIZE_UNIT_BITS,          /**< "bits" for un-prefixed sizes, "b" otherwise. */
+    FORMAT_SIZE_UNIT_BITS_S,        /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
+    FORMAT_SIZE_UNIT_BYTES_S,       /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
+    FORMAT_SIZE_UNIT_PACKETS,       /**< "packets" */
+    FORMAT_SIZE_UNIT_PACKETS_S,     /**< "packets/s" */
+} format_size_units_e;
+
+#define FORMAT_SIZE_PREFIX_SI   (1 << 0)    /**< SI (power of 1000) prefixes will be used. */
+#define FORMAT_SIZE_PREFIX_IEC  (1 << 1)    /**< IEC (power of 1024) prefixes will be used. */
 
 /** Given a size, return its value in a human-readable format
  *
@@ -134,9 +134,11 @@ typedef enum {
  * @return A newly-allocated string representing the value.
  */
 WS_DLL_PUBLIC
-gchar *format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e flags);
+char *format_size_wmem(wmem_allocator_t *allocator, int64_t size,
+                        format_size_units_e unit, uint16_t flags);
 
-#define format_size(size, flags)    format_size_wmem(NULL, size, flags)
+#define format_size(size, unit, flags) \
+    format_size_wmem(NULL, size, unit, flags)
 
 WS_DLL_PUBLIC
 gchar printable_char_or_period(gchar c);
@@ -150,9 +152,6 @@ gchar printable_char_or_period(gchar c);
 
 #ifdef __cplusplus
 }
-
-/* Should we just have separate unit and prefix enums instead? */
-extern format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs);
 #endif /* __cplusplus */
 
 #endif /* __STR_UTIL_H__ */

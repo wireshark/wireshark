@@ -19,15 +19,15 @@ static void test_format_size(void)
 {
     char *str;
 
-    str = format_size(10000, format_size_unit_bytes);
+    str = format_size(10000, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI);
     g_assert_cmpstr(str, ==, "10 kB");
     g_free(str);
 
-    str = format_size(100000, format_size_unit_bytes|format_size_prefix_iec);
+    str = format_size(100000, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
     g_assert_cmpstr(str, ==, "97 KiB");
     g_free(str);
 
-    str = format_size(20971520, format_size_unit_bits|format_size_prefix_iec);
+    str = format_size(20971520, FORMAT_SIZE_UNIT_BITS, FORMAT_SIZE_PREFIX_IEC);
     g_assert_cmpstr(str, ==, "20 Mib");
     g_free(str);
 }

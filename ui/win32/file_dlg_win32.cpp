@@ -773,7 +773,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     /* Size */
     filesize = wtap_file_size(wth, &err);
     // Windows Explorer uses IEC.
-    size_str = format_size(filesize, format_size_unit_bytes|format_size_prefix_iec);
+    size_str = format_size(filesize, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
 
     status = get_stats_for_preview(wth, &stats, &err, &err_info);
 
