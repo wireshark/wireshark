@@ -265,6 +265,71 @@ printable_char_or_period(gchar c)
 	return g_ascii_isprint(c) ? c : '.';
 }
 
+size_t
+ws_escape_string_len(const char *string)
+{
+    const char *p;
+    gchar c;
+    size_t repr_len;
+
+    repr_len = 0;
+    for (p = string; (c = *p) != '\0'; p++) {
+        /* Backslashes and double-quotes must
+         * be escaped */
+        if (c == '\\' || c == '"') {
+            repr_len += 2;
+        }
+        /* Values that can't nicely be represented
+         * in ASCII need to be escaped. */
+        else if (!g_ascii_isprint(c)) {
+            /* c --> \xNN */
+            repr_len += 4;
+        }
+        /* Other characters are just passed through. */
+        else {
+            repr_len++;
+        }
+    }
+    return repr_len + 2;    /* string plus leading and trailing quotes */
+}
+
+char *
+ws_escape_string(char *buf, const char *string)
+{
+    const gchar *p;
+    gchar c;
+    char *bufp;
+    char hexbuf[3];
+
+    bufp = buf;
+    *bufp++ = '"';
+    for (p = string; (c = *p) != '\0'; p++) {
+        /* Backslashes and double-quotes must
+         * be escaped. */
+        if (c == '\\' || c == '"') {
+            *bufp++ = '\\';
+            *bufp++ = c;
+        }
+        /* Values that can't nicely be represented
+         * in ASCII need to be escaped. */
+        else if (!g_ascii_isprint(c)) {
+            /* c --> \xNN */
+            g_snprintf(hexbuf,sizeof(hexbuf), "%02x", (unsigned char) c);
+            *bufp++ = '\\';
+            *bufp++ = 'x';
+            *bufp++ = hexbuf[0];
+            *bufp++ = hexbuf[1];
+        }
+        /* Other characters are just passed through. */
+        else {
+            *bufp++ = c;
+        }
+    }
+    *bufp++ = '"';
+    *bufp = '\0';
+    return buf;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

@@ -291,13 +291,6 @@ WS_DLL_PUBLIC
 const char * string_or_null(const char *string);
 
 WS_DLL_PUBLIC
-int escape_string_len(const char *string);
-
-WS_DLL_PUBLIC
-char * escape_string(char *dst, const char *string);
-
-
-WS_DLL_PUBLIC
 void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
 /** Copy a string, escaping the 'chr' characters in it
