@@ -47,10 +47,7 @@ string_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int 
 		return wmem_strdup(scope, fv->value.string);
 	}
 	if (rtype == FTREPR_DFILTER) {
-		size_t len = ws_escape_string_len(fv->value.string);
-		char *buf = wmem_alloc(scope, len + 1);
-		ws_escape_string(buf, fv->value.string);
-		return buf;
+		return ws_escape_string(scope, fv->value.string, TRUE);
 	}
 	ws_assert_not_reached();
 }

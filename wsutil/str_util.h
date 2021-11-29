@@ -106,10 +106,7 @@ WS_DLL_PUBLIC
 const char *ws_strcasestr(const char *haystack, const char *needle);
 
 WS_DLL_PUBLIC
-size_t ws_escape_string_len(const char *string);
-
-WS_DLL_PUBLIC
-char *ws_escape_string(char *dst, const char *string);
+char *ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes);
 
 WS_DLL_PUBLIC
 int ws_xton(char ch);

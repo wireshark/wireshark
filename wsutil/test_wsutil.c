@@ -34,21 +34,13 @@ static void test_format_size(void)
 
 static void test_escape_string(void)
 {
-    size_t len;
     char *buf;
-    const char *str;
 
-    str = "quoted \"\\\" backslash";
-    len = ws_escape_string_len(str);
-    buf = wmem_alloc(NULL, len + 1);
-    ws_escape_string(buf, str);
+    buf = ws_escape_string(NULL, "quoted \"\\\" backslash", TRUE);
     g_assert_cmpstr(buf, ==, "\"quoted \\\"\\\\\\\" backslash\"");
     wmem_free(NULL, buf);
 
-    str = "bytes \xfe\xff";
-    len = ws_escape_string_len(str);
-    buf = wmem_alloc(NULL, len + 1);
-    ws_escape_string(buf, str);
+    buf = ws_escape_string(NULL, "bytes \xfe\xff", TRUE);
     g_assert_cmpstr(buf, ==, "\"bytes \\xfe\\xff\"");
     wmem_free(NULL, buf);
 }
