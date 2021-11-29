@@ -1598,7 +1598,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stream_find_frag@Base 1.9.1
  stream_new@Base 3.5.0
  stream_process_reassembled@Base 1.9.1
- string_or_null@Base 1.9.1
  string_to_name_resolve@Base 1.9.1
  sua_co_class_type_acro_values@Base 1.9.1
  t30_facsimile_control_field_vals_ext@Base 1.12.0~rc1

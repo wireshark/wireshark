@@ -1448,14 +1448,6 @@ convert_string_case(const char *string, gboolean case_insensitive)
     }
 }
 
-const char *
-string_or_null(const char *string)
-{
-    if (string)
-        return string;
-    return "[NULL]";
-}
-
 #define GN_CHAR_ALPHABET_SIZE 128
 
 static gunichar IA5_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {

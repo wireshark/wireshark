@@ -282,14 +282,6 @@ guint8 * convert_string_to_hex(const char *string, size_t *nbytes);
 WS_DLL_PUBLIC
 char * convert_string_case(const char *string, gboolean case_insensitive);
 
-/** Guarantee a non-null string.
- *
- * @param string The string to check
- * @return A pointer 'string' if it's non-null, otherwise "[NULL]".
- */
-WS_DLL_PUBLIC
-const char * string_or_null(const char *string);
-
 WS_DLL_PUBLIC
 void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 

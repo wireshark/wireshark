@@ -146,6 +146,8 @@ gchar printable_char_or_period(gchar c);
 
 #define true_or_false(val) ((val) ? "TRUE" : "FALSE")
 
+#define string_or_null(val) ((val) ? (val) : "[NULL]")
+
 #ifdef __cplusplus
 }
 
