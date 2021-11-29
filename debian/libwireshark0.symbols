@@ -1599,7 +1599,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stream_new@Base 3.5.0
  stream_process_reassembled@Base 1.9.1
  string_or_null@Base 1.9.1
- string_replace@Base 1.9.1
  string_to_name_resolve@Base 1.9.1
  sua_co_class_type_acro_values@Base 1.9.1
  t30_facsimile_control_field_vals_ext@Base 1.12.0~rc1
@@ -2050,8 +2049,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  write_psml_finale@Base 1.12.0~rc1
  write_psml_preamble@Base 1.12.0~rc1
  ws_find_media_type_parameter@Base 2.2.0
- ws_strdup_escape_char@Base 1.9.1
- ws_strdup_unescape_char@Base 1.9.1
  wscbor_chunk_free@Base 3.5.1
  wscbor_chunk_mark_errors@Base 3.5.1
  wscbor_chunk_read@Base 3.5.1

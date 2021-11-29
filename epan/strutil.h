@@ -293,38 +293,6 @@ const char * string_or_null(const char *string);
 WS_DLL_PUBLIC
 void IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len);
 
-/** Copy a string, escaping the 'chr' characters in it
- *
- * @param str The string to be copied
- * @param chr The character to be escaped
- * @return A copy of the string with every original 'chr' being
- * transformed into double 'chr'.
- */
-WS_DLL_PUBLIC
-gchar* ws_strdup_escape_char (const gchar *str, const gchar chr);
-
-/** Copy a string, unescaping the 'chr' characters in it
- *
- * @param str The string to be copied
- * @param chr The character to be escaped
- * @return A copy of the string with every occurrence of double 'chr' in
- * the original string being copied as a single 'chr'.
- */
-WS_DLL_PUBLIC
-gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
-
-/** Replace values in a string
- *
- * @param str String containing 0 or more values to be replaced.
- * @param old_val Old value.
- * @param new_val New value. May be NULL, in which case occurences of
- *                           old_value will be removed.
- * @return A newly-allocated version of str with replacement values or
- * NULL on failure.
- */
-WS_DLL_PUBLIC
-gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
-
 /*
  * Check name is valid. This covers names for display filter fields, dissector
  * tables, preference modules, etc. Lower case is preferred.
