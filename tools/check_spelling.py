@@ -113,6 +113,14 @@ class File:
 
         return self.checkMultiWordsRecursive(word)
 
+    # If word before 'id' is recognised, accept word.
+    def wordBeforeId(self, word):
+        if word.lower().endswith('id'):
+            if not spell.unknown([word[0:len(word)-2]]):
+                return True
+            else:
+                return False
+
     def checkMultiWordsRecursive(self, word):
         length = len(word)
         #print('word=', word)
@@ -204,7 +212,7 @@ class File:
                 word = word.replace('“', '')
                 word = word.replace('”', '')
 
-                if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word):
+                if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
                     print(self.file, this_value, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
                          ' -> ', '?')
                     # TODO: this can be interesting, but takes too long!

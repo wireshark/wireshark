@@ -609,7 +609,7 @@ static const value_string opcodes_vals_term[] =
 {
     {CS_NOP_ACK              , "NOP Acknowledge"},
     {CS_HANDSET_OFFHOOK      , "Handset Offhook"},                      /* IP Phone */
-    {CS_HANDSET_ONHOOK       , "Hansdet Onhook"},                       /* IP Phone */
+    {CS_HANDSET_ONHOOK       , "Handset Onhook"},                       /* IP Phone */
     {CS_DIGIT_DIALED         , "Digital Dialed"},                       /* IP Phone */
     {CS_SUBDEVICE_MSG        , "Subdevice Message"},
     {CS_HE_ROUTING           , "HE Routing Response Code"},             /* IP Phone - NOT EXPECTED */

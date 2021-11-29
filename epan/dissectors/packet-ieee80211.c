@@ -47578,15 +47578,15 @@ proto_register_ieee80211(void)
       FT_UINT32, BASE_HEX, NULL, 0xF8, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_rx_nss_ext,
-     {"Rx NSS Extenstion", "wlan.htc.he.a_control.eht_om.rx_nss_ext",
+     {"Rx NSS Extension", "wlan.htc.he.a_control.eht_om.rx_nss_ext",
       FT_BOOLEAN, 32, NULL, 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_chan_w_ext,
-     {"Channel Width Extenstion", "wlan.htc.he.a_control.eht_om.chan_w_ext",
+     {"Channel Width Extension", "wlan.htc.he.a_control.eht_om.chan_w_ext",
       FT_BOOLEAN, 32, NULL, 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_tx_nsts_ext,
-     {"Tx NSTS Extenstion", "wlan.htc.he.a_control.eht_om.tx_nsts_ext",
+     {"Tx NSTS Extension", "wlan.htc.he.a_control.eht_om.tx_nsts_ext",
       FT_BOOLEAN, 32, NULL, 0x04, NULL, HFILL }},
 
     {&hf_ieee80211_he_eht_om_reserved,

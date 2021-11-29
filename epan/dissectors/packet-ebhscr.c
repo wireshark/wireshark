@@ -122,7 +122,7 @@ static int hf_flexray_FCRCERR = -1;
 static int hf_flexray_FESERR = -1;
 static int hf_flexray_FSSERR = -1;
 static int hf_flexray_BSSERR = -1;
-static int hf_flexray_jump_occured = -1;
+static int hf_flexray_jump_occurred = -1;
 static int hf_flexray_slot_information = -1;
 static int hf_flexray_SBV = -1;
 static int hf_flexray_ACI = -1;
@@ -382,7 +382,7 @@ static int * const flexray_status_bits[] = {
 	&hf_flexray_monitoring_bit,
 	&hf_flexray_sync_bit,
 	&hf_flexray_packet_type,
-	&hf_flexray_jump_occured,
+	&hf_flexray_jump_occurred,
 	NULL
 };
 
@@ -397,7 +397,7 @@ static int * const flexray_frame_status_bits[] = {
 	&hf_flexray_FESERR,
 	&hf_flexray_FSSERR,
 	&hf_flexray_BSSERR,
-	&hf_flexray_jump_occured,
+	&hf_flexray_jump_occurred,
 	NULL
 };
 
@@ -1411,7 +1411,7 @@ proto_register_ebhscr(void)
 			"The wakeup length field in the major number specific header is set.", HFILL }
 		},
 		{ &hf_lin_time_jump,
-			{ "Time jump occured near the edge and thus the timestamp was estimated", "ebhscr.lin.timejmp",
+            { "Time jump occurred near the edge and thus the timestamp was estimated", "ebhscr.lin.timejmp",
 			FT_BOOLEAN, 16,
 			NULL, 0x0400,
 			"Only relevant for capture, ignored for replay.", HFILL }
@@ -1435,7 +1435,7 @@ proto_register_ebhscr(void)
 			NULL, HFILL }
 		},
 		{ &hf_lin_sts_syn,
-			{ "SYN - Received syncronization field is not 0x55", "ebhscr.lin.syn",
+			{ "SYN - Received synchronization field is not 0x55", "ebhscr.lin.syn",
 			FT_BOOLEAN, 64,
 			NULL, 0x0000000200000000,
 			NULL, HFILL }
@@ -1626,11 +1626,11 @@ proto_register_ebhscr(void)
 			NULL, 0x0400,
 			NULL, HFILL }
 		},
-		{ &hf_flexray_jump_occured,
-			{ "Time jump occured", "ebhscr.flexray.jump_occ",
+		{ &hf_flexray_jump_occurred,
+			{ "Time jump occurred", "ebhscr.flexray.jump_occ",
 			FT_BOOLEAN, 16,
 			NULL, 0x0800,
-			"Set to 1 if a time jump occured near the edge and thus the timestamp was estimated.", HFILL }
+			"Set to 1 if a time jump occurred near the edge and thus the timestamp was estimated.", HFILL }
 		},
 		{ &hf_flexray_slot_information,
 			{ "Slot information", "ebhscr.flexray.slotinfo",

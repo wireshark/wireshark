@@ -1,5 +1,6 @@
 0x%02x
 0x%08x
+100gb
 100kbps
 100mb
 10base
@@ -13,6 +14,7 @@
 80211n
 80mhz
 accelerometer
+acceptor
 accessor
 accessors
 accuracies
@@ -28,6 +30,7 @@ additionsr
 adjacency
 adlink
 administrable
+adpclk
 adspec
 adwin
 aes128
@@ -52,6 +55,7 @@ anacap
 analyzers
 analyzes
 annexc
+annunc
 anonsvn
 anonymization
 aperiodic
@@ -79,6 +83,7 @@ atsss
 attendee
 attrib
 attrs
+audigy
 authen
 authenticates
 authenticator
@@ -158,6 +163,7 @@ cannot
 canonicalised
 canonicalize
 canonicalized
+capab
 capacitive
 capinfos
 caplen
@@ -172,6 +178,8 @@ cccid
 ccpch
 cctrch
 cdma2000
+cdmacallmode
+cdmachanneldata
 celeron
 cellid
 cellidentity
@@ -242,6 +250,7 @@ connid
 const
 contactless
 contiguously
+coord
 Coord3D
 copycss
 copyfile
@@ -257,6 +266,7 @@ cpuregisters
 cqich
 credential
 credentials
+credssp
 criticalextensions
 criticalextensionsfuture
 crnti
@@ -375,6 +385,7 @@ docsis
 dodag
 double
 downlink
+doxygen
 dpauxmon
 dpnss
 drbid
@@ -388,6 +399,7 @@ duple
 dword
 dwords
 eapol
+earcfn
 earfcn
 ebcdic
 ecdhe
@@ -453,6 +465,7 @@ extensible
 exthdr
 extrainformation
 failover
+fastcom
 fastip
 fastmsg
 fattr
@@ -466,6 +479,7 @@ flexray
 flowid
 flowmod
 flowspec
+fmconfig
 followup
 foobar
 format0
@@ -476,13 +490,17 @@ fraghdr
 framenum
 framenumber
 frametype
+frcrpt
 frontend
 fsctl
 ftype
 ftypes
+fujitsu
 functionalities
 funkt
 fvalue
+g711a
+g711u
 gamepad
 ganss
 gboolean
@@ -506,10 +524,12 @@ gitlab
 gluster
 gmail
 gmprs
+gnodeb
 gnutls
 goaway
 google
 gprscdr
+gregex
 greyed
 groupa
 groupadd
@@ -589,6 +609,7 @@ inline
 inode
 inodes
 inspiron
+instantiate
 instdir
 instrumented
 interferer
@@ -627,6 +648,8 @@ ixveriwave
 jetds
 jsonraw
 kademlia
+kasme
+kbytes
 keepalive
 kerberos
 keydes
@@ -650,6 +673,7 @@ leasequery
 libgcrypt
 libpcap
 libsmi
+licmgr
 linearity
 linkaddr
 linkcss
@@ -674,6 +698,7 @@ lucent
 luminance
 macaddr
 macaddress
+macsec
 mailto
 malloc
 manarg
@@ -687,6 +712,7 @@ maxlen
 maybefcs
 mbits
 mbsfn
+mbytes
 mcast
 mcptt
 mcsset
@@ -733,6 +759,7 @@ msgsend
 msisdn
 mtftp
 mtrace
+mudurl
 multiband
 multicarrier
 multicast
@@ -774,11 +801,13 @@ netlink
 netlogon
 netmask
 netmon
+netricity
 netscaler
 nettl
 netxray
 newpw
 nexthop
+nfs2err
 nfs4err
 nghttp
 ngran
@@ -795,6 +824,7 @@ noncriticalextensions
 nopad
 nortel
 notarized
+notational
 notif
 notifier
 notused
@@ -821,6 +851,7 @@ octetstring
 ofdma
 offloadability
 ofpat
+ofpmp
 ofppf
 ofpxmt
 om2000
@@ -853,6 +884,7 @@ param
 parameterization
 parameterized
 params
+paramset
 parens
 parlay
 parms
@@ -867,6 +899,7 @@ pcapng
 pcell
 pcmax
 pcmaxc
+pcrepattern
 pdcch
 pdsch
 pdustatus
@@ -962,6 +995,7 @@ radiotap
 ralink
 ranap
 randomization
+randomize
 randomizer
 randpkt
 raster
@@ -1005,6 +1039,7 @@ reconfrqst
 recursively
 redelivered
 redelivery
+redir
 redirector
 redirects
 redistributable
@@ -1090,6 +1125,7 @@ rnsap
 roamer
 routable
 rpcap
+rsocket
 rtpmidi
 rtpmux
 rxreq
@@ -1101,6 +1137,7 @@ satisfiable
 scalability
 scaler
 scannable
+scdma
 scell
 scoped
 scrollbar
@@ -1140,6 +1177,7 @@ signon
 simulcast
 skippable
 skype
+slimp
 slsch
 smpte
 smrse
@@ -1270,6 +1308,7 @@ tesla
 text2pcap
 thermister
 thermistor
+thunderx
 timeout
 timeslot
 timestamp
@@ -1295,6 +1334,8 @@ transum
 transversal
 traveler
 traversal
+trcdbg
+trunc
 truncatable
 truncate
 truncates
@@ -1318,6 +1359,7 @@ uboot
 ubuntu
 udpcp
 udpdump
+udphdr
 uint16
 uint32
 uint8
@@ -1367,6 +1409,7 @@ unescaped
 unexported
 unformatted
 unfragmented
+unframed
 ungrab
 unhandled
 unicast
@@ -1442,6 +1485,7 @@ uploads
 urlencoded
 urnti
 usability
+usbms
 usbpcap
 userdata
 userinfo
