@@ -40,8 +40,12 @@ static void test_escape_string(void)
     g_assert_cmpstr(buf, ==, "\"quoted \\\"\\\\\\\" backslash\"");
     wmem_free(NULL, buf);
 
-    buf = ws_escape_string(NULL, "bytes \xfe\xff", TRUE);
-    g_assert_cmpstr(buf, ==, "\"bytes \\xfe\\xff\"");
+    buf = ws_escape_string(NULL, "whitespace \t \n \r \f \v", TRUE);
+    g_assert_cmpstr(buf, ==, "\"whitespace \\t \\n \\r \\f \\v""\"");
+    wmem_free(NULL, buf);
+
+    buf = ws_escape_string(NULL, "bytes \xfe\xff", FALSE);
+    g_assert_cmpstr(buf, ==, "bytes \\xfe\\xff");
     wmem_free(NULL, buf);
 }
 
