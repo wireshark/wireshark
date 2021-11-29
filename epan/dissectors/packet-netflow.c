@@ -1687,7 +1687,7 @@ static const value_string v10_template_types_ixia[] = {
     {  280, "TCP Connection Setup Time (us)"},
     {  281, "TCP Application Response Time (us)"},
     {  282, "TCP Count of Retransmitted Packets"},
-    {  283, "Connection Average Round Trip Time (us)"},    
+    {  283, "Connection Average Round Trip Time (us)"},
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
