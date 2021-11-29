@@ -87,10 +87,6 @@ indent_size = 2
 indent_style = tab
 indent_size = tab
 
-[str_util.[ch]]
-indent_style = tab
-indent_size = tab
-
 [strptime.[ch]]
 indent_size = 2
 
