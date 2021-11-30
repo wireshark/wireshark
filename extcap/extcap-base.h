@@ -1,4 +1,5 @@
-/* extcap_base.h
+/** @file
+ *
  * Base function for extcaps
  *
  * Copyright 2016, Dario Lombardo

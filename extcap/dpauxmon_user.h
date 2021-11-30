@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Copyright 2018, Dirk Eibach, Guntermann & Drunck GmbH <dirk.eibach@gdsys.cc>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later

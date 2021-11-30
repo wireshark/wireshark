@@ -1,4 +1,5 @@
-/* ssh-base.h
+/** @file
+ *
  * ssh-base has base utility functions to connect to hosts via ssh
  *
  * Copyright 2016, Dario Lombardo

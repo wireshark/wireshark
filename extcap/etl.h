@@ -1,5 +1,5 @@
-/* etl.h
-*
+/** @file
+ *
  * Copyright 2020, Odysseus Yang
  *
  * Wireshark - Network traffic analyzer
