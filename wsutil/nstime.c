@@ -279,17 +279,27 @@ nsfiletime_to_nstime(nstime_t *nstime, guint64 nsfiletime)
  * returns number of chars parsed on success, or 0 on failure
  *
  * NB. ISO 8601 is actually a lot more flexible than the above format,
- * much to a developer's chagrin. The -/T/: separators are technically
- * optional.
- * Code is here to allow for that, but short-circuited for now since
- * our callers assume they're there.
+ * much to a developer's chagrin. The "basic format" is distinguished from
+ * the "extended format" by lacking the - and : separators. This function
+ * supports both the basic and extended format (as well as both simultaneously)
+ * with several common options and extensions. Time resolution is supported
+ * up to nanoseconds (9 fractional digits) or down to whole minutes (omitting
+ * the seconds component in the latter case). The T separator can be replaced
+ * by a space in either format (a common extension not in ISO 8601 but found
+ * in, e.g., RFC 3339) or omitted entirely in the basic format.
+ *
+ * Many standards that use ISO 8601 implement profiles with additional
+ * constraints, such as requiring that the seconds field be present, only
+ * allowing "." as the decimal separator, or limiting the number of fractional
+ * digits. Callers that wish to check constraints not yet enforced by a
+ * profile supported by the function must do so themselves.
  *
  * Future improvements could parse other ISO 8601 formats, such as
  * YYYY-Www-D, YYYY-DDD, etc. For a relatively easy introduction to
  * these formats, see wikipedia: https://en.wikipedia.org/wiki/ISO_8601
  */
 guint8
-iso8601_to_nstime(nstime_t *nstime, const char *ptr)
+iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
 {
     struct tm tm;
     gint n_scanned = 0;
@@ -307,10 +317,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
     tm.tm_isdst = -1;
     nstime_set_unset(nstime);
 
-    /* The ISO 8901 Basic format lacks the - and : separators, while the
-     * Extended format has them. (Both formats have the 'T' separator
-     * between date and time, which may be omitted by mutual agreement.)
-     * Verify that we start with a four digit year and then look for the
+    /* Verify that we start with a four digit year and then look for the
      * separator. */
     for (n_scanned = 0; n_scanned < 4; n_scanned++) {
         if (!g_ascii_isdigit(*ptr)) {
@@ -320,27 +327,42 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
         tm.tm_year += *ptr++ - '0';
     }
     if (*ptr == '-') {
-        has_separator = TRUE;
+        switch (format) {
+            case ISO8601_DATETIME_BASIC:
+                return 0;
+
+            case ISO8601_DATETIME:
+            case ISO8601_DATETIME_AUTO:
+            default:
+                has_separator = TRUE;
+                ptr++;
+        };
     } else if (g_ascii_isdigit(*ptr)) {
-        has_separator = FALSE;
+        switch (format) {
+            case ISO8601_DATETIME:
+                return 0;
+
+            case ISO8601_DATETIME_BASIC:
+            case ISO8601_DATETIME_AUTO:
+            default:
+                has_separator = FALSE;
+        };
     } else {
         return 0;
     }
 
-    /* For now we require the separator to remove ambiguity */
-    if (!has_separator) return 0;
-
     tm.tm_year -= 1900; /* struct tm expects number of years since 1900 */
-    ptr++;
 
     /* Note: sscanf is known to be inconsistent across platforms with respect
-       to whether a %n is counted as a return value or not, so we use '<'/'>='
+       to whether a %n is counted as a return value or not (XXX: Is this
+       still true, despite the express comments of C99 §7.19.6.2 12?), so we
+       use '<'/'>='
      */
     /* XXX: sscanf allows an optional sign indicator before each integer
      * converted (whether with %d or %u), so this will convert some bogus
      * strings. Either checking afterwards or doing the whole thing by hand
      * as with the year above is the only correct way. (strptime certainly
-     * can't handle the no separator "Basic" format.)
+     * can't handle the basic format.)
      */
     n_scanned = sscanf(ptr, has_separator ? "%2u-%2u%n" : "%2u%2u%n",
             &tm.tm_mon,
@@ -357,13 +379,14 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
 
     if (*ptr == 'T' || *ptr == ' ') {
         /* The 'T' between date and time is optional if the meaning is
-           unambiguous. We also allow for ' ' here to support formats
-           such as editcap's -A/-B options */
+           unambiguous. We also allow for ' ' here per RFC 3339 to support
+           formats such as editcap's -A/-B options. */
         ptr++;
     }
-    else {
-        /* For now we require the separator to remove ambiguity;
-           remove this entire 'else' when we wish to change that */
+    else if (has_separator) {
+        /* Allow no separator between date and time iff we have no
+           separator between units. (Some extended formats may negotiate
+           no separator here, so this could be changed.) */
         return 0;
     }
 
@@ -420,12 +443,14 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
         }
     }
     else {
+        /* No seconds. ISO 8601 allows decimal fractions of a minute here,
+         * but that's pretty rare in practice. Could be added later if needed.
+         */
         tm.tm_sec = 0;
     }
 
     /* Validate what we got so far. mktime() doesn't care about strange
-       values (and we use this to our advantage when calculating the
-       time zone offset) but we should at least start with something valid */
+       values but we should at least start with something valid */
     if (!tm_is_valid(&tm)) {
         return 0;
     }
@@ -471,6 +496,12 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
         if (sign == '+') {
             nstime->secs += (off_hr * 3600) + (off_min * 60);
         } else if (sign == '-') {
+            /* -00:00 is illegal according to ISO 8601, but RFC 3339 allows
+             * it under a convention where -00:00 means "time in UTC is known,
+             * local timezone is unknown." This has the same value as an
+             * offset of Z or +00:00, but semantically implies that UTC is
+             * not the preferred time zone, which is immaterial to us.
+             */
             nstime->secs -= ((-off_hr) * 3600) + (off_min * 60);
         }
     }

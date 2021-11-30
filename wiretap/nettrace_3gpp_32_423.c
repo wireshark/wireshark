@@ -807,7 +807,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Ok it's our file. From here we'll need to free memory */
 	file_info = g_new0(nettrace_3gpp_32_423_file_info_t, 1);
-	curr_pos += iso8601_to_nstime(&file_info->start_time, curr_pos);
+	curr_pos += iso8601_to_nstime(&file_info->start_time, curr_pos, ISO8601_DATETIME);
 	file_info->start_offset = start_offset + (curr_pos - magic_buf);
 	file_info->buffer = g_byte_array_sized_new(RINGBUFFER_START_SIZE);
 	g_byte_array_append(file_info->buffer, curr_pos, (guint)(bytes_read - (curr_pos - magic_buf)));

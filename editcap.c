@@ -1340,7 +1340,7 @@ main(int argc, char *argv[])
             nstime_t in_time;
 
             check_startstop = TRUE;
-            if ((0 < iso8601_to_nstime(&in_time, ws_optarg)) || (0 < unix_epoch_to_nstime(&in_time, ws_optarg))) {
+            if ((0 < iso8601_to_nstime(&in_time, ws_optarg, ISO8601_DATETIME)) || (0 < unix_epoch_to_nstime(&in_time, ws_optarg))) {
                 if (opt == 'A') {
                     nstime_copy(&starttime, &in_time);
                     have_starttime = TRUE;
