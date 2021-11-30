@@ -1,4 +1,4 @@
-/* wireshark_zip_helper.h
+/** @file
  *
  * Definitions for zip / unzip of files
  *

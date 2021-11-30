@@ -1,4 +1,5 @@
-/* failure_message.h
+/** @file
+ *
  * Routines to print various "standard" failure messages used in multiple
  * places
  *

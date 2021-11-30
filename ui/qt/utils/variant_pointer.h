@@ -1,5 +1,5 @@
-/*
- * variant_pointer.h
+/** @file
+ *
  * Range routines
  *
  * Roland Knall <rknall@gmail.com>

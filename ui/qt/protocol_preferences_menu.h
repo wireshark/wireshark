@@ -1,4 +1,4 @@
-/* protocol_preferences_menu.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

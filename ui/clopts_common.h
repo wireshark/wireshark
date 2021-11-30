@@ -1,4 +1,5 @@
-/* clopts_common.h
+/** @file
+ *
  * Handle command-line arguments common to various programs
  *
  * Wireshark - Network traffic analyzer

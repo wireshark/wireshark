@@ -1,4 +1,4 @@
-/* cocoa_bridge.h
+/** @file
     *
     * This code was taken directly from:
     * https://forum.qt.io/topic/82609/remove-native-mac-menu-items-such-as-show-tab-bar

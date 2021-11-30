@@ -1,4 +1,5 @@
-/* url_link_delegate.h
+/** @file
+ *
  * Delegates for displaying links as links, including elide model
  *
  * Wireshark - Network traffic analyzer

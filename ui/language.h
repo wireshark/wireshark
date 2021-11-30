@@ -1,4 +1,4 @@
-/* language.h
+/** @file
  *
  * Copyright 2014, Michal Labedzki for Tieto Corporation
  *

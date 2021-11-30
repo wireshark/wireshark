@@ -1,4 +1,5 @@
-/* tap-rtp-common.h
+/** @file
+ *
  * RTP streams handler functions used by tshark and wireshark
  *
  * Copyright 2008, Ericsson AB

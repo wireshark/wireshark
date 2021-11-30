@@ -1,4 +1,5 @@
-/* exit_codes.h
+/** @file
+ *
  * Definition of exit codes for programs.
  *
  * Wireshark - Network traffic analyzer

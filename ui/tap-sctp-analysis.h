@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Copyright 2004-2013, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  *
  * Wireshark - Network traffic analyzer

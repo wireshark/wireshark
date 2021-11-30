@@ -1,4 +1,5 @@
-/* profile.h
+/** @file
+ *
  * Definitions for dialog box for profiles editing.
  * Stig Bjorlykke <stig@bjorlykke.org>, 2008
  *

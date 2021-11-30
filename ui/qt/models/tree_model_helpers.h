@@ -1,4 +1,4 @@
-/* tree_model_helpers.h
+/** @file
  *
  * Utility template classes for basic tree model functionality
  *

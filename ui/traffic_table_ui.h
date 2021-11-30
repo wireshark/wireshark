@@ -1,4 +1,5 @@
-/* traffic_table_ui.h
+/** @file
+ *
  * Helper routines common to conversation/endpoint tables.
  *
  * Wireshark - Network traffic analyzer

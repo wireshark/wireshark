@@ -1,4 +1,5 @@
-/* version_info.h
+/** @file
+ *
  * Declarations of routines to report version information for Wireshark
  * programs
  *

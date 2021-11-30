@@ -1,4 +1,5 @@
-/* service_response_time.h
+/** @file
+ *
  * Copied from ui/gtk/service_response_time_table.h, 2003 Ronnie Sahlberg
  * Helper routines and structs common to all service response time statistics
  * taps.

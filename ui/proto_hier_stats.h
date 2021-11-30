@@ -1,4 +1,4 @@
-/* proto_hier_stats.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

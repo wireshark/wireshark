@@ -1,4 +1,4 @@
-/* supported_protocols_model.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

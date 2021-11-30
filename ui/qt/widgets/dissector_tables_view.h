@@ -1,4 +1,5 @@
-/* dissector_tables_view.h
+/** @file
+ *
  * Tree view of Dissector Table data.
  *
  * Wireshark - Network traffic analyzer

@@ -1,5 +1,4 @@
-/*
- * credentials_model.h
+/** @file
  *
  * Copyright 2019 - Dario Lombardo <lomato@gmail.com>
  *

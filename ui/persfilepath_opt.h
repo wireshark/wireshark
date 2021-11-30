@@ -1,4 +1,5 @@
-/* persfilepath_opt.h
+/** @file
+ *
  * Definitions of routines to handle command-line options to set paths
  * for directories containing personal files (configuration, saved
  * captures)

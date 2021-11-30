@@ -1,4 +1,5 @@
-/* recent.h
+/** @file
+ *
  * Definitions for recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *

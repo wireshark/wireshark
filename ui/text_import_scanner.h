@@ -1,4 +1,5 @@
-/**-*-C-*-**********************************************************************
+/** @file
+ *
  * text_import_scanner.h
  * Scanner for text import
  * November 2010, Jaap Keuter <jaap.keuter@xs4all.nl>

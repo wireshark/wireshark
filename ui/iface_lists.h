@@ -1,4 +1,5 @@
-/* iface_lists.h
+/** @file
+ *
  * Declarations of routines to manage the global list of interfaces and to
  * update widgets/windows displaying items from those lists
  *

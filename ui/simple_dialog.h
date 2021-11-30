@@ -1,4 +1,5 @@
-/* simple_dialog.h
+/** @file
+ *
  * Definitions for alert box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *

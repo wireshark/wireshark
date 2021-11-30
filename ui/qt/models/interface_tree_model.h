@@ -1,4 +1,5 @@
-/* interface_tree_model.h
+/** @file
+ *
  * Model for the interface data for display in the interface frame
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,5 @@
-/* filter_filess.h
+/** @file
+ *
  * Declarations of routines for reading and writing the filters file.
  *
  * Wireshark - Network traffic analyzer

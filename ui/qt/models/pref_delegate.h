@@ -1,4 +1,5 @@
-/* pref_delegate.h
+/** @file
+ *
  * Delegates for editing prefereneces.
  *
  * Wireshark - Network traffic analyzer

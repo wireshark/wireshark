@@ -1,4 +1,5 @@
-/* rtp_stream.h
+/** @file
+ *
  * RTP streams summary addition for Wireshark
  *
  * Copyright 2003, Alcatel Business Systems

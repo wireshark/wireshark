@@ -1,4 +1,5 @@
-/* interface_frame.h
+/** @file
+ *
  * Display of interfaces, including their respective data, and the
  * capability to filter interfaces by type
  *

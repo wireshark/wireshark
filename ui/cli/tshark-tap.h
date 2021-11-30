@@ -1,4 +1,5 @@
-/* tshark-tap.h
+/** @file
+ *
  * Registation tap hooks for TShark
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,5 @@
-/* rtp_stream_id.h
+/** @file
+ *
  * RTP stream id functions for Wireshark
  *
  * Copyright 2003, Alcatel Business Systems

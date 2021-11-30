@@ -1,4 +1,5 @@
-/* console.h
+/** @file
+ *
  * Console log handler routines
  *
  * Wireshark - Network traffic analyzer

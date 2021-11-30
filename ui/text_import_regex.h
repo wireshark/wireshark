@@ -1,4 +1,5 @@
-/**-*-C-*-**********************************************************************
+/** @file
+ *
  * text_import_regex.h
  * Regex based alternative to the state machine for text import
  * Feburary 2021, Paul Weiß <paulniklasweiss@gmail.com>

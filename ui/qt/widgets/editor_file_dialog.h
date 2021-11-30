@@ -1,4 +1,4 @@
-/* editor_file_dialog.h
+/** @file
  *
  * File dialog that can be used as an "inline editor" in a table
  *

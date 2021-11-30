@@ -1,4 +1,5 @@
-/* capture_globals.h
+/** @file
+ *
  * Capture-related globals.
  *
  * Wireshark - Network traffic analyzer

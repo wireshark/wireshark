@@ -1,4 +1,5 @@
-/* dissect_opts.h
+/** @file
+ *
  * Dissection options (parameters that affect dissection)
  *
  * Wireshark - Network traffic analyzer

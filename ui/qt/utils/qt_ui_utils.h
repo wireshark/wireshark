@@ -1,4 +1,5 @@
-/* qt_ui_utils.h
+/** @file
+ *
  * Declarations of Qt-specific UI utility routines
  *
  * Wireshark - Network traffic analyzer

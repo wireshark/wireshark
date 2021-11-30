@@ -1,4 +1,5 @@
-/* tabnav_tree_widget.h
+/** @file
+ *
  * Tree widget with saner tab navigation properties.
  *
  * Copyright 2017 Peter Wu <peter@lekensteyn.nl>

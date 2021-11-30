@@ -1,4 +1,4 @@
-/* copy_from_profile_button.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

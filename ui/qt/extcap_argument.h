@@ -1,4 +1,4 @@
-/* extcap_argument.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

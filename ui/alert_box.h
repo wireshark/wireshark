@@ -1,4 +1,5 @@
-/* alert_box.h
+/** @file
+ *
  * Routines to put up various "standard" alert boxes used in multiple
  * places
  *

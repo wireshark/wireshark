@@ -1,4 +1,5 @@
-/* file_dlg_win32.h
+/** @file
+ *
  * Native Windows file dialog routines
  *
  * Wireshark - Network traffic analyzer

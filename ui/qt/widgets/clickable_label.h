@@ -1,4 +1,4 @@
-/* clickable_label.h
+/** @file
  *
  * Taken from https://wiki.qt.io/Clickable_QLabel and adapted for usage
  *

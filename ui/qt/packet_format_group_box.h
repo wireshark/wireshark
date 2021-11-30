@@ -1,4 +1,4 @@
-/* packet_format_group_box.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -1,4 +1,5 @@
-/* recent_utils.h
+/** @file
+ *
  * Routines called to write stuff to the recent file; their implementations
  * are GUI-dependent, but the API's aren't
  *

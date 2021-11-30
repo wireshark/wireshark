@@ -1,4 +1,5 @@
-/* ws_ui_util.h
+/** @file
+ *
  * Declarations of UI utility routines; these routines have GUI-independent
  * APIs, but GUI-dependent implementations, so that they can be called by
  * GUI-independent code to affect the GUI.

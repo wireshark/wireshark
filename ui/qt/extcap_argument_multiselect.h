@@ -1,4 +1,4 @@
-/* extcap_argument_multiselect.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

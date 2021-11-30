@@ -1,4 +1,5 @@
-/* packet_range.h
+/** @file
+ *
  * Packet range routines (save, print, ...)
  *
  * Dick Gooris <gooris@lucent.com>

@@ -1,4 +1,4 @@
-/* bluetooth_att_server_attributes_dialog.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

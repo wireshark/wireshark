@@ -1,4 +1,4 @@
-/* recent_file_status.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

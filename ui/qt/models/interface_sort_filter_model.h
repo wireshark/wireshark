@@ -1,4 +1,5 @@
-/* interface_sort_filter_model.h
+/** @file
+ *
  * Proxy model for the display of interface data for the interface tree
  *
  * Wireshark - Network traffic analyzer

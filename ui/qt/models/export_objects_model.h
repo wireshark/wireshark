@@ -1,4 +1,5 @@
-/* export_objects_model.h
+/** @file
+ *
  * Data model for Export Objects.
  *
  * Wireshark - Network traffic analyzer

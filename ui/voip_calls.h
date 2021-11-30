@@ -1,4 +1,5 @@
-/* voip_calls.h
+/** @file
+ *
  * VoIP calls summary addition for Wireshark
  *
  * Copyright 2004, Ericsson , Spain

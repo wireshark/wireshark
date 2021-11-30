@@ -1,4 +1,5 @@
-/* tap_export_pdu.h
+/** @file
+ *
  * Routines for exporting PDUs to file
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,4 @@
-/* related_packet_delegate.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -1,4 +1,5 @@
-/* coloring_rules_delegate.h
+/** @file
+ *
  * Delegates for editing various coloring rule fields.
  *
  * Wireshark - Network traffic analyzer

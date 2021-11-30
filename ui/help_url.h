@@ -1,4 +1,4 @@
-/* help_dlg.h
+/** @file
  *
  * Some content from gtk/help_dlg.h by Laurent Deniel <laurent.deniel@free.fr>
  *

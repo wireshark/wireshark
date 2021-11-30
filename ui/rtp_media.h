@@ -1,4 +1,4 @@
-/* rtp_media.h
+/** @file
  *
  * RTP decoding routines for Wireshark.
  * Copied from ui/gtk/rtp_player.c

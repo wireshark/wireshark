@@ -1,4 +1,4 @@
-/* rsa_keys_frame.h
+/** @file
  *
  * Copyright 2019 Peter Wu <peter@lekensteyn.nl>
  *

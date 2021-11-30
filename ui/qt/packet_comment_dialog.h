@@ -1,4 +1,4 @@
-/* packet_comment_dialog.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

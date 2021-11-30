@@ -1,4 +1,4 @@
-/* proto_tree.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
