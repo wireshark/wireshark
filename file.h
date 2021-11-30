@@ -1,4 +1,5 @@
-/* file.h
+/** @file
+ *
  * Definitions for file structures and routines
  *
  * Wireshark - Network traffic analyzer

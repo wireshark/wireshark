@@ -1,4 +1,5 @@
-/* frame_tvbuff.h
+/** @file
+ *
  * Implements a tvbuff for frame
  *
  * Wireshark - Network traffic analyzer

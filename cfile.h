@@ -1,4 +1,5 @@
-/* cfile.h
+/** @file
+ *
  * capture_file definition & GUI-independent manipulation
  *
  * Wireshark - Network traffic analyzer

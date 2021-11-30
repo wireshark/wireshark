@@ -1,6 +1,4 @@
-/**-*-C-*-**********************************************************************
- *
- * text2pcap.h
+/** @file
  *
  * Utility to convert an ASCII hexdump into a libpcap-format capture file
  *

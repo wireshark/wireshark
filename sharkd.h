@@ -1,4 +1,4 @@
-/* sharkd.h
+/** @file
  *
  * Copyright (C) 2016 Jakub Zawadzki
  *

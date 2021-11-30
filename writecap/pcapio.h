@@ -1,4 +1,5 @@
-/* pcapio.h
+/** @file
+ *
  * Declarations of our own routines for writing libpcap files.
  *
  * Wireshark - Network traffic analyzer

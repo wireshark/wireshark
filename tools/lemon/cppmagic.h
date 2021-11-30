@@ -1,4 +1,4 @@
-
+/** @file */
 /**************************************** CPP definitions ***************/
 
 /* CPP magic: Concatenate two strings or macros that resolve to strings.

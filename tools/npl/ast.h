@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Copyright 2012-2013, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later

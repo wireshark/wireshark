@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Declaration of the real main routine, for all CLI programs where the
  * main routine should get UTF-8 arguments on Windows.  In those programs,
  * in the file that defines the main routine, include this header and link

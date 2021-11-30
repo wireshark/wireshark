@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * randpkt_core.h
  * ---------
  * Creates random packet traces. Useful for debugging sniffers by testing

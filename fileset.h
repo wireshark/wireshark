@@ -1,4 +1,5 @@
-/* fileset.h
+/** @file
+ *
  * Definitions for routines for file sets.
  *
  * Wireshark - Network traffic analyzer

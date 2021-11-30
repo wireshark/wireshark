@@ -1,4 +1,5 @@
-/* ringbuffer.h
+/** @file
+ *
  * Definitions for capture ringbuffer files
  *
  * Wireshark - Network traffic analyzer
