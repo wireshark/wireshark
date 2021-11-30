@@ -99,9 +99,6 @@ static const struct field_display_string_t base_displays[] = {
     {"base.DEC_HEX", BASE_DEC_HEX},
     {"base.HEX_DEC", BASE_HEX_DEC},
     {"base.UNIT_STRING", BASE_UNIT_STRING},
-    /* String types */
-    {"base.ASCII", STR_ASCII},
-    {"base.UNICODE", STR_UNICODE},
     /* Byte separators */
     {"base.DOT", SEP_DOT},
     {"base.DASH", SEP_DASH},
@@ -678,8 +675,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         break;
     case FT_STRING:
     case FT_STRINGZ:
-        if (base != STR_ASCII && base != STR_UNICODE) {
-            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be either base.ASCII or base.UNICODE");
+        if (base != BASE_NONE) {
+            WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Display must be base.NONE");
             return 0;
         }
         if (mask) {
@@ -1256,8 +1253,8 @@ static int ProtoField_other_display(lua_State* L,enum ftenum type) {
     if (lua_isnumber(L, 3)) {
         base = (unsigned)luaL_optinteger(L,3,BASE_NONE);
         if (type == FT_STRING || type == FT_STRINGZ) {
-            if (base != STR_ASCII && base != STR_UNICODE) {
-                luaL_argerror(L, 3, "Display must be either base.ASCII or base.UNICODE");
+            if (base != BASE_NONE) {
+                luaL_argerror(L, 3, "Display must be base.NONE");
                 return 0;
             }
         } else if (type == FT_BYTES || type == FT_UINT_BYTES) {

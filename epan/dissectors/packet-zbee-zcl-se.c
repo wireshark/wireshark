@@ -3397,7 +3397,7 @@ proto_register_zbee_zcl_price(void)
          /* end Tariff Information Type/Charging Scheme fields */
 
         { &hf_zbee_zcl_price_tariff_information_tariff_label,
-            { "Tariff Label", "zbee_zcl_se.price.tariff_information.tariff_label", FT_UINT_STRING, STR_UNICODE, NULL,
+            { "Tariff Label", "zbee_zcl_se.price.tariff_information.tariff_label", FT_UINT_STRING, BASE_NONE, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_tariff_information_number_of_price_tiers_in_use,
@@ -13959,11 +13959,11 @@ proto_register_zbee_zcl_device_management(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_name,
-            { "Proposed Provider Name", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_proposed_provider_name", FT_UINT_STRING, STR_UNICODE, NULL,
+            { "Proposed Provider Name", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_proposed_provider_name", FT_UINT_STRING, BASE_NONE, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_contact_details,
-            { "Proposed Provider Contact Details", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_proposed_provider_contact_details", FT_UINT_STRING, STR_UNICODE, NULL,
+            { "Proposed Provider Contact Details", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_proposed_provider_contact_details", FT_UINT_STRING, BASE_NONE, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_request_new_password_issuer_event_id,
@@ -13979,7 +13979,7 @@ proto_register_zbee_zcl_device_management(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_request_new_password_password,
-            { "Password", "zbee_zcl_se.device_management.request_new_password.password", FT_UINT_STRING, STR_UNICODE, NULL,
+            { "Password", "zbee_zcl_se.device_management.request_new_password.password", FT_UINT_STRING, BASE_NONE, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_update_site_id_issuer_event_id,
@@ -13995,7 +13995,7 @@ proto_register_zbee_zcl_device_management(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_update_site_id_site_id,
-            { "SiteID", "zbee_zcl_se.device_management.update_site_id.site_id", FT_UINT_STRING, STR_UNICODE, NULL,
+            { "SiteID", "zbee_zcl_se.device_management.update_site_id.site_id", FT_UINT_STRING, BASE_NONE, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_get_event_configuration_event_id,
@@ -14015,7 +14015,7 @@ proto_register_zbee_zcl_device_management(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_update_cin_customerid_number,
-            { "CustomerID Number", "zbee_zcl_se.device_management.update_cin.customerid_number", FT_UINT_STRING, STR_UNICODE, NULL,
+            { "CustomerID Number", "zbee_zcl_se.device_management.update_cin.customerid_number", FT_UINT_STRING, BASE_NONE, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_set_event_configuration_issuer_event_id,

@@ -9248,7 +9248,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_NodeDescription_NodeString, {
                 "NodeString", "opa.nodedescription.nodestring",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
 /************
@@ -10423,7 +10423,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_CableInfo_DataStream, {
                 "Data", "opa.cableinfo.datastream",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
 /************
@@ -10881,7 +10881,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_ServiceRecord_ServiceName, {
                 "ServiceName", "opa.servicerecord.servicename",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_ServiceRecord_ServiceData, {
                 "ServiceData", "opa.servicerecord.servicedata",
@@ -10895,7 +10895,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_ServiceAssociationRecord_ServiceName, {
                 "ServiceName", "opa.serviceassociationrecord.servicename",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
 /**************
@@ -12099,7 +12099,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetGroupList_groupName, {
                 "Group Name", "opa.pa.getgrouplist.groupname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
         /* GetGroupInfo */
@@ -12109,7 +12109,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetGroupInfo_groupName, {
                 "Group Name", "opa.pa.getgroupinfo.groupname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetGroupInfo_numInternalPorts, {
                 "numInternalPorts", "opa.pa.getgroupinfo.numinternalports",
@@ -12231,7 +12231,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetGroupConfig_groupName, {
                 "Group Name", "opa.pa.getgroupconfig.groupname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetGroupConfig_Port_NodeGUID, {
                 "NodeGUID", "opa.pa.getgroupconfig.port.nodeguid",
@@ -12239,7 +12239,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetGroupConfig_Port_nodeDesc, {
                 "nodeDesc", "opa.pa.getgroupconfig.port.nodedesc",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetGroupConfig_Port_NodeLID, {
                 "NodeLID", "opa.pa.getgroupconfig.port.nodelid",
@@ -12799,7 +12799,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetFocusPorts_groupName, {
                 "Group Name", "opa.pa.getfocusports.groupname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetFocusPorts_select, {
                 "select", "opa.pa.getfocusports.select",
@@ -12847,7 +12847,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetFocusPorts_nodeDesc, {
                 "nodeDesc", "opa.pa.getfocusports.nodedesc",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetFocusPorts_neighborLid, {
                 "neighborLid", "opa.pa.getfocusports.neighborlid",
@@ -12867,7 +12867,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetFocusPorts_neighborNodeDesc, {
                 "neighborNodeDesc", "opa.pa.getfocusports.neighbornodedesc",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
         /* GetImageInfo */
@@ -12949,7 +12949,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetImageInfo_smNodeDesc, {
                 "nodeDesc", "opa.pa.getimageinfo.sminfo.nodedesc",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
         /* GetVFList */
@@ -12959,7 +12959,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFList_vfName, {
                 "VF Name", "opa.pa.getvflist.vfname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
         /* GetVFInfo */
@@ -12969,7 +12969,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFInfo_vfName, {
                 "VF Name", "opa.pa.getvfinfo.vfname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFInfo_numPorts, {
                 "numPorts", "opa.pa.getvfinfo.numports",
@@ -13075,7 +13075,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFConfig_vfName, {
                 "VF Name", "opa.pa.getvfconfig.vfname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFConfig_Port_NodeGUID, {
                 "NodeGUID", "opa.pa.getvfconfig.port.nodeguid",
@@ -13083,7 +13083,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFConfig_Port_nodeDesc, {
                 "nodeDesc", "opa.pa.getvfconfig.port.nodedesc",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFConfig_Port_NodeLID, {
                 "NodeLID", "opa.pa.getvfconfig.port.nodelid",
@@ -13101,7 +13101,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFPortCounters_vfName, {
                 "VF Name", "opa.pa.getvfportcounters.vfname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFPortCounters_nodeLID, {
                 "nodeLID", "opa.pa.getvfportcounters.nodelid",
@@ -13179,7 +13179,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_ClearVFPortCounters_vfName, {
                 "VF Name", "opa.pa.clearvfportcounters.vfname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_ClearVFPortCounters_nodeLID, {
                 "nodeLID", "opa.pa.clearvfportcounters.nodelid",
@@ -13261,7 +13261,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFFocusPorts_vfName, {
                 "VF Name", "opa.pa.getvffocusports.vfname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFFocusPorts_select, {
                 "select", "opa.pa.getvffocusports.select",
@@ -13309,7 +13309,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFFocusPorts_nodeDesc, {
                 "nodeDesc", "opa.pa.getvffocusports.nodedesc",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFFocusPorts_neighborLid, {
                 "neighborLid", "opa.pa.getvffocusports.neighborlid",
@@ -13329,7 +13329,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_GetVFFocusPorts_neighborNodeDesc, {
                 "neighborNodeDesc", "opa.pa.getvffocusports.neighbornodedesc",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
 
         /* VFInfoRecord */
@@ -13347,7 +13347,7 @@ void proto_register_opa_mad(void)
         },
         { &hf_opa_VFInfoRecord_vfName, {
                 "VF Name", "opa.vfinforecord.vfname",
-                FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+                FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_VFInfoRecord_MGID, {
                 "M GID", "opa.vfinforecord.mgid",

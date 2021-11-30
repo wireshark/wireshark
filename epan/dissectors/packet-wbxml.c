@@ -7954,7 +7954,7 @@ proto_register_wbxml(void)
 		{ &hf_wbxml_string_table_item_string,
 		  { "String",
 		    "wbxml.string_table_item_string",
-		    FT_STRINGZ, STR_UNICODE,
+		    FT_STRINGZ, BASE_NONE,
 		    NULL, 0x00,
 		    NULL, HFILL }
 		},

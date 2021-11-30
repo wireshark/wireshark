@@ -708,7 +708,7 @@ static header_field_info hfi_nfct_attr_status NETLINK_NETFILTER_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nfct_help_attr_help_name NETLINK_NETFILTER_HFI_INIT =
-	{ "Helper name", "netlink-netfilter.ct_help_attr.help_name", FT_STRINGZ, STR_UNICODE,
+	{ "Helper name", "netlink-netfilter.ct_help_attr.help_name", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_nfct_help_attr NETLINK_NETFILTER_HFI_INIT =
@@ -917,7 +917,7 @@ static header_field_info hfi_nfexp_attr_zone NETLINK_NETFILTER_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nfexp_attr_fn NETLINK_NETFILTER_HFI_INIT =
-	{ "Name", "netlink-netfilter.nfexp.fn", FT_STRINGZ, STR_UNICODE,
+	{ "Name", "netlink-netfilter.nfexp.fn", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
 /* CTA_EXPECT_FLAGS bitfield */
@@ -1610,11 +1610,11 @@ static header_field_info hfi_ipset_cadt_attr_cadt_flags NETLINK_NETFILTER_HFI_IN
 	  NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_ipset_attr_setname NETLINK_NETFILTER_HFI_INIT =
-	{ "Setname", "netlink-netfilter.ipset.setname", FT_STRINGZ, STR_UNICODE,
+	{ "Setname", "netlink-netfilter.ipset.setname", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_ipset_attr_typename NETLINK_NETFILTER_HFI_INIT =
-	{ "Typename", "netlink-netfilter.ipset.typename", FT_STRINGZ, STR_UNICODE,
+	{ "Typename", "netlink-netfilter.ipset.typename", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_ipset_attr_family NETLINK_NETFILTER_HFI_INIT =
@@ -1630,7 +1630,7 @@ static header_field_info hfi_ipset_adt_attr NETLINK_NETFILTER_HFI_INIT =
 	  VALS(ipset_adt_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static header_field_info hfi_ipset_adt_attr_comment NETLINK_NETFILTER_HFI_INIT =
-	{ "Comment", "netlink-netfilter.ipset.comment", FT_STRINGZ, STR_UNICODE,
+	{ "Comment", "netlink-netfilter.ipset.comment", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_ipset_ip_attr NETLINK_NETFILTER_HFI_INIT =

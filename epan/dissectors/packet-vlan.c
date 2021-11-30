@@ -168,7 +168,7 @@ static header_field_info hfi_vlan_id VLAN_HFI_INIT = {
         NULL, 0x0FFF, "VLAN ID", HFILL };
 
 static header_field_info hfi_vlan_id_name VLAN_HFI_INIT = {
-        "Name", "vlan.id_name", FT_STRING, STR_UNICODE,
+        "Name", "vlan.id_name", FT_STRING, BASE_NONE,
         NULL, 0x0, "VLAN ID Name", HFILL };
 
 static header_field_info hfi_vlan_etype VLAN_HFI_INIT = {

@@ -252,12 +252,12 @@ proto_register_logcat(void)
         },
         { &hf_logcat_tag,
             { "Tag",                             "logcat.tag",
-            FT_STRINGZ, STR_UNICODE, NULL, 0x00,
+            FT_STRINGZ, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_logcat_log,
             { "Log",                             "logcat.log",
-            FT_STRINGZ, STR_UNICODE, NULL, 0x00,
+            FT_STRINGZ, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         }
     };

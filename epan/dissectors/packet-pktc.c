@@ -659,7 +659,7 @@ proto_register_pktc(void)
             "Server Kerberos Principal Identifier", "pktc.server_principal", FT_STRING, BASE_NONE,
             NULL, 0, NULL, HFILL }},
         { &hf_pktc_timestamp, {
-            "Timestamp", "pktc.timestamp", FT_STRING, STR_UNICODE,
+            "Timestamp", "pktc.timestamp", FT_STRING, BASE_NONE,
             NULL, 0, "Timestamp (UTC)", HFILL }},
         { &hf_pktc_app_spec_data, {
             "Application Specific Data", "pktc.asd", FT_NONE, BASE_NONE,

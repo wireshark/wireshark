@@ -405,16 +405,16 @@ XDayOf/fifth				fifth_dayof
 #.END
 
 #.TYPE_ATTR
-DirectoryString/teletexString DISPLAY = STR_UNICODE
+DirectoryString/teletexString DISPLAY = BASE_NONE
 
 #.TYPE_ATTR
-SyntaxTeletexString DISPLAY = STR_UNICODE
+SyntaxTeletexString DISPLAY = BASE_NONE
 
 #.TYPE_ATTR
-SyntaxT61String DISPLAY = STR_UNICODE
+SyntaxT61String DISPLAY = BASE_NONE
 
 #.TYPE_ATTR
-SyntaxVideotexString DISPLAY = STR_UNICODE
+SyntaxVideotexString DISPLAY = BASE_NONE
 
 #.END
 

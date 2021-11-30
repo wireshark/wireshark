@@ -1068,21 +1068,10 @@ proto_registrar_get_id_byname(const char *field_name)
 
 
 static char *
-hfinfo_format_text(wmem_allocator_t *scope, const header_field_info *hfinfo,
+hfinfo_format_text(wmem_allocator_t *scope, const header_field_info *hfinfo _U_,
     const guchar *string)
 {
-	switch (hfinfo->display) {
-		case STR_ASCII:
-			return format_text(scope, string, strlen(string));
-/*
-		case STR_ASCII_WSP
-			return format_text_wsp(string, strlen(string));
- */
-		case STR_UNICODE:
-			return format_text(scope, string, strlen(string));
-	}
-
-	return format_text(scope, string, strlen(string));
+	return format_text_string(scope, string);
 }
 
 static char *
@@ -8225,8 +8214,6 @@ static const value_string hf_display[] = {
 	{ BASE_HEX_DEC|BASE_VAL64_STRING, "BASE_HEX_DEC|BASE_VAL64_STRING" },
 	{ BASE_CUSTOM|BASE_VAL64_STRING,  "BASE_CUSTOM|BASE_VAL64_STRING"  },
 	/* Alias: BASE_NONE { BASE_FLOAT,			"BASE_FLOAT" }, */
-	/* Alias: BASE_NONE { STR_ASCII,			  "STR_ASCII" }, */
-	{ STR_UNICODE,			  "STR_UNICODE" },
 	{ ABSOLUTE_TIME_LOCAL,		  "ABSOLUTE_TIME_LOCAL"		   },
 	{ ABSOLUTE_TIME_UTC,		  "ABSOLUTE_TIME_UTC"		   },
 	{ ABSOLUTE_TIME_DOY_UTC,	  "ABSOLUTE_TIME_DOY_UTC"	   },
@@ -8635,8 +8622,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_STRINGZPAD:
 		case FT_STRINGZTRUNC:
 			switch (hfinfo->display) {
-				case STR_ASCII:
-				case STR_UNICODE:
+				case BASE_NONE:
 					break;
 
 				default:
@@ -12962,10 +12948,6 @@ proto_tree_add_ts_23_038_7bits_packed_item(proto_tree *tree, const int hfindex, 
 
 	string = tvb_get_ts_23_038_7bits_string_packed(PNODE_POOL(tree), tvb, bit_offset, no_of_chars);
 
-	if (hfinfo->display == STR_UNICODE) {
-		DISSECTOR_ASSERT(g_utf8_validate(string, -1, NULL));
-	}
-
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, byte_offset, &byte_length);
 	DISSECTOR_ASSERT(byte_length >= 0);
 	proto_tree_set_string(PNODE_FINFO(pi), string);
@@ -12993,10 +12975,6 @@ proto_tree_add_ascii_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *t
 	byte_offset = bit_offset >> 3;
 
 	string = tvb_get_ascii_7bits_string(PNODE_POOL(tree), tvb, bit_offset, no_of_chars);
-
-	if (hfinfo->display == STR_UNICODE) {
-		DISSECTOR_ASSERT(g_utf8_validate(string, -1, NULL));
-	}
 
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, byte_offset, &byte_length);
 	DISSECTOR_ASSERT(byte_length >= 0);

@@ -1233,7 +1233,7 @@ proto_register_hiqnet(void)
         },
         { &hf_hiqnet_errstr,
             { "Error string", "hiqnet.errstr",
-                FT_STRINGZ, STR_UNICODE,
+                FT_STRINGZ, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
@@ -1488,7 +1488,7 @@ proto_register_hiqnet(void)
         /* Counted *and* null-terminated */
         { &hf_hiqnet_string_value,
             { "Value", "hiqnet.string_value",
-                FT_STRINGZ, STR_UNICODE,
+                FT_STRINGZ, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
@@ -1506,7 +1506,7 @@ proto_register_hiqnet(void)
         },
         { &hf_hiqnet_wrkgrppath,
             { "Workgroup Path", "hiqnet.wrkgrppath",
-                FT_STRINGZ, STR_UNICODE,
+                FT_STRINGZ, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
@@ -1686,19 +1686,19 @@ proto_register_hiqnet(void)
         },
         { &hf_hiqnet_eventtime,
             { "Time", "hiqnet.eventtime",
-                FT_STRING, STR_UNICODE,
+                FT_STRING, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_hiqnet_eventdate,
             { "Date", "hiqnet.eventdate",
-                FT_STRING, STR_UNICODE,
+                FT_STRING, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_hiqnet_eventinfo,
             { "Information", "hiqnet.information",
-                FT_STRING, STR_UNICODE,
+                FT_STRING, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },

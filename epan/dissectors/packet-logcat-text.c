@@ -325,12 +325,12 @@ void proto_register_logcat_text(void) {
             },
             { &hf_logcat_text_tag,
                 { "Tag",       "logcat_text.tag",
-                FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL
+                FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL
                 }
             },
             { &hf_logcat_text_log,
                 { "Log",       "logcat_text.log",
-                FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL
+                FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL
                 }
             },
             { &hf_logcat_text_priority,

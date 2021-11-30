@@ -393,7 +393,7 @@ void proto_register_syslog(void)
     },
     { &hf_syslog_msgid_utf8,
       { "Syslog message id", "syslog.msgid",
-        FT_STRING, STR_UNICODE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL,
         HFILL }
     },

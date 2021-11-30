@@ -1089,7 +1089,7 @@ void proto_register_ngap(void) {
         NULL, HFILL }},
     { &hf_ngap_WarningMessageContents_decoded_page,
       { "Decoded Page", "ngap.WarningMessageContents.decoded_page",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_NGRANTraceID_TraceID,
       { "TraceID", "ngap.NGRANTraceID.TraceID",

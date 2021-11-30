@@ -1825,7 +1825,7 @@ proto_register_cql(void)
 			&hf_cql_string,
 			{
 				"String", "cql.string",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				"UTF-8 string value", HFILL
 			}
@@ -1834,7 +1834,7 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_global_table_spec_ksname,
 			{
 				"Global Spec Keyspace Name", "cql.result.rows.keyspace_name",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -1843,7 +1843,7 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_global_table_spec_table_name,
 			{
 				"Global Spec Table Name", "cql.result.rows.table_name",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -1852,7 +1852,7 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_table_name,
 			{
 				"Table Name", "cql.result.rows.table_name",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -1861,7 +1861,7 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_udt_name,
 			{
 				"User Defined Type Name", "cql.result.rows.udt_name",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -1870,7 +1870,7 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_udt_field_name,
 			{
 				"User Defined Type field Name", "cql.result.rows.udt_field_name",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -1915,7 +1915,7 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_keyspace_name,
 			{
 				"Keyspace Name", "cql.result.rows.keyspace_name",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -1924,7 +1924,7 @@ proto_register_cql(void)
 			&hf_cql_string_result_rows_column_name,
 			{
 				"Column Name", "cql.result.rows.column_name",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -2004,7 +2004,7 @@ proto_register_cql(void)
 			&hf_cql_ascii,
 			{
 				"Ascii", "cql.ascii",
-				FT_STRING, STR_ASCII,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				"An Ascii string", HFILL
 			}
@@ -2076,7 +2076,7 @@ proto_register_cql(void)
 			&hf_cql_varchar,
 			{
 				"Varchar", "cql.varchar",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -2085,7 +2085,7 @@ proto_register_cql(void)
 			&hf_cql_timeuuid,
 			{
 				"Time Uuid", "cql.timeuuid",
-				FT_GUID, STR_ASCII,
+				FT_GUID, BASE_NONE,
 				NULL, 0x0,
 				NULL, HFILL
 			}
@@ -2094,7 +2094,7 @@ proto_register_cql(void)
 			&hf_cql_custom,
 			{
 				"Custom", "cql.custom",
-				FT_STRING, STR_UNICODE,
+				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				"A custom field", HFILL
 			}

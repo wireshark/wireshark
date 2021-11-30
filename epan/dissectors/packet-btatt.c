@@ -16337,7 +16337,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_ots_object_name,
             {"Object Name", "btatt.ots.object_name",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_ots_current_size,
@@ -16522,7 +16522,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_ots_name_string,
             {"Name String", "btatt.ots.name_string",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_ots_object_first_created,

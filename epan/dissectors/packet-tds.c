@@ -8093,7 +8093,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_colname,
           { "Column Name", "tds.colmetadata.colname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_table_name_parts,
@@ -8103,7 +8103,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_table_name,
           { "Table name", "tds.colmetadata.table_name",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_table_name_length,
@@ -8188,7 +8188,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_dbname,
           { "Database name length", "tds.colmetadata.dbname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_schemaname_length,
@@ -8198,7 +8198,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_schemaname,
           { "Schema name", "tds.colmetadata.schemaname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_typename_length,
@@ -8208,7 +8208,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_typename,
           { "Type name", "tds.colmetadata.typename",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_assemblyqualifiedname_length,
@@ -8218,7 +8218,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_assemblyqualifiedname,
           { "Assembly qualified name", "tds.colmetadata.assemblyqualifiedname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_owningschema_length,
@@ -8228,7 +8228,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_owningschema,
           { "Owning schema name", "tds.colmetadata.owningschema",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_xmlschemacollection_length,
@@ -8238,7 +8238,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_xmlschemacollection,
           { "XML schema collection", "tds.colmetadata.xmlschemacollection",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 

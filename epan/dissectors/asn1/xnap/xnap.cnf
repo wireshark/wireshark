@@ -508,7 +508,7 @@ VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   }
 
 #.TYPE_ATTR
-BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -663,7 +663,7 @@ Threshold-SINR DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_Threshold_SINR_fmt)
   }
 
 #.TYPE_ATTR
-WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+WLANName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s

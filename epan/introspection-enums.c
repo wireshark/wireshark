@@ -423,7 +423,5 @@ static ws_enum_t all_enums[] = {
     ENUM(SEP_DASH),
     ENUM(SEP_DOT),
     ENUM(SEP_SPACE),
-    ENUM(STR_ASCII),
-    ENUM(STR_UNICODE),
     { NULL, 0 },
 };

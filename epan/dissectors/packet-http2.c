@@ -629,7 +629,7 @@ register_static_headers(void) {
         {
             &hf_http2_headers_authority,
             {":authority", "http2.headers.authority",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 "Authority portion of the target URI", HFILL}
         },
         {
@@ -641,55 +641,55 @@ register_static_headers(void) {
         {
             &hf_http2_headers_path,
                 {":path", "http2.headers.path",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  NULL, HFILL}
         },
         {
             &hf_http2_headers_method,
                 {":method", "http2.headers.method",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  NULL, HFILL}
         },
         {
             &hf_http2_headers_scheme,
                 {":scheme", "http2.headers.scheme",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  NULL, HFILL}
         },
         {
             &hf_http2_headers_accept,
                 {"accept", "http2.headers.accept",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Media types that are acceptable to the user agent", HFILL}
         },
         {
             &hf_http2_headers_accept_charset,
                 {"accept-charset", "http2.headers.accept_charset",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Acceptable charsets in textual responses for the user agent", HFILL}
         },
         {
             &hf_http2_headers_accept_encoding,
                 {"accept-encoding", "http2.headers.accept_encoding",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Acceptable content codings (like compression) in responses for the user agent", HFILL}
         },
         {
             &hf_http2_headers_accept_language,
                 {"accept-language", "http2.headers.accept_language",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Preferred natural languages for the user agent", HFILL}
         },
         {
             &hf_http2_headers_accept_ranges,
                 {"accept-ranges", "http2.headers.accept_ranges",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Bytes range which server may use for partial data transfer", HFILL}
         },
         {
             &hf_http2_headers_access_control_allow_origin,
                 {"access-control-allow-origin", "http2.headers.access_control_allow_origin",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Origin control for cross-origin resource sharing", HFILL}
         },
         {
@@ -701,37 +701,37 @@ register_static_headers(void) {
         {
             &hf_http2_headers_allow,
                 {"allow", "http2.headers.allow",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "List of allowed methods for request", HFILL}
         },
         {
             &hf_http2_headers_authorization,
                 {"authorization", "http2.headers.authorization",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Credentials for a server-side authorization", HFILL}
         },
         {
             &hf_http2_headers_cache_control,
                 {"cache-control", "http2.headers.cache_control",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Request or response directives for a cache control", HFILL}
         },
         {
             &hf_http2_headers_content_disposition,
                 {"content-disposition", "http2.headers.content_disposition",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Indicates that response will be displayed as page or downloaded with dialog box", HFILL}
         },
         {
             &hf_http2_headers_content_encoding,
                 {"content-encoding", "http2.headers.content_encoding",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  NULL, HFILL}
         },
         {
             &hf_http2_headers_content_language,
                 {"content-language", "http2.headers.content_language",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  NULL, HFILL}
         },
         {
@@ -743,103 +743,103 @@ register_static_headers(void) {
         {
             &hf_http2_headers_content_location,
                 {"content-location", "http2.headers.content_location",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Alternative URL for a response data", HFILL}
         },
         {
             &hf_http2_headers_content_range,
                 {"content-range", "http2.headers.content_range",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Range of bytes which was sent by server for partial data transfer", HFILL}
         },
         {
             &hf_http2_headers_content_type,
                 {"content-type", "http2.headers.content_type",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "MIME type of response", HFILL}
         },
         {
             &hf_http2_headers_cookie,
                 {"cookie", "http2.headers.cookie",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Stored cookies", HFILL}
         },
         {
             &hf_http2_headers_date,
                 {"date", "http2.headers.date",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Date and time at which the data was originated", HFILL}
         },
         {
             &hf_http2_headers_etag,
                 {"etag", "http2.headers.etag",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Directive for version indication of resource", HFILL}
         },
         {
             &hf_http2_headers_expect,
                 {"expect", "http2.headers.expect",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Expectations that need to be fulfilled for correct request", HFILL}
         },
         {
             &hf_http2_headers_expires,
                 {"expires", "http2.headers.expires",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Data after which resource will be stale", HFILL}
         },
         {
             &hf_http2_headers_from,
                 {"from", "http2.headers.from",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Email of a person who responsible for a requesting data", HFILL}
         },
         {
             &hf_http2_headers_if_match,
                 {"if-match", "http2.headers.if_match",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Mechanism for requesting data matched by a list of ETags", HFILL}
         },
         {
             &hf_http2_headers_if_modified_since,
                 {"if-modified-since", "http2.headers.if_modified_since",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Resource will be sent with status code 200 if it was modified otherwise with status code 304", HFILL}
         },
         {
             &hf_http2_headers_if_none_match,
                 {"if-none-match", "http2.headers.if_none_match",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Mechanism for requesting data not matched by a list of ETags", HFILL}
         },
         {
             &hf_http2_headers_if_range,
                 {"if-range", "http2.headers.if_range",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Mechanism for a range request which is used to check if a resource was modified", HFILL}
         },
         {
             &hf_http2_headers_if_unmodified_since,
                 {"if-unmodified-since", "http2.headers.if_unmodified_since",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Resource will be processed if it was not modified otherwise 412 error will be returned", HFILL}
         },
         {
             &hf_http2_headers_last_modified,
                 {"last-modified", "http2.headers.last_modified",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Date and time at which the origin server believes the resource was last modified", HFILL}
         },
         {
             &hf_http2_headers_link,
                 {"link", "http2.headers.link",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Mechanism for indicating that resource will be preloaded", HFILL}
         },
         {
             &hf_http2_headers_location,
                 {"location", "http2.headers.location",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Mechanism for indicating that client will be redirected", HFILL}
         },
         {
@@ -851,79 +851,79 @@ register_static_headers(void) {
         {
             &hf_http2_headers_proxy_authenticate,
                 {"proxy-authenticate", "http2.headers.proxy_authenticate",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Authentication method that should be used to gain access to a resource behind a proxy server", HFILL}
         },
         {
             &hf_http2_headers_proxy_authorization,
                 {"proxy-authorization", "http2.headers.proxy_authorization",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Credentials for a proxy-side authorization", HFILL}
         },
         {
             &hf_http2_headers_range,
                 {"range", "http2.headers.range",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Range of resource bytes that server should return", HFILL}
         },
         {
             &hf_http2_headers_referer,
                 {"referer", "http2.headers.referer",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Address of the previous web page", HFILL}
         },
         {
             &hf_http2_headers_refresh,
                 {"refresh", "http2.headers.refresh",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Time in seconds after which client will be redirected by given url", HFILL}
         },
         {
             &hf_http2_headers_retry_after,
                 {"retry-after", "http2.headers.retry_after",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Mechanism to indicate when resource expected to be available", HFILL}
         },
         {
             &hf_http2_headers_server,
                 {"server", "http2.headers.server",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Information about server software", HFILL}
         },
         {
             &hf_http2_headers_set_cookie,
                 {"set-cookie", "http2.headers.set_cookie",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Send a cookie to the client", HFILL}
         },
         {
             &hf_http2_headers_strict_transport_security,
                 {"strict-transport-security", "http2.headers.strict_transport_security",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "HSTS indicates that resource should be accessed only using HTTPS", HFILL}
         },
         {
             &hf_http2_headers_user_agent,
                 {"user-agent", "http2.headers.user_agent",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Information about client software", HFILL}
         },
         {
             &hf_http2_headers_vary,
                 {"vary", "http2.headers.vary",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Mechanism for selecting which header will be used for content negotiation algorithm", HFILL}
         },
         {
             &hf_http2_headers_via,
                 {"via", "http2.headers.via",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Additional information for loop detection and protocol capabilities in proxy requests", HFILL}
         },
         {
             &hf_http2_headers_www_authenticate,
                 {"www-authenticate", "http2.headers.www_authenticate",
-                 FT_STRING, STR_UNICODE, NULL, 0x0,
+                 FT_STRING, BASE_NONE, NULL, 0x0,
                  "Authentication method that should be used to gain access to a resource", HFILL}
         }
     };

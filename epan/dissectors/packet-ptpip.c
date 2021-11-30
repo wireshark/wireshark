@@ -1042,7 +1042,7 @@ void proto_register_ptpip( void )
             "GUID", "ptpip.guid", FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL }},
         { &hf_ptpIP_name, {
-            "Host Name", "ptpip.name", FT_STRINGZ, STR_UNICODE,
+            "Host Name", "ptpip.name", FT_STRINGZ, BASE_NONE,
             NULL, 0, NULL, HFILL }},
         { &hf_ptpIP_version, {
             "Version", "ptpip.version", FT_STRING, BASE_NONE,

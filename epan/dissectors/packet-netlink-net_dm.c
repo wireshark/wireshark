@@ -198,7 +198,7 @@ static header_field_info hfi_net_dm_pc NETLINK_NET_DM_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_net_dm_symbol NETLINK_NET_DM_HFI_INIT =
-	{ "Symbol", "net_dm.symbol", FT_STRINGZ, STR_ASCII,
+	{ "Symbol", "net_dm.symbol", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_net_dm_attrs_port NETLINK_NET_DM_HFI_INIT =
@@ -235,11 +235,11 @@ static header_field_info hfi_net_dm_origin NETLINK_NET_DM_HFI_INIT =
 
 static header_field_info hfi_net_dm_hw_trap_group_name NETLINK_NET_DM_HFI_INIT =
 	{ "Hardware trap group name", "net_dm.hw_trap_group_name", FT_STRINGZ,
-	  STR_ASCII, NULL, 0x00, NULL, HFILL };
+	  BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_net_dm_hw_trap_name NETLINK_NET_DM_HFI_INIT =
 	{ "Hardware trap name", "net_dm.hw_trap_name", FT_STRINGZ,
-	  STR_ASCII, NULL, 0x00, NULL, HFILL };
+	  BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_net_dm_hw_trap_count NETLINK_NET_DM_HFI_INIT =
 	{ "Hardware trap count", "net_dm.hw_trap_count", FT_UINT32, BASE_DEC,
@@ -258,7 +258,7 @@ static header_field_info hfi_net_dm_port_netdev_index NETLINK_NET_DM_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_net_dm_port_netdev_name NETLINK_NET_DM_HFI_INIT =
-	{ "Port net device name", "net_dm.port.netdev_name", FT_STRINGZ, STR_ASCII,
+	{ "Port net device name", "net_dm.port.netdev_name", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_net_dm_stats_dropped NETLINK_NET_DM_HFI_INIT =

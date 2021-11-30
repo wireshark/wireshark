@@ -1194,7 +1194,7 @@ proto_register_steam_ihs_discovery(void)
         },
         { &hf_steam_ihs_discovery_body_status_hostname,
           { "Hostname", "steam_ihs_discovery.body_status_hostname",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_steam_ihs_discovery_body_status_enabledservices,
@@ -1234,7 +1234,7 @@ proto_register_steam_ihs_discovery(void)
         },
         { &hf_steam_ihs_discovery_body_status_macaddresses,
           { "MAC Addresses", "steam_ihs_discovery.body_status_macaddresses",
-            FT_STRING, STR_ASCII, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         /* CMsgRemoteClientBroadcastStatus.User */
@@ -1256,7 +1256,7 @@ proto_register_steam_ihs_discovery(void)
         },
         { &hf_steam_ihs_discovery_body_authrequest_devicename,
           { "Device Name", "steam_ihs_discovery.body_authrequest_devicename",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_steam_ihs_discovery_body_authrequest_encryptedrequest,
@@ -1293,7 +1293,7 @@ proto_register_steam_ihs_discovery(void)
         },
         { &hf_steam_ihs_discovery_body_streamingrequest_deviceversion,
           { "Device Version", "steam_ihs_discovery.body_streamingrequest_deviceversion",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_steam_ihs_discovery_body_streamingrequest_streamdesktop,

@@ -4029,17 +4029,17 @@ proto_register_bluetooth(void)
         },
         { &hf_bluetooth_src_str,
             { "Source",                              "bluetooth.src_str",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bluetooth_dst_str,
             { "Destination",                         "bluetooth.dst_str",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bluetooth_addr_str,
             { "Source or Destination",               "bluetooth.addr_str",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };

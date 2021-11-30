@@ -7558,7 +7558,7 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_flags_str,
-        { "TCP Flags",          "tcp.flags.str", FT_STRING, STR_UNICODE, NULL, 0x0,
+        { "TCP Flags",          "tcp.flags.str", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_window_size_value,

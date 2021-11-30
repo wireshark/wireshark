@@ -2070,7 +2070,7 @@ proto_register_gmr1_rr(void)
 		},
 		{ &hf_rr_pos_display_text,
 		  { "Country and Region name", "gmr1.rr.pos_display.text",
-		    FT_STRING, STR_UNICODE, NULL, 0x00,
+		    FT_STRING, BASE_NONE, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_rr_pos_upd_info_v,

@@ -2489,14 +2489,14 @@ proto_register_oran(void)
 
         { &hf_oran_c_eAxC_ID,
           { "c_eAxC_ID", "oran_fh_cus.c_eaxc_id",
-            FT_STRING, STR_ASCII,
+            FT_STRING, BASE_NONE,
             NULL, 0x0,
             "This is a calculated field for the c_eAxC ID, which identifies the message stream",
             HFILL } },
 
         { &hf_oran_refa,
           { "RefA", "oran_fh_cus.refa",
-            FT_STRING, STR_ASCII,
+            FT_STRING, BASE_NONE,
             NULL, 0x0,
             "This is a calculated field for the RefA ID, which provides a "
             "reference in time.",

@@ -15890,7 +15890,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_object_name,
           { "Object Name",           "bacapp.object_name",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_instanceNumber,
           { "Instance Number",           "bacapp.instance_number",
@@ -15954,7 +15954,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_present_value_null,
           { "Present Value (null)", "bacapp.present_value.null",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_bool,
           { "Present Value (bool)", "bacapp.present_value.boolean",
@@ -15982,11 +15982,11 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_present_value_char_string,
           { "Present Value (char string)", "bacapp.present_value.char_string",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_bit_string,
           { "Present Value (bit string)", "bacapp.present_value.bit_string",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_enum_index,
           { "Present Value (enum index)", "bacapp.present_value.enum_index",

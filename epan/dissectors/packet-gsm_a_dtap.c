@@ -7858,7 +7858,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_text_string,
           { "Text String", "gsm_a.dtap.text_string",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_time_zone_time,

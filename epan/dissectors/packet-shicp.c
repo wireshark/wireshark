@@ -468,7 +468,7 @@ proto_register_shicp(void)
         },
         { &hf_shicp_error_string,
           { "Error", "shicp.error.string",
-            FT_STRINGZ, STR_ASCII,
+            FT_STRINGZ, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
@@ -480,19 +480,19 @@ proto_register_shicp(void)
         },
         { &hf_shicp_module_version,
           { "Module version", "shicp.moduleversion",
-            FT_STRINGZ, STR_ASCII,
+            FT_STRINGZ, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_shicp_module_desc,
           { "Module description", "shicp.moduledesc",
-            FT_STRINGZ, STR_ASCII,
+            FT_STRINGZ, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_shicp_supported_msg,
           { "Supported messages", "shicp.supportedmsg",
-            FT_STRINGZ, STR_ASCII,
+            FT_STRINGZ, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
@@ -534,7 +534,7 @@ proto_register_shicp(void)
         },
         { &hf_shicp_hn,
           { "Hostname", "shicp.hn",
-            FT_STRINGZ, STR_ASCII,
+            FT_STRINGZ, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },
@@ -570,7 +570,7 @@ proto_register_shicp(void)
         },
         { &hf_shicp_pswd,
           { "Password", "shicp.pswd",
-            FT_STRINGZ, STR_ASCII,
+            FT_STRINGZ, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         },

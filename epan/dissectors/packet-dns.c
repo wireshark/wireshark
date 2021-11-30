@@ -5165,7 +5165,7 @@ proto_register_dns(void)
 
     { &hf_dns_txt,
       { "TXT", "dns.txt",
-        FT_STRING, STR_UNICODE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_openpgpkey,
@@ -5845,7 +5845,7 @@ proto_register_dns(void)
 
     { &hf_dns_opt_ext_error_extra_text,
       { "Extra Text", "dns.opt.ext_error.extra_text",
-        FT_STRING, STR_UNICODE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_count_questions,

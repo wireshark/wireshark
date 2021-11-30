@@ -1013,17 +1013,17 @@ proto_register_iso8583(void)
     },
     { &hf_iso8583_mti,
       { "MTI", "iso8583.mti",
-        FT_STRING, STR_ASCII, NULL , 0,
+        FT_STRING, BASE_NONE, NULL , 0,
         "Message Type Indicator (MTI)", HFILL }
     },
     { &hf_iso8583_bitmap1,
       { "Bitmap 1", "iso8583.map1",
-        FT_STRING, STR_ASCII, NULL , 0,
+        FT_STRING, BASE_NONE, NULL , 0,
         "First Bitmap (hex representation)", HFILL }
     },
     { &hf_iso8583_bitmap2,
       { "Bitmap 2", "iso8583.map2",
-        FT_STRING, STR_ASCII, NULL , 0,
+        FT_STRING, BASE_NONE, NULL , 0,
         "Second Bitmap (hex representation)", HFILL }
     }
   };
@@ -1317,7 +1317,7 @@ proto_register_iso8583(void)
     else
     {
       hf_data[i].hfinfo.type = FT_STRING;
-      hf_data[i].hfinfo.display = STR_ASCII;
+      hf_data[i].hfinfo.display = BASE_NONE;
     }
     hf_data[i].hfinfo.strings = NULL;
     hf_data[i].hfinfo.bitmask = 0;

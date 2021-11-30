@@ -5295,11 +5295,11 @@ proto_register_nvme(void)
         },
         { &hf_nvme_identify_ns_nguid,
             { "Namespace Globally Unique Identifier (NGUID)", "nvme.cmd.identify.ns.nguid",
-               FT_BYTES, STR_ASCII, NULL, 0x0, NULL, HFILL}
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ns_eui64,
             { "IEEE Extended Unique Identifier (EUI64)", "nvme.cmd.identify.ns.eui64",
-               FT_BYTES, STR_ASCII, NULL, 0x0, NULL, HFILL}
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ns_lbafs,
             { "LBA Formats", "nvme.cmd.identify.ns.lbafs",

@@ -358,7 +358,7 @@ static header_field_info hfi_netlink_sock_diag_unix_attr NETLINK_SOCK_DIAG_HFI_I
 	  VALS(netlink_sock_diag_unix_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_name NETLINK_SOCK_DIAG_HFI_INIT =
-	{ "Name", "netlink-sock_diag.unix_name", FT_STRINGZ, STR_ASCII,
+	{ "Name", "netlink-sock_diag.unix_name", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_peer_inode NETLINK_SOCK_DIAG_HFI_INIT =

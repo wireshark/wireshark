@@ -183,7 +183,7 @@ proto_register_caneth(void)
             &hf_caneth_magic,
             {
                 "Magic", "caneth.magic",
-                FT_STRING, STR_ASCII,
+                FT_STRING, BASE_NONE,
                 NULL, 0x0,
                 "The magic identifier used to denote the start of a CAN-ETH packet", HFILL
             }

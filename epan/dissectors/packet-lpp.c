@@ -34314,7 +34314,7 @@ void proto_register_lpp(void) {
         "OCTET_STRING_SIZE_6", HFILL }},
     { &hf_lpp_ssid_r13,
       { "ssid-r13", "lpp.ssid_r13",
-        FT_STRING, STR_ASCII, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_rttValue_r13,
       { "rttValue-r13", "lpp.rttValue_r13",

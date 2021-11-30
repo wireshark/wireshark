@@ -1945,15 +1945,15 @@ proto_register_usbll(void)
               "USB Packet ID", HFILL }},
         { &hf_usbll_src,
             { "Source", "usbll.src",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_usbll_dst,
             { "Destination", "usbll.dst",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_usbll_addr,
             { "Source or Destination", "usbll.addr",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         /* Token header fields */

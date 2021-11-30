@@ -1865,7 +1865,7 @@ void proto_register_sabp(void) {
         NULL, HFILL }},
     { &hf_sabp_cbs_page_content,
       { "CBS Page Content", "sabp.cb_page_content",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sabp_cb_inf_len,
       { "CBS-Message-Information-Length", "sabp.cb_inf_len",

@@ -7426,7 +7426,7 @@ proto_register_nas_eps(void)
     },
     { &hf_eps_emm_ext_emerg_num_list_emerg_num,
         { "Emergency number","nas_eps.emm.ext_emerg_num_list.emerg_num",
-        FT_STRING, STR_ASCII, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_eps_emm_ext_emerg_num_list_sub_serv_field_len,
@@ -7436,7 +7436,7 @@ proto_register_nas_eps(void)
     },
     { &hf_eps_emm_ext_emerg_num_list_sub_serv_field,
         { "Sub-services field","nas_eps.emm.ext_emerg_num_list.sub_serv_field",
-        FT_STRING, STR_UNICODE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_prose_dd_cap,

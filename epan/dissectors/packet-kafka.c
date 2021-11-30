@@ -9395,7 +9395,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_metadata,
             { "Metadata", "kafka.metadata",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_error,
@@ -9405,7 +9405,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_error_message,
             { "Error Message", "kafka.error_message",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_api_key,
@@ -9448,17 +9448,17 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_client_id,
             { "Client ID", "kafka.client_id",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
               "The ID of the sending client.", HFILL }
         },
         { &hf_kafka_client_host,
             { "Client Host", "kafka.client_host",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_transactional_id,
             { "Transactional ID", "kafka.transactional_id",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_transaction_result,
@@ -9483,7 +9483,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_topic_name,
             { "Topic Name", "kafka.topic_name",
-               FT_STRING, STR_UNICODE, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_producer_id,
@@ -9603,7 +9603,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_batch_index_error_message,
             { "Batch Index Error Message", "kafka.batch_index_error_message",
-                FT_STRING, STR_UNICODE, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_message_timestamp,
@@ -9633,17 +9633,17 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_consumer_group,
             { "Consumer Group", "kafka.consumer_group",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_consumer_group_instance,
             { "Consumer Group Instance", "kafka.consumer_group_instance",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_coordinator_key,
             { "Coordinator Key", "kafka.coordinator_key",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_coordinator_type,
@@ -9668,12 +9668,12 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_broker_host,
             { "Host", "kafka.host",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_listener_name,
             { "Listener", "kafka.listener_name",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_broker_port,
@@ -9683,7 +9683,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_rack,
             { "Rack", "kafka.rack",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_broker_security_protocol_type,
@@ -9693,7 +9693,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_cluster_id,
             { "Cluster ID", "kafka.cluster_id",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_controller_id,
@@ -9713,7 +9713,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_group_leader_id,
             { "Leader ID", "kafka.group_leader_id",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_leader_id,
@@ -9803,22 +9803,22 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_group_state,
             { "State", "kafka.group_state",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_member_id,
             { "Consumer Group Member ID", "kafka.member_id",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_protocol_type,
             { "Protocol Type", "kafka.protocol_type",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_protocol_name,
             { "Protocol Name", "kafka.protocol_name",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_protocol_metadata,
@@ -9843,7 +9843,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_sasl_mechanism,
             { "SASL Mechanism", "kafka.sasl_mechanism",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_num_partitions,
@@ -9863,12 +9863,12 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_config_key,
             { "Key", "kafka.config_key",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_config_value,
             { "Value", "kafka.config_value",
-               FT_STRING, STR_ASCII, 0, 0,
+               FT_STRING, BASE_NONE, 0, 0,
                NULL, HFILL }
         },
         { &hf_kafka_config_operation,
@@ -9888,7 +9888,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_forgotten_topic_name,
             { "Forgotten Topic Name", "kafka.forgotten_topic_name",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_forgotten_topic_partition,
@@ -9913,7 +9913,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_record_header_key,
             { "Header Key", "kafka.header_key",
-                FT_STRING, STR_UNICODE, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_record_header_value,
@@ -9958,7 +9958,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_acl_resource_name,
             { "Resource Name", "kafka.acl_resource_name",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_acl_resource_pattern_type,
@@ -9968,12 +9968,12 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_acl_principal,
             { "Principal", "kafka.acl_principal",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_acl_host,
             { "Host", "kafka.acl_host",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_acl_operation,
@@ -9993,7 +9993,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_config_resource_name,
             { "Resource Name", "kafka.config_resource_name",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_config_include_synonyms,
@@ -10023,7 +10023,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_log_dir,
             { "Log Directory", "kafka.log_dir",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_segment_size,
@@ -10063,12 +10063,12 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_token_principal_type,
             { "Principal Type", "kafka.principal_type",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_token_principal_name,
             { "Principal Name", "kafka.principal_name",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_token_issue_timestamp,
@@ -10088,7 +10088,7 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_token_id,
             { "ID", "kafka.token_id",
-                FT_STRING, STR_ASCII, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_token_hmac,
@@ -10143,12 +10143,12 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_client_software_name,
             { "Client Software Name", "kafka.client_software_name",
-                FT_STRING, STR_UNICODE, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_client_software_version,
             { "Client Software Version", "kafka.client_software_version",
-                FT_STRING, STR_UNICODE, 0, 0,
+                FT_STRING, BASE_NONE, 0, 0,
                 NULL, HFILL }
         },
     };

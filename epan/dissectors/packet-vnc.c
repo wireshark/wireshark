@@ -3618,12 +3618,12 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_tight_tunnel_type_vendor,
 		  { "Tunnel type vendor", "vnc.tunnel_type_vendor",
-		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Tunnel type vendor specific to TightVNC", HFILL }
 		},
 		{ &hf_vnc_tight_tunnel_type_signature,
 		  { "Tunnel type signature", "vnc.tunnel_type_signature",
-		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    "Tunnel type signature specific to TightVNC", HFILL }
 		},
 		{ &hf_vnc_tight_num_auth_types,

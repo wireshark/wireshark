@@ -5723,7 +5723,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_profile_path,
 			{ "Profile Path", "epl.asnd.ires.profilepath",
-				FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL }
+				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_vid,
 			{ "VendorId", "epl.asnd.ires.vendorid",
@@ -6208,7 +6208,7 @@ proto_register_epl(void)
 		/* EPL Data types */
 		{ &hf_epl_pdo,
 			{ "PDO", "epl.pdo",
-				FT_STRING, STR_ASCII, NULL, 0x00, NULL, HFILL }
+				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_pdo_index,
 			{ "Index", "epl.pdo.index",
@@ -6266,7 +6266,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_od_string,
 			{ "Data", "epl.od.data.string",
-				FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL }
+				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_od_octet_string,
 			{ "Data", "epl.od.data.bytestring",

@@ -1141,7 +1141,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 }
 
 #.TYPE_ATTR
-HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
+HNBName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY HNBName VAL_PTR = &hnbname_tvb HF_INDEX = -1
   tvbuff_t *hnbname_tvb = NULL;

@@ -179,11 +179,11 @@ static header_field_info hfi_png_srgb_intent PNG_HFI_INIT = {
     VALS(srgb_intent_vals), 0, NULL, HFILL };
 
 static header_field_info hfi_png_text_keyword PNG_HFI_INIT = {
-    "Keyword", "png.text.keyword", FT_STRING, STR_UNICODE,
+    "Keyword", "png.text.keyword", FT_STRING, BASE_NONE,
     NULL, 0, NULL, HFILL };
 
 static header_field_info hfi_png_text_string PNG_HFI_INIT = {
-    "String", "png.text.string", FT_STRING, STR_UNICODE,
+    "String", "png.text.string", FT_STRING, BASE_NONE,
     NULL, 0, NULL, HFILL };
 
 static header_field_info hfi_png_time_year PNG_HFI_INIT = {

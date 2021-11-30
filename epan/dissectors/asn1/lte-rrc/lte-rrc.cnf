@@ -1502,7 +1502,7 @@ LogMeasResultBT-r15/rssi-BT-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units
 CarrierFreqUTRA-FDD-Ext-r12/multiBandInfoList-r12 FreqBandIndicator_UTRA_FDD_r12
 
 #.TYPE_ATTR
-SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=STR_UNICODE
+SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY SystemInformationBlockType9/hnb-Name VAL_PTR=&hnb_name_tvb HF_INDEX=-1
   tvbuff_t *hnb_name_tvb = NULL;
@@ -1738,7 +1738,7 @@ SystemInformationBlockType16-r11/timeInfo-r11/localTimeOffset-r11 DISPLAY=BASE_C
 SystemInformationBlockType26-r15/threshS-RSSI-CBR-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_threshS_RSSI_CBR_r14_fmt)
 
 #.TYPE_ATTR
-WLAN-Identifiers-r12/ssid-r12 TYPE=FT_STRING DISPLAY=STR_ASCII
+WLAN-Identifiers-r12/ssid-r12 TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY WLAN-Identifiers-r12/ssid-r12 VAL_PTR=&ssid_tvb HF_INDEX=-1
   tvbuff_t *ssid_tvb = NULL;

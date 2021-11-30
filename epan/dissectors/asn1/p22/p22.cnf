@@ -265,16 +265,16 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
                                                                              tvb_reported_length(subject), ENC_T61));
 
 #.TYPE_ATTR
-SubjectField DISPLAY = STR_UNICODE
+SubjectField DISPLAY = BASE_NONE
 
 #.TYPE_ATTR
-TeletexData/_item DISPLAY = STR_UNICODE
+TeletexData/_item DISPLAY = BASE_NONE
 
 #.TYPE_ATTR
-FreeFormName DISPLAY = STR_UNICODE
+FreeFormName DISPLAY = BASE_NONE
 
 #.TYPE_ATTR
-VideotexData DISPLAY = STR_UNICODE
+VideotexData DISPLAY = BASE_NONE
 
 #.FN_PARS CharacterSetRegistration
   VAL_PTR=&crs

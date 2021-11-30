@@ -1283,7 +1283,7 @@ proto_register_jfif(void)
         { &hf_comment,
           {   "Comment",
               "image-jfif.comment",
-              FT_STRING, STR_ASCII, NULL, 0x0,
+              FT_STRING, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }

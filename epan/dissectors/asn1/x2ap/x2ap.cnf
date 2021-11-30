@@ -570,7 +570,7 @@ RSRPMeasurementResult/_item/rSRPMeasured DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(x2a
   }
 
 #.TYPE_ATTR
-LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
+LHN-ID TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY LHN-ID VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -670,7 +670,7 @@ Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(x2ap_Packet_LossRate_fmt
   proto_item_append_text(actx->created_item, " REs");
 
 #.TYPE_ATTR
-BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -678,7 +678,7 @@ BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
 #.END
 
 #.TYPE_ATTR
-WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+WLANName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s

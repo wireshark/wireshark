@@ -659,7 +659,7 @@ proto_register_bluecom(void)
             BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_identify_name, {
             "Name", "bluecom.identify.name", FT_STRING,
-            STR_ASCII, NULL, 0, NULL, HFILL }},
+            BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_identify_ethaddr, {
             "EthAddr", "bluecom.identify.ethaddr", FT_ETHER,
             BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -676,7 +676,7 @@ proto_register_bluecom(void)
              BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_bcp_searchreq_name, {
             "Name", "bluecom.searchreq.name", FT_STRING,
-            STR_ASCII, NULL, 0, NULL, HFILL }},
+            BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_searchreq_ipaddrfirst, {
             "IpAddrFirst", "bluecom.searchreq.ipaddrfirst", FT_IPv4,
             BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -705,7 +705,7 @@ proto_register_bluecom(void)
             BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_searchrsp_name, {
             "Name", "bluecom.searchrsp.name", FT_STRING,
-            STR_ASCII, NULL, 0, NULL, HFILL }},
+            BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_searchrsp_ethaddr, {
             "EthAddr", "bluecom.searchrsp.ethaddr", FT_ETHER,
             BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -731,7 +731,7 @@ proto_register_bluecom(void)
             BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_connectreq_name, {
             "Name", "bluecom.connectreq.name", FT_STRING,
-            STR_ASCII, NULL, 0, NULL, HFILL }},
+            BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_bcp_connectreq_ethaddr, {
             "EthAddr", "bluecom.connectreq.ethaddr", FT_ETHER,
             BASE_NONE, NULL, 0, NULL, HFILL }},

@@ -369,7 +369,7 @@ proto_register_adb_cs(void)
         },
         { &hf_hex_ascii_length,
             { "Hex ASCII Length",                "adb_cs.hex_ascii_length",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_length,
@@ -379,17 +379,17 @@ proto_register_adb_cs(void)
         },
         { &hf_service,
             { "Service",                         "adb_cs.service",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_fail_reason,
             { "Fail Reason",                     "adb_cs.fail_reason",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_status,
             { "Status",                          "adb_cs.status",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_data,

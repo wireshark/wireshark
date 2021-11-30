@@ -508,21 +508,21 @@ proto_register_cbs(void)
          { &hf_gsm_cbs_page_content,
            { "CBS Page Content",
              "gsm_cbs.page_content",
-             FT_STRING, STR_UNICODE, NULL, 0x0,
+             FT_STRING, BASE_NONE, NULL, 0x0,
              NULL, HFILL
            }
          },
          { &hf_gsm_cbs_page_content_padding,
            { "CBS Page Content Padding",
              "gsm_cbs.page_content_padding",
-             FT_STRING, STR_UNICODE, NULL, 0x0,
+             FT_STRING, BASE_NONE, NULL, 0x0,
              NULL, HFILL
            }
          },
          { &hf_gsm_cbs_message_content,
            { "CBS Message Content",
              "gsm_cbs.message_content",
-             FT_STRING, STR_UNICODE, NULL, 0x0,
+             FT_STRING, BASE_NONE, NULL, 0x0,
              NULL, HFILL
            }
          }

@@ -1773,7 +1773,7 @@ WLAN-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
 WLAN-AP-Identifier-r13/bssid-r13 TYPE=FT_ETHER
 
 #.TYPE_ATTR
-WLAN-AP-Identifier-r13/ssid-r13 TYPE=FT_STRING DISPLAY=STR_ASCII
+WLAN-AP-Identifier-r13/ssid-r13 TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY WLAN-AP-Identifier-r13/ssid-r13 VAL_PTR=&ssid_tvb HF_INDEX=-1
   tvbuff_t *ssid_tvb = NULL;

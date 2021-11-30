@@ -214,7 +214,7 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 
 
 static header_field_info hfi_genl_ctrl_group_name NETLINK_GENERIC_HFI_INIT =
-	{ "Group Name", "genl.ctrl.group_name", FT_STRINGZ, STR_ASCII,
+	{ "Group Name", "genl.ctrl.group_name", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_genl_ctrl_group_id NETLINK_GENERIC_HFI_INIT =
@@ -257,7 +257,7 @@ static header_field_info hfi_genl_ctrl_family_id NETLINK_GENERIC_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_genl_ctrl_family_name NETLINK_GENERIC_HFI_INIT =
-	{ "Family Name", "genl.ctrl.family_name", FT_STRINGZ, STR_ASCII,
+	{ "Family Name", "genl.ctrl.family_name", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_genl_ctrl_version NETLINK_GENERIC_HFI_INIT =

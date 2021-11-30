@@ -2826,7 +2826,7 @@ proto_register_ansi_637(void)
         },
         { &hf_ansi_637_tele_user_data_text,
             { "Encoded user data", "ansi_637_tele.user_data.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_user_data_encoding,
@@ -3196,7 +3196,7 @@ proto_register_ansi_637(void)
         },
         { &hf_ansi_637_tele_cmas_text,
             { "CMAE_alert_text", "ansi_637_tele.cmas.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_mult_enc_user_data_encoding,
@@ -3211,7 +3211,7 @@ proto_register_ansi_637(void)
         },
         { &hf_ansi_637_tele_mult_enc_user_data_text,
             { "Encoded user data", "ansi_637_tele.mult_enc_user_data.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_srvc_cat_prog_data_encoding,
@@ -3251,7 +3251,7 @@ proto_register_ansi_637(void)
         },
         { &hf_ansi_637_tele_srvc_cat_prog_data_text,
             { "Encoded program data", "ansi_637_tele.srvc_cat_prog_data.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_637_msb_first_field,

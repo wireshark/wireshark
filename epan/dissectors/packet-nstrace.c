@@ -1717,7 +1717,7 @@ proto_register_ns(void)
 
 		{ &hf_ns_inforec_info,
 		  { "info", "nstrace.inforec.info",
-		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL}
 		},
 
@@ -1753,13 +1753,13 @@ proto_register_ns(void)
 
 		{ &hf_ns_vmnamerec_srcvmname,
 		  { "SrcVmName", "nstrace.vmnames.srcvmname",
-		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL}
 		},
 
 		{ &hf_ns_vmnamerec_dstvmname,
 		  { "DstVmName", "nstrace.vmnames.dstvmnames",
-		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL}
 		},
 

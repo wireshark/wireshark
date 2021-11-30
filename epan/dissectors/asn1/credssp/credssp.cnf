@@ -87,7 +87,7 @@ TSRequest
 
 
 #.TYPE_ATTR
-TSRemoteGuardPackageCred/packageName TYPE = FT_STRING DISPLAY = STR_UNICODE STRINGS = NULL
+TSRemoteGuardPackageCred/packageName TYPE = FT_STRING DISPLAY = BASE_NONE STRINGS = NULL
 
 #.FN_BODY TSRemoteGuardPackageCred/packageName VAL_PTR = &pname
 	tvbuff_t *pname = NULL;

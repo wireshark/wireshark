@@ -485,40 +485,40 @@ void
 proto_register_irc(void)
 {
     static hf_register_info hf[] = {
-        { &hf_irc_response, { "Response", "irc.response", FT_STRING, STR_ASCII,
+        { &hf_irc_response, { "Response", "irc.response", FT_STRING, BASE_NONE,
           NULL, 0x0, "Line of response message", HFILL }},
 
-        { &hf_irc_request, { "Request", "irc.request", FT_STRING, STR_ASCII,
+        { &hf_irc_request, { "Request", "irc.request", FT_STRING, BASE_NONE,
           NULL, 0x0, "Line of request message", HFILL }},
 
-        { &hf_irc_request_prefix, { "Prefix", "irc.request.prefix", FT_STRING, STR_ASCII,
+        { &hf_irc_request_prefix, { "Prefix", "irc.request.prefix", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request prefix", HFILL }},
 
-        { &hf_irc_request_command, { "Command", "irc.request.command", FT_STRING, STR_ASCII,
+        { &hf_irc_request_command, { "Command", "irc.request.command", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request command", HFILL }},
 
-        { &hf_irc_request_command_param, { "Parameter", "irc.request.command_parameter", FT_STRING, STR_ASCII,
+        { &hf_irc_request_command_param, { "Parameter", "irc.request.command_parameter", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request command parameter", HFILL }},
 
-        { &hf_irc_request_trailer, { "Trailer", "irc.request.trailer", FT_STRING, STR_ASCII,
+        { &hf_irc_request_trailer, { "Trailer", "irc.request.trailer", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request trailer", HFILL }},
 
-        { &hf_irc_response_prefix, { "Prefix", "irc.response.prefix", FT_STRING, STR_ASCII,
+        { &hf_irc_response_prefix, { "Prefix", "irc.response.prefix", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response prefix", HFILL }},
 
-        { &hf_irc_response_command, { "Command", "irc.response.command", FT_STRING, STR_ASCII,
+        { &hf_irc_response_command, { "Command", "irc.response.command", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response command", HFILL }},
 
         { &hf_irc_response_num_command, { "Command", "irc.response.num_command", FT_UINT16, BASE_DEC,
           NULL, 0x0, "Response (numeric) command", HFILL }},
 
-        { &hf_irc_response_command_param, { "Parameter", "irc.response.command_parameter", FT_STRING, STR_ASCII,
+        { &hf_irc_response_command_param, { "Parameter", "irc.response.command_parameter", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response command parameter", HFILL }},
 
-        { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, STR_ASCII,
+        { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response trailer", HFILL }},
 
-        { &hf_irc_ctcp, { "CTCP Data", "irc.ctcp", FT_STRING, STR_ASCII,
+        { &hf_irc_ctcp, { "CTCP Data", "irc.ctcp", FT_STRING, BASE_NONE,
           NULL, 0x0, "Placeholder to dissect CTCP data", HFILL }}
     };
 

@@ -570,11 +570,11 @@ proto_register_blip(void)
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_properties,
-		{ "Properties", "blip.props", FT_STRING, STR_UNICODE,
+		{ "Properties", "blip.props", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 	{ &hf_blip_message_body,
-		{ "Message Body", "blip.messagebody", FT_STRING, STR_UNICODE,
+		{ "Message Body", "blip.messagebody", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_ack_size,

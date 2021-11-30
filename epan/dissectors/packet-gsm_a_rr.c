@@ -14353,7 +14353,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_ec_imsi,
               { "IMSI", "gsm_a.rr.ec_imsi",
-                FT_STRING, STR_ASCII, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL
               }
             },

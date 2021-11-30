@@ -404,7 +404,7 @@ static header_field_info hfi_gadu_gadu_msg_class GADU_GADU_HFI_INIT =
 	{ "Message class", "gadu-gadu.msg.class", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_msg_text GADU_GADU_HFI_INIT =
-	{ "Message text", "gadu-gadu.msg.text", FT_STRINGZ, STR_UNICODE, NULL, 0x0, NULL, HFILL };
+	{ "Message text", "gadu-gadu.msg.text", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 /* GG_RECV_MSG80, GG_SEND_MSG80 (gadu-gadu.msg80.*) */
 static header_field_info hfi_gadu_gadu_msg80_offset_plain GADU_GADU_HFI_INIT =
@@ -443,7 +443,7 @@ static header_field_info hfi_gadu_gadu_status_img_size GADU_GADU_HFI_INIT =
 	{ "Image size", "gadu-gadu.status.image_size", FT_UINT8, BASE_DEC, NULL, 0x00, "Maximum image size in KB", HFILL };
 
 static header_field_info hfi_gadu_gadu_status_descr GADU_GADU_HFI_INIT =
-	{ "Description", "gadu-gadu.status.description", FT_STRINGZ, STR_UNICODE, NULL, 0x00, NULL, HFILL };
+	{ "Description", "gadu-gadu.status.description", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Direct Connection (gadu-gadu.dcc.*) */
 static header_field_info hfi_dcc_type GADU_GADU_HFI_INIT =
@@ -466,7 +466,7 @@ static header_field_info hfi_gadu_gadu_new_status_status GADU_GADU_HFI_INIT =
 	{ "Status", "gadu-gadu.new_status.status", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_gadu_gadu_new_status_desc GADU_GADU_HFI_INIT =
-	{ "Description", "gadu-gadu.new_status.description", FT_STRINGZ, STR_UNICODE, NULL, 0x00, NULL, HFILL };
+	{ "Description", "gadu-gadu.new_status.description", FT_STRINGZ, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 /* Userlist (gadu-gadu.userlist.*) */
 static header_field_info hfi_gadu_gadu_userlist_request_type GADU_GADU_HFI_INIT =

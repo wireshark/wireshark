@@ -1196,7 +1196,7 @@ void proto_register_pnrp(void)
             { "Entry Length", "pnrp.segment.classifier.entryLength", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_classifier_string,
-            { "Classifier", "pnrp.segment.classifier.string", FT_STRING, STR_UNICODE, NULL, 0x0,
+            { "Classifier", "pnrp.segment.classifier.string", FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         /* Ack Flags */
         { &hf_pnrp_message_ack_flags_reserved,

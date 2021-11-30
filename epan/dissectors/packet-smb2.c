@@ -11397,12 +11397,12 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_tree,
-			{ "Tree", "smb2.tree", FT_STRING, STR_UNICODE,
+			{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
 			NULL, 0, "Name of the Tree/Share", HFILL }
 		},
 
 		{ &hf_smb2_filename,
-			{ "Filename", "smb2.filename", FT_STRING, STR_UNICODE,
+			{ "Filename", "smb2.filename", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -11431,7 +11431,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_find_pattern,
-			{ "Search Pattern", "smb2.find.pattern", FT_STRING, STR_UNICODE,
+			{ "Search Pattern", "smb2.find.pattern", FT_STRING, BASE_NONE,
 			NULL, 0, "Find pattern", HFILL }
 		},
 
@@ -12113,7 +12113,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_netname_neg_id,
 			{ "Netname", "smb2.negotiate_context.netname", FT_STRING,
-			STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_transport_ctx_flags,
@@ -12222,7 +12222,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_ea_name,
-			{ "EA Name", "smb2.ea.name", FT_STRING, STR_UNICODE,
+			{ "EA Name", "smb2.ea.name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -12262,7 +12262,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_fsctl_pipe_wait_name,
-			{ "Name", "smb2.fsctl.wait.name", FT_STRING, STR_UNICODE,
+			{ "Name", "smb2.fsctl.wait.name", FT_STRING, BASE_NONE,
 			NULL, 0, "Pipe name", HFILL }
 		},
 
@@ -12407,12 +12407,12 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_ioctl_sqos_initiator_name,
-			{ "InitiatorName", "smb2.ioctl.sqos.initiator_name", FT_STRING, STR_UNICODE,
+			{ "InitiatorName", "smb2.ioctl.sqos.initiator_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_ioctl_sqos_initiator_node_name,
-			{ "InitiatorNodeName", "smb2.ioctl.sqos.initiator_node_name", FT_STRING, STR_UNICODE,
+			{ "InitiatorNodeName", "smb2.ioctl.sqos.initiator_node_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 
@@ -12563,7 +12563,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_ioctl_enumerate_snapshots_snapshot,
-			{ "Snapshot", "smb2.ioctl.enumerate_snapshots.snapshot", FT_STRINGZ, STR_UNICODE,
+			{ "Snapshot", "smb2.ioctl.enumerate_snapshots.snapshot", FT_STRINGZ, BASE_NONE,
 			NULL, 0, "Time stamp of previous version", HFILL }
 		},
 
@@ -12683,22 +12683,22 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_tag,
-			{ "Tag", "smb2.tag", FT_STRING, STR_UNICODE,
+			{ "Tag", "smb2.tag", FT_STRING, BASE_NONE,
 			NULL, 0, "Tag of chain entry", HFILL }
 		},
 
 		{ &hf_smb2_acct_name,
-			{ "Account", "smb2.acct", FT_STRING, STR_UNICODE,
+			{ "Account", "smb2.acct", FT_STRING, BASE_NONE,
 			NULL, 0, "Account Name", HFILL }
 		},
 
 		{ &hf_smb2_domain_name,
-			{ "Domain", "smb2.domain", FT_STRING, STR_UNICODE,
+			{ "Domain", "smb2.domain", FT_STRING, BASE_NONE,
 			NULL, 0, "Domain Name", HFILL }
 		},
 
 		{ &hf_smb2_host_name,
-			{ "Host", "smb2.host", FT_STRING, STR_UNICODE,
+			{ "Host", "smb2.host", FT_STRING, BASE_NONE,
 			NULL, 0, "Host Name", HFILL }
 		},
 
@@ -13068,7 +13068,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_short_name,
-			{ "Short Name", "smb2.shortname", FT_STRING, STR_UNICODE,
+			{ "Short Name", "smb2.shortname", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -13183,7 +13183,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_error_redir_res_name,
-			{ "Resource Name", "smb2.error.share_redirect.res_name", FT_STRING, STR_UNICODE,
+			{ "Resource Name", "smb2.error.share_redirect.res_name", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -13288,7 +13288,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_svhdx_open_device_context_initiator_host_name,
-			{ "HostName", "smb2.svhdx_open_device_context.host_name", FT_STRING, STR_UNICODE,
+			{ "HostName", "smb2.svhdx_open_device_context.host_name", FT_STRING, BASE_NONE,
 			 NULL, 0, NULL, HFILL }
 		},
 
@@ -13423,12 +13423,12 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_aapl_server_query_model_string,
-			{ "Model string", "smb2.aapl.model_string", FT_UINT_STRING, STR_UNICODE,
+			{ "Model string", "smb2.aapl.model_string", FT_UINT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_aapl_server_query_server_path,
-			{ "Server path", "smb2.aapl.server_path", FT_UINT_STRING, STR_UNICODE,
+			{ "Server path", "smb2.aapl.server_path", FT_UINT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -13650,7 +13650,7 @@ proto_register_smb2(void)
 		},
 		{ &hf_smb2_nfs_symlink_target,
 			{ "Symlink Target", "smb2.nfs.symlink.target", FT_STRING,
-			STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_nfs_chr_major,
 			{ "Major", "smb2.nfs.char.major", FT_UINT32,
@@ -13685,11 +13685,11 @@ proto_register_smb2(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_substitute_name,
-			{ "Substitute Name", "smb2.symlink.substitute_name", FT_STRING, STR_UNICODE,
+			{ "Substitute Name", "smb2.symlink.substitute_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_print_name,
-			{ "Print Name", "smb2.symlink.print_name", FT_STRING, STR_UNICODE,
+			{ "Print Name", "smb2.symlink.print_name", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_flags,

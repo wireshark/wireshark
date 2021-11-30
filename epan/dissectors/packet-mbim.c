@@ -10857,7 +10857,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_sms_cdma_record_encoded_message_text,
             { "Text", "mbim.control.sms_cdma_record.encoded_message.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_mbim_sms_read_req_format,
@@ -10962,7 +10962,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_sms_send_cdma_encoded_message_text,
             { "Text", "mbim.control.sms_send_cdma.encoded_message.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_mbim_set_sms_send_format,
@@ -11032,7 +11032,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_set_ussd_ussd_payload_text,
             { "USSD Payload Text", "mbim.control.set_ussd.ussd_payload.text",
-               FT_STRING, STR_UNICODE, NULL, 0,
+               FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_ussd_info_ussd_response,
@@ -11067,7 +11067,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ussd_info_ussd_payload_text,
             { "USSD Payload Text", "mbim.control.ussd_info.ussd_payload.text",
-               FT_STRING, STR_UNICODE, NULL, 0,
+               FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_phonebook_configuration_info_phonebook_state,

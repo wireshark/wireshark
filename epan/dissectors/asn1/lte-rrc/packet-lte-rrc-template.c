@@ -4082,7 +4082,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
     { &hf_lte_rrc_warningMessageSegment_decoded_page,
       { "Decoded Page", "lte-rrc.warningMessageSegment.decoded_page",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1,
       { "Bit 1", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit1",

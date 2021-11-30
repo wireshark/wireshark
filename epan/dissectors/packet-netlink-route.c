@@ -592,7 +592,7 @@ static header_field_info hfi_netlink_route_ifla_attr_type NETLINK_ROUTE_HFI_INIT
 	  VALS(netlink_route_ifla_attr_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_ifname NETLINK_ROUTE_HFI_INIT =
-	{ "Device name", "netlink-route.ifla_ifname", FT_STRINGZ, STR_ASCII,
+	{ "Device name", "netlink-route.ifla_ifname", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_mtu NETLINK_ROUTE_HFI_INIT =
@@ -636,7 +636,7 @@ static header_field_info hfi_netlink_route_ifla_carrier NETLINK_ROUTE_HFI_INIT =
 	  TFS(&tfs_restricted_not_restricted), 0x01, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_qdisc NETLINK_ROUTE_HFI_INIT =
-	{ "Queueing discipline", "netlink-route.ifla_qdisc", FT_STRINGZ, STR_ASCII,
+	{ "Queueing discipline", "netlink-route.ifla_qdisc", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_carrier_changes NETLINK_ROUTE_HFI_INIT =
@@ -1045,7 +1045,7 @@ static header_field_info hfi_netlink_route_ifa_attr_type NETLINK_ROUTE_HFI_INIT 
 	  VALS(netlink_route_ifa_attr_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifa_label NETLINK_ROUTE_HFI_INIT =
-	{ "Interface name", "netlink-route.ifa_label", FT_STRINGZ, STR_ASCII,
+	{ "Interface name", "netlink-route.ifa_label", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifa_flags32 NETLINK_ROUTE_HFI_INIT =

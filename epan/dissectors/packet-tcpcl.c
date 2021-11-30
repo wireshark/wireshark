@@ -368,7 +368,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_sess_init_seg_mru, {"Segment MRU", "tcpcl.v4.sess_init.seg_mru", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sess_init_xfer_mru, {"Transfer MRU", "tcpcl.v4.sess_init.xfer_mru", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sess_init_nodeid_len, {"Node ID Length", "tcpcl.v4.sess_init.nodeid_len", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
-    {&hf_tcpclv4_sess_init_nodeid_data, {"Node ID Data (UTF8)", "tcpcl.v4.sess_init.nodeid_data", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sess_init_nodeid_data, {"Node ID Data (UTF8)", "tcpcl.v4.sess_init.nodeid_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sess_init_extlist_len, {"Extension Items Length", "tcpcl.v4.sess_init.extlist_len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sess_init_related, {"Related SESS_INIT", "tcpcl.v4.sess_init.related", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     // Session negotiation results
@@ -410,7 +410,7 @@ static hf_register_info hf_tcpcl[] = {
     // Specific extensions
     {&hf_tcpclv4_xferext_transferlen_total_len, {"Total Length", "tcpcl.v4.xferext.transfer_length.total_len", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
     // PKIX other name form
-    {&hf_othername_bundleeid, {"BundleEID", "tcpcl.v4.BundleEID", FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL}},
+    {&hf_othername_bundleeid, {"BundleEID", "tcpcl.v4.BundleEID", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_xfer_fragments,
         {"Transfer fragments", "tcpcl.xfer.fragments",

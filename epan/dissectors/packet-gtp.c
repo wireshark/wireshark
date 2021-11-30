@@ -10444,12 +10444,12 @@ proto_register_gtp(void)
         },
         {&hf_gtp_node_name,
          { "Node name", "gtp.node_name",
-           FT_UINT_STRING, STR_ASCII, NULL, 0,
+           FT_UINT_STRING, BASE_NONE, NULL, 0,
            "Diameter Identity of the node", HFILL}
         },
         {&hf_gtp_node_realm,
          { "Node realm", "gtp.node_realm",
-           FT_UINT_STRING, STR_ASCII, NULL, 0,
+           FT_UINT_STRING, BASE_NONE, NULL, 0,
            "Diameter Realm Identity of the node", HFILL}
         },
         {&hf_gtp_npdu_number,

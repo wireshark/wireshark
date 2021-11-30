@@ -1271,21 +1271,21 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	actx->subtree.tree = NULL;
 
 #.TYPE_ATTR
-RecipientNumberForAdvice DISPLAY = STR_UNICODE
-TeletexCommonName DISPLAY = STR_UNICODE
-TeletexOrganizationName DISPLAY = STR_UNICODE
-TeletexPersonalName/surname DISPLAY = STR_UNICODE
-TeletexPersonalName/given-name DISPLAY = STR_UNICODE
-TeletexPersonalName/initials DISPLAY = STR_UNICODE
-TeletexPersonalName/generation-qualifier DISPLAY = STR_UNICODE
-TeletexOrganizationalUnitName DISPLAY = STR_UNICODE
-UnformattedPostalAddress/teletex-string DISPLAY = STR_UNICODE
-PDSParameter/teletex-string DISPLAY = STR_UNICODE
-TeletexDomainDefinedAttribute/type DISPLAY = STR_UNICODE
-TeletexDomainDefinedAttribute/value DISPLAY = STR_UNICODE
-TeletexNonBasicParameters/graphic-character-sets DISPLAY = STR_UNICODE
-TeletexNonBasicParameters/control-character-sets DISPLAY = STR_UNICODE
-TeletexNonBasicParameters/miscellaneous-terminal-capabilities DISPLAY = STR_UNICODE
+RecipientNumberForAdvice DISPLAY = BASE_NONE
+TeletexCommonName DISPLAY = BASE_NONE
+TeletexOrganizationName DISPLAY = BASE_NONE
+TeletexPersonalName/surname DISPLAY = BASE_NONE
+TeletexPersonalName/given-name DISPLAY = BASE_NONE
+TeletexPersonalName/initials DISPLAY = BASE_NONE
+TeletexPersonalName/generation-qualifier DISPLAY = BASE_NONE
+TeletexOrganizationalUnitName DISPLAY = BASE_NONE
+UnformattedPostalAddress/teletex-string DISPLAY = BASE_NONE
+PDSParameter/teletex-string DISPLAY = BASE_NONE
+TeletexDomainDefinedAttribute/type DISPLAY = BASE_NONE
+TeletexDomainDefinedAttribute/value DISPLAY = BASE_NONE
+TeletexNonBasicParameters/graphic-character-sets DISPLAY = BASE_NONE
+TeletexNonBasicParameters/control-character-sets DISPLAY = BASE_NONE
+TeletexNonBasicParameters/miscellaneous-terminal-capabilities DISPLAY = BASE_NONE
 
 #.END
 

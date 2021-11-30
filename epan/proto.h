@@ -656,8 +656,9 @@ void proto_report_dissector_bug(const char *format, ...)
  * any changes here still makes valid entries in init.lua.
  */
 typedef enum {
-/* Integral types */
     BASE_NONE    = 0,   /**< none */
+
+/* Integral types */
     BASE_DEC     = 1,   /**< decimal */
     BASE_HEX     = 2,   /**< hexadecimal */
     BASE_OCT     = 3,   /**< octal */
@@ -667,11 +668,6 @@ typedef enum {
 
 /* Float types */
     BASE_FLOAT   = BASE_NONE, /**< decimal-format float */
-
-/* String types */
-    STR_ASCII    = 0,   /**< shows non-printable ASCII characters as C-style escapes */
-    /* XXX, support for format_text_wsp() ? */
-    STR_UNICODE  = 7,   /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
 
 /* Byte separators */
     SEP_DOT      = 8,   /**< hexadecimal bytes with a period (.) between each byte */

@@ -10659,7 +10659,7 @@ proto_register_bgp(void)
         { "BGP Shutdown Communication Length", "bgp.notify.communication_length", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_notify_communication,
-        { "Shutdown Communication", "bgp.notify.communication", FT_STRING, STR_UNICODE,
+        { "Shutdown Communication", "bgp.notify.communication", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
 
         /* Route Refresh */
@@ -11506,7 +11506,7 @@ proto_register_bgp(void)
           BASE_HEX, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_policy_name_name,
         { "Policy name", "bgp.update.encaps_tunnel_tlv_subtlv.policy_name.name", FT_STRING,
-          STR_ASCII, NULL, 0x0, NULL, HFILL}},
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
       /* BGP update path attribut SSA SAFI (deprecated IETF draft) */
       { &hf_bgp_ssa_t,
@@ -12342,7 +12342,7 @@ proto_register_bgp(void)
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_tlv_link_name_attribute_value,
         {"Link Name", "bgp.ls.tlv.link_name_attribute_value", FT_STRING,
-          STR_ASCII, NULL, 0, NULL, HFILL }},
+          BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_bgp_ls_tlv_igp_flags,
         { "IGP Flags TLV", "bgp.ls.tlv.igp_flags", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -12411,7 +12411,7 @@ proto_register_bgp(void)
          BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_tlv_node_name_value,
         {"Node name", "bgp.ls.tlv.node_name_value", FT_STRING,
-         STR_ASCII, NULL, 0, NULL, HFILL }},
+         BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_bgp_ls_tlv_is_is_area_identifier,
         { "IS-IS Area Identifier TLV", "bgp.ls.tlv.is_is_area_identifier", FT_NONE,
          BASE_NONE, NULL, 0x0, NULL, HFILL}},

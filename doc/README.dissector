@@ -176,7 +176,7 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
 
                 --For FT_STRING, FT_STRINGZ and FT_UINT_STRING:
 
-                  STR_ASCII or STR_UNICODE
+                  (must be) BASE_NONE
 
                 --For FT_BYTES and FT_UINT_BYTES:
 

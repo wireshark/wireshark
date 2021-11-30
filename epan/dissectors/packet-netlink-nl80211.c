@@ -3714,11 +3714,11 @@ static header_field_info hfi_nl80211_attr_value64 NETLINK_NL80211_HFI_INIT =
       NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_wiphy_name NETLINK_NL80211_HFI_INIT =
-    { "Wiphy Name", "nl80211.wiphy_name", FT_STRINGZ, STR_ASCII,
+    { "Wiphy Name", "nl80211.wiphy_name", FT_STRINGZ, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_ifname NETLINK_NL80211_HFI_INIT =
-    { "Interface Name", "nl80211.ifname", FT_STRINGZ, STR_ASCII,
+    { "Interface Name", "nl80211.ifname", FT_STRINGZ, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_mac NETLINK_NL80211_HFI_INIT =
@@ -3726,7 +3726,7 @@ static header_field_info hfi_nl80211_mac NETLINK_NL80211_HFI_INIT =
       NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_alpha2 NETLINK_NL80211_HFI_INIT =
-    { "Alpha2", "nl80211.alpha2", FT_STRINGZ, STR_ASCII,
+    { "Alpha2", "nl80211.alpha2", FT_STRINGZ, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_nl80211_dbm NETLINK_NL80211_HFI_INIT =

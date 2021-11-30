@@ -3553,12 +3553,12 @@ proto_register_obex(void)
         },
         { &hf_ctn_application_parameter_data_filter_period_begin,
           { "Filter Period Begin", "obex.parameter.ctn.filter_period_begin",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_filter_period_end,
           { "Filter Period End", "obex.parameter.ctn.filter_period_end",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_parameter_mask,
@@ -3638,12 +3638,12 @@ proto_register_obex(void)
         },
         { &hf_ctn_application_parameter_data_email_uri,
           { "Email URI", "obex.parameter.ctn.email_uri",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_cse_time,
           { "CSE Time", "obex.parameter.ctn.cse_time",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_recurrent,
@@ -3658,7 +3658,7 @@ proto_register_obex(void)
         },
         { &hf_ctn_application_parameter_data_last_update,
           { "Last Update", "obex.parameter.ctn.last_update",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         /* for fragmentation */
@@ -3707,15 +3707,15 @@ proto_register_obex(void)
             "Bluetooth Profile used in this OBEX session", HFILL }
         },
         { &hf_type,
-          { "Type", "obex.type", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+          { "Type", "obex.type", FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_object_class,
-          { "Object Class", "obex.object_class", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+          { "Object Class", "obex.object_class", FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_time_iso8601,
-          { "Time", "obex.time", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+          { "Time", "obex.time", FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_hdr_val_action,

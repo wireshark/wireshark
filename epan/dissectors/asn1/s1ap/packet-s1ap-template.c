@@ -634,7 +634,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_WarningMessageContents_decoded_page,
       { "Decoded Page", "s1ap.WarningMessageContents.decoded_page",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_s1ap_measurementsToActivate_M1,
       { "M1", "s1ap.measurementsToActivate.M1",

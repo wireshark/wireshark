@@ -1671,7 +1671,7 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 
 #.TYPE_ATTR
-WLAN-Identifiers-r16/ssid-r16 TYPE=FT_STRING DISPLAY=STR_ASCII
+WLAN-Identifiers-r16/ssid-r16 TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY WLAN-Identifiers-r16/ssid-r16 VAL_PTR=&ssid_tvb HF_INDEX=-1
   tvbuff_t *ssid_tvb = NULL;

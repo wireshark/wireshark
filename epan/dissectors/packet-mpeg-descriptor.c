@@ -3638,7 +3638,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_service_provider, {
             "Service Provider Name", "mpeg_descr.svc.provider_name",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_service_name_length, {
@@ -3653,7 +3653,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_service_name, {
             "Service Name", "mpeg_descr.svc.svc_name",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x4A Linkage Descriptor */
@@ -3772,7 +3772,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_short_event_name, {
             "Event Name", "mpeg_descr.short_evt.name",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_short_event_text_length, {
@@ -3787,7 +3787,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_short_event_text, {
             "Event Text", "mpeg_descr.short_evt.txt",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x4E Extended Event Descriptor */
@@ -3843,7 +3843,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_extended_event_text, {
             "Text", "mpeg_descr.ext_evt.txt",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x50 Component Descriptor */

@@ -66,22 +66,22 @@ static header_field_info hfi_json_object JSON_HFI_INIT =
 	{ "Object", "json.object", FT_NONE, BASE_NONE, NULL, 0x00, "JSON object", HFILL };
 
 static header_field_info hfi_json_member JSON_HFI_INIT =
-	{ "Member", "json.member", FT_STRING, STR_UNICODE, NULL, 0x00, "JSON object member", HFILL };
+	{ "Member", "json.member", FT_STRING, BASE_NONE, NULL, 0x00, "JSON object member", HFILL };
 
 static header_field_info hfi_json_key JSON_HFI_INIT =
-	{ "Key", "json.key", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
+	{ "Key", "json.key", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_json_path JSON_HFI_INIT =
-	{ "Path", "json.path", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
+	{ "Path", "json.path", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_json_path_with_value JSON_HFI_INIT =
-	{ "Path with value", "json.path_with_value", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
+	{ "Path with value", "json.path_with_value", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_json_member_with_value JSON_HFI_INIT =
-	{ "Member with value", "json.member_with_value", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
+	{ "Member with value", "json.member_with_value", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_json_value_string JSON_HFI_INIT = /* FT_STRINGZ? */
-	{ "String value", "json.value.string", FT_STRING, STR_UNICODE, NULL, 0x00, "JSON string value", HFILL };
+	{ "String value", "json.value.string", FT_STRING, BASE_NONE, NULL, 0x00, "JSON string value", HFILL };
 
 static header_field_info hfi_json_value_number JSON_HFI_INIT = /* FT_DOUBLE/ FT_INT64? */
 	{ "Number value", "json.value.number", FT_STRING, BASE_NONE, NULL, 0x00, "JSON number value", HFILL };
@@ -115,7 +115,7 @@ static header_field_info hfi_json_binary_data JSON_HFI_INIT =
 	{ "Binary data", "json.binary_data", FT_BYTES, BASE_NONE, NULL, 0x00, "JSON binary data", HFILL };
 
 static header_field_info hfi_json_ignored_leading_bytes JSON_HFI_INIT =
-	{ "Ignored leading bytes", "json.ignored_leading_bytes", FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL };
+	{ "Ignored leading bytes", "json.ignored_leading_bytes", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static int hf_json_3gpp_ueepspdnconnection = -1;
 static int hf_json_3gpp_bearerlevelqos = -1;

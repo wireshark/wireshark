@@ -25,7 +25,7 @@ BindResponse/_untag/matchedDN bindResponse_matchedDN
 IntermediateResponse/_untag/responseValue intermediateResponse_responseValue
 
 #.TYPE_ATTR
-LDAPString TYPE = FT_STRING  DISPLAY = STR_UNICODE  STRINGS = NULL
+LDAPString TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 LDAPURL TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 LDAPOID  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL

@@ -4530,7 +4530,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_vtchgstrval_value,
           { "Value",                    "isobus.vt.vt_chg_str_val.val",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_vtonuserlayouthideshow_objectid_1,
@@ -5175,7 +5175,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_chgstrval_value,
           { "Value", "isobus.vt.change_string_value.value",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_changebackgroundcolour_objectid,
@@ -5395,7 +5395,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_graphicscontext_drawtext_textstring,
           { "Text string", "isobus.vt.graphics_context.draw_text.point.text_string",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_graphicscontext_panviewport_viewportx,
@@ -5810,7 +5810,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_storeversion_versionlabel,
           { "Version Label",       "isobus.vt.store_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_storeversion_errorcodes,
@@ -5820,7 +5820,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_loadversion_versionlabel,
           { "Version Label",       "isobus.vt.load_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_loadversion_errorcodes,
@@ -5830,7 +5830,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_deleteversion_versionlabel,
           { "Version Label",       "isobus.vt.delete_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_deleteversion_errorcodes,
@@ -5845,12 +5845,12 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_extendedgetversions_versionlabel,
           { "Version label",  "isobus.vt.extended_get_versions.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendedstoreversion_versionlabel,
           { "Version Label",       "isobus.vt.extended_store_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendedstoreversion_errorcodes,
@@ -5860,7 +5860,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_extendedloadversion_versionlabel,
           { "Version Label",       "isobus.vt.extended_load_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendedloadversion_errorcodes,
@@ -5870,7 +5870,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_extendeddeleteversion_versionlabel,
           { "Version Label",       "isobus.vt.extended_delete_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendeddeleteversion_errorcodes,
@@ -5885,7 +5885,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_getversions_versionlabel,
           { "Version label",  "isobus.vt.get_versions.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_unsupportedvtfunction_unsupportedvtfunction,

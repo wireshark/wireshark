@@ -638,15 +638,15 @@ proto_register_tzsp(void)
             NULL, 0, "Sensor MAC", HFILL }},
 
         { &hf_device_name, {
-            "Device Name", "tzsp.device_name", FT_STRING, STR_ASCII,
+            "Device Name", "tzsp.device_name", FT_STRING, BASE_NONE,
             NULL, 0, "DeviceName", HFILL }},
 
         { &hf_capture_location, {
-            "Capture Location", "tzsp.capture_location", FT_STRING, STR_ASCII,
+            "Capture Location", "tzsp.capture_location", FT_STRING, BASE_NONE,
             NULL, 0, "CaptureLocation", HFILL }},
 
         { &hf_capture_info, {
-            "Capture Information", "tzsp.device_info", FT_STRING, STR_ASCII,
+            "Capture Information", "tzsp.device_info", FT_STRING, BASE_NONE,
             NULL, 0, "CaptureInformation", HFILL }},
 
         { &hf_capture_id, {

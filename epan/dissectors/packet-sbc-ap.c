@@ -2944,7 +2944,7 @@ void proto_register_sbc_ap(void) {
         NULL, HFILL }},
     { &hf_sbc_ap_Warning_Message_Contents_decoded_page,
       { "Decoded Page", "sbc-ap.WarningMessageContents.decoded_page",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
 /*--- Included file: packet-sbc-ap-hfarr.c ---*/

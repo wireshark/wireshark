@@ -3150,7 +3150,7 @@ proto_register_nan(void)
              {
              "Condensed Country String",
              "nan.country_code",
-             FT_STRINGZ, STR_ASCII, NULL, 0x0, NULL, HFILL
+             FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL
              }
         },
         { &hf_nan_attr_ranging_protocol,
@@ -3647,7 +3647,7 @@ proto_register_nan(void)
             {
             "Channel Bitmap - Channel Set",
             "nan.ava.chan.set",
-            FT_STRING, STR_ASCII, NULL, 0x00, NULL, HFILL
+            FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL
             }
         },
         { &hf_nan_attr_availability_entry_entries_start_freq,

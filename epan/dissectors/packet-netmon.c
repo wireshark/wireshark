@@ -2056,11 +2056,11 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_filter_app_name,
 			{ "Application Name", "netmon_filter.app_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_filter_filter,
 			{ "Filter", "netmon_filter.filter",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
 
@@ -2075,19 +2075,19 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_network_info_computer_name,
 			{ "Computer name", "netmon_network_info.computer_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_network_info_friendly_name,
 			{ "Friendly name", "netmon_network_info.friendly_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_network_info_description,
 			{ "Description", "netmon_network_info.description",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_network_info_miniport_guid,
 			{ "Miniport GUID", "netmon_network_info.miniport_guid",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_network_info_media_type,
 			{ "Media type", "netmon_network_info.media_type",
@@ -2246,11 +2246,11 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_trace_session_name,
 			{ "Session name", "netmon_system_trace.session_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_trace_log_file_name,
 			{ "Log file name", "netmon_system_trace.log_file_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_trace_group_mask1,
 			{ "Group Mask1", "netmon_system_trace.group_mask1",
@@ -2313,11 +2313,11 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_computer_name,
 			{ "Computer name", "netmon_system_config.computer_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_domain_name,
 			{ "Domain name", "netmon_system_config.domain_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_hyper_threading_flag,
 			{ "Hyper threading flag", "netmon_system_config.hyper_threading_flag",
@@ -2361,7 +2361,7 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_manufacturer,
 			{ "Manufacturer", "netmon_system_config.manufacturer",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_partition_count,
 			{ "Partition count", "netmon_system_config.partition_count",
@@ -2377,11 +2377,11 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_boot_drive_letter,
 			{ "Boot drive letter", "netmon_system_config.boot_drive_letter",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_spare,
 			{ "Spare", "netmon_system_config.spare",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_start_offset,
 			{ "Start offset", "netmon_system_config.start_offset",
@@ -2401,7 +2401,7 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_drive_letter,
 			{ "Drive letter", "netmon_system_config.drive_letter",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_partition_number,
 			{ "Partition number", "netmon_system_config.partition_number",
@@ -2421,7 +2421,7 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_file_system,
 			{ "File system", "netmon_system_config.file_system",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_volume_ext,
 			{ "Volume ext", "netmon_system_config.volume_ext",
@@ -2445,15 +2445,15 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_nic_description,
 			{ "File system", "netmon_system_config.file_system",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_ipaddresses,
 			{ "IP addresses", "netmon_system_config.ipaddresses",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_dns_server_addresses,
 			{ "DNS server addresses", "netmon_system_config.dns_server_addresses",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_memory_size,
 			{ "Memory size", "netmon_system_config.memory_size",
@@ -2477,23 +2477,23 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_chip_type,
 			{ "Chip type", "netmon_system_config.chip_type",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_dac_type,
 			{ "DAC type", "netmon_system_config.dac_type",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_adapter_string,
 			{ "Adapter string", "netmon_system_config.adapter_string",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_bios_string,
 			{ "BIOS string", "netmon_system_config.bios_string",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_device_id,
 			{ "Device ID", "netmon_system_config.device_id",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_state_flags,
 			{ "State flags", "netmon_system_config.state_flags",
@@ -2513,15 +2513,15 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_service_name,
 			{ "Service name", "netmon_system_config.service_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_display_name,
 			{ "Display name", "netmon_system_config.display_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_process_name,
 			{ "Process name", "netmon_system_config.process_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_s1,
 			{ "S1", "netmon_system_config.s1",
@@ -2573,11 +2573,11 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_device_desc,
 			{ "Device description", "netmon_system_config.device_desc",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_friendly_name,
 			{ "Friendly name", "netmon_system_config.friendly_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_device_id_len,
 			{ "Device ID length", "netmon_system_config.device_id_len",
@@ -2605,31 +2605,31 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_location_information,
 			{ "Location information", "netmon_system_config.location_information",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_system_manufacturer,
 			{ "System manufacturer", "netmon_system_config.system_manufacturer",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_system_product_name,
 			{ "System product name", "netmon_system_config.system_product_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_bios_date,
 			{ "BIOS date", "netmon_system_config.bios_date",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_bios_version,
 			{ "BIOS version", "netmon_system_config.bios_version",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_load_order_group,
 			{ "Load order group", "netmon_system_config.load_order_group",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_svc_host_group,
 			{ "svchost group", "netmon_system_config.svc_host_group",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_irq_group,
 			{ "IRQ group", "netmon_system_config.irq_group",
@@ -2637,11 +2637,11 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_pdo_name,
 			{ "PDO name", "netmon_system_config.pdo_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_nic_name,
 			{ "NIC name", "netmon_system_config.nic_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_index,
 			{ "Index", "netmon_system_config.index",
@@ -2649,7 +2649,7 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_system_config_physical_addr_str,
 			{ "Physical address", "netmon_system_config.physical_addr_str",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_system_config_ip_address,
 			{ "IP address", "netmon_system_config.ip_address",
@@ -2744,11 +2744,11 @@ void proto_register_netmon(void)
 		},
 		{ &hf_netmon_process_image_file_name,
 			{ "Image file name", "netmon_process.image_file_name",
-			FT_STRING, STR_ASCII, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_process_command_line,
 			{ "Commandline", "netmon_process.command_line",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_netmon_process_page_directory_base,
 			{ "Page directory base", "netmon_process.page_directory_base",

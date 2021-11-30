@@ -6490,17 +6490,17 @@ proto_register_usb(void)
             NULL, 0x0, NULL, HFILL }},
         { &hf_usb_src,
             { "Source",                              "usb.src",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_usb_dst,
             { "Destination",                         "usb.dst",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_usb_addr,
             { "Source or Destination",               "usb.addr",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         }
     };

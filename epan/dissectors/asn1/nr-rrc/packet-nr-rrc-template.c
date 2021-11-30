@@ -824,7 +824,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_warningMessageSegment_decoded_page,
       { "Decoded Page", "nr-rrc.warningMessageSegment.decoded_page",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_sib7_fragments,
       { "Fragments", "nr-rrc.warningMessageSegment.fragments",

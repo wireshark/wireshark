@@ -3260,7 +3260,7 @@ void proto_register_gsm_map(void) {
           "Service Area Code", HFILL }},
       { &hf_gsm_map_ussd_string,
         { "USSD String", "gsm_map.ussd_string",
-          FT_STRING, STR_UNICODE, NULL, 0,
+          FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
     { &hf_gsm_map_spare_bits,
         { "Spare bit(s)", "gsm_map.spare_bits",

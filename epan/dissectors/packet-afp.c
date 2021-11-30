@@ -7052,27 +7052,27 @@ proto_register_afp(void)
 
 		{ &hf_afp_utf8_server_name,
 		  { "UTF-8 server name",         "afp.utf8_server_name",
-		    FT_STRING, STR_UNICODE, NULL, 0x0,
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_server_name,
 		  { "Server name",         "afp.server_name",
-		    FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_server_type,
 		  { "Server type",         "afp.server_type",
-		    FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_server_vers,
 		  { "AFP version",         "afp.server_vers",
-		    FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_server_uams,
 		  { "UAM",         "afp.server_uams",
-		    FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_server_icon,
@@ -7082,7 +7082,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_server_directory,
 		  { "Directory service",         "afp.server_directory",
-		    FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
+		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 		    "Server directory service", HFILL }},
 
 		{ &hf_afp_server_signature,

@@ -13359,17 +13359,17 @@ proto_register_netflow(void)
         },
         {&hf_cflow_if_name,
          {"IfName", "cflow.if_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "SNMP Interface Name", HFILL}
         },
         {&hf_cflow_if_descr,
          {"IfDescr", "cflow.if_descr",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "SNMP Interface Description", HFILL}
         },
         {&hf_cflow_sampler_name,
          {"SamplerName", "cflow.sampler_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Sampler Name", HFILL}
         },
         {&hf_cflow_forwarding_status,
@@ -13399,7 +13399,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_nbar_appl_desc,
          {"ApplicationDesc", "cflow.appl_desc",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Application Desc (NBAR)", HFILL}
         },
         {&hf_cflow_nbar_appl_id_class_eng_id,
@@ -13414,7 +13414,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_nbar_appl_name,
          {"ApplicationName", "cflow.appl_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Application Name (NBAR)", HFILL}
         },
         {&hf_cflow_peer_srcas,
@@ -13690,7 +13690,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_wlan_ssid,
          {"Wireless LAN SSId", "cflow.wlan_ssid",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_flow_id,
@@ -13980,7 +13980,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_vrfname,
          {"VRFname", "cflow.vrfname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_post_mpls_top_label_exp,
@@ -14035,7 +14035,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_metro_evc_id,
          {"Metro Evc Id", "cflow.metro_evc_id",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_metro_evc_type,
@@ -14220,7 +14220,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_nat_pool_name,
          {"Nat Pool Name", "cflow.nat_pool_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_anonymization_flags,
@@ -14240,17 +14240,17 @@ proto_register_netflow(void)
         },
         {&hf_cflow_p2p_technology,
          {"P2p Technology", "cflow.p2p_technology",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_tunnel_technology,
          {"Tunnel Technology", "cflow.tunnel_technology",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_encrypted_technology,
          {"Encrypted Technology", "cflow.encrypted_technology",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_subtemplate_list,
@@ -14290,7 +14290,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_observation_domain_name,
          {"Observation Domain Name", "cflow.observation_domain_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_selection_sequence_id,
@@ -14470,7 +14470,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_selector_name,
          {"Selector Name", "cflow.selector_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_upper_cilimit_float32,
@@ -14511,12 +14511,12 @@ proto_register_netflow(void)
         },
         {&hf_cflow_information_element_description,
          {"Information Element Description", "cflow.information_element_description",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_information_element_name,
          {"Information Element Name", "cflow.information_element_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_information_element_range_begin,
@@ -14552,7 +14552,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_virtual_station_interface_name,
           {"Virtual Station Interface Name", "cflow.virtual_station_interface_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_virtual_station_uuid,
@@ -14562,7 +14562,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_virtual_station_name,
           {"Virtual Station Name", "cflow.virtual_station_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_layer2_segment_id,
@@ -14667,22 +14667,22 @@ proto_register_netflow(void)
         },
         {&hf_cflow_user_name,
           {"User Name", "cflow.user_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_application_category_name,
           {"Application Category Name", "cflow.application_category_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_application_sub_category_name,
           {"Application Sub Category Name", "cflow.application_sub_category_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_application_group_name,
           {"Application Group Name", "cflow.application_group_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_original_flows_present,
@@ -15052,37 +15052,37 @@ proto_register_netflow(void)
         },
         {&hf_cflow_mib_context_name,
           {"mib Context Name", "cflow.mib_context_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_mib_object_name,
           {"mib Object Name", "cflow.mib_object_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_mib_object_description,
           {"mib Object Description", "cflow.mib_object_description",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_mib_object_syntax,
           {"mib Object Syntax", "cflow.mib_object_syntax",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_mib_module_name,
           {"mib Module Name", "cflow.mib_module_name",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_mobile_imsi,
           {"mib Mobile IMSI", "cflow.mib_mobile_imsi",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_mobile_msisdn,
           {"mib Mobile MSISDN", "cflow.mib_mobile_msisdn",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_http_statuscode,
@@ -15097,22 +15097,22 @@ proto_register_netflow(void)
         },
         {&hf_cflow_http_request_method,
           {"HTTP Request Method", "cflow.http_request_method",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_http_request_host,
           {"HTTP Request Host", "cflow.http_request_host",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_http_request_target,
           {"HTTP Request Target", "cflow.http_request_target",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_http_message_version,
           {"HTTP Message Version", "cflow.http_message_version",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_nat_instanceid,
@@ -15142,17 +15142,17 @@ proto_register_netflow(void)
         },
         {&hf_cflow_http_user_agent,
           {"HTTP User Agent", "cflow.http_user_agent",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_http_content_type,
           {"HTTP Content Type", "cflow.http_content_type",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_http_reason_phrase,
           {"HTTP Reason Phrase", "cflow.http_reason_phrase",
-           FT_STRING, STR_UNICODE, NULL, 0x0,
+           FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_cflow_max_session_entries,
@@ -15410,13 +15410,13 @@ proto_register_netflow(void)
         {&hf_cflow_cts_sgt_source_name,
          {"Source SGT Name",
           "cflow.source_sgt_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_cts_sgt_destination_name,
          {"Destination SGT Name",
           "cflow.destination_sgt_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_packets_dropped,
@@ -15666,7 +15666,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_nat_context_name,
          {"NAT Context Name", "cflow.nat_context_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Zero terminated context Name", HFILL}
         },
         {&hf_cflow_nat_assign_time,
@@ -15717,7 +15717,7 @@ proto_register_netflow(void)
         },
         {&hf_cflow_aaa_username,
          {"AAA username", "cflow.aaa_username",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
 
@@ -15803,7 +15803,7 @@ proto_register_netflow(void)
         /* CACE Technologies, 32622 / 10 */
         {&hf_pie_cace_local_username,
          {"Local User Name", "cflow.pie.cace.localusername",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Local User Name (caceLocalProcessUserName)", HFILL}
         },
         /* CACE Technologies, 32622 / 11 */
@@ -15815,7 +15815,7 @@ proto_register_netflow(void)
         /* CACE Technologies, 32622 / 11 */
         {&hf_pie_cace_local_cmd,
          {"Local Command", "cflow.pie.cace.localcmd",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Local Command (caceLocalProcessCommand)", HFILL}
         },
 
@@ -16017,25 +16017,25 @@ proto_register_netflow(void)
         /* ntop, 35632 / 101 */
         {&hf_pie_ntop_src_ip_country,
          {"Country where the src IP is located", "cflow.pie.ntop.src_ip_country",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 102 */
         {&hf_pie_ntop_src_ip_city,
          {"City where the src IP is located", "cflow.pie.ntop.src_ip_city",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 103 */
         {&hf_pie_ntop_dst_ip_country,
          {"Country where the dst IP is located", "cflow.pie.ntop.dst_ip_country",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 104 */
         {&hf_pie_ntop_dst_ip_city,
          {"City where the dst IP is located", "cflow.pie.ntop.dst_ip_city",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 105 */
@@ -16126,7 +16126,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 119 */
         {&hf_pie_ntop_l7_proto_name,
          {"Layer 7 protocol name", "cflow.pie.ntop.l7_proto_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 120 */
@@ -16138,13 +16138,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 121 */
         {&hf_pie_ntop_flow_user_name,
          {"Flow username of the tunnel (if known)", "cflow.pie.ntop.flow_user_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 122 */
         {&hf_pie_ntop_flow_server_name,
          {"Flow server name (if known)", "cflow.pie.ntop.flow_server_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 123 */
@@ -16168,7 +16168,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 126 */
         {&hf_pie_ntop_plugin_name,
          {"Plugin name used by this flow (if any)", "cflow.pie.ntop.plugin_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 127 */
@@ -16186,25 +16186,25 @@ proto_register_netflow(void)
         /* ntop, 35632 / 130 */
         {&hf_pie_ntop_sip_call_id,
          {"SIP call-id", "cflow.pie.ntop.sip_call_id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 131 */
         {&hf_pie_ntop_sip_calling_party,
          {"SIP Call initiator", "cflow.pie.ntop.sip_calling_party",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 132 */
         {&hf_pie_ntop_sip_called_party,
          {"SIP Called party", "cflow.pie.ntop.sip_called_party",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 133 */
         {&hf_pie_ntop_sip_rtp_codecs,
          {"SIP RTP codecs", "cflow.pie.ntop.sip_rtp_codecs",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 134 */
@@ -16378,13 +16378,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 169 */
         {&hf_pie_ntop_src_proc_name,
          {"Src process name", "cflow.pie.ntop.src_proc_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 180 */
         {&hf_pie_ntop_http_url,
          {"HTTP URL (IXIA URI)", "cflow.pie.ntop.http_url",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 181 */
@@ -16396,73 +16396,73 @@ proto_register_netflow(void)
         /* ntop, 35632 / 182 */
         {&hf_pie_ntop_http_referer,
          {"HTTP Referer", "cflow.pie.ntop.http_referer",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 183 */
         {&hf_pie_ntop_http_ua,
          {"HTTP User Agent", "cflow.pie.ntop.http_ua",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 184 */
         {&hf_pie_ntop_http_mime,
          {"HTTP Mime Type", "cflow.pie.ntop.http_mime",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 185 */
         {&hf_pie_ntop_smtp_mail_from,
          {"Mail sender", "cflow.pie.ntop.smtp_mail_from",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 186 */
         {&hf_pie_ntop_smtp_rcpt_to,
          {"Mail recipient", "cflow.pie.ntop.smtp_rcpt_to",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 187 */
         {&hf_pie_ntop_http_host,
          {"HTTP Host Name (IXIA Host Name)", "cflow.pie.ntop.http_host",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 188 */
         {&hf_pie_ntop_ssl_server_name,
          {"SSL server name", "cflow.pie.ntop.ssl_server_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 189 */
         {&hf_pie_ntop_bittorrent_hash,
          {"BITTORRENT hash", "cflow.pie.ntop.bittorrent_hash",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 195 */
         {&hf_pie_ntop_mysql_srv_version,
          {"MySQL server version", "cflow.pie.ntop.mysql_server_version",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 196 */
         {&hf_pie_ntop_mysql_username,
          {"MySQL username", "cflow.pie.ntop.mysql_username",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 197 */
         {&hf_pie_ntop_mysql_db,
          {"MySQL database in use", "cflow.pie.ntop.mysql_db",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 198 */
         {&hf_pie_ntop_mysql_query,
          {"MySQL Query", "cflow.pie.ntop.mysql_query",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 199 */
@@ -16474,13 +16474,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 200 */
         {&hf_pie_ntop_oracle_username,
          {"Oracle Username", "cflow.pie.ntop.oracle_username",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 201 */
         {&hf_pie_ntop_oracle_query,
          {"Oracle Query", "cflow.pie.ntop.oracle_query",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 202 */
@@ -16492,7 +16492,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 203 */
         {&hf_pie_ntop_oracle_resp_string,
          {"Oracle Response String", "cflow.pie.ntop.oracle_resp_string",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 204 */
@@ -16504,7 +16504,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 205 */
         {&hf_pie_ntop_dns_query,
          {"DNS query", "cflow.pie.ntop.dns_query",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 206 */
@@ -16534,7 +16534,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 210 */
         {&df_pie_ntop_pop_user,
          {"POP3 user login", "cflow.pie.ntop.pop_user",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 220 */
@@ -16582,25 +16582,25 @@ proto_register_netflow(void)
         /* ntop, 35632 / 227 */
         {&hf_pie_ntop_gtpv1_end_user_imsi,
          {"GTPv1 End User IMSI", "cflow.pie.ntop.gtpv1_end_user_imsi",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 228 */
         {&hf_pie_ntop_gtpv1_end_user_msisdn,
          {"GTPv1 End User MSISDN", "cflow.pie.ntop.gtpv1_end_user_msisdn",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 229 */
         {&hf_pie_ntop_gtpv1_end_user_imei,
          {"GTPv1 End User IMEI", "cflow.pie.ntop.gtpv1_end_user_imei",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 230 */
         {&hf_pie_ntop_gtpv1_apn_name,
          {"GTPv1 APN Name", "cflow.pie.ntop.gtpv1_apn_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 231 */
@@ -16654,19 +16654,19 @@ proto_register_netflow(void)
         /* ntop, 35632 / 242 */
         {&hf_pie_ntop_radius_user_name,
          {"RADIUS User Name (Access Only)", "cflow.pie.ntop.radius_user_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 243 */
         {&hf_pie_ntop_radius_calling_station_id,
          {"RADIUS Calling Station Id", "cflow.pie.ntop.radius_calling_station_id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 244 */
         {&hf_pie_ntop_radius_called_station_id,
          {"RADIUS Called Station Id", "cflow.pie.ntop.radius_called_station_id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 245 */
@@ -16678,19 +16678,19 @@ proto_register_netflow(void)
         /* ntop, 35632 / 246 */
         {&hf_pie_ntop_radius_nas_identifier,
          {"RADIUS NAS Identifier", "cflow.pie.ntop.radius_nas_identifier",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 247 */
         {&hf_pie_ntop_radius_user_imsi,
          {"RADIUS User IMSI (Extension)", "cflow.pie.ntop.radius_user_imsi",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 248 */
         {&hf_pie_ntop_radius_user_imei,
          {"RADIUS User MSISDN (Extension)", "cflow.pie.ntop.radius_user_imei",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 249 */
@@ -16702,13 +16702,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 250 */
         {&hf_pie_ntop_radius_acct_session_id,
          {"RADIUS Accounting Session Name", "cflow.pie.ntop.radius_acct_session_id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 251 */
         {&hf_pie_ntop_radius_acct_status_type,
          {"RADIUS Accounting Status Type", "cflow.pie.ntop.radius_acct_status_type",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 252 */
@@ -16738,7 +16738,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 260 */
         {&hf_pie_ntop_imap_login,
          {"Mail sender", "cflow.pie.ntop.imap_login",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 270 */
@@ -16768,7 +16768,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 274 */
         {&hf_pie_ntop_gtpv2_s2c_s1u_gtpu_teid,
          {"GTPv2 Srv->Client S1U GTPU TEID", "cflow.pie.ntop.gtpv2_s2c_s1u_gtpu_teid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 275 */
@@ -16780,19 +16780,19 @@ proto_register_netflow(void)
         /* ntop, 35632 / 276 */
         {&hf_pie_ntop_gtpv2_end_user_imsi,
          {"GTPv2 End User IMSI", "cflow.pie.ntop.gtpv2_end_user_imsi",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 277 */
         {&hf_pie_ntop_gtpv2_and_user_msisdn,
          {"GTPv2 End User MSISDN", "cflow.pie.ntop.gtpv2_and_user_msisdn",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 278 */
         {&hf_pie_ntop_gtpv2_apn_name,
          {"GTPv2 APN Name", "cflow.pie.ntop.gtpv2_apn_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 279 */
@@ -16834,7 +16834,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 285 */
         {&hf_pie_ntop_gtpv2_end_user_imei,
          {"GTPv2 End User IMEI", "cflow.pie.ntop.gtpv2_end_user_imei",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 290 */
@@ -16990,13 +16990,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 325 */
         {&hf_pie_ntop_gtpv0_end_user_msisdn,
          {"GTPv0 End User MSISDN", "cflow.pie.ntop.gtpv0_end_user_msisdn",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 326 */
         {&hf_pie_ntop_gtpv0_apn_name,
          {"GTPv0 APN Name", "cflow.pie.ntop.gtpv0_apn_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 327 */
@@ -17146,7 +17146,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 351 */
         {&hf_pie_ntop_whois_das_domain,
          {"Whois/DAS Domain name", "cflow.pie.ntop.whois_das_domain",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 352 */
@@ -17170,25 +17170,25 @@ proto_register_netflow(void)
         /* ntop, 35632 / 355 */
         {&hf_pie_ntop_dhcp_client_name,
          {"DHCP client name", "cflow.pie.ntop.dhcp_clien_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 356 */
         {&hf_pie_ntop_ftp_login,
          {"FTP client login", "cflow.pie.ntop.ftp_login",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 357 */
         {&hf_pie_ntop_ftp_password,
          {"FTP client password", "cflow.pie.ntop.ftp_password",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 358 */
         {&hf_pie_ntop_ftp_command,
          {"FTP client command", "cflow.pie.ntop.ftp_command",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 359 */
@@ -17200,25 +17200,25 @@ proto_register_netflow(void)
         /* ntop, 35632 / 360 */
         {&hf_pie_ntop_http_method,
          {"HTTP METHOD", "cflow.pie.ntop.http_method",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 361 */
         {&hf_pie_ntop_http_site,
          {"HTTP server without host name", "cflow.pie.ntop.http_site",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 362 */
         {&hf_pie_ntop_sip_c_ip,
          {"SIP C IP addresses", "cflow.pie.ntop.sip_c_ip",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 363 */
         {&hf_pie_ntop_sip_call_state,
          {"SIP Call State", "cflow.pie.ntop.sip_call_state",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 370 */
@@ -17236,7 +17236,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 372 */
         {&hf_pie_ntop_src_proc_user_name,
          {"Src process user name", "cflow.pie.ntop.src_proc_user_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 373 */
@@ -17248,7 +17248,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 374 */
         {&hf_pie_ntop_src_father_proc_name,
          {"Src father process name", "cflow.pie.ntop.src_father_proc_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 375 */
@@ -17260,13 +17260,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 376 */
         {&hf_pie_ntop_dst_proc_name,
          {"Dst process name", "cflow.pie.ntop.dst_proc_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 377 */
         {&hf_pie_ntop_dst_proc_user_name,
          {"Dst process user name", "cflow.pie.ntop.dst_proc_user_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 378 */
@@ -17278,7 +17278,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 379 */
         {&hf_pie_ntop_dst_father_proc_name,
          {"Dst father process name", "cflow.pie.ntop.dst_father_proc_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 380 */
@@ -17374,7 +17374,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 395 */
         {&hf_pie_ntop_rtp_dtmf_tones,
          {"DTMF tones sent (if any) during the call", "cflow.pie.ntop.rtp_dtmf_tones",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 396 */
@@ -17392,7 +17392,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 398 */
         {&hf_pie_ntop_dns_response,
          {"DNS response(s)", "cflow.pie.ntop.dns_response",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 399 */
@@ -17410,19 +17410,19 @@ proto_register_netflow(void)
         /* ntop, 35632 / 401 */
         {&hf_pie_ntop_diameter_req_origin_host,
          {"DIAMETER Origin Host Request", "cflow.pie.ntop.diameter_req_origin_host",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 402 */
         {&hf_pie_ntop_diameter_rsp_origin_host,
          {"DIAMETER Origin Host Response", "cflow.pie.ntop.diameter_rsp_origin_host",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 403 */
         {&hf_pie_ntop_diameter_req_user_name,
          {"DIAMETER Request User Name", "cflow.pie.ntop.diameter_req_user_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 404 */
@@ -17542,13 +17542,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 423 */
         {&hf_pie_ntop_dhcp_remote_id,
          {"DHCP agent remote Id", "cflow.pie.ntop.dhcp_remote_id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 424 */
         {&hf_pie_ntop_dhcp_subscriber_id,
          {"DHCP subscribed Id", "cflow.pie.ntop.dhcp_subscriber_id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 425 */
@@ -17566,19 +17566,19 @@ proto_register_netflow(void)
         /* ntop, 35632 / 427 */
         {&hf_pie_ntop_application_name,
          {"Palo Alto App-Id", "cflow.pie.ntop.application_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 428 */
         {&hf_pie_ntop_user_name,
          {"Palo Alto User-Id", "cflow.pie.ntop.user_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 429 */
         {&hf_pie_ntop_dhcp_message_type,
          {"DHCP message type", "cflow.pie.ntop.dhcp_message_type",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 430 */
@@ -17614,7 +17614,7 @@ proto_register_netflow(void)
         /* ntop, 35632 / 435 */
         {&hf_pie_ntop_gptv2_s5_s8_gtpc_teid,
          {"GTPv2 S5/S8 SGW GTPC TEIDs", "cflow.pie.ntop.gptv2_s5_s8_gtpc_teid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 436 */
@@ -17662,13 +17662,13 @@ proto_register_netflow(void)
         /* ntop, 35632 / 443 */
         {&hf_pie_ntop_src_as_map,
          {"Organization name for SRC_AS", "cflow.pie.ntop.src_as_map",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 444 */
         {&hf_pie_ntop_dst_as_map,
          {"Organization name for DST_AS", "cflow.pie.ntop.dst_as_map",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 445 */
@@ -17692,25 +17692,25 @@ proto_register_netflow(void)
         /* ntop, 35632 / 448 */
         {&hf_pie_ntop_src_ip_long,
          {"Longitude where the src IP is located", "cflow.pie.ntop.src_ip_long",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 449 */
         {&hf_pie_ntop_src_ip_lat,
          {"Latitude where the src IP is located", "cflow.pie.ntop.src_ip_lat",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 450 */
         {&hf_pie_ntop_dst_ip_long,
          {"Longitude where the dst IP is located", "cflow.pie.ntop.dst_ip_long",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 451 */
         {&hf_pie_ntop_dst_ip_lat,
          {"Latitude where the dst IP is located", "cflow.pie.ntop.dst_ip_lat",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 452 */
@@ -17764,67 +17764,67 @@ proto_register_netflow(void)
         /* ntop, 35632 / 460 */
         {&hf_pie_ntop_http_x_forwarded_for,
          {"HTTP X-Forwarded-For", "cflow.pie.ntop.http_x_forwarded_for",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 461 */
         {&hf_pie_ntop_http_via,
          {"HTTP Via", "cflow.pie.ntop.http_via",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 462 */
         {&hf_pie_ntop_ssdp_host,
          {"SSDP Host", "cflow.pie.ntop.ssdp_host",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 463 */
         {&hf_pie_ntop_ssdp_usn,
          {"SSDP USN", "cflow.pie.ntop.ssdp_usn",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 464 */
         {&hf_pie_ntop_netbios_query_name,
          {"NETBIOS Query Name", "cflow.pie.ntop.netbios_query_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 465 */
         {&hf_pie_ntop_netbios_query_type,
          {"NETBIOS Query Type", "cflow.pie.ntop.netbios_query_type",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 466 */
         {&hf_pie_ntop_netbios_response,
          {"NETBIOS Query Response", "cflow.pie.ntop.netbios_response",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 467 */
         {&hf_pie_ntop_netbios_query_os,
          {"NETBIOS Query OS", "cflow.pie.ntop.netbios_query_os",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 468 */
         {&hf_pie_ntop_ssdp_server,
          {"SSDP Server", "cflow.pie.ntop.ssdp_server",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 469 */
         {&hf_pie_ntop_ssdp_type,
          {"SSDP Type", "cflow.pie.ntop.ssdp_type",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 470 */
         {&hf_pie_ntop_ssdp_method,
          {"SSDP Method", "cflow.pie.ntop.ssdp_method",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* ntop, 35632 / 471 */
@@ -17849,19 +17849,19 @@ proto_register_netflow(void)
         {&hf_pie_plixer_client_hostname,
          /* plixer, 13745 / 101 */
          {"client_hostname", "cflow.pie.plixer.client_hostname",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 102 */
         {&hf_pie_plixer_partner_name,
          {"Partner_name", "cflow.pie.plixer.partner_name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 103 */
         {&hf_pie_plixer_server_hostname,
          {"Server_hostname", "cflow.pie.plixer.server_hostname",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 104 */
@@ -17873,7 +17873,7 @@ proto_register_netflow(void)
         /* plixer, 13745 / 105 */
         {&hf_pie_plixer_recipient_address,
          {"Recipient_address", "cflow.pie.plixer.recipient_address",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 106 */
@@ -17885,7 +17885,7 @@ proto_register_netflow(void)
         /* plixer, 13745 / 107 */
         {&hf_pie_plixer_msgid,
          {"Msgid", "cflow.pie.plixer.msgid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 108 */
@@ -17921,25 +17921,25 @@ proto_register_netflow(void)
         /* plixer, 13745 / 113 */
         {&hf_pie_plixer_service_version,
          {"Service_version", "cflow.pie.plixer.service_version",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 114 */
         {&hf_pie_plixer_linked_msgid,
          {"Linked_msgid", "cflow.pie.plixer.linked_msgid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 115 */
         {&hf_pie_plixer_message_subject,
          {"Message_subject", "cflow.pie.plixer.message_subject",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 116 */
         {&hf_pie_plixer_sender_address,
          {"Sender_address", "cflow.pie.plixer.sender_address",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* plixer, 13745 / 117 */
@@ -17964,38 +17964,38 @@ proto_register_netflow(void)
         /* ixia, 3054 / 111 */
         {&hf_pie_ixia_l7_application_name,
          {"L7 Application Name", "cflow.pie.ixia.l7-application-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
 
         /* ixia, 3054 / 120 */
         {&hf_pie_ixia_source_ip_country_code,
          {"Source IP Country Code", "cflow.pie.ixia.source-ip-country-code",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "2 letter country code for the source IP address", HFILL}
         },
         /* ixia, 3054 / 121 */
         {&hf_pie_ixia_source_ip_country_name,
          {"Source IP Country Name", "cflow.pie.ixia.source-ip-country-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Country name for the source IP address", HFILL}
         },
         /* ixia, 3054 / 122 */
         {&hf_pie_ixia_source_ip_region_code,
          {"Source IP Region Code", "cflow.pie.ixia.source-ip-region-code",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "2 letter region code for the source IP address", HFILL}
         },
         /* ixia, 3054 / 123 */
         {&hf_pie_ixia_source_ip_region_name,
          {"Source IP Region Name", "cflow.pie.ixia.source-ip-region-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Region name for the source IP address", HFILL}
         },
         /* ixia, 3054 / 125 */
         {&hf_pie_ixia_source_ip_city_name,
          {"Source IP City Name", "cflow.pie.ixia.source-ip-city-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "City name for the source IP address", HFILL}
         },
         /* ixia, 3054 / 126 */
@@ -18014,31 +18014,31 @@ proto_register_netflow(void)
         /* ixia, 3054 / 140 */
         {&hf_pie_ixia_destination_ip_country_code,
          {"Destination IP Country Code", "cflow.pie.ixia.destination-ip-country-code",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "2 letter region code for the destination IP address", HFILL}
         },
         /* ixia, 3054 / 141 */
         {&hf_pie_ixia_destination_ip_country_name,
          {"Destination IP Country Name", "cflow.pie.ixia.destination-ip-country-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Country name for the destination IP address", HFILL}
         },
         /* ixia, 3054 / 142 */
         {&hf_pie_ixia_destination_ip_region_code,
          {"Destination IP Region Code", "cflow.pie.ixia.destination-ip-region-code",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "2 letter region code for the destination IP address", HFILL}
         },
         /* ixia, 3054 / 143 */
         {&hf_pie_ixia_destination_ip_region_name,
          {"Destination IP Region Name", "cflow.pie.ixia.destination-ip-region-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Region name for the destination IP address", HFILL}
         },
         /* ixia, 3054 / 145 */
         {&hf_pie_ixia_destination_ip_city_name,
          {"Destination IP City Name", "cflow.pie.ixia.destination-ip-city-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "City name for the destination IP address", HFILL}
         },
         /* ixia, 3054 / 146 */
@@ -18063,7 +18063,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 161 */
         {&hf_pie_ixia_os_device_name,
          {"OS Device Name", "cflow.pie.ixia.os-device-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "String containing OS name", HFILL}
         },
         /* ixia, 3054 / 162 */
@@ -18075,7 +18075,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 163 */
         {&hf_pie_ixia_browser_name,
          {"Browser Name", "cflow.pie.ixia.browser-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Unique Name for each browser type", HFILL}
         },
 
@@ -18095,14 +18095,14 @@ proto_register_netflow(void)
         /* ixia, 3054 / 178 */
         {&hf_pie_ixia_conn_encryption_type,
          {"Connection Encryption Type", "cflow.pie.ixia.conn-encryption-type",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Whether the connection is encrypted", HFILL}
         },
 
         /* ixia, 3054 / 179 */
         {&hf_pie_ixia_encryption_cipher,
          {"Encryption Cipher", "cflow.pie.ixia.encryption-cipher",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Cipher used in the encryption", HFILL}
         },
 
@@ -18116,49 +18116,49 @@ proto_register_netflow(void)
         /* ixia, 3054 / 181 */
         {&hf_pie_ixia_imsi,
          {"IMSI", "cflow.pie.ixia.imsi",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "IMSI associated with a GTP tunneled flow", HFILL}
         },
 
         /* ixia, 3054 / 182 */
         {&hf_pie_ixia_user_agent,
          {"HTTP User Agent", "cflow.pie.ixia.http-user-agent",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "User-Agent string in HTTP requests", HFILL}
         },
 
         /* ixia, 3054 / 183 */
         {&hf_pie_ixia_host_name,
          {"Host Name", "cflow.pie.ixia.hostname",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Hostname", HFILL}
         },
 
         /* ixia, 3054 / 184 */
         {&hf_pie_ixia_uri,
          {"HTTP URI", "cflow.pie.ixia.http-uri",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "URI in HTTP requests", HFILL}
         },
 
         /* ixia, 3054 / 185 */
         {&hf_pie_ixia_dns_txt,
          {"DNS TXT", "cflow.pie.ixia.dns-txt",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TXT record in DNS query", HFILL}
         },
 
         /* ixia, 3054 / 186 */
         {&hf_pie_ixia_source_as_name,
          {"Source AS Name", "cflow.pie.ixia.src-as-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
 
         /* ixia, 3054 / 187 */
         {&hf_pie_ixia_dest_as_name,
          {"Destination AS Name", "cflow.pie.ixia.dest-as-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
 
@@ -18172,28 +18172,28 @@ proto_register_netflow(void)
         /* ixia, 3054 / 189 */
         {&hf_pie_ixia_dns_query_names,
          {"DNS Query Names", "cflow.pie.ixia.dns-query-names",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Names in the Query section of a DNS message (comma separated list)", HFILL}
         },
 
         /* ixia, 3054 / 190 */
         {&hf_pie_ixia_dns_answer_names,
          {"DNS Answer Names", "cflow.pie.ixia.dns-answer-names",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Names in the Answer section of a DNS message (comma separated list)", HFILL}
         },
 
         /* ixia, 3054 / 191 */
         {&hf_pie_ixia_dns_classes,
          {"DNS Classes", "cflow.pie.ixia.dns-classes",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Class types appearing in a DNS message (comma separated list)", HFILL}
         },
 
         /* ixia, 3054 / 192 */
         {&hf_pie_ixia_threat_type,
          {"Threat Type", "cflow.pie.ixia.threat-type",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Potential threat type associated with the source/destination IP", HFILL}
         },
 
@@ -18235,7 +18235,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 198 */
         {&hf_pie_ixia_dns_name,
          {"DNS Name", "cflow.pie.ixia.dns-name",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Name in DNS Records", HFILL}
         },
 
@@ -18256,7 +18256,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 201 */
         {&hf_pie_ixia_tls_sni,
          {"TLS SNI", "cflow.pie.ixia.tls-sni",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Extension Server Name Indication", HFILL}
         },
 
@@ -18305,7 +18305,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 208 */
         {&hf_pie_ixia_dhcp_servername,
          {"DHCP Servername", "cflow.pie.ixia.dhcp-servername",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "DHCP header Servername", HFILL}
         },
 
@@ -18333,7 +18333,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 212 */
         {&hf_pie_ixia_radius_username,
          {"RADIUS Username", "cflow.pie.ixia.radius-username",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "RADIUS Username (Attr 1)", HFILL}
         },
 
@@ -18361,70 +18361,70 @@ proto_register_netflow(void)
         /* ixia, 3054 / 216 */
         {&hf_pie_ixia_radius_filter_id,
          {"RADIUS Filter ID", "cflow.pie.ixia.radius-filter-id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "RADIUS Filter ID (Attr 11)", HFILL}
         },
 
         /* ixia, 3054 / 217 */
         {&hf_pie_ixia_radius_reply_message,
          {"RADIUS Reply Message", "cflow.pie.ixia.radius-reply-msg",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "RADIUS Reply Message (Attr 18)", HFILL}
         },
 
         /* ixia, 3054 / 218 */
         {&hf_pie_ixia_radius_called_station_id,
          {"RADIUS Called Station ID", "cflow.pie.ixia.radius-called-station",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "RADIUS Called Station ID (Attr 30)", HFILL}
         },
 
         /* ixia, 3054 / 219 */
         {&hf_pie_ixia_http_connection,
          {"HTTP Connection", "cflow.pie.ixia.http-connection",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Connection header value", HFILL}
         },
 
         /* ixia, 3054 / 220 */
         {&hf_pie_ixia_http_accept,
          {"HTTP Accept", "cflow.pie.ixia.http-accept",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Accept header value", HFILL}
         },
 
         /* ixia, 3054 / 221 */
         {&hf_pie_ixia_http_accept_language,
          {"HTTP Accept-Language", "cflow.pie.ixia.http-accept-language",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Accept-Language header value", HFILL}
         },
 
         /* ixia, 3054 / 222 */
         {&hf_pie_ixia_http_accept_encoding,
          {"HTTP Accept-Encoding", "cflow.pie.ixia.http-accept-encoding",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Accept-Encoding header value", HFILL}
         },
 
         /* ixia, 3054 / 223 */
         {&hf_pie_ixia_http_reason,
          {"HTTP Reason", "cflow.pie.ixia.http-reason",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Status Reason", HFILL}
         },
 
             /* ixia, 3054 / 224 */
         {&hf_pie_ixia_http_server,
          {"HTTP Server", "cflow.pie.ixia.http-server",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Server header value", HFILL}
         },
 
         /* ixia, 3054 / 218 */
         {&hf_pie_ixia_radius_calling_station_id,
          {"RADIUS Calling Station ID", "cflow.pie.ixia.radius-calling-station",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "RADIUS Calling Station ID (Attr 31)", HFILL}
         },
 
@@ -18438,14 +18438,14 @@ proto_register_netflow(void)
         /* ixia, 3054 / 227 */
         {&hf_pie_ixia_http_referer,
          {"HTTP Referer", "cflow.pie.ixia.http-referer",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP Referer header value", HFILL}
         },
 
         /* ixia, 3054 / 228 */
         {&hf_pie_ixia_http_useragent_cpu,
          {"HTTP UA-CPU", "cflow.pie.ixia.http-ua-cpu",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "HTTP UA-CPU header value", HFILL}
         },
 
@@ -18459,56 +18459,56 @@ proto_register_netflow(void)
         /* ixia, 3054 / 230 */
         {&hf_pie_ixia_email_msg_id,
          {"Email Msg ID", "cflow.pie.ixia.email-msg-id",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message ID", HFILL}
         },
 
         /* ixia, 3054 / 231 */
         {&hf_pie_ixia_email_msg_date,
          {"Email Msg Date", "cflow.pie.ixia.email-msg-date",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message Date", HFILL}
         },
 
         /* ixia, 3054 / 232 */
         {&hf_pie_ixia_email_msg_subject,
          {"Email Msg Subject", "cflow.pie.ixia.email-msg-subject",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message Subject", HFILL}
         },
 
         /* ixia, 3054 / 233 */
         {&hf_pie_ixia_email_msg_to,
          {"Email Msg To", "cflow.pie.ixia.email-msg-to",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message To", HFILL}
         },
 
         /* ixia, 3054 / 234 */
         {&hf_pie_ixia_email_msg_from,
          {"Email Msg From", "cflow.pie.ixia.email-msg-from",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message From", HFILL}
         },
 
         /* ixia, 3054 / 235 */
         {&hf_pie_ixia_email_msg_cc,
          {"Email Msg CC", "cflow.pie.ixia.email-msg-cc",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message CC", HFILL}
         },
 
         /* ixia, 3054 / 236 */
         {&hf_pie_ixia_email_msg_bcc,
          {"Email Msg BCC", "cflow.pie.ixia.email-msg-bcc",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message BCC", HFILL}
         },
 
         /* ixia, 3054 / 237 */
         {&hf_pie_ixia_email_msg_attachments,
          {"Email Msg Attachments", "cflow.pie.ixia.email-msg-attachments",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Email Message attachments", HFILL}
         },
 
@@ -18529,14 +18529,14 @@ proto_register_netflow(void)
         /* ixia, 3054 / 240 */
         {&hf_pie_ixia_tls_srvr_cert_issuer_attr,
          {"TLS Server Cert Issuer Attr", "cflow.pie.ixia.tls-server-cert-issuer.attr",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Issuer Attribute", HFILL}
         },
 
         /* ixia, 3054 / 241 */
         {&hf_pie_ixia_tls_srvr_cert_issuer_val,
          {"TLS Server Cert Issuer Value", "cflow.pie.ixia.tls-server-cert-issuer.val",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Issuer Value", HFILL}
         },
 
@@ -18550,49 +18550,49 @@ proto_register_netflow(void)
         /* ixia, 3054 / 243 */
         {&hf_pie_ixia_tls_srvr_cert_subject_attr,
          {"TLS Server Cert Subject Attr", "cflow.pie.ixia.tls-server-cert-subject.attr",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Subject Attribute", HFILL}
         },
 
         /* ixia, 3054 / 244 */
         {&hf_pie_ixia_tls_srvr_cert_subject_val,
          {"TLS Server Cert Subject Value", "cflow.pie.ixia.tls-server-cert-subject.val",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Subject Value", HFILL}
         },
 
         /* ixia, 3054 / 245 */
         {&hf_pie_ixia_tls_srvr_cert_vld_nt_bfr,
          {"TLS Server Cert Valid Not Before", "cflow.pie.ixia.tls-server-cert-vld-notbefore",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Valid Not Before", HFILL}
         },
 
         /* ixia, 3054 / 246 */
         {&hf_pie_ixia_tls_srvr_cert_vld_nt_aftr,
          {"TLS Server Cert Valid Not After", "cflow.pie.ixia.tls-server-cert-vld-notafter",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Valid Not After", HFILL}
         },
 
         /* ixia, 3054 / 247 */
         {&hf_pie_ixia_tls_srvr_cert_srl_num,
          {"TLS Server Cert Serial Number", "cflow.pie.ixia.tls-server-cert-srlnum",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Serial Number", HFILL}
         },
 
         /* ixia, 3054 / 248 */
         {&hf_pie_ixia_tls_srvr_cert_sign_algo,
          {"TLS Server Cert Sign Algo", "cflow.pie.ixia.tls-server-cert-sign-algo",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Signature Algorithm", HFILL}
         },
 
         /* ixia, 3054 / 249 */
         {&hf_pie_ixia_tls_srvr_cert_subj_pki_algo,
          {"TLS Server Cert Subject PKI Algo", "cflow.pie.ixia.tls-server-cert-sub-pki-algo",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates Subject PKI Algorithm", HFILL}
         },
 
@@ -18606,14 +18606,14 @@ proto_register_netflow(void)
         /* ixia, 3054 / 251 */
         {&hf_pie_ixia_tls_srvr_cert_altnames_attr,
          {"TLS Server Cert AltNames Attr", "cflow.pie.ixia.tls-server-cert-altnames.attr",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates AltNames Attribute", HFILL}
         },
 
         /* ixia, 3054 / 252 */
         {&hf_pie_ixia_tls_srvr_cert_altnames_val,
          {"TLS Server Cert AltNames Value", "cflow.pie.ixia.tls-server-cert-altnames.val",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "TLS Server Certificates AltNames Value", HFILL}
         },
 
@@ -18662,7 +18662,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 259 */
         {&hf_pie_ixia_dns_raw_rdata,
          {"DNS Rec Raw rdata", "cflow.pie.ixia.dns-rec-raw-rdata",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "DNS Record Raw Rdata", HFILL}
         },
 
@@ -18676,7 +18676,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 261 */
         {&hf_pie_ixia_radius_framed_ip,
          {"RADIUS Framed IP", "cflow.pie.ixia.radius-framedip",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "RADIUS Framed IP (Attr 8/168)", HFILL}
         },
 
@@ -18760,7 +18760,7 @@ proto_register_netflow(void)
         /* ixia, 3054 / 273 */
         {&hf_pie_ixia_dns_query_name,
          {"DNS Query Name", "cflow.pie.ixia.dns-qname",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "DNS Question Qname", HFILL}
         },
 
@@ -18781,28 +18781,28 @@ proto_register_netflow(void)
         /* ixia, 3054 / 276 */
         {&hf_pie_ixia_dns_canonical_name,
          {"DNS Cname", "cflow.pie.ixia.dns-cname",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "DNS Canonical Name", HFILL}
         },
 
         /* ixia, 3054 / 277 */
         {&hf_pie_ixia_dns_mx_domain,
          {"DNS MX Domain", "cflow.pie.ixia.dns-mx-domain",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "DNS Mail Exchange Domain", HFILL}
         },
 
         /* ixia, 3054 / 278 */
         {&hf_pie_ixia_dhcp_agent_circuit_id,
          {"DHCP Agent Circuit ID", "cflow.pie.ixia.dhcp-agent-circuitid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "DHCP Agent Circuit ID (Option 82 Sub 1)", HFILL}
         },
 
         /* ixia, 3054 / 279 */
         {&hf_pie_ixia_ja3_fingerprint_string,
          {"JA3 fingerprint", "cflow.pie.ixia.ja3-fingerprint",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "JA3 fingerprint string", HFILL}
         },
 
@@ -18855,13 +18855,13 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 130 */
         {&hf_pie_netscaler_httprequrl,
          {"HTTP Request Url", "cflow.pie.netscaler.http-req-url",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 131 */
         {&hf_pie_netscaler_httpreqcookie,
          {"HTTP Request Cookie", "cflow.pie.netscaler.http-req-cookie",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 132 */
@@ -18885,7 +18885,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 135 */
         {&hf_pie_netscaler_syslogmessage,
          {"Syslog Message", "cflow.pie.netscaler.syslog-message",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 136 */
@@ -18897,25 +18897,25 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 140 */
         {&hf_pie_netscaler_httpreqreferer,
          {"HTTP Request Referer", "cflow.pie.netscaler.http-req-referer",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 141 */
         {&hf_pie_netscaler_httpreqmethod,
          {"HTTP Request Method", "cflow.pie.netscaler.http-req-method",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 142 */
         {&hf_pie_netscaler_httpreqhost,
          {"HTTP Request Host", "cflow.pie.netscaler.http-req-host",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 143 */
         {&hf_pie_netscaler_httprequseragent,
          {"HTTP Request UserAgent", "cflow.pie.netscaler.http-req-useragent",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 144 */
@@ -18957,7 +18957,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 152 */
         {&hf_pie_netscaler_appname,
          {"AppName", "cflow.pie.netscaler.appname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 153 */
@@ -19011,31 +19011,31 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 163 */
         {&hf_pie_netscaler_httpclientinteractionstarttime,
          {"HTTP Client Interaction Start Time", "cflow.pie.netscaler.http-client-interaction-starttime",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Timestamp when the page starts loading", HFILL}
         },
         /* netscaler, 5951 / 164 */
         {&hf_pie_netscaler_httpclientrenderendtime,
          {"HTTP Client Render End Time", "cflow.pie.netscaler.http-client-render-endtime",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Timestamp when the page completely renders", HFILL}
         },
         /* netscaler, 5951 / 165 */
         {&hf_pie_netscaler_httpclientrenderstarttime,
          {"HTTP Client Render Start Time", "cflow.pie.netscaler.http-client-render-starttime",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Timestamp when page rendering begins", HFILL}
         },
         /* netscaler, 5951 / 167 */
         {&hf_pie_netscaler_apptemplatename,
          {"App Template Name", "cflow.pie.netscaler.app-template-name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 168 */
         {&hf_pie_netscaler_httpclientinteractionendtime,
          {"HTTP Client Interaction End Time", "cflow.pie.netscaler.http-client-interaction-endtime",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 169 */
@@ -19077,31 +19077,31 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 175 */
         {&hf_pie_netscaler_dbusername,
          {"DB User Name", "cflow.pie.netscaler.db-user-name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 176 */
         {&hf_pie_netscaler_dbdatabasename,
          {"DB Database Name", "cflow.pie.netscaler.db-database-name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 177 */
         {&hf_pie_netscaler_dbclthostname,
          {"DB Client Host Name", "cflow.pie.netscaler.db-clt-hostname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 178 */
         {&hf_pie_netscaler_dbreqstring,
          {"DB Request String", "cflow.pie.netscaler.db-req-string",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 179 */
         {&hf_pie_netscaler_dbrespstatusstring,
          {"DB Response Status String", "cflow.pie.netscaler.db-resp-status-string",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Database response status", HFILL}
         },
         /* netscaler, 5951 / 180 */
@@ -19125,43 +19125,43 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 183 */
         {&hf_pie_netscaler_httpcontenttype,
          {"HTTP Content-Type", "cflow.pie.netscaler.http-contenttype",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 185 */
         {&hf_pie_netscaler_httpreqauthorization,
          {"HTTP Request Authorization", "cflow.pie.netscaler.http-req-authorization",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 186 */
         {&hf_pie_netscaler_httpreqvia,
          {"HTTP Request Via", "cflow.pie.netscaler.http-req-via",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 187 */
         {&hf_pie_netscaler_httpreslocation,
          {"HTTP Response Location", "cflow.pie.netscaler.http-res-location",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 188 */
         {&hf_pie_netscaler_httpressetcookie,
          {"HTTP Response Set-Cookie", "cflow.pie.netscaler.http-res-setcookie",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 189 */
         {&hf_pie_netscaler_httpressetcookie2,
          {"HTTP Response Set-Cookie2", "cflow.pie.netscaler.http-res-setcookie2",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 190 */
         {&hf_pie_netscaler_httpreqxforwardedfor,
          {"HTTP Request X-Forwarded-For", "cflow.pie.netscaler.http-reqx-forwardedfor",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 192 */
@@ -19185,7 +19185,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 201 */
         {&hf_pie_netscaler_icaclientversion,
          {"ICA Client Version", "cflow.pie.netscaler.ica-client-version",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Version of the ICA client", HFILL}
         },
         /* netscaler, 5951 / 202 */
@@ -19203,19 +19203,19 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 204 */
         {&hf_pie_netscaler_icaclienthostname,
          {"ICA Client Host Name", "cflow.pie.netscaler.ica-client-hostname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 205 */
         {&hf_pie_netscaler_aaausername,
          {"AAA Username", "cflow.pie.netscaler.aaa-username",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 207 */
         {&hf_pie_netscaler_icadomainname,
          {"ICA Domain Name", "cflow.pie.netscaler.ica-domain-name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 208 */
@@ -19233,7 +19233,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 210 */
         {&hf_pie_netscaler_icaservername,
          {"ICA Server Name", "cflow.pie.netscaler.ica-servername",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 214 */
@@ -19377,7 +19377,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 238 */
         {&hf_pie_netscaler_icaapplicationname,
          {"ICA Application Name", "cflow.pie.netscaler.ica-application-name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 239 */
@@ -19425,7 +19425,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 246 */
         {&hf_pie_netscaler_icaappmodulepath,
          {"ICA AppModule Path", "cflow.pie.netscaler.ica-appmodule-path",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 247 */
@@ -19449,7 +19449,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 250 */
         {&hf_pie_netscaler_icausername,
          {"ICA Username", "cflow.pie.netscaler.icau-sername",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 251 */
@@ -19551,7 +19551,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 267 */
         {&hf_pie_netscaler_httpdomainname,
          {"HTTP Domain Name", "cflow.pie.netscaler.http-domain-name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 268 */
@@ -19594,13 +19594,13 @@ proto_register_netflow(void)
         /* Barracuda, 10704 / 4 */
         {&hf_pie_barracuda_fwrule,
          {"FW Rule", "cflow.pie.barracuda.fwrule",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           "Name of FW Rule", HFILL}
         },
         /* Barracuda, 10704 / 5 */
         {&hf_pie_barracuda_servicename,
          {"Service Name", "cflow.pie.barracuda.servicename",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Barracuda, 10704 / 6 */
@@ -19612,7 +19612,7 @@ proto_register_netflow(void)
         /* Barracuda, 10704 / 7 */
         {&hf_pie_barracuda_reasontext,
          {"Reason Text", "cflow.pie.barracuda.reasontext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Barracuda, 10704 / 8 */
@@ -19655,7 +19655,7 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 1 */
         {&hf_pie_gigamon_httprequrl,
          {"HttpReqUrl", "cflow.pie.gigamon.httprequrl",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 2 */
@@ -19667,37 +19667,37 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 101 */
         {&hf_pie_gigamon_sslcertificateissuercommonname,
          {"SslCertificateIssuerCommonName", "cflow.pie.gigamon.sslcertificateissuercommonname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 102 */
         {&hf_pie_gigamon_sslcertificatesubjectcommonname,
          {"SslCertificateSubjectCommonName", "cflow.pie.gigamon.sslcertificatesubjectcommonname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 103 */
         {&hf_pie_gigamon_sslcertificateissuer,
          {"SslCertificateIssuer", "cflow.pie.gigamon.sslcertificateissuer",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 104 */
         {&hf_pie_gigamon_sslcertificatesubject,
          {"SslCertificateSubject", "cflow.pie.gigamon.sslcertificatesubject",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 105 */
         {&hf_pie_gigamon_sslcertificatevalidnotbefore,
          {"SslCertificateValidNotBefore", "cflow.pie.gigamon.sslcertificatevalidnotbefore",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 106 */
         {&hf_pie_gigamon_sslcertificatevalidnotafter,
          {"SslCertificateValidNotAfter", "cflow.pie.gigamon.sslcertificatevalidnotafter",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 107 */
@@ -19728,13 +19728,13 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 111 */
         {&hf_pie_gigamon_sslcertificatesubjectaltname,
          {"SslCertificateSubjectAltName", "cflow.pie.gigamon.sslcertificatesubjectaltname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 112 */
         {&hf_pie_gigamon_sslservernameindication,
          {"SslServerNameIndication", "cflow.pie.gigamon.sslservernameindication",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 113 */
@@ -19782,13 +19782,13 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 204 */
         {&hf_pie_gigamon_dnsqueryname,
          {"DnsQueryName", "cflow.pie.gigamon.dnsqueryname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 205 */
         {&hf_pie_gigamon_dnsresponsename,
          {"DnsResponseName", "cflow.pie.gigamon.dnsresponsename",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 206 */
@@ -19812,7 +19812,7 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 209 */
         {&hf_pie_gigamon_dnsbits,
          {"DnsBits", "cflow.pie.gigamon.dnsbits",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 210 */
@@ -19872,13 +19872,13 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 219 */
         {&hf_pie_gigamon_dnsresponserdata,
          {"DnsResponseRdata", "cflow.pie.gigamon.dnsresponserdata",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 220 */
         {&hf_pie_gigamon_dnsauthorityname,
          {"DnsAuthorityName", "cflow.pie.gigamon.dnsauthorityname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 221 */
@@ -19908,13 +19908,13 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 225 */
         {&hf_pie_gigamon_dnsauthorityrdata,
          {"DnsAuthorityRdata", "cflow.pie.gigamon.dnsauthorityrdata",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 226 */
         {&hf_pie_gigamon_dnsadditionalname,
          {"DnsAdditionalName", "cflow.pie.gigamon.dnsadditionalname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* gigamon, 26866 / 227 */
@@ -19944,7 +19944,7 @@ proto_register_netflow(void)
         /* gigamon, 26866 / 231 */
         {&hf_pie_gigamon_dnsadditionalrdata,
          {"DnsAdditionalRdata", "cflow.pie.gigamon.dnsadditionalrdata",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks root (a hidden item to allow filtering) */
@@ -19956,7 +19956,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 100 */
         {&hf_pie_niagara_networks_sslservernameindication,
          {"SslServerNameIndication", "cflow.pie.niagaranetworks.sslservernameindication",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 101 */
@@ -19968,7 +19968,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 102 */
         {&hf_pie_niagara_networks_sslserverversiontext,
          {"SslServerVersionText", "cflow.pie.niagaranetworks.sslserverversiontext",
-          FT_STRING, STR_UNICODE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0X0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 103 */
@@ -19980,19 +19980,19 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 104 */
         {&hf_pie_niagara_networks_sslserverciphertext,
          {"SslServerCipherText", "cflow.pie.niagaranetworks.sslserverciphertext",
-          FT_STRING, STR_UNICODE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0X0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 105 */
         {&hf_pie_niagara_networks_sslconnectionencryptiontype,
          {"SslConnectionEncryptionType", "cflow.pie.niagaranetworks.sslconnectionencryptiontype",
-          FT_STRING, STR_UNICODE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0X0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 106 */
         {&hf_pie_niagara_networks_sslservercompressionmethod,
          {"SslServerCompressionMethod", "cflow.pie.niagaranetworks.sslservercompressionmethod",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 107 */
@@ -20004,55 +20004,55 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 108 */
         {&hf_pie_niagara_networks_sslcertificateissuer,
          {"SslCertificateIssuer", "cflow.pie.niagaranetworks.sslcertificateissuer",
-          FT_STRING, STR_UNICODE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0X0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 109 */
         {&hf_pie_niagara_networks_sslcertificateissuername,
          {"SslCertificateIssuerName", "cflow.pie.niagaranetworks.sslcertificateissuername",
-          FT_STRING, STR_UNICODE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0X0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 110 */
         {&hf_pie_niagara_networks_sslcertificatesubject,
          {"SslCertificateSubject", "cflow.pie.niagaranetworks.sslcertificatesubject",
-          FT_STRING, STR_UNICODE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0X0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 111 */
         {&hf_pie_niagara_networks_sslcertificatesubjectname,
          {"SslCertificateSubjectName", "cflow.pie.niagaranetworks.sslcertificatesubjectname",
-          FT_STRING, STR_UNICODE, NULL, 0X0,
+          FT_STRING, BASE_NONE, NULL, 0X0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 112 */
         {&hf_pie_niagara_networks_sslcertificatevalidnotbefore,
          {"SslCertificateValidNotBefore", "cflow.pie.niagaranetworks.sslcertificatevalidnotbefore",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 113 */
         {&hf_pie_niagara_networks_sslcertificatevalidnotafter,
          {"SslCertificateValidNotAfter", "cflow.pie.niagaranetworks.sslcertificatevalidnotafter",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 114 */
         {&hf_pie_niagara_networks_sslcertificateserialnumber,
          {"SslCertificateSerialNumber", "cflow.pie.niagaranetworks.sslcertificateserialnumber",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 115 */
         {&hf_pie_niagara_networks_sslcertificatesignaturealgorithm,
          {"SslCertificateSignatureAlgorithm", "cflow.pie.niagaranetworks.sslcertificatesignaturealgorithm",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 116 */
         {&hf_pie_niagara_networks_sslcertificatesignaturealgorithmtext,
          {"SslCertificateSignatureAlgorithmText", "cflow.pie.niagaranetworks.sslcertificatesignaturealgorithmtext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 117 */
@@ -20064,25 +20064,25 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 118 */
         {&hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithm,
          {"SslCertificateSubjectPublicAlgorithm", "cflow.pie.niagaranetworks.sslcertificatesubjectpublicalgorithm",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 119 */
         {&hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithmtext,
          {"SslCertificateSubjectPublicAlgorithmText", "cflow.pie.niagaranetworks.sslcertificatesubjectpublicalgorithmtext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 120 */
         {&hf_pie_niagara_networks_sslcertificatesubjectalgorithmtext,
          {"SslCertificateSubjectAlgorithmText", "cflow.pie.niagaranetworks.sslcertificatesubjectalgorithmtext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 121 */
         {&hf_pie_niagara_networks_sslcertificatesubjectalternativename,
          {"SslCertificateSubjectAlternativeName", "cflow.pie.niagaranetworks.sslcertificatesubjectalternativename",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 122 */
@@ -20112,13 +20112,13 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 203 */
         {&hf_pie_niagara_networks_dnsqueryname,
          {"DnsQueryName", "cflow.pie.niagaranetworks.dnsqueryname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 204 */
         {&hf_pie_niagara_networks_dnsresponsename,
          {"DnsResponseName", "cflow.pie.niagaranetworks.dnsresponsename",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 205 */
@@ -20130,31 +20130,31 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 206 */
         {&hf_pie_niagara_networks_dnsresponseipv4addr,
          {"DnsResponseIPv4Addr", "cflow.pie.niagaranetworks.dnsresponseipv4addr",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 207 */
         {&hf_pie_niagara_networks_dnsresponseipv4addrtext,
          {"DnsResponseIPv4AddrText", "cflow.pie.niagaranetworks.dnsresponseipv4addrtext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 208 */
         {&hf_pie_niagara_networks_dnsresponseipv6addr,
          {"DnsResponseIPv6Addr", "cflow.pie.niagaranetworks.dnsresponseipv6addr",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 209 */
         {&hf_pie_niagara_networks_dnsresponseipv6addrtext,
          {"DnsResponseIPv6AddrText", "cflow.pie.niagaranetworks.dnsresponseipv6addrtext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 210 */
         {&hf_pie_niagara_networks_dnsbits,
          {"DnsBits", "cflow.pie.niagaranetworks.dnsbits",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 211 */
@@ -20190,7 +20190,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 216 */
         {&hf_pie_niagara_networks_dnsquerytypetext,
          {"DnsQueryTypeText", "cflow.pie.niagaranetworks.dnsquerytypetext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 217 */
@@ -20202,7 +20202,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 218 */
         {&hf_pie_niagara_networks_dnsqueryclasstext,
          {"DnsQueryClassText", "cflow.pie.niagaranetworks.dnsqueryclasstext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 219 */
@@ -20214,7 +20214,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 220 */
         {&hf_pie_niagara_networks_dnsresponsetypetext,
          {"DnsResponseTypeText", "cflow.pie.niagaranetworks.dnsresponsetypetext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 221 */
@@ -20226,7 +20226,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 222 */
         {&hf_pie_niagara_networks_dnsresponseclasstext,
          {"DnsResponseClassText", "cflow.pie.niagaranetworks.dnsresponseclasstext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 223 */
@@ -20238,13 +20238,13 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 224 */
         {&hf_pie_niagara_networks_dnsresponserdata,
          {"DnsResponseRData", "cflow.pie.niagaranetworks.dnsresponserdata",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 225 */
         {&hf_pie_niagara_networks_dnsauthorityname,
          {"DnsAuthorityName", "cflow.pie.niagaranetworks.dnsauthorityname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 226 */
@@ -20256,7 +20256,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 227 */
         {&hf_pie_niagara_networks_dnsauthoritytypetext,
          {"DnsAuthorityTypeText", "cflow.pie.niagaranetworks.dnsauthoritytypetext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 228 */
@@ -20268,7 +20268,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 229 */
         {&hf_pie_niagara_networks_dnsauthorityclasstext,
          {"DnsAuthorityClassText", "cflow.pie.niagaranetworks.dnsauthorityclasstext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 230 */
@@ -20286,13 +20286,13 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 232 */
         {&hf_pie_niagara_networks_dnsauthorityrdata,
          {"DnsAuthorityRData", "cflow.pie.niagaranetworks.dnsauthorityrdata",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 233 */
         {&hf_pie_niagara_networks_dnsadditionalname,
          {"DnsAdditionalName", "cflow.pie.niagaranetworks.dnsadditionalname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 234 */
@@ -20304,7 +20304,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 235 */
         {&hf_pie_niagara_networks_dnsadditionaltypetext,
          {"DnsAdditionalTypeText", "cflow.pie.niagaranetworks.dnsadditionaltypetext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 236 */
@@ -20316,7 +20316,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 237 */
         {&hf_pie_niagara_networks_dnsadditionalclasstext,
          {"DnsAdditionalClassText", "cflow.pie.niagaranetworks.dnsadditionalclasstext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 238 */
@@ -20334,7 +20334,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 240 */
         {&hf_pie_niagara_networks_dnsadditionalrdata,
          {"DnsAdditionalRData", "cflow.pie.niagaranetworks.dnsadditionalrdata",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 300 */
@@ -20346,7 +20346,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 301 */
         {&hf_pie_niagara_networks_radiuspackettypecodetext,
          {"RadiusPacketTypeCodeText", "cflow.pie.niagaranetworks.radiuspackettypecodetext",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 302 */
@@ -20364,19 +20364,19 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 304 */
         {&hf_pie_niagara_networks_radiususername,
          {"RadiusUserName", "cflow.pie.niagaranetworks.radiususername",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 305 */
         {&hf_pie_niagara_networks_radiuscallingstationid,
          {"RadiusCallingStationId", "cflow.pie.niagaranetworks.radiuscallingstationid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 306 */
         {&hf_pie_niagara_networks_radiuscalledstationid,
          {"RadiusCalledStationId", "cflow.pie.niagaranetworks.radiuscalledstationid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 307 */
@@ -20394,7 +20394,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 309 */
         {&hf_pie_niagara_networks_radiusnasidentifier,
          {"RadiusNasIdentifier", "cflow.pie.niagaranetworks.radiusnasidentifier",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 310 */
@@ -20412,13 +20412,13 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 312 */
         {&hf_pie_niagara_networks_radiusacctsessionid,
          {"RadiusAcctSessionId", "cflow.pie.niagaranetworks.radiusacctsessionid",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 313 */
         {&hf_pie_niagara_networks_radiusacctstatustype,
          {"RadiusAcctStatusType", "cflow.pie.niagaranetworks.radiusacctstatustype",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 314 */
@@ -20454,7 +20454,7 @@ proto_register_netflow(void)
         /* Niagara Networks, 47729 / 319 */
         {&hf_pie_niagara_networks_radiusvsaname,
          {"RadiusVsaName", "cflow.pie.niagaranetworks.radiusvsaname",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Niagara Networks, 47729 / 320 */
@@ -20515,7 +20515,7 @@ proto_register_netflow(void)
         /* Cisco, 9 / 8234 */
         {&hf_pie_cisco_c3pl_class_name,
          {"C3PL Class Name", "cflow.pie.cisco.c3pl_class_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 8235 */
@@ -20533,7 +20533,7 @@ proto_register_netflow(void)
         /* Cisco, 9 / 8237 */
         {&hf_pie_cisco_c3pl_policy_name,
          {"C3PL Policy Name", "cflow.pie.cisco.c3pl_policy_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 8238 */
@@ -20629,7 +20629,7 @@ proto_register_netflow(void)
         /* Cisco, 9 / 9357 */
         {&hf_pie_cisco_application_http_uri_statistics,
          {"Application HTTP URI Statistics", "cflow.pie.cisco.application_http_uri_statistics",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 9357 */
@@ -20641,25 +20641,25 @@ proto_register_netflow(void)
         /* Cisco, 9 / 12232 */
         {&hf_pie_cisco_application_category_name,
          {"Application Category Name", "cflow.pie.cisco.application_category_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 12233 */
         {&hf_pie_cisco_application_sub_category_name,
          {"Application Sub Category Name", "cflow.pie.cisco.application_sub_category_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 12234 */
         {&hf_pie_cisco_application_group_name,
          {"Application Group Name", "cflow.pie.cisco.application_group_name",
-          FT_STRING, STR_UNICODE, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 12235 */
         {&hf_pie_cisco_application_http_host,
          {"Application HTTP Host", "cflow.pie.cisco.application_http_host",
-          FT_STRING, STR_ASCII, NULL, 0x0,
+          FT_STRING, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
         /* Cisco, 9 / 12235 */

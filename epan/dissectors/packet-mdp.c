@@ -117,13 +117,13 @@ proto_register_mdp(void)
 
     static hf_register_info hf[] = {
         { &hf_mdp_preamble_data, {"Preamble Data","mdp.preamble_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_mdp_device_info, {"Device Info", "mdp.device_info", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_mdp_network_info, {"Network Info", "mdp.network_info", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_mdp_longitude, {"Longitude", "mdp.longitude", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_mdp_latitude, {"Latitude", "mdp.latitude", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mdp_device_info, {"Device Info", "mdp.device_info", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mdp_network_info, {"Network Info", "mdp.network_info", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mdp_longitude, {"Longitude", "mdp.longitude", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mdp_latitude, {"Latitude", "mdp.latitude", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mdp_type, {"Type", "mdp.type", FT_UINT8, BASE_DEC, VALS(type_vals), 0x0, NULL, HFILL }},
-        { &hf_mdp_type_six, {"Type 6 UID", "mdp.type_six", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_mdp_type_seven, {"Type 7 UID", "mdp.type_seven", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mdp_type_six, {"Type 6 UID", "mdp.type_six", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_mdp_type_seven, {"Type 7 UID", "mdp.type_seven", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mdp_length, {"Length", "mdp.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_mdp_data, {"Unknown Data", "mdp.data", FT_BYTES, BASE_NONE, NULL, 0X0, NULL, HFILL }}
     };

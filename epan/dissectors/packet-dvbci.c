@@ -5274,15 +5274,15 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_cis_tpll_v1_info_manuf,
           { "Manufacturer", "dvb-ci.cis.tpll_v1_info.manufacturer",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cis_tpll_v1_info_name,
           { "Name", "dvb-ci.cis.tpll_v1_info.name",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cis_tpll_v1_info_additional,
           { "Additional info", "dvb-ci.cis.tpll_v1_info.additional",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cis_tpll_v1_end,
           { "End of chain", "dvb-ci.cis.tpll_v1_end",
@@ -5330,7 +5330,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_cis_stci_str,
           { "Interface description strings", "dvb-ci.cis.stci_str",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cis_tpce_indx_intface,
           { "Intface", "dvb-ci.cis.tpce_indx.intface",
@@ -5560,7 +5560,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_menu_str,
           { "Menu string", "dvb-ci.ap.menu_string",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_data_rate,
           { "Transport stream data rate supported by the host",
@@ -5734,7 +5734,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_enq,
           { "Enquiry string", "dvb-ci.mmi.enq",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_ans_id,
           { "Answer ID", "dvb-ci.mmi.ans_id",
@@ -5742,7 +5742,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_ans,
           { "Answer", "dvb-ci.mmi.ans",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_choice_nb,
           { "Number of menu items", "dvb-ci.mmi.choice_nb",
@@ -5758,27 +5758,27 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_title,
           { "Title", "dvb-ci.mmi.title",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_subtitle,
           { "Sub-title", "dvb-ci.mmi.subtitle",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_bottom,
           { "Bottom line", "dvb-ci.mmi.bottom",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_item,
           { "Item", "dvb-ci.mmi.item",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_host_country,
           { "Host country", "dvb-ci.hlc.country",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_host_language,
           { "Host language", "dvb-ci.hlc.language",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cup_type,
           { "CAM upgrade type", "dvb-ci.cup.type",
@@ -5944,7 +5944,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_pincode,
           { "PIN code", "dvb-ci.cc.pincode",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_app_dom_id_len,
           { "Application Domain Identifier length", "dvb-ci.ami.app_dom_id_len",
@@ -5956,11 +5956,11 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_app_dom_id,
           { "Application Domain Identifier", "dvb-ci.ami.app_dom_id",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_init_obj,
           { "Initial Object", "dvb-ci.ami.init_obj",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_ack_code,
           { "Acknowledgement", "dvb-ci.ami.ack_code",
@@ -5980,7 +5980,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_file_name,
           { "File name", "dvb-ci.ami.file_name",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_file_data_len,
           { "File data length", "dvb-ci.ami.file_data_len",
@@ -6064,7 +6064,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_lsc_hostname,
           { "Hostname", "dvb-ci.lsc.hostname",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_lsc_retry_count,
           { "Retry count", "dvb-ci.lsc.retry_count",
@@ -6104,7 +6104,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_afs_dom_id,
           { "Domain identifier", "dvb-ci.afs.domain_identifier",
-            FT_UINT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_afs_ack_code,
           { "Ack code", "dvb-ci.afs.ack_code",
@@ -6222,7 +6222,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_opp_lang_code,
           { "Language code", "dvb-ci.opp.lang_code",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_prof_name,
           { "Profile name", "dvb-ci.opp.profile_name",
@@ -6448,7 +6448,7 @@ proto_register_dvbci(void)
             &dvbci_dissect_lsc_msg);
 
     sas_msg_dissector_table = register_dissector_table("dvb-ci.sas.app_id_str",
-                "SAS application id", proto_dvbci, FT_STRING, STR_ASCII);
+                "SAS application id", proto_dvbci, FT_STRING, BASE_NONE);
 
     register_init_routine(dvbci_init);
     reassembly_table_register(&tpdu_reassembly_table,

@@ -975,7 +975,7 @@ VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
 
 #.TYPE_ATTR
-BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1144,7 +1144,7 @@ Threshold-RSRQ DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_Threshold_RSRQ_fmt)
 Threshold-SINR DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_Threshold_SINR_fmt)
 
 #.TYPE_ATTR
-WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+WLANName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s

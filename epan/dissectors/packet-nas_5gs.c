@@ -10788,7 +10788,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_dm_spec_id,
         { "DN-specific identity",   "nas_5gs.sm.dm_spec_id",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_all_ssc_mode_b0,
