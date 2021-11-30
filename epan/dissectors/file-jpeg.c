@@ -602,11 +602,193 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     return offset;
 }
 
+static void
+process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+        guint encoding, guint32 start_ifd_offset)
+{
+    guint32 next_ifd_offset = start_ifd_offset;
+
+    for (unsigned ifd_index = 0;; ++ifd_index) {
+        int offset = next_ifd_offset;
+        /*
+         * Process the IFD
+         */
+        guint32 num_fields = tvb_get_guint16(tvb, offset, encoding);
+        proto_tree *subtree_ifd = proto_tree_add_subtree_format(tree, tvb, offset, num_fields * 12 + 6,
+                ett_ifd, NULL, "Image File Directory #%u", ifd_index);
+        proto_tree_add_item(subtree_ifd, hf_ifd_num_fields, tvb, offset, 2, encoding);
+        offset += 2;
+        while (num_fields-- > 0) {
+            guint32 field_type, value_count, value_size;
+            gint value_hf;
+
+            proto_tree_add_item(subtree_ifd, hf_ifd_tag, tvb, offset, 2, encoding);
+            offset += 2;
+            proto_tree_add_item_ret_uint(subtree_ifd, hf_ifd_type, tvb, offset, 2, encoding, &field_type);
+            offset += 2;
+            proto_tree_add_item_ret_uint(subtree_ifd, hf_ifd_count, tvb, offset, 4, encoding, &value_count);
+            offset += 4;
+
+            switch (field_type) {
+            case EXIF_TYPE_BYTE:
+                value_size = 1; value_hf = hf_ifd_value_byte; break;
+            case EXIF_TYPE_ASCII:
+                value_size = 1; value_hf = hf_ifd_value_ascii; break;
+            case EXIF_TYPE_SHORT:
+                value_size = 2; value_hf = hf_ifd_value_short; break;
+            case EXIF_TYPE_LONG:
+                value_size = 4; value_hf = hf_ifd_value_long; break;
+            case EXIF_TYPE_RATIONAL:
+                value_size = 8; value_hf = hf_ifd_value_rational; break;
+            case EXIF_TYPE_UNDEFINED:
+                value_size = 1; value_hf = hf_ifd_value_undefined; break;
+            case EXIF_TYPE_SLONG:
+                value_size = 4; value_hf = hf_ifd_value_slong; break;
+            case EXIF_TYPE_SRATIONAL:
+                value_size = 8; value_hf = hf_ifd_value_srational; break;
+            default:
+                value_size = 0; value_hf = -1; break;
+            }
+
+            int value_offset = -1;
+            proto_tree *value_parent = NULL;
+
+            if (value_size == 0 || 4 / value_size < value_count) {
+                /* The value(s) are located outside the IFD, and the offset field points to them. */
+                guint32 value_offset_uint;
+                proto_item *offset_item = proto_tree_add_item_ret_uint(
+                        subtree_ifd, hf_ifd_offset, tvb, offset, 4, encoding, &value_offset_uint);
+
+                if (value_offset_uint < tvb_reported_length(tvb)) {
+                    value_offset = (int)value_offset_uint;
+                } else {
+                    expert_add_info_format(pinfo, offset_item, &ei_ifd_value_offset,
+                            "bogus, should be < %u", tvb_reported_length(tvb));
+                }
+
+                value_parent = tree;
+            } else {
+                /* The value(s) are small enough to fit directly in the offset field. */
+                value_offset = offset;
+                value_parent = subtree_ifd;
+            }
+
+            if (value_offset >= 0) {
+                if (value_hf == hf_ifd_value_ascii || value_hf == hf_ifd_value_undefined)
+                    proto_tree_add_item(value_parent, value_hf, tvb, value_offset, value_count, ENC_NA);
+                else if (value_size != 0)
+                    for (guint32 i = 0; i < value_count; ++i) {
+                        proto_item *value_item = proto_tree_add_item(value_parent, value_hf, tvb,
+                                value_offset, value_size, encoding);
+
+                        if (value_hf == hf_ifd_value_rational) {
+                            proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_rational);
+                            guint32 num, denom;
+                            proto_tree_add_item_ret_uint(
+                                    subtree_value, hf_ifd_value_rational_numerator, tvb,
+                                    value_offset, 4, encoding, &num);
+                            proto_tree_add_item_ret_uint(
+                                    subtree_value, hf_ifd_value_rational_denominator, tvb,
+                                    value_offset + 4, 4, encoding, &denom);
+                            proto_item_set_text(value_item, "Value: %"PRIu32"/%"PRIu32, num, denom);
+                        }
+                        else if (value_hf == hf_ifd_value_srational) {
+                            proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_srational);
+                            gint32 num, denom;
+                            proto_tree_add_item_ret_int(
+                                    subtree_value, hf_ifd_value_srational_numerator, tvb,
+                                    value_offset, 4, encoding, &num);
+                            proto_tree_add_item_ret_int(
+                                    subtree_value, hf_ifd_value_srational_denominator, tvb,
+                                    value_offset + 4, 4, encoding, &denom);
+                            proto_item_set_text(value_item, "Value: %"PRIi32"/%"PRIi32, num, denom);
+                        }
+
+                        value_offset += value_size;
+                    }
+            }
+            offset += 4;
+        }
+        /*
+         * Offset to the next IFD
+         */
+        proto_item *next_ifd_offset_item = proto_tree_add_item_ret_uint(
+                subtree_ifd, hf_next_ifd_offset, tvb, offset, 4, encoding, &next_ifd_offset);
+        offset += 4;
+
+        if (next_ifd_offset == 0)
+            break;
+
+        if (next_ifd_offset < (guint32)offset) {
+            expert_add_info_format(pinfo, next_ifd_offset_item, &ei_next_ifd_offset,
+                    " (bogus, should be >= %u)", offset);
+            return;
+        }
+    }
+}
+
+static void
+process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
+{
+    /*
+     * Endianness
+     */
+    guint encoding;
+    int offset = 0;
+
+    guint16 byte_order = tvb_get_ntohs(tvb, offset);
+    if (byte_order == 0x4949) {
+        encoding = ENC_LITTLE_ENDIAN;
+        proto_tree_add_uint_format_value(tree, hf_endianness, tvb, offset, 2, byte_order, "little endian");
+    } else if (byte_order == 0x4D4D) {
+        encoding = ENC_BIG_ENDIAN;
+        proto_tree_add_uint_format_value(tree, hf_endianness, tvb, offset, 2, byte_order, "big endian");
+    } else {
+        /* Error: invalid endianness encoding */
+        proto_tree_add_uint_format_value(tree, hf_endianness, tvb, offset, 2, byte_order,
+                "Incorrect encoding 0x%04x- skipping the remainder of this application marker", byte_order);
+        return;
+    }
+    offset += 2;
+    /*
+     * Fixed value 42 = 0x002a
+     */
+    offset += 2;
+    /*
+     * Offset to IFD
+     */
+    guint32 start_ifd_offset;
+    proto_item* start_ifd_offset_item = proto_tree_add_item_ret_uint(
+            tree, hf_start_ifd_offset, tvb, offset, 4, encoding, &start_ifd_offset);
+    offset += 4;
+    /*
+     * Check for a bogus offset value.
+     * XXX - bogus value message should also deal with a
+     * value that's too large and causes an overflow.
+     * Or should it just check against the segment length,
+     * which is 16 bits?
+     */
+    if (start_ifd_offset < (guint32)offset) {
+        expert_add_info_format(pinfo, start_ifd_offset_item, &ei_start_ifd_offset,
+                " (bogus, should be >= %u)", offset);
+        return;
+    }
+    /*
+     * Skip the following portion
+     */
+    if (start_ifd_offset > (guint32)offset) {
+        proto_tree_add_bytes_format_value(tree, hf_skipped_tiff_data, tvb, offset, start_ifd_offset - offset, NULL,
+                "%u bytes", start_ifd_offset - offset);
+    }
+
+    process_tiff_ifd_chain(tree, tvb, pinfo, encoding, start_ifd_offset);
+}
+
 /* Process an APP1 block.
  *
  * XXX - This code only works on US-ASCII systems!!!
  */
-static int
+static void
 process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint32 len,
         guint16 marker, const char *marker_name, gboolean show_first_identifier_not_jfif)
 {
@@ -615,7 +797,6 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     char *str;
     gint str_size;
     int offset = 0;
-    int tiff_start;
 
     ti = proto_tree_add_item(tree, hf_marker_segment,
             tvb, 0, -1, ENC_NA);
@@ -637,182 +818,14 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     }
 
     if (strcmp(str, "Exif") == 0) {
-        /*
-         * Endianness
-         */
-        int encoding;
-        guint16 val_16;
-        guint32 val_32;
-        proto_item* tiff_item;
-
         offset++; /* Skip a byte supposed to be 0x00 */
 
-        tiff_start = offset;
-        val_16 = tvb_get_ntohs(tvb, offset);
-        if (val_16 == 0x4949) {
-            encoding = ENC_LITTLE_ENDIAN;
-            proto_tree_add_uint_format_value(subtree, hf_endianness, tvb, offset, 2, val_16, "little endian");
-        } else if (val_16 == 0x4D4D) {
-            encoding = ENC_BIG_ENDIAN;
-            proto_tree_add_uint_format_value(subtree, hf_endianness, tvb, offset, 2, val_16, "big endian");
-        } else {
-            /* Error: invalid endianness encoding */
-            proto_tree_add_uint_format_value(subtree, hf_endianness, tvb, offset, 2, val_16,
-                    "Incorrect encoding 0x%04x- skipping the remainder of this application marker", val_16);
-            return offset;
-        }
-        offset += 2;
-        /*
-         * Fixed value 42 = 0x002a
-         */
-        offset += 2;
-        /*
-         * Offset to IFD
-         */
-        tiff_item = proto_tree_add_item_ret_uint(subtree, hf_start_ifd_offset, tvb, offset, 4, encoding, &val_32);
-        offset += 4;
-        /*
-         * Check for a bogus val_32 value.
-         * XXX - bogus value message should also deal with a
-         * value that's too large and causes an overflow.
-         * Or should it just check against the segment length,
-         * which is 16 bits?
-         */
-        if (val_32 + tiff_start < (guint32)offset) {
-            expert_add_info_format(pinfo, tiff_item, &ei_start_ifd_offset, " (bogus, should be >= %u)",
-                offset- tiff_start);
-            return offset;
-        }
-        /*
-         * Skip the following portion
-         */
-        if (val_32 + tiff_start > (guint32)offset) {
-            proto_tree_add_bytes_format_value(subtree, hf_skipped_tiff_data, tvb, offset, val_32 + tiff_start - offset, NULL, "%u bytes",
-                val_32 + tiff_start - offset);
-        }
-        for (unsigned ifd_index = 0;; ++ifd_index) {
-            guint32 num_fields;
-            proto_tree *subtree_ifd;
-
-            offset = val_32 + tiff_start;
-            /*
-             * Process the IFD
-             */
-            num_fields = tvb_get_guint16(tvb, offset, encoding);
-            subtree_ifd = proto_tree_add_subtree_format(subtree, tvb, offset, num_fields * 12 + 6,
-                    ett_ifd, NULL, "Image File Directory #%u", ifd_index);
-            proto_tree_add_item(subtree_ifd, hf_ifd_num_fields, tvb, offset, 2, encoding);
-            offset += 2;
-            while (num_fields-- > 0) {
-                guint32 field_type, value_count, value_size;
-                gint value_hf;
-
-                proto_tree_add_item(subtree_ifd, hf_ifd_tag, tvb, offset, 2, encoding);
-                offset += 2;
-                proto_tree_add_item_ret_uint(subtree_ifd, hf_ifd_type, tvb, offset, 2, encoding, &field_type);
-                offset += 2;
-                proto_tree_add_item_ret_uint(subtree_ifd, hf_ifd_count, tvb, offset, 4, encoding, &value_count);
-                offset += 4;
-
-                switch (field_type) {
-                case EXIF_TYPE_BYTE:
-                    value_size = 1; value_hf = hf_ifd_value_byte; break;
-                case EXIF_TYPE_ASCII:
-                    value_size = 1; value_hf = hf_ifd_value_ascii; break;
-                case EXIF_TYPE_SHORT:
-                    value_size = 2; value_hf = hf_ifd_value_short; break;
-                case EXIF_TYPE_LONG:
-                    value_size = 4; value_hf = hf_ifd_value_long; break;
-                case EXIF_TYPE_RATIONAL:
-                    value_size = 8; value_hf = hf_ifd_value_rational; break;
-                case EXIF_TYPE_UNDEFINED:
-                    value_size = 1; value_hf = hf_ifd_value_undefined; break;
-                case EXIF_TYPE_SLONG:
-                    value_size = 4; value_hf = hf_ifd_value_slong; break;
-                case EXIF_TYPE_SRATIONAL:
-                    value_size = 8; value_hf = hf_ifd_value_srational; break;
-                default:
-                    value_size = 0; value_hf = -1; break;
-                }
-
-                int value_offset = -1;
-                proto_tree *value_parent = NULL;
-
-                if (value_size == 0 || 4 / value_size < value_count) {
-                    /* The value(s) are located outside the IFD, and the offset field points to them. */
-                    guint32 value_offset_rel_limit = len + 2 - (guint32)tiff_start;
-                    guint32 value_offset_rel;
-                    proto_item *offset_item = proto_tree_add_item_ret_uint(
-                        subtree_ifd, hf_ifd_offset, tvb, offset, 4, encoding, &value_offset_rel);
-
-                    if (value_offset_rel < value_offset_rel_limit) {
-                        value_offset = tiff_start + (int)value_offset_rel;
-                    } else {
-                        expert_add_info_format(pinfo, offset_item, &ei_ifd_value_offset,
-                            "bogus, should be < %"PRIu32, value_offset_rel_limit);
-                    }
-
-                    value_parent = subtree;
-                } else {
-                    /* The value(s) are small enough to fit directly in the offset field. */
-                    value_offset = offset;
-                    value_parent = subtree_ifd;
-                }
-
-                if (value_offset >= 0) {
-                    if (value_hf == hf_ifd_value_ascii || value_hf == hf_ifd_value_undefined)
-                        proto_tree_add_item(value_parent, value_hf, tvb, value_offset, value_count, ENC_NA);
-                    else if (value_size != 0)
-                        for (guint32 i = 0; i < value_count; ++i) {
-                            proto_item *value_item = proto_tree_add_item(value_parent, value_hf, tvb,
-                                value_offset, value_size, encoding);
-
-                            if (value_hf == hf_ifd_value_rational) {
-                                proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_rational);
-                                guint32 num, denom;
-                                proto_tree_add_item_ret_uint(
-                                    subtree_value, hf_ifd_value_rational_numerator, tvb,
-                                    value_offset, 4, encoding, &num);
-                                proto_tree_add_item_ret_uint(
-                                    subtree_value, hf_ifd_value_rational_denominator, tvb,
-                                    value_offset + 4, 4, encoding, &denom);
-                                proto_item_set_text(value_item, "Value: %"PRIu32"/%"PRIu32, num, denom);
-                            }
-                            else if (value_hf == hf_ifd_value_srational) {
-                                proto_tree *subtree_value = proto_item_add_subtree(value_item, ett_srational);
-                                gint32 num, denom;
-                                proto_tree_add_item_ret_int(
-                                    subtree_value, hf_ifd_value_srational_numerator, tvb,
-                                    value_offset, 4, encoding, &num);
-                                proto_tree_add_item_ret_int(
-                                    subtree_value, hf_ifd_value_srational_denominator, tvb,
-                                    value_offset + 4, 4, encoding, &denom);
-                                proto_item_set_text(value_item, "Value: %"PRIi32"/%"PRIi32, num, denom);
-                            }
-
-                            value_offset += value_size;
-                        }
-                }
-                offset += 4;
-            }
-            /*
-             * Offset to the next IFD
-             */
-            tiff_item = proto_tree_add_item_ret_uint(subtree_ifd, hf_next_ifd_offset, tvb, offset, 4, encoding, &val_32);
-            offset += 4;
-            if (val_32 != 0 &&
-                val_32 + tiff_start < (guint32)offset) {
-                expert_add_info_format(pinfo, tiff_item, &ei_next_ifd_offset, " (bogus, should be >= %u)", offset + tiff_start);
-                return offset;
-            }
-            if (val_32 == 0)
-                break;
-        }
+        tvbuff_t *tvb_tiff = tvb_new_subset_remaining(tvb, offset);
+        process_tiff(subtree, tvb_tiff, pinfo);
     } else {
         proto_tree_add_bytes_format_value(subtree, hf_remain_seg_data, tvb, offset, -1, NULL, "%u bytes", len - 2 - str_size);
         proto_item_append_text(ti, " (Unknown identifier)");
     }
-    return offset;
 }
 
 /* Process an APP2 block.
