@@ -1,4 +1,5 @@
-/* glib-compat.h
+/** @file
+*
 * Definitions to provide some functions that are not present in older
 * GLIB versions (down to 2.22)
 *

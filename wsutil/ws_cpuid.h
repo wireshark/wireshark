@@ -1,4 +1,4 @@
-/* ws_cpuid.h
+/** @file
  * Get the CPU info on x86 processors that support it
  *
  * Wireshark - Network traffic analyzer

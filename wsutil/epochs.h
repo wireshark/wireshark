@@ -1,4 +1,5 @@
-/* epochs.h
+/** @file
+ *
  * Definitions of epoch values for various absolute time types.
  *
  * Wireshark - Network traffic analyzer

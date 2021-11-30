@@ -1,4 +1,5 @@
-/*
+/** @file
+
 Copyright (c) 2010 Serge A. Zaitsev
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

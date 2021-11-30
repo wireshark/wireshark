@@ -1,4 +1,5 @@
-/* wmem_queue.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager Queue
  * Copyright 2013, Evan Huus <eapache@gmail.com>
  *
