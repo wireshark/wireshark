@@ -179,11 +179,16 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 	/* PCRE2 */
 	g_string_append(str, ", with PCRE2");
 
+	/* zlib */
 	g_string_append_printf(str, ", %s", get_zlib_compiled_version_info());
 
 	/* Additional application-dependent information */
 	if (append_info)
 		(*append_info)(str);
+
+#ifdef WS_DISABLE_DEBUG
+	g_string_append(str, ", release build");
+#endif
 
 #ifdef WS_DISABLE_ASSERT
 	g_string_append(str, ", without assertions");
