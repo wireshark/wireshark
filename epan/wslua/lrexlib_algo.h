@@ -1,4 +1,4 @@
-/* lrexlib_algo.h */
+/** @file */
 /*
 License of Lrexlib release
 --------------------------

@@ -1,4 +1,5 @@
-/* garrayfix.h
+/** @file
+ *
  * Macros to work around the "data" field of a GArray having type guint8 *,
  * rather than void *, so that, even though the GArray code should be
  * ensuring that the data is aligned strictly enough for any data type,

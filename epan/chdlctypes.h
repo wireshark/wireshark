@@ -1,4 +1,5 @@
-/* chdlctypes.h
+/** @file
+ *
  * Defines Cisco HDLC packet types that aren't just Ethernet types
  *
  * Wireshark - Network traffic analyzer

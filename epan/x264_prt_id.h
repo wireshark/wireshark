@@ -1,4 +1,5 @@
-/* x264_prt_id.h
+/** @file
+ *
  * Definitions of X.264/ISO 11570 transport protocol IDs
  *
  * Wireshark - Network traffic analyzer

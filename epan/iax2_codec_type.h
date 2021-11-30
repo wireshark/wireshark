@@ -1,4 +1,5 @@
-/* iax2_codec_type.h
+/** @file
+ *
  * Defines IAX2 codec types
  *
  * Wireshark - Network traffic analyzer

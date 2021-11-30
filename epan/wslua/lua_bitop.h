@@ -1,4 +1,4 @@
-/*
+/** @file
 ** Lua BitOp -- a bit operations library for Lua 5.1/5.2.
 ** http://bitop.luajit.org/
 **

@@ -1,4 +1,5 @@
-/* oui.h
+/** @file
+ *
  * Definitions of OUIs
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,5 @@
-/* packet-cisco-oui.h
+/** @file
+ *
  * Register an LLC dissector table for Cisco's OUI 00:00:0c
  *
  * Wireshark - Network traffic analyzer

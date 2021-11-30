@@ -1,4 +1,5 @@
-/* pci-ids.h
+/** @file
+ *
  *
  * By Caleb Chiu <caleb.chiu@macnica.com>
  * Copyright 2019

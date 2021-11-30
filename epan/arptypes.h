@@ -1,4 +1,5 @@
-/* arptypes.h
+/** @file
+ *
  * Declarations of ARP address types.
  *
  * Wireshark - Network traffic analyzer

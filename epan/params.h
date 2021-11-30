@@ -1,4 +1,5 @@
-/* params.h
+/** @file
+ *
  * Definitions for parameter handling routines
  *
  * Wireshark - Network traffic analyzer

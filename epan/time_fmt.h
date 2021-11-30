@@ -1,4 +1,5 @@
-/* time_fmt.h
+/** @file
+ *
  * Definitions for various time display formats.
  *
  * Wireshark - Network traffic analyzer

@@ -1,5 +1,4 @@
-/*
- *  dtd.h
+/** @file
  *
  * XML dissector for Wireshark
  * DTD import declarations

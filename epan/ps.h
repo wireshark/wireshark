@@ -1,4 +1,5 @@
-/* ps.h
+/** @file
+ *
  * Definitions for generating PostScript(R) packet output.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
