@@ -1,4 +1,4 @@
-/*
+/** @file
  * Copyright 2021, João Valverde <j@v6e.pt>
  *
  * Wireshark - Network traffic analyzer

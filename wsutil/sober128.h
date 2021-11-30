@@ -1,11 +1,12 @@
-/* This file is derived from sober128 implementation in corosync
+/** @file
+   This file is derived from sober128 implementation in corosync
    cluster engine. corosync cluster engine borrows the implementation
    from LibTomCrypt.
 
    The latest version of the original code can be found at
    http://www.libtom.net/LibTomCrypt/ according to which this code is in the
    Public Domain
-   */
+*/
 
 /* About LibTomCrypt:
  * ---------------------------------------------------------------------
