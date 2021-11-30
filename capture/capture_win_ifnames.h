@@ -1,4 +1,5 @@
-/* capture_win_ifnames.h
+/** @file
+ *
  * Routines supporting the use of Windows friendly interface names within Wireshark
  * Copyright 2011-2012, Mike Garratt <wireshark@evn.co.nz>
  *

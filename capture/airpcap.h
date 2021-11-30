@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Copyright (c) 2006-2007 CACE Technologies, Davis (California)
  * All rights reserved.
  *

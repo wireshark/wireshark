@@ -1,4 +1,5 @@
-/* capture_session.h
+/** @file
+ *
  * State of a capture session
  *
  * Wireshark - Network traffic analyzer

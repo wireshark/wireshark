@@ -1,4 +1,5 @@
-/* capture-pcap-util.h
+/** @file
+ *
  * Utility definitions for packet capture
  *
  * Wireshark - Network traffic analyzer

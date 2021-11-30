@@ -1,4 +1,5 @@
-/* airpcap_loader.h
+/** @file
+ *
  * Declarations of routines for the "About" dialog
  *
  * Giorgio Tino <giorgio.tino@cacetech.com>

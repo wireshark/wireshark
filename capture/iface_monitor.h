@@ -1,4 +1,5 @@
-/* iface_monitor.h
+/** @file
+ *
  * interface monitor by Pontus Fuchs <pontus.fuchs@gmail.com>
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,5 @@
-/* capture_ifinfo.h
+/** @file
+ *
  * Definitions for routines to get information about capture interfaces
  *
  * Wireshark - Network traffic analyzer
