@@ -10,7 +10,7 @@ https://developer.apple.com/library/mac/documentation/DeveloperTools/Reference/I
     <welcome language="en" mime-type="text/html"><![CDATA[<html><body><br />
 <p style="margin: 0px; font: 13px 'Lucida Grande'">This package will install the ChmodBPF launch daemon, create the access_bpf group, and add you to that group.</p></body></html>]]></welcome>
     <pkg-ref id="org.wireshark.ChmodBPF.pkg"/>
-    <options customize="never" require-scripts="false"/>
+    <options customize="never" require-scripts="false" hostArchitectures="arm64,x86_64"/>
     <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
     <choices-outline>
         <line choice="default">
