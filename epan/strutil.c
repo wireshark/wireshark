@@ -617,7 +617,7 @@ format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
             gunichar uc;
             guchar first;
 
-            if ((c & 0xe8) == 0xc0) {
+            if ((c & 0xe0) == 0xc0) {
                 /* Starts a 2-byte UTF-8 sequence; 1 byte left */
                 utf8_len = 1;
                 mask = 0x1f;
