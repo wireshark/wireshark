@@ -1,4 +1,4 @@
-/* tnef.h
+/** @file
  *
  * Transport-Neutral Encapsulation Format (TNEF) file reading
  *

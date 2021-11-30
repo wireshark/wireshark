@@ -1,4 +1,4 @@
-/* pppdump.h
+/** @file
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

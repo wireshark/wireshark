@@ -1,4 +1,4 @@
-/*
+/** @file
  *
  * Copyright (c) 2003 Endace Technology Ltd, Hamilton, New Zealand.
  * All rights reserved.

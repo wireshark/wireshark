@@ -1,4 +1,4 @@
-/* mp4.h
+/** @file
  *
  * MP4 (ISO/IEC 14496-12) file format decoder for the Wiretap library.
  *

@@ -1,4 +1,4 @@
-/* visual.h
+/** @file
  *
  * File read write routines for Visual Networks .cap files.
  * Copyright 2001, Tom Nisbet  tnisbet@visualnetworks.com

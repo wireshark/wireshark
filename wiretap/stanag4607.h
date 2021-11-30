@@ -1,4 +1,4 @@
-/* stanag4607.h
+/** @file
  *
  * STANAG 4607 file reading
  *

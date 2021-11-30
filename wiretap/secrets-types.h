@@ -1,4 +1,5 @@
-/* secrets-types.h
+/** @file
+ *
  * Identifiers used by Decryption Secrets Blocks (DSB).
  *
  * Wireshark - Network traffic analyzer

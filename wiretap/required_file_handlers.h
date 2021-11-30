@@ -1,4 +1,5 @@
-/* required_file_handlers.h
+/** @file
+ *
  * Functions and variables defined by required file handlers (pcap,
  * nanosecond pcap, pcapng).
  *

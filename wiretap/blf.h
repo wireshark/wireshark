@@ -1,4 +1,4 @@
-/* blf.h
+/** @file
  *
  * BLF file format decoder for the Wiretap library.
  *

@@ -1,4 +1,4 @@
-/* eri_enb_log.h
+/** @file
  *
  * Ericsson eNode-B raw log file format decoder for the Wiretap library.
  *

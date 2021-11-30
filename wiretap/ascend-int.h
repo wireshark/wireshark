@@ -1,4 +1,5 @@
-/* ascend-int.h
+/** @file
+ *
  * Definitions for routines common to multiple modules in the Lucent/Ascend
  * capture file reading code code, but not used outside that code.
  *

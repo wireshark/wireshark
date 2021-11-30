@@ -1,4 +1,5 @@
-/* pcap-common.h
+/** @file
+ *
  * Declarations for code common to pcap and pcapng file formats
  *
  * Wiretap Library

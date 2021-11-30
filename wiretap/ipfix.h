@@ -1,4 +1,4 @@
-/* ipfix.h
+/** @file
  *
  * Wiretap Library
  * Copyright (c) 2010 by Hadriel Kaplan <hadrielk@yahoo.com>

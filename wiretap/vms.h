@@ -1,4 +1,4 @@
-/* vms.h
+/** @file
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>

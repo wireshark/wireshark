@@ -1,4 +1,4 @@
-/* logcat_text.h
+/** @file
  *
  * Copyright 2014, Michal Orynicz for Tieto Corporation
  *

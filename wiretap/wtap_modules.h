@@ -1,4 +1,5 @@
-/* wtap_modules.h
+/** @file
+ *
  * Definitions for wiretap module registration
  *
  * Wireshark - Network traffic analyzer

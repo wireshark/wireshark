@@ -1,4 +1,4 @@
-/* ber.h
+/** @file
  *
  * Basic Encoding Rules (BER) file reading
  *

@@ -1,4 +1,4 @@
-/* netscreen.h
+/** @file
  *
  * Juniper NetScreen snoop output parser
  * Created by re-using a lot of code from cosine.c

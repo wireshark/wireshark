@@ -1,4 +1,4 @@
-/* mpeg.h
+/** @file
  *
  * MPEG file format decoder for the Wiretap library.
  * Written by Shaun Jackman <sjackman@gmail.com>

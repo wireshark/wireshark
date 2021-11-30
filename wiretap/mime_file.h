@@ -1,4 +1,4 @@
-/* mime_file.h
+/** @file
  *
  * MIME file format decoder for the Wiretap library.
  *
