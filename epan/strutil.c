@@ -897,57 +897,6 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
     return TRUE;
 }
 
-/*
- * Given a GByteArray, generate a string from it that shows non-printable
- * characters as percent-style escapes, and return a pointer to it.
- */
-gchar *
-format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *reserved_chars)
-{
-    FMTBUF_VARS;
-    static const guchar reserved_def[] = ":/?#[]@!$&'()*+,;= ";
-    const guchar *reserved = reserved_def;
-    guint8 c;
-    guint byte_index, i;
-    gboolean is_reserved = FALSE;
-
-    if (! bytes)
-        return "";
-
-    if (reserved_chars)
-        reserved = reserved_chars;
-
-    for (byte_index = 0; byte_index < bytes->len; byte_index++) {
-        /*
-         * Make sure there is enough room for this character, if it
-         * expands to a percent plus 2 hex digits (which is the most
-	 * it can expand to), and also enough room for a terminating '\0'.
-         */
-        FMTBUF_EXPAND(2);
-        c = bytes->data[byte_index];
-
-        is_reserved = FALSE;
-        if (!g_ascii_isprint(c) || c == '%') {
-            is_reserved = TRUE;
-        } else {
-            for (i = 0; reserved[i]; i++) {
-                if (c == reserved[i])
-                    is_reserved = TRUE;
-            }
-        }
-
-        if (!is_reserved) {
-            FMTBUF_PUTCHAR(c);
-        } else {
-            FMTBUF_PUTCHAR('%');
-            FMTBUF_PUTCHAR(hex[c >> 4]);
-            FMTBUF_PUTCHAR(hex[c & 0xF]);
-        }
-    }
-    fmtbuf[column] = '\0';
-    return fmtbuf;
-}
-
 /**
  * Create a copy of a GByteArray
  *

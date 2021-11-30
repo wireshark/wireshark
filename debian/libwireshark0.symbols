@@ -686,7 +686,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  format_text_chr@Base 1.12.0~rc1
  format_text_string@Base 3.3.0
  format_text_wsp@Base 1.9.1
- format_uri@Base 1.9.1
  fragment_add@Base 1.9.1
  fragment_add_check@Base 1.9.1
  fragment_add_multiple_ok@Base 1.9.1

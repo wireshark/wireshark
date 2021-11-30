@@ -188,23 +188,6 @@ gboolean hex_str_to_bytes_encoding(const char *hex_str, GByteArray *bytes, const
 WS_DLL_PUBLIC
 gboolean   uri_str_to_bytes(const char *uri_str, GByteArray *bytes);
 
-/** Turn a byte array into an RFC 3986 percent-encoded string.
- *
- * @param allocator The wmem scope
- * @param bytes The GByteArray that will receive the bytes.  This
- *        must be initialized by the caller.
- * @param reserved_chars Normally the "gen-delims" and "sub-delims"
- *        from RFC 3986 (":/?#[]@" and "!$&'()*+,;=" respectively)
- *        plus space (hex value 20) are treated as reserved characters.
- *        If this variable is non-NULL, its contents will be used
- *        instead.
- * @note Any non-printing character determined by isprint(), along
- *       with the % character itself are always reserved.
- * @see uri_str_to_bytes(),  format_text(), isprint()
- */
-WS_DLL_PUBLIC
-gchar* format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *reserved_chars);
-
 /** Turn a OID string representation (dot notation) into a byte array.
  *
  * @param oid_str The OID string (dot notaion).
