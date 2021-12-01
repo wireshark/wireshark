@@ -12,7 +12,7 @@
 
 /*
  * Wireshark dissector for DRBD - Distributed Replicated Block Device.
- * The DRBD Linux kernel module sources can be found at https://github.com/LINBIT/drbd-9.0
+ * The DRBD Linux kernel module sources can be found at https://github.com/LINBIT/drbd
  * More information about Linbit and DRBD can be found at https://www.linbit.com/
  */
 
