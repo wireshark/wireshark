@@ -52,18 +52,6 @@ if ! altool_out=$( mktemp /tmp/notarize-dmg.out.XXXXX ) ; then
 fi
 # trap 'rm -f "$altool_out"' EXIT
 
-max_upload_wait=$(( 5 * 60))
-start=$SECONDS
-while test -n "$( find "$HOME"/Library/Caches/com.apple.amp.itmstransporter/UploadTokens -iname "*.token" -mtime -4h )"  ; do
-	echo -e "Another upload in progress. Waiting 5s\xe2\x80\xa6"
-	sleep 5
-	elapsed=$(( SECONDS - start ))
-	if [[ $elapsed -gt $max_upload_wait ]] ; then
-		echo "Timed out after ${max_upload_wait}s"
-		exit 1
-	fi
-done
-
 xcrun altool \
 	--notarize-app \
 	--type osx \
@@ -85,7 +73,6 @@ eval_info_cmd=(xcrun altool \
 	--password "@keychain:${generic_pw_service}" \
 	)
 
-max_upload_wait=300
 start=$SECONDS
 
 max_status_wait=$(( 20 * 60))
