@@ -360,8 +360,6 @@ static void decode_payload_connection_features(tvbuff_t *tvb, proto_tree *tree);
 static void decode_payload_auth_challenge(tvbuff_t *tvb, proto_tree *tree);
 static void decode_payload_auth_response(tvbuff_t *tvb, proto_tree *tree);
 static void decode_payload_data(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_data_reply(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_rs_data_reply(tvbuff_t *tvb, proto_tree *tree);
 static void decode_payload_barrier(tvbuff_t *tvb, proto_tree *tree);
 static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree);
 static void decode_payload_data_request(tvbuff_t *tvb, proto_tree *tree);
@@ -396,8 +394,8 @@ static const value_payload_decoder payload_decoders[] = {
     { P_AUTH_CHALLENGE, decode_payload_auth_challenge },
     { P_AUTH_RESPONSE, decode_payload_auth_response },
     { P_DATA, decode_payload_data },
-    { P_DATA_REPLY, decode_payload_data_reply },
-    { P_RS_DATA_REPLY, decode_payload_rs_data_reply },
+    { P_DATA_REPLY, decode_payload_data },
+    { P_RS_DATA_REPLY, decode_payload_data },
     { P_BARRIER, decode_payload_barrier },
     { P_BITMAP, NULL }, /* TODO: decode additional data */
     { P_COMPRESSED_BITMAP, NULL }, /* TODO: decode additional data */
@@ -484,7 +482,6 @@ static int hf_drbd_seq_num = -1;
 static int hf_drbd_dp_flags = -1;
 static int hf_drbd_data = -1;
 static int hf_drbd_size = -1;
-static int hf_drbd_blksize = -1;
 static int hf_drbd_protocol_min = -1;
 static int hf_drbd_feature_flags = -1;
 static int hf_drbd_protocol_max = -1;
@@ -833,29 +830,14 @@ static void decode_data_common(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_bitmask(tree, tvb, 20, hf_drbd_dp_flags, ett_drbd_data_flags, data_flag_fields, ENC_BIG_ENDIAN);
 }
 
-static void decode_data_remaining(tvbuff_t *tvb, proto_tree *tree, guint offset)
-{
-    guint nbytes = tvb_reported_length_remaining(tvb, offset);
-    proto_tree_add_bytes_format(tree, hf_drbd_data, tvb, offset,
-            -1, NULL, "Data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
-}
-
 static void decode_payload_data(tvbuff_t *tvb, proto_tree *tree)
 {
     decode_data_common(tvb, tree);
-    decode_data_remaining(tvb, tree, 24);
-}
 
-static void decode_payload_data_reply(tvbuff_t *tvb, proto_tree *tree)
-{
-    decode_data_common(tvb, tree);
-    decode_data_remaining(tvb, tree, 24);
-}
-
-static void decode_payload_rs_data_reply(tvbuff_t *tvb, proto_tree *tree)
-{
-    decode_data_common(tvb, tree);
-    decode_data_remaining(tvb, tree, 24);
+    guint nbytes = tvb_reported_length_remaining(tvb, 24);
+    proto_tree_add_uint(tree, hf_drbd_size, tvb, 24, nbytes, nbytes);
+    proto_tree_add_bytes_format(tree, hf_drbd_data, tvb, 24,
+            -1, NULL, "Data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
 }
 
 static void decode_payload_barrier(tvbuff_t *tvb, proto_tree *tree)
@@ -867,14 +849,14 @@ static void decode_payload_data_request(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_blksize, tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_size, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
 static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_blksize, tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_size, tvb, 16, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dagtag_node_id, tvb, 20, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dagtag, tvb, 24, 8, ENC_BIG_ENDIAN);
 }
@@ -966,7 +948,7 @@ static void decode_payload_skip(tvbuff_t *tvb, proto_tree *tree)
 static void decode_payload_out_of_sync(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_blksize, tvb, 8, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_size, tvb, 8, 4, ENC_BIG_ENDIAN);
 }
 
 static void decode_payload_twopc(tvbuff_t *tvb, proto_tree *tree)
@@ -1034,20 +1016,23 @@ static void decode_payload_data_wsame(tvbuff_t *tvb, proto_tree *tree)
 {
     decode_data_common(tvb, tree);
     proto_tree_add_item(tree, hf_drbd_size, tvb, 24, 4, ENC_BIG_ENDIAN);
-    decode_data_remaining(tvb, tree, 28);
+
+    guint nbytes = tvb_reported_length_remaining(tvb, 28);
+    proto_tree_add_bytes_format(tree, hf_drbd_data, tvb, 28,
+            -1, NULL, "Data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
 }
 
 static void decode_payload_rs_deallocated(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_blksize, tvb, 8, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_size, tvb, 8, 4, ENC_BIG_ENDIAN);
 }
 
 static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_blksize, tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_size, tvb, 16, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_seq_num, tvb, 20, 4, ENC_BIG_ENDIAN);
 }
 
@@ -1145,8 +1130,7 @@ void proto_register_drbd(void)
         { &hf_drbd_seq_num, { "Sequence number", "drbd.seq_num", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_dp_flags, { "Data flags", "drbd.dp_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_data, { "Data", "drbd.data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_size, { "size", "drbd.size", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_blksize, { "blksize", "drbd.blksize", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_size, { "Size", "drbd.size", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_protocol_min, { "protocol_min", "drbd.protocol_min", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_feature_flags, { "feature_flags", "drbd.feature_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_protocol_max, { "protocol_max", "drbd.protocol_max", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
