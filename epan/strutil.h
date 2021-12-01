@@ -132,7 +132,8 @@ gchar*     format_text_wsp(wmem_allocator_t* allocator, const guchar *line, size
  *
  */
 WS_DLL_PUBLIC
-gchar*     format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr);
+char *format_text_chr(wmem_allocator_t *allocator,
+                        const char *string, size_t len, char chr);
 
 
 /** Turn a string of hex digits with optional separators (defined by

@@ -571,33 +571,24 @@ format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
  * This is useful for displaying binary data that frequently but not always
  * contains text; otherwise the number of C escape codes makes it unreadable.
  */
-gchar *
-format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr)
+char *
+format_text_chr(wmem_allocator_t *allocator, const char *string, size_t len, char chr)
 {
-    FMTBUF_VARS;
-    const guchar *stringend = string + len;
-    guchar c;
+    wmem_strbuf_t *buf;
 
-    while (string < stringend)
-    {
-        FMTBUF_EXPAND(1);
-        c = *string++;
-
-        if (g_ascii_isprint(c))
-        {
-            FMTBUF_PUTCHAR(c);
+    buf = wmem_strbuf_sized_new(allocator, len + 1, 0);
+    for (const char *p = string; p < string + len; p++) {
+        if (g_ascii_isprint(*p)) {
+            wmem_strbuf_append_c(buf, *p);
         }
-        else if (g_ascii_isspace(c))
-        {
-            FMTBUF_PUTCHAR(' ');
+        else if (g_ascii_isspace(*p)) {
+            wmem_strbuf_append_c(buf, ' ');
         }
-        else
-        {
-            FMTBUF_PUTCHAR(chr);
+        else {
+            wmem_strbuf_append_c(buf, chr);
         }
     }
-    FMTBUF_ENDSTR;
-    return fmtbuf;
+    return wmem_strbuf_finalize(buf);
 }
 
 static gboolean
