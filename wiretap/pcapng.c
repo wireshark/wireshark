@@ -987,7 +987,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
                     ws_debug("%u bytes after opt_endofopt", opt_bytes_remaining);
                 }
                 /* padding should be ok here, just get out of this */
-                opt_bytes_remaining = 0;
+                opt_bytes_remaining = rounded_option_length;
                 break;
             case(OPT_COMMENT):
                 pcapng_process_string_option(wblock, option_code, option_length,
