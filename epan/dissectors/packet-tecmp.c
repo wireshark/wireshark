@@ -1244,7 +1244,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 if (length2 > 0) {
                     lin_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2 - 1);
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
                     guint32 bus_frame_id = lin_info.id | (lin_info.bus_id << 16);
                     if (!dissector_try_uint_new(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
                         if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
