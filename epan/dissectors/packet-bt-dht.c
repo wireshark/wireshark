@@ -270,7 +270,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
     {
       expert_add_info(pinfo, ti, &ei_invalid_len);
       // Fail hard here rather than potentially looping excessively.
-      return tvb_reported_length_remaining(tvb, offset);
+      return 0;
     }
 
     /* 4 bytes ip, 2 bytes port */
