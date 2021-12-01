@@ -40,6 +40,10 @@ indent_size = tab
 [disabled_protos.[ch]]
 indent_size = 2
 
+[dtd_grammar.lemon]
+indent_style = tab
+indent_size = tab
+
 [epan.[ch]]
 indent_style = tab
 indent_size = tab
