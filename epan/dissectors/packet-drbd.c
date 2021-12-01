@@ -828,7 +828,7 @@ static void decode_payload_auth_response(tvbuff_t *tvb, proto_tree *tree)
 static void decode_data_common(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_seq_num, tvb, 16, 4, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(tree, tvb, 20, hf_drbd_dp_flags, ett_drbd_data_flags, data_flag_fields, ENC_BIG_ENDIAN);
 }
@@ -860,20 +860,20 @@ static void decode_payload_rs_data_reply(tvbuff_t *tvb, proto_tree *tree)
 
 static void decode_payload_barrier(tvbuff_t *tvb, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_drbd_barrier, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_barrier, tvb, 0, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void decode_payload_data_request(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_blksize, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
 static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_blksize, tvb, 16, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dagtag_node_id, tvb, 20, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dagtag, tvb, 24, 8, ENC_BIG_ENDIAN);
@@ -1046,21 +1046,21 @@ static void decode_payload_rs_deallocated(tvbuff_t *tvb, proto_tree *tree)
 static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_blksize, tvb, 16, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_seq_num, tvb, 20, 4, ENC_BIG_ENDIAN);
 }
 
 static void decode_payload_barrier_ack(tvbuff_t *tvb, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_drbd_barrier, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_barrier, tvb, 0, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_set_size, tvb, 4, 4, ENC_BIG_ENDIAN);
 }
 
 static void decode_payload_confirm_stable(tvbuff_t *tvb, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_drbd_oldest_block_id, tvb, 0, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_youngest_block_id, tvb, 8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_oldest_block_id, tvb, 0, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_youngest_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_set_size, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
@@ -1152,7 +1152,7 @@ void proto_register_drbd(void)
         { &hf_drbd_protocol_max, { "protocol_max", "drbd.protocol_max", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_sender_node_id, { "sender_node_id", "drbd.sender_node_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_receiver_node_id, { "receiver_node_id", "drbd.receiver_node_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_barrier, { "barrier", "drbd.barrier", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_barrier, { "barrier", "drbd.barrier", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_set_size, { "set_size", "drbd.set_size", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_oldest_block_id, { "oldest_block_id", "drbd.oldest_block_id", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_youngest_block_id, { "youngest_block_id", "drbd.youngest_block_id", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
