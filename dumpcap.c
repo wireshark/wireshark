@@ -5581,10 +5581,10 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
 {
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
 #ifdef DEBUG_DUMPCAP
-    ws_log_default_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
+    ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
 #endif
 #ifdef DEBUG_CHILD_DUMPCAP
-    ws_log_default_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
+    ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
 #endif
 #else
     /* Messages goto stderr or to parent especially formatted if dumpcap
@@ -5594,7 +5594,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
     } else {
-    ws_log_default_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
+        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
     }
 #endif
 }

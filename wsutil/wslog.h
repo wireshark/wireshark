@@ -57,11 +57,17 @@ typedef void (ws_log_writer_free_data_cb)(void *user_data);
 
 
 WS_DLL_PUBLIC
-void ws_log_default_writer(const char *domain, enum ws_log_level level,
+void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
                             ws_log_time_t timestamp,
                             const char *file, int line, const char *func,
-                            const char *user_format, va_list user_ap,
-                            void *user_data);
+                            const char *user_format, va_list user_ap);
+
+
+WS_DLL_PUBLIC
+void ws_log_console_writer(const char *domain, enum ws_log_level level,
+                            ws_log_time_t timestamp,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap);
 
 
 /** Convert a numerical level to its string representation. */

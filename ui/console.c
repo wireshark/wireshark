@@ -37,8 +37,8 @@ console_log_writer(const char *domain, enum ws_log_level level,
     (void)fatal;
 #endif /* _WIN32 */
 
-    ws_log_default_writer(domain, level, timestamp, file, line, func,
-                                user_format, user_ap, NULL);
+    ws_log_console_writer(domain, level, timestamp, file, line, func,
+                                user_format, user_ap);
 
 #ifdef _WIN32
     if (fatal) {
