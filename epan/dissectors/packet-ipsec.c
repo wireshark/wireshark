@@ -2210,17 +2210,30 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if(decrypt_dissect_ok)
     {
-      if(decr_tree)
+      if(esp_tree)
       {
-        proto_tree_add_uint(decr_tree, hf_esp_pad_len, tvb,
-                            esp_decr_data_len-2, 1,
+        proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb,
+                            esp_packet_len - 14, 1,
                             esp_pad_len);
 
-        proto_tree_add_uint_format(decr_tree, hf_esp_protocol, tvb,
-                                   esp_decr_data_len-2, 1,
+        proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb,
+                                   esp_packet_len - 13, 1,
                                    encapsulated_protocol,
                                    "Next header: %s (0x%02x)",
                                    ipprotostr(encapsulated_protocol), encapsulated_protocol);
+
+        /* Make sure we have the auth trailer data */
+        if(tvb_bytes_exist(tvb, esp_packet_len - 12, 12))
+        {
+          proto_tree_add_item(esp_tree, hf_esp_icv, tvb, esp_packet_len - 12, 12, ENC_NA);
+        }
+        else
+        {
+          /* Truncated so just display what we have */
+          proto_tree_add_bytes_format(esp_tree, hf_esp_icv, tvb, esp_packet_len - 12,
+                                      12 - (esp_packet_len - tvb_captured_length(tvb)),
+                                      NULL, "Integrity Check Value (truncated)");
+        }
       }
     }
   }
