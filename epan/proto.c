@@ -4207,23 +4207,26 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo);
-
 	/* length has to be -1 or > 0 regardless of encoding */
 	if (length < -1 || length == 0) {
 		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_time_item",
 		    length);
 	}
 
-	time_stamp.secs  = 0;
-	time_stamp.nsecs = 0;
+	nstime_set_zero(&time_stamp);
 
 	if (encoding & ENC_STR_TIME_MASK) {
+		DISSECTOR_ASSERT_FIELD_TYPE(hfinfo, FT_ABSOLUTE_TIME);
+		/* The only string format that could be a relative time is
+		 * ENC_ISO_8601_TIME, and that is treated as an absolute time
+		 * relative to "now" currently.
+		 */
 		tvb_get_string_time(tvb, start, length, encoding, &time_stamp, endoff);
 		/* grab the errno now before it gets overwritten */
 		saved_err = errno;
 	}
 	else {
+		DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo);
 		const gboolean is_relative = (hfinfo->type == FT_RELATIVE_TIME) ? TRUE : FALSE;
 
 		tvb_ensure_bytes_exist(tvb, start, length);

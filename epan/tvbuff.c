@@ -1796,6 +1796,11 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 				errno = 0;
 				end = ptr + num_chars;
 			}
+		} else if ((encoding & ENC_ISO_8601_DATE_TIME_BASIC) == ENC_ISO_8601_DATE_TIME_BASIC) {
+			if ((num_chars = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME_BASIC))) {
+				errno = 0;
+				end = ptr + num_chars;
+			}
 		} else {
 			memset(&tm, 0, sizeof(tm));
 			tm.tm_isdst = -1;

@@ -613,13 +613,14 @@ void proto_report_dissector_bug(const char *format, ...)
  * you can't do both at the same time.  They must not, however,
  * overlap with the character encoding values.
  */
-#define ENC_ISO_8601_DATE       0x00010000
-#define ENC_ISO_8601_TIME       0x00020000
-#define ENC_ISO_8601_DATE_TIME  0x00030000
-#define ENC_RFC_822             0x00040000
-#define ENC_RFC_1123            0x00080000
+#define ENC_ISO_8601_DATE             0x00010000
+#define ENC_ISO_8601_TIME             0x00020000
+#define ENC_ISO_8601_DATE_TIME        0x00030000
+#define ENC_RFC_822                   0x00040000
+#define ENC_RFC_1123                  0x00080000
+#define ENC_ISO_8601_DATE_TIME_BASIC  0x00100000
 /* a convenience macro for the above - for internal use only */
-#define ENC_STR_TIME_MASK       0x000F0000
+#define ENC_STR_TIME_MASK             0x001F0000
 
 /*
  * Encodings for variable-length integral types.

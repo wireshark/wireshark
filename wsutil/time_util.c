@@ -92,6 +92,9 @@ tm_is_valid(struct tm *tm)
 	if (tm->tm_hour < 0 || tm->tm_hour > 23) {
 		return FALSE;
 	}
+	/* XXX: ISO 8601 and others allow 24:00:00 for end of day, perhaps that
+	 * one case should be allowed?
+	 */
 	if (tm->tm_min < 0 || tm->tm_min > 59) {
 		return FALSE;
 	}

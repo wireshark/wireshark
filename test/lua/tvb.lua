@@ -54,7 +54,7 @@ end
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
-local taptests = { [FRAME]=4, [OTHER]=353 }
+local taptests = { [FRAME]=4, [OTHER]=413 }
 
 local function getResults()
     print("\n-----------------------------\n")
@@ -881,6 +881,47 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
 
     verifyResults("add_pfield-rfc1123-local", autc_match_values)
+
+----------------------------------------
+    testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE_TIME_BASIC")
+
+    resetResults()
+    autc_match_values = {}
+
+    local datetimestring1 =   "20130301T221448+0000" -- this is 1362176088 seconds epoch time
+    local tvb1 = ByteArray.new(datetimestring1, true):tvb("Date_Time string 1")
+    local datetimestring2 = "  20130301171448+0500" -- this is 1362176088 seconds epoch time
+    local tvb2 = ByteArray.new(datetimestring2 .. "  foobar", true):tvb("Date_Time string 2")
+    local datetimestring3 = "  20130301T1644+0530"    -- this is 1362176040 seconds epoch time
+    local tvb3 = ByteArray.new(datetimestring3, true):tvb("Date_Time string 3")
+    local datetimestring4 =   "20130302 014400-0330" -- this is 1362176040 seconds epoch time
+    local tvb4 = ByteArray.new(datetimestring4, true):tvb("Date_Time string 4")
+    local datetimestring5 =   "20130301T221448Z"      -- this is 1362176088 seconds epoch time
+    local tvb5 = ByteArray.new(datetimestring5, true):tvb("Date_Time string 5")
+    local datetimestring6 =   "201303012214Z"         -- this is 1362176040 seconds epoch time
+    local tvb6 = ByteArray.new(datetimestring6, true):tvb("Date_Time string 6")
+
+    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb1:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    addMatch( NSTime( 1362176088, 0), string.len(datetimestring1))
+
+    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb2:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    addMatch( NSTime( 1362176088, 0), string.len(datetimestring2))
+
+    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb3:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    addMatch( NSTime( 1362176040, 0), string.len(datetimestring3))
+
+    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb4:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    addMatch( NSTime( 1362176040, 0), string.len(datetimestring4))
+
+    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb5:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    addMatch( NSTime( 1362176088, 0), string.len(datetimestring5))
+
+    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb6:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    addMatch( NSTime( 1362176040, 0), string.len(datetimestring6))
+
+    verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
+
+    verifyResults("add_pfield-datetime-local", autc_match_values)
 
 ----------------------------------------
     testing(OTHER, "TvbRange subsets")
