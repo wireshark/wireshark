@@ -495,10 +495,7 @@ int main(int argc, char *argv[])
 	char* help_header = NULL;
 
 	/* Initialize log handler early so we can have proper logging during startup. */
-	ws_log_init("dpauxmon", NULL);
-
-	/* Early logging command-line initialization. */
-	ws_log_parse_args(&argc, argv, NULL, LOG_ARGS_NOEXIT);
+	extcap_log_init("dpauxmon");
 
 	/*
 	 * Get credential information for later use.

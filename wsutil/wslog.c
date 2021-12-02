@@ -939,11 +939,23 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
 }
 
 
-void ws_log_default_writer(const char *domain, enum ws_log_level level,
+void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
                             ws_log_time_t timestamp,
                             const char *file, int line, const char *func,
-                            const char *user_format, va_list user_ap,
-                            void *user_data _U_)
+                            const char *user_format, va_list user_ap)
+{
+    log_write_do_work(fp, FALSE,
+                        get_localtime(timestamp.tv_sec, NULL),
+                        timestamp.tv_nsec,
+                        domain, level, file, line, func,
+                        user_format, user_ap);
+}
+
+
+void ws_log_console_writer(const char *domain, enum ws_log_level level,
+                            ws_log_time_t timestamp,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap)
 {
     log_write_do_work(stderr, color_enabled,
                         get_localtime(timestamp.tv_sec, NULL),

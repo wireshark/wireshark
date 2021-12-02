@@ -380,7 +380,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0
  ws_log_buffer_full@Base 3.5.1
- ws_log_default_writer@Base 3.5.0
+ ws_log_console_writer@Base 3.7.0
+ ws_log_file_writer@Base 3.7.0
  ws_log_full@Base 3.5.0
  ws_log_get_level@Base 3.5.0
  ws_log_init@Base 3.5.0

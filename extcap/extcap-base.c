@@ -43,6 +43,8 @@ typedef struct _extcap_option {
     char * optdesc;
 } extcap_option_t;
 
+static FILE *custom_log = NULL;
+
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription )
 {
     extcap_base_register_interface_ext(extcap, interface, ifdescription, dlt, NULL, dltdescription );
@@ -104,6 +106,26 @@ void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, .
     va_end(ap);
 }
 
+static void extcap_custom_log(const char *domain, enum ws_log_level level,
+                            ws_log_time_t timestamp,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap,
+                            void *user_data _U_)
+{
+    if (level <= LOG_LEVEL_DEBUG) {
+        if (!custom_log)
+            return;
+        ws_log_file_writer(custom_log, domain, level, timestamp, file, line, func, user_format, user_ap);
+    } else {
+        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
+    }
+}
+
+void extcap_log_init(const char *progname)
+{
+    ws_log_init_with_writer(progname, extcap_custom_log, NULL);
+}
+
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument)
 {
     uint8_t ret = 1;
@@ -111,6 +133,7 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
     switch (result) {
         case EXTCAP_OPT_DEBUG:
             extcap->debug = TRUE;
+            ws_log_set_level(LOG_LEVEL_DEBUG);
             break;
         case EXTCAP_OPT_DEBUG_FILE:
             extcap_init_custom_log(optargument);
@@ -304,13 +327,11 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
 
 void extcap_init_custom_log(const char* filename)
 {
-    FILE *custom_log;
     if (!filename || strlen(filename) == 0)
         return;
     custom_log = fopen(filename, "w");
     if (!custom_log)
         ws_error("Can't open custom log file: %s (%s)", filename, strerror(errno));
-    ws_log_add_custom_file(custom_log);
 }
 
 void extcap_config_debug(unsigned* count)
