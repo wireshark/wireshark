@@ -271,6 +271,10 @@ printable_char_or_period(gchar c)
 static inline char
 escape_char(char c)
 {
+    /*
+     * Backslashes and double-quotes must
+     * be escaped. Whitespace is also escaped.
+     */
     switch (c) {
         case '\a': return 'a';
         case '\b': return 'b';
@@ -295,18 +299,9 @@ escape_string_len(const char *string, bool add_quotes)
 
     repr_len = 0;
     for (p = string; (c = *p) != '\0'; p++) {
-        /* Backslashes and double-quotes must
-         * be escaped */
         if (escape_char(c) != 0) {
             repr_len += 2;
         }
-        /* Values that can't nicely be represented
-         * in ASCII need to be escaped. */
-        else if (!g_ascii_isprint(c)) {
-            /* c --> \xNN */
-            repr_len += 4;
-        }
-        /* Other characters are just passed through. */
         else {
             repr_len++;
         }
@@ -316,6 +311,10 @@ escape_string_len(const char *string, bool add_quotes)
     return repr_len;
 }
 
+/*
+ * This is used by the display filter engine and must be compatible
+ * with display filter syntax.
+ */
 char *
 ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes)
 {
@@ -327,22 +326,12 @@ ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes)
     if (add_quotes)
         *bufp++ = '"';
     for (p = string; (c = *p) != '\0'; p++) {
-        /* Backslashes and double-quotes must
-         * be escaped. */
         if ((r = escape_char(c)) != 0) {
             *bufp++ = '\\';
             *bufp++ = r;
         }
-        /* Values that can't nicely be represented
-         * in ASCII need to be escaped. */
-        else if (!g_ascii_isprint(c)) {
-            /* c --> \xNN */
-            *bufp++ = '\\';
-            *bufp++ = 'x';
-            bufp = guint8_to_hex(bufp, c);
-        }
-        /* Other characters are just passed through. */
         else {
+            /* Other UTF-8 bytes are passed through. */
             *bufp++ = c;
         }
     }

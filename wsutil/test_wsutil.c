@@ -43,10 +43,6 @@ static void test_escape_string(void)
     buf = ws_escape_string(NULL, "whitespace \t \n \r \f \v", TRUE);
     g_assert_cmpstr(buf, ==, "\"whitespace \\t \\n \\r \\f \\v""\"");
     wmem_free(NULL, buf);
-
-    buf = ws_escape_string(NULL, "bytes \xfe\xff", FALSE);
-    g_assert_cmpstr(buf, ==, "bytes \\xfe\\xff");
-    wmem_free(NULL, buf);
 }
 
 #include "to_str.h"
