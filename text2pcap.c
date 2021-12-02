@@ -104,6 +104,7 @@
 #include <ui/version_info.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/wslog.h>
+#include <wsutil/nstime.h>
 
 #ifdef _WIN32
 #include <io.h>     /* for _setmode */
@@ -205,7 +206,7 @@ static int start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN     2048
-static guint8 packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
+static char packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int    packet_preamble_len = 0;
 
 /* Number of packets read and written */
@@ -217,6 +218,7 @@ static guint64 bytes_written       = 0;
 static time_t   ts_sec  = 0;
 static guint32  ts_nsec = 0;
 static char    *ts_fmt  = NULL;
+static int      ts_fmt_iso = 0;
 static struct tm timecode_default;
 
 static guint8* pkt_lnstart;
@@ -953,9 +955,6 @@ static void
 parse_preamble (void)
 {
     struct tm  timecode;
-    char      *subsecs;
-    char      *p;
-    int        subseclen;
     int        i;
 
      /*
@@ -1015,56 +1014,71 @@ parse_preamble (void)
      * This should cover line breaks etc that get counted.
      */
     if (strlen(packet_preamble) > 2) {
-        /* Get Time leaving subseconds */
-        subsecs = strptime( packet_preamble, ts_fmt, &timecode );
-        if (subsecs != NULL) {
-            /* Get the long time from the tm structure */
-            /*  (will return -1 if failure)            */
-            ts_sec  = mktime( &timecode );
-        } else
-            ts_sec = -1;    /* we failed to parse it */
-
-        /* This will ensure incorrectly parsed dates get set to zero */
-        if (-1 == ts_sec) {
-            /* Sanitize - remove all '\r' */
-            char *c;
-            while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-            fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
-                 packet_preamble, ts_fmt);
-            if (debug >= 2) {
-                fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
-                    timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
-                    timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
+        if (ts_fmt_iso) {
+            nstime_t ts_iso;
+            if (0 < iso8601_to_nstime(&ts_iso, packet_preamble, ISO8601_DATETIME_AUTO)) {
+                ts_sec = ts_iso.secs;
+                ts_nsec = ts_iso.nsecs;
+            } else {
+                ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
+                ts_nsec = 0;
             }
-            ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-            ts_nsec = 0;
         } else {
-            /* Parse subseconds */
-            ts_nsec = (guint32)strtol(subsecs, &p, 10);
-            if (subsecs == p) {
-                /* Error */
+            char      *subsecs;
+            char      *p;
+            int        subseclen;
+
+            /* Get Time leaving subseconds */
+            subsecs = strptime( packet_preamble, ts_fmt, &timecode );
+            if (subsecs != NULL) {
+                /* Get the long time from the tm structure */
+                /*  (will return -1 if failure)            */
+                ts_sec  = mktime( &timecode );
+            } else
+                ts_sec = -1;    /* we failed to parse it */
+
+            /* This will ensure incorrectly parsed dates get set to zero */
+            if (-1 == ts_sec) {
+                /* Sanitize - remove all '\r' */
+                char *c;
+                while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
+                fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
+                     packet_preamble, ts_fmt);
+                if (debug >= 2) {
+                    fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
+                        timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
+                        timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
+                }
+                ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
                 ts_nsec = 0;
             } else {
-                /*
-                 * Convert that number to a number
-                 * of nanoseconds; if it's N digits
-                 * long, it's in units of 10^(-N) seconds,
-                 * so, to convert it to units of
-                 * 10^-9 seconds, we multiply by
-                 * 10^(9-N).
-                 */
-                subseclen = (int) (p - subsecs);
-                if (subseclen > 9) {
+                /* Parse subseconds */
+                ts_nsec = (guint32)strtol(subsecs, &p, 10);
+                if (subsecs == p) {
+                    /* Error */
+                    ts_nsec = 0;
+                } else {
                     /*
-                     * *More* than 9 digits; 9-N is
-                     * negative, so we divide by
-                     * 10^(N-9).
+                     * Convert that number to a number
+                     * of nanoseconds; if it's N digits
+                     * long, it's in units of 10^(-N) seconds,
+                     * so, to convert it to units of
+                     * 10^-9 seconds, we multiply by
+                     * 10^(9-N).
                      */
-                    for (i = subseclen - 9; i != 0; i--)
-                        ts_nsec /= 10;
-                } else if (subseclen < 9) {
-                    for (i = 9 - subseclen; i != 0; i--)
-                        ts_nsec *= 10;
+                    subseclen = (int) (p - subsecs);
+                    if (subseclen > 9) {
+                        /*
+                         * *More* than 9 digits; 9-N is
+                         * negative, so we divide by
+                         * 10^(N-9).
+                         */
+                        for (i = subseclen - 9; i != 0; i--)
+                            ts_nsec /= 10;
+                    } else if (subseclen < 9) {
+                        for (i = 9 - subseclen; i != 0; i--)
+                            ts_nsec *= 10;
+                    }
                 }
             }
         }
@@ -1587,6 +1601,8 @@ parse_options (int argc, char *argv[])
 
         case 't':
             ts_fmt = ws_optarg;
+            if (!strcmp(ws_optarg, "ISO"))
+              ts_fmt_iso = 1;
             break;
 
         case 'u':
@@ -1794,7 +1810,7 @@ parse_options (int argc, char *argv[])
          * on Windows, it won't work if ts_sec is before the Epoch,
          * but it's long after 1970, so....
          */
-        fprintf(stderr, "localtime(right now) failed\n");
+        fprintf(stderr, "localtime (right now) failed\n");
         return EXIT_FAILURE;
     }
     timecode_default = *now_tm;

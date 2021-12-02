@@ -75,11 +75,15 @@ a hex number longer than two characters. Any text after the bytes is
 ignored (e.g. the character dump). Any hex numbers in this text are
 also ignored. An offset of zero is indicative of starting a new
 packet, so a single text file with a series of hexdumps can be
-converted into a packet capture with multiple packets. Packets may be
-preceded by a timestamp. These are interpreted according to the format
-given on the command line (see *-t*). If not, the first packet
-is timestamped with the current time the conversion takes place. Multiple
-packets are written with timestamps differing by one microsecond each.
+converted into a packet capture with multiple packets.
+
+Packets may be preceded by a direction indicator and a timestamp if
+indicated by the command line (see *-D* and *-t*). The format of the
+timestamps is specified as a mandatory parameter to *-t*. If timestamp
+parsing is not enabled or failed, the first packet is timestamped
+with the current time the conversion takes place. Multiple packets
+are written with timestamps differing by one microsecond each.
+
 In general, short of these restrictions, *text2pcap* is pretty liberal
 about reading in hexdumps and has been tested with a variety of
 mangled outputs (including being forwarded through email multiple
@@ -122,7 +126,7 @@ multiple times to generate more debugging information.
 -D::
 +
 --
-The text before the packet starts either with an I or O indicating that
+The text before the packet may start either with an I or O indicating that
 the packet is inbound or outbound. This is used when generating dummy headers.
 The indication is only stored if the output format is pcapng.
 --
@@ -239,8 +243,10 @@ into the SCTP header.
 +
 --
 Treats the text before the packet as a date/time code; __timefmt__ is a
-format string of the sort supported by strptime(3).
+format string of the sort supported by strftime(3).
 Example: The time "10:15:14.5476" has the format code "%H:%M:%S."
+The special format string __ISO__ indicates that the string should be
+parsed according to the ISO-8601 specification.
 
 *NOTE:* The subsecond component delimiter must be specified (.) but no
 pattern is required; the remaining number is assumed to be fractions of
@@ -300,7 +306,7 @@ use fe80::202:b3ff:fe1e:8329 and 2001:0db8:85a3::8a2e:0370:7334 for all IP packe
 == SEE ALSO
 
 od(1), xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:mergecap.html[mergecap](1),
-xref:editcap.html[editcap](1), strptime(3), xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8)
+xref:editcap.html[editcap](1), strftime(3), xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8)
 
 == NOTES
 
