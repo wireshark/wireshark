@@ -24,11 +24,6 @@
 
 #include <wsutil/str_util.h>
 
-typedef struct value_payload_decoder {
-    int value;
-    void (*decoder_fn)(tvbuff_t *, proto_tree*);
-} value_payload_decoder;
-
 /* Known as SHARED_SECRET_MAX in the DRBD sources */
 #define DRBD_STRING_MAX 64
 
@@ -123,6 +118,41 @@ enum drbd_packet {
 
     P_CONNECTION_FEATURES = 0xfffe
 };
+
+typedef struct {
+    guint32 tid;
+    gint32 initiator_node_id;
+} drbd_twopc_key;
+
+typedef struct {
+    guint32 prepare_frame;
+    enum drbd_packet command;
+} drbd_twopc_val;
+
+static guint drbd_twopc_key_hash(gconstpointer k)
+{
+  const drbd_twopc_key *key = (const drbd_twopc_key *) k;
+
+  return key->tid;
+}
+
+static gint drbd_twopc_key_equal(gconstpointer k1, gconstpointer k2)
+{
+  const drbd_twopc_key *key1 = (const drbd_twopc_key*) k1;
+  const drbd_twopc_key *key2 = (const drbd_twopc_key*) k2;
+
+  return key1->tid == key2->tid && key1->initiator_node_id == key2->initiator_node_id;
+}
+
+typedef struct {
+    wmem_map_t *twopc;
+} drbd_conv;
+
+typedef struct value_payload_decoder {
+    int value;
+    void (*state_reader_fn)(tvbuff_t *, packet_info *, drbd_conv *);
+    void (*tree_fn)(tvbuff_t *, proto_tree *, drbd_conv *);
+} value_payload_decoder;
 
 static const value_string packet_names[] = {
     { P_DATA, "P_DATA" },
@@ -356,111 +386,116 @@ static const value_string disk_state_names[] = {
 
 static void dissect_drbd_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static void decode_payload_connection_features(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_auth_challenge(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_auth_response(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_data(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_barrier(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_data_request(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_sync_param(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_protocol(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_uuids(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_sizes(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_state(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_req_state(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_sync_uuid(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_skip(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_out_of_sync(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_twopc(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_dagtag(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_peer_dagtag(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_current_uuid(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_data_size(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_data_wsame(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_rs_deallocated(tvbuff_t *tvb, proto_tree *tree);
+static void read_state_twopc_prepare(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data);
+static void read_state_twopc_prep_rsz(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data);
 
-static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_barrier_ack(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_confirm_stable(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_rq_s_reply(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_peer_ack(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_peers_in_sync(tvbuff_t *tvb, proto_tree *tree);
-static void decode_payload_twopc_reply(tvbuff_t *tvb, proto_tree *tree);
+static void decode_payload_connection_features(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_auth_challenge(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_auth_response(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_data(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_barrier(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_data_request(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_sync_param(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_protocol(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_uuids(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_sizes(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_state(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_req_state(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_sync_uuid(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_skip(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_out_of_sync(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_twopc_prepare(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_twopc_prep_rsz(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_twopc_commit(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_dagtag(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_peer_dagtag(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_current_uuid(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_data_size(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_data_wsame(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_rs_deallocated(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+
+static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_barrier_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_confirm_stable(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_rq_s_reply(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_peer_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_peers_in_sync(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
+static void decode_payload_twopc_reply(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data);
 
 static const value_payload_decoder payload_decoders[] = {
-    { P_CONNECTION_FEATURES, decode_payload_connection_features },
-    { P_AUTH_CHALLENGE, decode_payload_auth_challenge },
-    { P_AUTH_RESPONSE, decode_payload_auth_response },
-    { P_DATA, decode_payload_data },
-    { P_DATA_REPLY, decode_payload_data },
-    { P_RS_DATA_REPLY, decode_payload_data },
-    { P_BARRIER, decode_payload_barrier },
-    { P_BITMAP, NULL }, /* TODO: decode additional data */
-    { P_COMPRESSED_BITMAP, NULL }, /* TODO: decode additional data */
-    { P_UNPLUG_REMOTE, NULL },
-    { P_DATA_REQUEST, decode_payload_data_request },
-    { P_RS_DATA_REQUEST, decode_payload_data_request },
-    { P_SYNC_PARAM, decode_payload_sync_param },
-    { P_SYNC_PARAM89, decode_payload_sync_param },
-    { P_PROTOCOL, decode_payload_protocol },
-    { P_UUIDS, decode_payload_uuids },
-    { P_SIZES, decode_payload_sizes },
-    { P_STATE, decode_payload_state },
-    { P_STATE_CHG_REQ, decode_payload_req_state },
-    { P_SYNC_UUID, decode_payload_sync_uuid },
-    { P_OV_REQUEST, decode_payload_data_request },
-    { P_OV_REPLY, decode_payload_data_request }, /* TODO: decode additional data */
-    { P_CSUM_RS_REQUEST, decode_payload_data_request }, /* TODO: decode additional data */
-    { P_RS_THIN_REQ, decode_payload_data_request },
-    { P_DELAY_PROBE, decode_payload_skip },
-    { P_OUT_OF_SYNC, decode_payload_out_of_sync },
-    { P_CONN_ST_CHG_REQ, decode_payload_req_state },
-    { P_PROTOCOL_UPDATE, decode_payload_protocol }, /* TODO: decode additional data */
-    { P_TWOPC_PREPARE, decode_payload_twopc },
-    { P_TWOPC_PREP_RSZ, decode_payload_twopc },
-    { P_TWOPC_ABORT, decode_payload_twopc },
-    { P_DAGTAG, decode_payload_dagtag },
-    { P_UUIDS110, decode_payload_uuids110 },
-    { P_PEER_DAGTAG, decode_payload_peer_dagtag },
-    { P_CURRENT_UUID, decode_payload_current_uuid },
-    { P_TWOPC_COMMIT, decode_payload_twopc },
-    { P_TRIM, decode_payload_data_size },
-    { P_ZEROES, decode_payload_data_size },
-    { P_RS_DEALLOCATED, decode_payload_rs_deallocated },
-    { P_WSAME, decode_payload_data_wsame },
-    { P_DISCONNECT, NULL },
-    { P_RS_DAGTAG_REQ, decode_payload_dagtag_data_request },
-    { P_RS_CSUM_DAGTAG_REQ, decode_payload_dagtag_data_request },
-    { P_RS_THIN_DAGTAG_REQ, decode_payload_dagtag_data_request },
-    { P_OV_DAGTAG_REQ, decode_payload_dagtag_data_request },
-    { P_OV_DAGTAG_REPLY, decode_payload_dagtag_data_request },
+    { P_CONNECTION_FEATURES, NULL, decode_payload_connection_features },
+    { P_AUTH_CHALLENGE, NULL, decode_payload_auth_challenge },
+    { P_AUTH_RESPONSE, NULL, decode_payload_auth_response },
+    { P_DATA, NULL, decode_payload_data },
+    { P_DATA_REPLY, NULL, decode_payload_data },
+    { P_RS_DATA_REPLY, NULL, decode_payload_data },
+    { P_BARRIER, NULL, decode_payload_barrier },
+    { P_BITMAP, NULL, NULL }, /* TODO: decode additional data */
+    { P_COMPRESSED_BITMAP, NULL, NULL }, /* TODO: decode additional data */
+    { P_UNPLUG_REMOTE, NULL, NULL },
+    { P_DATA_REQUEST, NULL, decode_payload_data_request },
+    { P_RS_DATA_REQUEST, NULL, decode_payload_data_request },
+    { P_SYNC_PARAM, NULL, decode_payload_sync_param },
+    { P_SYNC_PARAM89, NULL, decode_payload_sync_param },
+    { P_PROTOCOL, NULL, decode_payload_protocol },
+    { P_UUIDS, NULL, decode_payload_uuids },
+    { P_SIZES, NULL, decode_payload_sizes },
+    { P_STATE, NULL, decode_payload_state },
+    { P_STATE_CHG_REQ, NULL, decode_payload_req_state },
+    { P_SYNC_UUID, NULL, decode_payload_sync_uuid },
+    { P_OV_REQUEST, NULL, decode_payload_data_request },
+    { P_OV_REPLY, NULL, decode_payload_data_request }, /* TODO: decode additional data */
+    { P_CSUM_RS_REQUEST, NULL, decode_payload_data_request }, /* TODO: decode additional data */
+    { P_RS_THIN_REQ, NULL, decode_payload_data_request },
+    { P_DELAY_PROBE, NULL, decode_payload_skip },
+    { P_OUT_OF_SYNC, NULL, decode_payload_out_of_sync },
+    { P_CONN_ST_CHG_REQ, NULL, decode_payload_req_state },
+    { P_PROTOCOL_UPDATE, NULL, decode_payload_protocol }, /* TODO: decode additional data */
+    { P_TWOPC_PREPARE, read_state_twopc_prepare, decode_payload_twopc_prepare },
+    { P_TWOPC_PREP_RSZ, read_state_twopc_prep_rsz, decode_payload_twopc_prep_rsz },
+    { P_TWOPC_ABORT, NULL, decode_payload_twopc_commit },
+    { P_DAGTAG, NULL, decode_payload_dagtag },
+    { P_UUIDS110, NULL, decode_payload_uuids110 },
+    { P_PEER_DAGTAG, NULL, decode_payload_peer_dagtag },
+    { P_CURRENT_UUID, NULL, decode_payload_current_uuid },
+    { P_TWOPC_COMMIT, NULL, decode_payload_twopc_commit },
+    { P_TRIM, NULL, decode_payload_data_size },
+    { P_ZEROES, NULL, decode_payload_data_size },
+    { P_RS_DEALLOCATED, NULL, decode_payload_rs_deallocated },
+    { P_WSAME, NULL, decode_payload_data_wsame },
+    { P_DISCONNECT, NULL, NULL },
+    { P_RS_DAGTAG_REQ, NULL, decode_payload_dagtag_data_request },
+    { P_RS_CSUM_DAGTAG_REQ, NULL, decode_payload_dagtag_data_request },
+    { P_RS_THIN_DAGTAG_REQ, NULL, decode_payload_dagtag_data_request },
+    { P_OV_DAGTAG_REQ, NULL, decode_payload_dagtag_data_request },
+    { P_OV_DAGTAG_REPLY, NULL, decode_payload_dagtag_data_request },
 
-    { P_PING, NULL },
-    { P_PING_ACK, NULL },
-    { P_RECV_ACK, decode_payload_block_ack },
-    { P_WRITE_ACK, decode_payload_block_ack },
-    { P_RS_WRITE_ACK, decode_payload_block_ack },
-    { P_SUPERSEDED, decode_payload_block_ack },
-    { P_NEG_ACK, decode_payload_block_ack },
-    { P_NEG_DREPLY, decode_payload_block_ack },
-    { P_NEG_RS_DREPLY, decode_payload_block_ack },
-    { P_OV_RESULT, decode_payload_block_ack },
-    { P_BARRIER_ACK, decode_payload_barrier_ack },
-    { P_CONFIRM_STABLE, decode_payload_confirm_stable },
-    { P_STATE_CHG_REPLY, decode_payload_rq_s_reply },
-    { P_RS_IS_IN_SYNC, decode_payload_block_ack },
-    { P_DELAY_PROBE, decode_payload_skip },
-    { P_RS_CANCEL, decode_payload_block_ack },
-    { P_RS_CANCEL_AHEAD, decode_payload_block_ack },
-    { P_CONN_ST_CHG_REPLY, decode_payload_rq_s_reply },
-    { P_RETRY_WRITE, decode_payload_block_ack },
-    { P_PEER_ACK, decode_payload_peer_ack },
-    { P_PEERS_IN_SYNC, decode_payload_peers_in_sync },
-    { P_TWOPC_YES, decode_payload_twopc_reply },
-    { P_TWOPC_NO, decode_payload_twopc_reply },
-    { P_TWOPC_RETRY, decode_payload_twopc_reply },
+    { P_PING, NULL, NULL },
+    { P_PING_ACK, NULL, NULL },
+    { P_RECV_ACK, NULL, decode_payload_block_ack },
+    { P_WRITE_ACK, NULL, decode_payload_block_ack },
+    { P_RS_WRITE_ACK, NULL, decode_payload_block_ack },
+    { P_SUPERSEDED, NULL, decode_payload_block_ack },
+    { P_NEG_ACK, NULL, decode_payload_block_ack },
+    { P_NEG_DREPLY, NULL, decode_payload_block_ack },
+    { P_NEG_RS_DREPLY, NULL, decode_payload_block_ack },
+    { P_OV_RESULT, NULL, decode_payload_block_ack },
+    { P_BARRIER_ACK, NULL, decode_payload_barrier_ack },
+    { P_CONFIRM_STABLE, NULL, decode_payload_confirm_stable },
+    { P_STATE_CHG_REPLY, NULL, decode_payload_rq_s_reply },
+    { P_RS_IS_IN_SYNC, NULL, decode_payload_block_ack },
+    { P_DELAY_PROBE, NULL, decode_payload_skip },
+    { P_RS_CANCEL, NULL, decode_payload_block_ack },
+    { P_RS_CANCEL_AHEAD, NULL, decode_payload_block_ack },
+    { P_CONN_ST_CHG_REPLY, NULL, decode_payload_rq_s_reply },
+    { P_RETRY_WRITE, NULL, decode_payload_block_ack },
+    { P_PEER_ACK, NULL, decode_payload_peer_ack },
+    { P_PEERS_IN_SYNC, NULL, decode_payload_peers_in_sync },
+    { P_TWOPC_YES, NULL, decode_payload_twopc_reply },
+    { P_TWOPC_NO, NULL, decode_payload_twopc_reply },
+    { P_TWOPC_RETRY, NULL, decode_payload_twopc_reply },
 };
 
 
@@ -530,14 +565,18 @@ static int hf_drbd_max_bio_size = -1;
 static int hf_drbd_queue_order_type = -1;
 static int hf_drbd_dds_flags = -1;
 static int hf_drbd_state = -1;
-static int hf_drbd_mask = -1;
-static int hf_drbd_val = -1;
 static int hf_drbd_retcode = -1;
+static int hf_drbd_twopc_prepare_in = -1;
 static int hf_drbd_tid = -1;
 static int hf_drbd_initiator_node_id = -1;
 static int hf_drbd_target_node_id = -1;
 static int hf_drbd_nodes_to_reach = -1;
+static int hf_drbd_primary_nodes = -1;
+static int hf_drbd_user_size = -1;
+static int hf_drbd_diskful_primary_nodes = -1;
+static int hf_drbd_exposed_size = -1;
 static int hf_drbd_reachable_nodes = -1;
+static int hf_drbd_max_possible_size = -1;
 static int hf_drbd_offset = -1;
 static int hf_drbd_dagtag = -1;
 static int hf_drbd_dagtag_node_id = -1;
@@ -713,6 +752,49 @@ static gboolean test_drbd_protocol(tvbuff_t *tvb, packet_info *pinfo,
     return match;
 }
 
+/*
+ * A DRBD connection consists of 2 TCP connections. We need information from
+ * one to correctly interpret the other. However, it is impossible to determine
+ * definitely just from a packet trace which TCP connections belong together.
+ * Fortunately, there is an essentially universal convention that the
+ * connections have a statically allocated port number in common. One
+ * connection uses it on one node, the other connection uses the same port
+ * number but on the other node. The other port numbers are dynamically
+ * allocated and thus greater.
+ *
+ * For example, the connections use:
+ * 1. Port 7000 on node A, port 44444 on node B
+ * 2. Port 55555 on node A, port 7000 on node B
+ *
+ * Hence we can associate one conversation_t to the DRBD connection by keying
+ * it on the lower port number and the two addresses in a consistent order.
+ */
+static conversation_t *find_drbd_conversation(packet_info *pinfo)
+{
+    address* addr_a;
+    address* addr_b;
+    guint32 port_a = MIN(pinfo->srcport, pinfo->destport);
+
+    if (cmp_address(&pinfo->src, &pinfo->dst) < 0) {
+        addr_a = &pinfo->src;
+        addr_b = &pinfo->dst;
+    } else {
+        addr_a = &pinfo->dst;
+        addr_b = &pinfo->src;
+    }
+
+    conversation_t *conv = find_conversation(pinfo->num, addr_a, addr_b, ENDPOINT_TCP, port_a, 0, NO_PORT_B);
+    if (!conv)
+    {
+        /* CONVERSATION_TEMPLATE prevents the port information being added once
+         * a wildcard search matches. */
+        conv = conversation_new(pinfo->num, addr_a, addr_b, ENDPOINT_TCP, port_a, 0,
+                NO_PORT2|CONVERSATION_TEMPLATE);
+    }
+
+    return conv;
+}
+
 /**
  * Returns buffer containing the payload.
  */
@@ -786,11 +868,6 @@ static void dissect_drbd_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    if (tree == NULL)
-        return;
-
-    proto_item_set_text(ti, "DRBD [%s]", packet_name);
-
     const value_payload_decoder *payload_decoder = NULL;
     for (unsigned int i = 0; i < array_length(payload_decoders); i++) {
         if (payload_decoders[i].value == command) {
@@ -799,11 +876,50 @@ static void dissect_drbd_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         }
     }
 
-    if (payload_decoder && payload_decoder->decoder_fn)
-        (*payload_decoder->decoder_fn) (payload_tvb, drbd_tree);
+    conversation_t *conv = find_drbd_conversation(pinfo);
+    drbd_conv *conv_data = (drbd_conv *)conversation_get_proto_data(conv, proto_drbd);
+    if (!conv_data) {
+        conv_data = wmem_new0(wmem_file_scope(), drbd_conv);
+        conv_data->twopc = wmem_map_new(wmem_file_scope(), drbd_twopc_key_hash, drbd_twopc_key_equal);
+        conversation_add_proto_data(conv, proto_drbd, conv_data);
+    }
+
+    if (!PINFO_FD_VISITED(pinfo) && payload_decoder && payload_decoder->state_reader_fn)
+        (*payload_decoder->state_reader_fn) (payload_tvb, pinfo, conv_data);
+
+    if (tree == NULL)
+        return;
+
+    proto_item_set_text(ti, "DRBD [%s]", packet_name);
+
+    if (payload_decoder && payload_decoder->tree_fn)
+        (*payload_decoder->tree_fn) (payload_tvb, drbd_tree, conv_data);
 }
 
-static void decode_payload_connection_features(tvbuff_t *tvb, proto_tree *tree)
+static void insert_twopc(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data, enum drbd_packet command)
+{
+    drbd_twopc_key *key = wmem_new0(wmem_file_scope(), drbd_twopc_key);
+    key->tid = tvb_get_ntohl(tvb, 0);
+    key->initiator_node_id = tvb_get_ntohil(tvb, 4);
+
+    drbd_twopc_val *val = wmem_new0(wmem_file_scope(), drbd_twopc_val);
+    val->prepare_frame = pinfo->num;
+    val->command = command;
+
+    wmem_map_insert(conv_data->twopc, key, val);
+}
+
+static void read_state_twopc_prepare(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data)
+{
+    insert_twopc(tvb, pinfo, conv_data, P_TWOPC_PREPARE);
+}
+
+static void read_state_twopc_prep_rsz(tvbuff_t *tvb, packet_info *pinfo, drbd_conv *conv_data)
+{
+    insert_twopc(tvb, pinfo, conv_data, P_TWOPC_PREP_RSZ);
+}
+
+static void decode_payload_connection_features(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_protocol_min, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_feature_flags, tvb, 4, 4, ENC_BIG_ENDIAN);
@@ -812,12 +928,12 @@ static void decode_payload_connection_features(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(tree, hf_drbd_receiver_node_id, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_auth_challenge(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_auth_challenge(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_bytes_format(tree, hf_drbd_auth_challenge_nonce, tvb, 0, CHALLENGE_LEN, NULL, "Nonce");
 }
 
-static void decode_payload_auth_response(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_auth_response(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_bytes_format(tree, hf_drbd_auth_response_hash, tvb, 0, -1, NULL, "Hash");
 }
@@ -830,7 +946,7 @@ static void decode_data_common(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_bitmask(tree, tvb, 20, hf_drbd_dp_flags, ett_drbd_data_flags, data_flag_fields, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_data(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_data(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     decode_data_common(tvb, tree);
 
@@ -840,19 +956,19 @@ static void decode_payload_data(tvbuff_t *tvb, proto_tree *tree)
             -1, NULL, "Data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
 }
 
-static void decode_payload_barrier(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_barrier(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_barrier, tvb, 0, 4, ENC_LITTLE_ENDIAN);
 }
 
-static void decode_payload_data_request(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_data_request(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_size, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
@@ -861,7 +977,7 @@ static void decode_payload_dagtag_data_request(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(tree, hf_drbd_dagtag, tvb, 24, 8, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_sync_param(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_sync_param(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     guint length = tvb_reported_length(tvb);
     guint offset = 0;
@@ -884,7 +1000,7 @@ static void decode_payload_sync_param(tvbuff_t *tvb, proto_tree *tree)
     }
 }
 
-static void decode_payload_protocol(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_protocol(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_protocol, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_after_sb_0p, tvb, 4, 4, ENC_BIG_ENDIAN);
@@ -895,7 +1011,7 @@ static void decode_payload_protocol(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(tree, hf_drbd_integrity_alg, tvb, 24, -1, ENC_ASCII | ENC_NA);
 }
 
-static void decode_payload_uuids(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_uuids(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_current_uuid, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_bitmap_uuid, tvb, 8, 8, ENC_BIG_ENDIAN);
@@ -905,7 +1021,7 @@ static void decode_payload_uuids(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_bitmask(tree, tvb, 40, hf_drbd_uuid_flags, ett_drbd_uuid_flags, uuid_flag_fields, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_sizes(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_sizes(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_d_size, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_u_size, tvb, 8, 8, ENC_BIG_ENDIAN);
@@ -923,49 +1039,117 @@ static void decode_payload_sizes(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(tree, hf_drbd_write_same_capable, tvb, 54, 1, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_state(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_state(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_bitmask(tree, tvb, 0, hf_drbd_state, ett_drbd_state, state_fields, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_req_state(tvbuff_t *tvb, proto_tree *tree)
+/* Filter fields leaving only those with bitmask overlapping with the given mask. */
+static void mask_fields(guint32 mask, int * const fields[], int * masked_fields[])
 {
-    proto_tree_add_item(tree, hf_drbd_mask, tvb, 0, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_val, tvb, 4, 4, ENC_BIG_ENDIAN);
+        int masked_i = 0;
+
+        for (int fields_i = 0; fields[fields_i]; fields_i++) {
+            header_field_info *hf = proto_registrar_get_nth(*fields[fields_i]);
+
+            if (hf && mask & hf->bitmask) {
+                masked_fields[masked_i] = fields[fields_i];
+                masked_i++;
+            }
+        }
+
+        masked_fields[masked_i] = NULL;
 }
 
-static void decode_payload_sync_uuid(tvbuff_t *tvb, proto_tree *tree)
+static void decode_state_change(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+        guint32 state_mask = tvb_get_ntohl(tvb, offset);
+        int * masked_state_fields[array_length(state_fields)];
+        mask_fields(state_mask, state_fields, masked_state_fields);
+
+        if (masked_state_fields[0]) {
+            proto_tree_add_bitmask(tree, tvb, offset + 4, hf_drbd_state, ett_drbd_state, masked_state_fields, ENC_BIG_ENDIAN);
+        } else {
+            proto_tree_add_item(tree, hf_drbd_state, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+        }
+}
+
+static void decode_payload_req_state(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
+{
+    decode_state_change(tvb, tree, 0);
+}
+
+static void decode_payload_sync_uuid(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_uuid, tvb, 0, 8, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_skip(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_skip(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_seq_num, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_offset, tvb, 4, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_out_of_sync(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_out_of_sync(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_size, tvb, 8, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_twopc(tvbuff_t *tvb, proto_tree *tree)
+static void decode_twopc_request_common(tvbuff_t *tvb, proto_tree *tree, drbd_twopc_key *key)
 {
-    proto_tree_add_item(tree, hf_drbd_tid, tvb, 0, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_initiator_node_id, tvb, 4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_drbd_tid, tvb, 0, 4, ENC_BIG_ENDIAN,
+            key ? &key->tid : NULL);
+    proto_tree_add_item_ret_int(tree, hf_drbd_initiator_node_id, tvb, 4, 4, ENC_BIG_ENDIAN,
+            key ? &key->initiator_node_id : NULL);
     proto_tree_add_item(tree, hf_drbd_target_node_id, tvb, 8, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_nodes_to_reach, tvb, 12, 8, ENC_BIG_ENDIAN);
-    /* TODO: Decode further fields based on type */
 }
 
-static void decode_payload_dagtag(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_twopc_prepare(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
+{
+    decode_twopc_request_common(tvb, tree, NULL);
+
+    proto_tree_add_item(tree, hf_drbd_primary_nodes, tvb, 20, 8, ENC_BIG_ENDIAN);
+    decode_state_change(tvb, tree, 28);
+}
+
+static void decode_payload_twopc_prep_rsz(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
+{
+    decode_twopc_request_common(tvb, tree, NULL);
+
+    proto_tree_add_item(tree, hf_drbd_user_size, tvb, 20, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_dds_flags, tvb, 28, 2, ENC_BIG_ENDIAN);
+}
+
+static void decode_payload_twopc_commit(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data)
+{
+    drbd_twopc_key key;
+    decode_twopc_request_common(tvb, tree, &key);
+
+    drbd_twopc_val *val = wmem_map_lookup(conv_data->twopc, &key);
+    if (!val)
+        return;
+
+    proto_item *it = proto_tree_add_uint(tree, hf_drbd_twopc_prepare_in,
+            tvb, 0, 0, val->prepare_frame);
+    proto_item_set_generated(it);
+
+    if (val->command == P_TWOPC_PREPARE) {
+        proto_tree_add_item(tree, hf_drbd_primary_nodes, tvb, 20, 8, ENC_BIG_ENDIAN);
+        decode_state_change(tvb, tree, 28);
+    } else if (val->command == P_TWOPC_PREP_RSZ) {
+        proto_tree_add_item(tree, hf_drbd_diskful_primary_nodes, tvb, 20, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_drbd_exposed_size, tvb, 28, 8, ENC_BIG_ENDIAN);
+    }
+}
+
+static void decode_payload_dagtag(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_dagtag, tvb, 0, 8, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_current_uuid, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dirty_bits, tvb, 8, 8, ENC_BIG_ENDIAN);
@@ -994,25 +1178,25 @@ static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree)
     }
 }
 
-static void decode_payload_peer_dagtag(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_peer_dagtag(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_dagtag, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dagtag_node_id, tvb, 8, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_current_uuid(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_current_uuid(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_uuid, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_weak_nodes, tvb, 8, 8, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_data_size(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_data_size(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     decode_data_common(tvb, tree);
     proto_tree_add_item(tree, hf_drbd_size, tvb, 24, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_data_wsame(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_data_wsame(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     decode_data_common(tvb, tree);
     proto_tree_add_item(tree, hf_drbd_size, tvb, 24, 4, ENC_BIG_ENDIAN);
@@ -1022,13 +1206,13 @@ static void decode_payload_data_wsame(tvbuff_t *tvb, proto_tree *tree)
             -1, NULL, "Data (%u byte%s)", nbytes, plurality(nbytes, "", "s"));
 }
 
-static void decode_payload_rs_deallocated(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_rs_deallocated(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_size, tvb, 8, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
@@ -1036,43 +1220,62 @@ static void decode_payload_block_ack(tvbuff_t *tvb, proto_tree *tree)
     proto_tree_add_item(tree, hf_drbd_seq_num, tvb, 20, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_barrier_ack(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_barrier_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_barrier, tvb, 0, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_set_size, tvb, 4, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_confirm_stable(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_confirm_stable(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_oldest_block_id, tvb, 0, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_youngest_block_id, tvb, 8, 8, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_set_size, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_rq_s_reply(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_rq_s_reply(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_retcode, tvb, 0, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_peer_ack(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_peer_ack(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_node_mask, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dagtag, tvb, 8, 8, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_peers_in_sync(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_peers_in_sync(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data _U_)
 {
     proto_tree_add_item(tree, hf_drbd_sector, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_node_mask, tvb, 8, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_size, tvb, 16, 4, ENC_BIG_ENDIAN);
 }
 
-static void decode_payload_twopc_reply(tvbuff_t *tvb, proto_tree *tree)
+static void decode_payload_twopc_reply(tvbuff_t *tvb, proto_tree *tree, drbd_conv *conv_data)
 {
-    proto_tree_add_item(tree, hf_drbd_tid, tvb, 0, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_initiator_node_id, tvb, 4, 4, ENC_BIG_ENDIAN);
+    drbd_twopc_key key;
+
+    proto_tree_add_item_ret_uint(tree, hf_drbd_tid, tvb, 0, 4, ENC_BIG_ENDIAN,
+            &key.tid);
+    proto_tree_add_item_ret_int(tree, hf_drbd_initiator_node_id, tvb, 4, 4, ENC_BIG_ENDIAN,
+            &key.initiator_node_id);
     proto_tree_add_item(tree, hf_drbd_reachable_nodes, tvb, 8, 8, ENC_BIG_ENDIAN);
-    /* TODO: Decode further fields based on type */
+
+    drbd_twopc_val *val = wmem_map_lookup(conv_data->twopc, &key);
+    if (!val)
+        return;
+
+    proto_item *it = proto_tree_add_uint(tree, hf_drbd_twopc_prepare_in,
+            tvb, 0, 0, val->prepare_frame);
+    proto_item_set_generated(it);
+
+    if (val->command == P_TWOPC_PREPARE) {
+        proto_tree_add_item(tree, hf_drbd_primary_nodes, tvb, 16, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_drbd_weak_nodes, tvb, 24, 8, ENC_BIG_ENDIAN);
+    } else if (val->command == P_TWOPC_PREP_RSZ) {
+        proto_tree_add_item(tree, hf_drbd_diskful_primary_nodes, tvb, 16, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_drbd_max_possible_size, tvb, 24, 8, ENC_BIG_ENDIAN);
+    }
 }
 
 static void format_node_mask(gchar *s, guint64 value)
@@ -1179,14 +1382,18 @@ void proto_register_drbd(void)
         { &hf_drbd_queue_order_type, { "queue_order_type", "drbd.queue_order_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_dds_flags, { "dds_flags", "drbd.dds_flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_state, { "state", "drbd.state", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_mask, { "mask", "drbd.mask", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_val, { "val", "drbd.val", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_retcode, { "retcode", "drbd.retcode", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_tid, { "tid", "drbd.tid", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_twopc_prepare_in, { "Two-phase commit prepare in", "drbd.twopc_prepare_in", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0, NULL, HFILL }},
+        { &hf_drbd_tid, { "tid", "drbd.tid", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_initiator_node_id, { "initiator_node_id", "drbd.initiator_node_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_target_node_id, { "target_node_id", "drbd.target_node_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_nodes_to_reach, { "nodes_to_reach", "drbd.nodes_to_reach", FT_UINT64, BASE_CUSTOM, CF_FUNC(format_node_mask), 0x0, NULL, HFILL }},
+        { &hf_drbd_primary_nodes, { "primary_nodes", "drbd.primary_nodes", FT_UINT64, BASE_CUSTOM, CF_FUNC(format_node_mask), 0x0, NULL, HFILL }},
+        { &hf_drbd_user_size, { "user_size", "drbd.user_size", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_diskful_primary_nodes, { "diskful_primary_nodes", "drbd.diskful_primary_nodes", FT_UINT64, BASE_CUSTOM, CF_FUNC(format_node_mask), 0x0, NULL, HFILL }},
+        { &hf_drbd_exposed_size, { "exposed_size", "drbd.exposed_size", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_reachable_nodes, { "reachable_nodes", "drbd.reachable_nodes", FT_UINT64, BASE_CUSTOM, CF_FUNC(format_node_mask), 0x0, NULL, HFILL }},
+        { &hf_drbd_max_possible_size, { "max_possible_size", "drbd.max_possible_size", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_offset, { "offset", "drbd.offset", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_dagtag, { "dagtag", "drbd.dagtag", FT_UINT64, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_dagtag_node_id, { "dagtag_node_id", "drbd.dagtag_node_id", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
