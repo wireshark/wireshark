@@ -92,7 +92,9 @@ Too many protocols have been updated to list here.
 
 //_Non-empty section placeholder._
 
-// === Major API Changes
+=== Major API Changes
+
+* proto.h: The field display types "STR_ASCII" and "STR_UNICODE" were removed. Use "BASE_NONE" instead.
 
 == Getting Wireshark
 
