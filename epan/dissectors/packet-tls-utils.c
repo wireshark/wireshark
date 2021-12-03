@@ -7857,42 +7857,14 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 offset += parameter_length;
             break;
-	    case SSL_HND_QUIC_TP_VERSION_NEGOTIATION:
-	        if (hnd_type == SSL_HND_CLIENT_HELLO) {
+            case SSL_HND_QUIC_TP_VERSION_NEGOTIATION:
+                quic_proto_tree_add_version(tvb, parameter_tree,
+                                            hf->hf.hs_ext_quictp_parameter_chosen_version, offset);
+                offset += 4;
+                for (i = 4; i < parameter_length; i += 4) {
                     quic_proto_tree_add_version(tvb, parameter_tree,
-                                                hf->hf.hs_ext_quictp_parameter_currently_attempted_version, offset);
+                                                hf->hf.hs_ext_quictp_parameter_other_version, offset);
                     offset += 4;
-                    quic_proto_tree_add_version(tvb, parameter_tree,
-                                                hf->hf.hs_ext_quictp_parameter_previously_attempted_version, offset);
-                    offset += 4;
-                    proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_received_negotiation_version_count,
-                                                   tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                    offset += len;
-                    for (i = 0; i < value; i++) {
-                        quic_proto_tree_add_version(tvb, parameter_tree,
-                                                    hf->hf.hs_ext_quictp_parameter_received_negotiation_version, offset);
-                        offset += 4;
-                    }
-                    proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_compatible_version_count,
-                                                   tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                    offset += len;
-                    for (i = 0; i < value; i++) {
-                        quic_proto_tree_add_version(tvb, parameter_tree,
-                                                    hf->hf.hs_ext_quictp_parameter_compatible_version, offset);
-                        offset += 4;
-                    }
-                } else {
-                    quic_proto_tree_add_version(tvb, parameter_tree,
-                                                hf->hf.hs_ext_quictp_parameter_negotiated_version, offset);
-                    offset += 4;
-                    proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_supported_version_count,
-                                                   tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                    offset += len;
-                    for (i = 0; i < value; i++) {
-                        quic_proto_tree_add_version(tvb, parameter_tree,
-                                                    hf->hf.hs_ext_quictp_parameter_supported_version, offset);
-                        offset += 4;
-                    }
                 }
             break;
             case SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY:

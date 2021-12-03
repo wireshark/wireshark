@@ -15,7 +15,7 @@
  * RFC9000 QUIC: A UDP-Based Multiplexed and Secure Transport
  * RFC9001 Using TLS to Secure QUIC
  * RFC8889 Version-Independent Properties of QUIC
- * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-03
+ * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-05
  * https://datatracker.ietf.org/doc/html/draft-ietf-quic-v2-00
  *
  * Extension:
@@ -3185,6 +3185,16 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             /* Create new decryption context based on the Client Connection
              * ID from the *very first* Client Initial packet. */
             quic_create_initial_decoders(&dcid, &error, conn);
+        } else if (long_packet_type == QUIC_LPT_INITIAL && from_server &&
+                   version != conn->version) {
+            /* Compatibile Version Negotiation: the server (probably) updated the connection version.
+               We need to restart the ciphers since HP depends on version.
+               If/when updating the ciphers is a bit tricky during Compatible Version Negotiation.
+               TODO: do we really need to restart all the initial ciphers?
+             */
+            conn->version = version;
+            quic_ciphers_reset(ciphers);
+            quic_create_initial_decoders(&conn->client_dcid_initial, &error, conn);
         } else if (long_packet_type == QUIC_LPT_0RTT) {
             early_data_secret_len = tls13_get_quic_secret(pinfo, FALSE, TLS_SECRET_0RTT_APP, DIGEST_MIN_SIZE, DIGEST_MAX_SIZE, early_data_secret);
             if (early_data_secret_len == 0) {
