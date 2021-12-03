@@ -1304,6 +1304,27 @@ PositioningInformationUpdate             N f1ap.proc.imsg id-PositioningInformat
           break;
         }
         break;
+      case id_UEContextSetup:
+      case id_UEContextModification:
+        col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+        col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+        col_set_fence(actx->pinfo->cinfo, COL_INFO);
+        add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_DOWNLINK, 1);
+        call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
+        break;
+      default:
+        break;
+      }
+      break;
+    case SUCCESSFUL_OUTCOME:
+      switch (f1ap_data->procedure_code) {
+      case id_UEContextModificationRequired:
+        col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/");
+        col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+        col_set_fence(actx->pinfo->cinfo, COL_INFO);
+        add_nr_pdcp_meta_data(actx->pinfo, PDCP_NR_DIRECTION_DOWNLINK, 1);
+        call_dissector(nr_pdcp_handle, param_tvb, actx->pinfo, subtree);
+        break;
       default:
         break;
       }
