@@ -11,17 +11,8 @@
 
 #requires -version 2
 
-# Makefile.nmake + win-setup.sh does:
-# - verify_tools: Checks required executables. CMake does this.
-# - clean_setup: Removes current and past lib dirs.
-# - process_libs: calls libverify or download for each lib.
-
 # To do:
-# - Make this the source of truth. Keep the list of libs here.
-# - Download everything unconditionally, at least initially.
-
-# Bugs:
-# - Unzipping from the shell seems to be slower than Cygwin's unzip or 7zip.
+# - Use Expand-Archive instead of `cmake -E tar`? That requires PS >= 5.0
 
 <#
 .SYNOPSIS
@@ -205,7 +196,6 @@ $CleanupItems = @(
 )
 
 [Uri] $DownloadPrefix = "https://anonsvn.wireshark.org/wireshark-$($Platform)-libs/tags/$($CurrentTag)/packages"
-$Global:SevenZip = "7-zip-not-found"
 $proxy = $null
 
 # Functions
@@ -271,82 +261,23 @@ function DownloadFile($fileName, $checksum, [Uri] $fileUrl = $null) {
     }
 }
 
-# Find 7-Zip, downloading it if necessary.
-# If we ever add NuGet support we might be able to use
-# https://github.com/thoemmi/7Zip4Powershell
-function Bootstrap7Zip() {
-    $searchExes = @("7z.exe", "7za.exe")
-    $binDir = "$Destination\bin"
-
-    # First, check $env:Path.
-    foreach ($exe in $searchExes) {
-        if (Get-Command $exe -ErrorAction SilentlyContinue)  {
-            $Global:SevenZip = "$exe"
-            Write-Output "Found 7-zip on the path"
-            return
-        }
-    }
-
-    # Next, look in a few likely places.
-    $searchDirs = @(
-        "${env:ProgramFiles}\7-Zip"
-        "${env:ProgramFiles(x86)}\7-Zip"
-        "${env:ProgramW6432}\7-Zip"
-        "${env:ChocolateyInstall}\bin"
-        "${env:ChocolateyInstall}\tools"
-        "$binDir"
-    )
-
-    foreach ($dir in $searchDirs) {
-        if ($dir -ne $null -and (Test-Path $dir -PathType 'Container')) {
-            foreach ($exe in $searchExes) {
-                if (Test-Path "$dir\$exe" -PathType 'Leaf') {
-                    $Global:SevenZip = "$dir\$exe"
-                    Write-Output "Found 7-zip at $dir\$exe"
-                    return
-                }
-            }
-        }
-    }
-
-    # Finally, download a copy from anonsvn.
-    if ( -not (Test-Path $binDir -PathType 'Container') ) {
-        New-Item -ItemType 'Container' "$binDir" > $null
-    }
-
-    Write-Output "Unable to find 7-zip, retrieving from anonsvn into $binDir\7za.exe"
-    [Uri] $bbUrl = "https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/bin/7za.exe"
-    $checksum = "77613cca716edf68b9d5bab951463ed7fade5bc0ec465b36190a76299c50f117"
-    DownloadFile "bin\7za.exe" "$checksum" "$bbUrl"
-
-    $Global:SevenZip = "$binDir\7za.exe"
-}
-
 function DownloadArchive($fileName, $checksum, $subDir) {
     DownloadFile $fileName $checksum
-    # $shell = New-Object -com shell.application
     $archiveFile = "$Destination\$fileName"
     $archiveDir = "$Destination\$subDir"
     if ($subDir -and -not (Test-Path $archiveDir -PathType 'Container')) {
         New-Item -ItemType Directory -Path $archiveDir > $null
     }
-    if (Test-Path 'env:WIRESHARK_DO_NOT_USE_7ZIP') {
-        # Display a progress bar while extracting and overwriting existing files.
-        Expand-Archive $archiveFile $archiveDir -Force -ErrorVariable $expandError
-        if ($expandError) {
-            exit 1
-        }
-        return
-    }
 
     $activity = "Extracting into $($archiveDir)"
-    Write-Progress -Activity "$activity" -Status "Running 7z x $archiveFile ..."
-    & "$SevenZip" x "-o$archiveDir" -y "$archiveFile" 2>&1 |
-        Set-Variable -Name SevenZOut
-    $bbStatus = $LASTEXITCODE
+    Write-Progress -Activity "$activity" -Status "Extracting $archiveFile using CMake ..."
+    Push-Location "$archiveDir"
+    & cmake -E tar xf "$archiveFile" 2>&1 | Set-Variable -Name CMakeOut
+    $cmStatus = $LASTEXITCODE
+    Pop-Location
     Write-Progress -Activity "$activity" -Status "Done" -Completed
-    if ($bbStatus -gt 0) {
-        Write-Output $SevenZOut
+    if ($cmStatus -gt 0) {
+        Write-Output $CMakeOut
         exit 1
     }
 }
@@ -372,7 +303,6 @@ if ((Test-Path $tagFile -PathType 'Leaf') -and -not ($Force)) {
 
 if ($destinationTag -ne $CurrentTag) {
     Write-Output "Tag $CurrentTag not found. Refreshing."
-    Bootstrap7Zip
     $activity = "Removing directories"
     foreach ($oldItem in $CleanupItems) {
         if (Test-Path $oldItem) {
