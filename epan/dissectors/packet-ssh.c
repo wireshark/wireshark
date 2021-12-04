@@ -56,6 +56,8 @@
 #include <wsutil/curve25519.h>
 #include <wsutil/wslog.h>
 #include <ui/version_info.h>
+#include <epan/secrets.h>
+#include <wiretap/secrets-types.h>
 
 #if defined(HAVE_LIBGNUTLS)
 #include <gnutls/abstract.h>
@@ -445,6 +447,7 @@ static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data);
 #ifdef SSH_DECRYPTION_SUPPORTED
 static void ssh_keylog_read_file(void);
 static void ssh_keylog_process_line(const char *line);
+static void ssh_keylog_process_lines(const guint8 *data, guint datalen);
 static void ssh_keylog_reset(void);
 static ssh_bignum *ssh_kex_make_bignum(const guint8 *data, guint length);
 static void ssh_read_e(tvbuff_t *tvb, int offset,
@@ -1564,6 +1567,34 @@ ssh_keylog_read_file(void)
 }
 
 static void
+ssh_keylog_process_lines(const guint8 *data, guint datalen)
+{
+    const char *next_line = (const char *)data;
+    const char *line_end = next_line + datalen;
+    while (next_line && next_line < line_end) {
+        const char *line = next_line;
+        next_line = (const char *)memchr(line, '\n', line_end - line);
+        gssize linelen;
+
+        if (next_line) {
+            linelen = next_line - line;
+            next_line++;    /* drop LF */
+        } else {
+            linelen = (gssize)(line_end - line);
+        }
+        if (linelen > 0 && line[linelen - 1] == '\r') {
+            linelen--;      /* drop CR */
+        }
+
+        ssh_debug_printf("  checking keylog line: %.*s\n", (int)linelen, line);
+
+        gchar * strippedline = g_strndup(line, linelen);
+        ssh_keylog_process_line(strippedline);
+        g_free(strippedline);
+    }
+}
+
+static void
 ssh_keylog_process_line(const char *line)
 {
     ws_debug("ssh: process line: %s", line);
@@ -1645,10 +1676,12 @@ ssh_keylog_reset(void)
 }
 
 static guint
-ssh_kex_type(char *type)
+ssh_kex_type(gchar *type)
 {
-    if (type && g_str_has_prefix(type, "curve25519")) {
-        return SSH_KEX_CURVE25519;
+    if (type) {
+        if (g_str_has_prefix(type, "curve25519")) {
+            return SSH_KEX_CURVE25519;
+        }
     }
 
     return 0;
@@ -1998,6 +2031,12 @@ ssh_print_data(const gchar* name, const guchar* data, size_t len)
 }
 
 #endif /* SSH_DECRYPT_DEBUG }}} */
+
+static void
+ssh_secrets_block_callback(const void *secrets, guint size)
+{
+    ssh_keylog_process_lines((const guint8 *)secrets, size);
+}
 
 /* Functions for SSH random hashtables. {{{ */
 static gint
@@ -2442,6 +2481,7 @@ proto_register_ssh(void)
         "or use \"" SSH_DEBUG_USE_STDERR "\" to redirect output to stderr.",
         &ssh_debug_file_name, TRUE);
 
+    secrets_register_type(SECRETS_TYPE_SSH, ssh_secrets_block_callback);
 #endif
 
     ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
