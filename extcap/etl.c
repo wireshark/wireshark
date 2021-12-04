@@ -16,6 +16,8 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "etwdump"
+
 #include "etl.h"
 #include "wsutil/ws_getopt.h"
 #include "wsutil/strtoi.h"

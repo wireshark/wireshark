@@ -40,6 +40,8 @@
 
 #define LOG_DOMAIN_UAT        "UAT"
 
+#define LOG_DOMAIN_EXTCAP     "Extcap"
+
 /*
  * Ascending order by priority needs to be maintained. Higher priorities have
  * higher values.

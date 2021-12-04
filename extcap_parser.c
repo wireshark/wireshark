@@ -11,6 +11,7 @@
  */
 
 #include <config.h>
+#define WS_LOG_DOMAIN LOG_DOMAIN_EXTCAP
 
 #include <stdio.h>
 #include <glib.h>

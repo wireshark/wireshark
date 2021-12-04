@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "randpktdump"
 
 #include "extcap-base.h"
 
