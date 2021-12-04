@@ -568,6 +568,30 @@ enum ws_log_level ws_log_set_fatal_str(const char *str_level)
 }
 
 
+void ws_log_set_writer(ws_log_writer_cb *writer)
+{
+    if (registered_log_writer_data_free)
+        registered_log_writer_data_free(registered_log_writer_data);
+
+    registered_log_writer = writer;
+    registered_log_writer_data = NULL;
+    registered_log_writer_data_free = NULL;
+}
+
+
+void ws_log_set_writer_with_data(ws_log_writer_cb *writer,
+                        void *user_data,
+                        ws_log_writer_free_data_cb *free_user_data)
+{
+    if (registered_log_writer_data_free)
+        registered_log_writer_data_free(registered_log_writer_data);
+
+    registered_log_writer = writer;
+    registered_log_writer_data = user_data;
+    registered_log_writer_data_free = free_user_data;
+}
+
+
 static void glib_log_handler(const char *domain, GLogLevelFlags flags,
                         const char *message, gpointer user_data _U_)
 {

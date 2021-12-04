@@ -162,6 +162,26 @@ WS_DLL_PUBLIC
 enum ws_log_level  ws_log_set_fatal_str(const char *str_level);
 
 
+/** Set the active log writer.
+ *
+ * The parameter 'writer' can be NULL to use the default writer.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_writer(ws_log_writer_cb *writer);
+
+
+/** Set the active log writer.
+ *
+ * The parameter 'writer' can be NULL to use the default writer.
+ * Accepts an extra user_data parameter that will be passed to
+ * the log writer.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_writer_with_data(ws_log_writer_cb *writer,
+                        void *user_data,
+                        ws_log_writer_free_data_cb *free_user_data);
+
+
 #define LOG_ARGS_NOEXIT -1
 
 /** Parses the command line arguments for log options.

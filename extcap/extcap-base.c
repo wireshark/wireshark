@@ -124,7 +124,7 @@ static void extcap_custom_log(const char *domain, enum ws_log_level level,
 
 void extcap_log_init(const char *progname)
 {
-    ws_log_init_with_writer(progname, extcap_custom_log, NULL);
+    ws_log_init(progname, NULL);
 }
 
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument)
@@ -138,6 +138,7 @@ uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char *
             break;
         case EXTCAP_OPT_DEBUG_FILE:
             extcap_init_custom_log(optargument);
+            ws_log_set_writer(extcap_custom_log);
             break;
         case EXTCAP_OPT_LIST_INTERFACES:
             extcap->do_list_interfaces = 1;
