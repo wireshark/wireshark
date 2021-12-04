@@ -1099,6 +1099,11 @@ result after finishing reading the capture file.  Use the *-q* option
 if you're reading a capture file and only want the statistics printed,
 not any per-packet information.
 
+Statistics are calculated independently of the normal per-packet output,
+unaffected by the main display filter. However, most have their own
+optional __filter__ parameter, and only packets that match that filter (and
+any capture filter or read filter) will be used in the calculations.
+
 Note that the *-z proto* option is different - it doesn't cause
 statistics to be gathered and printed when the capture is complete, it
 modifies the regular packet summary output to include the values of
@@ -1123,9 +1128,85 @@ Display all possible values for *-z*.
 Show Apple Filing Protocol service response time statistics.
 --
 
-*-z* camel,srt::
+*-z* ancp,tree[,__filter__]::
 +
 --
+Calculate statistics on Access Node Control Protocol message types
+and adjacency packet codes.
+--
+
+*-z* ansi_a,bsmap[,__filter__]::
++
+--
+Count the number of ANSI A-I/F BSMAP messages of each type.
+--
+
+*-z* ansi_a,dtap[,__filter__]::
++
+--
+Count the number of ANSI A-I/F DTAP messages of each type.
+--
+
+*-z* ansi_map[,__filter__]::
++
+--
+Count the number of ANSI MAP messages of each type, and calculate the
+total number of bytes and average bytes of each message type.
+--
+
+*-z* bacapp_instanceid,tree[,__filter__]::
++
+--
+Calculate statistics on BACnet APDUs, collated by instance ID.
+Displayed information includes source and destination address and
+service type.
+--
+
+*-z* bacapp_ip,tree[,__filter__]::
++
+--
+Calculate statistics on BACnet APDUs, collated by source and destination
+address.  Displayed information includes service type, object ID, and
+instance ID.
+--
+
+*-z* bacapp_objectid,tree[,__filter__]::
++
+--
+Calculate statistics on BACnet APDUs, collated by object ID.
+Displayed information includes source and destination address,
+service type, and instance ID.
+--
+
+*-z* bacapp_service,tree[,__filter__]::
++
+--
+Calculate statistics on BACnet APDUs, collated by service type.
+Displayed information includes source and destination address,
+object ID, and instance ID.
+--
+
+*-z* camel,counter[,__filter__]::
++
+--
+Count the number of CAMEL messages for each opcode.
+--
+
+*-z* camel,srt[,__filter__]::
++
+--
+Collect requests/response SRT (Service Response Time) data for CAMEL.
+Data collected is number of request messages with corresponding response
+of each CAMEL message type, along with the minimum, maximum, and average
+response time.
+--
+
+*-z* collectd,tree[,__filter__]::
++
+--
+Calculate statistics for collectd.  The gathered statistics are the number
+of collectd packets and the total number of value segments, along with the
+host, plugin, and type of the values.
 --
 
 *-z* conv,__type__[,__filter__]::
@@ -1143,22 +1224,33 @@ want to generate the statistics; currently the supported ones are:
   "ipv6"  IPv6 addresses
   "ipx"   IPX addresses
   "jxta"  JXTA message addresses
+  "mptcp" Multipath TCP connections
   "ncp"   NCP connections
   "rsvp"  RSVP connections
   "sctp"  SCTP addresses
+  "sll"   Linux "cooked mode" capture addresses
   "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
   "tr"    Token Ring addresses
-  "usb"   USB addresses
   "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"   USB addresses
   "wlan"  IEEE 802.11 addresses
-
-If the optional __filter__ is specified, only those packets that match the
-filter will be used in the calculations.
+  "wpan"  IEEE 802.15.4 addresses
+  "zbee_nwk" ZigBee Network Layer addresses
 
 The table is presented with one line for each conversation and displays
 the number of packets/bytes in each direction as well as the total
 number of packets/bytes.  The table is sorted according to the total
 number of frames.
+--
+
+*-z* credentials::
++
+--
+Collect credentials (username/passwords) from packets. The report includes
+the packet number, the protocol that had that credential, the username and
+the password. For protocols just using one single field as authentication,
+this is provided as a password and a placeholder in place of the user.
+Currently implemented protocols include FTP, HTTP, IMAP, POP, and SMTP.
 --
 
 *-z* dcerpc,srt,__uuid__,__major__.__minor__[,__filter__]::
@@ -1174,11 +1266,15 @@ collect data for the CIFS SAMR Interface.
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
-
 Example: [.nowrap]#*-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4*# will collect SAMR
 SRT statistics for a specific host.
+--
+
+*-z* dests,tree[,__filter__]::
++
+--
+Calculate statistics on IPv4 destination addresses and the protocols
+and ports appearing on each address.
 --
 
 *-z* dhcp,stat[,__filter__]::
@@ -1234,6 +1330,15 @@ __diameter.Subscription-Id-Data__ or __diameter.Rating-Group__.
 Note: *tshark -q* option is recommended to suppress default *TShark* output.
 --
 
+*-z* diameter,srt[,__filter__]::
++
+--
+Collect requests/response SRT (Service Response Time) data for Diameter.
+Data collected is number of request and response pairs of each Diameter
+command code, Minimum SRT, Maximum SRT, Average SRT, and Sum SRT.
+Currently no statistics are gathered on unpaired messages.
+--
+
 *-z* dns,tree[,__filter__]::
 +
 --
@@ -1257,17 +1362,18 @@ want to generate the statistics; currently the supported ones are:
   "ipv6"  IPv6 addresses
   "ipx"   IPX addresses
   "jxta"  JXTA message addresses
+  "mptcp" Multipath TCP connections
   "ncp"   NCP connections
   "rsvp"  RSVP connections
   "sctp"  SCTP addresses
+  "sll"   Linux "cooked mode" capture addresses
   "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
   "tr"    Token Ring addresses
-  "usb"   USB addresses
   "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"   USB addresses
   "wlan"  IEEE 802.11 addresses
-
-If the optional __filter__ is specified, only those packets that match the
-filter will be used in the calculations.
+  "wpan"  IEEE 802.15.4 addresses
+  "zbee_nwk" ZigBee Network Layer addresses
 
 The table is presented with one line for each conversation and displays
 the number of packets/bytes in each direction as well as the total
@@ -1275,7 +1381,7 @@ number of packets/bytes.  The table is sorted according to the total
 number of frames.
 --
 
-*-z* expert[__,error|,warn|,note|,chat|,comment__][__,filter__]::
+*-z* expert[__,error|,warn|,note|,chat|,comment__][,__filter__]::
 +
 --
 Collects information about all expert info, and will display them in order,
@@ -1286,14 +1392,11 @@ match the sip protocol.
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
-
 Example: *-z "expert,note,tcp"* will only collect expert items for frames that
 include the tcp protocol, with a severity of note or higher.
 --
 
-*-z* flow,__name__,__mode__,[__filter__]::
+*-z* flow,__name__,__mode__[,__filter__]::
 +
 --
 Displays the flow of data between two nodes. Output is the same as ASCII format
@@ -1315,7 +1418,7 @@ __mode__ specifies the address type.  It can be one of:
 Example: *-z flow,tcp,network* will show data flow for all TCP frames
 --
 
-*-z* follow,__prot__,__mode__,__filter__[__,range__]::
+*-z* follow,__prot__,__mode__,__filter__[,__range__]::
 +
 --
 Displays the contents of a TCP or UDP stream between two nodes. The data
@@ -1327,6 +1430,7 @@ __prot__ specifies the transport protocol.  It can be one of:
   tcp   TCP
   udp   UDP
   tls   TLS or SSL
+  http  HTTP streams
   http2 HTTP/2 streams
   quic  QUIC streams
 
@@ -1341,14 +1445,22 @@ __mode__ specifies the output mode.  It can be one of:
 Since the output in *ascii* or *ebcdic* mode may contain newlines, the length
 of each section of output plus a newline precedes each section of output.
 
-__filter__ specifies the stream to be displayed. UDP/TCP streams are selected
-with either the stream index or IP address plus port pairs. TLS streams are
-selected with the stream index. HTTP/2 streams are selected by combination of
-UDP/TCP and HTTP/2 streams indices. For example:
+__filter__ specifies the stream to be displayed. There are three formats:
 
   ip-addr0:port0,ip-addr1:port1
   stream-index
   stream-index,substream-index
+
+The first format specifies IP addresses and TCP or UDP port pairs. (TCP ports
+are used for TLS, HTTP, and HTTP2; QUIC does not support address and port
+matching because of connection migration.)
+
+The second format specifies stream indices, and is used for TCP, UDP, TLS, and
+HTTP. (TLS and HTTP use TCP stream indices.)
+
+The third format, specifying streams and substreams, is used for HTTP/2 and
+QUIC due to their use of multiplexing. (TCP stream and HTTP/2 stream indices
+for HTTP/2, QUIC connection number and stream ID for QUIC.)
 
 __range__ optionally specifies which "chunks" of the stream should be displayed.
 
@@ -1398,12 +1510,58 @@ stream on the first TCP session (index 0) with HTTP/2 Stream ID 1.
       00000020  34 a0 5b b8 21 5c 0b ea  62 d1 bf                 4.[.!\.. b..
       0000002B  00 40 00 00 00 00 00 00  01 89 50 4e 47 0d 0a 1a  .@...... ..PNG...
 
-QUIC streams can be selected through *-z "follow,quic,hex,3,0"*, the first
-number indicates the QUIC connection number whereas the second number selects the QUIC
-Stream ID.
 --
 
-*-z* h225,counter[__,filter__]::
+*-z* gsm_a::
++
+--
+Count the number of GSM A-I/F messages of each type within the following
+categories: BSSMAP, DTAP Mobility Management, DTAP Radio Resource
+Management, DTAP Call Control, DTAP GPRS Mobility Management, DTAP SMS
+messages, DTAP GPRS Session Management, DTAP Supplementary Services, DTAP
+Special Conformance Testing Functions, and SACCH Radio Resource Management.
+
+Unlike the individual statistics for each category that follow, this only
+prints a line for each message type that appears, instead of including lines
+for message types with a count of zero.
+--
+
+*-z* gsm_a,__category__[,__filter__]::
++
+--
+Count the number of messages of each type in GSM A-I/F __category__, which
+can be one of:
+
+  bssmap     BSSMAP
+  dtap_cc    DTAP Call Control
+  dtap_gmm   DTAP GPRS Mobility Management
+  dtap_mm    DTAP Mobility Management
+  dtap_rr    DTAP Radio Resource Management
+  dtap_sacch SACCH Radio Resource Management
+  dtap_sm    DTAP GPRS Session Managment
+  dtap_sms   DTAP Short Message Service
+  dtap_ss    DTAP Supplementary Services
+  dtap_tp    DTAP Special Conformance Testing Functions
+--
+
+*-z* gsm_map,operation[,__filter__]::
++
+--
+Calculate statistics on GSM MAP. For each op code, the total number of
+invokes and results, along with the average and total bytes for invokes
+and results separately and combined is displayed.
+--
+
+*-z* gtp,srt[,__filter__]::
++
+--
+Collect requests/response SRT (Service Response Time) data for GTP.
+Data collected is the number of calls, mimimum SRT, maximum SRT, average
+SRT, and sum SRT for Echo and Create/Update/Delete PDP context commands only.
+Currently no statistics are gathered on unpaired messages.
+--
+
+*-z* h225,counter[,__filter__]::
 +
 --
 Count ITU-T H.225 messages and their reasons.  In the first column you get a
@@ -1413,43 +1571,46 @@ in the second column.
 
 Example: *-z h225,counter*.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
 Example: use *-z "h225,counter,ip.addr==1.2.3.4"* to only collect stats for
 H.225 packets exchanged by the host at IP address 1.2.3.4 .
 
 This option can be used multiple times on the command line.
 --
 
-*-z* h225,srt[__,filter__]::
+*-z* h225_ras,rtd[,__filter__]::
 +
 --
-Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS.
+Collect requests/response RTD (Response Time Delay) data for ITU-T H.225 RAS.
 Data collected is number of calls of each ITU-T H.225 RAS Message Type,
-Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet.
+Minimum RTD, Maximum RTD, Average RTD, Minimum in Frame, and Maximum in Frame.
 You will also get the number of Open Requests (Unresponded Requests),
 Discarded Responses (Responses without matching request) and Duplicate Messages.
 
-Example: *tshark -z h225,srt*
+Example: *tshark -z h225_ras,rtd*
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: *-z "h225,srt,ip.addr==1.2.3.4"* will only collect stats for
+Example: *-z "h225_ras,rtd,ip.addr==1.2.3.4"* will only collect stats for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
+--
+
+*-z* hart_ip,tree,[,__filter__]::
++
+--
+Calculate statistics on HART-IP packets, grouping by message types and
+message IDs within types.
 --
 
 *-z* hosts[,ip][,ipv4][,ipv6]::
 +
 --
-Dump any collected IPv4 and/or IPv6 addresses in "hosts" format.  Both IPv4
-and IPv6 addresses are dumped by default. "ip" argument will dump only ipv4
-addresses.
+Dump any collected resolved IPv4 and/or IPv6 addresses in "hosts" format.
+Both IPv4 and IPv6 addresses are dumped by default. "ip" argument will dump
+only IPv4 addresses.
 
 Addresses are collected from a number of sources, including standard "hosts"
-files and captured traffic.
+files and captured traffic. Resolution must be enabled, e.g. through the
+*-n* option.
 --
 
 *-z* hpfeeds,tree[,__filter__]::
@@ -1459,41 +1620,47 @@ Calculate statistics for HPFEEDS traffic such as publish per channel, and opcode
 distribution.
 --
 
-*-z* http,stat,::
+*-z* http,stat[,__filter__]::
 +
 --
-Calculate the HTTP statistics distribution. Displayed values are
-the HTTP status codes and the HTTP request methods.
+Count the HTTP response status codes and the HTTP request methods.
 --
 
-*-z* http,tree::
+*-z* http,tree[,__filter__]::
 +
 --
 Calculate the HTTP packet distribution. Displayed values are the
-HTTP request modes and the HTTP status codes.
+response status codes and request methods.
 --
 
-*-z* http_ref,tree::
-+
---
-Calculate the HTTP requests by referer. Displayed values are the
-referring URI.
---
-
-*-z* http_req,tree::
+*-z* http_req,tree[,__filter__]::
 +
 --
 Calculate the HTTP requests by server. Displayed values are the
 server name and the URI path.
 --
 
-*-z* http_srv,tree::
+*-z* http_seq,tree[,__filter__]::
++
+--
+Calculate the HTTP request sequence statistics, which correlate
+referring URIs with request URIs.
+--
+
+*-z* http_srv,tree[,__filter__]::
 +
 --
 Calculate the HTTP requests and responses by server. For the HTTP
 requests, displayed values are the server IP address and server
 hostname. For the HTTP responses, displayed values are the server
 IP address and status.
+--
+
+*-z* http2,tree[,__filter__]::
++
+--
+Calculate the HTTP/2 packet distribution. Displayed values are the
+frame types.
 --
 
 *-z* icmp,srt[,__filter__]::
@@ -1526,9 +1693,6 @@ This option can be used multiple times on the command line.
 +
 --
 Create Protocol Hierarchy Statistics listing both number of packets and bytes.
-If no __filter__ is specified the statistics will be calculated for all packets.
-If a __filter__ is specified statistics will only be calculated for those
-packets that match the filter.
 
 This option can be used multiple times on the command line.
 --
@@ -1541,7 +1705,6 @@ __interval__ seconds.  __Interval__ can be specified either as a whole or
 fractional second and can be specified with microsecond (us) resolution.
 If __interval__ is 0, the statistics will be calculated over all packets.
 
-If no __filter__ is specified the statistics will be calculated for all packets.
 If one or more __filters__ are specified statistics will be calculated for
 all filters and presented with one column of statistics for each filter.
 
@@ -1690,7 +1853,55 @@ the total number of bytes transmitted to the client (unidirectionally) at IP add
   =======================================================================================================================
 --
 
-*-z* mac-lte,stat[__,filter__]::
+*-z* ip_hosts,tree[,__filter__]::
++
+--
+Calculate statistics on IPv4 addresses, with source and destination addresses
+all grouped together.
+--
+
+*-z* ip_srcdst,tree[,__filter__]::
++
+--
+Calculate statistics on IPv4 addresses, with source and destination addresses
+separated into separate categories.
+--
+
+*-z* ip6_dests,tree[,__filter__]::
++
+--
+Calculate statistics on IPv6 destination addresses and the protocols
+and ports appearing on each address.
+--
+
+*-z* ip6_hosts,tree[,__filter__]::
++
+--
+Calculate statistics on IPv6 addresses, with source and destination addresses
+all grouped together.
+--
+
+*-z* ip6_ptype,tree[,__filter__]::
++
+--
+Calculate statistics on port types that occur on IPv6 packets.
+--
+
+*-z* ip6_srcdst,tree[,__filter__]::
++
+--
+Calculate statistics on IPv6 addresses, with source and destination addresses
+separated into separate categories.
+--
+
+*-z* isup_msg,tree[,__filter__]::
++
+--
+Calculate statistics on ISUP messages. Displayed information is message
+types and direction (originating point code and destination point code.)
+--
+
+*-z* mac-lte,stat[,__filter__]::
 +
 --
 This option will activate a counter for LTE MAC messages.  You will get
@@ -1701,13 +1912,11 @@ Example: *tshark -z mac-lte,stat*.
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-for those frames that match that filter.
 Example: *-z "mac-lte,stat,mac-lte.rnti>3000"* will only collect stats for
 UEs with an assigned RNTI whose value is more than 3000.
 --
 
-*-z* megaco,rtd[__,filter__]::
+*-z* megaco,rtd[,__filter__]::
 +
 --
 Collect requests/response RTD (Response Time Delay) data for MEGACO.
@@ -1717,15 +1926,13 @@ Additionally you get the number of duplicate requests/responses,
 unresponded requests, responses, which don't match with any request.
 Example: *-z megaco,rtd*.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
 Example: *-z "megaco,rtd,ip.addr==1.2.3.4"* will only collect stats for
 MEGACO packets exchanged by the host at IP address 1.2.3.4 .
 
 This option can be used multiple times on the command line.
 --
 
-*-z* mgcp,rtd[__,filter__]::
+*-z* mgcp,rtd[,__filter__]::
 +
 --
 Collect requests/response RTD (Response Time Delay) data for MGCP.
@@ -1737,19 +1944,41 @@ Example: *-z mgcp,rtd*.
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
 Example: *-z "mgcp,rtd,ip.addr==1.2.3.4"* will only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 --
 
-*-z* credentials::
+*-z* mtp3,msus[,__filter__]::
 +
 --
-Collect credentials (username/passwords) from packets. The report includes
-the packet number, the protocol that had that credential, the username and
-the password. For protocols just using one single field as authentication,
-this is provided as a password and a placeholder in place of the user.
+Calculate statisics on MTP3 MSUs. For each combination of originating
+point code, destination point code, and service indicator, calculates
+the total number of MSUs, the total bytes, and the average bytes per MSU.
+--
+
+*-z* ncp,srt[,__filter__]::
++
+--
+Collect requests/response SRT (Service Response Time) data for Netware
+Core Protocol.  Minimum SRT, maximum SRT, average SRT, and sum SRT is
+displayed for request/response pairs, organized by group, function and
+subfunction, and verb.  No statistics are gathered on unpaired messages.
+--
+
+*-z* osmux,tree[,__filter__]::
++
+--
+Calculate statistics for the OSmux voice/signaling multiplex protocol.
+Displays the total number of OSmux packets, and displays for each stream
+the number of packets, number of packets with the RTP market bit set,
+number of AMR frames, jitter analysis, and sequence number analysis.
+--
+
+*-z* plen,tree[,__filter__]::
++
+--
+Calculate statistics on packet lengths. Packets are grouped into buckets
+that grow exponentially with powers of two.
 --
 
 *-z* proto,colinfo,__filter__,__field__::
@@ -1782,7 +2011,24 @@ host 1.2.3.4 use:
 This option can be used multiple times on the command line.
 --
 
-*-z* rlc-lte,stat[__,filter__]::
+*-z* ptype,tree[,__filter__]::
++
+--
+Calculate statistics on port types that occur on IPv4 packets.
+--
+
+
+*-z* radius,rtd[,__filter__]::
++
+--
+Collect requests/response RTD (Response Time Delay) data for RAIDUS.
+The data collected for each RADIUS code is the number of calls,
+Minimum RTD, Maximum RTD, Average RTD, Minimum in Frame, and Maximum in Frame,
+along with the number of Open Requests (Unresponded Requests), Discarded
+Responses (Responses without matching request) and Duplicate Messages.
+--
+
+*-z* rlc-lte,stat[,__filter__]::
 +
 --
 This option will activate a counter for LTE RLC messages.  You will get
@@ -1793,8 +2039,6 @@ Example: *tshark -z rlc-lte,stat*.
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-for those frames that match that filter.
 Example: *-z "rlc-lte,stat,rlc-lte.ueid>3000"* will only collect stats for
 UEs with a UEId of more than 3000.
 --
@@ -1819,9 +2063,6 @@ Example: *tshark -z rpc,srt,100003,3* will collect data for NFS v3.
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
-
 Example: *-z rpc,srt,100003,3,nfs.fh.hash==0x12345678* will collect NFS v3
 SRT statistics for a specific file.
 --
@@ -1831,6 +2072,26 @@ SRT statistics for a specific file.
 --
 Collect statistics for all RTP streams and calculate max. delta, max. and
 mean jitter and packet loss percentages.
+--
+
+*-z* rtsp,stat[,__filter__]::
++
+--
+Count the RTSP response status codes and the RSTP request methods.
+--
+
+*-z* rtsp,tree[,__filter__]::
++
+--
+Calculate the RTSP packet distribution. Displayed values are the
+response status codes and request methods.
+--
+
+*-z* sametime,tree[,__filter__]::
++
+--
+Calculate statistics on SAMETIME messages. Displayed values are the
+messages type, send type, and user status.
 --
 
 *-z* scsi,srt,__cmdset__[,__filter__]::
@@ -1847,14 +2108,21 @@ Example: *-z scsi,srt,0* will collect data for SCSI BLOCK COMMANDS (SBC).
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
-
 Example: *-z scsi,srt,0,ip.addr==1.2.3.4* will collect SCSI SBC
 SRT statistics for a specific iscsi/ifcp/fcip host.
 --
 
-*-z* sip,stat[__,filter__]::
+*-z* sctp,stat::
++
+--
+Activate a counter for SCTP chunks. In addition to the total number of
+SCTP packets, for each source and destination address and port combination
+the number of chunks of the most common types (DATA, SACK, HEARTBEAT,
+HEARTBEAT ACK, INIT, INIT ACK, COOKIE ECHO, COOKIE ACK, ABORT, and ERROR)
+are displayed.
+--
+
+*-z* sip,stat[,__filter__]::
 +
 --
 This option will activate a counter for SIP messages.  You will get the number
@@ -1865,8 +2133,6 @@ Example: *-z sip,stat*.
 
 This option can be used multiple times on the command line.
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
 Example: *-z "sip,stat,ip.addr==1.2.3.4"* will only collect stats for
 SIP packets exchanged by the host at IP address 1.2.3.4 .
 --
@@ -1887,30 +2153,51 @@ The current method used by *TShark* to find the SID->name mapping
 is relatively restricted with a hope of future expansion.
 --
 
-*-z* smb,srt[,__filter__]::
+*-z* smb2,srt[,__filter__]::
 +
 --
-Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
-is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT.
+Collect call/reply SRT (Service Response Time) data for SMB versions 2 and 3.
+The data collected for each normal command type is the number of calls,
+MinSRT, MaxSRT, AvgSRT, and SumSRT.  No data is collected on cancel or
+oplock break requests, or on unpaired commands.  Only the first response to
+a given request is used; retransmissions are not included in the calculation.
+--
 
-Example: *-z smb,srt*
+*-z* smpp_commands,tree[,__filter__]::
++
+--
+Calculate the SMPP command distribution. Displayed values are
+command IDs for both requests and responses, and status for responses.
+--
 
-The data will be presented as separate tables for all normal SMB commands,
-all Transaction2 commands and all NT Transaction commands.
-Only those commands that are seen in the capture will have its stats
-displayed.
-Only the first command in a xAndX command chain will be used in the
-calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
-only the SessionSetupAndX call will be used in the statistics.
-This is a flaw that might be fixed in the future.
+*-z* snmp,srt[,__filter__]::
++
+--
+Collect call/reply SRT (Service Response Time) data for SNMP. The data
+collected for each PDU type is the number of request/response pairs,
+MinSRT, MaxSRT, AvgSRT, and SumSRT.  No data is collected on unpaired
+messages.
+--
 
-This option can be used multiple times on the command line.
+*-z* sv::
++
+--
+Print out the time since the start of the capture and sample count for each
+IEC 61850 Sampled Values packet.
+--
 
-If the optional __filter__ is provided, the stats will only be calculated
-on those calls that match that filter.
+*-z* ucp_messages,tree[,__filter__]::
++
+--
+Calculate the message distribution of UCP packets. Displayed values are
+operation types for both operations and results, and whether results are
+positive or negative, with error codes displayed for negative results.
+--
 
-Example: *-z "smb,srt,ip.addr==1.2.3.4"* will only collect stats for
-SMB packets exchanged by the host at IP address 1.2.3.4 .
+*-z* wsp,stat[,__filter__]::
++
+--
+Count the PDU types and the status codes of reply packets for WSP packets.
 --
 
 --capture-comment <comment>::
