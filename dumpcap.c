@@ -5579,24 +5579,35 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
                                    const char *user_format, va_list user_ap,
                                    void *user_data _U_)
 {
+    /* ignore log message, if log_level isn't interesting */
+    if (level <= LOG_LEVEL_INFO) {
+#if !defined(DEBUG_DUMPCAP) && !defined(DEBUG_CHILD_DUMPCAP)
+        return;
+#endif
+    }
+
+    /* DEBUG & INFO msgs (if we're debugging today)                 */
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
+    if (level <= LOG_LEVEL_INFO && ws_log_msg_is_active(domain, level)) {
 #ifdef DEBUG_DUMPCAP
-    ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
+        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
 #endif
 #ifdef DEBUG_CHILD_DUMPCAP
-    ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
+        ws_log_file_writer(debug_log, domain, level, timestamp, file, line, func, user_format, user_ap, NULL);
 #endif
-#else
-    /* Messages goto stderr or to parent especially formatted if dumpcap
-     * is running as child. */
+        return;
+    }
+#endif
+
+    /* ERROR, CRITICAL, WARNING, MESSAGE messages goto stderr or    */
+    /*  to parent especially formatted if dumpcap running as child. */
     if (capture_child) {
         gchar *msg = g_strdup_vprintf(user_format, user_ap);
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
-    } else {
+    } else if(ws_log_msg_is_active(domain, level)) {
         ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
     }
-#endif
 }
 
 
