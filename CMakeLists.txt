@@ -65,11 +65,20 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
-# Avoid an empty build type. If this is already set it does nothing.
-set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING
-		"Choose the build configuration (one of Debug, MinSizeRel, RelWithDebInfo, Release)")
+# Set a default build type if none was specified
+set(_default_build_type "RelWithDebInfo")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+	set(CMAKE_BUILD_TYPE "${_default_build_type}" CACHE STRING "Choose the type of build." FORCE)
+	# Set the possible values of build type for cmake-gui
+	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 # Build type is ignored by multi-config generators.
-message(STATUS "Using ${CMAKE_GENERATOR} generator and build type ${CMAKE_BUILD_TYPE}")
+if (NOT CMAKE_CONFIGURATION_TYPES)
+	message(STATUS "Using \"${CMAKE_GENERATOR}\" generator and build type \"${CMAKE_BUILD_TYPE}\"")
+else()
+	message(STATUS "Using \"${CMAKE_GENERATOR}\" generator (multi-config)")
+endif()
 
 #Where to find local cmake scripts
 set(WS_CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
