@@ -303,8 +303,10 @@ upgrade Qt to newer versions.
 
 ==== Install Python
 
-Get a Python 3.x installer from https://python.org/download/[] and
-install Python into the default location (_C:\Python37_).
+Get a Python 3 installer from https://python.org/download/[] and install Python.
+Its installation location varies depending on the options selected in the installer and on the version of Python that you are installing.
+At the time of this writing the latest version of Python is 3.10, and common installation directories are
+_C:\Users{backslash}**username**\AppData\Local\Programs\Python\Python310_, _C:\Program Files\Python310_, and _C:\Python310_.
 
 Alternatively you can install Python using Chocolatey:
 
@@ -312,7 +314,9 @@ Alternatively you can install Python using Chocolatey:
 PS$> choco install -y python3
 ----
 
-Chocolatey installs Python in _C:\Python37_ by default.
+// Not sure how to document Chocolatey's installation location other than "could be anywhere, LOL"
+// https://community.chocolatey.org/packages/python3/#discussion
+Chocolatey will likely install Python in one of the locations above, or possibly in _C:\Tools\Python3_.
 
 ==== Install Perl
 
