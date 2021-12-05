@@ -13353,7 +13353,7 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_param_app_ack_count,
-      { "count", "rtps.app_ack.virtual_writer_count",
+      { "count", "rtps.app_ack.count",
         FT_INT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },

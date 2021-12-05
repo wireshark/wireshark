@@ -1719,7 +1719,7 @@ proto_register_iso14443(void)
                 TFS(&tfs_not_required_required), 0x08, NULL, HFILL }
         },
         { &hf_iso14443_sof,
-            { "SOF", "iso14443.eof", FT_BOOLEAN, 8,
+            { "SOF", "iso14443.sof", FT_BOOLEAN, 8,
                 TFS(&tfs_not_required_required), 0x04, NULL, HFILL }
         },
         { &hf_iso14443_param2,
