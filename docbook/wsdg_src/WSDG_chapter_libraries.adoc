@@ -151,7 +151,7 @@ C-Ares is used for asynchronous DNS resolution and lets us resolve names with a 
 ==== Unix
 
 If this library isn't already installed or available as a package for your
-platform, you can get it at https://c-ares.haxx.se/[].
+platform, you can get it at https://c-ares.org/[].
 
 [[ChLibsWin32Cares]]
 

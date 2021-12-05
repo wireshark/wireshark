@@ -1866,7 +1866,7 @@ uninstall_maxminddb() {
 install_c_ares() {
     if [ "$CARES_VERSION" -a ! -f c-ares-$CARES_VERSION-done ] ; then
         echo "Downloading, building, and installing C-Ares API:"
-        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O https://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz || exit 1
+        [ -f c-ares-$CARES_VERSION.tar.gz ] || curl -L -O https://c-ares.org/download/c-ares-$CARES_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat c-ares-$CARES_VERSION.tar.gz | tar xf - || exit 1
         cd c-ares-$CARES_VERSION
