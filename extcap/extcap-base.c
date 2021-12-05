@@ -107,18 +107,26 @@ void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, .
     va_end(ap);
 }
 
+/* This is only active with a debug log file. */
 static void extcap_custom_log(const char *domain, enum ws_log_level level,
                             ws_log_time_t timestamp,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap,
                             void *user_data _U_)
 {
-    if (level <= LOG_LEVEL_DEBUG) {
-        if (!custom_log)
-            return;
-        ws_log_file_writer(custom_log, domain, level, timestamp, file, line, func, user_format, user_ap);
-    } else {
-        ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
+    if (!ws_log_msg_is_active(domain, level)) {
+        return;
+    }
+    if (custom_log) {
+        va_list user_ap_copy;
+
+        G_VA_COPY(user_ap_copy, user_ap);
+        ws_log_file_writer(custom_log, domain, level, timestamp, file, line, func, user_format, user_ap_copy);
+        va_end(user_ap_copy);
+    }
+    if (level > LOG_LEVEL_INFO) {
+        /* This writes errors and warnings to the parent process. */
+        vfprintf(stderr, user_format, user_ap);
     }
 }
 
