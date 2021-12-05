@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 #include <wsutil/wmem/wmem.h>
 
@@ -68,6 +69,16 @@ void ws_log_console_writer(const char *domain, enum ws_log_level level,
                             ws_log_time_t timestamp,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap);
+
+
+/** Configure all log output to use stderr.
+ *
+ * Normally log levels "info", "debug" and "noisy" are written to stdout.
+ * Calling this function with true configures these levels to be written
+ * to stderr as well.
+ */
+WS_DLL_PUBLIC
+void ws_log_console_writer_set_use_stderr(bool use_stderr);
 
 
 /** Convert a numerical level to its string representation. */

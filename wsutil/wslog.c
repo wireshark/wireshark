@@ -79,7 +79,12 @@ typedef struct {
  * will be printed regardless of log level. This is a feature, not a bug. */
 static enum ws_log_level current_log_level = LOG_LEVEL_NONE;
 
-static gboolean color_enabled = FALSE;
+static gboolean stdout_color_enabled = FALSE;
+
+static gboolean stderr_color_enabled = FALSE;
+
+/* Use stderr for levels "info" and below. */
+static gboolean stderr_debug_enabled = FALSE;
 
 static const char *registered_progname = DEFAULT_PROGNAME;
 
@@ -611,14 +616,16 @@ void ws_log_init(const char *progname,
     current_log_level = DEFAULT_LOG_LEVEL;
 
 #if GLIB_CHECK_VERSION(2,50,0)
-    color_enabled = g_log_writer_supports_color(fileno(stderr));
+    stdout_color_enabled = g_log_writer_supports_color(fileno(stdout));
+    stderr_color_enabled = g_log_writer_supports_color(fileno(stderr));
 #elif !defined(_WIN32)
     /* We assume every non-Windows console supports color. */
-    color_enabled = (isatty(fileno(stderr)) == 1);
+    stdout_color_enabled = (isatty(fileno(stdout)) == 1);
+    stderr_color_enabled = (isatty(fileno(stderr)) == 1);
 #else
      /* Our Windows build version of GLib is pretty recent, we are probably
       * fine here, unless we want to do better than GLib. */
-    color_enabled = FALSE;
+    stdout_color_enabled = stderr_color_enabled = FALSE;
 #endif
 
     /* Set the GLib log handler for the default domain. */
@@ -813,6 +820,22 @@ static inline struct tm *get_localtime(time_t unix_time, struct tm **cookie)
 }
 
 
+static inline FILE *console_file(enum ws_log_level level)
+{
+    if (level <= LOG_LEVEL_INFO && !stderr_debug_enabled)
+        return stdout;
+    return stderr;
+}
+
+
+static inline bool console_color_enabled(enum ws_log_level level)
+{
+    if (level <= LOG_LEVEL_INFO && !stderr_debug_enabled)
+        return stdout_color_enabled;
+    return stderr_color_enabled;
+}
+
+
 /*
  * We must not call anything that might log a message
  * in the log handler context (GLib might log a message if we register
@@ -844,7 +867,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                         user_format, user_ap, registered_log_writer_data);
     }
     else {
-        log_write_do_work(stderr, color_enabled,
+        log_write_do_work(console_file(level), console_color_enabled(level),
                             get_localtime(tstamp.tv_sec, &cookie),
                             tstamp.tv_nsec,
                             domain, level, file, line, func,
@@ -959,11 +982,18 @@ void ws_log_console_writer(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
-    log_write_do_work(stderr, color_enabled,
+    log_write_do_work(console_file(level), console_color_enabled(level),
                         get_localtime(timestamp.tv_sec, NULL),
                         timestamp.tv_nsec,
                         domain, level, file, line, func,
                         user_format, user_ap);
+}
+
+
+WS_DLL_PUBLIC
+void ws_log_console_writer_set_use_stderr(bool use_stderr)
+{
+    stderr_debug_enabled = use_stderr;
 }
 
 
