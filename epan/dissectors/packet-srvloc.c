@@ -22,7 +22,6 @@
 
 #include "config.h"
 
-#include <stdio.h>	/* for sscanf() */
 #include <stdlib.h>	/* for strtoul() */
 
 #include <epan/packet.h>
@@ -585,7 +584,6 @@ attr_list(proto_tree *tree, packet_info* pinfo, int hf, tvbuff_t *tvb, int offse
                     {
                         byte_value = unicode_to_bytes(tvb, foffset+2, 16, FALSE); /* IPX Network Address */
                         prot = (guint32)strtoul(byte_value, NULL, 16);
-                        sscanf(byte_value,"%x",&prot);
                         ti = proto_tree_add_uint(srvloc_tree, hf_srvloc_network, tvb, foffset+2, 4, prot);
                         proto_item_set_len(ti, 16);
                         byte_value = unicode_to_bytes(tvb, foffset+18, 24, FALSE); /* IPX Node Address */
