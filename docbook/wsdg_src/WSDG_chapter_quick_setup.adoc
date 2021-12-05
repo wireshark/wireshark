@@ -247,8 +247,8 @@ all the optional components other than the “V{cpp} 2019” item with the
 “latest ... tools”, the “Windows 10 SDK”, and the “Visual {cpp} tools for
 CMake” (unless you want to use them for purposes other than Wireshark).
 
-You can use Chocolatey to install Visual Studio, using the Visual Studio
-Community and Native Desktop workload packages.
+You can alternatively use Chocolatey to install Visual Studio, using the Visual Studio Community and Native Desktop workload packages.
+Note that this includes CMake.
 
 ----
 PS$> choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
@@ -382,10 +382,13 @@ https://git-scm.com/downloads/guis
 
 ==== Install CMake
 
-Get the CMake installer from https://cmake.org/download/[] and install CMake into
-the default location.  Ensure the directory containing cmake.exe is added to your path.
+While CMake is required to build Wireshark, it might have been installed as a component of either Visual Studio or Qt.
+If that’s the case you can skip this step.
+If you do want or need to install CMake, you can get it from https://cmake.org/download/[].
+Installing CMake into the default location is recommended.
+Ensure the directory containing cmake.exe is added to your path.
 
-Alternatively you can install CMake using Chocolatey:
+Alternatively you can install it using Chocolatey:
 
 ----
 PS$> choco install -y cmake

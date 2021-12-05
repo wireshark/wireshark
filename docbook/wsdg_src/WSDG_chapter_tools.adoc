@@ -292,6 +292,7 @@ _windows.h_, _WS2_32.lib_)
 
 Official releases are or were built with the following Visual {cpp} versions:
 
+* Wireshark 3.6.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.4.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.2.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.0.x: Microsoft Visual {cpp} 2017.
