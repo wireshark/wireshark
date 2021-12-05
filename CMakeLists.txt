@@ -1692,7 +1692,7 @@ set_package_properties(NGHTTP2 PROPERTIES
 )
 set_package_properties(CARES PROPERTIES
 	DESCRIPTION "Library for asynchronous DNS requests"
-	URL "https://c-ares.haxx.se/"
+	URL "https://c-ares.org/"
 	PURPOSE "DNS name resolution for captures"
 )
 set_package_properties(Systemd PROPERTIES
