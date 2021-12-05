@@ -382,6 +382,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_add_custom_file@Base 3.5.0
  ws_log_buffer_full@Base 3.5.1
  ws_log_console_writer@Base 3.7.0
+ ws_log_console_writer_set_use_stderr@Base 3.7.0
  ws_log_file_writer@Base 3.7.0
  ws_log_full@Base 3.5.0
  ws_log_get_level@Base 3.5.0
@@ -399,6 +400,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_set_fatal_str@Base 3.5.0
  ws_log_set_level@Base 3.5.0
  ws_log_set_level_str@Base 3.5.0
+ ws_log_set_writer@Base 3.7.0
+ ws_log_set_writer_with_data@Base 3.7.0
  ws_log_write_always_full@Base 3.5.0
  ws_logv@Base 3.5.0
  ws_logv_full@Base 3.5.0
