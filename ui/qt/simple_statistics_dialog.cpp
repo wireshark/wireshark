@@ -267,6 +267,8 @@ void SimpleStatisticsDialog::fillTree()
         return;
     }
 
+    statsTreeWidget()->setSortingEnabled(false);
+
     cap_file_.retapPackets();
 
     // We only have one table. Move its tree items up one level.
@@ -275,6 +277,9 @@ void SimpleStatisticsDialog::fillTree()
     }
 
     tapDraw(&stat_data);
+
+    statsTreeWidget()->sortItems(0, Qt::AscendingOrder);
+    statsTreeWidget()->setSortingEnabled(true);
 
     removeTapListeners();
 }
