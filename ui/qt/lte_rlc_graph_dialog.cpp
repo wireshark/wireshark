@@ -206,13 +206,15 @@ void LteRlcGraphDialog::findChannel(bool may_fail)
     // Rescan for channel data.
     rlc_graph_segment_list_free(&graph_);
     if (!rlc_graph_segment_list_get(cap_file_.capFile(), &graph_, graph_.channelSet,
-                                    &err_string) &&
-        !may_fail) {
-
-        // Pop up an error box to report error.
-        simple_error_message_box("%s", err_string);
-        g_free(err_string);
-        return;
+                                    &err_string)) {
+        if (may_fail) {
+            g_free(err_string);
+        } else {
+            // Pop up an error box to report error.
+            simple_error_message_box("%s", err_string);
+            g_free(err_string);
+            return;
+        }
     }
 
     // Reconnect mouse move signal.
