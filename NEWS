@@ -53,18 +53,25 @@ Wireshark 3.7.0 Release Notes
        direction of the long-lived stream that we start capturing
        packets after it is established.
 
+     • Mesh Connex (MCX) support in existing 802.11 packets.
+
   New File Format Decoding Support
 
   New Protocol Support
 
-   Host IP Configuration Protocol (HICP) and Secure Host IP
-   Configuration Protocol (SHICP)
+   Host IP Configuration Protocol (HICP), Mesh Connex (MCX), and Secure
+   Host IP Configuration Protocol (SHICP)
 
   Updated Protocol Support
 
    Too many protocols have been updated to list here.
 
   New and Updated Capture File Support
+
+  Major API Changes
+
+     • proto.h: The field display types "STR_ASCII" and "STR_UNICODE"
+       were removed. Use "BASE_NONE" instead.
 
  Getting Wireshark
 
@@ -101,7 +108,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-11-28 16:07:10 UTC
+  Last updated 2021-12-05 16:06:36 UTC
 
  References
 
