@@ -10581,6 +10581,11 @@ static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat)
     int i = 0;
     stat_tap_table_item_type items[sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item)];
 
+    items[IEI_COLUMN].type = TABLE_ITEM_UINT;
+    items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
+    items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+    items[COUNT_COLUMN].value.uint_value = 0;
+
     table = stat_tap_find_table(new_stat, table_name);
     if (table) {
         if (new_stat->stat_tap_reset_table_cb) {
@@ -10595,12 +10600,8 @@ static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat)
     /* Add a row for each value type */
     while (ansi_a_dtap_strings[i].strptr)
     {
-        items[IEI_COLUMN].type = TABLE_ITEM_UINT;
         items[IEI_COLUMN].value.uint_value = ansi_a_dtap_strings[i].value;
-        items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
         items[MESSAGE_NAME_COLUMN].value.string_value = ansi_a_dtap_strings[i].strptr;
-        items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
-        items[COUNT_COLUMN].value.uint_value = 0;
 
         stat_tap_init_table_row(table, i, num_fields, items);
         i++;
@@ -10623,9 +10624,9 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
-        dtap_data = stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
+        dtap_data = stat_tap_get_field_data(table, idx, COUNT_COLUMN);
         dtap_data->value.uint_value++;
-        stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
+        stat_tap_set_field_data(table, idx, COUNT_COLUMN, dtap_data);
 
         return TAP_PACKET_REDRAW;
     }
@@ -10659,6 +10660,11 @@ static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
     int i = 0;
     stat_tap_table_item_type items[sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item)];
 
+    items[IEI_COLUMN].type = TABLE_ITEM_UINT;
+    items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
+    items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+    items[COUNT_COLUMN].value.uint_value = 0;
+
     table = stat_tap_find_table(new_stat, table_name);
     if (table) {
         if (new_stat->stat_tap_reset_table_cb) {
@@ -10673,12 +10679,8 @@ static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
     /* Add a row for each value type */
     while (ansi_a_bsmap_strings[i].strptr)
     {
-        items[IEI_COLUMN].type = TABLE_ITEM_UINT;
         items[IEI_COLUMN].value.uint_value = ansi_a_bsmap_strings[i].value;
-        items[MESSAGE_NAME_COLUMN].type = TABLE_ITEM_STRING;
         items[MESSAGE_NAME_COLUMN].value.string_value = ansi_a_bsmap_strings[i].strptr;
-        items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
-        items[COUNT_COLUMN].value.uint_value = 0;
 
         stat_tap_init_table_row(table, i, num_fields, items);
         i++;
@@ -10701,9 +10703,9 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
 
         table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
-        dtap_data = stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
+        dtap_data = stat_tap_get_field_data(table, idx, COUNT_COLUMN);
         dtap_data->value.uint_value++;
-        stat_tap_set_field_data(table, data_p->message_type, COUNT_COLUMN, dtap_data);
+        stat_tap_set_field_data(table, idx, COUNT_COLUMN, dtap_data);
 
         return TAP_PACKET_REDRAW;
     }
