@@ -32,7 +32,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-#include <stdio.h>
 
 void proto_register_hl7(void);
 void proto_reg_handoff_hl7(void);

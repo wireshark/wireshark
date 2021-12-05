@@ -15,8 +15,6 @@
  */
 #include "config.h"
 
-#include <stdio.h>
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include "packet-cfdp.h"

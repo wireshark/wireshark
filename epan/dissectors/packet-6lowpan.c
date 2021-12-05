@@ -16,7 +16,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #include "config.h"
-#include <stdio.h>
+
+#include <stdio.h>      /* for sscanf() */
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

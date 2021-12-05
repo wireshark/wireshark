@@ -10,7 +10,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/exceptions.h>

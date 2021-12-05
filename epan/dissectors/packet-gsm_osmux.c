@@ -19,7 +19,6 @@
 #include "config.h"
 
 #include <string.h>
-#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/stats_tree.h>

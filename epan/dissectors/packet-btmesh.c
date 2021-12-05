@@ -22,7 +22,6 @@
 #include <epan/prefs.h>
 #include <wsutil/wsgcrypt.h>
 #include <epan/expert.h>
-#include <stdio.h>
 #include <math.h>
 #include <epan/uat.h>
 #include <epan/reassemble.h>

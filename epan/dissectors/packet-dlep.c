@@ -28,7 +28,6 @@
 #include <epan/tvbuff.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
-#include <glib.h>
 
 #include "packet-tcp.h"
 

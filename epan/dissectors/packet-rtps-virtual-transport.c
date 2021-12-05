@@ -53,7 +53,6 @@
  * numbers).
  */
 #include "config.h"
-#include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -65,7 +64,6 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rtps.h>
 
-#include <stdio.h>
 
 #define CONTENT_KIND_RTPS                        0x01
 #define CONTENT_KIND_LOSS_INFO                   0x02

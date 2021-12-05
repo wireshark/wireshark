@@ -15,7 +15,9 @@
 
 #include "config.h"
 
+#ifdef DEBUG
 #include <stdio.h>
+#endif
 
 #include <epan/packet.h>
 #include "packet-wap.h"

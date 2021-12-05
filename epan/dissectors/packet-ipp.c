@@ -21,7 +21,6 @@
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include "packet-http.h"
-#include <stdio.h>
 
 void proto_register_ipp(void);
 void proto_reg_handoff_ipp(void);

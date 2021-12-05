@@ -26,7 +26,6 @@
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
 #include <wsutil/utf8_entities.h>
-#include <stdio.h>
 #include <inttypes.h>
 
 /// Glib logging "domain" name

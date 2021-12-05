@@ -28,7 +28,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <stdio.h>
 #include "packet-snmp.h"
 
 void proto_register_dvb_s2_table(void);

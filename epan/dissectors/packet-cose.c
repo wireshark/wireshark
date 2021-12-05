@@ -22,7 +22,6 @@
 #include <epan/proto.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
-#include <stdio.h>
 #include <inttypes.h>
 
 void proto_register_cose(void);

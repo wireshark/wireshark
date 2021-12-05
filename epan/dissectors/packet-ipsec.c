@@ -69,7 +69,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/decode_as.h>
 #include <epan/capture_dissectors.h>
 
-#include <stdio.h>
+#include <stdio.h>    /* for sscanf() */
 #include <epan/uat.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>

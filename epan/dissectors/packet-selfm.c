@@ -58,9 +58,7 @@
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 #include <epan/proto_data.h>
-#if 0
-#include <stdio.h>
-#endif
+
 void proto_register_selfm(void);
 
 /* Initialize the protocol and registered fields */

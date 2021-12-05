@@ -26,7 +26,6 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/pci-ids.h>
-#include <stdio.h>
 
 void proto_reg_handoff_ncsi(void);
 void proto_register_ncsi(void);

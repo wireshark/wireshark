@@ -14,7 +14,7 @@
 
 #include "config.h"
 
-#include <stdio.h>
+#include <stdio.h>      /* for sscanf() */
 #include <wsutil/strtoi.h>
 
 #include <epan/packet.h>

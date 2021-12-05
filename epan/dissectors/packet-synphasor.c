@@ -15,7 +15,6 @@
 #include "config.h"
 
 #include <math.h>
-#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/crc16-tvb.h>

@@ -22,7 +22,6 @@
 #include <epan/to_str.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
-#include <stdio.h>
 #include <inttypes.h>
 #include "epan/wscbor.h"
 
