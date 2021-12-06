@@ -213,13 +213,13 @@ set(WIX_CANDLE_DEFINES
 	-dWiresharkMajorVersion=${PROJECT_MAJOR_VERSION}
 	-dWiresharkMinorVersion=${PROJECT_MINOR_VERSION}
 	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
-	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}
-	-dDiameterDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/diameter
+	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}
+	-dDiameterDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/diameter
 	-dIconDir=${CMAKE_SOURCE_DIR}/image
-	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/translations
-	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/radius
-	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/snmp/mibs
-	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/docbook/wsug_html_chunked
+	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
+	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
+	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
+	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/docbook/wsug_html_chunked
 	-dVCRedistVersion=${MSVC_CRT_VERSION}
 	-dVCRedistDir=${MERGE_MODULE_DIR}
 	${d_smi_dir}
@@ -283,7 +283,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# SNMPMibs.wxs. Collects all MIBs in "output" snmp/mibs
 		# directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/SNMPMibs.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/snmp/mibs
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
 					${WIX_HEAT_FLAGS} -cg CG.Plugins.SNMP -dr dirSnmpMibs -var var.SnmpMibDir
 					-out ${_wix_binary_dir}/SNMPMibs.wxs
 		)
@@ -291,7 +291,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# RadiusDict.wxs. Collects all Radius dictionary files in
 		# "output" radius directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/RadiusDict.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/radius
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
 					${WIX_HEAT_FLAGS} -cg CG.RadiusDict -dr dirRadius -var var.RadiusDictDir
 					-out ${_wix_binary_dir}/RadiusDict.wxs
 		)
@@ -299,7 +299,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# Diameter.wxs. Collects all Diameter XML dictionary files
 		# in "output" diameter directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/Diameter.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/diameter
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/diameter
 					${WIX_HEAT_FLAGS} -cg CG.Diameter -dr dirDiameter -var var.DiameterDir
 					-out ${_wix_binary_dir}/Diameter.wxs
 		)
@@ -307,7 +307,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# QtTranslation.wxs. Collects all Qt translation files in
 		# "output" translations directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/QtTranslation.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_BUILD_TYPE}/translations
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
 					${WIX_HEAT_FLAGS} -cg CG.QtTranslations -dr dirTranslations -var var.QtTranslationDir
 					-out ${_wix_binary_dir}/QtTranslation.wxs
 		)
