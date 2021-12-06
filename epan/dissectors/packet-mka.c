@@ -566,7 +566,6 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
     guint16 tlv_item_offset;
 
     if (offset2 + 2 + tlv_length > announcement_len) {
-      offset2 = announcement_len;
       break;
     }
 
