@@ -202,12 +202,13 @@ static void camelsrt_init(const char *opt_arg, void *userdata _U_)
   GString *error_string;
 
   p_camelsrt = g_new(struct camelsrt_t, 1);
-  if (!strncmp(opt_arg, "camel,srt,", 9)) {
-    p_camelsrt->filter = g_strdup(opt_arg+9);
+  camelsrt_reset(p_camelsrt);
+
+  if (!strncmp(opt_arg, "camel,srt,", 10)) {
+    p_camelsrt->filter = g_strdup(opt_arg+10);
   } else {
     p_camelsrt->filter = NULL;
   }
-  camelsrt_reset(p_camelsrt);
 
   error_string = register_tap_listener("CAMEL",
                                      p_camelsrt,
