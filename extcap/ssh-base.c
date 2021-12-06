@@ -123,22 +123,32 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		ws_info("failed (%s)", ssh_get_error(sshs));
 	}
 
-	/* Try to authenticate using standard public key */
-	ws_info("Connecting using standard public key...");
-	if (ssh_userauth_publickey_auto(sshs, NULL, NULL) == SSH_AUTH_SUCCESS) {
-		ws_info("done");
-		return sshs;
+	/* Workaround: it may happen that libssh closes socket in meantime and any next ssh_ call fails so we should detect it in advance */
+	if (ssh_get_fd(sshs) != -1) {
+		/* If a password has been provided and all previous attempts failed, try to use it */
+		if (ssh_params->password) {
+			ws_info("Connecting using password...");
+			if (ssh_userauth_password(sshs, ssh_params->username, ssh_params->password) == SSH_AUTH_SUCCESS) {
+				ws_info("done");
+				return sshs;
+			}
+			ws_info("failed");
+		}
+	} else {
+		ws_info("ssh connection closed before password authentication");
 	}
-	ws_info("failed");
 
-	/* If a password has been provided and all previous attempts failed, try to use it */
-	if (ssh_params->password) {
-		ws_info("Connecting using password...");
-		if (ssh_userauth_password(sshs, ssh_params->username, ssh_params->password) == SSH_AUTH_SUCCESS) {
+	/* Workaround: it may happen that libssh closes socket in meantime and any next ssh_ call fails so we should detect it in advance */
+	if (ssh_get_fd(sshs) != -1) {
+		/* Try to authenticate using standard public key */
+		ws_info("Connecting using standard public key...");
+		if (ssh_userauth_publickey_auto(sshs, NULL, NULL) == SSH_AUTH_SUCCESS) {
 			ws_info("done");
 			return sshs;
 		}
 		ws_info("failed");
+	} else {
+		ws_info("ssh connection closed before public key authentication");
 	}
 
 	*err_info = g_strdup_printf("Can't find a valid authentication. Disconnecting.");
