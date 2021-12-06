@@ -526,6 +526,8 @@ const range_string quic_version_vals[] = {
     { 0xff00001e, 0xff00001e, "draft-30" },
     { 0xff00001f, 0xff00001f, "draft-31" },
     { 0xff000020, 0xff000020, "draft-32" },
+    { 0xff000021, 0xff000021, "draft-33" },
+    { 0xff000022, 0xff000022, "draft-34" },
     /* QUICv2 */
     { 0xff020000, 0xff020000, "v2-draft-00" },
     { 0, 0, NULL }
