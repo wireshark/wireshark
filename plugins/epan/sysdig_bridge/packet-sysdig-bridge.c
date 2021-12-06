@@ -45,6 +45,8 @@ static dissector_table_t ptype_dissector_table;
 static int dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_);
 static int dissect_plg_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_);
 
+void register_conversation_filters_mappings(void);
+
 /*
  * Array of plugin bridges
  */
@@ -145,7 +147,7 @@ void validate_plugin_version(ss_plugin_info* plugin_info)
     }
 
     if (!(pv_maj == PLUGIN_API_VERSION_MAJOR && pv_min <= PLUGIN_API_VERSION_MINOR)) {
-        THROW_FORMATTED(DissectorError, "unable to initialize plugin %s: plugin is requesting API version %s which is not supported by this engine (version %u.%u.%u)", 
+        THROW_FORMATTED(DissectorError, "unable to initialize plugin %s: plugin is requesting API version %s which is not supported by this engine (version %u.%u.%u)",
             plugin_info->get_name(),
             avstr,
             (unsigned int)PLUGIN_API_VERSION_MAJOR,
