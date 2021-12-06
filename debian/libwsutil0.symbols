@@ -296,6 +296,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_multimap_new_autoreset@Base 3.7.0
  wmem_multimap_remove32@Base 3.7.0
  wmem_multimap_size@Base 3.7.0
+ wmem_print_tree@Base 3.7.0
  wmem_realloc@Base 3.5.0
  wmem_register_callback@Base 3.5.0
  wmem_stack_peek@Base 3.5.0

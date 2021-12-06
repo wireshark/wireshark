@@ -229,6 +229,7 @@ wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
 
 
 /* Accepts callbacks to print the key and/or data (both printers can be null) */
+WS_DLL_PUBLIC
 void
 wmem_print_tree(wmem_tree_t *tree, wmem_printer_func key_printer, wmem_printer_func data_printer);
 
