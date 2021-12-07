@@ -62,16 +62,6 @@ set(COMMON_GRAPHICS
 
 set(GUIDE_INSTALL_DIRS)
 
-# This is automatically updated each week. You probably don't need to run it
-# or depend on it.
-add_custom_target(update_tools_help
-	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
-		${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/update-tools-help.py
-		--program-path $<TARGET_FILE_DIR:tshark>
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-set_docbook_target_properties(update_tools_help)
-
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.adoc
 	wsug_src/WSUG_app_howitworks.adoc
