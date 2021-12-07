@@ -201,6 +201,13 @@ void TapParameterDialog::filterActionTriggered()
     emit filterAction(filter_expr, fa->action(), fa->actionType());
 }
 
+void TapParameterDialog::collapseAllActionTriggered() {
+    ui->statsTreeWidget->collapseAll();
+}
+void TapParameterDialog::expandAllActionTriggered() {
+    ui->statsTreeWidget->expandAll();
+}
+
 QString TapParameterDialog::itemDataToPlain(QVariant var, int width)
 {
     QString plain_str;
@@ -469,6 +476,19 @@ void TapParameterDialog::addFilterActions()
     }
     ctx_menu_.insertMenu(insert_action, submenu);
     ctx_menu_.insertSeparator(insert_action);
+}
+
+void TapParameterDialog::addTreeCollapseAllActions()
+{
+    ctx_menu_.addSeparator();
+    
+    QAction *collapse = new QAction(tr("Collapse All"), this);
+    ctx_menu_.addAction(collapse);
+    connect(collapse, SIGNAL(triggered()), this, SLOT(collapseAllActionTriggered()));
+
+    QAction *expand = new QAction(tr("Expand All"), this);
+    ctx_menu_.addAction(expand);
+    connect(expand, SIGNAL(triggered()), this, SLOT(expandAllActionTriggered()));
 }
 
 void TapParameterDialog::updateWidgets()
