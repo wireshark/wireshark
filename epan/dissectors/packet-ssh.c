@@ -37,6 +37,11 @@
 
 #include "config.h"
 
+/* Start with G_MESSAGES_DEBUG=ssh to see messages. */
+#define G_LOG_DOMAIN "ssh"
+// Define this to get hex dumps more similar to what you get in openssh. If not defined, dumps look more like what you get with other dissectors.
+#define OPENSSH_STYLE
+
 #include <errno.h>
 
 #include <epan/packet.h>
@@ -50,6 +55,11 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
 #include <wsutil/wslog.h>
+#include <ui/version_info.h>
+
+#if defined(HAVE_LIBGNUTLS)
+#include <gnutls/abstract.h>
+#endif
 
 #include "packet-tcp.h"
 
@@ -267,6 +277,8 @@ static const char   *pref_keylog_file;
 static FILE         *ssh_keylog_file;
 #endif
 
+static const gchar *ssh_debug_file_name     = NULL;
+
 // 29418/tcp: Gerrit Code Review
 #define TCP_RANGE_SSH  "22,29418"
 #define SCTP_PORT_SSH 22
@@ -452,6 +464,33 @@ static void ssh_derive_symmetric_key(ssh_bignum *shared_secret,
         gchar *exchange_hash, guint hash_length, gchar id,
         ssh_enc_key *result_key, struct ssh_flow_data *global_data);
 
+
+#define SSH_DEBUG_USE_STDERR "-"
+
+#define SSH_DECRYPT_DEBUG
+#ifdef SSH_DECRYPT_DEBUG
+extern void
+ssh_debug_printf(const gchar* fmt,...) G_GNUC_PRINTF(1,2);
+extern void
+ssh_print_data(const gchar* name, const guchar* data, size_t len);
+extern void
+ssh_set_debug(const gchar* name);
+extern void
+ssh_debug_flush(void);
+#else
+
+/* No debug: nullify debug operation*/
+static inline void G_GNUC_PRINTF(1,2)
+ssh_debug_printf(const gchar* fmt _U_,...)
+{
+}
+#define ssh_print_data(a, b, c)
+#define ssh_print_string(a, b)
+#define ssh_set_debug(name)
+#define ssh_debug_flush()
+
+#endif /* SSH_DECRYPT_DEBUG */
+
 #endif
 
 static int
@@ -468,6 +507,8 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     struct ssh_flow_data *global_data = NULL;
     struct ssh_peer_data *peer_data;
+
+    ssh_debug_printf("\ndissect_ssh enter frame #%u (%s)\n", pinfo->num, (pinfo->fd->visited)?"already visited":"first time");
 
     conversation = find_or_create_conversation(pinfo);
 
@@ -576,6 +617,9 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     ti = proto_tree_add_boolean_format_value(ssh_tree, hf_ssh_direction, tvb, 0, 0, is_response, "%s",
         try_val_to_str(is_response, ssh_direction_vals));
     proto_item_set_generated(ti);
+
+    ssh_debug_flush();
+
     return tvb_captured_length(tvb);
 }
 
@@ -1713,16 +1757,26 @@ ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
     if(global_data->kex_f){ssh_hash_buffer_put_string(kex_f, global_data->kex_f->data, global_data->kex_f->length);}
 
     wmem_array_t    * kex_hash_buffer = wmem_array_new(wmem_packet_scope(), 1);
+    ssh_print_data("client_version", (const guchar *)wmem_array_get_raw(global_data->kex_client_version), wmem_array_get_count(global_data->kex_client_version));
     wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_client_version), wmem_array_get_count(global_data->kex_client_version));
+    ssh_print_data("server_version", (const guchar *)wmem_array_get_raw(global_data->kex_server_version), wmem_array_get_count(global_data->kex_server_version));
     wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_server_version), wmem_array_get_count(global_data->kex_server_version));
+    ssh_print_data("client_key_exchange_init", (const guchar *)wmem_array_get_raw(global_data->kex_client_key_exchange_init), wmem_array_get_count(global_data->kex_client_key_exchange_init));
     wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_client_key_exchange_init), wmem_array_get_count(global_data->kex_client_key_exchange_init));
+    ssh_print_data("server_key_exchange_init", (const guchar *)wmem_array_get_raw(global_data->kex_server_key_exchange_init), wmem_array_get_count(global_data->kex_server_key_exchange_init));
     wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_server_key_exchange_init), wmem_array_get_count(global_data->kex_server_key_exchange_init));
+    ssh_print_data("kex_server_host_key_blob", (const guchar *)wmem_array_get_raw(global_data->kex_server_host_key_blob), wmem_array_get_count(global_data->kex_server_host_key_blob));
     wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_server_host_key_blob), wmem_array_get_count(global_data->kex_server_host_key_blob));
     if(kex_type==SSH_KEX_CURVE25519){
+        ssh_print_data("key client  (Q_C)", (const guchar *)wmem_array_get_raw(kex_e), wmem_array_get_count(kex_e));
         wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_e), wmem_array_get_count(kex_e));
+        ssh_print_data("key serveur (Q_S)", (const guchar *)wmem_array_get_raw(kex_f), wmem_array_get_count(kex_f));
         wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_f), wmem_array_get_count(kex_f));
     }
+    ssh_print_data("shared secret", (const guchar *)wmem_array_get_raw(global_data->kex_shared_secret), wmem_array_get_count(global_data->kex_shared_secret));
     wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_shared_secret), wmem_array_get_count(global_data->kex_shared_secret));
+
+    ssh_print_data("exchange", (const guchar *)wmem_array_get_raw(kex_hash_buffer), wmem_array_get_count(kex_hash_buffer));
 
     guint hash_len = 32;
     if(kex_hash_type==SSH_KEX_HASH_SHA256){
@@ -1736,6 +1790,7 @@ ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
     gcry_md_write(hd, wmem_array_get_raw(kex_hash_buffer), wmem_array_get_count(kex_hash_buffer));
     memcpy(exchange_hash, gcry_md_read(hd, 0), hash_len);
     gcry_md_close(hd);
+    ssh_print_data("hash", exchange_hash, hash_len);
     global_data->secret = secret;
     ssh_derive_symmetric_keys(secret, exchange_hash, hash_len, global_data);
 }
@@ -1839,6 +1894,110 @@ static void ssh_derive_symmetric_key(ssh_bignum *secret, gchar *exchange_hash,
 
     result_key->length = need;
 }
+
+#ifdef SSH_DECRYPT_DEBUG /* {{{ */
+
+static FILE* ssh_debug_file=NULL;
+
+static void
+ssh_prefs_apply_cb(void)
+{
+    ssh_set_debug(ssh_debug_file_name);
+}
+
+void
+ssh_set_debug(const gchar* name)
+{
+    static gint debug_file_must_be_closed;
+    gint        use_stderr;
+
+    use_stderr                = name?(strcmp(name, SSH_DEBUG_USE_STDERR) == 0):0;
+
+    if (debug_file_must_be_closed)
+        fclose(ssh_debug_file);
+
+    if (use_stderr)
+        ssh_debug_file = stderr;
+    else if (!name || (strcmp(name, "") ==0))
+        ssh_debug_file = NULL;
+    else
+        ssh_debug_file = ws_fopen(name, "w");
+
+    if (!use_stderr && ssh_debug_file)
+        debug_file_must_be_closed = 1;
+    else
+        debug_file_must_be_closed = 0;
+
+    ssh_debug_printf("Wireshark SSH debug log \n\n");
+#ifdef HAVE_LIBGNUTLS
+    ssh_debug_printf("GnuTLS version:    %s\n", gnutls_check_version(NULL));
+#endif
+    ssh_debug_printf("Libgcrypt version: %s\n", gcry_check_version(NULL));
+    ssh_debug_printf("\n");
+}
+
+void
+ssh_debug_flush(void)
+{
+    if (ssh_debug_file)
+        fflush(ssh_debug_file);
+}
+
+void
+ssh_debug_printf(const gchar* fmt, ...)
+{
+    va_list ap;
+
+    if (!ssh_debug_file)
+        return;
+
+    va_start(ap, fmt);
+    vfprintf(ssh_debug_file, fmt, ap);
+    va_end(ap);
+}
+
+void
+ssh_print_data(const gchar* name, const guchar* data, size_t len)
+{
+    size_t i, j, k;
+    if (!ssh_debug_file)
+        return;
+#ifdef OPENSSH_STYLE
+    fprintf(ssh_debug_file,"%s[%d]\n",name, (int) len);
+#else
+    fprintf(ssh_debug_file,"%s[%d]:\n",name, (int) len);
+#endif
+    for (i=0; i<len; i+=16) {
+#ifdef OPENSSH_STYLE
+        fprintf(ssh_debug_file,"%04u: ", (unsigned int)i);
+#else
+        fprintf(ssh_debug_file,"| ");
+#endif
+        for (j=i, k=0; k<16 && j<len; ++j, ++k)
+            fprintf(ssh_debug_file,"%.2x ",data[j]);
+        for (; k<16; ++k)
+            fprintf(ssh_debug_file,"   ");
+#ifdef OPENSSH_STYLE
+        fputc(' ', ssh_debug_file);
+#else
+        fputc('|', ssh_debug_file);
+#endif
+        for (j=i, k=0; k<16 && j<len; ++j, ++k) {
+            guchar c = data[j];
+            if (!g_ascii_isprint(c) || (c=='\t')) c = '.';
+            fputc(c, ssh_debug_file);
+        }
+#ifdef OPENSSH_STYLE
+        fprintf(ssh_debug_file,"\n");
+#else
+        for (; k<16; ++k)
+            fputc(' ', ssh_debug_file);
+        fprintf(ssh_debug_file,"|\n");
+#endif
+    }
+}
+
+#endif /* SSH_DECRYPT_DEBUG }}} */
 
 /* Functions for SSH random hashtables. {{{ */
 static gint
@@ -2264,7 +2423,7 @@ proto_register_ssh(void)
     expert_ssh = expert_register_protocol(proto_ssh);
     expert_register_field_array(expert_ssh, ei, array_length(ei));
 
-    ssh_module = prefs_register_protocol(proto_ssh, NULL);
+    ssh_module = prefs_register_protocol(proto_ssh, ssh_prefs_apply_cb);
     prefs_register_bool_preference(ssh_module, "desegment_buffers",
                        "Reassemble SSH buffers spanning multiple TCP segments",
                        "Whether the SSH dissector should reassemble SSH buffers spanning multiple TCP segments. "
@@ -2278,6 +2437,11 @@ proto_register_ssh(void)
             "\"<hex-encoded-cookie> <hex-encoded-key>\" (without quotes or leading spaces).\n",
             &pref_keylog_file, FALSE);
 
+    prefs_register_filename_preference(ssh_module, "debug_file", "SSH debug file",
+        "Redirect SSH debug to the file specified. Leave empty to disable debugging "
+        "or use \"" SSH_DEBUG_USE_STDERR "\" to redirect output to stderr.",
+        &ssh_debug_file_name, TRUE);
+
 #endif
 
     ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
@@ -2286,6 +2450,7 @@ proto_register_ssh(void)
 void
 proto_reg_handoff_ssh(void)
 {
+    ssh_set_debug(ssh_debug_file_name);
     dissector_add_uint_range_with_preference("tcp.port", TCP_RANGE_SSH, ssh_handle);
     dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
     dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
