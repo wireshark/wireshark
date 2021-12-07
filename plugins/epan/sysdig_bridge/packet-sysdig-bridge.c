@@ -119,7 +119,6 @@ create_dynlib_source(const char* libname, ss_plugin_info* info)
     *(void**)(&(info->get_type)) = getsym(handle, "plugin_get_type");
     *(void**)(&(info->get_id)) = getsym(handle, "plugin_get_id");
     *(void**)(&(info->get_name)) = getsym(handle, "plugin_get_name");
-    *(void**)(&(info->get_filter_name)) = getsym(handle, "plugin_get_filter_name");
     *(void**)(&(info->get_description)) = getsym(handle, "plugin_get_description");
     *(void**)(&(info->get_required_api_version)) = getsym(handle, "plugin_get_required_api_version");
     *(void**)(&(info->get_fields)) = getsym(handle, "plugin_get_fields");
@@ -279,7 +278,6 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
     ENSURE_PLUGIN_EXPORT(get_description);
     ENSURE_PLUGIN_EXPORT(get_required_api_version);
     ENSURE_PLUGIN_EXPORT(get_fields);
-    ENSURE_PLUGIN_EXPORT(get_filter_name);
 
     /*
      * Get the plugin version and make sure we can run it
@@ -422,7 +420,7 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
                 if (strstr(properties, "conversation") != NULL) {
                     bi->field_flags[fld_cnt] |= FLD_FLAG_USE_IN_CONVERSATIONS;
                     conv_fld_infos[conv_fld_cnt].field_info = ri;
-                    conv_fld_infos[conv_fld_cnt].proto_name = plugin_info->get_filter_name();
+                    conv_fld_infos[conv_fld_cnt].proto_name = plugin_info->get_name();
                     register_conversation_filter_logshark(plugin_info->name, display, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
                     conv_fld_cnt++;
                 }
@@ -475,9 +473,9 @@ import_plugin(char* fname)
     configure_plugin(fname, bi, "");
 
     bi->proto = proto_register_protocol (
-        bi->si.name,              /* name */
-        bi->si.get_filter_name(), /* short name  */
-        bi->si.get_filter_name()  /* filter_name */
+        bi->si.name,       /* name */
+        bi->si.name,       /* short name  */
+        bi->si.name        /* filter_name */
         );
 
     static dissector_handle_t ct_handle;
