@@ -89,6 +89,8 @@ private slots:
     void updateLocalInterfaces();
     void browseButtonClicked();
     void interfaceItemChanged(QTreeWidgetItem *item, int column);
+    void itemClicked(QTreeWidgetItem *item, int column);
+    void itemDoubleClicked(QTreeWidgetItem *item);
     void changeEvent(QEvent* event);
 
 signals:
@@ -101,6 +103,7 @@ signals:
     void ifsChanged();
     void interfaceListChanged();
     void captureFilterTextEdited(const QString & text);
+    void showExtcapOptions(QString &device_name);
 
 private:
     Ui::CaptureOptionsDialog *ui;

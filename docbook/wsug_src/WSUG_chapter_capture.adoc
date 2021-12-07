@@ -118,6 +118,12 @@ The “Input” tab contains the the “Interface” table, which shows the foll
 
 Interface::
 The interface name.
++
+Some interfaces allow or require configuration prior to capture.
+This will be indicated by a configuration icon
+(image:wsug_graphics/toolbar/x-capture-options.png[height=16,width=16])
+to the left of the interface name.
+Clicking on the icon will show the configuration dialog for that interface.
 
 Traffic::
 A sparkline showing network activity over time.
@@ -250,7 +256,7 @@ Capturing can be stopped based on the following conditions:
 * The capture file size.
 * The capture file duration.
 
-You can click btn:[Start] from any tab to commence the capture or btn:[Cancel] to apply your changes and close the dialog.
+You can double click on an interface row in the “Input“ tab or click btn:[Start] from any tab to commence the capture. You can click btn:[Cancel] to apply your changes and close the dialog.
 
 [[ChManageInterfacesSection]]
 

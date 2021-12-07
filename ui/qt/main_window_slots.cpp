@@ -3999,6 +3999,9 @@ void MainWindow::on_actionCaptureOptions_triggered()
 
         connect(capture_options_dialog_, SIGNAL(setFilterValid(bool, const QString)),
                 this, SLOT(startInterfaceCapture(bool, const QString)));
+
+        connect(capture_options_dialog_, SIGNAL(showExtcapOptions(QString&)),
+                this, SLOT(showExtcapOptionsDialog(QString&)));
     }
     capture_options_dialog_->setTab(0);
     capture_options_dialog_->updateInterfaces();
@@ -4072,6 +4075,11 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
         extcap_options_dialog->setAttribute(Qt::WA_DeleteOnClose);
         connect(extcap_options_dialog, SIGNAL(finished(int)),
                 this, SLOT(extcap_options_finished(int)));
+        if (capture_options_dialog_) {
+            /* Allow capture options dialog to close */
+            connect(extcap_options_dialog, SIGNAL(accepted()),
+                    capture_options_dialog_, SLOT(accept()));
+        }
         extcap_options_dialog->show();
     }
 }

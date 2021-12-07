@@ -19,6 +19,8 @@
 
 #include "wireshark_application.h"
 
+#include "extcap.h"
+
 #ifdef HAVE_LIBPCAP
 
 #include <QAbstractItemModel>
@@ -45,6 +47,7 @@
 #include <wiretap/wtap.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/stock_icon.h>
 #include <ui/qt/models/sparkline_delegate.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
@@ -70,7 +73,8 @@ const int stat_update_interval_ = 1000; // ms
  */
 enum
 {
-    col_interface_ = 0,
+    col_extcap_ = 0,
+    col_interface_,
     col_traffic_,
     col_link_,
     col_pmode_,
@@ -187,6 +191,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     // Start out with the list *not* sorted, so they show up in the order
     // in which they were provided
     ui->interfaceTree->sortByColumn(-1, Qt::AscendingOrder);
+    ui->interfaceTree->setItemDelegateForColumn(col_extcap_, &interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_interface_, &interface_item_delegate_);
     ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate(this));
     ui->interfaceTree->setItemDelegateForColumn(col_link_, &interface_item_delegate_);
@@ -224,6 +229,8 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
     connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
+    connect(ui->interfaceTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
+    connect(ui->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*)));
 
     updateWidgets();
 }
@@ -473,6 +480,62 @@ void CaptureOptionsDialog::interfaceItemChanged(QTreeWidgetItem *item, int colum
     }
 }
 
+void CaptureOptionsDialog::itemClicked(QTreeWidgetItem *item, int column)
+{
+    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(item);
+    if (!ti) return;
+
+#ifdef HAVE_LIBPCAP
+    interface_t *device;
+    QString interface_name = ti->text(col_interface_);
+    device = find_device_by_if_name(interface_name);
+    if (!device) return;
+
+    switch(column) {
+
+    case col_extcap_:
+        if (device->if_info.type == IF_EXTCAP) {
+            /* this checks if configuration is required and not yet provided or saved via prefs */
+            QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
+            if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), FALSE))
+            {
+                emit showExtcapOptions(device_name);
+                return;
+            }
+        }
+        break;
+
+    default:
+        break;
+    }
+#endif /* HAVE_LIBPCAP */
+}
+
+void CaptureOptionsDialog::itemDoubleClicked(QTreeWidgetItem *item)
+{
+    InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(item);
+    if (!ti) return;
+
+#ifdef HAVE_LIBPCAP
+    interface_t *device;
+    QString interface_name = ti->text(col_interface_);
+    device = find_device_by_if_name(interface_name);
+    if (!device) return;
+
+    if (device->if_info.type == IF_EXTCAP) {
+        /* this checks if configuration is required and not yet provided or saved via prefs */
+        QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
+        if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
+        {
+            emit showExtcapOptions(device_name);
+            return;
+        }
+    }
+#endif /* HAVE_LIBPCAP */
+    emit startCapture();
+    close();
+}
+
 void CaptureOptionsDialog::on_gbStopCaptureAuto_toggled(bool checked)
 {
     global_capture_opts.has_file_interval = checked;
@@ -522,6 +585,26 @@ void CaptureOptionsDialog::on_cbResolveTransportNames_toggled(bool checked)
 void CaptureOptionsDialog::on_buttonBox_accepted()
 {
     if (saveOptionsToPreferences()) {
+
+#ifdef HAVE_LIBPCAP
+        InterfaceTreeWidgetItem *ti = dynamic_cast<InterfaceTreeWidgetItem *>(ui->interfaceTree->currentItem());
+        if (ti) {
+            interface_t *device;
+
+            QString interface_name = ti->text(col_interface_);
+            device = find_device_by_if_name(interface_name);
+            if (device && device->if_info.type == IF_EXTCAP) {
+                /* this checks if configuration is required and not yet provided or saved via prefs */
+                QString device_name = ti->data(col_extcap_, Qt::UserRole).value<QString>();
+                if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
+                {
+                    emit showExtcapOptions(device_name);
+                    return;
+                }
+            }
+        }
+#endif /* HAVE_LIBPCAP */
+
         emit setFilterValid(true, ui->captureFilterComboBox->lineEdit()->text());
         accept();
     }
@@ -687,10 +770,17 @@ void CaptureOptionsDialog::updateInterfaces()
             // Traffic sparklines
             InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem(ui->interfaceTree);
             ti->setFlags(ti->flags() | Qt::ItemIsEditable);
+
+            if (device->if_info.type == IF_EXTCAP) {
+              ti->setIcon(col_extcap_,  QIcon(StockIcon("x-capture-options")));
+              ti->setData(col_extcap_, Qt::UserRole, QString(device->if_info.name));
+              ti->setToolTip(col_extcap_, QString("Extcap interface settings"));
+            }
+
+            ti->setText(col_interface_, device->display_name);
             ti->setData(col_interface_, Qt::UserRole, QString(device->name));
             ti->setData(col_traffic_, Qt::UserRole, QVariant::fromValue(ti->points));
 
-            ti->setText(col_interface_, device->display_name);
             if (device->no_addresses > 0) {
                 QString addr_str = tr("%1: %2").arg(device->no_addresses > 1 ? tr("Addresses") : tr("Address")).arg(device->addresses);
                 QTreeWidgetItem *addr_ti = new QTreeWidgetItem(ti);
@@ -1241,6 +1331,7 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             links = device->links;
         }
         switch (idx.column()) {
+        case col_extcap_:
         case col_interface_:
         case col_traffic_:
             break;

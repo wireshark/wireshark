@@ -54,6 +54,8 @@ The following features are new (or have been significantly updated) since versio
 
 * Mesh Connex (MCX) support in existing 802.11 packets.
 
+* Capture Options dialog contains same configuration icon as Welcome Screen. It is possible to configure interface there.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
