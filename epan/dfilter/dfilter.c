@@ -284,9 +284,8 @@ const char *tokenstr(int token)
 		case TOKEN_DOTDOT:	return "DOTDOT";
 		case TOKEN_LPAREN:	return "LPAREN";
 		case TOKEN_RPAREN:	return "RPAREN";
-		default:		return "<unknown>";
 	}
-	ws_assert_not_reached();
+	return "<unknown>";
 }
 
 void
