@@ -13,8 +13,8 @@
 /*
  * API versions of this plugin engine
  */
-#define PLUGIN_API_VERSION_MAJOR 1
-#define PLUGIN_API_VERSION_MINOR 0
+#define PLUGIN_API_VERSION_MAJOR 0
+#define PLUGIN_API_VERSION_MINOR 2
 #define PLUGIN_API_VERSION_PATCH 0
 
 /*
@@ -79,7 +79,7 @@ typedef gboolean (*cb_wait_t)(void* wait_ctx);
 
 /*
  * This is the opaque pointer to the state of a source plugin.
- * It points to any data that might be needed plugin-wise. It is 
+ * It points to any data that might be needed plugin-wise. It is
  * allocated by init() and must be destroyed by destroy().
  * It is defined as void because the engine doesn't care what it is
  * and it treats is as opaque.
@@ -87,9 +87,9 @@ typedef gboolean (*cb_wait_t)(void* wait_ctx);
 typedef void ss_plugin_t;
 
 /*
- * This is the opaque pointer to the state of an open instance of the source 
+ * This is the opaque pointer to the state of an open instance of the source
  * plugin.
- * It points to any data that is needed while a capture is running. It is 
+ * It points to any data that is needed while a capture is running. It is
  * allocated by open() and must be destroyed by close().
  * It is defined as void because the engine doesn't care what it is
  * and it treats is as opaque.
