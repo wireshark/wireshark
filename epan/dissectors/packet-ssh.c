@@ -78,20 +78,17 @@ void proto_reg_handoff_ssh(void);
 typedef struct {
     guint8  *data;
     guint   length;
-} ssh_kex_key;
+} ssh_bignum;
 
-typedef struct {
-    guint8  *data;
-    guint   length;
-    guint8  type;
-} ssh_kex_pub_key;
+#define SSH_KEX_CURVE25519 0x00010000
+
+#define SSH_KEX_HASH_SHA256 2
 
 typedef struct {
     guint8  *data;
     guint   length;
 } ssh_enc_key;
 
-#define SSH_KEX_CURVE25519 1
 #endif
 
 struct ssh_peer_data {
@@ -122,6 +119,10 @@ struct ssh_peer_data {
     gchar*  comp;
 
     gint    length_is_plaintext;
+
+#ifdef SSH_DECRYPTION_SUPPORTED
+    ssh_bignum      *bn_cookie;
+#endif
 };
 
 struct ssh_flow_data {
@@ -140,10 +141,21 @@ struct ssh_flow_data {
 #ifdef SSH_DECRYPTION_SUPPORTED
     gchar           *session_id;
     guint           session_id_length;
-    ssh_kex_pub_key     *kex_e;
+    ssh_bignum      *kex_e;
+    ssh_bignum      *kex_f;
+    ssh_bignum      *secret;
+    wmem_array_t    *kex_client_version;
+    wmem_array_t    *kex_server_version;
+    wmem_array_t    *kex_client_key_exchange_init;
+    wmem_array_t    *kex_server_key_exchange_init;
+    wmem_array_t    *kex_server_host_key_blob;
+    wmem_array_t    *kex_shared_secret;
+    gboolean        do_decrypt;
     wmem_array_t    *kex_hash_buffer;
 #endif
 };
+
+static GHashTable * ssh_master_key_map = NULL;
 
 static int proto_ssh = -1;
 
@@ -253,7 +265,6 @@ static dissector_handle_t ssh_handle;
 #ifdef SSH_DECRYPTION_SUPPORTED
 static const char   *pref_keylog_file;
 static FILE         *ssh_keylog_file;
-static wmem_map_t   *ssh_kex_keys;
 #endif
 
 // 29418/tcp: Gerrit Code Review
@@ -421,27 +432,26 @@ static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data);
 
 #ifdef SSH_DECRYPTION_SUPPORTED
 static void ssh_keylog_read_file(void);
-static void ssh_keylog_process_line(char *line);
+static void ssh_keylog_process_line(const char *line);
 static void ssh_keylog_reset(void);
-static void ssh_keylog_add_keys(guint8 *priv, guint priv_length,
-        gchar *type_string);
-static ssh_kex_key *ssh_kex_make_key(guint8 *data, guint length);
-static ssh_kex_pub_key *ssh_kex_make_pub_key(guint8 *data, guint length,
-        gchar type);
+static ssh_bignum *ssh_kex_make_bignum(const guint8 *data, guint length);
 static void ssh_read_e(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
-static void ssh_keylog_compute_hash(tvbuff_t *tvb, int offset,
+static void ssh_read_f(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
-static ssh_kex_key *ssh_kex_shared_secret(ssh_kex_pub_key *pub, ssh_kex_key *priv);
+static void ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
+        struct ssh_flow_data *global_data);
+static ssh_bignum *ssh_kex_shared_secret(gint kex_type, ssh_bignum *pub, ssh_bignum *priv);
 static void ssh_hash_buffer_put_string(wmem_array_t *buffer, const gchar *string,
         guint len);
 static gchar *ssh_string(const gchar *string, guint len);
-static void ssh_derive_symmetric_keys(ssh_kex_key *shared_secret,
+static void ssh_derive_symmetric_keys(ssh_bignum *shared_secret,
         gchar *exchange_hash, guint hash_length,
         struct ssh_flow_data *global_data);
-static void ssh_derive_symmetric_key(ssh_kex_key *shared_secret,
+static void ssh_derive_symmetric_key(ssh_bignum *shared_secret,
         gchar *exchange_hash, guint hash_length, gchar id,
         ssh_enc_key *result_key, struct ssh_flow_data *global_data);
+
 #endif
 
 static int
@@ -470,6 +480,15 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         global_data->peer_data[SERVER_PEER_DATA].mac_length = -1;
 #ifdef SSH_DECRYPTION_SUPPORTED
         global_data->kex_hash_buffer = wmem_array_new(wmem_file_scope(), 1);
+        global_data->peer_data[CLIENT_PEER_DATA].bn_cookie = NULL;
+        global_data->peer_data[SERVER_PEER_DATA].bn_cookie = NULL;
+        global_data->kex_client_version = wmem_array_new(wmem_file_scope(), 1);
+        global_data->kex_server_version = wmem_array_new(wmem_file_scope(), 1);
+        global_data->kex_client_key_exchange_init = wmem_array_new(wmem_file_scope(), 1);
+        global_data->kex_server_key_exchange_init = wmem_array_new(wmem_file_scope(), 1);
+        global_data->kex_server_host_key_blob = wmem_array_new(wmem_file_scope(), 1);
+        global_data->kex_shared_secret = wmem_array_new(wmem_file_scope(), 1);
+        global_data->do_decrypt      = TRUE;
 #endif
 
         conversation_add_proto_data(conversation, proto_ssh, global_data);
@@ -776,7 +795,7 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     // server host key (K_S / Q)
 #ifdef SSH_DECRYPTION_SUPPORTED
     gchar *data = (gchar *)tvb_memdup(wmem_packet_scope(), tvb, last_offset + 4, key_len);
-    ssh_hash_buffer_put_string(global_data->kex_hash_buffer, data, key_len);
+    ssh_hash_buffer_put_string(global_data->kex_server_host_key_blob, data, key_len);
 #else
     // ignore unused parameter complaint
     (void)global_data;
@@ -984,8 +1003,11 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
                 ett_key_exchange_host_key, global_data);
 
 #ifdef SSH_DECRYPTION_SUPPORTED
-        // f (server ephemeral key public part), K_S (host key)
-        ssh_keylog_compute_hash(tvb, offset, global_data);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            // f (server ephemeral key public part), K_S (host key)
+            ssh_read_f(tvb, offset, global_data);
+            ssh_keylog_hash_write_secret(tvb, offset, global_data);
+        }
 #endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
@@ -1067,7 +1089,10 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
                 ett_key_exchange_host_key, global_data);
 
 #ifdef SSH_DECRYPTION_SUPPORTED
-        ssh_keylog_compute_hash(tvb, offset, global_data);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            ssh_read_f(tvb, offset, global_data);
+            ssh_keylog_hash_write_secret(tvb, offset, global_data);
+        }
 #endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_s, hf_ssh_ecdh_q_s_length);
@@ -1317,6 +1342,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
     struct ssh_peer_data *peer_data = &global_data->peer_data[is_response];
 
     key_init_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_init, &tf, "Algorithms");
+    peer_data->bn_cookie = ssh_kex_make_bignum(tvb_get_ptr(tvb, offset, 16), 16);
     proto_tree_add_item(key_init_tree, hf_ssh_cookie,
                     tvb, offset, 16, ENC_NA);
     offset += 16;
@@ -1457,15 +1483,26 @@ ssh_keylog_read_file(void)
         }
     }
 
-    /* File format: each line follows the format "<type> <key>".
-     * For available <type>s, see below. <key> is the hex-encoded key (64
-     * characters).
+    /* File format: each line follows the format "<cookie> <key>".
+     * <cookie> is the hex-encoded (client or server) 16 bytes cookie
+     * (32 characters) found in the SSH_MSG_KEXINIT of the endpoint whose
+     * private random is disclosed.
+     * <key> is the private random number that is used to generate the DH
+     * negotiation (length depends on algorithm). In RFC4253 it is called
+     * x for the client and y for the server.
+     * For openssh and DH group exchange, it can be retrieved using
+     * DH_get0_key(kex->dh, NULL, &server_random)
+     * for groupN in file kexdh.c function kex_dh_compute_key
+     * for custom group in file kexgexs.c function input_kex_dh_gex_init
+     * For openssh and curve25519, it can be found in function kex_c25519_enc
+     * in variable server_key.
      *
      * Example:
-     *  curve25519 0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF
+     *  90d886612f9c35903db5bb30d11f23c2 DEF830C22F6C927E31972FFB20B46C96D0A5F2D5E7BE5A3A8804D6BFC431619ED10AF589EEDFF4750DEA00EFD7AFDB814B6F3528729692B1F2482041521AE9DC
      */
     for (;;) {
         char buf[512];
+        buf[0] = 0;
 
         if (!fgets(buf, sizeof(buf), ssh_keylog_file)) {
             if (ferror(ssh_keylog_file)) {
@@ -1475,18 +1512,21 @@ ssh_keylog_read_file(void)
             break;
         }
 
+        size_t len = strlen(buf);
+        while(len>0 && (buf[len-1]=='\r' || buf[len-1]=='\n')){len-=1;buf[len]=0;}
+
         ssh_keylog_process_line(buf);
     }
 }
 
 static void
-ssh_keylog_process_line(char *line)
+ssh_keylog_process_line(const char *line)
 {
     ws_debug("ssh: process line: %s", line);
 
     gchar **split = g_strsplit(line, " ", 2);
-    gchar *key, *value;
-    int key_len;
+    gchar *cookie, *key;
+    size_t cookie_len, key_len;
 
     if (g_strv_length(split) != 2) {
         ws_debug("ssh keylog: invalid format");
@@ -1494,37 +1534,60 @@ ssh_keylog_process_line(char *line)
         return;
     }
 
-    key = split[0];
-    value = split[1];
+// [cookie of corresponding key] [key]
+    cookie = split[0];
+    key = split[1];
 
-    if (!strcmp(key, "curve25519")) {
-        key_len = 32;
-    } else {
-        ws_debug("ssh: key exchange method not supported");
+    key_len = strlen(key);
+    cookie_len = strlen(cookie);
+    if(key_len & 1){
+        ws_debug("ssh keylog: invalid format (key could at least be even!)");
         g_strfreev(split);
         return;
     }
-
-    gchar hexbyte[3] = {0, 0, 0};
+    if(cookie_len & 1){
+        ws_debug("ssh keylog: invalid format (cookie could at least be even!)");
+        g_strfreev(split);
+        return;
+    }
+    ssh_bignum * bn_cookie = ssh_kex_make_bignum(NULL, cookie_len/2);
+    ssh_bignum * bn_priv   = ssh_kex_make_bignum(NULL, key_len/2);
     guint8 c;
-    guint8 *converted = g_new(guint8, key_len);
+    for (size_t i = 0; i < key_len/2; i ++) {
+        gchar v0 = key[i * 2];
+        gint8 h0 = (v0>='0' && v0<='9')?v0-'0':(v0>='a' && v0<='f')?v0-'a'+10:(v0>='A' && v0<='F')?v0-'A'+10:-1;
+        gchar v1 = key[i * 2 + 1];
+        gint8 h1 = (v1>='0' && v1<='9')?v1-'0':(v1>='a' && v1<='f')?v1-'a'+10:(v1>='A' && v1<='F')?v1-'A'+10:-1;
 
-    for (int i = 0; i < key_len; i ++) {
-        hexbyte[0] = value[i * 2];
-        hexbyte[1] = value[i * 2 + 1];
-
-        if (!ws_hexstrtou8(hexbyte, NULL, &c)) {
-            ws_debug("ssh: can't process key, invalid hex number: %s", hexbyte);
-            g_free(converted);
+        if (h0==-1 || h1==-1) {
+            ws_debug("ssh: can't process key, invalid hex number: %c%c", v0, v1);
             g_strfreev(split);
             return;
         }
 
-        converted[i] = c;
+        c = (h0 << 4) | h1;
+
+        bn_priv->data[i] = c;
     }
 
-    ssh_keylog_add_keys(converted, key_len, key);
-    g_free(converted);
+    for (size_t i = 0; i < cookie_len/2; i ++) {
+        gchar v0 = cookie[i * 2];
+        gint8 h0 = (v0>='0' && v0<='9')?v0-'0':(v0>='a' && v0<='f')?v0-'a'+10:(v0>='A' && v0<='F')?v0-'A'+10:-1;
+        gchar v1 = cookie[i * 2 + 1];
+        gint8 h1 = (v1>='0' && v1<='9')?v1-'0':(v1>='a' && v1<='f')?v1-'a'+10:(v1>='A' && v1<='F')?v1-'A'+10:-1;
+
+        if (h0==-1 || h1==-1) {
+            ws_debug("ssh: can't process cookie, invalid hex number: %c%c", v0, v1);
+            g_strfreev(split);
+            return;
+        }
+
+        c = (h0 << 4) | h1;
+
+        bn_cookie->data[i] = c;
+    }
+
+    g_hash_table_insert(ssh_master_key_map, bn_cookie, bn_priv);
     g_strfreev(split);
 }
 
@@ -1547,90 +1610,55 @@ ssh_kex_type(char *type)
     return 0;
 }
 
-static void
-ssh_keylog_add_keys(guint8 *priv, guint priv_length, gchar *type_string)
+static guint
+ssh_kex_hash_type(gchar *type_string)
 {
-    guint type = ssh_kex_type(type_string);
-    ssh_kex_pub_key *pub = ssh_kex_make_pub_key(NULL, priv_length, type);
-
-    if (SSH_KEX_CURVE25519 == type) {
-        if (crypto_scalarmult_curve25519_base(pub->data, priv)) {
-            ws_debug("cannot compute curve25519 public key");
-            return;
-        }
+    if (g_str_has_suffix(type_string, "sha256")) {
+        return SSH_KEX_HASH_SHA256;
     } else {
-        ws_debug("key type %s not supported", type_string);
-        return;
-    }
-
-    if (!wmem_map_contains(ssh_kex_keys, pub)) {
-        ssh_kex_key *value = ssh_kex_make_key(NULL, priv_length);
-        if (!value) {
-            ws_debug("invalid key length %u", priv_length);
-            return;
-        }
-        memcpy(value->data, priv, priv_length);
-        wmem_map_insert(ssh_kex_keys, pub, value);
+        ws_debug("hash type %s not supported", type_string);
+        return 0;
     }
 }
 
-// This was the largest valid value I (gcc) could find.
-// https://github.com/openssh/openssh-portable/blob/0a4a5571ada76b1b012bec9cf6ad1203fc19ec8d/sshkey.c#L1589
-#define MAX_SSH_KEY_BYTES 16384
-static ssh_kex_key *
-ssh_kex_make_key(guint8 *data, guint length)
+static ssh_bignum *
+ssh_kex_make_bignum(const guint8 *data, guint length)
 {
-    if (length >= MAX_SSH_KEY_BYTES) {
-        return NULL;
-    }
-
-    ssh_kex_key *key = wmem_new0(wmem_file_scope(), ssh_kex_key);
-    key->data = (guint8 *)wmem_alloc0(wmem_file_scope(), length);
+    ssh_bignum *bn = wmem_new0(wmem_file_scope(), ssh_bignum);
+    bn->data = (guint8 *)wmem_alloc0(wmem_file_scope(), length);
 
     if (data) {
-        memcpy(key->data, data, length);
+        memcpy(bn->data, data, length);
     }
 
-    key->length = length;
-    return key;
-}
-
-static ssh_kex_pub_key *
-ssh_kex_make_pub_key(guint8 *data, guint length, gchar type)
-{
-    if (length >= MAX_SSH_KEY_BYTES) {
-        return NULL;
-    }
-
-    ssh_kex_pub_key *key = wmem_new0(wmem_file_scope(), ssh_kex_pub_key);
-    key->data = (guint8 *)wmem_alloc0(wmem_file_scope(), length);
-
-    if (data) {
-        memcpy(key->data, data, length);
-    }
-
-    key->length = length;
-    key->type = type;
-    return key;
+    bn->length = length;
+    return bn;
 }
 
 static void
 ssh_read_e(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
 {
     // store the client's public part (e) for later usage
-    guint length = tvb_get_ntohl(tvb, offset);
-    guint type = ssh_kex_type(global_data->kex);
-    ssh_kex_pub_key *kex = ssh_kex_make_pub_key(NULL, length, type);
-    if (!kex) {
+    int length = tvb_get_ntohl(tvb, offset);
+    global_data->kex_e = ssh_kex_make_bignum(NULL, length);
+    if (!global_data->kex_e) {
         ws_debug("invalid key length %u", length);
         return;
     }
-    global_data->kex_e = kex;
     tvb_memcpy(tvb, global_data->kex_e->data, offset + 4, length);
 }
 
 static void
-ssh_keylog_compute_hash(tvbuff_t *tvb, int offset,
+ssh_read_f(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
+{
+    // store the server's public part (f) for later usage
+    int length = tvb_get_ntohl(tvb, offset);
+    global_data->kex_f = ssh_kex_make_bignum(NULL, length);
+    tvb_memcpy(tvb, global_data->kex_f->data, offset + 4, length);
+}
+
+static void
+ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data)
 {
     /*
@@ -1641,90 +1669,95 @@ ssh_keylog_compute_hash(tvbuff_t *tvb, int offset,
      * All key exchange methods:
      * https://www.iana.org/assignments/ssh-parameters/ssh-parameters.xhtml#ssh-parameters-16
      */
-    if (global_data->kex_hash_buffer == NULL) {
-        return;
-    }
 
     gcry_md_hd_t hd;
-    ssh_kex_key *secret, *priv;
-    ssh_kex_pub_key kex_f;
+    ssh_bignum *secret = NULL, *priv;
     int length;
-    // TODO support other key exchange algorithms than curve25519-sha256
-    guint hash_len = 32;
 
     ssh_keylog_read_file();
 
-    if (global_data->kex_e == NULL) {
-        return;
-    }
-
     length = tvb_get_ntohl(tvb, offset);
-    kex_f.length = length;
-    kex_f.data = (gchar *)tvb_memdup(wmem_packet_scope(), tvb, offset + 4, length);
-    kex_f.type = global_data->kex_e->type;
-    priv = (ssh_kex_key *)wmem_map_lookup(ssh_kex_keys, global_data->kex_e);
+    guint kex_type = ssh_kex_type(global_data->kex);
+    guint kex_hash_type = ssh_kex_hash_type(global_data->kex);
 
-    if (!priv) {
-        priv = (ssh_kex_key *)wmem_map_lookup(ssh_kex_keys, &kex_f);
-
-        if (!priv) {
-            ws_debug("ssh decryption: private key not available");
-            return;
-
-        // we have the server's private key
-        } else {
-            secret = ssh_kex_shared_secret(global_data->kex_e, priv);
+    priv = (ssh_bignum *)g_hash_table_lookup(ssh_master_key_map, global_data->peer_data[SERVER_PEER_DATA].bn_cookie);
+    if(priv){
+        secret = ssh_kex_shared_secret(kex_type, global_data->kex_e, priv);
+    }else{
+        priv = (ssh_bignum *)g_hash_table_lookup(ssh_master_key_map, global_data->peer_data[CLIENT_PEER_DATA].bn_cookie);
+        if(priv){
+            secret = ssh_kex_shared_secret(kex_type, global_data->kex_f, priv);
         }
-
-    // we have the client's private key
-    } else {
-        secret = ssh_kex_shared_secret(&kex_f, priv);
     }
 
     if (!secret) {
+        ws_debug("ssh decryption: no private key for this session");
+        global_data->do_decrypt = FALSE;
         return;
     }
 
-    ssh_hash_buffer_put_string(global_data->kex_hash_buffer,
-            global_data->kex_e->data, length);
-    ssh_hash_buffer_put_string(global_data->kex_hash_buffer, kex_f.data, length);
-
     // shared secret data needs to be written as an mpint, and we need it later
-    if (secret->data[0] & 0x80) {
-        gchar *tmp = (gchar *)wmem_alloc0(wmem_packet_scope(), length + 1);
-        memcpy(tmp + 1, secret->data, length);
+    if (secret->data[0] & 0x80) {         // Stored in Big endian
+        length = secret->length + 1;
+        gchar *tmp = (gchar *)wmem_alloc0(wmem_packet_scope(), length);
+        memcpy(tmp + 1, secret->data, secret->length);
         tmp[0] = 0;
         secret->data = tmp;
-        secret->length = length + 1;
-        ssh_hash_buffer_put_string(global_data->kex_hash_buffer, secret->data,
-                length + 1);
-    } else
-        ssh_hash_buffer_put_string(global_data->kex_hash_buffer, secret->data,
-                length);
+        secret->length = length;
+    }
+    ssh_hash_buffer_put_string(global_data->kex_shared_secret, secret->data, secret->length);
 
+    wmem_array_t    * kex_e = wmem_array_new(wmem_packet_scope(), 1);
+    if(global_data->kex_e){ssh_hash_buffer_put_string(kex_e, global_data->kex_e->data, global_data->kex_e->length);}
+    wmem_array_t    * kex_f = wmem_array_new(wmem_packet_scope(), 1);
+    if(global_data->kex_f){ssh_hash_buffer_put_string(kex_f, global_data->kex_f->data, global_data->kex_f->length);}
+
+    wmem_array_t    * kex_hash_buffer = wmem_array_new(wmem_packet_scope(), 1);
+    wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_client_version), wmem_array_get_count(global_data->kex_client_version));
+    wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_server_version), wmem_array_get_count(global_data->kex_server_version));
+    wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_client_key_exchange_init), wmem_array_get_count(global_data->kex_client_key_exchange_init));
+    wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_server_key_exchange_init), wmem_array_get_count(global_data->kex_server_key_exchange_init));
+    wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_server_host_key_blob), wmem_array_get_count(global_data->kex_server_host_key_blob));
+    if(kex_type==SSH_KEX_CURVE25519){
+        wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_e), wmem_array_get_count(kex_e));
+        wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_f), wmem_array_get_count(kex_f));
+    }
+    wmem_array_append(kex_hash_buffer, wmem_array_get_raw(global_data->kex_shared_secret), wmem_array_get_count(global_data->kex_shared_secret));
+
+    guint hash_len = 32;
+    if(kex_hash_type==SSH_KEX_HASH_SHA256){
+        gcry_md_open(&hd, GCRY_MD_SHA256, 0);
+        hash_len = 32;
+    } else {
+        ws_debug("kex_hash_type type %d not supported", kex_hash_type);
+        return;
+    }
     gchar *exchange_hash = (gchar *)wmem_alloc0(wmem_file_scope(), hash_len);
-    gcry_md_open(&hd, GCRY_MD_SHA256, 0);
-    gcry_md_write(hd, wmem_array_get_raw(global_data->kex_hash_buffer),
-            wmem_array_get_count(global_data->kex_hash_buffer));
+    gcry_md_write(hd, wmem_array_get_raw(kex_hash_buffer), wmem_array_get_count(kex_hash_buffer));
     memcpy(exchange_hash, gcry_md_read(hd, 0), hash_len);
     gcry_md_close(hd);
-    global_data->kex_hash_buffer = NULL;
+    global_data->secret = secret;
     ssh_derive_symmetric_keys(secret, exchange_hash, hash_len, global_data);
 }
 
 // the purpose of this function is to deal with all different kex methods
-static ssh_kex_key *
-ssh_kex_shared_secret(ssh_kex_pub_key *pub, ssh_kex_key *priv)
+static ssh_bignum *
+ssh_kex_shared_secret(gint kex_type, ssh_bignum *pub, ssh_bignum *priv)
 {
-    ssh_kex_key *secret = ssh_kex_make_key(NULL, pub->length);
+    ssh_bignum *secret = ssh_kex_make_bignum(NULL, pub->length);
     if (!secret) {
         ws_debug("invalid key length %u", pub->length);
         return NULL;
     }
 
-    if (crypto_scalarmult_curve25519(secret->data, priv->data, pub->data)) {
-        ws_debug("curve25519: can't compute shared secret");
-        return NULL;
+    if(kex_type==SSH_KEX_CURVE25519){
+        if (crypto_scalarmult_curve25519(secret->data, priv->data, pub->data)) {
+            ws_debug("curve25519: can't compute shared secret");
+            return NULL;
+        }
+    } else {
+        ws_debug("kex_type type %d not supported", kex_type);
+        return 0;
     }
 
     return secret;
@@ -1754,7 +1787,7 @@ ssh_hash_buffer_put_string(wmem_array_t *buffer, const gchar *string,
     wmem_array_append(buffer, string_with_length, length + 4);
 }
 
-static void ssh_derive_symmetric_keys(ssh_kex_key *secret, gchar *exchange_hash,
+static void ssh_derive_symmetric_keys(ssh_bignum *secret, gchar *exchange_hash,
         guint hash_length, struct ssh_flow_data *global_data)
 {
     ssh_enc_key keys[6];
@@ -1770,7 +1803,7 @@ static void ssh_derive_symmetric_keys(ssh_kex_key *secret, gchar *exchange_hash,
     }
 }
 
-static void ssh_derive_symmetric_key(ssh_kex_key *secret, gchar *exchange_hash,
+static void ssh_derive_symmetric_key(ssh_bignum *secret, gchar *exchange_hash,
         guint hash_length, gchar id, ssh_enc_key *result_key,
         struct ssh_flow_data *global_data)
 {
@@ -1807,21 +1840,46 @@ static void ssh_derive_symmetric_key(ssh_kex_key *secret, gchar *exchange_hash,
     result_key->length = need;
 }
 
-static guint
-ssh_kex_pub_key_hash(gconstpointer v1)
+/* Functions for SSH random hashtables. {{{ */
+static gint
+ssh_equal (gconstpointer v, gconstpointer v2)
 {
-    const ssh_kex_pub_key *key1 = (const ssh_kex_pub_key *)v1;
-    return wmem_strong_hash(key1->data, key1->length);
+    const ssh_bignum *val1;
+    const ssh_bignum *val2;
+    val1 = (const ssh_bignum *)v;
+    val2 = (const ssh_bignum *)v2;
+
+    if (val1->length == val2->length &&
+        !memcmp(val1->data, val2->data, val2->length)) {
+        return 1;
+    }
+    return 0;
 }
 
-static gboolean
-ssh_kex_pub_key_equal(gconstpointer v1, gconstpointer v2)
+static guint
+ssh_hash  (gconstpointer v)
 {
-    const ssh_kex_pub_key *key1 = (const ssh_kex_pub_key *)v1;
-    const ssh_kex_pub_key *key2 = (const ssh_kex_pub_key *)v2;
-    return key1->type == key2->type && key1->length == key2->length &&
-        !memcmp(key1->data, key2->data, key1->length);
+    guint l,hash;
+    const ssh_bignum* id;
+    const guint* cur;
+    hash = 0;
+    id = (const ssh_bignum*) v;
+
+    /*  id and id->data are mallocated in ssh_save_master_key().  As such 'data'
+     *  should be aligned for any kind of access (for example as a guint as
+     *  is done below).  The intermediate void* cast is to prevent "cast
+     *  increases required alignment of target type" warnings on CPUs (such
+     *  as SPARCs) that do not allow misaligned memory accesses.
+     */
+    cur = (const guint*)(void*) id->data;
+
+    for (l=4; (l < id->length); l+=4, cur++)
+        hash = hash ^ (*cur);
+
+    return hash;
 }
+/* Functions for SSH random hashtables. }}} */
+
 #endif /* SSH_DECRYPTION_SUPPORTED */
 
 void
@@ -2214,14 +2272,12 @@ proto_register_ssh(void)
                        &ssh_desegment);
 
 #ifdef SSH_DECRYPTION_SUPPORTED
+    ssh_master_key_map = g_hash_table_new(ssh_hash, ssh_equal);
     prefs_register_filename_preference(ssh_module, "keylog_file", "Key log filename",
             "The path to the file which contains a list of key exchange secrets in the following format:\n"
-            "\"<key-type> <hex-encoded-key>\" (without quotes or leading spaces).\n"
-            "<key-type> is one of: curve25519. ",
+            "\"<hex-encoded-cookie> <hex-encoded-key>\" (without quotes or leading spaces).\n",
             &pref_keylog_file, FALSE);
 
-    ssh_kex_keys = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
-                                          ssh_kex_pub_key_hash, ssh_kex_pub_key_equal);
 #endif
 
     ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
