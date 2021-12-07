@@ -5825,7 +5825,6 @@ static void mbim_dissect_base_station_gsm_serving_cell_info(tvbuff_t* tvb, proto
     proto_tree_add_item(tree, hf_mbim_base_station_base_station_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_base_station_rx_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
     proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
         provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
 }
@@ -6363,7 +6362,6 @@ mbim_dissect_ms_open_channel(tvbuff_t* tvb, proto_tree* tree, gint offset, struc
 
     if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
     }
     if (app_id_offset && app_id_size) {
         proto_tree_add_item(tree, hf_mbim_ms_open_channel_app_id, tvb, base_offset + app_id_offset, app_id_size, ENC_NA);
@@ -6383,7 +6381,6 @@ mbim_dissect_ms_open_channel_info(tvbuff_t* tvb, proto_tree* tree, gint offset)
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_length);
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_offset);
-    offset += 4;
 
     if (response_offset && response_length) {
         proto_tree_add_item(tree, hf_mbim_ms_uicc_response, tvb, base_offset + response_offset, response_length, ENC_NA);
@@ -6400,7 +6397,6 @@ mbim_dissect_ms_close_channel(tvbuff_t* tvb, proto_tree* tree, gint offset, stru
 
     if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
     }
 }
 
@@ -6422,7 +6418,6 @@ mbim_dissect_ms_apdu(tvbuff_t* tvb, proto_tree* tree, gint offset, struct mbim_c
 
     if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
     }
     if (command_offset && command_size) {
         proto_tree_add_item(tree, hf_mbim_ms_apdu_command, tvb, base_offset + command_offset, command_size, ENC_NA);
@@ -6440,7 +6435,6 @@ mbim_dissect_ms_apdu_info(tvbuff_t* tvb, proto_tree* tree, gint offset)
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_length);
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_offset);
-    offset += 4;
 
     if (response_offset && response_length) {
         proto_tree_add_item(tree, hf_mbim_ms_uicc_response, tvb, base_offset + response_offset, response_length, ENC_NA);
@@ -6498,7 +6492,6 @@ mbim_dissect_ms_set_reset(tvbuff_t* tvb, proto_tree* tree, gint offset, struct m
     offset += 4;
     if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
     }
 }
 
@@ -6506,7 +6499,6 @@ static void
 mbim_dissect_ms_query_reset(tvbuff_t* tvb, proto_tree* tree, gint offset)
 {
     proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
 }
 
 static void
@@ -6530,7 +6522,6 @@ mbim_dissect_ms_app_info_elements(tvbuff_t* tvb, packet_info* pinfo _U_, proto_t
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_pin_ref_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pin_ref_offset);
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_pin_ref_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pin_ref_size);
-    offset += 4;
 
     if (app_id_offset && app_id_size) {
         proto_tree_add_item(tree, hf_mbim_ms_app_info_app_id, tvb, base_offset + app_id_offset, app_id_size, ENC_NA);
