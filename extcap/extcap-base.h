@@ -36,8 +36,8 @@
 	EXTCAP_OPT_CAPTURE, \
 	EXTCAP_OPT_CAPTURE_FILTER, \
 	EXTCAP_OPT_FIFO, \
-	EXTCAP_OPT_DEBUG, \
-	EXTCAP_OPT_DEBUG_FILE
+	EXTCAP_OPT_LOG_LEVEL, \
+	EXTCAP_OPT_LOG_FILE
 
 
 #define EXTCAP_BASE_OPTIONS \
@@ -49,8 +49,8 @@
 	{ "capture", ws_no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
 	{ "extcap-capture-filter", ws_required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
 	{ "fifo", ws_required_argument, NULL, EXTCAP_OPT_FIFO}, \
-	{ "debug", ws_no_argument, NULL, EXTCAP_OPT_DEBUG}, \
-	{ "debug-file", ws_required_argument, NULL, EXTCAP_OPT_DEBUG_FILE}
+	{ "log-level", ws_required_argument, NULL, EXTCAP_OPT_LOG_LEVEL}, \
+	{ "log-file", ws_required_argument, NULL, EXTCAP_OPT_LOG_FILE}
 
 typedef struct _extcap_parameters
 {
@@ -93,7 +93,6 @@ void extcap_help_add_option(extcap_parameters * extcap, const char * help_option
 void extcap_version_print(extcap_parameters * extcap);
 void extcap_help_print(extcap_parameters * extcap);
 void extcap_cmdline_debug(char** ar, const unsigned n);
-void extcap_init_custom_log(const char* filename);
 void extcap_config_debug(unsigned* count);
 void extcap_base_help(void);
 void extcap_log_init(const char *progname);
