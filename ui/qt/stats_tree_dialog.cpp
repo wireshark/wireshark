@@ -59,6 +59,8 @@ StatsTreeDialog::StatsTreeDialog(QWidget &parent, CaptureFile &cf, const char *c
     st_cfg_ = stats_tree_get_cfg_by_abbr(cfg_abbr);
     memset(&cfg_pr_, 0, sizeof(struct _tree_cfg_pres));
 
+    addTreeCollapseAllActions();
+
     if (!st_cfg_) {
         QMessageBox::critical(this, tr("Configuration not found"),
                              tr("Unable to find configuration for %1.").arg(cfg_abbr));
