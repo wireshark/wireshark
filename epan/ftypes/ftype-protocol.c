@@ -340,6 +340,22 @@ ftype_register_tvbuff(void)
 	ftype_register(FT_PROTOCOL, &protocol_type);
 }
 
+void
+ftype_register_pseudofields_tvbuff(int proto)
+{
+	static int hf_ft_protocol;
+
+	static hf_register_info hf_ftypes[] = {
+		{ &hf_ft_protocol,
+		    { "FT_PROTOCOL", "_ws.ftypes.protocol",
+			FT_PROTOCOL, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+	};
+
+	proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

@@ -32,6 +32,30 @@ ftypes_initialize(void)
 	ftype_register_tvbuff();
 }
 
+void
+ftypes_register_pseudofields(void)
+{
+	static int proto_ftypes;
+
+	proto_ftypes = proto_register_protocol(
+				"Wireshark Field/Fundamental Types",
+				"Wireshark FTypes",
+				"_ws.ftypes");
+
+	ftype_register_pseudofields_bytes(proto_ftypes);
+	ftype_register_pseudofields_double(proto_ftypes);
+	ftype_register_pseudofields_ieee_11073_float(proto_ftypes);
+	ftype_register_pseudofields_integer(proto_ftypes);
+	ftype_register_pseudofields_ipv4(proto_ftypes);
+	ftype_register_pseudofields_ipv6(proto_ftypes);
+	ftype_register_pseudofields_guid(proto_ftypes);
+	ftype_register_pseudofields_string(proto_ftypes);
+	ftype_register_pseudofields_time(proto_ftypes);
+	ftype_register_pseudofields_tvbuff(proto_ftypes);
+
+	proto_set_cant_toggle(proto_ftypes);
+}
+
 /* Each ftype_t is registered via this function */
 void
 ftype_register(enum ftenum ftype, ftype_t *ft)

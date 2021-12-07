@@ -981,6 +981,28 @@ Example: 36.4 is 0xFF00016C
     ftype_register(FT_IEEE_11073_FLOAT, &float_type);
 }
 
+void
+ftype_register_pseudofields_ieee_11073_float(int proto)
+{
+    static int hf_ft_ieee_11073_sfloat;
+    static int hf_ft_ieee_11073_float;
+
+    static hf_register_info hf_ftypes[] = {
+        { &hf_ft_ieee_11073_sfloat,
+            { "FT_IEEE_11073_SFLOAT", "_ws.ftypes.ieee_11073_sfloat",
+                FT_IEEE_11073_SFLOAT, BASE_NONE, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_ft_ieee_11073_float,
+                { "FT_IEEE_11073_FLOAT", "_ws.ftypes.ieee_11073_float",
+                    FT_IEEE_11073_FLOAT, BASE_NONE, NULL, 0x00,
+                    NULL, HFILL }
+            },
+    };
+
+    proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

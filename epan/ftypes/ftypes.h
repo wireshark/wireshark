@@ -144,6 +144,9 @@ typedef enum ftrepr ftrepr_t;
 void
 ftypes_initialize(void);
 
+void
+ftypes_register_pseudofields(void);
+
 /* ---------------- FTYPE ----------------- */
 
 /* given two types, are they similar - for example can two

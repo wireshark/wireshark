@@ -1414,6 +1414,142 @@ ftype_register_integers(void)
 	ftype_register(FT_EUI64, &eui64_type);
 }
 
+void
+ftype_register_pseudofields_integer(int proto)
+{
+	static int hf_ft_char;
+	static int hf_ft_uint8;
+	static int hf_ft_uint16;
+	static int hf_ft_uint24;
+	static int hf_ft_uint32;
+	static int hf_ft_uint40;
+	static int hf_ft_uint48;
+	static int hf_ft_uint56;
+	static int hf_ft_uint64;
+	static int hf_ft_int8;
+	static int hf_ft_int16;
+	static int hf_ft_int24;
+	static int hf_ft_int32;
+	static int hf_ft_int40;
+	static int hf_ft_int48;
+	static int hf_ft_int56;
+	static int hf_ft_int64;
+	static int hf_ft_boolean;
+	static int hf_ft_ipxnet;
+	static int hf_ft_framenum;
+	static int hf_ft_eui64;
+
+	static hf_register_info hf_ftypes[] = {
+		{ &hf_ft_char,
+		    { "FT_CHAR", "_ws.ftypes.char",
+			FT_CHAR, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint8,
+		    { "FT_UINT8", "_ws.ftypes.uint8",
+			FT_UINT8, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint16,
+		    { "FT_UINT16", "_ws.ftypes.uint16",
+			FT_UINT16, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint24,
+		    { "FT_UINT24", "_ws.ftypes.uint24",
+			FT_UINT24, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint32,
+		    { "FT_UINT32", "_ws.ftypes.uint32",
+			FT_UINT32, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint40,
+		    { "FT_UINT40", "_ws.ftypes.uint40",
+			FT_UINT40, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint48,
+		    { "FT_UINT48", "_ws.ftypes.uint48",
+			FT_UINT48, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint56,
+		    { "FT_UINT56", "_ws.ftypes.uint56",
+			FT_UINT56, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint64,
+		    { "FT_UINT64", "_ws.ftypes.uint64",
+			FT_UINT64, BASE_HEX, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int8,
+		    { "FT_INT8", "_ws.ftypes.int8",
+			FT_INT8, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int16,
+		    { "FT_INT16", "_ws.ftypes.int16",
+			FT_INT16, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int24,
+		    { "FT_INT24", "_ws.ftypes.int24",
+			FT_INT24, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int32,
+		    { "FT_INT32", "_ws.ftypes.int32",
+			FT_INT32, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int40,
+		    { "FT_INT40", "_ws.ftypes.int40",
+			FT_INT40, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int48,
+		    { "FT_INT48", "_ws.ftypes.int48",
+			FT_INT48, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int56,
+		    { "FT_INT56", "_ws.ftypes.int56",
+			FT_INT56, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_int64,
+		    { "FT_INT64", "_ws.ftypes.int64",
+			FT_INT64, BASE_DEC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_boolean,
+		    { "FT_BOOLEAN", "_ws.ftypes.boolean",
+			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_ipxnet,
+		    { "FT_IPXNET", "_ws.ftypes.ipxnet",
+			FT_IPXNET, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_framenum,
+		    { "FT_FRAMENUM", "_ws.ftypes.framenum",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_eui64,
+		    { "FT_EUI64", "_ws.ftypes.eui64",
+			FT_EUI64, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+	};
+
+	proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

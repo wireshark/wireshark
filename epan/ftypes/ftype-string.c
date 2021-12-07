@@ -296,6 +296,46 @@ ftype_register_string(void)
 	ftype_register(FT_STRINGZTRUNC, &stringztrunc_type);
 }
 
+void
+ftype_register_pseudofields_string(int proto)
+{
+	static int hf_ft_string;
+	static int hf_ft_stringz;
+	static int hf_ft_uint_string;
+	static int hf_ft_stringzpad;
+	static int hf_ft_stringztrunc;
+
+	static hf_register_info hf_ftypes[] = {
+		{ &hf_ft_string,
+		    { "FT_STRING", "_ws.ftypes.string",
+			FT_STRING, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_stringz,
+		    { "FT_STRINGZ", "_ws.ftypes.stringz",
+			FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_uint_string,
+		    { "FT_UINT_STRING", "_ws.ftypes.uint_string",
+			FT_UINT_STRING, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_stringzpad,
+		    { "FT_STRINGZPAD", "_ws.ftypes.stringzpad",
+			FT_STRINGZPAD, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_stringztrunc,
+		    { "FT_STRINGZTRUNC", "_ws.ftypes.stringztrunc",
+			FT_STRINGZTRUNC, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+	};
+
+	proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

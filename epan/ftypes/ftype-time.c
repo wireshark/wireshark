@@ -478,6 +478,28 @@ ftype_register_time(void)
 	ftype_register(FT_RELATIVE_TIME, &reltime_type);
 }
 
+void
+ftype_register_pseudofields_time(int proto)
+{
+	static int hf_ft_rel_time;
+	static int hf_ft_abs_time;
+
+	static hf_register_info hf_ftypes[] = {
+		{ &hf_ft_abs_time,
+		    { "FT_ABSOLUTE_TIME", "_ws.ftypes.abs_time",
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,
+			NULL, HFILL }
+		},
+		{ &hf_ft_rel_time,
+		    { "FT_RELATIVE_TIME", "_ws.ftypes.rel_time",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x00,
+			NULL, HFILL }
+		},
+	};
+
+	proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

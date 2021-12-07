@@ -126,6 +126,22 @@ ftype_register_guid(void)
     ftype_register(FT_GUID, &guid_type);
 }
 
+void
+ftype_register_pseudofields_guid(int proto)
+{
+    static int hf_ft_guid;
+
+    static hf_register_info hf_ftypes[] = {
+            { &hf_ft_guid,
+                { "FT_GUID", "_ws.ftypes.guid",
+                    FT_GUID, BASE_NONE, NULL, 0x00,
+                    NULL, HFILL }
+            },
+    };
+
+    proto_register_field_array(proto, hf_ftypes, array_length(hf_ftypes));
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
