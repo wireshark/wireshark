@@ -4075,11 +4075,13 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
         extcap_options_dialog->setAttribute(Qt::WA_DeleteOnClose);
         connect(extcap_options_dialog, SIGNAL(finished(int)),
                 this, SLOT(extcap_options_finished(int)));
+#ifdef HAVE_LIBPCAP
         if (capture_options_dialog_) {
             /* Allow capture options dialog to close */
             connect(extcap_options_dialog, SIGNAL(accepted()),
                     capture_options_dialog_, SLOT(accept()));
         }
+#endif
         extcap_options_dialog->show();
     }
 }
