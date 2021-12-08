@@ -7,9 +7,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -57,9 +54,23 @@ static capture_dissector_handle_t ipx_cap_handle;
 
 static int proto_vlan;
 
-static header_field_info *hfi_vlan = NULL;
+static int hf_vlan_cfi = -1;
+static int hf_vlan_dei = -1;
+static int hf_vlan_etype = -1;
+static int hf_vlan_id = -1;
+static int hf_vlan_id_name = -1;
+static int hf_vlan_len = -1;
+static int hf_vlan_priority = -1;
+static int hf_vlan_priority_5 = -1;
+static int hf_vlan_priority_6 = -1;
+static int hf_vlan_priority_7 = -1;
+static int hf_vlan_priority_old = -1;
+static int hf_vlan_trailer = -1;
 
-#define VLAN_HFI_INIT HFI_INIT(proto_vlan)
+static gint ett_vlan = -1;
+
+static expert_field ei_vlan_len = EI_INIT;
+static expert_field ei_vlan_too_many_tags = EI_INIT;
 
 /* From Table G-2 of IEEE standard 802.1D-2004 */
 /* Note that 0 is the default priority, but is above 1 and 2.
@@ -76,10 +87,6 @@ static const value_string pri_vals_old[] = {
   { 0, NULL                                }
 };
 
-static header_field_info hfi_vlan_priority_old VLAN_HFI_INIT = {
-        "Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-        VALS(pri_vals_old), 0xE000, "Descriptions are recommendations from IEEE standard 802.1D-2004", HFILL };
-
 /* From Table G-2 of IEEE standard 802.1Q-2005 (and I-2 of 2011 and 2014 revisions) */
 /* Note that 0 is still the default, but priority 2 was moved from below 0 to
  * above it. The new order from lowest to highest is 1,0,2,3,4,5,6,7 */
@@ -95,10 +102,6 @@ static const value_string pri_vals[] = {
   { 0, NULL                                }
 };
 
-static header_field_info hfi_vlan_priority VLAN_HFI_INIT = {
-        "Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-        VALS(pri_vals), 0xE000, "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL };
-
 /* From Tables G-2,3 of IEEE standard 802.1Q-2005 (and I-2,3,7 of 2011 and 2014 revisions) */
 static const value_string pri_vals_7[] = {
   { 0, "Best Effort (default)"                           },
@@ -111,10 +114,6 @@ static const value_string pri_vals_7[] = {
   { 7, "Network Control"                                 },
   { 0, NULL                                              }
 };
-
-static header_field_info hfi_vlan_priority_7 VLAN_HFI_INIT = {
-        "Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-        VALS(pri_vals_7), 0xE000, "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL };
 
 /* From Tables G-2,3 of IEEE standard 802.1Q-2005 (and I-2,3,7 of 2011 and 2015 revisions) */
 static const value_string pri_vals_6[] = {
@@ -129,10 +128,6 @@ static const value_string pri_vals_6[] = {
   { 0, NULL                                               }
 };
 
-static header_field_info hfi_vlan_priority_6 VLAN_HFI_INIT = {
-        "Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-        VALS(pri_vals_6), 0xE000, "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL };
-
 /* From Tables G-2,3 of IEEE standard 802.1Q-2005 (and I-2,3,7 of 2011 and 2015 revisions) */
 static const value_string pri_vals_5[] = {
   { 0, "Best Effort (default), Drop Eligible"            },
@@ -146,48 +141,10 @@ static const value_string pri_vals_5[] = {
   { 0, NULL                                              }
 };
 
-static header_field_info hfi_vlan_priority_5 VLAN_HFI_INIT = {
-        "Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-        VALS(pri_vals_5), 0xE000, "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL };
-
 /* True is non-canonical (i.e., bit-reversed MACs like Token Ring) since usually 0 and canonical. */
 static const true_false_string tfs_noncanonical_canonical = { "Non-canonical", "Canonical" };
 
-static header_field_info hfi_vlan_cfi VLAN_HFI_INIT = {
-        "CFI", "vlan.cfi", FT_BOOLEAN, 16,
-        TFS(&tfs_noncanonical_canonical), 0x1000, "Canonical Format Identifier", HFILL };
-
 static const true_false_string tfs_eligible_ineligible = { "Eligible", "Ineligible" };
-
-static header_field_info hfi_vlan_dei VLAN_HFI_INIT = {
-        "DEI", "vlan.dei", FT_BOOLEAN, 16,
-        TFS(&tfs_eligible_ineligible), 0x1000, "Drop Eligible Indicator", HFILL };
-
-static header_field_info hfi_vlan_id VLAN_HFI_INIT = {
-        "ID", "vlan.id", FT_UINT16, BASE_DEC,
-        NULL, 0x0FFF, "VLAN ID", HFILL };
-
-static header_field_info hfi_vlan_id_name VLAN_HFI_INIT = {
-        "Name", "vlan.id_name", FT_STRING, BASE_NONE,
-        NULL, 0x0, "VLAN ID Name", HFILL };
-
-static header_field_info hfi_vlan_etype VLAN_HFI_INIT = {
-        "Type", "vlan.etype", FT_UINT16, BASE_HEX,
-        VALS(etype_vals), 0x0, "Ethertype", HFILL };
-
-static header_field_info hfi_vlan_len VLAN_HFI_INIT = {
-        "Length", "vlan.len", FT_UINT16, BASE_DEC,
-        NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_vlan_trailer VLAN_HFI_INIT = {
-        "Trailer", "vlan.trailer", FT_BYTES, BASE_NONE,
-        NULL, 0x0, "VLAN Trailer", HFILL };
-
-
-static gint ett_vlan = -1;
-
-static expert_field ei_vlan_len = EI_INIT;
-static expert_field ei_vlan_too_many_tags = EI_INIT;
 
 #define VLAN_MAX_NESTED_TAGS 20
 
@@ -243,7 +200,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   int * const flags[] = {
       &hf1,
       &hf2,
-      &hfi_vlan_id.id,
+      &hf_vlan_id,
       NULL
   };
 
@@ -261,7 +218,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   vlan_tree = NULL;
 
-  ti = proto_tree_add_item(tree, hfi_vlan, tvb, 0, 4, ENC_NA);
+  ti = proto_tree_add_item(tree, proto_vlan, tvb, 0, 4, ENC_NA);
   vlan_nested_count = p_get_proto_depth(pinfo, proto_vlan);
   if (++vlan_nested_count > VLAN_MAX_NESTED_TAGS) {
     expert_add_info(pinfo, ti, &ei_vlan_too_many_tags);
@@ -284,38 +241,38 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
     if (vlan_version == IEEE_8021Q_1998) {
-      hf1 = hfi_vlan_priority_old.id;
-      hf2 = hfi_vlan_cfi.id;
+      hf1 = hf_vlan_priority_old;
+      hf2 = hf_vlan_cfi;
     } else {
       switch (vlan_priority_drop) {
 
         case Priority_Drop_8P0D:
-          hf1 = hfi_vlan_priority.id;
+          hf1 = hf_vlan_priority;
           break;
 
         case Priority_Drop_7P1D:
-          hf1 = hfi_vlan_priority_7.id;
+          hf1 = hf_vlan_priority_7;
           break;
 
         case Priority_Drop_6P2D:
-          hf1 = hfi_vlan_priority_6.id;
+          hf1 = hf_vlan_priority_6;
           break;
 
         case Priority_Drop_5P3D:
-          hf1 = hfi_vlan_priority_5.id;
+          hf1 = hf_vlan_priority_5;
           break;
       }
       if (vlan_version == IEEE_8021Q_2005) {
-        hf2 = hfi_vlan_cfi.id;
+        hf2 = hf_vlan_cfi;
       } else {
-        hf2 = hfi_vlan_dei.id;
+        hf2 = hf_vlan_dei;
       }
     }
 
     proto_tree_add_bitmask_list(vlan_tree, tvb, 0, 2, flags, ENC_BIG_ENDIAN);
 
     if (gbl_resolv_flags.vlan_name) {
-      item = proto_tree_add_string(vlan_tree, &hfi_vlan_id_name, tvb, 0, 2,
+      item = proto_tree_add_string(vlan_tree, hf_vlan_id_name, tvb, 0, 2,
                                    get_vlan_name(pinfo->pool, vlan_id));
       proto_item_set_generated(item);
 
@@ -346,16 +303,16 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, vlan_tree,
-                  hfi_vlan_len.id, hfi_vlan_trailer.id, &ei_vlan_len, 0);
+                  hf_vlan_len, hf_vlan_trailer, &ei_vlan_len, 0);
   } else {
     ethertype_data_t ethertype_data;
 
-    proto_tree_add_uint(vlan_tree, &hfi_vlan_etype, tvb, 2, 2, encap_proto);
+    proto_tree_add_uint(vlan_tree, hf_vlan_etype, tvb, 2, 2, encap_proto);
 
     ethertype_data.etype = encap_proto;
     ethertype_data.payload_offset = 4;
     ethertype_data.fh_tree = vlan_tree;
-    ethertype_data.trailer_id = hfi_vlan_trailer.id;
+    ethertype_data.trailer_id = hf_vlan_trailer;
     ethertype_data.fcs_len = 0;
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
@@ -366,22 +323,68 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_vlan(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-  static header_field_info *hfi[] = {
-    &hfi_vlan_priority_old,
-    &hfi_vlan_priority,
-    &hfi_vlan_priority_7,
-    &hfi_vlan_priority_6,
-    &hfi_vlan_priority_5,
-    &hfi_vlan_cfi,
-    &hfi_vlan_dei,
-    &hfi_vlan_id,
-    &hfi_vlan_id_name,
-    &hfi_vlan_etype,
-    &hfi_vlan_len,
-    &hfi_vlan_trailer,
+  static hf_register_info hf[] = {
+    { &hf_vlan_priority_old,
+      { "Priority", "vlan.priority",
+        FT_UINT16, BASE_DEC, VALS(pri_vals_old), 0xE000,
+        "Descriptions are recommendations from IEEE standard 802.1D-2004", HFILL }
+    },
+    { &hf_vlan_priority,
+      { "Priority", "vlan.priority",
+        FT_UINT16, BASE_DEC, VALS(pri_vals), 0xE000,
+        "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL }
+    },
+    { &hf_vlan_priority_7,
+      { "Priority", "vlan.priority",
+        FT_UINT16, BASE_DEC, VALS(pri_vals_7), 0xE000,
+        "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL }
+    },
+    { &hf_vlan_priority_6,
+      { "Priority", "vlan.priority",
+        FT_UINT16, BASE_DEC, VALS(pri_vals_6), 0xE000,
+        "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL }
+    },
+    { &hf_vlan_priority_5,
+      { "Priority", "vlan.priority",
+        FT_UINT16, BASE_DEC, VALS(pri_vals_5), 0xE000,
+        "Descriptions are recommendations from IEEE standard 802.1Q-2014", HFILL }
+      },
+    { &hf_vlan_cfi,
+      { "CFI", "vlan.cfi",
+        FT_BOOLEAN, 16, TFS(&tfs_noncanonical_canonical), 0x1000,
+        "Canonical Format Identifier", HFILL }
+    },
+    { &hf_vlan_dei,
+      { "DEI", "vlan.dei",
+        FT_BOOLEAN, 16, TFS(&tfs_eligible_ineligible), 0x1000,
+        "Drop Eligible Indicator", HFILL }
+    },
+    { &hf_vlan_id,
+      { "ID", "vlan.id",
+        FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+        "VLAN ID", HFILL }
+    },
+    { &hf_vlan_id_name,
+      { "Name", "vlan.id_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "VLAN ID Name", HFILL }
+    },
+    { &hf_vlan_etype,
+      { "Type", "vlan.etype",
+        FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+        "Ethertype", HFILL }
+    },
+    { &hf_vlan_len,
+      { "Length", "vlan.len",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_vlan_trailer,
+      { "Trailer", "vlan.trailer",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "VLAN Trailer", HFILL }
+    },
   };
-#endif /* HAVE_HFI_SECTION_INIT */
 
   static gint *ett[] = {
     &ett_vlan
@@ -411,9 +414,7 @@ proto_register_vlan(void)
   expert_module_t* expert_vlan;
 
   proto_vlan = proto_register_protocol("802.1Q Virtual LAN", "VLAN", "vlan");
-  hfi_vlan = proto_registrar_get_nth(proto_vlan);
-
-  proto_register_fields(proto_vlan, hfi, array_length(hfi));
+  proto_register_field_array(proto_vlan, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_vlan = expert_register_protocol(proto_vlan);
   expert_register_field_array(expert_vlan, ei, array_length(ei));
@@ -448,7 +449,7 @@ proto_reg_handoff_vlan(void)
   if (!prefs_initialized)
   {
     dissector_add_uint("ethertype", ETHERTYPE_VLAN, vlan_handle);
-    vlan_cap_handle = create_capture_dissector_handle(capture_vlan, hfi_vlan->id);
+    vlan_cap_handle = create_capture_dissector_handle(capture_vlan, proto_vlan);
     capture_dissector_add_uint("ethertype", ETHERTYPE_VLAN, vlan_cap_handle);
 
     prefs_initialized = TRUE;
@@ -459,7 +460,7 @@ proto_reg_handoff_vlan(void)
   }
 
   old_q_in_q_ethertype = q_in_q_ethertype;
-  ethertype_handle = find_dissector_add_dependency("ethertype", hfi_vlan->id);
+  ethertype_handle = find_dissector_add_dependency("ethertype", proto_vlan);
 
   dissector_add_uint("ethertype", q_in_q_ethertype, vlan_handle);
 
