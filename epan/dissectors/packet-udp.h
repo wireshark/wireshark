@@ -36,7 +36,7 @@ typedef struct _udp_flow_t {
     /* Process info, currently discovered via IPFIX */
     guint32 process_uid;    /* UID of local process */
     guint32 process_pid;    /* PID of local process */
-    gchar *username;    /* Username of the local process */
+    gchar *username;        /* Username of the local process */
     gchar *command;         /* Local process name + path + args */
 } udp_flow_t;
 
@@ -97,9 +97,9 @@ struct udp_analysis {
  */
 extern void
 add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_addr,
-                        guint16 local_port, guint16 remote_port,
-                        guint32 uid, guint32 pid,
-                        gchar *username, gchar *command);
+                     guint16 local_port, guint16 remote_port,
+                     guint32 uid, guint32 pid,
+                     gchar *username, gchar *command);
 
 /** Get the current number of UDP streams
  *
@@ -109,12 +109,10 @@ WS_DLL_PUBLIC guint32
 get_udp_stream_count(void);
 
 WS_DLL_PUBLIC void
-decode_udp_ports(tvbuff_t *, int, packet_info *,
-                        proto_tree *, int, int, int);
+decode_udp_ports(tvbuff_t *, int, packet_info *, proto_tree *, int, int, int);
 
 WS_DLL_PUBLIC struct udp_analysis *
-get_udp_conversation_data(conversation_t *,
-                        packet_info *);
+get_udp_conversation_data(conversation_t *, packet_info *);
 
 /*
  * Loop for dissecting PDUs within a UDP packet; Similar to tcp_dissect_pdus,
@@ -136,10 +134,10 @@ get_udp_conversation_data(conversation_t *,
  */
 WS_DLL_PUBLIC int
 udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                        guint fixed_len,
-                        gboolean (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
-                        guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
-                        dissector_t dissect_pdu, void* dissector_data);
+                 guint fixed_len,
+                 gboolean (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
+                 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
+                 dissector_t dissect_pdu, void* dissector_data);
 
 #ifdef __cplusplus
 }
