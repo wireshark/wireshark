@@ -1270,8 +1270,13 @@ main(int argc, char *argv[])
         break;
 
       case PREFS_SET_NO_SUCH_PREF:
-      case PREFS_SET_OBSOLETE:
         cmdarg_err("-o flag \"%s\" specifies unknown preference", ws_optarg);
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
+        break;
+
+      case PREFS_SET_OBSOLETE:
+        cmdarg_err("-o flag \"%s\" specifies obsolete preference", ws_optarg);
         exit_status = INVALID_OPTION;
         goto clean_exit;
         break;
