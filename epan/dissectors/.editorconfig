@@ -2074,9 +2074,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[packet-udp.[ch]]
-indent_size = 2
-
 [packet-udt.[ch]]
 indent_style = tab
 indent_size = tab
