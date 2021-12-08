@@ -1763,7 +1763,7 @@ static ssh_channel run_capture_asa(ssh_channel channel, const char* iface, const
 		multiline_filter = g_strdup(cfilter);
 		chr = multiline_filter;
 		start = multiline_filter;
-		while((chr = g_strstr_len(chr, strlen(chr), ",")) != NULL) {
+		while((chr = g_strstr_len(start, strlen(start), ",")) != NULL) {
 			chr[0] = '\0';
 			ws_debug("Splitting filter into multiline");
 			if (ssh_channel_printf(channel, "access-list %s %s\n", WIRESHARK_CAPTURE_ACCESSLIST, start) == EXIT_FAILURE)
