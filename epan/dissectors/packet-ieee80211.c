@@ -30504,7 +30504,7 @@ static ieee80211_conversation_data_t* get_or_create_conversation_data(conversati
 /* ************************************************************************* */
 /*                     Dissect 802.11 management frame                       */
 /* ************************************************************************* */
-static void dissect_mgt_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+static void dissect_mgt_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, association_sanity_check_t *sanity_check)
 {
   proto_item *lcl_fixed_hdr;
   proto_tree *lcl_fixed_tree;
@@ -30512,7 +30512,7 @@ static void dissect_mgt_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   int         tagged_parameter_tree_len;
 
   lcl_fixed_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_fixed_parameters, &lcl_fixed_hdr, "Fixed parameters");
-  offset += add_ff_action(lcl_fixed_tree, tvb, pinfo, 0, NULL);
+  offset += add_ff_action(lcl_fixed_tree, tvb, pinfo, 0, sanity_check);
 
   proto_item_set_len(lcl_fixed_hdr, offset);
   if (ieee80211_tvb_invalid)
@@ -30523,7 +30523,7 @@ static void dissect_mgt_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                             tagged_parameter_tree_len);
     ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
                                      tagged_parameter_tree_len, MGT_ACTION,
-                                     NULL);
+                                     sanity_check);
     }
 }
 
@@ -30766,7 +30766,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
 
     case MGT_ACTION:
-      dissect_mgt_action(tvb, pinfo, mgt_tree, offset);
+      dissect_mgt_action(tvb, pinfo, mgt_tree, offset, &association_sanity_check);
       break;
 
     case MGT_ACTION_NO_ACK:
@@ -32264,7 +32264,7 @@ dissect_pv1_mgmt_action(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   mgmt_action_tree = proto_tree_add_subtree(tree, tvb, offset, 4,
                                             ett_pv1_mgmt_action, NULL,
                                             "Action");
-  dissect_mgt_action(tvb, pinfo, mgmt_action_tree, offset);
+  dissect_mgt_action(tvb, pinfo, mgmt_action_tree, offset, NULL);
 
   return offset;
 }
@@ -32280,7 +32280,7 @@ dissect_pv1_mgmt_action_no_ack(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   mgmt_action_tree = proto_tree_add_subtree(tree, tvb, offset, 4,
                                             ett_pv1_mgmt_action, NULL,
                                             "Action No Ack");
-  dissect_mgt_action(tvb, pinfo, mgmt_action_tree, offset);
+  dissect_mgt_action(tvb, pinfo, mgmt_action_tree, offset, NULL);
 
   return offset;
 }
