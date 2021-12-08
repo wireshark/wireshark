@@ -57,6 +57,7 @@
 static const char magic[] = {'d', 't', 'n', '!'};
 
 static int proto_tcpcl = -1;
+static int proto_tcpcl_exts = -1;
 /// Protocol column name
 static const char *const proto_name_tcpcl = "TCPCL";
 
@@ -350,7 +351,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_sessext_tree, {"Session Extension Item", "tcpcl.v4.sessext", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sessext_flags, {"Item Flags", "tcpcl.v4.sessext.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sessext_flags_crit, {"CRITICAL", "tcpcl.v4.sessext.flags.critical", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TCPCLV4_EXTENSION_FLAG_CRITICAL, NULL, HFILL}},
-    {&hf_tcpclv4_sessext_type, {"Item Type", "tcpcl.v4.sessext.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_sessext_type, {"Item Type", "tcpcl.v4.sessext.type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sessext_len, {"Item Length", "tcpcl.v4.sessext.len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_sessext_data, {"Type-Specific Data", "tcpcl.v4.sessext.data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
@@ -358,7 +359,7 @@ static hf_register_info hf_tcpcl[] = {
     {&hf_tcpclv4_xferext_tree, {"Transfer Extension Item", "tcpcl.v4.xferext", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xferext_flags, {"Item Flags", "tcpcl.v4.xferext.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xferext_flags_crit, {"CRITICAL", "tcpcl.v4.xferext.flags.critical", FT_BOOLEAN, 8, TFS(&tfs_set_notset), TCPCLV4_EXTENSION_FLAG_CRITICAL, NULL, HFILL}},
-    {&hf_tcpclv4_xferext_type, {"Item Type", "tcpcl.v4.xferext.type", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+    {&hf_tcpclv4_xferext_type, {"Item Type", "tcpcl.v4.xferext.type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xferext_len, {"Item Length", "tcpcl.v4.xferext.len", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
     {&hf_tcpclv4_xferext_data, {"Type-Specific Data", "tcpcl.v4.xferext.data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
@@ -1485,7 +1486,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     msgtype = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree_msg, hf_tcpclv4_mhdr_type, tvb, offset, 1, msgtype);
     offset += 1;
-    msgtype_name = val_to_str(msgtype, v4_message_type_vals, "type 0x%" PRIx32);
+    msgtype_name = val_to_str(msgtype, v4_message_type_vals, "type 0x%02" G_GINT32_MODIFIER "x");
     wmem_strbuf_t *suffix_text = wmem_strbuf_new(wmem_packet_scope(), NULL);
 
     switch(msgtype) {
@@ -1531,11 +1532,17 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     expert_add_info(pinfo, item_ext, &ei_tcpclv4_extitem_critical);
                 }
 
-                guint32 extitem_type = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                guint16 extitem_type = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                 proto_item *item_type = proto_tree_add_uint(tree_ext, hf_tcpclv4_sessext_type, tvb, offset + extlist_offset + extitem_offset, 2, extitem_type);
                 extitem_offset += 2;
 
-                guint32 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
+                const char *subname = dissector_handle_get_dissector_name(subdis);
+                if (subdis) {
+                    proto_item_set_text(item_type, "Item Type: %s (0x%04" G_GINT16_MODIFIER "x)", subname, extitem_type);
+                }
+
+                guint16 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                 proto_tree_add_uint(tree_ext, hf_tcpclv4_sessext_len, tvb, offset + extlist_offset + extitem_offset, 2, extitem_len);
                 extitem_offset += 2;
 
@@ -1543,7 +1550,10 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *item_extdata = proto_tree_add_item(tree_ext, hf_tcpclv4_sessext_data, extitem_tvb, 0, tvb_captured_length(extitem_tvb), ENC_NA);
                 proto_tree *tree_extdata = proto_item_add_subtree(item_extdata, ett_tcpclv4_sessext_data);
 
-                int sublen = dissector_try_uint(sess_ext_dissectors, extitem_type, extitem_tvb, pinfo, tree_extdata);
+                int sublen = 0;
+                if (subdis) {
+                    sublen = call_dissector_only(subdis, extitem_tvb, pinfo, tree_extdata, NULL);
+                }
                 if (sublen == 0) {
                     expert_add_info(pinfo, item_type, &ei_tcpclv4_invalid_sessext_type);
                 }
@@ -1552,7 +1562,12 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item_set_len(item_ext, extitem_offset);
                 extlist_offset += extitem_offset;
 
-                proto_item_append_text(item_ext, ": Type 0x%" PRIx32, extitem_type);
+                if (subname) {
+                    proto_item_append_text(item_ext, ": %s", subname);
+                }
+                else {
+                    proto_item_append_text(item_ext, ": Type 0x%04" G_GINT16_MODIFIER "x", extitem_type);
+                }
                 if (is_critical) {
                     proto_item_append_text(item_ext, ", CRITICAL");
                 }
@@ -1641,11 +1656,17 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         expert_add_info(pinfo, item_ext, &ei_tcpclv4_extitem_critical);
                     }
 
-                    guint32 extitem_type = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                    guint16 extitem_type = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                     proto_item *item_type = proto_tree_add_uint(tree_ext, hf_tcpclv4_xferext_type, tvb, offset + extlist_offset + extitem_offset, 2, extitem_type);
                     extitem_offset += 2;
 
-                    guint32 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
+                    dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
+                    const char *subname = dissector_handle_get_dissector_name(subdis);
+                    if (subdis) {
+                        proto_item_set_text(item_type, "Item Type: %s (0x%04" G_GINT16_MODIFIER "x)", subname, extitem_type);
+                    }
+
+                    guint16 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
                     proto_tree_add_uint(tree_ext, hf_tcpclv4_xferext_len, tvb, offset + extlist_offset + extitem_offset, 2, extitem_len);
                     extitem_offset += 2;
 
@@ -1655,19 +1676,28 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
                     tcpcl_frame_loc_t *extitem_loc = tcpcl_frame_loc_new(wmem_packet_scope(), pinfo, extitem_tvb, 0);
                     tcpcl_peer_associate_transfer(ctx->tx_peer, extitem_loc, xfer_id);
-                    int sublen = dissector_try_uint(xfer_ext_dissectors, extitem_type, extitem_tvb, pinfo, tree_extdata);
+
+                    int sublen = 0;
+                    if (subdis) {
+                        sublen = call_dissector_only(subdis, extitem_tvb, pinfo, tree_extdata, NULL);
+                    }
                     if (sublen == 0) {
                         expert_add_info(pinfo, item_type, &ei_tcpclv4_invalid_xferext_type);
                     }
                     extitem_offset += extitem_len;
 
-                    proto_item_append_text(item_ext, ": Type 0x%" PRIx32, extitem_type);
+                    proto_item_set_len(item_ext, extitem_offset);
+                    extlist_offset += extitem_offset;
+
+                    if (subname) {
+                        proto_item_append_text(item_ext, ": %s", subname);
+                    }
+                    else {
+                        proto_item_append_text(item_ext, ": Type 0x%04" G_GINT16_MODIFIER "x", extitem_type);
+                    }
                     if (is_critical) {
                         proto_item_append_text(item_ext, ", CRITICAL");
                     }
-
-                    proto_item_set_len(item_ext, extitem_offset);
-                    extlist_offset += extitem_offset;
                 }
                 // advance regardless of any internal offset processing
                 offset += extlist_len;
@@ -1688,7 +1718,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += data_len_clamp;
             payload_len = data_len_clamp;
 
-            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" PRIu64, xfer_id);
+            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" G_GINT64_MODIFIER "i", xfer_id);
 
             if (flags) {
                 wmem_strbuf_append(suffix_text, ", Flags: ");
@@ -1743,7 +1773,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_ack_ack_len, tvb, offset, 8, ack_len);
             offset += 8;
 
-            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" PRIu64, xfer_id);
+            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" G_GINT64_MODIFIER "i", xfer_id);
 
             if (flags) {
                 wmem_strbuf_append(suffix_text, ", Flags: ");
@@ -1775,7 +1805,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_id, tvb, offset, 8, xfer_id);
             offset += 8;
 
-            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" PRIu64, xfer_id);
+            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" G_GINT64_MODIFIER "i", xfer_id);
 
             if (tcpcl_analyze_sequence) {
                 transfer_add_refuse(ctx, xfer_id, pinfo, tvb, tree_msg, item_msg);
@@ -2124,14 +2154,22 @@ proto_register_tcpclv3(void)
         "tcpcl"
     );
 
+    proto_tcpcl_exts = proto_register_protocol_in_name_only(
+        "TCPCL Extension Subdissectors",
+        "TCPCL Extension Subdissectors",
+        "tcpcl_exts",
+        proto_tcpcl,
+        FT_PROTOCOL
+    );
+
     proto_register_field_array(proto_tcpcl, hf_tcpcl, array_length(hf_tcpcl));
     proto_register_subtree_array(ett, array_length(ett));
     expert_tcpcl = expert_register_protocol(proto_tcpcl);
     expert_register_field_array(expert_tcpcl, ei_tcpcl, array_length(ei_tcpcl));
 
     tcpcl_handle = create_dissector_handle(dissect_tcpcl, proto_tcpcl);
-    sess_ext_dissectors = register_dissector_table("tcpcl.v4.sess_ext", "TCPCLv4 Session Extension", proto_tcpcl, FT_UINT16, BASE_DEC);
-    xfer_ext_dissectors = register_dissector_table("tcpcl.v4.xfer_ext", "TCPCLv4 Transfer Extension", proto_tcpcl, FT_UINT16, BASE_DEC);
+    sess_ext_dissectors = register_dissector_table("tcpcl.v4.sess_ext", "TCPCLv4 Session Extension", proto_tcpcl, FT_UINT16, BASE_HEX);
+    xfer_ext_dissectors = register_dissector_table("tcpcl.v4.xfer_ext", "TCPCLv4 Transfer Extension", proto_tcpcl, FT_UINT16, BASE_HEX);
 
     module_t *module_tcpcl = prefs_register_protocol(proto_tcpcl, reinit_tcpcl);
     prefs_register_bool_preference(
@@ -2179,12 +2217,12 @@ proto_reg_handoff_tcpclv3(void)
 
     /* Packaged extensions */
     {
-        dissector_handle_t dis_h = create_dissector_handle(dissect_xferext_transferlen, proto_tcpcl);
+        dissector_handle_t dis_h = create_dissector_handle_with_name(dissect_xferext_transferlen, proto_tcpcl_exts, "Transfer Length");
         dissector_add_uint("tcpcl.v4.xfer_ext", TCPCLV4_XFEREXT_TRANSFER_LEN, dis_h);
     }
 
-    register_ber_oid_dissector("1.3.6.1.5.5.7.3.35", NULL, proto_tcpcl, "id-kp-bundleSecurity");
-    register_ber_oid_dissector("1.3.6.1.5.5.7.8.11", dissect_othername_bundleeid, proto_tcpcl, "id-on-bundleEID");
+    register_ber_oid_dissector("1.3.6.1.5.5.7.3.35", NULL, proto_tcpcl_exts, "id-kp-bundleSecurity");
+    register_ber_oid_dissector("1.3.6.1.5.5.7.8.11", dissect_othername_bundleeid, proto_tcpcl_exts, "id-on-bundleEID");
 
     reinit_tcpcl();
 }
