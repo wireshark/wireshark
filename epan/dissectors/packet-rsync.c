@@ -9,9 +9,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 
@@ -63,41 +60,16 @@ struct rsync_frame_data {
     rsync_state_t state;
 };
 
-static header_field_info *hfi_rsync = NULL;
+static int proto_rsync = -1;
 
-#define RSYNC_HF_INIT HFI_INIT(proto_rsync)
-
-static header_field_info hfi_rsync_hdr_magic RSYNC_HF_INIT = {
-    "Magic Header", "rsync.hdr_magic",
-    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_rsync_hdr_version RSYNC_HF_INIT = {
-    "Header Version", "rsync.hdr_version",
-    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_rsync_query_string RSYNC_HF_INIT = {
-    "Client Query String", "rsync.query",
-    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_rsync_motd_string RSYNC_HF_INIT = {
-    "Server MOTD String", "rsync.motd",
-    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_rsync_module_list_string RSYNC_HF_INIT = {
-    "Server Module List", "rsync.module_list",
-    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_rsync_rsyncdok_string RSYNC_HF_INIT = {
-    "RSYNCD Response String", "rsync.response",
-    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_rsync_command_string RSYNC_HF_INIT = {
-    "Client Command String", "rsync.command",
-    FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_rsync_data RSYNC_HF_INIT = {
-    "rsync data", "rsync.data",
-    FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static int hf_rsync_command_string = -1;
+static int hf_rsync_data = -1;
+static int hf_rsync_hdr_magic = -1;
+static int hf_rsync_hdr_version = -1;
+static int hf_rsync_module_list_string = -1;
+static int hf_rsync_motd_string = -1;
+static int hf_rsync_query_string = -1;
+static int hf_rsync_rsyncdok_string = -1;
 
 static gint ett_rsync = -1;
 
@@ -117,10 +89,10 @@ dissect_rsync_version_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rsyn
     guint8 *version;
     guint len;
 
-    proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_magic, tvb, offset, RSYNCD_MAGIC_HEADER_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(rsync_tree, hf_rsync_hdr_magic, tvb, offset, RSYNCD_MAGIC_HEADER_LEN, ENC_ASCII|ENC_NA);
     offset += RSYNCD_MAGIC_HEADER_LEN;
     offset += 1; /* skip the space */
-    proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_version, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(rsync_tree, hf_rsync_hdr_version, tvb, offset, -1, ENC_ASCII|ENC_NA);
     len = tvb_reported_length_remaining(tvb, offset);
     version = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
 
@@ -153,27 +125,27 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     conversation = find_or_create_conversation(pinfo);
 
-    conversation_data = (struct rsync_conversation_data *)conversation_get_proto_data(conversation, hfi_rsync->id);
+    conversation_data = (struct rsync_conversation_data *)conversation_get_proto_data(conversation, proto_rsync);
 
     if (conversation_data == NULL) { /* new conversation */
     conversation_data = wmem_new(wmem_file_scope(), struct rsync_conversation_data);
     conversation_data->client_state = RSYNC_INIT;
     conversation_data->server_state = RSYNC_SERV_INIT;
-    conversation_add_proto_data(conversation, hfi_rsync->id, conversation_data);
+    conversation_add_proto_data(conversation, proto_rsync, conversation_data);
     }
 
     conversation_set_dissector(conversation, rsync_handle);
 
-    ti = proto_tree_add_item(tree, hfi_rsync, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_rsync, tvb, 0, -1, ENC_NA);
 
     rsync_tree = proto_item_add_subtree(ti, ett_rsync);
 
-    rsync_frame_data_p = (struct rsync_frame_data *)p_get_proto_data(wmem_file_scope(), pinfo, hfi_rsync->id, 0);
+    rsync_frame_data_p = (struct rsync_frame_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rsync, 0);
     if (!rsync_frame_data_p) {
     /* then we haven't seen this frame before */
     rsync_frame_data_p = wmem_new(wmem_file_scope(), struct rsync_frame_data);
     rsync_frame_data_p->state = (me == SERVER) ? conversation_data->server_state : conversation_data->client_state;
-    p_add_proto_data(wmem_file_scope(), pinfo, hfi_rsync->id, 0, rsync_frame_data_p);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_rsync, 0, rsync_frame_data_p);
     }
 
     if (me == SERVER) {
@@ -186,7 +158,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSYNC_SERV_MOTD:
-            proto_tree_add_item(rsync_tree, &hfi_rsync_motd_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_motd_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Server MOTD");
 
@@ -198,14 +170,14 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* there are two cases - file list, or authentication */
             if (0 == tvb_strneql(tvb, offset, RSYNCD_AUTHREQD, RSYNCD_AUTHREQD_LEN)) {
                 /* matches, so we assume it's an authentication message */
-                proto_tree_add_item(rsync_tree, &hfi_rsync_rsyncdok_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(rsync_tree, hf_rsync_rsyncdok_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
                 col_set_str(pinfo->cinfo, COL_INFO, "Authentication");
                 conversation_data->server_state = RSYNC_DATA;
 
             } else { /*  it didn't match, so it is probably a module list */
 
-                proto_tree_add_item(rsync_tree, &hfi_rsync_module_list_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(rsync_tree, hf_rsync_module_list_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
                 /* we need to check the end of the buffer for magic string */
                 buff_length = tvb_captured_length_remaining(tvb, offset);
@@ -223,7 +195,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSYNC_DATA:
-            proto_tree_add_item(rsync_tree, &hfi_rsync_data, tvb, offset, -1, ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_data, tvb, offset, -1, ENC_NA);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Data");
 
@@ -245,7 +217,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSYNC_CLIENT_QUERY:
-            proto_tree_add_item(rsync_tree, &hfi_rsync_query_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_query_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Client Query");
 
@@ -262,7 +234,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case RSYNC_COMMAND:
             /* then we are still sending commands */
-            proto_tree_add_item(rsync_tree, &hfi_rsync_command_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_command_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Client Command");
 
@@ -272,7 +244,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case RSYNC_DATA:
             /* then we are still sending commands */
-            proto_tree_add_item(rsync_tree, &hfi_rsync_data, tvb, offset, -1, ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_data, tvb, offset, -1, ENC_NA);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Data");
 
@@ -306,18 +278,48 @@ apply_rsync_prefs(void)
 void
 proto_register_rsync(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-    static header_field_info *hfi[] = {
-        &hfi_rsync_hdr_magic,
-        &hfi_rsync_hdr_version,
-        &hfi_rsync_query_string,
-        &hfi_rsync_module_list_string,
-        &hfi_rsync_motd_string,
-        &hfi_rsync_rsyncdok_string,
-        &hfi_rsync_command_string,
-        &hfi_rsync_data,
+    static hf_register_info hf[] = {
+        { &hf_rsync_hdr_magic,
+            { "Magic Header", "rsync.hdr_magic",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_rsync_hdr_version,
+            { "Header Version", "rsync.hdr_version",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_rsync_query_string,
+            { "Client Query String", "rsync.query",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_rsync_motd_string,
+            { "Server MOTD String", "rsync.motd",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_rsync_module_list_string,
+            { "Server Module List", "rsync.module_list",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_rsync_rsyncdok_string,
+            { "RSYNCD Response String", "rsync.response",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_rsync_command_string,
+            { "Client Command String", "rsync.command",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_rsync_data,
+            { "rsync data", "rsync.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
     };
-#endif
 
     static gint *ett[] = {
         &ett_rsync,
@@ -325,12 +327,8 @@ proto_register_rsync(void)
 
     module_t *rsync_module;
 
-    int proto_rsync;
-
     proto_rsync = proto_register_protocol("RSYNC File Synchroniser", "RSYNC", "rsync");
-    hfi_rsync = proto_registrar_get_nth(proto_rsync);
-
-    proto_register_fields(proto_rsync, hfi, array_length(hfi));
+    proto_register_field_array(proto_rsync, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     rsync_module = prefs_register_protocol(proto_rsync, apply_rsync_prefs);
