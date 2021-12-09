@@ -448,7 +448,7 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
          */
         *type = RTSP_REPLY;
         /* The first token is the version. */
-        tokenlen = get_token_len(line, line+5, &token);
+        tokenlen = get_token_len(line, line+linelen, &token);
         if (tokenlen != 0) {
             /* The next token is the status code. */
             tokenlen = get_token_len(token, line+linelen, &next_token);
