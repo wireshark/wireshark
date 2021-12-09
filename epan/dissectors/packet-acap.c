@@ -12,9 +12,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -26,39 +23,14 @@ void proto_reg_handoff_acap(void);
 
 static dissector_handle_t acap_handle;
 
-static header_field_info *hfi_acap = NULL;
+static int proto_acap = -1;
 
-#define HFI_ACAP HFI_INIT(proto_acap)
-
-static header_field_info hfi_acap_response HFI_ACAP = {
-    "Response",           "acap.response",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-    "TRUE if ACAP response", HFILL };
-
-static header_field_info hfi_acap_request HFI_ACAP = {
-    "Request",            "acap.request",
-    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-    "TRUE if ACAP request", HFILL };
-
-static header_field_info hfi_acap_request_tag HFI_ACAP = {
-    "Request Tag",            "acap.request_tag",
-    FT_STRING, BASE_NONE, NULL, 0x0,
-    NULL, HFILL };
-
-static header_field_info hfi_acap_response_tag HFI_ACAP = {
-    "Response Tag",            "acap.response_tag",
-    FT_STRING, BASE_NONE, NULL, 0x0,
-    NULL, HFILL };
-
-static header_field_info hfi_acap_request_data HFI_ACAP = {
-    "Request",            "acap.request_data",
-    FT_STRING, BASE_NONE, NULL, 0x0,
-    NULL, HFILL };
-
-static header_field_info hfi_acap_response_data HFI_ACAP = {
-    "Response",            "acap.response_data",
-    FT_STRING, BASE_NONE, NULL, 0x0,
-    NULL, HFILL };
+static int hf_acap_request = -1;
+static int hf_acap_request_data = -1;
+static int hf_acap_request_tag = -1;
+static int hf_acap_response = -1;
+static int hf_acap_response_data = -1;
+static int hf_acap_response_tag = -1;
 
 static gint ett_acap = -1;
 static gint ett_acap_reqresp = -1;
@@ -115,17 +87,17 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         format_text(pinfo->pool, line, linelen));
 
     if (tree) {
-        ti = proto_tree_add_item(tree, hfi_acap, tvb, offset, -1,
+        ti = proto_tree_add_item(tree, proto_acap, tvb, offset, -1,
             ENC_NA);
         acap_tree = proto_item_add_subtree(ti, ett_acap);
 
         if (is_request) {
             hidden_item = proto_tree_add_boolean(acap_tree,
-                &hfi_acap_request, tvb, 0, 0, TRUE);
+                hf_acap_request, tvb, 0, 0, TRUE);
             proto_item_set_hidden(hidden_item);
         } else {
             hidden_item = proto_tree_add_boolean(acap_tree,
-                &hfi_acap_response, tvb, 0, 0, TRUE);
+                hf_acap_response, tvb, 0, 0, TRUE);
             proto_item_set_hidden(hidden_item);
         }
 
@@ -146,10 +118,10 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         tokenlen = get_token_len(line, line + linelen, &next_token);
         if (tokenlen != 0) {
             if (is_request) {
-                proto_tree_add_string(reqresp_tree, &hfi_acap_request_tag, tvb, offset,
+                proto_tree_add_string(reqresp_tree, hf_acap_request_tag, tvb, offset,
                     tokenlen, format_text(pinfo->pool, line, tokenlen));
             } else {
-                proto_tree_add_string(reqresp_tree, &hfi_acap_response_tag, tvb, offset,
+                proto_tree_add_string(reqresp_tree, hf_acap_response_tag, tvb, offset,
                     tokenlen, format_text(pinfo->pool, line, tokenlen));
             }
             offset += (int)(next_token - line);
@@ -162,10 +134,10 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
          */
         if (linelen != 0) {
             if (is_request) {
-                proto_tree_add_string(reqresp_tree, &hfi_acap_request_data, tvb, offset,
+                proto_tree_add_string(reqresp_tree, hf_acap_request_data, tvb, offset,
                     linelen, format_text(pinfo->pool, line, linelen));
             } else {
-                proto_tree_add_string(reqresp_tree, &hfi_acap_response_data, tvb, offset,
+                proto_tree_add_string(reqresp_tree, hf_acap_response_data, tvb, offset,
                     linelen, format_text(pinfo->pool, line, linelen));
             }
         }
@@ -185,29 +157,47 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_acap(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-    static header_field_info *hfi[] = {
-        &hfi_acap_response,
-        &hfi_acap_request,
-        &hfi_acap_request_tag,
-        &hfi_acap_response_tag,
-        &hfi_acap_request_data,
-        &hfi_acap_response_data,
+    static hf_register_info hf[] = {
+        { &hf_acap_response,
+            { "Response", "acap.response",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "TRUE if ACAP response", HFILL }
+        },
+        { &hf_acap_request,
+            { "Request", "acap.request",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "TRUE if ACAP request", HFILL }
+        },
+        { &hf_acap_request_tag,
+            { "Request Tag", "acap.request_tag",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_acap_response_tag,
+            { "Response Tag", "acap.response_tag",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_acap_request_data,
+            { "Request", "acap.request_data",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_acap_response_data,
+            { "Response", "acap.response_data",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
     };
-#endif
 
     static gint *ett[] = {
         &ett_acap,
         &ett_acap_reqresp,
     };
 
-    int proto_acap;
-
     proto_acap = proto_register_protocol("Application Configuration Access Protocol",
                          "ACAP", "acap");
-    hfi_acap = proto_registrar_get_nth(proto_acap);
-
-    proto_register_fields(proto_acap, hfi, array_length(hfi));
+    proto_register_field_array(proto_acap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     acap_handle = create_dissector_handle(dissect_acap, proto_acap);
