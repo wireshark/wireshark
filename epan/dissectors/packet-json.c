@@ -12,9 +12,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -44,6 +41,26 @@ static int proto_json_3gpp = -1;
 //Used to get AC DR proto data
 static int proto_acdr = -1;
 
+static int hf_json_array = -1;
+static int hf_json_array_compact = -1;
+static int hf_json_array_item_compact = -1;
+static int hf_json_binary_data = -1;
+static int hf_json_ignored_leading_bytes = -1;
+static int hf_json_key = -1;
+static int hf_json_member = -1;
+static int hf_json_member_compact = -1;
+static int hf_json_member_with_value = -1;
+static int hf_json_object = -1;
+static int hf_json_object_compact = -1;
+static int hf_json_path = -1;
+static int hf_json_path_with_value = -1;
+static int hf_json_value_false = -1;
+static int hf_json_value_nan = -1;
+static int hf_json_value_null = -1;
+static int hf_json_value_number = -1;
+static int hf_json_value_string = -1;
+static int hf_json_value_true = -1;
+
 static gint ett_json = -1;
 static gint ett_json_array = -1;
 static gint ett_json_object = -1;
@@ -54,68 +71,6 @@ static gint ett_json_array_compact = -1;
 static gint ett_json_object_compact = -1;
 static gint ett_json_member_compact = -1;
 static gint ett_json_base64decoded_eps_ie = -1;
-
-static header_field_info *hfi_json = NULL;
-
-#define JSON_HFI_INIT HFI_INIT(proto_json)
-
-static header_field_info hfi_json_array JSON_HFI_INIT =
-	{ "Array", "json.array", FT_NONE, BASE_NONE, NULL, 0x00, "JSON array", HFILL };
-
-static header_field_info hfi_json_object JSON_HFI_INIT =
-	{ "Object", "json.object", FT_NONE, BASE_NONE, NULL, 0x00, "JSON object", HFILL };
-
-static header_field_info hfi_json_member JSON_HFI_INIT =
-	{ "Member", "json.member", FT_STRING, BASE_NONE, NULL, 0x00, "JSON object member", HFILL };
-
-static header_field_info hfi_json_key JSON_HFI_INIT =
-	{ "Key", "json.key", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_json_path JSON_HFI_INIT =
-	{ "Path", "json.path", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_json_path_with_value JSON_HFI_INIT =
-	{ "Path with value", "json.path_with_value", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_json_member_with_value JSON_HFI_INIT =
-	{ "Member with value", "json.member_with_value", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_json_value_string JSON_HFI_INIT = /* FT_STRINGZ? */
-	{ "String value", "json.value.string", FT_STRING, BASE_NONE, NULL, 0x00, "JSON string value", HFILL };
-
-static header_field_info hfi_json_value_number JSON_HFI_INIT = /* FT_DOUBLE/ FT_INT64? */
-	{ "Number value", "json.value.number", FT_STRING, BASE_NONE, NULL, 0x00, "JSON number value", HFILL };
-
-static header_field_info hfi_json_value_false JSON_HFI_INIT =
-	{ "False value", "json.value.false", FT_NONE, BASE_NONE, NULL, 0x00, "JSON false value", HFILL };
-
-static header_field_info hfi_json_value_null JSON_HFI_INIT =
-	{ "Null value", "json.value.null", FT_NONE, BASE_NONE, NULL, 0x00, "JSON null value", HFILL };
-
-static header_field_info hfi_json_value_true JSON_HFI_INIT =
-	{ "True value", "json.value.true", FT_NONE, BASE_NONE, NULL, 0x00, "JSON true value", HFILL };
-
-static header_field_info hfi_json_value_nan JSON_HFI_INIT =
-	{ "NaN value", "json.value.nan", FT_NONE, BASE_NONE, NULL, 0x00, "JSON NaN value", HFILL };
-
-/* HFIs below are used only for compact form display */
-static header_field_info hfi_json_array_compact JSON_HFI_INIT =
-	{ "Array compact", "json.array_compact", FT_NONE, BASE_NONE, NULL, 0x00, "JSON array compact", HFILL };
-
-static header_field_info hfi_json_object_compact JSON_HFI_INIT =
-	{ "Object compact", "json.object_compact", FT_NONE, BASE_NONE, NULL, 0x00, "JSON object compact", HFILL };
-
-static header_field_info hfi_json_member_compact JSON_HFI_INIT =
-	{ "Member compact", "json.member_compact", FT_NONE, BASE_NONE, NULL, 0x00, "JSON member compact", HFILL };
-
-static header_field_info hfi_json_array_item_compact JSON_HFI_INIT =
-	{ "Array item compact", "json.array_item_compact", FT_NONE, BASE_NONE, NULL, 0x00, "JSON array item compact", HFILL };
-
-static header_field_info hfi_json_binary_data JSON_HFI_INIT =
-	{ "Binary data", "json.binary_data", FT_BYTES, BASE_NONE, NULL, 0x00, "JSON binary data", HFILL };
-
-static header_field_info hfi_json_ignored_leading_bytes JSON_HFI_INIT =
-	{ "Ignored leading bytes", "json.ignored_leading_bytes", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL };
 
 static int hf_json_3gpp_ueepspdnconnection = -1;
 static int hf_json_3gpp_bearerlevelqos = -1;
@@ -519,12 +474,12 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_in
 
 	if (use_compact) {
 		int str_len = (int)strlen(key_str);
-		ti = proto_tree_add_item(tree, hfi, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
+		ti = proto_tree_add_item(tree, hfi->id, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
 		if (json_data_decoder_rec->json_data_decoder) {
 			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len));
 		}
 	} else {
-		ti = proto_tree_add_item(tree, hfi, tok->tvb, tok->offset, tok->len, ENC_NA);
+		ti = proto_tree_add_item(tree, hfi->id, tok->tvb, tok->offset, tok->len, ENC_NA);
 		if (json_data_decoder_rec->json_data_decoder) {
 			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset, tok->len);
 		}
@@ -612,7 +567,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, hfi_json, tvb, 0, -1, ENC_NA);
+		ti = proto_tree_add_item(tree, proto_json, tvb, 0, -1, ENC_NA);
 		json_tree = proto_item_add_subtree(ti, ett_json);
 
 		if (data_name)
@@ -646,7 +601,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		if(offset > 0)
 		{
-			proto_tree_add_item(json_tree ? json_tree : tree, &hfi_json_ignored_leading_bytes, tvb, 0, offset, ENC_NA);
+			proto_tree_add_item(json_tree ? json_tree : tree, hf_json_ignored_leading_bytes, tvb, 0, offset, ENC_NA);
 		}
 	}
 
@@ -702,7 +657,7 @@ before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 	proto_tree *subtree;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, &hfi_json_object, tok->tvb, tok->offset, tok->len, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_json_object, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_object);
 	wmem_stack_push(data->stack, subtree);
@@ -715,7 +670,7 @@ before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		gint idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
 
 		if (JSON_INSIDE_ARRAY(idx)) {
-			ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_object_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
+			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_object_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
 			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_object_compact);
 			json_array_index_increment(data);
 		} else {
@@ -766,7 +721,7 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 
 	char* key_string_with_quotation_marks = json_string_unescape(tok->sub, FALSE);
 
-	ti = proto_tree_add_string(tree, &hfi_json_member, tok->tvb, tok->offset, tok->len, key_string_without_quotation_marks);
+	ti = proto_tree_add_string(tree, hf_json_member, tok->tvb, tok->offset, tok->len, key_string_without_quotation_marks);
 
 	subtree = proto_item_add_subtree(ti, ett_json_member);
 	wmem_stack_push(data->stack, subtree);
@@ -791,10 +746,10 @@ before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
 			ti_compact = json_key_lookup(tree_compact, tok, key_string_without_quotation_marks, data->pinfo, TRUE);
 			if (!ti_compact) {
-				ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_string_with_quotation_marks);
+				ti_compact = proto_tree_add_none_format(tree_compact, hf_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_string_with_quotation_marks);
 			}
 		} else {
-			ti_compact = proto_tree_add_item(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, ENC_NA);
+			ti_compact = proto_tree_add_item(tree_compact, hf_json_member_compact, tok->tvb, tok->offset, tok->len, ENC_NA);
 		}
 
 		subtree_compact = proto_item_add_subtree(ti_compact, ett_json_member_compact);
@@ -816,7 +771,7 @@ after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 		key_parse_element.len -= 2;
 		char* key_string_without_quotation_marks = json_string_unescape(&key_parse_element, FALSE);
 
-		proto_tree_add_string(tree, &hfi_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key_string_without_quotation_marks);
+		proto_tree_add_string(tree, hf_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key_string_without_quotation_marks);
 	}
 
 	// extended path based filtering
@@ -824,7 +779,7 @@ after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	char* path = (char*)wmem_stack_pop(data->stack_path);
 	if (tree)
 	{
-		proto_item* path_item = proto_tree_add_string(tree, &hfi_json_path, tok->tvb, tok->offset, tok->len, path);
+		proto_item* path_item = proto_tree_add_string(tree, hf_json_path, tok->tvb, tok->offset, tok->len, path);
 		proto_item_set_generated(path_item);
 		if (hide_extended_path_based_filtering)
 		{
@@ -846,7 +801,7 @@ before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *
 	proto_tree *subtree;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, &hfi_json_array, tok->tvb, tok->offset, tok->len, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_json_array, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_array);
 	wmem_stack_push(data->stack, subtree);
@@ -928,8 +883,8 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 
 	char* path_with_value = join_strings(path, value_str, ':');
 	char* memeber_with_value = join_strings(key_string, value_str, ':');
-	proto_item* path_with_value_item = proto_tree_add_string(tree, &hfi_json_path_with_value, tok->tvb, tok->offset, tok->len, path_with_value);
-	proto_item* member_with_value_item = proto_tree_add_string(tree, &hfi_json_member_with_value, tok->tvb, tok->offset, tok->len, memeber_with_value);
+	proto_item* path_with_value_item = proto_tree_add_string(tree, hf_json_path_with_value, tok->tvb, tok->offset, tok->len, path_with_value);
+	proto_item* member_with_value_item = proto_tree_add_string(tree, hf_json_member_with_value, tok->tvb, tok->offset, tok->len, memeber_with_value);
 
 	proto_item_set_generated(path_with_value_item);
 	proto_item_set_generated(member_with_value_item);
@@ -950,39 +905,39 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 				proto_item *key_lookup = NULL;
 				key_lookup = json_key_lookup(tree, tok, key_string, data->pinfo, FALSE);
 				if (!key_lookup) {
-					proto_tree_add_string(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, value_str);
+					proto_tree_add_string(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, value_str);
 				}
 			}
 			else
 			{
-				proto_tree_add_item(tree, &hfi_json_value_string, tok->tvb, tok->offset, tok->len, ENC_ASCII | ENC_NA);
+				proto_tree_add_item(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, ENC_ASCII | ENC_NA);
 			}
 
 			break;
 
 		case JSON_TOKEN_NUMBER:
 			/* XXX, convert to number */
-			proto_tree_add_item(tree, &hfi_json_value_number, tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
 
 			break;
 
 		case JSON_TOKEN_FALSE:
-			proto_tree_add_item(tree, &hfi_json_value_false, tok->tvb, tok->offset, tok->len, ENC_NA);
+			proto_tree_add_item(tree, hf_json_value_false, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 			break;
 
 		case JSON_TOKEN_NULL:
-			proto_tree_add_item(tree, &hfi_json_value_null, tok->tvb, tok->offset, tok->len, ENC_NA);
+			proto_tree_add_item(tree, hf_json_value_null, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 			break;
 
 		case JSON_TOKEN_TRUE:
-			proto_tree_add_item(tree, &hfi_json_value_true, tok->tvb, tok->offset, tok->len, ENC_NA);
+			proto_tree_add_item(tree, hf_json_value_true, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 			break;
 
 		case JSON_TOKEN_NAN:
-			proto_tree_add_item(tree, &hfi_json_value_nan, tok->tvb, tok->offset, tok->len, ENC_NA);
+			proto_tree_add_item(tree, hf_json_value_nan, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 			break;
 
@@ -999,7 +954,7 @@ after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *t
 		char *val_str = tvb_get_string_enc(wmem_packet_scope(), tok->tvb, tok->offset, tok->len, ENC_UTF_8);
 
 		if (JSON_INSIDE_ARRAY(idx)) {
-			proto_tree_add_none_format(tree_compact, &hfi_json_array_item_compact, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
+			proto_tree_add_none_format(tree_compact, hf_json_array_item_compact, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
 			json_array_index_increment(data);
 		} else {
 			proto_item *parent_item = proto_tree_get_parent(tree_compact);
@@ -1177,7 +1132,7 @@ dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	proto_tree* sub_tree;
 	tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, len);
 	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
-	ti = proto_tree_add_item(tree, &hfi_json_binary_data, bin_tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_json_binary_data, bin_tvb, 0, -1, ENC_NA);
 	sub_tree = proto_item_add_subtree(ti, ett_json_base64decoded_eps_ie);
 	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, NULL);
 }
@@ -1271,6 +1226,104 @@ register_static_headers(void) {
 void
 proto_register_json(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_json_array,
+			{ "Array", "json.array",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON array", HFILL }
+		},
+		{ &hf_json_object,
+			{ "Object", "json.object",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON object", HFILL }
+		},
+		{ &hf_json_member,
+			{ "Member", "json.member",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  "JSON object member", HFILL }
+		},
+		{ &hf_json_key,
+			{ "Key", "json.key",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_json_path,
+			{ "Path", "json.path",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_json_path_with_value,
+			{ "Path with value", "json.path_with_value",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_json_member_with_value,
+			{ "Member with value", "json.member_with_value",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_json_value_string,
+			{ /* FT_STRINGZ? */ 	 "String value", "json.value.string",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  "JSON string value", HFILL }
+		},
+		{ &hf_json_value_number,
+			{ /* FT_DOUBLE/ FT_INT64? */ 	 "Number value", "json.value.number",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  "JSON number value", HFILL }
+		},
+		{ &hf_json_value_false,
+			{ "False value", "json.value.false",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON false value", HFILL }
+		},
+		{ &hf_json_value_null,
+			{ "Null value", "json.value.null",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON null value", HFILL }
+		},
+		{ &hf_json_value_true,
+			{ "True value", "json.value.true",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON true value", HFILL }
+		},
+		{ &hf_json_value_nan,
+			{ "NaN value", "json.value.nan",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON NaN value", HFILL }
+		},
+		{ &hf_json_array_compact,
+			{ "Array compact", "json.array_compact",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON array compact", HFILL }
+		},
+		{ &hf_json_object_compact,
+			{ "Object compact", "json.object_compact",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON object compact", HFILL }
+		},
+		{ &hf_json_member_compact,
+			{ "Member compact", "json.member_compact",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON member compact", HFILL }
+		},
+		{ &hf_json_array_item_compact,
+			{ "Array item compact", "json.array_item_compact",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  "JSON array item compact", HFILL }
+		},
+		{ &hf_json_binary_data,
+			{ "Binary data", "json.binary_data",
+			  FT_BYTES, BASE_NONE, NULL, 0x00,
+			  "JSON binary data", HFILL }
+		},
+		{ &hf_json_ignored_leading_bytes,
+			{ "Ignored leading bytes", "json.ignored_leading_bytes",
+			  FT_STRING, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+	};
+
 	static gint *ett[] = {
 		&ett_json,
 		&ett_json_array,
@@ -1283,36 +1336,10 @@ proto_register_json(void)
 		&ett_json_base64decoded_eps_ie,
 	};
 
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_json_array,
-		&hfi_json_object,
-		&hfi_json_member,
-		&hfi_json_key,
-		&hfi_json_path,
-		&hfi_json_path_with_value,
-		&hfi_json_member_with_value,
-		&hfi_json_value_string,
-		&hfi_json_value_number,
-		&hfi_json_value_false,
-		&hfi_json_value_null,
-		&hfi_json_value_true,
-		&hfi_json_value_nan,
-		&hfi_json_array_compact,
-		&hfi_json_object_compact,
-		&hfi_json_member_compact,
-		&hfi_json_array_item_compact,
-		&hfi_json_binary_data,
-		&hfi_json_ignored_leading_bytes
-	};
-#endif
-
 	module_t *json_module;
 
 	proto_json = proto_register_protocol("JavaScript Object Notation", "JSON", "json");
-	hfi_json = proto_registrar_get_nth(proto_json);
-
-	proto_register_fields(proto_json, hfi, array_length(hfi));
+	proto_register_field_array(proto_json, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	json_handle = register_dissector("json", dissect_json, proto_json);
