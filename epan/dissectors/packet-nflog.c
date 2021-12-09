@@ -7,9 +7,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/etypes.h>
@@ -66,66 +63,28 @@ static const value_string nflog_tlv_vals[] = {
     { 0, NULL }
 };
 
+static int proto_nflog = -1;
+
+static int hf_nflog_family = -1;
+static int hf_nflog_resid = -1;
+static int hf_nflog_tlv = -1;
+static int hf_nflog_tlv_gid = -1;
+static int hf_nflog_tlv_hook = -1;
+static int hf_nflog_tlv_hwprotocol = -1;
+static int hf_nflog_tlv_ifindex_indev = -1;
+static int hf_nflog_tlv_ifindex_outdev = -1;
+static int hf_nflog_tlv_ifindex_physindev = -1;
+static int hf_nflog_tlv_ifindex_physoutdev = -1;
+static int hf_nflog_tlv_length = -1;
+static int hf_nflog_tlv_prefix = -1;
+static int hf_nflog_tlv_timestamp = -1;
+static int hf_nflog_tlv_type = -1;
+static int hf_nflog_tlv_uid = -1;
+static int hf_nflog_tlv_unknown = -1;
+static int hf_nflog_version = -1;
+
 static int ett_nflog = -1;
 static int ett_nflog_tlv = -1;
-
-static header_field_info *hfi_nflog = NULL;
-
-#define NFLOG_HFI_INIT HFI_INIT(proto_nflog)
-
-/* Header */
-static header_field_info hfi_nflog_family NFLOG_HFI_INIT =
-    { "Family", "nflog.family", FT_UINT8, BASE_DEC, VALS(nfproto_family_vals), 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_version NFLOG_HFI_INIT =
-    { "Version", "nflog.version", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_resid NFLOG_HFI_INIT =
-    { "Resource id", "nflog.res_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL };
-
-/* TLV */
-static header_field_info hfi_nflog_tlv NFLOG_HFI_INIT =
-    { "TLV", "nflog.tlv", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_tlv_length NFLOG_HFI_INIT =
-    { "Length", "nflog.tlv_length", FT_UINT16, BASE_DEC, NULL, 0x00, "TLV Length", HFILL };
-
-static header_field_info hfi_nflog_tlv_type NFLOG_HFI_INIT =
-    { "Type", "nflog.tlv_type", FT_UINT16, BASE_DEC, VALS(nflog_tlv_vals), 0x7fff, "TLV Type", HFILL };
-
-/* TLV values */
-static header_field_info hfi_nflog_tlv_hwprotocol NFLOG_HFI_INIT =
-    { "HW protocol", "nflog.protocol", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_tlv_hook NFLOG_HFI_INIT =
-    { "Netfilter hook", "nflog.hook", FT_UINT8, BASE_DEC, VALS(netfilter_hooks_vals), 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_tlv_ifindex_indev NFLOG_HFI_INIT =
-    { "IFINDEX_INDEV", "nflog.ifindex_indev", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_tlv_ifindex_outdev NFLOG_HFI_INIT =
-    { "IFINDEX_OUTDEV", "nflog.ifindex_outdev", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_tlv_ifindex_physindev NFLOG_HFI_INIT =
-    { "IFINDEX_PHYSINDEV", "nflog.ifindex_physindev", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_tlv_ifindex_physoutdev NFLOG_HFI_INIT =
-    { "IFINDEX_PHYSOUTDEV", "nflog.ifindex_physoutdev", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_nflog_tlv_prefix NFLOG_HFI_INIT =
-    { "Prefix", "nflog.prefix", FT_STRINGZ, BASE_NONE, NULL, 0x00, "TLV Prefix Value", HFILL };
-
-static header_field_info hfi_nflog_tlv_uid NFLOG_HFI_INIT =
-    { "UID", "nflog.uid", FT_INT32, BASE_DEC, NULL, 0x00, "TLV UID Value", HFILL };
-
-static header_field_info hfi_nflog_tlv_gid NFLOG_HFI_INIT =
-    { "GID", "nflog.gid", FT_INT32, BASE_DEC, NULL, 0x00, "TLV GID Value", HFILL };
-
-static header_field_info hfi_nflog_tlv_timestamp NFLOG_HFI_INIT =
-    { "Timestamp", "nflog.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00, "TLV Timestamp Value", HFILL };
-
-static header_field_info hfi_nflog_tlv_unknown NFLOG_HFI_INIT =
-    { "Value", "nflog.tlv_value", FT_BYTES, BASE_NONE, NULL, 0x00, "TLV Value", HFILL };
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ip6_handle;
@@ -152,17 +111,17 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     pf = tvb_get_guint8(tvb, 0);
 
     /* Header */
-    if (proto_field_is_referenced(tree, hfi_nflog->id)) {
-        ti = proto_tree_add_item(tree, hfi_nflog, tvb, 0, -1, ENC_NA);
+    if (proto_field_is_referenced(tree, proto_nflog)) {
+        ti = proto_tree_add_item(tree, proto_nflog, tvb, 0, -1, ENC_NA);
         nflog_tree = proto_item_add_subtree(ti, ett_nflog);
 
-        proto_tree_add_item(nflog_tree, &hfi_nflog_family, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(nflog_tree, hf_nflog_family, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(nflog_tree, &hfi_nflog_version, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(nflog_tree, hf_nflog_version, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(nflog_tree, &hfi_nflog_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(nflog_tree, hf_nflog_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
         /*offset += 2;*/
     }
 
@@ -185,21 +144,21 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         if (nflog_tree) {
             gboolean handled = FALSE;
 
-            ti = proto_tree_add_bytes_format(nflog_tree, &hfi_nflog_tlv,
+            ti = proto_tree_add_bytes_format(nflog_tree, hf_nflog_tlv,
                              tvb, offset, tlv_len, NULL,
                              "TLV Type: %s (%u), Length: %u",
                              val_to_str_const(tlv_type, nflog_tlv_vals, "Unknown"),
                              tlv_type, tlv_len);
             tlv_tree = proto_item_add_subtree(ti, ett_nflog_tlv);
 
-            proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_length, tvb, offset + 0, 2, ENC_HOST_ENDIAN);
-            proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_type, tvb, offset + 2, 2, ENC_HOST_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_nflog_tlv_length, tvb, offset + 0, 2, ENC_HOST_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_nflog_tlv_type, tvb, offset + 2, 2, ENC_HOST_ENDIAN);
             switch (tlv_type) {
                 case WS_NFULA_PACKET_HDR:
                     if (value_len == 4) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_hwprotocol,
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_hwprotocol,
                                     tvb, offset + 4, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_hook,
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_hook,
                                     tvb, offset + 6, 1, ENC_NA);
                         handled = TRUE;
                     }
@@ -207,28 +166,28 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                 case WS_NFULA_IFINDEX_INDEV:
                     if (value_len == 4) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_ifindex_indev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_indev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
                     break;
 
                 case WS_NFULA_IFINDEX_OUTDEV:
                     if (value_len == 4) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_ifindex_outdev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_outdev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
                     break;
 
                 case WS_NFULA_IFINDEX_PHYSINDEV:
                     if (value_len == 4) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_ifindex_physindev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_physindev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
                     break;
 
                 case WS_NFULA_IFINDEX_PHYSOUTDEV:
                     if (value_len == 4) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_ifindex_physoutdev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_ifindex_physoutdev, tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
                     break;
@@ -239,7 +198,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                 case WS_NFULA_PREFIX:
                     if (value_len >= 1) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_prefix,
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix,
                                     tvb, offset + 4, value_len, ENC_NA);
                         handled = TRUE;
                     }
@@ -247,7 +206,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                 case WS_NFULA_UID:
                     if (value_len == 4) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_uid,
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_uid,
                                     tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
@@ -255,7 +214,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                 case WS_NFULA_GID:
                     if (value_len == 4) {
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_gid,
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_gid,
                                     tvb, offset + 4, value_len, ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
@@ -264,7 +223,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 case WS_NFULA_TIMESTAMP:
                     if (value_len == 16) {
                         /* XXX - add an "expert info" warning if the nanoseconds are >= 10^9? */
-                        proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_timestamp,
+                        proto_tree_add_item(tlv_tree, hf_nflog_tlv_timestamp,
                                     tvb, offset + 4, value_len, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
                         handled = TRUE;
                     }
@@ -272,7 +231,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             }
 
             if (!handled)
-                    proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_unknown,
+                    proto_tree_add_item(tlv_tree, hf_nflog_tlv_unknown,
                                         tvb, offset + 4, value_len, ENC_NA);
         }
 
@@ -308,44 +267,104 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 void
 proto_register_nflog(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-    static header_field_info *hfi[] = {
-    /* Header */
-        &hfi_nflog_family,
-        &hfi_nflog_version,
-        &hfi_nflog_resid,
-    /* TLV */
-        &hfi_nflog_tlv,
-        &hfi_nflog_tlv_length,
-        &hfi_nflog_tlv_type,
-    /* TLV values */
-        &hfi_nflog_tlv_hwprotocol,
-        &hfi_nflog_tlv_hook,
-        &hfi_nflog_tlv_ifindex_indev,
-        &hfi_nflog_tlv_ifindex_outdev,
-        &hfi_nflog_tlv_ifindex_physindev,
-        &hfi_nflog_tlv_ifindex_physoutdev,
-        &hfi_nflog_tlv_prefix,
-        &hfi_nflog_tlv_uid,
-        &hfi_nflog_tlv_gid,
-        &hfi_nflog_tlv_timestamp,
-        &hfi_nflog_tlv_unknown,
+    static hf_register_info hf[] = {
+        { &hf_nflog_family,
+            { "Family", "nflog.family",
+              FT_UINT8, BASE_DEC, VALS(nfproto_family_vals), 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_version,
+            { "Version", "nflog.version",
+              FT_UINT8, BASE_DEC, NULL, 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_resid,
+            { "Resource id", "nflog.res_id",
+              FT_UINT16, BASE_DEC, NULL, 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv,
+            { "TLV", "nflog.tlv",
+              FT_BYTES, BASE_NONE, NULL, 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_length,
+            { "Length", "nflog.tlv_length",
+              FT_UINT16, BASE_DEC, NULL, 0x00,
+              "TLV Length", HFILL }
+        },
+        { &hf_nflog_tlv_type,
+            { "Type", "nflog.tlv_type",
+              FT_UINT16, BASE_DEC, VALS(nflog_tlv_vals), 0x7fff,
+              "TLV Type", HFILL }
+        },
+        { &hf_nflog_tlv_hwprotocol,
+            { "HW protocol", "nflog.protocol",
+              FT_UINT16, BASE_HEX, VALS(etype_vals), 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_hook,
+            { "Netfilter hook", "nflog.hook",
+              FT_UINT8, BASE_DEC, VALS(netfilter_hooks_vals), 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_ifindex_indev,
+            { "IFINDEX_INDEV", "nflog.ifindex_indev",
+              FT_UINT32, BASE_DEC, NULL, 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_ifindex_outdev,
+            { "IFINDEX_OUTDEV", "nflog.ifindex_outdev",
+              FT_UINT32, BASE_DEC, NULL, 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_ifindex_physindev,
+            { "IFINDEX_PHYSINDEV", "nflog.ifindex_physindev",
+              FT_UINT32, BASE_DEC, NULL, 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_ifindex_physoutdev,
+            { "IFINDEX_PHYSOUTDEV", "nflog.ifindex_physoutdev",
+              FT_UINT32, BASE_DEC, NULL, 0x00,
+              NULL, HFILL }
+        },
+        { &hf_nflog_tlv_prefix,
+            { "Prefix", "nflog.prefix",
+              FT_STRINGZ, BASE_NONE, NULL, 0x00,
+              "TLV Prefix Value", HFILL }
+        },
+        { &hf_nflog_tlv_uid,
+            { "UID", "nflog.uid",
+              FT_INT32, BASE_DEC, NULL, 0x00,
+              "TLV UID Value", HFILL }
+        },
+        { &hf_nflog_tlv_gid,
+            { "GID", "nflog.gid",
+              FT_INT32, BASE_DEC, NULL, 0x00,
+              "TLV GID Value", HFILL }
+        },
+        { &hf_nflog_tlv_timestamp,
+            { "Timestamp", "nflog.timestamp",
+              FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+              "TLV Timestamp Value", HFILL }
+        },
+        { &hf_nflog_tlv_unknown,
+            { "Value", "nflog.tlv_value",
+              FT_BYTES, BASE_NONE, NULL, 0x00,
+              "TLV Value", HFILL }
+        },
     };
-#endif
 
     static gint *ett[] = {
         &ett_nflog,
         &ett_nflog_tlv
     };
 
-    int proto_nflog;
-
     proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
-    hfi_nflog = proto_registrar_get_nth(proto_nflog);
 
     nflog_handle = register_dissector("nflog", dissect_nflog, proto_nflog);
 
-    proto_register_fields(proto_nflog, hfi, array_length(hfi));
+    proto_register_field_array(proto_nflog, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
 }
@@ -353,8 +372,8 @@ proto_register_nflog(void)
 void
 proto_reg_handoff_nflog(void)
 {
-    ip_handle   = find_dissector_add_dependency("ip", hfi_nflog->id);
-    ip6_handle  = find_dissector_add_dependency("ipv6", hfi_nflog->id);
+    ip_handle   = find_dissector_add_dependency("ip", proto_nflog);
+    ip6_handle  = find_dissector_add_dependency("ipv6", proto_nflog);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NFLOG, nflog_handle);
     ethertype_table = find_dissector_table("ethertype");
