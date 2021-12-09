@@ -604,7 +604,7 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
     proto_tree_add_item(sdplugin_tree, hf_sdp_lengths, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_item *idti = proto_tree_add_item(sdplugin_tree, hf_sdp_source_id, tvb, 4, 4, ENC_LITTLE_ENDIAN);
 
-    guint32 source_id = tvb_get_guint32(tvb, 4, ENC_LITTLE_ENDIAN);
+    guint32 source_id = tvb_get_guint32(tvb, 8, ENC_LITTLE_ENDIAN);
     bridge_info* bi = get_bridge_info(source_id);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Plugin ID: %u", (unsigned)source_id);
 
@@ -620,7 +620,7 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
     dissector_handle_t dissector = dissector_get_uint_handle(ptype_dissector_table, source_id);
     if (dissector) {
         p_add_proto_data(pinfo->pool, pinfo, proto_sdplugin, PROTO_DATA_BRIDGE_HANDLE, bi);
-        tvbuff_t* next_tvb = tvb_new_subset_length(tvb, 8, tvb_captured_length(tvb) - 8);
+        tvbuff_t* next_tvb = tvb_new_subset_length(tvb, 12, tvb_captured_length(tvb) - 12);
         call_dissector_with_data(dissector, next_tvb, pinfo, tree, data);
     }
 
