@@ -137,6 +137,7 @@ typedef struct ss_plugin_event
 
 typedef struct ss_plugin_extract_field
 {
+	uint32_t field_id;
 	const char *field;
 	const char *arg;
 	uint32_t ftype;
