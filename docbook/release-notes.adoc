@@ -34,8 +34,8 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 3.6.0:
 
-// * The Windows installers now ship with Npcap 1.55.
-// They previously shipped with Npcap 1.31.
+* The Windows installers now ship with Npcap 1.60.
+They previously shipped with Npcap 1.55.
 
 * Display filter syntax:
 ** Set elements must be separated using a comma, e.g: {1, 2, "foo"}. Using only whitespace as separator was deprecated in 3.6 and is now a syntax error.
