@@ -961,7 +961,7 @@ int main(int argc, char *qt_argv[])
     }
 
     wsApp->allSystemsGo();
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_MESSAGE, "Wireshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */
