@@ -207,12 +207,12 @@ rtspstat_draw(void *psp  )
 	else
 		printf("RTSP Statistics with filter %s\n", sp->filter);
 
-	printf(	"* RTSP Status Codes in reply packets\n");
+	printf("* RTSP Response Status Codes                Packets\n");
 	g_hash_table_foreach( sp->hash_responses, (GHFunc)rtsp_draw_hash_responses,
-		(gpointer)"    RTSP %3d %s\n");
-	printf("* List of RTSP Request methods\n");
+		(gpointer)"  %3d %-35s %9d\n");
+	printf("* RTSP Request Methods                      Packets\n");
 	g_hash_table_foreach( sp->hash_requests,  (GHFunc)rtsp_draw_hash_requests,
-		(gpointer)"    %9s %d \n");
+		(gpointer)"  %-39s %9d\n");
 	printf("===================================================================\n");
 }
 
