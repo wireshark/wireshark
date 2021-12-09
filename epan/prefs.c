@@ -5499,6 +5499,9 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
          /* Handled within deprecated_enable_dissector_pref() if found */
     } else if (deprecated_port_pref(pref_name, value)) {
          /* Handled within deprecated_port_pref() if found */
+    } else if (strcmp(pref_name, "console.log.level") == 0) {
+        /* Handled on the command line within ws_log_parse_args() */
+        return PREFS_SET_OK;
     } else {
         /* Handle deprecated "global" options that don't have a module
          * associated with them
