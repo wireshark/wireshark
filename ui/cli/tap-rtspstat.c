@@ -200,7 +200,7 @@ rtspstat_draw(void *psp  )
 	rtspstat_t *sp = (rtspstat_t *)psp;
 	printf("\n");
 	printf("===================================================================\n");
-	if (! sp->filter[0])
+	if (!sp->filter || !sp->filter[0])
 		printf("RTSP Statistics\n");
 	else
 		printf("RTSP Statistics with filter %s\n", sp->filter);
