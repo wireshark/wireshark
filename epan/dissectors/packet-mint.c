@@ -26,8 +26,6 @@
  */
 #define MINT_DEVELOPMENT 1
 
-#define NEW_PROTO_TREE_API 1
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -52,6 +50,48 @@ void proto_reg_handoff_mint(void);
 /* MLCP: VLAN or IP-based */
 
 static dissector_handle_t eth_handle;
+
+static int proto_mint = -1;
+
+static int hf_mint_control = -1;
+static int hf_mint_control_32zerobytes = -1;
+static int hf_mint_control_unknown1 = -1;
+static int hf_mint_data = -1;
+static int hf_mint_data_seqno = -1;
+static int hf_mint_data_unknown1 = -1;
+static int hf_mint_data_vlan = -1;
+static int hf_mint_ethshim = -1;
+static int hf_mint_ethshim_length = -1;
+static int hf_mint_ethshim_unknown = -1;
+static int hf_mint_header = -1;
+static int hf_mint_header_dstdataport = -1;
+static int hf_mint_header_dstid = -1;
+static int hf_mint_header_srcdataport = -1;
+static int hf_mint_header_srcid = -1;
+static int hf_mint_header_ttl = -1;
+static int hf_mint_header_unknown1 = -1;
+static int hf_mint_header_unknown2 = -1;
+static int hf_mint_mlcp_length = -1;
+static int hf_mint_mlcp_message = -1;
+static int hf_mint_mlcp_type = -1;
+static int hf_mint_mlcp_value = -1;
+static int hf_mint_neighbor_unknown = -1;
+static int hf_mint_router_array = -1;
+static int hf_mint_router_element = -1;
+static int hf_mint_router_header_length = -1;
+static int hf_mint_router_header_sender = -1;
+static int hf_mint_router_header_unknown = -1;
+static int hf_mint_router_length = -1;
+static int hf_mint_router_message_type = -1;
+static int hf_mint_router_type_csnp = -1;
+static int hf_mint_router_type_helo = -1;
+static int hf_mint_router_type_lsp = -1;
+static int hf_mint_router_type_psnp = -1;
+static int hf_mint_router_type_unknown = -1;
+static int hf_mint_router_unknown1 = -1;
+static int hf_mint_router_unknown2 = -1;
+static int hf_mint_router_unknown3 = -1;
+static int hf_mint_router_value = -1;
 
 /* ett handles */
 static int ett_mint_ethshim = -1;
@@ -244,174 +284,6 @@ static const value_string mint_0x22_tlv_vals[] = {
 	{ 0,    NULL }
 };
 
-/* hfi elements */
-#define MINT_HF_INIT HFI_INIT(proto_mint)
-static header_field_info *hfi_mint = NULL;
-/* MINT Eth Shim */
-static header_field_info hfi_mint_ethshim MINT_HF_INIT =
-	{ "MINT Ethernet Shim",    "mint.ethshim", FT_PROTOCOL, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_ethshim_unknown MINT_HF_INIT =
-	{ "Unknown",	"mint.ethshim.unknown", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_ethshim_length MINT_HF_INIT =
-	{ "Length",	"mint.ethshim.length", FT_UINT16, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-/* MINT common */
-static header_field_info hfi_mint_header MINT_HF_INIT =
-	{ "Header",    "mint.header", FT_PROTOCOL, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_header_unknown1 MINT_HF_INIT =
-	{ "HdrUnk1",	"mint.header.unknown1", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_header_ttl MINT_HF_INIT =
-	{ "TTL",	"mint.header.ttl", FT_UINT8, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_header_unknown2 MINT_HF_INIT =
-	{ "HdrUnk2",	"mint.header.unknown2", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_header_srcid MINT_HF_INIT =
-	{ "Src MINT ID",	"mint.header.srcid", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_header_dstid MINT_HF_INIT =
-	{ "Dst MINT ID",	"mint.header.dstid", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_header_srcdataport MINT_HF_INIT =
-	{ "Src port",	"mint.header.srcport", FT_UINT16, BASE_DEC, VALS(mint_port_vals),
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_header_dstdataport MINT_HF_INIT =
-	{ "Dst port",	"mint.header.dstport", FT_UINT16, BASE_DEC, VALS(mint_port_vals),
-		0x0, NULL, HFILL };
-
-/* MINT Data */
-static header_field_info hfi_mint_data MINT_HF_INIT =
-	{ "Data Frame",    "mint.data", FT_PROTOCOL, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_data_vlan MINT_HF_INIT =
-	{ "Data VLAN",	"mint.data.vlan", FT_UINT16, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_data_seqno MINT_HF_INIT =
-	{ "Sequence Number",	"mint.data.seqno", FT_UINT32, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_data_unknown1 MINT_HF_INIT =
-	{ "DataUnk1",	"mint.data.unknown1", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-/* MINT Control common */
-static header_field_info hfi_mint_control MINT_HF_INIT =
-	{ "Control Frame",    "mint.control", FT_PROTOCOL, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_control_32zerobytes MINT_HF_INIT =
-	{ "Zero Bytes",	"mint.control.32zerobytes", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_control_unknown1 MINT_HF_INIT =
-	{ "CtrlUnk1",	"mint.control.unknown1", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-/* Router */
-static header_field_info hfi_mint_router_unknown1 MINT_HF_INIT =
-	{ "Unknown1",	"mint.control.router.unknown1", FT_UINT8, BASE_HEX, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_unknown2 MINT_HF_INIT =
-	{ "Unknown2",	"mint.control.router.unknown2", FT_UINT8, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_unknown3 MINT_HF_INIT =
-	{ "Unknown3",	"mint.control.router.unknown3", FT_UINT8, BASE_HEX, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_header_length MINT_HF_INIT =
-	{ "Headerlength",	"mint.control.router.header.length", FT_UINT8, BASE_HEX, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_message_type MINT_HF_INIT =
-	{ "Message type",	"mint.control.router.message.type", FT_STRING, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_header_sender MINT_HF_INIT =
-	{ "Sender ID",	"mint.control.router.header.sender", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_header_unknown MINT_HF_INIT =
-	{ "Header unknown",	"mint.control.router.header.unknown", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_type_unknown MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_type_csnp MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_csnp_tlv_vals),
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_type_helo MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_helo_tlv_vals),
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_type_lsp MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_lsp_tlv_vals),
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_type_psnp MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.router.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_router_psnp_tlv_vals),
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_length MINT_HF_INIT =
-	{ "TLV Length",	"mint.control.router.tlvlength", FT_UINT8, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_array MINT_HF_INIT =
-	{ "Array indicator",	"mint.control.router.array", FT_UINT8, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_element MINT_HF_INIT =
-	{ "Array element",	"mint.control.router.element", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_router_value MINT_HF_INIT =
-	{ "TLV Value",	"mint.control.router.tlvvalue", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-/* Neighbor */
-static header_field_info hfi_mint_neighbor_unknown MINT_HF_INIT =
-	{ "Unknown",	"mint.control.neighbor.unknown", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-/* MLCP */
-static header_field_info hfi_mint_mlcp_message MINT_HF_INIT =
-	{ "Message",	"mint.control.mlcp.message", FT_UINT16, BASE_HEX, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_mlcp_type MINT_HF_INIT =
-	{ "TLV Type",	"mint.control.mlcp.tlvtype", FT_UINT8, BASE_DEC, VALS(mint_0x22_tlv_vals),
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_mlcp_length MINT_HF_INIT =
-	{ "TLV Length",	"mint.control.mlcp.tlvlength", FT_UINT8, BASE_DEC, NULL,
-		0x0, NULL, HFILL };
-
-static header_field_info hfi_mint_mlcp_value MINT_HF_INIT =
-	{ "TLV Value",	"mint.control.mlcp.tlvvalue", FT_BYTES, BASE_NONE, NULL,
-		0x0, NULL, HFILL };
-
-/* End hfi elements */
-
 static int
 dissect_eth_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mint_tree,
 	volatile guint32 offset, guint32 length)
@@ -451,7 +323,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 type, length, header_length;
 	guint32 message_type;
 	guint8 element_length;
-	static header_field_info *display_hfi_tlv_vals;
+	int hf_tlv_vals;
 
 	mint_port = tvb_get_ntohs(tvb, offset + 12);
 
@@ -459,34 +331,34 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(mint_port,
 		mint_port_vals, "Type %03d"));
 
-	ti = proto_tree_add_item(tree, hfi_mint, tvb,
+	ti = proto_tree_add_item(tree, proto_mint, tvb,
 		offset, packet_length, ENC_NA);
 	mint_tree = proto_item_add_subtree(ti, ett_mint);
 
-	ti = proto_tree_add_item(mint_tree, &hfi_mint_header, tvb,
+	ti = proto_tree_add_item(mint_tree, hf_mint_header, tvb,
 		offset, 16, ENC_NA);
 	mint_header_tree = proto_item_add_subtree(ti, ett_mint_header);
 
 	/* MINT header */
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_unknown1, tvb,
+	proto_tree_add_item(mint_header_tree, hf_mint_header_unknown1, tvb,
 		offset, 1, ENC_NA);
 	offset += 1;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_ttl, tvb,
+	proto_tree_add_item(mint_header_tree, hf_mint_header_ttl, tvb,
 		offset, 1, ENC_NA);
 	offset += 1;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_unknown2, tvb,
+	proto_tree_add_item(mint_header_tree, hf_mint_header_unknown2, tvb,
 		offset, 2, ENC_NA);
 	offset += 2;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_dstid, tvb,
+	proto_tree_add_item(mint_header_tree, hf_mint_header_dstid, tvb,
 		offset, 4, ENC_NA);
 	offset += 4;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_srcid, tvb,
+	proto_tree_add_item(mint_header_tree, hf_mint_header_srcid, tvb,
 		offset, 4, ENC_NA);
 	offset += 4;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_dstdataport, tvb,
+	proto_tree_add_item(mint_header_tree, hf_mint_header_dstdataport, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(mint_header_tree, &hfi_mint_header_srcdataport, tvb,
+	proto_tree_add_item(mint_header_tree, hf_mint_header_srcdataport, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	/* FIXME: This is probably not the right way to determine the packet type.
@@ -494,10 +366,10 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 *        found out what. */
 	switch(mint_port) {
 	case MINT_PORT_DATA:
-		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
+		ti = proto_tree_add_item(mint_tree, hf_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_data_tree = proto_item_add_subtree(ti, ett_mint_data);
-		proto_tree_add_item(mint_data_tree, &hfi_mint_data_unknown1, tvb,
+		proto_tree_add_item(mint_data_tree, hf_mint_data_unknown1, tvb,
 			offset, 2, ENC_NA);
 		offset += 2;
 		/* Transported user frame */
@@ -506,18 +378,18 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset, packet_length - offset);
 		break;
 	case MINT_PORT_DATA_FLOOD:
-		ti = proto_tree_add_item(mint_tree, &hfi_mint_data, tvb,
+		ti = proto_tree_add_item(mint_tree, hf_mint_data, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_data_tree = proto_item_add_subtree(ti, ett_mint_data);
 		/* Decode as vlan only for now. To be verified against a capture
 		 * with CoS != 0 */
-		proto_tree_add_item(mint_data_tree, &hfi_mint_data_vlan, tvb,
+		proto_tree_add_item(mint_data_tree, hf_mint_data_vlan, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(mint_data_tree, &hfi_mint_data_seqno, tvb,
+		proto_tree_add_item(mint_data_tree, hf_mint_data_seqno, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
-		proto_tree_add_item(mint_data_tree, &hfi_mint_data_unknown1, tvb,
+		proto_tree_add_item(mint_data_tree, hf_mint_data_unknown1, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
 		/* Transported user frame */
@@ -526,74 +398,74 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset, packet_length - offset);
 		break;
 	case MINT_PORT_ROUTER:
-		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
+		ti = proto_tree_add_item(mint_tree, hf_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_32zerobytes, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_control_32zerobytes, tvb,
 			offset, 32, ENC_NA);
 		offset += 32;
 
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_unknown1, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_unknown1, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_unknown2, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_unknown2, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_unknown3, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_unknown3, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
 		header_length = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_header_length, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_header_length, tvb,
 			offset, 1, ENC_NA);
 		offset += 1;
 		message_type = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_message_type, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_message_type, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_header_sender, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_header_sender, tvb,
 			offset, 4, ENC_NA);
 		offset += 4;
 		switch (message_type) {
 			case 0x43534E50: /* CSNP */
 				element_length = 12;
-				display_hfi_tlv_vals = &hfi_mint_router_type_csnp;
+				hf_tlv_vals = hf_mint_router_type_csnp;
 				break;
 			case 0x48454C4F: /* HELO */
 				element_length = 0;
-				display_hfi_tlv_vals = &hfi_mint_router_type_helo;
+				hf_tlv_vals = hf_mint_router_type_helo;
 				break;
 			case 0x4C535000: /* LSP */
 				element_length = 8;
-				display_hfi_tlv_vals = &hfi_mint_router_type_lsp;
+				hf_tlv_vals = hf_mint_router_type_lsp;
 				break;
 			case 0x50534E50: /* PSNP */
 				element_length = 4;
-				display_hfi_tlv_vals = &hfi_mint_router_type_psnp;
+				hf_tlv_vals = hf_mint_router_type_psnp;
 				break;
 			default:
 				element_length = 0;
-				display_hfi_tlv_vals = &hfi_mint_router_type_unknown;
+				hf_tlv_vals = hf_mint_router_type_unknown;
 		}
 		/* FIXME: This should go into the per message_type switch above */
 		if (header_length > 12) {
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_header_unknown, tvb,
+			proto_tree_add_item(mint_ctrl_tree, hf_mint_router_header_unknown, tvb,
 				offset, header_length - 12, ENC_NA);
 			offset += header_length - 12;
 		}
 		while (offset < packet_length - 2) {
 			type = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(mint_ctrl_tree, display_hfi_tlv_vals, tvb,
+			proto_tree_add_item(mint_ctrl_tree, hf_tlv_vals, tvb,
 				offset, 1, ENC_NA);
 			offset += 1;
 			length = tvb_get_guint8(tvb, offset);
 			/* FIXME: This is a hack - reliable array detection missing */
 			if (type == 1 && length == 128) {
-				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_array, tvb,
+				proto_tree_add_item(mint_ctrl_tree, hf_mint_router_array, tvb,
 					offset, 1, ENC_NA);
 				offset += 1;
 				length = tvb_get_guint8(tvb, offset);
 			}
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_length, tvb,
+			proto_tree_add_item(mint_ctrl_tree, hf_mint_router_length, tvb,
 				offset, 1, ENC_NA);
 			offset += 1;
 			if (offset + length > packet_length) {
@@ -603,51 +475,51 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (type == 1 && element_length) {
 				guint32 end_offset = offset + length;
 				for (; offset < end_offset; offset += element_length) {
-					proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_element, tvb,
+					proto_tree_add_item(mint_ctrl_tree, hf_mint_router_element, tvb,
 						offset, element_length, ENC_NA);
 				}
 			} else {
-				proto_tree_add_item(mint_ctrl_tree, &hfi_mint_router_value, tvb,
+				proto_tree_add_item(mint_ctrl_tree, hf_mint_router_value, tvb,
 					offset, length, ENC_NA);
 				offset += length;
 			}
 		}
 		break;
 	case MINT_PORT_NEIGHBOR:
-		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
+		ti = proto_tree_add_item(mint_tree, hf_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_32zerobytes, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_control_32zerobytes, tvb,
 			offset, 32, ENC_NA);
 		offset += 32;
 		bytes_remaining = packet_length - offset;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_neighbor_unknown, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_neighbor_unknown, tvb,
 			offset, bytes_remaining, ENC_NA);
 		offset += bytes_remaining;
 		break;
 	case MINT_PORT_MLCP:
-		ti = proto_tree_add_item(mint_tree, &hfi_mint_control, tvb,
+		ti = proto_tree_add_item(mint_tree, hf_mint_control, tvb,
 			offset, packet_length - 16, ENC_NA);
 		mint_ctrl_tree = proto_item_add_subtree(ti, ett_mint_ctrl);
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_control_32zerobytes, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_control_32zerobytes, tvb,
 			offset, 32, ENC_NA);
 		offset += 32;
-		proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_message, tvb,
+		proto_tree_add_item(mint_ctrl_tree, hf_mint_mlcp_message, tvb,
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		while (offset < packet_length - 2) {
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_type, tvb,
+			proto_tree_add_item(mint_ctrl_tree, hf_mint_mlcp_type, tvb,
 				offset, 1, ENC_NA);
 			offset += 1;
 			length = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_length, tvb,
+			proto_tree_add_item(mint_ctrl_tree, hf_mint_mlcp_length, tvb,
 				offset, 1, ENC_NA);
 			offset += 1;
 			if (offset + length > packet_length) {
 				/* print expert information */
 				break;
 			}
-			proto_tree_add_item(mint_ctrl_tree, &hfi_mint_mlcp_value, tvb,
+			proto_tree_add_item(mint_ctrl_tree, hf_mint_mlcp_value, tvb,
 				offset, length, ENC_NA);
 			offset += length;
 		}
@@ -657,11 +529,11 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		switch(received_via) {
 		case PORT_MINT_CONTROL_TUNNEL:
 		case ETHERTYPE_MINT:
-			proto_tree_add_item(mint_tree, &hfi_mint_control_unknown1, tvb,
+			proto_tree_add_item(mint_tree, hf_mint_control_unknown1, tvb,
 				offset, bytes_remaining, ENC_NA);
 			break;
 		case PORT_MINT_DATA_TUNNEL:
-			proto_tree_add_item(mint_tree, &hfi_mint_data_unknown1, tvb,
+			proto_tree_add_item(mint_tree, hf_mint_data_unknown1, tvb,
 				offset, bytes_remaining, ENC_NA);
 			break;
 		default:
@@ -706,14 +578,14 @@ dissect_mint_ethshim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 offset = 0;
 	guint32 packet_length;
 
-	ti = proto_tree_add_item(tree, &hfi_mint_ethshim, tvb,
+	ti = proto_tree_add_item(tree, hf_mint_ethshim, tvb,
 		offset, 4, ENC_NA);
 	mint_ethshim_tree = proto_item_add_subtree(ti, ett_mint_ethshim);
 
-	proto_tree_add_item(mint_ethshim_tree, &hfi_mint_ethshim_unknown, tvb,
+	proto_tree_add_item(mint_ethshim_tree, hf_mint_ethshim_unknown, tvb,
 		offset, 2, ENC_NA);
 	offset += 2;
-	proto_tree_add_item(mint_ethshim_tree, &hfi_mint_ethshim_length, tvb,
+	proto_tree_add_item(mint_ethshim_tree, hf_mint_ethshim_length, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	packet_length = tvb_get_ntohs(tvb, offset) + 4;
 	offset += 2;
@@ -801,57 +673,203 @@ dissect_mint_ethshim_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 void
 proto_register_mint(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-
-	/* MINT Eth Shim */
-		&hfi_mint_ethshim,
-		&hfi_mint_ethshim_unknown,
-		&hfi_mint_ethshim_length,
-	/* MINT common */
-		&hfi_mint_header,
-		&hfi_mint_header_unknown1,
-		&hfi_mint_header_ttl,
-		&hfi_mint_header_unknown2,
-		&hfi_mint_header_srcid,
-		&hfi_mint_header_dstid,
-		&hfi_mint_header_srcdataport,
-		&hfi_mint_header_dstdataport,
-	/* MINT Data */
-		&hfi_mint_data,
-		&hfi_mint_data_vlan,
-		&hfi_mint_data_seqno,
-		&hfi_mint_data_unknown1,
-	/* MINT Control */
-		&hfi_mint_control,
-		&hfi_mint_control_32zerobytes,
-		&hfi_mint_control_unknown1,
-	/* Router */
-		&hfi_mint_router_message_type,
-		&hfi_mint_router_header_sender,
-		&hfi_mint_router_unknown1,
-		&hfi_mint_router_unknown2,
-		&hfi_mint_router_unknown3,
-		&hfi_mint_router_header_length,
-		&hfi_mint_router_header_unknown,
-		&hfi_mint_router_type_unknown,
-		&hfi_mint_router_type_csnp,
-		&hfi_mint_router_type_helo,
-		&hfi_mint_router_type_lsp,
-		&hfi_mint_router_type_psnp,
-		&hfi_mint_router_length,
-		&hfi_mint_router_array,
-		&hfi_mint_router_element,
-		&hfi_mint_router_value,
-	/* Neighbor */
-		&hfi_mint_neighbor_unknown,
-	/* MLCP */
-		&hfi_mint_mlcp_message,
-		&hfi_mint_mlcp_type,
-		&hfi_mint_mlcp_length,
-		&hfi_mint_mlcp_value,
+	static hf_register_info hf[] = {
+		{ &hf_mint_ethshim,
+			{ "MINT Ethernet Shim", "mint.ethshim",
+			  FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_ethshim_unknown,
+			{ "Unknown", "mint.ethshim.unknown",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_ethshim_length,
+			{ "Length", "mint.ethshim.length",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header,
+			{ "Header", "mint.header",
+			  FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header_unknown1,
+			{ "HdrUnk1", "mint.header.unknown1",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header_ttl,
+			{ "TTL", "mint.header.ttl",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header_unknown2,
+			{ "HdrUnk2", "mint.header.unknown2",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header_srcid,
+			{ "Src MINT ID", "mint.header.srcid",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header_dstid,
+			{ "Dst MINT ID", "mint.header.dstid",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header_srcdataport,
+			{ "Src port", "mint.header.srcport",
+			  FT_UINT16, BASE_DEC, VALS(mint_port_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_header_dstdataport,
+			{ "Dst port", "mint.header.dstport",
+			  FT_UINT16, BASE_DEC, VALS(mint_port_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_data,
+			{ "Data Frame", "mint.data",
+			  FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_data_vlan,
+			{ "Data VLAN", "mint.data.vlan",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_data_seqno,
+			{ "Sequence Number", "mint.data.seqno",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_data_unknown1,
+			{ "DataUnk1", "mint.data.unknown1",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_control,
+			{ "Control Frame", "mint.control",
+			  FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_control_32zerobytes,
+			{ "Zero Bytes", "mint.control.32zerobytes",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_control_unknown1,
+			{ "CtrlUnk1", "mint.control.unknown1",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_unknown1,
+			{ "Unknown1", "mint.control.router.unknown1",
+			  FT_UINT8, BASE_HEX, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_unknown2,
+			{ "Unknown2", "mint.control.router.unknown2",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_unknown3,
+			{ "Unknown3", "mint.control.router.unknown3",
+			  FT_UINT8, BASE_HEX, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_header_length,
+			{ "Headerlength", "mint.control.router.header.length",
+			  FT_UINT8, BASE_HEX, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_message_type,
+			{ "Message type", "mint.control.router.message.type",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_header_sender,
+			{ "Sender ID", "mint.control.router.header.sender",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_header_unknown,
+			{ "Header unknown", "mint.control.router.header.unknown",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_type_unknown,
+			{ "TLV Type", "mint.control.router.tlvtype",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_type_csnp,
+			{ "TLV Type", "mint.control.router.tlvtype",
+			  FT_UINT8, BASE_DEC, VALS(mint_router_csnp_tlv_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_type_helo,
+			{ "TLV Type", "mint.control.router.tlvtype",
+			  FT_UINT8, BASE_DEC, VALS(mint_router_helo_tlv_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_type_lsp,
+			{ "TLV Type", "mint.control.router.tlvtype",
+			  FT_UINT8, BASE_DEC, VALS(mint_router_lsp_tlv_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_type_psnp,
+			{ "TLV Type", "mint.control.router.tlvtype",
+			  FT_UINT8, BASE_DEC, VALS(mint_router_psnp_tlv_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_length,
+			{ "TLV Length", "mint.control.router.tlvlength",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_array,
+			{ "Array indicator", "mint.control.router.array",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_element,
+			{ "Array element", "mint.control.router.element",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_router_value,
+			{ "TLV Value", "mint.control.router.tlvvalue",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_neighbor_unknown,
+			{ "Unknown", "mint.control.neighbor.unknown",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_mlcp_message,
+			{ "Message", "mint.control.mlcp.message",
+			  FT_UINT16, BASE_HEX, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_mlcp_type,
+			{ "TLV Type", "mint.control.mlcp.tlvtype",
+			  FT_UINT8, BASE_DEC, VALS(mint_0x22_tlv_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_mlcp_length,
+			{ "TLV Length", "mint.control.mlcp.tlvlength",
+			  FT_UINT8, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_mint_mlcp_value,
+			{ "TLV Value", "mint.control.mlcp.tlvvalue",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_mint_ethshim,
@@ -861,14 +879,11 @@ proto_register_mint(void)
 		&ett_mint_data,
 	};
 
-	int proto_mint, proto_mint_data;
-
 	proto_mint = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mint");
 	/* Created to remove Decode As confusion */
-	proto_mint_data = proto_register_protocol_in_name_only("Media Independent Network Transport Data", "MINT (Data)", "mint_data", proto_mint, FT_PROTOCOL);
+	int proto_mint_data = proto_register_protocol_in_name_only("Media Independent Network Transport Data", "MINT (Data)", "mint_data", proto_mint, FT_PROTOCOL);
 
-	hfi_mint = proto_registrar_get_nth(proto_mint);
-	proto_register_fields(proto_mint, hfi, array_length(hfi));
+	proto_register_field_array(proto_mint, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	mint_control_handle = create_dissector_handle(dissect_mint_control_static, proto_mint);
@@ -882,7 +897,7 @@ proto_reg_handoff_mint(void)
 	dissector_add_uint_range_with_preference("udp.port", PORT_MINT_RANGE, mint_control_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_MINT, mint_eth_handle);
 
-	eth_handle = find_dissector_add_dependency("eth_withoutfcs", hfi_mint->id);
+	eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_mint);
 }
 
 /*
