@@ -10,9 +10,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -22,19 +19,10 @@ void proto_reg_handoff_daytime(void);
 
 static dissector_handle_t daytime_handle;
 
-static header_field_info *hfi_daytime = NULL;
+static int proto_daytime = -1;
 
-#define DAYTIME_HFI_INIT HFI_INIT(proto_daytime)
-
-static header_field_info hfi_daytime_string DAYTIME_HFI_INIT =
-{ "Daytime", "daytime.string",
-  FT_STRING, BASE_NONE, NULL, 0x0,
-  "String containing time and date", HFILL };
-
-static header_field_info hfi_response_request DAYTIME_HFI_INIT =
-{ "Type", "daytime.response_request",
-  FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0,
-  NULL, HFILL };
+static int hf_daytime_string = -1;
+static int hf_response_request = -1;
 
 static gint ett_daytime = -1;
 
@@ -54,12 +42,12 @@ dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
   if (tree) {
 
-    ti = proto_tree_add_item(tree, hfi_daytime, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_daytime, tvb, 0, -1, ENC_NA);
     daytime_tree = proto_item_add_subtree(ti, ett_daytime);
 
-    proto_tree_add_boolean(daytime_tree, &hfi_response_request, tvb, 0, 0, pinfo->srcport==DAYTIME_PORT);
+    proto_tree_add_boolean(daytime_tree, hf_response_request, tvb, 0, 0, pinfo->srcport==DAYTIME_PORT);
     if (pinfo->srcport == DAYTIME_PORT) {
-      proto_tree_add_item(daytime_tree, &hfi_daytime_string, tvb, 0, -1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(daytime_tree, hf_daytime_string, tvb, 0, -1, ENC_ASCII|ENC_NA);
     }
   }
   return tvb_captured_length(tvb);
@@ -68,23 +56,25 @@ dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 void
 proto_register_daytime(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-  static header_field_info *hfi[] = {
-    &hfi_daytime_string,
-    &hfi_response_request,
+  static hf_register_info hf[] = {
+    { &hf_daytime_string,
+      { "Daytime", "daytime.string",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "String containing time and date", HFILL }
+    },
+    { &hf_response_request,
+      { "Type", "daytime.response_request",
+        FT_BOOLEAN, 8, TFS(&tfs_response_request), 0x0,
+        NULL, HFILL }
+    },
   };
-#endif
 
   static gint *ett[] = {
     &ett_daytime,
   };
 
-  int proto_daytime;
-
   proto_daytime = proto_register_protocol("Daytime Protocol", "DAYTIME", "daytime");
-  hfi_daytime = proto_registrar_get_nth(proto_daytime);
-
-  proto_register_fields(proto_daytime, hfi, array_length(hfi));
+  proto_register_field_array(proto_daytime, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   daytime_handle = create_dissector_handle(dissect_daytime, proto_daytime);
