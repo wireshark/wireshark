@@ -29,9 +29,6 @@
  *   Spirent's stcsig dissector, the ns value differs significantly
  * - Find out what the TSLR really stands for - currently just a guess
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -40,73 +37,31 @@
 void proto_register_stcsig(void);
 void proto_reg_handoff_stcsig(void);
 
-static int proto_stcsig = -1;
-
 #define PROTO_SHORT_NAME "STCSIG"
 #define PROTO_LONG_NAME "Spirent Test Center Signature"
 
-static header_field_info *hfi_stcsig = NULL;
+static int proto_stcsig = -1;
 
-#define STCSIG_HFI_INIT HFI_INIT(proto_stcsig)
-
-static header_field_info hfi_stcsig_rawdata STCSIG_HFI_INIT =
-	  { "Raw Data", "stcsig.rawdata", FT_BYTES, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL };
-
-static header_field_info hfi_stcsig_iv STCSIG_HFI_INIT =
-	  { "IV", "stcsig.iv", FT_UINT8, BASE_HEX, NULL, 0x0,
-	    "Deobfuscation Initialization Vector and Complement of Sequence Low Byte", HFILL };
-
-static header_field_info hfi_stcsig_streamid STCSIG_HFI_INIT =
-	  { "StreamID", "stcsig.streamid", FT_INT32, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL };
-
-static header_field_info hfi_stcsig_csp STCSIG_HFI_INIT =
-	  { "ChassisSlotPort", "stcsig.csp", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL };
-
-static header_field_info hfi_stcsig_seqnum_complement STCSIG_HFI_INIT =
-	  { "Complement (EDM)", "stcsig.complement", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    "Complement of high bytes of Sequence Number", HFILL };
-
-static header_field_info hfi_stcsig_seqnum_edm STCSIG_HFI_INIT =
-	  { "Sequence Number (EDM)", "stcsig.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0,
-	    "Sequence Number (Enhanced Detection Mode)", HFILL };
-
-static header_field_info hfi_stcsig_seqnum_sm STCSIG_HFI_INIT =
-	  { "Sequence Number (SM)", "stcsig.seqnum.sm", FT_UINT48, BASE_DEC, NULL, 0x0,
-	    "Sequence Number (Sequence Mode)", HFILL };
-
-static header_field_info hfi_stcsig_streamindex STCSIG_HFI_INIT =
-	  { "Stream Index", "stcsig.streamindex", FT_UINT16, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL };
-
-static header_field_info hfi_stcsig_timestamp STCSIG_HFI_INIT =
-	  { "Timestamp", "stcsig.timestamp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL };
-
-static header_field_info hfi_stcsig_prbseq STCSIG_HFI_INIT =
-	  { "Pseudo-Random Binary Sequence", "stcsig.prbseq", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
-	    NULL, HFILL };
-
-static const true_false_string tfs_end_start = { "EndOfFrame", "StartOfFrame" };
-
-static header_field_info hfi_stcsig_tslr STCSIG_HFI_INIT =
-	  { "TSLR", "stcsig.tslr", FT_BOOLEAN, 8, TFS(&tfs_end_start), 0x01,
-	    "Time Stamp Location Reference", HFILL };
-
-static const true_false_string tfs_hard_soft = { "Hard", "Soft" };
-
-static header_field_info hfi_stcsig_streamtype STCSIG_HFI_INIT =
-	  { "StreamType", "stcsig.streamtype", FT_BOOLEAN, 8, TFS(&tfs_hard_soft), 0x80,
-	    NULL, HFILL };
-
-static header_field_info hfi_stcsig_unknown STCSIG_HFI_INIT =
-	  { "Unknown", "stcsig.unknown", FT_BYTES, BASE_NONE, NULL, 0x0,
-	    "Unknown Trailer (not obfuscated)", HFILL };
+static int hf_stcsig_csp = -1;
+static int hf_stcsig_iv = -1;
+static int hf_stcsig_prbseq = -1;
+static int hf_stcsig_rawdata = -1;
+static int hf_stcsig_seqnum_complement = -1;
+static int hf_stcsig_seqnum_edm = -1;
+static int hf_stcsig_seqnum_sm = -1;
+static int hf_stcsig_streamid = -1;
+static int hf_stcsig_streamindex = -1;
+static int hf_stcsig_streamtype = -1;
+static int hf_stcsig_timestamp = -1;
+static int hf_stcsig_tslr = -1;
+static int hf_stcsig_unknown = -1;
 
 static gint ett_stcsig = -1;
 static gint ett_stcsig_streamid = -1;
+
+static const true_false_string tfs_end_start = { "EndOfFrame", "StartOfFrame" };
+
+static const true_false_string tfs_hard_soft = { "Hard", "Soft" };
 
 /*
  * For the last 20 bytes of the data section to be a Spirent Signature
@@ -274,32 +229,32 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	stcsig_tvb = tvb_new_child_real_data(tvb, real_stcsig, 20, 20);
 	add_new_data_source(pinfo, stcsig_tvb, PROTO_LONG_NAME);
 
-	ti = proto_tree_add_item(tree, hfi_stcsig, tvb, sig_offset, 20, ENC_NA);
+	ti = proto_tree_add_item(tree, proto_stcsig, tvb, sig_offset, 20, ENC_NA);
 	stcsig_tree = proto_item_add_subtree(ti, ett_stcsig);
 
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_rawdata, tvb, sig_offset, 20, ENC_NA);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_iv, stcsig_tvb, 0, 1, ENC_NA);
-	ti = proto_tree_add_item(stcsig_tree, &hfi_stcsig_streamid, stcsig_tvb, 1, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(stcsig_tree, hf_stcsig_rawdata, tvb, sig_offset, 20, ENC_NA);
+	proto_tree_add_item(stcsig_tree, hf_stcsig_iv, stcsig_tvb, 0, 1, ENC_NA);
+	ti = proto_tree_add_item(stcsig_tree, hf_stcsig_streamid, stcsig_tvb, 1, 4, ENC_BIG_ENDIAN);
 	stcsig_streamid_tree = proto_item_add_subtree(ti, ett_stcsig_streamid);
 	/* This subtree is mostly an optical hierachy, auto expand it */
 	tree_expanded_set(ett_stcsig_streamid, TRUE);
-	proto_tree_add_item(stcsig_streamid_tree, &hfi_stcsig_csp, stcsig_tvb, 1, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(stcsig_streamid_tree, &hfi_stcsig_streamtype, stcsig_tvb, 3, 1, ENC_NA);
-	proto_tree_add_item(stcsig_streamid_tree, &hfi_stcsig_streamindex, stcsig_tvb, 3, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_csp, stcsig_tvb, 1, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_streamtype, stcsig_tvb, 3, 1, ENC_NA);
+	proto_tree_add_item(stcsig_streamid_tree, hf_stcsig_streamindex, stcsig_tvb, 3, 2, ENC_BIG_ENDIAN);
 	if (tvb_get_ntohs(stcsig_tvb, 5) + tvb_get_ntohs(stcsig_tvb, 7) == 0xffff) {
-		proto_tree_add_item(stcsig_tree, &hfi_stcsig_seqnum_complement, stcsig_tvb, 5, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(stcsig_tree, &hfi_stcsig_seqnum_edm, stcsig_tvb, 7, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(stcsig_tree, hf_stcsig_seqnum_complement, stcsig_tvb, 5, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(stcsig_tree, hf_stcsig_seqnum_edm, stcsig_tvb, 7, 4, ENC_BIG_ENDIAN);
 	} else {
-		proto_tree_add_item(stcsig_tree, &hfi_stcsig_seqnum_sm, stcsig_tvb, 5, 6, ENC_BIG_ENDIAN);
+		proto_tree_add_item(stcsig_tree, hf_stcsig_seqnum_sm, stcsig_tvb, 5, 6, ENC_BIG_ENDIAN);
 	}
 	timestamp_2_5_ns = (guint64)(tvb_get_guint8(stcsig_tvb, 15) & 0xfc) << 30;
 	timestamp_2_5_ns |= tvb_get_ntohl(stcsig_tvb, 11);
 	timestamp.secs = (time_t)(timestamp_2_5_ns / 400000000L);
 	timestamp.nsecs = (int)(timestamp_2_5_ns % 400000000L);
-	proto_tree_add_time(stcsig_tree, &hfi_stcsig_timestamp, stcsig_tvb, 11, 5, &timestamp);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_prbseq, stcsig_tvb, 15, 1, ENC_NA);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_tslr, stcsig_tvb, 15, 1, ENC_NA);
-	proto_tree_add_item(stcsig_tree, &hfi_stcsig_unknown, stcsig_tvb, 16, 4, ENC_NA);
+	proto_tree_add_time(stcsig_tree, hf_stcsig_timestamp, stcsig_tvb, 11, 5, &timestamp);
+	proto_tree_add_item(stcsig_tree, hf_stcsig_prbseq, stcsig_tvb, 15, 1, ENC_NA);
+	proto_tree_add_item(stcsig_tree, hf_stcsig_tslr, stcsig_tvb, 15, 1, ENC_NA);
+	proto_tree_add_item(stcsig_tree, hf_stcsig_unknown, stcsig_tvb, 16, 4, ENC_NA);
 
 	/* Ignored for post-dissectors but required by function type */
 	return length;
@@ -308,23 +263,73 @@ dissect_stcsig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 void
 proto_register_stcsig(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_stcsig_rawdata,
-		&hfi_stcsig_iv, /* &hfi_stcsig_seqbyte, */
-		&hfi_stcsig_streamtype,
-		&hfi_stcsig_streamid,
-		&hfi_stcsig_csp,
-		&hfi_stcsig_seqnum_complement,
-		&hfi_stcsig_seqnum_edm,
-		&hfi_stcsig_seqnum_sm,
-		&hfi_stcsig_streamindex,
-		&hfi_stcsig_timestamp,
-		&hfi_stcsig_prbseq,
-		&hfi_stcsig_tslr,
-		&hfi_stcsig_unknown
+	static hf_register_info hf[] = {
+		{ &hf_stcsig_rawdata,
+			{ "Raw Data", "stcsig.rawdata",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_stcsig_iv,
+			{ "IV", "stcsig.iv",
+			  FT_UINT8, BASE_HEX, NULL, 0x0,
+			  "Deobfuscation Initialization Vector and Complement of Sequence Low Byte", HFILL }
+		},
+		{ &hf_stcsig_streamid,
+			{ "StreamID", "stcsig.streamid",
+			  FT_INT32, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_stcsig_csp,
+			{ "ChassisSlotPort", "stcsig.csp",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_stcsig_seqnum_complement,
+			{ "Complement (EDM)", "stcsig.complement",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "Complement of high bytes of Sequence Number", HFILL }
+		},
+		{ &hf_stcsig_seqnum_edm,
+			{ "Sequence Number (EDM)", "stcsig.seqnum",
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
+			  "Sequence Number (Enhanced Detection Mode)", HFILL }
+		},
+		{ &hf_stcsig_seqnum_sm,
+			{ "Sequence Number (SM)", "stcsig.seqnum.sm",
+			  FT_UINT48, BASE_DEC, NULL, 0x0,
+			  "Sequence Number (Sequence Mode)", HFILL }
+		},
+		{ &hf_stcsig_streamindex,
+			{ "Stream Index", "stcsig.streamindex",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_stcsig_timestamp,
+			{ "Timestamp", "stcsig.timestamp",
+			  FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_stcsig_prbseq,
+			{ "Pseudo-Random Binary Sequence", "stcsig.prbseq",
+			  FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_stcsig_tslr,
+			{ "TSLR", "stcsig.tslr",
+			  FT_BOOLEAN, 8, TFS(&tfs_end_start), 0x01,
+			  "Time Stamp Location Reference", HFILL }
+		},
+		{ &hf_stcsig_streamtype,
+			{ "StreamType", "stcsig.streamtype",
+			  FT_BOOLEAN, 8, TFS(&tfs_hard_soft), 0x80,
+			  NULL, HFILL }
+		},
+		{ &hf_stcsig_unknown,
+			{ "Unknown", "stcsig.unknown",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  "Unknown Trailer (not obfuscated)", HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_stcsig,
@@ -334,11 +339,10 @@ proto_register_stcsig(void)
 	dissector_handle_t stcsig_handle;
 
 	proto_stcsig = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "stcsig");
-	hfi_stcsig = proto_registrar_get_nth(proto_stcsig);
 
 	register_dissector("stcsig", dissect_stcsig, proto_stcsig);
 
-	proto_register_fields(proto_stcsig, hfi, array_length(hfi));
+	proto_register_field_array(proto_stcsig, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	stcsig_handle = register_dissector(PROTO_SHORT_NAME, dissect_stcsig, proto_stcsig);
