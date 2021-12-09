@@ -12,9 +12,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include "packet-rpc.h"
@@ -22,10 +19,6 @@
 
 void proto_register_stat(void);
 void proto_reg_handoff_stat(void);
-
-static header_field_info *hfi_stat = NULL;
-
-#define STAT_HFI_INIT HFI_INIT(proto_stat)
 
 static const value_string stat1_proc_vals[] = {
 	{ 0,                   "NULL" },
@@ -38,18 +31,6 @@ static const value_string stat1_proc_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_stat_procedure_v1 STAT_HFI_INIT = {
-	"V1 Procedure", "stat.procedure_v1", FT_UINT32, BASE_DEC,
-	VALS(stat1_proc_vals), 0, NULL, HFILL };
-
-static header_field_info hfi_stat_mon_name STAT_HFI_INIT = {
-	"Name", "stat.name", FT_STRING, BASE_NONE,
-	NULL, 0, NULL, HFILL };
-
-static header_field_info hfi_stat_stat_res STAT_HFI_INIT = {
-	"Status Result", "stat.stat_res", FT_NONE,BASE_NONE,
-	NULL, 0, NULL, HFILL };
-
 static const value_string stat_res[] =
 {
 	{ 0, "STAT_SUCC" },
@@ -57,54 +38,23 @@ static const value_string stat_res[] =
 	{ 0, NULL }
 };
 
-static header_field_info hfi_stat_stat_res_res STAT_HFI_INIT = {
-	"Result", "stat.stat_res.res", FT_UINT32, BASE_DEC,
-	VALS(stat_res), 0, NULL, HFILL };
+static int proto_stat = -1;
 
-static header_field_info hfi_stat_stat_res_state STAT_HFI_INIT = {
-	"State", "stat.stat_res.state", FT_UINT32, BASE_DEC,
-	NULL, 0, NULL, HFILL };
-
-static header_field_info hfi_stat_state STAT_HFI_INIT = {
-	"State", "stat.state", FT_UINT32, BASE_DEC,
-	NULL, 0, "State of local NSM", HFILL };
-
-static header_field_info hfi_stat_mon STAT_HFI_INIT = {
-	"Monitor", "stat.mon", FT_NONE, BASE_NONE,
-	NULL, 0, "Monitor Host", HFILL };
-
-static header_field_info hfi_stat_mon_id_name STAT_HFI_INIT = {
-	"Monitor ID Name", "stat.mon_id.name", FT_STRING, BASE_NONE,
-	NULL, 0, NULL, HFILL };
-
-static header_field_info hfi_stat_my_id STAT_HFI_INIT = {
-	"My ID", "stat.my_id", FT_NONE,BASE_NONE,
-	NULL, 0, "My_ID structure", HFILL };
-
-static header_field_info hfi_stat_my_id_hostname STAT_HFI_INIT = {
-	"Hostname", "stat.my_id.hostname", FT_STRING, BASE_NONE,
-	NULL, 0, "My_ID Host to callback", HFILL };
-
-static header_field_info hfi_stat_my_id_prog STAT_HFI_INIT = {
-	"Program", "stat.my_id.prog", FT_UINT32, BASE_DEC,
-	NULL, 0, "My_ID Program to callback", HFILL };
-
-static header_field_info hfi_stat_my_id_vers STAT_HFI_INIT = {
-	"Version", "stat.my_id.vers", FT_UINT32, BASE_DEC,
-	NULL, 0, "My_ID Version of callback", HFILL };
-
-static header_field_info hfi_stat_my_id_proc STAT_HFI_INIT = {
-	"Procedure", "stat.my_id.proc", FT_UINT32, BASE_DEC,
-	NULL, 0, "My_ID Procedure to callback", HFILL };
-
-static header_field_info hfi_stat_priv STAT_HFI_INIT = {
-	"Priv", "stat.priv", FT_BYTES, BASE_NONE,
-	NULL, 0, "Private client supplied opaque data", HFILL };
-
-static header_field_info hfi_stat_stat_chge STAT_HFI_INIT = {
-	"Status Change", "stat.stat_chge", FT_NONE, BASE_NONE,
-	NULL, 0, "Status Change structure", HFILL };
-
+static int hf_stat_mon = -1;
+static int hf_stat_mon_id_name = -1;
+static int hf_stat_mon_name = -1;
+static int hf_stat_my_id = -1;
+static int hf_stat_my_id_hostname = -1;
+static int hf_stat_my_id_proc = -1;
+static int hf_stat_my_id_prog = -1;
+static int hf_stat_my_id_vers = -1;
+static int hf_stat_priv = -1;
+static int hf_stat_procedure_v1 = -1;
+static int hf_stat_stat_chge = -1;
+static int hf_stat_stat_res = -1;
+static int hf_stat_stat_res_res = -1;
+static int hf_stat_stat_res_state = -1;
+static int hf_stat_state = -1;
 
 static gint ett_stat = -1;
 static gint ett_stat_stat_res = -1;
@@ -155,7 +105,7 @@ mon_id_len(tvbuff_t *tvb, int offset)
 static int
 dissect_stat_stat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	return dissect_rpc_string(tvb,tree,hfi_stat_mon_name.id,0,NULL);
+	return dissect_rpc_string(tvb,tree,hf_stat_mon_name,0,NULL);
 }
 
 static int
@@ -166,15 +116,15 @@ dissect_stat_stat_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
 	gint32 res;
 	int offset = 0;
 
-	sub_item = proto_tree_add_item(tree, &hfi_stat_stat_res, tvb,
+	sub_item = proto_tree_add_item(tree, hf_stat_stat_res, tvb,
 				offset, -1, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_stat_stat_res);
 
 	res = tvb_get_ntohl(tvb, offset);
-	offset = dissect_rpc_uint32(tvb,sub_tree,hfi_stat_stat_res_res.id,offset);
+	offset = dissect_rpc_uint32(tvb,sub_tree,hf_stat_stat_res_res,offset);
 
 	if (res==STAT_SUCC) {
-		offset = dissect_rpc_uint32(tvb,sub_tree,hfi_stat_stat_res_state.id,offset);
+		offset = dissect_rpc_uint32(tvb,sub_tree,hf_stat_stat_res_state,offset);
 	} else {
 		offset += 4;
 	}
@@ -188,14 +138,14 @@ dissect_stat_my_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 
-	sub_item = proto_tree_add_item(tree, &hfi_stat_my_id, tvb,
+	sub_item = proto_tree_add_item(tree, hf_stat_my_id, tvb,
 				offset, my_id_len(tvb,offset), ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_stat_my_id);
 
-	offset = dissect_rpc_string(tvb,sub_tree,hfi_stat_my_id_hostname.id,offset,NULL);
-	offset = dissect_rpc_uint32(tvb,sub_tree,hfi_stat_my_id_prog.id,offset);
-	offset = dissect_rpc_uint32(tvb,sub_tree,hfi_stat_my_id_vers.id,offset);
-	offset = dissect_rpc_uint32(tvb,sub_tree,hfi_stat_my_id_proc.id,offset);
+	offset = dissect_rpc_string(tvb,sub_tree,hf_stat_my_id_hostname,offset,NULL);
+	offset = dissect_rpc_uint32(tvb,sub_tree,hf_stat_my_id_prog,offset);
+	offset = dissect_rpc_uint32(tvb,sub_tree,hf_stat_my_id_vers,offset);
+	offset = dissect_rpc_uint32(tvb,sub_tree,hf_stat_my_id_proc,offset);
 
 	return offset;
 }
@@ -207,11 +157,11 @@ dissect_stat_mon_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 	proto_tree *sub_tree;
 	int offset = 0;
 
-	sub_item = proto_tree_add_item(tree, &hfi_stat_mon, tvb,
+	sub_item = proto_tree_add_item(tree, hf_stat_mon, tvb,
 				offset, mon_id_len(tvb,offset), ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_stat_mon);
 
-	offset = dissect_rpc_string(tvb,sub_tree,hfi_stat_mon_id_name.id,offset,NULL);
+	offset = dissect_rpc_string(tvb,sub_tree,hf_stat_mon_id_name,offset,NULL);
 
 	offset = dissect_stat_my_id(tvb,offset,sub_tree);
 
@@ -221,7 +171,7 @@ dissect_stat_mon_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 static int
 dissect_stat_priv(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_tree_add_item(tree, &hfi_stat_priv, tvb, offset, 16, ENC_NA);
+	proto_tree_add_item(tree, hf_stat_priv, tvb, offset, 16, ENC_NA);
 	offset += 16;
 
 	return offset;
@@ -239,7 +189,7 @@ dissect_stat_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_stat_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
-	return dissect_rpc_uint32(tvb,tree,hfi_stat_state.id,0);
+	return dissect_rpc_uint32(tvb,tree,hf_stat_state,0);
 }
 
 static int
@@ -250,13 +200,13 @@ dissect_stat_notify(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
 	int offset = 0;
 	int start_offset = offset;
 
-	sub_item = proto_tree_add_item(tree, &hfi_stat_stat_chge, tvb,
+	sub_item = proto_tree_add_item(tree, hf_stat_stat_chge, tvb,
 				offset, -1, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_stat_stat_chge);
 
-	offset = dissect_rpc_string(tvb,sub_tree,hfi_stat_mon_id_name.id,offset,NULL);
+	offset = dissect_rpc_string(tvb,sub_tree,hf_stat_mon_id_name,offset,NULL);
 
-	offset = dissect_rpc_uint32(tvb,tree,hfi_stat_state.id,offset);
+	offset = dissect_rpc_uint32(tvb,tree,hf_stat_state,offset);
 
 	if(sub_item)
 		proto_item_set_len(sub_item, offset - start_offset);
@@ -293,31 +243,89 @@ static const vsff stat1_proc[] = {
 
 
 static const rpc_prog_vers_info stat_vers_info[] = {
-	{ 1, stat1_proc, &hfi_stat_procedure_v1.id },
+	{ 1, stat1_proc, &hf_stat_procedure_v1 },
 };
 
 void
 proto_register_stat(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_stat_procedure_v1,
-		&hfi_stat_mon_name,
-		&hfi_stat_stat_res,
-		&hfi_stat_stat_res_res,
-		&hfi_stat_stat_res_state,
-		&hfi_stat_mon,
-		&hfi_stat_mon_id_name,
-		&hfi_stat_my_id,
-		&hfi_stat_my_id_hostname,
-		&hfi_stat_my_id_prog,
-		&hfi_stat_my_id_vers,
-		&hfi_stat_my_id_proc,
-		&hfi_stat_priv,
-		&hfi_stat_state,
-		&hfi_stat_stat_chge,
+	static hf_register_info hf[] = {
+		{ &hf_stat_procedure_v1,
+			{ "V1 Procedure", "stat.procedure_v1",
+			  FT_UINT32, BASE_DEC, VALS(stat1_proc_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_stat_mon_name,
+			{ "Name", "stat.name",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_stat_stat_res,
+			{ "Status Result", "stat.stat_res",
+			  FT_NONE, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_stat_stat_res_res,
+			{ "Result", "stat.stat_res.res",
+			  FT_UINT32, BASE_DEC, VALS(stat_res), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_stat_stat_res_state,
+			{ "State", "stat.stat_res.state",
+			  FT_UINT32, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_stat_state,
+			{ "State", "stat.state",
+			  FT_UINT32, BASE_DEC, NULL, 0,
+			  "State of local NSM", HFILL }
+		},
+		{ &hf_stat_mon,
+			{ "Monitor", "stat.mon",
+			  FT_NONE, BASE_NONE, NULL, 0,
+			  "Monitor Host", HFILL }
+		},
+		{ &hf_stat_mon_id_name,
+			{ "Monitor ID Name", "stat.mon_id.name",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_stat_my_id,
+			{ "My ID", "stat.my_id",
+			  FT_NONE, BASE_NONE, NULL, 0,
+			  "My_ID structure", HFILL }
+		},
+		{ &hf_stat_my_id_hostname,
+			{ "Hostname", "stat.my_id.hostname",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  "My_ID Host to callback", HFILL }
+		},
+		{ &hf_stat_my_id_prog,
+			{ "Program", "stat.my_id.prog",
+			  FT_UINT32, BASE_DEC, NULL, 0,
+			  "My_ID Program to callback", HFILL }
+		},
+		{ &hf_stat_my_id_vers,
+			{ "Version", "stat.my_id.vers",
+			  FT_UINT32, BASE_DEC, NULL, 0,
+			  "My_ID Version of callback", HFILL }
+		},
+		{ &hf_stat_my_id_proc,
+			{ "Procedure", "stat.my_id.proc",
+			  FT_UINT32, BASE_DEC, NULL, 0,
+			  "My_ID Procedure to callback", HFILL }
+		},
+		{ &hf_stat_priv,
+			{ "Priv", "stat.priv",
+			  FT_BYTES, BASE_NONE, NULL, 0,
+			  "Private client supplied opaque data", HFILL }
+		},
+		{ &hf_stat_stat_chge,
+			{ "Status Change", "stat.stat_chge",
+			  FT_NONE, BASE_NONE, NULL, 0,
+			  "Status Change structure", HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_stat,
@@ -327,12 +335,8 @@ proto_register_stat(void)
 		&ett_stat_stat_chge,
 	};
 
-	int proto_stat;
-
 	proto_stat = proto_register_protocol("Network Status Monitor Protocol", "STAT", "stat");
-	hfi_stat   = proto_registrar_get_nth(proto_stat);
-
-	proto_register_fields(proto_stat, hfi, array_length(hfi));
+	proto_register_field_array(proto_stat, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -340,7 +344,7 @@ void
 proto_reg_handoff_stat(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(hfi_stat->id, STAT_PROGRAM, ett_stat,
+	rpc_init_prog(proto_stat, STAT_PROGRAM, ett_stat,
 	    G_N_ELEMENTS(stat_vers_info), stat_vers_info);
 }
 
