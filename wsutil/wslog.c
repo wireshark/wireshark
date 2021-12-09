@@ -31,6 +31,7 @@
 
 #include "file_util.h"
 #include "to_str.h"
+#include "strtoi.h"
 
 
 /* Runtime log level. */
@@ -114,7 +115,7 @@ static gboolean init_complete = FALSE;
 
 static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
                         int exit_failure,
-                        const char *fmt, ...);
+                        const char *fmt, ...) G_GNUC_PRINTF(3,4);
 
 static void ws_log_cleanup(void);
 
@@ -329,6 +330,88 @@ static void print_err(void (*vcmdarg_err)(const char *, va_list ap),
 }
 
 
+/*
+ * This tries to convert old log level preference to a wslog
+ * configuration. The string must start with "console.log.level:"
+ * It receives an argv for { '-o', 'console.log.level:nnn', ...} or
+ * { '-oconsole.log.level:nnn', ...}.
+ */
+static void
+parse_console_compat_option(char *argv[],
+                        void (*vcmdarg_err)(const char *, va_list ap),
+                        int exit_failure)
+{
+    const char *mask_str;
+    guint32 mask;
+    enum ws_log_level level;
+
+    ws_assert(argv != NULL);
+
+    if (argv[0] == NULL)
+        return;
+
+    if (strcmp(argv[0], "-o") == 0) {
+        if (argv[1] == NULL ||
+                    !g_str_has_prefix(argv[1], "console.log.level:")) {
+            /* Not what we were looking for. */
+            return;
+        }
+        mask_str = argv[1] + strlen("console.log.level:");
+    }
+    else if (g_str_has_prefix(argv[0], "-oconsole.log.level:")) {
+        mask_str = argv[0] + strlen("-oconsole.log.level:");
+    }
+    else {
+        /* Not what we were looking for. */
+        return;
+    }
+
+    print_err(vcmdarg_err, LOG_ARGS_NOEXIT,
+                "Option 'console.log.level' is deprecated, consult '--help' "
+                "for diagnostic message options.");
+
+    if (*mask_str == '\0') {
+        print_err(vcmdarg_err, exit_failure,
+                    "Missing value to 'console.log.level' option.");
+        return;
+    }
+
+    if (!ws_basestrtou32(mask_str, NULL, &mask, 10)) {
+        print_err(vcmdarg_err, exit_failure,
+                    "%s is not a valid decimal number.", mask_str);
+        return;
+    }
+
+    /*
+     * The lowest priority bit in the mask defines the level.
+     */
+    if (mask & G_LOG_LEVEL_DEBUG)
+        level = LOG_LEVEL_DEBUG;
+    else if (mask & G_LOG_LEVEL_INFO)
+        level = LOG_LEVEL_INFO;
+    else if (mask & G_LOG_LEVEL_MESSAGE)
+        level = LOG_LEVEL_MESSAGE;
+    else if (mask & G_LOG_LEVEL_WARNING)
+        level = LOG_LEVEL_WARNING;
+    else if (mask & G_LOG_LEVEL_CRITICAL)
+        level = LOG_LEVEL_CRITICAL;
+    else if (mask & G_LOG_LEVEL_ERROR)
+        level = LOG_LEVEL_ERROR;
+    else
+        level = LOG_LEVEL_NONE;
+
+    if (level == LOG_LEVEL_NONE) {
+        /* Some values (like zero) might not contain any meaningful bits.
+         * Throwing an error in that case seems appropriate. */
+        print_err(vcmdarg_err, exit_failure,
+                    "Value %s is not a valid log mask.", mask_str);
+        return;
+    }
+
+    ws_log_set_level(level);
+}
+
+
 int ws_log_parse_args(int *argc_ptr, char *argv[],
                         void (*vcmdarg_err)(const char *, va_list ap),
                         int exit_failure)
@@ -375,6 +458,13 @@ int ws_log_parse_args(int *argc_ptr, char *argv[],
             optlen = strlen(opt_noisy);
         }
         else {
+            /* Check is we have the old '-o console.log.level' flag,
+             * or '-oconsole.log.level', for backward compatibility.
+             * Then if we do ignore it after processing and let the
+             * preferences module handle it later. */
+            if (*(*ptr + 0) == '-' && *(*ptr + 1) == 'o') {
+                parse_console_compat_option(ptr, vcmdarg_err, exit_failure);
+            }
             ptr += 1;
             count -= 1;
             continue;
