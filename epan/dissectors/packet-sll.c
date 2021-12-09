@@ -267,7 +267,7 @@ add_ll_address(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	/* Not all bytes of SLL_ADDRLEN have been used. Add remaining as unused */
 	if (ha_len < SLL_ADDRLEN)
 		proto_tree_add_item(tree, hf_sll_unused, tvb, ha_offset + ha_len,
-				SLL_ADDRLEN - ha_len, ENC_BIG_ENDIAN);
+				SLL_ADDRLEN - ha_len, ENC_NA);
 }
 
 static guint16
