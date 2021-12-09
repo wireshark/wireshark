@@ -43,9 +43,6 @@
  * "It will include information on timestamp, signal strength, packet size
  *  and so on"
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <wiretap/wtap.h>
@@ -174,218 +171,57 @@ static const value_string peekremote_type_vals[] = {
 #define EXT_FLAG_160MHZ                         0x00040000
 #define EXT_FLAGS_RESERVED                      0xFFFC0000
 
-
-/* hfi elements */
-#define THIS_HF_INIT HFI_INIT(proto_peekremote)
-static header_field_info *hfi_peekremote = NULL;
-
-/* Common to both headers */
-static header_field_info hfi_peekremote_channel THIS_HF_INIT =
-      { "Channel",       "peekremote.channel", FT_UINT16, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_signal_dbm THIS_HF_INIT =
-      { "Signal [dBm]",     "peekremote.signal_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise_dbm THIS_HF_INIT =
-      { "Noise [dBm]",      "peekremote.noise_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_packetlength THIS_HF_INIT =
-      { "Packet length",      "peekremote.packetlength", FT_UINT16, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_slicelength THIS_HF_INIT =
-      { "Slice length",      "peekremote.slicelength", FT_UINT16, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_flags THIS_HF_INIT =
-      { "Flags",     "peekremote.flags", FT_UINT8, BASE_HEX, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_flags_control_frame THIS_HF_INIT =
-      { "Is a Control frame",     "peekremote.flags.control_frame", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
-        0x01, NULL, HFILL };
-
-static header_field_info hfi_peekremote_flags_crc_error THIS_HF_INIT =
-      { "Has CRC error",     "peekremote.flags.has_crc_error", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
-        0x02, NULL, HFILL };
-
-static header_field_info hfi_peekremote_flags_frame_error THIS_HF_INIT =
-      { "Has frame error",     "peekremote.flags.has_frame_error", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
-        0x04, NULL, HFILL };
-
-static header_field_info hfi_peekremote_flags_reserved THIS_HF_INIT =
-      { "Reserved",     "peekremote.flags.reserved", FT_UINT8, BASE_HEX, NULL,
-        0xF8, "Must be zero", HFILL };
-
-static header_field_info hfi_peekremote_status THIS_HF_INIT =
-      { "Status",     "peekremote.status", FT_UINT8, BASE_HEX, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_status_protected THIS_HF_INIT =
-      { "Protected",     "peekremote.status.protected", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
-        0x04, NULL, HFILL };
-
-static header_field_info hfi_peekremote_status_with_decrypt_error THIS_HF_INIT =
-      { "With decrypt error",     "peekremote.status.with_decrypt_error", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
-        0x08, NULL, HFILL };
-
-static header_field_info hfi_peekremote_status_with_short_preamble THIS_HF_INIT =
-      { "With short preamble",     "peekremote.status.with_short_preamble", FT_BOOLEAN, 8, TFS(&tfs_yes_no),
-        0x40, NULL, HFILL };
-
-static header_field_info hfi_peekremote_status_reserved THIS_HF_INIT =
-      { "Reserved",     "peekremote.status.reserved", FT_UINT8, BASE_HEX, NULL,
-        0xB3, "Must be zero", HFILL };
-
-static header_field_info hfi_peekremote_timestamp THIS_HF_INIT =
-      { "TSF timestamp",       "peekremote.timestamp", FT_UINT64, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_mcs_index THIS_HF_INIT =
-      { "MCS index",         "peekremote.mcs_index", FT_UINT16,  BASE_DEC|BASE_EXT_STRING, &peekremote_mcs_index_vals_ext,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_mcs_index_ac THIS_HF_INIT =
-      { "11ac/11ax MCS index",         "peekremote.mcs_index_ac", FT_UINT16,  BASE_DEC, VALS(peekremote_mcs_index_vals_ac),
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_signal_percent THIS_HF_INIT =
-      { "Signal [percent]",     "peekremote.signal_percent", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise_percent THIS_HF_INIT =
-      { "Noise [percent]",     "peekremote.noise_percent", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-/* Legacy header only */
-static header_field_info hfi_peekremote_speed THIS_HF_INIT =
-      { "Data rate [500kHz]", "peekremote.data_rate", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-/* New header only */
-static header_field_info hfi_peekremote_magic_number THIS_HF_INIT =
-      { "Magic number",      "peekremote.magic_number", FT_UINT32, BASE_HEX, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_header_version THIS_HF_INIT =
-      { "Header version",    "peekremote.header_version", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_header_size THIS_HF_INIT =
-      { "Header size",       "peekremote.header_size", FT_UINT32, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_type THIS_HF_INIT =
-      { "Type",              "peekremote.type", FT_UINT32, BASE_DEC, VALS(peekremote_type_vals),
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_frequency THIS_HF_INIT =
-      { "Frequency [Mhz]",   "peekremote.frequency", FT_UINT32, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_band THIS_HF_INIT =
-      { "Band",     "peekremote.band", FT_UINT32, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags THIS_HF_INIT =
-      { "Extended flags",     "peekremote.extflags", FT_UINT32, BASE_HEX, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_20mhz_lower THIS_HF_INIT =
-      { "20 MHz Lower",     "peekremote.extflags.20mhz_lower", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_20_MHZ_LOWER, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_20mhz_upper THIS_HF_INIT =
-      { "20 MHz Upper",     "peekremote.extflags.20mhz_upper", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_20_MHZ_UPPER, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_40mhz THIS_HF_INIT =
-      { "40 MHz",     "peekremote.extflags.40mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_40_MHZ, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_half_gi THIS_HF_INIT =
-      { "Half Guard Interval",     "peekremote.extflags.half_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_HALF_GI, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_full_gi THIS_HF_INIT =
-      { "Full Guard Interval",     "peekremote.extflags.full_gi", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_FULL_GI, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_ampdu THIS_HF_INIT =
-      { "AMPDU",     "peekremote.extflags.ampdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_AMPDU, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_amsdu THIS_HF_INIT =
-      { "AMSDU",     "peekremote.extflags.amsdu", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_AMSDU, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_11ac THIS_HF_INIT =
-      { "802.11ac",     "peekremote.extflags.11ac", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_802_11ac, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_future_use THIS_HF_INIT =
-      { "MCS index used",     "peekremote.extflags.future_use", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_MCS_INDEX_USED, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_80mhz THIS_HF_INIT =
-      { "80 Mhz",     "peekremote.extflags.80mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_80MHZ, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_shortpreamble THIS_HF_INIT =
-      { "Short preamble",     "peekremote.extflags.shortpreamble", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_SHORTPREAMBLE, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_spatialstreams THIS_HF_INIT =
-      { "Spatial streams",     "peekremote.extflags.spatialstreams", FT_UINT32, BASE_DEC, VALS(spatialstreams_vals),
-        EXT_FLAG_SPATIALSTREAMS, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_heflag THIS_HF_INIT =
-      { "802.11ax",     "peekremote.extflags.11ax", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_HEFLAG, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_160mhz THIS_HF_INIT =
-      { "160Mhz",     "peekremote.extflags.160mhz", FT_BOOLEAN, 32, TFS(&tfs_yes_no),
-        EXT_FLAG_160MHZ, NULL, HFILL };
-
-static header_field_info hfi_peekremote_extflags_reserved THIS_HF_INIT =
-      { "Reserved",     "peekremote.extflags.reserved", FT_UINT32, BASE_HEX, NULL,
-        EXT_FLAGS_RESERVED, "Must be zero", HFILL };
-
-/* XXX - are the numbers antenna numbers? */
-static header_field_info hfi_peekremote_signal_1_dbm THIS_HF_INIT =
-      { "Signal 1 [dBm]",     "peekremote.signal_1_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_signal_2_dbm THIS_HF_INIT =
-      { "Signal 2 [dBm]",     "peekremote.signal_2_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_signal_3_dbm THIS_HF_INIT =
-      { "Signal 3 [dBm]",     "peekremote.signal_3_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_signal_4_dbm THIS_HF_INIT =
-      { "Signal 4 [dBm]",     "peekremote.signal_4_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise_1_dbm THIS_HF_INIT =
-      { "Noise 1 [dBm]",     "peekremote.noise_1_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise_2_dbm THIS_HF_INIT =
-      { "Noise 2 [dBm]",     "peekremote.noise_2_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise_3_dbm THIS_HF_INIT =
-      { "Noise 3 [dBm]",     "peekremote.noise_3_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise_4_dbm THIS_HF_INIT =
-      { "Noise 4 [dBm]",     "peekremote.noise_4_dbm", FT_INT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
+static int hf_peekremote_band = -1;
+static int hf_peekremote_channel = -1;
+static int hf_peekremote_extflags = -1;
+static int hf_peekremote_extflags_11ac = -1;
+static int hf_peekremote_extflags_160mhz = -1;
+static int hf_peekremote_extflags_20mhz_lower = -1;
+static int hf_peekremote_extflags_20mhz_upper = -1;
+static int hf_peekremote_extflags_40mhz = -1;
+static int hf_peekremote_extflags_80mhz = -1;
+static int hf_peekremote_extflags_ampdu = -1;
+static int hf_peekremote_extflags_amsdu = -1;
+static int hf_peekremote_extflags_full_gi = -1;
+static int hf_peekremote_extflags_future_use = -1;
+static int hf_peekremote_extflags_half_gi = -1;
+static int hf_peekremote_extflags_heflag = -1;
+static int hf_peekremote_extflags_reserved = -1;
+static int hf_peekremote_extflags_shortpreamble = -1;
+static int hf_peekremote_extflags_spatialstreams = -1;
+static int hf_peekremote_flags = -1;
+static int hf_peekremote_flags_control_frame = -1;
+static int hf_peekremote_flags_crc_error = -1;
+static int hf_peekremote_flags_frame_error = -1;
+static int hf_peekremote_flags_reserved = -1;
+static int hf_peekremote_frequency = -1;
+static int hf_peekremote_header_size = -1;
+static int hf_peekremote_header_version = -1;
+static int hf_peekremote_magic_number = -1;
+static int hf_peekremote_mcs_index = -1;
+static int hf_peekremote_mcs_index_ac = -1;
+static int hf_peekremote_noise_1_dbm = -1;
+static int hf_peekremote_noise_2_dbm = -1;
+static int hf_peekremote_noise_3_dbm = -1;
+static int hf_peekremote_noise_4_dbm = -1;
+static int hf_peekremote_noise_dbm = -1;
+static int hf_peekremote_noise_percent = -1;
+static int hf_peekremote_packetlength = -1;
+static int hf_peekremote_signal_1_dbm = -1;
+static int hf_peekremote_signal_2_dbm = -1;
+static int hf_peekremote_signal_3_dbm = -1;
+static int hf_peekremote_signal_4_dbm = -1;
+static int hf_peekremote_signal_dbm = -1;
+static int hf_peekremote_signal_percent = -1;
+static int hf_peekremote_slicelength = -1;
+static int hf_peekremote_speed = -1;
+static int hf_peekremote_status = -1;
+static int hf_peekremote_status_protected = -1;
+static int hf_peekremote_status_reserved = -1;
+static int hf_peekremote_status_with_decrypt_error = -1;
+static int hf_peekremote_status_with_short_preamble = -1;
+static int hf_peekremote_timestamp = -1;
+static int hf_peekremote_type = -1;
 
 static expert_field ei_peekremote_unknown_header_version = EI_INIT;
 static expert_field ei_peekremote_invalid_header_size = EI_INIT;
@@ -404,23 +240,23 @@ dissect_peekremote_extflags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   proto_tree *extflags_tree;
   proto_item *ti_extflags;
 
-  ti_extflags = proto_tree_add_item(tree, &hfi_peekremote_extflags, tvb, offset, 4, ENC_BIG_ENDIAN);
+  ti_extflags = proto_tree_add_item(tree, hf_peekremote_extflags, tvb, offset, 4, ENC_BIG_ENDIAN);
   extflags_tree = proto_item_add_subtree(ti_extflags, ett_peekremote_extflags);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_20mhz_lower, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_20mhz_upper, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_40mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_half_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_full_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_ampdu, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_amsdu, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_11ac, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_future_use, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_80mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_shortpreamble, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_spatialstreams, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_heflag, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_160mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
-  proto_tree_add_item(extflags_tree, &hfi_peekremote_extflags_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_20mhz_lower, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_20mhz_upper, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_40mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_half_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_full_gi, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_ampdu, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_amsdu, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_11ac, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_future_use, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_80mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_shortpreamble, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_spatialstreams, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_heflag, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_160mhz, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item(extflags_tree, hf_peekremote_extflags_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
   return 4;
 }
@@ -431,12 +267,12 @@ dissect_peekremote_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   proto_tree *flags_tree;
   proto_item *ti_flags;
 
-  ti_flags = proto_tree_add_item(tree, &hfi_peekremote_flags, tvb, offset, 1, ENC_NA);
+  ti_flags = proto_tree_add_item(tree, hf_peekremote_flags, tvb, offset, 1, ENC_NA);
   flags_tree = proto_item_add_subtree(ti_flags, ett_peekremote_flags);
-  proto_tree_add_item(flags_tree, &hfi_peekremote_flags_control_frame, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(flags_tree, &hfi_peekremote_flags_crc_error, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(flags_tree, &hfi_peekremote_flags_frame_error, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(flags_tree, &hfi_peekremote_flags_reserved, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flags_tree, hf_peekremote_flags_control_frame, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flags_tree, hf_peekremote_flags_crc_error, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flags_tree, hf_peekremote_flags_frame_error, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(flags_tree, hf_peekremote_flags_reserved, tvb, offset, 1, ENC_NA);
 
   return 1;
 }
@@ -447,12 +283,12 @@ dissect_peekremote_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   proto_tree *status_tree;
   proto_item *ti_status;
 
-  ti_status = proto_tree_add_item(tree, &hfi_peekremote_status, tvb, offset, 1, ENC_NA);
+  ti_status = proto_tree_add_item(tree, hf_peekremote_status, tvb, offset, 1, ENC_NA);
   status_tree = proto_item_add_subtree(ti_status, ett_peekremote_status);
-  proto_tree_add_item(status_tree, &hfi_peekremote_status_protected, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(status_tree, &hfi_peekremote_status_with_decrypt_error, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(status_tree, &hfi_peekremote_status_with_short_preamble, tvb, offset, 1, ENC_NA);
-  proto_tree_add_item(status_tree, &hfi_peekremote_status_reserved, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(status_tree, hf_peekremote_status_protected, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(status_tree, hf_peekremote_status_with_decrypt_error, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(status_tree, hf_peekremote_status_with_short_preamble, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(status_tree, hf_peekremote_status_reserved, tvb, offset, 1, ENC_NA);
 
   return 1;
 }
@@ -491,16 +327,16 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEEKREMOTE");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item(tree, hfi_peekremote, tvb, 0, -1, ENC_NA);
+  ti = proto_tree_add_item(tree, proto_peekremote, tvb, 0, -1, ENC_NA);
   peekremote_tree = proto_item_add_subtree(ti, ett_peekremote);
 
-  proto_tree_add_item(peekremote_tree, &hfi_peekremote_magic_number, tvb, offset, 4,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(peekremote_tree, hf_peekremote_magic_number, tvb, offset, 4,  ENC_BIG_ENDIAN);
   offset += 4;
   header_version = tvb_get_guint8(tvb, offset);
-  ti_header_version = proto_tree_add_uint(peekremote_tree, &hfi_peekremote_header_version, tvb, offset, 1,  header_version);
+  ti_header_version = proto_tree_add_uint(peekremote_tree, hf_peekremote_header_version, tvb, offset, 1,  header_version);
   offset += 1;
   header_size = tvb_get_ntohl(tvb, offset);
-  ti_header_size = proto_tree_add_uint(peekremote_tree, &hfi_peekremote_header_size, tvb, offset, 4, header_size);
+  ti_header_size = proto_tree_add_uint(peekremote_tree, hf_peekremote_header_size, tvb, offset, 4, header_size);
   offset += 4;
   switch (header_version) {
 
@@ -510,19 +346,19 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (header_size > 9)
         offset += (header_size - 9);
     } else {
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       mcs_index = tvb_get_ntohs(tvb, offset);
       extflags = tvb_get_ntohl(tvb, offset+12);
       if (extflags & EXT_FLAG_HEFLAG) {
-        proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
         phdr.phy = PHDR_802_11_PHY_11AX;
       } else {
         if (extflags & EXT_FLAG_802_11ac) {
-          proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index_ac, tvb, offset, 2, ENC_BIG_ENDIAN);
           phdr.phy = PHDR_802_11_PHY_11AC;
         } else {
-          proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(peekremote_tree, hf_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
           phdr.phy = PHDR_802_11_PHY_11N;
           phdr.phy_info.info_11n.has_mcs_index = TRUE;
           phdr.phy_info.info_11n.mcs_index = mcs_index;
@@ -531,57 +367,57 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 2;
       phdr.has_channel = TRUE;
       phdr.channel = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       frequency = tvb_get_ntohl(tvb, offset);
       if (frequency != 0) {
         phdr.has_frequency = TRUE;
         phdr.frequency = frequency;
       }
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_band, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset +=4;
       offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
       phdr.has_signal_percent = TRUE;
       phdr.signal_percent = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_signal_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
       phdr.has_noise_percent = TRUE;
       phdr.noise_percent = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_noise_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
       phdr.has_signal_dbm = TRUE;
       phdr.signal_dbm = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_signal_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
       phdr.has_noise_dbm = TRUE;
       phdr.noise_dbm = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_noise_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_1_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_signal_1_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_2_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_signal_2_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_3_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_signal_3_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_4_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_signal_4_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_1_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_noise_1_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_2_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_noise_2_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_3_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_noise_3_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_4_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_noise_4_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_packetlength, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_packetlength, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_slicelength, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_slicelength, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       offset += dissect_peekremote_flags(tvb, pinfo, peekremote_tree, offset);
       offset += dissect_peekremote_status(tvb, pinfo, peekremote_tree, offset);
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+      proto_tree_add_item(peekremote_tree, hf_peekremote_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
       phdr.has_tsf_timestamp = TRUE;
       phdr.tsf_timestamp = tvb_get_ntoh64(tvb, offset);
       offset += 8;
@@ -625,20 +461,20 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, hfi_peekremote, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_peekremote, tvb, 0, -1, ENC_NA);
     peekremote_tree = proto_item_add_subtree(ti, ett_peekremote);
 
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_dbm, tvb, 0, 1, ENC_NA);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_dbm, tvb, 1, 1, ENC_NA);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_packetlength, tvb, 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_slicelength, tvb, 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_signal_dbm, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_noise_dbm, tvb, 1, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_packetlength, tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_slicelength, tvb, 4, 2, ENC_BIG_ENDIAN);
     dissect_peekremote_flags(tvb, pinfo, peekremote_tree, 6);
     dissect_peekremote_status(tvb, pinfo, peekremote_tree, 7);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp, tvb, 8, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_speed, tvb, 16, 1, ENC_NA);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_channel, tvb, 17, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, 18, 1, ENC_NA);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, 19, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_timestamp, tvb, 8, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_speed, tvb, 16, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_channel, tvb, 17, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_signal_percent, tvb, 18, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, hf_peekremote_noise_percent, tvb, 19, 1, ENC_NA);
   }
   signal_percent = tvb_get_guint8(tvb, 18);
   proto_item_set_end(ti, tvb, 20);
@@ -694,61 +530,263 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 void
 proto_register_peekremote(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-  static header_field_info *hfi[] = {
-    &hfi_peekremote_signal_dbm,
-    &hfi_peekremote_noise_dbm,
-    &hfi_peekremote_packetlength,
-    &hfi_peekremote_slicelength,
-    &hfi_peekremote_flags,
-    &hfi_peekremote_flags_control_frame,
-    &hfi_peekremote_flags_crc_error,
-    &hfi_peekremote_flags_frame_error,
-    &hfi_peekremote_flags_reserved,
-    &hfi_peekremote_status,
-    &hfi_peekremote_status_protected,
-    &hfi_peekremote_status_with_decrypt_error,
-    &hfi_peekremote_status_with_short_preamble,
-    &hfi_peekremote_status_reserved,
-    &hfi_peekremote_timestamp,
-    &hfi_peekremote_speed,
-    &hfi_peekremote_channel,
-    &hfi_peekremote_magic_number,
-    &hfi_peekremote_header_version,
-    &hfi_peekremote_header_size,
-    &hfi_peekremote_type,
-    &hfi_peekremote_mcs_index,
-    &hfi_peekremote_mcs_index_ac,
-    &hfi_peekremote_signal_percent,
-    &hfi_peekremote_noise_percent,
-    &hfi_peekremote_frequency,
-    &hfi_peekremote_band,
-    &hfi_peekremote_extflags,
-    &hfi_peekremote_extflags_20mhz_lower,
-    &hfi_peekremote_extflags_20mhz_upper,
-    &hfi_peekremote_extflags_40mhz,
-    &hfi_peekremote_extflags_half_gi,
-    &hfi_peekremote_extflags_full_gi,
-    &hfi_peekremote_extflags_ampdu,
-    &hfi_peekremote_extflags_amsdu,
-    &hfi_peekremote_extflags_11ac,
-    &hfi_peekremote_extflags_future_use,
-    &hfi_peekremote_extflags_80mhz,
-    &hfi_peekremote_extflags_shortpreamble,
-    &hfi_peekremote_extflags_spatialstreams,
-    &hfi_peekremote_extflags_heflag,
-    &hfi_peekremote_extflags_160mhz,
-    &hfi_peekremote_extflags_reserved,
-    &hfi_peekremote_signal_1_dbm,
-    &hfi_peekremote_signal_2_dbm,
-    &hfi_peekremote_signal_3_dbm,
-    &hfi_peekremote_signal_4_dbm,
-    &hfi_peekremote_noise_1_dbm,
-    &hfi_peekremote_noise_2_dbm,
-    &hfi_peekremote_noise_3_dbm,
-    &hfi_peekremote_noise_4_dbm,
+  static hf_register_info hf[] = {
+    { &hf_peekremote_channel,
+      { "Channel", "peekremote.channel",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_signal_dbm,
+      { "Signal [dBm]", "peekremote.signal_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_noise_dbm,
+      { "Noise [dBm]", "peekremote.noise_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_packetlength,
+      { "Packet length", "peekremote.packetlength",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_slicelength,
+      { "Slice length", "peekremote.slicelength",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_flags,
+      { "Flags", "peekremote.flags",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_flags_control_frame,
+      { "Is a Control frame", "peekremote.flags.control_frame",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_flags_crc_error,
+      { "Has CRC error", "peekremote.flags.has_crc_error",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_flags_frame_error,
+      { "Has frame error", "peekremote.flags.has_frame_error",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_flags_reserved,
+      { "Reserved", "peekremote.flags.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0xF8,
+        "Must be zero", HFILL }
+    },
+    { &hf_peekremote_status,
+      { "Status", "peekremote.status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_status_protected,
+      { "Protected", "peekremote.status.protected",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_status_with_decrypt_error,
+      { "With decrypt error", "peekremote.status.with_decrypt_error",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_status_with_short_preamble,
+      { "With short preamble", "peekremote.status.with_short_preamble",
+        FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_status_reserved,
+      { "Reserved", "peekremote.status.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0xB3,
+        "Must be zero", HFILL }
+    },
+    { &hf_peekremote_timestamp,
+      { "TSF timestamp", "peekremote.timestamp",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_mcs_index,
+      { "MCS index", "peekremote.mcs_index",
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &peekremote_mcs_index_vals_ext, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_mcs_index_ac,
+      { "11ac/11ax MCS index", "peekremote.mcs_index_ac",
+        FT_UINT16, BASE_DEC, VALS(peekremote_mcs_index_vals_ac), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_signal_percent,
+      { "Signal [percent]", "peekremote.signal_percent",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_noise_percent,
+      { "Noise [percent]", "peekremote.noise_percent",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_speed,
+      { "Data rate [500kHz]", "peekremote.data_rate",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_magic_number,
+      { "Magic number", "peekremote.magic_number",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_header_version,
+      { "Header version", "peekremote.header_version",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_header_size,
+      { "Header size", "peekremote.header_size",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_type,
+      { "Type", "peekremote.type",
+        FT_UINT32, BASE_DEC, VALS(peekremote_type_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_frequency,
+      { "Frequency [Mhz]", "peekremote.frequency",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_band,
+      { "Band", "peekremote.band",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags,
+      { "Extended flags", "peekremote.extflags",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_20mhz_lower,
+      { "20 MHz Lower", "peekremote.extflags.20mhz_lower",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_20_MHZ_LOWER,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_20mhz_upper,
+      { "20 MHz Upper", "peekremote.extflags.20mhz_upper",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_20_MHZ_UPPER,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_40mhz,
+      { "40 MHz", "peekremote.extflags.40mhz",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_40_MHZ,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_half_gi,
+      { "Half Guard Interval", "peekremote.extflags.half_gi",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_HALF_GI,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_full_gi,
+      { "Full Guard Interval", "peekremote.extflags.full_gi",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_FULL_GI,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_ampdu,
+      { "AMPDU", "peekremote.extflags.ampdu",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_AMPDU,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_amsdu,
+      { "AMSDU", "peekremote.extflags.amsdu",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_AMSDU,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_11ac,
+      { "802.11ac", "peekremote.extflags.11ac",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_802_11ac,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_future_use,
+      { "MCS index used", "peekremote.extflags.future_use",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_MCS_INDEX_USED,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_80mhz,
+      { "80 Mhz", "peekremote.extflags.80mhz",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_80MHZ,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_shortpreamble,
+      { "Short preamble", "peekremote.extflags.shortpreamble",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_SHORTPREAMBLE,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_spatialstreams,
+      { "Spatial streams", "peekremote.extflags.spatialstreams",
+        FT_UINT32, BASE_DEC, VALS(spatialstreams_vals), EXT_FLAG_SPATIALSTREAMS,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_heflag,
+      { "802.11ax", "peekremote.extflags.11ax",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_HEFLAG,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_160mhz,
+      { "160Mhz", "peekremote.extflags.160mhz",
+        FT_BOOLEAN, 32, TFS(&tfs_yes_no), EXT_FLAG_160MHZ,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_extflags_reserved,
+      { "Reserved", "peekremote.extflags.reserved",
+        FT_UINT32, BASE_HEX, NULL, EXT_FLAGS_RESERVED,
+        "Must be zero", HFILL }
+    },
+    { &hf_peekremote_signal_1_dbm,
+      { "Signal 1 [dBm]", "peekremote.signal_1_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_signal_2_dbm,
+      { "Signal 2 [dBm]", "peekremote.signal_2_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_signal_3_dbm,
+      { "Signal 3 [dBm]", "peekremote.signal_3_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_signal_4_dbm,
+      { "Signal 4 [dBm]", "peekremote.signal_4_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_noise_1_dbm,
+      { "Noise 1 [dBm]", "peekremote.noise_1_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_noise_2_dbm,
+      { "Noise 2 [dBm]", "peekremote.noise_2_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_noise_3_dbm,
+      { "Noise 3 [dBm]", "peekremote.noise_3_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_peekremote_noise_4_dbm,
+      { "Noise 4 [dBm]", "peekremote.noise_4_dbm",
+        FT_INT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
   };
-#endif
   static gint *ett[] = {
     &ett_peekremote,
     &ett_peekremote_flags,
@@ -763,8 +801,7 @@ proto_register_peekremote(void)
 
   proto_peekremote = proto_register_protocol(
     "AiroPeek/OmniPeek encapsulated IEEE 802.11", "PEEKREMOTE", "peekremote");
-  hfi_peekremote = proto_registrar_get_nth(proto_peekremote);
-  proto_register_fields(proto_peekremote, hfi, array_length(hfi));
+  proto_register_field_array(proto_peekremote, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_peekremote = expert_register_protocol(proto_peekremote);
   expert_register_field_array(expert_peekremote, ei, array_length(ei));
