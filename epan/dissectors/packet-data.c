@@ -8,9 +8,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -28,25 +25,12 @@ void proto_reg_handoff_data(void);
 
 static int proto_data = -1;
 
-#define DATA_HFI_INIT HFI_INIT(proto_data)
-
-static header_field_info hfi_data_data DATA_HFI_INIT =
-	  { "Data", "data.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_data_text DATA_HFI_INIT =
-	  { "Text", "data.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_data_uncompressed_data DATA_HFI_INIT =
-	  { "Uncompressed Data", "data.uncompressed.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_data_uncompressed_len DATA_HFI_INIT =
-	  { "Uncompressed Length", "data.uncompressed.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_data_len DATA_HFI_INIT =
-	  { "Length", "data.len", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_data_md5_hash DATA_HFI_INIT =
-	  { "Payload MD5 hash", "data.md5_hash", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static int hf_data_data = -1;
+static int hf_data_len = -1;
+static int hf_data_md5_hash = -1;
+static int hf_data_text = -1;
+static int hf_data_uncompressed_data = -1;
+static int hf_data_uncompressed_len = -1;
 
 static gboolean new_pane = FALSE;
 static gboolean uncompress_data = FALSE;
@@ -83,7 +67,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				plurality(bytes, "", "s"));
 			data_tree = proto_item_add_subtree(ti, ett_data);
 
-			proto_tree_add_item(data_tree, &hfi_data_data, data_tvb, 0, bytes, ENC_NA);
+			proto_tree_add_item(data_tree, hf_data_data, data_tvb, 0, bytes, ENC_NA);
 
 			if (uncompress_data) {
 				uncompr_tvb = tvb_child_uncompress(data_tvb, data_tvb, 0, tvb_reported_length(data_tvb));
@@ -91,17 +75,17 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				if (uncompr_tvb) {
 					uncompr_len = tvb_reported_length(uncompr_tvb);
 					add_new_data_source(pinfo, uncompr_tvb, "Uncompressed Data");
-					proto_tree_add_item(data_tree, &hfi_data_uncompressed_data, uncompr_tvb, 0, uncompr_len, ENC_NA);
-					ti = proto_tree_add_int(data_tree, &hfi_data_uncompressed_len, uncompr_tvb, 0, 0, uncompr_len);
+					proto_tree_add_item(data_tree, hf_data_uncompressed_data, uncompr_tvb, 0, uncompr_len, ENC_NA);
+					ti = proto_tree_add_int(data_tree, hf_data_uncompressed_len, uncompr_tvb, 0, 0, uncompr_len);
 					proto_item_set_generated (ti);
 				}
 			}
 
 			if (show_as_text) {
 				if (uncompr_tvb && uncompr_len > 0) {
-					proto_tree_add_item(data_tree, &hfi_data_text, uncompr_tvb, 0, uncompr_len, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(data_tree, hf_data_text, uncompr_tvb, 0, uncompr_len, ENC_ASCII|ENC_NA);
 				} else {
-					proto_tree_add_item(data_tree, &hfi_data_text, data_tvb, 0, bytes, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, ENC_ASCII|ENC_NA);
 				}
 			}
 
@@ -114,11 +98,11 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 				gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, bytes);
 				digest_string = bytes_to_str_punct(pinfo->pool, digest, HASH_MD5_LENGTH, '\0');
-				ti = proto_tree_add_string(data_tree, &hfi_data_md5_hash, tvb, 0, 0, digest_string);
+				ti = proto_tree_add_string(data_tree, hf_data_md5_hash, tvb, 0, 0, digest_string);
 				proto_item_set_generated(ti);
 			}
 
-			ti = proto_tree_add_int(data_tree, &hfi_data_len, data_tvb, 0, 0, bytes);
+			ti = proto_tree_add_int(data_tree, hf_data_len, data_tvb, 0, 0, bytes);
 			proto_item_set_generated (ti);
 		}
 	}
@@ -128,16 +112,38 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 void
 proto_register_data(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_data_data,
-		&hfi_data_uncompressed_data,
-		&hfi_data_uncompressed_len,
-		&hfi_data_text,
-		&hfi_data_md5_hash,
-		&hfi_data_len,
+	static hf_register_info hf[] = {
+		{ &hf_data_data,
+			{ "Data", "data.data",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_data_text,
+			{ "Text", "data.text",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_data_uncompressed_data,
+			{ "Uncompressed Data", "data.uncompressed.data",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_data_uncompressed_len,
+			{ "Uncompressed Length", "data.uncompressed.len",
+			  FT_INT32, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_data_len,
+			{ "Length", "data.len",
+			  FT_INT32, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_data_md5_hash,
+			{ "Payload MD5 hash", "data.md5_hash",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_data
@@ -153,7 +159,7 @@ proto_register_data(void)
 
 	data_handle = register_dissector("data", dissect_data, proto_data);
 
-	proto_register_fields(proto_data, hfi, array_length(hfi));
+	proto_register_field_array(proto_data, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	module_data = prefs_register_protocol( proto_data, NULL);
