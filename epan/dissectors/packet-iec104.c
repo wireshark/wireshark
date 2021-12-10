@@ -655,6 +655,7 @@ static const true_false_string tfs_local_dst = { "DST", "Local" };
 static const true_false_string tfs_coi_i = { "Initialisation after change of local parameters", "Initialisation with unchanged local parameters" };
 static const true_false_string tfs_adjusted_not_adjusted = { "Adjusted", "Not Adjusted" };
 
+static guint global_iec60870_link_addr_len = 1;
 static guint global_iec60870_cot_len = 1;
 static guint global_iec60870_asdu_addr_len = 1;
 static guint global_iec60870_ioa_len = 2;
@@ -2046,7 +2047,7 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* check correct apdu length */
 	if (Len != offset) {
-		expert_add_info(pinfo, it104tree, &ei_iec104_apdu_invalid_len);
+		expert_add_info_format(pinfo, it104tree, &ei_iec104_apdu_invalid_len, "Invalid Apdulen (%d != %d)", Len, offset);
 		return offset;
 	}
 
@@ -2172,8 +2173,9 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item	*iec101_item, *ctrlfield_item;
 	proto_tree	*iec101_tree, *ctrlfield_tree;
-	guint8		frametype, ctrlfield_prm, linkaddr, data_len;
-	int		    offset = 0;
+	guint8		frametype, ctrlfield_prm;
+	guint32		linkaddr, data_len;
+	int		offset = 0;
 	struct      asdu_parms parms;
 
 	/* Make entries in Protocol column on summary display */
@@ -2195,10 +2197,9 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 	if (frametype == IEC101_VAR_LEN) {
 		proto_tree_add_item(iec101_tree, hf_iec60870_101_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(iec101_tree, hf_iec60870_101_num_user_octets, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
-
-		/* data_len - 2 is used as we are not including the ctrl field and link address bytes in the length passed to the asdu dissector */
-		data_len = tvb_get_guint8(tvb, offset+1) - 2;
+		proto_tree_add_item_ret_uint(iec101_tree, hf_iec60870_101_num_user_octets, tvb, offset+1, 1, ENC_LITTLE_ENDIAN, &data_len);
+		/* do not include the ctrl field and link address bytes in the length passed to the asdu dissector */
+		data_len -= 1 + global_iec60870_link_addr_len;
 		proto_tree_add_item(iec101_tree, hf_iec60870_101_frame, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
 		offset += 3;
 	}
@@ -2223,10 +2224,11 @@ dissect_iec60870_101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	}
 	offset += 1;
 
-	proto_tree_add_item(iec101_tree, hf_iec60870_101_linkaddr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	linkaddr = tvb_get_guint8(tvb, offset);
-	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Link Address: %d ", linkaddr);
-	offset += 1;
+	if (global_iec60870_link_addr_len) {
+		proto_tree_add_item_ret_uint(iec101_tree, hf_iec60870_101_linkaddr, tvb, offset, global_iec60870_link_addr_len, ENC_LITTLE_ENDIAN, &linkaddr);
+		col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Link Address: %d ", linkaddr);
+		offset += global_iec60870_link_addr_len;
+	}
 
 	/* If this is a variable length frame, we need to call the ASDU dissector */
 	if (frametype == IEC101_VAR_LEN) {
@@ -2693,16 +2695,6 @@ proto_reg_handoff_iec60870_104(void)
 	dissector_add_uint_with_preference("tcp.port", IEC104_PORT, iec60870_104_handle);
 }
 
-static void
-apply_iec60870_101_prefs(void)
-{
-  /* IEC101 uses user customizable preferences for the configurable field lengths */
-  global_iec60870_cot_len       = prefs_get_uint_value("iec60870_101", "cot_len");
-  global_iec60870_asdu_addr_len = prefs_get_uint_value("iec60870_101", "asdu_addr_len");
-  global_iec60870_ioa_len       = prefs_get_uint_value("iec60870_101", "asdu_ioa_len");
-}
-
-
 /******************************************************************************************************/
 /* Return length of IEC 101 Protocol over TCP message (used for re-assembly)						 */
 /******************************************************************************************************/
@@ -2778,7 +2770,7 @@ proto_register_iec60870_101(void)
 		{ &hf_iec60870_101_ctrl_func_sec_to_pri,
 		{ "CF Func Code", "iec60870_101.ctrl_func_sec_to_pri", FT_UINT8, BASE_DEC, VALS(iec60870_101_ctrl_func_sec_to_pri_values), 0x0F, "Control Field Function Code, Sec to Pri", HFILL }},
 		{ &hf_iec60870_101_linkaddr,
-		{ "Data Link Address", "iec60870_101.linkaddr", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ "Data Link Address", "iec60870_101.linkaddr", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_iec60870_101_checksum,
 		{ "Checksum", "iec60870_101.checksum", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 		{ &hf_iec60870_101_stopchar,
@@ -2804,6 +2796,13 @@ proto_register_iec60870_101(void)
 	/* Register required preferences for IEC 101 configurable field lengths */
 	iec60870_101_module = prefs_register_protocol(proto_iec60870_101, NULL);
 
+	static const enum_val_t link_addr_len[] = {
+		{"0", "0 octet", 0},
+		{"1", "1 octet", 1},
+		{"2", "2 octet", 2},
+		{NULL, NULL, -1}
+	};
+
 	static const enum_val_t cot_len[] = {
 		{"1", "1 octet", 1},
 		{"2", "2 octet", 2},
@@ -2817,10 +2816,16 @@ proto_register_iec60870_101(void)
 	};
 
 	static const enum_val_t asdu_ioa_len[] = {
+		{"1", "1 octet", 1},
 		{"2", "2 octet", 2},
 		{"3", "3 octet", 3},
 		{NULL, NULL, -1}
 	};
+
+	prefs_register_enum_preference(iec60870_101_module, "linkaddr_len",
+		"Length of the Link Address Field",
+		"Length of the Link Address Field, configurable in '101 and absent in '104",
+		&global_iec60870_link_addr_len, link_addr_len, FALSE);
 
 	prefs_register_enum_preference(iec60870_101_module, "cot_len",
 		"Length of the Cause of Transmission Field",
@@ -2850,8 +2855,6 @@ proto_reg_handoff_iec60870_101(void)
 	dissector_add_for_decode_as_with_preference("tcp.port", iec60870_101_handle);
 	/* Add dissection for serial pcap files generated by the RTAC */
 	dissector_add_for_decode_as("rtacser.data", iec60870_101_handle);
-
-	apply_iec60870_101_prefs();
 }
 
 /******************************************************************************************************/
