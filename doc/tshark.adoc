@@ -2153,6 +2153,29 @@ The current method used by *TShark* to find the SID->name mapping
 is relatively restricted with a hope of future expansion.
 --
 
+*-z* smb,srt[,__filter__]::
++
+--
+Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
+is number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT.
+
+Example: *-z smb,srt*
+
+The data will be presented as separate tables for all normal SMB commands,
+all Transaction2 commands and all NT Transaction commands.
+Only those commands that are seen in the capture will have its stats
+displayed.
+Only the first command in a xAndX command chain will be used in the
+calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
+only the SessionSetupAndX call will be used in the statistics.
+This is a flaw that might be fixed in the future.
+
+This option can be used multiple times on the command line.
+
+Example: *-z "smb,srt,ip.addr==1.2.3.4"* will only collect stats for
+SMB packets exchanged by the host at IP address 1.2.3.4 .
+--
+
 *-z* smb2,srt[,__filter__]::
 +
 --
