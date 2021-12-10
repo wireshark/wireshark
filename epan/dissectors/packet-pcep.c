@@ -2420,7 +2420,10 @@ dissect_pcep_rp_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
     proto_tree_add_item(pcep_object_tree, hf_pcep_rp_obj_requested_id_number, tvb, offset2+4, 4, ENC_BIG_ENDIAN);
 
     /*it's suppose that obj_length is a valid date. The object can have optional TLV(s)*/
-   
+    offset2 += RP_OBJ_MIN_LEN;
+    obj_length -= OBJ_HDR_LEN+RP_OBJ_MIN_LEN;
+    /* RFC 8408 allows PATH_SETUP_TYPE TLV in the RP object */
+    dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_request_parameters);
 }
 
 /*------------------------------------------------------------------------------
