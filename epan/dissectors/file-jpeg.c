@@ -216,7 +216,13 @@ static const value_string vals_extension_code[] = {
     { 0x00, NULL }
 };
 
-static const value_string vals_exif_tags[] = {
+enum {
+    EXIF_TAG_EXIF_IFD_POINTER = 0x8769,
+    EXIF_TAG_GPS_IFD_POINTER = 0x8825,
+    EXIF_TAG_INTEROP_IFD_POINTER = 0xA005,
+};
+
+static const value_string vals_ifd_tags[] = {
     /*
      * Tags related to image data structure:
      */
@@ -262,11 +268,171 @@ static const value_string vals_exif_tags[] = {
     /*
      * Exif-specific IFD:
      */
-    { 0x8769, "Exif IFD Pointer"},
-    { 0x8825, "GPS IFD Pointer"},
-    { 0xA005, "Interoperability IFD Pointer"},
+    { EXIF_TAG_EXIF_IFD_POINTER, "Exif IFD Pointer"},
+    { EXIF_TAG_GPS_IFD_POINTER, "GPS IFD Pointer"},
+    { EXIF_TAG_INTEROP_IFD_POINTER, "Interoperability IFD Pointer"},
 
     { 0x0000, NULL }
+};
+
+static const value_string vals_ifd_tags_exif[] = {
+    /*
+     * Tags relating to version:
+     */
+    { 0x9000, "ExifVersion" },
+    { 0xA000, "FlashpixVersion" },
+    /*
+     * Tags relating to image data characteristics:
+     */
+    { 0xA001, "ColorSpace" },
+    { 0xA500, "Gamma" },
+    /*
+     * Tags relating to image configuration:
+     */
+    { 0x9101, "ComponentsConfiguration" },
+    { 0x9102, "CompressedBitsPerPixel" },
+    { 0xA002, "PixelXDimension" },
+    { 0xA003, "PixelYDimension" },
+    /*
+     * Tags relating to user information:
+     */
+    { 0x927C, "MakerNote" },
+    { 0x9286, "UserComment" },
+    /*
+     * Tags relating to related file information:
+     */
+    { 0xA004, "RelatedSoundFile" },
+    /*
+     * Tags relating to date and time:
+     */
+    { 0x9003, "DateTimeOriginal" },
+    { 0x9004, "DateTimeDigitized" },
+    { 0x9010, "OffsetTime" },
+    { 0x9011, "OffsetTimeOriginal" },
+    { 0x9012, "OffsetTimeDigitized" },
+    { 0x9290, "SubSecTime" },
+    { 0x9291, "SubSecTimeOriginal" },
+    { 0xA003, "SubSecTimeDigitized" },
+    /*
+     * Tags relating to picture-taking conditions:
+     */
+    { 0x829A, "ExposureTime" },
+    { 0x829D, "FNumber" },
+    { 0x8822, "ExposureProgram" },
+    { 0x8824, "SpectralSensitivity" },
+    { 0x8827, "PhotographicSensitivity" },
+    { 0x8828, "OECF" },
+    { 0x8830, "SensitivityType" },
+    { 0x8831, "StandardOutputSensitivity" },
+    { 0x8832, "RecommendedExposureIndex" },
+    { 0x8833, "ISOSpeed" },
+    { 0x8834, "ISOSpeedLatitudeyyy" },
+    { 0x8835, "ISOSpeedLatitudezzz" },
+    { 0x9201, "ShutterSpeedValue" },
+    { 0x9202, "ApertureValue" },
+    { 0x9203, "BrightnessValue" },
+    { 0x9204, "ExposureBiasValue" },
+    { 0x9205, "MaxApertureValue" },
+    { 0x9206, "SubjectDistance" },
+    { 0x9207, "MeteringMode" },
+    { 0x9208, "LightSource" },
+    { 0x9209, "Flash" },
+    { 0x920A, "FocalLength" },
+    { 0x9214, "SubjectArea" },
+    { 0xA20B, "FlashEnergy" },
+    { 0xA20C, "SpatialFrequencyResponse" },
+    { 0xA20E, "FocalPlaneXResolution" },
+    { 0xA20F, "FocalPlaneYResolution" },
+    { 0xA210, "FocalPlaneResolutionUnit" },
+    { 0xA214, "SubjectLocation" },
+    { 0xA215, "ExposureIndex" },
+    { 0xA217, "SensingMethod" },
+    { 0xA300, "FileSource" },
+    { 0xA301, "SceneType" },
+    { 0xA302, "CFAPattern" },
+    { 0xA401, "CustomRendered" },
+    { 0xA402, "ExposureMode" },
+    { 0xA403, "WhiteBalance" },
+    { 0xA404, "DigitalZoomRatio" },
+    { 0xA405, "FocalLengthIn35mmFilm" },
+    { 0xA406, "SceneCaptureType" },
+    { 0xA407, "GainControl" },
+    { 0xA408, "Contrast" },
+    { 0xA409, "Saturation" },
+    { 0xA40A, "Sharpness" },
+    { 0xA40B, "DeviceSettingDescription" },
+    { 0xA40C, "SubjectDistanceRange" },
+    { 0xA460, "CompositeImage" },
+    { 0xA461, "SourceImageNumberOfCompositeImage" },
+    { 0xA462, "SourceExposureTimesOfCompositeImage" },
+    /*
+     * Tags relating to shooting situation:
+     */
+    { 0x9400, "Temperature" },
+    { 0x9401, "Humidity" },
+    { 0x9402, "Pressure" },
+    { 0x9403, "WaterDepth" },
+    { 0x9404, "Acceleration" },
+    { 0x9405, "CameraElevationAngle" },
+    /*
+     * Other tags:
+     */
+    { 0xA420, "ImageUniqueID" },
+    { 0xA430, "CameraOwnerName" },
+    { 0xA431, "BodySerialNumber" },
+    { 0xA432, "LensSpecification" },
+    { 0xA433, "LensMake" },
+    { 0xA434, "LensModel" },
+    { 0xA435, "LensSerialNumber" },
+
+    { 0x0000, NULL }
+};
+
+static const value_string vals_ifd_tags_gps[] = {
+    /*
+     * Tags relating to GPS:
+     */
+    { 0x00, "GPSVersionID" },
+    { 0x01, "GPSLatitudeRef" },
+    { 0x02, "GPSLatitude" },
+    { 0x03, "GPSLongitudeRef" },
+    { 0x04, "GPSLongitude" },
+    { 0x05, "GPSAltitudeRef" },
+    { 0x06, "GPSAltitude" },
+    { 0x07, "GPSTimeStamp" },
+    { 0x08, "GPSSatellites" },
+    { 0x09, "GPSStatus" },
+    { 0x0A, "GPSMeasureMode" },
+    { 0x0B, "GPSDOP" },
+    { 0x0C, "GPSSpeedRef" },
+    { 0x0D, "GPSSpeed" },
+    { 0x0E, "GPSTrackRef" },
+    { 0x0F, "GPSTrack" },
+    { 0x10, "GPSImgDirectionRef" },
+    { 0x11, "GPSImgDirection" },
+    { 0x12, "GPSMapDatum" },
+    { 0x13, "GPSDestLatitudeRef" },
+    { 0x14, "GPSDestLatitude" },
+    { 0x15, "GPSDestLongitudeRef" },
+    { 0x16, "GPSDestLongitude" },
+    { 0x17, "GPSDestBearingRef" },
+    { 0x18, "GPSDestBearing" },
+    { 0x19, "GPSDestDistanceRef" },
+    { 0x1A, "GPSDestDistance" },
+    { 0x1B, "GPSProcessingMethod" },
+    { 0x1C, "GPSAreaInformation" },
+    { 0x1D, "GPSDateStamp" },
+    { 0x1E, "GPSDifferential" },
+    { 0x1F, "GPSHPositioningError" },
+    { 0x00, NULL }
+};
+
+static const value_string vals_ifd_tags_interop[] = {
+    /*
+     * Tags relating to interoperability:
+     */
+    { 0x1, "InteroperabilityIndex" },
+    { 0x0, NULL }
 };
 
 enum {
@@ -353,6 +519,9 @@ static gint hf_fill_bytes = -1;
 static gint hf_skipped_tiff_data = -1;
 static gint hf_ifd_num_fields = -1;
 static gint hf_ifd_tag = -1;
+static gint hf_ifd_tag_exif = -1;
+static gint hf_ifd_tag_gps = -1;
+static gint hf_ifd_tag_interop = -1;
 static gint hf_ifd_type = -1;
 static gint hf_ifd_count = -1;
 static gint hf_ifd_offset = -1;
@@ -604,7 +773,8 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
 
 static void
 process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-        guint encoding, guint32 start_ifd_offset)
+        guint encoding, guint32 start_ifd_offset,
+        int hf_tag, const char *ifd_type_desc)
 {
     guint32 next_ifd_offset = start_ifd_offset;
 
@@ -615,14 +785,14 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
          */
         guint32 num_fields = tvb_get_guint16(tvb, offset, encoding);
         proto_tree *subtree_ifd = proto_tree_add_subtree_format(tree, tvb, offset, num_fields * 12 + 6,
-                ett_ifd, NULL, "Image File Directory #%u", ifd_index);
+                ett_ifd, NULL, "%s #%u", ifd_type_desc, ifd_index);
         proto_tree_add_item(subtree_ifd, hf_ifd_num_fields, tvb, offset, 2, encoding);
         offset += 2;
         while (num_fields-- > 0) {
-            guint32 field_type, value_count, value_size;
+            guint32 field_tag, field_type, value_count, value_size;
             gint value_hf;
 
-            proto_tree_add_item(subtree_ifd, hf_ifd_tag, tvb, offset, 2, encoding);
+            proto_tree_add_item_ret_uint(subtree_ifd, hf_tag, tvb, offset, 2, encoding, &field_tag);
             offset += 2;
             proto_tree_add_item_ret_uint(subtree_ifd, hf_ifd_type, tvb, offset, 2, encoding, &field_type);
             offset += 2;
@@ -703,6 +873,37 @@ process_tiff_ifd_chain(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                     value_offset + 4, 4, encoding, &denom);
                             proto_item_set_text(value_item, "Value: %"PRIi32"/%"PRIi32, num, denom);
                         }
+                        else if (value_hf == hf_ifd_value_long && value_count == 1 && hf_tag == hf_ifd_tag) {
+                            guint32 extension_ifd_offset = tvb_get_guint32(tvb, value_offset, encoding);
+                            int extension_hf_ifd_tag = -1;
+                            const char *extension_ifd_type_desc = NULL;
+
+                            switch (field_tag) {
+                            case EXIF_TAG_EXIF_IFD_POINTER:
+                                extension_hf_ifd_tag = hf_ifd_tag_exif;
+                                extension_ifd_type_desc = "Exif IFD";
+                                break;
+                            case EXIF_TAG_GPS_IFD_POINTER:
+                                extension_hf_ifd_tag = hf_ifd_tag_gps;
+                                extension_ifd_type_desc = "GPS IFD";
+                                break;
+                            case EXIF_TAG_INTEROP_IFD_POINTER:
+                                extension_hf_ifd_tag = hf_ifd_tag_interop;
+                                extension_ifd_type_desc = "Interoperability IFD";
+                                break;
+                            }
+
+                            if (extension_ifd_type_desc) {
+                                if (extension_ifd_offset < tvb_reported_length(tvb)) {
+                                    process_tiff_ifd_chain(tree, tvb, pinfo, encoding,
+                                            extension_ifd_offset, extension_hf_ifd_tag,
+                                            extension_ifd_type_desc);
+                                } else {
+                                    expert_add_info_format(pinfo, value_item, &ei_start_ifd_offset,
+                                        "bogus, should be < %u", tvb_reported_length(tvb));
+                                }
+                            }
+                        }
 
                         value_offset += value_size;
                     }
@@ -774,7 +975,8 @@ process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         return;
     }
 
-    process_tiff_ifd_chain(tree, tvb, pinfo, encoding, start_ifd_offset);
+    process_tiff_ifd_chain(tree, tvb, pinfo, encoding, start_ifd_offset,
+            hf_ifd_tag, "Image File Directory");
 }
 
 /* Process an APP1 block.
@@ -1367,9 +1569,33 @@ proto_register_jfif(void)
           }
         },
         { &hf_ifd_tag,
-          {   "Exif Tag",
+          {   "Tag",
               "image-jfif.ifd.tag",
-              FT_UINT16, BASE_DEC, VALS(vals_exif_tags), 0x0,
+              FT_UINT16, BASE_DEC, VALS(vals_ifd_tags), 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_tag_exif,
+          {   "Tag",
+              "image-jfif.ifd.tag_exif",
+              FT_UINT16, BASE_DEC, VALS(vals_ifd_tags_exif), 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_tag_gps,
+          {   "Tag",
+              "image-jfif.ifd.tag_gps",
+              FT_UINT16, BASE_DEC, VALS(vals_ifd_tags_gps), 0x0,
+              NULL,
+              HFILL
+          }
+        },
+        { &hf_ifd_tag_interop,
+          {   "Tag",
+              "image-jfif.ifd.tag_interop",
+              FT_UINT16, BASE_DEC, VALS(vals_ifd_tags_interop), 0x0,
               NULL,
               HFILL
           }
