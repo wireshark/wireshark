@@ -1236,25 +1236,38 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 		return 1;
 	}
 
+	add_conversation(packet, proto_item_get_subtree(header_field_array_pi));
+
 	switch(packet->message_type) {
 	case DBUS_MESSAGE_TYPE_METHOD_CALL:
-		col_add_fstr(packet->pinfo->cinfo, COL_INFO, "%s() @ %s", packet->member, packet->path);
+		col_add_fstr(packet->pinfo->cinfo, COL_INFO, "%s(%s) @ %s", packet->member, packet->signature, packet->path);
 		break;
 	case DBUS_MESSAGE_TYPE_SIGNAL:
-		col_add_fstr(packet->pinfo->cinfo, COL_INFO, "* %s() @ %s", packet->member, packet->path);
+		col_add_fstr(packet->pinfo->cinfo, COL_INFO, "* %s(%s) @ %s", packet->member, packet->signature, packet->path);
 		break;
 	case DBUS_MESSAGE_TYPE_ERROR:
-		col_add_fstr(packet->pinfo->cinfo, COL_INFO, "-> %s", packet->error_name);
+		if (packet->member) {
+			col_add_fstr(packet->pinfo->cinfo, COL_INFO, "! %s: %s", packet->member, packet->error_name);
+		} else {
+			col_add_fstr(packet->pinfo->cinfo, COL_INFO, "! %s", packet->error_name);
+		}
 		break;
 	case DBUS_MESSAGE_TYPE_METHOD_RETURN:
-		col_add_fstr(packet->pinfo->cinfo, COL_INFO, "-> '%s'", packet->signature);
+		if (packet->member) {
+			if (*packet->signature != '\0') {
+				col_add_fstr(packet->pinfo->cinfo, COL_INFO, "-> %s: '%s'", packet->member, packet->signature);
+			} else {
+				col_add_fstr(packet->pinfo->cinfo, COL_INFO, "-> %s: OK", packet->member);
+
+			}
+		} else {
+			col_add_fstr(packet->pinfo->cinfo, COL_INFO, "-> '%s'", packet->signature);
+		}
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 		break;
 	}
-
-	add_conversation(packet, proto_item_get_subtree(header_field_array_pi));
 
 	// Header length must be a multiple of 8 bytes
 	return add_padding(packet, SIG_CODE_STRUCT_OPEN);
