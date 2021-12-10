@@ -773,13 +773,6 @@ process_tiff(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
                 " (bogus, should be >= %u)", offset);
         return;
     }
-    /*
-     * Skip the following portion
-     */
-    if (start_ifd_offset > (guint32)offset) {
-        proto_tree_add_bytes_format_value(tree, hf_skipped_tiff_data, tvb, offset, start_ifd_offset - offset, NULL,
-                "%u bytes", start_ifd_offset - offset);
-    }
 
     process_tiff_ifd_chain(tree, tvb, pinfo, encoding, start_ifd_offset);
 }
