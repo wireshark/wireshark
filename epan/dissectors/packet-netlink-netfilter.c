@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define NEW_PROTO_TREE_API
+#define HFI_DECLS /* for checkAPIs.pl */
 
 #include "config.h"
 
@@ -30,8 +30,6 @@ static dissector_handle_t nflog_handle;
 static dissector_table_t ethertype_table;
 
 static header_field_info *hfi_netlink_netfilter = NULL;
-
-#define NETLINK_NETFILTER_HFI_INIT HFI_INIT(proto_netlink_netfilter)
 
 /* nfnetlink subsystems from <include/uapi/linux/netfilter/nfnetlink.h> */
 enum {
@@ -392,27 +390,27 @@ static int ett_ipset_ip_attr = -1;
 
 /* nfgenmsg header, common to all Netfilter over Netlink packets. */
 
-static header_field_info hfi_netlink_netfilter_family NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_netlink_netfilter_family =
 	{ "Address family", "netlink-netfilter.family", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
 	  &linux_af_vals_ext, 0x00, "nfnetlink address family", HFILL };
 
-static header_field_info hfi_netlink_netfilter_version NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_netlink_netfilter_version =
 	{ "Version", "netlink-netfilter.version", FT_UINT8, BASE_DEC,
 	  NULL, 0x00, "nfnetlink version", HFILL };
 
-static header_field_info hfi_netlink_netfilter_resid NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_netlink_netfilter_resid =
 	{ "Resource id", "netlink-netfilter.res_id", FT_UINT16, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
 static int dissect_netlink_netfilter_header(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	proto_tree_add_item(tree, &hfi_netlink_netfilter_family, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hfi_netlink_netfilter_family.id, tvb, offset, 1, ENC_NA);
 	offset++;
 
-	proto_tree_add_item(tree, &hfi_netlink_netfilter_version, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hfi_netlink_netfilter_version.id, tvb, offset, 1, ENC_NA);
 	offset++;
 
-	proto_tree_add_item(tree, &hfi_netlink_netfilter_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hfi_netlink_netfilter_resid.id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return offset;
@@ -448,19 +446,19 @@ static const value_string nfct_tuple_l4proto_attr_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_nfct_tuple_proto_num_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_proto_num_attr =
 	{ "Protocol", "netlink-netfilter.nfct_tuple.proto.num", FT_UINT8, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_tuple_proto_src_port_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_proto_src_port_attr =
 	{ "Port", "netlink-netfilter.nfct_tuple.proto.src_port", FT_UINT16, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_tuple_proto_dst_port_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_proto_dst_port_attr =
 	{ "Port", "netlink-netfilter.nfct_tuple.proto.dst_port", FT_UINT16, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_tuple_proto_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_proto_attr =
 	{ "Type", "netlink-netfilter.nfct_tuple.proto", FT_UINT16, BASE_DEC,
 	  VALS(nfct_tuple_l4proto_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -471,15 +469,15 @@ dissect_nfct_tuple_proto_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netl
 
 	switch (type) {
 		case WS_CTA_PROTO_NUM:
-			proto_tree_add_item(tree, &hfi_nfct_tuple_proto_num_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_tuple_proto_num_attr.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_PROTO_SRC_PORT:
-			proto_tree_add_item(tree, &hfi_nfct_tuple_proto_src_port_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_tuple_proto_src_port_attr.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_PROTO_DST_PORT:
-			proto_tree_add_item(tree, &hfi_nfct_tuple_proto_dst_port_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_tuple_proto_dst_port_attr.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		default:
@@ -487,15 +485,15 @@ dissect_nfct_tuple_proto_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netl
 	}
 }
 
-static header_field_info hfi_nfct_tuple_ip_attr_ipv4 NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_ip_attr_ipv4 =
 	{ "IPv4 address", "netlink-netfilter.nfct_tuple.ip.ip_addr", FT_IPv4, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_tuple_ip_attr_ipv6 NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_ip_attr_ipv6 =
 	{ "IPv6 address", "netlink-netfilter.nfct_tuple.ip.ip6_addr", FT_IPv6, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_tuple_ip_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_ip_attr =
 	{ "Type", "netlink-netfilter.nfct_tuple.ip", FT_UINT16, BASE_DEC,
 	  VALS(nfct_tuple_ip_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -507,12 +505,12 @@ dissect_nfct_tuple_ip_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 	switch (type) {
 		case WS_CTA_IP_V4_SRC:
 		case WS_CTA_IP_V4_DST:
-			proto_tree_add_item(tree, &hfi_nfct_tuple_ip_attr_ipv4, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_tuple_ip_attr_ipv4.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_IP_V6_SRC:
 		case WS_CTA_IP_V6_DST:
-			proto_tree_add_item(tree, &hfi_nfct_tuple_ip_attr_ipv6, tvb, offset, len, ENC_NA);
+			proto_tree_add_item(tree, hfi_nfct_tuple_ip_attr_ipv6.id, tvb, offset, len, ENC_NA);
 			return 1;
 
 		default:
@@ -520,11 +518,11 @@ dissect_nfct_tuple_ip_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 	}
 }
 
-static header_field_info hfi_nfct_tuple_zone_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_zone_attr =
 	{ "Zone", "netlink-netfilter.nfct_tuple.zone", FT_UINT16, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_tuple_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_tuple_attr =
 	{ "Type", "netlink-netfilter.nfct_tuple", FT_UINT16, BASE_DEC,
 	  VALS(nfct_tuple_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -548,7 +546,7 @@ dissect_nfct_tuple_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *
 			return 0;
 
 		case WS_CTA_TUPLE_ZONE:
-			proto_tree_add_item(tree, &hfi_nfct_tuple_zone_attr, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_tuple_zone_attr.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		default:
@@ -600,86 +598,86 @@ static const value_string nfct_seqadj_attr_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_nfct_attr_timeout NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_timeout =
 	{ "Timeout", "netlink-netfilter.ct_attr.timeout", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_attr_id NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_id =
 	{ "ID", "netlink-netfilter.ct_attr.id", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
 /* CTA_STATUS bitfield */
-static header_field_info hfi_nfct_attr_status_flag_expected NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_expected =
 	{ "Expected", "netlink-netfilter.ct_attr.status.expected",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_EXPECTED,
 		"It is an expected connection", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_seen_reply NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_seen_reply =
 	{ "Seen reply", "netlink-netfilter.ct_attr.status.seen_reply",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_SEEN_REPLY,
 		"Packets going in both directions have been seen", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_assured NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_assured =
 	{ "Assured", "netlink-netfilter.ct_attr.status.assured",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_ASSURED,
 		"Conntrack should never be early-expired", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_confirmed NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_confirmed =
 	{ "Confirmed", "netlink-netfilter.ct_attr.status.confirmed",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_CONFIRMED,
 		"Connection is confirmed: originating packet has left box", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_src_nat NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_src_nat =
 	{ "Source NAT", "netlink-netfilter.ct_attr.status.src_nat",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_SRC_NAT,
 		"Connection needs source NAT in orig dir.", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_dst_nat NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_dst_nat =
 	{ "Destination NAT", "netlink-netfilter.ct_attr.status.dst_nat",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_DST_NAT,
 		"Connection needs destination NAT in orig dir.", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_seq_adjust NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_seq_adjust =
 	{ "Sequence adjust", "netlink-netfilter.ct_attr.status.seq_adjust",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_SEQ_ADJUST,
 		"Connection needs TCP sequence adjusted", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_src_nat_done NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_src_nat_done =
 	{ "Source NAT done", "netlink-netfilter.ct_attr.status.src_nat_done",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_SRC_NAT_DONE,
 		"Source NAT has been initialized", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_dst_nat_done NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_dst_nat_done =
 	{ "Destination NAT done", "netlink-netfilter.ct_attr.status.dst_nat_done",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_DST_NAT_DONE,
 		"Destination NAT has been initialized", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_dying NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_dying =
 	{ "Dying", "netlink-netfilter.ct_attr.status.dying",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_DYING,
 		"Connection is dying (removed from lists)", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_fixed_timeout NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_fixed_timeout =
 	{ "Fixed timeout", "netlink-netfilter.ct_attr.status.fixed_timeout",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_FIXED_TIMEOUT,
 		"Connection has fixed timeout", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_template NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_template =
 	{ "Template", "netlink-netfilter.ct_attr.status.template",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_TEMPLATE,
 		"Conntrack is a template", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_untracked NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_untracked =
 	{ "Untracked", "netlink-netfilter.ct_attr.status.untracked",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_UNTRACKED,
 		"Conntrack is a fake untracked entry.  Obsolete and not used anymore", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_helper NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_helper =
 	{ "Helper", "netlink-netfilter.ct_attr.status.helper",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_HELPER,
 		"Conntrack got a helper explicitly attached via CT target", HFILL };
 
-static header_field_info hfi_nfct_attr_status_flag_offload NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status_flag_offload =
 	{ "Offload", "netlink-netfilter.ct_attr.status.offload",
 		FT_UINT32, BASE_DEC, NULL, WS_IPS_OFFLOAD,
 		NULL, HFILL };
@@ -703,15 +701,15 @@ static int * const hfi_nfct_attr_status_flags[] = {
 	NULL
 };
 
-static header_field_info hfi_nfct_attr_status NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr_status =
 	{ "Status", "netlink-netfilter.ct_attr.status", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_help_attr_help_name NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_help_attr_help_name =
 	{ "Helper name", "netlink-netfilter.ct_help_attr.help_name", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_nfct_help_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_help_attr =
 	{ "Helper", "netlink-netfilter.ct_help_attr", FT_UINT16, BASE_DEC,
 	  VALS(nfct_help_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -722,7 +720,7 @@ dissect_nfct_help_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_dat
 
 	switch (type) {
 		case WS_CTA_HELP_NAME:
-			proto_tree_add_item(tree, &hfi_nfct_help_attr_help_name, tvb, offset, len, ENC_UTF_8);
+			proto_tree_add_item(tree, hfi_nfct_help_attr_help_name.id, tvb, offset, len, ENC_UTF_8);
 			return 1;
 
 		default:
@@ -732,19 +730,19 @@ dissect_nfct_help_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_dat
 	return 0;
 }
 
-static header_field_info hfi_nfct_seqadj_attr_correction_pos NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_seqadj_attr_correction_pos =
 	{ "Position", "netlink-netfilter.ct_seqadj_correction_pos", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_seqadj_attr_offset_before NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_seqadj_attr_offset_before =
 	{ "Offset", "netlink-netfilter.ct_seqadj_offset_before", FT_INT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_seqadj_attr_offset_after NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_seqadj_attr_offset_after =
 	{ "Offset", "netlink-netfilter.ct_seqadj_offset_after", FT_INT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfct_seqadj_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_seqadj_attr =
 	{ "Adjustment", "netlink-netfilter.ct_seqadj_attr", FT_UINT16, BASE_DEC,
 	  VALS(nfct_seqadj_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -755,15 +753,15 @@ dissect_nfct_seqadj_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_d
 
 	switch (type) {
 		case WS_CTA_SEQADJ_CORRECTION_POS:
-			proto_tree_add_item(tree, &hfi_nfct_seqadj_attr_correction_pos, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_seqadj_attr_correction_pos.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_SEQADJ_OFFSET_BEFORE:
-			proto_tree_add_item(tree, &hfi_nfct_seqadj_attr_offset_before, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_seqadj_attr_offset_before.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_SEQADJ_OFFSET_AFTER:
-			proto_tree_add_item(tree, &hfi_nfct_seqadj_attr_offset_after, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_seqadj_attr_offset_after.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		default:
@@ -781,16 +779,16 @@ dissect_nfct_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_dat
 
 	switch (type) {
 		case WS_CTA_STATUS:
-			proto_tree_add_bitmask(tree, tvb, offset, &hfi_nfct_attr_status,
+			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfct_attr_status.id,
 					       ett_nfct_status_attr, hfi_nfct_attr_status_flags, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_TIMEOUT:
-			proto_tree_add_item(tree, &hfi_nfct_attr_timeout, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_attr_timeout.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_ID:
-			proto_tree_add_item(tree, &hfi_nfct_attr_id, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfct_attr_id.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_HELP:
@@ -821,7 +819,7 @@ dissect_nfct_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_dat
 
 /* CT - main */
 
-static header_field_info hfi_nfct_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfct_attr =
 	{ "Type", "netlink-netfilter.ct.attr", FT_UINT16, BASE_DEC,
 	  VALS(nfct_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -870,11 +868,11 @@ static const value_string nfexp_conntrack_dir_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_nfexp_nat_attr_dir NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_nat_attr_dir =
 	{ "Direction", "netlink-netfilter.nfexp.nat.dir", FT_UINT32, BASE_DEC,
 	  VALS(nfexp_conntrack_dir_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfexp_nat_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_nat_attr =
 	{ "Type", "netlink-netfilter.nfexp.nat", FT_UINT16, BASE_DEC,
 	  VALS(nfexp_nat_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -886,7 +884,7 @@ dissect_nfexp_nat_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 
 	switch (type) {
 		case WS_CTA_EXPECT_NAT_DIR:
-			proto_tree_add_item(tree, &hfi_nfexp_nat_attr_dir, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfexp_nat_attr_dir.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_EXPECT_NAT_TUPLE:
@@ -900,38 +898,38 @@ dissect_nfexp_nat_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 	}
 }
 
-static header_field_info hfi_nfexp_attr_timeout NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_timeout =
 	{ "Timeout", "netlink-netfilter.nfexp.timeout", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfexp_attr_id NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_id =
 	{ "ID", "netlink-netfilter.nfexp.id", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfexp_attr_class NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_class =
 	{ "Class", "netlink-netfilter.nfexp.class", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfexp_attr_zone NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_zone =
 	{ "Zone", "netlink-netfilter.nfexp.zone", FT_UINT16, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfexp_attr_fn NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_fn =
 	{ "Name", "netlink-netfilter.nfexp.fn", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
 /* CTA_EXPECT_FLAGS bitfield */
-static header_field_info hfi_nfexp_attr_flag_permanent NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_flag_permanent =
 	{ "Permanent", "netlink-netfilter.nfexp.flags.permanent",
 		FT_UINT32, BASE_DEC, NULL, WS_NF_CT_EXPECT_PERMANENT,
 		NULL, HFILL };
 
-static header_field_info hfi_nfexp_attr_flag_inactive NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_flag_inactive =
 	{ "Inactive", "netlink-netfilter.nfexp.flags.inactive",
 		FT_UINT32, BASE_DEC, NULL, WS_NF_CT_EXPECT_INACTIVE,
 		NULL, HFILL };
 
-static header_field_info hfi_nfexp_attr_flag_userspace NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_flag_userspace =
 	{ "Userspace", "netlink-netfilter.nfexp.flags.userspace",
 		FT_UINT32, BASE_DEC, NULL, WS_NF_CT_EXPECT_USERSPACE,
 		NULL, HFILL };
@@ -943,7 +941,7 @@ static int * const hfi_nfexp_attr_flags_bitfield[] = {
 	NULL
 };
 
-static header_field_info hfi_nfexp_attr_flags NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr_flags =
 	{ "Flags", "netlink-netfilter.nfexp.flags", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
@@ -969,27 +967,27 @@ dissect_nfexp_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_da
 			return 0;
 
 		case WS_CTA_EXPECT_TIMEOUT:
-			proto_tree_add_item(tree, &hfi_nfexp_attr_timeout, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfexp_attr_timeout.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_EXPECT_ID:
-			proto_tree_add_item(tree, &hfi_nfexp_attr_id, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfexp_attr_id.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_EXPECT_CLASS:
-			proto_tree_add_item(tree, &hfi_nfexp_attr_class, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfexp_attr_class.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_EXPECT_ZONE:
-			proto_tree_add_item(tree, &hfi_nfexp_attr_zone, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_nfexp_attr_zone.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_CTA_EXPECT_FN:
-			proto_tree_add_item(tree, &hfi_nfexp_attr_fn, tvb, offset, len, ENC_UTF_8);
+			proto_tree_add_item(tree, hfi_nfexp_attr_fn.id, tvb, offset, len, ENC_UTF_8);
 			return 1;
 
 		case WS_CTA_EXPECT_FLAGS:
-			proto_tree_add_bitmask(tree, tvb, offset, &hfi_nfexp_attr_flags,
+			proto_tree_add_bitmask(tree, tvb, offset, hfi_nfexp_attr_flags.id,
 					       ett_nfexp_flags_attr, hfi_nfexp_attr_flags_bitfield, ENC_BIG_ENDIAN);
 			return 1;
 
@@ -998,7 +996,7 @@ dissect_nfexp_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_da
 	}
 }
 
-static header_field_info hfi_nfexp_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_attr =
 	{ "Type", "netlink-netfilter.exp.attr", FT_UINT16, BASE_DEC,
 	  VALS(nfexp_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -1052,31 +1050,31 @@ static const value_string nfq_config_mode_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_nfq_config_command_command NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_command_command =
 	{ "Command", "netlink-netfilter.queue.config.command.command", FT_UINT8, BASE_DEC,
 	  VALS(nfq_config_command_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_config_command_pf NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_command_pf =
 	{ "Protocol family", "netlink-netfilter.queue.config.command.pf", FT_UINT16, BASE_DEC,
 	  VALS(nfproto_family_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_config_params_copyrange NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_params_copyrange =
 	{ "Copy range", "netlink-netfilter.queue.config.params.copy_range", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_config_params_copymode NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_params_copymode =
 	{ "Copy mode", "netlink-netfilter.queue.config.params.copy_mode", FT_UINT8, BASE_DEC,
 	  VALS(nfq_config_mode_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_config_queue_maxlen NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_queue_maxlen =
 	{ "Maximum queue length", "netlink-netfilter.queue.config.queue_maxlen", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_config_mask NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_mask =
 	{ "Flags mask", "netlink-netfilter.queue.config.mask", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_config_flags NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_flags =
 	{ "Flags", "netlink-netfilter.queue.config.flags", FT_UINT32, BASE_HEX,
 	  NULL, 0x00, NULL, HFILL };
 
@@ -1091,41 +1089,41 @@ dissect_nfq_config_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_da
 
 		case WS_NFQA_CFG_CMD:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_config_command_command, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hfi_nfq_config_command_command.id, tvb, offset, 1, ENC_NA);
 				offset += 2; /* skip command and 1 byte padding. */
 
-				proto_tree_add_item(tree, &hfi_nfq_config_command_pf, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_config_command_pf.id, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 			}
 			break;
 
 		case WS_NFQA_CFG_PARAMS:
 			if (len == 5) {
-				proto_tree_add_item(tree, &hfi_nfq_config_params_copyrange, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_config_params_copyrange.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(tree, &hfi_nfq_config_params_copymode, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hfi_nfq_config_params_copymode.id, tvb, offset, 1, ENC_NA);
 				offset++;
 			}
 			break;
 
 		case WS_NFQA_CFG_QUEUE_MAXLEN:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_config_queue_maxlen, tvb, offset, 4, nl_data->encoding);
+				proto_tree_add_item(tree, hfi_nfq_config_queue_maxlen.id, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_CFG_MASK:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_config_mask, tvb, offset, 4, nl_data->encoding);
+				proto_tree_add_item(tree, hfi_nfq_config_mask.id, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_CFG_FLAGS:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_config_flags, tvb, offset, 4, nl_data->encoding);
+				proto_tree_add_item(tree, hfi_nfq_config_flags.id, tvb, offset, 4, nl_data->encoding);
 				offset += 4;
 			}
 			break;
@@ -1134,7 +1132,7 @@ dissect_nfq_config_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_da
 	return offset;
 }
 
-static header_field_info hfi_nfq_config_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_config_attr =
 	{ "Type", "netlink-netfilter.queue.config_attr", FT_UINT16, BASE_DEC,
 	  VALS(nfq_config_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -1207,71 +1205,71 @@ static const value_string nfq_ctinfo_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_nfq_verdict_verdict NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_verdict_verdict =
 	{ "Verdict", "netlink-netfilter.queue.verdict.verdict", FT_UINT32, BASE_DEC,
 	  VALS(nfq_verdict_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_verdict_id NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_verdict_id =
 	{ "Verdict ID", "netlink-netfilter.queue.verdict.id", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_packet_id NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_packet_id =
 	{ "Packet ID", "netlink-netfilter.queue.packet.id", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_packet_hwprotocol NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_packet_hwprotocol =
 	{ "HW protocol", "netlink-netfilter.queue.packet.protocol", FT_UINT16, BASE_HEX,
 	  VALS(etype_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_packet_hook NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_packet_hook =
 	{ "Netfilter hook", "netlink-netfilter.queue.packet.hook", FT_UINT8, BASE_DEC,
 	  VALS(netfilter_hooks_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_nfmark NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_nfmark =
 	{ "Mark", "netlink-netfilter.queue.nfmark", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_timestamp NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_timestamp =
 	{ "Timestamp", "netlink-netfilter.queue.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_ifindex_indev NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_ifindex_indev =
 	{ "IFINDEX_INDEV", "netlink-netfilter.queue.ifindex_indev", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_ifindex_outdev NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_ifindex_outdev =
 	{ "IFINDEX_OUTDEV", "netlink-netfilter.queue.ifindex_outdev", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_ifindex_physindev NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_ifindex_physindev =
 	{ "IFINDEX_PHYSINDEV", "netlink-netfilter.queue.ifindex_physindev", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_ifindex_physoutdev NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_ifindex_physoutdev =
 	{ "IFINDEX_PHYSOUTDEV", "netlink-netfilter.queue.ifindex_physoutdev", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_hwaddr_len NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_hwaddr_len =
 	{ "Address length", "netlink-netfilter.queue.hwaddr.len", FT_UINT16, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_hwaddr_addr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_hwaddr_addr =
 	{ "Address", "netlink-netfilter.queue.hwaddr.addr", FT_ETHER, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_ctinfo NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_ctinfo =
 	{ "Conntrack info", "netlink-netfilter.queue.ct_info", FT_UINT32, BASE_DEC,
 	  VALS(nfq_ctinfo_vals), 0x00, "Connection state tracking info", HFILL };
 
-static header_field_info hfi_nfq_caplen NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_caplen =
 	{ "Length of captured packet", "netlink-netfilter.queue.caplen", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, "Length of captured, untruncated packet", HFILL };
 
-static header_field_info hfi_nfq_uid NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_uid =
 	{ "UID", "netlink-netfilter.queue.uid", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nfq_gid NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_gid =
 	{ "GID", "netlink-netfilter.queue.gid", FT_UINT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
@@ -1288,66 +1286,66 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 
 		case WS_NFQA_PACKET_HDR:
 			if (len == 7) {
-				proto_tree_add_item(tree, &hfi_nfq_packet_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_packet_id.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(tree, &hfi_nfq_packet_hwprotocol, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_packet_hwprotocol.id, tvb, offset, 2, ENC_BIG_ENDIAN);
 				info->hw_protocol = tvb_get_ntohs(tvb, offset);
 				offset += 2;
 
-				proto_tree_add_item(tree, &hfi_nfq_packet_hook, tvb, offset, 1, ENC_NA);
+				proto_tree_add_item(tree, hfi_nfq_packet_hook.id, tvb, offset, 1, ENC_NA);
 				offset++;
 			}
 			break;
 
 		case WS_NFQA_VERDICT_HDR:
 			if (len == 8) {
-				proto_tree_add_item(tree, &hfi_nfq_verdict_verdict, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_verdict_verdict.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(tree, &hfi_nfq_verdict_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_verdict_id.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_MARK:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_nfmark, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_nfmark.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_TIMESTAMP:
 			if (len == 16) {
-				proto_tree_add_item(tree, &hfi_nfq_timestamp, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_timestamp.id, tvb, offset, 16, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 				offset += 16;
 			}
 			break;
 
 		case WS_NFQA_IFINDEX_INDEV:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_ifindex_indev, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_ifindex_indev.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_IFINDEX_OUTDEV:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_ifindex_outdev, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_ifindex_outdev.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_IFINDEX_PHYSINDEV:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_ifindex_physindev, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_ifindex_physindev.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_IFINDEX_PHYSOUTDEV:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_ifindex_physoutdev, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_ifindex_physoutdev.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
@@ -1356,13 +1354,13 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 			if (len >= 4) {
 				guint16 addrlen;
 
-				proto_tree_add_item(tree, &hfi_nfq_hwaddr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_hwaddr_len.id, tvb, offset, 2, ENC_BIG_ENDIAN);
 				addrlen = tvb_get_ntohs(tvb, offset);
 				offset += 4; /* skip len and padding */
 
 				/* XXX expert info if 4 + addrlen > len. */
 				addrlen = MIN(addrlen, len - 4);
-				proto_tree_add_item(tree, &hfi_nfq_hwaddr_addr, tvb, offset, addrlen, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_hwaddr_addr.id, tvb, offset, addrlen, ENC_BIG_ENDIAN);
 				offset += addrlen;
 			}
 			break;
@@ -1386,14 +1384,14 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 
 		case WS_NFQA_CT_INFO:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_ctinfo, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_ctinfo.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_CAP_LEN:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_caplen, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_caplen.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
@@ -1405,14 +1403,14 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 
 		case WS_NFQA_UID:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_uid, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_uid.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 
 		case WS_NFQA_GID:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_nfq_gid, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_nfq_gid.id, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
@@ -1427,7 +1425,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 	return offset;
 }
 
-static header_field_info hfi_nfq_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_attr =
 	{ "Type", "netlink-netfilter.queue.attr", FT_UINT16, BASE_DEC,
 	  VALS(nfq_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
@@ -1464,7 +1462,7 @@ static const value_string netlink_netfilter_ulog_type_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_netlink_netfilter_ulog_type NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_netlink_netfilter_ulog_type =
 	{ "Type", "netlink-netfilter.ulog_type", FT_UINT16, BASE_DEC,
 	  VALS(netlink_netfilter_ulog_type_vals), 0x00FF, NULL, HFILL };
 
@@ -1589,59 +1587,59 @@ static const value_string ipset_ip_attr_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_ipset_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_attr =
 	{ "Type", "netlink-netfilter.ipset_attr", FT_UINT16, BASE_DEC,
 	  VALS(ipset_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
-static header_field_info hfi_ipset_cadt_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_cadt_attr =
 	{ "Type", "netlink-netfilter.ipset_cadt_attr", FT_UINT16, BASE_DEC,
 	  VALS(ipset_cadt_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
-static header_field_info hfi_ipset_cadt_attr_cidr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_cadt_attr_cidr =
 	{ "CIDR", "netlink-netfilter.ipset.cidr", FT_UINT8, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_ipset_cadt_attr_timeout NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_cadt_attr_timeout =
 	{ "Timeout", "netlink-netfilter.ipset.timeout", FT_UINT32, BASE_DEC,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_ipset_cadt_attr_cadt_flags NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_cadt_attr_cadt_flags =
 	{ "Flags", "netlink-netfilter.ipset.cadt_flags", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_ipset_attr_setname NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_attr_setname =
 	{ "Setname", "netlink-netfilter.ipset.setname", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_ipset_attr_typename NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_attr_typename =
 	{ "Typename", "netlink-netfilter.ipset.typename", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_ipset_attr_family NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_attr_family =
 	{ "Settype family", "netlink-netfilter.ipset.family", FT_UINT8, BASE_DEC,
 	  VALS(nfproto_family_vals), 0x00, NULL, HFILL };
 
-static header_field_info hfi_ipset_attr_flags NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_attr_flags =
 	{ "Flags", "netlink-netfilter.ipset.flags", FT_UINT32, BASE_HEX,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_ipset_adt_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_adt_attr =
 	{ "Type", "netlink-netfilter.ipset_adt_attr", FT_UINT16, BASE_DEC,
 	  VALS(ipset_adt_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
-static header_field_info hfi_ipset_adt_attr_comment NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_adt_attr_comment =
 	{ "Comment", "netlink-netfilter.ipset.comment", FT_STRINGZ, BASE_NONE,
 	  NULL, 0x0, NULL, HFILL };
 
-static header_field_info hfi_ipset_ip_attr NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_ip_attr =
 	{ "Type", "netlink-netfilter.ipset_ip_attr", FT_UINT16, BASE_DEC,
 	  VALS(ipset_ip_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
-static header_field_info hfi_ipset_ip_attr_ipv4 NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_ip_attr_ipv4 =
 	{ "IPv4 address", "netlink-netfilter.ipset.ip_addr", FT_IPv4, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_ipset_ip_attr_ipv6 NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_ip_attr_ipv6 =
 	{ "IPv6 address", "netlink-netfilter.ipset.ip6_addr", FT_IPv6, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
@@ -1652,11 +1650,11 @@ dissect_ipset_ip_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data
 
 	switch (type) {
 		case WS_IPSET_ATTR_IPADDR_IPV4:
-			proto_tree_add_item(tree, &hfi_ipset_ip_attr_ipv4, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_ipset_ip_attr_ipv4.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_IPSET_ATTR_IPADDR_IPV6:
-			proto_tree_add_item(tree, &hfi_ipset_ip_attr_ipv6, tvb, offset, len, ENC_NA);
+			proto_tree_add_item(tree, hfi_ipset_ip_attr_ipv6.id, tvb, offset, len, ENC_NA);
 			return 1;
 	}
 
@@ -1678,7 +1676,7 @@ dissect_ipset_cadt_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *
 
 		case WS_IPSET_ATTR_CIDR:
 			if (len == 1) {
-				proto_tree_add_item(tree, &hfi_ipset_cadt_attr_cidr, tvb, offset, len, ENC_NA);
+				proto_tree_add_item(tree, hfi_ipset_cadt_attr_cidr.id, tvb, offset, len, ENC_NA);
 				return 1;
 			}
 			return 0;
@@ -1690,7 +1688,7 @@ dissect_ipset_cadt_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *
 
 		case WS_IPSET_ATTR_TIMEOUT:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_ipset_cadt_attr_timeout, tvb, offset, len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_ipset_cadt_attr_timeout.id, tvb, offset, len, ENC_BIG_ENDIAN);
 				return 1;
 			}
 			return 0;
@@ -1701,7 +1699,7 @@ dissect_ipset_cadt_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *
 
 		case WS_IPSET_ATTR_CADT_FLAGS:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_ipset_cadt_attr_cadt_flags, tvb, offset, len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_ipset_cadt_attr_cadt_flags.id, tvb, offset, len, ENC_BIG_ENDIAN);
 				/* TODO show bits from enum ipset_cadt_flags */
 				return 1;
 			}
@@ -1737,7 +1735,7 @@ dissect_ipset_adt_data_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_da
 
 	switch (type) {
 		case WS_IPSET_ATTR_COMMENT:
-			proto_tree_add_item(tree, &hfi_ipset_adt_attr_comment, tvb, offset, len, ENC_UTF_8);
+			proto_tree_add_item(tree, hfi_ipset_adt_attr_comment.id, tvb, offset, len, ENC_UTF_8);
 			return 1;
 
 		default:
@@ -1769,11 +1767,11 @@ dissect_ipset_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_da
 			return 0;
 
 		case WS_IPSET_ATTR_SETNAME:
-			proto_tree_add_item(tree, &hfi_ipset_attr_setname, tvb, offset, len, ENC_UTF_8);
+			proto_tree_add_item(tree, hfi_ipset_attr_setname.id, tvb, offset, len, ENC_UTF_8);
 			return 1;
 
 		case WS_IPSET_ATTR_TYPENAME:
-			proto_tree_add_item(tree, &hfi_ipset_attr_typename, tvb, offset, len, ENC_UTF_8);
+			proto_tree_add_item(tree, hfi_ipset_attr_typename.id, tvb, offset, len, ENC_UTF_8);
 			return 1;
 
 		case WS_IPSET_ATTR_REVISION:
@@ -1781,12 +1779,12 @@ dissect_ipset_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_da
 			return 0;
 
 		case WS_IPSET_ATTR_FAMILY:
-			proto_tree_add_item(tree, &hfi_ipset_attr_family, tvb, offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hfi_ipset_attr_family.id, tvb, offset, len, ENC_BIG_ENDIAN);
 			return 1;
 
 		case WS_IPSET_ATTR_FLAGS:
 			if (len == 4) {
-				proto_tree_add_item(tree, &hfi_ipset_attr_flags, tvb, offset, len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hfi_ipset_attr_flags.id, tvb, offset, len, ENC_BIG_ENDIAN);
 				/* TODO show bits from enum ipset_cmd_flags */
 				return 1;
 			}
@@ -1847,19 +1845,19 @@ static const value_string netlink_netfilter_subsystem_vals[] = {
 	{ 0, NULL }
 };
 
-static header_field_info hfi_nfexp_type NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfexp_type =
 	{ "Type", "netlink-netfilter.exp_type", FT_UINT16, BASE_DEC,
 	  VALS(nfexp_type_vals), 0x00FF, NULL, HFILL };
 
-static header_field_info hfi_nfq_type NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_nfq_type =
 	{ "Type", "netlink-netfilter.queue_type", FT_UINT16, BASE_DEC,
 	  VALS(nfq_type_vals), 0x00FF, NULL, HFILL };
 
-static header_field_info hfi_ipset_command NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_ipset_command =
 	{ "Command", "netlink-netfilter.ipset_command", FT_UINT16, BASE_DEC,
 	  VALS(ipset_command_vals), 0x00FF, NULL, HFILL };
 
-static header_field_info hfi_netlink_netfilter_subsys NETLINK_NETFILTER_HFI_INIT =
+static header_field_info hfi_netlink_netfilter_subsys =
 	{ "Subsystem", "netlink-netfilter.subsys", FT_UINT16, BASE_DEC,
 	  VALS(netlink_netfilter_subsystem_vals), 0xFF00, NULL, HFILL };
 
@@ -1877,27 +1875,27 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink netfilter");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_netfilter), tvb, 0, -1, ENC_NA);
+	pi = proto_tree_add_item(tree, proto_netlink_netfilter, tvb, 0, -1, ENC_NA);
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_netfilter);
 
 	/* Netlink message header (nlmsghdr) */
 	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, NULL, NULL);
-	proto_tree_add_item(nlmsg_tree, &hfi_netlink_netfilter_subsys, tvb, 4, 2, nl_data->encoding);
+	proto_tree_add_item(nlmsg_tree, hfi_netlink_netfilter_subsys.id, tvb, 4, 2, nl_data->encoding);
 	switch (nl_data->type >> 8) {
 		case WS_NFNL_SUBSYS_CTNETLINK_EXP:
-			proto_tree_add_item(nlmsg_tree, &hfi_nfexp_type, tvb, 4, 2, nl_data->encoding);
+			proto_tree_add_item(nlmsg_tree, hfi_nfexp_type.id, tvb, 4, 2, nl_data->encoding);
 			break;
 
 		case WS_NFNL_SUBSYS_QUEUE:
-			proto_tree_add_item(nlmsg_tree, &hfi_nfq_type, tvb, 4, 2, nl_data->encoding);
+			proto_tree_add_item(nlmsg_tree, hfi_nfq_type.id, tvb, 4, 2, nl_data->encoding);
 			break;
 
 		case WS_NFNL_SUBSYS_ULOG:
-			proto_tree_add_item(nlmsg_tree, &hfi_netlink_netfilter_ulog_type, tvb, 4, 2, nl_data->encoding);
+			proto_tree_add_item(nlmsg_tree, hfi_netlink_netfilter_ulog_type.id, tvb, 4, 2, nl_data->encoding);
 			break;
 
 		case WS_NFNL_SUBSYS_IPSET:
-			proto_tree_add_item(nlmsg_tree, &hfi_ipset_command, tvb, 4, 2, nl_data->encoding);
+			proto_tree_add_item(nlmsg_tree, hfi_ipset_command.id, tvb, 4, 2, nl_data->encoding);
 			break;
 	}
 
@@ -1937,7 +1935,6 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 void
 proto_register_netlink_netfilter(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
 	static header_field_info *hfi[] = {
 		&hfi_netlink_netfilter_subsys,
 		&hfi_netlink_netfilter_family,
@@ -2038,7 +2035,6 @@ proto_register_netlink_netfilter(void)
 		&hfi_ipset_ip_attr_ipv4,
 		&hfi_ipset_ip_attr_ipv6,
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_netlink_netfilter,
@@ -2063,7 +2059,7 @@ proto_register_netlink_netfilter(void)
 	proto_netlink_netfilter = proto_register_protocol("Linux netlink netfilter protocol", "netfilter", "netlink-netfilter" );
 	hfi_netlink_netfilter = proto_registrar_get_nth(proto_netlink_netfilter);
 
-	proto_register_fields(proto_netlink_netfilter, hfi, array_length(hfi));
+	proto_register_fields_manual(proto_netlink_netfilter, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	netlink_netfilter = create_dissector_handle(dissect_netlink_netfilter, proto_netlink_netfilter);

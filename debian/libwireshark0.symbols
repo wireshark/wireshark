@@ -1189,7 +1189,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_register_alias@Base 2.9.0
  proto_register_field_array@Base 1.9.1
  proto_register_fields_manual@Base 1.12.0~rc1
- proto_register_fields_section@Base 1.12.0~rc1
  proto_register_plugin@Base 2.5.0
  proto_register_prefix@Base 1.9.1
  proto_register_protocol@Base 1.9.1

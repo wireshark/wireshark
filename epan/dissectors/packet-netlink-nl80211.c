@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define NEW_PROTO_TREE_API
+#define HFI_DECLS /* for checkAPIs.pl */
 
 #include "config.h"
 
@@ -28,8 +28,6 @@ typedef struct  {
 
 static dissector_handle_t ieee80211_handle;
 static dissector_table_t ieee80211_tag_dissector_table;
-
-#define NETLINK_NL80211_HFI_INIT HFI_INIT(proto_netlink_generic)
 
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
@@ -3169,415 +3167,415 @@ static const value_string ws_nl80211_obss_pd_attributes_vals[] = {
 };
 static value_string_ext ws_nl80211_obss_pd_attributes_vals_ext = VALUE_STRING_EXT_INIT(ws_nl80211_obss_pd_attributes_vals);
 
-static header_field_info hfi_nl80211_commands NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_commands =
     { "Command", "nl80211.cmd", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_commands_vals_ext), 0x00, "Generic Netlink Command", HFILL };
 
-static header_field_info hfi_nl80211_attrs NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_attrs =
     { "Attribute Type", "nl80211.attr_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_attrs_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_iftype NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_iftype =
     { "Attribute Type", "nl80211.iftype", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_iftype_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_sta_flags NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_sta_flags =
     { "Attribute Type", "nl80211.sta_flags", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_sta_flags_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_sta_p2p_ps_status NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_sta_p2p_ps_status =
     { "Attribute Value", "nl80211.sta_p2p_ps_status", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_sta_p2p_ps_status_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_he_gi NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_he_gi =
     { "Attribute Type", "nl80211.he_gi", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_he_gi_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_he_ru_alloc NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_he_ru_alloc =
     { "Attribute Type", "nl80211.he_ru_alloc", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_he_ru_alloc_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_rate_info NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_rate_info =
     { "Attribute Type", "nl80211.rate_info", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_rate_info_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_sta_bss_param NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_sta_bss_param =
     { "Attribute Type", "nl80211.sta_bss_param", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_sta_bss_param_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_sta_info NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_sta_info =
     { "Attribute Type", "nl80211.sta_info", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_sta_info_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_tid_stats NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_tid_stats =
     { "Attribute Type", "nl80211.tid_stats", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_tid_stats_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_txq_stats NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_txq_stats =
     { "Attribute Type", "nl80211.txq_stats", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_txq_stats_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_mpath_flags NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_mpath_flags =
     { "Attribute Type", "nl80211.mpath_flags", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_mpath_flags_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_mpath_info NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_mpath_info =
     { "Attribute Type", "nl80211.mpath_info", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_mpath_info_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_band_iftype_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_band_iftype_attr =
     { "Attribute Type", "nl80211.band_iftype_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_band_iftype_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_band_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_band_attr =
     { "Attribute Type", "nl80211.band_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_band_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_wmm_rule NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_wmm_rule =
     { "Attribute Type", "nl80211.wmm_rule", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_wmm_rule_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_frequency_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_frequency_attr =
     { "Attribute Type", "nl80211.frequency_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_frequency_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_bitrate_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_bitrate_attr =
     { "Attribute Type", "nl80211.bitrate_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_bitrate_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_reg_initiator NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_reg_initiator =
     { "Attribute Value", "nl80211.reg_initiator", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_reg_initiator_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_reg_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_reg_type =
     { "Attribute Value", "nl80211.reg_type", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_reg_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_reg_rule_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_reg_rule_attr =
     { "Attribute Type", "nl80211.reg_rule_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_reg_rule_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_sched_scan_match_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_sched_scan_match_attr =
     { "Attribute Type", "nl80211.sched_scan_match_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_sched_scan_match_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_reg_rule_flags NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_reg_rule_flags =
     { "Attribute Type", "nl80211.reg_rule_flags", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_reg_rule_flags_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_dfs_regions NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_dfs_regions =
     { "Attribute Value", "nl80211.dfs_regions", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_dfs_regions_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_user_reg_hint_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_user_reg_hint_type =
     { "Attribute Value", "nl80211.user_reg_hint_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_user_reg_hint_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_survey_info NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_survey_info =
     { "Attribute Type", "nl80211.survey_info", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_survey_info_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_mntr_flags NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_mntr_flags =
     { "Attribute Type", "nl80211.mntr_flags", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_mntr_flags_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_mesh_power_mode NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_mesh_power_mode =
     { "Attribute Value", "nl80211.mesh_power_mode", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_mesh_power_mode_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_meshconf_params NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_meshconf_params =
     { "Attribute Type", "nl80211.meshconf_params", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_meshconf_params_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_mesh_setup_params NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_mesh_setup_params =
     { "Attribute Type", "nl80211.mesh_setup_params", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_mesh_setup_params_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_txq_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_txq_attr =
     { "Attribute Type", "nl80211.txq_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_txq_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_ac NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_ac =
     { "Attribute Type", "nl80211.ac", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_ac_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_channel_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_channel_type =
     { "Attribute Value", "nl80211.channel_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_channel_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_key_mode NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_key_mode =
     { "Attribute Type", "nl80211.key_mode", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_key_mode_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_chan_width NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_chan_width =
     { "Attribute Value", "nl80211.chan_width", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_chan_width_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_bss_scan_width NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_bss_scan_width =
     { "Attribute Value", "nl80211.bss_scan_width", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_bss_scan_width_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_bss NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_bss =
     { "Attribute Type", "nl80211.bss", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_bss_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_bss_status NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_bss_status =
     { "Attribute Value", "nl80211.bss_status", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_bss_status_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_auth_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_auth_type =
     { "Attribute Value", "nl80211.auth_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_auth_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_key_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_key_type =
     { "Attribute Value", "nl80211.key_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_key_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_mfp NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_mfp =
     { "Attribute Value", "nl80211.mfp", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_mfp_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_wpa_versions NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_wpa_versions =
     { "Attribute Type", "nl80211.wpa_versions", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_wpa_versions_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_key_default_types NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_key_default_types =
     { "Attribute Type", "nl80211.key_default_types", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_key_default_types_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_key_attributes NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_key_attributes =
     { "Attribute Type", "nl80211.key_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_key_attributes_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_tx_rate_attributes NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_tx_rate_attributes =
     { "Attribute Type", "nl80211.tx_rate_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_tx_rate_attributes_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_txrate_gi NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_txrate_gi =
     { "Attribute Type", "nl80211.txrate_gi", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_txrate_gi_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_band NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_band =
     { "Attribute Type", "nl80211.band", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_band_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_ps_state NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_ps_state =
     { "Attribute Value", "nl80211.ps_state", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_ps_state_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_attr_cqm NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_attr_cqm =
     { "Attribute Type", "nl80211.attr_cqm", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_attr_cqm_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_cqm_rssi_threshold_event NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_cqm_rssi_threshold_event =
     { "Attribute Type", "nl80211.cqm_rssi_threshold_event", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_cqm_rssi_threshold_event_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_tx_power_setting NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_tx_power_setting =
     { "Attribute Value", "nl80211.tx_power_setting", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_tx_power_setting_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_packet_pattern_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_packet_pattern_attr =
     { "Attribute Type", "nl80211.packet_pattern_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_packet_pattern_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_wowlan_triggers NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_wowlan_triggers =
     { "Attribute Type", "nl80211.wowlan_triggers", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_wowlan_triggers_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_wowlan_tcp_attrs NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_wowlan_tcp_attrs =
     { "Attribute Type", "nl80211.wowlan_tcp_attrs", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_wowlan_tcp_attrs_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_attr_coalesce_rule NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_attr_coalesce_rule =
     { "Attribute Type", "nl80211.attr_coalesce_rule", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_attr_coalesce_rule_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_coalesce_condition NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_coalesce_condition =
     { "Attribute Type", "nl80211.coalesce_condition", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_coalesce_condition_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_iface_limit_attrs NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_iface_limit_attrs =
     { "Attribute Type", "nl80211.iface_limit_attrs", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_iface_limit_attrs_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_if_combination_attrs NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_if_combination_attrs =
     { "Attribute Type", "nl80211.if_combination_attrs", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_if_combination_attrs_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_plink_state NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_plink_state =
     { "Attribute Value", "nl80211.plink_state", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_plink_state_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_plink_actions NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_plink_actions =
     { "Attribute Value", "nl80211.plink_actions", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_plink_actions_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_rekey_data NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_rekey_data =
     { "Attribute Type", "nl80211.rekey_data", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_rekey_data_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_hidden_ssid NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_hidden_ssid =
     { "Attribute Type", "nl80211.hidden_ssid", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_hidden_ssid_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_sta_wme_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_sta_wme_attr =
     { "Attribute Type", "nl80211.sta_wme_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_sta_wme_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_pmksa_candidate_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_pmksa_candidate_attr =
     { "Attribute Type", "nl80211.pmksa_candidate_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_pmksa_candidate_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_tdls_operation NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_tdls_operation =
     { "Attribute Value", "nl80211.tdls_operation", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_tdls_operation_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_feature_flags NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_feature_flags =
     { "Attribute Type", "nl80211.feature_flags", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_feature_flags_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_ext_feature_index NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_ext_feature_index =
     { "Attribute Type", "nl80211.ext_feature_index", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_ext_feature_index_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_probe_resp_offload_support_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_probe_resp_offload_support_attr =
     { "Attribute Type", "nl80211.probe_resp_offload_support_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_probe_resp_offload_support_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_connect_failed_reason NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_connect_failed_reason =
     { "Attribute Value", "nl80211.connect_failed_reason", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_connect_failed_reason_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_timeout_reason NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_timeout_reason =
     { "Attribute Value", "nl80211.timeout_reason", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_timeout_reason_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_scan_flags NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_scan_flags =
     { "Attribute Type", "nl80211.scan_flags", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_scan_flags_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_acl_policy NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_acl_policy =
     { "Attribute Value", "nl80211.acl_policy", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_acl_policy_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_smps_mode NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_smps_mode =
     { "Attribute Value", "nl80211.smps_mode", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_smps_mode_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_radar_event NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_radar_event =
     { "Attribute Value", "nl80211.radar_event", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_radar_event_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_dfs_state NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_dfs_state =
     { "Attribute Type", "nl80211.dfs_state", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_dfs_state_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_protocol_features NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_protocol_features =
     { "Attribute Type", "nl80211.protocol_features", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_protocol_features_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_crit_proto_id NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_crit_proto_id =
     { "Attribute Value", "nl80211.crit_proto_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_crit_proto_id_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_rxmgmt_flags NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_rxmgmt_flags =
     { "Attribute Type", "nl80211.rxmgmt_flags", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_rxmgmt_flags_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_tdls_peer_capability NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_tdls_peer_capability =
     { "Attribute Type", "nl80211.tdls_peer_capability", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_tdls_peer_capability_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_sched_scan_plan NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_sched_scan_plan =
     { "Attribute Type", "nl80211.sched_scan_plan", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_sched_scan_plan_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_bss_select_attr NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_bss_select_attr =
     { "Attribute Type", "nl80211.bss_select_attr", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_bss_select_attr_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_nan_function_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_nan_function_type =
     { "Attribute Type", "nl80211.nan_function_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_function_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_nan_publish_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_nan_publish_type =
     { "Attribute Type", "nl80211.nan_publish_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_publish_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_nan_func_term_reason NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_nan_func_term_reason =
     { "Attribute Type", "nl80211.nan_func_term_reason", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_func_term_reason_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_nan_func_attributes NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_nan_func_attributes =
     { "Attribute Type", "nl80211.nan_func_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_func_attributes_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_nan_srf_attributes NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_nan_srf_attributes =
     { "Attribute Type", "nl80211.nan_srf_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_srf_attributes_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_nan_match_attributes NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_nan_match_attributes =
     { "Attribute Type", "nl80211.nan_match_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_nan_match_attributes_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_external_auth_action NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_external_auth_action =
     { "Attribute Value", "nl80211.external_auth_action", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_external_auth_action_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_ftm_responder_attributes NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_ftm_responder_attributes =
     { "Attribute Type", "nl80211.ftm_responder_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_ftm_responder_attributes_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_ftm_responder_stats NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_ftm_responder_stats =
     { "Attribute Type", "nl80211.ftm_responder_stats", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_ftm_responder_stats_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_preamble NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_preamble =
     { "Attribute Type", "nl80211.preamble", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_preamble_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_type NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_type =
     { "Attribute Type", "nl80211.peer_measurement_type", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_type_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_status NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_status =
     { "Attribute Type", "nl80211.peer_measurement_status", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_status_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_req NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_req =
     { "Attribute Type", "nl80211.peer_measurement_req", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_req_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_resp NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_resp =
     { "Attribute Type", "nl80211.peer_measurement_resp", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_resp_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_peer_attrs NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_peer_attrs =
     { "Attribute Type", "nl80211.peer_measurement_peer_attrs", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_peer_attrs_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_attrs NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_attrs =
     { "Attribute Type", "nl80211.peer_measurement_attrs", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_attrs_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_ftm_capa NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_ftm_capa =
     { "Attribute Type", "nl80211.peer_measurement_ftm_capa", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_ftm_capa_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_ftm_req NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_ftm_req =
     { "Attribute Type", "nl80211.peer_measurement_ftm_req", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_ftm_req_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_ftm_failure_reasons NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_ftm_failure_reasons =
     { "Attribute Type", "nl80211.peer_measurement_ftm_failure_reasons", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_ftm_failure_reasons_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_peer_measurement_ftm_resp NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_peer_measurement_ftm_resp =
     { "Attribute Type", "nl80211.peer_measurement_ftm_resp", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_peer_measurement_ftm_resp_vals_ext), 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_obss_pd_attributes NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_obss_pd_attributes =
     { "Attribute Type", "nl80211.obss_pd_attributes", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
       VALS_EXT_PTR(&ws_nl80211_obss_pd_attributes_vals_ext), 0x00, NULL, HFILL };
 
@@ -3697,39 +3695,39 @@ static gint ett_nl80211 = -1;
 static gint ett_nl80211_frame = -1;
 static gint ett_nl80211_tag = -1;
 
-static header_field_info hfi_nl80211_attr_value NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_attr_value =
     { "Attribute Value", "nl80211.attr_value", FT_BYTES, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_attr_value16 NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_attr_value16 =
     { "Attribute Value", "nl80211.attr_value16", FT_UINT16, BASE_HEX_DEC,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_attr_value32 NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_attr_value32 =
     { "Attribute Value", "nl80211.attr_value32", FT_UINT32, BASE_HEX_DEC,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_attr_value64 NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_attr_value64 =
     { "Attribute Value", "nl80211.attr_value64", FT_UINT64, BASE_HEX_DEC,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_wiphy_name NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_wiphy_name =
     { "Wiphy Name", "nl80211.wiphy_name", FT_STRINGZ, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_ifname NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_ifname =
     { "Interface Name", "nl80211.ifname", FT_STRINGZ, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_mac NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_mac =
     { "MAC address", "nl80211.mac", FT_ETHER, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_alpha2 NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_alpha2 =
     { "Alpha2", "nl80211.alpha2", FT_STRINGZ, BASE_NONE,
       NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nl80211_dbm NETLINK_NL80211_HFI_INIT =
+static header_field_info hfi_nl80211_dbm =
     { "dBm", "nl80211.dbm", FT_INT32, BASE_DEC,
       NULL, 0x00, NULL, HFILL };
 
@@ -3743,13 +3741,13 @@ dissect_nl80211_generic(tvbuff_t *tvb, void *data _U_, struct packet_netlink_dat
      */
     if (len) {
         if (len == 2) {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value16, tvb, offset, len, nl_data->encoding);
+            proto_tree_add_item(tree, hfi_nl80211_attr_value16.id, tvb, offset, len, nl_data->encoding);
         } else if (len == 4) {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value32, tvb, offset, len, nl_data->encoding);
+            proto_tree_add_item(tree, hfi_nl80211_attr_value32.id, tvb, offset, len, nl_data->encoding);
         } else if (len == 8) {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value64, tvb, offset, len, nl_data->encoding);
+            proto_tree_add_item(tree, hfi_nl80211_attr_value64.id, tvb, offset, len, nl_data->encoding);
         } else {
-            proto_tree_add_item(tree, &hfi_nl80211_attr_value, tvb, offset, len, nl_data->encoding);
+            proto_tree_add_item(tree, hfi_nl80211_attr_value.id, tvb, offset, len, nl_data->encoding);
         }
         offset += len;
     }
@@ -3804,7 +3802,7 @@ dissect_value(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data
         if (values[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
             continue;
         }
-        proto_tree_add_item(tree, values[i].hfi, tvb, offset, len, nl_data->encoding);
+        proto_tree_add_item(tree, values[i].hfi->id, tvb, offset, len, nl_data->encoding);
         return offset + len;
     }
     return offset;
@@ -3966,7 +3964,7 @@ dissect_nl80211_sta_info(tvbuff_t *tvb, void *data, struct packet_netlink_data *
         case WS_NL80211_STA_INFO_BEACON_SIGNAL_AVG:
         case WS_NL80211_STA_INFO_ACK_SIGNAL:
         case WS_NL80211_STA_INFO_ACK_SIGNAL_AVG:
-            proto_tree_add_item(tree, &hfi_nl80211_dbm, tvb, offset, len, nl_data->encoding);
+            proto_tree_add_item(tree, hfi_nl80211_dbm.id, tvb, offset, len, nl_data->encoding);
             offset += len;
             break;
         default:
@@ -4119,7 +4117,7 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     info.pinfo = pinfo;
 
-    pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_nl80211), tvb, offset, -1, ENC_NA);
+    pi = proto_tree_add_item(tree, proto_netlink_nl80211, tvb, offset, -1, ENC_NA);
     nlmsg_tree = proto_item_add_subtree(pi, ett_nl80211);
 
     offset = dissect_netlink_attributes_to_end(tvb, &hfi_nl80211_attrs, ett_nl80211_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, dissect_nl80211_attrs);
@@ -4130,7 +4128,6 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void
 proto_register_netlink_nl80211(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
     static header_field_info *hfi[] = {
         &hfi_nl80211_attr_value,
         &hfi_nl80211_attr_value16,
@@ -4248,7 +4245,6 @@ proto_register_netlink_nl80211(void)
         &hfi_nl80211_obss_pd_attributes,
 /* }}} */
     };
-#endif
 
     static gint *ett[] = {
         &ett_nl80211,
@@ -4365,7 +4361,7 @@ proto_register_netlink_nl80211(void)
     proto_netlink_nl80211 = proto_register_protocol("Linux 802.11 Netlink", "nl80211", "nl80211");
     hfi_netlink_nl80211 = proto_registrar_get_nth(proto_netlink_nl80211);
 
-    proto_register_fields(proto_netlink_nl80211, hfi, array_length(hfi));
+    proto_register_fields_manual(proto_netlink_nl80211, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
 
     netlink_nl80211_handle = create_dissector_handle(dissect_netlink_nl80211, proto_netlink_nl80211);

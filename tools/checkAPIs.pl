@@ -708,7 +708,7 @@ sub check_hf_entries($$)
                                   &\s*([A-Z0-9_\[\]-]+)         # &hf
                                   \s*,\s*
         }xis;
-        if (${$fileContentsRef} =~ /^#define\s+NEW_PROTO_TREE_API/m) {
+        if (${$fileContentsRef} =~ /^#define\s+HFI_DECLS/m) {
                 $hfRegex = qr{
                                   \sheader_field_info\s+
                                   ([A-Z0-9_]+)

@@ -189,7 +189,7 @@ def make_hfi(name, indent):
         field_abbrev = rename_fields[name]
     field_abbrev = remove_prefix('nl80211_', field_abbrev)
 
-    code = 'static header_field_info hfi_%s NETLINK_NL80211_HFI_INIT =\n' % name
+    code = 'static header_field_info hfi_%s =\n' % name
     code += indent + '{ "%s", "nl80211.%s", %s, BASE_DEC | BASE_EXT_STRING,\n' % \
         (field_name, field_abbrev, field_type)
     code += indent + '  VALS_EXT_PTR(&ws_%s_vals_ext), 0x00, %s, HFILL };\n' % (name, field_blurb)
