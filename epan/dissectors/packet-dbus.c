@@ -240,6 +240,9 @@ typedef struct {
 	guint32 req_frame;
 	guint32 rep_frame;
 	nstime_t req_time;
+	const char *path;
+	const char *interface;
+	const char *member;
 } dbus_transaction_t;
 
 typedef struct {
@@ -1015,6 +1018,9 @@ add_conversation(dbus_packet_t *packet, proto_tree *header_field_tree) {
 			*trans = (dbus_transaction_t){
 				.req_frame = packet->pinfo->num,
 				.req_time = packet->pinfo->fd->abs_ts,
+				.path = wmem_strdup(wmem_file_scope(), packet->path),
+				.interface = wmem_strdup(wmem_file_scope(), packet->interface),
+				.member = wmem_strdup(wmem_file_scope(), packet->member),
 			};
 			wmem_map_insert(conv_info->packets, GUINT_TO_POINTER(packet->serial), (void *)trans);
 		} else {
@@ -1037,12 +1043,26 @@ add_conversation(dbus_packet_t *packet, proto_tree *header_field_tree) {
 		proto_item_set_generated(it);
 	} else {
 		nstime_t ns;
+		proto_item *it;
+		tvbuff_t *tvb = ptvcursor_tvbuff(packet->cursor);
 
-		proto_item *it = proto_tree_add_uint(header_field_tree, hf_dbus_response_to, ptvcursor_tvbuff(packet->cursor), 0, 0, trans->req_frame);
+		it = proto_tree_add_string(header_field_tree, hf_dbus_path, tvb, 0, 0, trans->path);
+		proto_item_set_generated(it);
+		packet->path = trans->path;
+
+		it = proto_tree_add_string(header_field_tree, hf_dbus_interface, tvb, 0, 0, trans->interface);
+		proto_item_set_generated(it);
+		packet->interface = trans->interface;
+
+		it = proto_tree_add_string(header_field_tree, hf_dbus_member, tvb, 0, 0, trans->member);
+		proto_item_set_generated(it);
+		packet->member = trans->member;
+
+		it = proto_tree_add_uint(header_field_tree, hf_dbus_response_to, tvb, 0, 0, trans->req_frame);
 		proto_item_set_generated(it);
 
 		nstime_delta(&ns, &packet->pinfo->fd->abs_ts, &trans->req_time);
-		it = proto_tree_add_time(header_field_tree, hf_dbus_response_time, ptvcursor_tvbuff(packet->cursor), 0, 0, &ns);
+		it = proto_tree_add_time(header_field_tree, hf_dbus_response_time, tvb, 0, 0, &ns);
 		proto_item_set_generated(it);
 	}
 }
