@@ -201,7 +201,7 @@ Source Package:
     - stat --format="%n %s bytes" wireshark-*.tar.*
     - for digest in sha256 rmd160 sha1 ; do openssl $digest wireshark-*.tar.* ; done
     # This will break if we produce multiple tarballs, which is arguably a good thing.
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
+    - if [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
   artifacts:
     paths:
       - wireshark-*.tar.*
@@ -344,7 +344,7 @@ Win64 Package:
     - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
-      if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN64)) {
+      if (Test-Path env:S3_DESTINATION_WIN64) {
         foreach ($package in $packages) {
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN64/"
         }
@@ -392,7 +392,7 @@ Win32 Package:
     - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
-      if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN32)) {
+      if (Test-Path env:S3_DESTINATION_WIN32) {
         foreach ($package in $packages) {
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN32/"
         }
@@ -432,7 +432,7 @@ macOS Arm Package:
     - stat -f "%N %z bytes" Wireshark*Arm*.dmg
     - for digest in sha256 rmd160 sha1 ; do openssl $digest Wireshark*Arm*.dmg ; done
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS_ARM64" ] ; then
+      if [ -n "$S3_DESTINATION_MACOS_ARM64" ] ; then
         aws s3 cp Wireshark*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
     - cd ..
@@ -465,7 +465,7 @@ macOS Intel Package:
     - stat -f "%N %z bytes" Wireshark*Intel*.dmg
     - for digest in sha256 rmd160 sha1 ; do openssl $digest Wireshark*Intel*.dmg ; done
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
+      if [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
         aws s3 cp Wireshark*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
       fi
     - cd ..
@@ -505,7 +505,7 @@ Documentation:
     - mv -v build/docbook/ws[ud]g_html{,_chunked}.zip .
     - mv -v build/docbook/Wireshark*Guide.{epub,pdf} .
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then
+      if [ -n "$S3_DESTINATION_DOCS" ] ; then
         for DOC_FILE in ws[ud]g_html{,_chunked}.zip Wireshark*Guide.{epub,pdf} ; do
           aws s3 cp "$DOC_FILE" "$S3_DESTINATION_DOCS/"
         done
@@ -715,7 +715,7 @@ Clang Static Analyzer:
     - if [ -d logs ] ; then mv logs $SB_DIR ; fi
     - chmod -R u=rwX,go=rX "$SB_DIR"
     - zip -9 -r "${SB_DIR}.zip" "$SB_DIR"
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "${SB_DIR}.zip" "$S3_DESTINATION_ANALYSIS/" ; fi
+    - if [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "${SB_DIR}.zip" "$S3_DESTINATION_ANALYSIS/" ; fi
 
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
@@ -746,7 +746,7 @@ API Reference:
     - mv build/doxygen_output.txt .
     - mv build/doxygen_errors.txt .
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DOCS" ] ; then
+      if [ -n "$S3_DESTINATION_DOCS" ] ; then
         aws s3 cp wsar_html.zip "$S3_DESTINATION_DOCS/"
       fi
   artifacts:
@@ -791,7 +791,7 @@ Code Lines:
     - /tmp/tokei --version
     - /tmp/tokei --exclude 'qt/*.ts' . | tee $TOKEI_OUT
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then
+      if [ -n "$S3_DESTINATION_ANALYSIS" ] ; then
         aws s3 cp "$CLOC_OUT" "$S3_DESTINATION_ANALYSIS/"
         aws s3 cp "$SCC_OUT" "$S3_DESTINATION_ANALYSIS/"
         aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/"
@@ -829,7 +829,7 @@ Code Lines:
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_FUZZ" ] ; then
+      if [ -n "$S3_DESTINATION_FUZZ" ] ; then
         aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
         aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
       fi
