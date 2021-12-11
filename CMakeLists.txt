@@ -2231,7 +2231,7 @@ if(USE_REPOSITORY)
 		add_custom_command(TARGET pdb_zip_package POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E remove -f "${_pdb_zip}"
 			COMMAND ${ZIP_EXECUTABLE} a -tzip -mmt=on "${_pdb_zip_win}"
-				-bb2
+				-bb0 -bd
 				-r *.pdb *.lib
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
@@ -2617,7 +2617,7 @@ if(BUILD_wireshark AND QT_FOUND)
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 			COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
 				--no-compiler-runtime
-				--verbose 10
+				--verbose 0
 				$<$<BOOL:${MSVC}>:--pdb>
 				"$<TARGET_FILE:wireshark>"
 		)

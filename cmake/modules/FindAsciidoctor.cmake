@@ -41,6 +41,7 @@ if(ASCIIDOCTOR_EXECUTABLE)
         # Doesn't work with AsciidoctorJ?
         # --failure-level=WARN
         # --trace
+        --quiet
         --attribute build_dir=${CMAKE_CURRENT_BINARY_DIR}
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/ws_utils.rb
         --require ${CMAKE_SOURCE_DIR}/docbook/asciidoctor-macros/commaize-block.rb

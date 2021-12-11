@@ -90,7 +90,7 @@ MACRO(XML2HTML _target_dep _dir_pfx _mode _dbk_source _gfx_sources)
     IF(${_mode} STREQUAL "chunked")
         SET(_basedir ${_dir_pfx}_html_chunked)
         SET(_stylesheet "http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl")
-        SET(_modeparams --stringparam chunker.output.encoding UTF-8)
+        SET(_modeparams --stringparam chunker.output.encoding UTF-8 --stringparam chunk.quietly 1)
     ELSE() # single-page
         SET(_basedir ${_dir_pfx}_html)
         SET(_stylesheet custom_layer_single_html.xsl)

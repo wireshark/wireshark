@@ -170,7 +170,7 @@ set(NSIS_OPTIONS
 	/DSTAGING_DIR=${_staging_dir}
 	/DOUTFILE_DIR=${_outfile_dir}
 	/DNSIS_INCLUDE_DIR=${_nsis_include_dir}
-	/V4
+	/V2
 	PARENT_SCOPE
 )
 
