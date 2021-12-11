@@ -13,7 +13,6 @@
 #ifndef __EXTCAP_BASE_H__
 #define __EXTCAP_BASE_H__
 
-
 #include <glib.h>
 #include <glib/gprintf.h>
 #include <stdlib.h>
@@ -22,62 +21,62 @@
 #include <wsutil/ws_getopt.h>
 
 #ifdef _WIN32
-	#include <io.h>
+#include <io.h>
 #endif
 
 #include <wsutil/socket.h>
 
 #define EXTCAP_BASE_OPTIONS_ENUM \
-	EXTCAP_OPT_LIST_INTERFACES, \
-	EXTCAP_OPT_VERSION, \
-	EXTCAP_OPT_LIST_DLTS, \
-	EXTCAP_OPT_INTERFACE, \
-	EXTCAP_OPT_CONFIG, \
-	EXTCAP_OPT_CAPTURE, \
-	EXTCAP_OPT_CAPTURE_FILTER, \
-	EXTCAP_OPT_FIFO, \
-	EXTCAP_OPT_LOG_LEVEL, \
-	EXTCAP_OPT_LOG_FILE
+    EXTCAP_OPT_LIST_INTERFACES, \
+    EXTCAP_OPT_VERSION, \
+    EXTCAP_OPT_LIST_DLTS, \
+    EXTCAP_OPT_INTERFACE, \
+    EXTCAP_OPT_CONFIG, \
+    EXTCAP_OPT_CAPTURE, \
+    EXTCAP_OPT_CAPTURE_FILTER, \
+    EXTCAP_OPT_FIFO, \
+    EXTCAP_OPT_LOG_LEVEL, \
+    EXTCAP_OPT_LOG_FILE
 
 
 #define EXTCAP_BASE_OPTIONS \
-	{ "extcap-interfaces", ws_no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
-	{ "extcap-version", ws_optional_argument, NULL, EXTCAP_OPT_VERSION}, \
-	{ "extcap-dlts", ws_no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
-	{ "extcap-interface", ws_required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
-	{ "extcap-config", ws_no_argument, NULL, EXTCAP_OPT_CONFIG}, \
-	{ "capture", ws_no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
-	{ "extcap-capture-filter", ws_required_argument,	NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
-	{ "fifo", ws_required_argument, NULL, EXTCAP_OPT_FIFO}, \
-	{ "log-level", ws_required_argument, NULL, EXTCAP_OPT_LOG_LEVEL}, \
-	{ "log-file", ws_required_argument, NULL, EXTCAP_OPT_LOG_FILE}
+    { "extcap-interfaces", ws_no_argument, NULL, EXTCAP_OPT_LIST_INTERFACES}, \
+    { "extcap-version", ws_optional_argument, NULL, EXTCAP_OPT_VERSION}, \
+    { "extcap-dlts", ws_no_argument, NULL, EXTCAP_OPT_LIST_DLTS}, \
+    { "extcap-interface", ws_required_argument, NULL, EXTCAP_OPT_INTERFACE}, \
+    { "extcap-config", ws_no_argument, NULL, EXTCAP_OPT_CONFIG}, \
+    { "capture", ws_no_argument, NULL, EXTCAP_OPT_CAPTURE}, \
+    { "extcap-capture-filter", ws_required_argument,    NULL, EXTCAP_OPT_CAPTURE_FILTER}, \
+    { "fifo", ws_required_argument, NULL, EXTCAP_OPT_FIFO}, \
+    { "log-level", ws_required_argument, NULL, EXTCAP_OPT_LOG_LEVEL}, \
+    { "log-file", ws_required_argument, NULL, EXTCAP_OPT_LOG_FILE}
 
 typedef struct _extcap_parameters
 {
-	char * exename;
-	char * fifo;
-	char * interface;
-	char * capture_filter;
+    char * exename;
+    char * fifo;
+    char * interface;
+    char * capture_filter;
 
-	char * version;
-	char * compiled_with;
-	char * running_with;
-	char * helppage;
-	uint8_t capture;
-	uint8_t show_config;
+    char * version;
+    char * compiled_with;
+    char * running_with;
+    char * helppage;
+    uint8_t capture;
+    uint8_t show_config;
 
-	char * ws_version;
+    char * ws_version;
 
-	/* private content */
-	GList * interfaces;
-	uint8_t do_version;
-	uint8_t do_list_dlts;
-	uint8_t do_list_interfaces;
+    /* private content */
+    GList * interfaces;
+    uint8_t do_version;
+    uint8_t do_list_dlts;
+    uint8_t do_list_interfaces;
 
-	char * help_header;
-	GList * help_options;
+    char * help_header;
+    GList * help_options;
 
-	gboolean debug;
+    gboolean debug;
 } extcap_parameters;
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription );
@@ -103,11 +102,11 @@ void extcap_log_init(const char *progname);
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 8
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

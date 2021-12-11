@@ -4,6 +4,6 @@
 # https://editorconfig.org
 #
 
-[{ciscodump,extcap-base,randpktdump,ssh-base,sshdump,udpdump}.[ch]]
+[{ciscodump,randpktdump,ssh-base,sshdump,udpdump}.[ch]]
 indent_style = tab
 indent_size = tab
