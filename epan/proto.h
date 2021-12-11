@@ -2462,9 +2462,6 @@ proto_register_prefix(const char *prefix,  prefix_initializer_t initializer);
 /** Initialize every remaining uninitialized prefix. */
 WS_DLL_PUBLIC void proto_initialize_all_prefixes(void);
 
-WS_DLL_PUBLIC void proto_register_fields_manual(const int parent, header_field_info **hfi,
-    const int num_records);
-
 /** Register a header_field array.
  @param parent the protocol handle from proto_register_protocol()
  @param hf the hf_register_info array
