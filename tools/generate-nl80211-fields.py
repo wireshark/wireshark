@@ -168,7 +168,11 @@ def remove_prefix(prefix, text):
         return text[len(prefix):]
     return text
 
-def make_hfi(name, indent):
+def make_hf_defs(name, indent):
+    code = 'static gint hf_%s = -1;' % name
+    return code
+
+def make_hf(name, indent):
     (field_name, field_type, field_blurb) = EXPORT_ENUMS.get(name)
     field_abbrev = name
 
@@ -189,18 +193,16 @@ def make_hfi(name, indent):
         field_abbrev = rename_fields[name]
     field_abbrev = remove_prefix('nl80211_', field_abbrev)
 
-    code = 'static header_field_info hfi_%s =\n' % name
-    code += indent + '{ "%s", "nl80211.%s", %s, BASE_DEC | BASE_EXT_STRING,\n' % \
-        (field_name, field_abbrev, field_type)
-    code += indent + '  VALS_EXT_PTR(&ws_%s_vals_ext), 0x00, %s, HFILL };\n' % (name, field_blurb)
+    code = indent + indent + '{ &hf_%s,\n' % name
+    code += indent*3 + '{ "%s", "nl80211.%s",\n' % (field_name, field_abbrev)
+    code += indent*3 + '  %s, BASE_DEC | BASE_EXT_STRING,\n' % (field_type)
+    code += indent*3 + '  VALS_EXT_PTR(&ws_%s_vals_ext), 0x00,\n' % (name)
+    code += indent*3 + '  %s, HFILL },\n' % (field_blurb)
+    code += indent + indent + '},'
     return code
 
 def make_ett_defs(name, indent):
     code = 'static gint ett_%s = -1;' % name
-    return code
-
-def make_hfi_init(name, indent):
-    code = indent + indent + '&hfi_%s,' % name
     return code
 
 def make_ett(name, indent):
@@ -317,19 +319,19 @@ def main():
             "Could not parse data, found %d/%d results" % \
             (len(enums), len(EXPORT_ENUMS))
 
-    code_enums, code_vals, code_hfi, code_ett_defs, code_hfi_init, code_ett = '', '', '', '', '', ''
+    code_enums, code_vals, code_hf_defs, code_ett_defs, code_hf, code_ett = '', '', '', '', '', ''
     for enum_name, enum_values, expressions in enums:
         code_enums += make_enum(enum_name, enum_values, expressions, indent) + '\n'
         code_vals += make_value_string(enum_name, enum_values, indent) + '\n'
-        code_hfi += make_hfi(enum_name, indent) + '\n'
+        code_hf_defs += make_hf_defs(enum_name, indent) + '\n'
         code_ett_defs += make_ett_defs(enum_name, indent) + '\n'
-        code_hfi_init += make_hfi_init(enum_name, indent) + '\n'
+        code_hf += make_hf(enum_name, indent) + '\n'
         code_ett += make_ett(enum_name, indent) + '\n'
 
-    code_top = code_enums + code_vals + code_hfi + code_ett_defs
+    code_top = code_enums + code_vals + code_hf_defs + '\n' + code_ett_defs
     code_top = code_top.rstrip("\n") + "\n"
 
-    code = [code_top, code_hfi_init, code_ett]
+    code = [code_top, code_hf, code_ett]
 
     update = False
     if args.update:
