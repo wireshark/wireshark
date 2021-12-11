@@ -134,7 +134,7 @@ Source Package:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - for digest in sha256 rmd160 sha1 ; do openssl $digest wireshark-*.tar.* ; done
     # This will break if we produce multiple tarballs, which is arguably a good thing.
-    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
+    - if [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
   artifacts:
     paths:
       - wireshark-*.tar.*
@@ -262,7 +262,7 @@ Win64 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi", "Wireshark-pdb-win??-*.zip"
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
-      if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN64)) {
+      if (Test-Path env:S3_DESTINATION_WIN64) {
         foreach ($package in $packages) {
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN64/"
         }
@@ -309,7 +309,7 @@ Win32 Package:
     - $packages = Get-ChildItem "packaging\nsis\Wireshark-win??-*.exe", "packaging\wix\Wireshark-win??-*.msi", "packaging\portableapps\WiresharkPortable_*.paf.exe", "Wireshark-pdb-win??-*.zip"
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
-      if ((Test-Path env:AWS_ACCESS_KEY_ID) -and (Test-Path env:AWS_SECRET_ACCESS_KEY) -and (Test-Path env:S3_DESTINATION_WIN32)) {
+      if (Test-Path env:S3_DESTINATION_WIN32) {
         foreach ($package in $packages) {
           aws s3 cp "$package" "$env:S3_DESTINATION_WIN32/"
         }
@@ -341,7 +341,7 @@ macOS Intel Package:
     - stat -f "%N %z bytes" Wireshark*Intel*.dmg
     - for digest in sha256 rmd160 sha1 ; do openssl $digest Wireshark*Intel*.dmg ; done
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
+      if [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
         aws s3 cp Wireshark*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
       fi
     - cd ..
@@ -502,7 +502,7 @@ Windows Build:
     - printf "\nfuzz-test.sh stderr:\n" >> "$FUZZ_ERRORS"
     - cat fuzz-test.err >> "$FUZZ_ERRORS"
     - |
-      if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_FUZZ" ] ; then
+      if [ -n "$S3_DESTINATION_FUZZ" ] ; then
         aws s3 cp "$FUZZ_CAPTURE" "$S3_DESTINATION_FUZZ/"
         aws s3 cp "$FUZZ_ERRORS" "$S3_DESTINATION_FUZZ/"
       fi
