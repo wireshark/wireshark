@@ -803,7 +803,7 @@ dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlin
 /* IP address */
 
 static void
-hf_netlink_route_ifa_flags_label(char *label, guint32 value)
+netlink_route_ifa_flags_label(char *label, guint32 value)
 {
 	static const value_string iff_vals[] = {
 		{ WS_IFA_F_SECONDARY,       "secondary/temporary" },
@@ -909,7 +909,7 @@ dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data _U_, struct packet_net
 
 /* Route */
 
-static const value_string hf_netlink_route_rt_protocol_vals[] = {
+static const value_string netlink_route_rt_protocol_vals[] = {
 	{ WS_RTPROT_UNSPEC,   "unknown" },
 	{ WS_RTPROT_REDIRECT, "ICMP redirects" },
 	{ WS_RTPROT_KERNEL,   "kernel" },
@@ -934,7 +934,7 @@ static const value_string hf_netlink_route_rt_protocol_vals[] = {
 	{ 0, NULL }
 };
 static value_string_ext hf_netlink_route_rt_protocol_vals_ext =
-	VALUE_STRING_EXT_INIT(hf_netlink_route_rt_protocol_vals);
+	VALUE_STRING_EXT_INIT(netlink_route_rt_protocol_vals);
 
 static const value_string netlink_route_rt_scope_vals[] = {
 	{ WS_RT_SCOPE_UNIVERSE, "global route" },
@@ -1068,7 +1068,7 @@ dissect_netlink_route_route_attrs(tvbuff_t *tvb, void *data _U_, struct packet_n
 }
 
 static void
-hf_netlink_route_nd_states_label(char *label, guint32 value)
+netlink_route_nd_states_label(char *label, guint32 value)
 {
 	static const value_string flags_vals[] = {
 		{ WS_NUD_NONE,       "NONE" },
@@ -1584,7 +1584,7 @@ proto_register_netlink_route(void)
 		},
 		{ &hf_netlink_route_ifa_flags,
 			{ "Address flags", "netlink-route.ifa_flags",
-			  FT_UINT8, BASE_CUSTOM, CF_FUNC(hf_netlink_route_ifa_flags_label), 0x00,
+			  FT_UINT8, BASE_CUSTOM, CF_FUNC(netlink_route_ifa_flags_label), 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_route_ifa_scope,
@@ -1609,7 +1609,7 @@ proto_register_netlink_route(void)
 		},
 		{ &hf_netlink_route_ifa_flags32,
 			{ "Address flags", "netlink-route.ifa_flags32",
-			  FT_UINT32, BASE_CUSTOM, CF_FUNC(hf_netlink_route_ifa_flags_label), 0x00,
+			  FT_UINT32, BASE_CUSTOM, CF_FUNC(netlink_route_ifa_flags_label), 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_route_ifa_addr6,
@@ -1694,7 +1694,7 @@ proto_register_netlink_route(void)
 		},
 		{ &hf_netlink_route_nd_state,
 			{ "State", "netlink-route.nd_state",
-			  FT_UINT16, BASE_CUSTOM, CF_FUNC(hf_netlink_route_nd_states_label), 0x00,
+			  FT_UINT16, BASE_CUSTOM, CF_FUNC(netlink_route_nd_states_label), 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_route_nd_flags,
