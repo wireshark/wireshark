@@ -3769,7 +3769,7 @@ dissect_nested_attr(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_da
         if (nested[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
             continue;
         }
-        offset = dissect_netlink_attributes(tvb, nested[i].hfi, *nested[i].ett, info,
+        offset = dissect_netlink_attributes(tvb, nested[i].hfi->id, *nested[i].ett, info,
                                             nl_data, tree, offset, len,
                                             nested[i].func ? nested[i].func : dissect_nl80211_generic);
         break;
@@ -3785,7 +3785,7 @@ dissect_nested_attr_array(tvbuff_t *tvb, void *data, struct packet_netlink_data 
         if (nested_arr[i].attr_type != (nla_type & NLA_TYPE_MASK)) {
             continue;
         }
-        offset = dissect_netlink_attributes_array(tvb, nested_arr[i].hfi, *nested_arr[i].ett,
+        offset = dissect_netlink_attributes_array(tvb, nested_arr[i].hfi->id, *nested_arr[i].ett,
                                                   *nested_arr[i].ett, info,
                                                   nl_data, tree, offset, len,
                                                   nested_arr[i].func ?
@@ -4108,7 +4108,7 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "nl80211");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, &hfi_nl80211_commands);
+    offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, hfi_nl80211_commands.id);
 
     /* Return if command has no payload */
     if (!tvb_reported_length_remaining(tvb, offset))
@@ -4120,7 +4120,7 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     pi = proto_tree_add_item(tree, proto_netlink_nl80211, tvb, offset, -1, ENC_NA);
     nlmsg_tree = proto_item_add_subtree(pi, ett_nl80211);
 
-    offset = dissect_netlink_attributes_to_end(tvb, &hfi_nl80211_attrs, ett_nl80211_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, dissect_nl80211_attrs);
+    offset = dissect_netlink_attributes_to_end(tvb, hfi_nl80211_attrs.id, ett_nl80211_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, dissect_nl80211_attrs);
 
     return offset;
 }

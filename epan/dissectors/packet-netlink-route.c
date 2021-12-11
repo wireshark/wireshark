@@ -397,7 +397,7 @@ _fill_label_value_string_bitmask(char *label, guint32 value, const value_string 
 }
 
 static int
-dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, struct netlink_route_info *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
+dissect_netlink_route_attributes(tvbuff_t *tvb, int hf_type, struct netlink_route_info *info, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
 {
 	/* XXX, it's *almost* the same:
 	 *  - rtnetlink is using struct rtattr with shorts
@@ -405,7 +405,7 @@ dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, str
 	 */
 
 	/* XXX, nice */
-	return dissect_netlink_attributes_to_end(tvb, hfi_type, ett_netlink_route_attr, info, nl_data, tree, offset, cb);
+	return dissect_netlink_attributes_to_end(tvb, hf_type, ett_netlink_route_attr, info, nl_data, tree, offset, cb);
 }
 
 /* Interface */
@@ -1457,7 +1457,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_route);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_netlink_route_nltype, NULL);
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, hfi_netlink_route_nltype.id, NULL);
 
 	info.pinfo = pinfo;
 
@@ -1475,7 +1475,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			info.legacy = (nl_data->type == WS_RTM_GETLINK) && (tvb_reported_length_remaining(tvb, offset) < 16);
 			offset = dissect_netlink_route_ifinfomsg(tvb, &info, nl_data, nlmsg_tree, offset);
 			/* Optional attributes */
-			offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifla_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifla_attrs);
+			offset = dissect_netlink_route_attributes(tvb, hfi_netlink_route_ifla_attr_type.id, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifla_attrs);
 			break;
 
 		case WS_RTM_NEWADDR:
@@ -1497,7 +1497,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 				 * Not present in legacy-tool messages;
 				 * again, see the comment above.
 				 */
-				offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_ifa_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifa_attrs);
+				offset = dissect_netlink_route_attributes(tvb, hfi_netlink_route_ifa_attr_type.id, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_ifa_attrs);
 			}
 			break;
 
@@ -1521,7 +1521,7 @@ dissect_netlink_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 				 * Not present in legacy-tool messages;
 				 * again, see the comment above.
 				 */
-				offset = dissect_netlink_route_attributes(tvb, &hfi_netlink_route_rta_attr_type, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_route_attrs);
+				offset = dissect_netlink_route_attributes(tvb, hfi_netlink_route_rta_attr_type.id, &info, nl_data, nlmsg_tree, offset, dissect_netlink_route_route_attrs);
 			}
 			break;
 

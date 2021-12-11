@@ -446,7 +446,7 @@ dissect_sock_diag_unix_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, stru
 	sock_diag_proto_tree_add_cookie(tree, info, nl_data, tvb, offset);
 	offset += 8;
 
-	return dissect_netlink_attributes_to_end(tvb, &hfi_netlink_sock_diag_unix_attr, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_netlink_unix_sock_diag_reply_attrs);
+	return dissect_netlink_attributes_to_end(tvb, hfi_netlink_sock_diag_unix_attr.id, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_netlink_unix_sock_diag_reply_attrs);
 }
 
 /* AF_UNIX request */
@@ -730,7 +730,7 @@ dissect_sock_diag_inet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, stru
 	proto_tree_add_item(tree, hfi_netlink_sock_diag_inode.id, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
-	return dissect_netlink_attributes_to_end(tvb, &hfi_netlink_sock_diag_inet_attr, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_sock_diag_inet_attributes);
+	return dissect_netlink_attributes_to_end(tvb, hfi_netlink_sock_diag_inet_attr.id, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_sock_diag_inet_attributes);
 }
 
 /* AF_INET request */
@@ -851,7 +851,7 @@ dissect_sock_diag_netlink_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, s
 	sock_diag_proto_tree_add_cookie(tree, info, nl_data, tvb, offset);
 	offset += 8;
 
-	return dissect_netlink_attributes_to_end(tvb, &hfi_netlink_sock_diag_netlink_attr, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_sock_diag_netlink_attributes);
+	return dissect_netlink_attributes_to_end(tvb, hfi_netlink_sock_diag_netlink_attr.id, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_sock_diag_netlink_attributes);
 }
 
 /* AF_NETLINK request */
@@ -979,7 +979,7 @@ dissect_sock_diag_packet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, st
 	sock_diag_proto_tree_add_cookie(tree, info, nl_data, tvb, offset);
 	offset += 8;
 
-	return dissect_netlink_attributes_to_end(tvb, &hfi_netlink_sock_diag_packet_attr, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_netlink_packet_sock_diag_reply_attrs);
+	return dissect_netlink_attributes_to_end(tvb, hfi_netlink_sock_diag_packet_attr.id, ett_netlink_sock_diag_attr, info, nl_data, tree, offset, dissect_netlink_packet_sock_diag_reply_attrs);
 }
 
 /* AF_PACKET request */
@@ -1127,7 +1127,7 @@ dissect_netlink_sock_diag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_sock_diag);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_netlink_sock_diag_nltype, NULL);
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, hfi_netlink_sock_diag_nltype.id, NULL);
 
 	info.pinfo = pinfo;
 

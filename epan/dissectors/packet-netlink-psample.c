@@ -256,7 +256,7 @@ dissect_netlink_psample(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Generic netlink header */
-	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, &hfi_psample_commands);
+	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, hfi_psample_commands.id);
 
 	/* Not all commands have a payload */
 	if (!tvb_reported_length_remaining(tvb, offset))
@@ -269,7 +269,7 @@ dissect_netlink_psample(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	info.pinfo = pinfo;
 	info.protocol = 0;
 
-	offset = dissect_netlink_attributes_to_end(tvb, &hfi_psample_attrs, ett_psample_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, dissect_psample_attrs);
+	offset = dissect_netlink_attributes_to_end(tvb, hfi_psample_attrs.id, ett_psample_attrs, &info, genl_info->nl_data, nlmsg_tree, offset, dissect_psample_attrs);
 
 	return offset;
 }

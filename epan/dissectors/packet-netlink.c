@@ -236,11 +236,12 @@ static int * const netlink_header_standard_flags[] = {
 
 
 static int
-dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, int ett_tree, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
+dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
 	int encoding;
 	int padding = (4 - offset) & 3;
 	guint data_length;
+	header_field_info *hfi_type;
 
 	DISSECTOR_ASSERT(nl_data);
 
@@ -290,17 +291,18 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 			type_tree = proto_item_add_subtree(type_item, ett_netlink_attr_type);
 			proto_tree_add_item(type_tree, hfi_netlink_attr_type_nested.id, tvb, offset, 2, encoding);
 			proto_tree_add_item(type_tree, hfi_netlink_attr_type_net_byteorder.id, tvb, offset, 2, encoding);
-			/* The hfi_type _must_ have NLA_TYPE_MASK in it's definition, otherwise the nested/net_byteorder
+			/* The hf_type _must_ have NLA_TYPE_MASK in it's definition, otherwise the nested/net_byteorder
 			 * flags influence the retrieved value. Since this is impossible to enforce (apart from using
 			 * a nasty DISSECTOR_ASSERT perhaps) we'll just have to make sure to feed in the properly
 			 * masked value. Luckily we already have it: 'type' is the value we need.
 			 */
-			proto_tree_add_uint(type_tree, hfi_type->id, tvb, offset, 2, type);
+			proto_tree_add_uint(type_tree, hf_type, tvb, offset, 2, type);
 			offset += 2;
 
 			if (rta_type & NLA_F_NESTED)
 				proto_item_append_text(type_item, ", Nested");
 
+			hfi_type = proto_registrar_get_nth(hf_type);
 			if (hfi_type->strings) {
 				/* XXX, export hf_try_val_to_str */
 				const char *rta_str;
@@ -343,7 +345,7 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 			offset += 2;
 			proto_item_append_text(ti, " %u", rta_type);
 
-			dissect_netlink_attributes(tvb, hfi_type, ett_attrib, data, nl_data, attr_tree, offset, rta_len - 4, cb);
+			dissect_netlink_attributes(tvb, hf_type, ett_attrib, data, nl_data, attr_tree, offset, rta_len - 4, cb);
 		}
 
 		/* Assume offset already aligned, next offset is rta_len plus alignment. */
@@ -358,31 +360,32 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, header_field_info *hfi_type, in
 }
 
 int
-dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
+dissect_netlink_attributes(tvbuff_t *tvb, int hf_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
-	return dissect_netlink_attributes_common(tvb, hfi_type, ett, -1, data, nl_data, tree, offset, length, cb);
+	return dissect_netlink_attributes_common(tvb, hf_type, ett, -1, data, nl_data, tree, offset, length, cb);
 }
 
 int
-dissect_netlink_attributes_to_end(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
+dissect_netlink_attributes_to_end(tvbuff_t *tvb, int hf_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb)
 {
-	return dissect_netlink_attributes_common(tvb, hfi_type, ett, -1, data, nl_data, tree, offset, tvb_ensure_reported_length_remaining(tvb, offset), cb);
+	return dissect_netlink_attributes_common(tvb, hf_type, ett, -1, data, nl_data, tree, offset, tvb_ensure_reported_length_remaining(tvb, offset), cb);
 }
 
 int
-dissect_netlink_attributes_array(tvbuff_t *tvb, header_field_info *hfi_type, int ett_array, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
+dissect_netlink_attributes_array(tvbuff_t *tvb, int hf_type, int ett_array, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
 {
 	DISSECTOR_ASSERT(ett_attrib != -1);
-	return dissect_netlink_attributes_common(tvb, hfi_type, ett_array, ett_attrib, data, nl_data, tree, offset, length, cb);
+	return dissect_netlink_attributes_common(tvb, hf_type, ett_array, ett_attrib, data, nl_data, tree, offset, length, cb);
 }
 
 int
-dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, header_field_info *hfi_type, proto_item **pi_type)
+dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, int hf_type, proto_item **pi_type)
 {
 	guint16 hdr_flags;
 	guint16 hdr_type;
 	proto_tree *fh_hdr;
 	proto_item *pi;
+	header_field_info *hfi_type;
 
 	fh_hdr = proto_tree_add_subtree(tree, tvb, offset, 16, ett_netlink_msghdr, NULL, "Netlink message header");
 
@@ -392,17 +395,19 @@ dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding
 	hdr_type = tvb_get_guint16(tvb, offset, encoding);
 	if (hdr_type < WS_NLMSG_MIN_TYPE) {
 		/* Reserved control messages. */
-		hfi_type = &hfi_netlink_hdr_type;
-		pi = proto_tree_add_item(fh_hdr, hfi_type->id, tvb, offset, 2, encoding);
+		hf_type = hfi_netlink_hdr_type.id;
+		pi = proto_tree_add_item(fh_hdr, hf_type, tvb, offset, 2, encoding);
 	} else {
-		if (hfi_type) {
-			pi = proto_tree_add_item(fh_hdr, hfi_type->id, tvb, offset, 2, encoding);
+		if (hf_type != -1) {
+			pi = proto_tree_add_item(fh_hdr, hf_type, tvb, offset, 2, encoding);
 		} else {
-			hfi_type = &hfi_netlink_hdr_type;
-			pi = proto_tree_add_item(fh_hdr, hfi_type->id, tvb, offset, 2, encoding);
+			hf_type = hfi_netlink_hdr_type.id;
+			pi = proto_tree_add_item(fh_hdr, hf_type, tvb, offset, 2, encoding);
 			proto_item_set_text(pi, "Message type: Protocol-specific (0x%04x)", hdr_type);
 		}
 	}
+	hfi_type = proto_registrar_get_nth(hf_type);
+
 	if (pi_type) {
 		*pi_type = pi;
 	}
@@ -455,7 +460,7 @@ dissect_netlink_error(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding)
 	proto_tree_add_item(tree, hfi_netlink_error.id, tvb, offset, 4, encoding);
 	offset += 4;
 
-	dissect_netlink_header(tvb, tree, offset, encoding, NULL, NULL);
+	dissect_netlink_header(tvb, tree, offset, encoding, -1, NULL);
 }
 
 static int
@@ -578,7 +583,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 			 * header and the payload. Note that pkt_len>=16.
 			 */
 			fh_msg = proto_tree_add_subtree(tree, tvb, offset, pkt_len, ett_netlink_msg, NULL, "Netlink message");
-			offset = dissect_netlink_header(tvb, fh_msg, offset, encoding, NULL, NULL);
+			offset = dissect_netlink_header(tvb, fh_msg, offset, encoding, -1, NULL);
 
 			if (msg_type == WS_NLMSG_ERROR) {
 				dissect_netlink_error(tvb, fh_msg, offset, encoding);

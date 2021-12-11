@@ -323,10 +323,10 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 		}
 		break;
 	case WS_CTRL_ATTR_OPS:
-		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_ops_attr, ett_genl_ctrl_ops, ett_genl_ctrl_ops_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_ops_attrs);
+		offset = dissect_netlink_attributes_array(tvb, hfi_genl_ctrl_ops_attr.id, ett_genl_ctrl_ops, ett_genl_ctrl_ops_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_ops_attrs);
 		break;
 	case WS_CTRL_ATTR_MCAST_GROUPS:
-		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_groups_attr, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
+		offset = dissect_netlink_attributes_array(tvb, hfi_genl_ctrl_groups_attr.id, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
 		break;
 	}
 
@@ -355,13 +355,13 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 	info.family_id = 0;
 	info.family_name = NULL;
 
-	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, &hfi_genl_ctrl_cmd);
+	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, hfi_genl_ctrl_cmd.id);
 
 	/* Return if command has no payload */
 	if (!tvb_reported_length_remaining(tvb, offset))
 	    return offset;
 
-	dissect_netlink_attributes_to_end(tvb, &hfi_genl_ctrl_attr, ett_genl_ctrl_attr, &info, genl_info->nl_data, genl_info->genl_tree, offset, dissect_genl_ctrl_attrs);
+	dissect_netlink_attributes_to_end(tvb, hfi_genl_ctrl_attr.id, ett_genl_ctrl_attr, &info, genl_info->nl_data, genl_info->genl_tree, offset, dissect_genl_ctrl_attrs);
 
 	/*
 	 * Remember association of dynamic ID with the family name such that
@@ -392,14 +392,14 @@ static header_field_info hfi_genl_reserved =
 	{ "Reserved", "genl.reserved", FT_NONE, BASE_NONE,
 	  NULL, 0x00, NULL, HFILL };
 
-int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, header_field_info *hfi_cmd)
+int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, int hf_cmd)
 {
 	int offset = 0;
 
-	if (!hfi_cmd) {
-		hfi_cmd = &hfi_genl_cmd;
+	if (hf_cmd < 0) {
+		hf_cmd = hfi_genl_cmd.id;
 	}
-	proto_tree_add_item(genl_info->genl_tree, hfi_cmd->id, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(genl_info->genl_tree, hf_cmd, tvb, offset, 1, ENC_NA);
 	offset++;
 	/* XXX Family dissectors may want to know this */
 	proto_tree_add_item(genl_info->genl_tree, hfi_genl_version.id, tvb, offset, 1, ENC_NA);
@@ -429,7 +429,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_generic);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_genl_family_id, &pi_type);
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, hfi_genl_family_id.id, &pi_type);
 	family_name = (const char *)wmem_map_lookup(genl_family_map, GUINT_TO_POINTER(nl_data->type));
 	proto_item_append_text(pi_type, " (%s)", family_name ? family_name : "Unknown");
 
@@ -450,7 +450,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	/* No subdissector added the genl header, do it now. */
-	offset = dissect_genl_header(next_tvb, &info, nl_data, NULL);
+	offset = dissect_genl_header(next_tvb, &info, nl_data, -1);
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);
