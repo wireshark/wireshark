@@ -1901,6 +1901,85 @@ Calculate statistics on ISUP messages. Displayed information is message
 types and direction (originating point code and destination point code.)
 --
 
+*-z* lbmr_queue_ads_queue,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays queue
+advertisements collated by queue name and then source addresses and port.
+--
+
+*-z* lbmr_queue_ads_source,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays queue
+advertisements collated by source address and then queue and port.
+--
+
+*-z* lbmr_queue_queries_queue,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays queue
+queries collated by queue name and then receiver addresses.
+--
+
+*-z* lbmr_queue_queries_receiver,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays queue
+queries collated by receiver address and then queue.
+--
+
+*-z* lbmr_topic_ads_source,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays topic
+advertisements collated by source address and then topic name and
+source string.
+--
+
+*-z* lbmr_topic_ads_topic,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays topic
+advertisements collated by topic name and then source address and
+source string.
+--
+
+*-z* lbmr_topic_ads_transport,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays topic
+advertisements collated by source string and then topic name.
+--
+
+*-z* lbmr_topic_queries_pattern,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays topic
+queries collated by pattern and then receiver address.
+--
+
+*-z* lbmr_topic_queries_pattern_receiver,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays topic
+queries collated by receiver address and then pattern.
+--
+
+*-z* lbmr_topic_queries_receiver,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays topic
+queries collated by receiver address and then topic name.
+--
+
+*-z* lbmr_topic_queries_topic,tree[,__filter__]::
++
+--
+Calculate statistics on LBM Topic Resolution Packets. Displays topic
+queries collated by topic name and then receiver address.
+--
+
 *-z* mac-lte,stat[,__filter__]::
 +
 --
