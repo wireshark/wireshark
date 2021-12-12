@@ -47894,13 +47894,13 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ranging_pol_rpt_starting_spatial_stream,
      {"Starting Spatial Stream",
       "wlan.trigger.he.ranging.poll_rpt.starting_spatial_stream",
-      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x001c000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_number_spatial_streams,
      {"Number Of Spatial Streams",
       "wlan.trigger.he.ranging.poll_rpt.number_spatial_streams",
-      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x00e0000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_ul_target_rssi,
@@ -47934,13 +47934,13 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ranging_sounding_starting_spatial_stream,
      {"Starting Spatial Stream",
       "wlan.trigger.he.ranging.sounding.starting_spatial_stream",
-      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x001c000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sounding_number_spatial_streams,
      {"Number of Spatial Streams",
       "wlan.trigger.he.ranging.sounding.number_spatial_streams",
-      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x00e0000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sounding_ul_target_rssi,
@@ -47974,13 +47974,13 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ranging_sec_sound_starting_spatial_stream,
      {"Starting Spatial Stream",
       "wlan.trigger.he.ranging.secured_sounding.starting_spatial_stream",
-      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x001c000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sec_sound_number_spatial_streams,
      {"Number of Spatial Streams",
       "wlan.trigger.he.ranging.secured_sounding.number_spatial_streams",
-      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x00e0000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sec_sound_ul_target_rssi,
