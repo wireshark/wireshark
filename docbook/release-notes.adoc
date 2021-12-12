@@ -17,6 +17,7 @@ It is used for troubleshooting, analysis, development and education.
 == What’s New
 
 * The PCRE2 library (https://www.pcre.org/) is now a required dependency to build Wireshark.
+* A compiler with C17 support is required.
 
 Many improvements have been made.
 See the “New and Updated Features” section below for more details.
