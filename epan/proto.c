@@ -6826,7 +6826,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							(guint32) fvalue_get_sinteger(&finfo->value) :
 							fvalue_get_uinteger(&finfo->value);
 
-						if (hfinfo->strings && hfinfo->type != FT_FRAMENUM) {
+						if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM) {
 							hf_str_val = hf_try_val_to_str(number, hfinfo);
 						}
 
@@ -6858,7 +6858,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							(guint64) fvalue_get_sinteger64(&finfo->value) :
 							fvalue_get_uinteger64(&finfo->value);
 
-						if (hfinfo->strings && hfinfo->type != FT_FRAMENUM) {
+						if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) != BASE_CUSTOM) {
 							hf_str_val = hf_try_val64_to_str(number64, hfinfo);
 						}
 
