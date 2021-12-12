@@ -906,13 +906,8 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
 static inline ws_log_time_t *get_timestamp(ws_log_time_t *ts)
 {
     assert(ts);
-#if defined(HAVE_CLOCK_GETTIME)
-    if (clock_gettime(CLOCK_REALTIME, (struct timespec *)ts) == 0)
-        return ts;
-#elif defined(_WIN32)
     if (timespec_get((struct timespec *)ts, TIME_UTC) == TIME_UTC)
         return ts;
-#endif
     ts->tv_sec = time(NULL);
     ts->tv_nsec = -1;
     return ts;
