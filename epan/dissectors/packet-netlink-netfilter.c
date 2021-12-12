@@ -1135,7 +1135,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 
 				/* XXX expert info if 4 + addrlen > len. */
 				addrlen = MIN(addrlen, len - 4);
-				proto_tree_add_item(tree, hf_nfq_hwaddr_addr, tvb, offset, addrlen, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_nfq_hwaddr_addr, tvb, offset, addrlen, ENC_NA);
 				offset += addrlen;
 			}
 			break;
