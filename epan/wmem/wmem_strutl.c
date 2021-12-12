@@ -88,7 +88,7 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
     gchar *dst;
     int needed_len;
 
-    G_VA_COPY(ap2, ap);
+    va_copy(ap2, ap);
 
     /* needed_len = g_printf_string_upper_bound(fmt, ap2); */
 
@@ -102,7 +102,7 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
     if (needed_len > WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER) {
         wmem_free(allocator, dst);
         dst = (gchar *)wmem_alloc(allocator, needed_len);
-        G_VA_COPY(ap2, ap);
+        va_copy(ap2, ap);
         g_vsnprintf(dst, (gulong) needed_len, fmt, ap2);
         va_end(ap2);
     }
@@ -123,7 +123,7 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
     gchar *dst;
     int needed_len;
 
-    G_VA_COPY(ap2, ap);
+    va_copy(ap2, ap);
 
     needed_len = _vscprintf(fmt, ap2) + 1;
 

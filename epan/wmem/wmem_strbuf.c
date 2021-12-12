@@ -174,7 +174,7 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
     va_list ap2;
     gsize append_len;
 
-    G_VA_COPY(ap2, ap);
+    va_copy(ap2, ap);
 
     append_len = g_printf_string_upper_bound(fmt, ap);
 
@@ -204,7 +204,7 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
     gsize append_len;
     gsize printed_len;
 
-    G_VA_COPY(ap2, ap);
+    va_copy(ap2, ap);
 
     append_len = _vscprintf(fmt, ap);
 

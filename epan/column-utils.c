@@ -497,7 +497,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
       if (len < max_len) {
         va_list ap2;
 
-        G_VA_COPY(ap2, ap);
+        va_copy(ap2, ap);
         ws_vsnprintf(&col_item->col_buf[len], (guint32)(max_len - len), format, ap2);
         va_end(ap2);
       }
