@@ -36,10 +36,11 @@ msgid ""
 " running Wireshark/Tshark directly as root, because less of the code will "
 "run with elevated privileges."
 msgstr ""
-"Dumpcap peut être installé afin d'autoriser les membres du groupe « "
-"wireshark » à capturer des paquets. Cette méthode de capture est préférable "
-"à l'exécution de Wireshark ou Tshark avec les droits du superutilisateur, "
-"car elle permet d'exécuter moins de code avec des droits importants."
+"Dumpcap peut être installé afin d'autoriser les membres du groupe "
+"« wireshark » à capturer des paquets. Cette méthode de capture est "
+"préférable à l'exécution de Wireshark ou Tshark avec les droits du "
+"superutilisateur, car elle permet d'exécuter moins de code avec des droits "
+"importants."
 
 #. Type: boolean
 #. Description
