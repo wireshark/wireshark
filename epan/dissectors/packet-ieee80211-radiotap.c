@@ -2240,6 +2240,14 @@ dissect_radiotap_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		s1g_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
 				ett_radiotap_s1g, NULL, "S1G");
 
+		proto_tree_add_item(s1g_tree, hf_radiotap_tlv_type, tvb,
+				    offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(s1g_tree, hf_radiotap_tlv_datalen, tvb,
+				    offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
 		proto_tree_add_bitmask(s1g_tree, tvb, offset,
 				hf_radiotap_s1g_known, ett_radiotap_s1g_known,
 				s1g_known_headers, ENC_LITTLE_ENDIAN);
