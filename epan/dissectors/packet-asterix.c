@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 9c280477fae1cb1909794b2da8412d1b5cb38def
+git revision: 9841b1369a507157762405c5500077bf2a807e08
 
 
 */
@@ -11489,9 +11489,9 @@ static const AsterixField I015_V1_0_270_ORT = { FIXED, 2, 0, 0, &hf_015_V1_0_270
 static const AsterixField I015_V1_0_270 = { COMPOUND, 0, 0, 0, &hf_015_V1_0_270, NULL, { &I015_V1_0_270_LEN, &I015_V1_0_270_WDT, &I015_V1_0_270_HGT, &I015_V1_0_270_ORT, NULL } };
 static gint hf_015_V1_0_300 = -1;
 static gint hf_015_V1_0_300_CLS = -1;
-static const FieldPart I015_V1_0_300_CLS = { 8, 1.0, FIELD_PART_HEX, &hf_015_V1_0_300_CLS, NULL };
+static const FieldPart I015_V1_0_300_CLS = { 9, 1.0, FIELD_PART_UINT, &hf_015_V1_0_300_CLS, NULL };
 static gint hf_015_V1_0_300_PRB = -1;
-static const FieldPart I015_V1_0_300_PRB = { 8, 1.0, FIELD_PART_HEX, &hf_015_V1_0_300_PRB, NULL };
+static const FieldPart I015_V1_0_300_PRB = { 7, 1.0, FIELD_PART_UINT, &hf_015_V1_0_300_PRB, NULL };
 static const FieldPart *I015_V1_0_300_PARTS[] = {
     &I015_V1_0_300_CLS,
     &I015_V1_0_300_PRB,
@@ -12410,9 +12410,9 @@ static const AsterixField I015_270_ORT = { FIXED, 2, 0, 0, &hf_015_270_ORT, I015
 static const AsterixField I015_270 = { COMPOUND, 0, 0, 0, &hf_015_270, NULL, { &I015_270_LEN, &I015_270_WDT, &I015_270_HGT, &I015_270_ORT, NULL } };
 static gint hf_015_300 = -1;
 static gint hf_015_300_CLS = -1;
-static const FieldPart I015_300_CLS = { 8, 1.0, FIELD_PART_HEX, &hf_015_300_CLS, NULL };
+static const FieldPart I015_300_CLS = { 9, 1.0, FIELD_PART_UINT, &hf_015_300_CLS, NULL };
 static gint hf_015_300_PRB = -1;
-static const FieldPart I015_300_PRB = { 8, 1.0, FIELD_PART_HEX, &hf_015_300_PRB, NULL };
+static const FieldPart I015_300_PRB = { 7, 1.0, FIELD_PART_UINT, &hf_015_300_PRB, NULL };
 static const FieldPart *I015_300_PARTS[] = {
     &I015_300_CLS,
     &I015_300_PRB,
@@ -42202,8 +42202,8 @@ void proto_register_asterix (void)
         { &hf_015_V1_0_270_ORT, { "ORT, Target Orientation", "asterix.015_V1_0_270_ORT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_270_ORT_VALUE, { "VALUE, Target Orientation, [deg]", "asterix.015_V1_0_270_ORT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_300, { "300, Object Classification", "asterix.015_V1_0_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_300_CLS, { "CLS, Classification", "asterix.015_V1_0_300_CLS", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_300_PRB, { "PRB, Probability", "asterix.015_V1_0_300_PRB", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_V1_0_300_CLS, { "CLS, Classification", "asterix.015_V1_0_300_CLS", FT_UINT16, BASE_DEC, NULL, 0xff80, NULL, HFILL } },
+        { &hf_015_V1_0_300_PRB, { "PRB, Probability", "asterix.015_V1_0_300_PRB", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
         { &hf_015_V1_0_400, { "400, Measurement Identifier", "asterix.015_V1_0_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_400_PID, { "PID, Pair Identifier", "asterix.015_V1_0_400_PID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_400_ON, { "ON, Observation Number", "asterix.015_V1_0_400_ON", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
@@ -42435,8 +42435,8 @@ void proto_register_asterix (void)
         { &hf_015_270_ORT, { "ORT, Target Orientation", "asterix.015_270_ORT", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_270_ORT_VALUE, { "VALUE, Target Orientation, [deg]", "asterix.015_270_ORT_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_300, { "300, Object Classification", "asterix.015_300", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_300_CLS, { "CLS, Classification", "asterix.015_300_CLS", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_300_PRB, { "PRB, Probability", "asterix.015_300_PRB", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_015_300_CLS, { "CLS, Classification", "asterix.015_300_CLS", FT_UINT16, BASE_DEC, NULL, 0xff80, NULL, HFILL } },
+        { &hf_015_300_PRB, { "PRB, Probability", "asterix.015_300_PRB", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
         { &hf_015_400, { "400, Measurement Identifier", "asterix.015_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_400_PID, { "PID, Pair Identifier", "asterix.015_400_PID", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_015_400_ON, { "ON, Observation Number", "asterix.015_400_ON", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },

@@ -13609,6 +13609,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>様々な形式で表示データを保存します</translation>
     </message>
     <message>
+        <source>Collapse All</source>
+        <translation type="unfinished">すべて閉じる</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished">すべて展開</translation>
+    </message>
+    <message>
         <source>Save Statistics As…</source>
         <translation>…として統計を保存</translation>
     </message>

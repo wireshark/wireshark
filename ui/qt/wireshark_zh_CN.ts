@@ -13591,6 +13591,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>使用不同的格式保存显示的数据</translation>
     </message>
     <message>
+        <source>Collapse All</source>
+        <translation type="unfinished">全部折叠</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished">全部展开</translation>
+    </message>
+    <message>
         <source>Save Statistics As…</source>
         <translation type="unfinished"></translation>
     </message>

@@ -13635,6 +13635,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Salva i dati visualizzati in vari formati</translation>
     </message>
     <message>
+        <source>Collapse All</source>
+        <translation type="unfinished">Contrai tutti</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished">Espandi tutti</translation>
+    </message>
+    <message>
         <source>Save Statistics As…</source>
         <translation>Salva statistiche come...</translation>
     </message>

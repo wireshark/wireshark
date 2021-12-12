@@ -723,7 +723,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Permitir selección al desplazar</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -731,7 +731,7 @@
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished"></translation>
+        <translation>…como bits</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
@@ -739,11 +739,11 @@
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>…como ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>…como EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -2286,19 +2286,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapa</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dibuja los puntos finales IPv4 o IPv6 en un mapa.</translation>
     </message>
     <message>
         <source>Open in browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir en navegador</translation>
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar como…</translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -3629,7 +3629,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Automatic Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualización automática</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -3838,7 +3838,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar como…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3854,7 +3854,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>2 ms</source>
-        <translation type="unfinished">100 ms {2 ?}</translation>
+        <translation>2 ms</translation>
     </message>
     <message>
         <source>5 ms</source>
@@ -3866,11 +3866,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>20 ms</source>
-        <translation type="unfinished">100 ms {20 ?}</translation>
+        <translation>20 ms</translation>
     </message>
     <message>
         <source>50 ms</source>
-        <translation type="unfinished">100 ms {50 ?}</translation>
+        <translation>50 ms</translation>
     </message>
     <message>
         <source>100 ms</source>
@@ -3878,19 +3878,19 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>200 ms</source>
-        <translation type="unfinished">100 ms {200 ?}</translation>
+        <translation>200 ms</translation>
     </message>
     <message>
         <source>500 ms</source>
-        <translation type="unfinished">100 ms {500 ?}</translation>
+        <translation>500 ms</translation>
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished">10 seg {2 ?}</translation>
+        <translation>2 sec</translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished">10 seg {5 ?}</translation>
+        <translation>5 sec</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -3910,7 +3910,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Hover over the graph for details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplace sobre la gráfica para detalles.</translation>
     </message>
     <message>
         <source>No packets in interval</source>
@@ -3962,7 +3962,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar gráfica como…</translation>
     </message>
 </context>
 <context>
@@ -3973,7 +3973,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Envío&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Retorno&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward</source>
@@ -4161,7 +4161,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar gráfica como…</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
@@ -5898,7 +5898,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar como…</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -5942,7 +5942,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar gráfica como…</translation>
     </message>
 </context>
 <context>
@@ -8025,7 +8025,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Check for Updates…</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar actualizaciones…</translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
@@ -8178,21 +8178,21 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Add New Comment…</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir nuevo comentario…</translation>
     </message>
     <message>
         <source>Edit &quot;%1&quot;</source>
         <comment>edit packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Editar &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete &quot;%1&quot;</source>
         <comment>delete packet comment</comment>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Delete packet comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar comentarios de paquete</translation>
     </message>
     <message numerus="yes">
         <source>Delete comments from %n packet(s)</source>
@@ -8710,7 +8710,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar gráfica como…</translation>
     </message>
 </context>
 <context>
@@ -10629,7 +10629,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar gráfica como…</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
@@ -12149,7 +12149,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar gráfica como…</translation>
     </message>
 </context>
 <context>
@@ -12345,7 +12345,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar gráfica como…</translation>
     </message>
     <message>
         <source>Flow</source>
@@ -13368,7 +13368,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar como…</translation>
     </message>
     <message>
         <source>No Capture Data</source>
@@ -13444,7 +13444,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Guardar gráfica como…</translation>
     </message>
 </context>
 <context>
@@ -13489,6 +13489,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Save the displayed data in various formats</source>
         <translation>Guarda los datos mostrados en varios formatos</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished">Contraer todo</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished">Expandir todo</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>

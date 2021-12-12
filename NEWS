@@ -21,6 +21,9 @@ Wireshark 3.7.0 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.6.0:
 
+     • The Windows installers now ship with Npcap 1.60. They previously
+       shipped with Npcap 1.55.
+
      • Display filter syntax:
 
         • Set elements must be separated using a comma, e.g: {1, 2,
@@ -54,6 +57,9 @@ Wireshark 3.7.0 Release Notes
        packets after it is established.
 
      • Mesh Connex (MCX) support in existing 802.11 packets.
+
+     • Capture Options dialog contains same configuration icon as
+       Welcome Screen. It is possible to configure interface there.
 
   New File Format Decoding Support
 
@@ -108,7 +114,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-12-05 16:06:36 UTC
+  Last updated 2021-12-12 17:24:34 UTC
 
  References
 

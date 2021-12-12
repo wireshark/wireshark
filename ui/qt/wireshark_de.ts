@@ -13640,6 +13640,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Die angezeigten Daten in verschiedenen Formaten speichern</translation>
     </message>
     <message>
+        <source>Collapse All</source>
+        <translation type="unfinished">Alles einklappen</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished">Alles aufklappen</translation>
+    </message>
+    <message>
         <source>Save Statistics As…</source>
         <translation>Statistik speichern als…</translation>
     </message>
