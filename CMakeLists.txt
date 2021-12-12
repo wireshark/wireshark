@@ -2796,6 +2796,7 @@ if(BUILD_dftest)
 	set(dftest_FILES
 		dftest.c
 	)
+	set_executable_resources(dftest "Dftest")
 	add_executable(dftest ${dftest_FILES})
 	set_extra_executable_properties(dftest "Tests")
 	target_link_libraries(dftest ${dftest_LIBS})
@@ -2815,6 +2816,8 @@ if(BUILD_randpkt)
 		$<TARGET_OBJECTS:cli_main>
 		randpkt.c
 	)
+	set_executable_resources(randpkt "Randpkt"
+		COPYRIGHT_INFO "Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>")
 	add_executable(randpkt ${randpkt_FILES})
 	set_extra_executable_properties(randpkt "Executables")
 	target_link_libraries(randpkt ${randpkt_LIBS})
@@ -3066,6 +3069,7 @@ if (MAXMINDDB_FOUND)
 	set(mmdbresolve_FILES
 		mmdbresolve.c
 	)
+	set_executable_resources(mmdbresolve "Mmdbresolve")
 	add_executable(mmdbresolve ${mmdbresolve_FILES})
 	set_extra_executable_properties(mmdbresolve "Executables")
 	target_link_libraries(mmdbresolve ${mmdbresolve_LIBS})
