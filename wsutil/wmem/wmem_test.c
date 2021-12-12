@@ -472,6 +472,17 @@ wmem_test_strutls(void)
     new_str = wmem_ascii_strdown(allocator, orig_str, -1);
     g_assert_cmpstr(new_str, ==, "testasciistrdown");
 
+    orig_str = "ShortString";
+    new_str = wmem_strdup_printf(allocator, "TEST %s", orig_str);
+    g_assert_cmpstr(new_str, ==, "TEST ShortString");
+
+    orig_str = "Very Long .............................."
+               "................................. String";
+    new_str = wmem_strdup_printf(allocator, "TEST %s", orig_str);
+    g_assert_cmpstr(new_str, ==,
+               "TEST Very Long .............................."
+               "................................. String");
+
     wmem_destroy_allocator(allocator);
 }
 

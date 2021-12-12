@@ -71,71 +71,26 @@ wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
     return dst;
 }
 
-/*
- * Using g_printf_string_upper_bound() to find the needed length almost doubles
- * the execution time of this function. Instead we use a pre allocated buffer
- * which may waste a bit of memory but are faster. As this is mostly called with
- * packet scoped memory(?) that shouldn't matter that much.
- * In my test file all strings was less than 72 characters long and quite a few
- * over 68 characters long. Chose 80 as the default.
- */
-#ifndef _WIN32
 #define WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER 80
-gchar *
-wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
+char *
+wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
 {
     va_list ap2;
-    gchar *dst;
+    char buf[WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER + 1];
     int needed_len;
 
     va_copy(ap2, ap);
-
-    /* needed_len = g_printf_string_upper_bound(fmt, ap2); */
-
-    dst = (gchar *)wmem_alloc(allocator, WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER);
-
-    /* Returns: the number of characters which would be produced if the buffer was large enough
-     * (not including the null, for which we add +1 ourselves). */
-    needed_len = g_vsnprintf(dst, (gulong) WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER, fmt, ap2) + 1;
+    needed_len = vsnprintf(buf, sizeof(buf), fmt, ap2);
     va_end(ap2);
 
-    if (needed_len > WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER) {
-        wmem_free(allocator, dst);
-        dst = (gchar *)wmem_alloc(allocator, needed_len);
-        va_copy(ap2, ap);
-        g_vsnprintf(dst, (gulong) needed_len, fmt, ap2);
-        va_end(ap2);
-    }
+    if (needed_len <= WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER)
+        return wmem_strdup(allocator, buf);
 
-    return dst;
+    size_t new_buf_size = needed_len + 1;
+    char *new_buf = wmem_alloc(allocator, new_buf_size);
+    vsnprintf(new_buf, new_buf_size, fmt, ap);
+    return new_buf;
 }
-#else /* _WIN32 */
-/*
- * GLib's v*printf routines are surprisingly slow on Windows, at least with
- * GLib 2.40.0. This appears to be due to GLib using the gnulib version of
- * vasnprintf when compiled under MinGW. If GLib ever ends up using the
- * native Windows v*printf routines this can be removed.
- */
-gchar *
-wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
-{
-    va_list ap2;
-    gchar *dst;
-    int needed_len;
-
-    va_copy(ap2, ap);
-
-    needed_len = _vscprintf(fmt, ap2) + 1;
-
-    dst = (gchar *)wmem_alloc(allocator, needed_len);
-
-    vsprintf_s(dst, needed_len, fmt, ap2);
-
-    va_end(ap2);
-
-    return dst;
-}
-#endif /* _WIN32 */
 
 gchar *
 wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
