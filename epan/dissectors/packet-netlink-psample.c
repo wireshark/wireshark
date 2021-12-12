@@ -233,77 +233,77 @@ proto_register_netlink_psample(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_psample_commands,
-			{ "Command", "netlink.psample.cmd",
+			{ "Command", "psample.cmd",
 			  FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ws_psample_commands_vals_ext, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_attrs,
-			{ "Attribute type", "netlink.psample.attr_type",
+			{ "Attribute type", "psample.attr_type",
 			  FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ws_psample_attrs_vals_ext, NLA_TYPE_MASK,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_iifindex,
-			{ "Input interface index", "netlink.psample.iifindex",
+			{ "Input interface index", "psample.iifindex",
 			  FT_UINT16, BASE_HEX, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_oifindex,
-			{ "Output interface index", "netlink.psample.oifindex",
+			{ "Output interface index", "psample.oifindex",
 			  FT_UINT16, BASE_HEX, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_origsize,
-			{ "Original size", "netlink.psample.origsize",
+			{ "Original size", "psample.origsize",
 			  FT_UINT32, BASE_HEX, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_sample_group,
-			{ "Sample group", "netlink.psample.sample_group",
+			{ "Sample group", "psample.sample_group",
 			  FT_UINT32, BASE_DEC, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_group_seq,
-			{ "Group sequence number", "netlink.psample.group_seq_num",
+			{ "Group sequence number", "psample.group_seq_num",
 			  FT_UINT32, BASE_DEC, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_sample_rate,
-			{ "Sample rate", "netlink.psample.sample_rate",
+			{ "Sample rate", "psample.sample_rate",
 			  FT_UINT32, BASE_DEC, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_tunnel,
-			{ "Tunnel", "netlink.psample.tunnel",
+			{ "Tunnel", "psample.tunnel",
 			  FT_UINT32, BASE_HEX, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_group_refcount,
-			{ "Group reference count", "netlink.psample.group_refcount",
+			{ "Group reference count", "psample.group_refcount",
 			  FT_UINT32, BASE_HEX, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_out_tc,
-			{ "Output traffic class", "netlink.psample.out_tc",
+			{ "Output traffic class", "psample.out_tc",
 			  FT_UINT16, BASE_DEC, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_out_tc_occ,
-			{ "Output traffic class occupancy", "netlink.psample.out_tc_occ",
+			{ "Output traffic class occupancy", "psample.out_tc_occ",
 			  FT_UINT64, BASE_DEC, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_latency,
-			{ "Latency", "netlink.psample.latency",
+			{ "Latency", "psample.latency",
 			  FT_UINT64, BASE_DEC, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_timestamp,
-			{ "Timestamp", "netlink.psample.timestamp",
+			{ "Timestamp", "psample.timestamp",
 			  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
 			  NULL, HFILL }
 		},
 		{ &hf_psample_proto,
-			{ "Protocol", "netlink.psample.proto",
+			{ "Protocol", "psample.proto",
 			  FT_UINT16, BASE_HEX, NULL, 0x00,
 			  NULL, HFILL }
 		},
