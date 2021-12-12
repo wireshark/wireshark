@@ -51,8 +51,9 @@ my $searchReplaceEncNAHRef =
     "1"                  => "ENC_NA",
     "ENC_LITTLE_ENDIAN"  => "ENC_NA",
     "ENC_BIG_ENDIAN"     => "ENC_NA",
-    "ENC_ASCII|ENC_NA"   => "ENC_NA",
-    "ENC_ASCII | ENC_NA" => "ENC_NA"
+# Could be ENC_ASCII or ENC_NA by type?
+#    "ENC_ASCII|ENC_NA"   => "ENC_ASCII",
+#    "ENC_ASCII|ENC_NA"   => "ENC_NA"
    };
 
 # ---------------------------------------------------------------------
@@ -85,25 +86,25 @@ my @types_STRING =
   (
    [qw (FT_STRING FT_STRINGZ)],
    {
-    "FALSE"                        => "ENC_ASCII|ENC_NA",
-    "0"                            => "ENC_ASCII|ENC_NA",
-    "TRUE"                         => "ENC_ASCII|ENC_NA",
-    "1"                            => "ENC_ASCII|ENC_NA",
-    "ENC_LITTLE_ENDIAN"            => "ENC_ASCII|ENC_NA",
-    "ENC_BIG_ENDIAN"               => "ENC_ASCII|ENC_NA",
-    "ENC_NA"                       => "ENC_ASCII|ENC_NA",
+    "FALSE"                        => "ENC_ASCII",
+    "0"                            => "ENC_ASCII",
+    "TRUE"                         => "ENC_ASCII",
+    "1"                            => "ENC_ASCII",
+    "ENC_LITTLE_ENDIAN"            => "ENC_ASCII",
+    "ENC_BIG_ENDIAN"               => "ENC_ASCII",
+    "ENC_NA"                       => "ENC_ASCII",
 
-    "ENC_ASCII"                    => "ENC_ASCII|ENC_NA",
-    "ENC_ASCII|ENC_LITTLE_ENDIAN"  => "ENC_ASCII|ENC_NA",
-    "ENC_ASCII|ENC_BIG_ENDIAN"     => "ENC_ASCII|ENC_NA",
+    "ENC_ASCII|NA"                 => "ENC_ASCII",
+    "ENC_ASCII|ENC_LITTLE_ENDIAN"  => "ENC_ASCII",
+    "ENC_ASCII|ENC_BIG_ENDIAN"     => "ENC_ASCII",
 
-    "ENC_UTF_8"                    => "ENC_UTF_8|ENC_NA",
-    "ENC_UTF_8|ENC_LITTLE_ENDIAN"  => "ENC_UTF_8|ENC_NA",
-    "ENC_UTF_8|ENC_BIG_ENDIAN"     => "ENC_UTF_8|ENC_NA",
+    "ENC_UTF_8|ENC_NA"             => "ENC_UTF_8",
+    "ENC_UTF_8|ENC_LITTLE_ENDIAN"  => "ENC_UTF_8",
+    "ENC_UTF_8|ENC_BIG_ENDIAN"     => "ENC_UTF_8",
 
-    "ENC_EBCDIC"                   => "ENC_EBCDIC|ENC_NA",
-    "ENC_EBCDIC|ENC_LITTLE_ENDIAN" => "ENC_EBCDIC|ENC_NA",
-    "ENC_EBCDIC|ENC_BIG_ENDIAN"    => "ENC_EBCDIC|ENC_NA",
+    "ENC_EBCDIC|ENC_NA"            => "ENC_EBCDIC",
+    "ENC_EBCDIC|ENC_LITTLE_ENDIAN" => "ENC_EBCDIC",
+    "ENC_EBCDIC|ENC_BIG_ENDIAN"    => "ENC_EBCDIC",
    }
   );
 
