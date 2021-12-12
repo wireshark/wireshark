@@ -1981,16 +1981,6 @@ static int list_config(char *interface, unsigned int remote_port)
 	return EXIT_SUCCESS;
 }
 
-static void
-discard_log_writer(const char *domain _U_, enum ws_log_level level _U_,
-                                   ws_log_time_t timestamp _U_,
-                                   const char *file _U_, int line _U_, const char *func _U_,
-                                   const char *user_format _U_, va_list user_ap _U_,
-                                   void *user_data _U_)
-{
-	/* Discard log to stdout */
-}
-
 int main(int argc, char *argv[])
 {
 	char* err_msg;
