@@ -9,8 +9,6 @@
 
 /* http://www.tcpdump.org/linktypes/LINKTYPE_NETLINK.html */
 
-#define HFI_DECLS /* for checkAPIs.pl */
-
 #include "config.h"
 
 #include <epan/packet.h>

@@ -708,17 +708,8 @@ sub check_hf_entries($$)
                                   &\s*([A-Z0-9_\[\]-]+)         # &hf
                                   \s*,\s*
         }xis;
-        if (${$fileContentsRef} =~ /^#define\s+HFI_DECLS/m) {
-                $hfRegex = qr{
-                                  \sheader_field_info\s+
-                                  ([A-Z0-9_]+)
-                                  \s+
-                                  [A-Z0-9_]*
-                                  \s*=\s*
-                }xis;
-        }
         @items = (${$fileContentsRef} =~ m{
-                                  $hfRegex                      # &hf or "new" hfi name
+                                  $hfRegex                      # &hf
                                   \{\s*
                                   ("[A-Z0-9 '\./\(\)_:-]+")     # name
                                   \s*,\s*

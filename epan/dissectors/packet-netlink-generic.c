@@ -10,8 +10,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define HFI_DECLS /* for checkAPIs.pl */
-
 #include "config.h"
 
 #include <epan/packet.h>
