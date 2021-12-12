@@ -13588,6 +13588,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Spara den visade datan i diverse format</translation>
     </message>
     <message>
+        <source>Collapse All</source>
+        <translation type="unfinished">Fäll ihop alla</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished">Fäll ut alla</translation>
+    </message>
+    <message>
         <source>Save Statistics As…</source>
         <translation type="unfinished"></translation>
     </message>
