@@ -965,7 +965,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
     if (custom_log) {
         va_list user_ap_copy;
 
-        G_VA_COPY(user_ap_copy, user_ap);
+        va_copy(user_ap_copy, user_ap);
         log_write_do_work(custom_log, FALSE,
                             get_localtime(tstamp.tv_sec, &cookie),
                             tstamp.tv_nsec,

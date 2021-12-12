@@ -204,7 +204,7 @@ wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
     int want_len;
     va_list ap2;
 
-    G_VA_COPY(ap2, ap);
+    va_copy(ap2, ap);
     /* Try to write buffer, check if output fits. */
     want_len = _strbuf_vsnprintf(strbuf, fmt, ap2, TRUE); /* Remove output if truncated. */
     va_end(ap2);
