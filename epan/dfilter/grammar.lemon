@@ -81,7 +81,8 @@ shifting 3 more symbols. */
 /* Associativity */
 %left TEST_AND.
 %left TEST_OR.
-%nonassoc TEST_EQ TEST_NE TEST_LT TEST_LE TEST_GT TEST_GE TEST_CONTAINS TEST_MATCHES TEST_BITWISE_AND.
+%nonassoc TEST_ANY_EQ TEST_ALL_NE TEST_ANY_NE TEST_LT TEST_LE TEST_GT TEST_GE
+            TEST_CONTAINS TEST_MATCHES TEST_BITWISE_AND.
 %right TEST_NOT.
 
 /* Top-level targets */

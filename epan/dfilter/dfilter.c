@@ -262,8 +262,9 @@ const char *tokenstr(int token)
 	switch (token) {
 		case TOKEN_TEST_AND:	return "TEST_AND";
 		case TOKEN_TEST_OR: 	return "TEST_OR";
-		case TOKEN_TEST_EQ:	return "TEST_EQ";
-		case TOKEN_TEST_NE:	return "TEST_NE";
+		case TOKEN_TEST_ANY_EQ:	return "TEST_ANY_EQ";
+		case TOKEN_TEST_ALL_NE:	return "TEST_ALL_NE";
+		case TOKEN_TEST_ANY_NE:	return "TEST_ANY_NE";
 		case TOKEN_TEST_LT:	return "TEST_LT";
 		case TOKEN_TEST_LE:	return "TEST_LE";
 		case TOKEN_TEST_GT:	return "TEST_GT";
@@ -278,6 +279,7 @@ const char *tokenstr(int token)
 		case TOKEN_LBRACKET:	return "LBRACKET";
 		case TOKEN_RBRACKET:	return "RBRACKET";
 		case TOKEN_COMMA:	return "COMMA";
+		case TOKEN_RANGE:	return "RANGE";
 		case TOKEN_TEST_IN:	return "TEST_IN";
 		case TOKEN_LBRACE:	return "LBRACE";
 		case TOKEN_RBRACE:	return "RBRACE";
