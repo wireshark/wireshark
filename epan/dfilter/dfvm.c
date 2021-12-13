@@ -119,6 +119,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 			case READ_TREE:
 			case CALL_FUNCTION:
 			case MK_RANGE:
+			case ALL_EQ:
 			case ANY_EQ:
 			case ALL_NE:
 			case ANY_NE:
@@ -222,6 +223,11 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				}
 				fprintf(f, "] -> reg#%u\n",
 					arg2->value.numeric);
+				break;
+
+			case ALL_EQ:
+				fprintf(f, "%05d ALL_EQ\t\treg#%u == reg#%u\n",
+					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_EQ:
@@ -428,6 +434,13 @@ all_test(dfilter_t *df, DFVMMatchFunc cmp, int reg1, int reg2)
 }
 
 static inline gboolean
+all_eq(dfilter_t *df, int reg1, int reg2)
+{
+	/* A all_eq B <=> a1 == b1 AND a2 == b2 AND a3 == b3 AND ... */
+	return all_test(df, fvalue_eq, reg1, reg2);
+}
+
+static inline gboolean
 any_eq(dfilter_t *df, int reg1, int reg2)
 {
 	/* A any_eq B <=> a1 == b1 OR a2 == b2 OR a3 == b3 OR ... */
@@ -626,6 +639,10 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 						arg3->value.drange);
 				break;
 
+			case ALL_EQ:
+				accum = all_eq(df, arg1->value.numeric, arg2->value.numeric);
+				break;
+
 			case ANY_EQ:
 				accum = any_eq(df, arg1->value.numeric, arg2->value.numeric);
 				break;
@@ -757,6 +774,7 @@ dfvm_init_const(dfilter_t *df)
 			case READ_TREE:
 			case CALL_FUNCTION:
 			case MK_RANGE:
+			case ALL_EQ:
 			case ANY_EQ:
 			case ALL_NE:
 			case ANY_NE:

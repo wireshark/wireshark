@@ -1224,6 +1224,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			semcheck(dfw, st_arg2);
 			break;
 
+		case TEST_OP_ALL_EQ:
 		case TEST_OP_ANY_EQ:
 		case TEST_OP_ALL_NE:
 		case TEST_OP_ANY_NE:

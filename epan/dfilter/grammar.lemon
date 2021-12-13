@@ -81,7 +81,7 @@ shifting 3 more symbols. */
 /* Associativity */
 %left TEST_AND.
 %left TEST_OR.
-%nonassoc TEST_ANY_EQ TEST_ALL_NE TEST_ANY_NE TEST_LT TEST_LE TEST_GT TEST_GE
+%nonassoc TEST_ALL_EQ TEST_ANY_EQ TEST_ALL_NE TEST_ANY_NE TEST_LT TEST_LE TEST_GT TEST_GE
             TEST_CONTAINS TEST_MATCHES TEST_BITWISE_AND.
 %right TEST_NOT.
 
@@ -185,6 +185,7 @@ range_node(D) ::= RANGE(R).
 }
 
 /* Relational tests */
+cmp_op(O) ::= TEST_ALL_EQ(L).           { O = new_test(dfw, TEST_OP_ALL_EQ, L); }
 cmp_op(O) ::= TEST_ANY_EQ(L).           { O = new_test(dfw, TEST_OP_ANY_EQ, L); }
 cmp_op(O) ::= TEST_ALL_NE(L).           { O = new_test(dfw, TEST_OP_ALL_NE, L); }
 cmp_op(O) ::= TEST_ANY_NE(L).           { O = new_test(dfw, TEST_OP_ANY_NE, L); }

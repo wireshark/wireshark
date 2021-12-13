@@ -115,6 +115,9 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 "eq"		return simple(TOKEN_TEST_ANY_EQ);
 "!="		return simple(TOKEN_TEST_ALL_NE);
 "ne"		return simple(TOKEN_TEST_ALL_NE);
+"==="		return simple(TOKEN_TEST_ALL_EQ);
+"all_eq"	return simple(TOKEN_TEST_ALL_EQ);
+"!=="		return simple(TOKEN_TEST_ANY_NE);
 "~="		return simple(TOKEN_TEST_ANY_NE);
 "any_ne"	return simple(TOKEN_TEST_ANY_NE);
 ">"		return simple(TOKEN_TEST_GT);

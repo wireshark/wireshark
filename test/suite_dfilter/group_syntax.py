@@ -107,3 +107,11 @@ class case_syntax(unittest.TestCase):
     def test_charconst_lhs(self, checkDFilterCount):
         dfilter = "'H' == frame[54]"
         checkDFilterCount(dfilter, 1)
+
+@fixtures.uses_fixtures
+class case_equality(unittest.TestCase):
+    trace_file = "sip.pcapng"
+
+    def test_charconst_lhs(self, checkDFilterCount):
+        dfilter = "udp.port === 5060"
+        checkDFilterCount(dfilter, 2)

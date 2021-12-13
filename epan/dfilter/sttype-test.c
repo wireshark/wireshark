@@ -82,6 +82,9 @@ test_todisplay(test_op_t op)
 		case TEST_OP_OR:
 			s = "||";
 			break;
+		case TEST_OP_ALL_EQ:
+			s = "===";
+			break;
 		case TEST_OP_ANY_EQ:
 			s = "==";
 			break;
@@ -142,6 +145,9 @@ test_todebug(test_op_t op)
 			break;
 		case TEST_OP_OR:
 			s = "TEST_OR";
+			break;
+		case TEST_OP_ALL_EQ:
+			s = "TEST_ALL_EQ";
 			break;
 		case TEST_OP_ANY_EQ:
 			s = "TEST_ANY_EQ";
@@ -211,6 +217,7 @@ num_operands(test_op_t op)
 			return 1;
 		case TEST_OP_AND:
 		case TEST_OP_OR:
+		case TEST_OP_ALL_EQ:
 		case TEST_OP_ANY_EQ:
 		case TEST_OP_ALL_NE:
 		case TEST_OP_ANY_NE:
