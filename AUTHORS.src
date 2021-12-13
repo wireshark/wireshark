@@ -3744,6 +3744,7 @@ Erik Rigtorp		<erik[AT]rigtorp.se> {
 
 Martin Mayer		<martin.mayer[AT]m2-it-solutions.de> {
 	Allied Telesis Loop Detection Frames (LDF) dissector
+	Open Control Protocol for AES70/OCA (OCP.1) dissector
 }
 
 Mattia Cazzola		<mattiac[AT]alinet.it> {
