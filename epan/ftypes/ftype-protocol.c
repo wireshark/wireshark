@@ -293,7 +293,7 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 			data = (const char *)tvb_get_ptr(a->tvb, 0, tvb_len);
 			rc = ws_regex_matches(regex, data, tvb_len);
 		} else {
-			rc = ws_regex_matches(regex, a->proto_string, -1);
+			rc = ws_regex_matches(regex, a->proto_string, WS_REGEX_ZERO_TERMINATED);
 		}
 	}
 	CATCH_ALL {

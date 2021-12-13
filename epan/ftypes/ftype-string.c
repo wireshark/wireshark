@@ -152,7 +152,7 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 	if (! regex) {
 		return FALSE;
 	}
-	return ws_regex_matches(regex, str, -1);
+	return ws_regex_matches(regex, str, WS_REGEX_ZERO_TERMINATED);
 }
 
 void

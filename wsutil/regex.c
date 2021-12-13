@@ -83,13 +83,13 @@ ws_regex_compile(const char *patt, char **errmsg)
 
 
 static bool
-match_pcre2(pcre2_code *code, const char *subj, ssize_t subj_size)
+match_pcre2(pcre2_code *code, const char *subj, size_t subj_size)
 {
     PCRE2_SIZE length;
     pcre2_match_data *match_data;
     int rc;
 
-    length = subj_size < 0 ? PCRE2_ZERO_TERMINATED : (PCRE2_SIZE)subj_size;
+    length = subj_size == WS_REGEX_ZERO_TERMINATED ? PCRE2_ZERO_TERMINATED : (PCRE2_SIZE)subj_size;
 
     /* We don't use the matched substring but pcre2_match requires
      * at least one pair of offsets. */
@@ -123,7 +123,7 @@ match_pcre2(pcre2_code *code, const char *subj, ssize_t subj_size)
 
 
 bool
-ws_regex_matches(const ws_regex_t *re, const char *subj, ssize_t subj_size)
+ws_regex_matches(const ws_regex_t *re, const char *subj, size_t subj_size)
 {
     ws_return_val_if_null(re, FALSE);
     ws_return_val_if_null(subj, FALSE);
