@@ -1726,7 +1726,13 @@ install_libxml2() {
         $no_build && echo "Skipping installation" && return
         gzcat libxml2-$LIBXML2_VERSION.tar.gz | tar xf - || exit 1
         cd libxml2-$LIBXML2_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        #
+        # At least on macOS 12.0.1 with Xcode 13.1, when we build
+        # libxml2, the linker complains that we don't have the right
+        # to link with the Python framework, so don't build with
+        # Python.
+        #
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-python || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
