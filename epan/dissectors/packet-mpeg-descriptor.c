@@ -141,6 +141,10 @@ static const value_string mpeg_descriptor_tag_vals[] = {
     /* From ATSC A/52 */
     { 0x81, "ATSC A/52 AC-3 Audio Descriptor" },
 
+    /* From Nordig Unified Requirements */
+    { 0x83, "NorDig Logical Channel Descriptor v1" },
+    { 0x87, "NorDig Logical Channel Descriptor v2" },
+
     /* From ETSI EN 301 790 */
     { 0xA0, "Network Layer Info Descriptor" },
     { 0xA1, "Correction Message Descriptor" },
@@ -2960,6 +2964,163 @@ proto_mpeg_descriptor_dissect_ac3_system_a(tvbuff_t *tvb, guint offset, guint le
         proto_tree_add_item(tree, hf_mpeg_descr_ac3_additional_info, tvb, offset, end - offset, ENC_NA);
 }
 
+/* 0x83 NorDig Logical Channel Descriptor (version 1) */
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_id = -1;
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_visible_service_flag = -1;
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_reserved = -1;
+static int hf_mpeg_descr_nordig_lcd_v1_service_list_logical_channel_number = -1;
+
+static gint ett_mpeg_descriptor_nordig_lcd_v1_service_list = -1;
+
+#define MPEG_DESCR_NORDIG_LCD_V1_VISIBLE_SERVICE_FLAG_MASK 0x8000
+#define MPEG_DESCR_NORDIG_LCD_V1_RESERVED_MASK             0x4000
+#define MPEG_DESCR_NORDIG_LCD_V1_LCN_MASK                  0x3fff
+
+static void
+proto_mpeg_descriptor_dissect_nordig_lcd_v1(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint   end    = offset + len;
+
+    if (len%4 != 0) {
+        return;
+    }
+
+    guint16 svc_id;
+    proto_tree * svc_tree;
+
+    while (offset < end) {
+        svc_id = tvb_get_ntohs(tvb, offset);
+
+        svc_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3,
+                    ett_mpeg_descriptor_nordig_lcd_v1_service_list, NULL, "Service 0x%04x", svc_id);
+
+        proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v1_service_list_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v1_service_list_visible_service_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v1_service_list_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v1_service_list_logical_channel_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+}
+
+/* 0x87 NorDig Logical Channel Descriptor (version 2) */
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_id = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_channel_list_name = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_country_code = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_descriptor_length = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_service_id = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_visible_service_flag = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_reserved = -1;
+static gint hf_mpeg_descr_nordig_lcd_v2_logical_channel_number = -1;
+
+static gint ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list = -1;
+static gint ett_mpeg_descriptor_nordig_lcd_v2_service_list = -1;
+
+#define MPEG_DESCR_NORDIG_LCD_V2_VISIBLE_SERVICE_FLAG_MASK 0x8000
+#define MPEG_DESCR_NORDIG_LCD_V2_RESERVED_MASK             0x7c00
+#define MPEG_DESCR_NORDIG_LCD_V2_LCN_MASK                  0x03ff
+
+static int
+proto_mpeg_descriptor_dissect_nordig_lcd_v2_measure_ch_list(tvbuff_t *tvb, guint offset, guint len)
+{
+    guint l_offset = offset;
+    if (len < 2) {
+        return len;
+    }
+    guint8 channel_list_name_length = tvb_get_guint8(tvb, l_offset + 1);
+    l_offset += 2 + channel_list_name_length + 4;
+    if (l_offset > offset + len) {
+        return len;
+    }
+    guint8 descriptor_len = tvb_get_guint8(tvb, l_offset - 1);
+    l_offset += descriptor_len;
+    if (l_offset > offset + len) {
+        return len;
+    } else {
+        return l_offset - offset;
+    }
+}
+
+static void
+proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint   cnt    = len;
+    guint   end    = offset + len;
+
+    proto_tree * channel_list_tree;
+
+    while (cnt > 0) {
+        int ch_list_len = proto_mpeg_descriptor_dissect_nordig_lcd_v2_measure_ch_list(tvb, offset, end - offset);
+        guint8  channel_list_id;
+        guint8  channel_list_name_length;
+        guint8  descriptor_length;
+        if (cnt < 1) return;
+
+        channel_list_id = tvb_get_guint8(tvb, offset);
+        channel_list_tree = proto_tree_add_subtree_format(tree, tvb, offset, ch_list_len,
+                    ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list, NULL, "Channel list 0x%02x", channel_list_id);
+        proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        if (cnt < 1) return;
+        channel_list_name_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        channel_list_name_length = MIN(cnt, channel_list_name_length);
+        dvb_encoding_e  encoding;
+        guint enc_len = dvb_analyze_string_charset(tvb, offset, channel_list_name_length, &encoding);
+        dvb_add_chartbl(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding, tvb, offset, enc_len, encoding);
+
+        proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_channel_list_name, tvb, offset+enc_len, channel_list_name_length-enc_len, dvb_enc_to_item_enc(encoding));
+        offset += channel_list_name_length;
+        cnt    -= channel_list_name_length;
+
+        if (cnt < 3) return;
+        proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_country_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+        cnt    -= 3;
+
+        if (cnt < 1) return;
+        descriptor_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(channel_list_tree, hf_mpeg_descr_nordig_lcd_v2_descriptor_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        descriptor_length = MIN(descriptor_length, cnt);
+        while (descriptor_length > 0) {
+            guint16 svc_id;
+            proto_tree * svc_tree;
+
+            if (cnt < 2) return;
+            svc_id = tvb_get_ntohs(tvb, offset);
+
+            svc_tree = proto_tree_add_subtree_format(channel_list_tree, tvb, offset, 4,
+                        ett_mpeg_descriptor_nordig_lcd_v2_service_list, NULL, "Service 0x%04x", svc_id);
+
+            proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v2_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            cnt    -= 2;
+            descriptor_length -= 2;
+
+            if (cnt < 2) return;
+            proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v2_visible_service_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v2_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(svc_tree, hf_mpeg_descr_nordig_lcd_v2_logical_channel_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            cnt    -= 2;
+            descriptor_length -= 2;
+        }
+
+    }
+}
+
 /* 0xA2 Logon Initialize Descriptor */
 static int hf_mpeg_descr_logon_initialize_group_id = -1;
 static int hf_mpeg_descr_logon_initialize_logon_id = -1;
@@ -3413,6 +3574,12 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x81: /* ATSC A/52 AC-3 Audio Descriptor */
             proto_mpeg_descriptor_dissect_ac3_system_a(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x83: /* NorDig Logical Channel Descriptor (version 1) */
+            proto_mpeg_descriptor_dissect_nordig_lcd_v1(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x87: /* NorDig Logical Channel Descriptor (version 2) */
+            proto_mpeg_descriptor_dissect_nordig_lcd_v2(tvb, offset, len, descriptor_tree);
             break;
         case 0xA2: /* Logon Initialize Descriptor */
             proto_mpeg_descriptor_dissect_logon_initialize(tvb, offset, len, descriptor_tree);
@@ -4858,6 +5025,78 @@ proto_register_mpeg_descriptor(void)
             FT_STRING, BASE_NONE, NULL,  0, NULL, HFILL
         } },
 
+        /* 0x83 NorDig Logical Channel Descriptor (version 1) */
+        { &hf_mpeg_descr_nordig_lcd_v1_service_list_id, {
+            "Service ID", "mpeg_descr.nordig.lcd.svc_list.id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v1_service_list_visible_service_flag, {
+            "Visible", "mpeg_descr.nordig.lcd.svc_list.visible",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_NORDIG_LCD_V1_VISIBLE_SERVICE_FLAG_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v1_service_list_reserved, {
+            "Reserved", "mpeg_descr.nordig.lcd.svc_list.reserved",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_NORDIG_LCD_V1_RESERVED_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v1_service_list_logical_channel_number, {
+            "Logical Channel Number", "mpeg_descr.nordig.lcd.svc_list.lcn",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_NORDIG_LCD_V1_LCN_MASK, NULL, HFILL
+        } },
+
+        /* 0x87 NorDig Logical Channel Descriptor (version 2) */
+        { &hf_mpeg_descr_nordig_lcd_v2_channel_list_id, {
+            "Channel List ID", "mpeg_descr.nordig.lcd.ch_list.id",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_channel_list_name_length, {
+            "Channel List Name Length", "mpeg_descr.nordig.lcd.ch_list.name_length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_channel_list_name_encoding, {
+            "Channel List Name Encoding", "mpeg_descr.nordig.lcd.ch_list.name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_channel_list_name, {
+            "Channel List Name", "mpeg_descr.nordig.lcd.ch_list.name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_country_code, {
+            "Country Code", "mpeg_descr.nordig.lcd.country_code",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_descriptor_length, {
+            "Descriptor Length", "mpeg_descr.nordig.lcd.ch_list.descriptor_length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_service_id, {
+            "Service ID", "mpeg_descr.nordig.lcd.svc_list.id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_visible_service_flag, {
+            "Visible", "mpeg_descr.nordig.lcd.svc_list.visible",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_NORDIG_LCD_V2_VISIBLE_SERVICE_FLAG_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_reserved, {
+            "Reserved", "mpeg_descr.nordig.lcd.svc_list.reserved",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_NORDIG_LCD_V2_RESERVED_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nordig_lcd_v2_logical_channel_number, {
+            "Logical Channel Number", "mpeg_descr.nordig.lcd.svc_list.lcn",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_NORDIG_LCD_V2_LCN_MASK, NULL, HFILL
+        } },
+
         /* 0xA2 Logon Initialize Descriptor */
         { &hf_mpeg_descr_logon_initialize_group_id, {
             "Group ID", "mpeg_descr.logon_init.group_id",
@@ -5101,6 +5340,9 @@ proto_register_mpeg_descriptor(void)
         &ett_mpeg_descriptor_vbi_data_service,
         &ett_mpeg_descriptor_content_identifier_crid,
         &ett_mpeg_descriptor_service_list,
+        &ett_mpeg_descriptor_nordig_lcd_v1_service_list,
+        &ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list,
+        &ett_mpeg_descriptor_nordig_lcd_v2_service_list,
         &ett_mpeg_descriptor_ac3_component_type,
         &ett_mpeg_descriptor_linkage_population_id
     };
