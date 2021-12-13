@@ -214,6 +214,8 @@ static int hf_param_source_uint64 = -1;
 static int hf_param_special_string = -1;
 static int hf_param_spid_bytes = -1;
 static int hf_param_status_bytes = -1;
+static int hf_param_ret_bytes = -1;
+static int hf_param_core_uint8 = -1;
 static int hf_param_suid_bytes = -1;
 static int hf_param_tags_bytes = -1;
 static int hf_param_target_string = -1;
@@ -1258,7 +1260,7 @@ static int * const syscall_symlinkat_x_indexes[] = { &hf_param_res_bytes, &hf_pa
 #define syscall_fork_x_indexes syscall_clone_16_x_indexes
 #define syscall_vfork_e_indexes no_indexes
 #define syscall_vfork_x_indexes syscall_clone_16_x_indexes
-static int * const procexit_1_e_indexes[] = { &hf_param_status_bytes, NULL };
+static int * const procexit_1_e_indexes[] = { &hf_param_status_bytes, &hf_param_res_bytes, &hf_param_sig_bytes, &hf_param_core_uint8, NULL };
 #define procexit_1_x_indexes no_indexes
 static int * const syscall_sendfile_e_indexes[] = { &hf_param_out_fd_int64, &hf_param_in_fd_int64, &hf_param_offset_uint64, &hf_param_size_uint64, NULL };
 static int * const syscall_sendfile_x_indexes[] = { &hf_param_res_bytes, &hf_param_offset_uint64, NULL };
@@ -2174,8 +2176,15 @@ dissect_event_params(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int off
     }
 
     for (cur_param = 0; cur_param < syscall_header->nparams; cur_param++) {
+        if (!hf_indexes[cur_param]) {
+            // This happens when new params are added to existent events in sysdig,
+            // if the event is already mapped in wireshark with a lower number of params.
+            // hf_indexes array size would be < than event being dissected, leading to SIGSEGV.
+            break;
+        }
+
         guint32 param_len;
-        if (syscall_header->record_type == SYSDIG_PARAM_SIZE_V2_LARGE) {
+        if (syscall_header->record_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE) {
             param_len = tvb_get_guint32(tvb, len_offset, encoding);
         } else {
             param_len = tvb_get_guint16(tvb, len_offset, encoding);
@@ -2494,7 +2503,8 @@ proto_register_sysdig_event(void)
         { &hf_param_vpid_bytes, { "vpid", "sysdig.param.vfork.vpid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_vtid_bytes, { "vtid", "sysdig.param.vfork.vtid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_whence_bytes, { "whence", "sysdig.param.llseek.whence", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-
+        { &hf_param_ret_bytes, { "ret", "sysdig.param.procexit.ret", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_core_uint8, { "core", "sysdig.param.procexit.core", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
     };
 
     /* Setup protocol subtree array */
