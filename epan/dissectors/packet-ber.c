@@ -3535,7 +3535,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
         proto_tree_add_expert_format(
             tree, actx->pinfo, &ei_ber_error_length, tvb, offset-2, 2,
             "BER Error: %s OF contained %d too many bytes",
-            (type == BER_UNI_TAG_SEQUENCE) ? "SET" : "SEQUENCE",
+            (type == BER_UNI_TAG_SEQUENCE) ? "SEQUENCE" : "SET",
             offset - end_offset);
     }
 
