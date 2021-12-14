@@ -58,6 +58,10 @@ set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT
 
 include( CMakeOptions.txt )
 
+# We require minimum C11
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
 # We require minimum C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -576,6 +580,11 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	## 4200: nonstandard extension used : zero-sized array in struct/union
 	list(APPEND LOCAL_CFLAGS /w34295 /w34100 /w34189 /wd4200)
 
+	# MSVC 14.28 enables C5105, but the Windows SDK 10.0.18362.0 triggers it.
+	if(CMAKE_C_COMPILER_ID STREQUAL "MSVC" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 19.28)
+		list(APPEND LOCAL_CFLAGS -wd5105)
+	endif()
+
 	# We've matched these to specific compiler versions using the
 	# checks above. There's no need to pass them to check_c_compiler_flag
 	# or check_cxx_compiler_flag, which can be slow.
@@ -594,87 +603,6 @@ else() # ! MSVC
 			endif()
 			set(MIN_MACOS_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
 		endif()
-	endif()
-
-	#
-	# Do whatever is necessary to enable as much C99 support as
-	# possible in the C compiler.  Newer versions of compilers
-	# might default to supporting C99, but older versions may
-	# require a special flag.
-	#
-	# We do not want strict C99 support, as we may also want to
-	# use compiler extensions.
-	#
-	# Prior to CMake 3.1, setting CMAKE_C_STANDARD will not have
-	# any effect, so, unless and until we require CMake 3.1 or
-	# later, we have to do it ourselves on pre-3.1 CMake, so we
-	# just do it ourselves on all versions of CMake.
-	#
-	# Note: with CMake 3.1 through 3.5, the only compilers for
-	# which CMake handles CMAKE_C_STANDARD are GCC and Clang.
-	# 3.6 adds support only for Intel C; 3.9 adds support for
-	# PGI C, Sun C, and IBM XL C, and 3.10 adds support for
-	# Cray C and IAR C, but no version of CMake has support for
-	# HP C.  Therefore, even if we use CMAKE_C_STANDARD with
-	# compilers for which CMake supports it, we may still have
-	# to do it ourselves on other compilers.
-	#
-	# In addition, CMake 3.5.2 seems to think that GCC versions
-	# less than 4.4 don't support -std=gnu99, which we need in
-	# order to get support for "for (int i = 0; i < n; i++) ;",
-	# which is another reason not to rely on CMake's CMAKE_C_STANDARD
-	# support.
-	#
-	# See the CMake documentation for the CMAKE_<LANG>_COMPILER_ID
-	# variables for a list of compiler IDs.
-	#
-	# We don't worry about MSVC; it doesn't have such a flag -
-	# either it doesn't support the C99 features we need at all,
-	# or it supports them regardless of the compiler flag.
-	#
-	# XXX - we add the flag for a given compiler to CMAKE_C_FLAGS,
-	# so we test whether it works and add it if we do.  We don't
-	# test whether it's necessary in order to get the C99 features
-	# that we use; if we ever have a user who tries to compile with
-	# a compiler that can't be made to support those features, we
-	# can add a test to make sure we actually *have* C99 support.
-	#
-	if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR
-	   CMAKE_C_COMPILER_ID MATCHES "Clang")
-		#
-		# We use -std=gnu99 rather than -std=c99 because, for
-		# some older compilers such as GCC 4.4.7, -std=gnu99
-		# is required to avoid errors about C99 constructs
-		# such as "for (int i = 0; i < n; i++) ;".
-		#
-		set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
-	elseif(CMAKE_C_COMPILER_ID MATCHES "XL")
-		#
-		# We want support for extensions picked up for
-		# GNU C compatibility, so we use -qlanglvl=extc99.
-		#
-		set(CMAKE_C_FLAGS "-qlanglvl=extc99 ${CMAKE_C_FLAGS}")
-	elseif(CMAKE_C_COMPILER_ID MATCHES "HP")
-		#
-		# We also need to add -Wp,-H200000 to handle some large
-		# #defines we have; that flag is not necessary for the
-		# C++ compiler unless the "legacy" C++ preprocessor is
-		# being used (+legacy_cpp).  We don't want the legacy
-		# preprocessor if it's not the default, so we just add
-		# -Wp,-H200000 to the C flags.  (If there are older
-		# versions of aC++ that only support the legacy
-		# preprocessor, and require that we boost the table
-		# size, we'd have to check whether -Wp,-H200000 is
-		# supported by the C++ compiler and add it only if it is.)
-		#
-		set(CMAKE_C_FLAGS "-AC99 -Wp,-H200000 $WS_CFLAGS ${CMAKE_C_FLAGS}")
-	elseif(CMAKE_C_COMPILER_ID MATCHES "Sun")
-		#
-		# We also crank up the warning level.
-		#
-		set(CMAKE_C_FLAGS "-xc99 -v ${CMAKE_C_FLAGS}")
-	elseif(CMAKE_C_COMPILER_ID MATCHES "Intel")
-		set(CMAKE_C_FLAGS "-c99 ${CMAKE_C_FLAGS}")
 	endif()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
