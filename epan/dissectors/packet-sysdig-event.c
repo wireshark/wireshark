@@ -2141,6 +2141,13 @@ dissect_event_params(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int off
     }
 
     for (cur_param = 0; cur_param < syscall_header->nparams; cur_param++) {
+        if (!hf_indexes[cur_param]) {
+            // This happens when new params are added to existent events in sysdig,
+            // if the event is already mapped in wireshark with a lower number of params.
+            // hf_indexes array size would be < than event being dissected, leading to SIGSEGV.
+            break;
+        }
+
         int param_len = tvb_get_guint16(tvb, len_offset, encoding);
         const int hf_index = *hf_indexes[cur_param];
         if (proto_registrar_get_ftype(hf_index) == FT_STRING) {
