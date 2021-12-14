@@ -1461,11 +1461,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item_append_text(protocol_item, "-U");
     proto_tree *oran_tree = proto_item_add_subtree(protocol_item, ett_oran);
 
+    /* Transport header */
+    /* Real-time control data / IQ data transfer message series identifier */
     addPcOrRtcid(tvb, oran_tree, &offset, "ecpriPcid");
+    /* Message identifier */
     addSeqid(tvb, oran_tree, &offset);
 
+    /* Common header for time reference */
     proto_item *timingHeader;
-
     proto_tree *timing_header_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 4, ett_oran_u_timing, &timingHeader, "Timing header");
 
     guint32 direction;
@@ -1529,6 +1532,8 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         proto_item *sectionHeading;
         proto_tree *section_tree = proto_tree_add_subtree(oran_tree, tvb, offset, 2, ett_oran_u_section, &sectionHeading, "Section");
 
+        /* Section Header fields */
+
         /* sectionId */
         guint32 sectionId = 0;
         proto_tree_add_item_ret_uint(section_tree, hf_oran_section_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sectionId);
@@ -1558,8 +1563,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         write_section_info(sectionHeading, pinfo, protocol_item, sectionId, startPrbu, numPrbu);
 
+        /* TODO: should this use the same pref as c-plane? */
         if (numPrbu == 0) {
-            /* Special case for all PRBs */
+            /* Special case for all PRBs (NR: the total number of PRBs may be > 255) */
             numPrbu = pref_data_plane_section_total_rbs;
             startPrbu = 0;  /* may already be 0... */
         }
@@ -1587,6 +1593,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         number_of_sections++;
     } while (bytesLeft >= (4 + nBytesPerPrb));     /* FIXME: bad heuristic */
 
+    /* Show number of sections found */
     proto_item *ti = proto_tree_add_uint(oran_tree, hf_oran_numberOfSections, tvb, 0, 0, number_of_sections);
     proto_item_set_generated(ti);
 
