@@ -520,6 +520,8 @@ int main(int argc, char *qt_argv[])
 
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init_with_writer("wireshark", console_log_writer, vcmdarg_err);
+    /* For backward compatibility with GLib logging and Wireshark 3.4. */
+    ws_log_console_writer_set_use_stdout(TRUE);
 
     qInstallMessageHandler(qt_log_message_handler);
 
