@@ -68,14 +68,14 @@ void ws_log_console_writer(const char *domain, enum ws_log_level level,
                             const char *user_format, va_list user_ap);
 
 
-/** Configure all log output to use stderr.
+/** Configure log levels "info" and below to use stdout.
  *
- * Normally log levels "info", "debug" and "noisy" are written to stdout.
- * Calling this function with true configures these levels to be written
- * to stderr as well.
+ * Normally all log messages are written to stderr. For backward compatibility
+ * with GLib calling this function with TRUE configures log levels "info",
+ * "debug" and "noisy" to be written to stdout.
  */
 WS_DLL_PUBLIC
-void ws_log_console_writer_set_use_stderr(bool use_stderr);
+void ws_log_console_writer_set_use_stdout(bool use_stdout);
 
 
 /** Convert a numerical level to its string representation. */
