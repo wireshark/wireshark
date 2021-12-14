@@ -27,6 +27,7 @@
 #include "packet-http.h"
 #include "packet-acdr.h"
 #include "packet-gtpv2.h"
+#include "packet-gsm_a_common.h"
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
@@ -71,6 +72,7 @@ static gint ett_json_array_compact = -1;
 static gint ett_json_object_compact = -1;
 static gint ett_json_member_compact = -1;
 static gint ett_json_base64decoded_eps_ie = -1;
+static gint ett_json_base64decoded_nas5g_ie = -1;
 
 static int hf_json_3gpp_ueepspdnconnection = -1;
 static int hf_json_3gpp_bearerlevelqos = -1;
@@ -80,18 +82,20 @@ static int hf_json_3gpp_forwardingfteid = -1;
 static int hf_json_3gpp_pgwnodename = -1;
 static int hf_json_3gpp_pgws8cfteid = -1;
 static int hf_json_3gpp_pgws8ufteid = -1;
+static int hf_json_3gpp_qosrules = -1;
+static int hf_json_3gpp_qosflowdescription = -1;
 
 /* json data decoding function XXXX only works for the compact form.
  * Callback function to further dissect json data
  * The first implementation is a 3GPP json element which carry an Base64 encoded GTPv2 IE
  * https://www.etsi.org/deliver/etsi_ts/129500_129599/129502/15.01.00_60/ts_129502v150100p.pdf
  */
-typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len);
+typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str);
 
 /* Array of functions to dissect IEs
 */
 typedef struct _json_ie {
-    void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len);
+    void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str);
 } json_ie_t;
 
 /* A struct to hold the hf and callback function stored in a hastable with the json key as key.
@@ -476,12 +480,12 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_in
 		int str_len = (int)strlen(key_str);
 		ti = proto_tree_add_item(tree, hfi->id, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
 		if (json_data_decoder_rec->json_data_decoder) {
-			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len));
+			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len), key_str);
 		}
 	} else {
 		ti = proto_tree_add_item(tree, hfi->id, tok->tvb, tok->offset, tok->len, ENC_NA);
 		if (json_data_decoder_rec->json_data_decoder) {
-			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset, tok->len);
+			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset, tok->len, key_str);
 		}
 	}
 	return ti;
@@ -601,7 +605,7 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 		if(offset > 0)
 		{
-			proto_tree_add_item(json_tree ? json_tree : tree, hf_json_ignored_leading_bytes, tvb, 0, offset, ENC_NA);
+			proto_tree_add_item(json_tree ? json_tree : tree, hf_json_ignored_leading_bytes, tvb, 0, offset, ENC_ASCII);
 		}
 	}
 
@@ -1123,7 +1127,7 @@ dissect_json_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 /* Functions to sub dissect json content */
 static void
-dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len)
+dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str _U_)
 {
 	/* base64-encoded characters, encoding the
 	 * EPS IE specified in 3GPP TS 29.274.
@@ -1131,10 +1135,43 @@ dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	proto_item* ti;
 	proto_tree* sub_tree;
 	tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, len);
+	int bin_tvb_length = tvb_reported_length(bin_tvb);
 	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
-	ti = proto_tree_add_item(tree, hf_json_binary_data, bin_tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_json_binary_data, bin_tvb, 0, bin_tvb_length, ENC_NA);
 	sub_tree = proto_item_add_subtree(ti, ett_json_base64decoded_eps_ie);
 	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, NULL);
+}
+
+static void
+dissect_base64decoded_nas5g_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, char* key_str)
+{
+	/* base64-encoded characters, encoding the
+	 * NAS-5G IE specified in 3GPP TS 24.501.
+	 */
+	proto_item* ti;
+	proto_tree* sub_tree;
+	tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, len);
+	int bin_tvb_length = tvb_reported_length(bin_tvb);
+	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
+	ti = proto_tree_add_item(tree, hf_json_binary_data, bin_tvb, 0, bin_tvb_length, ENC_NA);
+	sub_tree = proto_item_add_subtree(ti, ett_json_base64decoded_nas5g_ie);
+
+	if (strcmp(key_str, "qosRules") == 0) {
+		/* qosRules
+		 * This IE shall contain the QoS Rule(s) associated to the QoS flow to be sent to the UE.
+		 * It shall be encoded as the Qos rules IE specified in clause 9.11.4.13 of 3GPP TS 24.501 (starting from octet 4).
+		 */
+		de_nas_5gs_sm_qos_rules(bin_tvb, sub_tree, pinfo, 0, bin_tvb_length, NULL, 0);
+	}
+	else if (strcmp(key_str, "qosFlowDescription") == 0) {
+		/* qosFlowDescription
+		 * When present, this IE shall contain the description of the QoS Flow level Qos parameters to be sent to the UE.
+		 * It shall be encoded as the Qos flow descriptions IE specified in clause 9.11.4.12 of 3GPP TS 24.501 (starting from octet 1),
+		 * encoding one single Qos flow description for the QoS flow to be set up.
+		 */
+		elem_telv(bin_tvb, sub_tree, pinfo, (guint8) 0x79, 18 /* NAS_5GS_PDU_TYPE_SM */, 11 /* DE_NAS_5GS_SM_QOS_FLOW_DES */, 0, bin_tvb_length, NULL);
+	}
+
 }
 
 static void
@@ -1194,11 +1231,23 @@ register_static_headers(void) {
 			{"pgwS8uFteid", "json.3gpp.pgws8ufteid",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_qosrules,
+			{"qosRules", "json.3gpp.qosrules",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_qosflowdescription,
+			{"qosFlowDescription", "json.3gpp.qosflowdescription",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
 		}
 	};
 
 	/* List of decoding functions the index matches the HF */
-	static void(*json_decode_fn[])(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, int offset, int len) = {
+	static void(*json_decode_fn[])(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, int offset, int len, char* key_str) = {
 		dissect_base64decoded_eps_ie,   /* ueEpsPdnConnection */
 		dissect_base64decoded_eps_ie,   /* bearerLevelQoS */
 		dissect_base64decoded_eps_ie,   /* epsBearerSetup */
@@ -1207,6 +1256,10 @@ register_static_headers(void) {
 		dissect_base64decoded_eps_ie,   /* pgwNodeName */
 		dissect_base64decoded_eps_ie,   /* pgwS8cFteid */
 		dissect_base64decoded_eps_ie,   /* pgwS8uFteid */
+
+		dissect_base64decoded_nas5g_ie, /* qosRules */
+		dissect_base64decoded_nas5g_ie, /* qosFlowDescription */
+
 
 		NULL,   /* NONE */
 	};
@@ -1334,6 +1387,7 @@ proto_register_json(void)
 		&ett_json_object_compact,
 		&ett_json_member_compact,
 		&ett_json_base64decoded_eps_ie,
+		&ett_json_base64decoded_nas5g_ie,
 	};
 
 	module_t *json_module;
