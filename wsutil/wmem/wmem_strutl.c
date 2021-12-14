@@ -71,23 +71,27 @@ wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
     return dst;
 }
 
-#define WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER 80
+#define WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER 256
 char *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
 {
     va_list ap2;
-    char buf[WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER + 1];
+    char buf[WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER];
     int needed_len;
+    char *new_buf;
+    size_t new_buf_size;
 
     va_copy(ap2, ap);
     needed_len = vsnprintf(buf, sizeof(buf), fmt, ap2);
     va_end(ap2);
 
-    if (needed_len <= WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER)
-        return wmem_strdup(allocator, buf);
+    new_buf_size = needed_len + 1;
+    new_buf = wmem_alloc(allocator, new_buf_size);
 
-    size_t new_buf_size = needed_len + 1;
-    char *new_buf = wmem_alloc(allocator, new_buf_size);
+    if (new_buf_size <= WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER) {
+        memcpy(new_buf, buf, new_buf_size);
+        return new_buf;
+    }
     vsnprintf(new_buf, new_buf_size, fmt, ap);
     return new_buf;
 }
