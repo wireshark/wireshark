@@ -81,6 +81,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "SunOS" AND CMAKE_SYSTEM_VERSION MATCHES "5[.]
 endif()
 
 check_function_exists("clock_gettime"    HAVE_CLOCK_GETTIME)
+# Some platforms (macOS pre 10.15) are non-conformant with C11 and lack timespec_get()
+check_function_exists("timespec_get"     HAVE_TIMESPEC_GET)
 check_function_exists("getifaddrs"       HAVE_GETIFADDRS)
 check_function_exists("issetugid"        HAVE_ISSETUGID)
 check_function_exists("setresgid"        HAVE_SETRESGID)

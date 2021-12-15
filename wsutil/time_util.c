@@ -210,6 +210,30 @@ create_timestamp(void) {
     return timestamp;
 }
 
+struct timespec *
+ws_clock_get_realtime(struct timespec *ts)
+{
+	/*
+	 * This function is used in the wslog log handler context.
+	 * We must not call anything, even indirectly, that might log a message
+	 * using wslog (including GLib).
+	 */
+#if defined(HAVE_CLOCK_GETTIME)
+	if (clock_gettime(CLOCK_REALTIME, ts) == 0)
+		return ts;
+#elif defined(HAVE_TIMESPEC_GET)
+	if (timespec_get(ts, TIME_UTC) == TIME_UTC)
+		return ts;
+#endif
+
+	/* Fall back on gettimeofday(). */
+	struct timeval usectimenow;
+	gettimeofday(&usectimenow, NULL);
+	ts->tv_sec = usectimenow.tv_sec;
+	ts->tv_nsec = usectimenow.tv_usec*1000;
+	return ts;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

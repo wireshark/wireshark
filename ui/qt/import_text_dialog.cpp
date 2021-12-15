@@ -9,12 +9,6 @@
 
 #include "config.h"
 
-#include <time.h>
-#if !defined(_WIN32) && !defined(HAVE_CLOCK_GETTIME)
-// For gettimeofday()
-#include <sys/time.h>
-#endif
-
 #include "import_text_dialog.h"
 
 #include "wiretap/wtap.h"
@@ -29,6 +23,7 @@
 
 #include "file.h"
 #include "wsutil/file_util.h"
+#include "wsutil/time_util.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/filesystem.h"
 
@@ -618,22 +613,8 @@ void ImportTextDialog::on_timestampFormatLineEdit_textChanged(const QString &tim
             char time_str[100];
             QString timefmt = QString(time_format);
 
-#if defined(HAVE_CLOCK_GETTIME)
-            // Newer POSIX API.  Some UN*Xes whose C libraries lack
-            // timespec_get() (C11) have this.
-            clock_gettime(CLOCK_REALTIME, &timenow);
-#elif defined(_WIN32)
-            // At least some Windows C libraries have this.
-            // Some UN*X C libraries do, as well, but they might not
-            // show it unless you're requesting C11 - or C++17.
-            timespec_get(&timenow, TIME_UTC);
-#else
-            // Fall back on gettimeofday().
-            struct timeval usectimenow;
-            gettimeofday(&usectimenow, NULL);
-            timenow.tv_sec = usectimenow.tv_sec;
-            timenow.tv_nsec = usectimenow.tv_usec*1000;
-#endif
+            ws_clock_get_realtime(&timenow);
+
             /* On windows strftime/wcsftime does not support %s yet, this works on all OSs */
             timefmt.replace(QString("%s"), QString::number(timenow.tv_sec));
             /* subsecond example as usec */

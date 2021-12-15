@@ -361,6 +361,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_buffer_init@Base 1.99.0
  ws_buffer_remove_start@Base 1.99.0
  ws_cleanup_sockets@Base 3.1.0
+ ws_clock_get_realtime@Base 3.7.0
  ws_cmac_buffer@Base 3.1.0
  ws_escape_string@Base 3.7.0
  ws_getopt@Base 3.5.1

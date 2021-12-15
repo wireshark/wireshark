@@ -40,6 +40,9 @@
 /* Define to 1 if you have the `clock_gettime` function. */
 #cmakedefine HAVE_CLOCK_GETTIME 1
 
+/* Define to 1 if you have the `timespec_get` function. */
+#cmakedefine HAVE_TIMESPEC_GET 1
+
 /* Define to use the MaxMind DB library */
 #cmakedefine HAVE_MAXMINDDB 1
 

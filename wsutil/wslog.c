@@ -30,6 +30,7 @@
 #endif
 
 #include "file_util.h"
+#include "time_util.h"
 #include "to_str.h"
 #include "strtoi.h"
 
@@ -904,22 +905,6 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
 }
 
 
-static inline ws_log_time_t *get_timestamp(ws_log_time_t *ts)
-{
-    assert(ts);
-#if defined(HAVE_CLOCK_GETTIME)
-    if (clock_gettime(CLOCK_REALTIME, (struct timespec *)ts) == 0)
-        return ts;
-#elif defined(_WIN32)
-    if (timespec_get((struct timespec *)ts, TIME_UTC) == TIME_UTC)
-        return ts;
-#endif
-    ts->tv_sec = time(NULL);
-    ts->tv_nsec = -1;
-    return ts;
-}
-
-
 static inline struct tm *get_localtime(time_t unix_time, struct tm **cookie)
 {
     if (unix_time == (time_t)-1)
@@ -961,7 +946,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
     ws_log_time_t tstamp;
     struct tm *cookie = NULL;
 
-    get_timestamp(&tstamp);
+    ws_clock_get_realtime((struct timespec *)&tstamp);
 
     if (custom_log) {
         va_list user_ap_copy;

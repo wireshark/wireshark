@@ -63,6 +63,9 @@ void log_resource_usage(gboolean reset_delta, const char *format, ...);
 WS_DLL_PUBLIC
 guint64 create_timestamp(void);
 
+WS_DLL_PUBLIC
+struct timespec *ws_clock_get_realtime(struct timespec *ts);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
