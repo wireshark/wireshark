@@ -464,7 +464,6 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_in
 {
 	proto_item* ti;
 	int hf_id = -1;
-	header_field_info* hfi;
 
 	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t*)g_hash_table_lookup(header_fields_hash, key_str);
 	if (json_data_decoder_rec == NULL) {
@@ -472,18 +471,16 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_in
 	}
 
 	hf_id = *json_data_decoder_rec->hf_id;
-
-	hfi = proto_registrar_get_nth(hf_id);
-	DISSECTOR_ASSERT(hfi != NULL);
+	DISSECTOR_ASSERT(hf_id >= 0);
 
 	if (use_compact) {
 		int str_len = (int)strlen(key_str);
-		ti = proto_tree_add_item(tree, hfi->id, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
+		ti = proto_tree_add_item(tree, hf_id, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
 		if (json_data_decoder_rec->json_data_decoder) {
 			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len), key_str);
 		}
 	} else {
-		ti = proto_tree_add_item(tree, hfi->id, tok->tvb, tok->offset, tok->len, ENC_NA);
+		ti = proto_tree_add_item(tree, hf_id, tok->tvb, tok->offset, tok->len, ENC_NA);
 		if (json_data_decoder_rec->json_data_decoder) {
 			(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset, tok->len, key_str);
 		}
