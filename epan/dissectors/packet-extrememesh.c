@@ -2052,7 +2052,7 @@ void proto_register_extrememesh(void)
 		"Reserved", "extrememesh.ps.preq.flags.reserved", FT_UINT8, BASE_DEC,
 		NULL, 0x18, NULL, HFILL }},
 	{ &hf_extrememesh_ps_preq_flags_gratuitous, {
-		"Gratuitous PREP Flag", "extrememesh.ps.preq.flags.gtratuitous",
+                "Gratuitous PREP Flag", "extrememesh.ps.preq.flags.gratuitous",
 		FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
 	{ &hf_extrememesh_ps_preq_flags_destination, {
 		"Destination only flag", "extrememesh.ps.preq.flags.destination",

@@ -1710,7 +1710,7 @@ proto_register_dlm3(void)
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL}},
     { &hf_dlm3_rl_flags_user,
-      { "User space lock realted", "dlm3.rl.flags.user",
+      { "User space lock related", "dlm3.rl.flags.user",
         FT_BOOLEAN, 32, NULL, DLM3_IFL_USER,
         NULL, HFILL}},
     { &hf_dlm3_rl_flags_orphan,

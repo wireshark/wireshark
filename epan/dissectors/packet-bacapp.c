@@ -3510,7 +3510,7 @@ BACnetEngineeringUnits [] = {
     {  96, "Parts Per Million"},
     {  97, "Parts Per Billion"},
     {  98, "Percent"},
-    {  99, "Pecent Per Second"},
+    {  99, "Percent Per Second"},
     { 100, "Per Minute"},
     { 101, "Per Second"},
     { 102, "Psi Per Degree Fahrenheit"},

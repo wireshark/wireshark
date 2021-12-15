@@ -12317,7 +12317,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_prr_additionsr6_additionsr7_exist,
-      { "Exist_AdditionsR7",        "gsm_rlcmac.ul.prr_exsit_r7",
+      { "Exist_AdditionsR7",        "gsm_rlcmac.ul.prr_exist_r7",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
