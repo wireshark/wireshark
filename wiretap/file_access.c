@@ -2289,26 +2289,32 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 
 		case WTAP_TSPREC_SEC:
 			descr_mand->time_units_per_second = 1;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 0);
 			break;
 
 		case WTAP_TSPREC_DSEC:
 			descr_mand->time_units_per_second = 10;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 1);
 			break;
 
 		case WTAP_TSPREC_CSEC:
 			descr_mand->time_units_per_second = 100;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 2);
 			break;
 
 		case WTAP_TSPREC_MSEC:
 			descr_mand->time_units_per_second = 1000;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 3);
 			break;
 
 		case WTAP_TSPREC_USEC:
 			descr_mand->time_units_per_second = 1000000;
+			/* This is the default, so we save a few bytes by not adding the option. */
 			break;
 
 		case WTAP_TSPREC_NSEC:
 			descr_mand->time_units_per_second = 1000000000;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 9);
 			break;
 
 		default:
