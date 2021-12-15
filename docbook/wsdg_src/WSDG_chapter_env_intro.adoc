@@ -122,11 +122,11 @@ Wireshark mailing lists available.
 
 ==== Programming Languages Used
 
-Most of Wireshark is implemented in C99.
+Most of Wireshark is implemented in C.
 A notable exception is the code in _ui/qt_, which is written in {cpp}.
 
 The typical task for a new Wireshark developer is to extend an existing dissector, or write a new dissector for a specific network protocol.
-Most dissectors are written in C99, so a good knowledge of C will be sufficient for Wireshark development in almost any case.
+Most dissectors are written in C11, so a good knowledge of C will be sufficient for Wireshark development in almost any case.
 Dissectors can also be written in Lua, which might be more suitable for your specific needs.
 As noted above, if you’re going to modify Wireshark’s user interface you will need a knowledge of {cpp}.
 

@@ -65,39 +65,38 @@ Wireshark runs on many platforms, and can be compiled with a number of
 different compilers; here are some rules for writing code that will work
 on multiple platforms.
 
-In general, not all C99 features can be used since some C compilers used to
-compile Wireshark, such as Microsoft's C compiler, don't support all C99
-features.  The C99 features that can be used are:
+Building Wireshark requires a compiler that supports C11. This includes
+reasonably recent version of GCC and clang. Microsoft Visual Studio supports
+C11 from Visual Studio 2019 version 16.8 and later. Support requires an updated
+Universal C Runtime (UCRT) and Windows SDK version to work properly with the
+conforming preprocessor. The minimum SDK version is 10.0.20348.0 (version 2104).
 
- - flexible array members
- - compound literals
- - designated initializers
- - "//" comments
- - mixed declarations and code
- - new block scopes for selection and iteration statements (that is, declaring
-   the type in a for-loop like: for (int i = 0; i < n; i++) ;)
- - macros with a variable number of arguments (variadic macros)
- - trailing comma in enum declarations
- - inline functions (guaranteed only by use of glib.h)
+The C11 has some optional parts that are not a requirement to build Wireshark.
+In particular the following optional C11 features must NOT be used:
+ - Variable length arrays
+ - Bounds-checking interfaces (Annex K)
+
+We don't allow them because their value is questionable and requiring them
+would exclude a lot of compilers and runtimes that we wish to support.
 
 Don't initialize global or static variables (variables with static
-storage duration) in their declaration with non-constant values.  Not
-all compilers support this.  E.g., if "i" is a static or global
+storage duration) in their declaration with non-constant values. This is not
+permitted in C.  E.g., if "i" is a static or global
 variable, don't declare "i" as
 
-    guint32 i = somearray[2];
+    uint32_t i = somearray[2];
 
 outside a function, or as
 
-    static guint32 i = somearray[2];
+    static uint32_t i = somearray[2];
 
 inside or outside a function, declare it as just
 
-    guint32 i;
+    uint32_t i;
 
 or
 
-    static guint32 i;
+    static uint32_t i;
 
 and later, in code, initialize it with
 
@@ -107,34 +106,27 @@ instead.  Initializations of variables with automatic storage duration -
 i.e., local variables - with non-constant values is permitted, so,
 within a function
 
-    guint32 i = somearray[2];
+    uint32_t i = somearray[2];
 
 is allowed.
 
 Don't use zero-length arrays as structure members, use flexible array members
 instead.
 
-Don't use anonymous unions; not all compilers support them.
-Example:
-
-    typedef struct foo {
-      guint32 foo;
-      union {
-        guint32 foo_l;
-        guint16 foo_s;
-      } u;  /* have a name here */
-    } foo_t;
-
 Don't use "uchar", "u_char", "ushort", "u_short", "uint", "u_int",
 "ulong", "u_long" or "boolean"; they aren't defined on all platforms.
-If you want an 8-bit unsigned quantity, use "guint8"; if you want an
+Use the fixed width integers provided in C since C99. These are defined
+in <stdint.h>.
+
+If you want an 8-bit unsigned quantity, use "uint8_t"; if you want an
 8-bit character value with the 8th bit not interpreted as a sign bit,
-use "guchar"; if you want a 16-bit unsigned quantity, use "guint16";
-if you want a 32-bit unsigned quantity, use "guint32"; and if you want
-an "int-sized" unsigned quantity, use "guint"; if you want a boolean,
-use "gboolean".  Use "%d", "%u", "%x", and "%o" to print those types;
-don't use "%ld", "%lu", "%lx", or "%lo", as longs are 64 bits long on
-many platforms, but "guint32" is 32 bits long.
+use "unsigned char"; if you want a 16-bit unsigned quantity, use "uint16_t";
+if you want a 32-bit unsigned quantity, use "uint32_t"; and if you want
+an "int-sized" unsigned quantity, use "unsigned"; if you want a boolean,
+use "bool" (defined in <stdbool.h>). You don't need to explicitly include
+these headers; they are included in <wireshark.h>. Use that instead.
+
+To print fixed width integers you MUST use the macros provided in <inttypes.h>.
 
 Don't use "long" to mean "signed 32-bit integer", and don't use
 "unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
@@ -144,7 +136,7 @@ long on many platforms.  Use "gint32" for signed 32-bit integers and use
 Don't use "long" to mean "signed 64-bit integer" and don't use "unsigned
 long" to mean "unsigned 64-bit integer"; "long"s are 32 bits long on
 many other platforms.  Don't use "long long" or "unsigned long long",
-either, as not all platforms support them; use "gint64" or "guint64",
+either, as not all platforms support them; use "int64_t" or "uint64_t",
 which will be defined as the appropriate types for 64-bit signed and
 unsigned integers.
 
@@ -170,22 +162,28 @@ will have to cast to a compatible data type, e.g.
 
     size_t i;
     char greeting[] = "hello, sailor";
-    guint byte_after_greet;
+    uint8_t byte_after_greet;
 
     i = strlen(greeting);
-    byte_after_greet = tvb_get_guint8(tvb, (gint) i); /* OK */
+    byte_after_greet = tvb_get_guint8(tvb, (int) i); /* OK */
 
 or
 
-    gint i;
+    int i;
     char greeting[] = "hello, sailor";
-    guint byte_after_greet;
+    uint8_t byte_after_greet;
 
-    i = (gint) strlen(greeting);
+    i = (int) strlen(greeting);
     byte_after_greet = tvb_get_guint8(tvb, i); /* OK */
 
 See http://www.unix.org/version2/whatsnew/lp64_wp.html for more
 information on the sizes of common types in different data models.
+
+A lot of legacy code still uses GLib types and I/O replacement API. These
+should be gradually transitioned to use the standard interfaces provided in
+C11. Sometimes it may be necessary to use an unsavory cast or two or abuse
+a macro to bridge the two codebases during the transition. Such is life,
+use your judgement and do the best possible under the circumstances.
 
 When printing or displaying the values of 64-bit integral data types,
 don't use "%lld", "%llu", "%llx", or "%llo" - not all platforms
@@ -221,7 +219,8 @@ argument.  You must do
     call_routine2(xxx, format, ap);
     va_end(ap);
 
-rather
+rather than
+
     va_start(ap, format);
     call_routine1(xxx, format, ap);
     call_routine2(xxx, format, ap);
@@ -248,6 +247,7 @@ will not work with all compilers - you have to do
     }
 
 with some statement, even if it's a null statement, after the label.
+Preferably don't do it at all.
 
 Don't use "bzero()", "bcopy()", or "bcmp()"; instead, use the ANSI C
 routines
