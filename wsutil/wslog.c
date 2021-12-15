@@ -943,10 +943,10 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
-    ws_log_time_t tstamp;
+    struct timespec tstamp;
     struct tm *cookie = NULL;
 
-    ws_clock_get_realtime((struct timespec *)&tstamp);
+    ws_clock_get_realtime(&tstamp);
 
     if (custom_log) {
         va_list user_ap_copy;
@@ -1063,7 +1063,7 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
 
 
 void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
-                            ws_log_time_t timestamp,
+                            struct timespec timestamp,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {
@@ -1076,7 +1076,7 @@ void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
 
 
 void ws_log_console_writer(const char *domain, enum ws_log_level level,
-                            ws_log_time_t timestamp,
+                            struct timespec timestamp,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap)
 {

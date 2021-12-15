@@ -226,12 +226,19 @@ ws_clock_get_realtime(struct timespec *ts)
 		return ts;
 #endif
 
+#ifndef _WIN32
 	/* Fall back on gettimeofday(). */
 	struct timeval usectimenow;
 	gettimeofday(&usectimenow, NULL);
 	ts->tv_sec = usectimenow.tv_sec;
 	ts->tv_nsec = usectimenow.tv_usec*1000;
 	return ts;
+#else
+	/* Fall back on time(). */
+	ts->tv_sec = time(NULL);
+	ts->tv_nsec = 0;
+	return ts;
+#endif
 }
 
 /*
