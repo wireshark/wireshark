@@ -4599,13 +4599,15 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         offset++;
     }
 
-    /* If the payload was encrypted, the main payload was not dissected */
-    if (srtcp_encrypted == TRUE) {
-        proto_tree_add_expert(rtcp_tree, pinfo, &ei_srtcp_encrypted_payload, tvb, offset, srtcp_offset-offset);
+    /* If the payload was encrypted, the main payload was not dissected.
+     * If we don't have srtcp_info we cant calculate the length
+     */
+    if ((srtcp_encrypted == TRUE) && (srtcp_info)) {
+        proto_tree_add_expert(rtcp_tree, pinfo, &ei_srtcp_encrypted_payload, tvb, offset, srtcp_offset - offset);
         proto_tree_add_item(rtcp_tree, hf_srtcp_e, tvb, srtcp_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_uint(rtcp_tree, hf_srtcp_index, tvb, srtcp_offset, 4, srtcp_index);
         srtcp_offset += 4;
-        if ((srtcp_info) && (srtcp_info->mki_len)) {
+        if (srtcp_info->mki_len) {
             proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, ENC_NA);
             srtcp_offset += srtcp_info->mki_len;
         }
