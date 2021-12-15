@@ -1073,7 +1073,7 @@ parse_preamble (void)
      * This should cover line breaks etc that get counted.
      */
     if ( strlen(packet_preamble) > 2 ) {
-        _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble + 1), ts_fmt, &ts_sec, &ts_nsec);
+        _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble), ts_fmt, &ts_sec, &ts_nsec);
     }
     if (debug >= 2) {
         char *c;
