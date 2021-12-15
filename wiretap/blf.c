@@ -140,6 +140,7 @@ blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
     add_interface_name(&int_data, pkt_encap, channel);
     if_descr_mand->time_units_per_second = 1000 * 1000 * 1000;
     if_descr_mand->tsprecision = WTAP_TSPREC_NSEC;
+    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
     if_descr_mand->snap_len = WTAP_MAX_PACKET_SIZE_STANDARD;
     if_descr_mand->num_stat_entries = 0;
     if_descr_mand->interface_statistics = NULL;
