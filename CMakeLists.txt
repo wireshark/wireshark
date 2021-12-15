@@ -580,9 +580,15 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	## 4200: nonstandard extension used : zero-sized array in struct/union
 	list(APPEND LOCAL_CFLAGS /w34295 /w34100 /w34189 /wd4200)
 
-	# MSVC 14.28 enables C5105, but the Windows SDK 10.0.18362.0 triggers it.
-	if(CMAKE_C_COMPILER_ID STREQUAL "MSVC" AND NOT CMAKE_C_COMPILER_VERSION VERSION_LESS 19.28)
-		list(APPEND LOCAL_CFLAGS -wd5105)
+	# MSVC 14.28 + C11 enables C5105, but older Windows SDKs aren't completely compatible.
+	# Windows SDK 10.0.17763.0 generates syntax errors with C11 enabled.
+	if (CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION VERSION_LESS 10.0.18362.0)
+		message(WARNING "Windows SDK ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION} doesn't support C11. Please make sure you're using 10.0.18362.0 or later.")
+	endif()
+	# Windows SDK 10.0.18362.0 to 10.0.19041.685 generate warning C5105 with C11 enabled.
+	if(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION VERSION_LESS 10.0.20348.0)
+		## 5105: macro expansion producing 'defined' has undefined behavior
+		list(APPEND LOCAL_CFLAGS /wd5105)
 	endif()
 
 	# We've matched these to specific compiler versions using the
