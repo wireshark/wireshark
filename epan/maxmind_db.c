@@ -164,9 +164,7 @@ static gboolean mmdbr_pipe_valid(void) {
 
 // Writing to mmdbr_pipe.stdin_fd can block. Do so in a separate thread.
 static gpointer
-write_mmdbr_stdin_worker(gpointer sifd_data) {
-    int stdin_fd = GPOINTER_TO_INT(sifd_data);
-
+write_mmdbr_stdin_worker(gpointer data _U_) {
     MMDB_DEBUG("starting write worker");
 
     while (1) {
@@ -189,7 +187,7 @@ write_mmdbr_stdin_worker(gpointer sifd_data) {
         }
 
         MMDB_DEBUG("write %s ql %d", request, g_async_queue_length(mmdbr_request_q));
-        ssize_t req_status = ws_write(stdin_fd, request, (unsigned int)strlen(request));
+        ssize_t req_status = ws_write(mmdbr_pipe.stdin_fd, request, (unsigned int)strlen(request));
         if (req_status < 0) {
             MMDB_DEBUG("write error %s. exiting thread.", g_strerror(errno));
             return NULL;
@@ -488,7 +486,7 @@ static void mmdb_resolve_start(void) {
     }
     ws_close(mmdbr_pipe.stderr_fd);
 
-    write_mmdbr_stdin_thread = g_thread_new("write_mmdbr_stdin_worker", write_mmdbr_stdin_worker, GINT_TO_POINTER(mmdbr_pipe.stdin_fd));
+    write_mmdbr_stdin_thread = g_thread_new("write_mmdbr_stdin_worker", write_mmdbr_stdin_worker, NULL);
     read_mmdbr_stdout_thread = g_thread_new("read_mmdbr_stdout_worker", read_mmdbr_stdout_worker, NULL);
 }
 
