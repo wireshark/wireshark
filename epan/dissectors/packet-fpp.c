@@ -126,6 +126,12 @@ typedef enum {
     CRC_FALSE
 } fpp_crc_t;
 
+typedef enum {
+    PACKET_DIRECTION_INBOUND  = 0x1,
+    PACKET_DIRECTION_OUTBOUND = 0x2,
+    PACKET_DIRECTION_UNKNOWN  = 0x0,
+} packet_direction_enum;
+
 /* Packets with correct CRC sum */
 static const value_string preemptive_delim_desc[] = {
     { SMD_PP_Start_0, "[Non-fragmented packet: SMD-S0]" },
@@ -141,6 +147,15 @@ static const value_string initial_delim_desc[] = {
     { SMD_PP_Start_1, "[Initial fragment: SMD-S1]" },
     { SMD_PP_Start_2, "[Initial fragment: SMD-S2]" },
     { SMD_PP_Start_3, "[Initial fragment: SMD-S3]" },
+    { 0x0, NULL }
+};
+
+/* Packets with incorrect checksum */
+static const value_string corrupted_delim_desc[] = {
+    { SMD_PP_Start_0, "[Corrupted fragment: SMD-S0]" },
+    { SMD_PP_Start_1, "[Corrupted fragment: SMD-S1]" },
+    { SMD_PP_Start_2, "[Corrupted fragment: SMD-S2]" },
+    { SMD_PP_Start_3, "[Corrupted fragment: SMD-S3]" },
     { 0x0, NULL }
 };
 
@@ -227,6 +242,19 @@ get_crc_stat(tvbuff_t *tvb, guint32 crc, guint32 mcrc) {
     return crc_val;
 }
 
+static fpp_crc_t
+get_express_crc_stat(tvbuff_t *tvb, guint32 express_crc) {
+    fpp_crc_t crc_val;
+    guint32 received_crc = tvb_get_guint32(tvb, tvb_reported_length(tvb) - FPP_CRC_LENGTH, ENC_BIG_ENDIAN);
+
+    if (received_crc == express_crc) {
+        crc_val = CRC_CRC;
+    } else {
+        crc_val = CRC_FALSE;
+    }
+    return crc_val;
+}
+
 static fpp_packet_t
 get_packet_type(tvbuff_t *tvb) {
     /* function analyze a packet based on preamble and ignore crc */
@@ -294,10 +322,12 @@ col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
             col_add_str(pinfo->cinfo, COL_INFO, "[Respond]");
             break;
         case FPP_Packet_Init:
-            if ((crc_val == CRC_CRC) || (crc_val == CRC_FALSE))
-               col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), preemptive_delim_desc));
+            if (crc_val == CRC_CRC)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), preemptive_delim_desc));
+            else if (crc_val == CRC_mCRC)
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), initial_delim_desc));
             else
-               col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), initial_delim_desc));
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), corrupted_delim_desc));
             break;
         case FPP_Packet_Cont:
             col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-2), continuation_delim_desc),
@@ -313,16 +343,32 @@ struct _fpp_ctx_t {
     guint8 frame_cnt;
     guint8 frag_cnt;
     guint32 size;
+    guint32 crc;
+    wmem_map_t *crc_history;
 };
 
 typedef struct _fpp_ctx_t fpp_ctx_t;
 
+static packet_direction_enum
+get_packet_direction(packet_info *pinfo) {
+    switch (pinfo->p2p_dir) {
+        case P2P_DIR_RECV:
+            return PACKET_DIRECTION_INBOUND;
+        case P2P_DIR_SENT:
+            return PACKET_DIRECTION_OUTBOUND;
+        default:
+            return PACKET_DIRECTION_UNKNOWN;
+    }
+}
+
 static void
-init_fpp_ctx(struct _fpp_ctx_t *ctx, guint8 frame_cnt) {
+init_fpp_ctx(struct _fpp_ctx_t *ctx, guint8 frame_cnt, guint32 crc) {
     ctx->preemption = TRUE;
     ctx->frame_cnt = frame_cnt;
     ctx->frag_cnt = FragCount_3;
     ctx->size = 0;
+    ctx->crc = crc;
+    ctx->crc_history = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
 }
 
 static guint8
@@ -375,26 +421,12 @@ static void
 drop_fragments(packet_info *pinfo) {
     tvbuff_t *tvbuf;
     guint interface_id;
-    guint packet_direction;
-
-    switch (pinfo->p2p_dir) {
-    case P2P_DIR_RECV:
-	    packet_direction = 0x1;
-	    break;
-    case P2P_DIR_SENT:
-	    packet_direction = 0x2;
-	    break;
-    case P2P_DIR_UNKNOWN:
-	    packet_direction = 0x0;
-	    break;
-    default:
-            packet_direction = 0x0;
-    }
+    packet_direction_enum packet_direction = get_packet_direction(pinfo);
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
-	    interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+            interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
-	    interface_id = 0;
+            interface_id = 0;
     interface_id = interface_id << 0x2;
     tvbuf = fragment_delete(&fpp_reassembly_table, pinfo, interface_id | packet_direction, NULL);
 
@@ -403,20 +435,16 @@ drop_fragments(packet_info *pinfo) {
     }
 }
 
-static tvbuff_t *
-dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 crc, fpp_crc_t crc_val) {
-
+static tvbuff_t*
+dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     fpp_packet_t pck_type;
 
     guint preamble_length = get_preamble_length( tvb );
     guint preamble_bit_length = preamble_length * 8;
     gboolean preamble_unaligned = FALSE;
 
-
     guint8 smd1 = tvb_get_guint8(tvb, preamble_length - 2);
     guint8 smd2 = tvb_get_guint8(tvb, preamble_length - 1);
-
-    guint32 mcrc = crc ^ 0xffff0000;
 
     guint crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
     gint frag_size = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
@@ -428,31 +456,17 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
     conversation_t *conv;
     fpp_ctx_t *ctx;
     guint interface_id;
-    guint packet_direction;
+    packet_direction_enum packet_direction = get_packet_direction(pinfo);
+    fpp_crc_t crc_val;
 
-    switch (pinfo->p2p_dir) {
-    case P2P_DIR_RECV:
-	    packet_direction = 0x1;
-	    break;
-    case P2P_DIR_SENT:
-	    packet_direction = 0x2;
-	    break;
-    case P2P_DIR_UNKNOWN:
-	    packet_direction = 0x0;
-	    break;
-    default:
-	    packet_direction = 0x0;
-    }
+    /* mCRC calculations needs previous crc */
+    guint32 crc, mcrc, prev_crc;
 
     if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID)
-	   interface_id = pinfo->rec->rec_header.packet_header.interface_id;
+        interface_id = pinfo->rec->rec_header.packet_header.interface_id;
     else
-	    interface_id = 0;
+        interface_id = 0;
     interface_id = interface_id << 0x2;
-    conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction, 0);
-    if (!conv) {
-        conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction, 0);
-    }
 
     /* Create a tree for the preamble. */
     proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, 0, preamble_length, ENC_NA);
@@ -480,7 +494,9 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
         proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_pad, tvb, 0, 1, ENC_BIG_ENDIAN);
     }
 
-    if(get_packet_type(tvb) == FPP_Packet_Cont)
+    pck_type = get_packet_type(tvb);
+
+    if(pck_type == FPP_Packet_Cont)
     {
         proto_item *ti_smd = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, preamble_length - 2, 1, ENC_BIG_ENDIAN);
         proto_item *ti_fragcnt = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_frag_count, tvb, preamble_length - 1, 1, ENC_BIG_ENDIAN);
@@ -493,10 +509,58 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
         proto_item_append_text(ti_smd, " %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), delim_desc) );
     }
 
-    pck_type = get_packet_type(tvb);
+    prev_crc = 0;
+    conv = find_conversation_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction, 0);
+    /* Create a conversation at every SMD-S fragment.
+    Find the conversation for every SMD-C fragment.*/
     if (pck_type == FPP_Packet_Init) {
+        /* will be used for seeding the crc calculation */
+        if (!PINFO_FD_VISITED(pinfo)) {
+            conv = conversation_new_by_id(pinfo->num, ENDPOINT_NONE, interface_id | packet_direction, 0);
+            find_conversation_pinfo(pinfo, 0);
+        }
+    }
+    else if (pck_type == FPP_Packet_Cont) {
+        if (conv) {
+            ctx = (fpp_ctx_t *)conversation_get_proto_data(conv, proto_fpp);
+            if (ctx) {
+                if (!PINFO_FD_VISITED(pinfo)) {
+                    if ((ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
+                        prev_crc = ctx->crc;
+                    }
+                    /* create a copy of frame number and previous crc and store in crc_history */
+                    guint32 *copy_of_pinfo_num = wmem_new(wmem_epan_scope(), guint32);
+                    guint32 *copy_of_prev_crc = wmem_new(wmem_epan_scope(), guint32);
+                    *copy_of_pinfo_num = pinfo->num;
+                    *copy_of_prev_crc = prev_crc;
+                    wmem_map_insert(ctx->crc_history, copy_of_pinfo_num, copy_of_prev_crc);
+                }
+                else {
+                    prev_crc = *(guint32 *)wmem_map_lookup(ctx->crc_history, &pinfo->num);
+                }
+            }
+        }
+    }
+
+    crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset_seed(tvb, preamble_length, frag_size, GUINT32_SWAP_LE_BE(prev_crc) ^ 0xffffffff));
+    mcrc = crc ^ 0xffff0000;
+    crc_val = get_crc_stat(tvb, crc, mcrc);  /* might be crc if last part or mcrc if continuation */
+
+    /* fill column Info */
+    col_fstr_process(tvb, pinfo, crc_val);
+
+    if (pck_type == FPP_Packet_Init) {
+        /* Add data to this new conversation during first iteration*/
+        if (!PINFO_FD_VISITED(pinfo)) {
+            ctx = wmem_new(wmem_file_scope(), struct _fpp_ctx_t);
+            init_fpp_ctx(ctx, get_cont_by_start(smd2), crc);
+            ctx->size = frag_size;
+            conversation_add_proto_data(conv, proto_fpp, ctx);
+        }
+
         if (crc_val == CRC_CRC) {
-            /* Non-fragmented packet */
+            /* Non-fragmented packet
+            end of continuation */
             drop_fragments(pinfo);
 
             if (!PINFO_FD_VISITED(pinfo)) {
@@ -506,20 +570,12 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
             proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_crc32, hf_fpp_crc32_status, &ei_fpp_crc32, pinfo, crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
             return tvb_new_subset_length(tvb, preamble_length, frag_size);
-        } else if (crc_val == CRC_mCRC) {
-            /* Init frag */
+        }
+        else if (crc_val == CRC_mCRC) {
+            /* First fragment */
             drop_fragments(pinfo);
 
-            if (!PINFO_FD_VISITED(pinfo)) {
-                // Fist delete previous conversation
-                drop_conversation(conv);
-                ctx = wmem_new(wmem_file_scope(), struct _fpp_ctx_t);
-                init_fpp_ctx(ctx, get_cont_by_start(smd2));
-                ctx->size = frag_size;
-                conversation_add_proto_data(conv, proto_fpp, ctx);
-            }
-
-            fragment_add_check(&fpp_reassembly_table,
+            frag_data = fragment_add_check(&fpp_reassembly_table,
                                tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
                                0, frag_size, TRUE);
 
@@ -529,60 +585,64 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
             set_address_tvb(&pinfo->src, AT_ETHER, 6, tvb, 14);
 
             proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-        } else {
-            /* Invalid packet */
-            drop_fragments(pinfo);
 
-            if (!PINFO_FD_VISITED(pinfo)) {
-                drop_conversation(conv);
+            if (frag_data != NULL) {
+                col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", frag_data->reassembled_in);
+                process_reassembled_data(tvb, preamble_length, pinfo,
+                    "Reassembled FPP", frag_data, &fpp_frag_items,
+                    NULL, tree);
             }
-
+        } else {
+            /* Possibly first fragment */
+            drop_fragments(pinfo);
             proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
         }
     } else if (pck_type == FPP_Packet_Cont) {
         if (crc_val == CRC_mCRC) {
-            /* Continuation frag */
-
+            /* Continuation fragment */
+            /* Update data of this conversation */
             if (!PINFO_FD_VISITED(pinfo)) {
                 ctx = (fpp_ctx_t*)conversation_get_proto_data(conv, proto_fpp);
-                if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
+                if (ctx) {
                     fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
                     fpp_pdata->offset = ctx->size;
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
 
                     ctx->size += frag_size;
                     ctx->frag_cnt = smd2;
-                } else {
-                    // There is no conversation or ctx is wrong
-                    drop_conversation(conv);
+                    ctx->crc = crc;
                 }
             }
 
+            proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+
             fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction);
             if (fpp_pdata) {
-                fragment_add_check(&fpp_reassembly_table,
-                                   tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
-                                   fpp_pdata->offset, frag_size, TRUE);
+                frag_data = fragment_add_check(&fpp_reassembly_table,
+                    tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
+                    fpp_pdata->offset, frag_size, TRUE);
+                if (frag_data != NULL) {
+                    col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", frag_data->reassembled_in);
+                    process_reassembled_data(tvb, preamble_length, pinfo,
+                        "Reassembled FPP", frag_data, &fpp_frag_items,
+                        NULL, tree);
+                }
             } else {
                 drop_fragments(pinfo);
             }
-
-            proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
-        } else {
+        } else if (crc_val == CRC_CRC) {
             /* Suppose that the last fragment dissected
                 1. preemption is active
                 2. check frame count and frag count values
                 After these steps check crc of entire reassembled frame
             */
-            if (!PINFO_FD_VISITED(pinfo)) {
-                ctx = (fpp_ctx_t*)conversation_get_proto_data(conv, proto_fpp);
-                if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
-                    fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
+            ctx = (fpp_ctx_t*)conversation_get_proto_data(conv, proto_fpp);
+            if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
+                fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
+                if (!PINFO_FD_VISITED(pinfo)) {
                     fpp_pdata->offset = ctx->size;
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
                 }
-
-                drop_conversation(conv);
             }
 
             fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction);
@@ -614,9 +674,26 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
                 /* Reassembly was unsuccessful; show this fragment.  This may
                     just mean that we don't yet have all the fragments, so
                     we should not just continue dissecting. */
+                proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
                 return NULL;
             }
+        } else {
+            /* Invalid packet */
+            if (!PINFO_FD_VISITED(pinfo)) {
+                ctx = (fpp_ctx_t *)conversation_get_proto_data(conv, proto_fpp);
+                if (ctx) {
+                    fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
+                    fpp_pdata->offset = ctx->size;
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
+
+                    ctx->size += frag_size;
+                    ctx->frag_cnt = smd2;
+                    ctx->crc = crc;
+                }
+            }
+            proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
         }
+
     } else if (pck_type == FPP_Packet_Verify) {
         proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, -1, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
     } else if (pck_type == FPP_Packet_Response) {
@@ -677,7 +754,7 @@ dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 crc
 static int
 dissect_fpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    guint32 crc, mcrc;
+    guint32 express_crc;
     fpp_crc_t crc_val;
     tvbuff_t *next = tvb;
     guint preamble_length = get_preamble_length( tvb );
@@ -686,28 +763,28 @@ dissect_fpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FPP");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(tvb, preamble_length, pdu_data_len));
-    mcrc = crc ^ 0xffff0000;
-
-    // get crc type
-    crc_val = get_crc_stat(tvb, crc, mcrc);
-
-    // fill column Info
-    col_fstr_process(tvb, pinfo, crc_val);
-
     proto_item *ti = proto_tree_add_item(tree, proto_fpp, tvb, 0, -1, ENC_NA);
 
     proto_tree *fpp_tree = proto_item_add_subtree(ti, ett_fpp);
 
     switch (get_packet_type(tvb)) {
         case FPP_Packet_Expess:
-            next = dissect_express(tvb, pinfo, fpp_tree, crc, crc_val);
+            /* this is the old crc calculation which is only valid for express frames */
+            express_crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(tvb, preamble_length, pdu_data_len));
+
+            /* is express_crc valid */
+            crc_val = get_express_crc_stat(tvb, express_crc);
+
+            /* fill column Info */
+            col_fstr_process(tvb, pinfo, crc_val);
+
+            next = dissect_express(tvb, pinfo, fpp_tree, express_crc, crc_val);
             break;
         case FPP_Packet_Init:
         case FPP_Packet_Cont:
         case FPP_Packet_Verify:
         case FPP_Packet_Response:
-            next = dissect_preemption(tvb, pinfo, fpp_tree, crc, crc_val);
+            next = dissect_preemption(tvb, pinfo, fpp_tree);
             break;
         default:
             break;
