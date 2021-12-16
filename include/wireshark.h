@@ -45,6 +45,7 @@
 
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
+#include <wsutil/glib-compat.h>
 
 #endif /* __WIRESHARK_H__ */
 
