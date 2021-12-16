@@ -9,6 +9,7 @@
 
 #include "syntax-tree.h"
 #include "sttype-test.h"
+#include <wsutil/ws_assert.h>
 
 typedef struct {
 	guint32		magic;
@@ -24,7 +25,7 @@ test_new(gpointer junk)
 {
 	test_t		*test;
 
-	g_assert_true(junk == NULL);
+	ws_assert(junk == NULL);
 
 	test = g_new(test_t, 1);
 
@@ -151,7 +152,7 @@ num_operands(test_op_t op)
 		case TEST_OP_IN:
 			return 2;
 	}
-	g_assert_not_reached();
+	ws_assert_not_reached();
 	return -1;
 }
 
@@ -164,7 +165,7 @@ sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1)
 	test = (test_t*)stnode_data(node);
 	ws_assert_magic(test, TEST_MAGIC);
 
-	g_assert_true(num_operands(op) == 1);
+	ws_assert(num_operands(op) == 1);
 	test->op = op;
 	test->val1 = val1;
 }
@@ -177,7 +178,7 @@ sttype_test_set2(stnode_t *node, test_op_t op, stnode_t *val1, stnode_t *val2)
 	test = (test_t*)stnode_data(node);
 	ws_assert_magic(test, TEST_MAGIC);
 
-	g_assert_true(num_operands(op) == 2);
+	ws_assert(num_operands(op) == 2);
 	test->op = op;
 	test->val1 = val1;
 	test->val2 = val2;
@@ -192,7 +193,7 @@ sttype_test_set2_args(stnode_t *node, stnode_t *val1, stnode_t *val2)
 	ws_assert_magic(test, TEST_MAGIC);
 
 	if (num_operands(test->op) == 1) {
-		g_assert_true(val2 == NULL);
+		ws_assert(val2 == NULL);
 	}
 	test->val1 = val1;
 	test->val2 = val2;

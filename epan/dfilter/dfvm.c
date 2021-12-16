@@ -182,7 +182,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 
 			case PUT_PCRE:
 				/* We already dumped these */
-				g_assert_not_reached();
+				ws_assert_not_reached();
 				break;
 
 			case MK_RANGE:
