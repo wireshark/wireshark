@@ -54,10 +54,10 @@ extern gchar*
 stats_tree_node_to_str(const stat_node *node, gchar *buffer, guint len)
 {
     if (buffer) {
-        g_snprintf(buffer,len,"%s: %i",node->name, node->counter);
+        snprintf(buffer,len,"%s: %i",node->name, node->counter);
         return buffer;
     } else {
-        return g_strdup_printf("%s: %i",node->name, node->counter);
+        return ws_strdup_printf("%s: %i",node->name, node->counter);
     }
 }
 
@@ -1101,16 +1101,16 @@ stats_tree_get_values_from_node (const stat_node* node)
     gchar **values = (gchar**) g_malloc0(sizeof(gchar*)*(node->st->num_columns));
 
     values[COL_NAME] = (node->st_flags&ST_FLG_ROOTCHILD)?stats_tree_get_displayname(node->name):g_strdup(node->name);
-    values[COL_COUNT] = g_strdup_printf("%u",node->counter);
+    values[COL_COUNT] = ws_strdup_printf("%u",node->counter);
     if (((node->st_flags&ST_FLG_AVERAGE) || node->rng)) {
         if (node->counter) {
             switch (node->datatype)
             {
             case STAT_DT_INT:
-                values[COL_AVERAGE] = g_strdup_printf("%.2f", ((float)node->total.int_total) / node->counter);
+                values[COL_AVERAGE] = ws_strdup_printf("%.2f", ((float)node->total.int_total) / node->counter);
                 break;
             case STAT_DT_FLOAT:
-                values[COL_AVERAGE] = g_strdup_printf("%.2f", node->total.float_total / node->counter);
+                values[COL_AVERAGE] = ws_strdup_printf("%.2f", node->total.float_total / node->counter);
                 break;
             }
         } else {
@@ -1125,10 +1125,10 @@ stats_tree_get_values_from_node (const stat_node* node)
             switch (node->datatype)
             {
             case STAT_DT_INT:
-                values[COL_MIN] = g_strdup_printf("%d", node->minvalue.int_min);
+                values[COL_MIN] = ws_strdup_printf("%d", node->minvalue.int_min);
                 break;
             case STAT_DT_FLOAT:
-                values[COL_MIN] = g_strdup_printf("%f", node->minvalue.float_min);
+                values[COL_MIN] = ws_strdup_printf("%f", node->minvalue.float_min);
                 break;
             }
         }
@@ -1145,10 +1145,10 @@ stats_tree_get_values_from_node (const stat_node* node)
             switch (node->datatype)
             {
             case STAT_DT_INT:
-                values[COL_MAX] = g_strdup_printf("%d", node->maxvalue.int_max);
+                values[COL_MAX] = ws_strdup_printf("%d", node->maxvalue.int_max);
                 break;
             case STAT_DT_FLOAT:
-                values[COL_MAX] = g_strdup_printf("%f", node->maxvalue.float_max);
+                values[COL_MAX] = ws_strdup_printf("%f", node->maxvalue.float_max);
                 break;
             }
         }
@@ -1160,18 +1160,18 @@ stats_tree_get_values_from_node (const stat_node* node)
         values[COL_MAX] = g_strdup("");
     }
 
-    values[COL_RATE] = (node->st->elapsed)?g_strdup_printf("%.4f",((float)node->counter)/node->st->elapsed):g_strdup("");
+    values[COL_RATE] = (node->st->elapsed)?ws_strdup_printf("%.4f",((float)node->counter)/node->st->elapsed):g_strdup("");
     values[COL_PERCENT] = ((node->parent)&&(node->parent->counter))?
-                g_strdup_printf("%.2f%%",(node->counter*100.0)/node->parent->counter):
+                ws_strdup_printf("%.2f%%",(node->counter*100.0)/node->parent->counter):
                 (node->parent==&(node->st->root)?g_strdup("100%"):g_strdup(""));
     if (node->st->num_columns>COL_BURSTTIME) {
         values[COL_BURSTRATE] = (!prefs.st_enable_burstinfo)?g_strdup(""):
                 (node->max_burst?(prefs.st_burst_showcount?
-                                g_strdup_printf("%d",node->max_burst):
-                                g_strdup_printf("%.4f",((double)node->max_burst)/prefs.st_burst_windowlen)):
+                                ws_strdup_printf("%d",node->max_burst):
+                                ws_strdup_printf("%.4f",((double)node->max_burst)/prefs.st_burst_windowlen)):
                 g_strdup("-"));
         values[COL_BURSTTIME] = (!prefs.st_enable_burstinfo)?g_strdup(""):
-                (node->max_burst?g_strdup_printf("%.3f",(node->burst_time/1000.0)):g_strdup("-"));
+                (node->max_burst?ws_strdup_printf("%.3f",(node->burst_time/1000.0)):g_strdup("-"));
     }
     return values;
 }
@@ -1333,10 +1333,10 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
             s = g_string_new("\n");
             g_string_append(s,separator);
             g_string_append_printf(s,"\n%s:\n",st->cfg->name);
-            g_snprintf (fmt,(gulong)sizeof(fmt),"%%-%us",maxnamelen);
+            snprintf (fmt,(gulong)sizeof(fmt),"%%-%us",maxnamelen);
             g_string_append_printf(s,fmt,stats_tree_get_column_name(0));
             for (count = 1; count<st->num_columns; count++) {
-                g_snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
+                snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
                 g_string_append_printf(s,fmt,stats_tree_get_column_name(count));
             }
             memset (separator, '-', sep_length);
@@ -1406,7 +1406,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
     switch(format_type) {
         case ST_FORMAT_YAML:
             if (indent) {
-                g_snprintf(fmt, (gulong)sizeof(fmt), "%%%ds%%s%%s", indent*4-2);
+                snprintf(fmt, (gulong)sizeof(fmt), "%%%ds%%s%%s", indent*4-2);
             }
             g_string_append_printf(s, fmt, "", indent?"- ":"", "Description");
             g_string_append_printf(s, ": \"%s\"\n", values[0]);
@@ -1444,10 +1444,10 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
             g_string_append (s,"\n");
             break;
         case ST_FORMAT_PLAIN:
-            g_snprintf (fmt,(gulong)sizeof(fmt),"%%%ds%%-%us",indent,maxnamelen-indent);
+            snprintf (fmt,(gulong)sizeof(fmt),"%%%ds%%-%us",indent,maxnamelen-indent);
             g_string_append_printf(s,fmt,"",values[0]);
             for (count = 1; count<num_columns; count++) {
-                g_snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
+                snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
                 g_string_append_printf(s,fmt,values[count]);
             }
             g_string_append (s,"\n");
@@ -1456,7 +1456,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
 
     indent++;
     indent = indent > INDENT_MAX ? INDENT_MAX : indent;
-    full_path = g_strdup_printf ("%s/%s",path,values[0]);
+    full_path = ws_strdup_printf ("%s/%s",path,values[0]);
 
     for (count = 0; count<num_columns; count++) {
         g_free(values[count]);

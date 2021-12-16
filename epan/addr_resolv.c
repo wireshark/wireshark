@@ -390,7 +390,7 @@ dnsserver_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, cons
         return TRUE;
     }
 
-    *err = g_strdup_printf("No valid IP address given.");
+    *err = ws_strdup_printf("No valid IP address given.");
     return FALSE;
 }
 
@@ -952,7 +952,7 @@ enterprises_base_custom(char *buf, guint32 value)
 
     if ((s = try_enterprises_lookup(value)) == NULL)
         s = ITEM_LABEL_UNKNOWN_STR;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%s (%u)", s, value);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%s (%u)", s, value);
 }
 
 static void
@@ -1006,9 +1006,9 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
         }
 
         /* There are more efficient ways to do this, but this is safe if we
-         * trust g_snprintf and MAXNAMELEN
+         * trust snprintf and MAXNAMELEN
          */
-        g_snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
+        snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
     } else {
         /* XXX: This means we end up printing "1.2.3.4 (1.2.3.4)" in many cases */
         ip_to_str_buf((const guint8 *)&addr, tp->name, MAXNAMELEN);
@@ -1789,7 +1789,7 @@ eth_addr_resolve(hashether_t *tp) {
         do {
             /* Only the topmost 5 bytes participate fully */
             if ((name = wka_name_lookup(addr, mask+40)) != NULL) {
-                g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x",
+                snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x",
                         name, addr[5] & (0xFF >> mask));
                 tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
                 return tp;
@@ -1800,7 +1800,7 @@ eth_addr_resolve(hashether_t *tp) {
         do {
             /* Only the topmost 4 bytes participate fully */
             if ((name = wka_name_lookup(addr, mask+32)) != NULL) {
-                g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x",
+                snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x",
                         name, addr[4] & (0xFF >> mask), addr[5]);
                 tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
                 return tp;
@@ -1811,7 +1811,7 @@ eth_addr_resolve(hashether_t *tp) {
         do {
             /* Only the topmost 3 bytes participate fully */
             if ((name = wka_name_lookup(addr, mask+24)) != NULL) {
-                g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
+                snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
                         name, addr[3] & (0xFF >> mask), addr[4], addr[5]);
                 tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
                 return tp;
@@ -1821,7 +1821,7 @@ eth_addr_resolve(hashether_t *tp) {
         /* Now try looking in the manufacturer table. */
         manuf_value = manuf_name_lookup(addr);
         if ((manuf_value != NULL) && (manuf_value->status != HASHETHER_STATUS_UNRESOLVED)) {
-            g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
+            snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x",
                     manuf_value->resolved_name, addr[3], addr[4], addr[5]);
             tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
             return tp;
@@ -1833,7 +1833,7 @@ eth_addr_resolve(hashether_t *tp) {
         do {
             /* Only the topmost 2 bytes participate fully */
             if ((name = wka_name_lookup(addr, mask+16)) != NULL) {
-                g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x",
+                snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x",
                         name, addr[2] & (0xFF >> mask), addr[3], addr[4],
                         addr[5]);
                 tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
@@ -1845,7 +1845,7 @@ eth_addr_resolve(hashether_t *tp) {
         do {
             /* Only the topmost byte participates fully */
             if ((name = wka_name_lookup(addr, mask+8)) != NULL) {
-                g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x",
+                snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x",
                         name, addr[1] & (0xFF >> mask), addr[2], addr[3],
                         addr[4], addr[5]);
                 tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
@@ -1857,7 +1857,7 @@ eth_addr_resolve(hashether_t *tp) {
         do {
             /* Not even the topmost byte participates fully */
             if ((name = wka_name_lookup(addr, mask)) != NULL) {
-                g_snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
+                snprintf(tp->resolved_name, MAXNAMELEN, "%s_%02x:%02x:%02x:%02x:%02x:%02x",
                         name, addr[0] & (0xFF >> mask), addr[1], addr[2],
                         addr[3], addr[4], addr[5]);
                 tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
@@ -2109,7 +2109,7 @@ ipxnet_name_lookup(wmem_allocator_t *allocator, const guint addr)
 
     if ( (ipxnet = get_ipxnetbyaddr(addr)) == NULL) {
         /* unknown name */
-        g_snprintf(tp->name, MAXNAMELEN, "%X", addr);
+        snprintf(tp->name, MAXNAMELEN, "%X", addr);
 
     } else {
         (void) g_strlcpy(tp->name, ipxnet->name, MAXNAMELEN);
@@ -2132,7 +2132,7 @@ parse_vlan_line(char *line, vlan_t *vlan)
     if ((cp = strtok(line, " \t\n")) == NULL)
         return -1;
 
-    if (sscanf(cp, "%" G_GUINT16_FORMAT, &id) == 1) {
+    if (sscanf(cp, "%" SCNu16, &id) == 1) {
         vlan->id = id;
     }
     else {
@@ -2253,7 +2253,7 @@ vlan_name_lookup(const guint id)
 
     if ( (vlan = get_vlannamebyid(id)) == NULL) {
         /* unknown name */
-        g_snprintf(tp->name, MAXVLANNAMELEN, "<%u>", id);
+        snprintf(tp->name, MAXVLANNAMELEN, "<%u>", id);
 
     } else {
         (void) g_strlcpy(tp->name, vlan->name, MAXVLANNAMELEN);
@@ -3278,11 +3278,11 @@ port_with_resolution_to_str_buf(gchar *buf, gulong buf_size, port_type proto, gu
 
     if (!gbl_resolv_flags.transport_name || (proto == PT_NONE)) {
         /* No name resolution support, just return port string */
-        return g_snprintf(buf, buf_size, "%u", port);
+        return snprintf(buf, buf_size, "%u", port);
     }
     port_str = serv_name_lookup(proto, port);
     ws_assert(port_str);
-    return g_snprintf(buf, buf_size, "%s (%u)", port_str, port);
+    return snprintf(buf, buf_size, "%s (%u)", port_str, port);
 }
 
 const gchar *

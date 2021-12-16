@@ -279,7 +279,7 @@ fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value
 	}
 	else {
 		if (err_msg != NULL) {
-			*err_msg = g_strdup_printf("\"%s\" cannot be converted to %s.",
+			*err_msg = ws_strdup_printf("\"%s\" cannot be converted to %s.",
 					s, ftype_pretty_name(ftype));
 		}
 	}
@@ -303,7 +303,7 @@ fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg)
 	}
 	else {
 		if (err_msg != NULL) {
-			*err_msg = g_strdup_printf("\"%s\" cannot be converted to %s.",
+			*err_msg = ws_strdup_printf("\"%s\" cannot be converted to %s.",
 					s, ftype_pretty_name(ftype));
 		}
 	}
@@ -328,11 +328,11 @@ fvalue_from_charconst(ftenum_t ftype, unsigned long num, gchar **err_msg)
 	else {
 		if (err_msg != NULL) {
 			if (num <= 0x7f && g_ascii_isprint(num)) {
-				*err_msg = g_strdup_printf("Character constant '%c' (0x%lx) cannot be converted to %s.",
+				*err_msg = ws_strdup_printf("Character constant '%c' (0x%lx) cannot be converted to %s.",
 						(int)num, num, ftype_pretty_name(ftype));
 			}
 			else {
-				*err_msg = g_strdup_printf("Character constant 0x%lx cannot be converted to %s.",
+				*err_msg = ws_strdup_printf("Character constant 0x%lx cannot be converted to %s.",
 						num, ftype_pretty_name(ftype));
 			}
 		}

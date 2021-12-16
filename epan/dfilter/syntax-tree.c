@@ -284,7 +284,7 @@ _node_tostr(stnode_t *node, gboolean pretty)
 		repr = s;
 	}
 	else {
-		repr = g_strdup_printf("%s<%s>", stnode_type_name(node), s);
+		repr = ws_strdup_printf("%s<%s>", stnode_type_name(node), s);
 		g_free(s);
 	}
 
@@ -304,7 +304,7 @@ stnode_tostr(stnode_t *node, gboolean pretty)
 			return node->repr_token;
 		}
 
-		node->repr_display = g_strdup_printf("\"%s\"", node->repr_token);
+		node->repr_display = ws_strdup_printf("\"%s\"", node->repr_token);
 		return node->repr_display;
 	}
 

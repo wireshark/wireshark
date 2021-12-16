@@ -540,7 +540,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	ws_strtou32(tmp_str, NULL, &((rec_t*)rec)->field_name); \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("%u",((rec_t*)rec)->field_name); \
+	*out_ptr = ws_strdup_printf("%u",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_DEC(basename,field_name,title,desc) \
@@ -555,7 +555,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	ws_strtou64(tmp_str, NULL, &((rec_t*)rec)->field_name); \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("%" G_GINT64_MODIFIER "u",((rec_t*)rec)->field_name); \
+	*out_ptr = ws_strdup_printf("%" PRIu64,((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_DEC64(basename,field_name,title,desc) \
@@ -570,7 +570,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	ws_strtoi32(tmp_str, NULL, &((rec_t*)rec)->field_name); \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("%d",((rec_t*)rec)->field_name); \
+	*out_ptr = ws_strdup_printf("%d",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_SIGNED_DEC(basename,field_name,title,desc) \
@@ -585,7 +585,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	ws_strtoi64(tmp_str, NULL, &((rec_t*)rec)->field_name); \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("%" G_GINT64_MODIFIER "d",((rec_t*)rec)->field_name); \
+	*out_ptr = ws_strdup_printf("%" PRId64,((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_SIGNED_DEC64(basename,field_name,title,desc) \
@@ -605,7 +605,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	ws_hexstrtou32(tmp_str, NULL, &((rec_t*)rec)->field_name); \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("%x",((rec_t*)rec)->field_name); \
+	*out_ptr = ws_strdup_printf("%x",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_HEX(basename,field_name,title,desc) \
@@ -621,7 +621,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	ws_hexstrtou64(tmp_str, NULL, &((rec_t*)rec)->field_name); \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("%" G_GINT64_MODIFIER "x",((rec_t*)rec)->field_name); \
+	*out_ptr = ws_strdup_printf("%" PRIx64,((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_HEX64(basename,field_name,title,desc) \
@@ -640,7 +640,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 		((rec_t*)rec)->field_name = 0; \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("%s",((rec_t*)rec)->field_name ? "TRUE" : "FALSE"); \
+	*out_ptr = ws_strdup_printf("%s",((rec_t*)rec)->field_name ? "TRUE" : "FALSE"); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_BOOL(basename,field_name,title,desc) \
@@ -718,7 +718,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	((rec_t*)rec)->field_name = (guint)strtol(tmp_str,NULL,16); \
 	g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = g_strdup_printf("#%06X",((rec_t*)rec)->field_name); \
+	*out_ptr = ws_strdup_printf("#%06X",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
 #define UAT_FLD_COLOR(basename,field_name,title,desc) \

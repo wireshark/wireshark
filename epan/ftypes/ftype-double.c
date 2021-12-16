@@ -44,21 +44,21 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (fv->value.floating == 0) {
 			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" causes floating-point underflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes floating-point underflow.", s);
 		}
 		else if (fv->value.floating == HUGE_VAL) {
 			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" causes floating-point overflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes floating-point overflow.", s);
 		}
 		else {
 			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" is not a valid floating-point number.",
+				*err_msg = ws_strdup_printf("\"%s\" is not a valid floating-point number.",
 				    s);
 		}
 		return FALSE;

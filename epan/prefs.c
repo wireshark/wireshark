@@ -2477,7 +2477,7 @@ column_hidden_to_str_cb(pref_t* pref, gboolean default_val)
         gchar *prefs_fmt;
         cfmt = (fmt_data *) clp->data;
         if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
-            prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
+            prefs_fmt = ws_strdup_printf("%s:%s:%d:%c",
                     col_format_to_string(cfmt->fmt),
                     cfmt->custom_fields,
                     cfmt->custom_occurrence,
@@ -2748,7 +2748,7 @@ column_format_to_str_cb(pref_t* pref, gboolean default_val)
         cfmt = (fmt_data *) clp->data;
         col_l = g_list_append(col_l, g_strdup(cfmt->title));
         if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
-            prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
+            prefs_fmt = ws_strdup_printf("%s:%s:%d:%c",
                     col_format_to_string(cfmt->fmt),
                     cfmt->custom_fields,
                     cfmt->custom_occurrence,
@@ -5025,7 +5025,7 @@ try_convert_to_custom_column(gpointer *el_data)
          ++haystack_idx) {
 
         if (strcmp(migrated_columns[haystack_idx].col_fmt, *fmt) == 0) {
-            gchar *cust_col = g_strdup_printf("%%Cus:%s:0",
+            gchar *cust_col = ws_strdup_printf("%%Cus:%s:0",
                                 migrated_columns[haystack_idx].col_expr);
 
             g_free(*fmt);
@@ -6175,7 +6175,7 @@ prefs_pref_type_description(pref_t *pref)
     int type;
 
     if (!pref) {
-        return g_strdup_printf("%s.", type_desc); /* ...or maybe assert? */
+        return ws_strdup_printf("%s.", type_desc); /* ...or maybe assert? */
     }
 
     type = pref->type;
@@ -6396,13 +6396,13 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
         switch (pref->info.base) {
 
         case 10:
-            return g_strdup_printf("%u", pref_uint);
+            return ws_strdup_printf("%u", pref_uint);
 
         case 8:
-            return g_strdup_printf("%#o", pref_uint);
+            return ws_strdup_printf("%#o", pref_uint);
 
         case 16:
-            return g_strdup_printf("%#x", pref_uint);
+            return ws_strdup_printf("%#x", pref_uint);
         }
         break;
     }
@@ -6444,7 +6444,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
         return ret_value;
 
     case PREF_COLOR:
-        return g_strdup_printf("%02x%02x%02x",
+        return ws_strdup_printf("%02x%02x%02x",
                    (pref_color->red * 255 / 65535),
                    (pref_color->green * 255 / 65535),
                    (pref_color->blue * 255 / 65535));
@@ -6463,7 +6463,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     {
         uat_t *uat = pref->varp.uat;
         if (uat && uat->filename)
-            return g_strdup_printf("[Managed in the file \"%s\"]", uat->filename);
+            return ws_strdup_printf("[Managed in the file \"%s\"]", uat->filename);
         else
             pref_text = "[Managed in an unknown file]";
         break;

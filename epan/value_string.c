@@ -742,14 +742,14 @@ _try_val64_to_str_ext_init(const guint64 val, val64_string_ext *vse)
         if (type == VS_BIN_TREE) {
             if (prev_value > vs_p[i].value) {
                 ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
-                          "  entry %u, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x] < previous entry, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x]",
+                          "  entry %u, value %" PRIu64 " [%#" PRIx64 "] < previous entry, value %" PRIu64 " [%#" PRIx64 "]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, prev_value, prev_value);
                 type = VS_SEARCH;
                 break;
             }
             if (first_value > vs_p[i].value) {
                 ws_warning("Extended value string '%s' forced to fall back to linear search:\n"
-                          "  entry %u, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x] < first entry, value %" G_GINT64_MODIFIER "u [%#" G_GINT64_MODIFIER "x]",
+                          "  entry %u, value %" PRIu64 " [%#" PRIx64 "] < first entry, value %" PRIu64 " [%#" PRIx64 "]",
                           vse->_vs_name, i, vs_p[i].value, vs_p[i].value, first_value, first_value);
                 type = VS_SEARCH;
                 break;

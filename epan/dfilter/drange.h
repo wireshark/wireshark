@@ -13,9 +13,7 @@
 #ifndef __DRANGE_H__
 #define __DRANGE_H__
 
-#include <glib.h>
-#include "ws_symbol_export.h"
-#include "ws_attributes.h"
+#include <wireshark.h>
 
 /* Please don't directly manipulate these structs.  Please use
  * the methods provided.  If you REALLY can't do what you need to

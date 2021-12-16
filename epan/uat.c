@@ -376,7 +376,7 @@ gboolean uat_save(uat_t* uat, char** error) {
         /* Parent directory does not exist, try creating first */
         gchar *pf_dir_path = NULL;
         if (create_persconffile_dir(&pf_dir_path) != 0) {
-            *error = g_strdup_printf("uat_save: error creating '%s'", pf_dir_path);
+            *error = ws_strdup_printf("uat_save: error creating '%s'", pf_dir_path);
             g_free (pf_dir_path);
             return FALSE;
         }
@@ -384,7 +384,7 @@ gboolean uat_save(uat_t* uat, char** error) {
     }
 
     if (!fp) {
-        *error = g_strdup_printf("uat_save: error opening '%s': %s",fname,g_strerror(errno));
+        *error = ws_strdup_printf("uat_save: error opening '%s': %s",fname,g_strerror(errno));
         return FALSE;
     }
 
@@ -734,7 +734,7 @@ gboolean uat_fld_chk_bool(void* u1 _U_, const char* strptr, guint len, const voi
         return TRUE;
     }
 
-    *err = g_strdup_printf("invalid value: %s (must be TRUE or FALSE)", str);
+    *err = ws_strdup_printf("invalid value: %s (must be TRUE or FALSE)", str);
     g_free(str);
     return FALSE;
 }
@@ -753,7 +753,7 @@ gboolean uat_fld_chk_enum(void* u1 _U_, const char* strptr, guint len, const voi
         }
     }
 
-    *err = g_strdup_printf("invalid value: %s",str);
+    *err = ws_strdup_printf("invalid value: %s",str);
     g_free(str);
     return FALSE;
 }
@@ -770,11 +770,11 @@ gboolean uat_fld_chk_range(void* u1 _U_, const char* strptr, guint len, const vo
             ret_value = TRUE;
             break;
         case CVT_SYNTAX_ERROR:
-            *err = g_strdup_printf("syntax error in range: %s",str);
+            *err = ws_strdup_printf("syntax error in range: %s",str);
             ret_value = FALSE;
             break;
         case CVT_NUMBER_TOO_BIG:
-            *err = g_strdup_printf("value too large in range: '%s' (max = %u)",str,GPOINTER_TO_UINT(u3));
+            *err = ws_strdup_printf("value too large in range: '%s' (max = %u)",str,GPOINTER_TO_UINT(u3));
             ret_value = FALSE;
             break;
         default:
@@ -919,7 +919,7 @@ char* uat_esc(const char* buf, guint len) {
 
     for (b = (const guint8 *)buf; b < end; b++) {
         if (*b == '"' || *b == '\\' || ! g_ascii_isprint(*b) ) {
-            g_snprintf(s,5,"\\x%02x",((guint)*b));
+            snprintf(s,5,"\\x%02x",((guint)*b));
             s+=4;
         } else {
             *(s++) = (*b);
@@ -936,7 +936,7 @@ gboolean uat_fld_chk_str_isprint(void* u1 _U_, const char* strptr, guint len, co
     for (i = 0; i < len; i++) {
         char c = strptr[i];
         if (! g_ascii_isprint(c)) {
-            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
+            *err = ws_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -950,7 +950,7 @@ gboolean uat_fld_chk_str_isalpha(void* u1 _U_, const char* strptr, guint len, co
     for (i = 0; i < len; i++) {
         char c = strptr[i];
         if (! g_ascii_isalpha(c)) {
-            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
+            *err = ws_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -964,7 +964,7 @@ gboolean uat_fld_chk_str_isalnum(void* u1 _U_, const char* strptr, guint len, co
     for (i = 0; i < len; i++) {
         char c = strptr[i];
         if (! g_ascii_isalnum(c)) {
-            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
+            *err = ws_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -978,7 +978,7 @@ gboolean uat_fld_chk_str_isdigit(void* u1 _U_, const char* strptr, guint len, co
     for (i = 0; i < len; i++) {
         char c = strptr[i];
         if (! g_ascii_isdigit(c)) {
-            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
+            *err = ws_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }
@@ -992,7 +992,7 @@ gboolean uat_fld_chk_str_isxdigit(void* u1 _U_, const char* strptr, guint len, c
     for (i = 0; i < len; i++) {
         char c = strptr[i];
         if (! g_ascii_isxdigit(c)) {
-            *err = g_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
+            *err = ws_strdup_printf("invalid char pos=%d value=%02x", i, (guchar) c);
             return FALSE;
         }
     }

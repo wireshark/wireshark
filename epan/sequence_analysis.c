@@ -146,7 +146,7 @@ void sequence_analysis_use_col_info_as_label_comment(packet_info *pinfo, seq_ana
     if (colinfo != NULL) {
         sai->frame_label = g_strdup(colinfo);
         if (protocol != NULL) {
-            sai->comment = g_strdup_printf("%s: %s", protocol, colinfo);
+            sai->comment = ws_strdup_printf("%s: %s", protocol, colinfo);
         } else {
             sai->comment = g_strdup(colinfo);
         }
@@ -559,8 +559,8 @@ sequence_analysis_dump_to_file(FILE  *of, seq_analysis_info_t *sainfo, unsigned 
             end_position
             );
 
-        g_snprintf(src_port, sizeof(src_port), "(%i)", sai->port_src);
-        g_snprintf(dst_port, sizeof(dst_port), "(%i)", sai->port_dst);
+        snprintf(src_port, sizeof(src_port), "(%i)", sai->port_src);
+        snprintf(dst_port, sizeof(dst_port), "(%i)", sai->port_dst);
 
         if (start_position<end_position) {
             overwrite(tmp_str, src_port, start_position-9, start_position-1);

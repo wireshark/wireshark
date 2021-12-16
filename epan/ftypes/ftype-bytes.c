@@ -189,7 +189,7 @@ byte_array_from_unparsed(const char *s, gchar **err_msg)
 
 	if (!res) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid byte string.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid byte string.", s);
 		g_byte_array_free(bytes, TRUE);
 		return NULL;
 	}
@@ -219,7 +219,7 @@ byte_array_from_charconst(unsigned long num, gchar **err_msg)
 {
 	if (num > UINT8_MAX) {
 		if (err_msg) {
-			*err_msg = g_strdup_printf("%lu is too large for a byte value", num);
+			*err_msg = ws_strdup_printf("%lu is too large for a byte value", num);
 		}
 		return NULL;
 	}
@@ -258,14 +258,14 @@ ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gc
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_AX25_ADDR_LEN) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid AX.25 address.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid AX.25 address.",
 				    s);
 			}
 			return FALSE;
 		}
 		else if (fv->value.bytes->len < FT_AX25_ADDR_LEN && !allow_partial_value) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too few bytes to be a valid AX.25 address.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too few bytes to be a valid AX.25 address.",
 				    s);
 			}
 			return FALSE;
@@ -306,7 +306,7 @@ ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gc
 	 *	http://www.itu.int/ITU-R/terrestrial/docs/fixedmobile/fxm-art19-sec3.pdf
 	 */
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid AX.25 address.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid AX.25 address.", s);
 	return FALSE;
 }
 
@@ -321,14 +321,14 @@ vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_VINES_ADDR_LEN) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid Vines address.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid Vines address.",
 				    s);
 			}
 			return FALSE;
 		}
 		else if (fv->value.bytes->len < FT_VINES_ADDR_LEN && !allow_partial_value) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too few bytes to be a valid Vines address.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too few bytes to be a valid Vines address.",
 				    s);
 			}
 			return FALSE;
@@ -340,7 +340,7 @@ vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 	/* XXX - need better validation of Vines address */
 
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid Vines address.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid Vines address.", s);
 	return FALSE;
 }
 
@@ -355,14 +355,14 @@ ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_ETHER_LEN) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid Ethernet address.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid Ethernet address.",
 				    s);
 			}
 			return FALSE;
 		}
 		else if (fv->value.bytes->len < FT_ETHER_LEN && !allow_partial_value) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too few bytes to be a valid Ethernet address.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too few bytes to be a valid Ethernet address.",
 				    s);
 			}
 			return FALSE;
@@ -374,7 +374,7 @@ ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 	/* XXX - Try resolving as an Ethernet host name and parse that? */
 
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid Ethernet address.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid Ethernet address.", s);
 	return FALSE;
 }
 
@@ -401,7 +401,7 @@ oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	res = oid_str_to_bytes(s, bytes);
 	if (!res) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid OBJECT IDENTIFIER.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid OBJECT IDENTIFIER.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -423,7 +423,7 @@ rel_oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 	res = rel_oid_str_to_bytes(s, bytes, FALSE);
 	if (!res) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid RELATIVE-OID.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid RELATIVE-OID.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}
@@ -446,7 +446,7 @@ system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_valu
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > MAX_SYSTEMID_LEN) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid OSI System-ID.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid OSI System-ID.",
 				    s);
 			}
 			return FALSE;
@@ -458,7 +458,7 @@ system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_valu
 	/* XXX - need better validation of OSI System-ID address */
 
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid OSI System-ID.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid OSI System-ID.", s);
 	return FALSE;
 }
 
@@ -473,7 +473,7 @@ fcwwn_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_FCWWN_LEN) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("\"%s\" contains too many bytes to be a valid FCWWN.",
+				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid FCWWN.",
 				    s);
 			}
 			return FALSE;
@@ -485,7 +485,7 @@ fcwwn_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 	/* XXX - need better validation of FCWWN address */
 
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid FCWWN.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid FCWWN.", s);
 	return FALSE;
 }
 

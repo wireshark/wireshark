@@ -213,7 +213,7 @@ void proto_report_dissector_bug(const char *format, ...)
 
 #define DISSECTOR_ASSERT_CMPINT(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
-   __DISSECTOR_ASSERT_CMPINT (a, op, b, gint64, "%" G_GINT64_MODIFIER "d"))) \
+   __DISSECTOR_ASSERT_CMPINT (a, op, b, int64_t, "%" PRId64))) \
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
 
 /** Like DISSECTOR_ASSERT_CMPINT() except the arguments are treated as
@@ -223,7 +223,7 @@ void proto_report_dissector_bug(const char *format, ...)
  */
 #define DISSECTOR_ASSERT_CMPUINT(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
-   __DISSECTOR_ASSERT_CMPINT (a, op, b, guint64, "%" G_GINT64_MODIFIER "u"))) \
+   __DISSECTOR_ASSERT_CMPINT (a, op, b, uint64_t, "%" PRIu64))) \
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
 
 /** Like DISSECTOR_ASSERT_CMPUINT() except the values are displayed in
@@ -231,7 +231,7 @@ void proto_report_dissector_bug(const char *format, ...)
  */
 #define DISSECTOR_ASSERT_CMPUINTHEX(a, op, b)  \
   ((void) ((a op b) ? (void)0 : \
-   __DISSECTOR_ASSERT_CMPINT (a, op, b, guint64, "0x%" G_GINT64_MODIFIER "X"))) \
+   __DISSECTOR_ASSERT_CMPINT (a, op, b, uint64_t, "0x%" PRIX64))) \
   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(a op b)
 
 /*
@@ -1169,7 +1169,7 @@ WS_DLL_PUBLIC void proto_tree_free(proto_tree *tree);
 /** Set the tree visible or invisible.
  Is the parsing being done for a visible proto_tree or an invisible one?
  By setting this correctly, the proto_tree creation is sped up by not
- having to call g_vsnprintf and copy strings around.
+ having to call vsnprintf and copy strings around.
  @param tree the tree to be set
  @param visible ... or not
  @return the old value */

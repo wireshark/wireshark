@@ -465,7 +465,7 @@ static int ax25_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 
     ssid = (addrdata[6] >> 1) & 0x0f;
     if (ssid != 0) {
-        bufp += g_snprintf(bufp,buf_len-(int)(bufp-buf),"-%d",ssid);
+        bufp += snprintf(bufp,buf_len-(int)(bufp-buf),"-%d",ssid);
     } else {
         *bufp++ = '\0'; /* NULL terminate */
     }

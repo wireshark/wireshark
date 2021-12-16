@@ -13,11 +13,10 @@
 #ifndef __PROTOBUF_LANG_TREE_H__
 #define __PROTOBUF_LANG_TREE_H__
 
-#include <glib.h>
+#include <wireshark.h>
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "ws_attributes.h"
 
 #ifdef __cplusplus
 extern "C" {

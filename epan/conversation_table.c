@@ -162,7 +162,7 @@ set_host_gui_data(const void *key _U_, void *value, void *userdata)
 
     ui_info.group = REGISTER_STAT_GROUP_ENDPOINT_LIST;
     ui_info.title = NULL;   /* construct this from the protocol info? */
-    ui_info.cli_string = g_strdup_printf("%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
+    ui_info.cli_string = ws_strdup_printf("%s,%s", HOSTLIST_TAP_PREFIX, proto_get_protocol_filter_name(table->proto_id));
     ui_info.tap_init_cb = dissector_hostlist_init;
     ui_info.nparams = 0;
     ui_info.params = NULL;
@@ -359,7 +359,7 @@ ct_port_to_str(endpoint_type etype, guint32 port)
     case ENDPOINT_UDP:
     case ENDPOINT_SCTP:
     case ENDPOINT_NCP:
-        return g_strdup_printf("%d", port);
+        return ws_strdup_printf("%d", port);
     default:
         break;
     }
@@ -545,7 +545,7 @@ char *get_hostlist_filter(hostlist_talker_t *host)
         src_addr = new_addr;
     }
 
-    str = g_strdup_printf("%s==%s%s%s%s%s",
+    str = ws_strdup_printf("%s==%s%s%s%s%s",
                           hostlist_get_filter_name(host, CONV_FT_ANY_ADDRESS),
                           src_addr,
                           sport?" && ":"",

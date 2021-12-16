@@ -161,7 +161,7 @@ relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_v
 
 fail:
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid time.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid time.", s);
 	return FALSE;
 }
 
@@ -259,7 +259,7 @@ absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 
 fail:
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\"",
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\"",
 		    s);
 	return FALSE;
 }

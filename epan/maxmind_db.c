@@ -103,7 +103,7 @@ static gboolean resolve_synchronously = FALSE;
 
 #if 0
 #define MMDB_DEBUG(...) { \
-    char *MMDB_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
+    char *MMDB_DEBUG_MSG = ws_strdup_printf(__VA_ARGS__); \
     ws_warning("mmdb: %s:%d %s", G_STRFUNC, __LINE__, MMDB_DEBUG_MSG); \
     g_free(MMDB_DEBUG_MSG); \
 }
@@ -461,7 +461,7 @@ static void mmdb_resolve_start(void) {
     }
 
     GPtrArray *args = g_ptr_array_new();
-    char *mmdbresolve = g_strdup_printf("%s%c%s", get_progfile_dir(), G_DIR_SEPARATOR, "mmdbresolve");
+    char *mmdbresolve = ws_strdup_printf("%s%c%s", get_progfile_dir(), G_DIR_SEPARATOR, "mmdbresolve");
     g_ptr_array_add(args, mmdbresolve);
     for (guint i = 0; i < mmdb_file_arr->len; i++) {
         g_ptr_array_add(args, g_strdup("-f"));
@@ -502,7 +502,7 @@ maxmind_db_scan_dir(const char *dirname) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             const char *name = ws_dir_get_name(file);
             if (g_str_has_suffix(file, ".mmdb")) {
-                char *datname = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
+                char *datname = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
                 FILE *mmdb_f = ws_fopen(datname, "r");
                 if (mmdb_f) {
                     g_ptr_array_add(mmdb_file_arr, datname);
@@ -688,7 +688,7 @@ maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
             char addr_str[WS_INET_ADDRSTRLEN];
             ws_inet_ntop4(addr, addr_str, WS_INET_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
-            g_async_queue_push(mmdbr_request_q, g_strdup_printf("%s\n", addr_str));
+            g_async_queue_push(mmdbr_request_q, ws_strdup_printf("%s\n", addr_str));
             if (resolve_synchronously) {
                 maxmind_db_await_response();
                 result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(*addr));
@@ -711,7 +711,7 @@ maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
             char addr_str[WS_INET6_ADDRSTRLEN];
             ws_inet_ntop6(addr, addr_str, WS_INET6_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
-            g_async_queue_push(mmdbr_request_q, g_strdup_printf("%s\n", addr_str));
+            g_async_queue_push(mmdbr_request_q, ws_strdup_printf("%s\n", addr_str));
             if (resolve_synchronously) {
                 maxmind_db_await_response();
                 result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);

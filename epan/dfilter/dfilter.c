@@ -53,7 +53,7 @@ dfilter_vfail(dfwork_t *dfw, const char *format, va_list args)
 	if (dfw->error_message != NULL)
 		return;
 
-	dfw->error_message = g_strdup_vprintf(format, args);
+	dfw->error_message = ws_strdup_vprintf(format, args);
 }
 
 void
@@ -357,7 +357,7 @@ dfilter_compile_real(const gchar *text, dfilter_t **dfp,
 	ws_noisy("Expanded text: %s", expanded_text);
 
 	if (df_lex_init(&scanner) != 0) {
-		dfw->error_message = g_strdup_printf("Can't initialize scanner: %s", g_strerror(errno));
+		dfw->error_message = ws_strdup_printf("Can't initialize scanner: %s", g_strerror(errno));
 		goto FAILURE;
 	}
 

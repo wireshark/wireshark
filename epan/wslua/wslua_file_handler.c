@@ -59,7 +59,7 @@ report_error(int *err, gchar **err_info, const char *fmt, ...)
     gchar *msg;
 
     va_start(ap, fmt);
-    msg = g_strdup_vprintf(fmt, ap);
+    msg = ws_strdup_vprintf(fmt, ap);
     va_end(ap);
     if (err != NULL) {
         *err = WTAP_ERR_INTERNAL;
@@ -224,7 +224,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
         /* not a valid return type */
         if (err) {
             *err = WTAP_ERR_INTERNAL;
-            *err_info = g_strdup_printf("FileHandler read_open routine returned %d", retval);
+            *err_info = ws_strdup_printf("FileHandler read_open routine returned %d", retval);
         }
         retval = WTAP_OPEN_ERROR;
     }

@@ -1434,7 +1434,7 @@ PROTOFIELD_OTHER(eui64,FT_EUI64)
 WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
     /* Returns a string with info about a protofield (for debugging purposes). */
     ProtoField f = checkProtoField(L,1);
-    gchar* s = g_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",
+    gchar* s = ws_strdup_printf("ProtoField(%i): %s %s %s %s %p %.8x %s",
                                          f->hfid,f->name,f->abbrev,
                                          ftenum_to_string(f->type),
                                          base_to_string(f->base),

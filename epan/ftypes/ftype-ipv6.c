@@ -44,7 +44,7 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 
 	if (!get_host_ipaddr6(addr_str, &(fv->value.ipv6.addr))) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid hostname or IPv6 address.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid hostname or IPv6 address.", s);
 		if (addr_str_to_free)
 			wmem_free(NULL, addr_str_to_free);
 		return FALSE;
@@ -65,7 +65,7 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 
 		if (nmask_bits > 128) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("Prefix in a IPv6 address should be <= 128, not %u",
+				*err_msg = ws_strdup_printf("Prefix in a IPv6 address should be <= 128, not %u",
 						nmask_bits);
 			}
 			return FALSE;

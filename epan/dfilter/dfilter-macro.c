@@ -107,12 +107,12 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 				return wmem_strdup(NULL, e->repr);
 			} else {
 				if (error != NULL)
-					*error = g_strdup_printf("macro '%s' is unusable", name);
+					*error = ws_strdup_printf("macro '%s' is unusable", name);
 				return NULL;
 			}
 		} else {
 			if (error != NULL)
-				*error = g_strdup_printf("macro '%s' does not exist", name);
+				*error = ws_strdup_printf("macro '%s' does not exist", name);
 			return NULL;
 		}
 	}
@@ -125,7 +125,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 
 	if (argc != m->argc) {
 		if (error != NULL) {
-			*error = g_strdup_printf("wrong number of arguments for macro '%s', expecting %d instead of %d",
+			*error = ws_strdup_printf("wrong number of arguments for macro '%s', expecting %d instead of %d",
 									  name, m->argc, argc);
 		}
 		return NULL;
@@ -538,7 +538,7 @@ static gboolean macro_name_chk(void *mp, const char *in_name, guint name_len,
 			/* This a string field which is always NUL-terminated,
 			 * so no need to check name_len. */
 			if (!g_strcmp0(in_name, macros[i].name)) {
-				*error = g_strdup_printf("macro '%s' already exists",
+				*error = ws_strdup_printf("macro '%s' already exists",
 							 in_name);
 				return FALSE;
 			}

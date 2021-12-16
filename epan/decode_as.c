@@ -46,7 +46,7 @@ void register_decode_as(decode_as_t* reg)
 
 static void next_proto_prompt(packet_info *pinfo _U_, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Next level protocol as");
 }
 
 static gpointer next_proto_value(packet_info *pinfo _U_)
@@ -340,7 +340,7 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
          * but pre-1.10 releases are at end-of-life and won't
          * be fixed.
          */
-        decode_as_row = g_strdup_printf(
+        decode_as_row = ws_strdup_printf(
             DECODE_AS_ENTRY ": %s,%u,%s,%s\n",
             table_name, GPOINTER_TO_UINT(key), initial_proto_name,
             current_proto_name);
@@ -351,7 +351,7 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
          * FT_NONE dissector table uses a single uint value for
          * a placeholder
          */
-        decode_as_row = g_strdup_printf(
+        decode_as_row = ws_strdup_printf(
             DECODE_AS_ENTRY ": %s,0,%s,%s\n",
             table_name, initial_proto_name,
             current_proto_name);
@@ -362,7 +362,7 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
     case FT_STRINGZTRUNC:
-        decode_as_row = g_strdup_printf(
+        decode_as_row = ws_strdup_printf(
             DECODE_AS_ENTRY ": %s,%s,%s,%s\n",
             table_name, (gchar *)key, initial_proto_name,
             current_proto_name);
@@ -398,7 +398,7 @@ save_decode_as_entries(gchar** err)
     GList *decode_as_rows_list = NULL;
 
     if (create_persconffile_dir(&pf_dir_path) == -1) {
-        *err = g_strdup_printf("Can't create directory\n\"%s\"\nfor recent file: %s.",
+        *err = ws_strdup_printf("Can't create directory\n\"%s\"\nfor recent file: %s.",
                                 pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return -1;
@@ -406,7 +406,7 @@ save_decode_as_entries(gchar** err)
 
     daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE);
     if ((da_file = ws_fopen(daf_path, "w")) == NULL) {
-        *err = g_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.",
+        *err = ws_strdup_printf("Can't open decode_as_entries file\n\"%s\": %s.",
                                 daf_path, g_strerror(errno));
         g_free(daf_path);
         return -1;

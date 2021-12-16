@@ -73,7 +73,7 @@ guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 
     if (!get_guid(s, &guid)) {
         if (err_msg != NULL)
-            *err_msg = g_strdup_printf("\"%s\" is not a valid GUID.", s);
+            *err_msg = ws_strdup_printf("\"%s\" is not a valid GUID.", s);
         return FALSE;
     }
 

@@ -289,7 +289,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 
 <ATTR>[0-9a-z_/.-]+			{ yyextra->attr_name = g_strdup(yytext); yyextra->encrypted = 0; yyextra->has_tag = FALSE; BEGIN ATTR_W_NAME; }
 <ATTR_W_NAME>[0-9.]+			{ yyextra->attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
-<ATTR_W_NAME>0x[0-9a-f]+		{ yyextra->attr_id = g_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
+<ATTR_W_NAME>0x[0-9a-f]+		{ yyextra->attr_id = ws_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
 <ATTR_W_ID>integer			{ yyextra->attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>string			{ yyextra->attr_type = radius_string;  BEGIN ATTR_W_TYPE; }
 <ATTR_W_ID>octets			{ yyextra->attr_type = radius_octets;  BEGIN ATTR_W_TYPE; }
@@ -359,7 +359,7 @@ static void add_value(Radius_scanner_state_t* state, const gchar* attrib_name, c
 
 	yyextra->include_stack[yyextra->include_stack_ptr++] = YY_CURRENT_BUFFER;
 
-	yyextra->fullpaths[yyextra->include_stack_ptr] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+	yyextra->fullpaths[yyextra->include_stack_ptr] = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    yyextra->directory,yytext);
 
 	yyin = ws_fopen( yyextra->fullpaths[yyextra->include_stack_ptr], "r" );
@@ -742,7 +742,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 
 	state.directory = dir;
 
-	state.fullpaths[0] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+	state.fullpaths[0] = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    state.directory,filename);
 	state.linenums[0] = 1;
 	for (i = 1; i < MAX_INCLUDE_DEPTH; i++) {

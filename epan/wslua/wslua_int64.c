@@ -292,7 +292,7 @@ WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) {
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_Int64_fromhex_HEX,&len);
 
     if (len > 0) {
-        if (sscanf(s, "%" G_GINT64_MODIFIER "x", &result) != 1) {
+        if (sscanf(s, "%" PRIx64, &result) != 1) {
             return luaL_error(L, "Error decoding the passed-in hex string");
         }
     }
@@ -349,7 +349,7 @@ WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
     /* Converts the <<lua_class_Int64,`Int64`>> into a string of decimal digits. */
     gint64 num = getInt64(L,1);
     gchar s[LUATYPE64_STRING_SIZE];
-    if (g_snprintf(s, LUATYPE64_STRING_SIZE, "%" G_GINT64_MODIFIER "d", num) < 0) {
+    if (snprintf(s, LUATYPE64_STRING_SIZE, "%" PRId64, num) < 0) {
         return luaL_error(L, "Error writing Int64 to a string");
     }
     lua_pushstring(L,s);
@@ -835,7 +835,7 @@ WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
     /* Converts the <<lua_class_UInt64,`UInt64`>> into a string. */
     guint64 num = getUInt64(L,1);
     gchar s[LUATYPE64_STRING_SIZE];
-    if (g_snprintf(s, LUATYPE64_STRING_SIZE, "%" G_GINT64_MODIFIER "u",(guint64)num) < 0) {
+    if (snprintf(s, LUATYPE64_STRING_SIZE, "%" PRIu64,(guint64)num) < 0) {
         return luaL_error(L, "Error writing UInt64 to a string");
     }
     lua_pushstring(L,s);
@@ -852,7 +852,7 @@ WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) {
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_UInt64_fromhex_HEX,&len);
 
     if (len > 0) {
-        if (sscanf(s, "%" G_GINT64_MODIFIER "x", &result) != 1) {
+        if (sscanf(s, "%" PRIx64, &result) != 1) {
             return luaL_error(L, "Error decoding the passed-in hex string");
         }
     }

@@ -64,7 +64,7 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		 * "converted in the obvious manner" by strtoul().
 		 */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" too small for this field, minimum 0.", s);
+			*err_msg = ws_strdup_printf("\"%s\" too small for this field, minimum 0.", s);
 		return FALSE;
 	}
 
@@ -74,13 +74,13 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (err_msg != NULL) {
 			if (value == ULONG_MAX) {
-				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.",
+				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.",
 				    s);
 			}
 			else {
@@ -88,7 +88,7 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 				 * XXX - can "strtoul()" set errno to
 				 * ERANGE without returning ULONG_MAX?
 				 */
-				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
+				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
@@ -96,7 +96,7 @@ uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 
 	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %u.", s, max);
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %u.", s, max);
 		return FALSE;
 	}
 
@@ -152,7 +152,7 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		 * strtol().
 		 */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+			*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
 		return FALSE;
 	}
 
@@ -162,23 +162,23 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (err_msg != NULL) {
 			if (value == LONG_MAX) {
-				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
 			else if (value == LONG_MIN) {
-				*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes an integer underflow.", s);
 			}
 			else {
 				/*
 				 * XXX - can "strtol()" set errno to
 				 * ERANGE without returning ULONG_MAX?
 				 */
-				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
+				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
@@ -186,12 +186,12 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 
 	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %d.",
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %d.",
 				s, max);
 		return FALSE;
 	} else if (value < min) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" too small for this field, minimum %d.",
+			*err_msg = ws_strdup_printf("\"%s\" too small for this field, minimum %d.",
 				s, min);
 		return FALSE;
 	}
@@ -378,7 +378,7 @@ ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 	/* XXX - Try resolving as an IPX host name and parse that? */
 
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid IPX network address.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid IPX network address.", s);
 	return FALSE;
 }
 
@@ -469,7 +469,7 @@ _uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 		 * "converted in the obvious manner" by g_ascii_strtoull().
 		 */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
+			*err_msg = ws_strdup_printf("\"%s\" causes an integer underflow.", s);
 		return FALSE;
 	}
 
@@ -479,20 +479,20 @@ _uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (err_msg != NULL) {
 			if (value == G_MAXUINT64) {
-				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
 			else {
 				/*
 				 * XXX - can "strtoul()" set errno to
 				 * ERANGE without returning ULONG_MAX?
 				 */
-				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
+				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
@@ -500,7 +500,7 @@ _uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 
 	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %" G_GINT64_MODIFIER "u.", s, max);
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %" PRIu64".", s, max);
 		return FALSE;
 	}
 
@@ -552,7 +552,7 @@ _sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 		 * "converted in the obvious manner" by g_ascii_strtoll().
 		 */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+			*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
 		return FALSE;
 	}
 
@@ -562,23 +562,23 @@ _sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 	if (errno == EINVAL || endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (err_msg != NULL) {
 			if (value == G_MAXINT64) {
-				*err_msg = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
 			}
 			else if (value == G_MININT64) {
-				*err_msg = g_strdup_printf("\"%s\" causes an integer underflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes an integer underflow.", s);
 			}
 			else {
 				/*
 				 * XXX - can "strtol()" set errno to
 				 * ERANGE without returning LONG_MAX?
 				 */
-				*err_msg = g_strdup_printf("\"%s\" is not an integer.", s);
+				*err_msg = ws_strdup_printf("\"%s\" is not an integer.", s);
 			}
 		}
 		return FALSE;
@@ -586,11 +586,11 @@ _sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 
 	if (value > max) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" too big for this field, maximum %" G_GINT64_MODIFIER "u.", s, max);
+			*err_msg = ws_strdup_printf("\"%s\" too big for this field, maximum %" PRIu64".", s, max);
 		return FALSE;
 	} else if (value < min) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" too small for this field, maximum %" G_GINT64_MODIFIER "u.", s, max);
+			*err_msg = ws_strdup_printf("\"%s\" too small for this field, maximum %" PRIu64 ".", s, max);
 		return FALSE;
 	}
 
@@ -738,7 +738,7 @@ eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U
 	res = hex_str_to_bytes(s, bytes, TRUE);
 	if (!res || bytes->len != 8) {
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid EUI-64 address.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid EUI-64 address.", s);
 		g_byte_array_free(bytes, TRUE);
 		return FALSE;
 	}

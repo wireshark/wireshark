@@ -91,7 +91,7 @@ color_filters_add_tmp(GSList **cfl)
     bg_colors = g_strsplit(prefs.gui_colorized_bg, ",", -1);
 
     for ( i=1 ; i<=10 ; i++ ) {
-        name = g_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
+        name = ws_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
 
         /* retrieve background and foreground colors */
         cval = strtoul(fg_colors[i-1], NULL, 16);
@@ -134,7 +134,7 @@ color_filters_get_tmp(guint8 filt_nr)
     if (filt_nr < 1 || filt_nr > 10)
         return NULL;
 
-    name = g_strdup_printf("%s%02d", CONVERSATION_COLOR_PREFIX, filt_nr);
+    name = ws_strdup_printf("%s%02d", CONVERSATION_COLOR_PREFIX, filt_nr);
     cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
     colorf = (color_filter_t*)cfl->data;
 
@@ -167,7 +167,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
         if( i!=filt_nr && filter==NULL )
             continue;
 
-        name = g_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
+        name = ws_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
         cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
         colorf = (color_filter_t *)cfl->data;
 
@@ -180,7 +180,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
              */
             tmpfilter = ( (filter==NULL) || (i!=filt_nr) ) ? "frame" : filter;
             if (!dfilter_compile(tmpfilter, &compiled_filter, &local_err_msg)) {
-                *err_msg = g_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, local_err_msg);
+                *err_msg = ws_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, local_err_msg);
                 g_free(local_err_msg);
                 g_free(name);
                 return FALSE;
@@ -206,7 +206,7 @@ color_filters_tmp_color(guint8 filter_num) {
     color_filter_t *colorf = NULL;
     GSList         *cfl;
 
-    name = g_strdup_printf("%s%02d", CONVERSATION_COLOR_PREFIX, filter_num);
+    name = ws_strdup_printf("%s%02d", CONVERSATION_COLOR_PREFIX, filter_num);
     cfl = g_slist_find_custom(color_filter_list, name, color_filters_find_by_name_cb);
     if (cfl) {
         colorf = (color_filter_t *)cfl->data;
@@ -316,7 +316,7 @@ color_filters_get(gchar** err_msg, color_filter_add_cb_func add_cb)
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
-            *err_msg = g_strdup_printf("Could not open filter file\n\"%s\": %s.", path,
+            *err_msg = ws_strdup_printf("Could not open filter file\n\"%s\": %s.", path,
                                        g_strerror(errno));
             g_free(path);
             return FALSE;
@@ -331,7 +331,7 @@ color_filters_get(gchar** err_msg, color_filter_add_cb_func add_cb)
      */
     ret = read_filters_file(path, f, &color_filter_list, add_cb);
     if (ret != 0) {
-        *err_msg = g_strdup_printf("Error reading filter file\n\"%s\": %s.",
+        *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
                                    path, g_strerror(errno));
         fclose(f);
         g_free(path);
@@ -413,7 +413,7 @@ color_filter_compile_cb(gpointer filter_arg, gpointer err)
     if (colorf->disabled) return;
 
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
-        *err_msg = g_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
+        *err_msg = ws_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
                       colorf->filter_name, colorf->filter_text, local_err_msg);
         g_free(local_err_msg);
         /* this filter was compilable before, so this should never happen */
@@ -435,7 +435,7 @@ color_filter_validate_cb(gpointer filter_arg, gpointer err)
     if (colorf->disabled) return;
 
     if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
-        *err_msg = g_strdup_printf("Disabling color filter name: \"%s\" filter: \"%s\".\n%s",
+        *err_msg = ws_strdup_printf("Disabling color filter name: \"%s\" filter: \"%s\".\n%s",
                       colorf->filter_name, colorf->filter_text, local_err_msg);
         g_free(local_err_msg);
 
@@ -716,7 +716,7 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
             /* Error trying to open the file; give up. */
-            *err_msg = g_strdup_printf("Could not open global filter file\n\"%s\": %s.", path,
+            *err_msg = ws_strdup_printf("Could not open global filter file\n\"%s\": %s.", path,
                                        g_strerror(errno));
             g_free(path);
             return FALSE;
@@ -732,7 +732,7 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
 
     ret = read_filters_file(path, f, user_data, add_cb);
     if (ret != 0) {
-        *err_msg = g_strdup_printf("Error reading global filter file\n\"%s\": %s.",
+        *err_msg = ws_strdup_printf("Error reading global filter file\n\"%s\": %s.",
                                    path, g_strerror(errno));
         fclose(f);
         g_free(path);
@@ -752,14 +752,14 @@ color_filters_import(const gchar *path, gpointer user_data, gchar **err_msg, col
     int       ret;
 
     if ((f = ws_fopen(path, "r")) == NULL) {
-        *err_msg = g_strdup_printf("Could not open filter file\n%s\nfor reading: %s.",
+        *err_msg = ws_strdup_printf("Could not open filter file\n%s\nfor reading: %s.",
                       path, g_strerror(errno));
         return FALSE;
     }
 
     ret = read_filters_file(path, f, user_data, add_cb);
     if (ret != 0) {
-        *err_msg = g_strdup_printf("Error reading filter file\n\"%s\": %s.",
+        *err_msg = ws_strdup_printf("Error reading filter file\n\"%s\": %s.",
                                    path, g_strerror(errno));
         fclose(f);
         return FALSE;
@@ -823,7 +823,7 @@ color_filters_write(GSList *cfl, gchar** err_msg)
     /* Create the directory that holds personal configuration files,
        if necessary.  */
     if (create_persconffile_dir(&pf_dir_path) == -1) {
-        *err_msg = g_strdup_printf("Can't create directory\n\"%s\"\nfor color files: %s.",
+        *err_msg = ws_strdup_printf("Can't create directory\n\"%s\"\nfor color files: %s.",
                       pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return FALSE;
@@ -831,7 +831,7 @@ color_filters_write(GSList *cfl, gchar** err_msg)
 
     path = get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE);
     if ((f = ws_fopen(path, "w+")) == NULL) {
-        *err_msg = g_strdup_printf("Could not open\n%s\nfor writing: %s.",
+        *err_msg = ws_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));
         g_free(path);
         return FALSE;
@@ -849,7 +849,7 @@ color_filters_export(const gchar *path, GSList *cfl, gboolean only_marked, gchar
     FILE *f;
 
     if ((f = ws_fopen(path, "w+")) == NULL) {
-        *err_msg = g_strdup_printf("Could not open\n%s\nfor writing: %s.",
+        *err_msg = ws_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));
         return FALSE;
     }

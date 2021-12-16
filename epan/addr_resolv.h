@@ -166,7 +166,7 @@ WS_DLL_PUBLIC gchar *port_with_resolution_to_str(wmem_allocator_t *scope,
 
 /*
  * port_with_resolution_to_str_buf() prints the "<resolved> (<numerical>)" port
- * string to 'buf'. Return value is the same as g_snprintf().
+ * string to 'buf'. Return value is the same as snprintf().
  */
 WS_DLL_PUBLIC int port_with_resolution_to_str_buf(gchar *buf, gulong buf_size,
                                         port_type proto, guint port);

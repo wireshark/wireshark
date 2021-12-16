@@ -46,7 +46,7 @@ sttype_fvalue_tostr(const void *data, gboolean pretty)
 	if (pretty)
 		repr = g_strdup(s);
 	else
-		repr = g_strdup_printf("%s[%s]", fvalue_type_name(fvalue), s);
+		repr = ws_strdup_printf("%s[%s]", fvalue_type_name(fvalue), s);
 	g_free(s);
 	return repr;
 }
@@ -89,9 +89,9 @@ charconst_tostr(const void *data, gboolean pretty _U_)
 	}
 
 	if (g_ascii_isprint(num))
-		return g_strdup_printf("'%c'", (int)num);
+		return ws_strdup_printf("'%c'", (int)num);
 out:
-	return g_strdup_printf("'\\x%02lx'", num);
+	return ws_strdup_printf("'\\x%02lx'", num);
 }
 
 void

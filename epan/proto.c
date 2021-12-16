@@ -169,7 +169,7 @@ struct ptvcursor {
 	}
 
 #ifdef ENABLE_CHECK_FILTER
-#define CHECK_HF_VALUE(type, modifier, start_values) \
+#define CHECK_HF_VALUE(type, spec, start_values) \
 { \
 	const type *current; \
 	int n, m; \
@@ -186,7 +186,7 @@ struct ptvcursor {
 			if ((start_values[m].value == current->value) && \
 			    (strcmp(start_values[m].strptr, current->strptr) != 0)) { \
 				ws_warning("Field '%s' (%s) has a conflicting entry in its" \
-					  " value_string: %" modifier "u is at indices %u (%s) and %u (%s)", \
+					  " value_string: %" spec " is at indices %u (%s) and %u (%s)", \
 					  hfinfo->name, hfinfo->abbrev, \
 					  current->value, m, start_values[m].strptr, n, current->strptr); \
 			} \
@@ -845,7 +845,7 @@ proto_tree_free(proto_tree *tree)
 
 /* Is the parsing being done for a visible proto_tree or an invisible one?
  * By setting this correctly, the proto_tree creation is sped up by not
- * having to call g_vsnprintf and copy strings around.
+ * having to call vsnprintf and copy strings around.
  */
 gboolean
 proto_tree_set_visible(proto_tree *tree, gboolean visible)
@@ -4334,7 +4334,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	pi = proto_tree_add_pi(tree, hfinfo, tvb, start, &length);
 
 	va_start(ap, format);
-	protocol_rep = g_strdup_vprintf(format, ap);
+	protocol_rep = ws_strdup_vprintf(format, ap);
 	proto_tree_set_protocol_tvb(PNODE_FINFO(pi), protocol_tvb, protocol_rep);
 	g_free(protocol_rep);
 	va_end(ap);
@@ -6313,11 +6313,11 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 		}
 
 		/* put in the hf name */
-		ret += g_snprintf(fi->rep->representation + ret, ITEM_LABEL_LENGTH - ret, "%s: ", hf->name);
+		ret += snprintf(fi->rep->representation + ret, ITEM_LABEL_LENGTH - ret, "%s: ", hf->name);
 
 		/* If possible, Put in the value of the string */
 		if (ret < ITEM_LABEL_LENGTH) {
-			ret += g_vsnprintf(fi->rep->representation + ret,
+			ret += vsnprintf(fi->rep->representation + ret,
 					  ITEM_LABEL_LENGTH - ret, format, ap);
 		}
 		if (ret >= ITEM_LABEL_LENGTH) {
@@ -6342,7 +6342,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 
 	if (!proto_item_is_hidden(pi)) {
 		ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
-		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
+		ret = vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
 				  format, ap);
 		if (ret >= ITEM_LABEL_LENGTH) {
 			/* Uh oh, we don't have enough room.  Tell the user
@@ -6636,11 +6636,11 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_FLOAT:
 			if (hfinfo->display & BASE_UNIT_STRING) {
 				double d_value = fvalue_get_floating(&finfo->value);
-				g_snprintf(display_label_str, label_str_size,
+				snprintf(display_label_str, label_str_size,
 						"%." G_STRINGIFY(FLT_DIG) "g%s", d_value,
 						unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
 			} else {
-				g_snprintf(display_label_str, label_str_size,
+				snprintf(display_label_str, label_str_size,
 						"%." G_STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
 			}
 			label_len = (int)strlen(display_label_str);
@@ -6649,11 +6649,11 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_DOUBLE:
 			if (hfinfo->display & BASE_UNIT_STRING) {
 				double d_value = fvalue_get_floating(&finfo->value);
-				g_snprintf(display_label_str, label_str_size,
+				snprintf(display_label_str, label_str_size,
 						"%." G_STRINGIFY(DBL_DIG) "g%s", d_value,
 						unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
 			} else {
-				g_snprintf(display_label_str, label_str_size,
+				snprintf(display_label_str, label_str_size,
 						"%." G_STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
 			}
 			label_len = (int)strlen(display_label_str);
@@ -6799,7 +6799,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 						if (hfinfo->strings && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
 							hf_str_val = hf_try_val_to_str(number, hfinfo);
-							g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
+							snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
 						} else {
 							number_out = hfinfo_char_value_format(hfinfo, number_buf, number);
 
@@ -6833,7 +6833,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						if (hf_str_val && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
 
 							hf_str_val = hf_try_val_to_str(number, hfinfo);
-							g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
+							snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
 						} else {
 							number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
 
@@ -6863,7 +6863,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						}
 
 						if (hf_str_val && FIELD_DISPLAY(hfinfo->display) == BASE_NONE) {
-							g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
+							snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
 						} else {
 							number_out = hfinfo_numeric_value_format64(hfinfo, number_buf, number64);
 
@@ -7008,7 +7008,7 @@ proto_item_append_text(proto_item *pi, const char *format, ...)
 		curlen = strlen(fi->rep->representation);
 		if (ITEM_LABEL_LENGTH > curlen) {
 			va_start(ap, format);
-			g_vsnprintf(fi->rep->representation + curlen,
+			vsnprintf(fi->rep->representation + curlen,
 				ITEM_LABEL_LENGTH - (gulong) curlen, format, ap);
 			va_end(ap);
 		}
@@ -7042,7 +7042,7 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 			(void) g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
 
 		va_start(ap, format);
-		g_vsnprintf(fi->rep->representation,
+		vsnprintf(fi->rep->representation,
 			ITEM_LABEL_LENGTH, format, ap);
 		va_end(ap);
 		(void) g_strlcat(fi->rep->representation, representation, ITEM_LABEL_LENGTH);
@@ -8284,14 +8284,14 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		if (hfinfo->display & BASE_EXT_STRING) {
 			if (hfinfo->display & BASE_VAL64_STRING) {
 				const val64_string *start_values = VAL64_STRING_EXT_VS_P((const val64_string_ext*)hfinfo->strings);
-				CHECK_HF_VALUE(val64_string, G_GINT64_MODIFIER, start_values);
+				CHECK_HF_VALUE(val64_string, PRIu64, start_values);
 			} else {
 				const value_string *start_values = VALUE_STRING_EXT_VS_P((const value_string_ext*)hfinfo->strings);
-				CHECK_HF_VALUE(value_string, "", start_values);
+				CHECK_HF_VALUE(value_string, "u", start_values);
 			}
 		} else {
 			const value_string *start_values = (const value_string*)hfinfo->strings;
-			CHECK_HF_VALUE(value_string, "", start_values);
+			CHECK_HF_VALUE(value_string, "u", start_values);
 		}
 	}
 
@@ -9119,12 +9119,12 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		{
 			double d_value = fvalue_get_floating(&fi->value);
 			if (hfinfo->display & BASE_UNIT_STRING) {
-				g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(FLT_DIG) "g%s",
 					   hfinfo->name, d_value,
 					   unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
 			} else {
-				g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(FLT_DIG) "g",
 					   hfinfo->name, d_value);
 			}
@@ -9135,12 +9135,12 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		{
 			double d_value = fvalue_get_floating(&fi->value);
 			if (hfinfo->display & BASE_UNIT_STRING) {
-				g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(DBL_DIG) "g%s",
 					   hfinfo->name, d_value,
 					   unit_name_string_get_double(d_value, (const unit_name_string*)hfinfo->strings));
 			} else {
-				g_snprintf(label_str, ITEM_LABEL_LENGTH,
+				snprintf(label_str, ITEM_LABEL_LENGTH,
 					   "%s: %." G_STRINGIFY(DBL_DIG) "g",
 					   hfinfo->name, d_value);
 			}
@@ -9155,7 +9155,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_RELATIVE_TIME:
 			tmp = rel_time_to_secs_str(NULL, (const nstime_t *)fvalue_get(&fi->value));
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s seconds", hfinfo->name, tmp);
 			wmem_free(NULL, tmp);
 			break;
@@ -9163,7 +9163,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IPXNET:
 			integer = fvalue_get_uinteger(&fi->value);
 			tmp = get_ipxnet_name(NULL, integer);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s (0x%08X)", hfinfo->name,
 				   tmp, integer);
 			wmem_free(NULL, tmp);
@@ -9175,7 +9175,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.data = (guint8 *)fvalue_get(&fi->value);
 
 			addr_str = (char*)address_to_str(NULL, &addr);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
 			break;
@@ -9186,7 +9186,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.data = (guint8 *)fvalue_get(&fi->value);
 
 			addr_str = (char*)address_to_str(NULL, &addr);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
 			break;
@@ -9199,7 +9199,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.data = bytes;
 
 			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
 			break;
@@ -9216,7 +9216,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			} else {
 				addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
 			}
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
 			break;
@@ -9229,7 +9229,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.data = bytes;
 
 			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
 			break;
@@ -9240,7 +9240,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			addr.data = (guint8 *)fvalue_get(&fi->value);
 
 			addr_str = (char*)address_with_resolution_to_str(NULL, &addr);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s", hfinfo->name, addr_str);
 			wmem_free(NULL, addr_str);
 			break;
@@ -9307,7 +9307,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_IEEE_11073_SFLOAT:
 		case FT_IEEE_11073_FLOAT:
 			tmp = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, hfinfo->display);
-			g_snprintf(label_str, ITEM_LABEL_LENGTH,
+			snprintf(label_str, ITEM_LABEL_LENGTH,
 						"%s: %s",
 						hfinfo->name, tmp);
 			wmem_free(NULL, tmp);
@@ -10096,11 +10096,11 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 			manuf_name = uint_get_manuf_name_if_known(value);
 			if (manuf_name == NULL) {
 				/* Could not find an OUI. */
-				g_snprintf(buf, 32, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
+				snprintf(buf, 32, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
 			}
 			else {
 				/* Found an address string. */
-				g_snprintf(buf, 32, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
+				snprintf(buf, 32, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
 			}
 			return buf;
 			}
@@ -10826,7 +10826,7 @@ proto_registrar_dump_values(void)
 		else if (vals64) {
 			vi = 0;
 			while (vals64[vi].strptr) {
-				printf("V64\t%s\t%" G_GINT64_MODIFIER "u\t%s\n",
+				printf("V64\t%s\t%" PRIu64 "\t%s\n",
 				       hfinfo->abbrev,
 				       vals64[vi].value,
 				       vals64[vi].strptr);
@@ -11095,7 +11095,7 @@ proto_registrar_dump_elastic(const gchar* filter)
 			/* Skip the fields that would map into string. This is the default in elasticsearch. */
 			type = ws_type_to_elastic(hfinfo->type);
 			if (type) {
-				str = g_strdup_printf("%s_%s", prev_proto, hfinfo->abbrev);
+				str = ws_strdup_printf("%s_%s", prev_proto, hfinfo->abbrev);
 				json_dumper_set_member_name(&dumper, dot_to_underscore(str));
 				g_free(str);
 				json_dumper_begin_object(&dumper); // 9.hfinfo->abbrev
@@ -11236,7 +11236,7 @@ proto_registrar_dump_fields(void)
 				}
 			} else if (hfinfo->type == FT_BOOLEAN) {
 				/* For FT_BOOLEAN: 'display' can be "parent bitfield width" */
-				g_snprintf(width, sizeof(width), "%d", hfinfo->display);
+				snprintf(width, sizeof(width), "%d", hfinfo->display);
 				base_name = width;
 			}
 
@@ -11246,7 +11246,7 @@ proto_registrar_dump_fields(void)
 			else if (strlen(blurb) == 0)
 				blurb = "\"\"";
 
-			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%" G_GINT64_MODIFIER "x\t%s\n",
+			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%" PRIx64 "\t%s\n",
 				hfinfo->name, hfinfo->abbrev, enum_name,
 				parent_hfinfo->abbrev, base_name,
 				hfinfo->bitmask, blurb);
@@ -11482,16 +11482,16 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				*filter = (char *)wmem_alloc0(NULL, buf_len);
 				ptr = *filter;
 
-				ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)),
+				ptr += snprintf(ptr, (gulong) (buf_len-(ptr-*filter)),
 					"frame[%d:%d] == ", finfo->start, length);
 				for (i=0; i<length; i++) {
 					c = tvb_get_guint8(finfo->ds_tvb, start);
 					start++;
 					if (i == 0 ) {
-						ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), "%02x", c);
+						ptr += snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), "%02x", c);
 					}
 					else {
-						ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), ":%02x", c);
+						ptr += snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), ":%02x", c);
 					}
 				}
 			}
@@ -12424,7 +12424,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hfindex, tvbu
 					    mask_greatest_bit_offset);
 	} else {
 		/* If the bitmask is too large, try to describe its contents. */
-		g_snprintf(bf_str, sizeof(bf_str), "%d bits", no_of_bits);
+		snprintf(bf_str, sizeof(bf_str), "%d bits", no_of_bits);
 	}
 
 	switch (hf_field->type) {

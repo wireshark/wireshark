@@ -196,7 +196,7 @@ newline    \n
 
 
 <OUTSIDE>{entity_start}			{ BEGIN IN_ENTITY; }
-<IN_ENTITY>{name}			{ yyextra->entity_name = g_strdup_printf("%%%s;",yytext); BEGIN NAMED_ENTITY; }
+<IN_ENTITY>{name}			{ yyextra->entity_name = ws_strdup_printf("%%%s;",yytext); BEGIN NAMED_ENTITY; }
 <NAMED_ENTITY>{quote}			{ yyextra->current = g_string_new(dtd_location(yyextra)); BEGIN IN_QUOTE; }
 <IN_QUOTE>{quote}			{ g_hash_table_insert(yyextra->entities,yyextra->entity_name,yyextra->current);  BEGIN ENTITY_DONE; }
 <IN_QUOTE>{percent}			|
@@ -238,7 +238,7 @@ const gchar* dtd_location(Dtd_PreParse_scanner_state_t* state) {
 
 	if (!state) return NULL;
 
-	loc = g_strdup_printf("<? wireshark:location %s:%u ?>", state->filename, state->linenum);
+	loc = ws_strdup_printf("<? wireshark:location %s:%u ?>", state->filename, state->linenum);
 
 	return loc;
 }
@@ -250,7 +250,7 @@ static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
 }
 
 extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* err) {
-	gchar* fullname = g_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
+	gchar* fullname = ws_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
 	FILE *in;
 	yyscan_t scanner;
 	Dtd_PreParse_scanner_state_t state;

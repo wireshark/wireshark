@@ -121,9 +121,9 @@ typedef struct {
  * must also be freed.
  */
 #define ERROR(fmtd) do { \
-	char* fmt_str = g_strdup_printf fmtd; \
+	char* fmt_str = ws_strdup_printf fmtd; \
 	g_free(yyextra->error); \
-	yyextra->error = g_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,fmt_str); \
+	yyextra->error = ws_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,fmt_str); \
 	g_free(fmt_str); \
 	if (yyextra->uat->free_cb) { \
 		yyextra->uat->free_cb(yyextra->record); \
@@ -144,7 +144,7 @@ typedef struct {
 	if (yyextra->uat->fields[yyextra->colnum].cb.chk) { \
 		if ( ! yyextra->uat->fields[yyextra->colnum].cb.chk(yyextra->record, yyextra->ptrx, yyextra->len, yyextra->uat->fields[yyextra->colnum].cbdata.chk, yyextra->uat->fields[yyextra->colnum].fld_data, &errx) ) { \
 			g_free(yyextra->error); \
-			yyextra->error = g_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,errx); \
+			yyextra->error = ws_strdup_printf("%s:%d: %s",yyextra->uat->filename,yyextra->linenum,errx); \
 			g_free(errx); \
 			yyextra->valid_record = FALSE; \
 		}\
@@ -476,7 +476,7 @@ uat_load_str(uat_t *uat, char *entry, char **err)
 	uat_load_scanner_state_t state;
 
 	state.uat = uat;
-	state.parse_str = g_strdup_printf("%s\n", entry); /* Records must end with a newline */
+	state.parse_str = ws_strdup_printf("%s\n", entry); /* Records must end with a newline */
 
 	state.error = NULL;
 	state.valid_record = TRUE;

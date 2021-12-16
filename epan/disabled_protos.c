@@ -181,7 +181,7 @@ save_protos_list(char **pref_path_return, int *errno_return, const char* filenam
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
      completely. */
-  ff_path_new = g_strdup_printf("%s.new", ff_path);
+  ff_path_new = ws_strdup_printf("%s.new", ff_path);
 
   if ((ff = ws_fopen(ff_path_new, "w")) == NULL) {
     *pref_path_return = ff_path;
@@ -809,7 +809,7 @@ save_disabled_heur_dissector_list(char **pref_path_return, int *errno_return)
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out
      completely. */
-  ff_path_new = g_strdup_printf("%s.new", ff_path);
+  ff_path_new = ws_strdup_printf("%s.new", ff_path);
 
   if ((ff = ws_fopen(ff_path_new, "w")) == NULL) {
     *pref_path_return = ff_path;
