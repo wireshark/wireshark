@@ -735,7 +735,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
       last_ava = (char *)wmem_alloc(actx->pinfo->pool, MAX_AVA_STR_LEN); *last_ava = '\0';
       register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
-      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
+      snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s", name, fmt);
 
       proto_item_append_text(tree, " %s", last_ava);
 
@@ -791,7 +791,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
       if(!(name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference)))
         name = actx->external.direct_reference;
-      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
+      snprintf(last_ava, MAX_AVA_STR_LEN, "%s %s %s", name, fmt, value);
 
       proto_item_append_text(tree, " %s", last_ava);
 

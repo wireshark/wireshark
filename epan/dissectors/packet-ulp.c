@@ -1026,18 +1026,18 @@ static void
 ulp_ganssDataBitInterval_fmt(gchar *s, guint32 v)
 {
   if (v == 15) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "Time interval is not specified (15)");
+    snprintf(s, ITEM_LABEL_LENGTH, "Time interval is not specified (15)");
   } else {
     double interval = (0.1*pow(2, (double)v));
 
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", interval, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", interval, v);
   }
 }
 
 static void
 ulp_ExtendedEphemeris_validity_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%uh (%u)", 4*v, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%uh (%u)", 4*v, v);
 }
 
 static void
@@ -1045,7 +1045,7 @@ ulp_PositionEstimate_latitude_fmt(gchar *s, guint32 v)
 {
   double latitude = ((double)v*90)/pow(2,23);
 
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", latitude, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", latitude, v);
 }
 
 static void
@@ -1053,18 +1053,18 @@ ulp_PositionEstimate_longitude_fmt(gchar *s, guint32 v)
 {
   double longitude = ((double)(gint32)v*360)/pow(2,24);
 
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", longitude, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", longitude, v);
 }
 
 static void
 ulp_NMRelement_rxLev_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RxLev < -110dBm (0)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RxLev < -110dBm (0)");
   } else if (v == 63) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RxLev >= -48dBm (63)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RxLev >= -48dBm (63)");
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RxLev < %ddBm (%u)", -111+v, -110+v, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RxLev < %ddBm (%u)", -111+v, -110+v, v);
   }
 }
 
@@ -1072,13 +1072,13 @@ static void
 ulp_UTRA_CarrierRSSI_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSSI < -100dBm (0)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSSI < -100dBm (0)");
   } else if (v == 76) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSSI >= -25dBm (76)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSSI >= -25dBm (76)");
   } else if (v > 76) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSSI < %ddBm (%u)", -101+v, -100+v, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSSI < %ddBm (%u)", -101+v, -100+v, v);
   }
 }
 
@@ -1086,13 +1086,13 @@ static void
 ulp_PrimaryCCPCH_RSCP_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSCP < -115dBm (0)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSCP < -115dBm (0)");
   } else if (v == 91) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSCP >= -25dBm (91)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSCP >= -25dBm (91)");
   } else if (v > 91) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSCP < %ddBm (%u)", -116+v, -115+v, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSCP < %ddBm (%u)", -116+v, -115+v, v);
   }
 }
 
@@ -1100,13 +1100,13 @@ static void
 ulp_CPICH_Ec_N0_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH Ec/N0 < -24dB (0)");
+    snprintf(s, ITEM_LABEL_LENGTH, "CPICH Ec/N0 < -24dB (0)");
   } else if (v == 49) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH Ec/N0 >= 0dB (49)");
+    snprintf(s, ITEM_LABEL_LENGTH, "CPICH Ec/N0 >= 0dB (49)");
   } else if (v > 49) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= CPICH Ec/N0 < %.1fdB (%u)", -24.5+((float)v/2), -24+((float)v/2), v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= CPICH Ec/N0 < %.1fdB (%u)", -24.5+((float)v/2), -24+((float)v/2), v);
   }
 }
 
@@ -1114,15 +1114,15 @@ static void
 ulp_CPICH_RSCP_fmt(gchar *s, guint32 v)
 {
   if (v == 123) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH RSCP < -120dBm (123)");
+    snprintf(s, ITEM_LABEL_LENGTH, "CPICH RSCP < -120dBm (123)");
   } else if (v > 123) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= CPICH RSCP < %ddBm (%u)", -244+v, -243+v, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= CPICH RSCP < %ddBm (%u)", -244+v, -243+v, v);
   } else if (v == 91) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH RSCP >= -25dBm (91)");
+    snprintf(s, ITEM_LABEL_LENGTH, "CPICH RSCP >= -25dBm (91)");
   } else if (v < 91) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm < CPICH RSCP <= %ddBm (%u)", -116+v, -115+v, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%ddBm < CPICH RSCP <= %ddBm (%u)", -116+v, -115+v, v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
   }
 }
 
@@ -1132,9 +1132,9 @@ ulp_QoP_horacc_fmt(gchar *s, guint32 v)
   double uncertainty = 10*(pow(1.1, (double)v)-1);
 
   if (uncertainty < 1000) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%fm (%u)", uncertainty, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%fm (%u)", uncertainty, v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%fkm (%u)", uncertainty/1000, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%fkm (%u)", uncertainty/1000, v);
   }
 }
 
@@ -1143,13 +1143,13 @@ ulp_QoP_veracc_fmt(gchar *s, guint32 v)
 {
   double uncertainty = 45*(pow(1.025, (double)v)-1);
 
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%fm (%u)", uncertainty, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fm (%u)", uncertainty, v);
 }
 
 static void
 ulp_QoP_delay_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", pow(2, (double)v), v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%gs (%u)", pow(2, (double)v), v);
 }
 
 static const true_false_string ulp_vertical_dir_val = {
@@ -1160,18 +1160,18 @@ static const true_false_string ulp_vertical_dir_val = {
 static void
 ulp_RelativeTime_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%u)", 0.01*v, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%u)", 0.01*v, v);
 }
 
 static void
 ulp_RSRP_Range_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140dBm (0)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140dBm (0)");
   } else if (v == 97) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP >= -44dBm (97)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSRP >= -44dBm (97)");
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSRP < %ddBm (%u)", -141+v, -140+v, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= RSRP < %ddBm (%u)", -141+v, -140+v, v);
   }
 }
 
@@ -1179,36 +1179,36 @@ static void
 ulp_RSRQ_Range_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
   } else if (v == 64) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ >= -3dB (34)");
+    snprintf(s, ITEM_LABEL_LENGTH, "RSRQ >= -3dB (34)");
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%u)", -20+((float)v/2), -19.5+((float)v/2), v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%u)", -20+((float)v/2), -19.5+((float)v/2), v);
   }
 }
 
 static void
 ulp_SignalDelta_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%sdB (%u)", v ? "0.5" : "0", v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%sdB (%u)", v ? "0.5" : "0", v);
 }
 
 static void
 ulp_locationAccuracy_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%u)", 0.1*v, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%u)", 0.1*v, v);
 }
 
 static void
 ulp_WimaxRTD_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fus (%u)", 0.01*v, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fus (%u)", 0.01*v, v);
 }
 
 static void
 ulp_WimaxNMR_rssi_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fdBm (%u)", -103.75+(0.25*v), v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fdBm (%u)", -103.75+(0.25*v), v);
 }
 
 static void
@@ -1216,7 +1216,7 @@ ulp_UTRAN_gpsReferenceTimeUncertainty_fmt(gchar *s, guint32 v)
 {
   double uncertainty = 0.0022*(pow(1.18, (double)v)-1);
 
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%fus (%u)", uncertainty, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%fus (%u)", uncertainty, v);
 }
 
 static const value_string ulp_ganss_time_id_vals[] = {
@@ -1230,13 +1230,13 @@ static const value_string ulp_ganss_time_id_vals[] = {
 static void
 ulp_utran_GANSSTimingOfCell_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fus (%u)", 0.25*v, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fus (%u)", 0.25*v, v);
 }
 
 static void
 ulp_Coordinate_latitude_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%u)",
+  snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%u)",
              ((float)v/8388607.0)*90, v);
 }
 
@@ -1245,7 +1245,7 @@ ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
 {
   gint32 longitude = (gint32) v;
 
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%d)",
+  snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%d)",
              ((float)longitude/8388608.0)*180, longitude);
 }
 

@@ -255,31 +255,31 @@ static const true_false_string x2ap_tfs_activate_do_not_activate = {
 static void
 x2ap_Time_UE_StayedInCell_EnhancedGranularity_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
 static void
 x2ap_handoverTriggerChange_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", ((float)v)/2, (gint32)v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%d)", ((float)v)/2, (gint32)v);
 }
 
 static void
 x2ap_Threshold_RSRP_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-140, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-140, v);
 }
 
 static void
 x2ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
 }
 
 static void
 x2ap_Packet_LossRate_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
 }
 
 static struct x2ap_private_data*

@@ -257,13 +257,13 @@ static int dissect_TargetBSS_ToSourceBSS_TransparentContainer_PDU(tvbuff_t *tvb,
 static void
 s1ap_Threshold_RSRP_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-140, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-140, v);
 }
 
 static void
 s1ap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-20, v);
 }
 
 static const true_false_string s1ap_tfs_interfacesToTrace = {
@@ -274,7 +274,7 @@ static const true_false_string s1ap_tfs_interfacesToTrace = {
 static void
 s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
 const value_string s1ap_serialNumber_gs_vals[] = {
@@ -326,7 +326,7 @@ dissect_s1ap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
 static void
 s1ap_EUTRANRoundTripDelayEstimationInfo_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%uTs (%u)", 16*v, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%uTs (%u)", 16*v, v);
 }
 
 static const true_false_string s1ap_tfs_activate_do_not_activate = {
@@ -337,25 +337,25 @@ static const true_false_string s1ap_tfs_activate_do_not_activate = {
 static void
 s1ap_Packet_LossRate_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1f %% (%u)", (float)v/10, v);
 }
 
 static void
 s1ap_threshold_nr_rsrp_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
 }
 
 static void
 s1ap_threshold_nr_rsrq_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
 }
 
 static void
 s1ap_threshold_nr_sinr_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
 }
 
 static struct s1ap_private_data*

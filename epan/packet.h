@@ -10,6 +10,7 @@
 
 #ifndef __PACKET_H__
 #define __PACKET_H__
+#include <wireshark.h>
 
 #include <wiretap/wtap_opttypes.h>
 #include "proto.h"
@@ -22,8 +23,6 @@
 #include "guid-utils.h"
 #include "tfs.h"
 #include "unit_strings.h"
-#include "ws_symbol_export.h"
-#include "wsutil/glib-compat.h"
 
 #ifdef __cplusplus
 extern "C" {

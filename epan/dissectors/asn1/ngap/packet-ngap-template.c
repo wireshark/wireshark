@@ -590,19 +590,19 @@ dissect_ngap_warningMessageContents(tvbuff_t *warning_msg_tvb, proto_tree *tree,
 static void
 ngap_PacketLossRate_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v/10, v);
 }
 
 static void
 ngap_PacketDelayBudget_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static void
 ngap_TimeUEStayedInCellEnhancedGranularity_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fs", ((float)v)/10);
 }
 
 static void
@@ -612,26 +612,26 @@ ngap_PeriodicRegistrationUpdateTimer_fmt(gchar *s, guint32 v)
 
   switch (v>>5) {
     case 0:
-      g_snprintf(s, ITEM_LABEL_LENGTH, "%u min (%u)", val * 10, v);
+      snprintf(s, ITEM_LABEL_LENGTH, "%u min (%u)", val * 10, v);
       break;
     case 1:
     default:
-      g_snprintf(s, ITEM_LABEL_LENGTH, "%u hr (%u)", val, v);
+      snprintf(s, ITEM_LABEL_LENGTH, "%u hr (%u)", val, v);
       break;
     case 2:
-      g_snprintf(s, ITEM_LABEL_LENGTH, "%u hr (%u)", val * 10, v);
+      snprintf(s, ITEM_LABEL_LENGTH, "%u hr (%u)", val * 10, v);
       break;
     case 3:
-      g_snprintf(s, ITEM_LABEL_LENGTH, "%u sec (%u)", val * 2, v);
+      snprintf(s, ITEM_LABEL_LENGTH, "%u sec (%u)", val * 2, v);
       break;
     case 4:
-      g_snprintf(s, ITEM_LABEL_LENGTH, "%u sec (%u)", val * 30, v);
+      snprintf(s, ITEM_LABEL_LENGTH, "%u sec (%u)", val * 30, v);
       break;
     case 5:
-      g_snprintf(s, ITEM_LABEL_LENGTH, "%u min (%u)", val, v);
+      snprintf(s, ITEM_LABEL_LENGTH, "%u min (%u)", val, v);
       break;
     case 7:
-      g_snprintf(s, ITEM_LABEL_LENGTH, "deactivated (%u)", v);
+      snprintf(s, ITEM_LABEL_LENGTH, "deactivated (%u)", v);
       break;
   }
 }
@@ -639,25 +639,25 @@ ngap_PeriodicRegistrationUpdateTimer_fmt(gchar *s, guint32 v)
 static void
 ngap_ExtendedPacketDelayBudget_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
 }
 
 static void
 ngap_Threshold_RSRP_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%ddBm (%u)", (gint32)v-156, v);
 }
 
 static void
 ngap_Threshold_RSRQ_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-43, v);
 }
 
 static void
 ngap_Threshold_SINR_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB (%u)", ((float)v/2)-23, v);
 }
 
 static struct ngap_private_data*

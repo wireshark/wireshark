@@ -18567,9 +18567,9 @@ its_latitude_fmt(gchar *s, guint32 v)
 {
   gint32 lat = (gint32)v;
   if (lat == 900000001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
                abs(lat) / 10000000,
                abs(lat) % 10000000 * 6 / 1000000,
                abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
@@ -18583,9 +18583,9 @@ its_longitude_fmt(gchar *s, guint32 v)
 {
   gint32 lng = (gint32)v;
   if (lng == 1800000001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
                abs(lng) / 10000000,
                abs(lng) % 10000000 * 6 / 1000000,
                abs(lng) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
@@ -18599,9 +18599,9 @@ its_altitude_fmt(gchar *s, guint32 v)
 {
   gint32 alt = (gint32)v;
   if (alt == 800001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt * 0.01, alt);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt * 0.01, alt);
   }
 }
 
@@ -18610,9 +18610,9 @@ its_delta_latitude_fmt(gchar *s, guint32 v)
 {
   gint32 lat = (gint32)v;
   if (lat == 131072) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lat);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
                abs(lat) / 10000000,
                abs(lat) % 10000000 * 6 / 1000000,
                abs(lat) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
@@ -18626,9 +18626,9 @@ its_delta_longitude_fmt(gchar *s, guint32 v)
 {
   gint32 lng = (gint32)v;
   if (lng == 131072) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", lng);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%u°%u'%.3f\"%c (%d)",
                abs(lng) / 10000000,
                abs(lng) % 10000000 * 6 / 1000000,
                abs(lng) % 10000000 * 6 % 1000000 * 6.0 / 100000.0,
@@ -18642,9 +18642,9 @@ its_delta_altitude_fmt(gchar *s, guint32 v)
 {
   gint32 alt = (gint32)v;
   if (alt == 12800) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", alt);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt * 0.01, alt);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", alt * 0.01, alt);
   }
 }
 
@@ -18652,7 +18652,7 @@ static void
 its_path_delta_time_fmt(gchar *s, guint32 v)
 {
   gint32 dt = (gint32)v;
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%d)", dt * 0.01, dt);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fs (%d)", dt * 0.01, dt);
 }
 
 
@@ -18660,11 +18660,11 @@ static void
 its_sax_length_fmt(gchar *s, guint32 v)
 {
   if (v == 4095) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 4094) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
   }
 }
 
@@ -18673,9 +18673,9 @@ its_heading_value_fmt(gchar *s, guint32 v)
 {
   const gchar *p = try_val_to_str(v, VALS(its_HeadingValue_vals));
   if (p) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", p, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", p, v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
   }
 }
 
@@ -18683,11 +18683,11 @@ static void
 its_heading_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 127) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 126) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
   }
 }
 
@@ -18695,12 +18695,12 @@ static void
 its_speed_value_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", v);
   } else if (v == 16383) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     double vms = v * 0.01;
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%d)",
             vms, vms * 3.6, v);
   }
 }
@@ -18709,11 +18709,11 @@ static void
 its_speed_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 127) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 126) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s (%d)", v * 0.01, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s (%d)", v * 0.01, v);
   }
 }
 
@@ -18721,11 +18721,11 @@ static void
 its_vehicle_length_value_fmt(gchar *s, guint32 v)
 {
   if (v == 1023) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 1022) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
   }
 }
 
@@ -18733,11 +18733,11 @@ static void
 its_vehicle_width_fmt(gchar *s, guint32 v)
 {
   if (v == 62) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 61) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
   }
 }
 
@@ -18746,9 +18746,9 @@ its_acceleration_value_fmt(gchar *s, guint32 v)
 {
   gint32 acc = (gint32)v;
   if (acc == 161) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", acc * 0.1, acc);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", acc * 0.1, acc);
   }
 }
 
@@ -18756,11 +18756,11 @@ static void
 its_acceleration_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 102) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 101) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1fm/s² (%d)", v * 0.1, v);
   }
 }
 
@@ -18769,11 +18769,11 @@ its_curvature_value_fmt(gchar *s, guint32 v)
 {
   gint32 curv = (gint32)v;
   if (curv == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (curv == 30001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.3fm %s (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.3fm %s (%d)",
                30000.0 / curv,
                (curv > 0) ? "left" : "right",
                curv);
@@ -18785,11 +18785,11 @@ its_yaw_rate_value_fmt(gchar *s, guint32 v)
 {
   gint32 yaw = (gint32)v;
   if (yaw == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (yaw == 32767) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f°/s %s (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2f°/s %s (%d)",
                yaw * 0.01,
                (yaw > 0) ? "left" : "right",
                yaw);
@@ -18801,11 +18801,11 @@ its_swa_value_fmt(gchar *s, guint32 v)
 {
   gint32 swa = (gint32)v;
   if (swa == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "straight (%d)", v);
   } else if (swa == 512) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° %s (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° %s (%d)",
                swa * 1.5,
                (swa > 0) ? "left" : "right",
                swa);
@@ -18816,11 +18816,11 @@ static void
 its_swa_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 127) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 126) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 1.5, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 1.5, v);
   }
 }
 
@@ -18828,9 +18828,9 @@ static void
 dsrc_moi_fmt(gchar *s, guint32 v)
 {
   if (v == 527040) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "invalid (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "invalid (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%ud %02u:%02u (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%ud %02u:%02u (%d)",
             v / 1440, v % 1440 / 60, v % 60, v);
   }
 }
@@ -18839,11 +18839,11 @@ static void
 dsrc_dsecond_fmt(gchar *s, guint32 v)
 {
   if (v == 65535) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if ((61000 <= v) && (v <= 65534)) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "reserved (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "reserved (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%02u.%03u (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%02u.%03u (%d)",
             v / 1000, v % 1000, v);
   }
 }
@@ -18852,11 +18852,11 @@ static void
 dsrc_time_mark_fmt(gchar *s, guint32 v)
 {
   if (v == 36001) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", v);
   } else if (v == 36000) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanHour (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "moreThanHour (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u.%u (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%02u:%02u.%u (%d)",
             v / 600, v % 600 / 10, v % 10, v);
   }
 }
@@ -18885,10 +18885,10 @@ static void
 dsrc_velocity_fmt(gchar *s, guint32 v)
 {
   if (v == 8191) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     double vms = v * 0.02;
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%d)",
             vms, (int)lround(vms * 3.6), v);
   }
 }
@@ -18896,7 +18896,7 @@ dsrc_velocity_fmt(gchar *s, guint32 v)
 static void
 dsrc_angle_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f° (%d)", v * 0.0125, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2f° (%d)", v * 0.0125, v);
 }
 
 static void
@@ -18904,13 +18904,13 @@ dsrc_delta_time_fmt(gchar *s, guint32 v)
 {
   gint32 dt = (gint32)v;
   if (dt == -122) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", dt);
+    snprintf(s, ITEM_LABEL_LENGTH, "unknown (%d)", dt);
   } else if (dt == -121) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanMinus20Minutes (%d)", dt);
+    snprintf(s, ITEM_LABEL_LENGTH, "moreThanMinus20Minutes (%d)", dt);
   } else if (dt == 121) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "moreThanPlus20Minutes (%d)", dt);
+    snprintf(s, ITEM_LABEL_LENGTH, "moreThanPlus20Minutes (%d)", dt);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%s%d:%02u (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%s%d:%02u (%d)",
             (dt < 0) ? "-" : "", abs(dt) / 6, abs(dt) % 6 * 10, dt);
   }
 }
@@ -18919,11 +18919,11 @@ static void
 cpm_general_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unknown (%u)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unknown (%u)", v);
   } else if (v == 101) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u%% (%u)", v, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u%% (%u)", v, v);
   }
 }
 
@@ -18931,18 +18931,18 @@ static void
 cpm_distance_value_fmt(gchar *s, guint32 v)
 {
   gint32 sv = (gint32)v;
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", sv * 0.01, sv);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", sv * 0.01, sv);
 }
 
 static void
 cpm_distance_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 102) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 101) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
   }
 }
 
@@ -18951,12 +18951,12 @@ cpm_speed_value_ext_fmt(gchar *s, guint32 v)
 {
   gint32 sv = (gint32)v;
   if (sv == 0) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", sv);
+    snprintf(s, ITEM_LABEL_LENGTH, "standstill (%d)", sv);
   } else if (sv == 16383) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", sv);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", sv);
   } else {
     double vms = sv * 0.01;
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %.1fkm/h (%d)",
             vms, vms * 3.6, sv);
   }
 }
@@ -18965,9 +18965,9 @@ static void
 cpm_cartesian_angle_value_fmt(gchar *s, guint32 v)
 {
   if (v == 3601) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
   }
 }
 
@@ -18975,29 +18975,29 @@ static void
 cpm_angle_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 127) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 126) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f° (%d)", v * 0.1, v);
   }
 }
 
 static void
 cpm_object_dimension_value_fmt(gchar *s, guint32 v)
 {
-  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
+  snprintf(s, ITEM_LABEL_LENGTH, "%.1fm (%d)", v * 0.1, v);
 }
 
 static void
 cpm_object_dimension_confidence_fmt(gchar *s, guint32 v)
 {
   if (v == 102) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else if (v == 101) {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
+    snprintf(s, ITEM_LABEL_LENGTH, "outOfRange (%d)", v);
   } else {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm (%d)", v * 0.01, v);
   }
 }
 
@@ -19022,7 +19022,7 @@ its_msgid_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 msgid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_its_messageID, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "MsgId (%s%u)", UTF8_RIGHTWARDS_ARROW, msgid);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "MsgId (%s%u)", UTF8_RIGHTWARDS_ARROW, msgid);
 }
 
 static gpointer

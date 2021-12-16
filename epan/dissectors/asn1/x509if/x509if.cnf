@@ -213,7 +213,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
       last_ava = (char *)wmem_alloc(actx->pinfo->pool, MAX_AVA_STR_LEN); *last_ava = '\0';
       register_frame_end_routine (actx->pinfo, x509if_frame_end);
 
-      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s", name, fmt);
+      snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s", name, fmt);
 
       proto_item_append_text(tree, " %%s", last_ava);
 
@@ -260,7 +260,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
       if(!(name = oid_resolved_from_string(actx->pinfo->pool, actx->external.direct_reference)))
         name = actx->external.direct_reference;
-      g_snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s %%s", name, fmt, value);
+      snprintf(last_ava, MAX_AVA_STR_LEN, "%%s %%s %%s", name, fmt, value);
 
       proto_item_append_text(tree, " %%s", last_ava);
 

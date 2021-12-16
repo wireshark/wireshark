@@ -15964,14 +15964,14 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     /* Reverse order to invoke */
     switch(ansi_map_response_matching_type){
         case ANSI_MAP_TID_ONLY:
-            g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
+            snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
             break;
         case ANSI_MAP_TID_AND_SOURCE:
-            g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
+            snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
             break;
         case ANSI_MAP_TID_SOURCE_AND_DEST:
         default:
-            g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
+            snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
             break;
     }
 

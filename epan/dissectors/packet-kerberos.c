@@ -1139,11 +1139,11 @@ add_encryption_key(packet_info *pinfo,
 	}
 
 	new_key = wmem_new0(key_scope, enc_key_t);
-	g_snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s %s in frame %u",
+	snprintf(new_key->key_origin, KRB_MAX_ORIG_LEN, "%s %s in frame %u",
 		   methodl, origin, pinfo->num);
 	new_key->fd_num = pinfo->num;
 	new_key->id = ++private_data->learnt_key_ids;
-	g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "%d.%u",
+	snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "%d.%u",
 		   new_key->fd_num, new_key->id);
 	new_key->keytype=keytype;
 	new_key->keylength=keylength;
@@ -1204,7 +1204,7 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 	const char *element = proto_registrar_get_name(hf_index);
 	char origin[KRB_MAX_ORIG_LEN] = { 0, };
 
-	g_snprintf(origin, KRB_MAX_ORIG_LEN, "%s_%s", parent, element);
+	snprintf(origin, KRB_MAX_ORIG_LEN, "%s_%s", parent, element);
 
 	add_encryption_key(actx->pinfo,
 			   private_data,
@@ -1375,12 +1375,12 @@ static void missing_encryption_key(proto_tree *tree, packet_info *pinfo,
 	enc_key_t *mek = NULL;
 
 	mek = wmem_new0(pinfo->pool, enc_key_t);
-	g_snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
+	snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
 		   "keytype %d usage %d missing in frame %u",
 		   keytype, usage, pinfo->num);
 	mek->fd_num = pinfo->num;
 	mek->id = ++private_data->missing_key_ids;
-	g_snprintf(mek->id_str, KRB_MAX_ID_STR_LEN, "missing.%u",
+	snprintf(mek->id_str, KRB_MAX_ID_STR_LEN, "missing.%u",
 		   mek->id);
 	mek->keytype=keytype;
 
@@ -1451,12 +1451,12 @@ static void missing_signing_key(proto_tree *tree, packet_info *pinfo,
 	enc_key_t *mek = NULL;
 
 	mek = wmem_new0(pinfo->pool, enc_key_t);
-	g_snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
+	snprintf(mek->key_origin, KRB_MAX_ORIG_LEN,
 		   "checksum %d keytype %d missing in frame %u",
 		   checksum, keytype, pinfo->num);
 	mek->fd_num = pinfo->num;
 	mek->id = ++private_data->missing_key_ids;
-	g_snprintf(mek->id_str, KRB_MAX_ID_STR_LEN, "missing.%u",
+	snprintf(mek->id_str, KRB_MAX_ID_STR_LEN, "missing.%u",
 		   mek->id);
 	mek->keytype=keytype;
 
@@ -1583,19 +1583,19 @@ read_keytab_file(const char *filename)
 			new_key = wmem_new0(wmem_epan_scope(), enc_key_t);
 			new_key->fd_num = -1;
 			new_key->id = ++kerberos_longterm_ids;
-			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
+			snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
 			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
 			pos+=MIN(KRB_MAX_ORIG_LEN,
-					 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
+					 snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
 			for(i=0;i<key.principal->length;i++){
 				pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-						 g_snprintf(pos, (gulong)(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin)), "%s%s",(i?"/":""),(key.principal->data[i]).data));
+						 snprintf(pos, (gulong)(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin)), "%s%s",(i?"/":""),(key.principal->data[i]).data));
 			}
 			pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-					 g_snprintf(pos, (gulong)(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin)), "@%s",key.principal->realm.data));
+					 snprintf(pos, (gulong)(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin)), "@%s",key.principal->realm.data));
 			*pos=0;
 			new_key->keytype=key.key.enctype;
 			new_key->keylength=key.key.length;
@@ -2775,19 +2775,19 @@ read_keytab_file(const char *filename)
 			new_key = wmem_new0(wmem_epan_scope(), enc_key_t);
 			new_key->fd_num = -1;
 			new_key->id = ++kerberos_longterm_ids;
-			g_snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
+			snprintf(new_key->id_str, KRB_MAX_ID_STR_LEN, "keytab.%u", new_key->id);
 			new_key->next = enc_key_list;
 
 			/* generate origin string, describing where this key came from */
 			pos=new_key->key_origin;
 			pos+=MIN(KRB_MAX_ORIG_LEN,
-					 g_snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
+					 snprintf(pos, KRB_MAX_ORIG_LEN, "keytab principal "));
 			for(i=0;i<key.principal->name.name_string.len;i++){
 				pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-						 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),key.principal->name.name_string.val[i]));
+						 snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "%s%s",(i?"/":""),key.principal->name.name_string.val[i]));
 			}
 			pos+=MIN(KRB_MAX_ORIG_LEN-(pos-new_key->key_origin),
-					 g_snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm));
+					 snprintf(pos, KRB_MAX_ORIG_LEN-(pos-new_key->key_origin), "@%s",key.principal->realm));
 			*pos=0;
 			new_key->keytype=key.keyblock.keytype;
 			new_key->keylength=(int)key.keyblock.keyvalue.length;
@@ -2924,7 +2924,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 	new_key->keytype = keytype;
 	new_key->length = keylength;
 	new_key->contents = g_memdup2(keyvalue, keylength);
-	g_snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->num);
+	snprintf(new_key->origin, KRB_MAX_ORIG_LEN, "%s learnt from frame %u", origin, pinfo->num);
 	service_key_list = g_slist_append(service_key_list, (gpointer) new_key);
 }
 
@@ -2939,7 +2939,7 @@ save_encryption_key(tvbuff_t *tvb _U_, int offset _U_, int length _U_,
 	const char *element = proto_registrar_get_name(hf_index);
 	char origin[KRB_MAX_ORIG_LEN] = { 0, };
 
-	g_snprintf(origin, KRB_MAX_ORIG_LEN, "%s_%s", parent, element);
+	snprintf(origin, KRB_MAX_ORIG_LEN, "%s_%s", parent, element);
 
 	add_encryption_key(actx->pinfo,
 			   private_data->key.keytype,
@@ -3052,7 +3052,7 @@ read_keytab_file(const char *service_key_file)
 			sk->keytype = KEYTYPE_DES3_CBC_MD5;
 			sk->length = DES3_KEY_SIZE;
 			sk->contents = g_memdup2(buf + 2, DES3_KEY_SIZE);
-			g_snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
+			snprintf(sk->origin, KRB_MAX_ORIG_LEN, "3DES service key file, key #%d, offset %ld", count, ftell(skf));
 			service_key_list = g_slist_append(service_key_list, (gpointer) sk);
 			if (fseek(skf, newline_skip, SEEK_CUR) < 0) {
 				fprintf(stderr, "unable to seek...\n");
