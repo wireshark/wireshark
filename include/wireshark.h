@@ -28,7 +28,7 @@
  */
 
 /* System headers.*/
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <glib.h>
 
