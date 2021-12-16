@@ -46,6 +46,11 @@ The following bugs have been fixed:
 
 === New and Updated Features
 
+* The 'console.log.level' preference was removed in Wireshark 3.6.0. This release adds an '-o console.log.level:' backward-compatibilty option
+  on the CLI that maps to the new logging sub-system. Note that this does not have bitmask semantics and does not correspond to any actual preference.
+  It is just a transition mechanism for users that were relying on this CLI option and will be removed in the future. To see the new diagnostic output
+  options consult the manpages or the output of '--help'.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
