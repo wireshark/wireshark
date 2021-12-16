@@ -631,7 +631,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
     octet_array[0] = first_octet =  tvb_get_guint8(tvb,0);
     octet_array[1] = second_octet =  tvb_get_guint8(tvb,1);
     hdrcrc6 = tvb_get_guint8(tvb, 2) >> 2;
-    crccheck = crc6_0X6F(hdrcrc6, octet_array, 2);
+    crccheck = crc6_0X6F(0, octet_array, 2) != hdrcrc6;
 
     pdutype = ( first_octet & PDUTYPE_MASK ) >> 4;
 
