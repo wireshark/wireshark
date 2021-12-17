@@ -373,10 +373,10 @@ static void test_printf_thousands_grouping(void) {
     wmem_strbuf_t *buf = wmem_strbuf_new(NULL, NULL);
     wmem_strbuf_append_printf(buf, "%'d", 22);
     if (g_strcmp0(wmem_strbuf_get_str(buf), "22") == 0) {
-        thousands_grouping_fmt = "%'"G_GINT64_MODIFIER"d";
+        thousands_grouping_fmt = "%'"PRId64;
     } else {
         /* Don't use */
-        thousands_grouping_fmt = "%"G_GINT64_MODIFIER"d";
+        thousands_grouping_fmt = "%"PRId64;
     }
     wmem_strbuf_destroy(buf);
 }

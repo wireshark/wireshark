@@ -131,12 +131,12 @@ ws_vadd_crash_info(const char *fmt, va_list ap)
 {
 	char *m, *old_info, *new_info;
 
-	m = g_strdup_vprintf(fmt, ap);
+	m = ws_strdup_vprintf(fmt, ap);
 	if (__crashreporter_info__ == NULL)
 		__crashreporter_info__ = m;
 	else {
 		old_info = __crashreporter_info__;
-		new_info = g_strdup_printf("%s\n%s", old_info, m);
+		new_info = ws_strdup_printf("%s\n%s", old_info, m);
 		g_free(m);
 		__crashreporter_info__ = new_info;
 		g_free(old_info);

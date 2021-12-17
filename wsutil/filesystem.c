@@ -8,14 +8,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <config.h>
+#include "config.h"
+#include "filesystem.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
-#include <glib.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -39,12 +38,10 @@
 #include <pwd.h>
 #endif /* _WIN32 */
 
-#include "filesystem.h"
 #include <wsutil/report_message.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include <wsutil/utf8_entities.h>
-#include <wsutil/ws_assert.h>
 
 #include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
 
@@ -507,7 +504,7 @@ init_progfile_dir(
             /*
              * OK, no. What do we do now?
              */
-            return g_strdup_printf("No \\ in executable pathname \"%s\"",
+            return ws_strdup_printf("No \\ in executable pathname \"%s\"",
                 prog_pathname);
         }
     } else {
@@ -520,7 +517,7 @@ init_progfile_dir(
             /*
              * Gak.  We can't format the message.
              */
-            return g_strdup_printf("GetModuleFileName failed: %u (FormatMessage failed: %u)",
+            return ws_strdup_printf("GetModuleFileName failed: %u (FormatMessage failed: %u)",
                 error, GetLastError());
         }
         msg = utf_16to8(msg_w);
@@ -534,7 +531,7 @@ init_progfile_dir(
             msg[msglen - 1] = '\0';
             msg[msglen - 2] = '\0';
         }
-        return g_strdup_printf("GetModuleFileName failed: %s (%u)",
+        return ws_strdup_printf("GetModuleFileName failed: %s (%u)",
             msg, error);
     }
 #else
@@ -597,7 +594,7 @@ init_progfile_dir(
              * We have no idea how big a buffer to
              * allocate for the current directory.
              */
-            return g_strdup_printf("pathconf failed: %s\n",
+            return ws_strdup_printf("pathconf failed: %s\n",
                 g_strerror(errno));
         }
         curdir = (char *)g_malloc(path_max);
@@ -607,10 +604,10 @@ init_progfile_dir(
              * with DATA_DIR.
              */
             g_free(curdir);
-            return g_strdup_printf("getcwd failed: %s\n",
+            return ws_strdup_printf("getcwd failed: %s\n",
                 g_strerror(errno));
         }
-        path = g_strdup_printf("%s/%s", curdir, execname);
+        path = ws_strdup_printf("%s/%s", curdir, execname);
         g_free(curdir);
         prog_pathname = path;
     } else {
@@ -656,7 +653,7 @@ init_progfile_dir(
                 /*
                  * Program not found in path.
                  */
-                return g_strdup_printf("\"%s\" not found in \"%s\"",
+                return ws_strdup_printf("\"%s\" not found in \"%s\"",
                     execname, pathstr);
             }
         } else {
@@ -696,7 +693,7 @@ init_progfile_dir(
                  */
                 if (strcmp(dir_end, "/run") == 0) {
                     gchar *cmake_file;
-                    cmake_file = g_strdup_printf("%.*s/CMakeCache.txt",
+                    cmake_file = ws_strdup_printf("%.*s/CMakeCache.txt",
                                                  (int)(dir_end - prog_pathname),
                                                  prog_pathname);
                     if (file_exists(cmake_file))
@@ -761,7 +758,7 @@ init_progfile_dir(
          * have no "/" in the pathname.
          * Just free up prog_pathname.
          */
-        retstr = g_strdup_printf("No / found in \"%s\"", prog_pathname);
+        retstr = ws_strdup_printf("No / found in \"%s\"", prog_pathname);
         g_free(prog_pathname);
         return retstr;
     }
@@ -863,7 +860,7 @@ get_datafile_dir(void)
      * it; we don't need to call started_with_special_privs().)
      */
     else if (appbundle_dir != NULL) {
-        datafile_dir = g_strdup_printf("%s/Contents/Resources/share/wireshark",
+        datafile_dir = ws_strdup_printf("%s/Contents/Resources/share/wireshark",
                                        appbundle_dir);
     }
 #endif
@@ -1194,7 +1191,7 @@ has_global_profiles(void)
         ((dir = ws_dir_open(global_dir, 0, NULL)) != NULL))
     {
         while ((file = ws_dir_read_name(dir)) != NULL) {
-            filename = g_strdup_printf ("%s%s%s", global_dir, G_DIR_SEPARATOR_S,
+            filename = ws_strdup_printf ("%s%s%s", global_dir, G_DIR_SEPARATOR_S,
                             ws_dir_get_name(file));
             if (test_for_directory(filename) == EISDIR) {
                 has_global = TRUE;
@@ -1368,7 +1365,7 @@ set_persconffile_dir(const char *p)
 char *
 get_profiles_dir(void)
 {
-    return g_strdup_printf ("%s%s%s", get_persconffile_dir_no_profile (),
+    return ws_strdup_printf ("%s%s%s", get_persconffile_dir_no_profile (),
                     G_DIR_SEPARATOR_S, PROFILES_DIR);
 }
 
@@ -1414,7 +1411,7 @@ create_profiles_dir(char **pf_dir_path_return)
 char *
 get_global_profiles_dir(void)
 {
-    return g_strdup_printf ("%s%s%s", get_datafile_dir(),
+    return ws_strdup_printf ("%s%s%s", get_datafile_dir(),
                                G_DIR_SEPARATOR_S, PROFILES_DIR);
 }
 
@@ -1426,7 +1423,7 @@ get_persconffile_dir(const gchar *profilename)
     if (profilename && strlen(profilename) > 0 &&
         strcmp(profilename, DEFAULT_PROFILE) != 0) {
       profile_dir = get_profiles_dir();
-      persconffile_profile_dir = g_strdup_printf ("%s%s%s", profile_dir,
+      persconffile_profile_dir = ws_strdup_printf ("%s%s%s", profile_dir,
                               G_DIR_SEPARATOR_S, profilename);
       g_free(profile_dir);
     } else {
@@ -1492,7 +1489,7 @@ delete_directory (const char *directory, char **pf_dir_path_return)
 
     if ((dir = ws_dir_open(directory, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
-            filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S,
+            filename = ws_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S,
                             ws_dir_get_name(file));
             if (test_for_directory(filename) != EISDIR) {
                 ret = ws_remove(filename);
@@ -1531,7 +1528,7 @@ reset_default_profile(char **pf_dir_path_return)
     file = g_list_first(files);
     while (file) {
         filename = (gchar *)file->data;
-        del_file = g_strdup_printf("%s%s%s", profile_dir, G_DIR_SEPARATOR_S, filename);
+        del_file = ws_strdup_printf("%s%s%s", profile_dir, G_DIR_SEPARATOR_S, filename);
 
         if (file_exists(del_file)) {
             ret = ws_remove(del_file);
@@ -1716,8 +1713,8 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
     file = g_list_first(files);
     while (file) {
         filename = (gchar *)file->data;
-        from_file = g_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
-        to_file =  g_strdup_printf ("%s%s%s", to_dir, G_DIR_SEPARATOR_S, filename);
+        from_file = ws_strdup_printf ("%s%s%s", from_dir, G_DIR_SEPARATOR_S, filename);
+        to_file =  ws_strdup_printf ("%s%s%s", to_dir, G_DIR_SEPARATOR_S, filename);
 
         if (file_exists(from_file) && !copy_file_binary_mode(from_file, to_file)) {
             *pf_filename_return = g_strdup(filename);
@@ -1810,7 +1807,7 @@ get_home_dir(void)
              * This is cached, so we don't need to worry about
              * allocating multiple ones of them.
              */
-            homestring = g_strdup_printf("%s%s", homedrive, homepath);
+            homestring = ws_strdup_printf("%s%s", homedrive, homepath);
 
             /*
              * Trim off any trailing slash or backslash.
@@ -1988,7 +1985,7 @@ file_open_error_message(int err, gboolean for_writing)
         break;
 
     default:
-        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+        snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The file \"%%s\" could not be %s: %s.",
                for_writing ? "created" : "opened",
                g_strerror(err));
@@ -2021,7 +2018,7 @@ file_write_error_message(int err)
 #endif
 
     default:
-        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+        snprintf(errmsg_errno, sizeof(errmsg_errno),
                "An error occurred while writing to the file \"%%s\": %s.",
                g_strerror(err));
         errmsg = errmsg_errno;
@@ -2337,7 +2334,7 @@ data_file_url(const gchar *filename)
     if(g_path_is_absolute(filename)) {
         file_path = g_strdup(filename);
     } else {
-        file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
+        file_path = ws_strdup_printf("%s/%s", get_datafile_dir(), filename);
     }
 
     /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */

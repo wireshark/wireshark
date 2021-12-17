@@ -119,7 +119,7 @@ win32strerror(DWORD error)
                             (LPTSTR)&utf16_message, ERRBUF_SIZE, NULL);
     if (retval == 0) {
         /* Failed. */
-        tempmsg = g_strdup_printf("Couldn't get error message for error (%lu) (because %lu)",
+        tempmsg = ws_strdup_printf("Couldn't get error message for error (%lu) (because %lu)",
                                   error, GetLastError());
         msg = g_intern_string(tempmsg);
         g_free(tempmsg);
@@ -130,13 +130,13 @@ win32strerror(DWORD error)
     LocalFree(utf16_message);
     if (utf8_message == NULL) {
         /* Conversion failed. */
-        tempmsg = g_strdup_printf("Couldn't convert error message for error to UTF-8 (%lu) (because %lu)",
+        tempmsg = ws_strdup_printf("Couldn't convert error message for error to UTF-8 (%lu) (because %lu)",
                                   error, GetLastError());
         msg = g_intern_string(tempmsg);
         g_free(tempmsg);
         return msg;
     }
-    tempmsg = g_strdup_printf("%s (%lu)", utf8_message, error);
+    tempmsg = ws_strdup_printf("%s (%lu)", utf8_message, error);
     g_free(utf8_message);
     msg = g_intern_string(tempmsg);
     g_free(tempmsg);
@@ -185,7 +185,7 @@ win32strexception(DWORD exception)
         if (exceptions[i].code == exception)
             return exceptions[i].msg;
     }
-    g_snprintf(errbuf, (gulong)sizeof errbuf, "Exception 0x%08x", exception);
+    snprintf(errbuf, (gulong)sizeof errbuf, "Exception 0x%08x", exception);
     return errbuf;
 }
 

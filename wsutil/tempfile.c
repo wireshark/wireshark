@@ -9,8 +9,6 @@
  */
 
 #include "config.h"
-
-#include <glib.h>
 #include "tempfile.h"
 
  /**
@@ -46,7 +44,7 @@ create_tempfile(gchar **namebuf, const char *pfx, const char *sfx, GError **err)
     safe_pfx = g_strdelimit(safe_pfx, delimiters, '-');
   }
 
-  gchar* filetmpl = g_strdup_printf("%sXXXXXX%s", safe_pfx ? safe_pfx : "", sfx ? sfx : "");
+  gchar* filetmpl = ws_strdup_printf("%sXXXXXX%s", safe_pfx ? safe_pfx : "", sfx ? sfx : "");
   g_free(safe_pfx);
 
   fd = g_file_open_tmp(filetmpl, namebuf, err);
