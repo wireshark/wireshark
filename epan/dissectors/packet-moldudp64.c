@@ -51,7 +51,7 @@ static dissector_table_t moldudp64_payload_table;
 
 static void moldudp64_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
 /* Code to dissect a message block */

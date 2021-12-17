@@ -260,9 +260,9 @@ static void btrfcomm_directed_channel_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btrfcomm, PROTO_DATA_BTRFCOMM_DIRECTED_CHANNEL);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RFCOMM Channel %d (direction: %u) as", (guint) (*value_data) >> 1, (guint) (*value_data) & 1);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RFCOMM Channel %d (direction: %u) as", (guint) (*value_data) >> 1, (guint) (*value_data) & 1);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown RFCOMM Channel");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown RFCOMM Channel");
 }
 
 static gpointer btrfcomm_directed_channel_value(packet_info *pinfo)

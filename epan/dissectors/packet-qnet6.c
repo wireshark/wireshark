@@ -1845,7 +1845,7 @@ display_channel_id(guint32 chid, proto_item * ti)
 {
   if (chid & QNX_NTO_GLOBAL_CHANNEL)
     {
-      proto_item_append_text(ti, " _NTO_GLOBAL_CHANNEL|%" G_GUINT32_FORMAT, chid & ~QNX_NTO_GLOBAL_CHANNEL);
+      proto_item_append_text(ti, " _NTO_GLOBAL_CHANNEL|%" PRIu32, chid & ~QNX_NTO_GLOBAL_CHANNEL);
     }
 }
 
@@ -1857,7 +1857,7 @@ display_coid(guint32 coid, proto_item * ti)
       if ((coid & ~QNX_NTO_SIDE_CHANNEL) == 0)
         proto_item_append_text(ti, " SYSMGR_COID)");
       else
-        proto_item_append_text(ti," (_NTO_SIDE_CHANNEL|%" G_GUINT32_FORMAT ")", coid & ~QNX_NTO_SIDE_CHANNEL);
+        proto_item_append_text(ti," (_NTO_SIDE_CHANNEL|%" PRIu32 ")", coid & ~QNX_NTO_SIDE_CHANNEL);
     }
 }
 
@@ -2902,11 +2902,11 @@ dissect_qnet6_kif_msgsend_msg_notify(tvbuff_t * tvb, packet_info * pinfo _U_, pr
           for (j = 1, n = 0, m = 0; j < 8; j = j << 1)
             {
               if (event & j)
-                n += g_snprintf(sevent + n, sizeof(sevent) - n, "%s", qnet6_kif_msg_io_notify_event_str[j >> 1]);
+                n += snprintf(sevent + n, sizeof(sevent) - n, "%s", qnet6_kif_msg_io_notify_event_str[j >> 1]);
               if (revent & j)
-                m += g_snprintf(srevent + m, sizeof(srevent) - m, "%s", qnet6_kif_msg_io_notify_event_str[j >> 1]);
+                m += snprintf(srevent + m, sizeof(srevent) - m, "%s", qnet6_kif_msg_io_notify_event_str[j >> 1]);
             }
-          proto_tree_add_string_format_value(stree, hf_qnet6_kif_msg_io_notify_fds, tvb, *poffset, 8, NULL, "fd:%" G_GINT32_FORMAT " " "event:0x%x %s" "revent:0x%x %s", fd, event, sevent, revent, srevent);
+          proto_tree_add_string_format_value(stree, hf_qnet6_kif_msg_io_notify_fds, tvb, *poffset, 8, NULL, "fd:%" PRId32 " " "event:0x%x %s" "revent:0x%x %s", fd, event, sevent, revent, srevent);
           *poffset += 8;
         }
       left -= nfds * 8;
@@ -3462,7 +3462,7 @@ dissect_qnet6_kif_cred(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tre
 
   for (; nleft > 0; nleft -= 4)
     {
-      proto_item_append_text(ti, " %" G_GUINT32_FORMAT, tvb_get_guint32(tvb, *poffset, encoding));
+      proto_item_append_text(ti, " %" PRIu32, tvb_get_guint32(tvb, *poffset, encoding));
       *poffset += 4;
       length += 4;
     }

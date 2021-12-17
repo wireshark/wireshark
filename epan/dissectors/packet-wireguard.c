@@ -1533,7 +1533,7 @@ wg_dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packe
     proto_tree_add_item_ret_uint(wg_tree, hf_wg_receiver, tvb, 4, 4, ENC_LITTLE_ENDIAN, &receiver_id);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", receiver=0x%08X", receiver_id);
     proto_tree_add_item_ret_uint64(wg_tree, hf_wg_counter, tvb, 8, 8, ENC_LITTLE_ENDIAN, &counter);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", counter=%" G_GUINT64_FORMAT, counter);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", counter=%" PRIu64, counter);
 
     gint packet_length = tvb_captured_length_remaining(tvb, 16);
     if (packet_length < AUTH_TAG_LENGTH) {

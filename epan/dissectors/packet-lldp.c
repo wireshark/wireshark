@@ -1311,12 +1311,12 @@ static const unit_name_string units_m = { " m", NULL };
 
 static void
 mdi_power_base(gchar *buf, guint32 value) {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u. Watt", value/10, value%10);
+	snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u. Watt", value/10, value%10);
 }
 
 static void
 media_power_base(gchar *buf, guint32 value) {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u mW", value * 100);
+	snprintf(buf, ITEM_LABEL_LENGTH, "%u mW", value * 100);
 }
 
 /* Calculate Latitude and Longitude string */
@@ -1374,7 +1374,7 @@ get_latitude_or_longitude(gchar *buf, int option, guint64 unmasked_value)
 			direction = "East";
 	}
 
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" G_GINT64_MODIFIER "u degrees %s (0x%010" G_GINT64_MODIFIER "X)",
+	snprintf(buf, ITEM_LABEL_LENGTH, "%u.%04" PRIu64 " degrees %s (0x%010" PRIX64 ")",
 	    integerPortion, tempValue, direction, value);
 }
 

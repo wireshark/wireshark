@@ -233,7 +233,7 @@ protobuf_dissect_unknown_field(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_
             value = get_varint64(pb->tvb, pb->offset, pb->bytes_left, &len);
             if((guint64)value > (guint64)(pb->bytes_left-len)) {
                 ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, pb->bytes_left-len, ENC_NA);
-                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"G_GUINT64_FORMAT" has length prefix %"G_GUINT64_FORMAT", but buffer is only %d bytes long.", tag->field_number, (guint64)value, (pb->bytes_left-len));
+                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRIu64", but buffer is only %d bytes long.", tag->field_number, (guint64)value, (pb->bytes_left-len));
                 len = pb->bytes_left;
             } else {
                 ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, (gint)value, ENC_NA);
@@ -271,11 +271,11 @@ protobuf_verify_wiretype(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_info *
             len_prefix = get_varint64(pb->tvb, pb->offset, pb->bytes_left, &len);
             if(len_prefix < 0 || len_prefix > G_MAXINT) {
                 ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, pb->bytes_left-len, ENC_NA);
-                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"G_GUINT64_FORMAT" has length prefix %"G_GINT64_FORMAT" outside valid range (0 <= x <= G_MAXINT).", tag->field_number, len_prefix);
+                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRId64" outside valid range (0 <= x <= G_MAXINT).", tag->field_number, len_prefix);
                 return pb->bytes_left;
             } else if(((gint)len_prefix) > (pb->bytes_left-len)) {
                 ti = proto_tree_add_item(tree, hf_steam_ihs_discovery_unknown_data, pb->tvb, pb->offset+len, pb->bytes_left-len, ENC_NA);
-                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"G_GUINT64_FORMAT" has length prefix %"G_GINT64_FORMAT", but buffer is only %d bytes long.", tag->field_number, len_prefix, (pb->bytes_left-len));
+                expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_length, "Length-delimited field %"PRIu64" has length prefix %"PRId64", but buffer is only %d bytes long.", tag->field_number, len_prefix, (pb->bytes_left-len));
                 return pb->bytes_left;
             }
         }
@@ -283,7 +283,7 @@ protobuf_verify_wiretype(protobuf_desc_t *pb, protobuf_tag_t *tag, packet_info *
     }
     len = protobuf_dissect_unknown_field(pb, tag, pinfo, tree, &ti);
 
-    expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_wiretype, "Expected wiretype %d (%s) for field %"G_GUINT64_FORMAT", but got %d (%s) instead.", expected_wire_type, protobuf_get_wiretype_name(expected_wire_type), tag->field_number, tag->wire_type, protobuf_get_wiretype_name(tag->wire_type));
+    expert_add_info_format(pinfo, ti, &ei_steam_ihs_discovery_invalid_wiretype, "Expected wiretype %d (%s) for field %"PRIu64", but got %d (%s) instead.", expected_wire_type, protobuf_get_wiretype_name(expected_wire_type), tag->field_number, tag->wire_type, protobuf_get_wiretype_name(tag->wire_type));
     return len;
 }
 
@@ -440,7 +440,7 @@ steamdiscover_dissect_body_discovery(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_discovery_seqnum, pb.tvb,
                         pb.offset, len, (guint32)value);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%"G_GUINT32_FORMAT, (guint32)value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%"PRIu32, (guint32)value);
                 break;
             case STEAMDISCOVER_FN_DISCOVERY_CLIENTIDS:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
@@ -559,14 +559,14 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                             value = tvb_get_letoh64(pb2.tvb, pb2.offset);
                             proto_tree_add_uint64(user_tree, hf_steam_ihs_discovery_body_status_user_steamid, pb2.tvb,
                                     pb2.offset, len2, (guint64)value);
-                            proto_item_append_text(user_it, ", Steam ID: %"G_GUINT64_FORMAT, (guint64)value);
+                            proto_item_append_text(user_it, ", Steam ID: %"PRIu64, (guint64)value);
                             break;
                         case STEAMDISCOVER_FN_STATUS_USER_AUTHKEYID:
                             if((len2 = protobuf_verify_wiretype(&pb2, &tag, pinfo, user_tree, PROTOBUF_WIRETYPE_VARINT))) break;
                             value = get_varint64(pb2.tvb, pb2.offset, pb2.bytes_left, &len2);
                             proto_tree_add_uint(user_tree, hf_steam_ihs_discovery_body_status_user_authkeyid, pb2.tvb,
                                     pb2.offset, len2, (guint32)value);
-                            proto_item_append_text(user_it, ", Auth Key ID: %"G_GUINT32_FORMAT, (guint32)value);
+                            proto_item_append_text(user_it, ", Auth Key ID: %"PRIu32, (guint32)value);
                             break;
                         default:
                             len2 = protobuf_dissect_unknown_field(&pb2, &tag, pinfo, tree, NULL);
@@ -702,7 +702,7 @@ steamdiscover_dissect_body_authresponse(tvbuff_t *tvb, packet_info *pinfo, proto
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint64(tree, hf_steam_ihs_discovery_body_authresponse_authresult, pb.tvb,
                         pb.offset, len, (guint64)value);
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s Result=%"G_GUINT64_FORMAT"(%s)", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_DEVICEAUTHORIZATIONRESPONSE].strptr,
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s Result=%"PRIu64"(%s)", hf_steam_ihs_discovery_header_msgtype_strings[STEAMDISCOVER_MSGTYPE_DEVICEAUTHORIZATIONRESPONSE].strptr,
                         (guint64)value, val64_to_str_const((guint64)value, hf_steam_ihs_discovery_body_authresponse_authresult_strings, "Unknown"));
                 break;
             default:
@@ -892,14 +892,14 @@ steamdiscover_dissect_body_streamingresponse(tvbuff_t *tvb, packet_info *pinfo, 
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint64(tree, hf_steam_ihs_discovery_body_streamingresponse_result, pb.tvb,
                         pb.offset, len, (guint64)value);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Result=%"G_GUINT64_FORMAT"(%s)", (guint64)value, val64_to_str_const((guint64)value, hf_steam_ihs_discovery_body_streamingresponse_result_strings, "Unknown"));
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Result=%"PRIu64"(%s)", (guint64)value, val64_to_str_const((guint64)value, hf_steam_ihs_discovery_body_streamingresponse_result_strings, "Unknown"));
                 break;
             case STEAMDISCOVER_FN_STREAMINGRESPONSE_PORT:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_VARINT);
                 value = get_varint64(pb.tvb, pb.offset, pb.bytes_left, &len);
                 proto_tree_add_uint(tree, hf_steam_ihs_discovery_body_streamingresponse_port, pb.tvb,
                         pb.offset, len, (guint32)value);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Port=%"G_GUINT32_FORMAT, (guint32)value);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Port=%"PRIu32, (guint32)value);
                 break;
             case STEAMDISCOVER_FN_STREAMINGRESPONSE_ENCRYPTEDSESSIONKEY:
                 STEAMDISCOVER_ENSURE_WIRETYPE(PROTOBUF_WIRETYPE_LENGTHDELIMITED);

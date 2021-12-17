@@ -129,7 +129,7 @@ static const value_string status_flag_message_type[] = {
 };
 
 static void elasticsearch_format_version(gchar *buf, guint32 value) {
-    g_snprintf(buf, ELASTICSEARCH_VERSION_LABEL_LENGTH, "%d.%d.%d (%d)", (value / 1000000) % 100,
+    snprintf(buf, ELASTICSEARCH_VERSION_LABEL_LENGTH, "%d.%d.%d (%d)", (value / 1000000) % 100,
             (value / 10000) % 100, (value/ 100) % 100, value);
 }
 
@@ -257,7 +257,7 @@ static version_t elasticsearch_parse_version(tvbuff_t *tvb, int offset){
     raw_version_value = read_vint(tvb, offset);
     version.length = raw_version_value.length;
     version.value = raw_version_value.value;
-    g_snprintf(version.string, sizeof(version.string), "%d.%d.%d", (version.value / 1000000) % 100,
+    snprintf(version.string, sizeof(version.string), "%d.%d.%d", (version.value / 1000000) % 100,
             (version.value / 10000) % 100, (version.value/ 100) % 100);
 
     return version;
@@ -532,7 +532,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     } else {
         elasticsearch_decode_binary_response(tvb, pinfo, tree, offset, transport_status_flags, version);
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, "request_id=%"G_GUINT64_FORMAT" ", request_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "request_id=%"PRIu64" ", request_id);
 
 
     /* Everything is marked as data, return the whole tvb as the length */

@@ -8022,7 +8022,7 @@ beacon_interval_base_custom(gchar *result, guint32 beacon_interval)
   double temp_double;
 
   temp_double = (double)beacon_interval;
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double * 1024 / 1000000));
+  snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double * 1024 / 1000000));
 }
 
 static void
@@ -8031,19 +8031,19 @@ allocation_duration_base_custom(gchar *result, guint32 allocation_duration)
   double temp_double;
 
   temp_double = (double)allocation_duration;
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double / 1000000));
+  snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (temp_double / 1000000));
 }
 
 static void
 extra_one_base_custom(gchar *result, guint32 value)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
+  snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
 }
 
 static void
 extra_one_mul_two_base_custom(gchar *result, guint32 value)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%d", (value+1)*2);
+  snprintf(result, ITEM_LABEL_LENGTH, "%d", (value+1)*2);
 }
 
 static void
@@ -8053,40 +8053,40 @@ rcpi_and_power_level_custom(gchar *result, guint8 value)
      RCPI = |2 x (P + 110)| in steps of 0.5 dB */
 
   if (value == 0)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (P < -109.5 dBm)", value);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (P < -109.5 dBm)", value);
   else if (value == 220)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (P >= 0 dBm)", value);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (P >= 0 dBm)", value);
   else if (value < 220)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (P = %.1f dBm)", value, ((double)value) / 2 - 110);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (P = %.1f dBm)", value, ((double)value) / 2 - 110);
   else if (value < 255)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Reserved)", value);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (Reserved)", value);
   else
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Measurement not available)", value);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (Measurement not available)", value);
 }
 
 static void
 sts_custom(gchar *result, guint32 value)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%d STS", value + 1);
+  snprintf(result, ITEM_LABEL_LENGTH, "%d STS", value + 1);
 }
 
 static void
 rep_custom(gchar *result, guint32 value)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%u repetition%s (%u)", value + 1, plurality(value + 1, "", "s"), value);
+  snprintf(result, ITEM_LABEL_LENGTH, "%u repetition%s (%u)", value + 1, plurality(value + 1, "", "s"), value);
 }
 
 static void
 hundred_us_base_custom(gchar *result, guint32 value)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%0.1f ms (%u)", ((double)value * 100 / 1000), value);
+  snprintf(result, ITEM_LABEL_LENGTH, "%0.1f ms (%u)", ((double)value * 100 / 1000), value);
 }
 
 static void
 partial_tsf_custom(gchar *result, guint32 value)
 {
   guint32 shifted = value << 10;
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%u %s (%u)", shifted,
+  snprintf(result, ITEM_LABEL_LENGTH, "%u %s (%u)", shifted,
              unit_name_string_get_value(shifted, &units_microseconds), value);
 }
 
@@ -8180,9 +8180,9 @@ he_ru_allocation_base_custom(gchar *result, guint32 ru_allocation)
   }
 
   if (tones)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (%d tones)", ru_allocation, tones);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (%d tones)", ru_allocation, tones);
   else
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (bogus number of tones)", ru_allocation);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (bogus number of tones)", ru_allocation);
 }
 
 /*
@@ -8192,11 +8192,11 @@ static void
 vs_sgdsn_serialnumber_len_custom(gchar *result, guint32 val)
 {
   if (val >= 0x30 && val <= 0x39) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x30);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x30);
   } else if (val >= 0x41 && val <= 0x46) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x37);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x37);
   } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Invalid length: %u", val);
+    snprintf(result, ITEM_LABEL_LENGTH, "Invalid length: %u", val);
   }
 }
 
@@ -8492,7 +8492,7 @@ add_mimo_compressed_beamforming_feedback_report(proto_tree *tree, tvbuff_t *tvb,
 static void
 mesh_active_window_base_custom(gchar *result, guint32 mesh_active_window)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (mesh_active_window * 1024.0 / 1000000));
+  snprintf(result, ITEM_LABEL_LENGTH, "%f [Seconds]", (mesh_active_window * 1024.0 / 1000000));
 }
 
 /* ************************************************************************* */
@@ -8868,16 +8868,16 @@ dissect_dscp_policy_response(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(status_tree, hf_ieee80211_dscp_policy_id, tvb,
                         offset, 1, ENC_NA);
     if (sts_len == 0) {
-      sts_len += g_snprintf(status_buf + sts_len, 256 - sts_len, "%u:", scsid);
+      sts_len += snprintf(status_buf + sts_len, 256 - sts_len, "%u:", scsid);
     } else {
-      sts_len += g_snprintf(status_buf + sts_len, 256 - sts_len, " %u:", scsid);
+      sts_len += snprintf(status_buf + sts_len, 256 - sts_len, " %u:", scsid);
     }
     offset += 1;
 
     status = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(status_tree, hf_ieee80211_dscp_policy_status, tvb,
                         offset, 1, ENC_NA);
-    sts_len += g_snprintf(status_buf + sts_len, 256 - sts_len, "%u", status);
+    sts_len += snprintf(status_buf + sts_len, 256 - sts_len, "%u", status);
     offset += 1;
   }
   proto_tree_add_string(tree, hf_ieee80211_dscp_policy_scs_sts_list, tvb, 0, 1,
@@ -14590,16 +14590,16 @@ s1g_sector_id_index_snr_custom(gchar *result, guint16 snr)
 {
   switch (snr) {
   case 0:
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Less than or equal to -3dB");
+    snprintf(result, ITEM_LABEL_LENGTH, "%s", "Less than or equal to -3dB");
     break;
   case 30:
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Greater than or equal to 27dB");
+    snprintf(result, ITEM_LABEL_LENGTH, "%s", "Greater than or equal to 27dB");
     break;
   case 31:
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "No Feedback");
+    snprintf(result, ITEM_LABEL_LENGTH, "%s", "No Feedback");
     break;
   default:
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%ddB", snr - 3);
+    snprintf(result, ITEM_LABEL_LENGTH, "%ddB", snr - 3);
   }
 }
 
@@ -15871,11 +15871,11 @@ oui_base_custom(gchar *result, guint32 oui)
   manuf_name = uint_get_manuf_name_if_known(oui);
   if (manuf_name == NULL) {
     /* Could not find an OUI. */
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
+    snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x", p_oui[0], p_oui[1], p_oui[2]);
   }
   else {
    /* Found an address string. */
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
+    snprintf(result, ITEM_LABEL_LENGTH, "%02x:%02x:%02x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
   }
 }
 
@@ -15888,7 +15888,7 @@ rsn_gcs_base_custom(gchar *result, guint32 gcs)
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gcs >> 8);
   tmp_str = val_to_str_wmem(NULL, gcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d");
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
   wmem_free(NULL, tmp_str);
 }
 
@@ -15901,7 +15901,7 @@ rsn_pcs_base_custom(gchar *result, guint32 pcs)
   oui_result[0] = '\0';
   oui_base_custom(oui_result, pcs >> 8);
   tmp_str = val_to_str_wmem(NULL, pcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d");
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
   wmem_free(NULL, tmp_str);
 
 }
@@ -15914,7 +15914,7 @@ rsn_akms_base_custom(gchar *result, guint32 akms)
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   tmp_str = val_to_str_wmem(NULL, akms & 0xFF, ieee80211_rsn_keymgmt_vals, "Unknown %d");
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
   wmem_free(NULL, tmp_str);
 }
 
@@ -15951,7 +15951,7 @@ rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
   oui_result[0] = '\0';
   oui_base_custom(oui_result, gmcs >> 8);
   tmp_str = val_to_str_wmem(NULL, gmcs & 0xFF, ieee80211_rsn_cipher_vals, "Unknown %d");
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
   wmem_free(NULL, tmp_str);
 }
 
@@ -15962,9 +15962,9 @@ rsni_base_custom(gchar *result, guint8 rsni)
 
   if (rsni < 255) {
     temp_double = (double)rsni - 20;
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%.1f dB", (temp_double / 2));
+    snprintf(result, ITEM_LABEL_LENGTH, "%.1f dB", (temp_double / 2));
   } else
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Measurement not available)", rsni);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d (Measurement not available)", rsni);
 }
 
 static void
@@ -15973,7 +15973,7 @@ vht_tpe_custom(gchar *result, guint8 txpwr)
   gint8 txpwr_db;
 
   txpwr_db = (gint8)(txpwr);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm", (txpwr_db/2.0));
+  snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm", (txpwr_db/2.0));
 }
 
 static void
@@ -15983,11 +15983,11 @@ tpe_psd_custom(gchar *result, guint8 txpwr)
 
   txpwr_db = (gint8)(txpwr);
   if (txpwr_db == -128) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Channel cannot be used for transmission");
+    snprintf(result, ITEM_LABEL_LENGTH, "Channel cannot be used for transmission");
   } else if (txpwr_db == 127) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "No maximum PSD is specified for channel");
+    snprintf(result, ITEM_LABEL_LENGTH, "No maximum PSD is specified for channel");
   } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm/MHz", (txpwr_db/2.0));
+    snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm/MHz", (txpwr_db/2.0));
   }
 }
 
@@ -15996,13 +15996,13 @@ channel_number_custom(gchar *result, guint8 channel_number)
 {
   switch(channel_number){
     case 0:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on all supported channels in the specified Operating Class)", channel_number);
+      snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on all supported channels in the specified Operating Class)", channel_number);
     break;
     case 255:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on all supported channels listed in the AP Channel Report)", channel_number);
+      snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on all supported channels listed in the AP Channel Report)", channel_number);
     break;
     default :
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on that Channel Number)", channel_number);
+      snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on that Channel Number)", channel_number);
     break;
   }
 }
@@ -16122,7 +16122,7 @@ wpa_mcs_base_custom(gchar *result, guint32 mcs)
   oui_result[0] = '\0';
   oui_base_custom(oui_result, mcs >> 8);
   tmp_str = val_to_str_wmem(NULL, mcs & 0xFF, ieee80211_wfa_ie_wpa_cipher_vals, "Unknown %d");
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
   wmem_free(NULL, tmp_str);
 }
 
@@ -16135,7 +16135,7 @@ wpa_ucs_base_custom(gchar *result, guint32 ucs)
   oui_result[0] = '\0';
   oui_base_custom(oui_result, ucs >> 8);
   tmp_str = val_to_str_wmem(NULL, ucs & 0xFF, ieee80211_wfa_ie_wpa_cipher_vals, "Unknown %d");
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
   wmem_free(NULL, tmp_str);
 }
 static void
@@ -16147,7 +16147,7 @@ wpa_akms_base_custom(gchar *result, guint32 akms)
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
   tmp_str = val_to_str_wmem(NULL, akms & 0xFF, ieee80211_wfa_ie_wpa_keymgmt_vals, "Unknown %d");
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
+  snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, tmp_str);
   wmem_free(NULL, tmp_str);
 }
 
@@ -16732,7 +16732,7 @@ dissect_hs20_osen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
                             hf_ieee80211_osen_pairwise_cipher_suite_type };
         char label[128];
 
-        g_snprintf(label, sizeof(label), "OSEN Pairwise Cipher Suite %d", pwc_index);
+        snprintf(label, sizeof(label), "OSEN Pairwise Cipher Suite %d", pwc_index);
         offset = dissect_group_data_cipher_suite(tvb, pinfo, pwc_list,
                         offset, hf_array2, ett_osen_pairwise_cipher_suite,
                         label);
@@ -16772,7 +16772,7 @@ dissect_hs20_osen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
                              hf_ieee80211_osen_akm_cipher_suite_type};
         char label[128];
 
-        g_snprintf(label, sizeof(label), "OSEN AKM Cipher Suite %d", akms_index);
+        snprintf(label, sizeof(label), "OSEN AKM Cipher Suite %d", akms_index);
         offset = dissect_group_data_cipher_suite(tvb, pinfo, akm_list,
                           offset, hf_array3, ett_osen_akm_cipher_suite,
                           label);
@@ -20401,7 +20401,7 @@ dissect_subchannel_selective_transmission(tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 s1g_open_loop_link_margin_custom(gchar *result, guint8 ollm_index)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dB",
+  snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dB",
                                         (-128.0 + ollm_index * 0.5));
 }
 
@@ -20439,53 +20439,53 @@ s1g_raw_type_options_custom(gchar *result, guint8 raw_type)
   case 0x00:
     switch (raw_type) {
     case 0x00:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "None");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "None");
       break;
     case 0x01:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Paged STA");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Paged STA");
       break;
     case 0x02:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "RA Frame");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "RA Frame");
       break;
     case 0x03:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Paged STA and RA Frame");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Paged STA and RA Frame");
       break;
     }
     break;
   case 0x01:
     switch (raw_type) {
     case 0x00:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "SST sounding RAW");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "SST sounding RAW");
       break;
     case 0x01:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "SST report RAW");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "SST report RAW");
       break;
     case 0x02:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Sector sounding RAW");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Sector sounding RAW");
       break;
     case 0x03:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Sector report RAW");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Sector report RAW");
       break;
     }
     break;
   case 0x02:
     switch (raw_type) {
     case 0x00:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "AP PM RAW");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "AP PM RAW");
       break;
     case 0x01:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Non-TIM RAW");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Non-TIM RAW");
       break;
     case 0x02:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Omni RAW");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Omni RAW");
       break;
     case 0x03:
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Reserved");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Reserved");
       break;
     }
     break;
   case 0x03:
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Reserved");
+    snprintf(result, ITEM_LABEL_LENGTH, "%s", "Reserved");
     break;
   }
 }
@@ -20959,27 +20959,27 @@ enable_relay_function_custom(gchar *result, guint8 enable_relay_function)
   switch (relay_function_field & 0x03) {
   case 0x00: /* Relay Activation Mode == 0 && Direction == 0 */
     if (enable_relay_function)
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA activates its relay function");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA activates its relay function");
     else
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA terminates its relay function");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA terminates its relay function");
     break;
   case 0x01: /* Relay Activation Mode == 1 && Direction == 0 */
     if (enable_relay_function)
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA requests to activate relay function");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA requests to activate relay function");
     else
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA requests to terminate relay function");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA requests to terminate relay function");
     break;
   case 0x02: /* Relay Activation Mode == 0 && Direction == 1 */
     if (enable_relay_function)
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA is allowed to operate as a relay");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA is allowed to operate as a relay");
     else
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA must not operate as a relay");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "non-AP STA must not operate as a relay");
     break;
   case 0x03: /* Relay Activation Mode == 1 && Direction == 1 */
     if (enable_relay_function)
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Non-AP STA can operate as a relay");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Non-AP STA can operate as a relay");
     else
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Non-AP STA must terminate relay function");
+      snprintf(result, ITEM_LABEL_LENGTH, "%s", "Non-AP STA must terminate relay function");
     break;
   }
 }
@@ -21216,15 +21216,15 @@ static void
 s1g_max_awake_duration_custom(gchar *result, guint16 duration)
 {
   if (duration == 0)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "No limit applies");
+    snprintf(result, ITEM_LABEL_LENGTH, "%s", "No limit applies");
   else
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d uS", (int)duration * 40);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d uS", (int)duration * 40);
 }
 
 static void
 s1g_recovery_time_duration_custom(gchar *result, guint16 duration)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%d uS", (int)duration * 40);
+  snprintf(result, ITEM_LABEL_LENGTH, "%d uS", (int)duration * 40);
 }
 
 static int
@@ -22887,9 +22887,9 @@ static void
 ul_target_rssi_base_custom(gchar *result, guint32 target_rssi)
 {
   if (target_rssi <= 30) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%ddBm", -90 + (2 * target_rssi));
+    snprintf(result, ITEM_LABEL_LENGTH, "%ddBm", -90 + (2 * target_rssi));
   } else if (target_rssi == 31) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Max transmit power");
+    snprintf(result, ITEM_LABEL_LENGTH, "Max transmit power");
   }
 }
 
@@ -27481,9 +27481,9 @@ static void
 max_frag_msdus_base_custom(gchar *result, guint32 max_frag_msdus_value)
 {
   if (max_frag_msdus_value == 7)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "No restriction");
+    snprintf(result, ITEM_LABEL_LENGTH, "No restriction");
   else
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%u", 1 << max_frag_msdus_value);
+    snprintf(result, ITEM_LABEL_LENGTH, "%u", 1 << max_frag_msdus_value);
 }
 
 static const val64_string he_link_adaptation_support_vals[] = {
@@ -31221,9 +31221,9 @@ static void
 ap_tx_power_custom(gchar *result, guint32 ap_tx_power)
 {
   if (ap_tx_power > 60)
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", "Reserved");
+    snprintf(result, ITEM_LABEL_LENGTH, "%s", "Reserved");
   else
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d dBm", -20 + ap_tx_power);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d dBm", -20 + ap_tx_power);
 }
 
 static void
@@ -31234,12 +31234,12 @@ ul_packet_extension_base_custom(gchar *result, guint32 ul_packet_extension)
   if (pre_fec_padding == 0) pre_fec_padding = 4;
 
   if (ul_packet_extension & PE_DISAMBIGUITY) {
-    g_snprintf(result, ITEM_LABEL_LENGTH,
+    snprintf(result, ITEM_LABEL_LENGTH,
                "PE disambiguity & pre-FEC padding factor of %d",
                pre_fec_padding);
 
   } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH,
+    snprintf(result, ITEM_LABEL_LENGTH,
                "no PE disambiguity & pre-FEC padding factor of %d",
                pre_fec_padding);
   }
@@ -31339,17 +31339,17 @@ static void
 he_trigger_ru_allocation_region_custom(gchar *result, guint32 ru_alloc_val)
 {
   if (global_he_trigger_bw == 3) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s",
+    snprintf(result, ITEM_LABEL_LENGTH, "%s",
       he_trigger_ru_allocation_region_values[ru_alloc_val & 0x01]);
   } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Not used for 20, 40 or 80MHz");
+    snprintf(result, ITEM_LABEL_LENGTH, "Not used for 20, 40 or 80MHz");
   }
 }
 
 static void
 he_trigger_minus_one_custom(gchar *result, guint ss_alloc_value)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%d", ss_alloc_value + 1);
+  snprintf(result, ITEM_LABEL_LENGTH, "%d", ss_alloc_value + 1);
 }
 
 static const true_false_string he_trigger_ul_fec_coding_type_tfs = {
@@ -31534,11 +31534,11 @@ static void
 target_rssi_base_custom(gchar *result, guint32 target_rssi)
 {
   if (target_rssi <= 90) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%ddBm", -110 + target_rssi);
+    snprintf(result, ITEM_LABEL_LENGTH, "%ddBm", -110 + target_rssi);
   } else if (target_rssi == 127) {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Max transmit power");
+    snprintf(result, ITEM_LABEL_LENGTH, "Max transmit power");
   } else {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
+    snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
   }
 }
 
@@ -34043,7 +34043,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_len(ti, hdr_len + 8);
 
         if (algorithm==PROTECTION_ALG_TKIP) {
-          g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
+          snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
               tvb_get_letohl(tvb, hdr_len + 4),
               tvb_get_guint8(tvb, hdr_len),
               tvb_get_guint8(tvb, hdr_len + 2));
@@ -34051,7 +34051,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               EXTIV_LEN, out_buff);
         } else if (algorithm == PROTECTION_ALG_CCMP || algorithm == PROTECTION_ALG_CCMP_256 ||
                    algorithm == PROTECTION_ALG_GCMP || algorithm == PROTECTION_ALG_GCMP_256) {
-          g_snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
+          snprintf(out_buff, SHORT_STR, "0x%08X%02X%02X",
               tvb_get_letohl(tvb, hdr_len + 4),
               tvb_get_guint8(tvb, hdr_len + 1),
               tvb_get_guint8(tvb, hdr_len));

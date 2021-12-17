@@ -371,25 +371,25 @@ static void determine_color(guint16 catsub, configuration_info *config) {
 	const int l = (const int)strlen(column_str);
 	switch(catsub) {
 		case IDNTAG_COLOR_RED:
-			g_snprintf(column_str+l, MAX_BUFFER-l, " R");
+			snprintf(column_str+l, MAX_BUFFER-l, " R");
 			break;
 		case IDNTAG_COLOR_GREEN:
-			g_snprintf(column_str+l, MAX_BUFFER-l, " G");
+			snprintf(column_str+l, MAX_BUFFER-l, " G");
 			break;
 		case IDNTAG_COLOR_BLUE:
-			g_snprintf(column_str+l, MAX_BUFFER-l, " B");
+			snprintf(column_str+l, MAX_BUFFER-l, " B");
 			break;
 		case IDNTAG_OPTIONAL_U1:
-			g_snprintf(column_str+l, MAX_BUFFER-l, " U1");
+			snprintf(column_str+l, MAX_BUFFER-l, " U1");
 			break;
 		case IDNTAG_OPTIONAL_U2:
-			g_snprintf(column_str+l, MAX_BUFFER-l, " U2");
+			snprintf(column_str+l, MAX_BUFFER-l, " U2");
 			break;
 		case IDNTAG_OPTIONAL_U3:
-			g_snprintf(column_str+l, MAX_BUFFER-l, " U3");
+			snprintf(column_str+l, MAX_BUFFER-l, " U3");
 			break;
 		default:
-			g_snprintf(column_str+l, MAX_BUFFER-l, " C");
+			snprintf(column_str+l, MAX_BUFFER-l, " C");
 	}
 }
 
@@ -423,7 +423,7 @@ static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *
 	for(i=0; i+16<=data_size; i+=16) {
 		l = 0;
 		for(j=1; j<16; j++){
-			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
+			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
 		}
 		proto_tree_add_int_format(idn_dmx_subtree, idn_gts_sample, tvb, offset, 16, 16, "%3d: %s", base+i, values);
 		offset += 16;
@@ -432,7 +432,7 @@ static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *
 	if(rest > 0) {
 		l = 0;
 		for(j=0; j<rest; j++){
-			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
+			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
 		}
 		proto_tree_add_int_format(idn_dmx_subtree, idn_gts_sample, tvb, offset, rest, rest, "%3d: %s", base+i, values);
 		offset += rest;
@@ -445,18 +445,18 @@ static void set_laser_sample_values_string(tvbuff_t *tvb, int offset, configurat
 	int l = 0;
 
 	if((config->dic_precision)[2] == 1)
-		l += g_snprintf(values, MAX_BUFFER, "%5d", tvb_get_guint16(tvb, offset, 2));
+		l += snprintf(values, MAX_BUFFER, "%5d", tvb_get_guint16(tvb, offset, 2));
 	else
-		l += g_snprintf(values, MAX_BUFFER, "%5d", tvb_get_guint8(tvb, offset));
+		l += snprintf(values, MAX_BUFFER, "%5d", tvb_get_guint8(tvb, offset));
 
 	for(i=1; i<config->sample_size && (l < MAX_BUFFER-100); i++){
 		if((config->dic_precision)[i+1] == 1) {
 			//do nothing
 		}else if((config->dic_precision)[i+2] == 1) {
-			l += g_snprintf(values+l, MAX_BUFFER-l, " %5d", tvb_get_guint16(tvb, offset+i, 2));
+			l += snprintf(values+l, MAX_BUFFER-l, " %5d", tvb_get_guint16(tvb, offset+i, 2));
 			i++;
 		}else {
-			l += g_snprintf(values+l, MAX_BUFFER-l, " %5d", tvb_get_guint8(tvb, offset+i));
+			l += snprintf(values+l, MAX_BUFFER-l, " %5d", tvb_get_guint8(tvb, offset+i));
 		}
 	}
 }
@@ -472,7 +472,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 	for(i=0; i+16<=data_size; i+=16) {
 		l = 0;
 		for(j=0; j<16 && (l < MAX_BUFFER-100); j++){
-			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
+			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
 		}
 		proto_tree_add_int_format(idn_samples_tree, idn_gts_sample, tvb, offset, 16, 16, "%s", values);
 		offset += 16;
@@ -481,7 +481,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 	if(rest > 0) {
 		l = 0;
 		for(j=0; j<rest && (l < MAX_BUFFER-100); j++){
-			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
+			l += snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
 		}
 		proto_tree_add_int_format(idn_samples_tree, idn_gts_sample, tvb, offset, rest, rest, "%s", values);
 		offset += rest;
@@ -776,10 +776,10 @@ static int dissect_idn_x_area(tvbuff_t *tvb, int offset, proto_tree *gts_tree, g
 
 	if(catsub == IDNTAG_OPTIONAL_U4) {
 		offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_u4, dictionary_size, config, 1);
-		g_snprintf(column_str+l, MAX_BUFFER-l, " U4");
+		snprintf(column_str+l, MAX_BUFFER-l, " U4");
 	}else {
 		offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_x, dictionary_size, config, 1);
-		g_snprintf(column_str+l, MAX_BUFFER-l, " X");
+		snprintf(column_str+l, MAX_BUFFER-l, " X");
 	}
 
 	return offset;
@@ -792,7 +792,7 @@ static int dissect_idn_laser_dictionary(tvbuff_t *tvb, int offset, proto_tree *i
 	guint16 catsub; /* category + subcategory */
 	proto_tree *gts_tree = proto_tree_add_subtree(idn_tree, tvb, offset, -1, ett_dic_tree, NULL, "Dictionary");
 
-	g_snprintf(column_str, MAX_BUFFER, "(");
+	snprintf(column_str, MAX_BUFFER, "(");
 	for(i=1; i<=config->word_count*2; i++) {
 		catsub = tvb_get_guint16(tvb, offset, 2);
 		const int l = (const int)strlen(column_str);
@@ -813,38 +813,38 @@ static int dissect_idn_laser_dictionary(tvbuff_t *tvb, int offset, proto_tree *i
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_space_modifier, &dictionary_size, config, 0);
 		}else if(catsub == IDNTAG_NOP) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_nop, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " NOP");
+			snprintf(column_str+l, MAX_BUFFER-l, " NOP");
 		}else if(catsub >= IDNTAG_HINT0 && catsub <= IDNTAG_HINT1) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_hint, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " H");
+			snprintf(column_str+l, MAX_BUFFER-l, " H");
 		}else if(catsub >= IDNTAG_COORD_X && catsub <= IDNTAG_COORD_X_END) {
 			offset = dissect_idn_x_area(tvb, offset, gts_tree, catsub, &dictionary_size, config);
 		}else if(catsub >= IDNTAG_COORD_Y && catsub <= IDNTAG_COORD_Y_END) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_y, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " Y");
+			snprintf(column_str+l, MAX_BUFFER-l, " Y");
 		}else if(catsub >= IDNTAG_COORD_Z && catsub <= IDNTAG_COORD_Z_END) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_z, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " Z");
+			snprintf(column_str+l, MAX_BUFFER-l, " Z");
 		}else if(catsub >= IDNTAG_COLOR_START && catsub <= IDNTAG_COLOR_END) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_color, &dictionary_size, config, 1);
 			determine_color(catsub, config);
 		}else if(catsub == IDNTAG_WAVELENGTH_PREFIX) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_wavelength_prefix, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " WP");
+			snprintf(column_str+l, MAX_BUFFER-l, " WP");
 		}else if(catsub == IDNTAG_INTENSITY) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_intensity, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " I");
+			snprintf(column_str+l, MAX_BUFFER-l, " I");
 		}else if(catsub == IDNTAG_BEAM_BRUSH) {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts_beam_brush, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " BB");
+			snprintf(column_str+l, MAX_BUFFER-l, " BB");
 		}else {
 			offset = dissect_idn_laser_gts(tvb, offset, gts_tree, idn_gts, &dictionary_size, config, 1);
-			g_snprintf(column_str+l, MAX_BUFFER-l, " U/R");
+			snprintf(column_str+l, MAX_BUFFER-l, " U/R");
 		}
 	}
 	proto_item_set_len(gts_tree, dictionary_size);
 	const int l = (const int)strlen(column_str);
-	g_snprintf(column_str+l, MAX_BUFFER-l, " )");
+	snprintf(column_str+l, MAX_BUFFER-l, " )");
 
 	return offset;
 }
@@ -988,10 +988,10 @@ static int dissect_idn_servicemap_entry(tvbuff_t *tvb, int offset, proto_tree *i
 
 	char tree_title[MAX_BUFFER];
 	if(service_id == 0) {
-		g_snprintf(tree_title, MAX_BUFFER, "Relay Entry - %s", name);
+		snprintf(tree_title, MAX_BUFFER, "Relay Entry - %s", name);
 		idn_servicemap_entry_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 24, ett_idn_header_tree, NULL, tree_title);
 	}else {
-		g_snprintf(tree_title, MAX_BUFFER, "Service Entry - %s", name);
+		snprintf(tree_title, MAX_BUFFER, "Service Entry - %s", name);
 		idn_servicemap_entry_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 24, ett_idn_header_tree, NULL, tree_title);
 	}
 

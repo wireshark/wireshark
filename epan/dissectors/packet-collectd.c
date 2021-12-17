@@ -481,7 +481,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	else
 	{
 		pt = proto_tree_add_subtree_format(tree_root, tvb, offset, length,
-					  ett_collectd_integer, &pi, "collectd %s segment: %"G_GINT64_MODIFIER"u",
+					  ett_collectd_integer, &pi, "collectd %s segment: %"PRIu64,
 					  val_to_str_const (type, part_names, "UNKNOWN"),
 					  *ret_value);
 	}
@@ -542,7 +542,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
 						  val_cnt * 9, ett_collectd_valinfo, NULL,
-						  "Counter: %"G_GINT64_MODIFIER"u", val64);
+						  "Counter: %"PRIu64, val64);
 
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
 					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
@@ -577,7 +577,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
 						  val_cnt * 9, ett_collectd_valinfo, NULL,
-						  "Derive: %"G_GINT64_MODIFIER"i", val64);
+						  "Derive: %"PRIi64, val64);
 
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
 					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
@@ -594,7 +594,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
 						  val_cnt * 9, ett_collectd_valinfo, NULL,
-						  "Absolute: %"G_GINT64_MODIFIER"u", val64);
+						  "Absolute: %"PRIu64, val64);
 
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
 					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
@@ -611,7 +611,7 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			val64 = tvb_get_ntoh64 (tvb, value_offset);
 			value_tree = proto_tree_add_subtree_format(values_tree, tvb, msg_off + 6,
 						  val_cnt * 9, ett_collectd_valinfo, NULL,
-						  "Unknown: %"G_GINT64_MODIFIER"x",
+						  "Unknown: %"PRIx64,
 						  val64);
 
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
@@ -1241,7 +1241,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 			{
 				proto_item_set_text (pi,
 						"collectd SEVERITY segment: "
-						"%s (%"G_GINT64_MODIFIER"u)",
+						"%s (%"PRIu64")",
 						val64_to_str_const (ndispatch.severity, severity_names, "UNKNOWN"),
 						ndispatch.severity);
 			}

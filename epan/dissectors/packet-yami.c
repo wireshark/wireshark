@@ -135,7 +135,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 		case YAMI_TYPE_LONGLONG:
 		{
 			gint64 val = tvb_get_letoh64(tvb, offset);
-			proto_item_append_text(ti, ", Type: long, Value: %" G_GINT64_MODIFIER "d", val);
+			proto_item_append_text(ti, ", Type: long, Value: %" PRId64, val);
 			proto_tree_add_item(yami_param, hf_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 			offset += 8;
 			break;
@@ -262,7 +262,7 @@ dissect_yami_parameter(tvbuff_t *tvb, proto_tree *tree, int offset, proto_item *
 			for (i = 0; i < count; i++) {
 				gint64 val = tvb_get_letoh64(tvb, offset);
 
-				proto_item_append_text(ti, "%" G_GINT64_MODIFIER "d, ", val);
+				proto_item_append_text(ti, "%" PRId64 ", ", val);
 				proto_tree_add_item(yami_param, hf_yami_param_value_long, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 				offset += 8;
 			}

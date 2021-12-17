@@ -860,7 +860,7 @@ dissect_zcl_color_control_step_color_temp(tvbuff_t *tvb, proto_tree *tree, guint
 static void
 decode_color_xy(gchar *s, guint16 value)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.4lf", value/65535.0);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.4lf", value/65535.0);
     return;
 } /*decode_power_conf_voltage*/
 
@@ -880,9 +880,9 @@ static void
 decode_color_temperature(gchar *s, guint16 value)
 {
     if (value == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%u [Mired]", value);
+        snprintf(s, ITEM_LABEL_LENGTH, "%u [Mired]", value);
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%u [Mired] (%u [K])", value, 1000000/value);
+        snprintf(s, ITEM_LABEL_LENGTH, "%u [Mired] (%u [K])", value, 1000000/value);
     }
     return;
 } /*decode_color_temperature*/
@@ -904,7 +904,7 @@ decode_startup_color_temperature(gchar *s, guint16 value)
 {
     if (value == 0xffff)
     {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Set the Color Temperature attribute to its previous value");
+        snprintf(s, ITEM_LABEL_LENGTH, "Set the Color Temperature attribute to its previous value");
     }
     else
     {

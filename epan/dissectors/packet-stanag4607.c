@@ -353,7 +353,7 @@ prt_sa32(gchar *buff, guint32 val)
 	min = floor(60.0 * (x - deg));
 	sec = 60.0 * (60.0 * (x - deg) - min);
 	/* checkAPI.pl doesn't like the unicode degree symbol, I don't know what to do... */
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
 }
 
 static void
@@ -367,7 +367,7 @@ prt_ba32(gchar *buff, guint32 val)
 	min = floor(60.0 * (x - deg));
 	sec = 60.0 * (60.0 * (x - deg) - min);
 	/* checkAPI.pl doesn't like the unicode degree symbol, I don't know what to do... */
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
 }
 
 static void
@@ -376,7 +376,7 @@ prt_sa16(gchar *buff, guint32 val)
 	double x = (double) ((gint32) val);
 	x /= (double) (1<<14);
 	x *= 90.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
 }
 
 static void
@@ -385,7 +385,7 @@ prt_ba16(gchar *buff, guint32 val)
 	double x = (double) val;
 	x /= (double) (1<<14);
 	x *= 90.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
 }
 
 static void
@@ -395,9 +395,9 @@ prt_ba16_none(gchar *buff, guint32 val)
 	x /= (double) (1<<14);
 	x *= 90.0;
 	if (val <= 65536)
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
+		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
 	else
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
+		snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
 }
 
 static void
@@ -405,14 +405,14 @@ prt_kilo(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 128.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.2f kilometers", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f kilometers", x);
 }
 
 static void
 prt_meters(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.0f meters", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.0f meters", x);
 }
 
 static void
@@ -420,7 +420,7 @@ prt_decimeters(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 10.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters", x);
 }
 
 static void
@@ -428,7 +428,7 @@ prt_centimeters(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 100.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters", x);
 }
 
 static void
@@ -436,7 +436,7 @@ prt_speed(gchar *buff, guint32 val)
 {
 	double x = (double) val;
 	x /= 1000.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f meters/second", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f meters/second", x);
 }
 
 static void
@@ -444,7 +444,7 @@ prt_speed_centi(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 100.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters/second", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters/second", x);
 }
 
 static void
@@ -453,7 +453,7 @@ prt_speed_deci(gchar *buff, guint32 val)
 	/* Usually 8-bit, signed */
 	double x = (double) ((gint32) val);
 	x /= 10.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters/second", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters/second", x);
 }
 
 static void
@@ -461,25 +461,25 @@ prt_millisec(gchar *buff, guint32 val)
 {
 	double x = (double) val;
 	x /= 1000.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f seconds", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f seconds", x);
 }
 
 static void
 prt_none8(gchar *buff, guint32 val)
 {
 	if (0xff == val)
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
+		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
 	else
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
+		snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
 }
 
 static void
 prt_none16(gchar *buff, guint32 val)
 {
 	if (0xffff == val)
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
+		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
 	else
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
+		snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
 }
 
 

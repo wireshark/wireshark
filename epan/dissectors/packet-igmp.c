@@ -768,7 +768,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	type = tvb_get_guint8(tvb, offset);
 	if (type == IGMP_TRACEROUTE_RESPONSE) {
 		int i = (tvb_reported_length_remaining(tvb, offset) - IGMP_TRACEROUTE_HDR_LEN) / IGMP_TRACEROUTE_RSP_LEN;
-		g_snprintf(buf, sizeof buf, ", %d block%s", i, plurality(i, "", "s"));
+		snprintf(buf, sizeof buf, ", %d block%s", i, plurality(i, "", "s"));
 		typestr = "Traceroute Response";
 		blocks = buf;
 	} else if (tvb_reported_length_remaining(tvb, offset) == IGMP_TRACEROUTE_HDR_LEN)

@@ -345,7 +345,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 		offset = dissect_rpc_uint32(tvb, lock_tree, hf_nlm_lock_l_len, offset);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u", start_offset, end_offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " pos:%" PRIu64 "-%" PRIu64, start_offset, end_offset);
 
 	return offset;
 }

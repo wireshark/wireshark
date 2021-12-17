@@ -3274,7 +3274,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case IEEE802154_TAP_ASN:
                 proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_asn, tvb, offset, 8, ENC_LITTLE_ENDIAN, &ieee802154_tsch_asn);
-                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %"G_GUINT64_FORMAT, ieee802154_tsch_asn);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %"PRIu64, ieee802154_tsch_asn);
                 break;
             case IEEE802154_TAP_SLOT_START_TS:
                 proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_slot_start_ts, tvb, offset, 8,
@@ -3286,7 +3286,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case IEEE802154_TAP_TIMESLOT_LENGTH:
                 proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_tap_timeslot_length, tvb, offset, 4,
                                              ENC_LITTLE_ENDIAN, &timeslot_length);
-                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %"G_GUINT32_FORMAT" %s", timeslot_length, units_microseconds.singular);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %"PRIu32" %s", timeslot_length, units_microseconds.singular);
                 break;
             case IEEE802154_TAP_LQI: {
                 guint32 lqi;
@@ -5516,9 +5516,9 @@ static void ieee802154_da_prompt(packet_info *pinfo _U_, gchar* result)
     ieee802154_hints_t *hints;
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
     if (hints)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN 0x%04x as", hints->src_pan);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN 0x%04x as", hints->src_pan);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN Unknown");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN Unknown");
 } /* iee802154_da_prompt */
 
 /* Returns the value to index the panid decode table with (source PAN)*/

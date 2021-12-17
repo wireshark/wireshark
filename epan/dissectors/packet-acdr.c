@@ -432,7 +432,7 @@ create_full_session_id_subtree(proto_tree *tree, tvbuff_t *tvb, int offset, guin
             session_int = tvb_get_ntoh40(tvb, offset + 4);
 
         if (session_int != 0)
-            session_ext = wmem_strdup_printf(wmem_packet_scope(), ":%" G_GINT64_MODIFIER "u", session_int);
+            session_ext = wmem_strdup_printf(wmem_packet_scope(), ":%" PRIu64, session_int);
         str = wmem_strdup_printf(wmem_packet_scope(), "%x:%d%s", board_id, reset_counter, session_ext);
     }
 

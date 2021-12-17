@@ -1219,7 +1219,7 @@ void proto_reg_handoff_bthci_evt(void);
 
 static void bthci_evt_vendor_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
 }
 
 static gpointer bthci_evt_vendor_value(packet_info *pinfo _U_)

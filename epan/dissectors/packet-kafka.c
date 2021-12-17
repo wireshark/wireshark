@@ -2427,7 +2427,7 @@ dissect_kafka_offset_fetch_response_partition(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_append_text(ti, " (ID=%u, Offset=None)",
                                packet_values.partition_id);
     } else {
-        proto_item_append_text(ti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)",
+        proto_item_append_text(ti, " (ID=%u, Offset=%" PRIi64 ")",
                                packet_values.partition_id, packet_values.offset);
     }
 
@@ -3237,7 +3237,7 @@ dissect_kafka_fetch_request_partition(tvbuff_t *tvb, packet_info *pinfo, proto_t
     proto_tree_add_item(subtree, hf_kafka_max_bytes, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_item_append_text(ti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)",
+    proto_item_append_text(ti, " (ID=%u, Offset=%" PRIi64 ")",
                            packet_values.partition_id, packet_values.offset);
 
     return offset;
@@ -3422,7 +3422,7 @@ dissect_kafka_fetch_response_partition(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     proto_item_set_end(ti, tvb, offset);
 
-    proto_item_append_text(ti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)",
+    proto_item_append_text(ti, " (ID=%u, Offset=%" PRIi64 ")",
                            packet_values.partition_id, packet_values.offset);
 
     return offset;
@@ -3593,7 +3593,7 @@ dissect_kafka_produce_response_partition(tvbuff_t *tvb, packet_info *pinfo, prot
 
     proto_item_set_end(ti, tvb, offset);
 
-    proto_item_append_text(ti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)",
+    proto_item_append_text(ti, " (ID=%u, Offset=%" PRIi64 ")",
                            packet_values.partition_id, packet_values.offset);
 
     return offset;
@@ -4260,7 +4260,7 @@ dissect_kafka_offset_commit_request_partition(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     proto_item_set_end(subti, tvb, offset);
-    proto_item_append_text(subti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)",
+    proto_item_append_text(subti, " (ID=%u, Offset=%" PRIi64 ")",
                            partition_id, partition_offset);
 
     return offset;
@@ -5703,7 +5703,7 @@ dissect_kafka_delete_records_request_topic_partition(tvbuff_t *tvb, packet_info 
     if (partition_offset == -1) {
         proto_item_append_text(subti, " (ID=%u, Offset=HWM)", partition_id);
     } else {
-        proto_item_append_text(subti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)", partition_id, partition_offset);
+        proto_item_append_text(subti, " (ID=%u, Offset=%" PRIi64 ")", partition_id, partition_offset);
     }
 
     return offset;
@@ -5784,7 +5784,7 @@ dissect_kafka_delete_records_response_topic_partition(tvbuff_t *tvb, packet_info
     proto_item_set_end(subti, tvb, offset);
 
     if (partition_error_code == 0) {
-        proto_item_append_text(subti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)", partition_id, partition_offset);
+        proto_item_append_text(subti, " (ID=%u, Offset=%" PRIi64 ")", partition_id, partition_offset);
     } else {
         proto_item_append_text(subti, " (ID=%u, Error=%s)", partition_id, kafka_error_to_str(partition_error_code));
     }
@@ -6335,7 +6335,7 @@ dissect_kafka_write_txn_markers_request_marker(tvbuff_t *tvb, packet_info *pinfo
 
     proto_item_set_end(subsubti, tvb, offset);
     proto_item_set_end(subti, tvb, offset);
-    proto_item_append_text(subti, " (Producer=%" G_GINT64_MODIFIER "u)", producer_id);
+    proto_item_append_text(subti, " (Producer=%" PRIu64 ")", producer_id);
 
     return offset;
 }
@@ -6434,7 +6434,7 @@ dissect_kafka_write_txn_markers_response_marker(tvbuff_t *tvb, packet_info *pinf
     proto_item_set_end(subsubti, tvb, offset);
 
     proto_item_set_end(subti, tvb, offset);
-    proto_item_append_text(subti, " (Producer=%" G_GINT64_MODIFIER "u)", producer_id);
+    proto_item_append_text(subti, " (Producer=%" PRIu64 ")", producer_id);
 
     return offset;
 }
@@ -6493,7 +6493,7 @@ dissect_kafka_txn_offset_commit_request_partition(tvbuff_t *tvb, packet_info *pi
 
     proto_item_set_end(subti, tvb, offset);
 
-    proto_item_append_text(subti, " (ID=%u, Offset=%" G_GINT64_MODIFIER "i)", partition_id, partition_offset);
+    proto_item_append_text(subti, " (ID=%u, Offset=%" PRIi64 ")", partition_id, partition_offset);
 
     return offset;
 }

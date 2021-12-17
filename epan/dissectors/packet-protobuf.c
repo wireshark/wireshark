@@ -551,9 +551,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     case PROTOBUF_TYPE_SFIXED64:
         int64_value = (gint64) value;
         proto_tree_add_int64(value_tree, hf_protobuf_value_int64, tvb, offset, length, int64_value);
-        proto_item_append_text(ti_field, "%s %" G_GINT64_MODIFIER "d", prepend_text, int64_value);
+        proto_item_append_text(ti_field, "%s %" PRId64, prepend_text, int64_value);
         if (is_top_level) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "=%" G_GINT64_MODIFIER "d", int64_value);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "=%" PRId64, int64_value);
         }
         if (hf_id_ptr) {
             proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, length, int64_value);
@@ -563,9 +563,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     case PROTOBUF_TYPE_UINT64:
     case PROTOBUF_TYPE_FIXED64: /* same as UINT64 */
         proto_tree_add_uint64(value_tree, hf_protobuf_value_uint64, tvb, offset, length, value);
-        proto_item_append_text(ti_field, "%s %" G_GINT64_MODIFIER "u", prepend_text, value);
+        proto_item_append_text(ti_field, "%s %" PRIu64, prepend_text, value);
         if (is_top_level) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "=%" G_GINT64_MODIFIER "u", value);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "=%" PRIu64, value);
         }
         if (hf_id_ptr) {
             proto_tree_add_uint64(pbf_tree, *hf_id_ptr, tvb, offset, length, value);
@@ -718,9 +718,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     case PROTOBUF_TYPE_SINT64:
         int64_value = sint64_decode(value);
         proto_tree_add_int64(value_tree, hf_protobuf_value_int64, tvb, offset, length, int64_value);
-        proto_item_append_text(ti_field, "%s %" G_GINT64_MODIFIER "d", prepend_text, int64_value);
+        proto_item_append_text(ti_field, "%s %" PRId64, prepend_text, int64_value);
         if (is_top_level) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "=%" G_GINT64_MODIFIER "d", int64_value);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "=%" PRId64, int64_value);
         }
         if (hf_id_ptr) {
             proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, length, int64_value);
@@ -831,7 +831,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
         }
     }
 
-    proto_item_append_text(ti_field, "(%" G_GINT64_MODIFIER "u):", field_number);
+    proto_item_append_text(ti_field, "(%" PRIu64 "):", field_number);
 
     /* support filtering with field name */
     ti_field_name = proto_tree_add_string(field_tree, hf_protobuf_field_name, tvb, *offset, 1,
@@ -1055,7 +1055,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
 
         /* add common tree item for this field */
         field_tree = proto_tree_add_subtree_format(message_tree, tvb, offset, 0, ett_protobuf_field, &ti_field,
-            "Field(%" G_GUINT64_FORMAT "): %s %s", field_number, field_name, "=");
+            "Field(%" PRIu64 "): %s %s", field_number, field_name, "=");
         proto_item_set_generated(ti_field);
 
         /* support filtering with the name, type or number of the field  */
@@ -1063,7 +1063,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
         proto_item_set_generated(ti_field_name);
         ti_field_type = proto_tree_add_int(field_tree, hf_protobuf_field_type, tvb, offset, 0, field_type);
         proto_item_set_generated(ti_field_type);
-        ti_field_number = proto_tree_add_uint64_format(field_tree, hf_protobuf_field_number, tvb, offset, 0, field_number << 3, "Field Number: %" G_GUINT64_FORMAT, field_number);
+        ti_field_number = proto_tree_add_uint64_format(field_tree, hf_protobuf_field_number, tvb, offset, 0, field_number << 3, "Field Number: %" PRIu64, field_number);
         proto_item_set_generated(ti_field_number);
 
         hf_id_ptr = NULL;
@@ -1101,7 +1101,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
         case PROTOBUF_TYPE_SFIXED64:
             int64_value = pbw_FieldDescriptor_default_value_int64(field_desc);
             ti_value = proto_tree_add_int64(field_tree, hf_protobuf_value_int64, tvb, offset, 0, int64_value);
-            proto_item_append_text(ti_field, " %" G_GINT64_MODIFIER "d", int64_value);
+            proto_item_append_text(ti_field, " %" PRId64, int64_value);
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, 0, int64_value);
             }
@@ -1121,7 +1121,7 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
         case PROTOBUF_TYPE_FIXED64:
             uint64_value = pbw_FieldDescriptor_default_value_uint64(field_desc);
             ti_value = proto_tree_add_uint64(field_tree, hf_protobuf_value_uint64, tvb, offset, 0, uint64_value);
-            proto_item_append_text(ti_field, " %" G_GINT64_MODIFIER "u", uint64_value);
+            proto_item_append_text(ti_field, " %" PRIu64, uint64_value);
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_uint64(pbf_tree, *hf_id_ptr, tvb, offset, 0, uint64_value);
             }

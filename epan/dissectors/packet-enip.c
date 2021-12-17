@@ -789,7 +789,7 @@ static const true_false_string dlr_lnknbrstatus_frame_type_vals = {
 
 static void enip_prompt(packet_info *pinfo _U_, gchar* result)
 {
-   g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect unidentified I/O traffic as");
+   snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect unidentified I/O traffic as");
 }
 
 static wmem_map_t *enip_request_hashtable = NULL;
@@ -846,7 +846,7 @@ enip_request_equal(gconstpointer v, gconstpointer w)
 static void
 enip_fmt_lir_revision( gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 static guint

@@ -2408,7 +2408,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item( subtree, hf_kademlia_tag_uint64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
                 value = tvb_get_letoh64( tvb, offset );
-                proto_item_append_text( tag_node, "%" G_GINT64_MODIFIER "u (0x%08" G_GINT64_MODIFIER "X)", value, value );
+                proto_item_append_text( tag_node, "%" PRIu64 " (0x%08" PRIX64 ")", value, value );
 
                 offset += 8;
             }
@@ -3082,7 +3082,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void
 edonkey_fmt_revision(gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint16)(revision & 0xFFFF), (guint16)(( revision & 0xFFFF0000 ) >> 16) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint16)(revision & 0xFFFF), (guint16)(( revision & 0xFFFF0000 ) >> 16) );
 }
 
 void proto_register_edonkey(void) {

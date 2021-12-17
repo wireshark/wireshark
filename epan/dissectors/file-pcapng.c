@@ -837,7 +837,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 } else if (value_u64 == 1000000000) {
                     const_str = "1 Gbps";
                 } else {
-                    const_str = wmem_strdup_printf(pinfo->pool, "%"G_GUINT64_FORMAT, value_u64);
+                    const_str = wmem_strdup_printf(pinfo->pool, "%"PRIu64, value_u64);
                 }
                 proto_item_append_text(p_item, "%s", const_str);
                 proto_item_append_text(option_item, " = %s", const_str);
@@ -1018,7 +1018,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_timestamp_offset, tvb, offset, 8, encoding, &value_u64);
                 offset += 8;
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
 
                 if (interface_description) {
                     interface_description->timestamp_offset = value_u64;
@@ -1151,7 +1151,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_received, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1163,7 +1163,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_dropped, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1175,7 +1175,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_accepted_by_filter, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1187,7 +1187,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_dropped_by_os, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1199,7 +1199,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_delivered_to_user, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1249,7 +1249,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_packet_drop_count, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1261,7 +1261,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_packet_id, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = 0x%016"G_GINT64_MODIFIER"x", value_u64);
+                proto_item_append_text(option_item, " = 0x%016"PRIx64, value_u64);
                 offset += 8;
 
                 break;

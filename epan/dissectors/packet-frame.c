@@ -838,7 +838,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		if (show_file_off) {
 			proto_tree_add_int64_format_value(fh_tree, hf_frame_file_off, tvb,
 						    0, 0, pinfo->fd->file_off,
-						    "%" G_GINT64_MODIFIER "d (0x%" G_GINT64_MODIFIER "x)",
+						    "%" PRId64 " (0x%" PRIx64 ")",
 						    pinfo->fd->file_off, pinfo->fd->file_off);
 		}
 	}

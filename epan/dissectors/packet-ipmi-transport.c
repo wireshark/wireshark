@@ -1582,10 +1582,10 @@ static void
 serial04_timeout_fmt(gchar *s, guint32 v)
 {
 	if (v) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%d sec", 30 * v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%d sec", 30 * v);
 	}
 	else {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "Does not timeout");
+		snprintf(s, ITEM_LABEL_LENGTH, "Does not timeout");
 	}
 }
 
@@ -2387,7 +2387,7 @@ static const value_string cc16[] = {
 static void
 tr17_fmt_blockno(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d%s",
+	snprintf(s, ITEM_LABEL_LENGTH, "%d%s",
 			v, v ? "" : " (get received data length)");
 }
 

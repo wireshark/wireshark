@@ -798,7 +798,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             /* Write 6 figures to position after decimal place in timestamp. Must have managed to
                parse out fields already, so will definitely be long enough for memcpy() to succeed. */
             char digits[7];
-            g_snprintf(digits, 7, "%06u", pinfo->abs_ts.nsecs / 1000);
+            snprintf(digits, 7, "%06u", pinfo->abs_ts.nsecs / 1000);
             memcpy(alert->raw_alert+18, digits, 6);
             alert->raw_alert_ts_fixed = TRUE;
         }

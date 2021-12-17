@@ -244,7 +244,7 @@ rach_gps_pos_lat_fmt(gchar *s, guint32 v)
 {
 	gint32 sv = v;
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
+	snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
 	           abs(sv) / 2912.7f, sv < 0 ? "S" : "N", sv);
 }
 
@@ -253,7 +253,7 @@ rach_gps_pos_long_fmt(gchar *s, guint32 v)
 {
 	gint32 sv = v;
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
+	snprintf(s, ITEM_LABEL_LENGTH, "%.5f %s (%d)",
 	           abs(sv) / 2912.70555f, sv < 0 ? "W" : "E", sv);
 
 	/* FIXME: The specs says >0 is West ... but it doesn't seem to
@@ -302,11 +302,11 @@ static void
 rach_sp_hplmn_id_fmt(gchar *s, guint32 v)
 {
 	if (v == 0xfffff) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%05x (Null)", v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%05x (Null)", v);
 	} else if ((v & 0xf8000) == 0xf8000) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%05x (SP ID %4d)", v, v & 0x7fff);
+		snprintf(s, ITEM_LABEL_LENGTH, "%05x (SP ID %4d)", v, v & 0x7fff);
 	} else {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%05x (HPLMN ID)", v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%05x (HPLMN ID)", v);
 	}
 }
 
@@ -322,20 +322,20 @@ static void
 rach_dialed_num_grp1234_fmt(gchar *s, guint32 v)
 {
 	if (v <= 999) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%03d", v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%03d", v);
 	} else if (v == 1023) {
-		g_snprintf(s, ITEM_LABEL_LENGTH,
+		snprintf(s, ITEM_LABEL_LENGTH,
 			"All digits in the preceding group are valid (%d)", v);
 	} else if (v == 1022) {
-		g_snprintf(s, ITEM_LABEL_LENGTH,
+		snprintf(s, ITEM_LABEL_LENGTH,
 			"First two digits in the preceding group are valid, "
 			"and the third digit (i.e. 0) is padding (%d)", v);
 	} else if (v == 1021) {
-		g_snprintf(s, ITEM_LABEL_LENGTH,
+		snprintf(s, ITEM_LABEL_LENGTH,
 			"First digit in the preceding group is valid, and "
 			"the second and third 0s are padding (%d)", v);
 	} else {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid (%d)", v);
+		snprintf(s, ITEM_LABEL_LENGTH, "Invalid (%d)", v);
 	}
 }
 
@@ -343,9 +343,9 @@ static void
 rach_dialed_num_grp5_fmt(gchar *s, guint32 v)
 {
 	if (v >= 1100 && v <= 1199) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%02d (%d)", v - 1100, v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%02d (%d)", v - 1100, v);
 	} else if (v >= 1200 && v <= 1209) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%01d (%d)", v - 1200, v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%01d (%d)", v - 1200, v);
 	} else {
 		rach_dialed_num_grp1234_fmt(s, v);
 	}
@@ -355,9 +355,9 @@ static void
 rach_gps_timestamp_fmt(gchar *s, guint32 v)
 {
 	if (v == 0xffff) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, ">= 65535 minutes or N/A (%04x)", v);
+		snprintf(s, ITEM_LABEL_LENGTH, ">= 65535 minutes or N/A (%04x)", v);
 	} else {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%d minutes (%04x)", v, v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%d minutes (%04x)", v, v);
 	}
 }
 
@@ -475,38 +475,38 @@ _parse_dialed_number(gchar *s, int slen, tvbuff_t *tvb, int offset)
 		if (grp[i+1] <= 999)
 		{
 			/* All digits of group are valid */
-			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[i]);
+			rv += snprintf(s + rv, slen - rv, "%03d", grp[i]);
 		}
 		else if (grp[i+1] == 1023)
 		{
 			/* Last group and all digits are valid */
-			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[i]);
+			rv += snprintf(s + rv, slen - rv, "%03d", grp[i]);
 			done = 1;
 			break;
 		}
 		else if (grp[i+1] == 1022)
 		{
 			/* Last group and first two digits are valid */
-			rv += g_snprintf(s + rv, slen - rv, "%02d", grp[i] / 10);
+			rv += snprintf(s + rv, slen - rv, "%02d", grp[i] / 10);
 			done = 1;
 			break;
 		}
 		else if (grp[i+1] == 1021)
 		{
 			/* Last group and first digit is valid */
-			rv += g_snprintf(s + rv, slen - rv, "%01d", grp[i] / 100);
+			rv += snprintf(s + rv, slen - rv, "%01d", grp[i] / 100);
 			done = 1;
 			break;
 		}
 		else if ((i==3) && (grp[i+1] >= 1100) && (grp[i+1] <= 1209))
 		{
 			/* All digits of group are valid */
-			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[i]);
+			rv += snprintf(s + rv, slen - rv, "%03d", grp[i]);
 		}
 		else
 		{
 			/* Invalid */
-			return g_snprintf(s, slen, "(Invalid)");
+			return snprintf(s, slen, "(Invalid)");
 		}
 	}
 
@@ -514,22 +514,22 @@ _parse_dialed_number(gchar *s, int slen, tvbuff_t *tvb, int offset)
 		if (grp[4] <= 999)
 		{
 			/* All digits are valid */
-			rv += g_snprintf(s + rv, slen - rv, "%03d", grp[4]);
+			rv += snprintf(s + rv, slen - rv, "%03d", grp[4]);
 		}
 		else if (grp[4] >= 1100 && grp[4] <= 1199)
 		{
 			/* Only two digits are valid */
-			rv += g_snprintf(s + rv, slen - rv, "%02d", grp[4] - 1100);
+			rv += snprintf(s + rv, slen - rv, "%02d", grp[4] - 1100);
 		}
 		else if (grp[4] >= 1200 && grp[4] <= 1209)
 		{
 			/* Only one digit is valid */
-			rv += g_snprintf(s + rv, slen - rv, "%01d", grp[4] - 1200);
+			rv += snprintf(s + rv, slen - rv, "%01d", grp[4] - 1200);
 		}
 		else
 		{
 			/* Invalid */
-			return g_snprintf(s, slen, "(Invalid)");
+			return snprintf(s, slen, "(Invalid)");
 		}
 	}
 

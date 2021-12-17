@@ -529,7 +529,7 @@ dissect_dlt_verbose_parameter_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         }
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %" G_GINT64_FORMAT, value);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %" PRId64, value);
     return length;
 }
 
@@ -588,7 +588,7 @@ dissect_dlt_verbose_parameter_uint(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %" G_GUINT64_FORMAT, value);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %" PRIu64, value);
     return length;
 }
 

@@ -2454,7 +2454,7 @@ static int dissect_gvsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* At this point offset is pointing to end of packet */
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "[Block ID: %" G_GINT64_MODIFIER "u Packet ID: %d] ", (guint64)info.blockid, info.packetid);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "[Block ID: %" PRIu64 " Packet ID: %d] ", (guint64)info.blockid, info.packetid);
 
     if (info.flag_resendrangeerror != 0)
     {

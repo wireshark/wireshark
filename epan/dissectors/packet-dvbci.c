@@ -4200,8 +4200,8 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
     switch(tag) {
         case T_SAS_CONNECT_RQST:
         case T_SAS_CONNECT_CNF:
-            g_snprintf(app_id_str, sizeof(app_id_str),
-                    "0x%016" G_GINT64_MODIFIER "x", tvb_get_ntoh64(tvb, offset));
+            snprintf(app_id_str, sizeof(app_id_str),
+                    "0x%016" PRIx64, tvb_get_ntoh64(tvb, offset));
             col_append_sep_str(pinfo->cinfo, COL_INFO, ": ", app_id_str);
             proto_tree_add_item(tree, hf_dvbci_sas_app_id,
                     tvb, offset, 8, ENC_BIG_ENDIAN);

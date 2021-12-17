@@ -4660,11 +4660,11 @@ req_ref_ra_est_cause_convert(gchar *result, guint32 ra)
         goto found;
     }
 
-    g_snprintf(result, ITEM_LABEL_LENGTH, "unknown ra %u", ra);
+    snprintf(result, ITEM_LABEL_LENGTH, "unknown ra %u", ra);
     return;
 
 found:
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s", str);
+    snprintf(result, ITEM_LABEL_LENGTH, "%s", str);
 }
 
 static int

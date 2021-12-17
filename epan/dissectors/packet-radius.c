@@ -950,12 +950,12 @@ radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int len
 		for (j = 0; j < AUTHENTICATOR_LENGTH; j++) {
 			c = pd[i + j] ^ digest[j];
 			if (g_ascii_isprint(c)) {
-				returned_length = g_snprintf(&dest[totlen], dest_len - totlen,
+				returned_length = snprintf(&dest[totlen], dest_len - totlen,
 					"%c", c);
 				totlen += MIN(returned_length, dest_len - totlen - 1);
 			}
 			else if (c) {
-				returned_length = g_snprintf(&dest[totlen], dest_len - totlen,
+				returned_length = snprintf(&dest[totlen], dest_len - totlen,
 					"\\%03o", c);
 				totlen += MIN(returned_length, dest_len - totlen - 1);
 			}
@@ -995,7 +995,7 @@ radius_integer(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, 
 		case 8: {
 			guint64 uintv64 = tvb_get_ntoh64(tvb, offset);
 			proto_tree_add_uint64(tree, a->hf_alt, tvb, offset, len, uintv64);
-			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uintv64);
+			proto_item_append_text(avp_item, "%" PRIu64, uintv64);
 			return;
 		}
 		default:
@@ -1032,7 +1032,7 @@ radius_signed(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, t
 		case 8: {
 			guint64 uintv64 = tvb_get_ntoh64(tvb, offset);
 			proto_tree_add_int64(tree, a->hf_alt, tvb, offset, len, uintv64);
-			proto_item_append_text(avp_item, "%" G_GINT64_MODIFIER "u", uintv64);
+			proto_item_append_text(avp_item, "%" PRIu64, uintv64);
 			return;
 		}
 		default:

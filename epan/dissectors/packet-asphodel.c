@@ -232,7 +232,7 @@ asphodel_fmt_version(gchar *result, guint32 version)
     guint8 major = version >> 8;
     guint8 minor = (version >> 4) & 0x0F;
     guint8 subminor = version & 0x0F;
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d", major, minor, subminor);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d", major, minor, subminor);
 }
 
 static int

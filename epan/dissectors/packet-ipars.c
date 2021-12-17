@@ -124,11 +124,11 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* da
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 2, 2, "GoAhead IA: %2.2X", ia);
                 ipars_eomtype = tvb_get_guint8(tvb, 4) & 0x3f;
                 switch (ipars_eomtype) {
-                    case EOMc:  g_snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMc");                              break;
-                    case EOMi:  g_snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMi");                              break;
-                    case EOMu:  g_snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMu");                              break;
-                    case EOMpb: g_snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMpb");                             break;
-                    default:    g_snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
+                    case EOMc:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMc");                              break;
+                    case EOMi:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMi");                              break;
+                    case EOMu:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMu");                              break;
+                    case EOMpb: snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMpb");                             break;
+                    default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
                 }
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 4, 1, "%s", eom_msg);
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 5, 1, "Good BCC");

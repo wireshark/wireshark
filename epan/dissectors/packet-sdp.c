@@ -2816,7 +2816,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         (void) g_strlcat(sdp_pi->summary_str, payload_type_str, 50);
                     } else {
                         char num_pt[10];
-                        g_snprintf(num_pt, 10, "%u", media_desc->media.pt[j]);
+                        snprintf(num_pt, 10, "%u", media_desc->media.pt[j]);
                         if (strlen(sdp_pi->summary_str))
                             (void) g_strlcat(sdp_pi->summary_str, " ", 50);
                         (void) g_strlcat(sdp_pi->summary_str, num_pt, 50);

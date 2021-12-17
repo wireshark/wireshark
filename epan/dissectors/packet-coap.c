@@ -880,7 +880,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		return -1;
 	}
 
-	g_snprintf(strbuf, sizeof(strbuf),
+	snprintf(strbuf, sizeof(strbuf),
 	    "#%u: %s", opt_count, val_to_str(*opt_num, vals_opt_type,
 	    *opt_num % 14 == 0 ? "No-Op" : "Unknown Option (%d)"));
 	item = proto_tree_add_string(coap_tree, dissect_hf->hf.opt_name,
@@ -889,7 +889,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 
 	coap_opt_check(pinfo, subtree, *opt_num, opt_length, dissect_hf);
 
-	g_snprintf(strbuf, sizeof(strbuf),
+	snprintf(strbuf, sizeof(strbuf),
 	    "Type %u, %s, %s%s", *opt_num,
 	    (*opt_num & 1) ? "Critical" : "Elective",
 	    (*opt_num & 2) ? "Unsafe" : "Safe",
@@ -1095,7 +1095,7 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 		coap_ctype_str_dis = coinfo->ctype_str;
 	}
 
-	g_snprintf(str_payload, sizeof(str_payload),
+	snprintf(str_payload, sizeof(str_payload),
 			"Payload Content-Format: %s%s, Length: %u",
 			coinfo->ctype_str, coinfo->ctype_value == DEFAULT_COAP_CTYPE_VALUE ?
 			" (no Content-Format)" : "", payload_length);

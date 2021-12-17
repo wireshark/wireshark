@@ -2726,7 +2726,7 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static void
 smpp_fmt_version(gchar *result, guint32 revision)
 {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", (guint8)((revision & 0xF0) >> 4), (guint8)(revision & 0x0F));
+    snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", (guint8)((revision & 0xF0) >> 4), (guint8)(revision & 0x0F));
 }
 
 /* Register the protocol with Wireshark */

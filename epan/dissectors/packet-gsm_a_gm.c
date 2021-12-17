@@ -1584,10 +1584,10 @@ static void
 gsm_a_gm_dlmc_max_nb_dl_ts_fmt(gchar *s, guint32 v)
 {
 	if (v < 0x3E)
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%u TS supported (%u)",
+		snprintf(s, ITEM_LABEL_LENGTH, "%u TS supported (%u)",
 		           2*v + 6, v);
 	else
-		g_snprintf(s, ITEM_LABEL_LENGTH, "Reserved (%u)", v);
+		snprintf(s, ITEM_LABEL_LENGTH, "Reserved (%u)", v);
 }
 
 static const value_string gsm_a_gm_dlmc_max_nb_dl_carriers_vals[] = {
@@ -3509,7 +3509,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	{
 		if (add_string[0] == '\0')
 		{
-			g_snprintf(add_string, string_len, " - RAI: %x-%x-%u-%u", mcc, mnc, lac, rac);
+			snprintf(add_string, string_len, " - RAI: %x-%x-%u-%u", mcc, mnc, lac, rac);
 		}
 	}
 
@@ -5759,7 +5759,7 @@ de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	curr_offset++;
 
 	if (add_string)
-		g_snprintf(add_string, string_len, " - %s", rval_to_str(value, gsm_a_sm_packet_flow_id_vals, "Unknown"));
+		snprintf(add_string, string_len, " - %s", rval_to_str(value, gsm_a_sm_packet_flow_id_vals, "Unknown"));
 
 	EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_gm_extraneous_data);
 

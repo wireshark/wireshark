@@ -143,7 +143,7 @@ static const value_string mpeg_sect_table_id_vals[] = {
 
 static void mpeg_sect_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Table ID %u as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Table ID %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mpeg_sect, MPEG_SECT_TID_KEY)));
 }
 

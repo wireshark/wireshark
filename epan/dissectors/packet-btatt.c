@@ -4031,7 +4031,7 @@ static void helper_base_signed_negative_exponent(gchar * const buf, const gint b
 {
     const gint32 signed_value = (const gint32) value;
     const gint32 fraction = (((signed_value < 0) ? -1 : 1) * signed_value) % base;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%i.%i%s", signed_value / base, fraction, unit);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%i.%i%s", signed_value / base, fraction, unit);
 }
 
 static void base_signed_one_tenth_unitless(gchar *buf, guint32 value) {
@@ -4053,32 +4053,32 @@ static void base_signed_one_hundredth_percentage(gchar *buf, guint32 value) {
 /* unsigned area */
 
 static void base_unsigned_one_tenth_unitless(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u", value / 10, value % 10);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u", value / 10, value % 10);
 }
 
 static void base_unsigned_one_hundredth_km_h(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%02u km/h", value / 100, value % 100);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%02u km/h", value / 100, value % 100);
 }
 
 static void base_unsigned_one_tenth_percentage(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u%%", value / 10, value % 10);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u%%", value / 10, value % 10);
 }
 
 static void base_unsigned_one_tenth_milimeters(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%umm", value / 10, value % 10);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%umm", value / 10, value % 10);
 }
 
 static void base_unsigned_one_half_half_minute(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%um 1/min", value / 2, value % 2);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%um 1/min", value / 2, value % 2);
 }
 
 static void base_unsigned_one_ten_thousandth_unitless(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u", value / 10000, value % 10000);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u", value / 10000, value % 10000);
 }
 
 
 static void base_unsigned_one_hundredth_kg_per_meter(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u Kg/m", value / 100, value % 100);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%u Kg/m", value / 100, value % 100);
 }
 
 
@@ -4158,9 +4158,9 @@ static void btatt_handle_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btatt, PROTO_DATA_BTATT_HANDLE);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "ATT Handle 0x%04x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "ATT Handle 0x%04x as", (guint) *value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown ATT Handle");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown ATT Handle");
 }
 
 static gpointer btatt_handle_value(packet_info *pinfo)

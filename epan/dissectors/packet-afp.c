@@ -4457,26 +4457,26 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	toc_offset = (tvb_get_guint64(tvb, offset, encoding) >> 32) * 8;
 	if (toc_offset < 8) {
 		ti = proto_tree_add_uint64(tree, hf_afp_toc_offset, tvb, offset, 8, toc_offset);
-		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" G_GINT64_MODIFIER "u < 8 (bogus)", toc_offset);
+		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" PRIu64 " < 8 (bogus)", toc_offset);
 		return tvb_captured_length(tvb);
 	}
 	toc_offset -= 8;
 	if (offset + toc_offset + 8 > G_MAXINT) {
 		ti = proto_tree_add_uint64(tree, hf_afp_toc_offset, tvb, offset, 8, toc_offset);
-		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" G_GINT64_MODIFIER "u > %u (bogus)", toc_offset, G_MAXINT - 8 - offset);
+		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" PRIu64 " > %u (bogus)", toc_offset, G_MAXINT - 8 - offset);
 		return tvb_captured_length(tvb);
 	}
 	querylen = (tvb_get_guint64(tvb, offset, encoding) & 0xffffffff) * 8;
 	if (querylen < 8) {
 		ti = proto_tree_add_uint64(tree, hf_afp_toc_offset, tvb, offset, 8, toc_offset);
-		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" G_GINT64_MODIFIER "u Bytes, Query length: %" G_GINT64_MODIFIER "u < 8 (bogus)",
+		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" PRIu64 " Bytes, Query length: %" PRIu64 " < 8 (bogus)",
 				    toc_offset, querylen);
 		return tvb_captured_length(tvb);
 	}
 	querylen -= 8;
 	if (querylen > G_MAXINT) {
 		ti = proto_tree_add_uint64(tree, hf_afp_toc_offset, tvb, offset, 8, toc_offset);
-		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" G_GINT64_MODIFIER "u Bytes, Query length: %" G_GINT64_MODIFIER "u > %u (bogus)",
+		expert_add_info_format(pinfo, ti, &ei_afp_toc_offset, "%" PRIu64 " Bytes, Query length: %" PRIu64 " > %u (bogus)",
 				    toc_offset, querylen, G_MAXINT);
 		return tvb_captured_length(tvb);
 	}
@@ -4518,20 +4518,20 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		case SQ_CPX_TYPE_ARRAY:
 		case SQ_CPX_TYPE_DICT:
 			proto_tree_add_uint64_format(sub_tree_toc, hf_afp_toc_entry, tvb, offset, 8, toc_entry,
-						"%u: count: %" G_GINT64_MODIFIER "u, type: %s, offset: %" G_GINT64_MODIFIER "u",
+						"%u: count: %" PRIu64 ", type: %s, offset: %" PRIu64,
 						i+1, toc_entry >> 32, val64_to_str_const((toc_entry & 0xffff0000) >> 16, cpx_qtype_string_values, "Unknown"),
 						(toc_entry & 0xffff) * 8);
 			break;
 		case SQ_CPX_TYPE_STRING:
 		case SQ_CPX_TYPE_UTF16_STRING:
 			proto_tree_add_uint64_format(sub_tree_toc, hf_afp_toc_entry, tvb, offset, 8, toc_entry,
-						"%u: pad byte count: %" G_GINT64_MODIFIER "x, type: %s, offset: %" G_GINT64_MODIFIER "u",
+						"%u: pad byte count: %" PRIx64 ", type: %s, offset: %" PRIu64,
 						i+1, 8 - (toc_entry >> 32), val64_to_str_const((toc_entry & 0xffff0000) >> 16, cpx_qtype_string_values, "Unknown"),
 						(toc_entry & 0xffff) * 8);
 			break;
 		default:
 			proto_tree_add_uint64_format(sub_tree_toc, hf_afp_toc_entry, tvb, offset, 8, toc_entry,
-						"%u: unknown: 0x%08" G_GINT64_MODIFIER "x, type: %s, offset: %" G_GINT64_MODIFIER "u",
+						"%u: unknown: 0x%08" PRIx64 ", type: %s, offset: %" PRIu64,
 						i+1, toc_entry >> 32, val64_to_str_const((toc_entry & 0xffff0000) >> 16, cpx_qtype_string_values, "Unknown"),
 						(toc_entry & 0xffff) * 8);
 		}

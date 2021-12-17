@@ -1853,7 +1853,7 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *subtree;
 
     /* TODO: top level linking to most recent frame like we have for Host ID? */
-    subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_anchor, &pi, "Host ID: 0x%012" G_GINT64_MODIFIER "x, Anchor ID: 0x%012" G_GINT64_MODIFIER "x", host_id & ERF_EHDR_HOST_ID_MASK, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
+    subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_anchor, &pi, "Host ID: 0x%012" PRIx64 ", Anchor ID: 0x%012" PRIx64, host_id & ERF_EHDR_HOST_ID_MASK, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
     proto_item_set_generated(pi);
 
     pi = proto_tree_add_uint64(subtree, hf_erf_anchor_hostid, tvb, 0, 0, host_id & ERF_EHDR_HOST_ID_MASK);
@@ -1907,12 +1907,12 @@ dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     if (fnum_current != G_MAXUINT32) {
       pi = proto_tree_add_uint_format(tree, hf_erf_source_current, tvb, 0, 0, fnum_current,
-          "Host ID: 0x%012" G_GINT64_MODIFIER "x, Source ID: %u", host_id, source_id&0xFF);
+          "Host ID: 0x%012" PRIx64 ", Source ID: %u", host_id, source_id&0xFF);
       hostid_tree = proto_item_add_subtree(pi, ett_erf_source);
     } else {
       /* If we have no frame number to link against, just add a static subtree */
       hostid_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_source, &pi,
-          "Host ID: 0x%012" G_GINT64_MODIFIER "x, Source ID: %u", host_id, source_id&0xFF);
+          "Host ID: 0x%012" PRIx64 ", Source ID: %u", host_id, source_id&0xFF);
     }
     proto_item_set_generated(pi);
 
@@ -2776,7 +2776,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_if_tx_speed:
         value64 = tvb_get_ntoh64(tvb, offset + 4);
         tmp = format_size((int64_t)value64, FORMAT_SIZE_UNIT_BITS_S, FORMAT_SIZE_PREFIX_SI);
-        tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" G_GINT64_MODIFIER "u bps)", tmp, value64);
+        tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" PRIu64 " bps)", tmp, value64);
         g_free(tmp);
         break;
 
@@ -2807,7 +2807,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_mem:
         value64 = tvb_get_ntoh64(tvb, offset + 4);
         tmp = format_size((int64_t)value64, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
-        tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" G_GINT64_MODIFIER"u bytes)", tmp, value64);
+        tag_pi = proto_tree_add_uint64_format_value(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, value64, "%s (%" PRIu64" bytes)", tmp, value64);
         g_free(tmp);
         break;
 

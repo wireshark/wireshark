@@ -992,7 +992,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if ((bvlc_control & BSCVLC_CONTROL_ORIG_ADDRESS) != 0)
 	{
 		for(idx = 0; idx < 6; idx++)
-			g_snprintf(&mac_buffer[idx * 2], sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
+			snprintf(&mac_buffer[idx * 2], sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
 		col_append_fstr(pinfo->cinfo, COL_INFO, " SMAC %s", mac_buffer);
 
 		proto_tree_add_item(bvlc_tree, hf_bscvlc_orig_vmac, tvb, offset, 6, ENC_NA);
@@ -1002,7 +1002,7 @@ dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if ((bvlc_control & BSCVLC_CONTROL_DEST_ADDRESS) != 0)
 	{
 		for(idx = 0; idx < 6; idx++)
-			g_snprintf(&mac_buffer[idx * 2],  sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
+			snprintf(&mac_buffer[idx * 2],  sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
 		col_append_fstr(pinfo->cinfo, COL_INFO, " DMAC %s", mac_buffer);
 
 		proto_tree_add_item(bvlc_tree, hf_bscvlc_dest_vmac, tvb, offset, 6, ENC_NA);

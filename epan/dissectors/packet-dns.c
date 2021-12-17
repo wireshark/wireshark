@@ -1430,7 +1430,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
             label_len = (bit_count - 1) / 8 + 1;
 
             if (maxname > 0) {
-              print_len = g_snprintf(np, maxname, "\\[x");
+              print_len = snprintf(np, maxname, "\\[x");
               if (print_len <= maxname) {
                 np      += print_len;
                 maxname -= print_len;
@@ -1442,7 +1442,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
             }
             while (label_len--) {
               if (maxname > 0) {
-                print_len = g_snprintf(np, maxname, "%02x",
+                print_len = snprintf(np, maxname, "%02x",
                                        tvb_get_guint8(tvb, offset));
                 if (print_len <= maxname) {
                   np      += print_len;
@@ -1456,7 +1456,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
               offset++;
             }
             if (maxname > 0) {
-              print_len = g_snprintf(np, maxname, "/%d]", bit_count);
+              print_len = snprintf(np, maxname, "/%d]", bit_count);
               if (print_len <= maxname) {
                 np      += print_len;
                 maxname -= print_len;
@@ -1614,7 +1614,7 @@ rfc1867_angle(tvbuff_t *tvb, int offset, gboolean longitude)
 
   if (longitude ? (angle > 648000000) : (angle > 324000000))
   {
-    g_snprintf(buf, sizeof(buf), "Value out of range");
+    snprintf(buf, sizeof(buf), "Value out of range");
     return buf;
   }
 
@@ -1625,7 +1625,7 @@ rfc1867_angle(tvbuff_t *tvb, int offset, gboolean longitude)
   minutes = angle % 60;
   degrees = angle / 60;
 
-  g_snprintf(buf, sizeof(buf), "%u deg %u min %u.%03u sec %c", degrees, minutes, secs,
+  snprintf(buf, sizeof(buf), "%u deg %u min %u.%03u sec %c", degrees, minutes, secs,
              tsecs, direction);
   return buf;
 }

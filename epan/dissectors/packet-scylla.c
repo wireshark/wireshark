@@ -270,7 +270,7 @@ dissect_scylla_response_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scyll
         proto_item *req = proto_tree_add_uint(scylla_tree, hf_scylla_response_request_frame, tvb, 0, 0, req_resp->request_frame_num);
         proto_item_set_generated(req);
 
-        proto_item_append_text(response_ti, " (msg_id=%" G_GINT64_MODIFIER "u, %s)",
+        proto_item_append_text(response_ti, " (msg_id=%" PRIu64 ", %s)",
                                msg_id, val64_to_str(req_resp->verb_type, packettypenames, "Unknown (0x%02x)"));
 
         col_clear(pinfo->cinfo, COL_INFO);
@@ -305,7 +305,7 @@ dissect_scylla_msg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *scylla_tre
     proto_tree_add_item(scylla_header_tree, hf_scylla_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_item_append_text(request_ti, " (msg_id=%" G_GINT64_MODIFIER "u)", msg_id);
+    proto_item_append_text(request_ti, " (msg_id=%" PRIu64 ")", msg_id);
 
     switch (verb_type) {
     case MUTATION: {

@@ -499,7 +499,7 @@ static void ipv6_prompt(packet_info *pinfo, gchar *result)
 {
     gpointer value = ipv6_value(pinfo);
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", GPOINTER_TO_UINT(value));
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", GPOINTER_TO_UINT(value));
 }
 
 static const char* ipv6_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)

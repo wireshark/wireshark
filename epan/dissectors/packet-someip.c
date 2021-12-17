@@ -2588,10 +2588,10 @@ dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                 }
             } else {
                 if (name == NULL) {
-                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "[%s]: %" G_GUINT64_FORMAT " (0x%" G_GINT64_MODIFIER "x)",
+                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "[%s]: %" PRIu64 " (0x%" PRIx64 ")",
                         base_type->name, value, value);
                 } else {
-                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "%s [%s]: %" G_GUINT64_FORMAT " (0x%" G_GINT64_MODIFIER "x)",
+                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "%s [%s]: %" PRIu64 " (0x%" PRIx64 ")",
                         name, base_type->name, value, value);
                 }
             }

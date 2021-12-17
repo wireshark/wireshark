@@ -1586,7 +1586,7 @@ static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *t
 		last_packet = tvb_get_ntohl(tvb, offset + 8);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Block %" G_GINT64_MODIFIER "u, Packets %d->%d", (gint64)block_id, first_packet, last_packet);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "Block %" PRIu64 ", Packets %d->%d", (gint64)block_id, first_packet, last_packet);
 
 	if (gvcp_telegram_tree != NULL)
 	{

@@ -1129,7 +1129,7 @@ static gint dissect_ANALOG(tvbuff_t *tvb, proto_tree *tree, config_block *block,
 				 * so I just use gint16; the scaling of the conversion factor
 				 * is also "user defined", so I just write it after the analog value */
 				gint16 tmp = tvb_get_ntohs(tvb, offset); offset += 2;
-				proto_item_append_text(temp_item, ", %" G_GINT16_FORMAT " (conversion factor: %#06x)",
+				proto_item_append_text(temp_item, ", %" PRId16 " (conversion factor: %#06x)",
 						       tmp, ai->conv);
 			}
 		}
@@ -1286,7 +1286,7 @@ static gint dissect_ANUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint cn
 		if (	tmp &  0x00800000) /* sign bit set */
 			tmp |= 0xFF000000;
 
-		proto_item_append_text(temp_item, ", value: %" G_GINT32_FORMAT, tmp);
+		proto_item_append_text(temp_item, ", value: %" PRId32, tmp);
 
 		offset += 4;
 	}
@@ -1442,7 +1442,7 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN);
 	/* add number of included PMUs to the text in the list view  */
 	num_pmu = tvb_get_ntohs(tvb, offset); offset += 2;
-	proto_item_append_text(config_item, ", %"G_GUINT16_FORMAT" PMU(s) included", num_pmu);
+	proto_item_append_text(config_item, ", %"PRIu16" PMU(s) included", num_pmu);
 
 	/* dissect the repeating PMU blocks */
 	for (j = 0; j < num_pmu; j++) {
@@ -1541,7 +1541,7 @@ static int dissect_config_3_frame(tvbuff_t *tvb, proto_item *config_item)
 	num_pmu = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 
-	proto_item_append_text(config_item, ", %"G_GUINT16_FORMAT" PMU(s) included", num_pmu);
+	proto_item_append_text(config_item, ", %"PRIu16" PMU(s) included", num_pmu);
 
 	/* dissect the repeating PMU blocks */
 	for (j = 0; j < num_pmu; j++) {

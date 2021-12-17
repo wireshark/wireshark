@@ -128,7 +128,7 @@ udp_src_prompt(packet_info *pinfo, gchar *result)
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
                                         hf_udp_srcport, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", port, UTF8_RIGHTWARDS_ARROW);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", port, UTF8_RIGHTWARDS_ARROW);
 }
 
 static gpointer
@@ -143,7 +143,7 @@ udp_dst_prompt(packet_info *pinfo, gchar *result)
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
                                         hf_udp_dstport, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
 static gpointer
@@ -159,7 +159,7 @@ udp_both_prompt(packet_info *pinfo, gchar *result)
                                         hf_udp_srcport, pinfo->curr_layer_num));
     guint32 dstport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo,
                                         hf_udp_dstport, pinfo->curr_layer_num));
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, dstport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, dstport);
 }
 
 /* Conversation and process code originally copied from packet-tcp.c */

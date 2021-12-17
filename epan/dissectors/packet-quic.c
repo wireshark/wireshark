@@ -1323,7 +1323,7 @@ again:
         // necessary here to tell a retransmission apart from other (normal?)
         // conditions. See also similar code in packet-tcp.c.
 #if 0
-        proto_tree_add_debug_text(tree, "TODO retransmission expert info frame %d stream_id=%" G_GINT64_MODIFIER "u offset=%d visited=%d reassembly_id=0x%08x",
+        proto_tree_add_debug_text(tree, "TODO retransmission expert info frame %d stream_id=%" PRIu64 " offset=%d visited=%d reassembly_id=0x%08x",
                 pinfo->num, stream->stream_id, offset, PINFO_FD_VISITED(pinfo), reassembly_id);
 #endif
         return;
@@ -1736,8 +1736,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
 
-            proto_item_append_text(ti_ft, " id=%" G_GINT64_MODIFIER "u", stream_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
+            proto_item_append_text(ti_ft, " id=%" PRIu64, stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" PRIu64 ")", stream_id);
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_application_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
             offset += len_error_code;
@@ -1745,7 +1745,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_final_size, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finalsize);
             offset += len_finalsize;
 
-            proto_item_append_text(ti_ft, " Error code: %#" G_GINT64_MODIFIER "x", error_code);
+            proto_item_append_text(ti_ft, " Error code: %#" PRIx64, error_code);
         }
         break;
         case FT_STOP_SENDING:{
@@ -1758,13 +1758,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
 
-            proto_item_append_text(ti_ft, " id=%" G_GINT64_MODIFIER "u", stream_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
+            proto_item_append_text(ti_ft, " id=%" PRIu64, stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" PRIu64 ")", stream_id);
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ss_application_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
             offset += len_error_code;
 
-            proto_item_append_text(ti_ft, " Error code: %#" G_GINT64_MODIFIER "x", error_code);
+            proto_item_append_text(ti_ft, " Error code: %#" PRIx64, error_code);
         }
         break;
         case FT_CRYPTO: {
@@ -1833,8 +1833,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ftid_tree, hf_quic_stream_direction, tvb, offset, -1, ENC_VARINT_QUIC, NULL, NULL);
             offset += lenvar;
 
-            proto_item_append_text(ti_ft, " id=%" G_GINT64_MODIFIER "u", stream_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
+            proto_item_append_text(ti_ft, " id=%" PRIu64, stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" PRIu64 ")", stream_id);
 
             proto_item_append_text(ti_ft, " fin=%d", !!(frame_type & FTFLAGS_STREAM_FIN));
 
@@ -1846,7 +1846,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_offset, tvb, offset, -1, ENC_VARINT_QUIC, &stream_offset, &lenvar);
                 offset += lenvar;
             }
-            proto_item_append_text(ti_ft, " off=%" G_GINT64_MODIFIER "u", stream_offset);
+            proto_item_append_text(ti_ft, " off=%" PRIu64, stream_offset);
 
             if (frame_type & FTFLAGS_STREAM_LEN) {
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_length, tvb, offset, -1, ENC_VARINT_QUIC, &length, &lenvar);
@@ -1854,7 +1854,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             } else {
                 length = tvb_reported_length_remaining(tvb, offset);
             }
-            proto_item_append_text(ti_ft, " len=%" G_GINT64_MODIFIER "u dir=%s origin=%s", length,
+            proto_item_append_text(ti_ft, " len=%" PRIu64 " dir=%s origin=%s", length,
                                    val64_to_str_const(!!(stream_id & FTFLAGS_STREAM_DIRECTION), quic_frame_id_direction, "unknown"),
                                    val64_to_str_const(!!(stream_id & FTFLAGS_STREAM_INITIATOR), quic_frame_id_initiator, "unknown"));
 
@@ -1896,8 +1896,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_msd_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
 
-            proto_item_append_text(ti_ft, " id=%" G_GINT64_MODIFIER "u", stream_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
+            proto_item_append_text(ti_ft, " id=%" PRIu64, stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" PRIu64 ")", stream_id);
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_msd_maximum_stream_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumstreamdata);
             offset += len_maximumstreamdata;
@@ -1931,8 +1931,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_sdb_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
 
-            proto_item_append_text(ti_ft, " id=%" G_GINT64_MODIFIER "u", stream_id);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" G_GINT64_MODIFIER "u)", stream_id);
+            proto_item_append_text(ti_ft, " id=%" PRIu64, stream_id);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%" PRIu64 ")", stream_id);
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_sdb_stream_data_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
             offset += len_offset;
@@ -2066,7 +2066,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             if (frame_type == FT_CONNECTION_CLOSE_TPT && error_code <= 0x3fff) {
                 proto_item_append_text(ti_ft, " Error code: %s", rval_to_str((guint32)error_code, quic_transport_error_code_vals, "Unknown (%d)"));
             } else {
-                proto_item_append_text(ti_ft, " Error code: %#" G_GINT64_MODIFIER "x", error_code);
+                proto_item_append_text(ti_ft, " Error code: %#" PRIx64, error_code);
             }
             if (tls_alert) {
                 proto_item_append_text(ti_ft, " (%s)", tls_alert);
@@ -2235,7 +2235,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         default:
-            expert_add_info_format(pinfo, ti_ft, &ei_quic_ft_unknown, "Unknown Frame Type %#" G_GINT64_MODIFIER "x", frame_type);
+            expert_add_info_format(pinfo, ti_ft, &ei_quic_ft_unknown, "Unknown Frame Type %#" PRIx64, frame_type);
         break;
     }
 
@@ -3287,7 +3287,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     proto_tree_add_uint64(quic_tree, hf_quic_packet_number, tvb, offset, quic_packet->pkn_len, quic_packet->packet_number);
     offset += quic_packet->pkn_len;
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", quic_packet->packet_number);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" PRIu64, quic_packet->packet_number);
 
     /* Payload */
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -3411,8 +3411,8 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     /* Packet Number */
     proto_tree_add_uint64(hdr_tree, hf_quic_packet_number, tvb, offset, quic_packet->pkn_len, quic_packet->packet_number);
     offset += quic_packet->pkn_len;
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", quic_packet->packet_number);
-    proto_item_append_text(pi, " PKN=%" G_GINT64_MODIFIER "u", quic_packet->packet_number);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" PRIu64, quic_packet->packet_number);
+    proto_item_append_text(pi, " PKN=%" PRIu64, quic_packet->packet_number);
 
     /* Protected Payload */
 #ifdef HAVE_LIBGCRYPT_AEAD

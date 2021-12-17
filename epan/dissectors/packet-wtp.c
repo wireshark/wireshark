@@ -386,7 +386,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
     /* Develop the string to put in the Info column */
-    returned_length =  g_snprintf(szInfo, SZINFO_SIZE, "WTP %s",
+    returned_length =  snprintf(szInfo, SZINFO_SIZE, "WTP %s",
             val_to_str(pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"));
     str_index += MIN(returned_length, SZINFO_SIZE-str_index);
 
@@ -396,7 +396,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             TID = tvb_get_ntohs(tvb, offCur + 1);
             psn = 0;
             clsTransaction = transaction_class(tvb_get_guint8(tvb, offCur + 3));
-            returned_length = g_snprintf(&szInfo[str_index], SZINFO_SIZE-str_index,
+            returned_length = snprintf(&szInfo[str_index], SZINFO_SIZE-str_index,
                     " Class %d", clsTransaction);
             str_index += MIN(returned_length, SZINFO_SIZE-str_index);
             cbHeader = 4;
@@ -408,7 +408,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             TID = tvb_get_ntohs(tvb, offCur + 1);
             psn = tvb_get_guint8(tvb, offCur + 3);
             if (psn != 0) {
-                returned_length = g_snprintf(&szInfo[str_index], SZINFO_SIZE-str_index,
+                returned_length = snprintf(&szInfo[str_index], SZINFO_SIZE-str_index,
                         " (%u)", psn);
                 str_index += MIN(returned_length, SZINFO_SIZE-str_index);
             }
@@ -440,7 +440,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     };
     if (fRID) {
-        /*returned_length =*/ g_snprintf(&szInfo[str_index], SZINFO_SIZE-str_index, " R" );
+        /*returned_length =*/ snprintf(&szInfo[str_index], SZINFO_SIZE-str_index, " R" );
         /*str_index += MIN(returned_length, SZINFO_SIZE-str_index);*/
     };
     /* In the interest of speed, if "tree" is NULL, don't do any work not

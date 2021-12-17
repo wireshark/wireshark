@@ -325,7 +325,7 @@ ouch_tree_add_timestamp(
     mins = (tmp % 3600) / 60;
     secs = tmp % 60;
 
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
+    snprintf(buf, ITEM_LABEL_LENGTH,
                "%u:%02u:%02u.%09u",
                hours, mins, secs, nsecs);
 
@@ -342,9 +342,9 @@ format_price(
     guint32 value)
 {
     if (value == 0x7fffffff) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%s", "Market");
+        snprintf(buf, ITEM_LABEL_LENGTH, "%s", "Market");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH,
+        snprintf(buf, ITEM_LABEL_LENGTH,
                    "$%u.%04u",
                    value / 10000, value % 10000);
     }
@@ -359,7 +359,7 @@ format_reference_price_type(
     char *buf,
     guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
+    snprintf(buf, ITEM_LABEL_LENGTH,
                "%s (%c)",
                val_to_str_const(value,
                                 ouch_reference_price_type_val,
@@ -384,15 +384,15 @@ format_tif(
 
     switch (value) {
     case 0:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Immediate Or Cancel (%u)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Immediate Or Cancel (%u)", value);
         break;
 
     case 99998:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Market Hours (%u)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Market Hours (%u)", value);
         break;
 
     case 99999:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "System Hours (%u)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "System Hours (%u)", value);
         break;
 
     default:
@@ -400,7 +400,7 @@ format_tif(
         mins = (value % 3600) / 60;
         secs = value % 60;
 
-        g_snprintf(buf, ITEM_LABEL_LENGTH,
+        snprintf(buf, ITEM_LABEL_LENGTH,
                    "%uh %02um %02us (%u seconds)",
                    hours, mins, secs,
                    value);

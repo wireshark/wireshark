@@ -243,7 +243,7 @@ static const value_string prism_istx_vals[] =
 static void
 prism_rate_base_custom(gchar *result, guint32 rate)
 {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", rate /2, rate & 1 ? 5 : 0);
+    snprintf(result, ITEM_LABEL_LENGTH, "%u.%u", rate /2, rate & 1 ? 5 : 0);
 }
 
 static gchar *

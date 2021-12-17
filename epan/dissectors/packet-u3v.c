@@ -1074,7 +1074,7 @@ get_register_name_from_address(guint64 addr, gboolean* is_custom_register, u3v_c
     }
 
     if (!address_string) {
-        address_string = wmem_strdup_printf(wmem_packet_scope(), "[Addr:0x%016" G_GINT64_MODIFIER "X]", addr);
+        address_string = wmem_strdup_printf(wmem_packet_scope(), "[Addr:0x%016" PRIX64 "]", addr);
         if (is_custom_register != NULL) {
             *is_custom_register = TRUE;
         }
@@ -1368,7 +1368,7 @@ dissect_u3v_read_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
 
     gencp_trans->count = count;
     if ( 0xffffffff00000000 & addr ) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%016" G_GINT64_MODIFIER "X (%d) bytes) %s", addr, count, address_string);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%016" PRIX64 " (%d) bytes) %s", addr, count, address_string);
     } else {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (0x%08X (%d) bytes)", (guint32)addr, count);
     }
@@ -1621,7 +1621,7 @@ dissect_u3v_stream_leader(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
     offset += 2;
 
     /* Add payload type to information string */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Stream Leader  [ Block ID: %" G_GINT64_MODIFIER "u , Type %s]",
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Stream Leader  [ Block ID: %" PRIu64 " , Type %s]",
                     block_id,
                     val_to_str(payload_type, payload_type_names, "Unknown Payload Type"));
 
@@ -1709,7 +1709,7 @@ dissect_u3v_stream_trailer(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_
     offset += 8;
 
     /* Add payload type to information string */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "Stream Trailer [ Block ID: %" G_GINT64_MODIFIER "u]", block_id);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Stream Trailer [ Block ID: %" PRIu64 "]", block_id);
 
     if (tvb_captured_length_remaining(tvb,offset) >=4 ) {
         /* size_y */

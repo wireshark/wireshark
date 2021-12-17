@@ -1247,7 +1247,7 @@ dissect_sec_intx(tvbuff_t *tvb, gint *offset, packet_info *pinfo, proto_tree *tr
     proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
     if ((hf != hf_sgeonw_app_id) || ((*offset) - start) > 4) {
         proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
-            (((*offset) - start) << 3) - ((*offset) - start), tmp_val, ENC_BIG_ENDIAN, "%" G_GUINT64_FORMAT, tmp_val);
+            (((*offset) - start) << 3) - ((*offset) - start), tmp_val, ENC_BIG_ENDIAN, "%" PRIu64, tmp_val);
     }
     else {
         proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
@@ -2747,7 +2747,7 @@ btpa_src_prompt(packet_info *pinfo _U_, gchar* result)
 {
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_srcport, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", port, UTF8_RIGHTWARDS_ARROW);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", port, UTF8_RIGHTWARDS_ARROW);
 }
 
 static gpointer
@@ -2761,7 +2761,7 @@ btpa_dst_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_dstport, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
 static gpointer
@@ -2775,7 +2775,7 @@ btpa_both_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 srcport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_srcport, pinfo->curr_layer_num)),
             destport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpa_dstport, pinfo->curr_layer_num));
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
 }
 
 static void
@@ -2783,7 +2783,7 @@ btpb_dst_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_btpb_dstport, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
 static gpointer
@@ -2914,7 +2914,7 @@ proto_reg_handoff_btpb(void)
 static void
 display_latitude( gchar *result, gint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
+    snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
             abs(hexver)/10000000,
             abs(hexver%10000000)*6/1000000,
             abs(hexver*6%1000000)*6./100000.,
@@ -2925,7 +2925,7 @@ display_latitude( gchar *result, gint32 hexver )
 static void
 display_longitude( gchar *result, gint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
+    snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
             abs(hexver)/10000000,
             abs(hexver%10000000)*6/1000000,
             abs(hexver*6%1000000)*6./100000.,
@@ -2936,13 +2936,13 @@ display_longitude( gchar *result, gint32 hexver )
 static void
 display_speed( gchar *result, gint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%.2f m/s", hexver/100.);
+    snprintf( result, ITEM_LABEL_LENGTH, "%.2f m/s", hexver/100.);
 }
 
 static void
 display_heading( gchar *result, guint32 hexver )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%.1f degrees", hexver/10.);
+    snprintf( result, ITEM_LABEL_LENGTH, "%.1f degrees", hexver/10.);
 }
 
 static void
@@ -2954,9 +2954,9 @@ display_elevation( gchar *result, gint32 hexver )
     //  also represented by 0xF001.
     //  0xF000: an unknown elevation
     if (hexver == -4096)
-        g_snprintf( result, ITEM_LABEL_LENGTH, "Unknown (%4x)", hexver);
+        snprintf( result, ITEM_LABEL_LENGTH, "Unknown (%4x)", hexver);
     else
-        g_snprintf( result, ITEM_LABEL_LENGTH, "%.1fm", hexver/10.);
+        snprintf( result, ITEM_LABEL_LENGTH, "%.1fm", hexver/10.);
 }
 
 void

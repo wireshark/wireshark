@@ -7001,7 +7001,7 @@ fUnsignedTag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, 
     /* only support up to an 8 byte (64-bit) integer */
     if (fUnsigned64(tvb, offset + tag_len, lvt, &val))
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
-            ett_bacapp_tag, NULL, "%s(Unsigned) %" G_GINT64_MODIFIER "u", label, val);
+            ett_bacapp_tag, NULL, "%s(Unsigned) %" PRIu64, label, val);
     else
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL, "%s - %u octets (Unsigned)", label, lvt);
@@ -7088,7 +7088,7 @@ fSignedTag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, co
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (fSigned64(tvb, offset + tag_len, lvt, &val))
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
-            ett_bacapp_tag, NULL, "%s(Signed) %" G_GINT64_MODIFIER "d", label, val);
+            ett_bacapp_tag, NULL, "%s(Signed) %" PRId64, label, val);
     else
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL, "%s - %u octets (Signed)", label, lvt);
@@ -8687,13 +8687,13 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     gboolean do_default_handling;
 
     if (propertyIdentifier >= 0) {
-        g_snprintf(ar, sizeof(ar), "%s: ",
+        snprintf(ar, sizeof(ar), "%s: ",
             val_to_split_str(propertyIdentifier, 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
                 Vendor_Proprietary_Fmt));
     } else {
-        g_snprintf(ar, sizeof(ar), "Abstract Type: ");
+        snprintf(ar, sizeof(ar), "Abstract Type: ");
     }
 
     unsigned recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
@@ -14122,7 +14122,7 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* exit loop if nothing happens inside */
         lastoffset = offset;
-        g_snprintf(ar, sizeof(ar), "%s[%d]: ",
+        snprintf(ar, sizeof(ar), "%s[%d]: ",
             val_to_split_str(87 , 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,

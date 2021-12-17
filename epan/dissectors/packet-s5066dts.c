@@ -448,7 +448,7 @@ static guint dissect_s5066dts_eow(tvbuff_t *tvb,  packet_info * pinfo, guint off
 static void
 s5066dts_address_format( gchar *result, guint32 address_value )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d",
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d",
             address_value >> 24,
             (address_value >> 16) & 0xFF,
             (address_value >> 8) & 0xFF,

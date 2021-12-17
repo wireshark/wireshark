@@ -724,13 +724,13 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 		}
 		case DATA_TYPE_INTEGER:
 			proto_tree_add_item(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN);
-			proto_item_append_text(tlv_tree, ": %" G_GINT64_FORMAT, decodeVariableInt(tvb, valueOffset, element->length_of_value));
+			proto_item_append_text(tlv_tree, ": %" PRId64, decodeVariableInt(tvb, valueOffset, element->length_of_value));
 			break;
 		case DATA_TYPE_UNSIGNED_INTEGER:
 		{
 			guint64 value;
 			proto_tree_add_item_ret_uint64(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_BIG_ENDIAN, &value);
-			proto_item_append_text(tlv_tree, ": %" G_GUINT64_FORMAT, value);
+			proto_item_append_text(tlv_tree, ": %" PRIu64, value);
 			break;
 		}
 		case DATA_TYPE_FLOAT:

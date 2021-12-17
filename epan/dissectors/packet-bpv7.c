@@ -733,7 +733,7 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
                 const guint64 *service = wscbor_require_uint64(wmem_packet_scope(), chunk);
                 proto_tree_add_cbor_uint64(tree_eid, hf_eid_ipn_service, pinfo, tvb, chunk, service);
 
-                wmem_strbuf_append_printf(uribuf, "ipn:%" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT, node ? *node : 0, service ? *service : 0);
+                wmem_strbuf_append_printf(uribuf, "ipn:%" PRIu64 ".%" PRIu64, node ? *node : 0, service ? *service : 0);
             }
             break;
         }
@@ -908,16 +908,16 @@ static void proto_tree_add_ident(proto_tree *tree, int hfindex, tvbuff_t *tvb, c
     wmem_strbuf_t *ident_text = wmem_strbuf_new(wmem_packet_scope(), NULL);
     wmem_strbuf_append_printf(
         ident_text,
-        "Source: %s, DTN Time: %" G_GUINT64_FORMAT ", Seq: %" G_GUINT64_FORMAT,
+        "Source: %s, DTN Time: %" PRIu64 ", Seq: %" PRIu64,
         ident->src,
         ident->ts->abstime.dtntime,
         ident->ts->seqno
     );
     if (ident->frag_offset) {
-        wmem_strbuf_append_printf(ident_text, ", Frag Offset: %" G_GUINT64_FORMAT, *(ident->frag_offset));
+        wmem_strbuf_append_printf(ident_text, ", Frag Offset: %" PRIu64, *(ident->frag_offset));
     }
     if (ident->total_len) {
-        wmem_strbuf_append_printf(ident_text, ", Total Length: %" G_GUINT64_FORMAT, *(ident->total_len));
+        wmem_strbuf_append_printf(ident_text, ", Total Length: %" PRIu64, *(ident->total_len));
     }
 
     proto_item *item_subj_ident = proto_tree_add_string(tree, hfindex, tvb, 0, 0, wmem_strbuf_get_str(ident_text));
@@ -941,7 +941,7 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return offset - start;
     }
 #if 0
-    proto_item_append_text(item_block, ", Items: %" G_GUINT64_FORMAT, chunk_block->head_value);
+    proto_item_append_text(item_block, ", Items: %" PRIu64, chunk_block->head_value);
 #endif
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -964,7 +964,7 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     field_ix++;
     block->crc_type = (crc_type ? (BundleCrcType)(*crc_type) : BP_CRC_NONE);
     if (crc_type) {
-        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" G_GUINT64_FORMAT));
+        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" PRIu64));
     }
 
     proto_tree_add_cbor_eid(tree_block, hf_primary_dst_eid, hf_primary_dst_uri, pinfo, tvb, &offset, block->dst_eid);
@@ -1063,7 +1063,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         return offset - start;
     }
 #if 0
-    proto_item_append_text(item_block, ", Items: %" G_GUINT64_FORMAT, chunk_block->head_value);
+    proto_item_append_text(item_block, ", Items: %" PRIu64, chunk_block->head_value);
 #endif
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1073,7 +1073,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     block->type_code = type_code;
 
     if (type_code) {
-        proto_item_append_text(item_block, ": %s", val64_to_str(*type_code, blocktype_vals, "Type %" G_GUINT64_FORMAT));
+        proto_item_append_text(item_block, ": %s", val64_to_str(*type_code, blocktype_vals, "Type %" PRIu64));
 
         // Check duplicate of this type
         guint64 limit = UINT64_MAX;
@@ -1112,7 +1112,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     field_ix++;
     block->block_number = block_num;
     if (block_num) {
-        proto_item_append_text(item_block, ", Block Num: %" G_GUINT64_FORMAT, *block_num);
+        proto_item_append_text(item_block, ", Block Num: %" PRIu64, *block_num);
     }
 
     chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1127,7 +1127,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     field_ix++;
     block->crc_type = (crc_type ? (BundleCrcType)(*crc_type) : BP_CRC_NONE);
     if (crc_type) {
-        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" G_GUINT64_FORMAT));
+        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" PRIu64));
     }
 
     chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1211,7 +1211,7 @@ static void mark_target_block(gpointer key, gpointer value _U_, gpointer user_da
     const bpsec_block_mark_t *mark = (bpsec_block_mark_t *)user_data;
     expert_add_info_format(
         mark->pinfo, mark->pi, mark->eiindex,
-        "Block is targed by %s block number %" G_GUINT64_FORMAT, mark->sectype, *blk_num
+        "Block is targed by %s block number %" PRIu64, mark->sectype, *blk_num
     );
 }
 static void apply_bpsec_mark(const security_mark_t *sec, packet_info *pinfo, proto_item *pi) {
@@ -1416,14 +1416,14 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         apply_bpsec_mark(&(block->sec), pinfo, block->item_block);
     }
 
-    proto_item_append_text(item_bundle, ", Blocks: %" G_GUINT64_FORMAT, block_ix);
+    proto_item_append_text(item_bundle, ", Blocks: %" PRIu64, block_ix);
     if (bundle->primary) {
         const bp_block_primary_t *block = bundle->primary;
         proto_item_append_text(item_bundle, ", Dst: %s", block->dst_eid ? block->dst_eid->uri : NULL);
         proto_item_append_text(item_bundle, ", Src: %s", block->src_nodeid ? block->src_nodeid->uri : NULL);
         if (bundle->ident && (bundle->ident->ts)) {
-            proto_item_append_text(item_bundle, ", Time: %" G_GUINT64_FORMAT, bundle->ident->ts->abstime.dtntime);
-            proto_item_append_text(item_bundle, ", Seq: %" G_GUINT64_FORMAT, bundle->ident->ts->seqno);
+            proto_item_append_text(item_bundle, ", Time: %" PRIu64, bundle->ident->ts->abstime.dtntime);
+            proto_item_append_text(item_bundle, ", Seq: %" PRIu64, bundle->ident->ts->seqno);
         }
     }
     {
@@ -1494,7 +1494,7 @@ static int dissect_payload_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         dissector_handle_t admin_dissect = NULL;
         if (type_code) {
-            proto_item_append_text(item_rec, ": %s", val64_to_str(*type_code, admin_type_vals, "Type %" G_GUINT64_FORMAT));
+            proto_item_append_text(item_rec, ": %s", val64_to_str(*type_code, admin_type_vals, "Type %" PRIu64));
             admin_dissect = dissector_get_custom_table_handle(admin_dissectors, type_code);
         }
         tvbuff_t *tvb_record = tvb_new_subset_remaining(tvb, offset);
@@ -1652,7 +1652,7 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                             status_buf);
     }
     if (reason_code) {
-        proto_item_append_text(item_admin, ", Reason: %s", val64_to_str(*reason_code, status_report_reason_vals, "%" G_GUINT64_FORMAT));
+        proto_item_append_text(item_admin, ", Reason: %s", val64_to_str(*reason_code, status_report_reason_vals, "%" PRIu64));
     }
 
     proto_item_set_len(item_status, offset - chunk_status->start);

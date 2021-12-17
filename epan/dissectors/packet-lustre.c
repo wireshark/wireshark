@@ -1643,8 +1643,8 @@ lustre_get_trans(packet_info *pinfo, struct lnet_trans_info *info)
             /* XXX - Is this even possible? ?*/
             trans = (lustre_trans_t *)ptr;
             REPORT_DISSECTOR_BUG("ERROR: packet-lustre: conversation replaced: "
-                                 "trans:{opcode:%u sub_opcode:%" G_GINT64_MODIFIER "u match_bits:%" G_GINT64_MODIFIER "x} "
-                                 "with match_bits:%" G_GINT64_MODIFIER "x",
+                                 "trans:{opcode:%u sub_opcode:%" PRIu64 " match_bits:%" PRIx64 "} "
+                                 "with match_bits:%" PRIx64,
                                  trans->opcode, trans->sub_opcode, trans->match_bits, info->match_bits);
         }
     }
@@ -1714,7 +1714,7 @@ lustre_fmt_ver( gchar *result, guint32 version )
     minor = version & 0xff;
     version >>= 8;
     major = version & 0xff;
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d", major, minor, patch, fix);
+    snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d", major, minor, patch, fix);
 }
 
 static int
@@ -1751,7 +1751,7 @@ dissect_struct_lu_fid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int hf
     tree = proto_item_add_subtree(item, ett_lustre_lu_fid);
 
     proto_tree_add_item_ret_uint64(tree, hf_lustre_lu_fid_f_seq, tvb, offset, 8, ENC_LITTLE_ENDIAN, &seq);
-    proto_item_append_text(item, ": [%#" G_GINT64_MODIFIER "x:", seq);
+    proto_item_append_text(item, ": [%#" PRIx64 ":", seq);
     offset += 8;
 
     proto_tree_add_item_ret_uint(tree, hf_lustre_lu_fid_f_oid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &val);
@@ -4176,7 +4176,7 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
     if (*pb_type == PTL_RPC_MSG_REQUEST)
         trans->opcode = opcode;
     else if (trans->opcode != opcode) {
-        expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "Mismatched: PTLRPC:%s != Conversation:%s (match_bits:%" G_GINT64_MODIFIER "x)",
+        expert_add_info_format(pinfo, tree, &ei_lustre_badopc, "Mismatched: PTLRPC:%s != Conversation:%s (match_bits:%" PRIx64 ")",
                                val_to_str(opcode, lustre_op_codes, "Unknown(%d)"),
                                val_to_str(trans->opcode, lustre_op_codes, "Unknown(%d)"), trans->match_bits);
         trans->opcode = opcode;

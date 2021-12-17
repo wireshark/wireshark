@@ -5531,7 +5531,7 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_string(pdu_tree, hf_acn_dmx_data, tvb, data_offset, dmx_count, buffer);
 
       /* start our line */
-      g_snprintf(buffer, BUFFER_SIZE, "001-%03d: ", perline);
+      snprintf(buffer, BUFFER_SIZE, "001-%03d: ", perline);
       buf_ptr = buffer + 9;
 
       total_cnt = 0;
@@ -5553,7 +5553,7 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
           /* add leader... */
           proto_tree_add_string_format(pdu_tree, hf_acn_dmx_data, tvb, data_offset, item_cnt, buffer, "%s", buffer);
           data_offset += perline;
-          g_snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+perline);
+          snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+perline);
           buf_ptr = buffer + 9;
           item_cnt = 0;
         } else {

@@ -1204,10 +1204,10 @@ static void format_custom_msgtype(gchar *out, guint32 in)
 	}
 
 	if (tmp)
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
 	else {
 		tmp_str = val_to_str_wmem(NULL, in, oml_fom_msgtype_vals, "Unknown 0x%02x");
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
 		wmem_free(NULL, tmp_str);
 	}
 }
@@ -1231,10 +1231,10 @@ static void format_custom_attr(gchar *out, guint32 in)
 	}
 
 	if (tmp)
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
 	else {
 		tmp_str = val_to_str_wmem(NULL, in, oml_fom_attr_vals, "Unknown 0x%02x");
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
 		wmem_free(NULL, tmp_str);
 	}
 }
@@ -1242,7 +1242,7 @@ static void format_custom_attr(gchar *out, guint32 in)
 /* Interference level boundaries are coded as a binary presentation of -x dBm */
 static void format_interf_bound(gchar *buf, const guint32 in)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", in,
+	snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", in,
 		   unit_name_string_get_value(in, &units_dbm));
 }
 

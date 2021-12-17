@@ -320,7 +320,7 @@ dissect_corosync_totemsrp_memb_ring_id(tvbuff_t *tvb,
   rid = corosync_totemsrp_get_guint64(tvb, offset, encoding);
   offset += 8;
 
-  proto_item_append_text(item, " (ring: %" G_GINT64_MODIFIER "u)", rid);
+  proto_item_append_text(item, " (ring: %" PRIu64 ")", rid);
 
   if (node_id)
     *node_id = nid;
@@ -359,7 +359,7 @@ dissect_corosync_totemsrp_rtr_list(tvbuff_t *tvb,
                         tvb, offset, 4, encoding);
 
   seq = corosync_totemsrp_get_guint32(tvb, offset, encoding);
-  proto_item_append_text(item, " (ring: %" G_GINT64_MODIFIER "u node: %u seq: %u)",
+  proto_item_append_text(item, " (ring: %" PRIu64 " node: %u seq: %u)",
                            ring_id, node_id, seq);
   offset += 4;
 
@@ -432,7 +432,7 @@ dissect_corosync_totemsrp_orf_token(tvbuff_t *tvb,
                                                     encoding);
   }
 
-  proto_item_append_text(item, " (ring: %" G_GINT64_MODIFIER "u node: %u nrtr: %d seq: %d au: %u)",
+  proto_item_append_text(item, " (ring: %" PRIu64 " node: %u nrtr: %d seq: %d au: %u)",
                            ring_id, node_id, rtr_list_entries, seq, aru);
 
   proto_item_set_len(item, offset - original_offset);
@@ -513,7 +513,7 @@ dissect_corosync_totemsrp_mcast(tvbuff_t *tvb,
                                                         &node_id,
                                                         &ring_id);
 
-  proto_item_append_text(item, " (ring: %" G_GINT64_MODIFIER "u node: %u)",
+  proto_item_append_text(item, " (ring: %" PRIu64 " node: %u)",
                            ring_id, node_id);
 
   proto_tree_add_item(tree, hf_corosync_totemsrp_mcast_node_id,
@@ -573,7 +573,7 @@ dissect_corosync_totemsrp_memb_merge_detect(tvbuff_t *tvb,
                                                         &node_id,
                                                         &ring_id);
 
-  proto_item_append_text(item, " (ring: %" G_GINT64_MODIFIER "u node: %u)",
+  proto_item_append_text(item, " (ring: %" PRIu64 " node: %u)",
                            ring_id, node_id);
 
   proto_item_set_len(item, offset - original_offset);
@@ -751,7 +751,7 @@ dissect_corosync_totemsrp_memb_commit_token(tvbuff_t *tvb,
                                                                         NULL);
   }
 
-  proto_item_append_text(item, " (ring: %" G_GINT64_MODIFIER "u node: %u seq: %u entries: %u)",
+  proto_item_append_text(item, " (ring: %" PRIu64 " node: %u seq: %u entries: %u)",
                            ring_id, node_id, seq, addr_entries);
 
   proto_item_set_len(item, offset - original_offset);
@@ -780,7 +780,7 @@ dissect_corosync_totemsrp_token_hold_cancel(tvbuff_t *tvb,
                                                         &node_id,
                                                         &ring_id);
 
-  proto_item_append_text(item, " (ring: %" G_GINT64_MODIFIER "u node: %u)",
+  proto_item_append_text(item, " (ring: %" PRIu64 " node: %u)",
                              ring_id, node_id);
 
   proto_item_set_len(item, offset - original_offset);

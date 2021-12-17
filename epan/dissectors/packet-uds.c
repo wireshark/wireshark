@@ -853,7 +853,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
                                     UDS_RD_MAX_NUMBER_OF_BLOCK_LENGTH_OFFSET,
                                     max_number_of_block_length_length, ENC_BIG_ENDIAN);
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   Max Number Of Block Length 0x%" G_GINT64_MODIFIER "x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   Max Number Of Block Length 0x%" PRIx64,
                                 max_number_of_block_length);
             } else {
                 guint8 data_format_identifier, compression, encryting;
@@ -895,7 +895,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
                                     UDS_RD_MEMORY_ADDRESS_OFFSET + memory_address_length,
                                     memory_size_length, ENC_BIG_ENDIAN);
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%" G_GINT64_MODIFIER "x bytes at 0x%" G_GINT64_MODIFIER "x", memory_size, memory_address);
+                col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%" PRIx64 " bytes at 0x%" PRIx64, memory_size, memory_address);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   (Compression:0x%x Encrypting:0x%x)", compression,
                                 encryting);

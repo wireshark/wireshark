@@ -1617,7 +1617,7 @@ void c_append_text(c_pkt_data *data, proto_item *ti, const char *fmt, ...)
 	char buf[ITEM_LABEL_LENGTH];
 	va_start(ap, fmt);
 
-	g_vsnprintf(buf, sizeof(buf), fmt, ap);
+	vsnprintf(buf, sizeof(buf), fmt, ap);
 
 	proto_item_append_text(ti,		"%s", buf);
 	proto_item_append_text(data->item_root, "%s", buf);
@@ -1787,7 +1787,7 @@ guint c_dissect_blob(proto_tree *root, int hf, int hf_data, int hf_len,
 	ti = proto_tree_add_item(root, hf, tvb, off, size+4, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_data);
 
-	proto_item_append_text(ti, ", Size: %"G_GINT32_MODIFIER"u", size);
+	proto_item_append_text(ti, ", Size: %"PRIu32, size);
 	if (size)
 	{
 		proto_item_append_text(ti, ", Data: %s",
@@ -1924,7 +1924,7 @@ guint c_dissect_sockaddr(proto_tree *root, c_sockaddr *out,
 	}
 	off += C_SIZE_SOCKADDR_STORAGE; /* Skip over sockaddr_storage. */
 
-	d.str = wmem_strdup_printf(wmem_packet_scope(), "%s:%"G_GINT16_MODIFIER"u",
+	d.str = wmem_strdup_printf(wmem_packet_scope(), "%s:%"PRIu16,
 				   d.addr_str,
 				   d.port);
 	proto_item_append_text(ti, ": %s", d.str);
@@ -2015,7 +2015,7 @@ guint c_dissect_entityname(proto_tree *root, int hf, c_entityname *out,
 	}
 	else
 	{
-		d.slug = wmem_strdup_printf(wmem_packet_scope(), "%s%"G_GINT64_MODIFIER"u",
+		d.slug = wmem_strdup_printf(wmem_packet_scope(), "%s%"PRIu64,
 					    d.type_str,
 					    d.id);
 	}
@@ -2330,8 +2330,8 @@ guint c_dissect_eversion(proto_tree *root, gint hf,
 	off += 4;
 
 	proto_item_append_text(ti,
-			       ", Version: %"G_GINT64_MODIFIER"d"
-			       ", Epoch: %"G_GINT32_MODIFIER"d",
+			       ", Version: %"PRId64
+			       ", Epoch: %"PRId32,
 			       ver, epoch);
 
 	proto_item_set_end(ti, tvb, off);
@@ -2354,7 +2354,7 @@ guint c_dissect_object_locator(proto_tree *root, gint hf,
 
 	off = c_dissect_encoded(tree, &enchdr, 3, 6, tvb, off, data);
 
-	proto_item_append_text(ti, ", Pool: %"G_GINT64_MODIFIER"d",
+	proto_item_append_text(ti, ", Pool: %"PRId64,
 			       tvb_get_letohi64(tvb, off));
 	proto_tree_add_item(tree, hf_pool, tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
@@ -2382,7 +2382,7 @@ guint c_dissect_object_locator(proto_tree *root, gint hf,
 		if (hash >= 0)
 		{
 			proto_tree_add_item(tree, hf_hash, tvb, off, 8, ENC_LITTLE_ENDIAN);
-			proto_item_append_text(ti, ", Hash: %"G_GINT64_MODIFIER"d", hash);
+			proto_item_append_text(ti, ", Hash: %"PRId64, hash);
 		}
 		off += 8;
 	}
@@ -2420,19 +2420,19 @@ guint c_dissect_pg(proto_tree *root, gint hf,
 	c_warn_ver(ti2, ver, 1, 1, data);
 	off += 1;
 
-	proto_item_append_text(ti, ", Pool: %"G_GINT64_MODIFIER"d",
+	proto_item_append_text(ti, ", Pool: %"PRId64,
 			       tvb_get_letoh64(tvb, off));
 	proto_tree_add_item(tree, hf_pgid_pool, tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
-	proto_item_append_text(ti, ", Seed: %08"G_GINT32_MODIFIER"X",
+	proto_item_append_text(ti, ", Seed: %08"PRIX32,
 			       tvb_get_letohl(tvb, off));
 	proto_tree_add_item(tree, hf_pgid_seed, tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
 	preferred = tvb_get_letohl(tvb, off);
 	if (preferred >= 0)
-		proto_item_append_text(ti, ", Prefer: %"G_GINT32_MODIFIER"d", preferred);
+		proto_item_append_text(ti, ", Prefer: %"PRId32, preferred);
 	proto_tree_add_item(tree, hf_pgid_preferred, tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
@@ -2501,7 +2501,7 @@ guint c_dissect_path(proto_tree *root, gint hf,
 	off = c_dissect_str(tree, hf_path_rel, &rel, tvb, off);
 
 	if (inode)
-		proto_item_append_text(ti, ", Inode: 0x%016"G_GINT64_MODIFIER"u", inode);
+		proto_item_append_text(ti, ", Inode: 0x%016"PRIu64, inode);
 	if (rel.size)
 		proto_item_append_text(ti, ", Rel: \"%s\"", rel.str);
 
@@ -2558,7 +2558,7 @@ guint c_dissect_mds_release(proto_tree *root, gint hf,
 
 	off = c_dissect_str(tree, hf_mds_release_dname, NULL, tvb, off);
 
-	proto_item_append_text(ti, ", Inode: 0x%016"G_GINT64_MODIFIER"u", inode);
+	proto_item_append_text(ti, ", Inode: 0x%016"PRIu64, inode);
 
 	proto_item_set_end(ti, tvb, off);
 	return off;
@@ -2654,7 +2654,7 @@ guint c_dissect_snapinfo(proto_tree *root,
 
 	off = c_dissect_str(tree, hf_snapinfo_name, &name, tvb, off);
 
-	proto_item_set_text(ti, ", ID: 0x%016"G_GINT64_MODIFIER"X"
+	proto_item_set_text(ti, ", ID: 0x%016"PRIX64
 			    ", Name: %s, Date: %s",
 			    id,
 			    name.str,
@@ -3025,12 +3025,12 @@ guint c_dissect_featureset(proto_tree *root, int hf,
 
 		off = c_dissect_str(subtree, hf_featureset_name_name, &name, tvb, off);
 
-		proto_item_append_text(ti2, ", Value: %"G_GINT64_MODIFIER"u, Name: %s",
+		proto_item_append_text(ti2, ", Value: %"PRIu64", Name: %s",
 				       val, name.str);
 		proto_item_set_end(ti2, tvb, off);
 	}
 
-	proto_item_append_text(ti, ", Features: 0x%016"G_GINT64_MODIFIER"X", features);
+	proto_item_append_text(ti, ", Features: 0x%016"PRIX64, features);
 	proto_item_set_end(ti, tvb, off);
 	return off;
 }
@@ -3112,8 +3112,8 @@ guint c_dissect_osd_superblock(proto_tree *root,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 
-	proto_item_append_text(ti, ", Role: %"G_GINT32_MODIFIER"d, Weight: %lf"
-			       ", Boot Epoch: %"G_GINT32_MODIFIER"d",
+	proto_item_append_text(ti, ", Role: %"PRId32", Weight: %lf"
+			       ", Boot Epoch: %"PRId32,
 			       role, weight, epoch);
 	if (enc.version >= 4)
 	{
@@ -3424,7 +3424,7 @@ guint c_dissect_osdmap(proto_tree *root,
 
 		off = c_dissect_pgpool(pooltree, tvb, off, data);
 
-		proto_item_append_text(poolti, ", ID: 0x%016"G_GINT64_MODIFIER"X", id);
+		proto_item_append_text(poolti, ", ID: 0x%016"PRIX64, id);
 
 		proto_item_set_end(poolti, tvb, off);
 	}
@@ -3450,7 +3450,7 @@ guint c_dissect_osdmap(proto_tree *root,
 		off = c_dissect_str(nametree, hf_osdmap_poolname, &name, tvb, off);
 
 		proto_item_append_text(nameti,
-				       ", ID: 0x%016"G_GINT64_MODIFIER"X, Name: %s",
+				       ", ID: 0x%016"PRIX64", Name: %s",
 				       id, name.str);
 		proto_item_set_end(nameti, tvb, off);
 	}
@@ -3866,11 +3866,11 @@ guint c_dissect_osd_op(proto_tree *root, gint hf, c_osd_op *out,
 		proto_tree_add_item(tree, hf_osd_op_extent_trunc_seq,
 				    tvb, off+24, 4, ENC_LITTLE_ENDIAN);
 
-		proto_item_append_text(ti, ", Offset: %"G_GINT64_MODIFIER"u"
-				       ", Size: %"G_GINT64_MODIFIER"u",
+		proto_item_append_text(ti, ", Offset: %"PRIu64
+				       ", Size: %"PRIu64,
 				       offset, size);
 		if (trunc_seq)
-			proto_item_append_text(ti, ", Truncate To: %"G_GINT64_MODIFIER"u",
+			proto_item_append_text(ti, ", Truncate To: %"PRIu64,
 					       trunc_size);
 		break;
 	default:
@@ -3881,7 +3881,7 @@ guint c_dissect_osd_op(proto_tree *root, gint hf, c_osd_op *out,
 	off += 28;
 
 	d.payload_size = tvb_get_letohl(tvb, off);
-	proto_item_append_text(ti, ", Data Length: %"G_GINT32_MODIFIER"d",
+	proto_item_append_text(ti, ", Data Length: %"PRId32,
 			       d.payload_size);
 	proto_tree_add_item(tree, hf_osd_op_payload_size,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
@@ -4444,7 +4444,7 @@ guint c_dissect_msg_mon_sub(proto_tree *root,
 
 		c_append_text(data, ti, "%s%s", str.str, len? ",":"");
 
-		proto_item_append_text(subti, " What: %s, Starting: %"G_GUINT64_FORMAT,
+		proto_item_append_text(subti, " What: %s, Starting: %"PRIu64,
 				       str.str,
 				       tvb_get_letoh64(tvb, off));
 
@@ -4675,7 +4675,7 @@ guint c_dissect_msg_mon_getversion(proto_tree *root,
 	off = c_dissect_str(tree, hf_msg_mon_getversion_what, &what, tvb, off);
 
 
-	c_append_text(data, ti, ", TID: %"G_GINT64_MODIFIER"u, What: %s",
+	c_append_text(data, ti, ", TID: %"PRIu64", What: %s",
 		      tid, what.str);
 
 	return off;
@@ -4719,9 +4719,9 @@ guint c_dissect_msg_mon_getversionreply(proto_tree *root,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
-	c_append_text(data, ti, ", TID: %"G_GINT64_MODIFIER"u"
-		      ", Version: %"G_GINT64_MODIFIER"u"
-		      ", Oldest Version: %"G_GINT64_MODIFIER"u",
+	c_append_text(data, ti, ", TID: %"PRIu64
+		      ", Version: %"PRIu64
+		      ", Oldest Version: %"PRIu64,
 		      tid, ver, veroldest);
 
 	return off;
@@ -4927,8 +4927,8 @@ guint c_dissect_msg_client_reqfwd(proto_tree *root,
 			    tvb, off, 1, ENC_LITTLE_ENDIAN);
 	off += 1;
 
-	c_append_text(data, ti, ", To: mds%"G_GINT32_MODIFIER"u, Resend: %s, "
-		      "Forwards: %"G_GINT32_MODIFIER"u",
+	c_append_text(data, ti, ", To: mds%"PRIu32", Resend: %s, "
+		      "Forwards: %"PRIu32,
 		      to, resend? "True":"False", fwd);
 
 	return off;
@@ -5032,7 +5032,7 @@ guint c_dissect_msg_osd_map(proto_tree *root,
 
 		off = c_dissect_osdmap_inc(subtree, tvb, off, data);
 
-		proto_item_append_text(ti2, ", For Epoch: %"G_GINT32_MODIFIER"u", epoch);
+		proto_item_append_text(ti2, ", For Epoch: %"PRIu32, epoch);
 		proto_item_set_end(ti2, tvb, off);
 	}
 
@@ -5055,7 +5055,7 @@ guint c_dissect_msg_osd_map(proto_tree *root,
 
 		off = c_dissect_osdmap(subtree, tvb, off, data);
 
-		proto_item_append_text(ti2, ", For Epoch: %"G_GINT32_MODIFIER"u", epoch);
+		proto_item_append_text(ti2, ", For Epoch: %"PRIu32, epoch);
 		proto_item_set_end(ti2, tvb, off);
 	}
 
@@ -5118,7 +5118,7 @@ guint c_dissect_msg_osd_op(proto_tree *root,
 	off = c_dissect_str(tree, hf_msg_osd_op_oid, &str, tvb, off);
 
 	opslen = tvb_get_letohs(tvb, off);
-	c_append_text(data, ti, ", Operations: %"G_GINT32_MODIFIER"d", opslen);
+	c_append_text(data, ti, ", Operations: %"PRId32, opslen);
 	ti2 = proto_tree_add_item(tree, hf_msg_osd_op_ops_len,
 				  tvb, off, 2, ENC_LITTLE_ENDIAN);
 	off += 2;
@@ -5329,7 +5329,7 @@ guint c_dissect_msg_poolopreply(proto_tree *root,
 				     hf_msg_poolopreply_data, hf_msg_poolopreply_data_size,
 				     tvb, off);
 
-	c_append_text(data, ti, ", Response Code: %"G_GINT32_MODIFIER"u", code);
+	c_append_text(data, ti, ", Response Code: %"PRIu32, code);
 
 	return off;
 }
@@ -5402,7 +5402,7 @@ guint c_dissect_msg_poolop(proto_tree *root,
 	}
 
 	c_append_text(data, ti,
-		      ", Type: %s, Name: %s, Pool: %"G_GINT32_MODIFIER"d",
+		      ", Type: %s, Name: %s, Pool: %"PRId32,
 		      c_poolop_type_string(type),
 		      name.str,
 		      pool);
@@ -5782,11 +5782,11 @@ guint c_dissect_msg_mon_paxos(proto_tree *root,
 				     hf_msg_mon_paxos_val_data, hf_msg_mon_paxos_val_size,
 				     tvb, off);
 
-		proto_item_append_text(ti2, ", Version: %"G_GINT64_MODIFIER"u", ver);
+		proto_item_append_text(ti2, ", Version: %"PRIu64, ver);
 		proto_item_set_end(ti2, tvb, off);
 	}
 
-	c_append_text(data, ti, ", Op: %s, Proposal Number: %"G_GINT64_MODIFIER"u",
+	c_append_text(data, ti, ", Op: %s, Proposal Number: %"PRIu64,
 		      c_mon_paxos_op_string(op), pn);
 
 	return off;
@@ -6194,8 +6194,8 @@ guint c_dissect_msg_client_caps(proto_tree *root,
 			    tvb, front_len, middle_len, ENC_NA);
 
 	proto_item_append_text(ti, ", Op: %s"
-			       ", Inode: 0x%016"G_GINT64_MODIFIER"X"
-			       ", Relam: 0x%"G_GINT64_MODIFIER"X",
+			       ", Inode: 0x%016"PRIX64
+			       ", Relam: 0x%"PRIX64,
 			       c_cap_op_type_string(op),
 			       inode, relam);
 
@@ -6222,7 +6222,7 @@ guint c_dissect_msg_client_caprel(proto_tree *root,
 	tree = proto_item_add_subtree(ti, ett_msg_client_caprel);
 
 	i = (c_cap_op_type)tvb_get_letohl(tvb, off);
-	proto_item_append_text(ti, ", Caps: %"G_GINT32_MODIFIER"u", i);
+	proto_item_append_text(ti, ", Caps: %"PRIu32, i);
 	off += 4;
 	while (i--)
 	{
@@ -6287,8 +6287,8 @@ guint c_dissect_msg_timecheck(proto_tree *root,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
-	c_append_text(data, ti, ", Operation: %s, Epoch: %"G_GINT64_MODIFIER"u"
-		      ", Round: %"G_GINT64_MODIFIER"u",
+	c_append_text(data, ti, ", Operation: %s, Epoch: %"PRIu64
+		      ", Round: %"PRIu64,
 		      c_timecheck_op_string(op),
 		      epoch, round);
 
@@ -6865,7 +6865,7 @@ guint c_dissect_pdu(proto_tree *root,
 			break;
 		case C_STATE_SEQ:
 			c_set_type(data, "Sequence Number");
-			proto_item_append_text(data->item_root, ", Seq: %"G_GINT64_MODIFIER"u",
+			proto_item_append_text(data->item_root, ", Seq: %"PRIu64,
 					       tvb_get_letoh64(tvb, off));
 			proto_tree_add_item(tree, hf_seq_new, tvb, off, 8, ENC_LITTLE_ENDIAN);
 			off += 8;

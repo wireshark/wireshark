@@ -813,7 +813,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
            break;
         addr_byte &= (0x0F << (4 * (i + 1) - mask));
         addr_byte &= 0x0F;
-        g_snprintf(ipv6_addr_expanded + i, 4, "%X", addr_byte);
+        snprintf(ipv6_addr_expanded + i, 4, "%X", addr_byte);
       }
     }
   }
@@ -897,9 +897,9 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
             return FALSE;
 
           if(addr_byte < 16)
-            g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+            snprintf(addr_byte_string,4,"0%X",addr_byte);
           else
-            g_snprintf(addr_byte_string,4,"%X",addr_byte);
+            snprintf(addr_byte_string,4,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];
@@ -926,9 +926,9 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
             return FALSE;
 
           if(addr_byte < 16)
-            g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+            snprintf(addr_byte_string,4,"0%X",addr_byte);
           else
-            g_snprintf(addr_byte_string,4,"%X",addr_byte);
+            snprintf(addr_byte_string,4,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];
@@ -968,7 +968,7 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
              return FALSE;
           addr_byte &= (0x0F << (4 * (i + 1) - mask));
           addr_byte &= 0x0F;
-          g_snprintf(ipv4_address_expanded + i, 4, "%X", addr_byte);
+          snprintf(ipv4_address_expanded + i, 4, "%X", addr_byte);
         }
       }
     }
@@ -1059,7 +1059,7 @@ filter_spi_match(guint spi, gchar *filter)
   if (strchr(filter, IPSEC_SA_WILDCARDS_ANY) != NULL) {
     gchar spi_string[IPSEC_SPI_LEN_MAX];
 
-    g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
+    snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
 
     /* Lengths need to match exactly... */
     if(strlen(spi_string) != filter_len)
@@ -1184,7 +1184,7 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
 
 static void ah_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ah, pinfo->curr_layer_num)));
 }
 

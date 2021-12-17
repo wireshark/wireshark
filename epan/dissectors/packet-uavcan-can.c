@@ -460,9 +460,9 @@ UAVCAN_addr_to_str(const address *addr, gchar *buf, int buf_len)
     const guint16 *addrdata = (const guint16 *) addr->data;
 
     if ((*addrdata & ANONYMOUS_FLAG) != 0) {
-        return (int) g_snprintf(buf, buf_len, "Anonymous");
+        return (int) snprintf(buf, buf_len, "Anonymous");
     } else if ((*addrdata & BROADCAST_FLAG) != 0) {
-        return (int) g_snprintf(buf, buf_len, "Broadcast");
+        return (int) snprintf(buf, buf_len, "Broadcast");
     } else {
         guint8 real_addr = (guint8) (*addrdata & ADDR_MASK);
         guint32_to_str_buf(real_addr, buf, buf_len);

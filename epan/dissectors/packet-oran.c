@@ -440,7 +440,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -493,7 +493,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, gint *offset, const char *name)
 
     proto_item_append_text(item, " (DU_Port_ID: %d, A_Cell_ID: %d, CC_ID: %d, RU_Port_ID: %d)", duPortId, aCellId, ccId, ruPortId);
     char id[16];
-    g_snprintf(id, 16, "%1x:%2.2x:%1x:%1x", duPortId, aCellId, ccId, ruPortId);
+    snprintf(id, 16, "%1x:%2.2x:%1x:%1x", duPortId, aCellId, ccId, ruPortId);
     proto_item *pi = proto_tree_add_string(oran_pcid_tree, hf_oran_c_eAxC_ID, tvb, id_offset, 2, id);
     proto_item_set_generated(pi);
 }
@@ -646,7 +646,7 @@ static guint32 dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* Set bundle name */
     char bundle_name[32];
     if (bundle_number != ORPHAN_BUNDLE_NUMBER) {
-        g_snprintf(bundle_name, 32, "Bundle %u", bundle_number);
+        snprintf(bundle_name, 32, "Bundle %u", bundle_number);
     }
     else {
         g_strlcpy(bundle_name, "Orphaned", 32);
@@ -1335,7 +1335,7 @@ static int dissect_oran_c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset++;
 
     char id[16];
-    g_snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
+    snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
     proto_item *pi = proto_tree_add_string(section_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 
@@ -1492,7 +1492,7 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset++;
 
     char id[16];
-    g_snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
+    snprintf(id, 16, "%d-%d-%d", frameId, subframeId, slotId);
     proto_item *pi = proto_tree_add_string(timing_header_tree, hf_oran_refa, tvb, ref_a_offset, 3, id);
     proto_item_set_generated(pi);
 

@@ -290,12 +290,12 @@ dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
     if (mvhd_timescale == 0) {
         proto_tree_add_uint64_format(tree, hf_mp4_mvhd_duration,
                 tvb, offset, time_len, duration,
-                "Duration: no timescale (%" G_GUINT64_FORMAT ")",
+                "Duration: no timescale (%" PRIu64 ")",
                 duration);
     } else {
         proto_tree_add_uint64_format(tree, hf_mp4_mvhd_duration,
                 tvb, offset, time_len, duration,
-                "Duration: %f seconds (%" G_GUINT64_FORMAT ")",
+                "Duration: %f seconds (%" PRIu64 ")",
                 (double) duration / mvhd_timescale, duration);
     }
     offset += time_len;
@@ -785,7 +785,7 @@ dissect_mp4_elst_body(tvbuff_t *tvb, gint offset, gint len,
         segment_duration_str = timescaled_val_to_str(pinfo->pool, segment_duration);
         proto_tree_add_uint64_format(subtree, hf_mp4_elst_segment_duration,
                 tvb, offset, field_length, segment_duration,
-                "Segment duration: %s (%" G_GUINT64_FORMAT ")",
+                "Segment duration: %s (%" PRIu64 ")",
                 segment_duration_str, segment_duration);
         offset += field_length;
 
@@ -797,7 +797,7 @@ dissect_mp4_elst_body(tvbuff_t *tvb, gint offset, gint len,
         media_time_str = timescaled_val_to_str(pinfo->pool, media_time);
         proto_tree_add_int64_format(subtree, hf_mp4_elst_media_time,
                 tvb, offset, field_length, media_time,
-                "Media time: %s (%" G_GINT64_FORMAT ")",
+                "Media time: %s (%" PRId64 ")",
                 media_time_str, media_time);
         offset += field_length;
 

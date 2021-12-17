@@ -1487,7 +1487,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         }
         offset += len;
     } else /* account number */ {
-        char *accnum = wmem_strdup_printf(pinfo->pool, "%" G_GUINT32_FORMAT, tvb_get_letohl(tvb_decrypted, offset));
+        char *accnum = wmem_strdup_printf(pinfo->pool, "%" PRIu32, tvb_get_letohl(tvb_decrypted, offset));
         proto_tree_add_string(tibia_tree, hf_tibia_acc_number, tvb_decrypted, offset, 4, accnum);
         if (!convo->acc)
             convo->acc = (guint8*)wmem_strdup(wmem_file_scope(), accnum);

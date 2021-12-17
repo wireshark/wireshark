@@ -3019,7 +3019,7 @@ info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, const ch
         } else if (mode==FMT_DEC && octets==8) {
             code64 = tvb_get_ntoh64(tvb, offset);
             pi = proto_tree_add_uint64_format(stt, *hf_proto_parameter, tvb, offset, octets,
-                                              code64, "%-28s : %" G_GINT64_MODIFIER "u", str, code64);
+                                              code64, "%-28s : %" PRIu64, str, code64);
         } else {
             pi = proto_tree_add_uint_format(stt, *hf_proto_parameter,
                                             tvb, offset, octets, code32,"%s",str);
@@ -3062,7 +3062,7 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
                                val_to_str(code16,table_cops_dqos_transaction_id, "Unknown (0x%04x)"),code16);
 
     /* Write the right data into the 'info field' on the Gui */
-    g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
+    snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
                val_to_str_const(code16,table_cops_dqos_transaction_id, "Unknown"));
 
     col_add_str(pinfo->cinfo, COL_INFO,info);
@@ -3448,7 +3448,7 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
             val_to_str(code16,table_cops_mm_transaction_id, "Unknown (0x%04x)"),code16);
 
      /* Write the right data into the 'info field' on the Gui */
-     g_snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
+     snprintf(info,sizeof(info),"COPS %-20s - %s",val_to_str_const(op_code,cops_op_code_vals, "Unknown"),
                 val_to_str_const(code16,table_cops_mm_transaction_id, "Unknown"));
 
      col_add_str(pinfo->cinfo, COL_INFO,info);

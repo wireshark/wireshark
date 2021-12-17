@@ -366,7 +366,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
             if (label) {
                 key.label = ctx->label =
                     g_variant_new_int64(*label);
-                label_str = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_FORMAT, *label);
+                label_str = wmem_strdup_printf(wmem_packet_scope(), "%" PRId64, *label);
             }
             break;
         }
@@ -706,7 +706,7 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!dissector) {
             continue;
         }
-        g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" G_GUINT64_FORMAT, tag->value);
+        g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" PRIu64, tag->value);
         int sublen = call_dissector_only(dissector, tvb, pinfo, tree, tag);
         if (sublen > 0) {
             return sublen;

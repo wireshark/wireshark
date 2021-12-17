@@ -7922,7 +7922,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 /* need to add custom code to show "Not Measured"  */
                 proto_tree_add_expert_format(pdutree, NULL, &ei_transport_bytes_out_of_order,
                                              tvb, offset, 8,
-                                             "Transport Bytes Out of Order: Not Measured (0x%"G_GINT64_MODIFIER"x)",
+                                             "Transport Bytes Out of Order: Not Measured (0x%"PRIx64")",
                                              tvb_get_ntoh64(tvb, offset));
                 ti = proto_tree_add_item(pdutree, hf_cflow_transport_bytes_out_of_order,
                                          tvb, offset, length, ENC_BIG_ENDIAN);

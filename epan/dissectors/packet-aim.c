@@ -2418,7 +2418,7 @@ aim_generic_family( gchar *result, guint32 famnum )
 {
 	const aim_family *family = aim_get_family(famnum);
 
-	g_snprintf( result, ITEM_LABEL_LENGTH, "%s (0x%x)", family?family->name:"Unknown", famnum);
+	snprintf( result, ITEM_LABEL_LENGTH, "%s (0x%x)", family?family->name:"Unknown", famnum);
 }
 
 static const aim_subtype aim_fnac_family_generic[] = {

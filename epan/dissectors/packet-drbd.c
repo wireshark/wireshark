@@ -1164,7 +1164,7 @@ static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree, drbd_conv *
         if (is_bit_set_64(bitmap_uuids_mask, i)) {
             guint64 bitmap_uuid = tvb_get_ntoh64(tvb, offset);
             proto_tree_add_uint64_format(tree, hf_drbd_bitmap_uuid, tvb, offset, 8, bitmap_uuid,
-                    "Bitmap UUID for node %d: 0x%016" G_GINT64_MODIFIER "x", i, bitmap_uuid);
+                    "Bitmap UUID for node %d: 0x%016" PRIx64, i, bitmap_uuid);
             offset += 8;
         }
     }
@@ -1306,11 +1306,11 @@ static void format_node_mask(gchar *s, guint64 value)
             const char *sep = written ? ", " : "";
 
             if (run_length == 1)
-                written += g_snprintf(s + written, ITEM_LABEL_LENGTH - written, "%s%d", sep, run_start);
+                written += snprintf(s + written, ITEM_LABEL_LENGTH - written, "%s%d", sep, run_start);
             else if (run_length == 2)
-                written += g_snprintf(s + written, ITEM_LABEL_LENGTH - written, "%s%d, %d", sep, run_start, run_start + 1);
+                written += snprintf(s + written, ITEM_LABEL_LENGTH - written, "%s%d, %d", sep, run_start, run_start + 1);
             else
-                written += g_snprintf(s + written, ITEM_LABEL_LENGTH - written, "%s%d - %d", sep, run_start, run_end - 1);
+                written += snprintf(s + written, ITEM_LABEL_LENGTH - written, "%s%d - %d", sep, run_start, run_end - 1);
         }
 
         if (!is_set)

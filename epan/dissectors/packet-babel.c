@@ -242,7 +242,7 @@ static const char *
 format_timestamp(const guint32 i)
 {
     static char buf[sizeof("0000.000000s")];
-    g_snprintf(buf, sizeof(buf), "%u.%06us", i / 1000000, i % 1000000);
+    snprintf(buf, sizeof(buf), "%u.%06us", i / 1000000, i % 1000000);
     return buf;
 }
 

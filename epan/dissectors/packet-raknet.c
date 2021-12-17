@@ -289,7 +289,7 @@ raknet_dissect_system_address(proto_tree *tree, int hf,
         proto_tree_add_item(sub_tree, hf_raknet_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
         *offset += 2;
         proto_item_set_len(ti, 1 + 4 + 2);
-        proto_item_append_text(ti, "%s:%" G_GUINT16_FORMAT, addr_str, port);
+        proto_item_append_text(ti, "%s:%" PRIu16, addr_str, port);
         break;
     case 6:
         addr_str = tvb_ip6_to_str(pinfo->pool, tvb, *offset);
@@ -299,7 +299,7 @@ raknet_dissect_system_address(proto_tree *tree, int hf,
         proto_tree_add_item(sub_tree, hf_raknet_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
         *offset += 2;
         proto_item_set_len(ti, 1 + 16 + 2);
-        proto_item_append_text(ti, "[%s]:%" G_GUINT16_FORMAT, addr_str, port);
+        proto_item_append_text(ti, "[%s]:%" PRIu16, addr_str, port);
         break;
     default:
         proto_item_set_len(ti, 1);
@@ -857,11 +857,11 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
         if (tvb_get_guint8(tvb, offset)) { /* maxEqualToMin */
             min = tvb_get_guint24(tvb, offset + 1, ENC_LITTLE_ENDIAN);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, "#%" G_GUINT32_FORMAT, min);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "#%" PRIu32, min);
 
             ti = proto_tree_add_string_format_value(tree, hf_raknet_packet_number_range, tvb,
                                                     offset, 1 + 3, "",
-                                                    "%" G_GUINT32_FORMAT " .. %" G_GUINT32_FORMAT,
+                                                    "%" PRIu32 " .. %" PRIu32,
                                                     min, min);
             sub_tree = proto_item_add_subtree(ti, ett_raknet_packet_number_range);
 
@@ -878,12 +878,12 @@ raknet_dissect_ACK(tvbuff_t *tvb, packet_info *pinfo,
             max = tvb_get_guint24(tvb, offset + 1 + 3, ENC_LITTLE_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO,
-                            "#%" G_GUINT32_FORMAT "..%" G_GUINT32_FORMAT,
+                            "#%" PRIu32 "..%" PRIu32,
                             min, max);
 
             ti = proto_tree_add_string_format_value(tree, hf_raknet_packet_number_range, tvb,
                                                     offset, 1 + 3 + 3, "",
-                                                    "%" G_GUINT32_FORMAT " .. %" G_GUINT32_FORMAT, min, max);
+                                                    "%" PRIu32 " .. %" PRIu32, min, max);
             sub_tree = proto_item_add_subtree(ti, ett_raknet_packet_number_range);
 
             proto_tree_add_item(sub_tree, hf_raknet_range_max_equal_to_min, tvb,
@@ -946,7 +946,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
                                       offset, 2, ENC_BIG_ENDIAN, &payload_bits);
     offset += 2;
     payload_octets = payload_bits / 8 + (payload_bits % 8 > 0); /* ceil(bits / 8) */
-    proto_item_append_text(ti, " bits (%" G_GUINT32_FORMAT " octets)", payload_octets);
+    proto_item_append_text(ti, " bits (%" PRIu32 " octets)", payload_octets);
 
     reliability = (raknet_reliability_t)((msg_flags >> 5) & 0x07);
     has_split_packet = (msg_flags >> 4) & 0x01 ? TRUE : FALSE;
@@ -1030,7 +1030,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
 
             strbuf = wmem_strbuf_new(pinfo->pool, "");
             wmem_strbuf_append_printf(strbuf,
-                                      "{Message fragment %" G_GUINT32_FORMAT "/%" G_GUINT32_FORMAT "; Reassembled} ",
+                                      "{Message fragment %" PRIu32 "/%" PRIu32 "; Reassembled} ",
                                       split_packet_index + 1, split_packet_count);
 
             proto_item_append_text(msg_ti, "%s", wmem_strbuf_get_str(strbuf));
@@ -1044,7 +1044,7 @@ raknet_dissect_common_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rak
 
             strbuf = wmem_strbuf_new(pinfo->pool, "");
             wmem_strbuf_append_printf(strbuf,
-                                      "{Message fragment %" G_GUINT32_FORMAT "/%" G_GUINT32_FORMAT "}",
+                                      "{Message fragment %" PRIu32 "/%" PRIu32 "}",
                                       split_packet_index + 1, split_packet_count);
 
             proto_item_append_text(msg_ti, "%s", wmem_strbuf_get_str(strbuf));
@@ -1348,8 +1348,8 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
                                      offset, 3, ENC_LITTLE_ENDIAN, &packet_number);
         offset += 3;
 
-        proto_item_append_text(ti, ", Message #%" G_GUINT32_FORMAT, packet_number);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "#%" G_GUINT32_FORMAT ": ", packet_number);
+        proto_item_append_text(ti, ", Message #%" PRIu32, packet_number);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "#%" PRIu32 ": ", packet_number);
         col_set_fence(pinfo->cinfo, COL_INFO);
 
         /*

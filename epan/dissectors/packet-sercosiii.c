@@ -1204,7 +1204,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 static void
 sercosiii_idn_code_format( gchar *result, guint32 svc_info )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%c-%u-%04d.%d.%d",
+   snprintf( result, ITEM_LABEL_LENGTH, "%c-%u-%04d.%d.%d",
        ((0xFFFF & svc_info)>>15)?'P':'S', /* private or sercos IDN */
       (svc_info>>12)&7,                  /* parameter record */
       (svc_info&4095),                   /* IDN */

@@ -1452,14 +1452,14 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static void
 not_captured_custom(gchar *result, guint32 value _U_)
 {
-	g_snprintf(result, ITEM_LABEL_LENGTH,
+	snprintf(result, ITEM_LABEL_LENGTH,
 		"NOT CAPTURED BY CAPTURE SOFTWARE");
 }
 
 static void
 he_sig_b_symbols_custom(gchar *result, guint32 value)
 {
-	g_snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
+	snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
 }
 
 static void

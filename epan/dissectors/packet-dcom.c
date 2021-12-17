@@ -249,7 +249,7 @@ void dcom_interface_dump(void) {
 
 		for(objects = machine->objects; objects != NULL; objects = g_list_next(objects)) {
 			object = (dcom_object_t *)objects->data;
-			/*ws_warning(" Object(#%4u): OID:0x%" G_GINT64_MODIFIER "x private:%p", object->first_packet, object->oid, object->private_data);*/
+			/*ws_warning(" Object(#%4u): OID:0x%" PRIx64 " private:%p", object->first_packet, object->oid, object->private_data);*/
 
 			for(interfaces = object->interfaces; interfaces != NULL; interfaces = g_list_next(interfaces)) {
 				interf = (dcom_interface_t *)interfaces->data;
@@ -1384,7 +1384,7 @@ dissect_dcom_VARIANT(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				offset = dissect_dcom_I8(tvb, offset, pinfo, NULL, di, drep,
 						0, &cyData);
 				proto_tree_add_int64_format(sub_tree, hf_dcom_vt_cy, tvb, offset - 8,
-						8, cyData, "%s: %" G_GINT64_FORMAT ".%.04" G_GINT64_FORMAT,
+						8, cyData, "%s: %" PRId64 ".%.04" PRId64,
 						proto_registrar_get_name(hf_dcom_vt_cy),
 						cyData / 10000, ABS(cyData % 10000));
 			break;
@@ -1616,7 +1616,7 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *psz
 		for(u32IdxA = 0, u32IdxW = 0;
 		    u32IdxW < u32Idx && u32IdxA < outLength-2;
 		    u32IdxW++, u32IdxA+=2) {
-			g_snprintf(&pszStr[u32IdxA], 3, "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
+			snprintf(&pszStr[u32IdxA], 3, "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
 		}
 	}
 

@@ -1486,7 +1486,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     msgtype = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree_msg, hf_tcpclv4_mhdr_type, tvb, offset, 1, msgtype);
     offset += 1;
-    msgtype_name = val_to_str(msgtype, v4_message_type_vals, "type 0x%02" G_GINT32_MODIFIER "x");
+    msgtype_name = val_to_str(msgtype, v4_message_type_vals, "type 0x%02" PRIx32);
     wmem_strbuf_t *suffix_text = wmem_strbuf_new(wmem_packet_scope(), NULL);
 
     switch(msgtype) {
@@ -1539,7 +1539,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
                 const char *subname = dissector_handle_get_dissector_name(subdis);
                 if (subdis) {
-                    proto_item_set_text(item_type, "Item Type: %s (0x%04" G_GINT16_MODIFIER "x)", subname, extitem_type);
+                    proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
                 }
 
                 guint16 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
@@ -1566,7 +1566,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item_append_text(item_ext, ": %s", subname);
                 }
                 else {
-                    proto_item_append_text(item_ext, ": Type 0x%04" G_GINT16_MODIFIER "x", extitem_type);
+                    proto_item_append_text(item_ext, ": Type 0x%04" PRIx16, extitem_type);
                 }
                 if (is_critical) {
                     proto_item_append_text(item_ext, ", CRITICAL");
@@ -1663,7 +1663,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
                     const char *subname = dissector_handle_get_dissector_name(subdis);
                     if (subdis) {
-                        proto_item_set_text(item_type, "Item Type: %s (0x%04" G_GINT16_MODIFIER "x)", subname, extitem_type);
+                        proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
                     }
 
                     guint16 extitem_len = tvb_get_guint16(tvb, offset + extlist_offset + extitem_offset, ENC_BIG_ENDIAN);
@@ -1693,7 +1693,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         proto_item_append_text(item_ext, ": %s", subname);
                     }
                     else {
-                        proto_item_append_text(item_ext, ": Type 0x%04" G_GINT16_MODIFIER "x", extitem_type);
+                        proto_item_append_text(item_ext, ": Type 0x%04" PRIx16, extitem_type);
                     }
                     if (is_critical) {
                         proto_item_append_text(item_ext, ", CRITICAL");
@@ -1718,7 +1718,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += data_len_clamp;
             payload_len = data_len_clamp;
 
-            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" G_GINT64_MODIFIER "i", xfer_id);
+            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" PRIi64, xfer_id);
 
             if (flags) {
                 wmem_strbuf_append(suffix_text, ", Flags: ");
@@ -1773,7 +1773,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_ack_ack_len, tvb, offset, 8, ack_len);
             offset += 8;
 
-            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" G_GINT64_MODIFIER "i", xfer_id);
+            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" PRIi64, xfer_id);
 
             if (flags) {
                 wmem_strbuf_append(suffix_text, ", Flags: ");
@@ -1805,7 +1805,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_id, tvb, offset, 8, xfer_id);
             offset += 8;
 
-            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" G_GINT64_MODIFIER "i", xfer_id);
+            wmem_strbuf_append_printf(suffix_text, ", Xfer ID: %" PRIi64, xfer_id);
 
             if (tcpcl_analyze_sequence) {
                 transfer_add_refuse(ctx, xfer_id, pinfo, tvb, tree_msg, item_msg);

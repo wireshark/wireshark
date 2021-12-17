@@ -1121,7 +1121,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti,
     va_list ap;
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -2180,7 +2180,7 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     for (l=0, j=0; l<8; l++) {
                                         if ((bits << l) & 0x80) {
                                             if (bitmap_tree) {
-                                                j += g_snprintf(&buff[j], BUFF_SIZE-j, "%6u,", (unsigned)(sn+(8*i)+l)%modulo);
+                                                j += snprintf(&buff[j], BUFF_SIZE-j, "%6u,", (unsigned)(sn+(8*i)+l)%modulo);
                                             }
                                         } else {
                                             if (bitmap_tree) {

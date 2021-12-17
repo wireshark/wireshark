@@ -383,7 +383,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
         }
 
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" G_GINT64_MODIFIER "u", tsi);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TSI: %" PRIu64, tsi);
         offset += tsi_size;
     }
 
@@ -431,7 +431,7 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (toi_size <= 8)
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" G_GINT64_MODIFIER "u", toi);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: %" PRIu64, toi);
         else
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TOI: 0x%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, toi_size));
         offset += toi_size;

@@ -6150,24 +6150,24 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     if (stream_info->description == NULL)
     {
-        sai->frame_label = g_strdup_printf("(%" G_GUINT32_FORMAT ")", stream_info->sqn);
+        sai->frame_label = g_strdup_printf("(%" PRIu32 ")", stream_info->sqn);
     }
     else
     {
-        sai->frame_label = g_strdup_printf("%s (%" G_GUINT32_FORMAT ")", stream_info->description, stream_info->sqn);
+        sai->frame_label = g_strdup_printf("%s (%" PRIu32 ")", stream_info->description, stream_info->sqn);
     }
     if (epa.type == lbm_uim_instance_stream)
     {
         ctxinst1 = bytes_to_str(pinfo->pool, epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
         ctxinst2 = bytes_to_str(pinfo->pool, epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
-        sai->comment = g_strdup_printf("%s <-> %s [%" G_GUINT64_FORMAT "]",
+        sai->comment = g_strdup_printf("%s <-> %s [%" PRIu64 "]",
             ctxinst1,
             ctxinst2,
             stream_info->channel);
     }
     else
     {
-        sai->comment = g_strdup_printf("%" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " <-> %" G_GUINT32_FORMAT ":%s:%" G_GUINT16_FORMAT " [%" G_GUINT64_FORMAT "]",
+        sai->comment = g_strdup_printf("%" PRIu32 ":%s:%" PRIu16 " <-> %" PRIu32 ":%s:%" PRIu16 " [%" PRIu64 "]",
             epa.stream_info.dest.domain,
             address_to_str(pinfo->pool, &(epa.stream_info.dest.addr)),
             epa.stream_info.dest.port,
@@ -10169,7 +10169,7 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
             reassembly->len = 0;
             if (fragment_offset != 0)
             {
-                expert_add_info_format(pinfo, NULL, &ei_lbmc_analysis_no_reassembly, "LBMC EXTOPT: reassembly not in progress but fragment_offset not zero (%" G_GUINT16_FORMAT ")", fragment_offset);
+                expert_add_info_format(pinfo, NULL, &ei_lbmc_analysis_no_reassembly, "LBMC EXTOPT: reassembly not in progress but fragment_offset not zero (%" PRIu16 ")", fragment_offset);
             }
             else
             {
@@ -11443,7 +11443,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         {
                             /* Indicate a malformed packet */
                             expert_add_info_format(pinfo, NULL, &ei_lbmc_analysis_invalid_fragment,
-                                "Invalid fragment for message (msglen=%" G_GUINT32_FORMAT ", frag offset=%" G_GUINT32_FORMAT ", frag len=%d",
+                                "Invalid fragment for message (msglen=%" PRIu32 ", frag offset=%" PRIu32 ", frag len=%d",
                                 msg->total_len, frag_info.offset, frag_len);
                         }
                         else
@@ -11536,7 +11536,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         data_tvb,
                         0,
                         tvb_reported_length_remaining(data_tvb, 0),
-                        "%" G_GUINT32_FORMAT " Reassembled Fragments (%" G_GUINT32_FORMAT " bytes):",
+                        "%" PRIu32 " Reassembled Fragments (%" PRIu32 " bytes):",
                         msg->fragment_count,
                         msg->total_len);
                     frag_tree = proto_item_add_subtree(frag_item, ett_lbmc_reassembly);
@@ -11550,7 +11550,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                             cur->fragment_start,
                             cur->fragment_len,
                             cur->frame,
-                            "Frame: %" G_GUINT32_FORMAT ", payload: %" G_GUINT32_FORMAT "-%" G_GUINT32_FORMAT " (%" G_GUINT32_FORMAT " bytes)",
+                            "Frame: %" PRIu32 ", payload: %" PRIu32 "-%" PRIu32 " (%" PRIu32 " bytes)",
                             cur->frame,
                             cur->fragment_start,
                             (cur->fragment_start + cur->fragment_len) - 1,
@@ -11558,11 +11558,11 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         proto_item_set_generated(pi);
                         if (first_item)
                         {
-                            proto_item_append_text(frag_item, " #%" G_GUINT32_FORMAT "(%" G_GUINT32_FORMAT ")", cur->frame, cur->fragment_len);
+                            proto_item_append_text(frag_item, " #%" PRIu32 "(%" PRIu32 ")", cur->frame, cur->fragment_len);
                         }
                         else
                         {
-                            proto_item_append_text(frag_item, ", #%" G_GUINT32_FORMAT "(%" G_GUINT32_FORMAT ")", cur->frame, cur->fragment_len);
+                            proto_item_append_text(frag_item, ", #%" PRIu32 "(%" PRIu32 ")", cur->frame, cur->fragment_len);
                         }
                         first_item = FALSE;
                         cur = cur->next;

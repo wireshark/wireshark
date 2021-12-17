@@ -2584,93 +2584,93 @@ static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **p
 /* Custom Functions */
 static void cf_opa_mad_swinfo_ar_frequency(gchar *buf, guint16 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", 2 ^ (value)*64);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", 2 ^ (value)*64);
 }
 static void cf_opa_mad_linkspeed(gchar *buf, guint16 value)
 {
     int len = 0;
     if (value & 0x1) /* 12.5 Gbps */
-        len = g_snprintf(buf, ITEM_LABEL_LENGTH, "12.5");
+        len = snprintf(buf, ITEM_LABEL_LENGTH, "12.5");
     if (value & 0x2) /* 25.78125 Gbps */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s25.78125", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s25.78125", (len ? ", " : ""));
     if (len)
-        g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, " Gbps");
+        snprintf(&buf[len], ITEM_LABEL_LENGTH - len, " Gbps");
     else
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
+        snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
 static void cf_opa_mad_linkwidth(gchar *buf, guint16 value)
 {
     int len = 0;
     if (value & 0x1) /* 1x */
-        len = g_snprintf(buf, ITEM_LABEL_LENGTH, "1X");
+        len = snprintf(buf, ITEM_LABEL_LENGTH, "1X");
     if (value & 0x2) /* 2x */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s2X", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s2X", (len ? ", " : ""));
     if (value & 0x4) /* 3x */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s3X", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s3X", (len ? ", " : ""));
     if (value & 0x8) /* 4x */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s4X", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s4X", (len ? ", " : ""));
     if (!len)
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
+        snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
 static void cf_opa_mad_portlinkmode(gchar *buf, guint16 value)
 {
     int len = 0;
     if (value & 0x1) /* Reserved */
-        len = g_snprintf(buf, ITEM_LABEL_LENGTH, "Reserved");
+        len = snprintf(buf, ITEM_LABEL_LENGTH, "Reserved");
     if (value & 0x2) /* Ethernet */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sEthernet", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sEthernet", (len ? ", " : ""));
     if (value & 0x4) /* STL */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sSTL", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sSTL", (len ? ", " : ""));
     if (!len)
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
+        snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
 static void cf_opa_mad_portltpcrcmode(gchar *buf, guint16 value)
 {
     int len = 0;
     if (value & 0x1) /* 14-bit */
-        len = g_snprintf(buf, ITEM_LABEL_LENGTH, "14-bit");
+        len = snprintf(buf, ITEM_LABEL_LENGTH, "14-bit");
     if (value & 0x2) /* 16-bit */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s16-bit", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s16-bit", (len ? ", " : ""));
     if (value & 0x4) /* 48-bit */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s48-bit overlapping", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s48-bit overlapping", (len ? ", " : ""));
     if (value & 0x8) /* 12 to 16 bit per lane */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s[12,16]-bit per lane", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s[12,16]-bit per lane", (len ? ", " : ""));
     if (len)
-        g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, " LTP CRC Mode");
+        snprintf(&buf[len], ITEM_LABEL_LENGTH - len, " LTP CRC Mode");
     else
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
+        snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
 static void cf_opa_mad_packetformat(gchar *buf, guint16 value)
 {
     int len = 0;
     if (value & 0x1) /* 8B */
-        len = g_snprintf(buf, ITEM_LABEL_LENGTH, "8B");
+        len = snprintf(buf, ITEM_LABEL_LENGTH, "8B");
     if (value & 0x2) /* 9B */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s9B", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s9B", (len ? ", " : ""));
     if (value & 0x4) /* 10B */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s10B", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s10B", (len ? ", " : ""));
     if (value & 0x8) /* 16B */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s16B", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s16B", (len ? ", " : ""));
     if (len)
-        g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, " Format%s", (len > 4 ? "s" : ""));
+        snprintf(&buf[len], ITEM_LABEL_LENGTH - len, " Format%s", (len > 4 ? "s" : ""));
     else
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
+        snprintf(buf, ITEM_LABEL_LENGTH, "No State Change");
 }
 static void cf_opa_mad_swcongestionsetting_controlmap(gchar *buf, guint32 value)
 {
     int len = 0;
     if (value & 0x1) /* Victim */
-        len = g_snprintf(buf, ITEM_LABEL_LENGTH, "Victim");
+        len = snprintf(buf, ITEM_LABEL_LENGTH, "Victim");
     if (value & 0x2) /* Credit */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCredit", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCredit", (len ? ", " : ""));
     if (value & 0x4) /* Threshold & PacketSize */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sThreshold & PacketSize", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sThreshold & PacketSize", (len ? ", " : ""));
     if (value & 0x8) /* CS_threshold & CS_ReturnDelay */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCS_threshold & CS_ReturnDelay", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sCS_threshold & CS_ReturnDelay", (len ? ", " : ""));
     if (value & 0x10) /* Marking Rate */
-        len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sMarking Rate", (len ? ", " : ""));
+        len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%sMarking Rate", (len ? ", " : ""));
     if (!len)
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "No Valid Fields");
+        snprintf(buf, ITEM_LABEL_LENGTH, "No Valid Fields");
 }
 static void cf_opa_mad_32b_mask(gchar *buf, guint32 value)
 {
@@ -2678,16 +2678,16 @@ static void cf_opa_mad_32b_mask(gchar *buf, guint32 value)
     guint32 i, mask;
     for (i = 0, mask = value; mask && i < 32 && len < ITEM_LABEL_LENGTH; i++, mask >>= 1) {
         if (mask & 1) {
-            len += g_snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s%u", (len ? ", " : ""), i);
+            len += snprintf(&buf[len], ITEM_LABEL_LENGTH - len, "%s%u", (len ? ", " : ""), i);
         }
     }
     if (!len) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, " ");
+        snprintf(buf, ITEM_LABEL_LENGTH, " ");
     }
 }
 static void cf_opa_mad_computed_pct10(gchar *buf, guint16 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%01u", value / 10, value % 10);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u.%01u", value / 10, value % 10);
 }
 
 /* Dissector Declarations */

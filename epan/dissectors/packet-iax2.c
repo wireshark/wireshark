@@ -650,7 +650,7 @@ static gchar *key_to_str( const iax_circuit_key *key )
   strp = str[i];
 
   addrstr = address_to_str(NULL, &key->addr);
-  g_snprintf(strp, 80, "{%s:%i,%i}",
+  snprintf(strp, 80, "{%s:%i,%i}",
              addrstr,
              key->port,
              key->callno);

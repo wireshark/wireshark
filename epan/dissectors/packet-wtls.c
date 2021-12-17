@@ -782,22 +782,22 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 			       {
 				       if (valMac != NULL)
 				       {
-					       g_snprintf(valStr,1024,"%s, %s",valBulk,valMac);
+					       snprintf(valStr,1024,"%s, %s",valBulk,valMac);
 				       }
 				       else
 				       {
-					       g_snprintf(valStr,1024,"%s, Unknown MAC (0x%02x)",valBulk,tvb_get_guint8 (tvb, offset));
+					       snprintf(valStr,1024,"%s, Unknown MAC (0x%02x)",valBulk,tvb_get_guint8 (tvb, offset));
 				       }
 			       }
 			       else
 			       {
 				       if (valMac != NULL)
 				       {
-					       g_snprintf(valStr,1024,"Unknown Bulk (0x%02x), %s",value,valMac);
+					       snprintf(valStr,1024,"Unknown Bulk (0x%02x), %s",value,valMac);
 				       }
 				       else
 				       {
-					       g_snprintf(valStr,1024,"Unknown Bulk (0x%02x), Unknown MAC (0x%02x)",value,
+					       snprintf(valStr,1024,"Unknown Bulk (0x%02x), Unknown MAC (0x%02x)",value,
 							       tvb_get_guint8 (tvb, offset));
 				       }
 				}

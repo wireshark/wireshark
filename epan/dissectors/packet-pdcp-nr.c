@@ -1130,7 +1130,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti,
     va_list ap;
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -2179,7 +2179,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                             if ((bits << l) & 0x80) {
                                 if (bitmap_tree) {
                                     /* TODO: better to do mod and show as SN instead? */
-                                    j += g_snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
+                                    j += snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
                                 }
                             } else {
                                 if (bitmap_tree) {

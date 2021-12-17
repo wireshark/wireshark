@@ -338,7 +338,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
     va_list ap;
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -349,7 +349,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
     }
 }
 
-/* Version of function above, where no g_vsnprintf() call needed
+/* Version of function above, where no vsnprintf() call needed
    - the info column
    - the top-level RLC PDU item
    - another subtree item (if supplied) */
@@ -796,7 +796,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
         /* We shouldn't NACK the ACK_SN! */
         if (nack_sn == ack_sn) {
             expert_add_info_format(pinfo, nack_ti, &ei_rlc_nr_am_nack_sn_ack_same,
-                                   "Status PDU shouldn't ACK and NACK the same sequence number (%" G_GINT64_MODIFIER "u)",
+                                   "Status PDU shouldn't ACK and NACK the same sequence number (%" PRIu64 ")",
                                    ack_sn);
         }
 

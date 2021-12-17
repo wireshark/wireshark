@@ -151,9 +151,9 @@ static void
 j1939_fmt_address(gchar *result, guint32 addr )
 {
     if ((addr < 128) || (addr > 247))
-        g_snprintf(result, ITEM_LABEL_LENGTH, "%d (%s)", addr, val_to_str_ext_const(addr, &j1939_address_vals_ext, "Reserved"));
+        snprintf(result, ITEM_LABEL_LENGTH, "%d (%s)", addr, val_to_str_ext_const(addr, &j1939_address_vals_ext, "Reserved"));
     else
-        g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Arbitrary)", addr);
+        snprintf(result, ITEM_LABEL_LENGTH, "%d (Arbitrary)", addr);
 }
 
 static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)

@@ -714,7 +714,7 @@ f5eth_tmmdist_stats_tree_packet(
     if(check_f5eth_tap_magic(tdata) == 0) return TAP_PACKET_DONT_REDRAW;
      */
 
-    g_snprintf(tmm_stat_name_buffer, PER_TMM_STAT_NAME_BUF_LEN, "slot %3d,tmm %3d", tdata->slot,
+    snprintf(tmm_stat_name_buffer, PER_TMM_STAT_NAME_BUF_LEN, "slot %3d,tmm %3d", tdata->slot,
         tdata->tmm);
 
     pkt_len = pinfo->fd->pkt_len - tdata->trailer_len;
@@ -1915,12 +1915,12 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
                 rstcauseline = (rstcauseval & 0x000000000000ffffLL);
                 rstcauseval  = (rstcauseval & 0xffffffffffff0000LL) >> 16;
                 proto_tree_add_uint64_format_value(rc_tree, hf_rstcause_val, tvb, o, 6,
-                    rstcauseval, "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
+                    rstcauseval, "0x%012" PRIx64, rstcauseval);
                 proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o + 6, 2, ENC_BIG_ENDIAN);
                 o += 8;
 
                 proto_item_append_text(rc_item,
-                    ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
+                    ": [%" PRIx64 ":%" PRIu64 "]%s %s", rstcauseval,
                     rstcauseline, rstcausepeer ? " {peer}" : "",
                         tvb_get_string_enc(pinfo->pool, tvb, o,
                         rstcauselen - (o - startcause), ENC_ASCII));
@@ -2361,12 +2361,12 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             rstcauseline = (rstcauseval & 0x000000000000ffffLL);
             rstcauseval  = (rstcauseval & 0xffffffffffff0000LL) >> 16;
             proto_tree_add_uint64_format_value(rc_tree, hf_rstcause_val, tvb, o, 6, rstcauseval,
-                "0x%012" G_GINT64_MODIFIER "x", rstcauseval);
+                "0x%012" PRIx64, rstcauseval);
             proto_tree_add_item(rc_tree, hf_rstcause_line, tvb, o + 6, 2, ENC_BIG_ENDIAN);
             o += 8;
 
             proto_item_append_text(rc_item,
-                ": [%" G_GINT64_MODIFIER "x:%" G_GINT64_MODIFIER "u]%s %s", rstcauseval,
+                ": [%" PRIx64 ":%" PRIu64 "]%s %s", rstcauseval,
                 rstcauseline, rstcausepeer ? " {peer}" : "",
                 tvb_get_string_enc(
                     pinfo->pool, tvb, o, rstcauselen - (o - startcause), ENC_ASCII));

@@ -181,7 +181,7 @@ message_hash_key_convo(packet_info *pinfo,
 	// msgtype:srcport:destport:messagenum
 
 	const gchar *msg_type = get_message_type(value_frame_flags);
-	gchar *hash_key = wmem_strdup_printf(pinfo->pool, "%s:%u:%u:%" G_GINT64_MODIFIER "u",
+	gchar *hash_key = wmem_strdup_printf(pinfo->pool, "%s:%u:%u:%" PRIu64,
 			msg_type, pinfo->srcport, pinfo->destport, value_message_num);
 
 	return hash_key;
@@ -445,7 +445,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 	offset += varint_frame_flags_length;
 
 	const gchar* msg_type = get_message_type(value_frame_flags);
-	gchar* msg_num = wmem_strdup_printf(pinfo->pool, "#%" G_GUINT64_FORMAT, value_message_num);
+	gchar* msg_num = wmem_strdup_printf(pinfo->pool, "#%" PRIu64, value_message_num);
 	gchar* col_info = wmem_strconcat(pinfo->pool, msg_type, msg_num, NULL);
 	col_add_str(pinfo->cinfo, COL_INFO, col_info);
 

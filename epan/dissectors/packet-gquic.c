@@ -2224,7 +2224,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
                 offset += 4;
             }
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Version Negotiation, CID: %" G_GINT64_MODIFIER "u", cid);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Version Negotiation, CID: %" PRIu64, cid);
             return offset;
         }
         else{
@@ -2251,7 +2251,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         offset = dissect_gquic_tag(tvb, pinfo, gquic_tree, offset, tag_number);
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Public Reset, CID: %" G_GINT64_MODIFIER "u", cid);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Public Reset, CID: %" PRIu64, cid);
 
         return offset;
     }
@@ -2280,10 +2280,10 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" PRIu64, pkn);
 
     if(cid){
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: %" G_GINT64_MODIFIER "u", cid);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: %" PRIu64, cid);
     }
 
 
@@ -2399,10 +2399,10 @@ dissect_gquic_q046(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     }
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" PRIu64, pkn);
 
     if(cid){
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: %" G_GINT64_MODIFIER "u", cid);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: %" PRIu64, cid);
     }
 
     return offset;

@@ -8640,7 +8640,7 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
     curr_offset = curr_offset + 4;
     if(add_string)
-        g_snprintf(add_string, string_len, " - 0x%x", tlli);
+        snprintf(add_string, string_len, " - 0x%x", tlli);
 
     return(curr_offset - offset);
 }
@@ -9073,7 +9073,7 @@ de_rr_ec_request_reference(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 static void
 gsm_a_rr_ec_ma_number_fmt(gchar *s, guint32 v)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "EC-EGPRS Mobile Allocation set %u (%u)", v+1, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "EC-EGPRS Mobile Allocation set %u (%u)", v+1, v);
 }
 
 static guint16

@@ -480,9 +480,9 @@ static void btl2cap_cid_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_CID);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP CID 0x%04x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP CID 0x%04x as", (guint) *value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP CID");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP CID");
 }
 
 static gpointer btl2cap_cid_value(packet_info *pinfo)
@@ -503,9 +503,9 @@ static void btl2cap_psm_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, PROTO_DATA_BTL2CAP_PSM);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP PSM 0x%04x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP PSM 0x%04x as", (guint) *value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP PSM");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP PSM");
 }
 
 static gpointer btl2cap_psm_value(packet_info *pinfo)

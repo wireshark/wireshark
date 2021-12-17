@@ -102,7 +102,7 @@ static lbtipc_transport_t * lbtipc_transport_add(guint32 host_id, guint32 sessio
 
 static char * lbtipc_transport_source_string(guint32 host_id _U_, guint32 session_id, guint16 xport_id)
 {
-    return (wmem_strdup_printf(wmem_file_scope(), "LBT-IPC:%x:%" G_GUINT16_FORMAT, session_id, xport_id));
+    return (wmem_strdup_printf(wmem_file_scope(), "LBT-IPC:%x:%" PRIu16, session_id, xport_id));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -175,7 +175,7 @@ static lbtsmx_transport_t * lbtsmx_transport_add(guint32 host_id, guint32 sessio
 
 static char * lbtsmx_transport_source_string(guint32 host_id _U_, guint32 session_id, guint16 xport_id)
 {
-    return (wmem_strdup_printf(wmem_file_scope(), "LBT-SMX:%x:%" G_GUINT16_FORMAT, session_id, xport_id));
+    return (wmem_strdup_printf(wmem_file_scope(), "LBT-SMX:%x:%" PRIu16, session_id, xport_id));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -255,7 +255,7 @@ static lbtrdma_transport_t * lbtrdma_transport_add(const address * source_addres
 
 static char * lbtrdma_transport_source_string(const address * source_address _U_, guint32 session_id, guint16 port)
 {
-    return (wmem_strdup_printf(wmem_file_scope(), "LBT-RDMA:%x:%" G_GUINT16_FORMAT, session_id, port));
+    return (wmem_strdup_printf(wmem_file_scope(), "LBT-RDMA:%x:%" PRIu16, session_id, port));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -2853,7 +2853,7 @@ static tap_packet_status lbmr_topic_ads_topic_stats_tree_packet(stats_tree * tre
     tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_topic, 0, FALSE);
     topic_node = tick_stat_node(tree, info->topic, lbmr_stats_tree_handle_topic_ads_topic, TRUE);
     source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), topic_node, TRUE);
-    full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" G_GUINT32_FORMAT "]", info->source, info->topic_index);
+    full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" PRIu32 "]", info->source, info->topic_index);
     tick_stat_node(tree, full_source_string, source_node, TRUE);
     return (TAP_PACKET_REDRAW);
 }
@@ -2880,7 +2880,7 @@ static tap_packet_status lbmr_topic_ads_source_stats_tree_packet(stats_tree * tr
     tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_source, 0, FALSE);
     source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_topic_ads_source, TRUE);
     topic_node = tick_stat_node(tree, info->topic, source_node, TRUE);
-    full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" G_GUINT32_FORMAT "]", info->source, info->topic_index);
+    full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s[%" PRIu32 "]", info->source, info->topic_index);
     tick_stat_node(tree, full_source_string, topic_node, TRUE);
     return (TAP_PACKET_REDRAW);
 }
@@ -2904,7 +2904,7 @@ static tap_packet_status lbmr_topic_ads_transport_stats_tree_packet(stats_tree *
 
     tick_stat_node(tree, lbmr_stat_tree_name_topic_ads_transport, 0, FALSE);
     transport_node = tick_stat_node(tree, info->source, lbmr_stats_tree_handle_topic_ads_transport, TRUE);
-    full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s [%" G_GUINT32_FORMAT "]", info->topic, info->topic_index);
+    full_source_string = wmem_strdup_printf(wmem_packet_scope(), "%s [%" PRIu32 "]", info->topic, info->topic_index);
     tick_stat_node(tree, full_source_string, transport_node, TRUE);
     return (TAP_PACKET_REDRAW);
 }
@@ -3024,7 +3024,7 @@ static tap_packet_status lbmr_queue_ads_queue_stats_tree_packet(stats_tree * tre
 
     tick_stat_node(tree, lbmr_stat_tree_name_queue_ads_queue, 0, FALSE);
     queue_node = tick_stat_node(tree, info->queue, lbmr_stats_tree_handle_queue_ads_queue, TRUE);
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), &pinfo->net_src), info->port);
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" PRIu16, address_to_str(wmem_packet_scope(), &pinfo->net_src), info->port);
     tick_stat_node(tree, str, queue_node, TRUE);
     return (TAP_PACKET_REDRAW);
 }
@@ -3048,7 +3048,7 @@ static tap_packet_status lbmr_queue_ads_source_stats_tree_packet(stats_tree * tr
 
     tick_stat_node(tree, lbmr_stat_tree_name_queue_ads_source, 0, FALSE);
     source_node = tick_stat_node(tree, address_to_str(wmem_packet_scope(), &pinfo->net_src), lbmr_stats_tree_handle_queue_ads_source, TRUE);
-    str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" G_GUINT16_FORMAT, info->queue, info->port);
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s:%" PRIu16, info->queue, info->port);
     tick_stat_node(tree, str, source_node, TRUE);
     return (TAP_PACKET_REDRAW);
 }
@@ -3460,7 +3460,7 @@ static int dissect_lbmr_tmr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
             }
             break;
     }
-    ti = proto_tree_add_none_format(tree, hf_lbmr_tmr, tvb, offset, tmr_len, "%s: %s%s, Length %" G_GUINT16_FORMAT,
+    ti = proto_tree_add_none_format(tree, hf_lbmr_tmr, tvb, offset, tmr_len, "%s: %s%s, Length %" PRIu16,
         name, val_to_str(tmr_type, lbmr_tmr_type, "Unknown (0x%02x)"), info_string, tmr_len);
     tinfo_tree = proto_item_add_subtree(ti, ett_lbmr_tmr);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_len, tvb, offset + O_LBMR_TMR_T_LEN, L_LBMR_TMR_T_LEN, ENC_BIG_ENDIAN);
@@ -4121,7 +4121,7 @@ static int dissect_lbmr_tir_entry(tvbuff_t * tvb, int offset, packet_info * pinf
     reclen += L_LBMR_TIR_T;
     curr_offset += L_LBMR_TIR_T;
 
-    ti = proto_tree_add_none_format(tree, hf_lbmr_tir, tvb, offset, reclen, "%s: %s, Length %u, Index %" G_GUINT32_FORMAT ", TTL %" G_GUINT16_FORMAT,
+    ti = proto_tree_add_none_format(tree, hf_lbmr_tir, tvb, offset, reclen, "%s: %s, Length %u, Index %" PRIu32 ", TTL %" PRIu16,
         name, val_to_str((transport & LBMR_TIR_TRANSPORT), lbmr_transport_type, "Unknown (0x%02x)"), tlen, idx, ttl);
     tinfo_tree = proto_item_add_subtree(ti, ett_lbmr_tir);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tir_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
@@ -4231,7 +4231,7 @@ static int dissect_lbmr_qir_grp_blk(tvbuff_t * tvb, int offset, packet_info * pi
 
     idx = tvb_get_ntohs(tvb, offset + O_LBMR_QIR_GRP_BLK_T_GRP_IDX);
     sz = tvb_get_ntohs(tvb, offset + O_LBMR_QIR_GRP_BLK_T_GRP_SZ);
-    ti = proto_tree_add_none_format(tree, hf_lbmr_qir_grp_blk, tvb, offset, L_LBMR_QIR_GRP_BLK_T, "Group block, Index %" G_GUINT16_FORMAT ", Size %" G_GUINT16_FORMAT, idx, sz);
+    ti = proto_tree_add_none_format(tree, hf_lbmr_qir_grp_blk, tvb, offset, L_LBMR_QIR_GRP_BLK_T, "Group block, Index %" PRIu16 ", Size %" PRIu16, idx, sz);
     blk_tree = proto_item_add_subtree(ti, ett_lbmr_qir_grp_blk);
     proto_tree_add_item(blk_tree, hf_lbmr_qir_grp_blk_grp_idx, tvb, offset + O_LBMR_QIR_GRP_BLK_T_GRP_IDX, L_LBMR_QIR_GRP_BLK_T_GRP_IDX, ENC_BIG_ENDIAN);
     proto_tree_add_item(blk_tree, hf_lbmr_qir_grp_blk_grp_sz, tvb, offset + O_LBMR_QIR_GRP_BLK_T_GRP_SZ, L_LBMR_QIR_GRP_BLK_T_GRP_SZ, ENC_BIG_ENDIAN);
@@ -4286,7 +4286,7 @@ static int dissect_lbmr_qir_entry(tvbuff_t * tvb, int offset, packet_info * pinf
     grp_blks = have_options & LBMR_QIR_GRP_BLOCKS_MASK;
     have_options &= LBMR_QIR_OPTIONS;
     queue_blks = tvb_get_ntohs(tvb, curr_offset + O_LBMR_QIR_T_QUEUE_BLKS);
-    qirti = proto_tree_add_none_format(tree, hf_lbmr_qir, tvb, offset, reclen, "%s: %s, ID %" G_GUINT32_FORMAT, qname, tname, queue_id);
+    qirti = proto_tree_add_none_format(tree, hf_lbmr_qir, tvb, offset, reclen, "%s: %s, ID %" PRIu32, qname, tname, queue_id);
     qirtree = proto_item_add_subtree(qirti, ett_lbmr_qir);
     proto_tree_add_item(qirtree, hf_lbmr_qir_queue_name, tvb, qnameoffset, qnamelen, ENC_ASCII|ENC_NA);
     proto_tree_add_item(qirtree, hf_lbmr_qir_topic_name, tvb, tnameoffset, tnamelen, ENC_ASCII|ENC_NA);
@@ -5274,7 +5274,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         switch (type)
         {
             case LBMR_HDR_TYPE_QUEUE_RES:
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "QQRs %u QIRs %" G_GUINT16_FORMAT, tqrs, tirs);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "QQRs %u QIRs %" PRIu16, tqrs, tirs);
                 break;
             default:
                 if (rd_keepalive)
@@ -5298,7 +5298,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                 }
                 else
                 {
-                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TQRs %u TIRs %" G_GUINT16_FORMAT, tqrs, tirs);
+                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "TQRs %u TIRs %" PRIu16, tqrs, tirs);
                 }
                 break;
         }
@@ -5308,12 +5308,12 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             case LBMR_HDR_TYPE_QUEUE_RES:
                 if (tag_name != NULL)
                 {
-                    ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) QQRs %u, QIRs %" G_GUINT16_FORMAT,
+                    ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) QQRs %u, QIRs %" PRIu16,
                         tag_name, ver, type, val_to_str(type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                 }
                 else
                 {
-                    ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) QQRs %u, QIRs %" G_GUINT16_FORMAT,
+                    ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) QQRs %u, QIRs %" PRIu16,
                         ver, type, val_to_str(type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                 }
                 break;
@@ -5332,7 +5332,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                     }
                     else
                     {
-                        ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) TQRs %u, TIRs %" G_GUINT16_FORMAT,
+                        ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol (Tag: %s): Version %u, Type 0x%x (%s) TQRs %u, TIRs %" PRIu16,
                             tag_name, ver, type, val_to_str(type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                     }
                 }
@@ -5350,7 +5350,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                     }
                     else
                     {
-                        ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) TQRs %u, TIRs %" G_GUINT16_FORMAT,
+                        ti = proto_tree_add_protocol_format(tree, proto_lbmr, tvb, O_LBMR_HDR_T_VER_TYPE, -1, "LBM Topic Resolution Protocol: Version %u, Type 0x%x (%s) TQRs %u, TIRs %" PRIu16,
                             ver, type, val_to_str(type, lbmr_packet_type, "Unknown(0x%02x)"), tqrs, tirs);
                     }
                 }

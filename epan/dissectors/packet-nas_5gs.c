@@ -2521,16 +2521,16 @@ de_nas_5gs_mm_nssai_inc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 static void
 nas_5gs_mm_access_cat_number(gchar *s, guint32 val)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 32+val, val);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 32+val, val);
 }
 
 static void
 nas_5gs_mm_access_standardized_cat_number(gchar *s, guint32 val)
 {
     if (val <= 7)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%u", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%u", val);
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Reserved (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Reserved (%u)", val);
 }
 
 static const value_string nas_5gs_mm_op_def_access_cat_criteria_type_vals[] = {

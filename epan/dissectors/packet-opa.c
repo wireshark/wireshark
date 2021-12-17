@@ -541,7 +541,7 @@ static gint hf_opa_TIDRDMA_VerbsQP = -1;
 /* Custom Functions */
 static void cf_opa_dw_to_b(gchar *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u DWORDS (%u Bytes)", value, value * 4);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u DWORDS (%u Bytes)", value, value * 4);
 }
 
 /* Dissector Declarations */

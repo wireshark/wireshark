@@ -174,7 +174,7 @@ static void
 rssi_base_custom(gchar *result, guint32 rssi)
 {
     /* Convert Hex to decimal and subtract 256 to get the signal value */
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d", rssi - 256);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d", rssi - 256);
 
 }
 

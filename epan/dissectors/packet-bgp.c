@@ -9445,8 +9445,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     case AIGP_TLV_TYPE :
                         proto_tree_add_item(subtree3, hf_bgp_aigp_tlv_length, tvb, q+1, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(subtree3, hf_bgp_aigp_accu_igp_metric, tvb, q+3, 8, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
-                        proto_item_append_text(ti_pa, ": %" G_GINT64_MODIFIER "u", tvb_get_ntoh64(tvb, q+3));
+                        proto_item_append_text(ti, ": %" PRIu64, tvb_get_ntoh64(tvb, q+3));
+                        proto_item_append_text(ti_pa, ": %" PRIu64, tvb_get_ntoh64(tvb, q+3));
                         break;
                     default :
                         expert_add_info_format(pinfo, aigp_type_item, &ei_bgp_attr_aigp_type,

@@ -216,7 +216,7 @@ rtsp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 
         tick_stat_node(st, resp_str, st_node_responses, FALSE);
 
-        g_snprintf(str, sizeof(str),"%u %s",i,val_to_str(i,rtsp_status_code_vals, "Unknown (%d)"));
+        snprintf(str, sizeof(str),"%u %s",i,val_to_str(i,rtsp_status_code_vals, "Unknown (%d)"));
         tick_stat_node(st, str, resp_grp, FALSE);
     } else if (v->request_method) {
         stats_tree_tick_pivot(st,st_node_requests,v->request_method);

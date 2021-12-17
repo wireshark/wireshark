@@ -2303,7 +2303,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - No Identity Code");
+            snprintf(add_string, string_len, " - No Identity Code");
 
         curr_offset++;
 
@@ -2347,7 +2347,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         }
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - %s (%s)",
+            snprintf(add_string, string_len, " - %s (%s)",
                 ((oct & 0x07) == 3) ? "IMEISV" : "IMSI",
                 digit_str);
 
@@ -2379,7 +2379,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
             digit_str);
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - IMEI (%s)", digit_str);
+            snprintf(add_string, string_len, " - IMEI (%s)", digit_str);
 
         curr_offset += len - (curr_offset - offset);
         break;
@@ -2393,7 +2393,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         proto_tree_add_item_ret_uint(tree, hf_3gpp_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &value);
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - TMSI/P-TMSI (0x%04x)", value);
+            snprintf(add_string, string_len, " - TMSI/P-TMSI (0x%04x)", value);
 
         curr_offset += 4;
         break;
@@ -2435,7 +2435,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         expert_add_info_format(pinfo, ti, &ei_gsm_a_mobile_identity_type, "Unknown format %u", (oct & 0x07));
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - Format Unknown");
+            snprintf(add_string, string_len, " - Format Unknown");
 
         curr_offset += len;
         break;
@@ -3574,7 +3574,7 @@ de_plmn_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     }
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - %u PLMN%s",
+        snprintf(add_string, string_len, " - %u PLMN%s",
             num_plmn, plurality(num_plmn, "", "s"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_extraneous_data);

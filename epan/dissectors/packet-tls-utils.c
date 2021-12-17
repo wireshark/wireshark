@@ -2055,7 +2055,7 @@ quic_transport_parameter_id_base_custom(gchar *result, guint64 parameter_id)
     } else {
         label = val_to_str_const((guint32)parameter_id, quic_transport_parameter_id, "Unknown");
     }
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%s (0x%02" G_GINT64_MODIFIER "x)", label, parameter_id);
+    snprintf(result, ITEM_LABEL_LENGTH, "%s (0x%02" PRIx64 ")", label, parameter_id);
 }
 
 /* we keep this internal to packet-tls-utils, as there should be
@@ -4284,7 +4284,7 @@ create_decoders:
     ssl_session->client_new->flow = ssl_session->client ? ssl_session->client->flow : ssl_create_flow();
     ssl_session->server_new->flow = ssl_session->server ? ssl_session->server->flow : ssl_create_flow();
 
-    ssl_debug_printf("%s: client seq %" G_GUINT64_FORMAT ", server seq %" G_GUINT64_FORMAT "\n",
+    ssl_debug_printf("%s: client seq %" PRIu64 ", server seq %" PRIu64 "\n",
         G_STRFUNC, ssl_session->client_new->seq, ssl_session->server_new->seq);
     g_free(key_block.data);
     ssl_session->state |= SSL_HAVE_SESSION_KEY;
@@ -4592,7 +4592,7 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
     if (ssl_hmac_setkey(&hm,decoder->mac_key.data,decoder->mac_key.data_len) != 0)
         return -1;
 
-    ssl_debug_printf("dtls_check_mac seq: %" G_GUINT64_FORMAT " epoch: %d\n",decoder->seq,decoder->epoch);
+    ssl_debug_printf("dtls_check_mac seq: %" PRIu64 " epoch: %d\n",decoder->seq,decoder->epoch);
     /* hash sequence number */
     phton64(buf, decoder->seq);
     buf[0]=decoder->epoch>>8;
@@ -4748,7 +4748,7 @@ tls_decrypt_aead_record(SslDecryptSession *ssl, SslDecoder *decoder,
         memcpy(nonce, decoder->write_iv.data, decoder->write_iv.data_len);
         /* Sequence number is left-padded with zeroes and XORed with write_iv */
         phton64(nonce + nonce_len - 8, pntoh64(nonce + nonce_len - 8) ^ decoder->seq);
-        ssl_debug_printf("%s seq %" G_GUINT64_FORMAT "\n", G_STRFUNC, decoder->seq);
+        ssl_debug_printf("%s seq %" PRIu64 "\n", G_STRFUNC, decoder->seq);
     }
 
     /* Set nonce and additional authentication data */
@@ -5037,7 +5037,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
     }
 
     /* Now check the MAC */
-    ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %" G_GUINT64_FORMAT ")\n",
+    ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %" PRIu64 ")\n",
         worklen, ssl->session.version, ct, decoder->seq);
     if(ssl->session.version==SSLV3_VERSION){
         if(ssl3_check_mac(decoder,ct,mac_frag,mac_fraglen,mac) < 0) {
@@ -6384,7 +6384,7 @@ ssl_association_info_(const gchar *table _U_, gpointer handle, gpointer user_dat
 {
     ssl_association_info_callback_data_t* data = (ssl_association_info_callback_data_t*)user_data;
     const int l = (const int)strlen(data->str);
-    g_snprintf(data->str+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s\n", dissector_handle_get_short_name((dissector_handle_t)handle), data->table_protocol);
+    snprintf(data->str+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s\n", dissector_handle_get_short_name((dissector_handle_t)handle), data->table_protocol);
 }
 
 /**
@@ -7635,7 +7635,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
              * quic_transport_parameter_id assumes that. If larger (up to 62
              * bits) TPs are available, then it needs to be revisited.
              */
-            proto_item_append_text(parameter_tree, ": Unknown 0x%08" G_GINT64_MODIFIER "x", parameter_type);
+            proto_item_append_text(parameter_tree, ": Unknown 0x%08" PRIx64, parameter_type);
         } else {
             proto_item_append_text(parameter_tree, ": %s", val_to_str((guint32)parameter_type, quic_transport_parameter_id, "Unknown 0x%04x"));
         }
@@ -7655,7 +7655,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_MAX_IDLE_TIMEOUT:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_idle_timeout,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u ms", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64 " ms", value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN:
@@ -7666,44 +7666,44 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_MAX_UDP_PAYLOAD_SIZE:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_udp_payload_size,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 /*TODO display expert info about invalid value (< 1252 or >65527) ? */
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_DATA:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_data,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_bidi_local,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_uni,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_uni,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_bidi,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT:
@@ -7715,7 +7715,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_MAX_ACK_DELAY:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_ack_delay,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_DISABLE_ACTIVE_MIGRATION:
@@ -7761,7 +7761,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_active_connection_id_limit,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_INITIAL_SOURCE_CONNECTION_ID:
@@ -7777,7 +7777,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_MAX_DATAGRAM_FRAME_SIZE:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_datagram_frame_size,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_LOSS_BITS:
@@ -7791,7 +7791,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_MIN_ACK_DELAY:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_min_ack_delay,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64, value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_GOOGLE_USER_AGENT:
@@ -7824,7 +7824,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_GOOGLE_INITIAL_RTT:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_google_initial_rtt,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u us", value);
+                proto_item_append_text(parameter_tree, " %" PRIu64 " us", value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_GOOGLE_SUPPORT_HANDSHAKE_DONE:

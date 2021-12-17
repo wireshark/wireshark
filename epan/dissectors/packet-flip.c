@@ -81,7 +81,7 @@ static gint ett_flip_payload = -1;
 
 static void flip_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode FLIP payload protocol as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode FLIP payload protocol as");
 }
 
 /* Dissect the checksum extension header. */

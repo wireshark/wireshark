@@ -262,7 +262,7 @@ static const value_string rr_gen_ie_presence_vals[] = {
 static void
 rr_gen_ie_seconds_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%u seconds", v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%u seconds", v);
 }
 
 
@@ -477,7 +477,7 @@ rr_timing_ofs_value_fmt(gchar *s, guint32 v)
 {
 	gint32 sv = (signed)v;
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.3f symbols ( ~ %.3f ms )",
+	snprintf(s, ITEM_LABEL_LENGTH, "%.3f symbols ( ~ %.3f ms )",
 		sv / 40.0f, (sv / 40.0f) * (10.0f / 234.0f));
 }
 
@@ -577,7 +577,7 @@ rr_freq_ofs_value_fmt(gchar *s, guint32 v)
 {
 	gint32 sv = (signed)v;
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d Hz", sv);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d Hz", sv);
 }
 
 GMR1_IE_FUNC(gmr1_ie_rr_freq_ofs)
@@ -674,13 +674,13 @@ static const value_string rr_pos_upd_info_v_vals[] = {
 static void
 rr_pos_upd_info_dist_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d km", v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d km", v);
 }
 
 static void
 rr_pos_upd_info_time_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d minutes", v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d minutes", v);
 }
 
 GMR1_IE_FUNC(gmr1_ie_rr_pos_upd_info)
@@ -775,9 +775,9 @@ static void
 rr_gps_timestamp_fmt(gchar *s, guint32 v)
 {
 	if (v == 0xffff)
-		g_snprintf(s, ITEM_LABEL_LENGTH, "> 65535 minutes or N/A");
+		snprintf(s, ITEM_LABEL_LENGTH, "> 65535 minutes or N/A");
 	else
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%d minutes", v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%d minutes", v);
 }
 
 GMR1_IE_FUNC(gmr1_ie_rr_gps_timestamp)
@@ -816,7 +816,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_tmsi_avail_msk)
 static void
 rr_gps_almanac_pn_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d", v+1);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d", v+1);
 }
 
 static const value_string rr_gps_almanac_sfn_vals[] = {
@@ -940,7 +940,7 @@ static const crumb_spec_t rr_pkt_freq_prm_ul_freq_dist_crumbs[] = {
 static void
 rr_pkt_freq_prm_xx_bw_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d * 31.25 kHz = %.2f kHz (%d)", v, 31.25f*v, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d * 31.25 kHz = %.2f kHz (%d)", v, 31.25f*v, v);
 }
 
 GMR1_IE_FUNC(gmr1_ie_rr_pkt_freq_prm)
@@ -1135,11 +1135,11 @@ static void
 rr_pkt_pwr_ctrl_prm_par_fmt(gchar *s, guint32 v)
 {
 	if (v >= 61) {
-		g_snprintf(s, ITEM_LABEL_LENGTH, "Escape %d (%d)", v-60, v);
+		snprintf(s, ITEM_LABEL_LENGTH, "Escape %d (%d)", v-60, v);
 		return;
 	}
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f dB (%d)", v*0.4f, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.1f dB (%d)", v*0.4f, v);
 }
 
 GMR1_IE_FUNC(gmr1_ie_rr_pkt_pwr_ctrl_prm)

@@ -691,19 +691,19 @@ dissect_netmon_network_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			else if (link_speed >= 1000 * 1000 * 1000)
 			{
-			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Gbps", link_speed/(1000*1000*1000));
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" PRIu64 " Gbps", link_speed/(1000*1000*1000));
 			}
 			else if (link_speed >= 1000 * 1000)
 			{
-			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Mbps", link_speed/(1000*1000));
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" PRIu64 " Mbps", link_speed/(1000*1000));
 			}
 			else if (link_speed >= 1000)
 			{
-			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u Kbps", link_speed/1000);
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" PRIu64 " Kbps", link_speed/1000);
 			}
 			else
 			{
-			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" G_GINT64_MODIFIER "u bps", link_speed);
+			    proto_tree_add_uint64_format_value(adapter_tree, hf_netmon_network_info_link_speed, tvb, offset, 8, link_speed, "%" PRIu64 " bps", link_speed);
 			}
 			offset += 8;
 			proto_tree_add_item(adapter_tree, hf_netmon_network_info_mac_address, tvb, offset, 6, ENC_NA);

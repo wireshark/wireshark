@@ -2930,9 +2930,9 @@ static void
 de_emm_wus_assist_info_ue_paging_prob_fmt(gchar *s, guint32 val)
 {
     if (val < 20) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "p%u (%u)", val*5, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "p%u (%u)", val*5, val);
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "p100 (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "p100 (%u)", val);
     }
 }
 

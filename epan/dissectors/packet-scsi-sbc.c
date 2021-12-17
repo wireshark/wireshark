@@ -312,7 +312,7 @@ dissect_sbc_synchronizecache16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -340,7 +340,7 @@ dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -616,7 +616,7 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -645,7 +645,7 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -674,7 +674,7 @@ dissect_sbc_writeatomic16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohs (tvb, offset+11));
     }
@@ -704,7 +704,7 @@ dissect_sbc_orwrite (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -734,7 +734,7 @@ dissect_sbc_comparenwrite (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -883,7 +883,7 @@ dissect_sbc_verify16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -975,7 +975,7 @@ dissect_sbc_wrverify16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     };
 
     if (isreq && iscdb) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" G_GINT64_MODIFIER "u, Len: %u)",
+        col_append_fstr (pinfo->cinfo, COL_INFO, "(LBA: %" PRIu64 ", Len: %u)",
                 tvb_get_ntoh64 (tvb, offset+1),
                 tvb_get_ntohl (tvb, offset+9));
     }
@@ -1188,9 +1188,9 @@ dissect_sbc_unmap (tvbuff_t *tvb, packet_info *pinfo _U_,
             num_blocks = tvb_get_ntohl(tvb, offset+8);
 
             if (num_blocks > 1) {
-                proto_item_append_text (it, "%" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u  ", lba, lba+num_blocks-1);
+                proto_item_append_text (it, "%" PRIu64 "-%" PRIu64 "  ", lba, lba+num_blocks-1);
             } else {
-                proto_item_append_text (it, "%" G_GINT64_MODIFIER "u  ", lba);
+                proto_item_append_text (it, "%" PRIu64 "  ", lba);
             }
 
             offset += 16;
@@ -1469,7 +1469,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                     }
 
                     it = proto_tree_add_item (tree, hf_scsi_sbc_lba64_address, tvb, offset, 8, ENC_BIG_ENDIAN);
-                    proto_item_append_text (it, " (%" G_GINT64_MODIFIER "u %s)", tot_len, un);
+                    proto_item_append_text (it, " (%" PRIu64 " %s)", tot_len, un);
 
                     proto_tree_add_item (tree, hf_scsi_sbc_blocksize, tvb, offset+8, 4, ENC_BIG_ENDIAN);
 
@@ -1518,7 +1518,7 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb, packet_info *pinfo _U_,
                         /* reserved */
                         offset += 3;
 
-                        proto_item_append_text (it, "%" G_GINT64_MODIFIER "u-%" G_GINT64_MODIFIER "u  %s",
+                        proto_item_append_text (it, "%" PRIu64 "-%" PRIu64 "  %s",
                                 lba,
                                 lba + num_blocks - 1,
                                 val_to_str(type, scsi_provisioning_type_val, "Unknown (0x%02x)")

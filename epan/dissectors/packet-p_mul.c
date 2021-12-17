@@ -1167,7 +1167,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       timestamp = tvb_get_ntoh64 (tvb, offset);
       proto_tree_add_uint64_format_value(p_mul_tree, hf_timestamp_option, tvb,
                                     offset, 8, timestamp,
-                                    "%" G_GINT64_MODIFIER "d.%d second%s (%" G_GINT64_MODIFIER "u)",
+                                    "%" PRId64 ".%d second%s (%" PRIu64 ")",
                                     timestamp / 10, (int) timestamp % 10,
                                     (timestamp == 10) ? "" : "s", timestamp);
       offset += 8;

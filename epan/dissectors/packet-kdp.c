@@ -220,17 +220,17 @@ static int dissect_kdp(tvbuff_t *tvb,
       char src_flowid_string[BUFFER_SIZE];
 
       if (packet_flags & KDP_ACK_FLAG) {
-        g_snprintf(ack_string, sizeof(ack_string), "ACK=%x ", ack_number);
+        snprintf(ack_string, sizeof(ack_string), "ACK=%x ", ack_number);
       } else {
         ack_string[0] = '\0';
       }
       if (header_len > 4) {
-        g_snprintf(seq_num_string, sizeof(seq_num_string), "SEQ=%x ", sequence_number);
+        snprintf(seq_num_string, sizeof(seq_num_string), "SEQ=%x ", sequence_number);
       } else {
         seq_num_string[0] = '\0';
       }
       if (packet_flags & (KDP_SYN_FLAG | KDP_BCST_FLAG)) {
-        g_snprintf(src_flowid_string, sizeof(src_flowid_string), "SRC_FLOWID=%x ", src_flowid);
+        snprintf(src_flowid_string, sizeof(src_flowid_string), "SRC_FLOWID=%x ", src_flowid);
       } else {
         src_flowid_string[0] = '\0';
       }

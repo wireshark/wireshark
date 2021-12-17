@@ -184,12 +184,12 @@ static void
 decode_illum_meas_value(gchar *s, guint16 value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_TOO_LOW_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
+        snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
     else if (value == ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_INVALID_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
         /* calculate lux value from measured value according to doc 07-5123-04 */
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
 
     return;
 } /*decode_illum_meas_value*/
@@ -205,9 +205,9 @@ decode_illum_meas_min_value(gchar *s, guint16 value)
 {
     if ( (value < ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MIN_LO_VALUE) ||
          (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MIN_HI_VALUE) )
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
 
     return;
 } /*decode_illum_meas_min_value*/
@@ -223,9 +223,9 @@ decode_illum_meas_max_value(gchar *s, guint16 value)
 {
     if ( (value < ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MAX_LO_VALUE) ||
          (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_MAX_HI_VALUE) )
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
 
     return;
 } /*decode_illum_meas_max_value*/
@@ -240,9 +240,9 @@ static void
 decode_illum_meas_tolerance(gchar *s, guint16 value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_ILLUM_MEAS_TOL_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d", value);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d", value);
 
     return;
 } /*decode_illum_meas_tolerance*/
@@ -460,12 +460,12 @@ static void
 decode_illum_level_sen_target_level(gchar *s, guint16 value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_TOO_LOW_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
+        snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
     else if (value == ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_INVALID_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
         /* calculate lux value from measured value according to doc 07-5123-04 */
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
 
     return;
 } /*decode_illum_level_sen_value*/
@@ -676,9 +676,9 @@ static void
 decode_temp_meas_value(gchar *s, gint16 value)
 {
     if (value == (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_INVALID_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
 
     return;
 } /*decode_temp_meas_value*/
@@ -694,9 +694,9 @@ decode_temp_meas_min_value(gchar *s, gint16 value)
 {
     if ( (value < (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MIN_LO_VALUE) ||
          (value > (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MIN_HI_VALUE) )
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
 
     return;
 } /*decode_temp_meas_min_value*/
@@ -711,9 +711,9 @@ static void
 decode_temp_meas_max_value(gchar *s, gint16 value)
 {
     if (value < (gint16)ZBEE_ZCL_ATTR_ID_TEMP_MEAS_MAX_LO_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.2f [" UTF8_DEGREE_SIGN "C]", value/100.0);
 
     return;
 } /*decode_temp_meas_max_value*/
@@ -728,9 +728,9 @@ static void
 decode_temp_meas_tolerance(gchar *s, guint16 value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_TEMP_MEAS_TOL_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [" UTF8_DEGREE_SIGN "C]", value/100, value%100);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [" UTF8_DEGREE_SIGN "C]", value/100, value%100);
 
     return;
 } /*decode_temp_meas_tolerance*/
@@ -985,11 +985,11 @@ static void
 decode_press_meas_value(gchar *s, gint16 value)
 {
     if (value == (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_INVALID_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     if (value < (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MIN_LO_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
 
     return;
 } /*decode_press_meas_value*/
@@ -1004,9 +1004,9 @@ static void
 decode_press_meas_min_value(gchar *s, gint16 value)
 {
     if (value > (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MIN_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
 
     return;
 } /*decode_press_meas_min_value*/
@@ -1021,9 +1021,9 @@ static void
 decode_press_meas_max_value(gchar *s, gint16 value)
 {
     if (value < (gint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_MAX_LO_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
 
     return;
 } /*decode_press_meas_max_value*/
@@ -1038,9 +1038,9 @@ static void
 decode_press_meas_tolerance(gchar *s, guint16 value)
 {
     if (value > (guint16)ZBEE_ZCL_ATTR_ID_PRESS_MEAS_TOL_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-         g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
+         snprintf(s, ITEM_LABEL_LENGTH, "%d.%d [kPa]", value/10, value%10);
 
     return;
 } /*decode_press_meas_tolerance*/
@@ -1272,12 +1272,12 @@ static void
 decode_flow_meas_value(gchar *s, guint16 value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_FLOW_MEAS_TOO_LOW_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
+        snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
     else if (value == ZBEE_ZCL_ATTR_ID_FLOW_MEAS_INVALID_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
         /* calculate flow value from measured value according to doc 07-5123-04 */
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [m^3/h])", value, value/10.0);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [m^3/h])", value, value/10.0);
 
     return;
 } /*decode_flow_meas_value*/
@@ -1293,9 +1293,9 @@ decode_flow_meas_min_value(gchar *s, guint16 value)
 {
     if ( /*(value < ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_LO_VALUE) ||*/
          (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MIN_HI_VALUE) )
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [m^3/h])", value, value/10.0);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [m^3/h])", value, value/10.0);
 
     return;
 } /*decode_flow_meas_min_value*/
@@ -1311,9 +1311,9 @@ decode_flow_meas_max_value(gchar *s, guint16 value)
 {
     if ( (value < ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MAX_LO_VALUE) ||
          (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_MAX_HI_VALUE) )
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [m^3/h])", value, value/10.0);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [m^3/h])", value, value/10.0);
 
     return;
 } /*decode_flow_meas_max_value*/
@@ -1328,9 +1328,9 @@ static void
 decode_flow_meas_tolerance(gchar *s, guint16 value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_FLOW_MEAS_TOL_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d", value);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d", value);
 
     return;
 } /*decode_flow_meas_tolerance*/
@@ -1543,9 +1543,9 @@ static void
 decode_relhum_meas_value(gchar *s, guint16 value)
 {
     if (value == ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_INVALID_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_value*/
@@ -1560,9 +1560,9 @@ static void
 decode_relhum_meas_min_value(gchar *s, guint16 value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_MIN_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_min_value*/
@@ -1577,9 +1577,9 @@ static void
 decode_relhum_meas_max_value(gchar *s, guint16 value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_MAX_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_max_value*/
@@ -1594,9 +1594,9 @@ static void
 decode_relhum_meas_tolerance(gchar *s, guint16 value)
 {
     if (value > ZBEE_ZCL_ATTR_ID_RELHUM_MEAS_TOL_HI_VALUE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
+        snprintf(s, ITEM_LABEL_LENGTH, "Out of range");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d.%02d [%%]", value/100, value%100);
 
     return;
 } /*decode_relhum_meas_tolerance*/

@@ -588,7 +588,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	if ( cse >= 400 )
 		cse -= 400;
 
-	g_snprintf( info_buffer, STRLEN,
+	snprintf( info_buffer, STRLEN,
 				"Lat: %7.7s%c Long: %03d%02d.%02d%c, Cse: %d, Spd: %d, SSID: %d, Msg %s",
 				latitude,
 				n_s,
@@ -610,7 +610,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 		tc = proto_tree_add_string( parent_tree, hf_mic_e_idx, tvb, offset, data_len, info_buffer );
 		mic_e_tree = proto_item_add_subtree( tc, ett_aprs_mic_e );
 
-		g_snprintf( info_buffer, STRLEN,
+		snprintf( info_buffer, STRLEN,
 				"Lat %7.7s, Msg A %d, Msg B %d, Msg C %d, N/S %c, Long off %3d, W/E %c, SSID %d",
 				latitude,
 				msg_a,
@@ -882,7 +882,7 @@ aprs_latitude_compressed( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		temp = ( tvb_get_guint8( tvb, offset + 2 ) - 33 ) + ( temp * 91 );
 		temp = ( tvb_get_guint8( tvb, offset + 3 ) - 33 ) + ( temp * 91 );
 
-		g_snprintf( info_buffer, STRLEN, "%6.2f", 90.0 - (temp / 380926.0) );
+		snprintf( info_buffer, STRLEN, "%6.2f", 90.0 - (temp / 380926.0) );
 		proto_tree_add_string( aprs_tree, hf_aprs_lat, tvb, offset, 4, info_buffer );
 		}
 	return offset + 4;
@@ -903,7 +903,7 @@ aprs_longitude_compressed( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		temp = ( tvb_get_guint8( tvb, offset + 2 ) - 33 ) + ( temp * 91 );
 		temp = ( tvb_get_guint8( tvb, offset + 3 ) - 33 ) + ( temp * 91 );
 
-		g_snprintf( info_buffer, STRLEN, "%7.2f", (temp / 190463.0) - 180.0 );
+		snprintf( info_buffer, STRLEN, "%7.2f", (temp / 190463.0) - 180.0 );
 		proto_tree_add_string( aprs_tree, hf_aprs_long, tvb, offset, 4, info_buffer );
 		}
 	return offset + 4;

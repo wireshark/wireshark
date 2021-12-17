@@ -1289,7 +1289,7 @@ parse_arg(tvbuff_t      *tvb,
 static void
 alljoyn_typeid( gchar *result, guint32 type )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "'%c' => ", type);
+   snprintf( result, ITEM_LABEL_LENGTH, "'%c' => ", type);
 }
 
 /* This is called by handle_message_header_fields() to handle a single

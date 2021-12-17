@@ -2341,7 +2341,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                     break;
                 case 8:
                     proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(item, " (%"G_GINT64_MODIFIER"d)", tvb_get_letoh64(tvb, *offset));
+                    proto_item_append_text(item, " (%"PRId64")", tvb_get_letoh64(tvb, *offset));
                     break;
                 default:
                     expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
@@ -2601,7 +2601,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         }
                         if(scale == 0) {
                             proto_item_append_text(numericitem,
-                                " (%" G_GINT64_MODIFIER "d)",
+                                " (%" PRId64 ")",
                                 (sign ? -int64_value : int64_value));
                         }
                         else {
@@ -2661,7 +2661,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         }
                         if(scale == 0) {
                             proto_item_append_text(numericitem,
-                                " (%" G_GINT64_MODIFIER "d)",
+                                " (%" PRId64 ")",
                                 (sign ? -int64_value : int64_value));
                         }
                         else {
@@ -3566,7 +3566,7 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                 case TDS_CAP_REQUEST:
                     if (cap < array_length(hf_req_array)) {
                         hf_array = hf_req_array[cap];
-                        g_snprintf(name, ITEM_LABEL_LENGTH, "Req caps %d-%d: ",
+                        snprintf(name, ITEM_LABEL_LENGTH, "Req caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_req;
                     }
@@ -3574,7 +3574,7 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                 case TDS_CAP_RESPONSE:
                     if (cap < array_length(hf_resp_array)) {
                         hf_array = hf_resp_array[cap];
-                        g_snprintf(name, ITEM_LABEL_LENGTH, "Resp caps %d-%d: ",
+                        snprintf(name, ITEM_LABEL_LENGTH, "Resp caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_resp;
                     }
@@ -7164,7 +7164,7 @@ version_convert( gchar *result, guint32 hexver )
      * By specifying ENC_BIG_ENDIAN, the bytes have been swapped before we
      * see them.
      */
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d",
+    snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d",
         (hexver >> 24) & 0xFF, (hexver >> 16) & 0xFF, (hexver & 0xFFFF));
 }
 

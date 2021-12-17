@@ -670,7 +670,7 @@ sctp_src_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_source_port, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
 static gpointer
@@ -684,7 +684,7 @@ sctp_dst_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_destination_port, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
 static gpointer
@@ -699,7 +699,7 @@ sctp_both_prompt(packet_info *pinfo, gchar *result)
     guint32 srcport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_source_port, pinfo->curr_layer_num)),
             destport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_destination_port, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
 }
 
 static void
@@ -708,9 +708,9 @@ sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
     guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 0));
 
     if (ppid == LAST_PPID) {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
     } else {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
     }
 }
 
@@ -720,9 +720,9 @@ sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
     guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1));
 
     if (ppid == LAST_PPID) {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
     } else {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
     }
 }
 
@@ -1077,7 +1077,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
     char ds[64];
 
     if (t->retransmit_count > MAX_RETRANS_TRACKED_PER_TSN)
-      g_snprintf(ds, sizeof(ds), " (only %d displayed)", MAX_RETRANS_TRACKED_PER_TSN);
+      snprintf(ds, sizeof(ds), " (only %d displayed)", MAX_RETRANS_TRACKED_PER_TSN);
     else
       ds[0] = 0;
 
@@ -3382,7 +3382,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
      tsn -= ha->first_tsn;
   }
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, "(TSN=%" G_GUINT32_FORMAT ") ", tsn);
+  col_append_fstr(pinfo->cinfo, COL_INFO, "(TSN=%" PRIu32 ") ", tsn);
 
   if (chunk_tree) {
     if (is_idata)
@@ -3742,13 +3742,13 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   if(last_end == 0) {
     /* No GapAck -> only show CumAck */
     col_append_fstr(pinfo->cinfo, COL_INFO,
-                    "(Ack=%" G_GUINT32_FORMAT ", Arwnd=%" G_GUINT32_FORMAT ") ",
+                    "(Ack=%" PRIu32 ", Arwnd=%" PRIu32 ") ",
                     cum_tsn_ack, a_rwnd);
   }
   else {
     /* Show CumAck + highest GapAck */
     col_append_fstr(pinfo->cinfo, COL_INFO,
-                    "(Ack=%" G_GUINT32_FORMAT "+%" G_GUINT32_FORMAT ", Arwnd=%" G_GUINT32_FORMAT ") ",
+                    "(Ack=%" PRIu32 "+%" PRIu32 ", Arwnd=%" PRIu32 ") ",
                     cum_tsn_ack, last_end, a_rwnd);
   }
 

@@ -288,7 +288,7 @@ static void
 http2_streamid_prompt(packet_info* pinfo, gchar* result)
 {
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "stream (%u)", http2_get_stream_id(pinfo));
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "stream (%u)", http2_get_stream_id(pinfo));
 }
 
 static void

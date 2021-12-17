@@ -4038,7 +4038,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	if (!pinfo->fd->visited && si->saved && buf && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_TREENAME;
 		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
-		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
+		snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
 	if (buf) {
@@ -4368,7 +4368,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	if (!pinfo->fd->visited && si->saved && olb.len) {
 		si->saved->extra_info_type = SMB2_EI_FINDPATTERN;
 		si->saved->extra_info = wmem_alloc(wmem_file_scope(), olb.len+1);
-		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
+		snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s Pattern: %s",
@@ -6530,7 +6530,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" G_GINT64_MODIFIER "u", length, off);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" PRIu64, length, off);
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -7988,7 +7988,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" G_GINT64_MODIFIER "u", len, off);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Len:%d Off:%" PRIu64, len, off);
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
@@ -8163,7 +8163,7 @@ add_timestamp_to_info_col(tvbuff_t *tvb, packet_info *pinfo, smb2_info_t *si,
 			gulong len = (gulong)strlen(saved_name);
 
 			si->saved->extra_info = (gchar *)wmem_alloc(wmem_file_scope(), len + 32 + 1);
-			g_snprintf((gchar *)si->saved->extra_info,
+			snprintf((gchar *)si->saved->extra_info,
 				   len + 32 + 1 , "%s@%s", (char *)saved_name,
 				   abs_time_to_str(pinfo->pool, &ts,
 					           ABSOLUTE_TIME_UTC, FALSE));
@@ -8689,8 +8689,8 @@ dissect_smb2_app_instance_version_buffer_request(tvbuff_t *tvb, packet_info *pin
 	proto_tree_add_item_ret_uint64(version_sub_tree, hf_smb2_app_instance_version_low,
 			    tvb, offset, 8, ENC_LITTLE_ENDIAN, &version_low);
 
-	proto_item_append_text(version_sub_tree, " : %" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT "", version_high, version_low);
-	proto_item_append_text(sub_tree, ", version: %" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT "", version_high, version_low);
+	proto_item_append_text(version_sub_tree, " : %" PRIu64 ".%" PRIu64, version_high, version_low);
+	proto_item_append_text(sub_tree, ", version: %" PRIu64 ".%" PRIu64, version_high, version_low);
 }
 
 static void
@@ -9125,7 +9125,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (si->saved && f_olb.len < 1024) {
 			si->saved->extra_info_type = SMB2_EI_FILENAME;
 			si->saved->extra_info = (gchar *)wmem_alloc(wmem_file_scope(), f_olb.len+1);
-			g_snprintf((gchar *)si->saved->extra_info, f_olb.len+1, "%s", fname);
+			snprintf((gchar *)si->saved->extra_info, f_olb.len+1, "%s", fname);
 		}
 	}
 

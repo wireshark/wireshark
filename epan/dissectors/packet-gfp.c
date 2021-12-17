@@ -175,7 +175,7 @@ static const range_string gfp_upi_management_rvals[] = {
 
 static void gfp_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "UPI %u as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "UPI %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_gfp, 0)));
 }
 

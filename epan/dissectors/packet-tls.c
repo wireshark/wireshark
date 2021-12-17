@@ -3559,11 +3559,11 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     /* TODO change API to accept 64-bit sequence numbers. */
     if (ssl->client && (client_seq != (guint32)-1)) {
         ssl->client->seq = client_seq;
-        ssl_debug_printf("ssl_set_master_secret client->seq updated to %" G_GUINT64_FORMAT "\n", ssl->client->seq);
+        ssl_debug_printf("ssl_set_master_secret client->seq updated to %" PRIu64 "\n", ssl->client->seq);
     }
     if (ssl->server && (server_seq != (guint32)-1)) {
         ssl->server->seq = server_seq;
-        ssl_debug_printf("ssl_set_master_secret server->seq updated to %" G_GUINT64_FORMAT "\n", ssl->server->seq);
+        ssl_debug_printf("ssl_set_master_secret server->seq updated to %" PRIu64 "\n", ssl->server->seq);
     }
 
     /* update IV from last data */
@@ -4078,7 +4078,7 @@ ssl_src_prompt(packet_info *pinfo, gchar *result)
     if (pi != NULL)
         srcport = pi->srcport;
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", srcport, UTF8_RIGHTWARDS_ARROW);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", srcport, UTF8_RIGHTWARDS_ARROW);
 }
 
 static gpointer
@@ -4103,7 +4103,7 @@ ssl_dst_prompt(packet_info *pinfo, gchar *result)
     if (pi != NULL)
         destport = pi->destport;
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, destport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, destport);
 }
 
 static gpointer
@@ -4132,7 +4132,7 @@ ssl_both_prompt(packet_info *pinfo, gchar *result)
         destport = pi->destport;
     }
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
 }
 
 static void

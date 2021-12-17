@@ -1754,7 +1754,7 @@ static int dissect_vsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static void
 vsip_fmt_revision( gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 void proto_register_vsip(void)

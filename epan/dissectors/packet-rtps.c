@@ -2657,7 +2657,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
           return offset;
       }
     }
-    //proto_item_append_text(tree, "(Before Switch 0x%016" G_GINT64_MODIFIER "x)", type_id);
+    //proto_item_append_text(tree, "(Before Switch 0x%016" PRIx64 ")", type_id);
 
     switch (member_kind) {
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE: {
@@ -2734,7 +2734,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                 ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gint64 value = tvb_get_gint64(tvb, offset, encoding);
                 proto_tree_add_int64_format(tree, hf_rtps_dissection_int64, tvb, offset, length, value,
-                  "%s: %"G_GINT64_MODIFIER"d", name, value);
+                  "%s: %"PRId64, name, value);
             }
             offset += length;
             break;
@@ -2745,7 +2745,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                 ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 guint64 value = tvb_get_guint64(tvb, offset, encoding);
                 proto_tree_add_uint64_format(tree, hf_rtps_dissection_uint64, tvb, offset, length, value,
-                  "%s: %"G_GINT64_MODIFIER"u", name, value);
+                  "%s: %"PRIu64, name, value);
             }
             offset += length;
             break;
@@ -2815,7 +2815,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
 
                 if (show && i < num_elements) {
                     /* No need to copy if it will not be shown */
-                    g_snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
+                    snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
                     show_current_element = TRUE;
                 } else {
                     if (show_current_element) {
@@ -2885,7 +2885,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                 gchar temp_buff[MAX_MEMBER_NAME];
                 if (show && i < num_elements) {
                     /* No need to copy if it will not be shown */
-                    g_snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
+                    snprintf(temp_buff, MAX_MEMBER_NAME, "%s[%u]", name, i);
                     show_current_element = TRUE;
                 } else {
                     if (show_current_element) {
@@ -2953,7 +2953,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                 result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
                 if (result != NULL) {
                     if (show) {
-                        proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
+                        proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" PRIx64 ")",
                             value, result->member_type_id);
                     }
                   offset = dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL,
@@ -2965,7 +2965,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                     result = (union_member_mapping *)wmem_map_lookup(union_member_mappings, &(key));
                     if (result != NULL) {
                         if (show) {
-                            proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" G_GINT64_MODIFIER "x)",
+                            proto_item_append_text(tree, " (discriminator = %d, type_id = 0x%016" PRIx64 ")",
                                 value, result->member_type_id);
                         }
                     offset = dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL,
@@ -2974,7 +2974,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                 }
             } else {
                 if (show) {
-                  proto_item_append_text(tree, "(NULL 0x%016" G_GINT64_MODIFIER "x)", type_id);
+                  proto_item_append_text(tree, "(NULL 0x%016" PRIx64 ")", type_id);
                 }
             }
             break;
@@ -3009,7 +3009,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             } else {
                 if (info->base_type_id > 0) {
                     if (show) {
-                      proto_item_append_text(tree, "(BaseId: 0x%016" G_GINT64_MODIFIER "x)", info->base_type_id);
+                      proto_item_append_text(tree, "(BaseId: 0x%016" PRIx64 ")", info->base_type_id);
                     }
                     offset = dissect_user_defined(aux_tree, tvb, offset, encoding, encoding_version, NULL,
                             info->base_type_id, info->member_name, EXTENSIBILITY_INVALID,
@@ -3055,7 +3055,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
         default:{
             /* undefined behavior. this should not happen. the following line helps to debug if it happened */
             if (show) {
-                 proto_item_append_text(tree, "(unknown 0x%016" G_GINT64_MODIFIER "x)", member_kind);
+                 proto_item_append_text(tree, "(unknown 0x%016" PRIx64 ")", member_kind);
             }
             break;
         }
@@ -3097,13 +3097,13 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
             key = (info->base_type_id + info->base_type_id * member_id);
             mapping = (mutable_member_mapping *) wmem_map_lookup(mutable_member_mappings, &(key));
             if (mapping) { /* the library knows how to dissect this */
-                proto_item_append_text(member, "(base found 0x%016" G_GINT64_MODIFIER "x)", key);
+                proto_item_append_text(member, "(base found 0x%016" PRIx64 ")", key);
                 dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL, mapping->member_type_id,
                     mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id, show);
                 PROTO_ITEM_SET_HIDDEN(member);
                 return offset + member_length;
             } else
-                proto_item_append_text(member, "(base not found 0x%016" G_GINT64_MODIFIER "x from 0x%016" G_GINT64_MODIFIER "x)",
+                proto_item_append_text(member, "(base not found 0x%016" PRIx64 " from 0x%016" PRIx64 ")",
                   key, info->base_type_id);
         }
     }
@@ -3111,12 +3111,12 @@ static gint dissect_mutable_member(proto_tree *tree , tvbuff_t * tvb, gint offse
     key = (info->type_id + info->type_id * member_id);
     mapping = (mutable_member_mapping *) wmem_map_lookup(mutable_member_mappings, &(key));
     if (mapping) { /* the library knows how to dissect this */
-        proto_item_append_text(member, "(found 0x%016" G_GINT64_MODIFIER "x)", key);
+        proto_item_append_text(member, "(found 0x%016" PRIx64 ")", key);
         dissect_user_defined(tree, tvb, offset, encoding, encoding_version, NULL, mapping->member_type_id,
             mapping->member_name, EXTENSIBILITY_INVALID, offset, 0, mapping->member_id, show);
 
     } else
-        proto_item_append_text(member, "(not found 0x%016" G_GINT64_MODIFIER "x from 0x%016" G_GINT64_MODIFIER "x)",
+        proto_item_append_text(member, "(not found 0x%016" PRIx64 " from 0x%016" PRIx64 ")",
                   key, info->type_id);
     PROTO_ITEM_SET_HIDDEN(member);
     return offset + member_length;
@@ -3703,7 +3703,7 @@ static int rtps_util_add_locator_list(proto_tree *tree, packet_info *pinfo, tvbu
     char temp_buff[20];
 
     for (i = 0; i < num_locators; ++i) {
-      g_snprintf(temp_buff, 20, "Locator[%d]", i);
+      snprintf(temp_buff, 20, "Locator[%d]", i);
       rtps_util_add_locator_t(locator_tree, pinfo, tvb, offset,
                         encoding, temp_buff);
       offset += 24;
@@ -4164,7 +4164,7 @@ static guint64 rtps_util_add_seq_number(proto_tree *tree,
   guint64 all = (hi << 32) | lo;
 
   proto_tree_add_int64_format(tree, hf_rtps_sm_seq_number, tvb, offset, 8,
-                        all, "%s: %" G_GINT64_MODIFIER "u", label, all);
+                        all, "%s: %" PRIu64, label, all);
 
   return all;
 }
@@ -4241,7 +4241,7 @@ static void rtps_util_add_timestamp_sec_and_fraction(proto_tree *tree,
       (void) g_strlcpy(tempBuffer, "0 sec", MAX_TIMESTAMP_SIZE);
     } else {
       absolute = (gdouble)sec + (gdouble)frac / ((gdouble)(0x80000000) * 2.0);
-      g_snprintf(tempBuffer, MAX_TIMESTAMP_SIZE,
+      snprintf(tempBuffer, MAX_TIMESTAMP_SIZE,
         "%f sec (%ds + 0x%08x)", absolute, sec, frac);
     }
 
@@ -4641,7 +4641,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
         if (seq_max_len != -1) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
-          g_snprintf(type_name, 40, "%s", struct_name);
+          snprintf(type_name, 40, "%s", struct_name);
           break;
         }
 
@@ -4798,7 +4798,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
 
         if (seq_max_len != -1) {
           /* We're dissecting a sequence of struct, bypass the seq definition */
-          g_snprintf(type_name, 40, "%s", struct_name);
+          snprintf(type_name, 40, "%s", struct_name);
           break;
         }
         /* Prints it */
@@ -4889,7 +4889,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
         LONG_ALIGN(offset);
         string_length = tvb_get_guint32(tvb, offset, encoding);
         offset += 4;
-        g_snprintf(type_name, 40, "%s<%d>",
+        snprintf(type_name, 40, "%s<%d>",
                 (tk_id == RTI_CDR_TK_STRING) ? "string" : "wstring",
                 string_length);
         break;
@@ -4999,7 +4999,7 @@ static gint rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, gint offset,
         if (tk_id == RTI_CDR_TK_VALUE_PARAM) {
           type_id_name = "valueparam";
         }
-        g_snprintf(type_name, 40, "%s '%s'", type_id_name, value_name);
+        snprintf(type_name, 40, "%s '%s'", type_id_name, value_name);
         break;
     }
   } /* switch(tk_id) */
@@ -5087,7 +5087,7 @@ static gint rtps_util_add_type_id(proto_tree *tree,
     longlong_number = tvb_get_guint64(tvb, offset, encoding);
     proto_tree_add_item(tree, hf_type, tvb, offset, 8, encoding);
     if (append_info_item) {
-        proto_item_append_text(append_info_item, "(0x%016" G_GINT64_MODIFIER "x)", longlong_number);
+        proto_item_append_text(append_info_item, "(0x%016" PRIx64 ")", longlong_number);
     }
     offset += 8;
   }
@@ -5350,7 +5350,7 @@ static gint rtps_util_add_type_member(proto_tree *tree,
       mutable_mapping->member_type_id = member_type_id;
       mutable_mapping->member_id = member_id;
       mutable_mapping->key = (mutable_mapping->struct_type_id + mutable_mapping->struct_type_id * mutable_mapping->member_id);
-      proto_item_append_text(tree, "(Inserted 0x%016" G_GINT64_MODIFIER "x from 0x%016" G_GINT64_MODIFIER "x)", mutable_mapping->key, mutable_mapping->struct_type_id);
+      proto_item_append_text(tree, "(Inserted 0x%016" PRIx64 " from 0x%016" PRIx64 ")", mutable_mapping->key, mutable_mapping->struct_type_id);
       wmem_map_insert(mutable_member_mappings, &(mutable_mapping->key), (void *) mutable_mapping);
 
   }
@@ -5406,7 +5406,7 @@ static gint rtps_util_add_type_union_member(proto_tree *tree,
     mapping->union_type_id = union_type_id + mapping->discriminator;
 
     wmem_map_insert(union_member_mappings, &(mapping->union_type_id), (void *) mapping);
-    proto_item_append_text(labels, " Added mapping for discriminator (0x%016" G_GINT64_MODIFIER "x) name = %s",
+    proto_item_append_text(labels, " Added mapping for discriminator (0x%016" PRIx64 ") name = %s",
     mapping->union_type_id, mapping->member_name);
   }
   if (is_discriminator) {
@@ -5419,7 +5419,7 @@ static gint rtps_util_add_type_union_member(proto_tree *tree,
     mapping->union_type_id = union_type_id + mapping->discriminator;
 
     wmem_map_insert(union_member_mappings, &(mapping->union_type_id), (void *) mapping);
-    proto_item_append_text(labels, " Added mapping for discriminator (0x%016" G_GINT64_MODIFIER "x) name = %s",
+    proto_item_append_text(labels, " Added mapping for discriminator (0x%016" PRIx64 ") name = %s",
     mapping->union_type_id, mapping->member_name);
   }
   for (i = 0; i < long_number; i++) {
@@ -5439,7 +5439,7 @@ static gint rtps_util_add_type_union_member(proto_tree *tree,
     mapping->union_type_id = union_type_id + discriminator_case;
 
     wmem_map_insert(union_member_mappings, &(mapping->union_type_id), (void *) mapping);
-    proto_item_append_text(ti, " Added mapping for discriminator (0x%016" G_GINT64_MODIFIER "x) name = %s",
+    proto_item_append_text(ti, " Added mapping for discriminator (0x%016" PRIx64 ") name = %s",
         mapping->union_type_id, mapping->member_name);
   }
 
@@ -5858,7 +5858,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
 
   if (first_seq_number > 0 && num_bits == 0 && show_analysis) {
     ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
-            2, "Acknack Analysis: Expecting sample %" G_GINT64_MODIFIER "u", first_seq_number);
+            2, "Acknack Analysis: Expecting sample %" PRIu64, first_seq_number);
     proto_item_set_generated(ti);
   }
 
@@ -5878,7 +5878,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
       wmem_strbuf_append_c(temp_buff, ((data & datamask) == datamask) ? '1':'0');
       if ((data & datamask) == datamask) {
         proto_item_append_text(ti,
-                first_nack ? " %" G_GINT64_MODIFIER "u" : ", %" G_GINT64_MODIFIER "u",
+                first_nack ? " %" PRIu64 : ", %" PRIu64,
                 first_seq_number + idx);
         first_nack = FALSE;
       }
@@ -5905,7 +5905,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
 
   /* Add analysis of the information */
   if (num_bits > 0 && show_analysis) {
-    proto_item_append_text(ti, "%s in range [%" G_GINT64_MODIFIER "u,%" G_GINT64_MODIFIER "u]",
+    proto_item_append_text(ti, "%s in range [%" PRIu64 ",%" PRIu64 "]",
         wmem_strbuf_get_str(analysis_buff), first_seq_number, first_seq_number + num_bits - 1);
   }
 
@@ -6139,7 +6139,7 @@ static gboolean rtps_util_topic_info_add_column_info_and_try_dissector(proto_tre
       if (try_dissection_from_type_object && enable_user_data_dissection) {
         dissection_info * info = (dissection_info *) wmem_map_lookup(dissection_infos, &(type_mapping_object->type_id));
         if (info != NULL) {
-          proto_item_append_text(tree, " (TypeId: 0x%016" G_GINT64_MODIFIER "x)", info->type_id);
+          proto_item_append_text(tree, " (TypeId: 0x%016" PRIx64 ")", info->type_id);
           return dissect_user_defined(tree, tvb, offset, encoding, encoding_version, info,
               info->type_id, info->member_name, EXTENSIBILITY_INVALID, offset,
               0 /* flags */, 0 /* member_id */, TRUE);
@@ -6911,7 +6911,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
 
       /* Foreach channel... */
       for (ch = 0; ch < number_of_channels; ++ch) {
-        g_snprintf(temp_buff, 20, "Channel[%u]", ch);
+        snprintf(temp_buff, 20, "Channel[%u]", ch);
         old_offset = off;
         channel_tree = proto_tree_add_subtree_format(rtps_parameter_tree, tvb, off, 0, ett_rtps_locator_filter_channel, &ti_channel, "Channel[%u]", ch);
 
@@ -10734,7 +10734,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
       /* This snippet shows the sequence number in the parent tree */
       sequence_number = tvb_get_guint64(tvb, offset, encoding);
-      proto_item_append_text(guid_tree, ", sn: %" G_GINT64_MODIFIER "u)",
+      proto_item_append_text(guid_tree, ", sn: %" PRIu64 ")",
               sequence_number);
       offset += 8;
 
@@ -10755,7 +10755,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
       /* This snippet shows the sequence number in the parent tree */
       sequence_number = tvb_get_guint64(tvb, offset, encoding);
-      proto_item_append_text(guid_tree, ", sn: %" G_GINT64_MODIFIER "u)",
+      proto_item_append_text(guid_tree, ", sn: %" PRIu64 ")",
               sequence_number);
       offset += 8;
 
@@ -11044,9 +11044,9 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint 
   /* SerializedData */
   {
     char label[20];
-    g_snprintf(label, 9, "fragment");
+    snprintf(label, 9, "fragment");
     if ((flags & FLAG_RTPS_DATA_FRAG_K) != 0) {
-        g_snprintf(label, 14, "serializedKey");
+        snprintf(label, 14, "serializedKey");
     }
     from_builtin_writer =
       (((wid & 0xc2) == 0xc2) || ((wid & 0xc3) == 0xc3)) ? TRUE : FALSE;
@@ -11084,12 +11084,12 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint 
         }
 
         if (new_tvb) {
-            g_snprintf(label, 19, "reassembled sample");
+            snprintf(label, 19, "reassembled sample");
             dissect_serialized_data(tree, pinfo, new_tvb, 0,
                 sample_size, label, vendor_id, from_builtin_writer, guid, NOT_A_FRAGMENT);
             break;
         } else {
-            g_snprintf(label, 15, "fragment [%d]", frag_index_in_submessage);
+            snprintf(label, 15, "fragment [%d]", frag_index_in_submessage);
             dissect_serialized_data(tree, pinfo, tvb, offset + (frag_index_in_submessage * frag_size),
                 this_frag_size, label, vendor_id, from_builtin_writer, NULL, this_frag_number);
         }
@@ -11101,7 +11101,7 @@ static void dissect_RTPS_DATA_FRAG_kind(tvbuff_t *tvb, packet_info *pinfo, gint 
         more_fragments = (this_frag_number * frag_size < sample_size);
         this_frag_size = more_fragments ? frag_size : (sample_size - ((this_frag_number - 1) * frag_size));
         fragment_offset = frag_index_in_submessage * frag_size;
-        g_snprintf(label, 20, "fragment [%d]", frag_index_in_submessage);
+        snprintf(label, 20, "fragment [%d]", frag_index_in_submessage);
         dissect_serialized_data(tree, pinfo, tvb, offset + fragment_offset,
             this_frag_size, label, vendor_id, from_builtin_writer, NULL, this_frag_number);
         frag_index_in_submessage++;
@@ -12370,8 +12370,8 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
     /* Used string for the domain participant to show Unknown if the domainId is not known when using TCP*/
     if (domain_id != RTPS_UNKNOWN_DOMAIN_ID_VAL) {
-      g_snprintf(domain_id_str, RTPS_UNKNOWN_DOMAIN_ID_STR_LEN,
-        "%"G_GINT32_FORMAT, domain_id);
+      snprintf(domain_id_str, RTPS_UNKNOWN_DOMAIN_ID_STR_LEN,
+        "%"PRId32, domain_id);
     }
     if ((nature == PORT_METATRAFFIC_UNICAST) || (nature == PORT_USERTRAFFIC_UNICAST) ||
         (version < 0x0200)) {

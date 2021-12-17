@@ -2951,7 +2951,7 @@ static const value_string cip_run_idle_vals[] = {
 
 void cip_rpi_api_fmt(gchar *s, guint32 value)
 {
-   g_snprintf(s, ITEM_LABEL_LENGTH, "%.3fms", value / 1000.0);
+   snprintf(s, ITEM_LABEL_LENGTH, "%.3fms", value / 1000.0);
 }
 
 static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, int display_type)

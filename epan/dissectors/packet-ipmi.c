@@ -543,10 +543,10 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			char str[ITEM_LABEL_LENGTH];
 
 			if (is_resp) {
-				g_snprintf(str, ITEM_LABEL_LENGTH, "Rsp, %s, %s",
+				snprintf(str, ITEM_LABEL_LENGTH, "Rsp, %s, %s",
 						cmd->desc, cc_str);
 			} else {
-				g_snprintf(str, ITEM_LABEL_LENGTH, "Req, %s", cmd->desc);
+				snprintf(str, ITEM_LABEL_LENGTH, "Req, %s", cmd->desc);
 			}
 			if (proto_registrar_get_ftype(hf_parent_item) == FT_STRING) {
 				ti = proto_tree_add_string(tree, hf_parent_item, tvb, 0, -1, str);
@@ -959,7 +959,7 @@ parse_8bit_ascii(char *p, tvbuff_t *tvb, guint offs, guint len)
 		if (ch >= 0x20 && ch <= 0x7f) {
 			*p++ = ch;
 		} else {
-			g_snprintf(p, 5, "\\x%02x", ch);
+			snprintf(p, 5, "\\x%02x", ch);
 			p += 4;
 		}
 	}
@@ -991,7 +991,7 @@ parse_unicode(char *p, tvbuff_t *tvb, guint offs, guint len)
 	while (p < pmax) {
 		ch0 = tvb_get_guint8(tvb, offs++);
 		ch1 = tvb_get_guint8(tvb, offs++);
-		g_snprintf(p, 7, "\\U%02x%02x", ch0, ch1);
+		snprintf(p, 7, "\\U%02x%02x", ch0, ch1);
 		p += 6;
 	}
 }
@@ -1212,7 +1212,7 @@ ipmi_notimpl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 void
 ipmi_fmt_10ms_1based(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%03d seconds", v / 100, (v % 100) * 10);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d.%03d seconds", v / 100, (v % 100) * 10);
 }
 
 void
@@ -1224,7 +1224,7 @@ ipmi_fmt_500ms_0based(gchar *s, guint32 v)
 void
 ipmi_fmt_500ms_1based(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%03d seconds", v / 2, (v % 2) * 500);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d.%03d seconds", v / 2, (v % 2) * 500);
 }
 
 void
@@ -1236,25 +1236,25 @@ ipmi_fmt_1s_0based(gchar *s, guint32 v)
 void
 ipmi_fmt_1s_1based(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", v);
 }
 
 void
 ipmi_fmt_2s_0based(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", (v + 1) * 2);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", (v + 1) * 2);
 }
 
 void
 ipmi_fmt_5s_1based(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", v * 5);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d seconds", v * 5);
 }
 
 void
 ipmi_fmt_version(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%d", v & 0x0f, (v >> 4) & 0x0f);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d.%d", v & 0x0f, (v >> 4) & 0x0f);
 }
 
 void
@@ -1270,7 +1270,7 @@ ipmi_fmt_channel(gchar *s, guint32 v)
 	gchar* tmp_str;
 
 	tmp_str = val_to_str_wmem(NULL, v, chan_vals, "Channel #%d");
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%02x)", tmp_str, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%02x)", tmp_str, v);
 	wmem_free(NULL, tmp_str);
 }
 
@@ -1278,14 +1278,14 @@ void
 ipmi_fmt_udpport(gchar *s, guint32 v)
 {
 	gchar* port_str = udp_port_to_display(NULL, v);
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", port_str, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", port_str, v);
 	wmem_free(NULL, port_str);
 }
 
 void
 ipmi_fmt_percent(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d%%", v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d%%", v);
 }
 
 const char *

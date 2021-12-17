@@ -1097,9 +1097,9 @@ dissect_amf0_value_type(tvbuff_t *tvb, gint offset, proto_tree *tree, gboolean *
                 iInteger64Value = tvb_get_ntoh64(tvb, iValueOffset);
                 proto_tree_add_int64(val_tree, hf_amf_int64, tvb, iValueOffset, 8, iInteger64Value);
                 iValueOffset += 8;
-                proto_item_append_text(ti," %" G_GINT64_MODIFIER "d", iInteger64Value);
+                proto_item_append_text(ti," %" PRId64, iInteger64Value);
                 if (parent_ti != NULL)
-                        proto_item_append_text(parent_ti," %" G_GINT64_MODIFIER "d", iInteger64Value);
+                        proto_item_append_text(parent_ti," %" PRId64, iInteger64Value);
                 break;
         default:
                 /*

@@ -251,7 +251,7 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 	case WS_NET_DM_ATTR_PC:
 		proto_tree_add_item_ret_uint64(tree, hf_net_dm_pc, tvb,
 					       offset, 8, nl_data->encoding, &pc);
-		proto_item_append_text(tree, ": 0x%" G_GINT64_MODIFIER "x", pc);
+		proto_item_append_text(tree, ": 0x%" PRIx64, pc);
 		return 1;
 	case WS_NET_DM_ATTR_SYMBOL:
 		proto_tree_add_item_ret_string(tree, hf_net_dm_symbol, tvb, offset, len, ENC_ASCII | ENC_NA, wmem_packet_scope(), &str);

@@ -144,7 +144,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     switch (byte) {
         case BE_LIST:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, &ei_banana_length_too_long, "List length %" G_GINT64_MODIFIER "d longer than we can handle", val);
+                expert_add_info_format(pinfo, NULL, &ei_banana_length_too_long, "List length %" PRId64 " longer than we can handle", val);
             }
             ti = proto_tree_add_uint_format_value(tree, hf_banana_list, tvb, start_offset, offset - start_offset - 1, (guint32) val, "(%d items)", (gint) val);
             list_tree = proto_item_add_subtree(ti, ett_list);
@@ -158,20 +158,20 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             break;
         case BE_INT:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, &ei_banana_value_too_large, "Integer value %" G_GINT64_MODIFIER "d too large", val);
+                expert_add_info_format(pinfo, NULL, &ei_banana_value_too_large, "Integer value %" PRId64 " too large", val);
             }
             proto_tree_add_uint(tree, hf_banana_int, tvb, start_offset, offset - start_offset, (guint32) val);
             break;
         case BE_STRING:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, &ei_banana_length_too_long, "String length %" G_GINT64_MODIFIER "d longer than we can handle", val);
+                expert_add_info_format(pinfo, NULL, &ei_banana_length_too_long, "String length %" PRId64 " longer than we can handle", val);
             }
             proto_tree_add_item(tree, hf_banana_string, tvb, offset, (guint32) val, ENC_ASCII|ENC_NA);
             offset += (gint) val;
             break;
         case BE_NEG_INT:
             if (val > MAX_ELEMENT_VAL) {
-                expert_add_info_format(pinfo, NULL, &ei_banana_value_too_large, "Integer value -%" G_GINT64_MODIFIER "d too large", val);
+                expert_add_info_format(pinfo, NULL, &ei_banana_value_too_large, "Integer value -%" PRId64 " too large", val);
             }
             proto_tree_add_int(tree, hf_banana_neg_int, tvb, start_offset, offset - start_offset, (gint32) val * -1);
             break;

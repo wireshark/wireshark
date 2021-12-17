@@ -439,7 +439,7 @@ static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int
 	node_idx = (guint8)((cookie >> 56) & G_GINT64_CONSTANT(0xff));
 	seq = cookie & G_GINT64_CONSTANT(0x00ffffffffffffff);
 
-	proto_item_append_text(item, " (%u:%" G_GINT64_MODIFIER "u)", node_idx, seq);
+	proto_item_append_text(item, " (%u:%" PRIu64 ")", node_idx, seq);
 
 	return offset + 8;
 }
@@ -628,7 +628,7 @@ static void dissect_dlm_migrate_lockres(proto_tree *tree, tvbuff_t *tvb, int off
 static void
 dlm_fmt_revision( gchar *result, guint32 revision )
 {
-	g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+	snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 #define DLM_QUERY_JOIN_REQUEST_OFF_DLMPROTO	4

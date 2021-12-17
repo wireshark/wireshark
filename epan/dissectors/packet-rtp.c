@@ -642,11 +642,11 @@ static void rtp_prompt(packet_info *pinfo _U_, gchar* result)
     /* Dynamic payload range, don't expose value as it may change within conversation */
     if (payload_type > 95)
     {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type as");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type as");
     }
     else
     {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type %d as", payload_type);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type %d as", payload_type);
     }
 }
 

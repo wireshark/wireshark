@@ -469,12 +469,12 @@ dissect_xtp_traffic_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/** add summary **/
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-			" Recv-Seq=%" G_GINT64_MODIFIER "u", tcntl->rseq);
+			" Recv-Seq=%" PRIu64, tcntl->rseq);
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-			" Alloc=%" G_GINT64_MODIFIER "u", tcntl->alloc);
+			" Alloc=%" PRIu64, tcntl->alloc);
 
 	proto_item_append_text(top_ti,
-			", Recv-Seq: %" G_GINT64_MODIFIER "u", tcntl->rseq);
+			", Recv-Seq: %" PRIu64, tcntl->rseq);
 
 	/** display **/
 	offset = start;
@@ -673,12 +673,12 @@ dissect_xtp_cntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/** add summary **/
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-			" Recv-Seq=%" G_GINT64_MODIFIER "u", cntl->rseq);
+			" Recv-Seq=%" PRIu64, cntl->rseq);
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-			" Alloc=%" G_GINT64_MODIFIER "u", cntl->alloc);
+			" Alloc=%" PRIu64, cntl->alloc);
 
 	proto_item_append_text(top_ti,
-			", Recv-Seq: %" G_GINT64_MODIFIER "u", cntl->rseq);
+			", Recv-Seq: %" PRIu64, cntl->rseq);
 
 	/** display **/
 	offset = start;
@@ -763,12 +763,12 @@ dissect_xtp_ecntl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/** add summary **/
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-				" Recv-Seq=%" G_GINT64_MODIFIER "u", ecntl->rseq);
+				" Recv-Seq=%" PRIu64, ecntl->rseq);
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-				" Alloc=%" G_GINT64_MODIFIER "u", ecntl->alloc);
+				" Alloc=%" PRIu64, ecntl->alloc);
 
 	proto_item_append_text(top_ti,
-				", Recv-Seq: %" G_GINT64_MODIFIER "u", ecntl->rseq);
+				", Recv-Seq: %" PRIu64, ecntl->rseq);
 
 	/** display **/
 	offset = start;
@@ -941,7 +941,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	for (i = 0; i < 16; i++) {
 		bpos = 1 << (15 - i);
 		if (cmd_options & bpos) {
-			returned_length = g_snprintf(&options[fpos],
+			returned_length = snprintf(&options[fpos],
 			MAX_OPTIONS_LEN-fpos, "%s%s",
 			fpos?", ":"",
 			fstr[i]);
@@ -954,16 +954,16 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 					pformat_vals, "Unknown pformat (%u)"));
 	col_append_fstr(pinfo->cinfo, COL_INFO, " [%s]", options);
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-				" Seq=%" G_GINT64_MODIFIER "u", xtph->seq);
+				" Seq=%" PRIu64, xtph->seq);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", xtph->dlen);
 
 	/* if (tree) */ {
 		ti = proto_tree_add_item(tree, proto_xtp, tvb, 0, -1, ENC_NA);
 		/** add summary **/
 		proto_item_append_text(ti,
-				", Key: 0x%016" G_GINT64_MODIFIER "X", xtph->key);
+				", Key: 0x%016" PRIX64, xtph->key);
 		proto_item_append_text(ti,
-				", Seq: %" G_GINT64_MODIFIER "u", xtph->seq);
+				", Seq: %" PRIu64, xtph->seq);
 		proto_item_append_text(ti, ", Len: %u", xtph->dlen);
 
 		xtp_tree = proto_item_add_subtree(ti, ett_xtp);

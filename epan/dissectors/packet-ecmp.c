@@ -1199,11 +1199,11 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 				/* we hit end of the current line  */
 				/* add final value to string */
 				if (display == cyclic_display_byte_format) {
-					g_snprintf(&pdata[idx], 32, "%02x",value8);
+					snprintf(&pdata[idx], 32, "%02x",value8);
 				} else if (display == cyclic_display_word_format) {
-						g_snprintf(&pdata[idx], 32, "%04x",value16);
+						snprintf(&pdata[idx], 32, "%04x",value16);
 				} else if (display == cyclic_display_long_format) {
-					g_snprintf(&pdata[idx], 32, "%08x",value32);
+					snprintf(&pdata[idx], 32, "%08x",value32);
 				}
 
 				/* display the completed line in the sub-tree  */
@@ -1218,13 +1218,13 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 				/* we're still adding to the current line  */
 				/* add current value to string */
 				if (display == cyclic_display_byte_format) {
-					g_snprintf(&pdata[idx], 32, "%02x ",value8);
+					snprintf(&pdata[idx], 32, "%02x ",value8);
 					idx += 3;
 				} else if (display == cyclic_display_word_format) {
-					g_snprintf(&pdata[idx], 32, "%04x ",value16);
+					snprintf(&pdata[idx], 32, "%04x ",value16);
 					idx += 5;
 				} else if (display == cyclic_display_long_format) {
-					g_snprintf(&pdata[idx], 32, "%08x ",value32);
+					snprintf(&pdata[idx], 32, "%08x ",value32);
 					idx += 9;
 				}
 			}

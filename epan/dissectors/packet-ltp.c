@@ -266,7 +266,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	/* Client ID - 0 = Bundle Protocol, 1 = CCSDS LTP Service Data Aggregation */
 	sdnv_status = evaluate_sdnv64(tvb, frame_offset, &sdnv_length, &client_id);
 	ti = proto_tree_add_uint64_format_value(ltp_data_tree, hf_ltp_data_clid, tvb, frame_offset, sdnv_length, client_id,
-						"%" G_GINT64_MODIFIER "u (%s)", client_id,
+						"%" PRIu64 " (%s)", client_id,
 						val_to_str_const((const guint32) client_id, client_service_id_info, "Invalid"));
 	if (!sdnv_status) {
 		expert_add_info(pinfo, ti, &ei_ltp_sdnv_length);
@@ -378,7 +378,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 			if (client_id == 2) {
 				sdnv_status = evaluate_sdnv64(tvb, frame_offset+parse_offset, &sdnv_length, &sda_client_id);
 				ti = proto_tree_add_uint64_format_value(ltp_data_data_tree, hf_ltp_data_sda_clid, tvb, frame_offset+parse_offset, sdnv_length, sda_client_id,
-									"%" G_GINT64_MODIFIER "u (%s)", sda_client_id, val_to_str_const((const guint32) sda_client_id, client_service_id_info, "Invalid"));
+									"%" PRIu64 " (%s)", sda_client_id, val_to_str_const((const guint32) sda_client_id, client_service_id_info, "Invalid"));
 
 				if (!sdnv_status) {
 					expert_add_info(pinfo, ti, &ei_ltp_sdnv_length);
@@ -499,12 +499,12 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	for(i = 0; i<rcpt_clm_cnt; i++){
 		offset = evaluate_sdnv(tvb,frame_offset + segment_offset, &offset_size);
 		proto_tree_add_uint64_format(ltp_rpt_clm_tree, hf_ltp_rpt_clm_off, tvb, frame_offset + segment_offset, offset_size, offset,
-				"Offset[%d] : %"G_GINT64_MODIFIER"d", i, offset);
+				"Offset[%d] : %"PRId64, i, offset);
 		segment_offset += offset_size;
 
 		length = evaluate_sdnv(tvb,frame_offset + segment_offset, &length_size);
 		proto_tree_add_uint64_format(ltp_rpt_clm_tree, hf_ltp_rpt_clm_len, tvb, frame_offset + segment_offset, length_size, length,
-				"Length[%d] : %"G_GINT64_MODIFIER"d",i, length);
+				"Length[%d] : %"PRId64,i, length);
 		segment_offset += length_size;
 	}
 	proto_item_set_end(ltp_rpt_clm_item, tvb, frame_offset + segment_offset);
@@ -593,7 +593,7 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int hdr
 		proto_tree_add_uint_format_value(ltp_hdr_extn_tree, hf_ltp_hdr_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str_const(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
 		frame_offset += 1;
 
-		proto_tree_add_uint64_format(ltp_hdr_extn_tree, hf_ltp_hdr_extn_len, tvb, frame_offset, length_size[i],length[i], "Length [%d]: %"G_GINT64_MODIFIER"d",i+1,length[i]);
+		proto_tree_add_uint64_format(ltp_hdr_extn_tree, hf_ltp_hdr_extn_len, tvb, frame_offset, length_size[i],length[i], "Length [%d]: %"PRId64,i+1,length[i]);
 		frame_offset += length_size[i];
 
 		proto_tree_add_item (ltp_hdr_extn_tree, hf_ltp_hdr_extn_val, tvb, frame_offset, (int)length[i], ENC_NA);
@@ -644,7 +644,7 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int tr
 		proto_tree_add_uint_format_value(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset, 1, extn_type[i], "%x (%s)", extn_type[i], val_to_str_const(extn_type[i],extn_tag_codes,"Unassigned/Reserved"));
 		frame_offset += 1;
 
-		proto_tree_add_uint64_format(ltp_trl_extn_tree, hf_ltp_trl_extn_len, tvb, frame_offset, length_size[i], length[i], "Length [%d]: %"G_GINT64_MODIFIER"d",i+1,length[i]);
+		proto_tree_add_uint64_format(ltp_trl_extn_tree, hf_ltp_trl_extn_len, tvb, frame_offset, length_size[i], length[i], "Length [%d]: %"PRId64,i+1,length[i]);
 		frame_offset += length_size[i];
 
 		proto_tree_add_item (ltp_trl_extn_tree, hf_ltp_trl_extn_val, tvb, frame_offset, (int)length[i], ENC_NA);

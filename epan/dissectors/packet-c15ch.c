@@ -4579,7 +4579,7 @@ static int dissect_c15ch_echo_cancel(tvbuff_t *tvb, packet_info *pinfo _U_, prot
         loop_val = tvb_get_ntohl( tvb, 23 );
         slot_val = tvb_get_ntohl( tvb, 27 );
         loc_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_LOC_STRING); /* init to all NULL */
-        g_snprintf( loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", pm_val, pc_val, loop_val, slot_val );
+        snprintf( loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", pm_val, pc_val, loop_val, slot_val );
         ti = proto_tree_add_string(c15ch_echo_cancel_tree, hf_c15ch_echo_cancel_location, tvb, 15, (27 + 4 - 15) + 1, loc_string);
         loc_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub4);
 
@@ -4777,55 +4777,55 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if ( ( site_str_len > 1 ) && ( subsite_str_len > 1 ) && ( equipname_str_len > 1 ) )
     {
         /* 1) none of site, subsite, or equip is null */
-        g_snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s %s ", site_string, subsite_string, equipname_string );
+        snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s %s ", site_string, subsite_string, equipname_string );
     }
     else
         if ( ( site_str_len < 2 ) && ( subsite_str_len > 1 ) && ( equipname_str_len > 1 ) )
         {
             /* 2) only site is null */
-            g_snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", subsite_string, equipname_string );
+            snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", subsite_string, equipname_string );
         }
         else
             if ( ( site_str_len > 1 ) && ( subsite_str_len < 2 ) && ( equipname_str_len > 1 ) )
             {
                 /* 3) only subsite is null */
-                g_snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", site_string, equipname_string);
+                snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", site_string, equipname_string);
             }
             else
                 if ( ( site_str_len > 1 ) && ( subsite_str_len > 1 ) && ( equipname_str_len < 2 ) )
                 {
                     /* 4) only equip is null */
-                    g_snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", site_string, subsite_string);
+                    snprintf( desc_string, MAX_LEN_DESC_STRING, "%s %s ", site_string, subsite_string);
                 }
                 else
                     if ( ( site_str_len < 2 ) && ( subsite_str_len < 2 ) && ( equipname_str_len > 1 ) )
                     {
                         /* 5) site and subsite are null but equip is non-null */
-                        g_snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", equipname_string );
+                        snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", equipname_string );
                     }
                     else
                         if ( ( site_str_len < 2 ) && ( subsite_str_len > 1 ) && ( equipname_str_len < 2 ) )
                         {
                             /* 6) site and equip are null but subsite is not-null */
-                            g_snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", subsite_string );
+                            snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", subsite_string );
                         }
                         else
                             if ( ( site_str_len > 1 ) && ( subsite_str_len < 2 ) && ( equipname_str_len < 2 ) )
                             {
                                 /* 7) subsite and equip are null but site is not-null */
-                                g_snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", site_string );
+                                snprintf( desc_string, MAX_LEN_DESC_STRING, "%s ", site_string );
                             }
                             /* else site, subsite, equip are all null */
     if ( key_val )
     {
         if ( strlen( desc_string ) )
         {
-            g_snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d %d %d %d",
+            snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d %d %d %d",
                 desc_string, frame_val, shelf_val, lsg_val, unit_val, key_val );
         }
         else
         {
-            g_snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%d %d %d %d %d",
+            snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%d %d %d %d %d",
                     frame_val, shelf_val, lsg_val, unit_val, key_val );
         }
     }
@@ -4836,23 +4836,23 @@ static int dissect_c15ch_nitnxlate(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             if ( (g_strcmp0( "VLIN", equipname_string) == 0) ||
                  (g_strcmp0( "PTRK", equipname_string) == 0) )
             {
-                g_snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d",
+                snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d",
                         desc_string, frame_val );
             }
             else
                 if ( (g_strcmp0( "GWE", equipname_string ) == 0) ||
                  (g_strcmp0( "IDE", equipname_string ) == 0) )
                 {
-                    g_snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d",
+                    snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d",
                         desc_string, frame_val, shelf_val );
                 }
             else
-                g_snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d %d %d",
+                snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%s%d %d %d %d",
                     desc_string, frame_val, shelf_val, lsg_val, unit_val);
         } /* if ( strlen( desc_string ) ) */
         else
         {
-            g_snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%d %d %d %d",
+            snprintf( concat_string, MAX_LEN_CONCAT_STRING, "%d %d %d %d",
                     frame_val, shelf_val, lsg_val, unit_val);
         }
     }
@@ -5055,7 +5055,7 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         from_loop_val = tvb_get_guint8( tvb, 10 );
         from_slot_val = tvb_get_guint8( tvb, 11 );
         from_loc_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_LOC_STRING); /* init to all NULL */
-        g_snprintf( from_loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", from_pm_val, from_pc_val, from_loop_val, from_slot_val );
+        snprintf( from_loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", from_pm_val, from_pc_val, from_loop_val, from_slot_val );
         ti = proto_tree_add_string(c15ch_ntwk_conn_tree, hf_c15ch_ntwk_conn_fromlocation, tvb, 8, (11 - 8) + 1,
                                 from_loc_string);
         old_loc_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub1);
@@ -5096,7 +5096,7 @@ static int dissect_c15ch_ntwk_conn(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         to_loop_val = tvb_get_guint8( tvb, 33 );
         to_slot_val = tvb_get_guint8( tvb, 34 );
         to_loc_string = (char *) wmem_alloc0(wmem_packet_scope(), MAX_LEN_LOC_STRING); /* init to all NULL */
-        g_snprintf( to_loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", to_pm_val, to_pc_val, to_loop_val, to_slot_val );
+        snprintf( to_loc_string, MAX_LEN_LOC_STRING, "%d  %d  %d  %d", to_pm_val, to_pc_val, to_loop_val, to_slot_val );
         ti = proto_tree_add_string(c15ch_ntwk_conn_tree, hf_c15ch_ntwk_conn_tolocation, tvb, 31, (34 - 31) + 1,
                                 to_loc_string);
         new_loc_tree = proto_item_add_subtree (ti, ett_c15ch_second_level_sub3);

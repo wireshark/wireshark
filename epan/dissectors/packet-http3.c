@@ -211,7 +211,7 @@ dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_
         pi = proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_identifier, tvb, offset, -1, ENC_VARINT_QUIC, &settingsid, &lenvar);
         /* Check if it is a GREASE Settings ID */
         if (http3_is_reserved_code(settingsid)) {
-            proto_item_set_text(pi, "Type: GREASE (%#" G_GINT64_MODIFIER "x)", settingsid);
+            proto_item_set_text(pi, "Type: GREASE (%#" PRIx64 ")", settingsid);
             proto_item_append_text(ti_settings, " - GREASE" );
         } else {
             proto_item_append_text(ti_settings, " - %s",
@@ -224,15 +224,15 @@ dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_
         switch(settingsid){
             case HTTP3_QPACK_MAX_TABLE_CAPACITY:
                 proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_max_table_capacity, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
-                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
+                proto_item_append_text(ti_settings, ": %" PRIu64, value );
             break;
             case HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE:
                 proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_max_field_section_size, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
-                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
+                proto_item_append_text(ti_settings, ": %" PRIu64, value );
             break;
             case HTTP3_QPACK_BLOCKED_STREAMS:
                 proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_blocked_streams, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
-                proto_item_append_text(ti_settings, ": %" G_GINT64_MODIFIER "u", value );
+                proto_item_append_text(ti_settings, ": %" PRIu64, value );
             break;
             default:
                 /* No Default */
@@ -254,7 +254,7 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     pi = proto_tree_add_item_ret_varint(tree, hf_http3_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, &frame_type, &lenvar);
     offset += lenvar;
     if (http3_is_reserved_code(frame_type)) {
-        proto_item_set_text(pi, "Type: Reserved (%#" G_GINT64_MODIFIER "x)", frame_type);
+        proto_item_set_text(pi, "Type: Reserved (%#" PRIx64 ")", frame_type);
     } else {
         col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", val64_to_str_const(frame_type, http3_frame_types, "Unknown"));
     }
@@ -290,7 +290,7 @@ report_unknown_stream_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
      * https://tools.ietf.org/html/draft-ietf-quic-http-29#page-28
      */
     proto_tree_add_expert_format(tree, pinfo, &ei_http3_unknown_stream_type, tvb, offset, 0,
-                                 "Unknown stream type %#" G_GINT64_MODIFIER "x on Stream ID %#" G_GINT64_MODIFIER "x",
+                                 "Unknown stream type %#" PRIx64 " on Stream ID %#" PRIx64,
                                  h3_stream->uni_stream_type, stream_info->stream_id);
 }
 
@@ -306,7 +306,7 @@ dissect_http3_uni_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
         offset += lenvar;
         if (http3_is_reserved_code(stream_type)) {
             // Reserved to exercise requirement that unknown types are ignored.
-            proto_item_set_text(pi, "Stream Type: Reserved (%#" G_GINT64_MODIFIER "x)", stream_type);
+            proto_item_set_text(pi, "Stream Type: Reserved (%#" PRIx64 ")", stream_type);
         }
         h3_stream->uni_stream_type = stream_type;
     } else {

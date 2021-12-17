@@ -236,7 +236,7 @@ static gchar*
 calc_hf_key(user_data_field_t udf)
 {
   gchar* ret = NULL;
-  ret = g_strdup_printf("%i-%i-%" G_GUINT64_FORMAT "-%s", udf.udf_offset, udf.udf_length, udf.udf_mask, udf.udf_name);
+  ret = g_strdup_printf("%i-%i-%" PRIu64 "-%s", udf.udf_offset, udf.udf_length, udf.udf_mask, udf.udf_name);
   return ret;
 }
 

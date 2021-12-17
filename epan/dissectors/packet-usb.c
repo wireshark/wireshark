@@ -1616,7 +1616,7 @@ static int usb_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
     if(pletoh32(&addrp[0])==0xffffffff){
         (void) g_strlcpy(buf, "host", buf_len);
     } else {
-        g_snprintf(buf, buf_len, "%d.%d.%d", pletoh16(&addrp[8]),
+        snprintf(buf, buf_len, "%d.%d.%d", pletoh16(&addrp[8]),
                         pletoh32(&addrp[0]), pletoh32(&addrp[4]));
     }
 
@@ -1642,7 +1642,7 @@ static int usb_addr_str_len(const address* addr _U_)
 static void
 usb_device_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Bus ID %u \nDevice Address %u\nas ",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Bus ID %u \nDevice Address %u\nas ",
             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID)),
             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_ADDRESS)));
 }
@@ -1658,7 +1658,7 @@ usb_device_value(packet_info *pinfo)
 static void
 usb_product_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor ID 0x%04x \nProduct ID 0x%04x\nas ",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor ID 0x%04x \nProduct ID 0x%04x\nas ",
             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID)),
             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID)));
 }
@@ -1674,7 +1674,7 @@ usb_product_value(packet_info *pinfo)
 static void
 usb_protocol_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Class ID 0x%04x \nSubclass ID 0x%04x\nProtocol 0x%04x\nas ",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Class ID 0x%04x \nSubclass ID 0x%04x\nProtocol 0x%04x\nas ",
             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_CLASS)),
             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_SUBCLASS)),
             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_PROTOCOL)));

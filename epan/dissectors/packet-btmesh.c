@@ -3637,7 +3637,7 @@ static void
 format_publish_period(gchar *buf, guint32 value) {
     guint32 idx = (value & 0xC0 ) >> 6;
     guint32 val = (value & 0x3F ) * period_interval_multiplier[idx];
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u %s", val, period_interval_unit[idx]);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u %s", val, period_interval_unit[idx]);
 }
 
 static void
@@ -3646,11 +3646,11 @@ format_transmit(gchar *buf, guint32 value) {
     guint32 ctr = (value & 0x07 );
     switch (ctr) {
     case 0:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "One transmissions");
+        snprintf(buf, ITEM_LABEL_LENGTH, "One transmissions");
         break;
 
     default:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u transmissions at interval of %u ms", ctr, prd);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%u transmissions at interval of %u ms", ctr, prd);
     }
 }
 
@@ -3660,179 +3660,179 @@ format_retransmit(gchar *buf, guint32 value) {
     guint32 ctr = (value & 0x07 );
     switch (ctr) {
     case 0:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "No retransmissions");
+        snprintf(buf, ITEM_LABEL_LENGTH, "No retransmissions");
         break;
 
     case 1:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "One retransmission after %u ms", prd);
+        snprintf(buf, ITEM_LABEL_LENGTH, "One retransmission after %u ms", prd);
         break;
 
     default:
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u retransmissions at interval of %u ms", ctr, prd);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%u retransmissions at interval of %u ms", ctr, prd);
     }
 }
 
 static void
 format_interval_steps(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u ms (%u)", (value + 1) * 10, value);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u ms (%u)", (value + 1) * 10, value);
 }
 
 static void
 format_key_index(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x)", value & 0xFFF, value & 0xFFF);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x)", value & 0xFFF, value & 0xFFF);
 }
 
 static void
 format_key_index_rfu(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "0x%1x", (value & 0xF000) >> 12);
+    snprintf(buf, ITEM_LABEL_LENGTH, "0x%1x", (value & 0xF000) >> 12);
 }
 
 static void
 format_dual_key_index(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x), %u (0x%03x)", value & 0xFFF, value & 0xFFF, ( value & 0xFFF000 ) >> 12, ( value & 0xFFF000 ) >> 12);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x), %u (0x%03x)", value & 0xFFF, value & 0xFFF, ( value & 0xFFF000 ) >> 12, ( value & 0xFFF000 ) >> 12);
 }
 
 static void
 format_vendor_model(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "0x%04x of %s", value >> 16, val_to_str_ext_const(value & 0xFFFF, &bluetooth_company_id_vals_ext, "Unknown"));
+    snprintf(buf, ITEM_LABEL_LENGTH, "0x%04x of %s", value >> 16, val_to_str_ext_const(value & 0xFFFF, &bluetooth_company_id_vals_ext, "Unknown"));
 }
 
 static void
 format_publish_appkeyindex_model(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x) using %s security material", value & 0x0FFF, value & 0x0FFF, ((value & 0x1000) ? "Friendship" : "Master"));
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x) using %s security material", value & 0x0FFF, value & 0x0FFF, ((value & 0x1000) ? "Friendship" : "Master"));
 }
 
 static void
 format_delay_ms(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", value * 5);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", value * 5);
 }
 
 static void
 format_power(gchar *buf, guint32 value) {
     gdouble val;
     val =  (gdouble)value / (gdouble)655.35;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 3.2f %%", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "% 3.2f %%", val);
 }
 
 static void
 format_battery_level(gchar *buf, guint32 value) {
     if (value == 0xFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "The percentage of the charge level is unknown");
+        snprintf(buf, ITEM_LABEL_LENGTH, "The percentage of the charge level is unknown");
         return;
     }
     if (value <= 0x64) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u %%", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%u %%", value);
         return;
     }
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%u)", value);
+    snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%u)", value);
 }
 
 static void
 format_battery_time(gchar *buf, guint32 value) {
     if (value == 0xFFFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "The remaining time is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "The remaining time is not known");
         return;
     }
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u minutes", value);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u minutes", value);
 }
 
 static void
 format_global_latitude(gchar *buf, gint32 value) {
     if (value == INT_MIN) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Latitude is not configured.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Global Latitude is not configured.");
         return;
     }
     gdouble val;
     val =  (gdouble)90.0 / (gdouble) (0x7FFFFFFF) * (gdouble)value ;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 2.6f°", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "% 2.6f°", val);
 }
 
 static void
 format_global_longitude(gchar *buf, gint32 value) {
     if (value == INT_MIN) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Longitude is not configured.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Global Longitude is not configured.");
         return;
     }
     gdouble val;
     val =  (gdouble)180.0 / (gdouble) (0x7FFFFFFF) * (gdouble)value;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 2.6f°", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "% 2.6f°", val);
 }
 
 static void
 format_global_altitude(gchar *buf, gint16 value) {
     if (value == 0x7FFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Altitude is not configured.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Global Altitude is not configured.");
         return;
     }
     if (value == 0x7FFE) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Global Altitude is greater than or equal to 32766 meters.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Global Altitude is greater than or equal to 32766 meters.");
         return;
     }
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%d meters", value);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%d meters", value);
 }
 
 static void
 format_local_north(gchar *buf, gint16 value) {
     if (value == -32768) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local North information is not configured.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Local North information is not configured.");
         return;
     }
     gdouble val;
     val =  (gdouble)value / (gdouble) 10.0;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
 }
 
 static void
 format_local_east(gchar *buf, gint16 value) {
     if (value == -32768) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local East information is not configured.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Local East information is not configured.");
         return;
     }
     gdouble val;
     val =  (gdouble)value / (gdouble) 10.0;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
 }
 
 static void
 format_local_altitude(gchar *buf, gint16 value) {
     if (value == 0x7FFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local Altitude is not configured.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Local Altitude is not configured.");
         return;
     }
     if (value == 0x7FFE) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Local Altitude is greater than or equal to 3276.6 meters.");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Local Altitude is greater than or equal to 3276.6 meters.");
         return;
     }
     gdouble val;
     val =  (gdouble)value / (gdouble) 10.0;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.1f meters", val);
 }
 
 static void
 format_floor_number(gchar *buf, guint8 value) {
     switch (value) {
         case 0x00:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Floor -20 or any floor below -20.");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Floor -20 or any floor below -20.");
         break;
 
         case 0xFC:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Floor 232 or any floor above 232.");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Floor 232 or any floor above 232.");
         break;
 
         case 0xFD:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Ground floor. Floor 0.");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Ground floor. Floor 0.");
         break;
 
         case 0xFE:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Ground floor. Floor 1.");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Ground floor. Floor 1.");
         break;
 
         case 0xFF:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Not configured.");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Not configured.");
         break;
 
         default:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", (gint16)value - (gint16)20 );
+            snprintf(buf, ITEM_LABEL_LENGTH, "%d", (gint16)value - (gint16)20 );
         break;
     }
 }
@@ -3841,46 +3841,46 @@ static void
 format_update_time(gchar *buf, guint16 value) {
     gdouble val;
     val =  pow((gdouble)2.0, (gdouble)(value - 3));
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.*f seconds", (value<4?3-value:0), val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.*f seconds", (value<4?3-value:0), val);
 }
 
 static void
 format_precision(gchar *buf, guint16 value) {
     gdouble val;
     val =  pow((gdouble)2.0, (gdouble)(value - 3));
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.*f meters", (value<4?3-value:0),val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.*f meters", (value<4?3-value:0),val);
 }
 
 static void
 format_scheduler_year(gchar *buf, gint32 value) {
     if (value <= 0x63) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", 2000+value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d", 2000+value);
     } else if (value == 0x64 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Any year");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Any year");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
     }
 }
 
 static void
 format_scheduler_day(gchar *buf, gint32 value) {
     if (value > 0x0) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Any day");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Any day");
     }
 }
 
 static void
 format_scheduler_hour(gchar *buf, gint32 value) {
     if (value < 24 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
     } else if (value == 0x18 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Any hour of the day");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Any hour of the day");
     } else if (value == 0x19 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Once a day (at a random hour)");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Once a day (at a random hour)");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
     }
 }
 
@@ -3888,23 +3888,23 @@ static void
 format_scheduler_minute(gchar *buf, gint32 value) {
     switch (value) {
         case 0x3C:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Any minute of the hour");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Any minute of the hour");
         break;
 
         case 0x3D:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Every 15 minutes (minute modulo 15 is 0) (0, 15, 30, 45)");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Every 15 minutes (minute modulo 15 is 0) (0, 15, 30, 45)");
         break;
 
         case 0x3E:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Every 20 minutes (minute modulo 20 is 0) (0, 20, 40)");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Every 20 minutes (minute modulo 20 is 0) (0, 20, 40)");
         break;
 
         case 0x3F:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Once an hour (at a random minute)");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Once an hour (at a random minute)");
         break;
 
         default:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+            snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
         break;
     }
 }
@@ -3913,23 +3913,23 @@ static void
 format_scheduler_second(gchar *buf, gint32 value) {
     switch (value) {
         case 0x3C:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Any second of the minute");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Any second of the minute");
         break;
 
         case 0x3D:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Every 15 seconds (second modulo 15 is 0) (0, 15, 30, 45)");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Every 15 seconds (second modulo 15 is 0) (0, 15, 30, 45)");
         break;
 
         case 0x3E:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Every 20 seconds (second modulo 20 is 0) (0, 20, 40)");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Every 20 seconds (second modulo 20 is 0) (0, 20, 40)");
         break;
 
         case 0x3F:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Once a minute (at a random second)");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Once a minute (at a random second)");
         break;
 
         default:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+            snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
         break;
     }
 }
@@ -3938,23 +3938,23 @@ static void
 format_scheduler_action(gchar *buf, gint32 value) {
     switch (value) {
         case 0x0:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Turn Off");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Turn Off");
         break;
 
         case 0x1:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Turn On");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Turn On");
         break;
 
         case 0x2:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Scene Recall");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Scene Recall");
         break;
 
         case 0xF:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Inactive");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Inactive");
         break;
 
         default:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Reserved for Future Use");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Reserved for Future Use");
         break;
     }
 }
@@ -4008,28 +4008,28 @@ format_scheduler_day_of_week(gchar *buf, gint32 value) {
 
 static void
 format_subsecond_ms(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f ms", (gdouble)value / 0.256);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.1f ms", (gdouble)value / 0.256);
 }
 
 static void
 format_uncertainty_ms(gchar *buf, guint32 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", value * 10);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", value * 10);
 }
 
 static void
 format_tai_utc_delta_s(gchar *buf, guint32 value) {
     gint32 val = (gint32)value - 255;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%d s", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%d s", val);
 }
 
 static void
 format_time_zone_offset_h(gchar *buf, guint32 value) {
     gint32 val = (gint32)value - 64;
     if (val >= 0) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%+d:%02d", val/4, (val%4)*15 );
+        snprintf(buf, ITEM_LABEL_LENGTH, "%+d:%02d", val/4, (val%4)*15 );
     } else {
         val *=-1;
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "-%d:%02d", val/4, (val%4)*15 );
+        snprintf(buf, ITEM_LABEL_LENGTH, "-%d:%02d", val/4, (val%4)*15 );
     }
 }
 
@@ -4037,7 +4037,7 @@ static void
 format_tai_to_utc_date(gchar *buf, guint64 value) {
 
     if (value == 0 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Unknown");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Unknown");
     } else {
         gchar *time_str;
         time_t val;
@@ -4063,49 +4063,49 @@ format_tai_to_utc_date(gchar *buf, guint64 value) {
         // 32 leap seconds difference between TAI and UTC on 1.1.2000
         val = (time_t)(value + 946684800ll - 32ll - delta);
         time_str = abs_time_secs_to_str(NULL, val, ABSOLUTE_TIME_UTC, TRUE);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%s", time_str);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%s", time_str);
     }
 }
 
 static void
 format_temperature_kelvin(gchar *buf, guint32 value) {
     if (value < 0x0320 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     } else if (value > 0x4E20 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d K", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d K", value);
     }
 }
 
 static void
 format_temperature_kelvin_unknown(gchar *buf, guint32 value) {
     if (value < 0x0320 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     } else if (value > 0x4E20 && value != 0xFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     } else if (value == 0xFFFF ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Unknown");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Unknown");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d K", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d K", value);
     }
 }
 
 static void
 format_light_lightness_prohibited(gchar *buf, guint32 value) {
     if (value == 0x0 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
     }
 }
 
 static void
 format_light_lightness_default(gchar *buf, guint32 value) {
     if (value == 0x0 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Use the Light Lightness Last value");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Use the Light Lightness Last value");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
     }
 }
 
@@ -4113,25 +4113,25 @@ static void
 format_hsl_hue(gchar *buf, guint32 value) {
     gdouble val;
     val =  (gdouble)360.0 / (gdouble) (0x10000) * (gdouble)value;
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "% 3.3f°", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "% 3.3f°", val);
 }
 
 static void
 format_xyl_coordinate(gchar *buf, guint32 value) {
     gdouble val;
     val =  (gdouble)value / (gdouble) (0xFFFF);
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%1.5f", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%1.5f", val);
 }
 
 static void
 format_sensor_setting_access(gchar *buf, guint32 value)
 {
     if (value == 0x01 ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
     } else if (value == 0x03) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
     }
 }
 
@@ -4139,10 +4139,10 @@ static void
 format_fast_cadence_period_divisor(gchar *buf, guint32 value)
 {
     if (value > 15) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
     } else {
         guint32 v = (1 << value);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", v);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d", v);
     }
 }
 
@@ -4150,10 +4150,10 @@ static void
 format_status_min_interval(gchar *buf, guint32 value)
 {
     if (value > 26) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
     } else {
         guint32 v = (1 << value);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d ms", v);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d ms", v);
     }
 }
 
@@ -4162,23 +4162,23 @@ format_admin_user_access(gchar *buf, guint32 value)
 {
     switch (value) {
         case 0x0:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Not a Generic User Property");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Not a Generic User Property");
         break;
 
         case 0x1:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
         break;
 
         case 0x2:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be written");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Can be written");
         break;
 
         case 0x3:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
         break;
 
         default:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
         break;
     }
 }
@@ -4187,11 +4187,11 @@ static void
 format_manufacturer_user_access(gchar *buf, guint32 value)
 {
     if (value == 0x00) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Not a Generic User Property");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Not a Generic User Property");
     } else if (value == 0x01) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
     }
 }
 
@@ -4200,19 +4200,19 @@ format_user_access(gchar *buf, guint32 value)
 {
     switch (value) {
         case 0x1:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Can be read");
         break;
 
         case 0x2:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be written");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Can be written");
         break;
 
         case 0x3:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Can be read and written");
         break;
 
         default:
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
         break;
     }
 }
@@ -4221,11 +4221,11 @@ static void
 format_sensor_descriptor_tolerance(gchar *buf, guint32 value)
 {
     if (value == 0x000) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Unspecified");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Unspecified");
     } else {
         gdouble val;
         val =  (gdouble)value / (gdouble)40.95;
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "% 3.2f %%", val);
+        snprintf(buf, ITEM_LABEL_LENGTH, "% 3.2f %%", val);
     }
 }
 
@@ -4233,22 +4233,22 @@ static void
 format_sensor_period(gchar *buf, guint32 value)
 {
     if (value == 0) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Not Applicable");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Not Applicable");
     } else {
         gdouble val;
 
         val = pow((gdouble)1.1, (gdouble)value - (gdouble)64.0);
         if ( val < 1.0 ) { //Milliseconds
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%.0f ms", val * 1000.0);
+            snprintf(buf, ITEM_LABEL_LENGTH, "%.0f ms", val * 1000.0);
         } else {
             if ( val < 60.0 ) { //Seconds
-                g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f s", val);
+                snprintf(buf, ITEM_LABEL_LENGTH, "%.1f s", val);
             } else {
                 gulong v = (gulong)val;
                     if ( val < 86400 ) { //Hours:Minutes:Seconds
-                        g_snprintf(buf, ITEM_LABEL_LENGTH, "%02lu:%02lu:%02lu", v/3600, (v % 3600)/60, v % 60);
+                        snprintf(buf, ITEM_LABEL_LENGTH, "%02lu:%02lu:%02lu", v/3600, (v % 3600)/60, v % 60);
                     } else { //Days Hours:Minutes:Seconds
-                        g_snprintf(buf, ITEM_LABEL_LENGTH, "%lu days %02lu:%02lu:%02lu", v/86400, (v % 86400)/3600, (v % 3600)/60, v % 60);
+                        snprintf(buf, ITEM_LABEL_LENGTH, "%lu days %02lu:%02lu:%02lu", v/86400, (v % 86400)/3600, (v % 3600)/60, v % 60);
                     }
             }
         }
@@ -4260,21 +4260,21 @@ format_percentage_change_16(gchar *buf, guint32 value)
 {
     gdouble val;
     val =  (gdouble)value / (gdouble)(100);
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f %%", val);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.2f %%", val);
 }
 
 static void
 format_decihour_8(gchar *buf, guint32 value)
 {
     if (value == 0xFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         if (value > 240) {
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
         } else {
             gdouble val;
             val =  (gdouble)value / (gdouble)(10);
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f h", val);
+            snprintf(buf, ITEM_LABEL_LENGTH, "%.1f h", val);
         }
     }
 }
@@ -4283,11 +4283,11 @@ static void
 format_temperature_8(gchar *buf, gint32 value)
 {
     if (value == 0x7F) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         gdouble val;
         val =  (gdouble)value * (gdouble)(0.5);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f C", val);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%.1f C", val);
     }
 }
 
@@ -4295,14 +4295,14 @@ static void
 format_temperature(gchar *buf, gint32 value)
 {
     if (value == INT16_MIN ) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         if (value < (gint32)(-27315)) {
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited");
         } else {
             gdouble val;
             val =  (gdouble)value / (gdouble)(100);
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f C", val);
+            snprintf(buf, ITEM_LABEL_LENGTH, "%.2f C", val);
         }
     }
 }
@@ -4311,11 +4311,11 @@ static void
 format_electric_current(gchar *buf, guint32 value)
 {
     if (value == 0xFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         gdouble val;
         val =  (gdouble)value / (gdouble)(100);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f A", val);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%.2f A", val);
     }
 }
 
@@ -4323,73 +4323,73 @@ static void
 format_energy(gchar *buf, guint32 value)
 {
     if (value == 0xFFFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d kWh", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d kWh", value);
     }
 }
 
 static void
 format_illuminance(gchar *buf, guint32 value) {
     if (value == 0xFFFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         gdouble val;
         val =  (gdouble)value / (gdouble)(100);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f lux", val);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%.2f lux", val);
     }
 }
 
 static void
 format_percentage_8(gchar *buf, guint32 value) {
     if (value == 0xFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else if (value > 200) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     } else {
         gdouble val;
         val =  (gdouble)value / (gdouble)(2);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.1f %%", val);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%.1f %%", val);
     }
 }
 
 static void
 format_time_millisecond_24(gchar *buf, guint32 value) {
     if (value == 0xFFFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
         gdouble val;
         val =  (gdouble)value / (gdouble)(1000);
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f s", val);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%.2f s", val);
     }
 }
 
 static void
 format_count_16(gchar *buf, guint32 value) {
     if (value == 0xFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d", value);
     }
 }
 
 static void
 format_boolean(gchar *buf, guint32 value) {
     if (value == 0x00) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "False");
+        snprintf(buf, ITEM_LABEL_LENGTH, "False");
     } else if (value == 0x01) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "True");
+        snprintf(buf, ITEM_LABEL_LENGTH, "True");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "Prohibited (%d)", value);
     }
 }
 
 static void
 format_time_second_16(gchar *buf, guint32 value) {
     if (value == 0xFFFF) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
+        snprintf(buf, ITEM_LABEL_LENGTH, "Value is not known");
     } else {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%d s", value);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%d s", value);
     }
 }
 

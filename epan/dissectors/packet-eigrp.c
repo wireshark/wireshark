@@ -2553,19 +2553,19 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 static void
 eigrp_fmt_cable_range(gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%u-%u", (guint16)(( revision & 0xFFFF0000 ) >> 16), (guint16)(revision & 0xFFFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%u-%u", (guint16)(( revision & 0xFFFF0000 ) >> 16), (guint16)(revision & 0xFFFF) );
 }
 
 static void
 eigrp_fmt_nexthop_address(gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint16)(( revision & 0xFFFF0000 ) >> 16), (guint16)(revision & 0xFFFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint16)(( revision & 0xFFFF0000 ) >> 16), (guint16)(revision & 0xFFFF) );
 }
 
 static void
 eigrp_fmt_version(gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 /**

@@ -204,7 +204,7 @@ static dissector_table_t mpls_subdissector_table;
 
 static void mpls_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Data after label %u as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Data after label %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mpls, 0)));
 }
 
@@ -215,7 +215,7 @@ static gpointer mpls_value(packet_info *pinfo)
 
 static void pw_ach_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Channel type 0x%x as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Channel type 0x%x as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pw_ach, 0)));
 }
 

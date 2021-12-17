@@ -2543,7 +2543,7 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
         ett_ptp_v2_timeInterval, NULL, "%s: %f nanoseconds", name, time_double);
 
     proto_tree_add_uint64_format_value(ptptimeInterval_subtree,
-        hf_ptp_v2_timeInterval_ns, tvb, *cur_offset, 6, time_ns, "Ns: %" G_GINT64_MODIFIER "d nanoseconds", time_ns);
+        hf_ptp_v2_timeInterval_ns, tvb, *cur_offset, 6, time_ns, "Ns: %" PRId64 " nanoseconds", time_ns);
 
     proto_tree_add_double(ptptimeInterval_subtree,
         hf_ptp_v2_timeInterval_subns, tvb, *cur_offset+6, 2, (time_subns/65536.0));

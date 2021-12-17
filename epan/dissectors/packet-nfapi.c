@@ -8588,53 +8588,53 @@ static void nfapi_tag_vals_fn(gchar* s, guint32 v)
 	const tlv_t* tlv = look_up_tlv(v);
 	if (tlv != 0)
 	{
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%x)", tlv->name, v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%x)", tlv->name, v);
 	}
 	else
 	{
-		g_snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%x)", "Unknown", v);
+		snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%x)", "Unknown", v);
 	}
 }
 static void neg_pow_conversion_fn(gchar* s, guint8 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%d)", ((gint16)v * (-1)), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%d)", ((gint16)v * (-1)), v);
 }
 static void power_offset_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (((float)v * 0.001) - 6.0), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (((float)v * 0.001) - 6.0), v);
 }
 static void reference_signal_power_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (((float)v * 0.25) - 63.75), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (((float)v * 0.25) - 63.75), v);
 }
 static void laa_threshold_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (float)(v * -100.00), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (float)(v * -100.00), v);
 }
 static void max_transmit_power_2_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1) - 10.0, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1) - 10.0, v);
 }
 static void max_transmit_power_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1), v);
 }
 static void sfn_sf_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d/%d (%d)", v >> 0x4, v & 0x000F, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d/%d (%d)", v >> 0x4, v & 0x000F, v);
 }
 static void rssi_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1), v);
 }
 static void dl_rs_tx_pow_measment_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", ((float)v * 0.1), v);
 }
 
 static void ul_cqi_conversion_fn(gchar* s, guint16 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (((float)v / 2 ) - 64.0), v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.2f dB (%d)", (((float)v / 2 ) - 64.0), v);
 }
 
 // ----------------------------------------------------------------------------|

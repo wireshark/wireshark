@@ -494,12 +494,12 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	guint32 effective_can_id = (can_info.id & CAN_EFF_FLAG) ? can_info.id & CAN_EFF_MASK : can_info.id & CAN_SFF_MASK;
 	char* id_name = (can_info.id & CAN_EFF_FLAG) ? "Ext. ID" : "ID";
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %d (0x%" PRIx32 "), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
 	ti = proto_tree_add_item(tree, (can_packet_type == PACKET_TYPE_CAN_FD) ? proto_canfd : proto_can, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, (can_packet_type == PACKET_TYPE_CAN_FD) ? ett_can_fd : ett_can);
 
-	proto_item_append_text(can_tree, ", %s: %d (0x%" G_GINT32_MODIFIER "x), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
+	proto_item_append_text(can_tree, ", %s: %d (0x%" PRIx32 "), Length: %d", id_name, effective_can_id, effective_can_id, can_info.len);
 
 	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags, encoding);
 	proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);

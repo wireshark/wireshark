@@ -1616,7 +1616,7 @@ two_compl_frac(
     gint16 frac = value;
 
 
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
+    snprintf(buf, ITEM_LABEL_LENGTH,
         "%f",
         frac/16384.0);
 }
@@ -2492,31 +2492,31 @@ static const unit_name_string local_units_hz = { "Hz", NULL };
 static void
 ofdma_ir_pow_ctrl_start_pow(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dBmV/1.6MHz", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%f dBmV/1.6MHz", value/4.0);
 }
 
 static void
 ofdma_ir_pow_ctrl_step_size(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
 }
 
 static void
 fourth_db(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
 }
 
 static void
 subc_assign_range(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u - %u", value >> 16, value &0xFFFF);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u - %u", value >> 16, value &0xFFFF);
 }
 
 static void
 multipart_number_of_fragments(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (Actual Number of Fragments: %u)", value, value + 1);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (Actual Number of Fragments: %u)", value, value + 1);
 }
 
 static reassembly_table docsis_tlv_reassembly_table;

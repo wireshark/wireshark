@@ -3727,7 +3727,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) < 0) {
         return FALSE;   /* Seek error */
     }
-    ws_debug("reading at offset %" G_GINT64_MODIFIER "u", seek_off);
+    ws_debug("reading at offset %" PRIu64, seek_off);
 
     /*
      * Find the section_info_t for the section in which this block

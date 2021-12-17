@@ -676,7 +676,7 @@ decode_dataitem_mdrr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, 
   guint64 mdrr;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_mdrr, tvb, offset, DLEP_DIT_MDRR_LEN, ENC_BIG_ENDIAN, &mdrr);
-  proto_item_append_text(pi, ": %" G_GUINT64_FORMAT " (bps)", mdrr);
+  proto_item_append_text(pi, ": %" PRIu64 " (bps)", mdrr);
   offset+=DLEP_DIT_MDRR_LEN;
 
   if (len != DLEP_DIT_MDRR_LEN)
@@ -692,7 +692,7 @@ decode_dataitem_mdrt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, 
   guint64 mdrt;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_mdrt, tvb, offset, DLEP_DIT_MDRT_LEN, ENC_BIG_ENDIAN, &mdrt);
-  proto_item_append_text(pi, ": %" G_GUINT64_FORMAT " (bps)", mdrt);
+  proto_item_append_text(pi, ": %" PRIu64 " (bps)", mdrt);
   offset+=DLEP_DIT_MDRT_LEN;
 
   if (len != DLEP_DIT_MDRT_LEN)
@@ -708,7 +708,7 @@ decode_dataitem_cdrr(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, 
   guint64 cdrr;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_cdrr, tvb, offset, DLEP_DIT_CDRR_LEN, ENC_BIG_ENDIAN, &cdrr);
-  proto_item_append_text(pi, ": %" G_GUINT64_FORMAT " (bps)", cdrr);
+  proto_item_append_text(pi, ": %" PRIu64 " (bps)", cdrr);
   offset+=DLEP_DIT_CDRR_LEN;
 
   if (len != DLEP_DIT_CDRR_LEN)
@@ -724,7 +724,7 @@ decode_dataitem_cdrt(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt, 
   guint64 cdrt;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_cdrt, tvb, offset, DLEP_DIT_CDRT_LEN, ENC_BIG_ENDIAN, &cdrt);
-  proto_item_append_text(pi, ": %" G_GUINT64_FORMAT " (bps)", cdrt);
+  proto_item_append_text(pi, ": %" PRIu64 " (bps)", cdrt);
   offset+=DLEP_DIT_CDRT_LEN;
 
   if (len != DLEP_DIT_CDRT_LEN)
@@ -740,7 +740,7 @@ decode_dataitem_latency(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *p
   guint64 latency;
 
   proto_tree_add_item_ret_uint64(pt, hf_dlep_dataitem_latency, tvb, offset, DLEP_DIT_LAT_LEN, ENC_BIG_ENDIAN, &latency);
-  proto_item_append_text(pi, ": %" G_GUINT64_FORMAT " (us)", latency);
+  proto_item_append_text(pi, ": %" PRIu64 " (us)", latency);
   offset+=DLEP_DIT_LAT_LEN;
 
   if (len != DLEP_DIT_LAT_LEN)

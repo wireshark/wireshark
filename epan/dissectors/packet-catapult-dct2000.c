@@ -2101,11 +2101,11 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             int hex_string_length = 1+(2*tty_string_length)+1;
             hex_string = (char *)wmem_alloc(pinfo->pool, hex_string_length);
 
-            idx = g_snprintf(hex_string, hex_string_length, "$");
+            idx = snprintf(hex_string, hex_string_length, "$");
 
             /* Write hex out to new string */
             for (n=0; n < tty_string_length; n++) {
-                idx += g_snprintf(hex_string+idx, 3, "%02x",
+                idx += snprintf(hex_string+idx, 3, "%02x",
                                   tvb_get_guint8(tvb, offset+n));
             }
             string = hex_string;
@@ -3181,7 +3181,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             if (protocol_handle == 0) {
                 /* TODO: only look inside if a preference enabled? */
                 char dotted_protocol_name[128];
-                /* N.B. avoiding g_snprintf(), which was slow */
+                /* N.B. avoiding snprintf(), which was slow */
                 (void) g_strlcpy(dotted_protocol_name, "dct2000.", 128);
                 (void) g_strlcpy(dotted_protocol_name+8, protocol_name, 128-8);
                 protocol_handle = find_dissector(dotted_protocol_name);

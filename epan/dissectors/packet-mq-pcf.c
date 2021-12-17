@@ -242,12 +242,12 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
         uLenF = 12;
 
         if (bParse)
-            g_snprintf(strPrm, (gulong)sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d) %-30.30s",
+            snprintf(strPrm, (gulong)sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d) %-30.30s",
                        "MQPrm", uDig, u + 1,
                        uTyp, val_to_str_ext_const(uTyp, GET_VALS_EXTP(PrmTyp2), "      Unkn") + 6,
                        uPrm, uPrm, val_to_str_ext_const(uPrm, GET_VALS_EXTP(PrmId), "Unknown"));
         else
-            g_snprintf(strPrm, (gulong)sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d)",
+            snprintf(strPrm, (gulong)sizeof(strPrm) - 1, " %-s[%*u] {%2d-%-4.4s} 0x%08x (%4d)",
                        "XtraD", uDig, u + 1,
                        uTyp, val_to_str_ext_const(uTyp, GET_VALS_EXTP(PrmTyp2), "      Unkn") + 6,
                        uPrm, uPrm);
@@ -528,7 +528,7 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
             {
                 uVal64 = tvb_get_guint64(tvb, offset + uLenF + 4, bLittleEndian);
                 tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL,
-                                                     "%s: 0x%" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)", strPrm, uVal64, uVal64);
+                                                     "%s: 0x%" PRIx64 " (%" PRId64 ")", strPrm, uVal64, uVal64);
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
                 proto_tree_add_item(tree, hf_mq_pcf_prmlen, tvb, offset + 4, 4, bLittleEndian);
@@ -560,7 +560,7 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
                 {
                     uVal64 = tvb_get_guint64(tvb, offset, bLittleEndian);
                     proto_tree_add_int64_format(tree, hf_mq_pcf_int64list, tvb, offset, 8, uVal64,
-                                                "%s[%*d]: 0x%" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)",
+                                                "%s[%*d]: 0x%" PRIx64 " (%" PRId64 ")",
                                                 hfinfo->name, uDigit, u2 + 1, uVal64, uVal64);
                     offset += 8;
                 }
@@ -612,7 +612,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
 
             if (uCC || uRC)
             {
-                g_snprintf(sTmp, (gulong)sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d) CC(%d-%s) RC(%d-%s)",
+                snprintf(sTmp, (gulong)sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d) CC(%d-%s) RC(%d-%s)",
                            MQ_TEXT_CFH,
                            uTyp, val_to_str_const(uTyp, GET_VALSV(mqcft), "Unknown"),
                            uCmd, val_to_str_ext_const(uCmd, GET_VALS_EXTP(MQCMD), "Unknown"),
@@ -622,7 +622,7 @@ static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, m
             }
             else
             {
-                g_snprintf(sTmp, (gulong)sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d)",
+                snprintf(sTmp, (gulong)sizeof(sTmp) - 1, " %-s [%d-%s] {%d-%s} PrmCnt(%d)",
                            MQ_TEXT_CFH,
                            uTyp, val_to_str_const(uTyp, GET_VALSV(mqcft), "Unknown"),
                            uCmd, val_to_str_ext_const(uCmd, GET_VALS_EXTP(MQCMD), "Unknown"),

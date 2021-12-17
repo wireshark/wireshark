@@ -1224,7 +1224,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             expert_tree = proto_item_add_subtree(item, ett_mpsse_skipped_response_data);
 
             command_in = proto_tree_add_uint_format(expert_tree, hf_mpsse_command_in, NULL, 0, 0, cmd_data->command_in_packet,
-                                                    "Bad Command 0x%02x in: %" G_GUINT32_FORMAT, cmd_data->cmd, cmd_data->command_in_packet);
+                                                    "Bad Command 0x%02x in: %" PRIu32, cmd_data->cmd, cmd_data->command_in_packet);
             proto_item_set_generated(command_in);
             if (cmd_data->is_response_set)
             {
@@ -1252,7 +1252,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     rsp_tree = proto_item_add_subtree(rsp_data, ett_mpsse_response_data);
 
     command_in = proto_tree_add_uint_format(rsp_tree, hf_mpsse_command_in, NULL, 0, 0, cmd_data->command_in_packet,
-                                            "Command 0x%02x in: %" G_GUINT32_FORMAT, cmd_data->cmd, cmd_data->command_in_packet);
+                                            "Command 0x%02x in: %" PRIu32, cmd_data->cmd, cmd_data->command_in_packet);
     proto_item_set_generated(command_in);
 
     offset += dissect_response_data(tvb, pinfo, rsp_tree, offset, cmd_data);

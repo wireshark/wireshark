@@ -481,7 +481,7 @@ static void vsnum_to_vstext_basecustom(gchar *result, guint32 vsnum)
 	 * Translate hex value to human readable version value, described at
 	 * http://docs.oracle.com/cd/B28359_01/server.111/b28310/dba004.htm
 	 */
-	g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d.%d",
+	snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d.%d.%d",
 		 vsnum >> 24,
 		(vsnum >> 20) & 0xf,
 		(vsnum >> 12) & 0xf,

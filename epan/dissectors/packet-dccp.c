@@ -670,7 +670,7 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
     case 5:       /* Ack Ratio                                     */
 
         if (option_len > 0) /* could be empty Confirm */
-            proto_item_append_text(dccp_item, " %" G_GUINT64_FORMAT "",
+            proto_item_append_text(dccp_item, " %" PRIu64,
                                    dccp_ntoh_var(tvb, offset, option_len));
         break;
 
@@ -1049,7 +1049,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if((dccp_relative_seq) && (dccpd->fwd->static_flags & DCCP_S_BASE_SEQ_SET)) {
             seq = dccph->seq - dccpd->fwd->base_seq;
             proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_seq, tvb, offset, 6,
-                                               seq, "%" G_GUINT64_FORMAT "    (relative sequence number)", seq);
+                                               seq, "%" PRIu64 "    (relative sequence number)", seq);
         }
         else {
             seq = dccph->seq;
@@ -1069,7 +1069,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if((dccp_relative_seq) && (dccpd->fwd->static_flags & DCCP_S_BASE_SEQ_SET)) {
             seq = (dccph->seq - dccpd->fwd->base_seq) & 0xffffff;
             proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_seq, tvb, offset, 3,
-                                               seq, "%" G_GUINT64_FORMAT "    (relative sequence number)", seq);
+                                               seq, "%" PRIu64 "    (relative sequence number)", seq);
         }
         else {
             seq = dccph->seq;
@@ -1077,9 +1077,9 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         offset += 3;
     }
     if (dccp_summary_in_tree) {
-        proto_item_append_text(dccp_item, " Seq=%" G_GUINT64_FORMAT "", seq);
+        proto_item_append_text(dccp_item, " Seq=%" PRIu64, seq);
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%" G_GUINT64_FORMAT "", seq);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%" PRIu64, seq);
 
     /* dissecting type dependent additional fields */
     switch (dccph->type) {
@@ -1137,7 +1137,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             }
             proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GUINT64_FORMAT ")", ack);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
         offset += 8; /* move offset past the Acknowledgement Number Subheader */
 
         dccph->service_code = tvb_get_ntohl(tvb, offset);
@@ -1189,11 +1189,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             if (tree) {
                 if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
                     proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6,
-                                                       ack, "%" G_GUINT64_FORMAT "    (relative acknowledgement number)", ack);
+                                                       ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
                 }
                 proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 2, 6, dccph->ack);
             }
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GUINT64_FORMAT ")", ack);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
             offset += 8; /* move offset past the Ack Number Subheader */
         } else {
             if (advertised_dccp_header_len < offset + 4) {
@@ -1224,11 +1224,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             if (tree) {
                 if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
                     proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
-                                                       ack, "%" G_GUINT64_FORMAT "    (relative acknowledgement number)", ack);
+                                                       ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
                 }
                 proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
             }
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GUINT64_FORMAT ")", ack);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
             offset += 4; /* move offset past the Ack. Number Subheader */
         }
         break;
@@ -1262,11 +1262,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (tree) {
             if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
                 proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
-                                                    ack, "%" G_GUINT64_FORMAT "    (relative acknowledgement number)", ack);
+                                                    ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
             }
             proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GUINT64_FORMAT ")", ack);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
         offset += 8; /* move offset past the Ack. Number Subheader */
 
         dccph->reset_code = tvb_get_guint8(tvb, offset);
@@ -1322,11 +1322,11 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (tree) {
             if((dccp_relative_seq) && (dccpd->rev->static_flags & DCCP_S_BASE_SEQ_SET)) {
                 proto_tree_add_uint64_format_value(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3,
-                                                    ack, "%" G_GUINT64_FORMAT "    (relative acknowledgement number)", ack);
+                                                    ack, "%" PRIu64 "    (relative acknowledgement number)", ack);
             }
             proto_tree_add_uint64(dccp_tree, hf_dccp_ack_abs, tvb, offset + 1, 3, dccph->ack);
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GUINT64_FORMAT ")", ack);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" PRIu64 ")", ack);
         offset += 8; /* move offset past the Ack. Number Subheader */
         break;
     default:

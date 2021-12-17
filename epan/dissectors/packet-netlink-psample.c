@@ -166,11 +166,11 @@ dissect_psample_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
 		return 1;
 	case WS_PSAMPLE_ATTR_OUT_TC_OCC:
 		proto_tree_add_item_ret_uint64(tree, hf_psample_out_tc_occ, tvb, offset, len, nl_data->encoding, &value64);
-		proto_item_append_text(tree, ": %"G_GUINT64_FORMAT, value64);
+		proto_item_append_text(tree, ": %"PRIu64, value64);
 		return 1;
 	case WS_PSAMPLE_ATTR_LATENCY:
 		proto_tree_add_item_ret_uint64(tree, hf_psample_latency, tvb, offset, len, nl_data->encoding, &value64);
-		proto_item_append_text(tree, ": %"G_GUINT64_FORMAT, value64);
+		proto_item_append_text(tree, ": %"PRIu64, value64);
 		return 1;
 	case WS_PSAMPLE_ATTR_TIMESTAMP:
 		timestamp = tvb_get_guint64(tvb, offset, nl_data->encoding);

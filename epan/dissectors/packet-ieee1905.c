@@ -3435,14 +3435,14 @@ static void
 rcpi_threshold_custom(gchar *result, guint8 rcpi_threshold)
 {
     if (rcpi_threshold == 0) {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "Do not report STA Metrics based on RCPI threshold");
+        snprintf(result, ITEM_LABEL_LENGTH, "Do not report STA Metrics based on RCPI threshold");
     } else if (rcpi_threshold > 0 && rcpi_threshold < 220) {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold = %.1fdBm",
+        snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold = %.1fdBm",
                  (float)rcpi_threshold/2 - 110);
     } else if (rcpi_threshold == 220) {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold >= 0dBm");
+        snprintf(result, ITEM_LABEL_LENGTH, "RCPI Threshold >= 0dBm");
     } else {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
+        snprintf(result, ITEM_LABEL_LENGTH, "Reserved");
     }
 }
 
@@ -3450,9 +3450,9 @@ static void
 rcpi_hysteresis_custom(gchar *result, guint8 rcpi_hysteresis)
 {
     if (rcpi_hysteresis == 0) {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "Use Agent's implementation-specific default RCPI Hysteresis margin");
+        snprintf(result, ITEM_LABEL_LENGTH, "Use Agent's implementation-specific default RCPI Hysteresis margin");
     } else {
-        g_snprintf(result, ITEM_LABEL_LENGTH, "%udB", rcpi_hysteresis);
+        snprintf(result, ITEM_LABEL_LENGTH, "%udB", rcpi_hysteresis);
     }
 }
 

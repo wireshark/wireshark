@@ -1109,7 +1109,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -1124,7 +1124,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 }
 
-/* Version of function above, where no g_vsnprintf() call needed */
+/* Version of function above, where no vsnprintf() call needed */
 static void write_pdu_label_and_info_literal(proto_item *ti1, proto_item *ti2,
                                              packet_info *pinfo, const char *info_buffer)
 {
@@ -1547,13 +1547,13 @@ mac_nr_phr_fmt(gchar *s, guint32 v)
     gint32 val = (gint32)v;
 
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "PH < -32 dB (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "PH < -32 dB (0)");
     } else if (val == 63) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "PH >= 38 dB (63)");
+        snprintf(s, ITEM_LABEL_LENGTH, "PH >= 38 dB (63)");
     } else if (val <= 54) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", val - 33, val - 32, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", val - 33, val - 32, val);
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", 22 + 2 * (val - 55), 24 + 2 * (val - 55), val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", 22 + 2 * (val - 55), 24 + 2 * (val - 55), val);
     }
 }
 
@@ -1564,11 +1564,11 @@ mac_nr_pcmax_f_c_fmt(gchar *s, guint32 v)
     gint32 val = (gint32)v;
 
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c < -29 dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c < -29 dBm (0)");
     } else if (val == 63) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c >= 33 dBm (63)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c >= 33 dBm (63)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= Pcmax,f,c < %d dBm (%d)", val - 30, val - 29, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= Pcmax,f,c < %d dBm (%d)", val - 30, val - 29, val);
     }
 }
 

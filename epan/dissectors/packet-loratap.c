@@ -55,7 +55,7 @@ static const value_string syncwords[] = {
 
 static void
 rssi_base_custom(gchar *buffer, guint32 value) {
-	g_snprintf(buffer, ITEM_LABEL_LENGTH, "%.0f dBm", -139 + (float)value);
+	snprintf(buffer, ITEM_LABEL_LENGTH, "%.0f dBm", -139 + (float)value);
 }
 
 static void
@@ -65,13 +65,13 @@ snr_base_custom(gchar *buffer, guint32 value) {
 	} else {
 		value = ( value & 0xFF ) >> 2;
 	}
-	g_snprintf(buffer, ITEM_LABEL_LENGTH, "%d dB", value);
+	snprintf(buffer, ITEM_LABEL_LENGTH, "%d dB", value);
 }
 
 static void
 loratap_prompt(packet_info *pinfo, gchar* result)
 {
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "LoRaTap syncword 0x%02x as", GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_loratap, 0)));
+	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "LoRaTap syncword 0x%02x as", GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_loratap, 0)));
 }
 
 static gpointer

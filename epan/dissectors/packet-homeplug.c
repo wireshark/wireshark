@@ -1337,7 +1337,7 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 static void
 homeplug_fmt_mhz( gchar *result, guint32 ns_bytes40 )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%.3f", (float)(ns_bytes40)/42);
+   snprintf( result, ITEM_LABEL_LENGTH, "%.3f", (float)(ns_bytes40)/42);
 }
 
 void

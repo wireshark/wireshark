@@ -375,7 +375,7 @@ static int zbee_nwk_address_to_str(const address* addr, gchar *buf, int buf_len)
         return (int)g_strlcpy(buf, "Broadcast", buf_len) + 1;
     }
     else {
-        return g_snprintf(buf, buf_len, "0x%04x", zbee_nwk_addr) + 1;
+        return snprintf(buf, buf_len, "0x%04x", zbee_nwk_addr) + 1;
     }
 }
 

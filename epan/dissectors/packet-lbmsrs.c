@@ -2442,7 +2442,7 @@ static guint dissect_lbmsrs_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree
         default:
         {
             expert_add_info_format(pinfo, tree, &ei_lbmsrs_analysis_invalid_msg_id,
-                "Invalid LBMSRS Message Id :%" G_GUINT16_FORMAT, message_id);
+                "Invalid LBMSRS Message Id :%" PRIu16, message_id);
 
         }
 

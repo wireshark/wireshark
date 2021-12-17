@@ -2766,7 +2766,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -2781,7 +2781,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 }
 
-/* Version of function above, where no g_vsnprintf() call needed */
+/* Version of function above, where no vsnprintf() call needed */
 static void write_pdu_label_and_info_literal(proto_item *ti1, proto_item *ti2,
                                              packet_info *pinfo, const char *info_buffer)
 {

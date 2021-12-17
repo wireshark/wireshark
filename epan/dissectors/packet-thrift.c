@@ -593,7 +593,7 @@ dissect_thrift_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Create the field header sub-tree if requested only. */
     if (tree != NULL) {
         header->fh_tree = proto_tree_add_subtree_format(tree, tvb, header->type_offset, *offset - header->type_offset, ett_thrift_field, NULL,
-                "Field Header #%" G_GINT64_MODIFIER "d", header->field_id);
+                "Field Header #%" PRId64, header->field_id);
         if (thrift_opt->tprotocol & PROTO_THRIFT_COMPACT) {
             header->type_pi = proto_tree_add_bits_item(header->fh_tree, hf_thrift_compact_struct_type, tvb, (header->type_offset << OCTETS_TO_BITS_SHIFT) + TCP_THRIFT_NIBBLE_SHIFT, TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
             header->fid_pi = proto_tree_add_bits_item(header->fh_tree, hf_thrift_fid_delta, tvb, header->type_offset << OCTETS_TO_BITS_SHIFT, TCP_THRIFT_NIBBLE_SHIFT, ENC_BIG_ENDIAN);
@@ -893,7 +893,7 @@ dissect_thrift_t_field_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Once we know it's the expected type (which is /not/ T_STOP), we can read the field id. */
     if (field_header.field_id != (gint64)field_id) {
         expert_add_info_format(pinfo, field_header.fid_pi, &ei_thrift_wrong_field_id,
-                "Sub-dissector expects field id = %d, found %" G_GINT64_MODIFIER "d instead.", field_id, field_header.field_id);
+                "Sub-dissector expects field id = %d, found %" PRId64 " instead.", field_id, field_header.field_id);
     }
 
     /* Expose the field header sub-tree if requested. */
@@ -2757,7 +2757,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     thrift_opt->reassembly_length = TBP_THRIFT_TYPE_LEN;
     if (thrift_opt->reply_field_id != 0) {
         expert_add_info(pinfo, fid_pi, &ei_thrift_application_exception);
-        proto_item_set_text(data_pi, "Exception: %" G_GINT64_MODIFIER "d", thrift_opt->reply_field_id);
+        proto_item_set_text(data_pi, "Exception: %" PRId64, thrift_opt->reply_field_id);
     }
 
     if (is_compact) {

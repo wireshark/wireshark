@@ -306,7 +306,7 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 	}
 	if (length > G_MAXINT32 || *offset + (gint)length < *offset) {
 		expert_add_info_format(pinfo, cbor_tree, &ei_cbor_too_long_length,
-			"the length (%" G_GUINT64_FORMAT ") of the byte string too long", length);
+			"the length (%" PRIu64 ") of the byte string too long", length);
 		return NULL;
 	}
 	item = proto_tree_add_item(cbor_tree, hf_cbor_type_byte_string, tvb, *offset, (gint)length, ENC_BIG_ENDIAN|ENC_NA);
@@ -381,7 +381,7 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 	}
 	if (length > G_MAXINT32 || *offset + (gint)length < *offset) {
 		expert_add_info_format(pinfo, cbor_tree, &ei_cbor_too_long_length,
-			"the length (%" G_GUINT64_FORMAT ") of the text string too long", length);
+			"the length (%" PRIu64 ") of the text string too long", length);
 		return NULL;
 	}
 	item = proto_tree_add_item(cbor_tree, hf_cbor_type_text_string, tvb, *offset, (gint)length, ENC_BIG_ENDIAN|ENC_UTF_8);
@@ -442,7 +442,7 @@ dissect_cbor_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gin
 		        tvb, orig_offset, -1, "Array", "(undefined elements)");
 	} else {
 		item = proto_tree_add_string_format_value(cbor_tree, hf_cbor_type_array,
-		       tvb, orig_offset, -1, "Array", "(%"G_GINT64_MODIFIER"u elements)", length);
+		       tvb, orig_offset, -1, "Array", "(%"PRIu64" elements)", length);
 	}
 	subtree = proto_item_add_subtree(item, ett_cbor_array);
 
@@ -518,7 +518,7 @@ dissect_cbor_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 		        tvb, orig_offset, -1, "Map", "(undefined entries)");
 	} else {
 		item = proto_tree_add_string_format_value(cbor_tree, hf_cbor_type_map,
-		       tvb, orig_offset, -1, "Map", "(%"G_GINT64_MODIFIER"u entries)", length);
+		       tvb, orig_offset, -1, "Map", "(%"PRIu64" entries)", length);
 	}
 	subtree = proto_item_add_subtree(item, ett_cbor_map);
 

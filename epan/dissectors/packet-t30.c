@@ -526,7 +526,7 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
         col_append_fstr(pinfo->cinfo, COL_INFO, " - Number:%s", str_num );
 
         if (t38)
-            g_snprintf(t38->desc, MAX_T38_DESC, "Num: %s", str_num);
+            snprintf(t38->desc, MAX_T38_DESC, "Num: %s", str_num);
     }
     else {
         proto_tree_add_expert_format(tree, pinfo, &ei_t30_bad_length, tvb, offset, -1,
@@ -555,7 +555,7 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - Frame num:%d", reverse_byte(octet));
 
     if (t38)
-        g_snprintf(t38->desc, MAX_T38_DESC, "Frm num: %d", reverse_byte(octet));
+        snprintf(t38->desc, MAX_T38_DESC, "Frm num: %d", reverse_byte(octet));
 
     proto_tree_add_item(tree, hf_t30_t4_data, tvb, offset, len-1, ENC_NA);
 }
@@ -610,7 +610,7 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
     col_append_fstr(pinfo->cinfo, COL_INFO, " - PC:%d BC:%d FC:%d", page_count, block_count, frame_count);
 
     if (t38)
-        g_snprintf(t38->desc, MAX_T38_DESC,
+        snprintf(t38->desc, MAX_T38_DESC,
                    "PC:%d BC:%d FC:%d", page_count, block_count, frame_count);
 
 }
@@ -641,7 +641,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
             if (octet & bit) {
                 ++frame_count;
                 DISSECTOR_ASSERT((buf_top-buf) < BUF_SIZE);
-                buf_top += g_snprintf(buf_top, BUF_SIZE - (gulong)(buf_top - buf), "%u, ", frame);
+                buf_top += snprintf(buf_top, BUF_SIZE - (gulong)(buf_top - buf), "%u, ", frame);
             }
             bit >>= 1;
             ++frame;
@@ -692,7 +692,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
                             val_to_str_ext_const((octet&0x3C) >> 2, &t30_data_signalling_rate_vals_ext, "<unknown>"));
 
         if (t38)
-          g_snprintf(t38->desc, MAX_T38_DESC,
+          snprintf(t38->desc, MAX_T38_DESC,
                      "DSR:%s",
                      val_to_str_ext_const((octet&0x3C) >> 2, &t30_data_signalling_rate_vals_ext, "<unknown>"));
     }
@@ -703,7 +703,7 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
                             val_to_str_ext_const((octet&0x3C) >> 2, &t30_data_signalling_rate_dcs_vals_ext, "<unknown>"));
 
         if (t38)
-          g_snprintf(t38->desc, MAX_T38_DESC,
+          snprintf(t38->desc, MAX_T38_DESC,
                      "DSR:%s",
                      val_to_str_ext_const((octet&0x3C) >> 2, &t30_data_signalling_rate_dcs_vals_ext, "<unknown>"));
     }

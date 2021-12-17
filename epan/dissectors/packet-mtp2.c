@@ -595,7 +595,7 @@ debug(char *format, ...)
   buffer[0] = '\0';
 
   va_start(args,format);
-  g_vsnprintf(buffer,max_buffer_length,format,args);
+  vsnprintf(buffer,max_buffer_length,format,args);
   g_printf("%s",buffer);
   va_end (args);
 }

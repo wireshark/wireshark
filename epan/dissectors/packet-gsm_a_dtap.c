@@ -1695,7 +1695,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
     proto_tree_add_item(subtree, hf_gsm_a_dtap_itc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%s)", str);
+        snprintf(add_string, string_len, " - (%s)", str);
 
     curr_offset++;
 
@@ -2372,7 +2372,7 @@ de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
         }
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+            snprintf(add_string, string_len, " - (%s)", extr_addr);
     }
 
     return (len);
@@ -2389,7 +2389,7 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     de_sub_addr(tvb, tree, pinfo, offset, len, &extr_addr);
 
     if (extr_addr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+        snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2405,7 +2405,7 @@ de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_clg_party_bcd_num, &extr_addr);
 
     if (extr_addr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+        snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2421,7 +2421,7 @@ de_clg_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     de_sub_addr(tvb, tree, pinfo, offset, len, &extr_addr);
 
     if (extr_addr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+        snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2557,7 +2557,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gu
     curr_offset++;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%u) %s", cause, str);
+        snprintf(add_string, string_len, " - (%u) %s", cause, str);
 
     NO_MORE_DATA_CHECK(len);
 
@@ -2616,7 +2616,7 @@ de_conn_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
     de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_conn_num, &extr_addr);
 
     if (extr_addr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+        snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2632,7 +2632,7 @@ de_conn_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     de_sub_addr(tvb, tree, pinfo, offset, len, &extr_addr);
 
     if (extr_addr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+        snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2722,7 +2722,7 @@ de_keypad_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     curr_offset++;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - %c", keypad_char);
+        snprintf(add_string, string_len, " - %c", keypad_char);
 
     /* no length check possible */
 
@@ -2869,7 +2869,7 @@ de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_red_party_bcd_num, &extr_addr);
 
     if (extr_addr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+        snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2885,7 +2885,7 @@ de_red_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
     de_sub_addr(tvb, tree, pinfo, offset, len, &extr_addr);
 
     if (extr_addr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
+        snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -3126,14 +3126,14 @@ de_stream_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
             "No Bearer (%u)", oct);
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - (No Bearer)");
+            snprintf(add_string, string_len, " - (No Bearer)");
     }
     else
     {
         proto_tree_add_item(tree, hf_gsm_a_dtap_stream_identifier, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - (%u)", oct);
+            snprintf(add_string, string_len, " - (%u)", oct);
     }
 
     curr_offset++;
@@ -3194,7 +3194,7 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     curr_offset++;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%s)", val_to_str_const(oct, gsm_a_cause_of_no_cli_values, "Unavailable"));
+        snprintf(add_string, string_len, " - (%s)", val_to_str_const(oct, gsm_a_cause_of_no_cli_values, "Unavailable"));
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_dtap_extraneous_data);
 
@@ -3412,7 +3412,7 @@ de_cp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     curr_offset++;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%u) %s", oct, str);
+        snprintf(add_string, string_len, " - (%u) %s", oct, str);
 
     /* no length check possible */
 

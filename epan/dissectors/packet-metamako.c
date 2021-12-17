@@ -60,7 +60,7 @@ sub_nanos_base_custom(gchar *result, guint32 value)
 {
   double temp_double;
   temp_double = ((double)value) / (1U << 24);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%1.9fns", temp_double);
+  snprintf(result, ITEM_LABEL_LENGTH, "%1.9fns", temp_double);
 }
 
 static int

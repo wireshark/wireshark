@@ -522,7 +522,7 @@ get_md4pass_list(wmem_allocator_t *pool
 
   if (memcmp(nt_password_hash, gbl_zeros, NTLMSSP_KEY_LEN) != 0) {
     memcpy(pass_list[i].md4, nt_password_hash, NTLMSSP_KEY_LEN);
-    g_snprintf(pass_list[i].key_origin, NTLMSSP_MAX_ORIG_LEN,
+    snprintf(pass_list[i].key_origin, NTLMSSP_MAX_ORIG_LEN,
                "<Global NT Password>");
     i = 1;
   }

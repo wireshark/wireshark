@@ -2593,7 +2593,7 @@ void proto_reg_handoff_btcommon(void);
 
 static void bthci_cmd_vendor_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Vendor as");
 }
 
 static gint dissect_coding_format(proto_tree *tree, int hf_x, tvbuff_t *tvb, gint offset, gint ett_x)
@@ -8909,9 +8909,9 @@ static void bluetooth_eir_ad_manufacturer_company_id_prompt(packet_info *pinfo, 
 
     value_data = (guint16 *) p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_MANUFACTURER_COMPANY_ID);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "EIR/AD Manufacturer Company ID 0x%02x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "EIR/AD Manufacturer Company ID 0x%02x as", (guint) *value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown EIR/AD Manufacturer");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown EIR/AD Manufacturer");
 }
 
 static gpointer bluetooth_eir_ad_manufacturer_company_id_value(packet_info *pinfo)
@@ -8932,9 +8932,9 @@ static void bluetooth_eir_ad_tds_organization_id_prompt(packet_info *pinfo, gcha
 
     value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "TDS Organization ID 0x%02x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "TDS Organization ID 0x%02x as", (guint) *value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown TDS Organization ID");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown TDS Organization ID");
 }
 
 static gpointer bluetooth_eir_ad_tds_organization_id_value(packet_info *pinfo)

@@ -116,7 +116,7 @@ ieee1609dot2_Time64_fmt(gchar *s, guint64 v)
   time_t secs = v / 1000000 + 1072915200 - 5;
   guint32 usecs = v % 1000000;
   struct tm *tm = gmtime(&secs);
-  snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%06u (%" G_GUINT64_FORMAT ")",
+  snprintf(s, ITEM_LABEL_LENGTH, "%u-%02u-%02u %02u:%02u:%02u.%06u (%" PRIu64 ")",
     tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, usecs, v
   );
 }

@@ -362,7 +362,7 @@ static uat_field_t users_flds[] = {
 
 static void ber_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode ASN.1 file as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode ASN.1 file as");
 }
 
 static gpointer ber_value(packet_info *pinfo _U_)
@@ -534,12 +534,12 @@ ber_check_value64 (gint64 value, gint64 min_len, gint64 max_len, asn1_ctx_t *act
     if ((min_len != -1) && (value < min_len)) {
         expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_value,
-            "Size constraint: value too small: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)",
+            "Size constraint: value too small: %" PRId64 " (%" PRId64" .. %" PRId64 ")",
             value, min_len, max_len);
     } else if ((max_len != -1) && (value > max_len)) {
         expert_add_info_format(
             actx->pinfo, item, &ei_ber_size_constraint_value,
-            "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)",
+            "Size constraint: value too big: %" PRId64 " (%" PRId64 " .. %" PRId64 ")",
             value, min_len, max_len);
     }
 }
@@ -3743,7 +3743,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
             goto malformed;
         }
     }
-    g_snprintf(outstrptr, 15, "%.2s-%.2s-%.2s %.2s:%.2s", instr, instr+2, instr+4, instr+6, instr+8);
+    snprintf(outstrptr, 15, "%.2s-%.2s-%.2s %.2s:%.2s", instr, instr+2, instr+4, instr+6, instr+8);
     outstrptr+= 14;
 
     /* (ss)? */
@@ -3752,7 +3752,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
             i++;
             if ((instr[i] >= '0') && (instr[i] <= '9')) {
                 i++;
-                g_snprintf(outstrptr, 4, ":%.2s", instr+10);
+                snprintf(outstrptr, 4, ":%.2s", instr+10);
                 outstrptr+=3;
             } else {
                 error_str = "BER Error: malformed UTCTime encoding, "
@@ -3771,7 +3771,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
                         "there must be no further octets after \'Z\'";
             goto malformed;
         }
-        g_snprintf(outstrptr, 7, " (UTC)");
+        snprintf(outstrptr, 7, " (UTC)");
         i++;
         break;
     case '-':
@@ -3788,7 +3788,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
                 goto malformed;
             }
         }
-        g_snprintf(outstrptr, 12, " (UTC%c%.4s)", instr[i], instr+i+1);
+        snprintf(outstrptr, 12, " (UTC%c%.4s)", instr[i], instr+i+1);
         i+=5;
         break;
     default:

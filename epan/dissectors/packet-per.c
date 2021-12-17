@@ -126,9 +126,9 @@ static void per_check_value(guint32 value, guint32 min_len, guint32 max_len, asn
 static void per_check_value64(guint64 value, guint64 min_len, guint64 max_len, asn1_ctx_t *actx, proto_item *item, gboolean is_signed)
 {
 	if ((is_signed == FALSE) && (value > max_len)) {
-		expert_add_info_format(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "u .. %" G_GINT64_MODIFIER "u)", value, min_len, max_len);
+		expert_add_info_format(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %" PRIu64 " (%" PRIu64 " .. %" PRIu64 ")", value, min_len, max_len);
 	} else if ((is_signed == TRUE) && ((gint64)value > (gint64)max_len)) {
-		expert_add_info_format(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "d .. %" G_GINT64_MODIFIER "d)", (gint64)value, (gint64)min_len, (gint64)max_len);
+		expert_add_info_format(actx->pinfo, item, &ei_per_size_constraint_value, "Size constraint: value too big: %" PRId64 " (%" PRId64 " .. %" PRId64 ")", (gint64)value, (gint64)min_len, (gint64)max_len);
 	}
 }
 
@@ -319,7 +319,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		str=(char *)wmem_alloc(wmem_packet_scope(), str_length+1);
 		str_index = 0;
 
-		str_length = g_snprintf(str, str_length+1, " ");
+		str_length = snprintf(str, str_length+1, " ");
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
 				if (str_index < str_length) str[str_index++] = ' ';
@@ -1539,7 +1539,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		if (display_internal_per_fields) {
 			proto_tree_add_uint64(tree, hf_per_internal_range, tvb, val_start, val_length, range);
 			proto_tree_add_uint(tree, hf_per_internal_num_bits, tvb, val_start,val_length, num_bits);
-			proto_tree_add_uint64_format_value(tree, hf_per_internal_value, tvb, val_start, val_length, val, "%s decimal value: %" G_GINT64_MODIFIER "u", str, val);
+			proto_tree_add_uint64_format_value(tree, hf_per_internal_value, tvb, val_start, val_length, val, "%s decimal value: %" PRIu64, str, val);
 		}
 	} else if(range==256){
 		/* 10.5.7.2 */
@@ -1579,7 +1579,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		num_bytes++;  /* lower bound for length determinant is 1 */
 		if (display_internal_per_fields){
 			int_item = proto_tree_add_bits_item(tree, hf_per_const_int_len, tvb, offset,n_bits, ENC_BIG_ENDIAN);
-			proto_item_append_text(int_item,"+1=%u bytes, Range = (%" G_GINT64_MODIFIER "u)",num_bytes, range);
+			proto_item_append_text(int_item,"+1=%u bytes, Range = (%" PRIu64 ")",num_bytes, range);
 		}
 		offset = offset+n_bits;
 		/* byte aligned */
@@ -2133,7 +2133,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			}else {
 				value = tvb_get_bits64(out_tvb, 0, length, ENC_BIG_ENDIAN);
 			}
-			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
+			proto_item_append_text(actx->created_item, ", %s decimal value %" PRIu64,
 				decode_bits_in_field(actx->pinfo->pool, 0, length, value, ENC_BIG_ENDIAN), value);
 			if (named_bits) {
 				const guint32 named_bits_bytelen = (num_named_bits + 7) / 8;

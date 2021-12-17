@@ -1309,7 +1309,7 @@ static gint dissect_mq_encoding(proto_tree* tree, int hfindex, tvbuff_t* tvb, co
     pEnc = sEnc;
 
 #define CHECK_ENC(M, T) ((uEnc & M) == T)
-#define DOPRT(A) pEnc += g_snprintf(pEnc, (gulong)(sizeof(sEnc)-1-(pEnc-sEnc)), A);
+#define DOPRT(A) pEnc += snprintf(pEnc, (gulong)(sizeof(sEnc)-1-(pEnc-sEnc)), A);
     if (CHECK_ENC(MQ_MQENC_FLOAT_MASK, MQ_MQENC_FLOAT_UNDEFINED))
     {
         DOPRT("FLT_UNDEFINED");

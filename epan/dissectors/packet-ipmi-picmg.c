@@ -888,7 +888,7 @@ parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, guint offs, int hf, int hf_lin
 		if (!num) {
 			desc = "All Links";
 		} else if (num < 0x60) {
-			g_snprintf(buf, sizeof(buf), "Link #%d", num);
+			snprintf(buf, sizeof(buf), "Link #%d", num);
 			desc = buf;
 		} else {
 			desc = "Reserved";
@@ -977,7 +977,7 @@ parse_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *n
 	guint8 v = tvb_get_guint8(tvb, offs + 4);
 	char buf[32];
 
-	g_snprintf(buf, sizeof(buf), "Link info%s: ", num);
+	snprintf(buf, sizeof(buf), "Link info%s: ", num);
 	proto_tree_add_bitmask_text(tree, tvb, offs, 4, buf, NULL,
 			ett_ipmi_picmg_link_info, link_info, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_linkinfo_state, tvb, offs + 4, 1,
@@ -1590,7 +1590,7 @@ static const value_string picmg_24_controls[] = {
 static void
 fmt_power_amps(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%dA", v / 10, v % 10);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d.%dA", v / 10, v % 10);
 }
 
 /* Power Channel Control
@@ -1698,7 +1698,7 @@ static const value_string cc28[] = {
 static void
 fmt_100ms(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d.%dS", v / 10, v % 10);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d.%dS", v / 10, v % 10);
 }
 
 /* PM Heart-Beat

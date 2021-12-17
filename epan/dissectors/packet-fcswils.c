@@ -752,19 +752,19 @@ dissect_swils_elp(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *elp_tree, g
             flagsbuf=(char *)wmem_alloc(wmem_packet_scope(), MAX_FLAGS_LEN);
             stroff = 0;
 
-            returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff,
+            returned_length = snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff,
                                          "Class 1 Valid");
             stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             if (cls1_svcparm[0] & 0x40) {
-                returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IMX");
+                returned_length = snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IMX");
                 stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             if (cls1_svcparm[0] & 0x20) {
-                returned_length = g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IPS");
+                returned_length = snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | IPS");
                 stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             if (cls1_svcparm[0] & 0x10) {
-                /*returned_length =*/ g_snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
+                /*returned_length =*/ snprintf(flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
             }
             flags=flagsbuf;
         }

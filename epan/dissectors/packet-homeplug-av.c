@@ -2387,7 +2387,7 @@ static const value_string homeplug_av_st_iotecha_suppress_data_vals[] = {
 
 static void
 adc_bitmask_base(gchar *buf, guint8 value) {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%s, %s, %s (%d)",
+    snprintf(buf, ITEM_LABEL_LENGTH, "%s, %s, %s (%d)",
                (value & 0x01) ? "true" : "false",
                (value & 0x02) ? "true" : "false",
                (value & 0x04) ? "true" : "false",

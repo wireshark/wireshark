@@ -260,35 +260,35 @@ fddifc_to_str(int fc)
     switch (fc & FDDI_FC_CLFF) {
 
     case FDDI_FC_MAC:
-      g_snprintf(strbuf, sizeof(strbuf), "MAC frame, control %x", fc & FDDI_FC_ZZZZ);
+      snprintf(strbuf, sizeof(strbuf), "MAC frame, control %x", fc & FDDI_FC_ZZZZ);
       return strbuf;
 
     case FDDI_FC_SMT:
-      g_snprintf(strbuf, sizeof(strbuf), "SMT frame, control %x", fc & FDDI_FC_ZZZZ);
+      snprintf(strbuf, sizeof(strbuf), "SMT frame, control %x", fc & FDDI_FC_ZZZZ);
       return strbuf;
 
     case FDDI_FC_LLC_ASYNC:
       if (fc & FDDI_FC_ASYNC_R)
-        g_snprintf(strbuf, sizeof(strbuf), "Async LLC frame, control %x", fc & FDDI_FC_ZZZZ);
+        snprintf(strbuf, sizeof(strbuf), "Async LLC frame, control %x", fc & FDDI_FC_ZZZZ);
       else
-        g_snprintf(strbuf, sizeof(strbuf), "Async LLC frame, priority %d",
+        snprintf(strbuf, sizeof(strbuf), "Async LLC frame, priority %d",
                         fc & FDDI_FC_ASYNC_PRI);
       return strbuf;
 
     case FDDI_FC_LLC_SYNC:
       if (fc & FDDI_FC_ZZZZ) {
-        g_snprintf(strbuf, sizeof(strbuf), "Sync LLC frame, control %x", fc & FDDI_FC_ZZZZ);
+        snprintf(strbuf, sizeof(strbuf), "Sync LLC frame, control %x", fc & FDDI_FC_ZZZZ);
         return strbuf;
       } else
         return "Sync LLC frame";
 
     case FDDI_FC_IMP_ASYNC:
-      g_snprintf(strbuf, sizeof(strbuf), "Implementor async frame, control %x",
+      snprintf(strbuf, sizeof(strbuf), "Implementor async frame, control %x",
                         fc & FDDI_FC_ZZZZ);
       return strbuf;
 
     case FDDI_FC_IMP_SYNC:
-      g_snprintf(strbuf, sizeof(strbuf), "Implementor sync frame, control %x",
+      snprintf(strbuf, sizeof(strbuf), "Implementor sync frame, control %x",
                         fc & FDDI_FC_ZZZZ);
       return strbuf;
 

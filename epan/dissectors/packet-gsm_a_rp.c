@@ -205,7 +205,7 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	curr_offset++;
 
 	if (add_string)
-		g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, val_to_str_ext_const(oct & 0x7f, &gsm_rp_cause_vals_ext, "Reserved"));
+		snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f, val_to_str_ext_const(oct & 0x7f, &gsm_rp_cause_vals_ext, "Reserved"));
 
 	NO_MORE_DATA_CHECK(len);
 

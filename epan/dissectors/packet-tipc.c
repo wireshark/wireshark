@@ -578,7 +578,7 @@ tipc_addr_value_to_buf(guint tipc_address, gchar *buf, int buf_len)
 	tipc_address = tipc_address >> 12;
 	zone = tipc_address & 0xff;
 
-	g_snprintf(buf, buf_len, "%u.%u.%u", zone, subnetwork, processor);
+	snprintf(buf, buf_len, "%u.%u.%u", zone, subnetwork, processor);
 	return buf;
 }
 

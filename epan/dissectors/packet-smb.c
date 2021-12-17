@@ -1306,7 +1306,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 		if (new_file->is_out_of_memory) {
 			entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
+				g_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
 								aux_smb_fid_type_string,
 								new_file->data_gathered,
 								new_file->file_length,
@@ -1319,7 +1319,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			}
 
 			entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
+				g_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
 								aux_smb_fid_type_string,
 								new_file->data_gathered,
 								new_file->file_length,
@@ -1341,7 +1341,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		/* Modify the current_entry object_type string */
 		if (current_file->is_out_of_memory) {
 			current_entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
+				g_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
 								aux_smb_fid_type_string,
 								current_file->data_gathered,
 								current_file->file_length,
@@ -1349,7 +1349,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		} else {
 			percent = (gfloat) (100*current_file->data_gathered/current_file->file_length);
 			current_entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
+				g_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
 								aux_smb_fid_type_string,
 								current_file->data_gathered,
 								current_file->file_length,
@@ -5491,13 +5491,13 @@ smbext20_timeout_msecs_to_str(gint32 timeout)
 	if (timeout <= 0) {
 		buf = (gchar *)wmem_alloc(wmem_packet_scope(), SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
 		if (timeout == 0) {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
 		} else if (timeout == -1) {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
 		} else if (timeout == -2) {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
 		} else {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", timeout);
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", timeout);
 		}
 		return buf;
 	}
@@ -7073,7 +7073,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	ofs = (ofs<<32) | offsetlow;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %" G_GINT64_MODIFIER "u",
+				", %u byte%s at offset %" PRIu64,
 				maxcnt, (maxcnt == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
@@ -7340,7 +7340,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	ofs = (ofs<<32) | offsetlow;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %" G_GINT64_MODIFIER "u",
+				", %u byte%s at offset %" PRIu64,
 				datalen, (datalen == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */

@@ -145,7 +145,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 ptvcursor_current_offset(cursor));
                     proto_tree_add_uint64_format(hdcp_tree, hf_hdcp_a_ksv,
                             tvb, ptvcursor_current_offset(cursor), 5,
-                            a_ksv, "A_ksv 0x%010" G_GINT64_MODIFIER "x", a_ksv);
+                            a_ksv, "A_ksv 0x%010" PRIx64, a_ksv);
                     ptvcursor_advance(cursor, 5);
                     break;
                 case REG_AN:
@@ -185,7 +185,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                 ptvcursor_current_offset(cursor));
                         proto_tree_add_uint64_format(hdcp_tree, hf_hdcp_b_ksv,
                                 tvb, ptvcursor_current_offset(cursor), 5,
-                                b_ksv, "B_ksv 0x%010" G_GINT64_MODIFIER "x",
+                                b_ksv, "B_ksv 0x%010" PRIx64,
                                 b_ksv);
                         ptvcursor_advance(cursor, 5);
                         break;

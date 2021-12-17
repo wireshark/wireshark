@@ -1063,9 +1063,9 @@ static void media_type_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Media Type %s as", (gchar *) value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Media Type %s as", (gchar *) value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown Media Type");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown Media Type");
 }
 
 static gpointer media_type_value(packet_info *pinfo)
@@ -1086,9 +1086,9 @@ static void obex_profile_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (guint) *value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown OBEX Profile");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown OBEX Profile");
 }
 
 static gpointer obex_profile_value(packet_info *pinfo)

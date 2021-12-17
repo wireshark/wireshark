@@ -2414,7 +2414,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         amqp_typename = "integer";
         if (length < 4)
             return 0; /* too short */
-        value  = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT32_MODIFIER "i",
+        value  = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi32,
                                     tvb_get_ntohil(tvb, offset));
         offset += 4;
         break;
@@ -2496,7 +2496,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         amqp_typename = "short int";
         if (length < 2)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT16_MODIFIER "i",
+        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi16,
                                      tvb_get_ntohis(tvb, offset));
         offset += 2;
         break;
@@ -2504,7 +2504,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         amqp_typename = "short uint";
         if (length < 2)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT16_MODIFIER "u",
+        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIu16,
                                      tvb_get_ntohs(tvb, offset));
         offset += 2;
         break;
@@ -2512,7 +2512,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         amqp_typename = "unsigned integer";
         if (length < 4)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT32_MODIFIER "u",
+        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIu32,
                                      tvb_get_ntohl(tvb, offset));
         offset += 4;
         break;
@@ -2520,7 +2520,7 @@ dissect_amqp_0_9_field_value(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         amqp_typename = "long int";
         if (length < 8)
             return 0; /* too short */
-        value   = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "i",
+        value   = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi64,
                                      tvb_get_ntohi64(tvb, offset));
         offset += 8;
         break;
@@ -10368,7 +10368,7 @@ format_amqp_1_0_uint(tvbuff_t *tvb,
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid uint length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "u", val);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%" PRIu64, val);
     return length;
 }
 
@@ -10392,7 +10392,7 @@ format_amqp_1_0_int(tvbuff_t *tvb,
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "i", val);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%" PRIi64, val);
     return length;
 }
 
@@ -10695,7 +10695,7 @@ format_amqp_0_10_sequence_set(tvbuff_t *tvb, guint offset, guint length,
 
 static void amqp_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "AMQP version as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "AMQP version as");
 }
 
 static gpointer amqp_value(packet_info *pinfo)

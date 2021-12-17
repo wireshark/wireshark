@@ -913,13 +913,13 @@ static const value_string docsis_time_prot_perf_sup_vals[] = {
 static void
 fourth_db(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dB", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dB", value/4.0);
 }
 
 static void
 fourth_dbmv(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dBmV", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%.2f dBmV", value/4.0);
 }
 
 static reassembly_table ucd_reassembly_table;

@@ -528,7 +528,7 @@ zbee_append_info(proto_item *item, packet_info *pinfo, const gchar *format, ...)
     va_list         ap;
 
     va_start(ap, format);
-    g_vsnprintf(buffer, 512, format, ap);
+    vsnprintf(buffer, 512, format, ap);
     va_end(ap);
 
     proto_item_append_text(item, "%s", buffer);
@@ -977,11 +977,11 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
         lang_str[1] = tvb_get_guint8(tvb, *offset + 2);
         lang_str[2] = '\0';
 
-        g_snprintf(complex, max_len, "<%s>%s, %s</%s>", tag_name[tag_charset], lang_str, charset_str, tag_name[tag_charset]);
+        snprintf(complex, max_len, "<%s>%s, %s</%s>", tag_name[tag_charset], lang_str, charset_str, tag_name[tag_charset]);
     }
     else if (tag == tag_icon) {
         /* TODO: */
-        g_snprintf(complex, max_len, "<%s>FixMe</%s>", tag_name[tag_icon], tag_name[tag_icon]);
+        snprintf(complex, max_len, "<%s>FixMe</%s>", tag_name[tag_icon], tag_name[tag_icon]);
     }
     else {
         gchar *str;
@@ -989,10 +989,10 @@ zdp_parse_complex_desc(packet_info *pinfo, proto_tree *tree, gint ettindex, tvbu
         str = (gchar *) tvb_get_string_enc(pinfo->pool, tvb, *offset+1, length-1, ENC_ASCII|ENC_NA);
         /* Handles all string type XML tags. */
         if (tag <= tag_icon_url) {
-            g_snprintf(complex, max_len, "<%s>%s</%s>", tag_name[tag], str, tag_name[tag]);
+            snprintf(complex, max_len, "<%s>%s</%s>", tag_name[tag], str, tag_name[tag]);
         }
         else {
-            g_snprintf(complex, max_len, "<%s>%s</%s>", tag_name[0], str, tag_name[0]);
+            snprintf(complex, max_len, "<%s>%s</%s>", tag_name[0], str, tag_name[0]);
         }
     }
     if (tree) {

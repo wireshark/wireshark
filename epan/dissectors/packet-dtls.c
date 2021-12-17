@@ -900,7 +900,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /*
    * now dissect the next layer
    */
-  ssl_debug_printf("dissect_dtls_record: content_type %d epoch %d seq %"G_GUINT64_FORMAT"\n", content_type, epoch, sequence_number);
+  ssl_debug_printf("dissect_dtls_record: content_type %d epoch %d seq %"PRIu64"\n", content_type, epoch, sequence_number);
 
   /* try to decrypt record on the first pass, if possible. Store decrypted
    * record for later usage (without having to decrypt again). */
@@ -1825,7 +1825,7 @@ dtls_src_prompt(packet_info *pinfo, gchar *result)
     if (pi != NULL)
         srcport = pi->srcport;
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", srcport, UTF8_RIGHTWARDS_ARROW);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%u%s)", srcport, UTF8_RIGHTWARDS_ARROW);
 }
 
 static gpointer
@@ -1850,7 +1850,7 @@ dtls_dst_prompt(packet_info *pinfo, gchar *result)
     if (pi != NULL)
         destport = pi->destport;
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, destport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, destport);
 }
 
 static gpointer
@@ -1879,7 +1879,7 @@ dtls_both_prompt(packet_info *pinfo, gchar *result)
         destport = pi->destport;
     }
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
 }
 
 void proto_reg_handoff_dtls(void);

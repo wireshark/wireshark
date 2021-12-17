@@ -887,7 +887,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				/* alloc maximum data area */
 				string_buffer_temp = (char*) wmem_alloc(pinfo->pool, string_buffer_size);
 				/* copy over the data */
-				g_snprintf(string_buffer_temp, (gulong)string_buffer_size,
+				snprintf(string_buffer_temp, (gulong)string_buffer_size,
 						"%s<TRUNCATED>", formatted);
 				/* append <TRUNCATED> */
 				/* This way, we get the TRUNCATED even
@@ -1951,7 +1951,7 @@ dissect_pvfs2_deleattr_request(tvbuff_t *tvb, proto_tree *tree,
 static void
 pvfc_fmt_release_num(gchar *result, guint32 release_nr)
 {
-	g_snprintf( result, ITEM_LABEL_LENGTH, "%d (%d.%d.%d)",
+	snprintf( result, ITEM_LABEL_LENGTH, "%d (%d.%d.%d)",
 			release_nr,
 			release_nr / 10000,
 			(release_nr % 10000) / 100,

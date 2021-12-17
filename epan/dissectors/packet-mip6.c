@@ -3501,7 +3501,7 @@ degrees_convert_fixed_to_float(guint value)
 static void
 degrees_base_custom(gchar *str, guint degrees)
 {
-    g_snprintf(str, ITEM_LABEL_LENGTH, "%f", degrees_convert_fixed_to_float(degrees) );
+    snprintf(str, ITEM_LABEL_LENGTH, "%f", degrees_convert_fixed_to_float(degrees) );
 }
 
 static int

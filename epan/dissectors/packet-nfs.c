@@ -1047,7 +1047,7 @@ static int dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, gui
 
 static void nfs_prompt(packet_info *pinfo _U_, gchar* result)
 {
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode NFS file handles as");
+	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode NFS file handles as");
 }
 
 /* This function will store one nfs filehandle in our global tree of
@@ -1298,7 +1298,7 @@ nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **
 		*name = (char *)g_malloc((*len)+1);
 		*pos = *name;
 
-		*pos += g_snprintf(*pos, (*len)+1, "%s", nns->name);
+		*pos += snprintf(*pos, (*len)+1, "%s", nns->name);
 		DISSECTOR_ASSERT((*pos-*name) <= *len);
 		return;
 	}
@@ -1320,7 +1320,7 @@ nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **
 		nfs_full_name_snoop(pinfo, parent_nns, len, name, pos);
 		if (*name) {
 			/* make sure components are '/' separated */
-			*pos += g_snprintf(*pos, (*len+1) - (gulong)(*pos-*name), "%s%s",
+			*pos += snprintf(*pos, (*len+1) - (gulong)(*pos-*name), "%s%s",
 					   ((*pos)[-1] != '/')?"/":"", nns->name);
 			DISSECTOR_ASSERT((*pos-*name) <= *len);
 		}
@@ -1439,7 +1439,7 @@ nfs_fmt_fsid( gchar *result, guint32 revision )
 	fsid_major = ( revision>>18 ) &  0x3fff; /* 14 bits */
 	fsid_minor = ( revision     ) & 0x3ffff; /* 18 bits */
 
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d,%d", fsid_major, fsid_minor);
+   snprintf( result, ITEM_LABEL_LENGTH, "%d,%d", fsid_major, fsid_minor);
 }
 
 /* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45), OpenSolaris (build 101a) */
@@ -4981,9 +4981,9 @@ dissect_nfs3_read_call(tvbuff_t *tvb, packet_info *pinfo,
 
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-		", FH: 0x%08x Offset: %" G_GINT64_MODIFIER "u Len: %u", hash, off, len);
+		", FH: 0x%08x Offset: %" PRIu64 " Len: %u", hash, off, len);
 	proto_item_append_text(tree,
-		", READ Call FH: 0x%08x Offset: %" G_GINT64_MODIFIER "u Len: %u", hash, off, len);
+		", READ Call FH: 0x%08x Offset: %" PRIu64 " Len: %u", hash, off, len);
 
 	return offset;
 }
@@ -5066,9 +5066,9 @@ dissect_nfs3_write_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	stable = tvb_get_ntohl(tvb, offset);
 	offset = dissect_stable_how(tvb, offset, tree, hf_nfs3_write_stable);
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", FH: 0x%08x Offset: %" G_GINT64_MODIFIER "u Len: %u %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", FH: 0x%08x Offset: %" PRIu64 " Len: %u %s",
 		hash, off, len, val_to_str(stable, names_stable_how, "Stable: %u"));
-	proto_item_append_text(tree, ", WRITE Call FH: 0x%08x Offset: %" G_GINT64_MODIFIER "u Len: %u %s",
+	proto_item_append_text(tree, ", WRITE Call FH: 0x%08x Offset: %" PRIu64 " Len: %u %s",
 		hash, off, len, val_to_str(stable, names_stable_how, "Stable: %u"));
 
 	offset = dissect_nfsdata   (tvb, offset, tree, hf_nfs_data);
@@ -7113,7 +7113,7 @@ dissect_nfs4_threshold_item_file(tvbuff_t *tvb, int offset, packet_info *pinfo _
 		case TH4_WRITE_IOSIZE:
 			size = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, attr_tree, hf_nfs4_length, offset);
-			proto_item_append_text(attr_tree, " = %" G_GUINT64_FORMAT, size);
+			proto_item_append_text(attr_tree, " = %" PRIu64, size);
 			break;
 	}
 	return offset;
@@ -9941,7 +9941,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			length = tvb_get_ntohl(tvb, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_count, offset);
 			wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-				" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Len: %u",
+				" FH: 0x%08x Offset: %"PRIu64" Len: %u",
 				last_fh_hash, file_offset, length);
 
 			break;
@@ -10013,11 +10013,11 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_locker(tvb, offset, newftree);
 			if (length64 == G_GUINT64_CONSTANT(0xffffffffffffffff))
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>",
+					" FH: 0x%08x Offset: %"PRIu64" Length: <End of File>",
 					last_fh_hash, file_offset);
 			else
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ",
+					" FH: 0x%08x Offset: %"PRIu64" Length: %"PRIu64" ",
 					last_fh_hash, file_offset, length64);
 			break;
 
@@ -10038,11 +10038,11 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_length, offset);
 			if (length64 == G_GUINT64_CONSTANT(0xffffffffffffffff))
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: <End of File>",
+					" FH: 0x%08x Offset: %"PRIu64" Length: <End of File>",
 					last_fh_hash, file_offset);
 			else
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" FH: 0x%08x Offset: %"G_GINT64_MODIFIER"u Length: %"G_GINT64_MODIFIER"u ",
+					" FH: 0x%08x Offset: %"PRIu64" Length: %"PRIu64 " ",
 					last_fh_hash, file_offset, length64);
 			break;
 
@@ -10117,7 +10117,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_count, offset);
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u Len: %u",
+					" StateID: 0x%04x Offset: %" PRIu64 " Len: %u",
 					sid_hash, file_offset, length);
 			break;
 
@@ -10164,7 +10164,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 		case NFS4_OP_RENEW:
 			clientid = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_clientid, offset);
-			wmem_strbuf_append_printf (op_summary[ops_counter].optext, " CID: 0x%016"G_GINT64_MODIFIER"x", clientid);
+			wmem_strbuf_append_printf (op_summary[ops_counter].optext, " CID: 0x%016"PRIx64, clientid);
 
 			break;
 
@@ -10229,7 +10229,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" StateID: 0x%04x Offset: %"G_GINT64_MODIFIER"u Len: %u",
+					" StateID: 0x%04x Offset: %"PRIu64" Len: %u",
 					sid_hash, file_offset, string_length);
 			break;
 
@@ -10342,8 +10342,8 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" StateID: 0x%04x"
-					" Offset: %" G_GINT64_MODIFIER "u"
-					" Len: %" G_GINT64_MODIFIER "u",
+					" Offset: %" PRIu64
+					" Len: %" PRIu64,
 					sid_hash, file_offset, length64);
 			break;
 
@@ -10360,8 +10360,8 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" Src StateID: 0x%04x"
-					" Offset: %" G_GINT64_MODIFIER "u"
-					" Len: %" G_GINT64_MODIFIER "u",
+					" Offset: %" PRIu64
+					" Len: %" PRIu64,
 					sid_hash, file_offset, length64);
 
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs4_consecutive, offset);
@@ -10372,7 +10372,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			if (dst_sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" Dst StateID: 0x%04x"
-					" Offset: %" G_GINT64_MODIFIER "u",
+					" Offset: %" PRIu64,
 					dst_sid_hash, dst_file_offset);
 
 			offset = dissect_nfs4_source_servers(tvb, offset, newftree);
@@ -10398,8 +10398,8 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" StateID: 0x%04x"
-					" Offset: %" G_GINT64_MODIFIER "u"
-					" Len: %" G_GINT64_MODIFIER "u",
+					" Offset: %" PRIu64
+					" Len: %" PRIu64,
 					sid_hash, file_offset, length64);
 			break;
 
@@ -10412,8 +10412,8 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" StateID: 0x%04x"
-					" Offset: %" G_GINT64_MODIFIER "u"
-					" Len: %" G_GINT64_MODIFIER "u",
+					" Offset: %" PRIu64
+					" Len: %" PRIu64,
 					sid_hash, file_offset, length64);
 			offset = dissect_nfs4_io_hints(tvb, offset, pinfo, tree);
 			break;
@@ -10442,7 +10442,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_count, offset);
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u Len: %u",
+					" StateID: 0x%04x Offset: %" PRIu64 " Len: %u",
 					sid_hash, file_offset, length);
 			break;
 
@@ -10454,7 +10454,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u Len: %u",
+					" StateID: 0x%04x Offset: %" PRIu64 " Len: %u",
 					sid_hash, file_offset, length);
 			offset = dissect_nfs4_device_errors(tvb, offset, newftree);
 			break;
@@ -10467,7 +10467,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset = dissect_nfs4_stateid(tvb, offset, newftree, &sid_hash);
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
-					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u Len: %u",
+					" StateID: 0x%04x Offset: %" PRIu64 " Len: %u",
 					sid_hash, file_offset, length);
 			offset = dissect_nfs4_layoutstats(tvb, offset, pinfo, newftree, civ, TRUE);
 			break;
@@ -10481,7 +10481,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			offset += 4;
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf(op_summary[ops_counter].optext,
-					" StateID: 0x%04x Offset: %" G_GINT64_MODIFIER "u",
+					" StateID: 0x%04x Offset: %" PRIu64,
 					sid_hash, file_offset);
 			break;
 
@@ -10506,14 +10506,14 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			if (sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" Src StateID: 0x%04x"
-					" Offset: %" G_GINT64_MODIFIER "u"
-					" Len: %" G_GINT64_MODIFIER "u",
+					" Offset: %" PRIu64
+					" Len: %" PRIu64,
 					sid_hash, file_offset, length64);
 
 			if (dst_sid_hash != 0)
 				wmem_strbuf_append_printf (op_summary[ops_counter].optext,
 					" Dst StateID: 0x%04x"
-					" Offset: %" G_GINT64_MODIFIER "u",
+					" Offset: %" PRIu64,
 					dst_sid_hash, dst_file_offset);
 
 			break;

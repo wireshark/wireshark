@@ -356,7 +356,7 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array)
 	hf_index=rpc_prog_hf(tap_data->program, tap_data->version);
 	hfi=proto_registrar_get_nth(hf_index);
 
-	g_snprintf(table_name, sizeof(table_name), "%s Version %u", tap_data->prog, tap_data->version);
+	snprintf(table_name, sizeof(table_name), "%s Version %u", tap_data->prog, tap_data->version);
 	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, tap_data);
 	for (i = 0; i < rpc_srt_table->num_procs; i++)
 	{

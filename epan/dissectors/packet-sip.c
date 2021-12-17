@@ -5316,7 +5316,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         p_val = wmem_new0(wmem_file_scope(), sip_hash_value);
 
         /* Fill in key and value details */
-        g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
+        snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
         copy_address_wmem(wmem_file_scope(), &(p_key->dest_address), &pinfo->net_dst);
         copy_address_wmem(wmem_file_scope(), &(p_key->source_address), &pinfo->net_src);
         p_key->dest_port = pinfo->destport;

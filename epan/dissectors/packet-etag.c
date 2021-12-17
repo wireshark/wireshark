@@ -136,7 +136,7 @@ dissect_etag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ing_e_cid = (guint32)((((tci >> 32) & 0xFFF) | ((tci <<  4) & 0xFF000)) & 0xFFFFF);    /* Ingress_E-CID_base | Ingress_E-CID ext */
 
         if (etag_summary_in_tree) {
-            proto_item_append_text(ti, ", TCI: 0x%" G_GINT64_MODIFIER "x Ingress_E-CID: %u E-CID: %u", tci, ing_e_cid, e_cid);
+            proto_item_append_text(ti, ", TCI: 0x%" PRIx64 " Ingress_E-CID: %u E-CID: %u", tci, ing_e_cid, e_cid);
         }
         etag_tree = proto_item_add_subtree(ti, ett_etag);
 

@@ -1691,7 +1691,7 @@ static heur_dissector_list_t heur_dissectors_cm_private;
 /* ----- This sections contains various utility functions indirectly related to Infiniband dissection ---- */
 static void infiniband_payload_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect Infiniband payload as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect Infiniband payload as");
 }
 
 static void table_destroy_notify(gpointer data) {

@@ -3857,11 +3857,11 @@ static void
 decode_zcl_drlc_temp_offset(gchar *s, guint8 value)
 {
     if (value == ZBEE_ZCL_DRLC_TEMP_OFFSET_NOT_USED)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Not Used");
+        snprintf(s, ITEM_LABEL_LENGTH, "Not Used");
     else {
         gfloat temp_delta;
         temp_delta = value / ZBEE_ZCL_DRLC_TEMP_OFFSET_DIVIDER;
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%+.2f%s", temp_delta, units_degree_celsius.singular);
+        snprintf(s, ITEM_LABEL_LENGTH, "%+.2f%s", temp_delta, units_degree_celsius.singular);
     }
 } /*decode_zcl_msg_start_time*/
 
@@ -3874,11 +3874,11 @@ decode_zcl_drlc_temp_offset(gchar *s, guint8 value)
 static void decode_zcl_drlc_temp_set_point(gchar *s, gint16 value)
 {
     if (value & ZBEE_ZCL_DRLC_TEMP_SET_POINT_NOT_USED)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Not Used");
+        snprintf(s, ITEM_LABEL_LENGTH, "Not Used");
     else {
         gfloat temp_delta;
         temp_delta = value / ZBEE_ZCL_DRLC_TEMP_SET_POINT_DIVIDER;
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%+.2f%s", temp_delta, units_degree_celsius.singular);
+        snprintf(s, ITEM_LABEL_LENGTH, "%+.2f%s", temp_delta, units_degree_celsius.singular);
     }
 } /*decode_zcl_drlc_temp_set_point*/
 
@@ -3891,9 +3891,9 @@ static void decode_zcl_drlc_temp_set_point(gchar *s, gint16 value)
 static void decode_zcl_drlc_average_load_adjustment_percentage(gchar *s, gint8 value)
 {
     if (value & ZBEE_ZCL_DRLC_AVERAGE_LOAD_ADJUSTMENT_PERCENTAGE)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Not Used");
+        snprintf(s, ITEM_LABEL_LENGTH, "Not Used");
     else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%+d%%", value);
+        snprintf(s, ITEM_LABEL_LENGTH, "%+d%%", value);
     }
 } /*decode_zcl_drlc_average_load_adjustment_percentage*/
 
@@ -8308,9 +8308,9 @@ static void
 decode_zcl_msg_duration(gchar *s, guint16 value)
 {
     if (value == 0xffff)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Until changed");
+        snprintf(s, ITEM_LABEL_LENGTH, "Until changed");
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d minutes", value);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d minutes", value);
     return;
 } /*decode_zcl_msg_duration*/
 
@@ -8325,12 +8325,12 @@ static void
 decode_zcl_msg_start_time(gchar *s, guint32 value)
 {
     if (value == ZBEE_ZCL_MSG_START_TIME_NOW)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Now");
+        snprintf(s, ITEM_LABEL_LENGTH, "Now");
     else {
         gchar *start_time;
         time_t epoch_time = (time_t)value + ZBEE_ZCL_NSTIME_UTC_OFFSET;
         start_time = abs_time_secs_to_str (NULL, epoch_time, ABSOLUTE_TIME_UTC, TRUE);
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%s", start_time);
+        snprintf(s, ITEM_LABEL_LENGTH, "%s", start_time);
         wmem_free(NULL, start_time);
     }
 } /* decode_zcl_msg_start_time */

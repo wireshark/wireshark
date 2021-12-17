@@ -2535,7 +2535,7 @@ s7comm_get_timestring_from_s7time(tvbuff_t *tvb, guint offset, char *str, gint m
     mt = gmtime(&t);
     str[0] = '\0';
     if (mt != NULL) {
-        g_snprintf(str, max, "%s %2d, %d %02d:%02d:%02d.%03d", mon_names[mt->tm_mon], mt->tm_mday,
+        snprintf(str, max, "%s %2d, %d %02d:%02d:%02d.%03d", mon_names[mt->tm_mon], mt->tm_mday,
             mt->tm_year + 1900, mt->tm_hour, mt->tm_min, mt->tm_sec, day_msec % 1000);
     }
 }
@@ -6046,7 +6046,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     offset += 8;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_headername, tvb, offset, 8, ENC_ASCII|ENC_NA);
                     offset += 8;
-                    g_snprintf(str_version, sizeof(str_version), "%d.%d", ((tvb_get_guint8(tvb, offset) & 0xf0) >> 4), tvb_get_guint8(tvb, offset) & 0x0f);
+                    snprintf(str_version, sizeof(str_version), "%d.%d", ((tvb_get_guint8(tvb, offset) & 0xf0) >> 4), tvb_get_guint8(tvb, offset) & 0x0f);
                     proto_tree_add_string(data_tree, hf_s7comm_ud_blockinfo_headerversion, tvb, offset, 1, str_version);
                     offset += 1;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_res_unknown, tvb, offset, 1, ENC_NA);
@@ -6310,7 +6310,7 @@ s7comm_decode_ud_data(tvbuff_t *tvb,
                                                 NULL,                  /* void *data */
                                                 len,                   /* fragment length - to the end */
                                                 more_frags);           /* More fragments? */
-                g_snprintf(str_fragadd, sizeof(str_fragadd), " id=%d", frag_id);
+                snprintf(str_fragadd, sizeof(str_fragadd), " id=%d", frag_id);
                 new_tvb = process_reassembled_data(tvb, offset, pinfo,
                     "Reassembled S7COMM", fd_head, &s7comm_frag_items,
                     NULL, tree);

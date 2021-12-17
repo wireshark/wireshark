@@ -2333,7 +2333,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_append_str(pinfo->cinfo, COL_INFO, format_param_str(tvb, param_offset, param_len));
                         break;
                     case FT_UINT64:
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%" G_GUINT64_FORMAT, tvb_get_guint64(tvb, param_offset, encoding));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "%" PRIu64, tvb_get_guint64(tvb, param_offset, encoding));
                     default:
                         break;
                     }

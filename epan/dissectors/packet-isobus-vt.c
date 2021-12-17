@@ -1328,7 +1328,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_preferredassignment_auxinputunit_numberofpreferredfunctions, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_preferred_functions);
                 offset += 1;
 
-                proto_item_set_text(input_unit_item, "Input Unit name 0x%" G_GINT64_MODIFIER "X model identification code %u", name, model_identification_code);
+                proto_item_set_text(input_unit_item, "Input Unit name 0x%" PRIX64 " model identification code %u", name, model_identification_code);
                 proto_item_set_len(input_unit_item, 8 + 2 + 1 + ((2 + 2) * number_of_preferred_functions));
 
                 for(j = 0; j < number_of_preferred_functions; j++)
@@ -1474,7 +1474,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Assign %s of name 0x%" G_GINT64_MODIFIER "X to function %s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Assign %s of name 0x%" PRIX64 " to function %s",
                 get_object_id_string(auxiliary_input_object_id), name, get_object_id_string(auxiliary_function_object_id));
         }
         else if(direction == vt_to_ecu)
@@ -1630,7 +1630,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_auxiliarycapabilities_auxiliaryunit_numberofdifferentsets, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_different_sets);
                 offset += 1;
 
-                proto_item_set_text(input_unit_item, "Auxiliary unit name 0x%" G_GINT64_MODIFIER "X", name);
+                proto_item_set_text(input_unit_item, "Auxiliary unit name 0x%" PRIX64, name);
                 proto_item_set_len(input_unit_item, 8 + 1 + (3 * number_of_different_sets));
 
                 for(j = 0; j < number_of_different_sets; j++)

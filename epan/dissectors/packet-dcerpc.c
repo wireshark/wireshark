@@ -878,7 +878,7 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
     g_string_append(str, "&\r\n");
     g_string_append_printf(str, "%s: %u\r\n", address_str->str, pinfo->destport);
     g_string_append_printf(str, "&\r\nContext ID: %u\r\n", decode_data->dcectxid);
-    g_string_append_printf(str, "&\r\nSMB FID: %"G_GINT64_MODIFIER"u\r\n",
+    g_string_append_printf(str, "&\r\nSMB FID: %"PRIu64"\r\n",
                            dcerpc_get_transport_salt(pinfo));
     g_string_append(str, "with:\r\n");
 

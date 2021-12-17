@@ -699,7 +699,7 @@ version_number_computer( gchar *result, guint32 hexa_version )
     release = (int)(hexa_version / 10000);
     vers    = (int)((hexa_version % 10000) / 100);
     fix     = (hexa_version % 10000) % 100;
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d.%02d", release, vers, fix);
+    snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d.%02d", release, vers, fix);
 }
 
 static void
@@ -710,7 +710,7 @@ version_3bytes_computer(gchar *result, guint32 hexa_version)
     release = (hexa_version >> 16);
     vers    = ((hexa_version >> 8) & 0xff);
     fix     = (hexa_version & 0xff);;
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%02d.%02d", release, vers, fix);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d.%02d.%02d", release, vers, fix);
 }
 
 

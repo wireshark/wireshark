@@ -313,11 +313,11 @@ convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char prefix)
 	if(slen < len) return 0;
 
 	if(prefix) {
-		tlen += g_snprintf(str, slen, ".1.3.6.1.%d", prefix);
+		tlen += snprintf(str, slen, ".1.3.6.1.%d", prefix);
 	}
 
 	for(i=0; i < len && tlen < slen; i++) {
-		tlen += g_snprintf(str+tlen, slen-tlen, ".%d", oid[i]);
+		tlen += snprintf(str+tlen, slen-tlen, ".%d", oid[i]);
 	}
 	return tlen;
 }
@@ -346,7 +346,7 @@ dissect_object_id(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 flags, enu
 	}
 
 	if(!convert_oid_to_str(&oid[0], n_subid, &str_oid[0], 2048, prefix))
-		g_snprintf(&str_oid[0], 2048, "(null)");
+		snprintf(&str_oid[0], 2048, "(null)");
 
 	if(tree) {
 		const char *range = "";

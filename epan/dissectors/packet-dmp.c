@@ -1265,7 +1265,7 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
 
   if (no_char >= MAX_SIC_LEN) {
     /* Illegal length */
-    g_snprintf (sic, MAX_SIC_LEN, "Illegal length: %d", no_char);
+    snprintf (sic, MAX_SIC_LEN, "Illegal length: %d", no_char);
     return TRUE;
   }
 
@@ -1725,7 +1725,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 
   } else if (key <= 0xBF) {
     /* Reserved (not used) */
-    g_snprintf (sic, MAX_SIC_LEN, "Reserved");
+    snprintf (sic, MAX_SIC_LEN, "Reserved");
     no_sic = TRUE;
 
   } else if (key <= 0xCF) {
@@ -1860,7 +1860,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
       failure = dmp_dec_xbyte_sic (value, sic, length, any);
       bf = proto_tree_add_string_format (sic_tree, hf_message_sic, tvb,
                                          offset, bytes, sic,
-                                         "SIC %d: %s (%d bytes: %" G_GINT64_MODIFIER "x)%s",
+                                         "SIC %d: %s (%d bytes: %" PRIx64 ")%s",
                                          i + 1, sic, bytes, value,
                                          failure ? " (invalid)": "");
       if (bitmap & (1 << (7 - i))) {
@@ -1882,12 +1882,12 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 
   } else if (key == 0xFE) {
     /* No SIC */
-    g_snprintf (sic, MAX_SIC_LEN, "Not present");
+    snprintf (sic, MAX_SIC_LEN, "Not present");
     no_sic = TRUE;
 
   } else {
     /* Resered (not used) */
-    g_snprintf (sic, MAX_SIC_LEN, "Reserved");
+    snprintf (sic, MAX_SIC_LEN, "Reserved");
     no_sic = TRUE;
   }
 

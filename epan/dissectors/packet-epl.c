@@ -2502,7 +2502,7 @@ epl_set_sequence_nr(packet_info *pinfo, guint16 seqnum)
 static void
 elp_version( gchar *result, guint32 version )
 {
-	g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d", hi_nibble(version), lo_nibble(version));
+	snprintf( result, ITEM_LABEL_LENGTH, "%d.%d", hi_nibble(version), lo_nibble(version));
 }
 /* Code to actually dissect the packets */
 static int
@@ -2807,7 +2807,7 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 			guint64 val;
 			item = proto_tree_add_item_ret_uint64(epl_tree, *type->hf,
 						tvb, offset, type->len, type->encoding, &val);
-			proto_item_append_text(item, " (0x%.*" G_GINT64_MODIFIER "x)", 2*type->len, val);
+			proto_item_append_text(item, " (0x%.*" PRIx64 ")", 2*type->len, val);
 		}
 	}
 	/* If a mapping uses a type of fixed width that's not equal to
@@ -2821,7 +2821,7 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 			guint64 val;
 			item = proto_tree_add_item_ret_uint64(epl_tree, hf_epl_od_uint,
 						payload_tvb, 0, payload_len, ENC_LITTLE_ENDIAN, &val);
-			proto_item_append_text(item, " (0x%.*" G_GINT64_MODIFIER "x)", 2*payload_len, val);
+			proto_item_append_text(item, " (0x%.*" PRIx64 ")", 2*payload_len, val);
 		}
 		else
 		{
@@ -4330,9 +4330,9 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 	{
 		/* TODO One could think of a better string here? */
 		if (nosub)
-			g_snprintf(map.title, sizeof(map.title), "PDO - %04X", map.pdo.idx);
+			snprintf(map.title, sizeof(map.title), "PDO - %04X", map.pdo.idx);
 		else
-			g_snprintf(map.title, sizeof(map.title), "PDO - %04X:%02X", map.pdo.idx, map.pdo.subindex);
+			snprintf(map.title, sizeof(map.title), "PDO - %04X:%02X", map.pdo.idx, map.pdo.subindex);
 
 		add_object_mapping(mappings, &map);
 	}
