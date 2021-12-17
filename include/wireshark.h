@@ -30,6 +30,8 @@
 /* System headers.*/
 #include <inttypes.h>
 #include <stdbool.h>
+#include <string.h>
+
 #include <glib.h>
 
 /*
