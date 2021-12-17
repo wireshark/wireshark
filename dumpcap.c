@@ -343,7 +343,7 @@ static void capture_loop_get_errmsg(char *errmsg, size_t errmsglen,
                                     const char *fname, int err,
                                     gboolean is_close);
 
-static void WS_NORETURN exit_main(int err);
+WS_NORETURN static void exit_main(int err);
 
 static void report_new_capture_file(const char *filename);
 static void report_packet_count(unsigned int packet_count);

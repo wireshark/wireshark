@@ -39,6 +39,9 @@ extern "C" {
  * "extern WS_NORETURN func(...)" rather than after the function
  * declaration, as the MSVC version has to go before the declaration.)
  */
+#ifndef __cplusplus
+  #define WS_NORETURN _Noreturn
+#else /* __cplusplus */
 #if __has_attribute(noreturn) \
     || WS_IS_AT_LEAST_GNUC_VERSION(2,5) \
     || WS_IS_AT_LEAST_SUNC_VERSION(5,9) \
@@ -59,6 +62,7 @@ extern "C" {
 #else
   #define WS_NORETURN
 #endif
+#endif /* __cplusplus */
 
 /*
  * WS_RETNONNULL, before a function declaration, means "this function
