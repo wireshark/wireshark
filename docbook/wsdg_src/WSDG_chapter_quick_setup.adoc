@@ -512,7 +512,7 @@ Set the following environment variables, using paths and values suitable for you
 > set WIRESHARK_BASE_DIR=C:\Development
 > rem set WIRESHARK_LIB_DIR=c:\wireshark-win64-libs
 > rem Set the Qt installation directory
-> set QT5_BASE_DIR=C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64
+> set CMAKE_PREFIX_PATH=C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64
 > rem Append a custom string to the package version. Optional.
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----

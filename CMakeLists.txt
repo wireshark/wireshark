@@ -1178,8 +1178,7 @@ if(BUILD_wireshark)
 	else()
 		set(qtver "5")
 	endif()
-	# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
-	# somewhere. The if WIN32 in this place is annoying as well.
+	# We used to recommend setting QT5_BASE_DIR and should probably deprecate this at some point.
 	if(WIN32)
 		set(QT5_BASE_PATH "$ENV{QT5_BASE_DIR}")
 		set(CMAKE_PREFIX_PATH "${QT5_BASE_PATH}")

@@ -160,7 +160,7 @@ variables:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
     - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
-    - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64\lib\cmake"
+    - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
     - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
@@ -312,7 +312,6 @@ Win64 Package:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
     - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
-    - $env:Path += ";C:\qt\5.15.2\msvc2019_64\bin"
     - $env:Path += ";C:\Program Files (x86)\NSIS"
     - $env:Path += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
     - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
@@ -358,10 +357,10 @@ Win32 Package:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
     - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
-    - $env:Path += ";C:\qt\5.15.2\msvc2019\bin"
     - $env:Path += ";C:\Program Files (x86)\NSIS"
     - $env:Path += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
     - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
+    - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
     - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsamd64_x86.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
@@ -436,7 +435,7 @@ macOS Intel Package:
     - wireshark-macos-intel-package
   retry: 1
   script:
-    - export CMAKE_PREFIX_PATH=/usr/local/Qt-5.15.3/lib/cmake
+    - export CMAKE_PREFIX_PATH=/usr/local/Qt-5.15.3
     - export PATH="$PATH:$HOME/bin"
     - perl tools/make-version.pl --set-release
     - mkdir build
