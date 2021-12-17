@@ -762,7 +762,7 @@ static guint fiveco_hash(gconstpointer v)
     const FCOSConvRequestKey *key = (const FCOSConvRequestKey *)v;
     guint val;
 
-    val = key->conversation + (((key->usExpCmd) << 16) & 0xFFFF) +
+    val = key->conversation + (((key->usExpCmd) & 0xFFFF) << 16) +
             (key->unInternalID & 0xFFFFFFFF) + ((key->unInternalID >>32) & 0xFFFFFFFF);
 
     return val;
