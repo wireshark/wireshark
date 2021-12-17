@@ -2926,10 +2926,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 guint16      conn_id_offset = 0;
                 int          offset_before_ipprim_header = offset;
 
-                /* Will give up if couldn't match protocol anyway... */
-                heur_protocol_handle = look_for_dissector(protocol_name);
-                if ((heur_protocol_handle != 0) &&
-                    find_ipprim_data_offset(tvb, &offset, direction,
+                /* For ipprim, want to show ipprim header even if can't find dissector to call for payload.. */
+                if (find_ipprim_data_offset(tvb, &offset, direction,
                                             &source_addr_offset, &source_addr_length,
                                             &dest_addr_offset, &dest_addr_length,
                                             &source_port_offset, &dest_port_offset,
@@ -2950,6 +2948,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 
                     /* Will use this dissector then. */
+                    heur_protocol_handle = look_for_dissector(protocol_name);
                     protocol_handle = heur_protocol_handle;
 
                     /* Add address parameters to tree */
