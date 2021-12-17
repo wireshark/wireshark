@@ -161,53 +161,52 @@ void log_resource_usage(gboolean reset_delta, const char *format, ...) {
 /* Copied from pcapio.c pcapng_write_interface_statistics_block()*/
 guint64
 create_timestamp(void) {
-    guint64  timestamp;
+	guint64  timestamp;
 #ifdef _WIN32
-    FILETIME now;
+	FILETIME now;
 #else
-    struct timeval now;
+	struct timeval now;
 #endif
 
 #ifdef _WIN32
-    /*
-     * Current time, represented as 100-nanosecond intervals since
-     * January 1, 1601, 00:00:00 UTC.
-     *
-     * I think DWORD might be signed, so cast both parts of "now"
-     * to guint32 so that the sign bit doesn't get treated specially.
-     *
-     * Windows 8 provides GetSystemTimePreciseAsFileTime which we
-     * might want to use instead.
-     */
-    GetSystemTimeAsFileTime(&now);
-    timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
-                (guint32)now.dwLowDateTime;
+	/*
+	 * Current time, represented as 100-nanosecond intervals since
+	 * January 1, 1601, 00:00:00 UTC.
+	 *
+	 * I think DWORD might be signed, so cast both parts of "now"
+	 * to guint32 so that the sign bit doesn't get treated specially.
+	 *
+	 * Windows 8 provides GetSystemTimePreciseAsFileTime which we
+	 * might want to use instead.
+	 */
+	GetSystemTimeAsFileTime(&now);
+	timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
+				(guint32)now.dwLowDateTime;
 
-    /*
-     * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
-     * intervals.
-     */
-    timestamp /= 10;
+	/*
+	 * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
+	 * intervals.
+	 */
+	timestamp /= 10;
 
-    /*
-     * Subtract difference, in microseconds, between January 1, 1601
-     * 00:00:00 UTC and January 1, 1970, 00:00:00 UTC.
-     */
-    timestamp -= EPOCH_DELTA_1601_01_01_00_00_00_UTC*1000000;
+	/*
+	 * Subtract difference, in microseconds, between January 1, 1601
+	 * 00:00:00 UTC and January 1, 1970, 00:00:00 UTC.
+	 */
+	timestamp -= EPOCH_DELTA_1601_01_01_00_00_00_UTC*1000000;
 #else
-    /*
-     * Current time, represented as seconds and microseconds since
-     * January 1, 1970, 00:00:00 UTC.
-     */
-    gettimeofday(&now, NULL);
+	/*
+	 * Current time, represented as seconds and microseconds since
+	 * January 1, 1970, 00:00:00 UTC.
+	 */
+	gettimeofday(&now, NULL);
 
-    /*
-     * Convert to delta in microseconds.
-     */
-    timestamp = (guint64)(now.tv_sec) * 1000000 +
-                (guint64)(now.tv_usec);
+	/*
+	 * Convert to delta in microseconds.
+	 */
+	timestamp = (guint64)(now.tv_sec) * 1000000 + (guint64)(now.tv_usec);
 #endif
-    return timestamp;
+	return timestamp;
 }
 
 struct timespec *
