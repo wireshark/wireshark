@@ -1067,7 +1067,7 @@ parse_preamble (void)
 
     if (has_direction) {
         _parse_dir(&packet_preamble[0], &packet_preamble[1], "iI", "oO", &direction);
-        i = 0;
+        i = (direction == PACK_FLAGS_DIRECTION_UNKNOWN) ? 0 : 1;
         while (packet_preamble[i] == ' ' ||
                packet_preamble[i] == '\r' ||
                packet_preamble[i] == '\t') {
