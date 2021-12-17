@@ -82,8 +82,12 @@ int text_import_regex(const text_import_info_t* info) {
 
         /* parse the auxillary information if present */
         if (re_time &&
-                g_match_info_fetch_named_pos(match, "time", &field_start, &field_end))
+                g_match_info_fetch_named_pos(match, "time", &field_start, &field_end)) {
             parse_time(f_content + field_start, f_content + field_end, info->timestamp_format);
+	} else {
+            /* No time present, so add a fixed delta. */
+            parse_time(NULL, NULL, NULL);
+        }
 
         if (re_dir &&
                 g_match_info_fetch_named_pos(match, "dir", &field_start, &field_end))

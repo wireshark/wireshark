@@ -209,6 +209,13 @@ static time_t ts_sec = 0;
 static guint32 ts_nsec = 0;
 static const char *ts_fmt = NULL;
 static struct tm timecode_default;
+/* The time delta to add to packets without a valid time code.
+ * This can be no smaller than the time resolution of the dump
+ * file, so the default is 1000 nanoseconds, or 1 microsecond.
+ * XXX: We should at least get this from the resolution of the file we're
+ * writing to, and possibly allow the user to set a different value.
+ */
+static guint32 ts_tick = 1000;
 
 static wtap_dumper* wdh;
 
@@ -620,7 +627,6 @@ write_current_packet (void)
             rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
             rec.ts.secs = ts_sec;
             rec.ts.nsecs = ts_nsec;
-            if (ts_fmt == NULL) { ts_nsec++; }  /* fake packet counter */
             rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
             rec.rec_header.packet_header.pkt_encap = pcap_link_type;
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
@@ -931,10 +937,15 @@ void parse_dir(const guchar* start_field, const guchar* end_field, const gchar* 
 
 #define PARSE_BUF 64
 
-static void _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _format, time_t* sec, gint* nsec) {
+/* Attempt to parse a time according to the given format. If the conversion
+ * succeeds, set sec and nsec appropriately and return TRUE. If it fails,
+ * leave sec and nsec unchanged and return FALSE.
+ */
+static gboolean
+_parse_time(const guchar* start_field, const guchar* end_field, const gchar* _format, time_t* sec, gint* nsec) {
     struct tm timecode;
     time_t sec_buf;
-    gint nsec_buf;
+    gint nsec_buf = 0;
 
     char field[PARSE_BUF];
     char format[PARSE_BUF];
@@ -960,28 +971,31 @@ static void _parse_time(const guchar* start_field, const guchar* end_field, cons
      * %f is for fractions of seconds not supported by strptime
      * BTW: what is this function name? is this some russian joke?
      */
-    subsecs_fmt = g_strrstr (format, "%f");
-    if (subsecs_fmt)
+    subsecs_fmt = g_strrstr(format, "%f");
+    if (subsecs_fmt) {
         *subsecs_fmt = 0;
-    else
-      /* arbitrary counter if no fractions */
-        ++*nsec;
+    }
 
     cursor = strptime(cursor, format, &timecode);
 
-    if (cursor != NULL && subsecs_fmt != NULL) {
+    if (cursor == NULL) {
+        return FALSE;
+    }
+
+    if (subsecs_fmt != NULL) {
         /*
          * Parse subsecs and any following format
          */
         nsec_buf = (guint) strtol(cursor, &p, 10);
-        if (p > cursor) {
-            *nsec = nsec_buf;
-            subseclen = (int) (p - cursor);
-            cursor = p;
-            strptime(cursor, subsecs_fmt + 2, &timecode);
-        } else {
-            ++*nsec;
-            subseclen = -1;
+        if (p == cursor) {
+            return FALSE;
+        }
+
+        subseclen = (int) (p - cursor);
+        cursor = p;
+        cursor = strptime(cursor, subsecs_fmt + 2, &timecode);
+        if (cursor == NULL) {
+            return FALSE;
         }
     }
 
@@ -1001,23 +1015,29 @@ static void _parse_time(const guchar* start_field, const guchar* end_field, cons
              * 10^(N-9).
              */
             for (i = subseclen - SUBSEC_PREC; i != 0; i--)
-                *nsec /= 10;
+                nsec_buf /= 10;
         } else if (subseclen < SUBSEC_PREC) {
             for (i = SUBSEC_PREC - subseclen; i != 0; i--)
-                *nsec *= 10;
+                nsec_buf *= 10;
         }
     }
 
     if ( -1 == (sec_buf = mktime(&timecode)) ) {
-        ++*sec;
-    } else {
-        *sec = sec_buf;
+        return FALSE;
     }
+
+    *sec = sec_buf;
+    *nsec = nsec_buf;
+
     debug_printf(3, "parsed time %s Format(%s), time(%u), subsecs(%u)\n", field, _format, (guint32)*sec, (guint32)*nsec);
+
+    return TRUE;
 }
 
 void parse_time(const guchar* start_field, const guchar* end_field, const gchar* format) {
-    _parse_time(start_field, end_field, format, &ts_sec, &ts_nsec);
+    if (format == NULL || !_parse_time(start_field, end_field, format, &ts_sec, &ts_nsec)) {
+        ts_nsec += ts_tick;
+    }
 }
 
 void parse_seqno(const guchar* start_field, const guchar* end_field) {
@@ -1038,6 +1058,7 @@ static void
 parse_preamble (void)
 {
     int  i;
+    gboolean got_time = FALSE;
 
     /*
      * Null-terminate the preamble.
@@ -1061,19 +1082,12 @@ parse_preamble (void)
      * If no time stamp format was specified, don't attempt to parse
      * the packet preamble to extract a time stamp.
      */
-    if (ts_fmt == NULL)
-        return;
-
-    /*
-     * Initialize to today localtime, just in case not all fields
-     * of the date and time are specified.
-     */
 
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
      */
-    if ( strlen(packet_preamble) > 2 ) {
-        _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble), ts_fmt, &ts_sec, &ts_nsec);
+    if ( ts_fmt != NULL && strlen(packet_preamble) > 2 ) {
+        got_time = _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble), ts_fmt, &ts_sec, &ts_nsec);
     }
     if (debug >= 2) {
         char *c;
@@ -1082,9 +1096,12 @@ parse_preamble (void)
         fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
     }
 
-
     /* Clear Preamble */
     packet_preamble_len = 0;
+
+    if (!got_time) {
+        ts_nsec += ts_tick;
+    }
 }
 
 /*----------------------------------------------------------------------
@@ -1100,7 +1117,7 @@ start_new_packet (void)
     write_current_packet();
 
     /* Ensure we parse the packet preamble as it may contain the time */
-    /* THIS IMPLEIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
+    /* THIS IMPLIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
     parse_preamble();
 }
 
@@ -1326,8 +1343,9 @@ text_import(const text_import_info_t *info)
     if (now_tm == NULL) {
         /*
          * This shouldn't happen - on UN*X, this should Just Work, and
-         * on Windows, it won't work if ts_sec is before the Epoch,
-         * but it's long after 1970, so....
+         * on 32 bit Windows built with 32 bit time_t, it won't work if ts_sec
+         * is before the Epoch, but it's long after 1970 (and even 32 bit
+         * Windows builds with 64 bit time_t by default now), so....
          */
         fprintf(stderr, "localtime(right now) failed\n");
         exit(-1);
@@ -1376,6 +1394,12 @@ text_import(const text_import_info_t *info)
     pcap_link_type = info->encapsulation;
 
     wdh = info->wdh;
+
+    /* XXX: It would be good to know the time precision of the file,
+     * to use for the time delta for packets without timestamps. (ts_tick)
+     * That could either be added to text_import_info_t or a method
+     * added to get it from wtap_dumper (which is opaque.)
+     */
 
     switch (info->dummy_header_type)
     {
