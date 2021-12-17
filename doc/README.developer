@@ -126,7 +126,10 @@ an "int-sized" unsigned quantity, use "unsigned"; if you want a boolean,
 use "bool" (defined in <stdbool.h>). You don't need to explicitly include
 these headers; they are included in <wireshark.h>. Use that instead.
 
-To print fixed width integers you MUST use the macros provided in <inttypes.h>.
+To print fixed width integers you must use the macros provided in <inttypes.h>.
+
+    int uint32_t var;
+    printf("var = " PRIu32 "\n", var);
 
 Don't use "long" to mean "signed 32-bit integer", and don't use
 "unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
@@ -185,21 +188,34 @@ C11. Sometimes it may be necessary to use an unsavory cast or two or abuse
 a macro to bridge the two codebases during the transition. Such is life,
 use your judgement and do the best possible under the circumstances.
 
+Avoid GLib synonyms like gchar and gint and especially don't
+use gpointer and gconstpointer, unless you are writing GLib callbacks
+and trying to match their signature exactly. These just obscure the
+code and gconstpointer in particular is just semantically weird and poor style.
+
 When printing or displaying the values of 64-bit integral data types,
 don't use "%lld", "%llu", "%llx", or "%llo" - not all platforms
-support "%ll" for printing 64-bit integral data types.  Instead, for
-GLib routines, and routines that use them, such as all the routines in
-Wireshark that take format arguments, use G_GINT64_MODIFIER, for example:
+support "%ll" for printing 64-bit integral data types.  Instead use
+the macros in <inttypes.h>, for example:
 
     proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len,
-                                       val, "%" G_GINT64_MODIFIER "u", val);
+                                       val, "%" PRIu64, val);
+
+For GLib routines, and only those, you can choose whichever format style
+you prefer:
+
+    uint64_t val = UINT64_C(1);
+    char *str1 = g_strdup_printf("%" G_GUINT64_FORMAT, val);
+    char *str2 = g_strdup_printf("%" PRIu64, val);
+
+These format macros will be the same modulo any GLib bugs.
 
 When specifying an integral constant that doesn't fit in 32 bits, don't
 use "LL" at the end of the constant - not all compilers use "LL" for
-that.  Instead, put the constant in a call to the "G_GINT64_CONSTANT()"
+that.  Instead, put the constant in a call to the "INT64_C()" or "UINT64_C()"
 macro, e.g.
 
-    G_GINT64_CONSTANT(-11644473600), G_GUINT64_CONSTANT(11644473600)
+    INT64_C(-11644473600), UINT64_C(11644473600)
 
 rather than
 
