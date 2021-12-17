@@ -137,7 +137,7 @@
 /* Debug level */
 static int debug = 0;
 
-/* time percision stored in file: 1[file] = 1^(-SUBSEC_PREC) */
+/* maximum time precision we can handle = 10^(-SUBSEC_PREC) */
 #define SUBSEC_PREC 9
 
 #define debug_printf(level,  ...) \
