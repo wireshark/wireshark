@@ -102,7 +102,7 @@ It is available at https://www.qt.io/download-open-source/#section-2[].
 
 Qt5 must be installed manually from the Qt installers page https://www.qt.io/download-open-source/#section-2[] using the version of Qt appropriate for your compiler.
 Note that separate installations (into different directories) of Qt are required for 32 bit and 64 bit builds.
-The environment variable https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH] should be set to your your Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_.
+The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH]` should be set to your your Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_.
 You can alternatively set QT5_BASE_DIR to your Qt installation path, but this is no longer recommended.
 
 [[ChLibsGLib]]

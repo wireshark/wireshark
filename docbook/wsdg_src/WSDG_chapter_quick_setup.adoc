@@ -190,10 +190,9 @@ _wireshark-dev_ mailing list explaining your problem. Include the output from
 
 [[ChSetupWin32]]
 
-=== Win32/64: Step-by-Step Guide
+=== Windows: Step-by-Step Guide
 
-A quick setup guide for Win32 and Win64 with recommended
-configuration.
+A quick setup guide for Windows development with recommended configurations.
 
 [WARNING]
 ====
@@ -203,7 +202,7 @@ and if the build breaks, please re-read this guide carefully.
 
 Known traps are:
 
-. Not using the correct (x86 or x64) version of the Visual Studio command prompt.
+. Not using the correct (x64 or x86) version of the Visual Studio command prompt.
 
 . Not using a supported version of Windows. Please check
   https://support.microsoft.com/en-gb/help/13853/windows-lifecycle-fact-sheet[here]
@@ -220,10 +219,8 @@ Windows. There are https://chocolatey.org/packages[packages] for most of
 the software listed below. Along with traditional Windows packages it
 supports the Python Package Index.
 
-Chocolatey tends to install packages into its own path (%ChocolateyInstall%),
-although packages are free to use their own preferences (Python for example is
-installed to `C:\Python37`). You can install Chocolatey packages using the
-command `choco install` (or its shorthand, `cinst`), e.g.
+Chocolatey tends to install packages into its own path (%ChocolateyInstall%), although packages are free to use their own preferences.
+You can install Chocolatey packages using the command `choco install` (or its shorthand, `cinst`), e.g.
 
 [source,cmd]
 ----
@@ -290,11 +287,8 @@ component contains PDB files which can be used for debugging. You can
 deselect all of the other the components such as “Qt Charts” or “Android
 xxxx” as they aren’t required.
 
-Note that installation of separate Qt components are required for 32 bit
-and 64 bit builds, e.g. “msvc2019 32-bit” and “msvc2019 64-bit”. The
-environment variable `QT5_BASE_DIR` should be set as appropriate for your
-environment and should point to the Qt directory that contains the bin
-directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_
+Note that installation of separate Qt components are required for 64 bit and 32 bit builds, e.g. “msvc2019 64-bit” and “msvc2019 32-bit”.
+The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH]` should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_
 
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
 upgrade Qt to newer versions.
@@ -530,12 +524,13 @@ compile Wireshark on Windows. At the time of writing this is Qt
 
 --
 
-. Create and change to the correct build directory.  CMake is best used in an out-of-tree build configuration
-where the build is done in a separate directory to the source tree, leaving the source tree in a pristine
-state.  32 and 64 bit builds require a separate build directory.  Create (if required) and change to the appropriate
-build directory.
+. Create and change to the correct build directory.
+CMake is best used in an out-of-tree build configuration where the build is done in a separate directory from the source tree, leaving the source tree in a pristine state.
+64 and 32 bit builds require a separate build directory.
+Create (if required) and change to the appropriate build directory.
 +
 --
+// XXX Our CI builds are in-tree in <src dir>/build.
 ----
 > mkdir C:\Development\wsbuild64
 > cd C:\Development\wsbuild64
@@ -562,19 +557,17 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -G "Visual Studio 16 2019" -A Win32 ..\wireshark
-----
-
-Adjusting the paths as required to Python and the Wireshark source tree.
-To use a different generator modify the `-G` parameter. `cmake -G` lists
-all the CMake supported generators, but only Visual Studio is supported
-for Wireshark builds.
-
-To build an x64 version, specify it as the architecture,
-e.g. `-G "Visual Studio 16 2019" -A x64`:
-
-----
 > cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
+----
+
+Adjusting the path to the Wireshark source tree as required.
+To use a different generator modify the `-G` parameter.
+`cmake -G` lists all the CMake supported generators, but only Visual Studio is supported for Wireshark builds.
+
+To build a 32-bit / x86 version, specify “Win32” as the architecture:
+
+----
+> cmake -G "Visual Studio 16 2019" -A Win32 ..\wireshark
 ----
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
@@ -589,7 +582,7 @@ At the end of the CMake generation process the following should be displayed:
 
 If you get any other output, there is an issue in your environment that must be rectified before building.
 Check the parameters passed to CMake, especially the `-G` option and the path to the Wireshark sources and
-the environment variables `WIRESHARK_BASE_DIR` and `QT5_BASE_DIR`.
+the environment variables `WIRESHARK_BASE_DIR` and `CMAKE_PREFIX_PATH`.
 
 [[ChWin32Build]]
 
@@ -634,7 +627,7 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 To build the Wireshark User's Guide and the Wireshark Developer's Guide,
 build the `all_guides` target, e.g.  `msbuild all_guides.vcxproj`.
 Detailed information to build these guides can be found in the file
-_docbook\README.adoc_ in the Wireshark sources.
+_docbook\README.md_ in the Wireshark sources.
 
 ==== Optional: Create a Wireshark Installer
 
@@ -642,11 +635,11 @@ Note: You should have successfully built Wireshark
 before doing the following.
 
 If you want to build your own
-_Wireshark-win32-{wireshark-version}-myprotocol123.exe_, you'll need
+_Wireshark-win64-{wireshark-version}-myprotocol123.exe_, you'll need
 NSIS. You can download it from http://nsis.sourceforge.net[].
 
-Note that the 32-bit version of NSIS will work for both 32-bit and
-64-bit versions of Wireshark. NSIS v3 is required.
+Note that the 32-bit version of NSIS will work for both 64-bit and 32-bit versions of Wireshark.
+NSIS version 3 is required.
 
 If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 

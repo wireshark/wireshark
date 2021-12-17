@@ -953,7 +953,7 @@ installation should be straightforward.
 === Windows: NSIS (Optional)
 
 The NSIS (Nullsoft Scriptable Install System) is used to generate
-_Wireshark-win32-{wireshark-version}.exe_ from all the files
+_Wireshark-win64-{wireshark-version}.exe_ from all the files
 needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
