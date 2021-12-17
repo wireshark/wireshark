@@ -230,7 +230,7 @@ static tap_packet_status dsts_stats_tree_packet(stats_tree *st, packet_info *pin
 	tick_stat_node(st, st_str, 0, FALSE);
 	ip_dst_node = tick_stat_node(st, address_to_str(pinfo->pool, &pinfo->net_dst), st_node, TRUE);
 	protocol_node = tick_stat_node(st, port_type_to_str(pinfo->ptype), ip_dst_node, TRUE);
-	g_snprintf(str, sizeof(str) - 1, "%u", pinfo->destport);
+	snprintf(str, sizeof(str) - 1, "%u", pinfo->destport);
 	tick_stat_node(st, str, protocol_node, TRUE);
 	return TAP_PACKET_REDRAW;
 }

@@ -99,7 +99,7 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
   int i;
 
   for (i = 0; i < (int) length; i++) {
-    g_snprintf(str+(i*2), 3, "%02x", hash[i]);
+    snprintf(str+(i*2), 3, "%02x", hash[i]);
   }
 }
 

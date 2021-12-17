@@ -194,9 +194,9 @@ write_endpoint_geoip_map(FILE *fp, gboolean json_only, hostlist_talker_t *const 
                 json_dumper_value_anyf(&dumper, "%u", result->accuracy);
             }
             json_dumper_set_member_name(&dumper, "packets");
-            json_dumper_value_anyf(&dumper, "%" G_GUINT64_FORMAT, host->rx_frames + host->tx_frames);
+            json_dumper_value_anyf(&dumper, "%" PRIu64, host->rx_frames + host->tx_frames);
             json_dumper_set_member_name(&dumper, "bytes");
-            json_dumper_value_anyf(&dumper, "%" G_GUINT64_FORMAT, host->rx_bytes + host->tx_bytes);
+            json_dumper_value_anyf(&dumper, "%" PRIu64, host->rx_bytes + host->tx_bytes);
         }
         json_dumper_end_object(&dumper);    // end properties
 

@@ -63,7 +63,7 @@ rtpstreams_stat_draw_cb(rtpstream_tapinfo_t *tapinfo _U_)
     /* save the current locale */
     savelocale = g_strdup(setlocale(LC_NUMERIC, NULL));
     /* switch to "C" locale to avoid problems with localized decimal separators
-       in g_snprintf("%f") functions */
+       in snprintf("%f") functions */
     setlocale(LC_NUMERIC, "C");
 
     list = the_tapinfo_struct.strinfo_list;

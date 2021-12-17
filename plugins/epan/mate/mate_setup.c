@@ -21,7 +21,7 @@ static void report_error(mate_config* mc, const gchar* fmt, ...) {
 	va_list list;
 
 	va_start( list, fmt );
-	g_vsnprintf(error_buffer,DEBUG_BUFFER_SIZE,fmt,list);
+	vsnprintf(error_buffer,DEBUG_BUFFER_SIZE,fmt,list);
 	va_end( list );
 
 	g_string_append(mc->config_error,error_buffer);

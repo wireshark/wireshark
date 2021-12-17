@@ -116,7 +116,7 @@ static void follow_print_hex(const char *prefixp, guint32 offset, void *datap, i
     if ((ii % BYTES_PER_LINE) == 0)
     {
       /* new line */
-      g_snprintf(line, LINE_LEN + 1, "%0*X", OFFSET_LEN, offset);
+      snprintf(line, LINE_LEN + 1, "%0*X", OFFSET_LEN, offset);
       memset(line + HEX_START - OFFSET_SPACE, ' ',
              HEX_LEN + OFFSET_SPACE + HEX_SPACE);
 

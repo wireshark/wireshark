@@ -90,7 +90,7 @@ void k12_hex_ascii_dump(guint level, gint64 offset, const char* label, const uns
 
     if (debug_level < level) return;
 
-    fprintf(dbg_out,"%s(%.8" G_GINT64_MODIFIER "x,%.4x):\n",label,offset,len);
+    fprintf(dbg_out,"%s(%.8" PRIx64 ",%.4x):\n",label,offset,len);
 
     for (i=0 ; i<len ; i += 16) {
         for (j=0; j<16; j++) {
@@ -431,7 +431,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
      */
     guint junky_offset = 8192 - (gint) ( (file_offset - K12_FILE_HDR_LEN) % 8192 );
 
-    K12_DBG(6,("get_record: ENTER: junky_offset=%" G_GINT64_MODIFIER "d, file_offset=%" G_GINT64_MODIFIER "d",junky_offset,file_offset));
+    K12_DBG(6,("get_record: ENTER: junky_offset=%" PRId64 ", file_offset=%" PRId64,junky_offset,file_offset));
 
     /* no buffer is given, lets create it */
     if (buffer == NULL) {
@@ -513,7 +513,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
 
     /* Read the rest of the record. */
     do {
-        K12_DBG(6,("get_record: looping left=%d junky_offset=%" G_GINT64_MODIFIER "d",left,junky_offset));
+        K12_DBG(6,("get_record: looping left=%d junky_offset=%" PRId64,left,junky_offset));
 
         if (junky_offset > left) {
             /*

@@ -1125,7 +1125,7 @@ sharkd_session_process_status(void)
 		gint64 file_size = wtap_file_size(cfile.provider.wth, NULL);
 
 		if (file_size > 0)
-			sharkd_json_value_anyf("filesize", "%" G_GINT64_FORMAT, file_size);
+			sharkd_json_value_anyf("filesize", "%" PRId64, file_size);
 	}
 
 	sharkd_json_result_epilogue();
@@ -2191,11 +2191,11 @@ sharkd_session_process_tap_conv_cb(void *arg)
 				wmem_free(NULL, dst_port);
 			}
 
-			sharkd_json_value_anyf("rxf", "%" G_GUINT64_FORMAT, iui->rx_frames);
-			sharkd_json_value_anyf("rxb", "%" G_GUINT64_FORMAT, iui->rx_bytes);
+			sharkd_json_value_anyf("rxf", "%" PRIu64, iui->rx_frames);
+			sharkd_json_value_anyf("rxb", "%" PRIu64, iui->rx_bytes);
 
-			sharkd_json_value_anyf("txf", "%" G_GUINT64_FORMAT, iui->tx_frames);
-			sharkd_json_value_anyf("txb", "%" G_GUINT64_FORMAT, iui->tx_bytes);
+			sharkd_json_value_anyf("txf", "%" PRIu64, iui->tx_frames);
+			sharkd_json_value_anyf("txb", "%" PRIu64, iui->tx_bytes);
 
 			sharkd_json_value_anyf("start", "%.9f", nstime_to_sec(&iui->start_time));
 			sharkd_json_value_anyf("stop", "%.9f", nstime_to_sec(&iui->stop_time));
@@ -2237,11 +2237,11 @@ sharkd_session_process_tap_conv_cb(void *arg)
 				wmem_free(NULL, port_str);
 			}
 
-			sharkd_json_value_anyf("rxf", "%" G_GUINT64_FORMAT, host->rx_frames);
-			sharkd_json_value_anyf("rxb", "%" G_GUINT64_FORMAT, host->rx_bytes);
+			sharkd_json_value_anyf("rxf", "%" PRIu64, host->rx_frames);
+			sharkd_json_value_anyf("rxb", "%" PRIu64, host->rx_bytes);
 
-			sharkd_json_value_anyf("txf", "%" G_GUINT64_FORMAT, host->tx_frames);
-			sharkd_json_value_anyf("txb", "%" G_GUINT64_FORMAT, host->tx_bytes);
+			sharkd_json_value_anyf("txf", "%" PRIu64, host->tx_frames);
+			sharkd_json_value_anyf("txb", "%" PRIu64, host->tx_bytes);
 
 			filter_str = get_hostlist_filter(host);
 			if (filter_str)
@@ -3881,7 +3881,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 		{
 			if (st.frames != 0)
 			{
-				sharkd_json_value_anyf(NULL, "[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", idx, st.frames, st.bytes);
+				sharkd_json_value_anyf(NULL, "[%" PRId64 ",%u,%" PRIu64 "]", idx, st.frames, st.bytes);
 			}
 
 			idx = new_idx;
@@ -3901,13 +3901,13 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
 
 	if (st.frames != 0)
 	{
-		sharkd_json_value_anyf(NULL, "[%" G_GINT64_FORMAT ",%u,%" G_GUINT64_FORMAT "]", idx, st.frames, st.bytes);
+		sharkd_json_value_anyf(NULL, "[%" PRId64 ",%u,%" PRIu64 "]", idx, st.frames, st.bytes);
 	}
 	sharkd_json_array_close();
 
-	sharkd_json_value_anyf("last", "%" G_GINT64_FORMAT, max_idx);
+	sharkd_json_value_anyf("last", "%" PRId64, max_idx);
 	sharkd_json_value_anyf("frames", "%u", st_total.frames);
-	sharkd_json_value_anyf("bytes", "%" G_GUINT64_FORMAT, st_total.bytes);
+	sharkd_json_value_anyf("bytes", "%" PRIu64, st_total.bytes);
 
 	sharkd_json_result_epilogue();
 }

@@ -338,22 +338,22 @@ static void CANopenSdoReqFormatter(PETHERCAT_SDO_HEADER pSdo, char *szText, gint
    switch ( pSdo->anSdoHeaderUnion.Idq.Ccs )
    {
    case SDO_CCS_INITIATE_DOWNLOAD:
-      g_snprintf ( szText, nMax, "SDO Req : 'Initiate Download' (%d) Idx=0x%x Sub=%d", pSdo->anSdoHeaderUnion.Idq.Ccs, pSdo->Index,  pSdo->SubIndex);
+      snprintf ( szText, nMax, "SDO Req : 'Initiate Download' (%d) Idx=0x%x Sub=%d", pSdo->anSdoHeaderUnion.Idq.Ccs, pSdo->Index,  pSdo->SubIndex);
       break;
    case SDO_CCS_INITIATE_UPLOAD:
-      g_snprintf ( szText, nMax, "SDO Req : 'Initiate Upload' (%d) Idx=0x%x Sub=%d", pSdo->anSdoHeaderUnion.Idq.Ccs, pSdo->Index,  pSdo->SubIndex);
+      snprintf ( szText, nMax, "SDO Req : 'Initiate Upload' (%d) Idx=0x%x Sub=%d", pSdo->anSdoHeaderUnion.Idq.Ccs, pSdo->Index,  pSdo->SubIndex);
       break;
    case SDO_CCS_DOWNLOAD_SEGMENT:
-      g_snprintf ( szText, nMax, "SDO Req : 'Download Segment' (%d)", pSdo->anSdoHeaderUnion.Idq.Ccs);
+      snprintf ( szText, nMax, "SDO Req : 'Download Segment' (%d)", pSdo->anSdoHeaderUnion.Idq.Ccs);
       break;
    case SDO_CCS_UPLOAD_SEGMENT:
-      g_snprintf ( szText, nMax, "SDO Req : 'Upload Segment' (%d)", pSdo->anSdoHeaderUnion.Idq.Ccs);
+      snprintf ( szText, nMax, "SDO Req : 'Upload Segment' (%d)", pSdo->anSdoHeaderUnion.Idq.Ccs);
       break;
    case SDO_CCS_ABORT_TRANSFER:
-      g_snprintf ( szText, nMax, "SDO Req : 'Abort Transfer' (%d)", pSdo->anSdoHeaderUnion.Idq.Ccs);
+      snprintf ( szText, nMax, "SDO Req : 'Abort Transfer' (%d)", pSdo->anSdoHeaderUnion.Idq.Ccs);
       break;
    default:
-      g_snprintf ( szText, nMax, "SDO Req : Ccs %d", pSdo->anSdoHeaderUnion.Idq.Ccs);
+      snprintf ( szText, nMax, "SDO Req : Ccs %d", pSdo->anSdoHeaderUnion.Idq.Ccs);
    }
 }
 
@@ -378,37 +378,37 @@ static void FoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gu
    switch ( foe.OpMode )
    {
    case ECAT_FOE_OPMODE_RRQ:
-      g_snprintf ( szText, nMax, "FoE RRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp);
+      snprintf ( szText, nMax, "FoE RRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp);
       break;
    case ECAT_FOE_OPMODE_WRQ:
-      g_snprintf ( szText, nMax, "FoE WRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp);
+      snprintf ( szText, nMax, "FoE WRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp);
       break;
    case ECAT_FOE_OPMODE_DATA:
-      g_snprintf ( szText, nMax, "FoE DATA (%d) : %d Bytes", foe.aFoeHeaderDataUnion.v.PacketNo, foe_length-ETHERCAT_FOE_HEADER_LEN);
+      snprintf ( szText, nMax, "FoE DATA (%d) : %d Bytes", foe.aFoeHeaderDataUnion.v.PacketNo, foe_length-ETHERCAT_FOE_HEADER_LEN);
       break;
    case ECAT_FOE_OPMODE_ACK:
-      g_snprintf ( szText, nMax, "FoE ACK (%d)", foe.aFoeHeaderDataUnion.v.PacketNo);
+      snprintf ( szText, nMax, "FoE ACK (%d)", foe.aFoeHeaderDataUnion.v.PacketNo);
       break;
    case ECAT_FOE_OPMODE_ERR:
-      g_snprintf ( szText, nMax, "FoE ERR (%d) : '%s'", foe.aFoeHeaderDataUnion.ErrorCode, tmp);
+      snprintf ( szText, nMax, "FoE ERR (%d) : '%s'", foe.aFoeHeaderDataUnion.ErrorCode, tmp);
       break;
    case ECAT_FOE_OPMODE_BUSY:
       if ( foe.aFoeHeaderDataUnion.v2.Entire > 0 )
-         g_snprintf ( szText, nMax, "FoE BUSY (%d%%)", ((guint32)foe.aFoeHeaderDataUnion.v2.Done*100)/foe.aFoeHeaderDataUnion.v2.Entire);
+         snprintf ( szText, nMax, "FoE BUSY (%d%%)", ((guint32)foe.aFoeHeaderDataUnion.v2.Done*100)/foe.aFoeHeaderDataUnion.v2.Entire);
       else
-         g_snprintf ( szText, nMax, "FoE BUSY (%d/%d)", foe.aFoeHeaderDataUnion.v2.Done, foe.aFoeHeaderDataUnion.v2.Entire);
+         snprintf ( szText, nMax, "FoE BUSY (%d/%d)", foe.aFoeHeaderDataUnion.v2.Done, foe.aFoeHeaderDataUnion.v2.Entire);
       break;
    default:
-      g_snprintf ( szText, nMax, "FoE Unknown");
+      snprintf ( szText, nMax, "FoE Unknown");
    }
 }
 
 static void SoEIdToString( char* txt, guint16 id, int nMax)
 {
    if ( id & 0x8000 )
-      g_snprintf(txt, nMax, "P-%d-%04d", (id>>12) & 0x0007, id & 0x0FFF );
+      snprintf(txt, nMax, "P-%d-%04d", (id>>12) & 0x0007, id & 0x0FFF );
    else
-      g_snprintf(txt, nMax, "S-%d-%04d", id>>12, id & 0x0FFF );
+      snprintf(txt, nMax, "S-%d-%04d", id>>12, id & 0x0FFF );
 }
 
 static void SoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, guint soe_length)
@@ -444,32 +444,32 @@ static void SoeFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gu
          switch ( soe.anSoeHeaderControlUnion.v.OpCode )
          {
          case ECAT_SOE_OPCODE_RRQ:
-            g_snprintf ( szText, nMax, "SoE: RRQ (%s, '%s')", tmp, elm);
+            snprintf ( szText, nMax, "SoE: RRQ (%s, '%s')", tmp, elm);
             break;
          case ECAT_SOE_OPCODE_RRS:
-            g_snprintf ( szText, nMax, "SoE: RRS (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
+            snprintf ( szText, nMax, "SoE: RRS (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
             break;
          case ECAT_SOE_OPCODE_WRS:
-            g_snprintf ( szText, nMax, "SoE: WRS (%s, '%s')", tmp, elm);
+            snprintf ( szText, nMax, "SoE: WRS (%s, '%s')", tmp, elm);
             break;
          case ECAT_SOE_OPCODE_WRQ:
-            g_snprintf ( szText, nMax, "SoE: WRQ (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
+            snprintf ( szText, nMax, "SoE: WRQ (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
             break;
          case ECAT_SOE_OPCODE_NFC:
-            g_snprintf ( szText, nMax, "SoE: NFC (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
+            snprintf ( szText, nMax, "SoE: NFC (%s, '%s') : %u Bytes", tmp, elm, (guint)(soe_length-ETHERCAT_SOE_HEADER_LEN));
             break;
          case 6:
-            g_snprintf ( szText, nMax, "SoE: EMGCY");
+            snprintf ( szText, nMax, "SoE: EMGCY");
             break;
          default:
-            g_snprintf ( szText, nMax, "SoE:");
+            snprintf ( szText, nMax, "SoE:");
          }
       }
       else
-         g_snprintf ( szText, nMax, "SoE: FragmentsLeft %d", soe.anSoeHeaderDataUnion.FragmentsLeft);
+         snprintf ( szText, nMax, "SoE: FragmentsLeft %d", soe.anSoeHeaderDataUnion.FragmentsLeft);
    }
    else
-      g_snprintf ( szText, nMax, "SoE: Error %04x", tvb_get_letohs(tvb, offset));
+      snprintf ( szText, nMax, "SoE: Error %04x", tvb_get_letohs(tvb, offset));
 }
 
 /* ethercat mailbox */

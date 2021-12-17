@@ -261,7 +261,7 @@ ph_stats_new(capture_file *cf)
             progbar_val = (gfloat) count / cf->count;
 
             if (progbar != NULL) {
-                g_snprintf(status_str, sizeof(status_str),
+                snprintf(status_str, sizeof(status_str),
                         "%4u of %u frames", count, cf->count);
                 update_progress_dlg(progbar, progbar_val, status_str);
             }

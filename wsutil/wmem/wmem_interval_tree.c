@@ -12,7 +12,9 @@
 
 #include "config.h"
 
+#include <inttypes.h>
 #include <string.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <glib.h>
 

@@ -281,7 +281,7 @@ gboolean log3gpp_read(wtap* wth, wtap_rec* rec, Buffer* buf,
             char timestamp_string[MAX_TIMESTAMP_LEN+1];
             /*not used gint64 *pkey = NULL;*/
 
-            g_snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
+            snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
 
             /* All packets go to 3GPP protocol stub dissector */
             rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LOG_3GPP;
@@ -407,7 +407,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
         int n;
         int stub_offset = 0;
         char timestamp_string[32];
-        g_snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
+        snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
 
         /* Make sure all packets go to log3gpp dissector */
         rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_LOG_3GPP;
@@ -460,7 +460,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
     /* If get here, must have failed */
     *err = errno;
     *err_info = g_strdup_printf("prot 3gpp: seek_read failed to read/parse "
-                                "line at position %" G_GINT64_MODIFIER "d",
+                                "line at position %" PRId64,
                                 seek_off);
     return FALSE;
 }

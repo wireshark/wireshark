@@ -174,7 +174,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	rec->block = wtap_block_create(WTAP_BLOCK_PACKET);
 	rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
-	if (sscanf(readLine, "%*s %18" G_GINT64_MODIFIER "u.%9d %9u %" READDATA_MAX_FIELD_SIZE "s",
+	if (sscanf(readLine, "%*s %18" PRIu64 ".%9d %9u %" READDATA_MAX_FIELD_SIZE "s",
 	    &seconds, &useconds, &rec->rec_header.packet_header.len, readData) != 4) {
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: invalid read record");

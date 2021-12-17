@@ -747,7 +747,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
                * the error message, to avoid an overflow.)
                */
               *err = WTAP_ERR_BAD_FILE;
-              *err_info = g_strdup_printf("iseries: File has %" G_GUINT64_FORMAT "-byte packet, bigger than maximum of %u",
+              *err_info = g_strdup_printf("iseries: File has %" PRIu64 "-byte packet, bigger than maximum of %u",
                                           (guint64)pkt_len + 14,
                                           WTAP_MAX_PACKET_SIZE_STANDARD);
               return FALSE;

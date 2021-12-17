@@ -2169,11 +2169,11 @@ static void erf_set_interface_descr(wtap_block_t block, guint option_id, guint64
   }
 
   if (host_id > 0) {
-    g_snprintf(hostid_buf, sizeof(hostid_buf), " Host %012" G_GINT64_MODIFIER "x,", host_id);
+    snprintf(hostid_buf, sizeof(hostid_buf), " Host %012" PRIx64 ",", host_id);
   }
 
   if (source_id > 0) {
-    g_snprintf(sourceid_buf, sizeof(sourceid_buf), " Source %u,", source_id);
+    snprintf(sourceid_buf, sizeof(sourceid_buf), " Source %u,", source_id);
   }
 
   if (descr) {
@@ -2336,7 +2336,7 @@ static int erf_update_implicit_host_id(erf_t *erf_priv, wtap *wth, guint64 impli
             /* XXX: this is a pointer! */
             int_data = g_array_index(wth->interface_data, wtap_block_t, if_info->if_index);
 
-            g_snprintf(portstr_buf, sizeof(portstr_buf), "Port %c", 'A'+i);
+            snprintf(portstr_buf, sizeof(portstr_buf), "Port %c", 'A'+i);
 
             oldstr = if_info->name;
             if_info->name = g_strconcat(oldstr ? oldstr : portstr_buf, " [unmatched implicit]", NULL);

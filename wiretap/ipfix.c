@@ -291,7 +291,7 @@ ipfix_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
-    ws_debug("offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
+    ws_debug("offset is initially %" PRId64, *data_offset);
 
     if (!ipfix_read_message(wth->fh, rec, buf, err, err_info)) {
         ws_debug("couldn't read message header with code: %d\n, and error '%s'",
@@ -315,7 +315,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
         return FALSE;   /* Seek error */
     }
 
-    ws_debug("reading at offset %" G_GINT64_MODIFIER "u", seek_off);
+    ws_debug("reading at offset %" PRIu64, seek_off);
 
     if (!ipfix_read_message(wth->random_fh, rec, buf, err, err_info)) {
         ws_debug("couldn't read message header");

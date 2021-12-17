@@ -196,7 +196,7 @@ abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
     tmp = localtime(&abs_time->secs);
 
     if (tmp) {
-        g_snprintf(buf, 16, "%d%02d%02d%02d%02d%02d",
+        snprintf(buf, 16, "%d%02d%02d%02d%02d%02d",
             tmp->tm_year + 1900,
             tmp->tm_mon+1,
             tmp->tm_mday,
@@ -218,7 +218,7 @@ fileset_get_filename_by_pattern(guint idx, const wtap_rec *rec,
     gchar *timestr;
     gchar *abs_str;
 
-    g_snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
+    snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
     if (rec->presence_flags & WTAP_HAS_TS) {
         timestr = abs_time_to_str_with_sec_resolution(&rec->ts);
         abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);

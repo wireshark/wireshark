@@ -275,7 +275,7 @@ iface_mon_event(void)
         return;
     }
     evd = (struct net_event_data *)&kem->event_data[0];
-    g_snprintf(ifr_name, IFNAMSIZ, "%s%u", evd->if_name, evd->if_unit);
+    snprintf(ifr_name, IFNAMSIZ, "%s%u", evd->if_name, evd->if_unit);
 
     /*
      * Check type of event.

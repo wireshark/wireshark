@@ -79,7 +79,7 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 	va_list list;
 
 	va_start( list, fmt );
-	g_vsnprintf(error_buffer,sizeof(error_buffer),fmt,list);
+	vsnprintf(error_buffer,sizeof(error_buffer),fmt,list);
 	va_end( list );
 
 	i = (gint) mc->config_stack->len;

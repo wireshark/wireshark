@@ -527,24 +527,24 @@ k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
 	tmp = gmtime(&rec->ts.secs);
 	if (tmp == NULL)
-		g_snprintf(p, 90, "+---------+---------------+----------+\r\nXX:XX:XX,");
+		snprintf(p, 90, "+---------+---------------+----------+\r\nXX:XX:XX,");
 	else
 		strftime(p, 90, "+---------+---------------+----------+\r\n%H:%M:%S,", tmp);
 	wl = strlen(p);
 	p += wl;
 	left -= wl;
 
-	wl = g_snprintf(p, (gulong)left, "%.3d,%.3d   %s\r\n|0   |", ms, ns, str_enc);
+	wl = snprintf(p, (gulong)left, "%.3d,%.3d   %s\r\n|0   |", ms, ns, str_enc);
 	p += wl;
 	left -= wl;
 
 	for(i = 0; i < rec->rec_header.packet_header.caplen && left > 2; i++) {
-		wl = g_snprintf(p, (gulong)left, "%.2x|", pd[i]);
+		wl = snprintf(p, (gulong)left, "%.2x|", pd[i]);
 		p += wl;
 		left -= wl;
 	}
 
-	wl = g_snprintf(p, (gulong)left, "\r\n\r\n");
+	wl = snprintf(p, (gulong)left, "\r\n\r\n");
 	left -= wl;
 
 	ret = wtap_dump_file_write(wdh, buf, K12BUF_SIZE - left, err);

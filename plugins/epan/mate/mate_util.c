@@ -38,7 +38,7 @@ void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... )
 	if ( ! which || *which < how ) return;
 
 	va_start( list, fmt );
-	g_vsnprintf(debug_buffer,DEBUG_BUFFER_SIZE,fmt,list);
+	vsnprintf(debug_buffer,DEBUG_BUFFER_SIZE,fmt,list);
 	va_end( list );
 
 	if (! where) {
@@ -193,7 +193,7 @@ gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 	static gchar buf[SCS_HUGE_SIZE];
 
 	va_start( list, fmt );
-	g_vsnprintf(buf, SCS_HUGE_SIZE, fmt, list);
+	vsnprintf(buf, SCS_HUGE_SIZE, fmt, list);
 	va_end( list );
 
 	return scs_subscribe(c,buf);
@@ -1559,7 +1559,7 @@ extern LoAL* loal_from_file(gchar* filename) {
 							i = 0;
 							name[i++] = c;
 							name[i] = '\0';
-							g_snprintf(linenum_buf,MAX_ITEM_LEN,"%s:%u",filename,linenum);
+							snprintf(linenum_buf,MAX_ITEM_LEN,"%s:%u",filename,linenum);
 							curr = new_avpl(linenum_buf);
 							continue;
 						case '#':

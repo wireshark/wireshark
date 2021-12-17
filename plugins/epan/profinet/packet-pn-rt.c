@@ -843,7 +843,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         u8DataStatus     = tvb_get_guint8(tvb, pdu_len - 2);
         u8TransferStatus = tvb_get_guint8(tvb, pdu_len - 1);
 
-        g_snprintf (szFieldSummary, sizeof(szFieldSummary),
+        snprintf (szFieldSummary, sizeof(szFieldSummary),
                 "%sID:0x%04x, Len:%4u, Cycle:%5u (%s,%s,%s,%s)",
                 pszProtAddInfo, u16FrameID, pdu_len - 2 - 4, u16CycleCounter,
                 (u8DataStatus & 0x04) ? "Valid"   : "Invalid",
@@ -860,7 +860,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         u8TransferStatus    = 0;
 
         /* acyclic transfer has no fields at the end */
-        g_snprintf (szFieldSummary, sizeof(szFieldSummary),
+        snprintf (szFieldSummary, sizeof(szFieldSummary),
                   "%sID:0x%04x, Len:%4u",
                 pszProtAddInfo, u16FrameID, pdu_len - 2);
 
@@ -907,7 +907,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     /* update column info now */
     if (u16FrameID == 0xFE02)
     {
-        g_snprintf(szFieldSummary, sizeof(szFieldSummary), "%s", "");
+        snprintf(szFieldSummary, sizeof(szFieldSummary), "%s", "");
     }
     col_add_str(pinfo->cinfo, COL_INFO, szFieldSummary);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, pszProtShort);

@@ -386,7 +386,7 @@ if_info_get(const char *name)
 				descr_size = sizeof (descr_prefix) + 10;
 				description = g_malloc(descr_size);
 				if (description != NULL) {
-					g_snprintf(description, descr_size,
+					snprintf(description, descr_size,
 					    "%s%ld", descr_prefix, busnum);
 				}
 			}
@@ -889,14 +889,14 @@ set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
 	if (pcap_set_datalink(pcap_h, datalink) == 0)
 		return TRUE; /* no error */
 	set_datalink_err_str = pcap_geterr(pcap_h);
-	g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type on interface '%s' (%s).",
+	snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type on interface '%s' (%s).",
 	    name, set_datalink_err_str);
 	/*
 	 * If the error isn't "XXX is not one of the DLTs supported by this device",
 	 * tell the user to tell the Wireshark developers about it.
 	 */
 	if (strstr(set_datalink_err_str, "is not one of the DLTs supported by this device") == NULL)
-		g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
+		snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
 		           "%s", please_report_bug());
 	else
 		secondary_errmsg[0] = '\0';
@@ -1366,10 +1366,10 @@ open_capture_device_pcap_create(
 		 */
 		*open_status = CAP_DEVICE_OPEN_WARNING_GENERIC;
 		if (status == PCAP_WARNING) {
-			g_snprintf(*open_status_str, sizeof *open_status_str,
+			snprintf(*open_status_str, sizeof *open_status_str,
 			    "Warning: %s", pcap_geterr(pcap_h));
 		} else {
-			g_snprintf(*open_status_str, sizeof *open_status_str,
+			snprintf(*open_status_str, sizeof *open_status_str,
 			    "Warning: %s", pcap_statustostr(status));
 		}
 	} else {

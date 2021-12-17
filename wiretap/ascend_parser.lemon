@@ -490,7 +490,7 @@ run_ascend_parser(guint8 *pd, ascend_state_t *parser_state, int *err, gchar **er
     do {
         token_id = ascend_lex(scanner);
 
-        ascend_debug("Got token %d at %" G_GINT64_MODIFIER "d", token_id, file_tell(parser_state->fh));
+        ascend_debug("Got token %d at %" PRId64, token_id, file_tell(parser_state->fh));
 
         AscendParser(parser, token_id, parser_state->token, parser_state);
     } while (token_id && !parser_state->err && !parser_state->ascend_parse_error && parser_state->caplen < ASCEND_MAX_PKT_LEN);

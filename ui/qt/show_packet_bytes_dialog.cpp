@@ -684,7 +684,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
             int i;
 
             // Dump offset
-            cur += g_snprintf(cur, 20, "%0*X  ", offset_chars, pos);
+            cur += snprintf(cur, 20, "%0*X  ", offset_chars, pos);
 
             // Dump bytes as hex
             for (i = 0; i < 16 && pos + i < len; i++) {

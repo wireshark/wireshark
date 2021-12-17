@@ -1708,7 +1708,7 @@ static gboolean blf_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar 
     blf_tmp.blf_data = (blf_t *)wth->priv;
 
     if (!blf_read_block(&blf_tmp, blf_tmp.blf_data->current_real_seek_pos, err, err_info)) {
-        ws_debug("data_offset is %" G_GINT64_MODIFIER "d", *data_offset);
+        ws_debug("data_offset is %" PRId64, *data_offset);
         return FALSE;
     }
     *data_offset = blf_tmp.blf_data->start_of_last_obj;

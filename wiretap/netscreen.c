@@ -382,7 +382,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 		 * address in the header. If they are, assume ethernet
 		 * LinkLayer or else PPP
 		 */
-		g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
+		snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
 		   pd[0], pd[1], pd[2], pd[3], pd[4], pd[5]);
 		if (strncmp(dststr, cap_dst, 12) == 0)
 			rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETHERNET;

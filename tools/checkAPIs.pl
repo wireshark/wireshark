@@ -1172,7 +1172,7 @@ while ($_ = pop @filelist)
 
         if ($fileContents =~ m{ %ll }xo)
         {
-                # use G_GINT64_MODIFIER instead of ll
+                # use PRI[dux...]N instead of ll
                 print STDERR "Error: Found %ll in " .$filename."\n";
                 $errorCount++;
         }

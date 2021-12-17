@@ -730,9 +730,9 @@ static gboolean observer_dump_open(wtap_dumper *wdh, int *err,
         current_time = localtime(&system_time);
         memset(&comment, 0x00, sizeof(comment));
         if (current_time != NULL)
-            g_snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
+            snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
         else
-            g_snprintf(comment, 64, "This capture was saved from Wireshark");
+            snprintf(comment, 64, "This capture was saved from Wireshark");
         comment_length = strlen(comment);
 
         comment_header.type = INFORMATION_TYPE_COMMENT;

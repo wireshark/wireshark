@@ -111,9 +111,9 @@ iousers_draw(void *arg)
 					dst_port = get_conversation_port(NULL, iui->dst_port, iui->etype, TRUE);
 					src = wmem_strconcat(NULL, src_addr, ":", src_port, NULL);
 					dst = wmem_strconcat(NULL, dst_addr, ":", dst_port, NULL);
-					printf("%-26s <-> %-26s  %6" G_GINT64_MODIFIER "u %-9s"
-					       "  %6" G_GINT64_MODIFIER "u %-9s"
-					       "  %6" G_GINT64_MODIFIER "u %-9s  ",
+					printf("%-26s <-> %-26s  %6" PRIu64 " %-9s"
+					       "  %6" PRIu64 " %-9s"
+					       "  %6" PRIu64 " %-9s  ",
 						src, dst,
 						iui->rx_frames, rx_bytes,
 						iui->tx_frames, tx_bytes,
@@ -125,9 +125,9 @@ iousers_draw(void *arg)
 					wmem_free(NULL, src);
 					wmem_free(NULL, dst);
 				} else {
-					printf("%-20s <-> %-20s  %6" G_GINT64_MODIFIER "u %-9s"
-					       "  %6" G_GINT64_MODIFIER "u %-9s"
-					       "  %6" G_GINT64_MODIFIER "u %-9s  ",
+					printf("%-20s <-> %-20s  %6" PRIu64 " %-9s"
+					       "  %6" PRIu64 " %-9s"
+					       "  %6" PRIu64 " %-9s  ",
 						src_addr, dst_addr,
 						iui->rx_frames, rx_bytes,
 						iui->tx_frames, tx_bytes,

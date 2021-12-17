@@ -335,53 +335,53 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
       switch (tsprecision) {
 
       case WTAP_TSPREC_SEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%"G_GINT64_MODIFIER"d",
+        snprintf(time_string_buf, sizeof time_string_buf,
+                   "%"PRId64,
                    (gint64)timer->secs);
         break;
 
       case WTAP_TSPREC_DSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%"G_GINT64_MODIFIER"d%s%01d",
+        snprintf(time_string_buf, sizeof time_string_buf,
+                   "%"PRId64"%s%01d",
                    (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 100000000);
         break;
 
       case WTAP_TSPREC_CSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%"G_GINT64_MODIFIER"d%s%02d",
+        snprintf(time_string_buf, sizeof time_string_buf,
+                   "%"PRId64"%s%02d",
                    (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 10000000);
         break;
 
       case WTAP_TSPREC_MSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%"G_GINT64_MODIFIER"d%s%03d",
+        snprintf(time_string_buf, sizeof time_string_buf,
+                   "%"PRId64"%s%03d",
                    (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 1000000);
         break;
 
       case WTAP_TSPREC_USEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%"G_GINT64_MODIFIER"d%s%06d",
+        snprintf(time_string_buf, sizeof time_string_buf,
+                   "%"PRId64"%s%06d",
                    (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs / 1000);
         break;
 
       case WTAP_TSPREC_NSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
-                   "%"G_GINT64_MODIFIER"d%s%09d",
+        snprintf(time_string_buf, sizeof time_string_buf,
+                   "%"PRId64"%s%09d",
                    (gint64)timer->secs,
                    decimal_point,
                    timer->nsecs);
         break;
 
       default:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "Unknown precision %d",
                    tsprecision);
         break;
@@ -390,13 +390,13 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
     } else {
       ti_tm = localtime(&timer->secs);
       if (ti_tm == NULL) {
-        g_snprintf(time_string_buf, sizeof time_string_buf, "Not representable");
+        snprintf(time_string_buf, sizeof time_string_buf, "Not representable");
         return time_string_buf;
       }
       switch (tsprecision) {
 
       case WTAP_TSPREC_SEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "%04d-%02d-%02d %02d:%02d:%02d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
@@ -407,7 +407,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
         break;
 
       case WTAP_TSPREC_DSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "%04d-%02d-%02d %02d:%02d:%02d%s%01d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
@@ -420,7 +420,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
         break;
 
       case WTAP_TSPREC_CSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "%04d-%02d-%02d %02d:%02d:%02d%s%02d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
@@ -433,7 +433,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
         break;
 
       case WTAP_TSPREC_MSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "%04d-%02d-%02d %02d:%02d:%02d%s%03d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
@@ -446,7 +446,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
         break;
 
       case WTAP_TSPREC_USEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "%04d-%02d-%02d %02d:%02d:%02d%s%06d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
@@ -459,7 +459,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
         break;
 
       case WTAP_TSPREC_NSEC:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "%04d-%02d-%02d %02d:%02d:%02d%s%09d",
                    ti_tm->tm_year + 1900,
                    ti_tm->tm_mon + 1,
@@ -472,7 +472,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
         break;
 
       default:
-        g_snprintf(time_string_buf, sizeof time_string_buf,
+        snprintf(time_string_buf, sizeof time_string_buf,
                    "Unknown precision %d",
                    tsprecision);
         break;
@@ -481,7 +481,7 @@ absolute_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info)
     }
   }
 
-  g_snprintf(time_string_buf, sizeof time_string_buf, "n/a");
+  snprintf(time_string_buf, sizeof time_string_buf, "n/a");
   return time_string_buf;
 }
 
@@ -505,16 +505,16 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
     switch (tsprecision) {
 
     case WTAP_TSPREC_SEC:
-      g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%"G_GINT64_MODIFIER"d%s%s",
+      snprintf(time_string_buf, sizeof time_string_buf,
+                 "%"PRId64"%s%s",
                  (gint64)timer->secs,
                  second,
                  timer->secs == 1 ? "" : plural);
       break;
 
     case WTAP_TSPREC_DSEC:
-      g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%"G_GINT64_MODIFIER"d%s%01d%s%s",
+      snprintf(time_string_buf, sizeof time_string_buf,
+                 "%"PRId64"%s%01d%s%s",
                  (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 100000000,
@@ -523,8 +523,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
       break;
 
     case WTAP_TSPREC_CSEC:
-      g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%"G_GINT64_MODIFIER"d%s%02d%s%s",
+      snprintf(time_string_buf, sizeof time_string_buf,
+                 "%"PRId64"%s%02d%s%s",
                  (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 10000000,
@@ -533,8 +533,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
       break;
 
     case WTAP_TSPREC_MSEC:
-      g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%"G_GINT64_MODIFIER"d%s%03d%s%s",
+      snprintf(time_string_buf, sizeof time_string_buf,
+                 "%"PRId64"%s%03d%s%s",
                  (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 1000000,
@@ -543,8 +543,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
       break;
 
     case WTAP_TSPREC_USEC:
-      g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%"G_GINT64_MODIFIER"d%s%06d%s%s",
+      snprintf(time_string_buf, sizeof time_string_buf,
+                 "%"PRId64"%s%06d%s%s",
                  (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs / 1000,
@@ -553,8 +553,8 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
       break;
 
     case WTAP_TSPREC_NSEC:
-      g_snprintf(time_string_buf, sizeof time_string_buf,
-                 "%"G_GINT64_MODIFIER"d%s%09d%s%s",
+      snprintf(time_string_buf, sizeof time_string_buf,
+                 "%"PRId64"%s%09d%s%s",
                  (gint64)timer->secs,
                  decimal_point,
                  timer->nsecs,
@@ -563,7 +563,7 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
       break;
 
     default:
-      g_snprintf(time_string_buf, sizeof time_string_buf,
+      snprintf(time_string_buf, sizeof time_string_buf,
                  "Unknown precision %d",
                  tsprecision);
       break;
@@ -571,7 +571,7 @@ relative_time_string(nstime_t *timer, int tsprecision, capture_info *cf_info, gb
     return time_string_buf;
   }
 
-  g_snprintf(time_string_buf, sizeof time_string_buf, "n/a");
+  snprintf(time_string_buf, sizeof time_string_buf, "n/a");
   return time_string_buf;
 }
 
@@ -682,7 +682,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_file_size) {
     printf     ("File size:           ");
     if (machine_readable) {
-      printf     ("%" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
+      printf     ("%" PRId64 " bytes\n", cf_info->filesize);
     } else {
       size_string = format_size(cf_info->filesize, FORMAT_SIZE_UNIT_BYTES, 0);
       printf ("%s\n", size_string);
@@ -692,7 +692,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_data_size) {
     printf     ("Data size:           ");
     if (machine_readable) {
-      printf     ("%" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
+      printf     ("%" PRIu64 " bytes\n", cf_info->packet_bytes);
     } else {
       size_string = format_size(cf_info->packet_bytes, FORMAT_SIZE_UNIT_BYTES, 0);
       printf ("%s\n", size_string);
@@ -951,14 +951,14 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_file_size) {
     putsep();
     putquote();
-    printf("%" G_GINT64_MODIFIER "d", cf_info->filesize);
+    printf("%" PRId64, cf_info->filesize);
     putquote();
   }
 
   if (cap_data_size) {
     putsep();
     putquote();
-    printf("%" G_GINT64_MODIFIER "u", cf_info->packet_bytes);
+    printf("%" PRIu64, cf_info->packet_bytes);
     putquote();
   }
 
@@ -1158,7 +1158,7 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
   int i;
 
   for (i = 0; i < (int) length; i++) {
-    g_snprintf(str+(i*2), 3, "%02x", hash[i]);
+    snprintf(str+(i*2), 3, "%02x", hash[i]);
   }
 }
 

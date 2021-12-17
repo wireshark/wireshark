@@ -184,8 +184,8 @@ rpcprogs_draw(void *dummy _U_)
 		td = ((guint64)(rp->tot.secs)) * NANOSECS_PER_SEC + rp->tot.nsecs;
 		td = ((td / rp->num) + 500) / 1000;
 
-		g_snprintf(str, sizeof(str), "%s(%d)", rpc_prog_name(rp->program), rp->program);
-		printf("%-15s %2u %6d %3d.%06d %3d.%06d %3" G_GINT64_MODIFIER "u.%06" G_GINT64_MODIFIER "u\n",
+		snprintf(str, sizeof(str), "%s(%d)", rpc_prog_name(rp->program), rp->program);
+		printf("%-15s %2u %6d %3d.%06d %3d.%06d %3" PRIu64 ".%06" PRIu64 "\n",
 		       str,
 		       rp->version,
 		       rp->num,

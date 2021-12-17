@@ -81,11 +81,11 @@ udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */
 
 	/* we then tick a node for this src_addr:src_port
 	   if the node doesn't exists it will be created */
-	g_snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_src),udphdr->sport);
+	snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_src),udphdr->sport);
 	tick_stat_node(st, str, st_udp_term, FALSE);
 
 	/* same thing for dst */
-	g_snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_dst),udphdr->dport);
+	snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_dst),udphdr->dport);
 	tick_stat_node(st, str, st_udp_term, FALSE);
 
 	return 1;

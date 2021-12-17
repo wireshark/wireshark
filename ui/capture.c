@@ -307,7 +307,7 @@ cf_open_error_message(int err, gchar *err_info)
             break;
 
         case WTAP_ERR_UNSUPPORTED:
-            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" contains record data that Wireshark doesn't support.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
@@ -319,7 +319,7 @@ cf_open_error_message(int err, gchar *err_info)
             break;
 
         case WTAP_ERR_BAD_FILE:
-            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" appears to be damaged or corrupt.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
@@ -336,7 +336,7 @@ cf_open_error_message(int err, gchar *err_info)
             break;
 
         case WTAP_ERR_DECOMPRESS:
-            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" cannot be decompressed; it may be damaged or corrupt.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
@@ -344,7 +344,7 @@ cf_open_error_message(int err, gchar *err_info)
             break;
 
         case WTAP_ERR_INTERNAL:
-            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "An internal error occurred opening the file \"%%s\".\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
@@ -352,7 +352,7 @@ cf_open_error_message(int err, gchar *err_info)
             break;
 
         case WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED:
-            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" cannot be decompressed; it is compressed in a way that We don't support.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
@@ -360,7 +360,7 @@ cf_open_error_message(int err, gchar *err_info)
             break;
 
         default:
-            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+            snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" could not be opened: %s.",
                        wtap_strerror(err));
             errmsg = errmsg_errno;

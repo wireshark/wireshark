@@ -756,7 +756,7 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
             memcpy(&dumpinfo, value, sizeof(struct nflx_dumpinfo));
             section_info->bblog_offset_tv_sec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_sec);
             section_info->bblog_offset_tv_usec = GUINT64_FROM_LE(dumpinfo.tlh_offset_tv_usec);
-            ws_debug("BBLog dumpinfo time offset: %" G_GUINT64_FORMAT, section_info->bblog_offset_tv_sec);
+            ws_debug("BBLog dumpinfo time offset: %" PRIu64, section_info->bblog_offset_tv_sec);
         } else {
             ws_debug("BBLog dumpinfo parameter has strange length: %u", length);
         }
@@ -765,7 +765,7 @@ pcapng_process_nflx_custom_option(wtapng_block_t *wblock,
         if (length == sizeof(gint64)) {
             memcpy(&dumptime, value, sizeof(gint64));
             dumptime = GINT64_FROM_LE(dumptime);
-            ws_debug("BBLog dumpinfo time offset: %" G_GUINT64_FORMAT, dumptime);
+            ws_debug("BBLog dumpinfo time offset: %" PRIu64, dumptime);
         } else {
             ws_debug("BBLog dumptime parameter has strange length: %u", length);
         }
@@ -3575,7 +3575,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     /* read next block */
     while (1) {
         *data_offset = file_tell(wth->fh);
-        ws_debug("data_offset is %" G_GINT64_MODIFIER "d", *data_offset);
+        ws_debug("data_offset is %" PRId64, *data_offset);
 
         /*
          * Get the section_info_t for the current section.
@@ -3588,7 +3588,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
          */
         if (!pcapng_read_block(wth, wth->fh, pcapng, current_section,
                                &new_section, &wblock, err, err_info)) {
-            ws_debug("data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
+            ws_debug("data_offset is finally %" PRId64, *data_offset);
             ws_debug("couldn't read packet block");
             wtap_block_unref(wblock.block);
             return FALSE;
@@ -3707,7 +3707,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
     }
 
     /*ws_debug("Read length: %u Packet length: %u", bytes_read, rec->rec_header.packet_header.caplen);*/
-    ws_debug("data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
+    ws_debug("data_offset is finally %" PRId64, *data_offset);
 
     return TRUE;
 }

@@ -971,7 +971,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
         /* The user sends an empty packet when he wants to get output from us even if we don't currently have
            packets to process. We spit out a line with the timestamp and the text "void"
         */
-        printf("%lu %" G_GUINT64_FORMAT " %d void -\n", (unsigned long int)cf->count,
+        printf("%lu %" PRIu64 " %d void -\n", (unsigned long int)cf->count,
                (guint64)rec->ts.secs, rec->ts.nsecs);
 
         fflush(stdout);
@@ -1104,7 +1104,7 @@ static void field_display_to_string(header_field_info *hfi, char* buf, int size)
     }
     else
     {
-        g_snprintf(buf, size, "(Bit count: %d)", hfi->display);
+        snprintf(buf, size, "(Bit count: %d)", hfi->display);
     }
 }
 
