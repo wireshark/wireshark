@@ -661,6 +661,13 @@ else() # ! MSVC
 		# until these procedural issues can be fixed or at least mitigated.
 		#
 		-Wno-error=maybe-uninitialized
+		#
+		# Converting from g_printf() and g_snprintf() to stdio.h turns
+		# up many of these warnings. They will have to be handled later.
+		# It can be a lot of work to fix properly and none of them
+		# seem to flag very interesting issues.
+		#
+		-Wno-format-truncation
 	)
 
 	#
