@@ -503,7 +503,7 @@ wmem_test_strutls(void)
     utime_ms = (end_utime - start_utime) * 1000.0; \
     stime_ms = (end_stime - start_stime) * 1000.0
 
-/* NOTE: You have to run "wmem_test --verbose" to see results. */
+/* NOTE: You have to run "wmem_test -m perf" to run the performance tests. */
 static void
 wmem_test_stringperf(void)
 {
@@ -1466,7 +1466,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/utils/misc",    wmem_test_miscutls);
     g_test_add_func("/wmem/utils/strings", wmem_test_strutls);
 
-    if (!g_test_perf ()) {
+    if (g_test_perf()) {
         g_test_add_func("/wmem/utils/stringperf", wmem_test_stringperf);
     }
 
