@@ -549,7 +549,7 @@ wmem_test_stringperf(void)
 #ifdef _WIN32
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
-		_snprintf_s(buffer, 1, _TRUNCATE, "%s", s_val);
+        _snprintf_s(buffer, 1, _TRUNCATE, "%s", s_val);
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
@@ -557,7 +557,7 @@ wmem_test_stringperf(void)
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
-		_snprintf_s(buffer, 1, _TRUNCATE, "%s%s%s%s%s", s_val, s_val, s_val, s_val, s_val);
+        _snprintf_s(buffer, 1, _TRUNCATE, "%s%s%s%s%s", s_val, s_val, s_val, s_val, s_val);
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
@@ -565,7 +565,7 @@ wmem_test_stringperf(void)
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
-		_snprintf_s(buffer, 1, _TRUNCATE, "%s%u%3.5f%02d", s_val, u_val, d_val, i_val);
+        _snprintf_s(buffer, 1, _TRUNCATE, "%s%u%3.5f%02d", s_val, u_val, d_val, i_val);
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
