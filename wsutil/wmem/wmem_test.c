@@ -520,7 +520,35 @@ wmem_test_stringperf(void)
     int                 i;
     double              start_utime, start_stime, end_utime, end_stime, utime_ms, stime_ms;
 
-    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+
+/* C99 snprintf */
+
+    RESOURCE_USAGE_START;
+    for (i = 0; i < LOOP_COUNT; i++) {
+        snprintf(NULL, 0, "%s", s_val);
+    }
+    RESOURCE_USAGE_END;
+    g_test_minimized_result(utime_ms + stime_ms,
+        "snprintf 1 string: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+
+    RESOURCE_USAGE_START;
+    for (i = 0; i < LOOP_COUNT; i++) {
+        snprintf(NULL, 0, "%s%s%s%s%s", s_val, s_val, s_val, s_val, s_val);
+    }
+    RESOURCE_USAGE_END;
+    g_test_minimized_result(utime_ms + stime_ms,
+        "snprintf 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+
+    RESOURCE_USAGE_START;
+    for (i = 0; i < LOOP_COUNT; i++) {
+        snprintf(NULL, 0, "%s%u%3.5f%02d", s_val, u_val, d_val, i_val);
+    }
+    RESOURCE_USAGE_END;
+    g_test_minimized_result(utime_ms + stime_ms,
+        "snprintf mixed args: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+
+/* GLib g_snprintf (can use C99 or Gnulib) */
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
@@ -545,6 +573,8 @@ wmem_test_stringperf(void)
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
         "g_printf_string_upper_bound (via g_snprintf) mixed args: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+
+/* Windows _snprintf_s */
 
 #ifdef _WIN32
     RESOURCE_USAGE_START;
@@ -571,6 +601,8 @@ wmem_test_stringperf(void)
     g_test_minimized_result(utime_ms + stime_ms,
         "_snprintf_s upper bound mixed args: u %.3f ms s %.3f ms", utime_ms, stime_ms);
 #endif
+
+/* GLib strdup */
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
@@ -616,13 +648,61 @@ wmem_test_stringperf(void)
         g_free(str_ptr[i]);
     }
 
+/* wmem strdup null allocator */
+
+    RESOURCE_USAGE_START;
+    for (i = 0; i < LOOP_COUNT; i++) {
+        str_ptr[i] = wmem_strdup_printf(NULL, "%s%s", s_val, s_val);
+    }
+    RESOURCE_USAGE_END;
+    g_test_minimized_result(utime_ms + stime_ms,
+        "wmem_strdup_printf() 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+    for (i = 0; i < LOOP_COUNT; i++) {
+        g_free(str_ptr[i]);
+    }
+
+    RESOURCE_USAGE_START;
+    for (i = 0; i < LOOP_COUNT; i++) {
+        str_ptr[i] = wmem_strconcat(NULL, s_val, s_val, NULL);
+    }
+    RESOURCE_USAGE_END;
+    g_test_minimized_result(utime_ms + stime_ms,
+        "wmem_strconcat(NULL) 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+    for (i = 0; i < LOOP_COUNT; i++) {
+        g_free(str_ptr[i]);
+    }
+
+    RESOURCE_USAGE_START;
+    for (i = 0; i < LOOP_COUNT; i++) {
+        str_ptr[i] = wmem_strdup_printf(NULL, "%s%s%s%s%s", s_val, s_val, s_val, s_val, s_val);
+    }
+    RESOURCE_USAGE_END;
+    g_test_minimized_result(utime_ms + stime_ms,
+        "wmem_strdup_printf(NULL) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+    for (i = 0; i < LOOP_COUNT; i++) {
+        g_free(str_ptr[i]);
+    }
+
+    RESOURCE_USAGE_START;
+    for (i = 0; i < LOOP_COUNT; i++) {
+        str_ptr[i] = wmem_strconcat(NULL, s_val, s_val, s_val, s_val, s_val, NULL);
+    }
+    RESOURCE_USAGE_END;
+    g_test_minimized_result(utime_ms + stime_ms,
+        "wmem_strconcat(NULL) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+    for (i = 0; i < LOOP_COUNT; i++) {
+        g_free(str_ptr[i]);
+    }
+
+/* wmem strdup strict allocator */
+
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
         wmem_strdup_printf(allocator, "%s%s", s_val, s_val);
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strdup_printf 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+        "wmem_strdup_printf(allocator) 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
@@ -630,7 +710,7 @@ wmem_test_stringperf(void)
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strconcat 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+        "wmem_strconcat(allocator) 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
@@ -638,7 +718,7 @@ wmem_test_stringperf(void)
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strdup_printf 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+        "wmem_strdup_printf(allocator) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
@@ -646,7 +726,7 @@ wmem_test_stringperf(void)
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strconcat 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
+        "wmem_strconcat(allocator) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
 
     wmem_destroy_allocator(allocator);
     g_free(str_ptr);
