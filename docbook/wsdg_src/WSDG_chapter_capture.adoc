@@ -1,12 +1,8 @@
-:toc: macro
-
 // WSDG Chapter Capture
 
 [[ChapterCapture]]
 
 == Packet Capture
-
-toc::[]
 
 ****
 This chapter needs to be reviewed and extended.

@@ -693,7 +693,7 @@ Include another conformance file.
 <<ASN1CnfDirectiveEXPORTS,++#++.EXPORTS>>::
 Export type or information object class.
 
-<<ASN1CnfDirectivePDU,++#++.PDU>>, <<ASN1CnfDirectivePDU_NEW,++#++.PDU_NEW>>, <<ASN1CnfDirectiveREGISTER,++#++.REGISTER>>, <<ASN1CnfDirectiveREGISTER_NEW,++#++.REGISTER_NEW>>, and #.SYNTAX::
+<<ASN1CnfDirectivePDUAndPDU_NEW,++#++.PDU>>, <<ASN1CnfDirectivePDUAndPDU_NEW,++#++.PDU_NEW>>, <<ASN1CnfDirectiveREGISTERAndREGISTER_NEW,++#++.REGISTER>>, <<ASN1CnfDirectiveREGISTERAndREGISTER_NEW,++#++.REGISTER_NEW>>, and #.SYNTAX::
 Create PDU functions and register them optionally to dissector table.
 
 
@@ -709,7 +709,7 @@ User tables.
 #.OMIT_ASSIGNMENT, #.NO_OMIT_ASSGN, #.OMIT_ALL_ASSIGNMENTS, #.OMIT_ASSIGNMENTS_EXCEPT, #.OMIT_ALL_TYPE_ASSIGNMENTS, #.OMIT_TYPE_ASSIGNMENTS_EXCEPT, #.OMIT_ALL_VALUE_ASSIGNMENTS, and #.OMIT_VALUE_ASSIGNMENTS_EXCEPT::
 Ignore assignments from ASN.1 source.
 
-<<ASN1CnfDirectiveNO_EMIT,++#++.NO_EMIT>> and <<ASN1CnfDirectiveUSER_DEFINED,++#++.USER_DEFINED>>::
+<<ASN1CnfDirectiveNO_EMITAndUSER_DEFINED,++#++.NO_EMIT>> and <<ASN1CnfDirectiveNO_EMITAndUSER_DEFINED,++#++.USER_DEFINED>>::
 See linked text for info.
 
 #.VIRTUAL_ASSGN, #.SET_TYPE, #.MAKE_ENUM, #.MAKE_DEFINES, and #.ASSIGN_VALUE_TO_TYPE::
@@ -1107,8 +1107,8 @@ have are done using the #.INCLUDE directive in the conformance file:
 See #.EXPORTS for a description and examples of these types of include
 files.
 
-[[ASN1CnfDirectiveNO_EMIT]]
-==== [[ASN1CnfDirectiveUSER_DEFINED]]#.NO_EMIT And #.USER_DEFINED
+[[ASN1CnfDirectiveNO_EMITAndUSER_DEFINED]]
+==== #.NO_EMIT And #.USER_DEFINED
 
 These two directives in the conformance file for Asn2wrs
 can be used to suppress generation of dissectors
@@ -1155,8 +1155,8 @@ Options:
 * WITHOUT_VALS: Only dissection function is user defined and not emitted.
 * ONLY_VALS: Only value string table is user defined and not emitted.
 
-[[ASN1CnfDirectivePDU]]
-==== [[ASN1CnfDirectivePDU_NEW]]#.PDU and #.PDU_NEW
+[[ASN1CnfDirectivePDUAndPDU_NEW]]
+==== #.PDU and #.PDU_NEW
 
 This directive in the Asn2wrs conformation file will
 generate a wrapper function around an object dissector.
@@ -1202,8 +1202,8 @@ static void dissect_SomeObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 This function can then later be called or referenced from the template file or even exported.
 
-[[ASN1CnfDirectiveREGISTER]]
-==== [[ASN1CnfDirectiveREGISTER_NEW]]#.REGISTER and #.REGISTER_NEW
+[[ASN1CnfDirectiveREGISTERAndREGISTER_NEW]]
+==== #.REGISTER and #.REGISTER_NEW 
 
 This directive in the Asn2wrs conformation file can be used to register a dissector for an object to an OID.
 This is very useful for X.509 and similar protocols where structures and objects are frequently associated with an OID.
