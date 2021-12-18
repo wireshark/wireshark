@@ -2972,7 +2972,9 @@ static void get_name_from_fullpropspec(struct CFullPropSpec *v, char *out, int b
 		} else if (v->kind == PRSPEC_PROPID) {
 			g_snprintf(dest, bufsize, "%s 0x%08x", guid_str, v->u.propid);
 		} else {
-			g_snprintf(dest, bufsize, "%s <INVALID>", dest);
+			char *str = g_strdup_printf("%s <INVALID>", dest);
+			g_strlcpy(dest, str, bufsize);
+			g_free(str);
 		}
 	}
 }
