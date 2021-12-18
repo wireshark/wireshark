@@ -312,7 +312,7 @@ static const value_string vals_ifd_tags_exif[] = {
     { 0x9012, "OffsetTimeDigitized" },
     { 0x9290, "SubSecTime" },
     { 0x9291, "SubSecTimeOriginal" },
-    { 0xA003, "SubSecTimeDigitized" },
+    { 0x9292, "SubSecTimeDigitized" },
     /*
      * Tags relating to picture-taking conditions:
      */
