@@ -12,9 +12,10 @@
 #ifndef __WMEM_STRUTL_H__
 #define __WMEM_STRUTL_H__
 
-#include <string.h>
+#include <wireshark.h>
+#include <stdarg.h>
 
-#include <glib.h>
+#include "wmem_core.h"
 
 #ifdef __cplusplus
 extern "C" {

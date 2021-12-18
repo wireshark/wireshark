@@ -99,6 +99,7 @@ if(UNIX)
 	list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 	check_function_exists("memmem"           HAVE_MEMMEM)
 	check_function_exists("strcasestr"       HAVE_STRCASESTR)
+	check_function_exists("vasprintf"        HAVE_VASPRINTF)
 	cmake_pop_check_state()
 endif()
 

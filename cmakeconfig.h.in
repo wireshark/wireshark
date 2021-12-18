@@ -259,6 +259,9 @@
 /* Define if you have the 'strcasestr' function. */
 #cmakedefine HAVE_STRCASESTR 1
 
+/* Define if you have the 'vasprintf' function. */
+#cmakedefine HAVE_VASPRINTF 1
+
 /* Define to 1 if `st_birthtime' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT_ST_BIRTHTIME 1
 

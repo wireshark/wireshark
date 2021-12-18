@@ -8,22 +8,13 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
+#define _GNU_SOURCE
 #include "config.h"
+#include "wmem_strutl.h"
 
 #include <string.h>
-#include <stdarg.h>
-
-#ifdef _WIN32
 #include <stdio.h>
-#endif
-
-#include <glib.h>
-#include <glib/gprintf.h>
-
-#include "wmem_core.h"
-#include "wmem_allocator.h"
-#include "wmem_strutl.h"
+#include <errno.h>
 
 gchar *
 wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
@@ -71,6 +62,22 @@ wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
     return dst;
 }
 
+#ifdef HAVE_VASPRINTF
+static char *
+_strdup_vasprintf(const char *fmt, va_list ap)
+{
+    char *str = NULL;
+    int ret;
+
+    ret = vasprintf(&str, fmt, ap);
+    if (ret == -1 && errno == ENOMEM) {
+        /* Out of memory. We have to mimic GLib here and abort. */
+        g_error("%s: failed to allocate memory", G_STRLOC);
+    }
+    return str;
+}
+#endif /* HAVE_VASPRINTF */
+
 #define WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER 256
 char *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
@@ -80,6 +87,12 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
     int needed_len;
     char *new_buf;
     size_t new_buf_size;
+
+#ifdef HAVE_VASPRINTF
+    if (allocator == NULL) {
+        return _strdup_vasprintf(fmt, ap);
+    }
+#endif
 
     va_copy(ap2, ap);
     needed_len = vsnprintf(buf, sizeof(buf), fmt, ap2);
