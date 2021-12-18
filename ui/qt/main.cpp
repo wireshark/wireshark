@@ -883,7 +883,7 @@ int main(int argc, char *qt_argv[])
             interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
 #ifdef HAVE_PCAP_REMOTE
             if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
-                auth_str = g_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
+                auth_str = ws_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
             }
 #endif
             caps = capture_get_if_capabilities(interface_opts->name, interface_opts->monitor_mode,

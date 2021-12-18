@@ -82,7 +82,7 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     if (!minor)
         ws_assert(!release);
 
-    extcap->version = g_strdup_printf("%s%s%s%s%s",
+    extcap->version = ws_strdup_printf("%s%s%s%s%s",
         major,
         minor ? "." : "",
         minor ? minor : "",
@@ -96,7 +96,7 @@ void extcap_base_set_compiled_with(extcap_parameters * extcap, const char *fmt, 
     va_list ap;
 
     va_start(ap, fmt);
-    extcap->compiled_with = g_strdup_vprintf(fmt, ap);
+    extcap->compiled_with = ws_strdup_vprintf(fmt, ap);
     va_end(ap);
 }
 
@@ -105,7 +105,7 @@ void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, .
     va_list ap;
 
     va_start(ap, fmt);
-    extcap->running_with = g_strdup_vprintf(fmt, ap);
+    extcap->running_with = ws_strdup_vprintf(fmt, ap);
     va_end(ap);
 }
 

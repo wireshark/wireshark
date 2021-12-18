@@ -3712,7 +3712,7 @@ static void gsm_a_stat_init(stat_tap_table_ui* new_stat, const char *table_title
         if (msg_str) {
             col_str = g_strdup(msg_str);
         } else {
-            col_str = g_strdup_printf("Unknown message %d", i);
+            col_str = ws_strdup_printf("Unknown message %d", i);
         }
 
         items[IEI_COLUMN].value.uint_value = i;

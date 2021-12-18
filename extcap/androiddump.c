@@ -890,8 +890,8 @@ adb_connect_transport(const char *server_ip, unsigned short *server_tcp_port,
 static void new_interface(extcap_parameters * extcap_conf, const gchar *interface_id,
         const gchar *model_name, const gchar *serial_number, const gchar *display_name)
 {
-    char *interface = g_strdup_printf("%s-%s", interface_id, serial_number);
-    char *ifdisplay = g_strdup_printf("%s %s %s", display_name, model_name, serial_number);
+    char *interface = ws_strdup_printf("%s-%s", interface_id, serial_number);
+    char *ifdisplay = ws_strdup_printf("%s %s %s", display_name, model_name, serial_number);
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
@@ -2555,7 +2555,7 @@ int main(int argc, char *argv[]) {
         ANDROIDDUMP_VERSION_RELEASE, help_url);
     g_free(help_url);
 
-    help_header = g_strdup_printf(
+    help_header = ws_strdup_printf(
         " %s --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"
         " %s --extcap-interface=INTERFACE --extcap-dlts\n"
         " %s --extcap-interface=INTERFACE --extcap-config\n"

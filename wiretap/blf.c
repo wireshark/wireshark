@@ -542,7 +542,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
                  * malformed file (WTAP_ERR_BAD_FILE)?
                  */
                 *err = WTAP_ERR_INTERNAL;
-                *err_info = g_strdup_printf("blf_read_bytes_or_eof: cannot refresh container");
+                *err_info = ws_strdup_printf("blf_read_bytes_or_eof: cannot refresh container");
                 ws_debug("cannot refresh container");
                 return FALSE;
             }
@@ -580,7 +580,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
                  * malformed file (WTAP_ERR_BAD_FILE)?
                  */
                 *err = WTAP_ERR_INTERNAL;
-                *err_info = g_strdup_printf("blf_read_bytes_or_eof: cannot pull in container");
+                *err_info = ws_strdup_printf("blf_read_bytes_or_eof: cannot pull in container");
                 ws_debug("cannot pull in container");
                 return FALSE;
             }
@@ -591,7 +591,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
                  * malformed file (WTAP_ERR_BAD_FILE)?
                  */
                 *err = WTAP_ERR_INTERNAL;
-                *err_info = g_strdup_printf("blf_read_bytes_or_eof: cannot refresh container");
+                *err_info = ws_strdup_printf("blf_read_bytes_or_eof: cannot refresh container");
                 ws_debug("cannot refresh container");
                 return FALSE;
             }
@@ -602,7 +602,7 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
                  * malformed file (WTAP_ERR_BAD_FILE)?
                  */
                 *err = WTAP_ERR_INTERNAL;
-                *err_info = g_strdup_printf("blf_read_bytes_or_eof: pulling in container failed hard");
+                *err_info = ws_strdup_printf("blf_read_bytes_or_eof: pulling in container failed hard");
                 ws_debug("pulling in container failed hard");
                 return FALSE;
             }
@@ -624,13 +624,13 @@ blf_read_bytes_or_eof(blf_params_t *params, guint64 real_pos, void *target_buffe
          * malformed file (WTAP_ERR_BAD_FILE)?
          */
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("blf_read_bytes_or_eof: ran out of items in container");
+        *err_info = ws_strdup_printf("blf_read_bytes_or_eof: ran out of items in container");
         return FALSE;
         break;
 
     default:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("blf: unknown compression method %u",
+        *err_info = ws_strdup_printf("blf: unknown compression method %u",
                                     start_container->compression_method);
         ws_debug("unknown compression method");
         return FALSE;
@@ -794,7 +794,7 @@ static gboolean
 blf_read_log_object_header(blf_params_t *params, int *err, gchar **err_info, gint64 header2_start, gint64 data_start, blf_logobjectheader_t *logheader) {
     if (data_start - header2_start < (gint64)sizeof(blf_logobjectheader_t)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: not enough bytes for log object header");
+        *err_info = ws_strdup_printf("blf: not enough bytes for log object header");
         ws_debug("not enough bytes for timestamp header");
         return FALSE;
     }
@@ -820,7 +820,7 @@ blf_read_ethernetframe(blf_params_t *params, int *err, gchar **err_info, gint64 
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_t)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: ETHERNET_FRAME: not enough bytes for ethernet frame header in object");
+        *err_info = ws_strdup_printf("blf: ETHERNET_FRAME: not enough bytes for ethernet frame header in object");
         ws_debug("not enough bytes for ethernet frame header in object");
         return FALSE;
     }
@@ -894,7 +894,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
 
     if (object_length < (data_start - block_start) + (int) sizeof(blf_ethernetframeheader_ex_t)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: ETHERNET_FRAME_EX: not enough bytes for ethernet frame header in object");
+        *err_info = ws_strdup_printf("blf: ETHERNET_FRAME_EX: not enough bytes for ethernet frame header in object");
         ws_debug("not enough bytes for ethernet frame header in object");
         return FALSE;
     }
@@ -909,7 +909,7 @@ blf_read_ethernetframe_ext(blf_params_t *params, int *err, gchar **err_info, gin
 
     if (object_length - (data_start - block_start) - sizeof(blf_ethernetframeheader_ex_t) < ethheader.frame_length) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: ETHERNET_FRAME_EX: frame too short");
+        *err_info = ws_strdup_printf("blf: ETHERNET_FRAME_EX: frame too short");
         ws_debug("frame too short");
         return FALSE;
     }
@@ -937,7 +937,7 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
 
     if (object_length < (data_start - block_start) + (int)sizeof(blf_wlanframeheader_t)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: WLAN_FRAME: not enough bytes for wlan frame header in object");
+        *err_info = ws_strdup_printf("blf: WLAN_FRAME: not enough bytes for wlan frame header in object");
         ws_debug("not enough bytes for wlan frame header in object");
         return FALSE;
     }
@@ -952,7 +952,7 @@ blf_read_wlanframe(blf_params_t* params, int* err, gchar** err_info, gint64 bloc
 
     if (object_length - (data_start - block_start) - sizeof(blf_wlanframeheader_t) < wlanheader.frame_length) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: WLAN_FRAME: frame too short");
+        *err_info = ws_strdup_printf("blf: WLAN_FRAME: frame too short");
         ws_debug("frame too short");
         return FALSE;
     }
@@ -1018,7 +1018,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: %s: not enough bytes for canfd header in object",
+        *err_info = ws_strdup_printf("blf: %s: not enough bytes for canfd header in object",
                                     can_message2 ? "CAN_MESSAGE2" : "CAN_MESSAGE");
         ws_debug("not enough bytes for canfd header in object");
         return FALSE;
@@ -1062,7 +1062,7 @@ blf_read_canmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
     if (can_message2) {
         if (object_length < (data_start - block_start) + (int) sizeof(canheader) + payload_length_valid + (int) sizeof(can2trailer)) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("blf: CAN_MESSAGE2: not enough bytes for can message 2 trailer");
+            *err_info = ws_strdup_printf("blf: CAN_MESSAGE2: not enough bytes for can message 2 trailer");
             ws_debug("not enough bytes for can message 2 trailer");
             return FALSE;
         }
@@ -1094,7 +1094,7 @@ blf_read_canfdmessage(blf_params_t *params, int *err, gchar **err_info, gint64 b
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: CAN_FD_MESSAGE: not enough bytes for canfd header in object");
+        *err_info = ws_strdup_printf("blf: CAN_FD_MESSAGE: not enough bytes for canfd header in object");
         ws_debug("not enough bytes for canfd header in object");
         return FALSE;
     }
@@ -1163,7 +1163,7 @@ blf_read_canfdmessage64(blf_params_t *params, int *err, gchar **err_info, gint64
 
     if (object_length < (data_start - block_start) + (int) sizeof(canheader)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: CAN_FD_MESSAGE_64: not enough bytes for canfd header in object");
+        *err_info = ws_strdup_printf("blf: CAN_FD_MESSAGE_64: not enough bytes for canfd header in object");
         ws_debug("not enough bytes for canfd header in object");
         return FALSE;
     }
@@ -1240,7 +1240,7 @@ blf_read_flexraydata(blf_params_t *params, int *err, gchar **err_info, gint64 bl
 
     if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: FLEXRAY_DATA: not enough bytes for flexrayheader in object");
+        *err_info = ws_strdup_printf("blf: FLEXRAY_DATA: not enough bytes for flexrayheader in object");
         ws_debug("not enough bytes for flexrayheader in object");
         return FALSE;
     }
@@ -1317,7 +1317,7 @@ blf_read_flexraymessage(blf_params_t *params, int *err, gchar **err_info, gint64
 
     if (object_length < (data_start - block_start) + (int) sizeof(frheader)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: FLEXRAY_MESSAGE: not enough bytes for flexrayheader in object");
+        *err_info = ws_strdup_printf("blf: FLEXRAY_MESSAGE: not enough bytes for flexrayheader in object");
         ws_debug("not enough bytes for flexrayheader in object");
         return FALSE;
     }
@@ -1416,7 +1416,7 @@ blf_read_flexrayrcvmessageex(blf_params_t *params, int *err, gchar **err_info, g
 
     if ((gint64)object_length < (data_start - block_start) + frheadersize) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: %s: not enough bytes for flexrayheader in object",
+        *err_info = ws_strdup_printf("blf: %s: not enough bytes for flexrayheader in object",
                                     ext ? "FLEXRAY_RCVMESSAGE_EX" : "FLEXRAY_RCVMESSAGE");
         ws_debug("not enough bytes for flexrayheader in object");
         return FALSE;
@@ -1513,7 +1513,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     if (object_length < (data_start - block_start) + (int)sizeof(linheader)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: LIN_MESSAGE: not enough bytes for linmessage header in object");
+        *err_info = ws_strdup_printf("blf: LIN_MESSAGE: not enough bytes for linmessage header in object");
         ws_debug("not enough bytes for linmessage header in object");
         return FALSE;
     }
@@ -1559,7 +1559,7 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 
     if (object_length < (data_start - block_start) + (int)sizeof(linheader) + payload_length_valid + (int)sizeof(lintrailer)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("blf: LIN_MESSAGE: not enough bytes for linmessage trailer");
+        *err_info = ws_strdup_printf("blf: LIN_MESSAGE: not enough bytes for linmessage trailer");
         ws_debug("not enough bytes for linmessage trailer");
         return FALSE;
     }
@@ -1613,7 +1613,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
 
         if (header.header_type != BLF_HEADER_TYPE_DEFAULT) {
             *err = WTAP_ERR_UNSUPPORTED;
-            *err_info = g_strdup_printf("blf: unknown header type %u",
+            *err_info = ws_strdup_printf("blf: unknown header type %u",
                                         header.header_type);
             ws_debug("unknown header type");
             return FALSE;
@@ -1625,7 +1625,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
         switch (header.object_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
             *err = WTAP_ERR_UNSUPPORTED;
-            *err_info = g_strdup_printf("blf: log container in log container not supported");
+            *err_info = ws_strdup_printf("blf: log container in log container not supported");
             ws_debug("log container in log container not supported");
             return FALSE;
             break;

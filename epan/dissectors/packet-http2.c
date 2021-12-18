@@ -576,7 +576,7 @@ header_fields_update_cb(void *r, char **err)
      */
     c = proto_check_field_name(rec->header_name);
     if (c) {
-        *err = g_strdup_printf("Header name can't contain '%c'", c);
+        *err = ws_strdup_printf("Header name can't contain '%c'", c);
         return FALSE;
     }
 
@@ -584,7 +584,7 @@ header_fields_update_cb(void *r, char **err)
     if (header_fields_hash != NULL) {
         const gint *entry = (const gint *) g_hash_table_lookup(header_fields_hash, rec->header_name);
         if (entry != NULL) {
-            *err = g_strdup_printf("This header field is already defined in UAT or it is a static header field");
+            *err = ws_strdup_printf("This header field is already defined in UAT or it is a static header field");
             return FALSE;
         }
     }
@@ -1101,7 +1101,7 @@ http2_init_protocol(void)
 
             hf_uat[i].p_id = hf_id;
             hf_uat[i].hfinfo.name = header_name;
-            hf_uat[i].hfinfo.abbrev = g_strdup_printf("http2.headers.%s", header_name);
+            hf_uat[i].hfinfo.abbrev = ws_strdup_printf("http2.headers.%s", header_name);
             switch(header_fields[i].header_type) {
                 case val_uint64:
                     hf_uat[i].hfinfo.type = FT_UINT64;
@@ -2314,7 +2314,7 @@ http2_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *str
 
         *stream = tcpd->stream;
         *sub_stream = h2session->current_stream_id;
-        return g_strdup_printf("tcp.stream eq %u and http2.streamid eq %u", tcpd->stream, h2session->current_stream_id);
+        return ws_strdup_printf("tcp.stream eq %u and http2.streamid eq %u", tcpd->stream, h2session->current_stream_id);
     }
 
     return NULL;
@@ -2395,7 +2395,7 @@ http2_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id
 static gchar*
 http2_follow_index_filter(guint stream, guint sub_stream)
 {
-    return g_strdup_printf("tcp.stream eq %u and http2.streamid eq %u", stream, sub_stream);
+    return ws_strdup_printf("tcp.stream eq %u and http2.streamid eq %u", stream, sub_stream);
 }
 
 static tap_packet_status

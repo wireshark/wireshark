@@ -346,7 +346,7 @@ since_attr since=\042
 	}
 
 	if (!e) {
-		temp_str = g_strdup_printf(
+		temp_str = ws_strdup_printf(
 			"cannot find entity: '%s'\n", yytext);
 		yyextra->dict_error = g_string_append(yyextra->dict_error, temp_str);
 		g_free(temp_str);
@@ -642,7 +642,7 @@ static FILE *wimaxasncp_dict_open(
 	gchar *fname;
 	if (system_directory)
 	{
-		fname = g_strdup_printf("%s%s%s",
+		fname = ws_strdup_printf("%s%s%s",
 			   system_directory, G_DIR_SEPARATOR_S,filename);
 	}
 	else

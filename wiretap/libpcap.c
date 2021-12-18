@@ -217,7 +217,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	if (hdr.version_major < 2) {
 		/* We only support version 2.0 and later. */
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("pcap: major version %u unsupported",
+		*err_info = ws_strdup_printf("pcap: major version %u unsupported",
 		    hdr.version_major);
 		return WTAP_OPEN_ERROR;
 	}
@@ -329,7 +329,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network & 0x03FFFFFF);
 	if (file_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
+		*err_info = ws_strdup_printf("pcap: network type %u unknown or unsupported",
 		    hdr.network);
 		return WTAP_OPEN_ERROR;
 	}
@@ -853,7 +853,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL) {
-			*err_info = g_strdup_printf("pcap: File has %u-byte packet, bigger than maximum of %u",
+			*err_info = ws_strdup_printf("pcap: File has %u-byte packet, bigger than maximum of %u",
 			    hdr.hdr.incl_len,
 			    wtap_max_snaplen_for_encap(wth->file_encap));
 		}

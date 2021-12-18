@@ -1142,7 +1142,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         recognized_packet = wmem_list_frame_next(recognized_packet);
       }
       /* insert how many packets were found */
-      col_info_str = g_strdup_printf("%s: %u Packet%s%s%s",
+      col_info_str = ws_strdup_printf("%s: %u Packet%s%s%s",
           "MTP2",
           wmem_list_count(result->found_packets),
           (wmem_list_count(result->found_packets) > 1
@@ -1150,7 +1150,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
               :""
           ),
           (was_unaligned_packet
-              ?g_strdup_printf(" [Unaligned Packet%s]", (wmem_list_count(result->found_packets)>1
+              ?ws_strdup_printf(" [Unaligned Packet%s]", (wmem_list_count(result->found_packets)>1
                   ?"s"
                   :""))
               :""
@@ -1169,7 +1169,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           && frag_msg_before_fh)
       {
         col_add_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
-        col_info_str = g_strdup_printf("[MTP2 Reassembled in: %u]", frag_msg_before_fh->reassembled_in);
+        col_info_str = ws_strdup_printf("[MTP2 Reassembled in: %u]", frag_msg_before_fh->reassembled_in);
         col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
         g_free(col_info_str);
       } else {

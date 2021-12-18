@@ -622,11 +622,11 @@ check_filter_string(gchar *filter_string, guint32 id) {
     c = proto_check_field_name(filter_string);
     if (c) {
         if (c == '.') {
-            err = g_strdup_printf("Filter String contains illegal chars '.' (ID: %i )", id);
+            err = ws_strdup_printf("Filter String contains illegal chars '.' (ID: %i )", id);
         } else if (g_ascii_isprint(c)) {
-            err = g_strdup_printf("Filter String contains illegal chars '%c' (ID: %i)", c, id);
+            err = ws_strdup_printf("Filter String contains illegal chars '%c' (ID: %i)", c, id);
         } else {
-            err = g_strdup_printf("Filter String contains invalid byte \\%03o (ID: %i)", c, id);
+            err = ws_strdup_printf("Filter String contains invalid byte \\%03o (ID: %i)", c, id);
         }
     }
 
@@ -660,7 +660,7 @@ update_generic_one_identifier_16bit(void *r, char **err) {
     generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
 
     if (rec->id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
         return FALSE;
     }
 
@@ -712,12 +712,12 @@ update_generic_two_identifier_16bit(void *r, char **err) {
     generic_two_id_string_t *rec = (generic_two_id_string_t *)r;
 
     if ( rec->id > 0xffff ) {
-        *err = g_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
         return FALSE;
     }
 
     if ( rec->id2 > 0xffff ) {
-        *err = g_strdup_printf("We currently only support 16 bit identifiers (ID: %i  ID2: %i  Name: %s)", rec->id, rec->id2, rec->name);
+        *err = ws_strdup_printf("We currently only support 16 bit identifiers (ID: %i  ID2: %i  Name: %s)", rec->id, rec->id2, rec->name);
         return FALSE;
     }
 
@@ -1012,48 +1012,48 @@ update_someip_parameter_list(void *r, char **err) {
     guchar c;
 
     if (rec->service_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit Service IDs (Service-ID: %i  Name: %s)", rec->service_id, rec->name);
+        *err = ws_strdup_printf("We currently only support 16 bit Service IDs (Service-ID: %i  Name: %s)", rec->service_id, rec->name);
         return FALSE;
     }
 
     if (rec->method_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit Method IDs (Service-ID: %i  Method-ID: %i  Name: %s)", rec->service_id, rec->method_id, rec->name);
+        *err = ws_strdup_printf("We currently only support 16 bit Method IDs (Service-ID: %i  Method-ID: %i  Name: %s)", rec->service_id, rec->method_id, rec->name);
         return FALSE;
     }
 
     if (rec->version > 0xff) {
-        *err = g_strdup_printf("We currently only support 8 bit Version (Service-ID: %i  Method-ID: %i  Version: %d  Name: %s)", rec->service_id, rec->method_id, rec->version, rec->name);
+        *err = ws_strdup_printf("We currently only support 8 bit Version (Service-ID: %i  Method-ID: %i  Version: %d  Name: %s)", rec->service_id, rec->method_id, rec->version, rec->name);
         return FALSE;
     }
 
     if (rec->message_type > 0xff) {
-        *err = g_strdup_printf("We currently only support 8 bit Message Type (Service-ID: %i  Method-ID: %i  Version: %d  Message Type: %x  Name: %s)", rec->service_id, rec->method_id, rec->version, rec->message_type, rec->name);
+        *err = ws_strdup_printf("We currently only support 8 bit Message Type (Service-ID: %i  Method-ID: %i  Version: %d  Message Type: %x  Name: %s)", rec->service_id, rec->method_id, rec->version, rec->message_type, rec->name);
         return FALSE;
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     if (rec->pos >= rec->num_of_params) {
-        *err = g_strdup_printf("Position >= Number of Parameters");
+        *err = ws_strdup_printf("Position >= Number of Parameters");
         return FALSE;
     }
 
     if (rec->filter_string == NULL || rec->filter_string[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     c = proto_check_field_name(rec->filter_string);
     if (c) {
         if (c == '.') {
-            *err = g_strdup_printf("Filter String contains illegal chars '.' (Service-ID: %i  Method-ID: %i)", rec->service_id, rec->method_id);
+            *err = ws_strdup_printf("Filter String contains illegal chars '.' (Service-ID: %i  Method-ID: %i)", rec->service_id, rec->method_id);
         } else if (g_ascii_isprint(c)) {
-            *err = g_strdup_printf("Filter String contains illegal chars '%c' (Service-ID: %i  Method-ID: %i)", c, rec->service_id, rec->method_id);
+            *err = ws_strdup_printf("Filter String contains illegal chars '%c' (Service-ID: %i  Method-ID: %i)", c, rec->service_id, rec->method_id);
         } else {
-            *err = g_strdup_printf("Filter String contains invalid byte \\%03o (Service-ID: %i  Method-ID: %i)", c, rec->service_id, rec->method_id);
+            *err = ws_strdup_printf("Filter String contains invalid byte \\%03o (Service-ID: %i  Method-ID: %i)", c, rec->service_id, rec->method_id);
         }
         return FALSE;
     }
@@ -1177,17 +1177,17 @@ update_someip_parameter_enum(void *r, char **err) {
     /* enum name is not used in a filter yet. */
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     if (rec->value_name == NULL || rec->value_name[0] == 0) {
-        *err = g_strdup_printf("Value Name cannot be empty");
+        *err = ws_strdup_printf("Value Name cannot be empty");
         return FALSE;
     }
 
     if (rec->num_of_items == 0) {
-        *err = g_strdup_printf("Number_of_Items = 0");
+        *err = ws_strdup_printf("Number_of_Items = 0");
         return FALSE;
     }
 
@@ -1317,17 +1317,17 @@ update_someip_parameter_array(void *r, char **err) {
     char                         *tmp;
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     if (rec->num >= rec->num_of_dims) {
-        *err = g_strdup_printf("Dimension >= Number of Dimensions");
+        *err = ws_strdup_printf("Dimension >= Number of Dimensions");
         return FALSE;
     }
 
     if (rec->filter_string == NULL || rec->filter_string[0] == 0) {
-        *err = g_strdup_printf("Filter String cannot be empty");
+        *err = ws_strdup_printf("Filter String cannot be empty");
         return FALSE;
     }
 
@@ -1468,12 +1468,12 @@ update_someip_parameter_struct(void *r, char **err) {
     char                          *tmp = NULL;
 
     if (rec->struct_name == NULL || rec->struct_name[0] == 0) {
-        *err = g_strdup_printf("Struct name cannot be empty");
+        *err = ws_strdup_printf("Struct name cannot be empty");
         return FALSE;
     }
 
     if (rec->filter_string == NULL || rec->filter_string[0] == 0) {
-        *err = g_strdup_printf("Struct name cannot be empty");
+        *err = ws_strdup_printf("Struct name cannot be empty");
         return FALSE;
     }
 
@@ -1484,12 +1484,12 @@ update_someip_parameter_struct(void *r, char **err) {
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     if (rec->pos >= rec->num_of_items) {
-        *err = g_strdup_printf("Position >= Number of Parameters");
+        *err = ws_strdup_printf("Position >= Number of Parameters");
         return FALSE;
     }
 
@@ -1627,7 +1627,7 @@ update_someip_parameter_union(void *r, char **err) {
     gchar                        *tmp;
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Union name cannot be empty");
+        *err = ws_strdup_printf("Union name cannot be empty");
         return FALSE;
     }
 
@@ -1638,7 +1638,7 @@ update_someip_parameter_union(void *r, char **err) {
     }
 
     if (rec->type_name == NULL || rec->type_name[0] == 0) {
-        *err = g_strdup_printf("Type Name cannot be empty");
+        *err = ws_strdup_printf("Type Name cannot be empty");
         return FALSE;
     }
 
@@ -1761,12 +1761,12 @@ update_someip_parameter_base_type_list(void *r, char **err) {
     someip_parameter_base_type_list_uat_t *rec = (someip_parameter_base_type_list_uat_t *)r;
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     if (rec->id > 0xffffffff) {
-        *err = g_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
         return FALSE;
     }
 
@@ -1850,22 +1850,22 @@ update_someip_parameter_string_list(void *r, char **err) {
     someip_parameter_string_uat_t *rec = (someip_parameter_string_uat_t *)r;
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     if (rec->id > 0xffffffff) {
-        *err = g_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
         return FALSE;
     }
 
     if (rec->max_length > 0xffffffff) {
-        *err = g_strdup_printf("We currently only support 32 bit max_length (%i) Name: %s", rec->max_length, rec->name);
+        *err = ws_strdup_printf("We currently only support 32 bit max_length (%i) Name: %s", rec->max_length, rec->name);
         return FALSE;
     }
 
     if (rec->length_of_length != 0 && rec->length_of_length != 8 && rec->length_of_length != 16 && rec->length_of_length != 32) {
-        *err = g_strdup_printf("length_of_length can be only 0, 8, 16, or 32 but not %d (IDs: %i Name: %s)", rec->length_of_length, rec->id, rec->name);
+        *err = ws_strdup_printf("length_of_length can be only 0, 8, 16, or 32 but not %d (IDs: %i Name: %s)", rec->length_of_length, rec->id, rec->name);
         return FALSE;
     }
 
@@ -1936,7 +1936,7 @@ update_someip_parameter_typedef_list(void *r, char **err) {
     someip_parameter_typedef_uat_t *rec = (someip_parameter_typedef_uat_t *)r;
 
     if (rec->id > 0xffffffff) {
-        *err = g_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
         return FALSE;
     }
 
@@ -2124,7 +2124,7 @@ update_dynamic_hf_entry(hf_register_info *hf_array, int pos, guint32 data_type, 
     if (attribs.base_type_name == NULL) {
         hf_array[pos].hfinfo.name = g_strdup(param_name);
     } else {
-        hf_array[pos].hfinfo.name = g_strdup_printf("%s [%s]", param_name, attribs.base_type_name);
+        hf_array[pos].hfinfo.name = ws_strdup_printf("%s [%s]", param_name, attribs.base_type_name);
     }
 
     hf_array[pos].hfinfo.abbrev = abbrev;
@@ -2165,7 +2165,7 @@ update_dynamic_param_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
 
         if (service_name == NULL) {
             service_name_needs_free = TRUE;
-            service_name = g_strdup_printf("0x%04x", list->service_id);
+            service_name = ws_strdup_printf("0x%04x", list->service_id);
         }
 
         if (method_name != NULL) {
@@ -2177,10 +2177,10 @@ update_dynamic_param_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
 
         if (method_name == NULL) {
             method_name_needs_free = TRUE;
-            method_name = g_strdup_printf("0x%04x", list->method_id);
+            method_name = ws_strdup_printf("0x%04x", list->method_id);
         }
 
-        char *abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+        char *abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
         item->hf_id = update_dynamic_hf_entry(dynamic_hf_param, *pos, item->data_type, item->id_ref, item->name, abbrev);
 
         if (service_name_needs_free) {
@@ -2207,7 +2207,7 @@ update_dynamic_array_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
         return;
     }
 
-    abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+    abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
     item->hf_id = update_dynamic_hf_entry(dynamic_hf_array, *pos, item->data_type, item->id_ref, item->name, abbrev);
 
     if (item->hf_id != NULL) {
@@ -2228,7 +2228,7 @@ update_dynamic_struct_hf_entry(gpointer key _U_, gpointer value, gpointer data) 
     for (i = 0; i < list->num_of_items; i++) {
         someip_payload_parameter_item_t *item = &(list->items[i]);
 
-        char *abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+        char *abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
         item->hf_id = update_dynamic_hf_entry(dynamic_hf_struct, *pos, item->data_type, item->id_ref, item->name, abbrev);
 
         if (item->hf_id != NULL) {
@@ -2250,7 +2250,7 @@ update_dynamic_union_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
     for (i = 0; i < list->num_of_items; i++) {
         someip_parameter_union_item_t *item = &(list->items[i]);
 
-        char *abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+        char *abbrev = ws_strdup_printf("someip.payload.%s", item->filter_string);
         item->hf_id = update_dynamic_hf_entry(dynamic_hf_union, *pos, item->data_type, item->id_ref, item->name, abbrev);
 
         if (item->hf_id != NULL) {

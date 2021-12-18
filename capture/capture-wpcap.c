@@ -270,7 +270,7 @@ convert_errbuf_to_utf8(char *errbuf)
 static char *
 cant_load_winpcap_err(const char *app_name)
 {
-	return g_strdup_printf(
+	return ws_strdup_printf(
 "Unable to load Npcap or WinPcap (wpcap.dll); %s will not be able to\n"
 "capture packets.\n"
 "\n"
@@ -771,12 +771,12 @@ cant_get_if_list_error_message(const char *err_str)
 	 */
 	if (strstr(err_str, "Not enough storage is available to process this command") != NULL ||
 	    strstr(err_str, "The operation completed successfully") != NULL) {
-		return g_strdup_printf("Can't get list of interfaces: %s\n"
+		return ws_strdup_printf("Can't get list of interfaces: %s\n"
 "This might be a problem with WinPcap 3.0. You should try updating to\n"
 "Npcap. See https://nmap.org/npcap/ for more information.",
 		    err_str);
 	}
-	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
+	return ws_strdup_printf("Can't get list of interfaces: %s", err_str);
 }
 
 if_capabilities_t *

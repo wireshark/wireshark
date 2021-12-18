@@ -112,7 +112,7 @@ add_extensions(GSList *extensions, const gchar *extension,
 	    compression_type_extension != NULL;
 	    compression_type_extension = g_slist_next(compression_type_extension)) {
 		extensions = g_slist_prepend(extensions,
-		    g_strdup_printf("%s.%s", extension,
+		    ws_strdup_printf("%s.%s", extension,
 		        (const char *)compression_type_extension->data));
 	}
 

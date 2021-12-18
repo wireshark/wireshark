@@ -1667,7 +1667,7 @@ static gboolean uat_dhcp_record_update_cb(void* r, char** err) {
 	uat_dhcp_record_t* rec = (uat_dhcp_record_t *)r;
 
 	if ((rec->opt == 0) || (rec->opt >=DHCP_OPT_NUM-1)) {
-		*err = g_strdup_printf("Option must be between 1 and %d", DHCP_OPT_NUM-2);
+		*err = ws_strdup_printf("Option must be between 1 and %d", DHCP_OPT_NUM-2);
 		return FALSE;
 	}
 	return TRUE;

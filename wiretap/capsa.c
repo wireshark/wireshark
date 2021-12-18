@@ -159,7 +159,7 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("capsa: format indicator %u unsupported",
+		*err_info = ws_strdup_printf("capsa: format indicator %u unsupported",
 		    format_indicator);
 		return WTAP_OPEN_ERROR;
 	}
@@ -371,7 +371,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	default:
 		ws_assert_not_reached();
 		*err = WTAP_ERR_INTERNAL;
-		*err_info = g_strdup_printf("capsa: format indicator is %u", capsa->format_indicator);
+		*err_info = ws_strdup_printf("capsa: format indicator is %u", capsa->format_indicator);
 		return -1;
 	}
 	if (orig_size > WTAP_MAX_PACKET_SIZE_STANDARD) {
@@ -380,7 +380,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("capsa: File has %u-byte original length, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("capsa: File has %u-byte original length, bigger than maximum of %u",
 		    orig_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return -1;
 	}
@@ -390,7 +390,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("capsa: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("capsa: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return -1;
 	}
@@ -399,7 +399,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * Probably a corrupt capture file.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("capsa: File has %u-byte packet with %u-byte record header, bigger than record size %u",
+		*err_info = ws_strdup_printf("capsa: File has %u-byte packet with %u-byte record header, bigger than record size %u",
 		    packet_size, header_size, rec_size);
 		return -1;
 	}

@@ -213,7 +213,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
     fileset_entry *entry = NULL;
 
 
-    path = g_strdup_printf("%s%s", dirname, fname);
+    path = ws_strdup_printf("%s%s", dirname, fname);
 
     fh = ws_open( path, O_RDONLY, 0000 /* no creation so don't matter */);
     if(fh !=  -1) {

@@ -543,7 +543,7 @@ void WiresharkApplication::storeCustomColorsInRecent()
         recent.custom_colors = NULL;
         for (int i = 0; i < QColorDialog::customCount(); i++) {
             QRgb rgb = QColorDialog::customColor(i).rgb();
-            recent.custom_colors = g_list_append(recent.custom_colors, g_strdup_printf("%08x", rgb));
+            recent.custom_colors = g_list_append(recent.custom_colors, ws_strdup_printf("%08x", rgb));
         }
     }
 }

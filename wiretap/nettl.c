@@ -337,7 +337,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
     hdr_len = g_ntohs(rec_hdr.hdr_len);
     if (hdr_len < NETTL_REC_HDR_LEN) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("nettl: record header length %u too short",
+        *err_info = ws_strdup_printf("nettl: record header length %u too short",
             hdr_len);
         return FALSE;
     }
@@ -537,7 +537,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 
     if (length < padlen) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("nettl: packet length %u in record header too short, less than %u",
+        *err_info = ws_strdup_printf("nettl: packet length %u in record header too short, less than %u",
             length, padlen);
         return FALSE;
     }
@@ -547,7 +547,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
     rec->rec_header.packet_header.len = length - padlen;
     if (caplen < padlen) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("nettl: captured length %u in record header too short, less than %u",
+        *err_info = ws_strdup_printf("nettl: captured length %u in record header too short, less than %u",
             caplen, padlen);
         return FALSE;
     }
@@ -568,7 +568,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
          * to allocate space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("nettl: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("nettl: File has %u-byte packet, bigger than maximum of %u",
             rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }

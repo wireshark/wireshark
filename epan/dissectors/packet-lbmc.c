@@ -6150,24 +6150,24 @@ lbm_uim_seq_analysis_packet(void *ptr, packet_info *pinfo, epan_dissect_t *edt _
 
     if (stream_info->description == NULL)
     {
-        sai->frame_label = g_strdup_printf("(%" PRIu32 ")", stream_info->sqn);
+        sai->frame_label = ws_strdup_printf("(%" PRIu32 ")", stream_info->sqn);
     }
     else
     {
-        sai->frame_label = g_strdup_printf("%s (%" PRIu32 ")", stream_info->description, stream_info->sqn);
+        sai->frame_label = ws_strdup_printf("%s (%" PRIu32 ")", stream_info->description, stream_info->sqn);
     }
     if (epa.type == lbm_uim_instance_stream)
     {
         ctxinst1 = bytes_to_str(pinfo->pool, epa.stream_info.ctxinst.ctxinst, sizeof(epa.stream_info.ctxinst.ctxinst));
         ctxinst2 = bytes_to_str(pinfo->pool, epb.stream_info.ctxinst.ctxinst, sizeof(epb.stream_info.ctxinst.ctxinst));
-        sai->comment = g_strdup_printf("%s <-> %s [%" PRIu64 "]",
+        sai->comment = ws_strdup_printf("%s <-> %s [%" PRIu64 "]",
             ctxinst1,
             ctxinst2,
             stream_info->channel);
     }
     else
     {
-        sai->comment = g_strdup_printf("%" PRIu32 ":%s:%" PRIu16 " <-> %" PRIu32 ":%s:%" PRIu16 " [%" PRIu64 "]",
+        sai->comment = ws_strdup_printf("%" PRIu32 ":%s:%" PRIu16 " <-> %" PRIu32 ":%s:%" PRIu16 " [%" PRIu64 "]",
             epa.stream_info.dest.domain,
             address_to_str(pinfo->pool, &(epa.stream_info.dest.addr)),
             epa.stream_info.dest.port,

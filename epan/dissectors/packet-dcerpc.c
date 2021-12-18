@@ -2039,11 +2039,11 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
            &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos) == 13)
     {
         if ((major < 0) || (major > 65535)) {
-            *err = g_strdup_printf("dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535", major);
+            *err = ws_strdup_printf("dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535", major);
             return pos;
         }
         if ((minor < 0) || (minor > 65535)) {
-            *err = g_strdup_printf("dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535", minor);
+            *err = ws_strdup_printf("dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535", minor);
             return pos;
         }
         ver = major;
@@ -2079,7 +2079,7 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
     }
     else
     {
-        *err = g_strdup_printf("<uuid>,<major version>.<minor version>[,<filter>]");
+        *err = ws_strdup_printf("<uuid>,<major version>.<minor version>[,<filter>]");
     }
 
     return pos;

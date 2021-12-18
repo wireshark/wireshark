@@ -1306,7 +1306,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 		if (new_file->is_out_of_memory) {
 			entry->content_type =
-				g_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
+				ws_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
 								aux_smb_fid_type_string,
 								new_file->data_gathered,
 								new_file->file_length,
@@ -1319,7 +1319,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			}
 
 			entry->content_type =
-				g_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
+				ws_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
 								aux_smb_fid_type_string,
 								new_file->data_gathered,
 								new_file->file_length,
@@ -1341,7 +1341,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		/* Modify the current_entry object_type string */
 		if (current_file->is_out_of_memory) {
 			current_entry->content_type =
-				g_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
+				ws_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
 								aux_smb_fid_type_string,
 								current_file->data_gathered,
 								current_file->file_length,
@@ -1349,7 +1349,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		} else {
 			percent = (gfloat) (100*current_file->data_gathered/current_file->file_length);
 			current_entry->content_type =
-				g_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
+				ws_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
 								aux_smb_fid_type_string,
 								current_file->data_gathered,
 								current_file->file_length,

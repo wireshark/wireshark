@@ -184,7 +184,7 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
 	if (rec->rec_header.packet_header.len <= FCS_LENGTH) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("daintree_sna: packet length <= %u bytes, no frame data present",
+		*err_info = ws_strdup_printf("daintree_sna: packet length <= %u bytes, no frame data present",
 		    FCS_LENGTH);
 		return FALSE;
 	}
@@ -236,14 +236,14 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
 	if (bytes <= FCS_LENGTH) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("daintree_sna: Only %u bytes of packet data",
+		*err_info = ws_strdup_printf("daintree_sna: Only %u bytes of packet data",
 		    bytes);
 		return FALSE;
 	}
 	bytes -= FCS_LENGTH;
 	if (bytes > rec->rec_header.packet_header.len) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("daintree_sna: capture length (%u) > packet length (%u)",
+		*err_info = ws_strdup_printf("daintree_sna: capture length (%u) > packet length (%u)",
 		    bytes, rec->rec_header.packet_header.len);
 		return FALSE;
 	}

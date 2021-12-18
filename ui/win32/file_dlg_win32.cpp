@@ -1269,7 +1269,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_para
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
                     if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                        gchar *str = g_strdup_printf(
+                        gchar *str = ws_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
                             "Please choose a different filename.",
                             file_name8);
@@ -1342,7 +1342,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
                     if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                        gchar *str = g_strdup_printf(
+                        gchar *str = ws_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
                             "Please choose a different filename.",
                             file_name8);

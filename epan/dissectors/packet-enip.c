@@ -990,7 +990,7 @@ enip_io_conv_filter(packet_info *pinfo)
 
    if (conn->close_frame > 0)
    {
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "  /* Frames between ForwardOpen and ForwardClose reply */
            "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                             /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
@@ -1001,7 +1001,7 @@ enip_io_conv_filter(packet_info *pinfo)
    else
    {
        /* If Forward Close isn't found, don't limit the (end) frame range */
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || (frame.number >= %u)) && "                                            /* Frames starting with ForwardOpen */
            "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                            /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",    /* Connection Triad */
@@ -1036,7 +1036,7 @@ enip_exp_conv_filter(packet_info *pinfo)
 
    if (conn->close_frame > 0)
    {
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "  /* Frames between ForwardOpen and ForwardClose reply */
            "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                             /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
@@ -1047,7 +1047,7 @@ enip_exp_conv_filter(packet_info *pinfo)
    else
    {
        /* If Forward Close isn't found, don't limit the (end) frame range */
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || (frame.number >= %u)) && "    /* Frames between ForwardOpen and ForwardClose */
            "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                          /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */

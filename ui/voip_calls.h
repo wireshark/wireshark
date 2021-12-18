@@ -223,7 +223,7 @@ typedef struct _voip_calls_tapinfo {
 
 #if 0
 #define VOIP_CALLS_DEBUG(...) { \
-    char *VOIP_CALLS_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
+    char *VOIP_CALLS_DEBUG_MSG = ws_strdup_printf(__VA_ARGS__); \
     ws_warning("voip_calls: %s:%d %s", G_STRFUNC, __LINE__, VOIP_CALLS_DEBUG_MSG); \
     g_free(VOIP_CALLS_DEBUG_MSG); \
 }

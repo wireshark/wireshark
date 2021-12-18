@@ -153,35 +153,35 @@ user_data_fields_update_cb(void *r, char **err)
   *err = NULL;
 
   if (rec->udf_length == 0) {
-    *err = g_strdup_printf("length of user data field can't be 0 Bytes (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
+    *err = ws_strdup_printf("length of user data field can't be 0 Bytes (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
     return (*err == NULL);
   }
 
   if (rec->udf_length > 8) {
-    *err = g_strdup_printf("length of user data field can't be greater 8 Bytes (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
+    *err = ws_strdup_printf("length of user data field can't be greater 8 Bytes (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
     return (*err == NULL);
   }
 
   if (rec->udf_mask >= G_MAXUINT64) {
-    *err = g_strdup_printf("mask can only be up to 64bits (name: %s)", rec->udf_name);
+    *err = ws_strdup_printf("mask can only be up to 64bits (name: %s)", rec->udf_name);
     return (*err == NULL);
   }
 
   if (rec->udf_name == NULL) {
-    *err = g_strdup_printf("Name of user data field can't be empty");
+    *err = ws_strdup_printf("Name of user data field can't be empty");
     return (*err == NULL);
   }
 
   g_strstrip(rec->udf_name);
   if (rec->udf_name[0] == 0) {
-    *err = g_strdup_printf("Name of user data field can't be empty");
+    *err = ws_strdup_printf("Name of user data field can't be empty");
     return (*err == NULL);
   }
 
   /* Check for invalid characters (to avoid asserting out when registering the field). */
   c = proto_check_field_name(rec->udf_name);
   if (c) {
-    *err = g_strdup_printf("Name of user data field can't contain '%c'", c);
+    *err = ws_strdup_printf("Name of user data field can't contain '%c'", c);
     return (*err == NULL);
   }
 
@@ -236,7 +236,7 @@ static gchar*
 calc_hf_key(user_data_field_t udf)
 {
   gchar* ret = NULL;
-  ret = g_strdup_printf("%i-%i-%" PRIu64 "-%s", udf.udf_offset, udf.udf_length, udf.udf_mask, udf.udf_name);
+  ret = ws_strdup_printf("%i-%i-%" PRIu64 "-%s", udf.udf_offset, udf.udf_length, udf.udf_mask, udf.udf_name);
   return ret;
 }
 
@@ -339,14 +339,14 @@ user_data_post_update_cb(void)
 
       if (user_data_fields[i].udf_mask == 0 || user_data_fields[i].udf_length <= 0 || user_data_fields[i].udf_length>8) {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_name);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("autosar-nm.user_data.%s", user_data_fields[i].udf_name);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("autosar-nm.user_data.%s", user_data_fields[i].udf_name);
         dynamic_hf[i].hfinfo.type = FT_BYTES;
         dynamic_hf[i].hfinfo.display = BASE_NONE;
         dynamic_hf[i].hfinfo.bitmask = 0;
         dynamic_hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_desc);
       } else {
         dynamic_hf[i].hfinfo.name = g_strdup(user_data_fields[i].udf_value_desc);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("autosar-nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("autosar-nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
         dynamic_hf[i].hfinfo.type = FT_BOOLEAN;
         dynamic_hf[i].hfinfo.display = 8 * (user_data_fields[i].udf_length);
         /* dynamic_hf[i].hfinfo.bitmask = 0; */

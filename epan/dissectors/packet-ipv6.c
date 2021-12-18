@@ -564,7 +564,7 @@ ipv6_filter_valid(packet_info *pinfo)
 static gchar*
 ipv6_build_filter(packet_info *pinfo)
 {
-    return g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
+    return ws_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
                 address_to_str(pinfo->pool, &pinfo->net_dst));
 }

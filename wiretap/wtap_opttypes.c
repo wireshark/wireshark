@@ -923,7 +923,7 @@ wtap_block_add_string_option_vformat(wtap_block_t block, guint option_id, const 
     ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_STRING, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    opt->value.stringval = g_strdup_vprintf(format, va);
+    opt->value.stringval = ws_strdup_vprintf(format, va);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -938,7 +938,7 @@ wtap_block_add_string_option_format(wtap_block_t block, guint option_id, const c
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     va_start(va, format);
-    opt->value.stringval = g_strdup_vprintf(format, va);
+    opt->value.stringval = ws_strdup_vprintf(format, va);
     va_end(va);
     return WTAP_OPTTYPE_SUCCESS;
 }
@@ -1004,7 +1004,7 @@ wtap_block_set_string_option_value_format(wtap_block_t block, guint option_id, c
     }
     g_free(optval->stringval);
     va_start(va, format);
-    optval->stringval = g_strdup_vprintf(format, va);
+    optval->stringval = ws_strdup_vprintf(format, va);
     va_end(va);
     return WTAP_OPTTYPE_SUCCESS;
 }
@@ -1021,7 +1021,7 @@ wtap_block_set_nth_string_option_value_format(wtap_block_t block, guint option_i
         return ret;
     g_free(optval->stringval);
     va_start(va, format);
-    optval->stringval = g_strdup_vprintf(format, va);
+    optval->stringval = ws_strdup_vprintf(format, va);
     va_end(va);
     return WTAP_OPTTYPE_SUCCESS;
 }

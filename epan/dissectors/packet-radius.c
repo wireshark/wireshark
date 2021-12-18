@@ -2508,7 +2508,7 @@ radius_register_avp_dissector(guint32 vendor_id, guint32 _attribute_id, radius_a
 		if (!vendor) {
 			vendor = g_new(radius_vendor_info_t, 1);
 
-			vendor->name = g_strdup_printf("%s-%u",
+			vendor->name = ws_strdup_printf("%s-%u",
 						       enterprises_lookup(vendor_id, "Unknown"),
 						       vendor_id);
 			vendor->code = vendor_id;
@@ -2534,7 +2534,7 @@ radius_register_avp_dissector(guint32 vendor_id, guint32 _attribute_id, radius_a
 	if (!dictionary_entry) {
 		dictionary_entry = g_new(radius_attr_info_t, 1);
 
-		dictionary_entry->name = g_strdup_printf("Unknown-Attribute-%u", attribute_id.value);
+		dictionary_entry->name = ws_strdup_printf("Unknown-Attribute-%u", attribute_id.value);
 		dictionary_entry->code = attribute_id;
 		dictionary_entry->encrypt = 0;
 		dictionary_entry->type = NULL;

@@ -365,21 +365,21 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         descr = capture_dev_user_descr_find(if_info->name);
         if (descr != NULL) {
             /* Yes, we have a user-supplied description; use it. */
-            if_string = g_strdup_printf("%s: %s", descr, if_info->name);
+            if_string = ws_strdup_printf("%s: %s", descr, if_info->name);
             g_free(descr);
         } else {
             /* No, we don't have a user-supplied description; did we get
                one from the OS or libpcap? */
             if (if_info->vendor_description != NULL) {
                 /* Yes - use it. */
-                if_string = g_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
+                if_string = ws_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
             } else {
                 /* No. */
                 if_string = g_strdup(if_info->name);
             }
         } /* else descr != NULL */
         if (if_info->loopback) {
-            device.display_name = g_strdup_printf("%s (loopback)", if_string);
+            device.display_name = ws_strdup_printf("%s (loopback)", if_string);
         } else {
             device.display_name = g_strdup(if_string);
         }
@@ -400,7 +400,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
         device.timestamp_type = g_strdup(global_capture_opts.default_options.timestamp_type);
         monitor_mode = prefs_capture_device_monitor_mode(if_string);
         if (roptions->remote_host_opts.auth_type == CAPTURE_AUTH_PWD) {
-            auth_str = g_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,
+            auth_str = ws_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,
                                        roptions->remote_host_opts.auth_password);
         }
         caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, NULL, main_window_update);
@@ -450,7 +450,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
                     linkr->name = g_strdup(data_link_info->description);
                     linkr->dlt = data_link_info->dlt;
                 } else {
-                    linkr->name = g_strdup_printf("%s (not supported)", data_link_info->name);
+                    linkr->name = ws_strdup_printf("%s (not supported)", data_link_info->name);
                     linkr->dlt = -1;
                 }
                 if (linktype_count == 0) {

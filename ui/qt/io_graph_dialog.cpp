@@ -149,7 +149,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
         ((rec_t*)rec)->field_name = 0; \
     g_free(tmp_str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-    *out_ptr = g_strdup_printf("%s",((rec_t*)rec)->field_name ? "Enabled" : "Disabled"); \
+    *out_ptr = ws_strdup_printf("%s",((rec_t*)rec)->field_name ? "Enabled" : "Disabled"); \
     *out_len = (unsigned)strlen(*out_ptr); }
 
 static gboolean uat_fld_chk_enable(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err)
@@ -166,7 +166,7 @@ static gboolean uat_fld_chk_enable(void* u1 _U_, const char* strptr, guint len, 
     }
 
     //User should never see this unless they are manually modifying UAT
-    *err = g_strdup_printf("invalid value: %s (must be Enabled or Disabled)", str);
+    *err = ws_strdup_printf("invalid value: %s (must be Enabled or Disabled)", str);
     g_free(str);
     return FALSE;
 }
@@ -189,7 +189,7 @@ static void io_graph_sma_period_set_cb(void* rec, const char* buf, guint len, co
             g_free(str);
             str = g_strdup("None");
         } else {
-            char *str2 = g_strdup_printf("%s interval SMA", str);
+            char *str2 = ws_strdup_printf("%s interval SMA", str);
             g_free(str);
             str = str2;
         }
@@ -231,7 +231,7 @@ static gboolean sma_period_chk_enum(void* u1 _U_, const char* strptr, guint len,
             g_free(str);
             str = g_strdup("None");
         } else {
-            char *str2 = g_strdup_printf("%s interval SMA", str);
+            char *str2 = ws_strdup_printf("%s interval SMA", str);
             g_free(str);
             str = str2;
         }
@@ -245,7 +245,7 @@ static gboolean sma_period_chk_enum(void* u1 _U_, const char* strptr, guint len,
         }
     }
 
-    *err = g_strdup_printf("invalid value: %s",str);
+    *err = ws_strdup_printf("invalid value: %s",str);
     g_free(str);
     return FALSE;
 }

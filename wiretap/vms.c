@@ -391,7 +391,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
 
             if (!ws_strtou32(p, &endp, &pkt_len) || (*endp != '\0' && !g_ascii_isspace(*endp))) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("vms: Length field '%s' not valid", p);
+                *err_info = ws_strdup_printf("vms: Length field '%s' not valid", p);
                 return FALSE;
             }
             break;
@@ -404,7 +404,7 @@ parse_vms_packet(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err, gchar **err_in
          * space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("vms: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("vms: File has %u-byte packet, bigger than maximum of %u",
                                     pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }

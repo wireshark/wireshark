@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
     g_free(help_url);
     extcap_base_register_interface(extcap_conf, ETW_EXTCAP_INTERFACE, "ETW reader", 290, "DLT_ETW");
 
-    help_header = g_strdup_printf(
+    help_header = ws_strdup_printf(
         " %s --extcap-interfaces\n"
         " %s --extcap-interface=%s --extcap-dlts\n"
         " %s --extcap-interface=%s --extcap-config\n"
@@ -186,7 +186,7 @@ int main(int argc, char* argv[])
 
         case OPT_PARAMS:
             /* Add params as the prefix since getopt_long will ignore the first argument always */
-            params = g_strdup_printf("params %s", ws_optarg);
+            params = ws_strdup_printf("params %s", ws_optarg);
             break;
 
         case OPT_INCLUDE_UNDECIDABLE_EVENT:

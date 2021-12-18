@@ -3041,7 +3041,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
                 if (ok) { /* Valid warn-target string */
                     /* TODO: Why did we just call get_uri_value() and not use
                      * the str, since the pointer to it is immediately
-                     * forgotten with the call to g_strdup_printf()? */
+                     * forgotten with the call to ws_strdup_printf()? */
                     off += len;
                     proto_item_append_text(ti, "; target=%s", val_str);
                     /* Add zero or more dates */

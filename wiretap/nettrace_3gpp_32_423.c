@@ -249,7 +249,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	/* We should always and only be called with a <msg....</msg> payload */
 	if (0 != strncmp(input, c_s_msg, CLEN(c_s_msg))) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("nettrace_3gpp_32_423: Did not start with \"%s\"", c_s_msg);
+		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not start with \"%s\"", c_s_msg);
 		return FALSE;
 	}
 
@@ -288,7 +288,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	if (!next_msg_pos) {
 		/* Something's wrong, bail out */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_e_msg);
+		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_e_msg);
 		status = FALSE;
 		goto end;
 	}
@@ -331,7 +331,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		name_str_len = (int)(next_pos - curr_pos);
 		if (name_str_len > MAX_NAME_LEN) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("nettrace_3gpp_32_423: name_str_len > %d", MAX_NAME_LEN);
+			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: name_str_len > %d", MAX_NAME_LEN);
 			goto end;
 		}
 
@@ -377,14 +377,14 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	raw_msg_pos = STRNSTR(start_msg_tag_cont, c_s_rawmsg);
 	if (raw_msg_pos == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_s_rawmsg);
+		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_s_rawmsg);
 		status = FALSE;
 		goto end;
 	}
 	curr_pos = STRNSTR(raw_msg_pos, c_protocol);
 	if (curr_pos == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_protocol);
+		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Did not find \"%s\"", c_protocol);
 		status = FALSE;
 		goto end;
 	}
@@ -612,7 +612,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		}
 		else {
 			/* Something wrong, bail out */
-			*err_info = g_strdup_printf("nettrace_3gpp_32_423: Could not parse hex data, bufsize %u index %u %c%c",
+			*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Could not parse hex data, bufsize %u index %u %c%c",
 				(pkt_data_len + exp_pdu_tags_len),
 				i,
 				chr1,
@@ -681,7 +681,7 @@ nettrace_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
 	 */
 	msg_start = g_strrstr_len(buf_start, (guint)(msg_end - buf_start), c_s_msg);
 	if (msg_start == NULL || msg_start > msg_end) {
-		*err_info = g_strdup_printf("nettrace_3gpp_32_423: Found \"%s\" without matching \"%s\"", c_e_msg, c_s_msg);
+		*err_info = ws_strdup_printf("nettrace_3gpp_32_423: Found \"%s\" without matching \"%s\"", c_e_msg, c_s_msg);
 		*err = WTAP_ERR_BAD_FILE;
 		goto end;
 	}

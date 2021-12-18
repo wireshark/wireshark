@@ -302,7 +302,7 @@ commview_ncf_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 	default :
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("commview: unsupported encap for NCF: %u",
+		*err_info = ws_strdup_printf("commview: unsupported encap for NCF: %u",
 					    cv_hdr.flags & FLAGS_MEDIUM);
 		return FALSE;
 	}
@@ -803,7 +803,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 */
 		if (length_remaining < COMMVIEW_NCFX_RF_HEADER_SIZE) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("commview: RF header goes past the NCFX data length %u",
+			*err_info = ws_strdup_printf("commview: RF header goes past the NCFX data length %u",
 			    cv_hdr.data_len);
 			return FALSE;
 		}
@@ -908,7 +908,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 			 */
 			if (length_remaining < COMMVIEW_NCFX_MCS_HEADER_SIZE) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("commview: MCS header goes past the NCFX data length %u",
+				*err_info = ws_strdup_printf("commview: MCS header goes past the NCFX data length %u",
 				    cv_hdr.data_len);
 				return FALSE;
 			}
@@ -990,7 +990,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 	default :
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("commview: unsupported encap for NCFX: %u",
+		*err_info = ws_strdup_printf("commview: unsupported encap for NCFX: %u",
 					    cv_hdr.medium_type);
 		return FALSE;
 	}
@@ -1013,7 +1013,7 @@ commview_ncfx_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("commview: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("commview: File has %u-byte packet, bigger than maximum of %u",
 		    length_remaining, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
@@ -1059,7 +1059,7 @@ commview_ncfx_read_header(commview_ncfx_header_t *cv_hdr, FILE_T fh, int *err,
 	/* It must be at least the length of the general header. */
 	if (cv_hdr->data_len < COMMVIEW_NCFX_HEADER_SIZE) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("commview: NCFX data length %u < %u",
+		*err_info = ws_strdup_printf("commview: NCFX data length %u < %u",
 					    cv_hdr->data_len,
 					    COMMVIEW_NCFX_HEADER_SIZE);
 		return FALSE;

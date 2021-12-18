@@ -320,7 +320,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key, char **err)
         {
           g_free(*ascii_key);
           *ascii_key = NULL;
-          *err = g_strdup_printf("Key %s begins with an invalid hex char (%c)", key, key[i]);
+          *err = ws_strdup_printf("Key %s begins with an invalid hex char (%c)", key, key[i]);
           return -1;    /* not a valid hex digit */
         }
         (*ascii_key)[j] = (guchar)hex_digit;
@@ -345,7 +345,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key, char **err)
         {
           g_free(*ascii_key);
           *ascii_key = NULL;
-          *err = g_strdup_printf("Key %s has an invalid hex char (%c)",
+          *err = ws_strdup_printf("Key %s has an invalid hex char (%c)",
                      key, key[i-1]);
           return -1;    /* not a valid hex digit */
         }
@@ -356,7 +356,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key, char **err)
         {
           g_free(*ascii_key);
           *ascii_key = NULL;
-          *err = g_strdup_printf("Key %s has an invalid hex char (%c)", key, key[i-1]);
+          *err = ws_strdup_printf("Key %s has an invalid hex char (%c)", key, key[i-1]);
           return -1;    /* not a valid hex digit */
         }
         key_byte |= (guchar)hex_digit;

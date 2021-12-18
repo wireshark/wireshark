@@ -710,7 +710,7 @@ avp(A) ::= NAME(B) AVP_OPERATOR(C) value(D). { A = new_avp(B,D,*C); }
 avp(A) ::= NAME(B). { A = new_avp(B,"",'?'); }
 avp(A) ::= NAME(B) OPEN_BRACE avp_oneoff(C) CLOSE_BRACE. { A = new_avp(B,C,'|'); }
 
-avp_oneoff(A) ::= avp_oneoff(B) PIPE value(C). { A = g_strdup_printf("%s|%s",B,C); }
+avp_oneoff(A) ::= avp_oneoff(B) PIPE value(C). { A = ws_strdup_printf("%s|%s",B,C); }
 avp_oneoff(A) ::= value(B). { A = g_strdup(B); }
 
 value(A) ::= QUOTED(B). { A = g_strdup(B); }

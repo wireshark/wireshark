@@ -159,9 +159,9 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		quoted_iface = iface ? g_shell_quote(iface) : NULL;
 		quoted_filter = g_shell_quote(cfilter ? cfilter : "");
 		if (count > 0)
-			count_str = g_strdup_printf("-c %u", count);
+			count_str = ws_strdup_printf("-c %u", count);
 
-		cmdline = g_strdup_printf("%s tcpdump -U %s%s %s -w - %s %s",
+		cmdline = ws_strdup_printf("%s tcpdump -U %s%s %s -w - %s %s",
 			use_sudo ? "sudo" : "",
 			quoted_iface ? "-i " : "",
 			quoted_iface ? quoted_iface : "",
@@ -341,7 +341,7 @@ static char* concat_filters(const char* extcap_filter, const char* remote_filter
 	if (!remote_filter && !extcap_filter)
 		return NULL;
 
-	return g_strdup_printf("(%s) and (%s)", extcap_filter, remote_filter);
+	return ws_strdup_printf("(%s) and (%s)", extcap_filter, remote_filter);
 }
 
 int main(int argc, char *argv[])
@@ -390,13 +390,13 @@ int main(int argc, char *argv[])
 	add_libssh_info(extcap_conf);
 	if (g_strcmp0(sshdump_extcap_interface, DEFAULT_SSHDUMP_EXTCAP_INTERFACE)) {
 		gchar* temp = interface_description;
-		interface_description = g_strdup_printf("%s, custom version", interface_description);
+		interface_description = ws_strdup_printf("%s, custom version", interface_description);
 		g_free(temp);
 	}
 	extcap_base_register_interface(extcap_conf, sshdump_extcap_interface, interface_description, 147, "Remote capture dependent DLT");
 	g_free(interface_description);
 
-	help_header = g_strdup_printf(
+	help_header = ws_strdup_printf(
 		" %s --extcap-interfaces\n"
 		" %s --extcap-interface=%s --extcap-dlts\n"
 		" %s --extcap-interface=%s --extcap-config\n"

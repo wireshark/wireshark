@@ -193,7 +193,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
     if (vfile_hdr.file_version != 1)
     {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("visual: file version %u unsupported", vfile_hdr.file_version);
+        *err_info = ws_strdup_printf("visual: file version %u unsupported", vfile_hdr.file_version);
         return WTAP_OPEN_ERROR;
     }
 
@@ -234,7 +234,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
 
     default:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("visual: network type %u unknown or unsupported",
+        *err_info = ws_strdup_printf("visual: network type %u unknown or unsupported",
                                      vfile_hdr.media_type);
         return WTAP_OPEN_ERROR;
     }
@@ -369,7 +369,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         if (rec->rec_header.packet_header.len < 4)
         {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("visual: Ethernet packet has %u-byte original packet, less than the FCS length",
+            *err_info = ws_strdup_printf("visual: Ethernet packet has %u-byte original packet, less than the FCS length",
                         rec->rec_header.packet_header.len);
             return FALSE;
         }
@@ -385,7 +385,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         if (rec->rec_header.packet_header.len < 2)
         {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("visual: Cisco HDLC packet has %u-byte original packet, less than the FCS length",
+            *err_info = ws_strdup_printf("visual: Cisco HDLC packet has %u-byte original packet, less than the FCS length",
                         rec->rec_header.packet_header.len);
             return FALSE;
         }
@@ -406,7 +406,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         if (rec->rec_header.packet_header.len < 2)
         {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("visual: Frame Relay packet has %u-byte original packet, less than the FCS length",
+            *err_info = ws_strdup_printf("visual: Frame Relay packet has %u-byte original packet, less than the FCS length",
                         rec->rec_header.packet_header.len);
             return FALSE;
         }
@@ -421,7 +421,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         if (rec->rec_header.packet_header.len < 2)
         {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("visual: Frame Relay packet has %u-byte original packet, less than the FCS length",
+            *err_info = ws_strdup_printf("visual: Frame Relay packet has %u-byte original packet, less than the FCS length",
                         rec->rec_header.packet_header.len);
             return FALSE;
         }
@@ -517,7 +517,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         /* Probably a corrupt capture file; don't blow up trying
           to allocate space for an immensely-large packet. */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("visual: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("visual: File has %u-byte packet, bigger than maximum of %u",
             packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }

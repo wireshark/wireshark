@@ -718,7 +718,7 @@ void commandline_options_drop(const char *module_name, const char *pref_name) {
 
     if (global_commandline_info.user_opts == NULL) return;
 
-    opt_prefix = g_strdup_printf("%s.%s:", module_name, pref_name);
+    opt_prefix = ws_strdup_printf("%s.%s:", module_name, pref_name);
 
     while (NULL != (elem = g_slist_find_custom(global_commandline_info.user_opts,
                         (gconstpointer)opt_prefix, cl_find_custom))) {

@@ -919,7 +919,7 @@ tcp_build_filter(packet_info *pinfo)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* TCP over IPv4 */
-        return g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+        return ws_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
             address_to_str(pinfo->pool, &pinfo->net_src),
             address_to_str(pinfo->pool, &pinfo->net_dst),
             pinfo->srcport, pinfo->destport );
@@ -927,7 +927,7 @@ tcp_build_filter(packet_info *pinfo)
 
     if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
         /* TCP over IPv6 */
-        return g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+        return ws_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
             address_to_str(pinfo->pool, &pinfo->net_src),
             address_to_str(pinfo->pool, &pinfo->net_dst),
             pinfo->srcport, pinfo->destport );
@@ -958,7 +958,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
     flags = tcp_flags_to_str(NULL, tcph);
 
     if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){
-        sai->frame_label = g_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
+        sai->frame_label = ws_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
     }
     else{
         sai->frame_label = g_strdup(flags);
@@ -967,9 +967,9 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
     wmem_free(NULL, flags);
 
     if (tcph->th_flags & TH_ACK)
-        sai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
+        sai->comment = ws_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
     else
-        sai->comment = g_strdup_printf("Seq = %u",tcph->th_seq);
+        sai->comment = ws_strdup_printf("Seq = %u",tcph->th_seq);
 
     sai->line_style = 1;
     sai->conv_num = (guint16) tcph->th_stream;
@@ -996,7 +996,7 @@ gchar *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint
             return NULL;
 
         *stream = tcpd->stream;
-        return g_strdup_printf("tcp.stream eq %u", tcpd->stream);
+        return ws_strdup_printf("tcp.stream eq %u", tcpd->stream);
     }
 
     return NULL;
@@ -1004,7 +1004,7 @@ gchar *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint
 
 gchar *tcp_follow_index_filter(guint stream, guint sub_stream _U_)
 {
-    return g_strdup_printf("tcp.stream eq %u", stream);
+    return ws_strdup_printf("tcp.stream eq %u", stream);
 }
 
 gchar *tcp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
@@ -1016,7 +1016,7 @@ gchar *tcp_follow_address_filter(address *src_addr, address *dst_addr, int src_p
     address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
     address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
 
-    return g_strdup_printf("((ip%s.src eq %s and tcp.srcport eq %d) and "
+    return ws_strdup_printf("((ip%s.src eq %s and tcp.srcport eq %d) and "
                      "(ip%s.dst eq %s and tcp.dstport eq %d))"
                      " or "
                      "((ip%s.src eq %s and tcp.srcport eq %d) and "
@@ -1131,7 +1131,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
          * by the receiving host. Add dummy stream chunk with the data
          * "[xxx bytes missing in capture file]".
          */
-        dummy_str = g_strdup_printf("[%d bytes missing in capture file]",
+        dummy_str = ws_strdup_printf("[%d bytes missing in capture file]",
                         (int)(lowest_seq - follow_info->seq[is_server]) );
         // XXX the dummy replacement could be larger than the actual missing bytes.
 

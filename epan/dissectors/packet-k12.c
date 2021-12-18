@@ -307,7 +307,7 @@ k12_update_cb(void* r, char** err)
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {
 			h->handles[i] = data_handle;
 			h->handles[i+1] = NULL;
-			*err = g_strdup_printf("Could not find dissector for: '%s'",protos[i]);
+			*err = ws_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			g_strfreev(protos);
 			return FALSE;
 		}
@@ -374,7 +374,7 @@ protos_chk_cb(void* r _U_, const char* p, guint len, const void* u1 _U_, const v
 
 	for (i = 0; i < num_protos; i++) {
 		if (!find_dissector(protos[i])) {
-			*err = g_strdup_printf("Could not find dissector for: '%s'",protos[i]);
+			*err = ws_strdup_printf("Could not find dissector for: '%s'",protos[i]);
 			wmem_free(NULL, line);
 			g_strfreev(protos);
 			return FALSE;

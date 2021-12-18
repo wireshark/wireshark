@@ -924,7 +924,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     if (sis) {
       col_str = g_strdup(sis);
     } else {
-      col_str = g_strdup_printf("Unknown service indicator %d", m3tr->mtp3_si_code);
+      col_str = ws_strdup_printf("Unknown service indicator %d", m3tr->mtp3_si_code);
     }
 
     item_data = stat_tap_get_field_data(table, element, SI_COLUMN);

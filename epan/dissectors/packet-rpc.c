@@ -422,7 +422,7 @@ rpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
 
 		tap_data->num_procedures = rpc_max_proc+1;
 		if (rpc_min_proc == -1) {
-			*err = g_strdup_printf("Program:%u version:%u isn't supported", rpc_program, rpc_version);
+			*err = ws_strdup_printf("Program:%u version:%u isn't supported", rpc_program, rpc_version);
 		}
 	}
 	else

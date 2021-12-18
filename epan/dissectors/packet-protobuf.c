@@ -1571,7 +1571,7 @@ collect_fields(const PbwDescriptor* message, void* userdata)
     hf->p_id = g_new(gint, 1);
     *(hf->p_id) = -1;
     hf->hfinfo.name = g_strdup(pbw_Descriptor_name(message));
-    hf->hfinfo.abbrev = g_strdup_printf("pbm.%s", pbw_Descriptor_full_name(message));
+    hf->hfinfo.abbrev = ws_strdup_printf("pbm.%s", pbw_Descriptor_full_name(message));
     hf->hfinfo.type = FT_BYTES;
     hf->hfinfo.display = BASE_NONE;
     wmem_list_append(hf_list, hf);
@@ -1590,7 +1590,7 @@ collect_fields(const PbwDescriptor* message, void* userdata)
         *(hf->p_id) = -1;
 
         hf->hfinfo.name = g_strdup(pbw_FieldDescriptor_name(field_desc));
-        hf->hfinfo.abbrev = g_strdup_printf("pbf.%s", pbw_FieldDescriptor_full_name(field_desc));
+        hf->hfinfo.abbrev = ws_strdup_printf("pbf.%s", pbw_FieldDescriptor_full_name(field_desc));
         switch (field_type) {
         case PROTOBUF_TYPE_DOUBLE:
             hf->hfinfo.type = FT_DOUBLE;

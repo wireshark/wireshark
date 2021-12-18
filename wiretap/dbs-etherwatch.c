@@ -456,7 +456,7 @@ parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
          * space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("dbs_etherwatch: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("dbs_etherwatch: File has %u-byte packet, bigger than maximum of %u",
                                     rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }

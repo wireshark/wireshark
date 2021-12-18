@@ -433,7 +433,7 @@ update_generic_one_identifier_32bit(void *r, char **err) {
     generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
 
     if (rec->id > 0xffffffff) {
-        *err = g_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
         return FALSE;
     }
 
@@ -445,11 +445,11 @@ update_generic_one_identifier_32bit(void *r, char **err) {
     guchar c = proto_check_field_name(rec->name);
     if (c) {
         if (c == '.') {
-            *err = g_strdup_printf("Name contains illegal chars '.' (ID: 0x%08x)", rec->id);
+            *err = ws_strdup_printf("Name contains illegal chars '.' (ID: 0x%08x)", rec->id);
         } else if (g_ascii_isprint(c)) {
-            *err = g_strdup_printf("Name contains illegal chars '%c' (ID: 0x%08x)", c, rec->id);
+            *err = ws_strdup_printf("Name contains illegal chars '%c' (ID: 0x%08x)", c, rec->id);
         } else {
-            *err = g_strdup_printf("Name contains invalid byte \\%03o  (ID: 0x%08x)", c, rec->id);
+            *err = ws_strdup_printf("Name contains invalid byte \\%03o  (ID: 0x%08x)", c, rec->id);
         }
         return FALSE;
     }
@@ -579,66 +579,66 @@ update_spdu_signal_list(void *r, char **err) {
     spdu_signal_list_uat_t *rec = (spdu_signal_list_uat_t *)r;
 
     if (rec->pos >= 0xffff) {
-        *err = g_strdup_printf("Position too big");
+        *err = ws_strdup_printf("Position too big");
         return FALSE;
     }
 
     if (rec->num_of_params >= 0xffff) {
-        *err = g_strdup_printf("Number of Parameters too big");
+        *err = ws_strdup_printf("Number of Parameters too big");
         return FALSE;
     }
 
     if (rec->pos >= rec->num_of_params) {
-        *err = g_strdup_printf("Position >= Number of Parameters");
+        *err = ws_strdup_printf("Position >= Number of Parameters");
         return FALSE;
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
     if (rec->filter_string == NULL || rec->filter_string[0] == 0) {
-        *err = g_strdup_printf("Filter String cannot be empty");
+        *err = ws_strdup_printf("Filter String cannot be empty");
         return FALSE;
     }
 
     c = proto_check_field_name(rec->filter_string);
     if (c) {
         if (c == '.') {
-            *err = g_strdup_printf("Filter String contains illegal chars '.' (ID: 0x%08x)", rec->id);
+            *err = ws_strdup_printf("Filter String contains illegal chars '.' (ID: 0x%08x)", rec->id);
         } else if (g_ascii_isprint(c)) {
-            *err = g_strdup_printf("Filter String contains illegal chars '%c' (ID: 0x%08x)", c, rec->id);
+            *err = ws_strdup_printf("Filter String contains illegal chars '%c' (ID: 0x%08x)", c, rec->id);
         } else {
-            *err = g_strdup_printf("Filter String contains invalid byte \\%03o  (ID: 0x%08x)", c, rec->id);
+            *err = ws_strdup_printf("Filter String contains invalid byte \\%03o  (ID: 0x%08x)", c, rec->id);
         }
         return FALSE;
     }
 
     if (g_strcmp0(rec->data_type, "uint") != 0 && g_strcmp0(rec->data_type, "int") != 0) {
-        *err = g_strdup_printf("Currently only uint and int supported!");
+        *err = ws_strdup_printf("Currently only uint and int supported!");
         return FALSE;
     }
 
     if (g_strcmp0(rec->data_type, "int") == 0 && (rec->bitlength_base_type != rec->bitlength_encoded_type)) {
-        *err = g_strdup_printf("signed ints (int) only support in non-shortened length");
+        *err = ws_strdup_printf("signed ints (int) only support in non-shortened length");
         return FALSE;
     }
 
     if (g_strcmp0(rec->data_type, "int") == 0 && (rec->bitlength_encoded_type != 8) && (rec->bitlength_encoded_type != 16) && (rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
-        *err = g_strdup_printf("signed ints (int) are only supported in 8, 16, 32, or 64 bit.");
+        *err = ws_strdup_printf("signed ints (int) are only supported in 8, 16, 32, or 64 bit.");
         return FALSE;
     }
 
     d = g_ascii_strtod(rec->offset, &tmp);
     if (!(d == d)) {
-        *err = g_strdup_printf("Offset not a double!");
+        *err = ws_strdup_printf("Offset not a double!");
         return FALSE;
     }
 
     d = g_ascii_strtod(rec->scaler, &tmp);
     if (!(d == d)) {
-        *err = g_strdup_printf("Scaler not a double!");
+        *err = ws_strdup_printf("Scaler not a double!");
         return FALSE;
     }
 
@@ -700,11 +700,11 @@ create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_str
     dynamic_hf[i].hfinfo.bitmask = 0x0;
 
     if (raw) {
-        dynamic_hf[i].hfinfo.name = g_strdup_printf("%s_raw", name);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("%s.%s_raw", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_raw", name);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_raw", SPDU_NAME_FILTER, filter_string);
     } else {
         dynamic_hf[i].hfinfo.name = g_strdup(name);
-        dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("%s.%s", SPDU_NAME_FILTER, filter_string);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s", SPDU_NAME_FILTER, filter_string);
     }
     dynamic_hf[i].hfinfo.bitmask = 0;
     dynamic_hf[i].hfinfo.blurb = NULL;
@@ -875,17 +875,17 @@ update_spdu_signal_value_name(void *r, char **err) {
     spdu_signal_value_name_uat_t *rec = (spdu_signal_value_name_uat_t *)r;
 
     if (rec->value_name == NULL || rec->value_name[0] == 0) {
-        *err = g_strdup_printf("Value Name cannot be empty");
+        *err = ws_strdup_printf("Value Name cannot be empty");
         return FALSE;
     }
 
     if (rec->value_end < rec->value_start) {
-        *err = g_strdup_printf("Value Range is defined backwards (end < start)!");
+        *err = ws_strdup_printf("Value Range is defined backwards (end < start)!");
         return FALSE;
     }
 
     if (rec->pos >= 0xffff) {
-        *err = g_strdup_printf("Position too big");
+        *err = ws_strdup_printf("Position too big");
         return FALSE;
     }
 
@@ -1015,24 +1015,24 @@ update_spdu_someip_mapping(void *r, char **err) {
     spdu_someip_mapping_uat_t *rec = (spdu_someip_mapping_uat_t *)r;
 
     if (rec->service_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit SOME/IP Service IDs (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
+        *err = ws_strdup_printf("We currently only support 16 bit SOME/IP Service IDs (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
                                 rec->service_id, rec->method_id, rec->message_type, rec->major_version);
         return FALSE;
     }
 
     if (rec->method_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit SOME/IP Method IDs (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
+        *err = ws_strdup_printf("We currently only support 16 bit SOME/IP Method IDs (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
             rec->service_id, rec->method_id, rec->message_type, rec->major_version);
         return FALSE;
     }
 
     if (rec->major_version > 0xff) {
-        *err = g_strdup_printf("We currently only support 8 bit SOME/IP major versions (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
+        *err = ws_strdup_printf("We currently only support 8 bit SOME/IP major versions (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
             rec->service_id, rec->method_id, rec->message_type, rec->major_version);
     }
 
     if (rec->message_type > 0xff) {
-        *err = g_strdup_printf("We currently only support 8 bit SOME/IP message types (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
+        *err = ws_strdup_printf("We currently only support 8 bit SOME/IP message types (Service-ID: %x  Method-ID: %x  MsgType: %x  Version: %i)",
             rec->service_id, rec->method_id, rec->message_type, rec->major_version);
     }
 
@@ -1170,12 +1170,12 @@ update_spdu_flexray_mapping(void *r, char **err) {
     spdu_flexray_mapping_uat_t *rec = (spdu_flexray_mapping_uat_t *)r;
 
     if (rec->cycle > 0xff) {
-        *err = g_strdup_printf("We currently only support 8 bit Cycles (Cycle: %i  Frame ID: %i)", rec->cycle, rec->flexray_id);
+        *err = ws_strdup_printf("We currently only support 8 bit Cycles (Cycle: %i  Frame ID: %i)", rec->cycle, rec->flexray_id);
         return FALSE;
     }
 
     if (rec->flexray_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit Frame IDs (Cycle: %i  Frame ID: %i)", rec->cycle, rec->flexray_id);
+        *err = ws_strdup_printf("We currently only support 16 bit Frame IDs (Cycle: %i  Frame ID: %i)", rec->cycle, rec->flexray_id);
         return FALSE;
     }
 
@@ -1243,12 +1243,12 @@ update_spdu_lin_mapping(void *r, char **err) {
     spdu_lin_mapping_uat_t *rec = (spdu_lin_mapping_uat_t *)r;
 
     if (rec->frame_id > LIN_ID_MASK) {
-        *err = g_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
+        *err = ws_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
         return FALSE;
     }
 
     if (rec->bus_id > 0xffff) {
-        *err = g_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
+        *err = ws_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
         return FALSE;
     }
 
@@ -1324,7 +1324,7 @@ update_spdu_pdu_transport_mapping(void *r, char **err) {
     spdu_pdu_transport_mapping_uat_t *rec = (spdu_pdu_transport_mapping_uat_t *)r;
 
     if (rec->pdu_id > 0xffffffff) {
-        *err = g_strdup_printf("PDU-Transport IDs are only uint32 (ID: %i)", rec->pdu_id);
+        *err = ws_strdup_printf("PDU-Transport IDs are only uint32 (ID: %i)", rec->pdu_id);
         return FALSE;
     }
 
@@ -1390,7 +1390,7 @@ update_spdu_ipdum_mapping(void *r, char **err) {
     spdu_ipdum_mapping_uat_t *rec = (spdu_ipdum_mapping_uat_t *)r;
 
     if (rec->pdu_id > 0xffffffff) {
-        *err = g_strdup_printf("IPduM IDs are only uint32 (ID: %i)", rec->pdu_id);
+        *err = ws_strdup_printf("IPduM IDs are only uint32 (ID: %i)", rec->pdu_id);
         return FALSE;
     }
 

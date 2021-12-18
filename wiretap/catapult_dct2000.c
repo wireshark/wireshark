@@ -504,7 +504,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 
     /* If get here, must have failed */
     *err = errno;
-    *err_info = g_strdup_printf("catapult dct2000: seek_read failed to read/parse "
+    *err_info = ws_strdup_printf("catapult dct2000: seek_read failed to read/parse "
                                 "line at position %" PRId64,
                                 seek_off);
     return FALSE;
@@ -1312,7 +1312,7 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
          * space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("catapult dct2000: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("catapult dct2000: File has %u-byte packet, bigger than maximum of %u",
                                     rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }

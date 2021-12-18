@@ -696,7 +696,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
-    *err_info = g_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
+    *err_info = ws_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
                                 *packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
     return FALSE;
   }
@@ -892,7 +892,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
-    *err_info = g_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
+    *err_info = ws_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
                                 *packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
     return FALSE;
   }
@@ -2435,22 +2435,22 @@ static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_
 
   if (!wth) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: erf_populate_interface called with wth NULL");
+    *err_info = ws_strdup_printf("erf: erf_populate_interface called with wth NULL");
     return -1;
   }
   if (!pseudo_header) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: erf_populate_interface called with pseudo_header NULL");
+    *err_info = ws_strdup_printf("erf: erf_populate_interface called with pseudo_header NULL");
     return -1;
   }
   if (!erf_priv) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: erf_populate_interface called with erf_priv NULL");
+    *err_info = ws_strdup_printf("erf: erf_populate_interface called with erf_priv NULL");
     return -1;
   }
   if (if_num > 3) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: erf_populate_interface called with if_num %u > 3",
+    *err_info = ws_strdup_printf("erf: erf_populate_interface called with if_num %u > 3",
                                 if_num);
     return -1;
   }
@@ -2559,22 +2559,22 @@ static int populate_capture_host_info(erf_t *erf_priv, wtap *wth, union wtap_pse
 
   if (!wth) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_capture_host_info called with wth NULL");
+    *err_info = ws_strdup_printf("erf: populate_capture_host_info called with wth NULL");
     return -1;
   }
   if (!state) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_capture_host_info called with state NULL");
+    *err_info = ws_strdup_printf("erf: populate_capture_host_info called with state NULL");
     return -1;
   }
   if (!wth->shb_hdrs) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_capture_host_info called with wth->shb_hdrs NULL");
+    *err_info = ws_strdup_printf("erf: populate_capture_host_info called with wth->shb_hdrs NULL");
     return -1;
   }
   if (wth->shb_hdrs->len == 0) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_capture_host_info called with wth->shb_hdrs->len 0");
+    *err_info = ws_strdup_printf("erf: populate_capture_host_info called with wth->shb_hdrs->len 0");
     return -1;
   }
 
@@ -2725,12 +2725,12 @@ static int populate_module_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
 
   if (!wth) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_module_info called with wth NULL");
+    *err_info = ws_strdup_printf("erf: populate_module_info called with wth NULL");
     return -1;
   }
   if (!state) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_module_info called with stat NULL");
+    *err_info = ws_strdup_printf("erf: populate_module_info called with stat NULL");
     return -1;
   }
 
@@ -2779,22 +2779,22 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
 
   if (!wth) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_interface_info called with wth NULL");
+    *err_info = ws_strdup_printf("erf: populate_interface_info called with wth NULL");
     return -1;
   }
   if (!state) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_interface_info called with state NULL");
+    *err_info = ws_strdup_printf("erf: populate_interface_info called with state NULL");
     return -1;
   }
   if (!pseudo_header) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_interface_info called with pseudo_header NULL");
+    *err_info = ws_strdup_printf("erf: populate_interface_info called with pseudo_header NULL");
     return -1;
   }
   if (!state->if_map) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_interface_info called with state->if_map NULL");
+    *err_info = ws_strdup_printf("erf: populate_interface_info called with state->if_map NULL");
     return -1;
   }
 
@@ -2856,7 +2856,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
       return 0;
     } else {
       *err = WTAP_ERR_INTERNAL;
-      *err_info = g_strdup_printf("erf: populate_interface_info got interface_index %d < 0 and != -2", interface_index);
+      *err_info = ws_strdup_printf("erf: populate_interface_info got interface_index %d < 0 and != -2", interface_index);
       return -1;
     }
   }
@@ -2999,22 +2999,22 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
 
   if (!wth) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_stream_info called with wth NULL");
+    *err_info = ws_strdup_printf("erf: populate_stream_info called with wth NULL");
     return -1;
   }
   if (!pseudo_header) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_stream_info called with pseudo_header NULL");
+    *err_info = ws_strdup_printf("erf: populate_stream_info called with pseudo_header NULL");
     return -1;
   }
   if (!state) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_stream_info called with state NULL");
+    *err_info = ws_strdup_printf("erf: populate_stream_info called with state NULL");
     return -1;
   }
   if (!state->if_map) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_stream_info called with state->if_map NULL");
+    *err_info = ws_strdup_printf("erf: populate_stream_info called with state->if_map NULL");
     return -1;
   }
 
@@ -3147,17 +3147,17 @@ static int populate_anchor_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_he
 
   if (!wth) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_anchor_info called with wth NULL");
+    *err_info = ws_strdup_printf("erf: populate_anchor_info called with wth NULL");
     return -1;
   }
   if (!state) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_anchor_info called with state NULL");
+    *err_info = ws_strdup_printf("erf: populate_anchor_info called with state NULL");
     return -1;
   }
   if (!pseudo_header) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_anchor_info called with pseudo_header NULL");
+    *err_info = ws_strdup_printf("erf: populate_anchor_info called with pseudo_header NULL");
     return -1;
   }
 
@@ -3230,17 +3230,17 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
 
   if (!wth) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_summary_info called with wth NULL");
+    *err_info = ws_strdup_printf("erf: populate_summary_info called with wth NULL");
     return -1;
   }
   if (!pseudo_header) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_summary_info called with pseudo_header NULL");
+    *err_info = ws_strdup_printf("erf: populate_summary_info called with pseudo_header NULL");
     return -1;
   }
   if (!erf_priv) {
     *err = WTAP_ERR_INTERNAL;
-    *err_info = g_strdup_printf("erf: populate_summary_info called with erf_priv NULL");
+    *err_info = ws_strdup_printf("erf: populate_summary_info called with erf_priv NULL");
     return -1;
   }
 

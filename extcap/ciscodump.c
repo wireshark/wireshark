@@ -393,7 +393,7 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 	if (read_output_bytes(channel, -1, NULL) == EXIT_FAILURE)
 		goto error;
 
-	cmdline = g_strdup_printf("show monitor capture buffer %s dump\n", WIRESHARK_CAPTURE_BUFFER);
+	cmdline = ws_strdup_printf("show monitor capture buffer %s dump\n", WIRESHARK_CAPTURE_BUFFER);
 	if (ssh_channel_printf(channel, cmdline) == EXIT_FAILURE)
 		goto error;
 
@@ -560,7 +560,7 @@ int main(int argc, char *argv[])
 	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, CISCODUMP_EXTCAP_INTERFACE, "Cisco remote capture", 147, "Remote capture dependent DLT");
 
-	help_header = g_strdup_printf(
+	help_header = ws_strdup_printf(
 		" %s --extcap-interfaces\n"
 		" %s --extcap-interface=%s --extcap-dlts\n"
 		" %s --extcap-interface=%s --extcap-config\n"

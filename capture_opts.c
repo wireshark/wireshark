@@ -544,7 +544,7 @@ capture_opts_generate_display_name(const char *friendly_name,
      * On UN*X, however, users are more used to interface names,
      * and may find it helpful to see them.
      */
-    return g_strdup_printf("%s: %s", friendly_name, name);
+    return ws_strdup_printf("%s: %s", friendly_name, name);
 }
 #endif
 

@@ -1839,7 +1839,7 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
                 }
                 else
                 {
-                    char *str = g_strdup_printf("%s/RNC-ID (%u)", add_string, value);
+                    char *str = ws_strdup_printf("%s/RNC-ID (%u)", add_string, value);
                     g_strlcpy(add_string, str, string_len);
                     g_free(str);
                 }
@@ -1868,7 +1868,7 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
             }
             else
             {
-                char *str = g_strdup_printf("%s/CI (%u)", add_string, value);
+                char *str = ws_strdup_printf("%s/CI (%u)", add_string, value);
                 g_strlcpy(add_string, str, string_len);
                 g_free(str);
             }

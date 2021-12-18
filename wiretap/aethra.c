@@ -309,7 +309,7 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 	if (rec_size < (sizeof *hdr - sizeof hdr->rec_size)) {
 		/* The record is shorter than a record header. */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("aethra: File has %u-byte record, less than minimum of %u",
+		*err_info = ws_strdup_printf("aethra: File has %u-byte record, less than minimum of %u",
 		    rec_size,
 		    (unsigned int)(sizeof *hdr - sizeof hdr->rec_size));
 		return FALSE;
@@ -321,7 +321,7 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 		 * space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("aethra: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("aethra: File has %u-byte packet, bigger than maximum of %u",
 		    rec_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}

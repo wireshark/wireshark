@@ -322,7 +322,7 @@ static gboolean ieee802154_key_update_cb(void *r, char **err)
 
         if (bytes->len < IEEE802154_CIPHER_SIZE)
         {
-            *err = g_strdup_printf("Key must be at least %d bytes", IEEE802154_CIPHER_SIZE);
+            *err = ws_strdup_printf("Key must be at least %d bytes", IEEE802154_CIPHER_SIZE);
             g_byte_array_free(bytes, TRUE);
             return FALSE;
         }
@@ -5609,7 +5609,7 @@ static gboolean ieee802154_filter_valid(packet_info *pinfo)
 
 static gchar* ieee802154_build_filter(packet_info *pinfo)
 {
-    return g_strdup_printf("wpan.%s eq %s and wpan.%s eq %s",
+    return ws_strdup_printf("wpan.%s eq %s and wpan.%s eq %s",
             (pinfo->dl_src.type == ieee802_15_4_short_address_type) ? "addr16" : "addr64",
             address_to_str(pinfo->pool, &pinfo->dl_src),
             (pinfo->dl_dst.type == ieee802_15_4_short_address_type) ? "addr16" : "addr64",

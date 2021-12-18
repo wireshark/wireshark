@@ -270,7 +270,7 @@ cfile_read_failure_alert_box(const char *filename, int err, gchar *err_info)
         gchar *display_basename;
 
         display_basename = g_filename_display_basename(filename);
-        display_name = g_strdup_printf("capture file \"%s\"", display_basename);
+        display_name = ws_strdup_printf("capture file \"%s\"", display_basename);
         g_free(display_basename);
     }
 
@@ -360,7 +360,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
         if (in_filename == NULL)
             in_file_string = g_strdup("");
         else
-            in_file_string = g_strdup_printf(" of file \"%s\"", in_filename);
+            in_file_string = ws_strdup_printf(" of file \"%s\"", in_filename);
 
         switch (err) {
 

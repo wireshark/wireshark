@@ -459,7 +459,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
 
     /* If get here, must have failed */
     *err = errno;
-    *err_info = g_strdup_printf("prot 3gpp: seek_read failed to read/parse "
+    *err_info = ws_strdup_printf("prot 3gpp: seek_read failed to read/parse "
                                 "line at position %" PRId64,
                                 seek_off);
     return FALSE;

@@ -60,7 +60,7 @@ ws_init_version_info(const char *appname,
 	 * version - including the VCS version, for a build from
 	 * a checkout.
 	 */
-	appname_with_version = g_strdup_printf("%s %s",
+	appname_with_version = ws_strdup_printf("%s %s",
 		appname, get_ws_vcs_version_info());
 
 	/* Get the compile-time version information string */

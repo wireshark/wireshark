@@ -876,7 +876,7 @@ write_file_header (void)
         char *comment;
         GPtrArray *comments;
 
-        comment = g_strdup_printf("Generated from input file %s.", input_filename);
+        comment = ws_strdup_printf("Generated from input file %s.", input_filename);
         comments = g_ptr_array_new_with_free_func(g_free);
         g_ptr_array_add(comments, comment);
         success = pcapng_write_section_header_block(output_file,

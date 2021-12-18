@@ -660,7 +660,7 @@ static gboolean mqtt_message_decode_update_cb(void *record, char **error)
     u->topic_regex = g_regex_new(u->topic_pattern, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
     if (!u->topic_regex)
     {
-      *error = g_strdup_printf("Invalid regex: %s", u->topic_pattern);
+      *error = ws_strdup_printf("Invalid regex: %s", u->topic_pattern);
       return FALSE;
     }
   }

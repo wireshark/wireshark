@@ -540,7 +540,7 @@ pdcp_uat_fld_ip_chk_cb(void* r _U_, const char* ipaddr, guint len _U_, const voi
         return TRUE;
     }
 
-    *err = g_strdup_printf("No valid IP address given");
+    *err = ws_strdup_printf("No valid IP address given");
     return FALSE;
 }
 
@@ -564,7 +564,7 @@ pdcp_uat_fld_teid_chk_cb(void* r _U_, const char* teid, guint len _U_, const voi
         }
     }
 
-    *err = g_strdup_printf("No valid TEID given");
+    *err = ws_strdup_printf("No valid TEID given");
     return FALSE;
 }
 
@@ -598,7 +598,7 @@ static gboolean pdcp_lte_update_cb(void *r, char **err)
         rec->teid_wildcard = FALSE;
     } else {
         if (err)
-            *err = g_strdup_printf("No valid TEID given");
+            *err = ws_strdup_printf("No valid TEID given");
         return FALSE;
     }
 
@@ -609,7 +609,7 @@ static gboolean pdcp_lte_update_cb(void *r, char **err)
         alloc_address_wmem(wmem_epan_scope(), &rec->ip_address, AT_IPv4, sizeof(ws_in4_addr), &ip4_addr);
     } else {
         if (err)
-            *err = g_strdup_printf("No valid IP address given");
+            *err = ws_strdup_printf("No valid IP address given");
         return FALSE;
     }
 
@@ -689,7 +689,7 @@ static gboolean pdcp_nr_update_cb(void *r, char **err) {
         rec->teid_wildcard = FALSE;
     } else {
         if (err)
-            *err = g_strdup_printf("No valid TEID given");
+            *err = ws_strdup_printf("No valid TEID given");
         return FALSE;
     }
 
@@ -700,7 +700,7 @@ static gboolean pdcp_nr_update_cb(void *r, char **err) {
         alloc_address_wmem(wmem_epan_scope(), &rec->ip_address, AT_IPv4, sizeof(ws_in4_addr), &ip4_addr);
     } else {
         if (err)
-            *err = g_strdup_printf("No valid IP address given");
+            *err = ws_strdup_printf("No valid IP address given");
         return FALSE;
     }
 

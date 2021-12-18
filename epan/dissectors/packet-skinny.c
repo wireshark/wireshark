@@ -2362,7 +2362,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
     }
   }
   if (show_replaced_str) {
-    si->additionalInfo = g_strdup_printf("\"%s\"", wmem_strbuf_get_str(wmem_new));
+    si->additionalInfo = ws_strdup_printf("\"%s\"", wmem_strbuf_get_str(wmem_new));
     proto_item_append_text(item, " => \"%s\"" , wmem_strbuf_get_str(wmem_new));
   }
   ptvcursor_advance(cursor, length);
@@ -2522,7 +2522,7 @@ handle_KeypadButtonMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_
 {
   guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
 
-  si->additionalInfo = g_strdup_printf("\"%s\"",
+  si->additionalInfo = ws_strdup_printf("\"%s\"",
     try_val_to_str_ext(
       tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)),
       &KeyPadButton_short_ext
@@ -2838,7 +2838,7 @@ handle_OpenReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &ipAddr, portNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   ipAddr_str = address_to_display(NULL, &ipAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", ipAddr_str, portNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", ipAddr_str, portNumber);
   wmem_free(NULL, ipAddr_str);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -3000,7 +3000,7 @@ handle_MediaTransmissionFailureMessage(ptvcursor_t *cursor, packet_info * pinfo 
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   si->callId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_callReference, 4, ENC_LITTLE_ENDIAN);
@@ -3423,7 +3423,7 @@ handle_OpenMultiMediaReceiveChannelAckMessage(ptvcursor_t *cursor, packet_info *
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &ipAddr, portNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   ipAddr_str = address_to_display(NULL, &ipAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", ipAddr_str, portNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", ipAddr_str, portNumber);
   wmem_free(NULL, ipAddr_str);
   passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   si->passThroughPartyId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -4340,7 +4340,7 @@ handle_PortResMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &ipAddr, portNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   ipAddr_str = address_to_display(NULL, &ipAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", ipAddr_str, portNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", ipAddr_str, portNumber);
   wmem_free(NULL, ipAddr_str);
   ptvcursor_add(cursor, hf_skinny_RTCPPortNumber, 4, ENC_LITTLE_ENDIAN);
   if (hdr_version >= V19_MSG_TYPE) {
@@ -4374,7 +4374,7 @@ handle_QoSResvNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
 }
@@ -4404,7 +4404,7 @@ handle_QoSErrorNotifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinn
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_errorCode, 4, ENC_LITTLE_ENDIAN);
@@ -4555,7 +4555,7 @@ handle_RegisterAckMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
 static void
 handle_StartToneMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  si->additionalInfo = g_strdup_printf("\"%s\"",
+  si->additionalInfo = ws_strdup_printf("\"%s\"",
     try_val_to_str_ext(
       tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)),
       &DeviceTone_ext
@@ -4684,7 +4684,7 @@ handle_StartMediaTransmissionMessage(ptvcursor_t *cursor, packet_info * pinfo _U
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -4879,7 +4879,7 @@ handle_CallInfoMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv
   ptvcursor_advance(cursor, 4);
   ptvcursor_pop_subtree(cursor); /* end bitfield: partyPIRestrictionBits */
   if (si->callingParty && si->calledParty) {
-    si->additionalInfo = g_strdup_printf("\"%s -> %s\"", si->callingParty, si->calledParty);
+    si->additionalInfo = ws_strdup_printf("\"%s -> %s\"", si->callingParty, si->calledParty);
   }
 }
 
@@ -5215,7 +5215,7 @@ handle_StartMulticastMediaReceptionMessage(ptvcursor_t *cursor, packet_info * pi
   ptvcursor_add(cursor, hf_skinny_multicastPortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &multicastIpAddr, multicastPortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   multicastIpAddr_str = address_to_display(NULL, &multicastIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", multicastIpAddr_str, multicastPortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", multicastIpAddr_str, multicastPortNumber);
   wmem_free(NULL, multicastIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5278,7 +5278,7 @@ handle_StartMulticastMediaTransmissionMessage(ptvcursor_t *cursor, packet_info *
   ptvcursor_add(cursor, hf_skinny_multicastPortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &multicastIpAddr, multicastPortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   multicastIpAddr_str = address_to_display(NULL, &multicastIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", multicastIpAddr_str, multicastPortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", multicastIpAddr_str, multicastPortNumber);
   wmem_free(NULL, multicastIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_milliSecondPacketSize, 4, ENC_LITTLE_ENDIAN);
   compressionType = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5461,7 +5461,7 @@ handle_OpenReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, s
     ptvcursor_add(cursor, hf_skinny_sourcePortNumber, 4, ENC_LITTLE_ENDIAN);
     srtp_add_address(pinfo, PT_UDP, &sourceIpAddr, sourcePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
     sourceIpAddr_str = address_to_display(NULL, &sourceIpAddr);
-    si->additionalInfo = g_strdup_printf("%s:%d", sourceIpAddr_str, sourcePortNumber);
+    si->additionalInfo = ws_strdup_printf("%s:%d", sourceIpAddr_str, sourcePortNumber);
     wmem_free(NULL, sourceIpAddr_str);
   }
   if (hdr_version >= V16_MSG_TYPE) {
@@ -5708,7 +5708,7 @@ handle_SelectSoftKeysMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinn
 static void
 handle_CallStateMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_info_t * skinny_conv _U_)
 {
-  si->additionalInfo = g_strdup_printf("\"%s\"",
+  si->additionalInfo = ws_strdup_printf("\"%s\"",
     try_val_to_str_ext(
       tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)),
       &DCallState_ext
@@ -5909,7 +5909,7 @@ handle_DialedNumberMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_
     guint32 dialedNumber_len;
     dialedNumber_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 24)+1;
     if (dialedNumber_len > 1) {
-      si->additionalInfo = g_strdup_printf("\"%s\"", tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), dialedNumber_len));
+      si->additionalInfo = ws_strdup_printf("\"%s\"", tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), dialedNumber_len));
     }
     ptvcursor_add(cursor, hf_skinny_dialedNumber, 24, ENC_ASCII|ENC_NA);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -5921,7 +5921,7 @@ handle_DialedNumberMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_
     guint32 dialedNumber_len;
     dialedNumber_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), VariableDirnumSize)+1;
     if (dialedNumber_len > 1) {
-      si->additionalInfo = g_strdup_printf("\"%s\"", tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), dialedNumber_len));
+      si->additionalInfo = ws_strdup_printf("\"%s\"", tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), dialedNumber_len));
     }
     ptvcursor_add(cursor, hf_skinny_dialedNumber, VariableDirnumSize, ENC_ASCII|ENC_NA);
     si->lineId = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
@@ -6499,7 +6499,7 @@ handle_OpenMultiMediaReceiveChannelMessage(ptvcursor_t *cursor, packet_info * pi
     ptvcursor_add(cursor, hf_skinny_sourcePortNumber, 4, ENC_LITTLE_ENDIAN);
     srtp_add_address(pinfo, PT_UDP, &sourceIpAddr, sourcePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
     sourceIpAddr_str = address_to_display(NULL, &sourceIpAddr);
-    si->additionalInfo = g_strdup_printf("%s:%d", sourceIpAddr_str, sourcePortNumber);
+    si->additionalInfo = ws_strdup_printf("%s:%d", sourceIpAddr_str, sourcePortNumber);
     wmem_free(NULL, sourceIpAddr_str);
   }
   if (hdr_version >= V16_MSG_TYPE) {
@@ -7519,7 +7519,7 @@ handle_CallInfoV2Message(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_co
     }
   }
   if (si->callingParty && si->calledParty) {
-    si->additionalInfo = g_strdup_printf("\"%s -> %s\"", si->callingParty, si->calledParty);
+    si->additionalInfo = ws_strdup_printf("\"%s -> %s\"", si->callingParty, si->calledParty);
   }
 }
 
@@ -7589,7 +7589,7 @@ handle_QoSListenMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_resvStyle, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_maxRetryNumber, 4, ENC_LITTLE_ENDIAN);
@@ -7636,7 +7636,7 @@ handle_QoSPathMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_conv_
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_resvStyle, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_maxRetryNumber, 4, ENC_LITTLE_ENDIAN);
@@ -7682,7 +7682,7 @@ handle_QoSTeardownMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_c
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
 }
@@ -7712,7 +7712,7 @@ handle_UpdateDSCPMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_co
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_DSCPValue, 4, ENC_LITTLE_ENDIAN);
 }
@@ -7742,7 +7742,7 @@ handle_QoSModifyMessage(ptvcursor_t *cursor, packet_info * pinfo _U_, skinny_con
   ptvcursor_add(cursor, hf_skinny_remotePortNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &remoteIpAddr, remotePortNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   remoteIpAddr_str = address_to_display(NULL, &remoteIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", remoteIpAddr_str, remotePortNumber);
   wmem_free(NULL, remoteIpAddr_str);
   ptvcursor_add(cursor, hf_skinny_direction, 4, ENC_LITTLE_ENDIAN);
   ptvcursor_add(cursor, hf_skinny_compressionType, 4, ENC_LITTLE_ENDIAN);
@@ -7823,7 +7823,7 @@ handle_StartMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * pinfo
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &transmitIpAddr, portNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   transmitIpAddr_str = address_to_display(NULL, &transmitIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", transmitIpAddr_str, portNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", transmitIpAddr_str, portNumber);
   wmem_free(NULL, transmitIpAddr_str);
   si->mediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_mediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);
@@ -7857,7 +7857,7 @@ handle_StartMultiMediaTransmissionAckMessage(ptvcursor_t *cursor, packet_info * 
   ptvcursor_add(cursor, hf_skinny_portNumber, 4, ENC_LITTLE_ENDIAN);
   srtp_add_address(pinfo, PT_UDP, &transmitIpAddr, portNumber, 0, "SKINNY", pinfo->num, false, NULL, NULL, NULL);
   transmitIpAddr_str = address_to_display(NULL, &transmitIpAddr);
-  si->additionalInfo = g_strdup_printf("%s:%d", transmitIpAddr_str, portNumber);
+  si->additionalInfo = ws_strdup_printf("%s:%d", transmitIpAddr_str, portNumber);
   wmem_free(NULL, transmitIpAddr_str);
   si->multimediaTransmissionStatus = tvb_get_letohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_skinny_multimediaTransmissionStatus, 4, ENC_LITTLE_ENDIAN);

@@ -141,7 +141,7 @@ static int ringbuf_exec_compress(gchar* name)
     return -1;
   }
 
-  outgz = g_strdup_printf("%s.gz", name);
+  outgz = ws_strdup_printf("%s.gz", name);
   fi = gzopen(outgz, "wb");
   g_free(outgz);
   if (fi == NULL) {

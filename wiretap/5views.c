@@ -128,7 +128,7 @@ _5views_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("5views: header version %u unsupported", Capture_Header.Info_Header.Version);
+		*err_info = ws_strdup_printf("5views: header version %u unsupported", Capture_Header.Info_Header.Version);
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -138,7 +138,7 @@ _5views_open(wtap *wth, int *err, gchar **err_info)
 	if((Capture_Header.Info_Header.FileType & CST_5VW_CAPTURE_FILE_TYPE_MASK) != CST_5VW_CAPTURE_FILEID)
 	{
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("5views: file is not a capture file (filetype is %u)", Capture_Header.Info_Header.Version);
+		*err_info = ws_strdup_printf("5views: file is not a capture file (filetype is %u)", Capture_Header.Info_Header.Version);
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -152,7 +152,7 @@ _5views_open(wtap *wth, int *err, gchar **err_info)
 */
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("5views: network type %u unknown or unsupported",
+		*err_info = ws_strdup_printf("5views: network type %u unknown or unsupported",
 		    Capture_Header.Info_Header.FileType);
 		return WTAP_OPEN_ERROR;
 	}
@@ -221,7 +221,7 @@ _5views_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("5views: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("5views: File has %u-byte packet, bigger than maximum of %u",
 		    rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
@@ -270,7 +270,7 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 	hdr->Key = pletoh32(&hdr->Key);
 	if (hdr->Key != CST_5VW_RECORDS_HEADER_KEY) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("5views: Time-stamped header has bad key value 0x%08X",
+		*err_info = ws_strdup_printf("5views: Time-stamped header has bad key value 0x%08X",
 		    hdr->Key);
 		return FALSE;
 	}

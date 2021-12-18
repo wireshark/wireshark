@@ -2057,7 +2057,7 @@ main(int argc, char *argv[])
       /* Activate the export PDU tap */
       /* Write to our output file with this comment (if the type supports it,
        * otherwise exp_pdu_open() will ignore the comment) */
-      comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
+      comment = ws_strdup_printf("Dump of PDUs from %s", cf_name);
       exp_pdu_status = exp_pdu_open(&exp_pdu_tap_data, exp_pdu_filename,
                                     out_file_type, exp_fd, comment,
                                     &err, &err_info);
@@ -2194,7 +2194,7 @@ main(int argc, char *argv[])
         interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
 #ifdef HAVE_PCAP_REMOTE
         if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
-          auth_str = g_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
+          auth_str = ws_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
         }
 #endif
         caps = capture_get_if_capabilities(interface_opts->name, interface_opts->monitor_mode,

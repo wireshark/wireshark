@@ -191,13 +191,13 @@ update_interface_config(void *r, char **err) {
 	interface_config_t *rec = (interface_config_t *)r;
 
 	if (rec->interface_id > 0xffffffff) {
-		*err = g_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)",
+		*err = ws_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)",
 			rec->interface_id, rec->interface_name);
 		return FALSE;
 	}
 
 	if (rec->bus_id > 0xffff) {
-		*err = g_strdup_printf("We currently only support 16 bit bus identifiers (ID: %i  Name: %s  Bus-ID: %i)",
+		*err = ws_strdup_printf("We currently only support 16 bit bus identifiers (ID: %i  Name: %s  Bus-ID: %i)",
 			rec->interface_id, rec->interface_name, rec->bus_id);
 		return FALSE;
 	}

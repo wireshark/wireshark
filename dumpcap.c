@@ -471,7 +471,7 @@ dumpcap_cmdarg_err(const char *fmt, va_list ap)
     if (capture_child) {
         gchar *msg;
         /* Generate a 'special format' message back to parent */
-        msg = g_strdup_vprintf(fmt, ap);
+        msg = ws_strdup_vprintf(fmt, ap);
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
     } else {
@@ -491,7 +491,7 @@ dumpcap_cmdarg_err_cont(const char *fmt, va_list ap)
 {
     if (capture_child) {
         gchar *msg;
-        msg = g_strdup_vprintf(fmt, ap);
+        msg = ws_strdup_vprintf(fmt, ap);
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
     } else {
@@ -2847,7 +2847,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                         break;
 
                     default:
-                        sync_msg_str = g_strdup_printf(
+                        sync_msg_str = ws_strdup_printf(
                             "Unknown sampling method %d specified,\n"
                             "continue without packet sampling",
                             interface_opts->sampling_method);
@@ -2935,7 +2935,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
            If so, "open_capture_device()" returned a warning; print it,
            but keep capturing. */
         if (open_status != CAP_DEVICE_OPEN_NO_ERR) {
-            sync_msg_str = g_strdup_printf("%s.", open_status_str);
+            sync_msg_str = ws_strdup_printf("%s.", open_status_str);
             report_capture_error(sync_msg_str, "");
             g_free(sync_msg_str);
         }
@@ -3601,7 +3601,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
              * More than one interface; just use the number of interfaces
              * to generate the temporary file name prefix.
              */
-            prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
+            prefix = ws_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
         } else {
             /*
              * One interface; use its description, if it has one, to generate
@@ -3863,7 +3863,7 @@ handle_npcap_bug(char *adapter_name _U_, char *cap_err_str _U_)
     }
     windows_info_str = g_string_new("");
     get_os_version_info(windows_info_str);
-    msg = g_strdup_printf("If you have not removed that adapter, this "
+    msg = ws_strdup_printf("If you have not removed that adapter, this "
                           "is probably a known issue in Npcap resulting from "
                           "the behavior of the Windows networking stack. "
                           "Work is being done in Npcap to improve the "
@@ -4206,7 +4206,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             cap_err_str = pcap_geterr(pcap_src->pcap_h);
             if (strcmp(cap_err_str, "The interface went down") == 0 ||
                 strcmp(cap_err_str, "recvfrom: Network is down") == 0) {
-                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                primary_msg = ws_strdup_printf("The network adapter \"%s\" "
                                               "is no longer running; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
@@ -4215,7 +4215,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                        strcmp(cap_err_str, "read: Device not configured") == 0 ||
                        strcmp(cap_err_str, "read: I/O error") == 0 ||
                        strcmp(cap_err_str, "read error: PacketReceivePacket failed") == 0) {
-                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                primary_msg = ws_strdup_printf("The network adapter \"%s\" "
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
@@ -4229,7 +4229,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                  *
                  * Those should be reported as Npcap issues.
                  */
-                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                primary_msg = ws_strdup_printf("The network adapter \"%s\" "
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
@@ -4254,7 +4254,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                  * sort of problems popping up, but I can't find that
                  * discussion.
                  */
-                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                primary_msg = ws_strdup_printf("The network adapter \"%s\" "
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->display_name);
@@ -4266,7 +4266,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                          "remote host on which you are "
                                          "capturing packets.");
             } else {
-                primary_msg = g_strdup_printf("Error while capturing packets: %s",
+                primary_msg = ws_strdup_printf("Error while capturing packets: %s",
                                               cap_err_str);
                 secondary_msg = g_strdup(please_report_bug());
             }
@@ -5194,7 +5194,7 @@ main(int argc, char *argv[])
              * signal pipe name.
              */
             if (strcmp(ws_optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
-                sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, ws_optarg);
+                sig_pipe_name = ws_strdup_printf(SIGNAL_PIPE_FORMAT, ws_optarg);
                 sig_pipe_handle = CreateFile(utf_8to16(sig_pipe_name),
                                              GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 
@@ -5440,7 +5440,7 @@ main(int argc, char *argv[])
             caps = get_if_capabilities(interface_opts, &open_status, &open_status_str);
             if (caps == NULL) {
                 if (capture_child) {
-                    char *error_msg = g_strdup_printf("The capabilities of the capture device "
+                    char *error_msg = ws_strdup_printf("The capabilities of the capture device "
                                                 "\"%s\" could not be obtained (%s)",
                                                 interface_opts->name, open_status_str);
                     sync_pipe_errmsg_to_parent(2, error_msg,
@@ -5527,14 +5527,14 @@ main(int argc, char *argv[])
                     g_free(interface_opts->display_name);
                     if (interface_opts->descr != NULL) {
 #ifdef _WIN32
-                        interface_opts->display_name = g_strdup_printf("%s",
+                        interface_opts->display_name = ws_strdup_printf("%s",
                             interface_opts->descr);
 #else
-                        interface_opts->display_name = g_strdup_printf("%s: %s",
+                        interface_opts->display_name = ws_strdup_printf("%s: %s",
                             interface_opts->descr, interface_opts->ifname);
 #endif
                     } else {
-                        interface_opts->display_name = g_strdup_printf("%s",
+                        interface_opts->display_name = ws_strdup_printf("%s",
                             interface_opts->ifname);
                     }
                 }
@@ -5602,7 +5602,7 @@ dumpcap_log_writer(const char *domain, enum ws_log_level level,
     /* ERROR, CRITICAL, WARNING, MESSAGE messages goto stderr or    */
     /*  to parent especially formatted if dumpcap running as child. */
     if (capture_child) {
-        gchar *msg = g_strdup_vprintf(user_format, user_ap);
+        gchar *msg = ws_strdup_vprintf(user_format, user_ap);
         sync_pipe_errmsg_to_parent(2, msg, "");
         g_free(msg);
     } else if(ws_log_msg_is_active(domain, level)) {
@@ -5722,7 +5722,7 @@ report_packet_drops(guint32 received, guint32 pcap_drops, guint32 drops, guint32
     guint32 total_drops = pcap_drops + drops + flushed;
 
     if (capture_child) {
-        char* tmp = g_strdup_printf("%u:%s", total_drops, name);
+        char* tmp = ws_strdup_printf("%u:%s", total_drops, name);
 
         ws_debug("Packets received/dropped on interface '%s': %u/%u (pcap:%u/dumpcap:%u/flushed:%u/ps_ifdrop:%u)",
             name, received, total_drops, pcap_drops, drops, flushed, ps_ifdrop);

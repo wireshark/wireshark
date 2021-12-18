@@ -196,7 +196,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				/* XXX - add other hardware exception codes as required */
 			default:
 				show_exception(tvb, pinfo, parent_tree, DissectorError,
-					       g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
+					       ws_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
 			}
 		}
 #endif
@@ -261,7 +261,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					/* XXX - add other hardware exception codes as required */
 				default:
 					show_exception(tvb, pinfo, parent_tree, DissectorError,
-						       g_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
+						       ws_strdup_printf("dissector caused an unknown exception: 0x%x", GetExceptionCode()));
 				}
 			}
 #endif

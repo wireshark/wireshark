@@ -288,7 +288,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("netscreen: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("netscreen: File has %u-byte packet, bigger than maximum of %u",
 		    (guint)pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}

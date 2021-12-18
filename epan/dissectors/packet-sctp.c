@@ -471,7 +471,7 @@ sctp_chunk_type_update_cb(void *r, char **err)
   */
   c = proto_check_field_name(rec->type_name);
   if (c) {
-    *err = g_strdup_printf("Header name can't contain '%c'", c);
+    *err = ws_strdup_printf("Header name can't contain '%c'", c);
     return FALSE;
   }
 

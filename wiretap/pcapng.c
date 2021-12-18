@@ -797,7 +797,7 @@ pcapng_process_custom_option(wtapng_block_t *wblock,
 
     if (option_length < 4) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: option length (%d) too small for custom option",
+        *err_info = ws_strdup_printf("pcapng: option length (%d) too small for custom option",
                                     option_length);
         return FALSE;
     }
@@ -826,7 +826,7 @@ pcapng_process_custom_option(wtapng_block_t *wblock,
          * us.
          */
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_custom_option()",
+        *err_info = ws_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_custom_option()",
                                     byte_order);
         return FALSE;
     }
@@ -934,7 +934,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
         /* Sanity check: don't run past the end of the options. */
         if (sizeof (*oh) > opt_bytes_remaining) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: Not enough data for option header");
+            *err_info = ws_strdup_printf("pcapng: Not enough data for option header");
             g_free(option_content);
             return FALSE;
         }
@@ -962,7 +962,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
         default:
             /* Don't do that. */
             *err = WTAP_ERR_INTERNAL;
-            *err_info = g_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_options()",
+            *err_info = ws_strdup_printf("pcapng: invalid byte order %d passed to pcapng_process_options()",
                                         byte_order);
             return FALSE;
         }
@@ -975,7 +975,7 @@ pcapng_process_options(FILE_T fh, wtapng_block_t *wblock,
         /* Sanity check: don't run past the end of the options. */
         if (rounded_option_length > opt_bytes_remaining) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: Not enough data to handle option of length %u",
+            *err_info = ws_strdup_printf("pcapng: Not enough data to handle option of length %u",
                                         option_length);
             g_free(option_content);
             return FALSE;
@@ -1129,7 +1129,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         default:
             /* Not a "pcapng" magic number we know about. */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: unknown byte-order magic number 0x%08x", shb.magic);
+            *err_info = ws_strdup_printf("pcapng: unknown byte-order magic number 0x%08x", shb.magic);
 
             /*
              * See above comment about PCAPNG_BLOCK_NOT_SHB.
@@ -1153,7 +1153,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of an SHB is less than the minimum SHB size %u",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of an SHB is less than the minimum SHB size %u",
                                     bh->block_total_length, MIN_SHB_SIZE);
         return PCAPNG_BLOCK_ERROR;
     }
@@ -1170,7 +1170,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
        likely to be treated as bad pcapng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+        *err_info = ws_strdup_printf("pcapng: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
         return PCAPNG_BLOCK_ERROR;
     }
@@ -1192,7 +1192,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     if (!(version_major == 1 &&
           (version_minor == 0 || version_minor == 2))) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("pcapng: unknown SHB version %u.%u",
+        *err_info = ws_strdup_printf("pcapng: unknown SHB version %u.%u",
                                     version_major, version_minor);
         return PCAPNG_BLOCK_ERROR;
     }
@@ -1284,7 +1284,7 @@ pcapng_process_if_descr_block_option(wtapng_block_t *wblock,
         case(OPT_IDB_FILTER): /* if_filter */
             if (option_length < 1) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: packet block verdict option length %u is < 1",
+                *err_info = ws_strdup_printf("pcapng: packet block verdict option length %u is < 1",
                                             option_length);
                 /* XXX - free anything? */
                 return FALSE;
@@ -1436,7 +1436,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of an IDB is less than the minimum IDB size %u",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of an IDB is less than the minimum IDB size %u",
                                     bh->block_total_length, MIN_IDB_SIZE);
         return FALSE;
     }
@@ -1610,7 +1610,7 @@ pcapng_read_decryption_secrets_block(FILE_T fh, pcapng_block_header_t *bh,
     /* Sanity check: assume the secrets are not larger than 1 GiB */
     if (dsb_mand->secrets_len > 1024 * 1024 * 1024) {
       *err = WTAP_ERR_BAD_FILE;
-      *err_info = g_strdup_printf("pcapng: secrets block is too large: %u", dsb_mand->secrets_len);
+      *err_info = ws_strdup_printf("pcapng: secrets block is too large: %u", dsb_mand->secrets_len);
       return FALSE;
     }
     dsb_mand->secrets_data = (guint8 *)g_malloc0(dsb_mand->secrets_len);
@@ -1666,7 +1666,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
         case(OPT_EPB_FLAGS):
             if (option_length != 4) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: packet block flags option length %u is not 4",
+                *err_info = ws_strdup_printf("pcapng: packet block flags option length %u is not 4",
                                             option_length);
                 /* XXX - free anything? */
                 return FALSE;
@@ -1683,7 +1683,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
         case(OPT_EPB_DROPCOUNT):
             if (option_length != 8) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: packet block drop count option length %u is not 8",
+                *err_info = ws_strdup_printf("pcapng: packet block drop count option length %u is not 8",
                                             option_length);
                 /* XXX - free anything? */
                 return FALSE;
@@ -1696,7 +1696,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
         case(OPT_EPB_PACKETID):
             if (option_length != 8) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: packet block packet id option length %u is not 8",
+                *err_info = ws_strdup_printf("pcapng: packet block packet id option length %u is not 8",
                                             option_length);
                 /* XXX - free anything? */
                 return FALSE;
@@ -1709,7 +1709,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
         case(OPT_EPB_QUEUE):
             if (option_length != 4) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: packet block queue option length %u is not 4",
+                *err_info = ws_strdup_printf("pcapng: packet block queue option length %u is not 4",
                                             option_length);
                 /* XXX - free anything? */
                 return FALSE;
@@ -1722,7 +1722,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
         case(OPT_EPB_VERDICT):
             if (option_length < 1) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: packet block verdict option length %u is < 1",
+                *err_info = ws_strdup_printf("pcapng: packet block verdict option length %u is < 1",
                                             option_length);
                 /* XXX - free anything? */
                 return FALSE;
@@ -1740,7 +1740,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 case(OPT_VERDICT_TYPE_TC):
                     if (option_length != 9) {
                         *err = WTAP_ERR_BAD_FILE;
-                        *err_info = g_strdup_printf("pcapng: packet block TC verdict option length %u is != 9",
+                        *err_info = ws_strdup_printf("pcapng: packet block TC verdict option length %u is != 9",
                                                     option_length);
                         /* XXX - free anything? */
                         return FALSE;
@@ -1759,7 +1759,7 @@ pcapng_process_packet_block_option(wtapng_block_t *wblock,
                 case(OPT_VERDICT_TYPE_XDP):
                     if (option_length != 9) {
                         *err = WTAP_ERR_BAD_FILE;
-                        *err_info = g_strdup_printf("pcapng: packet block XDP verdict option length %u is != 9",
+                        *err_info = ws_strdup_printf("pcapng: packet block XDP verdict option length %u is != 9",
                                                     option_length);
                         /* XXX - free anything? */
                         return FALSE;
@@ -1826,7 +1826,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of an EPB is less than the minimum EPB size %u",
+            *err_info = ws_strdup_printf("pcapng: total block length %u of an EPB is less than the minimum EPB size %u",
                                         bh->block_total_length, MIN_EPB_SIZE);
             return FALSE;
         }
@@ -1862,7 +1862,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of a PB is less than the minimum PB size %u",
+            *err_info = ws_strdup_printf("pcapng: total block length %u of a PB is less than the minimum PB size %u",
                                         bh->block_total_length, MIN_PB_SIZE);
             return FALSE;
         }
@@ -1909,7 +1909,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of an EPB is too small for %u bytes of packet data",
+            *err_info = ws_strdup_printf("pcapng: total block length %u of an EPB is too small for %u bytes of packet data",
                                         bh->block_total_length, packet.cap_len);
             return FALSE;
         }
@@ -1920,7 +1920,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
              * No.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u of a PB is too small for %u bytes of packet data",
+            *err_info = ws_strdup_printf("pcapng: total block length %u of a PB is too small for %u bytes of packet data",
                                         bh->block_total_length, packet.cap_len);
             return FALSE;
         }
@@ -1933,7 +1933,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (packet.interface_id >= section_info->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: interface index %u is not less than section interface count %u",
+        *err_info = ws_strdup_printf("pcapng: interface index %u is not less than section interface count %u",
                                     packet.interface_id,
                                     section_info->interfaces->len);
         return FALSE;
@@ -1943,7 +1943,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (packet.cap_len > wtap_max_snaplen_for_encap(iface_info.wtap_encap)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: cap_len %u is larger than %u",
+        *err_info = ws_strdup_printf("pcapng: cap_len %u is larger than %u",
                                     packet.cap_len,
                                     wtap_max_snaplen_for_encap(iface_info.wtap_encap));
         return FALSE;
@@ -2064,7 +2064,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of an SPB is less than the minimum SPB size %u",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of an SPB is less than the minimum SPB size %u",
                                     bh->block_total_length, MIN_SPB_SIZE);
         return FALSE;
     }
@@ -2117,14 +2117,14 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
          * not a *minimum* length.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of an SPB is too small for %u bytes of packet data",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of an SPB is too small for %u bytes of packet data",
                                     bh->block_total_length, simple_packet.packet_len);
         return FALSE;
     }
 
     if (simple_packet.cap_len > wtap_max_snaplen_for_encap(iface_info.wtap_encap)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: cap_len %u is larger than %u",
+        *err_info = ws_strdup_printf("pcapng: cap_len %u is larger than %u",
                                     simple_packet.cap_len,
                                     wtap_max_snaplen_for_encap(iface_info.wtap_encap));
         return FALSE;
@@ -2294,7 +2294,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of an NRB is less than the minimum NRB size %u",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of an NRB is less than the minimum NRB size %u",
                                     bh->block_total_length, MIN_NRB_SIZE);
         return FALSE;
     }
@@ -2322,7 +2322,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
         if ((size_t)(to_read - block_read) < sizeof nrb) {
             ws_buffer_free(&nrb_rec);
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: %d bytes left in the block < NRB record header size %u",
+            *err_info = ws_strdup_printf("pcapng: %d bytes left in the block < NRB record header size %u",
                                         to_read - block_read,
                                         (guint)sizeof nrb);
             return FALSE;
@@ -2342,7 +2342,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
         if (to_read - block_read < nrb.record_len + PADDING4(nrb.record_len)) {
             ws_buffer_free(&nrb_rec);
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: %d bytes left in the block < NRB record length + padding %u",
+            *err_info = ws_strdup_printf("pcapng: %d bytes left in the block < NRB record length + padding %u",
                                         to_read - block_read,
                                         nrb.record_len + PADDING4(nrb.record_len));
             return FALSE;
@@ -2370,7 +2370,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                 if (nrb.record_len < 4) {
                     ws_buffer_free(&nrb_rec);
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("pcapng: NRB record length for IPv4 record %u < minimum length 4",
+                    *err_info = ws_strdup_printf("pcapng: NRB record length for IPv4 record %u < minimum length 4",
                                                 nrb.record_len);
                     return FALSE;
                 }
@@ -2432,14 +2432,14 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
                 if (nrb.record_len < 16) {
                     ws_buffer_free(&nrb_rec);
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("pcapng: NRB record length for IPv6 record %u < minimum length 16",
+                    *err_info = ws_strdup_printf("pcapng: NRB record length for IPv6 record %u < minimum length 16",
                                                 nrb.record_len);
                     return FALSE;
                 }
                 if (to_read < nrb.record_len) {
                     ws_buffer_free(&nrb_rec);
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("pcapng: NRB record length for IPv6 record %u > remaining data in NRB",
+                    *err_info = ws_strdup_printf("pcapng: NRB record length for IPv6 record %u > remaining data in NRB",
                                                 nrb.record_len);
                     return FALSE;
                 }
@@ -2603,7 +2603,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of an ISB is too small (< %u)",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of an ISB is too small (< %u)",
                                     bh->block_total_length, MIN_ISB_SIZE);
         return FALSE;
     }
@@ -2671,7 +2671,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (bh->block_total_length < MIN_NFLX_CB_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of a Netflix CB is too small (< %u)",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of a Netflix CB is too small (< %u)",
                                     bh->block_total_length, MIN_NFLX_CB_SIZE);
         return FALSE;
     }
@@ -2704,7 +2704,7 @@ pcapng_read_nflx_custom_block(FILE_T fh, pcapng_block_header_t *bh,
              */
             if (bh->block_total_length < MIN_NFLX_CB_SIZE + (guint32)sizeof(guint32)) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng: total block length %u of a Netflix skip CB is too small (< %u)",
+                *err_info = ws_strdup_printf("pcapng: total block length %u of a Netflix skip CB is too small (< %u)",
                                             bh->block_total_length,
                                             MIN_NFLX_CB_SIZE + (guint32)sizeof(guint32));
                 return FALSE;
@@ -2778,7 +2778,7 @@ pcapng_read_custom_block(FILE_T fh, pcapng_block_header_t *bh,
          * No.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of a CB is too small (< %u)",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of a CB is too small (< %u)",
                                     bh->block_total_length, MIN_CB_SIZE);
         return FALSE;
     }
@@ -2844,7 +2844,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (bh->block_total_length < min_event_size) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of a Sysdig event block is too small (< %u)",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of a Sysdig event block is too small (< %u)",
                                     bh->block_total_length, min_event_size);
         return FALSE;
     }
@@ -2937,7 +2937,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 
     if (bh->block_total_length < MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of a systemd journal export block is too small (< %u)",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of a systemd journal export block is too small (< %u)",
                                     bh->block_total_length, MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE);
         return FALSE;
     }
@@ -2963,7 +2963,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
 
     if (entry_length < MIN_SYSTEMD_JOURNAL_EXPORT_ENTRY_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: entry length %u is too small (< %u)",
+        *err_info = ws_strdup_printf("pcapng: entry length %u is too small (< %u)",
                                     bh->block_total_length, MIN_SYSTEMD_JOURNAL_EXPORT_ENTRY_SIZE);
         return FALSE;
     }
@@ -3032,7 +3032,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh,
 
     if (bh->block_total_length < MIN_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u of an unknown block type is less than the minimum block size %u",
+        *err_info = ws_strdup_printf("pcapng: total block length %u of an unknown block type is less than the minimum block size %u",
                                     bh->block_total_length, MIN_BLOCK_SIZE);
         return FALSE;
     }
@@ -3100,7 +3100,7 @@ pcapng_read_and_check_block_trailer(FILE_T fh, pcapng_block_header_t *bh,
 
     if (block_total_length != bh->block_total_length) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block lengths (first %u and second %u) don't match",
+        *err_info = ws_strdup_printf("pcapng: total block lengths (first %u and second %u) don't match",
                                     bh->block_total_length, block_total_length);
         return FALSE;
     }
@@ -3216,7 +3216,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
            We do that by imposing a maximum block size of MAX_BLOCK_SIZE. */
         if (bh.block_total_length > MAX_BLOCK_SIZE) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+            *err_info = ws_strdup_printf("pcapng: total block length %u is too large (> %u)",
                                         bh.block_total_length, MAX_BLOCK_SIZE);
             return FALSE;
         }
@@ -4848,7 +4848,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
          * Our caller is doing something bad.
          */
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("pcapng: epb.interface_id (%u) >= wdh->interface_data->len (%u)",
+        *err_info = ws_strdup_printf("pcapng: epb.interface_id (%u) >= wdh->interface_data->len (%u)",
                                     epb.interface_id, wdh->interface_data->len);
         return FALSE;
     }
@@ -4860,7 +4860,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
          * Our caller is doing something bad.
          */
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("pcapng: interface %u encap %d != packet encap %d",
+        *err_info = ws_strdup_printf("pcapng: interface %u encap %d != packet encap %d",
                                     epb.interface_id,
                                     int_data_mand->wtap_encap,
                                     rec->rec_header.packet_header.pkt_encap);

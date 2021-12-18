@@ -3231,7 +3231,7 @@ register_wimaxasncp_fields(const char* unused _U_)
     debug_parser = getenv("WIRESHARK_DEBUG_WIMAXASNCP_DICT_PARSER") != NULL;
     dump_dict    = getenv("WIRESHARK_DUMP_WIMAXASNCP_DICT") != NULL;
 
-    dir = g_strdup_printf(
+    dir = ws_strdup_printf(
         "%s" G_DIR_SEPARATOR_S "wimaxasncp",
         get_datafile_dir());
 

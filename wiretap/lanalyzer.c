@@ -361,7 +361,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
             case RT_Summary:
                   if (record_length < sizeof summary) {
                         *err = WTAP_ERR_BAD_FILE;
-                        *err_info = g_strdup_printf("lanalyzer: summary record length %u is too short",
+                        *err_info = ws_strdup_printf("lanalyzer: summary record length %u is too short",
                                                     record_length);
                         return WTAP_OPEN_ERROR;
                   }
@@ -406,14 +406,14 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
                         break;
                   default:
                         *err = WTAP_ERR_UNSUPPORTED;
-                        *err_info = g_strdup_printf("lanalyzer: board type %u unknown",
+                        *err_info = ws_strdup_printf("lanalyzer: board type %u unknown",
                                                     board_type);
                         return WTAP_OPEN_ERROR;
                   }
 
                   if (found_summary) {
                         *err = WTAP_ERR_BAD_FILE;
-                        *err_info = g_strdup_printf("lanalyzer: file has more than one summary record");
+                        *err_info = ws_strdup_printf("lanalyzer: file has more than one summary record");
                         return WTAP_OPEN_ERROR;
                   }
                   found_summary = TRUE;
@@ -448,7 +448,7 @@ wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 done:
       if (!found_summary) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("lanalyzer: file has no summary record");
+            *err_info = ws_strdup_printf("lanalyzer: file has no summary record");
             return WTAP_OPEN_ERROR;
       }
 
@@ -506,7 +506,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
        * after a Trace Packet Data Record, mark it as an error. */
       if (record_type != RT_PacketData) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("lanalyzer: record type %u seen after trace summary record",
+            *err_info = ws_strdup_printf("lanalyzer: record type %u seen after trace summary record",
                                         record_type);
             return FALSE;
       }
@@ -517,7 +517,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
              * descriptor.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
+            *err_info = ws_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
                                         record_length);
             return FALSE;
       }

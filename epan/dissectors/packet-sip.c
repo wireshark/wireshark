@@ -975,7 +975,7 @@ header_fields_update_cb(void *r, char **err)
     */
     c = proto_check_field_name(rec->header_name);
     if (c) {
-        *err = g_strdup_printf("Header name can't contain '%c'", c);
+        *err = ws_strdup_printf("Header name can't contain '%c'", c);
         return FALSE;
     }
 
@@ -1047,7 +1047,7 @@ header_fields_post_update_cb(void)
 
             dynamic_hf[i].p_id = hf_id;
             dynamic_hf[i].hfinfo.name = header_name;
-            dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("sip.%s", header_name);
+            dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("sip.%s", header_name);
             dynamic_hf[i].hfinfo.type = FT_STRING;
             dynamic_hf[i].hfinfo.display = BASE_NONE;
             dynamic_hf[i].hfinfo.strings = NULL;
@@ -1105,7 +1105,7 @@ authorization_users_update_cb(void *r, char **err)
     */
     c = proto_check_field_name(rec->username);
     if (c) {
-        *err = g_strdup_printf("Username can't contain '%c'", c);
+        *err = ws_strdup_printf("Username can't contain '%c'", c);
         return FALSE;
     }
 
@@ -5875,7 +5875,7 @@ static void sip_stat_init(stat_tap_table_ui* new_stat)
         for (i = 1; sip_response_code_vals[i].strptr; i++) {
             unsigned response_code = sip_response_code_vals[i].value;
             items[REQ_RESP_METHOD_COLUMN].value.string_value =
-                g_strdup_printf("%u %s", response_code, sip_response_code_vals[i].strptr);
+                ws_strdup_printf("%u %s", response_code, sip_response_code_vals[i].strptr);
             items[REQ_RESP_METHOD_COLUMN].user_data.uint_value = response_code;
             stat_tap_init_table_row(resp_table, i-1, num_fields, items);
         }
@@ -6031,11 +6031,11 @@ static gchar *sip_follow_conv_filter(epan_dissect_t *edt, packet_info *pinfo _U_
         int hfid = proto_registrar_get_id_byname("sip.Call-ID");
         GPtrArray *gp = proto_find_first_finfo(edt->tree, hfid);
         if (gp != NULL && gp->len != 0) {
-            filter = g_strdup_printf("sip.Call-ID == \"%s\"", (gchar *)fvalue_get(&((field_info *)gp->pdata[0])->value));
+            filter = ws_strdup_printf("sip.Call-ID == \"%s\"", (gchar *)fvalue_get(&((field_info *)gp->pdata[0])->value));
         }
         g_ptr_array_free(gp, TRUE);
     } else {
-        filter = g_strdup_printf("sip.Call-ID");
+        filter = ws_strdup_printf("sip.Call-ID");
     }
 
     return filter;

@@ -485,15 +485,15 @@ static gchar* freq_to_str(gfloat freq)
 {
     if (freq < 1e3)
     {
-        return g_strdup_printf("%.12g Hz", freq);
+        return ws_strdup_printf("%.12g Hz", freq);
     }
     else if (freq < 1e6)
     {
-        return g_strdup_printf("%.12g kHz", freq / 1e3);
+        return ws_strdup_printf("%.12g kHz", freq / 1e3);
     }
     else
     {
-        return g_strdup_printf("%.12g MHz", freq / 1e6);
+        return ws_strdup_printf("%.12g MHz", freq / 1e6);
     }
 }
 

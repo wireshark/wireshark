@@ -1759,7 +1759,7 @@ wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *
 		 * Avoid allocating space for an immensely-large file.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("%s: File has %" PRId64 "-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("%s: File has %" PRId64 "-byte packet, bigger than maximum of %u",
 				wtap_encap_name(wth->file_encap), file_size, G_MAXINT);
 		return FALSE;
 	}
@@ -1773,7 +1773,7 @@ wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *
 	for (;;) {
 		if (buffer_size <= 0) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("%s: Uncompressed file is bigger than maximum of %u",
+			*err_info = ws_strdup_printf("%s: Uncompressed file is bigger than maximum of %u",
 					wtap_encap_name(wth->file_encap), G_MAXINT);
 			return FALSE;
 		}

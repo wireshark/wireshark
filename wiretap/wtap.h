@@ -9,14 +9,12 @@
 #ifndef __WTAP_H__
 #define __WTAP_H__
 
-#include <glib.h>
+#include <wireshark.h>
 #include <time.h>
 #include <wsutil/buffer.h>
 #include <wsutil/nstime.h>
 #include <wsutil/inet_addr.h>
 #include "wtap_opttypes.h"
-#include "ws_symbol_export.h"
-#include "ws_attributes.h"
 
 #ifdef __cplusplus
 extern "C" {

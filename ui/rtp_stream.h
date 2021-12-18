@@ -106,7 +106,7 @@ struct _rtpstream_tapinfo {
 
 #if 0
 #define RTP_STREAM_DEBUG(...) { \
-    char *RTP_STREAM_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
+    char *RTP_STREAM_DEBUG_MSG = ws_strdup_printf(__VA_ARGS__); \
     ws_warning("rtp_stream: %s:%d %s", G_STRFUNC, __LINE__, RTP_STREAM_DEBUG_MSG); \
     g_free(RTP_STREAM_DEBUG_MSG); \
 }

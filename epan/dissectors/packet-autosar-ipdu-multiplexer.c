@@ -194,22 +194,22 @@ update_ipdum_message_list(void *r, char **err) {
     ipdum_message_list_uat_t *rec = (ipdum_message_list_uat_t *)r;
 
     if (rec->pos >= 0xffff) {
-        *err = g_strdup_printf("Position too big");
+        *err = ws_strdup_printf("Position too big");
         return FALSE;
     }
 
     if (rec->num_of_params >= 0xffff) {
-        *err = g_strdup_printf("Number of PDUs too big");
+        *err = ws_strdup_printf("Number of PDUs too big");
         return FALSE;
     }
 
     if (rec->pos >= rec->num_of_params) {
-        *err = g_strdup_printf("Position >= Number of PDUs");
+        *err = ws_strdup_printf("Position >= Number of PDUs");
         return FALSE;
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
@@ -414,12 +414,12 @@ update_ipdum_flexray_mapping(void *r, char **err) {
     ipdum_flexray_mapping_uat_t *rec = (ipdum_flexray_mapping_uat_t *)r;
 
     if (rec->cycle > 0xff) {
-        *err = g_strdup_printf("We currently only support 8 bit Cycles (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
+        *err = ws_strdup_printf("We currently only support 8 bit Cycles (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
         return FALSE;
     }
 
     if (rec->frame_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit Frame IDs (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
+        *err = ws_strdup_printf("We currently only support 16 bit Frame IDs (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
         return FALSE;
     }
 
@@ -492,12 +492,12 @@ update_ipdum_lin_mapping(void *r, char **err) {
     ipdum_lin_mapping_uat_t *rec = (ipdum_lin_mapping_uat_t *)r;
 
     if (rec->frame_id > LIN_ID_MASK) {
-        *err = g_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
+        *err = ws_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
         return FALSE;
     }
 
     if (rec->bus_id > 0xffff) {
-        *err = g_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
+        *err = ws_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
         return FALSE;
     }
 
@@ -597,7 +597,7 @@ update_ipdum_pdu_transport_mapping(void *r, char **err) {
     ipdum_pdu_transport_mapping_uat_t *rec = (ipdum_pdu_transport_mapping_uat_t *)r;
 
     if (rec->pdu_id > 0xffffffff) {
-        *err = g_strdup_printf("PDU-Transport IDs are only uint32 (ID: %i)", rec->pdu_id);
+        *err = ws_strdup_printf("PDU-Transport IDs are only uint32 (ID: %i)", rec->pdu_id);
         return FALSE;
     }
 

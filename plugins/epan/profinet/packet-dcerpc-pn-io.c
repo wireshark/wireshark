@@ -11889,7 +11889,7 @@ pn_io_ar_conv_filter(packet_info *pinfo)
     set_address(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
     set_address(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
-    buf = g_strdup_printf(
+    buf = ws_strdup_printf(
         "pn_io.ar_uuid == %s || "                                   /* ARUUID */
         "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "   /* Alarm CR (contr -> dev) */
         "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",      /* Alarm CR (dev -> contr) */
@@ -11919,7 +11919,7 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
     guid_str = guid_to_str(pinfo->pool, (const e_guid_t*) &ar->aruuid);
     if (ar->arType == 0x0010) /* IOCARSingle using RT_CLASS_3 */
     {
-        buf = g_strdup_printf(
+        buf = ws_strdup_printf(
             "pn_io.ar_uuid == %s || "                                           /* ARUUID */
             "(pn_rt.frame_id == 0x%x) || (pn_rt.frame_id == 0x%x) || "
             "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "           /* Alarm CR (contr -> dev) */
@@ -11931,7 +11931,7 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
     }
     else
     {
-        buf = g_strdup_printf(
+        buf = ws_strdup_printf(
             "pn_io.ar_uuid == %s || "                                           /* ARUUID */
             "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Input CR && dev MAC -> contr MAC */
             "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Output CR && contr MAC -> dev MAC */

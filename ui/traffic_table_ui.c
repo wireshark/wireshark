@@ -68,7 +68,7 @@ write_endpoint_geoip_map(FILE *fp, gboolean json_only, hostlist_talker_t *const 
         char *base_html_path = get_datafile_path("ipmap.html");
         FILE *base_html_fp = ws_fopen(base_html_path, "rb");
         if (!base_html_fp) {
-            *err_str = g_strdup_printf("Could not open base file %s for reading: %s",
+            *err_str = ws_strdup_printf("Could not open base file %s for reading: %s",
                     base_html_path, g_strerror(errno));
             g_free(base_html_path);
             return FALSE;
@@ -80,13 +80,13 @@ write_endpoint_geoip_map(FILE *fp, gboolean json_only, hostlist_talker_t *const 
         char buf[4096];
         while ((n = fread(buf, 1, sizeof(buf), base_html_fp)) != 0) {
             if (fwrite(buf, 1, n, fp) != n) {
-                *err_str = g_strdup_printf("Failed to write to map file: %s", g_strerror(errno));
+                *err_str = ws_strdup_printf("Failed to write to map file: %s", g_strerror(errno));
                 fclose(base_html_fp);
                 return FALSE;
             }
         }
         if (ferror(base_html_fp)) {
-            *err_str = g_strdup_printf("Failed to read base file: %s", g_strerror(errno));
+            *err_str = ws_strdup_printf("Failed to read base file: %s", g_strerror(errno));
             fclose(base_html_fp);
             return FALSE;
         }

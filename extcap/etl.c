@@ -211,7 +211,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     }
                     else
                     {
-                        *err_info = g_strdup_printf("Cannot convert provider %s to a GUID, err is 0x%x", ws_optarg, *err);
+                        *err_info = ws_strdup_printf("Cannot convert provider %s to a GUID, err is 0x%x", ws_optarg, *err);
                         return WTAP_OPEN_ERROR;
                     }
 
@@ -221,7 +221,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 if (IsEqualGUID(&g_provider_filters[0].ProviderId, &ZeroGuid))
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Provider %s is zero, err is 0x%x", ws_optarg, *err);
+                    *err_info = ws_strdup_printf("Provider %s is zero, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
                 provider_idx++;
@@ -230,7 +230,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 if (provider_idx == 0)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("-k parameter must follow -p, err is 0x%x", *err);
+                    *err_info = ws_strdup_printf("-k parameter must follow -p, err is 0x%x", *err);
                     return WTAP_OPEN_ERROR;
                 }
 
@@ -238,7 +238,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 if (!g_provider_filters[provider_idx - 1].Keyword)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Keyword %s cannot be converted, err is 0x%x", ws_optarg, *err);
+                    *err_info = ws_strdup_printf("Keyword %s cannot be converted, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
                 break;
@@ -246,7 +246,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 if (provider_idx == 0)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("-l parameter must follow -p, err is 0x%x", *err);
+                    *err_info = ws_strdup_printf("-l parameter must follow -p, err is 0x%x", *err);
                     return WTAP_OPEN_ERROR;
                 }
 
@@ -254,13 +254,13 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 if (convert_level > UCHAR_MAX)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Level %s is bigger than 0xff, err is 0x%x", ws_optarg, *err);
+                    *err_info = ws_strdup_printf("Level %s is bigger than 0xff, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
                 if (!convert_level)
                 {
                     *err = ERROR_INVALID_PARAMETER;
-                    *err_info = g_strdup_printf("Level %s cannot be converted, err is 0x%x", ws_optarg, *err);
+                    *err_info = ws_strdup_printf("Level %s cannot be converted, err is 0x%x", ws_optarg, *err);
                     return WTAP_OPEN_ERROR;
                 }
 
@@ -307,7 +307,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                 &super_trace_properties.prop);
             if (*err != ERROR_SUCCESS)
             {
-                *err_info = g_strdup_printf("StartTrace failed with %u", *err);
+                *err_info = ws_strdup_printf("StartTrace failed with %u", *err);
                 returnVal = WTAP_OPEN_ERROR;
                 break;
             }
@@ -330,7 +330,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
                     NULL);
                 if (*err != ERROR_SUCCESS)
                 {
-                    *err_info = g_strdup_printf("EnableTraceEx failed with %u", *err);
+                    *err_info = ws_strdup_printf("EnableTraceEx failed with %u", *err);
                     returnVal = WTAP_OPEN_ERROR;
                     break;
                 }
@@ -340,7 +340,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         trace_handle = OpenTrace(&log_file);
         if (trace_handle == INVALID_PROCESSTRACE_HANDLE) {
             *err = GetLastError();
-            *err_info = g_strdup_printf("OpenTrace failed with %u", err);
+            *err_info = ws_strdup_printf("OpenTrace failed with %u", err);
             returnVal = WTAP_OPEN_NOT_MINE;
             break;
         }
@@ -355,7 +355,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         *err = ProcessTrace(&trace_handle, 1, 0, 0);
         if (*err != ERROR_SUCCESS) {
             returnVal = WTAP_OPEN_ERROR;
-            *err_info = g_strdup_printf("ProcessTrace failed with %u", err);
+            *err_info = ws_strdup_printf("ProcessTrace failed with %u", err);
             break;
         }
 
@@ -369,7 +369,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
 
         if (!g_num_events) {
             *err = ERROR_NO_DATA;
-            *err_info = g_strdup_printf("Didn't find any etw event");
+            *err_info = ws_strdup_printf("Didn't find any etw event");
             returnVal = WTAP_OPEN_NOT_MINE;
             break;
         }

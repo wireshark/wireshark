@@ -249,44 +249,44 @@ update_config_can_addr_mappings(void *r, char **err) {
     config_can_addr_mapping_t *rec = (config_can_addr_mapping_t *)r;
 
     if (rec->source_addr_mask == 0 && rec->target_addr_mask == 0 && rec->ecu_addr_mask == 0) {
-        *err = g_strdup_printf("You need to define the ECU Mask OR Source Mask/Target Mask!");
+        *err = ws_strdup_printf("You need to define the ECU Mask OR Source Mask/Target Mask!");
         return FALSE;
     }
 
     if ((rec->source_addr_mask != 0 || rec->target_addr_mask != 0) && rec->ecu_addr_mask != 0) {
-        *err = g_strdup_printf("You can only use Source Address Mask/Target Address Mask OR ECU Address Mask! Not both at the same time!");
+        *err = ws_strdup_printf("You can only use Source Address Mask/Target Address Mask OR ECU Address Mask! Not both at the same time!");
         return FALSE;
     }
 
     if ((rec->source_addr_mask == 0 || rec->target_addr_mask == 0) && rec->ecu_addr_mask == 0) {
-        *err = g_strdup_printf("You can only use Source Address Mask and Target Address Mask in combination!");
+        *err = ws_strdup_printf("You can only use Source Address Mask and Target Address Mask in combination!");
         return FALSE;
     }
 
     if (rec->extended_address) {
         if ((rec->source_addr_mask & ~CAN_EFF_MASK) != 0) {
-            *err = g_strdup_printf("Source Address Mask covering bits not allowed for extended IDs (29bit)!");
+            *err = ws_strdup_printf("Source Address Mask covering bits not allowed for extended IDs (29bit)!");
             return FALSE;
         }
         if ((rec->target_addr_mask & ~CAN_EFF_MASK) != 0) {
-            *err = g_strdup_printf("Target Address Mask covering bits not allowed for extended IDs (29bit)!");
+            *err = ws_strdup_printf("Target Address Mask covering bits not allowed for extended IDs (29bit)!");
             return FALSE;
         }
         if ((rec->ecu_addr_mask & ~CAN_EFF_MASK) != 0) {
-            *err = g_strdup_printf("ECU Address Mask covering bits not allowed for extended IDs (29bit)!");
+            *err = ws_strdup_printf("ECU Address Mask covering bits not allowed for extended IDs (29bit)!");
             return FALSE;
         }
     } else {
         if ((rec->source_addr_mask & ~CAN_SFF_MASK) != 0) {
-            *err = g_strdup_printf("Source Address Mask covering bits not allowed for standard IDs (11bit)!");
+            *err = ws_strdup_printf("Source Address Mask covering bits not allowed for standard IDs (11bit)!");
             return FALSE;
         }
         if ((rec->target_addr_mask & ~CAN_SFF_MASK) != 0) {
-            *err = g_strdup_printf("Target Address Mask covering bits not allowed for standard IDs (11bit)!");
+            *err = ws_strdup_printf("Target Address Mask covering bits not allowed for standard IDs (11bit)!");
             return FALSE;
         }
         if ((rec->ecu_addr_mask & ~CAN_SFF_MASK) != 0) {
-            *err = g_strdup_printf("ECU Address Mask covering bits not allowed for standard IDs (11bit)!");
+            *err = ws_strdup_printf("ECU Address Mask covering bits not allowed for standard IDs (11bit)!");
             return FALSE;
         }
     }

@@ -108,28 +108,28 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 
     switch (dumper->type) {
         case WTAP_ENCAP_LOGCAT_BRIEF:
-            return g_strdup_printf("%c/%-8s(%5i): %s\n",
+            return ws_strdup_printf("%c/%-8s(%5i): %s\n",
                     priority, tag, pid, log);
         case WTAP_ENCAP_LOGCAT_PROCESS:
             /* NOTE: Last parameter should be "process name", not tag;
                      Unfortunately, we do not have process name */
-            return g_strdup_printf("%c(%5i) %s  (%s)\n",
+            return ws_strdup_printf("%c(%5i) %s  (%s)\n",
                     priority, pid, log, "");
         case WTAP_ENCAP_LOGCAT_TAG:
-            return g_strdup_printf("%c/%-8s: %s\n",
+            return ws_strdup_printf("%c/%-8s: %s\n",
                    priority, tag, log);
         case WTAP_ENCAP_LOGCAT_THREAD:
-            return g_strdup_printf("%c(%5i:%5i) %s\n",
+            return ws_strdup_printf("%c(%5i:%5i) %s\n",
                     priority, pid, tid, log);
         case WTAP_ENCAP_LOGCAT_TIME:
             tm = gmtime(&datetime);
             if (tm != NULL) {
                 strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                         tm);
-                return g_strdup_printf("%s.%03i %c/%-8s(%5i): %s\n",
+                return ws_strdup_printf("%s.%03i %c/%-8s(%5i): %s\n",
                         time_buffer, milliseconds, priority, tag, pid, log);
             } else {
-                return g_strdup_printf("Not representable %c/%-8s(%5i): %s\n",
+                return ws_strdup_printf("Not representable %c/%-8s(%5i): %s\n",
                         priority, tag, pid, log);
             }
         case WTAP_ENCAP_LOGCAT_THREADTIME:
@@ -137,10 +137,10 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
             if (tm != NULL) {
                 strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                         tm);
-                return g_strdup_printf("%s.%03i %5i %5i %c %-8s: %s\n",
+                return ws_strdup_printf("%s.%03i %5i %5i %c %-8s: %s\n",
                         time_buffer, milliseconds, pid, tid, priority, tag, log);
             } else {
-                return g_strdup_printf("Not representable %5i %5i %c %-8s: %s\n",
+                return ws_strdup_printf("Not representable %5i %5i %c %-8s: %s\n",
                         pid, tid, priority, tag, log);
             }
         case WTAP_ENCAP_LOGCAT_LONG:
@@ -148,10 +148,10 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
             if (tm != NULL) {
                 strftime(time_buffer, sizeof(time_buffer), "%m-%d %H:%M:%S",
                         tm);
-                return g_strdup_printf("[ %s.%03i %5i:%5i %c/%-8s ]\n%s\n\n",
+                return ws_strdup_printf("[ %s.%03i %5i:%5i %c/%-8s ]\n%s\n\n",
                         time_buffer, milliseconds, pid, tid, priority, tag, log);
             } else {
-                return g_strdup_printf("[ Not representable %5i:%5i %c/%-8s ]\n%s\n\n",
+                return ws_strdup_printf("[ Not representable %5i:%5i %c/%-8s ]\n%s\n\n",
                         pid, tid, priority, tag, log);
             }
         default:
@@ -522,7 +522,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
             msg_begin = msg_payload + msg_pre_skip;
         } else {
             *err = WTAP_ERR_UNWRITABLE_REC_DATA;
-            *err_info = g_strdup_printf("logcat: version %d isn't supported",
+            *err_info = ws_strdup_printf("logcat: version %d isn't supported",
                                         logcat_version);
             return FALSE;
         }

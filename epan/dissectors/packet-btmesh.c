@@ -8207,7 +8207,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key, const gchar *key_name, g
                 {
                     g_free(*ascii_key);
                     *ascii_key = NULL;
-                    *err = g_strdup_printf("Key %s begins with an invalid hex char (%c)", key, key[i]);
+                    *err = ws_strdup_printf("Key %s begins with an invalid hex char (%c)", key, key[i]);
                     return -1;    /* not a valid hex digit */
                 }
                 (*ascii_key)[j] = (guchar)hex_digit;
@@ -8230,7 +8230,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key, const gchar *key_name, g
                 {
                     g_free(*ascii_key);
                     *ascii_key = NULL;
-                    *err = g_strdup_printf("%s %s has an invalid hex char (%c)", key_name, key, key[i-1]);
+                    *err = ws_strdup_printf("%s %s has an invalid hex char (%c)", key_name, key, key[i-1]);
                     return -1;    /* not a valid hex digit */
                 }
                 key_byte = ((guchar)hex_digit) << 4;
@@ -8240,7 +8240,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key, const gchar *key_name, g
                 {
                     g_free(*ascii_key);
                     *ascii_key = NULL;
-                    *err = g_strdup_printf("%s %s has an invalid hex char (%c)", key_name, key, key[i-1]);
+                    *err = ws_strdup_printf("%s %s has an invalid hex char (%c)", key_name, key, key[i-1]);
                     return -1;    /* not a valid hex digit */
                 }
                 key_byte |= (guchar)hex_digit;
@@ -8250,7 +8250,7 @@ compute_ascii_key(guchar **ascii_key, const gchar *key, const gchar *key_name, g
             (*ascii_key)[j] = '\0';
         } else {
             *ascii_key = NULL;
-            *err = g_strdup_printf("%s %s has to start with '0x' or '0X', and represent exactly %d octets", key_name, key, expected_octets);
+            *err = ws_strdup_printf("%s %s has to start with '0x' or '0X', and represent exactly %d octets", key_name, key, expected_octets);
             return -1;
         }
     }

@@ -327,7 +327,7 @@ megacostat_filtercheck(const char *opt_arg _U_, const char **filter _U_, char** 
     }
 
     if (!prefs_get_bool_value(megaco_ctx_track, pref_current) || !prefs_get_bool_value(h248_ctx_track, pref_current)) {
-        *err = g_strdup_printf("Track Context option at Protocols -> MEGACO and Protocols -> H248 preferences\n"
+        *err = ws_strdup_printf("Track Context option at Protocols -> MEGACO and Protocols -> H248 preferences\n"
                                 "has to be set to true to enable measurement of service response times.\n");
     }
 }

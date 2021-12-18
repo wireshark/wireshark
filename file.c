@@ -4536,7 +4536,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          to a new file and, if the write succeeds, renaming the
          new file on top of the old file. */
       if (file_exists(fname)) {
-        fname_new = g_strdup_printf("%s~", fname);
+        fname_new = ws_strdup_printf("%s~", fname);
         if (!copy_file_binary_mode(cf->filename, fname_new))
           goto fail;
       } else {
@@ -4572,7 +4572,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          file.  (If the existing file is the current capture file,
          we *HAVE* to do that, otherwise we're overwriting the file
          from which we're reading the packets that we're writing!) */
-      fname_new = g_strdup_printf("%s~", fname);
+      fname_new = ws_strdup_printf("%s~", fname);
       pdh = wtap_dump_open(fname_new, save_format, compression_type, &params,
                            &err, &err_info);
     } else {
@@ -4831,7 +4831,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        file.  (If the existing file is the current capture file,
        we *HAVE* to do that, otherwise we're overwriting the file
        from which we're reading the packets that we're writing!) */
-    fname_new = g_strdup_printf("%s~", fname);
+    fname_new = ws_strdup_printf("%s~", fname);
     pdh = wtap_dump_open(fname_new, save_format, compression_type, &params,
                          &err, &err_info);
   } else {

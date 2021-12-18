@@ -231,7 +231,7 @@ add_unix_interface_ifinfo(if_info_t *if_info, const char *name,
 	 * Look for /sys/class/net/{device}/wireless.  If it exists,
 	 * it's a wireless interface.
 	 */
-	wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", name);
+	wireless_path = ws_strdup_printf("/sys/class/net/%s/wireless", name);
 	if (wireless_path != NULL) {
 		if (ws_stat64(wireless_path, &statb) == 0)
 			if_info->type = IF_WIRELESS;
@@ -915,7 +915,7 @@ create_data_link_info(int dlt)
 	if (text != NULL)
 		data_link_info->name = g_strdup(text);
 	else
-		data_link_info->name = g_strdup_printf("DLT %d", dlt);
+		data_link_info->name = ws_strdup_printf("DLT %d", dlt);
 	text = pcap_datalink_val_to_description(dlt);
 	data_link_info->description = g_strdup(text);
 	return data_link_info;
@@ -947,7 +947,7 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
 		 */
 		if (nlt == PCAP_ERROR) {
 			*status = CAP_DEVICE_OPEN_ERR_GENERIC;
-			*status_str = g_strdup_printf("pcap_list_datalinks() failed: %s",
+			*status_str = ws_strdup_printf("pcap_list_datalinks() failed: %s",
 			    pcap_geterr(pch));
 		} else {
 			if (nlt == PCAP_ERROR_PERM_DENIED)
@@ -958,7 +958,7 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
 		}
 #else /* HAVE_PCAP_CREATE */
 		*status = CAP_DEVICE_OPEN_ERR_GENERIC;
-		*status_str = g_strdup_printf("pcap_list_datalinks() failed: %s",
+		*status_str = ws_strdup_printf("pcap_list_datalinks() failed: %s",
 		    pcap_geterr(pch));
 #endif /* HAVE_PCAP_CREATE */
 		return NULL;
@@ -1197,7 +1197,7 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 		/* Error. */
 		if (status == PCAP_ERROR) {
 			*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
-			*open_status_str = g_strdup_printf("pcap_can_set_rfmon() failed: %s",
+			*open_status_str = ws_strdup_printf("pcap_can_set_rfmon() failed: %s",
 			    pcap_geterr(pch));
 		} else {
 			if (status == PCAP_ERROR_PERM_DENIED)
@@ -1218,7 +1218,7 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 			pcap_set_rfmon(pch, 1);
 	} else {
 		*open_status = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
-		*open_status_str = g_strdup_printf("pcap_can_set_rfmon() returned %d",
+		*open_status_str = ws_strdup_printf("pcap_can_set_rfmon() returned %d",
 		    status);
 		pcap_close(pch);
 		g_free(caps);
@@ -1230,7 +1230,7 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 		/* Error. */
 		if (status == PCAP_ERROR) {
 			*open_status = CAP_DEVICE_OPEN_ERR_GENERIC;
-			*open_status_str = g_strdup_printf("pcap_activate() failed: %s",
+			*open_status_str = ws_strdup_printf("pcap_activate() failed: %s",
 			    pcap_geterr(pch));
 		} else {
 			if (status == PCAP_ERROR_PERM_DENIED)

@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
 	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, UDPDUMP_EXTCAP_INTERFACE, "UDP Listener remote capture", 252, "Exported PDUs");
 
-	help_header = g_strdup_printf(
+	help_header = ws_strdup_printf(
 		" %s --extcap-interfaces\n"
 		" %s --extcap-interface=%s --extcap-dlts\n"
 		" %s --extcap-interface=%s --extcap-config\n"
@@ -392,7 +392,7 @@ int main(int argc, char *argv[])
 	g_free(help_header);
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
-	port_msg = g_strdup_printf("the port to listens on. Default: %u", UDPDUMP_DEFAULT_PORT);
+	port_msg = ws_strdup_printf("the port to listens on. Default: %u", UDPDUMP_DEFAULT_PORT);
 	extcap_help_add_option(extcap_conf, "--port <port>", port_msg);
 	g_free(port_msg);
 

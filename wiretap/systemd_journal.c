@@ -195,7 +195,7 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
             // Start of binary data.
             if (fld_end >= MAX_EXPORT_ENTRY_LENGTH - 8) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("systemd: binary length too long");
+                *err_info = ws_strdup_printf("systemd: binary length too long");
                 return FALSE;
             }
             guint64 data_len, le_data_len;
@@ -207,7 +207,7 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
             data_len = pletoh64(&le_data_len);
             if (data_len < 1 || data_len - 1 >= MAX_EXPORT_ENTRY_LENGTH - fld_end) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("systemd: binary data too long");
+                *err_info = ws_strdup_printf("systemd: binary data too long");
                 return FALSE;
             }
             // Data + trailing \n

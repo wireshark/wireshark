@@ -283,7 +283,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("snoop: version %u unsupported", hdr.version);
+		*err_info = ws_strdup_printf("snoop: version %u unsupported", hdr.version);
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -370,7 +370,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 		if (hdr.network >= NUM_SHOMITI_ENCAPS
 		    || shomiti_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 			*err = WTAP_ERR_UNSUPPORTED;
-			*err_info = g_strdup_printf("snoop: Shomiti network type %u unknown or unsupported",
+			*err_info = ws_strdup_printf("snoop: Shomiti network type %u unknown or unsupported",
 			    hdr.network);
 			return WTAP_OPEN_ERROR;
 		}
@@ -379,7 +379,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 		if ((hdr.network^SNOOP_PRIVATE_BIT) >= NUM_SNOOP_PRIVATE_ENCAPS
 		    || snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT] == WTAP_ENCAP_UNKNOWN) {
 			*err = WTAP_ERR_UNSUPPORTED;
-			*err_info = g_strdup_printf("snoop: private network type %u unknown or unsupported",
+			*err_info = ws_strdup_printf("snoop: private network type %u unknown or unsupported",
 			    hdr.network);
 			return WTAP_OPEN_ERROR;
 		}
@@ -388,7 +388,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 		if (hdr.network >= NUM_SNOOP_ENCAPS
 		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 			*err = WTAP_ERR_UNSUPPORTED;
-			*err_info = g_strdup_printf("snoop: network type %u unknown or unsupported",
+			*err_info = ws_strdup_printf("snoop: network type %u unknown or unsupported",
 			    hdr.network);
 			return WTAP_OPEN_ERROR;
 		}
@@ -517,7 +517,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("snoop: File has %u-byte original length, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("snoop: File has %u-byte original length, bigger than maximum of %u",
 		    orig_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return -1;
 	}
@@ -527,7 +527,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("snoop: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("snoop: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return -1;
 	}
@@ -536,7 +536,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * Probably a corrupt capture file.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("snoop: File has %u-byte packet, bigger than record size %u",
+		*err_info = ws_strdup_printf("snoop: File has %u-byte packet, bigger than record size %u",
 		    packet_size, rec_size);
 		return -1;
 	}
@@ -556,7 +556,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("snoop: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header",
+			*err_info = ws_strdup_printf("snoop: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -591,7 +591,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("snoop: Shomiti wireless file has a %u-byte packet, too small to have even a wireless pseudo-header",
+			*err_info = ws_strdup_printf("snoop: Shomiti wireless file has a %u-byte packet, too small to have even a wireless pseudo-header",
 			    packet_size);
 			return -1;
 		}
@@ -621,7 +621,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * What, *negative* padding?  Bogus.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("snoop: File has %u-byte record with packet size of %u",
+		*err_info = ws_strdup_printf("snoop: File has %u-byte record with packet size of %u",
 		    rec_size, packet_size);
 		return -1;
 	}
@@ -751,7 +751,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	 */
 	if (whdr.pad[3] < 8) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("snoop: Header length in Surveyor record is %u, less than minimum of 8",
+		*err_info = ws_strdup_printf("snoop: Header length in Surveyor record is %u, less than minimum of 8",
 		    whdr.pad[3]);
 		return FALSE;
 	}

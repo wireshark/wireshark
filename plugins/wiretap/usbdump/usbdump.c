@@ -113,7 +113,7 @@ usbdump_open(wtap *wth, int *err, char **err_info)
     if (GUINT16_FROM_BE(version) != 3) {
         /* We only support version 0.3 */
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("usbdump: version %u.%u unsupported",
+        *err_info = ws_strdup_printf("usbdump: version %u.%u unsupported",
             version >> 8, version & 0xff);
         return WTAP_OPEN_NOT_MINE;
     }
@@ -176,7 +176,7 @@ usbdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
     if (usbdump_info->multiframe_overrun)
     {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Multiframe overrun");
+        *err_info = ws_strdup_printf("Multiframe overrun");
         return FALSE;
     }
 

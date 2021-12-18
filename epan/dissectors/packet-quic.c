@@ -3970,7 +3970,7 @@ quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stre
             if (s) {
                 *stream = conn->number;
                 *sub_stream = (guint)s->stream_id;
-                return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, *sub_stream);
+                return ws_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", conn->number, *sub_stream);
             }
         }
     }
@@ -3981,7 +3981,7 @@ quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stre
 static gchar *
 quic_follow_index_filter(guint stream, guint sub_stream)
 {
-    return g_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", stream, sub_stream);
+    return ws_strdup_printf("quic.connection.number eq %u and quic.stream.stream_id eq %u", stream, sub_stream);
 }
 
 static gchar *

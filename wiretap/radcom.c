@@ -201,7 +201,7 @@ wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 		wth->file_encap = WTAP_ENCAP_ATM_RFC1483;
 	else {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("radcom: network type \"%.4s\" unknown", search_encap);
+		*err_info = ws_strdup_printf("radcom: network type \"%.4s\" unknown", search_encap);
 		return WTAP_OPEN_ERROR;
 	}
 

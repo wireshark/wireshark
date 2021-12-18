@@ -383,7 +383,7 @@ static gboolean lwm2m_resource_update_cb(void *record, char **error)
 	/* Check for invalid characters (to avoid asserting out when registering the field). */
 	c = proto_check_field_name(rec->field_name);
 	if (c) {
-		*error = g_strdup_printf("Resource Name can't contain '%c'", c);
+		*error = ws_strdup_printf("Resource Name can't contain '%c'", c);
 		return FALSE;
 	}
 
@@ -437,7 +437,7 @@ static void lwm2m_add_resource(lwm2m_resource_t *resource, hf_register_info *hf,
 
 	hf->p_id = hf_id;
 	hf->hfinfo.name = g_strdup(resource->name);
-	hf->hfinfo.abbrev = g_strdup_printf("lwm2mtlv.resource.%s", resource_abbrev);
+	hf->hfinfo.abbrev = ws_strdup_printf("lwm2mtlv.resource.%s", resource_abbrev);
 	g_free (resource_abbrev);
 
 	switch (resource->data_type) {

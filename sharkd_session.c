@@ -153,7 +153,7 @@ sharkd_json_value_stringf(const char *key, const char *format, ...)
 	if (format) {
 		va_list ap;
 		va_start(ap, format);
-		char* sformat = g_strdup_printf("\"%s\"", format);
+		char* sformat = ws_strdup_printf("\"%s\"", format);
 		json_dumper_value_va_list(&dumper, sformat, ap);
 		g_free(sformat);
 		va_end(ap);
@@ -266,7 +266,7 @@ sharkd_json_error(guint32 id, int code, char* data, char* format, ...)
 		va_list args;
 
 		va_start(args, format);
-		char *error_msg = g_strdup_vprintf(format, args);
+		char *error_msg = ws_strdup_vprintf(format, args);
 		va_end(args);
 
 		sharkd_json_value_string("message", error_msg);

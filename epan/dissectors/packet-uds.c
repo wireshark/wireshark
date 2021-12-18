@@ -410,12 +410,12 @@ update_generic_addr_id_16bit(void *r, char **err) {
     generic_addr_id_string_t *rec = (generic_addr_id_string_t *)r;
 
     if (rec->id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit identifiers (Addr: %x ID: %i  Name: %s)", rec->address, rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 16 bit identifiers (Addr: %x ID: %i  Name: %s)", rec->address, rec->id, rec->name);
         return FALSE;
     }
 
     if (rec->address > 0xffff && rec->address != G_MAXUINT32) {
-        *err = g_strdup_printf("We currently only support 16 bit addresses with 0xffffffff = \"don't care\" (Addr: %x  ID: %i  Name: %s)",
+        *err = ws_strdup_printf("We currently only support 16 bit addresses with 0xffffffff = \"don't care\" (Addr: %x  ID: %i  Name: %s)",
                                 rec->address, rec->id, rec->name);
         return FALSE;
     }

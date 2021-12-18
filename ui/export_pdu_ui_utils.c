@@ -61,7 +61,7 @@ do_export_pdu(const char *filter, const gchar *tap_name)
     /* Write a pcapng file... */
     file_type_subtype = wtap_pcapng_file_type_subtype();
     /* ...with this comment */
-    comment = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
+    comment = ws_strdup_printf("Dump of PDUs from %s", cfile.filename);
     status = exp_pdu_open(&exp_pdu_tap_data, capfile_name, file_type_subtype,
                           import_file_fd, comment, &err, &err_info);
     g_free(comment);

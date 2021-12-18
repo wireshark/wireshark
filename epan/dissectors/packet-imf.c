@@ -169,14 +169,14 @@ imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     /* Only include the string inside of the "<>" brackets. If there is nothing between
     the two brackets use the sender_data string */
     if(start && stop && stop > start && (stop - start) > 2){
-        entry->hostname = g_strdup_printf("%.*s", (int) (stop - start - 1), start + 1);
+        entry->hostname = ws_strdup_printf("%.*s", (int) (stop - start - 1), start + 1);
     } else {
         entry->hostname = g_strdup(eo_info->sender_data);
     }
 
     entry->pkt_num = pinfo->num;
     entry->content_type = g_strdup("EML file");
-    entry->filename = g_strdup_printf("%s.eml", eo_info->subject_data);
+    entry->filename = ws_strdup_printf("%s.eml", eo_info->subject_data);
     entry->payload_len = eo_info->payload_len;
     entry->payload_data = (guint8 *)g_memdup2(eo_info->payload_data, eo_info->payload_len);
 
@@ -339,7 +339,7 @@ header_fields_update_cb(void *r, char **err)
    */
   c = proto_check_field_name(rec->header_name);
   if (c) {
-    *err = g_strdup_printf("Header name can't contain '%c'", c);
+    *err = ws_strdup_printf("Header name can't contain '%c'", c);
     return FALSE;
   }
 
@@ -983,7 +983,7 @@ header_fields_post_update_cb (void)
 
       dynamic_hf[i].p_id = hf_id;
       dynamic_hf[i].hfinfo.name = header_name;
-      dynamic_hf[i].hfinfo.abbrev = g_strdup_printf ("imf.header.%s", header_name);
+      dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf ("imf.header.%s", header_name);
       dynamic_hf[i].hfinfo.type = FT_STRING;
       dynamic_hf[i].hfinfo.display = BASE_NONE;
       dynamic_hf[i].hfinfo.strings = NULL;

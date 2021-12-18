@@ -6503,7 +6503,7 @@ epl_profile_uat_fld_fileopen_check_cb(void *record _U_, const char *path, guint 
 
 	if (ws_stat64(path, &st) != 0)
 	{
-		*err = g_strdup_printf("File '%s' does not exist or access was denied.", path);
+		*err = ws_strdup_printf("File '%s' does not exist or access was denied.", path);
 		return FALSE;
 	}
 
@@ -6520,7 +6520,7 @@ epl_profile_uat_fld_fileopen_check_cb(void *record _U_, const char *path, guint 
 		*err = NULL;
 		return TRUE;
 #else
-		*err = g_strdup_printf("*.xdd and *.xdc support not compiled in. %s", supported);
+		*err = ws_strdup_printf("*.xdd and *.xdc support not compiled in. %s", supported);
 		return FALSE;
 #endif
 	}

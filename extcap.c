@@ -238,7 +238,7 @@ extcap_get_extcap_paths_from_dir(GSList * list, const char * dirname)
     if ((dir = g_dir_open(dirname, 0, NULL)) != NULL) {
         while ((file = g_dir_read_name(dir)) != NULL) {
             /* full path to extcap binary */
-            gchar *extcap_path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, file);
+            gchar *extcap_path = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, file);
             /* treat anything executable as an extcap binary */
             if (g_file_test(extcap_path, G_FILE_TEST_IS_REGULAR) &&
                 g_file_test(extcap_path, G_FILE_TEST_IS_EXECUTABLE)) {
@@ -1267,7 +1267,7 @@ void extcap_if_cleanup(capture_options *capture_opts, gchar **errormsg)
                 {
                     if (*errormsg == NULL)
                     {
-                        *errormsg = g_strdup_printf("Error by extcap pipe: %s", pipedata->stderr_msg);
+                        *errormsg = ws_strdup_printf("Error by extcap pipe: %s", pipedata->stderr_msg);
                     }
                     else
                     {
@@ -2038,7 +2038,7 @@ extcap_load_interface_list(void)
         }
 
         get_ws_version_number(&major, &minor, NULL);
-        char *arg_version = g_strdup_printf("%s=%d.%d", EXTCAP_ARGUMENT_VERSION, major, minor);
+        char *arg_version = ws_strdup_printf("%s=%d.%d", EXTCAP_ARGUMENT_VERSION, major, minor);
         const char *argv[] = {
             EXTCAP_ARGUMENT_LIST_INTERFACES,
             arg_version,

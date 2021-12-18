@@ -525,7 +525,7 @@ dccp_build_filter(packet_info *pinfo)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* DCCP over IPv4 */
-        return g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (dccp.port eq %d and dccp.port eq %d)",
+        return ws_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (dccp.port eq %d and dccp.port eq %d)",
             address_to_str(pinfo->pool, &pinfo->net_src),
             address_to_str(pinfo->pool, &pinfo->net_dst),
             pinfo->srcport, pinfo->destport );
@@ -533,7 +533,7 @@ dccp_build_filter(packet_info *pinfo)
 
     if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
         /* DCCP over IPv6 */
-        return g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (dccp.port eq %d and dccp.port eq %d)",
+        return ws_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (dccp.port eq %d and dccp.port eq %d)",
             address_to_str(pinfo->pool, &pinfo->net_src),
             address_to_str(pinfo->pool, &pinfo->net_dst),
             pinfo->srcport, pinfo->destport );
@@ -554,7 +554,7 @@ static gchar *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinf
         /* DCCP over IPv4/6 */
         dccpd = get_dccp_conversation_data(conv, pinfo);
         *stream = dccpd->stream;
-        return g_strdup_printf("dccp.stream eq %u", dccpd->stream);
+        return ws_strdup_printf("dccp.stream eq %u", dccpd->stream);
     }
 
     return NULL;
@@ -562,7 +562,7 @@ static gchar *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinf
 
 static gchar *dccp_follow_index_filter(guint stream, guint sub_stream _U_)
 {
-    return g_strdup_printf("dccp.stream eq %u", stream);
+    return ws_strdup_printf("dccp.stream eq %u", stream);
 }
 
 static gchar *dccp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
@@ -574,7 +574,7 @@ static gchar *dccp_follow_address_filter(address *src_addr, address *dst_addr, i
     address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
     address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
 
-    return g_strdup_printf("((ip%s.src eq %s and dccp.srcport eq %d) and "
+    return ws_strdup_printf("((ip%s.src eq %s and dccp.srcport eq %d) and "
                      "(ip%s.dst eq %s and dccp.dstport eq %d))"
                      " or "
                      "((ip%s.src eq %s and dccp.srcport eq %d) and "

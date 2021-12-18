@@ -51,7 +51,7 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 	}
 
 	if (ssh_options_set(sshs, SSH_OPTIONS_HOST, ssh_params->host)) {
-		*err_info = g_strdup_printf("Can't set the host: %s", ssh_params->host);
+		*err_info = ws_strdup_printf("Can't set the host: %s", ssh_params->host);
 		goto failure;
 	}
 
@@ -71,21 +71,21 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 	if (ssh_params->port != 0) {
 		port = ssh_params->port;
 		if (ssh_options_set(sshs, SSH_OPTIONS_PORT, &port)) {
-			*err_info = g_strdup_printf("Can't set the port: %u", port);
+			*err_info = ws_strdup_printf("Can't set the port: %u", port);
 			goto failure;
 		}
 	}
 
 	if (ssh_params->proxycommand) {
 		if (ssh_options_set(sshs, SSH_OPTIONS_PROXYCOMMAND, ssh_params->proxycommand)) {
-			*err_info = g_strdup_printf("Can't set the ProxyCommand: %s", ssh_params->proxycommand);
+			*err_info = ws_strdup_printf("Can't set the ProxyCommand: %s", ssh_params->proxycommand);
 			goto failure;
 		}
 	}
 
 	if (ssh_params->username) {
 		if (ssh_options_set(sshs, SSH_OPTIONS_USER, ssh_params->username)) {
-			*err_info = g_strdup_printf("Can't set the username: %s", ssh_params->username);
+			*err_info = ws_strdup_printf("Can't set the username: %s", ssh_params->username);
 			goto failure;
 		}
 	}
@@ -100,7 +100,7 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 
 	/* Connect to server */
 	if (ssh_connect(sshs) != SSH_OK) {
-		*err_info = g_strdup_printf("Connection error: %s", ssh_get_error(sshs));
+		*err_info = ws_strdup_printf("Connection error: %s", ssh_get_error(sshs));
 		goto failure;
 	}
 
@@ -151,7 +151,7 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		ws_info("ssh connection closed before public key authentication");
 	}
 
-	*err_info = g_strdup_printf("Can't find a valid authentication. Disconnecting.");
+	*err_info = ws_strdup_printf("Can't find a valid authentication. Disconnecting.");
 
 	/* All authentication failed. Disconnect and return */
 	ssh_disconnect(sshs);
@@ -168,7 +168,7 @@ int ssh_channel_printf(ssh_channel channel, const char* fmt, ...)
 	int ret = EXIT_SUCCESS;
 
 	va_start(arg, fmt);
-	buf = g_strdup_vprintf(fmt, arg);
+	buf = ws_strdup_vprintf(fmt, arg);
 	if (ssh_channel_write(channel, buf, (guint32)strlen(buf)) == SSH_ERROR)
 		ret = EXIT_FAILURE;
 	va_end(arg);

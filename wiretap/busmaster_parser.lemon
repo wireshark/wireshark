@@ -71,7 +71,7 @@ DIAG_OFF(unreachable-code)
 
     g_free(state->parse_error);
     state->entry_type  = LOG_ENTRY_ERROR;
-    state->parse_error = g_strdup_printf("Syntax Error");
+    state->parse_error = ws_strdup_printf("Syntax Error");
     busmaster_debug_printf("%s: Syntax Error\n", G_STRFUNC);
 }
 

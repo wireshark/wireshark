@@ -202,7 +202,7 @@ static gboolean oscore_context_update_cb(void *r, char **err) {
     }
 
     if (bytes->len > OSCORE_KID_MAX_LEN) {
-        *err = g_strdup_printf("Should be %u bytes or less.", OSCORE_KID_MAX_LEN);
+        *err = ws_strdup_printf("Should be %u bytes or less.", OSCORE_KID_MAX_LEN);
         g_byte_array_free(bytes, TRUE);
         return FALSE;
     }
@@ -214,7 +214,7 @@ static gboolean oscore_context_update_cb(void *r, char **err) {
     }
 
     if (bytes->len > OSCORE_KID_MAX_LEN) {
-        *err = g_strdup_printf("Should be %u bytes or less.", OSCORE_KID_MAX_LEN);
+        *err = ws_strdup_printf("Should be %u bytes or less.", OSCORE_KID_MAX_LEN);
         g_byte_array_free(bytes, TRUE);
         return FALSE;
     }
@@ -226,7 +226,7 @@ static gboolean oscore_context_update_cb(void *r, char **err) {
     }
 
     if (bytes->len > OSCORE_KID_CONTEXT_MAX_LEN) {
-        *err = g_strdup_printf("Should be %u bytes or less.", OSCORE_KID_CONTEXT_MAX_LEN);
+        *err = ws_strdup_printf("Should be %u bytes or less.", OSCORE_KID_CONTEXT_MAX_LEN);
         g_byte_array_free(bytes, TRUE);
         return FALSE;
     }

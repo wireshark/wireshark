@@ -76,14 +76,14 @@ get_iface_display_name(const gchar *description, const if_info_t *if_info)
          * of the device GUID, and not at all friendly.
          */
         gchar *if_string = if_info->friendly_name ? if_info->friendly_name : if_info->name;
-        return g_strdup_printf("%s: %s", description, if_string);
+        return ws_strdup_printf("%s: %s", description, if_string);
 #else
         /*
          * On UN*X, show the interface name; it's short and somewhat
          * friendly, and many UN*X users are used to interface names,
          * so we should show it.
          */
-        return g_strdup_printf("%s: %s", description, if_info->name);
+        return ws_strdup_printf("%s: %s", description, if_info->name);
 #endif
     }
 
@@ -95,7 +95,7 @@ get_iface_display_name(const gchar *description, const if_info_t *if_info)
          * don't show the name, as that's a string made out of
          * the device GUID, and not at all friendly.
          */
-        return g_strdup_printf("%s", if_info->friendly_name);
+        return ws_strdup_printf("%s", if_info->friendly_name);
 #else
         /*
          * On UN*X, if we have a friendly name, show it along
@@ -103,13 +103,13 @@ get_iface_display_name(const gchar *description, const if_info_t *if_info)
          * and somewhat friendly, and many UN*X users are used
          * to interface names, so we should show it.
          */
-        return g_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
+        return ws_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
 #endif
     }
 
     if (if_info->vendor_description) {
         /* We have a device description from libpcap. */
-        return g_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
+        return ws_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
     }
 
     /* No additional descriptions found. */
@@ -296,7 +296,7 @@ scan_local_interfaces(void (*update_cb)(void))
                     link->name = g_strdup(data_link_info->description);
                 } else {
                     link->dlt = -1;
-                    link->name = g_strdup_printf("%s (not supported)", data_link_info->name);
+                    link->name = ws_strdup_printf("%s (not supported)", data_link_info->name);
                 }
                 device.links = g_list_append(device.links, link);
                 linktype_count++;
@@ -380,7 +380,7 @@ scan_local_interfaces(void (*update_cb)(void))
             device.name         = g_strdup(interface_opts->name);
             device.vendor_description = g_strdup(interface_opts->hardware);
             device.display_name = interface_opts->descr ?
-                g_strdup_printf("%s: %s", device.name, interface_opts->descr) :
+                ws_strdup_printf("%s: %s", device.name, interface_opts->descr) :
                 g_strdup(device.name);
             device.hidden       = FALSE;
             device.selected     = TRUE;

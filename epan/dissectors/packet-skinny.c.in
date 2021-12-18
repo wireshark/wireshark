@@ -321,7 +321,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
     }
   }
   if (show_replaced_str) {
-    si->additionalInfo = g_strdup_printf("\"%s\"", wmem_strbuf_get_str(wmem_new));
+    si->additionalInfo = ws_strdup_printf("\"%s\"", wmem_strbuf_get_str(wmem_new));
     proto_item_append_text(item, " => \"%s\"" , wmem_strbuf_get_str(wmem_new));
   }
   ptvcursor_advance(cursor, length);

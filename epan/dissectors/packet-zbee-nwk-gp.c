@@ -642,7 +642,7 @@ uat_key_record_update_cb(void *r, char **err)
         if (rec->string[0] != 0) {
             *err = NULL;
             if (!zbee_gp_security_parse_key(rec->string, rec->key, rec->byte_order)) {
-                *err = g_strdup_printf("Expecting %d hexadecimal bytes or a %d character double-quoted string",
+                *err = ws_strdup_printf("Expecting %d hexadecimal bytes or a %d character double-quoted string",
                     ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
                 return FALSE;
             }

@@ -205,7 +205,7 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     gchar *vmessage;
     QString message;
 
-    vmessage = g_strdup_vprintf(msg_format, ap);
+    vmessage = ws_strdup_vprintf(msg_format, ap);
 #ifdef _WIN32
     //
     // On Windows, filename strings inside Wireshark are UTF-8 strings,
