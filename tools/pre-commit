@@ -92,6 +92,10 @@ for FILE in $CHECK_FILES; do
     then
         continue
     fi
+    if test "$FILE_BASENAME" = "wmem_test.c"
+    then
+        continue
+    fi
 
     #Check if checkhf is good
     ./tools/checkhf.pl "$FILE"            || exit_status=1
