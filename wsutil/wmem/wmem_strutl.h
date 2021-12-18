@@ -35,20 +35,28 @@ gchar *
 wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
 G_GNUC_MALLOC;
 
+#define ws_strdup(src) wmem_strdup(NULL, src)
+
 WS_DLL_PUBLIC
 gchar *
 wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len)
 G_GNUC_MALLOC;
+
+#define ws_strndup(src, len) wmem_strndup(NULL, src, len)
 
 WS_DLL_PUBLIC
 gchar *
 wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
 G_GNUC_MALLOC G_GNUC_PRINTF(2, 3);
 
+#define ws_strdup_printf(...) wmem_strdup_printf(NULL, __VA_ARGS__)
+
 WS_DLL_PUBLIC
 gchar *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 G_GNUC_MALLOC;
+
+#define ws_strdup_vprintf(fmt, ap) wmem_strdup_vprintf(NULL, fmt, ap)
 
 /**   @}
  *  @} */
