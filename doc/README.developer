@@ -128,7 +128,7 @@ these headers; they are included in <wireshark.h>. Use that instead.
 
 To print fixed width integers you must use the macros provided in <inttypes.h>.
 
-    int uint32_t var;
+    uint32_t var;
     printf("var = " PRIu32 "\n", var);
 
 Don't use "long" to mean "signed 32-bit integer", and don't use
@@ -205,8 +205,8 @@ For GLib routines, and only those, you can choose whichever format style
 you prefer:
 
     uint64_t val = UINT64_C(1);
-    char *str1 = g_strdup_printf("%" G_GUINT64_FORMAT, val);
-    char *str2 = g_strdup_printf("%" PRIu64, val);
+    char *str1 = g_string_printf("%" G_GUINT64_FORMAT, val);
+    char *str2 = g_string_printf("%" PRIu64, val);
 
 These format macros will be the same modulo any GLib bugs.
 
