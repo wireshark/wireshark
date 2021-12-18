@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 #include <epan/rtp_pt.h>
 #include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 
 /* For setting up RTP/RTCP dissectors based on the RTPproxy's answers */
 #include "packet-rtp.h"

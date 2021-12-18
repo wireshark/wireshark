@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 

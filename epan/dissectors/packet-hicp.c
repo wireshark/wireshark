@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 
 void proto_reg_handoff_hicp(void);
 void proto_register_hicp(void);

@@ -24,6 +24,7 @@
 #include <epan/proto_data.h>
 #include <epan/unit_strings.h>
 #include <epan/reassemble.h>
+#include <epan/strutil.h>
 
 #include "packet-bluetooth.h"
 #include "packet-btatt.h"

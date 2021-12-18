@@ -12,6 +12,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/strutil.h>
 
 #define PMPROXY_PORT 44322
 /* length of "pmproxy-server 1\n" and also "pmproxy-client 1\n" */

@@ -20,6 +20,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include "proto_data.h"
 
 #ifdef HAVE_ZLIB

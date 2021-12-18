@@ -404,7 +404,6 @@ wmem_test_strutls(void)
     wmem_allocator_t   *allocator;
     const char         *orig_str;
     char               *new_str;
-    char              **split_str;
 
     allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
@@ -428,49 +427,6 @@ wmem_test_strutls(void)
     new_str = wmem_strdup_printf(allocator, "%s", STRING_80);
     g_assert_cmpstr(new_str, ==, STRING_80);
     wmem_strict_check_canaries(allocator);
-
-    new_str = wmem_strconcat(allocator, "ABC", NULL);
-    g_assert_cmpstr(new_str, ==, "ABC");
-    new_str = wmem_strconcat(allocator, "ABC", "DEF", NULL);
-    g_assert_cmpstr(new_str, ==, "ABCDEF");
-    wmem_strict_check_canaries(allocator);
-    new_str = wmem_strconcat(allocator, "", "", "ABCDEF", "", "GH", NULL);
-    g_assert_cmpstr(new_str, ==, "ABCDEFGH");
-    wmem_strict_check_canaries(allocator);
-
-    split_str = wmem_strsplit(allocator, "A-C", "-", 2);
-    g_assert_cmpstr(split_str[0], ==, "A");
-    g_assert_cmpstr(split_str[1], ==, "C");
-    g_assert_true(split_str[2] == NULL);
-    split_str = wmem_strsplit(allocator, "A-C", "-", 0);
-    g_assert_cmpstr(split_str[0], ==, "A");
-    g_assert_cmpstr(split_str[1], ==, "C");
-    g_assert_true(split_str[2] == NULL);
-    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 10);
-    g_assert_cmpstr(split_str[0], ==, "");
-    g_assert_cmpstr(split_str[1], ==, "");
-    g_assert_cmpstr(split_str[2], ==, "aslkf");
-    g_assert_cmpstr(split_str[3], ==, "asio");
-    g_assert_cmpstr(split_str[4], ==, "");
-    g_assert_cmpstr(split_str[5], ==, "asfj");
-    g_assert_cmpstr(split_str[6], ==, "as");
-    g_assert_cmpstr(split_str[7], ==, "");
-    g_assert_cmpstr(split_str[8], ==, "");
-    g_assert_true(split_str[9] == NULL);
-    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 5);
-    g_assert_cmpstr(split_str[0], ==, "");
-    g_assert_cmpstr(split_str[1], ==, "");
-    g_assert_cmpstr(split_str[2], ==, "aslkf");
-    g_assert_cmpstr(split_str[3], ==, "asio");
-    g_assert_cmpstr(split_str[4], ==, "-asfj-as--");
-    g_assert_true(split_str[5] == NULL);
-    split_str = wmem_strsplit(allocator, "", "-", -1);
-    g_assert_true(split_str[0] == NULL);
-    wmem_strict_check_canaries(allocator);
-
-    orig_str = "TeStAsCiIsTrDoWn";
-    new_str = wmem_ascii_strdown(allocator, orig_str, -1);
-    g_assert_cmpstr(new_str, ==, "testasciistrdown");
 
     orig_str = "Short String";
     new_str = wmem_strdup_printf(allocator, "TEST %s", orig_str);
@@ -617,33 +573,11 @@ wmem_test_stringperf(void)
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
-        str_ptr[i] = g_strconcat(s_val, s_val, NULL);
-    }
-    RESOURCE_USAGE_END;
-    g_test_minimized_result(utime_ms + stime_ms,
-        "g_strconcat 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
-    for (i = 0; i < LOOP_COUNT; i++) {
-        g_free(str_ptr[i]);
-    }
-
-    RESOURCE_USAGE_START;
-    for (i = 0; i < LOOP_COUNT; i++) {
         str_ptr[i] = g_strdup_printf("%s%s%s%s%s", s_val, s_val, s_val, s_val, s_val);
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
         "g_strdup_printf 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
-    for (i = 0; i < LOOP_COUNT; i++) {
-        g_free(str_ptr[i]);
-    }
-
-    RESOURCE_USAGE_START;
-    for (i = 0; i < LOOP_COUNT; i++) {
-        str_ptr[i] = g_strconcat(s_val, s_val, s_val, s_val, s_val, NULL);
-    }
-    RESOURCE_USAGE_END;
-    g_test_minimized_result(utime_ms + stime_ms,
-        "g_strconcat 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
     for (i = 0; i < LOOP_COUNT; i++) {
         g_free(str_ptr[i]);
     }
@@ -663,33 +597,11 @@ wmem_test_stringperf(void)
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
-        str_ptr[i] = wmem_strconcat(NULL, s_val, s_val, NULL);
-    }
-    RESOURCE_USAGE_END;
-    g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strconcat(NULL) 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
-    for (i = 0; i < LOOP_COUNT; i++) {
-        g_free(str_ptr[i]);
-    }
-
-    RESOURCE_USAGE_START;
-    for (i = 0; i < LOOP_COUNT; i++) {
         str_ptr[i] = wmem_strdup_printf(NULL, "%s%s%s%s%s", s_val, s_val, s_val, s_val, s_val);
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
         "wmem_strdup_printf(NULL) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
-    for (i = 0; i < LOOP_COUNT; i++) {
-        g_free(str_ptr[i]);
-    }
-
-    RESOURCE_USAGE_START;
-    for (i = 0; i < LOOP_COUNT; i++) {
-        str_ptr[i] = wmem_strconcat(NULL, s_val, s_val, s_val, s_val, s_val, NULL);
-    }
-    RESOURCE_USAGE_END;
-    g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strconcat(NULL) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
     for (i = 0; i < LOOP_COUNT; i++) {
         g_free(str_ptr[i]);
     }
@@ -706,27 +618,11 @@ wmem_test_stringperf(void)
 
     RESOURCE_USAGE_START;
     for (i = 0; i < LOOP_COUNT; i++) {
-        wmem_strconcat(allocator, s_val, s_val, NULL);
-    }
-    RESOURCE_USAGE_END;
-    g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strconcat(allocator) 2 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
-
-    RESOURCE_USAGE_START;
-    for (i = 0; i < LOOP_COUNT; i++) {
         wmem_strdup_printf(allocator, "%s%s%s%s%s", s_val, s_val, s_val, s_val, s_val);
     }
     RESOURCE_USAGE_END;
     g_test_minimized_result(utime_ms + stime_ms,
         "wmem_strdup_printf(allocator) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
-
-    RESOURCE_USAGE_START;
-    for (i = 0; i < LOOP_COUNT; i++) {
-        wmem_strconcat(allocator, s_val, s_val, s_val, s_val, s_val, NULL);
-    }
-    RESOURCE_USAGE_END;
-    g_test_minimized_result(utime_ms + stime_ms,
-        "wmem_strconcat(allocator) 5 strings: u %.3f ms s %.3f ms", utime_ms, stime_ms);
 
     wmem_destroy_allocator(allocator);
     g_free(str_ptr);

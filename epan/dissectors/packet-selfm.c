@@ -54,6 +54,7 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>

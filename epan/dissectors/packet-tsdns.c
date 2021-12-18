@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include <wsutil/strtoi.h>
 
 #define TSDNS_PORT  41144   /* Not IANA registered */

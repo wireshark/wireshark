@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-x509af.h"
@@ -125,7 +126,7 @@ static int hf_x509af_q = -1;                      /* INTEGER */
 static int hf_x509af_g = -1;                      /* INTEGER */
 
 /*--- End of included file: packet-x509af-hf.c ---*/
-#line 41 "./asn1/x509af/packet-x509af-template.c"
+#line 42 "./asn1/x509af/packet-x509af-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkix_crl = -1;
@@ -166,7 +167,7 @@ static gint ett_x509af_SET_OF_AttributeType = -1;
 static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
-#line 45 "./asn1/x509af/packet-x509af-template.c"
+#line 46 "./asn1/x509af/packet-x509af-template.c"
 static const char *algorithm_id = NULL;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
@@ -957,7 +958,7 @@ static int dissect_Userid_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 49 "./asn1/x509af/packet-x509af-template.c"
+#line 50 "./asn1/x509af/packet-x509af-template.c"
 
 /* Exports the SubjectPublicKeyInfo structure as gnutls_datum_t.
  * actx->private_data is assumed to be a gnutls_datum_t pointer which will be
@@ -1321,7 +1322,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 108 "./asn1/x509af/packet-x509af-template.c"
+#line 109 "./asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1364,7 +1365,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 114 "./asn1/x509af/packet-x509af-template.c"
+#line 115 "./asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1409,7 +1410,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 143 "./asn1/x509af/packet-x509af-template.c"
+#line 144 "./asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since
 	  I have not that ITU standard, I'll put it here for the time

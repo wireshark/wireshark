@@ -50,6 +50,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 #include <epan/reassemble.h>
+#include <epan/strutil.h>
 #include "zlib.h"
 
 void proto_register_rtps(void);

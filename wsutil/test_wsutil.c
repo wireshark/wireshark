@@ -45,6 +45,83 @@ static void test_escape_string(void)
     wmem_free(NULL, buf);
 }
 
+static void test_strconcat(void)
+{
+    wmem_allocator_t   *allocator;
+    char               *new_str;
+
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+
+    new_str = wmem_strconcat(allocator, "ABC", NULL);
+    g_assert_cmpstr(new_str, ==, "ABC");
+
+    new_str = wmem_strconcat(allocator, "ABC", "DEF", NULL);
+    g_assert_cmpstr(new_str, ==, "ABCDEF");
+
+    new_str = wmem_strconcat(allocator, "", "", "ABCDEF", "", "GH", NULL);
+    g_assert_cmpstr(new_str, ==, "ABCDEFGH");
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void test_strsplit(void)
+{
+    wmem_allocator_t   *allocator;
+    char              **split_str;
+
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+
+    split_str = wmem_strsplit(allocator, "A-C", "-", 2);
+    g_assert_cmpstr(split_str[0], ==, "A");
+    g_assert_cmpstr(split_str[1], ==, "C");
+    g_assert_null(split_str[2]);
+
+    split_str = wmem_strsplit(allocator, "A-C", "-", 0);
+    g_assert_cmpstr(split_str[0], ==, "A");
+    g_assert_cmpstr(split_str[1], ==, "C");
+    g_assert_null(split_str[2]);
+
+    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 10);
+    g_assert_cmpstr(split_str[0], ==, "");
+    g_assert_cmpstr(split_str[1], ==, "");
+    g_assert_cmpstr(split_str[2], ==, "aslkf");
+    g_assert_cmpstr(split_str[3], ==, "asio");
+    g_assert_cmpstr(split_str[4], ==, "");
+    g_assert_cmpstr(split_str[5], ==, "asfj");
+    g_assert_cmpstr(split_str[6], ==, "as");
+    g_assert_cmpstr(split_str[7], ==, "");
+    g_assert_cmpstr(split_str[8], ==, "");
+    g_assert_null(split_str[9]);
+
+    split_str = wmem_strsplit(allocator, "--aslkf-asio--asfj-as--", "-", 5);
+    g_assert_cmpstr(split_str[0], ==, "");
+    g_assert_cmpstr(split_str[1], ==, "");
+    g_assert_cmpstr(split_str[2], ==, "aslkf");
+    g_assert_cmpstr(split_str[3], ==, "asio");
+    g_assert_cmpstr(split_str[4], ==, "-asfj-as--");
+    g_assert_null(split_str[5]);
+
+    split_str = wmem_strsplit(allocator, "", "-", -1);
+    g_assert_null(split_str[0]);
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void test_str_ascii(void)
+{
+    wmem_allocator_t   *allocator;
+    const char         *orig_str;
+    char               *new_str;
+
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+
+    orig_str = "TeStAsCiIsTrDoWn";
+    new_str = wmem_ascii_strdown(allocator, orig_str, -1);
+    g_assert_cmpstr(new_str, ==, "testasciistrdown");
+
+    wmem_destroy_allocator(allocator);
+}
+
 #include "to_str.h"
 
 static void test_word_to_hex(void)
@@ -542,6 +619,9 @@ int main(int argc, char **argv)
 
     g_test_add_func("/str_util/format_size", test_format_size);
     g_test_add_func("/str_util/escape_string", test_escape_string);
+    g_test_add_func("/str_util/strconcat", test_strconcat);
+    g_test_add_func("/str_util/strsplit", test_strsplit);
+    g_test_add_func("/str_util/str_ascii", test_str_ascii);
 
     g_test_add_func("/to_str/word_to_hex", test_word_to_hex);
     g_test_add_func("/to_str/bytes_to_str", test_bytes_to_str);

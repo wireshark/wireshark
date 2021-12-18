@@ -143,6 +143,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/strutil.h>
 
 #include <wsutil/epochs.h>
 
