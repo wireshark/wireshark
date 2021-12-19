@@ -13641,11 +13641,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">Alles einklappen</translation>
+        <translation>Alles einklappen</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Alles aufklappen</translation>
+        <translation>Alles aufklappen</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>

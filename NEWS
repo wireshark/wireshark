@@ -13,6 +13,16 @@ Wireshark 3.6.1 Release Notes
 
   New and Updated Features
 
+     • The 'console.log.level' preference was removed in Wireshark
+       3.6.0. This release adds an '-o console.log.level:'
+       backward-compatibilty option on the CLI that maps to the new
+       logging sub-system. Note that this does not have bitmask
+       semantics and does not correspond to any actual preference. It is
+       just a transition mechanism for users that were relying on this
+       CLI option and will be removed in the future. To see the new
+       diagnostic output options consult the manpages or the output of
+       '--help'.
+
   New Protocol Support
 
    There are no new protocols in this release.
@@ -62,7 +72,7 @@ Wireshark 3.6.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-12-12 17:24:34 UTC
+  Last updated 2021-12-19 16:06:58 UTC
 
  References
 
