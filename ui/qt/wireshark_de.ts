@@ -4412,7 +4412,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The precision of %f is determined from its length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format des Zeitstempel der aus der Textdatei ausgelesen werden soll (z.B. %H:%M:%s.%f).&lt;/p&gt;&lt;p&gt;Formatzeichen basieren auf strptime(3) mit dem zusätzlichen Zeichen %f für Sekundenbruchteile. Die Länge von %f bestimmt die Präzision.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it&apos;s length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format des Zeitstempel der aus der Textdatei ausgelesen werden soll (z.B. %H:%M:%s.%f).&lt;/p&gt;&lt;p&gt;Formatzeichen basieren auf strptime(3) mit dem zusätzlichen Zeichen %f für Sekundenbruchteile. Die Länge von %f bestimmt die Präzision.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
@@ -13641,11 +13642,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">Alles einklappen</translation>
+        <translation>Alles einklappen</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Alles aufklappen</translation>
+        <translation>Alles aufklappen</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>

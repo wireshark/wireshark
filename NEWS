@@ -13,6 +13,8 @@ Wireshark 3.7.0 Release Notes
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
 
+    • A compiler with C11 support is required.
+
   Many improvements have been made. See the “New and Updated Features”
   section below for more details.
 
@@ -65,8 +67,9 @@ Wireshark 3.7.0 Release Notes
 
   New Protocol Support
 
-   Host IP Configuration Protocol (HICP), Mesh Connex (MCX), and Secure
-   Host IP Configuration Protocol (SHICP)
+   FiveCo’s Legacy Register Access Protocol (5co-legacy), Host IP
+   Configuration Protocol (HICP), Mesh Connex (MCX), and Secure Host IP
+   Configuration Protocol (SHICP)
 
   Updated Protocol Support
 
@@ -114,7 +117,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-12-12 17:24:34 UTC
+  Last updated 2021-12-19 16:06:51 UTC
 
  References
 

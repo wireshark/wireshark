@@ -4412,7 +4412,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The precision of %f is determined from its length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Formatet i vilket tidsstämplar skall tolkas i textfilen (t.ex. %H.%M.%S,%f).&lt;/p&gt;&lt;p&gt;Formatspecificerare baseras på strptime(3) med tillägget %f för delar av sekunder. Upplösningen på %f avgörs från dess längd.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it&apos;s length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Formatet i vilket tidsstämplar skall tolkas i textfilen (t.ex. %H.%M.%S,%f).&lt;/p&gt;&lt;p&gt;Formatspecificerare baseras på strptime(3) med tillägget %f för delar av sekunder. Upplösningen på %f avgörs från dess längd.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
