@@ -292,7 +292,7 @@ WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) {
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_Int64_fromhex_HEX,&len);
 
     if (len > 0) {
-        if (sscanf(s, "%" PRIx64, &result) != 1) {
+        if (sscanf(s, "%" SCNx64, &result) != 1) {
             return luaL_error(L, "Error decoding the passed-in hex string");
         }
     }
@@ -852,7 +852,7 @@ WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) {
     const gchar *s = luaL_checklstring(L,WSLUA_ARG_UInt64_fromhex_HEX,&len);
 
     if (len > 0) {
-        if (sscanf(s, "%" PRIx64, &result) != 1) {
+        if (sscanf(s, "%" SCNx64, &result) != 1) {
             return luaL_error(L, "Error decoding the passed-in hex string");
         }
     }

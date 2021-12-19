@@ -895,7 +895,7 @@ pbl_node_t* pbl_create_field_node(pbl_file_descriptor_t* file, int lineno, const
         case PROTOBUF_TYPE_INT32:
         case PROTOBUF_TYPE_SINT32:
         case PROTOBUF_TYPE_SFIXED32:
-            sscanf(node->orig_default_value, "%" PRId32, &node->default_value.i32);
+            sscanf(node->orig_default_value, "%" SCNd32, &node->default_value.i32);
             break;
 
         case PROTOBUF_TYPE_INT64:
@@ -906,7 +906,7 @@ pbl_node_t* pbl_create_field_node(pbl_file_descriptor_t* file, int lineno, const
 
         case PROTOBUF_TYPE_UINT32:
         case PROTOBUF_TYPE_FIXED32:
-            sscanf(node->orig_default_value, "%" PRIu32, &node->default_value.u32);
+            sscanf(node->orig_default_value, "%" SCNu32, &node->default_value.u32);
             break;
 
         case PROTOBUF_TYPE_UINT64:

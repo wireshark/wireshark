@@ -1650,7 +1650,7 @@ cap_pipe_open_live(char *pipename,
         }
 
 #else /* _WIN32 */
-        if (sscanf(pipename, EXTCAP_PIPE_PREFIX "%" PRIuPTR, &extcap_pipe_handle) == 1)
+        if (sscanf(pipename, EXTCAP_PIPE_PREFIX "%" SCNuPTR, &extcap_pipe_handle) == 1)
         {
             /* The client is already connected to extcap pipe.
              * We have inherited the handle from parent process.
