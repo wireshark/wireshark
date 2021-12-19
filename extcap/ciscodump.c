@@ -27,10 +27,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include <time.h>
-#ifndef strptime
 #include "wsutil/strptime.h"
-#endif
 
 #include <cli_main.h>
 
@@ -507,6 +504,7 @@ static void ciscodump_cleanup_asa(ssh_channel channel, const char* cfilter)
 
 static void ciscodump_cleanup(ssh_session sshs, ssh_channel channel, const char* iface, const char* cfilter, CISCO_SW_TYPE sw_type)
 {
+	ws_debug("Starting config cleanup");
 	switch (sw_type) {
 		case CISCO_IOS:
 			ciscodump_cleanup_ios(channel, iface, cfilter);
@@ -520,6 +518,7 @@ static void ciscodump_cleanup(ssh_session sshs, ssh_channel channel, const char*
 		case CISCO_UNKNOWN:
 			break;
 	}
+	ws_debug("Config cleanup finished");
 	read_output_bytes_any(channel, -1, NULL);
 	ssh_cleanup(&sshs, &channel);
 }
@@ -662,10 +661,10 @@ static int parse_line_ios(guint8* packet, unsigned* offset, char* line, int stat
 		memset(&tm, 0x0, sizeof(struct tm));
 
 		cp = strptime(d1, "%H:%M:%S %Z %b %d %Y", &tm);
-		if (*cp != '\0') {
+		if (!cp || (*cp != '\0')) {
 			/* Time zone parse failed */
 			cp = strptime(d2, "%H:%M:%S %b %d %Y", &tm);
-			if (*cp != '\0') {
+			if (!cp || (*cp != '\0')) {
 				/* Time parse failed, use now */
 				time_t t;
 				struct tm *tm2;
@@ -915,6 +914,7 @@ static int process_buffer_response_ios(ssh_channel channel, guint8* packet, FILE
 				}
 				break;
 			case READ_PROMPT_PROMPT:
+				ws_debug("Prompt found");
 				loop_end = 1;
 				break;
 			default:
@@ -923,6 +923,7 @@ static int process_buffer_response_ios(ssh_channel channel, guint8* packet, FILE
 				return FALSE;
 		}
 		len = 0;
+		ws_debug("loop end detection %d %d %d %d", end_application, loop_end, *processed_packets, count);
 	} while ((!end_application) && (!loop_end) && (*processed_packets < count));
 
 	return TRUE;
@@ -955,6 +956,7 @@ static void ssh_loop_read_ios(ssh_channel channel, FILE* fp, const guint32 count
 		}
 		ws_debug("Read: %s", line);
 		packets_captured_count_ios(line, &new_max, &running);
+		ws_debug("Max counts %d %d", current_max, new_max);
 		if (new_max == current_max) {
 			/* There is no change in count of available packets, repeat the loop */
 			continue;
@@ -1027,6 +1029,7 @@ static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, F
 				}
 				break;
 			case READ_PROMPT_PROMPT:
+				ws_debug("Prompt found");
 				loop_end = 1;
 				break;
 			default:
@@ -1035,6 +1038,7 @@ static int process_buffer_response_ios_xe(ssh_channel channel, guint8* packet, F
 				return FALSE;
 		}
 		len = 0;
+		ws_debug("loop end detection %d %d %d %d", end_application, loop_end, *processed_packets, count);
 	} while ((!end_application) && (!loop_end) && (*processed_packets < count));
 
 	return TRUE;
@@ -1067,6 +1071,7 @@ static void ssh_loop_read_ios_xe(ssh_channel channel, FILE* fp, const guint32 co
 		}
 		ws_debug("Read: %s", line);
 		packets_captured_count_ios_xe(line, &new_max, &running);
+		ws_debug("Max counts %d %d", current_max, new_max);
 		if (new_max == current_max) {
 			/* There is no change in count of available packets, repeat the loop */
 			continue;
@@ -1146,6 +1151,7 @@ static int process_buffer_response_asa(ssh_channel channel, guint8* packet, FILE
 					}
 					break;
 				case READ_PROMPT_PROMPT:
+					ws_debug("Prompt found");
 					loop_end = 1;
 					break;
 				default:
@@ -1154,7 +1160,9 @@ static int process_buffer_response_asa(ssh_channel channel, guint8* packet, FILE
 					return FALSE;
 			}
 			len = 0;
+			ws_debug("loop end detection1 %d %d", *processed_packets, count);
 		} while (!end_application && !loop_end);
+		ws_debug("loop end detection2 %d %d %d", end_application, *processed_packets, count);
 	} while (!end_application && (*processed_packets < *current_max) && ((*processed_packets < count)));
 
 	return TRUE;
@@ -1187,6 +1195,7 @@ static void ssh_loop_read_asa(ssh_channel channel, FILE* fp, const guint32 count
 		}
 		ws_debug("Read: %s", line);
 		packets_captured_count_asa(line, &new_max, &running);
+		ws_debug("Max counts %d %d", current_max, new_max);
 		if (new_max == current_max) {
 			/* There is no change in count of available packets, repeat the loop */
 			continue;
@@ -1214,6 +1223,7 @@ static void ssh_loop_read_asa(ssh_channel channel, FILE* fp, const guint32 count
 
 static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count _U_, CISCO_SW_TYPE sw_type)
 {
+	ws_debug("Starting reading loop");
 	switch (sw_type) {
 		case CISCO_IOS:
 			ssh_loop_read_ios(channel, fp, count);
@@ -1227,9 +1237,10 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count _U_
 		case CISCO_UNKNOWN:
 			break;
 	}
+	ws_debug("Reading loop finished");
 }
 
-static int read_host_prompt(ssh_channel channel)
+static int detect_host_prompt(ssh_channel channel)
 {
 	char line[SSH_READ_BLOCK_SIZE + 1];
 	int len = 0;
@@ -1289,6 +1300,7 @@ static int read_host_prompt(ssh_channel channel)
 		g_strlcpy(prompt_2, line, SSH_READ_BLOCK_SIZE + 1);
 		/* Does second prompt_str match first one? */
 		if (0 == g_strcmp0(prompt_str, prompt_2)) {
+			ws_debug("Detected prompt %s", prompt_str);
 			return TRUE;
 		}
 	}
@@ -1824,7 +1836,7 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 	if (ssh_channel_request_shell(channel) != SSH_OK)
 		goto error;
 
-	if (!read_host_prompt(channel))
+	if (!detect_host_prompt(channel))
 		goto error;
 
 	if (!check_ios_version(channel, sw_type))
