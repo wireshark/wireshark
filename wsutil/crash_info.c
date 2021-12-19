@@ -10,8 +10,6 @@
 
 #include "config.h"
 
-#include <glib.h>
-
 #include "crash_info.h"
 
 #ifdef __APPLE__
