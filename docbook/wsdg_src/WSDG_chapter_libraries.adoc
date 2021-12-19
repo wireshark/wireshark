@@ -12,7 +12,7 @@ Several libraries are needed to build and run Wireshark. Most of them
 are split into three packages:
 
 . _Runtime_. System and third party libraries such as _vcruntime140.dll_
-and _libglib-2.0-0.dll_.
+and _glib-2.0-0.dll_.
 
 . _Developer_. Documentation, header files, import libraries, and other
 files needed for compilation.
@@ -102,7 +102,7 @@ It is available at https://www.qt.io/download-open-source/#section-2[].
 
 Qt5 must be installed manually from the Qt installers page https://www.qt.io/download-open-source/#section-2[] using the version of Qt appropriate for your compiler.
 Note that separate installations (into different directories) of Qt are required for 32 bit and 64 bit builds.
-The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH]` should be set to your your Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_.
+The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH]` should be set to your Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_.
 You can alternatively set QT5_BASE_DIR to your Qt installation path, but this is no longer recommended.
 
 [[ChLibsGLib]]
@@ -196,7 +196,7 @@ https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 [quote, The zlib web site, https://www.zlib.net/]
 ____
 zlib is designed to be a
-https://www.gzip.org/zlib/zlib_license.html[free],
+https://www.zlib.net/zlib_license.html[free],
 general-purpose, legally unencumbered -- that is, not covered by any
 patents -- lossless data-compression library for use on virtually any computer
 hardware and operating system.
@@ -225,7 +225,7 @@ https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 === libpcap or Npcap (Optional, But Strongly Recommended)
 
-Libpcap and Npcap provide that packet capture capabilities that are central
+Libpcap and Npcap provide the packet capture capabilities that are central
 to Wireshark’s core functionality.
 
 [[ChLibsLibpcap]]
@@ -307,14 +307,17 @@ https://directory.fsf.org/wiki/Libgcrypt[].
 [discrete]
 ==== Windows
 
-Part of our GnuTLS package.
+We provide packages for Windows at
+https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
+and
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsKerberos]]
 
 === Kerberos (Optional)
 
 The Kerberos library is used to dissect Kerberos, sealed DCERPC and
-secureLDAP protocols.
+secure LDAP protocols.
 
 [[ChLibsUnixKerberos]]
 
