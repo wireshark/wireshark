@@ -100,37 +100,37 @@ proto_register_erspan_marker(void)
 {
   static hf_register_info hf[] = {
     { &hf_cisco_erspan_prop_header,
-      { "Proprietary CISCO Header", "cisco_erspan_marker.prop_header",
+      { "Proprietary CISCO Header", "erspan-marker.prop_header",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_info,
-      { "Header", "cisco_erspan_marker.header",
+      { "Header", "erspan-marker.header",
         FT_BOOLEAN, 8, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_version,
-      { "Version", "cisco_erspan_marker.version",
+      { "Version", "erspan-marker.version",
         FT_UINT16, BASE_DEC, NULL, 0x0f00,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_type,
-      { "Type", "cisco_erspan_marker.type",
+      { "Type", "erspan-marker.type",
         FT_UINT16, BASE_DEC, NULL, 0xf000,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_ssid,
-      { "SSID", "cisco_erspan_marker.ssid",
+      { "SSID", "erspan-marker.ssid",
         FT_UINT16, BASE_DEC, NULL, 0x00ff,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_granularity,
-      { "Granularity", "cisco_erspan_marker.granularity",
+      { "Granularity", "erspan-marker.granularity",
         FT_UINT16, BASE_DEC, NULL, 0xff00,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_utcoffset,
-      { "UTC Offset", "cisco_erspan_marker.utc_offset",
+      { "UTC Offset", "erspan-marker.utc_offset",
         FT_UINT16, BASE_DEC, NULL, 0x00ff,
         NULL, HFILL }
     },
@@ -138,7 +138,7 @@ proto_register_erspan_marker(void)
      * Timestamp_hi : 0000 ffff (high 16-bits)
      * Timestamp_lo : ffff ffff (low 32-bits) */
     { &hf_cisco_erspan_timestamp,
-      { "ASIC 48-bit Timestamp", "cisco_erspan_marker.timestamp",
+      { "ASIC 48-bit Timestamp", "erspan-marker.timestamp",
         FT_UINT48, BASE_DEC, NULL, 0xffffffffffff,
         NULL, HFILL }
     },
@@ -147,22 +147,22 @@ proto_register_erspan_marker(void)
      * the below field value by the value of the  UTC offset
      * (37 seconds as of Nov 2021) */
     { &hf_cisco_erspan_utc_sec,
-      { "UTC Seconds", "cisco_erspan_marker.utc_sec",
+      { "UTC Seconds", "erspan-marker.utc_sec",
         FT_UINT32, BASE_DEC, NULL, 0xffffffff,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_utc_usec,
-      { "UTC Microseconds", "cisco_erspan_marker.utc_usec",
+      { "UTC Microseconds", "erspan-marker.utc_usec",
         FT_UINT32, BASE_DEC, NULL, 0xffffffff,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_sequence_number,
-      { "Sequence Number", "cisco_erspan_marker.sequence_number",
+      { "Sequence Number", "erspan-marker.sequence_number",
         FT_UINT32, BASE_DEC, NULL, 0xffffffff,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_reserved,
-      { "Reserved", "cisco_erspan_marker.reserved",
+      { "Reserved", "erspan-marker.reserved",
         FT_UINT32, BASE_DEC, NULL, 0xffffffff,
         NULL, HFILL }
     },
@@ -170,7 +170,7 @@ proto_register_erspan_marker(void)
      * and while the Cisco documentation does not mention packing details,
      * it does mention padding values to enforce alignment */
     { &hf_cisco_erspan_tail,
-      { "TAIL", "cisco_erspan_marker.tail",
+      { "TAIL", "erspan-marker.tail",
         FT_UINT64, BASE_HEX, NULL, 0x00000000ffffffff,
         NULL, HFILL }
     },
@@ -181,7 +181,7 @@ proto_register_erspan_marker(void)
   };
 
 
-  proto_marker = proto_register_protocol("CISCO ERSPAN3 Marker Packet", "CISCO3 ERSPAN MARKER", "cisco-erspan3-marker");
+  proto_marker = proto_register_protocol("CISCO ERSPAN3 Marker Packet", "CISCO3 ERSPAN MARKER", "erspan-marker");
 
   proto_register_field_array(proto_marker, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
