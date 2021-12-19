@@ -782,7 +782,7 @@ addValueInterpretations(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tlv_tree,
 	} else {
 		guint8 *str = tvb_get_string_enc(pinfo->pool, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
 		if (isprint_utf8_string(str, element->length_of_value)) {
-			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8|ENC_NA);
+			proto_tree_add_item(tlv_tree, hf_lwm2mtlv_value_string, tvb, valueOffset, element->length_of_value, ENC_UTF_8);
 		} else {
 			str = tvb_bytes_to_str(pinfo->pool, tvb, valueOffset, element->length_of_value);
 		}
