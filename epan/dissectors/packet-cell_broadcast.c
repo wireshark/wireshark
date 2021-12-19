@@ -314,11 +314,11 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          proto_tree *cbs_page_subtree = proto_tree_add_subtree(cbs_page_tree, tvb, offset, -1,
                                         ett_gsm_cbs_page_content, NULL, "Cell Broadcast Page Contents");
          len = tvb_reported_length(cbs_page_tvb);
-         proto_tree_add_item(cbs_page_subtree, hf_gsm_cbs_page_content, cbs_page_tvb, 0, text_len, ENC_UTF_8|ENC_NA);
+         proto_tree_add_item(cbs_page_subtree, hf_gsm_cbs_page_content, cbs_page_tvb, 0, text_len, ENC_UTF_8);
          len -= text_len;
          if (len)
          {
-            proto_tree_add_item(cbs_page_subtree, hf_gsm_cbs_page_content_padding, cbs_page_tvb, text_len, len, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(cbs_page_subtree, hf_gsm_cbs_page_content_padding, cbs_page_tvb, text_len, len, ENC_UTF_8);
          }
       }
       if (text_len)
@@ -354,7 +354,7 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
       cbs_msg_item = proto_tree_add_protocol_format(proto_tree_get_root(tree), proto_cell_broadcast, cbs_msg_tvb, 0, len, "GSM Cell Broadcast Message");
       cbs_msg_tree = proto_item_add_subtree(cbs_msg_item, ett_cbs_msg);
 
-      proto_tree_add_item(cbs_msg_tree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, len, ENC_UTF_8|ENC_NA);
+      proto_tree_add_item(cbs_msg_tree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, len, ENC_UTF_8);
    }
 
    return tvb_captured_length(tvb);

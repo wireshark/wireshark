@@ -5787,18 +5787,18 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 82: /* IF_NAME  */
             ti = proto_tree_add_item(pdutree, hf_cflow_if_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 83: /* IF_DESCR  */
             ti = proto_tree_add_item(pdutree, hf_cflow_if_descr,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 84: /* SAMPLER_NAME  */
                  /* "Deprecated in favor of 335 selectorName" */
             ti = proto_tree_add_item(pdutree, hf_cflow_sampler_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 85: /* BYTES_PERMANENT */
@@ -5887,7 +5887,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 94: /* NBAR applicationDesc */
             ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_desc,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 95: /* NBAR applicationId */
@@ -5899,7 +5899,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 96: /* NBAR applicationName */
             ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 98: /* postIpDiffServCodePoint */
@@ -6018,7 +6018,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 147: /*  wlanSSID */
             ti = proto_tree_add_item(pdutree, hf_cflow_wlan_ssid,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 148: /*  flowId */
@@ -6401,7 +6401,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 236: /* VRFname */
             ti = proto_tree_add_item(pdutree, hf_cflow_vrfname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 237: /* postMplsTopLabelExp */
@@ -6456,7 +6456,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 247: /* metroEvcId */
             ti = proto_tree_add_item(pdutree, hf_cflow_metro_evc_id,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 248: /* metroEvcType */
@@ -6656,7 +6656,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 284:
             ti = proto_tree_add_item(pdutree, hf_cflow_nat_pool_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 285:
@@ -6676,17 +6676,17 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 288:
             ti = proto_tree_add_item(pdutree, hf_cflow_p2p_technology,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 289:
             ti = proto_tree_add_item(pdutree, hf_cflow_tunnel_technology,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 290:
             ti = proto_tree_add_item(pdutree, hf_cflow_encrypted_technology,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 292:
@@ -6727,7 +6727,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 300:
             ti = proto_tree_add_item(pdutree, hf_cflow_observation_domain_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 301: /* selectionSequenceId */
@@ -6963,7 +6963,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 335: /* selectorName */
             ti = proto_tree_add_item(pdutree, hf_cflow_selector_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 336: /* upperCILimit */
@@ -7003,7 +7003,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 340: /* informationElementDescription */
             ti = proto_tree_add_item(pdutree, hf_cflow_information_element_description,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 341: /* informationElementName */
@@ -7048,7 +7048,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 348: /* virtualStationInterfaceName */
             ti = proto_tree_add_item(pdutree, hf_cflow_virtual_station_interface_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 349: /* virtualStationUUID */
@@ -7058,7 +7058,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 350: /* virtualStationName */
             ti = proto_tree_add_item(pdutree, hf_cflow_virtual_station_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 351: /* layer2SegmentId */
@@ -7169,22 +7169,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 371: /* userName */
             ti = proto_tree_add_item(pdutree, hf_cflow_user_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 372: /* applicationCategoryName */
             ti = proto_tree_add_item(pdutree, hf_cflow_application_category_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 373: /* applicationSubCategoryName */
             ti = proto_tree_add_item(pdutree, hf_cflow_application_sub_category_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 374: /* applicationGroupName */
             ti = proto_tree_add_item(pdutree, hf_cflow_application_group_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 375: /* originalFlowsPresent */
@@ -7554,37 +7554,37 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 450: /* mibContextName */
             ti = proto_tree_add_item(pdutree, hf_cflow_mib_context_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 451: /* mibObjectName */
             ti = proto_tree_add_item(pdutree, hf_cflow_mib_object_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 452: /* mibObjectDescription */
             ti = proto_tree_add_item(pdutree, hf_cflow_mib_object_description,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 453: /* mibObjectSyntax */
             ti = proto_tree_add_item(pdutree, hf_cflow_mib_object_syntax,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 454: /* mibModuleName */
             ti = proto_tree_add_item(pdutree, hf_cflow_mib_module_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 455: /* mobileIMSI */
             ti = proto_tree_add_item(pdutree, hf_cflow_mobile_imsi,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 456: /* mobileMSISDN */
             ti = proto_tree_add_item(pdutree, hf_cflow_mobile_msisdn,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 457: /* httpStatusCode */
@@ -7599,22 +7599,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 459: /* httpRequestMethod */
             ti = proto_tree_add_item(pdutree, hf_cflow_http_request_method,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 460: /* httpRequestHost */
             ti = proto_tree_add_item(pdutree, hf_cflow_http_request_host,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 461: /* httpRequestTarget */
             ti = proto_tree_add_item(pdutree, hf_cflow_http_request_target,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 462: /* httpMessageVersion */
             ti = proto_tree_add_item(pdutree, hf_cflow_http_message_version,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 463: /* natInstanceID */
@@ -7644,17 +7644,17 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 468: /* httpUserAgent */
             ti = proto_tree_add_item(pdutree, hf_cflow_http_user_agent,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 469: /* httpContentType */
             ti = proto_tree_add_item(pdutree, hf_cflow_http_content_type,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 470: /* httpReasonPhrase */
             ti = proto_tree_add_item(pdutree, hf_cflow_http_reason_phrase,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case 471: /* maxSessionEntries */
@@ -7985,7 +7985,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case 24629: /* natContextName */
             ti = proto_tree_add_item(pdutree, hf_cflow_nat_context_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case 24630: /* natAssignTime */
             ts.secs = tvb_get_ntohl(tvb, offset);
@@ -10748,11 +10748,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 130):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httprequrl,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 131):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqcookie,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 132):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_flowflags,
@@ -10768,7 +10768,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 135):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_syslogmessage,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 136):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_syslogtimestamp,
@@ -10776,19 +10776,19 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 140):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqreferer,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 141):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqmethod,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 142):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqhost,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 143):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httprequseragent,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 144):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httprspstatus,
@@ -10816,7 +10816,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 152):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_appname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 153):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqrcvfb,
@@ -10852,23 +10852,23 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 163):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientinteractionstarttime,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 164):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientrenderendtime,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 165):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientrenderstarttime,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 167):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_apptemplatename,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 168):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpclientinteractionendtime,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 169):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpresrcvlb,
@@ -10896,23 +10896,23 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 175):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbusername,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 176):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbdatabasename,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 177):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbclthostname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 178):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbreqstring,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 179):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbrespstatusstring,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 180):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_dbrespstatus,
@@ -10928,31 +10928,31 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 183):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpcontenttype,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 185):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqauthorization,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 186):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqvia,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 187):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreslocation,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 188):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpressetcookie,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 189):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpressetcookie2,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 190):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpreqxforwardedfor,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 192):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_connectionchainid,
@@ -10968,7 +10968,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 201):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientversion,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 202):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclienttype,
@@ -10980,15 +10980,15 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 204):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclienthostname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 205):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_aaausername,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 207):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icadomainname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 208):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientlauncher,
@@ -11000,7 +11000,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 210):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaservername,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 214):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionreconnects,
@@ -11104,7 +11104,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 238):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaapplicationname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 239):
             /* XXX - what format is this? */
@@ -11137,7 +11137,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 246):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaappmodulepath,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 247):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icadeviceserialno,
@@ -11153,7 +11153,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 250):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icausername,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 251):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_licensetype,
@@ -11223,7 +11223,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 267):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_httpdomainname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_NETSCALER << 16) | 268):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_cacheredirclientconnectioncoreid,
@@ -11250,11 +11250,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_BARRACUDA << 16) | 4):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_fwrule,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_BARRACUDA << 16) | 5):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_servicename,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_BARRACUDA << 16) | 6):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_reason,
@@ -11262,7 +11262,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_BARRACUDA << 16) | 7):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_reasontext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_BARRACUDA << 16) | 8):
             ti = proto_tree_add_item(pdutree, hf_pie_barracuda_bindipv4address,
@@ -11289,7 +11289,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             /* START Gigamon */
         case ((VENDOR_GIGAMON << 16) | 1):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_httprequrl,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 2):
@@ -11299,32 +11299,32 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_GIGAMON << 16) | 101):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificateissuercommonname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 102):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubjectcommonname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 103):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificateissuer,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 104):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubject,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 105):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatevalidnotbefore,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 106):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatevalidnotafter,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 107):
@@ -11349,12 +11349,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_GIGAMON << 16) | 111):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslcertificatesubjectaltname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 112):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_sslservernameindication,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 113):
@@ -11394,12 +11394,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_GIGAMON << 16) | 204):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsqueryname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 205):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponsename,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 206):
@@ -11419,7 +11419,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_GIGAMON << 16) | 209):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsbits,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 210):
@@ -11469,12 +11469,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_GIGAMON << 16) | 219):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsresponserdata,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 220):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthorityname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 221):
@@ -11499,12 +11499,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_GIGAMON << 16) | 225):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsauthorityrdata,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 226):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionalname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_GIGAMON << 16) | 227):
@@ -11529,7 +11529,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_GIGAMON << 16) | 231):
             ti = proto_tree_add_item(pdutree, hf_pie_gigamon_dnsadditionalrdata,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
             /* END Gigamon */
@@ -11561,7 +11561,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_CISCO << 16) | 8234):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_CISCO << 16) | 8235):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_type,
@@ -11573,7 +11573,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_CISCO << 16) | 8237):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_CISCO << 16) | 8238):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_type,
@@ -11637,7 +11637,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_CISCO << 16) | 9357):
             cti = proto_tree_add_item(pdutree, hf_pie_cisco_application_http_uri_statistics,
-                                     tvb, offset, length - 3, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length - 3, ENC_UTF_8);
             string_tree = proto_item_add_subtree(cti, ett_str_len);
             proto_tree_add_item(string_tree, hf_pie_cisco_application_http_uri_statistics_count,
                                      tvb, offset + (length - 2), 2, ENC_BIG_ENDIAN);
@@ -11646,15 +11646,15 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_CISCO << 16) | 12232):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_category_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_CISCO << 16) | 12233):
             ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_sub_category_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_CISCO << 16) | 12234):
              ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_group_name,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
         case ((VENDOR_CISCO << 16) | 12235):
             cti = proto_tree_add_item(pdutree, hf_pie_cisco_application_http_host,
@@ -11700,7 +11700,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             /* START Niagara Networks */
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 100):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslservernameindication,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 101):
@@ -11710,7 +11710,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 102):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslserverversiontext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 103):
@@ -11720,12 +11720,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 104):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslserverciphertext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 105):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslconnectionencryptiontype,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 106):
@@ -11740,47 +11740,47 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 108):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificateissuer,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 109):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificateissuername,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 110):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubject,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 111):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 112):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatevalidnotbefore,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 113):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatevalidnotafter,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 114):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificateserialnumber,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 115):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesignaturealgorithm,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 116):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesignaturealgorithmtext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 117):
@@ -11790,22 +11790,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 118):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithm,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 119):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectpublicalgorithmtext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 120):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectalgorithmtext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 121):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_sslcertificatesubjectalternativename,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 122):
@@ -11830,12 +11830,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 203):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsqueryname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 204):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponsename,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 205):
@@ -11845,22 +11845,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 206):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv4addr,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 207):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv4addrtext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 208):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv6addr,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 209):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseipv6addrtext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 210):
@@ -11895,7 +11895,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 216):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsquerytypetext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 217):
@@ -11905,7 +11905,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 218):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsqueryclasstext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 219):
@@ -11915,7 +11915,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 220):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponsetypetext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 221):
@@ -11925,7 +11925,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 222):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsresponseclasstext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 223):
@@ -11940,7 +11940,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 225):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 226):
@@ -11950,7 +11950,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 227):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthoritytypetext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 228):
@@ -11960,7 +11960,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 229):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityclasstext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 230):
@@ -11975,12 +11975,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 232):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsauthorityrdata,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 233):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 234):
@@ -11990,7 +11990,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 235):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionaltypetext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 236):
@@ -12000,7 +12000,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 237):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalclasstext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 238):
@@ -12015,7 +12015,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 240):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_dnsadditionalrdata,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 300):
@@ -12025,7 +12025,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 301):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiuspackettypecodetext,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 302):
@@ -12115,7 +12115,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 319):
             ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks_radiusvsaname,
-                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+                                     tvb, offset, length, ENC_UTF_8);
             break;
 
         case ((VENDOR_NIAGARA_NETWORKS << 16) | 320):

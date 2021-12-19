@@ -540,7 +540,7 @@ dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
     /* name is a 0-terminated UTF-8 string, len includes the final 0 */
     hdlr_name_len = tvb_strsize(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_hdlr_name,
-            tvb, offset, hdlr_name_len, ENC_UTF_8|ENC_NA);
+            tvb, offset, hdlr_name_len, ENC_UTF_8);
     offset += hdlr_name_len;
 
     return offset-offset_start;

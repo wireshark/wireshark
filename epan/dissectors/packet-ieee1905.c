@@ -2112,7 +2112,7 @@ dissect_generic_phy_device_info(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset++;
 
         proto_tree_add_item(intf_tree, hf_ieee1905_local_intf_variant_name,
-                            tvb, offset, 32, ENC_UTF_8|ENC_NA);
+                            tvb, offset, 32, ENC_UTF_8);
         offset += 32;
 
         url_field_count = tvb_get_guint8(tvb, offset);
@@ -2151,15 +2151,15 @@ dissect_device_identification(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset)
 {
     proto_tree_add_item(tree, hf_ieee1905_dev_id_friendly_name, tvb,
-                        offset, 64, ENC_UTF_8|ENC_NA);
+                        offset, 64, ENC_UTF_8);
     offset += 64;
 
     proto_tree_add_item(tree, hf_ieee1905_dev_id_manuf_name, tvb,
-                        offset, 64, ENC_UTF_8|ENC_NA);
+                        offset, 64, ENC_UTF_8);
     offset += 64;
 
     proto_tree_add_item(tree, hf_ieee1905_dev_id_manuf_model, tvb,
-                        offset, 64, ENC_UTF_8|ENC_NA);
+                        offset, 64, ENC_UTF_8);
     offset += 64;
 
     return offset;

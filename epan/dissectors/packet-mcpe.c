@@ -182,7 +182,7 @@ mcpe_dissect_string(proto_tree *tree, int hf, tvbuff_t *tvb, gint *offset, guint
         *offset += length_width;
 
         proto_tree_add_item(string_tree, hf_mcpe_UTF8_string, tvb,
-                            *offset, length, ENC_UTF_8|ENC_NA);
+                            *offset, length, ENC_UTF_8);
         *offset += length;
     }
     else {

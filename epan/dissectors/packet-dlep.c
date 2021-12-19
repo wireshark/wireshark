@@ -398,7 +398,7 @@ decode_dataitem_status(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *pt
   proto_item_append_text(pi, ", Code: %s (%u)", val_to_str(status_code, status_code_vals, "Unknown"), status_code);
   offset+=1;
 
-  proto_tree_add_item(pt, hf_dlep_dataitem_status_text, tvb, offset, len-1, ENC_UTF_8|ENC_NA);
+  proto_tree_add_item(pt, hf_dlep_dataitem_status_text, tvb, offset, len-1, ENC_UTF_8);
   proto_item_append_text(pi, ", Text: %s", tvb_get_string_enc(pinfo->pool, tvb, offset, len-1, ENC_UTF_8));
   offset+=len-1;
 
@@ -489,7 +489,7 @@ decode_dataitem_peertype(tvbuff_t *tvb, int offset, proto_item *pi, proto_tree *
   proto_tree_add_item(flags_pt, hf_dlep_dataitem_peertype_flags_smi, tvb, offset, DLEP_DIT_PEERTYPE_FLAGS_LEN, ENC_NA);
   offset+=DLEP_DIT_PEERTYPE_FLAGS_LEN;
 
-  proto_tree_add_item(pt, hf_dlep_dataitem_peertype_description, tvb, offset, len-DLEP_DIT_PEERTYPE_FLAGS_LEN, ENC_UTF_8|ENC_NA);
+  proto_tree_add_item(pt, hf_dlep_dataitem_peertype_description, tvb, offset, len-DLEP_DIT_PEERTYPE_FLAGS_LEN, ENC_UTF_8);
   proto_item_append_text(pi, ", Description: %s", tvb_get_string_enc(pinfo->pool, tvb, offset, len-DLEP_DIT_PEERTYPE_FLAGS_LEN, ENC_UTF_8));
   offset+=len-DLEP_DIT_PEERTYPE_FLAGS_LEN;
 

@@ -1478,7 +1478,7 @@ parse_long_filename(proto_tree *tree, tvbuff_t *tvb, gint offset, gint org_offse
 		len = tvb_get_guint8(tvb, tp_ofs);
 		proto_tree_add_item(tree, hf_afp_path_len, tvb, tp_ofs,	 1, ENC_BIG_ENDIAN);
 		tp_ofs++;
-		proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, len, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, len, ENC_UTF_8);
 		tp_ofs += len;
 	}
 	return tp_ofs;
@@ -1517,7 +1517,7 @@ parse_UTF8_filename(proto_tree *tree, tvbuff_t *tvb, gint offset, gint org_offse
 		proto_tree_add_item( tree, hf_afp_path_unicode_len, tvb, tp_ofs, 2, ENC_BIG_ENDIAN);
 		tp_ofs += 2;
 
-		proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, len, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_afp_path_name, tvb, tp_ofs, len, ENC_UTF_8);
 		tp_ofs += len;
 	}
 	return tp_ofs;
@@ -2638,7 +2638,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_user_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_afp_user_name, tvb, offset, len, ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(tree, hf_afp_user_name, tvb, offset, len, ENC_UTF_8);
 	offset += len;
 
 	/* directory service */
@@ -2652,14 +2652,14 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		len = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_afp_path_len, tvb, offset,	 1, ENC_BIG_ENDIAN);
 		offset++;
-		proto_tree_add_item(tree, hf_afp_path_name, tvb, offset, len, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_afp_path_name, tvb, offset, len, ENC_UTF_8);
 		offset += len;
 		break;
 	case 3:
 		len = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item( tree, hf_afp_path_unicode_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(tree, hf_afp_path_name, tvb, offset, len, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_afp_path_name, tvb, offset, len, ENC_UTF_8);
 		offset += len;
 		break;
 	default:
@@ -3274,7 +3274,7 @@ dissect_query_afp_get_icon(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	PAD(1);
 	proto_tree_add_item(tree, hf_afp_dt_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4, ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(tree, hf_afp_file_creator, tvb, offset, 4, ENC_UTF_8);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_afp_file_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
@@ -3721,7 +3721,7 @@ dissect_reply_afp_get_server_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 		proto_tree_add_item(tree, hf_afp_message_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		if (len) {
-			proto_tree_add_item(tree, hf_afp_message, tvb, offset, len , ENC_UTF_8|ENC_NA);
+			proto_tree_add_item(tree, hf_afp_message, tvb, offset, len , ENC_UTF_8);
 			offset += len;
 		}
 	} else {
@@ -3817,7 +3817,7 @@ decode_attr_name (proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, gint 
 										ett_afp_extattr_names, NULL, label, name);
 
 		proto_tree_add_item(sub_tree, hf_afp_extattr_namelen, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset +2, len, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset +2, len, ENC_UTF_8);
 	}
 	offset += 2 +len;
 
@@ -3972,7 +3972,7 @@ dissect_reply_afp_list_ext_attrs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	while (remain > 0) {
 		length = (gint)tvb_strsize(tvb, offset);
 
-		proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset, length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(sub_tree, hf_afp_extattr_name, tvb, offset, length, ENC_UTF_8);
 		offset += length;
 		remain -= length;
 	}
@@ -4562,7 +4562,7 @@ dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	case SPOTLIGHT_CMD_GET_VOLPATH:
 		tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_UTF_8|ENC_NA);
-		proto_tree_add_item(tree, hf_afp_spotlight_volpath_client, tvb, offset, len, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_afp_spotlight_volpath_client, tvb, offset, len, ENC_UTF_8);
 		offset += len;
 		break;
 
@@ -4771,7 +4771,7 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 4;
 
 		tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_UTF_8|ENC_NA);
-		proto_tree_add_item(tree, hf_afp_spotlight_volpath_server, tvb, offset, len, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_afp_spotlight_volpath_server, tvb, offset, len, ENC_UTF_8);
 		offset += len;
 		break;
 

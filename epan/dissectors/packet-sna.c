@@ -2289,7 +2289,7 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 	if (len <= 0)
 		return;
 
-	proto_tree_add_item(tree, hf_sna_control_0e_value, tvb, 3, len, ENC_EBCDIC|ENC_NA);
+	proto_tree_add_item(tree, hf_sna_control_0e_value, tvb, 3, len, ENC_EBCDIC);
 }
 
 static void

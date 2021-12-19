@@ -369,7 +369,7 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                 default:
                 {
                     proto_item *expert_ti = proto_tree_add_item(sje_tree, hf_sj_unhandled_field_type, tvb, offset, line_len,
-                                                                    ENC_UTF_8|ENC_NA);
+                                                                    ENC_UTF_8);
                     expert_add_info(pinfo, expert_ti, &ei_unhandled_field_type);
                     break;
                 }
@@ -386,8 +386,8 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
             proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unknown_field, tvb, offset, line_len,
                                                             "Unknown text field: %s", tvb_get_string_enc(pinfo->pool, tvb, offset, eq_off - offset - 1, ENC_UTF_8));
             proto_tree *unk_tree = proto_item_add_subtree(unk_ti, ett_systemd_unknown_field);
-            proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, eq_off - offset - 1, ENC_UTF_8|ENC_NA);
-            proto_tree_add_item(unk_tree, hf_sj_unknown_field_value, tvb, eq_off, val_len, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, eq_off - offset - 1, ENC_UTF_8);
+            proto_tree_add_item(unk_tree, hf_sj_unknown_field_value, tvb, eq_off, val_len, ENC_UTF_8);
             offset = next_offset;
             continue;
         }
@@ -413,8 +413,8 @@ dissect_systemd_journal_line_entry(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
                         proto_item *unk_ti = proto_tree_add_none_format(sje_tree, hf_sj_unknown_field, tvb, offset, line_len,
                                                                         "Unknown data field: %s", tvb_format_text(pinfo->pool, tvb, offset, eq_off - offset - 1));
                         proto_tree *unk_tree = proto_item_add_subtree(unk_ti, ett_systemd_unknown_field);
-                        proto_item *expert_ti = proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, offset + noeql_len, ENC_UTF_8|ENC_NA);
-                        proto_tree_add_item(unk_tree, hf_sj_unknown_field_data, tvb, data_off, (int) data_len, ENC_UTF_8|ENC_NA);
+                        proto_item *expert_ti = proto_tree_add_item(unk_tree, hf_sj_unknown_field_name, tvb, offset, offset + noeql_len, ENC_UTF_8);
+                        proto_tree_add_item(unk_tree, hf_sj_unknown_field_data, tvb, data_off, (int) data_len, ENC_UTF_8);
                         expert_add_info(pinfo, expert_ti, &ei_nonbinary_field);
                     }
                 }

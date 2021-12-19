@@ -731,7 +731,7 @@ dissect_thrift_string_as_preferred(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_UTF_16 | ENC_BIG_ENDIAN);
                 break;
             case DECODE_BINARY_AS_UTF8:
-                proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_UTF_8);
                 break;
             case DECODE_BINARY_AS_ASCII:
                 proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_ASCII|ENC_NA);
@@ -742,7 +742,7 @@ dissect_thrift_string_as_preferred(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                  * If not entirely captured, consider it as a binary. */
                 if (tvb_captured_length_remaining(tvb, *offset) >= str_len &&
                     (str_len == 0 || thrift_binary_utf8_isprint(tvb, *offset, str_len, TRUE) > 0)) {
-                    proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_UTF_8|ENC_NA);
+                    proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_UTF_8);
                     break;
                 }
                 /* otherwise, continue with type BINARY */
@@ -2659,7 +2659,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += seqid_len;
             proto_tree_add_int(sub_tree, hf_thrift_str_len, tvb, offset, str_len_len, str_len);
             offset += str_len_len;
-            proto_tree_add_item(sub_tree, hf_thrift_method, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(sub_tree, hf_thrift_method, tvb, offset, str_len, ENC_UTF_8);
             offset = offset + str_len;
         } else if (thrift_opt->tprotocol & PROTO_THRIFT_STRICT) {
             /* Strict: proto_id|version|mtype|length|name|seqid */
@@ -2670,7 +2670,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             offset += TBP_THRIFT_MTYPE_LEN;
             proto_tree_add_item(sub_tree, hf_thrift_str_len, tvb, offset, TBP_THRIFT_LENGTH_LEN, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_LENGTH_LEN;
-            proto_tree_add_item(sub_tree, hf_thrift_method, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(sub_tree, hf_thrift_method, tvb, offset, str_len, ENC_UTF_8);
             offset = offset + str_len;
             proto_tree_add_item(sub_tree, hf_thrift_seq_id, tvb, offset, TBP_THRIFT_SEQ_ID_LEN, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_SEQ_ID_LEN;
@@ -2678,7 +2678,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
             /* Old: length|name|mtype|seqid */
             proto_tree_add_item(sub_tree, hf_thrift_str_len, tvb, offset, TBP_THRIFT_LENGTH_LEN, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_LENGTH_LEN;
-            proto_tree_add_item(sub_tree, hf_thrift_method, tvb, offset, str_len, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(sub_tree, hf_thrift_method, tvb, offset, str_len, ENC_UTF_8);
             offset = offset + str_len;
             mtype_pi = proto_tree_add_bits_item(sub_tree, hf_thrift_mtype, tvb, (offset << OCTETS_TO_BITS_SHIFT) + 5, 3, ENC_BIG_ENDIAN);
             offset += TBP_THRIFT_MTYPE_LEN;

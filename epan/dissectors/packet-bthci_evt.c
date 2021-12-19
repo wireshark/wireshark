@@ -1766,7 +1766,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset,
 
     offset = dissect_bd_addr(hf_bthci_evt_bd_addr, pinfo, tree, tvb, offset, FALSE, bluetooth_data->interface_id, bluetooth_data->adapter_id, bd_addr);
 
-    proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_UTF_8);
     if (!pinfo->fd->visited) {
         wmem_tree_key_t key[6];
         guint32         interface_id;
@@ -4082,7 +4082,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
             offset += 1;
 
-            proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_UTF_8);
             if (status == STATUS_SUCCESS && !pinfo->fd->visited) {
                 gchar                   *name;
                 localhost_name_entry_t  *localhost_name_entry;

@@ -10106,7 +10106,7 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                 (minor_cease == BGP_CEASE_MINOR_ADMIN_SHUTDOWN || minor_cease == BGP_CEASE_MINOR_ADMIN_RESET) ) {
             proto_tree_add_item(tree, hf_bgp_notify_communication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            proto_tree_add_item(tree, hf_bgp_notify_communication, tvb, offset, clen, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_communication, tvb, offset, clen, ENC_UTF_8);
         /* otherwise just dump the hex data */
         } else if ( major_error == BGP_MAJOR_ERROR_OPEN_MSG && minor_cease == 7 ) {
             while (offset < hlen) {

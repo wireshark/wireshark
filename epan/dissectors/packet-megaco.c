@@ -1104,7 +1104,7 @@ nextcontext:
                 megaco_command = MEGACO_CMD_NOT_SET;
                 /* creation of the megaco_tree_command_line additionally Command and Transaction ID will be printed in this line */
                 /* Changed to use the lines above. this code is saved if there is complaints
-                sub_ti = proto_tree_add_item(megaco_tree,hf_megaco_command_line,tvb,tvb_command_start_offset,tokenlen, ENC_UTF_8|ENC_NA);
+                sub_ti = proto_tree_add_item(megaco_tree,hf_megaco_command_line,tvb,tvb_command_start_offset,tokenlen, ENC_UTF_8);
                 megaco_tree_command_line = proto_item_add_subtree(sub_ti, ett_megaco_command_line);
                 */
                 if (!global_megaco_dissect_tree) {
@@ -2085,7 +2085,7 @@ dissect_megaco_eventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
                 tokenlen = tvb_RBRKT+1 - tvb_previous_offset;
             }
 
-            megaco_requestedevent_ti = proto_tree_add_item(megaco_eventsdescriptor_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,tokenlen, ENC_UTF_8|ENC_NA);
+            megaco_requestedevent_ti = proto_tree_add_item(megaco_eventsdescriptor_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,tokenlen, ENC_UTF_8);
             megaco_requestedevent_tree = proto_item_add_subtree(megaco_requestedevent_ti, ett_megaco_requestedevent);
 
             if ( tvb_help_offset < tvb_RBRKT && tvb_help_offset != -1 ){
@@ -2228,7 +2228,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
                  pkg_tokenlen = tvb_RBRKT+1 - tvb_previous_offset;
              }
 
-            megaco_requestedsignal_ti = proto_tree_add_item(megaco_signalsdescriptor_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,pkg_tokenlen, ENC_UTF_8|ENC_NA);
+            megaco_requestedsignal_ti = proto_tree_add_item(megaco_signalsdescriptor_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,pkg_tokenlen, ENC_UTF_8);
             megaco_requestedsignal_tree = proto_item_add_subtree(megaco_requestedsignal_ti, ett_megaco_requestedsignal);
 
             if ( tvb_help_offset < tvb_RBRKT && tvb_help_offset != -1 ){
@@ -2642,7 +2642,7 @@ dissect_megaco_observedeventsdescriptor(tvbuff_t *tvb, packet_info *pinfo, proto
 
             megaco_observedevent_tree = proto_item_add_subtree(megaco_observedevent_ti, ett_megaco_observedevent);
 
-            proto_tree_add_item(megaco_observedevent_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,pkg_tokenlen, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(megaco_observedevent_tree,hf_megaco_pkgdname,tvb,tvb_previous_offset,pkg_tokenlen, ENC_UTF_8);
 
             if ( tvb_help_offset < tvb_RBRKT && tvb_help_offset != -1 ){
 
@@ -2719,7 +2719,7 @@ dissect_megaco_Packagesdescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command
 
     tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
 
-    megaco_packagesdescriptor_ti = proto_tree_add_item(megaco_tree_command_line,hf_megaco_packages_descriptor,tvb,tvb_previous_offset,tokenlen, ENC_UTF_8|ENC_NA);
+    megaco_packagesdescriptor_ti = proto_tree_add_item(megaco_tree_command_line,hf_megaco_packages_descriptor,tvb,tvb_previous_offset,tokenlen, ENC_UTF_8);
     megaco_packagesdescriptor_tree = proto_item_add_subtree(megaco_packagesdescriptor_ti, ett_megaco_packagesdescriptor);
 
     tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_RBRKT, '=');
@@ -2926,7 +2926,7 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, packet_info* pinfo, proto_tree *me
     tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset+1, tvb_RBRKT, '\"');
 
     tokenlen =  tvb_current_offset - tvb_previous_offset-1;
-    proto_tree_add_item(error_tree, hf_megaco_error_string, tvb, tvb_previous_offset+1, tokenlen, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(error_tree, hf_megaco_error_string, tvb, tvb_previous_offset+1, tokenlen, ENC_UTF_8);
 }
 static void
 dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadescriptor_tree,  gint tvb_next_offset, gint tvb_current_offset)

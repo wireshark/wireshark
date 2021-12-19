@@ -527,7 +527,7 @@ parse_logon_challenge_client_to_server(packet_info *pinfo, tvbuff_t *tvb, proto_
 	proto_tree_add_item(wow_tree,
 			hf_wow_srp_i, tvb,
 			offset, srp_i_len,
-			ENC_UTF_8|ENC_NA);
+			ENC_UTF_8);
 }
 
 static void

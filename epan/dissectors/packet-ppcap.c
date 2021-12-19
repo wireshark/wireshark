@@ -221,7 +221,7 @@ dissect_ppcap_payload_type(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset, 
 		*payload_type = PPCAP_GTPV2;
 	}
 
-	proto_tree_add_item(ppcap_tree1, hf_ppcap_payload_type, tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_payload_type, tvb, offset, msg_len, ENC_UTF_8);
 
 	if (msg_len%4)
 		msg_len = msg_len+(4-(msg_len%4));

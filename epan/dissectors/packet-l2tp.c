@@ -1648,11 +1648,11 @@ static int dissect_l2tp_broadband_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     switch (avp_type) {
 
     case BROADBAND_AGENT_CIRCUIT_ID:
-        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_agent_circuit_id, tvb, offset, avp_len, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_agent_circuit_id, tvb, offset, avp_len, ENC_UTF_8);
         break;
 
     case BROADBAND_AGENT_REMOTE_ID:
-        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_agent_remote_id, tvb, offset, avp_len, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_broadband_agent_remote_id, tvb, offset, avp_len, ENC_UTF_8);
         break;
 
     case BROADBAND_ACTUAL_DR_UP:

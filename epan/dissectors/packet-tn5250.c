@@ -3126,7 +3126,7 @@ dissect_twobyte_length_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint off
 
   if (tvb_reported_length_remaining(tvb, offset) >= length) {
     proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
-                        length, ENC_EBCDIC|ENC_NA);
+                        length, ENC_EBCDIC);
     offset+=length;
   } else {
     offset += dissect_unknown_data(tn5250_tree, tvb, offset, start, length);
@@ -3346,7 +3346,7 @@ dissect_create_window(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
           break;
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_cw_tf_text, tvb, offset,
-                            (length - 6), ENC_EBCDIC|ENC_NA);
+                            (length - 6), ENC_EBCDIC);
         offset += (guint32)((length - 6));
         break;
       default:
@@ -3565,7 +3565,7 @@ dissect_define_selection(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wdsf_ds_ct_text, tvb, offset,
                             (length - (offset - minor_structure_start)),
-                            ENC_EBCDIC|ENC_NA);
+                            ENC_EBCDIC);
         offset += (guint32)((length - (offset - minor_structure_start)));
         break;
       case DS_MENU_BAR_SEPARATOR:
@@ -3832,7 +3832,7 @@ dissect_wdsf_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offse
           break;
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
-                            (length - 6), ENC_EBCDIC|ENC_NA);
+                            (length - 6), ENC_EBCDIC);
         offset += (guint32)((length - 6));
         break;
       case PROGRAMMABLE_MOUSE_BUTTONS:
@@ -3900,7 +3900,7 @@ dissect_tn5250_ra_data(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 
   if (offset > start) {
     proto_tree_add_item(tn5250_tree, hf_tn5250_repeated_character,
-                        tvb, start, (offset - start), ENC_EBCDIC|ENC_NA);
+                        tvb, start, (offset - start), ENC_EBCDIC);
   }
   return (offset - start);
 
@@ -4212,7 +4212,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                       wsc_image_control_fields);
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifc_imagefax_name, tvb, offset,
-                            (length - (start + offset)), ENC_EBCDIC|ENC_NA);
+                            (length - (start + offset)), ENC_EBCDIC);
         if (length > (start + offset))
           offset += (guint32)(length - (start + offset));
         break;
@@ -4221,7 +4221,7 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                       wsc_image_download_fields);
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifd_imagefax_name, tvb, offset,
-                            namelength, ENC_EBCDIC|ENC_NA);
+                            namelength, ENC_EBCDIC);
         offset += namelength;
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifd_imagefax_data, tvb, offset,
                             (length - (start + offset)), ENC_NA);
@@ -4585,7 +4585,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
     switch (type) {
       case PASS_THROUGH:
         proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
-                            (sf_length - (start + offset)), ENC_EBCDIC|ENC_NA);
+                            (sf_length - (start + offset)), ENC_EBCDIC);
         offset += (guint32)(sf_length - (start + offset));
         break;
       case TN5250_QUERY:
@@ -4608,7 +4608,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
             break;
           }
           proto_tree_add_item(tn5250_tree, hf_tn5250_dawt_message, tvb, offset,
-                              (length - 2), ENC_EBCDIC|ENC_NA);
+                              (length - 2), ENC_EBCDIC);
           offset += length;
         }
         break;
@@ -4625,7 +4625,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
             break;
           }
           proto_tree_add_item(tn5250_tree, hf_tn5250_dckf_prompt_text, tvb,
-                              offset, (length - 2), ENC_EBCDIC|ENC_NA);
+                              offset, (length - 2), ENC_EBCDIC);
           offset += length;
         }
         break;
@@ -4658,7 +4658,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
           break;
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wts_cld_li, tvb, offset,
-                            (length - used), ENC_EBCDIC|ENC_NA);
+                            (length - used), ENC_EBCDIC);
         break;
       case DEFINE_SPECIAL_CHARACTERS:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
@@ -4677,7 +4677,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
             break;
           }
           proto_tree_add_item(tn5250_tree, hf_tn5250_dorm_mt, tvb, offset,
-                              (length - 2), ENC_EBCDIC|ENC_NA);
+                              (length - 2), ENC_EBCDIC);
           offset += length;
         }
         break;
@@ -4696,7 +4696,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offs
            * each of these entries is 5 bytes long?
            */
           proto_tree_add_item(tn5250_tree, hf_tn5250_dpt_ec, tvb, offset,
-                              4, ENC_EBCDIC|ENC_NA);
+                              4, ENC_EBCDIC);
           offset += 4;
         }
         break;
@@ -4909,7 +4909,7 @@ dissect_tn5250_data_until_next_command(proto_tree *tn5250_tree, tvbuff_t *tvb, g
 
   if (offset > start) {
     proto_tree_add_item(tn5250_tree, hf_tn5250_field_data,
-                        tvb, start, (offset - start), ENC_EBCDIC|ENC_NA);
+                        tvb, start, (offset - start), ENC_EBCDIC);
   }
 
   return (offset - start);
@@ -4957,7 +4957,7 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
       offset++;
       proto_tree_add_item(cc_tree, hf_tn5250_field_data, tvb, offset,
                           tvb_reported_length_remaining(tvb, offset) - 1,
-                          ENC_EBCDIC|ENC_NA);
+                          ENC_EBCDIC);
       offset += (guint32)(tvb_reported_length_remaining(tvb, offset) - 1);
       proto_tree_add_item(cc_tree, hf_tn5250_fa, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
@@ -5000,7 +5000,7 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
       offset++;
       offset += dissect_tn5250_orders_and_data(cc_tree, tvb, offset);
       proto_tree_add_item(cc_tree, hf_tn5250_field_data, tvb, offset,
-                          (length - 2), ENC_EBCDIC|ENC_NA);
+                          (length - 2), ENC_EBCDIC);
       offset++;
       break;
     case ROLL:
@@ -5093,7 +5093,7 @@ dissect_inbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tv
   if (tvb_reported_length_remaining(tvb, offset)) {
     proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
                         tvb_reported_length_remaining(tvb, offset),
-                        ENC_EBCDIC|ENC_NA);
+                        ENC_EBCDIC);
     offset += tvb_reported_length_remaining(tvb, offset);
   }
 

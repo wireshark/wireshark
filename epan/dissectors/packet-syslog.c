@@ -190,7 +190,7 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
   if (tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN) == 0xefbbbf) {
     proto_tree_add_item(tree, hf_syslog_msgid_bom, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
-    proto_tree_add_item(tree, hf_syslog_msgid_utf8, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(tree, hf_syslog_msgid_utf8, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
   } else {
     proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
   }
@@ -293,7 +293,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         msg_off, pri);
     }
     ti = proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
-      msg_len, ENC_UTF_8|ENC_NA);
+      msg_len, ENC_UTF_8);
     syslog_message_tree = proto_item_add_subtree(ti, ett_syslog_msg);
 
     /* RFC5424 defines a version field which is currently defined as '1'

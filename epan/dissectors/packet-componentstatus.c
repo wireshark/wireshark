@@ -178,8 +178,8 @@ dissect_componentstatusprotocol_cspreport_message(tvbuff_t *message_tvb, proto_t
   t.secs  = (time_t)(interval / 1000000);
   t.nsecs = (int)((interval - 1000000 * t.secs) * 1000);
   proto_tree_add_time(message_tree, hf_cspreport_report_interval, message_tvb,  24,   4, &t);
-  proto_tree_add_item(message_tree, hf_cspreport_location,        message_tvb,  28, 128, ENC_UTF_8|ENC_NA);
-  proto_tree_add_item(message_tree, hf_cspreport_status,          message_tvb, 156, 128, ENC_UTF_8|ENC_NA);
+  proto_tree_add_item(message_tree, hf_cspreport_location,        message_tvb,  28, 128, ENC_UTF_8);
+  proto_tree_add_item(message_tree, hf_cspreport_status,          message_tvb, 156, 128, ENC_UTF_8);
 
   workload = (float)(100.0 * CSR_GET_WORKLOAD(tvb_get_ntohs(message_tvb, 284)));
   if(workload < 0.0) {   /* Special value 0xffff -> -1.0 means "no load provided"! */

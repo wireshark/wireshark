@@ -6340,7 +6340,7 @@ dissect_pfcp_framed_route(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     *  MUST NOT affect operation of the protocol.  It is recommended that
     *  the message contain UTF-8 encoded 10646 [7] characters.
     */
-    proto_tree_add_item(tree, hf_pfcp_framed_route, tvb, 0, length, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_framed_route, tvb, 0, length, ENC_UTF_8);
 }
 
 /*
@@ -6366,7 +6366,7 @@ dissect_pfcp_framed_ipv6_route(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     * RFC 3162
     * "...It is intended to be human readable..."
     */
-    proto_tree_add_item(tree, hf_pfcp_framed_ipv6_route, tvb, 0, length, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_framed_ipv6_route, tvb, 0, length, ENC_UTF_8);
 }
 
 /*
@@ -8543,7 +8543,7 @@ static void
 dissect_pfcp_group_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     /* Octet 5 to (n+4) Group ID */
-    proto_tree_add_item(tree, hf_pfcp_group_id, tvb, 0, length, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_group_id, tvb, 0, length, ENC_UTF_8);
 }
 
 /*

@@ -171,7 +171,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	    ENC_LITTLE_ENDIAN);
 	offset += 4;
 	proto_tree_add_item(pktap_tree, hf_pktap_cmdname, tvb, offset, 20,
-	    ENC_UTF_8|ENC_NA);
+	    ENC_UTF_8);
 	offset += 20;
 	proto_tree_add_item(pktap_tree, hf_pktap_svc_class, tvb, offset, 4,
 	    ENC_LITTLE_ENDIAN);
@@ -186,7 +186,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	    ENC_LITTLE_ENDIAN);
 	offset += 4;
 	proto_tree_add_item(pktap_tree, hf_pktap_ecmdname, tvb, offset, 20,
-	    ENC_UTF_8|ENC_NA);
+	    ENC_UTF_8);
 	/*offset += 20;*/
 
 	if (rectype == PKT_REC_PACKET) {

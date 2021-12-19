@@ -1845,7 +1845,7 @@ guint c_dissect_str(proto_tree *root, int hf, c_str *out,
 			    tvb, off, 4, ENC_LITTLE_ENDIAN);
 	off += 4;
 	proto_tree_add_item(tree, hf_string_data,
-			    tvb, off, d.size, ENC_UTF_8|ENC_NA);
+			    tvb, off, d.size, ENC_UTF_8);
 	off += d.size;
 
 	if (out) *out = d;
@@ -5501,7 +5501,7 @@ guint c_dissect_msg_mon_cmd_ack(proto_tree *root,
 	c_warn_size(tree, tvb, off, front_len, data);
 
 	proto_tree_add_item(tree, hf_msg_mon_cmd_ack_data,
-			    tvb, front_len, data_len, ENC_UTF_8|ENC_NA);
+			    tvb, front_len, data_len, ENC_UTF_8);
 
 	return front_len+data_len;
 }

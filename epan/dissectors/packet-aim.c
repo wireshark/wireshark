@@ -855,7 +855,7 @@ dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 					 ett_aim_buddyname, NULL, "Buddy: %s",
 					 tvb_format_text(pinfo->pool, tvb, offset, buddyname_length));
 		proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_UTF_8);
 	}
 
 	return offset+buddyname_length;
@@ -2715,7 +2715,7 @@ static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb, pac
 	offset += 1;
 
 	/* Buddy name */
-	proto_tree_add_item(tree, hf_aim_location_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(tree, hf_aim_location_buddyname, tvb, offset, buddyname_length, ENC_UTF_8);
 	offset += buddyname_length;
 
 	return offset;
@@ -2732,7 +2732,7 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb, packet_info
 	offset += 1;
 
 	/* Buddy name */
-	proto_tree_add_item(tree, hf_aim_location_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(tree, hf_aim_location_buddyname, tvb, offset, buddyname_length, ENC_UTF_8);
 	offset += buddyname_length;
 
 	/* Warning level */
@@ -3413,7 +3413,7 @@ static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb,
 	offset += 2;
 
 	/* Challenge */
-	proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, ENC_UTF_8);
 	offset += challenge_length;
 	return offset;
 }
@@ -3492,7 +3492,7 @@ static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo, int offset, proto
 
 	/* Buddy Name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_UTF_8);
 		offset += buddyname_length;
 	}
 
@@ -3608,7 +3608,7 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 
 	/* show buddy name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_UTF_8);
 		offset += buddyname_length;
 	}
 	/* get reason message length (2 bytes) */
@@ -3618,7 +3618,7 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 
 	/* show reason message if present */
 	if (reason_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_UTF_8);
 		offset += reason_length;
 	}
 
@@ -3642,7 +3642,7 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 
 	/* show buddy name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_UTF_8);
 		offset += buddyname_length;
 	}
 
@@ -3657,7 +3657,7 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 
 	/* show reason message if present */
 	if (reason_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_UTF_8);
 		offset += reason_length;
 	}
 
@@ -3809,7 +3809,7 @@ static const aim_subtype aim_fnac_family_translate[] = {
  ***********************************************************************************************************/
 static int dissect_aim_userlookup_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *lookup_tree)
 {
-	proto_tree_add_item(lookup_tree, hf_aim_userlookup_email, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(lookup_tree, hf_aim_userlookup_email, tvb, 0, tvb_reported_length(tvb), ENC_UTF_8);
 	return tvb_reported_length(tvb);
 }
 

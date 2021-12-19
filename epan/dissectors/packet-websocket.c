@@ -331,7 +331,7 @@ dissect_websocket_control_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       if (length >= 2) {
         proto_tree_add_item(subtree, hf_ws_payload_close_status_code, tvb, offset, 2, ENC_BIG_ENDIAN);
         if (length > 2)
-          proto_tree_add_item(subtree, hf_ws_payload_close_reason, tvb, offset+2, length-2, ENC_UTF_8|ENC_NA);
+          proto_tree_add_item(subtree, hf_ws_payload_close_reason, tvb, offset+2, length-2, ENC_UTF_8);
       }
       break;
 

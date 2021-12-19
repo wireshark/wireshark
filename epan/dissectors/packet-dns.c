@@ -3057,7 +3057,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
               cur_offset += 2;
               rropt_len  -= 2;
               if (optlen > 2) {
-                proto_tree_add_item(rropt_tree, hf_dns_opt_ext_error_extra_text, tvb, cur_offset, optlen - 2, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(rropt_tree, hf_dns_opt_ext_error_extra_text, tvb, cur_offset, optlen - 2, ENC_UTF_8);
                 cur_offset += (optlen - 2);
                 rropt_len  -= (optlen - 2);
               }

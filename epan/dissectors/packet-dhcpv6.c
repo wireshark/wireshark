@@ -2859,7 +2859,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_tree_add_item(subtree, hf_option_failover_reconfigure_key, tvb, off+4, optlen-4, ENC_NA);
         break;
     case OPTION_F_RELATIONSHIP_NAME:
-        proto_tree_add_item(subtree, hf_option_failover_relationship_name, tvb, off, optlen, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item(subtree, hf_option_failover_relationship_name, tvb, off, optlen, ENC_UTF_8);
         break;
     case OPTION_F_SERVER_FLAGS:
         if (optlen != 1) {

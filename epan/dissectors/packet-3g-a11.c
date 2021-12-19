@@ -1378,7 +1378,7 @@ dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
              * UTF-8.
              */
             proto_tree_add_item(ext_tree, hf_a11_next_nai, tvb, offset,
-                                ext_len, ENC_UTF_8|ENC_NA);
+                                ext_len, ENC_UTF_8);
             break;
 
         case GEN_AUTH_EXT:      /* RFC 3012 */

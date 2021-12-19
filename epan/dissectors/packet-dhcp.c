@@ -3181,7 +3181,7 @@ dissect_dhcpopt_bulk_lease_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 	proto_tree_add_item(tree, hf_dhcp_option_bulk_lease_status_code, tvb, 0, 1, ENC_BIG_ENDIAN);
 	if ( tvb_reported_length_remaining(tvb, 1) > 0) {
-		proto_tree_add_item(tree, hf_dhcp_option_bulk_lease_status_message, tvb, 1, tvb_reported_length_remaining(tvb, 1), ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(tree, hf_dhcp_option_bulk_lease_status_message, tvb, 1, tvb_reported_length_remaining(tvb, 1), ENC_UTF_8);
 		}
 
 	return tvb_captured_length(tvb);
@@ -4675,7 +4675,7 @@ dissect_vendor_bsdp_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *
 					dissect_vendor_bsdp_boot_image(o43bsdp_vb_tree, tvb, attributes_off);
 					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_index, tvb, attributes_off+2, 2, ENC_BIG_ENDIAN|ENC_NA);
 					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_name_len, tvb, attributes_off+4, 1, ENC_BIG_ENDIAN|ENC_NA);
-					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_name, tvb, attributes_off+5, string_len, ENC_UTF_8|ENC_NA);
+					proto_tree_add_item(o43bsdp_vb_tree, hf_dhcp_option43_bsdp_boot_image_name, tvb, attributes_off+5, string_len, ENC_UTF_8);
 				}
 				attributes_off += 5 + string_len;
 				attributes_len -= 5 + string_len;

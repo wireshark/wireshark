@@ -199,7 +199,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 case WS_NFULA_PREFIX:
                     if (value_len >= 1) {
                         proto_tree_add_item(tlv_tree, hf_nflog_tlv_prefix,
-                                    tvb, offset + 4, value_len, ENC_NA);
+                                    tvb, offset + 4, value_len, ENC_ASCII);
                         handled = TRUE;
                     }
                     break;

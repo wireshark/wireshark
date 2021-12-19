@@ -1561,7 +1561,7 @@ dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offse
 {
     proto_item *pi;
 
-    pi = proto_tree_add_item(tree, hf_sip_from_addr, tvb, parameter_offset, parameter_len, ENC_UTF_8|ENC_NA);
+    pi = proto_tree_add_item(tree, hf_sip_from_addr, tvb, parameter_offset, parameter_len, ENC_UTF_8);
     proto_item_set_generated(pi);
 }
 
@@ -1906,7 +1906,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo
         proto_tree_add_item(sip_element_tree, *(uri->hf_sip_display), tvb, uri_offsets->display_name_start,
                             uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_UTF_8|ENC_NA);
         ti = proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets->display_name_start,
-                                 uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_UTF_8|ENC_NA);
+                                 uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_UTF_8);
         proto_item_set_hidden(ti);
     }
 
@@ -2094,7 +2094,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             current_offset = queried_offset;
         }
         proto_tree_add_item(tree, hf_sip_contact_param, tvb, contact_params_start_offset ,
-            current_offset - contact_params_start_offset, ENC_UTF_8|ENC_NA);
+            current_offset - contact_params_start_offset, ENC_UTF_8);
 
         /* need to check for an 'expires' parameter
          * TODO: this should be done in a common way for all headers,
@@ -2400,7 +2400,7 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
     length = semi_colon_offset-current_offset;
     proto_tree_add_item(tree, hf_sip_sec_mechanism, tvb,
                                 start_offset, length,
-                                ENC_UTF_8|ENC_NA);
+                                ENC_UTF_8);
 
     current_offset = current_offset + length + 1;
 
@@ -2436,17 +2436,17 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
         if (g_ascii_strcasecmp(param_name, "alg") == 0){
             proto_tree_add_item(tree, hf_sip_sec_mechanism_alg, tvb,
                                 equals_offset+1, semi_colon_offset-equals_offset-1,
-                                ENC_UTF_8|ENC_NA);
+                                ENC_UTF_8);
 
         }else if (g_ascii_strcasecmp(param_name, "ealg") == 0){
             proto_tree_add_item(tree, hf_sip_sec_mechanism_ealg, tvb,
                                 equals_offset+1, semi_colon_offset-equals_offset-1,
-                                ENC_UTF_8|ENC_NA);
+                                ENC_UTF_8);
 
         }else if (g_ascii_strcasecmp(param_name, "prot") == 0){
             proto_tree_add_item(tree, hf_sip_sec_mechanism_prot, tvb,
                                 equals_offset+1, semi_colon_offset-equals_offset-1,
-                                ENC_UTF_8|ENC_NA);
+                                ENC_UTF_8);
 
         }else if (g_ascii_strcasecmp(param_name, "spi-c") == 0){
             if (!value) {
@@ -2645,7 +2645,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
             current_offset = tvb_ws_mempbrk_pattern_guint8(tvb, current_offset, line_end_offset - current_offset, &pbrk_tab_sp_fslash, &c);
             if (current_offset != -1){
                 proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
-                                    current_offset - transport_start_offset, ENC_UTF_8|ENC_NA);
+                                    current_offset - transport_start_offset, ENC_UTF_8);
                 /* Check if we have more transport parameters */
                 if(c=='/'){
                     current_offset++;
@@ -2697,10 +2697,10 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
         /* Add address to tree */
         if (ipv6_address == TRUE) {
             proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset + 1,
-                                current_offset - address_start_offset - 2, ENC_UTF_8|ENC_NA);
+                                current_offset - address_start_offset - 2, ENC_UTF_8);
         } else {
             proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset,
-                                current_offset - address_start_offset, ENC_UTF_8|ENC_NA);
+                                current_offset - address_start_offset, ENC_UTF_8);
         }
 
         /* Transport port number may follow ([space] : [space])*/
@@ -2994,7 +2994,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
                         if(g_ascii_strcasecmp(name, "logme") == 0){
                              proto_tree_add_boolean(tree, hf_sip_session_id_logme, tvb, current_offset, logme_end_offset - current_offset, 1);
                         } else if(current_offset != line_end_offset){
-                             proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,line_end_offset - current_offset, ENC_UTF_8|ENC_NA);
+                             proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,line_end_offset - current_offset, ENC_UTF_8);
                         }
                     }
                     semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
@@ -3002,13 +3002,13 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
      	    } else {
                 /* Display generic parameter */
                 proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,
-                                    line_end_offset - current_offset, ENC_UTF_8|ENC_NA);
+                                    line_end_offset - current_offset, ENC_UTF_8);
             }
             g_byte_array_free(uuid, TRUE);
         } else {
             /* Display generic parameter */
             proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,
-                                line_end_offset - current_offset, ENC_UTF_8|ENC_NA);
+                                line_end_offset - current_offset, ENC_UTF_8);
         }
     }
 
@@ -3556,7 +3556,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     case REQUEST_LINE:
         if (sip_tree) {
             ti_a = proto_tree_add_item(sip_tree, hf_Request_Line, tvb,
-                        offset, linelen, ENC_UTF_8|ENC_NA);
+                        offset, linelen, ENC_UTF_8);
 
             reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
         }
@@ -3566,7 +3566,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     case STATUS_LINE:
         if (sip_tree) {
             ti_a = proto_tree_add_item(sip_tree, hf_sip_Status_Line, tvb,
-                        offset, linelen, ENC_UTF_8|ENC_NA);
+                        offset, linelen, ENC_UTF_8);
             reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
         }
         dfilter_sip_status_line(tvb, reqresp_tree, pinfo, linelen, offset);
@@ -3587,7 +3587,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     offset = next_offset;
 
     th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
-                                 remaining_length, ENC_UTF_8|ENC_NA);
+                                 remaining_length, ENC_UTF_8);
     proto_item_set_text(th, "Message Header");
     hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 
@@ -3745,9 +3745,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                     parameter_end_offset = line_end_offset;
                                 parameter_len = parameter_end_offset - parameter_offset;
                                 proto_tree_add_item(sip_element_tree, hf_sip_to_tag, tvb, parameter_offset,
-                                                    parameter_len, ENC_UTF_8|ENC_NA);
+                                                    parameter_len, ENC_UTF_8);
                                 item = proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
-                                                           parameter_len, ENC_UTF_8|ENC_NA);
+                                                           parameter_len, ENC_UTF_8);
                                 proto_item_set_hidden(item);
 
                                 /* Tag indicates in-dialog messages, in case we have a INVITE, SUBSCRIBE or REFER, mark it */
@@ -3807,9 +3807,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                     parameter_end_offset = line_end_offset;
                                 parameter_len = parameter_end_offset - parameter_offset;
                                 proto_tree_add_item(sip_element_tree, hf_sip_from_tag, tvb, parameter_offset,
-                                                    parameter_len, ENC_UTF_8|ENC_NA);
+                                                    parameter_len, ENC_UTF_8);
                                 item = proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
-                                                           parameter_len, ENC_UTF_8|ENC_NA);
+                                                           parameter_len, ENC_UTF_8);
                                 proto_item_set_hidden(item);
                             }
                         }/* hdr_tree */
@@ -3983,7 +3983,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                 gint turi_start_offset = hparam_offset + 12;
                                                 gint turi_end_offset   = tvb_find_guint8(tvb, turi_start_offset, -1,'\"');
                                                 if (turi_end_offset != -1)
-                                                    proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),ENC_UTF_8|ENC_NA);
+                                                    proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),ENC_UTF_8);
                                                 else
                                                     break; /* malformed */
                                             }
@@ -4080,7 +4080,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             if (cseq_tree)
                             {
                                 proto_tree_add_item(cseq_tree, hf_sip_cseq_method, tvb,
-                                                    value_offset + sub_value_offset, strlen_to_copy, ENC_UTF_8|ENC_NA);
+                                                    value_offset + sub_value_offset, strlen_to_copy, ENC_UTF_8);
                             }
                         }
                     }
@@ -4161,7 +4161,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         {
                             proto_tree_add_item(rack_tree, hf_sip_rack_cseq_method, tvb,
                                                 value_offset + sub_value_offset,
-                                                (int)value_len-sub_value_offset, ENC_UTF_8|ENC_NA);
+                                                (int)value_len-sub_value_offset, ENC_UTF_8);
                         }
 
                         break;
@@ -4364,7 +4364,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             /* Set sip.auth as a hidden field/filter */
                             ti_c = proto_tree_add_item(hdr_tree, hf_sip_auth, tvb,
                                                      offset, next_offset-offset,
-                                                     ENC_UTF_8|ENC_NA);
+                                                     ENC_UTF_8);
                             proto_item_set_hidden(ti_c);
 
                             /* Check if we have any parameters */

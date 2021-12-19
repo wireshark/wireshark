@@ -61,7 +61,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     ti = proto_tree_add_item(tree, proto_marker, tvb, 0, -1, ENC_NA);
     marker_tree = proto_item_add_subtree(ti, ett_marker);
 
-    proto_tree_add_item(marker_tree, hf_cisco_erspan_prop_header, tvb, 0, 20, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(marker_tree, hf_cisco_erspan_prop_header, tvb, 0, 20, ENC_NA);
     proto_tree_add_item(marker_tree, hf_cisco_erspan_info, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 

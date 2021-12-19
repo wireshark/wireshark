@@ -315,7 +315,7 @@ dissect_npm_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree, pr
   proto_tree_add_item(message_tree, hf_addflow_streamid, message_tvb,      16,  2, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_addflow_protocol, message_tvb,      18,  1, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_addflow_flags, message_tvb,         19,  1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(message_tree, hf_addflow_description, message_tvb,   20, 32, ENC_UTF_8|ENC_NA);
+  proto_tree_add_item(message_tree, hf_addflow_description, message_tvb,   20, 32, ENC_UTF_8);
 
   proto_tree_add_double_format_value(message_tree, hf_addflow_ordered, message_tvb, 52, 4,
                                      100.0 * tvb_get_ntohl(message_tvb, 52) / (double)0xffffffff, "%1.3f%%",

@@ -420,7 +420,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 1;
 		message_type = tvb_get_ntohl(tvb, offset);
 		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_message_type, tvb,
-			offset, 4, ENC_NA);
+			offset, 4, ENC_ASCII);
 		offset += 4;
 		proto_tree_add_item(mint_ctrl_tree, hf_mint_router_header_sender, tvb,
 			offset, 4, ENC_NA);
