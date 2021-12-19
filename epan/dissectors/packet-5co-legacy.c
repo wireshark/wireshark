@@ -221,7 +221,7 @@ static hf_register_info hf_base[] = {
     {&hf_fiveco_i2cack, {"I2C ack state", "5co-legacy.i2cack", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_fiveco_i2c2scan, {"I2C addresses to scan", "5co-legacy.i2c2scan", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_fiveco_i2cscaned, {"I2C addresses present", "5co-legacy.i2cscaned", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_fiveco_i2cerror, {"I2C error", "5co-legacy.i2cscaned", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_fiveco_i2cerror, {"I2C error", "5co-legacy.i2cerror", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_fiveco_regread, {"Read", "5co-legacy.regread", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_fiveco_regreadunknown, {"Read Register unknown", "5co-legacy.hf_fiveco_regreadunknown", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_fiveco_regreaduk, {"Data not decoded", "5co-legacy.regreaduk", FT_NONE, BASE_NONE, NULL, 0x0, "Data not decoded because there are unable to map to a known register", HFILL}},
