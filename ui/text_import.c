@@ -176,7 +176,7 @@ static guint32 hdr_sctp_tag  = 0;
 /* Dummy DATA chunk header */
 static gboolean hdr_data_chunk = FALSE;
 static guint8  hdr_data_chunk_type = 0;
-static guint8  hdr_data_chunk_bits = 3;
+static guint8  hdr_data_chunk_bits = 0;
 static guint32 hdr_data_chunk_tsn  = 0;
 static guint16 hdr_data_chunk_sid  = 0;
 static guint16 hdr_data_chunk_ssn  = 0;
@@ -197,7 +197,7 @@ static guint8 *packet_buf;
 static guint32 curr_offset = 0;
 static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 static guint32 packet_start = 0;
-static void start_new_packet (void);
+static void start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN    2048
@@ -385,7 +385,7 @@ write_byte (const char *str)
     packet_buf[curr_offset] = (guint8) num;
     curr_offset ++;
     if (curr_offset >= max_offset) /* packet full */
-        start_new_packet();
+        start_new_packet(TRUE);
 }
 
 /*----------------------------------------------------------------------
@@ -415,9 +415,14 @@ number_of_padding_bytes (guint32 length)
 
 /*----------------------------------------------------------------------
  * Write current packet out
+ *
+ * @param cont [IN] TRUE if a packet is being written because the max frame
+ * length was reached, and the original packet from the input file is
+ * continued in a later frame. Used to set fragmentation fields in dummy
+ * headers (currently only implemented for SCTP; IPv4 could be added later.)
  */
 static void
-write_current_packet (void)
+write_current_packet(gboolean cont)
 {
     int prefix_length = 0;
     int proto_length = 0;
@@ -558,6 +563,13 @@ write_current_packet (void)
 
         /* Compute DATA chunk header and append padding */
         if (hdr_data_chunk) {
+            hdr_data_chunk_bits = 0;
+            if (packet_start == 0) {
+                hdr_data_chunk_bits |= 0x02;
+            }
+            if (!cont) {
+                hdr_data_chunk_bits |= 0x01;
+            }
             HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
             HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
             HDR_DATA_CHUNK.length = g_htons(curr_offset + sizeof(HDR_DATA_CHUNK));
@@ -565,7 +577,10 @@ write_current_packet (void)
             HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
             HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
             HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
-
+            hdr_data_chunk_tsn++;
+            if (!cont) {
+                hdr_data_chunk_ssn++;
+            }
             padding_length = number_of_padding_bytes(curr_offset);
             for (i=0; i<padding_length; i++)
                 packet_buf[prefix_length+curr_offset+i] = 0;
@@ -901,7 +916,7 @@ void parse_data(guchar* start_field, guchar* end_field, enum data_encoding encod
             parse_plain_data(&start_field, end_field, &dest, dest_end, table, NULL);
             curr_offset = (int) (dest - packet_buf);
             if (curr_offset == max_offset) {
-                write_current_packet();
+                write_current_packet(TRUE);
                 dest = &packet_buf[curr_offset];
             } else
                 break;
@@ -1047,7 +1062,7 @@ void parse_seqno(const guchar* start_field, const guchar* end_field) {
 }
 
 void flush_packet(void) {
-    write_current_packet();
+    write_current_packet(FALSE);
 }
 
 /*----------------------------------------------------------------------
@@ -1106,15 +1121,21 @@ parse_preamble (void)
 
 /*----------------------------------------------------------------------
  * Start a new packet
+ *
+ * @param cont [IN] TRUE if a new packet is starting because the max frame
+ * length was reached on the current packet, and the original packet from the
+ * input file is continued in a later frame. Passed to write_current_packet,
+ * where it is used to set fragmentation fields in dummy headers (currently
+ * only implemented for SCTP; IPv4 could be added later.)
  */
 static void
-start_new_packet (void)
+start_new_packet(gboolean cont)
 {
     if (debug>=1)
-        fprintf(stderr, "Start new packet\n");
+        fprintf(stderr, "Start new packet (cont = %s).\n", cont ? "TRUE" : "FALSE");
 
     /* Write out the current packet, if required */
-    write_current_packet();
+    write_current_packet(cont);
 
     /* Ensure we parse the packet preamble as it may contain the time */
     /* THIS IMPLIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
@@ -1167,21 +1188,21 @@ parse_token (token_t token, char *str)
             break;
         case T_OFFSET:
             num = parse_num(str, TRUE);
-            if (num==0) {
+            if (num == 0) {
                 /* New packet starts here */
-                start_new_packet();
+                start_new_packet(FALSE);
                 state = READ_OFFSET;
             }
             break;
         case T_BYTE:
             if (offset_base == 0) {
-                start_new_packet();
+                start_new_packet(FALSE);
                 write_byte(str);
                 state = READ_BYTE;
             }
             break;
         case T_EOF:
-            write_current_packet();
+            write_current_packet(FALSE);
             break;
         default:
             break;
@@ -1199,9 +1220,9 @@ parse_token (token_t token, char *str)
             break;
         case T_OFFSET:
             num = parse_num(str, TRUE);
-            if (num==0) {
+            if (num == 0) {
                 /* New packet starts here */
-                start_new_packet();
+                start_new_packet(FALSE);
                 packet_start = 0;
                 state = READ_OFFSET;
             } else if ((num - packet_start) != curr_offset) {
@@ -1222,7 +1243,7 @@ parse_token (token_t token, char *str)
                     if (debug>=1)
                         fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
                                 curr_offset, num);
-                    write_current_packet();
+                    write_current_packet(FALSE);
                     state = INIT;
                 }
             } else
@@ -1235,7 +1256,7 @@ parse_token (token_t token, char *str)
             }
             break;
         case T_EOF:
-            write_current_packet();
+            write_current_packet(FALSE);
             break;
         default:
             break;
@@ -1259,7 +1280,7 @@ parse_token (token_t token, char *str)
             state = START_OF_LINE;
             break;
         case T_EOF:
-            write_current_packet();
+            write_current_packet(FALSE);
             break;
         default:
             break;
@@ -1282,7 +1303,7 @@ parse_token (token_t token, char *str)
             state = START_OF_LINE;
             break;
         case T_EOF:
-            write_current_packet();
+            write_current_packet(FALSE);
             break;
         default:
             break;
@@ -1296,7 +1317,7 @@ parse_token (token_t token, char *str)
             state = START_OF_LINE;
             break;
         case T_EOF:
-            write_current_packet();
+            write_current_packet(FALSE);
             break;
         default:
             break;
