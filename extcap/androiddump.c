@@ -989,7 +989,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     char                   check_port_buf[80];
     char                  *response;
     char                  *device_list;
-    gssize                 data_length;
+    ssize_t                data_length;
     size_t                 device_length;
     socket_handle_t        sock;
     const char            *adb_check_port_templace       = "shell:cat /proc/%s/net/tcp";
@@ -1107,8 +1107,8 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             closesocket(sock);
 
             if (!response || data_length < 1) {
-                ws_warning("Error while getting hcidump version by <%s> (%p len=%"G_GSSIZE_FORMAT")",
-                    adb_hcidump_version, (void*)response, data_length);
+                ws_warning("Error while getting hcidump version by <%s> (%p len=%"PRIdMAX")",
+                    adb_hcidump_version, (void*)response, (intmax_t)data_length);
                 ws_debug("Android hcidump version for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
@@ -1136,7 +1136,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             closesocket(sock);
             if (!response || data_length < 1) {
                 ws_warning("Error while getting Bluetooth application process id by <%s> "
-                    "(%p len=%"G_GSSIZE_FORMAT")", adb_ps_droid_bluetooth, (void*)response, data_length);
+                    "(%p len=%"PRIdMAX")", adb_ps_droid_bluetooth, (void*)response, (intmax_t)data_length);
                 ws_debug( "Android Bluetooth application PID for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
@@ -1207,7 +1207,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
             if (!response || data_length < 1) {
                 ws_warning("Error while getting Bluetooth application process id by <%s> "
-                    "(%p len=%"G_GSSIZE_FORMAT")", ps_cmd, (void*)response, data_length);
+                    "(%p len=%"PRIdMAX")", ps_cmd, (void*)response, (intmax_t)data_length);
                 ws_debug("Android Bluetooth application PID for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
@@ -1673,8 +1673,8 @@ static int capture_android_bluetooth_external_parser(char *interface,
     guint8                        *payload = packet + sizeof(own_pcap_bluetooth_h4_header);
     const char                    *adb_tcp_bluedroid_external_parser_template = "tcp:%05u";
     socklen_t                      slen;
-    gssize                         length;
-    gssize                         used_buffer_length = 0;
+    ssize_t                        length;
+    ssize_t                        used_buffer_length = 0;
     uint64_t                       ts;
     socket_handle_t                sock;
     struct sockaddr_in             server;
@@ -1804,7 +1804,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
 
         used_buffer_length += length;
 
-        ws_debug("Received: length=%"G_GSSIZE_FORMAT"", length);
+        ws_debug("Received: length=%"PRIdMAX, (intmax_t)length);
 
         while (((payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_HCI_CMD || payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_SCO) &&
                     used_buffer_length >= BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 2 + 1 &&
@@ -1860,7 +1860,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 return EXIT_CODE_GENERIC;
             }
 
-            ws_debug("\t Packet %u: used_buffer_length=%"G_GSSIZE_FORMAT" length=%"G_GSSIZE_FORMAT" captured_length=%i type=0x%02x", id, used_buffer_length, length, captured_length, payload[BLUEDROID_H4_PACKET_TYPE]);
+            ws_debug("\t Packet %u: used_buffer_length=%"PRIdMAX" length=%"PRIdMAX" captured_length=%i type=0x%02x", id, (intmax_t)used_buffer_length, (intmax_t)length, captured_length, payload[BLUEDROID_H4_PACKET_TYPE]);
             if (payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_HCI_EVT)
                 ws_debug("\t Packet: %02x %02x %02x", (unsigned int) payload[0], (unsigned int) payload[1], (unsigned int)payload[2]);
             id +=1;
