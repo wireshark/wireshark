@@ -2518,7 +2518,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       /*if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & packet_ntlmssp_info->flags)) {*/
       if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY) {
         if ((NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
-          /* The spec says that if we have have a key exchange then we have a the signature that is crypted
+          /* The spec says that if we have a key exchange then we have the signature that is crypted
            * otherwise it's just a hmac_md5(keysign, concat(message, sequence))[0..7]
            */
           if (gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->verifier, 8, NULL, 0)) {

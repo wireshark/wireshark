@@ -282,7 +282,7 @@ interface or pipe specified before it with *-i*.
 --ifname> <name>::
 +
 --
-Use __name__ as the name in the capture file for the the interface or
+Use __name__ as the name in the capture file for the interface or
 pipe specified before it with *-i*.
 --
 

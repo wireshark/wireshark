@@ -999,7 +999,7 @@ nextcontext:
 
         /* Find Commands */
 
-        /* If Transaction is is Request, Reply or Pending */
+        /* If Transaction is Request, Reply or Pending */
         tvb_command_start_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset +1);
         tvb_command_end_offset = tvb_command_start_offset;
 

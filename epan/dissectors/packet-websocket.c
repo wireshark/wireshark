@@ -759,7 +759,7 @@ test_websocket(packet_info* pinfo _U_, tvbuff_t* tvb, int offset _U_, void* data
 
   guint8 op_code = first_byte & 0x0F;
 
-  // op_code must be one one of WS_CONTINUE, WS_TEXT, WS_BINARY, WS_CLOSE, WS_PING or WS_PONG
+  // op_code must be one of WS_CONTINUE, WS_TEXT, WS_BINARY, WS_CLOSE, WS_PING or WS_PONG
   if (!(op_code == WS_CONTINUE || op_code == WS_TEXT || op_code == WS_BINARY || op_code == WS_CLOSE || op_code == WS_PING || op_code == WS_PONG))
   {
     return FALSE;

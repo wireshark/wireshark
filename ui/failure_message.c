@@ -90,7 +90,7 @@ output_file_description(const char *fname)
     char *fstring;
 
     if (strcmp(fname, "-") == 0) {
-        /* We're writing to to the standard output */
+        /* We're writing to the standard output */
         fstring = g_strdup("standard output");
     } else {
         /* We're writing to a file */

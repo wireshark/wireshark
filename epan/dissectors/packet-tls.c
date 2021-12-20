@@ -668,7 +668,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * throw an exception before we get the chance to do so). */
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
              val_to_str_const(session->version, ssl_version_short_names, "SSL"));
-    /* clear the the info column */
+    /* clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* TCP packets and TLS records are orthogonal.
@@ -1900,7 +1900,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     /*
      * if we don't already have a version set for this conversation,
      * but this message's version is authoritative (i.e., it's
-     * not client_hello, then save the version to to conversation
+     * not client_hello, then save the version to the conversation
      * structure and print the column version. If the message is not authorative
      * (i.e. it is a Client Hello), then this version will still be used for
      * display purposes only (it will not be stored in the conversation).

@@ -11134,7 +11134,7 @@ proto_registrar_dump_elastic(const gchar* filter)
  * Field 1 = 'F'
  * Field 2 = descriptive field name
  * Field 3 = field abbreviation
- * Field 4 = type ( textual representation of the the ftenum type )
+ * Field 4 = type ( textual representation of the ftenum type )
  * Field 5 = parent protocol abbreviation
  * Field 6 = base for display (for integer types); "parent bitfield width" for FT_BOOLEAN
  * Field 7 = bitmask: format: hex: 0x....

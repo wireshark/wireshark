@@ -28,7 +28,7 @@
 
 void register_tap_listener_camelsrt(void);
 
-/* Save the the first NUM_RAS_STATS stats in the array to calculate percentile */
+/* Save the first NUM_RAS_STATS stats in the array to calculate percentile */
 #define NUM_RAS_STATS 500000
 
 /* Number of couple message Request/Response to analyze*/

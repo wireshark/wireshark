@@ -15,7 +15,7 @@
 /*
  * Definition of a value for an enumerated type.
  *
- * "name" is the the name one would use on the command line for the value.
+ * "name" is the name one would use on the command line for the value.
  * "description" is the description of the value, used in combo boxes/
  * option menus.
  * "value" is the value.

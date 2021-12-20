@@ -536,7 +536,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
        */
 
       /*
-       * OK, is the frame data size greater than than what's left of the
+       * OK, is the frame data size greater than what's left of the
        * record?
        */
       if (packet_size > record_data_size) {

@@ -701,7 +701,7 @@ dissect_bssap_cell_global_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /*
-     * The rest of the information element is coded as the the value part
+     * The rest of the information element is coded as the value part
      * of the cell global id IE defined in 3GPP TS 48.018 (not including
      * 3GPP TS 48.018 IEI and 3GPP TS 48.018 length indicator).
      */
@@ -1356,7 +1356,7 @@ dissect_bssap_service_area_id(tvbuff_t *tvb, proto_tree *tree, int offset)
     offset++;
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /*  The rest of the information element is coded as the the value part
+    /*  The rest of the information element is coded as the value part
      *  of the SAI IE defined in 3GPP TS 25.413 (not including
      *  3GPP TS 25.413 IEI and 3GPP TS 25.413 length indicator).
      */

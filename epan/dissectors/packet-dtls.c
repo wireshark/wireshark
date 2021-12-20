@@ -442,7 +442,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    * figure out what flavor of DTLS it is */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
 
-  /* clear the the info column */
+  /* clear the info column */
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Create display subtree for SSL as a whole */
@@ -888,7 +888,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   /*
    * if we don't already have a version set for this conversation,
    * but this message's version is authoritative (i.e., it's
-   * not client_hello, then save the version to to conversation
+   * not client_hello, then save the version to the conversation
    * structure and print the column version
    */
   next_byte = tvb_get_guint8(tvb, offset);

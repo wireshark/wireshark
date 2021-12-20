@@ -276,7 +276,7 @@ proto_register_PROTOABBREV(void)
  * should accommodate being called more than once by use of the static
  * 'initialized' variable included below.
  *
- * This form of the reg_handoff function is used if if you perform registration
+ * This form of the reg_handoff function is used if you perform registration
  * functions which are dependent upon prefs. See below this function for a
  * simpler form which can be used if there are no prefs-dependent registration
  * functions.

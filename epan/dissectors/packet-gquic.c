@@ -2832,7 +2832,7 @@ proto_register_gquic(void)
               "Specifying the number of missing packet ranges between largest observed and least unacked", HFILL }
         },
         { &hf_gquic_frame_type_ack_missing_packet,
-            { "Missing Packet Packet Number Delta", "gquic.frame_type.ack.missing_packet",
+            { "Missing Packet Number Delta", "gquic.frame_type.ack.missing_packet",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
@@ -2847,7 +2847,7 @@ proto_register_gquic(void)
               "Specifying the number of revived packets, recovered via FEC", HFILL }
         },
         { &hf_gquic_frame_type_ack_revived_packet,
-            { "Revived Packet Packet Number", "gquic.frame_type.ack.revived_packet",
+            { "Revived Packet Number", "gquic.frame_type.ack.revived_packet",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Representing a packet the peer has revived via FEC", HFILL }
         },

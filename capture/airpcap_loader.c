@@ -1198,7 +1198,7 @@ get_compiled_airpcap_version(GString *str)
 }
 
 /*
- * Append the version of AirPcap with which we we're running to a GString.
+ * Append the version of AirPcap with which we're running to a GString.
  */
 void
 get_runtime_airpcap_version(GString *str)

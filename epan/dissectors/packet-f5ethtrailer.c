@@ -1176,7 +1176,7 @@ static const guint8 fileinfomagic1[] = {
  *
  *  The analysis in this dissector is meant to correlate data in the F5 Ethernet trailer with other
  *  data in the frame (e.g. IP, TCP) and highlight things that don't look right.  They might be
- *  perfectly valid, but in most cases, they are are not.
+ *  perfectly valid, but in most cases, they are not.
  *
  *  How it works:
  *
@@ -1624,7 +1624,7 @@ render_f5_legacy_hdr(tvbuff_t *tvb, proto_tree *tree, gint offset)
  * @param tvb               Pointer to the tvb to be processed
  * @param pinfo             Pointer to packet_info struct
  * @param tree              Pointer to protocol tree
- * @param offset            Offset int the the tvb where trailer begins
+ * @param offset            Offset into the tvb where trailer begins
  * @param trailer_length    Length of the trailer data to process
  * @param trailer_ver       Version of the trailer detected
  * @param tdata             Pointer to tap data structure
@@ -1737,7 +1737,7 @@ dissect_high_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
  * @param tvb               Pointer to the tvb to be processed
  * @param pinfo             Pointer to packet_info struct
  * @param tree              Pointer to protocol tree
- * @param offset            Offset int the the tvb where trailer begins
+ * @param offset            Offset into the tvb where trailer begins
  * @param trailer_length    Length of the trailer data to process
  * @param trailer_ver       Version of the trailer detected
  * @param tdata             Pointer to tap data structure
@@ -1944,7 +1944,7 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
  * @param tvb               Pointer to the tvb to be processed
  * @param pinfo             Pointer to packet_info struct
  * @param tree              Pointer to protocol tree
- * @param offset            Offset int the the tvb where trailer begins
+ * @param offset            Offset into the tvb where trailer begins
  * @param trailer_length    Length of the trailer data to process
  * @param trailer_ver       Version of the trailer detected
  * @param tdata             Pointer to tap data structure

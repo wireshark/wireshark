@@ -101,7 +101,7 @@
 
 /* iSeries IPv6 formatted traces are similar to the IPv4 version above,
  * except that the higher-level headers have "IPv6 Header:" and
- * "ICMPv6  Hdr:", and data data is no longer output in groups of 16 hex
+ * "ICMPv6  Hdr:", and data is no longer output in groups of 16 hex
  * digits.
  *
 

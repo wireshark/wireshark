@@ -582,7 +582,7 @@ proto_register_gfp(void)
  * should accommodate being called more than once by use of the static
  * 'initialized' variable included below.
  *
- * This form of the reg_handoff function is used if if you perform registration
+ * This form of the reg_handoff function is used if you perform registration
  * functions which are dependent upon prefs.
  */
 void

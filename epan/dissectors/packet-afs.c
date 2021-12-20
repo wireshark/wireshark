@@ -1452,7 +1452,7 @@ afs_hash (gconstpointer v)
  *
  * "positive" and "negative" are integers which contain the number of
  * positive and negative ACL's in the string.  The uid/aclbits pair are
- * ASCII strings containing the UID/PTS record and and a ascii number
+ * ASCII strings containing the UID/PTS record and a ascii number
  * representing a logical OR of all the ACL permission bits
  */
 /*

@@ -11692,7 +11692,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific parameter block".  (That means
 		 * we may not be able to dissect it in any case.)
 		 */
@@ -11703,7 +11703,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific parameter block".  (That
 		 * means we may not be able to dissect it in any case.)
 		 */
@@ -14028,7 +14028,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific data block".  (That means we
 		 * may not be able to dissect it in any case.)
 		 */
@@ -14039,7 +14039,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific data block".  (That
 		 * means we may not be able to dissect it in any case.)
 		 */
@@ -14050,7 +14050,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "additional
+		 * July 19, 1990" says this contains "additional
 		 * level dependent match data".
 		 */
 		break;
@@ -14060,7 +14060,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "additional
+		 * July 19, 1990" says this contains "additional
 		 * level dependent monitor information".
 		 */
 		break;
@@ -16468,7 +16468,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific return data block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)
@@ -16480,7 +16480,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific return data block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)
@@ -16492,7 +16492,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "the level
+		 * July 19, 1990" says this contains "the level
 		 * dependent information about the changes which
 		 * occurred".
 		 */
@@ -16503,7 +16503,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "the level
+		 * July 19, 1990" says this contains "the level
 		 * dependent information about the changes which
 		 * occurred".
 		 */
@@ -16715,7 +16715,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific return parameter block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)
@@ -16727,7 +16727,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific return parameter block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)

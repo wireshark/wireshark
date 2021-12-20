@@ -18081,7 +18081,7 @@ proto_register_netflow(void)
 
         /* ixia, 3054 / 176 */
         {&hf_pie_ixia_reverse_octet_delta_count,
-         {"Reverse octet octet count", "cflow.pie.ixia.reverse-octet-delta-count",
+         {"Reverse octet delta count", "cflow.pie.ixia.reverse-octet-delta-count",
           FT_UINT64, BASE_DEC, NULL, 0x0,
           "In bi-directional flows, byte count for the server back to client", HFILL}
         },

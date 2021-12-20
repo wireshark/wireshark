@@ -1499,7 +1499,7 @@ static const value_string szl_bart_sch_names[] = {
 };
 static gint hf_s7comm_szl_0132_0004_crst_wrst = -1;
 static const value_string szl_crst_wrst_names[] = {
-    { 0,                                    "undefined, does not exist or cannot be be ascertained" },
+    { 0,                                    "undefined, does not exist or cannot be ascertained" },
     { 1,                                    "CRST" },
     { 2,                                    "WRST" },
     { 0,                                    NULL }
@@ -3598,7 +3598,7 @@ s7comm_decode_szl_id_0131_idx_0006(tvbuff_t *tvb,
  * Index:   0x0007
  * Content:
  *  The partial list extract with SZL-ID W#16#0131 and the index W#16#0007
- *  contains information about the functions available available for global data
+ *  contains information about the functions available for global data
  *  communication on the module.
  *
  *******************************************************************************************************/

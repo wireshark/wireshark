@@ -3371,7 +3371,7 @@ proto_register_eigrp(void)
  * @par
  * If this dissector uses sub-dissector registration add a registration routine.
  *
- * This form of the reg_handoff function is used if if you perform registration
+ * This form of the reg_handoff function is used if you perform registration
  * functions which are dependent upon prefs.  If this function is registered as
  * a prefs callback (see prefs_register_protocol above) this function is also
  * called by preferences whenever "Apply" is pressed;

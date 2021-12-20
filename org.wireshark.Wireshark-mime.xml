@@ -6,7 +6,7 @@
     to show for the file in a file browser).
 
     Both magic and file name glob patterns are supported; glob patterns are
-    preferred since they don't require require opening and reading part of
+    preferred since they don't require opening and reading part of
     the file to determine its type.
 
     The specification for this file can be found here:

@@ -2292,7 +2292,7 @@ void wtap_cleanup(void);
     /** The file couldn't be closed, reason unknown */
 
 #define WTAP_ERR_SHORT_READ                   -12
-    /** An attempt to read read less data than it should have */
+    /** An attempt to read less data than it should have */
 
 #define WTAP_ERR_BAD_FILE                     -13
     /** The file appears to be damaged or corrupted or otherwise bogus */

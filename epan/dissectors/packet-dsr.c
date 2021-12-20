@@ -295,7 +295,7 @@ dissect_dsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                 proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_dest, tvb, offset_in_option, 4, ENC_NA);/* Opt err unknown flow original ip destination address */
                                                 offset_in_option += 4;
 
-                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_id, tvb, offset_in_option, 2, ENC_BIG_ENDIAN);/* Opt err unknown flow flow id */
+                                                proto_tree_add_item(opt_tree, hf_dsr_opt_err_unknownflow_id, tvb, offset_in_option, 2, ENC_BIG_ENDIAN);/* Opt err unknown flow id */
                                                 /*offset_in_option += 1;*/
                                                 break;
                                         case DSR_RERR_TYPE_DEFAULTFLOWUNKNOWN:

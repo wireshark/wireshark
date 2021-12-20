@@ -1103,7 +1103,7 @@ If the values in the array are not contiguous (ie: there are "gaps"), but are
 in ascending order a binary search will be used.
 
 Note: "gaps" in a value_string array can be filled with "empty" entries eg:
-{value, "Unknown"} so that direct access to the array is is possible.
+{value, "Unknown"} so that direct access to the array is possible.
 
 Note: the value_string array values are *unsigned*; IOW: -1 is greater than 0.
       So:

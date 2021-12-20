@@ -119,7 +119,7 @@ color_filters_colorize_packet(struct epan_dissect *edt);
 
 /** Clone the currently active filter list.
  *
- * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @param user_data will be returned by each call to color_filter_add_cb()
  * @param add_cb the callback function to add color filter
  */
 WS_DLL_PUBLIC void color_filters_clone(gpointer user_data, color_filter_add_cb_func add_cb);
@@ -127,7 +127,7 @@ WS_DLL_PUBLIC void color_filters_clone(gpointer user_data, color_filter_add_cb_f
 /** Load filters (import) from some other filter file.
  *
  * @param path the path to the import file
- * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @param user_data will be returned by each call to color_filter_add_cb()
  * @param err_msg a string with error message
  * @param add_cb the callback function to add color filter
  * @return TRUE, if read succeeded
@@ -136,7 +136,7 @@ WS_DLL_PUBLIC gboolean color_filters_import(const gchar *path, gpointer user_dat
 
 /** Read filters from the global filter file (not the users file).
  *
- * @param user_data will be returned by each call to to color_filter_add_cb()
+ * @param user_data will be returned by each call to color_filter_add_cb()
  * @param err_msg a string with error message
  * @param add_cb the callback function to add color filter
  * @return TRUE, if read succeeded

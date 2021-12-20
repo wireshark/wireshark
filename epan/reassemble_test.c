@@ -1687,7 +1687,7 @@ test_fragment_add_partial_reassembly(void)
     ASSERT_EQ(1,fd_head->frame);  /* max frame in reassembly */
     ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
-    ASSERT_EQ(50,fd_head->datalen); /* the length of data we we have */
+    ASSERT_EQ(50,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(1,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
     ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
@@ -2567,7 +2567,7 @@ test_fragment_add_check_partial_reassembly(void)
     ASSERT_EQ(1,fd_head->frame);  /* max frame in reassembly */
     ASSERT_EQ(0,fd_head->offset); /* unused */
     ASSERT_EQ(0,fd_head->len); /* unused */
-    ASSERT_EQ(50,fd_head->datalen); /* the length of data we we have */
+    ASSERT_EQ(50,fd_head->datalen); /* the length of data we have */
     ASSERT_EQ(1,fd_head->reassembled_in);
     ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
     ASSERT_NE_POINTER(NULL,fd_head->tvb_data);

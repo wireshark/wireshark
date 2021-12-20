@@ -1,7 +1,7 @@
 /* sequence-analysis.c
  * Flow sequence analysis
  *
- * Some code from from gtk/flow_graph.c
+ * Some code from gtk/flow_graph.c
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

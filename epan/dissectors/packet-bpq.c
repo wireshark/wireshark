@@ -17,7 +17,7 @@
  * Information was drawn from:
  *   ?
  *
- * It uses Ether ID 0x08ff which is not not officially registered.
+ * It uses Ether ID 0x08ff which is not officially registered.
  *
  */
 

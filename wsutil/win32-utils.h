@@ -60,7 +60,7 @@ const char * win32strexception(DWORD exception);
 
 /**
  * @brief ws_pipe_create_process Create a process and assign it to the main application
- *        job object so that it will be killed the the main application exits.
+ *        job object so that it will be killed when the main application exits.
  * @param application_name Application name. Will be converted to its UTF-16 equivalent or NULL.
  * @param command_line Command line. Will be converted to its UTF-16 equivalent.
  * @param process_attributes Same as CreateProcess.

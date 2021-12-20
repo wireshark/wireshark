@@ -359,7 +359,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 		offset += n;
 
 		/* If there was more hex-data than was announced in the len=x
-		 * header, then then there must be an error in the file
+		 * header, then there must be an error in the file
 		 */
 		if (offset > pkt_len) {
 			*err = WTAP_ERR_BAD_FILE;

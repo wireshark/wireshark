@@ -99,7 +99,7 @@ static ranap_private_data_t* ranap_get_private_data(asn1_ctx_t *actx)
   return private_data;
 }
 
-/* Helper function to reset the the private data struct */
+/* Helper function to reset the private data struct */
 static void ranap_reset_private_data(packet_info *pinfo)
 {
   p_remove_proto_data(pinfo->pool, pinfo, proto_ranap, 0);

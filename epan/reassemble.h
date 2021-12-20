@@ -218,7 +218,7 @@ fragment_add_multiple_ok(reassembly_table *table, tvbuff_t *tvb,
  * If the packet was seen before, return the head of the fully reassembled
  * fragments list (NULL if there was none).
  *
- * Otherwise (if reassembly was not possible before), try to to add the new
+ * Otherwise (if reassembly was not possible before), try to add the new
  * fragment to the fragments table. If reassembly is now possible, remove all
  * (reassembled) fragments from the fragments table and store it as a completed
  * reassembly. The head of this reassembled fragments list is returned.

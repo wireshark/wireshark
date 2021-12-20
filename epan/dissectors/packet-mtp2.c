@@ -984,7 +984,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   /* if there is no per packet data -> create it */
   if (mtp2_ppd == NULL) {
     mtp2_ppd = wmem_new(wmem_file_scope(), mtp2_ppd_t);
-    /* set the the proto_data_fields
+    /* set the proto_data_fields
      * because these are the values which we would like to see
      * if this packet is seen again */
     if (dir_state == FORWARD) {

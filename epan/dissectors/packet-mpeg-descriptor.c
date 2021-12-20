@@ -237,7 +237,7 @@ static int hf_mpeg_descr_audio_stream_reserved = -1;
 
 static const value_string mpeg_descr_audio_stream_free_format_flag_vals[] = {
     { 0x00, "bitrate_index is not 0" },
-    { 0x01, "One more more audio frame has bitrate_index = 0" },
+    { 0x01, "One or more audio frame has bitrate_index = 0" },
 
     { 0x00, NULL }
 };

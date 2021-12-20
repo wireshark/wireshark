@@ -224,7 +224,7 @@ def main():
         if hasattr(f, 'buffer'):
             # Access raw (byte) buffer in Python 3 instead of decoded one
             f = f.buffer
-        # Read stdin as as Unicode string
+        # Read stdin as a Unicode string
         htmlparser.feed(f.read().decode('utf-8'))
     finally:
         if filename is not None:

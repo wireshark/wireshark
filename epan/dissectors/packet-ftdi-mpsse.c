@@ -110,7 +110,7 @@ static dissector_handle_t ftdi_mpsse_handle;
  * not have is_response_set flag set, is added to rx_command_info with the current packet number in the key.
  *
  * After first pass, RX packets always obtain relevant command_data_t entry without traversing the list.
- * If there wasn't a separate tree TX packets (tx_command_info), TX packet dissection would have to to
+ * If there wasn't a separate tree TX packets (tx_command_info), TX packet dissection would have to
  * traverse the list from the pointer obtained from rx_command_info. In normal conditions the number of
  * entries to skip in such case is low. However, when the capture file has either:
  *   * A lot of TX packets with commands expecting response but no RX packets, or

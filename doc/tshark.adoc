@@ -87,7 +87,7 @@ Read filters use the same syntax as display and color filters in
 *Wireshark*; a read filter is specified with the *-R* option.
 
 Read filters can be specified when capturing or when reading from a
-capture file.  Note that that capture filters are much more efficient
+capture file.  Note that capture filters are much more efficient
 than read filters, and it may be more difficult for *TShark* to keep up
 with a busy network if a read filter is specified for a live capture, so
 you might be more likely to lose packets if you're using a read filter.

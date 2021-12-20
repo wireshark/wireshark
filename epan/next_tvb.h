@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 /* The buffers returned by these functions are all allocated with a
- * packet lifetime or are static buffers and does not have have to be freed.
+ * packet lifetime or are static buffers and does not have to be freed.
  * However, take into account that when the packet dissection
  * completes, these buffers will be automatically reclaimed/freed.
  * If you need the buffer to remain for a longer scope than packet lifetime

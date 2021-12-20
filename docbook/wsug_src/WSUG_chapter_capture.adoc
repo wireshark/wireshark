@@ -114,7 +114,7 @@ If you are unsure which options to choose in this dialog box, leaving the defaul
 .The “Capture Options” input tab
 image::wsug_graphics/ws-capture-options.png[{screenshot-attrs}]
 
-The “Input” tab contains the the “Interface” table, which shows the following columns:
+The “Input” tab contains the “Interface” table, which shows the following columns:
 
 Interface::
 The interface name.

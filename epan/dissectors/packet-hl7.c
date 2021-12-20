@@ -124,7 +124,7 @@ static const string_string hl7_msg_type_vals[] = {
     { "ORM", "Pharmacy/treatment order" },
     { "ORN", "Non-stock requisition - General order acknowledgment" },
     { "ORP", "Pharmacy/treatment order acknowledgment" },
-    { "ORR", "General order response response to any ORM" },
+    { "ORR", "General order response message response to any ORM" },
     { "ORS", "Stock requisition - Order acknowledgment" },
     { "ORU", "Unsolicited transmission of an observation" },
     { "OSQ", "Query response for order status" },

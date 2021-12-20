@@ -962,7 +962,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
     }
 
     /* if setup_frame_number in the t38 packet is 0, it means it was not set using an SDP or H245 sesion, which means we don't
-     * have the associated Voip calls. It probably means the the packet was decoded using the default t38 port, or using "Decode as.."
+     * have the associated Voip calls. It probably means that the packet was decoded using the default t38 port, or using "Decode as.."
      * in this case we create a "voip" call that only have t38 media (no signaling)
      * OR if we have not found the Setup message in the graph.
      */

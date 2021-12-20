@@ -35,7 +35,7 @@ static int proto_kt = -1;
  * for which it has been written, the way it has been written makes
  * dissection a bit tricky. Requests and responses have the same
  * "magic" identifier, but there is no clear cut way to distinguish
- * between them. This means that a few dirty tricks have have to be
+ * between them. This means that a few dirty tricks have to be
  * employed for dissecting... and the dissector is based on sample
  * captures from two different clients working with the same version
  * of the server.

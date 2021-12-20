@@ -715,7 +715,7 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
 } /* zdp_parse_server_flags */
 
 /**
- *Parses and displays a node descriptor to the the specified
+ *Parses and displays a node descriptor to the specified
  *
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param ettindex subtree index to create the node descriptor in, or -1
@@ -820,7 +820,7 @@ static const value_string zbee_zdp_power_level_vals[] = {
    { 0,                    NULL }
 };
 /**
- *Parses and displays a node descriptor to the the specified
+ *Parses and displays a node descriptor to the specified
  *
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param ettindex subtree index to create the node descriptor in, or -1
@@ -847,7 +847,7 @@ zdp_parse_power_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *offs
 } /* zdp_parse_power_desc */
 
 /**
- *Parses and displays a simple descriptor to the the specified
+ *Parses and displays a simple descriptor to the specified
  *
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param ettindex subtree index to create the node descriptor in, or -1
@@ -919,7 +919,7 @@ zdp_parse_simple_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *off
 } /* zdp_parse_simple_desc */
 
 /**
- *Parses and displays a simple descriptor to the the specified
+ *Parses and displays a simple descriptor to the specified
  *
  *@param tree pointer to data tree Wireshark uses to display packet.
  *@param ettindex subtree index to create the node descriptor in, or -1

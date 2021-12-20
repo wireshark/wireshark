@@ -6216,7 +6216,7 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
  * UMTS:        3GPP TS 29.060 version 10.4.0 Release 10, chapter 7.7.37
  * Type = 138 (Decimal)
  *              25.413(RANAP) TargetID
- * There are several CRs to to this IE make sure to check with a recent spec if dissection is questioned.
+ * There are several CRs to this IE make sure to check with a recent spec if dissection is questioned.
  */
 static int
 decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)

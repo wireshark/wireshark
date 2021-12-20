@@ -2266,7 +2266,7 @@ proto_register_elf(void)
         { &hf_elf_eh_frame_fde_cie_pointer,
             { "CIE Pointer",                               "elf.eh_frame.fde.cie_pointer",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x00,
-            "A 4 byte unsigned value that when subtracted from the offset of the the CIE Pointer in the current FDE yields the offset of the start of the associated CIE. This value shall never be 0.", HFILL }
+            "A 4 byte unsigned value that when subtracted from the offset of the CIE Pointer in the current FDE yields the offset of the start of the associated CIE. This value shall never be 0.", HFILL }
         },
         { &hf_elf_eh_frame_fde_pc_begin,
             { "PC Begin",                                  "elf.eh_frame.fde.pc_begin",

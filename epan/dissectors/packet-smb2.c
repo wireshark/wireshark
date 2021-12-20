@@ -9018,7 +9018,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	/*
 	 * These things are all either 4-char strings, like DH2C, or GUIDs,
 	 * however, at least one of them appears to be a GUID as a string and
-	 * one appears to be a binary guid. So, check if the the length is
+	 * one appears to be a binary guid. So, check if the length is
 	 * 16, and if so, pull the GUID and convert it to a string. Otherwise
 	 * call dissect_smb2_olb_string.
 	 */

@@ -178,7 +178,7 @@ struct _tvbparse_elem_t {
  * a char element.
  *
  * When looked for it returns a simple element one character long if the char
- * at the current offset matches one of the the needles.
+ * at the current offset matches one of the needles.
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_char(const int id,
@@ -191,7 +191,7 @@ tvbparse_wanted_t* tvbparse_char(const int id,
  * a not_char element.
  *
  * When looked for it returns a simple element one character long if the char
- * at the current offset does not match one of the the needles.
+ * at the current offset does not match one of the needles.
  */
 WS_DLL_PUBLIC
 tvbparse_wanted_t* tvbparse_not_char(const int id,

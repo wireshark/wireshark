@@ -609,7 +609,7 @@ parse_hex_dump(char* dump, guint8 *buf, char separator, char end) {
             g_ascii_isxdigit(dump[pos + 1]))) {
             return 0;
         }
-        /* Get the hex value value */
+        /* Get the hex value */
         if(g_ascii_isdigit(dump[pos])) {
             buf[count] = (dump[pos] - '0') << 4;
         } else {

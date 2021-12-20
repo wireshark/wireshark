@@ -1475,7 +1475,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                         transfer->more_frags = FALSE;
                         /* Expect requested_length when reading from control endpoint.
                          * The data should start with DATA1. If we receive DATA0 then
-                         * is is really device failure.
+                         * this is really device failure.
                          */
                         ep_in->requested_transfer_length = requested_length;
                         ep_in->last_data_pid = pid;

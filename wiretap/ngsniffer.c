@@ -1328,7 +1328,7 @@ process_frame_record(wtap *wth, gboolean is_random, guint *padding,
 	}
 
 	/*
-	 * Is the frame data size greater than than what's left of the
+	 * Is the frame data size greater than what's left of the
 	 * record?
 	 */
 	if (size > rec_length_remaining) {

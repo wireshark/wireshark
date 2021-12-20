@@ -210,7 +210,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t len, char punct)
 }
 
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
- * digits at at a time, with a specified punctuation character between
+ * digits at a time, with a specified punctuation character between
  * the bytes.
  *
  * If punct is '\0', no punctuation is applied (and thus

@@ -3120,7 +3120,7 @@ void get_CDR_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 /* Copy a 4 octet sequence from the tvbuff
  * which represents a signed long value, and convert
- * it to an signed long vaule, taking into account byte order.
+ * it to an signed long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
  * boundary for long values.
  * offset is then incremented by 4, to indicate the 4 octets which
@@ -3144,7 +3144,7 @@ gint32 get_CDR_long(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, i
 
 /* Copy a 8 octet sequence from the tvbuff
  * which represents a signed long long value, and convert
- * it to an signed long long vaule, taking into account byte order.
+ * it to an signed long long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
  * boundary for long long values.
  * offset is then incremented by 8, to indicate the 8 octets which
@@ -3489,7 +3489,7 @@ guint32 get_CDR_ulong(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian,
 
 /* Copy a 8 octet sequence from the tvbuff
  * which represents an unsigned long long value, and convert
- * it to an unsigned long long vaule, taking into account byte order.
+ * it to an unsigned long long value, taking into account byte order.
  * offset is first incremented so that it falls on a proper alignment
  * boundary for unsigned long long values.
  * offset is then incremented by 4, to indicate the 4 octets which
@@ -5806,7 +5806,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   }
 
   /*
-   * Now see if if it's v1.1 or 1.2, as they can contain
+   * Now see if it's v1.1 or 1.2, as they can contain
    * extra sequence of IOP::TaggedComponents
    *
    */

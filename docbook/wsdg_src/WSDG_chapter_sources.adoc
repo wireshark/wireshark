@@ -320,7 +320,7 @@ There are several reasons why you might want to change Wireshark’s sources:
 * Implement a glorious new feature
 
 Wireshark’s developers work on a variety of different platforms and use a variety of different development environments.
-Although we we don't enforce or recommend a particular environment, your editor should support https://editorconfig.org/[EditorConfig] in order to make sure you pick up the correct indentation style for any files that you might edit.
+Although we don't enforce or recommend a particular environment, your editor should support https://editorconfig.org/[EditorConfig] in order to make sure you pick up the correct indentation style for any files that you might edit.
 
 The internal structure of the Wireshark sources are described in <<PartDevelopment>>.
 

@@ -69,7 +69,7 @@ extern "C" {
 #define OPT_IDB_SPEED          8     /**< Interface speed (in bps). 100000000 for 100Mbps
                                        */
 #define OPT_IDB_TSRESOL        9     /**< Resolution of timestamps. If the Most Significant Bit is equal to zero,
-                                       *     the remaining bits indicates the resolution of the timestamp as as a
+                                       *     the remaining bits indicates the resolution of the timestamp as a
                                        *     negative power of 10 (e.g. 6 means microsecond resolution, timestamps
                                        *     are the number of microseconds since 1/1/1970). If the Most Significant Bit
                                        *     is equal to one, the remaining bits indicates the resolution has a
@@ -148,7 +148,7 @@ typedef struct wtap_block *wtap_block_t;
  *
  * Note that, in a given file format, this information won't necessarily
  * appear in the form of blocks in the file, even though they're presented
- * to the caller of libwiretap as blocks when reading and and are presented
+ * to the caller of libwiretap as blocks when reading and are presented
  * by the caller of libwiretap as blocks when writing.  See, for example,
  * the iptrace file format, in which the interface name is given as part
  * of the packet record header; we synthesize those blocks when reading

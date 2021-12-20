@@ -43,7 +43,7 @@ https://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html[
 For example, the INS specifies “list-add” and “list-remove”. and we've added “list-copy”, “list-move-up“, “list-move-down”, and “list-clear”.
 
 The Wireshark application icon, document icon, and several toolbar icons were created by Elliott Aldrich.
-The list-add and list-remove images were created by by Peter Hosey and released under CC-PD.
+The list-add and list-remove images were created by Peter Hosey and released under CC-PD.
 The list-clear images were created by Freepik, http://www.freepik.com from https://www.flaticon.com.
 
 The following projects provide icons which are a) nicely drawn and b) released under a compatible license and c) actively developed (as of October 2020) which might want to use in the future:

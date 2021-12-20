@@ -213,7 +213,7 @@ str_to_val_idx(const gchar *val, const value_string *vs)
  * using (if possible) direct access or a binary search of the array.
  *
  * If the values in the value_string array are a contiguous range of values
- * from min to max, the value will be used as as a direct index into the array.
+ * from min to max, the value will be used as a direct index into the array.
  *
  * If the values in the array are not contiguous (ie: there are "gaps"),
  * but are in assending order a binary search will be used.
@@ -498,7 +498,7 @@ _try_val_to_str_ext_init(const guint32 val, value_string_ext *vse)
  * using (if possible) direct access or a binary search of the array.
  *
  * If the values in the val64_string array are a contiguous range of values
- * from min to max, the value will be used as as a direct index into the array.
+ * from min to max, the value will be used as a direct index into the array.
  *
  * If the values in the array are not contiguous (ie: there are "gaps"),
  * but are in assending order a binary search will be used.

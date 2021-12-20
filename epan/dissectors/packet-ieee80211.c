@@ -19196,7 +19196,7 @@ static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame,
            conversation_data->last_akm_suite_set) {
     /* 3rd - Use AKMS negotiated during association to determine MIC length */
     if (conversation_data->last_akm_suite == AKMS_OWE) {
-      /* For OWE the the length of MIC depends on the selected group */
+      /* For OWE the length of MIC depends on the selected group */
       eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
     }
     else {
@@ -19206,7 +19206,7 @@ static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame,
   else if (packet_data && packet_data->last_akm_suite_set) {
     /* 3rd - Use AKMS from current packet to determine MIC length */
     if (packet_data->last_akm_suite == AKMS_OWE) {
-      /* For OWE the the length of MIC depends on the selected group */
+      /* For OWE the length of MIC depends on the selected group */
       eapol_key_mic_len = get_mic_len_owe(packet_data->owe_group);
     }
     else {
@@ -34099,7 +34099,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_string(wep_tree, hf_ieee80211_fc_analysis_tk, tvb, 0, 0, out_buff);
             proto_item_set_generated(ti);
 
-            /* Also add the PMK used to to decrypt the packet. (PMK==PSK) */
+            /* Also add the PMK used to decrypt the packet. (PMK==PSK) */
             if (used_key.KeyData.Wpa.PskLen > 0) {
 
               bytes_to_hexstr(out_buff, used_key.KeyData.Wpa.Psk, used_key.KeyData.Wpa.PskLen);
@@ -34182,7 +34182,7 @@ dissect_ieee80211_pv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * We have the entire packet, and it includes a 4-byte ICV.
          * Slice it off, and put it into the tree.
          *
-         * We only support decrypting if we have the the ICV.
+         * We only support decrypting if we have the ICV.
          *
          * XXX - the ICV is encrypted; we're putting the encrypted
          * value, not the decrypted value, into the tree.
@@ -35441,7 +35441,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                                 padding_len, ENC_NA);
           }
         }
-        /* Also add the PTK used to to decrypt and validate the keydata. */
+        /* Also add the PTK used to decrypt and validate the keydata. */
         add_ptk_analysis(tvb, keydes_tree, &eapol->used_key);
       }
     } else {

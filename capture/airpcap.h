@@ -245,7 +245,7 @@ typedef struct _AirpcapStats
                         /* < from the beginning of the current capture. This value includes the packets */
                         /* < dropped because of buffer full. */
     guint Drops;        /* < number of packets that the driver dropped from the beginning of a capture. */
-                        /* < A packet is lost when the the buffer of the driver is full. */
+                        /* < A packet is lost when the driver's buffer is full. */
     guint IfDrops;      /* < Packets dropped by the card before going to the USB bus. */
                         /* < Not supported at the moment. */
     guint Capt;         /* < number of packets that pass the BPF filter, find place in the kernel buffer and */
@@ -717,7 +717,7 @@ gboolean AirpcapStoreCurConfigAsAdapterDefault(PAirpcapHandle AdapterHandle);
   \param Instructions pointer to the first BPF instruction in the array. Corresponds to the  bf_insns
    in a bpf_program structure (see the WinPcap documentation at https://www.winpcap.org/devel.htm).
   \param Len Number of instructions in the array pointed by the previous field. Corresponds to the bf_len in
-  a a bpf_program structure (see the WinPcap documentation at https://www.winpcap.org/devel.htm).
+  a bpf_program structure (see the WinPcap documentation at https://www.winpcap.org/devel.htm).
   \return TRUE on success.
 
   The AirPcap driver is able to perform kernel-level filtering using the standard BPF pseudo-machine format. You can read

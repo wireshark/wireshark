@@ -1115,7 +1115,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
 }
 
 /*
- * Copy if if it's a case-sensitive search; uppercase it if it's
+ * Copy if it's a case-sensitive search; uppercase it if it's
  * a case-insensitive search.
  */
 char *

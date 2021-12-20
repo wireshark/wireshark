@@ -1181,7 +1181,7 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
       dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_rec_rt,
                            hf_ip_rec_rt_host, FALSE);
     } else if (optoffset == (len - 4)) {
-      /* This is the the destination */
+      /* This is the destination */
       proto_item *item;
       guint32 addr;
       const char *dst_host;

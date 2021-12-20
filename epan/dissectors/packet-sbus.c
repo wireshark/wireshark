@@ -1017,7 +1017,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     switch (sbus_cmd_code){
                             case SBUS_WEB_SERVER_SERIAL_COMM:
                                     /* Special treatment of web server request
-                                    * as is is very helpful to see more information in the packetlist */
+                                    * as this is very helpful to see more information in the packetlist */
                                     sbus_web_aid = tvb_get_guint8(tvb, 12);
                                     sbus_web_seq = tvb_get_guint8(tvb, 13);
                                     col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1095,7 +1095,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                 case SBUS_RESPONSE:
                     /* Special treatment of web server request
-                        * as is is very helpful to see more information in the packetlist */
+                        * as this is very helpful to see more information in the packetlist */
                     if (request_val && ((request_val->cmd_code) == SBUS_WEB_SERVER_SERIAL_COMM)) {
                             sbus_web_size = tvb_get_guint8(tvb,9);
                             sbus_web_aid = tvb_get_guint8(tvb,10);

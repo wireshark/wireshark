@@ -1429,7 +1429,7 @@ static const range_string gsm_a_bssap_channel_rate_and_type_rvals[] = {
     { 0x1a,     0x1a, "Full or Half rate TCH channel, Full rate preferred, changes allowed also after first channel allocation as a result of the request" },
     { 0x1b,     0x1b, "Full or Half rate TCH channel, Half rate preferred, changes allowed also after first channel allocation as a result of the request" },
     { 0x1c,     0x1f, "Reserved" },
-    { 0x20,     0x27, "Full rate TCH channels in a multislot configuration, changes by the BSS of the the number of TCHs and if applicable the used radio interface rate per channel allowed after first channel allocation as a result of the request" },
+    { 0x20,     0x27, "Full rate TCH channels in a multislot configuration, changes by the BSS of the number of TCHs and if applicable the used radio interface rate per channel allowed after first channel allocation as a result of the request" },
     { 0x28,     0x2f, "Reserved" },
     { 0x30,     0x37, "Full rate TCH channels in a multislot configuration, changes by the BSS of the number of TCHs or the used radio interface rate per channel not allowed after first channel allocation as a result of the request" },
     { 0x38,     0xff, "Reserved" },

@@ -1044,7 +1044,7 @@ typedef struct tcp_follow_tap_data
  * dummy data to mark packet loss if any).
  *
  * Returns TRUE if one fragment has been applied or FALSE if no more fragments
- * can be added the the payload (there might still be unacked fragments with
+ * can be added to the payload (there might still be unacked fragments with
  * missing segments before them).
  */
 static gboolean
@@ -3387,7 +3387,7 @@ again:
          *   The next TCP_A_RETRANSMISSION hopefully takes care of it though.
          *
          * Only shortcircuit here when the first segment of the MSP is known,
-         * and when this this first segment is not one to complete the MSP.
+         * and when this first segment is not one to complete the MSP.
          */
         if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(tcpd->fwd->multisegment_pdus, seq)) &&
                 nxtseq <= msp->nxtpdu &&
@@ -6311,7 +6311,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
        1) we pick the same dissector for traffic going in both directions;
 
        2) we prefer the port number that's more likely to be the right
-       one (as that prefers prefers well-known ports to reserved ports);
+       one (as that prefers well-known ports to reserved ports);
 
        although there is, of course, no guarantee that any such strategy
        will always pick the right port number.

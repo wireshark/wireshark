@@ -827,7 +827,7 @@ get_compiled_caplibs_version(GString *str)
 }
 
 /*
- * Append the version of Npcap with which we we're running to a GString.
+ * Append the version of Npcap with which we're running to a GString.
  */
 void
 get_runtime_caplibs_version(GString *str)

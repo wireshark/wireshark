@@ -1097,7 +1097,7 @@ dissect_receive_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 
 static const value_string interworking_values[] = {
   { 0x0,   "No Interworking with SS7 Networks" },
-  { 0x1,   "IP-Signalling Endpoint interworking with with SS7 networks" },
+  { 0x1,   "IP-Signalling Endpoint interworking with SS7 networks" },
   { 0x2,   "Signalling Gateway" },
   { 0x3,   "Relay Node Support" },
   { 0,     NULL } };

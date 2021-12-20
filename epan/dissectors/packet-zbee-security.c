@@ -1129,7 +1129,7 @@ zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
      * append the byte 0x80.
      */
     cipher_in[j++] = 0x80;
-    /* Pad with '0' until the the current block is exactly 'n' bits from the
+    /* Pad with '0' until the current block is exactly 'n' bits from the
      * end.
      */
     while (j!=(ZBEE_SEC_CONST_BLOCKSIZE-2)) {

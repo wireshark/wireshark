@@ -621,7 +621,7 @@ static const value_string cmd_vals[] = {
     { CMD_SCHED_TX,                  "Schedule transmission of messages" },
     { CMD_SCHED_KILL_TX,             "Stop and destroy a message schedule transmission" },
     { CMD_SCHED_MSG_REPLACE,         "Replace a scheduled message" },
-    { CMD_PGM_DESC,                  "Describe program to to uploaded" },
+    { CMD_PGM_DESC,                  "Describe program to be uploaded" },
     { CMD_PGM_UPLOAD,                "Upload a program to the Gryphon" },
     { CMD_PGM_DELETE,                "Delete an uploaded program" },
     { CMD_PGM_LIST,                  "Get a list of uploaded programs" },

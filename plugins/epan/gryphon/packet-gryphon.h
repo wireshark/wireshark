@@ -155,7 +155,7 @@
 
 /* Program loader (SD_PGM) commands: */
 
-#define CMD_PGM_DESC            (SD_PGM * 256 + 0x90)    /* Describe a program to to uploaded */
+#define CMD_PGM_DESC            (SD_PGM * 256 + 0x90)    /* Describe a program to be uploaded */
 #define CMD_PGM_UPLOAD          (SD_PGM * 256 + 0x91)    /* Upload a program to the Gryphon */
 #define CMD_PGM_DELETE          (SD_PGM * 256 + 0x92)    /* Delete an uploaded program */
 #define CMD_PGM_LIST            (SD_PGM * 256 + 0x93)    /* Get a list of uploaded programs */
