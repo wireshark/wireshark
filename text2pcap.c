@@ -102,9 +102,13 @@
 #include <wsutil/file_util.h>
 #include <cli_main.h>
 #include <ui/version_info.h>
+#include <ui/failure_message.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/wslog.h>
 #include <wsutil/nstime.h>
+#include <wsutil/cpu_info.h>
+#include <wsutil/os_version_info.h>
+#include <wsutil/privileges.h>
 
 #ifdef _WIN32
 #include <io.h>     /* for _setmode */
@@ -127,14 +131,12 @@
 #include "text2pcap.h"
 
 #include "wiretap/wtap.h"
+#include "wiretap/pcap-encap.h"
 
 /*--- Options --------------------------------------------------------------------*/
 
 /* File format */
 static gboolean use_pcapng = FALSE;
-
-/* Interface name */
-static char *interface_name = NULL;
 
 /* Debug level */
 static int debug = 0;
@@ -212,7 +214,6 @@ static int    packet_preamble_len = 0;
 /* Number of packets read and written */
 static guint32 num_packets_read    = 0;
 static guint32 num_packets_written = 0;
-static guint64 bytes_written       = 0;
 
 /* Time code of packet, derived from packet_preamble */
 static time_t   ts_sec  = 0;
@@ -228,7 +229,8 @@ static char *input_filename;
 static FILE       *input_file  = NULL;
 /* Output file */
 static char *output_filename;
-static FILE       *output_file = NULL;
+
+static wtap_dumper* wdh;
 
 /* Offset base to parse */
 static guint32 offset_base = 16;
@@ -386,8 +388,8 @@ static char tempbuf[64];
  * Stuff for writing a PCap file
  */
 
-/* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
-static guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
+/* Encapsulation type; see wiretap/wtap.h for details */
+static guint32 wtap_encap_type = 1;   /* Default is WTAP_ENCAP_ETHERNET */
 
 /*----------------------------------------------------------------------
  * Parse a single hex number
@@ -608,7 +610,6 @@ write_current_packet (gboolean cont)
     guint32  length         = 0;
     guint16  padding_length = 0;
     int      err;
-    gboolean success;
 
     if (curr_offset > header_length) {
         /* Write the packet */
@@ -823,28 +824,34 @@ write_current_packet (gboolean cont)
             write_bytes((const char *)&tempbuf, 60 - length);
             length = 60;
         }
-        if (use_pcapng) {
-            success = pcapng_write_enhanced_packet_block(output_file,
-                                                         NULL,
-                                                         ts_sec, ts_nsec,
-                                                         length, length,
-                                                         0,
-                                                         1000000000,
-                                                         packet_buf,
-                                                         (direction << PACK_FLAGS_DIRECTION_SHIFT),
-                                                         &bytes_written, &err);
-        } else {
-            success = libpcap_write_packet(output_file,
-                                           ts_sec, ts_nsec/1000,
-                                           length, length,
-                                           packet_buf,
-                                           &bytes_written, &err);
+        wtap_rec rec;
+        gchar *err_info;
+
+        memset(&rec, 0, sizeof rec);
+
+        rec.rec_type = REC_TYPE_PACKET;
+        rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
+        rec.ts.secs = ts_sec;
+        rec.ts.nsecs = ts_nsec;
+        rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = /*prefix_length + */ curr_offset /*+ eth_trailer_length*/;
+        /* Unlike ui/text_import.c, header and trailer are in our buffer */
+        rec.rec_header.packet_header.pkt_encap = wtap_encap_type;
+        rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
+        if (has_direction) {
+            wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
         }
-        if (!success) {
-            fprintf(stderr, "File write error [%s] : %s\n",
-                    output_filename, g_strerror(err));
+#if 0
+        /* XXX: ui/text_import.c supports this, not text2pcap */
+        if (has_seqno) {
+            wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
+        }
+#endif
+
+        if (!wtap_dump(wdh, &rec, packet_buf, &err, &err_info)) {
+            cfile_write_failure_message(input_filename, output_filename, err, err_info, num_packets_read, wtap_dump_file_type_subtype(wdh));
             return EXIT_FAILURE;
         }
+        wtap_block_unref(rec.block);
         if (ts_fmt == NULL) {
             /* fake packet counter */
             if (use_pcapng)
@@ -867,51 +874,65 @@ write_current_packet (gboolean cont)
  * Write file header and trailer
  */
 static int
-write_file_header (void)
+write_file_header(wtap_dump_params * const params, int file_type_subtype, const char* const interface_name)
 {
-    int      err;
-    gboolean success;
+    wtap_block_t shb_hdr;
+    wtap_block_t int_data;
+    wtapng_if_descr_mandatory_t *int_data_mand;
+    char    *comment;
+    GString *info_str;
 
-    if (use_pcapng) {
-        char *comment;
-        GPtrArray *comments;
+    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_SECTION) != BLOCK_NOT_SUPPORTED &&
+        wtap_file_type_subtype_supports_option(file_type_subtype, WTAP_BLOCK_SECTION, OPT_COMMENT) != OPTION_NOT_SUPPORTED) {
+
+        shb_hdr = wtap_block_create(WTAP_BLOCK_SECTION);
 
         comment = ws_strdup_printf("Generated from input file %s.", input_filename);
-        comments = g_ptr_array_new_with_free_func(g_free);
-        g_ptr_array_add(comments, comment);
-        success = pcapng_write_section_header_block(output_file,
-                                                    comments,
-                                                    NULL,    /* HW */
-                                                    NULL,    /* OS */
-                                                    get_appname_and_version(),
-                                                    -1,      /* section_length */
-                                                    &bytes_written,
-                                                    &err);
-        g_ptr_array_free(comments, TRUE);
-        if (success) {
-            success = pcapng_write_interface_description_block(output_file,
-                                                               NULL,
-                                                               interface_name,
-                                                               NULL,
-                                                               "",
-                                                               NULL,
-                                                               NULL,
-                                                               pcap_link_type,
-                                                               WTAP_MAX_PACKET_SIZE_STANDARD,
-                                                               &bytes_written,
-                                                               0,
-                                                               9,
-                                                               &err);
+        wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
+        g_free(comment);
+
+        info_str = g_string_new("");
+        get_cpu_info(info_str);
+        if (info_str->str) {
+            wtap_block_add_string_option(shb_hdr, OPT_SHB_HARDWARE, info_str->str, info_str->len);
         }
-    } else {
-        success = libpcap_write_file_header(output_file, pcap_link_type,
-                                            WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
-                                            &bytes_written, &err);
+        g_string_free(info_str, TRUE);
+
+        info_str = g_string_new("");
+        get_os_version_info(info_str);
+        if (info_str->str) {
+            wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, info_str->str, info_str->len);
+        }
+        g_string_free(info_str, TRUE);
+
+        wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
+
+        params->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        g_array_append_val(params->shb_hdrs, shb_hdr);
     }
-    if (!success) {
-        fprintf(stderr, "File write error [%s] : %s\n",
-                output_filename, g_strerror(err));
-        return EXIT_FAILURE;
+
+    /* wtap_dumper will create a dummy interface block if needed, but since
+     * we have the option of including the interface name, create it ourself.
+     */
+    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
+        int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+
+        int_data_mand->wtap_encap = params->encap;
+        int_data_mand->time_units_per_second = 1000000000;
+        int_data_mand->snap_len = params->snaplen;
+
+        if (interface_name != NULL) {
+            wtap_block_add_string_option(int_data, OPT_IDB_NAME, interface_name, strlen(interface_name));
+        } else {
+            wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, text2pcap", strlen("Fake IF, text2pcap"));
+        }
+        wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, params->tsprec);
+
+        params->idb_inf = g_new(wtapng_iface_descriptions_t,1);
+        params->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        g_array_append_val(params->idb_inf->interface_data, int_data);
+
     }
 
     return EXIT_SUCCESS;
@@ -1455,7 +1476,7 @@ print_usage (FILE *output)
  * Parse CLI options
  */
 static int
-parse_options (int argc, char *argv[])
+parse_options(int argc, char *argv[], wtap_dump_params * const params)
 {
     int   c;
     char *p;
@@ -1465,6 +1486,12 @@ parse_options (int argc, char *argv[])
         {0, 0, 0, 0 }
     };
     struct tm *now_tm;
+    const char *interface_name = NULL;
+    /* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
+    guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
+    int file_type_subtype;
+    int err;
+    char* err_info;
 
     /* Initialize the version information. */
     ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
@@ -1749,72 +1776,11 @@ parse_options (int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (strcmp(argv[ws_optind], "-") != 0) {
-        input_filename = argv[ws_optind];
-        input_file = ws_fopen(input_filename, "rb");
-        if (!input_file) {
-            fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
-                    input_filename, g_strerror(errno));
-            return EXIT_FAILURE;
-        }
-    } else {
-        input_filename = "Standard input";
-        input_file = stdin;
-    }
-
-    if (strcmp(argv[ws_optind+1], "-") != 0) {
-        /* Write to a file.  Open the file, in binary mode. */
-        output_filename = argv[ws_optind+1];
-        output_file = ws_fopen(output_filename, "wb");
-        if (!output_file) {
-            fprintf(stderr, "Cannot open file [%s] for writing: %s\n",
-                    output_filename, g_strerror(errno));
-            return EXIT_FAILURE;
-        }
-    } else {
-        /* Write to the standard output. */
-#ifdef _WIN32
-        /* Put the standard output in binary mode. */
-        if (_setmode(1, O_BINARY) == -1) {
-            /* "Should not happen" */
-            fprintf(stderr, "Cannot put standard output in binary mode: %s\n",
-                    g_strerror(errno));
-            return EXIT_FAILURE;
-        }
-#endif
-        output_filename = "Standard output";
-        output_file = stdout;
-    }
-
     /* Some validation */
     if (pcap_link_type != 1 && hdr_ethernet) {
         fprintf(stderr, "Dummy headers (-e, -i, -u, -s, -S -T) cannot be specified with link type override (-l)\n");
         return EXIT_FAILURE;
     }
-
-    /* Set up our variables */
-    if (!input_file) {
-        input_file = stdin;
-        input_filename = "Standard input";
-    }
-    if (!output_file) {
-        output_file = stdout;
-        output_filename = "Standard output";
-    }
-
-    ts_sec = time(0);               /* initialize to current time */
-    now_tm = localtime(&ts_sec);
-    if (now_tm == NULL) {
-        /*
-         * This shouldn't happen - on UN*X, this should Just Work, and
-         * on Windows, it won't work if ts_sec is before the Epoch,
-         * but it's long after 1970, so....
-         */
-        fprintf(stderr, "localtime (right now) failed\n");
-        return EXIT_FAILURE;
-    }
-    timecode_default = *now_tm;
-    timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
 
     if (hdr_ip_proto != -1 && !(hdr_ip || hdr_ipv6)) {
         /* If -i <proto> option is specified without -4 or -6 then add the default IPv4 header */
@@ -1842,6 +1808,70 @@ parse_options (int argc, char *argv[])
     {
         hdr_ethernet_proto = 0x86DD;
     }
+
+    if (strcmp(argv[ws_optind], "-") != 0) {
+        input_filename = argv[ws_optind];
+        input_file = ws_fopen(input_filename, "rb");
+        if (!input_file) {
+            fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
+                    input_filename, g_strerror(errno));
+            return EXIT_FAILURE;
+        }
+    } else {
+        input_filename = "Standard input";
+        input_file = stdin;
+    }
+
+    init_process_policies();
+    wtap_init(TRUE);
+    wtap_dump_params_init(params, NULL);
+
+    wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
+    params->encap = wtap_encap_type;
+    params->snaplen = max_offset;
+    if (use_pcapng) {
+        params->tsprec = WTAP_TSPREC_NSEC;
+        file_type_subtype = wtap_pcapng_file_type_subtype();
+    } else {
+        params->tsprec = WTAP_TSPREC_USEC;
+        file_type_subtype = wtap_pcap_file_type_subtype();
+    }
+    if (write_file_header(params, file_type_subtype, interface_name) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    }
+
+    if (strcmp(argv[ws_optind+1], "-") != 0) {
+        /* Write to a file.  Open the file. */
+        output_filename = argv[ws_optind+1];
+        wdh = wtap_dump_open(output_filename, file_type_subtype, WTAP_UNCOMPRESSED, params, &err, &err_info);
+    } else {
+        /* Write to the standard output. */
+        output_filename = "Standard output";
+        wdh = wtap_dump_open_stdout(file_type_subtype, WTAP_UNCOMPRESSED, params, &err, &err_info);
+    }
+
+    if (!wdh) {
+        cfile_dump_open_failure_message(output_filename, err, err_info,
+                                        file_type_subtype);
+        g_free(params->idb_inf);
+        wtap_dump_params_cleanup(params);
+        return EXIT_FAILURE;
+    }
+
+    /* Set up our variables */
+    ts_sec = time(0);               /* initialize to current time */
+    now_tm = localtime(&ts_sec);
+    if (now_tm == NULL) {
+        /*
+         * This shouldn't happen - on UN*X, this should Just Work, and
+         * on Windows, it won't work if ts_sec is before the Epoch,
+         * but it's long after 1970, so....
+         */
+        fprintf(stderr, "localtime (right now) failed\n");
+        return EXIT_FAILURE;
+    }
+    timecode_default = *now_tm;
+    timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
 
     /* Display summary of our state */
     if (!quiet) {
@@ -1879,6 +1909,8 @@ int
 main(int argc, char *argv[])
 {
     int ret = EXIT_SUCCESS;
+    wtap_dump_params params;
+    guint64 bytes_written;
 
     /* Initialize log handler early so we can have proper logging during startup. */
     ws_log_init("text2pcap", text2pcap_vcmdarg_err);
@@ -1890,18 +1922,13 @@ main(int argc, char *argv[])
     create_app_running_mutex();
 #endif /* _WIN32 */
 
-    if (parse_options(argc, argv) != EXIT_SUCCESS) {
+    if (parse_options(argc, argv, &params) != EXIT_SUCCESS) {
         ret = EXIT_FAILURE;
         goto clean_exit;
     }
 
     assert(input_file  != NULL);
-    assert(output_file != NULL);
-
-    if (write_file_header() != EXIT_SUCCESS) {
-        ret = EXIT_FAILURE;
-        goto clean_exit;
-    }
+    assert(wdh != NULL);
 
     header_length = 0;
     if (hdr_ethernet) {
@@ -1938,7 +1965,8 @@ main(int argc, char *argv[])
     if (debug)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
-        fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s (%" PRIu64 " byte%s).\n",
+        bytes_written = wtap_get_bytes_dumped(wdh);
+        fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s (%" PRIu64 " byte%s including overhead).\n",
                 num_packets_read, (num_packets_read == 1) ? "" : "s",
                 num_packets_written, (num_packets_written == 1) ? "" : "s",
                 bytes_written, (bytes_written == 1) ? "" : "s");
@@ -1947,8 +1975,14 @@ clean_exit:
     if (input_file) {
         fclose(input_file);
     }
-    if (output_file) {
-        fclose(output_file);
+    if (wdh) {
+        int err;
+        char *err_info;
+        if (!wtap_dump_close(wdh, &err, &err_info)) {
+            cfile_close_failure_message(output_filename, err, err_info);
+            ret = EXIT_FAILURE;
+        }
+        g_free(params.idb_inf);
     }
     return ret;
 }

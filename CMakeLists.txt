@@ -2775,8 +2775,9 @@ endif()
 
 if(BUILD_text2pcap)
 	set(text2pcap_LIBS
-		writecap
+		wiretap
 		wsutil
+		ui
 		version_info
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
