@@ -9,7 +9,6 @@
 
 #define WS_BUILD_DLL
 #include <wireshark.h>
-#include <ws_version.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
 

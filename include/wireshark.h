@@ -40,6 +40,8 @@
  * Only public headers and symbols can be included here. Nothing related
  * with configuration.
  */
+#include <ws_version.h>
+
 #include <ws_attributes.h>
 #include <ws_compiler_tests.h>
 #include <ws_diag_control.h>
