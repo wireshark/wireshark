@@ -18,6 +18,7 @@
 #ifndef __SYNC_PIPE_H__
 #define __SYNC_PIPE_H__
 
+#include <ws_posix_compat.h>
 
 /*
  * Maximum length of sync pipe message data.  Must be < 2^24, as the

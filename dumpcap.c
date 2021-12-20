@@ -1260,7 +1260,7 @@ static void *cap_thread_read(void *arg)
                        break;
                    }
                } else {
-                   bytes_read += b;
+                   bytes_read += (DWORD)b;
                }
            }
 #ifdef _WIN32
@@ -1485,7 +1485,11 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
                 }
                 return -1;
             }
+#ifdef _WIN32
+            bytes_read += (DWORD)b;
+#else
             bytes_read += b;
+#endif
         }
     }
     pcap_src->cap_pipe_bytes_read += bytes_read;
@@ -2317,7 +2321,11 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
                     result = PD_PIPE_ERR;
                 break;
             }
+#ifdef _WIN32
+            pcap_src->cap_pipe_bytes_read += (DWORD)b;
+#else
             pcap_src->cap_pipe_bytes_read += b;
+#endif
         }
 #ifdef _WIN32
         else {
@@ -2374,7 +2382,11 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
                     result = PD_PIPE_ERR;
                 break;
             }
+#ifdef _WIN32
+            pcap_src->cap_pipe_bytes_read += (DWORD)b;
+#else
             pcap_src->cap_pipe_bytes_read += b;
+#endif
         }
 #ifdef _WIN32
         else {

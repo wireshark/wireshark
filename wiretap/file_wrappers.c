@@ -275,7 +275,7 @@ buf_read(FILE_T state, struct wtap_reader_buf *buf)
     if (ret == 0)
         state->eof = TRUE;
     state->raw_pos += ret;
-    buf->avail += ret;
+    buf->avail += (guint)ret;
     return 0;
 }
 
