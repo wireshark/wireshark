@@ -1,9 +1,3 @@
 usr/lib/*/libwireshark.so
 usr/lib/*/pkgconfig/wireshark.pc
-epan/register.h usr/include/wireshark
-epan/stat_groups.h usr/include/wireshark
-epan/*.h usr/include/wireshark/epan
-epan/crypt/*.h usr/include/wireshark/epan/crypt
-epan/dfilter/*.h usr/include/wireshark/epan/dfilter
-epan/dissectors/*.h usr/include/wireshark/epan/dissectors
-epan/ftypes/*.h usr/include/wireshark/epan/ftypes
+usr/include/wireshark/epan/*
