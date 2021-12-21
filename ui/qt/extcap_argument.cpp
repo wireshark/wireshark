@@ -125,7 +125,7 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
 {
     int counter = 0;
     int selected = -1;
-    const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
+    const char *prefval = (_argument->pref_valptr && strlen(*_argument->pref_valptr)) ? *_argument->pref_valptr : NULL;
     QString stored(prefval ? prefval : "");
 
     QWidget * editor = new QWidget(parent);
