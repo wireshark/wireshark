@@ -134,6 +134,7 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
     layout->setContentsMargins(0, margins.top(), 0, margins.bottom());
 
     boxSelection = new QComboBox(parent);
+    boxSelection->setToolTip(QString().fromUtf8(_argument->tooltip));
     layout->addWidget(boxSelection);
 
     if (values.length() > 0)
