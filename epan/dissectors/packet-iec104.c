@@ -2710,7 +2710,7 @@ get_iec101_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data
 			len = 1;
 			break;
 		case IEC101_FIXED_LEN:
-			len = 5;
+			len = global_iec60870_link_addr_len + 4;
 			break;
 		case IEC101_VAR_LEN:
 			len = tvb_get_guint8(tvb, offset+1) + 6;
