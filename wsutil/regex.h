@@ -12,8 +12,6 @@
 
 #include <wireshark.h>
 
-#define WS_REGEX_ZERO_TERMINATED SIZE_MAX
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,8 +22,14 @@ typedef struct _ws_regex ws_regex_t;
 WS_DLL_PUBLIC ws_regex_t *
 ws_regex_compile(const char *patt, char **errmsg);
 
+/** Matches a null-terminated subject string. */
 WS_DLL_PUBLIC bool
-ws_regex_matches(const ws_regex_t *re, const char *subj, size_t subj_size);
+ws_regex_matches(const ws_regex_t *re, const char *subj);
+
+/** Matches a subject string length in 8 bit code units. */
+WS_DLL_PUBLIC bool
+ws_regex_matches_length(const ws_regex_t *re,
+                        const char *subj, size_t subj_length);
 
 WS_DLL_PUBLIC void
 ws_regex_free(ws_regex_t *re);

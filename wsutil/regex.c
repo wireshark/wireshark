@@ -83,20 +83,17 @@ ws_regex_compile(const char *patt, char **errmsg)
 
 
 static bool
-match_pcre2(pcre2_code *code, const char *subj, size_t subj_size)
+match_pcre2(pcre2_code *code, PCRE2_SPTR subject, PCRE2_SIZE length)
 {
-    PCRE2_SIZE length;
     pcre2_match_data *match_data;
     int rc;
-
-    length = subj_size == WS_REGEX_ZERO_TERMINATED ? PCRE2_ZERO_TERMINATED : (PCRE2_SIZE)subj_size;
 
     /* We don't use the matched substring but pcre2_match requires
      * at least one pair of offsets. */
     match_data = pcre2_match_data_create(1, NULL);
 
     rc = pcre2_match(code,
-                    subj,
+                    subject,
                     length,
                     0,          /* start at offset zero of the subject */
                     0,          /* default options */
@@ -123,12 +120,23 @@ match_pcre2(pcre2_code *code, const char *subj, size_t subj_size)
 
 
 bool
-ws_regex_matches(const ws_regex_t *re, const char *subj, size_t subj_size)
+ws_regex_matches(const ws_regex_t *re, const char *subj)
 {
     ws_return_val_if_null(re, FALSE);
     ws_return_val_if_null(subj, FALSE);
 
-    return match_pcre2(re->code, subj, subj_size);
+    return match_pcre2(re->code, (PCRE2_SPTR)subj, PCRE2_ZERO_TERMINATED);
+}
+
+
+bool
+ws_regex_matches_length(const ws_regex_t *re,
+                        const char *subj, size_t subj_length)
+{
+    ws_return_val_if_null(re, FALSE);
+    ws_return_val_if_null(subj, FALSE);
+
+    return match_pcre2(re->code, (PCRE2_SPTR)subj, (PCRE2_SIZE)subj_length);
 }
 
 

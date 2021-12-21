@@ -291,9 +291,9 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 		if (a->tvb != NULL) {
 			tvb_len = tvb_captured_length(a->tvb);
 			data = (const char *)tvb_get_ptr(a->tvb, 0, tvb_len);
-			rc = ws_regex_matches(regex, data, tvb_len);
+			rc = ws_regex_matches_length(regex, data, tvb_len);
 		} else {
-			rc = ws_regex_matches(regex, a->proto_string, WS_REGEX_ZERO_TERMINATED);
+			rc = ws_regex_matches(regex, a->proto_string);
 		}
 	}
 	CATCH_ALL {

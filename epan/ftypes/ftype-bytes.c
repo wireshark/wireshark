@@ -558,7 +558,7 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 {
 	GByteArray *a = fv->value.bytes;
 
-	return ws_regex_matches(regex, a->data, a->len);
+	return ws_regex_matches_length(regex, a->data, a->len);
 }
 
 void
