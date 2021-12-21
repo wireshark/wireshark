@@ -2265,7 +2265,7 @@ gboolean
 copy_file_binary_mode(const char *from_filename, const char *to_filename)
 {
     int           from_fd, to_fd, err;
-    int           nread, nwritten;
+    ws_file_ssize_t nread, nwritten;
     guint8        *pd = NULL;
 
     /* Copy the raw bytes of the file. */
