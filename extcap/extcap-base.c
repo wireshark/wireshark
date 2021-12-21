@@ -335,9 +335,9 @@ static void extcap_init_log_file(const char* filename)
 void extcap_config_debug(unsigned* count)
 {
     printf("arg {number=%u}{call=--log-level}{display=Set the log level}"
-    "{type=selector}{default=message}{tooltip=Set the log level}{required=false}"
+    "{type=selector}{tooltip=Set the log level}{required=false}"
     "{group=Debug}\n", *count);
-    printf("value {arg=%u}{value=message}{display=Message}\n", *count);
+    printf("value {arg=%u}{value=message}{display=Message}{default=true}\n", *count);
     printf("value {arg=%u}{value=info}{display=Info}\n", *count);
     printf("value {arg=%u}{value=debug}{display=Debug}\n", *count);
     printf("value {arg=%u}{value=noisy}{display=Noisy}\n", *count);
