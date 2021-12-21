@@ -432,7 +432,7 @@ Time TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 [[SimpleASN1BasedDissector]]
 === Simple ASN.1-Based Dissector
 
-// https://gitlab.com/wireshark/wireshark/-/wikis/ASN1_sample?action=AttachFile&do=view&target=foo.tar.gz[foo.tar.gz]
+// https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/ASN1_sample/foo.tar.gz
 // all seven files as gzipped foo directory (suitable for unzipping in
 // wireshark/asn1 directory)
 
@@ -1203,7 +1203,7 @@ static void dissect_SomeObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 This function can then later be called or referenced from the template file or even exported.
 
 [[ASN1CnfDirectiveREGISTERAndREGISTER_NEW]]
-==== #.REGISTER and #.REGISTER_NEW 
+==== #.REGISTER and #.REGISTER_NEW
 
 This directive in the Asn2wrs conformation file can be used to register a dissector for an object to an OID.
 This is very useful for X.509 and similar protocols where structures and objects are frequently associated with an OID.
