@@ -1627,7 +1627,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 #define BLUEDROID_TIMESTAMP_SIZE  8
 #define BLUEDROID_H4_SIZE  1
 
-static const uint64_t BLUEDROID_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f2f8000);
+static const uint64_t BLUEDROID_TIMESTAMP_BASE = UINT64_C(0x00dcddb30f2f8000);
 
 #define BLUEDROID_H4_PACKET_TYPE_HCI_CMD  0x01
 #define BLUEDROID_H4_PACKET_TYPE_ACL      0x02
@@ -1902,7 +1902,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     int                            result;
     char                          *serial_number;
     uint64_t                       ts;
-    static const uint64_t          BTSNOOP_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f2f8000);
+    static const uint64_t          BTSNOOP_TIMESTAMP_BASE = UINT64_C(0x00dcddb30f2f8000);
     uint32_t                      *reported_length;
     uint32_t                      *captured_length;
     uint32_t                      *flags;
