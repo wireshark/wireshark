@@ -160,7 +160,6 @@ variables:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
     - $env:Path += ";C:\Program Files\CMake\bin"
-    - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
     - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
@@ -312,9 +311,6 @@ Win64 Package:
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
-    - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
-    - $env:Path += ";C:\Program Files (x86)\NSIS"
-    - $env:Path += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
     - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
@@ -358,9 +354,6 @@ Win32 Package:
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
-    - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
-    - $env:Path += ";C:\Program Files (x86)\NSIS"
-    - $env:Path += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
     - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
