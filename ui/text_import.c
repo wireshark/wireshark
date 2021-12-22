@@ -155,6 +155,10 @@ static guint32 hdr_ethernet_proto = 0;
 static gboolean hdr_ip = FALSE;
 static guint hdr_ip_proto = 0;
 
+/* Destination and source addresses for IP header */
+static ws_in4_addr hdr_ip_dest_addr = 0;
+static ws_in4_addr hdr_ip_src_addr = 0;
+
 /* Dummy UDP header */
 static gboolean hdr_udp = FALSE;
 static guint32 hdr_dest_port = 0;
@@ -483,11 +487,12 @@ write_current_packet(gboolean cont)
             vec_t cksum_vector[1];
 
             if (isOutbound) {
-                HDR_IP.src_addr = IP_DST;
-                HDR_IP.dest_addr = IP_SRC;
-            } else {
-                HDR_IP.src_addr = IP_SRC;
-                HDR_IP.dest_addr = IP_DST;
+                HDR_IP.src_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
+                HDR_IP.dest_addr = hdr_ip_src_addr ? hdr_ip_src_addr : IP_SRC;
+            }
+            else {
+                HDR_IP.src_addr = hdr_ip_src_addr ? hdr_ip_src_addr : IP_SRC;
+                HDR_IP.dest_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
             }
             HDR_IP.packet_length = g_htons(ip_length);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
@@ -1488,6 +1493,11 @@ text_import(const text_import_info_t *info)
 
         default:
             break;
+    }
+
+    if (hdr_ip) {
+	hdr_ip_src_addr = info->ip_src_addr;
+	hdr_ip_dest_addr = info->ip_dest_addr;
     }
 
     max_offset = info->max_frame_length;

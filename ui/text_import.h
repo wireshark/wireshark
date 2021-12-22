@@ -90,6 +90,8 @@ typedef struct
     /* Dummy header info (if encapsulation == 1) */
     enum dummy_header_type dummy_header_type;
     guint pid;
+    ws_in4_addr ip_src_addr;
+    ws_in4_addr ip_dest_addr;
     guint protocol;
     guint src_port;
     guint dst_port;
