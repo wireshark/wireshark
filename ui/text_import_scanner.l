@@ -99,10 +99,9 @@ DIAG_OFF_FLEX
 
 %}
 
-hexdigit [0-9A-Fa-f]
 directive ^#TEXT2PCAP.*\r?\n
 comment ^[\t ]*#.*\r?\n
-byte [0-9A-Fa-f][0-9A-Fa-f][ \t]
+byte [0-9A-Fa-f][0-9A-Fa-f][ \t]?
 byte_eol [0-9A-Fa-f][0-9A-Fa-f]\r?\n
 offset [0-9A-Fa-f]+[: \t]
 offset_eol [0-9A-Fa-f]+\r?\n
