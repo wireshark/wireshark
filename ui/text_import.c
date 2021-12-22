@@ -488,8 +488,12 @@ write_current_packet(gboolean cont)
             prefix_length += (int)sizeof(HDR_IP);
             ip_length = prefix_length + curr_offset + ((hdr_data_chunk) ? number_of_padding_bytes(curr_offset) : 0);
         } else if (hdr_ipv6) {
-            prefix_length += (int)sizeof(HDR_IPv6);
             ip_length = prefix_length + curr_offset + ((hdr_data_chunk) ? number_of_padding_bytes(curr_offset) : 0);
+            /* IPv6 payload length field does not include the header itself.
+             * It does include extension headers, but we don't put any
+             * (if we later do fragments, that would change.)
+             */
+            prefix_length += (int)sizeof(HDR_IPv6);
         }
         if (hdr_ethernet) { prefix_length += (int)sizeof(HDR_ETHERNET); }
 
