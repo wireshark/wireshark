@@ -110,11 +110,6 @@
 #include <wsutil/os_version_info.h>
 #include <wsutil/privileges.h>
 
-#ifdef _WIN32
-#include <io.h>     /* for _setmode */
-#include <fcntl.h>  /* for O_BINARY */
-#endif
-
 #include <time.h>
 #include <glib.h>
 
@@ -127,7 +122,6 @@
 # include "wsutil/strptime.h"
 #endif
 
-#include "writecap/pcapio.h"
 #include "text2pcap.h"
 
 #include "wiretap/wtap.h"
