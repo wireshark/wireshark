@@ -17,7 +17,7 @@
  *
  * the protocol specifications
  * For MySQL at
- *  https://dev.mysql.com/doc/internals/en/client-server-protocol.html
+ *  https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_PROTOCOL.html
  * For MariaDB at
  *  https://mariadb.com/kb/en/clientserver-protocol/
  * and MySQL source code
@@ -1102,6 +1102,7 @@ static int hf_mariadb_bulk_flag_sendtypes = -1;
 static int hf_mariadb_bulk_caps_flags = -1;
 static int hf_mariadb_bulk_paramtypes = -1;
 static int hf_mariadb_bulk_indicator = -1;
+static int hf_mariadb_bulk_row_nr = -1;
 static dissector_handle_t mysql_handle;
 static dissector_handle_t tls_handle;
 
@@ -2066,7 +2067,8 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 				}
 			}
 			while (tvb_reported_length_remaining(tvb, offset) > 0){
-				tf = proto_tree_add_text_internal(req_tree, tvb, offset, 0, "%d. Dataset", row_nr++);
+				tf = proto_tree_add_uint_format(req_tree, hf_mariadb_bulk_row_nr, tvb, offset, 0, row_nr, "%d. Dataset", row_nr);
+				proto_item_set_generated(tf);
 				param_tree = proto_item_add_subtree(tf, ett_bulk_param);
 
 				for (stmt_pos = 0; stmt_pos < stmt_data->nparam; stmt_pos++)
@@ -2089,6 +2091,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 						}
 					}
 				}
+				row_nr++;
 			}
 		}
 		break;
@@ -4035,16 +4038,23 @@ void proto_register_mysql(void)
 
 		{ &hf_mariadb_bulk_indicator,
 		{ "Indicator", "mariadb.bulk.indicators",
-			FT_UINT8, BASE_HEX, VALS(mariadb_bulk_indicator_vals), 0x00,
-			NULL, HFILL }},
+		FT_UINT8, BASE_HEX, VALS(mariadb_bulk_indicator_vals), 0x00,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_bulk_row_nr,
+		{ "Row nr", "mariadb.bulk.row_nr",
+		FT_UINT32, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }},
+
 		{ &hf_mysql_prefix,
 		{ "Prefix", "mariadb.prefix",
-			FT_UINT8, BASE_DEC, NULL, 0x00,
-			NULL, HFILL } },
+		FT_UINT8, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }},
+
 		{ &hf_mysql_length,
 		{ "Length", "mariadb.length",
-			FT_UINT64, BASE_DEC, NULL, 0x00,
-			NULL, HFILL } }
+		FT_UINT64, BASE_DEC, NULL, 0x00,
+		NULL, HFILL }}
 	};
 
 	static gint *ett[]=
