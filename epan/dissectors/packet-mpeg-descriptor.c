@@ -601,12 +601,17 @@ proto_mpeg_descriptor_dissect_avc_vid(tvbuff_t *tvb, guint offset, proto_tree *t
 }
 
 /* 0x40 Network Name Descriptor */
+static int hf_mpeg_descr_network_name_encoding = -1;
 static int hf_mpeg_descr_network_name_descriptor = -1;
 
 static void
 proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_mpeg_descr_network_name_descriptor, tvb, offset, len, ENC_ASCII|ENC_NA);
+    dvb_encoding_e  encoding;
+    guint enc_len = dvb_analyze_string_charset(tvb, offset, len, &encoding);
+    dvb_add_chartbl(tree, hf_mpeg_descr_network_name_encoding, tvb, offset, enc_len, encoding);
+
+    proto_tree_add_item(tree, hf_mpeg_descr_network_name_descriptor, tvb, offset+enc_len, len-enc_len, dvb_enc_to_item_enc(encoding));
 }
 
 /* 0x41 Service List Descriptor */
@@ -934,12 +939,17 @@ proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint len, p
 }
 
 /* 0x47 Bouquet Name Descriptor */
+static int hf_mpeg_descr_bouquet_name_encoding = -1;
 static int hf_mpeg_descr_bouquet_name = -1;
 
 static void
 proto_mpeg_descriptor_dissect_bouquet_name(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_mpeg_descr_bouquet_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+    dvb_encoding_e  encoding;
+    guint enc_len = dvb_analyze_string_charset(tvb, offset, len, &encoding);
+    dvb_add_chartbl(tree, hf_mpeg_descr_bouquet_name_encoding, tvb, offset, enc_len, encoding);
+
+    proto_tree_add_item(tree, hf_mpeg_descr_bouquet_name, tvb, offset+enc_len, len-enc_len, dvb_enc_to_item_enc(encoding));
 }
 
 /* 0x48 Service Descriptor */
@@ -971,12 +981,17 @@ static const value_string mpeg_descr_service_type_vals[] = {
     { 0x0F, "RCS FLS (see EN 301 790)" },
     { 0x10, "DVB MHP service" },
     { 0x11, "MPEG-2 HD digital television service" },
-    { 0x16, "advanced codec SD digital television service" },
-    { 0x17, "advanced codec SD NVOD time-shifted service" },
-    { 0x18, "advanced codec SD NVOD reference service" },
-    { 0x19, "advanced codec HD digital television service" },
-    { 0x1A, "advanced codec HD NVOD time-shifted service" },
+    { 0x16, "H.264/AVC SD digital television service" },
+    { 0x17, "H.264/AVC SD NVOD time-shifted service" },
+    { 0x18, "H.264/AVC SD NVOD reference service" },
+    { 0x19, "H.264/AVC HD digital television service" },
+    { 0x1A, "H.264/AVC HD NVOD time-shifted service" },
+    { 0x1B, "H.264/AVC NVOD reference service" },
+    { 0x1C, "H.264/AVC frame compatible plano-stereoscopic HD digital television service" },
+    { 0x1D, "H.264/AVC rame compatible plano-stereoscopic HD NVOD time-shifted service" },
+    { 0x1E, "H.264/AVC frame compatible plano-stereoscopic HD NVOD reference service" },
     { 0x1F, "HEVC digital television service" },
+    { 0x20, "HEVC UHD digital television service with HDR and/or a frame rate of 100 Hz, 120 000/1 001 Hz, or 120 Hz, or any combination of HDR and these frame rates" },
 
     { 0x00, NULL }
 };
@@ -1309,17 +1324,46 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
 }
 
 /* 0x50 Component Descriptor */
-static int hf_mpeg_descr_component_reserved = -1;
+static int hf_mpeg_descr_component_stream_content_ext = -1;
 static int hf_mpeg_descr_component_stream_content = -1;
 static int hf_mpeg_descr_component_type = -1;
 static int hf_mpeg_descr_component_content_type = -1;
 static int hf_mpeg_descr_component_tag = -1;
 static int hf_mpeg_descr_component_lang_code = -1;
+static int hf_mpeg_descr_component_text_encoding = -1;
 static int hf_mpeg_descr_component_text = -1;
 
-#define MPEG_DESCR_COMPONENT_RESERVED_MASK      0xF0
+static int hf_mpeg_descr_component_high_stream_content_ext = -1;
+static int hf_mpeg_descr_component_high_stream_content = -1;
+static int hf_mpeg_descr_component_high_stream_content_both = -1;
+static int hf_mpeg_descr_component_high_component_type = -1;
+static int hf_mpeg_descr_component_high_stream_content_n_component_type = -1;
+
+static int hf_mpeg_descr_component_nga_bits_b7_reserved = -1;
+static int hf_mpeg_descr_component_nga_bits_b6_headphones = -1;
+static int hf_mpeg_descr_component_nga_bits_b5_interactivity = -1;
+static int hf_mpeg_descr_component_nga_bits_b4_dialogue_enhancement = -1;
+static int hf_mpeg_descr_component_nga_bits_b3_spoken_subtitles = -1;
+static int hf_mpeg_descr_component_nga_bits_b2_audio_description = -1;
+static int hf_mpeg_descr_component_nga_bits_b10_channel_layout = -1;
+
+#define MPEG_DESCR_COMPONENT_STREAM_CONTENT_EXT_MASK      0xF0
 #define MPEG_DESCR_COMPONENT_STREAM_CONTENT_MASK    0x0F
 #define MPEG_DESCR_COMPONENT_CONTENT_TYPE_MASK      0x0FFF
+
+#define MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_EXT_MASK       0xF000
+#define MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_MASK           0x0F00
+#define MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_BOTH_MASK      0xFF00
+#define MPEG_DESCR_COMPONENT_HIGH_COMPONENT_TYPE_MASK           0x00FF
+#define MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_N_COMPONENT_TYPE_MASK      0xFFFF
+
+#define MPEG_DESCR_COMPONENT_NGA_BITS_B7_MASK    0x0080
+#define MPEG_DESCR_COMPONENT_NGA_BITS_B6_MASK    0x0040
+#define MPEG_DESCR_COMPONENT_NGA_BITS_B5_MASK    0x0020
+#define MPEG_DESCR_COMPONENT_NGA_BITS_B4_MASK    0x0010
+#define MPEG_DESCR_COMPONENT_NGA_BITS_B3_MASK    0x0008
+#define MPEG_DESCR_COMPONENT_NGA_BITS_B2_MASK    0x0004
+#define MPEG_DESCR_COMPONENT_NGA_BITS_B10_MASK   0x0003
 
 static gint ett_mpeg_descriptor_component_content_type = -1;
 
@@ -1332,7 +1376,25 @@ static const value_string mpeg_descr_component_stream_content_vals[] = {
     { 0x05, "Video (H.264/AVC)" },
     { 0x06, "Audio (HE-AAC)" },
     { 0x07, "Audio (DTS)" },
-    { 0x09, "HEVC" },
+
+    { 0x0, NULL }
+};
+
+static const value_string mpeg_descr_component_high_stream_content_vals[] = {
+    { 0x09, "Video (HEVC)"},
+    { 0x19, "Audio (AC-4/DTS-UHD)"},
+    { 0x29, "TTML subtitles"},
+    { 0xEB, "NGA flags"},
+    { 0xFB, "Component tag based combination"},
+
+    { 0x0, NULL }
+};
+
+static const value_string mpeg_descr_component_preferred_reproduction_channel_layout_vals[] = {
+    { 0x00, "no preference" },
+    { 0x01, "stereo" },
+    { 0x02, "two-dimensional" },
+    { 0x03, "three-dimensional" },
 
     { 0x0, NULL }
 };
@@ -1373,14 +1435,24 @@ static const value_string mpeg_descr_component_content_type_vals[] = {
     { 0x0312, "DVB subtitles (normal) for display on 16:9 aspect ratio monitor" },
     { 0x0313, "DVB subtitles (normal) for display on 2.21:1 aspect ratio monitor" },
     { 0x0314, "DVB subtitles (normal) for display on a high definition monitor" },
+    { 0x0315, "DVB subtitles (normal) with plano-stereoscopic disparity for display on a high definition monitor" },
+    { 0x0316, "DVB subtitles (normal) for display on an ultra high definition monitor" },
     { 0x0320, "DVB subtitles (for the hard of hearing) with no monitor aspect ratio criticality" },
     { 0x0321, "DVB subtitles (for the hard of hearing) for display on 4:3 aspect ratio monitor" },
     { 0x0322, "DVB subtitles (for the hard of hearing) for display on 16:9 aspect ratio monitor" },
     { 0x0323, "DVB subtitles (for the hard of hearing) for display on 2.21:1 aspect ratio monitor" },
     { 0x0324, "DVB subtitles (for the hard of hearing) for display on a high definition monitor" },
+    { 0x0325, "DVB subtitles (for the hard of hearing) with plano-stereoscopic disparity for display on a high definition monitor" },
+    { 0x0326, "DVB subtitles (for the hard of hearing) for display on an ultra high definition monitor" },
     { 0x0330, "Open (in-vision) sign language interpretation for the deaf" },
     { 0x0331, "Closed sign language interpretation for the deaf" },
     { 0x0340, "video up-sampled from standard definition source material" },
+    { 0x0341, "Video is standard dynamic range (SDR)" },
+    { 0x0342, "Video is high dynamic range (HDR) remapped from standard dynamic range (SDR) source material" },
+    { 0x0343, "Video is high dynamic range (HDR) up-converted from standard dynamic range (SDR) source material" },
+    { 0x0344, "Video is standard frame rate, less than or equal to 60 Hz" },
+    { 0x0345, "High frame rate video generated from lower frame rate source material" },
+    { 0x0380, "dependent SAOC-DE data stream" },
     { 0x0501, "H.264/AVC standard definition video, 4:3 aspect ratio, 25 Hz" },
     { 0x0503, "H.264/AVC standard definition video, 16:9 aspect ratio, 25 Hz" },
     { 0x0504, "H.264/AVC standard definition video, > 16:9 aspect ratio, 25 Hz" },
@@ -1391,6 +1463,11 @@ static const value_string mpeg_descr_component_content_type_vals[] = {
     { 0x050C, "H.264/AVC high definition video, > 16:9 aspect ratio, 25 Hz" },
     { 0x050F, "H.264/AVC high definition video, 16:9 aspect ratio, 30 Hz" },
     { 0x0510, "H.264/AVC high definition video, > 16:9 aspect ratio, 30 Hz" },
+    { 0x0580, "H.264/AVC plano-stereoscopic frame compatible high definition video, 16:9 aspect ratio, 25 Hz, Side-by-Side" },
+    { 0x0581, "H.264/AVC plano-stereoscopic frame compatible high definition video, 16:9 aspect ratio, 25 Hz, Top-and-Bottom" },
+    { 0x0582, "H.264/AVC plano-stereoscopic frame compatible high definition video, 16:9 aspect ratio, 30 Hz, Side-by-Side" },
+    { 0x0583, "H.264/AVC stereoscopic frame compatible high definition video, 16:9 aspect ratio, 30 Hz, Top-and-Bottom" },
+    { 0x0584, "H.264/MVC dependent view, plano-stereoscopic service compatible video" },
     { 0x0601, "HE-AAC audio, single mono channel" },
     { 0x0603, "HE-AAC audio, stereo" },
     { 0x0605, "HE-AAC audio, surround sound" },
@@ -1405,16 +1482,74 @@ static const value_string mpeg_descr_component_content_type_vals[] = {
     { 0x0648, "HE-AAC broadcaster mix audio description for the visually impaired" },
     { 0x0649, "HE-AAC v2 receiver mix audio description for the visually impaired" },
     { 0x064A, "HE-AAC v2 broadcaster mix audio description for the visually impaired" },
+    { 0x06A0, "HE-AAC, or HE-AAC v2 with SAOC-DE ancillary data" },
     { 0x0801, "DVB SRM data" },
-    { 0x0900, "HEVC Main Profile high definition video, 50 Hz" },
-    { 0x0901, "HEVC Main 10 Profile high definition video, 50 Hz" },
-    { 0x0902, "HEVC Main Profile high definition video, 60 Hz" },
-    { 0x0903, "HEVC Main 10 Profile high definition video, 60 Hz" },
-    { 0x0904, "HEVC ultra high definition video" },
 
     { 0x0, NULL }
 };
 static value_string_ext mpeg_descr_component_content_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_component_content_type_vals);
+
+static const value_string mpeg_descr_component_high_content_type_vals[] = {
+
+    { 0x0900, "HEVC Main Profile high definition video, 50 Hz" },
+    { 0x0901, "HEVC Main 10 Profile high definition video, 50 Hz" },
+    { 0x0902, "HEVC Main Profile high definition video, 60 Hz" },
+    { 0x0903, "HEVC Main 10 Profile high definition video, 60 Hz" },
+    { 0x0904, "HEVC UHD video (SDR frame rate up to 60 Hz, SDR HFR dual PID with temporal scalability, \
+    HDR with HLG10 frame rate up to 60 Hz, HDR with HLG10 HFR dual PID and temporal scalability)" },
+    { 0x0905, "HEVC UHD video with PQ10 HDR with a frame rate lower than or equal to 60 Hz (HDR with PQ10 \
+    frame rate up to 60 Hz) or HEVC UHD video with PQ10 HDR with a frame rate of 100 Hz, \
+    120 000/1 001 Hz, or 120 Hz with a half frame rate HEVC temporal video sub-bit-stream \
+    (HDR with PQ10 HFR dual PID and temporal scalability)" },
+    { 0x0906, "HEVC UHD video, 100Hz, 120 000/1 001 Hz, or 120 Hz w/o a half frame rate HEVC temporal \
+    video sub-bit-stream (SDR HFR single PID, HDR with HLG10 HFR single PID)" },
+    { 0x0907, "HEVC UHD video, PQ10 HDR, frame rate of 100 Hz, 120 000/1 001 Hz, or 120 Hz without a half \
+    frame rate HEVC temporal video sub-bit-stream (HDR with PQ10 HFR single PID)" },
+    { 0x0908, "HEVC 8K" },
+    { 0x1900, "AC-4 main audio, mono" },
+    { 0x1901, "AC-4 main audio, mono, dialogue enhancement enabled" },
+    { 0x1902, "AC-4 main audio, stereo" },
+    { 0x1903, "AC-4 main audio, stereo, dialogue enhancement enabled" },
+    { 0x1904, "AC-4 main audio, multichannel" },
+    { 0x1905, "AC-4 main audio, multichannel, dialogue enhancement enabled" },
+    { 0x1906, "AC-4 broadcast-mix audio description, mono, for the visually impaired" },
+    { 0x1907, "AC-4 broadcast-mix audio description, mono, for the visually impaired, dialogue enhancement enabled" },
+    { 0x1908, "AC-4 broadcast-mix audio description, stereo, for the visually impaired" },
+    { 0x1909, "AC-4 broadcast-mix audio description, stereo, for the visually impaired, dialogue enhancement enabled" },
+    { 0x190A, "AC-4 broadcast-mix audio description, multichannel, for the visually impaired" },
+    { 0x190B, "AC-4 broadcast-mix audio description, multichannel, for the visually impaired, dialogue enhancement enabled" },
+    { 0x190C, "AC-4 receiver-mix audio description, mono, for the visually impaired" },
+    { 0x190D, "AC-4 receiver-mix audio description, stereo, for the visually impaired" },
+    { 0x190E, "AC-4 Part-2" },
+    { 0x190F, "MPEG-H Audio LC Profile" },
+    { 0x1910, "DTS-UHD main audio, mono" },
+    { 0x1911, "DTS-UHD main audio, mono, dialogue enhancement enabled" },
+    { 0x1912, "DTS-UHD main audio, stereo" },
+    { 0x1913, "DTS-UHD main audio, stereo, dialogue enhancement enabled" },
+    { 0x1914, "DTS-UHD main audio, multichannel" },
+    { 0x1915, "DTS-UHD main audio, multichannel, dialogue enhancement enabled" },
+    { 0x1916, "DTS-UHD broadcast-mix audio description, mono, for the visually impaired" },
+    { 0x1917, "DTS-UHD broadcast-mix audio description, mono, for the visually impaired, dialogue enhancement enabled" },
+    { 0x1918, "DTS-UHD broadcast-mix audio description, stereo, for the visually impaired" },
+    { 0x1919, "DTS-UHD broadcast-mix audio description, stereo, for the visually impaired, dialogue enhancement enabled" },
+    { 0x191A, "DTS-UHD broadcast-mix audio description, multichannel, for the visually impaired" },
+    { 0x191B, "DTS-UHD broadcast-mix audio description, multichannel, for the visually impaired, dialogue enhancement enabled" },
+    { 0x191C, "DTS-UHD receiver-mix audio description, mono, for the visually impaired" },
+    { 0x191D, "DTS-UHD receiver-mix audio description, stereo, for the visually impaired" },
+    { 0x191E, "DTS-UHD NGA Audio" },
+    { 0xFB00, "less than 16:9 aspect ratio" },
+    { 0xFB01, "16:9 aspect ratio" },
+    { 0xFB02, "greater than 16:9 aspect ratio" },
+    { 0xFB03, "plano-stereoscopic top and bottom (TaB) framepacking" },
+    { 0xFB04, "HLG10 HDR" },
+    { 0xFB05, "HEVC temporal video subset for a frame rate of 100 Hz, 120 000/1 001 Hz, or 120 Hz" },
+    { 0xFB06, "SMPTE ST 2094-10 DMI format as defined in clause 5.14.4.4.3.4.3 of ETSI TS 101 154" },
+    { 0xFB07, "SL-HDR2 DMI format as defined in clause 5.14.4.4.3.4.4 of ETSI TS 101 154" },
+    { 0xFB08, "SMPTE ST 2094-40 DMI format as defined in clause 5.14.4.4.3.4.5 of ETSI TS 101 154" },
+
+    { 0x0, NULL }
+};
+static value_string_ext mpeg_descr_component_high_content_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_descr_component_high_content_type_vals);
 
 static void
 proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
@@ -1422,8 +1557,40 @@ proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint len, 
 
     proto_item *cti;
     proto_tree *content_type_tree;
+    guint end = offset + len;
 
-    proto_tree_add_item(tree, hf_mpeg_descr_component_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (len < 6) {
+        return;
+    }
+
+    guint stream_content     = tvb_get_bits8(tvb, offset * 8 + 4, 4);
+
+    if (stream_content >= 0x09) {
+        guint stream_content_ext = tvb_get_bits8(tvb, offset * 8, 4);
+
+        cti = proto_tree_add_item(tree, hf_mpeg_descr_component_high_stream_content_n_component_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        content_type_tree = proto_item_add_subtree(cti, ett_mpeg_descriptor_component_content_type);
+
+        proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_high_stream_content_both, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_high_stream_content_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_high_stream_content, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        if (stream_content_ext == 0x0E && stream_content == 0x0B) {
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_nga_bits_b7_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_nga_bits_b6_headphones, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_nga_bits_b5_interactivity, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_nga_bits_b4_dialogue_enhancement, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_nga_bits_b3_spoken_subtitles, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_nga_bits_b2_audio_description, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_nga_bits_b10_channel_layout, tvb, offset, 2, ENC_BIG_ENDIAN);
+        } else {
+            proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_high_component_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+        }
+        offset += 2;
+        goto mpeg_descr_component_tail;
+    }
+
+    proto_tree_add_item(tree, hf_mpeg_descr_component_stream_content_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     cti = proto_tree_add_item(tree, hf_mpeg_descr_component_content_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     content_type_tree = proto_item_add_subtree(cti, ett_mpeg_descriptor_component_content_type);
@@ -1434,14 +1601,22 @@ proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint len, 
     proto_tree_add_item(content_type_tree, hf_mpeg_descr_component_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
+mpeg_descr_component_tail:
+
     proto_tree_add_item(tree, hf_mpeg_descr_component_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(tree, hf_mpeg_descr_component_lang_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
     offset += 3;
 
-    if (offset < len)
-        proto_tree_add_item(tree, hf_mpeg_descr_component_text, tvb, offset, len - offset, ENC_ASCII|ENC_NA);
+    if (offset < end)
+    {
+        dvb_encoding_e  encoding;
+        guint enc_len = dvb_analyze_string_charset(tvb, offset, end - offset, &encoding);
+        dvb_add_chartbl(tree, hf_mpeg_descr_component_text_encoding, tvb, offset, enc_len, encoding);
+
+        proto_tree_add_item(tree, hf_mpeg_descr_component_text, tvb, offset+enc_len, end-offset-enc_len, dvb_enc_to_item_enc(encoding));
+    }
 }
 
 /* 0x52 Stream Identifier Descriptor */
@@ -3470,6 +3645,11 @@ proto_register_mpeg_descriptor(void)
         } },
 
         /* 0x40 Network Name Descriptor */
+        { &hf_mpeg_descr_network_name_encoding, {
+            "Network Name Encoding", "mpeg_descr.net_name.name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
         { &hf_mpeg_descr_network_name_descriptor, {
             "Network Name", "mpeg_descr.net_name.name",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
@@ -3615,8 +3795,13 @@ proto_register_mpeg_descriptor(void)
         } },
 
         /* 0x47 Bouquet Name Descriptor */
+        { &hf_mpeg_descr_bouquet_name_encoding, {
+            "Bouquet Name Encoding", "mpeg_descr.bouquet_name.name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
         { &hf_mpeg_descr_bouquet_name, {
-            "Bouquet Name Descriptor", "mpeg_descr.bouquet_name.name",
+            "Bouquet Name", "mpeg_descr.bouquet_name.name",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
@@ -3847,9 +4032,79 @@ proto_register_mpeg_descriptor(void)
         } },
 
         /* 0x50 Component Descriptor */
-        { &hf_mpeg_descr_component_reserved, {
-            "Reserved", "mpeg_descr.component.reserved",
-            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_COMPONENT_RESERVED_MASK, NULL, HFILL
+        { &hf_mpeg_descr_component_nga_bits_b7_reserved, {
+            "Reserved zero for future use", "mpeg_descr.component.nga.reserved",
+            FT_UINT16, BASE_HEX, NULL,
+            MPEG_DESCR_COMPONENT_NGA_BITS_B7_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_nga_bits_b6_headphones, {
+            "Pre-rendered for consumption with headphones", "mpeg_descr.component.nga.headphones",
+            FT_UINT16, BASE_HEX, NULL,
+            MPEG_DESCR_COMPONENT_NGA_BITS_B6_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_nga_bits_b5_interactivity, {
+            "Enables interactivity", "mpeg_descr.component.nga.interactivity",
+            FT_UINT16, BASE_HEX, NULL,
+            MPEG_DESCR_COMPONENT_NGA_BITS_B5_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_nga_bits_b4_dialogue_enhancement, {
+            "Enables dialogue enhancement", "mpeg_descr.component.nga.dialogue_enhancement",
+            FT_UINT16, BASE_HEX, NULL,
+            MPEG_DESCR_COMPONENT_NGA_BITS_B4_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_nga_bits_b3_spoken_subtitles, {
+            "Contains spoken subtitles", "mpeg_descr.component.nga.spoken_subtitles",
+            FT_UINT16, BASE_HEX, NULL,
+            MPEG_DESCR_COMPONENT_NGA_BITS_B3_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_nga_bits_b2_audio_description, {
+            "Contains audio description", "mpeg_descr.component.nga.audio_description",
+            FT_UINT16, BASE_HEX, NULL,
+            MPEG_DESCR_COMPONENT_NGA_BITS_B2_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_nga_bits_b10_channel_layout, {
+            "Preferred reproduction channel layout", "mpeg_descr.component.nga.channel_layout",
+            FT_UINT16, BASE_HEX, VALS(mpeg_descr_component_preferred_reproduction_channel_layout_vals),
+            MPEG_DESCR_COMPONENT_NGA_BITS_B10_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_high_stream_content_n_component_type, {
+            "Stream Content and Component Type", "mpeg_descr.component.content_type",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &mpeg_descr_component_high_content_type_vals_ext,
+            MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_N_COMPONENT_TYPE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_high_stream_content_both, {
+            "Stream Content both", "mpeg_descr.component.stream_content_both",
+            FT_UINT16, BASE_HEX, VALS(mpeg_descr_component_high_stream_content_vals),
+            MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_BOTH_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_high_stream_content_ext, {
+            "Stream Content Ext", "mpeg_descr.component.stream_content_ext",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_EXT_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_high_stream_content, {
+            "Stream Content", "mpeg_descr.component.stream_content",
+            FT_UINT16, BASE_HEX, NULL,
+            MPEG_DESCR_COMPONENT_HIGH_STREAM_CONTENT_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_high_component_type, {
+            "Component Type", "mpeg_descr.component.type",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_COMPONENT_HIGH_COMPONENT_TYPE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_stream_content_ext, {
+            "Stream Content Ext", "mpeg_descr.component.stream_content_ext",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_COMPONENT_STREAM_CONTENT_EXT_MASK, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_component_stream_content, {
@@ -3877,6 +4132,11 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_component_lang_code, {
             "Language Code", "mpeg_descr.component.lang_code",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_component_text_encoding, {
+            "Text Encoding", "mpeg_descr.component.text_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_component_text, {
