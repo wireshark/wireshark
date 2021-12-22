@@ -1386,8 +1386,8 @@ another packet, it automatically opens all subtrees of that type.
 If you close one of them, all subtrees of that type will be closed when
 you move to another packet.
 
-There are several functions that the programmer can use to add either
-protocol or field labels to the proto_tree:
+There are many functions that the programmer can use to add either
+protocol or field labels to the proto_tree, for example:
 
     proto_item*
     proto_tree_add_item(tree, id, tvb, start, length, encoding);
@@ -1397,286 +1397,26 @@ protocol or field labels to the proto_tree:
         *retval);
 
     proto_item*
-    proto_tree_add_item_ret_uint(tree, id, tvb, start, length, encoding,
-        *retval);
-
-    proto_item*
-    proto_tree_add_item_ret_uint64(tree, id, tvb, start, length, encoding,
-        *retval);
-
-    proto_item*
-    proto_tree_add_item_ret_boolean(tree, id, tvb, start, length, encoding,
-        *retval);
-
-    proto_item*
     proto_tree_add_subtree(tree, tvb, start, length, idx, tree_item,
         text);
-
-    proto_item*
-    proto_tree_add_subtree_format(tree, tvb, start, length, idx, tree_item,
-        format, ...);
-
-    proto_item*
-    proto_tree_add_none_format(tree, id, tvb, start, length, format, ...);
-
-    proto_item*
-    proto_tree_add_protocol_format(tree, id, tvb, start, length,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_bytes(tree, id, tvb, start, length, start_ptr);
-
-    proto_item *
-    proto_tree_add_bytes_item(tree, id, tvb, start, length, encoding,
-        retval, endoff, err);
-
-    proto_item *
-    proto_tree_add_bytes_format(tree, id, tvb, start, length, start_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_bytes_format_value(tree, id, tvb, start, length,
-        start_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_bytes_with_length(tree, id, tvb, start, tvb_length, start_ptr, ptr_length);
-
-    proto_item *
-    proto_tree_add_time(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_time_item(tree, id, tvb, start, length, encoding,
-        retval, endoff, err);
-
-    proto_item *
-    proto_tree_add_time_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_time_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_ipxnet(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_ipxnet_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_ipxnet_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_ipv4(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_ipv4_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_ipv4_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_ipv6(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_ipv6_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_ipv6_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_ether(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_ether_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_ether_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_guid(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_guid_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_guid_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_oid(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_oid_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_oid_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_string(tree, id, tvb, start, length, value_ptr);
-
-    proto_item *
-    proto_tree_add_string_format(tree, id, tvb, start, length, value_ptr,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_string_format_value(tree, id, tvb, start, length,
-        value_ptr, format, ...);
-
-    proto_item *
-    proto_tree_add_boolean(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_boolean_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_boolean_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_float(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_float_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_float_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_double(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_double_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_double_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_uint(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_uint_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_uint_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_uint64(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_uint64_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_uint64_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_int(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_int_format(tree, id, tvb, start, length, value,
-        format, ...);
 
     proto_item *
     proto_tree_add_int_format_value(tree, id, tvb, start, length,
         value, format, ...);
 
     proto_item *
-    proto_tree_add_int64(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_int64_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_int64_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
-    proto_tree_add_eui64(tree, id, tvb, start, length, value);
-
-    proto_item *
-    proto_tree_add_eui64_format(tree, id, tvb, start, length, value,
-        format, ...);
-
-    proto_item *
-    proto_tree_add_eui64_format_value(tree, id, tvb, start, length,
-        value, format, ...);
-
-    proto_item *
     proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-        const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
-        packet_info *pinfo, guint32 computed_checksum, const guint encoding, const guint flags);
+        const int hf_checksum, const int hf_checksum_status,
+        struct expert_field* bad_checksum_expert, packet_info *pinfo,
+        guint32 computed_checksum, const guint encoding, const guint flags);
 
     proto_item *
     proto_tree_add_bitmask(tree, tvb, start, header, ett, fields,
         encoding);
 
     proto_item *
-    proto_tree_add_bitmask_len(tree, tvb, start, len, header, ett, fields,
-        exp, encoding);
-
-    proto_item *
-    proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
-        ett, fields, encoding, flags);
-
-    proto_item *
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_hdr, ett,
-        fields, encoding, flags);
-
-    proto_item*
     proto_tree_add_bits_item(tree, id, tvb, bit_offset, no_of_bits,
         encoding);
-
-    proto_item *
-    proto_tree_add_split_bits_item_ret_val(tree, hf_index, tvb, bit_offset,
-        crumb_spec, return_value);
-
-    void
-    proto_tree_add_split_bits_crumb(tree, hf_index, tvb, bit_offset,
-        crumb_spec, crumb_index);
-
-    proto_item *
-    proto_tree_add_bits_ret_val(tree, id, tvb, bit_offset, no_of_bits,
-        return_value, encoding);
-
-    proto_item *
-    proto_tree_add_uint_bits_format_value(tree, id, tvb, bit_offset,
-        no_of_bits, value, format, ...);
-
-    proto_item *
-    proto_tree_add_boolean_bits_format_value(tree, id, tvb, bit_offset,
-        no_of_bits, value, format, ...);
-
-    proto_item *
-    proto_tree_add_int_bits_format_value(tree, id, tvb, bit_offset,
-        no_of_bits, value, format, ...);
-
-    proto_item *
-    proto_tree_add_float_bits_format_value(tree, id, tvb, bit_offset,
-        no_of_bits, value, format, ...);
-
-    proto_item *
-    proto_tree_add_ts_23_038_7bits_item(tree, hf_index, tvb,
-        bit_offset, no_of_chars);
 
 The 'tree' argument is the tree to which the item is to be added. The
 'tvb' argument is the tvbuff from which the item's value is being
@@ -1694,6 +1434,10 @@ dissection is complete, set the length with 'proto_item_set_len()':
 
 The "ti" argument is the value returned by the call that added the item
 to the tree, and the "length" argument is the length of the item.
+
+All available protocol tree functions are declared in epan/proto.h, with
+their documentation. The details of these functions and their parameters
+are described below.
 
 proto_tree_add_item()
 ---------------------
