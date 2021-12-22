@@ -1273,7 +1273,7 @@ static const value_string appl_usage_orders_vals[] = { // ApplUsageOrders
 static const value_string basket_trade_report_type_vals[] = { // BasketTradeReportType
     { 0, "Submit" },
     { 4, "Addendum" },
-    { 5, "No_Was_Substitue" },
+    { 5, "No_Was_Substitute" },
     { 0xFF, "NO_VALUE" },
     { 0, NULL }
 };
@@ -1578,7 +1578,7 @@ static const value_string multi_leg_reporting_type_vals[] = { // MultiLegReporti
 };
 static const value_string multileg_model_vals[] = { // MultilegModel
     { 0, "Predefined_Multileg_Security" },
-    { 1, "User_defined_Multleg" },
+    { 1, "User_defined_Multileg" },
     { 0xFF, "NO_VALUE" },
     { 0, NULL }
 };

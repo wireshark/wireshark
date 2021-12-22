@@ -288,7 +288,7 @@ the dissector to be called for the packet (PROTO_NAME tag).  Use this option
 if your dump is the payload for a single upper layer protocol (so specifying a
 link layer type would not work) and you wish to create a capture file without
 a full dummy protocol stack.  Automatically sets the link layer type to
-Wirehshark Upper PDU export.  Without this option, if the Upper PDU export
+Wireshark Upper PDU export.  Without this option, if the Upper PDU export
 link layer type (252) is selected the dissector defaults to "data".
 --
 

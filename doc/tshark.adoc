@@ -1060,7 +1060,7 @@ displays undelimited ASCII dump text by default.
 *delimit*::
 
 Enable hexdump with the ASCII dump text delimited with '|' characters.
-This is useful to unambigiously determine the last of the hex byte text
+This is useful to unambiguously determine the last of the hex byte text
 and start of the ASCII dump text.
 
 *noascii*::

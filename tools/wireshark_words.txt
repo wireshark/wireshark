@@ -362,6 +362,7 @@ desegment
 desegmentation
 desegmenting
 deselect
+destip
 destport
 deutschland
 devcap
@@ -595,6 +596,7 @@ immersive
 implementations
 implementer
 implementor
+inactivated
 inband
 incits
 incremented
@@ -713,6 +715,7 @@ loopback
 lossy
 lscap
 lucent
+luminaire
 luminance
 macaddr
 macaddress
@@ -789,6 +792,7 @@ multiframe
 multiframes
 multihop
 multilateration
+multileg
 multipacket
 multipart
 multipath
@@ -942,6 +946,7 @@ picmg
 pinfo
 pixmap
 plaintext
+plano
 plixer
 plugin
 pluginize
