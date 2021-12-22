@@ -29,7 +29,8 @@ for FILE in $COMMIT_FILES; do
     # Skip some special cases
     FILE_BASENAME="$( basename "$FILE" )"
     # iLBC: the file is not even compiled when ilbc is not installed
-    if test "$FILE_BASENAME" = "iLBCdecode.c"
+    if test \( "$FILE_BASENAME" = "iLBCdecode.c" -o \
+               "$FILE_BASENAME" = "packet-PROTOABBREV.c" \)
     then
         continue
     fi
