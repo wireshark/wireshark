@@ -641,7 +641,7 @@ void proto_report_dissector_bug(const char *format, ...)
  */
 #define ENC_VARINT_ZIGZAG        0x00000008
 
-#define ENC_VARIANT_MASK         (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARINT_ZIGZAG)
+#define ENC_VARINT_MASK          (ENC_VARINT_PROTOBUF|ENC_VARINT_QUIC|ENC_VARINT_ZIGZAG)
 
 /* Values for header_field_info.display */
 

@@ -2511,7 +2511,7 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 		return;
 
 	if ((hfinfo->type == FT_STRINGZ) ||
-	    ((encoding & (ENC_VARIANT_MASK)) &&
+	    ((encoding & ENC_VARINT_MASK) &&
 	     (IS_FT_UINT(hfinfo->type) || IS_FT_INT(hfinfo->type)))) {
 		/* If we're fetching until the end of the TVB, only validate
 		 * that the offset is within range.
@@ -3137,7 +3137,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	}
 	/* I believe it's ok if this is called with a NULL tree */
 	/* XXX - modify if we ever support EBCDIC FT_CHAR */
-	if (encoding & (ENC_VARIANT_MASK)) {
+	if (encoding & ENC_VARINT_MASK) {
 		guint64 temp64;
 		tvb_get_varint(tvb, start, length, &temp64, encoding);
 		value = (guint32)temp64;
@@ -3427,7 +3427,7 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
 	/* I believe it's ok if this is called with a NULL tree */
-	if (encoding & (ENC_VARIANT_MASK)) {
+	if (encoding & ENC_VARINT_MASK) {
 		tvb_get_varint(tvb, start, length, &value, encoding);
 	} else {
 		value = get_uint64_value(tree, tvb, start, length, encoding);
@@ -3490,7 +3490,7 @@ proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
 	/* I believe it's ok if this is called with a NULL tree */
-	if (encoding & (ENC_VARIANT_MASK)) {
+	if (encoding & ENC_VARINT_MASK) {
 		tvb_get_varint(tvb, start, length, &value, encoding);
 	}
 	else {
@@ -3648,7 +3648,7 @@ proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_ipv4",
 			length);
 
-	if (encoding & (ENC_STRING | ENC_VARIANT_MASK | ENC_VARINT_PROTOBUF | ENC_VARINT_ZIGZAG)) {
+	if (encoding & (ENC_STRING | ENC_VARINT_MASK)) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
 	}
 
@@ -6166,7 +6166,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 	case FT_INT48:
 	case FT_INT56:
 	case FT_INT64:
-		if (encoding & (ENC_VARIANT_MASK)) {
+		if (encoding & ENC_VARINT_MASK) {
 			if (length < -1) {
 				report_type_length_mismatch(NULL, "a FT_[U]INT", length, TRUE);
 			}
