@@ -2778,6 +2778,7 @@ if(BUILD_text2pcap)
 		wiretap
 		wsutil
 		ui
+		epan
 		version_info
 		${M_LIBRARIES}
 		${ZLIB_LIBRARIES}
@@ -2785,9 +2786,6 @@ if(BUILD_text2pcap)
 	set(text2pcap_FILES
 		$<TARGET_OBJECTS:cli_main>
 		text2pcap.c
-	)
-	add_lex_files(text2pcap_LEX_FILES text2pcap_FILES
-		text2pcap-scanner.l
 	)
 	set_executable_resources(text2pcap "Text2pcap"
 		COPYRIGHT_INFO "2001 Ashok Narayanan <ashokn@cisco.com>")

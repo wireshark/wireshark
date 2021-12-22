@@ -66,63 +66,28 @@
 
 #include <config.h>
 
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
-#ifndef __USE_XOPEN
-#  define __USE_XOPEN
-#endif
-#ifndef _XOPEN_SOURCE
-#  ifndef __sun
-#    define _XOPEN_SOURCE 600
-#  endif
-#endif
-
-/*
- * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
- * using glibc, to expand the set of things system header files define.
- *
- * Unfortunately, on other platforms, such as some versions of Solaris
- * (including Solaris 10), it *reduces* that set as well, causing
- * strptime() not to be declared, presumably because the version of the
- * X/Open spec that _XOPEN_SOURCE implies doesn't include strptime() and
- * blah blah blah namespace pollution blah blah blah.
- *
- * So we define __EXTENSIONS__ so that "strptime()" is declared.
- */
-#ifndef __EXTENSIONS__
-#  define __EXTENSIONS__
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <cli_main.h>
 #include <ui/cmdarg_err.h>
+#include <ui/text_import.h>
 #include <ui/version_info.h>
 #include <ui/failure_message.h>
 #include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/wslog.h>
-#include <wsutil/nstime.h>
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/privileges.h>
 
-#include <time.h>
 #include <glib.h>
 
 #include <wsutil/ws_getopt.h>
 
 #include <errno.h>
 #include <assert.h>
-
-#ifndef HAVE_STRPTIME
-# include "wsutil/strptime.h"
-#endif
 
 #include "text2pcap.h"
 
@@ -141,8 +106,11 @@ static gboolean quiet = FALSE;
 
 /* Dummy Ethernet header */
 static gboolean hdr_ethernet = FALSE;
+#if 0
+/* XXX: Maybe add custom Ethernet Address options? */
 static guint8 hdr_eth_dest_addr[6] = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02};
 static guint8 hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
+#endif
 static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
@@ -155,7 +123,6 @@ static guint32 hdr_ip_dest_addr = 0;
 static guint32 hdr_ip_src_addr = 0;
 static ws_in6_addr hdr_ipv6_dest_addr = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 static ws_in6_addr hdr_ipv6_src_addr  = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 /* Dummy UDP header */
 static gboolean hdr_udp = FALSE;
@@ -165,10 +132,6 @@ static guint32 hdr_src_port  = 0;
 /* Dummy TCP header */
 static gboolean hdr_tcp = FALSE;
 
-/* TCP sequence numbers when has_direction is true */
-static guint32 tcp_in_seq_num = 0;
-static guint32 tcp_out_seq_num = 0;
-
 /* Dummy SCTP header */
 static gboolean hdr_sctp = FALSE;
 static guint32 hdr_sctp_src  = 0;
@@ -177,8 +140,6 @@ static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
 static gboolean hdr_data_chunk = FALSE;
-static guint8  hdr_data_chunk_type = 0;
-static guint8  hdr_data_chunk_bits = 0;
 static guint32 hdr_data_chunk_tsn  = 0;
 static guint16 hdr_data_chunk_sid  = 0;
 static guint16 hdr_data_chunk_ssn  = 0;
@@ -188,37 +149,19 @@ static guint32 hdr_data_chunk_ppid = 0;
 static gboolean identify_ascii = FALSE;
 
 static gboolean has_direction = FALSE;
-static guint32 direction = PACK_FLAGS_DIRECTION_UNKNOWN;
 
 /*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
-static guint8  packet_buf[WTAP_MAX_PACKET_SIZE_STANDARD];
-static guint32 header_length;
-static guint32 ip_offset;
-static guint32 curr_offset = 0;
 static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
-static guint32 packet_start = 0;
-
-static int start_new_packet(gboolean);
-
-/* This buffer contains strings present before the packet offset 0 */
-#define PACKET_PREAMBLE_MAX_LEN     2048
-static char packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
-static int    packet_preamble_len = 0;
 
 /* Number of packets read and written */
 static guint32 num_packets_read    = 0;
 static guint32 num_packets_written = 0;
 
 /* Time code of packet, derived from packet_preamble */
-static time_t   ts_sec  = 0;
-static guint32  ts_nsec = 0;
 static char    *ts_fmt  = NULL;
 static int      ts_fmt_iso = 0;
-static struct tm timecode_default;
-
-static guint8* pkt_lnstart;
 
 /* Input file */
 static char *input_filename;
@@ -233,638 +176,8 @@ static guint32 offset_base = 16;
 
 extern FILE *text2pcap_in;
 
-/* ----- State machine -----------------------------------------------------------*/
-
-/* Current state of parser */
-typedef enum {
-    INIT,             /* Waiting for start of new packet */
-    START_OF_LINE,    /* Starting from beginning of line */
-    READ_OFFSET,      /* Just read the offset */
-    READ_BYTE,        /* Just read a byte */
-    READ_TEXT         /* Just read text - ignore until EOL */
-} parser_state_t;
-static parser_state_t state = INIT;
-
-static const char *state_str[] = {"Init",
-                           "Start-of-line",
-                           "Offset",
-                           "Byte",
-                           "Text"
-};
-
-static const char *token_str[] = {"",
-                           "Byte",
-                           "Offset",
-                           "Directive",
-                           "Text",
-                           "End-of-line"
-};
-
-/* ----- Skeleton Packet Headers --------------------------------------------------*/
-
-typedef struct {
-    guint8  dest_addr[6];
-    guint8  src_addr[6];
-    guint16 l3pid;
-} hdr_ethernet_t;
-
-static hdr_ethernet_t HDR_ETHERNET;
-
-typedef struct {
-    guint8  ver_hdrlen;
-    guint8  dscp;
-    guint16 packet_length;
-    guint16 identification;
-    guint8  flags;
-    guint8  fragment;
-    guint8  ttl;
-    guint8  protocol;
-    guint16 hdr_checksum;
-    guint32 src_addr;
-    guint32 dest_addr;
-} hdr_ip_t;
-
-/* Fixed IP address values */
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-#define IP_ID  0x1234
-#define IP_SRC 0x0a010101
-#define IP_DST 0x0a020202
-#else
-#define IP_ID  0x3412
-#define IP_SRC 0x0101010a
-#define IP_DST 0x0202020a
-#endif
-
-static hdr_ip_t HDR_IP = {0x45, 0, 0, IP_ID, 0, 0, 0xff, 0, 0, IP_SRC, IP_DST};
-
-static struct {         /* pseudo header for checksum calculation */
-    guint32 src_addr;
-    guint32 dest_addr;
-    guint8  zero;
-    guint8  protocol;
-    guint16 length;
-} pseudoh;
-
-
-/* headers taken from glibc */
-
-typedef struct {
-    union  {
-        struct ip6_hdrctl {
-            guint32 ip6_un1_flow;   /* 24 bits of flow-ID */
-            guint16 ip6_un1_plen;   /* payload length */
-            guint8  ip6_un1_nxt;    /* next header */
-            guint8  ip6_un1_hlim;   /* hop limit */
-        } ip6_un1;
-        guint8 ip6_un2_vfc;       /* 4 bits version, 4 bits priority */
-    } ip6_ctlun;
-    ws_in6_addr ip6_src;      /* source address */
-    ws_in6_addr ip6_dst;      /* destination address */
-} hdr_ipv6_t;
-
-static hdr_ipv6_t HDR_IPv6;
-
-/* https://tools.ietf.org/html/rfc2460#section-8.1 */
-static struct {                 /* pseudo header ipv6 for checksum calculation */
-    struct  e_in6_addr src_addr6;
-    struct  e_in6_addr dst_addr6;
-    guint32 length;
-    guint8 zero[3];
-    guint8 next_header;
-} pseudoh6;
-
-
-typedef struct {
-    guint16 source_port;
-    guint16 dest_port;
-    guint16 length;
-    guint16 checksum;
-} hdr_udp_t;
-
-static hdr_udp_t HDR_UDP = {0, 0, 0, 0};
-
-typedef struct {
-    guint16 source_port;
-    guint16 dest_port;
-    guint32 seq_num;
-    guint32 ack_num;
-    guint8  hdr_length;
-    guint8  flags;
-    guint16 window;
-    guint16 checksum;
-    guint16 urg;
-} hdr_tcp_t;
-
-static hdr_tcp_t HDR_TCP = {0, 0, 0, 0, 0x50, 0, 0, 0, 0};
-
-typedef struct {
-    guint16 src_port;
-    guint16 dest_port;
-    guint32 tag;
-    guint32 checksum;
-} hdr_sctp_t;
-
-static hdr_sctp_t HDR_SCTP = {0, 0, 0, 0};
-
-typedef struct {
-    guint8  type;
-    guint8  bits;
-    guint16 length;
-    guint32 tsn;
-    guint16 sid;
-    guint16 ssn;
-    guint32 ppid;
-} hdr_data_chunk_t;
-
-static hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
-
-static char tempbuf[64];
-
-/*----------------------------------------------------------------------
- * Stuff for writing a PCap file
- */
-
 /* Encapsulation type; see wiretap/wtap.h for details */
 static guint32 wtap_encap_type = 1;   /* Default is WTAP_ENCAP_ETHERNET */
-
-/*----------------------------------------------------------------------
- * Parse a single hex number
- * Will abort the program if it can't parse the number
- * Pass in TRUE if this is an offset, FALSE if not
- */
-static int
-parse_num(const char *str, int offset, guint32* num)
-{
-    char    *c;
-
-    if (str == NULL) {
-        fprintf(stderr, "FATAL ERROR: str is NULL\n");
-        return EXIT_FAILURE;
-    }
-
-    *num = (guint32)strtoul(str, &c, offset ? offset_base : 16);
-    if (c == str) {
-        fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
-        return EXIT_FAILURE;
-    }
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Write this byte into current packet
- */
-static int
-write_byte(const char *str)
-{
-    guint32 num;
-
-    if (parse_num(str, FALSE, &num) != EXIT_SUCCESS)
-        return EXIT_FAILURE;
-
-    packet_buf[curr_offset] = (guint8) num;
-    curr_offset++;
-    if (curr_offset - header_length >= max_offset) /* packet full */
-        if (start_new_packet(TRUE) != EXIT_SUCCESS)
-            return EXIT_FAILURE;
-
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Write a number of bytes into current packet
- */
-
-static void
-write_bytes (const char bytes[], guint32 nbytes)
-{
-    if (curr_offset + nbytes < WTAP_MAX_PACKET_SIZE_STANDARD) {
-        memcpy(&packet_buf[curr_offset], bytes, nbytes);
-        curr_offset += nbytes;
-    }
-}
-
-/*----------------------------------------------------------------------
- * Remove bytes from the current packet
- */
-static void
-unwrite_bytes (guint32 nbytes)
-{
-    curr_offset -= nbytes;
-}
-
-/*----------------------------------------------------------------------
- * Determine SCTP chunk padding length
- */
-static guint32
-number_of_padding_bytes (guint32 length)
-{
-    guint32 remainder;
-
-    remainder = length % 4;
-
-    if (remainder == 0)
-        return 0;
-    else
-        return 4 - remainder;
-}
-
-/*----------------------------------------------------------------------
- * Compute one's complement checksum (from RFC1071)
- */
-static guint16
-in_checksum (void *buf, guint32 count)
-{
-    guint32 sum = 0;
-    guint16 *addr = (guint16 *)buf;
-
-    while (count > 1) {
-        /*  This is the inner loop */
-        sum += g_ntohs(* (guint16 *) addr);
-        addr++;
-        count -= 2;
-    }
-
-    /*  Add left-over byte, if any */
-    if (count > 0)
-        sum += g_ntohs(* (guint8 *) addr);
-
-    /*  Fold 32-bit sum to 16 bits */
-    while (sum>>16)
-        sum = (sum & 0xffff) + (sum >> 16);
-
-    sum = ~sum;
-    return g_htons(sum);
-}
-
-/* The CRC32C code is taken from draft-ietf-tsvwg-sctpcsum-01.txt.
- * That code is copyrighted by D. Otis and has been modified.
- */
-
-#define CRC32C(c,d) (c=(c>>8)^crc_c[(c^(d))&0xFF])
-static guint32 crc_c[256] =
-{
-0x00000000U, 0xF26B8303U, 0xE13B70F7U, 0x1350F3F4U,
-0xC79A971FU, 0x35F1141CU, 0x26A1E7E8U, 0xD4CA64EBU,
-0x8AD958CFU, 0x78B2DBCCU, 0x6BE22838U, 0x9989AB3BU,
-0x4D43CFD0U, 0xBF284CD3U, 0xAC78BF27U, 0x5E133C24U,
-0x105EC76FU, 0xE235446CU, 0xF165B798U, 0x030E349BU,
-0xD7C45070U, 0x25AFD373U, 0x36FF2087U, 0xC494A384U,
-0x9A879FA0U, 0x68EC1CA3U, 0x7BBCEF57U, 0x89D76C54U,
-0x5D1D08BFU, 0xAF768BBCU, 0xBC267848U, 0x4E4DFB4BU,
-0x20BD8EDEU, 0xD2D60DDDU, 0xC186FE29U, 0x33ED7D2AU,
-0xE72719C1U, 0x154C9AC2U, 0x061C6936U, 0xF477EA35U,
-0xAA64D611U, 0x580F5512U, 0x4B5FA6E6U, 0xB93425E5U,
-0x6DFE410EU, 0x9F95C20DU, 0x8CC531F9U, 0x7EAEB2FAU,
-0x30E349B1U, 0xC288CAB2U, 0xD1D83946U, 0x23B3BA45U,
-0xF779DEAEU, 0x05125DADU, 0x1642AE59U, 0xE4292D5AU,
-0xBA3A117EU, 0x4851927DU, 0x5B016189U, 0xA96AE28AU,
-0x7DA08661U, 0x8FCB0562U, 0x9C9BF696U, 0x6EF07595U,
-0x417B1DBCU, 0xB3109EBFU, 0xA0406D4BU, 0x522BEE48U,
-0x86E18AA3U, 0x748A09A0U, 0x67DAFA54U, 0x95B17957U,
-0xCBA24573U, 0x39C9C670U, 0x2A993584U, 0xD8F2B687U,
-0x0C38D26CU, 0xFE53516FU, 0xED03A29BU, 0x1F682198U,
-0x5125DAD3U, 0xA34E59D0U, 0xB01EAA24U, 0x42752927U,
-0x96BF4DCCU, 0x64D4CECFU, 0x77843D3BU, 0x85EFBE38U,
-0xDBFC821CU, 0x2997011FU, 0x3AC7F2EBU, 0xC8AC71E8U,
-0x1C661503U, 0xEE0D9600U, 0xFD5D65F4U, 0x0F36E6F7U,
-0x61C69362U, 0x93AD1061U, 0x80FDE395U, 0x72966096U,
-0xA65C047DU, 0x5437877EU, 0x4767748AU, 0xB50CF789U,
-0xEB1FCBADU, 0x197448AEU, 0x0A24BB5AU, 0xF84F3859U,
-0x2C855CB2U, 0xDEEEDFB1U, 0xCDBE2C45U, 0x3FD5AF46U,
-0x7198540DU, 0x83F3D70EU, 0x90A324FAU, 0x62C8A7F9U,
-0xB602C312U, 0x44694011U, 0x5739B3E5U, 0xA55230E6U,
-0xFB410CC2U, 0x092A8FC1U, 0x1A7A7C35U, 0xE811FF36U,
-0x3CDB9BDDU, 0xCEB018DEU, 0xDDE0EB2AU, 0x2F8B6829U,
-0x82F63B78U, 0x709DB87BU, 0x63CD4B8FU, 0x91A6C88CU,
-0x456CAC67U, 0xB7072F64U, 0xA457DC90U, 0x563C5F93U,
-0x082F63B7U, 0xFA44E0B4U, 0xE9141340U, 0x1B7F9043U,
-0xCFB5F4A8U, 0x3DDE77ABU, 0x2E8E845FU, 0xDCE5075CU,
-0x92A8FC17U, 0x60C37F14U, 0x73938CE0U, 0x81F80FE3U,
-0x55326B08U, 0xA759E80BU, 0xB4091BFFU, 0x466298FCU,
-0x1871A4D8U, 0xEA1A27DBU, 0xF94AD42FU, 0x0B21572CU,
-0xDFEB33C7U, 0x2D80B0C4U, 0x3ED04330U, 0xCCBBC033U,
-0xA24BB5A6U, 0x502036A5U, 0x4370C551U, 0xB11B4652U,
-0x65D122B9U, 0x97BAA1BAU, 0x84EA524EU, 0x7681D14DU,
-0x2892ED69U, 0xDAF96E6AU, 0xC9A99D9EU, 0x3BC21E9DU,
-0xEF087A76U, 0x1D63F975U, 0x0E330A81U, 0xFC588982U,
-0xB21572C9U, 0x407EF1CAU, 0x532E023EU, 0xA145813DU,
-0x758FE5D6U, 0x87E466D5U, 0x94B49521U, 0x66DF1622U,
-0x38CC2A06U, 0xCAA7A905U, 0xD9F75AF1U, 0x2B9CD9F2U,
-0xFF56BD19U, 0x0D3D3E1AU, 0x1E6DCDEEU, 0xEC064EEDU,
-0xC38D26C4U, 0x31E6A5C7U, 0x22B65633U, 0xD0DDD530U,
-0x0417B1DBU, 0xF67C32D8U, 0xE52CC12CU, 0x1747422FU,
-0x49547E0BU, 0xBB3FFD08U, 0xA86F0EFCU, 0x5A048DFFU,
-0x8ECEE914U, 0x7CA56A17U, 0x6FF599E3U, 0x9D9E1AE0U,
-0xD3D3E1ABU, 0x21B862A8U, 0x32E8915CU, 0xC083125FU,
-0x144976B4U, 0xE622F5B7U, 0xF5720643U, 0x07198540U,
-0x590AB964U, 0xAB613A67U, 0xB831C993U, 0x4A5A4A90U,
-0x9E902E7BU, 0x6CFBAD78U, 0x7FAB5E8CU, 0x8DC0DD8FU,
-0xE330A81AU, 0x115B2B19U, 0x020BD8EDU, 0xF0605BEEU,
-0x24AA3F05U, 0xD6C1BC06U, 0xC5914FF2U, 0x37FACCF1U,
-0x69E9F0D5U, 0x9B8273D6U, 0x88D28022U, 0x7AB90321U,
-0xAE7367CAU, 0x5C18E4C9U, 0x4F48173DU, 0xBD23943EU,
-0xF36E6F75U, 0x0105EC76U, 0x12551F82U, 0xE03E9C81U,
-0x34F4F86AU, 0xC69F7B69U, 0xD5CF889DU, 0x27A40B9EU,
-0x79B737BAU, 0x8BDCB4B9U, 0x988C474DU, 0x6AE7C44EU,
-0xBE2DA0A5U, 0x4C4623A6U, 0x5F16D052U, 0xAD7D5351U,
-};
-
-static guint32
-crc32c (const guint8* buf, unsigned int len, guint32 crc32_init)
-{
-    unsigned int i;
-    guint32 crc;
-
-    crc = crc32_init;
-    for (i = 0; i < len; i++)
-        CRC32C(crc, buf[i]);
-
-    return crc;
-}
-
-static guint32
-finalize_crc32c (guint32 crc)
-{
-    guint32 result;
-    guint8 byte0,byte1,byte2,byte3;
-
-    result = ~crc;
-    byte0 = result & 0xff;
-    byte1 = (result>>8) & 0xff;
-    byte2 = (result>>16) & 0xff;
-    byte3 = (result>>24) & 0xff;
-    result = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
-    return result;
-}
-
-/*----------------------------------------------------------------------
- * Write current packet out
- */
-static int
-write_current_packet (gboolean cont)
-{
-    guint32  length         = 0;
-    guint16  padding_length = 0;
-    int      err;
-
-    if (curr_offset > header_length) {
-        /* Write the packet */
-
-        /* Is direction indication on with an outbound packet? */
-        gboolean isOutbound = has_direction && (direction == PACK_FLAGS_DIRECTION_OUTBOUND);
-
-        /* Compute packet length */
-        length = curr_offset;
-        if (hdr_sctp) {
-            padding_length = number_of_padding_bytes(length - header_length );
-        } else {
-            padding_length = 0;
-        }
-        /* Reset curr_offset, since we now write the headers */
-        curr_offset = 0;
-
-        /* Write Ethernet header */
-        if (hdr_ethernet) {
-            if (isOutbound)
-            {
-                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_src_addr, 6);
-                memcpy(HDR_ETHERNET.src_addr, hdr_eth_dest_addr, 6);
-            } else {
-                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_dest_addr, 6);
-                memcpy(HDR_ETHERNET.src_addr, hdr_eth_src_addr, 6);
-            }
-            HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
-            write_bytes((const char *)&HDR_ETHERNET, sizeof(HDR_ETHERNET));
-        }
-
-        /* Write IP header */
-        if (hdr_ip) {
-            if (isOutbound) {
-                HDR_IP.src_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
-                HDR_IP.dest_addr = hdr_ip_src_addr? hdr_ip_src_addr : IP_SRC;
-            }
-            else {
-                HDR_IP.src_addr = hdr_ip_src_addr? hdr_ip_src_addr : IP_SRC;
-                HDR_IP.dest_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
-            }
-
-            HDR_IP.packet_length = g_htons(length - ip_offset + padding_length);
-            HDR_IP.protocol = (guint8) hdr_ip_proto;
-            HDR_IP.hdr_checksum = 0;
-            HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
-            write_bytes((const char *)&HDR_IP, sizeof(HDR_IP));
-
-            /* initialize pseudo header for checksum calculation */
-            pseudoh.src_addr    = HDR_IP.src_addr;
-            pseudoh.dest_addr   = HDR_IP.dest_addr;
-            pseudoh.zero        = 0;
-            pseudoh.protocol    = (guint8) hdr_ip_proto;
-            if (hdr_tcp) {
-                pseudoh.length      = g_htons(length - header_length + sizeof(HDR_TCP));
-            } else if (hdr_udp) {
-                pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
-            }
-        } else if (hdr_ipv6) {
-            if (memcmp(isOutbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_src, isOutbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(ws_in6_addr));
-            if (memcmp(isOutbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_dst, isOutbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, sizeof(ws_in6_addr));
-
-            HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
-            HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
-            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen = g_htons(length - ip_offset - sizeof(HDR_IPv6) + padding_length);
-            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_nxt  = (guint8) hdr_ip_proto;
-            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = 32;
-            write_bytes((const char *)&HDR_IPv6, sizeof(HDR_IPv6));
-
-            /* initialize pseudo ipv6 header for checksum calculation */
-            pseudoh6.src_addr6  = HDR_IPv6.ip6_src;
-            pseudoh6.dst_addr6  = HDR_IPv6.ip6_dst;
-            memset(pseudoh6.zero, 0, sizeof(pseudoh6.zero));
-            pseudoh6.next_header   = (guint8) hdr_ip_proto;
-            if (hdr_tcp) {
-                pseudoh6.length      = g_htons(length - header_length + sizeof(HDR_TCP));
-            } else if (hdr_udp) {
-                pseudoh6.length      = g_htons(length - header_length + sizeof(HDR_UDP));
-            }
-        }
-
-        /* Write UDP header */
-        if (hdr_udp) {
-            guint16 x16;
-            guint32 u;
-
-            /* initialize the UDP header */
-            HDR_UDP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_UDP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
-            HDR_UDP.length      = hdr_ipv6 ? pseudoh6.length : pseudoh.length;
-            HDR_UDP.checksum = 0;
-            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-            x16  = hdr_ipv6 ? in_checksum(&pseudoh6, sizeof(pseudoh6)) : in_checksum(&pseudoh, sizeof(pseudoh));
-            u    = g_ntohs(x16);
-            x16  = in_checksum(&HDR_UDP, sizeof(HDR_UDP));
-            u   += g_ntohs(x16);
-            x16  = in_checksum(packet_buf + header_length, length - header_length);
-            u   += g_ntohs(x16);
-            x16  = (u & 0xffff) + (u>>16);
-            HDR_UDP.checksum = g_htons(x16);
-            if (HDR_UDP.checksum == 0) /* differentiate between 'none' and 0 */
-                HDR_UDP.checksum = g_htons(1);
-            write_bytes((const char *)&HDR_UDP, sizeof(HDR_UDP));
-        }
-
-        /* Write TCP header */
-        if (hdr_tcp) {
-            guint16 x16;
-            guint32 u;
-
-            /* initialize the TCP header */
-            HDR_TCP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_TCP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
-            /* set ack number if we have direction */
-            if (has_direction) {
-                HDR_TCP.flags = 0x10;
-                HDR_TCP.ack_num = g_ntohl(isOutbound ? tcp_out_seq_num : tcp_in_seq_num);
-                HDR_TCP.ack_num = g_htonl(HDR_TCP.ack_num);
-            }
-            else {
-                HDR_TCP.flags = 0;
-                HDR_TCP.ack_num = 0;
-            }
-            HDR_TCP.seq_num = isOutbound ? tcp_in_seq_num : tcp_out_seq_num;
-            HDR_TCP.window = g_htons(0x2000);
-            HDR_TCP.checksum = 0;
-            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-            x16  = hdr_ipv6 ? in_checksum(&pseudoh6, sizeof(pseudoh6)) : in_checksum(&pseudoh, sizeof(pseudoh));
-            u    = g_ntohs(x16);
-            x16  = in_checksum(&HDR_TCP, sizeof(HDR_TCP));
-            u   += g_ntohs(x16);
-            x16  = in_checksum(packet_buf + header_length, length - header_length);
-            u   += g_ntohs(x16);
-            x16  = (u & 0xffff) + (u>>16);
-            HDR_TCP.checksum = g_htons(x16);
-            if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
-                HDR_TCP.checksum = g_htons(1);
-            write_bytes((const char *)&HDR_TCP, sizeof(HDR_TCP));
-            if (isOutbound) {
-                tcp_in_seq_num = g_ntohl(tcp_in_seq_num) + length - header_length;
-                tcp_in_seq_num = g_htonl(tcp_in_seq_num);
-            }
-            else {
-                tcp_out_seq_num = g_ntohl(tcp_out_seq_num) + length - header_length;
-                tcp_out_seq_num = g_htonl(tcp_out_seq_num);
-            }
-        }
-
-        /* Compute DATA chunk header */
-        if (hdr_data_chunk) {
-            hdr_data_chunk_bits = 0;
-            if (packet_start == 0) {
-                hdr_data_chunk_bits |= 0x02;
-            }
-            if (!cont) {
-                hdr_data_chunk_bits |= 0x01;
-            }
-            HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
-            HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
-            HDR_DATA_CHUNK.length = g_htons(length - header_length + sizeof(HDR_DATA_CHUNK));
-            HDR_DATA_CHUNK.tsn    = g_htonl(hdr_data_chunk_tsn);
-            HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
-            HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
-            HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
-            hdr_data_chunk_tsn++;
-            if (!cont) {
-                hdr_data_chunk_ssn++;
-            }
-        }
-
-        /* Write SCTP common header */
-        if (hdr_sctp) {
-            guint32 zero = 0;
-
-            HDR_SCTP.src_port  = isOutbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = isOutbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
-            HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
-            HDR_SCTP.checksum  = g_htonl(0);
-            HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0);
-            if (hdr_data_chunk) {
-                HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
-                HDR_SCTP.checksum  = crc32c((guint8 *)packet_buf + header_length, length - header_length, HDR_SCTP.checksum);
-                HDR_SCTP.checksum  = crc32c((guint8 *)&zero, padding_length, HDR_SCTP.checksum);
-            } else {
-                HDR_SCTP.checksum  = crc32c((guint8 *)packet_buf + header_length, length - header_length, HDR_SCTP.checksum);
-            }
-            HDR_SCTP.checksum = finalize_crc32c(HDR_SCTP.checksum);
-            HDR_SCTP.checksum  = g_htonl(HDR_SCTP.checksum);
-            write_bytes((const char *)&HDR_SCTP, sizeof(HDR_SCTP));
-        }
-
-        /* Write DATA chunk header */
-        if (hdr_data_chunk) {
-            write_bytes((const char *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
-        }
-
-        /* Reset curr_offset, since we now write the trailers */
-        curr_offset = length;
-
-        /* Write DATA chunk padding */
-        if (hdr_data_chunk && (padding_length > 0)) {
-            memset(tempbuf, 0, padding_length);
-            write_bytes((const char *)&tempbuf, padding_length);
-            length += padding_length;
-        }
-
-        /* Write Ethernet trailer */
-        if (hdr_ethernet && (length < 60)) {
-            memset(tempbuf, 0, 60 - length);
-            write_bytes((const char *)&tempbuf, 60 - length);
-            length = 60;
-        }
-        wtap_rec rec;
-        gchar *err_info;
-
-        memset(&rec, 0, sizeof rec);
-
-        rec.rec_type = REC_TYPE_PACKET;
-        rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
-        rec.ts.secs = ts_sec;
-        rec.ts.nsecs = ts_nsec;
-        rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = /*prefix_length + */ curr_offset /*+ eth_trailer_length*/;
-        /* Unlike ui/text_import.c, header and trailer are in our buffer */
-        rec.rec_header.packet_header.pkt_encap = wtap_encap_type;
-        rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
-        if (has_direction) {
-            wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
-        }
-#if 0
-        /* XXX: ui/text_import.c supports this, not text2pcap */
-        if (has_seqno) {
-            wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
-        }
-#endif
-
-        if (!wtap_dump(wdh, &rec, packet_buf, &err, &err_info)) {
-            cfile_write_failure_message(input_filename, output_filename, err, err_info, num_packets_read, wtap_dump_file_type_subtype(wdh));
-            return EXIT_FAILURE;
-        }
-        wtap_block_unref(rec.block);
-        if (ts_fmt == NULL) {
-            /* fake packet counter */
-            if (use_pcapng)
-                ts_nsec++;
-            else
-                ts_nsec += 1000;
-        }
-        if (!quiet) {
-            fprintf(stderr, "Wrote packet of %u bytes.\n", length);
-        }
-        num_packets_written++;
-    }
-
-    packet_start += curr_offset - header_length;
-    curr_offset = header_length;
-    return EXIT_SUCCESS;
-}
 
 /*----------------------------------------------------------------------
  * Write file header and trailer
@@ -932,450 +245,6 @@ write_file_header(wtap_dump_params * const params, int file_type_subtype, const 
     }
 
     return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Append a token to the packet preamble.
- */
-static void
-append_to_preamble (char *str)
-{
-    size_t toklen;
-
-    if (packet_preamble_len != 0) {
-        if (packet_preamble_len == PACKET_PREAMBLE_MAX_LEN)
-            return; /* no room to add more preamble */
-        /* Add a blank separator between the previous token and this token. */
-        packet_preamble[packet_preamble_len++] = ' ';
-    }
-    toklen = strlen(str);
-    if (toklen != 0) {
-        if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
-            return; /* no room to add the token to the preamble */
-        (void) g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
-        packet_preamble_len += (int) toklen;
-        if (debug >= 2) {
-            char *c;
-            char xs[PACKET_PREAMBLE_MAX_LEN];
-            (void) g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
-            while ((c = strchr(xs, '\r')) != NULL) *c=' ';
-            fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
-        }
-    }
-}
-
-/*----------------------------------------------------------------------
- * Parse the preamble to get the timecode.
- */
-
-static void
-parse_preamble (void)
-{
-    struct tm  timecode;
-    int        i;
-
-     /*
-     * Null-terminate the preamble.
-     */
-    packet_preamble[packet_preamble_len] = '\0';
-    if (debug > 0)
-        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-
-    if (has_direction) {
-        switch (packet_preamble[0]) {
-        case 'i':
-        case 'I':
-            direction = PACK_FLAGS_DIRECTION_INBOUND;
-            packet_preamble[0] = ' ';
-            break;
-        case 'o':
-        case 'O':
-            direction = PACK_FLAGS_DIRECTION_OUTBOUND;
-            packet_preamble[0] = ' ';
-            break;
-        default:
-            direction = PACK_FLAGS_DIRECTION_UNKNOWN;
-            break;
-        }
-        i = 0;
-        while (packet_preamble[i] == ' ' ||
-               packet_preamble[i] == '\r' ||
-               packet_preamble[i] == '\t') {
-            i++;
-        }
-        packet_preamble_len -= i;
-        /* Also move the trailing '\0'. */
-        memmove(packet_preamble, packet_preamble + i, packet_preamble_len + 1);
-    }
-
-
-    /*
-     * If no "-t" flag was specified, don't attempt to parse the packet
-     * preamble to extract a time stamp.
-     */
-    if (ts_fmt == NULL) {
-        /* Clear Preamble */
-        packet_preamble_len = 0;
-        return;
-    }
-
-    /*
-     * Initialize to today localtime, just in case not all fields
-     * of the date and time are specified.
-     */
-
-    timecode = timecode_default;
-    ts_nsec = 0;
-
-    /* Ensure preamble has more than two chars before attempting to parse.
-     * This should cover line breaks etc that get counted.
-     */
-    if (strlen(packet_preamble) > 2) {
-        if (ts_fmt_iso) {
-            nstime_t ts_iso;
-            if (0 < iso8601_to_nstime(&ts_iso, packet_preamble, ISO8601_DATETIME_AUTO)) {
-                ts_sec = ts_iso.secs;
-                ts_nsec = ts_iso.nsecs;
-            } else {
-                ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-                ts_nsec = 0;
-            }
-        } else {
-            char      *subsecs;
-            char      *p;
-            int        subseclen;
-
-            /* Get Time leaving subseconds */
-            subsecs = strptime( packet_preamble, ts_fmt, &timecode );
-            if (subsecs != NULL) {
-                /* Get the long time from the tm structure */
-                /*  (will return -1 if failure)            */
-                ts_sec  = mktime( &timecode );
-            } else
-                ts_sec = -1;    /* we failed to parse it */
-
-            /* This will ensure incorrectly parsed dates get set to zero */
-            if (-1 == ts_sec) {
-                /* Sanitize - remove all '\r' */
-                char *c;
-                while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-                fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
-                     packet_preamble, ts_fmt);
-                if (debug >= 2) {
-                    fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
-                        timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
-                        timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
-                }
-                ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-                ts_nsec = 0;
-            } else {
-                /* Parse subseconds */
-                ts_nsec = (guint32)strtol(subsecs, &p, 10);
-                if (subsecs == p) {
-                    /* Error */
-                    ts_nsec = 0;
-                } else {
-                    /*
-                     * Convert that number to a number
-                     * of nanoseconds; if it's N digits
-                     * long, it's in units of 10^(-N) seconds,
-                     * so, to convert it to units of
-                     * 10^-9 seconds, we multiply by
-                     * 10^(9-N).
-                     */
-                    subseclen = (int) (p - subsecs);
-                    if (subseclen > 9) {
-                        /*
-                         * *More* than 9 digits; 9-N is
-                         * negative, so we divide by
-                         * 10^(N-9).
-                         */
-                        for (i = subseclen - 9; i != 0; i--)
-                            ts_nsec /= 10;
-                    } else if (subseclen < 9) {
-                        for (i = 9 - subseclen; i != 0; i--)
-                            ts_nsec *= 10;
-                    }
-                }
-            }
-        }
-    }
-    if (debug >= 2) {
-        char *c;
-        while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
-    }
-
-
-    /* Clear Preamble */
-    packet_preamble_len = 0;
-}
-
-/*----------------------------------------------------------------------
- * Start a new packet
- */
-static int
-start_new_packet (gboolean cont)
-{
-    if (debug >= 1)
-        fprintf(stderr, "Start new packet (cont = %s).\n", cont ? "TRUE" : "FALSE");
-
-    /* Write out the current packet, if required */
-    if (write_current_packet(cont) != EXIT_SUCCESS)
-        return EXIT_FAILURE;
-    num_packets_read++;
-
-    /* Ensure we parse the packet preamble as it may contain the time */
-    parse_preamble();
-
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Process a directive
- */
-static void
-process_directive (char *str)
-{
-    fprintf(stderr, "\n--- Directive [%s] currently unsupported ---\n", str + 10);
-}
-
-/*----------------------------------------------------------------------
- * Parse a single token (called from the scanner)
- */
-int
-parse_token (token_t token, char *str)
-{
-    guint32  num;
-    int      by_eol;
-    int      rollback = 0;
-    int      line_size;
-    int      i;
-    char    *s2;
-    char     tmp_str[3];
-
-    /*
-     * This is implemented as a simple state machine of five states.
-     * State transitions are caused by tokens being received from the
-     * scanner. The code should be self-documenting.
-     */
-
-    if (debug >= 2) {
-        /* Sanitize - remove all '\r' */
-        char *c;
-        if (str!=NULL) { while ((c = strchr(str, '\r')) != NULL) *c=' '; }
-
-        fprintf(stderr, "(%s, %s \"%s\") -> (",
-                state_str[state], token_str[token], str ? str : "");
-    }
-
-    switch (state) {
-
-    /* ----- Waiting for new packet -------------------------------------------*/
-    case INIT:
-        if (!str && token != T_EOL) goto fail_null_str;
-        switch (token) {
-        case T_TEXT:
-            append_to_preamble(str);
-            break;
-        case T_DIRECTIVE:
-            process_directive(str);
-            break;
-        case T_OFFSET:
-            if (parse_num(str, TRUE, &num) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            if (num == 0) {
-                /* New packet starts here */
-                if (start_new_packet(FALSE) != EXIT_SUCCESS)
-                    return EXIT_FAILURE;
-                state = READ_OFFSET;
-                pkt_lnstart = packet_buf + num;
-            }
-            break;
-        case T_EOL:
-            /* Some describing text may be parsed as offset, but the invalid
-               offset will be checked in the state of START_OF_LINE, so
-               we add this transition to gain flexibility */
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, start of new line -----------------------------*/
-    case START_OF_LINE:
-        if (!str && token != T_EOL) goto fail_null_str;
-        switch (token) {
-        case T_TEXT:
-            append_to_preamble(str);
-            break;
-        case T_DIRECTIVE:
-            process_directive(str);
-            break;
-        case T_OFFSET:
-            if (parse_num(str, TRUE, &num) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            if (num == 0) {
-                /* New packet starts here */
-                if (start_new_packet(FALSE) != EXIT_SUCCESS)
-                    return EXIT_FAILURE;
-                packet_start = 0;
-                state = READ_OFFSET;
-            } else if ((num - packet_start) != curr_offset - header_length) {
-                /*
-                 * The offset we read isn't the one we expected.
-                 * This may only mean that we mistakenly interpreted
-                 * some text as byte values (e.g., if the text dump
-                 * of packet data included a number with spaces around
-                 * it).  If the offset is less than what we expected,
-                 * assume that's the problem, and throw away the putative
-                 * extra byte values.
-                 */
-                if (num < curr_offset) {
-                    unwrite_bytes(curr_offset - num);
-                    state = READ_OFFSET;
-                } else {
-                    /* Bad offset; switch to INIT state */
-                    if (debug >= 1)
-                        fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
-                                curr_offset, num);
-                    if (write_current_packet(FALSE) != EXIT_SUCCESS)
-                        return EXIT_FAILURE;
-                    state = INIT;
-                }
-            } else {
-                state = READ_OFFSET;
-            }
-            pkt_lnstart = packet_buf + num;
-            break;
-        case T_EOL:
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, read offset -----------------------------------*/
-    case READ_OFFSET:
-        switch (token) {
-        case T_BYTE:
-            /* Record the byte */
-            state = READ_BYTE;
-            if (!str) goto fail_null_str;
-            if (write_byte(str) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            break;
-        case T_TEXT:
-        case T_DIRECTIVE:
-        case T_OFFSET:
-            state = READ_TEXT;
-            break;
-        case T_EOL:
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, read byte -------------------------------------*/
-    case READ_BYTE:
-        switch (token) {
-        case T_BYTE:
-            /* Record the byte */
-            if (write_byte(str) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            break;
-        case T_TEXT:
-        case T_DIRECTIVE:
-        case T_OFFSET:
-        case T_EOL:
-            by_eol = 0;
-            state = READ_TEXT;
-            if (token == T_EOL) {
-                by_eol = 1;
-                state = START_OF_LINE;
-            }
-            if (identify_ascii) {
-                /* Here a line of pkt bytes reading is finished
-                   compare the ascii and hex to avoid such situation:
-                   "61 62 20 ab ", when ab is ascii dump then it should
-                   not be treat as byte */
-                rollback = 0;
-                /* s2 is the ASCII string, s1 is the HEX string, e.g, when
-                   s2 = "ab ", s1 = "616220"
-                   we should find out the largest tail of s1 matches the head
-                   of s2, it means the matched part in tail is the ASCII dump
-                   of the head byte. These matched should be rollback */
-                line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
-                s2 = (char*)g_malloc((line_size+1)/4+1);
-                /* gather the possible pattern */
-                for (i = 0; i < (line_size+1)/4; i++) {
-                    tmp_str[0] = pkt_lnstart[i*3];
-                    tmp_str[1] = pkt_lnstart[i*3+1];
-                    tmp_str[2] = '\0';
-                    /* it is a valid convertable string */
-                    if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[1])) {
-                        break;
-                    }
-                    s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
-                    rollback++;
-                    /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
-                    if (!(pkt_lnstart[i*3+2] == ' ')) {
-                        if (by_eol != 1)
-                            rollback--;
-                        break;
-                    }
-                }
-                /* If packet line start contains possible byte pattern, the line end
-                   should contain the matched pattern if the user open the -a flag.
-                   The packet will be possible invalid if the byte pattern cannot find
-                   a matched one in the line of packet buffer.*/
-                if (rollback > 0) {
-                    if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
-                        unwrite_bytes(rollback);
-                    }
-                    /* Not matched. This line contains invalid packet bytes, so
-                       discard the whole line */
-                    else {
-                        unwrite_bytes(line_size);
-                    }
-                }
-                g_free(s2);
-            }
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, read text -------------------------------------*/
-    case READ_TEXT:
-        switch (token) {
-        case T_EOL:
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    default:
-        fprintf(stderr, "FATAL ERROR: Bad state (%d)", state);
-        return EXIT_FAILURE;
-    }
-
-    if (debug >= 2)
-        fprintf(stderr, ", %s)\n", state_str[state]);
-
-    return EXIT_SUCCESS;
-
-fail_null_str:
-    fprintf(stderr, "FATAL ERROR: got NULL str pointer in state (%d)", state);
-    return EXIT_FAILURE;
 }
 
 /*----------------------------------------------------------------------
@@ -1472,7 +341,7 @@ print_usage (FILE *output)
  * Parse CLI options
  */
 static int
-parse_options(int argc, char *argv[], wtap_dump_params * const params)
+parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump_params * const params)
 {
     int   c;
     char *p;
@@ -1481,7 +350,6 @@ parse_options(int argc, char *argv[], wtap_dump_params * const params)
         {"version", ws_no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
-    struct tm *now_tm;
     const char *interface_name = NULL;
     /* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
     guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
@@ -1852,20 +720,65 @@ parse_options(int argc, char *argv[], wtap_dump_params * const params)
         return EXIT_FAILURE;
     }
 
-    /* Set up our variables */
-    ts_sec = time(0);               /* initialize to current time */
-    now_tm = localtime(&ts_sec);
-    if (now_tm == NULL) {
-        /*
-         * This shouldn't happen - on UN*X, this should Just Work, and
-         * on Windows, it won't work if ts_sec is before the Epoch,
-         * but it's long after 1970, so....
-         */
-        fprintf(stderr, "localtime (right now) failed\n");
-        return EXIT_FAILURE;
+    info->mode = TEXT_IMPORT_HEXDUMP;
+    info->import_text_filename = input_filename;
+    info->output_filename = output_filename;
+    info->hexdump.import_text_FILE = input_file;
+    switch (offset_base) {
+    case (16): info->hexdump.offset_type = OFFSET_HEX; break;
+    case (10): info->hexdump.offset_type = OFFSET_DEC; break;
+    case (8):  info->hexdump.offset_type = OFFSET_OCT; break;
+    default:   info->hexdump.offset_type = OFFSET_HEX; break;
     }
-    timecode_default = *now_tm;
-    timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
+    info->hexdump.has_direction = has_direction;
+    info->timestamp_format = ts_fmt;
+
+    info->encapsulation = wtap_encap_type;
+    info->wdh = wdh;
+
+    if (hdr_data_chunk) {
+        info->dummy_header_type = HEADER_SCTP_DATA;
+    } else if (hdr_sctp) {
+        info->dummy_header_type = HEADER_SCTP;
+    } else if (hdr_tcp) {
+        info->dummy_header_type = HEADER_TCP;
+    } else if (hdr_udp) {
+        info->dummy_header_type = HEADER_UDP;
+    } else if (hdr_ip) {
+        info->dummy_header_type = HEADER_IPV4;
+    } else if (hdr_ipv6) {
+        info->dummy_header_type = HEADER_IPV4;
+    } else if (hdr_ethernet) {
+        info->dummy_header_type = HEADER_ETH;
+    } else {
+        info->dummy_header_type = HEADER_NONE;
+    }
+    info->pid = hdr_ethernet_proto;
+    if (hdr_ip) {
+        info->ip_src_addr.ipv4 = hdr_ip_src_addr;
+        info->ip_dest_addr.ipv4 = hdr_ip_dest_addr;
+    } else if (hdr_ipv6) {
+        info->ipv6 = TRUE;
+        info->ip_src_addr.ipv6 = hdr_ipv6_src_addr;
+        info->ip_dest_addr.ipv6 = hdr_ipv6_dest_addr;
+    }
+    info->protocol = hdr_ip_proto;
+    if (hdr_sctp) {
+        info->src_port = hdr_sctp_src;
+        info->dst_port = hdr_sctp_dest;
+    } else {
+        info->src_port = hdr_src_port;
+        info->dst_port = hdr_dest_port;
+    }
+    info->tag = hdr_sctp_tag;
+    info->ppi = hdr_data_chunk_ppid;
+
+#if 0
+    info->payload = /* XXX Export PDU not supported by text2pcap yet */
+#endif
+
+    info->max_frame_length = max_offset;
+    info->identify_ascii = identify_ascii;
 
     /* Display summary of our state */
     if (!quiet) {
@@ -1930,6 +843,7 @@ main(int argc, char *argv[])
         cfile_close_failure_message
     };
     int ret = EXIT_SUCCESS;
+    text_import_info_t info;
     wtap_dump_params params;
     guint64 bytes_written;
 
@@ -1949,7 +863,8 @@ main(int argc, char *argv[])
     init_report_message("text2pcap", &text2pcap_report_routines);
     wtap_init(TRUE);
 
-    if (parse_options(argc, argv, &params) != EXIT_SUCCESS) {
+    memset(&info, 0, sizeof(info));
+    if (parse_options(argc, argv, &info, &params) != EXIT_SUCCESS) {
         ret = EXIT_FAILURE;
         goto clean_exit;
     }
@@ -1957,38 +872,10 @@ main(int argc, char *argv[])
     assert(input_file  != NULL);
     assert(wdh != NULL);
 
-    header_length = 0;
-    if (hdr_ethernet) {
-        header_length += (int)sizeof(HDR_ETHERNET);
-    }
-    if (hdr_ip) {
-        ip_offset = header_length;
-        header_length += (int)sizeof(HDR_IP);
-    } else if (hdr_ipv6) {
-        ip_offset = header_length;
-        header_length += (int)sizeof(HDR_IPv6);
-    }
-    if (hdr_sctp) {
-        header_length += (int)sizeof(HDR_SCTP);
-    }
-    if (hdr_data_chunk) {
-        header_length += (int)sizeof(HDR_DATA_CHUNK);
-    }
-    if (hdr_tcp) {
-        header_length += (int)sizeof(HDR_TCP);
-    }
-    if (hdr_udp) {
-        header_length += (int)sizeof(HDR_UDP);
-    }
-    curr_offset = header_length;
-
-    text2pcap_in = input_file;
-    if (text2pcap_scan() == EXIT_SUCCESS) {
-        if (write_current_packet(FALSE) != EXIT_SUCCESS)
-            ret = EXIT_FAILURE;
-    } else {
+    if (text_import(&info) != EXIT_SUCCESS) {
         ret = EXIT_FAILURE;
     }
+
     if (debug)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
