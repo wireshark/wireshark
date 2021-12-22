@@ -347,8 +347,8 @@ static hdr_export_pdu_t HDR_EXPORT_PDU = {0, 0};
 
 #define EXPORT_PDU_END_OF_OPTIONS_SIZE 4
 
-/* Link-layer type; see net/bpf.h for details */
-static guint pcap_link_type = 1;   /* Default is DLT_EN10MB */
+/* Wiretap encapsulation type; see wiretap/wtap.h for details */
+static guint wtap_encap_type = 1;   /* Default is WTAP_ENCAP_ETHERNET */
 
 /*----------------------------------------------------------------------
  * Parse a single hex number
@@ -643,7 +643,7 @@ write_current_packet(gboolean cont)
             rec.ts.secs = ts_sec;
             rec.ts.nsecs = ts_nsec;
             rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
-            rec.rec_header.packet_header.pkt_encap = pcap_link_type;
+            rec.rec_header.packet_header.pkt_encap = wtap_encap_type;
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
             if (has_direction) {
                 wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
@@ -1412,7 +1412,7 @@ text_import(const text_import_info_t *info)
         ts_fmt = info->timestamp_format;
     }
 
-    pcap_link_type = info->encapsulation;
+    wtap_encap_type = info->encapsulation;
 
     wdh = info->wdh;
 
