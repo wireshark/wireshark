@@ -7592,13 +7592,6 @@ proto_get_next_protocol(void **cookie)
 	return protocol->proto_id;
 }
 
-/* XXX: Unfortunately certain functions in proto_hier_tree_model.c
-        assume that the cookie stored by
-        proto_get_(first|next)_protocol_field() will never have a
-        value of NULL. So, to preserve this semantic, the cookie value
-        below is adjusted so that the cookie value stored is 1 + the
-        current (zero-based) array index.
-*/
 header_field_info *
 proto_get_first_protocol_field(const int proto_id, void **cookie)
 {
@@ -7607,7 +7600,7 @@ proto_get_first_protocol_field(const int proto_id, void **cookie)
 	if ((protocol == NULL) || (protocol->fields == NULL) || (protocol->fields->len == 0))
 		return NULL;
 
-	*cookie = GUINT_TO_POINTER(0 + 1);
+	*cookie = GUINT_TO_POINTER(0);
 	return (header_field_info *)g_ptr_array_index(protocol->fields, 0);
 }
 
@@ -7615,14 +7608,14 @@ header_field_info *
 proto_get_next_protocol_field(const int proto_id, void **cookie)
 {
 	protocol_t *protocol = find_protocol_by_id(proto_id);
-	guint       i        = GPOINTER_TO_UINT(*cookie) - 1;
+	guint       i        = GPOINTER_TO_UINT(*cookie);
 
 	i++;
 
 	if ((protocol->fields == NULL) || (i >= protocol->fields->len))
 		return NULL;
 
-	*cookie = GUINT_TO_POINTER(i + 1);
+	*cookie = GUINT_TO_POINTER(i);
 	return (header_field_info *)g_ptr_array_index(protocol->fields, i);
 }
 
