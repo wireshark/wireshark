@@ -125,6 +125,7 @@
 #include <wsutil/report_message.h>
 #include <wsutil/exported_pdu_tlvs.h>
 
+#include <wsutil/nstime.h>
 #ifndef HAVE_STRPTIME
 # include "wsutil/strptime.h"
 #endif
@@ -223,9 +224,10 @@ static guint32 num_packets_read    = 0;
 static guint32 num_packets_written = 0;
 
 /* Time code of packet, derived from packet_preamble */
-static time_t ts_sec = 0;
-static guint32 ts_nsec = 0;
+static time_t   ts_sec = 0;
+static guint32  ts_nsec = 0;
 static const char *ts_fmt = NULL;
+static gboolean ts_fmt_iso = FALSE;
 static struct tm timecode_default;
 /* The time delta to add to packets without a valid time code.
  * This can be no smaller than the time resolution of the dump
@@ -1053,76 +1055,85 @@ _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _fo
     int  i;
 
     (void) g_strlcpy(field, start_field, MIN(end_field - start_field + 1, PARSE_BUF));
-    (void) g_strlcpy(format, _format, PARSE_BUF);
-
-    /*
-     * Initialize to today localtime, just in case not all fields
-     * of the date and time are specified.
-     */
-    timecode = timecode_default;
-    cursor = &field[0];
-
-    /*
-     * %f is for fractions of seconds not supported by strptime
-     * BTW: what is this function name? is this some russian joke?
-     */
-    subsecs_fmt = g_strrstr(format, "%f");
-    if (subsecs_fmt) {
-        *subsecs_fmt = 0;
-    }
-
-    cursor = strptime(cursor, format, &timecode);
-
-    if (cursor == NULL) {
-        return FALSE;
-    }
-
-    if (subsecs_fmt != NULL) {
-        /*
-         * Parse subsecs and any following format
-         */
-        nsec_buf = (guint) strtol(cursor, &p, 10);
-        if (p == cursor) {
+    if (ts_fmt_iso) {
+        nstime_t ts_iso;
+        if (!iso8601_to_nstime(&ts_iso, field, ISO8601_DATETIME_AUTO)) {
             return FALSE;
         }
+        *sec = ts_iso.secs;
+        *nsec = ts_iso.nsecs;
+    } else {
+        (void) g_strlcpy(format, _format, PARSE_BUF);
 
-        subseclen = (int) (p - cursor);
-        cursor = p;
-        cursor = strptime(cursor, subsecs_fmt + 2, &timecode);
+        /*
+         * Initialize to today localtime, just in case not all fields
+         * of the date and time are specified.
+         */
+        timecode = timecode_default;
+        cursor = &field[0];
+
+        /*
+         * %f is for fractions of seconds not supported by strptime
+         * BTW: what is this function name? is this some russian joke?
+         */
+        subsecs_fmt = g_strrstr(format, "%f");
+        if (subsecs_fmt) {
+            *subsecs_fmt = 0;
+        }
+
+        cursor = strptime(cursor, format, &timecode);
+
         if (cursor == NULL) {
             return FALSE;
         }
-    }
 
-    if (subseclen > 0) {
-        /*
-         * Convert that number to a number
-         * of nanoseconds; if it's N digits
-         * long, it's in units of 10^(-N) seconds,
-         * so, to convert it to units of
-         * 10^-9 seconds, we multiply by
-         * 10^(9-N).
-         */
-        if (subseclen > SUBSEC_PREC) {
+        if (subsecs_fmt != NULL) {
             /*
-             * *More* than 9 digits; 9-N is
-             * negative, so we divide by
-             * 10^(N-9).
+             * Parse subsecs and any following format
              */
-            for (i = subseclen - SUBSEC_PREC; i != 0; i--)
-                nsec_buf /= 10;
-        } else if (subseclen < SUBSEC_PREC) {
-            for (i = SUBSEC_PREC - subseclen; i != 0; i--)
-                nsec_buf *= 10;
+            nsec_buf = (guint) strtol(cursor, &p, 10);
+            if (p == cursor) {
+                return FALSE;
+            }
+
+            subseclen = (int) (p - cursor);
+            cursor = p;
+            cursor = strptime(cursor, subsecs_fmt + 2, &timecode);
+            if (cursor == NULL) {
+                return FALSE;
+            }
         }
-    }
 
-    if ( -1 == (sec_buf = mktime(&timecode)) ) {
-        return FALSE;
-    }
+        if (subseclen > 0) {
+            /*
+             * Convert that number to a number
+             * of nanoseconds; if it's N digits
+             * long, it's in units of 10^(-N) seconds,
+             * so, to convert it to units of
+             * 10^-9 seconds, we multiply by
+             * 10^(9-N).
+             */
+            if (subseclen > SUBSEC_PREC) {
+                /*
+                 * *More* than 9 digits; 9-N is
+                 * negative, so we divide by
+                 * 10^(N-9).
+                 */
+                for (i = subseclen - SUBSEC_PREC; i != 0; i--)
+                    nsec_buf /= 10;
+            } else if (subseclen < SUBSEC_PREC) {
+                for (i = SUBSEC_PREC - subseclen; i != 0; i--)
+                    nsec_buf *= 10;
+            }
+        }
 
-    *sec = sec_buf;
-    *nsec = nsec_buf;
+        if ( -1 == (sec_buf = mktime(&timecode)) ) {
+            return FALSE;
+        }
+
+        *sec = sec_buf;
+        *nsec = nsec_buf;
+    }
 
     debug_printf(3, "parsed time %s Format(%s), time(%u), subsecs(%u)\n", field, _format, (guint32)*sec, (guint32)*nsec);
 
@@ -1553,6 +1564,9 @@ text_import(const text_import_info_t *info)
     if (info->timestamp_format)
     {
         ts_fmt = info->timestamp_format;
+        if (!strcmp(ts_fmt, "ISO")) {
+            ts_fmt_iso = TRUE;
+        }
     }
 
     wtap_encap_type = info->encapsulation;
