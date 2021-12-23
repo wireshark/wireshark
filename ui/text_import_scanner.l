@@ -4,6 +4,7 @@
 /* Include this before everything else, for various large-file definitions */
 #include "config.h"
 #include <wireshark.h>
+#include <ui/exit_codes.h>
 }
 
 /*
@@ -137,7 +138,7 @@ text_import_scan(FILE *input_file)
     yyscan_t scanner;
 
     if (text_import_lex_init(&scanner) != 0)
-        return errno;
+        return INIT_FAILED;
 
     text_import_set_in(input_file, scanner);
 

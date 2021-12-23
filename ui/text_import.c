@@ -122,6 +122,7 @@
 #include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
+#include <wsutil/report_message.h>
 #include <wsutil/exported_pdu_tlvs.h>
 
 #ifndef HAVE_STRPTIME
@@ -217,6 +218,10 @@ static void start_new_packet(gboolean);
 static guint8 packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int packet_preamble_len = 0;
 
+/* Number of packets read and written */
+static guint32 num_packets_read    = 0;
+static guint32 num_packets_written = 0;
+
 /* Time code of packet, derived from packet_preamble */
 static time_t ts_sec = 0;
 static guint32 ts_nsec = 0;
@@ -230,6 +235,8 @@ static struct tm timecode_default;
  */
 static guint32 ts_tick = 1000;
 
+static const char *input_filename;
+static const char *output_filename;
 static wtap_dumper* wdh;
 
 /* HDR_ETH Offset base to parse */
@@ -709,42 +716,35 @@ write_current_packet(gboolean cont)
         HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + curr_offset;
         HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
 
-        {
-            /* Write the packet */
-            wtap_rec rec;
-            int err;
-            gchar *err_info;
+        /* Write the packet */
+        wtap_rec rec;
+        int err;
+        gchar *err_info;
 
-            memset(&rec, 0, sizeof rec);
+        memset(&rec, 0, sizeof rec);
 
-            rec.rec_type = REC_TYPE_PACKET;
-            rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
-            rec.ts.secs = ts_sec;
-            rec.ts.nsecs = ts_nsec;
-            rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
-            rec.rec_header.packet_header.pkt_encap = wtap_encap_type;
-            rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
-            if (has_direction) {
-                wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
-            }
-            if (has_seqno) {
-                wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
-            }
-
-            /* XXX - report errors! */
-            if (!wtap_dump(wdh, &rec, packet_buf, &err, &err_info)) {
-                switch (err) {
-
-                case WTAP_ERR_UNWRITABLE_REC_DATA:
-                    g_free(err_info);
-                    break;
-
-                default:
-                    break;
-                }
-            }
-            wtap_block_unref(rec.block);
+        rec.rec_type = REC_TYPE_PACKET;
+        rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
+        rec.ts.secs = ts_sec;
+        rec.ts.nsecs = ts_nsec;
+        rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
+        rec.rec_header.packet_header.pkt_encap = wtap_encap_type;
+        rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
+        if (has_direction) {
+            wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
         }
+        if (has_seqno) {
+            wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
+        }
+
+        if (!wtap_dump(wdh, &rec, packet_buf, &err, &err_info)) {
+            report_cfile_write_failure(input_filename, output_filename,
+                               err, err_info, num_packets_read,
+                               wtap_dump_file_type_subtype(wdh));
+            /* XXX: Return failure */
+        }
+        wtap_block_unref(rec.block);
+        num_packets_written++;
     }
 
     packet_start += curr_offset;
@@ -991,6 +991,7 @@ void parse_data(guchar* start_field, guchar* end_field, enum data_encoding encod
           default:
             return;
         }
+        num_packets_read++;
         while (1) {
             parse_plain_data(&start_field, end_field, &dest, dest_end, table, NULL);
             curr_offset = (int) (dest - packet_buf);
@@ -1215,6 +1216,7 @@ start_new_packet(gboolean cont)
 
     /* Write out the current packet, if required */
     write_current_packet(cont);
+    num_packets_read++;
 
     /* Ensure we parse the packet preamble as it may contain the time */
     /* THIS IMPLIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
@@ -1555,6 +1557,8 @@ text_import(const text_import_info_t *info)
 
     wtap_encap_type = info->encapsulation;
 
+    input_filename = info->import_text_filename;
+    output_filename = info->output_filename;
     wdh = info->wdh;
 
     /* XXX: It would be good to know the time precision of the file,
@@ -1649,8 +1653,15 @@ text_import(const text_import_info_t *info)
 
     if (info->mode == TEXT_IMPORT_HEXDUMP) {
         ret = text_import_scan(info->hexdump.import_text_FILE);
+        if (ret == INIT_FAILED) {
+            report_failure("Can't initialize scanner: %s", g_strerror(errno));
+        }
     } else if (info->mode == TEXT_IMPORT_REGEX) {
         ret = text_import_regex(info);
+        if (ret > 0) {
+            num_packets_read = ret;
+            ret = 0;
+        }
     } else {
         ret = -1;
     }

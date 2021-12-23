@@ -475,7 +475,7 @@ int ImportTextDialog::exec() {
     /* Use a random name for the temporary import buffer */
     import_info_.wdh = wtap_dump_open_tempfile(&tmp, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
     capfile_name_.append(tmp ? tmp : "temporary file");
-    g_free(tmp);
+    import_info_.output_filename = tmp;
 
     if (import_info_.wdh == NULL) {
         cfile_dump_open_failure_alert_box(capfile_name_.toUtf8().constData(), err, err_info, file_type_subtype);
@@ -485,8 +485,8 @@ int ImportTextDialog::exec() {
 
     err = text_import(&import_info_);
 
-    if (err < 0) {
-        failure_alert_box("Can't initialize scanner: %s", g_strerror(err));
+    if (err != 0) {
+        failure_alert_box("Import failed");
         setResult(QDialog::Rejected);
         goto cleanup;
     }
@@ -498,6 +498,7 @@ int ImportTextDialog::exec() {
     }
   cleanup_wtap:
     /* g_free checks for null */
+    g_free(tmp);
     g_free((gpointer) import_info_.payload);
     switch (import_info_.mode) {
       case TEXT_IMPORT_HEXDUMP:

@@ -67,6 +67,7 @@ typedef struct
     // TODO: add const, as this way string constants can't be used
     // BUT: the other way clang-check complaines when you free them
     /* const */ char *import_text_filename;
+    char *output_filename;
     enum text_import_mode mode;
 
     struct {
