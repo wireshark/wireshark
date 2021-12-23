@@ -209,8 +209,6 @@ static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_bitfield_char(field_info *fi, gchar *label_str);
 static void fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed);
-static void fill_label_bitfield_varint(field_info *fi, gchar *label_str, gboolean is_signed);
-static void fill_label_bitfield_varint64(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_char(field_info *fi, gchar *label_str);
 static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number64(field_info *fi, gchar *label_str, gboolean is_signed);
@@ -2607,17 +2605,12 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_UINT16:
 		case FT_UINT24:
 		case FT_UINT32:
-			if (encoding & ENC_VARINT_PROTOBUF) {
-				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
-				new_fi->flags |= FI_VARINT;
-				value = (guint32)value64;
-			} else if (encoding & ENC_VARINT_QUIC) {
+			if (encoding & ENC_VARINT_MASK) {
 				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
 				value = (guint32)value64;
-			} else if (encoding & ENC_VARINT_ZIGZAG) {
-				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
-				new_fi->flags |= FI_VARINT;
-				value = (guint32)value64;
+				if (!(encoding & ENC_VARINT_QUIC)) {
+					new_fi->flags |= FI_VARINT;
+				}
 			}
 			else {
 				/*
@@ -2636,15 +2629,11 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_UINT48:
 		case FT_UINT56:
 		case FT_UINT64:
-
-			if (encoding & ENC_VARINT_PROTOBUF) {
+			if (encoding & ENC_VARINT_MASK) {
 				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
-				new_fi->flags |= FI_VARINT;
-			} else if (encoding & ENC_VARINT_QUIC) {
-				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
-			} else if (encoding & ENC_VARINT_ZIGZAG) {
-				new_fi->length = tvb_get_varint(tvb, start, (length == -1) ? FT_VARINT_MAX_LEN : length, &value64, encoding);
-				new_fi->flags |= FI_VARINT;
+				if (!(encoding & ENC_VARINT_QUIC)) {
+					new_fi->flags |= FI_VARINT;
+				}
 			}
 			else {
 				/*
@@ -5214,11 +5203,10 @@ proto_tree_set_boolean(field_info *fi, guint64 value)
 static char *
 other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
 {
-	int i;
+	int i = 0;
 	guint64 bit;
 	char *p;
 
-	i = 0;
 	p = buf;
 
 	/* This is a devel error. It is safer to stop here. */
@@ -5266,6 +5254,10 @@ other_decode_bitfield_varint_value(char *buf, guint64 val, guint64 mask, const i
 	char *p;
 
 	p = buf;
+
+	/* This is a devel error. It is safer to stop here. */
+	DISSECTOR_ASSERT(width >= 1);
+
 	bit = G_GUINT64_CONSTANT(1) << (width - 1);
 	for (;;) {
 		if (((8-(i % 8)) != 8) && /* MSB is never used for value. */
@@ -9049,11 +9041,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT24:
 		case FT_UINT32:
 			if (hfinfo->bitmask) {
-				if (fi->flags & FI_VARINT) {
-					fill_label_bitfield_varint(fi, label_str, FALSE);
-				} else {
-					fill_label_bitfield(fi, label_str, FALSE);
-				}
+				fill_label_bitfield(fi, label_str, FALSE);
 			} else {
 				fill_label_number(fi, label_str, FALSE);
 			}
@@ -9068,11 +9056,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT56:
 		case FT_UINT64:
 			if (hfinfo->bitmask) {
-				if (fi->flags & FI_VARINT) {
-					fill_label_bitfield_varint64(fi, label_str, FALSE);
-				} else {
-					fill_label_bitfield64(fi, label_str, FALSE);
-				}
+				fill_label_bitfield64(fi, label_str, FALSE);
 			} else {
 				fill_label_number64(fi, label_str, FALSE);
 			}
@@ -9083,11 +9067,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_INT24:
 		case FT_INT32:
 			if (hfinfo->bitmask) {
-				if (fi->flags & FI_VARINT) {
-					fill_label_bitfield_varint(fi, label_str, TRUE);
-				} else {
-					fill_label_bitfield(fi, label_str, TRUE);
-				}
+				fill_label_bitfield(fi, label_str, TRUE);
 			} else {
 				fill_label_number(fi, label_str, TRUE);
 			}
@@ -9098,11 +9078,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_INT56:
 		case FT_INT64:
 			if (hfinfo->bitmask) {
-				if (fi->flags & FI_VARINT) {
-					fill_label_bitfield_varint64(fi, label_str, TRUE);
-				} else {
-					fill_label_bitfield64(fi, label_str, TRUE);
-				}
+				fill_label_bitfield64(fi, label_str, TRUE);
 			} else {
 				fill_label_number64(fi, label_str, TRUE);
 			}
@@ -9473,16 +9449,17 @@ fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed)
 {
 	char       *p;
 	int         bitfield_byte_length, bitwidth;
-	guint32     unshifted_value;
-	guint32     value;
-
+	guint32     value, unshifted_value;
 	char        buf[32];
 	const char *out;
 
 	header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
-	bitwidth = hfinfo_container_bitwidth(hfinfo);
+	if (fi->flags & FI_VARINT)
+		bitwidth = fi->length*8;
+	else
+		bitwidth = hfinfo_container_bitwidth(hfinfo);
 
 	/* Un-shift bits */
 	if (is_signed)
@@ -9496,7 +9473,10 @@ fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed)
 	}
 
 	/* Create the bitfield first */
-	p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
+	if (fi->flags & FI_VARINT)
+		p = decode_bitfield_varint_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
+	else
+		p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
 	bitfield_byte_length = (int) (p - label_str);
 
 	/* Fill in the textual info using stored (shifted) value */
@@ -9529,16 +9509,17 @@ fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed)
 {
 	char       *p;
 	int         bitfield_byte_length, bitwidth;
-	guint64     unshifted_value;
-	guint64     value;
-
+	guint64     value, unshifted_value;
 	char        buf[48];
 	const char *out;
 
 	header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
-	bitwidth = hfinfo_container_bitwidth(hfinfo);
+	if (fi->flags & FI_VARINT)
+		bitwidth = fi->length*8;
+	else
+		bitwidth = hfinfo_container_bitwidth(hfinfo);
 
 	/* Un-shift bits */
 	if (is_signed)
@@ -9552,111 +9533,10 @@ fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed)
 	}
 
 	/* Create the bitfield first */
-	p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
-	bitfield_byte_length = (int) (p - label_str);
-
-	/* Fill in the textual info using stored (shifted) value */
-	if (hfinfo->display == BASE_CUSTOM) {
-		gchar tmp[ITEM_LABEL_LENGTH];
-		const custom_fmt_func_64_t fmtfunc64 = (const custom_fmt_func_64_t)hfinfo->strings;
-
-		DISSECTOR_ASSERT(fmtfunc64);
-		fmtfunc64(tmp, value);
-		label_fill(label_str, bitfield_byte_length, hfinfo, tmp);
-	}
-	else if (hfinfo->strings) {
-		const char *val_str = hf_try_val64_to_str_const(value, hfinfo, "Unknown");
-
-		out = hfinfo_number_vals_format64(hfinfo, buf, value);
-		if (out == NULL) /* BASE_NONE so don't put integer in descr */
-			label_fill(label_str, bitfield_byte_length, hfinfo, val_str);
-		else
-			label_fill_descr(label_str, bitfield_byte_length, hfinfo, val_str, out);
-	}
-	else {
-		out = hfinfo_number_value_format64(hfinfo, buf, value);
-
-		label_fill(label_str, bitfield_byte_length, hfinfo, out);
-	}
-}
-
-static void
-fill_label_bitfield_varint(field_info *fi, gchar *label_str, gboolean is_signed)
-{
-	char       *p;
-	int         bitfield_byte_length;
-	guint32     value, unshifted_value;
-	char        buf[48];
-	const char *out;
-
-	header_field_info *hfinfo = fi->hfinfo;
-
-	/* Un-shift bits */
-	if (is_signed) {
-		value = fvalue_get_sinteger(&fi->value);
-	} else {
-		value = fvalue_get_uinteger(&fi->value);
-	}
-	unshifted_value = value;
-	if (hfinfo->bitmask) {
-		unshifted_value <<= hfinfo_bitshift(hfinfo);
-	}
-
-	/* Create the bitfield first */
-	p = decode_bitfield_varint_value(label_str, unshifted_value, hfinfo->bitmask, fi->length*8);
-	bitfield_byte_length = (int) (p - label_str);
-
-	/* Fill in the textual info using stored (shifted) value */
-	if (hfinfo->display == BASE_CUSTOM) {
-		gchar tmp[ITEM_LABEL_LENGTH];
-		const custom_fmt_func_t fmtfunc = (const custom_fmt_func_t)hfinfo->strings;
-
-		DISSECTOR_ASSERT(fmtfunc);
-		fmtfunc(tmp, value);
-		label_fill(label_str, bitfield_byte_length, hfinfo, tmp);
-	}
-	else if (hfinfo->strings) {
-		const char *val_str = hf_try_val_to_str_const(value, hfinfo, "Unknown");
-
-		out = hfinfo_number_vals_format(hfinfo, buf, value);
-		if (out == NULL) /* BASE_NONE so don't put integer in descr */
-			label_fill(label_str, bitfield_byte_length, hfinfo, val_str);
-		else
-			label_fill_descr(label_str, bitfield_byte_length, hfinfo, val_str, out);
-	}
-	else {
-		out = hfinfo_number_value_format(hfinfo, buf, value);
-
-		label_fill(label_str, bitfield_byte_length, hfinfo, out);
-	}
-}
-
-static void
-fill_label_bitfield_varint64(field_info *fi, gchar *label_str, gboolean is_signed)
-{
-	char       *p;
-	int         bitfield_byte_length;
-	guint64     unshifted_value;
-	guint64     value;
-
-	char        buf[48];
-	const char *out;
-
-	header_field_info *hfinfo = fi->hfinfo;
-
-	/* Un-shift bits */
-	if (is_signed) {
-		value = fvalue_get_sinteger64(&fi->value);
-	} else {
-		value = fvalue_get_uinteger64(&fi->value);
-	}
-	unshifted_value = value;
-	if (hfinfo->bitmask) {
-		unshifted_value <<= hfinfo_bitshift(hfinfo);
-	}
-
-	/* Create the bitfield first */
-	p = decode_bitfield_varint_value(label_str, unshifted_value, hfinfo->bitmask, fi->length*8);
+	if (fi->flags & FI_VARINT)
+		p = decode_bitfield_varint_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
+	else
+		p = decode_bitfield_value(label_str, unshifted_value, hfinfo->bitmask, bitwidth);
 	bitfield_byte_length = (int) (p - label_str);
 
 	/* Fill in the textual info using stored (shifted) value */

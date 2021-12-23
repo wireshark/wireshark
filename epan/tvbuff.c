@@ -4486,7 +4486,9 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 {
 	*value = 0;
 
-	if (encoding & ENC_VARINT_PROTOBUF) {
+	switch (encoding & ENC_VARINT_MASK) {
+	case ENC_VARINT_PROTOBUF:
+	{
 		guint i;
 		guint64 b; /* current byte */
 
@@ -4499,7 +4501,11 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 				return i + 1;
 			}
 		}
-	} else if (encoding & ENC_VARINT_ZIGZAG) {
+		break;
+	}
+
+	case ENC_VARINT_ZIGZAG:
+	{
 		guint i;
 		guint64 b; /* current byte */
 
@@ -4513,9 +4519,11 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 				return i + 1;
 			}
 		}
+		break;
 	}
-	else if (encoding & ENC_VARINT_QUIC) {
 
+	case ENC_VARINT_QUIC:
+	{
 		/* calculate variable length */
 		*value = tvb_get_guint8(tvb, offset);
 		switch((*value) >> 6) {
@@ -4535,7 +4543,11 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 			ws_assert_not_reached();
 			break;
 		}
+		break;
+	}
 
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	return 0; /* 10 bytes scanned, but no bytes' msb is zero */
