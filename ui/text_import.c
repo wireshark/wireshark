@@ -194,6 +194,11 @@ static guint32 hdr_data_chunk_ppid = 0;
 static gboolean hdr_export_pdu = FALSE;
 static const gchar* hdr_export_pdu_payload = NULL;
 
+/* Hex+ASCII text dump identification, to handle an edge case where
+ * the ASCII representation contains patterns that look like bytes. */
+static gboolean identify_ascii = FALSE;
+static guint8* pkt_lnstart;
+
 static gboolean has_direction = FALSE;
 static guint32 direction = PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED;
 static gboolean has_seqno = FALSE;
@@ -1233,6 +1238,13 @@ void
 parse_token (token_t token, char *str)
 {
     guint32 num;
+    /* Variables for the hex+ASCII identification / lookback */
+    int     by_eol;
+    int	    rollback = 0;
+    int     line_size;
+    int     i;
+    char   *s2;
+    char    tmp_str[3];
 
     /*
      * This is implemented as a simple state machine of five states.
@@ -1266,6 +1278,7 @@ parse_token (token_t token, char *str)
                 /* New packet starts here */
                 start_new_packet(FALSE);
                 state = READ_OFFSET;
+                pkt_lnstart = packet_buf + num;
             }
             break;
         case T_BYTE:
@@ -1273,6 +1286,7 @@ parse_token (token_t token, char *str)
                 start_new_packet(FALSE);
                 write_byte(str);
                 state = READ_BYTE;
+                pkt_lnstart = packet_buf;
             }
             break;
         case T_EOF:
@@ -1320,13 +1334,16 @@ parse_token (token_t token, char *str)
                     write_current_packet(FALSE);
                     state = INIT;
                 }
-            } else
+            } else {
                 state = READ_OFFSET;
+            }
+            pkt_lnstart = packet_buf + num;
             break;
         case T_BYTE:
             if (offset_base == 0) {
                 write_byte(str);
                 state = READ_BYTE;
+                pkt_lnstart = packet_buf;
             }
             break;
         case T_EOF:
@@ -1371,10 +1388,60 @@ parse_token (token_t token, char *str)
         case T_TEXT:
         case T_DIRECTIVE:
         case T_OFFSET:
-            state = READ_TEXT;
-            break;
         case T_EOL:
-            state = START_OF_LINE;
+            by_eol = 0;
+            state = READ_TEXT;
+            if (token == T_EOL) {
+                by_eol = 1;
+                state = START_OF_LINE;
+            }
+            if (identify_ascii) {
+                /* Here a line of pkt bytes reading is finished
+                   compare the ascii and hex to avoid such situation:
+                   "61 62 20 ab ", when ab is ascii dump then it should
+                   not be treat as byte */
+                rollback = 0;
+                /* s2 is the ASCII string, s1 is the HEX string, e.g, when
+                   s2 = "ab ", s1 = "616220"
+                   we should find out the largest tail of s1 matches the head
+                   of s2, it means the matched part in tail is the ASCII dump
+                   of the head byte. These matched should be rollback */
+                line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
+                s2 = (char*)g_malloc((line_size+1)/4+1);
+                /* gather the possible pattern */
+                for (i = 0; i < (line_size+1)/4; i++) {
+                    tmp_str[0] = pkt_lnstart[i*3];
+                    tmp_str[1] = pkt_lnstart[i*3+1];
+                    tmp_str[2] = '\0';
+                    /* it is a valid convertable string */
+                    if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[1])) {
+                        break;
+                    }
+                    s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
+                    rollback++;
+                    /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
+                    if (!(pkt_lnstart[i*3+2] == ' ')) {
+                        if (by_eol != 1)
+                            rollback--;
+                        break;
+                    }
+                }
+                /* If packet line start contains possible byte pattern, the line end
+                   should contain the matched pattern if the user open the -a flag.
+                   The packet will be possible invalid if the byte pattern cannot find
+                   a matched one in the line of packet buffer.*/
+                if (rollback > 0) {
+                    if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
+                        unwrite_bytes(rollback);
+                    }
+                    /* Not matched. This line contains invalid packet bytes, so
+                       discard the whole line */
+                    else {
+                        unwrite_bytes(line_size);
+                    }
+                }
+                g_free(s2);
+            }
             break;
         case T_EOF:
             write_current_packet(FALSE);
@@ -1578,6 +1645,7 @@ text_import(const text_import_info_t *info)
     }
 
     max_offset = info->max_frame_length;
+    identify_ascii = info->identify_ascii;
 
     if (info->mode == TEXT_IMPORT_HEXDUMP) {
         ret = text_import_scan(info->hexdump.import_text_FILE);

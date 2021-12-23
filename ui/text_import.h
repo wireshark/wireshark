@@ -107,6 +107,7 @@ typedef struct
     /* const */ gchar* payload;
 
     guint max_frame_length;
+    gboolean identify_ascii;
 } text_import_info_t;
 
 int text_import(const text_import_info_t *info);
