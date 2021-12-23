@@ -2332,6 +2332,318 @@ proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, 
 
 }
 
+/* 0x5B Multilingual Network Name Descriptor */
+static int hf_mpeg_descr_multilng_network_name_desc_iso639_language_code = -1;
+static int hf_mpeg_descr_multilng_network_name_desc_name_length = -1;
+static int hf_mpeg_descr_multilng_network_name_desc_name_encoding = -1;
+static int hf_mpeg_descr_multilng_network_name_desc_name = -1;
+
+static gint ett_mpeg_descriptor_multilng_network_name_desc_lng = -1;
+
+static guint
+proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+{
+    guint l_offset = offset;
+    guint cnt = len;
+
+    if (cnt < 3) return l_offset - offset;
+    cnt      -= 3;
+    l_offset += 3;
+
+    if (cnt < 1) return l_offset - offset;
+    guint network_name_length = tvb_get_guint8(tvb, l_offset);
+    cnt      -= 1;
+    l_offset += 1;
+
+    network_name_length = MIN(network_name_length, cnt);
+    l_offset += network_name_length;
+
+    return l_offset - offset;
+}
+
+static void
+proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint cnt = len;
+
+    while (cnt > 0)
+    {
+        guint8 lng[4];
+        proto_tree * lng_tree;
+
+        if (cnt < 3) return;
+        guint lng_len = proto_mpeg_descriptor_dissect_multilng_network_name_desc_measure_lng_len(tvb, offset, cnt);
+        lng[0] = tvb_get_guint8(tvb, offset + 0);
+        lng[1] = tvb_get_guint8(tvb, offset + 1);
+        lng[2] = tvb_get_guint8(tvb, offset + 2);
+        lng[3] = 0;
+        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_network_name_desc_lng, NULL, "Language \"%s\"", lng);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+        cnt    -= 3;
+
+        if (cnt < 1) return;
+        guint network_name_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        network_name_length = MIN(network_name_length, cnt);
+        if (cnt < network_name_length) return;
+        dvb_encoding_e  encoding;
+        guint enc_len = dvb_analyze_string_charset(tvb, offset, network_name_length, &encoding);
+        dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name_encoding, tvb, offset, enc_len, encoding);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_network_name_desc_name, tvb, offset+enc_len, network_name_length-enc_len, dvb_enc_to_item_enc(encoding));
+        offset += network_name_length;
+        cnt    -= network_name_length;
+    }
+}
+
+/* 0x5C Multilingual Bouquet Name Descriptor */
+static int hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code = -1;
+static int hf_mpeg_descr_multilng_bouquet_name_desc_name_length = -1;
+static int hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding = -1;
+static int hf_mpeg_descr_multilng_bouquet_name_desc_name = -1;
+
+static gint ett_mpeg_descriptor_multilng_bouquet_name_desc_lng = -1;
+
+static guint
+proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+{
+    guint l_offset = offset;
+    guint cnt = len;
+
+    if (cnt < 3) return l_offset - offset;
+    cnt      -= 3;
+    l_offset += 3;
+
+    if (cnt < 1) return l_offset - offset;
+    guint bouquet_name_length = tvb_get_guint8(tvb, l_offset);
+    cnt      -= 1;
+    l_offset += 1;
+
+    bouquet_name_length = MIN(bouquet_name_length, cnt);
+    l_offset += bouquet_name_length;
+
+    return l_offset - offset;
+}
+
+static void
+proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint cnt = len;
+
+    while (cnt > 0)
+    {
+        guint8 lng[4];
+        proto_tree * lng_tree;
+
+        if (cnt < 3) return;
+        guint lng_len = proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc_measure_lng_len(tvb, offset, cnt);
+        lng[0] = tvb_get_guint8(tvb, offset + 0);
+        lng[1] = tvb_get_guint8(tvb, offset + 1);
+        lng[2] = tvb_get_guint8(tvb, offset + 2);
+        lng[3] = 0;
+        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_bouquet_name_desc_lng, NULL, "Language \"%s\"", lng);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+        cnt    -= 3;
+
+        if (cnt < 1) return;
+        guint bouquet_name_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        bouquet_name_length = MIN(bouquet_name_length, cnt);
+        if (cnt < bouquet_name_length) return;
+        dvb_encoding_e  encoding;
+        guint enc_len = dvb_analyze_string_charset(tvb, offset, bouquet_name_length, &encoding);
+        dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding, tvb, offset, enc_len, encoding);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_bouquet_name_desc_name, tvb, offset+enc_len, bouquet_name_length-enc_len, dvb_enc_to_item_enc(encoding));
+        offset += bouquet_name_length;
+        cnt    -= bouquet_name_length;
+    }
+}
+
+/* 0x5D Multilingual Service Name Descriptor */
+static int hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code = -1;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_length = -1;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_encoding = -1;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_provider_name = -1;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_name_length = -1;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_name_encoding = -1;
+static int hf_mpeg_descr_multilng_srv_name_desc_service_name = -1;
+
+static gint ett_mpeg_descriptor_multilng_srv_name_desc_lng = -1;
+
+static guint
+proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+{
+    guint l_offset = offset;
+    guint cnt = len;
+
+    if (cnt < 3) return l_offset - offset;
+    cnt      -= 3;
+    l_offset += 3;
+
+    if (cnt < 1) return l_offset - offset;
+    guint service_provider_name_length = tvb_get_guint8(tvb, l_offset);
+    cnt      -= 1;
+    l_offset += 1;
+
+    service_provider_name_length = MIN(service_provider_name_length, cnt);
+    cnt      -= service_provider_name_length;
+    l_offset += service_provider_name_length;
+
+    if (cnt < 1) return l_offset - offset;
+    guint service_name_length = tvb_get_guint8(tvb, l_offset);
+    cnt      -= 1;
+    l_offset += 1;
+
+    service_name_length = MIN(service_name_length, cnt);
+    l_offset += service_name_length;
+
+    return l_offset - offset;
+}
+
+static void
+proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint cnt = len;
+
+    while (cnt > 0)
+    {
+        guint8 lng[4];
+        proto_tree * lng_tree;
+
+        if (cnt < 3) return;
+        guint lng_len = proto_mpeg_descriptor_dissect_multilng_srv_name_desc_measure_lng_len(tvb, offset, cnt);
+        lng[0] = tvb_get_guint8(tvb, offset + 0);
+        lng[1] = tvb_get_guint8(tvb, offset + 1);
+        lng[2] = tvb_get_guint8(tvb, offset + 2);
+        lng[3] = 0;
+        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_srv_name_desc_lng, NULL, "Language \"%s\"", lng);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+        cnt    -= 3;
+
+        if (cnt < 1) return;
+        guint service_provider_name_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        service_provider_name_length = MIN(service_provider_name_length, cnt);
+        if (cnt < service_provider_name_length) return;
+        dvb_encoding_e  encoding;
+        guint enc_len = dvb_analyze_string_charset(tvb, offset, service_provider_name_length, &encoding);
+        dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_encoding, tvb, offset, enc_len, encoding);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_provider_name, tvb, offset+enc_len, service_provider_name_length-enc_len, dvb_enc_to_item_enc(encoding));
+        offset += service_provider_name_length;
+        cnt    -= service_provider_name_length;
+
+        if (cnt < 1) return;
+        guint service_name_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        service_name_length = MIN(service_name_length, cnt);
+        if (cnt < service_name_length) return;
+        enc_len = dvb_analyze_string_charset(tvb, offset, service_name_length, &encoding);
+        dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_name_encoding, tvb, offset, enc_len, encoding);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_srv_name_desc_service_name, tvb, offset+enc_len, service_name_length-enc_len, dvb_enc_to_item_enc(encoding));
+        offset += service_name_length;
+        cnt    -= service_name_length;
+    }
+}
+
+/* 0x5E Multilingual Component Descriptor */
+static int hf_mpeg_descr_multilng_component_desc_iso639_language_code = -1;
+static int hf_mpeg_descr_multilng_component_desc_tag = -1;
+static int hf_mpeg_descr_multilng_component_desc_text_length = -1;
+static int hf_mpeg_descr_multilng_component_desc_text_encoding = -1;
+static int hf_mpeg_descr_multilng_component_desc_text = -1;
+
+static gint ett_mpeg_descriptor_multilng_component_desc_lng = -1;
+
+static guint
+proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvbuff_t *tvb, guint offset, guint len)
+{
+    guint l_offset = offset;
+    guint cnt = len;
+
+    if (cnt < 3) return l_offset - offset;
+    cnt      -= 3;
+    l_offset += 3;
+
+    if (cnt < 1) return l_offset - offset;
+    guint text_length = tvb_get_guint8(tvb, l_offset);
+    cnt      -= 1;
+    l_offset += 1;
+
+    text_length = MIN(text_length, cnt);
+    l_offset += text_length;
+
+    return l_offset - offset;
+}
+
+static void
+proto_mpeg_descriptor_dissect_multilng_component_desc(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint cnt = len;
+
+    if (cnt < 1) return;
+    proto_tree_add_item(tree, hf_mpeg_descr_multilng_component_desc_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    cnt    -= 1;
+
+    while (cnt > 0)
+    {
+        guint8 lng[4];
+        proto_tree * lng_tree;
+
+        if (cnt < 3) return;
+        guint lng_len = proto_mpeg_descriptor_dissect_multilng_component_desc_measure_lng_len(tvb, offset, cnt);
+        lng[0] = tvb_get_guint8(tvb, offset + 0);
+        lng[1] = tvb_get_guint8(tvb, offset + 1);
+        lng[2] = tvb_get_guint8(tvb, offset + 2);
+        lng[3] = 0;
+        lng_tree = proto_tree_add_subtree_format(tree, tvb, offset, lng_len,
+                    ett_mpeg_descriptor_multilng_component_desc_lng, NULL, "Language \"%s\"", lng);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_component_desc_iso639_language_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+        cnt    -= 3;
+
+        if (cnt < 1) return;
+        guint text_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_component_desc_text_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        cnt    -= 1;
+
+        text_length = MIN(text_length, cnt);
+        if (cnt < text_length) return;
+        dvb_encoding_e  encoding;
+        guint enc_len = dvb_analyze_string_charset(tvb, offset, text_length, &encoding);
+        dvb_add_chartbl(lng_tree, hf_mpeg_descr_multilng_component_desc_text_encoding, tvb, offset, enc_len, encoding);
+
+        proto_tree_add_item(lng_tree, hf_mpeg_descr_multilng_component_desc_text, tvb, offset+enc_len, text_length-enc_len, dvb_enc_to_item_enc(encoding));
+        offset += text_length;
+        cnt    -= text_length;
+    }
+}
 
 /* 0x5F Private Data Specifier */
 static int hf_mpeg_descr_private_data_specifier_id = -1;
@@ -3548,6 +3860,18 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
         case 0x5A: /* Terrestrial Delivery System Descriptor */
             proto_mpeg_descriptor_dissect_terrestrial_delivery(tvb, offset, descriptor_tree);
             break;
+        case 0x5B: /* Multilingual Network Name Descriptor */
+            proto_mpeg_descriptor_dissect_multilng_network_name_desc(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x5C: /* Multilingual Bouquet Name Descriptor */
+            proto_mpeg_descriptor_dissect_multilng_bouquet_name_desc(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x5D: /* Multilingual Service Name Descriptor */
+            proto_mpeg_descriptor_dissect_multilng_srv_name_desc(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x5E: /* Multilingual Component Descriptor */
+            proto_mpeg_descriptor_dissect_multilng_component_desc(tvb, offset, len, descriptor_tree);
+            break;
         case 0x5F: /* Private Data Specifier Descriptor */
             proto_mpeg_descriptor_dissect_private_data_specifier(tvb, offset, descriptor_tree);
             break;
@@ -4709,6 +5033,110 @@ proto_register_mpeg_descriptor(void)
             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
+        /* 0x5B Multilingual Network Name Descriptor */
+        { &hf_mpeg_descr_multilng_network_name_desc_iso639_language_code, {
+            "Language ISO 639-2 Code", "mpeg_descr.net_name.lang_code",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_network_name_desc_name_length, {
+            "Network Name Length", "mpeg_descr.net_name.name_length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_network_name_desc_name_encoding, {
+            "Network Name Encoding", "mpeg_descr.net_name.name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_network_name_desc_name, {
+            "Network Name", "mpeg_descr.net_name.name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+
+        /* 0x5C Multilingual Bouquet Name Descriptor */
+        { &hf_mpeg_descr_multilng_bouquet_name_desc_iso639_language_code, {
+            "Language ISO 639-2 Code", "mpeg_descr.bouquet_name.lang_code",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_bouquet_name_desc_name_length, {
+            "Bouquet Name Length", "mpeg_descr.bouquet_name.name_length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_bouquet_name_desc_name_encoding, {
+            "Bouquet Name Encoding", "mpeg_descr.bouquet_name.name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_bouquet_name_desc_name, {
+            "Bouquet Name", "mpeg_descr.bouquet_name.name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x5D Multilingual Service Name Descriptor */
+        { &hf_mpeg_descr_multilng_srv_name_desc_iso639_language_code, {
+            "Language ISO 639-2 Code", "mpeg_descr.svc.lang_code",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_length, {
+            "Service Provider Name Length", "mpeg_descr.svc.provider_name_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_srv_name_desc_service_provider_name_encoding, {
+            "Service Provider Name Encoding", "mpeg_descr.svc.provider_name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_srv_name_desc_service_provider_name, {
+            "Service Provider Name", "mpeg_descr.svc.provider_name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_srv_name_desc_service_name_length, {
+            "Service Name Length", "mpeg_descr.svc.svc_name_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_srv_name_desc_service_name_encoding, {
+            "Service Name Encoding", "mpeg_descr.svc.svn_name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_srv_name_desc_service_name, {
+            "Service Name", "mpeg_descr.svc.svc_name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x5E Multilingual Component Descriptor */
+        { &hf_mpeg_descr_multilng_component_desc_tag, {
+            "Component Tag", "mpeg_descr.component.tag",
+            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_component_desc_iso639_language_code, {
+            "Language ISO 639-2 Code", "mpeg_descr.component.lang_code",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_component_desc_text_length, {
+            "Text Length", "mpeg_descr.component.text_length",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_component_desc_text_encoding, {
+            "Text Encoding", "mpeg_descr.component.text_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_multilng_component_desc_text, {
+            "Text", "mpeg_descr.component.text",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
 
         /* 0x5F Private Data Specifier */
         { &hf_mpeg_descr_private_data_specifier_id, {
@@ -5337,6 +5765,10 @@ proto_register_mpeg_descriptor(void)
         &ett_mpeg_descriptor_extended_event_item,
         &ett_mpeg_descriptor_component_content_type,
         &ett_mpeg_descriptor_content_nibble,
+        &ett_mpeg_descriptor_multilng_network_name_desc_lng,
+        &ett_mpeg_descriptor_multilng_bouquet_name_desc_lng,
+        &ett_mpeg_descriptor_multilng_srv_name_desc_lng,
+        &ett_mpeg_descriptor_multilng_component_desc_lng,
         &ett_mpeg_descriptor_vbi_data_service,
         &ett_mpeg_descriptor_content_identifier_crid,
         &ett_mpeg_descriptor_service_list,
