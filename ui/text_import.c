@@ -122,6 +122,7 @@
 #include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
+#include <ui/exit_codes.h>
 #include <wsutil/report_message.h>
 #include <wsutil/exported_pdu_tlvs.h>
 
@@ -212,7 +213,7 @@ static guint8 *packet_buf;
 static guint32 curr_offset = 0;
 static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 static guint32 packet_start = 0;
-static void start_new_packet(gboolean);
+static import_status_t start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN    2048
@@ -229,6 +230,7 @@ static guint32  ts_nsec = 0;
 static const char *ts_fmt = NULL;
 static gboolean ts_fmt_iso = FALSE;
 static struct tm timecode_default;
+static gboolean timecode_warned = FALSE;
 /* The time delta to add to packets without a valid time code.
  * This can be no smaller than the time resolution of the dump
  * file, so the default is 1000 nanoseconds, or 1 microsecond.
@@ -406,37 +408,49 @@ static guint wtap_encap_type = 1;   /* Default is WTAP_ENCAP_ETHERNET */
  * Will abort the program if it can't parse the number
  * Pass in TRUE if this is an offset, FALSE if not
  */
-static guint32
-parse_num (const char *str, int offset)
+static import_status_t
+parse_num(const char *str, int offset, guint32* num)
 {
-    unsigned long num;
     char *c;
 
     if (str == NULL) {
-        fprintf(stderr, "FATAL ERROR: str is NULL\n");
-        exit(1);
+        report_failure("FATAL ERROR: str is NULL");
+        return IMPORT_FAILURE;
     }
 
-    num = strtoul(str, &c, offset ? offset_base : 16);
-    if (c == str) {
-        fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
+    errno = 0;
+    *num = strtoul(str, &c, offset ? offset_base : 16);
+    if (errno != 0) {
+        report_failure("Unable to convert %s to base %u: %s", str,
+            offset ? offset_base : 16, g_strerror(errno));
+        return IMPORT_FAILURE;
     }
-    return (guint32)num;
+    if (c == str) {
+        report_failure("Unable to convert %s to base %u", str,
+            offset ? offset_base : 16);
+        return IMPORT_FAILURE;
+    }
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
  * Write this byte into current packet
  */
-static void
-write_byte (const char *str)
+static import_status_t
+write_byte(const char *str)
 {
     guint32 num;
 
-    num = parse_num(str, FALSE);
+    if (parse_num(str, FALSE, &num) != IMPORT_SUCCESS)
+        return IMPORT_FAILURE;
+
     packet_buf[curr_offset] = (guint8) num;
-    curr_offset ++;
+    curr_offset++;
     if (curr_offset >= max_offset) /* packet full */
-        start_new_packet(TRUE);
+        if (start_new_packet(TRUE) != IMPORT_SUCCESS)
+           return IMPORT_FAILURE;
+
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
@@ -472,7 +486,7 @@ number_of_padding_bytes (guint32 length)
  * continued in a later frame. Used to set fragmentation fields in dummy
  * headers (currently only implemented for SCTP; IPv4 could be added later.)
  */
-static void
+static import_status_t
 write_current_packet(gboolean cont)
 {
     int prefix_length = 0;
@@ -743,7 +757,8 @@ write_current_packet(gboolean cont)
             report_cfile_write_failure(input_filename, output_filename,
                                err, err_info, num_packets_read,
                                wtap_dump_file_type_subtype(wdh));
-            /* XXX: Return failure */
+            wtap_block_unref(rec.block);
+            return IMPORT_FAILURE;
         }
         wtap_block_unref(rec.block);
         num_packets_written++;
@@ -751,31 +766,35 @@ write_current_packet(gboolean cont)
 
     packet_start += curr_offset;
     curr_offset = 0;
+    return IMPORT_SUCCESS;
 }
 
 
 /*----------------------------------------------------------------------
  * Append a token to the packet preamble.
  */
-static void
+static import_status_t
 append_to_preamble(char *str)
 {
     size_t toklen;
 
     if (packet_preamble_len != 0) {
         if (packet_preamble_len == PACKET_PREAMBLE_MAX_LEN)
-            return;    /* no room to add more preamble */
+            return IMPORT_SUCCESS;    /* no room to add more preamble */
+            /* XXX: Just keep going? This is probably not a problem, unless
+             * someone had >2000 bytes of whitespace before the timestamp... */
         /* Add a blank separator between the previous token and this token. */
         packet_preamble[packet_preamble_len++] = ' ';
     }
     if(str == NULL){
-        fprintf(stderr, "FATAL ERROR: str is NULL\n");
-        exit(1);
+        report_failure("FATAL ERROR: str is NULL");
+        return IMPORT_FAILURE;
     }
     toklen = strlen(str);
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
-            return;    /* no room to add the token to the preamble */
+            return IMPORT_SUCCESS;    /* no room to add token to the preamble */
+            /* XXX: Just keep going? This is probably not a problem, as above.*/
         (void) g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
         if (debug >= 2) {
@@ -786,6 +805,8 @@ append_to_preamble(char *str)
             fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
         }
     }
+
+    return IMPORT_SUCCESS;
 }
 
 #define INVALID_VALUE (-1)
@@ -1194,6 +1215,15 @@ parse_preamble (void)
      */
     if ( ts_fmt != NULL && strlen(packet_preamble) > 2 ) {
         got_time = _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble), ts_fmt, &ts_sec, &ts_nsec);
+        if (!got_time) {
+            /* Let's only have a possible GUI popup once, other messages to log
+             */
+            if (!timecode_warned) {
+                report_warning("Time conversions (%s) failed, advancing time by %d ns from previous packet on failure. First failure was for %s on input packet %d.", ts_fmt, ts_tick, packet_preamble, num_packets_read);
+                timecode_warned = TRUE;
+            }
+            ws_warning("Time conversion (%s) failed for %s on input packet %d.", ts_fmt, packet_preamble, num_packets_read);
+        }
     }
     if (debug >= 2) {
         char *c;
@@ -1202,12 +1232,12 @@ parse_preamble (void)
         fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
     }
 
-    /* Clear Preamble */
-    packet_preamble_len = 0;
-
     if (!got_time) {
         ts_nsec += ts_tick;
     }
+
+    /* Clear Preamble */
+    packet_preamble_len = 0;
 }
 
 /*----------------------------------------------------------------------
@@ -1219,19 +1249,22 @@ parse_preamble (void)
  * where it is used to set fragmentation fields in dummy headers (currently
  * only implemented for SCTP; IPv4 could be added later.)
  */
-static void
+static import_status_t
 start_new_packet(gboolean cont)
 {
     if (debug>=1)
         fprintf(stderr, "Start new packet (cont = %s).\n", cont ? "TRUE" : "FALSE");
 
     /* Write out the current packet, if required */
-    write_current_packet(cont);
+    if (write_current_packet(cont) != IMPORT_SUCCESS)
+        return IMPORT_FAILURE;
     num_packets_read++;
 
     /* Ensure we parse the packet preamble as it may contain the time */
     /* THIS IMPLIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
     parse_preamble();
+
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
@@ -1247,8 +1280,8 @@ process_directive (char *str)
 /*----------------------------------------------------------------------
  * Parse a single token (called from the scanner)
  */
-void
-parse_token (token_t token, char *str)
+import_status_t
+parse_token(token_t token, char *str)
 {
     guint32 num;
     /* Variables for the hex+ASCII identification / lookback */
@@ -1286,24 +1319,29 @@ parse_token (token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
-            num = parse_num(str, TRUE);
+            if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             if (num == 0) {
                 /* New packet starts here */
-                start_new_packet(FALSE);
+                if (start_new_packet(FALSE) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 state = READ_OFFSET;
                 pkt_lnstart = packet_buf + num;
             }
             break;
         case T_BYTE:
             if (offset_base == 0) {
-                start_new_packet(FALSE);
-                write_byte(str);
+                if (start_new_packet(FALSE) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
+                if (write_byte(str) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 state = READ_BYTE;
                 pkt_lnstart = packet_buf;
             }
             break;
         case T_EOF:
-            write_current_packet(FALSE);
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1320,10 +1358,12 @@ parse_token (token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
-            num = parse_num(str, TRUE);
+            if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             if (num == 0) {
                 /* New packet starts here */
-                start_new_packet(FALSE);
+                if (start_new_packet(FALSE) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 packet_start = 0;
                 state = READ_OFFSET;
             } else if ((num - packet_start) != curr_offset) {
@@ -1344,7 +1384,8 @@ parse_token (token_t token, char *str)
                     if (debug>=1)
                         fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
                                 curr_offset, num);
-                    write_current_packet(FALSE);
+                    if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                        return IMPORT_FAILURE;
                     state = INIT;
                 }
             } else {
@@ -1354,13 +1395,15 @@ parse_token (token_t token, char *str)
             break;
         case T_BYTE:
             if (offset_base == 0) {
-                write_byte(str);
+                if (write_byte(str) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 state = READ_BYTE;
                 pkt_lnstart = packet_buf;
             }
             break;
         case T_EOF:
-            write_current_packet(FALSE);
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1373,7 +1416,8 @@ parse_token (token_t token, char *str)
         case T_BYTE:
             /* Record the byte */
             state = READ_BYTE;
-            write_byte(str);
+            if (write_byte(str) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         case T_TEXT:
         case T_DIRECTIVE:
@@ -1384,7 +1428,8 @@ parse_token (token_t token, char *str)
             state = START_OF_LINE;
             break;
         case T_EOF:
-            write_current_packet(FALSE);
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1396,7 +1441,8 @@ parse_token (token_t token, char *str)
         switch(token) {
         case T_BYTE:
             /* Record the byte */
-            write_byte(str);
+            if (write_byte(str) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         case T_TEXT:
         case T_DIRECTIVE:
@@ -1457,7 +1503,8 @@ parse_token (token_t token, char *str)
             }
             break;
         case T_EOF:
-            write_current_packet(FALSE);
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1471,7 +1518,8 @@ parse_token (token_t token, char *str)
             state = START_OF_LINE;
             break;
         case T_EOF:
-            write_current_packet(FALSE);
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1479,13 +1527,14 @@ parse_token (token_t token, char *str)
         break;
 
     default:
-        fprintf(stderr, "FATAL ERROR: Bad state (%d)", state);
-        exit(-1);
+        report_failure("FATAL ERROR: Bad state (%d)", state);
+        return IMPORT_FAILURE;
     }
 
     if (debug>=2)
         fprintf(stderr, ", %s)\n", state_str[state]);
 
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
@@ -1494,6 +1543,7 @@ parse_token (token_t token, char *str)
 int
 text_import(const text_import_info_t *info)
 {
+    import_status_t status;
     int ret;
     struct tm *now_tm;
 
@@ -1503,8 +1553,11 @@ text_import(const text_import_info_t *info)
 
     if (!packet_buf)
     {
-        fprintf(stderr, "FATAL ERROR: no memory for packet buffer");
-        exit(-1);
+        /* XXX: This doesn't happen, because g_malloc aborts the program on
+         * error, unlike malloc or g_try_malloc.
+         */
+        report_failure("FATAL ERROR: no memory for packet buffer");
+        return INIT_FAILED;
     }
 
     /* Lets start from the beginning */
@@ -1512,9 +1565,9 @@ text_import(const text_import_info_t *info)
     curr_offset = 0;
     packet_start = 0;
     packet_preamble_len = 0;
+    direction = PACK_FLAGS_DIRECTION_UNKNOWN;
     ts_sec = time(0);            /* initialize to current time */
     now_tm = localtime(&ts_sec);
-    direction = PACK_FLAGS_DIRECTION_UNKNOWN;
     if (now_tm == NULL) {
         /*
          * This shouldn't happen - on UN*X, this should Just Work, and
@@ -1522,8 +1575,8 @@ text_import(const text_import_info_t *info)
          * is before the Epoch, but it's long after 1970 (and even 32 bit
          * Windows builds with 64 bit time_t by default now), so....
          */
-        fprintf(stderr, "localtime(right now) failed\n");
-        exit(-1);
+        report_failure("localtime(right now) failed");
+        return INIT_FAILED;
     }
     timecode_default = *now_tm;
     timecode_default.tm_isdst = -1;     /* Unknown for now, depends on time given to the strptime() function */
@@ -1568,6 +1621,7 @@ text_import(const text_import_info_t *info)
             ts_fmt_iso = TRUE;
         }
     }
+    timecode_warned = FALSE;
 
     wtap_encap_type = info->encapsulation;
 
@@ -1664,20 +1718,35 @@ text_import(const text_import_info_t *info)
 
     max_offset = info->max_frame_length;
     identify_ascii = info->identify_ascii;
+    num_packets_read = 0;
+    num_packets_written = 0;
 
     if (info->mode == TEXT_IMPORT_HEXDUMP) {
-        ret = text_import_scan(info->hexdump.import_text_FILE);
-        if (ret == INIT_FAILED) {
+        status = text_import_scan(info->hexdump.import_text_FILE);
+        switch(status) {
+        case (IMPORT_SUCCESS):
+            ret = 0;
+            break;
+        case (IMPORT_FAILURE):
+            ret = INVALID_FILE;
+            break;
+        case (IMPORT_INIT_FAILED):
             report_failure("Can't initialize scanner: %s", g_strerror(errno));
+            ret = INIT_FAILED;
+            break;
+        default:
+            ret = 0;
         }
     } else if (info->mode == TEXT_IMPORT_REGEX) {
         ret = text_import_regex(info);
         if (ret > 0) {
             num_packets_read = ret;
             ret = 0;
+        } else if (ret < 0) {
+            ret = INVALID_FILE;
         }
     } else {
-        ret = -1;
+        ret = INVALID_OPTION;
     }
     g_free(packet_buf);
     return ret;

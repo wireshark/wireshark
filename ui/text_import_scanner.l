@@ -4,7 +4,6 @@
 /* Include this before everything else, for various large-file definitions */
 #include "config.h"
 #include <wireshark.h>
-#include <ui/exit_codes.h>
 }
 
 /*
@@ -112,18 +111,21 @@ eol \r?\n\r?
 
 %%
 
-{byte}            { parse_token(T_BYTE, yytext); }
-{byte_eol}        { parse_token(T_BYTE, yytext); parse_token(T_EOL, NULL); }
-{offset}          { parse_token(T_OFFSET, yytext); }
-{offset_eol}      { parse_token(T_OFFSET, yytext); parse_token(T_EOL, NULL); }
-{mailfwd}{offset} { parse_token(T_OFFSET, yytext+1); }
-{eol}             { parse_token(T_EOL, NULL); }
+{byte}            { if (parse_token(T_BYTE, yytext) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
+{byte_eol}        { if (parse_token(T_BYTE, yytext) != IMPORT_SUCCESS) return IMPORT_FAILURE;
+	if (parse_token(T_EOL, NULL) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
+{offset}          { if (parse_token(T_OFFSET, yytext) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
+{offset_eol}      { if (parse_token(T_OFFSET, yytext) != IMPORT_SUCCESS) return IMPORT_FAILURE;
+	if (parse_token(T_EOL, NULL) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
+{mailfwd}{offset} { if (parse_token(T_OFFSET, yytext+1) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
+{eol}             { if (parse_token(T_EOL, NULL) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
 [ \t]             ; /* ignore whitespace */
-{directive}       { parse_token(T_DIRECTIVE, yytext); parse_token(T_EOL, NULL); }
-{comment}         { parse_token(T_EOL, NULL); }
-{text}            { parse_token(T_TEXT, yytext); }
+{directive}       { if (parse_token(T_DIRECTIVE, yytext) != IMPORT_SUCCESS) return IMPORT_FAILURE;
+	if (parse_token(T_EOL, NULL) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
+{comment}         { if (parse_token(T_EOL, NULL) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
+{text}            { if (parse_token(T_TEXT, yytext) != IMPORT_SUCCESS) return IMPORT_FAILURE; }
 
-<<EOF>>           { parse_token(T_EOF, NULL); yyterminate(); }
+<<EOF>>           { if (parse_token(T_EOF, NULL) != IMPORT_SUCCESS) return IMPORT_FAILURE; yyterminate(); }
 
 %%
 
@@ -132,19 +134,20 @@ eol \r?\n\r?
  */
 DIAG_ON_FLEX
 
-int
+import_status_t
 text_import_scan(FILE *input_file)
 {
     yyscan_t scanner;
+    int ret;
 
     if (text_import_lex_init(&scanner) != 0)
-        return INIT_FAILED;
+        return IMPORT_INIT_FAILED;
 
     text_import_set_in(input_file, scanner);
 
-    text_import_lex(scanner);
+    ret = text_import_lex(scanner);
 
     text_import_lex_destroy(scanner);
 
-    return 0;
+    return ret;
 }

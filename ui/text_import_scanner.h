@@ -30,12 +30,17 @@ typedef enum {
     T_EOF
 } token_t;
 
+typedef enum {
+    IMPORT_SUCCESS,
+    IMPORT_FAILURE,
+    IMPORT_INIT_FAILED
+} import_status_t;
 
-void parse_token(token_t token, char *str);
+import_status_t parse_token(token_t token, char *str);
 
 extern FILE *text_importin;
 
-int text_import_scan(FILE *input_file);
+import_status_t text_import_scan(FILE *input_file);
 
 #ifdef __cplusplus
 }
