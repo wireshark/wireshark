@@ -2459,7 +2459,6 @@ void LogwolfMainWindow::setMenusForCaptureFile(bool force_disable)
     main_ui_->actionFileExportAsPSML->setEnabled(enable);
     main_ui_->actionFileExportAsJSON->setEnabled(enable);
 
-    main_ui_->actionFileExportPacketBytes->setEnabled(enable);
     main_ui_->actionFileExportPDU->setEnabled(enable);
     main_ui_->actionFileExportTLSSessionKeys->setEnabled(enable);
 
@@ -2489,7 +2488,6 @@ void LogwolfMainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->actionFileExportAsPSML->setEnabled(capture_in_progress);
     main_ui_->actionFileExportAsJSON->setEnabled(capture_in_progress);
 
-    main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
     main_ui_->actionFileExportPDU->setEnabled(!capture_in_progress);
     main_ui_->actionFileExportTLSSessionKeys->setEnabled(capture_in_progress);
 

@@ -1406,7 +1406,7 @@ void WiresharkMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
             have_subtree = true;
         }
 
-        if (fi && fi->ds_tvb) {
+        if (fi && fi->ds_tvb && (fi->length > 0)) {
             have_packet_bytes = true;
         }
     }
