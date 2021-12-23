@@ -101,8 +101,10 @@
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <cli_main.h>
+#include <ui/cmdarg_err.h>
 #include <ui/version_info.h>
 #include <ui/failure_message.h>
+#include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/wslog.h>
 #include <wsutil/nstime.h>
@@ -1816,8 +1818,6 @@ parse_options(int argc, char *argv[], wtap_dump_params * const params)
         input_file = stdin;
     }
 
-    init_process_policies();
-    wtap_init(TRUE);
     wtap_dump_params_init(params, NULL);
 
     wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
@@ -1892,29 +1892,62 @@ parse_options(int argc, char *argv[], wtap_dump_params * const params)
     return EXIT_SUCCESS;
 }
 
+/*
+ * General errors and warnings are reported with an console message
+ * in text2pcap.
+ */
 static void
-text2pcap_vcmdarg_err(const char *fmt, va_list ap)
+text2pcap_cmdarg_err(const char *msg_format, va_list ap)
 {
-    vfprintf(stderr, fmt, ap);
-    fputc('\n', stderr);
+    fprintf(stderr, "text2pcap: ");
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
+}
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+text2pcap_cmdarg_err_cont(const char *msg_format, va_list ap)
+{
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
 }
 
 int
 main(int argc, char *argv[])
 {
+    static const struct report_message_routines text2pcap_report_routines = {
+        failure_message,
+        failure_message,
+        open_failure_message,
+        read_failure_message,
+        write_failure_message,
+        cfile_open_failure_message,
+        cfile_dump_open_failure_message,
+        cfile_read_failure_message,
+        cfile_write_failure_message,
+        cfile_close_failure_message
+    };
     int ret = EXIT_SUCCESS;
     wtap_dump_params params;
     guint64 bytes_written;
 
+    cmdarg_err_init(text2pcap_cmdarg_err, text2pcap_cmdarg_err_cont);
+
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("text2pcap", text2pcap_vcmdarg_err);
+    ws_log_init("text2pcap", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, text2pcap_vcmdarg_err, 1);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
 #ifdef _WIN32
     create_app_running_mutex();
 #endif /* _WIN32 */
+
+    init_process_policies();
+    init_report_message("text2pcap", &text2pcap_report_routines);
+    wtap_init(TRUE);
 
     if (parse_options(argc, argv, &params) != EXIT_SUCCESS) {
         ret = EXIT_FAILURE;
