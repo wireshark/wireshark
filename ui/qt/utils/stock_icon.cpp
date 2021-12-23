@@ -40,8 +40,7 @@
 //   GTK_STOCK_PREFERENCES preferences-system
 //   GTK_STOCK_HELP help-contents
 
-#include "wireshark_application.h"
-
+#include <QApplication>
 #include <QFile>
 #include <QFontMetrics>
 #include <QMap>
@@ -72,7 +71,7 @@ StockIcon::StockIcon(const QString icon_name) :
 
     // Is this is an icon we've manually mapped to a standard pixmap below?
     if (icon_name_to_standard_pixmap_.contains(icon_name)) {
-        QIcon standard_icon = wsApp->style()->standardIcon(icon_name_to_standard_pixmap_[icon_name]);
+        QIcon standard_icon = qApp->style()->standardIcon(icon_name_to_standard_pixmap_[icon_name]);
         swap(standard_icon);
         return;
     }
@@ -97,7 +96,7 @@ StockIcon::StockIcon(const QString icon_name) :
                 QPixmap mask_pm = mask_icon.pixmap(sz);
                 QImage normal_img(sz, QImage::Format_ARGB32);
                 QPainter painter(&normal_img);
-                QBrush br(wsApp->palette().color(QPalette::Active, QPalette::WindowText));
+                QBrush br(qApp->palette().color(QPalette::Active, QPalette::WindowText));
                 painter.fillRect(0, 0, sz.width(), sz.height(), br);
                 painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
                 painter.drawPixmap(0, 0, mask_pm);
@@ -107,9 +106,9 @@ StockIcon::StockIcon(const QString icon_name) :
                 addPixmap(normal_pm, QIcon::Normal, QIcon::Off);
 
                 QStyleOption opt = {};
-                opt.palette = wsApp->palette();
+                opt.palette = qApp->palette();
                 foreach (QIcon::Mode icon_mode, icon_modes) {
-                    QPixmap mode_pm = wsApp->style()->generatedIconPixmap(icon_mode, normal_pm, &opt);
+                    QPixmap mode_pm = qApp->style()->generatedIconPixmap(icon_mode, normal_pm, &opt);
                     addPixmap(mode_pm, icon_mode, QIcon::On);
                     addPixmap(mode_pm, icon_mode, QIcon::Off);
                 }
@@ -159,7 +158,7 @@ QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QStri
         painter.drawRect(border);
 
         if (!glyph.isEmpty()) {
-            QFont font(wsApp->font());
+            QFont font(qApp->font());
             font.setPointSizeF(size / 2.0);
             painter.setFont(font);
             QRectF bounding = painter.boundingRect(pm.rect(), glyph, Qt::AlignHCenter | Qt::AlignVCenter);
