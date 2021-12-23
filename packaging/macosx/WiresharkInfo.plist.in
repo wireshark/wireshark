@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>Wireshark</string>
+	<key>CFBundleGetInfoString</key>
+	<string>@VERSION@, Copyright 1998-2022 Wireshark Development Team</string>
+	<key>CFBundleIconFile</key>
+	<string>Wireshark.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.wireshark.Wireshark</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>5vw</string>
+				<string>5vw.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>InfoVista/Accellent 5View Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>apc</string>
+				<string>pkt</string>
+				<string>tpc</string>
+				<string>wpz</string>
+				<string>apc.gz</string>
+				<string>pkt.gz</string>
+				<string>tpc.gz</string>
+				<string>wpz.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>LiveAction/Savvius/WildPackets *Peek Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>bfr</string>
+				<string>bfr.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Viavi/Network Instruments Observer Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>erf</string>
+				<string>erf.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Endace ERF Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>ipfix</string>
+				<string>ipfix.gz</string>
+				<!-- Don't register for .pfx: that extension
+				     has another (more common) use.
+				-->
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>IPFIX Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mplog</string>
+				<string>mplog.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Micropross mplog Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>pcap</string>
+				<string>pcap.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeMIMETypes</key>
+			<array>
+				<string>application/vnd.tcpdump.pcap</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Pcap Network Capture</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>PCAP</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>pcapng</string>
+				<string>ntar</string>
+				<string>pcapng.gz</string>
+				<string>ntar.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Pcapng Network Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>pklg</string>
+				<string>pklg.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>macOS PacketLogger Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>rf5</string>
+				<string>rf5.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Tektronix K12 Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>snoop</string>
+				<string>snoop.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Solaris snoop Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tr1</string>
+				<string>tr1.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Novell LANalyzer Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>trc0</string>
+				<string>trc0.gz</string>
+				<string>trc1</string>
+				<string>trc1.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>HP-UX nettl Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>vwr</string>
+				<string>vwr.gz</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>Wiresharkdoc.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>Ixia IxVeriWave Packet Capture</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<!-- XXX - This dictionary needs a lot more entries -->
+	</array>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@VERSION@</string>
+	<key>CFBundleSignature</key>
+	<string>Wshk</string>
+	<key>CFBundleVersion</key>
+	<string>@VERSION@</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright 1998-2022 Wireshark Developers, GNU General Public License.</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<!-- Force dark mode support. -->
+	<key>NSRequiresAquaSystemAppearance</key>
+	<false/>
+	<key>LSMinimumSystemVersion</key>
+	<string>@MIN_MACOS_VERSION@</string>
+
+	<!-- Sparkle settings https://sparkle-project.org/documentation/customization/ -->
+	<key>SUFeedURL</key>
+	<string>https://www.wireshark.org/update/0/Wireshark/@PROJECT_MAJOR_VERSION@.@PROJECT_MINOR_VERSION@.@PROJECT_PATCH_VERSION@/macOS/x86-64/en-US/stable.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<false/>
+	<key>SUPublicEDKey</key>
+	<string>BeSuPpEZOmOzkON9QMnfIdwyi06P/LcVoik8M5O2bsQ=</string>
+	<key>SUEnableSystemProfiling</key>
+	<false/>
+	<!--
+	  Disable automatic updates here, then enable them at program
+	  startup depending on prefs.gui_update_enabled.
+	-->
+	<key>SUAutomaticallyUpdate</key>
+	<false/>
+
+</dict>
+</plist>
