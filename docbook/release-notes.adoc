@@ -55,7 +55,8 @@ They previously shipped with Npcap 1.55.
 ** Adds a new strict equality operator "===" or "all_eq". The expression "a === b" is true if and only if all a's are equal to b.
    The negation of "===" can now be written as "!==" (any_ne), in addition to "~=" (introduced in Wireshark 3.6.0).
 ** Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
-** Absolute times can be given in UTC by appending the suffix "UTC" to time values. Otherwise local time is used.
+** Date and time can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
+   Otherwise local time is used.
 
 * text2pcap has been updated to use the new logging output options and the
   "-d" flag has been removed. The "debug" log level corresponds to the old

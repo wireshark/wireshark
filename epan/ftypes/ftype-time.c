@@ -194,6 +194,11 @@ absolute_val_from_string(fvalue_t *fv, const char *s, char **err_msg_ptr)
 	gboolean has_seconds = TRUE;
 	char *err_msg = NULL;
 
+	/* Try ISO 8601 format first. */
+	if (iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME_AUTO) == strlen(s))
+		return TRUE;
+
+	/* Try other legacy formats. */
 	memset(&tm, 0, sizeof(tm));
 
 	if (strlen(s) < sizeof("2000-1-1") - 1)
@@ -203,10 +208,6 @@ absolute_val_from_string(fvalue_t *fv, const char *s, char **err_msg_ptr)
 	if (s[3] == ' ' && parse_month_name(s, &tm.tm_mon))
 		curptr = ws_strptime(s + 4, "%d, %Y %H:%M:%S", &tm);
 
-	if (curptr == NULL)
-		curptr = ws_strptime(s,"%Y-%m-%dT%H:%M:%S", &tm);
-	if (curptr == NULL)
-		curptr = ws_strptime(s,"%Y-%m-%d %H:%M:%S", &tm);
 	if (curptr == NULL) {
 		has_seconds = FALSE;
 		curptr = ws_strptime(s,"%Y-%m-%d %H:%M", &tm);
@@ -332,6 +333,37 @@ value_get(fvalue_t *fv)
 }
 
 static char *
+abs_time_to_ftrepr_dfilter(wmem_allocator_t *scope,
+			const nstime_t *nstime, bool use_utc)
+{
+	struct tm *tm;
+	char datetime_format[128];
+	int nsecs;
+	char nsecs_buf[32];
+
+	if (use_utc) {
+		tm = gmtime(&nstime->secs);
+		strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%sZ\"", tm);
+	}
+	else {
+		tm = localtime(&nstime->secs);
+		/* Displaying the timezone could be made into a preference. */
+		strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%s%z\"", tm);
+	}
+
+	if (nstime->nsecs == 0)
+		return wmem_strdup_printf(scope, datetime_format, "");
+
+	nsecs = nstime->nsecs;
+	while (nsecs > 0 && (nsecs % 10) == 0) {
+		nsecs /= 10;
+	}
+	snprintf(nsecs_buf, sizeof(nsecs_buf), ".%d", nsecs);
+
+	return wmem_strdup_printf(scope, datetime_format, nsecs_buf);
+}
+
+static char *
 absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
 	char *rep;
@@ -350,8 +382,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 			 * are supported. Normalize the field_display value. */
 			if (field_display != ABSOLUTE_TIME_LOCAL)
 				field_display = ABSOLUTE_TIME_UTC;
-			rep = abs_time_to_str_ex(scope, &fv->value.time,
-					field_display, ABS_TIME_TO_STR_SHOW_UTC_ONLY|ABS_TIME_TO_STR_ADD_DQUOTES);
+			rep = abs_time_to_ftrepr_dfilter(scope, &fv->value.time, field_display != ABSOLUTE_TIME_LOCAL);
 			break;
 
 		default:
