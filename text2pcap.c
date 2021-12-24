@@ -77,13 +77,14 @@
 #include <ui/failure_message.h>
 #include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>
-#include <wsutil/wslog.h>
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/privileges.h>
 
 #include <glib.h>
 
+#include <wsutil/str_util.h>
+#include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
 
 #include <errno.h>
@@ -155,10 +156,6 @@ static gboolean has_direction = FALSE;
 /* This is where we store the packet currently being built */
 static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 
-/* Number of packets read and written */
-static guint32 num_packets_read    = 0;
-static guint32 num_packets_written = 0;
-
 /* Time code of packet, derived from packet_preamble */
 static char    *ts_fmt  = NULL;
 static int      ts_fmt_iso = 0;
@@ -173,8 +170,6 @@ static wtap_dumper* wdh;
 
 /* Offset base to parse */
 static guint32 offset_base = 16;
-
-extern FILE *text2pcap_in;
 
 /* Encapsulation type; see wiretap/wtap.h for details */
 static guint32 wtap_encap_type = 1;   /* Default is WTAP_ENCAP_ETHERNET */
@@ -881,9 +876,9 @@ main(int argc, char *argv[])
     if (!quiet) {
         bytes_written = wtap_get_bytes_dumped(wdh);
         fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s (%" PRIu64 " byte%s including overhead).\n",
-                num_packets_read, (num_packets_read == 1) ? "" : "s",
-                num_packets_written, (num_packets_written == 1) ? "" : "s",
-                bytes_written, (bytes_written == 1) ? "" : "s");
+                info.num_packets_read, plurality(info.num_packets_read, "", "s"),
+                info.num_packets_written, plurality(info.num_packets_written, "", "s"),
+                bytes_written, plurality(bytes_written, "", "s"));
     }
 clean_exit:
     if (input_file) {

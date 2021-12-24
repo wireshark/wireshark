@@ -85,6 +85,7 @@ typedef struct
     const char* timestamp_format;
 
     /* Import info */
+    /* Wiretap encapsulation type; see wiretap/wtap.h for details */
     guint encapsulation;
     wtap_dumper* wdh;
 
@@ -109,9 +110,13 @@ typedef struct
 
     guint max_frame_length;
     gboolean identify_ascii;
+
+    /* Output info */
+    guint num_packets_read;
+    guint num_packets_written;
 } text_import_info_t;
 
-int text_import(const text_import_info_t *info);
+int text_import(text_import_info_t * const info);
 
 #ifdef __cplusplus
 }
