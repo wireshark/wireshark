@@ -81,6 +81,7 @@
 #include <wsutil/cpu_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/privileges.h>
+#include <wsutil/strtoi.h>
 
 #include <glib.h>
 
@@ -119,7 +120,7 @@ static guint32 hdr_ethernet_proto = 0;
 static gboolean hdr_ip = FALSE;
 static gboolean hdr_ipv6 = FALSE;
 static gboolean have_hdr_ip_proto = FALSE;
-static long hdr_ip_proto = -1;
+static guint8 hdr_ip_proto = 0;
 
 /* Destination and source addresses for IP header */
 static guint32 hdr_ip_dest_addr = 0;
@@ -334,6 +335,25 @@ print_usage (FILE *output)
             WTAP_MAX_PACKET_SIZE_STANDARD);
 }
 
+/*
+ * Set the hdr_ip_proto parameter, and set the flag indicate that the
+ * parameter has been specified.
+ *
+ * Also indicate that we should add an Ethernet link-layer header.
+ * (That's not an *inherent* requirement, as we could write a file
+ * with a "raw IP packet" link-layer type, meaning that there *is*
+ * no link-layer header, but it's the way text2pcap currently works.)
+ *
+ * XXX - catch the case where two different options set it differently?
+ */
+static void
+set_hdr_ip_proto(guint8 ip_proto)
+{
+    have_hdr_ip_proto = TRUE;
+    hdr_ip_proto = ip_proto;
+    hdr_ethernet = TRUE;
+}
+
 /*----------------------------------------------------------------------
  * Parse CLI options
  */
@@ -395,16 +415,16 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             break;
 
         case 'i':
-            hdr_ip_proto = strtol(ws_optarg, &p, 10);
-            if (p == ws_optarg || *p != '\0' || hdr_ip_proto < 0 ||
-                  hdr_ip_proto > 255) {
+        {
+            guint8 ip_proto;
+            if (!ws_strtou8(ws_optarg, NULL, &ip_proto)) {
                 cmdarg_err("Bad argument for '-i': %s", ws_optarg);
                 print_usage(stderr);
                 return INVALID_OPTION;
             }
-            have_hdr_ip_proto = TRUE;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(ip_proto);
             break;
+        }
 
         case 's':
             hdr_sctp = TRUE;
@@ -444,9 +464,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 return INVALID_OPTION;
             }
 
-            hdr_ip_proto = 132;
-            have_hdr_ip_proto = TRUE;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(132);
             break;
         case 'S':
             hdr_sctp = TRUE;
@@ -486,9 +504,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 return INVALID_OPTION;
             }
 
-            hdr_ip_proto = 132;
-            have_hdr_ip_proto = TRUE;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(132);
             break;
 
         case 't':
@@ -521,9 +537,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 print_usage(stderr);
                 return INVALID_OPTION;
             }
-            hdr_ip_proto = 17;
-            have_hdr_ip_proto = TRUE;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(17);
             break;
 
         case 'T':
@@ -550,9 +564,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 print_usage(stderr);
                 return INVALID_OPTION;
             }
-            hdr_ip_proto = 6;
-            have_hdr_ip_proto = TRUE;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(6);
             break;
 
         case 'a':
@@ -769,7 +781,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         info->ip_src_addr.ipv6 = hdr_ipv6_src_addr;
         info->ip_dest_addr.ipv6 = hdr_ipv6_dest_addr;
     }
-    info->protocol = (guint)hdr_ip_proto;
+    info->protocol = hdr_ip_proto;
     if (hdr_sctp) {
         info->src_port = hdr_sctp_src;
         info->dst_port = hdr_sctp_dest;
@@ -795,9 +807,9 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0X\n",
                                   hdr_ethernet_proto);
-        if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %ld\n",
+        if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %u\n",
                             hdr_ip_proto);
-        if (hdr_ipv6) fprintf(stderr, "Generate dummy IPv6 header: Protocol: %ld\n",
+        if (hdr_ipv6) fprintf(stderr, "Generate dummy IPv6 header: Protocol: %u\n",
                             hdr_ip_proto);
         if (hdr_udp) fprintf(stderr, "Generate dummy UDP header: Source port: %u. Dest port: %u\n",
                              hdr_src_port, hdr_dest_port);
