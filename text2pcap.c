@@ -760,7 +760,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         info->ip_src_addr.ipv6 = hdr_ipv6_src_addr;
         info->ip_dest_addr.ipv6 = hdr_ipv6_dest_addr;
     }
-    info->protocol = hdr_ip_proto;
+    info->protocol = (guint)hdr_ip_proto;
     if (hdr_sctp) {
         info->src_port = hdr_sctp_src;
         info->dst_port = hdr_sctp_dest;
