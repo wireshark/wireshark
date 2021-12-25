@@ -102,8 +102,6 @@
 /* File format */
 static gboolean use_pcapng = FALSE;
 
-/* Debug level */
-static int debug = 0;
 /* Be quiet */
 static gboolean quiet = FALSE;
 
@@ -382,9 +380,9 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             print_usage(stdout);
             exit(0);
             break;
-        case 'd': if (!quiet) debug++; break;
+        case 'd': if (!quiet) info->debug++; break;
         case 'D': has_direction = TRUE; break;
-        case 'q': quiet = TRUE; debug = 0; break;
+        case 'q': quiet = TRUE; info->debug = 0; break;
         case 'l': pcap_link_type = (guint32)strtol(ws_optarg, NULL, 0); break;
         case 'm': max_offset = (guint32)strtol(ws_optarg, NULL, 0); break;
         case 'n': use_pcapng = TRUE; break;
@@ -883,7 +881,7 @@ main(int argc, char *argv[])
 
     ret = text_import(&info);
 
-    if (debug)
+    if (info.debug)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
         bytes_written = wtap_get_bytes_dumped(wdh);

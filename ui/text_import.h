@@ -63,6 +63,8 @@ enum text_import_mode {
 
 typedef struct
 {
+    int debug;
+
     /* Input info */
     // TODO: add const, as this way string constants can't be used
     // BUT: the other way clang-check complaines when you free them

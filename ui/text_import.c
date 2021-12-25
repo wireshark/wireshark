@@ -137,14 +137,11 @@
 
 /*--- Options --------------------------------------------------------------------*/
 
-/* Debug level */
-static int debug = 0;
-
 /* maximum time precision we can handle = 10^(-SUBSEC_PREC) */
 #define SUBSEC_PREC 9
 
 #define debug_printf(level,  ...) \
-    if (debug >= (level)) { \
+    if (info_p->debug >= (level)) { \
         printf(__VA_ARGS__); \
     }
 
@@ -780,7 +777,7 @@ append_to_preamble(char *str)
             /* XXX: Just keep going? This is probably not a problem, as above.*/
         (void) g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
-        if (debug >= 2) {
+        if (info_p->debug >= 2) {
             char *c;
             char xs[PACKET_PREAMBLE_MAX_LEN];
             (void) g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
@@ -1208,7 +1205,7 @@ parse_preamble (void)
             ws_warning("Time conversion (%s) failed for %s on input packet %d.", info_p->timestamp_format, packet_preamble, info_p->num_packets_read);
         }
     }
-    if (debug >= 2) {
+    if (info_p->debug >= 2) {
         char *c;
         while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
         fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
@@ -1235,7 +1232,7 @@ parse_preamble (void)
 static import_status_t
 start_new_packet(gboolean cont)
 {
-    if (debug>=1)
+    if (info_p->debug>=1)
         fprintf(stderr, "Start new packet (cont = %s).\n", cont ? "TRUE" : "FALSE");
 
     /* Write out the current packet, if required */
@@ -1281,7 +1278,7 @@ parse_token(token_t token, char *str)
      * scanner. The code should be self_documenting.
      */
 
-    if (debug>=2) {
+    if (info_p->debug>=2) {
         /* Sanitize - remove all '\r' */
         char *c;
         if (str!=NULL) { while ((c = strchr(str, '\r')) != NULL) *c=' '; }
@@ -1381,7 +1378,7 @@ parse_token(token_t token, char *str)
                     state = READ_OFFSET;
                 } else {
                     /* Bad offset; switch to INIT state */
-                    if (debug>=1)
+                    if (info_p->debug>=1)
                         fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
                                 curr_offset, num);
                     if (write_current_packet(FALSE) != IMPORT_SUCCESS)
@@ -1531,7 +1528,7 @@ parse_token(token_t token, char *str)
         return IMPORT_FAILURE;
     }
 
-    if (debug>=2)
+    if (info_p->debug>=2)
         fprintf(stderr, ", %s)\n", state_str[state]);
 
     return IMPORT_SUCCESS;
