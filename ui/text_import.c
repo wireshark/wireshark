@@ -397,7 +397,7 @@ parse_num(const char *str, int offset, guint32* num)
     }
 
     errno = 0;
-    *num = strtoul(str, &c, offset ? offset_base : 16);
+    unsigned long ulnum = (guint32)strtoul(str, &c, offset ? offset_base : 16);
     if (errno != 0) {
         report_failure("Unable to convert %s to base %u: %s", str,
             offset ? offset_base : 16, g_strerror(errno));
@@ -408,6 +408,11 @@ parse_num(const char *str, int offset, guint32* num)
             offset ? offset_base : 16);
         return IMPORT_FAILURE;
     }
+    if (ulnum > G_MAXUINT32) {
+        report_failure("%s too large", str);
+        return IMPORT_FAILURE;
+    }
+    *num = (guint32) ulnum;
     return IMPORT_SUCCESS;
 }
 
