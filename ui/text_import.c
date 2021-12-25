@@ -212,7 +212,6 @@ static int packet_preamble_len = 0;
 /* Time code of packet, derived from packet_preamble */
 static time_t   ts_sec = 0;
 static guint32  ts_nsec = 0;
-static const char *ts_fmt = NULL;
 static gboolean ts_fmt_iso = FALSE;
 static struct tm timecode_default;
 static gboolean timecode_warned = FALSE;
@@ -1197,23 +1196,23 @@ parse_preamble (void)
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
      */
-    if ( ts_fmt != NULL && strlen(packet_preamble) > 2 ) {
-        got_time = _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble), ts_fmt, &ts_sec, &ts_nsec);
+    if ( info_p->timestamp_format != NULL && strlen(packet_preamble) > 2 ) {
+        got_time = _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble), info_p->timestamp_format, &ts_sec, &ts_nsec);
         if (!got_time) {
             /* Let's only have a possible GUI popup once, other messages to log
              */
             if (!timecode_warned) {
-                report_warning("Time conversions (%s) failed, advancing time by %d ns from previous packet on failure. First failure was for %s on input packet %d.", ts_fmt, ts_tick, packet_preamble, info_p->num_packets_read);
+                report_warning("Time conversions (%s) failed, advancing time by %d ns from previous packet on failure. First failure was for %s on input packet %d.", info_p->timestamp_format, ts_tick, packet_preamble, info_p->num_packets_read);
                 timecode_warned = TRUE;
             }
-            ws_warning("Time conversion (%s) failed for %s on input packet %d.", ts_fmt, packet_preamble, info_p->num_packets_read);
+            ws_warning("Time conversion (%s) failed for %s on input packet %d.", info_p->timestamp_format, packet_preamble, info_p->num_packets_read);
         }
     }
     if (debug >= 2) {
         char *c;
         while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
         fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
+        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", info_p->timestamp_format, (guint32)ts_sec, ts_nsec);
     }
 
     if (!got_time) {
@@ -1601,13 +1600,7 @@ text_import(text_import_info_t * const info)
         has_seqno = g_regex_get_string_number(info->regex.format, "seqno") >= 0;
     }
 
-    if (info->timestamp_format)
-    {
-        ts_fmt = info->timestamp_format;
-        if (!strcmp(info->timestamp_format, "ISO")) {
-            ts_fmt_iso = TRUE;
-        }
-    }
+    ts_fmt_iso = !(g_strcmp0(info->timestamp_format, "ISO"));
     timecode_warned = FALSE;
 
     /* XXX: It would be good to know the time precision of the file,
