@@ -23,7 +23,7 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [ *-n* ]
 [ *-N* <intf-name> ]
 [ *-m* <max-packet> ]
-[ *-o* hex|oct|dec ]
+[ *-o* hex|oct|dec|none ]
 [ *-q* ]
 [ *-s* <srcport>,<destport>,<tag> ]
 [ *-S* <srcport>,<destport>,<ppi> ]
@@ -202,11 +202,14 @@ Specify a name for the interface included when writing a pcapng format
 file. By default no name is defined.
 --
 
--o hex|oct|dec::
+-o hex|oct|dec|none::
 +
 --
-Specify the radix for the offsets (hex, octal or decimal). Defaults to
+Specify the radix for the offsets (hex, octal, decimal, or none). Defaults to
 hex. This corresponds to the `-A` option for __od__.
+
+*NOTE:* With __-o none__, only one packet will be created, ignoring any
+direction indicators or timestamps after the first byte along with any offsets.
 --
 
 -q::
@@ -243,14 +246,11 @@ into the SCTP header.
 +
 --
 Treats the text before the packet as a date/time code; __timefmt__ is a
-format string of the sort supported by strftime(3).
-Example: The time "10:15:14.5476" has the format code "%H:%M:%S."
+format string supported by strftime(3), supplemented with the field
+descriptor "%f" for fractional seconds up to nanoseconds.
+Example: The time "10:15:14.5476" has the format code "%H:%M:%S.%f"
 The special format string __ISO__ indicates that the string should be
 parsed according to the ISO-8601 specification.
-
-*NOTE:* The subsecond component delimiter must be specified (.) but no
-pattern is required; the remaining number is assumed to be fractions of
-a second.
 
 *NOTE:* Date/time fields from the current date/time are
 used as the default for unspecified fields.

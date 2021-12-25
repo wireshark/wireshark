@@ -171,9 +171,6 @@ static char *output_filename;
 
 static wtap_dumper* wdh;
 
-/* Offset base to parse */
-static guint32 offset_base = 16;
-
 /* Encapsulation type; see wiretap/wtap.h for details */
 static guint32 wtap_encap_type = 1;   /* Default is WTAP_ENCAP_ETHERNET */
 
@@ -259,7 +256,7 @@ print_usage (FILE *output)
             "      <outfile> specifies output filename (use - for standard output)\n"
             "\n"
             "Input:\n"
-            "  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal;\n"
+            "  -o hex|oct|dec|none    parse offsets as (h)ex, (o)ctal, (d)ecimal, or (n)one;\n"
             "                         default is hex.\n"
             "  -t <timefmt>           treat the text before the packet as a date/time code;\n"
             "                         the specified argument is a format string of the sort\n"
@@ -375,6 +372,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     int err;
     char* err_info;
 
+    info->hexdump.offset_type = OFFSET_HEX;
     /* Initialize the version information. */
     ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
 
@@ -394,15 +392,16 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         case 'n': use_pcapng = TRUE; break;
         case 'N': interface_name = ws_optarg; break;
         case 'o':
-            if (ws_optarg[0] != 'h' && ws_optarg[0] != 'o' && ws_optarg[0] != 'd') {
+            if (ws_optarg[0] != 'h' && ws_optarg[0] != 'o' && ws_optarg[0] != 'd' && ws_optarg[0] != 'n') {
                 cmdarg_err("Bad argument for '-o': %s", ws_optarg);
                 print_usage(stderr);
                 return INVALID_OPTION;
             }
             switch (ws_optarg[0]) {
-            case 'o': offset_base =  8; break;
-            case 'h': offset_base = 16; break;
-            case 'd': offset_base = 10; break;
+            case 'o': info->hexdump.offset_type = OFFSET_OCT; break;
+            case 'h': info->hexdump.offset_type = OFFSET_HEX; break;
+            case 'd': info->hexdump.offset_type = OFFSET_DEC; break;
+            case 'n': info->hexdump.offset_type = OFFSET_NONE; break;
             }
             break;
         case 'e':
@@ -743,12 +742,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     info->import_text_filename = input_filename;
     info->output_filename = output_filename;
     info->hexdump.import_text_FILE = input_file;
-    switch (offset_base) {
-    case (16): info->hexdump.offset_type = OFFSET_HEX; break;
-    case (10): info->hexdump.offset_type = OFFSET_DEC; break;
-    case (8):  info->hexdump.offset_type = OFFSET_OCT; break;
-    default:   info->hexdump.offset_type = OFFSET_HEX; break;
-    }
     info->hexdump.has_direction = has_direction;
     info->timestamp_format = ts_fmt;
 
