@@ -1302,6 +1302,15 @@ parse_token(token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
+            if (offset_base == 0) {
+                append_to_preamble(str);
+                /* If we're still in the INIT state, maybe there's something
+                 * odd like a time format with no separators. That wouldn't
+                 * work in a mode with an offset, but give it a try.
+                 */
+                report_warning("Running in no offset mode but read offset (%s) at start of file, treating as preamble", str);
+                break;
+            }
             if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
                 return IMPORT_FAILURE;
             if (num == 0) {
@@ -1341,6 +1350,14 @@ parse_token(token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
+            if (offset_base == 0) {
+                /* After starting the packet there's no point adding it to
+                 * the preamble in this mode (we only do one packet.)
+                 * Use a generic warning message to suppress the many
+                 * expected duplicates. */
+                report_warning("Running in no offset mode but read offset, ignoring");
+                break;
+            }
             if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
                 return IMPORT_FAILURE;
             if (num == 0) {
