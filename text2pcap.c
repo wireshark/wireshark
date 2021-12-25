@@ -118,6 +118,7 @@ static guint32 hdr_ethernet_proto = 0;
 /* Dummy IP header */
 static gboolean hdr_ip = FALSE;
 static gboolean hdr_ipv6 = FALSE;
+static gboolean have_hdr_ip_proto = FALSE;
 static long hdr_ip_proto = -1;
 
 /* Destination and source addresses for IP header */
@@ -401,6 +402,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 print_usage(stderr);
                 return INVALID_OPTION;
             }
+            have_hdr_ip_proto = TRUE;
             hdr_ethernet = TRUE;
             break;
 
@@ -443,6 +445,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
 
             hdr_ip_proto = 132;
+            have_hdr_ip_proto = TRUE;
             hdr_ethernet = TRUE;
             break;
         case 'S':
@@ -484,6 +487,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             }
 
             hdr_ip_proto = 132;
+            have_hdr_ip_proto = TRUE;
             hdr_ethernet = TRUE;
             break;
 
@@ -518,6 +522,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 return INVALID_OPTION;
             }
             hdr_ip_proto = 17;
+            have_hdr_ip_proto = TRUE;
             hdr_ethernet = TRUE;
             break;
 
@@ -546,6 +551,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
                 return INVALID_OPTION;
             }
             hdr_ip_proto = 6;
+            have_hdr_ip_proto = TRUE;
             hdr_ethernet = TRUE;
             break;
 
@@ -643,12 +649,15 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         return INVALID_OPTION;
     }
 
-    if (hdr_ip_proto != -1 && !(hdr_ip || hdr_ipv6)) {
-        /* If -i <proto> option is specified without -4 or -6 then add the default IPv4 header */
+    if (have_hdr_ip_proto && !(hdr_ip || hdr_ipv6)) {
+        /*
+         * If we have an IP protocol to add to the header, but neither an
+         * IPv4 nor an IPv6 header was specified,  add an IPv4 header.
+         */
         hdr_ip = TRUE;
     }
 
-    if (hdr_ip_proto == -1 && (hdr_ip || hdr_ipv6)) {
+    if (!have_hdr_ip_proto && (hdr_ip || hdr_ipv6)) {
         /* if -4 or -6 option is specified without an IP protocol then fail */
         cmdarg_err("IP protocol requires a next layer protocol number");
         return INVALID_OPTION;
