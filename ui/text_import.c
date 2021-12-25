@@ -396,7 +396,7 @@ parse_num(const char *str, int offset, guint32* num)
     }
 
     errno = 0;
-    unsigned long ulnum = (guint32)strtoul(str, &c, offset ? offset_base : 16);
+    unsigned long ulnum = strtoul(str, &c, offset ? offset_base : 16);
     if (errno != 0) {
         report_failure("Unable to convert %s to base %u: %s", str,
             offset ? offset_base : 16, g_strerror(errno));
