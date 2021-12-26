@@ -91,6 +91,7 @@ private slots:
     /* Hex Dump input */
     void on_noOffsetButton_toggled(bool checked);
     void on_directionIndicationCheckBox_toggled(bool checked);
+    void on_asciiIdentificationCheckBox_toggled(bool checked);
 
     /* Regex input */
     void on_regexTextEdit_textChanged();

@@ -216,6 +216,7 @@ void ImportTextDialog::applyDialogSettings()
         ti_ui_->noOffsetButton->setChecked(true);
     }
     ti_ui_->directionIndicationCheckBox->setChecked(settings["hexdump.hasDirection"].toBool());
+    ti_ui_->asciiIdentificationCheckBox->setChecked(settings["hexdump.identifyAscii"].toBool());
 
     // Regular Expression
     ti_ui_->regexTextEdit->setText(settings["regex.format"].toString());
@@ -300,6 +301,7 @@ void ImportTextDialog::storeDialogSettings()
         settings["hexdump.offsets"] = "none";
     }
     settings["hexdump.hasDirection"] = ti_ui_->directionIndicationCheckBox->isChecked();
+    settings["hexdump.identifyAscii"] = ti_ui_->asciiIdentificationCheckBox->isChecked();
 
     // Regular Expression
     settings["regex.format"] = ti_ui_->regexTextEdit->toPlainText();
@@ -654,6 +656,7 @@ void ImportTextDialog::on_modeTabWidget_currentChanged(int index) {
         import_info_.mode = TEXT_IMPORT_HEXDUMP;
         memset(&import_info_.hexdump, 0, sizeof(import_info_.hexdump));
         on_directionIndicationCheckBox_toggled(ti_ui_->directionIndicationCheckBox->isChecked());
+        on_asciiIdentificationCheckBox_toggled(ti_ui_->asciiIdentificationCheckBox->isChecked());
         enableFieldWidgets(false, true);
         break;
       case 1:
@@ -682,6 +685,11 @@ void ImportTextDialog::on_noOffsetButton_toggled(bool checked)
 void ImportTextDialog::on_directionIndicationCheckBox_toggled(bool checked)
 {
     import_info_.hexdump.has_direction = checked;
+}
+
+void ImportTextDialog::on_asciiIdentificationCheckBox_toggled(bool checked)
+{
+    import_info_.hexdump.identify_ascii = checked;
 }
 
 /*******************************************************************************

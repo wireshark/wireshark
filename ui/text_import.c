@@ -1451,7 +1451,7 @@ parse_token(token_t token, char *str)
                 by_eol = 1;
                 state = START_OF_LINE;
             }
-            if (info_p->identify_ascii) {
+            if (info_p->hexdump.identify_ascii) {
                 /* Here a line of pkt bytes reading is finished
                    compare the ascii and hex to avoid such situation:
                    "61 62 20 ab ", when ab is ascii dump then it should

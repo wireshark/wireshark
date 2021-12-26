@@ -76,6 +76,7 @@ typedef struct
         FILE *import_text_FILE;
         enum offset_type offset_type;
         gboolean has_direction;
+        gboolean identify_ascii;
     } hexdump;
     struct {
         GMappedFile* import_text_GMappedFile;
@@ -111,7 +112,6 @@ typedef struct
     /* const */ gchar* payload;
 
     guint max_frame_length;
-    gboolean identify_ascii;
 
     /* Output info */
     guint num_packets_read;

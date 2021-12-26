@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>545</width>
-    <height>673</height>
+    <width>562</width>
+    <height>832</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -181,6 +181,40 @@
            </item>
            <item>
             <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="asciiLayout" stretch="0,0,0">
+           <item>
+            <widget class="QLabel" name="asciiIdentificationLabel">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="text">
+              <string>ASCII identification:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="asciiIdentificationCheckBox">
+             <property name="toolTip">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="asciiSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>

@@ -150,9 +150,6 @@ static guint32 hdr_data_chunk_ppid = 0;
 /* Export PDU */
 static gboolean hdr_export_pdu = FALSE;
 
-/* ASCII text dump identification */
-static gboolean identify_ascii = FALSE;
-
 static gboolean has_direction = FALSE;
 
 /*--- Local data -----------------------------------------------------------------*/
@@ -579,7 +576,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             break;
 
         case 'a':
-            identify_ascii = TRUE;
+            info->hexdump.identify_ascii = TRUE;
             break;
 
         case 'v':
@@ -805,7 +802,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     info->ppi = hdr_data_chunk_ppid;
 
     info->max_frame_length = max_offset;
-    info->identify_ascii = identify_ascii;
 
     /* Display summary of our state */
     if (!quiet) {
