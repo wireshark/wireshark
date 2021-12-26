@@ -4968,6 +4968,7 @@ elcn		7101/tcp/udp	# Embedded Light Control Network
 aes-x170	7107/udp	# AES-X170
 rothaga		7117/tcp	# Encrypted chat and file transfer service
 virprot-lm	7121/tcp/udp	# Virtual Prototypes License Manager
+snif		7123/tcp	# End-to-end TLS Relay Control Connection
 scenidm		7128/tcp/udp	# intelligent data manager
 scenccs		7129/tcp/udp	# Catalog Content Search
 cabsm-comm	7161/tcp/udp	# CA BSM Comm
@@ -6114,6 +6115,7 @@ e1-interface	38462/sctp	# E1 signalling transport (3GPP)
 f1-control	38472/sctp	# F1 Control Plane (3GPP)
 sruth		38800/tcp	# Sruth is a service for the distribution of routinely- generated but arbitrary files based on a publish/subscribe distribution model and implemented using a peer-to-peer transport mechanism
 secrmmsafecopya	38865/tcp	# Security approval process for use of the secRMM SafeCopy program
+vroa		39063/tcp	# Children's hearing test/Telemedicine
 turbonote-1	39681/tcp/udp	# TurboNote Default Port
 safetynetp	40000/tcp/udp	# SafetyNET p
 k-patentssensor	40023/udp	# K-PatentsSensorInformation
