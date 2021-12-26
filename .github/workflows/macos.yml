@@ -46,12 +46,8 @@ jobs:
       - name: Build dmg
         run: ninja dmg_package
         working-directory: build
-      - name: Move dmg package
-        run: |
-          mkdir dmg
-          mv build/run/*dmg dmg/
       - name: Upload dmg packages
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
-          name: packages
-          path: dmg
+          name: package
+          path: build/run/*dmg
