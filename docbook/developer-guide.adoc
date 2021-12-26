@@ -10,10 +10,6 @@ include::attributes.adoc[]
 :qt-lts-version: 5.12
 :source-highlighter: coderay
 
-[[Preface]]
-["preface",id="Preface"]
-== Preface
-
 include::wsdg_src/WSDG_preface.adoc[]
 
 include::common_src/typographic_conventions.adoc[]
