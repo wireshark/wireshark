@@ -212,6 +212,18 @@ hex. This corresponds to the `-A` option for __od__.
 direction indicators or timestamps after the first byte along with any offsets.
 --
 
+-P <dissector>::
++
+--
+Include an EXPORTED_PDU header before each packet.  Specify, as a string,
+the dissector to be called for the packet (PROTO_NAME tag).  Use this option
+if your dump is the payload for a single upper layer protocol (so specifying a
+link layer type would not work) and you wish to create a capture file without
+a full dummy protocol stack.  Automatically sets the link layer type to
+Wirehshark Upper PDU export.  Without this option, if the Upper PDU export
+link layer type (252) is selected the dissector defaults to "data".
+--
+
 -q::
 +
 --
