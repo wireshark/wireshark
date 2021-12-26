@@ -463,26 +463,20 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
             ptr++;
         }
         else {
-            n_scanned = sscanf(ptr, has_separator ? "%3d:%2d%n" : "%3d%2d%n",
-                    &off_hr,
-                    &off_min,
-                    &n_chars);
+            off_hr = off_min = 0;
+            n_scanned = sscanf(ptr, "%3d%n", &off_hr, &n_chars);
             if (n_scanned >= 1) {
                 /* Definitely got hours */
                 have_offset = TRUE;
-                if (n_scanned >= 2) {
+                ptr += n_chars;
+                n_scanned = sscanf(ptr, *ptr == ':' ? ":%2d%n" : "%2d%n", &off_min, &n_chars);
+                if (n_scanned >= 1) {
                     /* Got minutes too */
                     ptr += n_chars;
-                }
-                else {
-                    /* Only got hours, just move ptr past the +hh or whatever */
-                    off_min = 0;
-                    ptr += 3;
                 }
             }
             else {
                 /* Didn't get a valid offset, treat as if there's none at all */
-                off_hr = off_min =  0;
                 have_offset = FALSE;
             }
         }

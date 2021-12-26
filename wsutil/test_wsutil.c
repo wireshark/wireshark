@@ -533,8 +533,26 @@ void test_nstime_from_iso8601(void)
     g_assert_cmpint(result.secs, ==, expect.secs);
     g_assert_cmpint(result.nsecs, ==, expect.nsecs);
 
-    /* Date and time with timezone offset. */
+    /* Date and time with timezone offset with separator. */
     str = "2013-05-30T23:45:25.349124+01:00";
+    expect.secs = mktime_utc(&tm1) + 1 * 60 * 60;
+    expect.nsecs = 349124 * 1000;
+    chars = iso8601_to_nstime(&result, str, ISO8601_DATETIME_AUTO);
+    g_assert_cmpuint(chars, ==, strlen(str));
+    g_assert_cmpint(result.secs, ==, expect.secs);
+    g_assert_cmpint(result.nsecs, ==, expect.nsecs);
+
+    /* Date and time with timezone offset without separator. */
+    str = "2013-05-30T23:45:25.349124+0100";
+    expect.secs = mktime_utc(&tm1) + 1 * 60 * 60;
+    expect.nsecs = 349124 * 1000;
+    chars = iso8601_to_nstime(&result, str, ISO8601_DATETIME_AUTO);
+    g_assert_cmpuint(chars, ==, strlen(str));
+    g_assert_cmpint(result.secs, ==, expect.secs);
+    g_assert_cmpint(result.nsecs, ==, expect.nsecs);
+
+    /* Date and time with timezone offset with hours only. */
+    str = "2013-05-30T23:45:25.349124+01";
     expect.secs = mktime_utc(&tm1) + 1 * 60 * 60;
     expect.nsecs = 349124 * 1000;
     chars = iso8601_to_nstime(&result, str, ISO8601_DATETIME_AUTO);
