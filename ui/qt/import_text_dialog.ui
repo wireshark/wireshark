@@ -562,17 +562,27 @@
         <item row="2" column="0">
          <widget class="QRadioButton" name="ipv4Button">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet and IPv4 header</string>
+           <string>Prefix each frame with an Ethernet and IP header</string>
           </property>
           <property name="text">
-           <string>IPv4</string>
+           <string>IP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="ipv6CheckBox">
+          <property name="toolTip">
+           <string>Prefix with IPv6 instead of IPv4</string>
+          </property>
+          <property name="text">
+           <string>IPv6</string>
           </property>
          </widget>
         </item>
         <item row="5" column="0">
          <widget class="QRadioButton" name="udpButton">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and UDP header</string>
+           <string>Prefix each frame with an Ethernet, IP and UDP header</string>
           </property>
           <property name="text">
            <string>UDP</string>
@@ -582,7 +592,7 @@
         <item row="6" column="0">
          <widget class="QRadioButton" name="tcpButton">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and TCP header</string>
+           <string>Prefix each frame with an Ethernet, IP and TCP header</string>
           </property>
           <property name="text">
            <string>TCP</string>
@@ -592,7 +602,7 @@
         <item row="7" column="0">
          <widget class="QRadioButton" name="sctpButton">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and SCTP header</string>
+           <string>Prefix each frame with an Ethernet, IP and SCTP header</string>
           </property>
           <property name="text">
            <string>SCTP</string>
@@ -602,7 +612,7 @@
         <item row="8" column="0">
          <widget class="QRadioButton" name="sctpDataButton">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</string>
+           <string>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</string>
           </property>
           <property name="text">
            <string>SCTP (Data)</string>
@@ -692,7 +702,7 @@
         <item row="2" column="2">
          <widget class="SyntaxLineEdit" name="protocolLineEdit">
           <property name="toolTip">
-           <string>The IPv4 protocol ID for each frame</string>
+           <string>The IP protocol ID for each frame</string>
           </property>
          </widget>
         </item>

@@ -45,6 +45,7 @@ private:
 
     void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
     void checkAddress(SyntaxLineEdit *le, bool &ok_enable, const QString &addr_str, ws_in4_addr *val_ptr);
+    void checkIPv6Address(SyntaxLineEdit *le, bool &ok_enable, const QString &addr_str, ws_in6_addr *val_ptr);
     bool checkDateTimeFormat(const QString &time_format);
 
     void loadSettingsFile();
@@ -107,6 +108,7 @@ private slots:
     void on_noDummyButton_toggled(bool checked);
     void on_ethernetButton_toggled(bool checked);
     void on_ipv4Button_toggled(bool checked);
+    void on_ipv6CheckBox_toggled(bool checked);
     void on_udpButton_toggled(bool checked);
     void on_tcpButton_toggled(bool checked);
     void on_sctpButton_toggled(bool checked);
