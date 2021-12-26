@@ -15,10 +15,6 @@ endif::[]
 
 :source-highlighter: coderay
 
-[[Preface]]
-["preface",id="Preface"]
-== Preface
-
 include::wsug_src/WSUG_preface.adoc[]
 
 include::common_src/typographic_conventions.adoc[]
