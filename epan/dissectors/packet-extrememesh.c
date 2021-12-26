@@ -1395,22 +1395,23 @@ static gint dissect_extrememesh_eth_noaddr(tvbuff_t *tvb, packet_info *pinfo, pr
 	//Add space for the src/dst
 	bufferLen = tvbLen + 12;
 	//Allocate a new ethernet buffer
-	ethBuffer = (guchar*)g_malloc(bufferLen);
+	ethBuffer = (guchar*)wmem_alloc(pinfo->pool, bufferLen);
 
 	//Copy in the src/dst
-	memcpy(ethBuffer, pinfo->dst.data, 6);
-	memcpy(ethBuffer + 6, pinfo->src.data, 6);
+	if (pinfo->src.data && pinfo->dst.data) {
+		memcpy(ethBuffer, pinfo->dst.data, pinfo->dst.len);
+		memcpy(ethBuffer + pinfo->dst.len, pinfo->src.data, pinfo->src.len);
 
-	//Copy in the rest of the packet
-	tvb_memcpy(tvb, ethBuffer + 12, 0, tvbLen);
-	nextTvb = tvb_new_real_data(ethBuffer, bufferLen, bufferLen);
-	tvb_set_free_cb(nextTvb, g_free);
-	tvb_set_child_real_data_tvbuff(tvb, nextTvb);
-	add_new_data_source(pinfo, nextTvb, "Encapsulated Ethernet, no addr");
+		//Copy in the rest of the packet
+		tvb_memcpy(tvb, ethBuffer + pinfo->src.len + pinfo->dst.len, 0, tvbLen);
+		nextTvb = tvb_new_real_data(ethBuffer, bufferLen, bufferLen);
+		tvb_set_child_real_data_tvbuff(tvb, nextTvb);
+		add_new_data_source(pinfo, nextTvb, "Encapsulated Ethernet, no addr");
 
-	if (eth_withoutfcs_handle)
-	{
-		call_dissector(eth_withoutfcs_handle, nextTvb, pinfo, tree);
+		if (eth_withoutfcs_handle)
+		{
+			call_dissector(eth_withoutfcs_handle, nextTvb, pinfo, tree);
+		}
 	}
 
 	//This is a terminal type
