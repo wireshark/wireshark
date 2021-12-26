@@ -284,7 +284,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 	switch (rtype) {
 		case FTREPR_DISPLAY:
 			rep = abs_time_to_str(scope, &fv->value.time,
-					(absolute_time_display_e)field_display, TRUE);
+					field_display, TRUE);
 			break;
 
 		case FTREPR_DFILTER:

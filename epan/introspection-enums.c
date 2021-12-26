@@ -22,6 +22,10 @@
 #define ENUM(arg) { #arg, arg }
 
 static ws_enum_t all_enums[] = {
+    ENUM(ABSOLUTE_TIME_DOY_UTC),
+    ENUM(ABSOLUTE_TIME_LOCAL),
+    ENUM(ABSOLUTE_TIME_NTP_UTC),
+    ENUM(ABSOLUTE_TIME_UTC),
     ENUM(AT_AX25),
     ENUM(AT_END_OF_LIST),
     ENUM(AT_ETHER),

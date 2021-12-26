@@ -151,7 +151,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	timestamp.h
 	timestats.h
 	tfs.h
-	time_fmt.h
 	to_str.h
 	tvbparse.h
 	tvbuff.h

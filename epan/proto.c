@@ -3884,7 +3884,7 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
 	switch (hfinfo->type) {
 	case FT_ABSOLUTE_TIME:
 		get_time_value(tree, tvb, start, length, encoding, &time_stamp, FALSE);
-		*retval = abs_time_to_str(scope, &time_stamp, (absolute_time_display_e)hfinfo->display, TRUE);
+		*retval = abs_time_to_str(scope, &time_stamp, hfinfo->display, TRUE);
 		break;
 	case FT_RELATIVE_TIME:
 		get_time_value(tree, tvb, start, length, encoding, &time_stamp, TRUE);
@@ -6426,7 +6426,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			tmp_str = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&finfo->value), (absolute_time_display_e)hfinfo->display, TRUE);
+			tmp_str = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&finfo->value), hfinfo->display, TRUE);
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
@@ -9117,7 +9117,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		}
 
 		case FT_ABSOLUTE_TIME:
-			tmp = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&fi->value), (absolute_time_display_e)hfinfo->display, TRUE);
+			tmp = abs_time_to_str(NULL, (const nstime_t *)fvalue_get(&fi->value), hfinfo->display, TRUE);
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
 			break;

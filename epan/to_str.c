@@ -94,13 +94,14 @@ get_zonename(struct tm *tmp)
 }
 
 gchar *
-abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolute_time_display_e fmt,
+abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, field_display_e fmt,
 		gboolean show_zone)
 {
 	struct tm *tmp = NULL;
 	const char *zonename = "???";
 	gchar *buf = NULL;
 
+	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
 
 	switch (fmt) {
 
@@ -117,6 +118,8 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 				zonename = get_zonename(tmp);
 			}
 			break;
+		default:
+			ws_assert_not_reached();
 	}
 	if (tmp) {
 		switch (fmt) {
@@ -195,6 +198,8 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 							(long)abs_time->nsecs);
 				}
 				break;
+			default:
+				ws_assert_not_reached();
 		}
 	} else
 		buf = wmem_strdup(scope, "Not representable");
@@ -202,12 +207,14 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolut
 }
 
 gchar *
-abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absolute_time_display_e fmt,
+abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, field_display_e fmt,
 		gboolean show_zone)
 {
 	struct tm *tmp = NULL;
 	const char *zonename = "???";
 	gchar *buf = NULL;
+
+	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
 
 	switch (fmt) {
 
@@ -224,6 +231,8 @@ abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absol
 				zonename = get_zonename(tmp);
 			}
 			break;
+		default:
+			ws_assert_not_reached();
 	}
 	if (tmp) {
 		switch (fmt) {
@@ -278,6 +287,8 @@ abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absol
 							tmp->tm_sec);
 				}
 				break;
+			default:
+				ws_assert_not_reached();
 		}
 	} else
 		buf = wmem_strdup(scope, "Not representable");

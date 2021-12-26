@@ -31,7 +31,6 @@
 
 #include "ipv4.h"
 #include "wsutil/nstime.h"
-#include "time_fmt.h"
 #include "tvbuff.h"
 #include "value_string.h"
 #include "tfs.h"
@@ -654,6 +653,7 @@ void proto_report_dissector_bug(const char *format, ...)
 /*
  * Note that this enum values are parsed in make-init-lua.pl so make sure
  * any changes here still makes valid entries in init.lua.
+ * XXX The script requires the equals sign.
  */
 typedef enum {
     BASE_NONE    = 0,   /**< none */
@@ -685,11 +685,19 @@ typedef enum {
     BASE_PT_SCTP = 16,  /**< SCTP port */
 
 /* OUI types */
-    BASE_OUI     = 17   /**< OUI resolution */
+    BASE_OUI     = 17,  /**< OUI resolution */
 
+/* Time types */
+    ABSOLUTE_TIME_LOCAL   = 18,     /**< local time in our time zone, with month and day */
+    ABSOLUTE_TIME_UTC     = 19,     /**< UTC, with month and day */
+    ABSOLUTE_TIME_DOY_UTC = 20,     /**< UTC, with 1-origin day-of-year */
+    ABSOLUTE_TIME_NTP_UTC = 21,     /**< UTC, with "NULL" when timestamp is all zeros */
 } field_display_e;
 
 #define FIELD_DISPLAY(d) ((d) & FIELD_DISPLAY_E_MASK)
+
+#define FIELD_DISPLAY_IS_ABSOLUTE_TIME(d) \
+        (FIELD_DISPLAY(d) >= ABSOLUTE_TIME_LOCAL && FIELD_DISPLAY(d) <= ABSOLUTE_TIME_NTP_UTC)
 
 /* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */
@@ -715,9 +723,6 @@ typedef enum {
 
 /** BASE_PT_ values display decimal and transport port service name */
 #define IS_BASE_PORT(b) (((b)==BASE_PT_UDP||(b)==BASE_PT_TCP||(b)==BASE_PT_DCCP||(b)==BASE_PT_SCTP))
-
-/* For FT_ABSOLUTE_TIME, the display format is an absolute_time_display_e
- * as per time_fmt.h. */
 
 typedef enum {
     HF_REF_TYPE_NONE,       /**< Field is not referenced */
