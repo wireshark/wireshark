@@ -50,6 +50,13 @@ Wireshark 3.7.0 Release Notes
        minimal. Some exotic patterns may now be invalid and require
        rewriting.
 
+        • Adds a new strict equality operator "===" or "all_eq". The
+       expression "a === b" is true if and only if all a’s are equal to
+       b. The negation of "===" can now be written as "!==" (any_ne), in
+       adittion to "~=" (introduced in Wireshark 3.6.0).
+
+        • Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
+
      • HTTP2 dissector now supports using fake headers to parse the
        DATAs of streams captured without first HEADERS frames of a
        long-lived stream (like gRPC streaming call which allows sending
@@ -117,7 +124,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-12-19 16:06:51 UTC
+  Last updated 2021-12-26 16:06:41 UTC
 
  References
 

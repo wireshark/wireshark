@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-33-g0d276b47d120)
+Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-826-gb3215d99cacb)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -8,16 +8,14 @@ where  <infile> specifies input  filename (use - for standard input)
       <outfile> specifies output filename (use - for standard output)
 
 Input:
-  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal;
+  -o hex|oct|dec|none    parse offsets as (h)ex, (o)ctal, (d)ecimal, or (n)one;
                          default is hex.
   -t <timefmt>           treat the text before the packet as a date/time code;
-                         the specified argument is a format string of the sort
-                         supported by strptime.
+                         <timefmt> is a format string supported by strptime,
+                         with an optional %f descriptor for fractional seconds.
                          Example: The time "10:15:14.5476" has the format code
-                         "%H:%M:%S."
-                         NOTE: The subsecond component delimiter, '.', must be
-                         given, but no pattern is required; the remaining
-                         number is assumed to be fractions of a second.
+                         "%H:%M:%S.%f"
+                         The special format string ISO supports ISO-8601 times.
                          NOTE: Date/time fields from the current date/time are
                          used as the default for unspecified fields.
   -D                     the text before the packet starts with an I or an O,
