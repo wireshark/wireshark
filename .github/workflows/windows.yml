@@ -60,12 +60,8 @@ jobs:
           msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
           msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
         working-directory: build
-      - name: Move Windows packages
-        run: |
-          mkdir exe
-          mv build/packaging/nsis/*exe exe/
       - name: Upload Windows packages
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
-          name: packages
-          path: exe
+          name: package
+          path: build/packaging/nsis/*exe
