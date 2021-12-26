@@ -13610,11 +13610,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">すべて閉じる</translation>
+        <translation>すべて閉じる</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">すべて展開</translation>
+        <translation>すべて展開</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>

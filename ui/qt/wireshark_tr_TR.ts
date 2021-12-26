@@ -13607,11 +13607,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">Hepsini Daralt</translation>
+        <translation>Hepsini Daralt</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Tümünü Genişlet</translation>
+        <translation>Hepsini Genişlet</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>
