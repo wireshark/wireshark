@@ -523,37 +523,16 @@
         <property name="verticalSpacing">
          <number>1</number>
         </property>
-        <item row="7" column="0">
-         <widget class="QRadioButton" name="exportPduButton">
-          <property name="text">
-           <string>ExportPDU</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QRadioButton" name="udpButton">
+        <item row="0" column="0" colspan="3">
+         <widget class="QRadioButton" name="noDummyButton">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and UDP header</string>
+           <string>Leave frames unchanged</string>
           </property>
           <property name="text">
-           <string>UDP</string>
+           <string>No dummy header</string>
           </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="protocolLabel">
-          <property name="text">
-           <string>Protocol (dec):</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QRadioButton" name="ethernetButton">
-          <property name="toolTip">
-           <string>Prefix each frame with an Ethernet header</string>
-          </property>
-          <property name="text">
-           <string>Ethernet</string>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -570,6 +549,16 @@
           </property>
          </spacer>
         </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="ethernetButton">
+          <property name="toolTip">
+           <string>Prefix each frame with an Ethernet header</string>
+          </property>
+          <property name="text">
+           <string>Ethernet</string>
+          </property>
+         </widget>
+        </item>
         <item row="2" column="0">
          <widget class="QRadioButton" name="ipv4Button">
           <property name="toolTip">
@@ -580,7 +569,37 @@
           </property>
          </widget>
         </item>
+        <item row="5" column="0">
+         <widget class="QRadioButton" name="udpButton">
+          <property name="toolTip">
+           <string>Prefix each frame with an Ethernet, IPv4 and UDP header</string>
+          </property>
+          <property name="text">
+           <string>UDP</string>
+          </property>
+         </widget>
+        </item>
         <item row="6" column="0">
+         <widget class="QRadioButton" name="tcpButton">
+          <property name="toolTip">
+           <string>Prefix each frame with an Ethernet, IPv4 and TCP header</string>
+          </property>
+          <property name="text">
+           <string>TCP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QRadioButton" name="sctpButton">
+          <property name="toolTip">
+           <string>Prefix each frame with an Ethernet, IPv4 and SCTP header</string>
+          </property>
+          <property name="text">
+           <string>SCTP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
          <widget class="QRadioButton" name="sctpDataButton">
           <property name="toolTip">
            <string>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</string>
@@ -590,30 +609,10 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLabel" name="ppiLabel">
+        <item row="9" column="0">
+         <widget class="QRadioButton" name="exportPduButton">
           <property name="text">
-           <string>PPI:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="3">
-         <widget class="QRadioButton" name="noDummyButton">
-          <property name="toolTip">
-           <string>Leave frames unchanged</string>
-          </property>
-          <property name="text">
-           <string>No dummy header</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="sourcePortLabel">
-          <property name="text">
-           <string>Source port:</string>
+           <string>ExportPDU</string>
           </property>
          </widget>
         </item>
@@ -624,44 +623,59 @@
           </property>
          </widget>
         </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="protocolLabel">
+          <property name="text">
+           <string>Protocol (dec):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QLabel" name="sourceAddressLabel">
+          <property name="text">
+           <string>Source address:</string>
+          </property>
+         </widget>
+        </item>
         <item row="4" column="1">
+         <widget class="QLabel" name="destinationAddressLabel">
+          <property name="text">
+           <string>Destination address:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLabel" name="sourcePortLabel">
+          <property name="text">
+           <string>Source port:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
          <widget class="QLabel" name="destinationPortLabel">
           <property name="text">
            <string>Destination port:</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QRadioButton" name="tcpButton">
-          <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and TCP header</string>
-          </property>
-          <property name="text">
-           <string>TCP</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QRadioButton" name="sctpButton">
-          <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and SCTP header</string>
-          </property>
-          <property name="text">
-           <string>SCTP</string>
-          </property>
-         </widget>
-        </item>
         <item row="7" column="1">
-         <widget class="QLabel" name="payloadLabel">
-          <property name="text">
-           <string>Dissector</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
          <widget class="QLabel" name="tagLabel">
           <property name="text">
            <string>Tag:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QLabel" name="ppiLabel">
+          <property name="text">
+           <string>PPI:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QLabel" name="payloadLabel">
+          <property name="text">
+           <string>Dissector</string>
           </property>
          </widget>
         </item>
@@ -682,35 +696,49 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
+        <item row="3" column="2" colspan="2">
+         <widget class="SyntaxLineEdit" name="sourceAddressLineEdit">
+          <property name="toolTip">
+           <string>The IP source address for each frame</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2" colspan="2">
+         <widget class="SyntaxLineEdit" name="destinationAddressLineEdit">
+          <property name="toolTip">
+           <string>The IP destination address for each frame</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
          <widget class="SyntaxLineEdit" name="sourcePortLineEdit">
           <property name="toolTip">
            <string>The UDP, TCP or SCTP source port for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="6" column="2">
          <widget class="SyntaxLineEdit" name="destinationPortLineEdit">
           <property name="toolTip">
            <string>The UDP, TCP or SCTP destination port for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="7" column="2">
          <widget class="SyntaxLineEdit" name="tagLineEdit">
           <property name="toolTip">
            <string>The SCTP verification tag for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="8" column="2">
          <widget class="SyntaxLineEdit" name="ppiLineEdit">
           <property name="toolTip">
            <string>The SCTP DATA payload protocol identifier for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="2">
+        <item row="9" column="2" colspan="2">
          <widget class="QComboBox" name="dissectorComboBox">
           <property name="toolTip">
            <string>The dissector to use for each frame</string>

@@ -44,6 +44,7 @@ private:
     void enableFieldWidgets(bool enable_direction_input = true, bool enable_time_input = true);
 
     void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
+    void checkAddress(SyntaxLineEdit *le, bool &ok_enable, const QString &addr_str, ws_in4_addr *val_ptr);
     bool checkDateTimeFormat(const QString &time_format);
 
     void loadSettingsFile();
@@ -72,6 +73,8 @@ private:
 
     bool ether_type_ok_;
     bool proto_ok_;
+    bool source_addr_ok_;
+    bool dest_addr_ok_;
     bool source_port_ok_;
     bool dest_port_ok_;
     bool tag_ok_;
@@ -111,6 +114,8 @@ private slots:
     void on_exportPduButton_toggled(bool checked);
     void on_ethertypeLineEdit_textChanged(const QString &ethertype_str);
     void on_protocolLineEdit_textChanged(const QString &protocol_str);
+    void on_sourceAddressLineEdit_textChanged(const QString &source_addr_str);
+    void on_destinationAddressLineEdit_textChanged(const QString &destination_addr_str);
     void on_sourcePortLineEdit_textChanged(const QString &source_port_str);
     void on_destinationPortLineEdit_textChanged(const QString &destination_port_str);
     void on_tagLineEdit_textChanged(const QString &tag_str);
