@@ -133,7 +133,8 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
             pcapng_flag = '-n'
         else:
             pcapng_flag = ''
-        text2pcap_cmd = '{cmd} {ns} -d -l {linktype} -t "%Y-%m-%d %H:%M:%S." {in_f} {out_f}'.format(
+        # XXX: -t ISO also works now too for this output
+        text2pcap_cmd = '{cmd} {ns} -d -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" {in_f} {out_f}'.format(
             cmd = cmd_text2pcap,
             ns = pcapng_flag,
             linktype = encap_to_link_type[pre_cap_info['encapsulation']],
