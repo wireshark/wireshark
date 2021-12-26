@@ -226,6 +226,9 @@ typedef struct {
     /* list of pointer to wmem_array_t, which is array of http2_header_t
     * that come from all HEADERS and CONTINUATION frames. */
     wmem_list_t *stream_header_list;
+    /* fake header info */
+    http2_frame_num_t fake_headers_initiated_fn;
+    wmem_array_t* fake_headers;
 } http2_header_stream_info_t;
 
 /* struct to reference uni-directional per-stream info */
@@ -1380,6 +1383,9 @@ http2_get_stream_id(packet_info *pinfo _U_)
 #endif /* ! HAVE_NGHTTP2 */
 
 #ifdef HAVE_NGHTTP2
+static const gchar*
+get_real_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_direction);
+
 static guint32
 select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
 {
@@ -2205,7 +2211,10 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 
 /* If the initial/first HEADERS frame (containing ":method" or ":status" header) of this direction is not received
  * (normally because of starting capturing after a long-lived HTTP2 stream like gRPC streaming call has been establied),
- * we initialize the information in direction of the stream with the fake headers of wireshark http2 preferences. */
+ * we initialize the information in direction of the stream with the fake headers of wireshark http2 preferences.
+ * In an other situation, some http2 headers are unable to be parse in current HEADERS frame because previous HEADERS
+ * frames were not captured that causing HPACK index table not completed. Fake headers can also be used in this situation.
+ */
 static void
 try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_session_t* h2session, proto_tree* tree, guint offset)
 {
@@ -2221,19 +2230,22 @@ try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_sessi
     proto_tree* header_tree;
     http2_frame_num_t http2_frame_num = get_http2_frame_num(tvb, pinfo);
 
+    http2_header_stream_info_t* header_stream_info = get_header_stream_info(pinfo, h2session, FALSE);
     http2_data_stream_reassembly_info_t* reassembly_info = get_data_reassembly_info(pinfo, h2session);
 
-    if (!PINFO_FD_VISITED(pinfo) && reassembly_info->data_initiated_in == 0) {
-        /* At this time, the data_initiated_in has not been set,
-         * indicating that the previous initial HEADERS frame has been lost.
-         * We try to use fake headers to initialize stream reassembly info. */
-        reassembly_info->data_initiated_in = http2_frame_num;
-    }
+    if (!PINFO_FD_VISITED(pinfo) && header_stream_info->fake_headers_initiated_fn == 0) {
+        header_stream_info->fake_headers_initiated_fn = http2_frame_num;
+        if (reassembly_info->data_initiated_in == 0) {
+            /* At this time, the data_initiated_in has not been set,
+             * indicating that the previous initial HEADERS frame has been lost.
+             * We try to use fake headers to initialize stream reassembly info. */
+            reassembly_info->data_initiated_in = http2_frame_num;
+        }
 
-    if (reassembly_info->data_initiated_in == http2_frame_num) {
-        /* The data_initiated_in should have been equal to the frame number of initial HEADERS
-         * frame, but now it is the frame number of current DATA frame, so the initial HEADERS
-         * frame must be lost. We try to find the matching fake headers */
+        /* Initialize with fake headers in this frame.
+         * Use only those fake headers that do not appear. */
+        header_stream_info->fake_headers = wmem_array_sized_new(wmem_file_scope(), sizeof(http2_fake_header_t*), 16);
+
         for (guint i = 0; i < num_http2_fake_headers; ++i) {
             http2_fake_header_t* fake_header = http2_fake_headers + i;
             if (fake_header->enable == FALSE ||
@@ -2255,17 +2267,20 @@ try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_sessi
             }
 
             /* now match one */
-            if (!PINFO_FD_VISITED(pinfo)) {
-                populate_http_header_tracking(tvb, pinfo, h2session, (int)strlen(fake_header->header_value),
-                    fake_header->header_name, fake_header->header_value);
+            if (get_real_header_value(pinfo, fake_header->header_name, FALSE)) {
+                /* If this header already appears, the fake header is ignored. */
+                continue;
             }
 
-            if (indexes == NULL) {
-                indexes = wmem_array_sized_new(wmem_file_scope(), sizeof(http2_fake_header_t*), 16);
-            }
-            wmem_array_append(indexes, &fake_header, 1);
+            populate_http_header_tracking(tvb, pinfo, h2session, (int)strlen(fake_header->header_value),
+                fake_header->header_name, fake_header->header_value);
+
+            wmem_array_append(header_stream_info->fake_headers, &fake_header, 1);
         }
+    }
 
+    if (header_stream_info->fake_headers_initiated_fn == http2_frame_num) {
+        indexes = header_stream_info->fake_headers;
         /* Try to add the tree item of fake headers. */
         if (indexes) {
             guint total_matching_fake_headers = wmem_array_get_count(indexes);
@@ -2287,8 +2302,6 @@ try_init_stream_with_fake_headers(tvbuff_t* tvb, packet_info* pinfo, http2_sessi
                 ti = proto_tree_add_string(header_tree, hf_http2_header_value, tvb, offset, 0, header->header_value);
                 proto_item_set_generated(ti);
             }
-
-            wmem_destroy_array(indexes);
         }
     }
 }
@@ -3097,9 +3110,9 @@ dissect_http2_data_body(tvbuff_t *tvb, packet_info *pinfo, http2_session_t* h2se
     }
 }
 
-/* Get header value from current or the other direction stream_header_list */
-const gchar*
-http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction)
+/* Get real header value from current or the other direction stream_header_list */
+static const gchar*
+get_real_header_value(packet_info* pinfo, const gchar* name, gboolean the_other_direction)
 {
     http2_header_stream_info_t* header_stream_info;
     wmem_list_frame_t* frame;
@@ -3152,7 +3165,19 @@ http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other
         }
     }
 
-    return get_fake_header_value(pinfo, name, the_other_direction);
+    return NULL;
+}
+
+/* Get header value from current or the other direction stream_header_list */
+const gchar*
+http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction)
+{
+    const gchar* value = get_real_header_value(pinfo, name, the_other_direction);
+    if (value) {
+        return value;
+    } else {
+        return get_fake_header_value(pinfo, name, the_other_direction);
+    }
 }
 #else
 static void
