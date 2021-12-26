@@ -150,7 +150,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
      * First, process the text lines prior to the pre-encapsulation
      * boundary; they're explanatory text lines.
      */
-    for (;;) {
+    while (tvb_offset_exists(tvb, offset)) {
         linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen == -1) {
             /* No complete line was found.  Nothing more to do. */
@@ -212,7 +212,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /*
      * Skip over any blank lines before the base64 information.
      */
-    for (;;) {
+    while (tvb_offset_exists(tvb, offset)) {
         linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen == -1) {
             /* No complete line was found.  We're done. */
@@ -257,7 +257,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     gint base64_state = 0;
     guint base64_save = 0;
     guint datasize = 0;
-    for (;;) {
+    while (tvb_offset_exists(tvb, offset)) {
         linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen == -1) {
             /*
