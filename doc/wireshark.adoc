@@ -1096,14 +1096,8 @@ include::diagnostic-options.adoc[]
 === MENU ITEMS
 
 menu:File[Open]::
-+
---
---
 
 menu:File[Open Recent]::
-+
---
---
 
 menu:File[Merge]::
 +
@@ -1124,9 +1118,6 @@ and will show a list of previously opened files.
 --
 
 menu:File[Save]::
-+
---
---
 
 menu:File[Save As]::
 +
@@ -1150,9 +1141,6 @@ e.g.: Filename_00001_20210714101530.pcap.
 --
 
 menu:File[File Set,Next File]::
-+
---
---
 
 menu:File[File Set,Previous File]::
 +
@@ -1182,31 +1170,16 @@ dialog box popped up by this menu item.
 --
 
 menu:File[Quit]::
-+
---
 Exit the application.
---
 
 menu:Edit[Copy,Description]::
-+
---
-Copies the description of the selected field in the protocol tree to
-the clipboard.
---
+Copies the description of the selected field in the protocol tree to the clipboard.
 
 menu:Edit[Copy,Fieldname]::
-+
---
-Copies the fieldname of the selected field in the protocol tree to
-the clipboard.
---
+Copies the fieldname of the selected field in the protocol tree to the clipboard.
 
 menu:Edit[Copy,Value]::
-+
---
-Copies the value of the selected field in the protocol tree to
-the clipboard.
---
+Copies the value of the selected field in the protocol tree to the clipboard.
 
 menu:Edit[Copy,As Filter]::
 +
@@ -1239,9 +1212,6 @@ case insensitive.
 --
 
 menu:Edit[Find Next]::
-+
---
---
 
 menu:Edit[Find Previous]::
 +
@@ -1262,26 +1232,14 @@ marked packet.
 --
 
 menu:Edit[Find Next Mark]::
-+
---
---
 
 menu:Edit[Find Previous Mark]::
-+
---
-Find next/previous marked packet.
---
+Find next or previous marked packet.
 
 menu:Edit[Mark All Packets]::
-+
---
---
 
 menu:Edit[Unmark All Packets]::
-+
---
-Mark / Unmark all packets that are currently displayed.
---
+Mark or unmark all packets that are currently displayed.
 
 menu:Edit[Time Reference,Set Time Reference (toggle)]::
 +
@@ -1302,144 +1260,70 @@ be reset at every Time Reference packet.
 --
 
 menu:Edit[Time Reference,Find Next]::
-+
---
---
 
 menu:Edit[Time Reference,Find Previous]::
-+
---
-Search forward / backward for a time referenced packet.
---
+Search forward or backward for a time referenced packet.
 
 menu:Edit[Configuration Profiles]::
-+
---
-Manage configuration profiles to be able to use more than one set of
-preferences and configurations.
---
+Manage configuration profiles to be able to use more than one set of preferences and configurations.
 
 menu:Edit[Preferences]::
-+
---
-Set the GUI, capture, printing and protocol options
-(see /Preferences dialog below).
---
+Set the GUI, capture, printing and protocol options (see /Preferences dialog below).
 
 menu:View[Main Toolbar]::
-+
---
---
 
 menu:View[Filter Toolbar]::
-+
---
---
 
 menu:View[Statusbar]::
-+
---
 Show or hide the main window controls.
---
 
 menu:View[Packet List]::
-+
---
---
 
 menu:View[Packet Details]::
-+
---
---
 
 menu:View[Packet Bytes]::
-+
---
 Show or hide the main window panes.
---
 
 menu:View[Time Display Format]::
-+
---
 Set the format of the packet timestamp displayed in the packet list window.
---
 
 menu:View[Name Resolution,Resolve Name]::
-+
---
 Try to resolve a name for the currently selected item.
---
 
 menu:View[Name Resolution,Enable for ... Layer]::
-+
---
 Enable or disable translation of addresses to names in the display.
---
 
 menu:View[Colorize Packet List]::
-+
---
-Enable or disable the coloring rules.  Disabling will improve performance.
---
+Enable or disable the coloring rules.
+Disabling will improve performance.
 
 menu:View[Auto Scroll in Live Capture]::
-+
---
-Enable or disable the automatic scrolling of the
-packet list while a live capture is in progress.
---
+Enable or disable the automatic scrolling of the packet list while a live capture is in progress.
 
 menu:View[Zoom In]::
-+
---
---
 
 menu:View[Zoom Out]::
-+
---
-Zoom into / out of the main window data (by changing the font size).
---
+Zoom into or out of the main window data (by changing the font size).
 
 menu:View[Normal Size]::
-+
---
-Reset the zoom factor of zoom in / zoom out back to normal font size.
---
+Reset the zoom level back to normal font size.
 
 menu:View[Resize All Columns]::
-+
---
 Resize all columns to best fit the current packet display.
---
 
 menu:View[Expand / Collapse Subtrees]::
-+
---
-Expands / Collapses the currently selected item and it's subtrees in the packet details.
---
+Expand or collapse the currently selected item and its subtrees in the packet details.
 
 menu:View[Expand All]::
-+
---
---
 
 menu:View[Collapse All]::
-+
---
-Expand / Collapse all branches of the packet details.
---
+Expand or Collapse all branches of the packet details.
 
 menu:View[Colorize Conversation]::
-+
---
-Select color for a conversation.
---
+Select a color for a conversation.
 
 menu:View[Reset Coloring 1-10]::
-+
---
-Reset Color for a conversation.
---
+Reset a color for a conversation.
 
 menu:View[Coloring Rules]::
 +
@@ -1479,29 +1363,16 @@ selected.
 --
 
 menu:View[Reload]::
-+
---
-Reload a capture file.  Same as __File:Close__ and __File:Open__ the same
-file again.
---
+Reload a capture file.  Same as __File:Close__ and __File:Open__ the same file again.
 
 menu:Go[Back]::
-+
---
 Go back in previously visited packets history.
---
 
 menu:Go[Forward]::
-+
---
 Go forward in previously visited packets history.
---
 
 menu:Go[Go To Packet]::
-+
---
 Go to a particular numbered packet.
---
 
 menu:Go[Go To Corresponding Packet]::
 +
@@ -1516,36 +1387,18 @@ that packet number has been put into the packet details.
 --
 
 menu:Go[Previous Packet]::
-+
---
---
 
 menu:Go[Next Packet]::
-+
---
---
 
 menu:Go[First Packet]::
-+
---
---
 
 menu:Go[Last Packet]::
-+
---
-Go to the previous / next / first / last packet in the capture.
---
+Go to the previous, next, first, or last packet in the capture.
 
 menu:Go[Previous Packet In Conversation]::
-+
---
---
 
 menu:Go[Next Packet In Conversation]::
-+
---
-Go to the previous / next packet of the conversation (TCP, UDP or IP)
---
+Go to the previous or next packet of the TCP, UDP or IP conversation.
 
 menu:Capture[Interfaces]::
 +
@@ -1575,10 +1428,7 @@ with the same options.
 --
 
 menu:Capture[Stop]::
-+
---
 Stop a running live capture.
---
 
 menu:Capture[Restart]::
 +
@@ -1589,24 +1439,13 @@ packets were captured so far.
 --
 
 menu:Capture[Capture Filters]::
-+
---
-Edit the saved list of capture filters, allowing filters to be added,
-changed, or deleted.
---
+Edit the saved list of capture filters, allowing filters to be added, changed, or deleted.
 
 menu:Analyze[Display Filters]::
-+
---
-Edit the saved list of display filters, allowing filters to be added,
-changed, or deleted.
---
+Edit the saved list of display filters, allowing filters to be added, changed, or deleted.
 
 menu:Analyze[Display Filter Macros]::
-+
---
-Create shortcuts for complex macros
---
+Create shortcuts for complex macros.
 
 menu:Analyze[Apply as Filter]::
 +
@@ -1701,31 +1540,16 @@ save it as text to a file.
 --
 
 menu:Analyze[Follow UDP Stream]::
-+
---
---
 
 menu:Analyze[Follow TLS Stream]::
-+
---
-(Similar to Analyze:Follow TCP Stream)
---
+Similar to Analyze:Follow TCP Stream.
 
 menu:Analyze[Expert Info]::
-+
---
---
 
 menu:Analyze[Expert Info Composite]::
-+
---
-(Kind of) a log of anomalies found by Wireshark in a capture file.
---
+Show anomalies found by Wireshark in a capture file.
 
 menu:Analyze[Conversation Filter]::
-+
---
---
 
 menu:Statistics[Summary]::
 +
@@ -1750,22 +1574,14 @@ the table, they are listed under "End Packets" and "End Bytes".
 --
 
 menu:Statistics[Conversations]::
-+
---
-Lists of conversations; selectable by protocol.  See Statistics:Conversation List below.
---
+Lists of conversations; selectable by protocol.
+See Statistics:Conversation List below.
 
 menu:Statistics[End Points]::
-+
---
-List of End Point Addresses by protocol with packets/bytes/.... counts.
---
+List of End Point Addresses by protocol with packets, bytes, and other counts.
 
 menu:Statistics[Packet Lengths]::
-+
---
 Grouped counts of packet lengths (0-19 bytes, 20-39 bytes, ...)
---
 
 menu:Statistics[I/O Graphs]::
 +
@@ -2056,71 +1872,37 @@ filter operations to apply to the capture.
 --
 
 menu:Statistics[BOOTP-DHCP]::
-+
---
-
---
+Show DHCP statistics.
 
 menu:Statistics[Compare]::
-+
---
-Compare two Capture Files
---
+Compare two capture files.
 
 menu:Statistics[Flow Graph]::
-+
---
-Flow Graph: General/TCP
---
+Show protocol flows.
 
 menu:Statistics[HTTP]::
-+
---
-HTTP Load Distribution, Packet Counter & Requests
---
+HTTP Load Distribution, Packet Counter & Requests.
 
 menu:Statistics[IP Addresses]::
-+
---
-Count/Rate/Percent by IP Address
---
+Count, Rate, and Percent by IP Address.
 
 menu:Statistics[IP Destinations]::
-+
---
-Count/Rate/Percent by IP Address/protocol/port
---
+Count, Rate, and Percent by IP Address, protocol, and port.
 
 menu:Statistics[IP Protocol Types]::
-+
---
-Count/Rate/Percent by IP Protocol Types
---
+Count, Rate, and Percent by IP Protocol Types.
 
 menu:Statistics[ONC-RPC Programs]::
-+
---
-This dialog will open a window showing aggregated SRT statistics for all
-ONC-RPC Programs/versions that exist in the capture file.
---
+This dialog will open a window showing aggregated SRT statistics for all ONC-RPC Programs/versions that exist in the capture file.
 
 menu:Statistics[TCP Stream Graph]::
-+
---
-Graphs: Round Trip; Throughput; Time-Sequence (Stevens); Time-Sequence (tcptrace)
---
+Show Round Trip, Throughput, Time-Sequence (Stevens), or Time-Sequence (tcptrace) graphs.
 
 menu:Statistics[UDP Multicast streams]::
-+
---
-Multicast Streams Counts/Rates/... by Source/Destination Address/Port pairs
---
+Multicast Streams counts, rates, and other statistics by source and destination address and port pairs.
 
 menu:Statistics[WLAN Traffic]::
-+
---
-WLAN Traffic Statistics
---
+WLAN Traffic Statistics.
 
 menu:Telephony[ITU-T H.225]::
 +
@@ -2153,42 +1935,22 @@ on those calls matching that filter.
 --
 
 menu:Tools[Firewall ACL Rules]::
-+
---
-
---
+Generate firewall rules for a selected packet.
 
 menu:Help[Contents]::
-+
---
-Some help texts.
---
+Display the User's Guide.
 
 menu:Help[Supported Protocols]::
-+
---
 List of supported protocols and display filter protocol fields.
---
 
 menu:Help[Manual Pages]::
-+
---
 Display locally installed HTML versions of these manual pages in a web browser.
---
 
 menu:Help[Wireshark Online]::
-+
---
-Various links to online resources to be open in a web browser, like
-https://www.wireshark.org.
---
+Various links to online resources to be open in a web browser, like https://www.wireshark.org.
 
 menu:Help[About Wireshark]::
-+
---
-See various information about Wireshark (see /About dialog below), like the
-version, the folders used, the available plugins, ...
---
+See various information about Wireshark (see /About dialog below), like the version, the folders used, the available plugins, ...
 
 === WINDOWS
 
@@ -2286,18 +2048,10 @@ The statusbar can be hidden by __View:Statusbar__.
 --
 
 Preferences::
-+
---
-The __Preferences__ dialog lets you control various personal preferences
-for the behavior of *Wireshark*.
---
+Adjust the behavior of *Wireshark*.
 
 User Interface Preferences::
-+
---
-The __User Interface__ page is used to modify small aspects of the GUI to
-your own personal taste:
---
+Modify the UI to your own personal tastes.
 
 Selection Bars::
 +
@@ -2410,9 +2164,6 @@ the left or the right.
 --
 
 Alternating row colors::
-+
---
---
 
 Hex Display::
 +
@@ -2422,20 +2173,10 @@ item can be set to use either inverse video, or bold characters.
 --
 
 Toolbar style::
-+
---
---
 
 Filter toolbar placement::
-+
---
---
 
 Custom window title::
-+
---
-
---
 
 Column Preferences::
 +
@@ -2450,28 +2191,16 @@ The row of buttons on the left perform the following actions:
 --
 
 New::
-+
---
 Adds a new column to the list.
---
 
 Delete::
-+
---
 Deletes the currently selected list item.
---
 
 Up / Down::
-+
---
 Moves the selected list item up or down one position.
---
 
 Font Preferences::
-+
---
 The __Font__ page lets you select the font to be used for most text.
---
 
 Color Preferences::
 +
@@ -2570,29 +2299,14 @@ controlling the way Wireshark handles those protocols.
 --
 
 Edit Capture Filter List::
-+
---
---
 
 Edit Display Filter List::
-+
---
---
 
 Capture Filter::
-+
---
---
 
 Display Filter::
-+
---
---
 
 Read Filter::
-+
---
---
 
 Search Filter::
 +
@@ -2625,24 +2339,13 @@ following actions:
 --
 
 New::
-+
---
-If there is text in the two entry boxes, creates a new associated list
-item.
---
+If there is text in the two entry boxes, creates a new associated list item.
 
 Edit::
-+
---
-Modifies the currently selected list item to match what's in the entry
-boxes.
---
+Modifies the currently selected list item to match what's in the entry boxes.
 
 Delete::
-+
---
 Deletes the currently selected list item.
---
 
 Add Expression...::
 +
@@ -2672,11 +2375,7 @@ dialog.
 --
 
 Apply::
-+
---
-Makes the filter in the __Filter string__ entry the current display
-filter, and applies it to the current capture.
---
+Makes the filter in the __Filter string__ entry the current display filter, and applies it to the current capture.
 
 Save::
 +
@@ -2689,18 +2388,10 @@ filters file.
 --
 
 Close::
-+
---
-Closes the dialog without doing anything with the filter in the __Filter
- string__ entry.
---
+Closes the dialog without doing anything with the filter in the __Filter string__ entry.
 
 The Color Filters Dialog::
-+
---
-This dialog displays a list of color filters and allows it to be
-modified.
---
+This dialog displays a list of color filters and allows it to be modified.
 
 THE FILTER LIST::
 +
@@ -2730,22 +2421,13 @@ ambiguous which is to be edited.)
 --
 
 ENABLE::
-+
---
 Enables the selected color filter(s).
---
 
 DISABLE::
-+
---
 Disables the selected color filter(s).
---
 
 DELETE::
-+
---
 Deletes the selected color filter(s).
---
 
 EXPORT::
 +
@@ -2768,38 +2450,19 @@ global color filters file.
 --
 
 CLEAR::
-+
---
-Deletes your personal color filters file, reloads the global
-color filters file, if any, and closes the dialog.
---
+Deletes your personal color filters file, reloads the global color filters file, if any, and closes the dialog.
 
 UP::
-+
---
-Moves the selected filter(s) up the list, making it more likely that
-they will be used to color packets.
---
+Moves the selected filter(s) up the list, making it more likely that they will be used to color packets.
 
 DOWN::
-+
---
-Moves the selected filter(s) down the list, making it less likely that
-they will be used to color packets.
---
+Moves the selected filter(s) down the list, making it less likely that they will be used to color packets.
 
 OK::
-+
---
 Closes the dialog and uses the color filters as they stand.
---
 
 APPLY::
-+
---
-Colors the packets according to the current list of color filters, but
-does not close the dialog.
---
+Colors the packets according to the current list of color filters, but does not close the dialog.
 
 SAVE::
 +
@@ -2901,10 +2564,7 @@ should be translated to names.
 --
 
 About::
-+
---
 The __About__ dialog lets you view various information about Wireshark.
---
 
 menu:About[Wireshark]::
 +
@@ -2914,10 +2574,7 @@ like the installed version, licensing information and such.
 --
 
 menu:About[Authors]::
-+
---
 The __Authors__ page shows the author and all contributors.
---
 
 menu:About[Folders]::
 +
