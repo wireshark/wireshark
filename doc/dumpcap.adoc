@@ -509,6 +509,8 @@ set, no time stamp types are listed.
 Change the interface's timestamp method.
 --
 
+include::diagnostic-options.adoc[]
+
 == CAPTURE FILTER SYNTAX
 
 See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist, xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8),

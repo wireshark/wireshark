@@ -189,8 +189,10 @@ print_usage(FILE *output)
     fprintf(output, "  -S                       format string for fields\n");
     fprintf(output, "                           (%%D - name, %%S - stringval, %%N numval)\n");
     fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+    fprintf(output, "\n");
 
     ws_log_print_usage(output);
+    fprintf(output, "\n");
 
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");

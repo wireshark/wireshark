@@ -307,6 +307,8 @@ The default format is relative.
 Print the version and exit.
 --
 
+include::diagnostic-options.adoc[]
+
 == READ FILTER SYNTAX
 
 For a complete table of protocol and protocol fields that are filterable

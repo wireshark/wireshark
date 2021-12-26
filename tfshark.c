@@ -201,10 +201,11 @@ print_usage(FILE *output)
   fprintf(output, "  -Q                       only log true errors to stderr (quieter than -q)\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
+  fprintf(output, "\n");
 
   ws_log_print_usage(output);
-
   fprintf(output, "\n");
+
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h                       display this help and exit\n");
   fprintf(output, "  -v                       display version info and exit\n");

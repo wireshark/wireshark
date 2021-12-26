@@ -1089,6 +1089,8 @@ Show IEEE 802.11 network and station statistics.
 Show WSP packet counters.
 --
 
+include::diagnostic-options.adoc[]
+
 == INTERFACE
 
 === MENU ITEMS

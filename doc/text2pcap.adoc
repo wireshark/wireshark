@@ -315,6 +315,8 @@ Example: __-6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334__ to
 use fe80::202:b3ff:fe1e:8329 and 2001:0db8:85a3::8a2e:0370:7334 for all IP packets.
 --
 
+include::diagnostic-options.adoc[]
+
 == SEE ALSO
 
 od(1), xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:mergecap.html[mergecap](1),

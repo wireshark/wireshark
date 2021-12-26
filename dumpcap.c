@@ -437,6 +437,7 @@ print_usage(FILE *output)
     fprintf(output, "\n");
 
     ws_log_print_usage(output);
+    fprintf(output, "\n");
 
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -N <packet_limit>        maximum number of packets buffered within dumpcap\n");

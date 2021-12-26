@@ -29,6 +29,8 @@ filter::
 The display filter expression. If needed it has to be quoted.
 --
 
+include::diagnostic-options.adoc[]
+
 == EXAMPLES
 
 Show how the IP protocol is filtered:

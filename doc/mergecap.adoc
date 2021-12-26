@@ -150,6 +150,8 @@ Sets the output filename. If the name is '*-*', stdout will be used.
 This setting is mandatory.
 --
 
+include::diagnostic-options.adoc[]
+
 == EXAMPLES
 
 To merge two capture files together into a third capture file, in which

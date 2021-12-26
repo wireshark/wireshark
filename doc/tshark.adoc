@@ -2392,6 +2392,8 @@ Enable dissection of heuristic protocol.
 Disable dissection of heuristic protocol.
 --
 
+include::diagnostic-options.adoc[]
+
 == CAPTURE FILTER SYNTAX
 
 See the manual page of xref:https://www.tcpdump.org/manpages/pcap-filter.7.html[pcap-filter](7) or, if that doesn't exist, xref:https://www.tcpdump.org/manpages/tcpdump.1.html[tcpdump](8),

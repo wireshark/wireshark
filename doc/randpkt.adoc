@@ -92,6 +92,8 @@ Defines the type of packet to generate:
         usb-linux       Universal Serial Bus with Linux specific header
 --
 
+include::diagnostic-options.adoc[]
+
 == EXAMPLES
 
 To see a description of the randpkt options use:
