@@ -263,6 +263,8 @@ void ImportTextDialog::applyDialogSettings()
 
     ti_ui_->ethertypeLineEdit->setText(settings["ethertype"].toString());
     ti_ui_->protocolLineEdit->setText(settings["ipProtocol"].toString());
+    ti_ui_->sourceAddressLineEdit->setText(settings["sourceAddress"].toString());
+    ti_ui_->destinationAddressLineEdit->setText(settings["destinationAddress"].toString());
     ti_ui_->sourcePortLineEdit->setText(settings["sourcePort"].toString());
     ti_ui_->destinationPortLineEdit->setText(settings["destinationPort"].toString());
     ti_ui_->tagLineEdit->setText(settings["sctpTag"].toString());
@@ -361,6 +363,8 @@ void ImportTextDialog::storeDialogSettings()
 
     settings["ethertype"] = ti_ui_->ethertypeLineEdit->text();
     settings["ipProtocol"] = ti_ui_->protocolLineEdit->text();
+    settings["sourceAddress"] = ti_ui_->sourceAddressLineEdit->text();
+    settings["destinationAddress"] = ti_ui_->destinationAddressLineEdit->text();
     settings["sourcePort"] = ti_ui_->sourcePortLineEdit->text();
     settings["destinationPort"] = ti_ui_->destinationPortLineEdit->text();
     settings["sctpTag"] = ti_ui_->tagLineEdit->text();
