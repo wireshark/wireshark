@@ -12,6 +12,7 @@
    this is enough information for determining the date.  */
 
 #include "config.h"
+#include "strptime.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -20,8 +21,6 @@
 #ifdef _LIBC
 # include "../locale/localeinfo.h"
 #endif
-
-#include "strptime.h"
 
 #ifndef __P
 # if defined (__GNUC__) || (defined (__STDC__) && __STDC__)
@@ -974,7 +973,7 @@ strptime_internal (rp, fmt, tm, decided, era_cnt)
 
 
 char *
-strptime (buf, format, tm)
+strptime_gnulib (buf, format, tm)
      const char *buf;
      const char *format;
      struct tm *tm;

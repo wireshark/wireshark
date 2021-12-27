@@ -17,10 +17,6 @@
 #include "epochs.h"
 #include "time_util.h"
 
-#ifndef HAVE_STRPTIME
-# include "wsutil/strptime.h"
-#endif
-
 /* this is #defined so that we can clearly see that we have the right number of
    zeros, rather than as a guard against the number of nanoseconds in a second
    changing ;) */
@@ -539,7 +535,7 @@ unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
     tm.tm_isdst = -1;
     nstime_set_unset(nstime);
 
-    if (!(ptr_new=strptime(ptr, "%s", &tm))) {
+    if (!(ptr_new = ws_strptime(ptr, "%s", &tm))) {
         return 0;
     }
 

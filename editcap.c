@@ -23,16 +23,6 @@
 #include <stdarg.h>
 #include <math.h>
 
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
-
-#ifndef __USE_XOPEN
-#  define __USE_XOPEN
-#endif
-
 #include <time.h>
 #include <glib.h>
 
@@ -51,10 +41,6 @@
 #ifdef _WIN32
 #include <process.h>    /* getpid */
 #include <winsock2.h>
-#endif
-
-#ifndef HAVE_STRPTIME
-# include "wsutil/strptime.h"
 #endif
 
 #include <ui/clopts_common.h>

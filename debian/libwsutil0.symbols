@@ -428,6 +428,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_regex_pattern@Base 3.7.0
  ws_socket_ptoa@Base 3.1.1
  ws_strcasestr@Base 3.7.0
+ ws_strptime@Base 3.7.0
  ws_strtoi16@Base 2.3.0
  ws_strtoi32@Base 2.3.0
  ws_strtoi64@Base 2.3.0

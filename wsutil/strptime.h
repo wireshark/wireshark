@@ -10,11 +10,13 @@
 #ifndef __STRPTIME_H__
 #define __STRPTIME_H__
 
-#include "ws_symbol_export.h"
+#include <ws_symbol_export.h>
+#include <time.h>
 
 /*
  * Version of "strptime()", for the benefit of OSes that don't have it.
  */
-WS_DLL_PUBLIC char *strptime(const char *, const char *, struct tm *);
+WS_DLL_LOCAL
+char *strptime_gnulib(const char *s, const char *format, struct tm *tm);
 
 #endif

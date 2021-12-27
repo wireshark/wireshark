@@ -75,37 +75,7 @@
  */
 
 #include "config.h"
-
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
-#ifndef __USE_XOPEN
-#  define __USE_XOPEN
-#endif
-#ifndef _XOPEN_SOURCE
-#  ifndef __sun
-#    define _XOPEN_SOURCE 600
-#  endif
-#endif
 #include "text_import.h"
-
-/*
- * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
- * using glibc, to expand the set of things system header files define.
- *
- * Unfortunately, on other platforms, such as some versions of Solaris
- * (including Solaris 10), it *reduces* that set as well, causing
- * strptime() not to be declared, presumably because the version of the
- * X/Open spec that _XOPEN_SOURCE implies doesn't include strptime() and
- * blah blah blah namespace pollution blah blah blah.
- *
- * So we define __EXTENSIONS__ so that "strptime()" is declared.
- */
-#ifndef __EXTENSIONS__
-#  define __EXTENSIONS__
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -127,9 +97,7 @@
 #include <wsutil/exported_pdu_tlvs.h>
 
 #include <wsutil/nstime.h>
-#ifndef HAVE_STRPTIME
-# include "wsutil/strptime.h"
-#endif
+#include <wsutil/time_util.h>
 
 #include "text_import_scanner.h"
 #include "text_import_scanner_lex.h"
@@ -1082,7 +1050,7 @@ _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _fo
             *subsecs_fmt = 0;
         }
 
-        cursor = strptime(cursor, format, &timecode);
+        cursor = ws_strptime(cursor, format, &timecode);
 
         if (cursor == NULL) {
             return FALSE;
@@ -1099,7 +1067,7 @@ _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _fo
 
             subseclen = (int) (p - cursor);
             cursor = p;
-            cursor = strptime(cursor, subsecs_fmt + 2, &timecode);
+            cursor = ws_strptime(cursor, subsecs_fmt + 2, &timecode);
             if (cursor == NULL) {
                 return FALSE;
             }
