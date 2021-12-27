@@ -984,7 +984,7 @@ defragmentation, etc).
 For some of the network protocols Wireshark knows of, a mechanism is implemented
 to find, decode and display these chunks of data. Wireshark will try to find the
 corresponding packets of this chunk, and will show the combined data as
-additional pages in the “Packet Bytes” pane (for information about this pane.
+additional tabs in the “Packet Bytes” pane (for information about this pane.
 See <<ChUsePacketBytesPaneSection>>).
 
 [[ChAdvWiresharkBytesPaneTabs]]

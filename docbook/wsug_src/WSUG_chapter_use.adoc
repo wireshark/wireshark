@@ -1054,7 +1054,7 @@ methods for deactivating the functionality:
 * *Temporary* By holding down the Ctrl button while moving the mouse, the
   highlighted field will not change
 
-* *Permanently* Using the context menu (right mouse click) the hover selection
+* *Permanently* Using the context menu (right mouse click) the hover highlighting
   may be activated/deactivated. This setting is stored in the selected profile
   __recent__ file.
 
@@ -1062,12 +1062,8 @@ methods for deactivating the functionality:
 .The “Packet Bytes” pane with tabs
 image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
 
-Additional pages typically contain data reassembled from multiple packets or
+Additional tabs typically contain data reassembled from multiple packets or
 decrypted data.
-
-The context menu (right mouse click) of the tab labels will show a list of all
-available pages. This can be helpful if the size in the pane is too small for
-all the tab labels.
 
 [[ChUsePacketDiagramPaneSection]]
 

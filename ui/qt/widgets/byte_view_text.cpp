@@ -84,7 +84,7 @@ ByteViewText::~ByteViewText()
 void ByteViewText::createContextMenu()
 {
 
-    action_allow_hover_selection_ = ctx_menu_.addAction(tr("Allow hover selection"));
+    action_allow_hover_selection_ = ctx_menu_.addAction(tr("Allow hover highlighting"));
     action_allow_hover_selection_->setCheckable(true);
     action_allow_hover_selection_->setChecked(true);
     connect(action_allow_hover_selection_, &QAction::toggled, this, &ByteViewText::toggleHoverAllowed);
