@@ -496,6 +496,53 @@ static void test_int64_to_str_back(void)
     g_assert_cmpstr(str, ==, "9223372036854775807");
 }
 
+#include "nstime.h"
+#include "time_util.h"
+
+void test_nstime_from_iso8601(void)
+{
+    char *str;
+    size_t chars;
+    nstime_t result, expect;
+    struct tm tm1;
+
+    memset(&tm1, 0, sizeof(tm1));
+    tm1.tm_sec = 25;
+    tm1.tm_min = 45;
+    tm1.tm_hour = 23;
+    tm1.tm_mday = 30;
+    tm1.tm_mon = 4; /* starts at zero */
+    tm1.tm_year = 2013 - 1900;
+    tm1.tm_isdst = -1;
+
+    /* Date and time with local time. */
+    str = "2013-05-30T23:45:25.349124";
+    expect.secs = mktime(&tm1);
+    expect.nsecs = 349124 * 1000;
+    chars = iso8601_to_nstime(&result, str, ISO8601_DATETIME_AUTO);
+    g_assert_cmpuint(chars, ==, strlen(str));
+    g_assert_cmpint(result.secs, ==, expect.secs);
+    g_assert_cmpint(result.nsecs, ==, expect.nsecs);
+
+    /* Date and time with UTC timezone. */
+    str = "2013-05-30T23:45:25.349124Z";
+    expect.secs = mktime_utc(&tm1);
+    expect.nsecs = 349124 * 1000;
+    chars = iso8601_to_nstime(&result, str, ISO8601_DATETIME_AUTO);
+    g_assert_cmpuint(chars, ==, strlen(str));
+    g_assert_cmpint(result.secs, ==, expect.secs);
+    g_assert_cmpint(result.nsecs, ==, expect.nsecs);
+
+    /* Date and time with timezone offset. */
+    str = "2013-05-30T23:45:25.349124+01:00";
+    expect.secs = mktime_utc(&tm1) + 1 * 60 * 60;
+    expect.nsecs = 349124 * 1000;
+    chars = iso8601_to_nstime(&result, str, ISO8601_DATETIME_AUTO);
+    g_assert_cmpuint(chars, ==, strlen(str));
+    g_assert_cmpint(result.secs, ==, expect.secs);
+    g_assert_cmpint(result.nsecs, ==, expect.nsecs);
+}
+
 #include "ws_getopt.h"
 
 #define ARGV_MAX 31
@@ -703,6 +750,8 @@ int main(int argc, char **argv)
     g_test_add_func("/to_str/uint64_to_str_back_len", test_uint64_to_str_back_len);
     g_test_add_func("/to_str/int_to_str_back", test_int_to_str_back);
     g_test_add_func("/to_str/int64_to_str_back", test_int64_to_str_back);
+
+    g_test_add_func("/nstime/from_iso8601", test_nstime_from_iso8601);
 
     g_test_add_func("/ws_getopt/basic1", test_getopt_long_basic1);
     g_test_add_func("/ws_getopt/basic2", test_getopt_long_basic2);
