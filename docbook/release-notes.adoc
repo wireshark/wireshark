@@ -16,8 +16,12 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+// If we expand this to all Win32 packages we should make this more prominent, e.g. with an admonition.
+* We no longer ship Windows Installer (.msi) packages for 32-bit Windows. wsbuglink:17779[]
+
 * The PCRE2 library (https://www.pcre.org/) is now a required dependency to build Wireshark.
-* A compiler with C11 support is required.
+
+* You must now have a compiler with C11 support in order to build Wireshark.
 
 Many improvements have been made.
 See the “New and Updated Features” section below for more details.
