@@ -528,6 +528,20 @@ ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes)
     return buf;
 }
 
+const char *
+ws_strerrorname_r(int errnum, char *buf, size_t buf_size)
+{
+#ifdef HAVE_STRERRORNAME_NP
+    const char *errstr = strerrorname_np(errnum);
+    if (errstr != NULL) {
+        (void)g_strlcpy(buf, errstr, buf_size);
+        return buf;
+    }
+#endif
+    snprintf(buf, buf_size, "Errno(%d)", errnum);
+    return buf;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

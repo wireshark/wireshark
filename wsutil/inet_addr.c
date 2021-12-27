@@ -8,8 +8,8 @@
  */
 
 #include "config.h"
-#include "inet_addr.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+#include "inet_addr.h"
 
 #include <errno.h>
 #include <string.h>
@@ -35,82 +35,66 @@
 #define _NTOP_SRC_CAST_
 #endif
 
-#include <wsutil/ws_assert.h>
-#include <wsutil/wslog.h>
+#include "str_util.h"
 
 /*
  * We assume and require an inet_pton/inet_ntop that supports AF_INET
  * and AF_INET6.
  */
 
-static inline gboolean
-_inet_pton(int af, const gchar *src, gpointer dst)
+static inline bool
+inet_pton_internal(int af, const char *src, void *dst, size_t dst_size,
+                    const char *af_str)
 {
-    gint ret = inet_pton(af, src, dst);
-    if (G_UNLIKELY(ret < 0)) {
-        /* EAFNOSUPPORT */
-        if (af == AF_INET) {
-            memset(dst, 0, sizeof(struct in_addr));
-            ws_critical("ws_inet_pton4: EAFNOSUPPORT");
-        }
-        else if (af == AF_INET6) {
-            memset(dst, 0, sizeof(struct in6_addr));
-            ws_critical("ws_inet_pton6: EAFNOSUPPORT");
-        }
-        else {
-            ws_assert_not_reached();
-        }
-        errno = EAFNOSUPPORT;
+    int ret = inet_pton(af, src, dst);
+    if (ret < 0) {
+        int err = errno;
+        ws_log(WS_LOG_DOMAIN, LOG_LEVEL_CRITICAL, "inet_pton: %s (%d): %s", af_str, af, g_strerror(err));
+        memset(dst, 0, dst_size);
+        errno = err;
+        return false;
     }
+    /* ret == 0 invalid src representation, ret == 1 success. */
     return ret == 1;
 }
 
-static inline const gchar *
-_inet_ntop(int af, gconstpointer src, gchar *dst, guint dst_size)
+static inline const char *
+inet_ntop_internal(int af, const void *src, char *dst, size_t dst_size,
+                    const char *af_str)
 {
-    const gchar *ret = inet_ntop(af, _NTOP_SRC_CAST_ src, dst, dst_size);
-    if (G_UNLIKELY(ret == NULL)) {
-        int saved_errno = errno;
-        gchar *errmsg = "<<ERROR>>";
-        switch (errno) {
-            case EAFNOSUPPORT:
-                errmsg = "<<EAFNOSUPPORT>>";
-                ws_critical("ws_inet_ntop: EAFNOSUPPORT");
-                break;
-            case ENOSPC:
-                errmsg = "<<ENOSPC>>";
-                break;
-            default:
-                break;
-        }
+    const char *ret = inet_ntop(af, _NTOP_SRC_CAST_ src, dst, dst_size);
+    if (ret == NULL) {
+        int err = errno;
+        char errbuf[16];
+        ws_log(WS_LOG_DOMAIN, LOG_LEVEL_CRITICAL, "inet_ntop: %s (%d): %s", af_str, af, g_strerror(err));
         /* set result to something that can't be confused with a valid conversion */
-        (void) g_strlcpy(dst, errmsg, dst_size);
-        /* set errno for caller */
-        errno = saved_errno;
+        (void)g_strlcpy(dst, ws_strerrorname_r(err, errbuf, sizeof(errbuf)), dst_size);
+        errno = err;
+        return dst;
     }
     return dst;
 }
 
-const gchar *
-ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size)
+const char *
+ws_inet_ntop4(const void *src, char *dst, size_t dst_size)
 {
-    return _inet_ntop(AF_INET, src, dst, dst_size);
+    return inet_ntop_internal(AF_INET, src, dst, dst_size, "AF_INET");
 }
 
-gboolean
-ws_inet_pton4(const gchar *src, guint32 *dst)
+bool
+ws_inet_pton4(const char *src, ws_in4_addr *dst)
 {
-    return _inet_pton(AF_INET, src, dst);
+    return inet_pton_internal(AF_INET, src, dst, sizeof(*dst), "AF_INET");
 }
 
-const gchar *
-ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size)
+const char *
+ws_inet_ntop6(const void *src, char *dst, size_t dst_size)
 {
-    return _inet_ntop(AF_INET6, src, dst, dst_size);
+    return inet_ntop_internal(AF_INET6, src, dst, dst_size, "AF_INET6");
 }
 
-gboolean
-ws_inet_pton6(const gchar *src, ws_in6_addr *dst)
+bool
+ws_inet_pton6(const char *src, ws_in6_addr *dst)
 {
-    return _inet_pton(AF_INET6, src, dst);
+    return inet_pton_internal(AF_INET6, src, dst, sizeof(*dst), "AF_INET6");
 }

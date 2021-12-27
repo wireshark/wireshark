@@ -256,6 +256,9 @@
 /* Define if you have the 'strcasestr' function. */
 #cmakedefine HAVE_STRCASESTR 1
 
+/* Define if you have the 'strerrorname_np' function. */
+#cmakedefine HAVE_STRERRORNAME_NP 1
+
 /* Define if you have the 'vasprintf' function. */
 #cmakedefine HAVE_VASPRINTF 1
 

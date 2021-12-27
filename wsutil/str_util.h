@@ -195,6 +195,9 @@ char *format_size_wmem(wmem_allocator_t *allocator, int64_t size,
 WS_DLL_PUBLIC
 gchar printable_char_or_period(gchar c);
 
+WS_DLL_PUBLIC WS_RETNONNULL
+const char *ws_strerrorname_r(int errnum, char *buf, size_t buf_size);
+
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 

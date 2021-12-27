@@ -12,8 +12,66 @@
 #include <glib.h>
 #include <wsutil/utf8_entities.h>
 
-#include "str_util.h"
+#include "inet_addr.h"
 
+static void test_inet_pton4_test1(void)
+{
+    const char *str;
+    bool ok;
+    ws_in4_addr result, expect;
+
+    str = "198.51.100.200";
+    expect = g_htonl(3325256904);
+    ok = ws_inet_pton4(str, &result);
+    g_assert_true(ok);
+    g_assert_cmpint(result, ==, expect);
+}
+
+static void test_inet_ntop4_test1(void)
+{
+    char result[WS_INET_ADDRSTRLEN];
+    const char *expect, *ptr;
+    ws_in4_addr addr;
+
+    addr = g_htonl(3325256904);
+    expect = "198.51.100.200";
+    ptr = ws_inet_ntop4(&addr, result, sizeof(result));
+    g_assert_true(ptr == result);
+    g_assert_cmpstr(result, ==, expect);
+}
+
+struct in6_test {
+    char str[WS_INET6_ADDRSTRLEN];
+    ws_in6_addr addr;
+};
+
+static struct in6_test in6_test1 = {
+    .str = "2001:db8:ffaa:ddbb:1199:2288:3377:1",
+    .addr = { { 0x20, 0x01, 0x0d, 0xb8, 0xff, 0xaa, 0xdd, 0xbb,
+                0x11, 0x99, 0x22, 0x88, 0x33, 0x77, 0x00, 0x01 } }
+};
+
+static void test_inet_pton6_test1(void)
+{
+    bool ok;
+    ws_in6_addr result;
+
+    ok = ws_inet_pton6(in6_test1.str, &result);
+    g_assert_true(ok);
+    g_assert_cmpmem(&result, sizeof(result), &in6_test1.addr, sizeof(in6_test1.addr));
+}
+
+static void test_inet_ntop6_test1(void)
+{
+    char result[WS_INET6_ADDRSTRLEN];
+    const char *ptr;
+
+    ptr = ws_inet_ntop6(&in6_test1.addr, result, sizeof(result));
+    g_assert_true(ptr == result);
+    g_assert_cmpstr(result, ==, in6_test1.str);
+}
+
+#include "str_util.h"
 
 static void test_format_size(void)
 {
@@ -616,6 +674,11 @@ int main(int argc, char **argv)
     int ret;
 
     g_test_init(&argc, &argv, NULL);
+
+    g_test_add_func("/inet_addr/inet_pton4", test_inet_pton4_test1);
+    g_test_add_func("/inet_addr/inet_ntop4", test_inet_ntop4_test1);
+    g_test_add_func("/inet_addr/inet_pton6", test_inet_pton6_test1);
+    g_test_add_func("/inet_addr/inet_ntop6", test_inet_ntop6_test1);
 
     g_test_add_func("/str_util/format_size", test_format_size);
     g_test_add_func("/str_util/escape_string", test_escape_string);
