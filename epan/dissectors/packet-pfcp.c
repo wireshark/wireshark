@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V17.1.0 (2021-06-29)
+ * Ref 3GPP TS 29.244 V17.3.0 (2021-12-16)
  */
 #include "config.h"
 
@@ -277,7 +277,8 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 static int hf_pfcp_offending_ie = -1;
 static int hf_pfcp_offending_ie_value = -1;
 
-
+static int hf_pfcp_up_function_features_o11_b2_psuprm = -1;
+static int hf_pfcp_up_function_features_o11_b1_mbsn4 = -1;
 static int hf_pfcp_up_function_features_o11_b0_drqos = -1;
 static int hf_pfcp_up_function_features_o10_b7_dnsts = -1;
 static int hf_pfcp_up_function_features_o10_b6_iprep = -1;
@@ -950,6 +951,11 @@ static int hf_pfcp_local_ingress_tunnel_ipv6 = -1;
 
 static int hf_pfcp_mbs_unicast_parameters_id = -1;
 
+static int hf_pfcp_mbsn4resp_flags_o5_b2_n19dtr = -1;
+static int hf_pfcp_mbsn4resp_flags_o5_b1_jmti = -1;
+static int hf_pfcp_mbsn4resp_flags_o5_b0_nn19dt = -1;
+
+
 /* Enterprise IEs */
 /* BBF */
 static int hf_pfcp_bbf_up_function_features_o7_b4_lcp_keepalive_offload = -1;
@@ -1255,6 +1261,9 @@ static void dissect_pfcp_mbs_multicast_parameters(tvbuff_t *tvb, packet_info *pi
 static void dissect_pfcp_add_mbs_unicast_parameters_ie_in_create_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_mbs_session_n4mb_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_remove_mbs_unicast_parameters_ie_in_update_far(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+static void dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
+
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -1430,6 +1439,8 @@ static value_string_ext pfcp_message_type_ext = VALUE_STRING_EXT_INIT(pfcp_messa
 #define PFCP_IE_ADD_MBS_UNICAST_PARAMETERS_IE_IN_CREATE_FAR 302
 #define PFCP_IE_MBS_SESSION_N4MB_INFORMATION 300
 #define PFCP_IE_REMOVE_MBS_UNICAST_PARAMETERS_IE_IN_UPDATE_FAR 304
+#define PFCP_IE_MBS_SESSION_N4_CONTROl_INFORMATION_IE_WITHIN_PFCP_SESSION_ESTABLISHMENT_REQUEST 310
+#define PFCP_IE_MBS_SESSION_N4_CONTROl_INFORMATION_IE_WITHIN_PFCP_SESSION_ESTABLISHMENT_RESPONSE 311
 
 
 static const value_string pfcp_ie_type[] = {
@@ -1738,7 +1749,11 @@ static const value_string pfcp_ie_type[] = {
     { 307, "MBSN4mbReq Flags"},                                     /* Extendable Length / Clause 8.2.208 */
     { 308, "Local Ingress Tunnel"},                                 /* Extendable Length / Clause 8.2.209 */
     { 309, "MBS Unicast Parameters ID"},                            /* Extendable Length / Clause 8.2.210 */
-    //310 to 32767 Spare. For future use.
+    { 310, "MBS Session N4 Control Information IE within PFCP Session Establishment Request"},      /* Extendable / Table 7.5.2.1-6 */
+    { 311, "MBS Session N4 Control Information IE within PFCP Session Establishment Response"},     /* Extendable / Table 7.5.3.1-5 */
+    { 312, "MBSN4Resp-Flags"},                                      /* Extendable / Clause 8.2.211 */
+
+    //313 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -3139,11 +3154,13 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o11_flags[] = {
-        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_up_function_features_o11_b2_psuprm,
+        &hf_pfcp_up_function_features_o11_b1_mbsn4,
         &hf_pfcp_up_function_features_o11_b0_drqos,
         NULL
     };
-    /* Octet 10  Spare    DRQOS */
+    /* Octet 10  Spare    PSUPRM    MBSN4   DRQOS */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o11_flags, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -8900,6 +8917,32 @@ dissect_pfcp_mbs_unicast_parameters_id(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     proto_item_append_text(item, "%u", value);
 }
 
+/*
+ * 8.2.211   MBSN4Resp-Flags
+ */
+static void
+dissect_pfcp_mbsn4resp_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    static int * const pfcp_mbsn4resp_flags_o5_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_mbsn4resp_flags_o5_b2_n19dtr,
+        &hf_pfcp_mbsn4resp_flags_o5_b1_jmti,
+        &hf_pfcp_mbsn4resp_flags_o5_b0_nn19dt,
+        NULL
+    };
+    /* Octet 5  Spare   spare    Spare    Spare   Spare   N19DTR   JMTI   NN19DT */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_mbsn4resp_flags_o5_flags, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
+
 /* Array of functions to dissect IEs
 * (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 */
@@ -9218,7 +9261,11 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    307 */    { dissect_pfcp_mbsn4mbreq_flags },                              /* MBSN4mbReq Flags                                Extendable / Clause 8.2.208 */
 /*    308 */    { dissect_pfcp_local_ingress_tunnel },                          /* Local Ingress Tunnel                            Extendable / Clause 8.2.209 */
 /*    309 */    { dissect_pfcp_mbs_unicast_parameters_id },                     /* MBS Unicast Parameters ID                       Extendable / Clause 8.2.210 */
-//310 to 32767 Spare. For future use.
+/*    310 */    { dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_request }, /* MBS Session N4 Control Information IE within PFCP Session Establishment Request      Extendable / Table 7.5.2.1-6 */
+/*    311 */    { dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_response }, /* MBS Session N4 Control Information IE within PFCP Session Establishment Response      Extendable / Table 7.5.3.1-5 */
+/*    312 */    { dissect_pfcp_mbsn4resp_flags },                               /* MBSN4Resp-Flags                                 Extendable / Clause 8.2.211 */
+
+//313 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -10044,6 +10091,17 @@ dissect_pfcp_remove_mbs_unicast_parameters_ie_in_update_far(tvbuff_t *tvb, packe
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_REMOVE_MBS_UNICAST_PARAMETERS_IE_IN_UPDATE_FAR], args);
 }
 
+static void
+dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MBS_SESSION_N4_CONTROl_INFORMATION_IE_WITHIN_PFCP_SESSION_ESTABLISHMENT_REQUEST], args);
+}
+
+static void
+dissect_pfcp_mbs_session_n4_control_information_ie_within_pfcp_session_establishment_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_MBS_SESSION_N4_CONTROl_INFORMATION_IE_WITHIN_PFCP_SESSION_ESTABLISHMENT_RESPONSE], args);
+}
 
 static void
 dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint offset, guint16 length, guint8 message_type, pfcp_session_args_t *args)
@@ -12475,6 +12533,16 @@ proto_register_pfcp(void)
         { "DRQOS", "pfcp.up_function_features.drqos",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "UP function supports Direct Reporting of QoS monitoring events to Local NEF or AF", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o11_b1_mbsn4,
+        { "MBSN4", "pfcp.up_function_features.mbsn4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "UPF supports sending MBS multicast session data to associated PDU sessions using 5GC individual delivery", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o11_b2_psuprm,
+        { "MBSN4", "pfcp.up_function_features.mbsn4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            "UP function supports Per Slice UP Resource Management", HFILL }
         },
 
         { &hf_pfcp_sequence_number,
@@ -14957,6 +15025,22 @@ proto_register_pfcp(void)
         { "MBS Unicast Parameters ID value", "pfcp.mbs_unicast_parameters_id",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+
+        { &hf_pfcp_mbsn4resp_flags_o5_b0_nn19dt,
+        { "NN19DT", "pfcp.mbsn4resp_flags.nn19dt",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            "New N19mb Downlink Tunnel", HFILL }
+        },
+        { &hf_pfcp_mbsn4resp_flags_o5_b1_jmti,
+        { "JMTI", "pfcp.mbsn4resp_flags.jmti",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "Joined N19mb Multicast Tree Indication", HFILL }
+        },
+        { &hf_pfcp_mbsn4resp_flags_o5_b2_n19dtr,
+        { "N19DTR", "pfcp.mbsn4resp_flags.n19dtr",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            "N19mb Downlink Tunnel Removal", HFILL }
         },
 
         /* Enterprise IEs */
