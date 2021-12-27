@@ -50,6 +50,10 @@
 #define WS_INET_ADDRSTRLEN      16
 #define WS_INET6_ADDRSTRLEN     46
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * To check for errors set errno to zero before calling ws_inet_ntop{4,6}.
  * ENOSPC is set if the result exceeds the given buffer size.
@@ -65,5 +69,9 @@ ws_inet_pton4(const gchar *src, ws_in4_addr *dst);
 
 WS_DLL_PUBLIC gboolean
 ws_inet_pton6(const gchar *src, ws_in6_addr *dst);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
