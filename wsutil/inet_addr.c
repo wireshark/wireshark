@@ -62,7 +62,9 @@ static inline const char *
 inet_ntop_internal(int af, const void *src, char *dst, size_t dst_size,
                     const char *af_str)
 {
-    const char *ret = inet_ntop(af, _NTOP_SRC_CAST_ src, dst, dst_size);
+    /* Add a cast to ignore 64-to-32 bit narrowing warnings with some
+     * compilers (POSIX uses socklen_t instead of size_t). */
+    const char *ret = inet_ntop(af, _NTOP_SRC_CAST_ src, dst, (unsigned int)dst_size);
     if (ret == NULL) {
         int err = errno;
         char errbuf[16];
