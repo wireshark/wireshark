@@ -30,19 +30,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2021-17[]
 RTMPT dissector infinite loop.
 wsbuglink:17745[].
-// cveidlink:2021-xxxxx[].
-// Fixed in master: 80ebcc90bc
-// Fixed in release-3.6: 614184a7df
-// Fixed in release-3.4: 36c3ff8596
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
-// * Fuzz job crash output: fuzz-2021-11-23-8582.pcap wsbuglink:17745[].
-// * Fuzz job crash output: fuzz-2021-11-25-10735.pcap wsbuglink:17749[].
-
-* wssalink:2021-17[]
-RTMPT dissector infinite loop.
-wsbuglink:17745[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4185[].
 // Fixed in master: 80ebcc90bc
 // Fixed in release-3.6: 614184a7df
 // Fixed in release-3.4: 36c3ff8596
@@ -54,7 +42,7 @@ wsbuglink:17745[].
 * wssalink:2021-18[]
 BitTorrent DHT dissector infinite loop.
 wsbuglink:17754[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4184[].
 // Fixed in master: ebcba787a0
 // Fixed in release-3.6: 6f90eb902e
 // Fixed in release-3.4: ddd4114305
@@ -65,18 +53,18 @@ wsbuglink:17754[].
 * wssalink:2021-19[]
 pcapng file parser crash.
 wsbuglink:17755[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4183[].
 // Fixed in master: fcf945f747
 // Fixed in release-3.6: 05cda2ad64
 // Fixed in release-3.4: n/a
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-xxx
+// CVSS AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H
+// CWE-126
 // * heap-buffer-overflow in pcapng_process_options wsbuglink:17755[].
 
 * wssalink:2021-20[]
 RFC 7468 dissector infinite loop.
 wsbuglink:17801[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4182[].
 // Fixed in master: b3215d99ca
 // Fixed in release-3.6: 918ca332e8
 // Fixed in release-3.4: 33ff19e11f
@@ -87,7 +75,7 @@ wsbuglink:17801[].
 * wssalink:2021-21[]
 Sysdig Event dissector crash.
 // wsbuglink:xxxxx[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4181[].
 // Fixed in master: c22b8bcb5f
 // Fixed in release-3.6: a09a47036b
 // Fixed in release-3.4: d2436f19a3
