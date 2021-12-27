@@ -127,7 +127,11 @@ static gboolean hdr_ipv6 = FALSE;
 static guint hdr_ip_proto = 0;
 
 /* Destination and source addresses for IP header */
+/* XXX: Add default destination and source addresses for IPv6 when :: is
+ * passed in? */
+#if 0
 static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+#endif
 
 /* Dummy UDP header */
 static gboolean hdr_udp = FALSE;
@@ -525,10 +529,13 @@ write_current_packet(gboolean cont)
             pseudoh.protocol    = (guint8) hdr_ip_proto;
             pseudoh.length      = g_htons(proto_length);
         } else if (hdr_ipv6) {
-            if (memcmp(isOutbound ? &info_p->ip_dest_addr.ipv6 : &info_p->ip_src_addr.ipv6, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_src, isOutbound ? &info_p->ip_dest_addr.ipv6 : &info_p->ip_src_addr.ipv6, sizeof(ws_in6_addr));
-            if (memcmp(isOutbound ? &info_p->ip_src_addr.ipv6 : &info_p->ip_dest_addr.ipv6, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_dst, isOutbound ? &info_p->ip_src_addr.ipv6 : &info_p->ip_dest_addr.ipv6, sizeof(ws_in6_addr));
+            if (isOutbound) {
+                memcpy(&HDR_IPv6.ip6_src, &info_p->ip_dest_addr.ipv6, sizeof(ws_in6_addr));
+                memcpy(&HDR_IPv6.ip6_dst, &info_p->ip_src_addr.ipv6, sizeof(ws_in6_addr));
+            } else {
+                memcpy(&HDR_IPv6.ip6_src, &info_p->ip_src_addr.ipv6, sizeof(ws_in6_addr));
+                memcpy(&HDR_IPv6.ip6_dst, &info_p->ip_dest_addr.ipv6, sizeof(ws_in6_addr));
+            }
 
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
