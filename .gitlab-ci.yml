@@ -109,6 +109,8 @@ variables:
     - export DEB_BUILD_OPTIONS=nocheck,parallel=$(( $(getconf _NPROCESSORS_ONLN) + 2 ))
     - export DH_QUIET=1
     - export MAKEFLAGS=--silent
+    - NUM_COMMITS=$(curl $CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/$CI_MERGE_REQUEST_IID/commits | jq length)
+    - echo "$NUM_COMMITS commit(s) in this MR"
     - mkdir build
     - cd build
   after_script:
@@ -509,7 +511,7 @@ Commit Check:
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
-    - bash ./tools/pre-commit 'HEAD^1'
+    - bash ./tools/pre-commit "HEAD^$NUM_COMMITS"
     - tools/validate-commit.py
 
 Ubuntu .dpkg:
@@ -552,11 +554,11 @@ Code Checks + Clang Warnings:
     - cd ..
     - python3 tools/checklicenses.py
     - mkdir cppcheck
-    - ./tools/cppcheck/cppcheck.sh -l 1 | tee cppcheck/cppcheck_report.txt
-    - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then ./tools/cppcheck/cppcheck.sh -l 1 -x > cppcheck/cppcheck_report.xml ; fi
+    - ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS | tee cppcheck/cppcheck_report.txt
+    - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS -x > cppcheck/cppcheck_report.xml ; fi
     - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then cppcheck-htmlreport --file cppcheck/cppcheck_report.xml  --report-dir cppcheck ; fi
-    - ./tools/check_typed_item_calls.py --commits 1 | tee item_calls_check.txt
-    - ./tools/check_tfs.py --commits 1 | tee tfs_check.txt
+    - ./tools/check_typed_item_calls.py --commits $NUM_COMMITS | tee item_calls_check.txt
+    - ./tools/check_tfs.py --commits $NUM_COMMITS | tee tfs_check.txt
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
