@@ -8,14 +8,14 @@ Levels are case insensitive.
 --log-fatal <level>:: Abort the program if any messages are logged at the specified level or higher.
 For example, "warning" aborts on any "warning", "critical", or "error" messages.
 
-// XXX List avaliable domains if no list is provided?
+// XXX List available domains if no list is provided?
 --log-domains <list>:: Only print messages for the specified log domains, e.g. "GUI,Epan,sshdump".
 List of domains must be comma-separated.
 
 --log-debug <list>:: Force the specified domains to log at the "debug" level.
 List of domains must be comma-separated.
 
---log-noisy <list>:: Force the specified domains to log at the "debug" level.
+--log-noisy <list>:: Force the specified domains to log at the "noisy" level.
 List of domains must be comma-separated.
 
 --log-file <path>:: Write log messages and stderr output to the specified file.
