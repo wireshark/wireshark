@@ -171,6 +171,7 @@ static guint64 seqno = 0;
 static guint8 *packet_buf;
 static guint32 curr_offset = 0;
 static guint32 packet_start = 0;
+static gboolean offset_warned = FALSE;
 static import_status_t start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
@@ -1247,6 +1248,7 @@ parse_token(token_t token, char *str)
     int     i;
     char   *s2;
     char    tmp_str[3];
+    char  **tokens;
 
     /*
      * This is implemented as a simple state machine of five states.
@@ -1281,7 +1283,13 @@ parse_token(token_t token, char *str)
                  * odd like a time format with no separators. That wouldn't
                  * work in a mode with an offset, but give it a try.
                  */
-                report_warning("Running in no offset mode but read offset (%s) at start of file, treating as preamble", str);
+                tokens = g_strsplit_set(str, ": \t\r\n", 2);
+                if (!offset_warned) {
+                    report_warning("Running in no offset mode but read offset (%s) at start of file, treating as preamble", tokens[0]);
+                    offset_warned = TRUE;
+                }
+                ws_warning("Running in no offset mode but read offset (%s) at start of file, treating as preamble", tokens[0]);
+                g_strfreev(tokens);
                 break;
             }
             if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
@@ -1328,7 +1336,13 @@ parse_token(token_t token, char *str)
                  * the preamble in this mode (we only do one packet.)
                  * Use a generic warning message to suppress the many
                  * expected duplicates. */
-                report_warning("Running in no offset mode but read offset, ignoring");
+                tokens = g_strsplit_set(str, ": \t\r\n", 2);
+                if (!offset_warned) {
+                    report_warning("Running in no offset mode but read offset (%s) at start of line, ignoring", tokens[0]);
+                    offset_warned = TRUE;
+                }
+                ws_warning("Running in no offset mode but read offset (%s) at start of line, ignoring.", tokens[0]);
+                g_strfreev(tokens);
                 break;
             }
             if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
@@ -1591,6 +1605,7 @@ text_import(text_import_info_t * const info)
     }
 
     ts_fmt_iso = !(g_strcmp0(info->timestamp_format, "ISO"));
+    offset_warned = FALSE;
     timecode_warned = FALSE;
 
     /* XXX: It would be good to know the time precision of the file,
