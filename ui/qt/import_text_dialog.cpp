@@ -846,6 +846,7 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     ti_ui_->ethertypeLineEdit->setEnabled(ethertype);
     ti_ui_->protocolLabel->setEnabled(ipv4_proto);
     ti_ui_->protocolLineEdit->setEnabled(ipv4_proto);
+    ti_ui_->ipv6CheckBox->setEnabled(ip_address);
     ti_ui_->sourceAddressLabel->setEnabled(ip_address);
     ti_ui_->sourceAddressLineEdit->setEnabled(ip_address);
     ti_ui_->destinationAddressLabel->setEnabled(ip_address);

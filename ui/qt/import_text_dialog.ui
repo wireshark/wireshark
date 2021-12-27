@@ -572,7 +572,7 @@
         <item row="3" column="0">
          <widget class="QCheckBox" name="ipv6CheckBox">
           <property name="toolTip">
-           <string>Prefix with IPv6 instead of IPv4</string>
+           <string>Prefix with IPv6 header</string>
           </property>
           <property name="text">
            <string>IPv6</string>
