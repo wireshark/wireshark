@@ -4,10 +4,10 @@
 name: 'Repo Lockdown'
 
 on:
+  issues:
+    types: opened
   pull_request_target:
     types: opened
-  schedule:
-    - cron: '7 * * * *'
 
 permissions:
   pull-requests: write
