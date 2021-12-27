@@ -25,17 +25,74 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2021-16[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxxx[].
+* wssalink:2021-17[]
+RTMPT dissector infinite loop.
+wsbuglink:17745[].
 // cveidlink:2021-xxxxx[].
-// Fixed in master: xxxxx
-// Fixed in release-3.6: xxxxx
-// Fixed in release-3.4: xxxxx
+// Fixed in master: 80ebcc90bc
+// Fixed in release-3.6: 614184a7df
+// Fixed in release-3.4: 36c3ff8596
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * Fuzz job crash output: fuzz-2021-11-23-8582.pcap wsbuglink:17745[].
+// * Fuzz job crash output: fuzz-2021-11-25-10735.pcap wsbuglink:17749[].
+
+* wssalink:2021-17[]
+RTMPT dissector infinite loop.
+wsbuglink:17745[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: 80ebcc90bc
+// Fixed in release-3.6: 614184a7df
+// Fixed in release-3.4: 36c3ff8596
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * Fuzz job crash output: fuzz-2021-11-23-8582.pcap wsbuglink:17745[].
+// * Fuzz job crash output: fuzz-2021-11-25-10735.pcap wsbuglink:17749[].
+
+* wssalink:2021-18[]
+BitTorrent DHT dissector infinite loop.
+wsbuglink:17754[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: ebcba787a0
+// Fixed in release-3.6: 6f90eb902e
+// Fixed in release-3.4: ddd4114305
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * Fuzz job crash output: fuzz-2021-11-29-6844.pcap wsbuglink:17754[].
+
+* wssalink:2021-19[]
+pcapng file parser crash.
+wsbuglink:17755[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: fcf945f747
+// Fixed in release-3.6: 05cda2ad64
+// Fixed in release-3.4: n/a
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-xxx
+// * heap-buffer-overflow in pcapng_process_options wsbuglink:17755[].
+
+* wssalink:2021-20[]
+RFC 7468 dissector infinite loop.
+wsbuglink:17801[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: b3215d99ca
+// Fixed in release-3.6: 918ca332e8
+// Fixed in release-3.4: 33ff19e11f
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * Freeze on opening an incomplete RFC 7468 file wsbuglink:17801[].
+
+* wssalink:2021-21[]
+Sysdig Event dissector crash.
+// wsbuglink:xxxxx[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: c22b8bcb5f
+// Fixed in release-3.6: a09a47036b
+// Fixed in release-3.4: d2436f19a3
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-126: Buffer Over-read
 
 The following bugs have been fixed:
 
@@ -44,12 +101,35 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
 
+* Allow sub-second timestamps in hexdumps wsbuglink:15562[].
+
+* GRPC: An unnecessary empty Protobuf tree item is displayed if the GRPC message body length is 0 wsbuglink:17675[].
+
+* Can't install "ChmodBPF.pkg" or "Add Wireshark to the system path.pkg" on M1 MacBook Air Monterey without Rosetta 2 wsbuglink:17757[].
+
+* TECMP: LIN Payload is cut off by 1 byte wsbuglink:17760[].
+
+* Wireshark crashes if a 64 bit field of type BASE_CUSTOM is applied as a column wsbuglink:17762[].
+
+* Command line option "-o console.log.level" causes wireshark and tshark to exit on start wsbuglink:17763[].
+
+* Setting WIRESHARK_LOG_LEVEL=debug breaks interface capture wsbuglink:17764[].
+
+* Unable to build without tshark wsbuglink:17766[].
+
+* For action frames are not getting parsed and always seen as malfiormed wsbuglink:17767[].
+
+* IEC 60870-5-101 link address field is 1 byte, but should have configurable length of 0,1 or 2 bytes wsbuglink:17775[].
+
+* dfilter: 'tcp.port not in {1}' crashes Wireshark wsbuglink:17785[].
+
 === New and Updated Features
 
-* The 'console.log.level' preference was removed in Wireshark 3.6.0. This release adds an '-o console.log.level:' backward-compatibilty option
-  on the CLI that maps to the new logging sub-system. Note that this does not have bitmask semantics and does not correspond to any actual preference.
-  It is just a transition mechanism for users that were relying on this CLI option and will be removed in the future. To see the new diagnostic output
-  options consult the manpages or the output of '--help'.
+* The 'console.log.level' preference was removed in Wireshark 3.6.0.
+This release adds an '-o console.log.level:' backward-compatibilty option on the CLI that maps to the new logging sub-system.
+Note that this does not have bitmask semantics and does not correspond to any actual preference.
+It is just a transition mechanism for users that were relying on this CLI option and will be removed in the future.
+To see the new diagnostic output options consult the manpages or the output of '--help'.
 
 // === Removed Features and Support
 
@@ -65,15 +145,32 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+ANSI A I/F
+AT
+BitTorrent DHT
+FF
+GRPC
+IEC 101/104
+IEEE 802.11
+IEEE 802.11 Radiotap
+IPsec
+QUIC
+RFC 7468
+RTMPT
+RTSP
+SRVLOC
+Sysdig Event
+TECMP
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+--
 
 === New File Format Decoding Support
 
