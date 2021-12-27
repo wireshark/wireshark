@@ -29,7 +29,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2021-16[]
 Gryphon dissector crash.
 wsbuglink:17737[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4186[].
 // Fixed in master: ca71d1624c
 // Fixed in release-3.6: 2836470b73
 // Fixed in release-3.4: 86ea1cc4fd
@@ -40,7 +40,7 @@ wsbuglink:17737[].
 * wssalink:2021-17[]
 RTMPT dissector infinite loop.
 wsbuglink:17745[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4185[].
 // Fixed in master: 80ebcc90bc
 // Fixed in release-3.6: 614184a7df
 // Fixed in release-3.4: 36c3ff8596
@@ -52,7 +52,7 @@ wsbuglink:17745[].
 * wssalink:2021-18[]
 BitTorrent DHT dissector infinite loop.
 wsbuglink:17754[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4184[].
 // Fixed in master: ebcba787a0
 // Fixed in release-3.6: 6f90eb902e
 // Fixed in release-3.4: ddd4114305
@@ -63,7 +63,7 @@ wsbuglink:17754[].
 * wssalink:2021-20[]
 RFC 7468 dissector infinite loop.
 wsbuglink:17801[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4182[].
 // Fixed in master: b3215d99ca
 // Fixed in release-3.6: 918ca332e8
 // Fixed in release-3.4: 33ff19e11f
@@ -74,7 +74,7 @@ wsbuglink:17801[].
 * wssalink:2021-21[]
 Sysdig Event dissector crash.
 // wsbuglink:xxxxx[].
-// cveidlink:2021-xxxxx[].
+cveidlink:2021-4181[].
 // Fixed in master: c22b8bcb5f
 // Fixed in release-3.6: a09a47036b
 // Fixed in release-3.4: d2436f19a3
