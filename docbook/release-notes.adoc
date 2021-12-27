@@ -24,17 +24,62 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2021-16[]
-// Foo dissector {crash,infinite loop,memory leak}.
+* wssalink:2021-16[]
+Gryphon dissector crash.
+wsbuglink:17737[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: ca71d1624c
+// Fixed in release-3.6: 2836470b73
+// Fixed in release-3.4: 86ea1cc4fd
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-476: NULL Pointer Dereference
+// * Fuzz job crash output: fuzz-2021-11-18-10827.pcap wsbuglink:17737[].
+
+* wssalink:2021-17[]
+RTMPT dissector infinite loop.
+wsbuglink:17745[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: 80ebcc90bc
+// Fixed in release-3.6: 614184a7df
+// Fixed in release-3.4: 36c3ff8596
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * Fuzz job crash output: fuzz-2021-11-23-8582.pcap wsbuglink:17745[].
+// * Fuzz job crash output: fuzz-2021-11-25-10735.pcap wsbuglink:17749[].
+
+* wssalink:2021-18[]
+BitTorrent DHT dissector infinite loop.
+wsbuglink:17754[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: ebcba787a0
+// Fixed in release-3.6: 6f90eb902e
+// Fixed in release-3.4: ddd4114305
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * Fuzz job crash output: fuzz-2021-11-29-6844.pcap wsbuglink:17754[].
+
+* wssalink:2021-20[]
+RFC 7468 dissector infinite loop.
+wsbuglink:17801[].
+// cveidlink:2021-xxxxx[].
+// Fixed in master: b3215d99ca
+// Fixed in release-3.6: 918ca332e8
+// Fixed in release-3.4: 33ff19e11f
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * Freeze on opening an incomplete RFC 7468 file wsbuglink:17801[].
+
+* wssalink:2021-21[]
+Sysdig Event dissector crash.
 // wsbuglink:xxxxx[].
 // cveidlink:2021-xxxxx[].
-// Fixed in master: xxxxx
-// Fixed in release-3.6: xxxxx
-// Fixed in release-3.4: xxxxx
+// Fixed in master: c22b8bcb5f
+// Fixed in release-3.6: a09a47036b
+// Fixed in release-3.4: d2436f19a3
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-xxx
+// CWE-126: Buffer Over-read
 
 The following bugs have been fixed:
 
@@ -43,6 +88,14 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* 43 test case failed in Ubuntu Build action wsbuglink:17730[].
+
+* 5GS TAI not correctly decoded for GTPv2 wsbuglink:17738[].
+
+* Can't install "ChmodBPF.pkg" or "Add Wireshark to the system path.pkg" on M1 MacBook Air Monterey without Rosetta 2 wsbuglink:17757[].
+
+* Unable to build without tshark wsbuglink:17766[].
 
 === New and Updated Features
 
@@ -66,6 +119,19 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+AT
+BT-DHT
+BT LE LL
+EVS
+FF
+Gryphon
+GTPv2
+MKA
+RFC 7468
+RTMPT
+RTSP
+SRVLOC
+Sysdig Event
 --
 
 === New and Updated Capture File Support
