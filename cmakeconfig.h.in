@@ -64,9 +64,6 @@
 /* Define if you have the 'dlget' function. */
 #cmakedefine HAVE_DLGET 1
 
-/* Define if you have the 'getexecname' function. */
-#cmakedefine HAVE_GETEXECNAME 1
-
 /* Define to 1 if you have the <grp.h> header file. */
 #cmakedefine HAVE_GRP_H 1
 
