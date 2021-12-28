@@ -569,16 +569,6 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QCheckBox" name="ipv6CheckBox">
-          <property name="toolTip">
-           <string>Prefix with IPv6 header</string>
-          </property>
-          <property name="text">
-           <string>IPv6</string>
-          </property>
-         </widget>
-        </item>
         <item row="5" column="0">
          <widget class="QRadioButton" name="udpButton">
           <property name="toolTip">
@@ -706,14 +696,14 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="2" colspan="2">
+        <item row="3" column="2" colspan="3">
          <widget class="SyntaxLineEdit" name="sourceAddressLineEdit">
           <property name="toolTip">
            <string>The IP source address for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="2" colspan="2">
+        <item row="4" column="2" colspan="3">
          <widget class="SyntaxLineEdit" name="destinationAddressLineEdit">
           <property name="toolTip">
            <string>The IP destination address for each frame</string>
@@ -748,10 +738,24 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="2" colspan="2">
+        <item row="9" column="2" colspan="3">
          <widget class="QComboBox" name="dissectorComboBox">
           <property name="toolTip">
            <string>The dissector to use for each frame</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QLabel" name="ipVersionLabel">
+          <property name="text">
+           <string>IP version:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="4">
+         <widget class="QComboBox" name="ipVersionComboBox">
+          <property name="toolTip">
+           <string>The IP Version for to use for the dummy IP header</string>
           </property>
          </widget>
         </item>

@@ -103,6 +103,10 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
         if (rb) encap_buttons_.append(rb);
     }
 
+    /* fill the IP version combobox */
+    ti_ui_->ipVersionComboBox->addItem("IPv4", QVariant(4));
+    ti_ui_->ipVersionComboBox->addItem("IPv6", QVariant(6));
+
     /* fill the data encoding dropdown in regex tab*/
     struct {
         const char* name;
@@ -261,7 +265,11 @@ void ImportTextDialog::applyDialogSettings()
         ti_ui_->noDummyButton->setChecked(true);
     }
 
-    ti_ui_->ipv6CheckBox->setChecked(settings["ipv6"].toBool());
+    if (settings["ipVersion"].toUInt() == 6) {
+        ti_ui_->ipVersionComboBox->setCurrentIndex(1);
+    } else {
+        ti_ui_->ipVersionComboBox->setCurrentIndex(0);
+    }
     ti_ui_->ethertypeLineEdit->setText(settings["ethertype"].toString());
     ti_ui_->protocolLineEdit->setText(settings["ipProtocol"].toString());
     ti_ui_->sourceAddressLineEdit->setText(settings["sourceAddress"].toString());
@@ -362,7 +370,7 @@ void ImportTextDialog::storeDialogSettings()
         settings["dummyHeader"] = "none";
     }
 
-    settings["ipv6"] = ti_ui_->ipv6CheckBox->isChecked();
+    settings["ipVersion"] = ti_ui_->ipVersionComboBox->currentData().toUInt();
     settings["ethertype"] = ti_ui_->ethertypeLineEdit->text();
     settings["ipProtocol"] = ti_ui_->protocolLineEdit->text();
     settings["sourceAddress"] = ti_ui_->sourceAddressLineEdit->text();
@@ -846,7 +854,8 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     ti_ui_->ethertypeLineEdit->setEnabled(ethertype);
     ti_ui_->protocolLabel->setEnabled(ipv4_proto);
     ti_ui_->protocolLineEdit->setEnabled(ipv4_proto);
-    ti_ui_->ipv6CheckBox->setEnabled(ip_address);
+    ti_ui_->ipVersionLabel->setEnabled(ip_address);
+    ti_ui_->ipVersionComboBox->setEnabled(ip_address);
     ti_ui_->sourceAddressLabel->setEnabled(ip_address);
     ti_ui_->sourceAddressLineEdit->setEnabled(ip_address);
     ti_ui_->destinationAddressLabel->setEnabled(ip_address);
@@ -900,9 +909,9 @@ void ImportTextDialog::on_ipv4Button_toggled(bool checked)
     on_noDummyButton_toggled(checked);
 }
 
-void ImportTextDialog::on_ipv6CheckBox_toggled(bool checked)
+void ImportTextDialog::on_ipVersionComboBox_currentIndexChanged(int index)
 {
-    import_info_.ipv6 = checked;
+    import_info_.ipv6 = (index == 1) ? 1 : 0;
     on_sourceAddressLineEdit_textChanged(ti_ui_->sourceAddressLineEdit->text());
     on_destinationAddressLineEdit_textChanged(ti_ui_->destinationAddressLineEdit->text());
 }
@@ -1017,7 +1026,7 @@ void ImportTextDialog::on_protocolLineEdit_textChanged(const QString &protocol_s
 
 void ImportTextDialog::on_sourceAddressLineEdit_textChanged(const QString &source_addr_str)
 {
-    if (ti_ui_->ipv6CheckBox->isChecked()) {
+    if (ti_ui_->ipVersionComboBox->currentIndex() == 1) {
         checkIPv6Address(ti_ui_->sourceAddressLineEdit, source_addr_ok_, source_addr_str, &import_info_.ip_src_addr.ipv6);
     } else {
         checkAddress(ti_ui_->sourceAddressLineEdit, source_addr_ok_, source_addr_str, &import_info_.ip_src_addr.ipv4);
@@ -1026,7 +1035,7 @@ void ImportTextDialog::on_sourceAddressLineEdit_textChanged(const QString &sourc
 
 void ImportTextDialog::on_destinationAddressLineEdit_textChanged(const QString &destination_addr_str)
 {
-    if (ti_ui_->ipv6CheckBox->isChecked()) {
+    if (ti_ui_->ipVersionComboBox->currentIndex() == 1) {
         checkIPv6Address(ti_ui_->destinationAddressLineEdit, dest_addr_ok_, destination_addr_str, &import_info_.ip_dest_addr.ipv6);
     } else {
         checkAddress(ti_ui_->destinationAddressLineEdit, dest_addr_ok_, destination_addr_str, &import_info_.ip_dest_addr.ipv4);

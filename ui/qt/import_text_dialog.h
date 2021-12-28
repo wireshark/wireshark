@@ -108,7 +108,7 @@ private slots:
     void on_noDummyButton_toggled(bool checked);
     void on_ethernetButton_toggled(bool checked);
     void on_ipv4Button_toggled(bool checked);
-    void on_ipv6CheckBox_toggled(bool checked);
+    void on_ipVersionComboBox_currentIndexChanged(int index);
     void on_udpButton_toggled(bool checked);
     void on_tcpButton_toggled(bool checked);
     void on_sctpButton_toggled(bool checked);
