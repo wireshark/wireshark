@@ -62,7 +62,7 @@ cveidlink:2021-4183[].
 // * heap-buffer-overflow in pcapng_process_options wsbuglink:17755[].
 
 * wssalink:2021-20[]
-RFC 7468 dissector infinite loop.
+RFC 7468 file parser infinite loop.
 wsbuglink:17801[].
 cveidlink:2021-4182[].
 // Fixed in master: b3215d99ca
@@ -81,6 +81,16 @@ cveidlink:2021-4181[].
 // Fixed in release-3.4: d2436f19a3
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 // CWE-126: Buffer Over-read
+
+* wssalink:2021-22[]
+Kafka dissector infinite loop.
+wsbuglink:17811[].
+// cveidlink:2021-xxxx[].
+// Fixed in master: x
+// Fixed in release-3.6: x
+// Fixed in release-3.4: n/a
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-834: Excessive Iteration
 
 The following bugs have been fixed:
 
@@ -105,7 +115,7 @@ The following bugs have been fixed:
 
 * Unable to build without tshark wsbuglink:17766[].
 
-* For action frames are not getting parsed and always seen as malfiormed wsbuglink:17767[].
+* IEEE 802.11 action frames are not getting parsed and always seen as malformed wsbuglink:17767[].
 
 * IEC 60870-5-101 link address field is 1 byte, but should have configurable length of 0,1 or 2 bytes wsbuglink:17775[].
 
@@ -142,8 +152,8 @@ IEC 101/104
 IEEE 802.11
 IEEE 802.11 Radiotap
 IPsec
+Kafka
 QUIC
-RFC 7468
 RTMPT
 RTSP
 SRVLOC
@@ -158,6 +168,7 @@ TECMP
 [commaize]
 --
 BLF
+RFC 7468
 --
 
 === New File Format Decoding Support

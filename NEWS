@@ -9,7 +9,57 @@ Wireshark 3.6.1 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2021-17[1] RTMPT dissector infinite loop. Issue
+       17745[2]. CVE-2021-4185[3].
+
+     • wnpa-sec-2021-18[4] BitTorrent DHT dissector infinite loop. Issue
+       17754[5]. CVE-2021-4184[6].
+
+     • wnpa-sec-2021-19[7] pcapng file parser crash. Issue 17755[8].
+       CVE-2021-4183[9].
+
+     • wnpa-sec-2021-20[10] RFC 7468 file parser infinite loop. Issue
+       17801[11]. CVE-2021-4182[12].
+
+     • wnpa-sec-2021-21[13] Sysdig Event dissector crash.
+       CVE-2021-4181[14].
+
+     • wnpa-sec-2021-22[15] Kafka dissector infinite loop. Issue
+       17811[16].
+
    The following bugs have been fixed:
+
+     • Allow sub-second timestamps in hexdumps Issue 15562[17].
+
+     • GRPC: An unnecessary empty Protobuf tree item is displayed if the
+       GRPC message body length is 0 Issue 17675[18].
+
+     • Can’t install "ChmodBPF.pkg" or "Add Wireshark to the system
+       path.pkg" on M1 MacBook Air Monterey without Rosetta 2 Issue
+       17757[19].
+
+     • TECMP: LIN Payload is cut off by 1 byte Issue 17760[20].
+
+     • Wireshark crashes if a 64 bit field of type BASE_CUSTOM is
+       applied as a column Issue 17762[21].
+
+     • Command line option "-o console.log.level" causes wireshark and
+       tshark to exit on start Issue 17763[22].
+
+     • Setting WIRESHARK_LOG_LEVEL=debug breaks interface capture Issue
+       17764[23].
+
+     • Unable to build without tshark Issue 17766[24].
+
+     • IEEE 802.11 action frames are not getting parsed and always seen
+       as malformed Issue 17767[25].
+
+     • IEC 60870-5-101 link address field is 1 byte, but should have
+       configurable length of 0,1 or 2 bytes Issue 17775[26].
+
+     • dfilter: 'tcp.port not in {1}' crashes Wireshark Issue 17785[27].
 
   New and Updated Features
 
@@ -29,9 +79,13 @@ Wireshark 3.6.1 Release Notes
 
   Updated Protocol Support
 
+   ANSI A I/F, AT, BitTorrent DHT, FF, GRPC, IEC 101/104, IEEE 802.11,
+   IEEE 802.11 Radiotap, IPsec, Kafka, QUIC, RTMPT, RTSP, SRVLOC, Sysdig
+   Event, and TECMP
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   BLF and RFC 7468
 
   New File Format Decoding Support
 
@@ -47,7 +101,7 @@ Wireshark 3.6.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[28] on the Wireshark web site.
 
  File Locations
 
@@ -62,22 +116,49 @@ Wireshark 3.6.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[29] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[30].
 
-  Bugs and feature requests can be reported on the issue tracker[4].
+  Bugs and feature requests can be reported on the issue tracker[31].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[32].
 
-  Last updated 2021-12-26 16:06:38 UTC
+  Last updated 2021-12-29 19:11:55 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2021-17
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17745
+   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4185
+   4. https://www.wireshark.org/security/wnpa-sec-2021-18
+   5. https://gitlab.com/wireshark/wireshark/-/issues/17754
+   6. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4184
+   7. https://www.wireshark.org/security/wnpa-sec-2021-19
+   8. https://gitlab.com/wireshark/wireshark/-/issues/17755
+   9. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4183
+  10. https://www.wireshark.org/security/wnpa-sec-2021-20
+  11. https://gitlab.com/wireshark/wireshark/-/issues/17801
+  12. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4182
+  13. https://www.wireshark.org/security/wnpa-sec-2021-21
+  14. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4181
+  15. https://www.wireshark.org/security/wnpa-sec-2021-22
+  16. https://gitlab.com/wireshark/wireshark/-/issues/17811
+  17. https://gitlab.com/wireshark/wireshark/-/issues/15562
+  18. https://gitlab.com/wireshark/wireshark/-/issues/17675
+  19. https://gitlab.com/wireshark/wireshark/-/issues/17757
+  20. https://gitlab.com/wireshark/wireshark/-/issues/17760
+  21. https://gitlab.com/wireshark/wireshark/-/issues/17762
+  22. https://gitlab.com/wireshark/wireshark/-/issues/17763
+  23. https://gitlab.com/wireshark/wireshark/-/issues/17764
+  24. https://gitlab.com/wireshark/wireshark/-/issues/17766
+  25. https://gitlab.com/wireshark/wireshark/-/issues/17767
+  26. https://gitlab.com/wireshark/wireshark/-/issues/17775
+  27. https://gitlab.com/wireshark/wireshark/-/issues/17785
+  28. https://www.wireshark.org/download.html
+  29. https://ask.wireshark.org/
+  30. https://www.wireshark.org/lists/
+  31. https://gitlab.com/wireshark/wireshark/-/issues
+  32. https://www.wireshark.org/faq.html
