@@ -246,14 +246,15 @@ typedef struct {
     guint32 dest_addr;
 } hdr_ip_t;
 
+/* Default IPv4 addresses if none supplied */
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 #define IP_ID  0x1234
-#define IP_SRC 0x01010101
-#define IP_DST 0x02020202
+#define IP_SRC 0x0a010101
+#define IP_DST 0x0a020202
 #else
 #define IP_ID  0x3412
-#define IP_SRC 0x01010101
-#define IP_DST 0x02020202
+#define IP_SRC 0x0101010a
+#define IP_DST 0x0202020a
 #endif
 
 static hdr_ip_t HDR_IP =
