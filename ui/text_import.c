@@ -420,14 +420,14 @@ unwrite_bytes (guint32 nbytes)
 static guint32
 number_of_padding_bytes (guint32 length)
 {
-  guint32 remainder;
+    guint32 remainder;
 
-  remainder = length % 4;
+    remainder = length % 4;
 
-  if (remainder == 0)
-    return 0;
-  else
-    return 4 - remainder;
+    if (remainder == 0)
+        return 0;
+    else
+        return 4 - remainder;
 }
 
 /*----------------------------------------------------------------------
