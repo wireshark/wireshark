@@ -9,10 +9,6 @@ environment:
       CMAKE_GENERATOR: Visual Studio 15 2017 Win64
       QT5_BASE_DIR: C:\Qt\5.11\msvc2017_64
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    # x86 does not work here, cmake expects win32/Win32 (case insensitive?)
-    - PLATFORM: win32
-      CMAKE_GENERATOR: Visual Studio 14 2015
-      QT5_BASE_DIR: C:\Qt\5.11\msvc2015
     - PLATFORM: x64
       CMAKE_GENERATOR: Visual Studio 14 2015 Win64
       QT5_BASE_DIR: C:\Qt\5.11\msvc2015_64
