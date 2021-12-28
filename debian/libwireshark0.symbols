@@ -19,8 +19,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  UnregRequestReason_vals@Base 1.9.1
  _try_val64_to_str_ext_init@Base 2.9.0
  _try_val_to_str_ext_init@Base 1.9.1
- abs_time_secs_to_str@Base 1.99.0
- abs_time_to_str@Base 1.99.0
+ abs_time_secs_to_str_ex@Base 3.7.0
+ abs_time_to_str_ex@Base 3.7.0
  add_conversation_table_data@Base 2.5.0
  add_conversation_table_data_with_conv_id@Base 2.5.0
  add_hostlist_table_data@Base 2.5.0

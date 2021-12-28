@@ -278,20 +278,19 @@ value_get(fvalue_t *fv)
 static char *
 absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
-	gchar *rep;
-	char *buf;
+	char *rep;
 
 	switch (rtype) {
 		case FTREPR_DISPLAY:
-			rep = abs_time_to_str(scope, &fv->value.time,
-					field_display, TRUE);
+			rep = abs_time_to_str_ex(scope, &fv->value.time,
+					field_display, ABS_TIME_TO_STR_SHOW_ZONE);
 			break;
 
 		case FTREPR_DFILTER:
 			/* absolute_val_from_string only accepts local time,
 			 * with no time zone, so match that. */
-			rep = abs_time_to_str(scope, &fv->value.time,
-					ABSOLUTE_TIME_LOCAL, FALSE);
+			rep = abs_time_to_str_ex(scope, &fv->value.time,
+					ABSOLUTE_TIME_LOCAL, ABS_TIME_TO_STR_ADD_DQUOTES);
 			break;
 
 		default:
@@ -299,14 +298,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 			break;
 	}
 
-	if (rtype == FTREPR_DFILTER) {
-		buf = wmem_strdup_printf(scope, "\"%s\"", rep);
-		wmem_free(scope, rep);
-	}
-	else {
-		buf = rep;
-	}
-	return buf;
+	return rep;
 }
 
 static char *

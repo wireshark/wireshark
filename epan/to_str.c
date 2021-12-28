@@ -127,33 +127,38 @@ get_fmt_zonename(field_display_e fmt, struct tm *tmp)
 
 static char *
 snprint_abs_time_secs(wmem_allocator_t *scope, field_display_e fmt,
-				struct tm *tmp, const char *trailer)
+				struct tm *tmp, const char *trailer,
+				gboolean add_quotes)
 {
 	char *buf;
 
 	switch (fmt) {
 		case ABSOLUTE_TIME_DOY_UTC:
 			buf = wmem_strdup_printf(scope,
-					"%04d/%03d:%02d:%02d:%02d%s",
+					"%s%04d/%03d:%02d:%02d:%02d%s%s",
+					add_quotes ? "\"" : "",
 					tmp->tm_year + 1900,
 					tmp->tm_yday + 1,
 					tmp->tm_hour,
 					tmp->tm_min,
 					tmp->tm_sec,
-					trailer);
+					trailer,
+					add_quotes ? "\"" : "");
 			break;
 		case ABSOLUTE_TIME_NTP_UTC:	/* FALLTHROUGH */
 		case ABSOLUTE_TIME_UTC:		/* FALLTHROUGH */
 		case ABSOLUTE_TIME_LOCAL:
 			buf = wmem_strdup_printf(scope,
-					"%s %2d, %d %02d:%02d:%02d%s",
+					"%s%s %2d, %d %02d:%02d:%02d%s%s",
+					add_quotes ? "\"" : "",
 					mon_names[tmp->tm_mon],
 					tmp->tm_mday,
 					tmp->tm_year + 1900,
 					tmp->tm_hour,
 					tmp->tm_min,
 					tmp->tm_sec,
-					trailer);
+					trailer,
+					add_quotes ? "\"" : "");
 			break;
 		default:
 			ws_assert_not_reached();
@@ -162,8 +167,8 @@ snprint_abs_time_secs(wmem_allocator_t *scope, field_display_e fmt,
 }
 
 char *
-abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, field_display_e fmt,
-			gboolean show_zone)
+abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_display_e fmt,
+			int flags)
 {
 	struct tm *tmp;
 	char buf_trailer[64];
@@ -175,17 +180,17 @@ abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, field_display
 		return wmem_strdup(scope, "Not representable");
 	}
 
-	if (show_zone)
+	if (flags & ABS_TIME_TO_STR_SHOW_ZONE)
 		snprintf(buf_trailer, sizeof(buf_trailer), ".%09d %s", abs_time->nsecs, get_fmt_zonename(fmt, tmp));
 	else
 		snprintf(buf_trailer, sizeof(buf_trailer), ".%09d", abs_time->nsecs);
 
-	return snprint_abs_time_secs(scope, fmt, tmp, buf_trailer);
+	return snprint_abs_time_secs(scope, fmt, tmp, buf_trailer, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
 }
 
 char *
-abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time_secs, field_display_e fmt,
-			gboolean show_zone)
+abs_time_secs_to_str_ex(wmem_allocator_t *scope, const time_t abs_time_secs, field_display_e fmt,
+			int flags)
 {
 	struct tm *tmp;
 	char buf_trailer[64];
@@ -197,12 +202,12 @@ abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time_secs, field_
 		return wmem_strdup(scope, "Not representable");
 	}
 
-	if (show_zone)
+	if (flags & ABS_TIME_TO_STR_SHOW_ZONE)
 		snprintf(buf_trailer, sizeof(buf_trailer), " %s", get_fmt_zonename(fmt, tmp));
 	else
 		*buf_trailer = '\0';
 
-	return snprint_abs_time_secs(scope, fmt, tmp, buf_trailer);
+	return snprint_abs_time_secs(scope, fmt, tmp, buf_trailer, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
 }
 
 void

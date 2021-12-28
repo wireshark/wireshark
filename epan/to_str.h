@@ -130,11 +130,22 @@ WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *t
  ************** Time
  */
 
-WS_DLL_PUBLIC gchar *abs_time_to_str(wmem_allocator_t *scope, const nstime_t*, field_display_e fmt,
-                                                                                    gboolean show_zone);
+#define ABS_TIME_TO_STR_SHOW_ZONE       (1U << 0)
+#define ABS_TIME_TO_STR_ADD_DQUOTES     (1U << 1)
 
-WS_DLL_PUBLIC gchar *abs_time_secs_to_str(wmem_allocator_t *scope, const time_t, field_display_e fmt,
-                                                                                    gboolean show_zone);
+WS_DLL_PUBLIC char *abs_time_to_str_ex(wmem_allocator_t *scope,
+                                        const nstime_t *, field_display_e fmt,
+                                        int flags);
+
+#define abs_time_to_str(scope, nst, fmt, show_zone) \
+        abs_time_to_str_ex(scope, nst, fmt, (show_zone) ? ABS_TIME_TO_STR_SHOW_ZONE : 0)
+
+WS_DLL_PUBLIC char *abs_time_secs_to_str_ex(wmem_allocator_t *scope,
+                                        const time_t, field_display_e fmt,
+                                        int flags);
+
+#define abs_time_secs_to_str(scope, nst, fmt, show_zone) \
+        abs_time_secs_to_str_ex(scope, nst, fmt, (show_zone) ? ABS_TIME_TO_STR_SHOW_ZONE : 0)
 
 WS_DLL_PUBLIC void display_epoch_time(gchar *, int, const time_t, gint32, const to_str_time_res_t);
 
