@@ -110,19 +110,25 @@ get_fmt_broken_down_time(field_display_e fmt, const time_t *secs)
 }
 
 static const char *
-get_fmt_zonename(field_display_e fmt, struct tm *tmp)
+get_fmt_zonename(char *buf, size_t size, field_display_e fmt, struct tm *tmp, int flags)
 {
 	switch (fmt) {
 		case ABSOLUTE_TIME_UTC:
 		case ABSOLUTE_TIME_DOY_UTC:
 		case ABSOLUTE_TIME_NTP_UTC:
-			return "UTC";
-		case ABSOLUTE_TIME_LOCAL:
-			return get_zonename(tmp);
-		default:
+			snprintf(buf, size, " UTC");
 			break;
+		case ABSOLUTE_TIME_LOCAL:
+			if (flags & ABS_TIME_TO_STR_SHOW_ZONE)
+				snprintf(buf, size, " %s", get_zonename(tmp));
+			else
+				*buf = '\0';
+			break;
+		default:
+			ws_assert_not_reached();
 	}
-	ws_assert_not_reached();
+
+	return buf;
 }
 
 static char *
@@ -177,6 +183,9 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 	char buf_nsecs[32];
 	char buf_tzone[32];
 
+	if (fmt == BASE_NONE)
+		fmt = ABSOLUTE_TIME_LOCAL;
+
 	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
 
 	if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time->secs == 0 &&
@@ -195,8 +204,8 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 	}
 
 	*buf_tzone = '\0';
-	if (flags & ABS_TIME_TO_STR_SHOW_ZONE) {
-		snprintf(buf_tzone, sizeof(buf_tzone), " %s", get_fmt_zonename(fmt, tmp));
+	if (flags & ABS_TIME_TO_STR_SHOW_ZONE || flags & ABS_TIME_TO_STR_SHOW_UTC_ONLY) {
+		get_fmt_zonename(buf_tzone, sizeof(buf_tzone), fmt, tmp, flags);
 	}
 
 	return snprint_abs_time_secs(scope, fmt, tmp, buf_nsecs, buf_tzone, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
