@@ -93,7 +93,7 @@ const char *ws_log_level_to_string(enum ws_log_level level);
  * Returns TRUE if a message will be printed for the domain/level combo.
  */
 WS_DLL_PUBLIC
-gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level);
+bool ws_log_msg_is_active(const char *domain, enum ws_log_level level);
 
 
 /** Return the currently active log level. */
@@ -359,7 +359,7 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
 WS_DLL_PUBLIC
 void ws_log_buffer_full(const char *domain, enum ws_log_level level,
                     const char *file, long line, const char *func,
-                    const guint8 *buffer, size_t size,
+                    const uint8_t *buffer, size_t size,
                     size_t max_bytes_len, const char *msg);
 
 
