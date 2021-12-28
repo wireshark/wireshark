@@ -136,7 +136,7 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[to_str.[ch]]
+[to_str.c]
 indent_style = tab
 indent_size = tab
 
