@@ -92,9 +92,10 @@ WS_DLL_PUBLIC
 enum ws_log_level ws_log_get_level(void);
 
 
-/** Set the active log level. */
+/** Set the active log level. Returns the active level or LOG_LEVEL_NONE
+ * if level is invalid. */
 WS_DLL_PUBLIC
-void ws_log_set_level(enum ws_log_level level);
+enum ws_log_level ws_log_set_level(enum ws_log_level level);
 
 
 /** Set the active log level from a string.
@@ -332,6 +333,9 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  * Accepts a format string and includes the file and function name.
  */
 #define ws_noisy(...)    _LOG_DEBUG(LOG_LEVEL_NOISY, __VA_ARGS__)
+
+
+#define WS_DEBUG_HERE(...)      _LOG_FULL(LOG_LEVEL_ECHO, __VA_ARGS__)
 
 
 /** This function is called to log a buffer (bytes array).

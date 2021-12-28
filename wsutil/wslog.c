@@ -127,6 +127,8 @@ const char *ws_log_level_to_string(enum ws_log_level level)
     switch (level) {
         case LOG_LEVEL_NONE:
             return "(zero)";
+        case LOG_LEVEL_ECHO:
+            return "ECHO";
         case LOG_LEVEL_ERROR:
             return "ERROR";
         case LOG_LEVEL_CRITICAL:
@@ -166,6 +168,8 @@ static enum ws_log_level string_to_log_level(const char *str_level)
         return LOG_LEVEL_CRITICAL;
     else if (g_ascii_strcasecmp(str_level, "error") == 0)
         return LOG_LEVEL_ERROR;
+    else if (g_ascii_strcasecmp(str_level, "echo") == 0)
+        return LOG_LEVEL_ECHO;
     else
         return LOG_LEVEL_NONE;
 }
@@ -284,12 +288,15 @@ enum ws_log_level ws_log_get_level(void)
 }
 
 
-void ws_log_set_level(enum ws_log_level level)
+enum ws_log_level ws_log_set_level(enum ws_log_level level)
 {
     if (level <= LOG_LEVEL_NONE || level >= _LOG_LEVEL_LAST)
-        return;
+        return LOG_LEVEL_NONE;
+    if (level > LOG_LEVEL_CRITICAL)
+        level = LOG_LEVEL_CRITICAL;
 
     current_log_level = level;
+    return current_log_level;
 }
 
 
@@ -298,11 +305,7 @@ enum ws_log_level ws_log_set_level_str(const char *str_level)
     enum ws_log_level level;
 
     level = string_to_log_level(str_level);
-    if (level == LOG_LEVEL_NONE)
-        return LOG_LEVEL_NONE;
-
-    current_log_level = level;
-    return current_log_level;
+    return ws_log_set_level(level);
 }
 
 
@@ -829,18 +832,25 @@ static inline const char *level_color_on(gboolean enable,
     if (!enable)
         return "";
 
-    if (level <= LOG_LEVEL_DEBUG)
-        return GREEN;
-    else if (level <= LOG_LEVEL_MESSAGE)
-        return CYAN;
-    else if (level <= LOG_LEVEL_WARNING)
-        return YELLOW;
-    else if (level <= LOG_LEVEL_CRITICAL)
-        return MAGENTA;
-    else if (level <= LOG_LEVEL_ERROR)
-        return RED;
-    else
-        return "";
+    switch (level) {
+        case LOG_LEVEL_NOISY:
+        case LOG_LEVEL_DEBUG:
+            return GREEN;
+        case LOG_LEVEL_INFO:
+        case LOG_LEVEL_MESSAGE:
+            return CYAN;
+        case LOG_LEVEL_WARNING:
+            return YELLOW;
+        case LOG_LEVEL_CRITICAL:
+            return MAGENTA;
+        case LOG_LEVEL_ERROR:
+            return RED;
+        case LOG_LEVEL_ECHO:
+            return YELLOW;
+        default:
+            break;
+    }
+    return "";
 }
 
 static inline const char *color_off(gboolean enable)
@@ -972,7 +982,7 @@ static void log_write_dispatch(const char *domain, enum ws_log_level level,
                             user_format, user_ap);
     }
 
-    if (level >= fatal_log_level) {
+    if (level >= fatal_log_level && level != LOG_LEVEL_ECHO) {
         abort();
     }
 }

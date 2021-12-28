@@ -47,15 +47,16 @@
  * higher values.
  */
 enum ws_log_level {
-     LOG_LEVEL_NONE,       /* not user facing */
-     LOG_LEVEL_NOISY,      /* extra verbose debugging */
-     LOG_LEVEL_DEBUG,      /* normal debugging level */
-     LOG_LEVEL_INFO,       /* chatty status but not debug */
-     LOG_LEVEL_MESSAGE,    /* default level, doesn't show file/function name */
-     LOG_LEVEL_WARNING,    /* can be set to fatal */
-     LOG_LEVEL_CRITICAL,   /* always enabled, can be set to fatal */
-     LOG_LEVEL_ERROR,      /* "error" is always fatal (aborts) */
-     _LOG_LEVEL_LAST
+    LOG_LEVEL_NONE,       /* not user facing */
+    LOG_LEVEL_NOISY,      /* extra verbose debugging */
+    LOG_LEVEL_DEBUG,      /* normal debugging level */
+    LOG_LEVEL_INFO,       /* chatty status but not debug */
+    LOG_LEVEL_MESSAGE,    /* default level, doesn't show file/function name */
+    LOG_LEVEL_WARNING,    /* can be set to fatal */
+    LOG_LEVEL_CRITICAL,   /* always enabled, can be set to fatal */
+    LOG_LEVEL_ERROR,      /* "error" is always fatal (aborts) */
+    LOG_LEVEL_ECHO,       /* Always print message, never fatal */
+    _LOG_LEVEL_LAST
 };
 
 #endif /* __WS_LOG_DOMAINS_H__ */
