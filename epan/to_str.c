@@ -126,8 +126,9 @@ get_fmt_zonename(field_display_e fmt, struct tm *tmp)
 }
 
 static char *
-snprint_abs_time_secs(wmem_allocator_t *scope, field_display_e fmt,
-				struct tm *tmp, const char *trailer,
+snprint_abs_time_secs(wmem_allocator_t *scope,
+				field_display_e fmt, struct tm *tmp,
+				const char *nsecs_str, const char *tzone_str,
 				gboolean add_quotes)
 {
 	char *buf;
@@ -135,21 +136,22 @@ snprint_abs_time_secs(wmem_allocator_t *scope, field_display_e fmt,
 	switch (fmt) {
 		case ABSOLUTE_TIME_DOY_UTC:
 			buf = wmem_strdup_printf(scope,
-					"%s%04d/%03d:%02d:%02d:%02d%s%s",
+					"%s%04d/%03d:%02d:%02d:%02d%s%s%s",
 					add_quotes ? "\"" : "",
 					tmp->tm_year + 1900,
 					tmp->tm_yday + 1,
 					tmp->tm_hour,
 					tmp->tm_min,
 					tmp->tm_sec,
-					trailer,
+					nsecs_str,
+					tzone_str,
 					add_quotes ? "\"" : "");
 			break;
 		case ABSOLUTE_TIME_NTP_UTC:	/* FALLTHROUGH */
 		case ABSOLUTE_TIME_UTC:		/* FALLTHROUGH */
 		case ABSOLUTE_TIME_LOCAL:
 			buf = wmem_strdup_printf(scope,
-					"%s%s %2d, %d %02d:%02d:%02d%s%s",
+					"%s%s %2d, %d %02d:%02d:%02d%s%s%s",
 					add_quotes ? "\"" : "",
 					mon_names[tmp->tm_mon],
 					tmp->tm_mday,
@@ -157,7 +159,8 @@ snprint_abs_time_secs(wmem_allocator_t *scope, field_display_e fmt,
 					tmp->tm_hour,
 					tmp->tm_min,
 					tmp->tm_sec,
-					trailer,
+					nsecs_str,
+					tzone_str,
 					add_quotes ? "\"" : "");
 			break;
 		default:
@@ -171,11 +174,13 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 			int flags)
 {
 	struct tm *tmp;
-	char buf_trailer[64];
+	char buf_nsecs[32];
+	char buf_tzone[32];
 
 	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
 
-	if (fmt == ABSOLUTE_TIME_NTP_UTC && nstime_is_zero(abs_time)) {
+	if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time->secs == 0 &&
+				(abs_time->nsecs == 0 || abs_time->nsecs == G_MAXINT)) {
 		return wmem_strdup(scope, "NULL");
 	}
 
@@ -184,38 +189,28 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 		return wmem_strdup(scope, "Not representable");
 	}
 
-	if (flags & ABS_TIME_TO_STR_SHOW_ZONE)
-		snprintf(buf_trailer, sizeof(buf_trailer), ".%09d %s", abs_time->nsecs, get_fmt_zonename(fmt, tmp));
-	else
-		snprintf(buf_trailer, sizeof(buf_trailer), ".%09d", abs_time->nsecs);
+	*buf_nsecs = '\0';
+	if (abs_time->nsecs != G_MAXINT) {
+		snprintf(buf_nsecs, sizeof(buf_nsecs), ".%09d", abs_time->nsecs);
+	}
 
-	return snprint_abs_time_secs(scope, fmt, tmp, buf_trailer, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
+	*buf_tzone = '\0';
+	if (flags & ABS_TIME_TO_STR_SHOW_ZONE) {
+		snprintf(buf_tzone, sizeof(buf_tzone), " %s", get_fmt_zonename(fmt, tmp));
+	}
+
+	return snprint_abs_time_secs(scope, fmt, tmp, buf_nsecs, buf_tzone, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
 }
 
 char *
 abs_time_secs_to_str_ex(wmem_allocator_t *scope, const time_t abs_time_secs, field_display_e fmt,
 			int flags)
 {
-	struct tm *tmp;
-	char buf_trailer[64];
+	nstime_t abs_time;
 
-	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
-
-	if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time_secs == 0) {
-		return wmem_strdup(scope, "NULL");
-	}
-
-	tmp = get_fmt_broken_down_time(fmt, &abs_time_secs);
-	if (tmp == NULL) {
-		return wmem_strdup(scope, "Not representable");
-	}
-
-	if (flags & ABS_TIME_TO_STR_SHOW_ZONE)
-		snprintf(buf_trailer, sizeof(buf_trailer), " %s", get_fmt_zonename(fmt, tmp));
-	else
-		*buf_trailer = '\0';
-
-	return snprint_abs_time_secs(scope, fmt, tmp, buf_trailer, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
+	nstime_set_unset(&abs_time);
+	abs_time.secs = abs_time_secs;
+	return abs_time_to_str_ex(scope, &abs_time, fmt, flags);
 }
 
 void
