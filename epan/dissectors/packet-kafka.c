@@ -1498,7 +1498,7 @@ dissect_kafka_record_headers_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_item *header_ti;
     proto_tree *subtree;
 
-    int key_off, key_len;
+    int key_off = 0, key_len = 0;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_record_headers_header, &header_ti, "Header");
 
