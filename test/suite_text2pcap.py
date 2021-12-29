@@ -134,7 +134,7 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
         else:
             pcapng_flag = ''
         # XXX: -t ISO also works now too for this output
-        text2pcap_cmd = '{cmd} {ns} -d -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" {in_f} {out_f}'.format(
+        text2pcap_cmd = '{cmd} {ns} -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" {in_f} {out_f}'.format(
             cmd = cmd_text2pcap,
             ns = pcapng_flag,
             linktype = encap_to_link_type[pre_cap_info['encapsulation']],
@@ -268,7 +268,6 @@ class case_text2pcap_parsing(subprocesstest.SubprocessTestCase):
         testout_file = self.filename_from_id(testout_pcap)
         self.assertRun((cmd_text2pcap,
             '-n',
-            '-d',
             '-t', '%Y-%m-%d %H:%M:%S.',
             capture_file(txt_fname),
             testout_file,

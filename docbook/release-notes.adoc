@@ -53,8 +53,12 @@ They previously shipped with Npcap 1.55.
    PCRE2 is compatible with PCRE so the user-visible changes should be minimal.
    Some exotic patterns may now be invalid and require rewriting.
 ** Adds a new strict equality operator "===" or "all_eq". The expression "a === b" is true if and only if all a's are equal to b.
-   The negation of "===" can now be written as "!==" (any_ne), in adittion to "~=" (introduced in Wireshark 3.6.0).
+   The negation of "===" can now be written as "!==" (any_ne), in addition to "~=" (introduced in Wireshark 3.6.0).
 ** Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
+
+* text2pcap has been updated to use the new logging output options and the
+  "-d" flag has been removed. The "debug" log level corresponds to the old
+  "-d" flag, and the "noisy" log level corresponds to using "-d" multiple times.
 
 * HTTP2 dissector now supports using fake headers to parse the DATAs of streams captured without first HEADERS frames of a long-lived stream (like
   gRPC streaming call which allows sending many request or response messages in one HTTP2 stream). User can specify fake headers according to the

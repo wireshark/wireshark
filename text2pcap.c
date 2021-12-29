@@ -323,14 +323,17 @@ print_usage (FILE *output)
             "                         as the payload PROTO_NAME tag.\n"
             "                         Automatically sets link type to Upper PDU Export.\n"
             "                         EXPORTED_PDU payload defaults to \"data\" otherwise.\n"
-            "\n"
-            "Miscellaneous:\n"
-            "  -h                     display this help and exit.\n"
-            "  -v                     print version information and exit.\n"
-            "  -d                     show detailed debug of parser states.\n"
-            "  -q                     generate no output at all (automatically disables -d).\n"
-            "",
+            "\n",
             WTAP_MAX_PACKET_SIZE_STANDARD);
+
+    ws_log_print_usage(output);
+
+    fprintf(output, "\n"
+            "Miscellaneous:\n"
+            "  -h                     display this help and exit\n"
+            "  -v                     print version information and exit\n"
+            "  -q                     don't report processed packet counts\n"
+            "");
 }
 
 /*
@@ -380,16 +383,15 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
 
     /* Scan CLI parameters */
-    while ((c = ws_getopt_long(argc, argv, "aDdhqe:i:l:m:nN:o:u:P:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
+    while ((c = ws_getopt_long(argc, argv, "aDhqe:i:l:m:nN:o:u:P:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
         case 'h':
             show_help_header("Generate a capture file from an ASCII hexdump of packets.");
             print_usage(stdout);
             exit(0);
             break;
-        case 'd': if (!quiet) info->debug++; break;
         case 'D': has_direction = TRUE; break;
-        case 'q': quiet = TRUE; info->debug = 0; break;
+        case 'q': quiet = TRUE; break;
         case 'l': pcap_link_type = (guint32)strtol(ws_optarg, NULL, 0); break;
         case 'm': max_offset = (guint32)strtol(ws_optarg, NULL, 0); break;
         case 'n': use_pcapng = TRUE; break;
@@ -896,7 +898,7 @@ main(int argc, char *argv[])
 
     ret = text_import(&info);
 
-    if (info.debug)
+    if (ws_log_get_level() >= LOG_LEVEL_DEBUG)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
         bytes_written = wtap_get_bytes_dumped(wdh);

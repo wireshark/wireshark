@@ -14,7 +14,6 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [manarg]
 *text2pcap*
 [ *-a* ]
-[ *-d* ]
 [ *-D* ]
 [ *-e* <l3pid> ]
 [ *-h* ]
@@ -114,13 +113,6 @@ Enables ASCII text dump identification. It allows one to identify the start of
 the ASCII text dump and not include it in the packet even if it looks like HEX.
 
 *NOTE:* Do not enable it if the input file does not contain the ASCII text dump.
---
-
--d::
-+
---
-Displays debugging information during the process. Can be used
-multiple times to generate more debugging information.
 --
 
 -D::
@@ -227,7 +219,8 @@ link layer type (252) is selected the dissector defaults to "data".
 -q::
 +
 --
-Be completely quiet during the process.
+Don't display the summary of the options selected at the beginning,
+or the count of packets processed at the end.
 --
 
 -s <srcport>,<destport>,<tag>::

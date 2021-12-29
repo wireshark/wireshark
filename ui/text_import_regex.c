@@ -25,17 +25,10 @@ typedef unsigned int uint;
 
 /*--- Options --------------------------------------------------------------------*/
 
-static int debug = 0;
-
-#define debug_printf(level,  ...) \
-    if (debug >= (level)) { \
-        printf(__VA_ARGS__); \
-    }
-
 int text_import_regex(const text_import_info_t* info) {
     int status = 1;
     int parsed_packets = 0;
-    debug_printf(1, "starting import...\n");
+    ws_debug("starting import...");
 
     // IO
     GMappedFile* file = g_mapped_file_ref(info->regex.import_text_GMappedFile);
@@ -68,9 +61,9 @@ int text_import_regex(const text_import_info_t* info) {
         }
     }
 
-    debug_printf(1, "regex has %s%s%s\n", re_dir ? "dir, " : "",
-                                          re_time ? "time, " : "",
-                                          re_seqno ? "seqno, " : "");
+    ws_debug("regex has %s%s%s", re_dir ? "dir, " : "",
+                                 re_time ? "time, " : "",
+                                 re_seqno ? "seqno, " : "");
     g_regex_match(info->regex.format, f_content, G_REGEX_MATCH_NOTEMPTY, &match);
     while (g_match_info_matches(match)) {
         /* parse the data */
@@ -97,9 +90,9 @@ int text_import_regex(const text_import_info_t* info) {
                 g_match_info_fetch_named_pos(match, "seqno", &field_start, &field_end))
             parse_seqno(f_content + field_start, f_content + field_end);
 
-        if (debug >= 2) {
+        if (ws_log_get_level() == LOG_LEVEL_NOISY) {
             g_match_info_fetch_pos(match, 0, &field_start, &field_end);
-            printf("Packet %d at %x to %x: %.*s\n", parsed_packets + 1,
+            ws_noisy("Packet %d at %x to %x: %.*s\n", parsed_packets + 1,
                     field_start, field_end,
                     field_end - field_start, f_content + field_start);
         }
@@ -115,7 +108,7 @@ int text_import_regex(const text_import_info_t* info) {
             break;
         }
     }
-    debug_printf(1, "processed %d packets\n", parsed_packets);
+    ws_debug("processed %d packets", parsed_packets);
     g_match_info_unref(match);
     g_mapped_file_unref(file);
     return status * parsed_packets;
