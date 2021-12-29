@@ -30,13 +30,9 @@ void nstime_set_zero(nstime_t *nstime)
 }
 
 /* is the given nstime_t currently zero? */
-gboolean nstime_is_zero(nstime_t *nstime)
+gboolean nstime_is_zero(const nstime_t *nstime)
 {
-    if(nstime->secs == 0 && nstime->nsecs == 0) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
+    return nstime->secs == 0 && nstime->nsecs == 0;
 }
 
 /* set the given nstime_t to (0,maxint) to mark it as "unset"

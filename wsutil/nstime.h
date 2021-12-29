@@ -59,7 +59,7 @@ typedef struct {
 WS_DLL_PUBLIC void nstime_set_zero(nstime_t *nstime);
 
 /** is the given nstime_t currently zero? */
-WS_DLL_PUBLIC gboolean nstime_is_zero(nstime_t *nstime);
+WS_DLL_PUBLIC gboolean nstime_is_zero(const nstime_t *nstime);
 
 /** set the given nstime_t to (0,maxint) to mark it as "unset"
  * That way we can find the first frame even when a timestamp

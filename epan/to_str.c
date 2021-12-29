@@ -175,6 +175,10 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 
 	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
 
+	if (fmt == ABSOLUTE_TIME_NTP_UTC && nstime_is_zero(abs_time)) {
+		return wmem_strdup(scope, "NULL");
+	}
+
 	tmp = get_fmt_broken_down_time(fmt, &abs_time->secs);
 	if (tmp == NULL) {
 		return wmem_strdup(scope, "Not representable");
@@ -196,6 +200,10 @@ abs_time_secs_to_str_ex(wmem_allocator_t *scope, const time_t abs_time_secs, fie
 	char buf_trailer[64];
 
 	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
+
+	if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time_secs == 0) {
+		return wmem_strdup(scope, "NULL");
+	}
 
 	tmp = get_fmt_broken_down_time(fmt, &abs_time_secs);
 	if (tmp == NULL) {
