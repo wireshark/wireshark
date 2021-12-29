@@ -27,9 +27,65 @@ extern "C" {
  */
 
 /* Allocator should be either pinfo->pool or wmem_file_scope() */
+
+/**
+ * Add data associated with a protocol.
+ *
+ * This can be used to persist file-scoped data between packets or share
+ * packet-scoped data between dissectors without having to use global
+ * variables.
+ *
+ * Each call adds a new entry to the protocol data list.
+ *
+ * @param scope The memory scope, either pinfo->pool or wmem_file_scope().
+ * @param pinfo This dissection's packet info.
+ * @param proto The protocol ID.
+ * @param key A unique key for the data.
+ * @param proto_data The data to add.
+ */
 WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
+
+/**
+ * Set data associated with a protocol.
+ *
+ * This can be used to persist file-scoped data between packets or share
+ * packet-scoped data between dissectors without having to use global
+ * variables.
+ *
+ * If the protocol data list contains a matching entry it will be updated,
+ * otherwise a new entry will be created.
+ *
+ * @param scope The memory scope, either pinfo->pool or wmem_file_scope().
+ * @param pinfo This dissection's packet info.
+ * @param proto The protocol ID.
+ * @param key A unique key for the data.
+ * @param proto_data The data to add.
+ */
+WS_DLL_PUBLIC void p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
+
+/**
+ * Fetch data associated with a protocol.
+ *
+ * @param scope The memory scope, typically pinfo->pool or wmem_file_scope().
+ * @param pinfo This dissection's packet info.
+ * @param proto The protocol ID.
+ * @param key A unique key for the data.
+ * @return The data set using p_set_proto_data or most recently added
+ * using p_add_proto_data if the scope, protocol ID, and key match,
+ * otherwise NULL.
+ */
 WS_DLL_PUBLIC void *p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
+
+/**
+ * Remove data associated with a protocol.
+ *
+ * @param scope The memory scope, typically pinfo->pool or wmem_file_scope().
+ * @param pinfo This dissection's packet info.
+ * @param proto The protocol ID.
+ * @param key A unique key for the data.
+ */
 WS_DLL_PUBLIC void p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key);
+
 gchar *p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index);
 
 /**

@@ -1014,6 +1014,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  p_get_proto_data@Base 1.9.1
  p_get_proto_depth@Base 3.3.0
  p_remove_proto_data@Base 1.12.0~rc1
+ p_set_proto_data@Base 3.7.0
  p_set_proto_depth@Base 3.3.0
  parse_key_string@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
