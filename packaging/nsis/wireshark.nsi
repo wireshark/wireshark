@@ -279,6 +279,10 @@ Function .onInit
       MessageBox MB_OK "This version of Wireshark only runs on x64 machines.$\nTry installing the 32-bit version instead." /SD IDOK
       Abort
     ${EndIf}
+  !else
+    ${If} ${RunningX64}
+      MessageBox MB_OK "You are installing a 32-bit version of Wireshark on a 64-bit machine.$\nWe recommend installing the 64-bit version instead." /SD IDOK
+    ${EndIf}
   !endif
 
     ; Get the Windows version
