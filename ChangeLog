@@ -1,0 +1,38 @@
+63c00397a7 Build: 3.4.11
+7bfe18b506 Update model list based on libgphoto2 repo dated 27 dec 2021
+a8d20f3f07 The macro 'va_copy' is C99, use that
+09bc1aa5bb Update the release notes.
+582b57ea4b Prep for 3.4.11.
+d26d77672a Docbook: Make our prefaces self-contained.
+8c355b787f [Automatic update for 2021-12-26]
+33ff19e11f rfc7468: don't use for (;;) for tvb_find_line_end() loops.
+792c9b4bc7 [Automatic update for 2021-12-19]
+d2436f19a3 fix(dissectors): fixed a possible sigsegv in sysdig packet dissector.
+042ffe95cb [Automatic update for 2021-12-12]
+21cbf1afd8 GitLab CI: Simplify some checks.
+a34df24d00 doc: Update tshark manual for undocumented -z statistics
+8e3d2ad4b4 RTSP: Parse the status code correctly for taps
+e046f2a773 RTSP: Fix segault of cli tap with no filter set
+a3245f84d0 CMake: Remove the update_tools_help target.
+f4e7806f0b SRVLOC: Remove final sscanf
+056d19bba0 c-ares: move domain from haxx.se to its own .org
+e34f83e3f9 LTE RLC graph: plug possible memory leak
+e738c5f76d [Automatic update for 2021-12-05]
+97e1867cbc Packaging: Remove a macOS notarization wait.
+ddd4114305 BT-DHT: Fix endless loop
+46363f20f6 Packaging: Specify host architectures in our macOS Extras packages.
+5f2860daeb Foundation Fieldbus: handle multiple PDUs per UDP payload
+b26a86f33f [Automatic update for 2021-11-28]
+66146a5805 at: Fix typo in cme_error_vals
+36c3ff8596 RTMPT: Fix infinite loops harder.
+19211fda0d Tools: Add our branch name to fuzz error reports.
+a0084bd76f RTMPT: Fix infinite loop
+9cb575be50 btle: Improve Advertising Data reassembly
+1f3f40b0ae EVS: Fix bug in decoding LP-CNG SID BW value
+86ea1cc4fd gryphon: Create pkt_info if it doesn't exist
+0c6f9e5d9f MKA: Adding support for Announcement TLV padding (Bugfix)
+257125b656 [Automatic update for 2021-11-21]
+e260a37270 GTPv2: fix dissection of 5GS TAC
+ae4ca54db8 tests: fix test fails on Ubuntu, fix #17730
+20e7704246 GitLab CI: Fix our dfilter list version.
+9be0fb9629 Version: 3.4.10 → 3.4.11

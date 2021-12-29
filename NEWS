@@ -9,7 +9,34 @@ Wireshark 3.4.11 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2021-16[1] Gryphon dissector crash. Issue 17737[2].
+       CVE-2021-4186[3].
+
+     • wnpa-sec-2021-17[4] RTMPT dissector infinite loop. Issue
+       17745[5]. CVE-2021-4185[6].
+
+     • wnpa-sec-2021-18[7] BitTorrent DHT dissector infinite loop. Issue
+       17754[8]. CVE-2021-4184[9].
+
+     • wnpa-sec-2021-20[10] RFC 7468 file parser infinite loop. Issue
+       17801[11]. CVE-2021-4182[12].
+
+     • wnpa-sec-2021-21[13] Sysdig Event dissector crash.
+       CVE-2021-4181[14].
+
    The following bugs have been fixed:
+
+     • 43 test case failed in Ubuntu Build action Issue 17730[15].
+
+     • 5GS TAI not correctly decoded for GTPv2 Issue 17738[16].
+
+     • Can’t install "ChmodBPF.pkg" or "Add Wireshark to the system
+       path.pkg" on M1 MacBook Air Monterey without Rosetta 2 Issue
+       17757[17].
+
+     • Unable to build without tshark Issue 17766[18].
 
   New and Updated Features
 
@@ -19,9 +46,12 @@ Wireshark 3.4.11 Release Notes
 
   Updated Protocol Support
 
+   AT, BT LE LL, BT-DHT, EVS, FF, Gryphon, GTPv2, MKA, RTMPT, RTSP,
+   SRVLOC, and Sysdig Event
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   RFC 7468
 
  Getting Wireshark
 
@@ -33,7 +63,7 @@ Wireshark 3.4.11 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[19] on the Wireshark web site.
 
  File Locations
 
@@ -47,22 +77,40 @@ Wireshark 3.4.11 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[20] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[21].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[22].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[23].
 
-  Last updated 2021-12-26 16:06:29 UTC
+  Last updated 2021-12-29 19:12:10 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2021-16
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17737
+   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4186
+   4. https://www.wireshark.org/security/wnpa-sec-2021-17
+   5. https://gitlab.com/wireshark/wireshark/-/issues/17745
+   6. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4185
+   7. https://www.wireshark.org/security/wnpa-sec-2021-18
+   8. https://gitlab.com/wireshark/wireshark/-/issues/17754
+   9. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4184
+  10. https://www.wireshark.org/security/wnpa-sec-2021-20
+  11. https://gitlab.com/wireshark/wireshark/-/issues/17801
+  12. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4182
+  13. https://www.wireshark.org/security/wnpa-sec-2021-21
+  14. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-4181
+  15. https://gitlab.com/wireshark/wireshark/-/issues/17730
+  16. https://gitlab.com/wireshark/wireshark/-/issues/17738
+  17. https://gitlab.com/wireshark/wireshark/-/issues/17757
+  18. https://gitlab.com/wireshark/wireshark/-/issues/17766
+  19. https://www.wireshark.org/download.html#thirdparty
+  20. https://ask.wireshark.org/
+  21. https://www.wireshark.org/lists/
+  22. https://gitlab.com/wireshark/wireshark/-/issues
+  23. https://www.wireshark.org/faq.html

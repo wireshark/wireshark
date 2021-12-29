@@ -61,7 +61,7 @@ cveidlink:2021-4184[].
 // * Fuzz job crash output: fuzz-2021-11-29-6844.pcap wsbuglink:17754[].
 
 * wssalink:2021-20[]
-RFC 7468 dissector infinite loop.
+RFC 7468 file parser infinite loop.
 wsbuglink:17801[].
 cveidlink:2021-4182[].
 // Fixed in master: b3215d99ca
@@ -127,7 +127,6 @@ FF
 Gryphon
 GTPv2
 MKA
-RFC 7468
 RTMPT
 RTSP
 SRVLOC
@@ -136,11 +135,12 @@ Sysdig Event
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+RFC 7468
+--
 
 // === New and Updated Capture Interfaces support
 
