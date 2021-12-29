@@ -1140,6 +1140,12 @@ dissect_kafka_compact_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packe
     if (len == 0) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
+        if (p_offset) {
+            *p_offset = 0;
+        }
+        if (p_length) {
+            *p_length = 0;
+        }
         return tvb_captured_length(tvb);
     }
 
@@ -1231,6 +1237,12 @@ dissect_kafka_compact_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet
     if (len == 0) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
+        if (p_offset) {
+            *p_offset = 0;
+        }
+        if (p_length) {
+            *p_length = 0;
+        }
         return tvb_captured_length(tvb);
     }
 
@@ -2140,6 +2152,12 @@ dissect_kafka_tagged_field_data(proto_tree *tree, int hf_item, tvbuff_t *tvb, pa
     pi = proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)length, ENC_NA);
     if (len == 0) {
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
+        if (p_offset) {
+            *p_offset = 0;
+        }
+        if (p_len) {
+            *p_len = 0;
+        }
         return tvb_captured_length(tvb);
     }
 
