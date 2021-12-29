@@ -18,71 +18,153 @@
 
 #include <string.h>
 
-/* 128 bytes should be enough to contain any line. Strictly speaking, 64 is
-   enough, but we provide some leeway to accommodate nonconformant producers and
-   trailing whitespace. The 2 extra bytes are for the trailing newline and NUL
-   terminator. */
-#define MAX_LINE_LENGTH (128 + 2)
-
 static int rfc7468_file_type_subtype = -1;
 
 void register_rfc7468(void);
 
-static char *read_complete_text_line(char line[MAX_LINE_LENGTH], FILE_T fh, int *err, gchar **err_info)
+enum line_type {
+    LINE_TYPE_PREEB,
+    LINE_TYPE_POSTEB,
+    LINE_TYPE_OTHER,
+};
+
+const char PREEB_BEGIN[] = "-----BEGIN ";
+#define PREEB_BEGIN_LEN (sizeof PREEB_BEGIN - 1)
+const char POSTEB_BEGIN[] = "-----END ";
+#define POSTEB_BEGIN_LEN (sizeof POSTEB_BEGIN - 1)
+
+static gboolean rfc7468_read_line(FILE_T fh, enum line_type *line_type, Buffer *buf,
+    int* err, gchar** err_info)
 {
-    char *line_end;
+    /* Make the chunk size large enough that most lines can fit in a single chunk.
+       Strict RFC 7468 syntax only allows up to 64 characters per line, but we provide
+       some leeway to accommodate nonconformant producers and explanatory text.
+       The 3 extra bytes are for the trailing CR+LF and NUL terminator. */
+    char line_chunk[128 + 3];
+    char *line_chunk_end;
 
-    if (!(line_end = file_getsp(line, MAX_LINE_LENGTH, fh))) {
+    if (!(line_chunk_end = file_getsp(line_chunk, sizeof line_chunk, fh))) {
         *err = file_error(fh, err_info);
-        return NULL;
+        return FALSE;
     }
 
-    if (strlen(line) != (size_t)(line_end - line)) {
-        *err = 0;
-        return NULL;
+    // First chunk determines the line type.
+    if (memcmp(line_chunk, PREEB_BEGIN, PREEB_BEGIN_LEN) == 0)
+        *line_type = LINE_TYPE_PREEB;
+    else if (memcmp(line_chunk, POSTEB_BEGIN, POSTEB_BEGIN_LEN) == 0)
+        *line_type = LINE_TYPE_POSTEB;
+    else
+        *line_type = LINE_TYPE_OTHER;
+
+    for (;;) {
+        gsize line_chunk_len = line_chunk_end - line_chunk;
+        if (line_chunk_len > G_MAXINT - ws_buffer_length(buf)) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup_printf(
+                "File contains an encoding larger than the maximum of %d bytes",
+                G_MAXINT);
+            return FALSE;
+        }
+
+        ws_buffer_append(buf, line_chunk, line_chunk_len);
+
+        if (line_chunk_end[-1] == '\n' || file_eof(fh))
+            break;
+
+        if (!(line_chunk_end = file_getsp(line_chunk, sizeof line_chunk, fh))) {
+            *err = file_error(fh, err_info);
+            return FALSE;
+        }
     }
 
-    if (line_end[-1] != '\n' && !file_eof(fh)) {
-        *err = 0;
-        return NULL;
-    }
-
-    return line_end;
+    return TRUE;
 }
 
-//
-// Arbitrary value - we don't want to read all of a huge non-RFC 7468 file
-// only to find no pre-encapsulation boundary.
-//
-#define MAX_EXPLANATORY_TEXT_LINES	20
+static gboolean rfc7468_read_impl(FILE_T fh, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info)
+{
+    ws_buffer_clean(buf);
+
+    gboolean saw_preeb = FALSE;
+
+    for (;;) {
+        enum line_type line_type;
+
+        if (!rfc7468_read_line(fh, &line_type, buf, err, err_info)) {
+            if (*err != 0 || !saw_preeb) return FALSE;
+
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup("Missing post-encapsulation boundary at end of file");
+            return FALSE;
+        }
+
+        if (saw_preeb) {
+            if (line_type == LINE_TYPE_POSTEB) break;
+        } else {
+            if (line_type == LINE_TYPE_PREEB) saw_preeb = TRUE;
+        }
+    }
+
+    rec->rec_type = REC_TYPE_PACKET;
+    rec->presence_flags = 0;
+    rec->ts.secs = 0;
+    rec->ts.nsecs = 0;
+    rec->rec_header.packet_header.caplen = (guint32)ws_buffer_length(buf);
+    rec->rec_header.packet_header.len = (guint32)ws_buffer_length(buf);
+
+    return TRUE;
+}
+
+static gboolean rfc7468_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
+{
+    *data_offset = file_tell(wth->fh);
+
+    return rfc7468_read_impl(wth->fh, rec, buf, err, err_info);
+}
+
+static gboolean rfc7468_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info)
+{
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) < 0)
+        return FALSE;
+
+    return rfc7468_read_impl(wth->random_fh, rec, buf, err, err_info);
+}
 
 wtap_open_return_val rfc7468_open(wtap *wth, int *err, gchar **err_info)
 {
-    gboolean found_preeb;
-    static const char preeb_begin[] = "-----BEGIN ";
-    char line[MAX_LINE_LENGTH];
+    /* To detect whether this file matches our format, we need to find the
+       first pre-encapsulation boundary, which may be located anywhere in the file,
+       since it may be preceded by explanatory text. However, we don't want to
+       read the entire file to find it, since the file may be huge, and detection
+       needs to be fast. Therefore, we'll assume that if the boundary exists,
+       it's located within a small initial chunk of the file. The size of
+       the chunk was chosen arbitrarily. */
+    char initial_chunk[2048];
+    int initial_chunk_size = file_read(&initial_chunk, sizeof initial_chunk, wth->fh);
 
-    //
-    // Skip up to MAX_EXPLANATORY_TEXT_LINES worth of lines that don't
-    // look like pre-encapsulation boundaries.
-    //
-    found_preeb = FALSE;
-    for (unsigned int i = 0; i < MAX_EXPLANATORY_TEXT_LINES; i++) {
-        if (!read_complete_text_line(line, wth->fh, err, err_info)) {
-            if (*err == 0 || *err == WTAP_ERR_SHORT_READ)
-                return WTAP_OPEN_NOT_MINE;
-            return WTAP_OPEN_ERROR;
-        }
-
-        // Does the line look like a pre-encapsulation boundary?
-        if (memcmp(line, preeb_begin, sizeof preeb_begin - 1) == 0) {
-            // Yes.
-            found_preeb = TRUE;
-            break;
-        }
+    if (initial_chunk_size < 0) {
+        *err = file_error(wth->fh, err_info);
+        return WTAP_OPEN_ERROR;
     }
-    if (!found_preeb)
-        return WTAP_OPEN_NOT_MINE;
+
+    char *chunk_end_ptr = initial_chunk + initial_chunk_size;
+
+    // Try to find a line that starts with PREEB_BEGIN in the initial chunk.
+    for (char *line_ptr = initial_chunk; ; ) {
+        if ((unsigned)(chunk_end_ptr - line_ptr) < PREEB_BEGIN_LEN)
+            return WTAP_OPEN_NOT_MINE;
+
+        if (memcmp(line_ptr, PREEB_BEGIN, PREEB_BEGIN_LEN) == 0)
+            break;
+
+        // Try next line.
+        char *lf_ptr = memchr(line_ptr, '\n', chunk_end_ptr - line_ptr);
+        if (!lf_ptr)
+            return WTAP_OPEN_NOT_MINE;
+        line_ptr = lf_ptr + 1;
+    }
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
@@ -93,19 +175,18 @@ wtap_open_return_val rfc7468_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = 0;
     wth->file_tsprec = WTAP_TSPREC_SEC;
 
-    wth->subtype_read = wtap_full_file_read;
-    wth->subtype_seek_read = wtap_full_file_seek_read;
+    wth->subtype_read = rfc7468_read;
+    wth->subtype_seek_read = rfc7468_seek_read;
 
     return WTAP_OPEN_MINE;
 }
 
 static const struct supported_block_type rfc7468_blocks_supported[] = {
     /*
-     * This is a file format that we dissect, so we provide only one
-     * "packet" with the file's contents, and don't support any
-     * options.
+     * We provide one "packet" for each encoded structure in the file,
+     * and don't support any options.
      */
-    { WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info rfc7468_info = {
