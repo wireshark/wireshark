@@ -176,12 +176,16 @@ parse_month_name(const char *s, int *tm_mon)
  * _mktime32 treats dates before January 1, 1970 as invalid.
  * (https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mktime-mktime32-mktime64)
  */
+
+#define EXAMPLE "Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\""
+
 static gboolean
-absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
+absolute_val_from_string(fvalue_t *fv, const char *s, char **err_msg_ptr)
 {
 	struct tm tm;
 	char    *curptr = NULL;
 	gboolean has_seconds = TRUE;
+	char *err_msg = NULL;
 
 	memset(&tm, 0, sizeof(tm));
 
@@ -206,28 +210,10 @@ absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 		curptr = ws_strptime(s,"%Y-%m-%d", &tm);
 	if (curptr == NULL)
 		goto fail;
+
 	tm.tm_isdst = -1;	/* let the computer figure out if it's DST */
 	fv->value.time.secs = mktime(&tm);
-	if (*curptr != '\0') {
-		/*
-		 * Something came after the seconds field; it must be
-		 * a nanoseconds field.
-		 */
-		if (*curptr != '.' || !has_seconds)
-			goto fail;	/* it's not */
-		curptr++;	/* skip the "." */
-		if (!g_ascii_isdigit((unsigned char)*curptr))
-			goto fail;	/* not a digit, so not valid */
-		if (!get_nsecs(curptr, &fv->value.time.nsecs))
-			goto fail;
-	} else {
-		/*
-		 * No nanoseconds value - it's 0.
-		 */
-		fv->value.time.nsecs = 0;
-	}
-
-	if (fv->value.time.secs == -1) {
+	if (fv->value.time.secs == (time_t)-1) {
 		/*
 		 * XXX - should we supply an error message that mentions
 		 * that the time specified might be syntactically valid
@@ -238,15 +224,53 @@ absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 		 * backward, so that there are two different times that
 		 * it could be)?
 		 */
+		err_msg = ws_strdup("\"%s\" cannot be converted to a valid calendar time.");
 		goto fail;
+	}
+
+	if (*curptr == '.') {
+		/* Nanoseconds */
+		if (!has_seconds) {
+			err_msg = ws_strdup("Subsecond precision requires a seconds field.");
+			goto fail;	/* Requires seconds */
+		}
+		curptr++;	/* skip the "." */
+		if (!g_ascii_isdigit((unsigned char)*curptr)) {
+			/* not a digit, so not valid */
+			err_msg = ws_strdup("Subseconds value is not a number.");
+			goto fail;
+		}
+		if (!get_nsecs(curptr, &fv->value.time.nsecs)) {
+			err_msg = ws_strdup("Subseconds value is invalid.");
+			goto fail;
+		}
+	}
+	else if (*curptr != '\0') {
+		err_msg = ws_strdup("Unexpected data after time value.");
+		goto fail;
+	}
+	else {
+		/*
+		 * No nanoseconds value - it's 0.
+		 */
+		fv->value.time.nsecs = 0;
 	}
 
 	return TRUE;
 
 fail:
-	if (err_msg != NULL)
-		*err_msg = ws_strdup_printf("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\"",
-		    s);
+	if (err_msg_ptr != NULL) {
+		if (err_msg == NULL) {
+			*err_msg_ptr = ws_strdup_printf("\"%s\" is not a valid absolute time. " EXAMPLE, s);
+		}
+		else {
+			*err_msg_ptr = err_msg;
+		}
+	}
+	else {
+		g_free(err_msg);
+	}
+
 	return FALSE;
 }
 
