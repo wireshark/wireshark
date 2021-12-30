@@ -32,6 +32,7 @@ Validity
 Version
 
 #.PDU
+SubjectPublicKeyInfo
 
 #.REGISTER
 Certificate				B "2.5.4.36" "id-at-userCertificate"
