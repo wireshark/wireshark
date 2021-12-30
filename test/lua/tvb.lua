@@ -757,11 +757,11 @@ function test_proto.dissector(tvbuf,pktinfo,root)
 
     local datetimestring1 =   "2013-03-01T22:14:48+00:00" -- this is 1362176088 seconds epoch time
     local tvb1 = ByteArray.new(datetimestring1, true):tvb("Date_Time string 1")
-    local datetimestring2 = "  2013-03-01T17:14:48+05:00" -- this is 1362176088 seconds epoch time
+    local datetimestring2 = "  2013-03-02T03:14:48+05:00" -- this is 1362176088 seconds epoch time
     local tvb2 = ByteArray.new(datetimestring2 .. "  foobar", true):tvb("Date_Time string 2")
-    local datetimestring3 = "  2013-03-01T16:44+05:30"    -- this is 1362176040 seconds epoch time
+    local datetimestring3 = "  2013-03-01T16:44-05:30"    -- this is 1362176040 seconds epoch time
     local tvb3 = ByteArray.new(datetimestring3, true):tvb("Date_Time string 3")
-    local datetimestring4 =   "2013-03-02T01:44:00-03:30" -- this is 1362176040 seconds epoch time
+    local datetimestring4 =   "2013-03-02T01:44:00+03:30" -- this is 1362176040 seconds epoch time
     local tvb4 = ByteArray.new(datetimestring4, true):tvb("Date_Time string 4")
     local datetimestring5 =   "2013-03-01T22:14:48Z"      -- this is 1362176088 seconds epoch time
     local tvb5 = ByteArray.new(datetimestring5, true):tvb("Date_Time string 5")

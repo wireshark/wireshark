@@ -469,9 +469,18 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
     if (have_offset) {
         nstime->secs = mktime_utc(&tm);
         if (sign == '+') {
-            nstime->secs += (off_hr * 3600) + (off_min * 60);
+            nstime->secs -= (off_hr * 3600) + (off_min * 60);
         } else if (sign == '-') {
-            nstime->secs -= ((-off_hr) * 3600) + (off_min * 60);
+            /* -00:00 is illegal according to ISO 8601, but RFC 3339 allows
+             * it under a convention where -00:00 means "time in UTC is known,
+             * local timezone is unknown." This has the same value as an
+             * offset of Z or +00:00, but semantically implies that UTC is
+             * not the preferred time zone, which is immaterial to us.
+             */
+            /* Add the time, but reverse the sign of off_hr, which includes
+             * the negative sign.
+             */
+            nstime->secs += ((-off_hr) * 3600) + (off_min * 60);
         }
     }
     else {

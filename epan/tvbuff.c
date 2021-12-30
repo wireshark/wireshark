@@ -1985,9 +1985,9 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 	if (errno == 0) {
 		ns->secs = mktime_utc (&tm);
 		if (off_hr > 0)
-			ns->secs += (off_hr * 3600) + (off_min * 60);
+			ns->secs -= (off_hr * 3600) + (off_min * 60);
 		else if (off_hr < 0)
-			ns->secs -= ((-off_hr) * 3600) + (off_min * 60);
+			ns->secs += ((-off_hr) * 3600) + (off_min * 60);
 		retval = ns;
 		if (endoff)
 		    *endoff = (gint)(offset + (end - begin));
