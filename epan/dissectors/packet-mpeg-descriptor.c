@@ -991,7 +991,8 @@ static const value_string mpeg_descr_service_type_vals[] = {
     { 0x1D, "H.264/AVC rame compatible plano-stereoscopic HD NVOD time-shifted service" },
     { 0x1E, "H.264/AVC frame compatible plano-stereoscopic HD NVOD reference service" },
     { 0x1F, "HEVC digital television service" },
-    { 0x20, "HEVC UHD digital television service with HDR and/or a frame rate of 100 Hz, 120 000/1 001 Hz, or 120 Hz, or any combination of HDR and these frame rates" },
+    { 0x20, "HEVC UHD DTV service with either: a resolution up to 3840x2160, HDR and/or a frame rate of 100 Hz, \
+120000/1001Hz, or 120 Hz; or a resolution greater than 3840x2160, SDR or HDR, up to 60Hz." },
 
     { 0x00, NULL }
 };
