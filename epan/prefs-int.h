@@ -101,6 +101,7 @@ struct pref_custom_cbs {
 #define PREF_DECODE_AS_UINT   (1u << 12)     /* XXX - These are only supported for "internal" (non-protocol) */
 #define PREF_DECODE_AS_RANGE  (1u << 13) /* use and not as a generic protocol preference */
 #define PREF_OPEN_FILENAME    (1u << 14)
+#define PREF_PASSWORD         (1u << 15) /* like string, but never saved to prefs file */
 
 typedef enum {
 	GUI_ALL,
@@ -248,6 +249,9 @@ WS_DLL_PUBLIC range_t* prefs_get_range_value_real(pref_t *pref, pref_source_t so
 
 WS_DLL_PUBLIC gboolean prefs_add_decode_as_value(pref_t *pref, guint value, gboolean replace);
 WS_DLL_PUBLIC gboolean prefs_remove_decode_as_value(pref_t *pref, guint value, gboolean set_default);
+
+WS_DLL_PUBLIC unsigned int prefs_set_password_value(pref_t *pref, const char* value, pref_source_t source);
+WS_DLL_PUBLIC char* prefs_get_password_value(pref_t *pref, pref_source_t source);
 
 WS_DLL_PUBLIC void reset_pref(pref_t *pref);
 

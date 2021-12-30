@@ -68,6 +68,10 @@ They previously shipped with Npcap 1.55.
 
 * Capture Options dialog contains same configuration icon as Welcome Screen. It is possible to configure interface there.
 
+* Extcap dialog remembers password items during runtime therefore it is possible to run extcap multiple times in row. Passwords are never stored to disk.
+
+* It is possible to set extcap passwords on cli for tshark and other cli tools.
+
 // === Removed Features and Support
 
 // === Removed Dissectors

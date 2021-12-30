@@ -20,6 +20,7 @@
 #include <QFont>
 #include <QColor>
 #include <QRegularExpression>
+#include <QApplication>
 
 // XXX Should we move this to ui/preference_utils?
 static GHashTable * pref_ptr_to_pref_ = NULL;
@@ -341,7 +342,8 @@ QString PrefsModel::typeToString(int type)
 
 AdvancedPrefsModel::AdvancedPrefsModel(QObject * parent)
 : QSortFilterProxyModel(parent),
-filter_()
+filter_(),
+passwordChar_(QApplication::style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter))
 {
 }
 
@@ -400,7 +402,12 @@ QVariant AdvancedPrefsModel::data(const QModelIndex &dataindex, int role) const
             if (item->getPref() == NULL)
                 return QVariant();
 
-            return sourceModel()->data(sourceModel()->index(modelIndex.row(), PrefsModel::colValue, modelIndex.parent()), role);
+            if (PREF_PASSWORD == item->getPrefType())
+            {
+                return QString(sourceModel()->data(sourceModel()->index(modelIndex.row(), PrefsModel::colValue, modelIndex.parent()), role).toString().size(), passwordChar_);
+            } else {
+                return sourceModel()->data(sourceModel()->index(modelIndex.row(), PrefsModel::colValue, modelIndex.parent()), role);
+            }
         default:
             break;
         }
@@ -496,6 +503,9 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
             break;
         case PREF_STRING:
             prefs_set_string_value(item->getPref(), value.toString().toStdString().c_str(), pref_stashed);
+            break;
+        case PREF_PASSWORD:
+            prefs_set_password_value(item->getPref(), value.toString().toStdString().c_str(), pref_stashed);
             break;
         case PREF_DECODE_AS_RANGE:
         case PREF_RANGE:

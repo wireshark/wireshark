@@ -3055,6 +3055,11 @@ routines -
     void prefs_register_string_preference(module_t *module, const char *name,
         const char *title, const char *description, char **var)
 
+    /* Register a preference with a password (a character-string) value. */
+    /* The value is hold during runtime, only in memory. It is never written to disk */
+    void prefs_register_password_preference(module_t *module, const char *name,
+        const char *title, const char *description, char **var)
+
     /* Register a preference with a file name (string) value.
     * File name preferences are basically like string preferences
     * except that the GUI gives the user the ability to browse for the

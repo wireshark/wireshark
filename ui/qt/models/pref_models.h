@@ -127,6 +127,7 @@ protected:
 private:
 
     QString filter_;
+    const QChar passwordChar_;
 };
 
 class ModulePrefsModel : public QSortFilterProxyModel

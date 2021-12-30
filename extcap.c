@@ -883,8 +883,14 @@ static gboolean cb_preference(extcap_callback_info_t cb_info)
                             *arg->pref_valptr = arg->default_complex->_val;
                         }
 
-                        prefs_register_string_preference(dev_module, pref_name_for_prefs,
+                        if (arg->arg_type == EXTCAP_ARG_PASSWORD)
+                        {
+                            prefs_register_password_preference(dev_module, pref_name_for_prefs,
                                                          pref_title, pref_title, (const char **)arg->pref_valptr);
+                        } else {
+                            prefs_register_string_preference(dev_module, pref_name_for_prefs,
+                                                         pref_title, pref_title, (const char **)arg->pref_valptr);
+                        }
                     }
                     else
                     {

@@ -1051,6 +1051,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_get_module_effect_flags@Base 2.5.0
  prefs_get_max_value@Base 2.3.0
  prefs_get_name@Base 2.3.0
+ prefs_get_password_value@Base 3.7.0
  prefs_get_range_value@Base 2.3.0
  prefs_get_range_value_real@Base 2.3.0
  prefs_get_string_list@Base 1.9.1
@@ -1083,6 +1084,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_filename_preference@Base 1.9.1
  prefs_register_module_alias@Base 2.9.0
  prefs_register_obsolete_preference@Base 1.9.1
+ prefs_register_password_preference@Base 3.7.0
  prefs_register_protocol@Base 1.9.1
  prefs_register_protocol_obsolete@Base 3.5.0
  prefs_register_protocol_subtree@Base 1.9.1
@@ -1104,6 +1106,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_set_enum_string_value@Base 3.5.0
  prefs_set_gui_theme_is_dark@Base 2.5.0
  prefs_set_module_effect_flags@Base 2.5.0
+ prefs_set_password_value@Base 3.7.0
  prefs_set_pref@Base 1.9.1
  prefs_set_preference_effect_fields@Base 3.3.0
  prefs_set_range_value@Base 2.1.0

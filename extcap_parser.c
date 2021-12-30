@@ -524,9 +524,8 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
         } else if (g_ascii_strcasecmp(param_value, "string") == 0) {
             target_arg->arg_type = EXTCAP_ARG_STRING;
         } else if (g_ascii_strcasecmp(param_value, "password") == 0) {
+            /* Password is never saved because is mapped to PREF_PASSWORD later */
             target_arg->arg_type = EXTCAP_ARG_PASSWORD;
-            /* default setting is to not save passwords */
-            target_arg->save = FALSE;
         } else if (g_ascii_strcasecmp(param_value, "fileselect") == 0) {
             target_arg->arg_type = EXTCAP_ARG_FILESELECT;
         } else if (g_ascii_strcasecmp(param_value, "multicheck") == 0) {

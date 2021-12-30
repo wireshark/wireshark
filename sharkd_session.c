@@ -4455,6 +4455,7 @@ sharkd_session_process_dumpconf_cb(pref_t *pref, gpointer d)
 		case PREF_SAVE_FILENAME:
 		case PREF_OPEN_FILENAME:
 		case PREF_DIRNAME:
+		case PREF_PASSWORD:
 			sharkd_json_value_string("s", prefs_get_string_value(pref, pref_current));
 			break;
 
@@ -4558,7 +4559,7 @@ sharkd_session_process_dumpconf_mod_cb(module_t *module, gpointer d)
  *                  (o) u - preference value (for PREF_UINT, PREF_DECODE_AS_UINT)
  *                  (o) ub - preference value suggested base for display (for PREF_UINT, PREF_DECODE_AS_UINT) and if different than 10
  *                  (o) b - preference value (only for PREF_BOOL) (1 true, 0 false)
- *                  (o) s - preference value (for PREF_STRING, PREF_SAVE_FILENAME, PREF_OPEN_FILENAME, PREF_DIRNAME)
+ *                  (o) s - preference value (for PREF_STRING, PREF_SAVE_FILENAME, PREF_OPEN_FILENAME, PREF_DIRNAME, PREF_PASSWORD)
  *                  (o) e - preference possible values (only for PREF_ENUM)
  *                  (o) r - preference value (for PREF_RANGE, PREF_DECODE_AS_RANGE)
  *                  (o) t - preference value (only for PREF_UAT)

@@ -98,6 +98,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
         browse_button = true;
         // Fallthrough
     case PREF_STRING:
+    case PREF_PASSWORD:
         connect(ui->preferenceLineEdit, &SyntaxLineEdit::textChanged,
                 this, &PreferenceEditorFrame::stringLineEditTextEdited);
         show = true;
@@ -224,6 +225,9 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
         apply = prefs_set_string_value(pref_, new_str_.toStdString().c_str(), pref_stashed);
+        break;
+    case PREF_PASSWORD:
+        apply = prefs_set_password_value(pref_, new_str_.toStdString().c_str(), pref_stashed);
         break;
     case PREF_RANGE:
     case PREF_DECODE_AS_RANGE:
