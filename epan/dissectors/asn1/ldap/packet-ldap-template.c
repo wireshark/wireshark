@@ -830,7 +830,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
       case LDAP_REQ_COMPARE:
       case LDAP_REQ_EXTENDED:
 
-        /* this a request - add it to the unmatched list */
+        /* this is a request - add it to the unmatched list */
 
         /* check that we don't already have one of those in the
            unmatched list and if so remove it */
