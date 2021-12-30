@@ -1496,17 +1496,18 @@ static const value_string mpeg_descr_component_high_content_type_vals[] = {
     { 0x0901, "HEVC Main 10 Profile high definition video, 50 Hz" },
     { 0x0902, "HEVC Main Profile high definition video, 60 Hz" },
     { 0x0903, "HEVC Main 10 Profile high definition video, 60 Hz" },
-    { 0x0904, "HEVC UHD video (SDR frame rate up to 60 Hz, SDR HFR dual PID with temporal scalability, \
-    HDR with HLG10 frame rate up to 60 Hz, HDR with HLG10 HFR dual PID and temporal scalability)" },
-    { 0x0905, "HEVC UHD video with PQ10 HDR with a frame rate lower than or equal to 60 Hz (HDR with PQ10 \
-    frame rate up to 60 Hz) or HEVC UHD video with PQ10 HDR with a frame rate of 100 Hz, \
-    120 000/1 001 Hz, or 120 Hz with a half frame rate HEVC temporal video sub-bit-stream \
-    (HDR with PQ10 HFR dual PID and temporal scalability)" },
-    { 0x0906, "HEVC UHD video, 100Hz, 120 000/1 001 Hz, or 120 Hz w/o a half frame rate HEVC temporal \
-    video sub-bit-stream (SDR HFR single PID, HDR with HLG10 HFR single PID)" },
-    { 0x0907, "HEVC UHD video, PQ10 HDR, frame rate of 100 Hz, 120 000/1 001 Hz, or 120 Hz without a half \
-    frame rate HEVC temporal video sub-bit-stream (HDR with PQ10 HFR single PID)" },
-    { 0x0908, "HEVC 8K" },
+    { 0x0904, "HEVC UHD up to 3840x2160 (SDR up to 3840x2160@60Hz, SDR HFR dual PID with tmp. scal-ty \
+up to 3840x2160, HDR with HLG10 up to 3840x2160@60Hz, HDR with HLG10 HFR dual PID and tmp. scal-ty \
+up to 3840x2160)" },
+    { 0x0905, "HEVC UHD PQ10 HDR up to 60Hz (HDR PQ10 up to 3840x2160@60Hz) or HEVC UHD PQ10 HDR 100Hz/\
+(120000/1001)Hz/120Hz with a half frame rate HEVC tmp. video sub-bit-stream (HDR PQ10 HFR dual PID \
+and tmp. scal-ty up to 3840x2160)" },
+    { 0x0906, "HEVC UHD video up to 3840x2160@100Hz/(120000/1001)Hz/120Hz w/o a half frame rate HEVC tmp. \
+video sub-bit-stream (SDR HFR single PID up to 3840x2160, HDR with HLG10 HFR single PID up to 3840x2160)" },
+    { 0x0907, "HEVC UHD PQ10 HDR, 100Hz/(120000/1001)Hz/120Hz without a half frame rate HEVC tmp. \
+video sub-bit-stream (HDR with PQ10 HFR single PID resolution up to 3840x2160)" },
+    { 0x0908, "HEVC UHD video up to 7680x4320 (SDR up to 7680x4320@60Hz, HDR with PQ10 up to 7680x4320@60Hz, \
+HDR with HLG10 up to 7680x4320@60Hz)" },
     { 0x1900, "AC-4 main audio, mono" },
     { 0x1901, "AC-4 main audio, mono, dialogue enhancement enabled" },
     { 0x1902, "AC-4 main audio, stereo" },
