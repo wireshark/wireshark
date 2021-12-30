@@ -89,6 +89,8 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     int le_height = ti_ui_->textFileLineEdit->sizeHint().height();
     ti_ui_->ethertypeLineEdit->setMinimumHeight(le_height);
     ti_ui_->protocolLineEdit->setMinimumHeight(le_height);
+    ti_ui_->sourceAddressLineEdit->setMinimumHeight(le_height);
+    ti_ui_->destinationAddressLineEdit->setMinimumHeight(le_height);
     ti_ui_->sourcePortLineEdit->setMinimumHeight(le_height);
     ti_ui_->destinationPortLineEdit->setMinimumHeight(le_height);
     ti_ui_->tagLineEdit->setMinimumHeight(le_height);
