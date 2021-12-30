@@ -52,6 +52,7 @@ static int hf_mac_nr_subheader_reserved = -1;
 static int hf_mac_nr_subheader_f = -1;
 static int hf_mac_nr_subheader_length_1_byte = -1;
 static int hf_mac_nr_subheader_length_2_bytes = -1;
+static int hf_mac_nr_lcid = -1;
 static int hf_mac_nr_ulsch_lcid = -1;
 static int hf_mac_nr_dlsch_lcid = -1;
 static int hf_mac_nr_dlsch_sdu = -1;
@@ -1612,11 +1613,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_subheader_f, tvb, offset, 1, ENC_BIG_ENDIAN, &F);
         }
 
-        /* LCID */
+        /* LCID (UL or DL) */
         proto_tree_add_uint(subheader_tree,
                             (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
                                   hf_mac_nr_ulsch_lcid : hf_mac_nr_dlsch_lcid,
                             tvb, offset, 1, lcid);
+        /* Also add as a hidden, direction-less field */
+        proto_item *bi_di_lcid = proto_tree_add_uint(subheader_tree, hf_mac_nr_lcid, tvb, offset, 1, lcid);
+        proto_item_set_hidden(bi_di_lcid);
         offset++;
 
         if (!fixed_len) {
@@ -2966,6 +2970,13 @@ void proto_register_mac_nr(void)
             { "SDU Length",
               "mac-nr.subheader.sdu-length", FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL
+            }
+        },
+        /* Will be hidden, but useful for bi-directional filtering */
+        { &hf_mac_nr_lcid,
+            { "LCID",
+              "mac-nr.lcid", FT_UINT8, BASE_HEX, NULL, 0x3f,
+              "Logical Channel Identifier", HFILL
             }
         },
         { &hf_mac_nr_ulsch_lcid,
