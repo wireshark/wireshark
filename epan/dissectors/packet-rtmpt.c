@@ -62,9 +62,12 @@
 
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 /* #define DEBUG_RTMPT 1 */
+
+#define MAX_AMF_ITERATIONS 1000
 
 void proto_register_rtmpt(void);
 void proto_reg_handoff_rtmpt(void);
@@ -118,6 +121,8 @@ static int hf_rtmpt_tag_timestamp = -1;
 static int hf_rtmpt_tag_ets = -1;
 static int hf_rtmpt_tag_streamid = -1;
 static int hf_rtmpt_tag_tagsize = -1;
+
+static expert_field ei_amf_loop = EI_INIT;
 
 static gint ett_rtmpt = -1;
 static gint ett_rtmpt_handshake = -1;
@@ -550,16 +555,22 @@ static gint rtmpt_message_header_length(gint id)
 /* Lightweight access to AMF0 blobs - more complete dissection is done
  * in dissect_rtmpt_body_command */
 
-static gint
-rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
+static guint32
+rtmpt_get_amf_length(tvbuff_t *tvb, gint offset, proto_item* pi)
 {
         guint8  iObjType;
         gint    remain  = tvb_reported_length_remaining(tvb, offset);
         guint32 depth   = 0;
-        gint    itemlen = 0;
-        gint    rv      = 0;
+        guint32 itemlen = 0;
+        guint32 rv      = 0;
+        guint   iterations = MAX_AMF_ITERATIONS;
 
         while (rv == 0 || depth > 0) {
+
+                if (--iterations) {
+                        expert_add_info(NULL, pi, &ei_amf_loop);
+                        return 0;
+                }
 
                 if (depth > 0) {
                         if (remain-rv < 2)
@@ -595,7 +606,7 @@ rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
                 case AMF0_NULL:
                 case AMF0_UNDEFINED:
                 case AMF0_UNSUPPORTED:
-                        itemlen= 1;
+                        itemlen = 1;
                         break;
                 case AMF0_DATE:
                         itemlen = 11;
@@ -631,14 +642,16 @@ rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
 }
 
 static gchar *
-rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
+rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, proto_item* pi, gint param, const gchar *prop)
 {
         guint32 remain = tvb_reported_length_remaining(tvb, offset);
         guint32 itemlen;
         guint32 iStringLength;
 
         while (remain > 0 && param > 0) {
-                itemlen = rtmpt_get_amf_length(tvb, offset);
+                itemlen = rtmpt_get_amf_length(tvb, offset, pi);
+                if (itemlen == 0)
+                        break;
                 offset += itemlen;
                 remain -= itemlen;
                 param--;
@@ -674,7 +687,9 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
                                         return tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2+iPropLength+3, iStringLength, ENC_ASCII);
                                 }
 
-                                itemlen = rtmpt_get_amf_length(tvb, offset+2+iPropLength);
+                                itemlen = rtmpt_get_amf_length(tvb, offset+2+iPropLength, pi);
+                                if (itemlen == 0)
+                                        break;
                                 offset += 2+iPropLength+itemlen;
                                 remain -= 2+iPropLength+itemlen;
                         }
@@ -685,13 +700,13 @@ rtmpt_get_amf_param(tvbuff_t *tvb, gint offset, gint param, const gchar *prop)
 }
 
 static guint32
-rtmpt_get_amf_txid(tvbuff_t *tvb, gint offset)
+rtmpt_get_amf_txid(tvbuff_t *tvb, gint offset, proto_item* pi)
 {
         guint32 remain = tvb_reported_length_remaining(tvb, offset);
 
         if (remain > 0) {
-                guint32 itemlen = rtmpt_get_amf_length(tvb, offset);
-                if (remain<itemlen)
+                guint32 itemlen = rtmpt_get_amf_length(tvb, offset, pi);
+                if (itemlen == 0 || remain < itemlen)
                         return 0;
                 offset += itemlen;
                 remain -= itemlen;
@@ -710,7 +725,8 @@ rtmpt_get_amf_txid(tvbuff_t *tvb, gint offset)
 /* Generate a useful description for various packet types */
 
 static gchar *
-rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, guint32 remain, rtmpt_conv_t *rconv, int cdir, rtmpt_packet_t *tp, gint *deschasopcode)
+rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, proto_item* pi, guint32 remain, rtmpt_conv_t *rconv, int cdir,
+        rtmpt_packet_t *tp, gint *deschasopcode)
 {
         if (tp->cmd == RTMPT_TYPE_CHUNK_SIZE || tp->cmd == RTMPT_TYPE_ABORT_MESSAGE ||
             tp->cmd == RTMPT_TYPE_ACKNOWLEDGEMENT || tp->cmd == RTMPT_TYPE_WINDOW) {
@@ -778,30 +794,30 @@ rtmpt_get_packet_desc(tvbuff_t *tvb, guint32 offset, guint32 remain, rtmpt_conv_
                         RTMPT_DEBUG("got function call '%s'\n", sFunc);
 
                         if (strcmp(sFunc, "connect") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 2, "app");
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 2, "app");
                         } else if (strcmp(sFunc, "play") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, NULL);
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "play2") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, "streamName");
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "streamName");
                         } else if (strcmp(sFunc, "releaseStream") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, NULL);
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "FCPublish") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, NULL);
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "publish") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, NULL);
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, NULL);
                         } else if (strcmp(sFunc, "onStatus") == 0) {
                                 if (tp->cmd == RTMPT_TYPE_COMMAND_AMF0 || tp->cmd == RTMPT_TYPE_COMMAND_AMF3) {
-                                        sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, "code");
+                                        sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "code");
                                 } else {
-                                        sParam = rtmpt_get_amf_param(tvb, offset+soff, 1, "code");
+                                        sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 1, "code");
                                 }
                         } else if (strcmp(sFunc, "onPlayStatus") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 1, "code");
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 1, "code");
                         } else if (strcmp(sFunc, "_result") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, "code");
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "code");
                                 tp->isresponse = TRUE;
                         } else if (strcmp(sFunc, "_error") == 0) {
-                                sParam = rtmpt_get_amf_param(tvb, offset+soff, 3, "code");
+                                sParam = rtmpt_get_amf_param(tvb, offset+soff, pi, 3, "code");
                                 tp->isresponse = TRUE;
                         }
 
@@ -1699,25 +1715,23 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                         }
                 }
 
-                if (!PINFO_FD_VISITED(pinfo)) {
-                        if (tp->cmd == RTMPT_TYPE_COMMAND_AMF0 || tp->cmd == RTMPT_TYPE_COMMAND_AMF3 ||
-                            tp->cmd == RTMPT_TYPE_DATA_AMF0 || tp->cmd == RTMPT_TYPE_DATA_AMF3) {
-                                guint32 soff = 0;
-                                if (tp->cmd == RTMPT_TYPE_COMMAND_AMF3 || tp->cmd == RTMPT_TYPE_DATA_AMF3) {
-                                        soff = 1;
-                                }
-                                tp->txid = rtmpt_get_amf_txid(tvb, iBodyOffset+soff);
-                                if (tp->txid != 0) {
-                                        RTMPT_DEBUG("got txid=%d\n", tp->txid);
-                                        wmem_tree_insert32(rconv->txids[cdir], tp->txid, GINT_TO_POINTER(pinfo->num));
-                                }
+                if (tp->cmd == RTMPT_TYPE_COMMAND_AMF0 || tp->cmd == RTMPT_TYPE_COMMAND_AMF3 ||
+                    tp->cmd == RTMPT_TYPE_DATA_AMF0 || tp->cmd == RTMPT_TYPE_DATA_AMF3) {
+                        guint32 soff = 0;
+                        if (tp->cmd == RTMPT_TYPE_COMMAND_AMF3 || tp->cmd == RTMPT_TYPE_DATA_AMF3) {
+                                soff = 1;
+                        }
+                        tp->txid = rtmpt_get_amf_txid(tvb, iBodyOffset+soff, tree);
+                        if (tp->txid != 0 && !PINFO_FD_VISITED(pinfo)) {
+                                RTMPT_DEBUG("got txid=%d\n", tp->txid);
+                                wmem_tree_insert32(rconv->txids[cdir], tp->txid, GINT_TO_POINTER(pinfo->num));
                         }
                 }
         }
 
         if (tp->id <= RTMPT_ID_MAX)
         {
-                sDesc = rtmpt_get_packet_desc(tvb, iBodyOffset, iBodyRemain, rconv, cdir, tp, &deschasopcode);
+                sDesc = rtmpt_get_packet_desc(tvb, iBodyOffset, tree, iBodyRemain, rconv, cdir, tp, &deschasopcode);
         }
 
         if (tp->id>RTMPT_ID_MAX) {
@@ -2931,6 +2945,12 @@ proto_register_amf(void)
                   { "End Of dynamic members", "amf.end_of_dynamic_members", FT_NONE, BASE_NONE,
                     NULL, 0x0, NULL, HFILL }},
         };
+
+        static ei_register_info ei[] = {
+                { &ei_amf_loop, { "amf.loop", PI_MALFORMED, PI_ERROR, "Loop in AMF dissection", EXPFILL }}
+        };
+
+
         static gint *ett[] = {
                 &ett_amf,
                 &ett_amf_headers,
@@ -2943,9 +2963,13 @@ proto_register_amf(void)
                 &ett_amf_trait_member,
         };
 
+        expert_module_t* expert_amf;
+
         proto_amf = proto_register_protocol("Action Message Format", "AMF", "amf");
         proto_register_field_array(proto_amf, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+        expert_amf = expert_register_protocol(proto_amf);
+        expert_register_field_array(expert_amf, ei, array_length(ei));
 }
 
 void
