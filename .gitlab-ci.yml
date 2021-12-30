@@ -697,7 +697,7 @@ Clang Static Analyzer:
     CC: "clang-${CLANG_VERSION}"
     CXX: "clang++-${CLANG_VERSION}"
   script:
-    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DDISABLE_WERROR=ON -G Ninja ..
+    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_WERROR=OFF -G Ninja ..
     - scan-build-${CLANG_VERSION} -o ../sbout ninja
     - cd ../sbout
     - RAW_DIR=$( find ../sbout -type d -name "20??-??-??-*" -printf "%P\n" | head )

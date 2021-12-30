@@ -364,7 +364,7 @@ cmake \
 %else
   -DENABLE_BROTLI=OFF \
 %endif
-  -DDISABLE_WERROR=ON \
+  -DENABLE_WERROR=OFF \
 %if %{with ninja}
   -G Ninja \
 %endif
