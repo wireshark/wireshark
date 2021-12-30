@@ -14,6 +14,7 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [manarg]
 *text2pcap*
 [ *-a* ]
+[ *-b* 2|8|16|64 ]
 [ *-D* ]
 [ *-e* <l3pid> ]
 [ *-h* ]
@@ -24,6 +25,7 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [ *-m* <max-packet> ]
 [ *-o* hex|oct|dec|none ]
 [ *-q* ]
+[ *-r* <regex> ]
 [ *-s* <srcport>,<destport>,<tag> ]
 [ *-S* <srcport>,<destport>,<ppi> ]
 [ *-t* <timefmt> ]
@@ -97,12 +99,57 @@ future, these may be used to give more fine grained control on the
 dump and the way it should be processed e.g. timestamps, encapsulation
 type etc.
 
+*Text2pcap* is also capable of scanning a text input file using a custom Perl
+compatible regular expression that matches a single packet. *text2pcap*
+searches the given file (which must end with '\n') for non-overlapping non-empty
+strings matching the regex. Named capturing subgroups, which must match
+exactly once per packet, are used to identify fields to import. The following
+fields are supported in regex mode, one mandatory and three optional:
+
+  "data"  Actual captured frame data to import
+  "time"  Timestamp of packet
+  "dir"   Direction of packet
+  "seqno" Arbitrary ID of packet
+
+The 'data' field is the captured data, which must be in a selected encoding:
+hexadecimal (the default), octal, binary, or base64 and containing no
+characters in the data field outside the encoding set besides whitespace.
+The 'time' field is parsed according to the format in the *-t* parameter.
+The first character of the 'dir' field is compared against a set of characters
+corresponding to inbound and outbound that default to "iI<" for inbound and
+"oO>" for outbound to assign a direction. The 'seqno' field is assumed to
+be a positive integer base 10 used for an arbitrary ID. An optional field's
+information will only be written if the field is present in the regex and if
+the capture file format supports it. (E.g., the pcapng format supports all
+three fields, but the pcap format only supports timestamps.)
+
+Here is a sample dump that the regex mode can process with the regex
+'^(?<dir>[<>])\s(?<time>\d+:\d\d:\d\d.\d+)\s(?<data>[0-9a-fA-F]+)$' along
+with timestamp format '%H:%M:%S.%f', directional indications of '<' and '>',
+and hex encoding:
+
+> 0:00:00.265620 a130368b000000080060
+> 0:00:00.280836 a1216c8b00000000000089086b0b82020407
+< 0:00:00.295459 a2010800000000000000000800000000
+> 0:00:00.296982 a1303c8b00000008007088286b0bc1ffcbf0f9ff
+> 0:00:00.305644 a121718b0000000000008ba86a0b8008
+< 0:00:00.319061 a2010900000000000000001000600000
+> 0:00:00.330937 a130428b00000008007589186b0bb9ffd9f0fdfa3eb4295e99f3aaffd2f005
+> 0:00:00.356037 a121788b0000000000008a18
+
+The regex is compiled with multiline support, and it is recommended to use
+the anchors '^' and '$' for best results.
+
 *Text2pcap* also allows the user to read in dumps of
 application-level data, by inserting dummy L2, L3 and L4 headers
 before each packet. The user can elect to insert Ethernet headers,
 Ethernet and IP, or Ethernet, IP and UDP/TCP/SCTP headers before each
 packet. This allows Wireshark or any other full-packet decoder to
-handle these dumps.
+handle these dumps. These encapsulation options can be used in both
+hexdump mode and regex mode.
+
+When <__infile__> or <__outfile__> are '-', standard input or standard
+output, respectively, are used.
 
 == OPTIONS
 
@@ -111,8 +158,18 @@ handle these dumps.
 --
 Enables ASCII text dump identification. It allows one to identify the start of
 the ASCII text dump and not include it in the packet even if it looks like HEX.
+This parameter has no effect in regex mode.
 
 *NOTE:* Do not enable it if the input file does not contain the ASCII text dump.
+--
+
+-b 2|8|16|64::
++
+--
+Specify the base (radix) of the encoding of the packet data in regex mode.
+The supported options are 2 (binary), 8 (octal), 16 (hexadecimal), and 64
+(base64 encoding), with hex as the default. This parameter has no effect
+in hexdump mode.
 --
 
 -D::
@@ -120,7 +177,9 @@ the ASCII text dump and not include it in the packet even if it looks like HEX.
 --
 The text before the packet may start either with an I or O indicating that
 the packet is inbound or outbound. This is used when generating dummy headers.
-The indication is only stored if the output format is pcapng.
+The indication is only stored if the output format supports it (e.g. pcapng.)
+This parameter has no effect in regex mode, where the presence of the `<dir>`
+capturing group determines whether direction indicators are expected.
 --
 
 -e <l3pid>::
@@ -191,14 +250,15 @@ Write the file in pcapng format rather than pcap format.
 +
 --
 Specify a name for the interface included when writing a pcapng format
-file. By default no name is defined.
+file.
 --
 
 -o hex|oct|dec|none::
 +
 --
 Specify the radix for the offsets (hex, octal, decimal, or none). Defaults to
-hex. This corresponds to the `-A` option for __od__.
+hex. This corresponds to the `-A` option for __od__. This parameter has no
+effect in regex mode.
 
 *NOTE:* With __-o none__, only one packet will be created, ignoring any
 direction indicators or timestamps after the first byte along with any offsets.
@@ -221,6 +281,15 @@ link layer type (252) is selected the dissector defaults to "data".
 --
 Don't display the summary of the options selected at the beginning,
 or the count of packets processed at the end.
+--
+
+-r <regex>::
++
+--
+Process the file in regex mode using __regex__ as described above.
+
+*NOTE:* The regex mode uses memory-mapped I/O and does not work on
+streams that do not support seeking, like terminals and pipes.
 --
 
 -s <srcport>,<destport>,<tag>::
@@ -252,10 +321,11 @@ into the SCTP header.
 --
 Treats the text before the packet as a date/time code; __timefmt__ is a
 format string supported by strftime(3), supplemented with the field
-descriptor "%f" for fractional seconds up to nanoseconds.
+descriptor '%f' for fractional seconds up to nanoseconds.
 Example: The time "10:15:14.5476" has the format code "%H:%M:%S.%f"
 The special format string __ISO__ indicates that the string should be
-parsed according to the ISO-8601 specification.
+parsed according to the ISO-8601 specification. This parameter is used
+in regex mode if and only if the `<time>` capturing group is present.
 
 *NOTE:* Date/time fields from the current date/time are
 used as the default for unspecified fields.
