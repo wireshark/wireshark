@@ -765,9 +765,30 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <layout class="QHBoxLayout" name="interfaceLayout">
      <item>
-      <widget class="QLabel" name="label_11">
+      <widget class="QLabel" name="interfaceLabel">
+       <property name="text">
+        <string>Interface name:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="interfaceLineEdit">
+       <property name="toolTip">
+        <string>The name of the interface to write to the import capture file</string>
+       </property>
+       <property name="placeholderText">
+        <string>Fake IF, Import from Hex Dump</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="maxLengthLayout">
+     <item>
+      <widget class="QLabel" name="maxLengthLabel">
        <property name="text">
         <string>Maximum frame length:</string>
        </property>
