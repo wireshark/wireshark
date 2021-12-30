@@ -99,6 +99,10 @@
 #include <wsutil/nstime.h>
 #include <wsutil/time_util.h>
 
+#include <ui/version_info.h>
+#include <wsutil/cpu_info.h>
+#include <wsutil/os_version_info.h>
+
 #include "text_import_scanner.h"
 #include "text_import_scanner_lex.h"
 #include "text_import_regex.h"
@@ -1708,4 +1712,113 @@ text_import(text_import_info_t * const info)
     }
     g_free(packet_buf);
     return ret;
+}
+
+/* Write the SHB and IDB to the wtap_dump_params before opening the wtap dump
+ * file. While dummy headers can be written automatically, this writes out
+ * some extra information including an optional interface name.
+ */
+int
+text_import_pre_open(wtap_dump_params * const params, int file_type_subtype, const char* const input_filename, const char* const interface_name)
+{
+    wtap_block_t shb_hdr;
+    wtap_block_t int_data;
+    wtapng_if_descr_mandatory_t *int_data_mand;
+    char    *comment;
+    GString *info_str;
+
+    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_SECTION) != BLOCK_NOT_SUPPORTED &&
+        wtap_file_type_subtype_supports_option(file_type_subtype, WTAP_BLOCK_SECTION, OPT_COMMENT) != OPTION_NOT_SUPPORTED) {
+
+        shb_hdr = wtap_block_create(WTAP_BLOCK_SECTION);
+
+        comment = ws_strdup_printf("Generated from input file %s.", input_filename);
+        wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
+        g_free(comment);
+
+        info_str = g_string_new("");
+        get_cpu_info(info_str);
+        if (info_str->str) {
+            wtap_block_add_string_option(shb_hdr, OPT_SHB_HARDWARE, info_str->str, info_str->len);
+        }
+        g_string_free(info_str, TRUE);
+
+        info_str = g_string_new("");
+        get_os_version_info(info_str);
+        if (info_str->str) {
+            wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, info_str->str, info_str->len);
+        }
+        g_string_free(info_str, TRUE);
+
+        wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
+
+        params->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        g_array_append_val(params->shb_hdrs, shb_hdr);
+    }
+
+    /* wtap_dumper will create a dummy interface block if needed, but since
+     * we have the option of including the interface name, create it ourself.
+     */
+    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
+        int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+
+        int_data_mand->wtap_encap = params->encap;
+        int_data_mand->time_units_per_second = 1000000000;
+        int_data_mand->snap_len = params->snaplen;
+
+        if (interface_name != NULL) {
+            wtap_block_add_string_option(int_data, OPT_IDB_NAME, interface_name, strlen(interface_name));
+        } else {
+            wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, text2pcap", strlen("Fake IF, text2pcap"));
+        }
+        switch (params->tsprec) {
+
+        case WTAP_TSPREC_SEC:
+                int_data_mand->time_units_per_second = 1;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0);
+                break;
+
+        case WTAP_TSPREC_DSEC:
+                int_data_mand->time_units_per_second = 10;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 1);
+                break;
+
+        case WTAP_TSPREC_CSEC:
+                int_data_mand->time_units_per_second = 100;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 2);
+                break;
+
+        case WTAP_TSPREC_MSEC:
+                int_data_mand->time_units_per_second = 1000;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 3);
+                break;
+
+        case WTAP_TSPREC_USEC:
+                int_data_mand->time_units_per_second = 1000000;
+                /* This is the default, so no need to add an option */
+                break;
+
+        case WTAP_TSPREC_NSEC:
+                int_data_mand->time_units_per_second = 1000000000;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
+                break;
+
+        case WTAP_TSPREC_PER_PACKET:
+        case WTAP_TSPREC_UNKNOWN:
+        default:
+                /*
+                 * Don't do this.
+                 */
+                ws_assert_not_reached();
+                break;
+        }
+
+        params->idb_inf = g_new(wtapng_iface_descriptions_t,1);
+        params->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        g_array_append_val(params->idb_inf->interface_data, int_data);
+
+    }
+
+    return EXIT_SUCCESS;
 }

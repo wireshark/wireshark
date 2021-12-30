@@ -173,74 +173,6 @@ static wtap_dumper* wdh;
 static guint32 wtap_encap_type = 1;   /* Default is WTAP_ENCAP_ETHERNET */
 
 /*----------------------------------------------------------------------
- * Write file header and trailer
- */
-static int
-write_file_header(wtap_dump_params * const params, int file_type_subtype, const char* const interface_name)
-{
-    wtap_block_t shb_hdr;
-    wtap_block_t int_data;
-    wtapng_if_descr_mandatory_t *int_data_mand;
-    char    *comment;
-    GString *info_str;
-
-    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_SECTION) != BLOCK_NOT_SUPPORTED &&
-        wtap_file_type_subtype_supports_option(file_type_subtype, WTAP_BLOCK_SECTION, OPT_COMMENT) != OPTION_NOT_SUPPORTED) {
-
-        shb_hdr = wtap_block_create(WTAP_BLOCK_SECTION);
-
-        comment = ws_strdup_printf("Generated from input file %s.", input_filename);
-        wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
-        g_free(comment);
-
-        info_str = g_string_new("");
-        get_cpu_info(info_str);
-        if (info_str->str) {
-            wtap_block_add_string_option(shb_hdr, OPT_SHB_HARDWARE, info_str->str, info_str->len);
-        }
-        g_string_free(info_str, TRUE);
-
-        info_str = g_string_new("");
-        get_os_version_info(info_str);
-        if (info_str->str) {
-            wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, info_str->str, info_str->len);
-        }
-        g_string_free(info_str, TRUE);
-
-        wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
-
-        params->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-        g_array_append_val(params->shb_hdrs, shb_hdr);
-    }
-
-    /* wtap_dumper will create a dummy interface block if needed, but since
-     * we have the option of including the interface name, create it ourself.
-     */
-    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
-        int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
-        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
-
-        int_data_mand->wtap_encap = params->encap;
-        int_data_mand->time_units_per_second = 1000000000;
-        int_data_mand->snap_len = params->snaplen;
-
-        if (interface_name != NULL) {
-            wtap_block_add_string_option(int_data, OPT_IDB_NAME, interface_name, strlen(interface_name));
-        } else {
-            wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, text2pcap", strlen("Fake IF, text2pcap"));
-        }
-        wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, params->tsprec);
-
-        params->idb_inf = g_new(wtapng_iface_descriptions_t,1);
-        params->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-        g_array_append_val(params->idb_inf->interface_data, int_data);
-
-    }
-
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
  * Print usage string and exit
  */
 static void
@@ -730,7 +662,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         params->tsprec = WTAP_TSPREC_USEC;
         file_type_subtype = wtap_pcap_file_type_subtype();
     }
-    if ((ret = write_file_header(params, file_type_subtype, interface_name)) != EXIT_SUCCESS) {
+    if ((ret = text_import_pre_open(params, file_type_subtype, input_filename, interface_name)) != EXIT_SUCCESS) {
         g_free(params->idb_inf);
         wtap_dump_params_cleanup(params);
         return ret;
