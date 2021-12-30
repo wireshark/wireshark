@@ -1126,7 +1126,7 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
 static int
 dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
                       proto_tree *ntlmssp_tree, int offset,
-                      int blob_hf, int *end, ntlmssp_blob *result)
+                      int blob_hf, int *end, ntlmssp_blob *result, guint32 type)
 {
   proto_item *tf          = NULL;
   proto_tree *tree        = NULL;
@@ -1214,7 +1214,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, packet_info *pinfo,
        * is at least 32 bytes, so an NTLMv2_RESPONSE is at least
        * 48 bytes long.
        */
-      dissect_ntlmv2_response(tvb, pinfo, tree, blob_offset, blob_length);
+      dissect_ntlmv2_response(tvb, pinfo, tree, blob_offset, blob_length, type);
     }
   }
 
@@ -1464,7 +1464,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /** See [MS-NLMP] 3.3.2 */
 int
-dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
+dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len, guint32 type)
 {
   proto_item *ntlmv2_item = NULL;
   proto_tree *ntlmv2_tree = NULL;
@@ -1503,7 +1503,10 @@ dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
   proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 4, ENC_NA);
   offset += 4;
 
-  offset = dissect_ntlmssp_target_info_list(tvb, pinfo, ntlmv2_tree, offset, len - (offset - orig_offset), &ntlmssp_ntlmv2_response_tif);
+  if (type != NTLMSSP_AUTH) {
+      offset = dissect_ntlmssp_target_info_list(tvb, pinfo, ntlmv2_tree, offset, len - (offset - orig_offset),
+                                                &ntlmssp_ntlmv2_response_tif);
+  }
 
   if ((offset - orig_offset) < len) {
     proto_tree_add_item(ntlmv2_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 4, ENC_NA);
@@ -1973,7 +1976,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
                                 hf_ntlmssp_auth_lmresponse,
                                 &item_end,
                                 conv_ntlmssp_info == NULL ? NULL :
-                                &conv_ntlmssp_info->lm_response);
+                                &conv_ntlmssp_info->lm_response, ntlmssph->type);
   data_end = MAX(data_end, item_end);
 
   /* NTLM response */
@@ -1982,7 +1985,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
                                 hf_ntlmssp_auth_ntresponse,
                                 &item_end,
                                 conv_ntlmssp_info == NULL ? NULL :
-                                &conv_ntlmssp_info->ntlm_response);
+                                &conv_ntlmssp_info->ntlm_response, ntlmssph->type);
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
@@ -2023,7 +2026,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     /* Session Key */
     offset = dissect_ntlmssp_blob(tvb, pinfo, ntlmssp_tree, offset,
                                   hf_ntlmssp_auth_sesskey,
-                                  &item_end, &sessionblob);
+                                  &item_end, &sessionblob, ntlmssph->type);
     data_end = MAX(data_end, item_end);
   }
 
