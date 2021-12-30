@@ -1365,7 +1365,7 @@ dissect_kafka_timestamp(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_inf
 /*
  * Function: dissect_kafka_string_new
  * ---------------------------------------------------
- * Decodes UTF string using the new length encoding. This format is used
+ * Decodes UTF-8 string using the new length encoding. This format is used
  * in the v2 message encoding, where the string length is encoded using
  * ProtoBuf's ZigZag integer format (inspired by Avro). The main advantage
  * of ZigZag is very compact representation for small numbers.
@@ -1375,13 +1375,12 @@ dissect_kafka_timestamp(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_inf
  * tree: protocol information tree to append the item
  * hf_item: protocol information item descriptor index
  * offset: offset in the buffer where the string length is to be found
- * p_string_offset: pointer to a variable to store the actual string begin
- * p_string_length: pointer to a variable to store the actual string length
+ * p_string_val: pointer to a variable to store a pointer o the string value
  *
- * returns: pointer to the next field in the message
+ * returns: offset of the next field in the message
  */
 static int
-dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int hf_item, int offset, int *p_string_offset, int *p_string_length)
+dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int hf_item, int offset, char **p_display_string)
 {
     gint64 val;
     guint len;
@@ -1392,13 +1391,20 @@ dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     if (len == 0) {
         pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
+        if (p_display_string != NULL)
+            *p_display_string = "<INVALID>";
         return tvb_captured_length(tvb);
     } else if (val > 0) {
         // there is payload available, possibly with 0 octets
-        proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)val, ENC_UTF_8);
+        if (p_display_string != NULL)
+            proto_tree_add_item_ret_display_string(tree, hf_item, tvb, offset+len, (gint)val, ENC_UTF_8, wmem_packet_scope(), p_display_string);
+        else
+            proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)val, ENC_UTF_8);
     } else if (val == 0) {
         // there is empty payload (0 octets)
         proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<EMPTY>");
+        if (p_display_string != NULL)
+            *p_display_string = "<EMPTY>";
     } else if (val == -1) {
         // there is no payload (null)
         proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<NULL>");
@@ -1407,13 +1413,8 @@ dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
         val = 0;
-    }
-
-    if (p_string_offset != NULL) {
-        *p_string_offset = offset+len;
-    }
-    if (p_string_length != NULL) {
-        *p_string_length = (gint)val;
+        if (p_display_string != NULL)
+            *p_display_string = "<INVALID>";
     }
 
     return offset+len+(gint)val;
@@ -1497,16 +1498,15 @@ dissect_kafka_record_headers_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     proto_item *header_ti;
     proto_tree *subtree;
-
-    int key_off = 0, key_len = 0;
+    char *key_display_string;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_record_headers_header, &header_ti, "Header");
 
-    offset = dissect_kafka_string_new(tvb, pinfo, subtree, hf_kafka_record_header_key, offset, &key_off, &key_len);
+    offset = dissect_kafka_string_new(tvb, pinfo, subtree, hf_kafka_record_header_key, offset, &key_display_string);
     offset = dissect_kafka_bytes_new(tvb, pinfo, subtree, hf_kafka_record_header_value, offset, NULL, NULL, p_invalid);
 
-    proto_item_append_text(header_ti, " (Key: %s)",
-                           tvb_get_string_enc(pinfo->pool, tvb, key_off, key_len, ENC_UTF_8));
+    proto_item_append_text(header_ti, " (Key: %s)", key_display_string);
+
     proto_item_set_end(header_ti, tvb, offset);
 
     return offset;
