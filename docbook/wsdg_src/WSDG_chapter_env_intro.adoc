@@ -229,15 +229,17 @@ Later chapters describe the required tools and libraries in detail.
 
 [[ChIntroAutomated]]
 
-=== Automated Builds (GitLab CI And Buildbot)
+=== Automated Builds (GitLab CI)
 
-The Wireshark development team uses GitLab’s continuous integration (CI) system and Buildbot to automatically build Wireshark for each Git merge request and commit. Automated builds provide several useful services:
+The Wireshark development team uses GitLab’s continuous integration (CI) system to automatically build Wireshark for each Git merge request and commit.
+Automated builds provide several useful services:
 
 * Cross-platform testing.
   Inbound merge requests and commits can be tested on each of our supported plaforms, which ensures that a developer on one platform doesn’t break the build on other platforms.
 
 * A health indicator for the source code.
-  The CI badges at https://gitlab.com/wireshark/wireshark/ and the waterfall status at https://buildbot.wireshark.org/wireshark-master/ can quickly tell you how healthy the latest code is. Green is good, red is bad.
+  The CI badges at {wireshark-gitlab-project-url} can quickly tell you how healthy the latest code is.
+  Green is good, red is bad.
 
 * Fast code delivery.
   After a change is committed to the repository, an installer is usually available within an hour at https://www.wireshark.org/download/automated/.
@@ -248,7 +250,8 @@ The Wireshark development team uses GitLab’s continuous integration (CI) syste
 
 ==== What Do The Automated Builds Do?
 
-GitLab’s CI and Buildbot operate by running a series of steps and reporting success or failure. A typical CI job might do the following:
+GitLab’s CI operates by running a series of steps and reporting success or failure.
+A typical CI job might do the following:
 
 . Check out Wireshark from the source repository.
 
@@ -259,8 +262,7 @@ GitLab’s CI and Buildbot operate by running a series of steps and reporting su
 . Run regression tests.
 
 GitLab’s CI marks successful jobs with a green checkmark and failed jobs with a red “X”.
-Buildbot similarly colors successful jobs and steps green and failed ones red.
-Jobs and steps provide a link to the corresponding console logfile which provides additional information.
+Jobs provide a link to the corresponding console logfile which provides additional information.
 
 Release packages are built on the following platforms:
 
@@ -413,12 +415,10 @@ someone answers your question.
 
 [[ChIntroBugDatabase]]
 
-==== Bug database (Gitlab Issues)
+==== Bug Database (Gitlab Issues)
 
-The Wireshark community collects bug reports in an issues database at
-{wireshark-bugs-url}. This database is filled with manually filed bug
-reports, usually after some discussion on wireshark-dev, and automatic
-bug reports from the Buildbot tools.
+The Wireshark community collects bug reports in an issues database at {wireshark-bugs-url}.
+This database is filled with manually filed bug reports, usually after some discussion on wireshark-dev, and automatic bug reports from continuous integration jobs.
 
 [[ChIntroReportProblems]]
 

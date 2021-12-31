@@ -77,14 +77,9 @@ As of May 2020 neither option provides all of the packages we require, but that 
 
 === CMake
 
-Wireshark’s build environment can be configured using CMake on various
-UNIX-like platforms, including Linux, macOS, and *BSD, and on Windows.
-CMake is designed to support out-of-tree builds - so much so that
-in-tree builds do not work properly in all cases.  Along with being
-cross-platform, CMake supports many build tools and environments
-including traditional make, Ninja, and MSBuild.  Our Buildbot runs
-CMake steps on Ubuntu, Win32, Win64, and macOS.  In particular, the
-macOS and Windows packages are built using CMake.
+Wireshark’s build environment can be configured using CMake on various UNIX-like platforms, including Linux, macOS, and *BSD, and on Windows.
+CMake is designed to support out-of-tree builds - so much so that in-tree builds do not work properly in all cases.
+Along with being cross-platform, CMake supports many build tools and environments including traditional make, Ninja, and MSBuild.
 
 Building with CMake typically includes creating a build directory and
 specifying a *generator*, aka a build tool. For example, to build

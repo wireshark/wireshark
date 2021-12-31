@@ -16,7 +16,7 @@
 
 // Wireshark top level URLs (sites)
 :wireshark-main-url: https://www.wireshark.org/
-:wireshark-bugs-url: https://gitlab.com/wireshark/wireshark/issues
+:wireshark-bugs-url: https://gitlab.com/wireshark/wireshark/-/issues
 :wireshark-code-review-url: https://gitlab.com/wireshark/wireshark/-/merge_requests
 :wireshark-qa-url: https://ask.wireshark.org/
 :wireshark-wiki-url: https://gitlab.com/wireshark/wireshark/wikis/
@@ -24,9 +24,9 @@
 
 // Wireshark secondary URLs (pages)
 :wireshark-authors-url: {wireshark-main-url}about.html#authors
-:wireshark-buildbot-url: https://buildbot.wireshark.org/wireshark-master/waterfall
 :wireshark-code-browse-url: https://gitlab.com/wireshark/wireshark/tree/master
 :wireshark-code-file-url: https://gitlab.com/wireshark/wireshark/blob/master/
+:wireshark-commits-url: https://gitlab.com/wireshark/wireshark/-/commits/master
 :wireshark-merge-request-url: https://gitlab.com/wireshark/wireshark/merge_requests
 :wireshark-developers-guide-url: {wireshark-main-url}docs/wsdg_html_chunked/
 :wireshark-display-filter-reference-url: {wireshark-main-url}docs/dfref/
