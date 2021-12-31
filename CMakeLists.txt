@@ -1698,12 +1698,12 @@ set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(CFG_OUT_FILES
 	doxygen.cfg
-	image/libwireshark.rc
-	image/wireshark.rc
 	image/dumpcap.rc
+	image/libwireshark.rc
+	image/libwiretap.rc
 	image/libwsutil.rc
-	image/wiretap.rc
 	image/wireshark.exe.manifest
+	image/wireshark.rc
 	packaging/macosx/Info.plist
 	packaging/macosx/dmgbuild-settings.py
 	packaging/macosx/osx-app.sh
