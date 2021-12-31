@@ -91,7 +91,7 @@ typedef enum {
  *
  * Explicitly passing in separate primary and secondary messages would let us
  * get rid of primary_start and primary_end and reduce the amount of
- * gymnastics we have to to in the Qt UI.
+ * gymnastics we have to do in the Qt UI.
  */
 extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...)

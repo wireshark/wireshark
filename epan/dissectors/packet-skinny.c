@@ -10156,7 +10156,7 @@ proto_register_skinny(void)
     {&hf_skinny_statsProcessingMode,
       {
         "Stats Processing Mode", "skinny.statsProcessingMode", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &StatsProcessingType_ext, 0x0,
-        "What do do after you send the stats", HFILL }},
+        "What to do after you send the stats", HFILL }},
     {&hf_skinny_status,
       {
         "status", "skinny.status", FT_UINT32, BASE_HEX | BASE_EXT_STRING, &DeviceUnregisterStatus_ext, 0x0,

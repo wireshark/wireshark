@@ -41,7 +41,7 @@ MAX_PASSES=0
 MAX_CPU_TIME=600
 # Stop the child process if it's using more than y * 1024 bytes
 MAX_VMEM=1000000
-# Stop the child process if its stack is larger than than z * 1024 bytes
+# Stop the child process if its stack is larger than z * 1024 bytes
 # Windows XP:    2033
 # Windows 7:     2034
 # Mac OS X 10.6: 8192

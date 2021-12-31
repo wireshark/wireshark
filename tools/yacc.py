@@ -556,7 +556,7 @@ class LRParser:
                 # If there are any synchronization rules, they may
                 # catch it.
                 #
-                # In addition to pushing the error token, we call call
+                # In addition to pushing the error token, we call
                 # the user defined p_error() function if this is the
                 # first syntax error.  This function is only called if
                 # errorcount == 0.
@@ -856,7 +856,7 @@ class LRParser:
                 # If there are any synchronization rules, they may
                 # catch it.
                 #
-                # In addition to pushing the error token, we call call
+                # In addition to pushing the error token, we call
                 # the user defined p_error() function if this is the
                 # first syntax error.  This function is only called if
                 # errorcount == 0.
@@ -1142,7 +1142,7 @@ class LRParser:
                 # If there are any synchronization rules, they may
                 # catch it.
                 #
-                # In addition to pushing the error token, we call call
+                # In addition to pushing the error token, we call
                 # the user defined p_error() function if this is the
                 # first syntax error.  This function is only called if
                 # errorcount == 0.

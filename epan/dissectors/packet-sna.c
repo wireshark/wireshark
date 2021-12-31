@@ -1603,7 +1603,7 @@ mpf_value(guint8 th_byte)
  * This consumes resources. A trickier way, but a way which works, is to
  * always map the "LAST" BIU segment to frag-number 2. Here's the trickery:
  * if we add frag-number 2, which we know to be the "LAST" BIU segment,
- * and the reassembly code tells us that the the BIU is still not reassmebled,
+ * and the reassembly code tells us that the BIU is still not reassmebled,
  * then, owing to the, ahem, /fact/, that fragmented BIU segments arrive
  * in order :), we know that 1) "FIRST" did come, and 2) there's no "MIDDLE",
  * because this BIU was fragmented into 2 frames, not 3. So, we'll be

@@ -17,7 +17,7 @@
  *
  * Qt <= 5.9 supports setting old (Windows 8.1) per-monitor DPI awareness
  * via Qt:AA_EnableHighDpiScaling. We do this in main.cpp. In order for
- * native dialogs to be rendered correctly we need to to set per-monitor
+ * native dialogs to be rendered correctly we need to set per-monitor
  * *v2* awareness prior to creating the dialog.
  * Qt doesn't render correctly when per-monitor v2 awareness is enabled, so
  * we need to revert our thread context when we're done.

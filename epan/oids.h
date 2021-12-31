@@ -108,7 +108,7 @@ WS_DLL_PUBLIC void oids_cleanup(void);
 
 /*
  * The objects returned by all these functions are all allocated with a
- * packet lifetime and does not have have to be freed.
+ * packet lifetime and do not have to be freed.
  * However, take into account that when the packet dissection
  * completes, these buffers will be automatically reclaimed/freed.
  * If you need the buffer to remain for a longer scope than packet lifetime

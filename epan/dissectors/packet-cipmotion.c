@@ -906,7 +906,7 @@ dissect_cmd_data_set(guint32 cmd_data_set, proto_tree* parent_tree, tvbuff_t* tv
  * Purpose: Dissect the "Cyclic Actual Data" of a Device-to-Controller format message
  *
  * Based on the Actual Data Set bits of the "Cyclic Actual Data Block" header, display
- * any of those those feedback values.
+ * any of those feedback values.
  *
  * Returns: The number of bytes in the cyclic data used
  */

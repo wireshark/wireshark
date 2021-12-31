@@ -40,7 +40,7 @@
 #include "packet-dns.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
-#include "packet-icmp.h"    /* same transaction_t used both both v4 and v6 */
+#include "packet-icmp.h"    /* same transaction_t used for both v4 and v6 */
 #include "packet-ieee802154.h"
 #include "packet-6lowpan.h"
 #include "packet-ip.h"
@@ -6094,7 +6094,7 @@ proto_register_icmpv6(void)
               "The lower-bound sequence number for the MPL Seed.", HFILL }},
         { &hf_icmpv6_mpl_seed_info_bm_len,
             { "Buffered Messages Length", "icmpv6.mpl.seed_info.bm_len", FT_UINT8, BASE_DEC, NULL, MPL_SEED_INFO_BM_LEN,
-              "The The size of buffered-mpl-messages in octets.", HFILL }},
+              "The size of buffered-mpl-messages in octets.", HFILL }},
         { &hf_icmpv6_mpl_seed_info_s,
             { "Seed ID Length", "icmpv6.mpl.seed_info.s", FT_UINT8, BASE_DEC, VALS(mpl_seed_id_lengths), MPL_SEED_INFO_S,
               "The length of the seed-id.", HFILL }},

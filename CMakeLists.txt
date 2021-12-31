@@ -249,7 +249,7 @@ include(GNUInstallDirs)
 
 set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
 
-# Make sure our executables can can load our libraries if we install into
+# Make sure our executables can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
 # https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
 set(LIBRARY_INSTALL_RPATH "")
@@ -579,7 +579,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	## 4295: array is too small to include a terminating null character
 	## 4100: unreferenced formal parameter
 	## 4189: local variable is initialized but not referenced
-	# Disable warnings about about use of flexible array members:
+	# Disable warnings about use of flexible array members:
 	## 4200: nonstandard extension used : zero-sized array in struct/union
 	list(APPEND LOCAL_CFLAGS /w34295 /w34100 /w34189 /wd4200)
 
@@ -1391,7 +1391,7 @@ if (QT_FOUND)
 	# CMake uses qmake to find Qt4. It relies on Qt's CMake modules
 	# to find Qt5. This means that we can't assume that the qmake
 	# in our PATH is the correct one. We can fetch qmake's location
-	# from Qt5::qmake, which is is defined in Qt5CoreConfigExtras.cmake.
+	# from Qt5::qmake, which is defined in Qt5CoreConfigExtras.cmake.
 	get_target_property(QT_QMAKE_EXECUTABLE Qt${qtver}::qmake IMPORTED_LOCATION)
 	get_filename_component(_qt_bin_path "${QT_QMAKE_EXECUTABLE}" DIRECTORY)
 	set(QT_BIN_PATH "${_qt_bin_path}" CACHE INTERNAL

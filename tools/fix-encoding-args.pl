@@ -479,7 +479,7 @@ sub find_hf_array_entries {
             # Find all the <fcn_name>() statements wherein the encoding arg is a value other than
             #      one of the "replace" values.
             #  Uses zero-length negative-lookahead to find <fcn_name>() statements for which the encoding
-            #    arg is something other than one of the the provided replace values.
+            #    arg is something other than one of the provided replace values.
             # Escape any "|" characters in the values to be matched
             #  and then create "alternatives" string containing all the value strings. Ex: "A|B|C\|D|..."
             my $match_str = join "|",  map { my $copy = $_; $copy =~ s{ ( \| ) }{\\$1}gx; $copy } values %$searchReplaceHRef;

@@ -2000,7 +2000,7 @@ proto_register_oran(void)
          {"extType", "oran_fh_cus.extType",
           FT_UINT8, BASE_DEC,
           VALS(exttype_vals), 0x7f,
-          "The extension which which provides additional parameters specific to subject data extension",
+          "The extension type, which provides additional parameters specific to subject data extension",
           HFILL}
         },
 

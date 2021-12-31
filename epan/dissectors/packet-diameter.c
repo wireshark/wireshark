@@ -1689,7 +1689,7 @@ dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		call_dissector(data_handle, tvb, pinfo, tree);
 	} else if (is_diam == NOT_ENOUGH_DATA) {
 		/* Since we're doing our heuristic checks before
-		 * tcp_dissect_pdus() (since we we can't do heuristics once
+		 * tcp_dissect_pdus() (since we can't do heuristics once
 		 * we're in there) we sometimes have to ask for more data...
 		 */
                 pinfo->desegment_offset = 0;

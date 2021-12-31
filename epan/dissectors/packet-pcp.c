@@ -733,7 +733,7 @@ static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 */
 static int dissect_pcp_message_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    /* create a start tree tree to hold the information*/
+    /* create a start tree to hold the information*/
     proto_item *pcp_start_item;
     proto_tree *pcp_start_tree;
     guint32     status;

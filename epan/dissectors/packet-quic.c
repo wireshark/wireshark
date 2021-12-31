@@ -4555,7 +4555,7 @@ proto_register_quic(void)
         { &hf_quic_dg_length,
             { "Datagram Length", "quic.dg.length",
               FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Specifying the length of the the datagram in bytes", HFILL }
+              "Specifies the length of the datagram data in bytes", HFILL }
         },
         { &hf_quic_dg,
             { "Datagram", "quic.dg",

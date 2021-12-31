@@ -16,7 +16,7 @@
 
 /*
     This function extracts a field value (e.g. tcp.len) from a tree.  Because a packet may contain
-    multiple values for the the field the extracted values are returned in a result_array.  The
+    multiple values for the field, the extracted values are returned in a result_array.  The
     number of array entries is returned in element_count.
 
     Return is 0 if all went well.  If this function return -1 it is probably because the tree did not

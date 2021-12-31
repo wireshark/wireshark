@@ -542,7 +542,7 @@ proto_register_gre(void)
         { &hf_gre_flags_ack,
           { "Acknowledgment", "gre.flags.ack",
             FT_BOOLEAN, 16, TFS(&tfs_yes_no), GRE_ACK,
-            "Indicates if the packet packet contains Acknowledgment Number to be used for acknowledging previously transmitted data", HFILL }
+            "Indicates if the packet contains an Acknowledgment Number to be used for acknowledging previously transmitted data", HFILL }
         },
         { &hf_gre_flags_reserved,
           { "Flags (Reserved)", "gre.flags.reserved",

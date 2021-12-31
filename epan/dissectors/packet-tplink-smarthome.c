@@ -82,7 +82,7 @@ dissect_tplink_smarthome_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	if (pinfo->ptype == PT_TCP) {
 		proto_tree_add_item(tplink_smarthome_tree, hf_tplink_smarthome_Len,
-					tvb, 0, FRAME_HEADER_LEN, ENC_BIG_ENDIAN);		/* decode the the 4 byte message length field pre-pended in a TCP message, */
+					tvb, 0, FRAME_HEADER_LEN, ENC_BIG_ENDIAN);		/* decode the 4 byte message length field pre-pended in a TCP message, */
 	}
 	guint8	c, d;
 	guint8	key		= 171;

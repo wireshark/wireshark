@@ -3658,7 +3658,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
        * If we got a read error on the first pass, we still do the second
        * pass, so we can at least process the packets we read, and then
        * report the first-pass error after the second pass (and before
-       * we report any second-pass errors), so all the the errors show up
+       * we report any second-pass errors), so all the errors show up
        * at the end.
        */
       second_pass_status = process_cap_file_second_pass(cf, pdh, &err, &err_info,

@@ -3774,7 +3774,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_decryption_error_report_period_interval,
-            { "Decryption Error Report Report Interval (Sec)", "capwap.control.message_element.decryption_error_report_period.interval",
+            { "Decryption Error Report Period Interval (Sec)", "capwap.control.message_element.decryption_error_report_period.interval",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },

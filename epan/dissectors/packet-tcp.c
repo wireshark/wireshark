@@ -3450,7 +3450,7 @@ again:
          * retransmissions, but could there be a case where it prevents
          * "tcp_reassemble_out_of_order" from functioning due to skipping
          * retransmission of a lost segment?
-         * If the latter is enabled, it could use use "maxnextseq" for ignoring
+         * If the latter is enabled, it could use "maxnextseq" for ignoring
          * retransmitted single-segment PDUs (that would require storing
          * per-packet state (tcp_per_packet_data_t) to make it work for two-pass
          * and random access dissection). Retransmitted segments that are part

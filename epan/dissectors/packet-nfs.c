@@ -2401,7 +2401,7 @@ dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame)
 		tvbuff_t *tvb;
 		tvb = tvb_new_real_data(nfd->fh, nfd->len, nfd->len);
 		/* There's no need to call add_new_data_source() since
-		   dissect_fhandle(), in the the 'hidden' case, never refers
+		   dissect_fhandle(), in the 'hidden' case, never refers
 		   to the tvb when displaying a field based on the tvb */
 		dissect_fhandle_data(tvb, 0, pinfo, tree, nfd->len, TRUE, NULL);
 		tvb_free(tvb);

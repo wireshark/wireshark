@@ -1718,7 +1718,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * At this point, any chunked *transfer* coding has been removed
 		 * (the entity body has been dechunked) so it can be presented
 		 * for the following operation (*content* encoding), or it has
-		 * been been handed off to the data dissector.
+		 * been handed off to the data dissector.
 		 *
 		 * Handle *content* encodings other than "identity" (which
 		 * shouldn't appear in a Content-Encoding header, but
