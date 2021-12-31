@@ -516,18 +516,20 @@ English and C-like operators are interchangeable and can be mixed within a filte
 [[DispCompOps]]
 
 .Display Filter comparison operators
-[options="header",cols="1,1,1,4"]
+[options="header",cols="1,1,1,3,3"]
 |===
-|English|C-like|Description|Example
-|eq |== |Equal| `ip.src==10.0.0.5`
-|ne |!= |Not equal| `ip.src!=10.0.0.5`
-|gt |>  |Greater than| `frame.len > 10`
-|lt |<  |Less than| `frame.len < 128`
-|ge |>= |Greater than or equal to| `frame.len ge 0x100`
-|le |\<= |Less than or equal to| `frame.len \<= 0x20`
-|contains||Protocol, field or slice contains a value| `sip.To contains "a1762"`
-|matches|~|Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\\.(org\|com\|net)"`
-|bitwise_and|&|Bitwise AND is non-zero| `tcp.flags & 0x02`
+| English      | Alias    | C-like | Description                      | Example
+| eq           | any_eq   | ==     | Equal (any if more than one)     | `ip.src == 10.0.0.5`
+| ne           | all_ne   | !=     | Not equal (all if more than one) | `ip.src != 10.0.0.5`
+|              | all_eq   | ===    | Equal (all if more than one)     | `ip.src === 10.0.0.5`
+|              | any_ne   | !==    | Not equal (any if more than one) | `ip.src !== 10.0.0.5`
+| gt           |          | >      | Greater than                     | `frame.len > 10`
+| lt           |          | <      | Less than                        | `frame.len < 128`
+| ge           |          | >=     | Greater than or equal to         | `frame.len ge 0x100`
+| le           |          | \<=    | Less than or equal to            | `frame.len \<= 0x20`
+| contains     |          |        | Protocol, field or slice contains a value | `sip.To contains "a1762"`
+| matches      |          | ~      | Protocol or text field matches a Perl-compatible regular expression| `http.host matches "acme\\.(org\|com\|net)"`
+| bitwise_and  |          | &      | Bitwise AND is non-zero          | `tcp.flags & 0x02`
 |===
 
 All protocol fields have a type. <<ChWorkFieldTypes>> provides a list

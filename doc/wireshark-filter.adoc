@@ -67,10 +67,17 @@ abbreviations or through C-like symbols:
 
 The ordering depends on the value type in the usual way (e.g., lexicographic
 for strings and arithmetic for integers.)  A field may appear more than once
-in a given frame.  In general, if any appearance of a field has a value that
-satisfies its operator, then the expression evaluates to true.  The one
-exception is the "!=" operator, which asserts that _all_ appearances of a field
-are not equal to a value, making it the logical negation of the "==" operator.footnote:[This differs from previous, deprecated behavior.  To obtain the old behavior, which was true if any appearance was not equal, use the "any_ne", "~=" operator.]
+in a given frame.  In that case equality can be strict (all fields must match
+the condition) or not (any field must match the condition). The inequality is
+the logical negation of equality. The following table contains all equality
+operators, their aliases and meaning:
+
+    eq, any_eq, ==    Any field must be equal
+    ne, all_ne, !=    All fields must be not equal
+        all_eq, ===   All fields must be equal
+        any_ne, !==   Any fields must be not equal
+
+The operator !== (any_ne) can also be written as ~=.
 
 === Search and match operators
 
