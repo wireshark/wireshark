@@ -25,8 +25,6 @@
 #include <wsutil/plugins.h>
 #endif
 
-static gboolean wiretap_initialized = FALSE;
-
 #ifdef HAVE_PLUGINS
 static plugins_t *libwiretap_plugins = NULL;
 #endif
@@ -1840,9 +1838,6 @@ wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
 void
 wtap_init(gboolean load_wiretap_plugins)
 {
-	if (wiretap_initialized)
-		return;
-
 	init_open_routines();
 	wtap_opttypes_initialize();
 	wtap_init_encap_types();
@@ -1853,7 +1848,6 @@ wtap_init(gboolean load_wiretap_plugins)
 #endif
 		g_slist_foreach(wtap_plugins, call_plugin_register_wtap_module, NULL);
 	}
-	wiretap_initialized = TRUE;
 }
 
 /*
@@ -1862,9 +1856,6 @@ wtap_init(gboolean load_wiretap_plugins)
 void
 wtap_cleanup(void)
 {
-	if (!wiretap_initialized)
-		return;
-
 	wtap_cleanup_encap_types();
 	wtap_opttypes_cleanup();
 	ws_buffer_cleanup();
@@ -1875,7 +1866,6 @@ wtap_cleanup(void)
 	plugins_cleanup(libwiretap_plugins);
 	libwiretap_plugins = NULL;
 #endif
-	wiretap_initialized = FALSE;
 }
 
 /*
