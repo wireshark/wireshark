@@ -129,6 +129,7 @@ static int hf_bthci_cmd_cod_major_service_class_rendering_mask = -1;
 static int hf_bthci_cmd_cod_major_service_class_networking_mask = -1;
 static int hf_bthci_cmd_cod_major_service_class_positioning_mask = -1;
 static int hf_bthci_cmd_cod_major_service_class_reserved_mask = -1;
+static int hf_bthci_cmd_cod_major_service_class_le_audio_mask = -1;
 static int hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode_mask = -1;
 static int hf_bthci_cmd_cod_major_device_class_mask = -1;
 static int hf_bthci_cmd_auto_acc_flag = -1;
@@ -954,6 +955,7 @@ static gint hf_btcommon_cod_major_service_class_rendering = -1;
 static gint hf_btcommon_cod_major_service_class_networking = -1;
 static gint hf_btcommon_cod_major_service_class_positioning = -1;
 static gint hf_btcommon_cod_major_service_class_reserved = -1;
+static gint hf_btcommon_cod_major_service_class_le_audio = -1;
 static gint hf_btcommon_cod_major_service_class_limited_discoverable_mode = -1;
 static gint hf_btcommon_cod_major_device_class = -1;
 static gint hf_btcommon_cod_minor_device_class_computer = -1;
@@ -2638,6 +2640,7 @@ dissect_bthci_cmd_cod_mask(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
     proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_networking_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_positioning_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_reserved_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_le_audio_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
     proto_tree_add_item(cod_mask_tree, hf_bthci_cmd_cod_major_device_class_mask, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6363,7 +6366,12 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_cod_major_service_class_reserved_mask,
           { "Major Service Classes Mask: Reserved", "bthci_cmd.class_of_device_mask.major_service_classes.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0x00C0,
+            FT_UINT16, BASE_HEX, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_cod_major_service_class_le_audio_mask,
+          { "Major Service Classes Mask: LE Audio", "bthci_cmd.class_of_device_mask.major_service_classes.le_audio",
+            FT_UINT16, BASE_HEX, NULL, 0x0040,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_cod_major_service_class_limited_discoverable_mode_mask,
@@ -9653,6 +9661,7 @@ dissect_btcommon_cod(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_networking, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_positioning, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_le_audio, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cod_tree, hf_btcommon_cod_major_service_class_limited_discoverable_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     major_service_classes = tvb_get_letohs(tvb, offset) >> 5;
 
@@ -10507,7 +10516,12 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_cod_major_service_class_reserved,
           { "Major Service Classes: Reserved", "btcommon.cod.major_service_classes.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0x00C0,
+            FT_UINT16, BASE_HEX, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_cod_major_service_class_le_audio,
+          { "Major Service Classes: LE Audio", "btcommon.cod.major_service_classes.le_audio",
+            FT_UINT16, BASE_HEX, NULL, 0x0040,
             NULL, HFILL }
         },
         { &hf_btcommon_cod_major_service_class_limited_discoverable_mode,
