@@ -702,7 +702,7 @@ sub parselicense {
 		}
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+BSD-1-Clause/i) {
-			$license = 'BSD';
+			$license = 'BSD (1 clause)';
 		}
 
 		if ($licensetext =~ /SPDX-License-Identifier:\s+MIT/i) {
