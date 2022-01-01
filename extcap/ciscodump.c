@@ -27,7 +27,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include "wsutil/strptime.h"
+#include <wsutil/time_util.h>
 
 #include <cli_main.h>
 
@@ -382,9 +382,6 @@ static gboolean ssh_channel_wait_prompt_check_error(ssh_channel channel, char *l
 
 static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const char* cfilter)
 {
-	char line[SSH_READ_BLOCK_SIZE + 1];
-	guint32 len;
-	int status;
 	gchar* iface_copy = g_strdup(iface);
 	gchar* iface_one;
 	gchar* str = NULL;
@@ -394,25 +391,7 @@ static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const 
 	end_application = FALSE;
 	if (channel) {
 		ws_debug("Removing configuration...");
-
-		/* Empty line to see prompt as soon as possible */
-		ssh_channel_printf(channel, "\n", WIRESHARK_CAPTURE_POINT);
-
-		/* Discard any input including running packet dump */
-		len = 0;
-		do {
-			switch (status = ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
-				case READ_PROMPT_EOLN:
-					len = 0;
-					break;
-				case READ_PROMPT_PROMPT:
-					break;
-				default:
-					/* We do not have better solution for that cases */
-					ws_warning("Timeout or response was too long\n");
-					break;
-			}
-		} while (status == READ_PROMPT_EOLN);
+		read_output_bytes(channel, -1, NULL);
 
 		wscp_cnt = 1;
 		for (str = iface_copy; ; str = NULL) {
@@ -436,6 +415,7 @@ static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const 
 			ssh_channel_printf(channel, "no ip access-list ex %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
 		}
 
+		read_output_bytes(channel, -1, NULL);
 		ws_debug("Configuration removed");
 	}
 
@@ -444,42 +424,19 @@ static void ciscodump_cleanup_ios(ssh_channel channel, const char* iface, const 
 
 static void ciscodump_cleanup_ios_xe(ssh_channel channel, const char* cfilter)
 {
-	char line[SSH_READ_BLOCK_SIZE + 1];
-	guint32 len;
-	int status;
-
 	if (channel) {
 		ws_debug("Removing configuration...");
+		read_output_bytes(channel, -1, NULL);
 
-		/* Empty line to see prompt as soon as possible */
-		ssh_channel_printf(channel, "\n", WIRESHARK_CAPTURE_POINT);
-
-		/* Discard any input including running packet dump */
-		len = 0;
-		do {
-			switch (status = ssh_channel_read_prompt(channel, line, &len, SSH_READ_BLOCK_SIZE)) {
-				case READ_PROMPT_EOLN:
-					len = 0;
-					break;
-				case READ_PROMPT_PROMPT:
-					break;
-				default:
-					/* We do not have better solution for that cases */
-					ws_warning("Timeout or response was too long\n");
-					break;
-			}
-		} while (status == READ_PROMPT_EOLN);
-
-		if (read_output_bytes(channel, -1, NULL) == EXIT_SUCCESS) {
-			ssh_channel_printf(channel, "monitor capture %s stop\n", WIRESHARK_CAPTURE);
-			ssh_channel_printf(channel, "no monitor capture %s\n", WIRESHARK_CAPTURE);
-			if (cfilter) {
-				ssh_channel_printf(channel, "configure terminal\n");
-				ssh_channel_printf(channel, "no ip access-list extended %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
-				ssh_channel_printf(channel, "\nend\n");
-			}
+		ssh_channel_printf(channel, "monitor capture %s stop\n", WIRESHARK_CAPTURE);
+		ssh_channel_printf(channel, "no monitor capture %s\n", WIRESHARK_CAPTURE);
+		if (cfilter) {
+			ssh_channel_printf(channel, "configure terminal\n");
+			ssh_channel_printf(channel, "no ip access-list extended %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+			ssh_channel_printf(channel, "\nend\n");
 		}
 
+		read_output_bytes(channel, -1, NULL);
 		ws_debug("Configuration removed");
 	}
 }
@@ -488,21 +445,21 @@ static void ciscodump_cleanup_asa(ssh_channel channel, const char* cfilter)
 {
 	if (channel) {
 		ws_debug("Removing configuration...");
+		read_output_bytes(channel, -1, NULL);
 
-		if (read_output_bytes(channel, -1, NULL) == EXIT_SUCCESS) {
-			ssh_channel_printf(channel, "no capture %s\n", WIRESHARK_CAPTURE);
-			if (cfilter) {
-				ssh_channel_printf(channel, "configure terminal\n");
-				ssh_channel_printf(channel, "clear configure access-list %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
-				ssh_channel_printf(channel, "\nend\n", WIRESHARK_CAPTURE_ACCESSLIST);
-			}
+		ssh_channel_printf(channel, "no capture %s\n", WIRESHARK_CAPTURE);
+		if (cfilter) {
+			ssh_channel_printf(channel, "configure terminal\n");
+			ssh_channel_printf(channel, "clear configure access-list %s\n", WIRESHARK_CAPTURE_ACCESSLIST);
+			ssh_channel_printf(channel, "\nend\n", WIRESHARK_CAPTURE_ACCESSLIST);
 		}
 
+		read_output_bytes(channel, -1, NULL);
 		ws_debug("Configuration removed");
 	}
 }
 
-static void ciscodump_cleanup(ssh_session sshs, ssh_channel channel, const char* iface, const char* cfilter, CISCO_SW_TYPE sw_type)
+static void ciscodump_cleanup(ssh_channel channel, const char* iface, const char* cfilter, CISCO_SW_TYPE sw_type)
 {
 	ws_debug("Starting config cleanup");
 	switch (sw_type) {
@@ -519,8 +476,6 @@ static void ciscodump_cleanup(ssh_session sshs, ssh_channel channel, const char*
 			break;
 	}
 	ws_debug("Config cleanup finished");
-	read_output_bytes_any(channel, -1, NULL);
-	ssh_cleanup(&sshs, &channel);
 }
 
 static void packets_captured_count_ios(char *line, guint32 *max, gboolean *running) {
@@ -660,10 +615,10 @@ static int parse_line_ios(guint8* packet, unsigned* offset, char* line, int stat
 
 		memset(&tm, 0x0, sizeof(struct tm));
 
-		cp = strptime(d1, "%H:%M:%S %Z %b %d %Y", &tm);
+		cp = ws_strptime(d1, "%H:%M:%S %Z %b %d %Y", &tm);
 		if (!cp || (*cp != '\0')) {
 			/* Time zone parse failed */
-			cp = strptime(d2, "%H:%M:%S %b %d %Y", &tm);
+			cp = ws_strptime(d2, "%H:%M:%S %b %d %Y", &tm);
 			if (!cp || (*cp != '\0')) {
 				/* Time parse failed, use now */
 				time_t t;
@@ -1395,7 +1350,7 @@ static int check_ios_version(ssh_channel channel, CISCO_SW_TYPE *sw_type)
 	return FALSE;
 }
 
-static ssh_channel run_capture_ios(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
+static gboolean run_capture_ios(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
 {
 	char* cmdline = NULL;
 	int ret = 0;
@@ -1532,20 +1487,19 @@ static ssh_channel run_capture_ios(ssh_channel channel, const char* iface, const
 	}
 
 	g_free(iface_copy);
-	return channel;
+	return TRUE;
 error:
 	g_free(wscp_str);
 	g_free(iface_copy);
 	g_free(cmdline);
 	ws_warning("Error running ssh remote command");
-	read_output_bytes(channel, -1, NULL);
 
 	ssh_channel_close(channel);
 	ssh_channel_free(channel);
-	return NULL;
+	return FALSE;
 }
 
-static ssh_channel run_capture_ios_xe(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
+static gboolean run_capture_ios_xe(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count)
 {
 	int ret = 0;
 	char line[SSH_READ_BLOCK_SIZE + 1];
@@ -1655,18 +1609,17 @@ static ssh_channel run_capture_ios_xe(ssh_channel channel, const char* iface, co
 	}
 
 	g_free(iface_copy);
-	return channel;
+	return TRUE;
 error:
 	g_free(iface_copy);
 	ws_warning("Error running ssh remote command");
-	read_output_bytes(channel, -1, NULL);
 
 	ssh_channel_close(channel);
 	ssh_channel_free(channel);
-	return NULL;
+	return FALSE;
 }
 
-static ssh_channel run_capture_asa(ssh_channel channel, const char* iface, const char* cfilter)
+static gboolean run_capture_asa(ssh_channel channel, const char* iface, const char* cfilter)
 {
 	char* cmdline = NULL;
 	char line[SSH_READ_BLOCK_SIZE + 1];
@@ -1804,19 +1757,18 @@ static ssh_channel run_capture_asa(ssh_channel channel, const char* iface, const
 	}
 
 	g_free(iface_copy);
-	return channel;
+	return TRUE;
 error:
 	g_free(iface_copy);
 	g_free(cmdline);
 	ws_warning("Error running ssh remote command");
-	read_output_bytes(channel, -1, NULL);
 
 	ssh_channel_close(channel);
 	ssh_channel_free(channel);
-	return NULL;
+	return FALSE;
 }
 
-static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* cfilter, const guint32 count, CISCO_SW_TYPE *sw_type)
+static ssh_channel open_channel(ssh_session sshs)
 {
 	ssh_channel channel;
 
@@ -1836,6 +1788,18 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 	if (ssh_channel_request_shell(channel) != SSH_OK)
 		goto error;
 
+	return channel;
+
+error:
+	ws_warning("Error running ssh remote command");
+
+	ssh_channel_close(channel);
+	ssh_channel_free(channel);
+	return NULL;
+}
+
+static gboolean run_capture(ssh_channel channel, const char* iface, const char* cfilter, const guint32 count, CISCO_SW_TYPE *sw_type)
+{
 	if (!detect_host_prompt(channel))
 		goto error;
 
@@ -1851,16 +1815,15 @@ static ssh_channel run_capture(ssh_session sshs, const char* iface, const char* 
 			return run_capture_asa(channel, iface, cfilter);
 		case CISCO_UNKNOWN:
 			ws_warning("Unsupported cisco software. It will not collect any data most probably!");
-			break;
+			return FALSE;
 	}
 
 error:
 	ws_warning("Error running ssh remote command");
-	read_output_bytes(channel, -1, NULL);
 
 	ssh_channel_close(channel);
 	ssh_channel_free(channel);
-	return NULL;
+	return FALSE;
 }
 
 static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char* iface, const char* cfilter,
@@ -1882,12 +1845,6 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 			ws_warning("Error creating output file: %s", g_strerror(errno));
 			return EXIT_FAILURE;
 		}
-	}
-
-	sshs = create_ssh_connection(ssh_params, &err_info);
-	if (!sshs) {
-		ws_warning("Error creating connection: %s", err_info);
-		goto cleanup;
 	}
 
 #ifdef _WIN32
@@ -1916,8 +1873,20 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 		goto cleanup;
 	}
 
-	channel = run_capture(sshs, iface, cfilter, count, &sw_type);
+	ws_debug("Create first ssh session");
+	sshs = create_ssh_connection(ssh_params, &err_info);
+	if (!sshs) {
+		ws_warning("Error creating connection: %s", err_info);
+		goto cleanup;
+	}
+
+	channel = open_channel(sshs);
 	if (!channel) {
+		ret = EXIT_FAILURE;
+		goto cleanup;
+	}
+
+	if (!run_capture(channel, iface, cfilter, count, &sw_type)) {
 		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
@@ -1925,8 +1894,35 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 	/* read from channel and write into fp */
 	ssh_loop_read(channel, fp, count, sw_type);
 
+	/* Read loop can be terminated by signal or QUIT command in
+	 * mid of long "show" command and its reading can take really
+	 * long time. So we terminate ssh session and then
+	 * create new one to cleanup configuration
+	 */
+	ws_debug("Disconnect first ssh session");
+	ssh_channel_close(channel);
+	ssh_channel_free(channel);
+	ssh_cleanup(&sshs, &channel);
+
+	ws_debug("Create second ssh session");
+	sshs = create_ssh_connection(ssh_params, &err_info);
+	if (!sshs) {
+		ws_warning("Error creating connection: %s", err_info);
+		goto cleanup;
+	}
+
+	channel = open_channel(sshs);
+	if (!channel) {
+		ret = EXIT_FAILURE;
+		goto cleanup;
+	}
+
 	/* clean up and exit */
-	ciscodump_cleanup(sshs, channel, iface, cfilter, sw_type);
+	ciscodump_cleanup(channel, iface, cfilter, sw_type);
+
+	ssh_channel_close(channel);
+	ssh_channel_free(channel);
+	ssh_cleanup(&sshs, &channel);
 
 	ret = EXIT_SUCCESS;
 cleanup:
