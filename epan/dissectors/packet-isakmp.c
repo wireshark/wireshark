@@ -2739,7 +2739,7 @@ static const guint8 VID_CISCO_FRAG[] = { /* Cisco Fragmentation */
         0x80, 0x00, 0x00, 0x00
 };
 
-static const guint8 VID_CISCO_FLEXVPN_SUPPORTED[] = { /* "FLEXVPN-SUPPORTED" */
+static const guint8 VID_CISCO_FLEXVPN_SUPPORTED[] = { /* FLEXVPN-SUPPORTED */
         0x46, 0x4c, 0x45, 0x58, 0x56, 0x50, 0x4e, 0x2d,
         0x53, 0x55, 0x50, 0x50, 0x4f, 0x52, 0x54, 0x45,
         0x44
@@ -2749,6 +2749,17 @@ static const guint8 VID_CISCO_DELETE_REASON[] = { /* CISCO-DELETE-REASON */
         0x43, 0x49, 0x53, 0x43, 0x4f, 0x2d, 0x44, 0x45,
         0x4c, 0x45, 0x54, 0x45, 0x2d, 0x52, 0x45, 0x41,
         0x53, 0x4f, 0x4e
+};
+
+static const guint8 VID_CISCO_DYNAMIC_ROUTE[] = { /* CISCO-DYNAMIC-ROUTE */
+        0x43, 0x49, 0x53, 0x43, 0x4f, 0x2d, 0x44, 0x59,
+        0x4e, 0x41, 0x4d, 0x49, 0x43, 0x2d, 0x52, 0x4f,
+        0x55, 0x54, 0x45
+};
+
+static const guint8 VID_CISCO_VPN_REV_02[] = { /* CISCO-VPN-REV-02 */
+        0x43, 0x49, 0x53, 0x43, 0x4f, 0x56, 0x50, 0x4e,
+        0x2d, 0x52, 0x45, 0x56, 0x2d, 0x30, 0x32
 };
 
 /* CISCO(COPYRIGHT)&Copyright (c) 2009 Cisco Systems, Inc. */
@@ -3041,6 +3052,8 @@ static const bytes_string vendor_id[] = {
   { VID_CISCO_FRAG2, sizeof(VID_CISCO_FRAG2), "Cisco Fragmentation" },
   { VID_CISCO_FLEXVPN_SUPPORTED, sizeof(VID_CISCO_FLEXVPN_SUPPORTED), "Cisco FlexVPN Supported" },
   { VID_CISCO_DELETE_REASON, sizeof(VID_CISCO_DELETE_REASON), "Cisco Delete Reason Supported"},
+  { VID_CISCO_DYNAMIC_ROUTE, sizeof(VID_CISCO_DYNAMIC_ROUTE), "Cisco Dynamic Route Supported"},
+  { VID_CISCO_VPN_REV_02, sizeof(VID_CISCO_VPN_REV_02), "Cisco VPN Revision 2"},
   { VID_CISCO_COPYRIGHT, sizeof(VID_CISCO_COPYRIGHT), "Cisco Copyright"},
   { VID_CISCO_GRE_MODE, sizeof(VID_CISCO_GRE_MODE), "Cisco GRE Mode Supported"},
   { VID_MS_VID_INITIAL_CONTACT, sizeof(VID_MS_VID_INITIAL_CONTACT), "Microsoft Vid-Initial-Contact" },
