@@ -188,6 +188,17 @@ const QColor ColorUtils::contrastingTextColor(const QColor color)
     return QApplication::palette().base().color();
 }
 
+const QColor ColorUtils::hoverBackground()
+{
+    QPalette hover_palette = QApplication::palette();
+#if defined(Q_OS_MAC)
+    hover_palette.setCurrentColorGroup(QPalette::Active);
+    return hover_palette.highlight().color();
+#else
+    return ColorUtils::alphaBlend(hover_palette.window(), hover_palette.highlight(), 0.5);
+#endif
+}
+
 const QColor ColorUtils::warningBackground()
 {
     if (themeIsDark()) {

@@ -305,19 +305,11 @@ void PacketList::colorsChanged()
 
     QString hover_style;
 #if !defined(Q_OS_WIN)
-#if defined(Q_OS_MAC)
-    QPalette default_pal = QApplication::palette();
-    default_pal.setCurrentColorGroup(QPalette::Active);
-    QColor hover_color = default_pal.highlight().color();
-#else
-    QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
-#endif
-
     hover_style = QString(
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"
-        "}").arg(hover_color.name(QColor::HexArgb));
+        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
 #endif
 
     QString active_style   = QString();

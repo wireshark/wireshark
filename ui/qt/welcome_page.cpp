@@ -427,8 +427,6 @@ void WelcomePage::on_helpLabel_clicked()
 
 void WelcomePage::updateStyleSheets()
 {
-    QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
-
     QString welcome_ss = QString(
                 "WelcomePage {"
                 "  padding: 1em;"
@@ -448,7 +446,7 @@ void WelcomePage::updateStyleSheets()
                 "  color: palette(text);"
                 "}"
                 )
-            .arg(hover_color.name());
+            .arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
 #endif
     setStyleSheet(welcome_ss);
 

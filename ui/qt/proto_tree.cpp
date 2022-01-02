@@ -62,19 +62,11 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     setHeaderHidden(true);
 
 #if !defined(Q_OS_WIN)
-#if defined(Q_OS_MAC)
-    QPalette default_pal = QApplication::palette();
-    default_pal.setCurrentColorGroup(QPalette::Active);
-    QColor hover_color = default_pal.highlight().color();
-#else
-    QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
-#endif
-
     setStyleSheet(QString(
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"
-        "}").arg(hover_color.name(QColor::HexArgb)));
+        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb)));
 #endif
 
     // Shrink down to a small but nonzero size in the main splitter.

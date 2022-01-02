@@ -71,6 +71,12 @@ public:
     static const QColor contrastingTextColor(const QColor color);
 
     /**
+     * Returns an appropriate background color for hovered abstract items.
+     * @return The background color.
+     */
+    static const QColor hoverBackground();
+
+    /**
      * Returns an appropriate warning background color for the current mode.
      * @return The background color.
      */
