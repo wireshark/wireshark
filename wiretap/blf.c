@@ -4,7 +4,7 @@
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * File format support for blf file format
- * Copyright (c) 2021 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright (c) 2021-2022 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -108,36 +108,40 @@ blf_calc_key_value(int pkt_encap, guint32 channel) {
     return ((gint64)pkt_encap << 32) | channel;
 }
 
-static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint32 channel) {
-    switch (pkt_encap) {
-    case WTAP_ENCAP_ETHERNET:
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%d", channel);
-        break;
-    case WTAP_ENCAP_IEEE_802_11:
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "WLAN-%d", channel);
-        break;
-    case WTAP_ENCAP_FLEXRAY:
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "FR-%d", channel);
-        break;
-    case WTAP_ENCAP_LIN:
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "LIN-%d", channel);
-        break;
-    case WTAP_ENCAP_SOCKETCAN:
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "CAN-%d", channel);
-        break;
-    default:
-        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "0x%04x-%d", pkt_encap, channel);
+static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint32 channel, gchar *name) {
+    if (name != NULL) {
+        wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, name, channel);
+    } else {
+        switch (pkt_encap) {
+        case WTAP_ENCAP_ETHERNET:
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%d", channel);
+            break;
+        case WTAP_ENCAP_IEEE_802_11:
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "WLAN-%d", channel);
+            break;
+        case WTAP_ENCAP_FLEXRAY:
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "FR-%d", channel);
+            break;
+        case WTAP_ENCAP_LIN:
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "LIN-%d", channel);
+            break;
+        case WTAP_ENCAP_SOCKETCAN:
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "CAN-%d", channel);
+            break;
+        default:
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "0x%04x-%d", pkt_encap, channel);
+        }
     }
 }
 
 static guint32
-blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
+blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel, gchar *name) {
     wtap_block_t int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
     wtapng_if_descr_mandatory_t *if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     blf_channel_to_iface_entry_t *item = NULL;
 
     if_descr_mand->wtap_encap = pkt_encap;
-    add_interface_name(&int_data, pkt_encap, channel);
+    add_interface_name(&int_data, pkt_encap, channel, name);
     if_descr_mand->time_units_per_second = 1000 * 1000 * 1000;
     if_descr_mand->tsprecision = WTAP_TSPREC_NSEC;
     wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
@@ -168,7 +172,7 @@ blf_add_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
 }
 
 static guint32
-blf_lookup_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
+blf_lookup_interface(blf_params_t *params, int pkt_encap, guint32 channel, gchar *name) {
     gint64 key = blf_calc_key_value(pkt_encap, channel);
     blf_channel_to_iface_entry_t *item = NULL;
 
@@ -181,7 +185,7 @@ blf_lookup_interface(blf_params_t *params, int pkt_encap, guint32 channel) {
     if (item != NULL) {
         return item->interface_id;
     } else {
-        return blf_add_interface(params, pkt_encap, channel);
+        return blf_add_interface(params, pkt_encap, channel, name);
     }
 }
 
@@ -357,6 +361,14 @@ static void
 fix_endianness_blf_linmessage_trailer(blf_linmessage_trailer_t *header) {
     header->crc = GUINT16_FROM_LE(header->crc);
     header->res2 = GUINT32_FROM_LE(header->res2);
+}
+
+static void
+fix_endianness_blf_apptext_header(blf_apptext_t *header) {
+    header->source = GUINT32_FROM_LE(header->source);
+    header->reservedAppText1 = GUINT32_FROM_LE(header->reservedAppText1);
+    header->textLength = GUINT32_FROM_LE(header->textLength);
+    header->reservedAppText2 = GUINT32_FROM_LE(header->reservedAppText2);
 }
 
 static guint64
@@ -767,7 +779,7 @@ blf_init_rec(blf_params_t *params, blf_logobjectheader_t *header, int pkt_encap,
     params->rec->rec_header.packet_header.len = len;
 
     params->rec->rec_header.packet_header.pkt_encap = pkt_encap;
-    params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel);
+    params->rec->rec_header.packet_header.interface_id = blf_lookup_interface(params, pkt_encap, channel, NULL);
 
     /* TODO: before we had to remove comments and verdict here to not leak memory but APIs have changed ... */
 }
@@ -1577,6 +1589,86 @@ blf_read_linmessage(blf_params_t *params, int *err, gchar **err_info, gint64 blo
 }
 
 static gboolean
+blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64 block_start, gint64 header2_start, gint64 data_start, gint64 object_length) {
+    blf_logobjectheader_t    logheader;
+    blf_apptext_t            apptextheader;
+
+    if (!blf_read_log_object_header(params, err, err_info, header2_start, data_start, &logheader)) {
+        return FALSE;
+    }
+
+    if (object_length < (data_start - block_start) + (int)sizeof(apptextheader)) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = ws_strdup_printf("blf: APP_TEXT: not enough bytes for apptext header in object");
+        ws_debug("not enough bytes for apptext header in object");
+        return FALSE;
+    }
+
+    if (!blf_read_bytes(params, data_start, &apptextheader, sizeof(apptextheader), err, err_info)) {
+        ws_debug("not enough bytes for apptext header in file");
+        return FALSE;
+    }
+    fix_endianness_blf_apptext_header(&apptextheader);
+
+    if (apptextheader.source != BLF_APPTEXT_CHANNEL) {
+        return TRUE;
+    }
+
+    gchar *text = g_try_malloc0((gsize)apptextheader.textLength);
+
+    if (!blf_read_bytes(params, data_start + sizeof(apptextheader), text, apptextheader.textLength, err, err_info)) {
+        ws_debug("not enough bytes for apptext text in file");
+        return FALSE;
+    }
+
+    /* returns a NULL terminated array of NULL terminates strings */
+    gchar **tokens = g_strsplit_set(text, ";", -1);
+
+    if ( tokens == NULL || tokens[0] == NULL || tokens[1] == NULL) {
+        if (tokens != NULL) {
+            g_strfreev(tokens);
+        }
+        g_free(text);
+        return TRUE;
+    }
+
+    guint32 channel = (apptextheader.reservedAppText1 >> 8) & 0xff;
+
+    int pkt_encap;
+    switch ((apptextheader.reservedAppText1 >> 16) & 0xff) {
+    case BLF_BUSTYPE_CAN:
+        pkt_encap = WTAP_ENCAP_SOCKETCAN;
+        break;
+
+    case BLF_BUSTYPE_FLEXRAY:
+        pkt_encap = WTAP_ENCAP_FLEXRAY;
+        break;
+
+    case BLF_BUSTYPE_LIN:
+        pkt_encap = WTAP_ENCAP_LIN;
+        break;
+
+    case BLF_BUSTYPE_ETHERNET:
+        pkt_encap = WTAP_ENCAP_ETHERNET;
+        break;
+
+    case BLF_BUSTYPE_WLAN:
+        pkt_encap = WTAP_ENCAP_IEEE_802_11;
+        break;
+
+    default:
+        pkt_encap = 0xffffffff;
+    }
+
+    /* we use lookup to create interface, if not existing yet */
+    blf_lookup_interface(params, pkt_encap, channel, tokens[1]);
+
+    g_strfreev(tokens);
+    g_free(text);
+    return TRUE;
+}
+
+static gboolean
 blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_info) {
     blf_blockheader_t header;
 
@@ -1688,6 +1780,17 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
         case BLF_OBJTYPE_LIN_MESSAGE:
             return blf_read_linmessage(params, err, err_info, start_pos, start_pos + sizeof(blf_blockheader_t),
                                        start_pos + header.header_length, header.object_length);
+            break;
+
+        case BLF_OBJTYPE_APP_TEXT:
+            if (!blf_read_apptextmessage(params, err, err_info, start_pos, start_pos + sizeof(blf_blockheader_t),
+                start_pos + header.header_length, header.object_length)) {
+                /* we only return errors */
+                return FALSE;
+            }
+
+            /* we do not return since there is no packet to show here */
+            start_pos += header.object_length;
             break;
 
         default:

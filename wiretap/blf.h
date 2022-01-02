@@ -2,7 +2,7 @@
  *
  * BLF file format decoder for the Wiretap library.
  *
- * Copyright (c) 2021 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright (c) 2021-2022 by Dr. Lars Voelker <lars.voelker@technica-engineering.de>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -365,6 +365,30 @@ typedef struct blf_linmessage_trailer {
     guint8  res1;
     guint32 res2;
 } blf_linmessage_trailer_t;
+
+
+/* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/AppText.h */
+
+typedef struct blf_apptext {
+    guint32 source;
+    guint32 reservedAppText1;
+    guint32 textLength;
+    guint32 reservedAppText2;
+} blf_apptext_t;
+
+#define BLF_APPTEXT_COMMENT  0x00000000
+#define BLF_APPTEXT_CHANNEL  0x00000001
+#define BLF_APPTEXT_METADATA 0x00000002
+
+#define BLF_BUSTYPE_CAN 1
+#define BLF_BUSTYPE_LIN 5
+#define BLF_BUSTYPE_MOST 6
+#define BLF_BUSTYPE_FLEXRAY 7
+#define BLF_BUSTYPE_J1708 9
+#define BLF_BUSTYPE_ETHERNET 11
+#define BLF_BUSTYPE_WLAN 13
+#define BLF_BUSTYPE_AFDX 14
+
 
 /* see https://bitbucket.org/tobylorenz/vector_blf/src/master/src/Vector/BLF/ObjectHeaderBase.h */
 
