@@ -308,6 +308,9 @@ comment #[^\n]*\n
 	guint save_colnum = yyextra->colnum;
 	yyextra->colnum++;
 	while (yyextra->colnum < yyextra->uat->ncols) {
+		if (!yyextra->uat->default_values) {
+			break;
+		}
 		const char *default_value = yyextra->uat->default_values[yyextra->colnum];
 		if (!default_value) {
 			break;
