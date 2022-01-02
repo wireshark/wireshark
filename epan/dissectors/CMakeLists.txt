@@ -329,6 +329,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-diameter_3gpp.h
 	packet-diffserv-mpls-common.h
 	packet-disp.h
+	packet-dlt.h
 	packet-dns.h
 	packet-docsis-tlv.h
 	packet-doip.h

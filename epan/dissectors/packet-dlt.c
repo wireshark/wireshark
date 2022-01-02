@@ -1,7 +1,7 @@
 /* packet-dlt.c
  * DLT Dissector
- * By Dr. Lars Voelker <lars-github@larsvoelker.de> / <lars.voelker@bmw.de> / <lars.voelker@technica-engineering.de>
- * Copyright 2013-2020 Dr. Lars Voelker
+ * By Dr. Lars Voelker <lars.voelker@bmw.de> / <lars.voelker@technica-engineering.de>
+ * Copyright 2013-2022 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -15,6 +15,8 @@
  * - GENIVI Alliance (https://www.genivi.org and https://github.com/GENIVI/)
  * - AUTOSAR (https://www.autosar.org) -> AUTOSAR_SWS_DiagnosticLogAndTrace.pdf
  */
+
+/* This dissector currently only supports Version 1 of DLT. */
 
 #include <config.h>
 
@@ -30,6 +32,8 @@
 
 #include <epan/to_str.h>
 #include <epan/uat.h>
+
+#include <epan/dissectors/packet-dlt.h>
 
 void proto_register_dlt(void);
 void proto_reg_handoff_dlt(void);
@@ -50,30 +54,6 @@ void proto_reg_handoff_dlt(void);
 #define DLT_MSG_INFO_MSG_TYPE                           0x0e
 #define DLT_MSG_INFO_MSG_TYPE_INFO                      0xf0
 #define DLT_MSG_INFO_MSG_TYPE_INFO_COMB                 0xfe
-
-#define DLT_MSG_TYPE_LOG_MSG                            0x0
-#define DLT_MSG_TYPE_TRACE_MSG                          0x1
-#define DLT_MSG_TYPE_NETWORK_MSG                        0x2
-#define DLT_MSG_TYPE_CTRL_MSG                           0x3
-
-#define DLT_MSG_TYPE_INFO_LOG_FATAL                     0x10
-#define DLT_MSG_TYPE_INFO_LOG_ERROR                     0x20
-#define DLT_MSG_TYPE_INFO_LOG_WARN                      0x30
-#define DLT_MSG_TYPE_INFO_LOG_INFO                      0x40
-#define DLT_MSG_TYPE_INFO_LOG_DEBUG                     0x50
-#define DLT_MSG_TYPE_INFO_LOG_VERBOSE                   0x60
-#define DLT_MSG_TYPE_INFO_TRACE_VAR                     0x12
-#define DLT_MSG_TYPE_INFO_TRACE_FUNC_IN                 0x22
-#define DLT_MSG_TYPE_INFO_TRACE_FUNC_OUT                0x32
-#define DLT_MSG_TYPE_INFO_TRACE_STATE                   0x42
-#define DLT_MSG_TYPE_INFO_TRACE_VFB                     0x52
-#define DLT_MSG_TYPE_INFO_NET_IPC                       0x14
-#define DLT_MSG_TYPE_INFO_NET_CAN                       0x24
-#define DLT_MSG_TYPE_INFO_NET_FLEXRAY                   0x34
-#define DLT_MSG_TYPE_INFO_NET_MOST                      0x46
-#define DLT_MSG_TYPE_INFO_CTRL_REQ                      0x16
-#define DLT_MSG_TYPE_INFO_CTRL_RES                      0x26
-#define DLT_MSG_TYPE_INFO_CTRL_TIME                     0x36
 
 #define DLT_MSG_VERB_PARAM_LENGTH                       0x0000000f
 #define DLT_MSG_VERB_PARAM_BOOL                         0x00000010
@@ -178,8 +158,12 @@ static int proto_dlt = -1;
 static dissector_handle_t dlt_handle_udp = NULL;
 static dissector_handle_t dlt_handle_tcp = NULL;
 
+/* Subdissectors */
+static heur_dissector_list_t heur_subdissector_list;
+static heur_dtbl_entry_t *heur_dtbl_entry;
+
 /* header fields */
-static int hf_dlt_header_type                            = -1;
+static int hf_dlt_header_type                           = -1;
 static int hf_dlt_ht_ext_header                         = -1;
 static int hf_dlt_ht_msb_first                          = -1;
 static int hf_dlt_ht_with_ecuid                         = -1;
@@ -434,6 +418,29 @@ expert_dlt_parsing_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gi
     col_append_str(pinfo->cinfo, COL_INFO, " [DLT: Parsing Error!]");
 }
 
+
+/*****************************
+ ****** Helper routines ******
+ *****************************/
+
+gint32
+dlt_ecu_id_to_gint32(const gchar *ecu_id) {
+    if (ecu_id == NULL) {
+        return 0;
+    }
+
+    gint32 ret = 0;
+    gint i;
+    guint shift = 32;
+
+    /* DLT allows only up to 4 ASCII chars! Unused is 0x00 */
+    for (i = 0; i < (gint)strlen(ecu_id) && i < 4; i++) {
+        shift -= 8;
+        ret |= (gint32)ecu_id[i] << shift;
+    }
+
+    return ret;
+}
 
 /**********************************
  ****** The dissector itself ******
@@ -968,33 +975,59 @@ dissect_dlt_non_verbose_payload_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
 }
 
 static int
-dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gboolean payload_le, guint8 msg_type, guint8 msg_type_info_comb) {
+dissect_dlt_non_verbose_payload_message_handoff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean payload_le,
+                                                guint8 msg_type, guint8 msg_type_info_comb, guint32 message_id, const guint8 *ecu_id) {
+
+    dlt_info_t dlt_info;
+
+    dlt_info.message_id = message_id;
+    dlt_info.little_endian = payload_le;
+    dlt_info.message_type = msg_type;
+    dlt_info.message_type_info_comb = msg_type_info_comb;
+    dlt_info.ecu_id = (const gchar *)ecu_id;
+
+    return dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &dlt_info);
+}
+
+static int
+dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, proto_tree *tree, guint32 offset, gboolean payload_le,
+                                guint8 msg_type, guint8 msg_type_info_comb, const guint8 *ecu_id) {
     guint32         message_id = 0;
     tvbuff_t       *subtvb = NULL;
     guint32         offset_orig = offset;
     const gchar    *message_id_name = NULL;
+    proto_item     *ti;
 
     if (payload_le) {
-        proto_tree_add_item(tree, hf_dlt_message_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        ti = proto_tree_add_item(tree, hf_dlt_message_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         message_id = tvb_get_letohl(tvb, offset);
     } else {
-        proto_tree_add_item(tree, hf_dlt_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, hf_dlt_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         message_id = tvb_get_ntohl(tvb, offset);
     }
     offset += 4;
 
-    message_id_name = try_val_to_str(message_id, dlt_service);
+    if (tvb_captured_length_remaining(tvb, offset) == 0) {
+        return offset - offset_orig;
+    }
 
     if (msg_type==DLT_MSG_TYPE_CTRL_MSG && (msg_type_info_comb==DLT_MSG_TYPE_INFO_CTRL_REQ || msg_type_info_comb==DLT_MSG_TYPE_INFO_CTRL_RES)) {
+        message_id_name = try_val_to_str(message_id, dlt_service);
 
         if (message_id_name == NULL) {
             col_append_fstr(pinfo->cinfo, COL_INFO, " Unknown Non-Verbose Message (ID: 0x%02x)", message_id);
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, " %s (ID: 0x%02x)", message_id_name, message_id);
+            proto_item_append_text(ti, " (%s)", message_id_name);
         }
 
         subtvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_captured_length_remaining(tvb, offset));
         dissect_dlt_non_verbose_payload_message(subtvb, pinfo, tree, 0, payload_le, msg_type, msg_type_info_comb, message_id);
+    } else if(msg_type == DLT_MSG_TYPE_LOG_MSG) {
+        subtvb = tvb_new_subset_length_caplen(tvb, offset, tvb_captured_length_remaining(tvb, offset), tvb_captured_length_remaining(tvb, offset));
+        if (dissect_dlt_non_verbose_payload_message_handoff(subtvb, pinfo, root_tree, payload_le, msg_type, msg_type_info_comb, message_id, ecu_id) <= 0) {
+            proto_tree_add_item(tree, hf_dlt_payload_data, tvb, offset, tvb_captured_length_remaining(tvb, offset), payload_le);
+        }
     } else {
         expert_dlt_unsupported_non_verbose_msg_type(tree, pinfo, tvb, offset, 0);
     }
@@ -1025,6 +1058,8 @@ dissect_dlt_msg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     gdouble         timestamp = 0.0;
 
     gint            captured_length = tvb_captured_length_remaining(tvb, offset);
+
+    const guint8   *ecu_id = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, DLT_NAME);
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1061,7 +1096,7 @@ dissect_dlt_msg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     offset += 2;
 
     if ((header_type & DLT_HDR_TYPE_WITH_ECU_ID) == DLT_HDR_TYPE_WITH_ECU_ID) {
-        proto_tree_add_item(dlt_tree, hf_dlt_ecu_id, tvb, offset, 4, ENC_ASCII | ENC_NA);
+        proto_tree_add_item_ret_string(dlt_tree, hf_dlt_ecu_id, tvb, offset, 4, ENC_ASCII | ENC_NA, pinfo->pool, &ecu_id);
         offset += 4;
     }
 
@@ -1113,7 +1148,7 @@ dissect_dlt_msg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     col_append_fstr(pinfo->cinfo, COL_INFO, ":");
 
     if (!ext_header || !verbose) {
-        offset += dissect_dlt_non_verbose_payload(tvb, pinfo, subtree, offset, payload_le, msg_type, msg_type_info_comb);
+        offset += dissect_dlt_non_verbose_payload(tvb, pinfo, tree, subtree, offset, payload_le, msg_type, msg_type_info_comb, ecu_id);
     } else {
         offset += dissect_dlt_verbose_payload(tvb, pinfo, subtree, offset, payload_le, num_of_args);
     }
@@ -1211,7 +1246,7 @@ void proto_register_dlt(void) {
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_dlt_message_id, {
             "Message ID", "dlt.message_id",
-            FT_UINT32, BASE_HEX, VALS(dlt_service), 0x0, NULL, HFILL }},
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_dlt_payload_data, {
             "Payload Data", "dlt.payload.data",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1349,6 +1384,8 @@ void proto_register_dlt(void) {
     /* Register Expert Info */
     expert_module_DLT = expert_register_protocol(proto_dlt);
     expert_register_field_array(expert_module_DLT, ei, array_length(ei));
+
+    heur_subdissector_list = register_heur_dissector_list("dlt", proto_dlt);
 }
 
 void proto_reg_handoff_dlt(void) {
