@@ -1,8 +1,8 @@
 /* packet-signal-pdu.c
  * Signal PDU dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2020-2021 Dr. Lars Voelker
-  *
+ * Copyright 2020-2022 Dr. Lars Voelker
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -298,12 +298,12 @@ register_signal_pdu_can(void) {
 
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
-            gint32 *id = ((gint32*)tmp->data);
+            gint32 id = (*(gint32*)tmp->data);
 
-            *id &= CAN_EFF_MASK;
-            dissector_add_uint("can.extended_id", *id, signal_pdu_handle_can);
-            if (*id <= CAN_SFF_MASK) {
-                dissector_add_uint("can.id", *id, signal_pdu_handle_can);
+            if ((id & CAN_EFF_FLAG) == CAN_EFF_FLAG) {
+                dissector_add_uint("can.extended_id", id & CAN_EFF_MASK, signal_pdu_handle_can);
+            } else {
+                dissector_add_uint("can.id", id & CAN_SFF_MASK, signal_pdu_handle_can);
             }
         }
 
@@ -1098,6 +1098,23 @@ copy_spdu_can_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
+static gboolean
+update_spdu_can_mapping(void *r, char **err) {
+    spdu_can_mapping_uat_t *rec = (spdu_can_mapping_uat_t *)r;
+
+    if ((rec->can_id & (CAN_RTR_FLAG | CAN_ERR_FLAG)) != 0) {
+        *err = g_strdup_printf("We currently do not support CAN IDs with RTR or Error Flag set (CAN_ID: 0x%x)", rec->can_id);
+        return FALSE;
+    }
+
+    if ((rec->can_id & CAN_EFF_FLAG) == 0 && rec->can_id > CAN_SFF_MASK) {
+        *err = g_strdup_printf("Standard CAN ID (EFF flag not set) cannot be bigger than 0x7ff (CAN_ID: 0x%x)", rec->can_id);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void
 post_update_spdu_can_mapping_cb(void) {
     /* destroy old hash table, if it exists */
@@ -1134,12 +1151,13 @@ get_can_mapping(guint32 id, guint16 bus_id) {
         return NULL;
     }
 
-    gint64 key = ((gint64)id & CAN_EFF_MASK) | ((gint64)bus_id << 32);
-    spdu_can_mapping_t *tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, &key);
+    /* key is Bus ID, EFF Flag, CAN-ID*/
+    gint64 key = ((gint64)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((gint64)bus_id << 32);
+    spdu_can_mapping_t *tmp = (spdu_can_mapping_t *)g_hash_table_lookup(data_spdu_can_mappings, &key);
     if (tmp == NULL) {
         /* try again without Bus ID set */
-        key = (gint64)id & CAN_EFF_MASK;
-        tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, &key);
+        key = id & (CAN_EFF_MASK | CAN_EFF_FLAG);
+        tmp = (spdu_can_mapping_t *)g_hash_table_lookup(data_spdu_can_mappings, &key);
     }
 
     return tmp;
@@ -1880,7 +1898,7 @@ proto_register_signal_pdu(void) {
     };
 
     static uat_field_t spdu_can_mapping_uat_fields[] = {
-        UAT_FLD_HEX(spdu_can_mapping, can_id,                           "CAN ID",                "CAN ID (32bit hex without leading 0x)"),
+        UAT_FLD_HEX(spdu_can_mapping, can_id,                           "CAN ID",                "CAN ID (32bit hex without leading 0x, highest bit 1 for extended, 0 for standard ID)"),
         UAT_FLD_HEX(spdu_can_mapping, bus_id,                           "Bus ID",                "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(spdu_can_mapping, message_id,                       "Signal PDU ID",         "ID of the Signal PDU (32bit hex without leading 0x)"),
         UAT_END_FIELDS
@@ -2034,7 +2052,7 @@ proto_register_signal_pdu(void) {
         UAT_AFFECTS_DISSECTION,
         NULL, /* help */
         copy_spdu_can_mapping_cb,
-        NULL,
+        update_spdu_can_mapping,
         NULL,
         post_update_spdu_can_mapping_cb,
         NULL, /* reset */

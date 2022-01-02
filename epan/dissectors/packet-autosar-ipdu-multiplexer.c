@@ -1,7 +1,7 @@
 /* packet-autosar-ipdu-multiplexer.c
  * Dissector for AUTOSAR I-PDU Multiplexer.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2021-2021 Dr. Lars Voelker
+ * Copyright 2021-2022 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -314,6 +314,23 @@ copy_ipdum_can_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
+static gboolean
+update_ipdum_can_mapping(void *r, char **err) {
+    ipdum_can_mapping_uat_t *rec = (ipdum_can_mapping_uat_t *)r;
+
+    if ((rec->can_id & (CAN_RTR_FLAG | CAN_ERR_FLAG)) != 0) {
+        *err = g_strdup_printf("We currently do not support CAN IDs with RTR or Error Flag set (CAN_ID: 0x%x)", rec->can_id);
+        return FALSE;
+    }
+
+    if ((rec->can_id & CAN_EFF_FLAG) == 0 && rec->can_id > CAN_SFF_MASK) {
+        *err = g_strdup_printf("Standard CAN ID (EFF flag not set) cannot be bigger than 0x7ff (CAN_ID: 0x%x)", rec->can_id);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void
 post_update_register_can(void) {
     if (ipdum_handle_can == NULL) {
@@ -329,12 +346,12 @@ post_update_register_can(void) {
 
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
-            gint32 *id = ((gint32*)tmp->data);
+            gint32 id = (*(gint32*)tmp->data);
 
-            *id &= CAN_EFF_MASK;
-            dissector_add_uint("can.extended_id", *id, ipdum_handle_can);
-            if (*id <= CAN_SFF_MASK) {
-                dissector_add_uint("can.id", *id, ipdum_handle_can);
+            if ((id & CAN_EFF_FLAG) == CAN_EFF_FLAG) {
+                dissector_add_uint("can.extended_id", id & CAN_EFF_MASK, ipdum_handle_can);
+            } else {
+                dissector_add_uint("can.id", id & CAN_SFF_MASK, ipdum_handle_can);
             }
         }
 
@@ -378,11 +395,11 @@ get_can_mapping(guint32 id, guint16 bus_id) {
         return NULL;
     }
 
-    gint64 key = ((gint64)id & CAN_EFF_MASK) | ((gint64)bus_id << 32);
+    gint64 key = ((gint64)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((gint64)bus_id << 32);
     ipdum_can_mapping_t *tmp = (ipdum_can_mapping_t *)g_hash_table_lookup(data_ipdum_can_mappings, &key);
     if (tmp == NULL) {
         /* try again without Bus ID set */
-        key = (gint64)id & CAN_EFF_MASK;
+        key = id & (CAN_EFF_MASK | CAN_EFF_FLAG);
         tmp = (ipdum_can_mapping_t *)g_hash_table_lookup(data_ipdum_can_mappings, &key);
     }
 
@@ -844,7 +861,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     };
 
     static uat_field_t ipdum_can_mapping_uat_fields[] = {
-        UAT_FLD_HEX(ipdum_can_mapping, can_id,                      "CAN ID",                   "CAN ID (32bit hex without leading 0x)"),
+        UAT_FLD_HEX(ipdum_can_mapping, can_id,                      "CAN ID",                   "CAN ID (32bit hex without leading 0x, highest bit 1 for extended, 0 for standard ID)"),
         UAT_FLD_HEX(ipdum_can_mapping, bus_id,                      "Bus ID",                   "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(ipdum_can_mapping, message_id,                  "Message ID",               "ID of the I-PduM Config (32bit hex without leading 0x)"),
         UAT_END_FIELDS
@@ -910,7 +927,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
         UAT_AFFECTS_DISSECTION,
         NULL, /* help */
         copy_ipdum_can_mapping_cb,
-        NULL,
+        update_ipdum_can_mapping,
         NULL,
         post_update_ipdum_can_mapping_cb,
         NULL, /* reset */
