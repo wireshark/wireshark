@@ -1,0 +1,68 @@
+Wireshark 3.4.12 Release Notes
+
+ What is Wireshark?
+
+  Wireshark is the world’s most popular network protocol analyzer. It is
+  used for troubleshooting, analysis, development and education.
+
+ What’s New
+
+  Bug Fixes
+
+   The following bugs have been fixed:
+
+  New and Updated Features
+
+  New Protocol Support
+
+   There are no new protocols in this release.
+
+  Updated Protocol Support
+
+  New and Updated Capture File Support
+
+   There is no new or updated capture file support in this release.
+
+ Getting Wireshark
+
+  Wireshark source code and installation packages are available from
+  https://www.wireshark.org/download.html.
+
+  Vendor-supplied Packages
+
+   Most Linux and Unix vendors supply their own Wireshark packages. You
+   can usually install or upgrade Wireshark using the package management
+   system specific to that platform. A list of third-party packages can
+   be found on the download page[1] on the Wireshark web site.
+
+ File Locations
+
+  Wireshark and TShark look in several different locations for
+  preference files, plugins, SNMP MIBS, and RADIUS dictionaries. These
+  locations vary from platform to platform. You can use About → Folders
+  to find the default locations on your system.
+
+ Getting Help
+
+  The User’s Guide, manual pages and various other documentation can be
+  found at https://www.wireshark.org/docs/
+
+  Community support is available on Wireshark’s Q&A site[2] and on the
+  wireshark-users mailing list. Subscription information and archives
+  for all of Wireshark’s mailing lists can be found on the web site[3].
+
+  Issues and feature requests can be reported on the issue tracker[4].
+
+ Frequently Asked Questions
+
+  A complete FAQ is available on the Wireshark web site[5].
+
+  Last updated 2022-01-02 16:06:50 UTC
+
+ References
+
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://gitlab.com/wireshark/wireshark/-/issues
+   5. https://www.wireshark.org/faq.html

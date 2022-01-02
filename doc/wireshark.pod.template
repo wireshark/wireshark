@@ -223,7 +223,7 @@ fills up, B<Wireshark> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> flag,
 the number of the file and on the creation date and time,
-e.g. outfile_00001_20210714120117.pcap, outfile_00002_20210714120523.pcap, ...
+e.g. outfile_00001_20220714120117.pcap, outfile_00002_20220714120523.pcap, ...
 
 With the I<files> option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
@@ -1020,7 +1020,7 @@ which to save it.
 Show a dialog box that lists all files of the file set matching the currently
 loaded file.  A file set is a compound of files resulting from a capture using
 the "multiple files" / "ringbuffer" mode, recognizable by the filename pattern,
-e.g.: Filename_00001_20210714101530.pcap.
+e.g.: Filename_00001_20220714101530.pcap.
 
 =item File:File Set:Next File
 

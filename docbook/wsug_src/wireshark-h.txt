@@ -1,4 +1,4 @@
-Wireshark 3.4.11 (v3.4.11rc0-3-ge260a3727032)
+Wireshark 3.4.12 (v3.4.12rc0-6-g49331424ef60)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
