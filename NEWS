@@ -10,10 +10,14 @@ Wireshark 3.7.0 Release Notes
 
  What’s New
 
+    • We no longer ship Windows Installer (.msi) packages for 32-bit
+      Windows. Issue 17779[1]
+
     • The PCRE2 library (https://www.pcre.org/) is now a required
       dependency to build Wireshark.
 
-    • A compiler with C11 support is required.
+    • You must now have a compiler with C11 support in order to build
+      Wireshark.
 
   Many improvements have been made. See the “New and Updated Features”
   section below for more details.
@@ -53,9 +57,18 @@ Wireshark 3.7.0 Release Notes
         • Adds a new strict equality operator "===" or "all_eq". The
        expression "a === b" is true if and only if all a’s are equal to
        b. The negation of "===" can now be written as "!==" (any_ne), in
-       adittion to "~=" (introduced in Wireshark 3.6.0).
+       addition to "~=" (introduced in Wireshark 3.6.0).
 
         • Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
+
+        • Date and time can be given in UTC using ISO 8601 (with 'Z'
+       timezone) or by appending the suffix "UTC" to the legacy formats.
+       Otherwise local time is used.
+
+     • text2pcap has been updated to use the new logging output options
+       and the "-d" flag has been removed. The "debug" log level
+       corresponds to the old "-d" flag, and the "noisy" log level
+       corresponds to using "-d" multiple times.
 
      • HTTP2 dissector now supports using fake headers to parse the
        DATAs of streams captured without first HEADERS frames of a
@@ -69,6 +82,13 @@ Wireshark 3.7.0 Release Notes
 
      • Capture Options dialog contains same configuration icon as
        Welcome Screen. It is possible to configure interface there.
+
+     • Extcap dialog remembers password items during runtime therefore
+       it is possible to run extcap multiple times in row. Passwords are
+       never stored to disk.
+
+     • It is possible to set extcap passwords on cli for tshark and
+       other cli tools.
 
   New File Format Decoding Support
 
@@ -99,7 +119,7 @@ Wireshark 3.7.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[2] on the Wireshark web site.
 
  File Locations
 
@@ -114,22 +134,23 @@ Wireshark 3.7.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[3] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[4].
 
-  Bugs and feature requests can be reported on the issue tracker[4].
+  Bugs and feature requests can be reported on the issue tracker[5].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2021-12-26 16:06:41 UTC
+  Last updated 2022-01-02 16:06:46 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/17779
+   2. https://www.wireshark.org/download.html
+   3. https://ask.wireshark.org/
+   4. https://www.wireshark.org/lists/
+   5. https://gitlab.com/wireshark/wireshark/-/issues
+   6. https://www.wireshark.org/faq.html

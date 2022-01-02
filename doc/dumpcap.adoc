@@ -99,7 +99,7 @@ fills up, *Dumpcap* will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the *-w* option,
 the number of the file and on the creation date and time,
-e.g. outfile_00001_20210714120117.pcap, outfile_00002_20210714120523.pcap, ...
+e.g. outfile_00001_20220714120117.pcap, outfile_00002_20220714120523.pcap, ...
 
 With the __files__ option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,

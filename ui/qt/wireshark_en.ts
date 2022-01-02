@@ -722,7 +722,7 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <source>Allow hover selection</source>
+        <source>Allow hover highlighting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4289,6 +4289,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII identification:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Regular Expression</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4353,6 +4361,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>IP version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP Version for to use for the dummy IP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the interface to write to the import capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fake IF, Import from Hex Dump</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Maximum frame length:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4397,7 +4425,51 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Prefix each frame with an Ethernet and IP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and UDP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and TCP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destination address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Dissector</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP protocol ID for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP source address for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP destination address for each frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4418,10 +4490,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Ethernet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4449,10 +4517,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>UDP</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4462,10 +4526,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The Ethertype value of each frame</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4485,23 +4545,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The IPv4 protocol ID for each frame</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>SCTP (Data)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IPv4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

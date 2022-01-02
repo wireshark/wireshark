@@ -722,8 +722,9 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <source>Allow hover selection</source>
-        <translation>Consenti la selezione al passaggio del mouse </translation>
+        <source>Allow hover highlighting</source>
+        <oldsource>Allow hover selection</oldsource>
+        <translation type="unfinished">Consenti la selezione al passaggio del mouse </translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -4323,6 +4324,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Decimale</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII identification:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Regular Expression</source>
         <translation>Espressione regolare</translation>
     </message>
@@ -4387,6 +4396,26 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>EsportaPDU</translation>
     </message>
     <message>
+        <source>IP version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP Version for to use for the dummy IP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the interface to write to the import capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fake IF, Import from Hex Dump</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Maximum frame length:</source>
         <translation>Lunghezza massima del frame:</translation>
     </message>
@@ -4431,8 +4460,52 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tipo di incapsulamento dei frame nel file di importazione della cattura</translation>
     </message>
     <message>
+        <source>Prefix each frame with an Ethernet and IP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and UDP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and TCP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destination address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Dissector</source>
         <translation>Decodificatore</translation>
+    </message>
+    <message>
+        <source>The IP protocol ID for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP source address for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP destination address for each frame</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4456,7 +4529,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP</translation>
+        <translation type="vanished">Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -4484,7 +4557,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e UDP</translation>
+        <translation type="vanished">Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e UDP</translation>
     </message>
     <message>
         <source>UDP</source>
@@ -4500,7 +4573,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e TCP</translation>
+        <translation type="vanished">Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e TCP</translation>
     </message>
     <message>
         <source>TCP</source>
@@ -4520,11 +4593,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>The IPv4 protocol ID for each frame</source>
-        <translation>ID di protocollo IPv4 per ogni frame</translation>
+        <translation type="vanished">ID di protocollo IPv4 per ogni frame</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP (DATA)</translation>
+        <translation type="vanished">Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP (DATA)</translation>
     </message>
     <message>
         <source>SCTP (Data)</source>
@@ -4532,11 +4605,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet e IPv4</translation>
+        <translation type="vanished">Anteponi a ogni frame un&apos;intestazione Ethernet e IPv4</translation>
     </message>
     <message>
         <source>IPv4</source>
-        <translation>IPv4</translation>
+        <translation type="vanished">IPv4</translation>
     </message>
     <message>
         <source>The dissector to use for each frame</source>

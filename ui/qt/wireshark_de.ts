@@ -722,8 +722,9 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <source>Allow hover selection</source>
-        <translation>Hover-Auswahl erlauben</translation>
+        <source>Allow hover highlighting</source>
+        <oldsource>Allow hover selection</oldsource>
+        <translation type="unfinished">Hover-Auswahl erlauben</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -4323,6 +4324,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Dezimal</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII identification:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Regular Expression</source>
         <translation>Regulärer Ausdruck</translation>
     </message>
@@ -4387,6 +4396,26 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>ExportPDU</translation>
     </message>
     <message>
+        <source>IP version:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP Version for to use for the dummy IP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The name of the interface to write to the import capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fake IF, Import from Hex Dump</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Maximum frame length:</source>
         <translation>Maximale Framelänge:</translation>
     </message>
@@ -4412,7 +4441,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The precision of %f is determined from its length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Format des Zeitstempel der aus der Textdatei ausgelesen werden soll (z.B. %H:%M:%s.%f).&lt;/p&gt;&lt;p&gt;Formatzeichen basieren auf strptime(3) mit dem zusätzlichen Zeichen %f für Sekundenbruchteile. Die Länge von %f bestimmt die Präzision.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
@@ -4431,8 +4460,52 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Protokoll in das die Frames der zu importiernden Datei eingebettet sind</translation>
     </message>
     <message>
+        <source>Prefix each frame with an Ethernet and IP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and UDP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and TCP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Source address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Destination address:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Dissector</source>
         <translation>Dissector</translation>
+    </message>
+    <message>
+        <source>The IP protocol ID for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP source address for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP destination address for each frame</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4456,7 +4529,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation>Jedem Frame einen Ethernet-, IPv4- und SCTP-Header voranstellen</translation>
+        <translation type="vanished">Jedem Frame einen Ethernet-, IPv4- und SCTP-Header voranstellen</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -4484,7 +4557,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation>Jedem Frame einen Ethernet-, IPv4- und UDP-Header voranstellen</translation>
+        <translation type="vanished">Jedem Frame einen Ethernet-, IPv4- und UDP-Header voranstellen</translation>
     </message>
     <message>
         <source>UDP</source>
@@ -4500,7 +4573,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation>Jedem Frame einen Ethernet-, IPv4- und TCP-Header voranstellen</translation>
+        <translation type="vanished">Jedem Frame einen Ethernet-, IPv4- und TCP-Header voranstellen</translation>
     </message>
     <message>
         <source>TCP</source>
@@ -4520,11 +4593,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>The IPv4 protocol ID for each frame</source>
-        <translation>Die IPv4 Protokoll IP für jeden Frame</translation>
+        <translation type="vanished">Die IPv4 Protokoll IP für jeden Frame</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation>Jedem Frame einen Ethernet-, IPv4- und SCTP-(Daten) Header voranstellen</translation>
+        <translation type="vanished">Jedem Frame einen Ethernet-, IPv4- und SCTP-(Daten) Header voranstellen</translation>
     </message>
     <message>
         <source>SCTP (Data)</source>
@@ -4532,11 +4605,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation>Jedem Frame einen Ethernet- und IPv4-Header voranstellen</translation>
+        <translation type="vanished">Jedem Frame einen Ethernet- und IPv4-Header voranstellen</translation>
     </message>
     <message>
         <source>IPv4</source>
-        <translation>IPv4</translation>
+        <translation type="vanished">IPv4</translation>
     </message>
     <message>
         <source>The dissector to use for each frame</source>

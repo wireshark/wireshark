@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2021.12.25
- * Date:    2021-12-25 03:15:02
+ * Version: 2021.12.31
+ * Date:    2021-12-31 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -13023,9 +13023,12 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x1FB9, 0xFFFF, 0xFFFF, "TU117GLM [Quadro T1000 Mobile](0x1FB9)"},
 {0x10DE, 0x1FBA, 0xFFFF, 0xFFFF, "TU117GLM [T600 Mobile](0x1FBA)"},
 {0x10DE, 0x1FBB, 0xFFFF, 0xFFFF, "TU117GLM [Quadro T500 Mobile](0x1FBB)"},
+{0x10DE, 0x1FBC, 0xFFFF, 0xFFFF, "TU117GLM [T1200 Laptop GPU](0x1FBC)"},
 {0x10DE, 0x1FBF, 0xFFFF, 0xFFFF, "TU117GL(0x1FBF)"},
 {0x10DE, 0x1FD9, 0xFFFF, 0xFFFF, "TU117BM [GeForce GTX 1650 Mobile Refresh](0x1FD9)"},
 {0x10DE, 0x1FDD, 0xFFFF, 0xFFFF, "TU117BM [GeForce GTX 1650 Mobile Refresh](0x1FDD)"},
+{0x10DE, 0x1FF0, 0xFFFF, 0xFFFF, "TU117GL [T1000 8GB](0x1FF0)"},
+{0x10DE, 0x1FF2, 0xFFFF, 0xFFFF, "TU117GL [T400 4GB](0x1FF2)"},
 {0x10DE, 0x1FF9, 0xFFFF, 0xFFFF, "TU117GLM [Quadro T1000 Mobile](0x1FF9)"},
 {0x10DE, 0x20B0, 0xFFFF, 0xFFFF, "GA100 [A100 SXM4 40GB](0x20B0)"},
 {0x10DE, 0x20B1, 0xFFFF, 0xFFFF, "GA100 [A100 PCIe 40GB](0x20B1)"},
@@ -24843,6 +24846,7 @@ pci_id_t pci_vid_15B3[] = {
 {0x15B3, 0x0256, 0xFFFF, 0xFFFF, "Abir GearBox(0x0256)"},
 {0x15B3, 0x0257, 0xFFFF, 0xFFFF, "Quantum-2 in Flash Recovery Mode(0x0257)"},
 {0x15B3, 0x0258, 0xFFFF, 0xFFFF, "Quantum-2 RMA(0x0258)"},
+{0x15B3, 0x0259, 0xFFFF, 0xFFFF, "Abir Chiplet(0x0259)"},
 {0x15B3, 0x0262, 0xFFFF, 0xFFFF, "MT27710 [ConnectX-4 Lx Programmable] EN(0x0262)"},
 {0x15B3, 0x0263, 0xFFFF, 0xFFFF, "MT27710 [ConnectX-4 Lx Programmable Virtual Function] EN(0x0263)"},
 {0x15B3, 0x0264, 0xFFFF, 0xFFFF, "Innova-2 Flex Burn image(0x0264)"},
@@ -29690,6 +29694,8 @@ pci_id_t pci_vid_1DE5[] = {
 
 pci_id_t pci_vid_1DED[] = {
 {0x1DED, 0xFFFF, 0xFFFF, 0xFFFF, "Alibaba (China) Co., Ltd.(0x1DED)"},
+{0x1DED, 0x107F, 0xFFFF, 0xFFFF, "Elastic RDMA Adapter(0x107F)"},
+{0x1DED, 0x5007, 0xFFFF, 0xFFFF, "Elastic RDMA Adapter(0x5007)"},
 {0x1DED, 0x8000, 0xFFFF, 0xFFFF, "M1 Root Port(0x8000)"},
 {0x1DED, 0x8001, 0xFFFF, 0xFFFF, "ACC-RCiEP(0x8001)"},
 {0x1DED, 0x8002, 0xFFFF, 0xFFFF, "RCiEP VF(0x8002)"},
@@ -37850,8 +37856,10 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x43F0, 0x8086, 0x02A4, "Wireless-AC 9462(0x8086-0x02A4)"},
 {0x8086, 0x444E, 0xFFFF, 0xFFFF, "Turbo Memory Controller(0x444E)"},
 {0x8086, 0x460D, 0xFFFF, 0xFFFF, "12th Gen Core Processor PCI Express x16 Controller #1(0x460D)"},
+{0x8086, 0x461D, 0xFFFF, 0xFFFF, "Alder Lake Innovation Platform Framework Processor Participant(0x461D)"},
 {0x8086, 0x461E, 0xFFFF, 0xFFFF, "Alder Lake-P Thunderbolt 4 USB Controller(0x461E)"},
 {0x8086, 0x461F, 0xFFFF, 0xFFFF, "Alder Lake-P Thunderbolt 4 PCI Express Root Port #3(0x461F)"},
+{0x8086, 0x4626, 0xFFFF, 0xFFFF, "Alder Lake-P Integrated Graphics Controller(0x4626)"},
 {0x8086, 0x4629, 0xFFFF, 0xFFFF, "12th Gen Core Processor Host Bridge/DRAM Registers(0x4629)"},
 {0x8086, 0x462F, 0xFFFF, 0xFFFF, "Alder Lake-P Thunderbolt 4 PCI Express Root Port #2(0x462F)"},
 {0x8086, 0x463D, 0xFFFF, 0xFFFF, "12th Gen Core Processor PCI Express x4 Controller #2(0x463D)"},
@@ -40967,7 +40975,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x10DB, 1, pci_vid_10DB },
 {0x10DC, 6, pci_vid_10DC },
 {0x10DD, 3, pci_vid_10DD },
-{0x10DE, 3079, pci_vid_10DE },
+{0x10DE, 3082, pci_vid_10DE },
 {0x10DF, 122, pci_vid_10DF },
 {0x10E0, 7, pci_vid_10E0 },
 {0x10E1, 5, pci_vid_10E1 },
@@ -42172,7 +42180,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x15B0, 1, pci_vid_15B0 },
 {0x15B1, 1, pci_vid_15B1 },
 {0x15B2, 1, pci_vid_15B2 },
-{0x15B3, 232, pci_vid_15B3 },
+{0x15B3, 233, pci_vid_15B3 },
 {0x15B4, 1, pci_vid_15B4 },
 {0x15B5, 1, pci_vid_15B5 },
 {0x15B6, 17, pci_vid_15B6 },
@@ -42683,7 +42691,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1DE0, 2, pci_vid_1DE0 },
 {0x1DE1, 5, pci_vid_1DE1 },
 {0x1DE5, 4, pci_vid_1DE5 },
-{0x1DED, 6, pci_vid_1DED },
+{0x1DED, 8, pci_vid_1DED },
 {0x1DEE, 1, pci_vid_1DEE },
 {0x1DEF, 27, pci_vid_1DEF },
 {0x1DF3, 29, pci_vid_1DF3 },
@@ -42856,7 +42864,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x7FED, 1, pci_vid_7FED },
 {0x8008, 4, pci_vid_8008 },
 {0x807D, 1, pci_vid_807D },
-{0x8086, 8156, pci_vid_8086 },
+{0x8086, 8158, pci_vid_8086 },
 {0x8088, 51, pci_vid_8088 },
 {0x80EE, 3, pci_vid_80EE },
 {0x8322, 1, pci_vid_8322 },

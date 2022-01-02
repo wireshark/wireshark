@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-826-gb3215d99cacb)
+Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-906-g40256c64e098)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -20,14 +20,25 @@ Input:
                          used as the default for unspecified fields.
   -D                     the text before the packet starts with an I or an O,
                          indicating that the packet is inbound or outbound.
-                         This is used when generating dummy headers.
-                         The indication is only stored if the output format is pcapng.
+                         This is used when generating dummy headers if the
+                         output format supports it (e.g. pcapng).
   -a                     enable ASCII text dump identification.
                          The start of the ASCII text dump can be identified
                          and excluded from the packet data, even if it looks
                          like a HEX dump.
                          NOTE: Do not enable it if the input file does not
                          contain the ASCII text dump.
+  -r <regex>             enable regex mode. Scan the input using <regex>, a Perl
+                         compatible regular expression matching a single packet.
+                         Named capturing subgroups are used to identify fields:
+                         <data> (mand.), and <time>, <dir>, and <seqno> (opt.)
+                         The time field format is taken from the -t option
+                         Example: -r '^(?<dir>[<>])\s(?<time>\d+:\d\d:\d\d.\d+)\s(?<data>[0-9a-fA-F]+)$'
+                         could match a file with lines like
+                         > 0:00:00.265620 a130368b000000080060
+                         < 0:00:00.295459 a2010800000000000000000800000000
+  -b 2|8|16|64           encoding base (radix) of the packet data in regex mode
+                         (def: 16: hexadecimal) No effect in hexdump mode.
 
 Output:
   -l <typenum>           link-layer type number; default is 1 (Ethernet).  See
@@ -73,8 +84,20 @@ Prepend dummy header:
                          chunk header with payload protocol identifier ppi.
                          Example: -S 30,40,34
 
+  -P <dissector>         prepend EXPORTED_PDU header with specifieddissector
+                         as the payload PROTO_NAME tag.
+                         Automatically sets link type to Upper PDU Export.
+                         EXPORTED_PDU payload defaults to "data" otherwise.
+
+Diagnostic output:
+  --log-level <level>      sets the active log level ("critical", "warning", etc.)
+  --log-fatal <level>      sets level to abort the program ("critical" or "warning")
+  --log-domains <[!]list>  comma separated list of the active log domains
+  --log-debug <[!]list>    comma separated list of domains with "debug" level
+  --log-noisy <[!]list>    comma separated list of domains with "noisy" level
+  --log-file <path>        file to output messages to (in addition to stderr)
+
 Miscellaneous:
-  -h                     display this help and exit.
-  -v                     print version information and exit.
-  -d                     show detailed debug of parser states.
-  -q                     generate no output at all (automatically disables -d).
+  -h                     display this help and exit
+  -v                     print version information and exit
+  -q                     don't report processed packet counts
