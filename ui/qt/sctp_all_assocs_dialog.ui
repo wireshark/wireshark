@@ -25,9 +25,6 @@
      <property name="dragDropOverwriteMode">
       <bool>false</bool>
      </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::SingleSelection</enum>
      </property>

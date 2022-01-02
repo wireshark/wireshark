@@ -37,9 +37,6 @@
      <property name="dragDropOverwriteMode">
       <bool>false</bool>
      </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
      <property name="verticalScrollMode">
       <enum>QAbstractItemView::ScrollPerPixel</enum>
      </property>
@@ -256,7 +253,7 @@
     <string>Mark/Unmark Row</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl-M</string>
+    <string>Ctrl+M</string>
    </property>
   </action>
   <action name="actionMark_Unmark_Cell">
