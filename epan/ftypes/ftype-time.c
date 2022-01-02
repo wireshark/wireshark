@@ -195,7 +195,7 @@ absolute_val_from_string(fvalue_t *fv, const char *s, char **err_msg_ptr)
 	char *err_msg = NULL;
 
 	/* Try ISO 8601 format first. */
-	if (iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME_AUTO) == strlen(s))
+	if (iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME) == strlen(s))
 		return TRUE;
 
 	/* Try other legacy formats. */
