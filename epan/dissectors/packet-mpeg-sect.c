@@ -104,7 +104,8 @@ enum {
     TID_TDT       = 0x70,
     TID_RST,
     TID_ST,
-    TID_TOT
+    TID_TOT,
+    TID_SIT       = 0x7F
 };
 
 /* From ETSI EN 301 790 */
@@ -190,6 +191,7 @@ static const value_string mpeg_sect_table_id_vals[] = {
     { TID_ST,          "Stuffing Table (ST)" },
     { TID_TOT,         "Time Offset Table (TOT)" },
     { TID_AIT,         "Application Information Table (AIT)" },
+    { TID_SIT,         "Selection Information Table (SIT)" },
     { TID_SCT,         "Superframe Composition Table (SCT)" },
     { TID_FCT,         "Frame Composition Table (FCT)" },
     { TID_TCT,         "Time-Slot Composition Table (TCT)" },

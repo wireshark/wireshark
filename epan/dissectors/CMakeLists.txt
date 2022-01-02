@@ -1008,6 +1008,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-s2-bb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-s2-table.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-sdt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-sit.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-tdt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvb-tot.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dvbci.c

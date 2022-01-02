@@ -34,6 +34,7 @@
 #define DVB_EIT_TID_MAX         0x6F /* packet-dvb-eit.c */
 #define DVB_TDT_TID             0x70 /* packet-dvb-tdt.c */
 #define DVB_TOT_TID             0x73 /* packet-dvb-tot.c */
+#define DVB_SIT_TID             0x7f /* packet-dvb-sit.c */
 
 /* From ETSI TS 102 899 */
 #define DVB_AIT_TID             0x74 /* packet-dvb-ait.c */
