@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.7.0 (2021-10)
+-- 3GPP TS 36.413 V16.8.0 (2021-12)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -419,7 +419,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	invalid-CSG-Id,
 	release-due-to-pre-emption,
 	n26-interface-not-available,
-	insufficient-ue-capabilities
+	insufficient-ue-capabilities,
+	maximum-bearer-pre-emption-rate-exceeded
 
 }
 
