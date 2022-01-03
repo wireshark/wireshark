@@ -387,6 +387,11 @@ For the steps below we’ll pretend that your username is “henry.perry”.
 . Make sure you have a clone of the main repository as described in <<ChSrcGit>>.
 
 . Create your own personal fork of the Wireshark project by https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html[pressing the “Fork” button] at {wireshark-gitlab-project-url}.
++
+--
+WARNING: If you want to make merge requests you must keep your fork public.
+Making it private will disassociate it from the main Wireshark repository.
+--
 
 . Add a remote for your personal repository.
 The main repository remote is named “upstream”, so we'll name this one “downstream”.
