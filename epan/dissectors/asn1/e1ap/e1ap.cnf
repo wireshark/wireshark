@@ -289,6 +289,8 @@ id-DataForwardingtoNG-RANQoSFlowInformationList ProtocolIE-ID
 id-MaxCIDEHCDL                                  ProtocolIE-ID
 id-ignoreMappingRuleIndication                  ProtocolIE-ID
 id-DirectForwardingPathAvailability             ProtocolIE-ID
+id-EarlyDataForwardingIndicator                 ProtocolIE-ID
+id-QoSFlowsDRBRemapping                         ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -436,6 +438,8 @@ Extended-NR-CGI-Support-List                 N e1ap.extension id-Extended-NR-CGI
 DataForwardingtoNG-RANQoSFlowInformationList N e1ap.extension id-DataForwardingtoNG-RANQoSFlowInformationList
 MaxCIDEHCDL                                  N e1ap.extension id-MaxCIDEHCDL
 IgnoreMappingRuleIndication                  N e1ap.extension id-ignoreMappingRuleIndication
+EarlyDataForwardingIndicator                 N e1ap.extension id-EarlyDataForwardingIndicator
+QoS-Flows-DRB-Remapping                      N e1ap.extension id-QoSFlowsDRBRemapping
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
