@@ -131,8 +131,10 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
         testout_file = self.filename_from_id(testout_fname)
         # The first word is the file type (the rest might be compression info)
         filetype_flag = pre_cap_info['filetype'].split()[0]
+        # We want the -a flag, because the tshark -x format is a hex+ASCII
+        # format where the ASCII can be confused for hex bytes without it.
         # XXX: -t ISO also works now too for this output
-        text2pcap_cmd = '{cmd} -F {filetype} -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" {in_f} {out_f}'.format(
+        text2pcap_cmd = '{cmd} -a -F {filetype} -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" {in_f} {out_f}'.format(
             cmd = cmd_text2pcap,
             filetype = filetype_flag,
             linktype = encap_to_link_type[pre_cap_info['encapsulation']],
@@ -195,7 +197,7 @@ class case_text2pcap_pcap(subprocesstest.SubprocessTestCase):
         '''Test text2pcap with sample_control4_2012-03-24.pcap.'''
         # tshark currently output decrypted ZigBee packets and
         # as a result the number of packets and data size are different
-        check_text2pcap(self, 'sample_control4_2012-03-24.pcap', 'pcap', 239, 10103)
+        check_text2pcap(self, 'sample_control4_2012-03-24.pcap', 'pcap', 239, 10095)
 
     def test_text2pcap_snakeoil_dtls_pcap(self, check_text2pcap):
         '''Test text2pcap with snakeoil-dtls.pcap.'''
@@ -233,10 +235,9 @@ class case_text2pcap_pcapng(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_dns_icmp_pcapng_gz(self, check_text2pcap):
         '''Test text2pcap with dns+icmp.pcapng.gz.'''
-        # Different data size
-        # Most probably the problem is that input file timestamp precision is in microseconds
-        # File timestamp precision: microseconds (6)
-        check_text2pcap(self, 'dns+icmp.pcapng.gz', 'pcapng', None, 3202)
+        # This file needs (and thus tests) the -a flag to identify when the
+        # start of the ASCII dump looks like hex.
+        check_text2pcap(self, 'dns+icmp.pcapng.gz', 'pcapng')
 
     def test_text2pcap_packet_h2_14_headers_pcapng(self, check_text2pcap):
         '''Test text2pcap with packet-h2-14_headers.pcapng.'''
