@@ -185,7 +185,7 @@ byte_array_from_unparsed(const char *s, gchar **err_msg)
 
 	bytes = g_byte_array_new();
 
-	res = hex_str_to_bytes(s, bytes, TRUE);
+	res = hex_str_to_bytes(s, bytes, FALSE);
 
 	if (!res) {
 		if (err_msg != NULL)
