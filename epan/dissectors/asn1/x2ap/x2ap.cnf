@@ -1569,6 +1569,9 @@ id-TraceCollectionEntityURI					ProtocolIE-ID
 id-SFN-Offset							ProtocolIE-ID
 id-CHO-DC-EarlyDataForwarding					ProtocolIE-ID
 id-IMSvoiceEPSfallbackfrom5G					ProtocolIE-ID
+id-AdditionLocationInformation					ProtocolIE-ID
+id-DirectForwardingPathAvailability				ProtocolIE-ID
+id-sourceNG-RAN-node-id						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1851,6 +1854,8 @@ CellMeasurementResult-E-UTRA-ENDC-Item				N x2ap.ies id-CellMeasurementResult-E-
 CellToReport-E-UTRA-ENDC-List					N x2ap.ies id-CellToReport-E-UTRA-ENDC
 CellToReport-E-UTRA-ENDC-Item					N x2ap.ies id-CellToReport-E-UTRA-ENDC-Item
 CHO-DC-EarlyDataForwarding					N x2ap.ies id-CHO-DC-EarlyDataForwarding
+DirectForwardingPathAvailability				N x2ap.ies id-DirectForwardingPathAvailability
+Global-RAN-NODE-ID						N x2ap.ies id-sourceNG-RAN-node-id
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1973,6 +1978,7 @@ IntendedTDD-DL-ULConfiguration-NR				N x2ap.extension id-IntendedTDD-DL-ULConfig
 URI-Address							N x2ap.extension id-TraceCollectionEntityURI
 SFN-Offset							N x2ap.extension id-SFN-Offset
 IMSvoiceEPSfallbackfrom5G					N x2ap.extension id-IMSvoiceEPSfallbackfrom5G
+AdditionLocationInformation					N x2ap.extension id-AdditionLocationInformation
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

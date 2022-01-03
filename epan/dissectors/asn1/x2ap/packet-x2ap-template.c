@@ -3,7 +3,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2021, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2022, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V16.7.0 (2021-10)
+ * 3GPP TS 36.423 V16.8.0 (2021-12)
  */
 
 #include "config.h"

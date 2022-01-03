@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.7.0 (2021-10)
+-- 3GPP TS 36.423 V16.8.0 (2021-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -566,6 +566,8 @@ id-TraceCollectionEntityURI													ProtocolIE-ID ::= 405
 id-SFN-Offset																ProtocolIE-ID ::= 406
 id-CHO-DC-EarlyDataForwarding												ProtocolIE-ID ::= 407
 id-IMSvoiceEPSfallbackfrom5G												ProtocolIE-ID ::= 408
-
+id-AdditionLocationInformation												ProtocolIE-ID ::= 409
+id-DirectForwardingPathAvailability											ProtocolIE-ID ::= 410
+id-sourceNG-RAN-node-id														ProtocolIE-ID ::= 411
 
 END

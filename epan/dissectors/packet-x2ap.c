@@ -11,7 +11,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2021, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2022, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,7 +20,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V16.7.0 (2021-10)
+ * 3GPP TS 36.423 V16.8.0 (2021-12)
  */
 
 #include "config.h"
@@ -589,7 +589,10 @@ typedef enum _ProtocolIE_ID_enum {
   id_TraceCollectionEntityURI = 405,
   id_SFN_Offset = 406,
   id_CHO_DC_EarlyDataForwarding = 407,
-  id_IMSvoiceEPSfallbackfrom5G = 408
+  id_IMSvoiceEPSfallbackfrom5G = 408,
+  id_AdditionLocationInformation = 409,
+  id_DirectForwardingPathAvailability = 410,
+  id_sourceNG_RAN_node_id = 411
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
@@ -674,6 +677,7 @@ static int hf_x2ap_ReportCharacteristics_ENDC_PDU = -1;
 static int hf_x2ap_ABSInformation_PDU = -1;       /* ABSInformation */
 static int hf_x2ap_ABS_Status_PDU = -1;           /* ABS_Status */
 static int hf_x2ap_ActivationID_PDU = -1;         /* ActivationID */
+static int hf_x2ap_AdditionLocationInformation_PDU = -1;  /* AdditionLocationInformation */
 static int hf_x2ap_AdditionalRRMPriorityIndex_PDU = -1;  /* AdditionalRRMPriorityIndex */
 static int hf_x2ap_AdditionalSpecialSubframe_Info_PDU = -1;  /* AdditionalSpecialSubframe_Info */
 static int hf_x2ap_AdditionalSpecialSubframeExtension_Info_PDU = -1;  /* AdditionalSpecialSubframeExtension_Info */
@@ -710,6 +714,7 @@ static int hf_x2ap_DAPSRequestInfo_PDU = -1;      /* DAPSRequestInfo */
 static int hf_x2ap_DAPSResponseInfo_PDU = -1;     /* DAPSResponseInfo */
 static int hf_x2ap_DeactivationIndication_PDU = -1;  /* DeactivationIndication */
 static int hf_x2ap_DesiredActNotificationLevel_PDU = -1;  /* DesiredActNotificationLevel */
+static int hf_x2ap_DirectForwardingPathAvailability_PDU = -1;  /* DirectForwardingPathAvailability */
 static int hf_x2ap_DL_Forwarding_PDU = -1;        /* DL_Forwarding */
 static int hf_x2ap_DL_scheduling_PDCCH_CCE_usage_PDU = -1;  /* DL_scheduling_PDCCH_CCE_usage */
 static int hf_x2ap_DuplicationActivation_PDU = -1;  /* DuplicationActivation */
@@ -735,6 +740,7 @@ static int hf_x2ap_FreqBandIndicatorPriority_PDU = -1;  /* FreqBandIndicatorPrio
 static int hf_x2ap_FrequencyShift7p5khz_PDU = -1;  /* FrequencyShift7p5khz */
 static int hf_x2ap_GlobalENB_ID_PDU = -1;         /* GlobalENB_ID */
 static int hf_x2ap_GlobalGNB_ID_PDU = -1;         /* GlobalGNB_ID */
+static int hf_x2ap_Global_RAN_NODE_ID_PDU = -1;   /* Global_RAN_NODE_ID */
 static int hf_x2ap_GNBOverloadInformation_PDU = -1;  /* GNBOverloadInformation */
 static int hf_x2ap_GTPtunnelEndpoint_PDU = -1;    /* GTPtunnelEndpoint */
 static int hf_x2ap_GUGroupIDList_PDU = -1;        /* GUGroupIDList */
@@ -1317,6 +1323,8 @@ static int hf_x2ap_e_RAB_GuaranteedBitrateDL = -1;  /* BitRate */
 static int hf_x2ap_e_RAB_GuaranteedBitrateUL = -1;  /* BitRate */
 static int hf_x2ap_eNB_ID = -1;                   /* ENB_ID */
 static int hf_x2ap_gNB_ID = -1;                   /* GNB_ID */
+static int hf_x2ap_gNB = -1;                      /* GlobalGNB_ID */
+static int hf_x2ap_choice_extension = -1;         /* ProtocolIE_Single_Container */
 static int hf_x2ap_GTPTLAs_item = -1;             /* GTPTLA_Item */
 static int hf_x2ap_gTPTransportLayerAddresses = -1;  /* TransportLayerAddress */
 static int hf_x2ap_transportLayerAddress = -1;    /* TransportLayerAddress */
@@ -1527,7 +1535,6 @@ static int hf_x2ap_ssbAreaULSchedulingPDCCHCCEUsage = -1;  /* INTEGER_0_100 */
 static int hf_x2ap_shortBitmap = -1;              /* BIT_STRING_SIZE_4 */
 static int hf_x2ap_mediumBitmap = -1;             /* BIT_STRING_SIZE_8 */
 static int hf_x2ap_longBitmap = -1;               /* BIT_STRING_SIZE_64 */
-static int hf_x2ap_choice_extension = -1;         /* ProtocolIE_Single_Container */
 static int hf_x2ap_four_bitCQI = -1;              /* INTEGER_0_15_ */
 static int hf_x2ap_two_bitSubbandDifferentialCQI = -1;  /* INTEGER_0_3_ */
 static int hf_x2ap_two_bitDifferentialCQI = -1;   /* INTEGER_0_3_ */
@@ -2025,6 +2032,7 @@ static gint ett_x2ap_SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandI
 static gint ett_x2ap_GBR_QosInformation = -1;
 static gint ett_x2ap_GlobalENB_ID = -1;
 static gint ett_x2ap_GlobalGNB_ID = -1;
+static gint ett_x2ap_Global_RAN_NODE_ID = -1;
 static gint ett_x2ap_GTPTLAs = -1;
 static gint ett_x2ap_GTPTLA_Item = -1;
 static gint ett_x2ap_GTPtunnelEndpoint = -1;
@@ -3173,6 +3181,9 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_SFN_Offset, "id-SFN-Offset" },
   { id_CHO_DC_EarlyDataForwarding, "id-CHO-DC-EarlyDataForwarding" },
   { id_IMSvoiceEPSfallbackfrom5G, "id-IMSvoiceEPSfallbackfrom5G" },
+  { id_AdditionLocationInformation, "id-AdditionLocationInformation" },
+  { id_DirectForwardingPathAvailability, "id-DirectForwardingPathAvailability" },
+  { id_sourceNG_RAN_node_id, "id-sourceNG-RAN-node-id" },
   { 0, NULL }
 };
 
@@ -3544,6 +3555,21 @@ static int
 dissect_x2ap_ActivationID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string x2ap_AdditionLocationInformation_vals[] = {
+  {   0, "includePSCell" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_AdditionLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -6037,6 +6063,21 @@ dissect_x2ap_DesiredActNotificationLevel(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const value_string x2ap_DirectForwardingPathAvailability_vals[] = {
+  {   0, "direct-path-available" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_x2ap_DirectForwardingPathAvailability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const value_string x2ap_DL_Forwarding_vals[] = {
   {   0, "dL-forwardingProposed" },
   { 0, NULL }
@@ -7687,6 +7728,28 @@ static int
 dissect_x2ap_GlobalGNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_x2ap_GlobalGNB_ID, GlobalGNB_ID_sequence);
+
+  return offset;
+}
+
+
+static const value_string x2ap_Global_RAN_NODE_ID_vals[] = {
+  {   0, "gNB" },
+  {   1, "choice-extension" },
+  { 0, NULL }
+};
+
+static const per_choice_t Global_RAN_NODE_ID_choice[] = {
+  {   0, &hf_x2ap_gNB            , ASN1_NO_EXTENSIONS     , dissect_x2ap_GlobalGNB_ID },
+  {   1, &hf_x2ap_choice_extension, ASN1_NO_EXTENSIONS     , dissect_x2ap_ProtocolIE_Single_Container },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_x2ap_Global_RAN_NODE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_x2ap_Global_RAN_NODE_ID, Global_RAN_NODE_ID_choice,
+                                 NULL);
 
   return offset;
 }
@@ -18343,6 +18406,14 @@ static int dissect_ActivationID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_AdditionLocationInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_AdditionLocationInformation(tvb, offset, &asn1_ctx, tree, hf_x2ap_AdditionLocationInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_AdditionalRRMPriorityIndex_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18631,6 +18702,14 @@ static int dissect_DesiredActNotificationLevel_PDU(tvbuff_t *tvb _U_, packet_inf
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_DirectForwardingPathAvailability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_DirectForwardingPathAvailability(tvb, offset, &asn1_ctx, tree, hf_x2ap_DirectForwardingPathAvailability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DL_Forwarding_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18828,6 +18907,14 @@ static int dissect_GlobalGNB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_x2ap_GlobalGNB_ID(tvb, offset, &asn1_ctx, tree, hf_x2ap_GlobalGNB_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Global_RAN_NODE_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_Global_RAN_NODE_ID(tvb, offset, &asn1_ctx, tree, hf_x2ap_Global_RAN_NODE_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -22229,6 +22316,10 @@ void proto_register_x2ap(void) {
       { "ActivationID", "x2ap.ActivationID",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_x2ap_AdditionLocationInformation_PDU,
+      { "AdditionLocationInformation", "x2ap.AdditionLocationInformation",
+        FT_UINT32, BASE_DEC, VALS(x2ap_AdditionLocationInformation_vals), 0,
+        NULL, HFILL }},
     { &hf_x2ap_AdditionalRRMPriorityIndex_PDU,
       { "AdditionalRRMPriorityIndex", "x2ap.AdditionalRRMPriorityIndex",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -22373,6 +22464,10 @@ void proto_register_x2ap(void) {
       { "DesiredActNotificationLevel", "x2ap.DesiredActNotificationLevel",
         FT_UINT32, BASE_DEC, VALS(x2ap_DesiredActNotificationLevel_vals), 0,
         NULL, HFILL }},
+    { &hf_x2ap_DirectForwardingPathAvailability_PDU,
+      { "DirectForwardingPathAvailability", "x2ap.DirectForwardingPathAvailability",
+        FT_UINT32, BASE_DEC, VALS(x2ap_DirectForwardingPathAvailability_vals), 0,
+        NULL, HFILL }},
     { &hf_x2ap_DL_Forwarding_PDU,
       { "DL-Forwarding", "x2ap.DL_Forwarding",
         FT_UINT32, BASE_DEC, VALS(x2ap_DL_Forwarding_vals), 0,
@@ -22472,6 +22567,10 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_GlobalGNB_ID_PDU,
       { "GlobalGNB-ID", "x2ap.GlobalGNB_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x2ap_Global_RAN_NODE_ID_PDU,
+      { "Global-RAN-NODE-ID", "x2ap.Global_RAN_NODE_ID",
+        FT_UINT32, BASE_DEC, VALS(x2ap_Global_RAN_NODE_ID_vals), 0,
         NULL, HFILL }},
     { &hf_x2ap_GNBOverloadInformation_PDU,
       { "GNBOverloadInformation", "x2ap.GNBOverloadInformation",
@@ -24801,6 +24900,14 @@ void proto_register_x2ap(void) {
       { "gNB-ID", "x2ap.gNB_ID",
         FT_UINT32, BASE_DEC, VALS(x2ap_GNB_ID_vals), 0,
         NULL, HFILL }},
+    { &hf_x2ap_gNB,
+      { "gNB", "x2ap.gNB_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GlobalGNB_ID", HFILL }},
+    { &hf_x2ap_choice_extension,
+      { "choice-extension", "x2ap.choice_extension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ProtocolIE_Single_Container", HFILL }},
     { &hf_x2ap_GTPTLAs_item,
       { "GTPTLA-Item", "x2ap.GTPTLA_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -25641,10 +25748,6 @@ void proto_register_x2ap(void) {
       { "longBitmap", "x2ap.longBitmap",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_64", HFILL }},
-    { &hf_x2ap_choice_extension,
-      { "choice-extension", "x2ap.choice_extension_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ProtocolIE_Single_Container", HFILL }},
     { &hf_x2ap_four_bitCQI,
       { "four-bitCQI", "x2ap.four_bitCQI",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -27152,6 +27255,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_GBR_QosInformation,
     &ett_x2ap_GlobalENB_ID,
     &ett_x2ap_GlobalGNB_ID,
+    &ett_x2ap_Global_RAN_NODE_ID,
     &ett_x2ap_GTPTLAs,
     &ett_x2ap_GTPTLA_Item,
     &ett_x2ap_GTPtunnelEndpoint,
@@ -27958,6 +28062,8 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.ies", id_CellToReport_E_UTRA_ENDC, create_dissector_handle(dissect_CellToReport_E_UTRA_ENDC_List_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CellToReport_E_UTRA_ENDC_Item, create_dissector_handle(dissect_CellToReport_E_UTRA_ENDC_Item_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_CHO_DC_EarlyDataForwarding, create_dissector_handle(dissect_CHO_DC_EarlyDataForwarding_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_DirectForwardingPathAvailability, create_dissector_handle(dissect_DirectForwardingPathAvailability_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_sourceNG_RAN_node_id, create_dissector_handle(dissect_Global_RAN_NODE_ID_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_Number_of_Antennaports, create_dissector_handle(dissect_Number_of_Antennaports_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_CompositeAvailableCapacityGroup, create_dissector_handle(dissect_CompositeAvailableCapacityGroup_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_PRACH_Configuration, create_dissector_handle(dissect_PRACH_Configuration_PDU, proto_x2ap));
@@ -28078,6 +28184,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_TraceCollectionEntityURI, create_dissector_handle(dissect_URI_Address_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_SFN_Offset, create_dissector_handle(dissect_SFN_Offset_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_IMSvoiceEPSfallbackfrom5G, create_dissector_handle(dissect_IMSvoiceEPSfallbackfrom5G_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_AdditionLocationInformation, create_dissector_handle(dissect_AdditionLocationInformation_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));

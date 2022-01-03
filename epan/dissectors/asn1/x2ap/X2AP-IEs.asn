@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.7.0 (2021-10)
+-- 3GPP TS 36.423 V16.8.0 (2021-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -86,6 +86,7 @@ IMPORTS
 	id-IntendedTDD-DL-ULConfiguration-NR,
 	id-TraceCollectionEntityURI,
 	id-SFN-Offset,
+	id-AdditionLocationInformation,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -201,6 +202,11 @@ ABS-Status-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 }
 
 ActivationID ::= INTEGER (0..255)
+
+AdditionLocationInformation ::= ENUMERATED {
+	includePSCell,
+	...
+}
 
 AdditionalRRMPriorityIndex ::= BIT STRING (SIZE(32))
 
@@ -835,6 +841,8 @@ DeliveryStatus-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 DesiredActNotificationLevel	::= ENUMERATED {none, e-rab, ue-level, ...}
 
+DirectForwardingPathAvailability ::= ENUMERATED {direct-path-available, ...}
+
 DL-ABS-status::= INTEGER (0..100)
 
 DL-Forwarding ::= ENUMERATED {
@@ -1267,6 +1275,15 @@ GlobalGNB-ID-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Global-RAN-NODE-ID ::= CHOICE {
+	gNB						GlobalGNB-ID,
+	choice-extension		ProtocolIE-Single-Container { { Global-RAN-NODE-ID-ExtIEs} }
+}
+
+Global-RAN-NODE-ID-ExtIEs X2AP-PROTOCOL-IES ::= {
+	...
+}
+
 GNBOverloadInformation ::= ENUMERATED {overloaded, not-overloaded, ...}
 
 GTPTLAs	::= SEQUENCE (SIZE(1.. maxnoofGTPTLAs)) OF	GTPTLA-Item
@@ -1479,6 +1496,7 @@ LocationReportingInformation ::= SEQUENCE {
 }
 
 LocationReportingInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::={
+	{ ID id-AdditionLocationInformation	CRITICALITY ignore	EXTENSION AdditionLocationInformation	PRESENCE optional},
 	...
 }
 

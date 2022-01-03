@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.7.0 (2021-10)
+-- 3GPP TS 36.423 V16.8.0 (2021-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -587,6 +587,8 @@ FROM X2AP-Containers
 	id-IntendedTDD-DL-ULConfiguration-NR,
 	id-UERadioCapability,
 	id-SFN-Offset,
+	id-DirectForwardingPathAvailability,
+	id-sourceNG-RAN-node-id,
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
@@ -2630,7 +2632,9 @@ SgNBAdditionRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-ManagementBasedMDTallowed				CRITICALITY ignore	TYPE ManagementBasedMDTallowed					PRESENCE optional }|
 	{ ID id-ManagementBasedMDTPLMNList				CRITICALITY ignore	TYPE MDTPLMNList									PRESENCE optional }|
 	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID							PRESENCE optional}|
-	{ ID id-IABNodeIndication						CRITICALITY reject	TYPE IABNodeIndication								PRESENCE optional},	...
+	{ ID id-IABNodeIndication						CRITICALITY reject	TYPE IABNodeIndication								PRESENCE optional}|
+	{ ID id-sourceNG-RAN-node-id					CRITICALITY ignore		TYPE Global-RAN-NODE-ID							PRESENCE optional},
+	...
 }
 
 E-RABs-ToBeAdded-SgNBAddReqList ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeAdded-SgNBAddReq-ItemIEs} }
@@ -2717,7 +2721,8 @@ SgNBAdditionRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-SgNBResourceCoordinationInformation			CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation				PRESENCE optional}|
 	{ ID id-RRCConfigIndication							CRITICALITY reject	TYPE RRC-Config-Ind												PRESENCE optional}|
 	{ ID id-LocationInformationSgNB						CRITICALITY ignore	TYPE LocationInformationSgNB								PRESENCE optional}|
-	{ ID id-AvailableFastMCGRecoveryViaSRB3				CRITICALITY ignore	TYPE AvailableFastMCGRecoveryViaSRB3						PRESENCE optional },
+	{ ID id-AvailableFastMCGRecoveryViaSRB3				CRITICALITY ignore	TYPE AvailableFastMCGRecoveryViaSRB3						PRESENCE optional }|
+	{ ID id-DirectForwardingPathAvailability			CRITICALITY ignore	TYPE DirectForwardingPathAvailability					PRESENCE optional },
 	...
 }
 
