@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.6.0 (2021-09)
+-- 3GPP TS 36.331 V16.7.0 (2021-12)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2852,7 +2852,14 @@ SystemInformationBlockType1-v10x0-IEs ::=	SEQUENCE {
 SystemInformationBlockType1-v12j0-IEs ::=	SEQUENCE {
 	schedulingInfoList-v12j0			SchedulingInfoList-v12j0	OPTIONAL,	-- Need OR
 	schedulingInfoListExt-r12			SchedulingInfoListExt-r12	OPTIONAL,	-- Need OR
-	nonCriticalExtension				SEQUENCE {}					OPTIONAL
+	nonCriticalExtension				SystemInformationBlockType1-v15g0-IEs	OPTIONAL
+}
+
+SystemInformationBlockType1-v15g0-IEs ::= SEQUENCE {
+	bandwidthReducedAccessRelatedInfo-v15g0	SEQUENCE {
+		posSchedulingInfoList-BR-r15	SchedulingInfoList-BR-r13
+	}																OPTIONAL,	-- Need OR
+	nonCriticalExtension						SEQUENCE {}		OPTIONAL
 }
 
 -- Regular non critical extensions
