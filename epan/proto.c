@@ -15,6 +15,7 @@
 #include <string.h>
 #include <glib.h>
 #include <float.h>
+#include <inttypes.h>
 #include <errno.h>
 
 #include <wsutil/bits_ctz.h>
@@ -8298,7 +8299,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 
 			do {
 				if (this_it->value_max < this_it->value_min) {
-					ws_warning("value_range_string error:  %s (%s) entry for \"%s\" - max(%u 0x%x) is less than min(%u 0x%x)",
+					ws_warning("value_range_string error:  %s (%s) entry for \"%s\" - max(%"PRIu64" 0x%"PRIx64") is less than min(%"PRIu64" 0x%"PRIx64")",
 							  hfinfo->name, hfinfo->abbrev,
 							  this_it->strptr,
 							  this_it->value_max, this_it->value_max,
@@ -8311,7 +8312,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					/* Not OK if this one is completely hidden by an earlier one! */
 					if ((prev_it->value_min <= this_it->value_min) && (prev_it->value_max >= this_it->value_max)) {
 						ws_warning("value_range_string error:  %s (%s) hidden by earlier entry "
-								  "(prev=\"%s\":  %u 0x%x -> %u 0x%x)  (this=\"%s\":  %u 0x%x -> %u 0x%x)",
+								  "(prev=\"%s\":  %"PRIu64" 0x%"PRIx64" -> %"PRIu64" 0x%"PRIx64")  (this=\"%s\":  %"PRIu64" 0x%"PRIx64" -> %"PRIu64" 0x%"PRIx64")",
 								  hfinfo->name, hfinfo->abbrev,
 								  prev_it->strptr, prev_it->value_min, prev_it->value_min,
 								  prev_it->value_max, prev_it->value_max,
@@ -10713,14 +10714,14 @@ proto_registrar_dump_values(void)
 			while (range[vi].strptr) {
 				/* Print in the proper base */
 				if (FIELD_DISPLAY(hfinfo->display) == BASE_HEX) {
-					printf("R\t%s\t0x%x\t0x%x\t%s\n",
+					printf("R\t%s\t0x%"PRIx64"\t0x%"PRIx64"\t%s\n",
 					       hfinfo->abbrev,
 					       range[vi].value_min,
 					       range[vi].value_max,
 					       range[vi].strptr);
 				}
 				else {
-					printf("R\t%s\t%u\t%u\t%s\n",
+					printf("R\t%s\t%"PRIu64"\t%"PRIu64"\t%s\n",
 					       hfinfo->abbrev,
 					       range[vi].value_min,
 					       range[vi].value_max,

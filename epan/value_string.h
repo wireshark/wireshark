@@ -12,6 +12,7 @@
 #define __VALUE_STRING_H__
 
 #include <glib.h>
+#include <stdint.h>
 
 #include "ws_symbol_export.h"
 #include <epan/wmem_scopes.h>
@@ -286,8 +287,8 @@ try_str_to_str_idx(const gchar *val, const string_string *vs, gint *idx);
 /* RANGE TO STRING MATCHING */
 
 typedef struct _range_string {
-    guint32      value_min;
-    guint32      value_max;
+    uint64_t     value_min;
+    uint64_t     value_max;
     const gchar *strptr;
 } range_string;
 
