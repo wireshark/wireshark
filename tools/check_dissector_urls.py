@@ -103,7 +103,7 @@ class Link(object):
 
             try:
                 # Try it.
-                self.r = session.get(self.url, timeout=15)
+                self.r = session.get(self.url, timeout=25)
 
                 # Cache this result.
                 cached_lookups[self.url] = self.r
@@ -187,6 +187,7 @@ def is_dissector_file(filename):
 if args.file:
     # Fetch links from single file.
     find_links_in_file(args.file)
+    files.append(args.file)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
