@@ -590,6 +590,8 @@ id-TransmissionStopIndicator                         ProtocolIE-ID
 id-SrsFrequency                                      ProtocolIE-ID
 id-SCGIndicator                                      ProtocolIE-ID
 id-EstimatedArrivalProbability                       ProtocolIE-ID
+id-TRPType                                           ProtocolIE-ID
+id-SRSSpatialRelationPerSRSResource                  ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -923,6 +925,7 @@ Extended-GNB-DU-Name                              N f1ap.ies id-Extended-GNB-DU-
 Extended-GNB-CU-Name                              N f1ap.ies id-Extended-GNB-CU-Name
 F1CTransferPath                                   N f1ap.ies id-F1CTransferPath
 SCGIndicator                                      N f1ap.ies id-SCGIndicator
+TRPType                                           N f1ap.ies id-TRPType
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1016,6 +1019,7 @@ SFN-Offset                                        N f1ap.extension id-SFN-Offset
 TransmissionStopIndicator                         N f1ap.extension id-TransmissionStopIndicator
 SrsFrequency                                      N f1ap.extension id-SrsFrequency
 CHO-Probability                                   N f1ap.extension id-EstimatedArrivalProbability
+SpatialRelationPerSRSResource                     N f1ap.extension id-SRSSpatialRelationPerSRSResource
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset

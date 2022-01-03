@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.7.0 (2021-10)
+-- 3GPP TS 38.473 V16.8.0 (2021-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -107,6 +107,8 @@ IMPORTS
 	id-TransmissionStopIndicator,
 	id-SrsFrequency,
 	id-EstimatedArrivalProbability,
+	id-TRPType,
+	id-SRSSpatialRelationPerSRSResource,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -4519,6 +4521,28 @@ SpatialRelationforResourceIDItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SpatialRelationPerSRSResource ::= SEQUENCE {
+	spatialRelationPerSRSResource-List	SpatialRelationPerSRSResource-List,
+	iE-Extensions		ProtocolExtensionContainer { { SpatialRelationPerSRSResource-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SpatialRelationPerSRSResource-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SpatialRelationPerSRSResource-List::= SEQUENCE(SIZE (1.. maxnoSRS-ResourcePerSet)) OF SpatialRelationPerSRSResourceItem
+
+SpatialRelationPerSRSResourceItem ::= SEQUENCE {
+	referenceSignal		ReferenceSignal,
+	iE-Extensions		ProtocolExtensionContainer { { SpatialRelationPerSRSResourceItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SpatialRelationPerSRSResourceItem-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 SpatialRelationPos ::= CHOICE {
 	sSBPos					SSB,
 	pRSInformationPos		PRSInformationPos,
@@ -4723,6 +4747,7 @@ SRSResourceSetItem ::= SEQUENCE {
 }
 
 SRSResourceSetItemExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-SRSSpatialRelationPerSRSResource	CRITICALITY ignore	EXTENSION SpatialRelationPerSRSResource PRESENCE optional},
 	...
 }
 
@@ -5150,7 +5175,9 @@ TRPInformationTypeItem ::= ENUMERATED {
 		sFNInitTime,
 		spatialDirectInfo,
 		geoCoord,
-...}
+		...,
+		trp-type
+}
 
 
 TRPInformationTypeResponseList ::= SEQUENCE (SIZE(1.. maxnoofTRPInfoTypes)) OF TRPInformationTypeResponseItem 
@@ -5168,6 +5195,7 @@ TRPInformationTypeResponseItem ::= CHOICE {
 }
 
 TRPInformationTypeResponseItem-ExtIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TRPType		CRITICALITY reject TYPE TRPType		PRESENCE mandatory },
 	...
 }
 
@@ -5277,6 +5305,15 @@ Transport-Layer-Address-Info ::= SEQUENCE {
 }
 
 Transport-Layer-Address-Info-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TRPType ::= ENUMERATED {
+	prsOnlyTP,
+	srsOnlyRP,
+	tp,
+	rp,
+	trp,
 	...
 }
 
