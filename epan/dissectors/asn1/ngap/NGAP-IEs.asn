@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.7.0 (2021-10)
+-- 3GPP TS 38.413 V16.8.0 (2021-12)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -3317,7 +3317,8 @@ PDUSessionResourceModifyResponseTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-RedundantDL-NGU-UP-TNLInformation				CRITICALITY ignore	EXTENSION UPTransportLayerInformation				PRESENCE optional	}|
 	{ ID id-RedundantUL-NGU-UP-TNLInformation				CRITICALITY ignore	EXTENSION UPTransportLayerInformation				PRESENCE optional	}|
 	{ ID id-AdditionalRedundantDLQosFlowPerTNLInformation	CRITICALITY ignore	EXTENSION QosFlowPerTNLInformationList				PRESENCE optional	}|
-	{ ID id-AdditionalRedundantNGU-UP-TNLInformation		CRITICALITY ignore	EXTENSION UPTransportLayerInformationPairList	PRESENCE optional	},
+	{ ID id-AdditionalRedundantNGU-UP-TNLInformation		CRITICALITY ignore	EXTENSION UPTransportLayerInformationPairList	PRESENCE optional	}|
+	{ ID id-SecondaryRATUsageInformation					CRITICALITY ignore	EXTENSION SecondaryRATUsageInformation				PRESENCE optional	},
 	...
 }
 
@@ -4836,8 +4837,8 @@ TooearlyIntersystemHO-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 TraceActivation ::= SEQUENCE {
 	nGRANTraceID						NGRANTraceID,
 	interfacesToTrace					InterfacesToTrace,
-     traceDepth							TraceDepth,
-     traceCollectionEntityIPAddress		TransportLayerAddress,
+traceDepth							TraceDepth,
+traceCollectionEntityIPAddress		TransportLayerAddress,
 	iE-Extensions		ProtocolExtensionContainer { {TraceActivation-ExtIEs} }	OPTIONAL,
 	...
 }

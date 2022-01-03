@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.7.0 (2021-10)
+-- 3GPP TS 38.413 V16.8.0 (2021-12)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -692,10 +692,10 @@ InitialContextSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-Enhanced-CoverageRestriction			CRITICALITY ignore	TYPE Enhanced-CoverageRestriction					PRESENCE optional		}|
 	{ ID id-Extended-ConnectedTime					CRITICALITY ignore	TYPE Extended-ConnectedTime							PRESENCE optional		}|
 	{ ID id-UE-DifferentiationInfo					CRITICALITY ignore	TYPE UE-DifferentiationInfo							PRESENCE optional		}|
-     { ID id-NRV2XServicesAuthorized					CRITICALITY ignore	TYPE NRV2XServicesAuthorized							PRESENCE optional		}|
-     { ID id-LTEV2XServicesAuthorized				CRITICALITY ignore	TYPE LTEV2XServicesAuthorized						PRESENCE optional		}|
-     { ID id-NRUESidelinkAggregateMaximumBitrate		CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate			PRESENCE optional		}|
-     { ID id-LTEUESidelinkAggregateMaximumBitrate	CRITICALITY ignore	TYPE LTEUESidelinkAggregateMaximumBitrate		PRESENCE optional		}|
+{ ID id-NRV2XServicesAuthorized					CRITICALITY ignore	TYPE NRV2XServicesAuthorized							PRESENCE optional		}|
+{ ID id-LTEV2XServicesAuthorized				CRITICALITY ignore	TYPE LTEV2XServicesAuthorized						PRESENCE optional		}|
+{ ID id-NRUESidelinkAggregateMaximumBitrate		CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate			PRESENCE optional		}|
+{ ID id-LTEUESidelinkAggregateMaximumBitrate	CRITICALITY ignore	TYPE LTEUESidelinkAggregateMaximumBitrate		PRESENCE optional		}|
 	{ ID id-PC5QoSParameters						CRITICALITY ignore	TYPE PC5QoSParameters									PRESENCE optional 	}|
 	{ ID id-CEmodeBrestricted						CRITICALITY ignore	TYPE CEmodeBrestricted									PRESENCE optional		}|
 	{ ID id-UE-UP-CIoT-Support						CRITICALITY ignore	TYPE UE-UP-CIoT-Support									PRESENCE optional		}|
@@ -1262,7 +1262,8 @@ HandoverRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-PDUSessionResourceAdmittedList				CRITICALITY ignore	TYPE PDUSessionResourceAdmittedList					PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceFailedToSetupListHOAck	CRITICALITY ignore	TYPE PDUSessionResourceFailedToSetupListHOAck		PRESENCE optional		}|
 	{ ID id-TargetToSource-TransparentContainer			CRITICALITY reject	TYPE TargetToSource-TransparentContainer			PRESENCE mandatory	}|
-	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		}|
+	{ ID id-NPN-AccessInformation						CRITICALITY reject	TYPE NPN-AccessInformation								PRESENCE optional		},
 	...
 }
 
