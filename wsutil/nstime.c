@@ -495,7 +495,7 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format)
         }
     }
     else {
-        /* No UTC offset given; ISO 8601 says this means localtime */
+        /* No UTC offset given; ISO 8601 says this means local time */
         nstime->secs = mktime(&tm);
     }
     nstime->nsecs = frac;
@@ -532,7 +532,7 @@ unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
         return 0;
     }
 
-    /* No UTC offset given; ISO 8601 says this means localtime */
+    /* No UTC offset given; ISO 8601 says this means local time */
     nstime->secs = mktime(&tm);
 
     /* Now let's test for fractional seconds */
