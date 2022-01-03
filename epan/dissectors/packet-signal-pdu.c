@@ -84,6 +84,7 @@ static gboolean spdu_derserializer_hide_raw_values          = TRUE;
 /*** expert info items ***/
 static expert_field ef_spdu_payload_truncated               = EI_INIT;
 static expert_field ef_spdu_config_error                    = EI_INIT;
+static expert_field ef_spdu_unaligned_data                  = EI_INIT;
 
 /*** Data Structure for UAT based config ***/
 static GHashTable *data_spdu_messages                       = NULL;
@@ -115,6 +116,9 @@ typedef enum _spdu_data_type {
     SPDU_DATA_TYPE_NONE,
     SPDU_DATA_TYPE_UINT,
     SPDU_DATA_TYPE_INT,
+    SPDU_DATA_TYPE_FLOAT,
+    SPDU_DATA_TYPE_STRING,
+    SPDU_DATA_TYPE_UINT_STRING,
 } spdu_dt_t;
 
 typedef struct _spdu_signal_item {
@@ -587,8 +591,21 @@ static gboolean
 update_spdu_signal_list(void *r, char **err) {
     gchar *tmp;
     guchar c;
-    gdouble d;
+    gdouble scaler;
+    gdouble offset;
     spdu_signal_list_uat_t *rec = (spdu_signal_list_uat_t *)r;
+
+    offset = g_ascii_strtod(rec->offset, &tmp);
+    if (!(offset == offset)) {
+        *err = ws_strdup_printf("Offset not a double!");
+        return FALSE;
+    }
+
+    scaler = g_ascii_strtod(rec->scaler, &tmp);
+    if (!(scaler == scaler)) {
+        *err = ws_strdup_printf("Scaler not a double!");
+        return FALSE;
+    }
 
     if (rec->pos >= 0xffff) {
         *err = ws_strdup_printf("Position too big");
@@ -627,31 +644,80 @@ update_spdu_signal_list(void *r, char **err) {
         return FALSE;
     }
 
-    if (g_strcmp0(rec->data_type, "uint") != 0 && g_strcmp0(rec->data_type, "int") != 0) {
-        *err = ws_strdup_printf("Currently only uint and int supported!");
+    if (g_strcmp0(rec->data_type, "uint") != 0 &&
+        g_strcmp0(rec->data_type, "int") != 0 &&
+        g_strcmp0(rec->data_type, "float") != 0 &&
+        g_strcmp0(rec->data_type, "string") != 0 &&
+        g_strcmp0(rec->data_type, "uint_string") != 0) {
+        *err = ws_strdup_printf("Currently the only supported data types are uint, int, float, string, and uint_string (ID: 0x%08x)", rec->id);
         return FALSE;
     }
 
-    if (g_strcmp0(rec->data_type, "int") == 0 && (rec->bitlength_base_type != rec->bitlength_encoded_type)) {
-        *err = ws_strdup_printf("signed ints (int) only support in non-shortened length");
-        return FALSE;
+    /* uint */
+    if (g_strcmp0(rec->data_type, "uint") == 0) {
+        if ((rec->bitlength_base_type != 8) && (rec->bitlength_base_type != 16) && (rec->bitlength_base_type != 32) && (rec->bitlength_base_type != 64)) {
+            *err = ws_strdup_printf("Data type uint is only supported as 8, 16, 32, or 64 bit base type (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
     }
 
-    if (g_strcmp0(rec->data_type, "int") == 0 && (rec->bitlength_encoded_type != 8) && (rec->bitlength_encoded_type != 16) && (rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
-        *err = ws_strdup_printf("signed ints (int) are only supported in 8, 16, 32, or 64 bit.");
-        return FALSE;
+    /* int */
+    if (g_strcmp0(rec->data_type, "int") == 0) {
+        if (rec->bitlength_base_type != rec->bitlength_encoded_type) {
+            *err = ws_strdup_printf("Data type int is only supported in non-shortened length (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if ((rec->bitlength_encoded_type != 8) && (rec->bitlength_encoded_type != 16) && (rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
+            *err = ws_strdup_printf("Data type int is only supported in 8, 16, 32, or 64 bit (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
     }
 
-    d = g_ascii_strtod(rec->offset, &tmp);
-    if (!(d == d)) {
-        *err = ws_strdup_printf("Offset not a double!");
-        return FALSE;
+    /* float */
+    if (g_strcmp0(rec->data_type, "float") == 0) {
+        if (rec->bitlength_base_type != rec->bitlength_encoded_type) {
+            *err = ws_strdup_printf("Data type float is only supported in non-shortened length (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if ((rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
+            *err = ws_strdup_printf("Data type float is only supported in 32 or 64 bit (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if ((scaler != 1.0) && (offset != 0.0)) {
+            *err = ws_strdup_printf("Data type float currently does not support scaling and offset (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if (rec->multiplexer == TRUE) {
+            *err = ws_strdup_printf("Data type float currently cannot be used as multiplexer (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
     }
 
-    d = g_ascii_strtod(rec->scaler, &tmp);
-    if (!(d == d)) {
-        *err = ws_strdup_printf("Scaler not a double!");
-        return FALSE;
+    /* string, uint_string */
+    if (g_strcmp0(rec->data_type, "string") == 0 || g_strcmp0(rec->data_type, "uint_string") == 0) {
+        if ((scaler != 1.0) && (offset != 0.0)) {
+            *err = ws_strdup_printf("Data types string and uint_string currently do not support scaling and offset (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if ((rec->multiplexer == TRUE)) {
+            *err = ws_strdup_printf("Data types string and uint_string currently cannot be used as multiplexer (ID: 0x%08x)", rec->id);;
+            return FALSE;
+        }
+
+        if ((rec->bitlength_base_type != 8) ) {
+            *err = ws_strdup_printf("Data typesstring and uint_string only support 8 bit Bitlength base type since they are ASCII-based (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if (g_strcmp0(rec->data_type, "uint_string") == 0 && (rec->bitlength_encoded_type != 8) && (rec->bitlength_encoded_type != 16) && (rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
+            *err = ws_strdup_printf("Data type uint_string is only supported with 8, 16, 32, or 64 bit (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
     }
 
     return TRUE;
@@ -738,6 +804,21 @@ create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_str
             dynamic_hf[i].hfinfo.type = FT_INT64;
             break;
 
+        case SPDU_DATA_TYPE_FLOAT:
+            dynamic_hf[i].hfinfo.display = BASE_NONE;
+            dynamic_hf[i].hfinfo.type = FT_DOUBLE;
+            break;
+
+        case SPDU_DATA_TYPE_STRING:
+            dynamic_hf[i].hfinfo.display = BASE_NONE;
+            dynamic_hf[i].hfinfo.type = FT_STRING;
+            break;
+
+        case SPDU_DATA_TYPE_UINT_STRING:
+            dynamic_hf[i].hfinfo.display = BASE_NONE;
+            dynamic_hf[i].hfinfo.type = FT_UINT_STRING;
+            break;
+
         case SPDU_DATA_TYPE_NONE:
             /* do nothing */
             break;
@@ -804,6 +885,12 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
                     item->data_type = SPDU_DATA_TYPE_UINT;
                 } else if (g_strcmp0("int", data[i].data_type) == 0) {
                     item->data_type = SPDU_DATA_TYPE_INT;
+                } else if (g_strcmp0("float", data[i].data_type) == 0) {
+                    item->data_type = SPDU_DATA_TYPE_FLOAT;
+                } else if (g_strcmp0("string", data[i].data_type) == 0) {
+                    item->data_type = SPDU_DATA_TYPE_STRING;
+                } else if (g_strcmp0("uint_string", data[i].data_type) == 0) {
+                    item->data_type = SPDU_DATA_TYPE_UINT_STRING;
                 } else {
                     item->data_type = SPDU_DATA_TYPE_NONE;
                 }
@@ -1557,6 +1644,42 @@ expert_spdu_config_error(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gi
     col_append_str(pinfo->cinfo, COL_INFO, " [Signal PDU: Config Error!]");
 }
 
+static void
+expert_spdu_unaligned_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
+    proto_tree_add_expert(tree, pinfo, &ef_spdu_unaligned_data, tvb, offset, length);
+    col_append_str(pinfo->cinfo, COL_INFO, " [Signal PDU: Unaligned Data!]");
+}
+
+/**************************************
+ ********   Dissector Helpers  ********
+ **************************************/
+
+/* There is similar code in tvbuff.c ... */
+
+static gdouble
+spdu_ieee_double_from_64bits(guint64 value) {
+    union {
+        gdouble d;
+        guint64 w;
+    } ieee_fp_union;
+
+    ieee_fp_union.w = value;
+
+    return ieee_fp_union.d;
+}
+
+static gfloat
+spdu_ieee_float_from_32bits(guint32 value) {
+    union {
+        gfloat d;
+        guint32 w;
+    } ieee_fp_union;
+
+    ieee_fp_union.w = value;
+
+    return ieee_fp_union.d;
+}
+
 
 /**************************************
  ******** Signal PDU Dissector ********
@@ -1630,6 +1753,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint offset_end = (gint)((8 * offset + offset_bits + item->bitlength_encoded_type) / 8);
     gint offset_end_bits = (gint)((8 * offset + offset_bits + item->bitlength_encoded_type) % 8);
 
+    gint string_length = 0;
     gint signal_length = offset_end - offset;
     if (offset_end_bits != 0) {
         signal_length++;
@@ -1666,6 +1790,9 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     guint64 value_guint64 = dissect_shifted_and_shortened_uint(tvb, offset, offset_bits, offset_end, offset_end_bits, item->big_endian);
+
+    /* we need to reset this because it is reused */
+    ti = NULL;
 
     switch (item->data_type) {
     case SPDU_DATA_TYPE_UINT: {
@@ -1731,6 +1858,58 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
         break;
 
+    case SPDU_DATA_TYPE_FLOAT: {
+        gdouble value_gdouble = 0.0;
+
+        switch (item->bitlength_base_type) {
+        case 64:
+            value_gdouble = spdu_ieee_double_from_64bits(value_guint64);
+            break;
+        case 32:
+            value_gdouble = (gdouble)spdu_ieee_float_from_32bits((guint32)value_guint64);
+            break;
+        default:
+            /* not supported and cannot occur since the config is checked! */
+            break;
+        }
+
+        /* scaler, offset, multiplexer not allowed by config checks */
+
+        ti = proto_tree_add_double(tree, hf_id_effective, tvb, offset, signal_length, value_gdouble);
+
+        if (value_name != NULL) {
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 ": %s]", value_guint64, value_name);
+        } else {
+            proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_guint64);
+        }
+
+        subtree = proto_item_add_subtree(ti, ett_spdu_signal);
+        ti = proto_tree_add_double(subtree, hf_id_raw, tvb, offset, signal_length, value_gdouble);
+        proto_item_append_text(ti, " [raw: 0x%" PRIx64 "]", value_guint64);
+    }
+        break;
+
+    case SPDU_DATA_TYPE_STRING:
+        if (offset_bits != 0) {
+            expert_spdu_unaligned_data(tree, pinfo, tvb, offset, 0);
+        }
+
+        proto_tree_add_item(tree, hf_id_effective, tvb, offset, signal_length, ENC_ASCII);
+        break;
+
+    case SPDU_DATA_TYPE_UINT_STRING:
+        if (offset_bits != 0) {
+            expert_spdu_unaligned_data(tree, pinfo, tvb, offset, 0);
+        }
+
+        if (item->big_endian) {
+            proto_tree_add_item_ret_length(tree, hf_id_effective, tvb, offset, signal_length, ENC_ASCII|ENC_BIG_ENDIAN, &string_length);
+        } else {
+            proto_tree_add_item_ret_length(tree, hf_id_effective, tvb, offset, signal_length, ENC_ASCII|ENC_LITTLE_ENDIAN, &string_length);
+        }
+        string_length = string_length * 8 - (gint)item->bitlength_encoded_type;
+        break;
+
     case SPDU_DATA_TYPE_NONE:
         /* do nothing */
         break;
@@ -1741,7 +1920,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_hidden(ti);
     }
 
-    return (gint)item->bitlength_encoded_type;
+    return (gint)item->bitlength_encoded_type + string_length;
 }
 
 static int
@@ -1795,7 +1974,11 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
     }
 
     if (bits_parsed != -1 && length > offset + 1) {
-        proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset + 1, length - (offset + 1), ENC_NA);
+        if (offset_bits == 0) {
+            proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset, length - offset, ENC_NA);
+        } else {
+            proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset + 1, length - (offset + 1), ENC_NA);
+        }
     }
 
     return offset;
@@ -1967,10 +2150,10 @@ proto_register_signal_pdu(void) {
         UAT_FLD_DEC(spdu_signal_list, pos,                              "Signal Position",       "Position of signal (16bit dec, starting with 0)"),
         UAT_FLD_CSTRING(spdu_signal_list, name,                         "Signal Name",           "Name of signal (string)"),
         UAT_FLD_CSTRING(spdu_signal_list, filter_string,                "Filter String",         "Unique filter string that will be prepended with signal_pdu. (string)"),
-        UAT_FLD_CSTRING(spdu_signal_list, data_type,                    "Data Type",             "Data type (string), [uint|int]"),
+        UAT_FLD_CSTRING(spdu_signal_list, data_type,                    "Data Type",             "Data type (string), [uint|int|float|string|uint_string]"),
         UAT_FLD_BOOL(spdu_signal_list, big_endian,                      "Big Endian?",           "Big Endian encoded [FALSE|TRUE]"),
-        UAT_FLD_DEC(spdu_signal_list, bitlength_base_type,              "Bitlength base type",   "Bitlength base type (uint32 dec)"),
-        UAT_FLD_DEC(spdu_signal_list, bitlength_encoded_type,           "Bitlength enc. type",   "Bitlength encoded type (uint32 dec)"),
+        UAT_FLD_DEC(spdu_signal_list, bitlength_base_type,              "Bitlength base type",   "Bitlength base type (uint32 dec). The length of the original type or the length of a single character."),
+        UAT_FLD_DEC(spdu_signal_list, bitlength_encoded_type,           "Bitlength enc. type",   "Bitlength encoded type (uint32 dec). The shortened length of uints or the total length of string or the length of the uint_string length field."),
         UAT_FLD_CSTRING(spdu_signal_list, scaler,                       "Scaler",                "Raw value is multiplied by this Scaler, e.g. 1.0 (double)"),
         UAT_FLD_CSTRING(spdu_signal_list, offset,                       "Offset",                "Scaled raw value is shifted by this Offset, e.g. 1.0 (double)"),
         UAT_FLD_BOOL(spdu_signal_list, multiplexer,                     "Multiplexer?",          "Is this used as multiplexer? [FALSE|TRUE]"),
@@ -2044,6 +2227,8 @@ proto_register_signal_pdu(void) {
           PI_MALFORMED, PI_ERROR, "Signal PDU: Truncated payload!", EXPFILL} },
         { &ef_spdu_config_error, {"signal_pdu.payload.config_error",
           PI_MALFORMED, PI_ERROR, "Signal PDU: Config Error (missing filter, filter duplicate, ...)!", EXPFILL} },
+        { &ef_spdu_unaligned_data, {"signal_pdu.payload.unaligned_data",
+          PI_MALFORMED, PI_ERROR, "Signal PDU: Unaligned data! Strings etc. need to be aligned to bytes!", EXPFILL} },
     };
 
     /* Register ETTs */
