@@ -1,4 +1,4 @@
--- ﻿3GPP TS 37.355 V16.6.0 (2021-09)
+-- ﻿3GPP TS 37.355 V16.7.0 (2021-12)
 
 LPP-PDU-Definitions {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
@@ -2462,7 +2462,9 @@ BDS-ClockModel-r12 ::= SEQUENCE {
 	bdsA1-r12			INTEGER (-2097152..2097151),
 	bdsA2-r12			INTEGER (-1024..1023),
 	bdsTgd1-r12			INTEGER (-512..511),
-	...
+	...,
+	[[ bdsTgd2-r16		INTEGER (-512..511)			OPTIONAL
+	]]
 }
 
 BDS-ClockModel2-r16 ::= SEQUENCE {

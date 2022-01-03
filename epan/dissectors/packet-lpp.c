@@ -8,7 +8,7 @@
 #line 1 "./asn1/lpp/packet-lpp-template.c"
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2021 Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2022 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 16.6.0 Release 16
+ * Ref 3GPP TS 37.355 version 16.7.0 Release 16
  * http://www.3gpp.org
  */
 
@@ -1101,6 +1101,7 @@ static int hf_lpp_bdsA0_r12 = -1;                 /* INTEGER_M8388608_8388607 */
 static int hf_lpp_bdsA1_r12 = -1;                 /* INTEGER_M2097152_2097151 */
 static int hf_lpp_bdsA2_r12 = -1;                 /* INTEGER_M1024_1023 */
 static int hf_lpp_bdsTgd1_r12 = -1;               /* INTEGER_M512_511 */
+static int hf_lpp_bdsTgd2_r16 = -1;               /* INTEGER_M512_511 */
 static int hf_lpp_bdsToc_r16 = -1;                /* INTEGER_0_2047 */
 static int hf_lpp_bdsA0_r16 = -1;                 /* INTEGER_M16777216_16777215 */
 static int hf_lpp_bdsA1_r16 = -1;                 /* INTEGER_M2097152_2097151 */
@@ -13334,6 +13335,19 @@ dissect_lpp_INTEGER_0_131071(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const per_sequence_t BDS_ClockModel_r12_eag_1_sequence[] = {
+  { &hf_lpp_bdsTgd2_r16     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lpp_INTEGER_M512_511 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lpp_BDS_ClockModel_r12_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, BDS_ClockModel_r12_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t BDS_ClockModel_r12_sequence[] = {
   { &hf_lpp_bdsAODC_r12     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_31 },
   { &hf_lpp_bdsToc_r12      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_0_131071 },
@@ -13341,6 +13355,7 @@ static const per_sequence_t BDS_ClockModel_r12_sequence[] = {
   { &hf_lpp_bdsA1_r12       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M2097152_2097151 },
   { &hf_lpp_bdsA2_r12       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M1024_1023 },
   { &hf_lpp_bdsTgd1_r12     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_INTEGER_M512_511 },
+  { &dummy_hf_lpp_eag_field , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_lpp_BDS_ClockModel_r12_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -30791,6 +30806,10 @@ void proto_register_lpp(void) {
     { &hf_lpp_bdsTgd1_r12,
       { "bdsTgd1-r12", "lpp.bdsTgd1_r12",
         FT_INT32, BASE_CUSTOM, CF_FUNC(lpp_bdsTgd1_r12_fmt), 0,
+        "INTEGER_M512_511", HFILL }},
+    { &hf_lpp_bdsTgd2_r16,
+      { "bdsTgd2-r16", "lpp.bdsTgd2_r16",
+        FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER_M512_511", HFILL }},
     { &hf_lpp_bdsToc_r16,
       { "bdsToc-r16", "lpp.bdsToc_r16",
