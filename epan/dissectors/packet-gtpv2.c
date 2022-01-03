@@ -3271,11 +3271,15 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
 }
 
 int
-dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_diameter_3gpp_uli(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+    diam_sub_dis_t* diam_sub_dis = (diam_sub_dis_t*)data;
 
-    return dissect_3gpp_uli(tvb, pinfo, tree, &diam_sub_dis->avp_str);
+    if (diam_sub_dis) {
+        return dissect_3gpp_uli(tvb, pinfo, tree, &diam_sub_dis->avp_str);
+    } else {
+        return dissect_3gpp_uli(tvb, pinfo, tree, NULL);
+    }
 }
 
 /*
