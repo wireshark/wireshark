@@ -129,14 +129,12 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
 
         testout_fname = file_type_to_testout[file_type]
         testout_file = self.filename_from_id(testout_fname)
-        if 'pcapng' in pre_cap_info['filetype'] or 'nanosecond libpcap' in pre_cap_info['filetype']:
-            pcapng_flag = '-n'
-        else:
-            pcapng_flag = ''
+        # The first word is the file type (the rest might be compression info)
+        filetype_flag = pre_cap_info['filetype'].split()[0]
         # XXX: -t ISO also works now too for this output
-        text2pcap_cmd = '{cmd} {ns} -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" {in_f} {out_f}'.format(
+        text2pcap_cmd = '{cmd} -F {filetype} -l {linktype} -t "%Y-%m-%d %H:%M:%S.%f" {in_f} {out_f}'.format(
             cmd = cmd_text2pcap,
-            ns = pcapng_flag,
+            filetype = filetype_flag,
             linktype = encap_to_link_type[pre_cap_info['encapsulation']],
             in_f = testin_file,
             out_f = testout_file,
@@ -267,7 +265,7 @@ class case_text2pcap_parsing(subprocesstest.SubprocessTestCase):
         txt_fname = 'text2pcap_hash_eol.txt'
         testout_file = self.filename_from_id(testout_pcap)
         self.assertRun((cmd_text2pcap,
-            '-n',
+            '-F', 'pcapng',
             '-t', '%Y-%m-%d %H:%M:%S.',
             capture_file(txt_fname),
             testout_file,
@@ -561,6 +559,6 @@ class case_text2pcap_other_options(subprocesstest.SubprocessTestCase):
         with open(testin_file, 'w') as f:
             f.write("0000 00\n")
             f.close()
-        self.assertRun((cmd_text2pcap, "-n", "-N", "your-interface-name", testin_file, testout_file))
+        self.assertRun((cmd_text2pcap, "-F", "pcapng", "-N", "your-interface-name", testin_file, testout_file))
         proc = self.assertRun((cmd_tshark, "-r", testout_file, "-Tfields", "-eframe.interface_name", "-c1"))
         self.assertEqual(proc.stdout_str.rstrip(), "your-interface-name")
