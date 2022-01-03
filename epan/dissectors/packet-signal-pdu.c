@@ -682,14 +682,14 @@ static spdu_signal_value_name_t* get_signal_value_name_config(guint32 id, guint1
 
 static gint*
 create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_string, spdu_dt_t data_type, gboolean scale_or_offset, gboolean raw) {
+    if (i >= dynamic_hf_size) {
+        return NULL;
+    }
+
     val64_string *vs = NULL;
 
     gint *hf_id = g_new(gint, 1);
     *hf_id = -1;
-
-    if (i >= dynamic_hf_size) {
-        return NULL;
-    }
 
     spdu_signal_value_name_t *sig_val = get_signal_value_name_config(id, pos);
     if (sig_val != NULL) {
