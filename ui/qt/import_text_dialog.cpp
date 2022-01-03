@@ -493,7 +493,7 @@ int ImportTextDialog::exec() {
     wtap_dump_params_init(&params, NULL);
     params.encap = import_info_.encapsulation;
     params.snaplen = import_info_.max_frame_length;
-    params.tsprec = WTAP_TSPREC_USEC; /* XXX - support other precisions? */
+    params.tsprec = WTAP_TSPREC_NSEC; /* XXX - support other precisions? */
     /* Write a pcapng temporary file */
     file_type_subtype = wtap_pcapng_file_type_subtype();
     if (ti_ui_->interfaceLineEdit->text().length()) {
