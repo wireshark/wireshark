@@ -6138,7 +6138,7 @@ static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
 
 /* Uncompress data and returns it uncompressed on a new tvb.
  *
- * @param[in] tree a chunk of data in the tvb and return anew tvb with the uncompressed data
+ * @param[in] tree a chunk of data in the tvb and return a new tvb with the uncompressed data
  * @param[in] tvb
  * @param[in] offset offset at the begining of the compressed data.
  * @param[in] size in bytes from the initial offset to the end of the serialized data
@@ -6146,8 +6146,9 @@ static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
  * @param[out] True if it tries to uncompress the data. In environment where Zlib is not available this will be false. This is used for
  *   distinguis when the data is not decompressed because Zlib is not available (not warning) and cases where it is but fails (warning).
  *
- * @return The uncompressed data on anew TVB if everything goes fine. Otherwise NULL
+ * @return The uncompressed data on a new TVB if everything goes fine. Otherwise NULL
  */
+static
 tvbuff_t *rtps_util_get_uncompressed_tvb_zlib(
         tvbuff_t *tvb _U_,
         const gint offset _U_,
@@ -6191,6 +6192,7 @@ tvbuff_t *rtps_util_get_uncompressed_tvb_zlib(
 * @return the offset after the encapsulation options
 * @note All output parameters are optional.
 */
+static
 gint rtps_util_dissect_encapsulation_options(
         proto_tree *tree,
         tvbuff_t *tvb,
@@ -9077,6 +9079,7 @@ static void dissect_parametrized_serialized_data(proto_tree *tree, tvbuff_t *tvb
   * @return the offset after the at the beginining of the serialized data
   * @note All output parameters are optional.
   */
+static
 gint rtps_prepare_encapsulated_data(
         proto_tree *tree,
         packet_info *pinfo,
@@ -9121,7 +9124,7 @@ gint rtps_prepare_encapsulated_data(
             &compression_option,
             &padding_bytes,
             &extended_header_bits);
-    /* If compressed on a supported format we have to  uncompress it on anew tvb
+    /* If compressed on a supported format we have to  uncompress it on a new tvb
     * and reset the offset */
     is_compressed = (encapsulation_options & ENCAPSULATION_OPTIONS_COMPRESSION_BYTES_MASK) != 0;
     if (is_compressed) {
