@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.7.0 (2021-10)
+-- 3GPP TS 38.423 V16.8.0 (2021-12)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -527,7 +527,7 @@ mobilitySettingsChange	XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE				MobilityChangeRequest
 	SUCCESSFUL OUTCOME				MobilityChangeAcknowledge
 	UNSUCCESSFUL OUTCOME			MobilityChangeFailure
-     PROCEDURE CODE					id-mobilitySettingsChange
+PROCEDURE CODE					id-mobilitySettingsChange
 	CRITICALITY						reject
 }
 

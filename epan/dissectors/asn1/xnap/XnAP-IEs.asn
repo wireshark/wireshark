@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.7.0 (2021-10)
+-- 3GPP TS 38.423 V16.8.0 (2021-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -89,6 +89,9 @@ IMPORTS
 	id-UL-scheduling-PDCCH-CCE-usage,
 	id-SFN-Offset,
 	id-QoS-Mapping-Information,
+	id-AdditionLocationInformation,
+	id-dataForwardingInfoFromTargetE-UTRANnode,
+	id-Cause,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
@@ -153,7 +156,8 @@ IMPORTS
 	maxnoofSensorName,
 	maxnoofNeighPCIforMDT,
 	maxnoofFreqforMDT,
-	maxnoofNonAnchorCarrierFreqConfig
+	maxnoofNonAnchorCarrierFreqConfig,
+	maxnoofDataForwardingTunneltoE-UTRAN
 
 FROM XnAP-Constants
 
@@ -172,6 +176,11 @@ FROM XnAP-Containers;
 
 
 -- A
+
+AdditionLocationInformation ::= ENUMERATED {
+	includePSCell,
+	...
+}
 
 Additional-PDCP-Duplication-TNL-List ::= SEQUENCE (SIZE(1..maxnoofAdditionalPDCPDuplicationTNL)) OF Additional-PDCP-Duplication-TNL-Item
 Additional-PDCP-Duplication-TNL-Item ::= SEQUENCE {
@@ -483,7 +492,7 @@ CapacityValue ::= INTEGER (0..100)
 CapacityValueInfo ::= SEQUENCE {
 	capacityValue				CapacityValue,
 	ssbAreaCapacityValueList 	SSBAreaCapacityValue-List 	OPTIONAL,
-     iE-Extension 				ProtocolExtensionContainer { {CapacityValueInfo-ExtIEs} } OPTIONAL,
+iE-Extension 				ProtocolExtensionContainer { {CapacityValueInfo-ExtIEs} } OPTIONAL,
 	...
 }
 
@@ -679,12 +688,12 @@ CellMeasurementResult ::= SEQUENCE (SIZE(1..maxnoofCellsinNG-RANnode)) OF CellMe
 
 CellMeasurementResult-Item	::= SEQUENCE {
 	cell-ID								GlobalNG-RANCell-ID,
-     radioResourceStatus					RadioResourceStatus              OPTIONAL,
-     tNLCapacityIndicator					TNLCapacityIndicator          	 OPTIONAL,
-     compositeAvailableCapacityGroup  	CompositeAvailableCapacityGroup  OPTIONAL,
-     sliceAvailableCapacity          	 	SliceAvailableCapacity           OPTIONAL,
-     numberofActiveUEs                	NumberofActiveUEs                OPTIONAL,
-     rRCConnections                   	RRCConnections                   OPTIONAL,
+radioResourceStatus					RadioResourceStatus              OPTIONAL,
+tNLCapacityIndicator					TNLCapacityIndicator          	 OPTIONAL,
+compositeAvailableCapacityGroup  	CompositeAvailableCapacityGroup  OPTIONAL,
+sliceAvailableCapacity          	 	SliceAvailableCapacity           OPTIONAL,
+numberofActiveUEs                	NumberofActiveUEs                OPTIONAL,
+rRCConnections                   	RRCConnections                   OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { CellMeasurementResult-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -699,8 +708,8 @@ CellToReport ::= SEQUENCE (SIZE(1..maxnoofCellsinNG-RANnode)) OF CellToReport-It
 
 CellToReport-Item	::= SEQUENCE {
 	cell-ID									GlobalNG-RANCell-ID,
-     sSBToReport-List                        SSBToReport-List			OPTIONAL,
-     sliceToReport-List                      SliceToReport-List			OPTIONAL,
+sSBToReport-List                        SSBToReport-List			OPTIONAL,
+sliceToReport-List                      SliceToReport-List			OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { CellToReport-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -902,11 +911,46 @@ XnUAddressInfoperPDUSession-Item ::= SEQUENCE {
 
 XnUAddressInfoperPDUSession-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 { ID id-SecondarydataForwardingInfoFromTarget-List	CRITICALITY ignore	EXTENSION SecondarydataForwardingInfoFromTarget-List	PRESENCE optional}|
-{ ID id-DRB-IDs-takenintouse						CRITICALITY reject	EXTENSION DRB-List												PRESENCE optional},
+{ ID id-DRB-IDs-takenintouse						CRITICALITY reject	EXTENSION DRB-List												PRESENCE optional}|
+{ ID id-dataForwardingInfoFromTargetE-UTRANnode		CRITICALITY ignore	EXTENSION DataForwardingInfoFromTargetE-UTRANnode		PRESENCE optional},
 	...
 }
 
 DataForwardingAccepted	::= ENUMERATED {data-forwarding-accepted, ...}
+
+DataForwardingInfoFromTargetE-UTRANnode ::= SEQUENCE {
+	dataForwardingInfoFromTargetE-UTRANnode-List			DataForwardingInfoFromTargetE-UTRANnode-List,
+	iE-Extension		ProtocolExtensionContainer { { DataForwardingInfoFromTargetE-UTRANnode-ExtIEs} }	OPTIONAL,
+	...
+}
+
+DataForwardingInfoFromTargetE-UTRANnode-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+DataForwardingInfoFromTargetE-UTRANnode-List ::= SEQUENCE (SIZE(1.. maxnoofDataForwardingTunneltoE-UTRAN)) OF DataForwardingInfoFromTargetE-UTRANnode-Item
+
+DataForwardingInfoFromTargetE-UTRANnode-Item ::= SEQUENCE {
+	dlForwardingUPTNLInformation	UPTransportLayerInformation,
+	qosFlowsToBeForwarded-List	QoSFlowsToBeForwarded-List,
+	iE-Extension		ProtocolExtensionContainer { { DataForwardingInfoFromTargetE-UTRANnode-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+DataForwardingInfoFromTargetE-UTRANnode-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QoSFlowsToBeForwarded-List ::= SEQUENCE (SIZE(1..maxnoofQoSFlows)) OF QoSFlowsToBeForwarded-Item
+QoSFlowsToBeForwarded-Item ::= SEQUENCE {
+	qosFlowIdentifier			QoSFlowIdentifier,
+	iE-Extension		ProtocolExtensionContainer { { QoSFlowsToBeForwarded-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QoSFlowsToBeForwarded-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 
 DataForwardingInfoFromTargetNGRANnode ::= SEQUENCE {
@@ -1722,6 +1766,7 @@ LocationReportingInformation ::= SEQUENCE {
 }
 
 LocationReportingInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
+	{ ID id-AdditionLocationInformation	CRITICALITY ignore	EXTENSION AdditionLocationInformation	PRESENCE optional},
 	...
 }
 
@@ -2392,8 +2437,8 @@ UL-scheduling-PDCCH-CCE-usage ::= INTEGER (0.. 100)
 
 TNLCapacityIndicator ::= SEQUENCE {
 	dLTNLOfferedCapacity					OfferedCapacity,
-     dLTNLAvailableCapacity					AvailableCapacity,
-     uLTNLOfferedCapacity					OfferedCapacity,
+dLTNLAvailableCapacity					AvailableCapacity,
+uLTNLOfferedCapacity					OfferedCapacity,
 	uLTNLAvailableCapacity					AvailableCapacity,
 	iE-Extensions							ProtocolExtensionContainer { { TNLCapacityIndicator-ExtIEs} } OPTIONAL,
 	...
@@ -2693,7 +2738,7 @@ NonGBRResources-Offered ::= ENUMERATED {true, ...}
 
 NRV2XServicesAuthorized ::= SEQUENCE {
 	vehicleUE			VehicleUE											OPTIONAL,
-     pedestrianUE 		PedestrianUE						OPTIONAL,
+pedestrianUE 		PedestrianUE						OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {NRV2XServicesAuthorized-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2957,7 +3002,8 @@ PDUSession-List-withDataForwardingRequest-Item ::= SEQUENCE {
 }
 
 PDUSession-List-withDataForwardingRequest-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	...
+	{ID id-Cause				CRITICALITY ignore EXTENSION Cause				PRESENCE optional},
+...
 }
 
 
@@ -3938,10 +3984,10 @@ QoSFlowwithCause-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 QoS-Mapping-Information ::= SEQUENCE {
-     dscp							BIT STRING (SIZE(6))			OPTIONAL,
-     flow-label						BIT STRING (SIZE(20))		OPTIONAL,
-     iE-Extensions					ProtocolExtensionContainer { {QoS-Mapping-Information-ExtIEs} }	OPTIONAL,
-     ...
+dscp							BIT STRING (SIZE(6))			OPTIONAL,
+flow-label						BIT STRING (SIZE(20))		OPTIONAL,
+iE-Extensions					ProtocolExtensionContainer { {QoS-Mapping-Information-ExtIEs} }	OPTIONAL,
+...
 }
 
 QoS-Mapping-Information-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
@@ -4126,7 +4172,7 @@ ReportCharacteristics ::=  BIT STRING(SIZE(32))
 
 ReportingPeriodicity ::= ENUMERATED {
 	half-thousand-ms,
-     one-thousand-ms,
+one-thousand-ms,
 	two-thousand-ms,
 	five-thousand-ms,
 	ten-thousand-ms,
@@ -4840,8 +4886,8 @@ S-NSSAI-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 SNTriggered ::=ENUMERATED{
-     true,
-     ...
+true,
+...
 }
 
 SpecialSubframeInfo-E-UTRA ::= SEQUENCE {
@@ -4885,8 +4931,8 @@ SplitSRBsTypes ::= ENUMERATED {srb1, srb2, srb1and2, ...}
 SSBAreaCapacityValue-List ::= SEQUENCE (SIZE(1..maxnoofSSBAreas)) OF SSBAreaCapacityValue-List-Item
 
 SSBAreaCapacityValue-List-Item	::= SEQUENCE {
-     sSBIndex				INTEGER(0..63),
-     ssbAreaCapacityValue	INTEGER (0..100),
+sSBIndex				INTEGER(0..63),
+ssbAreaCapacityValue	INTEGER (0..100),
 	iE-Extensions						ProtocolExtensionContainer { { SSBAreaCapacityValue-List-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -4901,9 +4947,9 @@ SSBAreaRadioResourceStatus-List ::= SEQUENCE (SIZE(1..maxnoofSSBAreas)) OF SSBAr
 
 SSBAreaRadioResourceStatus-List-Item	::= SEQUENCE {
 	sSBIndex								INTEGER(0..63),
-     ssb-Area-DL-GBR-PRB-usage	DL-GBR-PRB-usage,
-     ssb-Area-UL-GBR-PRB-usage	UL-GBR-PRB-usage,
-     ssb-Area-dL-non-GBR-PRB-usage		DL-non-GBR-PRB-usage,
+ssb-Area-DL-GBR-PRB-usage	DL-GBR-PRB-usage,
+ssb-Area-UL-GBR-PRB-usage	UL-GBR-PRB-usage,
+ssb-Area-dL-non-GBR-PRB-usage		DL-non-GBR-PRB-usage,
 	ssb-Area-uL-non-GBR-PRB-usage		UL-non-GBR-PRB-usage,
 	ssb-Area-dL-Total-PRB-usage			DL-Total-PRB-usage,
 	ssb-Area-uL-Total-PRB-usage			UL-Total-PRB-usage,
