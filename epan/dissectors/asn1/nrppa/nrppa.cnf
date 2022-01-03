@@ -163,6 +163,9 @@ id-CGI-NR                                  ProtocolIE-ID
 id-SFNInitialisationTime-NR                ProtocolIE-ID
 id-Cell-ID                                 ProtocolIE-ID
 id-SrsFrequency                            ProtocolIE-ID
+id-TRPType                                 ProtocolIE-ID
+id-SRSSpatialRelationPerSRSResource        ProtocolIE-ID
+
 #.REGISTER
 #NRPPA-PROTOCOL-IES
 
@@ -219,12 +222,14 @@ CGI-NR                                     N nrppa.ies id-CGI-NR
 SFNInitialisationTime-EUTRA                N nrppa.ies id-SFNInitialisationTime-NR
 CGI-NR                                     N nrppa.ies id-Cell-ID
 SrsFrequency                               N nrppa.ies id-SrsFrequency
+TRPType                                    N nrppa.ies id-TRPType
 
 
 #NRPPA-PROTOCOL-EXTENSION
 
 GeographicalCoordinates                    N nrppa.extension id-GeographicalCoordinates
 SpatialRelationInfo                        N nrppa.extension id-SRSSpatialRelation
+SpatialRelationPerSRSResource              N nrppa.extension id-SRSSpatialRelationPerSRSResource
 
 
 #LPPA-ELEMENTARY-PROCEDURE

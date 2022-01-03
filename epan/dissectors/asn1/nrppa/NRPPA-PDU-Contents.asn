@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.5.0 (2021-10)
+-- 3GPP TS 38.455 V16.6.0 (2021-12)
 --9.3.4	PDU Definitions
 --
 -- **************************************************************
@@ -59,7 +59,8 @@ IMPORTS
 	AbortTransmission,
 	SystemFrameNumber,
 	SlotNumber,
-	RelativeTime1900
+	RelativeTime1900,
+	SpatialRelationPerSRSResource
 
 	
 FROM NRPPA-IEs
@@ -118,7 +119,8 @@ FROM NRPPA-Containers
 	id-SystemFrameNumber,
 	id-SlotNumber,
 	id-SRSResourceTrigger,
-	id-SFNInitialisationTime
+	id-SFNInitialisationTime,
+	id-SRSSpatialRelationPerSRSResource
 
 
 	
@@ -673,8 +675,9 @@ SemipersistentSRS ::= SEQUENCE {
 }
 
 SemipersistentSRS-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {		
-{ ID id-SRSSpatialRelation	CRITICALITY ignore	EXTENSION SpatialRelationInfo PRESENCE optional},
-...
+	{ ID id-SRSSpatialRelation					CRITICALITY ignore	EXTENSION SpatialRelationInfo					PRESENCE optional}|
+	{ ID id-SRSSpatialRelationPerSRSResource		CRITICALITY ignore	EXTENSION SpatialRelationPerSRSResource	PRESENCE optional},
+	...
 }
 
 AperiodicSRS ::= SEQUENCE {

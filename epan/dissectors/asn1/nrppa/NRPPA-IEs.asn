@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.5.0 (2021-10)
+-- 3GPP TS 38.455 V16.6.0 (2021-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -73,7 +73,9 @@ IMPORTS
 	maxnoofPRSresource,
 	id-Cell-ID,
 	id-TRPInformationTypeItem,
-	id-SrsFrequency
+	id-SrsFrequency,
+	id-TRPType,
+	id-SRSSpatialRelationPerSRSResource
 
 
 
@@ -1329,6 +1331,7 @@ SRSResourceSet-Item ::= SEQUENCE {
 }
 
 SRSResourceSet-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-SRSSpatialRelationPerSRSResource	CRITICALITY ignore	EXTENSION SpatialRelationPerSRSResource PRESENCE optional},
 	...
 }
 
@@ -1749,6 +1752,28 @@ SpatialRelationforResourceIDItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+
+SpatialRelationPerSRSResource ::= SEQUENCE {
+	spatialRelationPerSRSResource-List	SpatialRelationPerSRSResource-List,
+	iE-Extensions		ProtocolExtensionContainer { { SpatialRelationPerSRSResource-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SpatialRelationPerSRSResource-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SpatialRelationPerSRSResource-List::= SEQUENCE(SIZE (1.. maxnoSRS-ResourcePerSet)) OF SpatialRelationPerSRSResourceItem
+
+SpatialRelationPerSRSResourceItem ::= SEQUENCE {
+	referenceSignal		ReferenceSignal,
+	iE-Extensions		ProtocolExtensionContainer { {SpatialRelationPerSRSResourceItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+SpatialRelationPerSRSResourceItem-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 SpatialRelationPos ::= CHOICE {
 	sSBPos					SSB,
@@ -2172,6 +2197,7 @@ TRPInformationTypeResponseItem ::= CHOICE {
 }
 
 TRPInformationTypeResponseItem-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-TRPType		CRITICALITY reject TYPE TRPType		PRESENCE mandatory },
 	...
 
 }
@@ -2194,7 +2220,8 @@ TRPInformationTypeItem ::= ENUMERATED {
 		spatialDirectInfo,
 		geoCoord,
 
-		...
+		...,
+		trp-type
 }
 
 TRPList ::= SEQUENCE (SIZE(1.. maxnoTRPs)) OF TRPItem
@@ -2262,6 +2289,15 @@ TRPReferencePointType ::= CHOICE {
 }
 
 TRPReferencePointType-ExtIEs NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+TRPType ::= ENUMERATED {
+	prsOnlyTP,
+	srsOnlyRP,
+	tp,
+	rp,
+	trp,
 	...
 }
 
