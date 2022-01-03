@@ -673,15 +673,17 @@ free_spdu_signal_list_cb(void*r) {
 static void
 deregister_user_data(void)
 {
-    if (dynamic_hf) {
+    if (dynamic_hf != NULL) {
         /* Unregister all fields */
         for (guint i = 0; i < dynamic_hf_size; i++) {
-            proto_deregister_field(proto_signal_pdu, *(dynamic_hf[i].p_id));
-            g_free(dynamic_hf[i].p_id);
-            dynamic_hf[i].p_id = NULL;
+            if (dynamic_hf[i].p_id != NULL) {
+                proto_deregister_field(proto_signal_pdu, *(dynamic_hf[i].p_id));
+                g_free(dynamic_hf[i].p_id);
+                dynamic_hf[i].p_id = NULL;
 
-            /* workaround since the proto.c proto_free_field_strings seems to crash us... */
-            dynamic_hf[i].hfinfo.strings = NULL;
+                /* workaround since the proto.c proto_free_field_strings seems to crash us... */
+                dynamic_hf[i].hfinfo.strings = NULL;
+            }
         }
 
         proto_add_deregistered_data(dynamic_hf);
