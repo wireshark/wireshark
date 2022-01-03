@@ -69,6 +69,8 @@ static int hf_imf_content_transfer_encoding = -1;
 static int hf_imf_content_description = -1;
 static int hf_imf_mime_version = -1;
 static int hf_imf_thread_index = -1;
+static int hf_imf_lines = -1;
+static int hf_imf_precedence = -1;
 static int hf_imf_ext_mailer = -1;
 static int hf_imf_ext_mimeole = -1;
 static int hf_imf_ext_tnef_correlator = -1;
@@ -76,6 +78,7 @@ static int hf_imf_ext_expiry_date = -1;
 static int hf_imf_ext_uidl = -1;
 static int hf_imf_ext_authentication_warning = -1;
 static int hf_imf_ext_virus_scanned = -1;
+static int hf_imf_ext_original_to = -1;
 static int hf_imf_extension = -1;
 static int hf_imf_extension_type = -1;
 static int hf_imf_extension_value = -1;
@@ -268,12 +271,15 @@ static struct imf_field imf_fields[] = {
   /* some others */
   {"x-mailer",                            &hf_imf_ext_mailer, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"thread-index",                        &hf_imf_thread_index, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"lines",                               &hf_imf_lines, NULL, FALSE},
+  {"precedence",                          &hf_imf_precedence, NULL, FALSE},
   {"x-mimeole",                           &hf_imf_ext_mimeole, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"expiry-date",                         &hf_imf_ext_expiry_date, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-ms-tnef-correlator",                &hf_imf_ext_tnef_correlator, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-uidl",                              &hf_imf_ext_uidl, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-authentication-warning",            &hf_imf_ext_authentication_warning, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-virus-scanned",                     &hf_imf_ext_virus_scanned, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"x-original-to",                       &hf_imf_ext_original_to, dissect_imf_address_list, FALSE},
   {"sio-label",                           &hf_imf_siolabel, dissect_imf_siolabel, FALSE}, /* sio-label */
   {NULL, NULL, NULL, FALSE},
 };
@@ -1234,8 +1240,17 @@ proto_register_imf(void)
     { &hf_imf_ext_virus_scanned,
       { "X-Virus-Scanned", "imf.ext.virus_scanned", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_imf_ext_original_to,
+      { "X-Original-To", "imf.ext.original-to", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_imf_thread_index,
       { "Thread-Index", "imf.thread-index", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_lines,
+      { "Lines", "imf.lines", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_precedence,
+      { "Precedence", "imf.precedence", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_imf_extension,
       { "Unknown-Extension", "imf.extension", FT_STRING,  BASE_NONE, NULL, 0x0,
