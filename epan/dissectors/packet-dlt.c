@@ -1007,11 +1007,11 @@ dissect_dlt_non_verbose_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *r
     }
     offset += 4;
 
-    if (tvb_captured_length_remaining(tvb, offset) == 0) {
-        return offset - offset_orig;
-    }
-
     if (msg_type==DLT_MSG_TYPE_CTRL_MSG && (msg_type_info_comb==DLT_MSG_TYPE_INFO_CTRL_REQ || msg_type_info_comb==DLT_MSG_TYPE_INFO_CTRL_RES)) {
+        if (tvb_captured_length_remaining(tvb, offset) == 0) {
+            return offset - offset_orig;
+        }
+
         message_id_name = try_val_to_str(message_id, dlt_service);
 
         if (message_id_name == NULL) {
