@@ -58,7 +58,11 @@ They previously shipped with Npcap 1.55.
 ** Date and time can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
    Otherwise local time is used.
 
-* text2pcap has been updated to use the new logging output options and the
+* text2pcap:
+** text2pcap supports writing the output file in all the capture file formats
+   that wiretap library supports, using the same "-F" option as editcap,
+   mergecap, and tshark.
+** text2pcap has been updated to use the new logging output options and the
   "-d" flag has been removed. The "debug" log level corresponds to the old
   "-d" flag, and the "noisy" log level corresponds to using "-d" multiple times.
 

@@ -98,9 +98,6 @@
 
 /*--- Options --------------------------------------------------------------------*/
 
-/* File format */
-static gboolean use_pcapng = FALSE;
-
 /* Be quiet */
 static gboolean quiet = FALSE;
 
@@ -215,6 +212,8 @@ print_usage (FILE *output)
             "                         (def: 16: hexadecimal) No effect in hexdump mode.\n"
             "\n"
             "Output:\n"
+            "  -F <capture type>      set the output file type; default is pcap.\n"
+            "                         an empty \"-F\" option will list the file types.\n"
             "  -l <typenum>           link-layer type number; default is 1 (Ethernet).  See\n"
             "                         https://www.tcpdump.org/linktypes.html for a list of\n"
             "                         numbers.  Use this option if your dump is a complete\n"
@@ -294,6 +293,20 @@ set_hdr_ip_proto(guint8 ip_proto)
     hdr_ethernet = TRUE;
 }
 
+static void
+list_capture_types(void) {
+  GArray *writable_type_subtypes;
+
+  cmdarg_err("The available capture file types for the \"-F\" flag are:\n");
+  writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+  for (guint i = 0; i < writable_type_subtypes->len; i++) {
+    int ft = g_array_index(writable_type_subtypes, int, i);
+    fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
+            wtap_file_type_subtype_description(ft));
+  }
+  g_array_free(writable_type_subtypes, TRUE);
+}
+
 /*----------------------------------------------------------------------
  * Parse CLI options
  */
@@ -311,7 +324,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     const char *interface_name = NULL;
     /* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
     guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
-    int file_type_subtype;
+    int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
     int err;
     char* err_info;
     GError* gerror = NULL;
@@ -326,7 +339,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
 
     /* Scan CLI parameters */
-    while ((c = ws_getopt_long(argc, argv, "hqab:De:i:l:m:nN:o:u:P:r:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
+    while ((c = ws_getopt_long(argc, argv, "hqab:De:F:i:l:m:nN:o:u:P:r:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
         case 'h':
             show_help_header("Generate a capture file from an ASCII hexdump of packets.");
@@ -338,7 +351,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         case 'D': info->hexdump.has_direction = TRUE; break;
         case 'l': pcap_link_type = (guint32)strtol(ws_optarg, NULL, 0); break;
         case 'm': max_offset = (guint32)strtol(ws_optarg, NULL, 0); break;
-        case 'n': use_pcapng = TRUE; break;
+        case 'n': file_type_subtype = wtap_pcapng_file_type_subtype(); break;
         case 'N': interface_name = ws_optarg; break;
         case 'b':
         {
@@ -380,6 +393,15 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             if (sscanf(ws_optarg, "%x", &hdr_ethernet_proto) < 1) {
                 cmdarg_err("Bad argument for '-e': %s", ws_optarg);
                 print_usage(stderr);
+                return INVALID_OPTION;
+            }
+            break;
+
+        case 'F':
+            file_type_subtype = wtap_name_to_file_type_subtype(ws_optarg);
+            if  (file_type_subtype < 0) {
+                cmdarg_err("\"%s\" isn't a valid capture file type", ws_optarg);
+                list_capture_types();
                 return INVALID_OPTION;
             }
             break;
@@ -632,6 +654,14 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
 
         case '?':
+            switch(ws_optopt) {
+            case 'F':
+                list_capture_types();
+                return INVALID_OPTION;
+                break;
+            }
+            /* FALLTHROUGH */
+
         default:
             print_usage(stderr);
             return INVALID_OPTION;
@@ -746,13 +776,14 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
     params->encap = wtap_encap_type;
     params->snaplen = max_offset;
-    if (use_pcapng) {
-        params->tsprec = WTAP_TSPREC_NSEC;
-        file_type_subtype = wtap_pcapng_file_type_subtype();
-    } else {
-        params->tsprec = WTAP_TSPREC_USEC;
+    if (file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
         file_type_subtype = wtap_pcap_file_type_subtype();
     }
+    /* Request nanosecond precision. Most file formats only support one time
+     * precision and ignore this parameter (and the related options in the
+     * generated IDB), but it affects pcapng.
+     */
+    params->tsprec = WTAP_TSPREC_NSEC;
     if ((ret = text_import_pre_open(params, file_type_subtype, input_filename, interface_name)) != EXIT_SUCCESS) {
         g_free(params->idb_inf);
         wtap_dump_params_cleanup(params);
@@ -829,8 +860,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     if (!quiet) {
         fprintf(stderr, "Input from: %s\n", input_filename);
         fprintf(stderr, "Output to: %s\n",  output_filename);
-        fprintf(stderr, "Output format: %s\n", use_pcapng ? "pcapng" : "pcap");
-
+        fprintf(stderr, "Output format: %s\n", wtap_file_type_subtype_name(file_type_subtype));
         if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0X\n",
                                   hdr_ethernet_proto);
         if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %u\n",
