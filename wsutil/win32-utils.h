@@ -11,9 +11,8 @@
 #ifndef __WIN32UTIL_H__
 #define __WIN32UTIL_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
-#include <glib.h>
 #include <windows.h>
 
 /**

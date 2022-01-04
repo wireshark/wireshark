@@ -12,12 +12,15 @@
 #ifndef __WSLOG_H__
 #define __WSLOG_H__
 
+#include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <time.h>
 #include <stdarg.h>
+#include <time.h>
 #include <glib.h>
 
-#include <wireshark.h>
+#include <ws_symbol_export.h>
+#include <ws_attributes.h>
 #include <ws_log_defs.h>
 
 #ifdef WS_LOG_DOMAIN

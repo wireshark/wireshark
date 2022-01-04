@@ -15,7 +15,7 @@
 #include <string.h>
 #include <glib.h>
 #include <ws_symbol_export.h>
-#include "ws_attributes.h"
+#include <ws_attributes.h>
 
 #ifdef __cplusplus
 extern "C" {

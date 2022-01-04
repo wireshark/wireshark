@@ -15,8 +15,6 @@
 #include <tchar.h>
 #include <VersionHelpers.h>
 
-#include <wsutil/wslog.h>
-
 /* Quote the argument element if necessary, so that it will get
  * reconstructed correctly in the C runtime startup code.  Note that
  * the unquoting algorithm in the C runtime is really weird, and

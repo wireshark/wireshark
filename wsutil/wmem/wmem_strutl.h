@@ -12,7 +12,6 @@
 #ifndef __WMEM_STRUTL_H__
 #define __WMEM_STRUTL_H__
 
-#include <wireshark.h>
 #include <stdarg.h>
 
 #include "wmem_core.h"
