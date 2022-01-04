@@ -10,6 +10,8 @@
 
 #include "config.h"
 
+/* Because ws_assert() dependes on ws_error() we do not use it
+ * here and fall back on assert() instead. */
 #if defined(WS_DISABLE_ASSERT) && !defined(NDEBUG)
 #define NDEBUG
 #endif
@@ -350,7 +352,7 @@ parse_console_compat_option(char *argv[],
     uint32_t mask;
     enum ws_log_level level;
 
-    ws_assert(argv != NULL);
+    assert(argv != NULL);
 
     if (argv[0] == NULL)
         return;
