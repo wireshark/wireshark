@@ -343,12 +343,18 @@ abs_time_to_ftrepr_dfilter(wmem_allocator_t *scope,
 
 	if (use_utc) {
 		tm = gmtime(&nstime->secs);
-		strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%sZ\"", tm);
+		if (tm != NULL)
+			strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%sZ\"", tm);
+		else
+			snprintf(datetime_format, sizeof(datetime_format), "Not representable");
 	}
 	else {
 		tm = localtime(&nstime->secs);
 		/* Displaying the timezone could be made into a preference. */
-		strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%s%z\"", tm);
+		if (tm != NULL)
+			strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%s%z\"", tm);
+		else
+			snprintf(datetime_format, sizeof(datetime_format), "Not representable");
 	}
 
 	if (nstime->nsecs == 0)
