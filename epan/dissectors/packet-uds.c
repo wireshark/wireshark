@@ -13,6 +13,7 @@
 #include <epan/packet.h>
 #include <epan/uat.h>
 #include <wsutil/bits_ctz.h>
+#include <epan/dissectors/packet-uds.h>
 #include <epan/dissectors/packet-doip.h>
 #include <epan/dissectors/packet-iso10681.h>
 #include <epan/dissectors/packet-iso15765.h>
@@ -22,30 +23,6 @@ void proto_reg_handoff_uds(void);
 
 #define DATAFILE_UDS_ROUTINE_IDS "UDS_routine_identifiers"
 #define DATAFILE_UDS_DATA_IDS    "UDS_data_identifiers"
-
-#define UDS_SERVICES_DSC     0x10
-#define UDS_SERVICES_ER      0x11
-#define UDS_SERVICES_CDTCI   0x14
-#define UDS_SERVICES_RDTCI   0x19
-#define UDS_SERVICES_RDBI    0x22
-#define UDS_SERVICES_RMBA    0x23
-#define UDS_SERVICES_RSDBI   0x24
-#define UDS_SERVICES_SA      0x27
-#define UDS_SERVICES_CC      0x28
-#define UDS_SERVICES_RDBPI   0x2A
-#define UDS_SERVICES_DDDI    0x2C
-#define UDS_SERVICES_WDBI    0x2E
-#define UDS_SERVICES_IOCBI   0x2F
-#define UDS_SERVICES_RC      0x31
-#define UDS_SERVICES_RD      0x34
-#define UDS_SERVICES_RU      0x35
-#define UDS_SERVICES_TD      0x36
-#define UDS_SERVICES_RTE     0x37
-#define UDS_SERVICES_RFT     0x38
-#define UDS_SERVICES_WMBA    0x3D
-#define UDS_SERVICES_TP      0x3E
-#define UDS_SERVICES_ERR     0x3F
-#define UDS_SERVICES_CDTCS   0x85
 
 #define UDS_RESPONSE_CODES_GR       0x10
 #define UDS_RESPONSE_CODES_SNS      0x11
@@ -70,9 +47,6 @@ void proto_reg_handoff_uds(void);
 #define UDS_RESPONSE_CODES_SFNSIAS  0x7E
 #define UDS_RESPONSE_CODES_SNSIAS   0x7F
 
-
-#define UDS_SID_MASK    0xBF
-#define UDS_REPLY_MASK  0x40
 #define UDS_SID_OFFSET  0
 #define UDS_SID_LEN     1
 #define UDS_DATA_OFFSET 1
@@ -386,6 +360,9 @@ static dissector_handle_t uds_handle_doip;
 static dissector_handle_t uds_handle_iso10681;
 static dissector_handle_t uds_handle_iso15765;
 
+/*** Subdissectors ***/
+static heur_dissector_list_t heur_subdissector_list;
+static heur_dtbl_entry_t *heur_dtbl_entry;
 
 /*** Configuration ***/
 typedef struct _generic_addr_id_string {
@@ -609,6 +586,19 @@ tvb_get_guintX(tvbuff_t *tvb, const gint offset, const gint size, const guint en
     return 0;
 }
 
+gboolean
+call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 service, gboolean reply, guint32 id, guint32 uds_address)
+{
+    uds_info_t uds_info;
+
+    uds_info.id = id;
+    uds_info.uds_address = uds_address;
+    uds_info.reply = reply;
+    uds_info.service = service;
+
+    return dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &uds_info);
+}
+
 static int
 dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 source_address, guint16 target_address, guint8 number_of_addresses_valid)
 {
@@ -619,6 +609,7 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
     const char *service_name;
     guint32     ecu_address;
     guint32     data_length = tvb_reported_length(tvb);
+    tvbuff_t   *payload_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDS");
     col_clear(pinfo->cinfo,COL_INFO);
@@ -700,6 +691,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
 
                 proto_tree_add_item(subtree, hf_uds_rdbi_data_record, tvb, UDS_RDBI_DATA_RECORD_OFFSET,
                                     record_length, ENC_NA);
+
+                payload_tvb = tvb_new_subset_length(tvb, UDS_RDBI_DATA_RECORD_OFFSET, record_length);
+                call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, TRUE, data_identifier, ecu_address);
+
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
                 infocol_append_data_name(pinfo, ecu_address, data_identifier);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
@@ -761,6 +756,10 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
                 guint32 record_length = data_length - UDS_WDBI_DATA_RECORD_OFFSET;
                 proto_tree_add_item(subtree, hf_uds_wdbi_data_record, tvb, UDS_WDBI_DATA_RECORD_OFFSET,
                                     record_length, ENC_NA);
+
+                payload_tvb = tvb_new_subset_length(tvb, UDS_WDBI_DATA_RECORD_OFFSET, record_length);
+                call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, enum_val, ecu_address);
+
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", enum_val);
                 infocol_append_data_name(pinfo, ecu_address, enum_val);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
@@ -820,6 +819,9 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                         tvb_bytes_to_str_punct(pinfo->pool, tvb,
                                                                UDS_RC_STATUS_RECORD_OFFSET, status_record_len, ' '));
+
+                        payload_tvb = tvb_new_subset_length(tvb, UDS_RC_STATUS_RECORD_OFFSET, status_record_len);
+                        call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, TRUE, identifier, ecu_address);
                     }
                 }
             } else {
@@ -830,6 +832,9 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s",
                                     tvb_bytes_to_str_punct(pinfo->pool, tvb,
                                                            UDS_RC_OPTION_RECORD_OFFSET, option_record_len, ' '));
+
+                    payload_tvb = tvb_new_subset_length(tvb, UDS_RC_OPTION_RECORD_OFFSET, option_record_len);
+                    call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, identifier, ecu_address);
                 }
             }
             break;
@@ -1441,6 +1446,8 @@ proto_register_uds(void)
 
     prefs_register_uat_preference(uds_module, "_uds_data_id_list", "UDS Data Identifier List",
         "A table to define names of UDS Data Identifier", uds_data_ids_uat);
+
+    heur_subdissector_list = register_heur_dissector_list("uds", proto_uds);
 }
 
 void
