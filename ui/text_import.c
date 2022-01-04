@@ -1046,7 +1046,7 @@ _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _fo
         (void) g_strlcpy(format, _format, PARSE_BUF);
 
         /*
-         * Initialize to today localtime, just in case not all fields
+         * Initialize to today, local time, just in case not all fields
          * of the date and time are specified.
          */
         timecode = timecode_default;
