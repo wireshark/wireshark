@@ -868,7 +868,7 @@ static inline const char *color_off(gboolean enable)
 static void log_write_do_work(FILE *fp, gboolean use_color,
                                 struct tm *when, long nanosecs,
                                 const char *domain,  enum ws_log_level level,
-                                const char *file, int line, const char *func,
+                                const char *file, long line, const char *func,
                                 const char *user_format, va_list user_ap)
 {
 #ifndef WS_DISABLE_DEBUG
@@ -898,7 +898,7 @@ static void log_write_do_work(FILE *fp, gboolean use_color,
 
     /* File/line */
     if (file != NULL && line >= 0)
-        fprintf(fp, "%s:%d ", file, line);
+        fprintf(fp, "%s:%ld ", file, line);
     else if (file != NULL)
         fprintf(fp, "%s ", file);
 
@@ -950,7 +950,7 @@ static inline bool console_color_enabled(enum ws_log_level level)
  * our own handler for the GLib domain).
  */
 static void log_write_dispatch(const char *domain, enum ws_log_level level,
-                            const char *file, int line, const char *func,
+                            const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap)
 {
     struct timespec tstamp;
@@ -999,7 +999,7 @@ void ws_logv(const char *domain, enum ws_log_level level,
 
 
 void ws_logv_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, va_list ap)
 {
     if (!ws_log_msg_is_active(domain, level))
@@ -1024,7 +1024,7 @@ void ws_log(const char *domain, enum ws_log_level level,
 
 
 void ws_log_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, ...)
 {
     if (!ws_log_msg_is_active(domain, level))
@@ -1039,7 +1039,7 @@ void ws_log_full(const char *domain, enum ws_log_level level,
 
 
 void ws_log_write_always_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, ...)
 {
     va_list ap;
@@ -1051,7 +1051,7 @@ void ws_log_write_always_full(const char *domain, enum ws_log_level level,
 
 
 void ws_log_buffer_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const guint8 *ptr, size_t size,  size_t max_bytes_len,
                     const char *msg)
 {
@@ -1074,7 +1074,7 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
 
 void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
                             struct timespec timestamp,
-                            const char *file, int line, const char *func,
+                            const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap)
 {
     log_write_do_work(fp, FALSE,
@@ -1087,7 +1087,7 @@ void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
 
 void ws_log_console_writer(const char *domain, enum ws_log_level level,
                             struct timespec timestamp,
-                            const char *file, int line, const char *func,
+                            const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap)
 {
     log_write_do_work(console_file(level), console_color_enabled(level),

@@ -40,7 +40,7 @@ extern "C" {
 /** Callback for registering a log writer. */
 typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,
                             struct timespec timestamp,
-                            const char *file, int line, const char *func,
+                            const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap,
                             void *user_data);
 
@@ -52,14 +52,14 @@ typedef void (ws_log_writer_free_data_cb)(void *user_data);
 WS_DLL_PUBLIC
 void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
                             struct timespec timestamp,
-                            const char *file, int line, const char *func,
+                            const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap);
 
 
 WS_DLL_PUBLIC
 void ws_log_console_writer(const char *domain, enum ws_log_level level,
                             struct timespec timestamp,
-                            const char *file, int line, const char *func,
+                            const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap);
 
 
@@ -251,7 +251,7 @@ void ws_logv(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, ...) G_GNUC_PRINTF(6,7);
 
 
@@ -262,7 +262,7 @@ void ws_log_full(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_logv_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, va_list ap);
 
 
@@ -344,7 +344,7 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_buffer_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const guint8 *buffer, size_t size,
                     size_t max_bytes_len, const char *msg);
 
@@ -373,7 +373,7 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_write_always_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, ...) G_GNUC_PRINTF(6,7);
 
 

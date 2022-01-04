@@ -27,7 +27,7 @@ extern "C" {
 
 WS_DLL_PUBLIC
 WS_NORETURN
-void ws_assert_failed(const char *file, int line, const char *function,
+void ws_assert_failed(const char *file, long line, const char *function,
                         const char *domain, const char *assertion,
                         bool unreachable);
 

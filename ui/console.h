@@ -29,7 +29,7 @@ extern "C" {
 void
 console_log_writer(const char *domain, enum ws_log_level level,
                                    struct timespec timestamp,
-                                   const char *file, int line, const char *func,
+                                   const char *file, long line, const char *func,
                                    const char *user_format, va_list user_ap,
                                    void *user_data);
 
