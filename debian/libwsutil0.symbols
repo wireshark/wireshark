@@ -348,7 +348,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
  ws_ascii_strnatcmp@Base 1.99.1
- ws_assert_failed@Base 3.5.0
  ws_base32_decode@Base 2.3.0
  ws_basestrtou16@Base 2.9.0
  ws_basestrtou32@Base 2.9.0
@@ -384,6 +383,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_buffer_full@Base 3.5.1
  ws_log_console_writer@Base 3.7.0
  ws_log_console_writer_set_use_stdout@Base 3.7.0
+ ws_log_fatal_full@Base 3.7.0
  ws_log_file_writer@Base 3.7.0
  ws_log_full@Base 3.5.0
  ws_log_get_level@Base 3.5.0

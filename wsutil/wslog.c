@@ -1039,6 +1039,19 @@ void ws_log_full(const char *domain, enum ws_log_level level,
 }
 
 
+void ws_log_fatal_full(const char *domain, enum ws_log_level level,
+                    const char *file, long line, const char *func,
+                    const char *format, ...)
+{
+    va_list ap;
+
+    va_start(ap, format);
+    log_write_dispatch(domain, level, file, line, func, format, ap);
+    va_end(ap);
+    abort();
+}
+
+
 void ws_log_write_always_full(const char *domain, enum ws_log_level level,
                     const char *file, long line, const char *func,
                     const char *format, ...)

@@ -14,12 +14,7 @@
 #include <ws_attributes.h>
 #include <stdbool.h>
 #include <string.h>
-
-#ifdef WS_LOG_DOMAIN
-#define _ASSERT_DOMAIN WS_LOG_DOMAIN
-#else
-#define _ASSERT_DOMAIN ""
-#endif
+#include <wsutil/wslog.h>
 
 #ifdef WS_DISABLE_ASSERT
 #define _ASSERT_ENABLED false
@@ -31,12 +26,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC
-WS_NORETURN
-void ws_assert_failed(const char *file, long line, const char *function,
-                        const char *domain, const char *assertion,
-                        bool unreachable);
-
 /*
  * We don't want to execute the expression with WS_DISABLE_ASSERT because
  * it might be time and space costly and the goal here is to optimize for
@@ -45,11 +34,9 @@ void ws_assert_failed(const char *file, long line, const char *function,
  * if (false) and let the compiler optimize away the dead execution branch.
  */
 #define _ASSERT_IF_ACTIVE(active, expr) \
-        do {                                                        \
-            if ((active) && !(expr)) {                              \
-                ws_assert_failed(__FILE__, __LINE__, __func__,      \
-                                    _ASSERT_DOMAIN, #expr, false);  \
-            }                                                       \
+        do {                                                \
+            if ((active) && !(expr))                        \
+                ws_error("assertion failed: %s", #expr);    \
         } while (0)
 
 /*
@@ -86,8 +73,7 @@ void ws_assert_failed(const char *file, long line, const char *function,
  * ws_assert_not_reached(). There is no reason to ever use a no-op here.
  */
 #define ws_assert_not_reached() \
-        ws_assert_failed(__FILE__, __LINE__, __func__, \
-                            _ASSERT_DOMAIN, NULL, true)
+        ws_error("assertion \"not reached\" failed")
 
 #ifdef __cplusplus
 }

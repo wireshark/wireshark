@@ -275,6 +275,13 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap);
 
 
+WS_DLL_PUBLIC
+WS_NORETURN
+void ws_log_fatal_full(const char *domain, enum ws_log_level level,
+                    const char *file, long line, const char *func,
+                    const char *format, ...) G_GNUC_PRINTF(6,7);
+
+
 /*
  * The if condition avoids -Wunused warnings for variables used only with
  * !WS_DISABLE_DEBUG, typically inside a ws_debug() call. The compiler will
@@ -302,7 +309,8 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  * "error" is always fatal and terminates the program with a coredump.
  */
 #define ws_error(...) \
-        _LOG_FULL(true, LOG_LEVEL_ERROR, __VA_ARGS__)
+        ws_log_fatal_full(_LOG_DOMAIN, LOG_LEVEL_ERROR, \
+                            __FILE__, __LINE__, __func__, __VA_ARGS__)
 
 /** Logs with "critical" level.
  *
