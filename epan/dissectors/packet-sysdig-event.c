@@ -2293,10 +2293,9 @@ static int
 dissect_plugin_event(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
 {
     //json_dissector_handle = find_dissector("json");
-    if (plugin_dissector_handle == NULL) {
-        plugin_dissector_handle = find_dissector("sdplugin");
+    if (!plugin_dissector_handle) {
+        return 0;
     }
-
     return call_dissector_with_data(plugin_dissector_handle, tvb, pinfo, tree, data);
 }
 
@@ -2651,6 +2650,8 @@ proto_reg_handoff_sysdig_event(void)
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT, sysdig_event_handle);
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2, sysdig_event_handle);
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE, sysdig_event_handle);
+
+    plugin_dissector_handle = find_dissector("sdplugin");
 }
 
 /*
