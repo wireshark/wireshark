@@ -57,10 +57,17 @@ guint n_conv_fields = 0;
 /*
  * Fields
  */
+static int hf_sdp_source_id_size = -1;
 static int hf_sdp_lengths = -1;
 static int hf_sdp_source_id = -1;
 
 static hf_register_info hf[] = {
+    { &hf_sdp_source_id_size,
+        { "Plugin ID size", "sysdig_plugin.id.size",
+        FT_UINT32, BASE_DEC,
+        NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_sdp_lengths,
         { "Field Lengths", "sysdig_plugin.lens",
         FT_UINT32, BASE_HEX,
@@ -72,7 +79,7 @@ static hf_register_info hf[] = {
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
-    }
+    },
 };
 
 /*
@@ -599,14 +606,16 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
 
-    proto_item *ti = proto_tree_add_item(tree, proto_sdplugin, tvb, 0, 8, ENC_NA);
+    // https://github.com/falcosecurity/libs/blob/9c942f27/userspace/libscap/scap.c#L1900
+    proto_item *ti = proto_tree_add_item(tree, proto_sdplugin, tvb, 0, 12, ENC_NA);
     proto_tree *sdplugin_tree = proto_item_add_subtree(ti, ett_sdplugin);
-    proto_tree_add_item(sdplugin_tree, hf_sdp_lengths, tvb, 0, 4, ENC_BIG_ENDIAN);
-    proto_item *idti = proto_tree_add_item(sdplugin_tree, hf_sdp_source_id, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(sdplugin_tree, hf_sdp_source_id_size, tvb, 0, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(sdplugin_tree, hf_sdp_lengths, tvb, 4, 4, ENC_BIG_ENDIAN);
+    proto_item *idti = proto_tree_add_item(sdplugin_tree, hf_sdp_source_id, tvb, 8, 4, ENC_LITTLE_ENDIAN);
 
     guint32 source_id = tvb_get_guint32(tvb, 8, ENC_LITTLE_ENDIAN);
     bridge_info* bi = get_bridge_info(source_id);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Plugin ID: %u", (unsigned)source_id);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Plugin ID: %u", source_id);
 
     if (bi == NULL) {
         proto_item_append_text(idti, " (NOT SUPPORTED)");
