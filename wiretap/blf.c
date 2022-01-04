@@ -1618,6 +1618,7 @@ blf_read_apptextmessage(blf_params_t *params, int *err, gchar **err_info, gint64
 
     if (!blf_read_bytes(params, data_start + sizeof(apptextheader), text, apptextheader.textLength, err, err_info)) {
         ws_debug("not enough bytes for apptext text in file");
+        g_free(text);
         return FALSE;
     }
 
