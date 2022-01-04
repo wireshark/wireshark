@@ -2669,6 +2669,49 @@ proto_mpeg_descriptor_dissect_private_data_specifier(tvbuff_t *tvb, guint offset
     proto_tree_add_item(tree, hf_mpeg_descr_private_data_specifier_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
+/* 0x63 Partial Transport Stream Descriptor */
+static int hf_mpeg_descr_partial_transport_stream_reserved_future_use1 = -1;
+static int hf_mpeg_descr_partial_transport_stream_peak_rate = -1;
+static int hf_mpeg_descr_partial_transport_stream_reserved_future_use2 = -1;
+static int hf_mpeg_descr_partial_transport_stream_minimum_overall_smoothing_rate = -1;
+static int hf_mpeg_descr_partial_transport_stream_reserved_future_use3 = -1;
+static int hf_mpeg_descr_partial_transport_stream_maximum_overall_smoothing_buffer = -1;
+
+#define PARTIAL_TRANSPORT_STREAM_DESCR_RESERVED_FUTURE_USE1_MASK   0xC00000
+#define PARTIAL_TRANSPORT_STREAM_DESCR_PEAK_RATE_MASK              0x3FFFFF
+#define PARTIAL_TRANSPORT_STREAM_DESCR_RESERVED_FUTURE_USE2_MASK   0xC00000
+#define PARTIAL_TRANSPORT_STREAM_DESCR_MINIMUM_SMOOTHING_RATE_MASK 0x3FFFFF
+#define PARTIAL_TRANSPORT_STREAM_DESCR_RESERVED_FUTURE_USE3_MASK     0xC000
+#define PARTIAL_TRANSPORT_STREAM_DESCR_MAXIMUM_SMOOTHING_BUFF_MASK   0x3FFF
+
+static void
+proto_mpeg_descriptor_dissect_partial_transport_stream(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint cnt = len;
+
+    if (cnt < 3) return;
+    proto_tree_add_item(tree, hf_mpeg_descr_partial_transport_stream_reserved_future_use1, tvb, offset, 3, ENC_BIG_ENDIAN);
+    guint rate = tvb_get_guint24(tvb, offset, ENC_NA) & PARTIAL_TRANSPORT_STREAM_DESCR_PEAK_RATE_MASK;
+    proto_tree_add_uint_bits_format_value(tree, hf_mpeg_descr_partial_transport_stream_peak_rate, tvb, (offset*8)+2,
+    22, rate, ENC_BIG_ENDIAN, "%u bits/s", rate*400);
+    offset += 3;
+    cnt    -= 3;
+
+    if (cnt < 3) return;
+    proto_tree_add_item(tree, hf_mpeg_descr_partial_transport_stream_reserved_future_use2, tvb, offset, 3, ENC_BIG_ENDIAN);
+    rate = tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN) & PARTIAL_TRANSPORT_STREAM_DESCR_MINIMUM_SMOOTHING_RATE_MASK;
+    proto_tree_add_uint_bits_format_value(tree, hf_mpeg_descr_partial_transport_stream_minimum_overall_smoothing_rate, tvb,
+    (offset*8)+2, 22, rate, ENC_BIG_ENDIAN, (rate==0x3FFFFFu)?"Underfined (0x3FFFFF)":"%u bits/s", rate*400u);
+    offset += 3;
+    cnt    -= 3;
+
+    if (cnt < 2) return;
+    proto_tree_add_item(tree, hf_mpeg_descr_partial_transport_stream_reserved_future_use3, tvb, offset, 2, ENC_BIG_ENDIAN);
+    guint buffer = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & PARTIAL_TRANSPORT_STREAM_DESCR_MAXIMUM_SMOOTHING_BUFF_MASK;
+    proto_tree_add_uint_bits_format_value(tree, hf_mpeg_descr_partial_transport_stream_maximum_overall_smoothing_buffer, tvb,
+    (offset*8)+2, 14, buffer, ENC_BIG_ENDIAN, (buffer==0x3FFFu)?"Underfined (0x3FFF)":"%u bytes", buffer);
+}
+
 /* 0x64 Data Broadcast Descriptor */
 static int hf_mpeg_descr_data_bcast_bcast_id = -1;
 static int hf_mpeg_descr_data_bcast_component_tag = -1;
@@ -3874,6 +3917,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x5F: /* Private Data Specifier Descriptor */
             proto_mpeg_descriptor_dissect_private_data_specifier(tvb, offset, descriptor_tree);
+            break;
+        case 0x63: /* Partial Transport Stream Descriptor */
+            proto_mpeg_descriptor_dissect_partial_transport_stream(tvb, offset, len, descriptor_tree);
             break;
         case 0x64: /* Data Broadcast Descriptor */
             proto_mpeg_descriptor_dissect_data_bcast(tvb, offset, descriptor_tree);
@@ -5142,6 +5188,37 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_private_data_specifier_id, {
             "Private Data Specifier", "mpeg_descr.private_data_specifier.id",
             FT_UINT32, BASE_HEX, VALS(mpeg_descr_data_specifier_id_vals), 0, NULL, HFILL
+        } },
+
+        /* 0x63 Partial Transport Stream Descriptor */
+        { &hf_mpeg_descr_partial_transport_stream_reserved_future_use1, {
+            "Reserved", "mpeg_descr.partial_transport_stream.reserved_future_use1",
+            FT_UINT24, BASE_HEX, NULL, PARTIAL_TRANSPORT_STREAM_DESCR_RESERVED_FUTURE_USE1_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_partial_transport_stream_peak_rate, {
+            "Peak Rate", "mpeg_descr.partial_transport_stream.peak_rate",
+            FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_partial_transport_stream_reserved_future_use2, {
+            "Reserved", "mpeg_descr.partial_transport_stream.reserved_future_use2",
+            FT_UINT24, BASE_HEX, NULL, PARTIAL_TRANSPORT_STREAM_DESCR_RESERVED_FUTURE_USE2_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_partial_transport_stream_minimum_overall_smoothing_rate, {
+            "Minimum Overall Smoothing Rate", "mpeg_descr.partial_transport_stream.minimum_overall_smoothing_rate",
+            FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_partial_transport_stream_reserved_future_use3, {
+            "Reserved", "mpeg_descr.partial_transport_stream.reserved_future_use3",
+            FT_UINT16, BASE_HEX, NULL, PARTIAL_TRANSPORT_STREAM_DESCR_RESERVED_FUTURE_USE3_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_partial_transport_stream_maximum_overall_smoothing_buffer, {
+            "Maximum Overall Smoothing Buffer", "mpeg_descr.partial_transport_stream.maximum_overall_smoothing_buffer",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
         /* 0x64 Data Broadcast Descriptor */
