@@ -35,7 +35,7 @@ for FILE in $COMMIT_FILES; do
         continue
     fi
     # This is a template file, not a final '.c' file.
-    if test "$FILE_BASENAME" = "packet-asterix-template.c"
+    if echo "$FILE_BASENAME" | grep -Eq "packet-.*-template.c"
     then
         continue
     fi
