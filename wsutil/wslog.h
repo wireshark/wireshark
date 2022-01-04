@@ -26,6 +26,12 @@
 #define _LOG_DOMAIN ""
 #endif
 
+#ifdef WS_DISABLE_DEBUG
+#define _LOG_DEBUG_ENABLED false
+#else
+#define _LOG_DEBUG_ENABLED true
+#endif
+
 /*
  * Define the macro WS_LOG_DOMAIN *before* including this header,
  * for example:
@@ -266,14 +272,25 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
                     const char *format, va_list ap);
 
 
-#define _LOG_FULL(level, ...) \
-            ws_log_full(_LOG_DOMAIN, level,  \
-                        __FILE__, __LINE__, __func__, __VA_ARGS__)
+/*
+ * The if condition avoids -Wunused warnings for variables used only with
+ * !WS_DISABLE_DEBUG, typically inside a ws_debug() call. The compiler will
+ * optimize away the dead execution branch.
+ */
+#define _LOG_IF_ACTIVE(active, level, file, line, func, ...) \
+        do {                                        \
+            if (active) {                           \
+                ws_log_full(_LOG_DOMAIN, level,     \
+                            file, line, func,       \
+                            __VA_ARGS__);           \
+            }                                       \
+        } while (0)
 
-#define _LOG_SIMPLE(level, ...) \
-            ws_log_full(_LOG_DOMAIN, level,  \
-                        NULL, -1, NULL, __VA_ARGS__)
+#define _LOG_FULL(active, level, ...) \
+        _LOG_IF_ACTIVE(active, level, __FILE__, __LINE__, __func__, __VA_ARGS__)
 
+#define _LOG_SIMPLE(active, level, ...) \
+        _LOG_IF_ACTIVE(active, level, NULL, -1, NULL, __VA_ARGS__)
 
 /** Logs with "error" level.
  *
@@ -281,61 +298,55 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  *
  * "error" is always fatal and terminates the program with a coredump.
  */
-#define ws_error(...)    _LOG_FULL(LOG_LEVEL_ERROR, __VA_ARGS__)
+#define ws_error(...) \
+        _LOG_FULL(true, LOG_LEVEL_ERROR, __VA_ARGS__)
 
 /** Logs with "critical" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_critical(...) _LOG_FULL(LOG_LEVEL_CRITICAL, __VA_ARGS__)
+#define ws_critical(...) \
+        _LOG_FULL(true, LOG_LEVEL_CRITICAL, __VA_ARGS__)
 
 /** Logs with "warning" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_warning(...)  _LOG_FULL(LOG_LEVEL_WARNING, __VA_ARGS__)
+#define ws_warning(...) \
+        _LOG_FULL(true, LOG_LEVEL_WARNING, __VA_ARGS__)
 
 /** Logs with "message" level.
  *
  * Accepts a format string and *does not* include the file and function
  * name. This is the default log level.
  */
-#define ws_message(...)  _LOG_SIMPLE(LOG_LEVEL_MESSAGE, __VA_ARGS__)
+#define ws_message(...) \
+        _LOG_SIMPLE(true, LOG_LEVEL_MESSAGE, __VA_ARGS__)
 
 /** Logs with "info" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_info(...)     _LOG_FULL(LOG_LEVEL_INFO, __VA_ARGS__)
-
-#ifdef WS_DISABLE_DEBUG
-/*
- * This avoids -Wunused warnings for variables used only with
- * !WS_DISABLE_DEBUG,typically inside a ws_debug() call. The compiler will
- * optimize away the dead execution branch.
- */
-#define _LOG_DEBUG(level, ...) \
-          G_STMT_START { \
-               if (0) _LOG_FULL(level, __VA_ARGS__); \
-          } G_STMT_END
-#else
-#define _LOG_DEBUG(level, ...)   _LOG_FULL(level, __VA_ARGS__)
-#endif
+#define ws_info(...) \
+        _LOG_FULL(true, LOG_LEVEL_INFO, __VA_ARGS__)
 
 /** Logs with "debug" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_debug(...)    _LOG_DEBUG(LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define ws_debug(...) \
+        _LOG_FULL(_LOG_DEBUG_ENABLED, LOG_LEVEL_DEBUG, __VA_ARGS__)
 
 /** Logs with "noisy" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_noisy(...)    _LOG_DEBUG(LOG_LEVEL_NOISY, __VA_ARGS__)
+#define ws_noisy(...) \
+        _LOG_FULL(_LOG_DEBUG_ENABLED, LOG_LEVEL_NOISY, __VA_ARGS__)
 
-
-#define WS_DEBUG_HERE(...)      _LOG_FULL(LOG_LEVEL_ECHO, __VA_ARGS__)
+/** Used for temporary debug print outs, always active. */
+#define WS_DEBUG_HERE(...) \
+        _LOG_FULL(true, LOG_LEVEL_ECHO, __VA_ARGS__)
 
 
 /** This function is called to log a buffer (bytes array).
@@ -349,19 +360,14 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
                     size_t max_bytes_len, const char *msg);
 
 
-#define _LOG_BUFFER(buf, size) \
-    ws_log_buffer_full(_LOG_DOMAIN, LOG_LEVEL_DEBUG, \
-                        __FILE__, __LINE__, __func__, \
-                        buf, size, 36, #buf)
-
-#ifdef WS_DISABLE_DEBUG
 #define ws_log_buffer(buf, size) \
-          G_STMT_START { \
-               if (0) _LOG_BUFFER(buf, size); \
-          } G_STMT_END
-#else
-#define ws_log_buffer(buf, size) _LOG_BUFFER(buf, size)
-#endif
+        do {                                                        \
+            if (_LOG_DEBUG_ENABLED) {                               \
+                ws_log_buffer_full(_LOG_DOMAIN, LOG_LEVEL_DEBUG,    \
+                        __FILE__, __LINE__, __func__,               \
+                        buf, size, 36, #buf);                       \
+            }                                                       \
+        } while (0)
 
 
 /** Auxiliary function to write custom logging functions.
