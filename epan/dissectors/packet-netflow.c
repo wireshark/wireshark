@@ -2336,6 +2336,7 @@ static const value_string classification_engine_types[] = {
     { 19, "LLC" },
     { 20, "PANA-L7-PEN" },
     { 21, "Qosmos ixEngine" },
+    { 22, "ntop nDPI" },
     { 0, NULL }
 };
 /*
