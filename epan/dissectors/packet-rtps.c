@@ -2780,9 +2780,8 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             if (show) {
                 ALIGN_ZERO(offset, get_native_type_cdr_alignment(member_kind, encoding_version), offset_zero);
                 gdouble value = tvb_get_ieee_double(tvb, offset, encoding);
-                if (show)
-                  proto_tree_add_double_format(tree, hf_rtps_dissection_double, tvb, offset, length, value,
-                    "%s: %.6f", name, value);
+                proto_tree_add_double_format(tree, hf_rtps_dissection_double, tvb, offset, length, value,
+                  "%s: %.6f", name, value);
             }
             offset += length;
             break;
@@ -5205,7 +5204,7 @@ static void rtps_util_add_type_element_enumeration(proto_tree *tree,
   proto_tree * enumerated_constant;
   guint32 member_id = 0, member_length = 0;
   guint32 long_number, i;
-  gint enum_size, offset_tmp = offset;
+  gint enum_size, offset_tmp;
 
   offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
 
@@ -7967,7 +7966,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
      *     }
      */
     case PID_FILTER_SIGNATURE: {
-      guint32 temp_offset = offset;
+      guint32 temp_offset;
       guint32 prev_offset;
       guint32 fs_elem;
       guint32 fs[4];
@@ -8317,7 +8316,7 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
      *     }
      */
     case PID_CONTENT_FILTER_INFO: {
-      guint32 temp_offset = offset;
+      guint32 temp_offset;
       guint32 prev_offset;
       guint32 fs_elem;
       guint32 fs[4];

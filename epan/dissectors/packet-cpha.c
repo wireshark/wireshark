@@ -273,8 +273,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cphap, tvb, offset, -1, ENC_NA);
     cpha_tree = proto_item_add_subtree(ti, ett_cphap);
-  }
-  if (tree) {
+
     proto_tree_add_item(cpha_tree, hf_magic_number, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 

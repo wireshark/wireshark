@@ -1519,7 +1519,7 @@ static void dissect_tlv_list(ptvcursor_t * ptvc, packet_info* pinfo, gint len);
 
 static void dissect_array_value(ptvcursor_t * ptvc, packet_info* pinfo, const char* name, guint32 ett_idx, guint32 count, tlv_decode decode)
 {
-	guint16 i = 0;
+	guint16 i;
 
 	if (count > 0)
 	{

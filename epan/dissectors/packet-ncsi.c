@@ -531,10 +531,7 @@ ncsi_bcd_dig_to_str(tvbuff_t *tvb, const gint offset)
             digit_str[str_offset++] = '.';
         }
 
-        if ((octet >> 4) != 0xf) {
-            digit_str[str_offset++] =  HEXSTR((octet >> 4) & 0x0f);
-        }
-
+        digit_str[str_offset++] = HEXSTR((octet >> 4) & 0x0f);
         digit_str[str_offset++] = HEXSTR(octet & 0x0f);
 
     }

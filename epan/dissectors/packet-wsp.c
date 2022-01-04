@@ -3906,8 +3906,8 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
         address_flags_len = tvb_get_guint8 (tvb, offset);
         address_len = address_flags_len & ADDRESS_LEN;
         address_record_len = address_len
-            + (address_flags_len & BEARER_TYPE_INCLUDED ? 1 : 0)
-            + (address_flags_len & PORT_NUMBER_INCLUDED ? 2 : 0)
+            + ((address_flags_len & BEARER_TYPE_INCLUDED) ? 1 : 0)
+            + ((address_flags_len & PORT_NUMBER_INCLUDED) ? 2 : 0)
         ;
 
         ti = proto_tree_add_uint(addresses_tree, hf_address_entry,
@@ -4082,8 +4082,8 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
         address_flags_len = tvb_get_guint8 (tvb, offset);
         address_len = address_flags_len & ADDRESS_LEN;
         address_record_len = address_len
-            + (address_flags_len & BEARER_TYPE_INCLUDED ? 1 : 0)
-            + (address_flags_len & PORT_NUMBER_INCLUDED ? 2 : 0)
+            + ((address_flags_len & BEARER_TYPE_INCLUDED) ? 1 : 0)
+            + ((address_flags_len & PORT_NUMBER_INCLUDED) ? 2 : 0)
         ;
 
         ti = proto_tree_add_uint(addresses_tree, hf_address_entry,

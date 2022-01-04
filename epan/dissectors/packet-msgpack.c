@@ -331,7 +331,7 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	if (type == 0xc2 || type == 0xc3) {
 		proto_tree_add_boolean(tree, hf_msgpack_bool, tvb, *offset, 1, type - 0xc2);
 		if (value)
-			*value = (type - 0xc2 ? "True" : "False");
+			*value = (type - 0xc2) ? "True" : "False";
 		*offset += 1;
 		return;
 	}
