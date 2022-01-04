@@ -704,12 +704,12 @@ update_spdu_signal_list(void *r, char **err) {
             return FALSE;
         }
 
-        if ((rec->multiplexer == TRUE)) {
+        if (rec->multiplexer == TRUE) {
             *err = ws_strdup_printf("Data types string and uint_string currently cannot be used as multiplexer (ID: 0x%08x)", rec->id);;
             return FALSE;
         }
 
-        if ((rec->bitlength_base_type != 8) ) {
+        if (rec->bitlength_base_type != 8) {
             *err = ws_strdup_printf("Data typesstring and uint_string only support 8 bit Bitlength base type since they are ASCII-based (ID: 0x%08x)", rec->id);
             return FALSE;
         }
