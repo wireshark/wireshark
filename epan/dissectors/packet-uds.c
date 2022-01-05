@@ -586,7 +586,7 @@ tvb_get_guintX(tvbuff_t *tvb, const gint offset, const gint size, const guint en
     return 0;
 }
 
-gboolean
+static gboolean
 call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 service, gboolean reply, guint32 id, guint32 uds_address)
 {
     uds_info_t uds_info;
