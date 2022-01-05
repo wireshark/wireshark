@@ -300,6 +300,9 @@ development of Wireshark scripts and plugins.
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/CMake/
 # https://fedoraproject.org/wiki/Changes/CMake_to_do_out-of-source_builds
 # https://en.opensuse.org/openSUSE:Build_system_recipes#cmake
+# Fedora's new RPATH hardening means we need to enable $ORIGIN if the
+# prefix is anything other than /usr:
+# https://fedoraproject.org/wiki/Changes/Broken_RPATH_will_fail_rpmbuild
 %if 0%{?rhel} && ( 0%{?rhel} <= 7 )
 cmake3 \
 %else
@@ -308,6 +311,9 @@ cmake \
 %else
 %cmake \
 %endif
+%endif
+%if 0%{?fedora} && ( "%{_prefix}" != "/usr" )
+  -DENABLE_RPATH_ORIGIN=ON \
 %endif
 %if %{with ccache}
   -DENABLE_CCACHE=ON \
