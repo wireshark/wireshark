@@ -72,7 +72,7 @@ LZIP_VERSION=1.21
 # The version of libPCRE on Catalina is insufficient to build glib due to
 # missing UTF-8 support.
 #
-PCRE_VERSION=8.44
+PCRE_VERSION=8.45
 
 #
 # CMake is required to do the build - and to build some of the
@@ -366,7 +366,7 @@ uninstall_lzip() {
 install_pcre() {
     if [ "$PCRE_VERSION" -a ! -f pcre-$PCRE_VERSION-done ] ; then
         echo "Downloading, building, and installing pcre:"
-        [ -f pcre-$PCRE_VERSION.tar.bz2 ] || curl -L -O https://ftp.pcre.org/pub/pcre/pcre-$PCRE_VERSION.tar.bz2 || exit 1
+        [ -f pcre-$PCRE_VERSION.tar.bz2 ] || curl -L -O https://sourceforge.net/projects/pcre/files/pcre/$PCRE_VERSION/pcre-$PCRE_VERSION.tar.bz2 || exit 1
         $no_build && echo "Skipping installation" && return
         bzcat pcre-$PCRE_VERSION.tar.bz2 | tar xf - || exit 1
         cd pcre-$PCRE_VERSION
