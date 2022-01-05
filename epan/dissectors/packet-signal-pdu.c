@@ -121,6 +121,7 @@ typedef enum _spdu_data_type {
     SPDU_DATA_TYPE_INT,
     SPDU_DATA_TYPE_FLOAT,
     SPDU_DATA_TYPE_STRING,
+    SPDU_DATA_TYPE_STRINGZ,
     SPDU_DATA_TYPE_UINT_STRING,
 } spdu_dt_t;
 
@@ -137,6 +138,7 @@ typedef struct _spdu_signal_item {
     gboolean    multiplexer;
     gint        multiplex_value_only;
     gboolean    hidden;
+    guint       encoding;
 
     gint       *hf_id_effective;
     gint       *hf_id_raw;
@@ -667,8 +669,12 @@ update_spdu_signal_list(void *r, char **err) {
         g_strcmp0(rec->data_type, "int") != 0 &&
         g_strcmp0(rec->data_type, "float") != 0 &&
         g_strcmp0(rec->data_type, "string") != 0 &&
-        g_strcmp0(rec->data_type, "uint_string") != 0) {
-        *err = ws_strdup_printf("Currently the only supported data types are uint, int, float, string, and uint_string (ID: 0x%08x)", rec->id);
+        g_strcmp0(rec->data_type, "stringz") != 0 &&
+        g_strcmp0(rec->data_type, "uint_string") != 0 &&
+        g_strcmp0(rec->data_type, "utf_string") != 0 &&
+        g_strcmp0(rec->data_type, "utf_stringz") != 0 &&
+        g_strcmp0(rec->data_type, "utf_uint_string") != 0) {
+            *err = ws_strdup_printf("Currently the only supported data types are uint, int, float, string, stringz, uint_string, utf_string, utf_stringz, and utf_uint_string (ID: 0x%08x)", rec->id);
         return FALSE;
     }
 
@@ -705,7 +711,7 @@ update_spdu_signal_list(void *r, char **err) {
             return FALSE;
         }
 
-        if ((scaler != 1.0) && (offset != 0.0)) {
+        if ((scaler != 1.0) || (offset != 0.0)) {
             *err = ws_strdup_printf("Data type float currently does not support scaling and offset (ID: 0x%08x)", rec->id);
             return FALSE;
         }
@@ -716,25 +722,40 @@ update_spdu_signal_list(void *r, char **err) {
         }
     }
 
-    /* string, uint_string */
-    if (g_strcmp0(rec->data_type, "string") == 0 || g_strcmp0(rec->data_type, "uint_string") == 0) {
-        if ((scaler != 1.0) && (offset != 0.0)) {
-            *err = ws_strdup_printf("Data types string and uint_string currently do not support scaling and offset (ID: 0x%08x)", rec->id);
+    /* string, stringz, uint_string, utf_string, utf_stringz, utf_uint_string */
+    if (g_strcmp0(rec->data_type, "string") == 0 || g_strcmp0(rec->data_type, "stringz") == 0 || g_strcmp0(rec->data_type, "uint_string") == 0 ||
+        g_strcmp0(rec->data_type, "utf_string") == 0 || g_strcmp0(rec->data_type, "utf_stringz") == 0 || g_strcmp0(rec->data_type, "utf_uint_string") == 0) {
+        if ((scaler != 1.0) || (offset != 0.0)) {
+            *err = ws_strdup_printf("Data types string, stringz, uint_string, utf_string, utf_stringz, and utf_uint_string currently do not support scaling and offset (ID: 0x%08x)", rec->id);
             return FALSE;
         }
 
         if (rec->multiplexer == TRUE) {
-            *err = ws_strdup_printf("Data types string and uint_string currently cannot be used as multiplexer (ID: 0x%08x)", rec->id);;
+            *err = ws_strdup_printf("Data types string, stringz, uint_string, utf_string, utf_stringz, and utf_uint_string currently cannot be used as multiplexer (ID: 0x%08x)", rec->id);;
             return FALSE;
         }
 
-        if (rec->bitlength_base_type != 8) {
-            *err = ws_strdup_printf("Data typesstring and uint_string only support 8 bit Bitlength base type since they are ASCII-based (ID: 0x%08x)", rec->id);
+        if ((g_strcmp0(rec->data_type, "string") == 0 || g_strcmp0(rec->data_type, "stringz") == 0 || g_strcmp0(rec->data_type, "uint_string") == 0) &&
+            rec->bitlength_base_type != 8) {
+            *err = ws_strdup_printf("Data types string, stringz, and uint_string only support 8 bit Bitlength base type since they are ASCII-based (ID: 0x%08x)", rec->id);
             return FALSE;
         }
 
-        if (g_strcmp0(rec->data_type, "uint_string") == 0 && (rec->bitlength_encoded_type != 8) && (rec->bitlength_encoded_type != 16) && (rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
-            *err = ws_strdup_printf("Data type uint_string is only supported with 8, 16, 32, or 64 bit (ID: 0x%08x)", rec->id);
+        if ((g_strcmp0(rec->data_type, "utf_string") == 0 || g_strcmp0(rec->data_type, "utf_stringz") == 0 || g_strcmp0(rec->data_type, "utf_uint_string") == 0) &&
+            rec->bitlength_base_type != 8 && rec->bitlength_base_type != 16) {
+            *err = ws_strdup_printf("Data types utf_string, utf_stringz, and utf_uint_string only support Bitlength base type with 8 bit (UTF-8) or 16 bit (UTF-16) (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if ((g_strcmp0(rec->data_type, "stringz") == 0 || g_strcmp0(rec->data_type, "utf_stringz") == 0 ) &&
+            (rec->bitlength_encoded_type != 0)) {
+            *err = ws_strdup_printf("Data types stringz and utf_stringz only support Bitlength encoded with 0 bit since the length is determined by zero-termination (ID: 0x%08x)", rec->id);
+            return FALSE;
+        }
+
+        if ((g_strcmp0(rec->data_type, "uint_string") == 0 || g_strcmp0(rec->data_type, "utf_uint_string") == 0) &&
+            (rec->bitlength_encoded_type != 8) && (rec->bitlength_encoded_type != 16) && (rec->bitlength_encoded_type != 32) && (rec->bitlength_encoded_type != 64)) {
+            *err = ws_strdup_printf("Data types uint_string and utf_uint_string only support Bitlength encoded with 8, 16, 32, or 64 bit since that defines the length of the length field (ID: 0x%08x)", rec->id);
             return FALSE;
         }
     }
@@ -833,6 +854,11 @@ create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_str
             dynamic_hf[i].hfinfo.type = FT_STRING;
             break;
 
+        case SPDU_DATA_TYPE_STRINGZ:
+            dynamic_hf[i].hfinfo.display = BASE_NONE;
+            dynamic_hf[i].hfinfo.type = FT_STRINGZ;
+            break;
+
         case SPDU_DATA_TYPE_UINT_STRING:
             dynamic_hf[i].hfinfo.display = BASE_NONE;
             dynamic_hf[i].hfinfo.type = FT_UINT_STRING;
@@ -900,19 +926,41 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
                 /* we do not care if we overwrite param */
                 item->name = g_strdup(data[i].name);
                 item->pos = data[i].pos;
+
+                item->encoding = ENC_ASCII;
+                if (g_strcmp0("utf_string", data[i].data_type) == 0 ||
+                    g_strcmp0("utf_stringz", data[i].data_type) == 0 ||
+                    g_strcmp0("utf_uint_string", data[i].data_type) == 0) {
+                    switch (data[i].bitlength_base_type) {
+                    case 8:
+                        item->encoding = ENC_UTF_8;
+                        break;
+                    case 16:
+                        item->encoding = ENC_UTF_16;
+                        break;
+                    default:
+                        /* this should never happen, since it is validated in the update callback */
+                        item->encoding = ENC_ASCII;
+                        break;
+                    }
+                }
+
                 if (g_strcmp0("uint", data[i].data_type) == 0) {
                     item->data_type = SPDU_DATA_TYPE_UINT;
                 } else if (g_strcmp0("int", data[i].data_type) == 0) {
                     item->data_type = SPDU_DATA_TYPE_INT;
                 } else if (g_strcmp0("float", data[i].data_type) == 0) {
                     item->data_type = SPDU_DATA_TYPE_FLOAT;
-                } else if (g_strcmp0("string", data[i].data_type) == 0) {
+                } else if (g_strcmp0("string", data[i].data_type) == 0 || g_strcmp0("utf_string", data[i].data_type) == 0) {
                     item->data_type = SPDU_DATA_TYPE_STRING;
-                } else if (g_strcmp0("uint_string", data[i].data_type) == 0) {
+                } else if (g_strcmp0("stringz", data[i].data_type) == 0 || g_strcmp0("utf_stringz", data[i].data_type) == 0) {
+                    item->data_type = SPDU_DATA_TYPE_STRINGZ;
+                } else if (g_strcmp0("uint_string", data[i].data_type) == 0 || g_strcmp0("utf_uint_string", data[i].data_type) == 0) {
                     item->data_type = SPDU_DATA_TYPE_UINT_STRING;
                 } else {
                     item->data_type = SPDU_DATA_TYPE_NONE;
                 }
+
                 item->big_endian = data[i].big_endian;
                 item->bitlength_base_type = data[i].bitlength_base_type;
                 item->bitlength_encoded_type = data[i].bitlength_encoded_type;
@@ -2019,7 +2067,15 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             expert_spdu_unaligned_data(tree, pinfo, tvb, offset, 0);
         }
 
-        proto_tree_add_item(tree, hf_id_effective, tvb, offset, signal_length, ENC_ASCII);
+        proto_tree_add_item(tree, hf_id_effective, tvb, offset, signal_length, item->encoding);
+        break;
+
+    case SPDU_DATA_TYPE_STRINGZ:
+        if (offset_bits != 0) {
+            expert_spdu_unaligned_data(tree, pinfo, tvb, offset, 0);
+        }
+        proto_tree_add_item_ret_length(tree, hf_id_effective, tvb, offset, -1, item->encoding, &string_length);
+        string_length *= 8;
         break;
 
     case SPDU_DATA_TYPE_UINT_STRING:
@@ -2028,9 +2084,9 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         if (item->big_endian) {
-            proto_tree_add_item_ret_length(tree, hf_id_effective, tvb, offset, signal_length, ENC_ASCII | ENC_BIG_ENDIAN, &string_length);
+            proto_tree_add_item_ret_length(tree, hf_id_effective, tvb, offset, signal_length, item->encoding | ENC_BIG_ENDIAN, &string_length);
         } else {
-            proto_tree_add_item_ret_length(tree, hf_id_effective, tvb, offset, signal_length, ENC_ASCII | ENC_LITTLE_ENDIAN, &string_length);
+            proto_tree_add_item_ret_length(tree, hf_id_effective, tvb, offset, signal_length, item->encoding | ENC_LITTLE_ENDIAN, &string_length);
         }
         string_length = string_length * 8 - (gint)item->bitlength_encoded_type;
         break;
