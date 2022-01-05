@@ -1039,7 +1039,7 @@ proto_register_mpeg_pes(void)
         "BOOLEAN", HFILL }},
     { &hf_mpeg_pes_scrambling_control,
       { "scrambling-control", "mpeg-pes.scrambling_control",
-        FT_UINT32, BASE_DEC, VALS(mpeg_pes_T_scrambling_control_vals), 0,
+        FT_UINT8, BASE_DEC, VALS(mpeg_pes_T_scrambling_control_vals), 0x30,
         NULL, HFILL }},
     { &hf_mpeg_pes_priority,
       { "priority", "mpeg-pes.priority",
