@@ -66,7 +66,7 @@ BuildRequires:	flex
 # openSUSE 15.2: ruby2.5-rubygem-asciidoctor
 # BuildRequires:	asciidoctor
 
-BuildRequires:	glib2-devel >= 2.32.0
+BuildRequires:	glib2-devel >= 2.38.0
 BuildRequires:	libpcap-devel
 BuildRequires:	zlib-devel
 BuildRequires:	libgcrypt-devel
