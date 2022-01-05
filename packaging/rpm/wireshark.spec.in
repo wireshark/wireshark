@@ -78,7 +78,7 @@ BuildRequires:  /usr/bin/asciidoctor
 # No CentOS 8 package, so we install it from rubygems directly, but that
 # means the package manager doesn't know about it and we can't require it.
 
-BuildRequires:	glib2-devel >= 2.32.0
+BuildRequires:	glib2-devel >= 2.38.0
 BuildRequires:	libpcap-devel
 BuildRequires:	zlib-devel
 BuildRequires:	libgcrypt-devel
