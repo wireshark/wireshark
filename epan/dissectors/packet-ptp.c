@@ -262,23 +262,23 @@ static int proto_ptp = -1;
 #define PTP_MM_SET_TIME_LOCALTIMESECONDS_OFFSET                      60
 #define PTP_MM_SET_TIME_LOCALTIMENANOSECONDS_OFFSET                  64
 
-	/* Interface Rate Tlv field offsets */
-#define PTP_SIG_TLV_INTERFACE_BIT_PERIOD							 10
-#define PTP_SIG_TLV_NUMBERBITS_BEFORE_TIMESTAMP					 	 18
-#define PTP_SIG_TLV_NUMBERBITS_AFTER_TIMESTAMP					 	 20
-	
+    /* Interface Rate Tlv field offsets */
+#define PTP_SIG_TLV_INTERFACE_BIT_PERIOD                             10
+#define PTP_SIG_TLV_NUMBERBITS_BEFORE_TIMESTAMP                      18
+#define PTP_SIG_TLV_NUMBERBITS_AFTER_TIMESTAMP                       20
+
 /* END Offsets of fields within a PTP packet. */
 
 /**********************************************************/
 /* flag-field-mask-definitions                            */
 /**********************************************************/
-#define PTP_FLAGS_LI61_BITMASK              		0x01
-#define PTP_FLAGS_LI59_BITMASK              		0x02
-#define PTP_FLAGS_BOUNDARY_CLOCK_BITMASK    		0x04
-#define PTP_FLAGS_ASSIST_BITMASK            		0x08
-#define PTP_FLAGS_EXT_SYNC_BITMASK          		0x10
-#define PTP_FLAGS_PARENT_STATS_BITMASK      		0x20
-#define PTP_FLAGS_SYNC_BURST_BITMASK        		0x40
+#define PTP_FLAGS_LI61_BITMASK                  0x01
+#define PTP_FLAGS_LI59_BITMASK                  0x02
+#define PTP_FLAGS_BOUNDARY_CLOCK_BITMASK        0x04
+#define PTP_FLAGS_ASSIST_BITMASK                0x08
+#define PTP_FLAGS_EXT_SYNC_BITMASK              0x10
+#define PTP_FLAGS_PARENT_STATS_BITMASK          0x20
+#define PTP_FLAGS_SYNC_BURST_BITMASK            0x40
 
 /* END flag-field-mask-definitions */
 
@@ -995,7 +995,7 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV               0xdead01
 
 /* Subtypes for ITU-T organization ID */
-#define PTP_V2_INTERFACE_RATE_TLV						0x000002
+#define PTP_V2_INTERFACE_RATE_TLV                       0x000002
 
 /* MESSAGE ID for the PTP_V2_OE_ORG_CERN_SUBTYPE_WR_TLV */
 #define PTP_V2_OE_ORG_CERN_WRMESSAGEID_NULL_WR_TLV      0x0000
@@ -1030,7 +1030,7 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_FLAGS_PTP_TIMESCALE_BITMASK                          0x0008
 #define PTP_V2_FLAGS_TIME_TRACEABLE_BITMASK                         0x0010
 #define PTP_V2_FLAGS_FREQUENCY_TRACEABLE_BITMASK                    0x0020
-#define PTP_V2_FLAGS_SYNCHRONIZATION_UNCERTAIN_BITMASK 				0x0040
+#define PTP_V2_FLAGS_SYNCHRONIZATION_UNCERTAIN_BITMASK              0x0040
 #define PTP_V2_FLAGS_ALTERNATE_BITMASK                              0x0100
 #define PTP_V2_FLAGS_TWO_STEP_BITMASK                               0x0200
 #define PTP_V2_FLAGS_UNICAST_BITMASK                                0x0400
@@ -1609,7 +1609,7 @@ static int hf_ptp_v2_sig_oe_tlv_cern_deltaRx = -1;
 static int hf_ptp_v2_sig_oe_tlv_itut_subtype = -1;
 static int hf_ptp_v2_sig_tlv_interface_bit_period = -1;
 static int hf_ptp_v2_sig_tlv_numberbits_before_timestamp = -1;
-static int hf_ptp_v2_sig_tlv_numberbits_after_timestamp = -1;	
+static int hf_ptp_v2_sig_tlv_numberbits_after_timestamp = -1;
 
 /* Fields for PTP_Management (=mm) messages */
 static int hf_ptp_v2_mm_targetportidentity = -1;
@@ -2565,9 +2565,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item  *ti = NULL, *msg_len_item = NULL, *flags_ti, *clockidentity_ti,
-		*managementData_ti, *clockType_ti, *protocolAddress_ti;
+                *managementData_ti, *clockType_ti, *protocolAddress_ti;
     proto_tree  *ptp_tree = NULL, *ptp_flags_tree, *ptp_clockidentity_tree,
-		*ptp_managementData_tree, *ptp_clockType_tree, *ptp_protocolAddress_tree;
+                *ptp_managementData_tree, *ptp_clockType_tree, *ptp_protocolAddress_tree;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
@@ -2736,8 +2736,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
         proto_tree_add_item(ptp_flags_tree,
             hf_ptp_v2_flags_alternatemaster, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
-			
-		proto_tree_add_item(ptp_flags_tree,
+
+        proto_tree_add_item(ptp_flags_tree,
             hf_ptp_v2_flags_synchronizationUncertain, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ptp_flags_tree,
@@ -2768,14 +2768,14 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
         clockidentity_ti = proto_tree_add_item(ptp_tree,
             hf_ptp_v2_clockidentity, tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 8, ENC_BIG_ENDIAN);
 
-	/* EUI-64: vendor ID | 0xFF - 0xFE | card ID */
-	if (tvb_get_ntohs(tvb, PTP_V2_CLOCKIDENTITY_OFFSET + 3) == 0xFFFE) {
+        /* EUI-64: vendor ID | 0xFF - 0xFE | card ID */
+        if (tvb_get_ntohs(tvb, PTP_V2_CLOCKIDENTITY_OFFSET + 3) == 0xFFFE) {
             ptp_clockidentity_tree = proto_item_add_subtree(clockidentity_ti, ett_ptp_v2_clockidentity);
 
-	    manuf_name = tvb_get_manuf_name(tvb, PTP_V2_CLOCKIDENTITY_OFFSET);
-	    proto_tree_add_bytes_format_value(ptp_clockidentity_tree, hf_ptp_v2_clockidentity_manuf,
-	        tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 3, NULL, "%s", manuf_name);
-	}
+            manuf_name = tvb_get_manuf_name(tvb, PTP_V2_CLOCKIDENTITY_OFFSET);
+            proto_tree_add_bytes_format_value(ptp_clockidentity_tree, hf_ptp_v2_clockidentity_manuf,
+                tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 3, NULL, "%s", manuf_name);
+        }
 
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_sourceportid, tvb, PTP_V2_SOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -3707,12 +3707,11 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                         }
                                         break;
 
-
                                     }
-									case 0x0019a7:
-									{
-										proto_tree_add_item(ptp_tlv_tree,
-															hf_ptp_v2_sig_oe_tlv_itut_subtype,
+                                    case 0x0019a7:
+                                    {
+                                        proto_tree_add_item(ptp_tlv_tree,
+                                                            hf_ptp_v2_sig_oe_tlv_itut_subtype,
                                                             tvb,
                                                             tlv_total_length + PTP_V2_SIG_TLV_ORGANIZATIONSUBTYPE_OFFSET,
                                                             3,
@@ -3722,23 +3721,23 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                             case PTP_V2_INTERFACE_RATE_TLV:
                                             {
                                                 proto_tree_add_item(ptp_tlv_tree,
-															hf_ptp_v2_sig_tlv_interface_bit_period,
-                                                            tvb,
-                                                            tlv_total_length + PTP_SIG_TLV_INTERFACE_BIT_PERIOD,
-                                                            8,
-                                                            ENC_BIG_ENDIAN);
-												proto_tree_add_item(ptp_tlv_tree,
-															hf_ptp_v2_sig_tlv_numberbits_before_timestamp,
-                                                            tvb,
-                                                            tlv_total_length + PTP_SIG_TLV_NUMBERBITS_BEFORE_TIMESTAMP,
-                                                            2,
-                                                            ENC_BIG_ENDIAN);
-												proto_tree_add_item(ptp_tlv_tree,
-															hf_ptp_v2_sig_tlv_numberbits_after_timestamp,
-                                                            tvb,
-                                                            tlv_total_length + PTP_SIG_TLV_NUMBERBITS_AFTER_TIMESTAMP,
-                                                            2,
-                                                            ENC_BIG_ENDIAN);
+                                                                    hf_ptp_v2_sig_tlv_interface_bit_period,
+                                                                    tvb,
+                                                                    tlv_total_length + PTP_SIG_TLV_INTERFACE_BIT_PERIOD,
+                                                                    8,
+                                                                    ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_sig_tlv_numberbits_before_timestamp,
+                                                                    tvb,
+                                                                    tlv_total_length + PTP_SIG_TLV_NUMBERBITS_BEFORE_TIMESTAMP,
+                                                                    2,
+                                                                    ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_sig_tlv_numberbits_after_timestamp,
+                                                                    tvb,
+                                                                    tlv_total_length + PTP_SIG_TLV_NUMBERBITS_AFTER_TIMESTAMP,
+                                                                    2,
+                                                                    ENC_BIG_ENDIAN);
                                                 break;
                                             }
                                             default:
@@ -3753,7 +3752,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                             }
                                         }
                                         break;
-									}
+                                    }
                                     default:
                                     {
                                         proto_tree_add_item(ptp_tlv_tree,
@@ -6093,7 +6092,7 @@ proto_register_ptp(void)
             FT_UINT24, BASE_HEX, VALS(ptp_v2_org_cern_subtype_vals), 0x00,
             NULL, HFILL }
         },
-		{ &hf_ptp_v2_sig_oe_tlv_itut_subtype,
+        { &hf_ptp_v2_sig_oe_tlv_itut_subtype,
           { "organizationSubType", "ptp.v2.sig.oe.organizationSubType",
             FT_UINT24, BASE_HEX, VALS(ptp_v2_org_itut_subtype_vals), 0x00,
             NULL, HFILL }
@@ -6184,22 +6183,22 @@ proto_register_ptp(void)
              FT_BOOLEAN, 8, NULL, PTP_AS_FLAGS_ONE_STEP_RECEIVE_CAPABLE,
              NULL, HFILL }
         },
-		{ &hf_ptp_as_sig_tlv_gptp_capable_message_interval,
+        { &hf_ptp_as_sig_tlv_gptp_capable_message_interval,
           { "gptpCapableMessageInterval", "ptp.as.sig.tlv.gptpcapablemessageinterval",
             FT_INT8, BASE_DEC, NULL, 0x00,
-			NULL, HFILL }
-		},
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_sig_tlv_interface_bit_period,
           { "interfaceBitPeriod", "ptp.as.sig.tlv.interfaceBitPeriod",
             FT_UINT64, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
-		{ &hf_ptp_v2_sig_tlv_numberbits_before_timestamp,
+        { &hf_ptp_v2_sig_tlv_numberbits_before_timestamp,
           { "numberBitsBeforeTimestamp", "ptp.as.sig.tlv.numberBitsBeforeTimestamp",
             FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-		{ &hf_ptp_v2_sig_tlv_numberbits_after_timestamp,
+        { &hf_ptp_v2_sig_tlv_numberbits_after_timestamp,
           { "numberBitsAfterTimestamp", "ptp.as.sig.tlv.numberBitsAfterTimestamp",
             FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
