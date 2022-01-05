@@ -79,62 +79,36 @@ BuildRequires:  /usr/bin/asciidoctor
 # means the package manager doesn't know about it and we can't require it.
 
 BuildRequires:	glib2-devel >= 2.32.0
-Requires:	glib2
 BuildRequires:	libpcap-devel
-%if 0%{?suse_version}
-Requires:	libpcap1
-%else
-Requires:	libpcap
-%endif
 BuildRequires:	zlib-devel
-Requires:	zlib
 BuildRequires:	libgcrypt-devel
-%if 0%{?suse_version}
-Requires:	libgcrypt20
-%else
-Requires:	libgcrypt
-%endif
 
 %if %{with lz4_and_snappy}
 %if 0%{?suse_version}
 BuildRequires:	liblz4-devel
-%if 0%{?sle_version} >= 150000
-Requires:	liblz4-1
-%else
-Requires:	liblz4-1_4
-%endif
-BuildRequires:	snappy-devel
-Requires:	libsnappy1
 %else
 BuildRequires:	lz4-devel
-Requires:	lz4
-BuildRequires:	snappy-devel
-Requires:	snappy
 %endif
+BuildRequires:	snappy-devel
 %endif
 
 %if 0%{?suse_version}
-# SUSE uses these package names (yes 2!):
+# SUSE uses this package name:
 BuildRequires:	libcares-devel
-Requires:	libcares2
 %else
 # ... while Red Hat uses this one:
 # (What other RPM-based distros do will have to be determined...)
 BuildRequires:	c-ares-devel
-Requires:	c-ares
 %endif
 
 %if %{with lua}
 %if 0%{?fedora} || ( 0%{?rhel} >= 8 )
 BuildRequires:	compat-lua-devel < 5.3
-Requires:	compat-lua < 5.3
 %else
 %if 0%{?suse_version}
 BuildRequires:	lua51-devel
-Requires:	lua51
 %else
 BuildRequires:	lua-devel < 5.3
-Requires:	lua < 5.3
 %endif
 %endif
 %endif
@@ -147,20 +121,10 @@ Requires:	lua < 5.3
 
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
-%if 0%{?suse_version}
-Requires:	libnghttp2-14
-%else
-Requires:	libnghttp2
-%endif
 %endif
 
 %if %{with sdjournal}
 BuildRequires:	systemd-devel
-%if 0%{?suse_version}
-Requires:	libsystemd0
-%else
-Requires:	systemd-libs
-%endif
 %endif
 
 %if %{with brotli}
@@ -171,20 +135,13 @@ BuildRequires:	libbrotli-devel
 # packages, leaving the libbrotlidec.so symlink broken, so we have to include libbrotlidec1
 # as a build-time dependency...
 BuildRequires:	libbrotlidec1
-Requires:	libbrotlidec1
 %else
 BuildRequires:	brotli-devel
-Requires:	brotli
 %endif
 %endif
 
 %if %{with zstd}
 BuildRequires:	libzstd-devel
-%if 0%{?suse_version}
-Requires:	libzstd1
-%else
-Requires:	libzstd
-%endif
 %endif
 
 # Uncomment these if you want to be sure you get them...
@@ -197,11 +154,6 @@ Requires:	libzstd
 
 %if %{with mmdbresolve}
 BuildRequires:	libmaxminddb-devel
-%if 0%{?suse_version}
-Requires:	libmaxminddb0
-%else
-Requires:	libmaxminddb
-%endif
 %endif
 
 %if %{use_wireshark_group}
@@ -251,25 +203,17 @@ Requires:	%{name} = %{version}-%{release}
 BuildRequires:	gcc-c++
 %if 0%{?suse_version}
 BuildRequires:	libQt5Core-devel
-Requires:	libQt5Core5
 BuildRequires:	libQt5Gui-devel
-Requires:	libQt5Gui5
 BuildRequires:	libQt5Widgets-devel
-Requires:	libQt5Widgets5
 BuildRequires:	libQt5PrintSupport-devel
-Requires:	libQt5PrintSupport5
 BuildRequires:	libqt5-qtmultimedia-devel
-Requires:	libQt5Multimedia5
 BuildRequires:	libqt5-linguist-devel
 Requires:	libQt5Svg5
 # Need this for SUSE's suse_update_desktop_file macro
 BuildRequires:	update-desktop-files
 %else
 BuildRequires:	qt5-qtbase-devel
-Requires:	qt5-qtbase
-Requires:	qt5-qtbase-gui
 BuildRequires:	qt5-qtmultimedia-devel
-Requires:	qt5-qtmultimedia
 BuildRequires:	qt5-linguist
 Requires:	qt5-qtsvg
 %endif
@@ -571,6 +515,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Wed Jan  5 2022 John Thacker
+- Remove Requires that automatic dependency handling picks up
+
 * Mon Mar 29 2021 Joao Valverde
 - Update HTML documentation location
 
