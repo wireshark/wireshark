@@ -129,13 +129,11 @@ const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const
     return val_qstr;
 }
 
-const QString range_to_qstring(const epan_range *range)
+const QString range_to_qstring(const range_string *range)
 {
     QString range_qstr = QString();
     if (range) {
-        gchar *range_gchar_p = range_convert_range(NULL, range);
-        range_qstr = range_gchar_p;
-        wmem_free(NULL, range_gchar_p);
+        range_qstr += QString("%1-%2").arg(range->value_min).arg(range->value_max);
     }
     return range_qstr;
 }

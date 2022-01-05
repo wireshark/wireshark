@@ -204,9 +204,9 @@ static range_string * range_string_from_table(lua_State* L, int idx) {
                     return NULL;
                 }
                 if (key_count == 1) /* We incremented it above */
-                    r.value_min = wslua_toguint32(L, -1);
+                    r.value_min = wslua_toguint64(L, -1);
                 else
-                    r.value_max = wslua_toguint32(L, -1);
+                    r.value_max = wslua_toguint64(L, -1);
                 break;
 
             case 3:

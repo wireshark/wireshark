@@ -147,11 +147,11 @@ G_GNUC_PRINTF(3, 0);
 
 /** Convert a range to a QString using range_convert_range().
  *
- * @param range A pointer to an range struct.
+ * @param range A pointer to a range_string struct.
  *
- * @return A QString representation of the address. May be the null string (QString())
+ * @return A QString representation of the range_string. May be the null string (QString())
  */
-const QString range_to_qstring(const struct epan_range *range);
+const QString range_to_qstring(const range_string *range);
 
 /** Convert a bits per second value to a human-readable QString using format_size().
  *
