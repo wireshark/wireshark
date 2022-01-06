@@ -41,6 +41,7 @@ static int hf_eap_identity_full = -1;
 static int hf_eap_identity_actual_len = -1;
 static int hf_eap_identity_prefix = -1;
 static int hf_eap_identity_type = -1;
+static int hf_eap_identity_certificate_sn = -1;
 static int hf_eap_identity_mcc = -1;
 static int hf_eap_identity_mcc_mnc_2digits = -1;
 static int hf_eap_identity_mcc_mnc_3digits = -1;
@@ -812,41 +813,64 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   guint8*     identity = NULL;
   gchar**     tokens = NULL;
   gchar**     realm_tokens = NULL;
+  gchar**     cert_tokens = NULL;
   guint       ntokens = 0;
   guint       nrealm_tokens = 0;
+  guint       ncert_tokens = 0;
   gboolean    ret = TRUE;
+  gboolean    enc_imsi = FALSE;
   int         hf_eap_identity_mcc_mnc;
   proto_item* item;
 
-  identity = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
-
-  /* Split the Identity and the NAI Realm first */
-  tokens = g_strsplit_set(identity, "@", -1);
+  /* Check for Encrypted IMSI - NULL prefix byte */
+  if (tvb_get_guint8(tvb, offset) == 0x00) {
+    identity = tvb_get_string_enc(pinfo->pool, tvb, offset + 1, size - 1, ENC_ASCII);
+    /* Encrypted IMSIs must be delimited twice:
+     * (1) Once to tokenize the 3GPP realm from the Certificate Serial Number
+     *     using the ',' character
+     * (2) Once to tokenize the 3GPP realm using the '@' character
+    */
+    tokens = g_strsplit_set(identity, ",", -1);
+    enc_imsi = TRUE;
+  } else {
+    /* All other identities may be delimited with the '@' character */
+    identity = tvb_get_string_enc(pinfo->pool, tvb, offset, size, ENC_ASCII);
+    tokens = g_strsplit_set(identity, "@", -1);
+  }
 
   while(tokens[ntokens])
     ntokens++;
 
-  /* tokens[0] is the identity, tokens[1] is the NAI Realm */
-  if (ntokens != 2) {
-    ret = FALSE;
-    proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
-    goto end;
-  }
+  /* Check for valid EAP Identity strings based on tokens and 3GPP-format */
+  if (enc_imsi) {
+    if (ntokens < 2 || g_ascii_strncasecmp(tokens[1], "Certificate", 11)) {
+      ret = FALSE;
+      goto end;
+    }
+  } else {
+    /* tokens[0] is the identity, tokens[1] is the NAI Realm */
+    if (ntokens != 2) {
+      ret = FALSE;
+      proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
+      goto end;
+    }
 
-  realm_tokens = g_strsplit_set(tokens[1], ".", -1);
+    realm_tokens = g_strsplit_set(tokens[1], ".", -1);
 
-  while(realm_tokens[nrealm_tokens])
-    nrealm_tokens++;
+    while(realm_tokens[nrealm_tokens])
+      nrealm_tokens++;
 
-  /* The WLAN identity must have the form of
-     <imsi>@wlan.mnc<mnc>.mcc<mcc>.3gppnetwork.org
-     If not, we don't have a wlan identity
-  */
-  if (ntokens != 2 || nrealm_tokens != 5 || g_ascii_strncasecmp(realm_tokens[0], "wlan", 4) ||
-      g_ascii_strncasecmp(realm_tokens[3], "3gppnetwork", 11) ||
-      g_ascii_strncasecmp(realm_tokens[4], "org", 3)) {
-    ret = FALSE;
-    goto end;
+    /* The WLAN identity must have the form of
+       <imsi>@wlan.mnc<mnc>.mcc<mcc>.3gppnetwork.org
+       If not, we don't have a wlan identity
+    */
+    if (ntokens != 2 || nrealm_tokens != 5 || g_ascii_strncasecmp(realm_tokens[0], "wlan", 4) ||
+        g_ascii_strncasecmp(realm_tokens[3], "3gppnetwork", 11) ||
+        g_ascii_strncasecmp(realm_tokens[4], "org", 3)) {
+      ret = FALSE;
+      proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
+      goto end;
+    }
   }
 
   /* It is very likely that we have a WLAN identity (EAP-AKA/EAP-SIM) */
@@ -897,12 +921,43 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
       expert_add_info(pinfo, item, &ei_eap_identity_invalid);
   }
 
-  /* EAP identities do not always equate to IMSIs.  We should
-   * still add the MCC and MNC values for non-permanent EAP
-   * identities. */
-  if (!sscanf(realm_tokens[1] + 3, "%u", &mnc) || !sscanf(realm_tokens[2] + 3, "%u", &mcc)) {
-    ret = FALSE;
-    goto end;
+  /* If the identity is an Encrypted IMSI, parse the Certificate Serial Number */
+  if (enc_imsi) {
+    /* Tokenize the Certificate string */
+    cert_tokens = g_strsplit_set(tokens[1], "=", -1);
+
+    while(cert_tokens[ncert_tokens])
+      ncert_tokens++;
+
+    /* Add Certificate Serial Number to the tree */
+    proto_tree_add_item(eap_identity_tree, hf_eap_identity_certificate_sn, tvb,
+      offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen("CertificateSerialNumber="),
+      (guint)strlen(tokens[1]) - (guint)strlen("CertificateSerialNumber="), ENC_ASCII|ENC_NA);
+
+    /* Check for the optional NAI Realm string */
+    if (ntokens != 3 || g_ascii_strncasecmp(tokens[2], "Realm", 5)) {
+      goto end;
+    }
+
+    realm_tokens = g_strsplit_set(tokens[2], "@.", -1);
+
+    while (realm_tokens[nrealm_tokens])
+      nrealm_tokens++;
+
+    /* EAP identities do not always equate to IMSIs.  We should
+     * still add the MCC and MNC values for non-permanent EAP
+     * identities. */
+    if (!sscanf(realm_tokens[2] + 3, "%u", &mnc) || !sscanf(realm_tokens[3] + 3, "%u", &mcc)) {
+      ret = FALSE;
+      goto end;
+    }
+  } else {
+    /* Not an encrypted IMSI, but still need to make sure the realm tokens are
+     * consistent with the 3GPP format. */
+    if (!sscanf(realm_tokens[1] + 3, "%u", &mnc) || !sscanf(realm_tokens[2] + 3, "%u", &mcc)) {
+      ret = FALSE;
+      goto end;
+    }
   }
 
   if (!try_val_to_str_ext(mcc * 100 + mnc, &mcc_mnc_2digits_codes_ext)) {
@@ -919,15 +974,32 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     hf_eap_identity_mcc_mnc = hf_eap_identity_mcc_mnc_2digits;
   }
 
-  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc,
-    tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
-    (guint)strlen("mnc"), (guint)strlen(realm_tokens[1]) - (guint)strlen("mnc"),
-    mcc_mnc);
+  /* Handle encrypted IMSI indices first */
+  if (enc_imsi) {
+    /* Add MNC to tree */
+    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc, tvb,
+      offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen(tokens[1]) + 1 +
+      (guint)strlen("Realm=@wlan.mnc"), (guint)strlen(realm_tokens[2]) -
+      (guint)strlen("mnc"), mcc_mnc);
+    /* Add MCC to tree */
+    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc, tvb,
+      offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen(tokens[1]) + 1 +
+      (guint)strlen(realm_tokens[0]) + (guint)strlen("@wlan.") +
+      (guint)strlen(realm_tokens[2]) + (guint)strlen(".mcc"),
+      (guint)strlen(realm_tokens[3]) - (guint)strlen("mcc"), mcc);
+  } else {
+    /* Add MNC to tree */
+    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc,
+      tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
+      (guint)strlen("mnc"), (guint)strlen(realm_tokens[1]) - (guint)strlen("mnc"),
+      mcc_mnc);
+    /* Add MCC to tree */
+    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc,
+      tvb, offset + (guint)(strlen(tokens[0]) + (guint)strlen("@wlan.") +
+      (guint)strlen(realm_tokens[1]) + 1 + strlen("mcc")),
+      (guint)strlen(realm_tokens[2]) - (guint)strlen("mcc"), mcc);
+  }
 
-  proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc,
-    tvb, offset + (guint)(strlen(tokens[0]) + strlen("@wlan.") +
-    strlen(realm_tokens[1]) + 1 + strlen("mcc")),
-    (guint)(strlen(realm_tokens[2]) - strlen("mcc")), mcc);
 end:
   g_strfreev(tokens);
   g_strfreev(realm_tokens);
@@ -2190,6 +2262,11 @@ proto_register_eap(void)
 
     { &hf_eap_identity_full, {
       "Identity (Full)", "eap.identity.full",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_identity_certificate_sn, {
+      "Certificate Serial Number", "eap.identity.cert_sn",
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
