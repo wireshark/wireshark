@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 #include <wsutil/wsgcrypt.h>
 
 #include "packet-ber.h"
@@ -42,9 +43,10 @@ static int hf_cms_ci_contentType = -1;
 
 static int dissect_cms_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) ; /* XXX kill a compiler warning until asn2wrs stops generating these silly wrappers */
 
-
-static const char *object_identifier_id = NULL;
-static tvbuff_t *content_tvb = NULL;
+struct cms_private_data {
+  const char *object_identifier_id;
+  tvbuff_t *content_tvb;
+};
 
 static proto_tree *top_tree=NULL;
 static proto_tree *cap_tree=NULL;
@@ -61,6 +63,17 @@ static proto_tree *cap_tree=NULL;
 #define SHA256_BUFFER_SIZE  32
 
 unsigned char digest_buf[MAX(HASH_SHA1_LENGTH, HASH_MD5_LENGTH)];
+
+static struct cms_private_data*
+cms_get_private_data(packet_info *pinfo)
+{
+  struct cms_private_data *cms_data = (struct cms_private_data*)p_get_proto_data(pinfo->pool, pinfo, proto_cms, 0);
+  if (!cms_data) {
+    cms_data = wmem_new0(pinfo->pool, struct cms_private_data);
+    p_add_proto_data(pinfo->pool, pinfo, proto_cms, 0, cms_data);
+  }
+  return cms_data;
+}
 
 static void
 cms_verify_msg_digest(proto_item *pi, tvbuff_t *content, const char *alg, tvbuff_t *tvb, int offset)
