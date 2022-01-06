@@ -230,9 +230,6 @@ echo "xslt is unavailable" >&2
 add_package ADDITIONAL_LIST brotli-devel || add_packages ADDITIONAL_LIST libbrotli-devel libbrotlidec1 ||
 echo "brotli is unavailable" >&2
 
-add_package ADDITIONAL_LIST git-review ||
-echo "git-review is unavailabe" >&2
-
 add_package ADDITIONAL_LIST speexdsp-devel || add_package ADDITIONAL_LIST speex-devel ||
 echo "speex is unavailable" >&2
 
