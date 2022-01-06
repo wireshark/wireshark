@@ -377,6 +377,7 @@ static int hf_pn_io_ext_channel_error_type0x800C = -1;
 static int hf_pn_io_ext_channel_error_type = -1;
 
 static int hf_pn_io_ext_channel_add_value = -1;
+static int hf_pn_io_qualified_channel_qualifier = -1;
 
 static int hf_pn_io_ptcp_subdomain_id = -1;
 static int hf_pn_io_ir_data_id = -1;
@@ -1922,6 +1923,42 @@ static const value_string pn_io_ext_channel_error_type0x800C[] = {
     { 0, NULL }
 };
 
+/* QualifiedChannelQualifier */
+static const value_string pn_io_qualified_channel_qualifier[] = {
+    {0x00000001, "Reserved"},
+    {0x00000002, "Reserved"},
+    {0x00000004, "Reserved"},
+    {0x00000008, "Qualifier_3 (Advice)"},
+    {0x00000010, "Qualifier_4 (Advice)"},
+    {0x00000020, "Qualifier_5 (Advice)"},
+    {0x00000040, "Qualifier_6 (Advice)"},
+    {0x00000080, "Qualifier_7 (MaintenanceRequired)"},
+    {0x00000100, "Qualifier_8 (MaintenanceRequired)"},
+    {0x00000200, "Qualifier_9 (MaintenanceRequired)"},
+    {0x00000400, "Qualifier_10 (MaintenanceRequired)"},
+    {0x00000800, "Qualifier_11 (MaintenanceRequired)"},
+    {0x00001000, "Qualifier_12 (MaintenanceRequired)"},
+    {0x00002000, "Qualifier_13 (MaintenanceRequired)"},
+    {0x00004000, "Qualifier_14 (MaintenanceRequired)"},
+    {0x00008000, "Qualifier_15 (MaintenanceRequired)"},
+    {0x00010000, "Qualifier_16 (MaintenanceRequired)"},
+    {0x00020000, "Qualifier_17 (MaintenanceDemanded)"},
+    {0x00040000, "Qualifier_18 (MaintenanceDemanded)"},
+    {0x00080000, "Qualifier_19 (MaintenanceDemanded)"},
+    {0x00100000, "Qualifier_20 (MaintenanceDemanded)"},
+    {0x00200000, "Qualifier_21 (MaintenanceDemanded)"},
+    {0x00400000, "Qualifier_22 (MaintenanceDemanded)"},
+    {0x00800000, "Qualifier_23 (MaintenanceDemanded)"},
+    {0x01000000, "Qualifier_24 (MaintenanceDemanded)"},
+    {0x02000000, "Qualifier_25 (MaintenanceDemanded)"},
+    {0x04000000, "Qualifier_26 (MaintenanceDemanded)"},
+    {0x08000000, "Qualifier_27 (Fault)"},
+    {0x10000000, "Qualifier_28 (Fault)"},
+    {0x20000000, "Qualifier_29 (Fault)"},
+    {0x40000000, "Qualifier_30 (Fault)"},
+    {0x80000000, "Qualifier_31 (Fault)"},
+    {0, NULL}};
+
 static const value_string pn_io_channel_properties_type[] = {
     { 0x0000, "submodule or unspecified" },
     { 0x0001, "1 Bit" },
@@ -3300,6 +3337,7 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
     guint16    u16ChannelErrorType;
     guint16    u16ExtChannelErrorType;
     guint32    u32ExtChannelAddValue;
+    guint32    u32QualifiedChannelQualifier;
     guint16    u16Index = 0;
     guint32    u32RecDataLen;
     pnio_ar_t *ar       = NULL;
@@ -3392,6 +3430,86 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
                         hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
         *body_length -= 12;
         break;
+  case (0x8003): /* QualifiedChannelDiagnosisData */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_number, &u16ChannelNumber);
+
+        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep);
+
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
+
+        if (u16ChannelErrorType < 0x7fff)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x8000)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8000, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x8001)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8001, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x8002)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8002, &u16ExtChannelErrorType);
+        }
+        else if ((u16ChannelErrorType == 0x8003)||(u16ChannelErrorType == 0x8009))
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8003, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x8004)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8004, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x8005)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8005, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x8007)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8007, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x8008)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8008, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x800A)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x800A, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x800B)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x800B, &u16ExtChannelErrorType);
+        }
+        else if (u16ChannelErrorType == 0x800C)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x800C, &u16ExtChannelErrorType);
+        }
+        else
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type, &u16ExtChannelErrorType);
+        }
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_qualified_channel_qualifier, &u32QualifiedChannelQualifier);
+       *body_length -= 16;
+        break;
     case(0x8100):   /* MaintenanceItem */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         *body_length -= 12;
@@ -3412,8 +3530,7 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
         break;
     /* XXX - dissect remaining user structures of [AlarmItem] */
     case(0x8001):   /* DiagnosisData */
-    case(0x8003):   /* QualifiedChannelDiagnosisData */
-    default:
+     default:
         if (u16UserStructureIdentifier >= 0x8000) {
             offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, *body_length);
         } else {
@@ -13189,6 +13306,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_ext_channel_add_value,
       { "ExtChannelAddValue", "pn_io.ext_channel_add_value",
         FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_qualified_channel_qualifier,
+      { "QualifiedChannelQualifier", "pn_io.qualified_channel_qualifier",
+        FT_UINT32, BASE_HEX, VALS(pn_io_qualified_channel_qualifier), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_ptcp_subdomain_id,
