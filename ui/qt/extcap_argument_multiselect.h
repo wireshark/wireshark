@@ -29,6 +29,11 @@ public:
 
     virtual QString value();
     virtual bool isValid();
+    virtual QString defaultValue();
+    virtual bool isSetDefaultValueSupported();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
 
 protected:
     virtual QList<QStandardItem *> valueWalker(ExtcapValueList list, QStringList &defaults);

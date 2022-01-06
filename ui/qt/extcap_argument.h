@@ -66,6 +66,7 @@ private:
 };
 
 
+
 class ExtcapArgument: public QObject
 {
     Q_OBJECT
@@ -98,6 +99,10 @@ public:
     virtual int argNr() const;
 
     static ExtcapArgument * create(extcap_arg * argument = Q_NULLPTR, QObject * parent = Q_NULLPTR);
+    virtual bool isSetDefaultValueSupported();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
 
 Q_SIGNALS:
     void valueChanged();
@@ -125,8 +130,11 @@ private Q_SLOTS:
 
 };
 
+
+
 class ExtArgText : public ExtcapArgument
 {
+    Q_OBJECT
 
 public:
     ExtArgText(extcap_arg * argument, QObject *parent = Q_NULLPTR);
@@ -134,20 +142,30 @@ public:
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
     virtual bool isValid();
+    virtual bool isSetDefaultValueSupported();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
 
 protected:
 
     QLineEdit * textBox;
 };
 
+
+
 class ExtArgNumber : public ExtArgText
 {
+    Q_OBJECT
+
 public:
     ExtArgNumber(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString defaultValue();
 };
+
+
 
 class ExtArgSelector : public ExtcapArgument
 {
@@ -159,6 +177,10 @@ public:
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
     virtual bool isValid();
+    virtual bool isSetDefaultValueSupported();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
 
 private:
 
@@ -169,14 +191,22 @@ private Q_SLOTS:
 
 };
 
+
+
 class ExtArgRadio : public ExtcapArgument
 {
+    Q_OBJECT
+
 public:
     ExtArgRadio(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
     virtual QWidget * createEditor(QWidget * parent);
     virtual QString value();
     virtual bool isValid();
+    virtual bool isSetDefaultValueSupported();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
 
 private:
 
@@ -184,8 +214,12 @@ private:
     QList<QString> * callStrings;
 };
 
+
+
 class ExtArgBool : public ExtcapArgument
 {
+    Q_OBJECT
+
 public:
     ExtArgBool(extcap_arg * argument, QObject *parent = Q_NULLPTR);
 
@@ -197,6 +231,10 @@ public:
     virtual bool isValid();
     virtual QString defaultValue();
     virtual QString prefValue();
+    virtual bool isSetDefaultValueSupported();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
 
 private:
 
@@ -204,6 +242,8 @@ private:
 
     bool defaultBool();
 };
+
+
 
 class ExtArgTimestamp : public ExtcapArgument
 {
@@ -217,12 +257,17 @@ public:
     virtual QString defaultValue();
     virtual QString value();
     virtual QString prefValue();
+    virtual bool isSetDefaultValueSupported();
+
+public Q_SLOTS:
+    virtual void setDefaultValue();
 
 private Q_SLOTS:
     void onDateTimeChanged(QDateTime);
 
 private:
     QDateTime ts;
+    QDateTimeEdit *tsBox;
 };
 
 #endif /* UI_QT_EXTCAP_ARGUMENT_H_ */

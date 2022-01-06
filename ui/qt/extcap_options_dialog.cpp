@@ -58,7 +58,8 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
-    device_idx(0)
+    device_idx(0),
+    defaultValueIcon_(QApplication::style()->standardIcon(QStyle::SP_BrowserReload))
 {
     ui->setupUi(this);
 
@@ -333,6 +334,14 @@ void ExtcapOptionsDialog::updateWidgets()
             {
                 editWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(argument));
                 layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
+
+                if (argument->isSetDefaultValueSupported())
+                {
+                    QPushButton *button = new QPushButton(defaultValueIcon_,"");
+                    button->setToolTip(tr("Restore default value of the item"));
+                    layout->addWidget(button, counter, 2, Qt::AlignVCenter);
+                    connect(button, SIGNAL(clicked()), argument, SLOT(setDefaultValue()));
+                }
             }
 
             if (argument->isRequired() && ! argument->isValid())
@@ -468,12 +477,13 @@ void ExtcapOptionsDialog::resetValues()
 {
     ExtcapArgumentList::const_iterator iter;
     QString value;
-    bool doStore = false;
 
     int count = ui->verticalLayout->count();
     if (count > 0)
     {
         QList<QLayout *> layouts;
+
+        /* Find all layouts */
         if (qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget()))
         {
             QTabWidget * tabs = qobject_cast<QTabWidget *>(ui->verticalLayout->itemAt(0)->widget());
@@ -485,12 +495,14 @@ void ExtcapOptionsDialog::resetValues()
         else
             layouts.append(ui->verticalLayout->itemAt(0)->layout());
 
+        /* Loop over all layouts */
         for (int cnt = 0; cnt < layouts.count(); cnt++)
         {
             QGridLayout * layout = qobject_cast<QGridLayout *>(layouts.at(cnt));
             if (! layout)
                 continue;
 
+            /* Loop over all widgets in column 1 on layout */
             for (int row = 0; row < layout->rowCount(); row++)
             {
                 QWidget * child = Q_NULLPTR;
@@ -510,22 +522,7 @@ void ExtcapOptionsDialog::resetValues()
                         /* value<> can fail */
                         if (arg)
                         {
-                            arg->resetValue();
-
-                            /* replacing the edit widget after resetting will lead to default value */
-                            QWidget * newWidget = arg->createEditor((QWidget *) this);
-                            if (newWidget != NULL)
-                            {
-                                newWidget->setProperty(QString("extcap").toLocal8Bit(), VariantPointer<ExtcapArgument>::asQVariant(arg));
-                                QLayoutItem * oldItem = layout->replaceWidget(child, newWidget);
-                                if (oldItem)
-                                {
-                                    delete child;
-                                    delete oldItem;
-                                }
-                            }
-
-                            doStore = true;
+                            arg->setDefaultValue();
                         }
                     }
                 }
@@ -533,12 +530,8 @@ void ExtcapOptionsDialog::resetValues()
 
         }
 
-        /* this stores all values to the preferences */
-        if (doStore)
-        {
-            storeValues();
-            anyValueChanged();
-        }
+        /* Values are stored when dialog is commited, just check validity*/
+        anyValueChanged();
     }
 }
 

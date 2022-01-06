@@ -31,6 +31,8 @@ public:
 
     virtual bool isValid();
 
+    virtual void setDefaultValue();
+
 protected:
     QLineEdit * textBox;
 

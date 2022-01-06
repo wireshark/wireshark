@@ -99,6 +99,8 @@ void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defau
             treeView->setExpanded(index, true);
             index = index.parent();
         }
+    } else {
+        item->setCheckState(Qt::Unchecked);
     }
 }
 
@@ -110,7 +112,8 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     if (items.length() == 0)
         return new QWidget();
 
-    if (_argument->pref_valptr && *_argument->pref_valptr)
+    /* Value can be empty if no items are checked */
+    if (_argument->pref_valptr && (*_argument->pref_valptr))
     {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
         checked = QString(*_argument->pref_valptr).split(",", Qt::SkipEmptyParts);
@@ -166,7 +169,7 @@ QString ExtArgMultiSelect::value()
         ++iter;
     }
 
-    return result.join(QString(","));
+    return result.join(QString(','));
 }
 
 void ExtArgMultiSelect::itemChanged(QStandardItem *)
@@ -197,3 +200,31 @@ bool ExtArgMultiSelect::isValid()
 
     return valid;
 }
+
+QString ExtArgMultiSelect::defaultValue()
+{
+    QStringList checked;
+
+    QList<QStandardItem *> items = valueWalker(values, checked);
+
+    return checked.join(QString(','));
+}
+
+bool ExtArgMultiSelect::isSetDefaultValueSupported()
+{
+    return TRUE;
+}
+
+void ExtArgMultiSelect::setDefaultValue()
+{
+    QStringList checked;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+    checked = defaultValue().split(",", Qt::SkipEmptyParts);
+#else
+    checked = defaultValue().split(",", QString::SkipEmptyParts);
+#endif
+    for (int row = 0; row < viewModel->rowCount(); row++)
+        checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), checked);
+}
+
