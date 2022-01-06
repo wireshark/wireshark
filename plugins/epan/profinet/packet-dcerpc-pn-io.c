@@ -265,6 +265,7 @@ static int hf_pn_io_block_version_high = -1;
 static int hf_pn_io_block_version_low = -1;
 
 static int hf_pn_io_sessionkey = -1;
+static int hf_pn_io_control_alarm_sequence_number = -1;
 static int hf_pn_io_control_command = -1;
 static int hf_pn_io_control_command_prmend = -1;
 static int hf_pn_io_control_command_applready = -1;
@@ -4806,9 +4807,9 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 }
 
 
-/* dissect the control/connect block */
+/* dissect the control/connect and control/connect block */
 static int
-dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
+dissect_ControlPlugOrConnect_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
     pnio_ar_t **ar, guint16 blocktype)
 {
@@ -4837,8 +4838,15 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_sessionkey, &u16SessionKey);
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_reserved16, NULL);
+    if (((blocktype & 0x7FFF) == 0x0111) || ((blocktype & 0x7FFF) == 0x0113)) {
+        /* control/plug */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_control_alarm_sequence_number, NULL);
+    } else {
+        /* control/connect */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_reserved16, NULL);
+    }
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_control_command, tvb, offset, 2, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_command);
@@ -10358,7 +10366,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0114):
     case(0x0116):
     case(0x0117):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar, u16BlockType);
+        dissect_ControlPlugOrConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar, u16BlockType);
         break;
 
     case(0x0118):
@@ -10604,7 +10612,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x8116):
     case(0x8117):
     case(0x8118):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar, u16BlockType);
+        dissect_ControlPlugOrConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar, u16BlockType);
         break;
     default:
         dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, u16BodyLength);
@@ -12773,6 +12781,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_sessionkey,
       { "SessionKey", "pn_io.session_key",
         FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_control_alarm_sequence_number,
+      { "AlarmSequenceNumber", "pn_io.control_alarm_sequence_number",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_control_command,
