@@ -155,21 +155,21 @@ CentOS 7 RPM Test:
     - tshark --version
   dependencies: [ 'CentOS 7 RPM Package' ]
 
-openSUSE 15.1 RPM Package:
+openSUSE 15.3 RPM Package:
   extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.1-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
   script:
     - mkdir build
     - cd build
     - cmake -GNinja ..
     - ninja rpm-package
-openSUSE 15.1 RPM Test:
+openSUSE 15.3 RPM Test:
   extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.1-dev
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  dependencies: [ 'openSUSE 15.1 RPM Package' ]
+  dependencies: [ 'openSUSE 15.3 RPM Package' ]
 
 # Disabled for now due to issues with Fedora 33.
 .Fedora RPM Package:
