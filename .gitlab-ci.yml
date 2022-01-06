@@ -223,57 +223,6 @@ CentOS 7 RPM Test:
     - tshark --version
   needs: [ 'CentOS 7 RPM Package' ]
 
-CentOS 8 RPM Package:
-  extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-8-dev
-  script:
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja-build rpm-package
-CentOS 8 RPM Test:
-  extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/centos-8-dev
-  script:
-    - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
-    - tshark --version
-  needs: [ 'CentOS 8 RPM Package' ]
-
-openSUSE 15.2 RPM Package:
-  extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.2-dev
-  script:
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake -GNinja ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja rpm-package
-openSUSE 15.2 RPM Test:
-  extends: .test-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.2-dev
-  script:
-    - zypper --no-gpg-checks --no-remote install -y build/packaging/rpm/RPMS/x86_64/*.rpm
-    - tshark --version
-  needs: [ 'openSUSE 15.2 RPM Package' ]
-
-Fedora RPM Package:
-  extends: .build-rpm
-  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
-  script:
-    # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
-    # https://gitlab.com/gitlab-com/support-forum/issues/2790
-    - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
-    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - cmake3 -GNinja ..
-    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - ninja rpm-package
-# Fedora RPM Test:
-#   extends: .test-rpm
-#   image: fedora
-#   script:
-#     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
-#     - tshark --version
-#  needs: [ 'Fedora RPM Package' ]
-
 # Job to generate packages for Debian stable
 Debian Stable APT Package:
   extends: .build-linux
@@ -304,6 +253,57 @@ Debian Stable APT Test:
   variables:
     GIT_STRATEGY: none
   needs: [ 'Debian Stable APT Package' ]
+
+Fedora RPM Package:
+  extends: .build-rpm
+  image: registry.gitlab.com/wireshark/wireshark-containers/fedora-dev
+  script:
+    # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
+    # https://gitlab.com/gitlab-com/support-forum/issues/2790
+    - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake3 -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja rpm-package
+# Fedora RPM Test:
+#   extends: .test-rpm
+#   image: fedora
+#   script:
+#     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
+#     - tshark --version
+#  needs: [ 'Fedora RPM Package' ]
+
+openSUSE 15.3 RPM Package:
+  extends: .build-rpm
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
+  script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja rpm-package
+openSUSE 15.3 RPM Test:
+  extends: .test-rpm
+  image: registry.gitlab.com/wireshark/wireshark-containers/opensuse-15.3-dev
+  script:
+    - zypper --no-gpg-checks --no-remote install -y build/packaging/rpm/RPMS/x86_64/*.rpm
+    - tshark --version
+  needs: [ 'openSUSE 15.3 RPM Package' ]
+
+Rocky Linux 8 RPM Package:
+  extends: .build-rpm
+  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-8-dev
+  script:
+    - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
+    - cmake -GNinja ..
+    - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
+    - ninja-build rpm-package
+Rocky Linux 8 RPM Test:
+  extends: .test-rpm
+  image: registry.gitlab.com/wireshark/wireshark-containers/rockylinux-8-dev
+  script:
+    - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
+    - tshark --version
+  needs: [ 'Rocky Linux 8 RPM Package' ]
 
 Win64 Package:
   extends: .build-windows
