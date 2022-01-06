@@ -2937,6 +2937,7 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
             offset = dissect_usb_device_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
             break;
         case USB_DT_CONFIG:
+        case USB_DT_OTHER_SPEED_CONFIG:
             offset = dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
             break;
         case USB_DT_STRING:
