@@ -4428,7 +4428,7 @@ decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 
                      * A RD is included in the NLRI in these cases, but not in
                      * the Next Hop address unlike in AFI 1 or 2.
                      */
-                    if ((length = decode_mp_next_hop_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen) == 0)) {
+                    if ((length = decode_mp_next_hop_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen)) == 0) {
                         length = decode_mp_next_hop_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
                     }
                     break;
