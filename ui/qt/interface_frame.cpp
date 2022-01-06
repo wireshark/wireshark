@@ -423,7 +423,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
         /* this checks if configuration is required and not yet provided or saved via prefs */
         if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
         {
-            emit showExtcapOptions(device_name);
+            emit showExtcapOptions(device_name, true);
             return;
         }
     }
@@ -451,7 +451,7 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
             /* this checks if configuration is required and not yet provided or saved via prefs */
             if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), FALSE))
             {
-                emit showExtcapOptions(device_name);
+                emit showExtcapOptions(device_name, false);
                 return;
             }
         }

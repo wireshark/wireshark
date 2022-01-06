@@ -312,6 +312,10 @@ signals:
     void selectRtpStream(rtpstream_id_t *id);
     void deselectRtpStream(rtpstream_id_t *id);
 
+#ifdef HAVE_LIBPCAP
+    void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
+#endif
+
 public slots:
     // in main_window_slots.cpp
     /**
@@ -727,7 +731,7 @@ private slots:
     void on_actionContextFilterFieldReference_triggered();
 
     void extcap_options_finished(int result);
-    void showExtcapOptionsDialog(QString & device_name);
+    void showExtcapOptionsDialog(QString & device_name, bool startCaptureOnClose);
 
     QString findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse);
 

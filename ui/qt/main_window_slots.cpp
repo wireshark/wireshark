@@ -834,10 +834,37 @@ void MainWindow::startCapture() {
 #ifdef HAVE_LIBPCAP
     interface_options *interface_opts;
     guint i;
+    interface_t *device;
+    gboolean can_start_capture = TRUE;
 
     /* did the user ever select a capture interface before? */
     if (global_capture_opts.num_selected == 0) {
         QString msg = QString(tr("No interface selected."));
+        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
+        main_ui_->actionCaptureStart->setChecked(false);
+        return;
+    }
+
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        if (device->selected && (device->if_info.type == IF_EXTCAP)) {
+            /* device is EXTCAP and is selected. Check if all mandatory
+             * settings are set.
+             */
+            if (extcap_has_configuration(device->name, TRUE))
+            {
+                /* Request openning of extcap options dialog */
+                QString device_name(device->name);
+                emit showExtcapOptions(device_name, false);
+                /* Cancel start of capture */
+                can_start_capture = FALSE;
+            }
+        }
+    }
+
+    /* If some of extcap was not configured, do not start with the capture */
+    if (!can_start_capture) {
+        QString msg = QString(tr("Configure all extcaps before start of capture."));
         wsApp->pushStatus(WiresharkApplication::TemporaryStatus, msg);
         main_ui_->actionCaptureStart->setChecked(false);
         return;
@@ -4000,8 +4027,8 @@ void MainWindow::on_actionCaptureOptions_triggered()
         connect(capture_options_dialog_, SIGNAL(setFilterValid(bool, const QString)),
                 this, SLOT(startInterfaceCapture(bool, const QString)));
 
-        connect(capture_options_dialog_, SIGNAL(showExtcapOptions(QString&)),
-                this, SLOT(showExtcapOptionsDialog(QString&)));
+        connect(capture_options_dialog_, SIGNAL(showExtcapOptions(QString&, bool)),
+                this, SLOT(showExtcapOptionsDialog(QString&, bool)));
     }
     capture_options_dialog_->setTab(0);
     capture_options_dialog_->updateInterfaces();
@@ -4066,17 +4093,19 @@ void MainWindow::extcap_options_finished(int result)
     this->welcome_page_->getInterfaceFrame()->interfaceListChanged();
 }
 
-void MainWindow::showExtcapOptionsDialog(QString &device_name)
+void MainWindow::showExtcapOptionsDialog(QString &device_name, bool startCaptureOnClose)
 {
-    ExtcapOptionsDialog * extcap_options_dialog = ExtcapOptionsDialog::createForDevice(device_name, this);
+    ExtcapOptionsDialog * extcap_options_dialog = ExtcapOptionsDialog::createForDevice(device_name, startCaptureOnClose, this);
     /* The dialog returns null, if the given device name is not a valid extcap device */
     if (extcap_options_dialog) {
         extcap_options_dialog->setModal(true);
         extcap_options_dialog->setAttribute(Qt::WA_DeleteOnClose);
-        connect(extcap_options_dialog, SIGNAL(finished(int)),
-                this, SLOT(extcap_options_finished(int)));
+        if (startCaptureOnClose) {
+            connect(extcap_options_dialog, SIGNAL(finished(int)),
+                        this, SLOT(extcap_options_finished(int)));
+        }
 #ifdef HAVE_LIBPCAP
-        if (capture_options_dialog_) {
+        if (capture_options_dialog_ && startCaptureOnClose) {
             /* Allow capture options dialog to close */
             connect(extcap_options_dialog, SIGNAL(accepted()),
                     capture_options_dialog_, SLOT(accept()));

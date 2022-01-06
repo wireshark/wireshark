@@ -54,7 +54,7 @@
 #include <ui/qt/extcap_argument_file.h>
 #include <ui/qt/extcap_argument_multiselect.h>
 
-ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
+ExtcapOptionsDialog::ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
@@ -67,10 +67,14 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
 
     ui->checkSaveOnStart->setCheckState(prefs.extcap_save_on_start ? Qt::Checked : Qt::Unchecked);
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
+    if (startCaptureOnClose) {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
+    } else {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Save"));
+    }
 }
 
-ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QWidget *parent)
+ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, bool startCaptureOnClose, QWidget *parent)
 {
     interface_t *device;
     ExtcapOptionsDialog * resultDialog = NULL;
@@ -93,7 +97,7 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QW
     if (! dev_found)
         return NULL;
 
-    resultDialog = new ExtcapOptionsDialog(parent);
+    resultDialog = new ExtcapOptionsDialog(startCaptureOnClose, parent);
     resultDialog->device_name = QString(dev_name);
     resultDialog->device_idx = if_idx;
 

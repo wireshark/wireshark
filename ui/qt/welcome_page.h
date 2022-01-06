@@ -62,7 +62,7 @@ signals:
     void startCapture();
     void recentFileActivated(QString cfile);
     void captureFilterSyntaxChanged(bool valid);
-    void showExtcapOptions(QString &device_name);
+    void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
     void interfacesChanged();
 
 public slots:
@@ -80,7 +80,7 @@ private slots:
     void copyRecentPath();
     void removeRecentPath();
 
-    void on_interfaceFrame_showExtcapOptions(QString device_name);
+    void on_interfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose);
     void on_interfaceFrame_startCapture();
 };
 

@@ -243,9 +243,9 @@ bool WelcomePage::event(QEvent *event)
     return QFrame::event(event);
 }
 
-void WelcomePage::on_interfaceFrame_showExtcapOptions(QString device_name)
+void WelcomePage::on_interfaceFrame_showExtcapOptions(QString device_name, bool startCaptureOnClose)
 {
-    emit showExtcapOptions(device_name);
+    emit showExtcapOptions(device_name, startCaptureOnClose);
 }
 
 void WelcomePage::on_interfaceFrame_startCapture()

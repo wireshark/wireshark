@@ -103,7 +103,7 @@ signals:
     void ifsChanged();
     void interfaceListChanged();
     void captureFilterTextEdited(const QString & text);
-    void showExtcapOptions(QString &device_name);
+    void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
 
 private:
     Ui::CaptureOptionsDialog *ui;

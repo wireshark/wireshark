@@ -679,8 +679,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SLOT(captureFilterSyntaxChanged(bool)));
 
-    connect(this->welcome_page_, SIGNAL(showExtcapOptions(QString&)),
-            this, SLOT(showExtcapOptionsDialog(QString&)));
+    connect(this, SIGNAL(showExtcapOptions(QString&, bool)),
+            this, SLOT(showExtcapOptionsDialog(QString&, bool)));
+    connect(this->welcome_page_, SIGNAL(showExtcapOptions(QString&, bool)),
+            this, SLOT(showExtcapOptionsDialog(QString&, bool)));
 
 #endif // HAVE_LIBPCAP
 

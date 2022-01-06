@@ -35,7 +35,7 @@ class ExtcapOptionsDialog : public QDialog
 
 public:
     ~ExtcapOptionsDialog();
-    static ExtcapOptionsDialog * createForDevice(QString &device_name, QWidget *parent = 0);
+    static ExtcapOptionsDialog * createForDevice(QString &device_name, bool startCaptureOnClose, QWidget *parent = 0);
 
     ExtcapValueList loadValuesFor(int argNum, QString call, QString parent = "");
 
@@ -48,7 +48,7 @@ private Q_SLOTS:
     void anyValueChanged();
 
 private:
-    explicit ExtcapOptionsDialog(QWidget *parent = 0);
+    explicit ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *parent = 0);
 
     Ui::ExtcapOptionsDialog *ui;
     QString device_name;
