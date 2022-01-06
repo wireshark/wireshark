@@ -121,72 +121,94 @@ FirmwarePackageLoadError/version		fwErrorVersion
 #.FN_BODY ContentInfo
   top_tree = tree;
   %(DEFAULT_BODY)s
-  content_tvb = NULL;
-  object_identifier_id = NULL;
   top_tree = NULL;
 
 #.FN_PARS ContentType
-	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+  FN_VARIANT = _str VAL_PTR = &cms_data->object_identifier_id
 
 #.FN_BODY ContentType
-  	const char *name = NULL;
-
-	%(DEFAULT_BODY)s
-
-	if(object_identifier_id) {
-		name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
-		proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id);
-	}
-
-#.FN_BODY ContentInfo/content
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
-
-#.FN_BODY EncapsulatedContentInfo/eContent
-
-  offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &content_tvb);
-
-  if(content_tvb) {
-    proto_item_set_text(actx->created_item, "eContent (%%u bytes)", tvb_reported_length (content_tvb));
-
-    call_ber_oid_callback(object_identifier_id, content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
-  }
-
-#.FN_PARS OtherRecipientInfo/oriType
-  FN_VARIANT = _str  VAL_PTR = &object_identifier_id
-
-#.FN_BODY OtherRecipientInfo/oriValue
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
-#.FN_PARS OtherKeyAttribute/keyAttrId
-  FN_VARIANT = _str  HF_INDEX = hf_cms_ci_contentType  VAL_PTR = &object_identifier_id
-
-#.FN_BODY OtherKeyAttribute/keyAttr
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-#.FN_PARS OtherRevocationInfoFormat/otherRevInfoFormat
-  FN_VARIANT = _str  VAL_PTR = &object_identifier_id
-
-#.FN_BODY OtherRevocationInfoFormat/otherRevInfo
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-
-#.FN_PARS Attribute/attrType
-  FN_VARIANT = _str  HF_INDEX = hf_cms_attrType  VAL_PTR = &object_identifier_id
-
-#.FN_BODY Attribute/attrType
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->object_identifier_id = NULL;
   const char *name = NULL;
 
   %(DEFAULT_BODY)s
 
-  if(object_identifier_id) {
-    name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
-    proto_item_append_text(tree, " (%%s)", name ? name : object_identifier_id);
+  if(cms_data->object_identifier_id) {
+    name = oid_resolved_from_string(actx->pinfo->pool, cms_data->object_identifier_id);
+    proto_item_append_text(tree, " (%%s)", name ? name : cms_data->object_identifier_id);
+  }
+
+#.FN_BODY ContentInfo/content
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+
+
+#.FN_BODY EncapsulatedContentInfo/eContent
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->content_tvb = NULL;
+  offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &cms_data->content_tvb);
+
+  if(cms_data->content_tvb) {
+    proto_item_set_text(actx->created_item, "eContent (%%u bytes)", tvb_reported_length(cms_data->content_tvb));
+
+    call_ber_oid_callback(cms_data->object_identifier_id, cms_data->content_tvb, 0, actx->pinfo, top_tree ? top_tree : tree, NULL);
+  }
+
+#.FN_PARS OtherRecipientInfo/oriType
+  FN_VARIANT = _str  VAL_PTR = &cms_data->object_identifier_id
+
+#.FN_HDR OtherRecipientInfo/oriType
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->object_identifier_id = NULL;
+
+#.FN_BODY OtherRecipientInfo/oriValue
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+
+#.FN_PARS OtherKeyAttribute/keyAttrId
+  FN_VARIANT = _str  HF_INDEX = hf_cms_ci_contentType  VAL_PTR = &cms_data->object_identifier_id
+
+#.FN_HDR OtherKeyAttribute/keyAttrId
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->object_identifier_id = NULL;
+
+#.FN_BODY OtherKeyAttribute/keyAttr
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+
+#.FN_PARS OtherRevocationInfoFormat/otherRevInfoFormat
+  FN_VARIANT = _str  VAL_PTR = &cms_data->object_identifier_id
+
+#.FN_HDR OtherRevocationInfoFormat/otherRevInfoFormat
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->object_identifier_id = NULL;
+
+#.FN_BODY OtherRevocationInfoFormat/otherRevInfo
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+
+#.FN_PARS Attribute/attrType
+  FN_VARIANT = _str  HF_INDEX = hf_cms_attrType  VAL_PTR = &cms_data->object_identifier_id
+
+#.FN_BODY Attribute/attrType
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->object_identifier_id = NULL;
+  const char *name = NULL;
+
+  %(DEFAULT_BODY)s
+
+  if(cms_data->object_identifier_id) {
+    name = oid_resolved_from_string(actx->pinfo->pool, cms_data->object_identifier_id);
+    proto_item_append_text(tree, " (%%s)", name ? name : cms_data->object_identifier_id);
   }
 
 #.FN_BODY AttributeValue
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
 
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_BODY MessageDigest
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
   proto_item *pi;
   int old_offset = offset;
 
@@ -198,26 +220,29 @@ FirmwarePackageLoadError/version		fwErrorVersion
   old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
   old_offset = get_ber_length(tvb, old_offset, NULL, NULL);
 
-  if(content_tvb)
-    cms_verify_msg_digest(pi, content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
+  if(cms_data->content_tvb)
+    cms_verify_msg_digest(pi, cms_data->content_tvb, x509af_get_last_algorithm_id(), tvb, old_offset);
 
 #.FN_PARS SMIMECapability/capability
-  FN_VARIANT = _str  HF_INDEX = hf_cms_attrType  VAL_PTR = &object_identifier_id
+  FN_VARIANT = _str  HF_INDEX = hf_cms_attrType  VAL_PTR = &cms_data->object_identifier_id
 
 #.FN_BODY SMIMECapability/capability
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
+  cms_data->object_identifier_id = NULL;
   const char *name = NULL;
 
   %(DEFAULT_BODY)s
 
-  if(object_identifier_id) {
-    name = oid_resolved_from_string(actx->pinfo->pool, object_identifier_id);
-    proto_item_append_text(tree, " %%s", name ? name : object_identifier_id);
+  if(cms_data->object_identifier_id) {
+    name = oid_resolved_from_string(actx->pinfo->pool, cms_data->object_identifier_id);
+    proto_item_append_text(tree, " %%s", name ? name : cms_data->object_identifier_id);
     cap_tree = tree;
   }
 
 #.FN_BODY SMIMECapability/parameters
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
 
-  offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
+  offset=call_ber_oid_callback(cms_data->object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_PARS RC2ParameterVersion
   VAL_PTR = &length
@@ -238,10 +263,11 @@ FirmwarePackageLoadError/version		fwErrorVersion
 #.END
 
 #.FN_FTR EncryptedContent
+  struct cms_private_data *cms_data = cms_get_private_data(actx->pinfo);
 
-	item = actx->created_item;
+  item = actx->created_item;
 
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx->pinfo, actx, item);
+  PBE_decrypt_data(cms_data->object_identifier_id, encrypted_tvb, actx->pinfo, actx, item);
 
 #.END
 
