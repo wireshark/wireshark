@@ -25,6 +25,9 @@
 #include <inttypes.h>
 #include "epan/wscbor.h"
 
+void proto_register_bpsec(void);
+void proto_reg_handoff_bpsec(void);
+
 /// Glib logging "domain" name
 //static const char *LOG_DOMAIN = "bpsec";
 
