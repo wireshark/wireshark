@@ -169,6 +169,14 @@ add_package BASIC_LIST qt5-qtmultimedia-devel ||
 add_packages BASIC_LIST libqt5-qtmultimedia-devel libQt5PrintSupport-devel ||
 echo "Qt5 is unavailable" >&2
 
+# This in only required on OpenSUSE
+add_package BASIC_LIST libqt5-qtsvg-devel ||
+echo "Qt5 SVG is unavailable" >&2
+
+# This in only required on OpenSUSE
+add_packages BASIC_LIST hicolor-icon-theme xdg-utils ||
+echo "Default icon theme and XDG utils are unavailable" >&2
+
 # This in only required (and available) on OpenSUSE
 add_package BASIC_LIST update-desktop-files ||
 echo "update-desktop-files is unavailable" >&2
