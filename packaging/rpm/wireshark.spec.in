@@ -188,9 +188,6 @@ Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
 # XXX Recent versions of rpm (Fedora 33 et al.) warn about unversioned "Obsoletes".
 Obsoletes:	wireshark-gnome wireshark-gtk
-%description qt
-This package contains the Qt Wireshark GUI and desktop integration files.
-
 Requires:	%{name} = %{version}-%{release}
 BuildRequires:	gcc-c++
 %if 0%{?suse_version}
@@ -215,12 +212,16 @@ BuildRequires:	desktop-file-utils
 Requires(post):	desktop-file-utils
 # Add this for more readable fonts on some distributions/versions
 #Requires:	dejavu-sans-mono-fonts
+
+%description qt
+This package contains the Qt Wireshark GUI and desktop integration files.
 %endif
 
 %package	devel
 Summary:	Development headers for Wireshark
 Group:		Applications/Internet
 Requires:	%{name} = %{version}-%{release}
+
 %description devel
 The wireshark-devel package contains the header and other files required for
 development of Wireshark scripts and plugins.
