@@ -321,10 +321,10 @@ static int hf_pn_io_submodule_properties_reserved = -1;
 static int hf_pn_io_submodule_state = -1;
 static int hf_pn_io_submodule_state_format_indicator = -1;
 static int hf_pn_io_submodule_state_add_info = -1;
-static int hf_pn_io_submodule_state_qualified_info = -1;
+static int hf_pn_io_submodule_state_advice = -1;
 static int hf_pn_io_submodule_state_maintenance_required = -1;
 static int hf_pn_io_submodule_state_maintenance_demanded = -1;
-static int hf_pn_io_submodule_state_diag_info = -1;
+static int hf_pn_io_submodule_state_fault = -1;
 static int hf_pn_io_submodule_state_ar_info = -1;
 static int hf_pn_io_submodule_state_ident_info = -1;
 static int hf_pn_io_submodule_state_detail = -1;
@@ -1350,9 +1350,9 @@ static const value_string pn_io_submodule_state_add_info[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_submodule_state_qualified_info[] = {
-    { 0x0000, "No QualifiedInfo available" },
-    { 0x0001, "QualifiedInfo available" },
+static const value_string pn_io_submodule_state_advice[] = {
+    { 0x0000, "No Advice available" },
+    { 0x0001, "Advice available" },
     { 0, NULL }
 };
 
@@ -1368,9 +1368,9 @@ static const value_string pn_io_submodule_state_maintenance_demanded[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_submodule_state_diag_info[] = {
-    { 0x0000, "No DiagnosisData available" },
-    { 0x0001, "DiagnosisData available" },
+static const value_string pn_io_submodule_state_fault[] = {
+    { 0x0000, "No Fault available" },
+    { 0x0001, "Fault available" },
     { 0, NULL }
 };
 
@@ -9803,13 +9803,13 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                     hf_pn_io_submodule_state_ar_info, &u16SubmoduleState);
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
-                                    hf_pn_io_submodule_state_diag_info, &u16SubmoduleState);
+                                    hf_pn_io_submodule_state_fault, &u16SubmoduleState);
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                     hf_pn_io_submodule_state_maintenance_demanded, &u16SubmoduleState);
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                     hf_pn_io_submodule_state_maintenance_required, &u16SubmoduleState);
                     dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
-                                    hf_pn_io_submodule_state_qualified_info, &u16SubmoduleState);
+                                    hf_pn_io_submodule_state_advice, &u16SubmoduleState);
                     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                     hf_pn_io_submodule_state_add_info, &u16SubmoduleState);
                 } else {
@@ -13032,9 +13032,9 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_add_info), 0x0007,
         NULL, HFILL }
     },
-    { &hf_pn_io_submodule_state_qualified_info,
-      { "QualifiedInfo", "pn_io.submodule_state.qualified_info",
-        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_qualified_info), 0x0008,
+    { &hf_pn_io_submodule_state_advice,
+      { "Advice", "pn_io.submodule_state.advice",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_advice), 0x0008,
         NULL, HFILL }
     },
     { &hf_pn_io_submodule_state_maintenance_required,
@@ -13047,9 +13047,9 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_maintenance_demanded), 0x0020,
         NULL, HFILL }
     },
-    { &hf_pn_io_submodule_state_diag_info,
-      { "DiagInfo", "pn_io.submodule_state.diag_info",
-        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_diag_info), 0x0040,
+    { &hf_pn_io_submodule_state_fault,
+      { "Fault", "pn_io.submodule_state.fault",
+        FT_UINT16, BASE_HEX, VALS(pn_io_submodule_state_fault), 0x0040,
         NULL, HFILL }
     },
     { &hf_pn_io_submodule_state_ar_info,
