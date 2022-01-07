@@ -58,13 +58,25 @@ BuildRequires:  python3
 BuildRequires:	gcc
 BuildRequires:	perl
 BuildRequires:	flex
+%if %{with ninja}
+%if 0%{?fedora} || 0%{?rhel}
+BuildRequires:  ninja-build
+%else
+BuildRequires:  ninja
+%endif
+%endif
 # XXX We always require Asciidoctor for packaging builds as of 84ab55cf75,
-# unfortunately it's not evently distributed across distros.
-# CentOS 7: rubygem-asciidoctor
+# unfortunately it's not evenly distributed across distros.
+# Fedora & CentOS 7: rubygem-asciidoctor
 # CentOS 8: <no package?>
-# Fedora: rubygem-asciidoctor
-# openSUSE 15.2: ruby2.5-rubygem-asciidoctor
-# BuildRequires:	asciidoctor
+# openSUSE 15.3: ruby2.5-rubygem-asciidoctor
+# SLES 12 SP5: ruby2.1-rubygem-asciidoctor
+# All of the packages provide this, so we can rely on it:
+%if ! 0%{?el8}
+BuildRequires:  /usr/bin/asciidoctor
+%endif
+# No CentOS 8 package, so we install it from rubygems directly, but that
+# means the package manager doesn't know about it and we can't require it.
 
 BuildRequires:	glib2-devel >= 2.32.0
 Requires:	glib2
