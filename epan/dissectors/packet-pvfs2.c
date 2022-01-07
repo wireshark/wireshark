@@ -2337,9 +2337,9 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 		guint32 entry_length = 0, tmp_entry_length = 0;
 		guint32 bufsiz = sizeof(entry);
 
-		while ((*ptr != '\n') && (*ptr != '\0') &&
-				(bytes_processed < total_config_bytes) &&
-				(entry_length < bufsiz))
+		while ((bytes_processed < total_config_bytes) &&
+				(entry_length < bufsiz) &&
+				(*ptr != '\n') && (*ptr != '\0'))
 		{
 			*pentry++ = *ptr++;
 
