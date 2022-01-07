@@ -1141,6 +1141,8 @@ set_time_seconds(const frame_data *fd, const nstime_t *ts, gchar *buf)
 {
   int tsprecision;
 
+  ws_assert(fd->has_ts);
+
   switch (timestamp_get_precision()) {
   case TS_PREC_FIXED_SEC:
     tsprecision = WTAP_TSPREC_SEC;
@@ -1203,6 +1205,8 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
   long nsecs = (long) ts->nsecs;
   gboolean negative = FALSE;
   int tsprecision;
+
+  ws_assert(fd->has_ts);
 
   if (secs < 0) {
     secs = -secs;
@@ -1415,6 +1419,11 @@ static void
 col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   nstime_t del_cap_ts;
+
+  if (!fd->has_ts) {
+    cinfo->columns[col].col_buf[0] = '\0';
+    return;
+  }
 
   frame_delta_abs_time(cinfo->epan, fd, fd->num - 1, &del_cap_ts);
 
