@@ -689,7 +689,7 @@ problem with one or more of:
 * the device driver for the interface you're using;
 * the Npcap library and/or the Npcap device driver;
 
-so first check {npcap-main-url}guide/[the Npcap User's Guide] to see if your problem is mentioned there.
+so first check {npcap-main-url}guide/npcap-users-guide.html[the Npcap User's Guide] to see if your problem is mentioned there.
 If not, then see {npcap-main-url}[the main Npcap page] - check the "Patches, Bug Reports, Questions, Suggestions, etc" section.
 
 If you are having trouble capturing on a particular network interface,
@@ -713,7 +713,7 @@ certainly a problem with one or more of:
 * the device driver for the interface you're using;
 * the Npcap library and/or the Npcap device driver;
 
-so first check {npcap-main-url}guide/[the Npcap User's Guide] to see if your problem is mentioned there.
+so first check {npcap-main-url}guide/npcap-users-guide.html[the Npcap User's Guide] to see if your problem is mentioned there.
 If not, then see {npcap-main-url}[the main Npcap page] - check the "Patches, Bug Reports, Questions, Suggestions, etc" section.
 
 You may also want to ask the
