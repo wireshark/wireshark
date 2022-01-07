@@ -41,6 +41,7 @@ static dissector_handle_t eth_handle;
 static int proto_vlan;
 
 static gboolean heuristic_first = FALSE;
+static gboolean analog_samples_are_signed_int = FALSE;
 
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
@@ -135,6 +136,7 @@ static int hf_tecmp_payload_data_frame_id = -1;
 
 /* Analog */
 static int hf_tecmp_payload_data_analog_value_raw = -1;
+static int hf_tecmp_payload_data_analog_value_raw_signed = -1;
 static int hf_tecmp_payload_data_analog_value_volt = -1;
 static int hf_tecmp_payload_data_analog_value_amp = -1;
 
@@ -1343,16 +1345,27 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 tmp = offset2 + length;
                 while (offset2 + 2 <= tmp) {
-                    guint value = tvb_get_guint16(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    gdouble scaled_value;
+
+                    if (analog_samples_are_signed_int) {
+                        scaled_value = analog_value_scale_factor * tvb_get_gint16(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    } else {
+                        scaled_value = analog_value_scale_factor * tvb_get_guint16(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    }
+
                     switch ((dataflags & TECMP_DATAFLAGS_UNIT_MASK) >> TECMP_DATAFLAGS_UNIT_SHIFT) {
                     case 0x0:
-                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_volt, sub_tvb, offset2, 2, (analog_value_scale_factor * value));
+                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_volt, sub_tvb, offset2, 2, scaled_value);
                         break;
                     case 0x01:
-                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_amp, sub_tvb, offset2, 2, (analog_value_scale_factor * value));
+                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_amp, sub_tvb, offset2, 2, scaled_value);
                         break;
                     default:
-                        ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value_raw, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                        if (analog_samples_are_signed_int) {
+                            ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value_raw_signed, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                        } else {
+                            ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value_raw, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                        }
                         proto_item_append_text(ti, "%s", " (raw)");
                     }
                     offset2 += 2;
@@ -1723,6 +1736,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_analog_value_raw,
             { "Analog Value", "tecmp.payload.data.analog_value",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_data_analog_value_raw_signed,
+            { "Analog Value", "tecmp.payload.data.analog_value_signed",
+            FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_data_analog_value_volt,
             { "Analog Value", "tecmp.payload.data.analog_value_volt",
             FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_volt, 0x0, NULL, HFILL } },
@@ -1876,6 +1892,11 @@ proto_register_tecmp(void) {
         "Try to decode a packet using an heuristic sub-dissector"
         " before using a sub-dissector registered to \"decode as\"",
         &heuristic_first);
+
+    prefs_register_bool_preference(tecmp_module, "analog_samples_sint",
+        "Decode Analog Samples as Signed Integer",
+        "Treat the analog samples as signed integers and decode them accordingly.",
+        &analog_samples_are_signed_int);
 }
 
 void
