@@ -342,7 +342,7 @@ iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, in
     return pi;
 }
 
-static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint rfci_id _U_, int offset, guint32 circuit_id) {
+static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint rfci_id, int offset, guint32 circuit_id) {
     iuup_circuit_t* iuup_circuit;
     iuup_rfci_t *rfci;
     int last_offset = tvb_reported_length(tvb) - 1;
