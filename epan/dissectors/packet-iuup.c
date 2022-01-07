@@ -349,6 +349,9 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
     guint bit_offset = 0;
     proto_item* pi;
 
+    if (offset == (int)tvb_reported_length(tvb)) /* NO_DATA */
+      return;
+
     pi = proto_tree_add_item(tree,hf_iuup_payload,tvb,offset,-1,ENC_NA);
 
     if ( ! dissect_fields ) {
