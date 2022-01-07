@@ -386,7 +386,9 @@ cd -
 # SUSE's packaging conventions
 # (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
-install -Dm 0644 %{buildroot}/usr/local/share/applications/org.wireshark.Wireshark.desktop %{buildroot}/usr/share/applications/org.wireshark.Wireshark.desktop
+%if "%{_prefix}" != "/usr"
+install -Dm 0644 %{buildroot}%{_prefix}/share/applications/org.wireshark.Wireshark.desktop %{buildroot}/usr/share/applications/org.wireshark.Wireshark.desktop
+%endif
 %suse_update_desktop_file org.wireshark.Wireshark
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
@@ -422,7 +424,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %if 0%{?suse_version}
 # Before packing, we need to restore the bindir to the wireshark one
-%define _bindir /usr/local/bin
+%define _bindir %{_prefix}/bin
 %endif
 
 %defattr(-,root,root)
