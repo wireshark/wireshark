@@ -45,7 +45,7 @@
 :pcap-filter-man-page-url: {tcpdump-main-url}manpages/pcap-filter.7.html
 :tcpdump-man-page-url: {tcpdump-main-url}manpages/tcpdump.1.html
 
-:npcap-main-url: https://nmap.org/npcap/
+:npcap-main-url: https://npcap.com/
 :npcap-development-url: https://github.com/nmap/npcap
 :npcap-license-url: https://raw.githubusercontent.com/nmap/npcap/master/LICENSE
 :vcpkg-main-url: https://github.com/Microsoft/vcpkg/

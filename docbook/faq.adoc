@@ -1,8 +1,10 @@
-= Wireshark Frequently Asked Questions
+include::attributes.adoc[]
 :stylesheet: ws.css
 :linkcss:
 :copycss: {stylesheet}
 :toc:
+
+= Wireshark Frequently Asked Questions
 
 == General Questions
 
@@ -286,8 +288,7 @@ driver;
 
 so:
 
-* if you are using Windows, see https://nmap.org/npcap/[the Npcap
-support page] - check the "Patches, Bug Reports, Questions, Suggestions,
+* if you are using Windows, see {npcap-main-url}[the Npcap support page] - check the "Patches, Bug Reports, Questions, Suggestions,
 etc" section;
 * if you are using some Linux distribution, some version of BSD, or some
 other UNIX-flavored OS, you should report the problem to the company or
@@ -688,10 +689,8 @@ problem with one or more of:
 * the device driver for the interface you're using;
 * the Npcap library and/or the Npcap device driver;
 
-so first check https://nmap.org/npcap/guide/[the Npcap User's Guide] to
-see if your problem is mentioned there. If not, then see
-https://nmap.org/npcap/[the main Npcap page] - check the "Patches, Bug
-Reports, Questions, Suggestions, etc" section.
+so first check {npcap-main-url}guide/[the Npcap User's Guide] to see if your problem is mentioned there.
+If not, then see {npcap-main-url}[the main Npcap page] - check the "Patches, Bug Reports, Questions, Suggestions, etc" section.
 
 If you are having trouble capturing on a particular network interface,
 first try capturing on that device with WinDump; see
@@ -714,10 +713,8 @@ certainly a problem with one or more of:
 * the device driver for the interface you're using;
 * the Npcap library and/or the Npcap device driver;
 
-so first check https://nmap.org/npcap/guide/[the Npcap User's Guide] to
-see if your problem is mentioned there. If not, then see
-https://nmap.org/npcap/[the main Npcap page] - check the "Patches, Bug
-Reports, Questions, Suggestions, etc" section.
+so first check {npcap-main-url}guide/[the Npcap User's Guide] to see if your problem is mentioned there.
+If not, then see {npcap-main-url}[the main Npcap page] - check the "Patches, Bug Reports, Questions, Suggestions, etc" section.
 
 You may also want to ask the
 mailto:wireshark-users@wireshark.org[wireshark-users@wireshark.org] and
@@ -725,7 +722,7 @@ the mailto:dev@nmap.org[dev@nmap.org] mailing
 lists to see if anybody happens to know about the problem and know a
 workaround or fix for the problem. (Note that you will have to subscribe
 to that list in order to be allowed to mail to it; see
-https://nmap.org/npcap/[the Npcap support page] for information on the
+{npcap-main-url}[the Npcap support page] for information on the
 mailing list.) In your mail, please give full details of the problem, as
 described above, and also indicate that the problem occurs with WinDump,
 not just with Wireshark.
@@ -759,6 +756,8 @@ on that interface.
 
 === I'm trying to capture 802.11 traffic on Windows; why am I not seeing any packets?
 
+You should first ensure that Npcap was installed with {npcap-main-url}/guide/npcap-devguide.html#npcap-feature-dot11[raw 802.11 support] and that monitor mode is enabled.
+
 At least some 802.11 card drivers on Windows appear not to see any
 packets if they're running in promiscuous mode. Try turning promiscuous
 mode off; you'll only be able to see packets sent by and received by
@@ -766,10 +765,11 @@ your machine, not third-party traffic, and it'll look like Ethernet
 traffic and won't include any management or control frames, but that's a
 limitation of the card drivers.
 
-See the archived
-https://web.archive.org/web/20090226193157/http://www.micro-logix.com/winpcap/Supported.asp[MicroLogix's
-list of cards supported with WinPcap] for information on support of
-various adapters and drivers with WinPcap.
+// XXX Is this still relevant?
+// See the archived
+// https://web.archive.org/web/20090226193157/http://www.micro-logix.com/winpcap/Supported.asp[MicroLogix's
+// list of cards supported with WinPcap] for information on support of
+// various adapters and drivers with WinPcap.
 
 === I'm trying to capture 802.11 traffic on Windows; why am I seeing packets received by the machine on which I'm capturing traffic, but not packets sent by that machine?
 
