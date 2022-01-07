@@ -285,8 +285,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
             "<p>"
             "Local interfaces are unavailable because no packet capture driver is installed."
             "</p><p>"
-            "You can fix this by installing <a href=\"https://nmap.org/npcap/\">Npcap</a>"
-            " or <a href=\"https://www.winpcap.org/install/default.htm\">WinPcap</a>."
+            "You can fix this by installing <a href=\"https://npcap.com/\">Npcap</a>."
             "</p>"));
     } else if (!npf_sys_is_running()) {
         ui->warningLabel->setText(tr(

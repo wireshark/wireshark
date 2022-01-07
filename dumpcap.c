@@ -576,7 +576,7 @@ get_pcap_failure_secondary_error_message(cap_device_open_status open_status,
         return
             "In order to capture packets, Npcap or WinPcap must be installed. See\n"
             "\n"
-            "        https://nmap.org/npcap/\n"
+            "        https://npcap.com/\n"
             "\n"
             "for a downloadable version of Npcap and for instructions on how to\n"
             "install it.";

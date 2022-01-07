@@ -44,11 +44,6 @@ gboolean has_wpcap = FALSE;
 
 #define MAX_WIN_IF_NAME_LEN 511
 
-/*
- * XXX - should we require at least WinPcap 3.1 both for building an
- * for using Wireshark?
- */
-
 static void    (*p_pcap_close) (pcap_t *);
 static int     (*p_pcap_stats) (pcap_t *, struct pcap_stat *);
 static int     (*p_pcap_dispatch) (pcap_t *, int, pcap_handler, guchar *);
@@ -276,7 +271,7 @@ cant_load_winpcap_err(const char *app_name)
 "\n"
 "In order to capture packets Npcap or WinPcap must be installed. See\n"
 "\n"
-"        https://nmap.org/npcap/\n"
+"        https://npcap.com/\n"
 "\n"
 "for a downloadable version of Npcap and for instructions on how to\n"
 "install it.",
@@ -710,8 +705,6 @@ int pcap_setbuff(pcap_t *a, int b)
 	return p_pcap_setbuff(a, b);
 }
 
-/* pcap_next_ex is available since libpcap 0.8 / WinPcap 3.0! */
-/* (if you get a declaration warning here, try to update to at least WinPcap 3.1b4 develpack) */
 int pcap_next_ex(pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 {
 	ws_assert(has_wpcap);
@@ -773,7 +766,7 @@ cant_get_if_list_error_message(const char *err_str)
 	    strstr(err_str, "The operation completed successfully") != NULL) {
 		return ws_strdup_printf("Can't get list of interfaces: %s\n"
 "This might be a problem with WinPcap 3.0. You should try updating to\n"
-"Npcap. See https://nmap.org/npcap/ for more information.",
+"Npcap. See https://npcap.com/ for more information.",
 		    err_str);
 	}
 	return ws_strdup_printf("Can't get list of interfaces: %s", err_str);
