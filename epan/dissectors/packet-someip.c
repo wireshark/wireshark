@@ -1,7 +1,7 @@
 /* packet-someip.c
  * SOME/IP dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2021 Dr. Lars Voelker
+ * Copyright 2012-2022 Dr. Lars Voelker
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
   *
@@ -13,6 +13,7 @@
  */
 
 #include <config.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -20,10 +21,12 @@
 #include <epan/uat.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/reassemble.h>
-#include "packet-udp.h"
-#include "packet-dtls.h"
-#include "packet-someip.h"
-#include "packet-tls.h"
+#include <epan/stats_tree.h>
+
+#include <packet-udp.h>
+#include <packet-dtls.h>
+#include <packet-someip.h>
+#include <packet-tls.h>
 
 /*
  * Dissector for SOME/IP, SOME/IP-TP, and SOME/IP Payloads.
@@ -291,6 +294,15 @@ static GHashTable *data_someip_parameter_structs                        = NULL;
 static GHashTable *data_someip_parameter_unions                         = NULL;
 static GHashTable *data_someip_parameter_enums                          = NULL;
 
+/*** Taps ***/
+static int tap_someip_messages = -1;
+
+/*** Stats ***/
+static const gchar *st_str_ip_src = "Source Addresses";
+static const gchar *st_str_ip_dst = "Destination Addresses";
+
+static int st_node_ip_src = -1;
+static int st_node_ip_dst = -1;
 
 /***********************************************
  ********* Preferences / Configuration *********
@@ -2327,6 +2339,46 @@ expert_someip_payload_alignment_error(proto_tree *tree, packet_info *pinfo, tvbu
 }
 
 /*******************************************
+ **************** Statistics ***************
+ ******************************************/
+
+static void
+someip_messages_stats_tree_init(stats_tree *st) {
+    st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, STAT_DT_INT, TRUE);
+    stat_node_set_flags(st, st_str_ip_src, 0, FALSE, ST_FLG_SORT_TOP);
+    st_node_ip_dst = stats_tree_create_node(st, st_str_ip_dst, 0, STAT_DT_INT, TRUE);
+}
+
+static tap_packet_status
+someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p) {
+    static gchar tmp_srv_str[128];
+    static gchar tmp_meth_str[128];
+    int tmp;
+
+    DISSECTOR_ASSERT(p);
+    const someip_messages_tap_t *data = (const someip_messages_tap_t *)p;
+
+    gchar *src_addr = address_to_str(pinfo->pool, &pinfo->net_src);
+    tick_stat_node(st, st_str_ip_src, 0, FALSE);
+    int src_id = tick_stat_node(st, src_addr, st_node_ip_src, TRUE);
+
+    gchar *dst_addr = address_to_str(pinfo->pool, &pinfo->net_dst);
+    tick_stat_node(st, st_str_ip_dst, 0, FALSE);
+    int dst_id = tick_stat_node(st, dst_addr, st_node_ip_dst, TRUE);
+
+    snprintf(tmp_srv_str, sizeof(tmp_srv_str) - 1, "Service 0x%04x", data->service_id);
+    snprintf(tmp_meth_str, sizeof(tmp_meth_str) - 1, "Method 0x%04x %s", data->method_id,
+             val_to_str(data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
+
+    tmp = tick_stat_node(st, tmp_srv_str, src_id, TRUE);
+    tick_stat_node(st, tmp_meth_str, tmp, FALSE);
+    tmp = tick_stat_node(st, tmp_srv_str, dst_id, TRUE);
+    tick_stat_node(st, tmp_meth_str, tmp, FALSE);
+
+    return TAP_PACKET_REDRAW;
+}
+
+/*******************************************
  ******** SOME/IP Payload Dissector ********
  *******************************************/
 
@@ -3315,6 +3367,17 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
 
     proto_tree *tree = NULL;
 
+    /* TAP */
+    if (have_tap_listener(tap_someip_messages)) {
+        someip_messages_tap_t *data = wmem_alloc(pinfo->pool, sizeof(someip_messages_tap_t));
+        data->service_id = serviceid;
+        data->method_id = methodid;
+        data->interface_version = version;
+        data->message_type = msgtype;
+
+        tap_queue_packet(tap_someip_messages, pinfo, data);
+    }
+
     length = tvb_captured_length_remaining(tvb, 0);
     tree = proto_item_add_subtree(ti, ett_someip_payload);
     paramlist = get_parameter_config(serviceid, methodid, version, msgtype);
@@ -3335,7 +3398,7 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
     if (offset_bits != 0) {
         expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
 
-        /* allign to byte */
+        /* align to byte */
         offset += 1;
     }
 
@@ -3949,7 +4012,7 @@ proto_register_someip(void) {
           PI_MALFORMED, PI_WARN, "SOME/IP Payload: Dynamic array does not stay between Min and Max values!", EXPFILL} },
     };
 
-    /* Register ETTs */
+    /* Register Protocol, Handles, Fields, ETTs, Expert Info, Dissector Table, Taps */
     proto_someip = proto_register_protocol(SOMEIP_NAME_LONG, SOMEIP_NAME, SOMEIP_NAME_FILTER);
     someip_handle_udp = register_dissector("someip_udp", dissect_someip_udp, proto_someip);
     someip_handle_tcp = register_dissector("someip_tcp", dissect_someip_tcp, proto_someip);
@@ -3960,6 +4023,8 @@ proto_register_someip(void) {
     expert_register_field_array(expert_module_someip, ei, array_length(ei));
 
     someip_dissector_table = register_dissector_table("someip.messageid", "SOME/IP Message ID", proto_someip, FT_UINT32, BASE_HEX);
+
+    tap_someip_messages = register_tap("someip_messages");
 
     /* init for SOME/IP-TP */
     reassembly_table_init(&someip_tp_reassembly_table, &addresses_ports_reassembly_table_functions);
@@ -4270,6 +4335,8 @@ proto_reg_handoff_someip(void) {
 
         heur_dissector_add("udp", dissect_some_ip_heur_udp, "SOME/IP_UDP_Heuristic", "someip_udp_heur", proto_someip, HEURISTIC_DISABLE);
         heur_dissector_add("tcp", dissect_some_ip_heur_tcp, "SOME/IP_TCP_Heuristic", "someip_tcp_heur", proto_someip, HEURISTIC_DISABLE);
+
+        stats_tree_register("someip_messages", "someip_messages", "SOME/IP Messages", 0, someip_messages_stats_tree_packet, someip_messages_stats_tree_init, NULL);
 
         initialized = TRUE;
     } else {

@@ -689,6 +689,8 @@ private slots:
     void actionStatisticsPlugin_triggered();
     void on_actionStatisticsHpfeeds_triggered();
     void on_actionStatisticsHTTP2_triggered();
+    void on_actionStatisticsSOMEIPmessages_triggered();
+    void on_actionStatisticsSOMEIPSDentries_triggered();
 
     RtpStreamDialog *openTelephonyRtpStreamsDialog();
     RtpPlayerDialog *openTelephonyRtpPlayerDialog();

@@ -553,6 +553,14 @@
      </property>
     </widget>
     <addaction name="actionStatistics_REGISTER_STAT_GROUP_RSERPOOL"/>
+    <addaction name="menuSOMEIP"/>
+    <widget class="QMenu" name="menuSOMEIP">
+     <property name="title">
+      <string>SOME/IP</string>
+     </property>
+     <addaction name="actionStatisticsSOMEIPmessages"/>
+     <addaction name="actionStatisticsSOMEIPSDentries"/>
+    </widget>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
@@ -1926,6 +1934,22 @@
    </property>
    <property name="toolTip">
     <string>Sametime statistics</string>
+   </property>
+  </action>
+   <action name="actionStatisticsSOMEIPmessages">
+     <property name="text">
+       <string>SOME/IP Messages</string>
+     </property>
+     <property name="toolTip">
+       <string>SOME/IP Message statistics</string>
+     </property>
+   </action>
+   <action name="actionStatisticsSOMEIPSDentries">
+   <property name="text">
+    <string>SOME/IP-SD Entries</string>
+   </property>
+   <property name="toolTip">
+    <string>SOME/IP-SD Entries statistics</string>
    </property>
   </action>
   <action name="actionTelephonyISUPMessages">

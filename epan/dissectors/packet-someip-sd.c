@@ -1,7 +1,7 @@
 /* packet-someip-sd.c
  * SOME/IP-SD dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2021 Dr. Lars Voelker
+ * Copyright 2012-2022 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
@@ -14,12 +14,15 @@
  */
 
 #include <config.h>
+
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/uat.h>
-#include "packet-udp.h"
-#include "packet-someip.h"
+#include <epan/stats_tree.h>
+
+#include <packet-udp.h>
+#include <packet-someip.h>
 
  /*
   * Dissector for SOME/IP Service Discovery (SOME/IP-SD).
@@ -141,6 +144,28 @@ static gint ett_someip_sd_entry = -1;
 static gint ett_someip_sd_options = -1;
 static gint ett_someip_sd_option = -1;
 static gint ett_someip_sd_config_string = -1;
+
+
+/*** Taps ***/
+static int tap_someip_sd_entries = -1;
+
+typedef struct _someip_sd_entries_tap {
+    guint8  entry_type;
+    guint16 service_id;
+    guint8  major_version;
+    guint32 minor_version;
+    guint16 instance_id;
+    guint16 eventgroup_id;
+    guint32 ttl;
+} someip_sd_entries_tap_t;
+
+
+/*** Stats ***/
+static const gchar *st_str_ip_src = "Source Addresses";
+static const gchar *st_str_ip_dst = "Destination Addresses";
+
+static int st_node_ip_src = -1;
+static int st_node_ip_dst = -1;
 
 /*** Preferences ***/
 static range_t *someip_ignore_ports_udp = NULL;
@@ -477,7 +502,7 @@ dissect_someip_sd_pdu_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static void
-dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset_orig, guint32 length _U_, guint32 *entry_flags, guint32 *stop_entry_flags) {
+dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset_orig, guint32 length, guint32 *entry_flags, guint32 *stop_entry_flags) {
     guint8              type = 255;
     guint32             serviceid = 0;
     guint32             instanceid = 0;
@@ -638,6 +663,20 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (ti != NULL) {
         PROTO_ITEM_SET_HIDDEN(ti);
     }
+
+    /* TAP */
+    if (have_tap_listener(tap_someip_sd_entries)) {
+        someip_sd_entries_tap_t *data = wmem_alloc(pinfo->pool, sizeof(someip_sd_entries_tap_t));
+        data->entry_type = type;
+        data->service_id = (guint16)serviceid;
+        data->major_version = (guint8)majorver;
+        data->minor_version = minorver;
+        data->instance_id = (guint16)instanceid;
+        data->eventgroup_id = (guint16)eventgroupid;
+        data->ttl = ttl;
+
+        tap_queue_packet(tap_someip_sd_entries, pinfo, data);
+    }
 }
 
 static int
@@ -795,6 +834,125 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         expert_add_info(pinfo, ti_sd_entries, &ef_someipsd_entry_array_empty);
     }
     return offset;
+}
+
+static void
+someipsd_entries_stats_tree_init(stats_tree *st) {
+    st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, STAT_DT_INT, TRUE);
+    stat_node_set_flags(st, st_str_ip_src, 0, FALSE, ST_FLG_SORT_TOP);
+    st_node_ip_dst = stats_tree_create_node(st, st_str_ip_dst, 0, STAT_DT_INT, TRUE);
+}
+
+static void
+stat_number_to_string_with_any(guint32 value, guint max, gchar *format_string, gchar *ret, size_t size_limit) {
+    if (value == max) {
+        snprintf(ret, size_limit, "%s", "MAX");
+    } else {
+        snprintf(ret, size_limit, format_string, value);
+    }
+}
+
+static void
+stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, gchar *ret, size_t size_limit) {
+    gchar service_str[128];
+    gchar instance_str[128];
+    gchar majorver_str[128];
+    gchar minorver_str[128];
+    gchar eventgrp_str[128];
+
+    stat_number_to_string_with_any(data->service_id, UINT32_MAX, "0x%04x", service_str, sizeof(service_str) - 1);
+    stat_number_to_string_with_any(data->instance_id, UINT32_MAX, "0x%04x", instance_str, sizeof(instance_str) - 1);
+    stat_number_to_string_with_any(data->major_version, UINT8_MAX, "%d", majorver_str, sizeof(majorver_str) - 1);
+
+    switch (data->entry_type) {
+    case SD_ENTRY_FIND_SERVICE:
+    case SD_ENTRY_OFFER_SERVICE:
+        stat_number_to_string_with_any(data->minor_version, UINT32_MAX, "%d", minorver_str, sizeof(minorver_str) - 1);
+        snprintf(ret, size_limit, "Service %s Version %s.%s Instance %s", service_str, majorver_str, minorver_str, instance_str);
+        break;
+
+    case SD_ENTRY_SUBSCRIBE_EVENTGROUP:
+    case SD_ENTRY_SUBSCRIBE_EVENTGROUP_ACK:
+        stat_number_to_string_with_any(data->eventgroup_id, UINT32_MAX, "0x%04x", eventgrp_str, sizeof(eventgrp_str) - 1);
+        snprintf(ret, size_limit, "Service %s Version %s Instance %s Eventgroup %s", service_str, majorver_str, instance_str, eventgrp_str);
+        break;
+    }
+}
+
+static tap_packet_status
+someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p) {
+    DISSECTOR_ASSERT(p);
+    const someip_sd_entries_tap_t *data = (const someip_sd_entries_tap_t *)p;
+
+    gchar *src_addr = address_to_str(pinfo->pool, &pinfo->net_src);
+    gchar *dst_addr = address_to_str(pinfo->pool, &pinfo->net_dst);
+
+    tick_stat_node(st, st_str_ip_src, 0, FALSE);
+    int src_id = tick_stat_node(st, src_addr, st_node_ip_src, TRUE);
+    tick_stat_node(st, st_str_ip_dst, 0, FALSE);
+    int dst_id = tick_stat_node(st, dst_addr, st_node_ip_dst, TRUE);
+
+    int tmp_id;
+    static gchar tmp_str[128];
+
+    if (data->ttl == 0) {
+        switch (data->entry_type) {
+        case SD_ENTRY_STOP_OFFER_SERVICE:
+            stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
+            tmp_id = tick_stat_node(st, "Stop Offer Service", src_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Stop Offer Service", dst_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            break;
+        case SD_ENTRY_STOP_SUBSCRIBE_EVENTGROUP:
+            stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
+            tmp_id = tick_stat_node(st, "Stop Subscribe Eventgroup", src_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Stop Subscribe Eventgroup", dst_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            break;
+        case SD_ENTRY_SUBSCRIBE_EVENTGROUP_NACK:
+            stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Nack", src_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Nack", dst_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            break;
+        }
+    } else {
+        switch (data->entry_type) {
+        case SD_ENTRY_FIND_SERVICE:
+            stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
+            tmp_id = tick_stat_node(st, "Find Service", src_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Find Service", dst_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            break;
+        case SD_ENTRY_OFFER_SERVICE:
+            stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
+            tmp_id = tick_stat_node(st, "Offer Service", src_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Offer Service", dst_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            break;
+        case SD_ENTRY_SUBSCRIBE_EVENTGROUP:
+            stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup", src_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup", dst_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            break;
+        case SD_ENTRY_SUBSCRIBE_EVENTGROUP_ACK:
+            stat_create_entry_summary_string(data, tmp_str, sizeof(tmp_str) - 1);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Ack", src_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            tmp_id = tick_stat_node(st, "Subscribe Eventgroup Ack", dst_id, TRUE);
+            tick_stat_node(st, tmp_str, tmp_id, FALSE);
+            break;
+        }
+    }
+
+    return TAP_PACKET_REDRAW;
 }
 
 void
@@ -974,12 +1132,13 @@ proto_register_someip_sd(void) {
         { &ef_someipsd_config_string_malformed,{ "someipsd.config_string_malformed", PI_MALFORMED, PI_ERROR, "SOME/IP-SD Configuration String malformed!", EXPFILL } },
     };
 
-    /* Register ETTs */
+    /* Register Protocol, Fields, ETTs, Expert Info, Taps */
     proto_someip_sd = proto_register_protocol(SOMEIP_SD_NAME_LONG, SOMEIP_SD_NAME, SOMEIP_SD_NAME_FILTER);
     proto_register_field_array(proto_someip_sd, hf_sd, array_length(hf_sd));
     proto_register_subtree_array(ett_sd, array_length(ett_sd));
     expert_module_someip_sd = expert_register_protocol(proto_someip_sd);
     expert_register_field_array(expert_module_someip_sd, ei_sd, array_length(ei_sd));
+    tap_someip_sd_entries = register_tap("someipsd_entries");
 
     /* Register preferences */
     someipsd_module = prefs_register_protocol(proto_someip_sd, &proto_reg_handoff_someip_sd);
@@ -1003,6 +1162,9 @@ proto_reg_handoff_someip_sd(void) {
     if (!initialized) {
         someip_sd_handle = create_dissector_handle(dissect_someip_sd_pdu, proto_someip_sd);
         dissector_add_uint("someip.messageid", SOMEIP_SD_MESSAGEID, someip_sd_handle);
+
+        stats_tree_register("someipsd_entries", "someipsd_entries", "SOME/IP-SD Entries", 0, someipsd_entries_stats_tree_packet, someipsd_entries_stats_tree_init, NULL);
+
         initialized = TRUE;
     }
 

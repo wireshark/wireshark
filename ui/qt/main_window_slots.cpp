@@ -3418,6 +3418,16 @@ void MainWindow::on_actionStatisticsHTTP2_triggered()
 
 }
 
+void MainWindow::on_actionStatisticsSOMEIPmessages_triggered()
+{
+    openStatisticsTreeDialog("someip_messages");
+}
+
+void MainWindow::on_actionStatisticsSOMEIPSDentries_triggered()
+{
+    openStatisticsTreeDialog("someipsd_entries");
+}
+
 // Telephony Menu
 
 RtpPlayerDialog *MainWindow::openTelephonyRtpPlayerDialog()

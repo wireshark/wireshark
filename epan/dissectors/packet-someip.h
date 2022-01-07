@@ -1,7 +1,7 @@
 /* packet-someip.h
  * Definitions for SOME/IP packet disassembly structures and routines
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2021 Dr. Lars Voelker
+ * Copyright 2012-2022 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -25,6 +25,13 @@ typedef struct _someip_info
     guint8  message_type;
     guint8  major_version;
 } someip_info_t;
+
+typedef struct _someip_messages_tap {
+    guint16 service_id;
+    guint16 method_id;
+    guint8  interface_version;
+    guint8  message_type;
+} someip_messages_tap_t;
 
 /*
  * Editor modelines
