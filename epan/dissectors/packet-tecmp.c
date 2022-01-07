@@ -1,7 +1,7 @@
 /* packet-tecmp.c
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2019-2021 Dr. Lars Voelker
+ * Copyright 2019-2022 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
@@ -1846,7 +1846,7 @@ proto_register_tecmp(void) {
     proto_tecmp = proto_register_protocol("Technically Enhanced Capture Module Protocol", "TECMP", "tecmp");
     proto_register_field_array(proto_tecmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    tecmp_module = prefs_register_protocol(proto_tecmp, &proto_reg_handoff_tecmp);
+    tecmp_module = prefs_register_protocol(proto_tecmp, NULL);
 
     /* UATs */
     tecmp_cmid_uat = uat_new("TECMP Capture Modules",
@@ -1910,7 +1910,6 @@ proto_reg_handoff_tecmp(void) {
     fr_heur_subdissector_list = find_heur_dissector_list("flexray");
 
     lin_subdissector_table = find_dissector_table("lin.frame_id");
-
 }
 
 /*
