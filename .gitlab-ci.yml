@@ -113,14 +113,10 @@ variables:
     - echo "$NUM_COMMITS commit(s) in this MR"
     - mkdir build
     - cd build
-  after_script:
-    # The cache should be large enough to be useful but it shouldn't take
-    # too long to restore+save each run.
-    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   script:
     # setcap restricts our library paths
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja $CMAKE_ARGS ..
+    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja -DENABLE_CCACHE=ON $CMAKE_ARGS ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja install
@@ -130,6 +126,10 @@ variables:
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
     - su user -c pytest-3
+  after_script:
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
 
 .build-rpm:
   extends: .build-linux
@@ -177,14 +177,6 @@ variables:
     - mkdir build
     - cd build
   needs: []
-
-# Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-Latest Clang:
-  extends: .build-ubuntu
-  rules: !reference [.if-merged]
-  variables:
-    CC: "clang-$CLANG_VERSION"
-    CXX: "clang++-$CLANG_VERSION"
 
 Source Package:
   extends: .build-ubuntu
@@ -304,6 +296,35 @@ Rocky Linux 8 RPM Test:
     - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   needs: [ 'Rocky Linux 8 RPM Package' ]
+
+Ubuntu APT Package:
+  extends: .build-ubuntu
+  rules: !reference [.if-merged]
+  script:
+    # build-ubuntu puts us in `build`.
+    - cd ..
+    - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ MAKE=ninja dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
+    - mkdir ubuntu-packages
+    - mv ../*.deb ubuntu-packages/
+  after_script:
+    # dpkg-buildpackage builds in obj-<triplet>, so we need to override
+    # .build-ubuntu. We also build more stuff, so decrease our multiplier.
+    - ccache --max-size $( du --summarize --block-size=1M --total "$CI_PROJECT_DIR"/obj-* | awk '/total$/ {printf ("%dM", $1 * 1.25)}' )
+  artifacts:
+    paths:
+      - ubuntu-packages/*.deb
+    expire_in: 3 days
+Ubuntu APT Test:
+  extends: .test-linux
+  rules: !reference [.if-merged]
+  image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
+  stage: test
+  script:
+    - DEBIAN_FRONTEND=noninteractive apt-get install ./ubuntu-packages/*.deb -y
+    - tshark --version
+  variables:
+    GIT_STRATEGY: none
+  needs: [ 'Ubuntu APT Package' ]
 
 Win64 Package:
   extends: .build-windows
@@ -514,17 +535,13 @@ Commit Check:
     - bash ./tools/pre-commit "HEAD^$NUM_COMMITS"
     - tools/validate-commit.py
 
-Ubuntu .dpkg:
+# Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
+Latest Clang:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
-  script:
-    # build-ubuntu puts us in `build`.
-    - cd ..
-    - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ MAKE=ninja dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
-  after_script:
-    # dpkg-buildpackage builds in obj-<triplet>, so we need to override
-    # .build-ubuntu. We also build more stuff, so decrease our multiplier.
-    - ccache --max-size $( du --summarize --block-size=1M --total "$CI_PROJECT_DIR"/obj-* | awk '/total$/ {printf ("%dM", $1 * 1.25)}' )
+  variables:
+    CC: "clang-$CLANG_VERSION"
+    CXX: "clang++-$CLANG_VERSION"
 
 GCC Warnings:
   extends: .build-ubuntu
