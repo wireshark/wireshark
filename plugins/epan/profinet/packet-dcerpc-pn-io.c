@@ -450,6 +450,7 @@ static int hf_pn_io_media_type = -1;
 static int hf_pn_io_macadd = -1;
 static int hf_pn_io_length_own_chassis_id = -1;
 static int hf_pn_io_own_chassis_id = -1;
+static int hf_pn_io_rtclass3_port_status = -1;
 
 static int hf_pn_io_ethertype = -1;
 static int hf_pn_io_rx_port = -1;
@@ -6599,6 +6600,81 @@ dissect_PDPortStatistic_block(tvbuff_t *tvb, int offset,
 }
 
 
+/* OwnPort for one subslot */
+static int
+dissect_OwnPort_block(tvbuff_t *tvb, int offset,
+ packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint8   u8LengthOwnPortID;
+    char    *pOwnPortID;
+    guint16  u16MAUType;
+    guint16  u16MAUTypeExtension;
+    guint32  u32MulticastBoundary;
+    guint8   u8LinkStatePort;
+    guint8   u8LinkStateLink;
+    guint32  u32MediaType;
+    guint32  u32LineDelayValue;
+    guint16  u16PortStatus;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* LengthOwnPortID */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_length_own_port_id, &u8LengthOwnPortID);
+    /* OwnPortName */
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII|ENC_NA, pinfo->pool, &pOwnPortID);
+    offset += u8LengthOwnPortID;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* LineDelay */
+    offset = dissect_Line_Delay(tvb, offset, pinfo, tree, drep, &u32LineDelayValue);
+
+    /* MediaType */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_media_type, &u32MediaType);
+
+    /* MulticastBoundary */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_multicast_boundary, &u32MulticastBoundary);
+
+    /* MAUType */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_mau_type, &u16MAUType);
+
+    /* MAUTypeExtension */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_mau_type_extension, &u16MAUTypeExtension);
+
+    /* LinkState.Port */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_link_state_port, &u8LinkStatePort);
+    /* LinkState.Link */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_link_state_link, &u8LinkStateLink);
+
+    /* RTClass3_PortStatus */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_rtclass3_port_status, &u16PortStatus);
+
+    proto_item_append_text(item, ": OwnPortID:%s, LinkState.Port:%s LinkState.Link:%s MediaType:%s MAUType:%s",
+        pOwnPortID,
+        val_to_str(u8LinkStatePort, pn_io_link_state_port, "0x%x"),
+        val_to_str(u8LinkStateLink, pn_io_link_state_link, "0x%x"),
+        val_to_str(u32MediaType, pn_io_media_type, "0x%x"),
+        val_to_str(u16MAUType, pn_io_mau_type, "0x%x"));
+
+    return offset;
+}
+
+
 /* dissect the PDInterfaceDataReal block */
 static int
 dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
@@ -10558,6 +10634,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0251):
         dissect_PDPortStatistic_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
+    case(0x0260):
+        dissect_OwnPort_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
@@ -13694,6 +13773,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_own_chassis_id,
       { "OwnChassisID", "pn_io.own_chassis_id",
         FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_rtclass3_port_status,
+      { "RTClass3_PortStatus", "pn_io.rtclass3_port_status",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_length_own_port_id,
