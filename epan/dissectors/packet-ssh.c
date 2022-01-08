@@ -2952,6 +2952,8 @@ proto_register_ssh(void)
 
 #ifdef SSH_DECRYPT_DEBUG
     ssh_module = prefs_register_protocol(proto_ssh, ssh_prefs_apply_cb);
+#else
+    ssh_module = prefs_register_protocol(proto_ssh, NULL);
 #endif
     prefs_register_bool_preference(ssh_module, "desegment_buffers",
                        "Reassemble SSH buffers spanning multiple TCP segments",
