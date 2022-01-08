@@ -33995,7 +33995,7 @@ void QCPPolarAxisAngular::mouseMoveEvent(QMouseEvent *event, const QPointF &star
     {
       doReplot = true;
       double angleCoordStart, radiusCoordStart;
-      double angleCoord, radiusCoord;
+      double angleCoord = 0.0, radiusCoord = 0.0;
       pixelToCoord(startPos, angleCoordStart, radiusCoordStart);
       pixelToCoord(event->pos(), angleCoord, radiusCoord);
       double diff = angleCoordStart - angleCoord;
