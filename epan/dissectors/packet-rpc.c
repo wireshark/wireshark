@@ -2531,15 +2531,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 16;
 
 		offset = dissect_rpc_cred(tvb, rpc_tree, offset, pinfo, rpc_conv_info);
+		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
+
 		/* pass rpc_info to subdissectors */
 		rpc_call->request=TRUE;
-
-		if (gss_proc == RPCSEC_GSS_DESTROY) {
-			/* there is no verifier for GSS destroy packets */
-			break;
-		}
-
-		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
 
 		/* go to the next dissector */
 
