@@ -26638,7 +26638,7 @@ double QCPColorMap::selectTest(const QPointF &pos, bool onlySelectable, QVariant
 
   if (mKeyAxis.data()->axisRect()->rect().contains(pos.toPoint()) || mParentPlot->interactions().testFlag(QCP::iSelectPlottablesBeyondAxisRect))
   {
-    double posKey, posValue;
+    double posKey = 0.0, posValue = 0.0;
     pixelsToCoords(pos, posKey, posValue);
     if (mMapData->keyRange().contains(posKey) && mMapData->valueRange().contains(posValue))
     {
@@ -27747,7 +27747,7 @@ double QCPFinancial::candlestickSelectTest(const QPointF &pos, const QCPFinancia
       // determine whether pos is in open-close-box:
       QCPRange boxKeyRange(it->key-mWidth*0.5, it->key+mWidth*0.5);
       QCPRange boxValueRange(it->close, it->open);
-      double posKey, posValue;
+      double posKey = 0.0, posValue = 0.0;
       pixelsToCoords(pos, posKey, posValue);
       if (boxKeyRange.contains(posKey) && boxValueRange.contains(posValue)) // is in open-close-box
       {
@@ -27774,7 +27774,7 @@ double QCPFinancial::candlestickSelectTest(const QPointF &pos, const QCPFinancia
       // determine whether pos is in open-close-box:
       QCPRange boxKeyRange(it->key-mWidth*0.5, it->key+mWidth*0.5);
       QCPRange boxValueRange(it->close, it->open);
-      double posKey, posValue;
+      double posKey = 0.0, posValue = 0.0;
       pixelsToCoords(pos, posKey, posValue);
       if (boxKeyRange.contains(posKey) && boxValueRange.contains(posValue)) // is in open-close-box
       {
@@ -34082,7 +34082,7 @@ void QCPPolarAxisAngular::wheelEvent(QWheelEvent *event)
     const double wheelSteps = delta/120.0; // a single step delta is +/-120 usually
     if (mRangeZoom)
     {
-      double angleCoord, radiusCoord;
+      double angleCoord = 0.0, radiusCoord = 0.0;
       pixelToCoord(pos, angleCoord, radiusCoord);
       scaleRange(qPow(mRangeZoomFactor, wheelSteps), angleCoord);
     }
