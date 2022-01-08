@@ -22439,7 +22439,7 @@ double QCPGraph::pointDistance(const QPointF &pixelPoint, QCPGraphDataContainer:
   // calculate minimum distances to graph data points and find closestData iterator:
   double minDistSqr = (std::numeric_limits<double>::max)();
   // determine which key range comes into question, taking selection tolerance around pos into account:
-  double posKeyMin, posKeyMax, dummy;
+  double posKeyMin = 0.0, posKeyMax = 0.0, dummy;
   pixelsToCoords(pixelPoint-QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMin, dummy);
   pixelsToCoords(pixelPoint+QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMax, dummy);
   if (posKeyMin > posKeyMax)
@@ -26681,7 +26681,7 @@ double QCPColorMap::selectTest(const QPointF &pos, bool onlySelectable, QVariant
 
   if (mKeyAxis.data()->axisRect()->rect().contains(pos.toPoint()) || mParentPlot->interactions().testFlag(QCP::iSelectPlottablesBeyondAxisRect))
   {
-    double posKey, posValue;
+    double posKey = 0.0, posValue = 0.0;
     pixelsToCoords(pos, posKey, posValue);
     if (mMapData->keyRange().contains(posKey) && mMapData->valueRange().contains(posValue))
     {
@@ -27790,7 +27790,7 @@ double QCPFinancial::candlestickSelectTest(const QPointF &pos, const QCPFinancia
       // determine whether pos is in open-close-box:
       QCPRange boxKeyRange(it->key-mWidth*0.5, it->key+mWidth*0.5);
       QCPRange boxValueRange(it->close, it->open);
-      double posKey, posValue;
+      double posKey = 0.0, posValue = 0.0;
       pixelsToCoords(pos, posKey, posValue);
       if (boxKeyRange.contains(posKey) && boxValueRange.contains(posValue)) // is in open-close-box
       {
@@ -27817,7 +27817,7 @@ double QCPFinancial::candlestickSelectTest(const QPointF &pos, const QCPFinancia
       // determine whether pos is in open-close-box:
       QCPRange boxKeyRange(it->key-mWidth*0.5, it->key+mWidth*0.5);
       QCPRange boxValueRange(it->close, it->open);
-      double posKey, posValue;
+      double posKey = 0.0, posValue = 0.0;
       pixelsToCoords(pos, posKey, posValue);
       if (boxKeyRange.contains(posKey) && boxValueRange.contains(posValue)) // is in open-close-box
       {
@@ -34038,7 +34038,7 @@ void QCPPolarAxisAngular::mouseMoveEvent(QMouseEvent *event, const QPointF &star
     {
       doReplot = true;
       double angleCoordStart, radiusCoordStart;
-      double angleCoord, radiusCoord;
+      double angleCoord = 0.0, radiusCoord = 0.0;
       pixelToCoord(startPos, angleCoordStart, radiusCoordStart);
       pixelToCoord(event->pos(), angleCoord, radiusCoord);
       double diff = angleCoordStart - angleCoord;
@@ -34125,7 +34125,7 @@ void QCPPolarAxisAngular::wheelEvent(QWheelEvent *event)
     const double wheelSteps = delta/120.0; // a single step delta is +/-120 usually
     if (mRangeZoom)
     {
-      double angleCoord, radiusCoord;
+      double angleCoord = 0.0, radiusCoord = 0.0;
       pixelToCoord(pos, angleCoord, radiusCoord);
       scaleRange(qPow(mRangeZoomFactor, wheelSteps), angleCoord);
     }
@@ -35207,7 +35207,7 @@ double QCPPolarGraph::pointDistance(const QPointF &pixelPoint, QCPGraphDataConta
   // calculate minimum distances to graph data points and find closestData iterator:
   double minDistSqr = (std::numeric_limits<double>::max)();
   // determine which key range comes into question, taking selection tolerance around pos into account:
-  double posKeyMin, posKeyMax, dummy;
+  double posKeyMin = 0.0, posKeyMax = 0.0, dummy;
   pixelsToCoords(pixelPoint-QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMin, dummy);
   pixelsToCoords(pixelPoint+QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMax, dummy);
   if (posKeyMin > posKeyMax)
