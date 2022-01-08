@@ -10,6 +10,9 @@
 * SPDX-License-Identifier: GPL-2.0-or-later
 */
 
+#ifndef __PACKET_SYSDIG_BRIDGE_H__
+#define __PACKET_SYSDIG_BRIDGE_H__
+
 /*
  * API versions of this plugin engine
  */
@@ -50,12 +53,13 @@
 #define PROTO_DATA_CONVINFO_USER_15  10015
 #define PROTO_DATA_CONVINFO_USER_BASE PROTO_DATA_CONVINFO_USER_0
 
-#define PLG_PARAM_TYPE_UINT64 8
-#define PLG_PARAM_TYPE_CHARBUF 9
+//#define PLG_PARAM_TYPE_UINT64 8
+//#define PLG_PARAM_TYPE_CHARBUF 9
 
 #define FLD_FLAG_USE_IN_INFO 1
 #define FLD_FLAG_USE_IN_CONVERSATIONS (1 << 1)
 
+#if 0
 /*
  * Plugin types
  */
@@ -95,6 +99,7 @@ typedef void ss_plugin_t;
  * and it treats is as opaque.
  */
 typedef void ss_instance_t;
+#endif
 
 // This struct represents an event returned by the plugin, and is used
 // below in next()/next_batch().
@@ -107,14 +112,15 @@ typedef void ss_instance_t;
 //   buffer pointed by data.
 // - ts: the event timestamp. Can be (uint64_t)-1, in which case the engine will
 //   automatically fill the event time with the current time.
-typedef struct ss_plugin_event
-{
-	uint64_t evtnum;
-	uint8_t *data;
-	uint32_t datalen;
-	uint64_t ts;
-} ss_plugin_event;
+//typedef struct ss_plugin_event
+//{
+//	uint64_t evtnum;
+//	uint8_t *data;
+//	uint32_t datalen;
+//	uint64_t ts;
+//} ss_plugin_event;
 
+#if 0
 // Used in extract_fields functions below to receive a field/arg
 // pair and return an extracted value.
 // field: the field name.
@@ -195,19 +201,24 @@ typedef struct
     gboolean is_async_extractor_present;
     volatile int lock;
 } ss_plugin_info;
+#endif
 
 typedef struct bridge_info {
-    ss_plugin_info si;
+//    ss_plugin_info si;
+    sinsp_source_info_t *ssi;
+    uint32_t source_id;
     int proto;
     hf_register_info* hf;
     int* hf_ids;
-    guint32* field_flags;
-    guint32 n_fields;
-}bridge_info;
+    uint32_t visible_fields;
+    uint32_t* field_flags;
+    int* field_ids;
+} bridge_info;
 
 typedef struct conv_fld_info {
     char* proto_name;
     hf_register_info* field_info;
     char field_val[4096];
-}conv_fld_info;
+} conv_fld_info;
 
+#endif // __PACKET_SYSDIG_BRIDGE_H__

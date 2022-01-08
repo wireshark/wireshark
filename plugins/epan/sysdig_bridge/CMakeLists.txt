@@ -14,6 +14,7 @@ set_module_info(sysdig-plugins 0 0 4 0)
 
 set(DISSECTOR_SRC
 	packet-sysdig-bridge.c
+	sinsp-span.cpp
 )
 
 set(PLUGIN_FILES
@@ -34,7 +35,31 @@ register_plugin_files(plugin.c
 
 add_plugin_library(sysdig-plugins epan)
 
-target_link_libraries(sysdig-plugins epan)
+# XXX Hack for now; handle correctly in CMake at some point.
+set(FALCOSECURITY_INCLUDE_DIRS
+	/Users/gerald/Development/falcosecurity-libs/userspace/libscap
+	/Users/gerald/Development/falcosecurity-libs/userspace/libsinsp
+	/usr/local/include
+)
+set(FALCOSECURITY_LIBRARIES
+	/Users/gerald/Development/falcosecurity-libs/build/libscap/libscap.a
+	/Users/gerald/Development/falcosecurity-libs/build/libsinsp/libsinsp.a
+	/usr/local/lib/libjsoncpp.dylib
+	/usr/local/lib/libtbb.dylib
+)
+target_compile_definitions(sysdig-plugins PRIVATE
+	HAVE_STRLCPY=1
+	)
+# target_compile_options(sysdig-plugins PRIVATE -Wno-address-of-packed-member)
+
+target_include_directories(sysdig-plugins SYSTEM PUBLIC
+	${FALCOSECURITY_INCLUDE_DIRS}
+)
+
+target_link_libraries(sysdig-plugins
+	epan
+	${FALCOSECURITY_LIBRARIES}
+)
 
 install_plugin(sysdig-plugins epan)
 

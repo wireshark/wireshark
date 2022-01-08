@@ -10,8 +10,16 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+// To do:
+// - Convert this to C++?
+//   It would let us get rid of the glue that is sinsp-span and make string handling a lot easier.
+//   ...except epan/address.h and driver/ppm_events_public.h both define PT_NONE.
+
 // set_profile_name
 #include "config.h"
+
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -25,14 +33,17 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/proto.h>
 #include <epan/proto_data.h>
-#include <wsutil/wsjson.h>
+//#include <wsutil/wsjson.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <epan/conversation_filter.h>
+
+#include "sinsp-span.h"
 #include "packet-sysdig-bridge.h"
 #include "conversation-macros.h"
 
@@ -42,8 +53,8 @@ static gint ett_bridge = -1;
 static dissector_handle_t json_dissector_handle = NULL;
 static dissector_table_t ptype_dissector_table;
 
-static int dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_);
-static int dissect_plg_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_);
+static int dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+static int dissect_plg_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 void register_conversation_filters_mappings(void);
 
@@ -53,6 +64,11 @@ void register_conversation_filters_mappings(void);
 bridge_info* bridges = NULL;
 guint nbridges = 0;
 guint n_conv_fields = 0;
+
+/*
+ * sinsp extractor span
+ */
+sinsp_span_t *sinsp_span = NULL;
 
 /*
  * Fields
@@ -97,6 +113,7 @@ register_conversation_filters_mappings()
     MAP_CONV_FLTS()
 }
 
+#if 0
 void*
 getsym(void* handle, const char* name)
 {
@@ -108,7 +125,7 @@ getsym(void* handle, const char* name)
 }
 
 /*
- * Polulate a source_plugin_info struct with the symbols coming from a dynamic library
+ * Populate a source_plugin_info struct with the symbols coming from a dynamic library
  */
 gboolean
 create_dynlib_source(const char* libname, ss_plugin_info* info)
@@ -142,24 +159,30 @@ create_dynlib_source(const char* libname, ss_plugin_info* info)
 
     return TRUE;
 }
+#endif
 
-void validate_plugin_version(ss_plugin_info* plugin_info)
+#if 0
+// XXX handled by sinsp?
+void validate_plugin_version(sinsp_source_info_t *sei)
 {
     guint32 pv_maj, pv_min, pv_patch;
-    char* avstr = plugin_info->get_required_api_version();
+    pv_maj = get_sinsp_source_required_api_version_major(sei);
+    pv_min = get_sinsp_source_required_api_version_minor(sei);
+    pv_patch = get_sinsp_source_required_api_version_patch(sei);
+//    char* avstr = plugin_info->get_required_api_version();
 
-    if (sscanf(avstr, "%" PRIu32 ".%" PRIu32 ".%" PRIu32, &pv_maj, &pv_min, &pv_patch) != 3) {
-        THROW_FORMATTED(DissectorError, "unable to load plugin %s: plugin's get_api_version() is returning invalid data. Required format is \"<major>.<minor>.<patch>\", e.g. \"1.2.3\"",
-            plugin_info->get_name());
-    }
+//    if (sscanf(avstr, "%" PRIu32 ".%" PRIu32 ".%" PRIu32, &pv_maj, &pv_min, &pv_patch) != 3) {
+//        THROW_FORMATTED(DissectorError, "unable to load plugin %s: plugin's get_api_version() is returning invalid data. Required format is \"<major>.<minor>.<patch>\", e.g. \"1.2.3\"",
+//            plugin_info->get_name());
+//    }
 
     if (!(pv_maj == PLUGIN_API_VERSION_MAJOR && pv_min <= PLUGIN_API_VERSION_MINOR)) {
-        THROW_FORMATTED(DissectorError, "unable to initialize plugin %s: plugin is requesting API version %s which is not supported by this engine (version %u.%u.%u)",
-            plugin_info->get_name(),
-            avstr,
-            (unsigned int)PLUGIN_API_VERSION_MAJOR,
-            (unsigned int)PLUGIN_API_VERSION_MINOR,
-            (unsigned int)PLUGIN_API_VERSION_PATCH);
+        THROW_FORMATTED(DissectorError, "unable to initialize plugin %s: plugin is requesting API version %u.%u.%u which is not supported by this engine (version %u.%u.%u)",
+            get_sinsp_source_name(sei),
+            pv_maj, pv_min, pv_patch,
+            PLUGIN_API_VERSION_MAJOR,
+            PLUGIN_API_VERSION_MINOR,
+            PLUGIN_API_VERSION_PATCH);
     }
 }
 
@@ -267,45 +290,37 @@ void async_plugin_shutdown(void* wait_ctx)
      */
     while(*plock != LS_SHUTDOWN_DONE);
 }
+#endif
 
-#define ENSURE_PLUGIN_EXPORT(_fn) if(plugin_info->_fn == NULL) THROW_FORMATTED(DissectorError, "invalid source plugin %s: %s export missing", filename, #_fn);
+//#define ENSURE_PLUGIN_EXPORT(_fn) if(plugin_info->_fn == NULL) THROW_FORMATTED(DissectorError, "invalid source plugin %s: %s export missing", filename, #_fn);
 
 // Returns true if the plugin is allocating a thread for high speed async extraction
 gboolean
-configure_plugin(char* filename, bridge_info* bi, char* config)
+configure_plugin(bridge_info* bi, char* config _U_)
 {
     guint32 init_res = SCAP_FAILURE;
-    ss_plugin_info* plugin_info = &(bi->si);
-    plugin_info->is_async_extractor_configured = FALSE;
-    plugin_info->is_async_extractor_present = FALSE;
-    plugin_info->lock = LS_INIT;
-
-    ENSURE_PLUGIN_EXPORT(get_type);
-    ENSURE_PLUGIN_EXPORT(get_last_error);
-    ENSURE_PLUGIN_EXPORT(get_id);
-    ENSURE_PLUGIN_EXPORT(get_name);
-    ENSURE_PLUGIN_EXPORT(get_description);
-    ENSURE_PLUGIN_EXPORT(get_required_api_version);
-    ENSURE_PLUGIN_EXPORT(get_fields);
+//    ss_plugin_info* plugin_info = &(bi->sei);
+//    plugin_info->is_async_extractor_configured = FALSE;
+//    plugin_info->is_async_extractor_present = FALSE;
+//    plugin_info->lock = LS_INIT;
 
     /*
      * Get the plugin version and make sure we can run it
      */
-    validate_plugin_version(plugin_info);
+//    validate_plugin_version(bi->ssi);
 
     /*
      * Initialize the plugin
      */
-    if (plugin_info->init != NULL)
-    {
-        plugin_info->state = plugin_info->init(config, &init_res);
-        if (init_res != SCAP_SUCCESS)
-        {
-            THROW_FORMATTED(DissectorError, "unable to initialize plugin %s", plugin_info->get_name());
-        }
-    }
+    // Called by sinsp_plugin::create_plugin
+//    if (!init_sinsp_source(bi->ssi, config))
+//    {
+//        THROW_FORMATTED(DissectorError, "unable to initialize plugin %s", get_sinsp_source_name(bi->ssi));
+//    }
 
-    plugin_info->id = (guint32)plugin_info->get_id();
+    bi->source_id = get_sinsp_source_id(bi->ssi);
+
+#if 0
     plugin_info->name = plugin_info->get_name();
 
     /*
@@ -362,20 +377,92 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
                 bi->n_fields++;
             }
         }
-
-        bi->hf = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(hf_register_info));
-        bi->hf_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(int));
-        bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->n_fields * sizeof(guint32));
-
-        for (guint j = 0; j < bi->n_fields; j++)
-        {
-            bi->hf_ids[j] = -1;
-            bi->field_flags[j] = 0;
+#endif
+    uint32_t tot_fields = get_sinsp_source_nfields(bi->ssi);
+    bi->visible_fields = 0;
+    sinsp_field_info_t sfi;
+    for (uint32_t j = 0; j < tot_fields; j++) {
+        get_sinsp_source_field_info(bi->ssi, j, &sfi);
+        if (sfi.is_hidden) {
+            /*
+             * Skip the fields that are marked as hidden
+             */
+            continue;
         }
+        bi->visible_fields++;
+    }
 
-        /*
-         * Second pass: parse the fields and populate the dissector list
-         */
+    if (bi->visible_fields) {
+        bi->hf = (hf_register_info*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(hf_register_info));
+        bi->hf_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
+        bi->field_ids = (int*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(int));
+        bi->field_flags = (guint32*)wmem_alloc(wmem_epan_scope(), bi->visible_fields * sizeof(guint32));
+
+        uint32_t fld_cnt = 0;
+        for (uint32_t j = 0; j < tot_fields; j++)
+        {
+            bi->hf_ids[fld_cnt] = -1;
+            bi->field_ids[fld_cnt] = j;
+            bi->field_flags[fld_cnt] = 0;
+            hf_register_info* ri = bi->hf + fld_cnt;
+
+            get_sinsp_source_field_info(bi->ssi, j, &sfi);
+
+            if (sfi.is_hidden) {
+                /*
+                 * Skip the fields that are marked as hidden
+                 */
+                continue;
+            }
+
+            enum ftenum ftype;
+            int fdisplay = BASE_NONE;
+            switch (sfi.type) {
+            case SFT_STRINGZ:
+                ftype = FT_STRINGZ;
+                break;
+            case SFT_UINT64:
+                ftype = FT_UINT64;
+                switch (sfi.display_format) {
+                case SFDF_DECIMAL:
+                    fdisplay = BASE_DEC;
+                    break;
+                case SFDF_HEXADECIMAL:
+                    fdisplay = BASE_HEX;
+                    break;
+                case SFDF_OCTAL:
+                    fdisplay = BASE_OCT;
+                    break;
+                default:
+                    THROW_FORMATTED(DissectorError, "error in plugin %s: display format %s is not supported",
+                        get_sinsp_source_name(bi->ssi),
+                        sfi.abbrev);
+                }
+
+                break;
+            default:
+                THROW_FORMATTED(DissectorError, "error in plugin %s: type of field %s is not supported",
+                    get_sinsp_source_name(bi->ssi),
+                    sfi.abbrev);
+            }
+
+
+            hf_register_info finfo = {
+                bi->hf_ids + fld_cnt,
+                {
+                    wmem_strdup(wmem_epan_scope(), sfi.display), wmem_strdup(wmem_epan_scope(), sfi.abbrev),
+                    ftype, fdisplay,
+                    NULL, 0x0,
+                    wmem_strdup(wmem_epan_scope(), sfi.description), HFILL
+                }
+            };
+            *ri = finfo;
+            fld_cnt++;
+        }
+        proto_register_field_array(proto_sdplugin, bi->hf, fld_cnt);
+    }
+
+#if 0
         guint fld_cnt = 0;
         for (int j = 0; j < ret; j++)
         {
@@ -412,7 +499,7 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
                 }
 
                 hf_register_info finfo = {
-                    bi->hf_ids + fld_cnt,
+                    bi->field_ids + fld_cnt,
                     {
                         display, name,
                         wstype, disp,
@@ -442,7 +529,9 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
 
         proto_register_field_array(proto_sdplugin, bi->hf, fld_cnt);
     }
+#endif
 
+#if 0
     /*
      * If the plugin exports an async interface, configure it for usage
      */
@@ -464,6 +553,7 @@ configure_plugin(char* filename, bridge_info* bi, char* config)
 
         plugin_info->is_async_extractor_configured = TRUE;
     }
+#endif
 
     return FALSE;
 }
@@ -474,22 +564,27 @@ import_plugin(char* fname)
     nbridges++;
     bridge_info* bi = &bridges[nbridges - 1];
 
-    if (create_dynlib_source(fname, &(bi->si)) == FALSE) {
+    sinsp_span = create_sinsp_span();
+
+    if (create_sinsp_source(sinsp_span, fname, &(bi->ssi)) == FALSE) {
         nbridges--;
-        THROW_FORMATTED(DissectorError, "unable to load sysdig plugin %s.", fname);
+        THROW_FORMATTED(DissectorError, "unable to load sinsp plugin %s.", fname);
     }
 
-    configure_plugin(fname, bi, "");
+    configure_plugin(bi, "");
 
+    const char *source_name = get_sinsp_source_name(bi->ssi);
+    const char *plugin_name = g_strdup_printf("%s Plugin", source_name);
+//    const char *source_descr = get_sinsp_source_description(bi->ssi);
     bi->proto = proto_register_protocol (
-        bi->si.name,       /* name */
-        bi->si.name,       /* short name  */
-        bi->si.name        /* filter_name */
+        plugin_name,       /* full name */
+        source_name,       /* short name  */
+        source_name        /* filter_name */
         );
 
     static dissector_handle_t ct_handle;
     ct_handle = create_dissector_handle(dissect_plg_bridge, bi->proto);
-    dissector_add_uint("sysdig_plugin.id", bi->si.id, ct_handle);
+    dissector_add_uint("sysdig_plugin.id", bi->source_id, ct_handle);
 }
 
 static void
@@ -498,9 +593,10 @@ on_wireshark_exit(void)
 
     for (guint j = 0; j < nbridges; j++) {
         bridge_info* bi = bridges + j;
-        if (bi->si.register_async_extractor != NULL) {
-            async_plugin_shutdown((void*)&(bi->si.lock));
-        }
+        // XXX destroy_sinsp_source
+//        if (bi->si.register_async_extractor != NULL) {
+//            async_plugin_shutdown((void*)&(bi->si.lock));
+//        }
     }
 }
 
@@ -588,7 +684,7 @@ get_bridge_info(guint32 source_id)
 {
     for(guint j = 0; j < nbridges; j++)
     {
-        if(bridges[j].si.id == source_id)
+        if(bridges[j].source_id == source_id)
         {
             return &bridges[j];
         }
@@ -598,7 +694,7 @@ get_bridge_info(guint32 source_id)
 }
 
 static int
-dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conv_vals_cnt = 0;
 
@@ -623,8 +719,9 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
         return tvb_captured_length(tvb);
     }
 
-    proto_item_append_text(idti, " (%s)", bi->si.name);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", bi->si.name);
+    const char *source_name = get_sinsp_source_name(bi->ssi);
+    proto_item_append_text(idti, " (%s)", source_name);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", source_name);
 
     dissector_handle_t dissector = dissector_get_uint_handle(ptype_dissector_table, source_id);
     if (dissector) {
@@ -637,12 +734,13 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
 }
 
 static int
-dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, void* data _U_)
+dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     bridge_info* bi = p_get_proto_data(pinfo->pool, pinfo, proto_sdplugin, PROTO_DATA_BRIDGE_HANDLE);
     guint plen = tvb_captured_length(tvb);
+    const char *source_name = get_sinsp_source_name(bi->ssi);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, bi->si.name);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, source_name);
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -650,77 +748,80 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree _U_, 
     proto_tree* sdplugin_tree = proto_item_add_subtree(ti, ett_bridge);
 
     guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, plen);
-    ss_plugin_info* si = &bi->si;
+//    ss_plugin_info* si = &bi->si;
 
-    ss_plugin_event evt;
+//    ss_plugin_event evt;
 
-    evt.evtnum = pinfo->num;
-    evt.data = payload;
-    evt.datalen = plen;
+//    evt.evtnum = pinfo->num;
+//    evt.data = payload;
+//    evt.datalen = plen;
 
-    for (guint j = 0; j < bi->n_fields; j++) {
-        header_field_info* hfinfo = &(bi->hf[j].hfinfo);
-        ss_plugin_info* plugin_info = &(bi->si);
+    for (uint32_t i = 0; i < bi->visible_fields; i++) {
+        header_field_info* hfinfo = &(bi->hf[i].hfinfo);
+        sinsp_source_info_t *ssi = bi->ssi;
+        sinsp_field_extract_t sfe;
 
-        if (plugin_info->extract_fields == NULL) {
-            REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_fields export", bi->si.name);
+//        if (plugin_info->extract_fields == NULL) {
+//            REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_fields export", bi->si.name);
+//        }
+
+//        guint32 num_fields = 1;
+        sfe.field_id = bi->field_ids[i];
+        sfe.field_name = hfinfo->abbrev;
+//        field.arg = NULL;
+        sfe.type = hfinfo->type == FT_STRINGZ ? SFT_STRINGZ : SFT_UINT64;
+
+//        guint32 rc;
+//        if (plugin_info->is_async_extractor_present) {
+//            plugin_info->async_extractor_info.evt = &evt;
+//            plugin_info->async_extractor_info.field = &field;
+//            async_plugin_notify((void *)&plugin_info->lock);
+//            rc = plugin_info->async_extractor_info.rc;
+//        }
+//        else
+//        {
+        // evt num data datalen
+//            rc = ssi->extract_fields(si->state, &evt, num_fields, &field);
+        bool rc = extract_sisnp_source_field(bi->ssi, pinfo->num, payload, plen, pinfo->pool, &sfe);
+//        }
+
+//	if (rc != SCAP_SUCCESS) {
+//            if (rc == SCAP_NOT_SUPPORTED) {
+//		REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_fields export", bi->si.name);
+//            } else {
+        if (!rc) {
+            REPORT_DISSECTOR_BUG("sysdig plugin %s extract error", get_sinsp_source_name(bi->ssi));
+        }
+//	}
+        if (!sfe.is_present) {
+            continue;
         }
 
-        guint32 num_fields = 1;
-	ss_plugin_extract_field field;
-	field.field = hfinfo->abbrev;
-	field.arg = NULL;
-	field.ftype = (hfinfo->type == FT_STRINGZ ? PLG_PARAM_TYPE_CHARBUF : PLG_PARAM_TYPE_UINT64);
+        if (sfe.type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
+            proto_tree_add_string(sdplugin_tree, bi->hf_ids[i], tvb, 0, plen, sfe.res_str);
+//            if ((bi->field_flags[field_id] & FLD_FLAG_USE_IN_INFO) != 0) {
+//                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", field.res_str);
+//            }
 
-	guint32 rc;
-	if (plugin_info->is_async_extractor_present) {
-            plugin_info->async_extractor_info.evt = &evt;
-            plugin_info->async_extractor_info.field = &field;
-            async_plugin_notify((void *)&plugin_info->lock);
-            rc = plugin_info->async_extractor_info.rc;
-	}
-	else
-	{
-            rc = si->extract_fields(si->state, &evt, num_fields, &field);
-	}
+//            if ((bi->field_flags[field_id] & FLD_FLAG_USE_IN_CONVERSATIONS) != 0) {
+//                char* cvalptr = conv_flt_vals[conv_vals_cnt];
+//                sprintf(cvalptr, "%s", field.res_str);
+//                p_add_proto_data(pinfo->pool,
+//                                 pinfo,
+//                                 proto_sdplugin,
+//                                 PROTO_DATA_CONVINFO_USER_BASE + conv_vals_cnt, cvalptr);
+//            }
 
-	if (rc != SCAP_SUCCESS) {
-            if (rc == SCAP_NOT_SUPPORTED) {
-		REPORT_DISSECTOR_BUG("sysdig plugin %s is missing the extract_fields export", bi->si.name);
-            } else {
-		REPORT_DISSECTOR_BUG("sysdig plugin %s extract error %d", bi->si.name, (int)rc);
-            }
-	}
-
-        if (hfinfo->type == FT_STRINGZ) {
-            if (field.field_present && field.res_str != NULL && strlen(field.res_str) != 0) {
-                proto_tree_add_string(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, field.res_str);
-                if ((bi->field_flags[j] & FLD_FLAG_USE_IN_INFO) != 0) {
-                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", field.res_str);
-                }
-
-                if ((bi->field_flags[j] & FLD_FLAG_USE_IN_CONVERSATIONS) != 0) {
-                    char* cvalptr = conv_flt_vals[conv_vals_cnt];
-                    sprintf(cvalptr, "%s", field.res_str);
-                    p_add_proto_data(pinfo->pool,
-                        pinfo,
-                        proto_sdplugin,
-                        PROTO_DATA_CONVINFO_USER_BASE + conv_vals_cnt, cvalptr);
-                }
-            }
-
-            if ((bi->field_flags[j] & FLD_FLAG_USE_IN_CONVERSATIONS) != 0) {
-                conv_vals_cnt++;
-            }
+//            if ((bi->field_flags[field_id] & FLD_FLAG_USE_IN_CONVERSATIONS) != 0) {
+//                conv_vals_cnt++;
+//            }
         }
-        else if (hfinfo->type == FT_UINT64) {
-            if (field.field_present) {
-                proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[j], tvb, 0, plen, field.res_u64);
-            }
+        else if (sfe.type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
+            proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[i], tvb, 0, plen, sfe.res_u64);
         }
         else {
-            REPORT_DISSECTOR_BUG("field %s has an unrecognized type %u",
-                hfinfo->abbrev, (unsigned)hfinfo->type);
+            REPORT_DISSECTOR_BUG("field %s has an unrecognized or mismatched type %u != %u",
+                hfinfo->abbrev, sfe.type, hfinfo->type);
         }
     }
 
