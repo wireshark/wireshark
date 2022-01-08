@@ -5296,6 +5296,43 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect the PDPortDataRealExtended blocks */
+static int
+dissect_PDPortDataRealExtended_block(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+    proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
+{
+    guint16   u16SlotNr;
+    guint16   u16SubslotNr;
+    guint16   u16Index = 0;
+    guint32   u32RecDataLen;
+    pnio_ar_t *ar       = NULL;
+    int       endoffset = offset + u16BodyLength;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* SlotNumber */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_slot_nr, &u16SlotNr);
+    /* Subslotnumber */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_subslot_nr, &u16SubslotNr);
+
+    proto_item_append_text(item, ": Slot:0x%x/0x%x", u16SlotNr, u16SubslotNr);
+
+    while (endoffset > offset) {
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+        u16Index++;
+    }
+
+    return offset;
+}
+
 static int
 dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
@@ -10491,6 +10528,9 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     case(0x022B):
         dissect_PDSubFrameBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
+    case(0x022C):
+        dissect_PDPortDataRealExtended_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
 
     case(0x0230):
