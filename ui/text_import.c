@@ -1609,7 +1609,11 @@ text_import(text_import_info_t * const info)
         has_seqno = g_regex_get_string_number(info->regex.format, "seqno") >= 0;
     }
 
-    ts_fmt_iso = !(g_strcmp0(info->timestamp_format, "ISO"));
+    if (info->timestamp_format == NULL || g_ascii_strcasecmp(info->timestamp_format, "ISO")) {
+        ts_fmt_iso = FALSE;
+    } else {
+        ts_fmt_iso = TRUE;
+    }
     offset_warned = FALSE;
     timecode_warned = FALSE;
 
