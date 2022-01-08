@@ -189,7 +189,8 @@ _wireshark-dev_ mailing list explaining your problem. Include the output from
 `make` stage.
 
 [[ChSetupWin32]]
-
+// Retain ChSetupWin32 for backward compatibility
+[[ChSetupWindows]]
 === Windows: Step-by-Step Guide
 
 A quick setup guide for Windows development with recommended configurations.
@@ -250,6 +251,9 @@ Note that this includes CMake.
 ----
 PS$> choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
 ----
+
+// winget has basic VS 2022 and 2019 packages, but no native desktop workload packages.
+// https://github.com/microsoft/winget-pkgs/tree/master/manifests/m/Microsoft/VisualStudio
 
 You can use other Microsoft C compiler variants, but VS2019 is used to
 build the development releases and is the preferred option. It’s
@@ -312,6 +316,9 @@ PS$> choco install -y python3
 // https://community.chocolatey.org/packages/python3/#discussion
 Chocolatey will likely install Python in one of the locations above, or possibly in _C:\Tools\Python3_.
 
+// winget has Python 3 packages.
+// https://github.com/microsoft/winget-pkgs/tree/master/manifests/p/Python/Python/3
+
 ==== Install Perl
 
 Get a Perl installer from http://strawberryperl.com/ or
@@ -324,6 +331,9 @@ PS$> choco install -y strawberryperl
 # ...or...
 PS$> choco install -y activeperl
 ----
+
+// winget has StrawberryPerl.
+// https://github.com/microsoft/winget-pkgs/tree/master/manifests/s/StrawberryPerl/StrawberryPerl
 
 [[ChSetupGit]]
 
@@ -370,6 +380,9 @@ The command line client can be installed (and updated) using Chocolatey:
 PS$> choco install -y git
 ----
 
+// winget has git.
+// https://github.com/microsoft/winget-pkgs/tree/master/manifests/g/Git/Git
+
 ===== Others
 
 A list of other GUI interfaces for Git can be found at
@@ -391,6 +404,9 @@ Alternatively you can install it using Chocolatey:
 ----
 PS$> choco install -y cmake
 ----
+
+// winget has CMake.
+// https://github.com/microsoft/winget-pkgs/tree/master/manifests/k/Kitware/CMake
 
 Chocolatey ensures cmake.exe is on your path.
 
@@ -415,6 +431,8 @@ PS$> choco install -y asciidoctorj xsltproc docbook-bundle
 Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
 path and that xsltproc uses the DocBook catalog.
 
+// winget has no Asciidoctor, xsltproc, or DocBook packages.
+
 ==== Install winflexbison
 
 Get the winFlexBison installer from https://sourceforge.net/projects/winflexbison/
@@ -429,6 +447,8 @@ PS$> choco install -y winflexbison3
 
 Chocolatey ensures win_flex.exe is on your path.
 
+// winget has no bison package.
+
 ==== Install and Prepare Sources
 
 [TIP]
@@ -438,8 +458,6 @@ It’s a good idea to make sure Wireshark compiles and runs at least once before
 you start hacking the Wireshark sources for your own project. This example uses
 Git Extensions but any other Git client should work as well.
 ====
-
-// XXX -
 
 *Download sources* Download Wireshark sources into
 _C:\Development\wireshark_ using either the command line or Git Extensions:

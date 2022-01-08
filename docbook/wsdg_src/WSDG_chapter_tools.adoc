@@ -71,7 +71,7 @@ behavior you'll probably want to install Python using the packages from
 python.org.
 
 Other package managers for Windows include the https://docs.microsoft.com/en-us/windows/package-manager/[Windows Package Manager (winget)] and https://scoop.sh/[Scoop].
-As of May 2020 neither option provides all of the packages we require, but that might change in the future.
+As of January 2022 neither option provides all of the packages we require, but that might change in the future.
 
 [[ChToolsCMake]]
 
