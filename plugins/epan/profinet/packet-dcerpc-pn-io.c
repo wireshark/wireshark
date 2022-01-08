@@ -5198,11 +5198,15 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     guint16  u16SubslotNr;
     guint8   u8LengthOwnPortID;
     char    *pOwnPortID;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
     guint8   u8NumberOfPeers;
     guint8   u8I;
     guint8   u8LengthPeerPortID;
     guint8   u8LengthPeerChassisID;
     guint8   mac[6];
+    char    *pPeerChassisId;
+    char    *pPeerPortId;
     guint16  u16MAUType;
     guint32  u32DomainBoundary;
     guint32  u32MulticastBoundary;
@@ -5241,31 +5245,38 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 
     u8I = u8NumberOfPeers;
     while (u8I--) {
+        sub_item = proto_tree_add_item(tree, hf_pn_io_neighbor, tvb, offset, 0, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_neighbor);
+
         /* LengthPeerPortID */
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
-        proto_tree_add_item (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, ENC_ASCII|ENC_NA);
+        proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID,
+                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerPortId);
         offset += u8LengthPeerPortID;
 
         /* LengthPeerChassisID */
-        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
-        proto_tree_add_item (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, ENC_ASCII|ENC_NA);
+        proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID,
+                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerChassisId);
         offset += u8LengthPeerChassisID;
 
         /* Padding */
-        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
 
         /* LineDelay */
-        offset = dissect_Line_Delay(tvb, offset, pinfo, tree, drep, &u32LineDelayValue);
+        offset = dissect_Line_Delay(tvb, offset, pinfo, sub_tree, drep, &u32LineDelayValue);
 
         /* PeerMACAddress */
-        offset = dissect_pn_mac(tvb, offset, pinfo, tree,
+        offset = dissect_pn_mac(tvb, offset, pinfo, sub_tree,
                             hf_pn_io_peer_macadd, mac);
         /* Padding */
-        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
+
+        proto_item_append_text(sub_item, ": %s (%s)", pPeerChassisId, pPeerPortId);
     }
 
     /* MAUType */
