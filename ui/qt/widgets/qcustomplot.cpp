@@ -22394,7 +22394,7 @@ double QCPGraph::pointDistance(const QPointF &pixelPoint, QCPGraphDataContainer:
   // calculate minimum distances to graph data points and find closestData iterator:
   double minDistSqr = (std::numeric_limits<double>::max)();
   // determine which key range comes into question, taking selection tolerance around pos into account:
-  double posKeyMin, posKeyMax, dummy;
+  double posKeyMin = 0.0, posKeyMax = 0.0, dummy;
   pixelsToCoords(pixelPoint-QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMin, dummy);
   pixelsToCoords(pixelPoint+QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMax, dummy);
   if (posKeyMin > posKeyMax)
@@ -35164,7 +35164,7 @@ double QCPPolarGraph::pointDistance(const QPointF &pixelPoint, QCPGraphDataConta
   // calculate minimum distances to graph data points and find closestData iterator:
   double minDistSqr = (std::numeric_limits<double>::max)();
   // determine which key range comes into question, taking selection tolerance around pos into account:
-  double posKeyMin, posKeyMax, dummy;
+  double posKeyMin = 0.0, posKeyMax = 0.0, dummy;
   pixelsToCoords(pixelPoint-QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMin, dummy);
   pixelsToCoords(pixelPoint+QPointF(mParentPlot->selectionTolerance(), mParentPlot->selectionTolerance()), posKeyMax, dummy);
   if (posKeyMin > posKeyMax)
