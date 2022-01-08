@@ -1038,9 +1038,9 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
         switch(msg_code)
         {
         case SSH_MSG_KEXINIT:
+            offset = ssh_dissect_key_init(tvb, pinfo, offset, key_ex_tree, is_response, global_data);
             if ((peer_data->frame_key_start == 0) || (peer_data->frame_key_start == pinfo->num)) {
                 if (!PINFO_FD_VISITED(pinfo)) {
-                    offset = ssh_dissect_key_init(tvb, pinfo, offset, key_ex_tree, is_response, global_data);
                     peer_data->frame_key_start = pinfo->num;
 #ifdef SSH_DECRYPTION_SUPPORTED
                     if(global_data->peer_data[is_response].seq_num_kex_init == 0){
@@ -1522,7 +1522,9 @@ ssh_dissect_key_init(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 
     key_init_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_key_init, &tf, "Algorithms");
 #ifdef SSH_DECRYPTION_SUPPORTED
-    peer_data->bn_cookie = ssh_kex_make_bignum(tvb_get_ptr(tvb, offset, 16), 16);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        peer_data->bn_cookie = ssh_kex_make_bignum(tvb_get_ptr(tvb, offset, 16), 16);
+    }
 #endif
     proto_tree_add_item(key_init_tree, hf_ssh_cookie,
                     tvb, offset, 16, ENC_NA);
