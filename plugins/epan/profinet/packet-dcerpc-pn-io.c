@@ -3367,186 +3367,133 @@ dissect_RS_EventInfo(tvbuff_t *tvb, int offset,
 }
 
 static int
-dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep,
-        guint16 *body_length, guint16 u16UserStructureIdentifier)
+dissect_Diagnosis(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+        proto_tree *tree, proto_item *item, guint8 *drep, guint16 u16UserStructureIdentifier)
 {
     guint16    u16ChannelNumber;
     guint16    u16ChannelErrorType;
     guint16    u16ExtChannelErrorType;
     guint32    u32ExtChannelAddValue;
     guint32    u32QualifiedChannelQualifier;
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_channel_number, &u16ChannelNumber);
+
+    offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_channel_error_type, &u16ChannelErrorType);
+
+    if (u16UserStructureIdentifier == 0x8000) /* ChannelDiagnosisData */
+    {
+        return offset;
+    }
+
+    if (u16ChannelErrorType < 0x7fff)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8000)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8000, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8001)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8001, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8002)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8002, &u16ExtChannelErrorType);
+    }
+    else if ((u16ChannelErrorType == 0x8003)||(u16ChannelErrorType == 0x8009))
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8003, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8004)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8004, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8005)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8005, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8007)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8007, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8008)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8008, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x800A)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x800A, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x800B)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x800B, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x800C)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x800C, &u16ExtChannelErrorType);
+    }
+    else
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type, &u16ExtChannelErrorType);
+    }
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
+
+    if (u16UserStructureIdentifier == 0x8002) /* ExtChannelDiagnosisData */
+    {
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_qualified_channel_qualifier, &u32QualifiedChannelQualifier);
+
+    /* QualifiedChannelDiagnosisData */
+    return offset;
+}
+
+static int
+dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep,
+        guint16 *body_length, guint16 u16UserStructureIdentifier)
+{
     guint16    u16Index = 0;
     guint32    u32RecDataLen;
     pnio_ar_t *ar       = NULL;
 
-
     switch (u16UserStructureIdentifier) {
     case(0x8000):   /* ChannelDiagnosisData */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_number, &u16ChannelNumber);
-        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep);
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
+        offset = dissect_Diagnosis(tvb, offset, pinfo, tree, item, drep,
+                        u16UserStructureIdentifier);
         *body_length -= 6;
         break;
     case(0x8002):   /* ExtChannelDiagnosisData */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_number, &u16ChannelNumber);
-
-        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep);
-
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
-
-        if (u16ChannelErrorType < 0x7fff)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8000)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8000, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8001)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8001, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8002)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8002, &u16ExtChannelErrorType);
-        }
-        else if ((u16ChannelErrorType == 0x8003)||(u16ChannelErrorType == 0x8009))
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8003, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8004)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8004, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8005)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8005, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8007)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8007, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8008)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8008, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x800A)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x800A, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x800B)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x800B, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x800C)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x800C, &u16ExtChannelErrorType);
-        }
-        else
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type, &u16ExtChannelErrorType);
-        }
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
+        offset = dissect_Diagnosis(tvb, offset, pinfo, tree, item, drep,
+                        u16UserStructureIdentifier);
         *body_length -= 12;
         break;
-  case (0x8003): /* QualifiedChannelDiagnosisData */
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_number, &u16ChannelNumber);
-
-        offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep);
-
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_channel_error_type, &u16ChannelErrorType);
-
-        if (u16ChannelErrorType < 0x7fff)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8000)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8000, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8001)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8001, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8002)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8002, &u16ExtChannelErrorType);
-        }
-        else if ((u16ChannelErrorType == 0x8003)||(u16ChannelErrorType == 0x8009))
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8003, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8004)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8004, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8005)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8005, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8007)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8007, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x8008)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x8008, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x800A)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x800A, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x800B)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x800B, &u16ExtChannelErrorType);
-        }
-        else if (u16ChannelErrorType == 0x800C)
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type0x800C, &u16ExtChannelErrorType);
-        }
-        else
-        {
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_error_type, &u16ExtChannelErrorType);
-        }
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
-        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_qualified_channel_qualifier, &u32QualifiedChannelQualifier);
-       *body_length -= 16;
+  case (0x8003):    /* QualifiedChannelDiagnosisData */
+        offset = dissect_Diagnosis(tvb, offset, pinfo, tree, item, drep,
+                        u16UserStructureIdentifier);
+        *body_length -= 16;
         break;
     case(0x8100):   /* MaintenanceItem */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
