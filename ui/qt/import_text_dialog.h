@@ -39,7 +39,7 @@ public:
     QString &capfileName();
 
 private:
-    void enableHeaderWidgets(bool enable_ethernet_buttons = true, bool enable_export_pdu_buttons = true);
+    void enableHeaderWidgets(uint encapsulation = WTAP_ENCAP_ETHERNET);
 
     /* regex fields */
     void enableFieldWidgets(bool enable_direction_input = true, bool enable_time_input = true);

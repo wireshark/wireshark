@@ -230,7 +230,8 @@ print_usage (FILE *output)
             "                         Example: -e 0x806 to specify an ARP packet.\n"
             "  -i <proto>             prepend dummy IP header with specified IP protocol\n"
             "                         (in DECIMAL).\n"
-            "                         Automatically prepends Ethernet header as well.\n"
+            "                         Automatically prepends Ethernet header as well if\n"
+            "                         link-layer type is Ethernet.\n"
             "                         Example: -i 46\n"
             "  -4 <srcip>,<destip>    prepend dummy IPv4 header with specified\n"
             "                         dest and source address.\n"
@@ -256,7 +257,6 @@ print_usage (FILE *output)
             "                         Automatically prepends a dummy SCTP DATA\n"
             "                         chunk header with payload protocol identifier ppi.\n"
             "                         Example: -S 30,40,34\n"
-            "\n"
             "  -P <dissector>         prepend EXPORTED_PDU header with specifieddissector\n"
             "                         as the payload PROTO_NAME tag.\n"
             "                         Automatically sets link type to Upper PDU Export.\n"
@@ -278,11 +278,6 @@ print_usage (FILE *output)
  * Set the hdr_ip_proto parameter, and set the flag indicate that the
  * parameter has been specified.
  *
- * Also indicate that we should add an Ethernet link-layer header.
- * (That's not an *inherent* requirement, as we could write a file
- * with a "raw IP packet" link-layer type, meaning that there *is*
- * no link-layer header, but it's the way text2pcap currently works.)
- *
  * XXX - catch the case where two different options set it differently?
  */
 static void
@@ -290,7 +285,6 @@ set_hdr_ip_proto(guint8 ip_proto)
 {
     have_hdr_ip_proto = TRUE;
     hdr_ip_proto = ip_proto;
-    hdr_ethernet = TRUE;
 }
 
 static void
@@ -695,15 +689,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
             return INVALID_OPTION;
         }
     }
-    if (pcap_link_type != 1 && hdr_ethernet) {
-        cmdarg_err("Dummy headers (-e, -i, -u, -s, -S -T) cannot be specified with link type override (-l)");
-        return INVALID_OPTION;
-    }
-
-    if (pcap_link_type != 252 && hdr_export_pdu) {
-        cmdarg_err("Export PDU (-P) requires WIRESHARK_UPPER_PDU link type (252)");
-        return INVALID_OPTION;
-    }
 
     if (have_hdr_ip_proto && !(hdr_ip || hdr_ipv6)) {
         /*
@@ -727,12 +712,49 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         hdr_ip = TRUE;
     }
 
-    if (hdr_ip)
-    {
-        hdr_ethernet_proto = 0x0800;
-    } else if (hdr_ipv6)
-    {
-        hdr_ethernet_proto = 0x86DD;
+    wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
+
+    if (hdr_export_pdu && wtap_encap_type != WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
+        cmdarg_err("Export PDU (-P) requires WIRESHARK_UPPER_PDU link type (252)");
+        return INVALID_OPTION;
+    }
+
+    /* The other dummy headers require a IPv4 or IPv6 header. Allow
+     * encapsulation types of Ethernet (and add a Ethernet header in that
+     * case if we haven't already), or the appropriate raw IP types.
+     */
+    if (hdr_ip) {
+        switch (wtap_encap_type) {
+
+        case (WTAP_ENCAP_ETHERNET):
+            hdr_ethernet = TRUE;
+            hdr_ethernet_proto = 0x0800;
+            break;
+
+        case (WTAP_ENCAP_RAW_IP):
+        case (WTAP_ENCAP_RAW_IP4):
+            break;
+
+        default:
+            cmdarg_err("Dummy IPv4 header not supported with encapsulation %s (%s)", wtap_encap_description(wtap_encap_type), wtap_encap_name(wtap_encap_type));
+            return INVALID_OPTION;
+        }
+    } else if (hdr_ipv6) {
+        switch (wtap_encap_type) {
+
+        case (WTAP_ENCAP_ETHERNET):
+            hdr_ethernet = TRUE;
+            hdr_ethernet_proto = 0x86DD;
+            break;
+
+        case (WTAP_ENCAP_RAW_IP):
+        case (WTAP_ENCAP_RAW_IP6):
+            break;
+
+        default:
+            cmdarg_err("Dummy IPv6 header not supported with encapsulation %s (%s)", wtap_encap_description(wtap_encap_type), wtap_encap_name(wtap_encap_type));
+            return INVALID_OPTION;
+        }
     }
 
     if (strcmp(argv[ws_optind], "-") != 0) {
@@ -773,7 +795,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
     wtap_dump_params_init(params, NULL);
 
-    wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
     params->encap = wtap_encap_type;
     params->snaplen = max_offset;
     if (file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {

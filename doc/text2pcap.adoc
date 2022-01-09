@@ -225,7 +225,8 @@ Include dummy IP headers before each packet. Specify the IP protocol
 for the packet in decimal. Use this option if your dump is the payload
 of an IP packet (i.e. has complete L4 information) but does not have
 an IP header with each packet. Note that an appropriate Ethernet header
-is automatically included with each packet as well.
+is automatically included with each packet as well if the link-layer
+type is Ethernet.
 Example: __-i 46__ to specify an RSVP packet (IP protocol 46).  See
 https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml for
 the complete list of assigned internet protocol numbers.

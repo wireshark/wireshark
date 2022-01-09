@@ -1539,19 +1539,6 @@ text_import(text_import_info_t * const info)
     int ret;
     struct tm *now_tm;
 
-    packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
-                                    sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
-                                    sizeof(HDR_EXPORT_PDU) + WTAP_MAX_PACKET_SIZE_STANDARD);
-
-    if (!packet_buf)
-    {
-        /* XXX: This doesn't happen, because g_malloc aborts the program on
-         * error, unlike malloc or g_try_malloc.
-         */
-        report_failure("FATAL ERROR: no memory for packet buffer");
-        return INIT_FAILED;
-    }
-
     /* Lets start from the beginning */
     state = INIT;
     curr_offset = 0;
@@ -1633,8 +1620,6 @@ text_import(text_import_info_t * const info)
         case HEADER_IPV4:
             hdr_ip = TRUE;
             hdr_ip_proto = info->protocol;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_UDP:
@@ -1642,8 +1627,6 @@ text_import(text_import_info_t * const info)
             hdr_tcp = FALSE;
             hdr_ip = TRUE;
             hdr_ip_proto = 17;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_TCP:
@@ -1651,16 +1634,12 @@ text_import(text_import_info_t * const info)
             hdr_udp = FALSE;
             hdr_ip = TRUE;
             hdr_ip_proto = 6;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_SCTP:
             hdr_sctp = TRUE;
             hdr_ip = TRUE;
             hdr_ip_proto = 132;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_SCTP_DATA:
@@ -1668,8 +1647,6 @@ text_import(text_import_info_t * const info)
             hdr_data_chunk = TRUE;
             hdr_ip = TRUE;
             hdr_ip_proto = 132;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_EXPORT_PDU:
@@ -1685,11 +1662,54 @@ text_import(text_import_info_t * const info)
             hdr_ipv6 = TRUE;
             hdr_ip = FALSE;
             hdr_ethernet_proto = 0x86DD;
+        } else {
+            hdr_ethernet_proto = 0x0800;
+        }
+
+        switch (info->encapsulation) {
+
+        case (WTAP_ENCAP_ETHERNET):
+            hdr_ethernet = TRUE;
+            break;
+
+        case (WTAP_ENCAP_RAW_IP):
+            break;
+
+        case (WTAP_ENCAP_RAW_IP4):
+            if (info->ipv6) {
+                report_failure("Encapsulation %s only supports IPv4 headers, not IPv6", wtap_encap_name(info->encapsulation));
+                return INVALID_OPTION;
+            }
+            break;
+
+        case (WTAP_ENCAP_RAW_IP6):
+            if (!info->ipv6) {
+                report_failure("Encapsulation %s only supports IPv6 headers, not IPv4", wtap_encap_name(info->encapsulation));
+                return INVALID_OPTION;
+            }
+            break;
+
+        default:
+            report_failure("Dummy IP header not supported with encapsulation: %s (%s)", wtap_encap_name(info->encapsulation), wtap_encap_description(info->encapsulation));
+            return INVALID_OPTION;
         }
     }
 
     info->num_packets_read = 0;
     info->num_packets_written = 0;
+
+    packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
+                                    sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
+                                    sizeof(HDR_EXPORT_PDU) + WTAP_MAX_PACKET_SIZE_STANDARD);
+
+    if (!packet_buf)
+    {
+        /* XXX: This doesn't happen, because g_malloc aborts the program on
+         * error, unlike malloc or g_try_malloc.
+         */
+        report_failure("FATAL ERROR: no memory for packet buffer");
+        return INIT_FAILED;
+    }
 
     if (info->mode == TEXT_IMPORT_HEXDUMP) {
         status = text_import_scan(info->hexdump.import_text_FILE);

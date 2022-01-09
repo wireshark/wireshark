@@ -561,6 +561,11 @@ int ImportTextDialog::exec() {
 
 void ImportTextDialog::updateImportButtonState()
 {
+    /* XXX: This requires even buttons that aren't being used to have valid
+     * entries (addresses, ports, etc.) Fixing that can mean changing the
+     * encapsulation type in order to enable the line edits, which is a little
+     * awkward for the user.
+     */
     if (file_ok_ && timestamp_format_ok_ && ether_type_ok_ &&
         proto_ok_ && source_addr_ok_ && dest_addr_ok_ &&
         source_port_ok_ && dest_port_ok_ &&
@@ -816,7 +821,7 @@ void ImportTextDialog::on_dirOutIndicationLineEdit_textChanged(const QString &ou
  * Encapsulation input
  */
 
-void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool enable_export_pdu_buttons) {
+void ImportTextDialog::enableHeaderWidgets(uint encapsulation) {
     bool ethertype = false;
     bool ipv4_proto = false;
     bool ip_address = false;
@@ -824,12 +829,20 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     bool sctp_tag = false;
     bool sctp_ppi = false;
     bool export_pdu = false;
+    bool enable_ethernet_buttons = (encapsulation == WTAP_ENCAP_ETHERNET);
+    bool enable_ip_buttons = (encapsulation == WTAP_ENCAP_RAW_IP || encapsulation == WTAP_ENCAP_RAW_IP4 || encapsulation == WTAP_ENCAP_RAW_IP6);
+    bool enable_export_pdu_buttons = (encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
     if (enable_ethernet_buttons) {
         if (ti_ui_->ethernetButton->isChecked()) {
             ethertype = true;
             on_ethertypeLineEdit_textChanged(ti_ui_->ethertypeLineEdit->text());
-        } else if (ti_ui_->ipv4Button->isChecked()) {
+        }
+        enable_ip_buttons = true;
+    }
+
+    if (enable_ip_buttons) {
+        if (ti_ui_->ipv4Button->isChecked()) {
             ipv4_proto = true;
             ip_address = true;
             on_protocolLineEdit_textChanged(ti_ui_->protocolLineEdit->text());
@@ -863,18 +876,27 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     }
 
     foreach (auto &&rb, encap_buttons->buttons()) {
-        rb->setEnabled(enable_ethernet_buttons);
+        rb->setEnabled(enable_ip_buttons);
     }
 
+    ti_ui_->ethernetButton->setEnabled(enable_ethernet_buttons);
     ti_ui_->exportPduButton->setEnabled(enable_export_pdu_buttons);
-    ti_ui_->noDummyButton->setEnabled(enable_export_pdu_buttons || enable_ethernet_buttons);
+    ti_ui_->noDummyButton->setEnabled(enable_export_pdu_buttons || enable_ip_buttons);
 
     ti_ui_->ethertypeLabel->setEnabled(ethertype);
     ti_ui_->ethertypeLineEdit->setEnabled(ethertype);
     ti_ui_->protocolLabel->setEnabled(ipv4_proto);
     ti_ui_->protocolLineEdit->setEnabled(ipv4_proto);
     ti_ui_->ipVersionLabel->setEnabled(ip_address);
-    ti_ui_->ipVersionComboBox->setEnabled(ip_address);
+    if (encapsulation == WTAP_ENCAP_RAW_IP4) {
+        ti_ui_->ipVersionComboBox->setEnabled(false);
+        ti_ui_->ipVersionComboBox->setCurrentIndex(0);
+    } else if (encapsulation == WTAP_ENCAP_RAW_IP6) {
+        ti_ui_->ipVersionComboBox->setEnabled(false);
+        ti_ui_->ipVersionComboBox->setCurrentIndex(1);
+    } else {
+        ti_ui_->ipVersionComboBox->setEnabled(ip_address);
+    }
     ti_ui_->sourceAddressLabel->setEnabled(ip_address);
     ti_ui_->sourceAddressLineEdit->setEnabled(ip_address);
     ti_ui_->destinationAddressLabel->setEnabled(ip_address);
@@ -889,33 +911,28 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     ti_ui_->ppiLineEdit->setEnabled(sctp_ppi);
     ti_ui_->payloadLabel->setEnabled(export_pdu);
     ti_ui_->dissectorComboBox->setEnabled(export_pdu);
+
+    if (ti_ui_->noDummyButton->isEnabled() && !(encap_buttons->checkedButton()->isEnabled())) {
+        ti_ui_->noDummyButton->toggle();
+    }
 }
 
 void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
 {
     QVariant val = ti_ui_->encapComboBox->itemData(index);
-    bool enabled_ethernet = false;
-    bool enabled_export_pdu = false;
 
     if (val != QVariant::Invalid) {
         import_info_.encapsulation = val.toUInt();
-
-        if (import_info_.encapsulation == WTAP_ENCAP_ETHERNET) enabled_ethernet = true;
-        if (import_info_.encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU) enabled_export_pdu = true;
+    } else {
+        import_info_.encapsulation = WTAP_ENCAP_UNKNOWN;
     }
 
-    enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
+    enableHeaderWidgets(import_info_.encapsulation);
 }
 
 void ImportTextDialog::encap_buttonsToggled(QAbstractButton *button _U_, bool checked)
 {
-    bool enabled_ethernet = false;
-    bool enabled_export_pdu = false;
-
-    if (import_info_.encapsulation == WTAP_ENCAP_ETHERNET) enabled_ethernet = true;
-    if (import_info_.encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU) enabled_export_pdu = true;
-
-    if (checked) enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
+    if (checked) enableHeaderWidgets(import_info_.encapsulation);
 }
 
 void ImportTextDialog::on_ipVersionComboBox_currentIndexChanged(int index)

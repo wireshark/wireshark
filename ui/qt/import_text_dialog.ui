@@ -755,7 +755,7 @@
         <item row="2" column="4">
          <widget class="QComboBox" name="ipVersionComboBox">
           <property name="toolTip">
-           <string>The IP Version for to use for the dummy IP header</string>
+           <string>The IP Version to use for the dummy IP header</string>
           </property>
          </widget>
         </item>
