@@ -126,11 +126,12 @@ static gboolean hdr_ipv6 = FALSE;
 static guint hdr_ip_proto = 0;
 
 /* Destination and source addresses for IP header */
-/* XXX: Add default destination and source addresses for IPv6 when :: is
- * passed in? */
-#if 0
 static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-#endif
+/* These IPv6 default addresses are unique local addresses generated using
+ * the pseudo-random method from Section 3.2.2 of RFC 4193
+ */
+static ws_in6_addr IPv6_SRC = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}};
+static ws_in6_addr IPv6_DST = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02}};
 
 /* Dummy UDP header */
 static gboolean hdr_udp = FALSE;
@@ -531,12 +532,15 @@ write_current_packet(gboolean cont)
             pseudoh.protocol    = (guint8) hdr_ip_proto;
             pseudoh.length      = g_htons(proto_length);
         } else if (hdr_ipv6) {
-            if (isOutbound) {
-                memcpy(&HDR_IPv6.ip6_src, &info_p->ip_dest_addr.ipv6, sizeof(ws_in6_addr));
-                memcpy(&HDR_IPv6.ip6_dst, &info_p->ip_src_addr.ipv6, sizeof(ws_in6_addr));
+            if (memcmp(&info_p->ip_dest_addr.ipv6, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr))) {
+                memcpy(isOutbound ? &HDR_IPv6.ip6_src : &HDR_IPv6.ip6_dst, &info_p->ip_dest_addr.ipv6, sizeof(ws_in6_addr));
             } else {
-                memcpy(&HDR_IPv6.ip6_src, &info_p->ip_src_addr.ipv6, sizeof(ws_in6_addr));
-                memcpy(&HDR_IPv6.ip6_dst, &info_p->ip_dest_addr.ipv6, sizeof(ws_in6_addr));
+                memcpy(isOutbound ? &HDR_IPv6.ip6_src : &HDR_IPv6.ip6_dst, &IPv6_DST, sizeof(ws_in6_addr));
+            }
+            if (memcmp(&info_p->ip_src_addr.ipv6, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr))) {
+                memcpy(isOutbound ? &HDR_IPv6.ip6_dst : &HDR_IPv6.ip6_src, &info_p->ip_src_addr.ipv6, sizeof(ws_in6_addr));
+            } else {
+                memcpy(isOutbound ? &HDR_IPv6.ip6_dst : &HDR_IPv6.ip6_src, &IPv6_SRC, sizeof(ws_in6_addr));
             }
 
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
