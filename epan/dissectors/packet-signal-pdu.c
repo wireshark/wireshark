@@ -18,12 +18,15 @@
  */
 
 #include <config.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/uat.h>
-#include "wsutil/sign_ext.h"
+#include <epan/proto_data.h>
+
+#include <wsutil/sign_ext.h>
 
 #include <packet-someip.h>
 #include <packet-socketcan.h>
@@ -106,6 +109,16 @@ static GHashTable *data_spdu_uds_mappings                   = NULL;
 static hf_register_info *dynamic_hf                         = NULL;
 static guint dynamic_hf_size                                = 0;
 
+#define HF_TYPE_BASE                                        0
+#define HF_TYPE_RAW                                         1
+#define HF_TYPE_AGG_SUM                                     2
+#define HF_TYPE_AGG_AVG                                     3
+#define HF_TYPE_AGG_INT                                     4
+/* HF_TYPE_COUNT must be the largest value + 1 */
+#define HF_TYPE_COUNT                                       (HF_TYPE_AGG_INT + 1)
+#define HF_TYPE_NONE                                        0xffff
+
+
 /***********************************************
  ********* Preferences / Configuration *********
  ***********************************************/
@@ -140,13 +153,21 @@ typedef struct _spdu_signal_item {
     gboolean    hidden;
     guint       encoding;
 
+    gboolean    aggregate_sum;
+    gboolean    aggregate_avg;
+    gboolean    aggregate_int;
+
     gint       *hf_id_effective;
     gint       *hf_id_raw;
+    gint       *hf_id_agg_sum;
+    gint       *hf_id_agg_avg;
+    gint       *hf_id_agg_int;
 } spdu_signal_item_t;
 
 typedef struct _spdu_signal_list {
     guint32     id;
     guint32     num_of_items;
+    gboolean    aggregation;
 
     spdu_signal_item_t *items;
 } spdu_signal_list_t;
@@ -167,6 +188,9 @@ typedef struct _spdu_signal_list_uat {
     gboolean    multiplexer;
     gint        multiplex_value_only;
     gboolean    hidden;
+    gboolean    aggregate_sum;
+    gboolean    aggregate_avg;
+    gboolean    aggregate_int;
 } spdu_signal_list_uat_t;
 
 
@@ -559,6 +583,9 @@ UAT_CSTRING_CB_DEF(spdu_signal_list, offset, spdu_signal_list_uat_t)
 UAT_BOOL_CB_DEF(spdu_signal_list, multiplexer, spdu_signal_list_uat_t)
 UAT_SIGNED_DEC_CB_DEF(spdu_signal_list, multiplex_value_only, spdu_signal_list_uat_t)
 UAT_BOOL_CB_DEF(spdu_signal_list, hidden, spdu_signal_list_uat_t)
+UAT_BOOL_CB_DEF(spdu_signal_list, aggregate_sum, spdu_signal_list_uat_t)
+UAT_BOOL_CB_DEF(spdu_signal_list, aggregate_avg, spdu_signal_list_uat_t)
+UAT_BOOL_CB_DEF(spdu_signal_list, aggregate_int, spdu_signal_list_uat_t)
 
 static void *
 copy_spdu_signal_list_cb(void *n, const void *o, size_t size _U_) {
@@ -604,6 +631,9 @@ copy_spdu_signal_list_cb(void *n, const void *o, size_t size _U_) {
     new_rec->multiplex_value_only = old_rec->multiplex_value_only;
 
     new_rec->hidden = old_rec->hidden;
+    new_rec->aggregate_sum = old_rec->aggregate_sum;
+    new_rec->aggregate_avg = old_rec->aggregate_avg;
+    new_rec->aggregate_int = old_rec->aggregate_int;
 
     return new_rec;
 }
@@ -760,6 +790,12 @@ update_spdu_signal_list(void *r, char **err) {
         }
     }
 
+    if (g_strcmp0(rec->data_type, "uint") != 0 && g_strcmp0(rec->data_type, "int") != 0 && g_strcmp0(rec->data_type, "float") != 0 &&
+        (rec->aggregate_sum || rec->aggregate_avg || rec->aggregate_int)) {
+        *err = ws_strdup_printf("Aggregation is only allowed for uint, int, and float (ID: 0x%08x)", rec->id);
+        return FALSE;
+    }
+
     return TRUE;
 }
 
@@ -783,7 +819,9 @@ deregister_user_data(void)
         /* Unregister all fields */
         for (guint i = 0; i < dynamic_hf_size; i++) {
             if (dynamic_hf[i].p_id != NULL) {
-                proto_deregister_field(proto_signal_pdu, *(dynamic_hf[i].p_id));
+                if (*(dynamic_hf[i].p_id) != -1) {
+                    proto_deregister_field(proto_signal_pdu, *(dynamic_hf[i].p_id));
+                }
                 g_free(dynamic_hf[i].p_id);
                 dynamic_hf[i].p_id = NULL;
 
@@ -800,8 +838,8 @@ deregister_user_data(void)
 
 static spdu_signal_value_name_t *get_signal_value_name_config(guint32 id, guint16 pos);
 
-static gint *
-create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_string, spdu_dt_t data_type, gboolean scale_or_offset, gboolean raw) {
+static gint*
+create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_string, spdu_dt_t data_type, gboolean scale_or_offset, guint32 hf_type) {
     if (i >= dynamic_hf_size) {
         return NULL;
     }
@@ -819,17 +857,43 @@ create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_str
     dynamic_hf[i].p_id = hf_id;
     dynamic_hf[i].hfinfo.bitmask = 0x0;
 
-    if (raw) {
+    switch (hf_type) {
+    case HF_TYPE_RAW:
         dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_raw", name);
         dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_raw", SPDU_NAME_FILTER, filter_string);
-    } else {
-        dynamic_hf[i].hfinfo.name = g_strdup(name);
+        break;
+
+    case HF_TYPE_AGG_SUM:
+        dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_sum", name);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_sum", SPDU_NAME_FILTER, filter_string);
+        break;
+
+    case HF_TYPE_AGG_AVG:
+        dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_avg", name);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_avg", SPDU_NAME_FILTER, filter_string);
+        break;
+
+    case HF_TYPE_AGG_INT:
+        dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_int", name);
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_int", SPDU_NAME_FILTER, filter_string);
+        break;
+
+    case HF_TYPE_BASE:
+        dynamic_hf[i].hfinfo.name = ws_strdup(name);
         dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s", SPDU_NAME_FILTER, filter_string);
+        break;
+
+    case HF_TYPE_NONE:
+    default:
+        /* we bail out but have set hf_id to -1 before */
+        dynamic_hf[i].hfinfo.name = ws_strdup_printf("%s_none", name);;
+        dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("%s.%s_none", SPDU_NAME_FILTER, filter_string);
+        return hf_id;
     }
     dynamic_hf[i].hfinfo.bitmask = 0;
     dynamic_hf[i].hfinfo.blurb = NULL;
 
-    if (scale_or_offset && !raw) {
+    if ((scale_or_offset && hf_type == HF_TYPE_BASE) || hf_type == HF_TYPE_AGG_SUM || hf_type == HF_TYPE_AGG_AVG || hf_type == HF_TYPE_AGG_INT) {
         dynamic_hf[i].hfinfo.display = BASE_NONE;
         dynamic_hf[i].hfinfo.type = FT_DOUBLE;
     } else {
@@ -870,7 +934,7 @@ create_hf_entry(guint i, guint32 id, guint32 pos, gchar *name, gchar *filter_str
         }
     }
 
-    if (raw && vs != NULL) {
+    if (hf_type == HF_TYPE_RAW && vs != NULL) {
         dynamic_hf[i].hfinfo.strings = VALS64(vs);
         dynamic_hf[i].hfinfo.display |= BASE_VAL64_STRING | BASE_SPECIAL_VALS;
     } else {
@@ -889,9 +953,9 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
     }
 
     if (data_num) {
-        /* lets create 2 hf_ids per entry (1x effective, 1x raw) */
-        dynamic_hf = g_new0(hf_register_info, 2 * data_num);
-        dynamic_hf_size = 2 * data_num;
+        /* lets create DYNAMIC_HFS_PER_ARRAY x hf_ids per entry (1x effective, 1x raw, 1x aggregated sum, ...) */
+        dynamic_hf = g_new0(hf_register_info, HF_TYPE_COUNT * data_num);
+        dynamic_hf_size = HF_TYPE_COUNT * data_num;
 
         guint i = 0;
         for (i = 0; i < data_num; i++) {
@@ -970,8 +1034,19 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
                 item->multiplexer = data[i].multiplexer;
                 item->multiplex_value_only = data[i].multiplex_value_only;
                 item->hidden = data[i].hidden;
-                item->hf_id_effective = create_hf_entry(2 * i, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, FALSE);
-                item->hf_id_raw = create_hf_entry(2 * i + 1, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, TRUE);
+
+                item->aggregate_sum = data[i].aggregate_sum;
+                item->aggregate_avg = data[i].aggregate_avg;
+                item->aggregate_int = data[i].aggregate_int;
+
+                /* if one signal needs aggregation, the messages needs to know */
+                list->aggregation |= item->aggregate_sum | item->aggregate_avg | item->aggregate_int;
+
+                item->hf_id_effective = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_BASE,    data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_BASE);
+                item->hf_id_raw       = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_RAW,     data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, HF_TYPE_RAW);
+                item->hf_id_agg_sum   = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_AGG_SUM, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, data[i].aggregate_sum ? HF_TYPE_AGG_SUM : HF_TYPE_NONE);
+                item->hf_id_agg_avg   = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_AGG_AVG, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, data[i].aggregate_avg ? HF_TYPE_AGG_AVG : HF_TYPE_NONE);
+                item->hf_id_agg_int   = create_hf_entry(HF_TYPE_COUNT * i + HF_TYPE_AGG_INT, data[i].id, data[i].pos, data[i].name, data[i].filter_string, item->data_type, item->scale_or_offset, data[i].aggregate_int ? HF_TYPE_AGG_INT : HF_TYPE_NONE);
             }
         }
 
@@ -1823,6 +1898,52 @@ expert_spdu_unaligned_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, 
     col_append_str(pinfo->cinfo, COL_INFO, " [Signal PDU: Unaligned Data!]");
 }
 
+
+/**************************************
+ ********  Aggregation Feature ********
+ **************************************/
+
+typedef struct _spdu_frame_data {
+    gdouble  sum;
+    guint32  count;
+    gdouble  avg;
+    gdouble  sum_time_value_products;
+} spdu_frame_data_t;
+
+typedef struct _spdu_aggregation {
+    gdouble  sum;
+    guint32  count;
+    nstime_t start_time;
+
+    nstime_t last_time;
+    gdouble  last_value;
+    gdouble  sum_time_value_products;
+} spdu_aggregation_t;
+
+static wmem_map_t *spdu_aggregation_data = NULL;
+
+static spdu_aggregation_t *
+get_or_create_aggregation_data(packet_info *pinfo, gint hf_id_effective) {
+    DISSECTOR_ASSERT(spdu_aggregation_data != NULL);
+    DISSECTOR_ASSERT(hf_id_effective != -1);
+
+    spdu_aggregation_t *data = (spdu_aggregation_t *)wmem_map_lookup(spdu_aggregation_data, GINT_TO_POINTER(hf_id_effective));
+
+    if (data == NULL)
+    {
+        data = wmem_new0(wmem_file_scope(), spdu_aggregation_t);
+        data->sum = 0;
+        data->count = 0;
+        data->start_time = pinfo->abs_ts;
+        data->last_time = pinfo->abs_ts;
+        data->sum_time_value_products = 0.0;
+        wmem_map_insert(spdu_aggregation_data, GINT_TO_POINTER(hf_id_effective), data);
+    }
+
+    return data;
+}
+
+
 /**************************************
  ********   Dissector Helpers  ********
  **************************************/
@@ -1916,6 +2037,9 @@ dissect_shifted_and_shortened_uint(tvbuff_t *tvb, gint offset, gint offset_bits,
 
 static int
 dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, spdu_signal_item_t *item, spdu_signal_value_name_t *value_name_config, gint *multiplexer) {
+    DISSECTOR_ASSERT(item != NULL);
+    DISSECTOR_ASSERT(item->hf_id_effective != NULL);
+
     proto_item *ti = NULL;
     proto_tree *subtree = NULL;
 
@@ -1967,9 +2091,11 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* we need to reset this because it is reused */
     ti = NULL;
 
+    gdouble value_gdouble = 0.0;
+
     switch (item->data_type) {
     case SPDU_DATA_TYPE_UINT: {
-        gdouble value_gdouble = (gdouble)value_guint64;
+        value_gdouble = (gdouble)value_guint64;
 
         if (item->multiplexer) {
             *multiplexer = (gint)value_guint64;
@@ -2006,7 +2132,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case SPDU_DATA_TYPE_INT: {
         gint64 value_gint64 = ws_sign_ext64(value_guint64, (gint)item->bitlength_encoded_type);
-        gdouble value_gdouble = (gdouble)value_gint64;
+        value_gdouble = (gdouble)value_gint64;
 
         if (item->multiplexer) {
             *multiplexer = (gint)value_gint64;
@@ -2032,7 +2158,7 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case SPDU_DATA_TYPE_FLOAT: {
-        gdouble value_gdouble = 0.0;
+        value_gdouble = 0.0;
 
         switch (item->bitlength_base_type) {
         case 64:
@@ -2101,6 +2227,52 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_set_hidden(ti);
     }
 
+    /* Value passed in with value_gdouble, tree via subtree. */
+    if (item->aggregate_sum || item->aggregate_avg || item->aggregate_int) {
+        gint hf_id_eff = *(item->hf_id_effective);
+        spdu_aggregation_t *agg_data = get_or_create_aggregation_data(pinfo, hf_id_eff);
+        spdu_frame_data_t *spdu_frame_data = (spdu_frame_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_signal_pdu, (guint32)hf_id_eff);
+
+        if (!PINFO_FD_VISITED(pinfo)) {
+            nstime_t delta;
+
+            agg_data->sum += value_gdouble;
+            agg_data->count++;
+
+            nstime_delta(&delta, &(pinfo->abs_ts), &(agg_data->last_time));
+            gdouble delta_s = nstime_to_sec(&delta);
+
+            if (delta_s > 0.0) {
+                agg_data->sum_time_value_products += delta_s * agg_data->last_value;
+                agg_data->last_time = pinfo->abs_ts;
+            }
+            agg_data->last_value = value_gdouble;
+
+            if (!spdu_frame_data) {
+                spdu_frame_data = wmem_new0(wmem_file_scope(), spdu_frame_data_t);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_signal_pdu, (guint32)hf_id_eff, spdu_frame_data);
+            }
+
+            spdu_frame_data->sum = agg_data->sum;
+            spdu_frame_data->count = agg_data->count;
+            spdu_frame_data->avg = agg_data->sum / agg_data->count;
+            spdu_frame_data->sum_time_value_products = agg_data->sum_time_value_products;
+        }
+
+        /* if frame data was not created on first pass, we cannot calculate it now */
+        if (spdu_frame_data != NULL) {
+            if (item->aggregate_sum) {
+                ti = proto_tree_add_double(subtree, *(item->hf_id_agg_sum), tvb, offset, signal_length, spdu_frame_data->sum);
+            }
+            if (item->aggregate_avg) {
+                ti = proto_tree_add_double(subtree, *(item->hf_id_agg_avg), tvb, offset, signal_length, spdu_frame_data->avg);
+            }
+            if (item->aggregate_int && (spdu_frame_data->sum_time_value_products == spdu_frame_data->sum_time_value_products)) {
+                ti = proto_tree_add_double(subtree, *(item->hf_id_agg_int), tvb, offset, signal_length, spdu_frame_data->sum_time_value_products);
+            }
+        }
+    }
+
     return (gint)item->bitlength_encoded_type + string_length;
 }
 
@@ -2131,12 +2303,12 @@ dissect_spdu_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree, g
         return 0;
     }
 
-    if (root_tree == NULL && !proto_field_is_referenced(root_tree, proto_signal_pdu)) {
+    if (paramlist == NULL || !spdu_derserializer_activated) {
         /* we only receive subtvbs with nothing behind us */
         return tvb_captured_length(tvb);
     }
 
-    if (paramlist == NULL || !spdu_derserializer_activated) {
+    if (root_tree == NULL && !proto_field_is_referenced(root_tree, proto_signal_pdu) && !paramlist->aggregation) {
         /* we only receive subtvbs with nothing behind us */
         return tvb_captured_length(tvb);
     }
@@ -2353,6 +2525,9 @@ proto_register_signal_pdu(void) {
         UAT_FLD_BOOL(spdu_signal_list, multiplexer,                     "Multiplexer?",          "Is this used as multiplexer? [FALSE|TRUE]"),
         UAT_FLD_SIGNED_DEC(spdu_signal_list, multiplex_value_only,      "Multiplexer value",     "The multiplexer value for which this is relevant (-1 all)"),
         UAT_FLD_BOOL(spdu_signal_list, hidden,                          "Hidden?",               "Should this field be hidden in the dissection? [FALSE|TRUE]"),
+        UAT_FLD_BOOL(spdu_signal_list, aggregate_sum,                   "Calc Sum?",             "Should this field be aggregated using sum function? [FALSE|TRUE]"),
+        UAT_FLD_BOOL(spdu_signal_list, aggregate_avg,                   "Calc Avg?",             "Should this field be aggregated using average function? [FALSE|TRUE]"),
+        UAT_FLD_BOOL(spdu_signal_list, aggregate_int,                   "Calc Int?",             "Should this field be aggregated using integrate function (sum of time value product)? [FALSE|TRUE]"),
         UAT_END_FIELDS
     };
 
@@ -2516,6 +2691,11 @@ proto_register_signal_pdu(void) {
         spdu_signal_list_uat_fields
     );
 
+    static const char *spdu_signal_list_uat_defaults_[] = {
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        "FALSE", "FALSE", "FALSE" };
+    uat_set_default_values(spdu_signal_list_uat, spdu_signal_list_uat_defaults_);
+
     prefs_register_uat_preference(spdu_module, "_spdu_signal_list", "Signal List",
         "A table to define names of signals", spdu_signal_list_uat);
 
@@ -2666,6 +2846,10 @@ proto_register_signal_pdu(void) {
 
     prefs_register_uat_preference(spdu_module, "_spdu_uds_mapping", "UDS Mappings",
         "A table to map UDS payloads to Signal PDUs", spdu_uds_mapping_uat);
+
+
+    /* Aggregation Feature */
+    spdu_aggregation_data = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 void
