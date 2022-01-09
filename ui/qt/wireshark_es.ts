@@ -81,7 +81,7 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>El directorio no existe</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>El directorio no se ha podido crear</translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
@@ -119,7 +119,7 @@
     <name>AddressEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation>Frame</translation>
     </message>
     <message>
         <source>Name Resolution Preferences…</source>
@@ -247,7 +247,7 @@
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo bluetooth</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
@@ -299,23 +299,23 @@
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>MTU ACL</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquetes ACL totales</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>MTU SCO</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquetes SCO totales</translation>
     </message>
     <message>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>MTU LE ACL</translation>
     </message>
     <message>
         <source>LE ACL Total Packets</source>
@@ -625,7 +625,7 @@
     </message>
     <message>
         <source>Vendor-Specific Commands</source>
-        <translation type="unfinished"></translation>
+        <translation>Comandos específicos de proveedor</translation>
     </message>
     <message>
         <source>0x3F</source>
@@ -633,7 +633,7 @@
     </message>
     <message>
         <source>Unknown OGF</source>
-        <translation type="unfinished"></translation>
+        <translation>OGF desconocido</translation>
     </message>
     <message>
         <source>Events</source>
@@ -689,15 +689,15 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation>Desconocido</translation>
     </message>
     <message>
         <source>Adapter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Adaptador %1</translation>
     </message>
     <message>
         <source>Frame %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Trama %1</translation>
     </message>
     <message>
         <source>Pending</source>
@@ -731,7 +731,7 @@
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished"></translation>
+        <translation>…como bits</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
@@ -739,11 +739,11 @@
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>…como ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>…como EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -761,19 +761,19 @@
     <name>CaptureFileDialog</name>
     <message>
         <source>This capture file contains comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Este archivo de captura contiene comentarios.</translation>
     </message>
     <message>
         <source>The file format you chose doesn&apos;t support comments. Do you want to save the capture in a format that supports comments or discard the comments and save in the format you chose?</source>
-        <translation type="unfinished"></translation>
+        <translation>El formato de archivo que eligió no soporta comentarios. ¿Desea guardar la captura en un formato que soporte comentarios o descartar los comentarios y guardar en el formato que eligió?</translation>
     </message>
     <message>
         <source>Discard comments and save</source>
-        <translation type="unfinished"></translation>
+        <translation>Descartar comentarios y guardar</translation>
     </message>
     <message>
         <source>Save in another format</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar en otro formato</translation>
     </message>
     <message>
         <source>No file format in which it can be saved supports comments. Do you want to discard the comments and save in the format you chose?</source>
@@ -938,7 +938,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation>Desconocido</translation>
     </message>
     <message>
         <source>File</source>
@@ -974,7 +974,7 @@
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation>Longitud de instantánea</translation>
     </message>
     <message>
         <source>Time</source>
@@ -1094,15 +1094,15 @@
     </message>
     <message>
         <source>Section Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Sección de comentarios</translation>
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentarios de paquete</translation>
     </message>
     <message>
         <source>&lt;p&gt;Frame %1: </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Trama %1:</translation>
     </message>
     <message>
         <source>Created by Wireshark %1
@@ -1501,7 +1501,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>CapturePreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Default interface</source>
@@ -1677,7 +1677,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ColumnEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Title:</source>
@@ -1743,7 +1743,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ColumnPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add a new column</source>
@@ -2798,7 +2798,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>FilterExpressionFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Filter Buttons Preferences…</source>
@@ -3270,7 +3270,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>FontColorPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Main window font:</source>
@@ -3401,7 +3401,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Longitud de instantánea</translation>
     </message>
     <message>
         <source>Data</source>
@@ -4532,7 +4532,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>InterfaceFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wired</source>
@@ -4587,7 +4587,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4626,7 +4627,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>InterfaceToolbar</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select interface</source>
@@ -5543,7 +5544,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>LayoutPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Pane 1:</source>
@@ -6306,7 +6307,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Packet Comments</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Comentarios de paquete</translation>
     </message>
     <message>
         <source>Main Toolbar</source>
@@ -8285,7 +8286,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>MainWindowPreferencesFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Checking this will save the size, position, and maximized state of the main window.</source>
@@ -8487,7 +8488,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Snapshot length</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Longitud de instantánea</translation>
     </message>
     <message>
         <source>Data</source>
@@ -9006,7 +9007,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>PreferenceEditorFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>…</source>
@@ -9405,7 +9406,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>ProgressFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Loading</source>
@@ -9957,7 +9958,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UE Id</source>
@@ -11204,7 +11205,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12171,7 +12172,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -13623,7 +13624,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Desconocida</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13667,7 +13668,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <name>UatFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new entry.</source>
@@ -14058,7 +14059,7 @@ text-decoration: none;
     <name>WirelessFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Trama</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Interface</source>
