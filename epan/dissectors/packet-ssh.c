@@ -1973,6 +1973,9 @@ ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
 static ssh_bignum *
 ssh_kex_shared_secret(gint kex_type, ssh_bignum *pub, ssh_bignum *priv)
 {
+    DISSECTOR_ASSERT(pub != NULL);
+    DISSECTOR_ASSERT(priv != NULL);
+
     ssh_bignum *secret = ssh_kex_make_bignum(NULL, pub->length);
     if (!secret) {
         ws_debug("invalid key length %u", pub->length);
@@ -2532,6 +2535,10 @@ ssh_secrets_block_callback(const void *secrets, guint size)
 static gint
 ssh_equal (gconstpointer v, gconstpointer v2)
 {
+    if (v == NULL || v2 == NULL) {
+        return 0;
+    }
+
     const ssh_bignum *val1;
     const ssh_bignum *val2;
     val1 = (const ssh_bignum *)v;
@@ -2550,6 +2557,11 @@ ssh_hash  (gconstpointer v)
     guint l,hash;
     const ssh_bignum* id;
     const guint* cur;
+
+    if (v == NULL) {
+        return 0;
+    }
+
     hash = 0;
     id = (const ssh_bignum*) v;
 
