@@ -233,7 +233,7 @@ proto_register_dvb_sdt(void)
 
         { &hf_dvb_sdt_descriptors_loop_length, {
             "Descriptors Loop Length", "dvb_sdt.svc.descr_loop_len",
-            FT_UINT16, BASE_HEX, NULL, DVB_SDT_DESCRIPTORS_LOOP_LENGTH_MASK, NULL, HFILL
+            FT_UINT16, BASE_DEC, NULL, DVB_SDT_DESCRIPTORS_LOOP_LENGTH_MASK, NULL, HFILL
         } }
 
     };

@@ -259,7 +259,7 @@ proto_register_dvb_eit(void)
 
         { &hf_dvb_eit_descriptors_loop_length, {
             "Descriptors Loop Length", "dvb_eit.evt.descr_loop_len",
-            FT_UINT16, BASE_HEX, NULL, DVB_EIT_DESCRIPTORS_LOOP_LENGTH_MASK, NULL, HFILL
+            FT_UINT16, BASE_DEC, NULL, DVB_EIT_DESCRIPTORS_LOOP_LENGTH_MASK, NULL, HFILL
         } }
     };
 

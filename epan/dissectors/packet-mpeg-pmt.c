@@ -235,7 +235,7 @@ proto_register_mpeg_pmt(void)
 
         { &hf_mpeg_pmt_program_info_length, {
             "Program Info Length", "mpeg_pmt.prog_info_len",
-            FT_UINT16, BASE_HEX, NULL, MPEG_PMT_PROGRAM_INFO_LENGTH_MASK, NULL, HFILL
+            FT_UINT16, BASE_DEC, NULL, MPEG_PMT_PROGRAM_INFO_LENGTH_MASK, NULL, HFILL
         } },
 
 
@@ -261,7 +261,7 @@ proto_register_mpeg_pmt(void)
 
         { &hf_mpeg_pmt_stream_es_info_length, {
             "ES Info Length", "mpeg_pmt.stream.es_info_len",
-            FT_UINT16, BASE_HEX, NULL, MPEG_PMT_STREAM_ES_INFO_LENGTH_MASK, NULL, HFILL
+            FT_UINT16, BASE_DEC, NULL, MPEG_PMT_STREAM_ES_INFO_LENGTH_MASK, NULL, HFILL
         } },
 
     };

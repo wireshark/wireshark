@@ -2193,12 +2193,12 @@ void proto_register_dvb_s2_modeadapt(void)
         },
         {&hf_dvb_s2_bb_upl, {
                 "UPL", "dvb-s2_bb.upl",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "User Packet Length", HFILL}
         },
         {&hf_dvb_s2_bb_dfl, {
                 "DFL", "dvb-s2_bb.dfl",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Data Field Length", HFILL}
         },
         {&hf_dvb_s2_bb_sync, {
