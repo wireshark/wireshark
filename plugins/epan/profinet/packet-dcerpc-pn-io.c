@@ -443,6 +443,11 @@ static int hf_pn_io_length_peer_port_id = -1;
 static int hf_pn_io_peer_port_id = -1;
 static int hf_pn_io_length_peer_chassis_id = -1;
 static int hf_pn_io_peer_chassis_id = -1;
+static int hf_pn_io_neighbor = -1;
+static int hf_pn_io_length_peer_port_name = -1;
+static int hf_pn_io_peer_port_name = -1;
+static int hf_pn_io_length_peer_station_name = -1;
+static int hf_pn_io_peer_station_name = -1;
 static int hf_pn_io_length_own_port_id = -1;
 static int hf_pn_io_own_port_id = -1;
 static int hf_pn_io_peer_macadd = -1;
@@ -803,6 +808,7 @@ static gint ett_pn_io_soe_adjust_specifier = -1;
 static gint ett_pn_io_sr_properties = -1;
 static gint ett_pn_io_line_delay = -1;
 static gint ett_pn_io_counter_status = -1;
+static gint ett_pn_io_neighbor = -1;
 
 static gint ett_pn_io_GroupProperties = -1;
 
@@ -6600,7 +6606,7 @@ dissect_PDPortStatistic_block(tvbuff_t *tvb, int offset,
 }
 
 
-/* OwnPort for one subslot */
+/* OwnPort */
 static int
 dissect_OwnPort_block(tvbuff_t *tvb, int offset,
  packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
@@ -6670,6 +6676,83 @@ dissect_OwnPort_block(tvbuff_t *tvb, int offset,
         val_to_str(u8LinkStateLink, pn_io_link_state_link, "0x%x"),
         val_to_str(u32MediaType, pn_io_media_type, "0x%x"),
         val_to_str(u16MAUType, pn_io_mau_type, "0x%x"));
+
+    return offset;
+}
+
+
+/* Neighbors */
+static int
+dissect_Neighbors_block(tvbuff_t *tvb, int offset,
+ packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    guint8   u8NumberOfPeers;
+    guint8   u8I;
+    guint8   mac[6];
+    char    *pPeerStationName;
+    char    *pPeerPortName;
+    guint8   u8LengthPeerPortName;
+    guint8   u8LengthPeerStationName;
+    guint16  u16MAUType;
+    guint16  u16MAUTypeExtension;
+    guint32  u32LineDelayValue;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* NumberOfPeers */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_number_of_peers, &u8NumberOfPeers);
+
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    u8I = u8NumberOfPeers;
+    while (u8I--) {
+        sub_item = proto_tree_add_item(tree, hf_pn_io_neighbor, tvb, offset, 0, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_neighbor);
+
+        /* LineDelay */
+        offset = dissect_Line_Delay(tvb, offset, pinfo, sub_tree, drep, &u32LineDelayValue);
+
+        /* MAUType */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                            hf_pn_io_mau_type, &u16MAUType);
+
+        /* MAUTypeExtension */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                            hf_pn_io_mau_type_extension, &u16MAUTypeExtension);
+
+        /* PeerMACAddress */
+        offset = dissect_pn_mac(tvb, offset, pinfo, sub_tree,
+                            hf_pn_io_peer_macadd, mac);
+
+        /* LengthPeerPortName */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                            hf_pn_io_length_peer_port_name, &u8LengthPeerPortName);
+        /* PeerPortName */
+        proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_port_name, tvb, offset, u8LengthPeerPortName,
+                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerPortName);
+        offset += u8LengthPeerPortName;
+
+        /* LengthPeerStationName */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
+                            hf_pn_io_length_peer_station_name, &u8LengthPeerStationName);
+        /* PeerStationName */
+        proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_station_name, tvb, offset, u8LengthPeerStationName,
+                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerStationName);
+        offset += u8LengthPeerStationName;
+
+        offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
+
+        proto_item_append_text(sub_item, ": %s (%s)", pPeerStationName, pPeerPortName);
+    }
 
     return offset;
 }
@@ -10637,6 +10720,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0260):
         dissect_OwnPort_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
+    case(0x0261):
+        dissect_Neighbors_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
@@ -13765,6 +13851,31 @@ proto_register_pn_io (void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_neighbor,
+      { "Neighbor", "pn_io.neighbor",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_length_peer_port_name,
+      { "LengthPeerPortName", "pn_io.length_peer_port_name",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_peer_port_name,
+      { "PeerPortName", "pn_io.peer_port_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_length_peer_station_name,
+      { "LengthPeerStationName", "pn_io.length_peer_station_name",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_peer_station_name,
+      { "PeerStationName", "pn_io.peer_station_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_length_own_chassis_id,
       { "LengthOwnChassisID", "pn_io.length_own_chassis_id",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -15083,7 +15194,8 @@ proto_register_pn_io (void)
         &ett_pn_io_dcp_boundary,
         &ett_pn_io_peer_to_peer_boundary,
         &ett_pn_io_mau_type_extension,
-        &ett_pn_io_pe_operational_mode
+        &ett_pn_io_pe_operational_mode,
+        &ett_pn_io_neighbor
     };
 
     static ei_register_info ei[] = {
