@@ -2047,7 +2047,7 @@ static int erf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
   erf_dump_t *dump_priv;
   gchar *s;
   guint64 host_id;
-  char *first_shb_comment;
+  char *first_shb_comment = NULL;
 
   dump_priv = erf_dump_priv_create();
 
