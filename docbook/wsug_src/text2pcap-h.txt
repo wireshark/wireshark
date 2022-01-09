@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-906-g40256c64e098)
+Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-1023-g9a681f88adc4)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -41,6 +41,8 @@ Input:
                          (def: 16: hexadecimal) No effect in hexdump mode.
 
 Output:
+  -F <capture type>      set the output file type; default is pcap.
+                         an empty "-F" option will list the file types.
   -l <typenum>           link-layer type number; default is 1 (Ethernet).  See
                          https://www.tcpdump.org/linktypes.html for a list of
                          numbers.  Use this option if your dump is a complete

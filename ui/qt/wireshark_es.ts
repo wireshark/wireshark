@@ -378,8 +378,12 @@
         <translation>Marcar/Desmarcar fila</translation>
     </message>
     <message>
+        <source>Ctrl+M</source>
+        <translation type="unfinished">Ctrl+M</translation>
+    </message>
+    <message>
         <source>Ctrl-M</source>
-        <translation>Ctrl-M</translation>
+        <translation type="vanished">Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -723,8 +727,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <oldsource>Allow hover selection</oldsource>
-        <translation type="unfinished">Permitir selección al desplazar</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -2644,8 +2647,16 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Default</source>
         <translation type="unfinished">Predeterminado</translation>
+    </message>
+    <message>
+        <source>Restore default value of the item</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4489,10 +4500,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Ethernet</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation type="vanished">Prefijo para cada trama con una cabecera ethernet, IPv4 y SCTP</translation>
-    </message>
-    <message>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
@@ -4517,10 +4524,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Etiqueta:</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="vanished">Prefijo para cada trama con una cabecera ethernet, IPv4 y UDP</translation>
-    </message>
-    <message>
         <source>UDP</source>
         <translation>UDP</translation>
     </message>
@@ -4531,10 +4534,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>The Ethertype value of each frame</source>
         <translation>El valor Ethertype para cada trama</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation type="vanished">Prefijo para cada trama con una cabecera ethernet, IPv4 y TCP</translation>
     </message>
     <message>
         <source>TCP</source>
@@ -4553,24 +4552,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Ethertype (hex):</translation>
     </message>
     <message>
-        <source>The IPv4 protocol ID for each frame</source>
-        <translation type="vanished">El ID de protocolo IPv4 para cada trama</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="vanished">Prefijo para cada trama con una cabecera ethernet, IPv4 y SCTP (Datos)</translation>
-    </message>
-    <message>
         <source>SCTP (Data)</source>
         <translation>SCTP (Datos)</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="vanished">Prefijo para cada trama con una cabecera ethernet y IPv4</translation>
-    </message>
-    <message>
-        <source>IPv4</source>
-        <translation type="vanished">IPv4</translation>
     </message>
     <message>
         <source>The dissector to use for each frame</source>
@@ -4660,7 +4643,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6670,6 +6654,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation>Osmux</translation>
     </message>
@@ -7131,6 +7119,22 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Sametime statistics</source>
         <translation>Estadísticas de Sametime</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8238,6 +8242,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Saving %1…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

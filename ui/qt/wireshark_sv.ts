@@ -378,8 +378,12 @@
         <translation>Markera/avmarkera rad</translation>
     </message>
     <message>
+        <source>Ctrl+M</source>
+        <translation type="unfinished">Ctrl+M</translation>
+    </message>
+    <message>
         <source>Ctrl-M</source>
-        <translation>Ctrl-M</translation>
+        <translation type="vanished">Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -723,8 +727,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <oldsource>Allow hover selection</oldsource>
-        <translation type="unfinished">Tillåt håll över-val</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -2669,8 +2672,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Starta</translation>
     </message>
     <message>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Default</source>
         <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Restore default value of the item</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4528,10 +4539,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ethernet</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation type="vanished">Föregå varje ram med ett Ethernet-, IPv4-, och SCTP-huvud</translation>
-    </message>
-    <message>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
@@ -4556,10 +4563,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Tagg:</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="vanished">Föregå varje ram med ett Ethernet-, IPv4-, och UDP-huvud</translation>
-    </message>
-    <message>
         <source>UDP</source>
         <translation>UDP</translation>
     </message>
@@ -4570,10 +4573,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>The Ethertype value of each frame</source>
         <translation>Ethertype-värdet för varje ram</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation type="vanished">Föregå varje ram med ett Ethernet-, IPv4-, och TCP-huvud</translation>
     </message>
     <message>
         <source>TCP</source>
@@ -4592,24 +4591,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ethertype (hex):</translation>
     </message>
     <message>
-        <source>The IPv4 protocol ID for each frame</source>
-        <translation type="vanished">IPv4 protokoll-ID för varje ram</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="vanished">Föregå varje ram med ett Ethernet-, IPv4-, och SCTP (DATA)-huvud</translation>
-    </message>
-    <message>
         <source>SCTP (Data)</source>
         <translation>SCTP (Data)</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="vanished">Föregå varje ram med ett Ethernet- och IPv4-huvud</translation>
-    </message>
-    <message>
-        <source>IPv4</source>
-        <translation type="vanished">IPv4</translation>
     </message>
     <message>
         <source>The dissector to use for each frame</source>
@@ -4699,8 +4682,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Externa fångstgränssnitt avaktiverade.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Lokala gränssnitt är otillgängliga för att ingen paketfångsdrivrutin är installerad.&lt;/p&gt;&lt;p&gt;Du kan fixa detta genom att installera &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; eller &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
+        <translation type="unfinished">&lt;p&gt;Lokala gränssnitt är otillgängliga för att ingen paketfångsdrivrutin är installerad.&lt;/p&gt;&lt;p&gt;Du kan fixa detta genom att installera &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; eller &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
@@ -6734,6 +6718,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Pålitlig server-poolning (RSerPool)</translation>
     </message>
     <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation>Osmux</translation>
     </message>
@@ -7195,6 +7183,22 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Sametime statistics</source>
         <translation>Sametime-statistik</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8311,6 +8315,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Saving %1…</source>
         <translation>Sparar %1 …</translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>

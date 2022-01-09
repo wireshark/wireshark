@@ -379,7 +379,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ctrl-M</source>
+        <source>Ctrl+M</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -724,7 +724,6 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <oldsource>Allow hover selection</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2647,7 +2646,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore default value of the item</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4543,10 +4550,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>IPv4</source>
-        <translation type="vanished">IPv4</translation>
-    </message>
-    <message>
         <source>The dissector to use for each frame</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4634,7 +4637,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6648,6 +6652,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7108,6 +7116,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sametime statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8216,6 +8240,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Saving %1…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

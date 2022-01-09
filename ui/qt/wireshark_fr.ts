@@ -378,8 +378,8 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Ctrl-M</source>
-        <translation type="unfinished"></translation>
+        <source>Ctrl+M</source>
+        <translation type="unfinished">Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -723,8 +723,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <oldsource>Allow hover selection</oldsource>
-        <translation type="unfinished">Autoriser la sélection au survol</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -2667,8 +2666,16 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Démarrer</translation>
     </message>
     <message>
+        <source>Save</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Default</source>
         <translation>Défaut</translation>
+    </message>
+    <message>
+        <source>Restore default value of the item</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4528,10 +4535,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Ethernet</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation type="vanished">Préfixe pour chaque trame avec un entête Ethernet, IPv4 et SCTP</translation>
-    </message>
-    <message>
         <source>SCTP</source>
         <translation>SCTP</translation>
     </message>
@@ -4556,10 +4559,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Balise :</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation type="vanished">Préfixe pour chaque trame avec un entête Ethernet, IPv4 et UDP</translation>
-    </message>
-    <message>
         <source>UDP</source>
         <translation>UDP</translation>
     </message>
@@ -4570,10 +4569,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>The Ethertype value of each frame</source>
         <translation>La valeur Ethertype de chaque trame</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation type="vanished">Préfixe pour chaque trame avec un entête Ehternet, IPv4 et TCP</translation>
     </message>
     <message>
         <source>TCP</source>
@@ -4592,24 +4587,8 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Type ether (hex) :</translation>
     </message>
     <message>
-        <source>The IPv4 protocol ID for each frame</source>
-        <translation type="vanished">Le protocole ID IPv4 pour chaque trame</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation type="vanished">Préfixe pour chaque trame avec un entête Ethernet, IPV4 et SCTP (DATA)</translation>
-    </message>
-    <message>
         <source>SCTP (Data)</source>
         <translation>SCTP (Données)</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation type="vanished">Préfixe pour chaque trame avec un entête Ehternet, IPv4</translation>
-    </message>
-    <message>
-        <source>IPv4</source>
-        <translation type="vanished">IPv4</translation>
     </message>
     <message>
         <source>The dissector to use for each frame</source>
@@ -4699,7 +4678,8 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6734,6 +6714,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>SOME/IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7195,6 +7179,22 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Sametime statistics</source>
         <translation>Statistiques Sametime</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8302,6 +8302,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Saving %1…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configure all extcaps before start of capture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
