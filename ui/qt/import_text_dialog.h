@@ -23,6 +23,7 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QButtonGroup>
 
 namespace Ui {
 class ImportTextDialog;
@@ -59,7 +60,7 @@ private:
     QVariantMap settings;
 
     QPushButton *import_button_;
-    QList<QRadioButton *>encap_buttons_;
+    QButtonGroup *encap_buttons;
     text_import_info_t import_info_;
     QString capfile_name_;
     bool file_ok_;
@@ -105,15 +106,8 @@ private slots:
 
     /* Encapsulation input */
     void on_encapComboBox_currentIndexChanged(int index);
-    void on_noDummyButton_toggled(bool checked);
-    void on_ethernetButton_toggled(bool checked);
-    void on_ipv4Button_toggled(bool checked);
+    void encap_buttonsToggled(QAbstractButton *button, bool checked);
     void on_ipVersionComboBox_currentIndexChanged(int index);
-    void on_udpButton_toggled(bool checked);
-    void on_tcpButton_toggled(bool checked);
-    void on_sctpButton_toggled(bool checked);
-    void on_sctpDataButton_toggled(bool checked);
-    void on_exportPduButton_toggled(bool checked);
     void on_ethertypeLineEdit_textChanged(const QString &ethertype_str);
     void on_protocolLineEdit_textChanged(const QString &protocol_str);
     void on_sourceAddressLineEdit_textChanged(const QString &source_addr_str);

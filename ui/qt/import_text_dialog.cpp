@@ -99,11 +99,18 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
 
     on_timestampFormatLineEdit_textChanged(ti_ui_->timestampFormatLineEdit->text());
 
+    encap_buttons = new QButtonGroup(this);
     for (i = 0; i < ti_ui_->headerGridLayout->count(); i++) {
         QRadioButton *rb = qobject_cast<QRadioButton *>(ti_ui_->headerGridLayout->itemAt(i)->widget());
 
-        if (rb) encap_buttons_.append(rb);
+        if (rb) encap_buttons->addButton(rb);
     }
+    /* There are two QButtonGroup::buttonToggled signals from Qt 5.2-5.15 with
+     * different parameters. This breaks connectSlotsByName, which only finds
+     * the deprecated one that doesn't exist in Qt 6. So we have to connect it
+     * manually, and avoid naming the slot in the normal way.
+     */
+    connect(encap_buttons, SIGNAL(buttonToggled(QAbstractButton*, bool)), this, SLOT(encap_buttonsToggled(QAbstractButton*, bool)));
 
     /* fill the IP version combobox */
     ti_ui_->ipVersionComboBox->addItem("IPv4", QVariant(4));
@@ -464,7 +471,7 @@ int ImportTextDialog::exec() {
 
     encap_val = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
     import_info_.dummy_header_type = HEADER_NONE;
-    if (encap_val.isValid() && (encap_val.toUInt() == WTAP_ENCAP_ETHERNET || encap_val.toUInt() == WTAP_ENCAP_WIRESHARK_UPPER_PDU)
+    if (encap_val.isValid() && (encap_buttons->checkedButton()->isEnabled())
             && !ti_ui_->noDummyButton->isChecked()) {
         // Inputs were validated in the on_xxx_textChanged slots.
         if (ti_ui_->ethernetButton->isChecked()) {
@@ -855,7 +862,7 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
         }
     }
 
-    foreach (QRadioButton *rb, encap_buttons_) {
+    foreach (auto &&rb, encap_buttons->buttons()) {
         rb->setEnabled(enable_ethernet_buttons);
     }
 
@@ -900,7 +907,7 @@ void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
     enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
 }
 
-void ImportTextDialog::on_noDummyButton_toggled(bool checked)
+void ImportTextDialog::encap_buttonsToggled(QAbstractButton *button _U_, bool checked)
 {
     bool enabled_ethernet = false;
     bool enabled_export_pdu = false;
@@ -911,46 +918,11 @@ void ImportTextDialog::on_noDummyButton_toggled(bool checked)
     if (checked) enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
 }
 
-void ImportTextDialog::on_ethernetButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_ipv4Button_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
 void ImportTextDialog::on_ipVersionComboBox_currentIndexChanged(int index)
 {
     import_info_.ipv6 = (index == 1) ? 1 : 0;
     on_sourceAddressLineEdit_textChanged(ti_ui_->sourceAddressLineEdit->text());
     on_destinationAddressLineEdit_textChanged(ti_ui_->destinationAddressLineEdit->text());
-}
-
-void ImportTextDialog::on_udpButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_tcpButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_sctpButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_sctpDataButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_exportPduButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
 }
 
 void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, bool &ok_enabled, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr) {
