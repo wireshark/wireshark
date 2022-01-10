@@ -3699,7 +3699,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                         break;
 
                                     }
-                                    case 0x0019a7:
+                                    case OUI_ITU_T:
                                     {
                                         proto_tree_add_item(ptp_tlv_tree,
                                                             hf_ptp_v2_sig_oe_tlv_itut_subtype,
