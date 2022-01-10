@@ -263,8 +263,22 @@ static gint ett_vsncp_ipv6_hsgw_lla_iid_opt = -1;
 
 static dissector_table_t vsncp_option_table;
 
+/*
+*   VSNP (RFC3772) has no defined packet structure. 
+*   The following organisations have defined their own VSNPs: 
+*   any VSNCPs containing one of the below OUIs will result in the VSNP being parsed accordingly.
+*/
+#define OUI_BBF 0x00256D    /* Broadband Forum TR 456 */
+#define OUI_3GPP 0xCF0002   /* 3GPP X.S0057-0 */
+
+static guint32 vsnp_oui = -1;
 static int proto_vsnp = -1;
-static gint hf_vsnp_pdnid = -1;
+
+/* 3GPP Variables */
+static gint hf_vsnp_3gpp_pdnid = -1;
+
+/* BBF Variables */
+/* TO DO */
 
 static gint ett_vsnp =-1;
 
@@ -4821,6 +4835,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     code = tvb_get_guint8(tvb, 0);
     length = tvb_get_ntohs(tvb, 2);
+    vsnp_oui = tvb_get_guint24(tvb, 4, ENC_NA);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNCP");
     col_set_str(pinfo->cinfo, COL_INFO,
@@ -4863,22 +4878,37 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_item *vsnp_item;
     proto_tree *vsnp_tree;
-    tvbuff_t *next_tvb;
+
+    int offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSNP");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     vsnp_item = proto_tree_add_item(tree, proto_vsnp, tvb, 0, -1, ENC_NA);
     vsnp_tree = proto_item_add_subtree(vsnp_item, ett_vsnp);
-    proto_tree_add_item(vsnp_tree, hf_vsnp_pdnid, tvb, 0, 1,
-            ENC_BIG_ENDIAN);
 
-    next_tvb = tvb_new_subset_remaining(tvb, 1);
-    if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo,
-        tree)) {
-        col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", PPP_IP);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "PPP %s (0x%04x)",
-            val_to_str_ext_const(PPP_IP, &ppp_vals_ext, "Unknown"), PPP_IP);
-        call_data_dissector(next_tvb, pinfo, tree);
+    switch (vsnp_oui) {
+        case OUI_BBF:
+            col_set_str(pinfo->cinfo, COL_INFO, "Broadband Forum Session Data");
+            /* TO DO: Add support for Broadband Forum's VSNP */
+            break;
+        case OUI_3GPP:
+            col_set_str(pinfo->cinfo, COL_INFO, "3GPP Session Data");
+            tvbuff_t *next_tvb;
+
+            /* dissect 3GPP packet */
+            proto_tree_add_item(vsnp_tree, hf_vsnp_3gpp_pdnid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset+=1;
+            next_tvb = tvb_new_subset_remaining(tvb, 1);
+            if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, tree)) {
+                col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", PPP_IP);
+                col_add_fstr(pinfo->cinfo, COL_INFO, "PPP %s (0x%04x)",
+                val_to_str_ext_const(PPP_IP, &ppp_vals_ext, "Unknown"), PPP_IP);
+                call_data_dissector(next_tvb, pinfo, tree);
+            }
+            break;
+        default:
+            break;
     }
     return tvb_captured_length(tvb);
 }
@@ -7065,8 +7095,8 @@ proto_register_vsnp(void)
     };
 
     static hf_register_info hf[] = {
-        { &hf_vsnp_pdnid,
-            { "PDN ID", "vsnp.pdnid", FT_UINT8, BASE_HEX,
+        { &hf_vsnp_3gpp_pdnid,
+            { "PDN ID", "vsnp.3gpp.pdnid", FT_UINT8, BASE_HEX,
                 NULL, 0x0, NULL, HFILL }}
     };
 
