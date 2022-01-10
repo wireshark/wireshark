@@ -75,6 +75,23 @@ extern "C" {
   #define WS_RETNONNULL
 #endif
 
+/*
+ * WS_THREAD_LOCAL means "this variable should go in thread-local
+ * storage.
+ *
+ * Based on
+ *
+ *   https://en.wikipedia.org/w/index.php?title=Thread-local_storage&oldid=1064900318#C_and_C++
+ *
+ * the major UN*X C compilers support __thread and the major Windows C
+ * compilers support __declspec(thread).
+ */
+#ifdef _WIN32
+  #define WS_THREAD_LOCAL __declspec(thread)
+#else
+  #define WS_THREAD_LOCAL __thread
+#endif
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

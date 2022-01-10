@@ -143,7 +143,7 @@ static void (*uh_catcher_ptr)(except_t *) = unhandled_catcher;
  * the size_t issue doesn't exists here. Pheew.. */
 static void *(*allocator)(size_t) = (void *(*)(size_t)) g_malloc;
 static void (*deallocator)(void *) = g_free;
-static struct except_stacknode *stack_top;
+static WS_THREAD_LOCAL struct except_stacknode *stack_top;
 
 #define get_top() (stack_top)
 #define set_top(T) (stack_top = (T))
