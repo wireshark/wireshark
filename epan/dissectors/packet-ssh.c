@@ -1831,7 +1831,7 @@ ssh_kex_type(gchar *type)
 static guint
 ssh_kex_hash_type(gchar *type_string)
 {
-    if (g_str_has_suffix(type_string, "sha256")) {
+    if (type_string && g_str_has_suffix(type_string, "sha256")) {
         return SSH_KEX_HASH_SHA256;
     } else {
         ws_debug("hash type %s not supported", type_string);
