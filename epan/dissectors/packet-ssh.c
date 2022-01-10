@@ -292,6 +292,7 @@ static gint ett_ssh1 = -1;
 static gint ett_ssh2 = -1;
 
 static expert_field ei_ssh_packet_length = EI_INIT;
+static expert_field ei_ssh_invalid_keylen = EI_INIT;
 
 static gboolean ssh_desegment = TRUE;
 
@@ -479,9 +480,9 @@ static void ssh_keylog_process_line(const char *line);
 static void ssh_keylog_process_lines(const guint8 *data, guint datalen);
 static void ssh_keylog_reset(void);
 static ssh_bignum *ssh_kex_make_bignum(const guint8 *data, guint length);
-static void ssh_read_e(tvbuff_t *tvb, int offset,
+static gboolean ssh_read_e(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
-static void ssh_read_f(tvbuff_t *tvb, int offset,
+static gboolean ssh_read_f(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
 static void ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
@@ -1134,7 +1135,10 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
     case SSH_MSG_KEXDH_INIT:
 #ifdef SSH_DECRYPTION_SUPPORTED
         // e (client ephemeral key public part)
-        ssh_read_e(tvb, offset, global_data);
+        if (!ssh_read_e(tvb, offset, global_data)) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
+                "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
+        }
 #endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_e);
@@ -1145,11 +1149,12 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
                 ett_key_exchange_host_key, global_data);
 
 #ifdef SSH_DECRYPTION_SUPPORTED
-        if (!PINFO_FD_VISITED(pinfo)) {
-            // f (server ephemeral key public part), K_S (host key)
-            ssh_read_f(tvb, offset, global_data);
-            ssh_keylog_hash_write_secret(tvb, offset, global_data);
+        // f (server ephemeral key public part), K_S (host key)
+        if (!ssh_read_f(tvb, offset, global_data)) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
+                "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
+        ssh_keylog_hash_write_secret(tvb, offset, global_data);
 #endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
@@ -1220,7 +1225,11 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
     switch (msg_code) {
     case SSH_MSG_KEX_ECDH_INIT:
 #ifdef SSH_DECRYPTION_SUPPORTED
-        ssh_read_e(tvb, offset, global_data);
+        if (!ssh_read_e(tvb, offset, global_data)) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
+                "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
+        }
+
         if (!PINFO_FD_VISITED(pinfo)) {
             if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_ini == 0){
                 global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_ini = global_data->peer_data[CLIENT_PEER_DATA].sequence_number;
@@ -1238,14 +1247,16 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
                 ett_key_exchange_host_key, global_data);
 
 #ifdef SSH_DECRYPTION_SUPPORTED
-        if (!PINFO_FD_VISITED(pinfo)) {
-            ssh_read_f(tvb, offset, global_data);
-            ssh_keylog_hash_write_secret(tvb, offset, global_data);
-            if(global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep == 0){
-                global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
-                global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
-                ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_ECDH_REPLY=%d}++ > %d\n", SERVER_PEER_DATA?"server":"client", global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep, global_data->peer_data[SERVER_PEER_DATA].sequence_number);
-            }
+        if (!ssh_read_f(tvb, offset, global_data)){
+            proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
+                "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
+        }
+
+        ssh_keylog_hash_write_secret(tvb, offset, global_data);
+        if(global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep == 0){
+            global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
+            global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_ECDH_REPLY=%d}++ > %d\n", SERVER_PEER_DATA?"server":"client", global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep, global_data->peer_data[SERVER_PEER_DATA].sequence_number);
         }
 #endif
 
@@ -1842,6 +1853,11 @@ ssh_kex_hash_type(gchar *type_string)
 static ssh_bignum *
 ssh_kex_make_bignum(const guint8 *data, guint length)
 {
+    // 512 bytes (4096 bits) is the maximum bignum size we're supporting
+    if (length == 0 || length > 512) {
+        return NULL;
+    }
+
     ssh_bignum *bn = wmem_new0(wmem_file_scope(), ssh_bignum);
     bn->data = (guint8 *)wmem_alloc0(wmem_file_scope(), length);
 
@@ -1853,26 +1869,30 @@ ssh_kex_make_bignum(const guint8 *data, guint length)
     return bn;
 }
 
-static void
+static gboolean
 ssh_read_e(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
 {
     // store the client's public part (e) for later usage
-    int length = tvb_get_ntohl(tvb, offset);
+    guint32 length = tvb_get_ntohl(tvb, offset);
     global_data->kex_e = ssh_kex_make_bignum(NULL, length);
     if (!global_data->kex_e) {
-        ws_debug("invalid key length %u", length);
-        return;
+        return false;
     }
     tvb_memcpy(tvb, global_data->kex_e->data, offset + 4, length);
+    return true;
 }
 
-static void
+static gboolean
 ssh_read_f(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
 {
     // store the server's public part (f) for later usage
-    int length = tvb_get_ntohl(tvb, offset);
+    guint32 length = tvb_get_ntohl(tvb, offset);
     global_data->kex_f = ssh_kex_make_bignum(NULL, length);
+    if (!global_data->kex_f) {
+        return false;
+    }
     tvb_memcpy(tvb, global_data->kex_f->data, offset + 4, length);
+    return true;
 }
 
 static void
@@ -2953,6 +2973,7 @@ proto_register_ssh(void)
 
     static ei_register_info ei[] = {
         { &ei_ssh_packet_length, { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
+        { &ei_ssh_invalid_keylen, { "ssh.key_length.error", PI_PROTOCOL, PI_ERROR, "Invalid key length", EXPFILL }}
     };
 
     module_t *ssh_module;
