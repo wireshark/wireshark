@@ -1522,6 +1522,7 @@ static int hf_ptp_v2_an_tlv_data = -1;
 /* static int hf_ptp_v2_sdr_origintimestamp = -1; */  /* Field for seconds & nanoseconds */
 static int hf_ptp_v2_sdr_origintimestamp_seconds = -1;
 static int hf_ptp_v2_sdr_origintimestamp_nanoseconds = -1;
+static int hf_ptp_v2_sync_reserved = -1;
 
 
 /* Fields for PTP_Follow_Up (=fu) messages */
@@ -2554,12 +2555,48 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
 /* Code to actually dissect the PTPv2 packets */
 
 static void
+dissect_follow_up_tlv(tvbuff_t *tvb, proto_tree *ptp_tree)
+{
+    /* There are TLV's to be processed */
+    guint16 tlv_length = tvb_get_ntohs(tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET);
+
+    proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET,
+                                                      tlv_length + PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET,
+                                                      ett_ptp_v2_tlv, NULL, "Follow Up information TLV");
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_tlvtype, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_lengthfield, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_organization_id, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET, 3, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_organization_subtype, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_ORGANIZATIONSUBTYPE_OFFSET, 3, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_cumulative_offset, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_CUMULATIVESCALEDRATEOFFSET_OFFSET, 4, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_gm_base_indicator, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_GMTIMEBASEINDICATOR_OFFSET, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_last_gm_phase_change, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LASTGMPHASECHANGE_OFFSET, 12, ENC_NA);
+
+    proto_tree_add_item(ptp_tlv_tree, hf_ptp_as_fu_tlv_scaled_last_gm_freq_change, tvb,
+                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_SCALEDLASTGMFREQCHANGE_OFFSET, 4, ENC_BIG_ENDIAN);
+}
+
+static void
 dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptpv2_oE)
 {
     guint8  ptp_v2_majorsdoid;
     guint8  ptp_v2_messageid;
     guint64 timeStamp;
     guint16 msg_len;
+    guint16 ptp_v2_flags;
     guint16 temp;
     const gchar *manuf_name;
 
@@ -2582,6 +2619,8 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
     ptp_v2_messageid = 0x0F & tvb_get_guint8 (tvb, PTP_V2_MAJORSDOID_MESSAGE_TYPE_OFFSET);
 
     msg_len = tvb_get_ntohs(tvb, PTP_V2_MESSAGE_LENGTH_OFFSET);
+
+    ptp_v2_flags = tvb_get_guint16(tvb, PTP_V2_FLAGS_OFFSET, ENC_BIG_ENDIAN);
 
     /* Extend  Info column with managementId */
     /* Create and set the string for "Info" column */
@@ -3147,6 +3186,26 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
             }
 
             case PTP_V2_SYNC_MESSAGE:
+                if (is_802_1as && ((ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK)) {
+                    /* IEEE 802.1AS 2-step does not have Origin Timestamp in Sync! See 11.4.3 */
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_sync_reserved, tvb,
+                        PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET, 10, ENC_NA);
+                } else {
+                    /* regular PTP or 802.1AS 1-step */
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_seconds, tvb,
+                        PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
+
+                    proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_nanoseconds, tvb,
+                        PTP_V2_SDR_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, ENC_BIG_ENDIAN);
+                }
+
+                if (is_802_1as && ((ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) != PTP_V2_FLAGS_TWO_STEP_BITMASK)) {
+                    /* IEEE 802.1AS-2020 11.4.3 */
+                    dissect_follow_up_tlv(tvb, ptp_tree);
+                }
+
+                break;
+
             case PTP_V2_DELAY_REQ_MESSAGE:{
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_seconds, tvb,
@@ -3159,8 +3218,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
             }
 
             case PTP_V2_FOLLOWUP_MESSAGE:{
-                guint16     tlv_length;
-                proto_tree *ptp_tlv_tree;
                 proto_item *ti_tstamp;
                 guint64     ts_sec;
                 guint32     ts_ns;
@@ -3178,73 +3235,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                 /* In 802.1AS there is a Follow_UP information TLV in the Follow Up Message */
                 if(is_802_1as){
-
-                    /* There are TLV's to be processed */
-                    tlv_length = tvb_get_ntohs (tvb, PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET);
-
-                    ptp_tlv_tree = proto_tree_add_subtree(
-                        ptp_tree,
-                        tvb,
-                        PTP_AS_FU_TLV_INFORMATION_OFFSET,
-                        tlv_length + PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET,
-                        ett_ptp_v2_tlv, NULL, "Follow Up information TLV");
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_tlvtype,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_TYPE_OFFSET,
-                                        2,
-                                        ENC_BIG_ENDIAN);
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_lengthfield,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LENGTHFIELD_OFFSET,
-                                        2,
-                                        ENC_BIG_ENDIAN);
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_organization_id,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_ORGANIZATIONID_OFFSET,
-                                        3,
-                                        ENC_BIG_ENDIAN);
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_organization_subtype,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_ORGANIZATIONSUBTYPE_OFFSET,
-                                        3,
-                                        ENC_BIG_ENDIAN);
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_cumulative_offset,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_CUMULATIVESCALEDRATEOFFSET_OFFSET,
-                                        4,
-                                        ENC_BIG_ENDIAN);
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_gm_base_indicator,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_GMTIMEBASEINDICATOR_OFFSET,
-                                        2,
-                                        ENC_BIG_ENDIAN);
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_last_gm_phase_change,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_LASTGMPHASECHANGE_OFFSET,
-                                        12,
-                                        ENC_NA);
-
-                    proto_tree_add_item(ptp_tlv_tree,
-                                        hf_ptp_as_fu_tlv_scaled_last_gm_freq_change,
-                                        tvb,
-                                        PTP_AS_FU_TLV_INFORMATION_OFFSET + PTP_AS_FU_TLV_SCALEDLASTGMFREQCHANGE_OFFSET,
-                                        4,
-                                        ENC_BIG_ENDIAN);
-
+                    dissect_follow_up_tlv(tvb, ptp_tree);
                 }
 
                 break;
@@ -5857,6 +5848,12 @@ proto_register_ptp(void)
         { &hf_ptp_v2_sdr_origintimestamp_nanoseconds,
           { "originTimestamp (nanoseconds)",           "ptp.v2.sdr.origintimestamp.nanoseconds",
             FT_INT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+
+        { &hf_ptp_v2_sync_reserved,
+          { "reserved",           "ptp.v2.sync.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
 
