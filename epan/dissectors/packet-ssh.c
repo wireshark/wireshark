@@ -1948,7 +1948,6 @@ ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
 
     ssh_keylog_read_file();
 
-    length = tvb_get_ntohl(tvb, offset);
     guint kex_type = ssh_kex_type(global_data->kex);
     guint kex_hash_type = ssh_kex_hash_type(global_data->kex);
 
