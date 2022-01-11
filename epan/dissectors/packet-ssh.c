@@ -2183,14 +2183,14 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
 
         if ((err = gcry_cipher_setkey(*hd1, k1, 32))) {
             gcry_cipher_close(*hd1);
-            g_debug("ssh: can't set chacha20 cipher key");
+            g_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
             return;
         }
 
         if ((err = gcry_cipher_setkey(*hd2, k2, 32))) {
             gcry_cipher_close(*hd1);
             gcry_cipher_close(*hd2);
-            g_debug("ssh: can't set chacha20 cipher key");
+            g_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
             return;
         }
     }
