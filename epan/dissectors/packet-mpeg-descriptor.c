@@ -274,6 +274,16 @@ proto_mpeg_descriptor_dissect_audio_stream(tvbuff_t *tvb, guint offset, proto_tr
 /* 0x05 Registration Descriptor */
 
 static const value_string mpeg_descr_registration_reg_form_vals[] = {
+    { 0x41432D33u, "AC-3 - Advanced Television Systems Committee" },
+    { 0x41444652u, "ADFR - SNPTV" },
+    { 0x414d434eu, "AMCN - AMC Networks Inc." },
+    { 0x41525253u, "ARRS - Arris Group, Inc." },
+    { 0x41563031u, "AV01 - Alliance for Open Media" },
+    { 0x41565341u, "AVSA - Audio Video Coding Standard Working Group of China" },
+    { 0x41565356u, "AVSV - Audio Video Coding Standard Working Group of China" },
+    { 0x42444330u, "BDC0 - Broadcast Data Corporation" },
+    { 0x42535344u, "BSSD - Society of Motion Picture and Television Engineers" },
+    { 0x4341504fu, "CAPO - SMPTE" },
     { 0x43554549u, "CUEI - Society of Cable Telecommunications Engineers" },
     { 0x44444544u, "DDED - LGEUS" },
     { 0x44495343u, "DISC - DISCOVERY COMMUNICATIONS, LLC." },
