@@ -515,13 +515,13 @@ static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 #endif /* SSH_DECRYPTION_SUPPORTED */
 
 #ifdef SSH_DECRYPT_DEBUG
-extern void
+static void
 ssh_debug_printf(const gchar* fmt,...) G_GNUC_PRINTF(1,2);
-extern void
+static void
 ssh_print_data(const gchar* name, const guchar* data, size_t len);
-extern void
+static void
 ssh_set_debug(const gchar* name);
-extern void
+static void
 ssh_debug_flush(void);
 #else
 
@@ -2431,7 +2431,7 @@ ssh_prefs_apply_cb(void)
     ssh_set_debug(ssh_debug_file_name);
 }
 
-void
+static void
 ssh_set_debug(const gchar* name)
 {
     static gint debug_file_must_be_closed;
@@ -2462,14 +2462,14 @@ ssh_set_debug(const gchar* name)
     ssh_debug_printf("\n");
 }
 
-void
+static void
 ssh_debug_flush(void)
 {
     if (ssh_debug_file)
         fflush(ssh_debug_file);
 }
 
-void
+static void
 ssh_debug_printf(const gchar* fmt, ...)
 {
     va_list ap;
@@ -2482,7 +2482,7 @@ ssh_debug_printf(const gchar* fmt, ...)
     va_end(ap);
 }
 
-void
+static void
 ssh_print_data(const gchar* name, const guchar* data, size_t len)
 {
     size_t i, j, k;
