@@ -1441,23 +1441,23 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             switch (addr_type) {
             case SUB_TLV_FEC_UNSPECIFIED:
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_remote_peer_unspecified, tvb, offset + 4, 0, ENC_NA);
-                rem    += 4;
-                offset -= 4;
                 break;
             case SUB_TLV_FEC_IPV4:
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_remote_peer_ip, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+                rem    -= 4;
+                offset += 4;
                 break;
             case SUB_TLV_FEC_IPV6:
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_remore_peer_ipv6, tvb, offset + 4, 16, ENC_NA);
-                rem    -= 12;
-                offset += 12;
+                rem    -= 16;
+                offset += 16;
                 break;
             }
 
-            offset -= 8;
+            offset += 4;
             dissect_mpls_echo_tlv_fec(tvb, pinfo, offset, tlv_dd_map_tree, fec_tlv_length);
 
-            rem -= (fec_tlv_length + 8);
+            rem -= (fec_tlv_length + 4);
             break;
         }
 
