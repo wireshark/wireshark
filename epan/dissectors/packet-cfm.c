@@ -432,6 +432,12 @@ static int hf_cfm_csf_flags_Reserved = -1;
 static int hf_cfm_csf_flags_Type =-1;
 static int hf_cfm_csf_flags_Period = -1;
 
+static int hf_cfm_osl_pdu = -1;
+static int hf_cfm_osl_src_mep = -1;
+static int hf_cfm_osl_reserved = -1;
+static int hf_cfm_osl_testid = -1;
+static int hf_cfm_osl_txfcf  = -1;
+
 static int hf_cfm_slm_pdu = -1;
 static int hf_cfm_slr_pdu = -1;
 static int hf_cfm_slm_src_mep = -1;
@@ -1258,6 +1264,38 @@ static int dissect_cfm_csf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	return offset;
 }
 
+static int dissect_cfm_osl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_item *fi;
+	proto_tree *cfm_pdu_tree;
+	proto_tree *cfm_flag_tree;
+
+	ti = proto_tree_add_item(tree, hf_cfm_osl_pdu, tvb, offset, -1, ENC_NA);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_src_mep, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_reserved, tvb, offset, 2, ENC_NA);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_testid, tvb, offset, 4, ENC_NA);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_txfcf, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_reserved, tvb, offset, 4, ENC_NA);
+	offset += 4;
+
+	return offset;
+}
+
 static int dissect_cfm_slm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
@@ -1428,6 +1466,9 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			break;
 		case CSF:
 			offset = dissect_cfm_csf(tvb, pinfo, tree, offset);
+			break;
+		case OSL:
+			offset = dissect_cfm_osl(tvb, pinfo, tree, offset);
 			break;
 		case SLM:
 			offset = dissect_cfm_slm(tvb, pinfo, tree, offset);
@@ -2117,6 +2158,28 @@ void proto_register_cfm(void)
 		{ &hf_cfm_csf_flags_Period,
 			{ "Type", "cfm.csf.flags.Period", FT_UINT8,
 			BASE_DEC, VALS(cfm_csf_flags_period_vals), 0x07, NULL, HFILL }
+		},
+
+		/* CFM 1SL */
+		{ &hf_cfm_osl_pdu,
+			{ "CFM 1SL PDU", "cfm.osf.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_osl_src_mep,
+			{ "Source MEP ID", "cfm.osl.src_mep_id", FT_UINT16,
+			BASE_DEC, NULL, 0x1FFF, NULL, HFILL }
+		},
+		{ &hf_cfm_osl_reserved,
+			{ "1SL Reserved", "cfm.osl.reserved", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_osl_testid,
+			{ "TestID", "cfm.osl.test_id", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_osl_txfcf,
+			{ "TxFcF", "cfm.osl.txfcf", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 
 		/* Synthetic Loss values */
