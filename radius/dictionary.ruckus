@@ -18,14 +18,16 @@ ATTRIBUTE	Ruckus-Location				5	string
 ATTRIBUTE	Ruckus-Grace-Period			6	integer
 ATTRIBUTE	Ruckus-SCG-CBlade-IP			7	integer
 ATTRIBUTE	Ruckus-SCG-DBlade-IP			8	integer
-ATTRIBUTE	Ruckus-VLAN-ID				9	integer
-ATTRIBUTE	Ruckus-Sta-Expiration			10	integer # not used by AP anymore. Please check SCG-33602
+# Older values
+# ATTRIBUTE	Ruckus-VLAN-ID				9	integer
+# ATTRIBUTE	Ruckus-Sta-Expiration			10	integer # not used by AP anymore. Please check SCG-33602
+ATTRIBUTE	Ruckus-Sta-Vlan-Id			9	integer
+ATTRIBUTE	Ruckus-WSG-User				10	string
 ATTRIBUTE	Ruckus-Sta-UUID				11	string
 ATTRIBUTE	Ruckus-Accept-Enhancement-Reason	12	integer
 ATTRIBUTE	Ruckus-Sta-Inner-Id			13	string
 ATTRIBUTE	Ruckus-BSSID				14	octets
 
-ATTRIBUTE	Ruckus-WSG-User				10	string
 
 ATTRIBUTE	Ruckus-Triplets				101	octets
 ATTRIBUTE	Ruckus-IMSI				102	octets
@@ -62,6 +64,18 @@ ATTRIBUTE	Ruckus-Wispr-Redirect-Policy		132	string
 ATTRIBUTE	Ruckus-Eth-Profile-Id			133	integer
 ATTRIBUTE	Ruckus-Zone-Name			134	string
 ATTRIBUTE	Ruckus-Wlan-Name			135	string
+ATTRIBUTE	Ruckus-AP-Roamed			136	integer
+ATTRIBUTE	Ruckus-Read-Preference			137	string
+ATTRIBUTE	Ruckus-Client-Host-Name			138	string
+ATTRIBUTE	Ruckus-Client-Os-Type			139	string
+ATTRIBUTE	Ruckus-Client-Os-Class			140	string
+ATTRIBUTE	Ruckus-Vlan-Pool			141	string
+ATTRIBUTE	Ruckus-Dpsk				142	octets
+
+ATTRIBUTE	Ruckus-Nat-Pool-Name			147	string
+ATTRIBUTE	Ruckus-Sta-SVlan-Id			148	integer
+
+ATTRIBUTE	Ruckus-AAA-Id				152	string
 
 #
 #  Integer Translations
