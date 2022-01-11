@@ -237,7 +237,7 @@ print_usage (FILE *output)
             "                         Example: -4 10.0.0.1,10.0.0.2\n"
             "  -6 <srcip>,<destip>    prepend dummy IPv6 header with specified\n"
             "                         dest and source address.\n"
-            "                         Example: -6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334\n"
+            "                         Example: -6 2001:db8::b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334\n"
             "  -u <srcp>,<destp>      prepend dummy UDP header with specified\n"
             "                         source and destination ports (in DECIMAL).\n"
             "                         Automatically prepends Ethernet & IP headers as well.\n"
