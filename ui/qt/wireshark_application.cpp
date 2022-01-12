@@ -663,6 +663,8 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     styleHints()->setShowShortcutsInContextMenus(true);
 #endif
 
+    setDesktopFileName(QStringLiteral("org.wireshark.Wireshark"));
+
     //
     // XXX - this means we try to check for the existence of all files
     // in the recent list every 2 seconds; that causes noticeable network
