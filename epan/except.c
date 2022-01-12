@@ -128,8 +128,17 @@ void except_deinit(void)
     pthread_mutex_unlock(&init_mtx);
 }
 
-#else /* no thread support */
+#else /* not using POSIX thread support */
 
+/*
+ * We make the catcher stack per-thread, because we must.
+ *
+ * We don't make the unhandled-exception-catcher, the allocator, or the
+ * deallocator thread-specific, as we don't need to.
+ *
+ * We don't protext the init level with a mutex, as we only initialize
+ * it and de-initialize it once.
+ */
 static int init_counter;
 static void unhandled_catcher(except_t *);
 static void (*uh_catcher_ptr)(except_t *) = unhandled_catcher;
