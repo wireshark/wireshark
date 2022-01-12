@@ -245,7 +245,14 @@ def get_ft(ref, n, content, offset):
     t = content['type']
 
     if t == 'Raw':
-        return 'FT_UINT{}, BASE_DEC, NULL, {}'.format(m, mask)
+        if (n % 8):         # not byte aligned
+            base = 'DEC'
+        else:               # byte aligned
+            if n >= 32:             # long items
+                base = 'HEX'
+            else:                   # short items
+                base = 'HEX_DEC'
+        return 'FT_UINT{}, BASE_{}, NULL, {}'.format(m, base, mask)
     elif t == 'Table':
         return 'FT_UINT{}, BASE_DEC, VALS (valstr_{}), {}'.format(m, ref, mask)
     elif t == 'String':

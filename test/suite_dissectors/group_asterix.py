@@ -219,16 +219,16 @@ class case_category_019(subprocesstest.SubprocessTestCase):
             [0x80, 0xff, 0x00],
             "asterix.019_010",
             {
-                "asterix.019_010_SAC": "255",
-                "asterix.019_010_SIC": "0"
+                "asterix.019_010_SAC": "0xff",
+                "asterix.019_010_SIC": "0x00"
             }
         )
         validator.add_dissection(
             [0x80, 0x00, 0xff],
             "asterix.019_010",
             {
-                "asterix.019_010_SAC": "0",
-                "asterix.019_010_SIC": "255"
+                "asterix.019_010_SAC": "0x00",
+                "asterix.019_010_SIC": "0xff"
             }
         )
         validator.add_dissection(
@@ -411,7 +411,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 "asterix.counter": "1",
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "255",
+                    "asterix.019_552_RSI": "0xff",
                     "asterix.019_552_RS1090": "0",
                     "asterix.019_552_TX1030": "0",
                     "asterix.019_552_TX1090": "0",
@@ -427,7 +427,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 "asterix.counter": "1",
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "0",
+                    "asterix.019_552_RSI": "0x00",
                     "asterix.019_552_RS1090": "1",
                     "asterix.019_552_TX1030": "0",
                     "asterix.019_552_TX1090": "0",
@@ -443,7 +443,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 "asterix.counter": "1",
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "0",
+                    "asterix.019_552_RSI": "0x00",
                     "asterix.019_552_RS1090": "0",
                     "asterix.019_552_TX1030": "1",
                     "asterix.019_552_TX1090": "0",
@@ -459,7 +459,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 "asterix.counter": "1",
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "0",
+                    "asterix.019_552_RSI": "0x00",
                     "asterix.019_552_RS1090": "0",
                     "asterix.019_552_TX1030": "0",
                     "asterix.019_552_TX1090": "1",
@@ -475,7 +475,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 "asterix.counter": "1",
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "0",
+                    "asterix.019_552_RSI": "0x00",
                     "asterix.019_552_RS1090": "0",
                     "asterix.019_552_TX1030": "0",
                     "asterix.019_552_TX1090": "0",
@@ -491,7 +491,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 "asterix.counter": "1",
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "0",
+                    "asterix.019_552_RSI": "0x00",
                     "asterix.019_552_RS1090": "0",
                     "asterix.019_552_TX1030": "0",
                     "asterix.019_552_TX1090": "0",
@@ -525,7 +525,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 },
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "154",
+                    "asterix.019_552_RSI": "0x9a",
                     "asterix.019_552_RS1090": "0",
                     "asterix.019_552_TX1030": "0",
                     "asterix.019_552_TX1090": "0",
@@ -667,7 +667,7 @@ class case_category_019(subprocesstest.SubprocessTestCase):
                 "asterix.counter": "1",
                 "asterix.019_552":
                 {
-                    "asterix.019_552_RSI": "0",
+                    "asterix.019_552_RSI": "0x00",
                     "asterix.019_552_RS1090": "0",
                     "asterix.019_552_TX1030": "0",
                     "asterix.019_552_TX1090": "0",
@@ -827,16 +827,16 @@ class case_category_034(subprocesstest.SubprocessTestCase):
             [0x80, 0xff, 0x00],
             "asterix.034_010",
             {
-                "asterix.034_010_SAC": "255",
-                "asterix.034_010_SIC": "0"
+                "asterix.034_010_SAC": "0xff",
+                "asterix.034_010_SIC": "0x00"
             }
         )
         validator.add_dissection(
             [0x80, 0x00, 0xff],
             "asterix.034_010",
             {
-                "asterix.034_010_SAC": "0",
-                "asterix.034_010_SIC": "255"
+                "asterix.034_010_SAC": "0x00",
+                "asterix.034_010_SIC": "0xff"
             }
         )
         validator.add_dissection(
@@ -1434,16 +1434,16 @@ class case_category_048(subprocesstest.SubprocessTestCase):
             [0x80, 0xff, 0x00],
             "asterix.048_010",
             {
-                "asterix.048_010_SAC": "255",
-                "asterix.048_010_SIC": "0"
+                "asterix.048_010_SAC": "0xff",
+                "asterix.048_010_SIC": "0x00"
             }
         )
         validator.add_dissection(
             [0x80, 0x00, 0xff],
             "asterix.048_010",
             {
-                "asterix.048_010_SAC": "0",
-                "asterix.048_010_SIC": "255"
+                "asterix.048_010_SAC": "0x00",
+                "asterix.048_010_SIC": "0xff"
             }
         )
         validator.add_dissection(
@@ -1658,14 +1658,14 @@ class case_category_048(subprocesstest.SubprocessTestCase):
             [0x01, 0x80, 0xff, 0xff, 0xff],
             "asterix.048_220",
             {
-                "asterix.048_220_VALUE": str(0xffffff)
+                "asterix.048_220_VALUE": '0xffffff'
             }
         )
         validator.add_dissection(
             [0x01, 0x80, 0xff, 0xff, 0xff],
             "asterix.048_220",
             {
-                "asterix.048_220_VALUE": str(0xffffff)
+                "asterix.048_220_VALUE": '0xffffff'
             }
         )
         validator.add_dissection(
@@ -1689,7 +1689,7 @@ class case_category_048(subprocesstest.SubprocessTestCase):
             {
                 "asterix.counter": "1",
                 "asterix.048_250":
-                    dict_global(x_250, "048_250_MBDATA", str(0x11223344556677)),
+                    dict_global(x_250, "048_250_MBDATA", '0x0011223344556677'),
             }
         )
         '''TODO: result seems correct, check dict format
@@ -1730,7 +1730,7 @@ class case_category_048(subprocesstest.SubprocessTestCase):
             {
                 "asterix.counter": "3",
                 "asterix.048_250":
-                    dict_global(x_250, "048_250_MBDATA", str(0x11223344556677)),
+                    dict_global(x_250, "048_250_MBDATA", '0x0011223344556677'),
                 "asterix.048_250":
                     dict_global(x_250, "048_250_BDS1", "15"),
                 "asterix.048_250":
@@ -2254,7 +2254,7 @@ class case_category_048(subprocesstest.SubprocessTestCase):
             [0x01, 0x01, 0x01, 0x80, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77],
             "asterix.048_260",
             {
-                "asterix.048_260_VALUE": str(0x11223344556677)
+                "asterix.048_260_VALUE": '0x0011223344556677'
             }
         )
         x_055 = {
@@ -3135,23 +3135,23 @@ class case_category_063(subprocesstest.SubprocessTestCase):
             [0x80, 0xff, 0x00],
             "asterix.063_010",
             {
-                "asterix.063_010_SAC": "255",
-                "asterix.063_010_SIC": "0"
+                "asterix.063_010_SAC": "0xff",
+                "asterix.063_010_SIC": "0x00"
             }
         )
         validator.add_dissection(
             [0x80, 0x00, 0xff],
             "asterix.063_010",
             {
-                "asterix.063_010_SAC": "0",
-                "asterix.063_010_SIC": "255"
+                "asterix.063_010_SAC": "0x00",
+                "asterix.063_010_SIC": "0xff"
             }
         )
         validator.add_dissection(
             [0x40, 0xff],
             "asterix.063_015",
             {
-                "asterix.063_015_VALUE": "255"
+                "asterix.063_015_VALUE": "0xff"
             }
         )
         validator.add_dissection(
@@ -3165,16 +3165,16 @@ class case_category_063(subprocesstest.SubprocessTestCase):
             [0x10, 0xff, 0x00],
             "asterix.063_050",
             {
-                "asterix.063_050_SAC": "255",
-                "asterix.063_050_SIC": "0"
+                "asterix.063_050_SAC": "0xff",
+                "asterix.063_050_SIC": "0x00"
             }
         )
         validator.add_dissection(
             [0x10, 0x00, 0xff],
             "asterix.063_050",
             {
-                "asterix.063_050_SAC": "0",
-                "asterix.063_050_SIC": "255"
+                "asterix.063_050_SAC": "0x00",
+                "asterix.063_050_SIC": "0xff"
             }
         )
         validator.add_dissection(
@@ -3575,16 +3575,16 @@ class case_category_065(subprocesstest.SubprocessTestCase):
             [0x80, 0xff, 0x00],
             "asterix.065_010",
             {
-                "asterix.065_010_SAC": "255",
-                "asterix.065_010_SIC": "0"
+                "asterix.065_010_SAC": "0xff",
+                "asterix.065_010_SIC": "0x00"
             }
         )
         validator.add_dissection(
             [0x80, 0x00, 0xff],
             "asterix.065_010",
             {
-                "asterix.065_010_SAC": "0",
-                "asterix.065_010_SIC": "255"
+                "asterix.065_010_SAC": "0x00",
+                "asterix.065_010_SIC": "0xff"
             }
         )
         validator.add_dissection(
@@ -3598,7 +3598,7 @@ class case_category_065(subprocesstest.SubprocessTestCase):
             [0x20, 0xff],
             "asterix.065_015",
             {
-                "asterix.065_015_VALUE": "255"
+                "asterix.065_015_VALUE": "0xff"
             }
         )
         validator.add_dissection(
