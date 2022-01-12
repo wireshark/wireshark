@@ -297,6 +297,7 @@ typedef enum {
 
 /* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers */
 #define PEN_NFLX 10949
+#define PEN_VCTR 46254
 
 /*
  * Structure describing a custom option.
