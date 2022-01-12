@@ -3530,6 +3530,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         ws_debug("Check for more IDBs, block_type 0x%08x",
                  bh.block_type);
 
+        /* XXX - This code expects that the PCAPNG Sections start with IDBs but the PCAPNG RFC does not say that!? */
         if (bh.block_type != BLOCK_TYPE_IDB) {
             break;  /* No more IDBs */
         }

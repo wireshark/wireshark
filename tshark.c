@@ -3625,10 +3625,23 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
   char        *shb_user_appl;
   pass_status_t first_pass_status, second_pass_status;
+  gboolean pcapng_pcapng_workaround = false;
+  wtapng_iface_descriptions_t if_tmp;
 
   if (save_file != NULL) {
     /* Set up to write to the capture file. */
     wtap_dump_params_init_no_idbs(&params, cf->provider.wth);
+
+    /* workaround for pcapng -> pcapng (e.g., when pcapng starts with a custom block) */
+    if (out_file_type == wtap_pcapng_file_type_subtype() && params.encap == WTAP_ENCAP_UNKNOWN) {
+      pcapng_pcapng_workaround = true;
+      params.encap = WTAP_ENCAP_PER_PACKET;
+      params.dont_copy_idbs = true; /* make sure this stay true */
+      if (params.idb_inf->interface_data != NULL) {
+        /* lets fake an interface, which is not copied anyway */
+        g_array_insert_val(params.idb_inf->interface_data, 0, if_tmp);
+      }
+    }
 
     /* If we don't have an application name add TShark */
     if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {
@@ -3651,6 +3664,11 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     } else {
       pdh = wtap_dump_open(save_file, out_file_type, WTAP_UNCOMPRESSED, &params,
                            &err, &err_info);
+    }
+
+    if (pcapng_pcapng_workaround) {
+      /* remove the fake interface before it will be used */
+      g_array_remove_index((params.idb_inf->interface_data), 0);
     }
 
     g_free(params.idb_inf);
