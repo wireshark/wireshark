@@ -2010,6 +2010,9 @@ dissect_rsl_ie_rlm_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
+    if (length == 0)
+        return offset;
+
     /* The Cause Value is a one octet field if the extension bit is set to 0.
      * If the extension bit is set to 1, the Cause Value is a two octet field.
      */
