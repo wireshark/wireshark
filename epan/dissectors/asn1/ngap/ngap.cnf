@@ -288,12 +288,11 @@ UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 %(DEFAULT_BODY)s
   if (ngap_dissect_container && parameter_tvb &&
       tvb_reported_length(parameter_tvb) > 0) {
-    struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+    volatile struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
     /* Don't want elements inside container to write to info column */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_SourceToTarget_TransparentContainer);
     TRY {
-
         switch(ngap_data->handover_type_value) {
         case intra5gs:
         case eps_to_5gs:
