@@ -77,6 +77,7 @@ private:
         ShowAsASCII,
         ShowAsASCIIandControl,
         ShowAsCArray,
+        ShowAsRustArray,
         ShowAsEBCDIC,
         ShowAsHexDump,
         ShowAsHTML,

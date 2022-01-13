@@ -73,6 +73,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("HTML"), ShowAsHTML);
     ui->cbShowAs->addItem(tr("Image"), ShowAsImage);
     ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
+    ui->cbShowAs->addItem(tr("Rust Array"), ShowAsRustArray);
     // UTF-8 is guaranteed to exist as a QTextCodec
     ui->cbShowAs->addItem(tr("UTF-8"), ShowAsCodec);
     ui->cbShowAs->addItem(tr("YAML"), ShowAsYAML);
@@ -286,6 +287,7 @@ void ShowPacketBytesDialog::copyBytes()
 
     case ShowAsASCIIandControl:
     case ShowAsCArray:
+    case ShowAsRustArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
     case ShowAsRAW:
@@ -319,6 +321,7 @@ void ShowPacketBytesDialog::saveAs()
     case ShowAsASCII:
     case ShowAsASCIIandControl:
     case ShowAsCArray:
+    case ShowAsRustArray:
     // We always save as UTF-8, so set text mode as we would for UTF-8
     case ShowAsCodec:
     case ShowAsHexDump:
@@ -344,6 +347,7 @@ void ShowPacketBytesDialog::saveAs()
 
     case ShowAsASCIIandControl:
     case ShowAsCArray:
+    case ShowAsRustArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
     case ShowAsYAML:
@@ -641,6 +645,43 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         }
 
         text.append("};\n");
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
+        ui->tePacketBytes->setPlainText(text);
+        break;
+    }
+
+    case ShowAsRustArray:
+    {
+        int pos = 0, len = field_bytes_.length();
+        QString text("let packet_bytes: [u8; _] = [\n");
+
+        while (pos < len) {
+            gchar hexbuf[256];
+            char *cur = hexbuf;
+            int i;
+
+            *cur++ = ' ';
+            for (i = 0; i < 8 && pos + i < len; i++) {
+                // Prepend entries with " 0x"
+                *cur++ = ' ';
+                *cur++ = '0';
+                *cur++ = 'x';
+                *cur++ = hexchars[(field_bytes_[pos + i] & 0xf0) >> 4];
+                *cur++ = hexchars[field_bytes_[pos + i] & 0x0f];
+
+                // Delimit array entries with a comma
+                if (pos + i + 1 < len)
+                    *cur++ = ',';
+            }
+
+            pos += i;
+            *cur++ = '\n';
+            *cur = 0;
+
+            text.append(hexbuf);
+        }
+
+        text.append("];\n");
         ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
         ui->tePacketBytes->setPlainText(text);
         break;
