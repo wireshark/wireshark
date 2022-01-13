@@ -27,8 +27,8 @@ etwdump - Provide an interface to read Event Tracing for Windows (ETW)
 
 == DESCRIPTION
 
-*etwdump* is a extcap tool that provides access to a etl file.
-It is only used to display event traces on Windows.
+*etwdump* is a extcap tool that provides access to a event trace log file or an event trace live session.
+It is only used to display event trace on Windows that includes readable text message and different protocols (like MBIM and IP packets).
 
 == OPTIONS
 
@@ -134,6 +134,7 @@ To see interface configuration options:
 To capture:
 
     etwdump --extcap-interface etwdump --fifo=/tmp/etw.pcapng --capture --params "--p=Microsoft-Windows-Wmbclass-Opn --p=Microsoft-Windows-wmbclass --k=0xff --l=4"
+    etwdump --extcap-interface etwdump --fifo=/tmp/etw.pcapng --capture --params "--p=Microsoft-Windows-Wmbclass-Opn --p=Microsoft-Windows-NDIS-PacketCapture"
 
 NOTE: To stop capturing CTRL+C/kill/terminate the application.
 

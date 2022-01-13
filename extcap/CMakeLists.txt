@@ -292,6 +292,7 @@ if(BUILD_etwdump AND WIN32)
 		etwdump.c
 		etl.c
 		etw_message.c
+		etw_ndiscap.c
 	)
 
 	set_executable_resources(etwdump "etwdump")
