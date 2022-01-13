@@ -1623,6 +1623,12 @@ static void pkt_create(wtap_block_t block)
     block->mandatory_data = NULL;
 }
 
+static void sjeb_create(wtap_block_t block)
+{
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
 static void cb_create(wtap_block_t block)
 {
     /* Ensure this is null, so when g_free is called on it, it simply returns */
@@ -1853,6 +1859,16 @@ void wtap_opttypes_initialize(void)
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
 
+    static wtap_blocktype_t journal_block = {
+        WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, /* block_type */
+        "SJEB",                         /* name */
+        "systemd Journal Export Block", /* description */
+        sjeb_create,                    /* create */
+        NULL,                           /* free_mand */
+        NULL,                           /* copy_mand */
+        NULL                            /* options */
+    };
+
     static wtap_blocktype_t cb_block = {
         WTAP_BLOCK_CUSTOM,            /* block_type */
         "CB",                         /* name */
@@ -1922,6 +1938,11 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&pkt_block, OPT_PKT_QUEUE, &pkt_queue);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_HASH, &pkt_hash);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_VERDICT, &pkt_verdict);
+
+    /*
+     * Register the SJEB and the (no) options that can appear in it.
+     */
+    wtap_opttype_block_register(&journal_block);
 
     /*
      * Register the CB and the options that can appear in it.
