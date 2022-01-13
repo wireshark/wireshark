@@ -1002,10 +1002,6 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 	return TRUE;
 }
 
-typedef struct {
-	pcap_variant_t variant;
-} libpcap_dump_t;
-
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
 static int libpcap_dump_can_write_encap(int encap)
