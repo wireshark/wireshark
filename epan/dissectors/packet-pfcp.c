@@ -119,8 +119,7 @@ static int hf_pfcp_ue_ip_address_flag_b5_chv6 = -1;
 static int hf_pfcp_ue_ip_address_flag_b6_v6pl = -1;
 static int hf_pfcp_ue_ip_addr_ipv4 = -1;
 static int hf_pfcp_ue_ip_add_ipv6 = -1;
-static int hf_pfcp_ue_ip_add_ipv6_prefix = -1;
-static int hf_pfcp_ue_ip_add_ipv6pd = -1;
+static int hf_pfcp_ue_ip_add_ipv6_prefix_delegation_bits = -1;
 static int hf_pfcp_ue_ip_add_ipv6_prefix_length = -1;
 static int hf_pfcp_application_id = -1;
 static int hf_pfcp_application_id_str = -1;
@@ -4732,10 +4731,8 @@ dissect_pfcp_ue_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
     /* IPv6 Prefix Delegation Bits (if present)*/
     if ((ue_ip_address_flags & 0x8)) {
-        proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6_prefix, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6_prefix_delegation_bits, tvb, offset, 1, ENC_NA);
         offset += 1;
-        proto_tree_add_item(tree, hf_pfcp_ue_ip_add_ipv6pd, tvb, offset, 16, ENC_NA);
-        offset += 16;
     }
     /* IPv6 Prefix Lengths (if present)*/
     if ((ue_ip_address_flags & 0x40)) {
@@ -11475,14 +11472,9 @@ proto_register_pfcp(void)
             FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_ue_ip_add_ipv6_prefix,
-        { "IPv6 Prefix", "pfcp.ue_ip_addr_ipv6_prefix",
+        { &hf_pfcp_ue_ip_add_ipv6_prefix_delegation_bits,
+        { "IPv6 Prefix Delegation Bits", "pfcp.ue_ip_addr_ipv6_prefix",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_ue_ip_add_ipv6pd,
-        { "IPv6 Delegated Prefix Address", "pfcp.ue_ip_addr_ipv6pd",
-            FT_IPv6, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_ue_ip_add_ipv6_prefix_length,
