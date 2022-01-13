@@ -4509,8 +4509,8 @@ void proto_register_radiotap(void)
 		  "Number of Space Time Block Code streams", HFILL}},
 
 		{&hf_radiotap_mcs_ness_bit0,
-		 {"Number of extension spatial streams bit 0", "radiotap.mcs.ness_bit1",
-		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_NESS_BIT1,
+		 {"Number of extension spatial streams bit 0", "radiotap.mcs.ness_bit0",
+		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_NESS_BIT0,
 		  "Bit 0 of number of extension spatial streams information", HFILL}},
 
 		{&hf_radiotap_mcs_index,
