@@ -1962,7 +1962,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       if (!print_line(print_stream, 0, ""))
         return FALSE;
     }
-    if (!print_hex_data(print_stream, edt))
+    if (!print_hex_data(print_stream, edt, HEXDUMP_SOURCE_MULTI | HEXDUMP_ASCII_INCLUDE))
       return FALSE;
     if (!print_line(print_stream, 0, separator))
       return FALSE;

@@ -91,7 +91,8 @@ static const guint8 *get_field_data(GSList *src_list, field_info *fi);
 static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
 static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
-                                      guint length, packet_char_enc encoding);
+                                      guint length, packet_char_enc encoding,
+                                      guint hexdump_options);
 static void write_specified_fields(fields_format format,
                                    output_fields_t *fields,
                                    epan_dissect_t *edt, column_info *cinfo,
@@ -223,7 +224,7 @@ proto_tree_print_node(proto_node *node, gpointer data)
                 return;
             }
             if (!print_hex_data_buffer(pdata->stream, pd,
-                                       fi->length, pdata->encoding)) {
+                                       fi->length, pdata->encoding, HEXDUMP_ASCII_INCLUDE)) {
                 pdata->success = FALSE;
                 return;
             }
@@ -1961,7 +1962,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
 }
 
 gboolean
-print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
+print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options)
 {
     gboolean      multiple_sources;
     GSList       *src_le;
@@ -1983,7 +1984,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
          src_le = src_le->next) {
         src = (struct data_source *)src_le->data;
         tvb = get_data_source_tvb(src);
-        if (multiple_sources) {
+        if (multiple_sources && (HEXDUMP_SOURCE_OPTION(hexdump_options) == HEXDUMP_SOURCE_MULTI)) {
             name = get_data_source_name(src);
             line = ws_strdup_printf("%s:", name);
             wmem_free(NULL, name);
@@ -1995,8 +1996,12 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
             return TRUE;
         cp = tvb_get_ptr(tvb, 0, length);
         if (!print_hex_data_buffer(stream, cp, length,
-                                   (packet_char_enc)edt->pi.fd->encoding))
+                                   (packet_char_enc)edt->pi.fd->encoding,
+                                   HEXDUMP_ASCII_OPTION(hexdump_options)))
             return FALSE;
+        if (HEXDUMP_SOURCE_OPTION(hexdump_options) == HEXDUMP_SOURCE_PRIMARY) {
+            return TRUE;
+        }
     }
     return TRUE;
 }
@@ -2013,10 +2018,11 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 #define HEX_DUMP_LEN    (BYTES_PER_LINE*3)
                                 /* max number of characters hex dump takes -
                                    2 digits plus trailing blank */
-#define DATA_DUMP_LEN   (HEX_DUMP_LEN + 2 + BYTES_PER_LINE)
+#define DATA_DUMP_LEN   (HEX_DUMP_LEN + 2 + 2 + BYTES_PER_LINE)
                                 /* number of characters those bytes take;
                                    3 characters per byte of hex dump,
                                    2 blanks separating hex from ASCII,
+                                   2 optional ASCII dump delimiters,
                                    1 character per byte of ASCII dump */
 #define MAX_LINE_LEN    (MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
                                 /* number of characters per line;
@@ -2025,7 +2031,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 
 static gboolean
 print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
-                      guint length, packet_char_enc encoding)
+                      guint length, packet_char_enc encoding, guint ascii_option)
 {
     register unsigned int ad, i, j, k, l;
     guchar                c;
@@ -2076,15 +2082,19 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
              * Offset in line of ASCII dump.
              */
             k = j + HEX_DUMP_LEN + 2;
+            if (ascii_option == HEXDUMP_ASCII_DELIMIT)
+                line[k++] = '|';
         }
         c = *cp++;
         line[j++] = binhex[c>>4];
         line[j++] = binhex[c&0xf];
         j++;
-        if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
-            c = EBCDIC_to_ASCII1(c);
+        if (ascii_option != HEXDUMP_ASCII_EXCLUDE ) {
+            if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
+                c = EBCDIC_to_ASCII1(c);
+            }
+            line[k++] = ((c >= ' ') && (c < 0x7f)) ? c : '.';
         }
-        line[k++] = ((c >= ' ') && (c < 0x7f)) ? c : '.';
         i++;
         if (((i & 15) == 0) || (i == length)) {
             /*
@@ -2093,6 +2103,8 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
              * dump out the line we've constructed,
              * and advance the offset.
              */
+            if (ascii_option == HEXDUMP_ASCII_DELIMIT)
+                line[k++] = '|';
             line[k] = '\0';
             if (!print_line(stream, 0, line))
                 return FALSE;

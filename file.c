@@ -2467,7 +2467,7 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
         goto fail;
     }
     /* Print the full packet data as hex. */
-    if (!print_hex_data(args->print_args->stream, &args->edt))
+    if (!print_hex_data(args->print_args->stream, &args->edt, HEXDUMP_SOURCE_MULTI | HEXDUMP_ASCII_INCLUDE))
       goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */

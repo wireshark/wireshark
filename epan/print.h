@@ -80,7 +80,29 @@ WS_DLL_PUBLIC gboolean proto_tree_print(print_dissections_e print_dissections,
                                         epan_dissect_t *edt,
                                         GHashTable *output_only_tables,
                                         print_stream_t *stream);
-WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
+
+/*
+ * Hexdump options for ASCII:
+ */
+
+#define HEXDUMP_ASCII_MASK            (0x0003U)
+#define HEXDUMP_ASCII_OPTION(option)  ((option) & HEXDUMP_ASCII_MASK)
+
+#define HEXDUMP_ASCII_INCLUDE         (0x0000U) /* include ASCII section no delimiters (legacy tshark behavior) */
+#define HEXDUMP_ASCII_DELIMIT         (0x0001U) /* include ASCII section with delimiters, useful for reliable detection of last hexdata */
+#define HEXDUMP_ASCII_EXCLUDE         (0x0002U) /* exclude ASCII section from hexdump reports, if we really don't want or need it */
+
+/*
+ * Hexdump option for displaying data sources:
+ */
+
+#define HEXDUMP_SOURCE_MASK           (0x0004U)
+#define HEXDUMP_SOURCE_OPTION(option) ((option) & HEXDUMP_SOURCE_MASK)
+
+#define HEXDUMP_SOURCE_MULTI          (0x0000U) /* create hexdumps for all data sources assigned to a frame (legacy tshark behavor) */
+#define HEXDUMP_SOURCE_PRIMARY        (0x0004U) /* create hexdumps for only the frame data */
+
+WS_DLL_PUBLIC gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options);
 
 WS_DLL_PUBLIC void write_pdml_preamble(FILE *fh, const gchar* filename);
 WS_DLL_PUBLIC void write_pdml_proto_tree(output_fields_t* fields, gchar **protocolfilter, pf_flags protocolfilter_flags, epan_dissect_t *edt, column_info *cinfo, FILE *fh, gboolean use_color);
