@@ -5554,6 +5554,11 @@ dissect_openflow_queue_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto
         break;
 
     case OFPQDPT_EXPERIMENTER:
+        if (prop_len <= 16) {
+            expert_add_info(pinfo, ti, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         /* uint32_t experimenter; */
         proto_tree_add_item(prop_tree, hf_openflow_v6_queue_desc_prop_experimenter_experimenter, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -5569,6 +5574,11 @@ dissect_openflow_queue_desc_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto
         break;
 
     default:
+        if (prop_len <= 8) {
+            expert_add_info(pinfo, ti, &ei_openflow_v6_length_too_short);
+            offset = length;
+            break;
+        }
         proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v6_queue_desc_prop_undecoded,
                                      tvb, offset, prop_len - 8, "Unknown queue property body.");
         offset+=prop_len-8;
