@@ -120,7 +120,7 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
         # text2pcap_generate_input()
         # $TSHARK -o 'gui.column.format:"Time","%t"' -tad -P -x -r $1 > testin.txt
         testin_file = self.filename_from_id(testin_txt)
-        tshark_cmd = '{cmd} -r {cf} -o gui.column.format:"Time","%t" -t ad -P -x > {of}'.format(
+        tshark_cmd = '{cmd} -r {cf} -o gui.column.format:"Time","%t" -t ad -P --hexdump frames > {of}'.format(
             cmd = cmd_tshark,
             cf = cap_file,
             of = testin_file,
@@ -195,9 +195,10 @@ class case_text2pcap_pcap(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_sample_control4_2012_03_24_pcap(self, check_text2pcap):
         '''Test text2pcap with sample_control4_2012-03-24.pcap.'''
-        # tshark currently output decrypted ZigBee packets and
-        # as a result the number of packets and data size are different
-        check_text2pcap(self, 'sample_control4_2012-03-24.pcap', 'pcap', 239, 10095)
+        # Tests handling additional data source (decrypted ZigBee packets)
+        # Either tshark must not output the additional data source,
+        # or text2pcap must ignore it.
+        check_text2pcap(self, 'sample_control4_2012-03-24.pcap', 'pcap')
 
     def test_text2pcap_snakeoil_dtls_pcap(self, check_text2pcap):
         '''Test text2pcap with snakeoil-dtls.pcap.'''
@@ -205,9 +206,10 @@ class case_text2pcap_pcap(subprocesstest.SubprocessTestCase):
 
     def test_text2pcap_wpa_eap_tls_pcap_gz(self, check_text2pcap):
         '''Test text2pcap with wpa-eap-tls.pcap.gz.'''
-        # tshark reassembles some packets and because of this
-        # the number of packets and data size are different
-        check_text2pcap(self, 'wpa-eap-tls.pcap.gz', 'pcap', 88, 38872)
+        # Tests handling additional data source (reassemblies)
+        # Either tshark must not output the additional data source,
+        # or text2pcap must ignore it.
+        check_text2pcap(self, 'wpa-eap-tls.pcap.gz', 'pcap')
 
     def test_text2pcap_wpa_induction_pcap(self, check_text2pcap):
         '''Test text2pcap with wpa-Induction.pcap.gz.'''
