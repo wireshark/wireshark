@@ -3920,7 +3920,7 @@ dissect_tds5_tokenized_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                          ett_tds_token, &token_item, "Token 0x%02x %s", token,
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
 
-        if ((int) token_sz < 0) {
+        if ((int) token_sz <= 0) {
             expert_add_info_format(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token size: %u", token_sz);
             break;
         }
