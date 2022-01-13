@@ -72,7 +72,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
 {
     int encap;
     int i;
-    int pcap_file_type_subtype;
+    int file_type_subtype;
 
     ti_ui_->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("Import From Hex Dump")));
@@ -139,16 +139,16 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
      * of "for (all encapsulation types)".
      */
     import_info_.encapsulation = WTAP_ENCAP_ETHERNET;
-    pcap_file_type_subtype = wtap_pcap_file_type_subtype();
+    file_type_subtype = wtap_pcapng_file_type_subtype();
     for (encap = import_info_.encapsulation; encap < wtap_get_num_encap_types(); encap++)
     {
-        /* Check if we can write to a PCAP file
+        /* Check if we can write to a pcapng file
          *
          * Exclude wtap encapsulations that require a pseudo header,
          * because we won't setup one from the text we import and
          * wiretap doesn't allow us to write 'raw' frames
          */
-        if (wtap_dump_can_write_encap(pcap_file_type_subtype, encap) &&
+        if (wtap_dump_can_write_encap(file_type_subtype, encap) &&
             !wtap_encap_requires_phdr(encap)) {
             const char *name;
             /* If it has got a name */

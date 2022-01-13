@@ -699,18 +699,32 @@ write_current_packet(gboolean cont)
 
         memset(&rec, 0, sizeof rec);
 
-        rec.rec_type = REC_TYPE_PACKET;
-        rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
-        rec.ts.secs = ts_sec;
-        rec.ts.nsecs = ts_nsec;
-        rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
-        rec.rec_header.packet_header.pkt_encap = info_p->encapsulation;
-        rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
-        if (has_direction) {
-            wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
-        }
-        if (has_seqno) {
-            wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
+        if (info_p->encapsulation == WTAP_ENCAP_SYSTEMD_JOURNAL) {
+            rec.rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
+            rec.block = wtap_block_create(WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT);
+            rec.rec_header.systemd_journal_export_header.record_len = prefix_length + curr_offset + eth_trailer_length;
+            rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
+            /* XXX: Ignore our direction, packet id, and timestamp. For a
+             * systemd Journal Export Block the timestamp comes from the
+             * __REALTIME_TIMESTAMP= field. We don't check to see if that
+             * field is there (it MUST be, but we don't check whether our
+             * input is malformed in general), but since the presence flags
+             * aren't really used when writing, it doesn't matter.
+             */
+        } else {
+            rec.rec_type = REC_TYPE_PACKET;
+            rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
+            rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
+            rec.ts.secs = ts_sec;
+            rec.ts.nsecs = ts_nsec;
+            rec.rec_header.packet_header.pkt_encap = info_p->encapsulation;
+            rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
+            if (has_direction) {
+                wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
+            }
+            if (has_seqno) {
+                wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
+            }
         }
 
         if (!wtap_dump(info_p->wdh, &rec, packet_buf, &err, &err_info)) {
@@ -1784,8 +1798,13 @@ text_import_pre_open(wtap_dump_params * const params, int file_type_subtype, con
         g_array_append_val(params->shb_hdrs, shb_hdr);
     }
 
-    /* wtap_dumper will create a dummy interface block if needed, but since
-     * we have the option of including the interface name, create it ourself.
+    /* wtap_dump_init_dumper() will create a interface block if the file type
+     * supports it and one isn't created already, but since we have the
+     * option of including the interface name, create it ourself.
+     *
+     * (XXX: IDBs should be optional for wtap_dump_init_dumper(), e.g. if
+     * the encap type is WTAP_ENCAP_SYSTEMD_JOURNAL, which doesn't use
+     * interfaces. But it's not, so always create it here.)
      */
     if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
         int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
