@@ -1390,20 +1390,20 @@ static gint dissect_extrememesh_eth_noaddr(tvbuff_t *tvb, packet_info *pinfo, pr
 	//These are encapsulated ethernet frames that have had their
 	//src and dest stripped off
 
-	//Get the length of the current buffer
-	guint tvbLen = tvb_captured_length(tvb);
-	//Add space for the src/dst
-	bufferLen = tvbLen + 12;
-	//Allocate a new ethernet buffer
-	ethBuffer = (guchar*)wmem_alloc(pinfo->pool, bufferLen);
-
 	//Copy in the src/dst
 	if (pinfo->src.data && pinfo->dst.data) {
+		//Get the length of the current buffer
+		guint tvbLen = tvb_captured_length(tvb);
+		//Add space for the src/dst
+		bufferLen = tvbLen + pinfo->src.len + pinfo->dst.len;
+		//Allocate a new ethernet buffer
+		ethBuffer = (guchar*)wmem_alloc(pinfo->pool, bufferLen);
+
 		memcpy(ethBuffer, pinfo->dst.data, pinfo->dst.len);
 		memcpy(ethBuffer + pinfo->dst.len, pinfo->src.data, pinfo->src.len);
 
 		//Copy in the rest of the packet
-		tvb_memcpy(tvb, ethBuffer + pinfo->src.len + pinfo->dst.len, 0, tvbLen);
+		tvb_memcpy(tvb, ethBuffer, pinfo->src.len + pinfo->dst.len, tvbLen);
 		nextTvb = tvb_new_real_data(ethBuffer, bufferLen, bufferLen);
 		tvb_set_child_real_data_tvbuff(tvb, nextTvb);
 		add_new_data_source(pinfo, nextTvb, "Encapsulated Ethernet, no addr");
