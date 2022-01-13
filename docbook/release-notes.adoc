@@ -62,6 +62,9 @@ They previously shipped with Npcap 1.55.
 ** text2pcap supports writing the output file in all the capture file formats
    that wiretap library supports, using the same "-F" option as editcap,
    mergecap, and tshark.
+** text2pcap supports selecting the encapsulation type of the output file
+   format using the wiretap library short names with an "-E" option, similiar
+   to the "-T" option of editcap.
 ** text2pcap has been updated to use the new logging output options and the
   "-d" flag has been removed. The "debug" log level corresponds to the old
   "-d" flag, and the "noisy" log level corresponds to using "-d" multiple times.

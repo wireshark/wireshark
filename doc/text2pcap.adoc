@@ -17,6 +17,7 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 [ *-b* 2|8|16|64 ]
 [ *-D* ]
 [ *-e* <l3pid> ]
+[ *-E* <encapsulation type> ]
 [ *-F* <file format> ]
 [ *-h* ]
 [ *-i* <proto> ]
@@ -147,13 +148,14 @@ and hex encoding:
 The regex is compiled with multiline support, and it is recommended to use
 the anchors '^' and '$' for best results.
 
-*Text2pcap* also allows the user to read in dumps of
-application-level data, by inserting dummy L2, L3 and L4 headers
-before each packet. The user can elect to insert Ethernet headers,
-Ethernet and IP, or Ethernet, IP and UDP/TCP/SCTP headers before each
-packet. This allows Wireshark or any other full-packet decoder to
-handle these dumps. These encapsulation options can be used in both
-hexdump mode and regex mode.
+*Text2pcap* also allows the user to read in dumps of application-level
+data and insert dummy L2, L3 and L4 headers before each packet. This allows
+Wireshark or any other full-packet decoder to handle these dumps.
+If the encapsulation type is Ethernet, the user can elect to insert Ethernet
+headers, Ethernet and IP, or Ethernet, IP and UDP/TCP/SCTP headers before
+each packet. The fake headers can also be used with the Raw IP, Raw IPv4,
+or Raw IPv6 encapsulations, with the Ethernet header omitted. These
+encapsulation options can be used in both hexdump mode and regex mode.
 
 When <__infile__> or <__outfile__> are '-', standard input or standard
 output, respectively, are used.
@@ -182,11 +184,16 @@ in hexdump mode.
 -D::
 +
 --
-The text before the packet may start either with an I or O indicating that
-the packet is inbound or outbound. This is used when generating dummy headers.
-The indication is only stored if the output format supports it (e.g. pcapng.)
+Indicates that the text before each input packet may start either with an I
+or O indicating that the packet is inbound or outbound. If both this flag
+and the __t__ flag are used, the directional indicator is expected before
+the time code.
 This parameter has no effect in regex mode, where the presence of the `<dir>`
 capturing group determines whether direction indicators are expected.
+
+Direction indication is stored in the packet headers if the output format
+supports it (e.g. pcapng), and is also used when generating dummy headers
+to swap the source and destination addresses and ports as appropriate.
 --
 
 -e <l3pid>::
@@ -198,13 +205,26 @@ for the Ethernet header in hex. Use this option if your dump has Layer
 encapsulation. Example: __-e 0x806__ to specify an ARP packet.
 
 For IP packets, instead of generating a fake Ethernet header you can
-also use __-l 101__ to indicate a raw IP packet to Wireshark. Note that
-__-l 101__ does not work for any non-IP Layer 3 packet (e.g. ARP),
-whereas generating a dummy Ethernet header with __-e__ works for any
-sort of L3 packet.
+also use __-E rawip__ or __-l 101__ to indicate raw IP encapsulation.
+Note that raw IP encapsulation does not work for any non-IP Layer 3 packet
+(e.g. ARP), whereas generating a dummy Ethernet header with __-e__ works
+for any sort of L3 packet.
 --
 
--F  <file format>::
+-E <encapsulation type>::
++
+--
+Sets the packet encapsulation type of the output capture file.
+*text2pcap -E* provides a list of the available types; note that not
+all file formats support all encapsulation types.  The default type is
+ether (Ethernet).
+
+*NOTE:* This sets the encapsulation type of the output file, but does
+not translate the packet headers or add additional headers. It is used
+to specify the encapsulation that matches the input data.
+--
+
+-F <file format>::
 +
 --
 Sets the file format of the output capture file. *Text2pcap* can write
@@ -232,15 +252,14 @@ https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml for
 the complete list of assigned internet protocol numbers.
 --
 
--l::
+-l <typenum>::
 +
 --
-Specify the link-layer header type of this packet.  Default is Ethernet
-(1).  See https://www.tcpdump.org/linktypes.html for the complete list
-of possible encapsulations.  Note that this option should be used if
-your dump is a complete hex dump of an encapsulated packet and you wish
-to specify the exact type of encapsulation.  Example: __-l 7__ for ARCNet
-packets encapsulated BSD-style.
+Sets the packet encapsulation type of the output capture file, using
+pcap link-layer header type numbers.  Default is Ethernet (1).
+See https://www.tcpdump.org/linktypes.html for the complete list
+of possible encapsulations.
+Example: __-l 7__ for ARCNet packets encapsulated BSD-style.
 --
 
 -m <max-packet>::
