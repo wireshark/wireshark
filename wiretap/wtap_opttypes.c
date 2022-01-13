@@ -1872,7 +1872,7 @@ void wtap_opttypes_initialize(void)
     static wtap_blocktype_t cb_block = {
         WTAP_BLOCK_CUSTOM,            /* block_type */
         "CB",                         /* name */
-        "Packet Block",               /* description */
+        "Custom Block",               /* description */
         cb_create,                    /* create */
         NULL,                         /* free_mand */
         NULL,                         /* copy_mand */
