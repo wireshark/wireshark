@@ -1740,6 +1740,7 @@ static int hf_bt_characteristic_percentage_8 = -1;
 static int hf_bt_characteristic_time_millisecond_24 = -1;
 static int hf_bt_characteristic_time_second_16 = -1;
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 static const
 bt_property_raw_value_entry_t sensor_column_status_hfs = {
     .hf_raw_value_a = &hf_btmesh_sensor_column_status_raw_value_a,
@@ -1795,6 +1796,7 @@ bt_property_columns_raw_value_t sensor_series_get_hfs = {
     .hf_raw_value_a1 = &hf_btmesh_sensor_series_get_raw_value_a1,
     .hf_raw_value_a2 = &hf_btmesh_sensor_series_get_raw_value_a2
 };
+#endif
 
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
