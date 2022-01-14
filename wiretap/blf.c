@@ -490,10 +490,32 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         infstream.avail_out = (unsigned int)tmp.real_length;
         infstream.next_out  = buf;
 
-        // the actual DE-compression work.
-        inflateInit(&infstream);
-        inflate(&infstream, Z_NO_FLUSH);
-        inflateEnd(&infstream);
+        /* the actual DE-compression work. */
+        if (Z_OK != inflateInit(&infstream)) {
+            ws_debug("inflateInit failed for LogContainer %d", index_log_container);
+            if (infstream.msg != NULL) {
+                ws_debug("inflateInit returned: \"%s\"", infstream.msg);
+            }
+            return FALSE;
+        }
+
+        int ret = inflate(&infstream, Z_NO_FLUSH);
+        /* Z_OK should not happen here since we know how big the buffer should be */
+        if (Z_STREAM_END != ret) {
+            ws_debug("inflate failed (return code %d) for LogContainer %d", ret, index_log_container);
+            if (infstream.msg != NULL) {
+                ws_debug("inflate returned: \"%s\"", infstream.msg);
+            }
+            return FALSE;
+        }
+
+        if (Z_OK != inflateEnd(&infstream)) {
+            ws_debug("inflateEnd failed for LogContainer %d", index_log_container);
+            if (infstream.msg != NULL) {
+                ws_debug("inflateEnd returned: \"%s\"", infstream.msg);
+            }
+            return FALSE;
+        }
 
         tmp.real_data = buf;
         g_array_index(blf_data->log_containers, blf_log_container_t, index_log_container) = tmp;
