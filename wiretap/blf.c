@@ -694,7 +694,7 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
             fix_endianness_blf_blockheader(&header);
 
             if (memcmp(header.magic, blf_obj_magic, sizeof(blf_obj_magic))) {
-                ws_debug("object magic is not LOBJ");
+                ws_debug("object magic is not LOBJ (pos: 0x%" PRIx64 ")", current_start_pos);
             } else {
                 break;
             }
@@ -1693,7 +1693,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             fix_endianness_blf_blockheader(&header);
 
             if (memcmp(header.magic, blf_obj_magic, sizeof(blf_obj_magic))) {
-                ws_debug("object magic is not LOBJ");
+                ws_debug("object magic is not LOBJ (pos: 0x%" PRIx64 ")", start_pos);
             } else {
                 break;
             }
@@ -1795,7 +1795,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             break;
 
         default:
-            ws_debug("unknown object type");
+            ws_debug("unknown object type 0x%04x", header.object_type);
             start_pos += header.object_length;
         }
     }
