@@ -736,6 +736,11 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
 
         switch (header.object_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
+            if (header.header_length < sizeof(blf_blockheader_t)) {
+                ws_debug("log container header length too short");
+                return FALSE;
+            }
+
             /* skip unknown header part if needed */
             if (header.header_length - sizeof(blf_blockheader_t) > 0) {
                 /* seek over unknown header part */
@@ -765,7 +770,7 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
             /* set up next start position */
             current_real_start += logcontainer_header.uncompressed_size;
 
-            if (file_seek(params->fh, current_start_pos + header.object_length, SEEK_SET, &err) < 0) {
+            if (file_seek(params->fh, current_start_pos + MAX(MAX(16, header.object_length), header.header_length), SEEK_SET, &err) < 0) {
                 ws_debug("cannot seek file for skipping log container bytes");
                 return FALSE;
             }
@@ -777,7 +782,7 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
             ws_debug("we found a non BLF log container on top level. this is unexpected.");
 
             /* TODO: maybe create "fake Log Container" for this */
-            if (file_seek(params->fh, current_start_pos + header.object_length, SEEK_SET, &err) < 0) {
+            if (file_seek(params->fh, current_start_pos + MAX(MAX(16, header.object_length), header.header_length), SEEK_SET, &err) < 0) {
                 return FALSE;
             }
         }
@@ -1735,7 +1740,7 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
         }
 
         /* already making sure that we start after this object next time. */
-        params->blf_data->current_real_seek_pos = start_pos + header.object_length;
+        params->blf_data->current_real_seek_pos = start_pos + MAX(MAX(16, header.object_length), header.header_length);
 
         switch (header.object_type) {
         case BLF_OBJTYPE_LOG_CONTAINER:
@@ -1813,12 +1818,12 @@ blf_read_block(blf_params_t *params, gint64 start_pos, int *err, gchar **err_inf
             }
 
             /* we do not return since there is no packet to show here */
-            start_pos += header.object_length;
+            start_pos += MAX(MAX(16, header.object_length), header.header_length);
             break;
 
         default:
             ws_debug("unknown object type 0x%04x", header.object_type);
-            start_pos += header.object_length;
+            start_pos += MAX(MAX(16, header.object_length), header.header_length);
         }
     }
     return TRUE;
