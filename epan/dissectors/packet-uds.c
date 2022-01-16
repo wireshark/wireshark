@@ -600,7 +600,7 @@ call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static int
-dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 source_address, guint16 target_address, guint8 number_of_addresses_valid)
+dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 source_address, guint32 target_address, guint8 number_of_addresses_valid)
 {
     proto_tree *uds_tree, *subtree;
     proto_item *ti;

@@ -310,12 +310,18 @@ masked_guint16_value(const guint16 value, const guint16 mask)
     return (value & mask) >> ws_ctz(mask);
 }
 
+static guint32
+masked_guint32_value(const guint32 value, const guint32 mask)
+{
+    return (value & mask) >> ws_ctz(mask);
+}
+
 /*
  * setting addresses to 0xffffffff, if not found or configured
  * returning number of addresses (0: none, 1:ecu (both addr same), 2:source+target)
  */
 static guint8
-find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_addr, guint16 *target_addr) {
+find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint32 *source_addr, guint32 *target_addr) {
     config_can_addr_mapping_t *tmp = NULL;
     guint32 i;
 
@@ -334,13 +340,13 @@ find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_ad
 
     if (tmp != NULL) {
         if (tmp->ecu_addr_mask != 0) {
-            *source_addr = masked_guint16_value(can_id, tmp->ecu_addr_mask);
+            *source_addr = masked_guint32_value(can_id, tmp->ecu_addr_mask);
             *target_addr = *source_addr;
             return 1;
         }
         if (tmp->source_addr_mask != 0 && tmp->target_addr_mask != 0) {
-            *source_addr = masked_guint16_value(can_id, tmp->source_addr_mask);
-            *target_addr = masked_guint16_value(can_id, tmp->target_addr_mask);
+            *source_addr = masked_guint32_value(can_id, tmp->source_addr_mask);
+            *target_addr = masked_guint32_value(can_id, tmp->target_addr_mask);
             return 2;
         }
     }
