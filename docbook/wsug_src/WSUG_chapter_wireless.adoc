@@ -1,16 +1,16 @@
 // WSUG Chapter Wireless
 
-[[ChWireless]]
+[#ChWireless]
 
 == Wireless
 
-[[ChWirelessIntroduction]]
+[#ChWirelessIntroduction]
 
 === Introduction
 
 The Wireless menu provides access to statistics related to wireless traffic.
 
-[[ChWirelessBluetoothATTServerAttributes]]
+[#ChWirelessBluetoothATTServerAttributes]
 
 === Bluetooth ATT Server Attributes
 
@@ -22,7 +22,7 @@ Bluetooth ATT Server Attributes window displays a list of captured Attribute Pro
 
 `UUID Name` is a specified name for the captured packet.
 
-[[ChWirelessBluetoothDevices]]
+[#ChWirelessBluetoothDevices]
 
 === Bluetooth Devices
 
@@ -31,7 +31,7 @@ The Bluetooth Devices window displays the list of the captured information about
 .Bluetooth Devices window
 image::wsug_graphics/ws-bluetooth-devices.png[{screenshot-attrs}]
 
-[[ChWirelessBluetoothHCISummary]]
+[#ChWirelessBluetoothHCISummary]
 
 === Bluetooth HCI Summary
 
@@ -40,7 +40,7 @@ The Bluetooth HCI Summary window displays the summary for the captured Host Cont
 .Bluetooth HCI Summary window
 image::wsug_graphics/ws-bt-hci-summary.png[{screenshot-attrs}]
 
-[[ChWirelessWLANTraffic]]
+[#ChWirelessWLANTraffic]
 
 === WLAN Traffic
 

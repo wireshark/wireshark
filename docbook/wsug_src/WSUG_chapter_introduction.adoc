@@ -1,10 +1,10 @@
 // WSUG Chapter Introduction
 
-[[ChapterIntroduction]]
+[#ChapterIntroduction]
 
 == Introduction
 
-[[ChIntroWhatIs]]
+[#ChIntroWhatIs]
 
 === What is Wireshark?
 
@@ -21,7 +21,7 @@ However, with the advent of Wireshark, that has changed. Wireshark is
 available for free, is open source, and is one of the best packet
 analyzers available today.
 
-[[ChIntroPurposes]]
+[#ChIntroPurposes]
 
 ==== Some intended purposes
 
@@ -39,7 +39,7 @@ Here are some reasons people use Wireshark:
 
 Wireshark can also be helpful in many other situations.
 
-[[ChIntroFeatures]]
+[#ChIntroFeatures]
 
 ==== Features
 
@@ -75,7 +75,7 @@ However, to really appreciate its power you have to start using it.
 <<ChIntroFig1>> shows Wireshark having captured some packets and waiting for you
 to examine them.
 
-[[ChIntroFig1]]
+[#ChIntroFig1]
 .Wireshark captures packets and lets you examine their contents.
 image::wsug_graphics/ws-main.png[{screenshot-attrs}]
 
@@ -111,7 +111,7 @@ keys or fees or such. In addition, all source code is freely available under the
 GPL. Because of that, it is very easy for people to add new protocols to
 Wireshark, either as plugins, or built into the source, and they often do!
 
-[[ChIntroNoFeatures]]
+[#ChIntroNoFeatures]
 
 ==== What Wireshark is not
 
@@ -126,7 +126,7 @@ Here are some things Wireshark does not provide:
   things from it. Wireshark doesn’t send packets on the network or do other
   active things (except domain name resolution, but that can be disabled).
 
-[[ChIntroPlatforms]]
+[#ChIntroPlatforms]
 
 === System Requirements
 
@@ -256,7 +256,7 @@ If a binary package is not available for your platform you can download
 the source and try to build it. Please report your experiences to
 mailto:{wireshark-dev-list-email}[].
 
-[[ChIntroDownload]]
+[#ChIntroDownload]
 
 === Where To Get Wireshark
 
@@ -275,7 +275,7 @@ Announcement messages are archived at https://www.wireshark.org/lists/wireshark-
 Both are GPG-signed and include verification instructions for Windows, Linux, and macOS.
 As noted above, you can also verify downloads on Windows and macOS using the code signature validation features on those systems.
 
-[[ChIntroHistory]]
+[#ChIntroHistory]
 
 === A Brief History Of Wireshark
 
@@ -312,7 +312,7 @@ Conference, called Sharkfest.
 
 In 2015 Wireshark 2.0 was released, which featured a new user interface.
 
-[[ChIntroMaintenance]]
+[#ChIntroMaintenance]
 
 === Development And Maintenance Of Wireshark
 
@@ -351,21 +351,21 @@ The Wireshark source code and binary kits for some platforms are all
 available on the download page of the Wireshark website:
 {wireshark-download-url}.
 
-[[ChIntroHelp]]
+[#ChIntroHelp]
 
 === Reporting Problems And Getting Help
 
 If you have problems or need help with Wireshark there are several places that
 may be of interest (besides this guide, of course).
 
-[[ChIntroHomepage]]
+[#ChIntroHomepage]
 
 ==== Website
 
 You will find lots of useful information on the Wireshark homepage at
 {wireshark-main-url}.
 
-[[ChIntroWiki]]
+[#ChIntroWiki]
 
 ==== Wiki
 
@@ -379,7 +379,7 @@ And best of all, if you would like to contribute your knowledge on a specific
 topic (maybe a network protocol you know well), you can edit the wiki pages
 with your web browser.
 
-[[ChIntroQA]]
+[#ChIntroQA]
 
 ==== Q&amp;A Site
 
@@ -390,7 +390,7 @@ knew about the issue. Answers are ranked, so you can easily pick out the best
 ones. If your question hasn’t been discussed before you can post
 one yourself.
 
-[[ChIntroFAQ]]
+[#ChIntroFAQ]
 
 ==== FAQ
 
@@ -413,7 +413,7 @@ An online version is available at the Wireshark website at
 {wireshark-faq-url}. You might prefer this online version, as it’s
 typically more up to date and the HTML format is easier to use.
 
-[[ChIntroMailingLists]]
+[#ChIntroMailingLists]
 
 ==== Mailing Lists
 

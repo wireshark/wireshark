@@ -1,10 +1,10 @@
 // WSUG User Interface Chapter
 
-[[ChapterUsing]]
+[#ChapterUsing]
 
 == User Interface
 
-[[ChUseIntroductionSection]]
+[#ChUseIntroductionSection]
 
 === Introduction
 
@@ -17,7 +17,7 @@ capturing your first packets. In the next chapters we will explore:
 * How to filter packets in Wireshark
 * ... and many other things!
 
-[[ChUseStartSection]]
+[#ChUseStartSection]
 
 === Start Wireshark
 
@@ -37,7 +37,7 @@ toolkit used, your screen might look different from the provided screenshots.
 But as there are no real differences in functionality these screenshots should
 still be well understandable.
 
-[[ChUseMainWindowSection]]
+[#ChUseMainWindowSection]
 
 === The Main window
 
@@ -45,7 +45,7 @@ Let’s look at Wireshark’s user interface. <<ChUseFig01>> shows Wireshark as 
 would usually see it after some packets are captured or loaded (how to do this
 will be described later).
 
-[[ChUseFig01]]
+[#ChUseFig01]
 .The Main window
 image::wsug_graphics/ws-main.png[{screenshot-attrs}]
 
@@ -76,7 +76,7 @@ The layout of the main window can be customized by changing preference settings.
 See <<ChCustPreferencesSection>> for details.
 ====
 
-[[ChUseMainWindowNavSection]]
+[#ChUseMainWindowNavSection]
 
 ==== Main Window Navigation
 
@@ -84,7 +84,7 @@ Packet list and detail navigation can be done entirely from the keyboard.
 <<ChUseTabNav>> shows a list of keystrokes that will let you quickly move around
 a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 
-[[ChUseTabNav]]
+[#ChUseTabNav]
 .Keyboard Navigation
 [options="header",cols="1,3"]
 |===
@@ -111,7 +111,7 @@ menu:Help[About Wireshark,Keyboard Shortcuts] will show a list of all shortcuts
 in the main window. Additionally, typing anywhere in the main window will start
 filling in a display filter.
 
-[[ChUseMenuSection]]
+[#ChUseMenuSection]
 
 === The Menu
 
@@ -126,7 +126,7 @@ available. For example, you cannot save a capture file if you haven’t captured
 or loaded any packets.
 ====
 
-[[ChUseWiresharkMenu]]
+[#ChUseWiresharkMenu]
 .The Menu
 image::wsug_graphics/ws-menu.png[{screenshot-attrs}]
 
@@ -191,17 +191,17 @@ press the Control (or Strg in German) and the K keys together to open the
 “Capture Options” dialog.
 ====
 
-[[ChUseFileMenuSection]]
+[#ChUseFileMenuSection]
 
 === The “File” Menu
 
 The Wireshark file menu contains the fields shown in <<ChUseTabFile>>.
 
-[[ChUseWiresharkFileMenu]]
+[#ChUseWiresharkFileMenu]
 .The “File” Menu
 image::wsug_graphics/ws-file-menu.png[{screenshot-attrs}]
 
-[[ChUseTabFile]]
+[#ChUseTabFile]
 .File menu items
 [options="header",cols="3,2,5"]
 |===
@@ -287,17 +287,17 @@ preference setting).
 
 |===
 
-[[ChUseEditMenuSection]]
+[#ChUseEditMenuSection]
 
 === The “Edit” Menu
 
 The Wireshark Edit menu contains the fields shown in <<ChUseTabEdit>>.
 
-[[ChUseWiresharkEditMenu]]
+[#ChUseWiresharkEditMenu]
 .The “Edit” Menu
 image::wsug_graphics/ws-edit-menu.png[{screenshot-attrs}]
 
-[[ChUseTabEdit]]
+[#ChUseTabEdit]
 .Edit menu items
 [options="header",cols="3,2,5"]
 |===
@@ -385,17 +385,17 @@ Wireshark will use them the next time you start it. More detail is provided in
 
 |===
 
-[[ChUseViewMenuSection]]
+[#ChUseViewMenuSection]
 
 === The “View” Menu
 
 The Wireshark View menu contains the fields shown in <<ChUseTabView>>.
 
-[[ChUseWiresharkViewMenu]]
+[#ChUseWiresharkViewMenu]
 .The “View” Menu
 image::wsug_graphics/ws-view-menu.png[{screenshot-attrs}]
 
-[[ChUseTabView]]
+[#ChUseTabView]
 .View menu items
 [options="header",cols="3,2,5"]
 |===
@@ -463,7 +463,7 @@ details.
 |menu:Reload[]                                      |kbd:[Ctrl+R]       |This menu item allows you to reload the current capture file.
 |===
 
-[[ChUseInternals]]
+[#ChUseInternals]
 .Internals menu items
 [options="header",cols="3,5"]
 |===
@@ -474,17 +474,17 @@ details.
 |===
 
 
-[[ChUseGoMenuSection]]
+[#ChUseGoMenuSection]
 
 === The “Go” Menu
 
 The Wireshark Go menu contains the fields shown in <<ChUseTabGo>>.
 
-[[ChUseWiresharkGoMenu]]
+[#ChUseWiresharkGoMenu]
 .The “Go” Menu
 image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 
-[[ChUseTabGo]]
+[#ChUseTabGo]
 .Go menu items
 [options="header",cols="3,2,5"]
 |===
@@ -501,17 +501,17 @@ image::wsug_graphics/ws-go-menu.png[{screenshot-attrs}]
 |menu:Next Packet In Conversation[]     |kbd:[Ctrl+.]       |Move to the next packet in the current conversation.  This can be used to move to the previous packet even if the packet list doesn’t have keyboard focus.
 |===
 
-[[ChUseCaptureMenuSection]]
+[#ChUseCaptureMenuSection]
 
 === The “Capture” Menu
 
 The Wireshark Capture menu contains the fields shown in <<ChUseTabCap>>.
 
-[[ChUseWiresharkCaptureMenu]]
+[#ChUseWiresharkCaptureMenu]
 .The “Capture” Menu
 image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
 
-[[ChUseTabCap]]
+[#ChUseTabCap]
 .Capture menu items
 [options="header",cols="3,2,5"]
 |===
@@ -543,17 +543,17 @@ Clear and recreate the interface list.
 
 |===
 
-[[ChUseAnalyzeMenuSection]]
+[#ChUseAnalyzeMenuSection]
 
 === The “Analyze” Menu
 
 The Wireshark Analyze menu contains the fields shown in <<ChUseAnalyze>>.
 
-[[ChUseWiresharkAnalyzeMenu]]
+[#ChUseWiresharkAnalyzeMenu]
 .The “Analyze” Menu
 image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 
-[[ChUseAnalyze]]
+[#ChUseAnalyze]
 .Analyze menu items
 [options="header",cols="3,2,5"]
 |===
@@ -619,19 +619,19 @@ See <<ChAdvExpert>> for more information.
 The amount of information will vary depend on the protocol
 |===
 
-[[ChUseStatisticsMenuSection]]
+[#ChUseStatisticsMenuSection]
 
 === The “Statistics” Menu
 
 The Wireshark Statistics menu contains the fields shown in <<ChUseStatistics>>.
 
-[[ChUseWiresharkStatisticsMenu]]
+[#ChUseWiresharkStatisticsMenu]
 .The “Statistics” Menu
 image::wsug_graphics/ws-statistics-menu.png[{screenshot-attrs}]
 
 Each menu item brings up a new window showing specific statistics.
 
-[[ChUseStatistics]]
+[#ChUseStatistics]
 .Statistics menu items
 [options="header",cols="3,2,5"]
 |===
@@ -669,19 +669,19 @@ Each menu item brings up a new window showing specific statistics.
 
 |===
 
-[[ChUseTelephonyMenuSection]]
+[#ChUseTelephonyMenuSection]
 
 === The “Telephony” Menu
 
 The Wireshark Telephony menu contains the fields shown in <<ChUseTelephony>>.
 
-[[ChUseWiresharkTelephonyMenu]]
+[#ChUseWiresharkTelephonyMenu]
 .The “Telephony” Menu
 image::wsug_graphics/ws-telephony-menu.png[{screenshot-attrs}]
 
 Each menu item shows specific telephony related statistics.
 
-[[ChUseTelephony]]
+[#ChUseTelephony]
 .Telephony menu items
 [options="header",cols="3,2,5"]
 |===
@@ -706,19 +706,19 @@ Each menu item shows specific telephony related statistics.
 
 |===
 
-[[ChUseWirelessMenuSection]]
+[#ChUseWirelessMenuSection]
 
 === The “Wireless” Menu
 
 The Wireless menu lets you analyze Bluetooth and IEEE 802.11 wireless LAN activity as shown in <<ChUseWiresharkWirelessMenu>>.
 
-[[ChUseWiresharkWirelessMenu]]
+[#ChUseWiresharkWirelessMenu]
 .The “Wireless” Menu
 image::wsug_graphics/ws-wireless-menu.png[{screenshot-attrs}]
 
 Each menu item shows specific Bluetooth and IEEE 802.11 statistics.
 
-[[ChUseWireless]]
+[#ChUseWireless]
 .Wireless menu items
 [options="header",cols="3,2,5"]
 |===
@@ -731,17 +731,17 @@ Each menu item shows specific Bluetooth and IEEE 802.11 statistics.
 
 |===
 
-[[ChUseToolsMenuSection]]
+[#ChUseToolsMenuSection]
 
 === The “Tools” Menu
 
 The Wireshark Tools menu contains the fields shown in <<ChUseTools>>.
 
-[[ChUseWiresharkToolsMenu]]
+[#ChUseWiresharkToolsMenu]
 .The “Tools” Menu
 image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
 
-[[ChUseTools]]
+[#ChUseTools]
 .Tools menu items
 [options="header",cols="3,2,5"]
 |===
@@ -758,17 +758,17 @@ See “Lua Support in Wireshark” in the Wireshark Developer’s Guide.
 The Lua menu structure is set by console.lua in the Wireshark install directory.
 |===
 
-[[ChUseHelpMenuSection]]
+[#ChUseHelpMenuSection]
 
 === The “Help” Menu
 
 The Wireshark Help menu contains the fields shown in <<ChUseHelp>>.
 
-[[ChUseWiresharkHelpMenu]]
+[#ChUseWiresharkHelpMenu]
 .The “Help” Menu
 image::wsug_graphics/ws-help-menu.png[{screenshot-attrs}]
 
-[[ChUseHelp]]
+[#ChUseHelp]
 .Help menu items
 [options="header",cols="3,2,5"]
 |===
@@ -794,7 +794,7 @@ starts but no page is shown, have a look at the web browser setting in the
 preferences dialog.
 ====
 
-[[ChUseMainToolbarSection]]
+[#ChUseMainToolbarSection]
 
 === The “Main” Toolbar
 
@@ -809,14 +809,14 @@ the main window toolbar after a file has been opened. Various
 file-related buttons are enabled, but the stop capture button is
 disabled because a capture is not in progress.
 
-[[ChUseWiresharkMainToolbar]]
+[#ChUseWiresharkMainToolbar]
 
 .The “Main” toolbar
 image::wsug_graphics/ws-main-toolbar.png[{screenshot-attrs}]
 
 :toolbar-icon-attrs: height=24,width=24
 
-[[ChUseMainToolbar]]
+[#ChUseMainToolbar]
 .Main toolbar items
 [options="header",cols="1,2,2,4"]
 |===
@@ -849,14 +849,14 @@ image::wsug_graphics/ws-main-toolbar.png[{screenshot-attrs}]
 //|image:wsug_graphics/toolbar/stock_colorselector_24.png[{toolbar-icon-attrs}]|btn:[Coloring Rules...]|menu:View[Coloring Rules...]| This item brings up a dialog box that allows you to color packets in the packet list pane according to filter expressions you choose. It can be very useful for spotting certain types of packets. More detail on this subject is provided in <<ChCustColorizationSection>>.
 |===
 
-[[ChUseFilterToolbarSection]]
+[#ChUseFilterToolbarSection]
 
 === The “Filter” Toolbar
 
 The filter toolbar lets you quickly edit and apply display filters. More
 information on display filters is available in <<ChWorkDisplayFilterSection>>.
 
-[[ChUseWiresharkFilterToolbar]]
+[#ChUseWiresharkFilterToolbar]
 
 .The “Filter” toolbar
 image::wsug_graphics/ws-filter-toolbar.png[{screenshot-attrs}]
@@ -864,7 +864,7 @@ image::wsug_graphics/ws-filter-toolbar.png[{screenshot-attrs}]
 // Icons themselves are 32px high.
 :filter-icon-attrs: height=24
 
-[[ChUseFilterToolbar]]
+[#ChUseFilterToolbar]
 .Filter toolbar items
 [options="header",cols="1,3,5"]
 |===
@@ -894,13 +894,13 @@ For example if you create buttons named “Not Squirrels // Rabbits” and “No
 |===
 
 
-[[ChUsePacketListPaneSection]]
+[#ChUsePacketListPaneSection]
 
 === The “Packet List” Pane
 
 The packet list pane displays all the packets in the current capture file.
 
-[[ChUseWiresharkListPane]]
+[#ChUseWiresharkListPane]
 .The “Packet List” pane
 image::wsug_graphics/ws-list-pane.png[{screenshot-attrs}]
 
@@ -992,14 +992,14 @@ packets along with the 15 shown in the packet list itself.
 Right clicking will show a context menu, described in
 <<ChWorkPacketListPanePopUpMenu>>.
 
-[[ChUsePacketDetailsPaneSection]]
+[#ChUsePacketDetailsPaneSection]
 
 === The “Packet Details” Pane
 
 The packet details pane shows the current packet (selected in the “Packet List”
 pane) in a more detailed form.
 
-[[ChUseWiresharkDetailsPane]]
+[#ChUseWiresharkDetailsPane]
 
 .The “Packet Details” pane
 image::wsug_graphics/ws-details-pane.png[{screenshot-attrs}]
@@ -1024,14 +1024,14 @@ Some protocol fields have special meanings.
   displayed in blue. If you double-clicked on a link  Wireshark will jump to the
   corresponding packet.
 
-[[ChUsePacketBytesPaneSection]]
+[#ChUsePacketBytesPaneSection]
 
 === The “Packet Bytes” Pane
 
 The packet bytes pane shows the data of the current packet (selected in the
 “Packet List” pane) in a hexdump style.
 
-[[ChUseWiresharkBytesPane]]
+[#ChUseWiresharkBytesPane]
 
 .The “Packet Bytes” pane
 image::wsug_graphics/ws-bytes-pane.png[{screenshot-attrs}]
@@ -1058,14 +1058,14 @@ methods for deactivating the functionality:
   may be activated/deactivated. This setting is stored in the selected profile
   __recent__ file.
 
-[[ChUseWiresharkBytesPaneTabs]]
+[#ChUseWiresharkBytesPaneTabs]
 .The “Packet Bytes” pane with tabs
 image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
 
 Additional tabs typically contain data reassembled from multiple packets or
 decrypted data.
 
-[[ChUsePacketDiagramPaneSection]]
+[#ChUsePacketDiagramPaneSection]
 
 ////
 === The “Packet Diagram” Pane
@@ -1073,7 +1073,7 @@ decrypted data.
 The packet diagram pane shows the current packet (selected in the “Packet List”
 pane) as a diagram, similar to ones used in textbooks and IETF RFCs.
 
-[[ChUseWiresharkDiagramPane]]
+[#ChUseWiresharkDiagramPane]
 
 .The “Packet Diagram” pane
 image::wsug_graphics/ws-diagram-pane.png[{screenshot-attrs}]
@@ -1084,7 +1084,7 @@ There is a context menu (right mouse click) available.
 For details see <<ChWorkPacketDiagramPanePopUpMenu>>.
 ////
 
-[[ChUseStatusbarSection]]
+[#ChUseStatusbarSection]
 
 === The Statusbar
 
@@ -1095,13 +1095,13 @@ will show information about the current capture file, and the right side will
 show the selected configuration profile. Drag the handles between the text areas
 to change the size.
 
-[[ChUseWiresharkStatusbarEmpty]]
+[#ChUseWiresharkStatusbarEmpty]
 .The initial Statusbar
 image::wsug_graphics/ws-statusbar-empty.png[{statusbar-attrs}]
 
 This statusbar is shown while no capture file is loaded, e.g. when Wireshark is started.
 
-[[ChUseWiresharkStatusbarLoaded]]
+[#ChUseWiresharkStatusbarLoaded]
 .The Statusbar with a loaded capture file
 image::wsug_graphics/ws-statusbar-loaded.png[{statusbar-attrs}]
 
@@ -1132,13 +1132,13 @@ Ignored::: The number of ignored packets Only displayed if you ignored any packe
 The right side...:: shows the selected configuration profile.
 Clicking on this part of the statusbar will bring up a menu with all available configuration profiles, and selecting from this list will change the configuration profile.
 
-[[ChUseWiresharkStatusbarProfile]]
+[#ChUseWiresharkStatusbarProfile]
 .The Statusbar with a configuration profile menu
 image::wsug_graphics/ws-statusbar-profile.png[{pdf-scaledwidth},height=192]
 
 For a detailed description of configuration profiles, see <<ChCustConfigProfilesSection>>.
 
-[[ChUseWiresharkStatusbarSelected]]
+[#ChUseWiresharkStatusbarSelected]
 .The Statusbar with a selected protocol field
 image::wsug_graphics/ws-statusbar-selected.png[{statusbar-attrs}]
 
@@ -1150,7 +1150,7 @@ The value between the parentheses (in this example “ipv6.src”) is the displa
 You can become more familiar with display filter fields by selecting different packet detail items.
 ====
 
-[[ChUseWiresharkStatusbarFilter]]
+[#ChUseWiresharkStatusbarFilter]
 
 //FIXME: Remove or choose a better example of a display filter message.
 .The Statusbar with a display filter message

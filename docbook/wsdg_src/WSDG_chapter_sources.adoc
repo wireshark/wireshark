@@ -1,8 +1,8 @@
-[[ChapterSources]]
+[#ChapterSources]
 
 == Work with the Wireshark sources
 
-[[ChSrcIntro]]
+[#ChSrcIntro]
 
 === Introduction
 
@@ -19,7 +19,7 @@ This chapter will not explain the source file contents in detail,
 such as where to find specific functionality. This is done in
 <<ChCodeOverview>>.
 
-[[ChSrcGitRepository]]
+[#ChSrcGitRepository]
 
 === The Wireshark Git repository
 
@@ -50,7 +50,7 @@ Using Wireshark’s GitLab project you can:
 * Browse and search the source code using a web interface.
 * See which person changed a specific piece of code.
 
-[[ChSrcWebInterface]]
+[#ChSrcWebInterface]
 
 ==== Git Naming Conventions
 
@@ -79,7 +79,7 @@ If you need a quick look at the Wireshark source code you can browse the reposit
 You can view commit logs, branches, and tags, find files and search the repository contents.
 You can also download individual files.
 
-[[ChSrcObtain]]
+[#ChSrcObtain]
 === Obtaining The Wireshark Sources
 
 There are two primary ways to obtain Wireshark’s source code: Git and compressed .tar archives.
@@ -152,7 +152,7 @@ The `--shallow-since=1year` option limits cloned commits to the last 1 year.
 The `--depth=5000` option limits cloned commits to the last 5000.
 --
 
-[[ChSrcDevelopmentSnapshots]]
+[#ChSrcDevelopmentSnapshots]
 ==== Development Snapshots
 
 This method is useful for one-off builds or if Git is inaccessible (e.g. because of a restrictive firewall).
@@ -161,7 +161,7 @@ Our GitLab CI configuration automatically generates development packages, includ
 They can be found at {wireshark-snapshots-url}.
 Packages are available for recent commits in the master branch and each release branch.
 
-[[ChSrcReleased]]
+[#ChSrcReleased]
 ==== Official Source Releases
 
 This method is recommended for building downstream release packages.
@@ -169,7 +169,7 @@ This method is recommended for building downstream release packages.
 The official source releases can be found at {wireshark-download-url}.
 You should use these sources if you want to build Wireshark on your platform based on an official release with minimal or no changes, such as Linux distribution packages.
 
-[[ChSrcUpdating]]
+[#ChSrcUpdating]
 === Update Your Wireshark Sources
 
 After you've obtained the Wireshark sources for the first time,
@@ -194,7 +194,7 @@ You can do so by running:
 $ git pull --rebase upstream master
 ----
 
-[[ChSrcBuildFirstTime]]
+[#ChSrcBuildFirstTime]
 === Build Wireshark
 
 The sources contain several documentation files. It’s a good idea to read these
@@ -223,7 +223,7 @@ Follow the build procedure in <<ChSetupWindows>> to build Wireshark.
 After the build process has successfully finished, you should find a
 `Wireshark.exe` and some other files in the `run\RelWithDebInfo` directory.
 
-[[ChSrcRunFirstTime]]
+[#ChSrcRunFirstTime]
 === Run Your Version Of Wireshark
 
 
@@ -236,7 +236,7 @@ running the first time, it might be a good idea to remove the previously
 installed version first.
 ====
 
-[[ChSrcRunFirstTimeUnix]]
+[#ChSrcRunFirstTimeUnix]
 ==== Unix-Like Platforms
 
 After a successful build you can run Wireshark right from the `run` directory.
@@ -252,7 +252,7 @@ Running Wireshark this way can be helpful since debugging output will be display
 You can also change Wireshark’s behavior by setting various environment variables.
 See the {wireshark-man-page-url}wireshark.html#ENVIRONMENT-VARIABLES[ENVIRONMENT VARIABLES] section of the Wireshark man page for more details.
 
-[[ChSrcRunFirstTimeWin32]]
+[#ChSrcRunFirstTimeWin32]
 ==== Windows Native
 
 By default the CMake-generated Visual {cpp} project places all of the files necessary to run Wireshark in the subdirectory `run\RelWithDebInfo`.
@@ -264,10 +264,10 @@ As with the Unix-like build described above, you can run Wireshark from the buil
 ----
 
 
-[[ChSrcDebug]]
+[#ChSrcDebug]
 === Debug Your Version Of Wireshark
 
-[[ChSrcUnixDebug]]
+[#ChSrcUnixDebug]
 ==== Unix-Like Platforms
 
 You can debug using command-line debuggers such as gdb, dbx, or lldb.
@@ -293,13 +293,13 @@ $ cmake .. -G Ninja -DENABLE_ASAN=1
 
 See https://developer-old.gnome.org/glib/stable/glib-running.html
 
-[[ChSrcWin32Debug]]
+[#ChSrcWin32Debug]
 ==== Windows Native
 
 You can debug using the Visual Studio Debugger or WinDbg.  See the section
 on using the <<ChToolsDebugger, Debugger Tools>>.
 
-[[ChSrcChange]]
+[#ChSrcChange]
 === Make Changes To The Wireshark Sources
 
 There are several reasons why you might want to change Wireshark’s sources:
@@ -331,7 +331,7 @@ hard to see).
 
 // XXX - Add a section on branching.
 
-[[ChSrcContribute]]
+[#ChSrcContribute]
 === Contribute Your Changes
 
 If you have finished changing the Wireshark sources to suit your needs, you might want to contribute your changes back to the Wireshark community.
@@ -353,7 +353,7 @@ Only a few people are authorised to actually make changes to the source code (ch
 If you want to submit your changes, you should upload them to the code review system at {wireshark-code-review-url}.
 This requires you to set up git as described at <<ChSrcGit>>.
 
-[[ChSrcCreatingMergeRequests]]
+[#ChSrcCreatingMergeRequests]
 ==== Creating Merge Requests
 
 // To do:
@@ -473,7 +473,7 @@ Press it.
 // https://github.com/vishwanatharondekar/gitlab-cli - Might work well for people who don't mind using NPM.
 
 
-[[ChSrcUpdatingMergeRequests]]
+[#ChSrcUpdatingMergeRequests]
 ==== Updating Merge Requests
 
 At this point various automated tests will be run and someone will review your change.
@@ -507,7 +507,7 @@ $ git push downstream HEAD
 The `+` sign is shorthand for forcing the push (`-f`).
 --
 
-[[ChSrcGoodPatch]]
+[#ChSrcGoodPatch]
 ==== Some Tips For A Good Patch
 
 Some tips that will make the merging of your changes into Git much more likely
@@ -541,7 +541,7 @@ As a result, we can’t guarantee a quick turnaround time.
 Wireshark’s GitLab CI jobs are disabled by default for forks, but if you need to test any CI jobs you can do so under the “Pipelines” section in your repository.
 For example, if your change might affect Debian (apt) packaging you can run the “build:debian-stable” job.
 
-[[ChSrcGoodCommitMessage]]
+[#ChSrcGoodCommitMessage]
 ==== Writing a Good Commit Message
 
 When running `git commit`, you will be prompted to describe your change.
@@ -572,7 +572,7 @@ APN field is not encoded as a dotted string so the first character is not a
 length. Closes #10323.
 ----
 
-[[ChSrcCodeRequirements]]
+[#ChSrcCodeRequirements]
 
 ==== Code Requirements
 
@@ -630,7 +630,7 @@ In our case fuzzing involves making random changes to capture files and feeding 
 There are tools available to automatically do this on any number of input files.
 See {wireshark-wiki-url}FuzzTesting for details.
 
-[[ChSrcUpload]]
+[#ChSrcUpload]
 
 ////
 ==== Uploading your changes
@@ -677,7 +677,7 @@ to the developer’s list asking for status. But please be patient: most if not
 all of us do this in our spare time.
 ////
 
-[[ChSrcBackport]]
+[#ChSrcBackport]
 ==== Backporting A Change
 
 :example-branch: master-3.2
@@ -714,7 +714,7 @@ You can also cherry-pick changes in the https://docs.gitlab.com/ee/user/project/
 
 ////
 // XXX Is this relevant any more?
-[[ChSrcPatchApply]]
+[#ChSrcPatchApply]
 === Apply a patch from someone else
 
 Sometimes you need to apply a patch to your private source tree. Maybe
@@ -729,7 +729,7 @@ If you have problems applying a patch, make sure the line endings (CR/LF)
 of the patch and your source files match.
 ====
 
-[[ChSrcPatchUse]]
+[#ChSrcPatchUse]
 ==== Using patch
 
 Given the file _new.diff_ containing a unified diff,
@@ -779,7 +779,7 @@ that, especially if they're only patching files that exist in multiple
 directories such as _CMakeLists.txt_.
 ////
 
-[[ChSrcBinary]]
+[#ChSrcBinary]
 
 === Binary Packaging
 
@@ -787,7 +787,7 @@ Delivering binary packages makes it much easier for the end-users to
 install Wireshark on their target system. This section will explain how
 the binary packages are made.
 
-[[ChSrcVersioning]]
+[#ChSrcVersioning]
 
 ==== Packaging Guidelines
 
@@ -917,7 +917,7 @@ If you have a question not addressed here, please contact
 {wireshark-dev-list-email}.
 
 
-[[ChSrcDeb]]
+[#ChSrcDeb]
 
 ==== Debian: .deb Packages
 
@@ -936,7 +936,7 @@ dpkg-buildpackage -b -us -uc -jauto
 
 to build the Debian Package.
 
-[[ChSrcRpm]]
+[#ChSrcRpm]
 
 ==== Red Hat: .rpm Packages
 
@@ -997,7 +997,7 @@ obtained by installing the _qt5-devel_ package. For a complete list of
 build requirements, look for the “BuildRequires” lines in
 _packaging/rpm/wireshark.spec.in_.
 
-[[ChSrcOSX]]
+[#ChSrcOSX]
 
 ==== macOS: .dmg Packages
 
@@ -1015,7 +1015,7 @@ make dmg_package
 
 to build the macOS Package.
 
-[[ChSrcNSIS]]
+[#ChSrcNSIS]
 
 ==== Windows: NSIS .exe Installer
 
@@ -1046,7 +1046,7 @@ If everything went well, you will now find something like:
 _wireshark-setup-{wireshark-version}.exe_ in
 the _packaging/nsis_ directory in your build directory.
 
-[[ChSrcPortableApps]]
+[#ChSrcPortableApps]
 
 ==== Windows: PortableApps .paf.exe Package
 
@@ -1082,7 +1082,7 @@ If everything went well, you will now find something like:
 _WiresharkPortable64_{wireshark-version}.paf.exe_ in
 the _packaging/portableapps_ directory.
 
-[[ChSrcMimeTypes]]
+[#ChSrcMimeTypes]
 
 === Mime Types
 

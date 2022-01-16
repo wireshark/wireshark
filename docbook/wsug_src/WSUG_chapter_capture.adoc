@@ -1,10 +1,10 @@
 // WSUG Chapter Capture
 
-[[ChapterCapture]]
+[#ChapterCapture]
 
 == Capturing Live Network Data
 
-[[ChCapIntroduction]]
+[#ChCapIntroduction]
 
 === Introduction
 
@@ -32,7 +32,7 @@ The capture engine still lacks the following features:
 
 * Stop capturing (or perform some other action) depending on the captured data.
 
-[[ChCapPrerequisitesSection]]
+[#ChCapPrerequisitesSection]
 
 === Prerequisites
 
@@ -52,7 +52,7 @@ Here are some common pitfalls:
 If you have any problems setting up your capture environment you should have a
 look at the guide mentioned above.
 
-[[ChCapCapturingSection]]
+[#ChCapCapturingSection]
 
 === Start Capturing
 
@@ -72,7 +72,7 @@ $ wireshark -i eth0 -k
 --
 This will start Wireshark capturing on interface `eth0`. More details can be found at <<ChCustCommandLine>>.
 
-[[ChCapInterfaceSection]]
+[#ChCapInterfaceSection]
 
 === The “Capture” Section Of The Welcome Screen
 
@@ -80,12 +80,12 @@ When you open Wireshark without starting a capture or opening a capture file it 
 Network activity for each interface will be shown in a sparkline next to the interface name.
 It is possible to select more than one interface and capture from them simultaneously.
 
-[[ChCapCaptureInterfacesMainWin32]]
+[#ChCapCaptureInterfacesMainWin32]
 
 .Capture interfaces on Microsoft Windows
 image::wsug_graphics/ws-capture-interfaces-main-win32.png[{screenshot-attrs}]
 
-[[ChCapCaptureInterfacesMainMacos]]
+[#ChCapCaptureInterfacesMainMacos]
 
 .Capture interfaces on macOS
 image::wsug_graphics/ws-capture-interfaces-main-macos.png[{screenshot-attrs}]
@@ -101,7 +101,7 @@ Hovering over an interface will show any associated IPv4 and IPv6 addresses and 
 Wireshark isn't limited to just network interfaces -- on most systems you can also capture USB, Bluetooth, and other types of packets.
 Note also that an interface might be hidden if it’s inaccessible to Wireshark or if it has been hidden as described in <<ChManageInterfacesSection>>.
 
-[[ChCapCaptureOptions]]
+[#ChCapCaptureOptions]
 
 === The “Capture Options” Dialog Box
 
@@ -110,7 +110,7 @@ main toolbar), Wireshark pops up the “Capture Options” dialog box as shown i
 <<ChCapCaptureOptionsDialog>>.
 If you are unsure which options to choose in this dialog box, leaving the defaults settings as they are should work well in many cases.
 
-[[ChCapCaptureOptionsDialog]]
+[#ChCapCaptureOptionsDialog]
 .The “Capture Options” input tab
 image::wsug_graphics/ws-capture-options.png[{screenshot-attrs}]
 
@@ -258,11 +258,11 @@ Capturing can be stopped based on the following conditions:
 
 You can double click on an interface row in the “Input“ tab or click btn:[Start] from any tab to commence the capture. You can click btn:[Cancel] to apply your changes and close the dialog.
 
-[[ChManageInterfacesSection]]
+[#ChManageInterfacesSection]
 
 === The “Manage Interfaces” Dialog Box
 
-[[ChCapManageInterfacesDialog]]
+[#ChCapManageInterfacesDialog]
 .The “Manage Interfaces” dialog box
 image::wsug_graphics/ws-manage-interfaces.png[{screenshot-attrs}]
 
@@ -429,13 +429,13 @@ To remove a host including all its interfaces from the list, select it and click
 // .The “Interface Details” dialog box
 // image::wsug_graphics/ws-capture-interface-details.png[{screenshot-attrs}]
 
-[[ChCapCompiledFilterOutputSection]]
+[#ChCapCompiledFilterOutputSection]
 
 === The “Compiled Filter Output” Dialog Box
 
 This figure shows the results of compiling the BPF filter for the selected interfaces.
 
-[[ChCapCompiledFilterOutputDialog]]
+[#ChCapCompiledFilterOutputDialog]
 
 .The “Compiled Filter Output” dialog box
 image::wsug_graphics/ws-capture-options-compile-selected-bpfs.png[{medium-screenshot-attrs}]
@@ -443,7 +443,7 @@ image::wsug_graphics/ws-capture-options-compile-selected-bpfs.png[{medium-screen
 In the list on the left the interface names are listed.
 The results of compiling a filter for the selected interface are shown on the right.
 
-[[ChCapCaptureFiles]]
+[#ChCapCaptureFiles]
 
 === Capture files and file modes
 
@@ -457,7 +457,7 @@ different file after a given time has elapsed or a given number of packets
 have been captured. These options are controlled in the “Output” tab in
 the “Capture Options” dialog.
 
-[[ChCapCaptureOptionsOutputDialog]]
+[#ChCapCaptureOptionsOutputDialog]
 .Capture output options
 image::wsug_graphics/ws-capture-options-output.png[{screenshot-attrs}]
 
@@ -481,7 +481,7 @@ in another, you might not see some of the valuable context related information.
 Information about the folders used for capture files can be found in
 <<AppFiles>>.
 
-[[ChCapTabCaptureFiles]]
+[#ChCapTabCaptureFiles]
 .Capture file mode selected by capture options
 [options="header",cols="2,2,2,3,5"]
 |===
@@ -513,7 +513,7 @@ is not reached, otherwise it will replace the oldest of the formerly used files
 This mode will limit the maximum disk usage, even for an unlimited amount of
 capture input data, only keeping the latest captured data.
 
-[[ChCapLinkLayerHeader]]
+[#ChCapLinkLayerHeader]
 
 === Link-layer header type
 
@@ -543,7 +543,7 @@ traffic being captured is RFC 1483 LLC-encapsulated IP, or if the capture needs
 to be read by an application that doesn’t support SunATM headers, select “RFC
 1483 IP-over-ATM”, otherwise select “Sun raw ATM”.
 
-[[ChCapCaptureFilterSection]]
+[#ChCapCaptureFilterSection]
 
 === Filtering while capturing
 
@@ -566,7 +566,7 @@ by conjunctions (__and/or__) and optionally preceded by __not__:
 
 An example is shown in <<ChCapExFilt1>>.
 
-[[ChCapExFilt1]]
+[#ChCapExFilt1]
 .A capture filter for telnet that captures traffic to and from a particular host
 ====
 ----
@@ -579,7 +579,7 @@ how to use two primitives and the __and__ conjunction. Another example is shown
 in <<ChCapExFilt2>>, and shows how to capture all telnet traffic except that
 from 10.0.0.5.
 
-[[ChCapExFilt2]]
+[#ChCapExFilt2]
 .Capturing all telnet traffic not from 10.0.0.5
 ====
 ----
@@ -646,7 +646,7 @@ This primitive allows you to create complex filter expressions that select bytes
 Please see the pcap-filter man page at {pcap-filter-man-page-url} for more details.
 
 
-[[ChCapCaptureAutoFilterSection]]
+[#ChCapCaptureAutoFilterSection]
 
 ==== Automatic Remote Traffic Filtering
 
@@ -681,13 +681,13 @@ The following environment variables are analyzed:
 
 On Windows it asks the operating system if it’s running in a Remote Desktop Services environment.
 
-[[ChCapRunningSection]]
+[#ChCapRunningSection]
 
 === While a Capture is running ...
 
 You might see the following dialog box while a capture is running:
 
-[[ChCapCaptureInfoDialog]]
+[#ChCapCaptureInfoDialog]
 .The “Capture Information” dialog box
 image::wsug_graphics/ws-capture-info.png[{small-screenshot-attrs}]
 
@@ -695,7 +695,7 @@ This dialog box shows a list of protocols and their activity over time.
 It can be enabled via the “capture.show_info” setting in the “Advanced”
 preferences.
 
-[[ChCapStopSection]]
+[#ChCapStopSection]
 
 ==== Stop the running capture
 
@@ -712,7 +712,7 @@ A running capture session will be stopped in one of the following ways:
 . The capture will be automatically stopped if one of the _Stop Conditions_ is
   met, e.g. the maximum amount of data was captured.
 
-[[ChCapRestartSection]]
+[#ChCapRestartSection]
 
 ==== Restart a running capture
 

@@ -1,11 +1,11 @@
 // WSUG Appendix Files
 
-[[AppFiles]]
+[#AppFiles]
 
 [appendix]
 == Files and Folders
 
-[[ChAppFilesCaptureFilesSection]]
+[#ChAppFilesCaptureFilesSection]
 
 === Capture Files
 
@@ -29,7 +29,7 @@ In addition to the libpcap format, Wireshark supports several different capture
 file formats. However, the problems described above also applies for these
 formats.
 
-[[ChIOFileContentSection]]
+[#ChIOFileContentSection]
 
 ==== Libpcap File Contents
 
@@ -51,7 +51,7 @@ The following data is saved for each packet:
 A detailed description of the libpcap file format can be found at
 https://gitlab.com/wireshark/wireshark/-/wikis/Development/LibpcapFileFormat
 
-[[ChIOFileNotContentSection]]
+[#ChIOFileNotContentSection]
 
 ==== Not Saved in the Capture File
 
@@ -74,7 +74,7 @@ can’t. Other file formats have varying levels of support.
 
 * The current display filter
 
-[[ChConfigurationPluginFolders]]
+[#ChConfigurationPluginFolders]
 
 === Configuration File and Plugin Folders
 
@@ -120,7 +120,7 @@ bundled with the system (for example, provided as a package with a Linux
 distribution) and _/usr/local_ if, for example, you’ve build Wireshark
 from source and installed it.
 
-[[ChAppFilesConfigurationSection]]
+[#ChAppFilesConfigurationSection]
 
 === Configuration Files
 
@@ -154,7 +154,7 @@ global configuration folder is _INSTALLDIR/share/wireshark_.
 actually used on your system may vary, maybe something like:
 _/usr/local/etc_.
 
-[[AppFilesTabFolders]]
+[#AppFilesTabFolders]
 .Configuration files overview
 [options="header"]
 |===
@@ -540,7 +540,7 @@ The settings from this file are read in at program start or when changing
 the active profile and are never written by Wireshark.
 --
 
-[[ChPluginFolders]]
+[#ChPluginFolders]
 
 === Plugin folders
 
@@ -582,7 +582,7 @@ application bundle, the global plugin folder is
 _%APPDIR%/Contents/PlugIns/wireshark_, otherwise it’s
 _INSTALLDIR/lib/wireshark/plugins_.
 
-[[ChWindowsFolder]]
+[#ChWindowsFolder]
 
 === Windows folders
 
@@ -592,7 +592,7 @@ Windows versions.
 As already mentioned, you can find the currently used folders in the “About
 Wireshark” dialog.
 
-[[ChWindowsProfiles]]
+[#ChWindowsProfiles]
 
 ==== Windows profiles
 
@@ -617,7 +617,7 @@ Windows XP and Windows Server 2003 footnote:historical[No longer supported by Wi
 _C:\Documents and Settings{backslash}**username**\Application Data_. “Documents and
 Settings” and “Application Data” might be internationalized.
 
-[[ChWindowsRoamingProfiles]]
+[#ChWindowsRoamingProfiles]
 
 ==== Windows roaming profiles
 
@@ -631,7 +631,7 @@ _C:\Documents and Settings{backslash}**username**\Local Settings_) will not be
 transferred to the domain server. This is the default for temporary capture
 files.
 
-[[ChWindowsTempFolder]]
+[#ChWindowsTempFolder]
 
 ==== Windows temporary folder
 

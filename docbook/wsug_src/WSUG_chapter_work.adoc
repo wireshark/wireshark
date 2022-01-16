@@ -1,10 +1,10 @@
 // WSUG Chapter Work
 
-[[ChapterWork]]
+[#ChapterWork]
 
 == Working With Captured Packets
 
-[[ChWorkViewPacketsSection]]
+[#ChWorkViewPacketsSection]
 
 === Viewing Packets You Have Captured
 
@@ -19,7 +19,7 @@ corresponding bytes in the byte view. An example with a TCP packet selected is
 shown in <<ChWorkSelPack1>>. It also has the Acknowledgment number in the TCP
 header selected, which shows up in the byte view as the selected bytes.
 
-[[ChWorkSelPack1]]
+[#ChWorkSelPack1]
 
 .Wireshark with a TCP packet selected for viewing
 image::wsug_graphics/ws-packet-selected.png[{screenshot-attrs}]
@@ -34,7 +34,7 @@ packet list or by selecting the packet in which you are interested in the packet
 list pane and selecting menu:View[Show Packet in New Window]. This allows you to
 easily compare two or more packets, even across multiple files.
 
-[[ChWorkPacketSepView]]
+[#ChWorkPacketSepView]
 
 .Viewing a packet in a separate window
 image::wsug_graphics/ws-packet-sep-win.png[{screenshot-attrs}]
@@ -47,7 +47,7 @@ number of other ways to open a new packet window:
 - From <<PacketListPopupMenuTable>>.
 - From <<PacketDetailsPopupMenuTable>>.
 
-[[ChWorkDisplayPopUpSection]]
+[#ChWorkDisplayPopUpSection]
 
 === Pop-up Menus
 
@@ -55,11 +55,11 @@ You can open a pop-up menu over the “Packet List”, its column heading,
 “Packet Details”, or “Packet Bytes” by clicking your right mouse button
 on the corresponding item.
 
-[[ChWorkColumnHeaderPopUpMenuSection]]
+[#ChWorkColumnHeaderPopUpMenuSection]
 
 ==== Pop-up Menu Of The “Packet List” Column Header
 
-[[ChWorkColumnHeaderPopUpMenu]]
+[#ChWorkColumnHeaderPopUpMenu]
 .Pop-up menu of the “Packet List” column header
 image::wsug_graphics/ws-column-header-popup-menu.png[{screenshot-attrs}]
 
@@ -67,7 +67,7 @@ The following table gives an overview of which functions are available
 in this header, where to find the corresponding function in the main
 menu, and a description of each item.
 
-[[ColumnHeaderPopupMenuTable]]
+[#ColumnHeaderPopupMenuTable]
 .The menu items of the “Packet List” column header pop-up menu
 [options="header",cols="3,7"]
 |===
@@ -102,11 +102,11 @@ Remove this column, similar to deleting it in the “Preferences” dialog.
 
 |===
 
-[[ChWorkPacketListPanePopUpMenuSection]]
+[#ChWorkPacketListPanePopUpMenuSection]
 
 ==== Pop-up Menu Of The “Packet List” Pane
 
-[[ChWorkPacketListPanePopUpMenu]]
+[#ChWorkPacketListPanePopUpMenu]
 
 .Pop-up menu of the “Packet List” pane
 image::wsug_graphics/ws-packet-pane-popup-menu.png[{screenshot-attrs}]
@@ -115,7 +115,7 @@ The following table gives an overview of which functions are available
 in this pane, where to find the corresponding function in the main menu,
 and a short description of each item.
 
-[[PacketListPopupMenuTable]]
+[#PacketListPopupMenuTable]
 .The menu items of the “Packet List” pop-up menu
 [options="header",cols="3,1,6"]
 |===
@@ -221,11 +221,11 @@ details.
 |===
 
 
-[[ChWorkPacketDetailsPanePopUpMenuSection]]
+[#ChWorkPacketDetailsPanePopUpMenuSection]
 
 ==== Pop-up Menu Of The “Packet Details” Pane
 
-[[ChWorkPacketDetailsPanePopUpMenu]]
+[#ChWorkPacketDetailsPanePopUpMenu]
 
 .Pop-up menu of the “Packet Details” pane
 image::wsug_graphics/ws-details-pane-popup-menu.png[{screenshot-attrs}]
@@ -234,7 +234,7 @@ The following table gives an overview of which functions are available in this
 pane, where to find the corresponding function in the main menu, and a short
 description of each item.
 
-[[PacketDetailsPopupMenuTable]]
+[#PacketDetailsPopupMenuTable]
 
 .The menu items of the “Packet Details” pop-up menu
 [options="header",cols="3,1,6"]
@@ -335,11 +335,11 @@ window. See <<ChWorkPacketSepView>> for details.
 
 |===
 
-[[ChWorkPacketBytesPanePopUpMenuSection]]
+[#ChWorkPacketBytesPanePopUpMenuSection]
 
 ==== Pop-up Menu Of The “Packet Bytes” Pane
 
-[[ChWorkPacketBytesPanePopUpMenu]]
+[#ChWorkPacketBytesPanePopUpMenu]
 
 .Pop-up menu of the “Packet Bytes” pane
 image::wsug_graphics/ws-bytes-pane-popup-menu.png[{screenshot-attrs}]
@@ -347,7 +347,7 @@ image::wsug_graphics/ws-bytes-pane-popup-menu.png[{screenshot-attrs}]
 The following table gives an overview of which functions are available
 in this pane along with a short description of each item.
 
-[[PacketBytesPopupMenuTable]]
+[#PacketBytesPopupMenuTable]
 
 .The menu items of the “Packet Bytes” pop-up menu
 [options="header",cols="3,7"]
@@ -393,7 +393,7 @@ Use EBCDIC encoding when displaying “hexdump” text.
 
 |===
 
-[[ChWorkDisplayFilterSection]]
+[#ChWorkDisplayFilterSection]
 
 === Filtering Packets While Viewing
 
@@ -434,7 +434,7 @@ expression.
 ====
 
 
-[[ChWorkTCPFilter]]
+[#ChWorkTCPFilter]
 
 .Filtering on the TCP protocol
 image::wsug_graphics/ws-display-filter-tcp.png[{screenshot-attrs}]
@@ -461,7 +461,7 @@ the _Display Filter Expression_ dialog box is available in
 <<ChWorkFilterAddExpressionSection>>.
 
 
-[[ChWorkBuildDisplayFilterSection]]
+[#ChWorkBuildDisplayFilterSection]
 
 === Building Display Filter Expressions
 
@@ -513,7 +513,7 @@ A complete list of available comparison operators is shown in <<DispCompOps>>.
 English and C-like operators are interchangeable and can be mixed within a filter string.
 ====
 
-[[DispCompOps]]
+[#DispCompOps]
 
 .Display Filter comparison operators
 [options="header",cols="1,1,1,3,3"]
@@ -535,7 +535,7 @@ English and C-like operators are interchangeable and can be mixed within a filte
 All protocol fields have a type. <<ChWorkFieldTypes>> provides a list
 of the types with examples of how to use them in display filters.
 
-[[ChWorkFieldTypes]]
+[#ChWorkFieldTypes]
 
 ===== Display Filter Field Types
 
@@ -621,7 +621,7 @@ date must be specified:
 In the second format, a `T` may appear between the date and time as in
 ISO 8601, but not when less significant times are dropped.
 
-[[ChWorkFilterExamples]]
+[#ChWorkFilterExamples]
 
 ===== Some Examples
 
@@ -669,7 +669,7 @@ TIP: Using raw strings avoids most problem with the "matches" operator and doubl
 
 You can combine filter expressions in Wireshark using the logical operators shown in <<FiltLogOps>>
 
-[[FiltLogOps]]
+[#FiltLogOps]
 
 .Display Filter Logical Operations
 [options="header",cols="1,1,1,4"]
@@ -766,7 +766,7 @@ frame.time_delta in {10 .. 10.5}
 The display filter language has a number of functions to convert fields, see
 <<DispFunctions>>.
 
-[[DispFunctions]]
+[#DispFunctions]
 .Display Filter Functions
 [options="header",cols="1,4"]
 |===
@@ -804,7 +804,7 @@ To match IP addresses ending in 255 in a block of subnets (172.16 to 172.31):
 string(ip.dst) matches r"^172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.255"
 ----
 
-[[ChWorkBuildDisplayFilterTransitional]]
+[#ChWorkBuildDisplayFilterTransitional]
 
 ==== Sometimes Fields Change Names
 
@@ -823,7 +823,7 @@ the old filter names for the time being, e.g. “bootp.type” is equivalent
 to “dhcp.type” but Wireshark will show the warning “"bootp" is deprecated”
 when you use it. Support for the deprecated fields may be removed in the future.
 
-[[ChWorkFilterAddExpressionSection]]
+[#ChWorkFilterAddExpressionSection]
 
 === The “Display Filter Expression” Dialog Box
 
@@ -840,7 +840,7 @@ Wireshark display filter strings.
 ====
 
 
-[[ChWorkFilterAddExpression1]]
+[#ChWorkFilterAddExpression1]
 
 .The “Display Filter Expression” dialog box
 image::wsug_graphics/ws-filter-add-expression.png[{screenshot-attrs}]
@@ -895,7 +895,7 @@ btn:[Cancel]::
 You can leave the “Add Expression...” dialog box without any effect by
 clicking the btn:[Cancel] button.
 
-[[ChWorkDefineFilterSection]]
+[#ChWorkDefineFilterSection]
 
 === Defining And Saving Filters
 
@@ -908,7 +908,7 @@ Wireshark will open the corresponding dialog as shown in <<FiltersDialog>>.
 The two dialogs look and work similar to one another.
 Both are described here, and the differences are noted as needed.
 
-[[FiltersDialog]]
+[#FiltersDialog]
 
 .The “Capture Filters” and “Display Filters” dialog boxes
 image::wsug_graphics/ws-filters.png[{screenshot-attrs}]
@@ -938,7 +938,7 @@ Saves the filter settings and closes the dialog.
 btn:[Cancel]::
 Closes the dialog without saving any changes.
 
-[[ChWorkDefineFilterMacrosSection]]
+[#ChWorkDefineFilterMacrosSection]
 
 === Defining And Saving Filter Macros
 
@@ -950,7 +950,7 @@ To define and save your own filter macros, follow the steps below:
 
 . In the main menu select menu:Analyze[Display Filter Macros...]. Wireshark will open a corresponding dialog <<FilterMacrosDialog>>.
 +
-[[FilterMacrosDialog]]
+[#FilterMacrosDialog]
 +
 .Display Filter Macros window
 image::wsug_graphics/ws-filter-macros.png[{screenshot-attrs}]
@@ -963,7 +963,7 @@ image::wsug_graphics/ws-filter-macros.png[{screenshot-attrs}]
 
 To learn more about display filter macro syntax, see <<ChDisplayFilterMacrosSection>>.
 
-[[ChWorkFindPacketSection]]
+[#ChWorkFindPacketSection]
 
 === Finding Packets
 
@@ -974,7 +974,7 @@ main toolbar and the packet list shown in <<ChWorkFindPacketToolbar>>.
 
 ==== The “Find Packet” Toolbar
 
-[[ChWorkFindPacketToolbar]]
+[#ChWorkFindPacketToolbar]
 
 .The “Find Packet” toolbar
 image::wsug_graphics/ws-find-packet.png[{screenshot-attrs}]
@@ -1011,7 +1011,7 @@ Regular Expression::
   should return a number of sites that will help you test and explore
   your expressions.
 
-[[ChWorkGoToPacketSection]]
+[#ChWorkGoToPacketSection]
 
 === Go To A Specific Packet
 
@@ -1030,7 +1030,7 @@ most web browsers.
 
 ==== The “Go to Packet” Toolbar
 
-[[ChWorkGoToPacketToolbar]]
+[#ChWorkGoToPacketToolbar]
 
 .The “Go To Packet” toolbar
 image::wsug_graphics/ws-goto-packet.png[{screenshot-attrs}]
@@ -1058,7 +1058,7 @@ This command will jump to the first packet displayed.
 
 This command will jump to the last packet displayed.
 
-[[ChWorkMarkPacketSection]]
+[#ChWorkMarkPacketSection]
 
 === Marking Packets
 
@@ -1086,7 +1086,7 @@ you can select from the following:
 You can also mark and unmark a packet by clicking on it in the packet list
 with the middle mouse button.
 
-[[ChWorkIgnorePacketSection]]
+[#ChWorkIgnorePacketSection]
 
 === Ignoring Packets
 
@@ -1108,7 +1108,7 @@ menu:Edit[] menu you can select from the following:
 
 * menu:Unignore All Displayed[] reset the ignored state of all packets.
 
-[[ChWorkTimeFormatsSection]]
+[#ChWorkTimeFormatsSection]
 
 === Time Display Formats And Time References
 
@@ -1159,7 +1159,7 @@ using the “Automatic” setting for libpcap files (which is microseconds). If
 you use Seconds it would show simply 1 and if you use Nanoseconds it shows
 1.123456000.
 
-[[ChWorkTimeReferencePacketSection]]
+[#ChWorkTimeReferencePacketSection]
 
 ==== Packet Time Referencing
 
@@ -1187,7 +1187,7 @@ the menu:[Edit] menu or from the pop-up menu of the “Packet List” pane. See
 * menu:Find Previous[] Find the previous time referenced packet in the “Packet
   List” pane.
 
-[[ChWorkTimeReference]]
+[#ChWorkTimeReference]
 
 .Wireshark showing a time referenced packet
 image::wsug_graphics/ws-time-reference.png[{screenshot-attrs}]

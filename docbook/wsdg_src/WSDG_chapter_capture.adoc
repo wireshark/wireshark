@@ -1,6 +1,6 @@
 // WSDG Chapter Capture
 
-[[ChapterCapture]]
+[#ChapterCapture]
 
 == Packet Capture
 
@@ -8,7 +8,7 @@
 This chapter needs to be reviewed and extended.
 ****
 
-[[ChCaptureAddLibpcap]]
+[#ChCaptureAddLibpcap]
 
 === How To Add A New Capture Type To Libpcap
 
@@ -34,7 +34,7 @@ the link-layer protocols or protocols and have them register themselves
 with the `wtap_encap` dissector table, with the appropriate _WTAP_ENCAP_
 values by calling `dissector_add_uint()`.
 
-[[ChCaptureExtcap]]
+[#ChCaptureExtcap]
 
 === Extcap: Developer Guide
 
@@ -73,7 +73,7 @@ can be found (it is not designed to be launched by hand).  This is done on purpo
 only be extcap programs (executable, python scripts, ...) in the extcap folder to reduce the startup
 time and not have Wireshark trying to execute other file types.
 
-[[ChCaptureExtcapProcess]]
+[#ChCaptureExtcapProcess]
 
 ==== Extcap command line interface
 
@@ -204,7 +204,7 @@ the other options are automatically added to run the capture. The extcap interfa
 is used like all other interfaces (meaning that capture on multiple interfaces, as
 well as stopping and restarting the capture is supported).
 
-[[ChCaptureExtcapWindowsShell]]
+[#ChCaptureExtcapWindowsShell]
 
 ====== Execute a script-based extcap on Windows
 

@@ -24,7 +24,7 @@ include::wsdg_src/WSDG_preface.adoc[]
 
 include::common_src/typographic_conventions.adoc[]
 
-[[PartEnvironment]]
+[#PartEnvironment]
 = Wireshark Build Environment
 
 [partintro]
@@ -44,7 +44,7 @@ include::wsdg_src/WSDG_chapter_tools.adoc[]
 
 include::wsdg_src/WSDG_chapter_libraries.adoc[]
 
-[[PartDevelopment]]
+[#PartDevelopment]
 = Wireshark Development
 
 [partintro]

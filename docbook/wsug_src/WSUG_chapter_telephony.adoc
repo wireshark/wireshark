@@ -1,10 +1,10 @@
 // WSUG Chapter Telephony
 
-[[ChTelephony]]
+[#ChTelephony]
 
 == Telephony
 
-[[ChTelIntroduction]]
+[#ChTelIntroduction]
 
 === Introduction
 
@@ -21,7 +21,7 @@ specific protocols and might be described in a later version of this document.
 Some of these statistics are described at the
 {wireshark-wiki-url}Statistics pages.
 
-[[ChTelPlayingCalls]]
+[#ChTelPlayingCalls]
 
 === Playing VoIP Calls
 
@@ -75,7 +75,7 @@ image::wsug_graphics/ws-tel-playlist.png[]
 Same approach with set/add/remove actions is used for RTP Stream Analysis window. The playlist is there handled as different tabs in the window, see <<ChTelRTPAnalysis,RTP Stream Analysis>> window.
 ====
 
-[[ChTelPlayingCallsLive]]
+[#ChTelPlayingCallsLive]
 
 ==== Playing audio during live capture
 
@@ -139,7 +139,7 @@ RTP Player plays audio by OS sound system and OS is responsible for mixing audio
 RTP Analysis window can handle 1000+ streams, but it is difficult to use it with so many streams - it is difficult to navigate between them. It is expected that RTP Analysis window will be used for analysis of lower tens of streams.
 
 
-[[ChTelVoipCalls]]
+[#ChTelVoipCalls]
 
 === VoIP Calls Window
 
@@ -181,7 +181,7 @@ Available controls are:
 * btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window. Actions btn:[Set], btn:[Add] and btn:[Remove] are available.
 * btn:[Copy] copies information from table to clipboard in CSV or YAML.
 
-[[ChTelANSI]]
+[#ChTelANSI]
 
 === ANSI
 
@@ -195,30 +195,30 @@ The A-Interface Base Station Management Application Part (BSMAP) Statistics wind
 
 The A-Interface Direct Transfer Application Part (DTAP) Statistics widow shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file. 
 
-[[ChTelGSM]]
+[#ChTelGSM]
 
 === GSM Windows
 
 The Global System for Mobile Communications (GSM) is a standard for mobile networks. This menu shows a group of statistic data for mobile communication protocols according to ETSI GSM standard.
 
-[[ChTelIAX2Analysis]]
+[#ChTelIAX2Analysis]
 
 === IAX2 Stream Analysis Window
 
 The “IAX2 Stream Analysis” window shows statistics for the forward and reverse
 streams of a selected IAX2 call along with a graph.
 
-[[ChTelISUPMessages]]
+[#ChTelISUPMessages]
 
 === ISUP Messages Window
 
 Integrated Service User Part (ISUP) protocol provides voice and non-voice signaling for telephone communications. ISUP Messages menu opens the window which shows the related statistics. The user can filter, copy or save the data into a file.
 
-[[ChTelLTE]]
+[#ChTelLTE]
 
 === LTE
 
-[[ChTelLTEMACTraffic]]
+[#ChTelLTEMACTraffic]
 
 ==== LTE MAC Traffic Statistics Window
 
@@ -233,7 +233,7 @@ shows statistical highlights for exactly one UE/C-RNTI. In the lower pane, you
 can see the for the currently selected UE/C-RNTI the traffic broken down by
 individual channel.
 
-[[ChTelLTERLCGraph]]
+[#ChTelLTERLCGraph]
 
 ==== LTE RLC Graph Window
 
@@ -246,7 +246,7 @@ image::wsug_graphics/ws-rlc-graph.png[{screenshot-attrs}]
 
 [.small]#_The image of the RLC Graph is borrowed from link:https://gitlab.com/wireshark/wireshark/-/wikis/RLC-LTE[Wireshark wiki]._#
 
-[[ChTelLTERLCTraffic]]
+[#ChTelLTERLCTraffic]
 
 ==== LTE RLC Traffic Statistics Window
 
@@ -268,7 +268,7 @@ the selected channel. Note that in the case of Acknowledged Mode channels, if a
 single direction is chosen, the generated filter will show data in that
 direction and control PDUs in the opposite direction.
 
-[[ChTelMTP3]]
+[#ChTelMTP3]
 
 === MTP3 Windows
 
@@ -276,7 +276,7 @@ The Message Transfer Part level 3 (MTP3) protocol is a part of the Signaling Sys
 
 This menu shows MTP3 Statistics and MTP3 Summary windows.
 
-[[ChTelOsmux]]
+[#ChTelOsmux]
 
 === Osmux Windows
 
@@ -284,7 +284,7 @@ OSmux is a multiplex protocol which benefits satellite based GSM back-haul syste
 
 === RTP
 
-[[ChTelRTPStreams]]
+[#ChTelRTPStreams]
 
 ==== RTP Streams Window
 
@@ -323,7 +323,7 @@ Available controls are:
 * btn:[Export] exports selected streams in RTPDump format.
 
 
-[[ChTelRTPAnalysis]]
+[#ChTelRTPAnalysis]
 
 ==== RTP Stream Analysis Window
 
@@ -397,7 +397,7 @@ for every stream. Checkboxes below graph are enabling or disabling showing of a 
 Stream Analysis window contained tool for save audio and payload for analyzed streams. This tool was moved in Wireshark 3.5.0 to <<ChTelRtpPlayer,RTP Player>> window. New tool has more features.
 ====
 
-[[ChTelRtpPlayer]]
+[#ChTelRtpPlayer]
 
 ==== RTP Player Window
 
@@ -505,7 +505,7 @@ User can use shortcuts:
 ** kbd:[N] - Select all inaudible streams
 ** kbd:[Shift + N] - Deselect all inaudible streams
 
-[[tel-rtp-export]]
+[#tel-rtp-export]
 
 ===== Export
 
@@ -536,13 +536,13 @@ Default value of btn:[Output Audio Rate] is btn:[Automatic]. When multiple codec
 In this case user must manually select one of rates in btn:[Output Audio Rate], streams will be resampled and audio export succeeds.
 ====
 
-[[ChTelRTSP]]
+[#ChTelRTSP]
 
 === RTSP Window
 
 In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Counter window. It shows Total RTCP Packets and divided into RTSP Response Packets, RTSP Request Packets and Other RTSP packets. The user can filter, copy or save the data into a file.
 
-[[ChTelSCTP]]
+[#ChTelSCTP]
 
 === SCTP Windows
 
@@ -558,25 +558,25 @@ The SCTP Associations window shows the table with the data for captured packets,
 .SCTP Associations window
 image::wsug_graphics/ws-sctp.png[{screenshot-attrs}]
 
-[[ChTelSMPPOperations]]
+[#ChTelSMPPOperations]
 
 === SMPP Operations Window
 
 Short Message Peer-to-Peer (SMPP) protocol uses TCP protocol as its transfer for exchanging Short Message Service (SMS) Messages, mainly between Short Message Service Centers (SMSC). The dissector determines whether the captured packet is SMPP or not by using the heuristics in the fixed header. The SMPP Operations window displays the related statistical data. The user can filter, copy or save the data into a file.
 
-[[ChTelUCPMessages]]
+[#ChTelUCPMessages]
 
 === UCP Messages Window
 
 The Universal Computer Protocol (UCP) plays role in transferring Short Messages between a Short Message Service Centre (SMSC) and an application, which is using transport protocol, such as TCP or X.25. The UCP Messages window displays the related statistical data. The user can filter, copy or save the data into a file.
 
-[[ChTelH225]]
+[#ChTelH225]
 
 === H.225 Window
 
 H.225 telecommunication protocol which is responsible for messages in call signaling and media stream packetization for packet-based multimedia communication systems. The H.225 window shows the counted messages by types and reasons. The user can filter, copy or save the data into a file.
 
-[[ChTelSIPFlows]]
+[#ChTelSIPFlows]
 
 === SIP Flows Window
 
@@ -586,13 +586,13 @@ This window will list both complete and in-progress SIP transactions.
 
 Window has same features as <<ChTelVoipCalls,VoIP Calls>> window.
 
-[[ChTelSIPStatistics]]
+[#ChTelSIPStatistics]
 
 === SIP Statistics Window
 
 SIP Statistics window shows captured SIP transactions. It is divided into SIP Responses and SIP Requests. In this window the user can filter, copy or save the statistics into a file.  
 
-[[ChTelWAPWSPPacketCounter]]
+[#ChTelWAPWSPPacketCounter]
 
 === WAP-WSP Packet Counter Window
 

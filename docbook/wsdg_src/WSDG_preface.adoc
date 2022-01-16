@@ -1,8 +1,8 @@
-[[Preface]]
+[#Preface]
 ["preface",id="Preface"]
 == Preface
 
-[[PreForeword]]
+[#PreForeword]
 
 === Foreword
 
@@ -23,7 +23,7 @@ source code.
 
 We hope that you find this book useful, and look forward to your comments.
 
-[[PreAudience]]
+[#PreAudience]
 
 === Who should read this document?
 
@@ -38,7 +38,7 @@ By reading this book, you will learn how to develop Wireshark. It will
 hopefully guide you around some common problems that frequently appear for
 new (and sometimes even advanced) developers of Wireshark.
 
-[[PreAck]]
+[#PreAck]
 
 === Acknowledgements
 
@@ -60,7 +60,7 @@ helpful feedback on this document:
 And of course a big thank you to the many, many contributors of the
 Wireshark development community!
 
-[[PreAbout]]
+[#PreAbout]
 
 === About this document
 
@@ -70,14 +70,14 @@ and updated for later versions of Visual Studio by various contributors.
 
 It is written in AsciiDoc.
 
-[[PreDownload]]
+[#PreDownload]
 
 === Where to get the latest copy of this document?
 
 The latest copy of this documentation can always be found at
 {wireshark-developers-guide-url}.
 
-[[PreFeedback]]
+[#PreFeedback]
 
 === Providing feedback about this document
 

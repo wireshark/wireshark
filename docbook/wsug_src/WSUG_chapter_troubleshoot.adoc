@@ -1,6 +1,6 @@
 // WSUG Chapter Four
 
-[[Chap04]]
+[#Chap04]
 
 == Troubleshooting with Wireshark
 
@@ -43,7 +43,7 @@ more details on capturing with _tcpdump_, see <<Ch05tcpdump>>.
 * Examine the appropriate fields within the packets where the problem appears to
   be. These can often help to reveal the problem.
 
-[[Ch04ROUSWI]]
+[#Ch04ROUSWI]
 
 === Capturing in the presence of switches and routers
 

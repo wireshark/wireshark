@@ -1,6 +1,6 @@
 // WSUG Appendix How it Works
 
-[[AppHowItWorks]]
+[#AppHowItWorks]
 
 [appendix]
 == How Wireshark Works

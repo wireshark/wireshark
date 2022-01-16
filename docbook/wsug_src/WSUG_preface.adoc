@@ -1,8 +1,8 @@
-[[Preface]]
+[#Preface]
 ["preface",id="Preface"]
 == Preface
 
-[[PreForeword]]
+[#PreForeword]
 
 === Foreword
 
@@ -12,7 +12,7 @@ This document is part of an effort by the Wireshark team to improve
 Wireshark's usability.
 We hope that you find it useful and look forward to your comments.
 
-[[PreAudience]]
+[#PreAudience]
 
 === Who should read this document?
 
@@ -33,7 +33,7 @@ behind some of the advanced features that are not always obvious at first sight.
 It will hopefully guide you around some common problems that frequently appear
 for new (and sometimes even advanced) Wireshark users.
 
-[[PreAck]]
+[#PreAck]
 
 === Acknowledgements
 
@@ -64,7 +64,7 @@ Wireshark project from who sections of this document borrow heavily:
 
 * Ashok Narayanan from whose `text2pcap` man page <<AppToolstext2pcap>> is derived.
 
-[[PreAbout]]
+[#PreAbout]
 
 === About this document
 
@@ -76,14 +76,14 @@ updated by mailto:{wsug-author-email}[Ulf Lamping].
 It was originally written in DocBook/XML and converted to AsciiDoc by
 Gerald Combs.
 
-[[PreDownload]]
+[#PreDownload]
 
 === Where to get the latest copy of this document?
 
 The latest copy of this documentation can always be found at
 {wireshark-users-guide-url}.
 
-[[PreFeedback]]
+[#PreFeedback]
 
 === Providing feedback about this document
 

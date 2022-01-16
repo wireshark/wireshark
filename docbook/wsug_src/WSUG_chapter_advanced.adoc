@@ -1,10 +1,10 @@
 // WSUG Chapter Advanced
 
-[[ChapterAdvanced]]
+[#ChapterAdvanced]
 
 == Advanced Topics
 
-[[ChAdvIntroduction]]
+[#ChAdvIntroduction]
 
 === Introduction
 
@@ -37,7 +37,7 @@ particular stream. Closing the dialog with the “Back” button will reset
 the display filter if this behavior is not desired.
 ====
 
-[[ChAdvFollowStream]]
+[#ChAdvFollowStream]
 
 .The “Follow TCP Stream” dialog box
 image::wsug_graphics/ws-follow-stream.png[{screenshot-attrs}]
@@ -196,7 +196,7 @@ image::wsug_graphics/ws-follow-sip-stream.png[{screenshot-attrs}]
 The SIP call is shown with same dialog, just filter is based on sip.Call-ID
 field. Count of streams is fixed to 0 and the field is disabled.
 
-[[ChAdvShowPacketBytes]]
+[#ChAdvShowPacketBytes]
 
 === Show Packet Bytes
 
@@ -270,7 +270,7 @@ menu:YAML[]:: This will show the bytes as a YAML binary dump.
 You can search for text by entering it in the “Find” entry box and
 pressing btn:[Find Next].
 
-[[ChAdvExpert]]
+[#ChAdvExpert]
 
 === Expert Information
 
@@ -290,13 +290,13 @@ While dissectors for some common protocols like TCP and IP will show detailed in
 
 The following describes the components of a single expert information entry along with the expert user interface.
 
-[[ChAdvExpertInfoEntries]]
+[#ChAdvExpertInfoEntries]
 
 ==== Expert Information Entries
 
 Expert information entries are grouped by severity level (described below) and contain the following:
 
-[[ChAdvTabExpertInfoEntries]]
+[#ChAdvTabExpertInfoEntries]
 
 .Example expert information items
 [options="header"]
@@ -307,7 +307,7 @@ Expert information entries are grouped by severity level (described below) and c
 |443|TCP: 80 → 59322 [RST] Seq=12761 Win=0 Len=0|Sequence|TCP
 |===
 
-[[ChAdvExpertSeverity]]
+[#ChAdvExpertSeverity]
 
 ===== Severity
 
@@ -327,7 +327,7 @@ Warnings, e.g. application returned an unusual error code like a connection prob
 Error [white red-background]#(red)#::
 Serious problems, such as malformed packets.
 
-[[ChAdvExpertGroup]]
+[#ChAdvExpertGroup]
 
 ===== Summary
 
@@ -385,15 +385,15 @@ Dissection incomplete or data can’t be decoded for other reasons.
 
 It’s possible that more groups will be added in the future.
 
-[[ChAdvExpertProtocol]]
+[#ChAdvExpertProtocol]
 
 ===== Protocol
 
 The protocol dissector that created the expert information item.
 
-[[ChAdvExpertSummary]]
+[#ChAdvExpertSummary]
 
-[[ChAdvExpertDialog]]
+[#ChAdvExpertDialog]
 
 ==== The “Expert Information” Dialog
 
@@ -449,7 +449,7 @@ Closes the dialog
 // have all entries in the sequence as they appeared, this is sometimes a help to
 // pinpoint problems.
 
-[[ChAdvExpertColorizedTree]]
+[#ChAdvExpertColorizedTree]
 
 ==== “Colorized” Protocol Details Tree
 
@@ -462,7 +462,7 @@ This color is propagated to the top-level protocol item in the tree in order to 
 For the example screenshot above, the IP “Time to live” value is very low (only 1), so the corresponding protocol field is marked with a cyan background.
 To make it easier find that item in the packet tree, the IP protocol toplevel item is marked cyan as well.
 
-[[ChAdvExpertColumn]]
+[#ChAdvExpertColumn]
 
 ==== “Expert” Packet List Column (Optional)
 
@@ -474,7 +474,7 @@ displays the most significant severity of a packet or stays empty if everything
 seems OK. This column is not displayed by default but can be easily added using
 the Preferences Columns page described in <<ChCustPreferencesSection>>.
 
-[[ChAdvTCPAnalysis]]
+[#ChAdvTCPAnalysis]
 
 === TCP Analysis
 
@@ -719,7 +719,7 @@ data transfer will be found with a longer filter as closing a connection can be
 associated with FIN or RST packets, or even both :
 'tcp.completeness==31 or tcp.completeness==47 or tcp.completeness==63'
 
-[[ChAdvTimestamps]]
+[#ChAdvTimestamps]
 
 === Time Stamps
 
@@ -792,7 +792,7 @@ accuracy.
 // (XXX - are there any such NIC’s that generate time stamps on the USB
 // hardware?)
 
-[[ChAdvTimezones]]
+[#ChAdvTimezones]
 
 === Time Zones
 
@@ -929,7 +929,7 @@ done correctly; the conversion back to local time for display might undo this
 correctly, in which case the arrival time will be displayed as the arrival time
 in which the packet was captured.
 
-[[ChAdvTabTimezones]]
+[#ChAdvTabTimezones]
 
 .Time zone examples for UTC arrival times (without DST)
 [options="header"]
@@ -958,7 +958,7 @@ to find out the time zone/DST difference between the two local times and
 “mentally adjust” the time stamps accordingly. In any case, make sure that
 every computer in question has the correct time and time zone setting.
 
-[[ChAdvReassemblySection]]
+[#ChAdvReassemblySection]
 
 
 === Packet Reassembly
@@ -987,7 +987,7 @@ corresponding packets of this chunk, and will show the combined data as
 additional tabs in the “Packet Bytes” pane (for information about this pane.
 See <<ChUsePacketBytesPaneSection>>).
 
-[[ChAdvWiresharkBytesPaneTabs]]
+[#ChAdvWiresharkBytesPaneTabs]
 
 .The “Packet Bytes” pane with a reassembled tab
 image::wsug_graphics/ws-bytes-pane-tabs.png[{screenshot-attrs}]
@@ -1018,7 +1018,7 @@ settings for a protocol typically requires two things:
 The tooltip of the higher level protocol setting will notify you if and which
 lower level protocol setting also has to be considered.
 
-[[ChAdvReassemblyTcp]]
+[#ChAdvReassemblyTcp]
 
 ==== TCP Reassembly
 
@@ -1078,7 +1078,7 @@ Regardless of the setting of these two reassembly-related preferences, you can
 always use the “Follow TCP Stream” option (<<ChAdvFollowStreamSection>>) which
 displays segments in the expected order.
 
-[[ChAdvNameResolutionSection]]
+[#ChAdvNameResolutionSection]
 
 === Name Resolution
 
@@ -1183,7 +1183,7 @@ To get a node name for a SS7 point code a ss7pcs file can be used.
 
 // XXX - mention the role of the /etc/services file (but don’t forget the files and folders section)!
 
-[[ChAdvChecksums]]
+[#ChAdvChecksums]
 
 === Checksums
 

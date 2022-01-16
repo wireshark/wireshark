@@ -1,10 +1,10 @@
 // WSUG Chapter IO
 
-[[ChapterIO]]
+[#ChapterIO]
 
 == File Input, Output, And Printing
 
-[[ChIOIntroductionSection]]
+[#ChIOIntroductionSection]
 
 === Introduction
 
@@ -20,7 +20,7 @@ This chapter will describe input and output of capture data.
 
 * Print packets
 
-[[ChIOOpenSection]]
+[#ChIOOpenSection]
 
 === Open Capture Files
 
@@ -42,7 +42,7 @@ capture files from a large number of other packet capture programs as well. See
 <<ChIOInputFormatsSection>> for the list of capture formats Wireshark
 understands.
 
-[[ChIOOpen]]
+[#ChIOOpen]
 
 ==== The “Open Capture File” Dialog Box
 
@@ -75,14 +75,14 @@ Wireshark adds the following controls:
 
 * Optionally force Wireshark to read a file as a particular type using the “Automatically detect file type” dropdown.
 
-[[ChIOOpenFileDialogWin32]]
+[#ChIOOpenFileDialogWin32]
 
 .“Open” on Microsoft Windows
 image::wsug_graphics/ws-open-win32.png[{medium-screenshot-attrs}]
 
 This is the common Windows file open dialog along with some Wireshark extensions.
 
-[[ChIOOpenFileDialog]]
+[#ChIOOpenFileDialog]
 
 .“Open” - Linux and UNIX
 image::wsug_graphics/ws-open-qt5.png[{medium-screenshot-attrs}]
@@ -91,7 +91,7 @@ This is the common Qt file open dialog along with some Wireshark extensions.
 
 // XXX Add macOS
 
-[[ChIOInputFormatsSection]]
+[#ChIOInputFormatsSection]
 
 
 ==== Input File Formats
@@ -214,7 +214,7 @@ captured. Ethernet captures are usually supported for most file formats but it
 may not be possible to read other packet types such as PPP or IEEE 802.11 from
 all file formats.
 
-[[ChIOSaveSection]]
+[#ChIOSaveSection]
 
 === Saving Captured Packets
 
@@ -225,7 +225,7 @@ Not all information will be saved in a capture file. For example, most file
 formats don’t record the number of dropped packets. See
 <<ChAppFilesCaptureFilesSection>> for details.
 
-[[ChIOSaveAs]]
+[#ChIOSaveAs]
 
 ==== The “Save Capture File As” Dialog Box
 
@@ -234,14 +234,14 @@ The exact appearance of this dialog depends on your system.
 However, the functionality is the same across systems.
 Examples are shown below.
 
-[[ChIOSaveAsFileWin32]]
+[#ChIOSaveAsFileWin32]
 
 .“Save” on Microsoft Windows
 image::wsug_graphics/ws-save-as-win32.png[{medium-screenshot-attrs}]
 
 This is the common Windows file save dialog with some additional Wireshark extensions.
 
-[[ChIOSaveAsFile2]]
+[#ChIOSaveAsFile2]
 
 .“Save” on Linux and UNIX
 image::wsug_graphics/ws-save-as-qt5.png[{medium-screenshot-attrs}]
@@ -278,7 +278,7 @@ You can convert capture files from one format to another by opening a capture an
 
 If you wish to save some of the packets in your capture file you can do so via <<ChIOExportSpecifiedPacketsDialog>>.
 
-[[ChIOOutputFormatsSection]]
+[#ChIOOutputFormatsSection]
 
 ==== Output File Formats
 
@@ -357,7 +357,7 @@ the `.cap` extension in order to open a file using the Windows version
 of _Sniffer_.
 ====
 
-[[ChIOMergeSection]]
+[#ChIOMergeSection]
 
 === Merging Capture Files
 
@@ -379,7 +379,7 @@ There are three ways to merge capture files using Wireshark:
   This tool provides the most options to merge capture files.
   See <<AppToolsmergecap>> for details.
 
-[[ChIOMergeDialog]]
+[#ChIOMergeDialog]
 
 ==== The “Merge With Capture File” Dialog Box
 
@@ -400,18 +400,18 @@ Merge both the packets from the selected and currently loaded file in chronologi
 Append packets::
 Append the packets from the selected file after the currently loaded packets.
 
-[[ChIOMergeFileTab]]
+[#ChIOMergeFileTab]
 
 .“Merge Capture File As” dialog box examples
 
-[[ChIOMergeFileWin32]]
+[#ChIOMergeFileWin32]
 
 .“Merge” on Microsoft Windows
 image::wsug_graphics/ws-merge-win32.png[{medium-screenshot-attrs}]
 
 This is the common Windows file open dialog with additional Wireshark extensions.
 
-[[ChIOMergeFile2]]
+[#ChIOMergeFile2]
 
 .“Merge” on Linux and UNIX
 image::wsug_graphics/ws-merge-qt5.png[{medium-screenshot-attrs}]
@@ -420,7 +420,7 @@ This is the Qt file open dialog with additional Wireshark extensions.
 
 // XXX Add macOS
 
-[[ChIOImportSection]]
+[#ChIOImportSection]
 
 === Import Hex Dump
 
@@ -553,7 +553,7 @@ be used to reorder out of order captures after the import.
 If this field is not given, no IDs will be present in the resulting file.
 +
 
-[[ChIOImportDialog]]
+[#ChIOImportDialog]
 
 
 ==== The “Import From Hex Dump” Dialog Box
@@ -561,7 +561,7 @@ If this field is not given, no IDs will be present in the resulting file.
 This dialog box lets you select a text file, containing a hex dump of packet
 data, to be imported and set import parameters.
 
-[[ChIOFileImportDialog]]
+[#ChIOFileImportDialog]
 
 .The “Import from Hex Dump” dialog in Hex Dump mode
 image::wsug_graphics/ws-file-import.png[{medium-screenshot-attrs}]
@@ -677,7 +677,7 @@ in the expected range and all unlocked fields are populated when using regex mod
 When completed there will be a new capture file loaded with the frames imported
 from the text file.
 
-[[ChIOFileSetSection]]
+[#ChIOFileSetSection]
 
 === File Sets
 
@@ -717,7 +717,7 @@ with file sets in a convenient way:
 *  btn:[Previous File] closes the current and opens the previous file in the
    file set.
 
-[[ChIOFileSetListDialog]]
+[#ChIOFileSetListDialog]
 
 ==== The “List Files” Dialog Box
 
@@ -748,7 +748,7 @@ opened/closed.
 
 The btn:[Close] button will, well, close the dialog box.
 
-[[ChIOExportSection]]
+[#ChIOExportSection]
 
 // - Add {missing} for other exports?
 
@@ -758,7 +758,7 @@ Wireshark provides a variety of options for exporting packet data.
 This section describes general ways to export data from the main Wireshark application.
 There are many other ways to export or extract data from capture files, including processing <<AppToolstshark,tshark>> output and customizing Wireshark and TShark using Lua scripts.
 
-[[ChIOExportSpecifiedPacketsDialog]]
+[#ChIOExportSpecifiedPacketsDialog]
 
 ==== The “Export Specified Packets” Dialog Box
 
@@ -769,7 +769,7 @@ This is similar to the “<<ChIOSaveAs,Save>>” dialog box, but it lets you sav
 This can be useful for trimming irrelevant or unwanted packets from a capture file.
 See <<ChIOPacketRangeSection,Packet Range>> for details on the range controls.
 
-[[ChIOExportPacketDissectionsDialog]]
+[#ChIOExportPacketDissectionsDialog]
 
 ==== The “Export Packet Dissections” Dialog Box
 
@@ -958,7 +958,7 @@ If you would like to be able to <<ChIOImportSection,import>> any previously expo
 ]
 ----
 
-[[ChIOExportSelectedDialog]]
+[#ChIOExportSelectedDialog]
 
 ==== The “Export Selected Packet Bytes” Dialog Box
 
@@ -973,7 +973,7 @@ The file name to export the packet data to.
 Save as type::
 The file extension.
 
-[[ChIOExportPDUSDialog]]
+[#ChIOExportPDUSDialog]
 
 ==== The “Export PDUs to File...” Dialog Box
 
@@ -981,7 +981,7 @@ The “Export PDUs to File...” dialog box allows you to filter the captured Pr
 
 . In the main menu select menu:File[Export PDUs to File...]. Wireshark will open a corresponding dialog <<ExportPDUsToFile>>.
 +
-[[ExportPDUsToFile]]
+[#ExportPDUsToFile]
 +
 .Export PDUs to File window
 image::wsug_graphics/ws-export-pdus-to-file.png[{screenshot-attrs}]
@@ -1008,7 +1008,7 @@ NOTE: You can add any dissector to the existing list, or define a new entry in t
 
 . You can open the file from the main Wireshark window by choosing it in the bottom-left corner. That closes the originally captured file and opens the exported results instead.
 
-[[ChIOExportTLSSessionKeys]]
+[#ChIOExportTLSSessionKeys]
 
 ==== The “Export TLS Session Keys...” Dialog Box
 
@@ -1022,7 +1022,7 @@ To export captured TLS session keys, follow the steps below:
 
 . In the main menu select menu:File[Export TLS Session Keys...]. Wireshark will open a corresponding dialog <<TlsSessionKeys>>.
 +
-[[TlsSessionKeys]]
+[#TlsSessionKeys]
 +
 .Export TLS Session Keys window
 image::wsug_graphics/ws-tls-session-keys.png[{screenshot-attrs}]
@@ -1033,7 +1033,7 @@ image::wsug_graphics/ws-tls-session-keys.png[{screenshot-attrs}]
 
 . Press the btn:[Save] button to complete the export file procedure.
 
-[[ChIOExportObjectsDialog]]
+[#ChIOExportObjectsDialog]
 
 ==== The “Export Objects” Dialog Box
 
@@ -1088,7 +1088,7 @@ Saves the currently selected object as a filename you specify. The
 default filename to save as is taken from the filename column of the objects
 list.
 
-[[ChIOPrintSection]]
+[#ChIOPrintSection]
 
 === Printing Packets
 
@@ -1103,7 +1103,7 @@ Printed output can contain lots of text, particularly if you print packet detail
 
 ==== The “Print” Dialog Box
 
-[[ChIOPrintDialogBox]]
+[#ChIOPrintDialogBox]
 
 .The “Print” dialog box
 image::wsug_graphics/ws-print.png[{medium-screenshot-attrs}]
@@ -1136,14 +1136,14 @@ btn:[Cancel] will close the dialog without printing.
 
 btn:[Help] will display this section of the “User’s Guide”.
 
-[[ChIOPacketRangeSection]]
+[#ChIOPacketRangeSection]
 
 === The “Packet Range” Frame
 
 The packet range frame is a part of the “<<ChIOExportSpecifiedPacketsDialog,Export Specified Packets>>,” “<<ChIOExportPacketDissectionsDialog,Export Packet Dissections>>,” and “<<ChIOPrintSection,Print>>” dialog boxes.
 You can use it to specify which packets will be exported or printed.
 
-[[ChIOPacketRangeFrame]]
+[#ChIOPacketRangeFrame]
 
 .The “Packet Range” frame
 image::wsug_graphics/ws-packet-range.png[{medium-screenshot-attrs}]
@@ -1171,14 +1171,14 @@ Remove ignored packets::
 Don't export or print ignored packets.
 See <<ChWorkIgnorePacketSection>>.
 
-[[ChIOPacketFormatSection]]
+[#ChIOPacketFormatSection]
 
 === The Packet Format Frame
 
 The packet format frame is also a part of the “<<ChIOExportPacketDissectionsDialog,Export Packet Dissections>>” and “<<ChIOPrintSection,Print>>” dialog boxes.
 You can use it to specify which parts of dissection are exported or printed.
 
-[[ChIOPacketFormatFrame]]
+[#ChIOPacketFormatFrame]
 
 .The “Packet Format” frame
 image::wsug_graphics/ws-packet-format.png[{small-screenshot-attrs}]

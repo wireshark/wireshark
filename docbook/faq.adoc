@@ -32,7 +32,7 @@ unsupported and has known security vulnerabilities.
 For more information, please see the
 https://www.wireshark.org/about.html[About Wireshark] page.
 
-[[wheretogethelp]]
+[#wheretogethelp]
 === Where can I get help?
 
 Community support is available on the
@@ -305,7 +305,7 @@ happens; see the previous question.
 
 == Capturing packets
 
-[[promiscsniff]]
+[#promiscsniff]
 === When I use Wireshark to capture packets, why do I see only packets to and from my machine, or not see all the traffic I'm expecting to see from or to the machine I'm trying to monitor?
 
 This might be because the interface on which you're capturing is
@@ -651,7 +651,7 @@ information (e.g., passwords), then please do not send it.
 
 == Capturing packets on Windows
 
-[[capprobwin]]
+[#capprobwin]
 === I'm running Wireshark on Windows; why does some network interface on my machine not show up in the list of interfaces in the "Interface:" field in the dialog box popped up by "Capture->Start", and/or why does Wireshark give me an error if I try to capture on that interface?
 
 Wireshark relies on the Npcap library, the Npcap device driver,
@@ -787,7 +787,7 @@ seeing VLAN headers and seeing outgoing packets.
 
 == Capturing packets on UN*Xes
 
-[[capprobunix]]
+[#capprobunix]
 === I'm running Wireshark on a UNIX-flavored OS; why does some network interface on my machine not show up in the list of interfaces in the "Interface:" field in the dialog box popped up by "Capture->Start", and/or why does Wireshark give me an error if I try to capture on that interface?
 
 You may need to run Wireshark from an account with sufficient

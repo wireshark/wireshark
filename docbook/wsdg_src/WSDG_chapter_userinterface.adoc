@@ -1,10 +1,10 @@
 // WSDG Chapter User Interface
 
-[[ChapterUserInterface]]
+[#ChapterUserInterface]
 
 == User Interface
 
-[[ChUIIntro]]
+[#ChUIIntro]
 
 === Introduction
 
@@ -21,7 +21,7 @@ development team:
 This chapter is focused on the Wireshark frontend, and especially on
 the Qt interface.
 
-[[ChUIQt]]
+[#ChUIQt]
 
 === The Qt Application Framework
 
@@ -179,7 +179,7 @@ this safely].
 Tapping usually involves declaring static methods for callbacks, passing `this`
 as the tap data.
 
-[[ChUII18N]]
+[#ChUII18N]
 ===== Internationalization and Translation
 
 Qt provides a convenient method for translating text: `Qobject::tr()`,
@@ -280,7 +280,7 @@ _plugins/epan/pluginifdemo_.
 https://www.kdab.com/development-resources/qt-tools/gammaray/[GammaRay] lets you inspect
 the internals of a running Qt application similar to $$Spy++$$ on Windows.
 
-[[ChUIGUIDocs]]
+[#ChUIGUIDocs]
 
 === Human Interface Reference Documents
 

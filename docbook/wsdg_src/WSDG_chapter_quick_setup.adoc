@@ -1,14 +1,14 @@
 // WSDG Chapter Setup
 
-[[ChapterSetup]]
+[#ChapterSetup]
 
 == Quick Setup
 
-[[ChSetupUNIX]]
+[#ChSetupUNIX]
 
 === UNIX: Installation and Build Instructions
 
-[[ChSetupUNIXBuildEnvironmentSetup]]
+[#ChSetupUNIXBuildEnvironmentSetup]
 
 ==== Build environment setup
 
@@ -75,7 +75,7 @@ can install that tool from source code. The following sections
 will provide you with the webpage addresses where you can get
 these sources.
 
-[[ChSetupUNIXBuild]]
+[#ChSetupUNIXBuild]
 
 ==== Building
 
@@ -211,7 +211,7 @@ Known traps are:
 
 ====
 
-[[ChSetupChocolatey]]
+[#ChSetupChocolatey]
 
 ==== Recommended: Install Chocolatey
 
@@ -233,7 +233,7 @@ You can install Chocolatey packages using the command `choco install` (or its sh
 ----
 
 
-[[ChSetupMSVC]]
+[#ChSetupMSVC]
 
 ==== Install Microsoft Visual Studio
 
@@ -276,7 +276,7 @@ Why is this recommended?
 While this is a huge download, the Community Editions of Visual Studio are free (as in beer) and include the Visual Studio integrated debugger.
 Visual Studio 2019 is also used to create official Wireshark builds, so it will likely have fewer development-related problems.
 
-[[ChSetupQt]]
+[#ChSetupQt]
 
 ==== Install Qt
 
@@ -297,7 +297,7 @@ The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PR
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
 upgrade Qt to newer versions.
 
-[[ChSetupPython]]
+[#ChSetupPython]
 
 ==== Install Python
 
@@ -335,7 +335,7 @@ PS$> choco install -y activeperl
 // winget has StrawberryPerl.
 // https://github.com/microsoft/winget-pkgs/tree/master/manifests/s/StrawberryPerl/StrawberryPerl
 
-[[ChSetupGit]]
+[#ChSetupGit]
 
 ==== Install Git
 
@@ -389,7 +389,7 @@ A list of other GUI interfaces for Git can be found at
 https://git-scm.com/downloads/guis
 
 
-[[ChSetupCMake]]
+[#ChSetupCMake]
 
 ==== Install CMake
 
@@ -410,7 +410,7 @@ PS$> choco install -y cmake
 
 Chocolatey ensures cmake.exe is on your path.
 
-[[ChSetupAsciidoctor]]
+[#ChSetupAsciidoctor]
 
 ==== Install Asciidoctor, Xsltproc, And DocBook
 
@@ -493,7 +493,7 @@ Make sure your repository path doesn't contain spaces.
 . Click the btn:[Clone] button. Git Extensions should start cloning the
   Wireshark repository.
 
-[[ChSetupPrepareCommandCom]]
+[#ChSetupPrepareCommandCom]
 
 ==== Open a Visual Studio Command Prompt
 
@@ -558,7 +558,7 @@ to create and jump into the build directory.
 The build directory can be deleted at any time and the build files regenerated as detailed in <<ChWin32Generate>>.
 --
 
-[[ChWin32Generate]]
+[#ChWin32Generate]
 
 ==== Generate the build files
 
@@ -602,7 +602,7 @@ If you get any other output, there is an issue in your environment that must be 
 Check the parameters passed to CMake, especially the `-G` option and the path to the Wireshark sources and
 the environment variables `WIRESHARK_BASE_DIR` and `CMAKE_PREFIX_PATH`.
 
-[[ChWin32Build]]
+[#ChWin32Build]
 
 ==== Build Wireshark
 
