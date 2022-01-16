@@ -53,6 +53,8 @@
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
+#include "packet-tls.h"
+
 #include <epan/strutil.h>
 
 #define TCP_PORT_SOCKS 1080
@@ -119,6 +121,7 @@ static int hf_socks_traceroute_results = -1;
 /************* Dissector handles ***********/
 
 static dissector_handle_t socks_handle;
+static dissector_handle_t socks_handle_tls;
 static dissector_handle_t socks_udp_handle;
 
 /************* State Machine names ***********/
@@ -1061,7 +1064,9 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
         conversation_add_proto_data(conversation, proto_socks, hash_info);
 
                         /* set dissector for now */
-        conversation_set_dissector(conversation, socks_handle);
+        if (conversation_get_dissector(conversation, pinfo->num) != NULL) {
+            conversation_set_dissector(conversation, socks_handle);
+        }
     }
 
     /* display summary window information  */
@@ -1172,6 +1177,22 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
 }
 
 
+static int
+dissect_socks_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    if (data != NULL) {
+        return dissect_socks(tvb, pinfo, tree, data);
+    } else {
+        /* lets fake a tcpinfo, which TLS does not give us */
+        struct tcpinfo tmp;
+        tmp.flags = 0;
+        tmp.is_reassembled = FALSE;
+        tmp.lastackseq = 0;
+        tmp.nxtseq = 0;
+        tmp.seq = 0;
+        tmp.urgent_pointer = 0;
+        return dissect_socks(tvb, pinfo, tree, &tmp);
+    }
+}
 
 void
 proto_register_socks( void){
@@ -1345,8 +1366,11 @@ proto_reg_handoff_socks(void) {
     /* dissector install routine */
     socks_udp_handle = create_dissector_handle(socks_udp_dissector, proto_socks);
     socks_handle = create_dissector_handle(dissect_socks, proto_socks);
+    socks_handle_tls = register_dissector("SOCKS over TLS", dissect_socks_tls, proto_socks);
 
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_SOCKS, socks_handle);
+
+    ssl_dissector_add(0, socks_handle_tls);
 }
 
 /*
