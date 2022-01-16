@@ -3891,6 +3891,7 @@ dsmipv6		4191/udp	# Dual Stack MIPv6 NAT Traversal
 azeti		4192/tcp	# Azeti Agent Service
 azeti-bd	4192/udp	# azeti blinddate
 pvxplusio	4193/tcp	# PxPlus remote file srvr
+spdm		4194/tcp	# Security Protocol and Data Model
 aws-wsp		4195/tcp/udp/sctp/dccp	# AWS protocol for cloud remoting solution
 hctl		4197/tcp/udp	# Harman HControl Protocol
 eims-admin	4199/tcp/udp	# EIMS ADMIN
@@ -4258,7 +4259,6 @@ strexec-d	5026/tcp/udp	# Storix I/O daemon (data)
 strexec-s	5027/tcp/udp	# Storix I/O daemon (stat)
 qvr		5028/tcp	# Quiqum Virtual Relais
 infobright	5029/tcp/udp	# Infobright Database Server
-surfpass	5030/tcp/udp	# SurfPass
 dmp		5031/udp	# Direct Message Protocol
 signacert-agent	5032/tcp	# SignaCert Enterprise Trust Server Agent
 jtnetd-server	5033/tcp	# Janstor Secure Data
