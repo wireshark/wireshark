@@ -40,6 +40,7 @@ static int hf_http3_settings_value = -1;
 static int hf_http3_settings_qpack_max_table_capacity = -1;
 static int hf_http3_settings_max_field_section_size = -1;
 static int hf_http3_settings_qpack_blocked_streams = -1;
+static int hf_http3_settings_extended_connect = -1;
 
 static expert_field ei_http3_unknown_stream_type = EI_INIT;
 static expert_field ei_http3_data_not_decoded = EI_INIT;
@@ -107,18 +108,20 @@ static const val64_string http3_frame_types[] = {
 };
 
 /*
- * Frame type codes (62-bit code space).
+ * Settings parameter type codes (62-bit code space).
  * https://tools.ietf.org/html/draft-ietf-quic-http-29#name-http-2-settings-parameters
  */
 
 #define HTTP3_QPACK_MAX_TABLE_CAPACITY          0x01
 #define HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE   0x06
 #define HTTP3_QPACK_BLOCKED_STREAMS             0x07
+#define HTTP3_EXTENDED_CONNECT                  0x08 /* https://datatracker.ietf.org/doc/draft-ietf-httpbis-h3-websockets */
 
 static const val64_string http3_settings_vals[] = {
     { HTTP3_QPACK_MAX_TABLE_CAPACITY, "Max Table Capacity" },
     { HTTP3_SETTINGS_MAX_FIELD_SECTION_SIZE, "Max Field Section Size" },
     { HTTP3_QPACK_BLOCKED_STREAMS, "Blocked Streams" },
+    { HTTP3_QPACK_BLOCKED_STREAMS, "Extended CONNECT" },
     { 0, NULL }
 };
 
@@ -232,6 +235,10 @@ dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_
             break;
             case HTTP3_QPACK_BLOCKED_STREAMS:
                 proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_qpack_blocked_streams, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
+                proto_item_append_text(ti_settings, ": %" PRIu64, value );
+            break;
+            case HTTP3_EXTENDED_CONNECT:
+                proto_tree_add_item_ret_varint(settings_tree, hf_http3_settings_extended_connect, tvb, offset, -1, ENC_VARINT_QUIC, &value, &lenvar);
                 proto_item_append_text(ti_settings, ": %" PRIu64, value );
             break;
             default:
@@ -491,6 +498,11 @@ proto_register_http3(void)
         },
         { &hf_http3_settings_qpack_blocked_streams,
             { "Blocked Streams", "http3.settings.qpak.blocked_streams",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_settings_extended_connect,
+            { "Extended CONNECT", "http3.settings.extended_connect",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
