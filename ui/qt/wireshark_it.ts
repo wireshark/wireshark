@@ -379,11 +379,7 @@
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished">Ctrl+M</translation>
-    </message>
-    <message>
-        <source>Ctrl-M</source>
-        <translation type="vanished">Ctrl-M</translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -2673,7 +2669,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva</translation>
     </message>
     <message>
         <source>Default</source>
@@ -2681,7 +2677,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Restore default value of the item</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina il valore predefinito dell&apos;elemento</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4411,8 +4407,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Versione IP:</translation>
     </message>
     <message>
-        <source>The IP Version for to use for the dummy IP header</source>
-        <translation>La versione IP da utilizzare con l&apos;intestazione IP fittizia</translation>
+        <source>The IP Version to use for the dummy IP header</source>
+        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
+        <translation type="unfinished">La versione IP da utilizzare con l&apos;intestazione IP fittizia</translation>
     </message>
     <message>
         <source>Interface name:</source>
@@ -4683,8 +4680,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
-        <translation type="unfinished">&lt;p&gt;Le interfacce locali non sono disponibili poiché non è installato alcun driver di cattura.&lt;/p&gt;&lt;p&gt;Puoi correggere questo problema installando &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; o &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Le interfacce locali non sono disponibili poiché non è installato alcun driver di cattura.&lt;/p&gt;&lt;p&gt;Puoi correggere questo problema installando &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
@@ -6719,7 +6715,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>SOME/IP</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -7186,19 +7182,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>SOME/IP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/Messaggi IP</translation>
     </message>
     <message>
         <source>SOME/IP Message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche SOME/Messaggi IP</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
+        <translation>Voci SOME/IP-SD</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Statistiche voci SOME/Messaggi IP</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8318,7 +8314,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configura tutte le extcap prima di avviare la cattura.</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
@@ -12923,6 +12919,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Raw</source>
         <translation>Grezzo</translation>
+    </message>
+    <message>
+        <source>Rust Array</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UTF-8</source>

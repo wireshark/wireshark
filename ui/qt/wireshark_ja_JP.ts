@@ -378,11 +378,7 @@
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished">Ctrl+M</translation>
-    </message>
-    <message>
-        <source>Ctrl-M</source>
-        <translation type="vanished">Ctrl+M</translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -726,7 +722,7 @@
     <name>ByteViewText</name>
     <message>
         <source>Allow hover highlighting</source>
-        <translation type="unfinished"></translation>
+        <translation>ホーバーハイライトを許可</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -2665,7 +2661,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>保存</translation>
     </message>
     <message>
         <source>Default</source>
@@ -2673,7 +2669,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Restore default value of the item</source>
-        <translation type="unfinished"></translation>
+        <translation>デフォルト値を復元します</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4318,11 +4314,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;たとえ16進数バイト列のように見えても16進数+ASCII行の末尾にてASCII表現の開始を検出する追加処理をするかどうか。&lt;/p&gt;&lt;p&gt;16進数ダンプにASCIIを含まない場合には有効にしません。&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII 識別:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -4390,23 +4386,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>IP version:</source>
-        <translation type="unfinished"></translation>
+        <translation>IP バージョン:</translation>
     </message>
     <message>
-        <source>The IP Version for to use for the dummy IP header</source>
-        <translation type="unfinished"></translation>
+        <source>The IP Version to use for the dummy IP header</source>
+        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
+        <translation type="unfinished">ダミーIPヘッダに用いるIPバージョン</translation>
     </message>
     <message>
         <source>Interface name:</source>
-        <translation type="unfinished"></translation>
+        <translation>インターフェース名:</translation>
     </message>
     <message>
         <source>The name of the interface to write to the import capture file</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートしたキャプチャファイルに書き込むインターフェースの名前</translation>
     </message>
     <message>
         <source>Fake IF, Import from Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>フェイクインターフェース, 16進ダンプからインポート</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
@@ -4454,35 +4451,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prefix each frame with an Ethernet and IP header</source>
-        <translation type="unfinished"></translation>
+        <translation>EthernetとIPヘッダをもつ各々のフレームのプレフィックス</translation>
     </message>
     <message>
         <source>IP</source>
-        <translation type="unfinished"></translation>
+        <translation>IP</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and UDP header</source>
-        <translation type="unfinished"></translation>
+        <translation>EthernetとIPとUDPヘッダをもつ各々のフレームのプレフィックス</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and TCP header</source>
-        <translation type="unfinished"></translation>
+        <translation>EthernetとIPとTCPヘッダをもつ各々のフレームのプレフィックス</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
-        <translation type="unfinished"></translation>
+        <translation>EthernetとIPとSCTPヘッダをもつ各々のフレームのプレフィックス</translation>
     </message>
     <message>
         <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
-        <translation type="unfinished"></translation>
+        <translation>EthernetとIPとSCTP (DATA)ヘッダをもつ各々のフレームのプレフィックス</translation>
     </message>
     <message>
         <source>Source address:</source>
-        <translation type="unfinished"></translation>
+        <translation>送信元アドレス:</translation>
     </message>
     <message>
         <source>Destination address:</source>
-        <translation type="unfinished"></translation>
+        <translation>宛先アドレス:</translation>
     </message>
     <message>
         <source>Dissector</source>
@@ -4490,15 +4487,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The IP protocol ID for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各々のフレームのIPプロトコルID</translation>
     </message>
     <message>
         <source>The IP source address for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各々のフレームの送信元IPアドレス</translation>
     </message>
     <message>
         <source>The IP destination address for each frame</source>
-        <translation type="unfinished"></translation>
+        <translation>各々のフレームのIP宛先アドレス</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4665,8 +4662,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
-        <translation type="unfinished">&lt;p&gt;パケットキャプチャドライバがインストールされていないためローカルインタフェースは利用できません。&lt;/p&gt;&lt;p&gt;以下をインストールしてこれを修正できます。&lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; もしくは &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;。&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;キャプチャドライバがインストールされていないのでローカルインターフェースは利用できません。&lt;p&gt;以下をインストールすることで修正できます。 &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;。&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
@@ -6701,7 +6697,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SOME/IP</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -7168,19 +7164,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SOME/IP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP メッセージ</translation>
     </message>
     <message>
         <source>SOME/IP Message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP メッセージ統計</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP-SD エントリ</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>SOME/IP-SD エントリ統計</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8299,7 +8295,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ開始前にすべてのextcapを設定します</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
@@ -12893,6 +12889,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Raw</source>
         <translation>Raw(無加工)形式</translation>
+    </message>
+    <message>
+        <source>Rust Array</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UTF-8</source>

@@ -378,11 +378,7 @@
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished">Ctrl+M</translation>
-    </message>
-    <message>
-        <source>Ctrl-M</source>
-        <translation type="vanished">Ctrl-M</translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -2666,7 +2662,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaydet</translation>
     </message>
     <message>
         <source>Default</source>
@@ -2674,7 +2670,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Restore default value of the item</source>
-        <translation type="unfinished"></translation>
+        <translation>Öğenin varsayılan değerini geri yükle</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4394,8 +4390,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>IP sürümü:</translation>
     </message>
     <message>
-        <source>The IP Version for to use for the dummy IP header</source>
-        <translation>Sahte IP başlığı için kullanılacak IP Sürümü</translation>
+        <source>The IP Version to use for the dummy IP header</source>
+        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
+        <translation type="unfinished">Sahte IP başlığı için kullanılacak IP Sürümü</translation>
     </message>
     <message>
         <source>Interface name:</source>
@@ -4666,8 +4663,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
-        <translation type="unfinished">&lt;p&gt;Paket yakalama sürücüsü yüklü olmadığı için yerel arayüzler kullanılamıyor.&lt;/p&gt;&lt;p&gt;Bu sorunu &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; yükleyerek düzeltebilirsiniz. veya &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Paket yakalama sürücüsü yüklü olmadığı için yerel arabirimler kullanılamıyor.&lt;/p&gt;&lt;p&gt;Bu sorunu &lt;a href=&quot;https://npcap.com/&quot;&gt;Nccap&lt;/a&gt;.yükleyerek düzeltebilirsiniz.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
@@ -6698,7 +6694,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SOME/IP</source>
-        <translation type="unfinished"></translation>
+        <translation>BAZI/IP</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -7165,19 +7161,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>SOME/IP Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>BAZI/IP Mesajları</translation>
     </message>
     <message>
         <source>SOME/IP Message statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>BAZI/IP Mesaj istatistikleri</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries</source>
-        <translation type="unfinished"></translation>
+        <translation>BAZI/IP-SD Girdileri</translation>
     </message>
     <message>
         <source>SOME/IP-SD Entries statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>BAZI/IP-SD Girdi istatistikleri</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8296,7 +8292,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Yakalamaya başlamadan önce tüm dış harfleri yapılandırın.</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
@@ -12890,6 +12886,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Raw</source>
         <translation>Ham</translation>
+    </message>
+    <message>
+        <source>Rust Array</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UTF-8</source>

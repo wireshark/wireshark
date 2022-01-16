@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-1023-g9a681f88adc4)
+Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-1084-ga9490f354c04)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -43,11 +43,13 @@ Input:
 Output:
   -F <capture type>      set the output file type; default is pcap.
                          an empty "-F" option will list the file types.
-  -l <typenum>           link-layer type number; default is 1 (Ethernet).  See
+  -E <encap type>        set the output file encapsulation type; default is
+                         ether (Ethernet). An empty "-E" option will list
+                         the encapsulation types.
+  -l <typenum>           set the output file encapsulation type via link-layer
+                         type number; default is 1 (Ethernet). See
                          https://www.tcpdump.org/linktypes.html for a list of
-                         numbers.  Use this option if your dump is a complete
-                         hex dump of an encapsulated packet and you wish to
-                         specify the exact type of encapsulation.
+                         numbers.
                          Example: -l 7 for ARCNet packets.
   -m <max-packet>        max packet length in output; default is 262144
   -n                     use pcapng instead of pcap as output format.
@@ -59,14 +61,15 @@ Prepend dummy header:
                          Example: -e 0x806 to specify an ARP packet.
   -i <proto>             prepend dummy IP header with specified IP protocol
                          (in DECIMAL).
-                         Automatically prepends Ethernet header as well.
+                         Automatically prepends Ethernet header as well if
+                         link-layer type is Ethernet.
                          Example: -i 46
   -4 <srcip>,<destip>    prepend dummy IPv4 header with specified
                          dest and source address.
                          Example: -4 10.0.0.1,10.0.0.2
   -6 <srcip>,<destip>    prepend dummy IPv6 header with specified
                          dest and source address.
-                         Example: -6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334
+                         Example: -6 2001:db8::b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334
   -u <srcp>,<destp>      prepend dummy UDP header with specified
                          source and destination ports (in DECIMAL).
                          Automatically prepends Ethernet & IP headers as well.
@@ -85,7 +88,6 @@ Prepend dummy header:
                          Automatically prepends a dummy SCTP DATA
                          chunk header with payload protocol identifier ppi.
                          Example: -S 30,40,34
-
   -P <dissector>         prepend EXPORTED_PDU header with specifieddissector
                          as the payload PROTO_NAME tag.
                          Automatically sets link type to Upper PDU Export.

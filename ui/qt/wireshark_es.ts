@@ -382,10 +382,6 @@
         <translation type="unfinished">Ctrl+M</translation>
     </message>
     <message>
-        <source>Ctrl-M</source>
-        <translation type="vanished">Ctrl-M</translation>
-    </message>
-    <message>
         <source>Mark/Unmark Cell</source>
         <translation>Marcar/Desmarcar celda</translation>
     </message>
@@ -4372,7 +4368,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The IP Version for to use for the dummy IP header</source>
+        <source>The IP Version to use for the dummy IP header</source>
+        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4644,7 +4641,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <oldsource>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12815,6 +12811,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Raw</source>
         <translation>Raw</translation>
+    </message>
+    <message>
+        <source>Rust Array</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UTF-8</source>

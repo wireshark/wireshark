@@ -8042,6 +8042,7 @@ static const value_string usb_products_vals[] = {
     { 0x04b00444, "Nikon Z50" },
     { 0x04b00445, "Nikon DSC D3500" },
     { 0x04b00446, "Nikon DSC D780" },
+    { 0x04b00447, "Nikon DSC D6" },
     { 0x04b00448, "Nikon Z5" },
     { 0x04b0044b, "Nikon Z7_2" },
     { 0x04b0044c, "Nikon Z6_2" },

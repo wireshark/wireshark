@@ -1,4 +1,4 @@
-TShark (Wireshark) 3.7.0 (v3.7.0rc0-906-g40256c64e098)
+TShark (Wireshark) 3.7.0 (v3.7.0rc0-1084-ga9490f354c04)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -81,6 +81,13 @@ Output:
   -P, --print              print packet summary even when writing to a file
   -S <separator>           the line separator to print between packets
   -x                       add output of hex and ASCII dump (Packet Bytes)
+  --hexdump <hexoption>    add hexdump, set options for data source and ASCII dump
+     all                   dump all data sources (-x default)
+     frames                dump only frame data source
+     ascii                 include ASCII dump text (-x default)
+     delimit               delimit ASCII dump text with '|' characters
+     noascii               exclude ASCII dump text
+     help                  display help for --hexdump and exit
   -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
                            format of text output (def: text)
   -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected
