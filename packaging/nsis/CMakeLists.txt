@@ -81,8 +81,11 @@ endif()
 # 1912 = VS2017 15.5        / 14.12
 # 1913 = VS2017 15.6        / 14.13
 # 1914 = VS2017 15.7        / 14.14
-set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
-if(MSVC_VERSION GREATER_EQUAL 1920)
+set(_vcredist_dot_name "vc_redist.${TARGET_MACHINE}.exe") # Visual Studio 2022 and later
+set(_vcredist_underscore_name "vcredist_${TARGET_MACHINE}.exe") # Visual Studio 2019 and earlier
+if(MSVC_VERSION GREATER_EQUAL 1930)
+	set(_ws_vcredist_subdir "vcredist_MSVC2022")
+elseif(MSVC_VERSION GREATER_EQUAL 1920)
 	set(_ws_vcredist_subdir "vcredist_MSVC2019")
 	set(_msvs_version 15.0) # Doesn't appear to be set
 elseif(MSVC_VERSION GREATER_EQUAL 1910)
@@ -115,7 +118,7 @@ if(MSVC_VERSION GREATER_EQUAL 1910 AND VCINSTALLDIR)
 		"${VCINSTALLDIR}/Redist/MSVC/14.*.*")
 endif()
 
-find_program(VCREDIST_EXE "${_vcredist_name}"
+find_program(VCREDIST_EXE NAMES "${_vcredist_dot_name}" "${_vcredist_underscore_name}"
 	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} "${VCINSTALLDIR}"
 	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
 	NO_DEFAULT_PATH
