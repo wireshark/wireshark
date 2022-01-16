@@ -474,6 +474,10 @@ static int hf_http2_headers_via = -1;
 static int hf_http2_headers_www_authenticate = -1;
 #endif
 /* Blocked */
+/* Origin */
+static int hf_http2_origin = -1;
+static int hf_http2_origin_origin_len = -1;
+static int hf_http2_origin_origin = -1;
 
 /*
  * These values *should* be large enough to handle most use cases while
@@ -504,6 +508,7 @@ static gint ett_http2_settings = -1;
 static gint ett_http2_encoded_entity = -1;
 static gint ett_http2_body_fragment = -1;
 static gint ett_http2_body_fragments = -1;
+static gint ett_http2_origin = -1;
 
 #ifdef HAVE_NGHTTP2
 static const fragment_items http2_body_fragment_items = {
@@ -1166,6 +1171,7 @@ static reassembly_table http2_streaming_reassembly_table;
 #define HTTP2_CONTINUATION  9
 #define HTTP2_ALTSVC        0xA
 #define HTTP2_BLOCKED       0xB
+#define HTTP2_ORIGIN        0xC
 
 static const value_string http2_type_vals[] = {
     { HTTP2_DATA,           "DATA" },
@@ -1180,6 +1186,7 @@ static const value_string http2_type_vals[] = {
     { HTTP2_CONTINUATION,   "CONTINUATION" },
     { HTTP2_ALTSVC,         "ALTSVC" },
     { HTTP2_BLOCKED,        "BLOCKED" },
+    { HTTP2_ORIGIN,         "ORIGIN" },
     { 0, NULL }
 };
 
@@ -2506,6 +2513,7 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
         case HTTP2_WINDOW_UPDATE:
         case HTTP2_ALTSVC:
         case HTTP2_BLOCKED:
+        case HTTP2_ORIGIN:
         default:
             /* Does not define any flags */
             fields = http2_unused_flags;
@@ -3584,6 +3592,31 @@ dissect_http2_altsvc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tr
     return offset;
 }
 
+/* Origin */
+static int
+dissect_http2_origin(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                     guint offset, guint8 flags _U_)
+{
+    guint32 origin_len;
+
+    proto_item *ti_origin_entry;
+    proto_tree *origin_entry_tree;
+
+    while(tvb_reported_length_remaining(tvb, offset) > 0){
+
+        ti_origin_entry = proto_tree_add_item(http2_tree, hf_http2_origin, tvb, offset, 6, ENC_NA);
+        origin_entry_tree = proto_item_add_subtree(ti_origin_entry, ett_http2_origin);
+
+        proto_tree_add_item_ret_uint(origin_entry_tree, hf_http2_origin_origin_len, tvb, offset, 2, ENC_BIG_ENDIAN, &origin_len);
+        offset += 2;
+
+        proto_tree_add_item(origin_entry_tree, hf_http2_origin_origin, tvb, offset, origin_len, ENC_ASCII|ENC_NA);
+        offset += origin_len;
+    }
+
+    return offset;
+}
+
 
 int
 dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
@@ -3742,6 +3775,10 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
         case HTTP2_BLOCKED: /* BLOCKED (11) */
             /* no payload! */
+        break;
+
+        case HTTP2_ORIGIN: /* ORIGIN (12) */
+            dissect_http2_origin(tvb, pinfo, http2_tree, offset, flags);
         break;
 
         default:
@@ -4284,6 +4321,24 @@ proto_register_http2(void)
               "A sequence of octets containing a value identical to the Alt-Svc field value", HFILL }
         },
 
+        /* Origin */
+        { &hf_http2_origin,
+            { "Origin", "http2.origin",
+               FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http2_origin_origin_len,
+            { "Origin Length", "http2.origin.origin_len",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+              "indicating the length, in octets, of the Origin field.", HFILL }
+        },
+        { &hf_http2_origin_origin,
+            { "Origin", "http2.origin.origin",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+              "A sequence of characters containing ASCII serialisation of an "
+              "origin that server is authoritative for.", HFILL }
+        },
+
     };
 
     static gint *ett[] = {
@@ -4294,7 +4349,8 @@ proto_register_http2(void)
         &ett_http2_settings,
         &ett_http2_encoded_entity,
         &ett_http2_body_fragment,
-        &ett_http2_body_fragments
+        &ett_http2_body_fragments,
+        &ett_http2_origin
     };
 
     /* Setup protocol expert items */
