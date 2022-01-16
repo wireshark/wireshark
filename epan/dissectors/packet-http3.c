@@ -41,6 +41,8 @@ static int hf_http3_settings_qpack_max_table_capacity = -1;
 static int hf_http3_settings_max_field_section_size = -1;
 static int hf_http3_settings_qpack_blocked_streams = -1;
 static int hf_http3_settings_extended_connect = -1;
+static int hf_http3_priority_update_element_id = -1;
+static int hf_http3_priority_update_field_value = -1;
 
 static expert_field ei_http3_unknown_stream_type = EI_INIT;
 static expert_field ei_http3_data_not_decoded = EI_INIT;
@@ -79,13 +81,15 @@ static const val64_string http3_stream_types[] = {
  * Frame type codes (62-bit code space).
  * https://tools.ietf.org/html/draft-ietf-quic-http-29#section-11.2.1
  */
-#define HTTP3_DATA            0x0
-#define HTTP3_HEADERS         0x1
-#define HTTP3_CANCEL_PUSH     0x3
-#define HTTP3_SETTINGS        0x4
-#define HTTP3_PUSH_PROMISE    0x5
-#define HTTP3_GOAWAY          0x7
-#define HTTP3_MAX_PUSH_ID     0xD
+#define HTTP3_DATA                              0x0
+#define HTTP3_HEADERS                           0x1
+#define HTTP3_CANCEL_PUSH                       0x3
+#define HTTP3_SETTINGS                          0x4
+#define HTTP3_PUSH_PROMISE                      0x5
+#define HTTP3_GOAWAY                            0x7
+#define HTTP3_MAX_PUSH_ID                       0xD
+#define HTTP3_PRIORITY_UPDATE_REQUEST_STREAM    0xF0700
+#define HTTP3_PRIORITY_UPDATE_PUSH_STREAM       0xF0701
 
 static const val64_string http3_frame_types[] = {
     /* 0x00 - 0x3f Assigned via Standards Action or IESG Approval. */
@@ -101,8 +105,8 @@ static const val64_string http3_frame_types[] = {
     { 0x09, "Reserved" },
     { HTTP3_MAX_PUSH_ID, "MAX_PUSH_ID" },
     { 0x0e, "Reserved" }, // "DUPLICATE_PUSH" in draft-26 and before
-    { 0xF0700, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
-    { 0xF0701, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
+    { HTTP3_PRIORITY_UPDATE_REQUEST_STREAM, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
+    { HTTP3_PRIORITY_UPDATE_PUSH_STREAM, "PRIORITY_UPDATE" }, // draft-ietf-httpbis-priority-03
     /* 0x40 - 0x3FFFFFFFFFFFFFFF Assigned via Specification Required policy */
     { 0, NULL }
 };
@@ -250,6 +254,22 @@ dissect_http3_settings(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_
 
     return offset;
 }
+/* Priority Update */
+static int
+dissect_http3_priority_update(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* http3_tree, guint offset, guint64 frame_length)
+{
+    guint64 priority_field_value_len;
+    int lenvar;
+
+    proto_tree_add_item_ret_varint(http3_tree, hf_http3_priority_update_element_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+    offset += lenvar;
+    priority_field_value_len = frame_length - lenvar;
+
+    proto_tree_add_item(http3_tree, hf_http3_priority_update_field_value, tvb, offset, (int)priority_field_value_len, ENC_ASCII|ENC_NA);
+    offset += (int)priority_field_value_len;
+
+    return offset;
+}
 
 static int
 dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -276,6 +296,12 @@ dissect_http3_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
             case HTTP3_SETTINGS: { /* Settings Frame */
                 tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
                 dissect_http3_settings(next_tvb, pinfo,tree, 0);
+            }
+            break;
+            case HTTP3_PRIORITY_UPDATE_REQUEST_STREAM:
+            case HTTP3_PRIORITY_UPDATE_PUSH_STREAM: { /* Priority_Update Frame */
+                tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)frame_length);
+                dissect_http3_priority_update(next_tvb, pinfo,tree, 0, frame_length);
             }
             break;
         }
@@ -504,6 +530,18 @@ proto_register_http3(void)
         { &hf_http3_settings_extended_connect,
             { "Extended CONNECT", "http3.settings.extended_connect",
               FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        /* Priority Update */
+        { &hf_http3_priority_update_element_id,
+            { "Priority Update Element ID", "http3.priority_update_element_id",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http3_priority_update_field_value,
+            { "Priority Update Field Value", "http3.priority_update_field_value",
+              FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
 
