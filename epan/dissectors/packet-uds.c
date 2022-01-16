@@ -23,6 +23,7 @@ void proto_reg_handoff_uds(void);
 
 #define DATAFILE_UDS_ROUTINE_IDS "UDS_routine_identifiers"
 #define DATAFILE_UDS_DATA_IDS    "UDS_data_identifiers"
+#define DATAFILE_UDS_ADDRESSES   "UDS_diagnostic_addresses"
 
 #define UDS_RESPONSE_CODES_GR       0x10
 #define UDS_RESPONSE_CODES_SNS      0x11
@@ -285,6 +286,14 @@ static const value_string uds_cdtcs_types[] = {
 /*
  * Fields
  */
+
+static int hf_uds_diag_addr = -1;
+static int hf_uds_diag_addr_name = -1;
+static int hf_uds_diag_source_addr = -1;
+static int hf_uds_diag_source_addr_name = -1;
+static int hf_uds_diag_target_addr = -1;
+static int hf_uds_diag_target_addr_name = -1;
+
 static int hf_uds_service = -1;
 static int hf_uds_reply = -1;
 
@@ -365,6 +374,60 @@ static heur_dissector_list_t heur_subdissector_list;
 static heur_dtbl_entry_t *heur_dtbl_entry;
 
 /*** Configuration ***/
+typedef struct _address_string {
+    guint    address;
+    gchar   *name;
+} address_string_t;
+
+static void *
+copy_address_string_cb(void *n, const void *o, size_t size _U_) {
+    address_string_t *new_rec = (address_string_t *)n;
+    const address_string_t *old_rec = (const address_string_t *)o;
+
+    new_rec->name = g_strdup(old_rec->name);
+    new_rec->address = old_rec->address;
+    return new_rec;
+}
+
+static gboolean
+update_address_string_cb(void *r, char **err) {
+    address_string_t *rec = (address_string_t *)r;
+
+    if (rec->name == NULL || rec->name[0] == 0) {
+        *err = g_strdup("Name cannot be empty");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void
+free_address_string_cb(void *r) {
+    address_string_t *rec = (address_string_t *)r;
+
+    /* freeing result of g_strdup */
+    g_free(rec->name);
+    rec->name = NULL;
+}
+
+static void
+post_update_address_string_cb(address_string_t *data, guint data_num, GHashTable *ht) {
+    guint   i;
+    gint64 *key = NULL;
+
+    if (ht == NULL) {
+        return;
+    }
+
+    for (i = 0; i < data_num; i++) {
+        key = wmem_new(wmem_epan_scope(), gint64);
+        *key = data[i].address;
+
+        g_hash_table_insert(ht, key, g_strdup(data[i].name));
+    }
+}
+
+
 typedef struct _generic_addr_id_string {
     guint32  address;
     guint    id;
@@ -553,6 +616,86 @@ infocol_append_data_name(packet_info *pinfo, guint32 addr, guint16 data_identifi
     }
 }
 
+
+/* Addresses */
+static address_string_t *uds_uat_addresses = NULL;
+static guint uds_uat_addresses_num = 0;
+static GHashTable *uds_ht_addresses = NULL;
+
+UAT_HEX_CB_DEF(uds_uat_addresses, address, address_string_t)
+UAT_CSTRING_CB_DEF(uds_uat_addresses, name, address_string_t)
+
+static void
+post_update_uds_address_cb(void) {
+    /* destroy old hash table, if it exists */
+    if (uds_ht_addresses) {
+        g_hash_table_destroy(uds_ht_addresses);
+    }
+
+    /* create new hash table */
+    uds_ht_addresses = g_hash_table_new_full(g_int64_hash, g_int64_equal, &simple_free_key, &simple_free);
+    post_update_address_string_cb(uds_uat_addresses, uds_uat_addresses_num, uds_ht_addresses);
+}
+
+static char *
+uds_lookup_address_name(guint32 addr) {
+
+    char *ret = NULL;
+    gint64 tmp = (gint64)addr;
+
+    if (uds_ht_addresses == NULL) {
+        return NULL;
+    }
+
+    ret = (char *)g_hash_table_lookup(uds_ht_addresses, &tmp);
+
+    return ret;
+}
+
+static void
+uds_proto_item_append_address_name(proto_item *ti, guint32 addr) {
+    gchar *address_name = uds_lookup_address_name(addr);
+    if (address_name != NULL) {
+        proto_item_append_text(ti, " (%s)", address_name);
+    }
+}
+
+static proto_item *
+uds_proto_tree_add_address_item(proto_tree *tree, int hf, tvbuff_t *tvb, const gint offset, const gint size, guint addr, gboolean generated, gboolean hidden) {
+    proto_item *ti;
+
+    ti = proto_tree_add_uint(tree, hf, tvb, offset, size, addr);
+    uds_proto_item_append_address_name(ti, addr);
+
+    if (generated) {
+        proto_item_set_generated(ti);
+    }
+
+    if (hidden) {
+        proto_item_set_hidden(ti);
+    }
+
+    return ti;
+}
+
+static proto_item *
+uds_proto_tree_add_address_name(proto_tree *tree, int hf, tvbuff_t *tvb, const gint offset, const gint size, guint addr) {
+    proto_item *ti;
+    gchar *address_name = uds_lookup_address_name(addr);
+
+    if (address_name != NULL) {
+        ti = proto_tree_add_string(tree, hf, tvb, offset, size, address_name);
+    } else {
+        address_name = g_strdup_printf("%d", addr);
+        ti = proto_tree_add_string(tree, hf, tvb, offset, size, address_name);
+    }
+
+    proto_item_set_generated(ti);
+    proto_item_set_hidden(ti);
+
+    return ti;
+}
+
 /*** Configuration End ***/
 
 
@@ -622,8 +765,6 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 
     ti = proto_tree_add_item(tree, proto_uds, tvb, 0, -1, ENC_NA);
     uds_tree = proto_item_add_subtree(ti, ett_uds);
-    proto_tree_add_item(uds_tree, hf_uds_service, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
-    proto_tree_add_item(uds_tree, hf_uds_reply, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
 
     if (sid & UDS_REPLY_MASK) {
         ecu_address = source_address;
@@ -637,11 +778,33 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
         break;
     case 1:
         proto_item_append_text(ti, ", Address: 0x%04x", source_address);
+        uds_proto_item_append_address_name(ti, source_address);
+
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, source_address, false, false);
+        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
         break;
     case 2:
-        proto_item_append_text(ti, ", Source: 0x%04x, Target: 0x%04x", source_address, target_address);
+        proto_item_append_text(ti, ", Source: 0x%04x", source_address);
+        uds_proto_item_append_address_name(ti, source_address);
+        proto_item_append_text(ti, ", Target: 0x%04x", target_address);
+        uds_proto_item_append_address_name(ti, target_address);
+
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_source_addr, tvb, 0, 0, source_address, false, false);
+        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_source_addr_name, tvb, 0, 0, source_address);
+
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, source_address, true, true);
+        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, source_address);
+
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_target_addr, tvb, 0, 0, target_address, false, false);
+        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_target_addr_name, tvb, 0, 0, target_address);
+
+        uds_proto_tree_add_address_item(uds_tree, hf_uds_diag_addr, tvb, 0, 0, target_address, true, true);
+        uds_proto_tree_add_address_name(uds_tree, hf_uds_diag_addr_name, tvb, 0, 0, target_address);
         break;
     }
+
+    proto_tree_add_item(uds_tree, hf_uds_service, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item(uds_tree, hf_uds_reply, tvb, UDS_SID_OFFSET, UDS_SID_LEN, ENC_BIG_ENDIAN);
 
     switch (service) {
         case UDS_SERVICES_DSC:
@@ -1010,6 +1173,60 @@ proto_register_uds(void)
     module_t* uds_module;
     static hf_register_info hf[] = {
             {
+                    &hf_uds_diag_addr,
+                    {
+                            "Diagnostic Address", "uds.diag_addr",
+                            FT_UINT16,  BASE_HEX,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            {
+                    &hf_uds_diag_addr_name,
+                    {
+                            "Diagnostic Address Name", "uds.diag_addr_name",
+                            FT_STRING,  BASE_NONE,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            {
+                    &hf_uds_diag_source_addr,
+                    {
+                            "Diagnostic Source Address", "uds.diag_addr_source",
+                            FT_UINT16,  BASE_HEX,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            {
+                    &hf_uds_diag_source_addr_name,
+                    {
+                            "Diagnostic Source Address Name", "uds.diag_addr_source_name",
+                            FT_STRING,  BASE_NONE,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            {
+                    &hf_uds_diag_target_addr,
+                    {
+                            "Diagnostic Target Address", "uds.diag_addr_target",
+                            FT_UINT16,  BASE_HEX,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            {
+                    &hf_uds_diag_target_addr_name,
+                    {
+                            "Diagnostic Target Address Name", "uds.diag_addr_target_name",
+                            FT_STRING,  BASE_NONE,
+                            NULL, 0x0,
+                            NULL, HFILL
+                    }
+            },
+            {
                     &hf_uds_service,
                     {
                             "Service Identifier",    "uds.sid",
@@ -1356,6 +1573,7 @@ proto_register_uds(void)
 
     uat_t* uds_routine_ids_uat;
     uat_t* uds_data_ids_uat;
+    uat_t* uds_address_uat;
 
     /* Setup protocol subtree array */
     static gint *ett[] =
@@ -1446,6 +1664,31 @@ proto_register_uds(void)
 
     prefs_register_uat_preference(uds_module, "_uds_data_id_list", "UDS Data Identifier List",
         "A table to define names of UDS Data Identifier", uds_data_ids_uat);
+
+    static uat_field_t uds_address_name_uat_fields[] = {
+        UAT_FLD_HEX(uds_uat_addresses, address, "Address", "Address (32bit hex without leading 0x)"),
+        UAT_FLD_CSTRING(uds_uat_addresses, name, "Name", "Name of the Address (string)"),
+        UAT_END_FIELDS
+    };
+
+    uds_address_uat = uat_new("UDS Addresses",
+        sizeof(address_string_t),                   /* record size           */
+        DATAFILE_UDS_ADDRESSES,                     /* filename              */
+        TRUE,                                       /* from profile          */
+        (void**)&uds_uat_addresses,                 /* data_ptr              */
+        &uds_uat_addresses_num,                     /* numitems_ptr          */
+        UAT_AFFECTS_DISSECTION,                     /* but not fields        */
+        NULL,                                       /* help                  */
+        copy_address_string_cb,                     /* copy callback         */
+        update_address_string_cb,                   /* update callback       */
+        free_address_string_cb,                     /* free callback         */
+        post_update_uds_address_cb,                 /* post update callback  */
+        NULL,                                       /* reset callback        */
+        uds_address_name_uat_fields                 /* UAT field definitions */
+    );
+
+    prefs_register_uat_preference(uds_module, "_uds_address_list", "UDS Address List",
+        "A table to define names of UDS Addresses", uds_address_uat);
 
     heur_subdissector_list = register_heur_dissector_list("uds", proto_uds);
 }
