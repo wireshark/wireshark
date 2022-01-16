@@ -468,10 +468,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
         }
 
         unsigned char *buf = g_try_malloc0((gsize)tmp.real_length);
-        z_stream infstream;
-        infstream.zalloc = Z_NULL;
-        infstream.zfree = Z_NULL;
-        infstream.opaque = Z_NULL;
+        z_stream infstream = {0};
 
         infstream.avail_in  = (unsigned int)data_length;
         infstream.next_in   = compressed_data;
