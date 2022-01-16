@@ -78,6 +78,16 @@ BuildRequires:  /usr/bin/asciidoctor
 # No CentOS 8 package, so we install it from rubygems directly, but that
 # means the package manager doesn't know about it and we can't require it.
 
+# For the HTML guides, we need xsltproc, and the docbook stylesheets
+%if %{with guides}
+BuildRequires:  /usr/bin/xsltproc
+%if 0%{?suse_version}
+BuildRequires:  docbook-xsl-stylesheets
+%else
+BuildRequires:  docbook-style-xsl
+%endif
+%endif
+
 BuildRequires:	glib2-devel >= 2.38.0
 BuildRequires:	libpcap-devel
 BuildRequires:	zlib-devel
