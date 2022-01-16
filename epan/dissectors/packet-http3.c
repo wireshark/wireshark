@@ -490,7 +490,7 @@ proto_register_http3(void)
               "The default value is unlimited.", HFILL }
         },
         { &hf_http3_settings_qpack_blocked_streams,
-            { "Blocked Streams", "http3.settings.qpak.blocked_streams",
+            { "Blocked Streams", "http3.settings.qpack.blocked_streams",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
