@@ -188,10 +188,10 @@ _wireshark-dev_ mailing list explaining your problem. Include the output from
 `cmake` and anything else you think is relevant such as a trace of the
 `make` stage.
 
-[[ChSetupWin32]]
+
 // Retain ChSetupWin32 for backward compatibility
-[[ChSetupWindows]]
-=== Windows: Step-by-Step Guide
+[#ChSetupWindows]
+=== Windows: Step-by-Step Guide[[ChSetupWin32]]
 
 A quick setup guide for Windows development with recommended configurations.
 

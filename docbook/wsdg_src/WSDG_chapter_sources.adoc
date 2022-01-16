@@ -68,9 +68,8 @@ Stable release maintenance. For example, release-3.4 is used to manage the 3.4.x
 Tags for major releases and release candidates consist of a “v” followed by a version number such as “v3.2.1” or “v3.2.3rc0”.
 Major releases additionally have a tag prefixed with “wireshark-” followed by a version number, such as “wireshark-3.2.0”.
 
-[[ChSrcSVNWeb]]
-// Retain ChSrcSVNWeb for backward compatibility
-[[ChSrcGitWeb]]
+
+[#ChSrcGitWeb]
 === Browsing And Searching The Source Code
 
 If you need a quick look at the Wireshark source code you can browse the repository files in GitLab at
@@ -88,9 +87,8 @@ Each is described in more detail below.
 We recommend using Git for day to day development, particularly if you wish to contribute changes back to the project.
 The age mentioned in the following sections indicates the age of the most recent change in that set of the sources.
 
-[[ChSrcAnon]]
-// Retain ChSrcAnon for backward compatibility
-[[ChSrcGit]]
+
+[#ChSrcGit]
 ==== Git Over SSH Or HTTPS
 
 This method is strongly recommended for day to day development.
@@ -185,10 +183,7 @@ As development evolves, the Wireshark sources are compilable most of the time --
 You should take a look at {wireshark-commits-url} before fetching or pulling to make sure the builds are in good shape.
 ====
 
-[[ChSrcAnonUpdate]]
-// Retain ChSrcAnonUpdate for backward compatibility
-[[ChSrcGitUpdate]]
-
+[#ChSrcGitUpdate]
 ==== Update Using Git
 
 From time to time you will likely want to synchronize your master branch with the upstream repository.
@@ -223,7 +218,7 @@ Follow the build procedure in <<ChSetupUNIX>> to build Wireshark.
 
 ==== Windows Native
 
-Follow the build procedure in <<ChSetupWin32>> to build Wireshark.
+Follow the build procedure in <<ChSetupWindows>> to build Wireshark.
 
 After the build process has successfully finished, you should find a
 `Wireshark.exe` and some other files in the `run\RelWithDebInfo` directory.

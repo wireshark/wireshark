@@ -255,7 +255,7 @@ from the sources see the Developer’s Guide at:
 
 * {wireshark-developers-guide-url}ChSrcObtain
 
-* {wireshark-developers-guide-url}ChSetupWin32
+* {wireshark-developers-guide-url}ChSetupWindows
 
 You may also want to have a look at the Development Wiki
 ({wireshark-wiki-url}Development) for the latest available development
