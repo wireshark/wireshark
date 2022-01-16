@@ -164,7 +164,7 @@ variables:
     - $env:Path += ";C:\Program Files\CMake\bin"
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
     # Testing / debugging only.
     # - cmd.exe /c "set CI_PIPELINE_SOURCE"
@@ -337,13 +337,13 @@ Win64 Package:
     - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019_64"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
     - mkdir build
     - cd build
   script:
     - perl ../tools/make-version.pl --set-release
-    - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
@@ -380,14 +380,14 @@ Win32 Package:
     - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
     - $env:CMAKE_PREFIX_PATH = "C:\qt\5.15.2\msvc2019"
     # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
-    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvarsamd64_x86.bat`" && set > %temp%\vcvars.txt"
+    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsamd64_x86.bat`" && set > %temp%\vcvars.txt"
     - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
     - $env:Platform = "Win32"
     - mkdir build
     - cd build
   script:
     - perl ../tools/make-version.pl --set-release
-    - cmake -G "Visual Studio 16 2019" -A Win32 -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 17 2022" -A Win32 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount nsis_package_prep.vcxproj
@@ -618,7 +618,7 @@ Windows Build:
   tags:
     - wireshark-windows-merge-req
   script:
-    - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
@@ -680,7 +680,7 @@ Coverity Visual C++ Scan:
     - $gitDescription = (( git describe --tags ) | Out-String).Trim()
     - C:\Windows\System32\curl --output $env:temp\cov-analysis-win64.zip --form project=$COVERITY_SCAN_PROJECT_NAME --form token=$COVERITY_SCAN_TOKEN https://scan.coverity.com/download/win64
     - C:\ProgramData\chocolatey\tools\7z x "$env:temp\cov-analysis-win64.zip" -y -r -o"$env:temp"
-    - cmake -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off -G "Visual Studio 16 2019" -A x64 ..
+    - cmake -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off -G "Visual Studio 17 2022" -A x64 ..
     - $covAnalysisWin64 = (Get-ChildItem -Path $env:temp -Filter "cov-analysis-win64-*" -Directory)[0].FullName
     - Invoke-Expression "& $covAnalysisWin64\bin\cov-build.exe --return-emit-failures --dir ..\cov-int msbuild /verbosity:minimal `"/consoleloggerparameters:PerformanceSummary;NoSummary`" /maxcpucount:1 Wireshark.sln"
     - cd ..
@@ -737,7 +737,7 @@ Visual Studio Code Analysis:
       when: always
   script:
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
-    - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
+    - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
 
 # Build all doxygen docs
