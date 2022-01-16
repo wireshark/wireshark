@@ -396,6 +396,7 @@ static int hf_http2_settings_max_concurrent_streams = -1;
 static int hf_http2_settings_initial_window_size = -1;
 static int hf_http2_settings_max_frame_size = -1;
 static int hf_http2_settings_max_header_list_size = -1;
+static int hf_http2_settings_extended_connect = -1;
 static int hf_http2_settings_unknown = -1;
 /* Push Promise */
 static int hf_http2_push_promise_r = -1;
@@ -1278,6 +1279,7 @@ static const value_string http2_error_codes_vals[] = {
 #define HTTP2_SETTINGS_INITIAL_WINDOW_SIZE      4
 #define HTTP2_SETTINGS_MAX_FRAME_SIZE           5
 #define HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE     6
+#define HTTP2_SETTINGS_EXTENDED_CONNECT         8 /* RFC 8441 */
 
 static const value_string http2_settings_vals[] = {
     { HTTP2_SETTINGS_HEADER_TABLE_SIZE,      "Header table size" },
@@ -1286,6 +1288,7 @@ static const value_string http2_settings_vals[] = {
     { HTTP2_SETTINGS_INITIAL_WINDOW_SIZE,    "Initial Windows size" },
     { HTTP2_SETTINGS_MAX_FRAME_SIZE,         "Max frame size" },
     { HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE,   "Max header list size" },
+    { HTTP2_SETTINGS_EXTENDED_CONNECT,       "Extended CONNECT" },
     { 0, NULL }
 };
 
@@ -3394,6 +3397,9 @@ dissect_http2_settings(tvbuff_t* tvb, packet_info* pinfo _U_, http2_session_t* h
             case HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE:
                 proto_tree_add_item(settings_tree, hf_http2_settings_max_header_list_size, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
+            case HTTP2_SETTINGS_EXTENDED_CONNECT:
+                proto_tree_add_item(settings_tree, hf_http2_settings_extended_connect, tvb, offset, 4, ENC_BIG_ENDIAN);
+            break;
             default:
                 proto_tree_add_item(settings_tree, hf_http2_settings_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
@@ -4215,6 +4221,11 @@ proto_register_http2(void)
             { "Max header list size", "http2.settings.max_header_list_size",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               "This advisory setting informs a peer of the maximum size of header list that the sender is prepared to accept.", HFILL }
+        },
+        { &hf_http2_settings_extended_connect,
+            { "Extended CONNECT", "http2.settings.extended_connect",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "Indicates support for the extended CONNECT method extension defined RFC 8441.", HFILL }
         },
         { &hf_http2_settings_unknown,
             { "Unknown Settings", "http2.settings.unknown",
