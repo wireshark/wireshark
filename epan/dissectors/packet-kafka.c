@@ -1375,9 +1375,10 @@ dissect_kafka_timestamp(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_inf
  * tree: protocol information tree to append the item
  * hf_item: protocol information item descriptor index
  * offset: offset in the buffer where the string length is to be found
- * p_string_val: pointer to a variable to store a pointer o the string value
+ * p_display_string: pointer to a variable to store a pointer to the string value
  *
- * returns: offset of the next field in the message
+ * returns: offset of the next field in the message. If supplied, p_display_string
+ * is guaranteed to be set to a valid value.
  */
 static int
 dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int hf_item, int offset, char **p_display_string)
@@ -1386,13 +1387,13 @@ dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     guint len;
     proto_item *pi;
 
+    if (p_display_string != NULL)
+        *p_display_string = "<INVALID>";
     len = tvb_get_varint(tvb, offset, 5, &val, ENC_VARINT_ZIGZAG);
 
     if (len == 0) {
         pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
-        if (p_display_string != NULL)
-            *p_display_string = "<INVALID>";
         return tvb_captured_length(tvb);
     } else if (val > 0) {
         // there is payload available, possibly with 0 octets
@@ -1413,8 +1414,6 @@ dissect_kafka_string_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         pi = proto_tree_add_string_format_value(tree, hf_item, tvb, offset+len, 0, NULL, "<INVALID>");
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
         val = 0;
-        if (p_display_string != NULL)
-            *p_display_string = "<INVALID>";
     }
 
     return offset+len+(gint)val;
@@ -1498,7 +1497,7 @@ dissect_kafka_record_headers_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     proto_item *header_ti;
     proto_tree *subtree;
-    char *key_display_string = NULL;
+    char *key_display_string;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_record_headers_header, &header_ti, "Header");
 
