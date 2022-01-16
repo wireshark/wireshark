@@ -236,7 +236,12 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a libpcap file */
-	libpcap = g_new(libpcap_t, 1);
+	wth->subtype_read = libpcap_read;
+	wth->subtype_seek_read = libpcap_seek_read;
+	wth->subtype_close = libpcap_close;
+	wth->snapshot_length = hdr.snaplen;
+	libpcap = g_new0(libpcap_t, 1);
+	wth->priv = (void *)libpcap;
 	/*
 	 * Fill in the information we already know or can determine
 	 * at this point, so the private data is usable by the code
@@ -400,11 +405,6 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 	}
 	libpcap->encap_priv = NULL;
-	wth->priv = (void *)libpcap;
-	wth->subtype_read = libpcap_read;
-	wth->subtype_seek_read = libpcap_seek_read;
-	wth->subtype_close = libpcap_close;
-	wth->snapshot_length = hdr.snaplen;
 
 	/*
 	 * If this file has the standard magic number, it could be
