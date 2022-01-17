@@ -1750,12 +1750,14 @@ static int hf_ptp_v2_analysis_pdelayfup_to_pdelayres = -1;
 static int hf_ptp_v2_analysis_sync_timestamp = -1;
 static int hf_ptp_v2_analysis_sync_timestamp_seconds = -1;
 static int hf_ptp_v2_analysis_sync_timestamp_nanoseconds = -1;
+static int hf_ptp_v2_analysis_sync_period = -1;
 static int hf_ptp_v2_analysis_sync_rateRatio = -1;
 static int hf_ptp_v2_analysis_sync_rateRatio_ppm = -1;
 static int hf_ptp_v2_analysis_pdelay_mpd_unscaled = -1;
 static int hf_ptp_v2_analysis_pdelay_mpd_unscaled_seconds = -1;
 static int hf_ptp_v2_analysis_pdelay_mpd_unscaled_nanoseconds = -1;
 static int hf_ptp_v2_analysis_pdelay_mpd_scaled = -1;
+static int hf_ptp_v2_analysis_pdelay_period = -1;
 static int hf_ptp_v2_analysis_pdelay_neighRateRatio = -1;
 static int hf_ptp_v2_analysis_pdelay_neighRateRatio_ppm = -1;
 
@@ -1827,10 +1829,12 @@ typedef struct ptp_frame_info_sync {
     gboolean calculated_timestamp_valid;
     nstime_t calculated_timestamp;
 
+    gboolean syncInterval_valid;
+    gdouble  syncInterval;
+
     gboolean syncRateRatio_valid;
     gdouble  syncRateRatio;
     gint32   syncRateRatio_ppm;
-
 } ptp_frame_info_sync_t;
 
 typedef struct ptp_frame_info_pdelay {
@@ -1852,6 +1856,9 @@ typedef struct ptp_frame_info_pdelay {
     nstime_t mean_propagation_delay_unscaled;
     gdouble  mean_propagation_delay_scaled;
 
+    gboolean pdelayInterval_valid;
+    gdouble  pdelayInterval;
+
     gboolean neighborRateRatio_valid;
     gdouble  neighborRateRatio;
     gint32   neighborRateRatio_ppm;
@@ -1867,7 +1874,9 @@ typedef struct ptp_frame_info {
     struct ptp_frame_info *prev;
 } ptp_frame_info_t;
 
+#define PTP_FRAME_INFO_SYNC_SEEN(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_SYNC_MESSAGE && (fi)->sync.sync_frame_num != 0)
 #define PTP_FRAME_INFO_SYNC_COMPLETE(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_SYNC_MESSAGE && (fi)->sync.sync_frame_num != 0 && (fi)->sync.fup_frame_num != 0)
+#define PTP_FRAME_INFO_PDELAY_REQ_SEEN(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_PEER_DELAY_REQ_MESSAGE && (fi)->pdelay.pdelay_req_frame_num != 0)
 #define PTP_FRAME_INFO_PDELAY_COMPLETE(fi) ((fi) != NULL && (fi)->messagetype == PTP_V2_PEER_DELAY_REQ_MESSAGE && (fi)->pdelay.pdelay_req_frame_num != 0 && (fi)->pdelay.pdelay_res_frame_num != 0 && (fi)->pdelay.pdelay_fup_frame_num != 0 && (fi)->pdelay.pdelay_res_two_step)
 
 typedef struct ptp_clock_info {
@@ -2883,9 +2892,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 break;
             }
 
-            if PTP_FRAME_INFO_SYNC_COMPLETE(frame_info) {
+            if PTP_FRAME_INFO_SYNC_SEEN(frame_info) {
 
-                if (!frame_info->sync.calculated_timestamp_valid) {
+                if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info) && !frame_info->sync.calculated_timestamp_valid) {
                     /* calculate two step sync timestamp */
 
                     nstime_t ts = NSTIME_INIT_SECS_NSECS(frame_info->sync.timestamp_s, frame_info->sync.timestamp_ns);
@@ -2899,35 +2908,45 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                     frame_info->sync.calculated_timestamp_valid = true;
                 }
 
-                if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info->prev) && frame_info->sync.calculated_timestamp_valid && frame_info->prev->sync.calculated_timestamp_valid) {
+                if PTP_FRAME_INFO_SYNC_SEEN(frame_info->prev) {
                     nstime_t delta_capture_ts;
                     nstime_delta(&delta_capture_ts, &(frame_info->sync.sync_ts), &(frame_info->prev->sync.sync_ts));
 
-                    nstime_t delta_sync_ts;
-                    nstime_delta(&delta_sync_ts, &(frame_info->sync.calculated_timestamp), &(frame_info->prev->sync.calculated_timestamp));
+                    frame_info->sync.syncInterval = nstime_to_sec(&delta_capture_ts);
+                    frame_info->sync.syncInterval_valid = true;
 
-                    frame_info->sync.syncRateRatio = nstime_to_sec(&delta_sync_ts) / nstime_to_sec(&delta_capture_ts);
-                    frame_info->sync.syncRateRatio_valid = true;
-                    frame_info->sync.syncRateRatio_ppm = (gint32)((1.0 - frame_info->sync.syncRateRatio) * 1000 * 1000);
+                    if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info->prev) && frame_info->sync.calculated_timestamp_valid && frame_info->prev->sync.calculated_timestamp_valid) {
+                        nstime_t delta_sync_ts;
+                        nstime_delta(&delta_sync_ts, &(frame_info->sync.calculated_timestamp), &(frame_info->prev->sync.calculated_timestamp));
+
+                        frame_info->sync.syncRateRatio = nstime_to_sec(&delta_sync_ts) / nstime_to_sec(&delta_capture_ts);
+                        frame_info->sync.syncRateRatio_valid = true;
+                        frame_info->sync.syncRateRatio_ppm = (gint32)((1.0 - frame_info->sync.syncRateRatio) * 1000 * 1000);
+                    }
                 }
             }
 
-            if PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) {
-                if PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info->prev) {
+            if (PTP_FRAME_INFO_PDELAY_REQ_SEEN(frame_info) && PTP_FRAME_INFO_PDELAY_REQ_SEEN(frame_info->prev)) {
+                nstime_t t4_delta;
+                nstime_delta(&t4_delta, &frame_info->pdelay.pdelay_res_ts, &frame_info->prev->pdelay.pdelay_res_ts);
+
+                frame_info->pdelay.pdelayInterval = nstime_to_sec(&t4_delta);
+                frame_info->pdelay.pdelayInterval_valid = true;
+
+                if (PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) && PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info->prev)) {
                     /* lets calculate rate t3_delta / t4_delta */
                     nstime_t t3_delta;
                     nstime_t t3_curr = NSTIME_INIT_SECS_NSECS(frame_info->pdelay.pdelay_res_send_ts_s, frame_info->pdelay.pdelay_res_send_ts_ns);
                     nstime_t t3_prev = NSTIME_INIT_SECS_NSECS(frame_info->prev->pdelay.pdelay_res_send_ts_s, frame_info->prev->pdelay.pdelay_res_send_ts_ns);
                     nstime_delta(&t3_delta, &t3_curr, &t3_prev);
 
-                    nstime_t t4_delta;
-                    nstime_delta(&t4_delta, &frame_info->pdelay.pdelay_res_ts, &frame_info->prev->pdelay.pdelay_res_ts);
-
                     frame_info->pdelay.neighborRateRatio = nstime_to_sec(&t3_delta) / nstime_to_sec(&t4_delta);
                     frame_info->pdelay.neighborRateRatio_valid = true;
                     frame_info->pdelay.neighborRateRatio_ppm = (gint32)((1.0 - frame_info->pdelay.neighborRateRatio) * 1000 * 1000);
                 }
+            }
 
+            if PTP_FRAME_INFO_PDELAY_COMPLETE(frame_info) {
                 /* lets calculate peer delay: T4 - T1 - (t3 - t2) */
                 nstime_t t2 = NSTIME_INIT_SECS_NSECS(frame_info->pdelay.pdelay_req_recv_ts_s, frame_info->pdelay.pdelay_req_recv_ts_ns);
                 nstime_t t3 = NSTIME_INIT_SECS_NSECS(frame_info->pdelay.pdelay_res_send_ts_s, frame_info->pdelay.pdelay_res_send_ts_ns);
@@ -3165,8 +3184,14 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 hf_ptp_v2_controlfield, tvb, PTP_V2_CONTROLFIELD_OFFSET, 1, ENC_BIG_ENDIAN);
         }
 
-        proto_tree_add_item(ptp_tree,
-            hf_ptp_v2_logmessageperiod, tvb, PTP_V2_LOGMESSAGEPERIOD_OFFSET, 1, ENC_BIG_ENDIAN);
+        gint logmsgperiod;
+        ti = proto_tree_add_item_ret_int(ptp_tree,
+            hf_ptp_v2_logmessageperiod, tvb, PTP_V2_LOGMESSAGEPERIOD_OFFSET, 1, ENC_BIG_ENDIAN, &logmsgperiod);
+
+        /* 127 is special */
+        if (ptp_analyze_messages && logmsgperiod != 127) {
+            proto_item_append_text(ti, " (%.6f s)", pow(2.0, (gdouble)logmsgperiod));
+        }
 
         switch(ptp_v2_messageid){
             case PTP_V2_ANNOUNCE_MESSAGE:{
@@ -3540,6 +3565,11 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 if (ptp_analyze_messages && (ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK) {
                     ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                     if (frame_info != NULL && PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
+                        if (frame_info->sync.syncInterval_valid) {
+                            ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_period, tvb, 0, 0, frame_info->sync.syncInterval);
+                            proto_item_append_text(ti, " %s", "s");
+                            proto_item_set_generated(ti);
+                        }
                         ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_sync_to_followup, tvb, 0, 0, frame_info->sync.fup_frame_num);
                         proto_item_set_generated(ti);
                     } else {
@@ -3646,6 +3676,14 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 if (ptp_analyze_messages) {
                     ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
                     if (frame_info != NULL) {
+                        if PTP_FRAME_INFO_PDELAY_REQ_SEEN(frame_info) {
+                            if (frame_info->pdelay.pdelayInterval_valid) {
+                                ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_pdelay_period, tvb, 0, 0, frame_info->pdelay.pdelayInterval);
+                                proto_item_append_text(ti, " %s", "s");
+                                proto_item_set_generated(ti);
+                            }
+                        }
+
                         if (frame_info->pdelay.pdelay_res_frame_num != 0) {
                             ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_pdelayreq_to_pdelayres, tvb, 0, 0, frame_info->pdelay.pdelay_res_frame_num);
                             proto_item_set_generated(ti);
@@ -7367,6 +7405,11 @@ proto_register_ptp(void)
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_analysis_sync_period,
+          { "measuredMessagePeriod", "ptp.v2.analysis.sync.measuredMessagePeriod",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_analysis_sync_rateRatio,
           { "calculatedSyncRateRatio", "ptp.v2.analysis.sync.calculatedRateRatio",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
@@ -7394,6 +7437,11 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_analysis_pdelay_mpd_scaled,
           { "calculatedScaledMeanPropagationDelay", "ptp.v2.analysis.pdelay.meanpropdelay_scaled",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_analysis_pdelay_period,
+          { "measuredMessagePeriod", "ptp.v2.analysis.pdelay.measuredMessagePeriod",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
