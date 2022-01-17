@@ -277,11 +277,7 @@ development of Wireshark scripts and plugins.
 cmake3 \
   -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
 %else
-%if 0%{?el8}
-cmake \
-%else
 %cmake \
-%endif
 %endif
 %if 0%{?fedora} && ( "%{_prefix}" != "/usr" )
   -DENABLE_RPATH_ORIGIN=ON \
@@ -363,16 +359,16 @@ cmake \
 # either macro, and thus presumably does in-source builds.)
 %{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
 
+%if 0%{?rhel} && ( 0%{?rhel} <= 7 ) || (0%{?suse_version} && 0%{?sle_version} <= 150100)
 %if %{with ninja}
-%if 0%{?fedora} || ( 0%{?suse_version} && 0%{?sle_version} >= 150200 )
-%cmake_build
-%else
 %ninja_build
-%endif
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
 # %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
 make %{?_smp_mflags} -C %{__cmake_builddir}
+%endif
+%else
+%cmake_build
 %endif
 
 %install
@@ -381,18 +377,20 @@ rm -rf $RPM_BUILD_ROOT
 cd build
 %endif
 
+%if 0%{?rhel} && ( 0%{?rhel} <= 7 ) || (0%{?suse_version} && 0%{?sle_version} <= 150100)
 %if %{with ninja}
-%if 0%{?fedora} || ( 0%{?suse_version} && 0%{?sle_version} >= 150200 )
-%cmake_install
-%else
 %ninja_install
-%endif
-%if %{with guides}
-%ninja_install install_guides -C %{__cmake_builddir}
-%endif
 %else
 make DESTDIR=$RPM_BUILD_ROOT install -C %{__cmake_builddir}
+%endif
+%else
+%cmake_install
+%endif
+
 %if %{with guides}
+%if %{with ninja}
+%ninja_install install_guides -C %{__cmake_builddir}
+%else
 make DESTDIR=$RPM_BUILD_ROOT install_guides -C %{__cmake_builddir}
 %endif
 %endif
