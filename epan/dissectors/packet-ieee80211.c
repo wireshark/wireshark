@@ -18339,7 +18339,7 @@ set_conversation_last_akm_suite(ieee80211_conversation_data_t *conv,
 
 /*
  * 7.3.2.25 RSNE information element. Common format with OSEN except the
- * verison... should refactor
+ * version... should refactor
  */
 static int
 dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
