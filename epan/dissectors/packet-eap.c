@@ -178,6 +178,8 @@ static dissector_handle_t tls_handle;
 static dissector_handle_t diameter_avps_handle;
 static dissector_handle_t teap_handle;
 
+static dissector_handle_t isakmp_handle;
+
 const value_string eap_code_vals[] = {
   { EAP_REQUEST,  "Request" },
   { EAP_RESPONSE, "Response" },
@@ -626,6 +628,7 @@ static gint ett_eap_aka_attr = -1;
 static gint ett_eap_exp_attr = -1;
 static gint ett_eap_tls_flags = -1;
 static gint ett_identity = -1;
+static gint ett_eap_ikev2_flags = -1;
 
 static const fragment_items eap_tls_frag_items = {
   &ett_eap_tls_fragment,
@@ -644,6 +647,34 @@ static const fragment_items eap_tls_frag_items = {
   NULL,
   "fragments"
 };
+
+
+/*
+ * EAP-IKE2, RFC5106
+ */
+
+ /*
+   RFC5106, 8.1, page 17
+
+     0 1 2 3 4 5 6 7
+    +-+-+-+-+-+-+-+-+
+    |L M I 0 0 0 0 0|
+    +-+-+-+-+-+-+-+-+
+
+    L = Length included
+    M = More fragments
+    I = Integrity Checksum Data included
+  */
+#define EAP_IKEV2_FLAG_L 0x80 /* Length included */
+#define EAP_IKEV2_FLAG_M 0x40 /* More fragments */
+#define EAP_IKEV2_FLAG_I 0x20 /* Integrity checksum data included */
+
+static int hf_eap_ikev2_flags = -1;
+static int hf_eap_ikev2_flag_l = -1;
+static int hf_eap_ikev2_flag_m = -1;
+static int hf_eap_ikev2_flag_i = -1;
+static int hf_eap_ikev2_len = -1;
+static int hf_eap_ikev2_int_chk_data = -1;
 
 /**********************************************************************
  Support for EAP Expanded Type.
@@ -2201,6 +2232,66 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         break; /* EAP_TYPE_GPSK */
 
       /*********************************************************************
+            EAP-IKEv2 - RFC 5106
+      **********************************************************************/
+      case EAP_TYPE_IKEV2:
+      {
+        guint8   flags = tvb_get_guint8(tvb, offset);
+        gboolean more_fragments;
+        gboolean has_length;
+        gboolean icv_present;
+
+        more_fragments = test_flag(flags, EAP_IKEV2_FLAG_M);
+        has_length     = test_flag(flags, EAP_IKEV2_FLAG_L);
+        icv_present    = test_flag(flags, EAP_IKEV2_FLAG_I);
+
+        /* Flags field, 1 byte */
+        ti = proto_tree_add_item(eap_tree, hf_eap_ikev2_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        eap_tls_flags_tree = proto_item_add_subtree(ti, hf_eap_ikev2_flags);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_ikev2_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_ikev2_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(eap_tls_flags_tree, hf_eap_ikev2_flag_i, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        size -= 1;
+        offset += 1;
+
+        /* Length field, 4 bytes, OPTIONAL. */
+        if (has_length) {
+          proto_tree_add_item(eap_tree, hf_eap_ikev2_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+          size -= 4;
+          offset += 4;
+        }
+
+        if (size > 0) {
+          tvbuff_t* next_tvb = NULL;
+          gint      tvb_len;
+
+          tvb_len = tvb_captured_length_remaining(tvb, offset);
+          if (size < tvb_len) {
+            tvb_len = size;
+          }
+
+          if (has_length || more_fragments) {
+            /* TODO: Add fragmentation support
+             * Length of integrity check data needs to be determined in case of fragmentation. Chosen INTEG transform?
+             */
+          } else {
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
+            guint tmp = call_dissector(isakmp_handle, next_tvb, pinfo, eap_tree);
+            size -= tmp;
+            offset += tmp;
+
+            if (icv_present && size > 0) {
+              /* We assume that all data present is integrity check data. We cannot detect too short/long right now. */
+              proto_tree_add_item(eap_tree, hf_eap_ikev2_int_chk_data, tvb, offset, size, ENC_NA);
+            }
+          }
+        }
+
+        break;
+      } /* EAP_TYPE_IKEV2 */
+
+      /*********************************************************************
       **********************************************************************/
       default:
         proto_tree_add_item(eap_tree, hf_eap_data, tvb, offset, size, ENC_NA);
@@ -2871,7 +2962,37 @@ proto_register_eap(void)
     { &hf_eap_ext_vendor_type, {
       "EAP-EXT Vendor Type", "eap.ext.vendor_type",
       FT_UINT8, BASE_HEX, VALS(eap_ext_vendor_type_vals), 0x0,
-      NULL, HFILL }}
+      NULL, HFILL }},
+
+    { &hf_eap_ikev2_flags, {
+      "EAP-IKEv2 Flags", "eap.ikev2.flags",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL } },
+
+    { &hf_eap_ikev2_flag_l, {
+      "Length Included", "eap.ikve2.flags.len_included",
+      FT_BOOLEAN, 8, NULL, EAP_IKEV2_FLAG_L,
+      NULL, HFILL } },
+
+    { &hf_eap_ikev2_flag_m, {
+      "More Fragments", "eap.ikev2.flags.more_fragments",
+      FT_BOOLEAN, 8, NULL, EAP_IKEV2_FLAG_M,
+      NULL, HFILL } },
+
+    { &hf_eap_ikev2_flag_i, {
+      "Integrity Checksum Data present", "eap.ikev2.flags.icv_present",
+      FT_BOOLEAN, 8, NULL, EAP_IKEV2_FLAG_I,
+      NULL, HFILL } },
+
+    { &hf_eap_ikev2_len, {
+      "EAP-IKEv2 Length", "eap.ikev2.len",
+      FT_UINT32, BASE_DEC, NULL, 0x0,
+      NULL, HFILL } },
+
+    { &hf_eap_ikev2_int_chk_data, {
+      "EAP-IKEv2 Integrity Checksum Data", "eap.ikev2.integrity_checksum_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL } },
   };
   static gint *ett[] = {
     &ett_eap,
@@ -2887,7 +3008,8 @@ proto_register_eap(void)
     &ett_eap_aka_attr,
     &ett_eap_exp_attr,
     &ett_eap_tls_flags,
-    &ett_identity
+    &ett_identity,
+    &ett_eap_ikev2_flags,
   };
   static ei_register_info ei[] = {
      { &ei_eap_ms_chap_v2_length, { "eap.ms_chap_v2.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }},
@@ -2931,6 +3053,8 @@ proto_reg_handoff_eap(void)
   tls_handle = find_dissector_add_dependency("tls", proto_eap);
   diameter_avps_handle = find_dissector_add_dependency("diameter_avps", proto_eap);
   teap_handle = find_dissector_add_dependency("teap", proto_eap);
+
+  isakmp_handle = find_dissector_add_dependency("isakmp", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
   dissector_add_uint("eapol.type", EAPOL_EAP, eap_handle);

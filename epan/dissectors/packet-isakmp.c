@@ -3263,7 +3263,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
   int             offset      = 0, len;
   isakmp_hdr_t    hdr;
-  proto_item     *ti, *vers_item;
+  proto_item     *ti, *vers_item, *ti_root;
   proto_tree     *isakmp_tree = NULL, *vers_tree;
   int             isakmp_version;
   void*           decr_data   = NULL;
@@ -3285,8 +3285,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   else if (tvb_get_ntohl(tvb, ISAKMP_HDR_SIZE-4) < ISAKMP_HDR_SIZE)
     return 0;
 
-  ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, ENC_NA);
-  isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
+  ti_root = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, ENC_NA);
+  isakmp_tree = proto_item_add_subtree(ti_root, ett_isakmp);
 
   /* RFC3948 2.3 NAT Keepalive packet:
    * 1 byte payload with the value 0xff.
@@ -3459,9 +3459,13 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
       dissect_payloads(tvb, isakmp_tree, isakmp_version, hdr.next_payload,
                        offset, len, pinfo, hdr.message_id, !(flags & R_FLAG), decr_data);
     }
+
+    offset += len;
   }
 
-  return tvb_captured_length(tvb);
+  proto_item_set_end(ti_root, tvb, offset);
+
+  return offset;
 }
 
 
