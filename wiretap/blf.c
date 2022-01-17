@@ -785,8 +785,6 @@ blf_scan_file_for_logcontainers(blf_params_t *params) {
         }
     }
 
-    params->blf_data->current_real_seek_pos = 0;
-
     return TRUE;
 }
 
