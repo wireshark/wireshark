@@ -587,8 +587,8 @@ FollowStreamDialog::readStream()
         break;
 
     default :
-        ws_assert_not_reached();
         ret = (frs_return_t)0;
+        ws_assert_not_reached();
         break;
     }
 
