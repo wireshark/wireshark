@@ -251,7 +251,9 @@ development of Wireshark scripts and plugins.
 %prep
 %setup -q -n %{name}-%{package_version}
 
-# SUSE has a wrong bindir for cmake. Set it to the right one.
+# The SUSE macros for cmake and ninja depend upon _bindir, which depends
+# on _prefix (and is thus wrong if _prefix is anything other than /usr).
+# Set _bindir to the correct value regardless of _prefix.
 %if 0%{?suse_version}
 %define _bindir /usr/bin
 %if %{with ninja}
