@@ -71,11 +71,29 @@ ATTRIBUTE	Ruckus-Client-Os-Type			139	string
 ATTRIBUTE	Ruckus-Client-Os-Class			140	string
 ATTRIBUTE	Ruckus-Vlan-Pool			141	string
 ATTRIBUTE	Ruckus-Dpsk				142	octets
-
+ATTRIBUTE	Ruckus-CP-Token				143	string
+ATTRIBUTE	Ruckus-Max-DL-UL-Quota			144	integer
+ATTRIBUTE	Ruckus-Traffic-Class-Attribute-Ids	145	string
+ATTRIBUTE	Ruckus-TC-Attr-Ids-With-Quota		146	tlv
+ATTRIBUTE	Ruckus-TC-Name-Quota			146.1	string
+ATTRIBUTE	Ruckus-TC-Quota				146.2	octets
 ATTRIBUTE	Ruckus-Nat-Pool-Name			147	string
 ATTRIBUTE	Ruckus-Sta-SVlan-Id			148	integer
+ATTRIBUTE	Ruckus-TC-Acct-Ctrs			149	tlv
+ATTRIBUTE	Ruckus-Acct-Ctrs_TC-Name		149.1	string
+ATTRIBUTE	Ruckus-Acct-Ctrs_Input-Octets		149.2	octets
+ATTRIBUTE	Ruckus-Acct-Ctrs_Output-Octets		149.3	octets
+ATTRIBUTE	Ruckus-Acct-Ctrs_Input-Packets		149.4	octets
+ATTRIBUTE	Ruckus-Acct-Ctrs_Output-Packets		149.5	octets
 
 ATTRIBUTE	Ruckus-AAA-Id				152	string
+ATTRIBUTE	Ruckus-DPSK-Params			153	tlv
+ATTRIBUTE	Ruckus-DPSK-AKM-Suite			153.1	octets
+ATTRIBUTE	Ruckus-DPSK-Cipher			153.2	byte
+ATTRIBUTE	Ruckus-DPSK-Anonce			153.3	octets
+ATTRIBUTE	Ruckus-DPSK-EAPOL-Key-Frame		153.4	octets
+
+ATTRIBUTE	Ruckus-Vlan-Name			157	string
 
 #
 #  Integer Translations
