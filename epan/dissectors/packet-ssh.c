@@ -508,8 +508,7 @@ static gboolean ssh_read_e(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
 static gboolean ssh_read_f(tvbuff_t *tvb, int offset,
         struct ssh_flow_data *global_data);
-static void ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
-        struct ssh_flow_data *global_data);
+static void ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data);
 static ssh_bignum *ssh_kex_shared_secret(gint kex_type, ssh_bignum *pub, ssh_bignum *priv);
 static void ssh_hash_buffer_put_string(wmem_array_t *buffer, const gchar *string,
         guint len);
@@ -1188,7 +1187,7 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
             proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
-        ssh_keylog_hash_write_secret(tvb, offset, global_data);
+        ssh_keylog_hash_write_secret(global_data);
 #endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
@@ -1286,7 +1285,7 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
 
-        ssh_keylog_hash_write_secret(tvb, offset, global_data);
+        ssh_keylog_hash_write_secret(global_data);
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
@@ -1930,8 +1929,7 @@ ssh_read_f(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
 }
 
 static void
-ssh_keylog_hash_write_secret(tvbuff_t *tvb, int offset,
-        struct ssh_flow_data *global_data)
+ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data)
 {
     /*
      * This computation is defined differently for each key exchange method:
