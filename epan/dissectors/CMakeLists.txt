@@ -1778,6 +1778,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-riemann.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ripng.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-rk512.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rlc-lte.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rlc-nr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-rlm.c

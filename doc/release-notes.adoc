@@ -354,6 +354,7 @@ EGNOS Message Server (EMS) file format
 Galileo E1-B I/NAV navigation messages
 ZeroMQ Message Transport Protocol (ZMTP)
 SAP Remote Function Call (SAPRFC)
+RK512
 --
 
 === Updated Protocol Support
