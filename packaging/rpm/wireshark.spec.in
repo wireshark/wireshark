@@ -273,6 +273,7 @@ development of Wireshark scripts and plugins.
 # https://fedoraproject.org/wiki/Changes/Broken_RPATH_will_fail_rpmbuild
 %if 0%{?rhel} && ( 0%{?rhel} <= 7 )
 cmake3 \
+  -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
 %else
 %if 0%{?el8}
 cmake \
@@ -353,6 +354,13 @@ cmake \
   -DENABLE_OPUS=OFF \
 %endif
 
+# Fedora and SUSE 15 do out of source builds by default, but they store
+# the build directory in different macros. Older distributions don't define
+# that macro at all. Let's make it so that one macro contains the build
+# directory (which will be "." for any distribution that doesn't define
+# either macro, and thus presumably does in-source builds.)
+%{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
+
 %if %{with ninja}
 %if 0%{?fedora} || ( 0%{?suse_version} && 0%{?sle_version} >= 150200 )
 %cmake_build
@@ -378,11 +386,7 @@ cd build
 %ninja_install
 %endif
 %if %{with guides}
-%if 0%{?fedora}
-DESTDIR=$RPM_BUILD_ROOT %ninja_build install_guides -C %{__cmake_builddir}
-%else
-DESTDIR=$RPM_BUILD_ROOT %ninja_build install_guides
-%endif
+%ninja_install install_guides -C %{__cmake_builddir}
 %endif
 %else
 make DESTDIR=$RPM_BUILD_ROOT install -C %{__cmake_builddir}
@@ -455,7 +459,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 # Include the User Guide:
 %if %{with guides}
 %docdir %{_datadir}/doc/wireshark/
-# HTML manuals are installed to %{_datadir}/wireshark because that is
+# HTML manuals are installed to %%{_datadir}/wireshark because that is
 # where Wireshark's Help menu expects to launch them from.
 %exclude %{_datadir}/doc/wireshark/*.html
 %{_datadir}/doc/wireshark/
