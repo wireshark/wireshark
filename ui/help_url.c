@@ -304,8 +304,8 @@ topic_action_url(topic_action_e action)
 
     case(TOPIC_ACTION_NONE):
     default:
-        ws_assert_not_reached();
         url = g_strdup(WS_HOME_PAGE_URL);
+        ws_assert_not_reached();
     }
 
     return url;
