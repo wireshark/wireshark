@@ -813,35 +813,38 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 		switch (type) {
 			/* simple IPDC_ASCII strings */
 			case IPDC_ASCII:
-				DISSECTOR_ASSERT(len<=IPDC_STR_LEN);
-				tmp_tag_text = (char *) tvb_get_string_enc(pinfo->pool, tvb, offset+2, len, ENC_ASCII|ENC_NA);
-				proto_tree_add_string_format(tag_tree, hf_ipdc_ascii, tvb, offset,
-						    len + 2, tmp_tag_text, "%s (0x%2.2x): %s", des, tag,
-						    tmp_tag_text);
+				if (len <= IPDC_STR_LEN) {
+					tmp_tag_text = (char *) tvb_get_string_enc(pinfo->pool, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+					proto_tree_add_string_format(tag_tree, hf_ipdc_ascii, tvb, offset,
+								     len + 2, tmp_tag_text, "%s (0x%2.2x): %s", des, tag,
+								     tmp_tag_text);
+				}
 			break;
 
 			/* unsigned integers, or bytes */
 			case IPDC_UINT:
 			case IPDC_BYTE:
-				for (i = 0; i < len; i++)
-					tmp_tag += tvb_get_guint8(tvb,
-						offset + 2 + i) * (guint32)pow(256, len - (i + 1));
+				if (len <= 4) {
+					for (i = 0; i < len; i++)
+						tmp_tag += tvb_get_guint8(tvb,
+							offset + 2 + i) * (guint32)pow(256, len - (i + 1));
 
-				if (len == 1)
-					enum_val =
-						val_to_str_ext_const(IPDC_TAG(tag) + tmp_tag,
-								     &tag_enum_type_ext, TEXT_UNDEFINED);
+					if (len == 1)
+						enum_val =
+							val_to_str_ext_const(IPDC_TAG(tag) + tmp_tag,
+									     &tag_enum_type_ext, TEXT_UNDEFINED);
 
-				if (len == 1 && strcmp(enum_val, TEXT_UNDEFINED) != 0) {
-					proto_tree_add_uint_format(tag_tree, hf_ipdc_uint, tvb,
-							    offset, len + 2, tmp_tag,
-							    "%s (0x%2.2x): %s",
-							    des, tag, enum_val);
-				} else {
-					proto_tree_add_uint_format(tag_tree, hf_ipdc_uint, tvb,
-							    offset, len + 2, tmp_tag,
-							    "%s (0x%2.2x): %u",
-							    des, tag, tmp_tag);
+					if (len == 1 && strcmp(enum_val, TEXT_UNDEFINED) != 0) {
+						proto_tree_add_uint_format(tag_tree, hf_ipdc_uint, tvb,
+									   offset, len + 2, tmp_tag,
+									   "%s (0x%2.2x): %s",
+									   des, tag, enum_val);
+					} else {
+						proto_tree_add_uint_format(tag_tree, hf_ipdc_uint, tvb,
+									   offset, len + 2, tmp_tag,
+									   "%s (0x%2.2x): %u",
+									   des, tag, tmp_tag);
+					}
 				}
 			break;
 
