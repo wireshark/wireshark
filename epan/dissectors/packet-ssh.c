@@ -160,8 +160,18 @@ struct ssh_peer_data {
     gcry_cipher_hd_t cipher, cipher_2;
     guint            sequence_number;
     guint32          seq_num_kex_init;
+// union ??? -- begin
+    guint32          seq_num_gex_req;
+    guint32          seq_num_gex_grp;
+    guint32          seq_num_gex_ini;
+    guint32          seq_num_gex_rep;
+// --
     guint32          seq_num_ecdh_ini;
     guint32          seq_num_ecdh_rep;
+// --
+    guint32          seq_num_dh_ini;
+    guint32          seq_num_dh_rep;
+// union ??? -- end
     guint32          seq_num_new_key;
     ssh_bignum      *bn_cookie;
 #endif
@@ -174,7 +184,7 @@ struct ssh_flow_data {
     gchar*  kex;
     int   (*kex_specific_dissector)(guint8 msg_code, tvbuff_t *tvb,
             packet_info *pinfo, int offset, proto_tree *tree,
-            struct ssh_flow_data *global_data);
+            struct ssh_flow_data *global_data, guint *seq_num);
 
     /* [0] is client's, [1] is server's */
 #define CLIENT_PEER_DATA 0
@@ -217,6 +227,7 @@ static int hf_ssh_encrypted_packet = -1;
 static int hf_ssh_padding_string = -1;
 static int hf_ssh_mac_string = -1;
 static int hf_ssh_mac_status = -1;
+static int hf_ssh_seq_num = -1;
 static int hf_ssh_direction = -1;
 
 /* Message codes */
@@ -482,13 +493,13 @@ static int ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
         gboolean *need_desegmentation);
 static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
-        struct ssh_flow_data *global_data);
+        struct ssh_flow_data *global_data, guint *seq_num);
 static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
-        struct ssh_flow_data *global_data);
+        struct ssh_flow_data *global_data, guint *seq_num);
 static int ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
-        struct ssh_flow_data *global_data);
+        struct ssh_flow_data *global_data, guint *seq_num);
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_flow_data *global_data,
         int offset, proto_tree *tree, int is_response, guint *version,
@@ -606,6 +617,22 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         global_data->peer_data[SERVER_PEER_DATA].sequence_number = 0;
         global_data->peer_data[CLIENT_PEER_DATA].seq_num_kex_init = 0;
         global_data->peer_data[SERVER_PEER_DATA].seq_num_kex_init = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_req = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_req = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_grp = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_ini = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_rep = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_ini = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_ini = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_rep = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_ini = 0;
+        global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_rep = 0;
+        global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep = 0;
         global_data->peer_data[CLIENT_PEER_DATA].seq_num_new_key = 0;
         global_data->peer_data[SERVER_PEER_DATA].seq_num_new_key = 0;
         global_data->peer_data[CLIENT_PEER_DATA].bn_cookie = NULL;
@@ -994,6 +1021,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     guint   remain_length;
     int     last_offset = offset;
     guint   msg_code;
+    guint   seq_num = 0;
 
     proto_item *ti;
     proto_item *key_ex_tree = NULL;
@@ -1067,7 +1095,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 
     if (msg_code >= 30 && msg_code < 40) {
         offset = global_data->kex_specific_dissector(msg_code, tvb, pinfo,
-                offset, key_ex_tree, global_data);
+                offset, key_ex_tree, global_data, &seq_num);
     } else {
         proto_tree_add_item(key_ex_tree, hf_ssh2_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -1092,6 +1120,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 #endif
                 }
             }
+            seq_num = global_data->peer_data[is_response].seq_num_kex_init;
             break;
         case SSH_MSG_NEWKEYS:
             if (peer_data->frame_key_end == 0) {
@@ -1144,6 +1173,8 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                 }
 #endif
             }
+            seq_num = global_data->peer_data[is_response].seq_num_new_key;
+
             break;
         }
     }
@@ -1157,14 +1188,16 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
     /* padding */
     proto_tree_add_item(tree, hf_ssh_padding_string, tvb, offset, padding_length, ENC_NA);
     offset+= padding_length;
+    proto_tree_add_uint(tree, hf_ssh_seq_num, tvb, offset, 0, seq_num);
 
     return offset;
 }
 
 static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
-        struct ssh_flow_data *global_data)
+        struct ssh_flow_data *global_data, guint *seq_num)
 {
+    *seq_num = 0;
     proto_tree_add_item(tree, hf_ssh2_kex_dh_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1182,6 +1215,12 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 #endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_e);
+        if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini == 0){
+            global_data->peer_data[CLIENT_PEER_DATA].sequence_number++;
+            global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini = global_data->peer_data[CLIENT_PEER_DATA].sequence_number;
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEXDH_INIT}++ > %d\n", CLIENT_PEER_DATA?"serveur":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
+        }
+        *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_dh_ini;
         break;
 
     case SSH_MSG_KEXDH_REPLY:
@@ -1199,6 +1238,12 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
+        if(global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep == 0){
+            global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
+            global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEXDH_REPLY}++ > %d\n", SERVER_PEER_DATA?"serveur":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
+        }
+        *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep;
         break;
     }
 
@@ -1207,8 +1252,9 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 
 static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
-        struct ssh_flow_data *global_data)
+        struct ssh_flow_data *global_data, guint *seq_num)
 {
+    *seq_num = 0;
     proto_tree_add_item(tree, hf_ssh2_kex_dh_gex_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
@@ -1224,11 +1270,23 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
     case SSH_MSG_KEX_DH_GEX_GROUP:
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_gex_p);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_gex_g);
+        if(global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp == 0){
+            global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
+            global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_GROUP}++ > %d\n", SERVER_PEER_DATA?"serveur":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
+        }
+        *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_grp;
         break;
 
     case SSH_MSG_KEX_DH_GEX_INIT:
         // TODO allow decryption with this key exchange method
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_e);
+        if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini == 0){
+            global_data->peer_data[CLIENT_PEER_DATA].sequence_number++;
+            global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini = global_data->peer_data[CLIENT_PEER_DATA].sequence_number;
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_INIT}++ > %d\n", CLIENT_PEER_DATA?"serveur":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
+        }
+        *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_ini;
         break;
 
     case SSH_MSG_KEX_DH_GEX_REPLY:
@@ -1236,6 +1294,12 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
                 ett_key_exchange_host_key, global_data);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
+        if(global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep == 0){
+            global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
+            global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_REPLY}++ > %d\n", SERVER_PEER_DATA?"serveur":"client", global_data->peer_data[SERVER_PEER_DATA].sequence_number);
+        }
+        *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep;
         break;
 
     case SSH_MSG_KEX_DH_GEX_REQUEST:
@@ -1245,6 +1309,12 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         offset += 4;
         proto_tree_add_item(tree, hf_ssh_dh_gex_max, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
+        if(global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_req == 0){
+            global_data->peer_data[CLIENT_PEER_DATA].sequence_number++;
+            global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_req = global_data->peer_data[CLIENT_PEER_DATA].sequence_number;
+            ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_DH_GEX_REQUEST}++ > %d\n", CLIENT_PEER_DATA?"serveur":"client", global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
+        }
+        *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_gex_req;
         break;
     }
 
@@ -1254,7 +1324,7 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
 static int
 ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
         packet_info *pinfo, int offset, proto_tree *tree,
-        struct ssh_flow_data *global_data)
+        struct ssh_flow_data *global_data, guint *seq_num)
 {
     proto_tree_add_item(tree, hf_ssh2_kex_ecdh_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
@@ -1277,6 +1347,7 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
                 ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_ECDH_INIT=%d}++ > %d\n", CLIENT_PEER_DATA?"server":"client", global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_ini, global_data->peer_data[CLIENT_PEER_DATA].sequence_number);
             }
         }
+        *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_ini;
 #endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_c, hf_ssh_ecdh_q_c_length);
@@ -1298,6 +1369,7 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
             ssh_debug_printf("%s->sequence_number{SSH_MSG_KEX_ECDH_REPLY=%d}++ > %d\n", SERVER_PEER_DATA?"server":"client", global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep, global_data->peer_data[SERVER_PEER_DATA].sequence_number);
         }
+        *seq_num = global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep;
 #endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_s, hf_ssh_ecdh_q_s_length);
@@ -2324,6 +2396,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         ssh_dissect_decrypted_packet(tvb, pinfo, peer_data, tree, plain, message_length+4);
         ssh_tree_add_mac(tree, tvb, offset + 4 + message_length, mac_len, hf_ssh_mac_string, hf_ssh_mac_status, &ei_ssh_mac_bad, pinfo, message->calc_mac,
                                                PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
+        proto_tree_add_uint(tree, hf_ssh_seq_num, tvb, offset + 4 + message_length, mac_len, message->sequence_number);
     }
 
     offset += message_length + peer_data->mac_length + 4;
@@ -2904,6 +2977,11 @@ proto_register_ssh(void)
         { &hf_ssh_padding_string,
           { "Padding String", "ssh.padding_string",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_seq_num,
+          { "Sequence number", "ssh.seq_num",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_string,
