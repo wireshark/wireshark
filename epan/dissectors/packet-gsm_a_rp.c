@@ -22,6 +22,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
+#include <wsutil/wsjson.h>
 
 #include "packet-gsm_a_common.h"
 
@@ -84,6 +86,9 @@ static expert_field ei_gsm_a_rp_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_rp_missing_mandatory_element = EI_INIT;
 
 static dissector_handle_t gsm_sms_handle;	/* SMS TPDU */
+static dissector_handle_t gsm_a_dtap_handle;
+
+static int proto_json = -1;
 
 static proto_tree *g_tree;
 
@@ -482,6 +487,46 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	return tvb_captured_length(tvb);
 }
 
+static int
+dissect_nf_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tvbuff_t* json_tvb;
+	int ret;
+	jsmntok_t *tokens, *cur_tok;
+	char *json_data;
+	const char *content_id;
+
+	json_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_json, 0);
+	if (!json_tvb)
+		return 0;
+	json_data = tvb_get_string_enc(pinfo->pool, json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
+	ret = json_parse(json_data, NULL, 0);
+	if (ret <= 0)
+		return 0;
+	tokens = wmem_alloc_array(pinfo->pool, jsmntok_t, ret);
+	if (json_parse(json_data, tokens, ret) <= 0)
+		return 0;
+	cur_tok = json_get_object(json_data, tokens, "smsPayload");
+	if (!cur_tok)
+		return 0;
+	content_id = json_get_string(json_data, cur_tok, "contentId");
+	if (content_id && !strcmp(content_id, "sms") && gsm_a_dtap_handle)
+		return call_dissector_only(gsm_a_dtap_handle, tvb, pinfo, tree, NULL);
+
+	return 0;
+}
+
+static int
+dissect_rp_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	int ret;
+
+	ret = dissect_nf_media_type(tvb, pinfo, tree);
+	if (!ret)
+		ret = dissect_rp(tvb, pinfo, tree, NULL);
+	return ret;
+}
+
 /* Register the protocol with Wireshark */
 void
 proto_register_gsm_a_rp(void)
@@ -558,10 +603,12 @@ proto_reg_handoff_gsm_a_rp(void)
 {
 	dissector_handle_t	gsm_a_rp_handle;
 
-	gsm_a_rp_handle = create_dissector_handle(dissect_rp, proto_a_rp);
+	gsm_a_rp_handle = create_dissector_handle(dissect_rp_media_type, proto_a_rp);
 	/* Dissect messages embedded in SIP */
 	dissector_add_string("media_type","application/vnd.3gpp.sms", gsm_a_rp_handle);
 	gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_a_rp);
+	gsm_a_dtap_handle = find_dissector_add_dependency("gsm_a_dtap", proto_a_rp);
+	proto_json = proto_get_id_by_filter_name("json");
 }
 
 /*
