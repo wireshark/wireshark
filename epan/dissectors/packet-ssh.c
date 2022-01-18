@@ -307,6 +307,8 @@ static int hf_ssh_ecdh_q_s_length = -1;
 /* Miscellaneous */
 static int hf_ssh_mpint_length = -1;
 
+static int hf_ssh_service_name_length = -1;
+static int hf_ssh_service_name = -1;
 static int hf_ssh_connection_type_name_len = -1;
 static int hf_ssh_connection_type_name = -1;
 static int hf_ssh_connection_sender_channel = -1;
@@ -321,6 +323,12 @@ static int hf_ssh_subsystem_name = -1;
 static int hf_ssh_channel_window_adjust = -1;
 static int hf_ssh_channel_data_len = -1;
 static int hf_ssh_exit_status = -1;
+static int hf_ssh_disconnect_reason = -1;
+static int hf_ssh_disconnect_description_length = -1;
+static int hf_ssh_disconnect_description = -1;
+static int hf_ssh_lang_tag_length = -1;
+static int hf_ssh_lang_tag = -1;
+
 static gint ett_ssh = -1;
 static gint ett_key_exchange = -1;
 static gint ett_key_exchange_host_key = -1;
@@ -552,6 +560,8 @@ static proto_item * ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const guin
 static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, proto_tree *tree,
         gchar *plaintext, guint plaintext_len);
+static void ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code);
 static int ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
         guint msg_code);
@@ -2594,8 +2604,16 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Transport layer protocol */
     /* Generic (1-19) */
+    if(msg_code >= 1 && msg_code <= 19) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
+        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (generic)");
+        proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+        ssh_dissect_transport_generic(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+        // offset = ssh_dissect_transport_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+    }
     /* Algorithm negotiation (20-29) */
-    if(msg_code >=20 && msg_code <= 29) {
+    else if(msg_code >=20 && msg_code <= 29) {
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (algorithm negotiation)");
 //TODO: See if the complete dissector should be refactored to always got through here first        offset = ssh_dissect_transport_algorithm_negotiation(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
     }
@@ -2650,6 +2668,40 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     offset+= padding_length;
 
     return offset;
+}
+
+static void
+ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code)
+{
+        (void)pinfo;
+        if(msg_code==SSH_MSG_DISCONNECT){
+                proto_tree_add_item(msg_type_tree, hf_ssh_disconnect_reason, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                guint   nlen;
+                nlen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_disconnect_description_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_disconnect_description, packet_tvb, offset, nlen, ENC_ASCII);
+                offset += nlen;
+                nlen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag, packet_tvb, offset, nlen, ENC_ASCII);
+                offset += nlen;
+        }else if(msg_code==SSH_MSG_SERVICE_REQUEST){
+                guint   nlen;
+                nlen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
+        }else if(msg_code==SSH_MSG_SERVICE_ACCEPT){
+                guint   nlen;
+                nlen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
+        }
 }
 
 static int
@@ -3306,6 +3358,41 @@ proto_register_ssh(void)
         { &hf_ssh_mpint_length,
           { "Multi Precision Integer Length", "ssh.mpint_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_service_name_length,
+          { "Service Name length",  "ssh.service_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_service_name,
+          { "Service Name",  "ssh.service_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_disconnect_reason,
+          { "Disconnect reason",  "ssh.disconnect_reason",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_disconnect_description_length,
+          { "Disconnect description length",  "ssh.disconnect_description_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_disconnect_description,
+          { "Disconnect description",  "ssh.disconnect_description",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_lang_tag_length,
+          { "Language tag length",  "ssh.lang_tag_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_lang_tag,
+          { "Language tag",  "ssh.lang_tag",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_connection_type_name_len,
