@@ -815,15 +815,10 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *ngap_tree = NULL;
   conversation_t *conversation;
   struct ngap_private_data *ngap_data;
-  wmem_list_frame_t *prev_layer;
   struct ngap_tap_t *ngap_info;
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NGAP");
-  /* ensure that parent dissector is not NGAP before clearing fence */
-  prev_layer = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-  if (prev_layer && GPOINTER_TO_INT(wmem_list_frame_data(prev_layer)) != proto_ngap)
-    col_clear_fence(pinfo->cinfo, COL_INFO);
   col_clear(pinfo->cinfo, COL_INFO);
 
   ngap_info = wmem_new(pinfo->pool, struct ngap_tap_t);
