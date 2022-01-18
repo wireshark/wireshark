@@ -309,8 +309,10 @@ get_compiler_info(GString *str)
 				#define VS_VERSION	"2015"
 			#elif COMPILER_MINOR_VERSION < 20
 				#define VS_VERSION	"2017"
+			#elif COMPILER_MINOR_VERSION < 30
+			#define VS_VERSION	"2019"
 			#else
-				#define VS_VERSION	"2019"
+				#define VS_VERSION	"2022"
 			#endif
 		#else
 			/*
