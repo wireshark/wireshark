@@ -21986,15 +21986,10 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *ngap_tree = NULL;
   conversation_t *conversation;
   struct ngap_private_data *ngap_data;
-  wmem_list_frame_t *prev_layer;
   struct ngap_tap_t *ngap_info;
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NGAP");
-  /* ensure that parent dissector is not NGAP before clearing fence */
-  prev_layer = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-  if (prev_layer && GPOINTER_TO_INT(wmem_list_frame_data(prev_layer)) != proto_ngap)
-    col_clear_fence(pinfo->cinfo, COL_INFO);
   col_clear(pinfo->cinfo, COL_INFO);
 
   ngap_info = wmem_new(pinfo->pool, struct ngap_tap_t);
@@ -22614,7 +22609,7 @@ proto_reg_handoff_ngap(void)
 
 
 /*--- End of included file: packet-ngap-dis-tab.c ---*/
-#line 1028 "./asn1/ngap/packet-ngap-template.c"
+#line 1023 "./asn1/ngap/packet-ngap-template.c"
 
     dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
   } else {
@@ -27294,7 +27289,7 @@ void proto_register_ngap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 1299 "./asn1/ngap/packet-ngap-template.c"
+#line 1294 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -27949,7 +27944,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 1346 "./asn1/ngap/packet-ngap-template.c"
+#line 1341 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {
