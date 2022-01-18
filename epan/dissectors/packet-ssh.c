@@ -309,6 +309,27 @@ static int hf_ssh_mpint_length = -1;
 
 static int hf_ssh_service_name_length = -1;
 static int hf_ssh_service_name = -1;
+static int hf_ssh_userauth_user_name_length = -1;
+static int hf_ssh_userauth_user_name = -1;
+static int hf_ssh_userauth_change_password = -1;
+static int hf_ssh_userauth_service_name_length = -1;
+static int hf_ssh_userauth_service_name = -1;
+static int hf_ssh_userauth_method_name_length = -1;
+static int hf_ssh_userauth_method_name = -1;
+static int hf_ssh_userauth_password_length = -1;
+static int hf_ssh_userauth_password = -1;
+static int hf_ssh_userauth_new_password_length = -1;
+static int hf_ssh_userauth_new_password = -1;
+static int hf_ssh_auth_failure_list_length = -1;
+static int hf_ssh_auth_failure_list = -1;
+static int hf_ssh_userauth_pka_name_len = -1;
+static int hf_ssh_userauth_pka_name = -1;
+static int hf_ssh_pk_blob_name_length = -1;
+static int hf_ssh_pk_blob_name = -1;
+static int hf_ssh_blob_length = -1;
+static int hf_ssh_signature_length = -1;
+static int hf_ssh_pk_sig_blob_name_length = -1;
+static int hf_ssh_pk_sig_blob_name = -1;
 static int hf_ssh_connection_type_name_len = -1;
 static int hf_ssh_connection_type_name = -1;
 static int hf_ssh_connection_sender_channel = -1;
@@ -329,9 +350,17 @@ static int hf_ssh_disconnect_description = -1;
 static int hf_ssh_lang_tag_length = -1;
 static int hf_ssh_lang_tag = -1;
 
+static int hf_ssh_blob_p = -1;
+static int hf_ssh_blob_e = -1;
+
+static int hf_ssh_pk_sig_s_length = -1;
+static int hf_ssh_pk_sig_s = -1;
+
 static gint ett_ssh = -1;
 static gint ett_key_exchange = -1;
 static gint ett_key_exchange_host_key = -1;
+static gint ett_userauth_pk_blob = -1;
+static gint ett_userauth_pk_signautre = -1;
 static gint ett_key_init = -1;
 static gint ett_ssh1 = -1;
 static gint ett_ssh2 = -1;
@@ -562,9 +591,15 @@ static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         gchar *plaintext, guint plaintext_len);
 static void ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
+static void ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code);
 static int ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
         guint msg_code);
+static void ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree);
+static void ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree);
 
 static dissector_handle_t get_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel);
 static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel, guint8* subsystem_name);
@@ -2625,6 +2660,14 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 
     /* User authentication protocol */
     /* Generic (50-59) */
+    else if (msg_code >= 50 && msg_code <= 59) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
+        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: User Authentication (generic)");
+        proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+        ssh_dissect_userauth_generic(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+        // TODO: offset = ssh_dissect_userauth_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+    }
     /* User authentication method specific (reusable) (60-79) */
 
     /* Connection protocol */
@@ -2701,6 +2744,86 @@ ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
+        }
+}
+
+static void
+ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code)
+{
+        (void)pinfo;
+        if(msg_code==SSH_MSG_USERAUTH_REQUEST){
+                guint   slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_user_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_user_name, packet_tvb, offset, slen, ENC_ASCII);
+                offset += slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_service_name, packet_tvb, offset, slen, ENC_ASCII);
+                offset += slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_method_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_method_name, packet_tvb, offset, slen, ENC_ASCII);
+
+                guint8* key_type;
+                key_type = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                offset += slen;
+                if (0 == strcmp(key_type, "none")) {
+                }else if (0 == strcmp(key_type, "publickey")) {
+                        guint8 bHaveSignature = tvb_get_guint8(packet_tvb, offset);
+                        offset += 1;
+                        slen = tvb_get_ntohl(packet_tvb, offset) ;
+                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name, packet_tvb, offset, slen, ENC_ASCII);
+                        offset += slen;
+                        proto_item *blob_tree = NULL;
+                        slen = tvb_get_ntohl(packet_tvb, offset) ;
+                        proto_tree_add_item(msg_type_tree, hf_ssh_blob_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_blob, NULL, "Public key blob");
+//        proto_tree_add_item(blob_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+                        ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree);
+                        offset += slen;
+                        if(bHaveSignature){
+                                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                                proto_tree_add_item(msg_type_tree, hf_ssh_signature_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                                offset += 4;
+                                proto_item *signature_tree = NULL;
+                                signature_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_signautre, NULL, "Public key signature");
+                                ssh_dissect_public_key_signature(packet_tvb, pinfo, offset, signature_tree);
+                                offset += slen;
+                        }
+                }else if (0 == strcmp(key_type, "password")) {
+                        guint8 bChangePassword = tvb_get_guint8(packet_tvb, offset);
+                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_change_password, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        slen = tvb_get_ntohl(packet_tvb, offset) ;
+                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_password_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_password, packet_tvb, offset, slen, ENC_ASCII);
+                        offset += slen;
+                        if(bChangePassword){
+                            slen = tvb_get_ntohl(packet_tvb, offset) ;
+                            proto_tree_add_item(msg_type_tree, hf_ssh_userauth_new_password_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                            offset += 4;
+                            proto_tree_add_item(msg_type_tree, hf_ssh_userauth_new_password, packet_tvb, offset, slen, ENC_ASCII);
+                            offset += slen;
+                        }
+                }else{
+                }
+
+        }else if(msg_code==SSH_MSG_USERAUTH_FAILURE){
+                guint   slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_auth_failure_list_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_auth_failure_list, packet_tvb, offset, slen, ENC_ASCII);
+                offset += slen;
         }
 }
 
@@ -2829,6 +2952,39 @@ set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel
         } else {
             ci->subdissector_handle = NULL;
         }
+}
+
+static void
+ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree)
+{
+        (void)pinfo;
+        guint   slen;
+        slen = tvb_get_ntohl(packet_tvb, offset) ;
+        proto_tree_add_item(msg_type_tree, hf_ssh_pk_blob_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(msg_type_tree, hf_ssh_pk_blob_name, packet_tvb, offset, slen, ENC_ASCII);
+        offset += slen;
+        offset += ssh_tree_add_mpint(packet_tvb, offset, msg_type_tree, hf_ssh_blob_e);
+        offset += ssh_tree_add_mpint(packet_tvb, offset, msg_type_tree, hf_ssh_blob_p);
+}
+
+static void
+ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree)
+{
+        (void)pinfo;
+        guint   slen;
+        slen = tvb_get_ntohl(packet_tvb, offset) ;
+        proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_blob_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_blob_name, packet_tvb, offset, slen, ENC_ASCII);
+        offset += slen;
+        slen = tvb_get_ntohl(packet_tvb, offset) ;
+        proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_s_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_s, packet_tvb, offset, slen, ENC_NA);
+        offset += slen;
 }
 
 #ifdef SSH_DECRYPT_DEBUG /* {{{ */
@@ -3042,7 +3198,7 @@ proto_register_ssh(void)
             "Message authentication code", HFILL }},
 
         { &hf_ssh_mac_status,
-          { "MAC Status",      "ssh.mac.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+          { "MAC Status", "ssh.mac.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_direction,
@@ -3361,38 +3517,163 @@ proto_register_ssh(void)
             NULL, HFILL }},
 
         { &hf_ssh_service_name_length,
-          { "Service Name length",  "ssh.service_name_length",
+          { "Service Name length", "ssh.service_name_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_service_name,
-          { "Service Name",  "ssh.service_name",
+          { "Service Name", "ssh.service_name",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_disconnect_reason,
-          { "Disconnect reason",  "ssh.disconnect_reason",
+          { "Disconnect reason", "ssh.disconnect_reason",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_disconnect_description_length,
-          { "Disconnect description length",  "ssh.disconnect_description_length",
+          { "Disconnect description length", "ssh.disconnect_description_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_disconnect_description,
-          { "Disconnect description",  "ssh.disconnect_description",
+          { "Disconnect description", "ssh.disconnect_description",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_lang_tag_length,
-          { "Language tag length",  "ssh.lang_tag_length",
+          { "Language tag length", "ssh.lang_tag_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_lang_tag,
-          { "Language tag",  "ssh.lang_tag",
+          { "Language tag", "ssh.lang_tag",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_user_name_length,
+          { "User Name length", "ssh.userauth_user_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_user_name,
+          { "User Name", "ssh.userauth_user_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_change_password,
+          { "Change password", "ssh.userauth.change_password",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_service_name_length,
+          { "Service Name length", "ssh.userauth_service_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_service_name,
+          { "Service Name", "ssh.userauth_service_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_method_name_length,
+          { "Method Name length", "ssh.userauth_method_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_method_name,
+          { "Method Name", "ssh.userauth_method_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_password_length,
+          { "Password length", "ssh.userauth_password_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_password,
+          { "Password", "ssh.userauth_password",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_new_password_length,
+          { "New password length", "ssh.userauth_new_password_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_new_password,
+          { "New password", "ssh.userauth_new_password",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_auth_failure_list_length,
+          { "Authentications that can continue list len", "ssh.auth_failure_cont_list_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_auth_failure_list,
+          { "Authentications that can continue list", "ssh.auth_failure_cont_list",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_pka_name_len,
+          { "Public key algorithm name length", "ssh.userauth_pka_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_pka_name,
+          { "Public key algorithm name", "ssh.userauth_pka_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_pk_blob_name_length,
+          { "Public key blob algorithm name length", "ssh.pk_blob_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_pk_blob_name,
+          { "Public key blob algorithm name", "ssh.pk_blob_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_blob_length,
+          { "Public key blob length", "ssh.pk_blob_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_blob_p,
+          { "ssh-rsa modulus (n)", "ssh.blob.ssh-rsa.n",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_blob_e,
+          { "ssh-rsa public exponent (e)", "ssh.blob.ssh-rsa.e",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_signature_length,
+          { "Public key signature blob length", "ssh.pk_sig_blob_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_pk_sig_blob_name_length,
+          { "Public key signature blob algorithm name length", "ssh.pk_sig_blob_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_pk_sig_blob_name,
+          { "Public key signature blob algorithm name", "ssh.pk_sig_blob_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_pk_sig_s_length,
+          { "ssh-rsa signature length", "ssh.sig.ssh-rsa.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_pk_sig_s,
+          { "ssh-rsa signature (s)", "ssh.sig.ssh-rsa.s",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_connection_type_name_len,
@@ -3471,6 +3752,8 @@ proto_register_ssh(void)
         &ett_ssh,
         &ett_key_exchange,
         &ett_key_exchange_host_key,
+        &ett_userauth_pk_blob,
+        &ett_userauth_pk_signautre,
         &ett_ssh1,
         &ett_ssh2,
         &ett_key_init
