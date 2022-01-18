@@ -2622,7 +2622,8 @@ static int dissect_1722_acf_can_common(tvbuff_t *tvb, packet_info *pinfo, proto_
     parsed.datalen = (guint)payload_length;
     proto_tree_add_uint(tree_acf_can, hf_1722_can_len, tvb, offset, 1, parsed.datalen);
 
-    col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, payload_length, ' '));
+    if (payload_length > 0)
+        col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, payload_length, ' '));
 
     if (parsed.is_fd && !is_valid_canfd_payload_length(payload_length))
     {

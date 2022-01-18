@@ -2053,7 +2053,8 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
         case ZBEE_ZCL_OCTET_STRING:
             /* Display octet string */
             proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &attr_int);
-            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, (*offset)+1, attr_int-1, ':'));
+            if (attr_int > 1)
+                proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, (*offset)+1, attr_int-1, ':'));
             *offset += attr_int;
             break;
 
@@ -2067,7 +2068,8 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
         case ZBEE_ZCL_LONG_OCTET_STRING:
             /* Display long octet string */
             proto_tree_add_item_ret_length(tree, hf_zbee_zcl_attr_ostr, tvb, *offset, 2, ENC_LITTLE_ENDIAN|ENC_ZIGBEE, &attr_int);
-            proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, (*offset)+2, attr_int-2, ':'));
+            if (attr_int > 2)
+                proto_item_append_text(tree, ", Octets: %s", tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, (*offset)+2, attr_int-2, ':'));
             *offset += attr_int;
             break;
 
