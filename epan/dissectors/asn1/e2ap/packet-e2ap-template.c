@@ -178,7 +178,6 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "E2AP");
-  /* ensure that parent dissector is not e2ap before clearing fence */
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* create the e2ap protocol tree */
