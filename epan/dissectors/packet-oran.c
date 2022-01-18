@@ -191,6 +191,7 @@ static gboolean pref_includeUdCompHeaderDownlink = FALSE;
 static guint pref_data_plane_section_total_rbs = 273;
 static guint pref_num_weights_per_bundle = 32;
 static guint pref_num_bf_antennas = 32;
+static gboolean pref_showIQSampleValues = TRUE;
 
 
 static const enum_val_t compression_options[] = {
@@ -1584,6 +1585,29 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
              */
 
             proto_tree_add_item(rb_tree, hf_oran_iq_user_data, tvb, offset, nBytesForSamples, ENC_NA);
+
+            if (pref_showIQSampleValues) {
+                /* Individual values */
+                guint samples_offset = 0;
+                guint sample_number = 1;
+                while (samples_offset < nBytesForSamples*8) {
+                    /* I */
+                    guint i_value = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    guint sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
+                    proto_item *i_ti = proto_tree_add_uint(rb_tree, hf_oran_iSample, tvb, offset+(samples_offset/8), sample_len_in_bytes, i_value);
+                    proto_item_set_text(i_ti, "iSample: %5u  0x%04x (iSample-%u in the PRB)", i_value, i_value, sample_number);
+                    samples_offset += sample_bit_width;
+                    /* Q */
+                    guint q_value = tvb_get_bits(tvb, samples_offset, sample_bit_width, ENC_BIG_ENDIAN);
+                    sample_len_in_bytes = ((samples_offset%8)+sample_bit_width+7)/8;
+                    proto_item *q_ti = proto_tree_add_uint(rb_tree, hf_oran_qSample, tvb, offset+(samples_offset/8), sample_len_in_bytes, q_value);
+                    proto_item_set_text(q_ti, "qSample: %5u  0x%04x (qSample-%u in the PRB)", q_value, q_value, sample_number);
+                    samples_offset += sample_bit_width;
+
+                    sample_number++;
+                }
+            }
+
             offset += nBytesForSamples;
 
             proto_item_set_len(sectionHeading, nBytesPerPrb * numPrbu + 4);  /* 4 bytes for section header */
@@ -2438,18 +2462,18 @@ proto_register_oran(void)
 
         /* Section 6.3.3.15 */
         {&hf_oran_iSample,
-         {"In-phase Sample", "oran_fh_cus.iSample",
+         {"iSample", "oran_fh_cus.iSample",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-          "This parameter is the In-phase sample value", HFILL}
+          "In-phase Sample value", HFILL}
         },
 
         /* Section 6.3.3.16 */
         {&hf_oran_qSample,
-         {"Quadrature Sample", "oran_fh_cus.qSample",
+         {"qSample", "oran_fh_cus.qSample",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-          "This parameter is the Quadrature sample value.", HFILL}
+          "Quadrature Sample value", HFILL}
         },
 
         { &hf_oran_rsvd4,
@@ -2668,6 +2692,9 @@ proto_register_oran(void)
 
     prefs_register_uint_preference(oran_module, "oran.num_bf_antennas", "Number of BF Antennas",
         "Number of BF Antennas (used for C section type 6)", 10, &pref_num_bf_antennas);
+
+    prefs_register_bool_preference(oran_module, "oran.show_iq_samples", "Show IQ Sample values",
+        "When enabled, for U-Plane frames show each I and Q value in PRB.", &pref_showIQSampleValues);
 
     prefs_register_obsolete_preference(oran_module, "oran.num_bf_weights");
 }
