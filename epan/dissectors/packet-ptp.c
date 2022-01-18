@@ -2785,16 +2785,16 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 {
     guint8  ptp_v2_majorsdoid;
     guint8  ptp_v2_messageid;
-    guint8  ptp_v2_ver;
-    guint8  ptp_v2_minorver;
-    guint8  ptp_v2_domain;
-    guint8  ptp_v2_minorsdoid;
-    guint64 ptp_v2_correction;
-    guint64 ptp_v2_clockid;
-    guint16 ptp_v2_sourceportid;
-    guint16 ptp_v2_seqid;
-    guint64 ptp_v2_clockidref;
-    guint16 ptp_v2_sourceportidref;
+    guint8  ptp_v2_ver = 0;
+    guint8  ptp_v2_minorver = 0;
+    guint8  ptp_v2_domain = 0;
+    guint8  ptp_v2_minorsdoid = 0;
+    guint64 ptp_v2_correction = 0;
+    guint64 ptp_v2_clockid = 0;
+    guint16 ptp_v2_sourceportid = 0;
+    guint16 ptp_v2_seqid = 0;
+    guint64 ptp_v2_clockidref = 0;
+    guint16 ptp_v2_sourceportidref = 0;
 
     guint64 timeStamp;
     guint16 msg_len;
@@ -2849,7 +2849,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
         if (!(pinfo->fd->visited))
         {
-            ptp_frame_info_t *frame_info;
+            ptp_frame_info_t *frame_info = NULL;
             switch (ptp_v2_messageid)
             {
             case PTP_V2_SYNC_MESSAGE:
@@ -3564,12 +3564,13 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
 
                 if (ptp_analyze_messages && (ptp_v2_flags & PTP_V2_FLAGS_TWO_STEP_BITMASK) == PTP_V2_FLAGS_TWO_STEP_BITMASK) {
                     ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_SYNC_MESSAGE, ptp_v2_domain, ptp_v2_clockid, ptp_v2_sourceportid, ptp_v2_seqid);
-                    if (frame_info != NULL && PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
+                    if (PTP_FRAME_INFO_SYNC_COMPLETE(frame_info)) {
                         if (frame_info->sync.syncInterval_valid) {
                             ti = proto_tree_add_double(ptp_tree, hf_ptp_v2_analysis_sync_period, tvb, 0, 0, frame_info->sync.syncInterval);
                             proto_item_append_text(ti, " %s", "s");
                             proto_item_set_generated(ti);
                         }
+
                         ti = proto_tree_add_uint(ptp_tree, hf_ptp_v2_analysis_sync_to_followup, tvb, 0, 0, frame_info->sync.fup_frame_num);
                         proto_item_set_generated(ti);
                     } else {
@@ -3710,8 +3711,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestingsourceportid, tvb,
                     PTP_V2_PDRS_REQUESTINGSOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
 
-                if (ptp_analyze_messages)
-                {
+                if (ptp_analyze_messages) {
                     ptp_frame_info_t *frame_info = get_frame_info(ptp_v2_ver, ptp_v2_minorver, ptp_v2_majorsdoid, ptp_v2_minorsdoid, PTP_V2_PEER_DELAY_REQ_MESSAGE, ptp_v2_domain, ptp_v2_clockidref, ptp_v2_sourceportidref, ptp_v2_seqid);
                     if (frame_info != NULL) {
                         if (frame_info->pdelay.pdelay_req_frame_num != 0) {
