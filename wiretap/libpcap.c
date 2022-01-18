@@ -1003,8 +1003,8 @@ static int libpcap_read_header(wtap *wth, FILE_T fh, int *err, gchar **err_info,
 		break;
 
 	default:
-		ws_assert_not_reached();
 		bytes_to_read = 0;
+		ws_assert_not_reached();
 	}
 	if (!wtap_read_bytes_or_eof(fh, hdr, bytes_to_read, err, err_info))
 		return FALSE;
