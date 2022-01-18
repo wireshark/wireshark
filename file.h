@@ -452,6 +452,7 @@ typedef struct {
     print_dissections_e print_dissections;
     gboolean print_hex;           /* TRUE if we should print hex data;
                                    * FALSE if we should print only if not dissected. */
+    guint hexdump_options;        /* Hexdump options if print_hex is TRUE. */
     gboolean print_formfeed;      /* TRUE if a formfeed should be printed before
                                    * each new packet */
 } print_args_t;

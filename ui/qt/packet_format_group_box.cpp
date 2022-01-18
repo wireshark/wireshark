@@ -10,6 +10,8 @@
 #include "packet_format_group_box.h"
 #include <ui_packet_format_group_box.h>
 
+#include <epan/print.h>
+
 #include <QStyle>
 #include <QStyleOption>
 
@@ -43,6 +45,13 @@ PacketFormatGroupBox::PacketFormatGroupBox(QWidget *parent) :
                       ).arg(cb_label_offset));
     pf_ui_->allExpandedButton->setStyleSheet(QString(
                       "QRadioButton {"
+                      "  padding-left: %1px;"
+                      "}"
+                      ).arg(cb_label_offset));
+
+    // Indent the checkbox under the "Bytes" checkbox
+    pf_ui_->includeDataSourcesCheckBox->setStyleSheet(QString(
+                      "QCheckBox {"
                       "  padding-left: %1px;"
                       "}"
                       ).arg(cb_label_offset));
@@ -88,6 +97,11 @@ bool PacketFormatGroupBox::allExpandedEnabled()
     return pf_ui_->allExpandedButton->isChecked();
 }
 
+uint PacketFormatGroupBox::getHexdumpOptions()
+{
+    return pf_ui_->includeDataSourcesCheckBox->isChecked() ? HEXDUMP_SOURCE_MULTI : HEXDUMP_SOURCE_PRIMARY;
+}
+
 void PacketFormatGroupBox::on_summaryCheckBox_toggled(bool checked)
 {
     pf_ui_->includeColumnHeadingsCheckBox->setEnabled(checked);
@@ -102,8 +116,9 @@ void PacketFormatGroupBox::on_detailsCheckBox_toggled(bool checked)
     emit formatChanged();
 }
 
-void PacketFormatGroupBox::on_bytesCheckBox_toggled(bool)
+void PacketFormatGroupBox::on_bytesCheckBox_toggled(bool checked)
 {
+    pf_ui_->includeDataSourcesCheckBox->setEnabled(checked);
     emit formatChanged();
 }
 
@@ -125,4 +140,9 @@ void PacketFormatGroupBox::on_asDisplayedButton_toggled(bool checked)
 void PacketFormatGroupBox::on_allExpandedButton_toggled(bool checked)
 {
     if (checked) emit formatChanged();
+}
+
+void PacketFormatGroupBox::on_includeDataSourcesCheckBox_toggled(bool)
+{
+    emit formatChanged();
 }

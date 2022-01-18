@@ -261,6 +261,7 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
     print_args_.print_summary       = pd_ui_->formatGroupBox->summaryEnabled();
     print_args_.print_col_headings  = pd_ui_->formatGroupBox->includeColumnHeadingsEnabled();
     print_args_.print_hex           = pd_ui_->formatGroupBox->bytesEnabled();
+    print_args_.hexdump_options     = pd_ui_->formatGroupBox->getHexdumpOptions();
     print_args_.print_formfeed      = pd_ui_->formFeedCheckBox->isChecked();
 
     print_args_.print_dissections = print_dissections_none;

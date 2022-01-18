@@ -521,6 +521,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
     print_args.print_col_headings  = TRUE;
     print_args.print_dissections   = print_dissections_as_displayed;
     print_args.print_hex           = FALSE;
+    print_args.hexdump_options     = HEXDUMP_SOURCE_MULTI;
     print_args.print_formfeed      = FALSE;
     print_args.stream              = NULL;
 
@@ -643,10 +644,19 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
     }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
-    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
         args->print_hex = TRUE;
-    else
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
+        EnableWindow(cur_ctrl, TRUE);
+        if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+            args->hexdump_options = HEXDUMP_SOURCE_MULTI;
+        else
+            args->hexdump_options = HEXDUMP_SOURCE_PRIMARY;
+    } else {
         args->print_hex = FALSE;
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
+        EnableWindow(cur_ctrl, FALSE);
+    }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -693,6 +703,8 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
     /* Set the "Packet bytes" box */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
     SendMessage(cur_ctrl, BM_SETCHECK, args->print_hex, 0);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, !(args->hexdump_options & HEXDUMP_SOURCE_PRIMARY), 0);
 
     /* Set the "Each packet on a new page" box */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);

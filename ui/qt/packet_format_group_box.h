@@ -35,6 +35,8 @@ public:
     bool asDisplayedEnabled();
     bool allExpandedEnabled();
 
+    uint getHexdumpOptions();
+
 signals:
     void formatChanged();
 
@@ -48,6 +50,8 @@ private slots:
     void on_allCollapsedButton_toggled(bool checked);
     void on_asDisplayedButton_toggled(bool checked);
     void on_allExpandedButton_toggled(bool checked);
+
+    void on_includeDataSourcesCheckBox_toggled(bool checked);
 
 private:
     Ui::PacketFormatGroupBox *pf_ui_;

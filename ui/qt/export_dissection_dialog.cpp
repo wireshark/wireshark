@@ -201,6 +201,7 @@ void ExportDissectionDialog::dialogAccepted()
                     print_args_.print_dissections = print_dissections_expanded;
             }
             print_args_.print_hex = packet_format_group_box_.bytesEnabled();
+            print_args_.hexdump_options = packet_format_group_box_.getHexdumpOptions();
             print_args_.stream = print_stream_text_new(TRUE, print_args_.file);
             if (print_args_.stream == NULL) {
                 open_failure_alert_box(print_args_.file, errno, TRUE);

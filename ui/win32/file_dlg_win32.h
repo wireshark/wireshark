@@ -170,7 +170,8 @@ void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, expo
 #define EWFD_PKT_DETAIL_CB    1053
 #define EWFD_PKT_DETAIL_COMBO 1054
 #define EWFD_PKT_BYTES_CB     1055
-#define EWFD_PKT_NEW_PAGE_CB  1056
+#define EWFD_DATA_SOURCES_CB  1056
+#define EWFD_PKT_NEW_PAGE_CB  1057
 
 #ifdef __cplusplus
 }

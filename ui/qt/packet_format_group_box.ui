@@ -114,6 +114,22 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QCheckBox" name="includeDataSourcesCheckBox">
+     <property name="text">
+      <string>Include secondary data sources</string>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <connections/>
