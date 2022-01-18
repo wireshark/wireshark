@@ -115,6 +115,13 @@ typedef struct {
 } ssh_packet_info_t;
 #endif
 
+typedef struct _ssh_channel_info_t {
+    guint  client_channel_number;
+    guint  server_channel_number;
+    dissector_handle_t subdissector_handle;
+    struct _ssh_channel_info_t* next;
+} ssh_channel_info_t;
+
 struct ssh_peer_data {
     guint   counter;
 
@@ -156,6 +163,7 @@ struct ssh_peer_data {
     guint32          seq_num_new_key;
     ssh_bignum      *bn_cookie;
 #endif
+    struct ssh_flow_data * global_data;
 };
 
 struct ssh_flow_data {
@@ -186,6 +194,7 @@ struct ssh_flow_data {
     gboolean        do_decrypt;
     ssh_bignum      new_keys[6];
 #endif
+    ssh_channel_info_t *channel_info;
 };
 
 #ifdef SSH_DECRYPTION_SUPPORTED
@@ -284,6 +293,20 @@ static int hf_ssh_ecdh_q_s_length = -1;
 /* Miscellaneous */
 static int hf_ssh_mpint_length = -1;
 
+static int hf_ssh_connection_type_name_len = -1;
+static int hf_ssh_connection_type_name = -1;
+static int hf_ssh_connection_sender_channel = -1;
+static int hf_ssh_connection_recipient_channel = -1;
+static int hf_ssh_connection_initial_window = -1;
+static int hf_ssh_connection_maximum_packet_size = -1;
+static int hf_ssh_channel_request_name_len = -1;
+static int hf_ssh_channel_request_name = -1;
+static int hf_ssh_channel_request_want_reply = -1;
+static int hf_ssh_subsystem_name_len = -1;
+static int hf_ssh_subsystem_name = -1;
+static int hf_ssh_channel_window_adjust = -1;
+static int hf_ssh_channel_data_len = -1;
+static int hf_ssh_exit_status = -1;
 static gint ett_ssh = -1;
 static gint ett_key_exchange = -1;
 static gint ett_key_exchange_host_key = -1;
@@ -297,6 +320,7 @@ static expert_field ei_ssh_invalid_keylen = EI_INIT;
 static gboolean ssh_desegment = TRUE;
 
 static dissector_handle_t ssh_handle;
+static dissector_handle_t sftp_handle=NULL;
 
 #ifdef SSH_DECRYPTION_SUPPORTED
 static const char   *pref_keylog_file;
@@ -509,7 +533,14 @@ static gboolean ssh_decrypt_chacha20(gcry_cipher_hd_t hd, guint32 seqnr,
         guchar *plain, guint plain_len);
 
 static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gchar *plaintext, guint plaintext_len);
+        struct ssh_peer_data *peer_data, proto_tree *tree,
+        gchar *plaintext, guint plaintext_len);
+static void ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
+        struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
+        guint msg_code);
+
+static dissector_handle_t get_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel);
+static void set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel, guint8* subsystem_name);
 
 #define SSH_DEBUG_USE_STDERR "-"
 
@@ -573,6 +604,9 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         global_data->peer_data[SERVER_PEER_DATA].seq_num_new_key = 0;
         global_data->peer_data[CLIENT_PEER_DATA].bn_cookie = NULL;
         global_data->peer_data[SERVER_PEER_DATA].bn_cookie = NULL;
+        global_data->peer_data[CLIENT_PEER_DATA].global_data = global_data;
+        global_data->peer_data[SERVER_PEER_DATA].global_data = global_data;
+        global_data->channel_info = NULL;
         global_data->kex_client_version = wmem_array_new(wmem_file_scope(), 1);
         global_data->kex_server_version = wmem_array_new(wmem_file_scope(), 1);
         global_data->kex_client_key_exchange_init = wmem_array_new(wmem_file_scope(), 1);
@@ -2281,7 +2315,7 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if(plain){
-        ssh_dissect_decrypted_packet(tvb, pinfo, tree, plain, message_length+4);
+        ssh_dissect_decrypted_packet(tvb, pinfo, peer_data, tree, plain, message_length+4);
     }
 
     offset += message_length + peer_data->mac_length + 4;
@@ -2313,7 +2347,8 @@ ssh_decrypt_chacha20(gcry_cipher_hd_t hd,
 
 static int
 ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gchar *plaintext, guint plaintext_len)
+        struct ssh_peer_data *peer_data, proto_tree *tree,
+        gchar *plaintext, guint plaintext_len)
 {
     int offset = 0;      // TODO:
 
@@ -2409,6 +2444,14 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     /* Connection protocol */
     /* Generic (80-89) */
     /* Channel related messages (90-127) */
+    else if (msg_code >= 90 && msg_code <= 127) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
+        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Connection: (channel related message)");
+        proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+        // TODO: offset = ssh_dissect_connection_channel(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+        ssh_dissect_connection_specific(packet_tvb, pinfo, peer_data, offset, msg_type_tree, msg_code);
+    }
 
     /* Reserved for client protocols (128-191) */
     else if (msg_code >= 128 && msg_code <= 191) {
@@ -2439,6 +2482,132 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     offset+= padding_length;
 
     return offset;
+}
+
+static void
+ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
+        struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
+        guint msg_code)
+{
+        (void)pinfo;
+        if(msg_code==SSH_MSG_CHANNEL_OPEN){
+                guint   slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_type_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_type_name, packet_tvb, offset, slen, ENC_UTF_8);
+                offset += slen;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_sender_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_initial_window, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_maximum_packet_size, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+        }else if(msg_code==SSH_MSG_CHANNEL_OPEN_CONFIRMATION){
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_sender_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_initial_window, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_maximum_packet_size, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+        }else if(msg_code==SSH_MSG_CHANNEL_WINDOW_ADJUST){
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_channel_window_adjust, packet_tvb, offset, 4, ENC_BIG_ENDIAN);         // TODO: maintain count of transfered bytes and window size
+                offset += 4;
+        }else if(msg_code==SSH_MSG_CHANNEL_DATA){
+                guint   uiNumChannel;
+                uiNumChannel = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+// TODO: process according to the type of channel
+                guint   slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_channel_data_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                tvbuff_t *next_tvb = tvb_new_subset_remaining(packet_tvb, offset);
+                dissector_handle_t subdissector_handle = get_subdissector_for_channel(peer_data, uiNumChannel);
+                if(subdissector_handle){
+                        call_dissector(subdissector_handle, next_tvb, pinfo, msg_type_tree);
+                }
+                offset += slen;
+        }else if(msg_code==SSH_MSG_CHANNEL_EOF){
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+        }else if(msg_code==SSH_MSG_CHANNEL_CLOSE){
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+        }else if(msg_code==SSH_MSG_CHANNEL_REQUEST){
+                guint   uiNumChannel;
+                uiNumChannel = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                guint8* request_name;
+                guint   slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_channel_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                request_name = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(msg_type_tree, hf_ssh_channel_request_name, packet_tvb, offset, slen, ENC_UTF_8);
+                offset += slen;
+                proto_tree_add_item(msg_type_tree, hf_ssh_channel_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                if (0 == strcmp(request_name, "subsystem")) {
+                        slen = tvb_get_ntohl(packet_tvb, offset) ;
+                        proto_tree_add_item(msg_type_tree, hf_ssh_subsystem_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        guint8* subsystem_name = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                        set_subdissector_for_channel(peer_data, uiNumChannel, subsystem_name);
+                        proto_tree_add_item(msg_type_tree, hf_ssh_subsystem_name, packet_tvb, offset, slen, ENC_UTF_8);
+                        offset += slen;
+                }else if (0 == strcmp(request_name, "exit-status")) {
+                        proto_tree_add_item(msg_type_tree, hf_ssh_exit_status, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                }
+        }else if(msg_code==SSH_MSG_CHANNEL_SUCCESS){
+                proto_tree_add_item(msg_type_tree, hf_ssh_connection_recipient_channel, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+        }
+}
+
+static dissector_handle_t
+get_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel)
+{
+        ssh_channel_info_t *ci = peer_data->global_data->channel_info;
+        while(ci){
+            guint channel_number = &peer_data->global_data->peer_data[SERVER_PEER_DATA]==peer_data?ci->client_channel_number:ci->server_channel_number;
+            if(channel_number==uiNumChannel){return ci->subdissector_handle;}
+            ci = ci->next;
+        }
+        g_debug("Error lookin up channel %d", uiNumChannel);
+        return NULL;
+}
+
+static void
+set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel, guint8* subsystem_name)
+{
+        ssh_channel_info_t *ci = NULL;
+        ssh_channel_info_t **pci = &peer_data->global_data->channel_info;
+        int is_server = &peer_data->global_data->peer_data[SERVER_PEER_DATA]==peer_data;
+        while(*pci){
+            guint channel_number = is_server?(*pci)->client_channel_number:(*pci)->server_channel_number;
+            if (channel_number == uiNumChannel) {
+                ci = *pci;
+                break;
+            }
+            pci = &(*pci)->next;
+        }
+        if(!ci){
+            ci = wmem_new(wmem_file_scope(), ssh_channel_info_t);
+            *pci = ci;
+        }
+        if(0 == strcmp(subsystem_name, "sftp")) {
+            ci->subdissector_handle = sftp_handle;
+        } else {
+            ci->subdissector_handle = NULL;
+        }
 }
 
 #ifdef SSH_DECRYPT_DEBUG /* {{{ */
@@ -2607,42 +2776,42 @@ proto_register_ssh(void)
 {
     static hf_register_info hf[] = {
         { &hf_ssh_protocol,
-          { "Protocol",  "ssh.protocol",
+          { "Protocol", "ssh.protocol",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_packet_length,
-          { "Packet Length",      "ssh.packet_length",
-            FT_UINT32, BASE_DEC, NULL,  0x0,
+          { "Packet Length", "ssh.packet_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_packet_length_encrypted,
-          { "Packet Length (encrypted)",      "ssh.packet_length_encrypted",
-            FT_BYTES, BASE_NONE, NULL,  0x0,
+          { "Packet Length (encrypted)", "ssh.packet_length_encrypted",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_padding_length,
-          { "Padding Length",  "ssh.padding_length",
+          { "Padding Length", "ssh.padding_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_payload,
-          { "Payload",  "ssh.payload",
+          { "Payload", "ssh.payload",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_encrypted_packet,
-          { "Encrypted Packet",  "ssh.encrypted_packet",
+          { "Encrypted Packet", "ssh.encrypted_packet",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_padding_string,
-          { "Padding String",  "ssh.padding_string",
+          { "Padding String", "ssh.padding_string",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_string,
-          { "MAC",  "ssh.mac",
+          { "MAC", "ssh.mac",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Message authentication code", HFILL }},
 
@@ -2652,314 +2821,385 @@ proto_register_ssh(void)
             "Message direction", HFILL }},
 
         { &hf_ssh_msg_code,
-          { "Message Code",  "ssh.message_code",
+          { "Message Code", "ssh.message_code",
             FT_UINT8, BASE_DEC, VALS(ssh1_msg_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh2_msg_code,
-          { "Message Code",  "ssh.message_code",
+          { "Message Code", "ssh.message_code",
             FT_UINT8, BASE_DEC, VALS(ssh2_msg_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh2_kex_dh_msg_code,
-          { "Message Code",  "ssh.message_code",
+          { "Message Code", "ssh.message_code",
             FT_UINT8, BASE_DEC, VALS(ssh2_kex_dh_msg_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh2_kex_dh_gex_msg_code,
-          { "Message Code",  "ssh.message_code",
+          { "Message Code", "ssh.message_code",
             FT_UINT8, BASE_DEC, VALS(ssh2_kex_dh_gex_msg_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh2_kex_ecdh_msg_code,
-          { "Message Code",  "ssh.message_code",
+          { "Message Code", "ssh.message_code",
             FT_UINT8, BASE_DEC, VALS(ssh2_kex_ecdh_msg_vals), 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_cookie,
-          { "Cookie",  "ssh.cookie",
+          { "Cookie", "ssh.cookie",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_algorithms,
-          { "kex_algorithms string",         "ssh.kex_algorithms",
+          { "kex_algorithms string", "ssh.kex_algorithms",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_server_host_key_algorithms,
-          { "server_host_key_algorithms string",         "ssh.server_host_key_algorithms",
+          { "server_host_key_algorithms string", "ssh.server_host_key_algorithms",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_encryption_algorithms_client_to_server,
-          { "encryption_algorithms_client_to_server string",         "ssh.encryption_algorithms_client_to_server",
+          { "encryption_algorithms_client_to_server string", "ssh.encryption_algorithms_client_to_server",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_encryption_algorithms_server_to_client,
-          { "encryption_algorithms_server_to_client string",         "ssh.encryption_algorithms_server_to_client",
+          { "encryption_algorithms_server_to_client string", "ssh.encryption_algorithms_server_to_client",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_algorithms_client_to_server,
-          { "mac_algorithms_client_to_server string",         "ssh.mac_algorithms_client_to_server",
+          { "mac_algorithms_client_to_server string", "ssh.mac_algorithms_client_to_server",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_algorithms_server_to_client,
-          { "mac_algorithms_server_to_client string",         "ssh.mac_algorithms_server_to_client",
+          { "mac_algorithms_server_to_client string", "ssh.mac_algorithms_server_to_client",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_compression_algorithms_client_to_server,
-          { "compression_algorithms_client_to_server string",         "ssh.compression_algorithms_client_to_server",
+          { "compression_algorithms_client_to_server string", "ssh.compression_algorithms_client_to_server",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_compression_algorithms_server_to_client,
-          { "compression_algorithms_server_to_client string",         "ssh.compression_algorithms_server_to_client",
+          { "compression_algorithms_server_to_client string", "ssh.compression_algorithms_server_to_client",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_languages_client_to_server,
-          { "languages_client_to_server string",         "ssh.languages_client_to_server",
+          { "languages_client_to_server string", "ssh.languages_client_to_server",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_languages_server_to_client,
-          { "languages_server_to_client string",         "ssh.languages_server_to_client",
+          { "languages_server_to_client string", "ssh.languages_server_to_client",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_algorithms_length,
-          { "kex_algorithms length",         "ssh.kex_algorithms_length",
+          { "kex_algorithms length", "ssh.kex_algorithms_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_server_host_key_algorithms_length,
-          { "server_host_key_algorithms length",         "ssh.server_host_key_algorithms_length",
+          { "server_host_key_algorithms length", "ssh.server_host_key_algorithms_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_encryption_algorithms_client_to_server_length,
-          { "encryption_algorithms_client_to_server length",         "ssh.encryption_algorithms_client_to_server_length",
+          { "encryption_algorithms_client_to_server length", "ssh.encryption_algorithms_client_to_server_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_encryption_algorithms_server_to_client_length,
-          { "encryption_algorithms_server_to_client length",         "ssh.encryption_algorithms_server_to_client_length",
+          { "encryption_algorithms_server_to_client length", "ssh.encryption_algorithms_server_to_client_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_algorithms_client_to_server_length,
-          { "mac_algorithms_client_to_server length",         "ssh.mac_algorithms_client_to_server_length",
+          { "mac_algorithms_client_to_server length", "ssh.mac_algorithms_client_to_server_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mac_algorithms_server_to_client_length,
-          { "mac_algorithms_server_to_client length",         "ssh.mac_algorithms_server_to_client_length",
+          { "mac_algorithms_server_to_client length", "ssh.mac_algorithms_server_to_client_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_compression_algorithms_client_to_server_length,
-          { "compression_algorithms_client_to_server length",         "ssh.compression_algorithms_client_to_server_length",
+          { "compression_algorithms_client_to_server length", "ssh.compression_algorithms_client_to_server_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_compression_algorithms_server_to_client_length,
-          { "compression_algorithms_server_to_client length",         "ssh.compression_algorithms_server_to_client_length",
+          { "compression_algorithms_server_to_client length", "ssh.compression_algorithms_server_to_client_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_languages_client_to_server_length,
-          { "languages_client_to_server length",         "ssh.languages_client_to_server_length",
+          { "languages_client_to_server length", "ssh.languages_client_to_server_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_languages_server_to_client_length,
-          { "languages_server_to_client length",         "ssh.languages_server_to_client_length",
+          { "languages_server_to_client length", "ssh.languages_server_to_client_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_first_kex_packet_follows,
-          { "First KEX Packet Follows",      "ssh.first_kex_packet_follows",
+          { "First KEX Packet Follows", "ssh.first_kex_packet_follows",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_reserved,
-          { "Reserved",  "ssh.kex.reserved",
+          { "Reserved", "ssh.kex.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_hassh_algo,
-          { "hasshAlgorithms",  "ssh.kex.hassh_algorithms",
+          { "hasshAlgorithms", "ssh.kex.hassh_algorithms",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_hassh,
-          { "hassh",  "ssh.kex.hassh",
+          { "hassh", "ssh.kex.hassh",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_hasshserver_algo,
-          { "hasshServerAlgorithms",  "ssh.kex.hasshserver_algorithms",
+          { "hasshServerAlgorithms", "ssh.kex.hasshserver_algorithms",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_hasshserver,
-          { "hasshServer",  "ssh.kex.hasshserver",
+          { "hasshServer", "ssh.kex.hasshserver",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_length,
-          { "Host key length",         "ssh.host_key.length",
+          { "Host key length", "ssh.host_key.length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_type_length,
-          { "Host key type length",         "ssh.host_key.type_length",
+          { "Host key type length", "ssh.host_key.type_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_type,
-          { "Host key type",         "ssh.host_key.type",
+          { "Host key type", "ssh.host_key.type",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_data,
-          { "Host key data",         "ssh.host_key.data",
+          { "Host key data", "ssh.host_key.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_rsa_n,
-          { "RSA modulus (N)",         "ssh.host_key.rsa.n",
+          { "RSA modulus (N)", "ssh.host_key.rsa.n",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_rsa_e,
-          { "RSA public exponent (e)",         "ssh.host_key.rsa.e",
+          { "RSA public exponent (e)", "ssh.host_key.rsa.e",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_dsa_p,
-          { "DSA prime modulus (p)",  "ssh.host_key.dsa.p",
+          { "DSA prime modulus (p)", "ssh.host_key.dsa.p",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_dsa_q,
-          { "DSA prime divisor (q)",  "ssh.host_key.dsa.q",
+          { "DSA prime divisor (q)", "ssh.host_key.dsa.q",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_dsa_g,
-          { "DSA subgroup generator (g)",  "ssh.host_key.dsa.g",
+          { "DSA subgroup generator (g)", "ssh.host_key.dsa.g",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_dsa_y,
-          { "DSA public key (y)",  "ssh.host_key.dsa.y",
+          { "DSA public key (y)", "ssh.host_key.dsa.y",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_ecdsa_curve_id,
-          { "ECDSA elliptic curve identifier",  "ssh.host_key.ecdsa.id",
+          { "ECDSA elliptic curve identifier", "ssh.host_key.ecdsa.id",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_ecdsa_curve_id_length,
-          { "ECDSA elliptic curve identifier length",  "ssh.host_key.ecdsa.id_length",
+          { "ECDSA elliptic curve identifier length", "ssh.host_key.ecdsa.id_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_ecdsa_q,
-          { "ECDSA public key (Q)",  "ssh.host_key.ecdsa.q",
+          { "ECDSA public key (Q)", "ssh.host_key.ecdsa.q",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_ecdsa_q_length,
-          { "ECDSA public key length",  "ssh.host_key.ecdsa.q_length",
+          { "ECDSA public key length", "ssh.host_key.ecdsa.q_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_eddsa_key,
-          { "EdDSA public key",  "ssh.host_key.eddsa.key",
+          { "EdDSA public key", "ssh.host_key.eddsa.key",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_hostkey_eddsa_key_length,
-          { "EdDSA public key length",  "ssh.host_key.eddsa.key_length",
+          { "EdDSA public key length", "ssh.host_key.eddsa.key_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_h_sig,
-          { "KEX H signature",         "ssh.kex.h_sig",
+          { "KEX H signature", "ssh.kex.h_sig",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_kex_h_sig_length,
-          { "KEX H signature length",         "ssh.kex.h_sig_length",
+          { "KEX H signature length", "ssh.kex.h_sig_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_dh_e,
-          { "DH client e",  "ssh.dh.e",
+          { "DH client e", "ssh.dh.e",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_dh_f,
-          { "DH server f",  "ssh.dh.f",
+          { "DH server f", "ssh.dh.f",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_dh_gex_min,
-          { "DH GEX Min",  "ssh.dh_gex.min",
+          { "DH GEX Min", "ssh.dh_gex.min",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Minimal acceptable group size", HFILL }},
 
         { &hf_ssh_dh_gex_nbits,
-          { "DH GEX Number of Bits",  "ssh.dh_gex.nbits",
+          { "DH GEX Number of Bits", "ssh.dh_gex.nbits",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Preferred group size", HFILL }},
 
         { &hf_ssh_dh_gex_max,
-          { "DH GEX Max",  "ssh.dh_gex.max",
+          { "DH GEX Max", "ssh.dh_gex.max",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Maximal acceptable group size", HFILL }},
 
         { &hf_ssh_dh_gex_p,
-          { "DH GEX modulus (P)",  "ssh.dh_gex.p",
+          { "DH GEX modulus (P)", "ssh.dh_gex.p",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_dh_gex_g,
-          { "DH GEX base (G)",  "ssh.dh_gex.g",
+          { "DH GEX base (G)", "ssh.dh_gex.g",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_ecdh_q_c,
-          { "ECDH client's ephemeral public key (Q_C)",  "ssh.ecdh.q_c",
+          { "ECDH client's ephemeral public key (Q_C)", "ssh.ecdh.q_c",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_ecdh_q_c_length,
-          { "ECDH client's ephemeral public key length",  "ssh.ecdh.q_c_length",
-            FT_UINT32, BASE_DEC, NULL,  0x0,
+          { "ECDH client's ephemeral public key length", "ssh.ecdh.q_c_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_ecdh_q_s,
-          { "ECDH server's ephemeral public key (Q_S)",  "ssh.ecdh.q_s",
+          { "ECDH server's ephemeral public key (Q_S)", "ssh.ecdh.q_s",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_ecdh_q_s_length,
-          { "ECDH server's ephemeral public key length",  "ssh.ecdh.q_s_length",
-            FT_UINT32, BASE_DEC, NULL,  0x0,
+          { "ECDH server's ephemeral public key length", "ssh.ecdh.q_s_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_mpint_length,
-          { "Multi Precision Integer Length",      "ssh.mpint_length",
-            FT_UINT32, BASE_DEC, NULL,  0x0,
+          { "Multi Precision Integer Length", "ssh.mpint_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_ssh_connection_type_name_len,
+          { "Channel type name length", "ssh.connection_type_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_connection_type_name,
+          { "Channel type name", "ssh.connection_type_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_connection_sender_channel,
+          { "Sender channel", "ssh.connection_sender_channel",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_connection_recipient_channel,
+          { "Recipient channel", "ssh.connection_recipient_channel",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_connection_initial_window,
+          { "Initial window size", "ssh.connection_initial_window_size",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_connection_maximum_packet_size,
+          { "Maximum packet size", "ssh.userauth_maximum_packet_size",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_channel_request_name_len,
+          { "Channel request name length", "ssh.global_request_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_channel_request_name,
+          { "Channel request name", "ssh.global_request_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_channel_request_want_reply,
+          { "Channel request want reply", "ssh.channel_request_want_reply",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_subsystem_name_len,
+          { "Subsystem name length", "ssh.subsystem_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_subsystem_name,
+          { "Subsystem name", "ssh.subsystem_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_exit_status,
+          { "Exit status", "ssh.exit_status",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_channel_window_adjust,
+          { "Bytes to add", "ssh.channel_window_adjust",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_channel_data_len,
+          { "Data length", "ssh.channel_data_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
     };
 
     static gint *ett[] = {
@@ -3023,6 +3263,7 @@ proto_reg_handoff_ssh(void)
     dissector_add_uint_range_with_preference("tcp.port", TCP_RANGE_SSH, ssh_handle);
     dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
     dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
+    sftp_handle = find_dissector("sftp");
 }
 
 /*
