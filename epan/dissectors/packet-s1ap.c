@@ -17755,14 +17755,9 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *s1ap_tree = NULL;
   conversation_t *conversation;
   struct s1ap_private_data* s1ap_data;
-  wmem_list_frame_t *prev_layer;
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "S1AP");
-  /* ensure that parent dissector is not S1AP before clearing fence */
-  prev_layer = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-  if (prev_layer && GPOINTER_TO_INT(wmem_list_frame_data(prev_layer)) != proto_s1ap)
-    col_clear_fence(pinfo->cinfo, COL_INFO);
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* create the s1ap protocol tree */
@@ -18206,7 +18201,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 516 "./asn1/s1ap/packet-s1ap-template.c"
+#line 511 "./asn1/s1ap/packet-s1ap-template.c"
   } else {
     if (SctpPort != 0) {
       dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -21926,7 +21921,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 727 "./asn1/s1ap/packet-s1ap-template.c"
+#line 722 "./asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -22383,7 +22378,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_EHRPDMultiSectorLoadReportingResponseItem,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 774 "./asn1/s1ap/packet-s1ap-template.c"
+#line 769 "./asn1/s1ap/packet-s1ap-template.c"
   };
 
   static ei_register_info ei[] = {
