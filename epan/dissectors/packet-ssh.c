@@ -98,6 +98,7 @@ typedef struct {
 
 #define SSH_KEX_HASH_SHA256 2
 
+#define DIGEST_MAX_SIZE 48
 
 typedef struct _ssh_message_info_t {
     guint32 sequence_number;
@@ -107,6 +108,7 @@ typedef struct _ssh_message_info_t {
     gint    id;             /**< Identifies the exact message within a frame
                                  (there can be multiple records in a frame). */
     struct _ssh_message_info_t* next;
+    guint8  calc_mac[DIGEST_MAX_SIZE];
 } ssh_message_info_t;
 
 typedef struct {
@@ -214,6 +216,7 @@ static int hf_ssh_payload = -1;
 static int hf_ssh_encrypted_packet = -1;
 static int hf_ssh_padding_string = -1;
 static int hf_ssh_mac_string = -1;
+static int hf_ssh_mac_status = -1;
 static int hf_ssh_direction = -1;
 
 /* Message codes */
@@ -316,6 +319,7 @@ static gint ett_ssh2 = -1;
 
 static expert_field ei_ssh_packet_length = EI_INIT;
 static expert_field ei_ssh_invalid_keylen = EI_INIT;
+static expert_field ei_ssh_mac_bad = EI_INIT;
 
 static gboolean ssh_desegment = TRUE;
 
@@ -530,6 +534,9 @@ static guint ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 static gboolean ssh_decrypt_chacha20(gcry_cipher_hd_t hd, guint32 seqnr,
         guint32 counter, const guchar *ctext, guint ctext_len,
         guchar *plain, guint plain_len);
+static proto_item * ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint mac_len,
+        const int hf_mac, const int hf_mac_status, struct expert_field* bad_checksum_expert,
+        packet_info *pinfo, const guint8 * calc_mac, const guint flags);
 
 static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, proto_tree *tree,
@@ -2302,6 +2309,8 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         if (gcry_mac_verify(mac_hd, mac, mac_len)) {
             g_debug("ssh: MAC does not match");
         }
+        size_t buflen = DIGEST_MAX_SIZE;
+        gcry_mac_read(mac_hd, message->calc_mac, &buflen);
 
         message->plain_data = plain;
         message->data_len   = message_length + 4;
@@ -2313,10 +2322,99 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
     if(plain){
         ssh_dissect_decrypted_packet(tvb, pinfo, peer_data, tree, plain, message_length+4);
+        ssh_tree_add_mac(tree, tvb, offset + 4 + message_length, mac_len, hf_ssh_mac_string, hf_ssh_mac_status, &ei_ssh_mac_bad, pinfo, message->calc_mac,
+                                               PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
     }
 
     offset += message_length + peer_data->mac_length + 4;
     return offset;
+}
+
+proto_item *
+ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint mac_len,
+                const int hf_mac, const int hf_mac_status, struct expert_field* bad_checksum_expert,
+                packet_info *pinfo, const guint8 * calc_mac, const guint flags)
+{
+//    header_field_info *hfinfo = proto_registrar_get_nth(hf_checksum);
+    proto_item* ti = NULL;
+    proto_item* ti2;
+    gboolean incorrect_mac = TRUE;
+    gchar *mac;
+
+//    DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+/*
+    if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
+        ti = proto_tree_add_uint_format_value(tree, hf_checksum, tvb, offset, len, 0, "[missing]");
+        proto_item_set_generated(ti);
+        if (hf_checksum_status != -1) {
+            ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, len, PROTO_CHECKSUM_E_NOT_PRESENT);
+            proto_item_set_generated(ti2);
+        }
+        return ti;
+    }
+*/
+    mac = (gchar *)tvb_get_ptr(tvb, offset, mac_len);
+    if (flags & PROTO_CHECKSUM_GENERATED) {
+//        ti = proto_tree_add_uint(tree, hf_checksum, tvb, offset, len, computed_checksum);
+//        proto_item_set_generated(ti);
+    } else {
+        ti = proto_tree_add_item(tree, hf_mac, tvb, offset, mac_len, ENC_NA);
+        if (flags & PROTO_CHECKSUM_VERIFY) {
+            if (flags & (PROTO_CHECKSUM_IN_CKSUM|PROTO_CHECKSUM_ZERO)) {
+                if (!memcmp(mac, calc_mac, mac_len)) {
+                    proto_item_append_text(ti, " [correct]");
+                    if (hf_mac_status != -1) {
+                        ti2 = proto_tree_add_uint(tree, hf_mac_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
+                        proto_item_set_generated(ti2);
+                    }
+                    incorrect_mac = FALSE;
+                } else if (flags & PROTO_CHECKSUM_IN_CKSUM) {
+//                    computed_checksum = in_cksum_shouldbe(checksum, computed_checksum);
+                }
+            } else {
+                if (!memcmp(mac, calc_mac, mac_len)) {
+                    proto_item_append_text(ti, " [correct]");
+                    if (hf_mac_status != -1) {
+                        ti2 = proto_tree_add_uint(tree, hf_mac_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
+                        proto_item_set_generated(ti2);
+                    }
+                    incorrect_mac = FALSE;
+                }
+            }
+
+            if (incorrect_mac) {
+                if (hf_mac_status != -1) {
+                    ti2 = proto_tree_add_uint(tree, hf_mac_status, tvb, offset, 0, PROTO_CHECKSUM_E_BAD);
+                    proto_item_set_generated(ti2);
+                }
+                if (flags & PROTO_CHECKSUM_ZERO) {
+                    proto_item_append_text(ti, " [incorrect]");
+                    if (bad_checksum_expert != NULL)
+                        expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
+                } else {
+                    gchar *data = (gchar *)wmem_alloc(wmem_packet_scope(), mac_len*2 + 1);
+//                    proto_item_append_text(ti, " incorrect, should be TODO");
+                    static const char h2a[] = "0123456789abcdef";
+                    for(guint macCnt=0;macCnt<mac_len;macCnt++){
+                        data[macCnt*2+0] = h2a[(calc_mac[macCnt] >> 4) & 0xF];
+                        data[macCnt*2+1] = h2a[(calc_mac[macCnt] >> 0) & 0xF];
+                    }
+                    data[mac_len*2] = 0;
+                    proto_item_append_text(ti, " incorrect, computed %s", data);
+                    if (bad_checksum_expert != NULL)
+                        expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
+                }
+            }
+        } else {
+            if (hf_mac_status != -1) {
+                proto_item_append_text(ti, " [unverified]");
+                ti2 = proto_tree_add_uint(tree, hf_mac_status, tvb, offset, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+                proto_item_set_generated(ti2);
+            }
+        }
+    }
+
+    return ti;
 }
 
 static gboolean
@@ -2813,6 +2911,10 @@ proto_register_ssh(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Message authentication code", HFILL }},
 
+        { &hf_ssh_mac_status,
+          { "MAC Status",      "ssh.mac.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
+            NULL, HFILL }},
+
         { &hf_ssh_direction,
           { "Direction", "ssh.direction",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -3211,7 +3313,8 @@ proto_register_ssh(void)
 
     static ei_register_info ei[] = {
         { &ei_ssh_packet_length, { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
-        { &ei_ssh_invalid_keylen, { "ssh.key_length.error", PI_PROTOCOL, PI_ERROR, "Invalid key length", EXPFILL }}
+        { &ei_ssh_invalid_keylen, { "ssh.key_length.error", PI_PROTOCOL, PI_ERROR, "Invalid key length", EXPFILL }},
+        { &ei_ssh_mac_bad,       { "ssh.mac_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad MAC", EXPFILL }},
     };
 
     module_t *ssh_module;
