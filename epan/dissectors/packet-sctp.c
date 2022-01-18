@@ -2456,7 +2456,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     try_ppi = FALSE;
     if (dissector_is_uint_changed(sctp_ppi_dissector_table, ppi)) {
       if (dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
-	return TRUE;
+        return TRUE;
       }
     } else {
       /* The default; try it later */
@@ -2467,11 +2467,11 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     if (low_port != 0) {
       if (dissector_is_uint_changed(sctp_port_dissector_table, low_port)) {
         if (dissector_try_uint_new(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
-	  return TRUE;
-	}
+          return TRUE;
+        }
       } else {
-	/* The default; try it later */
-	try_low_port = TRUE;
+        /* The default; try it later */
+        try_low_port = TRUE;
       }
     }
 
@@ -2479,11 +2479,11 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     if (high_port != 0) {
       if (dissector_is_uint_changed(sctp_port_dissector_table, high_port)) {
         if (dissector_try_uint_new(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
-	  return TRUE;
-	}
+          return TRUE;
+        }
       } else {
-	/* The default; try it later */
-	try_high_port = TRUE;
+        /* The default; try it later */
+        try_high_port = TRUE;
       }
     }
 
@@ -2613,7 +2613,6 @@ frag_hash(gconstpointer k)
   return key->sport ^ key->dport ^ key->verification_tag ^
          key->stream_id ^ key->stream_seq_num ^ key->u_bit;
 }
-
 
 
 static void
