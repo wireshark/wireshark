@@ -2117,6 +2117,8 @@ tvb_find_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 nee
 	const guint8 *result;
 
 	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr() */
+	if (!ptr)
+		return -1;
 
 	result = (const guint8 *) memchr(ptr, needle, limit);
 	if (!result)
@@ -2219,6 +2221,8 @@ tvb_ws_mempbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, cons
 	const guint8 *result;
 
 	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr */
+	if (!ptr)
+		return -1;
 
 	result = ws_mempbrk_exec(ptr, limit, pattern, found_needle);
 	if (!result)
