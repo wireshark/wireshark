@@ -18,7 +18,6 @@ import subprocess
 # is assigned to a different variable or a macro is used, it isn't tracked.
 
 # TODO:
-# Currently assuming we'll find call + first 2 args in same line...
 # Attempt to check for allowed encoding types (most likely will be literal values |'d)?
 
 
@@ -160,7 +159,6 @@ class ProtoTreeAddItemCheck(APICheck):
         self.lengths['FT_INT56']  = 7
         self.lengths['FT_UINT64'] = 8
         self.lengths['FT_INT64']  = 8
-        # TODO: for FT_BOOLEAN, could take length from 2nd arg (which is in bits...)
         self.lengths['FT_ETHER']  = 6
         # TODO: other types...
 
@@ -168,13 +166,24 @@ class ProtoTreeAddItemCheck(APICheck):
         self.file = file
         self.calls = []
         with open(file, 'r') as f:
-            # TODO: would be better to just iterate over those found in whole file,
-            # but extra effort would be needed to still know line number.
-            # TODO: See what APICheck does above..
-            for line_number, line in enumerate(f, start=1):
-                m = self.p.match(line)
-                if m:
-                    self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
+
+            contents = f.read()
+            lines = contents.splitlines()
+            total_lines = len(lines)
+            line_number = 1
+            for line in lines:
+                # Want to check this, and next few lines
+                to_check = lines[line_number-1]
+                # Nothing to check if function name isn't in itk)
+                if to_check.find(self.fun_name) != -1:
+                    # Ok, add the next file lines before trying RE
+                    for i in range(1, 5):
+                        if line_number+i < total_lines:
+                            to_check += lines[line_number-1+i]
+                    m = self.p.match(to_check)
+                    if m:
+                        self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
+                line_number += 1
 
     def check_against_items(self, items):
         # For now, only complaining if length if call is longer than the item type implies.
@@ -217,7 +226,7 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
 
 
 field_widths = {
-    'FT_BOOLEAN' : 64,   # TODO: Width depends upon 'display' field, not checked.
+    'FT_BOOLEAN' : 64,   # TODO: Width depends upon 'display' field
     'FT_CHAR'    : 8,
     'FT_UINT8'   : 8,
     'FT_INT8'    : 8,
