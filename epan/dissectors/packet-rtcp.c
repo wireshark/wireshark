@@ -860,8 +860,22 @@ static expert_field ei_rtcp_appl_not_ascii = EI_INIT;
 static expert_field ei_rtcp_appl_non_conformant = EI_INIT;
 static expert_field ei_rtcp_appl_non_zero_pad = EI_INIT;
 
+enum default_protocol_type {
+    RTCP_PROTO_RTCP,
+    RTCP_PROTO_SRTCP
+};
+
+static const enum_val_t rtcp_default_protocol_vals[] = {
+  {"RTCP",  "RTCP",  RTCP_PROTO_RTCP},
+  {"SRTCP", "SRTCP", RTCP_PROTO_SRTCP},
+  {NULL, NULL, -1}
+};
+
+static gint global_rtcp_default_protocol = RTCP_PROTO_RTCP;
+
 /* Main dissection function */
 static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+static int dissect_srtcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
 
 /* Displaying set info */
 static gboolean global_rtcp_show_setup_info = TRUE;
@@ -1006,7 +1020,19 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
 
     /* OK, dissect as RTCP */
-    dissect_rtcp(tvb, pinfo, tree, data);
+
+    /* XXX: This heuristic doesn't differentiate between RTCP and SRTCP.
+     * There are some possible extra heuristics: looking to see if there's
+     * extra length (that is not padding), looking if padding is enabled
+     * but the last byte is inconsistent with padding, stepping through
+     * compound packets and seeing if it looks encrypted at some point, etc.
+     */
+    if (global_rtcp_default_protocol == RTCP_PROTO_RTCP) {
+        dissect_rtcp(tvb, pinfo, tree, data);
+    } else {
+        dissect_srtcp(tvb, pinfo, tree, data);
+    }
+
     return TRUE;
 }
 
@@ -4344,6 +4370,7 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         if (p_conv_data && p_conv_data->srtcp_info)
         {
             gboolean e_bit;
+            proto_to_use = proto_srtcp;
             srtcp_info = p_conv_data->srtcp_info;
             /* get the offset to the start of the SRTCP fields at the end of the packet */
             srtcp_offset = tvb_reported_length_remaining(tvb, offset) - srtcp_info->auth_tag_len - srtcp_info->mki_len - 4;
@@ -4359,13 +4386,17 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     srtcp_encrypted = TRUE;
             }
         }
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, (srtcp_info) ? "SRTCP" : "RTCP");
-    } else {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRTCP");
-        srtcp_encrypted = is_srtp;
+    } else if (is_srtp) {
+        /* We've been told to dissect this as SRTCP without conversation info
+         * (so via Decode As or heuristic); since we don't know where the SRTCP
+         * bits start, so we don't know if it's encrypted. Assume yes, to
+         * avoid errors.
+         */
+        srtcp_encrypted = TRUE;
         proto_to_use = proto_srtcp;
     }
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, (proto_to_use == proto_srtcp) ? "SRTCP" : "RTCP");
 
     /*
      * Check if there are at least 4 bytes left in the frame,
@@ -4653,7 +4684,7 @@ dissect_srtcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 static int
 dissect_rtcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-    return dissect_rtcp_common(tvb, pinfo, tree, data, TRUE);
+    return dissect_rtcp_common(tvb, pinfo, tree, data, FALSE);
 }
 
 void
@@ -8003,6 +8034,14 @@ proto_register_rtcp(void)
 
     rtcp_module = prefs_register_protocol(proto_rtcp, NULL);
     srtcp_module = prefs_register_protocol(proto_srtcp, NULL);
+
+    prefs_register_enum_preference(rtcp_module, "default_protocol",
+        "Default protocol",
+        "The default protocol assumed by the heuristic dissector, "
+        "which does not easily distinguish between RTCP and SRTCP.",
+        &global_rtcp_default_protocol,
+        rtcp_default_protocol_vals,
+        FALSE);
 
     prefs_register_bool_preference(rtcp_module, "show_setup_info",
         "Show stream setup information",
