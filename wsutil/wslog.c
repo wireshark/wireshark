@@ -1087,6 +1087,14 @@ void ws_log_console_writer_set_use_stdout(bool use_stdout)
     stdout_logging_enabled = use_stdout;
 }
 
+void ws_log_default_writer(const char *domain, enum ws_log_level level,
+                            ws_log_time_t timestamp,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap,
+                            void *user_data _U_)
+{
+    ws_log_console_writer(domain, level, timestamp, file, line, func, user_format, user_ap);
+}
 
 static void ws_log_cleanup(void)
 {

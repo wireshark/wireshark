@@ -70,7 +70,6 @@ void ws_log_console_writer(const char *domain, enum ws_log_level level,
                             const char *file, int line, const char *func,
                             const char *user_format, va_list user_ap);
 
-
 /** Configure log levels "info" and below to use stdout.
  *
  * Normally all log messages are written to stderr. For backward compatibility
@@ -79,6 +78,14 @@ void ws_log_console_writer(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_console_writer_set_use_stdout(bool use_stdout);
+
+/** Deprecated. Do not use. */
+WS_DLL_PUBLIC
+void ws_log_default_writer(const char *domain, enum ws_log_level level,
+                            ws_log_time_t timestamp,
+                            const char *file, int line, const char *func,
+                            const char *user_format, va_list user_ap,
+                            void *user_data);
 
 
 /** Convert a numerical level to its string representation. */
