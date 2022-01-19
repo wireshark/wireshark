@@ -394,12 +394,19 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00e007, "IBC_SM1_SM3"},
     { 0x00e009, "RSA_SM1_SM3"},
     { 0x00e00a, "RSA_SM1_SHA1"},
-    { 0x00e011, "ECDHE_SM4_SM3"},
-    { 0x00e013, "ECC_SM4_SM3"},
-    { 0x00e015, "IBSDH_SM4_SM3"},
-    { 0x00e017, "IBC_SM4_SM3"},
-    { 0x00e019, "RSA_SM4_SM3"},
-    { 0x00e01a, "RSA_SM4_SHA1"},
+    { 0x00e011, "ECDHE_SM4_CBC_SM3"},
+    { 0x00e013, "ECC_SM4_CBC_SM3"},
+    { 0x00e015, "IBSDH_SM4_CBC_SM3"},
+    { 0x00e017, "IBC_SM4_CBC_SM3"},
+    { 0x00e019, "RSA_SM4_CBC_SM3"},
+    { 0x00e01a, "RSA_SM4_CBC_SHA1"},
+    { 0x00e01c, "RSA_SM4_CBC_SHA256"},
+    { 0x00e051, "ECDHE_SM4_GCM_SM3"},
+    { 0x00e053, "ECC_SM4_GCM_SM3"},
+    { 0x00e055, "IBSDH_SM4_GCM_SM3"},
+    { 0x00e057, "IBC_SM4_GCM_SM3"},
+    { 0x00e059, "RSA_SM4_GCM_SM3"},
+    { 0x00e05a, "RSA_SM4_GCM_SHA256"},
 
     /* https://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0x00E410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
@@ -1126,12 +1133,19 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xe007, "IBC_SM1_SM3"},
     { 0xe009, "RSA_SM1_SM3"},
     { 0xe00a, "RSA_SM1_SHA1"},
-    { 0xe011, "ECDHE_SM4_SM3"},
-    { 0xe013, "ECC_SM4_SM3"},
-    { 0xe015, "IBSDH_SM4_SM3"},
-    { 0xe017, "IBC_SM4_SM3"},
-    { 0xe019, "RSA_SM4_SM3"},
-    { 0xe01a, "RSA_SM4_SHA1"},
+    { 0xe011, "ECDHE_SM4_CBC_SM3"},
+    { 0xe013, "ECC_SM4_CBC_SM3"},
+    { 0xe015, "IBSDH_SM4_CBC_SM3"},
+    { 0xe017, "IBC_SM4_CBC_SM3"},
+    { 0xe019, "RSA_SM4_CBC_SM3"},
+    { 0xe01a, "RSA_SM4_CBC_SHA1"},
+    { 0xe01c, "RSA_SM4_CBC_SHA256"},
+    { 0xe051, "ECDHE_SM4_GCM_SM3"},
+    { 0xe053, "ECC_SM4_GCM_SM3"},
+    { 0xe055, "IBSDH_SM4_GCM_SM3"},
+    { 0xe057, "IBC_SM4_GCM_SM3"},
+    { 0xe059, "RSA_SM4_GCM_SM3"},
+    { 0xe05a, "RSA_SM4_GCM_SHA256"},
     /* https://tools.ietf.org/html/draft-josefsson-salsa20-tls */
     { 0xE410, "TLS_RSA_WITH_ESTREAM_SALSA20_SHA1" },
     { 0xE411, "TLS_RSA_WITH_SALSA20_SHA1" },
@@ -3118,12 +3132,19 @@ static const SslCipherSuite cipher_suites[]={
     {0xe007,KEX_IBC_SM9,        ENC_SM1,        DIG_SM3,    MODE_CBC},        /* IBC_SM1_SM3 */
     {0xe009,KEX_RSA,            ENC_SM1,        DIG_SM3,    MODE_CBC},        /* RSA_SM1_SM3 */
     {0xe00a,KEX_RSA,            ENC_SM1,        DIG_SHA,    MODE_CBC},        /* RSA_SM1_SHA1 */
-    {0xe011,KEX_ECDHE_SM2,      ENC_SM4,        DIG_SM3,    MODE_CBC},        /* ECDHE_SM4_SM3 */
-    {0xe013,KEX_ECC_SM2,        ENC_SM4,        DIG_SM3,    MODE_CBC},        /* ECC_SM4_SM3 */
-    {0xe015,KEX_IBSDH_SM9,      ENC_SM4,        DIG_SM3,    MODE_CBC},        /* IBSDH_SM4_SM3 */
-    {0xe017,KEX_IBC_SM9,        ENC_SM4,        DIG_SM3,    MODE_CBC},        /* IBC_SM4_SM3 */
-    {0xe019,KEX_RSA,            ENC_SM4,        DIG_SM3,    MODE_CBC},        /* RSA_SM4_SM3 */
-    {0xe01a,KEX_RSA,            ENC_SM4,        DIG_SHA,    MODE_CBC},        /* RSA_SM4_SHA1 */
+    {0xe011,KEX_ECDHE_SM2,      ENC_SM4,        DIG_SM3,    MODE_CBC},        /* ECDHE_SM4_CBC_SM3 */
+    {0xe013,KEX_ECC_SM2,        ENC_SM4,        DIG_SM3,    MODE_CBC},        /* ECC_SM4_CBC_SM3 */
+    {0xe015,KEX_IBSDH_SM9,      ENC_SM4,        DIG_SM3,    MODE_CBC},        /* IBSDH_SM4_CBC_SM3 */
+    {0xe017,KEX_IBC_SM9,        ENC_SM4,        DIG_SM3,    MODE_CBC},        /* IBC_SM4_CBC_SM3 */
+    {0xe019,KEX_RSA,            ENC_SM4,        DIG_SM3,    MODE_CBC},        /* RSA_SM4_CBC_SM3 */
+    {0xe01a,KEX_RSA,            ENC_SM4,        DIG_SHA,    MODE_CBC},        /* RSA_SM4_CBC_SHA1 */
+    {0xe01c,KEX_RSA,            ENC_SM4,        DIG_SHA256, MODE_CBC},        /* RSA_SM4_CBC_SHA256 */
+    {0xe051,KEX_ECDHE_SM2,      ENC_SM4,        DIG_SM3,    MODE_GCM},        /* ECDHE_SM4_GCM_SM3 */
+    {0xe053,KEX_ECC_SM2,        ENC_SM4,        DIG_SM3,    MODE_GCM},        /* ECC_SM4_GCM_SM3 */
+    {0xe055,KEX_IBSDH_SM9,      ENC_SM4,        DIG_SM3,    MODE_GCM},        /* IBSDH_SM4_GCM_SM3 */
+    {0xe057,KEX_IBC_SM9,        ENC_SM4,        DIG_SM3,    MODE_GCM},        /* IBC_SM4_GCM_SM3 */
+    {0xe059,KEX_RSA,            ENC_SM4,        DIG_SM3,    MODE_GCM},        /* RSA_SM4_GCM_SM3 */
+    {0xe05a,KEX_RSA,            ENC_SM4,        DIG_SHA256, MODE_GCM},        /* RSA_SM4_GCM_SHA256 */
     {-1,    0,                  0,              0,          MODE_STREAM}
 };
 
