@@ -532,7 +532,7 @@ Commit Check:
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
-    - bash ./tools/pre-commit "HEAD^$NUM_COMMITS"
+    - bash ./tools/pre-commit "HEAD~$NUM_COMMITS"
     - tools/validate-commit.py
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
