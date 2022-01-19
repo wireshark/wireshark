@@ -338,6 +338,9 @@ static int hf_ssh_connection_sender_channel = -1;
 static int hf_ssh_connection_recipient_channel = -1;
 static int hf_ssh_connection_initial_window = -1;
 static int hf_ssh_connection_maximum_packet_size = -1;
+static int hf_ssh_global_request_name_len = -1;
+static int hf_ssh_global_request_name = -1;
+static int hf_ssh_global_request_want_reply = -1;
 static int hf_ssh_channel_request_name_len = -1;
 static int hf_ssh_channel_request_name = -1;
 static int hf_ssh_channel_request_want_reply = -1;
@@ -602,6 +605,8 @@ static void ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pin
 static int ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
         guint msg_code);
+static void ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code);
 static void ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree);
 static void ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
@@ -2689,6 +2694,14 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Connection protocol */
     /* Generic (80-89) */
+    else if (msg_code >= 80 && msg_code <= 89) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
+        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Connection (generic)");
+        proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+        // TODO: offset = ssh_dissect_connection_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+        ssh_dissect_connection_generic(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+    }
     /* Channel related messages (90-127) */
     else if (msg_code >= 90 && msg_code <= 127) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
@@ -2989,6 +3002,27 @@ set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel
             ci->subdissector_handle = sftp_handle;
         } else {
             ci->subdissector_handle = NULL;
+        }
+}
+
+static void
+ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code)
+{
+        (void)pinfo;
+        if(msg_code==SSH_MSG_GLOBAL_REQUEST){
+                guint8* request_name;
+                guint   slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                request_name = tvb_get_string_enc(wmem_packet_scope(), packet_tvb, offset, slen, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(msg_type_tree, hf_ssh_global_request_name, packet_tvb, offset, slen, ENC_ASCII);
+                offset += slen;
+                proto_tree_add_item(msg_type_tree, hf_ssh_global_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                if (0 == strcmp(request_name, "hostkeys-00@openssh.com")) {
+                }
         }
 }
 
@@ -3742,6 +3776,21 @@ proto_register_ssh(void)
         { &hf_ssh_connection_maximum_packet_size,
           { "Maximum packet size", "ssh.userauth_maximum_packet_size",
             FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_global_request_name_len,
+          { "Global request name length", "ssh.global_request_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_global_request_name,
+          { "Global request name", "ssh.global_request_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_global_request_want_reply,
+          { "Global request want reply", "ssh.global_request_want_reply",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_channel_request_name_len,
