@@ -81,8 +81,6 @@ endif()
 # 1912 = VS2017 15.5        / 14.12
 # 1913 = VS2017 15.6        / 14.13
 # 1914 = VS2017 15.7        / 14.14
-set(_vcredist_dot_name "vc_redist.${TARGET_MACHINE}.exe") # Visual Studio 2022 and later
-set(_vcredist_underscore_name "vcredist_${TARGET_MACHINE}.exe") # Visual Studio 2019 and earlier
 if(MSVC_VERSION GREATER_EQUAL 1930)
 	set(_ws_vcredist_subdir "vcredist_MSVC2022")
 elseif(MSVC_VERSION GREATER_EQUAL 1920)
@@ -118,14 +116,19 @@ if(MSVC_VERSION GREATER_EQUAL 1910 AND VCINSTALLDIR)
 		"${VCINSTALLDIR}/Redist/MSVC/14.*.*")
 endif()
 
-find_program(VCREDIST_EXE NAMES "${_vcredist_dot_name}" "${_vcredist_underscore_name}"
+find_program(_vcredist
+	NAMES
+		"vc_redist.${TARGET_MACHINE}.exe" # Visual Studio 2022 and later
+		"vcredist_${TARGET_MACHINE}.exe" # Visual Studio 2019 and earlier
 	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} "${VCINSTALLDIR}"
 	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
 	NO_DEFAULT_PATH
 )
-if(VCREDIST_EXE)
-	file(TO_NATIVE_PATH "${VCREDIST_EXE}" VCREDIST_EXE)
-	message(STATUS "Using ${VCREDIST_EXE} for the NSIS installer.")
+if(_vcredist)
+	file(TO_NATIVE_PATH "${_vcredist}" _vcredist)
+	message(STATUS "Using ${_vcredist} for the NSIS installer.")
+	get_filename_component(VCREDIST_DIR ${_vcredist} DIRECTORY)
+	get_filename_component(VCREDIST_EXE ${_vcredist} NAME)
 endif()
 
 # Ideally we would generate this at compile time using a separate cmake
