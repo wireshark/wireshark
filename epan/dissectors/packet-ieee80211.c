@@ -23780,6 +23780,9 @@ dissect_ista_availability_window(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   int avail_bits_offset;
   gint8 bits;
 
+  memset(avail_string, 0x0, sizeof(avail_string));
+  memset(pad_string, 0x0, sizeof(pad_string));
+
   /* These are at the same level as the avail bits */
   proto_tree_add_item(tree, hf_ieee80211_ftm_ista_availability_count,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
