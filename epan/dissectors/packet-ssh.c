@@ -158,6 +158,7 @@ struct ssh_peer_data {
     guint            cipher_id;
     // chacha20 needs two cipher handles
     gcry_cipher_hd_t cipher, cipher_2;
+#endif
     guint            sequence_number;
     guint32          seq_num_kex_init;
 // union ??? -- begin
@@ -173,6 +174,7 @@ struct ssh_peer_data {
     guint32          seq_num_dh_rep;
 // union ??? -- end
     guint32          seq_num_new_key;
+#ifdef SSH_DECRYPTION_SUPPORTED
     ssh_bignum      *bn_cookie;
 #endif
     struct ssh_flow_data * global_data;
@@ -423,6 +425,7 @@ static const gchar *ssh_debug_file_name     = NULL;
 #define SSH_MSG_USERAUTH_BANNER     53
 
 /* User authentication protocol: method specific (reusable) (50-79) */
+#define SSH_MSG_USERAUTH_PK_OK      60
 
 /* Connection protocol: generic (80-89) */
 #define SSH_MSG_GLOBAL_REQUEST          80
@@ -478,6 +481,7 @@ static const value_string ssh2_msg_vals[] = {
     { SSH_MSG_CHANNEL_REQUEST,           "Channel Request" },
     { SSH_MSG_CHANNEL_SUCCESS,           "Channel Success" },
     { SSH_MSG_CHANNEL_FAILURE,           "Channel Failure" },
+    { SSH_MSG_USERAUTH_PK_OK,            "Public Key algorithm accepted" },
     { 0, NULL }
 };
 
@@ -592,6 +596,8 @@ static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 static void ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
 static void ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code);
+static void ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
 static int ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
@@ -1393,6 +1399,9 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
             }
         }
         *seq_num = global_data->peer_data[CLIENT_PEER_DATA].seq_num_ecdh_ini;
+#else
+    // ignore unused parameter complaint
+        (void)seq_num;
 #endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_c, hf_ssh_ecdh_q_c_length);
@@ -2669,6 +2678,14 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         // TODO: offset = ssh_dissect_userauth_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
     }
     /* User authentication method specific (reusable) (60-79) */
+    else if (msg_code >= 60 && msg_code <= 79) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
+        msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: User Authentication: (method specific)");
+        proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset+=1;
+        // TODO: offset = ssh_dissect_userauth_specific(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
+        ssh_dissect_userauth_specific(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+    }
 
     /* Connection protocol */
     /* Generic (80-89) */
@@ -2824,6 +2841,27 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_auth_failure_list, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
+        }
+}
+
+static void
+ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
+        int offset, proto_item *msg_type_tree, guint msg_code)
+{
+        (void)pinfo;
+        if(msg_code==SSH_MSG_USERAUTH_PK_OK){
+                guint   slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name, packet_tvb, offset, slen, ENC_ASCII);
+                offset += slen;
+                proto_item *blob_tree = NULL;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_blob_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_blob, NULL, "Public key blob");
+                ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree);
         }
 }
 
