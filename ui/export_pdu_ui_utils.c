@@ -35,7 +35,7 @@ do_export_pdu(const char *filter, const gchar *tap_name)
     char *error;
     int   import_file_fd;
     int   file_type_subtype;
-    char *capfile_name, *comment;
+    char *capfile_name = NULL, *comment;
     gboolean status;
     int   err;
     gchar *err_info;

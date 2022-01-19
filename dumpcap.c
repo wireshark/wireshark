@@ -3538,7 +3538,7 @@ static gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                          char *errmsg, int errmsg_len)
 {
-    gchar    *capfile_name;
+    gchar    *capfile_name = NULL;
     gchar    *prefix, *suffix;
     gboolean  is_tempfile;
     GError   *err_tempfile = NULL;
@@ -3687,8 +3687,8 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
     if (*save_file_fd == -1) {
         if (is_tempfile) {
             snprintf(errmsg, errmsg_len,
-                       "The temporary file to which the capture would be saved (\"%s\") "
-                       "could not be opened: %s.", capfile_name, err_tempfile->message);
+                       "The temporary file to which the capture would be saved "
+                       "could not be opened: %s.", err_tempfile->message);
             g_error_free(err_tempfile);
         } else {
             if (capture_opts->multi_files_on) {
