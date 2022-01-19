@@ -3,8 +3,9 @@
 # says that recent CMake versions take care of rpathification.
 
 # To do:
-# - Add bcond_with clang
+# - Support clang with non Fedora distributions
 
+%bcond_with	toolchain_clang
 %bcond_with	ninja
 %bcond_with	ccache
 %bcond_without	qt5
@@ -21,6 +22,16 @@
 %bcond_with	zstd
 %bcond_with	ilbc
 %bcond_with	opus
+
+# Fedora options to use clang as the compiler
+# https://docs.fedoraproject.org/en-US/packaging-guidelines/#compiler
+%if %{with toolchain_clang}
+%if 0%{?fedora}
+%global toolchain clang
+%else
+%global toolchain gcc
+%endif
+%endif
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -49,7 +60,11 @@ Packager:	Gerald Combs <gerald[AT]wireshark.org>
 
 BuildRequires:	cmake >= 3.10
 BuildRequires:	python3
+%if %{with toolchain_clang}
+BuildRequires:	clang
+%else
 BuildRequires:	gcc
+%endif
 BuildRequires:	perl
 BuildRequires:	flex
 %if %{with ninja}
@@ -204,7 +219,9 @@ Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
 Obsoletes:	wireshark-gnome < %{version} wireshark-gtk < %{version}
 Requires:	%{name} = %{version}-%{release}
+%if %{without toolchain_clang}
 BuildRequires:	gcc-c++
+%endif
 %if 0%{?suse_version}
 BuildRequires:	libQt5Core-devel
 BuildRequires:	libQt5Gui-devel
