@@ -19,6 +19,9 @@ import subprocess
 
 # TODO:
 # Attempt to check for allowed encoding types (most likely will be literal values |'d)?
+# Looking for missing items doesn't work well enough yet.  Could improve by:
+# - checking common prefix for all items in dissector (some are a mess..)
+# - look for static declaration of item in dissector file, add as property to Item
 
 
 # Try to exit soon after Ctrl-C is pressed.
@@ -49,6 +52,14 @@ class Call:
                pass
 
 
+# These are variable names that have been seen to be used in calls..
+common_hf_var_names = { 'hf_index', 'hf_item', 'hf_idx', 'hf_x', 'hf_id', 'hf_cookie', 'hf_flag',
+                        'hf_dos_time', 'hf_dos_date', 'hf_value', 'hf_num',
+                        'hf_cause_value', 'hf_uuid',
+                        'hf_endian', 'hf_ip', 'hf_port', 'hf_suff', 'hf_string', 'hf_uint',
+                        'hf_tag', 'hf_type', 'hf_hdr', 'hf_field', 'hf_opcode', 'hf_size',
+                        'hf_entry' }
+
 # A check for a particular API function.
 class APICheck:
     def __init__(self, fun_name, allowed_types, positive_length=False):
@@ -59,15 +70,15 @@ class APICheck:
 
         if fun_name.startswith('ptvcursor'):
             # RE captures function name + 1st 2 args (always ptvc + hfindex)
-            self.p = re.compile('.*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+)')
         elif fun_name.find('add_bitmask') == -1:
             # Normal case.
             # RE captures function name + 1st 2 args (always tree + hfindex + length)
-            self.p = re.compile('.*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
         else:
             # _add_bitmask functions.
             # RE captures function name + 1st + 4th args (always tree + hfindex)
-            self.p = re.compile('.*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' +  self.fun_name + '\(([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+)')
 
         self.file = None
 
@@ -83,14 +94,14 @@ class APICheck:
             line_number = 1
             for line in lines:
                 # Want to check this, and next few lines
-                to_check = lines[line_number-1]
+                to_check = lines[line_number-1] + '\n'
                 # Nothing to check if function name isn't in it
                 if to_check.find(self.fun_name) != -1:
                     # Ok, add the next file lines before trying RE
                     for i in range(1, 4):
                         if line_number+i < total_lines:
-                            to_check += lines[line_number-1+i]
-                    m = self.p.match(to_check)
+                            to_check += (lines[line_number-1+i] + '\n')
+                    m = self.p.search(to_check)
                     if m:
                         # Add call. We have length if re had 3 groups.
                         num_groups = self.p.groups
@@ -101,8 +112,10 @@ class APICheck:
 
 
 
-    def check_against_items(self, items):
+    def check_against_items(self, items, check_missing_items=False):
         global errors_found
+        global warnings_found
+
         for call in self.calls:
             if self.positive_length and call.length != None:
                 if call.length != -1 and call.length <= 0:
@@ -120,6 +133,12 @@ class APICheck:
                     print('    (allowed types are', self.allowed_types, ')\n')
                     # Inc global count of issues found.
                     errors_found += 1
+            elif check_missing_items:
+                if call.hf_name.startswith('hf_') and call.hf_name not in common_hf_var_names:
+                    print('Warning:', self.file + ':' + str(call.line_number),
+                          self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
+                    warnings_found += 1
+
 
 
 class ProtoTreeAddItemCheck(APICheck):
@@ -132,13 +151,13 @@ class ProtoTreeAddItemCheck(APICheck):
             # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
             #                     const gint start, gint length, const guint encoding)
             self.fun_name = 'proto_tree_add_item'
-            self.p = re.compile('.*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*[a-zA-Z0-9_]+,\s*[a-zA-Z0-9_]+,\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
         else:
             # proto_item *
             # ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
             #               const guint encoding)
             self.fun_name = 'ptvcursor_add'
-            self.p = re.compile('.*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+            self.p = re.compile('[^\n]*' + self.fun_name + '\([a-zA-Z0-9_]+,\s*([a-zA-Z0-9_]+),\s*([a-zA-Z_0-9]+),\s*([a-zA-Z0-9_]+)')
 
 
         self.lengths = {}
@@ -173,23 +192,25 @@ class ProtoTreeAddItemCheck(APICheck):
             line_number = 1
             for line in lines:
                 # Want to check this, and next few lines
-                to_check = lines[line_number-1]
+                to_check = lines[line_number-1] + '\n'
                 # Nothing to check if function name isn't in itk)
                 if to_check.find(self.fun_name) != -1:
                     # Ok, add the next file lines before trying RE
                     for i in range(1, 5):
                         if line_number+i < total_lines:
-                            to_check += lines[line_number-1+i]
-                    m = self.p.match(to_check)
+                            to_check += (lines[line_number-1+i] + '\n')
+                    m = self.p.search(to_check)
                     if m:
                         self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
                 line_number += 1
 
-    def check_against_items(self, items):
+    def check_against_items(self, items, check_missing_items=False):
         # For now, only complaining if length if call is longer than the item type implies.
         #
         # Could also be bugs where the length is always less than the type allows.
         # Would involve keeping track (in the item) of whether any call had used the full length.
+
+        global warnings_found
 
         for call in self.calls:
             if call.hf_name in items:
@@ -199,8 +220,12 @@ class ProtoTreeAddItemCheck(APICheck):
                               self.fun_name + ' called for', call.hf_name, ' - ',
                               'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
 
-                        global warnings_found
                         warnings_found += 1
+            elif check_missing_items:
+                if call.hf_name.startswith('hf_') and call.hf_name not in common_hf_var_names:
+                    print('Warning:', self.file + ':' + str(call.line_number),
+                          self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
+                    warnings_found += 1
 
 
 
@@ -546,7 +571,7 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*(.*),\s*([&A-Za-z0-9x_\(\)]*),\s*([a-z0-9x_]*),', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_.*)\s*,\s*{\s*\"(.+)\"\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([&A-Za-z0-9x_<\|\s\(\)]*)\s*,\s*([a-zA-Z0-9x_]*),', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
@@ -586,7 +611,7 @@ def findDissectorFilesInFolder(folder, dissector_files=None, recursive=False):
 
 
 # Run checks on the given dissector file.
-def checkFile(filename, check_mask=False, check_label=False, check_consecutive=False):
+def checkFile(filename, check_mask=False, check_label=False, check_consecutive=False, check_missing_items=False):
     # Check file exists - e.g. may have been deleted in a recent commit.
     if not os.path.exists(filename):
         print(filename, 'does not exist!')
@@ -598,7 +623,7 @@ def checkFile(filename, check_mask=False, check_label=False, check_consecutive=F
     # Check each API
     for c in apiChecks:
         c.find_calls(filename)
-        c.check_against_items(items)
+        c.check_against_items(items, check_missing_items)
 
 
 
@@ -622,6 +647,9 @@ parser.add_argument('--label', action='store_true',
                    help='when set, check label field too')
 parser.add_argument('--consecutive', action='store_true',
                     help='when set, copy copy/paste errors between consecutive items')
+parser.add_argument('--missing-items', action='store_true',
+                    help='when set, look for used items that were never registered')
+
 
 
 args = parser.parse_args()
@@ -688,7 +716,8 @@ else:
 for f in files:
     if should_exit:
         exit(1)
-    checkFile(f, check_mask=args.mask, check_label=args.label, check_consecutive=args.consecutive)
+    checkFile(f, check_mask=args.mask, check_label=args.label,
+              check_consecutive=args.consecutive, check_missing_items=args.missing_items)
 
 # Show summary.
 print(warnings_found, 'warnings')
