@@ -148,6 +148,11 @@ packaging/nsis/all-manifest.nsh
 /packaging/portableapps/WiresharkPortable/
 wireshark-win??-libs*/
 
+# clangd #
+##########
+.cache
+compile_commands.json
+
 # Misc #
 ########
 .vagrant
