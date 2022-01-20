@@ -24,6 +24,8 @@ MessageClass
 MSCAddress
 
 #.EXPORTS
+CAMELInformationPDP
+CAMELInformationPDP_PDU
 GPRSCallEventRecord
 GPRSCallEventRecord_PDU
 GPRSRecord
@@ -43,9 +45,9 @@ IPBinaryAddress/iPBinV6Address iPBinV6Address_choice
 IPBinaryAddress/iPBinV6Address ABBREV=iPBinV6Address_choice
 
 #.PDU
+CAMELInformationPDP
 GPRSCallEventRecord
 GPRSRecord
-
 
 # Get the OID
 #.FN_PARS ManagementExtension/identifier FN_VARIANT = _str  VAL_PTR = &obj_id
