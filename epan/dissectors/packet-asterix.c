@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 9841b1369a507157762405c5500077bf2a807e08
+git revision: 251f703483d4445d0de97792a95bd55154a8a514
 
 
 */
@@ -42745,12 +42745,12 @@ void proto_register_asterix (void)
         { &hf_018_V1_7_012, { "012, Aircraft Coverage Quality Factor", "asterix.018_V1_7_012", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_012_FS, { "FS, Flight Status", "asterix.018_V1_7_012_FS", FT_UINT8, BASE_DEC, VALS (valstr_018_V1_7_012_FS), 0x80, NULL, HFILL } },
         { &hf_018_V1_7_012_CQF, { "CQF, Aircraft CQF", "asterix.018_V1_7_012_CQF", FT_UINT8, BASE_DEC, VALS (valstr_018_V1_7_012_CQF), 0x7f, NULL, HFILL } },
-        { &hf_018_V1_7_013, { "013,  Aircraft CQF Calculation Method", "asterix.018_V1_7_013", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_018_V1_7_013_VALUE, { " Aircraft CQF Calculation Method", "asterix.018_V1_7_013_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_018_V1_7_013, { "013, Aircraft CQF Calculation Method", "asterix.018_V1_7_013", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_018_V1_7_013_VALUE, { "Aircraft CQF Calculation Method", "asterix.018_V1_7_013_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_014, { "014, Aircraft Position in Polar Co-ordinates", "asterix.018_V1_7_014", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_014_RHO, { "RHO, [NM]", "asterix.018_V1_7_014_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_014_THETA, { "THETA, [deg]", "asterix.018_V1_7_014_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_018_V1_7_015, { "015, Aircraft Position in Cartesian Co-ordinates ", "asterix.018_V1_7_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_018_V1_7_015, { "015, Aircraft Position in Cartesian Co-ordinates", "asterix.018_V1_7_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_015_X, { "X, X-Component, [NM]", "asterix.018_V1_7_015_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_015_Y, { "Y, Y-Component, [NM]", "asterix.018_V1_7_015_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_V1_7_016, { "016, Packet Number", "asterix.018_V1_7_016", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -42853,12 +42853,12 @@ void proto_register_asterix (void)
         { &hf_018_012, { "012, Aircraft Coverage Quality Factor", "asterix.018_012", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_012_FS, { "FS, Flight Status", "asterix.018_012_FS", FT_UINT8, BASE_DEC, VALS (valstr_018_012_FS), 0x80, NULL, HFILL } },
         { &hf_018_012_CQF, { "CQF, Aircraft CQF", "asterix.018_012_CQF", FT_UINT8, BASE_DEC, VALS (valstr_018_012_CQF), 0x7f, NULL, HFILL } },
-        { &hf_018_013, { "013,  Aircraft CQF Calculation Method", "asterix.018_013", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_018_013_VALUE, { " Aircraft CQF Calculation Method", "asterix.018_013_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_018_013, { "013, Aircraft CQF Calculation Method", "asterix.018_013", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_018_013_VALUE, { "Aircraft CQF Calculation Method", "asterix.018_013_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_018_014, { "014, Aircraft Position in Polar Co-ordinates", "asterix.018_014", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_014_RHO, { "RHO, [NM]", "asterix.018_014_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_014_THETA, { "THETA, [deg]", "asterix.018_014_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_018_015, { "015, Aircraft Position in Cartesian Co-ordinates ", "asterix.018_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_018_015, { "015, Aircraft Position in Cartesian Co-ordinates", "asterix.018_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_015_X, { "X, X-Component, [NM]", "asterix.018_015_X", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_015_Y, { "Y, Y-Component, [NM]", "asterix.018_015_Y", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_018_016, { "016, Packet Number", "asterix.018_016", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -43094,7 +43094,7 @@ void proto_register_asterix (void)
         { &hf_020_V1_9_230_B1B, { "B1B, BDS 1,0 Bits 37/40", "asterix.020_V1_9_230_B1B", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
         { &hf_020_V1_9_245, { "245, Target Identification", "asterix.020_V1_9_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_245_STI, { "STI", "asterix.020_V1_9_245_STI", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_9_245_STI), 0xc0, NULL, HFILL } },
-        { &hf_020_V1_9_245_CHR, { "CHR, Characters 1-8 (coded on 6 Bits each) Defining Target Identification", "asterix.020_V1_9_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_V1_9_245_CHR, { "CHR, Characters 1-8 (coded on 6 Bits Each) Defining Target Identification", "asterix.020_V1_9_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_250, { "250, Mode S MB Data", "asterix.020_V1_9_250", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_250_MBDATA, { "MBDATA, 56-bit Message Conveying Mode S Comm B Message Data", "asterix.020_V1_9_250_MBDATA", FT_UINT56, BASE_HEX, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_250_BDS1, { "BDS1, Comm B Data Buffer Store 1 Address", "asterix.020_V1_9_250_BDS1", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
@@ -43223,7 +43223,7 @@ void proto_register_asterix (void)
         { &hf_020_V1_10_230_B1B, { "B1B, BDS 1,0 Bits 37/40", "asterix.020_V1_10_230_B1B", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
         { &hf_020_V1_10_245, { "245, Target Identification", "asterix.020_V1_10_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_245_STI, { "STI", "asterix.020_V1_10_245_STI", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_10_245_STI), 0xc0, NULL, HFILL } },
-        { &hf_020_V1_10_245_CHR, { "CHR, Characters 1-8 (coded on 6 Bits each) Defining Target Identification", "asterix.020_V1_10_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_V1_10_245_CHR, { "CHR, Characters 1-8 (coded on 6 Bits Each) Defining Target Identification", "asterix.020_V1_10_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_250, { "250, BDS Register Data", "asterix.020_V1_10_250", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_250_MBDATA, { "MBDATA, 56-bit Message Conveying Mode S Comm B Message Data", "asterix.020_V1_10_250_MBDATA", FT_UINT56, BASE_HEX, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_250_BDS1, { "BDS1, Comm B Data Buffer Store 1 Address", "asterix.020_V1_10_250_BDS1", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
@@ -43352,7 +43352,7 @@ void proto_register_asterix (void)
         { &hf_020_230_B1B, { "B1B, BDS 1,0 Bits 37/40", "asterix.020_230_B1B", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL } },
         { &hf_020_245, { "245, Target Identification", "asterix.020_245", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_245_STI, { "STI", "asterix.020_245_STI", FT_UINT8, BASE_DEC, VALS (valstr_020_245_STI), 0xc0, NULL, HFILL } },
-        { &hf_020_245_CHR, { "CHR, Characters 1-8 (coded on 6 Bits each) Defining Target Identification", "asterix.020_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_020_245_CHR, { "CHR, Characters 1-8 (coded on 6 Bits Each) Defining Target Identification", "asterix.020_245_CHR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_250, { "250, BDS Register Data", "asterix.020_250", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_250_MBDATA, { "MBDATA, 56-bit Message Conveying Mode S Comm B Message Data", "asterix.020_250_MBDATA", FT_UINT56, BASE_HEX, NULL, 0x00, NULL, HFILL } },
         { &hf_020_250_BDS1, { "BDS1, Comm B Data Buffer Store 1 Address", "asterix.020_250_BDS1", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
