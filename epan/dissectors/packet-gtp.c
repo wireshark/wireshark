@@ -304,6 +304,14 @@ static int hf_gtp_mbms_sa_code = -1;
 static int hf_gtp_hop_count = -1;
 static int hf_gtp_mbs_2g_3g_ind = -1;
 static int hf_gtp_time_2_dta_tr = -1;
+static int hf_gtp_target_lac = -1;
+static int hf_gtp_target_rac = -1;
+static int hf_gtp_target_ci = -1;
+static int hf_gtp_source_type = -1;
+static int hf_gtp_source_lac = -1;
+static int hf_gtp_source_rac = -1;
+static int hf_gtp_source_ci = -1;
+static int hf_gtp_source_rnc_id = -1;
 static int hf_gtp_ext_ei = -1;
 static int hf_gtp_ext_gcsi = -1;
 static int hf_gtp_ext_dti = -1;
@@ -465,6 +473,7 @@ static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
 static expert_field ei_gtp_iei = EI_INIT;
 static expert_field ei_gtp_unknown_extension_header = EI_INIT;
 static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
+static expert_field ei_gtp_source_type_unknown = EI_INIT;
 
 static const range_string assistance_info_type[] = {
     { 0,   0,   "UNKNOWN" },
@@ -7467,11 +7476,18 @@ decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        29.060 v6.11.0, chapter 7.7.73
  * Cell Identification
  */
+static const value_string gtp_source_type_vals[] = {
+    { 0, "Source Cell ID"},
+    { 1, "Source RNC-ID" },
+    { 0, NULL            }
+};
+
 static int
 decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
+    guint32     source_type;
     proto_tree *ext_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);
@@ -7481,15 +7497,59 @@ decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
     /*
      * for PS handover from A/Gb mode, the identification of a target cell (Cell ID 1) and the identification of the
      * source cell (Cell ID 2) as defined in 3GPP TS 48.018 [20].
      *
      * for PS handover from Iu mode, the identification of a target cell (Cell ID 1)) and the identification of the
      * source RNC (RNC-ID) as defined in 3GPP TS 48.018
+     *
+     * for PS handover from S1 mode, the identification of a target cell (Target Cell ID) as defined in 3GPP TS 48.018.
+     * Octet 12 shall be set to "Source Cell ID" and octets 13-20 shall be encoded as all zero.
+     *
+     * 3GPP TS 48.018 defines Target and Source Cell ID to use the Cell
+     * Identifier IE, encoded as 6 octets of the value part of the RAI IE
+     * followed by 2 octets of the value of the Cell Identity IE, both defined
+     * in 3GPP TS 24.008. The 3GPP TS 48.018 RNC-ID IE is similar, with the 6
+     * octet RAI as in 3GPP TS 24.008 followed by two octets of the RNC-ID.
+     * (Or Extended RNC-ID, but the RNC-ID is presented in network byte order
+     * with the most significant bits of octet 9 set to "0000", so there is
+     * no need to distinguish be RNC-ID and Extended RNC-ID.)
      */
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
+    offset += 3;
+    proto_tree_add_item(ext_tree, hf_gtp_target_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(ext_tree, hf_gtp_target_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(ext_tree, hf_gtp_target_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_source_type, tvb, offset, 1, ENC_NA, &source_type);
+    offset++;
+    switch (source_type) {
+    case 0:
+        dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
+        offset += 3;
+        proto_tree_add_item(ext_tree, hf_gtp_source_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(ext_tree, hf_gtp_source_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(ext_tree, hf_gtp_source_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 1:
+        dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
+        offset += 3;
+        proto_tree_add_item(ext_tree, hf_gtp_source_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(ext_tree, hf_gtp_source_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(ext_tree, hf_gtp_source_rnc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    default:
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_source_type_unknown, tvb, offset-1, 1);
+        break;
+    }
 
     return 3 + length;
 
@@ -11154,6 +11214,46 @@ proto_register_gtp(void)
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
+        {&hf_gtp_target_lac,
+         { "Target Location Area Code (LAC)", "gtp.target_lac",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_target_rac,
+         { "Target Routing Area Code (RAC)", "gtp.target_rac",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_target_ci,
+         { "Target Cell ID (CI)", "gtp.target_ci",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_source_type,
+          { "Source Type", "gtp.source_type",
+            FT_UINT8, BASE_DEC, VALS(gtp_source_type_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_gtp_source_lac,
+         { "Source Location Area Code (LAC)", "gtp.source_lac",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_source_rac,
+         { "Source Routing Area Code (RAC)", "gtp.source_rac",
+           FT_UINT8, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_source_ci,
+         { "Source Cell ID (CI)", "gtp.source_ci",
+           FT_UINT16, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_gtp_source_rnc_id,
+          { "Source RNC-ID", "gtp.source.rnc_id",
+            FT_UINT16, BASE_DEC, NULL, 0x0fff,
+            NULL, HFILL }
+        },
         { &hf_gtp_ext_ei,
           { "Error Indication (EI)", "gtp.ei",
             FT_UINT8, BASE_DEC, NULL, 0x04,
@@ -11675,6 +11775,7 @@ proto_register_gtp(void)
         { &ei_gtp_iei, { "gtp.iei.unknown", PI_PROTOCOL, PI_WARN, "Unknown IEI - Later spec than TS 29.060 9.4.0 used?", EXPFILL }},
         { &ei_gtp_unknown_extension_header, { "gtp.unknown_extension_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
         { &ei_gtp_unknown_pdu_type, { "gtp.unknown_pdu_type", PI_PROTOCOL, PI_WARN, "Unknown PDU type", EXPFILL }},
+        { &ei_gtp_source_type_unknown, { "gtp.source_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown source type", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
