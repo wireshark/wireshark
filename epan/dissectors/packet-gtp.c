@@ -279,6 +279,12 @@ static int hf_gtp_ext_comm_flags_retloc = -1;
 static int hf_gtp_ext_comm_flags_cpsr = -1;
 static int hf_gtp_ext_comm_flags_ccrsi = -1;
 static int hf_gtp_ext_comm_flags_unauthenticated_imsi = -1;
+static int hf_gtp_csg_id = -1;
+static int hf_gtp_access_mode = -1;
+static int hf_gtp_cmi = -1;
+static int hf_gtp_csg_inf_rep_act_ucicsg = -1;
+static int hf_gtp_csg_inf_rep_act_ucishc = -1;
+static int hf_gtp_csg_inf_rep_act_uciuhc = -1;
 static int hf_gtp_ext_comm_flags_II_pnsi = -1;
 static int hf_gtp_ext_comm_flags_II_dtci = -1;
 static int hf_gtp_ext_comm_flags_II_pmtsmi = -1;
@@ -8105,6 +8111,15 @@ decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo 
 /*
  * 7.7.94 User CSG Information (UCI)
  */
+
+static const value_string gtp_access_mode_vals[] = {
+   { 0, "Closed Mode" },
+   { 1, "Hybrid Mode" },
+   { 2, "Reserved" },
+   { 3, "Reserved" },
+   { 0, NULL }
+};
+
 static int
 decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
@@ -8120,7 +8135,19 @@ decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    dissect_e212_mcc_mnc(tvb, pinfo, ext_tree, offset, E212_NONE, TRUE);
+    offset += 3;
+    proto_tree_add_item(ext_tree, hf_gtp_csg_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(ext_tree, hf_gtp_access_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* Due to a specification oversight, the CMI values ... are reversed from
+     * the values of the CSG-Membership-Indication AVP in 3GPP TS 32.299 [56].
+     * Therefore, when CMI values are sent over the charging interface, the
+     * values are encoded as specified in 3GPP TS 32.299 [56]. Furthermore,
+     * the encoding is different between GTPv1 and GTPv2.
+     */
+    proto_tree_add_item(ext_tree, hf_gtp_cmi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
@@ -8135,6 +8162,13 @@ decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     guint16     length;
     proto_tree *ext_tree;
 
+    static int * const flags[] = {
+        &hf_gtp_csg_inf_rep_act_uciuhc,
+        &hf_gtp_csg_inf_rep_act_ucishc,
+        &hf_gtp_csg_inf_rep_act_ucicsg,
+        NULL
+    };
+
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_CSG_INF_REP_ACT], NULL,
                                             val_to_str_ext_const(GTP_EXT_CSG_INF_REP_ACT, &gtpv1_val_ext, "Unknown"));
@@ -8144,7 +8178,7 @@ decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    proto_tree_add_bitmask_list(ext_tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
@@ -8189,7 +8223,12 @@ decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* Due to a specification oversight, the CMI values ... are reversed from
+     * the values of the CSG-Membership-Indication AVP in 3GPP TS 32.299 [56].
+     * Therefore, when CMI values are sent over the charging interface, the
+     * values are encoded as specified in 3GPP TS 32.299 [56].
+     */
+    proto_tree_add_item(ext_tree, hf_gtp_cmi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
@@ -11200,6 +11239,39 @@ proto_register_gtp(void)
          { "Unauthenticated IMSI", "gtp.ext_comm_flags.unauthenticated_imsi",
            FT_BOOLEAN, 8, NULL, 0x01,
            NULL, HFILL}
+        },
+        {&hf_gtp_csg_id,
+         { "CSG ID", "gtp.csg_id",
+           FT_UINT32, BASE_DEC, NULL, 0x07FFFFFF,
+           NULL, HFILL}
+        },
+        {&hf_gtp_access_mode,
+         { "Access Mode", "gtp.access_mode",
+           FT_UINT8, BASE_DEC, VALS(gtp_access_mode_vals), 0xC0,
+           NULL, HFILL }
+        },
+        {&hf_gtp_cmi,
+         { "CSG Membership Indication (CMI)", "gtp.cmi",
+           FT_BOOLEAN, 8, TFS(&tfs_no_yes), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_csg_inf_rep_act_ucicsg,
+         { "UCICSG", "gtp.csg_info_rep_act.ucicsg",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+           "Report UCI when the UE enters/leaves/accesses CSG Cell",
+           HFILL}
+        },
+        {&hf_gtp_csg_inf_rep_act_ucishc,
+         { "UCISHC", "gtp.csg_info_rep_act.ucishc",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+           "Report UCI when the UE enters/leaves/accesses Subscribed Hybrid Cell",
+           HFILL}
+        },
+        {&hf_gtp_csg_inf_rep_act_uciuhc,
+         { "UCIUHC", "gtp.csg_info_rep_act.uciuhc",
+           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+           "Report UCI when the UE enters/leaves/accesses Unsubscribed Hybrid Cell",
+           HFILL}
         },
         {&hf_gtp_ext_comm_flags_II_pnsi,
          { "PNSI", "gtp.ext_comm_flags_II_pnsi",
