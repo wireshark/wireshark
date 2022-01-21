@@ -986,9 +986,18 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         if (strcmp(optarg_str_p, "none") == 0) {
             ;
         } else if (strcmp(optarg_str_p, "gzip") == 0) {
+#ifdef HAVE_ZLIB
             ;
+#else
+            cmdarg_err("'gzip' compression is not supported");
+            return 1;
+#endif
         } else {
+#ifdef HAVE_ZLIB
             cmdarg_err("parameter of --compress-type can be 'none' or 'gzip'");
+#else
+            cmdarg_err("parameter of --compress-type can only be 'none'");
+#endif
             return 1;
         }
         capture_opts->compress_type = g_strdup(optarg_str_p);
