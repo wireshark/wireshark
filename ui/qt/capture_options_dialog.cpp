@@ -549,7 +549,11 @@ void CaptureOptionsDialog::on_gbNewFileAuto_toggled(bool checked)
     ui->stopMBComboBox->setEnabled(checked?false:true);
     ui->gbCompression->setEnabled(checked);
     ui->rbCompressionNone->setEnabled(checked);
+#ifdef HAVE_ZLIB
     ui->rbCompressionGzip->setEnabled(checked);
+#else
+    ui->rbCompressionGzip->setEnabled(false);
+#endif
 }
 
 void CaptureOptionsDialog::on_cbUpdatePacketsRT_toggled(bool checked)

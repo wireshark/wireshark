@@ -124,6 +124,7 @@ static void CleanupOldCap(gchar* name)
   g_mutex_unlock(&rb_data.mutex);
 }
 
+#ifdef HAVE_ZLIB
 /*
  * compress capture file
  */
@@ -200,6 +201,7 @@ static int ringbuf_start_compress_file(rb_file* rfile)
   g_thread_new("exec_compress", &exec_compress_thread, name);
   return 0;
 }
+#endif
 
 /*
  * create the next filename and open a new binary file with that name
@@ -216,9 +218,11 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
       /* remove old file (if any, so ignore error) */
       ws_unlink(rfile->name);
     }
+#ifdef HAVE_ZLIB
     else if (rb_data.compress_type != NULL && strcmp(rb_data.compress_type, "gzip") == 0) {
       ringbuf_start_compress_file(rfile);
     }
+#endif
     g_free(rfile->name);
   }
 
