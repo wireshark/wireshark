@@ -283,6 +283,9 @@ static int hf_gtp_ext_comm_flags_II_pnsi = -1;
 static int hf_gtp_ext_comm_flags_II_dtci = -1;
 static int hf_gtp_ext_comm_flags_II_pmtsmi = -1;
 static int hf_gtp_ext_comm_flags_II_spare = -1;
+static int hf_gtp_ciot_opt_sup_ind_sgni_pdn = -1;
+static int hf_gtp_ciot_opt_sup_ind_scni_pdn = -1;
+static int hf_gtp_ciot_opt_sup_ind_spare = -1;
 static int hf_gtp_cdr_app = -1;
 static int hf_gtp_cdr_rel = -1;
 static int hf_gtp_cdr_ver = -1;
@@ -360,6 +363,10 @@ static int hf_gtp_add_flg_for_srvcc_ics = -1;
 static int hf_gtp_sel_mode_val = -1;
 static int hf_gtp_uli_timestamp = -1;
 static int hf_gtp_lhn_id = -1;
+
+static int hf_gtp_ue_usage_type_value = -1;
+static int hf_gtp_scef_id_length = -1;
+static int hf_gtp_scef_id = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtp_rfsp_index = -1;
@@ -2733,8 +2740,11 @@ static int decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_in
 static int decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ue_usage_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ext_node_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ciot_opt_sup_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
@@ -2881,9 +2891,11 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xD6 */  {GTP_EXT_ULI_TIMESTAMP, decode_gtp_ext_uli_timestamp },             /* 7.7.114 */
 /* 0xD7 */  {GTP_EXT_LHN_ID_W_SAPI, decode_gtp_ext_lhn_id_w_sapi },             /* 7.7.115 */
 /* 0xD8 */  {GTP_EXT_CN_OP_SEL_ENTITY, decode_gtp_ext_cn_op_sel_entity },       /* 7.7.116 */
-
+/* 0xD9 */  {GTP_EXT_UE_USAGE_TYPE, decode_gtp_ue_usage_type },                 /* 7.7.117 */
 /* 0xDA */  {GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II },  /* 7.7.118 */
 /* 0xDB */  {GTP_EXT_NODE_IDENTIFIER, decode_gtp_ext_node_id },                 /* 7.7.119 */
+/* 0xDC */  {GTP_EXT_CIOT_OPT_SUP_IND, decode_gtp_ciot_opt_sup_ind },           /* 7.7.120 */
+/* 0xDD */  {GTP_EXT_SCEF_PDN_CONNECTION, decode_gtp_scef_pdn_conn },           /* 7.7.121 */
 
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack },                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                            /* charging */
@@ -8759,6 +8771,34 @@ decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo 
 }
 
 /*
+ * 7.7.117 UE Usage Type
+ */
+static int
+decode_gtp_ue_usage_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_UE_USAGE_TYPE], NULL,
+        val_to_str_ext_const(GTP_EXT_UE_USAGE_TYPE, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_ue_usage_type_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (length > 4) {
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - 4);
+    }
+
+    return 3 + length;
+}
+
+/*
  * 7.7.118 Extended Common Flags II
  */
 static int
@@ -8819,6 +8859,75 @@ decode_gtp_ext_node_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     return 3 + length;
 }
 
+/*
+ * 7.7.120 CIoT Optimizations Support Indication
+ */
+static int
+decode_gtp_ciot_opt_sup_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_CIOT_OPT_SUP_IND], NULL,
+        val_to_str_ext_const(GTP_EXT_CIOT_OPT_SUP_IND, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_ciot_opt_sup_ind_sgni_pdn, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree, hf_gtp_ciot_opt_sup_ind_scni_pdn, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(ext_tree, hf_gtp_ciot_opt_sup_ind_spare, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    if (length > 1) {
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - 1);
+    }
+
+    return 3 + length;
+}
+
+/*
+ * 7.7.121 SCEF PDN Connection
+ */
+static int
+decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+    guint32     apn_length, scef_id_length;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_SCEF_PDN_CONNECTION], NULL,
+        val_to_str_ext_const(GTP_EXT_SCEF_PDN_CONNECTION, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_apn_length, tvb, offset, 1, ENC_NA, &apn_length);
+    decode_apn(tvb, offset + 1, (guint16)apn_length, ext_tree, NULL);
+
+    offset += 1 + apn_length;
+
+    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_scef_id_length, tvb, offset, 2, ENC_BIG_ENDIAN, &scef_id_length);
+    offset += 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_scef_id, tvb, offset, scef_id_length, ENC_ASCII);
+    offset += scef_id_length;
+
+    if (length > 4 + apn_length + scef_id_length) {
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - (4 + apn_length + scef_id_length));
+    }
+
+    return 3 + length;
+}
 
 static int
 decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
@@ -11112,6 +11221,21 @@ proto_register_gtp(void)
            FT_UINT8, BASE_HEX, NULL, 0xF8,
            NULL, HFILL}
         },
+        {&hf_gtp_ciot_opt_sup_ind_sgni_pdn,
+         { "SGNI PDN", "gtp.ciot_opt_sup_ind_sgni_pdn",
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ciot_opt_sup_ind_scni_pdn,
+         { "SCNI PDN", "gtp.ciot_opt_sup_ind_scni_pdn",
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ciot_opt_sup_ind_spare,
+         { "SPARE", "gtp.ciot_opt_sup_ind_spare",
+           FT_UINT8, BASE_HEX, NULL, 0xfc,
+           NULL, HFILL}
+        },
         {&hf_gtp_cdr_app,
          { "Application Identifier", "gtp.cdr_app",
            FT_UINT8, BASE_DEC, NULL, 0xf0,
@@ -11381,6 +11505,21 @@ proto_register_gtp(void)
         { &hf_gtp_lhn_id,
           { "Local Home Network ID", "gtp.lhn_id",
             FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL}
+        },
+        { &hf_gtp_ue_usage_type_value,
+          { "UE Usage Type value", "gtp.ue_usage_type_value",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_gtp_scef_id_length,
+          { "SCEF-ID length", "gtp.scef_id_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_gtp_scef_id,
+          { "SCEF-ID", "gtp.scef_id",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
 
