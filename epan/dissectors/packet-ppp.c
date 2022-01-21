@@ -6292,7 +6292,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                 tvb_format_text(pinfo->pool, tvb, name_offset,
                                                 (name_size > 20) ? 20 : name_size),
                                 (name_size > 20) ? "..." : "",
-                                tvb_bytes_to_str(pinfo->pool, tvb, value_offset, value_size));
+                                (value_size > 0) ? tvb_bytes_to_str(pinfo->pool, tvb, value_offset, value_size) : "");
             }
         }
         break;
