@@ -6755,12 +6755,16 @@ dissect_gtp_uli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
              * Area Identification (RAI) of where the user currently is
              * registered. RAI is defined in sub-clause 4.2 of 3GPP TS 23.003
              * [2].
+             *
+             * The routing area code consists of 2 octets and is found in octet
+             * 10 and octet 11. Only the first octet (10) contains the RAC and
+             * the second octet (11) is coded as "11111111".
              */
             dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_RAI, TRUE);
             offset+=3;
             proto_tree_add_item(tree, hf_gtp_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
-            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtp_rai_rac, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
             expert_add_info(pinfo, ti, &ei_gtp_ext_geo_loc_type);
@@ -10780,7 +10784,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_rai_rac,
          { "Routing Area Code (RAC)", "gtp.rai_rac",
-           FT_UINT16, BASE_DEC, NULL, 0,
+           FT_UINT8, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_lac,
