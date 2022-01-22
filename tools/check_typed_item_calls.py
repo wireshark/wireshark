@@ -585,7 +585,7 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
 
 
 def is_dissector_file(filename):
-    p = re.compile(r'.*packet-.*\.c')
+    p = re.compile(r'.*packet-.*\.c$')
     return p.match(filename)
 
 
