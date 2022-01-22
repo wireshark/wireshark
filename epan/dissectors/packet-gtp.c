@@ -475,6 +475,8 @@ static gint ett_gtp_utran_cont = -1;
 static gint ett_gtp_nr_ran_cont = -1;
 static gint ett_gtp_pdcp_no_conf = -1;
 static gint ett_pdu_session_cont = -1;
+static gint ett_gtp_bss_cont = -1;
+static gint ett_gtp_lst_set_up_pfc = -1;
 
 static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
 static expert_field ei_gtp_ext_length_mal = EI_INIT;
@@ -7501,7 +7503,7 @@ decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
 {
 
     guint16     length;
-    proto_tree *ext_tree;
+    proto_tree *ext_tree, *sub_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_BSS_CONT], NULL,
@@ -7510,8 +7512,19 @@ decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    switch (pinfo->link_dir) {
+    case P2P_DIR_UL:
+        sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_bss_cont, NULL, "Source BSS to Target BSS Transparent Container");
+        de_bssgp_source_BSS_to_target_BSS_transp_cont(tvb, sub_tree, pinfo, offset, length, NULL, 0);
+        break;
+    case P2P_DIR_DL:
+        sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_bss_cont, NULL, "Target BSS to Source BSS Transparent Container");
+        de_bssgp_target_BSS_to_source_BSS_transp_cont(tvb, sub_tree, pinfo, offset, length, NULL, 0);
+        break;
+    default:
+        break;
+    }
     /*
      * The content of this container is defined in 3GPP TS 48.018
      */
@@ -7752,7 +7765,7 @@ decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 {
 
     guint16     length;
-    proto_tree *ext_tree;
+    proto_tree *ext_tree, *sub_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_LIST_OF_SETUP_PFCS], NULL,
@@ -7761,8 +7774,9 @@ decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_lst_set_up_pfc, NULL, "List of set-up PFCs");
+    de_bssgp_list_of_setup_pfcs(tvb, sub_tree, pinfo, offset, length, NULL, 0);
 
     return 3 + length;
 
@@ -9860,14 +9874,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ:
         case GTP_MSG_PDU_NOTIFY_REQ:
         case GTP_MSG_PDU_NOTIFY_REJ_REQ:
-        case GTP_MSG_FORW_RELOC_REQ: /* direction added for UTRAN Container decode */
+        case GTP_MSG_FORW_RELOC_REQ: /* direction added for UTRAN Container & BSS Container decode */
             pinfo->link_dir = P2P_DIR_UL;
             break;
         case GTP_MSG_DELETE_PDP_RESP:
         case GTP_MSG_UPDATE_PDP_RESP:
         case GTP_MSG_CREATE_PDP_RESP:
         case GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP:
-        case GTP_MSG_FORW_RELOC_RESP: /* direction added for UTRAN Container decode */
+        case GTP_MSG_FORW_RELOC_RESP: /* direction added for UTRAN Container & BSS Container decode */
             pinfo->link_dir = P2P_DIR_DL;
             break;
     default:
@@ -12167,7 +12181,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    31
+#define GTP_NUM_INDIVIDUAL_ELEMS    33
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -12200,7 +12214,9 @@ proto_register_gtp(void)
     ett_gtp_array[27] = &ett_gtp_nr_ran_cont;
     ett_gtp_array[28] = &ett_gtp_pdcp_no_conf;
     ett_gtp_array[29] = &ett_pdu_session_cont;
-    ett_gtp_array[30] = &ett_nrup;
+    ett_gtp_array[30] = &ett_gtp_bss_cont;
+    ett_gtp_array[31] = &ett_gtp_lst_set_up_pfc;
+    ett_gtp_array[32] = &ett_nrup;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
