@@ -7699,7 +7699,6 @@ dissect_kerberos_PA_ENC_TS_ENC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_kerberos_T_strengthen_key(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 491 "./asn1/kerberos/kerberos.cnf"
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
   gint save_encryption_key_parent_hf_index = private_data->save_encryption_key_parent_hf_index;
   kerberos_key_save_fn saved_encryption_key_fn = private_data->save_encryption_key_fn;
@@ -8568,7 +8567,7 @@ void proto_register_kerberos(void) {
         "Checksum", HFILL }},
     { &hf_krb_patimestamp,
       { "patimestamp", "kerberos.patimestamp",
-        FT_STRING, BASE_NONE, NULL, 0, "KerberosTime", HFILL }},
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, "KerberosTime", HFILL }},
     { &hf_krb_pausec,
       { "pausec", "kerberos.pausec",
         FT_UINT32, BASE_DEC, NULL, 0, "Microseconds", HFILL }},
@@ -9491,7 +9490,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 5047 "./asn1/kerberos/packet-kerberos-template.c"
+#line 5046 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -9610,7 +9609,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_PA_SPAKE,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 5076 "./asn1/kerberos/packet-kerberos-template.c"
+#line 5075 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {
