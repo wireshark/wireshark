@@ -1239,6 +1239,42 @@ proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *t
 
 }
 
+/* 0x49 Country Availability Descriptor */
+static int hf_mpeg_descr_country_availability_flag = -1;
+static int hf_mpeg_descr_country_availability_reserved_future_use = -1;
+static int hf_mpeg_descr_country_availability_country_code = -1;
+
+static gint ett_mpeg_descriptor_country_availability_countries = -1;
+
+#define MPEG_DESCR_COUNTRY_AVAILABILITY_FLAG_MASK           0x80
+#define MPEG_DESCR_COUNTRY_AVAILABILITY_RESERVED_MASK       0x7F
+
+static const value_string mpeg_descr_country_availability_flag_vals[] = {
+    { 0x0, "Reception of the service is not intended" },
+    { 0x1, "Reception of the service is intended" },
+
+    { 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_country_availability_descriptor(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint end = offset+len;
+
+    proto_tree *countries_tree;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_country_availability_flag , tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_country_availability_reserved_future_use , tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    countries_tree = proto_tree_add_subtree_format(tree, tvb, offset, end - offset, ett_mpeg_descriptor_country_availability_countries, NULL, "Countries");
+
+    while (offset < end) {
+        proto_tree_add_item(countries_tree, hf_mpeg_descr_country_availability_country_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+        offset += 3;
+    }
+}
+
 /* 0x4A Linkage Descriptor */
 static int hf_mpeg_descr_linkage_transport_stream_id = -1;
 static int hf_mpeg_descr_linkage_original_network_id = -1;
@@ -3877,6 +3913,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
         case 0x48: /* Service Descriptor */
             proto_mpeg_descriptor_dissect_service(tvb, offset, descriptor_tree);
             break;
+        case 0x49: /* Country Availability Descriptor */
+            proto_mpeg_descriptor_dissect_country_availability_descriptor(tvb, offset, len, descriptor_tree);
+            break;
         case 0x4A: /* Linkage Descriptor */
             proto_mpeg_descriptor_dissect_linkage(tvb, offset, len, descriptor_tree);
             break;
@@ -4576,6 +4615,23 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_service_name, {
             "Service Name", "mpeg_descr.svc.svc_name",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x49 Country Availability Descriptor */
+        { &hf_mpeg_descr_country_availability_flag, {
+            "Country Availability Flag", "mpeg_descr.country_avail.avail_flag",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_country_availability_flag_vals),
+            MPEG_DESCR_COUNTRY_AVAILABILITY_FLAG_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_country_availability_reserved_future_use, {
+            "Reserved Future Use", "mpeg_descr.country_avail.reserved",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_COUNTRY_AVAILABILITY_RESERVED_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_country_availability_country_code, {
+            "Country Code", "mpeg_descr.country_avail.country_code",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
@@ -5856,6 +5912,7 @@ proto_register_mpeg_descriptor(void)
         &ett_mpeg_descriptor_multilng_bouquet_name_desc_lng,
         &ett_mpeg_descriptor_multilng_srv_name_desc_lng,
         &ett_mpeg_descriptor_multilng_component_desc_lng,
+        &ett_mpeg_descriptor_country_availability_countries,
         &ett_mpeg_descriptor_vbi_data_service,
         &ett_mpeg_descriptor_content_identifier_crid,
         &ett_mpeg_descriptor_service_list,
