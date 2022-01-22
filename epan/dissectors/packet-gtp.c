@@ -369,7 +369,7 @@ static int hf_gtp_add_flg_for_srvcc_ics = -1;
 static int hf_gtp_sel_mode_val = -1;
 static int hf_gtp_uli_timestamp = -1;
 static int hf_gtp_lhn_id = -1;
-
+static int hf_gtp_sel_entity = -1;
 static int hf_gtp_ue_usage_type_value = -1;
 static int hf_gtp_scef_id_length = -1;
 static int hf_gtp_scef_id = -1;
@@ -7026,6 +7026,7 @@ decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo _U
 
     guint16     length;
     proto_tree *ext_tree;
+    tvbuff_t   *next_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_MBMS_PROT_CONF_OPT], NULL,
@@ -7034,8 +7035,14 @@ decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* The MBMS Protocol Configuration Options contains protocol options
+     * associated with an MBMS context, that may be necessary to transfer
+     * between the GGSN and the MS. The content and the coding of the MBMS
+     * Protocol Configuration Options are defined in octets 3-z of the MBMS
+     * Protocol Configuration Options in 3GPP TS 24.008 [5].
+     */
+    next_tvb = tvb_new_subset_length(tvb, offset + 3, length);
+    de_sm_mbms_prot_conf_opt(next_tvb, ext_tree, pinfo, 0, length, NULL, 0);
 
     return 3 + length;
 
@@ -7595,8 +7602,36 @@ decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(ext_tree, hf_gtp_sequence_number_down, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(ext_tree, hf_gtp_sequence_number_up, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    /* The Send N-PDU Number is used only when acknowledged peer-to-peer LLC
+     * operation is used for the PDP context.  Send N-PDU Number is the N-PDU
+     * number to be assigned by SNDCP to the next down link N-PDU received from
+     * the GGSN.
+     *
+     * The Receive N-PDU Number is used only when acknowledged peer-to-peer LLC
+     * operation is used for the PDP context.  The Receive N-PDU Number is the
+     * N-PDU number expected by SNDCP from the next up link N-PDU to be
+     * received from the MS.
+     *
+     * XXX: For some reason, 2 octets are reserved for each the Send and
+     * Receive N-PDU numbers, even though an N-PDU number in acknowledged
+     * mode only has values 0-255 (see 3GPP TS 44.065) and is in a one
+     * octet field in the PDP Context IE (7.7.29). Assume, in the lack
+     * of other guidance, that the first octet will be zero and the value
+     * will be in the second octet.
+     * Cf. 7.7.51 ULI, where there is an explicit note in TS 29.060 that only
+     * the first octet contains the RAC and the second octet is filler.
+     */
+    proto_tree_add_item(ext_tree, hf_gtp_send_n_pdu_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(ext_tree, hf_gtp_receive_n_pdu_number, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -8789,6 +8824,14 @@ decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
 /*
  * 7.7.116 CN Operator Selection Entity
  */
+static const value_string gtp_sel_entity_vals[] = {
+    { 0, "The Serving Network has been selected by the UE"},
+    { 1, "The Serving Network has been selected by the network"},
+    { 2, "For future use"},
+    { 3, "For future use"},
+    { 0, NULL},
+};
+
 static int
 decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
@@ -8804,8 +8847,12 @@ decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    proto_tree_add_item(ext_tree, hf_gtp_sel_entity, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
+    if (length > 1) {
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - 1);
+    }
     return 3 + length;
 }
 
@@ -11579,6 +11626,11 @@ proto_register_gtp(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL}
         },
+        { &hf_gtp_sel_entity,
+          { "Selection Entity", "gtp.selection_entity",
+            FT_UINT8, BASE_DEC, VALS(gtp_sel_entity_vals), 0x3,
+            NULL, HFILL}
+        },
         { &hf_gtp_ue_usage_type_value,
           { "UE Usage Type value", "gtp.ue_usage_type_value",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -11616,8 +11668,8 @@ proto_register_gtp(void)
       { &hf_gtp_pdp_cntxt_sapi, { "SAPI", "gtp.pdp_cntxt.sapi", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
       { &hf_gtp_sequence_number_down, { "Sequence number down", "gtp.sequence_number_down", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_sequence_number_up, { "Sequence number up", "gtp.sequence_number_up", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_send_n_pdu_number, { "Send N-PDU number", "gtp.send_n_pdu_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gtp_receive_n_pdu_number, { "Receive N-PDU number", "gtp.receive_n_pdu_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_send_n_pdu_number, { "Send N-PDU number", "gtp.send_n_pdu_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gtp_receive_n_pdu_number, { "Receive N-PDU number", "gtp.receive_n_pdu_number", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_uplink_flow_label_signalling, { "Uplink flow label signalling", "gtp.uplink_flow_label_signalling", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_pdp_context_identifier, { "PDP context identifier", "gtp.pdp_context_identifier", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gtp_pdp_organization, { "PDP organization", "gtp.pdp_organization", FT_UINT8, BASE_DEC, VALS(pdp_type), 0x0F, NULL, HFILL }},

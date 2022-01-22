@@ -6213,7 +6213,7 @@ de_sm_mbms_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 /*
  * [9] 10.5.6.15 MBMS protocol configuration options
  */
-static guint16
+guint16
 de_sm_mbms_prot_conf_opt(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
