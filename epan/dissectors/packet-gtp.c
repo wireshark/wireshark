@@ -292,6 +292,8 @@ static int hf_gtp_ext_comm_flags_II_spare = -1;
 static int hf_gtp_ciot_opt_sup_ind_sgni_pdn = -1;
 static int hf_gtp_ciot_opt_sup_ind_scni_pdn = -1;
 static int hf_gtp_ciot_opt_sup_ind_spare = -1;
+static int hf_gtp_up_fun_sel_ind_flags_dcnr = -1;
+static int hf_gtp_up_fun_sel_ind_flags_spare = -1;
 static int hf_gtp_cdr_app = -1;
 static int hf_gtp_cdr_rel = -1;
 static int hf_gtp_cdr_ver = -1;
@@ -373,6 +375,8 @@ static int hf_gtp_sel_entity = -1;
 static int hf_gtp_ue_usage_type_value = -1;
 static int hf_gtp_scef_id_length = -1;
 static int hf_gtp_scef_id = -1;
+static int hf_gtp_iov_updates_counter = -1;
+static int hf_gtp_mapped_ue_usage_type = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtp_rfsp_index = -1;
@@ -1429,9 +1433,12 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_NODE_IDENTIFIER       0xDB    /* 3G   219 TLV Node Identifier                           7.7.119 */
 #define GTP_EXT_CIOT_OPT_SUP_IND      0xDC    /* 3G   220 TLV CIoT Optimizations Support Indication     7.7.120 */
 #define GTP_EXT_SCEF_PDN_CONNECTION   0xDD    /* 3G   221 TLV SCEF PDN Connection                       7.7.121 */
+#define GTP_EXT_IOV_UPDATES_COUNTER   0xDE    /* 3G   222 TLV IOV_updates counter                       7.7.122 */
+#define GTP_EXT_MAPPED_UE_USAGE_TYPE  0xDF    /* 3G   223 TLV Mapped UE Usage Type                      7.7.123 */
+#define GTP_EXT_UP_FUN_SEL_IND_FLAGS  0xE0    /* 3G   224 TLV UP Function Selection Indication Flags    7.7.124 */
 
 
-/*  222-238 TLV Spare. For future use.     */
+/*  225-238 TLV Spare. For future use.     */
 
 /* 239-250  Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
@@ -1588,9 +1595,12 @@ static const value_string gtp_val[] = {
 /* 219 */  {GTP_EXT_NODE_IDENTIFIER,        "Node Identifier" },                           /* 7.7.119 */
 /* 220 */  {GTP_EXT_CIOT_OPT_SUP_IND,       "CIoT Optimizations Support Indication" },     /* 7.7.120 */
 /* 221 */  {GTP_EXT_SCEF_PDN_CONNECTION,    "SCEF PDN Connection" },                       /* 7.7.121 */
+/* 222 */  {GTP_EXT_IOV_UPDATES_COUNTER,    "IOV_updates counter" },                       /* 7.7.122 */
+/* 223 */  {GTP_EXT_MAPPED_UE_USAGE_TYPE,   "Mapped UE Usage Type" },                      /* 7.7.123 */
+/* 224 */  {GTP_EXT_UP_FUN_SEL_IND_FLAGS,   "UP Function Selection Indication Flags" },    /* 7.7.124 */
 
 
-/* 222-238 TLV Spare. For future use. */
+/* 225-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK,  "Sequence numbers of released packets IE"},  /* charging */
 /* 250 */  {GTP_EXT_CAN_PACK,  "Sequence numbers of canceled packets IE"},  /* charging */
@@ -1740,8 +1750,11 @@ static const value_string gtpv1_val[] = {
 /* 219 */  {GTP_EXT_NODE_IDENTIFIER,       "Node Identifier" },                              /* 7.7.119 */
 /* 220 */  {GTP_EXT_CIOT_OPT_SUP_IND,      "CIoT Optimizations Support Indication" },        /* 7.7.120 */
 /* 221 */  {GTP_EXT_SCEF_PDN_CONNECTION,   "SCEF PDN Connection" },                          /* 7.7.121 */
+/* 222 */  {GTP_EXT_IOV_UPDATES_COUNTER,   "IOV_updates counter" },                          /* 7.7.122 */
+/* 223 */  {GTP_EXT_MAPPED_UE_USAGE_TYPE,  "Mapped UE Usage Type" },                         /* 7.7.123 */
+/* 224 */  {GTP_EXT_UP_FUN_SEL_IND_FLAGS,  "UP Function Selection Indication Flags" },       /* 7.7.124 */
 
-/* 219-238 TLV Spare. For future use. */
+/* 225-238 TLV Spare. For future use. */
 /* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
 /* 249 */  {GTP_EXT_REL_PACK,              "Sequence numbers of released packets IE"},        /* charging */
 /* 250 */  {GTP_EXT_CAN_PACK,              "Sequence numbers of canceled packets IE"},        /* charging */
@@ -2751,6 +2764,9 @@ static int decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, int offset, packet
 static int decode_gtp_ext_node_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ciot_opt_sup_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_iov_updates_counter(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mapped_ue_usage_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_up_fun_sel_ind_flags(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
@@ -2902,6 +2918,9 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xDB */  {GTP_EXT_NODE_IDENTIFIER, decode_gtp_ext_node_id },                 /* 7.7.119 */
 /* 0xDC */  {GTP_EXT_CIOT_OPT_SUP_IND, decode_gtp_ciot_opt_sup_ind },           /* 7.7.120 */
 /* 0xDD */  {GTP_EXT_SCEF_PDN_CONNECTION, decode_gtp_scef_pdn_conn },           /* 7.7.121 */
+/* 0xDE */  {GTP_EXT_IOV_UPDATES_COUNTER, decode_gtp_iov_updates_counter },     /* 7.7.122 */
+/* 0xDF */  {GTP_EXT_MAPPED_UE_USAGE_TYPE, decode_gtp_mapped_ue_usage_type },   /* 7.7.123 */
+/* 0xE0 */  {GTP_EXT_UP_FUN_SEL_IND_FLAGS, decode_gtp_up_fun_sel_ind_flags },   /* 7.7.124 */
 
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack },                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                            /* charging */
@@ -9014,6 +9033,88 @@ decode_gtp_scef_pdn_conn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 
     return 3 + length;
 }
+/*
+ * 7.7.122 IOV_updates counter
+ */
+static int
+decode_gtp_iov_updates_counter(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_IOV_UPDATES_COUNTER], NULL,
+        val_to_str_ext_const(GTP_EXT_IOV_UPDATES_COUNTER, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_iov_updates_counter, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (length > 1) {
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - 1);
+    }
+
+    return 3 + length;
+}
+/*
+ * 7.7.123 Mapped UE Usage Type
+ */
+static int
+decode_gtp_mapped_ue_usage_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_MAPPED_UE_USAGE_TYPE], NULL,
+        val_to_str_ext_const(GTP_EXT_MAPPED_UE_USAGE_TYPE, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_mapped_ue_usage_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (length > 2) {
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - 2);
+    }
+
+    return 3 + length;
+}
+/*
+ * 7.7.124 UP Function Selection Indication Flags
+ */
+static int
+decode_gtp_up_fun_sel_ind_flags(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_UP_FUN_SEL_IND_FLAGS], NULL,
+        val_to_str_ext_const(GTP_EXT_UP_FUN_SEL_IND_FLAGS, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ext_tree, hf_gtp_up_fun_sel_ind_flags_dcnr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_up_fun_sel_ind_flags_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (length > 1) {
+        proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length - 1);
+    }
+
+    return 3 + length;
+}
 
 static int
 decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
@@ -11355,6 +11456,16 @@ proto_register_gtp(void)
            FT_UINT8, BASE_HEX, NULL, 0xfc,
            NULL, HFILL}
         },
+        { &hf_gtp_up_fun_sel_ind_flags_dcnr,
+          { "DCNR", "gtp.up_fun_sel_ind_flags_dcnr",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        { &hf_gtp_up_fun_sel_ind_flags_spare,
+          { "SPARE", "gtp.up_fun_sel_ind_flags_spare",
+            FT_UINT8, BASE_HEX, NULL, 0xfe,
+            NULL, HFILL}
+        },
         {&hf_gtp_cdr_app,
          { "Application Identifier", "gtp.cdr_app",
            FT_UINT8, BASE_DEC, NULL, 0xf0,
@@ -11644,6 +11755,16 @@ proto_register_gtp(void)
         { &hf_gtp_scef_id,
           { "SCEF-ID", "gtp.scef_id",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_gtp_iov_updates_counter,
+          { "IOV_updates counter", "gtp.iov_updates_counter",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_gtp_mapped_ue_usage_type,
+          { "Mapped UE Usage Type", "gtp.mapped_ue_usage_type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
 
