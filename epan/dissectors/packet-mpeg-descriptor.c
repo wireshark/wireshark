@@ -1448,6 +1448,15 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_private_data_byte, tvb, offset, end - offset, ENC_NA);
 }
 
+/* 0x4C Time Shifted Service Descriptor */
+static int hf_mpeg_descr_time_shifted_service_id = -1;
+
+static void
+proto_mpeg_descriptor_dissect_time_shifted_service(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_mpeg_descr_time_shifted_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+}
+
 /* 0x4D Short Event Descriptor */
 static int hf_mpeg_descr_short_event_lang_code = -1;
 static int hf_mpeg_descr_short_event_name_length = -1;
@@ -3919,6 +3928,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
         case 0x4A: /* Linkage Descriptor */
             proto_mpeg_descriptor_dissect_linkage(tvb, offset, len, descriptor_tree);
             break;
+        case 0x4C: /* Time Shifted Service Descriptor */
+            proto_mpeg_descriptor_dissect_time_shifted_service(tvb, offset, descriptor_tree);
+            break;
         case 0x4D: /* Short Event Descriptor */
             proto_mpeg_descriptor_dissect_short_event(tvb, offset, descriptor_tree);
             break;
@@ -4730,6 +4742,12 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_linkage_population_id_mask, {
             "Population ID Mask", "mpeg_descr.population_id_mask",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x4C Time Shifted Service Descriptor */
+        { &hf_mpeg_descr_time_shifted_service_id, {
+            "Reference Service ID", "mpeg_descr.time_shifted_service.id",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
