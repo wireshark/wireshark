@@ -1249,8 +1249,9 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_lengt
             break;
 
         default :
-            value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1 + 2 + name_length + 2, value_length);
-
+            if (value_length > 0 ) {
+                value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1 + 2 + name_length + 2, value_length);
+            }
             valoffset += 1 + 2 + name_length + 2 + value_length;
             break;
     }
