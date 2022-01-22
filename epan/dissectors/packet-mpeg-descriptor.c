@@ -1869,6 +1869,166 @@ mpeg_descr_component_tail:
     }
 }
 
+/* 0x51 Mosaic Descriptor */
+static int hf_mpeg_descr_mosaic_mosaic_entry_point = -1;
+static int hf_mpeg_descr_mosaic_number_of_horizontal_elementary_cells = -1;
+static int hf_mpeg_descr_mosaic_reserved_future_use1 = -1;
+static int hf_mpeg_descr_mosaic_number_of_vertical_elementary_cells = -1;
+static int hf_mpeg_descr_mosaic_logical_cell_id = -1;
+static int hf_mpeg_descr_mosaic_reserved_future_use2 = -1;
+static int hf_mpeg_descr_mosaic_logical_cell_presentation_info = -1;
+static int hf_mpeg_descr_mosaic_elementary_cell_field_length = -1;
+static int hf_mpeg_descr_mosaic_reserved_future_use3 = -1;
+static int hf_mpeg_descr_mosaic_elementary_cell_id = -1;
+static int hf_mpeg_descr_mosaic_cell_linkage_info = -1;
+static int hf_mpeg_descr_mosaic_bouquet_id = -1;
+static int hf_mpeg_descr_mosaic_original_network_id = -1;
+static int hf_mpeg_descr_mosaic_transport_stream_id = -1;
+static int hf_mpeg_descr_mosaic_service_id = -1;
+static int hf_mpeg_descr_mosaic_event_id = -1;
+
+#define MPEG_DESCR_MOSAIC_ENTRY_POINT_MASK              0x80
+#define MPEG_DESCR_MOSAIC_NUM_OF_H_CELLS_MASK           0x70
+#define MPEG_DESCR_MOSAIC_RESERVED1_MASK                0x08
+#define MPEG_DESCR_MOSAIC_NUM_OF_V_CELLS_MASK           0x07
+#define MPEG_DESCR_MOSAIC_LOGICAL_CELL_ID_MASK          0xFC00
+#define MPEG_DESCR_MOSAIC_RESERVED2_MASK                0x03F8
+#define MPEG_DESCR_MOSAIC_CELL_PRESENTATION_INFO_MASK   0x0007
+#define MPEG_DESCR_MOSAIC_RESERVED3_MASK                0xC0
+#define MPEG_DESCR_MOSAIC_ELEMENTARY_CELL_ID_MASK       0x3F
+
+static gint ett_mpeg_descriptor_mosaic_logical_cell = -1;
+static gint ett_mpeg_descriptor_mosaic_elementary_cells = -1;
+
+static const value_string mpeg_descr_mosaic_number_of_e_cells_vals[] = {
+    { 0x00, "One cell" },
+    { 0x01, "Two cells" },
+    { 0x02, "Three cells" },
+    { 0x03, "Four cells" },
+    { 0x04, "Five cells" },
+    { 0x05, "Six cells" },
+    { 0x06, "Seven cells" },
+    { 0x07, "Eight cells" },
+
+    { 0, NULL }
+};
+
+static const range_string mpeg_descr_mosaic_logical_cell_presentation_info_vals[] = {
+    { 0x00, 0x00, "Undefined" },
+    { 0x01, 0x01, "Video" },
+    { 0x02, 0x02, "Still picture" },
+    { 0x03, 0x03, "Graphics/Text" },
+    { 0x04, 0x07, "Reserved for future use" },
+
+    { 0x00, 0x00, NULL }
+};
+
+static const range_string mpeg_descr_mosaic_cell_linkage_info_vals[] = {
+    { 0x00, 0x00, "Underfined" },
+    { 0x01, 0x01, "Bouquet related" },
+    { 0x02, 0x02, "Service related" },
+    { 0x03, 0x03, "Other mosaic related" },
+    { 0x04, 0x04, "Event related" },
+    { 0x05, 0xFF, "Reserved for future use" },
+
+    { 0x00, 0x00, NULL }
+};
+
+static guint
+proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvbuff_t *tvb, guint offset)
+{
+    guint l_offset = offset;
+
+    l_offset += 2;
+    guint8 elementary_cell_field_length = tvb_get_guint8(tvb, l_offset);
+    l_offset += 1;
+    l_offset += elementary_cell_field_length;
+
+    guint8 cell_linkage_info = tvb_get_guint8(tvb, l_offset);
+    l_offset += 1;
+
+    switch (cell_linkage_info) {
+        case 0x01 :
+            l_offset += 2;
+            break;
+        case 0x02 :
+        case 0x03 :
+            l_offset += 6;
+            break;
+        case 0x04 :
+            l_offset += 8;
+            break;
+    }
+
+    return l_offset - offset;
+}
+
+static void
+proto_mpeg_descriptor_dissect_mosaic(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint end = offset + len;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_mosaic_mosaic_entry_point, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_mosaic_number_of_horizontal_elementary_cells, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_mosaic_reserved_future_use1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_mosaic_number_of_vertical_elementary_cells, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    while (offset < end) {
+        guint l_cell_len = proto_mpeg_descriptor_dissect_mosaic_measure_l_cell_len(tvb, offset);
+
+        guint8 logical_cell_id = tvb_get_bits(tvb, offset*8, 6, ENC_BIG_ENDIAN);
+        proto_tree *cell_tree = proto_tree_add_subtree_format(tree, tvb, offset, l_cell_len, ett_mpeg_descriptor_mosaic_logical_cell, NULL, "Logical Cell 0x%02x", logical_cell_id);
+        proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_logical_cell_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_reserved_future_use2, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_logical_cell_presentation_info, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        guint8 elementary_cell_field_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_elementary_cell_field_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        proto_tree *field_tree = NULL;
+        if (elementary_cell_field_length > 0) {
+            field_tree = proto_tree_add_subtree(cell_tree, tvb, offset, elementary_cell_field_length, ett_mpeg_descriptor_mosaic_elementary_cells, NULL, "Elementary Cells");
+        }
+        while (elementary_cell_field_length > 0) {
+            proto_tree_add_item(field_tree, hf_mpeg_descr_mosaic_reserved_future_use3, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(field_tree, hf_mpeg_descr_mosaic_elementary_cell_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            elementary_cell_field_length -= 1;
+        }
+
+        guint8 cell_linkage_info = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_cell_linkage_info, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+
+        switch (cell_linkage_info) {
+            case 0x01 :
+                proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_bouquet_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            case 0x02 :
+            case 0x03 :
+            case 0x04 :
+                proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+        }
+
+        if (cell_linkage_info == 0x04) {
+            proto_tree_add_item(cell_tree, hf_mpeg_descr_mosaic_event_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+        }
+    }
+}
+
 /* 0x52 Stream Identifier Descriptor */
 static int hf_mpeg_descr_stream_identifier_component_tag = -1;
 
@@ -3940,6 +4100,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
         case 0x50: /* Component Descriptor */
             proto_mpeg_descriptor_dissect_component(tvb, offset, len, descriptor_tree);
             break;
+        case 0x51: /* Mosaic Descriptor */
+            proto_mpeg_descriptor_dissect_mosaic(tvb, offset, len, descriptor_tree);
+            break;
         case 0x52: /* Stream Identifier Descriptor */
             proto_mpeg_descriptor_dissect_stream_identifier(tvb, offset, descriptor_tree);
             break;
@@ -4956,6 +5119,90 @@ proto_register_mpeg_descriptor(void)
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
+        /* 0x51 Mosaic Descriptor */
+        { &hf_mpeg_descr_mosaic_mosaic_entry_point, {
+            "Mosaic Entry Point", "mpeg_descr.mosaic.entry_point",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_MOSAIC_ENTRY_POINT_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_number_of_horizontal_elementary_cells, {
+            "Number Of Horizontal Elementary Cells", "mpeg_descr.mosaic.h_cells_num",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_mosaic_number_of_e_cells_vals),
+            MPEG_DESCR_MOSAIC_NUM_OF_H_CELLS_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_reserved_future_use1, {
+            "Reserved Future Use", "mpeg_descr.mosaic.reserved1",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_MOSAIC_RESERVED1_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_number_of_vertical_elementary_cells, {
+            "Number Of Vertical Elementary Cells", "mpeg_descr.mosaic.v_cells_num",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_mosaic_number_of_e_cells_vals),
+            MPEG_DESCR_MOSAIC_NUM_OF_V_CELLS_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_logical_cell_id, {
+            "Logical Cell ID", "mpeg_descr.mosaic.l_cell_id",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_MOSAIC_LOGICAL_CELL_ID_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_reserved_future_use2, {
+            "Reserved Future Use", "mpeg_descr.mosaic.reserved2",
+            FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_MOSAIC_RESERVED2_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_logical_cell_presentation_info, {
+            "Logical Cell Presentation Info", "mpeg_descr.mosaic.l_cell_pr_info",
+            FT_UINT16, BASE_HEX|BASE_RANGE_STRING, RVALS(mpeg_descr_mosaic_logical_cell_presentation_info_vals),
+            MPEG_DESCR_MOSAIC_CELL_PRESENTATION_INFO_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_elementary_cell_field_length, {
+            "Elementary Cell Field Length", "mpeg_descr.mosaic.e_cell_field_len",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_reserved_future_use3, {
+            "Reserved Future Use", "mpeg_descr.mosaic.reserved3",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_MOSAIC_RESERVED3_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_elementary_cell_id, {
+            "Elementary Cell ID", "mpeg_descr.mosaic.e_cell_id",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_MOSAIC_ELEMENTARY_CELL_ID_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_cell_linkage_info, {
+            "Cell Linkage Info", "mpeg_descr.mosaic.cell_link_info",
+            FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(mpeg_descr_mosaic_cell_linkage_info_vals), 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_bouquet_id, {
+            "Bouquet ID", "mpeg_descr.mosaic.bouquet_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_original_network_id, {
+            "Original Network ID", "mpeg_descr.mosaic.onid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_transport_stream_id, {
+            "Transport Stream ID", "mpeg_descr.mosaic.tsid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_service_id, {
+            "Service ID", "mpeg_descr.mosaic.sid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_mosaic_event_id, {
+            "Event ID", "mpeg_descr.mosaic.event_id",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
         /* 0x52 Stream Identifier Descriptor */
         { &hf_mpeg_descr_stream_identifier_component_tag, {
             "Component Tag", "mpeg_descr.stream_id.component_tag",
@@ -5933,6 +6180,8 @@ proto_register_mpeg_descriptor(void)
         &ett_mpeg_descriptor_country_availability_countries,
         &ett_mpeg_descriptor_vbi_data_service,
         &ett_mpeg_descriptor_content_identifier_crid,
+        &ett_mpeg_descriptor_mosaic_logical_cell,
+        &ett_mpeg_descriptor_mosaic_elementary_cells,
         &ett_mpeg_descriptor_service_list,
         &ett_mpeg_descriptor_nordig_lcd_v1_service_list,
         &ett_mpeg_descriptor_nordig_lcd_v2_channel_list_list,
