@@ -32,6 +32,8 @@ KRB-PRIV/_untag/enc-part kRB_PRIV_enc_part
 KrbCredInfo/key krbCredInfo_key
 AP-REP/_untag/enc-part aP_REP_enc_part
 KDC-REP/enc-part kDC_REP_enc_part
+KDC-REP/padata rEP_SEQUENCE_OF_PA_DATA
+KDC-REQ/padata rEQ_SEQUENCE_OF_PA_DATA
 Ticket/_untag/enc-part ticket_enc_part
 ETYPE-INFO-ENTRY/salt info_salt
 ETYPE-INFO2-ENTRY/salt info2_salt
@@ -153,7 +155,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   case KRB5_ET_KDC_ERR_MORE_PREAUTH_DATA_REQUIRED:
   case KRB5_ET_KDC_ERR_PREAUTH_BAD_AUTHENTICATION_SET:
   case KRB5_ET_KDC_ERR_UNKNOWN_CRITICAL_FAST_OPTIONS:
-    offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_SEQUENCE_OF_PA_DATA);
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, dissect_kerberos_T_rEP_SEQUENCE_OF_PA_DATA);
     break;
   default:
     offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_kerberos_e_data, NULL);
@@ -170,6 +172,37 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
       val_to_str(private_data->padata_type, kerberos_PADATA_TYPE_vals,
       "Unknown:%d"));
   }
+
+#.FN_BODY KDC-REQ/padata
+  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+  struct _kerberos_PA_FX_FAST_REQUEST saved_stack = private_data->PA_FX_FAST_REQUEST;
+
+  /*
+   * we need to defer calling dissect_kerberos_PA_FX_FAST_REQUEST,
+   * see dissect_kerberos_defer_PA_FX_FAST_REQUEST()
+   */
+  private_data->PA_FX_FAST_REQUEST = (struct _kerberos_PA_FX_FAST_REQUEST) { .defer = TRUE, };
+%(DEFAULT_BODY)s
+  if (private_data->PA_FX_FAST_REQUEST.tvb != NULL) {
+    struct _kerberos_PA_FX_FAST_REQUEST used_stack = private_data->PA_FX_FAST_REQUEST;
+    private_data->PA_FX_FAST_REQUEST = (struct _kerberos_PA_FX_FAST_REQUEST) { .defer = FALSE, };
+
+    /*
+     * dissect_kerberos_defer_PA_FX_FAST_REQUEST() remembered
+     * a tvb, so replay dissect_kerberos_PA_FX_FAST_REQUEST()
+     * here.
+     */
+    dissect_kerberos_PA_FX_FAST_REQUEST(FALSE,
+                                        used_stack.tvb,
+                                        0,
+                                        actx,
+                                        used_stack.tree,
+                                        -1);
+  }
+  private_data->PA_FX_FAST_REQUEST = saved_stack;
+
+#.FN_BODY KDC-REP/padata
+%(DEFAULT_BODY)s
 
 #.FN_BODY PA-DATA/padata-value
   proto_tree *sub_tree=tree;
@@ -234,7 +267,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
     break;
   case KERBEROS_PA_FX_FAST:
     if (kerberos_private_is_kdc_req(private_data)) {
-      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REQUEST);
+      offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_defer_PA_FX_FAST_REQUEST);
     }else{
       offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_FX_FAST_REPLY);
     }

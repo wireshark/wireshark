@@ -136,6 +136,11 @@ typedef struct {
 	wmem_list_t *learnt_keys;
 	wmem_list_t *missing_keys;
 	guint32 within_PA_TGS_REQ;
+	struct _kerberos_PA_FX_FAST_REQUEST {
+		gboolean defer;
+		tvbuff_t *tvb;
+		proto_tree *tree;
+	} PA_FX_FAST_REQUEST;
 #ifdef HAVE_KERBEROS
 	enc_key_t *PA_TGS_REQ_key;
 	enc_key_t *PA_TGS_REQ_subkey;
@@ -413,6 +418,38 @@ kerberos_is_win2k_pkinit(asn1_ctx_t *actx)
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 	return private_data->is_win2k_pkinit;
+}
+
+static int dissect_kerberos_defer_PA_FX_FAST_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
+{
+	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+
+	/*
+	 * dissect_ber_octet_string_wcb() always passes
+	 * implicit_tag=FALSE, offset=0 and hf_index=-1
+	 *
+	 * It means we only need to remember tvb and tree
+	 * in order to replay dissect_kerberos_PA_FX_FAST_REQUEST()
+	 * in dissect_kerberos_T_rEQ_SEQUENCE_OF_PA_DATA()
+	 */
+	ws_assert(implicit_tag == FALSE);
+	ws_assert(offset == 0);
+	ws_assert(hf_index == -1);
+
+	if (private_data->PA_FX_FAST_REQUEST.defer) {
+		/*
+		 * Remember the tvb (and the optional tree)
+		 */
+		private_data->PA_FX_FAST_REQUEST.tvb = tvb;
+		private_data->PA_FX_FAST_REQUEST.tree = tree;
+		/*
+		 * only handle the first PA_FX_FAST_REQUEST...
+		 */
+		private_data->PA_FX_FAST_REQUEST.defer = FALSE;
+		return tvb_reported_length_remaining(tvb, offset);
+	}
+
+	return dissect_kerberos_PA_FX_FAST_REQUEST(implicit_tag, tvb, offset, actx, tree, hf_index);
 }
 
 #ifdef HAVE_KERBEROS
@@ -4333,7 +4370,7 @@ dissect_kerberos_KrbFastFinished(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 static const ber_sequence_t KrbFastResponse_sequence[] = {
-  { &hf_kerberos_padata     , BER_CLASS_CON, 0, 0, dissect_kerberos_SEQUENCE_OF_PA_DATA },
+  { &hf_kerberos_rEP_SEQUENCE_OF_PA_DATA, BER_CLASS_CON, 0, 0, dissect_kerberos_T_rEP_SEQUENCE_OF_PA_DATA },
   { &hf_kerberos_strengthen_key, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_kerberos_T_strengthen_key },
   { &hf_kerberos_finished   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kerberos_KrbFastFinished },
   { &hf_kerberos_nonce      , BER_CLASS_CON, 3, 0, dissect_kerberos_UInt32 },
@@ -4350,15 +4387,19 @@ dissect_kerberos_KrbFastResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static const ber_sequence_t KrbFastReq_sequence[] = {
   { &hf_kerberos_fast_options, BER_CLASS_CON, 0, 0, dissect_kerberos_FastOptions },
-  { &hf_kerberos_padata     , BER_CLASS_CON, 1, 0, dissect_kerberos_SEQUENCE_OF_PA_DATA },
+  { &hf_kerberos_rEQ_SEQUENCE_OF_PA_DATA, BER_CLASS_CON, 1, 0, dissect_kerberos_T_rEQ_SEQUENCE_OF_PA_DATA },
   { &hf_kerberos_req_body   , BER_CLASS_CON, 2, 0, dissect_kerberos_KDC_REQ_BODY },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_kerberos_KrbFastReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+  struct _kerberos_PA_FX_FAST_REQUEST saved_stack = private_data->PA_FX_FAST_REQUEST;
+  private_data->PA_FX_FAST_REQUEST = (struct _kerberos_PA_FX_FAST_REQUEST) { .defer = FALSE, };
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    KrbFastReq_sequence, hf_index, ett_kerberos_KrbFastReq);
+  private_data->PA_FX_FAST_REQUEST = saved_stack;
 
   return offset;
 }
