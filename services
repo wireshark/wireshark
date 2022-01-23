@@ -3912,6 +3912,7 @@ perrla		4313/tcp	# PERRLA User Services
 choiceview-agt	4314/tcp	# ChoiceView Agent
 choiceview-clt	4316/tcp	# ChoiceView Client
 opentelemetry	4317/tcp	# OpenTelemetry Protocol
+fox-skytale	4319/tcp/udp	# Fox SkyTale encrypted communication
 fdt-rcatp	4320/tcp/udp	# FDT Remote Categorization Protocol
 rwhois		4321/tcp/udp	# Remote Who Is
 trim-event	4322/tcp/udp	# TRIM Event Service

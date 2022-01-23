@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2022.01.15
- * Date:    2022-01-15 03:15:01
+ * Version: 2022.01.22
+ * Date:    2022-01-22 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -26638,6 +26638,7 @@ pci_id_t pci_vid_17CB[] = {
 {0x17CB, 0x0401, 0xFFFF, 0xFFFF, "Datacenter Technologies QDF2400 PCI Express Root Port(0x0401)"},
 {0x17CB, 0x1000, 0xFFFF, 0xFFFF, "QCS405 PCIe Root Complex(0x1000)"},
 {0x17CB, 0x1101, 0xFFFF, 0xFFFF, "QCA6390 Wireless Network Adapter [AX500-DBS (2x2)](0x1101)"},
+{0x17CB, 0x1103, 0xFFFF, 0xFFFF, "Atheros QCNFA765(0x1103)"},
 }; /* pci_vid_17CB[] */
 
 pci_id_t pci_vid_17CC[] = {
@@ -29037,6 +29038,19 @@ pci_id_t pci_vid_1C5C[] = {
 pci_id_t pci_vid_1C5F[] = {
 {0x1C5F, 0xFFFF, 0xFFFF, 0xFFFF, "Beijing Memblaze Technology Co. Ltd.(0x1C5F)"},
 {0x1C5F, 0x000D, 0xFFFF, 0xFFFF, "PBlaze5 520/526(0x000D)"},
+{0x1C5F, 0x000E, 0xFFFF, 0xFFFF, "PBlaze6 6530(0x000E)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x0B20, "NVMe SSD PBlaze6 6530 1920G AIC(0x1C5F-0x0B20)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x0B21, "NVMe SSD PBlaze6 6530 1920G 2.5\" U.2(0x1C5F-0x0B21)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x0B30, "NVMe SSD PBlaze6 6530 3840G AIC(0x1C5F-0x0B30)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x0B31, "NVMe SSD PBlaze6 6530 3840G 2.5\" U.2(0x1C5F-0x0B31)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x0B40, "NVMe SSD PBlaze6 6530 7680G AIC(0x1C5F-0x0B40)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x0B41, "NVMe SSD PBlaze6 6530 7680G 2.5\" U.2(0x1C5F-0x0B41)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x4B20, "NVMe SSD PBlaze6 6530 1600G AIC(0x1C5F-0x4B20)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x4B21, "NVMe SSD PBlaze6 6530 1600G 2.5\" U.2(0x1C5F-0x4B21)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x4B30, "NVMe SSD PBlaze6 6530 3200G AIC(0x1C5F-0x4B30)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x4B31, "NVMe SSD PBlaze6 6530 3200G 2.5\" U.2(0x1C5F-0x4B31)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x4B40, "NVMe SSD PBlaze6 6530 6400G AIC(0x1C5F-0x4B40)"},
+{0x1C5F, 0x000E, 0x1C5F, 0x4B41, "NVMe SSD PBlaze6 6530 6400G 2.5\" U.2(0x1C5F-0x4B41)"},
 {0x1C5F, 0x003D, 0xFFFF, 0xFFFF, "PBlaze5 920/926(0x003D)"},
 {0x1C5F, 0x003E, 0xFFFF, 0xFFFF, "PBlaze6 6920(0x003E)"},
 {0x1C5F, 0x003E, 0x1C5F, 0x0A31, "NVMe SSD PBlaze6 6920 3840GB 2.5\" U.2(0x1C5F-0x0A31)"},
@@ -30075,6 +30089,11 @@ pci_id_t pci_vid_1ED2[] = {
 pci_id_t pci_vid_1ED3[] = {
 {0x1ED3, 0xFFFF, 0xFFFF, 0xFFFF, "Yeston(0x1ED3)"},
 }; /* pci_vid_1ED3[] */
+
+pci_id_t pci_vid_1ED5[] = {
+{0x1ED5, 0xFFFF, 0xFFFF, 0xFFFF, "Moore Threads Technology Co.,Ltd(0x1ED5)"},
+{0x1ED5, 0x0101, 0xFFFF, 0xFFFF, "MTT S30(0x0101)"},
+}; /* pci_vid_1ED5[] */
 
 pci_id_t pci_vid_1ED8[] = {
 {0x1ED8, 0xFFFF, 0xFFFF, 0xFFFF, "Digiteq Automotive(0x1ED8)"},
@@ -42400,7 +42419,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x17B4, 6, pci_vid_17B4 },
 {0x17C0, 1, pci_vid_17C0 },
 {0x17C2, 1, pci_vid_17C2 },
-{0x17CB, 17, pci_vid_17CB },
+{0x17CB, 18, pci_vid_17CB },
 {0x17CC, 2, pci_vid_17CC },
 {0x17CD, 1, pci_vid_17CD },
 {0x17CF, 1, pci_vid_17CF },
@@ -42653,7 +42672,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1C44, 2, pci_vid_1C44 },
 {0x1C58, 7, pci_vid_1C58 },
 {0x1C5C, 21, pci_vid_1C5C },
-{0x1C5F, 12, pci_vid_1C5F },
+{0x1C5F, 25, pci_vid_1C5F },
 {0x1C63, 2, pci_vid_1C63 },
 {0x1C7E, 2, pci_vid_1C7E },
 {0x1C7F, 2, pci_vid_1C7F },
@@ -42767,6 +42786,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1EBD, 2, pci_vid_1EBD },
 {0x1ED2, 2, pci_vid_1ED2 },
 {0x1ED3, 1, pci_vid_1ED3 },
+{0x1ED5, 2, pci_vid_1ED5 },
 {0x1ED8, 2, pci_vid_1ED8 },
 {0x1ED9, 1, pci_vid_1ED9 },
 {0x1EE9, 1, pci_vid_1EE9 },
@@ -43024,7 +43044,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2269 VIDs */
+}; /* We have 2270 VIDs */
 
 static pci_vid_index_t *get_vid_index(guint16 vid)
 {
