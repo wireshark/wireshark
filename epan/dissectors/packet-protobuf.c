@@ -1,6 +1,6 @@
 /* packet-protobuf.c
  * Routines for Google Protocol Buffers dissection
- * Copyright 2017, Huang Qiangxiong <qiangxiong.huang@qq.com>
+ * Copyright 2017-2022, Huang Qiangxiong <qiangxiong.huang@qq.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -38,6 +38,7 @@
 #include <epan/proto_data.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/json_dumper.h>
 #include <wsutil/pint.h>
 #include <epan/ws_printf.h>
 #include <wsutil/report_message.h>
@@ -100,6 +101,7 @@ void proto_reg_handoff_protobuf(void);
 static void protobuf_reinit(int target);
 
 static int proto_protobuf = -1;
+static int proto_protobuf_json_mapping = -1;
 
 static gboolean protobuf_dissector_called = FALSE;
 
@@ -124,6 +126,7 @@ static int hf_protobuf_value_uint32 = -1;
 static int hf_protobuf_value_bool = -1;
 static int hf_protobuf_value_string = -1;
 static int hf_protobuf_value_repeated = -1;
+static int hf_json_mapping_line = -1;
 
 /* expert */
 static expert_field ei_protobuf_failed_parse_tag = EI_INIT;
@@ -142,6 +145,7 @@ static int ett_protobuf_message = -1;
 static int ett_protobuf_field = -1;
 static int ett_protobuf_value = -1;
 static int ett_protobuf_packed_repeated = -1;
+static int ett_protobuf_json = -1;
 
 /* preferences */
 static gboolean try_dissect_as_string = FALSE;
@@ -151,6 +155,8 @@ static gboolean old_dissect_bytes_as_string = FALSE;
 static gboolean show_details = FALSE;
 static gboolean pbf_as_hf = FALSE; /* dissect protobuf fields as header fields of wireshark */
 static gboolean preload_protos = FALSE;
+/* Show protobuf as JSON similar to https://developers.google.com/protocol-buffers/docs/proto3#json */
+static gboolean display_json_mapping = FALSE;
 
 enum add_default_value_policy_t {
     ADD_DEFAULT_VALUE_NONE,
@@ -365,10 +371,12 @@ tvb_get_protobuf_time(tvbuff_t* tvb, guint offset, guint maxlen, nstime_t* times
 /* declare first because it will be called by dissect_packed_repeated_field_values */
 static void
 protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo,
-    proto_item *ti_field, int field_type, const guint64 value, const gchar* prepend_text, const PbwFieldDescriptor* field_desc, gboolean is_top_level);
+    proto_item *ti_field, int field_type, const guint64 value, const gchar* prepend_text, const PbwFieldDescriptor* field_desc,
+    gboolean is_top_level, json_dumper *dumper);
 
 static void
-dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo, proto_tree *protobuf_tree, const PbwDescriptor* message_desc, gboolean is_top_level);
+dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo, proto_tree *protobuf_tree,
+    const PbwDescriptor* message_desc, gboolean is_top_level, json_dumper *dumper);
 
 /* Only repeated fields of primitive numeric types (types which use the varint, 32-bit, or 64-bit wire types) can
  * be declared "packed".
@@ -378,7 +386,8 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
  */
 static guint
 dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, packet_info *pinfo,
-    proto_item *ti_field, int wire_type, int field_type, const gchar* prepend_text, const PbwFieldDescriptor* field_desc)
+    proto_item *ti_field, int wire_type, int field_type, const gchar* prepend_text, const PbwFieldDescriptor* field_desc,
+    json_dumper *dumper)
 {
     guint64 sub_value;
     guint sub_value_length;
@@ -437,7 +446,7 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
         for (lframe = wmem_list_head(varint_list); lframe != NULL; lframe = wmem_list_frame_next(lframe)) {
             info = (protobuf_varint_tvb_info_t*)wmem_list_frame_data(lframe);
             protobuf_dissect_field_value(subtree, tvb, info->offset, info->length, pinfo,
-                ti_field, field_type, info->value, prepend_text, field_desc,  FALSE);
+                ti_field, field_type, info->value, prepend_text, field_desc, FALSE, dumper);
             prepend_text = ",";
         }
 
@@ -467,7 +476,7 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
             protobuf_dissect_field_value(subtree, tvb, offset, value_size, pinfo, ti_field, field_type,
                 (wire_type == PROTOBUF_WIRETYPE_FIXED32 ? tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN)
                     : tvb_get_guint64(tvb, offset, ENC_LITTLE_ENDIAN)),
-                prepend_text, field_desc, FALSE);
+                prepend_text, field_desc, FALSE, dumper);
             prepend_text = ",";
         }
 
@@ -482,10 +491,49 @@ dissect_packed_repeated_field_values(tvbuff_t *tvb, guint start, guint length, p
     return length;
 }
 
+/* The "google.protobuf.Timestamp" must be converted to rfc3339 format if mapping to JSON
+ * according to https://developers.google.com/protocol-buffers/docs/proto3#json
+ * TODO: Displaying the timezone in 'Z' or local format could be made into a preference.
+ */
+static char *
+abs_time_to_rfc3339(wmem_allocator_t *scope, const nstime_t *nstime, bool use_utc)
+{
+    struct tm *tm;
+    char datetime_format[128];
+    int nsecs;
+    char nsecs_buf[32];
+
+    if (use_utc) {
+        tm = gmtime(&nstime->secs);
+        if (tm != NULL)
+            strftime(datetime_format, sizeof(datetime_format), "%FT%T%%sZ", tm);
+        else
+            snprintf(datetime_format, sizeof(datetime_format), "Not representable");
+    } else {
+        tm = localtime(&nstime->secs);
+        if (tm != NULL)
+            strftime(datetime_format, sizeof(datetime_format), "%FT%T%%s%z", tm);
+        else
+            snprintf(datetime_format, sizeof(datetime_format), "Not representable");
+    }
+
+    if (nstime->nsecs == 0)
+        return wmem_strdup_printf(scope, datetime_format, "");
+
+    nsecs = nstime->nsecs;
+    while (nsecs > 0 && (nsecs % 10) == 0) {
+        nsecs /= 10;
+    }
+    snprintf(nsecs_buf, sizeof(nsecs_buf), ".%d", nsecs);
+
+    return wmem_strdup_printf(scope, datetime_format, nsecs_buf);
+}
+
 /* Dissect field value based on a specific type. */
 static void
 protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo,
-    proto_item *ti_field, int field_type, const guint64 value, const gchar* prepend_text, const PbwFieldDescriptor* field_desc, gboolean is_top_level)
+    proto_item *ti_field, int field_type, const guint64 value, const gchar* prepend_text, const PbwFieldDescriptor* field_desc,
+    gboolean is_top_level, json_dumper *dumper)
 {
     gdouble double_value;
     gfloat float_value;
@@ -533,6 +581,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (hf_id_ptr) {
             proto_tree_add_double(pbf_tree, *hf_id_ptr, tvb, offset, length, double_value);
         }
+        if (field_desc && dumper) {
+            json_dumper_value_double(dumper, double_value);
+        }
         break;
 
     case PROTOBUF_TYPE_FLOAT:
@@ -544,6 +595,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         }
         if (hf_id_ptr) {
             proto_tree_add_float(pbf_tree, *hf_id_ptr, tvb, offset, length, float_value);
+        }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, "%f", float_value);
         }
         break;
 
@@ -558,6 +612,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (hf_id_ptr) {
             proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, length, int64_value);
         }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, "\"%" PRId64 "\"", int64_value);
+        }
         break;
 
     case PROTOBUF_TYPE_UINT64:
@@ -569,6 +626,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         }
         if (hf_id_ptr) {
             proto_tree_add_uint64(pbf_tree, *hf_id_ptr, tvb, offset, length, value);
+        }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, "\"%" PRIu64 "\"", value);
         }
         break;
 
@@ -582,6 +642,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         }
         if (hf_id_ptr) {
             proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, length, int32_value);
+        }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, "%d", int32_value);
         }
         break;
 
@@ -614,6 +677,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (hf_id_ptr) {
             proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, length, int32_value);
         }
+        if (field_desc && dumper) {
+            json_dumper_value_string(dumper, enum_value_name);
+        }
         break;
 
     case PROTOBUF_TYPE_BOOL:
@@ -626,9 +692,21 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (hf_id_ptr) {
             proto_tree_add_boolean(pbf_tree, *hf_id_ptr, tvb, offset, length, (guint32)value);
         }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, value ? "true" : "false");
+        }
         break;
 
     case PROTOBUF_TYPE_BYTES:
+        if (field_desc && dumper) {
+            buf = (char*) tvb_memdup(wmem_file_scope(), tvb, offset, length);
+            if (buf) {
+                json_dumper_begin_base64(dumper);
+                json_dumper_write_base64(dumper, buf, length);
+                json_dumper_end_base64(dumper);
+                wmem_free(wmem_file_scope(), buf);
+            }
+        }
         if (field_dissector) {
             if (!show_details) { /* don't show Value node if there is a subdissector for this field */
                 proto_item_set_hidden(proto_tree_get_parent(value_tree));
@@ -660,6 +738,10 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (hf_id_ptr) {
             ti = proto_tree_add_item_ret_display_string(pbf_tree, *hf_id_ptr, tvb, offset, length, ENC_UTF_8|ENC_NA, pinfo->pool, &buf);
         }
+        if (field_desc && dumper && field_type == PROTOBUF_TYPE_STRING) {
+            /* JSON view will ignore the dissect_bytes_as_string option */
+            json_dumper_value_string(dumper, buf);
+        }
         break;
 
     case PROTOBUF_TYPE_GROUP: /* This feature is deprecated. GROUP is identical to Nested MESSAGE. */
@@ -678,6 +760,10 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
                 if (tvb_get_protobuf_time(tvb, offset, length, &timestamp)) {
                     ti = proto_tree_add_time(pbf_tree, *hf_id_ptr, tvb, offset, length, &timestamp);
                     subtree = proto_item_add_subtree(ti, ett_protobuf_message);
+                    if (dumper) {
+                        buf = abs_time_to_rfc3339(pinfo->pool, &timestamp, FALSE);
+                        json_dumper_value_string(dumper, buf);
+                    }
                 } else {
                     expert_add_info(pinfo, ti_field, &ei_protobuf_failed_parse_field);
                 }
@@ -687,7 +773,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
             }
         }
         if (sub_message_desc) {
-            dissect_protobuf_message(tvb, offset, length, pinfo, subtree, sub_message_desc, FALSE);
+            dissect_protobuf_message(tvb, offset, length, pinfo, subtree, sub_message_desc, FALSE, (timestamp.secs == 0 ? dumper : NULL));
         }
         break;
 
@@ -701,6 +787,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (hf_id_ptr) {
             proto_tree_add_uint(pbf_tree, *hf_id_ptr, tvb, offset, length, (guint32)value);
         }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, "%u", (guint32)value);
+        }
         break;
 
     case PROTOBUF_TYPE_SINT32:
@@ -713,6 +802,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         if (hf_id_ptr) {
             proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, length, int32_value);
         }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, "%d", int32_value);
+        }
         break;
 
     case PROTOBUF_TYPE_SINT64:
@@ -724,6 +816,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         }
         if (hf_id_ptr) {
             proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, length, int64_value);
+        }
+        if (field_desc && dumper) {
+            json_dumper_value_anyf(dumper, "%" PRId64, int64_value);
         }
         break;
 
@@ -755,7 +850,8 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
 /* add all possible values according to field types. */
 static void
 protobuf_try_dissect_field_value_on_multi_types(proto_tree *value_tree, tvbuff_t *tvb, guint offset, guint length,
-    packet_info *pinfo, proto_item *ti_field, int* field_types, const guint64 value, const gchar* prepend_text)
+    packet_info *pinfo, proto_item *ti_field, int* field_types, const guint64 value, const gchar* prepend_text,
+    json_dumper *dumper)
 {
     int i;
 
@@ -764,14 +860,15 @@ protobuf_try_dissect_field_value_on_multi_types(proto_tree *value_tree, tvbuff_t
     }
 
     for (i = 0; field_types[i] != PROTOBUF_TYPE_NONE; ++i) {
-        protobuf_dissect_field_value(value_tree, tvb, offset, length, pinfo, ti_field, field_types[i], value, prepend_text, NULL, FALSE);
+        protobuf_dissect_field_value(value_tree, tvb, offset, length, pinfo, ti_field, field_types[i], value, prepend_text, NULL, FALSE, dumper);
         prepend_text = ",";
     }
 }
 
-static guint
+static gboolean
 dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_info *pinfo, proto_tree *protobuf_tree,
-    const PbwDescriptor* message_desc, gboolean is_top_level, const PbwFieldDescriptor** field_desc_ptr)
+    const PbwDescriptor* message_desc, gboolean is_top_level, const PbwFieldDescriptor** field_desc_ptr,
+    const PbwFieldDescriptor* prev_field_desc, json_dumper *dumper)
 {
     guint64 tag_value; /* tag value = (field_number << 3) | wire_type */
     guint tag_length; /* how many bytes this tag has */
@@ -786,7 +883,8 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     proto_tree *value_tree;
     const gchar* field_name = NULL;
     int field_type = -1;
-    gboolean is_packed_repeated = FALSE;
+    gboolean is_packed = FALSE;
+    gboolean is_repeated = FALSE;
     const PbwFieldDescriptor* field_desc = NULL;
 
     /* A protocol buffer message is a series of key-value pairs. The binary version of a message just uses
@@ -826,8 +924,8 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
             *field_desc_ptr = field_desc;
             field_name = pbw_FieldDescriptor_name(field_desc);
             field_type = pbw_FieldDescriptor_type(field_desc);
-            is_packed_repeated = pbw_FieldDescriptor_is_packed(field_desc)
-                && pbw_FieldDescriptor_is_repeated(field_desc);
+            is_packed = pbw_FieldDescriptor_is_packed(field_desc);
+            is_repeated = pbw_FieldDescriptor_is_repeated(field_desc);
         }
     }
 
@@ -914,18 +1012,34 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     value_tree = proto_item_add_subtree(ti_value, ett_protobuf_value);
 
     if (field_desc) {
-        if (is_packed_repeated) {
+        if (dumper) {
+            if (prev_field_desc == NULL || pbw_FieldDescriptor_number(prev_field_desc) != (int) field_number) {
+                /* end JSON array if previous field is repeated field */
+                if (prev_field_desc && pbw_FieldDescriptor_is_repeated(prev_field_desc)) {
+                    json_dumper_end_array(dumper);
+                }
+
+                /* set JSON name if it is the first of an unpacked repeated field, or an unrepeated field */
+                json_dumper_set_member_name(dumper, field_name);
+
+                /* begin JSON array if it is the first of a repeated field */
+                if (is_repeated) {
+                    json_dumper_begin_array(dumper);
+                }
+            }
+        }
+        if (is_repeated && is_packed) {
             dissect_packed_repeated_field_values(tvb, *offset, value_length, pinfo, ti_field,
-                wire_type, field_type, "", field_desc);
+                wire_type, field_type, "", field_desc, dumper);
         } else {
             protobuf_dissect_field_value(value_tree, tvb, *offset, value_length, pinfo, ti_field, field_type, value_uint64, "", field_desc,
-                                         is_top_level);
+                                         is_top_level, dumper);
         }
     } else {
         if (show_all_possible_field_types) {
             /* try dissect every possible field type */
             protobuf_try_dissect_field_value_on_multi_types(value_tree, tvb, *offset, value_length, pinfo,
-                ti_field, protobuf_wire_to_field_type[wire_type], value_uint64, "");
+                ti_field, protobuf_wire_to_field_type[wire_type], value_uint64, "", dumper);
         } else {
             field_type = (wire_type == PROTOBUF_WIRETYPE_LENGTH_DELIMITED)
                 /* print string at least for length-delimited */
@@ -935,7 +1049,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
             int field_types[] = { field_type, PROTOBUF_TYPE_NONE };
 
             protobuf_try_dissect_field_value_on_multi_types(value_tree, tvb, *offset, value_length, pinfo,
-                ti_field, field_types, value_uint64, "");
+                ti_field, field_types, value_uint64, "", dumper);
         }
     }
 
@@ -976,7 +1090,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
  */
 static void
 add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info* pinfo, proto_tree* message_tree,
-    const PbwDescriptor* message_desc, int* parsed_fields, int parsed_fields_count)
+    const PbwDescriptor* message_desc, int* parsed_fields, int parsed_fields_count, json_dumper *dumper)
 {
     const PbwFieldDescriptor* field_desc;
     const gchar* field_name, * field_full_name, * enum_value_name, * string_value;
@@ -1083,6 +1197,10 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
         string_value = NULL;
         size = 0;
 
+        if (dumper) {
+            json_dumper_set_member_name(dumper, field_name);
+        }
+
         switch (field_type)
         {
         case PROTOBUF_TYPE_INT32:
@@ -1093,6 +1211,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             proto_item_append_text(ti_field, " %d", int32_value);
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, 0, int32_value);
+            }
+            if (dumper) {
+                json_dumper_value_anyf(dumper, "%d", int32_value);
             }
             break;
 
@@ -1105,6 +1226,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, 0, int64_value);
             }
+            if (dumper) {
+                json_dumper_value_anyf(dumper, "\"%" PRId64 "\"", int64_value);
+            }
             break;
 
         case PROTOBUF_TYPE_UINT32:
@@ -1114,6 +1238,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             proto_item_append_text(ti_field, " %u", uint32_value);
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_uint(pbf_tree, *hf_id_ptr, tvb, offset, 0, uint32_value);
+            }
+            if (dumper) {
+                json_dumper_value_anyf(dumper, "%u", uint32_value);
             }
             break;
 
@@ -1125,6 +1252,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_uint64(pbf_tree, *hf_id_ptr, tvb, offset, 0, uint64_value);
             }
+            if (dumper) {
+                json_dumper_value_anyf(dumper, "\"%" PRIu64 "\"", uint64_value);
+            }
             break;
 
         case PROTOBUF_TYPE_BOOL:
@@ -1133,6 +1263,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             proto_item_append_text(ti_field, " %s", bool_value ? "true" : "false");
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_boolean(pbf_tree, *hf_id_ptr, tvb, offset, 0, bool_value);
+            }
+            if (dumper) {
+                json_dumper_value_anyf(dumper, bool_value ? "true" : "false");
             }
             break;
 
@@ -1143,6 +1276,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_double(pbf_tree, *hf_id_ptr, tvb, offset, 0, double_value);
             }
+            if (dumper) {
+                json_dumper_value_double(dumper, double_value);
+            }
             break;
 
         case PROTOBUF_TYPE_FLOAT:
@@ -1152,11 +1288,19 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_float(pbf_tree, *hf_id_ptr, tvb, offset, 0, float_value);
             }
+            if (dumper) {
+                json_dumper_value_anyf(dumper, "%f", float_value);
+            }
             break;
 
         case PROTOBUF_TYPE_BYTES:
             string_value = pbw_FieldDescriptor_default_value_string(field_desc, &size);
             DISSECTOR_ASSERT_HINT(has_default_value && string_value, "Bytes field must have default value!");
+            if (dumper) {
+                json_dumper_begin_base64(dumper);
+                json_dumper_write_base64(dumper, (const guchar *)string_value, size);
+                json_dumper_end_base64(dumper);
+            }
             if (!dissect_bytes_as_string) {
                 ti_value = proto_tree_add_bytes_with_length(field_tree, hf_protobuf_value_data, tvb, offset, 0, (const guint8*) string_value, size);
                 proto_item_append_text(ti_field, " (%d bytes)", size);
@@ -1178,6 +1322,10 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
             if (hf_id_ptr) {
                 ti_pbf = proto_tree_add_string(pbf_tree, *hf_id_ptr, tvb, offset, 0, string_value);
             }
+            if (dumper && field_type == PROTOBUF_TYPE_STRING) {
+                /* JSON view will ignore the dissect_bytes_as_string option */
+                json_dumper_value_string(dumper, string_value);
+            }
             break;
 
         case PROTOBUF_TYPE_ENUM:
@@ -1194,6 +1342,9 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
                 }
                 if (hf_id_ptr) {
                     ti_pbf = proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, 0, int32_value);
+                }
+                if (dumper) {
+                    json_dumper_value_string(dumper, enum_value_name);
                 }
                 break;
             } else {
@@ -1228,13 +1379,14 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info*
 
 static void
 dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo, proto_tree *protobuf_tree,
-    const PbwDescriptor* message_desc, gboolean is_top_level)
+    const PbwDescriptor* message_desc, gboolean is_top_level, json_dumper *dumper)
 {
     proto_tree *message_tree;
     proto_item *ti_message, *ti;
     const gchar* message_name = "<UNKNOWN> Message Type";
     guint max_offset = offset + length;
     const PbwFieldDescriptor* field_desc;
+    const PbwFieldDescriptor* prev_field_desc = NULL;
     int* parsed_fields = NULL; /* store parsed field numbers. end with NULL */
     int parsed_fields_count = 0;
     int field_count = 0;
@@ -1284,21 +1436,38 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
         proto_item_set_hidden(ti);
     }
 
+    /* create object for json */
+    if (message_desc && dumper) {
+        json_dumper_begin_object(dumper);
+    }
+
     /* each time we dissect one protobuf field. */
     while (offset < max_offset)
     {
         field_desc = NULL;
-        if (!dissect_one_protobuf_field(tvb, &offset, max_offset - offset, pinfo, message_tree, message_desc, is_top_level, &field_desc))
+        if (!dissect_one_protobuf_field(tvb, &offset, max_offset - offset, pinfo, message_tree, message_desc,
+            is_top_level, &field_desc, prev_field_desc, dumper))
             break;
 
         if (parsed_fields && field_desc) {
             parsed_fields[parsed_fields_count++] = pbw_FieldDescriptor_number(field_desc);
         }
+
+        prev_field_desc = field_desc;
+    }
+
+    if (dumper && prev_field_desc && pbw_FieldDescriptor_is_repeated(prev_field_desc)) {
+        /* The last field is repeated field, we close the JSON array */
+        json_dumper_end_array(dumper);
     }
 
     /* add default values for missing fields */
     if (add_default_value && field_count > 0) {
-        add_missing_fields_with_default_values(tvb, offset, pinfo, message_tree, message_desc, parsed_fields, parsed_fields_count);
+        add_missing_fields_with_default_values(tvb, offset, pinfo, message_tree, message_desc, parsed_fields, parsed_fields_count, dumper);
+    }
+
+    if (message_desc && dumper) {
+        json_dumper_end_object(dumper);
     }
 
     if (parsed_fields) {
@@ -1331,11 +1500,16 @@ static int
 dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *ti;
-    proto_tree *protobuf_tree;
+    proto_tree *protobuf_tree, *protobuf_json_tree;
     guint offset = 0;
     guint i;
     const PbwDescriptor* message_desc = NULL;
     const gchar* data_str = NULL;
+    gchar *json_str, *p, *q;
+    json_dumper dumper = {
+        .output_string = (display_json_mapping ? g_string_new(NULL) : NULL),
+        .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT,
+    };
 
     /* initialize only the first time the protobuf dissector is called */
     if (!protobuf_dissector_called) {
@@ -1425,7 +1599,30 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
-        protobuf_tree, message_desc, pinfo->ptype == PT_UDP);
+        protobuf_tree, message_desc, pinfo->ptype == PT_UDP, (message_desc ? &dumper : NULL));
+
+    if (display_json_mapping && message_desc && json_dumper_finish(&dumper)) {
+        ti = proto_tree_add_item(tree, proto_protobuf_json_mapping, tvb, 0, -1, ENC_NA);
+        protobuf_json_tree = proto_item_add_subtree(ti, ett_protobuf_json);
+
+        json_str = g_string_free(dumper.output_string, FALSE);
+        if (json_str != NULL) {
+            p = json_str;
+            q = NULL;
+            /* add each line of json to the protobuf_json_tree */
+            do {
+                q = strchr(p, '\n');
+                if (q != NULL) {
+                    *(q++) = '\0'; /* replace the '\n' to '\0' */
+                } /* else (q == NULL) means this is the last line of the JSON */
+                proto_tree_add_string_format(protobuf_json_tree, hf_json_mapping_line, tvb, 0, -1, p, "%s", p);
+                p = q;
+                q = NULL;
+            } while (p);
+
+            g_free(json_str);
+        }
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -1883,12 +2080,24 @@ proto_register_protobuf(void)
         }
     };
 
+    static hf_register_info json_hf[] = {
+        { &hf_json_mapping_line,
+            { "JSON Mapping Line", "protobuf_json.line",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+              "One line of the protobuf json mapping", HFILL }
+        }
+    };
+
     static gint *ett[] = {
         &ett_protobuf,
         &ett_protobuf_message,
         &ett_protobuf_field,
         &ett_protobuf_value,
         &ett_protobuf_packed_repeated
+    };
+
+    static gint *ett_json[] = {
+        &ett_protobuf_json
     };
 
     /* Setup protocol expert items */
@@ -1957,9 +2166,13 @@ proto_register_protobuf(void)
     uat_t* protobuf_udp_message_types_uat;
 
     proto_protobuf = proto_register_protocol("Protocol Buffers", "ProtoBuf", "protobuf");
+    proto_protobuf_json_mapping = proto_register_protocol("Protocol Buffers (as JSON Mapping View)", "ProtoBuf_JSON", "protobuf_json");
 
     proto_register_field_array(proto_protobuf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    proto_register_field_array(proto_protobuf_json_mapping, json_hf, array_length(json_hf));
+    proto_register_subtree_array(ett_json, array_length(ett_json));
 
     protobuf_module = prefs_register_protocol(proto_protobuf, proto_reg_handoff_protobuf);
 
@@ -2042,6 +2255,13 @@ proto_register_protobuf(void)
     prefs_register_uat_preference(protobuf_module, "udp_message_types", "Protobuf UDP message types",
         "Specify the Protobuf message type of data on certain UDP ports.",
         protobuf_udp_message_types_uat);
+
+    prefs_register_bool_preference(protobuf_module, "display_json_mapping",
+        "Display JSON mapping for Protobuf message",
+        "Specifies that the JSON text of the "
+        "Protobuf message should be displayed "
+        "in addition to the dissection tree",
+        &display_json_mapping);
 
     /* Following preferences are for undefined fields, that happened while message type is not specified
        when calling dissect_protobuf(), or message type or field information is not found in search paths
