@@ -312,8 +312,23 @@ static int hf_gtp_mbms_ses_dur_days = -1;
 static int hf_gtp_mbms_ses_dur_s = -1;
 static int hf_gtp_no_of_mbms_sa_codes = -1;
 static int hf_gtp_mbms_sa_code = -1;
+static int hf_gtp_trace_ref2 = -1;
+static int hf_gtp_trace_rec_session_ref = -1;
+static int hf_gtp_trace_triggers_ggsn_pdp = -1;
+static int hf_gtp_trace_triggers_ggsn_mbms = -1;
+static int hf_gtp_trace_triggers_ggsn = -1;
+static int hf_gtp_trace_depth = -1;
+static int hf_gtp_trace_loi_ggsn_gmb = -1;
+static int hf_gtp_trace_loi_ggsn_gi = -1;
+static int hf_gtp_trace_loi_ggsn_gn = -1;
+static int hf_gtp_trace_loi_ggsn = -1;
+static int hf_gtp_trace_activity_control = -1;
 static int hf_gtp_hop_count = -1;
 static int hf_gtp_mbs_2g_3g_ind = -1;
+static int hf_gtp_trace_triggers_bm_sc_mbms = -1;
+static int hf_gtp_trace_triggers_bm_sc = -1;
+static int hf_gtp_trace_loi_bm_sc_gmb = -1;
+static int hf_gtp_trace_loi_bm_sc = -1;
 static int hf_gtp_time_2_dta_tr = -1;
 static int hf_gtp_target_lac = -1;
 static int hf_gtp_target_rac = -1;
@@ -475,6 +490,10 @@ static gint ett_gtp_utran_cont = -1;
 static gint ett_gtp_nr_ran_cont = -1;
 static gint ett_gtp_pdcp_no_conf = -1;
 static gint ett_pdu_session_cont = -1;
+static gint ett_gtp_trace_triggers_ggsn = -1;
+static gint ett_gtp_trace_loi_ggsn = -1;
+static gint ett_gtp_trace_triggers_bm_sc = -1;
+static gint ett_gtp_trace_loi_bm_sc = -1;
 static gint ett_gtp_bss_cont = -1;
 static gint ett_gtp_lst_set_up_pfc = -1;
 
@@ -7211,12 +7230,46 @@ decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * UMTS:        29.060 v6.11.0, chapter 7.7.62
  * Additional Trace Info
  */
+static const true_false_string gtp_trace_tfs = {
+  "Should be traced",
+  "Should not be traced",
+};
+
+static const value_string gtp_trace_depth_vals[] = {
+  { 0, "minimum" },
+  { 1, "medium" },
+  { 2, "maximum" },
+  { 3, "minimumWithoutVendorSpecificExtension" },
+  { 4, "mediumWithoutVendorSpecificExtension" },
+  { 5, "maximumWithoutVendorSpecificExtension" },
+  { 0, NULL }
+};
+
+static const value_string gtp_trace_activity_control_vals[] = {
+  { 0, "Trace Deactivation"},
+  { 1, "Trace Activation"},
+  { 0, NULL}
+};
+
 static int
 decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
     proto_tree *ext_tree;
+
+    static int * const trigger_flags[] = {
+        &hf_gtp_trace_triggers_ggsn_mbms,
+        &hf_gtp_trace_triggers_ggsn_pdp,
+        NULL
+    };
+
+    static int * const loi_flags[] = {
+        &hf_gtp_trace_loi_ggsn_gmb,
+        &hf_gtp_trace_loi_ggsn_gi,
+        &hf_gtp_trace_loi_ggsn_gn,
+        NULL
+    };
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ADD_TRS_INF], NULL,
@@ -7225,8 +7278,17 @@ decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    proto_tree_add_item(ext_tree, hf_gtp_trace_ref2, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item(ext_tree, hf_gtp_trace_rec_session_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_bitmask(ext_tree, tvb, offset, hf_gtp_trace_triggers_ggsn, ett_gtp_trace_triggers_ggsn, trigger_flags, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_trace_depth, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_bitmask(ext_tree, tvb, offset, hf_gtp_trace_loi_ggsn, ett_gtp_trace_loi_ggsn, loi_flags, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_trace_activity_control, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -7371,6 +7433,16 @@ decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     guint16     length;
     proto_tree *ext_tree;
 
+    static int * const trigger_flags[] = {
+        &hf_gtp_trace_triggers_bm_sc_mbms,
+        NULL
+    };
+
+    static int * const loi_flags[] = {
+        &hf_gtp_trace_loi_bm_sc_gmb,
+        NULL
+    };
+
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ADD_MBMS_TRS_INF], NULL,
                             val_to_str_ext_const(GTP_EXT_ADD_MBMS_TRS_INF, &gtpv1_val_ext, "Unknown"));
@@ -7378,8 +7450,28 @@ decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* XXX: There is clearly an error in TS 29.060 V17.1.0 and earlier.
+     * In Figure 7.7.68.1 the octet column has a gap and is not aligned,
+     * octets 7-8 should be for the Trace Recording Session Reference, other
+     * values should be moved up a row, and there should be a value for
+     * the Trace Activity Control as octet 12, making the IE length 9,
+     * as with 7.7.62 Additional Trace Info.
+     * Unfortunately the mistake is carried over into the the length field
+     * elsewhere in the spec, such as in Table 37.
+     */
+    proto_tree_add_item(ext_tree, hf_gtp_trace_ref2, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item(ext_tree, hf_gtp_trace_rec_session_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_bitmask(ext_tree, tvb, offset, hf_gtp_trace_triggers_bm_sc, ett_gtp_trace_triggers_bm_sc, trigger_flags, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_trace_depth, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_bitmask(ext_tree, tvb, offset, hf_gtp_trace_loi_bm_sc, ett_gtp_trace_loi_bm_sc, loi_flags, ENC_BIG_ENDIAN);
+    if(length > 8){
+        offset++;
+        proto_tree_add_item(ext_tree, hf_gtp_trace_activity_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
 
     return 3 + length;
 
@@ -11571,6 +11663,61 @@ proto_register_gtp(void)
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
+        {&hf_gtp_trace_ref2,
+         { "Trace Reference2", "gtp.trace_ref2",
+           FT_UINT24, BASE_HEX, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_rec_session_ref,
+         { "Trace Recording Session Reference", "gtp.trace_rec_session_ref",
+           FT_UINT16, BASE_HEX, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_triggers_ggsn_mbms,
+         { "MBMS Context", "gtp.trace_triggers.ggsn.mbms",
+           FT_BOOLEAN, 8, TFS(&gtp_trace_tfs), 0x2,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_triggers_ggsn_pdp,
+         { "PDP Context", "gtp.trace_triggers.ggsn.pdp",
+           FT_BOOLEAN, 8, TFS(&gtp_trace_tfs), 0x1,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_triggers_ggsn,
+         { "Triggering events in GGSN", "gtp.trace_triggers.ggsn",
+           FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_depth,
+         { "Trace Depth", "gtp.trace_depth",
+           FT_UINT8, BASE_DEC, VALS(gtp_trace_depth_vals), 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_loi_ggsn_gmb,
+         { "Gmb", "gtp.trace_loi.ggsn.gmb",
+           FT_BOOLEAN, 8, TFS(&gtp_trace_tfs), 0x4,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_loi_ggsn_gi,
+         { "Gi", "gtp.trace_loi.ggsn.gi",
+           FT_BOOLEAN, 8, TFS(&gtp_trace_tfs), 0x2,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_loi_ggsn_gn,
+         { "Gn", "gtp.trace_loi.ggsn.gn",
+           FT_BOOLEAN, 8, TFS(&gtp_trace_tfs), 0x1,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_loi_ggsn,
+         { "List of interfaces in GGSN", "gtp.trace_loi.ggsn",
+           FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_activity_control,
+         { "Trace Activity Control", "gtp.trace_activity_control",
+           FT_UINT8, BASE_DEC, VALS(gtp_trace_activity_control_vals), 0,
+           NULL, HFILL}
+        },
         {&hf_gtp_hop_count,
          { "Hop Counter", "gtp.hop_count",
            FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11579,6 +11726,26 @@ proto_register_gtp(void)
         {&hf_gtp_mbs_2g_3g_ind,
          { "MBMS 2G/3G Indicator", "gtp.mbs_2g_3g_ind",
            FT_UINT8, BASE_DEC, VALS(gtp_mbs_2g_3g_ind_vals), 0x0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_triggers_bm_sc_mbms,
+         { "MBMS Multicast service activation", "gtp.trace_triggers.bm_sc.mbms",
+           FT_BOOLEAN, 8, TFS(&gtp_trace_tfs), 0x1,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_triggers_bm_sc,
+         { "Triggering events in BM-SC", "gtp.trace_triggers.bm_sc",
+           FT_UINT8, BASE_HEX, NULL, 0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_loi_bm_sc_gmb,
+         { "Gmb", "gtp.trace_loi.bm_sc.gmb",
+           FT_BOOLEAN, 8, TFS(&gtp_trace_tfs), 0x1,
+           NULL, HFILL}
+        },
+        {&hf_gtp_trace_loi_bm_sc,
+         { "List of interfaces in BM-SC", "gtp.trace_loi.bm_sc",
+           FT_UINT8, BASE_HEX, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_time_2_dta_tr,
@@ -12181,7 +12348,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    33
+#define GTP_NUM_INDIVIDUAL_ELEMS    37
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -12214,9 +12381,13 @@ proto_register_gtp(void)
     ett_gtp_array[27] = &ett_gtp_nr_ran_cont;
     ett_gtp_array[28] = &ett_gtp_pdcp_no_conf;
     ett_gtp_array[29] = &ett_pdu_session_cont;
-    ett_gtp_array[30] = &ett_gtp_bss_cont;
-    ett_gtp_array[31] = &ett_gtp_lst_set_up_pfc;
-    ett_gtp_array[32] = &ett_nrup;
+    ett_gtp_array[30] = &ett_gtp_trace_triggers_ggsn;
+    ett_gtp_array[31] = &ett_gtp_trace_loi_ggsn;
+    ett_gtp_array[32] = &ett_gtp_trace_triggers_bm_sc;
+    ett_gtp_array[33] = &ett_gtp_trace_loi_bm_sc;
+    ett_gtp_array[34] = &ett_gtp_bss_cont;
+    ett_gtp_array[35] = &ett_gtp_lst_set_up_pfc;
+    ett_gtp_array[36] = &ett_nrup;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
