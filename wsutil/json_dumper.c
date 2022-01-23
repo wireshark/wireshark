@@ -45,11 +45,61 @@ enum json_dumper_change {
     JSON_DUMPER_FINISH,
 };
 
+/* JSON Dumper putc */
 static void
-json_puts_string(FILE *fp, const char *str, gboolean dot_to_underscore)
+jd_putc(const json_dumper *dumper, char c)
+{
+    if (dumper->output_file) {
+        fputc(c, dumper->output_file);
+    }
+
+    if (dumper->output_string) {
+        g_string_append_c(dumper->output_string, c);
+    }
+}
+
+/* JSON Dumper puts */
+static void
+jd_puts(const json_dumper *dumper, const char *s)
+{
+    if (dumper->output_file) {
+        fputs(s, dumper->output_file);
+    }
+
+    if (dumper->output_string) {
+        g_string_append(dumper->output_string, s);
+    }
+}
+
+static void
+jd_puts_len(const json_dumper *dumper, const char *s, gsize len)
+{
+    if (dumper->output_file) {
+        fwrite(s, 1, len, dumper->output_file);
+    }
+
+    if (dumper->output_string) {
+        g_string_append_len(dumper->output_string, s, len);
+    }
+}
+
+static void
+jd_vprintf(const json_dumper *dumper, const char *format, va_list args)
+{
+    if (dumper->output_file) {
+        vfprintf(dumper->output_file, format, args);
+    }
+
+    if (dumper->output_string) {
+        g_string_append_vprintf(dumper->output_string, format, args);
+    }
+}
+
+static void
+json_puts_string(const json_dumper *dumper, const char *str, gboolean dot_to_underscore)
 {
     if (!str) {
-        fputs("null", fp);
+        jd_puts(dumper, "null");
         return;
     }
 
@@ -58,25 +108,25 @@ json_puts_string(FILE *fp, const char *str, gboolean dot_to_underscore)
         "u0010", "u0011", "u0012", "u0013", "u0014", "u0015", "u0016", "u0017", "u0018", "u0019", "u001a", "u001b", "u001c", "u001d", "u001e", "u001f"
     };
 
-    fputc('"', fp);
+    jd_putc(dumper, '"');
     for (int i = 0; str[i]; i++) {
         if ((guint)str[i] < 0x20) {
-            fputc('\\', fp);
-            fputs(json_cntrl[(guint)str[i]], fp);
+            jd_putc(dumper, '\\');
+            jd_puts(dumper, json_cntrl[(guint)str[i]]);
         } else if (i > 0 && str[i - 1] == '<' && str[i] == '/') {
             // Convert </script> to <\/script> to avoid breaking web pages.
-            fputs("\\/", fp);
+            jd_puts(dumper, "\\/");
         } else {
             if (str[i] == '\\' || str[i] == '"') {
-                fputc('\\', fp);
+                jd_putc(dumper, '\\');
             }
             if (dot_to_underscore && str[i] == '.')
-                fputc('_', fp);
+                jd_putc(dumper, '_');
             else
-                fputc(str[i], fp);
+                jd_putc(dumper, str[i]);
         }
     }
-    fputc('"', fp);
+    jd_putc(dumper, '"');
 }
 
 /**
@@ -103,7 +153,9 @@ json_dumper_bad(json_dumper *dumper, enum json_dumper_change change,
         /* Console output can be slow, disable log calls to speed up fuzzing. */
         return;
     }
-    fflush(dumper->output_file);
+    if (dumper->output_file) {
+        fflush(dumper->output_file);
+    }
     ws_error("Bad json_dumper state: %s; change=%d type=%d depth=%d prev/curr/next state=%02x %02x %02x",
             what, change, type, dumper->current_depth, states[0], states[1], states[2]);
 }
@@ -173,9 +225,9 @@ static void
 print_newline_indent(const json_dumper *dumper, int depth)
 {
     if ((dumper->flags & JSON_DUMPER_FLAGS_PRETTY_PRINT)) {
-        fputc('\n', dumper->output_file);
+        jd_putc(dumper, '\n');
         for (int i = 0; i < depth; i++) {
-            fputs("  ", dumper->output_file);
+            jd_puts(dumper, "  ");
         }
     }
 }
@@ -211,7 +263,7 @@ prepare_token(json_dumper *dumper)
     }
 
     if (dumper->state[dumper->current_depth]) {
-        fputc(',', dumper->output_file);
+        jd_putc(dumper, ',');
     }
     print_newline_indent(dumper, dumper->current_depth);
 }
@@ -227,7 +279,7 @@ finish_token(const json_dumper *dumper, char close_char)
     if (dumper->state[dumper->current_depth]) {
         print_newline_indent(dumper, dumper->current_depth - 1);
     }
-    fputc(close_char, dumper->output_file);
+    jd_putc(dumper, close_char);
 }
 
 void
@@ -238,7 +290,7 @@ json_dumper_begin_object(json_dumper *dumper)
     }
 
     prepare_token(dumper);
-    fputc('{', dumper->output_file);
+    jd_putc(dumper, '{');
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_OBJECT;
     ++dumper->current_depth;
@@ -253,10 +305,10 @@ json_dumper_set_member_name(json_dumper *dumper, const char *name)
     }
 
     prepare_token(dumper);
-    json_puts_string(dumper->output_file, name, dumper->flags & JSON_DUMPER_DOT_TO_UNDERSCORE);
-    fputc(':', dumper->output_file);
+    json_puts_string(dumper, name, dumper->flags & JSON_DUMPER_DOT_TO_UNDERSCORE);
+    jd_putc(dumper, ':');
     if ((dumper->flags & JSON_DUMPER_FLAGS_PRETTY_PRINT)) {
-        fputc(' ', dumper->output_file);
+        jd_putc(dumper, ' ');
     }
 
     dumper->state[dumper->current_depth - 1] |= JSON_DUMPER_HAS_NAME;
@@ -282,7 +334,7 @@ json_dumper_begin_array(json_dumper *dumper)
     }
 
     prepare_token(dumper);
-    fputc('[', dumper->output_file);
+    jd_putc(dumper, '[');
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_ARRAY;
     ++dumper->current_depth;
@@ -309,7 +361,7 @@ json_dumper_value_string(json_dumper *dumper, const char *value)
     }
 
     prepare_token(dumper);
-    json_puts_string(dumper->output_file, value, FALSE);
+    json_puts_string(dumper, value, FALSE);
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
 }
@@ -324,9 +376,9 @@ json_dumper_value_double(json_dumper *dumper, double value)
     prepare_token(dumper);
     gchar buffer[G_ASCII_DTOSTR_BUF_SIZE] = { 0 };
     if (isfinite(value) && g_ascii_dtostr(buffer, G_ASCII_DTOSTR_BUF_SIZE, value) && buffer[0]) {
-        fputs(buffer, dumper->output_file);
+        jd_puts(dumper, buffer);
     } else {
-        fputs("null", dumper->output_file);
+        jd_puts(dumper, "null");
     }
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
@@ -340,7 +392,7 @@ json_dumper_value_va_list(json_dumper *dumper, const char *format, va_list ap)
     }
 
     prepare_token(dumper);
-    vfprintf(dumper->output_file, format, ap);
+    jd_vprintf(dumper, format, ap);
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
 }
@@ -362,7 +414,7 @@ json_dumper_finish(json_dumper *dumper)
         return FALSE;
     }
 
-    fputc('\n', dumper->output_file);
+    jd_putc(dumper, '\n');
     dumper->state[0] = 0;
     return TRUE;
 }
@@ -379,7 +431,7 @@ json_dumper_begin_base64(json_dumper *dumper)
 
     prepare_token(dumper);
 
-    fputc('"', dumper->output_file);
+    jd_putc(dumper, '"');
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_BASE64;
     ++dumper->current_depth;
@@ -399,7 +451,7 @@ json_dumper_write_base64(json_dumper* dumper, const guchar *data, size_t len)
     while (len > 0) {
         gsize chunk_size = len < CHUNK_SIZE ? len : CHUNK_SIZE;
         gsize output_size = g_base64_encode_step(data, chunk_size, FALSE, buf, &dumper->base64_state, &dumper->base64_save);
-        fwrite(buf, 1, output_size, dumper->output_file);
+        jd_puts_len(dumper, buf, output_size);
         data += chunk_size;
         len -= chunk_size;
     }
@@ -418,9 +470,9 @@ json_dumper_end_base64(json_dumper *dumper)
     gsize wrote;
 
     wrote = g_base64_encode_close(FALSE, buf, &dumper->base64_state, &dumper->base64_save);
-    fwrite(buf, 1, wrote, dumper->output_file);
+    jd_puts_len(dumper, buf, wrote);
 
-    fputc('"', dumper->output_file);
+    jd_putc(dumper, '"');
 
     --dumper->current_depth;
 }

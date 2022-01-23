@@ -25,7 +25,7 @@ extern "C" {
  * Example:
  *
  *  json_dumper dumper = {
- *      .output_file = stdout,
+ *      .output_file = stdout, // or .output_string = g_string_new(NULL)
  *      .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT,
  *  };
  *  json_dumper_begin_object(&dumper);
@@ -51,7 +51,8 @@ extern "C" {
 /** Maximum object/array nesting depth. */
 #define JSON_DUMPER_MAX_DEPTH   1100
 typedef struct json_dumper {
-    FILE   *output_file;    /**< Output file, must be set. */
+    FILE    *output_file;    /**< Output file. If it is not NULL, JSON will be dumped in the file. */
+    GString *output_string;  /**< Output GLib strings. If it is not NULL, JSON will be dumped in the string. */
 #define JSON_DUMPER_FLAGS_PRETTY_PRINT  (1 << 0)    /* Enable pretty printing. */
 #define JSON_DUMPER_DOT_TO_UNDERSCORE   (1 << 1)    /* Convert dots to underscores in keys */
     int     flags;
