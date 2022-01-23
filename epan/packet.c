@@ -2637,7 +2637,8 @@ register_dissector_table(const char *name, const char *ui_name, const int proto,
 }
 
 dissector_table_t register_custom_dissector_table(const char *name,
-	const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func)
+	const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func,
+	GDestroyNotify key_destroy_func)
 {
 	dissector_table_t	sub_dissectors;
 
@@ -2652,7 +2653,7 @@ dissector_table_t register_custom_dissector_table(const char *name,
 	sub_dissectors->hash_func = hash_func;
 	sub_dissectors->hash_table = g_hash_table_new_full(hash_func,
 							       key_equal_func,
-							       &g_free,
+							       key_destroy_func,
 							       &g_free);
 
 	sub_dissectors->dissector_handles = NULL;

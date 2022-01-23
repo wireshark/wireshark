@@ -59,6 +59,10 @@ guint cose_param_key_hash(gconstpointer ptr);
  */
 gboolean cose_param_key_equal(gconstpointer a, gconstpointer b);
 
+/** Compatible with GDestroyNotify signature.
+ */
+void cose_param_key_free(gpointer ptr);
+
 /// User data for header/key-parameter dissectors
 typedef struct {
     /// Principal value (alg or kty) of the map, if defined.

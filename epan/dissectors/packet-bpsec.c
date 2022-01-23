@@ -490,8 +490,8 @@ void proto_register_bpsec(void) {
     expert_module_t *expert = expert_register_protocol(proto_bpsec);
     expert_register_field_array(expert, expertitems, array_length(expertitems));
 
-    param_dissectors = register_custom_dissector_table("bpsec.param", "BPSec Parameter", proto_bpsec, bpsec_id_hash, bpsec_id_equal);
-    result_dissectors = register_custom_dissector_table("bpsec.result", "BPSec Result", proto_bpsec, bpsec_id_hash, bpsec_id_equal);
+    param_dissectors = register_custom_dissector_table("bpsec.param", "BPSec Parameter", proto_bpsec, bpsec_id_hash, bpsec_id_equal, g_free);
+    result_dissectors = register_custom_dissector_table("bpsec.result", "BPSec Result", proto_bpsec, bpsec_id_hash, bpsec_id_equal, g_free);
 
     prefs_register_protocol(proto_bpsec, reinit_bpsec);
 }

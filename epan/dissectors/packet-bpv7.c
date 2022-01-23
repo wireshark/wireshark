@@ -2176,7 +2176,7 @@ void proto_register_bpv7(void) {
     expert_register_field_array(expert, expertitems, array_length(expertitems));
 
     register_dissector("bpv7", dissect_bp, proto_bp);
-    block_dissectors = register_custom_dissector_table("bpv7.block_type", "BPv7 Block", proto_bp, g_int64_hash, g_int64_equal);
+    block_dissectors = register_custom_dissector_table("bpv7.block_type", "BPv7 Block", proto_bp, g_int64_hash, g_int64_equal, g_free);
     // Blocks don't count as protocol layers
     proto_blocktype = proto_register_protocol_in_name_only("BPv7 Block Type", "Block Type", "bpv7.block_type", proto_bp, FT_PROTOCOL);
 
@@ -2249,7 +2249,7 @@ void proto_register_bpv7(void) {
         "bpv7.admin_rec" /* abbrev */
     );
     handle_admin = create_dissector_handle(dissect_payload_admin, proto_bp_admin);
-    admin_dissectors = register_custom_dissector_table("bpv7.admin_record_type", "BPv7 Administrative Record Type", proto_bp_admin, g_int64_hash, g_int64_equal);
+    admin_dissectors = register_custom_dissector_table("bpv7.admin_record_type", "BPv7 Administrative Record Type", proto_bp_admin, g_int64_hash, g_int64_equal, g_free);
     proto_admintype = proto_register_protocol_in_name_only("BPv7 Administrative Record Type", "Admin Type", "bpv7.admin_record_type", proto_bp, FT_PROTOCOL);
 }
 

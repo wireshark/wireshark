@@ -178,7 +178,8 @@ WS_DLL_PUBLIC dissector_table_t register_dissector_table(const char *name,
  * to store subdissectors.
  */
 WS_DLL_PUBLIC dissector_table_t register_custom_dissector_table(const char *name,
-    const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func);
+    const char *ui_name, const int proto, GHashFunc hash_func, GEqualFunc key_equal_func,
+    GDestroyNotify key_destroy_func);
 
 /** Register a dissector table alias.
  * This is for dissectors whose original name has changed, e.g. SSL to TLS.
