@@ -307,6 +307,8 @@ static int hf_gtp_cmn_flg_nrsn = -1;
 static int hf_gtp_cmn_flg_no_qos_neg = -1;
 static int hf_gtp_cmn_flg_upgrd_qos_sup = -1;
 static int hf_gtp_cmn_flg_dual_addr_bearer_flg = -1;
+static int hf_gtp_linked_nsapi = -1;
+static int hf_gtp_enh_nsapi = -1;
 static int hf_gtp_tmgi = -1;
 static int hf_gtp_mbms_ses_dur_days = -1;
 static int hf_gtp_mbms_ses_dur_s = -1;
@@ -6979,6 +6981,8 @@ decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
 
     guint16     length;
     proto_tree *ext_tree;
+    guint8      enh_nsapi, trans_id;
+    guint32     pdp_type_num, pdp_addr_len, ggsn_addr_len, apn_len;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_MBMS_UE_CTX], NULL,
@@ -6987,8 +6991,66 @@ decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    proto_tree_add_item(ext_tree, hf_gtp_linked_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_uplink_teid_cp, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    enh_nsapi = tvb_get_guint8(tvb, offset);
+    if (enh_nsapi < 128) {
+        proto_tree_add_uint_format_value(ext_tree, hf_gtp_enh_nsapi, tvb, offset, 1, enh_nsapi, "Reserved");
+    } else {
+        proto_tree_add_item(ext_tree, hf_gtp_enh_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_pdp_organization, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_pdp_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdp_type_num);
+    offset++;
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_pdp_address_length, tvb, offset, 1, ENC_BIG_ENDIAN, &pdp_addr_len);
+    offset++;
+    if (pdp_addr_len > 0) {
+        switch (pdp_type_num) {
+        case 0x21:
+            proto_tree_add_item(ext_tree, hf_gtp_pdp_address_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+            break;
+        case 0x57:
+            proto_tree_add_item(ext_tree, hf_gtp_pdp_address_ipv6, tvb, offset, 16, ENC_NA);
+            break;
+        default:
+            break;
+        }
+        offset += pdp_addr_len;
+    }
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN, &ggsn_addr_len);
+    offset++;
+
+    switch (ggsn_addr_len) {
+    case 4:
+        proto_tree_add_item(ext_tree, hf_gtp_ggsn_address_for_control_plane_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
+    case 16:
+        proto_tree_add_item(ext_tree, hf_gtp_ggsn_address_for_control_plane_ipv6, tvb, offset, 16, ENC_NA);
+        break;
+    default:
+        /* XXX: Expert info? */
+        break;
+    }
+    offset += ggsn_addr_len;
+
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_apn_length, tvb, offset, 1, ENC_BIG_ENDIAN, &apn_len);
+    offset++;
+    decode_apn(tvb, offset, apn_len, ext_tree, NULL);
+    offset += apn_len;
+    /*
+     * The Transaction Identifier is the 4 or 12 bit Transaction Identifier used in the 3GPP TS 24.008 [5] Session Management
+     * messages which control this PDP Context. If the length of the Transaction Identifier is 4 bit, the second octet shall be
+     * set to all zeros. The encoding is defined in 3GPP TS 24.007 [3]. The latest Transaction Identifier sent from SGSN to
+     * MS is stored in the MBMS context IE.
+     * NOTE: Bit 5-8 of the first octet in the encoding defined in 3GPP TS 24.007 [3] is mapped into bit 1-4 of the first
+     * octet in this field.
+     */
+    trans_id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(ext_tree, hf_gtp_transaction_identifier, tvb, offset, 2, trans_id);
 
     return 3 + length;
 
@@ -7408,6 +7470,7 @@ decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
 
     guint16     length;
     proto_tree *ext_tree;
+    guint8      enh_nsapi;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ENH_NSAPI], NULL, val_to_str_ext_const(GTP_EXT_ENH_NSAPI, &gtpv1_val_ext, "Unknown"));
@@ -7415,8 +7478,12 @@ decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    enh_nsapi = tvb_get_guint8(tvb, offset);
+    if (enh_nsapi < 128) {
+        proto_tree_add_uint_format_value(ext_tree, hf_gtp_enh_nsapi, tvb, offset, 1, enh_nsapi, "Reserved");
+    } else {
+        proto_tree_add_item(ext_tree, hf_gtp_enh_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
 
     return 3 + length;
 
@@ -11635,6 +11702,16 @@ proto_register_gtp(void)
         {&hf_gtp_cmn_flg_dual_addr_bearer_flg,
          { "Dual Address Bearer Flag", "gtp.cmn_flg.dual_addr_bearer_flg",
            FT_BOOLEAN, 8, NULL, 0x80,
+           NULL, HFILL}
+        },
+        {&hf_gtp_linked_nsapi,
+         { "Linked NSAPI", "gtp.linked_nsapi",
+           FT_UINT8, BASE_DEC, NULL, 0xf0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_enh_nsapi,
+         { "Enhanced NSAPI", "gtp.enhanced_nsapi",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         {&hf_gtp_tmgi,
