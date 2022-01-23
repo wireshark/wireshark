@@ -4407,11 +4407,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The IP Version to use for the dummy IP header</source>
-        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Interface name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4593,6 +4588,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>The dissector to use for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP Version to use for the dummy IP header</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

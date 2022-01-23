@@ -4368,11 +4368,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The IP Version to use for the dummy IP header</source>
-        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Interface name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4554,6 +4549,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>The dissector to use for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP Version to use for the dummy IP header</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

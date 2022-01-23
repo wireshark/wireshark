@@ -4366,11 +4366,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The IP Version to use for the dummy IP header</source>
-        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Interface name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4552,6 +4547,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>The dissector to use for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The IP Version to use for the dummy IP header</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -4109,7 +4109,7 @@ static const value_string usb_products_vals[] = {
     { 0x03f09702, "HP PhotoSmart R742" },
     { 0x03f09802, "PhotoSmart Mz60 series" },
     { 0x03f09902, "PhotoSmart M630 series" },
-    { 0x03f09a02, "PhotoSmart E330 series" },
+    { 0x03f09a02, "HP PhotoSmart E331" },
     { 0x03f09b02, "HP PhotoSmart M547" },
     { 0x03f09b07, "Portable Drive" },
     { 0x03f09c02, "PhotoSmart M440 series" },

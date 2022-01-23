@@ -4407,11 +4407,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The IP Version to use for the dummy IP header</source>
-        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Interface name:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4594,6 +4589,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>The dissector to use for each frame</source>
         <translation>Dissekeraren att använda för varje ram</translation>
+    </message>
+    <message>
+        <source>The IP Version to use for the dummy IP header</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>

@@ -4407,11 +4407,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Versione IP:</translation>
     </message>
     <message>
-        <source>The IP Version to use for the dummy IP header</source>
-        <oldsource>The IP Version for to use for the dummy IP header</oldsource>
-        <translation type="unfinished">La versione IP da utilizzare con l&apos;intestazione IP fittizia</translation>
-    </message>
-    <message>
         <source>Interface name:</source>
         <translation>Nome interfaccia:</translation>
     </message>
@@ -4594,6 +4589,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>The dissector to use for each frame</source>
         <translation>Il decodificatore da utilizzare per ogni frame</translation>
+    </message>
+    <message>
+        <source>The IP Version to use for the dummy IP header</source>
+        <translation>La versione IP da utilizzare con l&apos;intestazione IP fittizia</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
@@ -12922,7 +12921,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Rust Array</source>
-        <translation type="unfinished"></translation>
+        <translation>Array Rust</translation>
     </message>
     <message>
         <source>UTF-8</source>
