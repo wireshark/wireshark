@@ -1861,7 +1861,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
     switch (opttype) {
     case OPTION_CLIENTID:
-        col_append_fstr(pinfo->cinfo, COL_INFO, "CID: %s ", tvb_bytes_to_str(pinfo->pool, tvb, off, optlen));
+        if (optlen > 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "CID: %s ", tvb_bytes_to_str(pinfo->pool, tvb, off, optlen));
+        }
         /* Fall through */
     case OPTION_SERVERID:
     case OPTION_RELAYID:
