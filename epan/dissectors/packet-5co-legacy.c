@@ -693,9 +693,11 @@ dissect_FiveCoLegacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     " (%d bytes to load into flash at offset %d)", unSize, unOffset);
                 break;
             case FLASH_AREA_ANSWER:
-                string_buf = wmem_alloc(wmem_packet_scope(), header_data_length);
-                tvb_get_raw_bytes_as_string(tvb, tcp_data_offset, string_buf, header_data_length - 1);
-                proto_item_append_text(fiveco_data_item, " (%s)", string_buf);
+                if ( header_data_length > 1 ) {
+                    string_buf = wmem_alloc(wmem_packet_scope(), header_data_length);
+                    tvb_get_raw_bytes_as_string(tvb, tcp_data_offset, string_buf, header_data_length - 1);
+                    proto_item_append_text(fiveco_data_item, " (%s)", string_buf);
+                }
                 break;
 
             case WRITE_REGISTER_ANSWER:
