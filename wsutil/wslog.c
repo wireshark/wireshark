@@ -65,9 +65,6 @@
 #define DOMAIN_UNDEFED(domain)    ((domain) == NULL || *(domain) == '\0')
 #define DOMAIN_DEFINED(domain)    (!DOMAIN_UNDEFED(domain))
 
-#define VALID_FATAL_LEVEL(level) \
-        (level >= LOG_LEVEL_WARNING && level <= LOG_LEVEL_ERROR)
-
 /*
  * Note: I didn't measure it but I assume using a string array is faster than
  * a GHashTable for small number N of domains.
@@ -643,12 +640,17 @@ void ws_log_set_noisy_filter(const char *str_filter)
 }
 
 
-void ws_log_set_fatal(enum ws_log_level level)
+enum ws_log_level ws_log_set_fatal(enum ws_log_level level)
 {
-    if (!VALID_FATAL_LEVEL(level))
-        return;
+    if (level <= LOG_LEVEL_NONE || level >= _LOG_LEVEL_LAST)
+        return LOG_LEVEL_NONE;
+    if (level > LOG_LEVEL_ERROR)
+        level = LOG_LEVEL_ERROR;
+    if (level < LOG_LEVEL_WARNING)
+        level = LOG_LEVEL_WARNING;
 
     fatal_log_level = level;
+    return fatal_log_level;
 }
 
 
@@ -657,11 +659,7 @@ enum ws_log_level ws_log_set_fatal_str(const char *str_level)
     enum ws_log_level level;
 
     level = string_to_log_level(str_level);
-    if (!VALID_FATAL_LEVEL(level))
-        return LOG_LEVEL_NONE;
-
-    fatal_log_level = level;
-    return fatal_log_level;
+    return ws_log_set_fatal(level);
 }
 
 

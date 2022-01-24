@@ -155,7 +155,7 @@ void ws_log_set_noisy_filter(const char *str_filter);
  * Level LOG_LEVEL_ERROR is always fatal.
  */
 WS_DLL_PUBLIC
-void ws_log_set_fatal(enum ws_log_level level);
+enum ws_log_level ws_log_set_fatal(enum ws_log_level level);
 
 
 /** Set the fatal log level from a string.
