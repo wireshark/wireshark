@@ -365,7 +365,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 
     /* possible FrameID ranges for DFP */
-    if ((u16FrameID < 0x100) || (u16FrameID > 0x0FFF))
+    if ((u16FrameID < 0x0100) || (u16FrameID > 0x3FFF))
         return (FALSE);
     if (IsDFP_Frame(tvb, pinfo, u16FrameID)) {
         /* can't check this CRC, as the checked data bytes are not available */
@@ -597,7 +597,8 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     tvbuff_t    *next_tvb;
     gboolean     bCyclic;
     heur_dtbl_entry_t *hdtbl_entry;
-
+    conversation_t* conversation;
+    guint8 isTimeAware = FALSE;
 
     /* If the link-layer dissector for the protocol above us knows whether
      * the packet, as handed to it, includes a link-layer FCS, what it
@@ -638,6 +639,13 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         return 0;
     }
 
+    /* TimeAwareness Information needed for differentiating RTC3 - RTSteam frames  */
+    conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+
+    if (conversation != NULL) {
+        isTimeAware = GPOINTER_TO_UINT(conversation_get_proto_data(conversation, proto_pn_io_time_aware_status));
+    }
+
     /* build some "raw" data */
     u16FrameID = tvb_get_ntohs(tvb, 0);
     if (u16FrameID <= 0x001F) {
@@ -670,24 +678,48 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         pszProtSummary  = "Real-Time";
         pszProtComment  = "0x0082-0x00FF: Reserved ID";
         bCyclic         = FALSE;
-    } else if (u16FrameID <= 0x6FF) {
+    } else if (u16FrameID <= 0x6FF && !isTimeAware) {
         pszProtShort    = "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
         pszProtSummary  = "Isochronous-Real-Time";
         pszProtComment  = "0x0100-0x06FF: RED: Real-Time(class=3): non redundant, normal or DFP";
         bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x0FFF) {
+    } else if (u16FrameID <= 0x0FFF && !isTimeAware) {
         pszProtShort    = "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
         pszProtSummary  = "Isochronous-Real-Time";
         pszProtComment  = "0x0700-0x0FFF: RED: Real-Time(class=3): redundant, normal or DFP";
         bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x7FFF) {
+    } else if (u16FrameID <= 0x7FFF && !isTimeAware) {
         pszProtShort    = "PN-RT";
         pszProtAddInfo  = "reserved, ";
         pszProtSummary  = "Real-Time";
         pszProtComment  = "0x1000-0x7FFF: Reserved ID";
         bCyclic         = FALSE;
+    } else if (u16FrameID <= 0x0FFF && isTimeAware) {
+        pszProtShort = "PN-RT";
+        pszProtAddInfo = "reserved, ";
+        pszProtSummary = "Real-Time";
+        pszProtComment = "0x0100-0x0FFF: Reserved ID";
+        bCyclic = FALSE;
+    } else if (u16FrameID <= 0x2FFF && isTimeAware) {
+        pszProtShort = "PN-RTCS";
+        pszProtAddInfo = "RT_STREAM, ";
+        pszProtSummary = "Real-Time";
+        pszProtComment = "0x1000-0x2FFF: RT_CLASS_STREAM";
+        bCyclic = TRUE;
+    } else if (u16FrameID <= 0x37FF && isTimeAware) {
+        pszProtShort = "PN-RT";
+        pszProtAddInfo = "reserved, ";
+        pszProtSummary = "Real-Time";
+        pszProtComment = "0x3000-0x37FF: Reserved ID";
+        bCyclic = FALSE;
+    } else if (u16FrameID <= 0x3FFF && isTimeAware) {
+        pszProtShort = "PN-RTCS";
+        pszProtAddInfo = "RT_STREAM, ";
+        pszProtSummary = "Real-Time";
+        pszProtComment = "0x3800-0x3FFF: RT_CLASS_STREAM";
+        bCyclic = TRUE;
     } else if (u16FrameID <= 0xBBFF) {
         pszProtShort    = "PN-RTC1";
         pszProtAddInfo  = "RTC1, ";

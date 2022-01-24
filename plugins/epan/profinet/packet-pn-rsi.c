@@ -381,15 +381,20 @@ dissect_pn_rta_remaining_user_data_bytes(tvbuff_t *tvb, int offset, packet_info 
 /* dissect a PN-IO RSI SVCS block (on top of PN-RT protocol) */
 static int
 dissect_RSI_SVCS_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOffset, guint32 u32FOpnumOffsetOpnum)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOffset, guint32 u32FOpnumOffsetOpnum)
 {
-    proto_item *sub_item;
+    proto_item* sub_item;
     proto_tree *sub_tree;
 
-    guint32 u32RspMaxLength;
+	guint32 u32RsiHeaderSize = 4;
+	guint32 u32RspMaxLength;
+
+	// PDU.FOpnumOffset.Offset + PDU.VarPartLen - 4 - RsiHeaderSize
+    gint32 length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
 
     sub_item = proto_tree_add_item(tree, hf_pn_rsi_svcs_block, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_rsi_svcs_block);
+
     if (u32FOpnumOffsetOffset == 0)
     {
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
@@ -400,15 +405,17 @@ dissect_RSI_SVCS_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(sub_item, ", RSI Header of SVCS is at first segment");
     }
 
-    offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
-        tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+    if (length > 0) {
+        offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
+            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+    }
     return offset;
 }
 
 /* dissect a PN-IO RSI CONN block (on top of PN-RT protocol) */
 static int
 dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOffset, guint32 u32FOpnumOffsetOpnum)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag, guint32 u32FOpnumOffsetOffset, guint32 u32FOpnumOffsetOpnum)
 {
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -418,6 +425,10 @@ dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
     guint16 u16DeviceId;
     guint16 u16InstanceId;
     guint8  u8RsiInterface;
+    guint32 u32RsiHeaderSize = 4;
+
+    // PDU.FOpnumOffset.Offset + PDU.VarPartLen - 4 - RsiHeaderSize
+    gint32 length = u32FOpnumOffsetOffset + u16VarPartLen - 4 - u32RsiHeaderSize;
 
     sub_item = proto_tree_add_item(tree, hf_pn_rsi_conn_block, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_rsi_conn_block);
@@ -442,8 +453,10 @@ dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(sub_item, ", RSI Header of CONN is at first segment");
     }
 
-    offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
-        tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+    if (length > 0) {
+        offset = dissect_pn_rta_remaining_user_data_bytes(tvb, offset, pinfo, sub_tree, drep,
+            tvb_captured_length_remaining(tvb, offset), u8MoreFrag, u32FOpnumOffsetOpnum, PDU_TYPE_REQ);
+    }
 
     return offset;
 }
@@ -451,7 +464,7 @@ dissect_RSI_CONN_block(tvbuff_t *tvb, int offset,
 /* dissect a PN-IO RSI FREQ RTA PDU (on top of PN-RT protocol) */
 static int
 dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint8 u8MoreFrag)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 u16VarPartLen, guint8 u8MoreFrag)
 {
     guint32    u32FOpnumOffset;
     guint32    u32FOpnumOffsetOpnum;
@@ -462,7 +475,7 @@ dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
     switch (u32FOpnumOffsetOpnum) {
     case(0x0):    /* RSI-CONN-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "Connect request");
-        offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x1):    /* Reserved */
         col_append_str(pinfo->cinfo, COL_INFO, "Reserved");
@@ -470,35 +483,35 @@ dissect_FREQ_RTA_block(tvbuff_t *tvb, int offset,
         break;
     case(0x2):    /* RSI-SVCS-PDU (Only valid with ARUUID<>0) */
         col_append_str(pinfo->cinfo, COL_INFO, "Read request");
-        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x3):    /* RSI-SVCS-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "Write request");
-        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x4):    /* RSI-SVCS-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "Control request");
-        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x5):    /* RSI-CONN-PDU (Only valid with ARUUID=0) */
         col_append_str(pinfo->cinfo, COL_INFO, "ReadImplicit request");
-        offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x6):    /* RSI-CONN-PDU (Only valid with ARUUID<>0) */
         col_append_str(pinfo->cinfo, COL_INFO, "ReadConnectionless request");
-        offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_CONN_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x7):    /* RSI-SVCS-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "ReadNotification request");
-        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x8):    /* RSI-SVCS-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "PrmWriteMore request");
-        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     case(0x9) :    /* RSI-SVCS-PDU */
         col_append_str(pinfo->cinfo, COL_INFO, "PrmWriteEnd request");
-        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
+        offset = dissect_RSI_SVCS_block(tvb, offset, pinfo, tree, drep, u16VarPartLen, u8MoreFrag, u32FOpnumOffsetOffset, u32FOpnumOffsetOpnum);
         break;
     default:
         col_append_str(pinfo->cinfo, COL_INFO, "Reserved");
@@ -701,7 +714,7 @@ dissect_PNIO_RSI(tvbuff_t *tvb, int offset,
         offset = dissect_PNIO_status(tvb, offset, pinfo, rta_tree, drep);
         break;
     case(5):    /* FREQ-RTA */
-        offset = dissect_FREQ_RTA_block(tvb, offset, pinfo, rta_tree, drep, u8MoreFrag);
+        offset = dissect_FREQ_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag);
         break;
     case(6):    /* FRSP-RTA */
         offset = dissect_FRSP_RTA_block(tvb, offset, pinfo, rta_tree, drep, u16VarPartLen, u8MoreFrag);
