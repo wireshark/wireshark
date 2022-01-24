@@ -285,9 +285,12 @@ static int hf_ssh_hostkey_ecdsa_q = -1;
 static int hf_ssh_hostkey_ecdsa_q_length = -1;
 static int hf_ssh_hostkey_eddsa_key = -1;
 static int hf_ssh_hostkey_eddsa_key_length = -1;
-
-static int hf_ssh_kex_h_sig = -1;
-static int hf_ssh_kex_h_sig_length = -1;
+static int hf_ssh_hostsig_length = -1;
+static int hf_ssh_hostsig_type_length = -1;
+static int hf_ssh_hostsig_type = -1;
+static int hf_ssh_hostsig_rsa = -1;
+static int hf_ssh_hostsig_dsa = -1;
+static int hf_ssh_hostsig_data = -1;
 
 /* Key exchange: Diffie-Hellman */
 static int hf_ssh_dh_e = -1;
@@ -364,6 +367,7 @@ static int hf_ssh_pk_sig_s = -1;
 static gint ett_ssh = -1;
 static gint ett_key_exchange = -1;
 static gint ett_key_exchange_host_key = -1;
+static gint ett_key_exchange_host_sig = -1;
 static gint ett_userauth_pk_blob = -1;
 static gint ett_userauth_pk_signautre = -1;
 static gint ett_key_init = -1;
@@ -1066,6 +1070,60 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     return 4+key_len;
 }
 
+static guint
+ssh_tree_add_hostsignature(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
+                     const char *tree_name, int ett_idx,
+                     struct ssh_flow_data *global_data)
+{
+    (void)global_data;
+    proto_tree *tree = NULL;
+    int last_offset;
+    int remaining_len;
+    guint sig_len, type_len;
+    guint8* sig_type;
+    gchar *tree_title;
+
+    last_offset = offset;
+
+    sig_len = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+
+    /* Read the signature type before creating the tree so we can append it as info. */
+    type_len = tvb_get_ntohl(tvb, offset);
+    offset += 4;
+    sig_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, type_len, ENC_ASCII|ENC_NA);
+
+    tree_title = wmem_strdup_printf(wmem_packet_scope(), "%s (type: %s)", tree_name, sig_type);
+    tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, sig_len + 4, ett_idx, NULL,
+                                  tree_title);
+
+    proto_tree_add_uint(tree, hf_ssh_hostsig_length, tvb, last_offset, 4, sig_len);
+
+    last_offset += 4;
+    proto_tree_add_uint(tree, hf_ssh_hostsig_type_length, tvb, last_offset, 4, type_len);
+    proto_tree_add_string(tree, hf_ssh_hostsig_type, tvb, offset, type_len, sig_type);
+    offset += type_len;
+
+    if (0 == strcmp(sig_type, "ssh-rsa")) {
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostsig_rsa);
+    } else if (0 == strcmp(sig_type, "ssh-dss")) {
+        offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_hostsig_dsa);
+    } else if (g_str_has_prefix(sig_type, "ecdsa-sha2-")) {
+//        offset += ssh_tree_add_string(tvb, offset, tree,
+//                                      hf_ssh_hostkey_ecdsa_curve_id, hf_ssh_hostkey_ecdsa_curve_id_length);
+//        ssh_tree_add_string(tvb, offset, tree,
+//                            hf_ssh_hostkey_ecdsa_q, hf_ssh_hostkey_ecdsa_q_length);
+    } else if (g_str_has_prefix(sig_type, "ssh-ed")) {
+//        ssh_tree_add_string(tvb, offset, tree,
+//                            hf_ssh_hostkey_eddsa_key, hf_ssh_hostkey_eddsa_key_length);
+    } else {
+        remaining_len = sig_len - (type_len + 4);
+        proto_tree_add_item(tree, hf_ssh_hostsig_data, tvb, offset, remaining_len, ENC_NA);
+    }
+
+    return 4+sig_len;
+}
+
 static int
 ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_flow_data *global_data,
@@ -1293,7 +1351,8 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 #endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
+        offset += ssh_tree_add_hostsignature(tvb, offset, tree, "KEX host signature",
+                ett_key_exchange_host_sig, global_data);
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
             global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
@@ -1349,7 +1408,8 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key",
                 ett_key_exchange_host_key, global_data);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
+        offset += ssh_tree_add_hostsignature(tvb, offset, tree, "KEX host signature",
+                ett_key_exchange_host_sig, global_data);
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
             global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
@@ -1432,7 +1492,8 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
 #endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_s, hf_ssh_ecdh_q_s_length);
-        offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_kex_h_sig, hf_ssh_kex_h_sig_length);
+        offset += ssh_tree_add_hostsignature(tvb, offset, tree, "KEX host signature",
+                ett_key_exchange_host_sig, global_data);
         break;
     }
 
@@ -3518,14 +3579,34 @@ proto_register_ssh(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_kex_h_sig,
-          { "KEX H signature", "ssh.kex.h_sig",
+        { &hf_ssh_hostsig_length,
+          { "Host signature length", "ssh.host_sig.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostsig_type_length,
+          { "Host signature type length", "ssh.host_sig.type_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostsig_type,
+          { "Host signature type", "ssh.host_sig.type",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostsig_data,
+          { "Host signature data", "ssh.host_sig.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ssh_kex_h_sig_length,
-          { "KEX H signature length", "ssh.kex.h_sig_length",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+        { &hf_ssh_hostsig_rsa,
+          { "RSA signature", "ssh.host_sig.rsa",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_hostsig_dsa,
+          { "DSA signature", "ssh.host_sig.dsa",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_dh_e,
@@ -3839,6 +3920,7 @@ proto_register_ssh(void)
         &ett_ssh,
         &ett_key_exchange,
         &ett_key_exchange_host_key,
+        &ett_key_exchange_host_sig,
         &ett_userauth_pk_blob,
         &ett_userauth_pk_signautre,
         &ett_ssh1,
