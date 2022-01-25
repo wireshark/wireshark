@@ -2868,7 +2868,9 @@ dissect_llrp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     guint       offset = 0;
 
     /* Check that there's enough data */
-    DISSECTOR_ASSERT(tvb_reported_length(tvb) >= LLRP_HEADER_LENGTH);
+    if (tvb_reported_length(tvb) < LLRP_HEADER_LENGTH) {
+        return 0;
+    }
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLRP");
