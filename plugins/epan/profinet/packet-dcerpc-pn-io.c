@@ -506,6 +506,93 @@ static int hf_pn_io_number_of_subslots = -1;
 /* static int hf_pn_io_maintenance_demanded_drop_budget = -1; */
 /* static int hf_pn_io_error_drop_budget = -1; */
 
+static int hf_pn_io_tsn_number_of_queues = -1;
+static int hf_pn_io_tsn_max_supported_record_size = -1;
+static int hf_pn_io_tsn_transfer_time_tx = -1;
+static int hf_pn_io_tsn_transfer_time_rx = -1;
+static int hf_pn_io_tsn_port_capabilities_time_aware = -1;
+static int hf_pn_io_tsn_port_capabilities_preemption = -1;
+static int hf_pn_io_tsn_port_capabilities_queue_masking = -1;
+static int hf_pn_io_tsn_port_capabilities_reserved = -1;
+static int hf_pn_io_tsn_forwarding_group = -1;
+static int hf_pn_io_tsn_forwarding_group_ingress = -1;
+static int hf_pn_io_tsn_forwarding_group_egress = -1;
+static int hf_pn_io_tsn_stream_class = -1;
+static int hf_pn_io_tsn_dependent_forwarding_delay = -1;
+static int hf_pn_io_tsn_independent_forwarding_delay = -1;
+static int hf_pn_io_tsn_forwarding_delay_block_number_of_entries = -1;
+static int hf_pn_io_tsn_expected_neighbor_block_number_of_entries = -1;
+static int hf_pn_io_tsn_port_id_block_number_of_entries = -1;
+
+static int hf_pn_io_tsn_nme_parameter_uuid = -1;
+static int hf_pn_io_tsn_domain_vid_config = -1;
+static int hf_pn_io_tsn_domain_vid_config_stream_high_vid = -1;
+static int hf_pn_io_tsn_domain_vid_config_stream_high_red_vid = -1;
+static int hf_pn_io_tsn_domain_vid_config_stream_low_vid = -1;
+static int hf_pn_io_tsn_domain_vid_config_stream_low_red_vid = -1;
+static int hf_pn_io_tsn_domain_vid_config_non_stream_vid = -1;
+static int hf_pn_io_tsn_domain_vid_config_non_stream_vid_B = -1;
+static int hf_pn_io_tsn_domain_vid_config_non_stream_vid_C = -1;
+static int hf_pn_io_tsn_domain_vid_config_non_stream_vid_D = -1;
+static int hf_pn_io_tsn_domain_vid_config_reserved = -1;
+static int hf_pn_io_number_of_tsn_time_data_block_entries = -1;
+static int hf_pn_io_number_of_tsn_domain_queue_rate_limiter_entries = -1;
+static int hf_pn_io_number_of_tsn_domain_port_ingress_rate_limiter_entries = -1;
+static int hf_pn_io_number_of_tsn_domain_port_config_entries = -1;
+
+static int hf_pn_io_tsn_domain_port_config = -1;
+static int hf_pn_io_tsn_domain_port_config_preemption_enabled  = -1;
+static int hf_pn_io_tsn_domain_port_config_boundary_port_config = -1;
+static int hf_pn_io_tsn_domain_port_config_reserved = -1;
+
+static int hf_pn_io_tsn_domain_port_ingress_rate_limiter = -1;
+static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_cir = -1;
+static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_cbs = -1;
+static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_envelope = -1;
+static int hf_pn_io_tsn_domain_port_ingress_rate_limiter_rank = -1;
+
+static int hf_pn_io_tsn_domain_queue_rate_limiter = -1;
+static int hf_pn_io_tsn_domain_queue_rate_limiter_cir = -1;
+static int hf_pn_io_tsn_domain_queue_rate_limiter_cbs = -1;
+static int hf_pn_io_tsn_domain_queue_rate_limiter_envelope = -1;
+static int hf_pn_io_tsn_domain_queue_rate_limiter_rank = -1;
+static int hf_pn_io_tsn_domain_queue_rate_limiter_queue_id = -1;
+static int hf_pn_io_tsn_domain_queue_rate_limiter_reserved = -1;
+
+static int hf_pn_io_number_of_tsn_domain_queue_config_entries = -1;
+static int hf_pn_io_tsn_domain_queue_config = -1;
+static int hf_pn_io_tsn_domain_queue_config_queue_id = -1;
+static int hf_pn_io_tsn_domain_queue_config_tci_pcp = -1;
+static int hf_pn_io_tsn_domain_queue_config_shaper = -1;
+static int hf_pn_io_tsn_domain_queue_config_preemption_mode = -1;
+static int hf_pn_io_tsn_domain_queue_config_unmask_time_offset = -1;
+static int hf_pn_io_tsn_domain_queue_config_mask_time_offset = -1;
+
+static int hf_pn_io_network_deadline = -1;
+static int hf_pn_io_time_domain_number = -1;
+static int hf_pn_io_time_pll_window = -1;
+static int hf_pn_io_message_interval_factor = -1;
+static int hf_pn_io_message_timeout_factor = -1;
+static int hf_pn_io_time_sync_properties = -1;
+static int hf_pn_io_time_sync_properties_role = -1;
+static int hf_pn_io_time_sync_properties_reserved = -1;
+static int hf_pn_io_time_domain_uuid = -1;
+static int hf_pn_io_time_domain_name_length = -1;
+static int hf_pn_io_time_domain_name = -1;
+static int hf_pn_io_tsn_nme_name_uuid = -1;
+static int hf_pn_io_tsn_nme_name_length = -1;
+static int hf_pn_io_tsn_nme_name = -1;
+static int hf_pn_io_tsn_domain_uuid = -1;
+static int hf_pn_io_tsn_domain_name_length = -1;
+static int hf_pn_io_tsn_domain_name = -1;
+
+static int hf_pn_io_tsn_fdb_command = -1;
+static int hf_pn_io_tsn_dst_add = -1;
+
+static int hf_pn_io_number_of_tsn_domain_sync_tree_entries = -1;
+static int hf_pn_io_tsn_domain_sync_port_role = -1;
+static int hf_pn_io_tsn_domain_port_id = -1;
+
 static int hf_pn_io_maintenance_required_power_budget = -1;
 static int hf_pn_io_maintenance_demanded_power_budget = -1;
 static int hf_pn_io_error_power_budget = -1;
@@ -826,6 +913,15 @@ static gint ett_pn_io_mau_type_extension = -1;
 
 static gint ett_pn_io_pe_operational_mode = -1;
 
+static gint ett_pn_io_tsn_domain_port_config = -1;
+static gint ett_pn_io_tsn_domain_port_ingress_rate_limiter = -1;
+static gint ett_pn_io_tsn_domain_queue_rate_limiter = -1;
+static gint ett_pn_io_tsn_domain_vid_config = -1;
+static gint ett_pn_io_tsn_domain_queue_config = -1;
+static gint ett_pn_io_time_sync_properties = -1;
+static gint ett_pn_io_tsn_domain_port_id = -1;
+
+
 #define PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH 4
 #define PD_SUB_FRAME_BLOCK_FRAME_ID_LENGTH 2
 #define PD_SUB_FRAME_BLOCK_SUB_FRAME_DATA_LENGTH 4
@@ -1031,6 +1127,10 @@ static const value_string pn_io_block_type[] = {
     { 0x0278, "ForwardingDelayBlock"},
     { 0x0279, "TSNExpectedNetworkAttributes"},
     { 0x027A, "TSNStreamPathDataReal"},
+    { 0x027B, "TSNDomainPortIngressRateLimiterBlock"},
+    { 0x027C, "TSNDomainQueueRateLimiterBlock"},
+    { 0x027D, "TSNPortIDBlock"},
+    { 0x027E, "TSNExpectedNeighborBlock" },
     { 0x0300, "PDInterfaceSecurityAdjust"},
     { 0x0400, "MultipleBlockHeader"},
     { 0x0401, "COContainerContent"},
@@ -2269,7 +2369,6 @@ static const value_string pn_io_media_type[] = {
     { 0, NULL }
 };
 
-
 static const value_string pn_io_fiber_optic_type[] = {
     { 0x0000, "No fiber type adjusted" },
     { 0x0001, "9 um single mode fiber" },
@@ -2761,6 +2860,253 @@ static const true_false_string pn_io_pdportstatistic_counter_status_contents = {
 
 static const value_string pn_io_pdportstatistic_counter_status_reserved[] = {
     { 0x00, "Reserved" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_tsn_domain_vid_config_vals[] = {
+    { 0x00, "Reserved" },
+    { 0x64, "NonStreamVID-Default" },
+    { 0x65, "StreamHighVID-Default" },
+    { 0x66, "StreamHighRedVID-Default" },
+    { 0x67, "StreamLowVID-Default" },
+    { 0x68, "StreamLowRedVID-Default" },
+    { 0x69, "NonStreamVIDB-Default" },
+    { 0x6A, "NonStreamVIDC-Default" },
+    { 0x6B, "NonStreamVIDD-Default" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_tsn_domain_port_config_preemption_enabled_vals[] = {
+    { 0x00, "Preemption support is disabled for this port" },
+    { 0x01, "Preemption support is enabled for this port" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_tsn_domain_port_config_boundary_port_config_vals[] = {
+    { 0x00, "No boundary port" },
+    { 0x01, "Boundary port with Remapping1" },
+    { 0x02, "Boundary port with Remapping2" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_cir[] = {
+    { 0x0000, 0x0000, "No Boundary Port" },
+    { 0x0001, 0xFFFF, "Committed information rate in 0,1 Mbit/s"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_cbs[] = {
+    { 0x0000, 0x0000, "No Boundary Port" },
+    { 0x0001, 0xFFFF, "Committed burst size in octets"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_envelope[] = {
+    { 0x0000, 0x0000, "No Boundary Port" },
+    { 0x0001, 0x0001, "Best effort envelope"},
+    { 0x0002, 0x0002, "RT_CLASS_X, RTA_CLASS_X envelope"},
+    { 0x0003, 0xFFFF, "Reserved"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_port_ingress_rate_limiter_rank[] = {
+    { 0x0000, 0x0000, "No Boundary Port" },
+    { 0x0001, 0x0001, "CF1"},
+    { 0x0002, 0x0002, "CF2"},
+    { 0x0003, 0x0003, "CF3"},
+    { 0x0004, 0x0004, "CF4"},
+    { 0x0005, 0x0005, "CF5"},
+    { 0x0006, 0xFFFF, "Reserved"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_queue_rate_limiter_cir[] = {
+    { 0x0000, 0x0000, "Used in case of no rate limiter" },
+    { 0x0001, 0xFFFF, "Committed information rate in 0,1 Mbit/s"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_queue_rate_limiter_cbs[] = {
+    { 0x0000, 0x0000, "Used in case of no rate limiter" },
+    { 0x0001, 0xFFFF, "Committed burst size in octets"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_queue_rate_limiter_envelope[] = {
+    { 0x00, 0x00, "Used in case of no rate limiter" },
+    { 0x01, 0x01, "Best effort envelope"},
+    { 0x02, 0xFF, "Reserved"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_queue_rate_limiter_rank[] = {
+    { 0x00, 0x00, "Used in case of no boundary port" },
+    { 0x01, 0x01, "CF1"},
+    { 0x02, 0x02, "CF2"},
+    { 0x03, 0x03, "CF3"},
+    { 0x04, 0x04, "CF4"},
+    { 0x05, 0x05, "CF5"},
+    { 0x06, 0xFF, "Reserved"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_queue_rate_limiter_queue_id[] = {
+    { 0x00, 0x07, "Identifier of the queue" },
+    { 0x08, 0xFF, "Reserved"},
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_queue_rate_limiter_reserved[] = {
+    { 0x00, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_network_domain[] = {
+    { 0x00000000, 0x00000000, "No Deadline" },
+    { 0x00000001, 0xFFFFFFFF, "The Deadline in Microseconds"},
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_time_domain_number_vals[] = {
+    { 0x0000, "Global Time" },
+    { 0x0001, "Global Time Redundant" },
+    { 0x0020, "Working Clock" },
+    { 0x0021, "Working Clock Redundant" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_time_pll_window_vals[] = {
+    { 0x00000000, "Disabled" },
+    { 0x000003E8, "Default" },
+    { 0x00002710, "Default" },
+    { 0x000186A0, "Default" },
+    { 0x000F4240, "Default" },
+    { 0x00989680, "Default" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_message_interval_factor_vals[] = {
+    { 0x0000, "Reserved" },
+    { 0x03E8, "Default" },
+    { 0x0FA0, "Default" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_message_timeout_factor[] = {
+    { 0x0000, 0x0000, "Disabled" },
+    { 0x0001, 0x0002, "Optional" },
+    { 0x0003, 0x0005, "Mandatory" },
+    { 0x0006, 0x0006, "Default, mandatory" },
+    { 0x0007, 0x000F, "Mandatory" },
+    { 0x0010, 0x01FF, "Optional" },
+    { 0x0200, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_time_sync_properties_vals[] = {
+    { 0x00, "Reserved" },
+    { 0x01, "External Sync" },
+    { 0x02, "Internal Sync" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_queue_config_shaper[] = {
+    { 0x00, 0x00, "Reserved" },
+    { 0x01, 0x01, "Strict Priority" },
+    { 0x02, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_domain_sync_port_role_vals[] = {
+    { 0x00,0x00, "The port is not part of the sync tree for this sync domain" },
+    { 0x01,0x01, "Sync egress port for this sync domain" },
+    { 0x02,0x02, "Sync ingress port for this sync domain" },
+    { 0x02,0XFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_tsn_fdb_command[] = {
+    { 0x01, "AddStreamEntry" },
+    { 0x02, "RemoveStreamEntry" },
+    { 0x03, "RemoveAllStreamEntries" },
+    /* all others reserved */
+    { 0, NULL }
+};
+
+static const range_string pn_io_tsn_transfer_time_tx_vals[] = {
+    { 0x00000000, 0x00000000, "Reserved" },
+    { 0x00000001, 0x05F5E100, "Egress transfer time for the local interface of an endstation" },
+    { 0x05F5E101, 0xFFFFFFFF, "Reserved" },
+    { 0, 0, NULL }
+
+};
+
+static const range_string pn_io_tsn_transfer_time_rx_vals[] = {
+
+    { 0x00000000, 0x00000000, "Reserved" },
+    { 0x00000001, 0x05F5E100, "Ingress transfer time for the local interface of an endstation" },
+    { 0x05F5E101, 0xFFFFFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_max_supported_record_size_vals[] = {
+    { 0x00000000,0x00000FE3, "Reserved" },
+    { 0x00000FE4,0x0000FFFF, "Describes the maximum supported size of RecordDataWrite." },
+    {0x00010000,0xFFFFFFFF,"Reserved"},
+    { 0, 0, NULL }
+};
+static const range_string pn_io_tsn_forwarding_group_vals[] = {
+    { 0x00,0x00, "Reserved" },
+    { 0x01,0xFF, "Identifier of logical port grouping. Identifies ports with equal forwarding delay values." },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_tsn_stream_class_vals[] = {
+
+    /*other reserved */
+    { 0x01, "High" },
+    { 0x02, "High Redundant" },
+    { 0x03, "Low" },
+    { 0x04, "Low Redundant" },
+    { 0, NULL }
+};
+
+static const range_string pn_io_tsn_independent_forwarding_delay_vals[] = {
+
+    { 0x00000000, 0x00000000, "Reserved" },
+    { 0x00000001, 0x000F4240, "Independent bridge delay value used for calculation" },
+    { 0, 0, NULL }
+};
+
+static const range_string pn_io_tsn_dependent_forwarding_delay_vals[] = {
+
+    { 0x00000000, 0x00000000, "Reserved" },
+    { 0x00000001, 0x000C3500, "Octet size dependent bridge delay value used for calculation" },
+    { 0, 0, NULL }
+};
+
+static const value_string pn_io_tsn_number_of_queues_vals[] = {
+
+    { 0x06, "The bridge supports six transmit queues at the port" },
+    { 0x08, "The bridge supports eight transmit queues at the port" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_tsn_port_capabilities_time_aware_vals[] = {
+    { 0x00, "This port is not usable within a Time Aware System"},
+    { 0x01, "This port is usable within a Time Aware System" },
+    { 0, NULL }
+};
+static const value_string pn_io_tsn_port_capabilities_preemption_vals[] = {
+    { 0x00, "Preemption is not supported at this port" },
+    { 0x01, "Preemption is supported at this port"},
+    { 0, NULL }
+};
+
+static const value_string pn_io_tsn_port_capabilities_queue_masking_vals[] = {
+    { 0x00, "Queue Masking is not supported at this port"},
+    { 0x01, "Queue Masking is supported at this port" },
     { 0, NULL }
 };
 
@@ -3745,11 +4091,11 @@ dissect_IandM1_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Tag_Function [32] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, ENC_ASCII|ENC_NA, pinfo->pool, &pTagFunction);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, ENC_ASCII, pinfo->pool, &pTagFunction);
     offset += 32;
 
     /* IM_Tag_Location [22] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, ENC_ASCII|ENC_NA, pinfo->pool, &pTagLocation);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, ENC_ASCII, pinfo->pool, &pTagLocation);
     offset += 22;
 
     proto_item_append_text(item, ": TagFunction:\"%s\", TagLocation:\"%s\"", pTagFunction, pTagLocation);
@@ -3771,7 +4117,7 @@ dissect_IandM2_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Date [16] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_date, tvb, offset, 16, ENC_ASCII|ENC_NA, pinfo->pool, &pDate);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_date, tvb, offset, 16, ENC_ASCII, pinfo->pool, &pDate);
     offset += 16;
 
     proto_item_append_text(item, ": Date:\"%s\"", pDate);
@@ -3793,7 +4139,7 @@ dissect_IandM3_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Descriptor [54] */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, ENC_ASCII|ENC_NA, pinfo->pool, &pDescriptor);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, ENC_ASCII, pinfo->pool, &pDescriptor);
     offset += 54;
 
     proto_item_append_text(item, ": Descriptor:\"%s\"", pDescriptor);
@@ -5306,7 +5652,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_length_own_port_id, &u8LengthOwnPortID);
     /* OwnPortID */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII|ENC_NA, pinfo->pool, &pOwnPortID);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII, pinfo->pool, &pOwnPortID);
     offset += u8LengthOwnPortID;
 
     /* NumberOfPeers */
@@ -5325,7 +5671,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
         proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID,
-                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerPortId);
+                            ENC_ASCII, pinfo->pool, &pPeerPortId);
 
         offset += u8LengthPeerPortID;
 
@@ -5334,7 +5680,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
         proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID,
-                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerChassisId);
+                            ENC_ASCII, pinfo->pool, &pPeerChassisId);
 
         offset += u8LengthPeerChassisID;
 
@@ -6624,6 +6970,814 @@ dissect_PDInterfaceAdjust_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* TSNNetworkControlDataReal */
+static int
+dissect_TSNNetworkControlDataReal_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+
+    e_guid_t  nme_parameter_uuid;
+    guint32 u32NetworkDeadline;
+    guint16 u16SendClockFactor;
+    guint16 u16NumberofEntries;
+    guint16 u16TSNNMENameLength;
+    guint16 u16TSNDomainNameLength;
+    e_guid_t  tsn_nme_name_uuid;
+    e_guid_t  tsn_domain_uuid;
+
+    int bit_offset;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* Padding */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* NMEParameterUUID*/
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_parameter_uuid, &nme_parameter_uuid);
+
+    /* TSNDomainVIDConfig*/
+    sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_vid_config, tvb, offset, 16, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_vid_config);
+    bit_offset = offset << 3;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_reserved, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
+    bit_offset += 32;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_D, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_C, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_B, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+
+    offset += 16;
+
+    /* TSNDomainPortConfigBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
+
+    /* Network Deadline */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_network_deadline, &u32NetworkDeadline);
+
+    /* SendClockFactor 16 */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_send_clock_factor, &u16SendClockFactor);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_tsn_time_data_block_entries, &u16NumberofEntries);
+
+    /* TSNTimeDataBlock */
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+
+        offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
+    }
+
+    /* TSNNMENameUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_name_uuid, &tsn_nme_name_uuid);
+
+    /* TSNNMENameLength */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_nme_name_length, &u16TSNNMENameLength);
+
+    /* TSNNMEName */
+    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII | ENC_NA);
+    offset += u16TSNNMENameLength;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* TSNDomainUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_domain_uuid, &tsn_domain_uuid);
+
+    /* TSNDomainNameLength */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_domain_name_length, &u16TSNDomainNameLength);
+
+    /* TSNDomainName */
+    proto_tree_add_item(tree, hf_pn_io_tsn_domain_name, tvb, offset, u16TSNDomainNameLength, ENC_ASCII | ENC_NA);
+    offset += u16TSNDomainNameLength;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    return offset;
+
+}
+
+/* TSNNetworkControlDataAdjust */
+static int
+dissect_TSNNetworkControlDataAdjust_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+
+    e_guid_t  nme_parameter_uuid;
+    guint32 u32NetworkDeadline;
+    guint16 u16SendClockFactor;
+    guint16 u16NumberofEntries;
+    guint16 u16TSNNMENameLength;
+    e_guid_t  tsn_nme_name_uuid;
+
+    int bit_offset;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* Padding */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* NMEParameterUUID*/
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_parameter_uuid, &nme_parameter_uuid);
+
+    /* TSNDomainVIDConfig*/
+    sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_vid_config, tvb, offset, 16, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_vid_config);
+
+    bit_offset = offset << 3;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_reserved, tvb, bit_offset, 32, ENC_BIG_ENDIAN);
+    bit_offset += 32;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_D, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_C, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid_B, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_non_stream_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_low_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_red_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+    bit_offset += 12;
+
+    proto_tree_add_bits_item(sub_tree, hf_pn_io_tsn_domain_vid_config_stream_high_vid, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+
+    offset += 16;
+
+    /* TSNDomainPortConfigBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
+
+    /* Network Deadline */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_network_deadline, &u32NetworkDeadline);
+
+    /* SendClockFactor 16 */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_send_clock_factor, &u16SendClockFactor);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_tsn_time_data_block_entries, &u16NumberofEntries);
+
+    /* TSNTimeDataBlock */
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+
+        offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
+    }
+
+    /* TSNNMENameUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_tsn_nme_name_uuid, &tsn_nme_name_uuid);
+
+    /* TSNNMENameLength */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_nme_name_length, &u16TSNNMENameLength);
+
+    /* TSNNMEName */
+    proto_tree_add_item(tree, hf_pn_io_tsn_nme_name, tvb, offset, u16TSNNMENameLength, ENC_ASCII | ENC_NA);
+    offset += u16TSNNMENameLength;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    return offset;
+}
+
+/* TSNStreamPathData */
+static int
+dissect_TSNStreamPathDataReal_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, gboolean real)
+{
+    guint8  u8FDBCommand;
+    guint16 u16NumberofEntries;
+    guint8  dstAdd[6];
+    guint16 u16StreamClass;
+    guint16 u16SlotNumber;
+    guint16 u16SubSlotNumber;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+    if (!real) {
+        /* FDBCommand */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_fdb_command, &u8FDBCommand);
+    }
+    else {
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+    }
+
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_tsn_domain_sync_tree_entries, &u16NumberofEntries);
+
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+        /* DestinationAddress */
+        offset = dissect_pn_mac(tvb, offset, pinfo, tree, hf_pn_io_tsn_dst_add, dstAdd);
+
+        /* StreamClass */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_stream_class, &u16StreamClass);
+
+        /* IngressPort */
+        /* TSNDomainPortID */
+        /*SlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNumber);
+        /* SubSlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_subslot_nr, &u16SubSlotNumber);
+
+        /* EgressPort */
+        /* TSNDomainPortID */
+        /*SlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNumber);
+        /* SubSlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_subslot_nr, &u16SubSlotNumber);
+    }
+    return offset;
+}
+
+/* TSNSyncTreeData */
+static int
+dissect_TSNSyncTreeData_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16    u16NumberofEntries;
+    guint16    u16SlotNr;
+    guint16    u16SubslotNr;
+    guint16    u16TimeDomainNumber;
+    guint8     u8SyncPortRole;
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_tsn_domain_sync_tree_entries, &u16NumberofEntries);
+
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+        /* TSNDomainPortID */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_id, tvb, offset, 4, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_port_id);
+        /* SlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_slot_nr, &u16SlotNr);
+        /*--*/
+        /* Subslotnumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_subslot_nr, &u16SubslotNr);
+        /* TimeDomainNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_time_domain_number, &u16TimeDomainNumber);
+        /* SyncPortRole */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_domain_sync_port_role, &u8SyncPortRole);
+
+        /* Padding */
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+    }
+    return offset;
+}
+
+/* TSNDomainPortConfigBlock */
+static int
+dissect_TSNDomainPortConfig_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16    u16NumberofEntries;
+    guint16    u16SlotNr;
+    guint16    u16SubslotNr;
+    proto_item* sub_item_port_config;
+    proto_tree* sub_tree_port_config;
+    guint8     u8TSNDomainPortConfig;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_tsn_domain_port_config_entries, &u16NumberofEntries);
+
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+
+        /* SlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_slot_nr, &u16SlotNr);
+        /* Subslotnumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_subslot_nr, &u16SubslotNr);
+
+        /* TSNDomainPortConfig */
+        sub_item_port_config = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_config, tvb, offset, 1, ENC_NA);
+        sub_tree_port_config = proto_item_add_subtree(sub_item_port_config, ett_pn_io_tsn_domain_port_config);
+
+        dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree_port_config, drep,
+            hf_pn_io_tsn_domain_port_config_reserved, &u8TSNDomainPortConfig);
+        dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree_port_config, drep,
+            hf_pn_io_tsn_domain_port_config_boundary_port_config, &u8TSNDomainPortConfig);
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree_port_config, drep,
+            hf_pn_io_tsn_domain_port_config_preemption_enabled, &u8TSNDomainPortConfig);
+
+        /* Padding */
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 3);
+
+        /* TSNDomainPortIngressRateLimiter */
+        offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
+
+        /* TSNDomainQueueConfigBlock */
+        offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
+
+        /* TSNDomainQueueRateLimiterBlock */
+        offset = dissect_a_block(tvb, offset, pinfo, /*sub_*/tree, drep);
+    }
+    return offset;
+}
+
+/* TSNDomainQueueConfigBlock */
+static int
+dissect_TSNDomainQueueConfig_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16    u16NumberofEntries;
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+    guint64     u64TSNDomainQueueConfig;
+    dcerpc_info di; /* fake dcerpc_info struct */
+    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
+    di.call_data = &dcv;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_tsn_domain_queue_config_entries, &u16NumberofEntries);
+
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+
+        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_config, tvb, offset, 8, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_queue_config);
+
+        /* TSNDomainQueueConfig */
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_config_mask_time_offset, &u64TSNDomainQueueConfig);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_config_unmask_time_offset, &u64TSNDomainQueueConfig);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_config_preemption_mode, &u64TSNDomainQueueConfig);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_config_shaper, &u64TSNDomainQueueConfig);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_config_tci_pcp, &u64TSNDomainQueueConfig);
+        offset = dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_config_queue_id, &u64TSNDomainQueueConfig);
+    }
+    return offset;
+}
+
+/* TSNTimeDataBlock */
+static int
+dissect_TSNTimeData_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16 u16TimeDomainNumber;
+    guint32 u32TimePLLWindow;
+    guint32 u32MessageIntervalFactor;
+    guint16 u16MessageTimeoutFactor;
+    guint16 u16TimeSyncProperties;
+    guint8  u8TimeDomainNameLength;
+    e_guid_t  time_domain_uuid;
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* TimeDomainNumber */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_time_domain_number, &u16TimeDomainNumber);
+
+    /* TimePLLWindow */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_time_pll_window, &u32TimePLLWindow);
+
+    /* MessageIntervalFactor */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_message_interval_factor, &u32MessageIntervalFactor);
+
+    /* MessageTimeoutFactor */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_message_timeout_factor, &u16MessageTimeoutFactor);
+
+    /* TimeSyncProperties */
+    sub_item = proto_tree_add_item(tree, hf_pn_io_time_sync_properties, tvb, offset, 2, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_time_sync_properties);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+        hf_pn_io_time_sync_properties_reserved, &u16TimeSyncProperties);
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+        hf_pn_io_time_sync_properties_role, &u16TimeSyncProperties);
+
+    /* TimeDomainUUID */
+    offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_io_time_domain_uuid, &time_domain_uuid);
+
+    /* TimeDomainNameLength */
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep, hf_pn_io_time_domain_name_length, &u8TimeDomainNameLength);
+
+    /* TimeDomainName */
+    proto_tree_add_item(tree, hf_pn_io_time_domain_name, tvb, offset, u8TimeDomainNameLength, ENC_ASCII | ENC_NA);
+    offset += u8TimeDomainNameLength;
+
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    return offset;
+}
+
+/* TSNUploadNetworkAttributesBlock */
+static int
+dissect_TSNUploadNetworkAttributes_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint32     u32TransferTimeTX;
+    guint32     u32TransferTimeRX;
+    guint32     u32MaxSupportedRecordSize;
+
+    if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+        /* Align to the next 32 bit twice */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* TSNPortIDBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    /*MaxSupportedRecordSize*/
+    offset= dissect_dcerpc_uint32(tvb,offset,pinfo,tree,drep,hf_pn_io_tsn_max_supported_record_size,&u32MaxSupportedRecordSize);
+
+    /* TransferTimeTX */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_tsn_transfer_time_tx, &u32TransferTimeTX);
+
+    /* TransferTimeRX */
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_tsn_transfer_time_rx, &u32TransferTimeRX);
+
+    /* TSNForwardingDelayBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    return offset;
+}
+
+/* TSNExpectedNeighborBlock */
+static int
+dissect_TSNExpectedNeighbor_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint8      u8NumberOfPeers;
+    guint8      u8I;
+    guint8      u8LengthPeerPortName;
+    guint8      u8LengthPeerStationName;
+    guint16     u16NumberOfEntries;
+    guint16     u16SlotNr;
+    guint16     u16SubslotNr;
+    guint32     u32LineDelayValue;
+
+    if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_expected_neighbor_block_number_of_entries, &u16NumberOfEntries);
+
+    while (u16NumberOfEntries > 0)
+    {
+        u16NumberOfEntries--;
+
+        /*TSNDomainPortID*/
+        /* SlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNr);
+        /*--*/
+        /* Subslotnumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_subslot_nr, &u16SubslotNr);
+
+        /* Padding */
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 3);
+
+        /* NumberOfPeers */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_number_of_peers, &u8NumberOfPeers);
+
+        u8I = u8NumberOfPeers;
+        while (u8I--) {
+            /* LengthPeerPortName */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                hf_pn_io_length_peer_port_name, &u8LengthPeerPortName);
+
+            /* PeerPortName */
+            proto_tree_add_item(tree, hf_pn_io_peer_port_name, tvb, offset, u8LengthPeerPortName, ENC_ASCII | ENC_NA);
+            offset += u8LengthPeerPortName;
+
+            /* LengthPeerStationName */
+            offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                hf_pn_io_length_peer_station_name, &u8LengthPeerStationName);
+
+            /* PeerStationName */
+            proto_tree_add_item(tree, hf_pn_io_peer_station_name, tvb, offset, u8LengthPeerStationName, ENC_ASCII | ENC_NA);
+            offset += u8LengthPeerStationName;
+
+            /* Padding */
+            offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+            /* LineDelay */
+            offset = dissect_Line_Delay(tvb, offset, pinfo, tree, drep, &u32LineDelayValue);
+        }
+    }
+    return offset;
+}
+
+/* TSNExpectedNetworkAttributesBlock */
+static int
+dissect_TSNExpectedNetworkAttributes_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    /* Align to the next 32 bit twice */
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* TSNPortIDBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    /* TSNForwardingDelayBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    /* TSNExpectedNeighborBlock */
+    offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+
+    return offset;
+}
+
+/* TSNDomainPortIngressRateLimiterBlock */
+static int
+dissect_TSNDomainPortIngressRateLimiter_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16    u16NumberofEntries;
+    proto_item* sub_item_port_ingress;
+    proto_tree* sub_tree_port_ingress;
+    guint64    u64TSNDomainPortIngressRateLimiter;
+    dcerpc_info di; /* fake dcerpc_info struct */
+    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
+    di.call_data = &dcv;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_tsn_domain_port_ingress_rate_limiter_entries, &u16NumberofEntries);
+
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+
+        /* TSNDomainPortIngressRateLimiter */
+        sub_item_port_ingress = proto_tree_add_item(tree, hf_pn_io_tsn_domain_port_ingress_rate_limiter, tvb, offset, 8, ENC_NA);
+        sub_tree_port_ingress = proto_item_add_subtree(sub_item_port_ingress, ett_pn_io_tsn_domain_port_ingress_rate_limiter);
+
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
+            hf_pn_io_tsn_domain_port_ingress_rate_limiter_cir, &u64TSNDomainPortIngressRateLimiter);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
+            hf_pn_io_tsn_domain_port_ingress_rate_limiter_cbs, &u64TSNDomainPortIngressRateLimiter);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
+            hf_pn_io_tsn_domain_port_ingress_rate_limiter_envelope, &u64TSNDomainPortIngressRateLimiter);
+        offset = dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree_port_ingress, &di, drep,
+            hf_pn_io_tsn_domain_port_ingress_rate_limiter_rank, &u64TSNDomainPortIngressRateLimiter);
+    }
+    return offset;
+}
+
+/* TSNDomainQueueRateLimiterBlock */
+static int
+dissect_TSNDomainQueueRateLimiter_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16    u16NumberofEntries;
+    proto_item* sub_item;
+    proto_tree* sub_tree;
+    guint64    u64TSNDomainQueueRateLimiter;
+    dcerpc_info di; /* fake dcerpc_info struct */
+    dcerpc_call_value dcv; /* fake dcerpc_call_value struct */
+    di.call_data = &dcv;
+
+    if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_number_of_tsn_domain_queue_rate_limiter_entries, &u16NumberofEntries);
+
+    while (u16NumberofEntries > 0) {
+        u16NumberofEntries--;
+
+        /* TSNDomainQueueRateLimiter */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_tsn_domain_queue_rate_limiter, tvb, offset, 8, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_tsn_domain_queue_rate_limiter);
+
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_rate_limiter_cir, &u64TSNDomainQueueRateLimiter);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_rate_limiter_cbs, &u64TSNDomainQueueRateLimiter);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_rate_limiter_envelope, &u64TSNDomainQueueRateLimiter);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_rate_limiter_rank, &u64TSNDomainQueueRateLimiter);
+        dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_rate_limiter_queue_id, &u64TSNDomainQueueRateLimiter);
+        offset = dissect_dcerpc_uint64(tvb, offset, pinfo, sub_tree, &di, drep,
+            hf_pn_io_tsn_domain_queue_rate_limiter_reserved, &u64TSNDomainQueueRateLimiter);
+    }
+    return offset;
+}
+
+/* TSNPortIDBlock */
+static int
+dissect_TSNPortID_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint8      u8NumberOfQueues;
+    guint8      u8ForwardingGroup;
+    guint8      u8TSNPortCapabilities;
+    guint16     u16NumberOfEntries;
+    guint16     u16SlotNr;
+    guint16     u16SubslotNr;
+    guint16     u16MAUType;
+    guint16     u16MAUTypeExtension;
+
+    if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_port_id_block_number_of_entries, &u16NumberOfEntries);
+
+   while (u16NumberOfEntries > 0)
+   {
+        u16NumberOfEntries--;
+
+        /*TSNDomainPortID*/
+        /* SlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNr);
+        /*--*/
+        /* Subslotnumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_subslot_nr, &u16SubslotNr);
+
+        /*MAUType*/
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_mau_type, &u16MAUType);
+
+        /*MAUTypeExtension*/
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_mau_type_extension, &u16MAUTypeExtension);
+
+        /* NumberOfQueues */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_number_of_queues, &u8NumberOfQueues);
+
+        /* TSNPortCapabilities */
+        /* bit 0 */
+        dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_port_capabilities_time_aware, &u8TSNPortCapabilities);
+
+        /* bit 1 */
+        dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_port_capabilities_preemption, &u8TSNPortCapabilities);
+
+        /* bit 2 */
+        dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_port_capabilities_queue_masking, &u8TSNPortCapabilities);
+
+        /* bit 3-7 */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_port_capabilities_reserved, &u8TSNPortCapabilities);
+
+        /* ForwardingGroup */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_forwarding_group, &u8ForwardingGroup);
+
+        /* Align to the next 32 bit */
+        offset = dissect_pn_padding(tvb, offset, pinfo, tree, 1);
+
+    }
+    return offset;
+}
+
+/* TSNForwardingDelayBlock */
+static int
+dissect_TSNForwardingDelay_block(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, proto_item* item _U_, guint8* drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint8      u8ForwardingGroupIngress;
+    guint8      u8ForwardingGroupEgress;
+    guint16     u16NumberOfEntries;
+    guint16     u16StreamClass;
+    guint32     u32DependentForwardingDelay;
+    guint32     u32IndependentForwardingDelay;
+
+    if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
+        expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_tsn_forwarding_delay_block_number_of_entries, &u16NumberOfEntries);
+
+   while (u16NumberOfEntries > 0)
+   {
+        u16NumberOfEntries--;
+
+        /*ForwardingGroupIngress*/
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_forwarding_group_ingress, &u8ForwardingGroupIngress);
+
+        /*ForwardingGroupEgress*/
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_forwarding_group_egress, &u8ForwardingGroupEgress);
+
+        /* StreamClass */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_stream_class, &u16StreamClass);
+
+        /* DependentForwardingDelay */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_dependent_forwarding_delay, &u32DependentForwardingDelay);
+
+        /* IndependentForwardingDelay */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_tsn_independent_forwarding_delay, &u32IndependentForwardingDelay);
+    }
+    return offset;
+}
+
 /* PDPortStatistic for one subslot */
 static int
 dissect_PDPortStatistic_block(tvbuff_t *tvb, int offset,
@@ -6690,7 +7844,6 @@ dissect_PDPortStatistic_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-
 /* OwnPort */
 static int
 dissect_OwnPort_block(tvbuff_t *tvb, int offset,
@@ -6719,7 +7872,7 @@ dissect_OwnPort_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_length_own_port_id, &u8LengthOwnPortID);
     /* OwnPortName */
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII|ENC_NA, pinfo->pool, &pOwnPortID);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII, pinfo->pool, &pOwnPortID);
     offset += u8LengthOwnPortID;
 
     /* Padding */
@@ -6823,7 +7976,7 @@ dissect_Neighbors_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_port_name, &u8LengthPeerPortName);
         /* PeerPortName */
         proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_port_name, tvb, offset, u8LengthPeerPortName,
-                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerPortName);
+                            ENC_ASCII, pinfo->pool, &pPeerPortName);
         offset += u8LengthPeerPortName;
 
         /* LengthPeerStationName */
@@ -6831,7 +7984,7 @@ dissect_Neighbors_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_length_peer_station_name, &u8LengthPeerStationName);
         /* PeerStationName */
         proto_tree_add_item_ret_display_string (sub_tree, hf_pn_io_peer_station_name, tvb, offset, u8LengthPeerStationName,
-                            ENC_ASCII|ENC_NA, pinfo->pool, &pPeerStationName);
+                            ENC_ASCII, pinfo->pool, &pPeerStationName);
         offset += u8LengthPeerStationName;
 
         offset = dissect_pn_align4(tvb, offset, pinfo, sub_tree);
@@ -8484,7 +9637,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, pinfo->pool, &pStationName);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII, pinfo->pool, &pStationName);
     offset += u16NameLength;
 
     proto_item_append_text(item, ": %s, Session:%u, MAC:%02x:%02x:%02x:%02x:%02x:%02x, Port:0x%x, Station:%s",
@@ -9122,7 +10275,7 @@ dissect_MCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    proto_tree_add_item_ret_display_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, pinfo->pool, &pStationName);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, ENC_ASCII, pinfo->pool, &pStationName);
     offset += u16NameLength;
 
     proto_item_append_text(item, ", CRRef:%u, Properties:0x%x, TFactor:%u, Station:%s",
@@ -10829,7 +11982,6 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0233):
         dissect_MrpInstanceDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
             break;
-
     case(0x0240):
         dissect_PDInterfaceDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
@@ -10842,11 +11994,56 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0251):
         dissect_PDPortStatistic_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
-    case(0x0260):
+	case(0x0260):
         dissect_OwnPort_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0261):
         dissect_Neighbors_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0270):
+        dissect_TSNNetworkControlDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0271):
+        dissect_TSNNetworkControlDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0272):
+        dissect_TSNDomainPortConfig_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0273):
+        dissect_TSNDomainQueueConfig_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0274):
+        dissect_TSNTimeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0275):
+        dissect_TSNStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, FALSE);
+        break;
+    case(0x0276):
+        dissect_TSNSyncTreeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0277):
+        dissect_TSNUploadNetworkAttributes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0278):
+        dissect_TSNForwardingDelay_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x0279):
+        dissect_TSNExpectedNetworkAttributes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x027A):
+        dissect_TSNStreamPathDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, TRUE);
+	break;
+    case(0x027B):
+        dissect_TSNDomainPortIngressRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x027C):
+        dissect_TSNDomainQueueRateLimiter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x027D):
+        dissect_TSNPortID_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x027E):
+        dissect_TSNExpectedNeighbor_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0400):
         dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
@@ -11412,6 +12609,11 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8052):   /* PDInterfaceMrpDataAdjust for one subslot */
     case(0x8053):   /* PDPortMrpDataAdjust for one subslot */
     case(0x8054):   /* PDPortMrpDataReal for one subslot */
+    case(0x80F0):   /* TSNNetworkControlDataReal */
+    case(0x80F2):   /* TSNSyncTreeData */
+    case(0x80F3):   /* TSNUploadNetworkAttributes */
+    case(0x80F4):   /* TSNExpectedNetworkAttributes */
+    case(0x80F5):   /* TSNNetworkControlDataAdjust */
     case(0x8060):   /* PDPortFODataReal for one subslot */
     case(0x8061):   /* PDPortFODataCheck for one subslot */
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
@@ -13901,6 +15103,396 @@ proto_register_pn_io (void)
         FT_UINT16, BASE_DEC_HEX, VALS(pn_io_preamble_length), 0x0,
         NULL, HFILL }
     },
+    { &hf_pn_io_tsn_max_supported_record_size,
+     { "MaxSupportedRecordSize", "pn_io.tsn_upload_network_attributes.max_supported_record_size",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_max_supported_record_size_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_transfer_time_tx,
+     { "TransferTimeTX", "pn_io.tsn_upload_network_attributes.transfer_time_tx",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_transfer_time_tx_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_transfer_time_rx,
+     { "TransferTimeRX", "pn_io.tsn_upload_network_attributes.transfer_time_rx",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_transfer_time_rx_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_number_of_queues,
+    { "NumberOfQueues", "pn_io.tsn_port_id_block.number_of_queues",
+      FT_UINT8, BASE_HEX, VALS(pn_io_tsn_number_of_queues_vals), 0x0,
+      NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_forwarding_delay_block_number_of_entries,
+      { "TSNForwardingDelayBlockNumberOfEntries", "pn_io.tsn_forward_delaying_block.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+  { &hf_pn_io_tsn_port_id_block_number_of_entries,
+      { "TSNPortIDBlockNumberOfEntries", "pn_io.tsn_port_id_block.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_expected_neighbor_block_number_of_entries,
+      { "TSNExpectedNeighborBlockNumberOfEntries", "pn_io.tsn_expected_neighbor_block.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_port_capabilities_time_aware,
+       { "TSNPortCapabilities.TimeAware", "pn_io.tsn_port_capabilities.time_aware",
+         FT_UINT8, BASE_HEX, VALS(pn_io_tsn_port_capabilities_time_aware_vals), 0x01,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_port_capabilities_preemption,
+       { "TSNPortCapabilities.Preemption", "pn_io.tsn_port_capabilities.preemption",
+         FT_UINT8, BASE_HEX, VALS(pn_io_tsn_port_capabilities_preemption_vals), 0x02,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_port_capabilities_queue_masking,
+       { "TSNPortCapabilities.QueueMasking", "pn_io.tsn_port_capabilities.queue_masking",
+         FT_UINT8, BASE_HEX, VALS(pn_io_tsn_port_capabilities_queue_masking_vals), 0x04,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_port_capabilities_reserved,
+      { "TSNPortCapabilities.Reserved", "pn_io.tsn_port_capabilities_reserved",
+         FT_UINT8, BASE_HEX, NULL, 0xF8,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_forwarding_group,
+     { "ForwardingGroup", "pn_io.tsn_port_id_block.forwarding_group",
+       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_forwarding_group_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_forwarding_group_ingress,
+     { "ForwardingGroupIngress", "pn_io.tsn_port_id_block.forwarding_group_ingress",
+       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_forwarding_group_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_forwarding_group_egress,
+     { "ForwardingGroupEgress", "pn_io.tsn_port_id_block.forwarding_group_egress",
+       FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_forwarding_group_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_stream_class,
+      { "StreamClass", "pn_io.tsn_forwarding_delay_entry.stream_class",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_stream_class_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_dependent_forwarding_delay,
+     { "DependentForwardDelay", "pn_io.tsn_forwarding_delay_entry.dependent_forwarding_delay",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_dependent_forwarding_delay_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_independent_forwarding_delay,
+     { "IndependentForwardDelay", "pn_io.tsn_forwarding_delay_entry.independent_forwarding_delay",
+       FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_independent_forwarding_delay_vals), 0x0,
+       NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_nme_parameter_uuid,
+      { "NMEParameterUUID", "pn_io.tsn_nme_parameter_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config,
+      { "TSNDomainVIDConfig", "pn_io.tsn_domain_vid_config",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_stream_high_vid,
+      { "TSNDomainVIDConfig.StreamHighVID", "pn_io.tsn_domain_vid_config.stream_high_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_stream_high_red_vid,
+      { "TSNDomainVIDConfig.StreamHighRedVID", "pn_io.tsn_domain_vid_config.stream_high_red_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_stream_low_vid,
+      { "TSNDomainVIDConfig.StreamLowVID", "pn_io.tsn_domain_vid_config.stream_low_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_stream_low_red_vid,
+      { "TSNDomainVIDConfig.StreamLowRedVID", "pn_io.tsn_domain_vid_config.stream_low_red_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid,
+      { "TSNDomainVIDConfig.NonStreamVID", "pn_io.tsn_domain_vid_config.non_stream_vid",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid_B,
+      { "TSNDomainVIDConfig.NonStreamVIDB", "pn_io.tsn_domain_vid_config.non_stream_vid_B",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid_C,
+      { "TSNDomainVIDConfig.NonStreamVIDC", "pn_io.tsn_domain_vid_config.non_stream_vid_C",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_non_stream_vid_D,
+      { "TSNDomainVIDConfig.NonStreamVIDD", "pn_io.tsn_domain_vid_config.non_stream_vid_D",
+        FT_UINT16, BASE_HEX, VALS(pn_io_tsn_domain_vid_config_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_vid_config_reserved,
+      { "TSNDomainVIDConfig.Reserved", "pn_io.tsn_domain_vid_config.reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_number_of_tsn_domain_port_config_entries,
+      { "TSNDomainPortConfig.NumberOfEntries", "pn_io.tsn_domain_port_config.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_number_of_tsn_time_data_block_entries,
+      { "TSNTimeDataBlock.NumberOfEntries", "pn_io.tsn_time_data_block.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_number_of_tsn_domain_queue_rate_limiter_entries,
+      { "TSNDomainQueueRateLimiter.NumberOfEntries", "pn_io.tsn_domain_queue_rate_limiter.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_number_of_tsn_domain_port_ingress_rate_limiter_entries,
+      { "TSNDomainPortIngressRateLimiter.NumberOfEntries", "pn_io.tsn_domain_port_ingress_limiter.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_config,
+      { "TSNDomainPortConfig", "pn_io.tsn_domain_port_config",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_config_preemption_enabled,
+      { "TSNDomainPortConfig.PreemptionEnabled", "pn_io.tsn_domain_port_config.preemption_enabled",
+        FT_UINT8, BASE_HEX, VALS(pn_io_tsn_domain_port_config_preemption_enabled_vals), 0x01,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_config_boundary_port_config,
+      { "TSNDomainPortConfig.BoundaryPortConfig", "pn_io.tsn_domain_port_config.boundary_port_config",
+        FT_UINT8, BASE_HEX, VALS(pn_io_tsn_domain_port_config_boundary_port_config_vals), 0x0E,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_config_reserved,
+      { "TSNDomainPortConfig.Reserved", "pn_io.tsn_domain_port_config.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0xF0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter,
+      { "TSNDomainPortIngressRateLimiter", "pn_io.tsn_domain_port_ingress_rate_limiter",
+         FT_UINT64, BASE_HEX, NULL, 0x0,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_cir,
+      { "TSNDomainPortIngressRateLimiter.Cir", "pn_io.tsn_domain_port_ingress_rate_limiter.cir",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_cir), 0x000000000000FFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_cbs,
+      { "TSNDomainPortIngressRateLimiter.Cbs", "pn_io.tsn_domain_port_ingress_rate_limiter.cbs",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_cbs), 0x00000000FFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_envelope,
+      { "TSNDomainPortIngressRateLimiter.Envelope", "pn_io.tsn_domain_port_ingress_rate_limiter.envelope",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_envelope), 0x0000FFFF00000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_ingress_rate_limiter_rank,
+      { "TSNDomainPortIngressRateLimiter.Rank", "pn_io.tsn_domain_port_ingress_rate_limiter.rank",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_port_ingress_rate_limiter_rank), 0xFFFF000000000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_rate_limiter,
+      { "TSNDomainQueueRateLimiter", "pn_io.tsn_domain_port_queue_rate_limiter",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_rate_limiter_cir,
+      { "TSNDomainQueueRateLimiter.Cir", "pn_io.tsn_domain_port_queue_rate_limiter.cir",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_cir), 0x000000000000FFFF,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_rate_limiter_cbs,
+      { "TSNDomainQueueRateLimiter.Cbs", "pn_io.tsn_domain_port_queue_rate_limiter.cbs",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_cbs), 0x00000000FFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_rate_limiter_envelope,
+      { "TSNDomainQueueRateLimiter.Envelope", "pn_io.tsn_domain_port_queue_rate_limiter.envelope",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_envelope), 0x000000FF00000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_rate_limiter_rank,
+      { "TSNDomainQueueRateLimiter.Rank", "pn_io.tsn_domain_port_queue_rate_limiter.rank",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_rank), 0x0000FF0000000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_rate_limiter_queue_id,
+      { "TSNDomainQueueRateLimiter.QueueID", "pn_io.tsn_domain_port_queue_rate_limiter.queue_id",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_queue_id), 0x00FF000000000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_rate_limiter_reserved,
+      { "TSNDomainQueueRateLimiter.Reserved", "pn_io.tsn_domain_port_queue_rate_limiter.reserved",
+        FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_rate_limiter_reserved), 0xFF00000000000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_number_of_tsn_domain_queue_config_entries,
+      { "TSNDomainQueueConfig.NumberOfEntries", "pn_io.tsn_domain_queue_config.number_of_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_config,
+      { "TSNDomainQueueConfig", "pn_io.tsn_domain_queue_config",
+        FT_UINT64, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_config_queue_id,
+        { "TSNDomainQueueConfig.QueueID", "pn_io.tsn_domain_queue_config.queue_id",
+          FT_UINT64, BASE_HEX, NULL, 0xF,
+          NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_config_tci_pcp,
+        { "TSNDomainQueueConfig.TciPcp", "pn_io.tsn_domain_queue_config.tci_pcp",
+          FT_UINT64, BASE_HEX, NULL, 0x70,
+          NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_config_shaper,
+        { "TSNDomainQueueConfig.Shaper", "pn_io.tsn_domain_queue_config.shaper",
+          FT_UINT64, BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_queue_config_shaper), 0x3F80,
+          NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_config_preemption_mode,
+        { "TSNDomainQueueConfig.PreemptionMode", "pn_io.tsn_domain_queue_config.preemption_mode",
+          FT_UINT64, BASE_HEX, NULL, 0xC000,
+          NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_config_unmask_time_offset,
+      { "TSNDomainQueueConfig.UnmaskTimeOffset", "pn_io.tsn_domain_queue_config.unmask_time_offset",
+        FT_UINT64, BASE_HEX, NULL, 0xFFFFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_queue_config_mask_time_offset,
+      { "TSNDomainQueueConfig.MaskTimeOffset", "pn_io.tsn_domain_queue_config.mask_time_offset",
+        FT_UINT64, BASE_HEX, NULL, 0xFFFFFF0000000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_network_deadline,
+      { "NetworkDeadline", "pn_io.network_deadline",
+        FT_UINT32, BASE_DEC | BASE_RANGE_STRING, RVALS(pn_io_network_domain), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_time_domain_number,
+      { "TimeDomainNumber", "pn_io.time_domain_number",
+         FT_UINT16, BASE_HEX , VALS(pn_io_time_domain_number_vals), 0x0,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_time_pll_window,
+      { "TimePLLWindow", "pn_io.time_pll_window",
+        FT_UINT32, BASE_DEC , VALS(pn_io_time_pll_window_vals), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_message_interval_factor,
+      { "MessageIntervalFactor", "pn_io.message_interval_factor",
+         FT_UINT32, BASE_DEC , VALS(pn_io_message_interval_factor_vals), 0x0,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_message_timeout_factor,
+      { "MessageTimeoutFactor", "pn_io.message_timeout_factor",
+         FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(pn_io_message_timeout_factor), 0x0,
+         NULL, HFILL }
+    },
+    { &hf_pn_io_time_sync_properties,
+      { "TimeSyncProperties", "pn_io.time_sync_properties",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_time_sync_properties_role,
+      { "TimeSyncProperties.Role", "pn_io.time_sync_properties.role",
+        FT_UINT16, BASE_HEX, VALS(pn_io_time_sync_properties_vals), 0x3,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_time_sync_properties_reserved,
+      { "TimeSyncProperties.Reserved", "pn_io.time_sync_properties.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFFC,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_time_domain_uuid,
+      { "TimeDomainUUID", "pn_io.time_domain_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_time_domain_name_length,
+      { "TimeDomainNameLength", "pn_io.time_domain_name_length",
+        FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_time_domain_name,
+      { "TimeDomainName", "pn_io.time_domain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_nme_name_uuid,
+      { "TSNNMENameUUID", "pn_io.tsn_nme_name_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_nme_name_length,
+      { "TSNNMENameLength", "pn_io.tsn_nme_name_length",
+        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_nme_name,
+      { "TSNNMEName", "pn_io.tsn_nme_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_uuid,
+      { "TSNDomainUUID", "pn_io.tsn_domain_uuid",
+        FT_GUID, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_name_length,
+      { "TSNDomainNameLength", "pn_io.tsn_domain_name_length",
+        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_name,
+      { "TSNDomainName", "pn_io.tsn_domain_name",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_fdb_command,
+      { "FDBCommand", "pn_io.tsn_fdb_command",
+        FT_UINT8, BASE_HEX, VALS(pn_io_tsn_fdb_command), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_dst_add,
+      { "DestinationAddress", "pn_io.tsn_dst_add",
+        FT_ETHER, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_number_of_tsn_domain_sync_tree_entries,
+      { "NumberOfEntries", "pn_io.tsn_domain_sync_tree_entries",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_port_id,
+      { "TSNDomainPortID", "pn_io.tsn_domain_port_id",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_tsn_domain_sync_port_role,
+      { "SyncPortRole", "pn_io.tsn_domain_sync_port_rule",
+        FT_UINT8,BASE_HEX | BASE_RANGE_STRING, RVALS(pn_io_tsn_domain_sync_port_role_vals), 0x0,
+        NULL, HFILL }
+    },
     { &hf_pn_io_mau_type,
       { "MAUType", "pn_io.mau_type",
         FT_UINT16, BASE_HEX, VALS(pn_io_mau_type), 0x0,
@@ -15360,7 +16952,14 @@ proto_register_pn_io (void)
         &ett_pn_io_peer_to_peer_boundary,
         &ett_pn_io_mau_type_extension,
         &ett_pn_io_pe_operational_mode,
-        &ett_pn_io_neighbor
+		&ett_pn_io_neighbor,
+		&ett_pn_io_tsn_domain_vid_config,
+        &ett_pn_io_tsn_domain_port_config,
+        &ett_pn_io_tsn_domain_queue_config,
+        &ett_pn_io_tsn_domain_port_ingress_rate_limiter,
+        &ett_pn_io_tsn_domain_queue_rate_limiter,
+        &ett_pn_io_time_sync_properties,
+		&ett_pn_io_tsn_domain_port_id
     };
 
     static ei_register_info ei[] = {

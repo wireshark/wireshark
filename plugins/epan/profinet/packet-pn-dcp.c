@@ -95,6 +95,13 @@ static int hf_pn_dcp_rsi_properties_value_bit4 = -1;
 static int hf_pn_dcp_rsi_properties_value_bit5 = -1;
 static int hf_pn_dcp_rsi_properties_value_otherbits = -1;
 
+static int hf_pn_dcp_suboption_tsn = -1;
+static int hf_pn_dcp_suboption_tsn_domain_name = -1;
+static int hf_pn_dcp_suboption_tsn_domain_uuid = -1;
+static int hf_pn_dcp_suboption_tsn_nme_prio = -1;
+static int hf_pn_dcp_suboption_tsn_nme_parameter_uuid = -1;
+static int hf_pn_dcp_suboption_tsn_nme_agent = -1;
+
 static int hf_pn_dcp_suboption_dhcp = -1;
 static int hf_pn_dcp_suboption_dhcp_option_code = -1;
 static int hf_pn_dcp_suboption_dhcp_parameter_length = -1;
@@ -113,6 +120,12 @@ static int hf_pn_dcp_suboption_all = -1;
 
 static int hf_pn_dcp_suboption_manuf = -1;
 
+static int hf_pn_dcp_vendor_id_high = -1;
+static int hf_pn_dcp_vendor_id_low = -1;
+static int hf_pn_dcp_device_id_high = -1;
+static int hf_pn_dcp_device_id_low = -1;
+static int hf_pn_dcp_instance_id_high = -1;
+static int hf_pn_dcp_instance_id_low = -1;
 static gint ett_pn_dcp = -1;
 static gint ett_pn_dcp_block = -1;
 
@@ -205,6 +218,7 @@ static const value_string pn_dcp_BlockQualifier[] = {
 #define PNDCP_OPTION_RESERVED           0x04
 #define PNDCP_OPTION_CONTROL            0x05
 #define PNDCP_OPTION_DEVICEINITIATIVE   0x06
+#define PNDCP_OPTION_TSN                0x07
 #define PNDCP_OPTION_MANUF_X80          0x80
 #define PNDCP_OPTION_MANUF_XFE          0xFE
 #define PNDCP_OPTION_ALLSELECTOR        0xFF
@@ -217,6 +231,7 @@ static const range_string pn_dcp_option[] = {
     { PNDCP_OPTION_RESERVED        , PNDCP_OPTION_RESERVED        , "Reserved" },
     { PNDCP_OPTION_CONTROL         , PNDCP_OPTION_CONTROL         , "Control" },
     { PNDCP_OPTION_DEVICEINITIATIVE, PNDCP_OPTION_DEVICEINITIATIVE, "Device Initiative" },
+    { PNDCP_OPTION_TSN             , PNDCP_OPTION_TSN             , "TSN Domain"},
     /*0x07 - 0x7F reserved */
     /*0x80 - 0xFE manufacturer specific */
     { PNDCP_OPTION_MANUF_X80  , PNDCP_OPTION_MANUF_XFE  , "Manufacturer specific" },
@@ -279,7 +294,33 @@ static const value_string pn_dcp_suboption_device[] = {
 };
 
 static const true_false_string pn_dcp_rsi_properties_value_bit =
-    { "Available", "Not available" };
+    {  "Available", "Not available" } ;
+
+#define PNDCP_SUBOPTION_TSN_DOMAIN_NAME            0x01
+#define PNDCP_SUBOPTION_TSN_NME_MANAGER            0x02
+#define PNDCP_SUBOPTION_TSN_NME_PARAMETER_UUID     0x03
+#define PNDCP_SUBOPTION_TSN_NME_AGENT              0x04
+#define PNDCP_SUBOPTION_TSN_CIM_INTERFACE          0x05
+
+static const value_string pn_dcp_suboption_tsn[] = {
+    { 0x00, "Reserved" },
+    { PNDCP_SUBOPTION_TSN_DOMAIN_NAME,         "TSN Domain Name" },
+    { PNDCP_SUBOPTION_TSN_NME_MANAGER,         "NME Manager" },
+    { PNDCP_SUBOPTION_TSN_NME_PARAMETER_UUID,  "NME Paramater UUID" },
+    { PNDCP_SUBOPTION_TSN_NME_AGENT,           "NME Agent" },
+    { PNDCP_SUBOPTION_TSN_CIM_INTERFACE,       "CIM Interface" },
+    { 0, NULL }
+};
+
+static const range_string pn_dcp_suboption_tsn_nme_prio[] =
+{
+    { 0x0000, 0x0000, "Highest priority NME manager" },
+    { 0x0001, 0x3000, "High priorities for NME manager" },
+    { 0x3001, 0x9FFF, "Low priorities for NME manager" },
+    { 0xA000, 0xA000, "Lowest priority for NME manager / Default priority for NME manager" },
+    { 0xA001, 0xFFFF, "Reserved" },
+    { 0, 0, NULL }
+};
 
 #define PNDCP_SUBOPTION_DHCP_CLIENT_ID  61
 #define PNDCP_SUBOPTION_DHCP_CONTROL_FOR_ADDRESS_RES  255
@@ -391,6 +432,10 @@ dissect_PNDCP_Option(tvbuff_t *tvb, int offset, packet_info *pinfo,
     case PNDCP_OPTION_DEVICEINITIATIVE:
         offset  = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_deviceinitiative, &suboption);
         val_str = pn_dcp_suboption_deviceinitiative;
+        break;
+    case PNDCP_OPTION_TSN:
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_tsn, &suboption);
+        val_str = pn_dcp_suboption_tsn;
         break;
     case PNDCP_OPTION_ALLSELECTOR:
         offset  = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_all, &suboption);
@@ -653,7 +698,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * part, not realizing that they should have done "(R)" or something
          * such as that.
          */
-        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, pinfo->pool, &typeofstation);
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, ENC_ASCII, pinfo->pool, &typeofstation);
         pn_append_info(pinfo, dcp_item, ", DeviceVendorValue");
         proto_item_append_text(block_item, "Device/Manufacturer specific");
         if (have_block_qualifier) {
@@ -710,7 +755,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * is just an ASCII string to be interpreted as a Punycode Unicode
          * domain name?
          */
-        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, pinfo->pool, &nameofstation);
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, ENC_ASCII, pinfo->pool, &nameofstation);
         pn_append_info(pinfo, dcp_item, wmem_strdup_printf(pinfo->pool, ", NameOfStation:\"%s\"", nameofstation));
         proto_item_append_text(block_item, "Device/NameOfStation");
         if (have_block_qualifier) {
@@ -858,7 +903,7 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
          *   NameOfStationValue" that it's a domain name, complete with
          *   RFC 5890 Punycode.
          */
-        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, ENC_ASCII|ENC_NA, pinfo->pool, &aliasname);
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, ENC_ASCII, pinfo->pool, &aliasname);
         pn_append_info(pinfo, dcp_item, wmem_strdup_printf(pinfo->pool, ", AliasName:\"%s\"", aliasname));
         proto_item_append_text(block_item, "Device/AliasName");
         if (have_block_qualifier) {
@@ -955,6 +1000,239 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
+/* dissect the "tsn" suboption */
+static int
+dissect_PNDCP_Suboption_TSN(tvbuff_t* tvb, int offset, packet_info* pinfo,
+    proto_tree* tree, proto_item* block_item, proto_item* dcp_item,
+    guint8 service_id, gboolean is_response)
+{
+    guint8    suboption;
+    guint16   block_length;
+    char     *domain_name;
+    guint16   nme_prio;
+    e_guid_t  tsn_domain_uuid;
+    e_guid_t  nme_parameter_uuid;
+    e_guid_t  nme_name_uuid;
+    guint16   vendor_id;
+    guint16   device_id;
+    guint16   block_info = 0;
+    guint16   block_qualifier = 0;
+    gboolean  have_block_info = FALSE;
+    gboolean  have_block_qualifier = FALSE;
+    guint8    instance_id_high;
+    guint8    instance_id_low;
+    conversation_t* conversation;
+    stationInfo* station_info;
+    gboolean is_zeros = TRUE;
+
+    /* SuboptionTSN... */
+    offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_tsn, &suboption);
+
+    /* DCPBlockLength */
+    offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
+
+    /* BlockInfo? */
+    if (((service_id == PNDCP_SERVICE_ID_IDENTIFY) && is_response) ||
+        ((service_id == PNDCP_SERVICE_ID_HELLO) && !is_response) ||
+        ((service_id == PNDCP_SERVICE_ID_GET) && is_response)) {
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
+        have_block_info = TRUE;
+        block_length -= 2;
+    }
+
+    /* BlockQualifier? */
+    if ((service_id == PNDCP_SERVICE_ID_SET) && !is_response) {
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_qualifier, &block_qualifier);
+        have_block_qualifier = TRUE;
+        block_length -= 2;
+    }
+
+    switch (suboption) {
+    case PNDCP_SUBOPTION_TSN_DOMAIN_NAME:
+
+        offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_tsn_domain_uuid, &tsn_domain_uuid);
+        proto_tree_add_item_ret_display_string(tree, hf_pn_dcp_suboption_tsn_domain_name, tvb, offset, (block_length-16), ENC_ASCII | ENC_NA, wmem_packet_scope(), &domain_name);
+
+        pn_append_info(pinfo, dcp_item, ", TSN-Domain Name");
+        proto_item_append_text(block_item, "TSN/TSN-Domain Name");
+        if (have_block_qualifier) {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+        if (have_block_info)
+            proto_item_append_text(block_item, ", BlockInfo: %s", rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
+
+        pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", DomainName:\"%s\"", domain_name));
+        proto_item_append_text(block_item, ", \"%s\"", domain_name);
+        offset += (block_length-16);
+        is_zeros = TRUE;
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (tsn_domain_uuid.data4[i] != 0)
+            {
+                is_zeros = FALSE;
+                break;
+            }
+        }
+
+        if ((tsn_domain_uuid.data1 == 0) && (tsn_domain_uuid.data2 == 0) && (tsn_domain_uuid.data3 == 0) && (is_zeros))
+            proto_item_append_text(block_item, ", No TSN domain assigned");
+        else
+            proto_item_append_text(block_item, ", UUID identifying a TSN domain using SNMP/ LLDP/ DCP");
+
+        break;
+
+    case PNDCP_SUBOPTION_TSN_NME_MANAGER:
+
+        pn_append_info(pinfo, dcp_item, ", NME-Manager");
+        proto_item_append_text(block_item, "TSN/NME-Manager");
+
+        if (have_block_qualifier)
+        {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+
+        if (have_block_info)
+        {
+            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_tsn_nme_prio, &nme_prio);
+            proto_item_append_text(block_item, ", BlockInfo: %s", rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
+
+            if (nme_prio == 0x0000)
+                proto_item_append_text(block_item, ", Highest priority NME manager");
+            else if ((0x0001 <= nme_prio) && (nme_prio <= 0x3000))
+                proto_item_append_text(block_item, ", High priorities for NME manager");
+            else if ((0x3001 <= nme_prio) && (nme_prio <= 0x9FFF))
+                proto_item_append_text(block_item, ", Low priorities for NME manager");
+            else if (0xA000 == nme_prio)
+                proto_item_append_text(block_item, ", Lowest priority for NME manager / Default priority for NME manager");
+            else
+                proto_item_append_text(block_item, ", Reserved");
+        }
+
+        break;
+
+    case PNDCP_SUBOPTION_TSN_NME_PARAMETER_UUID:
+
+        pn_append_info(pinfo, dcp_item, ", NME-Parameter UUID");
+        proto_item_append_text(block_item, "TSN/NME-Parameter UUID");
+
+        if (block_length > 0)
+        {
+            offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_tsn_nme_parameter_uuid, &nme_parameter_uuid);
+
+            if (have_block_qualifier)
+            {
+                proto_item_append_text(block_item, ", BlockQualifier: %s",
+                    val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+            }
+            if (have_block_info)
+                proto_item_append_text(block_item, ", BlockInfo: %s", rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
+
+            is_zeros = TRUE;
+
+            for (int i = 0; i < 8; i++)
+            {
+                if (nme_parameter_uuid.data4[i] != 0)
+                {
+                    is_zeros = FALSE;
+                    break;
+                }
+            }
+            if ((nme_parameter_uuid.data1 == 0) && (nme_parameter_uuid.data2 == 0) && (nme_parameter_uuid.data3 == 0) && (is_zeros))
+                proto_item_append_text(block_item, ", Unconfigured");
+            else
+                proto_item_append_text(block_item, ", UUID identifying an NME parameter set within the TSN domain.");
+        }
+        break;
+
+    case PNDCP_SUBOPTION_TSN_NME_AGENT:
+
+        pn_append_info(pinfo, dcp_item, ", NME-Agent");
+        proto_item_append_text(block_item, "TSN/NME-Agent");
+
+        if (have_block_qualifier)
+        {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+
+        if (have_block_info)
+        {
+            offset = dissect_pn_uuid(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_tsn_nme_agent, &nme_name_uuid);
+            proto_item_append_text(block_item, ", BlockInfo: %s", rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
+
+            is_zeros = TRUE;
+            for (int i = 0; i < 8; i++)
+            {
+                if (nme_name_uuid.data4[i] != 0)
+                {
+                    is_zeros = FALSE;
+                    break;
+                }
+            }
+
+            if ((nme_name_uuid.data1 == 0) && (nme_name_uuid.data2 == 0) && (nme_name_uuid.data3 == 0) && (is_zeros))
+                proto_item_append_text(block_item, ", No NME assigned");
+            else
+                proto_item_append_text(block_item, ", UUID identifying an NME using SNMP / LLDP / DCP");
+        }
+        break;
+
+    case PNDCP_SUBOPTION_TSN_CIM_INTERFACE:
+
+        pn_append_info(pinfo, dcp_item, ", CIM-Interface");
+        proto_item_append_text(block_item, "TSN/CIM-Interface");
+
+        if (have_block_qualifier)
+        {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+        if (have_block_info)
+        {
+            // CIMVDIValue
+            dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_vendor_id_high, &vendor_id);
+            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_vendor_id_low, &vendor_id);
+
+            dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_device_id_high, &device_id);
+            offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_device_id_low, &device_id);
+
+            offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_instance_id_high, &instance_id_high);
+            offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_instance_id_low, &instance_id_low);
+
+            if (pinfo->fd->visited == FALSE) {
+                /* Create a conversation between the MAC addresses */
+                conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                if (conversation == NULL) {
+                    conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+                }
+
+                station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+                if (station_info == NULL) {
+                    station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                    init_pnio_rtc1_station(station_info);
+                    conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
+                }
+
+                station_info->u16Vendor_id = vendor_id;
+                station_info->u16Device_id = device_id;
+            }
+
+            proto_item_append_text(block_item, ", BlockInfo: %s", rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
+
+            proto_item_append_text(block_item, ", VendorID: 0x%04x / DeviceID: 0x%04x / InstanceIDHigh: 0x%04x / InstanceIDLow: 0x%04x", vendor_id, device_id, instance_id_high, instance_id_low);
+        }
+        break;
+
+    default:
+        pn_append_info(pinfo, dcp_item, ", TSN/Reserved");
+        proto_item_append_text(block_item, "TSN/Reserved");
+    }
+
+    return offset;
+}
 
 /* dissect the "DHCP" suboption */
 static int
@@ -1032,7 +1310,7 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
                  * dissect_dhcpopt_client_identifier(), so that we can
                  * use its heuristics?
                  */
-                proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, ENC_ASCII);
                 offset += (dhcpparameterlength-1);
             }
         }
@@ -1286,6 +1564,10 @@ dissect_PNDCP_Block(tvbuff_t *tvb, int offset, packet_info *pinfo,
     else if (option == PNDCP_OPTION_DEVICEINITIATIVE)
     {
         offset = dissect_PNDCP_Suboption_DeviceInitiative(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
+    }
+    else if (option == PNDCP_OPTION_TSN)
+    {
+        offset = dissect_PNDCP_Suboption_TSN(tvb, offset, pinfo, block_tree, block_item, dcp_item, service_id, is_response);
     }
     else if (option == PNDCP_OPTION_ALLSELECTOR)
     {
@@ -1644,6 +1926,36 @@ proto_register_pn_dcp (void)
             FT_UINT16, BASE_HEX, NULL, 0xFFC0,
             NULL, HFILL } },
 
+        { &hf_pn_dcp_vendor_id_high,
+          { "VendorIDHigh", "pn_dcp.vendor_id_high",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_vendor_id_low,
+          { "VendorIDLow", "pn_dcp.vendor_id_low",
+            FT_UINT16, BASE_HEX, NULL, 0x00FF,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_device_id_high,
+          { "DeviceIDHigh", "pn_dcp.device_id_high",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_device_id_low,
+          { "DeviceIDLow", "pn_dcp.device_id_low",
+            FT_UINT16, BASE_HEX, NULL, 0x00FF,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_instance_id_high,
+          { "InstanceHigh", "pn_dcp.instance_id_high",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_instance_id_low,
+          { "InstanceLow", "pn_dcp.instance_id_low",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
         { &hf_pn_dcp_suboption_dhcp,
           { "Suboption", "pn_dcp.suboption_dhcp",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_dhcp), 0x0,
@@ -1698,6 +2010,36 @@ proto_register_pn_dcp (void)
           { "DeviceInitiativeValue", "pn_dcp.deviceinitiative_value",
             FT_UINT16, BASE_DEC, VALS(pn_dcp_deviceinitiative_value), 0x0,
             NULL, HFILL }},
+
+        { &hf_pn_dcp_suboption_tsn,
+          { "Suboption", "pn_dcp.suboption_tsn",
+            FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_tsn), 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_suboption_tsn_domain_name,
+          { "TSNDomainName", "pn_dcp.suboption_tsn_domain_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_suboption_tsn_domain_uuid,
+          { "TSNDomainUUID", "pn_dcp.tsn_domain_uuid",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_suboption_tsn_nme_prio,
+          { "NMEPrio", "pn_dcp.suboption_tsn_nme_prio",
+            FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(pn_dcp_suboption_tsn_nme_prio), 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_suboption_tsn_nme_parameter_uuid,
+          { "NMEParameterUUID", "pn_dcp.suboption_tsn_nme_parameter_uuid",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_suboption_tsn_nme_agent,
+          { "NMEAgent", "pn_dcp.suboption_tsn_nme_agent",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL } },
 
         { &hf_pn_dcp_suboption_all,
           { "Suboption", "pn_dcp.suboption_all",
