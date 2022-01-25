@@ -16,7 +16,7 @@
  * RFC9001 Using TLS to Secure QUIC
  * RFC8889 Version-Independent Properties of QUIC
  * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-05
- * https://datatracker.ietf.org/doc/html/draft-ietf-quic-v2-00
+ * https://datatracker.ietf.org/doc/html/draft-ietf-quic-v2-01
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -27,7 +27,7 @@
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
  * draft-25, draft-26, draft-27, draft-28, draft-29, draft-30, draft-31, draft-32,
- * draft-33, draft-34, v1, v2-draft-00
+ * draft-33, draft-34, v1, v2-draft-01
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -74,6 +74,7 @@ static int hf_quic_connection_number = -1;
 static int hf_quic_packet_length = -1;
 static int hf_quic_header_form = -1;
 static int hf_quic_long_packet_type = -1;
+static int hf_quic_long_packet_type_v2 = -1;
 static int hf_quic_long_reserved = -1;
 static int hf_quic_packet_number_length = -1;
 static int hf_quic_dcid = -1;
@@ -458,13 +459,16 @@ static inline guint8 quic_draft_version(guint32 version) {
         return 34;
     }
     /* QUIC Version 2 */
-    /* TODO: for the time being use 100 + draft as a number for V2.
-       Looking at how V2 drafts evolve, we might decide to add a
-       quicv2_draft_version() or a quic_is_v2() function */
-    if ((version >> 8) == 0xff0200) {
-       return 100 + (guint8)version;
+    /* TODO: for the time being use 100 as a number for V2 and let
+       see how v2 drafts evolve */
+    if (version == 0x709A50C4) {
+       return 100;
     }
     return 0;
+}
+
+static inline gboolean is_quic_v2(guint32 version) {
+    return version == 0x709A50C4;
 }
 
 static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
@@ -530,7 +534,8 @@ const range_string quic_version_vals[] = {
     { 0xff000021, 0xff000021, "draft-33" },
     { 0xff000022, 0xff000022, "draft-34" },
     /* QUICv2 */
-    { 0xff020000, 0xff020000, "v2-draft-00" },
+    { 0xff020000, 0xff020000, "v2-draft-00" }, /* Never used; not really supported */
+    { 0x709A50C4, 0x709A50C4, "v2-draft-01" },
     { 0, 0, NULL }
 };
 
@@ -542,6 +547,8 @@ static const value_string quic_short_long_header_vals[] = {
 
 #define SH_KP       0x04
 
+/* Note that these values are "internal-value" used by Wireshark only.
+   Real wire-format values depends on QUIC version */
 #define QUIC_LPT_INITIAL    0x0
 #define QUIC_LPT_0RTT       0x1
 #define QUIC_LPT_HANDSHAKE  0x2
@@ -549,11 +556,19 @@ static const value_string quic_short_long_header_vals[] = {
 #define QUIC_LPT_VER_NEG    0xfe    /* Version Negotiation packets don't have any real packet type */
 #define QUIC_SHORT_PACKET   0xff    /* dummy value that is definitely not LPT */
 
-static const value_string quic_long_packet_type_vals[] = {
-    { QUIC_LPT_INITIAL, "Initial" },
-    { QUIC_LPT_RETRY, "Retry" },
-    { QUIC_LPT_HANDSHAKE, "Handshake" },
-    { QUIC_LPT_0RTT, "0-RTT" },
+static const value_string quic_v1_long_packet_type_vals[] = {
+    { 0x00, "Initial" },
+    { 0x03, "Retry" },
+    { 0x02, "Handshake" },
+    { 0x01, "0-RTT" },
+    /* Version Negotiation packets never use this mapping, so no need to add QUIC_LPT_VER_NEG */
+    { 0, NULL }
+};
+static const value_string quic_v2_long_packet_type_vals[] = {
+    { 0x00, "Retry" },
+    { 0x01, "Initial" },
+    { 0x02, "0-RTT" },
+    { 0x03, "Handshake" },
     /* Version Negotiation packets never use this mapping, so no need to add QUIC_LPT_VER_NEG */
     { 0, NULL }
 };
@@ -695,6 +710,29 @@ static const val64_string quic_frame_id_direction[] = {
 static void
 quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
                     quic_cid_t *dcid, quic_cid_t *scid);
+
+static int
+quic_get_long_packet_type(guint8 first_byte, guint32 version)
+{
+    /* Up to V1 */
+    if (!is_quic_v2(version)) {
+        if ((first_byte & 0x30) >> 4 == 0)
+            return QUIC_LPT_INITIAL;
+        if ((first_byte & 0x30) >> 4 == 1)
+            return QUIC_LPT_0RTT;
+        if ((first_byte & 0x30) >> 4 == 2)
+            return QUIC_LPT_HANDSHAKE;
+        return QUIC_LPT_RETRY;
+    } else {
+        if ((first_byte & 0x30) >> 4 == 0)
+            return QUIC_LPT_RETRY;
+        if ((first_byte & 0x30) >> 4 == 1)
+            return QUIC_LPT_INITIAL;
+        if ((first_byte & 0x30) >> 4 == 2)
+            return QUIC_LPT_0RTT;
+        return QUIC_LPT_HANDSHAKE;
+    }
+}
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static void
@@ -838,10 +876,10 @@ static guint64 *
 quic_max_packet_number(quic_info_data_t *quic_info, gboolean from_server, guint8 first_byte)
 {
     int pkn_space;
-    if ((first_byte & 0x80) && (first_byte & 0x30) >> 4 == QUIC_LPT_INITIAL) {
+    if ((first_byte & 0x80) && quic_get_long_packet_type(first_byte, quic_info->version) == QUIC_LPT_INITIAL) {
         // Long header, Initial
         pkn_space = 0;
-    } else if ((first_byte & 0x80) && (first_byte & 0x30) >> 4 == QUIC_LPT_HANDSHAKE) {
+    } else if ((first_byte & 0x80) && quic_get_long_packet_type(first_byte, quic_info->version) == QUIC_LPT_HANDSHAKE) {
         // Long header, Handshake
         pkn_space = 1;
     } else {
@@ -2649,7 +2687,7 @@ quic_hp_cipher_init(quic_hp_cipher *hp_cipher, int hash_algo, guint8 key_length,
 {
     guchar      hp_key[256/8];
     guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
-    char        *label = is_quic_draft_max(version, 34) ? "quic hp" : "quicv2 hp";
+    char        *label = !is_quic_v2(version) ? "quic hp" : "quicv2 hp";
 
     if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, label, hp_key, key_length)) {
         return FALSE;
@@ -2662,8 +2700,8 @@ quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length,
 {
     guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
     guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
-    char        *key_label = is_quic_draft_max(version, 34) ? "quic key" : "quicv2 key";
-    char        *iv_label = is_quic_draft_max(version, 34) ? "quic iv" : "quicv2 iv";
+    char        *key_label = !is_quic_v2(version) ? "quic key" : "quicv2 key";
+    char        *iv_label = !is_quic_v2(version) ? "quic iv" : "quicv2 iv";
 
     if (key_length > sizeof(write_key)) {
         return FALSE;
@@ -3031,17 +3069,13 @@ quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, qu
 static int
 dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
                                 guint offset, const quic_packet_info_t *quic_packet _U_,
-                                guint32 *version_out, quic_cid_t *dcid, quic_cid_t *scid)
+                                quic_cid_t *dcid, quic_cid_t *scid)
 {
     guint32     version;
     guint32     dcil, scil;
     proto_item  *ti;
 
     version = tvb_get_ntohl(tvb, offset);
-
-    if (version_out) {
-        *version_out = version;
-    }
 
     ti = proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
@@ -3086,20 +3120,23 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
 static int
 dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
                           quic_datagram *dgram_info _U_, quic_packet_info_t *quic_packet,
-                          const quic_cid_t *odcid)
+                          const quic_cid_t *odcid, guint32 version)
 {
     guint       offset = 0;
-    guint32     version;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32     odcil = 0;
     guint       retry_token_len;
     proto_item *ti;
 
-    proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
+    if (is_quic_v2(version)) {
+        proto_tree_add_item(quic_tree, hf_quic_long_packet_type_v2, tvb, offset, 1, ENC_NA);
+    } else {
+        proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
+    }
     offset += 1;
     col_set_str(pinfo->cinfo, COL_INFO, "Retry");
 
-    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &dcid, &scid);
 
     if (is_quic_draft_max(version, 24)) {
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
@@ -3248,15 +3285,20 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 #endif /* HAVE_LIBGCRYPT_AEAD */
 
     proto_tree_add_item(quic_tree, hf_quic_fixed_bit, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
+    if (is_quic_v2(version)) {
+        proto_tree_add_item(quic_tree, hf_quic_long_packet_type_v2, tvb, offset, 1, ENC_NA);
+    } else {
+        proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
+    }
     if (quic_packet->pkn_len) {
         proto_tree_add_uint(quic_tree, hf_quic_long_reserved, tvb, offset, 1, first_byte);
         proto_tree_add_uint(quic_tree, hf_quic_packet_number_length, tvb, offset, 1, first_byte);
     }
     offset += 1;
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(long_packet_type, quic_long_packet_type_vals, "Long Header"));
+    /* Trick: internal values in `long_packet_type` are always correctly mapped by V1 enum */
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(long_packet_type, quic_v1_long_packet_type_vals, "Long Header"));
 
-    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, NULL, &dcid, &scid);
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &dcid, &scid);
 
     if (long_packet_type == QUIC_LPT_INITIAL) {
         proto_tree_add_item_ret_varint(quic_tree, hf_quic_token_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &len_token_length);
@@ -3460,7 +3502,7 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_item(quic_tree, hf_quic_vn_unused, tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, NULL, &dcid, &scid);
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &dcid, &scid);
 
     /* Supported Version */
     while(tvb_reported_length_remaining(tvb, offset) > 0){
@@ -3477,25 +3519,27 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
     guint64 token_length;
     guint64 payload_length;
     guint8 packet_type = tvb_get_guint8(tvb, offset);
-    guint8 long_packet_type = (packet_type & 0x30) >> 4;
     // Retry and VN packets cannot be coalesced (clarified in draft -14).
-    if ((packet_type & 0x80) && long_packet_type != QUIC_LPT_RETRY) {
-        // long header form, check version
+    if (packet_type & 0x80) {
         guint version = tvb_get_ntohl(tvb, offset + 1);
-        // If this is not a VN packet but a valid long form, extract a subset.
-        // TODO check for valid QUIC versions as future versions might change the format.
-        if (version != 0) {
-            guint length = 5;   // flag (1 byte) + version (4 bytes)
-            length += 1 + tvb_get_guint8(tvb, offset + length); // DCID
-            length += 1 + tvb_get_guint8(tvb, offset + length); // SCID
-            if (long_packet_type == QUIC_LPT_INITIAL) {
-                length += tvb_get_varint(tvb, offset + length, 8, &token_length, ENC_VARINT_QUIC);
-                length += (guint)token_length;
-            }
-            length += tvb_get_varint(tvb, offset + length, 8, &payload_length, ENC_VARINT_QUIC);
-            length += (guint)payload_length;
-            if (payload_length <= G_MAXINT32 && length < (guint)tvb_reported_length_remaining(tvb, offset)) {
-                return tvb_new_subset_length(tvb, offset, length);
+        guint8 long_packet_type = quic_get_long_packet_type(packet_type, version);
+        if (long_packet_type != QUIC_LPT_RETRY) {
+            // long header form, check version
+            // If this is not a VN packet but a valid long form, extract a subset.
+            // TODO check for valid QUIC versions as future versions might change the format.
+            if (version != 0) {
+                guint length = 5;   // flag (1 byte) + version (4 bytes)
+                length += 1 + tvb_get_guint8(tvb, offset + length); // DCID
+                length += 1 + tvb_get_guint8(tvb, offset + length); // SCID
+                if (long_packet_type == QUIC_LPT_INITIAL) {
+                    length += tvb_get_varint(tvb, offset + length, 8, &token_length, ENC_VARINT_QUIC);
+                    length += (guint)token_length;
+                }
+                length += tvb_get_varint(tvb, offset + length, 8, &payload_length, ENC_VARINT_QUIC);
+                length += (guint)payload_length;
+                if (payload_length <= G_MAXINT32 && length < (guint)tvb_reported_length_remaining(tvb, offset)) {
+                    return tvb_new_subset_length(tvb, offset, length);
+                }
             }
         }
     }
@@ -3520,16 +3564,18 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
 
     guint8 packet_type = tvb_get_guint8(tvb, offset);
     gboolean is_long_header = packet_type & 0x80;
+
+    offset++;
+
     if (is_long_header) {
         // long header form
-        *long_packet_type = (packet_type & 0x30) >> 4;
+        *version = tvb_get_ntohl(tvb, offset);
+        *long_packet_type = quic_get_long_packet_type(packet_type, *version);
     } else {
         // short header form, store dummy value that is not a long packet type.
         *long_packet_type = QUIC_SHORT_PACKET;
     }
-    offset++;
 
-    *version = tvb_get_ntohl(tvb, offset);
 
     if (is_long_header) {
         /* VN packets don't have any real packet type field, even if they have
@@ -3700,15 +3746,15 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint new_offset = 0;
         guint8 first_byte = tvb_get_guint8(next_tvb, 0);
         if (first_byte & 0x80) {
-            guint8 long_packet_type = (first_byte & 0x30) >> 4;
             proto_tree_add_item(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA);
             guint32 version = tvb_get_ntohl(next_tvb, 1);
+            guint8 long_packet_type = quic_get_long_packet_type(first_byte, version);
             if (version == 0) {
                 offset += dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
                 break;
             }
             if (long_packet_type == QUIC_LPT_RETRY) {
-                new_offset = dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet, retry_odcid);
+                new_offset = dissect_quic_retry_packet(next_tvb, pinfo, quic_tree, dgram_info, quic_packet, retry_odcid, version);
             } else {
                 new_offset = dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             }
@@ -3791,13 +3837,6 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     is_quic = (quic_draft_version(version) >= 11);
     if (!is_quic) {
         return FALSE;
-    }
-
-    /* Version check on packet forcing version negotiation is quite weak:
-       try hardenig it checking packets type, too */
-    if ((version & 0x0F0F0F0F) == 0x0a0a0a0a &&
-        (flags & 0x30) != 0x00) { /* Initial Packet */
-            return FALSE;
     }
 
     /* Check that CIDs lengths are valid */
@@ -4040,7 +4079,12 @@ proto_register_quic(void)
 
         { &hf_quic_long_packet_type,
           { "Packet Type", "quic.long.packet_type",
-            FT_UINT8, BASE_DEC, VALS(quic_long_packet_type_vals), 0x30,
+            FT_UINT8, BASE_DEC, VALS(quic_v1_long_packet_type_vals), 0x30,
+            "Long Header Packet Type", HFILL }
+        },
+        { &hf_quic_long_packet_type_v2,
+          { "Packet Type", "quic.long.packet_type_v2",
+            FT_UINT8, BASE_DEC, VALS(quic_v2_long_packet_type_vals), 0x30,
             "Long Header Packet Type", HFILL }
         },
         { &hf_quic_long_reserved,
