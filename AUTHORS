@@ -3746,6 +3746,10 @@ Martin Mayer		<martin.mayer[AT]m2-it-solutions.de> {
 	Allied Telesis Loop Detection Frames (LDF) dissector
 }
 
+Horst Kronstorfer	<hkronsto[AT]frequentis.com>> {
+	Realtek protocol support
+}
+
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
