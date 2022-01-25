@@ -297,6 +297,7 @@ static int hf_gtp_up_fun_sel_ind_flags_spare = -1;
 static int hf_gtp_cdr_app = -1;
 static int hf_gtp_cdr_rel = -1;
 static int hf_gtp_cdr_ver = -1;
+static int hf_gtp_cdr_rel_ext = -1;
 static int hf_gtp_cdr_length = -1;
 static int hf_gtp_cdr_context = -1;
 static int hf_gtp_cmn_flg_ppc = -1;
@@ -514,6 +515,7 @@ static expert_field ei_gtp_iei = EI_INIT;
 static expert_field ei_gtp_unknown_extension_header = EI_INIT;
 static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
 static expert_field ei_gtp_source_type_unknown = EI_INIT;
+static expert_field ei_gtp_cdr_rel_ext_invalid = EI_INIT;
 
 static const range_string assistance_info_type[] = {
     { 0,   0,   "UNKNOWN" },
@@ -9358,6 +9360,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 
     guint16     length, cdr_length;
     guint8      no, format, app_id, rel_id, ver_id, i;
+    gboolean    rel_id_zero = FALSE;
     proto_tree *ext_tree, *ver_tree, *cdr_dr_tree;
     proto_item *fmt_item;
     tvbuff_t   *next_tvb;
@@ -9393,11 +9396,21 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
          *    8 7 6 5             4 3 2 1
          * 6 Application Identifier Release Identifier
          * 7 Version Identifier
+         *
+         * New with Release 15 and higher:
+         * 8 Release Identifier Extension
+         * The Release Identifier indicates the TS release up to and including
+         * 15. The Release Identifier Extension indicates TS releases above 15,
+         * in this case the Release Identifier has a value of '0' (decimal)
          */
         app_id = tvb_get_guint8(tvb,offset);
         rel_id = app_id & 0x0f;
         app_id = app_id >>4;
-        ver_id =tvb_get_guint8(tvb,offset+1);
+        ver_id = tvb_get_guint8(tvb,offset+1);
+        if (rel_id == 0) {
+            rel_id_zero = TRUE;
+            rel_id = tvb_get_guint8(tvb,offset+2);
+        }
         /* The second octet (#7 in Data Record Packet IE) identifies the version of the TS used to encode the CDR,
          * i.e. its value corresponds to the second digit of the version number of the document [51]
          * (as shown on the cover sheet), plus '1'.
@@ -9409,13 +9422,30 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
             ver_id = ver_id -1;
         /* XXX We don't handle ASCCI version */
 
-        ver_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, 2, ett_gtp_cdr_ver, NULL,
+        /* Assume the Release Identifier Extension is present iff the Release
+         * Identifier is 0 or 15, as it was introduced in Rel 15 of TS 32.295.
+         *
+         * XXX: If a CDR encoded with a release < 15 is transfered with GTP'
+         * Release >= 15, we would need a preference to force the presence
+         * of the Release Identifier Extension field.
+         */
+        ver_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, (rel_id_zero || rel_id == 15) ? 3 : 2, ett_gtp_cdr_ver, NULL,
                                 "Data record format version: AppId %u Rel %u.%u.0", app_id,rel_id,ver_id);
         proto_tree_add_item(ver_tree, hf_gtp_cdr_app, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ver_tree, hf_gtp_cdr_rel, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(ver_tree, hf_gtp_cdr_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
+        if(rel_id_zero) {
+            fmt_item = proto_tree_add_item(ver_tree, hf_gtp_cdr_rel_ext, tvb, offset, 1, ENC_NA);
+            if(rel_id < 16) {
+                expert_add_info(pinfo, fmt_item, &ei_gtp_cdr_rel_ext_invalid);
+            }
+            offset++;
+        } else if (rel_id == 15) {
+            proto_tree_add_item(ver_tree, hf_gtp_cdr_rel_ext, tvb, offset, 1, ENC_NA);
+            offset++;
+        }
         for(i = 0; i < no; ++i) {
             cdr_length = tvb_get_ntohs(tvb, offset);
             cdr_dr_tree = proto_tree_add_subtree_format(ext_tree, tvb, offset, cdr_length+2,
@@ -11654,6 +11684,11 @@ proto_register_gtp(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
+        { &hf_gtp_cdr_rel_ext,
+          { "Release Identifier Extension", "gtp.cdr_rel_ext",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
         { &hf_gtp_cdr_length,
           { "Length", "gtp.cdr_length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -12422,6 +12457,7 @@ proto_register_gtp(void)
         { &ei_gtp_unknown_extension_header, { "gtp.unknown_extension_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
         { &ei_gtp_unknown_pdu_type, { "gtp.unknown_pdu_type", PI_PROTOCOL, PI_WARN, "Unknown PDU type", EXPFILL }},
         { &ei_gtp_source_type_unknown, { "gtp.source_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown source type", EXPFILL }},
+        { &ei_gtp_cdr_rel_ext_invalid, { "gtp.cdr_rel_ext.invalid", PI_PROTOCOL, PI_WARN, "If Release Identifier is 0, Release Identifier Extension must be >= 16", EXPFILL}},
     };
 
     /* Setup protocol subtree array */
