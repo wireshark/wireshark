@@ -5138,12 +5138,12 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { & hf_dns_minfo_r_mailbox,
+    { &hf_dns_minfo_r_mailbox,
       { "Responsible Mailbox", "dns.minfo.r",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { & hf_dns_minfo_e_mailbox,
+    { &hf_dns_minfo_e_mailbox,
       { "Error Mailbox", "dns.minfo.e",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},

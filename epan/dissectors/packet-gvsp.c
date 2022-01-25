@@ -2596,625 +2596,625 @@ void proto_register_gvsp(void)
 
     static hf_register_info hfgvsp[] =
     {
-        {& hf_gvsp_status,
+        {&hf_gvsp_status,
         { "Status", "gvsp.status",
         FT_UINT16, BASE_HEX|BASE_EXT_STRING, &statusnames_ext, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_blockid16,
+        {&hf_gvsp_blockid16,
         { "Block ID (16 bits)", "gvsp.blockid16",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flags,
+        {&hf_gvsp_flags,
         { "Flags", "gvsp.flags",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific0,
+        {&hf_gvsp_flagdevicespecific0,
         { "Flag Device Specific 0", "gvsp.flag.devicespecific0",
         FT_UINT16, BASE_HEX, NULL, 0x8000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific1,
+        {&hf_gvsp_flagdevicespecific1,
         { "Flag Device Specific 1", "gvsp.flag.devicespecific1",
         FT_UINT16, BASE_HEX, NULL, 0x4000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific2,
+        {&hf_gvsp_flagdevicespecific2,
         { "Flag Device Specific 2", "gvsp.flag.devicespecific2",
         FT_UINT16, BASE_HEX, NULL, 0x2000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific3,
+        {&hf_gvsp_flagdevicespecific3,
         { "Flag Device Specific 3", "gvsp.flag.devicespecific3",
         FT_UINT16, BASE_HEX, NULL, 0x1000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific4,
+        {&hf_gvsp_flagdevicespecific4,
         { "Flag Device Specific 4", "gvsp.flag.devicespecific4",
         FT_UINT16, BASE_HEX, NULL, 0x0800,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific5,
+        {&hf_gvsp_flagdevicespecific5,
         { "Flag Device Specific 5", "gvsp.flag.devicespecific5",
         FT_UINT16, BASE_HEX, NULL, 0x0400,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific6,
+        {&hf_gvsp_flagdevicespecific6,
         { "Flag Device Specific 6", "gvsp.flag.devicespecific6",
         FT_UINT16, BASE_HEX, NULL, 0x0200,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagdevicespecific7,
+        {&hf_gvsp_flagdevicespecific7,
         { "Flag Device Specific 7", "gvsp.flag.devicespecific7",
         FT_UINT16, BASE_HEX, NULL, 0x0100,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagresendrangeerror,
+        {&hf_gvsp_flagresendrangeerror,
         { "Flag Resend Range Error", "gvsp.flag.resendrangeerror",
         FT_UINT16, BASE_HEX, NULL, 0x0004,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagpreviousblockdropped,
+        {&hf_gvsp_flagpreviousblockdropped,
         { "Flag Previous Block Dropped", "gvsp.flag.previousblockdropped",
         FT_UINT16, BASE_HEX, NULL, 0x0002,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_flagpacketresend,
+        {&hf_gvsp_flagpacketresend,
         { "Flag Packet Resend", "gvsp.flag.packetresend",
         FT_UINT16, BASE_HEX, NULL, 0x0001,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_format,
+        {&hf_gvsp_format,
         { "Format", "gvsp.format",
         FT_UINT8, BASE_HEX, VALS(formatnames), 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_packetid24,
+        {&hf_gvsp_packetid24,
         { "Packet ID (24 bits)", "gvsp.packetid24",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_blockid64,
+        {&hf_gvsp_blockid64,
         { "Block ID (64 bits v2.0)", "gvsp.blockid64",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_packetid32,
+        {&hf_gvsp_packetid32,
         { "Packet ID (32 bits v2.0)", "gvsp.packetid32",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_payloadtype,
+        {&hf_gvsp_payloadtype,
         { "Payload Type", "gvsp.payloadtype",
         FT_UINT16, BASE_HEX|BASE_EXT_STRING, &payloadtypenames_ext, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_payloaddata,
+        {&hf_gvsp_payloaddata,
         { "Payload Data", "gvsp.payloaddata",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_timestamp,
+        {&hf_gvsp_timestamp,
         { "Timestamp", "gvsp.timestamp",
         FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_pixelformat,
+        {&hf_gvsp_pixelformat,
         { "Pixel Format", "gvsp.pixel",
         FT_UINT32, BASE_HEX|BASE_EXT_STRING, &pixeltypenames_ext, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sizex,
+        {&hf_gvsp_sizex,
         { "Size X", "gvsp.sizex",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sizey,
+        {&hf_gvsp_sizey,
         { "Size Y", "gvsp.sizey",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_offsetx,
+        {&hf_gvsp_offsetx,
         { "Offset X", "gvsp.offsetx",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_offsety,
+        {&hf_gvsp_offsety,
         { "Offset Y", "gvsp.offsety",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_paddingx,
+        {&hf_gvsp_paddingx,
         { "Padding X", "gvsp.paddingx",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_paddingy,
+        {&hf_gvsp_paddingy,
         { "Padding Y", "gvsp.paddingy",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_payloaddatasize,
+        {&hf_gvsp_payloaddatasize,
         { "Payload Data Size", "gvsp.payloaddatasize",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_pixelcolor,
+        {&hf_gvsp_pixelcolor,
         { "Monochrome or Color", "gvsp.pixel.color",
         FT_UINT32, BASE_HEX, VALS(colornames), 0xFF000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_pixeloccupy,
+        {&hf_gvsp_pixeloccupy,
         { "Occupy Bits", "gvsp.pixel.occupy",
         FT_UINT32, BASE_DEC, NULL, 0x00FF0000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_pixelid,
+        {&hf_gvsp_pixelid,
         { "ID", "gvsp.pixel.id",
         FT_UINT32, BASE_HEX, NULL, 0x0000FFFF,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_filename,
+        {&hf_gvsp_filename,
         { "ID", "gvsp.filename",
         FT_STRINGZ, BASE_NONE, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_payloadlength,
+        {&hf_gvsp_payloadlength,
         { "Payload Length", "gvsp.payloadlength",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_fieldinfo,
+        {&hf_gvsp_fieldinfo,
         { "Field Info", "gvsp.fieldinfo",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_fieldid,
+        {&hf_gvsp_fieldid,
         { "Field ID", "gvsp.fieldid",
         FT_UINT8, BASE_HEX, NULL, 0xF0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_fieldcount,
+        {&hf_gvsp_fieldcount,
         { "Field Count", "gvsp.fieldcount",
         FT_UINT8, BASE_HEX, NULL, 0x0F,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_genericflags,
+        {&hf_gvsp_genericflags,
         { "Generic Flag", "gvsp.genericflag",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_timestamptickfrequency ,
+        {&hf_gvsp_timestamptickfrequency ,
         { "Timestamp Tick Frequency", "gvsp.timestamptickfrequency",
         FT_UINT64, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_dataformat,
+        {&hf_gvsp_dataformat,
         { "Data Format", "gvsp.dataformat",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_packetizationmode,
+        {&hf_gvsp_packetizationmode,
         { "packetization_mode", "gvsp.packetizationmode",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_packetsize,
+        {&hf_gvsp_packetsize,
         { "packet_size", "gvsp.packetsize",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_profileidc,
+        {&hf_gvsp_profileidc,
         { "profile_idc", "gvsp.profileidc",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_cs,
+        {&hf_gvsp_cs,
         { "cs", "gvsp.cs",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_cs0,
+        {&hf_gvsp_cs0,
         { "cs0", "gvsp.cs0",
         FT_UINT8, BASE_HEX, NULL, 0x80,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_cs1,
+        {&hf_gvsp_cs1,
         { "cs1", "gvsp.cs1",
         FT_UINT8, BASE_HEX, NULL, 0x40,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_cs2,
+        {&hf_gvsp_cs2,
         { "cs2", "gvsp.cs2",
         FT_UINT8, BASE_HEX, NULL, 0x20,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_cs3,
+        {&hf_gvsp_cs3,
         { "cs3", "gvsp.cs3",
         FT_UINT8, BASE_HEX, NULL, 0x10,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_levelidc,
+        {&hf_gvsp_levelidc,
         { "level_idc", "gvsp.levelidc",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sropinterleavingdepth,
+        {&hf_gvsp_sropinterleavingdepth,
         { "srop_interleaving_depth", "gvsp.sropinterleavingdepth",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sropmaxdondiff,
+        {&hf_gvsp_sropmaxdondiff,
         { "srop_max_don_diff", "gvsp.sropmaxdondiff",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sropdeintbufreq,
+        {&hf_gvsp_sropdeintbufreq,
         { "srop_deint_buf_req", "gvsp.sropdeintbufreq",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sropinitbuftime,
+        {&hf_gvsp_sropinitbuftime,
         { "srop_init_buf_time", "gvsp.sropinitbuftime",
         FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_add_zones,
+        {&hf_gvsp_add_zones,
         { "Additional Zones (Multi-Zone)", "gvsp.addzones",
         FT_UINT8, BASE_HEX, NULL, 0x1F,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_zoneinfo,
+        {&hf_gvsp_zoneinfo,
         { "Zone Info (Multi-Zone)", "gvsp.multizoneinfo",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_zoneid,
+        {&hf_gvsp_zoneid,
         { "Zone ID", "gvsp.zoneid",
         FT_UINT8, BASE_HEX, NULL, 0x3E,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_endofzone,
+        {&hf_gvsp_endofzone,
         { "End of Zone", "gvsp.endofzone",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_addressoffset,
+        {&hf_gvsp_addressoffset,
         { "Address Offset", "gvsp.addressoffset",
         FT_UINT64, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone_direction,
+        {&hf_gvsp_sc_zone_direction,
         { "Zone Directions Mask", "gvsp.zonedirection",
         FT_UINT32, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone0_direction,
+        {&hf_gvsp_sc_zone0_direction,
         { "Zone 0 Direction", "gvsp.zone0direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x80000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone1_direction,
+        {&hf_gvsp_sc_zone1_direction,
         { "Zone 1 Direction", "gvsp.zone1direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x40000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone2_direction,
+        {&hf_gvsp_sc_zone2_direction,
         { "Zone 2 Direction", "gvsp.zone2direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x20000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone3_direction,
+        {&hf_gvsp_sc_zone3_direction,
         { "Zone 3 Direction", "gvsp.zone3direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x10000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone4_direction,
+        {&hf_gvsp_sc_zone4_direction,
         { "Zone 4 Direction", "gvsp.zone4direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x08000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone5_direction,
+        {&hf_gvsp_sc_zone5_direction,
         { "Zone 5 Direction", "gvsp.zone5direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x04000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone6_direction,
+        {&hf_gvsp_sc_zone6_direction,
         { "Zone 6 Direction", "gvsp.zone6direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x02000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone7_direction,
+        {&hf_gvsp_sc_zone7_direction,
         { "Zone 7 Direction", "gvsp.zone7direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x01000000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone8_direction,
+        {&hf_gvsp_sc_zone8_direction,
         { "Zone 8 Direction", "gvsp.zone8direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00800000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone9_direction,
+        {&hf_gvsp_sc_zone9_direction,
         { "Zone 9 Direction", "gvsp.zone9direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00400000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone10_direction,
+        {&hf_gvsp_sc_zone10_direction,
         { "Zone 10 Direction", "gvsp.zone10direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00200000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone11_direction,
+        {&hf_gvsp_sc_zone11_direction,
         { "Zone 11 Direction", "gvsp.zone1direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00100000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone12_direction,
+        {&hf_gvsp_sc_zone12_direction,
         { "Zone 12 Direction", "gvsp.zone12direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00080000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone13_direction,
+        {&hf_gvsp_sc_zone13_direction,
         { "Zone 13 Direction", "gvsp.zone13direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00040000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone14_direction,
+        {&hf_gvsp_sc_zone14_direction,
         { "Zone 14 Direction", "gvsp.zone14direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00020000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone15_direction,
+        {&hf_gvsp_sc_zone15_direction,
         { "Zone 15 Direction", "gvsp.zone15direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00010000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone16_direction,
+        {&hf_gvsp_sc_zone16_direction,
         { "Zone 16 Direction", "gvsp.zone16direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00008000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone17_direction,
+        {&hf_gvsp_sc_zone17_direction,
         { "Zone 17 Direction", "gvsp.zone17direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00004000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone18_direction,
+        {&hf_gvsp_sc_zone18_direction,
         { "Zone 18 Direction", "gvsp.zone18direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00002000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone19_direction,
+        {&hf_gvsp_sc_zone19_direction,
         { "Zone 19 Direction", "gvsp.zone19direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00001000,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone20_direction,
+        {&hf_gvsp_sc_zone20_direction,
         { "Zone 20 Direction", "gvsp.zone20direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000800,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone21_direction,
+        {&hf_gvsp_sc_zone21_direction,
         { "Zone 21 Direction", "gvsp.zone21direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000400,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone22_direction,
+        {&hf_gvsp_sc_zone22_direction,
         { "Zone 22 Direction", "gvsp.zone22direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000200,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone23_direction,
+        {&hf_gvsp_sc_zone23_direction,
         { "Zone 23 Direction", "gvsp.zone23direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000100,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone24_direction,
+        {&hf_gvsp_sc_zone24_direction,
         { "Zone 24 Direction", "gvsp.zone24direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000080,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone25_direction,
+        {&hf_gvsp_sc_zone25_direction,
         { "Zone 25 Direction", "gvsp.zone25direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000040,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone26_direction,
+        {&hf_gvsp_sc_zone26_direction,
         { "Zone 26 Direction", "gvsp.zone26direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000020,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone27_direction,
+        {&hf_gvsp_sc_zone27_direction,
         { "Zone 27 Direction", "gvsp.zone27direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000010,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone28_direction,
+        {&hf_gvsp_sc_zone28_direction,
         { "Zone 28 Direction", "gvsp.zone28direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000008,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone29_direction,
+        {&hf_gvsp_sc_zone29_direction,
         { "Zone 29 Direction", "gvsp.zone29direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000004,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone30_direction,
+        {&hf_gvsp_sc_zone30_direction,
         { "Zone 30 Direction", "gvsp.zone30direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000002,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_sc_zone31_direction,
+        {&hf_gvsp_sc_zone31_direction,
         { "Zone 31 Direction", "gvsp.zone31direction",
         FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000001,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_numparts,
+        {&hf_gvsp_numparts,
         { "Multi-part number of parts", "gvsp.numparts",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_multipart_data_type,
+        {&hf_gvsp_multipart_data_type,
         { "Data Type", "gvsp.multipartdatatype",
         FT_UINT16, BASE_HEX|BASE_EXT_STRING, &multipartdatatypenames_ext, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_partlength,
+        {&hf_gvsp_partlength,
         { "Part Length", "gvsp.partlength",
         FT_UINT64, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_multi_part_source_id,
+        {&hf_gvsp_multi_part_source_id,
         { "Source ID", "gvsp.sourceid",
         FT_UINT8, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_data_purpose_id,
+        {&hf_gvsp_data_purpose_id,
         { "Data Purpose ID", "gvsp.datapurposeid",
         FT_UINT16, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_region_id,
+        {&hf_gvsp_region_id,
         { "Region ID", "gvsp.regionid",
         FT_UINT16, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_data_type_specific,
+        {&hf_gvsp_data_type_specific,
         { "Data Type Specific", "gvsp.datatypespecific",
         FT_UINT32, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_endofpart,
+        {&hf_gvsp_endofpart,
         { "End of Part", "gvsp.endofpart",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_add_zones_multipart,
+        {&hf_gvsp_add_zones_multipart,
         { "Additional Zones (Multi-Part)", "gvsp.multipartaddzones",
         FT_UINT8, BASE_HEX, NULL, 0x1F,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_zoneinfo_multipart,
+        {&hf_gvsp_zoneinfo_multipart,
         { "Zone Info (Multi-Part)", "gvsp.multipartzoneinfo",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_multi_part_part_id,
+        {&hf_gvsp_multi_part_part_id,
         { "Part ID", "gvsp.partid",
         FT_UINT8, BASE_HEX_DEC, NULL, 0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_chunk_data_payload_length_hex,
+        {&hf_gvsp_chunk_data_payload_length_hex,
         { "Chunk Data Payload Length", "gvsp.chunkdatapayloadlengthhex",
         FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL
         }},
 
-        {& hf_gvsp_chunk_layout_id_hex,
+        {&hf_gvsp_chunk_layout_id_hex,
         { "Chunk Layout ID", "gvsp.chunklayoutidhex",
         FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
         NULL, HFILL

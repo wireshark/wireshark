@@ -3112,7 +3112,7 @@ void proto_register_gvcp(void)
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_devicemode_characterset,
+		{ &hf_gvcp_devicemode_characterset,
 		{ "Character Set", "gvcp.bootstrap.devicemode.characterset",
 		FT_UINT32, BASE_HEX, VALS(devicemodenames_characterset), 0x0000000F,
 		NULL, HFILL
@@ -3253,7 +3253,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_NUMBER_OF_NETWORK_INTERFACES */
 
-		{& hf_gvcp_number_interfaces,
+		{ &hf_gvcp_number_interfaces,
 		{ "Number of Network Interfaces", "gvcp.bootstrap.numberofnetworminterfaces",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3261,7 +3261,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_PERSISTENT_IP_ADDRESS_0, 1, 2, 3 */
 
-		{& hf_gvcp_persistent_ip,
+		{ &hf_gvcp_persistent_ip,
 		{ "Persistent IP", "gvcp.bootstrap.persistentip",
 		FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL
@@ -3269,7 +3269,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_PERSISTENT_SUBNET_MASK_0, 1, 2, 3 */
 
-		{& hf_gvcp_persistent_subnet,
+		{ &hf_gvcp_persistent_subnet,
 		{ "Persistent Subnet Mask", "gvcp.bootstrap.persistentsubnetmask",
 		FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL
@@ -3277,7 +3277,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_PERSISTENT_DEFAULT_GATEWAY_0, 1, 2, 3 */
 
-		{& hf_gvcp_persistent_gateway,
+		{ &hf_gvcp_persistent_gateway,
 		{ "Persistent GateWay", "gvcp.bootstrap.persistentgateway",
 		FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL
@@ -3285,7 +3285,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_LINK_SPEED_0, 1, 2, 3 */
 
-		{& hf_gvcp_link_speed,
+		{ &hf_gvcp_link_speed,
 		{ "Link Speed (in Mbs)", "gvcp.bootstrap.linkspeed",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3293,7 +3293,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_NUMBER_OF_MESSAGE_CHANNELS */
 
-		{& hf_gvcp_number_message_channels,
+		{ &hf_gvcp_number_message_channels,
 		{ "Number of Message Channels", "gvcp.bootstrap.numberofmessagechannels",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3301,7 +3301,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_NUMBER_OF_STREAM_CHANNELS */
 
-		{& hf_gvcp_number_stream_channels,
+		{ &hf_gvcp_number_stream_channels,
 		{ "Number of Stream Channels", "gvcp.bootstrap.numberofstreamchannels",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3309,7 +3309,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_NUMBER_OF_ACTION_SIGNALS */
 
-		{& hf_gvcp_number_action_signals,
+		{ &hf_gvcp_number_action_signals,
 		{ "Number of Action Signals", "gvcp.bootstrap.numberofactionsignals",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3317,7 +3317,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_NUMBER_OF_ACTIVE_LINKS */
 
-		{& hf_gvcp_number_of_active_links_v2_0,
+		{ &hf_gvcp_number_of_active_links_v2_0,
 		{ "Number of Active Links", "gvcp.bootstrap.numberofactivelinks",
 		FT_UINT32, BASE_DEC, NULL, 0x0000000F,
 		NULL, HFILL
@@ -3325,7 +3325,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_IEEE_1588_SELECTED_PROFILE */
 
-		{& hf_gvcp_selected_ieee1588_profile_v2_1,
+		{ &hf_gvcp_selected_ieee1588_profile_v2_1,
 		{ "IEEE 1588 Selected Profile", "gvcp.bootstrap.ieee1588selectedprofile",
 		FT_UINT32, BASE_DEC, NULL, 0x0000001F,
 		NULL, HFILL
@@ -3333,13 +3333,13 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_CAPS */
 
-		{& hf_gvcp_sccaps_scspx_register_supported,
+		{ &hf_gvcp_sccaps_scspx_register_supported,
 		{ "SCSPx Register Supported", "gvcp.bootstrap.sccaps.scspxregistersupported",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sccaps_legacy_16bit_blockid_supported_v2_0,
+		{ &hf_gvcp_sccaps_legacy_16bit_blockid_supported_v2_0,
 		{ "16 bit Block ID Supported", "gvcp.bootstrap.sccaps.16bitblockidsupported",
 		FT_BOOLEAN, 32, NULL, 0x40000000,
 		NULL, HFILL
@@ -3359,7 +3359,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_MESSAGE_CHANNEL_CAPS */
 
-		{& hf_gvcp_mcsp_supported,
+		{ &hf_gvcp_mcsp_supported,
 		{ "MCSP Supported", "gvcp.bootstrap.mccaps.mcspsupported",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
@@ -3379,7 +3379,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_IEEE_1588_EXTENDED_CAPABILITY */
 
-		{& hf_gvcp_ieee1588_profile_registers_present_v2_1,
+		{ &hf_gvcp_ieee1588_profile_registers_present_v2_1,
 		{ "IEEE 1588 Profile Registers Present", "gvcp.bootstrap.ieee1588extendedcapabilities.profileregisterspresent",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
@@ -3387,13 +3387,13 @@ void proto_register_gvcp(void)
 
 		/* GVCP_IEEE_1588_SUPPORTED_PROFILES */
 
-		{& hf_gvcp_ieee1588_ptp_profile_supported_v2_1,
+		{ &hf_gvcp_ieee1588_ptp_profile_supported_v2_1,
 		{ "IEEE 1588 PTP Profile Supported", "gvcp.bootstrap.ieee1588supportedprofiles.ptp",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_ieee1588_802dot1as_profile_supported_v2_1,
+		{ &hf_gvcp_ieee1588_802dot1as_profile_supported_v2_1,
 		{ "IEEE 1588 802.1as Profile Supported", "gvcp.bootstrap.ieee1588supportedprofiles.802dot1as",
 		FT_BOOLEAN, 32, NULL, 0x40000000,
 		NULL, HFILL
@@ -3401,139 +3401,139 @@ void proto_register_gvcp(void)
 
 		/* GVCP_CAPABILITY */
 
-		{& hf_gvcp_capability_user_defined,
+		{ &hf_gvcp_capability_user_defined,
 		{ "User Defined Name Supported", "gvcp.bootstrap.capability.userdefined",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_serial_number,
+		{ &hf_gvcp_capability_serial_number,
 		{ "Serial Number Supported", "gvcp.bootstrap.capability.serialnumber",
 		FT_BOOLEAN, 32, NULL, 0x40000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_heartbeat_disable,
+		{ &hf_gvcp_capability_heartbeat_disable,
 		{ "Heartbeat Disable Supported", "gvcp.bootstrap.capability.heartbeatdisabled",
 		FT_BOOLEAN, 32, NULL, 0x20000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_link_speed,
+		{ &hf_gvcp_capability_link_speed,
 		{ "Link Speed Supported", "gvcp.bootstrap.capability.linkspeed",
 		FT_BOOLEAN, 32, NULL, 0x10000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_ccp_application_portip,
+		{ &hf_gvcp_capability_ccp_application_portip,
 		{ "CCP Application Port/IP Supported", "gvcp.bootstrap.capability.ccpapplicationportip",
 		FT_BOOLEAN, 32, NULL, 0x08000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_manifest_table,
+		{ &hf_gvcp_capability_manifest_table,
 		{ "Manifest Table Supported", "gvcp.bootstrap.capability.manifesttable",
 		FT_BOOLEAN, 32, NULL, 0x04000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_test_data,
+		{ &hf_gvcp_capability_test_data,
 		{ "Test Data Supported", "gvcp.bootstrap.capability.testdata",
 		FT_BOOLEAN, 32, NULL, 0x02000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_discovery_ACK_delay,
+		{ &hf_gvcp_capability_discovery_ACK_delay,
 		{ "Discovery ACK Delay Supported", "gvcp.bootstrap.capability.discoveryackdelay",
 		FT_BOOLEAN, 32, NULL, 0x01000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_writable_discovery_ACK_delay,
+		{ &hf_gvcp_capability_writable_discovery_ACK_delay,
 		{ "Writable Discovery ACK Delay Supported", "gvcp.bootstrap.capability.writablediscoveryackdelay",
 		FT_BOOLEAN, 32, NULL, 0x00800000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_extended_status_code_v1_1,
+		{ &hf_gvcp_capability_extended_status_code_v1_1,
 		{ "Extended Status Code Supported (v1.1)", "gvcp.bootstrap.capability.extendedstatuscodesupportedv1_1",
 		FT_BOOLEAN, 32, NULL, 0x00400000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_primary_application_switchover,
+		{ &hf_gvcp_capability_primary_application_switchover,
 		{ "Primary Application Switchover Supported", "gvcp.bootstrap.capability.primaryapplicationswitchover",
 		FT_BOOLEAN, 32, NULL, 0x00200000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_unconditional_action_command,
+		{ &hf_gvcp_capability_unconditional_action_command,
 		{ "Unconditional Action Command Supported", "gvcp.bootstrap.capability.unconditionalactioncommand",
 		FT_BOOLEAN, 32, NULL, 0x00100000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_1588_v2_0,
+		{ &hf_gvcp_capability_1588_v2_0,
 		{ "Capability 1588", "gvcp.bootstrap.capability.ieee1588",
 		FT_BOOLEAN, 32, NULL, 0x00080000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_extended_status_code_v2_0,
+		{ &hf_gvcp_capability_extended_status_code_v2_0,
 		{ "Status Code", "gvcp.bootstrap.capability.pendingextendedstatuscodev2_0",
 		FT_BOOLEAN, 32, NULL, 0x00040000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_scheduled_action_command_v2_0,
+		{ &hf_gvcp_capability_scheduled_action_command_v2_0,
 		{ "Scheduled Action Command", "gvcp.bootstrap.capability.scheduledactioncommand",
 		FT_BOOLEAN, 32, NULL, 0x00020000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_ieee1588_extended_capabilities_v2_1,
+		{ &hf_gvcp_capability_ieee1588_extended_capabilities_v2_1,
 		{ "IEEE1588 Extended Capabilities", "gvcp.bootstrap.capability.ieee1588extendedcapabilities",
 		FT_BOOLEAN, 32, NULL, 0x00010000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_action_command,
+		{ &hf_gvcp_capability_action_command,
 		{ "Action Command", "gvcp.bootstrap.capability.actioncommand",
 		FT_BOOLEAN, 32, NULL, 0x00000040,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_pending,
+		{ &hf_gvcp_capability_pending,
 		{ "Pending ACK Supported", "gvcp.bootstrap.capability.pendingack",
 		FT_BOOLEAN, 32, NULL, 0x00000020,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_evendata,
+		{ &hf_gvcp_capability_evendata,
 		{ "Event Data Supported", "gvcp.bootstrap.capability.eventdata",
 		FT_BOOLEAN, 32, NULL, 0x00000010,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_event,
+		{ &hf_gvcp_capability_event,
 		{ "Event Signal Supported", "gvcp.bootstrap.capability.eventsignal",
 		FT_BOOLEAN, 32, NULL, 0x00000008,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_packetresend,
+		{ &hf_gvcp_capability_packetresend,
 		{ "Packet Resend CMD Supported", "gvcp.bootstrap.capability.packetresendcmd",
 		FT_BOOLEAN, 32, NULL, 0x00000004,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_writemem,
+		{ &hf_gvcp_capability_writemem,
 		{ "WRITEMEM Supported", "gvcp.bootstrap.capability.writemem",
 		FT_BOOLEAN, 32, NULL, 0x00000002,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_capability_concatenation,
+		{ &hf_gvcp_capability_concatenation,
 		{ "Concatenation Supported", "gvcp.bootstrap.capability.concatenation",
 		FT_BOOLEAN, 32, NULL, 0x00000001,
 		NULL, HFILL
@@ -3541,7 +3541,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_HEARTBEAT_TIMEOUT */
 
-		{& hf_gvcp_heartbeat,
+		{ &hf_gvcp_heartbeat,
 		{ "Heartbeat Timeout (in ms)", "gvcp.bootstrap.heartbeattimeout",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3549,7 +3549,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_TIMESTAMP_TICK_FREQUENCY_HIGH */
 
-		{& hf_gvcp_high_timestamp_frequency,
+		{ &hf_gvcp_high_timestamp_frequency,
 		{ "Timestamp Tick High Frequency (in Hz)", "gvcp.bootstrap.timestamptickfrequencyhigh",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3557,7 +3557,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_TIMESTAMP_TICK_FREQUENCY_LOW */
 
-		{& hf_gvcp_low_timestamp_frequency,
+		{ &hf_gvcp_low_timestamp_frequency,
 		{ "Timestamp Tick Low Frequency (in Hz)", "gvcp.bootstrap.timestamptickfrequencylow",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3565,13 +3565,13 @@ void proto_register_gvcp(void)
 
 		/* GVCP_TIMESTAMP_CONTROL */
 
-		{& hf_gvcp_timestamp_control_latch,
+		{ &hf_gvcp_timestamp_control_latch,
 		{ "Timestamp Control Latch", "gvcp.bootstrap.timestampcontrol.latch",
 		FT_BOOLEAN, 32, NULL, 0x00000002,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_timestamp_control_reset,
+		{ &hf_gvcp_timestamp_control_reset,
 		{ "Timestamp Control Reset", "gvcp.bootstrap.timestampcontrol.reset",
 		FT_BOOLEAN, 32, NULL, 0x00000001,
 		NULL, HFILL
@@ -3579,7 +3579,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_TIMESTAMP_VALUE_HIGH */
 
-		{& hf_gvcp_high_timestamp_value,
+		{ &hf_gvcp_high_timestamp_value,
 		{ "Timestamp Value High", "gvcp.bootstrap.timestampvaluehigh",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3587,7 +3587,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_TIMESTAMP_VALUE_LOW */
 
-		{& hf_gvcp_low_timestamp_value,
+		{ &hf_gvcp_low_timestamp_value,
 		{ "Timestamp Value Low", "gvcp.bootstrap.timestampvaluelow",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3595,7 +3595,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_DISCOVERY_ACK_DELAY */
 
-		{& hf_gvcp_discovery_ACK_delay,
+		{ &hf_gvcp_discovery_ACK_delay,
 		{ "Discovery ACK Delay (in ms)", "gvcp.bootstrap.discoveryackdelay",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3603,37 +3603,37 @@ void proto_register_gvcp(void)
 
 		/* GVCP_CONFIGURATION */
 
-		{& hf_gvcp_configuration_1588_enable_v2_0,
+		{ &hf_gvcp_configuration_1588_enable_v2_0,
 		{ "IEEE 1588 Enable", "gvcp.bootstrap.config.ieee1588enable",
 		FT_BOOLEAN, 32, NULL, 0x00080000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_configuration_extended_status_codes_enable_v2_0,
+		{ &hf_gvcp_configuration_extended_status_codes_enable_v2_0,
 		{ "Status Codes v2.0 Enable", "gvcp.bootstrap.config.statuscodesv2_0enable",
 		FT_BOOLEAN, 32, NULL, 0x00040000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_configuration_unconditional_action_command_enable_v2_0,
+		{ &hf_gvcp_configuration_unconditional_action_command_enable_v2_0,
 		{ "Unconditional Action Command Enable", "gvcp.bootstrap.config.unconditionalactioncommandenable",
 		FT_BOOLEAN, 32, NULL, 0x00000008,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_configuration_extended_status_codes_enable_v1_1,
+		{ &hf_gvcp_configuration_extended_status_codes_enable_v1_1,
 		{ "Status Codes v1.1 Enable", "gvcp.bootstrap.config.statuscodesv1_1enable",
 		FT_BOOLEAN, 32, NULL, 0x00000004,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_configuration_pending_ack_enable,
+		{ &hf_gvcp_configuration_pending_ack_enable,
 		{ "Pending_ACK Enable", "gvcp.bootstrap.config.pendingackenable",
 		FT_BOOLEAN, 32, NULL, 0x00000002,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_configuration_heartbeat_disable,
+		{ &hf_gvcp_configuration_heartbeat_disable,
 		{ "Heartbeat Disable", "gvcp.bootstrap.config.heartbeatdisable",
 		FT_BOOLEAN, 32, NULL, 0x00000001,
 		NULL, HFILL
@@ -3641,7 +3641,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_PENDING_TIMEOUT */
 
-		{& hf_gvcp_pending_timeout_max_execution,
+		{ &hf_gvcp_pending_timeout_max_execution,
 		{ "Pending Timeout (in ms)", "gvcp.bootstrap.pending.timeout",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3649,7 +3649,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_CONTROL_SWITCHOVER_KEY */
 
-		{& hf_gvcp_control_switchover_key_register,
+		{ &hf_gvcp_control_switchover_key_register,
 		{ "Control Switchover Key", "gvcp.bootstrap.controlswitchoverkey",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3657,7 +3657,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_GVSCP_CONFIGURATION */
 
-		{& hf_gvcp_gvsp_configuration_64bit_blockid_enable_v2_0,
+		{ &hf_gvcp_gvsp_configuration_64bit_blockid_enable_v2_0,
 		{ "GVSP Configuration 64 bit Block ID", "gvcp.bootstrap.gvcspconfig.64bitblockidenable",
 		FT_BOOLEAN, 32, NULL, 0x40000000,
 		NULL, HFILL
@@ -3665,25 +3665,25 @@ void proto_register_gvcp(void)
 
 		/* GVCP_PHYSICAL_LINK_CAPABILITY, GVCP_PHYSICAL_LINK_CONFIGURATION */
 
-		{& hf_gvcp_link_dlag_v2_0,
+		{ &hf_gvcp_link_dlag_v2_0,
 		{ "Link dLAG", "gvcp.bootstrap.link.dlag",
 		FT_BOOLEAN, 32, NULL, 0x00000008,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_link_slag_v2_0,
+		{ &hf_gvcp_link_slag_v2_0,
 		{ "Link sLAG", "gvcp.bootstrap.link.slag",
 		FT_BOOLEAN, 32, NULL, 0x00000004,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_link_ml_v2_0,
+		{ &hf_gvcp_link_ml_v2_0,
 		{ "Link ML", "gvcp.bootstrap.link.ml",
 		FT_BOOLEAN, 32, NULL, 0x00000002,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_link_sl_v2_0,
+		{ &hf_gvcp_link_sl_v2_0,
 		{ "Link SL", "gvcp.bootstrap.link.sl",
 		FT_BOOLEAN, 32, NULL, 0x00000001,
 		NULL, HFILL
@@ -3691,7 +3691,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_IEEE_1588_STATUS */
 
-		{& hf_gvcp_ieee1588_clock_status_v2_0,
+		{ &hf_gvcp_ieee1588_clock_status_v2_0,
 		{ "IEEE 1588 Clock Status", "gvcp.bootstrap.ieee1588.clockstatus",
 		FT_UINT32, BASE_HEX, NULL, 0x0000000F,
 		NULL, HFILL
@@ -3699,7 +3699,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SCHEDULED_ACTION_COMMAND_QUEUE_SIZE */
 
-		{& hf_gvcp_scheduled_action_command_queue_size_v2_0,
+		{ &hf_gvcp_scheduled_action_command_queue_size_v2_0,
 		{ "Scheduled Action Command Queue Size", "gvcp.bootstrap.scheduledactioncommandqueuesize",
 		FT_UINT32, BASE_DEC, NULL, 0,
 		NULL, HFILL
@@ -3707,25 +3707,25 @@ void proto_register_gvcp(void)
 
 		/* GVCP_CCP */
 
-		{& hf_gvcp_control_switchover_key,
+		{ &hf_gvcp_control_switchover_key,
 		{ "Control Switchover Key", "gvcp.bootstrap.control.switchoverkey",
 		FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_control_switchover_en,
+		{ &hf_gvcp_control_switchover_en,
 		{ "Control Switchover Enable", "gvcp.bootstrap.control.switchoverenable",
 		FT_BOOLEAN, 32, NULL, 0x00000004,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_control_access,
+		{ &hf_gvcp_control_access,
 		{ "Control Access", "gvcp.bootstrap.control.controlaccess",
 		FT_BOOLEAN, 32, NULL, 0x00000002,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_exclusive_access,
+		{ &hf_gvcp_exclusive_access,
 		{ "Exclusive Access", "gvcp.bootstrap.control.exclusiveaccess",
 		FT_BOOLEAN, 32, NULL, 0x00000001,
 		NULL, HFILL
@@ -3733,7 +3733,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_PRIMARY_APPLICATION_PORT */
 
-		{& hf_gvcp_primary_application_host_port,
+		{ &hf_gvcp_primary_application_host_port,
 		{ "Primary Application Port", "gvcp.bootstrap.primaryapplicationport",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3741,7 +3741,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_PRIMARY_APPLICATION_IP_ADDRESS */
 
-		{& hf_gvcp_primary_application_ip_address,
+		{ &hf_gvcp_primary_application_ip_address,
 		{ "Primary Application IP Address", "gvcp.bootstrap.primaryapplicationipaddress",
 		FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL
@@ -3749,13 +3749,13 @@ void proto_register_gvcp(void)
 
 		/* GVCP_MC_DESTINATION_PORT */
 
-		{& hf_gvcp_network_interface_index,
+		{ &hf_gvcp_network_interface_index,
 		{ "Network Interface Index", "gvcp.bootstrap.mcp.networkinterfaceindex",
 		FT_UINT32, BASE_DEC, NULL, 0x000F0000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_host_port,
+		{ &hf_gvcp_host_port,
 		{ "Host Port", "gvcp.bootstrap.mcp.hostport",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3763,7 +3763,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_MC_DESTINATION_ADDRESS */
 
-		{& hf_gvcp_channel_destination_ip,
+		{ &hf_gvcp_channel_destination_ip,
 		{ "Destination IP Address", "gvcp.bootstrap.mcda",
 		FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL
@@ -3771,7 +3771,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_MC_TIMEOUT */
 
-		{& hf_gvcp_message_channel_transmission_timeout,
+		{ &hf_gvcp_message_channel_transmission_timeout,
 		{ "Transmission Timeout (in ms)", "gvcp.bootstrap.mctt",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3779,7 +3779,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_MC_RETRY_COUNT */
 
-		{& hf_gvcp_message_channel_retry_count,
+		{ &hf_gvcp_message_channel_retry_count,
 		{ "Retry Count", "gvcp.bootstrap.mcrc",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3787,7 +3787,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_MC_SOURCE_PORT */
 
-		{& hf_gvcp_message_channel_source_port,
+		{ &hf_gvcp_message_channel_source_port,
 		{ "Source Port", "gvcp.bootstrap.mcsp",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3803,19 +3803,19 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_DESTINATION_PORT(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_direction,
+		{ &hf_gvcp_sc_direction,
 		{ "Direction", "gvcp.bootstrap.scpx.direction",
 		FT_BOOLEAN, 32, TFS(&directionnames), 0x80000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_ni_index,
+		{ &hf_gvcp_sc_ni_index,
 		{ "Network Interface Index", "gvcp.bootstrap.scpx.networkinterfaceindex",
 		FT_UINT32, BASE_DEC, NULL, 0x000F0000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_host_port,
+		{ &hf_gvcp_sc_host_port,
 		{ "Host Port", "gvcp.bootstrap.scpx.hostport",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3823,25 +3823,25 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_PACKET_SIZE(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_fire_test_packet,
+		{ &hf_gvcp_sc_fire_test_packet,
 		{ "Fire Test Packet", "gvcp.bootstrap.scpsx.firetestpacket",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_do_not_fragment,
+		{ &hf_gvcp_sc_do_not_fragment,
 		{ "Do Not Fragment", "gvcp.bootstrap.scpsx.donotfragment",
 		FT_BOOLEAN, 32, NULL, 0x40000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_pixel_endianness,
+		{ &hf_gvcp_sc_pixel_endianness,
 		{ "Pixel Endianness", "gvcp.bootstrap.scpsx.pixelendianness",
 		FT_BOOLEAN, 32, NULL, 0x20000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_packet_size,
+		{ &hf_gvcp_sc_packet_size,
 		{ "Packet Size", "gvcp.bootstrap.scpsx.packetsize",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3849,7 +3849,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_PACKET_DELAY(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_packet_delay,
+		{ &hf_gvcp_sc_packet_delay,
 		{ "Packet Delay", "gvcp.bootstrap.scpdx",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -3857,7 +3857,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_DESTINATION_ADDRESS(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_destination_ip,
+		{ &hf_gvcp_sc_destination_ip,
 		{ "Destination Address", "gvcp.bootstrap.scdax",
 		FT_IPv4, BASE_NONE, NULL, 0x0,
 		NULL, HFILL
@@ -3865,7 +3865,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_SOURCE_PORT(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_source_port,
+		{ &hf_gvcp_sc_source_port,
 		{ "Source Port", "gvcp.bootstrap.scspx",
 		FT_UINT32, BASE_DEC, NULL, 0x0000FFFF,
 		NULL, HFILL
@@ -3873,13 +3873,13 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_CAPABILITY(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_big_little_endian_supported,
+		{ &hf_gvcp_sc_big_little_endian_supported,
 		{ "Big/Little Endian Supported", "gvcp.bootstrap.sccx.biglittleendiansupported",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_ip_reassembly_supported,
+		{ &hf_gvcp_sc_ip_reassembly_supported,
 		{ "IP Reassembly Supported", "gvcp.bootstrap.sccx.ipreassemblysupported",
 		FT_BOOLEAN, 32, NULL, 0x40000000,
 		NULL, HFILL
@@ -3897,43 +3897,43 @@ void proto_register_gvcp(void)
 		NULL, HFILL
 		} },
 
-		{& hf_gvcp_sc_multi_part_supported_v2_1,
+		{ &hf_gvcp_sc_multi_part_supported_v2_1,
 		{ "Multi-part Supported", "gvcp.bootstrap.sccx.multipartsupported",
 		FT_BOOLEAN, 32, NULL, 0x00000040,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_large_leader_trailer_supported_v2_1,
+		{ &hf_gvcp_sc_large_leader_trailer_supported_v2_1,
 		{ "Large Leader/Trailer Supported", "gvcp.bootstrap.sccx.largeleadertrailersupported",
 		FT_BOOLEAN, 32, NULL, 0x00000020,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_multizone_supported_v2_0,
+		{ &hf_gvcp_sc_multizone_supported_v2_0,
 		{ "Multi-zone Supported", "gvcp.bootstrap.sccx.multizonesupported",
 		FT_BOOLEAN, 32, NULL, 0x00000010,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_packet_resend_destination_option_supported_v2_0,
+		{ &hf_gvcp_sc_packet_resend_destination_option_supported_v2_0,
 		{ "Resend Destination Option Supported", "gvcp.bootstrap.sccx.resenddestinationoptionsupported",
 		FT_BOOLEAN, 32, NULL, 0x8,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_packet_resend_all_in_transmission_supported_v2_0,
+		{ &hf_gvcp_sc_packet_resend_all_in_transmission_supported_v2_0,
 		{ "All In Transmission Supported", "gvcp.bootstrap.sccx.allintransmissionsupported",
 		FT_BOOLEAN, 32, NULL, 0x4,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_unconditional_streaming_supported,
+		{ &hf_gvcp_sc_unconditional_streaming_supported,
 		{ "Unconditional Streaming Supported", "gvcp.bootstrap.sccx.unconditionalstreamingsupported",
 		FT_BOOLEAN, 32, NULL, 0x2,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_extended_chunk_data_supported,
+		{ &hf_gvcp_sc_extended_chunk_data_supported,
 		{ "Extended Chunk Data Supported", "gvcp.bootstrap.sccx.extendedchunkdatasupported",
 		FT_BOOLEAN, 32, NULL, 0x1,
 		NULL, HFILL
@@ -3947,37 +3947,37 @@ void proto_register_gvcp(void)
 		NULL, HFILL
 		} },
 
-		{& hf_gvcp_sc_multi_part_enabled_v2_1,
+		{ &hf_gvcp_sc_multi_part_enabled_v2_1,
 		{ "Multi-part Enabled", "gvcp.bootstrap.sccfgx.multipartenabled",
 		FT_BOOLEAN, 32, NULL, 0x40,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_large_leader_trailer_enabled_v2_1,
+		{ &hf_gvcp_sc_large_leader_trailer_enabled_v2_1,
 		{ "Large Leader/Trailer Enabled", "gvcp.bootstrap.sccfgx.largeleadertrailerenabled",
 		FT_BOOLEAN, 32, NULL, 0x20,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_packet_resend_destination_option_enabled_v2_0,
+		{ &hf_gvcp_sc_packet_resend_destination_option_enabled_v2_0,
 		{ "Resend Destination Option Enabled", "gvcp.bootstrap.sccfgx.resenddestinationoptionenabled",
 		FT_BOOLEAN, 32, NULL, 0x8,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_packet_resend_all_in_transmission_enabled_v2_0,
+		{ &hf_gvcp_sc_packet_resend_all_in_transmission_enabled_v2_0,
 		{ "All In Transmission Enabled", "gvcp.bootstrap.sccfgx.allintransmissionenabled",
 		FT_BOOLEAN, 32, NULL, 0x4,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_unconditional_streaming_enabled,
+		{ &hf_gvcp_sc_unconditional_streaming_enabled,
 		{ "Unconditional Streaming Enabled", "gvcp.bootstrap.sccfgx.unconditionalstreamingenabled",
 		FT_BOOLEAN, 32, NULL, 0x2,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_extended_chunk_data_enabled,
+		{ &hf_gvcp_sc_extended_chunk_data_enabled,
 		{ "Extended Chunk Data Enabled", "gvcp.bootstrap.sccfgx.extendedchunkdataenabled",
 		FT_BOOLEAN, 32, NULL, 0x1,
 		NULL, HFILL
@@ -3985,7 +3985,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_ZONE(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_additional_zones_v2_0,
+        { &hf_gvcp_sc_additional_zones_v2_0,
 		{ "Additional Zones", "gvcp.bootstrap.sczx.additionalzones",
 		FT_UINT32, BASE_DEC, NULL, 0x0000000F,
 		NULL, HFILL
@@ -3993,193 +3993,193 @@ void proto_register_gvcp(void)
 
 		/* GVCP_SC_ZONE_DIRECTION(0), 1, 2, 3 */
 
-		{& hf_gvcp_sc_zone0_direction_v2_0,
+		{ &hf_gvcp_sc_zone0_direction_v2_0,
 		{ "Zone 0 Direction", "gvcp.bootstrap.sczdx.zone0direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x80000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone1_direction_v2_0,
+		{ &hf_gvcp_sc_zone1_direction_v2_0,
 		{ "Zone 1 Direction", "gvcp.bootstrap.sczdx.zone1direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x40000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone2_direction_v2_0,
+		{ &hf_gvcp_sc_zone2_direction_v2_0,
 		{ "Zone 2 Direction", "gvcp.bootstrap.sczdx.zone2direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x20000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone3_direction_v2_0,
+		{ &hf_gvcp_sc_zone3_direction_v2_0,
 		{ "Zone 3 Direction", "gvcp.bootstrap.sczdx.zone3direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x10000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone4_direction_v2_0,
+		{ &hf_gvcp_sc_zone4_direction_v2_0,
 		{ "Zone 4 Direction", "gvcp.bootstrap.sczdx.zone4direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x08000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone5_direction_v2_0,
+		{ &hf_gvcp_sc_zone5_direction_v2_0,
 		{ "Zone 5 Direction", "gvcp.bootstrap.sczdx.zone5direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x04000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone6_direction_v2_0,
+		{ &hf_gvcp_sc_zone6_direction_v2_0,
 		{ "Zone 6 Direction", "gvcp.bootstrap.sczdx.zone6direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x02000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone7_direction_v2_0,
+		{ &hf_gvcp_sc_zone7_direction_v2_0,
 		{ "Zone 7 Direction", "gvcp.bootstrap.sczdx.zone7direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x01000000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone8_direction_v2_0,
+		{ &hf_gvcp_sc_zone8_direction_v2_0,
 		{ "Zone 8 Direction", "gvcp.bootstrap.sczdx.zone8direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00800000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone9_direction_v2_0,
+		{ &hf_gvcp_sc_zone9_direction_v2_0,
 		{ "Zone 9 Direction", "gvcp.bootstrap.sczdx.zone9direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00400000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone10_direction_v2_0,
+		{ &hf_gvcp_sc_zone10_direction_v2_0,
 		{ "Zone 10 Direction", "gvcp.bootstrap.sczdx.zone10direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00200000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone11_direction_v2_0,
+		{ &hf_gvcp_sc_zone11_direction_v2_0,
 		{ "Zone 11 Direction", "gvcp.bootstrap.sczdx.zone1direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00100000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone12_direction_v2_0,
+		{ &hf_gvcp_sc_zone12_direction_v2_0,
 		{ "Zone 12 Direction", "gvcp.bootstrap.sczdx.zone12direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00080000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone13_direction_v2_0,
+		{ &hf_gvcp_sc_zone13_direction_v2_0,
 		{ "Zone 13 Direction", "gvcp.bootstrap.sczdx.zone13direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00040000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone14_direction_v2_0,
+		{ &hf_gvcp_sc_zone14_direction_v2_0,
 		{ "Zone 14 Direction", "gvcp.bootstrap.sczdx.zone14direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00020000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone15_direction_v2_0,
+		{ &hf_gvcp_sc_zone15_direction_v2_0,
 		{ "Zone 15 Direction", "gvcp.bootstrap.sczdx.zone15direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00010000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone16_direction_v2_0,
+		{ &hf_gvcp_sc_zone16_direction_v2_0,
 		{ "Zone 16 Direction", "gvcp.bootstrap.sczdx.zone16direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00008000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone17_direction_v2_0,
+		{ &hf_gvcp_sc_zone17_direction_v2_0,
 		{ "Zone 17 Direction", "gvcp.bootstrap.sczdx.zone17direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00004000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone18_direction_v2_0,
+		{ &hf_gvcp_sc_zone18_direction_v2_0,
 		{ "Zone 18 Direction", "gvcp.bootstrap.sczdx.zone18direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00002000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone19_direction_v2_0,
+		{ &hf_gvcp_sc_zone19_direction_v2_0,
 		{ "Zone 19 Direction", "gvcp.bootstrap.sczdx.zone19direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00001000,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone20_direction_v2_0,
+		{ &hf_gvcp_sc_zone20_direction_v2_0,
 		{ "Zone 20 Direction", "gvcp.bootstrap.sczdx.zone20direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000800,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone21_direction_v2_0,
+		{ &hf_gvcp_sc_zone21_direction_v2_0,
 		{ "Zone 21 Direction", "gvcp.bootstrap.sczdx.zone21direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000400,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone22_direction_v2_0,
+		{ &hf_gvcp_sc_zone22_direction_v2_0,
 		{ "Zone 22 Direction", "gvcp.bootstrap.sczdx.zone22direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000200,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone23_direction_v2_0,
+		{ &hf_gvcp_sc_zone23_direction_v2_0,
 		{ "Zone 23 Direction", "gvcp.bootstrap.sczdx.zone23direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000100,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone24_direction_v2_0,
+		{ &hf_gvcp_sc_zone24_direction_v2_0,
 		{ "Zone 24 Direction", "gvcp.bootstrap.sczdx.zone24direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000080,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone25_direction_v2_0,
+		{ &hf_gvcp_sc_zone25_direction_v2_0,
 		{ "Zone 25 Direction", "gvcp.bootstrap.sczdx.zone25direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000040,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone26_direction_v2_0,
+		{ &hf_gvcp_sc_zone26_direction_v2_0,
 		{ "Zone 26 Direction", "gvcp.bootstrap.sczdx.zone26direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000020,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone27_direction_v2_0,
+		{ &hf_gvcp_sc_zone27_direction_v2_0,
 		{ "Zone 27 Direction", "gvcp.bootstrap.sczdx.zone27direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000010,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone28_direction_v2_0,
+		{ &hf_gvcp_sc_zone28_direction_v2_0,
 		{ "Zone 28 Direction", "gvcp.bootstrap.sczdx.zone28direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000008,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone29_direction_v2_0,
+		{ &hf_gvcp_sc_zone29_direction_v2_0,
 		{ "Zone 29 Direction", "gvcp.bootstrap.sczdx.zone29direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000004,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone30_direction_v2_0,
+		{ &hf_gvcp_sc_zone30_direction_v2_0,
 		{ "Zone 30 Direction", "gvcp.bootstrap.sczdx.zone30direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000002,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_sc_zone31_direction_v2_0,
+		{ &hf_gvcp_sc_zone31_direction_v2_0,
 		{ "Zone 31 Direction", "gvcp.bootstrap.sczdx.zone31direction",
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000001,
 		NULL, HFILL
@@ -4251,7 +4251,7 @@ void proto_register_gvcp(void)
 
 		/* GVCP_ACTION_GROUP_KEY(0), 1, 2, 3, 4, 5, 6, 7, 8, 9 */
 
-		{& hf_gvcp_action_group_key,
+		{ &hf_gvcp_action_group_key,
 		{ "Action Group Key", "gvcp.bootstrap.actiongroupkey",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
@@ -4259,38 +4259,38 @@ void proto_register_gvcp(void)
 
 		/* GVCP_ACTION_GROUP_MASK(0), 1, 2, 3, 4, 5, 6, 7, 8, 9 */
 
-		{& hf_gvcp_action_group_mask,
+		{ &hf_gvcp_action_group_mask,
 		{ "Action Group Mask", "gvcp.bootstrap.actiongroupmask",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL
 		}},
 /*
-		{& hf_gvcp_latency,
+		{ &hf_gvcp_latency,
 		{ "Latency Value (in us)", "gvcp.bootstrap.latency",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL
 		}},
 */
-		{& hf_gvcp_custom_register_addr,
+		{ &hf_gvcp_custom_register_addr,
 		{ "Custom Register Address", "gvcp.bootstrap.custom.register.write",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL
 		}},
 
-		{& hf_gvcp_custom_memory_addr,
+		{ &hf_gvcp_custom_memory_addr,
 		{ "Custom Memory Address", "gvcp.bootstrap.custom.register.write",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL
 		}},
 
 		/* Request/Response tracking */
-		{& hf_gvcp_response_in,
+		{ &hf_gvcp_response_in,
 		{ "Response In", "gvcp.response_in",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"The response to this GVCP request is in this frame", HFILL
 		}},
 
-		{& hf_gvcp_response_to,
+		{ &hf_gvcp_response_to,
 		{ "Request In", "gvcp.response_to",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"This is a response to the GVCP request in this frame", HFILL

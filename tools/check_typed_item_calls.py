@@ -112,7 +112,7 @@ class APICheck:
 
 
 
-    def check_against_items(self, items, check_missing_items=False):
+    def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
         global errors_found
         global warnings_found
 
@@ -124,17 +124,18 @@ class APICheck:
                           ' with length ' + str(call.length) + ' - must be > 0 or -1')
                     # Inc global count of issues found.
                     errors_found += 1
-            if call.hf_name in items:
-                if not items[call.hf_name].item_type in self.allowed_types:
+            if call.hf_name in items_defined:
+                if not items_defined[call.hf_name].item_type in self.allowed_types:
                     # Report this issue.
                     print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
                           self.file + ':' + str(call.line_number) +
-                          ' with type ' + items[call.hf_name].item_type)
+                          ' with type ' + items_defined[call.hf_name].item_type)
                     print('    (allowed types are', self.allowed_types, ')\n')
                     # Inc global count of issues found.
                     errors_found += 1
             elif check_missing_items:
-                if call.hf_name.startswith('hf_') and call.hf_name not in common_hf_var_names:
+                if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
+                #not in common_hf_var_names:
                     print('Warning:', self.file + ':' + str(call.line_number),
                           self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
                     warnings_found += 1
@@ -204,7 +205,7 @@ class ProtoTreeAddItemCheck(APICheck):
                         self.calls.append(Call(m.group(1), line_number=line_number, length=m.group(2)))
                 line_number += 1
 
-    def check_against_items(self, items, check_missing_items=False):
+    def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
         # For now, only complaining if length if call is longer than the item type implies.
         #
         # Could also be bugs where the length is always less than the type allows.
@@ -213,16 +214,17 @@ class ProtoTreeAddItemCheck(APICheck):
         global warnings_found
 
         for call in self.calls:
-            if call.hf_name in items:
-                if call.length and items[call.hf_name].item_type in self.lengths:
-                    if self.lengths[items[call.hf_name].item_type] < call.length:
+            if call.hf_name in items_defined:
+                if call.length and items_defined[call.hf_name].item_type in self.lengths:
+                    if self.lengths[items_defined[call.hf_name].item_type] < call.length:
                         print('Warning:', self.file + ':' + str(call.line_number),
                               self.fun_name + ' called for', call.hf_name, ' - ',
-                              'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
+                              'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
 
                         warnings_found += 1
             elif check_missing_items:
-                if call.hf_name.startswith('hf_') and call.hf_name not in common_hf_var_names:
+                if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
+                #not in common_hf_var_names:
                     print('Warning:', self.file + ':' + str(call.line_number),
                           self.fun_name + ' called for "' + call.hf_name + '"', ' - but no item found')
                     warnings_found += 1
@@ -563,7 +565,7 @@ def isGeneratedFile(filename):
     f_read.close()
     return False
 
-# Look for hf items in a dissector file.
+# Look for hf items (i.e. full item to be registered) in a dissector file.
 def find_items(filename, check_mask=False, check_label=False, check_consecutive=False):
     is_generated = isGeneratedFile(filename)
     items = {}
@@ -571,7 +573,7 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*)\s*,\s*{\s*\"(.+)\"\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([&A-Za-z0-9x_<\|\s\(\)]*)\s*,\s*([a-zA-Z0-9x_]*),', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.+)\"\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([\&A-Za-z0-9x_<\|\s\(\)]*)\s*,\s*([ a-zA-Z0-9x_\<\~]*)\s*,', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
@@ -582,10 +584,32 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
                              check_consecutive=(not is_generated and check_consecutive))
     return items
 
+def find_item_declarations(filename):
+    items = set()
+
+    with open(filename, 'r') as f:
+        lines = f.read().splitlines()
+        p = re.compile(r'^static int (hf_[a-zA-Z0-9_]*)\s*\=\s*-1;')
+        for line in lines:
+            m = p.search(line)
+            if m:
+                items.add(m.group(1))
+    return items
+
+def find_item_extern_declarations(filename):
+    items = set()
+    with open(filename, 'r') as f:
+        lines = f.read().splitlines()
+        p = re.compile(r'^\s*(hf_[a-zA-Z0-9_]*)\s*\=\s*proto_registrar_get_id_byname\s*\(')
+        for line in lines:
+            m = p.search(line)
+            if m:
+                items.add(m.group(1))
+    return items
 
 
 def is_dissector_file(filename):
-    p = re.compile(r'.*packet-.*\.c$')
+    p = re.compile(r'.*(packet|file)-.*\.c$')
     return p.match(filename)
 
 
@@ -618,12 +642,19 @@ def checkFile(filename, check_mask=False, check_label=False, check_consecutive=F
         return
 
     # Find important parts of items.
-    items = find_items(filename, check_mask, check_label, check_consecutive)
+    items_defined = find_items(filename, check_mask, check_label, check_consecutive)
+    items_extern_declared = {}
+
+    items_declared = {}
+    if check_missing_items:
+        items_declared = find_item_declarations(filename)
+        items_extern_declared = find_item_extern_declarations(filename)
+
 
     # Check each API
     for c in apiChecks:
         c.find_calls(filename)
-        c.check_against_items(items, check_missing_items)
+        c.check_against_items(items_defined, items_declared, items_extern_declared, check_missing_items)
 
 
 
