@@ -114,10 +114,10 @@ strings matching the regex. Named capturing subgroups, which must match
 exactly once per packet, are used to identify fields to import. The following
 fields are supported in regex mode, one mandatory and three optional:
 
-  "data"  Actual captured frame data to import
-  "time"  Timestamp of packet
-  "dir"   Direction of packet
-  "seqno" Arbitrary ID of packet
+    "data"  Actual captured frame data to import
+    "time"  Timestamp of packet
+    "dir"   Direction of packet
+    "seqno" Arbitrary ID of packet
 
 The 'data' field is the captured data, which must be in a selected encoding:
 hexadecimal (the default), octal, binary, or base64 and containing no
@@ -136,14 +136,14 @@ Here is a sample dump that the regex mode can process with the regex
 with timestamp format '%H:%M:%S.%f', directional indications of '<' and '>',
 and hex encoding:
 
-> 0:00:00.265620 a130368b000000080060
-> 0:00:00.280836 a1216c8b00000000000089086b0b82020407
-< 0:00:00.295459 a2010800000000000000000800000000
-> 0:00:00.296982 a1303c8b00000008007088286b0bc1ffcbf0f9ff
-> 0:00:00.305644 a121718b0000000000008ba86a0b8008
-< 0:00:00.319061 a2010900000000000000001000600000
-> 0:00:00.330937 a130428b00000008007589186b0bb9ffd9f0fdfa3eb4295e99f3aaffd2f005
-> 0:00:00.356037 a121788b0000000000008a18
+    > 0:00:00.265620 a130368b000000080060
+    > 0:00:00.280836 a1216c8b00000000000089086b0b82020407
+    < 0:00:00.295459 a2010800000000000000000800000000
+    > 0:00:00.296982 a1303c8b00000008007088286b0bc1ffcbf0f9ff
+    > 0:00:00.305644 a121718b0000000000008ba86a0b8008
+    < 0:00:00.319061 a2010900000000000000001000600000
+    > 0:00:00.330937 a130428b00000008007589186b0bb9ffd9f0fdfa3eb4295e99f3aaffd2f005
+    > 0:00:00.356037 a121788b0000000000008a18
 
 The regex is compiled with multiline support, and it is recommended to use
 the anchors '^' and '$' for best results.
@@ -233,10 +233,7 @@ available output formats.  The default is the *pcap* format.
 --
 
 -h::
-+
---
 Displays a help message.
---
 
 -i <proto>::
 +
@@ -276,17 +273,10 @@ TCP packets.
 --
 
 -n::
-+
---
 Write the file in pcapng format rather than pcap format.
---
 
 -N <intf-name>::
-+
---
-Specify a name for the interface included when writing a pcapng format
-file.
---
+Specify a name for the interface included when writing a pcapng format file.
 
 -o hex|oct|dec|none::
 +
@@ -312,11 +302,7 @@ link layer type (252) is selected the dissector defaults to "data".
 --
 
 -q::
-+
---
-Don't display the summary of the options selected at the beginning,
-or the count of packets processed at the end.
---
+Don't display the summary of the options selected at the beginning, or the count of packets processed at the end.
 
 -r <regex>::
 +
@@ -389,10 +375,7 @@ Example: __-u1000,69__ to make the packets look like TFTP/UDP packets.
 --
 
 -v::
-+
---
 Print the version and exit.
---
 
 -4 <srcip>,<destip>::
 +

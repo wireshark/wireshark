@@ -51,6 +51,11 @@ indent_size = 2
 indent_style = space
 indent_size = 2
 
+# Asciidoc
+[*.adoc]
+indent_style = space
+indent_size = 4
+
 # GraphViz. The examples at https://gitlab.com/graphviz/graphviz/-/blob/master/graphs
 # seem to be all over the place, so just go with 4 spaces for now.
 [*.gv]
