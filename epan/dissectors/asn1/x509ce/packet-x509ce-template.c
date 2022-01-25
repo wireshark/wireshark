@@ -92,11 +92,11 @@ void proto_register_x509ce(void) {
   static hf_register_info hf[] = {
     { &hf_x509ce_id_ce_baseUpdateTime,
       { "baseUpdateTime", "x509ce.id_ce_baseUpdateTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_id_ce_invalidityDate,
       { "invalidityDate", "x509ce.id_ce_invalidityDate",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_object_identifier_id,
       { "Id", "x509ce.id", FT_OID, BASE_NONE, NULL, 0,
