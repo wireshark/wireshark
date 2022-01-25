@@ -376,6 +376,15 @@ static int hf_profinet_port_tx_delay_local = -1;
 static int hf_profinet_port_tx_delay_remote = -1;
 static int hf_profinet_cable_delay_local = -1;
 static int hf_profinet_mrp_domain_uuid = -1;
+static int hf_profinet_tsn_domain_uuid = -1;
+static int hf_profinet_tsn_nme_management_addr = -1;
+static int hf_profinet_tsn_nme_management_addr_str_length = -1;
+static int hf_profinet_tsn_nme_management_addr_subtype = -1;
+static int hf_profinet_tsn_nme_name_uuid = -1;
+static int hf_profinet_tsn_nme_parameter_uuid = -1;
+static int hf_profinet_time_domain_number = -1;
+static int hf_profinet_time_domain_uuid = -1;
+static int hf_profinet_time_domain_master_identity = -1;
 static int hf_profinet_mrrt_port_status = -1;
 static int hf_profinet_cm_mac = -1;
 static int hf_profinet_master_source_address = -1;
@@ -756,12 +765,17 @@ static const value_string media_application_type[] = {
 
 /* PROFINET subtypes */
 static const value_string profinet_subtypes[] = {
-	{ 1, "Measured Delay Values" },
-	{ 2, "Port Status" },
-	{ 3, "Alias" },
-	{ 4, "MRP Port Status" },
-	{ 5, "Chassis MAC" },
-	{ 6, "PTCP Status" },
+	{ 1,  "Measured Delay Values" },
+	{ 2,  "Port Status" },
+	{ 3,  "Alias" },
+	{ 4,  "MRP Port Status" },
+	{ 5,  "Chassis MAC" },
+	{ 6,  "PTCP Status" },
+	{ 9,  "TSN Domain"},
+	{ 10, "TSN NME Management Address"},
+	{ 11, "TSN NME Name UUID"},
+	{ 12, "TSN NME Parameter UUID"},
+	{ 13, "TSN Time Domain data"},
 	{ 0, NULL }
 };
 /* extreme avaya ap subtypes */
@@ -1297,6 +1311,13 @@ static const value_string profinet_mrrt_port_status_vals[] = {
 	{ 2,	"MRRT_UP" },
 	/* all other bits reserved */
 	{ 0,	NULL }
+};
+static const value_string profinet_time_domain_number_vals[] = {
+    { 0x0000, "Global Time" },
+    { 0x0001, "Global Time Redundant" },
+    { 0x0020, "Working Clock" },
+    { 0x0021, "Working Clock Redundant" },
+    { 0, NULL }
 };
 
 /* IEEE 802.1Qbg Subtypes */
@@ -3675,6 +3696,61 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 			hf_profinet_green_period_begin_valid, hf_profinet_green_period_begin_offset);
 		break;
 	}
+	case 9:		/* LLDP_PNIO_TSNDOMAIN */
+	{
+		/* DomainUUID */
+		proto_tree_add_item(tree, hf_profinet_tsn_domain_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+		/*offset += 16;*/
+		break;
+	}
+	case 10:	/* LLDP_PNIO_TSNNMEManagementAddr */
+	{
+		guint8 management_string_length = 0;
+		management_string_length = tvb_get_guint8(tvb, offset);
+
+		/* Management Address String Length */
+		proto_tree_add_item(tree, hf_profinet_tsn_nme_management_addr_str_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		/* Management Address Subtype */
+		proto_tree_add_item(tree, hf_profinet_tsn_nme_management_addr_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+		management_string_length -= 1;
+
+		/* Management Address */
+		proto_tree_add_item(tree, hf_profinet_tsn_nme_management_addr, tvb, offset, management_string_length, ENC_NA);
+		/*offset += management_string_length;*/
+		break;
+	}
+	case 11:	/* LLDP_PNIO_TSNNMENameUUID */
+	{
+		/* TSNNMENameUUID */
+		proto_tree_add_item(tree, hf_profinet_tsn_nme_name_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+		/*offset += 16;*/
+		break;
+	}
+	case 12:	/* LLDP_PNIO_TSNNMEParameterUUID */
+	{
+		/* NMEParameterUUID */
+		proto_tree_add_item(tree, hf_profinet_tsn_nme_parameter_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+		/*offset += 16;*/
+		break;
+	}
+	case 13:	/* LLDP_PNIO_TSNTimeDomain */
+	{
+		/*TimeDomainNumber*/
+		proto_tree_add_item(tree, hf_profinet_time_domain_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		/*TimeDomainUUID*/
+		proto_tree_add_item(tree, hf_profinet_time_domain_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+		offset += 16;
+
+		/*TimeDomainMasterIdentity*/
+		proto_tree_add_item(tree, hf_profinet_time_domain_master_identity, tvb, offset, 8, ENC_NA);
+		/*offset += 8;*/
+		break;
+	}
 	default:
 		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
 	}
@@ -5853,8 +5929,44 @@ proto_register_lldp(void)
 			VALS(profinet_port3_status_PreambleLength), 0x2000, NULL, HFILL }
 		},
 		{ &hf_profinet_mrp_domain_uuid,
-			{ "MRP DomainUUID",	"lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
+			{ "MRP DomainUUID", "lldp.profinet.mrp_domain_uuid", FT_GUID, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_tsn_domain_uuid,
+			{ "TSN DomainUUID", "lldp.profinet.tsn_domain_uuid", FT_GUID, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_tsn_nme_management_addr,
+			{ "TSN NME Management Address",	"lldp.profinet.tsn_nme_management_addr", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_tsn_nme_management_addr_str_length,
+			{ "TSN NME Management Address String Length", "lldp.profinet.tsn_nme_management_addr_str_length", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_tsn_nme_management_addr_subtype,
+			{ "TSN NME Management Address Subtype",	"lldp.profinet.tsn_nme_management_addr_subtype", FT_UINT8, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_tsn_nme_name_uuid,
+			{ "TSN NME Name UUID", "lldp.profinet.tsn_nme_name_uuid", FT_GUID, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_tsn_nme_parameter_uuid,
+			{ "TSN NME Parameter UUID", "lldp.profinet.tsn_nme_parameter_uuid", FT_GUID, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_time_domain_number,
+			{ "Time Domain Number",	"lldp.profinet.time_domain_number", FT_UINT16, BASE_HEX,
+			VALS(profinet_time_domain_number_vals), 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_time_domain_uuid,
+			{ "Time Domain UUID", "lldp.profinet.time_domain_uuid", FT_GUID, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_profinet_time_domain_master_identity,
+			{ "Time Domain Master Identity", "lldp.profinet.time_domain_master_identity", FT_BYTES, BASE_NONE,
+			0x0, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_mrrt_port_status,
 			{ "MRRT PortStatus",	"lldp.profinet.mrrt_port_status", FT_UINT16, BASE_HEX,
