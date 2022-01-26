@@ -60,16 +60,19 @@ struct _rtp_info {
 };
 
 /* definitions for SRTP dissection */
+/* https://www.iana.org/assignments/srtp-protection/srtp-protection.xhtml */
 
 /* Encryption algorithms */
 #define SRTP_ENC_ALG_NOT_SET	0	/* Data not available/empty record */
 #define SRTP_ENC_ALG_NULL		1	/* non-encrypted SRTP payload - may still be authenticated */
 #define SRTP_ENC_ALG_AES_CM		2	/* SRTP default algorithm */
 #define SRTP_ENC_ALG_AES_F8		3
+#define SRTP_ENC_ALG_AES_GCM            4       /* RFC 7714 */
 
 /* Authentication algorithms */
 #define SRTP_AUTH_ALG_NONE			0	/* no auth tag in SRTP/RTP payload */
 #define SRTP_AUTH_ALG_HMAC_SHA1		1	/* SRTP default algorithm */
+#define SRTP_AUTH_ALG_GMAC		2	/* RFC 7714 */
 
 
 #if 0	/* these are only needed once the dissector include the crypto functions to decrypt and/or authenticate */

@@ -9674,7 +9674,11 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_USE_SRTP:
             if (is_dtls) {
-                offset = dtls_dissect_hnd_hello_ext_use_srtp(tvb, ext_tree, offset, next_offset);
+                if (hnd_type == SSL_HND_CLIENT_HELLO) {
+                    offset = dtls_dissect_hnd_hello_ext_use_srtp(pinfo, tvb, ext_tree, offset, next_offset, FALSE);
+                } else if (hnd_type == SSL_HND_SERVER_HELLO) {
+                    offset = dtls_dissect_hnd_hello_ext_use_srtp(pinfo, tvb, ext_tree, offset, next_offset, TRUE);
+                }
             } else {
                 // XXX expert info: This extension MUST only be used with DTLS, and not with TLS.
             }
