@@ -6184,7 +6184,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_file_bitmap,
 		  { "File bitmap",         "afp.file_bitmap",
-		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_req_count,
@@ -6379,7 +6379,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_access_mode,
 		  { "Access mode",         "afp.access",
-		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
 		    "Fork access mode", HFILL }},
 
 		{ &hf_afp_access_read,
