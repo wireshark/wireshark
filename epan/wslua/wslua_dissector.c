@@ -225,6 +225,24 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     WSLUA_RETURN(1); /* The newly created DissectorTable. */
 }
 
+WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
+    /* Creates a new heuristic `DissectorTable` for your dissector's use. Returns true iff table was created successfully. */
+#define WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME 1 /* The short name of the table. Use lower-case alphanumeric, dot, and/or underscores. */
+#define WSLUA_ARG_DissectorTable_heuristic_new_PROTO 2 /* The <<lua_class_Proto,`Proto`>> object that uses this dissector table. */
+    const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME);
+    Proto proto = checkProto(L, WSLUA_ARG_DissectorTable_heuristic_new_PROTO);
+    int proto_id = proto_get_id_by_short_name(proto->name);
+
+    list = find_heur_dissector_list(name);
+    if (list) {
+        luaL_error(L, "Heuristic list '%s' already exists", name);
+        return 0;
+    }
+
+    register_heur_dissector_list(name, proto_id);
+    return 0;
+}
+
 /* this struct is used for passing ourselves user_data through dissector_all_tables_foreach_table(). */
 typedef struct dissector_tables_foreach_table_info {
     int num;
@@ -714,6 +732,7 @@ static int DissectorTable__gc(lua_State* L) {
 
 WSLUA_METHODS DissectorTable_methods[] = {
     WSLUA_CLASS_FNREG(DissectorTable,new),
+    WSLUA_CLASS_FNREG(DissectorTable,heuristic_new),
     WSLUA_CLASS_FNREG(DissectorTable,get),
     WSLUA_CLASS_FNREG(DissectorTable,list),
     WSLUA_CLASS_FNREG(DissectorTable,heuristic_list),
