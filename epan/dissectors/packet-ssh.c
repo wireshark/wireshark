@@ -148,6 +148,7 @@ struct ssh_peer_data {
 
     // see libgcrypt source, gcrypt.h:gcry_cipher_algos
     guint            cipher_id;
+    guint            mac_id;
     // chacha20 needs two cipher handles
     gcry_cipher_hd_t cipher, cipher_2;
     guint            sequence_number;
@@ -167,6 +168,8 @@ struct ssh_peer_data {
     guint32          seq_num_new_key;
     ssh_bignum      *bn_cookie;
     guint8           iv[12];
+    guint8           hmac_iv[DIGEST_MAX_SIZE];
+    guint            hmac_iv_len;
     struct ssh_flow_data * global_data;
 };
 
@@ -448,9 +451,14 @@ static const gchar *ssh_debug_file_name     = NULL;
 /* 128-191 reserved for client protocols */
 /* 192-255 local extensions */
 
+#define CIPHER_AES128_CBC               0x00020001
+#define CIPHER_AES192_CBC               0x00020002
+#define CIPHER_AES256_CBC               0x00020004
 #define CIPHER_AES128_GCM               0x00040001
 //#define CIPHER_AES192_GCM               0x00040002	-- does not exist
 #define CIPHER_AES256_GCM               0x00040004
+
+#define CIPHER_MAC_SHA2_256             0x00020001
 
 static const value_string ssh_direction_vals[] = {
     { CLIENT_TO_SERVER_PROPOSAL, "client-to-server" },
@@ -582,6 +590,9 @@ static void ssh_derive_symmetric_key(ssh_bignum *shared_secret,
 static void ssh_decryption_set_cipher_id(struct ssh_peer_data *peer);
 static void ssh_decryption_setup_cipher(struct ssh_peer_data *peer,
         ssh_bignum *iv, ssh_bignum *key);
+static void ssh_decryption_set_mac_id(struct ssh_peer_data *peer);
+static void ssh_decryption_setup_mac(struct ssh_peer_data *peer,
+        ssh_bignum *iv);
 static void ssh_increment_message_number(packet_info *pinfo,
         struct ssh_flow_data *global_data, gboolean is_response);
 static guint ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
@@ -1264,12 +1275,16 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                 // the client sent SSH_MSG_NEWKEYS
                 if (!is_response) {
                     ssh_decryption_set_cipher_id(&global_data->peer_data[CLIENT_PEER_DATA]);
+                    ssh_decryption_set_mac_id(&global_data->peer_data[CLIENT_PEER_DATA]);
                     ssh_debug_printf("Activating new keys for CLIENT => SERVER\n");
                     ssh_decryption_setup_cipher(&global_data->peer_data[CLIENT_PEER_DATA], &global_data->new_keys[0], &global_data->new_keys[2]);
+                    ssh_decryption_setup_mac(&global_data->peer_data[CLIENT_PEER_DATA], &global_data->new_keys[4]);
                 }else{
                     ssh_decryption_set_cipher_id(&global_data->peer_data[SERVER_PEER_DATA]);
+                    ssh_decryption_set_mac_id(&global_data->peer_data[SERVER_PEER_DATA]);
                     ssh_debug_printf("Activating new keys for SERVER => CLIENT\n");
                     ssh_decryption_setup_cipher(&global_data->peer_data[SERVER_PEER_DATA], &global_data->new_keys[1], &global_data->new_keys[3]);
+                    ssh_decryption_setup_mac(&global_data->peer_data[SERVER_PEER_DATA], &global_data->new_keys[5]);
                 }
             }
             seq_num = global_data->peer_data[is_response].seq_num_new_key;
@@ -2306,9 +2321,31 @@ ssh_decryption_set_cipher_id(struct ssh_peer_data *peer)
         peer->cipher_id = CIPHER_AES256_GCM;
     } else if (0 == strcmp(cipher_name, "aes256-gcm")) {
         peer->cipher_id = CIPHER_AES256_GCM;
+    } else if (0 == strcmp(cipher_name, "aes128-cbc")) {
+        peer->cipher_id = CIPHER_AES128_CBC;
+    } else if (0 == strcmp(cipher_name, "aes192-cbc")) {
+        peer->cipher_id = CIPHER_AES192_CBC;
+    } else if (0 == strcmp(cipher_name, "aes256-cbc")) {
+        peer->cipher_id = CIPHER_AES256_CBC;
     } else {
         peer->cipher = NULL;
         ws_debug("decryption not supported: %s", cipher_name);
+    }
+}
+
+static void
+ssh_decryption_set_mac_id(struct ssh_peer_data *peer)
+{
+    gchar *mac_name = peer->mac;
+
+    if (!mac_name) {
+        peer->mac = NULL;
+        g_debug("ERROR: mac_name is NULL");
+    } else if (0 == strcmp(mac_name, "hmac-sha2-256")) {
+        peer->mac_id = CIPHER_MAC_SHA2_256;
+    } else {
+        peer->mac = NULL;
+        g_debug("decryption MAC not supported: %s", mac_name);
     }
 }
 
@@ -2359,6 +2396,41 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             ws_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
             return;
         }
+    } else if (CIPHER_AES128_CBC == peer_data->cipher_id  || CIPHER_AES192_CBC == peer_data->cipher_id || CIPHER_AES256_CBC == peer_data->cipher_id) {
+        gint iKeyLen = CIPHER_AES128_CBC == peer_data->cipher_id?16:CIPHER_AES192_CBC == peer_data->cipher_id?24:32;
+        if (gcry_cipher_open(hd1, CIPHER_AES128_CBC == peer_data->cipher_id?GCRY_CIPHER_AES128:CIPHER_AES192_CBC == peer_data->cipher_id?GCRY_CIPHER_AES192:GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_CBC_CTS)) {
+            gcry_cipher_close(*hd1);
+            g_debug("ssh: can't open aes%d cipher handle", iKeyLen*8);
+            return;
+        }
+        gchar k1[32], iv1[16];
+        if(key->data){
+            memcpy(k1, key->data, iKeyLen);
+        }else{
+            memset(k1, 0, iKeyLen);
+        }
+        if(iv->data){
+            memcpy(iv1, iv->data, 16);
+        }else{
+            memset(iv1, 0, 16);
+        }
+
+        ssh_debug_printf("ssh: cipher is aes%d-cbc\n", iKeyLen*8);
+        ssh_print_data("key", k1, iKeyLen);
+        ssh_print_data("iv", iv1, 16);
+
+        if ((err = gcry_cipher_setkey(*hd1, k1, iKeyLen))) {
+            gcry_cipher_close(*hd1);
+            g_debug("ssh: can't set aes%d cipher key", iKeyLen*8);
+            return;
+        }
+
+        if ((err = gcry_cipher_setiv(*hd1, iv1, 16))) {
+            gcry_cipher_close(*hd1);
+            g_debug("ssh: can't set aes%d cipher iv", iKeyLen*8);
+            g_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
+            return;
+        }
 
     } else if (CIPHER_AES128_GCM == peer_data->cipher_id  || CIPHER_AES256_GCM == peer_data->cipher_id) {
         gint iKeyLen = CIPHER_AES128_GCM == peer_data->cipher_id?16:32;
@@ -2388,8 +2460,124 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             g_debug("ssh: can't set aes%d cipher key", iKeyLen*8);
             return;
         }
+
     }
 }
+
+static void
+ssh_decryption_setup_mac(struct ssh_peer_data *peer_data,
+        ssh_bignum *iv)
+{
+    if(peer_data->mac_id == CIPHER_MAC_SHA2_256){
+        if(iv->data){
+            memcpy(peer_data->hmac_iv, iv->data, 32);
+        }else{
+            memset(peer_data->hmac_iv, 0, 32);
+        }
+        peer_data->hmac_iv_len = 32;
+        ssh_debug_printf("ssh: mac is hmac-sha2-256\n");
+        ssh_print_data("iv", peer_data->hmac_iv, peer_data->hmac_iv_len);
+    }else{
+        g_debug("ssh: unsupported MAC");
+    }
+}
+
+/* libgcrypt wrappers for HMAC/message digest operations {{{ */
+/* hmac abstraction layer */
+#define SSH_HMAC gcry_md_hd_t
+
+static inline gint
+ssh_hmac_init(SSH_HMAC* md, const void * key, gint len, gint algo)
+{
+    gcry_error_t  err;
+    const char   *err_str, *err_src;
+
+    err = gcry_md_open(md,algo, GCRY_MD_FLAG_HMAC);
+    if (err != 0) {
+        err_str = gcry_strerror(err);
+        err_src = gcry_strsource(err);
+        ssh_debug_printf("ssh_hmac_init(): gcry_md_open failed %s/%s", err_str, err_src);
+        return -1;
+    }
+    gcry_md_setkey (*(md), key, len);
+    return 0;
+}
+
+static inline void
+ssh_hmac_update(SSH_HMAC* md, const void* data, gint len)
+{
+    gcry_md_write(*(md), data, len);
+}
+
+static inline void
+ssh_hmac_final(SSH_HMAC* md, guchar* data, guint* datalen)
+{
+    gint  algo;
+    guint len;
+
+    algo = gcry_md_get_algo (*(md));
+    len  = gcry_md_get_algo_dlen(algo);
+    DISSECTOR_ASSERT(len <= *datalen);
+    memcpy(data, gcry_md_read(*(md), algo), len);
+    *datalen = len;
+}
+
+static inline void
+ssh_hmac_cleanup(SSH_HMAC* md)
+{
+    gcry_md_close(*(md));
+}
+/* libgcrypt wrappers for HMAC/message digest operations }}} */
+
+/* Decryption integrity check {{{ */
+
+static gint
+ssh_get_digest_by_id(guint mac_id)
+{
+    if(mac_id==CIPHER_MAC_SHA2_256){
+        return GCRY_MD_SHA256;
+    }
+    return -1;
+}
+
+static void
+ssh_calc_mac(struct ssh_peer_data *peer_data, guint32 seqnr, guint8* data, guint32 datalen, guint8* calc_mac)
+{
+    SSH_HMAC hm;
+    gint     md;
+    guint32  len;
+    guint8   buf[DIGEST_MAX_SIZE];
+
+    md=ssh_get_digest_by_id(peer_data->mac_id);
+//    ssl_debug_printf("ssh_check_mac mac type:%s md %d\n",
+//        ssl_cipher_suite_dig(decoder->cipher_suite)->name, md);
+
+    memset(calc_mac, 0, DIGEST_MAX_SIZE);
+
+    if (ssh_hmac_init(&hm, peer_data->hmac_iv, peer_data->hmac_iv_len,md) != 0)
+        return;
+
+    /* hash sequence number */
+    phton32(buf, seqnr);
+
+    ssh_print_data("Mac IV", peer_data->hmac_iv, peer_data->hmac_iv_len);
+    ssh_print_data("Mac seq", buf, 4);
+    ssh_print_data("Mac data", data, datalen);
+
+    ssh_hmac_update(&hm,buf,4);
+
+    ssh_hmac_update(&hm,data,datalen);
+
+    /* get digest and digest len*/
+    len = sizeof(buf);
+    ssh_hmac_final(&hm,buf,&len);
+    ssh_hmac_cleanup(&hm);
+    ssh_print_data("Mac", buf, len);
+    memcpy(calc_mac, buf, len);
+
+    return;
+}
+/* Decryption integrity check }}} */
 
 static void
 ssh_increment_message_number(packet_info *pinfo, struct ssh_flow_data *global_data,
@@ -2595,6 +2783,79 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         message_length = message->data_len - 4;
         mac = (gchar *)tvb_get_ptr(tvb, offset + 4 + message_length, mac_len);
 
+
+    } else if (CIPHER_AES128_CBC == peer_data->cipher_id ||
+        CIPHER_AES192_CBC == peer_data->cipher_id ||
+        CIPHER_AES256_CBC == peer_data->cipher_id) {
+
+        mac_len = peer_data->mac_length;
+        message_length = tvb_reported_length_remaining(tvb, offset) - 4 - mac_len;
+
+        if(message->plain_data && message->data_len){
+            message_length = message->data_len - 4;
+        }else{
+// TODO: see how to handle fragmentation...
+//            const gchar *ctext = NULL;
+            g_debug("Getting raw bytes of length %d", tvb_reported_length_remaining(tvb, offset));
+            const gchar *cypher_buf0 = (const gchar *)tvb_get_ptr(tvb, offset, tvb_reported_length_remaining(tvb, offset));
+
+            gchar   plain0[16];
+            if (gcry_cipher_decrypt(peer_data->cipher, plain0, 16, cypher_buf0, 16))
+            {
+                g_debug("can\'t decrypt aes128");
+                return offset;
+            }
+//            ctext = cypher_buf0;
+            plain = plain0;
+            guint message_length_decrypted = pntoh32(plain0);
+            guint remaining = tvb_reported_length_remaining(tvb, offset);
+
+            if(message_length_decrypted>32768){
+                g_debug("ssh: unreasonable message length %u/%u", message_length_decrypted, message_length);
+                offset += remaining;
+                return tvb_captured_length(tvb);
+            }else{
+
+                message_length = message_length_decrypted;
+                message->plain_data = (gchar *)wmem_alloc(wmem_file_scope(), message_length+4);
+                memcpy(message->plain_data, plain0, 16);
+                plain = message->plain_data;
+
+                guint offs = 16;
+                if(remaining>message_length+4){remaining=message_length+4;}
+                while(offs<remaining){
+                    gchar *ct = (gchar *)tvb_get_ptr(tvb, offset+offs, 16);
+                    if (gcry_cipher_decrypt(peer_data->cipher, plain+offs, 16, ct, 16))
+                    {
+                        g_debug("can\'t decrypt aes128");
+                        return offset;
+                    }
+                    offs += 16;
+                }
+
+                if(message_length_decrypted>remaining){
+                    // Need desegmentation
+                    g_debug("  need_desegmentation: offset = %d, reported_length_remaining = %d\n",
+                                    offset, tvb_reported_length_remaining(tvb, offset));
+                    /* Make data available to ssh_follow_tap_listener */
+                    return tvb_captured_length(tvb);
+                }
+
+//                ssh_print_data(is_response?"s2c encrypted":"c2s encrypted", ctext, message_length+4+mac_len);
+                ssh_debug_printf("%s plain text seq=%d", is_response?"s2c":"c2s",seqnr);
+                ssh_print_data("", plain, message_length+4);
+
+// TODO: process fragments
+                message->plain_data = plain;
+                message->data_len   = message_length + 4;
+
+                ssh_calc_mac(peer_data, message->sequence_number, message->plain_data, message->data_len, message->calc_mac);
+            }
+        }
+        plain = message->plain_data;
+        message_length = message->data_len - 4;
+        mac = (gchar *)tvb_get_ptr(tvb, offset + 4 + message_length, mac_len);
+        if(!memcmp(mac, message->calc_mac, mac_len)){g_debug("MAC OK");}else{g_debug("MAC ERR");}
     }
 
     if(plain){
