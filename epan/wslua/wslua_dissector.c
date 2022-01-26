@@ -231,6 +231,7 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_new(lua_State *L) {
 #define WSLUA_ARG_DissectorTable_heuristic_new_PROTO 2 /* The <<lua_class_Proto,`Proto`>> object that uses this dissector table. */
     const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_heuristic_new_TABLENAME);
     Proto proto = checkProto(L, WSLUA_ARG_DissectorTable_heuristic_new_PROTO);
+    heur_dissector_list_t list;
     int proto_id = proto_get_id_by_short_name(proto->name);
 
     list = find_heur_dissector_list(name);
