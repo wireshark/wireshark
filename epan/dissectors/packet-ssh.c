@@ -166,6 +166,7 @@ struct ssh_peer_data {
 // union ??? -- end
     guint32          seq_num_new_key;
     ssh_bignum      *bn_cookie;
+    guint8           iv[12];
     struct ssh_flow_data * global_data;
 };
 
@@ -446,6 +447,10 @@ static const gchar *ssh_debug_file_name     = NULL;
 
 /* 128-191 reserved for client protocols */
 /* 192-255 local extensions */
+
+#define CIPHER_AES128_GCM               0x00040001
+//#define CIPHER_AES192_GCM               0x00040002	-- does not exist
+#define CIPHER_AES256_GCM               0x00040004
 
 static const value_string ssh_direction_vals[] = {
     { CLIENT_TO_SERVER_PROPOSAL, "client-to-server" },
@@ -2293,6 +2298,14 @@ ssh_decryption_set_cipher_id(struct ssh_peer_data *peer)
         ws_debug("ERROR: cipher_name is NULL");
     } else if (0 == strcmp(cipher_name, "chacha20-poly1305@openssh.com")) {
         peer->cipher_id = GCRY_CIPHER_CHACHA20;
+    } else if (0 == strcmp(cipher_name, "aes128-gcm@openssh.com")) {
+        peer->cipher_id = CIPHER_AES128_GCM;
+    } else if (0 == strcmp(cipher_name, "aes128-gcm")) {
+        peer->cipher_id = CIPHER_AES128_GCM;
+    } else if (0 == strcmp(cipher_name, "aes256-gcm@openssh.com")) {
+        peer->cipher_id = CIPHER_AES256_GCM;
+    } else if (0 == strcmp(cipher_name, "aes256-gcm")) {
+        peer->cipher_id = CIPHER_AES256_GCM;
     } else {
         peer->cipher = NULL;
         ws_debug("decryption not supported: %s", cipher_name);
@@ -2344,6 +2357,35 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
             gcry_cipher_close(*hd1);
             gcry_cipher_close(*hd2);
             ws_debug("ssh: can't set chacha20 cipher key %s", gcry_strerror(err));
+            return;
+        }
+
+    } else if (CIPHER_AES128_GCM == peer_data->cipher_id  || CIPHER_AES256_GCM == peer_data->cipher_id) {
+        gint iKeyLen = CIPHER_AES128_GCM == peer_data->cipher_id?16:32;
+        if (gcry_cipher_open(hd1, CIPHER_AES128_GCM == peer_data->cipher_id?GCRY_CIPHER_AES128:GCRY_CIPHER_AES256, GCRY_CIPHER_MODE_GCM, 0)) {
+            gcry_cipher_close(*hd1);
+            g_debug("ssh: can't open aes%d cipher handle", iKeyLen*8);
+            return;
+        }
+
+        gchar k1[32], iv2[12];
+        if(key->data){
+            memcpy(k1, key->data, iKeyLen);
+        }else{
+            memset(k1, 0, iKeyLen);
+        }
+        if(iv->data){
+            memcpy(peer_data->iv, iv->data, 12);
+        }else{
+            memset(iv2, 0, 12);
+        }
+
+        ssh_print_data("key", k1, iKeyLen);
+        ssh_print_data("iv", peer_data->iv, 12);
+
+        if ((err = gcry_cipher_setkey(*hd1, k1, iKeyLen))) {
+            gcry_cipher_close(*hd1);
+            g_debug("ssh: can't set aes%d cipher key", iKeyLen*8);
             return;
         }
     }
@@ -2465,6 +2507,94 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 //        ssh_print_data(is_response?"s2c encrypted":"c2s encrypted", ctext2, message_length+4+mac_len);
         ssh_debug_printf("%s plain text seq=%d", is_response?"s2c":"c2s",seqnr);
         ssh_print_data("", plain, message_length+4);
+    } else if (CIPHER_AES128_GCM == peer_data->cipher_id || CIPHER_AES256_GCM == peer_data->cipher_id) {
+
+        mac_len = peer_data->mac_length;
+        message_length = tvb_reported_length_remaining(tvb, offset) - 4 - mac_len;
+
+        const gchar *plain_buf = (const gchar *)tvb_get_ptr(tvb, offset, 4);
+        message_length = pntoh32(plain_buf);
+        guint remaining = tvb_reported_length_remaining(tvb, offset);
+        ssh_debug_printf("length: %d, remaining: %d\n", message_length, remaining);
+
+        if(message->plain_data && message->data_len){
+            message_length = message->data_len - 4;
+        }else{
+
+            const gchar *ctl = (const gchar *)tvb_get_ptr(tvb, offset,
+                    message_length+4);
+            const gchar *ctext = ctl + 4;
+            plain = (gchar *)wmem_alloc(wmem_file_scope(), message_length+4);
+            plain[0] = message_length >> 24; plain[1] = message_length >> 16; plain[2] = message_length >>  8; plain[3] = message_length >>  0;
+
+            gcry_error_t err;
+            /* gcry_cipher_setiv(peer_data->cipher, iv, 12); */
+            if ((err = gcry_cipher_setiv(peer_data->cipher, peer_data->iv, 12))) {
+                gcry_cipher_close(peer_data->cipher);
+// TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
+#ifndef _WIN32
+                ws_debug("ssh: can't set aes128 cipher iv");
+                ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
+#endif	//ndef _WIN32
+                return offset;
+            }
+            int idx = 12;
+            do{
+                idx -= 1;
+                peer_data->iv[idx] += 1;
+            }while(idx>4 && peer_data->iv[idx]==0);
+
+            if ((err = gcry_cipher_authenticate(peer_data->cipher, plain, 4))) {
+// TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
+#ifndef _WIN32
+                ws_debug("can't authenticate using aes128-gcm: %s\n", gpg_strerror(err));
+#endif	//ndef _WIN32
+                return offset;
+            }
+
+            guint offs = 0;
+            if(remaining>message_length+4){remaining=message_length;}
+            while(offs<remaining){
+                if (gcry_cipher_decrypt(peer_data->cipher, plain+4+offs, 16,
+                        ctext+offs, 16))
+                {
+// TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
+#ifndef _WIN32
+                    ws_debug("can\'t decrypt aes128");
+#endif	//ndef _WIN32
+                    return offset;
+                }
+                offs += 16;
+            }
+
+            if (gcry_cipher_gettag (peer_data->cipher, message->calc_mac, 16)) {
+// TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
+#ifndef _WIN32
+                ws_debug ("aes128-gcm, gcry_cipher_gettag() failed\n");
+#endif	//ndef _WIN32
+                return offset;
+            }
+
+            if ((err = gcry_cipher_reset(peer_data->cipher))) {
+// TODO: temporary work-around as long as a Windows python bug is triggered by automated tests
+#ifndef _WIN32
+                ws_debug("aes-gcm, gcry_cipher_reset failed: %s\n", gpg_strerror (err));
+#endif	//ndef _WIN32
+                return offset;
+            }
+
+            message->plain_data = plain;
+            message->data_len   = message_length + 4;
+
+//            ssh_print_data(is_response?"s2c encrypted":"c2s encrypted", ctl, message_length+4+mac_len);
+            ssh_debug_printf("%s plain text seq=%d", is_response?"s2c":"c2s",seqnr);
+            ssh_print_data("", plain, message_length+4);
+        }
+
+        plain = message->plain_data;
+        message_length = message->data_len - 4;
+        mac = (gchar *)tvb_get_ptr(tvb, offset + 4 + message_length, mac_len);
+
     }
 
     if(plain){
