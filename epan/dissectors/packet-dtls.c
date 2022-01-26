@@ -151,7 +151,9 @@ static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 static expert_field ei_dtls_cid_invalid_content_type = EI_INIT;
+#if 0
 static expert_field ei_dtls_cid_invalid_enc_content = EI_INIT;
+#endif
 
 #ifdef HAVE_LIBGNUTLS
 static GHashTable      *dtls_key_hash   = NULL;
@@ -2108,7 +2110,9 @@ proto_register_dtls(void)
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
      { &ei_dtls_heartbeat_payload_length, { "dtls.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
      { &ei_dtls_cid_invalid_content_type, { "dtls.cid.content_type.invalid", PI_MALFORMED, PI_ERROR, "Invalid real content type", EXPFILL }},
+#if 0
      { &ei_dtls_cid_invalid_enc_content, { "dtls.cid.enc_content.invalid", PI_MALFORMED, PI_ERROR, "Invalid encrypted content", EXPFILL }},
+#endif
 
      SSL_COMMON_EI_LIST(dissect_dtls_hf, "dtls")
   };
