@@ -712,7 +712,7 @@ static void dissect_ndr_lm_nt_byte_array(packet_info *pinfo,
     cb_ref->response->length = len;
     cb_ref->response->contents = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, len);
     if (len > 24) {
-        dissect_ntlmv2_response(tvb, pinfo, tree, offset, len, state->ntlmssph.type);
+        dissect_ntlmv2_response(tvb, pinfo, tree, offset, len);
     }
 
     dissect_LOGON_INFO_STATE_finish(state);

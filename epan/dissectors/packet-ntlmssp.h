@@ -34,7 +34,7 @@ get_md4pass_list(wmem_allocator_t *pool, md4_pass** p_pass_list);
 /* Dissect a ntlmv2 response */
 
 int
-dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntlmssp_tree, int offset, int len, guint32 type);
+dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntlmssp_tree, int offset, int len);
 
 /* the ntlmssp data passed to tap listeners */
 typedef struct _ntlmssp_header_t {
