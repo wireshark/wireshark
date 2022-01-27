@@ -1333,6 +1333,7 @@ static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t smp_handle;
+static dissector_handle_t tls_handle;
 
 #define TDS_CURSOR_NAME_VALID           0x01
 #define TDS_CURSOR_ID_VALID             0x02
@@ -4092,7 +4093,7 @@ static int detect_tls(tvbuff_t *tvb)
 }
 
 static void
-dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *tds_info,
+dissect_tds7_prelogin_packet(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info,
                              gboolean is_response)
 {
     guint8 token;
@@ -4105,7 +4106,8 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *t
 
     if(detect_tls(tvb))
     {
-        proto_item_append_text(item, " - TLS exchange");
+        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(tls_handle, next_tvb, pinfo, tree);
         return;
     }
 
@@ -5209,7 +5211,7 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
 }
 
 static gboolean
-dissect_tds_prelogin_response(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
+dissect_tds_prelogin_response(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint8 token = 0;
     gint tokenoffset, tokenlen, cur = offset;
@@ -5259,7 +5261,7 @@ dissect_tds_prelogin_response(tvbuff_t *tvb, guint offset, proto_tree *tree, tds
 
     if(valid) {
         /* The prelogin response has the same form as the prelogin request. */
-        dissect_tds7_prelogin_packet(tvb, tree, tds_info, TRUE);
+        dissect_tds7_prelogin_packet(tvb, pinfo, tree, tds_info, TRUE);
     }
 
     return valid;
@@ -6595,7 +6597,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
     (void) memset(&nl_data, '\0', sizeof nl_data);
 
     /* Test for pre-login response in case this response is not a token stream */
-    if(dissect_tds_prelogin_response(tvb, pos, tree, tds_info) == TRUE)
+    if(dissect_tds_prelogin_response(tvb, pinfo, pos, tree, tds_info) == TRUE)
     {
         return;
     }
@@ -6839,8 +6841,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(detect_tls(tvb))
     {
-        tds_item = proto_tree_add_item(tree, hf_tds_prelogin, tvb, 0, -1, ENC_NA);
-        proto_item_append_text(tds_item, " - TLS exchange");
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(tls_handle, next_tvb, pinfo, tree);
         return;
     }
 
@@ -7029,7 +7031,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case TDS_ATTENTION_PKT:
                 break;
             case TDS_PRELOGIN_PKT:
-                dissect_tds7_prelogin_packet(next_tvb, tds_tree, tds_info, FALSE);
+                dissect_tds7_prelogin_packet(next_tvb, pinfo, tds_tree, tds_info, FALSE);
                 break;
 
             default:
@@ -10395,6 +10397,7 @@ proto_reg_handoff_tds(void)
     ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_tds);
     gssapi_handle = find_dissector_add_dependency("gssapi", proto_tds);
     smp_handle = find_dissector_add_dependency("smp_tds", proto_tds);
+    tls_handle = find_dissector_add_dependency("tls", proto_tds);
 
     /* Isn't required, but allows user to override current payload */
     dissector_add_for_decode_as("smp.payload", create_dissector_handle(dissect_tds_pdu, proto_tds));
