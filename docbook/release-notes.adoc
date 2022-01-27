@@ -114,6 +114,7 @@ Host IP Configuration Protocol (HICP)
 Secure Host IP Configuration Protocol (SHICP)
 Mesh Connex (MCX)
 FiveCo's Legacy Register Access Protocol (5co-legacy)
+Microsoft Cluster Remote Control Protocol (RCP)
 --
 
 === Updated Protocol Support
