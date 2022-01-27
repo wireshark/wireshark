@@ -50,6 +50,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/to_str.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/wsgcrypt.h>
@@ -90,8 +91,14 @@ typedef struct {
 
 #define SSH_KEX_CURVE25519 0x00010000
 #define SSH_KEX_DH_GEX     0x00020000
+#define SSH_KEX_DH_GROUP1  0x00030001
+#define SSH_KEX_DH_GROUP14 0x00030014
+#define SSH_KEX_DH_GROUP16 0x00030016
+#define SSH_KEX_DH_GROUP18 0x00030018
 
+#define SSH_KEX_HASH_SHA1   1
 #define SSH_KEX_HASH_SHA256 2
+#define SSH_KEX_HASH_SHA512 4
 
 #define DIGEST_MAX_SIZE 48
 
@@ -595,8 +602,9 @@ static void ssh_derive_symmetric_keys(ssh_bignum *shared_secret,
         struct ssh_flow_data *global_data);
 static void ssh_derive_symmetric_key(ssh_bignum *shared_secret,
         gchar *exchange_hash, guint hash_length, gchar id,
-        ssh_bignum *result_key, struct ssh_flow_data *global_data);
+        ssh_bignum *result_key, struct ssh_flow_data *global_data, guint we_need);
 
+static void ssh_choose_enc_mac(struct ssh_flow_data *global_data);
 static void ssh_decryption_set_cipher_id(struct ssh_peer_data *peer);
 static void ssh_decryption_setup_cipher(struct ssh_peer_data *peer,
         ssh_bignum *iv, ssh_bignum *key);
@@ -1253,9 +1261,6 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
             if (peer_data->frame_key_end == 0) {
                 peer_data->frame_key_end = pinfo->num;
                 peer_data->frame_key_end_offset = offset;
-                ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].enc_proposals[is_response],
-                                global_data->peer_data[SERVER_PEER_DATA].enc_proposals[is_response],
-                                &peer_data->enc);
 
                 if(global_data->peer_data[is_response].seq_num_new_key == 0){
                     global_data->peer_data[is_response].seq_num_new_key = global_data->peer_data[is_response].sequence_number;
@@ -1263,38 +1268,12 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                     ssh_debug_printf("%s->sequence_number{SSH_MSG_NEWKEYS=%d}++ > %d\n", is_response?"server":"client", global_data->peer_data[is_response].seq_num_new_key, global_data->peer_data[is_response].sequence_number);
                 }
 
-                /* some ciphers have their own MAC so the "negotiated" one is meaningless */
-                if(peer_data->enc && (0 == strcmp(peer_data->enc, "aes128-gcm@openssh.com") ||
-                                      0 == strcmp(peer_data->enc, "aes256-gcm@openssh.com"))) {
-                    peer_data->mac = wmem_strdup(wmem_file_scope(), (const gchar *)"<implicit>");
-                    peer_data->mac_length = 16;
-                    peer_data->length_is_plaintext = 1;
-                }
-                else if(peer_data->enc && 0 == strcmp(peer_data->enc, "chacha20-poly1305@openssh.com")) {
-                    peer_data->mac = wmem_strdup(wmem_file_scope(), (const gchar *)"<implicit>");
-                    peer_data->mac_length = 16;
-                }
-                else {
-                    ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].mac_proposals[is_response],
-                                    global_data->peer_data[SERVER_PEER_DATA].mac_proposals[is_response],
-                                    &peer_data->mac);
-                    ssh_set_mac_length(peer_data);
-                }
-
-                ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].comp_proposals[is_response],
-                                global_data->peer_data[SERVER_PEER_DATA].comp_proposals[is_response],
-                                &peer_data->comp);
-
                 // the client sent SSH_MSG_NEWKEYS
                 if (!is_response) {
-                    ssh_decryption_set_cipher_id(&global_data->peer_data[CLIENT_PEER_DATA]);
-                    ssh_decryption_set_mac_id(&global_data->peer_data[CLIENT_PEER_DATA]);
                     ssh_debug_printf("Activating new keys for CLIENT => SERVER\n");
                     ssh_decryption_setup_cipher(&global_data->peer_data[CLIENT_PEER_DATA], &global_data->new_keys[0], &global_data->new_keys[2]);
                     ssh_decryption_setup_mac(&global_data->peer_data[CLIENT_PEER_DATA], &global_data->new_keys[4]);
                 }else{
-                    ssh_decryption_set_cipher_id(&global_data->peer_data[SERVER_PEER_DATA]);
-                    ssh_decryption_set_mac_id(&global_data->peer_data[SERVER_PEER_DATA]);
                     ssh_debug_printf("Activating new keys for SERVER => CLIENT\n");
                     ssh_decryption_setup_cipher(&global_data->peer_data[SERVER_PEER_DATA], &global_data->new_keys[1], &global_data->new_keys[3]);
                     ssh_decryption_setup_mac(&global_data->peer_data[SERVER_PEER_DATA], &global_data->new_keys[5]);
@@ -1357,6 +1336,7 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
             proto_tree_add_expert_format(tree, pinfo, &ei_ssh_invalid_keylen, tvb, offset, 2,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
+        ssh_choose_enc_mac(global_data);
         ssh_keylog_hash_write_secret(global_data);
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
@@ -1436,6 +1416,8 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
             // f (server ephemeral key public part), K_S (host key)
             ssh_keylog_hash_write_secret(global_data);
         }
+        ssh_choose_enc_mac(global_data);
+        ssh_keylog_hash_write_secret(global_data);
 #endif
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
         offset += ssh_tree_add_hostsignature(tvb, pinfo, offset, tree, "KEX host signature",
@@ -1517,6 +1499,7 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
                 "Invalid key length: %u", tvb_get_ntohl(tvb, offset));
         }
 
+        ssh_choose_enc_mac(global_data);
         ssh_keylog_hash_write_secret(global_data);
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].seq_num_ecdh_rep = global_data->peer_data[SERVER_PEER_DATA].sequence_number;
@@ -1729,6 +1712,14 @@ static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data)
         strcmp(kex_name, "curve448-sha512") == 0)
     {
         global_data->kex_specific_dissector = ssh_dissect_kex_ecdh;
+    }
+    else if (strcmp(kex_name, "diffie-hellman-group14-sha256") == 0 ||
+        strcmp(kex_name, "diffie-hellman-group16-sha512") == 0 ||
+        strcmp(kex_name, "diffie-hellman-group18-sha512") == 0 ||
+        strcmp(kex_name, "diffie-hellman-group1-sha1") == 0 ||
+        strcmp(kex_name, "diffie-hellman-group14-sha1") == 0)
+    {
+        global_data->kex_specific_dissector = ssh_dissect_kex_dh;
     }
 }
 
@@ -2088,6 +2079,14 @@ ssh_kex_type(gchar *type)
             return SSH_KEX_CURVE25519;
         }else if (g_str_has_prefix(type, "diffie-hellman-group-exchange")) {
             return SSH_KEX_DH_GEX;
+        }else if (g_str_has_prefix(type, "diffie-hellman-group14")) {
+            return SSH_KEX_DH_GROUP14;
+        }else if (g_str_has_prefix(type, "diffie-hellman-group16")) {
+            return SSH_KEX_DH_GROUP16;
+        }else if (g_str_has_prefix(type, "diffie-hellman-group18")) {
+            return SSH_KEX_DH_GROUP18;
+        }else if (g_str_has_prefix(type, "diffie-hellman-group1")) {
+            return SSH_KEX_DH_GROUP1;
         }
     }
 
@@ -2097,8 +2096,12 @@ ssh_kex_type(gchar *type)
 static guint
 ssh_kex_hash_type(gchar *type_string)
 {
-    if (type_string && g_str_has_suffix(type_string, "sha256")) {
+    if (type_string && g_str_has_suffix(type_string, "sha1")) {
+        return SSH_KEX_HASH_SHA1;
+    }else if (type_string && g_str_has_suffix(type_string, "sha256")) {
         return SSH_KEX_HASH_SHA256;
+    }else if (type_string && g_str_has_suffix(type_string, "sha512")) {
+        return SSH_KEX_HASH_SHA512;
     } else {
         ws_debug("hash type %s not supported", type_string);
         return 0;
@@ -2109,8 +2112,9 @@ static ssh_bignum *
 ssh_kex_make_bignum(const guint8 *data, guint length)
 {
     // 512 bytes (4096 bits) is the maximum bignum size we're supporting
-    // Actualy we need 513 bytes, to make provision for signed values
-    if (length == 0 || length > 513) {
+    // Actually we need 513 bytes, to make provision for signed values
+    // Diffie-Hellman group 18 has 8192 bits
+    if (length == 0 || length > 1025) {
         return NULL;
     }
 
@@ -2251,6 +2255,12 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data)
         ssh_print_data("key server  (f)", (const guchar *)wmem_array_get_raw(kex_f), wmem_array_get_count(kex_f));
         wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_f), wmem_array_get_count(kex_f));
     }
+    if(kex_type==SSH_KEX_DH_GROUP1 || kex_type==SSH_KEX_DH_GROUP14 || kex_type==SSH_KEX_DH_GROUP16 || kex_type==SSH_KEX_DH_GROUP18){
+        ssh_print_data("key client  (e)", (const guchar *)wmem_array_get_raw(kex_e), wmem_array_get_count(kex_e));
+        wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_e), wmem_array_get_count(kex_e));
+        ssh_print_data("key server (f)", (const guchar *)wmem_array_get_raw(kex_f), wmem_array_get_count(kex_f));
+        wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_f), wmem_array_get_count(kex_f));
+    }
     if(kex_type==SSH_KEX_CURVE25519){
         ssh_print_data("key client  (Q_C)", (const guchar *)wmem_array_get_raw(kex_e), wmem_array_get_count(kex_e));
         wmem_array_append(kex_hash_buffer, wmem_array_get_raw(kex_e), wmem_array_get_count(kex_e));
@@ -2263,9 +2273,15 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data)
     ssh_print_data("exchange", (const guchar *)wmem_array_get_raw(kex_hash_buffer), wmem_array_get_count(kex_hash_buffer));
 
     guint hash_len = 32;
-    if(kex_hash_type==SSH_KEX_HASH_SHA256){
+    if(kex_hash_type==SSH_KEX_HASH_SHA1) {
+        gcry_md_open(&hd, GCRY_MD_SHA1, 0);
+        hash_len = 20;
+    } else if(kex_hash_type==SSH_KEX_HASH_SHA256) {
         gcry_md_open(&hd, GCRY_MD_SHA256, 0);
         hash_len = 32;
+    } else if(kex_hash_type==SSH_KEX_HASH_SHA512) {
+        gcry_md_open(&hd, GCRY_MD_SHA512, 0);
+        hash_len = 64;
     } else {
         ws_debug("kex_hash_type type %d not supported", kex_hash_type);
         return;
@@ -2308,6 +2324,158 @@ ssh_kex_shared_secret(gint kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bign
         gcry_mpi_release(e);
         gcry_mpi_release(m);
 
+    }else if(kex_type==SSH_KEX_DH_GROUP1 || kex_type==SSH_KEX_DH_GROUP14 || kex_type==SSH_KEX_DH_GROUP16 || kex_type==SSH_KEX_DH_GROUP18){
+        gcry_mpi_t m = NULL;
+        if(kex_type==SSH_KEX_DH_GROUP1){
+            static const guint8 p[] = {
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
+                    0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1, 0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
+                    0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22, 0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
+                    0xEF, 0x95, 0x19, 0xB3, 0xCD, 0x3A, 0x43, 0x1B, 0x30, 0x2B, 0x0A, 0x6D, 0xF2, 0x5F, 0x14, 0x37,
+                    0x4F, 0xE1, 0x35, 0x6D, 0x6D, 0x51, 0xC2, 0x45, 0xE4, 0x85, 0xB5, 0x76, 0x62, 0x5E, 0x7E, 0xC6,
+                    0xF4, 0x4C, 0x42, 0xE9, 0xA6, 0x37, 0xED, 0x6B, 0x0B, 0xFF, 0x5C, 0xB6, 0xF4, 0x06, 0xB7, 0xED,
+                    0xEE, 0x38, 0x6B, 0xFB, 0x5A, 0x89, 0x9F, 0xA5, 0xAE, 0x9F, 0x24, 0x11, 0x7C, 0x4B, 0x1F, 0xE6,
+                    0x49, 0x28, 0x66, 0x51, 0xEC, 0xE6, 0x53, 0x81, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,};
+            gcry_mpi_scan(&m, GCRYMPI_FMT_USG, p, sizeof(p), NULL);
+        }else if(kex_type==SSH_KEX_DH_GROUP14){
+//p:FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA051015728E5A8AACAA68FFFFFFFFFFFFFFFF
+            static const guint8 p[] = {
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
+                    0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1, 0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
+                    0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22, 0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
+                    0xEF, 0x95, 0x19, 0xB3, 0xCD, 0x3A, 0x43, 0x1B, 0x30, 0x2B, 0x0A, 0x6D, 0xF2, 0x5F, 0x14, 0x37,
+                    0x4F, 0xE1, 0x35, 0x6D, 0x6D, 0x51, 0xC2, 0x45, 0xE4, 0x85, 0xB5, 0x76, 0x62, 0x5E, 0x7E, 0xC6,
+                    0xF4, 0x4C, 0x42, 0xE9, 0xA6, 0x37, 0xED, 0x6B, 0x0B, 0xFF, 0x5C, 0xB6, 0xF4, 0x06, 0xB7, 0xED,
+                    0xEE, 0x38, 0x6B, 0xFB, 0x5A, 0x89, 0x9F, 0xA5, 0xAE, 0x9F, 0x24, 0x11, 0x7C, 0x4B, 0x1F, 0xE6,
+                    0x49, 0x28, 0x66, 0x51, 0xEC, 0xE4, 0x5B, 0x3D, 0xC2, 0x00, 0x7C, 0xB8, 0xA1, 0x63, 0xBF, 0x05,
+                    0x98, 0xDA, 0x48, 0x36, 0x1C, 0x55, 0xD3, 0x9A, 0x69, 0x16, 0x3F, 0xA8, 0xFD, 0x24, 0xCF, 0x5F,
+                    0x83, 0x65, 0x5D, 0x23, 0xDC, 0xA3, 0xAD, 0x96, 0x1C, 0x62, 0xF3, 0x56, 0x20, 0x85, 0x52, 0xBB,
+                    0x9E, 0xD5, 0x29, 0x07, 0x70, 0x96, 0x96, 0x6D, 0x67, 0x0C, 0x35, 0x4E, 0x4A, 0xBC, 0x98, 0x04,
+                    0xF1, 0x74, 0x6C, 0x08, 0xCA, 0x18, 0x21, 0x7C, 0x32, 0x90, 0x5E, 0x46, 0x2E, 0x36, 0xCE, 0x3B,
+                    0xE3, 0x9E, 0x77, 0x2C, 0x18, 0x0E, 0x86, 0x03, 0x9B, 0x27, 0x83, 0xA2, 0xEC, 0x07, 0xA2, 0x8F,
+                    0xB5, 0xC5, 0x5D, 0xF0, 0x6F, 0x4C, 0x52, 0xC9, 0xDE, 0x2B, 0xCB, 0xF6, 0x95, 0x58, 0x17, 0x18,
+                    0x39, 0x95, 0x49, 0x7C, 0xEA, 0x95, 0x6A, 0xE5, 0x15, 0xD2, 0x26, 0x18, 0x98, 0xFA, 0x05, 0x10,
+                    0x15, 0x72, 0x8E, 0x5A, 0x8A, 0xAC, 0xAA, 0x68, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+            gcry_mpi_scan(&m, GCRYMPI_FMT_USG, p, sizeof(p), NULL);
+        }else if(kex_type==SSH_KEX_DH_GROUP16){
+//p:FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA051015728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6BF12FFA06D98A0864D87602733EC86A64521F2B18177B200CBBE117577A615D6C770988C0BAD946E208E24FA074E5AB3143DB5BFCE0FD108E4B82D120A92108011A723C12A787E6D788719A10BDBA5B2699C327186AF4E23C1A946834B6150BDA2583E9CA2AD44CE8DBBBC2DB04DE8EF92E8EFC141FBECAA6287C59474E6BC05D99B2964FA090C3A2233BA186515BE7ED1F612970CEE2D7AFB81BDD762170481CD0069127D5B05AA993B4EA988D8FDDC186FFB7DC90A6C08F4DF435C934063199FFFFFFFFFFFFFFFF
+            static const guint8 p[] = {
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
+                    0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1, 0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
+                    0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22, 0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
+                    0xEF, 0x95, 0x19, 0xB3, 0xCD, 0x3A, 0x43, 0x1B, 0x30, 0x2B, 0x0A, 0x6D, 0xF2, 0x5F, 0x14, 0x37,
+                    0x4F, 0xE1, 0x35, 0x6D, 0x6D, 0x51, 0xC2, 0x45, 0xE4, 0x85, 0xB5, 0x76, 0x62, 0x5E, 0x7E, 0xC6,
+                    0xF4, 0x4C, 0x42, 0xE9, 0xA6, 0x37, 0xED, 0x6B, 0x0B, 0xFF, 0x5C, 0xB6, 0xF4, 0x06, 0xB7, 0xED,
+                    0xEE, 0x38, 0x6B, 0xFB, 0x5A, 0x89, 0x9F, 0xA5, 0xAE, 0x9F, 0x24, 0x11, 0x7C, 0x4B, 0x1F, 0xE6,
+                    0x49, 0x28, 0x66, 0x51, 0xEC, 0xE4, 0x5B, 0x3D, 0xC2, 0x00, 0x7C, 0xB8, 0xA1, 0x63, 0xBF, 0x05,
+                    0x98, 0xDA, 0x48, 0x36, 0x1C, 0x55, 0xD3, 0x9A, 0x69, 0x16, 0x3F, 0xA8, 0xFD, 0x24, 0xCF, 0x5F,
+                    0x83, 0x65, 0x5D, 0x23, 0xDC, 0xA3, 0xAD, 0x96, 0x1C, 0x62, 0xF3, 0x56, 0x20, 0x85, 0x52, 0xBB,
+                    0x9E, 0xD5, 0x29, 0x07, 0x70, 0x96, 0x96, 0x6D, 0x67, 0x0C, 0x35, 0x4E, 0x4A, 0xBC, 0x98, 0x04,
+                    0xF1, 0x74, 0x6C, 0x08, 0xCA, 0x18, 0x21, 0x7C, 0x32, 0x90, 0x5E, 0x46, 0x2E, 0x36, 0xCE, 0x3B,
+                    0xE3, 0x9E, 0x77, 0x2C, 0x18, 0x0E, 0x86, 0x03, 0x9B, 0x27, 0x83, 0xA2, 0xEC, 0x07, 0xA2, 0x8F,
+                    0xB5, 0xC5, 0x5D, 0xF0, 0x6F, 0x4C, 0x52, 0xC9, 0xDE, 0x2B, 0xCB, 0xF6, 0x95, 0x58, 0x17, 0x18,
+                    0x39, 0x95, 0x49, 0x7C, 0xEA, 0x95, 0x6A, 0xE5, 0x15, 0xD2, 0x26, 0x18, 0x98, 0xFA, 0x05, 0x10,
+                    0x15, 0x72, 0x8E, 0x5A, 0x8A, 0xAA, 0xC4, 0x2D, 0xAD, 0x33, 0x17, 0x0D, 0x04, 0x50, 0x7A, 0x33,
+                    0xA8, 0x55, 0x21, 0xAB, 0xDF, 0x1C, 0xBA, 0x64, 0xEC, 0xFB, 0x85, 0x04, 0x58, 0xDB, 0xEF, 0x0A,
+                    0x8A, 0xEA, 0x71, 0x57, 0x5D, 0x06, 0x0C, 0x7D, 0xB3, 0x97, 0x0F, 0x85, 0xA6, 0xE1, 0xE4, 0xC7,
+                    0xAB, 0xF5, 0xAE, 0x8C, 0xDB, 0x09, 0x33, 0xD7, 0x1E, 0x8C, 0x94, 0xE0, 0x4A, 0x25, 0x61, 0x9D,
+                    0xCE, 0xE3, 0xD2, 0x26, 0x1A, 0xD2, 0xEE, 0x6B, 0xF1, 0x2F, 0xFA, 0x06, 0xD9, 0x8A, 0x08, 0x64,
+                    0xD8, 0x76, 0x02, 0x73, 0x3E, 0xC8, 0x6A, 0x64, 0x52, 0x1F, 0x2B, 0x18, 0x17, 0x7B, 0x20, 0x0C,
+                    0xBB, 0xE1, 0x17, 0x57, 0x7A, 0x61, 0x5D, 0x6C, 0x77, 0x09, 0x88, 0xC0, 0xBA, 0xD9, 0x46, 0xE2,
+                    0x08, 0xE2, 0x4F, 0xA0, 0x74, 0xE5, 0xAB, 0x31, 0x43, 0xDB, 0x5B, 0xFC, 0xE0, 0xFD, 0x10, 0x8E,
+                    0x4B, 0x82, 0xD1, 0x20, 0xA9, 0x21, 0x08, 0x01, 0x1A, 0x72, 0x3C, 0x12, 0xA7, 0x87, 0xE6, 0xD7,
+                    0x88, 0x71, 0x9A, 0x10, 0xBD, 0xBA, 0x5B, 0x26, 0x99, 0xC3, 0x27, 0x18, 0x6A, 0xF4, 0xE2, 0x3C,
+                    0x1A, 0x94, 0x68, 0x34, 0xB6, 0x15, 0x0B, 0xDA, 0x25, 0x83, 0xE9, 0xCA, 0x2A, 0xD4, 0x4C, 0xE8,
+                    0xDB, 0xBB, 0xC2, 0xDB, 0x04, 0xDE, 0x8E, 0xF9, 0x2E, 0x8E, 0xFC, 0x14, 0x1F, 0xBE, 0xCA, 0xA6,
+                    0x28, 0x7C, 0x59, 0x47, 0x4E, 0x6B, 0xC0, 0x5D, 0x99, 0xB2, 0x96, 0x4F, 0xA0, 0x90, 0xC3, 0xA2,
+                    0x23, 0x3B, 0xA1, 0x86, 0x51, 0x5B, 0xE7, 0xED, 0x1F, 0x61, 0x29, 0x70, 0xCE, 0xE2, 0xD7, 0xAF,
+                    0xB8, 0x1B, 0xDD, 0x76, 0x21, 0x70, 0x48, 0x1C, 0xD0, 0x06, 0x91, 0x27, 0xD5, 0xB0, 0x5A, 0xA9,
+                    0x93, 0xB4, 0xEA, 0x98, 0x8D, 0x8F, 0xDD, 0xC1, 0x86, 0xFF, 0xB7, 0xDC, 0x90, 0xA6, 0xC0, 0x8F,
+                    0x4D, 0xF4, 0x35, 0xC9, 0x34, 0x06, 0x31, 0x99, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,};
+            gcry_mpi_scan(&m, GCRYMPI_FMT_USG, p, sizeof(p), NULL);
+        }else if(kex_type==SSH_KEX_DH_GROUP18){
+//p:FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA051015728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6BF12FFA06D98A0864D87602733EC86A64521F2B18177B200CBBE117577A615D6C770988C0BAD946E208E24FA074E5AB3143DB5BFCE0FD108E4B82D120A92108011A723C12A787E6D788719A10BDBA5B2699C327186AF4E23C1A946834B6150BDA2583E9CA2AD44CE8DBBBC2DB04DE8EF92E8EFC141FBECAA6287C59474E6BC05D99B2964FA090C3A2233BA186515BE7ED1F612970CEE2D7AFB81BDD762170481CD0069127D5B05AA993B4EA988D8FDDC186FFB7DC90A6C08F4DF435C93402849236C3FAB4D27C7026C1D4DCB2602646DEC9751E763DBA37BDF8FF9406AD9E530EE5DB382F413001AEB06A53ED9027D831179727B0865A8918DA3EDBEBCF9B14ED44CE6CBACED4BB1BDB7F1447E6CC254B332051512BD7AF426FB8F401378CD2BF5983CA01C64B92ECF032EA15D1721D03F482D7CE6E74FEF6D55E702F46980C82B5A84031900B1C9E59E7C97FBEC7E8F323A97A7E36CC88BE0F1D45B7FF585AC54BD407B22B4154AACC8F6D7EBF48E1D814CC5ED20F8037E0A79715EEF29BE32806A1D58BB7C5DA76F550AA3D8A1FBFF0EB19CCB1A313D55CDA56C9EC2EF29632387FE8D76E3C0468043E8F663F4860EE12BF2D5B0B7474D6E694F91E6DBE115974A3926F12FEE5E438777CB6A932DF8CD8BEC4D073B931BA3BC832B68D9DD300741FA7BF8AFC47ED2576F6936BA424663AAB639C5AE4F5683423B4742BF1C978238F16CBE39D652DE3FDB8BEFC848AD922222E04A4037C0713EB57A81A23F0C73473FC646CEA306B4BCBC8862F8385DDFA9D4B7FA2C087E879683303ED5BDD3A062B3CF5B3A278A66D2A13F83F44F82DDF310EE074AB6A364597E899A0255DC164F31CC50846851DF9AB48195DED7EA1B1D510BD7EE74D73FAF36BC31ECFA268359046F4EB879F924009438B481C6CD7889A002ED5EE382BC9190DA6FC026E479558E4475677E9AA9E3050E2765694DFC81F56E880B96E7160C980DD98EDD3DFFFFFFFFFFFFFFFFF
+            static const guint8 p[] = {
+                    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC9, 0x0F, 0xDA, 0xA2, 0x21, 0x68, 0xC2, 0x34,
+                    0xC4, 0xC6, 0x62, 0x8B, 0x80, 0xDC, 0x1C, 0xD1, 0x29, 0x02, 0x4E, 0x08, 0x8A, 0x67, 0xCC, 0x74,
+                    0x02, 0x0B, 0xBE, 0xA6, 0x3B, 0x13, 0x9B, 0x22, 0x51, 0x4A, 0x08, 0x79, 0x8E, 0x34, 0x04, 0xDD,
+                    0xEF, 0x95, 0x19, 0xB3, 0xCD, 0x3A, 0x43, 0x1B, 0x30, 0x2B, 0x0A, 0x6D, 0xF2, 0x5F, 0x14, 0x37,
+                    0x4F, 0xE1, 0x35, 0x6D, 0x6D, 0x51, 0xC2, 0x45, 0xE4, 0x85, 0xB5, 0x76, 0x62, 0x5E, 0x7E, 0xC6,
+                    0xF4, 0x4C, 0x42, 0xE9, 0xA6, 0x37, 0xED, 0x6B, 0x0B, 0xFF, 0x5C, 0xB6, 0xF4, 0x06, 0xB7, 0xED,
+                    0xEE, 0x38, 0x6B, 0xFB, 0x5A, 0x89, 0x9F, 0xA5, 0xAE, 0x9F, 0x24, 0x11, 0x7C, 0x4B, 0x1F, 0xE6,
+                    0x49, 0x28, 0x66, 0x51, 0xEC, 0xE4, 0x5B, 0x3D, 0xC2, 0x00, 0x7C, 0xB8, 0xA1, 0x63, 0xBF, 0x05,
+                    0x98, 0xDA, 0x48, 0x36, 0x1C, 0x55, 0xD3, 0x9A, 0x69, 0x16, 0x3F, 0xA8, 0xFD, 0x24, 0xCF, 0x5F,
+                    0x83, 0x65, 0x5D, 0x23, 0xDC, 0xA3, 0xAD, 0x96, 0x1C, 0x62, 0xF3, 0x56, 0x20, 0x85, 0x52, 0xBB,
+                    0x9E, 0xD5, 0x29, 0x07, 0x70, 0x96, 0x96, 0x6D, 0x67, 0x0C, 0x35, 0x4E, 0x4A, 0xBC, 0x98, 0x04,
+                    0xF1, 0x74, 0x6C, 0x08, 0xCA, 0x18, 0x21, 0x7C, 0x32, 0x90, 0x5E, 0x46, 0x2E, 0x36, 0xCE, 0x3B,
+                    0xE3, 0x9E, 0x77, 0x2C, 0x18, 0x0E, 0x86, 0x03, 0x9B, 0x27, 0x83, 0xA2, 0xEC, 0x07, 0xA2, 0x8F,
+                    0xB5, 0xC5, 0x5D, 0xF0, 0x6F, 0x4C, 0x52, 0xC9, 0xDE, 0x2B, 0xCB, 0xF6, 0x95, 0x58, 0x17, 0x18,
+                    0x39, 0x95, 0x49, 0x7C, 0xEA, 0x95, 0x6A, 0xE5, 0x15, 0xD2, 0x26, 0x18, 0x98, 0xFA, 0x05, 0x10,
+                    0x15, 0x72, 0x8E, 0x5A, 0x8A, 0xAA, 0xC4, 0x2D, 0xAD, 0x33, 0x17, 0x0D, 0x04, 0x50, 0x7A, 0x33,
+                    0xA8, 0x55, 0x21, 0xAB, 0xDF, 0x1C, 0xBA, 0x64, 0xEC, 0xFB, 0x85, 0x04, 0x58, 0xDB, 0xEF, 0x0A,
+                    0x8A, 0xEA, 0x71, 0x57, 0x5D, 0x06, 0x0C, 0x7D, 0xB3, 0x97, 0x0F, 0x85, 0xA6, 0xE1, 0xE4, 0xC7,
+                    0xAB, 0xF5, 0xAE, 0x8C, 0xDB, 0x09, 0x33, 0xD7, 0x1E, 0x8C, 0x94, 0xE0, 0x4A, 0x25, 0x61, 0x9D,
+                    0xCE, 0xE3, 0xD2, 0x26, 0x1A, 0xD2, 0xEE, 0x6B, 0xF1, 0x2F, 0xFA, 0x06, 0xD9, 0x8A, 0x08, 0x64,
+                    0xD8, 0x76, 0x02, 0x73, 0x3E, 0xC8, 0x6A, 0x64, 0x52, 0x1F, 0x2B, 0x18, 0x17, 0x7B, 0x20, 0x0C,
+                    0xBB, 0xE1, 0x17, 0x57, 0x7A, 0x61, 0x5D, 0x6C, 0x77, 0x09, 0x88, 0xC0, 0xBA, 0xD9, 0x46, 0xE2,
+                    0x08, 0xE2, 0x4F, 0xA0, 0x74, 0xE5, 0xAB, 0x31, 0x43, 0xDB, 0x5B, 0xFC, 0xE0, 0xFD, 0x10, 0x8E,
+                    0x4B, 0x82, 0xD1, 0x20, 0xA9, 0x21, 0x08, 0x01, 0x1A, 0x72, 0x3C, 0x12, 0xA7, 0x87, 0xE6, 0xD7,
+                    0x88, 0x71, 0x9A, 0x10, 0xBD, 0xBA, 0x5B, 0x26, 0x99, 0xC3, 0x27, 0x18, 0x6A, 0xF4, 0xE2, 0x3C,
+                    0x1A, 0x94, 0x68, 0x34, 0xB6, 0x15, 0x0B, 0xDA, 0x25, 0x83, 0xE9, 0xCA, 0x2A, 0xD4, 0x4C, 0xE8,
+                    0xDB, 0xBB, 0xC2, 0xDB, 0x04, 0xDE, 0x8E, 0xF9, 0x2E, 0x8E, 0xFC, 0x14, 0x1F, 0xBE, 0xCA, 0xA6,
+                    0x28, 0x7C, 0x59, 0x47, 0x4E, 0x6B, 0xC0, 0x5D, 0x99, 0xB2, 0x96, 0x4F, 0xA0, 0x90, 0xC3, 0xA2,
+                    0x23, 0x3B, 0xA1, 0x86, 0x51, 0x5B, 0xE7, 0xED, 0x1F, 0x61, 0x29, 0x70, 0xCE, 0xE2, 0xD7, 0xAF,
+                    0xB8, 0x1B, 0xDD, 0x76, 0x21, 0x70, 0x48, 0x1C, 0xD0, 0x06, 0x91, 0x27, 0xD5, 0xB0, 0x5A, 0xA9,
+                    0x93, 0xB4, 0xEA, 0x98, 0x8D, 0x8F, 0xDD, 0xC1, 0x86, 0xFF, 0xB7, 0xDC, 0x90, 0xA6, 0xC0, 0x8F,
+                    0x4D, 0xF4, 0x35, 0xC9, 0x34, 0x02, 0x84, 0x92, 0x36, 0xC3, 0xFA, 0xB4, 0xD2, 0x7C, 0x70, 0x26,
+                    0xC1, 0xD4, 0xDC, 0xB2, 0x60, 0x26, 0x46, 0xDE, 0xC9, 0x75, 0x1E, 0x76, 0x3D, 0xBA, 0x37, 0xBD,
+                    0xF8, 0xFF, 0x94, 0x06, 0xAD, 0x9E, 0x53, 0x0E, 0xE5, 0xDB, 0x38, 0x2F, 0x41, 0x30, 0x01, 0xAE,
+                    0xB0, 0x6A, 0x53, 0xED, 0x90, 0x27, 0xD8, 0x31, 0x17, 0x97, 0x27, 0xB0, 0x86, 0x5A, 0x89, 0x18,
+                    0xDA, 0x3E, 0xDB, 0xEB, 0xCF, 0x9B, 0x14, 0xED, 0x44, 0xCE, 0x6C, 0xBA, 0xCE, 0xD4, 0xBB, 0x1B,
+                    0xDB, 0x7F, 0x14, 0x47, 0xE6, 0xCC, 0x25, 0x4B, 0x33, 0x20, 0x51, 0x51, 0x2B, 0xD7, 0xAF, 0x42,
+                    0x6F, 0xB8, 0xF4, 0x01, 0x37, 0x8C, 0xD2, 0xBF, 0x59, 0x83, 0xCA, 0x01, 0xC6, 0x4B, 0x92, 0xEC,
+                    0xF0, 0x32, 0xEA, 0x15, 0xD1, 0x72, 0x1D, 0x03, 0xF4, 0x82, 0xD7, 0xCE, 0x6E, 0x74, 0xFE, 0xF6,
+                    0xD5, 0x5E, 0x70, 0x2F, 0x46, 0x98, 0x0C, 0x82, 0xB5, 0xA8, 0x40, 0x31, 0x90, 0x0B, 0x1C, 0x9E,
+                    0x59, 0xE7, 0xC9, 0x7F, 0xBE, 0xC7, 0xE8, 0xF3, 0x23, 0xA9, 0x7A, 0x7E, 0x36, 0xCC, 0x88, 0xBE,
+                    0x0F, 0x1D, 0x45, 0xB7, 0xFF, 0x58, 0x5A, 0xC5, 0x4B, 0xD4, 0x07, 0xB2, 0x2B, 0x41, 0x54, 0xAA,
+                    0xCC, 0x8F, 0x6D, 0x7E, 0xBF, 0x48, 0xE1, 0xD8, 0x14, 0xCC, 0x5E, 0xD2, 0x0F, 0x80, 0x37, 0xE0,
+                    0xA7, 0x97, 0x15, 0xEE, 0xF2, 0x9B, 0xE3, 0x28, 0x06, 0xA1, 0xD5, 0x8B, 0xB7, 0xC5, 0xDA, 0x76,
+                    0xF5, 0x50, 0xAA, 0x3D, 0x8A, 0x1F, 0xBF, 0xF0, 0xEB, 0x19, 0xCC, 0xB1, 0xA3, 0x13, 0xD5, 0x5C,
+                    0xDA, 0x56, 0xC9, 0xEC, 0x2E, 0xF2, 0x96, 0x32, 0x38, 0x7F, 0xE8, 0xD7, 0x6E, 0x3C, 0x04, 0x68,
+                    0x04, 0x3E, 0x8F, 0x66, 0x3F, 0x48, 0x60, 0xEE, 0x12, 0xBF, 0x2D, 0x5B, 0x0B, 0x74, 0x74, 0xD6,
+                    0xE6, 0x94, 0xF9, 0x1E, 0x6D, 0xBE, 0x11, 0x59, 0x74, 0xA3, 0x92, 0x6F, 0x12, 0xFE, 0xE5, 0xE4,
+                    0x38, 0x77, 0x7C, 0xB6, 0xA9, 0x32, 0xDF, 0x8C, 0xD8, 0xBE, 0xC4, 0xD0, 0x73, 0xB9, 0x31, 0xBA,
+                    0x3B, 0xC8, 0x32, 0xB6, 0x8D, 0x9D, 0xD3, 0x00, 0x74, 0x1F, 0xA7, 0xBF, 0x8A, 0xFC, 0x47, 0xED,
+                    0x25, 0x76, 0xF6, 0x93, 0x6B, 0xA4, 0x24, 0x66, 0x3A, 0xAB, 0x63, 0x9C, 0x5A, 0xE4, 0xF5, 0x68,
+                    0x34, 0x23, 0xB4, 0x74, 0x2B, 0xF1, 0xC9, 0x78, 0x23, 0x8F, 0x16, 0xCB, 0xE3, 0x9D, 0x65, 0x2D,
+                    0xE3, 0xFD, 0xB8, 0xBE, 0xFC, 0x84, 0x8A, 0xD9, 0x22, 0x22, 0x2E, 0x04, 0xA4, 0x03, 0x7C, 0x07,
+                    0x13, 0xEB, 0x57, 0xA8, 0x1A, 0x23, 0xF0, 0xC7, 0x34, 0x73, 0xFC, 0x64, 0x6C, 0xEA, 0x30, 0x6B,
+                    0x4B, 0xCB, 0xC8, 0x86, 0x2F, 0x83, 0x85, 0xDD, 0xFA, 0x9D, 0x4B, 0x7F, 0xA2, 0xC0, 0x87, 0xE8,
+                    0x79, 0x68, 0x33, 0x03, 0xED, 0x5B, 0xDD, 0x3A, 0x06, 0x2B, 0x3C, 0xF5, 0xB3, 0xA2, 0x78, 0xA6,
+                    0x6D, 0x2A, 0x13, 0xF8, 0x3F, 0x44, 0xF8, 0x2D, 0xDF, 0x31, 0x0E, 0xE0, 0x74, 0xAB, 0x6A, 0x36,
+                    0x45, 0x97, 0xE8, 0x99, 0xA0, 0x25, 0x5D, 0xC1, 0x64, 0xF3, 0x1C, 0xC5, 0x08, 0x46, 0x85, 0x1D,
+                    0xF9, 0xAB, 0x48, 0x19, 0x5D, 0xED, 0x7E, 0xA1, 0xB1, 0xD5, 0x10, 0xBD, 0x7E, 0xE7, 0x4D, 0x73,
+                    0xFA, 0xF3, 0x6B, 0xC3, 0x1E, 0xCF, 0xA2, 0x68, 0x35, 0x90, 0x46, 0xF4, 0xEB, 0x87, 0x9F, 0x92,
+                    0x40, 0x09, 0x43, 0x8B, 0x48, 0x1C, 0x6C, 0xD7, 0x88, 0x9A, 0x00, 0x2E, 0xD5, 0xEE, 0x38, 0x2B,
+                    0xC9, 0x19, 0x0D, 0xA6, 0xFC, 0x02, 0x6E, 0x47, 0x95, 0x58, 0xE4, 0x47, 0x56, 0x77, 0xE9, 0xAA,
+                    0x9E, 0x30, 0x50, 0xE2, 0x76, 0x56, 0x94, 0xDF, 0xC8, 0x1F, 0x56, 0xE8, 0x80, 0xB9, 0x6E, 0x71,
+                    0x60, 0xC9, 0x80, 0xDD, 0x98, 0xED, 0xD3, 0xDF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,};
+            gcry_mpi_scan(&m, GCRYMPI_FMT_USG, p, sizeof(p), NULL);
+        }
+
+        gcry_mpi_t b = NULL;
+        gcry_mpi_scan(&b, GCRYMPI_FMT_USG, pub->data, pub->length, NULL);
+        gcry_mpi_t d = NULL, e = NULL;
+        size_t result_len = 0;
+        d = gcry_mpi_new(pub->length*8);
+        gcry_mpi_scan(&e, GCRYMPI_FMT_USG, priv->data, priv->length, NULL);
+        gcry_mpi_powm(d, b, e, m);                 // gcry_mpi_powm(d, b, e, m)    => d = b^e % m
+        gcry_mpi_print(GCRYMPI_FMT_USG, secret->data, secret->length, &result_len, d);
+        secret->length = (guint)result_len;        // Should not be larger than what fits in a 32-bit unsigned integer...
+        gcry_mpi_release(d);
+        gcry_mpi_release(b);
+        gcry_mpi_release(e);
+        gcry_mpi_release(m);
     }else if(kex_type==SSH_KEX_CURVE25519){
         if (crypto_scalarmult_curve25519(secret->data, priv->data, pub->data)) {
             ws_debug("curve25519: can't compute shared secret");
@@ -2365,9 +2533,31 @@ static void ssh_derive_symmetric_keys(ssh_bignum *secret, gchar *exchange_hash,
         global_data->session_id_length = hash_length;
     }
 
+    unsigned int we_need = 0;
+    for(int peer_cnt=0;peer_cnt<2;peer_cnt++){
+        struct ssh_peer_data * peer_data = &global_data->peer_data[peer_cnt];
+        // required size of key depends on cipher used. chacha20 wants 64 bytes
+        guint need = 0;
+        if (GCRY_CIPHER_CHACHA20 == peer_data->cipher_id) {
+            need = 64;
+        } else if (CIPHER_AES128_CBC == peer_data->cipher_id || CIPHER_AES128_CTR == peer_data->cipher_id || CIPHER_AES128_GCM == peer_data->cipher_id) {
+            need = 16;
+        } else if (CIPHER_AES192_CBC == peer_data->cipher_id || CIPHER_AES192_CTR == peer_data->cipher_id) {
+            need = 24;
+        } else if (CIPHER_AES256_CBC == peer_data->cipher_id || CIPHER_AES256_CTR == peer_data->cipher_id || CIPHER_AES256_GCM == peer_data->cipher_id) {
+            need = 32;
+        } else {
+            ssh_debug_printf("ssh: cipher (%d) is unknown or not set\n", peer_data->cipher_id);
+            ssh_debug_flush();
+        }
+        if (we_need<need) {
+            we_need = need;
+        }
+    }
+
     for (int i = 0; i < 6; i ++) {
         ssh_derive_symmetric_key(secret, exchange_hash, hash_length,
-                'A' + i, &global_data->new_keys[i], global_data);
+                'A' + i, &global_data->new_keys[i], global_data, we_need);
         if(i==0){       ssh_print_data("Initial IV client to server", global_data->new_keys[i].data, global_data->new_keys[i].length);
         }else if(i==1){ ssh_print_data("Initial IV server to client", global_data->new_keys[i].data, global_data->new_keys[i].length);
         }else if(i==2){ ssh_print_data("Encryption key client to server", global_data->new_keys[i].data, global_data->new_keys[i].length);
@@ -2380,39 +2570,84 @@ static void ssh_derive_symmetric_keys(ssh_bignum *secret, gchar *exchange_hash,
 
 static void ssh_derive_symmetric_key(ssh_bignum *secret, gchar *exchange_hash,
         guint hash_length, gchar id, ssh_bignum *result_key,
-        struct ssh_flow_data *global_data)
+        struct ssh_flow_data *global_data, guint we_need)
 {
     gcry_md_hd_t hd;
-    guint len = gcry_md_get_algo_dlen(GCRY_MD_SHA256);
 
-    // required size of key depends on cipher used. chacha20 wants 64 bytes
-    guint need = 64;
-    result_key->data = (guchar *)wmem_alloc(wmem_file_scope(), need);
+    guint kex_hash_type = ssh_kex_hash_type(global_data->kex);
+    int algo = GCRY_MD_SHA256;
+    if(kex_hash_type==SSH_KEX_HASH_SHA1){
+        algo = GCRY_MD_SHA1;
+    }else if(kex_hash_type==SSH_KEX_HASH_SHA256){
+        algo = GCRY_MD_SHA256;
+    }else if(kex_hash_type==SSH_KEX_HASH_SHA512){
+        algo = GCRY_MD_SHA512;
+    }
+    guint len = gcry_md_get_algo_dlen(algo);
+
+    result_key->data = (guchar *)wmem_alloc(wmem_file_scope(), we_need);
 
     gchar *secret_with_length = ssh_string(secret->data, secret->length);
 
-    if (gcry_md_open(&hd, GCRY_MD_SHA256, 0) == 0) {
+    if (gcry_md_open(&hd, algo, 0) == 0) {
         gcry_md_write(hd, secret_with_length, secret->length + 4);
         gcry_md_write(hd, exchange_hash, hash_length);
         gcry_md_putc(hd, id);
         gcry_md_write(hd, global_data->session_id, hash_length);
-        memcpy(result_key->data, gcry_md_read(hd, 0), len);
+        guint add_length = MIN(len, we_need);
+        memcpy(result_key->data, gcry_md_read(hd, 0), add_length);
         gcry_md_close(hd);
     }
 
     // expand key
-    for (guint have = len; have < need; have += len) {
-        if (gcry_md_open(&hd, GCRY_MD_SHA256, 0) == 0) {
+    for (guint have = len; have < we_need; have += len) {
+        if (gcry_md_open(&hd, algo, 0) == 0) {
             gcry_md_write(hd, secret_with_length, secret->length + 4);
             gcry_md_write(hd, exchange_hash, hash_length);
-            gcry_md_write(hd, result_key->data, len);
-            guint add_length = MIN(len, need - have);
+            gcry_md_write(hd, result_key->data+have-len, len);
+            guint add_length = MIN(len, we_need - have);
             memcpy(result_key->data+have, gcry_md_read(hd, 0), add_length);
             gcry_md_close(hd);
         }
     }
 
-    result_key->length = need;
+    result_key->length = we_need;
+}
+
+static void
+ssh_choose_enc_mac(struct ssh_flow_data *global_data)
+{
+    for(int peer_cnt=0;peer_cnt<2;peer_cnt++){
+        struct ssh_peer_data * peer_data = &global_data->peer_data[peer_cnt];
+        ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].enc_proposals[peer_cnt],
+                        global_data->peer_data[SERVER_PEER_DATA].enc_proposals[peer_cnt],
+                        &peer_data->enc);
+        /* some ciphers have their own MAC so the "negotiated" one is meaningless */
+        if(peer_data->enc && (0 == strcmp(peer_data->enc, "aes128-gcm@openssh.com") ||
+                              0 == strcmp(peer_data->enc, "aes256-gcm@openssh.com"))) {
+            peer_data->mac = wmem_strdup(wmem_file_scope(), (const gchar *)"<implicit>");
+            peer_data->mac_length = 16;
+            peer_data->length_is_plaintext = 1;
+        }
+        else if(peer_data->enc && 0 == strcmp(peer_data->enc, "chacha20-poly1305@openssh.com")) {
+            peer_data->mac = wmem_strdup(wmem_file_scope(), (const gchar *)"<implicit>");
+            peer_data->mac_length = 16;
+        }
+        else {
+            ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].mac_proposals[peer_cnt],
+                            global_data->peer_data[SERVER_PEER_DATA].mac_proposals[peer_cnt],
+                            &peer_data->mac);
+            ssh_set_mac_length(peer_data);
+        }
+        ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].comp_proposals[peer_cnt],
+                        global_data->peer_data[SERVER_PEER_DATA].comp_proposals[peer_cnt],
+                        &peer_data->comp);
+    }
+
+    ssh_decryption_set_cipher_id(&global_data->peer_data[CLIENT_PEER_DATA]);
+    ssh_decryption_set_mac_id(&global_data->peer_data[CLIENT_PEER_DATA]);
+    ssh_decryption_set_cipher_id(&global_data->peer_data[SERVER_PEER_DATA]);
+    ssh_decryption_set_mac_id(&global_data->peer_data[SERVER_PEER_DATA]);
 }
 
 static void
@@ -2471,8 +2706,6 @@ static void
 ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
         ssh_bignum *iv, ssh_bignum *key)
 {
-    (void)iv;           // Used for algorithms other than chacha20
-
     gcry_error_t err;
     gcry_cipher_hd_t *hd1, *hd2;
 
@@ -3090,13 +3323,7 @@ ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guin
                         expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
                 } else {
                     gchar *data = (gchar *)wmem_alloc(wmem_packet_scope(), mac_len*2 + 1);
-//                    proto_item_append_text(ti, " incorrect, should be TODO");
-                    static const char h2a[] = "0123456789abcdef";
-                    for(guint macCnt=0;macCnt<mac_len;macCnt++){
-                        data[macCnt*2+0] = h2a[(calc_mac[macCnt] >> 4) & 0xF];
-                        data[macCnt*2+1] = h2a[(calc_mac[macCnt] >> 0) & 0xF];
-                    }
-                    data[mac_len*2] = 0;
+                    *bytes_to_hexstr(data, calc_mac, mac_len) = 0;
                     proto_item_append_text(ti, " incorrect, computed %s", data);
                     if (bad_checksum_expert != NULL)
                         expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
@@ -3366,7 +3593,6 @@ static int
 ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code)
 {
-        (void)pinfo;
         if(msg_code==SSH_MSG_USERAUTH_REQUEST){
                 guint   slen;
                 slen = tvb_get_ntohl(packet_tvb, offset) ;
@@ -3457,7 +3683,6 @@ static int
 ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code)
 {
-        (void)pinfo;
         if(msg_code==SSH_MSG_USERAUTH_PK_OK){
                 proto_item *ti;
                 int dissected_len = 0;
@@ -3486,7 +3711,6 @@ ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
         guint msg_code)
 {
-        (void)pinfo;
         if(msg_code==SSH_MSG_CHANNEL_OPEN){
                 guint   slen;
                 slen = tvb_get_ntohl(packet_tvb, offset) ;
