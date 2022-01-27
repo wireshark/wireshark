@@ -246,7 +246,6 @@ static int hf_afp_dir_offspring		    = -1;
 static int hf_afp_dir_OwnerID		    = -1;
 static int hf_afp_dir_GroupID		    = -1;
 
-static int hf_afp_file_bitmap		    = -1;
 static int hf_afp_req_count		    = -1;
 static int hf_afp_start_index		    = -1;
 static int hf_afp_start_index32		    = -1;
@@ -633,6 +632,7 @@ static int hf_afp_dir_attribute_BackUpNeeded		     = -1;
 static int hf_afp_dir_attribute_RenameInhibit		     = -1;
 static int hf_afp_dir_attribute_DeleteInhibit		     = -1;
 
+static int hf_afp_file_bitmap				     = -1;
 static int hf_afp_file_bitmap_Attributes		     = -1;
 static int hf_afp_file_bitmap_ParentDirID		     = -1;
 static int hf_afp_file_bitmap_CreateDate		     = -1;
@@ -670,6 +670,8 @@ static int hf_afp_map_id				     = -1;
 static int hf_afp_map_id_type				     = -1;
 static int hf_afp_map_id_reply_type			     = -1;
 
+/* catsearch stuff */
+static int hf_afp_request_bitmap			     = -1;
 static int hf_afp_request_bitmap_Attributes		     = -1;
 static int hf_afp_request_bitmap_ParentDirID		     = -1;
 static int hf_afp_request_bitmap_CreateDate		     = -1;
@@ -2337,7 +2339,7 @@ dissect_reply_afp_enumerate_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 /* **************************/
 static gint
-catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	bitmap, const gchar *label)
+catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	r_bitmap, const gchar *label)
 {
 	proto_tree *tree;
 	guint16	size;
@@ -2364,7 +2366,9 @@ catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	b
 		PAD(1);
 	}
 
-	parse_file_bitmap(tree, tvb, offset, (guint16) bitmap,0);
+	/* AFP 3.1 spec pdf: The low-order word of ReqBitmap is equivalent to the
+	File and Directory bitmaps used by the FPGetFileDirParms command. */
+	parse_file_bitmap(tree, tvb, offset, (guint16) r_bitmap,0);
 	offset = org +size;
 
 	return offset;
@@ -2404,7 +2408,7 @@ query_catsearch(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext)
 
 	r_bitmap = tvb_get_ntohl(tvb, offset);
 	/* Already checked this above: if (ptree) */ {
-		item = proto_tree_add_item(ptree, hf_afp_file_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
+		item = proto_tree_add_item(ptree, hf_afp_request_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
 		sub_tree = proto_item_add_subtree(item, ett_afp_cat_r_bitmap);
 
 		proto_tree_add_item(sub_tree, hf_afp_request_bitmap_Attributes , tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5860,6 +5864,11 @@ proto_register_afp(void)
 		    FT_BOOLEAN, 16, NULL,  kFPDeleteInhibitBit,
 		    NULL, HFILL }},
 
+		{ &hf_afp_file_bitmap,
+		  { "File bitmap",         "afp.file_bitmap",
+		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_afp_file_bitmap_Attributes,
 		  { "Attributes",         "afp.file_bitmap.attributes",
 		    FT_BOOLEAN, 16, NULL,  kFPAttributeBit,
@@ -6182,11 +6191,6 @@ proto_register_afp(void)
 		    FT_UINT64, BASE_DEC, NULL, 0x0,
 		    "Extended (>2GB) resource fork length", HFILL }},
 
-		{ &hf_afp_file_bitmap,
-		  { "File bitmap",         "afp.file_bitmap",
-		    FT_UINT16, BASE_HEX, NULL, 0x0,
-		    NULL, HFILL }},
-
 		{ &hf_afp_req_count,
 		  { "Req count",         "afp.req_count",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -6221,6 +6225,11 @@ proto_register_afp(void)
 		  { "Hard create",         "afp.create_flag",
 		    FT_BOOLEAN, 8, NULL, 0x80,
 		    "Soft/hard create file", HFILL }},
+
+		{ &hf_afp_request_bitmap,
+		  { "Request Bitmap",         "afp.request_bitmap",
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_afp_request_bitmap_Attributes,
 		  { "Attributes",         "afp.request_bitmap.attributes",
@@ -6384,22 +6393,22 @@ proto_register_afp(void)
 
 		{ &hf_afp_access_read,
 		  { "Read",         "afp.access.read",
-		    FT_BOOLEAN, 8, NULL,  1,
+		    FT_BOOLEAN, 16, NULL,  1,
 		    "Open for reading", HFILL }},
 
 		{ &hf_afp_access_write,
 		  { "Write",         "afp.access.write",
-		    FT_BOOLEAN, 8, NULL,  2,
+		    FT_BOOLEAN, 16, NULL,  2,
 		    "Open for writing", HFILL }},
 
 		{ &hf_afp_access_deny_read,
 		  { "Deny read",         "afp.access.deny_read",
-		    FT_BOOLEAN, 8, NULL,  0x10,
+		    FT_BOOLEAN, 16, NULL,  0x0010,
 		    NULL, HFILL }},
 
 		{ &hf_afp_access_deny_write,
 		  { "Deny write",         "afp.access.deny_write",
-		    FT_BOOLEAN, 8, NULL,  0x20,
+		    FT_BOOLEAN, 16, NULL,  0x0020,
 		    NULL, HFILL }},
 
 		{ &hf_afp_comment,
