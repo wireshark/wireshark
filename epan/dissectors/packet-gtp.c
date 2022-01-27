@@ -62,6 +62,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gprscdr.h"
 #include "packet-bssgp.h"
+#include "packet-rrc.h"
 #include "packet-e212.h"
 #include "packet-e164.h"
 #include "packet-gtp.h"
@@ -499,6 +500,7 @@ static gint ett_gtp_trace_triggers_bm_sc = -1;
 static gint ett_gtp_trace_loi_bm_sc = -1;
 static gint ett_gtp_bss_cont = -1;
 static gint ett_gtp_lst_set_up_pfc = -1;
+static gint ett_gtp_rrc_cont = -1;
 
 static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
 static expert_field ei_gtp_ext_length_mal = EI_INIT;
@@ -7274,7 +7276,7 @@ decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _
 {
 
     guint16     length;
-    proto_tree *ext_tree;
+    proto_tree *ext_tree, *sub_tree;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_SRC_RNC_PDP_CTX_INF], NULL,
@@ -7283,11 +7285,11 @@ decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    sub_tree = proto_tree_add_subtree(ext_tree, tvb, offset, length, ett_gtp_rrc_cont, NULL, "Source RNC to Target RNC Transparent Container");
+    dissect_rrc_ToTargetRNC_Container_PDU(tvb, pinfo, sub_tree, NULL);
 
     return 3 + length;
-
 }
 
 /* GPRS:        ?
@@ -12461,7 +12463,7 @@ proto_register_gtp(void)
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    37
+#define GTP_NUM_INDIVIDUAL_ELEMS    38
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -12500,7 +12502,8 @@ proto_register_gtp(void)
     ett_gtp_array[33] = &ett_gtp_trace_loi_bm_sc;
     ett_gtp_array[34] = &ett_gtp_bss_cont;
     ett_gtp_array[35] = &ett_gtp_lst_set_up_pfc;
-    ett_gtp_array[36] = &ett_nrup;
+    ett_gtp_array[36] = &ett_gtp_rrc_cont;
+    ett_gtp_array[37] = &ett_nrup;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
