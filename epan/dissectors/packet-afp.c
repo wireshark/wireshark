@@ -6393,22 +6393,22 @@ proto_register_afp(void)
 
 		{ &hf_afp_access_read,
 		  { "Read",         "afp.access.read",
-		    FT_BOOLEAN, 16, NULL,  1,
+		    FT_BOOLEAN, 16, NULL, 0x0001,
 		    "Open for reading", HFILL }},
 
 		{ &hf_afp_access_write,
 		  { "Write",         "afp.access.write",
-		    FT_BOOLEAN, 16, NULL,  2,
+		    FT_BOOLEAN, 16, NULL, 0x0002,
 		    "Open for writing", HFILL }},
 
 		{ &hf_afp_access_deny_read,
 		  { "Deny read",         "afp.access.deny_read",
-		    FT_BOOLEAN, 16, NULL,  0x0010,
+		    FT_BOOLEAN, 16, NULL, 0x0010,
 		    NULL, HFILL }},
 
 		{ &hf_afp_access_deny_write,
 		  { "Deny write",         "afp.access.deny_write",
-		    FT_BOOLEAN, 16, NULL,  0x0020,
+		    FT_BOOLEAN, 16, NULL, 0x0020,
 		    NULL, HFILL }},
 
 		{ &hf_afp_comment,
