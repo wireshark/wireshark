@@ -73,7 +73,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { DIAMETER_PROTOCOL_ID,                           "DIAMETER" },
   { DIAMETER_DTLS_PROTOCOL_ID,                      "DIAMETER over DTLS" },
   { R14P_BER_PROTOCOL_ID,                           "R14P" },
-  { 49,                                             "Unassigned" },     /* Unassigned 49 */
+  { GDT_PROTOCOL_ID,                                "Generic Data Transfer Protocol (GDT)" },
   { WEBRTC_DCEP_PROTOCOL_ID,                        "WebRTC Control" },
   { WEBRTC_STRING_PAYLOAD_PROTOCOL_ID,              "WebRTC String" },
   { WEBRTC_BINARY_PARTIAL_PAYLOAD_PROTOCOL_ID,      "WebRTC Binary Partial (Deprecated)" },

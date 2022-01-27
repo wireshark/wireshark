@@ -1,0 +1,770 @@
+-- ===================================================================================================================
+-- GDT protocol definition
+-- ===================================================================================================================
+GDT {iso(1) identified-organization(3) dod(6) internet(1) private(4) enterprise(1) 57805}
+
+DEFINITIONS   
+IMPLICIT TAGS
+::=
+
+
+BEGIN 
+
+-- ===========
+-- GDT Header
+-- ===========
+-- version          - GDT version
+-- source           - source information
+-- destination      - destination information
+-- uuid             - universally unique identifier (UUID)
+-- sequence-num     - sequence number
+-- sequence-flag    - packet sequence information (stateful/stateless/etc.)
+-- enc-info         - encryption information
+-- hop-info         - hop counter
+-- status           - error code
+Header ::= SEQUENCE {
+    version         [0] INTEGER,
+    source          [1] EndPointDescriptor,
+    destination     [2] EndPointDescriptor,
+    uuid            [3] OCTET STRING,
+    sequence-num    [4] INTEGER,
+    sequence-flag   [5] SequenceFlag,
+    enc-info        [6] EncryptionInfo OPTIONAL,
+    hop-info        [7] HopInfo OPTIONAL,
+    status          [8] ErrorCode OPTIONAL,
+    ...
+}
+
+-- ======================================================
+-- SequenceFlag  - stateful/stateless sequence information
+-- ======================================================
+-- sf-start                 - stateful start of sequence
+-- sf-continue              - stateful sequence continuation
+-- sf-end                   - stateful end of sequence / stateless reply
+-- sf-stateless-no-reply    - stateless packet, no reply is received to confirm successful delivery, reliability is sctp dependant
+-- sf-stateless             - stateless packet, sf-end reply is received to confirm successful delivery
+-- sf-stream-complete       - stream complete
+SequenceFlag ::= INTEGER {
+    sf-start                (0),
+    sf-continue             (1),
+    sf-end                  (2),
+    sf-stateless-no-reply   (3),
+    sf-stateless            (4),
+    sf-stream-complete      (5),
+    sf-continue-wait        (6),
+    sf-heartbeat            (7)
+}
+
+
+-- ==================
+-- EndPointDescriptor
+-- ==================
+-- type    - daemon type
+-- id    - daemon id
+EndPointDescriptor ::= SEQUENCE {
+    type    [1] IA5String,
+    id      [2] IA5String OPTIONAL,
+    ...
+}
+
+
+-- =========
+-- GDT Body
+-- =========
+-- encrypted-data   - Encrypted GDT body, used only when content is encrypted (header.encryption)
+-- packet-fwd       - General packet forwarding, used for routing and failovers
+-- filter           - Filtering service, mostly used but not limited to SMS
+-- data-retention   - Data retention service, used for DB storage
+-- general          - Reserved for custom daemons and/or future use
+-- conf             - Configuration daemon service
+-- stats            - Statistical data exchange
+-- auth             - Authentication messages, used for daemon authentication
+-- reg              - Registration messages, used for daemon discovery and various registration procedures (daemons, events, etc.)
+-- ntfy             - Various notification/alarm/etc. messages
+-- data             - payload data exchange
+-- routing          - routing related messages
+-- service-msg      - service related messages
+-- state-msg        - statefulness related messages
+Body ::= CHOICE {
+    encrypted-data  [1] OCTET STRING,
+    packet-fwd      [2] PacketFwdMessage,
+    filter          [3] FilterMessage,
+    data-retention  [4] DataRetentionMessage,
+    --general       [5] EXPLICIT GeneralMessage,
+    conf            [6] ConfigMessage,
+    stats           [7] StatsMessage,
+    auth            [8] AuthMessage,
+    reg             [9] RegistrationMessage,
+    ntfy            [10] NotifyMessage,
+    data            [11] DataMessage,
+    routing         [12] RoutingMessage,
+    service-msg     [13] ServiceMessage,
+    state-msg       [14] StateMessage,
+    ...
+}
+
+
+-- =================================================
+-- StateMessage - used by MINK statefulness library
+-- =================================================
+StateMessage ::= SEQUENCE {
+    stmch-id        OCTET STRING,
+    state-action    StateAction,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+
+-- ===========
+-- StateAction
+-- ===========
+StateAction ::= INTEGER {
+    sta-update  (0)
+
+}
+
+
+-- ==================================================
+-- ServiceMessage - used for service related messages
+-- ==================================================
+ServiceMessage ::= SEQUENCE {
+    service-id      ServiceId,
+    service-action  ServiceAction,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- =========
+-- ServiceId
+-- =========
+ServiceId ::= INTEGER {
+    sid-stp-routing     (42),
+    sid-sgn-forward     (43),
+    sid-fgn-filtering   (44),
+    sid-security        (45),
+    sid-pdn-filtering   (46),
+    sid-sysagent        (47)
+}
+
+
+-- =============
+-- ServiceAction
+-- =============
+ServiceAction ::= INTEGER {
+    srvca-request   (0),  -- generic request
+    srvca-result    (1),  -- generic result
+    srvca-default   (2),  -- default action
+    srvca-na        (3)   -- n/a
+}
+
+
+-- ==================================================
+-- RoutingMessage - used for routing related messages
+-- ==================================================
+RoutingMessage ::= SEQUENCE {
+    routing-action  RoutingAction,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- =============
+-- RoutingAction
+-- =============
+RoutingAction ::= INTEGER {
+    roua-route-set      (0),
+    roua-route-get      (1),
+    roua-route-result   (2)
+}
+
+
+-- ================================================================
+-- RegistrationMessage - used for daemon discovery and registration
+-- ================================================================
+-- reg-action   - registration action
+-- params       - registration parameters
+RegistrationMessage ::= SEQUENCE {
+    reg-action      RegistrationAction,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- ==================
+-- RegistrationAction
+-- ==================
+RegistrationAction ::= INTEGER {
+    ra-reg-request  (0),
+    ra-reg-result   (1)
+}
+
+-- ========================================
+-- StatsMessage - Statistical data exchange
+-- ========================================
+-- stats-action     - stats action
+-- params           - stats parameters
+StatsMessage ::= SEQUENCE {
+    stats-action    StatsAction,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- ===========
+-- StatsAction
+-- ===========
+StatsAction ::= INTEGER {
+    sa-request  (0),
+    sa-result   (1)
+}
+
+-- ============================================
+-- AuthMessage - used for daemon authentication
+-- ============================================
+-- auth-action  - authentication action
+-- params       - authentication parameters
+AuthMessage ::= SEQUENCE {
+    auth-action AuthAction,
+    params      Parameters OPTIONAL,
+    ...
+}
+
+-- ==========
+-- AuthAction
+-- ==========
+AuthAction ::= INTEGER {
+    aa-auth-request (0),
+    aa-auth-result  (1)
+}
+
+-- ==========================================
+-- DataRetentionMessage - used for DB storage
+-- ==========================================
+-- payload-type  - payload type
+-- payload       - payload
+-- dr-action     - data retention action
+-- params        - data retention parameters
+DataRetentionMessage ::= SEQUENCE {
+    payload-type    PayloadType OPTIONAL,
+    payload         OCTET STRING OPTIONAL,
+    dr-action       DataRetentionAction,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- ===================
+-- DataRetentionAction
+-- ===================
+DataRetentionAction ::= INTEGER {
+    ra-store    (0),
+    ra-delete   (1),
+    ra-fetch    (2),
+    ra-result   (3)
+}
+
+-- =================================
+-- FilterMessage - filtering service
+-- =================================
+-- filter-action    - filter action
+-- params           - filter parameters
+FilterMessage ::= SEQUENCE {
+    filter-action   FilterAction,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- ============
+-- FilterAction
+-- ============
+FilterAction ::= INTEGER {
+    fa-filter-request   (0),
+    fa-filter-result    (1)
+}
+
+
+
+-- =================================================
+-- PacketFwdMessage - used for routing and failovers
+-- =================================================
+-- payload-type  - payload type
+-- payload       - payload
+-- params        - extra parameters
+PacketFwdMessage ::= SEQUENCE {
+    payload-type    PayloadType,
+    payload         OCTET STRING OPTIONAL,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+
+-- =================================================================
+-- NotifyMessage - used for various notification/alarm/etc. messages
+-- =================================================================
+-- message-type  - notification message type
+-- message       - notification message
+-- params        - extra notification parameters
+NotifyMessage ::= SEQUENCE {
+    message-type    NotifyMessageType,
+    message         OCTET STRING OPTIONAL,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- =================
+-- NotifyMessageType
+-- =================
+NotifyMessageType ::= INTEGER
+
+
+-- ============================================
+-- DataMessage - used for payload data exchange
+-- ============================================
+-- type     - payload type
+-- payload  - actual payload
+-- params   - extra parameters (used instead of payload or as an extra payload information)
+DataMessage ::= SEQUENCE {
+    payload-type    PayloadType,
+    payload         OCTET STRING OPTIONAL,
+    params          Parameters OPTIONAL,
+    ...
+}
+
+-- ===========
+-- PayloadType
+-- ===========
+PayloadType ::= INTEGER {
+    dmt-unknown     (1000), -- UNKNOWN
+    dmt-r14p        (2000), -- GDT
+    dmt-layer2      (0),    -- General layer 2
+    dmt-ip          (1),    -- Internet Protocol (IP)
+    dmt-sctp        (2),    -- Stream Control Transmission Protocol (SCTP)
+    dmt-tcp         (3),    -- Transmission Control Protocol (TCP)
+    dmt-udp         (4),    -- User Datagram Protocol (UDP)
+    dmt-m3ua        (5),    -- MTP Level 3 (MTP3) User Adaptation Layer
+    dmt-m2ua        (6),    -- Message Transfer Part 2 User Adaptation Layer (M2UA)
+    dmt-mtp3        (7),    -- MTP Level 3 (MTP3)
+    dmt-isup        (8),    -- ISDN User Part (ISUP)
+    dmt-h248        (9),    -- H.248 or Megaco or Gateway Control Protocol
+    dmt-sccp        (10),   -- Signalling Connection Control Part (SCCP)
+    dmt-smstpdu     (11),   -- SMS TPDU 3GPP TS 23.040
+    dmt-smpp        (12),   -- Short Message Peer-to-Peer (SMPP)
+    dmt-tcap        (13),   -- Transaction Capabilities Application Part (TCAP)
+    dmt-rtp         (14),   -- Real-time Transport Protocol (RTP)
+    dmt-sip         (15),   -- Session Initiation Protocol (SIP)
+    dmt-pop3        (16),   -- Post Office Protocol (POP3)
+    dmt-imap        (17),   -- Internet message access protocol (IMAP)
+    dmt-http        (18),   -- Hypertext Transfer Protocol (HTTP)
+    dmt-radius      (19),   -- Remote Authentication Dial In User Service (RADIUS)
+    dmt-dhcp        (20),   -- Dynamic Host Configuration Protocol (DHCP)
+    dmt-smtp        (21),   -- Simple Mail Transfer Protocol (SMTP)
+    dmt-m2pa        (22),   -- Message Transfer Part 2 (MTP) User Peer-to-Peer Adaptation Layer (M2PA)
+    dmt-mtp2        (23)    -- MTP Level 2 (MTP2)
+}
+
+
+-- ====================================================
+-- ConfigMessage - used for configuration data exchange
+-- ====================================================
+-- action   - action required from config daemon
+-- payload  - result generated by config daemon, action dependant
+-- params   - extra parameters, optional
+ConfigMessage ::= SEQUENCE {
+    action      ConfigAction,
+    payload     OCTET STRING OPTIONAL,
+    params      Parameters OPTIONAL,
+    ...
+}
+
+-- ============
+-- ConfigAction
+-- ============
+-- ca-cfg-get           - get configuration item
+-- ca-cfg-set           - set configuration item
+-- ca-cfg-replicate     - replicate to other config daemon
+-- ca-cfg-ac            - auto complete configuration item (mostly used by CLI service)
+-- ca-cfg-user-login    - user login 
+-- ca-cfg-user-logout   - user logout
+ConfigAction ::= INTEGER {
+    ca-cfg-get          (0),
+    ca-cfg-set          (1),
+    ca-cfg-replicate    (2),
+    ca-cfg-ac           (3),
+    ca-cfg-result       (4),
+    ca-cfg-user-login   (5),
+    ca-cfg-user-logout  (6)
+}
+
+-- =====================================
+-- Parameter - general purpose parameter
+-- =====================================
+-- id       - parameter id
+-- value    - parameter value(s)
+--
+-- Parameter values
+-- ================
+-- [0] - parameter data
+-- [1] - fragmentation flag (1 byte)
+-- [2] - variant parameter id index (1 byte)
+-- [3] - variant parameter type (1 byte)
+Parameter ::= SEQUENCE {
+    id      ParameterType,
+    value   SEQUENCE OF OCTET STRING OPTIONAL,
+    ...
+}
+
+-- ==========
+-- Parameters
+-- ==========
+Parameters ::= SEQUENCE OF Parameter
+
+-- ==============
+-- PD Command Id
+-- ==============
+-- values specific for PD, used in pt-mink-command-id
+PdCommandId ::= INTEGER {
+    pdci-add        (1),  -- add item to list
+    pdci-del        (2),  -- delete item from list
+    pdci-match      (3)   -- math item in list
+}
+
+-- ==================
+-- Filter Result Type
+-- ==================
+FilterResultType ::= INTEGER {
+    frt-accept  (1),  -- ACCEPT
+    frt-drop    (2)   -- DROP
+}
+
+
+-- =============
+-- ParameterType
+-- =============
+ParameterType ::= INTEGER {
+    -- User parameters                                      (9000 - 4294967295)
+
+    -- MINK general                                         (6000 - 6100)
+    pt-mink-daemon-type                                     (6000), -- daemon type
+    pt-mink-daemon-id                                       (6001), -- daemon id
+    pt-mink-auth-id                                         (6002), -- authentication identification
+    pt-mink-auth-password                                   (6003), -- authentication password
+    pt-mink-daemon-ip                                       (6004), -- daemon ip address
+    pt-mink-daemon-port                                     (6005), -- daemon port
+    pt-mink-daemon-description                              (6006), -- daemon description
+    pt-mink-action                                          (6007), -- extra action
+    pt-mink-dpi                                             (6008), -- deep packet inspection (DPI) flag
+    pt-mink-spi                                             (6009), -- shallow/stateful packet inspection (SPI) flag
+    pt-mink-timestamp                                       (6010), -- unix timestamp
+    pt-mink-timestamp-nsec                                  (6011), -- unix timestamp nsec part
+    pt-mink-security-phase                                  (6012), -- mink security phase
+    pt-mink-loop-count                                      (6013), -- packet loop count
+    pt-mink-checksum                                        (6014), -- checksum 
+    pt-mink-timeout                                         (6015), -- timeout
+    pt-mink-error                                           (6016), -- error code
+    pt-mink-error-msg                                       (6017), -- error message
+    pt-mink-status                                          (6018), -- status code
+    pt-mink-status-msg                                      (6019), -- status message
+    pt-mink-persistent-correlation                          (6020), -- persistent GUID
+
+    -- MINK routing                                         (6100 - 6200)
+    pt-mink-routing-destination                             (6100), -- routing destination address
+    pt-mink-routing-source                                  (6101), -- routing source address
+    pt-mink-routing-gateway                                 (6102), -- routing gateway address
+    pt-mink-routing-interface                               (6103), -- routing network interface
+    pt-mink-routing-priority                                (6104), -- routing priority
+    pt-mink-router-status                                   (6105), -- routing capabilities status (0/1)
+    pt-mink-routing-destination-type                        (6106), -- routing destination type
+    pt-mink-routing-index                                   (6107), -- routing index
+    pt-mink-trunk-label                                     (6108), -- trunk label
+    pt-mink-connection-type                                 (6109), -- connection type
+    pt-mink-service-id                                      (6110), -- service id
+    pt-mink-command-id                                      (6111), -- command id
+    pt-mink-routing-sub-destination                         (6112), -- routing sub destination
+    pt-mink-routing-sub-destination-type                    (6113), -- routing sub destination type
+    pt-mink-correlation-notification                        (6114), -- correlation notification request
+    pt-mink-guid                                            (6115), -- correlation guid
+    pt-mink-routing-service-id                              (6116), -- routing destination service id
+
+    -- MINK events                                          (6200 - 6300)
+    pt-mink-event-id                                        (6200), -- daemon event identification
+    pt-mink-event-description                               (6201), -- daemon event description
+    pt-mink-event-callback-id                               (6202), -- daemon event callback identification
+    pt-mink-event-callback-priority                         (6203), -- daemon event callback priority
+
+    -- MINK encryption                                      (6300 - 6400)
+    pt-mink-enc-public-key                                  (6300), -- public encryption key
+    pt-mink-enc-private-key                                 (6301), -- private encryption key
+    pt-mink-enc-type                                        (6302), -- encryption type
+
+    -- MINK statistics                                      (6400 - 7400)
+    pt-mink-stats-id                                        (6400), -- stats id
+    pt-mink-stats-description                               (6401), -- stats description
+    pt-mink-stats-value                                     (6402), -- stats value
+    pt-mink-stats-count                                     (6403), -- stats item count
+
+    -- MINK configuration                                   (7400 - 7500)
+    pt-mink-config-param-name                               (7400), -- configiration parameter name
+    pt-mink-config-param-value                              (7401), -- configuration parameter value
+    pt-mink-config-ac-line                                  (7402), -- line for auto completion
+    pt-mink-config-cfg-item-name                            (7403), -- config item name
+    pt-mink-config-cfg-item-desc                            (7404), -- config item description
+    pt-mink-config-cfg-item-ns                              (7405), -- config item node state
+    pt-mink-config-cfg-item-value                           (7406), -- config item committed value
+    pt-mink-config-cfg-item-nvalue                          (7407), -- config item uncommitted value
+    pt-mink-config-cfg-item-nt                              (7408), -- config item node type
+    pt-mink-config-cfg-cm-mode                              (7409), -- config mode
+    pt-mink-config-cfg-ac-err                               (7410), -- config auto completion error
+    pt-mink-config-cli-path                                 (7411), -- config current cli path
+    pt-mink-config-cfg-line                                 (7412), -- config line result
+    pt-mink-config-ac-err-count                             (7413), -- config auto completion error count
+    pt-mink-config-cfg-line-count                           (7414), -- config line result count
+    pt-mink-config-cfg-item-path                            (7415), -- config item path
+    pt-mink-config-cfg-item-notify                          (7416), -- config item on_change notification
+    pt-mink-config-cfg-item-count                           (7417), -- config item count
+    pt-mink-config-replication-line                         (7418), -- replication command
+
+    -- MINK sms related                                     (7500 - 7600)
+    pt-mink-sms-status                                      (7500), -- sms status
+    pt-mink-sms-uuid                                        (7501), -- sms uuid
+
+    -- MINK filtering related                               (7600 - 7700)
+    pt-mink-filter-result                                   (7600), -- filter result
+    pt-mink-filter-exit                                     (7601), -- filter exit rule
+    pt-mink-filter-list-id                                  (7602), -- list id
+    pt-mink-filter-list-label                               (7603), -- list label
+    pt-mink-filter-data                                     (7604), -- generic filter input/output data
+    pt-mink-filter-data-size                                (7605), -- generic filter input/output data size
+
+    -- ETH header                                           (6xx)
+    pt-eth-destination-mac                                  (600), -- ETH header destination mac address
+    pt-eth-source-mac                                       (601), -- ETH header source mac address
+
+    -- IP header                                            (7xx)
+    pt-ip-destination-ip                                    (700), -- IP header destination ip address
+    pt-ip-source-ip                                         (701), -- IP header source ip address
+
+    -- TCP header                                           (8xx)
+    pt-tcp-destination-port                                 (800), -- TCP header destination port
+    pt-tcp-source-port                                      (801), -- TCP header source port
+
+    -- UDP header                                           (9xx)
+    pt-udp-destination-port                                 (900), -- UDP header destination port
+    pt-udp-source-port                                      (901), -- UDP header source port
+
+    -- SCTP header                                          (1xxx)
+    pt-sctp-destination-port                                (1000), -- SCTP header destination port
+    pt-sctp-source-port                                     (1001), -- SCTP header source port
+
+    -- TCAP and GSM MAP related                             (5xx)
+    pt-gsmmap-scoa-digits                                   (500), -- serviceCentreAddressOA digits
+    pt-gsmmap-scoa-type-of-number                           (501), -- serviceCentreAddressOA type of number
+    pt-gsmmap-scoa-numbering-plan                           (502), -- serviceCentreAddressOA numbering plan
+    pt-gsmmap-scda-digits                                   (503), -- serviceCentreAddressDA digits
+    pt-gsmmap-scda-type-of-number                           (504), -- serviceCentreAddressDA type of number
+    pt-gsmmap-scda-numbering-plan                           (505), -- serviceCentreAddressDA numbering plan
+    pt-gsmmap-imsi                                          (506), -- IMSI
+    pt-gsmmap-msisdn-digits                                 (507), -- MSISDN digits
+    pt-gsmmap-msisdn-type-of-number                         (508), -- MSISDN type of number
+    pt-gsmmap-msisdn-numbering-plan                         (509), -- MSISDN numbering plan
+    pt-tcap-source-transaction-id                           (510), -- TCAP Source Transaction Id
+    pt-tcap-destination-transaction-id                      (511), -- TCAP Destination Transaction Id
+    pt-tcap-opcode                                          (512), -- TCAP Operation code
+    pt-tcap-component-type                                  (513), -- TCAP Component type
+    pt-tcap-component-invoke-id                             (514), -- TCAP Invoke Id
+    pt-tcap-error-type                                      (515), -- TCAP Error Type
+    pt-tcap-error-code                                      (516), -- TCAP Error code
+    pt-tcap-dialogue-context-oid                            (517), -- TCAP Dialogue application context oid
+    pt-tcap-message-type                                    (518), -- TCAP Message type
+    pt-gsmmap-nnn-digits                                    (519), -- GSM MAP network node number digits
+    pt-gsmmap-nnn-type-of-number                            (520), -- GSM MAP nn type of number
+    pt-gsmmap-nnn-numbering-plan                            (521), -- GSM MAP nn numbering plan
+    pt-gsmmap-an-digits                                     (522), -- GSM MAP additional number digits
+    pt-gsmmap-an-type-of-number                             (523), -- GSM MAP an type of number
+    pt-gsmmap-an-numbering-plan                             (524), -- GSM MAP an numbering plan
+    pt-gsmmap-sca-digits                                    (525), -- GSM MAP service centre address digits
+    pt-gsmmap-sca-type-of-number                            (526), -- GSM MAP SCA type of number
+    pt-gsmmap-sca-numbering-plan                            (527), -- GSM MAP SCA numbering plan
+    pt-tcap-component-count                                 (528), -- TCAP Component count
+    pt-tcap-dialogue-context-supported                      (529), -- TCAP Dialogue context supported
+    pt-tcap-component-index                                 (530), -- TCAP Compoonent index currently processed
+    pt-tcap-source-transaction-id-length                    (531), -- TCAP Source Transaction Id length
+    pt-tcap-destination-transaction-id-length               (532), -- TCAP Destination Transaction Id length
+    pt-gsmmap-version                                       (533), -- GSM MAP version
+
+    -- GSM SMS TPDU (GSM 03.40) related                     (4xx)
+    pt-smstpdu-tp-udhi                                      (400), -- 9.2.3.23 TP-User-Data-Header-Indicator (TP-UDHI)
+    pt-smstpdu-tp-sri                                       (401), -- 9.2.3.4 TP-Status-Report-Indication (TP-SRI)
+    pt-smstpdu-tp-mms                                       (402), -- 9.2.3.2 TP-More-Messages-to-Send (TP-MMS)
+    pt-smstpdu-tp-mti                                       (403), -- 9.2.3.1 TP-Message-Type-Indicator (TP-MTI)
+    pt-smstpdu-tp-oa-type-of-number                         (404), -- 9.2.3.7 TP-Originating-Address (TP-OA) type of number
+    pt-smstpdu-tp-oa-numbering-plan                         (405), -- 9.2.3.7 TP-Originating-Address (TP-OA) numbering plan
+    pt-smstpdu-tp-oa-digits                                 (406), -- 9.2.3.7 TP-Originating-Address (TP-OA) digits
+    pt-smstpdu-tp-pid                                       (407), -- 9.2.3.9 TP-Protocol-Identifier (TP-PID)
+    pt-smstpdu-tp-dcs                                       (408), -- 9.2.3.10 TP-Data-Coding-Scheme (TP-DCS)
+    pt-smstpdu-tp-scts                                      (409), -- 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
+    pt-smstpdu-tp-udl                                       (410), -- 9.2.3.16 TP-User-Data-Length (TP-UDL) 
+    pt-smstpdu-tp-ud                                        (411), -- 9.2.3.24 TP-User Data (TP-UD)
+    pt-smstpdu-tp-rp                                        (412), -- 9.2.3.17 TP-Reply-Path (TP-RP) 
+    pt-smstpdu-tp-srr                                       (413), -- 9.2.3.5 TP-Status-Report-Request (TP-SRR)
+    pt-smstpdu-tp-vpf                                       (414), -- 9.2.3.3 TP-Validity-Period-Format (TP-VPF)
+    pt-smstpdu-tp-rd                                        (415), -- 9.2.3.25 TP-Reject-Duplicates (TP-RD)
+    pt-smstpdu-tp-da-type-of-number                         (416), -- 9.2.3.8 TP-Destination-Address (TP-DA) type of number
+    pt-smstpdu-tp-da-numbering-plan                         (417), -- 9.2.3.8 TP-Destination-Address (TP-DA) numbering plan
+    pt-smstpdu-tp-da-digits                                 (418), -- 9.2.3.8 TP-Destination-Address (TP-DA) digits
+    pt-smstpdu-tp-vp                                        (419), -- 9.2.3.12 TP-Validity-Period (TP-VP)
+    pt-smstpdu-msg-id                                       (420), -- Message Id
+    pt-smstpdu-msg-parts                                    (421), -- Message parts
+    pt-smstpdu-msg-part                                     (422), -- Message part
+    pt-smstpdu-tp-mr                                        (423), -- Message reference
+    pt-smstpdu-message-class                                (424), -- Message class
+
+    -- SCCP related                                         (3xx)
+    pt-sccp-destination-local-reference                     (300), -- Destination local reference
+    pt-sccp-source-local-reference                          (301), -- Source local reference
+    pt-sccp-called-party                                    (302), -- Called party address
+    pt-sccp-calling-party                                   (303), -- Calling party address
+    pt-sccp-protocol-class                                  (304), -- Protocol class
+    pt-sccp-segmenting-reassembling                         (305), -- Segmenting/reassembling
+    pt-sccp-receive-sequence-number                         (306), -- Receive sequence number
+    pt-sccp-sequencing-segmenting                           (307), -- Sequencing/segmenting
+    pt-sccp-credit                                          (308), -- Credit
+    pt-sccp-release-cause                                   (309), -- Release cause
+    pt-sccp-return-cause                                    (310), -- Return cause
+    pt-sccp-reset-cause                                     (311), -- Reset cause
+    pt-sccp-error-cause                                     (312), -- Error cause
+    pt-sccp-refusal-cause                                   (313), -- Refusal cause
+    pt-sccp-data                                            (314), -- Data
+    pt-sccp-segmentation                                    (315), -- Segmentation
+    pt-sccp-hop-counter                                     (316), -- Hop counter
+    pt-sccp-importance                                      (317), -- Importance
+    pt-sccp-long-data                                       (318), -- Long data
+    pt-sccp-called-pa-routing-indicator                     (319), -- Called party routing indicator
+    pt-sccp-called-pa-global-title-indicator                (320), -- Called party global title indicator
+    pt-sccp-called-pa-ssn-indicator                         (321), -- Called party subsystem number indicator
+    pt-sccp-called-pa-point-code-indicator                  (322), -- Called party point code indicator
+    pt-sccp-called-pa-point-code-number                     (323), -- Called party point code number
+    pt-sccp-called-pa-subsystem-number                      (324), -- Called party subsystem number
+    pt-sccp-called-pa-gt-numbering-plan                     (325), -- Called party GT numbering plan
+    pt-sccp-called-pa-gt-encoding-scheme                    (326), -- Called party GT encoding scheme
+    pt-sccp-called-pa-gt-nature-of-address                  (327), -- Called party GT nature of address
+    pt-sccp-called-pa-gt-address                            (328), -- Called party GT address
+    pt-sccp-called-pa-gt-translation-type                   (329), -- Called party GT translation type
+    pt-sccp-calling-pa-routing-indicator                    (330), -- Calling party routing indicator
+    pt-sccp-calling-pa-global-title-indicator               (331), -- Calling party global title indicator
+    pt-sccp-calling-pa-ssn-indicator                        (332), -- Calling party subsystem number indicator
+    pt-sccp-calling-pa-point-code-indicator                 (333), -- Calling party point code indicator
+    pt-sccp-calling-pa-point-code-number                    (334), -- Calling party point code number
+    pt-sccp-calling-pa-subsystem-number                     (335), -- Calling party subsystem number
+    pt-sccp-calling-pa-gt-numbering-plan                    (336), -- Calling party GT numbering plan
+    pt-sccp-calling-pa-gt-encoding-scheme                   (337), -- Calling party GT encoding scheme 
+    pt-sccp-calling-pa-gt-nature-of-address                 (338), -- Calling party GT nature of address
+    pt-sccp-calling-pa-gt-address                           (339), -- Calling party GT address
+    pt-sccp-calling-pa-gt-translation-type                  (340), -- Calling party GT translation type
+    pt-sccp-message-type                                    (341), -- SCCP Message type
+
+    -- M3UA related                                         (2xx)
+    pt-m3ua-info-string                                     (200), -- INFO String
+    pt-m3ua-routing-context                                 (201), -- Routing Context
+    pt-m3ua-diagnostic-info                                 (202), -- Diagnostic Information
+    pt-m3ua-heartbeat                                       (203), -- Heartbeat Data
+    pt-m3ua-traffic-mode-type                               (204), -- Traffic Mode Type
+    pt-m3ua-error-code                                      (205), -- Error Code
+    pt-m3ua-status                                          (206), -- Status
+    pt-m3ua-asp-identifier                                  (207), -- ASP Identifier
+    pt-m3ua-affected-point-code                             (208), -- Affected Point Code
+    pt-m3ua-correlation-id                                  (209), -- Correlation ID
+    pt-m3ua-network-appearance                              (210), -- Network Appearance
+    pt-m3ua-user-cause                                      (211), -- User/Cause
+    pt-m3ua-congestion-indications                          (212), -- Congestion Indications
+    pt-m3ua-concerned-destination                           (213), -- Concerned Destination
+    pt-m3ua-routing-key                                     (214), -- Routing Key
+    pt-m3ua-registration-result                             (215), -- Registration Result
+    pt-m3ua-deregistration-result                           (216), -- Deregistration Result
+    pt-m3ua-local-routing-key-identifier                    (217), -- Local-Routing Key Identifier
+    pt-m3ua-destination-point-code                          (218), -- Destination Point Code
+    pt-m3ua-service-indicators                              (219), -- Service Indicators
+    pt-m3ua-origination-point-code-list                     (220), -- Originating Point Code List
+    pt-m3ua-circuit-range                                   (221), -- Circuit Range
+    pt-m3ua-protocol-data                                   (222), -- Protocol Data
+    pt-m3ua-protocol-data-service-indicator                 (223), -- Protocol Data service indicator (SI)
+    pt-m3ua-protocol-data-network-indicator                 (224), -- Protocol Data network indicator (NI)
+    pt-m3ua-protocol-data-message-priority                  (225), -- Protocol Data message priority (MP)
+    pt-m3ua-protocol-data-destination-point-code            (226), -- Protocol Data destination point code (DPC)
+    pt-m3ua-protocol-data-originating-point-code            (227), -- Protocol Data originating point code (OPC)
+    pt-m3ua-protocol-data-signalling-link-selection-code    (228), -- Protocol Data signalling link selection code (SLS)
+    pt-m3ua-registration-status                             (229), -- Registration Status
+    pt-m3ua-deregistration-status                           (230), -- Deregistration Status
+    pt-m3ua-header-data                                     (231), -- M3UA header raw data
+    pt-m3ua-as-label                                        (232), -- Application server (AS) label
+    pt-m3ua-asp-label                                       (233)  -- Application server process (ASP) label
+}
+
+
+-- ==============================================================
+-- GeneralMessage - reserved for custom daemons and/or future use
+-- ==============================================================
+-- reserved for future use and/or custom daemons
+GeneralMessage ::= ANY
+
+-- =======
+-- HopInfo
+-- =======
+-- current-hop  - current hop
+-- max-hops     - max hops
+HopInfo ::= SEQUENCE {
+    current-hop [1] INTEGER,
+    max-hops    [2] INTEGER,
+    ...
+}
+
+-- =========
+-- ErrorCode
+-- =========
+ErrorCode ::= INTEGER {
+    err-ok                      (0),
+    err-out-of-sequence         (1),
+    err-unknown-sequence        (2),
+    err-unsupported-version     (3),
+    err-timeout                 (4),
+    err-unknown-route           (5),
+    err-routing-not-supported   (6),
+    err-max-hops-exceeded       (7),
+    err-unknown-error           (255)
+}
+
+-- ============
+-- GDT Message
+-- ============
+-- header   - packet header
+-- body     - packet body
+GDTMessage ::= SEQUENCE {
+    header  Header,
+    body    Body OPTIONAL,
+    ...
+}
+
+
+-- ================================================================================================================
+-- EncryptionInfo                         
+-- ================================================================================================================
+-- enc-type                     - cipher type
+-------------------------------------------------------------------------------------------------------------------
+-- base64                                                                           - Base64 Encoding
+-- bf bf-cbc bf-cfb bf-ecb bf-ofb                                                   - Blowfish Cipher
+-- cast cast-cbc                                                                    - CAST Cipher
+-- cast5-cbc cast5-cfb cast5-ecb cast5-ofb                                          - CAST5 Cipher
+-- des des-cbc des-cfb des-ecb des-ede des-ede-cbc des-ede-cfb des-ede-ofb des-ofb  - DES Cipher
+-- des3 desx des-ede3 des-ede3-cbc des-ede3-cfb des-ede3-ofb                        - Triple-DES Cipher
+-- idea idea-cbc idea-cfb idea-ecb idea-ofb                                         - IDEA Cipher
+-- rc2 rc2-cbc rc2-cfb rc2-ecb rc2-ofb                                              - RC2 Cipher
+-- rc4                                                                              - RC4 Cipher
+-- rc5 rc5-cbc rc5-cfb rc5-ecb rc5-ofb                                              - RC5 Cipher
+-------------------------------------------------------------------------------------------------------------------
+-- params                     - cipher related parameters
+-------------------------------------------------------------------------------------------------------------------
+
+EncryptionInfo ::= SEQUENCE {
+    enc-type  OCTET STRING,
+    params    Parameters OPTIONAL,
+    ...
+}
+
+
+
+END 

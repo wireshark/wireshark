@@ -96,6 +96,7 @@ set(CLEAN_ASN1_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ess.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-f1ap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ftam.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-gdt.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-glow.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-goose.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-gsm_map.c
@@ -634,6 +635,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-xmpp-other.h
 	packet-xmpp-utils.h
 	packet-xnap.h
+	packet-gdt.h
 	packet-ypbind.h
 	packet-yppasswd.h
 	packet-ypserv.h

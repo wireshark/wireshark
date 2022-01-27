@@ -1,0 +1,30 @@
+# gdt.cnf
+# GDT conformation file
+
+# $Id$
+
+#.MODULE_IMPORT
+
+#.EXPORTS
+
+#.PDU
+GDTMessage
+
+#.NO_EMIT
+
+#.OMIT_ASSIGNMENT
+GeneralMessage
+FilterResultType
+PdCommandId
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+EndPointDescriptor/id   end_point_id
+Parameter/id            parameter_type_id
+
+#.FIELD_ATTR
+EndPointDescriptor/id   ABBREV=end_point_id
+Parameter/id            ABBREV=parameter_type_id
+
+#.END
