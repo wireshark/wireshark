@@ -139,7 +139,7 @@ $CPPCHECK --force --enable=style $QUIET    \
     $SUPPRESSIONS $INCLUDES \
     -i doc/ \
     -i epan/dissectors/asn1/ \
-    --std=c99 --template=$TEMPLATE   \
+    --std=c11 --template=$TEMPLATE   \
     -j $THREADS $TARGET $XML_ARG 2>&1 | colorize
 
 exit_cleanup
