@@ -1931,32 +1931,40 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     proto_tree_add_item(tree, hf_gtpv2_iksrvcc, tvb, offset, 16, ENC_NA);
     offset += 16;
 
+  /* For each of the Mobile Station Classmark 2, Mobile Station Classmark 3 and Supported Codec List parameters, if they are not available,
+     then the associated length field shall be set to zero, and the particular parameter field shall not be present.
+     */
   /* Length of Mobile Station Classmark2  */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
-    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
-    de_ms_cm_2(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
-    offset += elm_len;
+    if (elm_len) {
+        fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
+        ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+        de_ms_cm_2(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+        offset += elm_len;
+    }
 
   /* Length of Mobile Station Classmark3  */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
-    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
-    de_ms_cm_3(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
-    offset += elm_len;
+    if (elm_len) {
+        fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
+        ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+        de_ms_cm_3(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+        offset += elm_len;
+    }
 
    /*Length of Supported Codec List  */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    fi = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
-    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
-    de_sup_codec_list(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
-
+    if (elm_len) {
+        fi = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
+        ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
+        de_sup_codec_list(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+    }
 }
 
 /* 6.6 MM Context for UTRAN SRVCC */
@@ -1979,31 +1987,41 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_item(tree, hf_gtpv2_cksn, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
+   /* For each of the Mobile Station Classmark 2, Mobile Station Classmark 3 and Supported Codec List parameters, if they are not available,
+      then the associated length field shall be set to zero, and the particular parameter field shall not be present.
+   */
+
     /*Length of Mobile Station Classmark2  */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
-    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
-    de_ms_cm_2(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
-    offset += elm_len;
+    if (elm_len) {
+        fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
+        ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+        de_ms_cm_2(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+        offset += elm_len;
+    }
 
     /*Length of Mobile Station Classmark3  */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
-    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
-    de_ms_cm_3(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
-    offset += elm_len;
+    if (elm_len) {
+        fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
+        ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+        de_ms_cm_3(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+        offset += elm_len;
+    }
 
     /*Length of Supported Codec List  */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    fi = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
-    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
-    de_sup_codec_list(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+    if (elm_len) {
+        fi = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
+        ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
+        de_sup_codec_list(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+    }
 
 }
 
