@@ -6178,7 +6178,7 @@ static int
 decode_gtp_ggsn_addr_for_control_plane(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args)
 {
     return decode_gtp_gsn_addr_common(tvb, offset, pinfo, tree, args,
-        "GGSN Address for control plane", hf_gtp_sgsn_address_for_control_plane_ipv4, hf_gtp_sgsn_address_for_control_plane_ipv6);
+        "GGSN Address for control plane", hf_gtp_ggsn_address_for_control_plane_ipv4, hf_gtp_ggsn_address_for_control_plane_ipv6);
 }
 
 static int
