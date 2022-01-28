@@ -3347,11 +3347,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       proto_item *flags_item, *hash_item;
       proto_tree *flags_tree;
 
-      /* Base 32 Encoding with Extended Hex Alphabet (see RFC 4648 section 7) */
-      const char *base32hex = "0123456789abcdefghijklmnopqrstuv";
-      char       *hash_value_base32hex;
-      int         group, in_offset, out_offset;
-
       proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       cur_offset += 1;
 
@@ -3379,16 +3374,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
        * characters ("=") are not used in the NSEC3 specification (see RFC 5155
        * section 1.3).
        */
-      hash_value_base32hex = (char *)wmem_alloc0(wmem_packet_scope(), hash_len * 2);
-      for (in_offset = 0, out_offset = 0;
-           in_offset / 8 < hash_len;
-           in_offset += 5, out_offset += 1) {
-        group = tvb_get_bits8(tvb, cur_offset * 8 + in_offset, 5);
-        hash_value_base32hex[out_offset] = base32hex[group];
+      if (hash_len) {
+        /* Base 32 Encoding with Extended Hex Alphabet (see RFC 4648 section 7) */
+        const char    *base32hex = "0123456789abcdefghijklmnopqrstuv";
+        wmem_strbuf_t *hash_value_base32hex = wmem_strbuf_new(pinfo->pool, "");
+        int            group, in_offset, out_offset;
+        for (in_offset = 0, out_offset = 0;
+            in_offset / 8 < hash_len;
+            in_offset += 5, out_offset += 1) {
+          group = tvb_get_bits8(tvb, cur_offset * 8 + in_offset, 5);
+          wmem_strbuf_append_c(hash_value_base32hex, base32hex[group]);
+        }
+        hash_item = proto_tree_add_string(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, wmem_strbuf_finalize(hash_value_base32hex));
+        proto_item_set_generated(hash_item);
+        cur_offset += hash_len;
       }
-      hash_item = proto_tree_add_string(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, hash_value_base32hex);
-      proto_item_set_generated(hash_item);
-      cur_offset += hash_len;
 
       rr_len = data_len - (cur_offset - initial_offset);
       dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
