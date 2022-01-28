@@ -54,6 +54,7 @@
 #include <epan/decode_as.h>
 
 #include "packet-rtp.h"
+#include "packet-rtcp.h"
 #include "packet-tcp.h"
 
 #include <epan/rtp_pt.h>
@@ -1107,6 +1108,17 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
 
     /* Set dissector */
     if (ptype == PT_UDP) {
+        /* For RFC 5761 multiplexing, go ahead and create/update [S]RTCP
+         * info for the conversation, since this dissector will pass RTCP PTs
+         * to the RTCP dissector anyway.
+         * XXX: We only do this on UDP, as RFC 4571 specifies RTP and RTCP on
+         * different ports, but the RTCP dissector (like SDP) doesn't support
+         * RFC 4571 currently anyway.
+         */
+        srtcp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, srtp_info);
+        /* Set the dissector afterwards, since RTCP will set the conversation
+         * to its dissector, but packets should go to RTP first.
+         */
         conversation_set_dissector(p_conv, rtp_handle);
     } else if (ptype == PT_TCP) {
         conversation_set_dissector(p_conv, rtp_rfc4571_handle);
