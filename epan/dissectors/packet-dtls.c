@@ -1720,7 +1720,10 @@ dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
     offset += mki_length;
   }
 
-  if (is_server) {
+  /* If we only get the Client Hello, we don't know which SRTP protection
+   * profile is chosen, unless only one was provided.
+   */
+  if (is_server || profiles_length == 2) {
     struct srtp_info *srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
     switch(profile) {
     case SRTP_AES128_CM_HMAC_SHA1_80:
@@ -1762,15 +1765,14 @@ dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
     /* RFC 5764: It is RECOMMENDED that symmetric RTP be used with DTLS-SRTP.
      * RTP and RTCP traffic MAY be multiplexed on a single UDP port. (RFC 5761)
      *
-     * XXX: We call srtp_add_address last because both it and srtcp_add_address
-     * set the conversation dissector to themselves, but while the [S]RTP
-     * dissector forwards [S]RTCP payload types to the RTCP dissector, the RTCP
-     * dissector does not do the reverse, so it's better to have the RTP
-     * dissector take a look first. Perhaps that should be changed, along with
-     * some other things to better support multiplexed RFC 5761 connections.
+     * XXX: This creates a new RTP conversation. What it _should_ do is update
+     * a RTP conversation initiated by SDP in a previous frame with the
+     * srtp_info. Assuming we got the SDP and decrypted it if over TLS, etc.
+     * However, since we don't actually decrypt SRT[C]P yet, the information
+     * carried in the SDP about payload and media types isn't that useful.
+     * (Being able to have the stream refer back to both the DTLS-SRTP and
+     * SDP setup frame might be useful, though.)
      */
-    srtcp_add_address(pinfo, &pinfo->net_src, pinfo->srcport, pinfo->destport, "DTLS-SRTP", pinfo->num, srtp_info);
-    srtcp_add_address(pinfo, &pinfo->net_dst, pinfo->destport, pinfo->srcport, "DTLS-SRTP", pinfo->num, srtp_info);
     srtp_add_address(pinfo, PT_UDP, &pinfo->net_src, pinfo->srcport, pinfo->destport, "DTLS-SRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, srtp_info, NULL);
     srtp_add_address(pinfo, PT_UDP, &pinfo->net_dst, pinfo->destport, pinfo->srcport, "DTLS-SRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, srtp_info, NULL);
   }
