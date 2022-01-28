@@ -264,9 +264,9 @@ static gint ett_vsncp_ipv6_hsgw_lla_iid_opt = -1;
 static dissector_table_t vsncp_option_table;
 
 /*
-*   VSNP (RFC3772) has no defined packet structure. 
-*   The following organisations have defined their own VSNPs: 
-*   any VSNCPs containing one of the below OUIs will result in the VSNP being parsed accordingly.
+* VSNP (RFC3772) has no defined packet structure.
+* The following organisations have defined their own VSNPs,
+* any VSNCPs containing one of the below OUIs will result in the VSNP being parsed accordingly.
 */
 #define OUI_BBF 0x00256D    /* Broadband Forum TR 456 */
 #define OUI_3GPP 0xCF0002   /* 3GPP X.S0057-0 */
