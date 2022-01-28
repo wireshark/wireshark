@@ -56,8 +56,8 @@
 //#define PLG_PARAM_TYPE_UINT64 8
 //#define PLG_PARAM_TYPE_CHARBUF 9
 
-#define FLD_FLAG_USE_IN_INFO 1
-#define FLD_FLAG_USE_IN_CONVERSATIONS (1 << 1)
+//#define FLD_FLAG_USE_IN_INFO 1
+//#define FLD_FLAG_USE_IN_CONVERSATIONS (1 << 1)
 
 #if 0
 /*
@@ -203,6 +203,13 @@ typedef struct
 } ss_plugin_info;
 #endif
 
+typedef enum bridge_field_flags_e {
+    BFF_NONE = 0,
+    BFF_HIDDEN = 1 << 1, // Unused
+    BFF_INFO = 1 << 2,
+    BFF_CONVERSATION = 1 << 3
+} bridge_field_flags_e;
+
 typedef struct bridge_info {
 //    ss_plugin_info si;
     sinsp_source_info_t *ssi;
@@ -216,7 +223,7 @@ typedef struct bridge_info {
 } bridge_info;
 
 typedef struct conv_fld_info {
-    char* proto_name;
+    const char* proto_name;
     hf_register_info* field_info;
     char field_val[4096];
 } conv_fld_info;

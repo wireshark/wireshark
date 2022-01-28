@@ -11,11 +11,10 @@
  */
 
 // To do:
-// - Convert this to C++?
-//   It would let us get rid of the glue that is sinsp-span and make string handling a lot easier.
-//   ...except epan/address.h and driver/ppm_events_public.h both define PT_NONE.
+// - Convert this to C++? It would let us get rid of the glue that is
+//   sinsp-span and make string handling a lot easier. However,
+//   epan/address.h and driver/ppm_events_public.h both define PT_NONE.
 
-// set_profile_name
 #include "config.h"
 
 #include <stddef.h>
@@ -86,7 +85,7 @@ static hf_register_info hf[] = {
     },
     { &hf_sdp_lengths,
         { "Field Lengths", "sysdig_plugin.lens",
-        FT_UINT32, BASE_HEX,
+        FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
@@ -385,7 +384,8 @@ configure_plugin(bridge_info* bi, char* config _U_)
         get_sinsp_source_field_info(bi->ssi, j, &sfi);
         if (sfi.is_hidden) {
             /*
-             * Skip the fields that are marked as hidden
+             * Skip the fields that are marked as hidden.
+             * XXX Should we keep them and call proto_item_set_hidden?
              */
             continue;
         }
@@ -403,7 +403,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
         {
             bi->hf_ids[fld_cnt] = -1;
             bi->field_ids[fld_cnt] = j;
-            bi->field_flags[fld_cnt] = 0;
+            bi->field_flags[fld_cnt] = BFF_NONE;
             hf_register_info* ri = bi->hf + fld_cnt;
 
             get_sinsp_source_field_info(bi->ssi, j, &sfi);
@@ -446,7 +446,6 @@ configure_plugin(bridge_info* bi, char* config _U_)
                     sfi.abbrev);
             }
 
-
             hf_register_info finfo = {
                 bi->hf_ids + fld_cnt,
                 {
@@ -457,6 +456,18 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 }
             };
             *ri = finfo;
+
+            if (sfi.is_info) {
+                bi->field_flags[fld_cnt] |= BFF_INFO;
+            }
+            if (sfi.is_conversation) {
+                bi->field_flags[fld_cnt] |= BFF_CONVERSATION;
+                conv_fld_infos[conv_fld_cnt].field_info = ri;
+                const char *source_name = get_sinsp_source_name(bi->ssi);
+                conv_fld_infos[conv_fld_cnt].proto_name = source_name;
+                register_conversation_filter_logshark(source_name, finfo.hfinfo.name, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
+                conv_fld_cnt++;
+            }
             fld_cnt++;
         }
         proto_register_field_array(proto_sdplugin, bi->hf, fld_cnt);
@@ -653,12 +664,7 @@ proto_register_sdplugin(void)
     if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             filename = g_build_filename(dname, ws_dir_get_name(file), NULL);
-#ifdef _WIN32
             import_plugin(filename);
-#else
-            import_plugin(filename);
-#endif
-
             g_free(filename);
         }
         ws_dir_close(dir);
@@ -706,7 +712,7 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     proto_item *ti = proto_tree_add_item(tree, proto_sdplugin, tvb, 0, 12, ENC_NA);
     proto_tree *sdplugin_tree = proto_item_add_subtree(ti, ett_sdplugin);
     proto_tree_add_item(sdplugin_tree, hf_sdp_source_id_size, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(sdplugin_tree, hf_sdp_lengths, tvb, 4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdplugin_tree, hf_sdp_lengths, tvb, 4, 4, ENC_LITTLE_ENDIAN);
     proto_item *idti = proto_tree_add_item(sdplugin_tree, hf_sdp_source_id, tvb, 8, 4, ENC_LITTLE_ENDIAN);
 
     guint32 source_id = tvb_get_guint32(tvb, 8, ENC_LITTLE_ENDIAN);
@@ -756,8 +762,8 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 //    evt.data = payload;
 //    evt.datalen = plen;
 
-    for (uint32_t i = 0; i < bi->visible_fields; i++) {
-        header_field_info* hfinfo = &(bi->hf[i].hfinfo);
+    for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
+        header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
         sinsp_source_info_t *ssi = bi->ssi;
         sinsp_field_extract_t sfe;
 
@@ -766,7 +772,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 //        }
 
 //        guint32 num_fields = 1;
-        sfe.field_id = bi->field_ids[i];
+        sfe.field_id = bi->field_ids[fld_idx];
         sfe.field_name = hfinfo->abbrev;
 //        field.arg = NULL;
         sfe.type = hfinfo->type == FT_STRINGZ ? SFT_STRINGZ : SFT_UINT64;
@@ -798,7 +804,26 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
         }
 
         if (sfe.type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
-            proto_tree_add_string(sdplugin_tree, bi->hf_ids[i], tvb, 0, plen, sfe.res_str);
+            proto_item *pi = proto_tree_add_string(sdplugin_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_str);
+            if (bi->field_flags[fld_idx] & BFF_INFO) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe.res_str);
+                // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
+                proto_item_set_hidden(pi);
+            }
+
+            if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
+                char* cvalptr = conv_flt_vals[conv_vals_cnt];
+                sprintf(cvalptr, "%s", sfe.res_str);
+                p_add_proto_data(pinfo->pool,
+                                 pinfo,
+                                 proto_sdplugin,
+                                 PROTO_DATA_CONVINFO_USER_BASE + conv_vals_cnt, cvalptr);
+            }
+
+            if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
+                conv_vals_cnt++;
+            }
+
 //            if ((bi->field_flags[field_id] & FLD_FLAG_USE_IN_INFO) != 0) {
 //                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", field.res_str);
 //            }
@@ -817,7 +842,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 //            }
         }
         else if (sfe.type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
-            proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[i], tvb, 0, plen, sfe.res_u64);
+            proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_u64);
         }
         else {
             REPORT_DISSECTOR_BUG("field %s has an unrecognized or mismatched type %u != %u",

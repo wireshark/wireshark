@@ -17,8 +17,8 @@
 
 #include <glib.h>
 
-// epan/address.h and driver/ppm_events_public.h both define PT_NONE.
-//#include <epan/proto.h>
+// epan/address.h and driver/ppm_events_public.h both define PT_NONE, so
+// handle libsinsp calls here.
 
 #include <wsutil/wmem/wmem.h>
 
@@ -26,7 +26,6 @@ typedef struct hf_register_info hf_register_info;
 
 typedef struct ss_plugin_info ss_plugin_info;
 
-//#include "packet-sysdig-bridge.h"
 #include "sinsp-span.h"
 
 #include <sinsp.h>
@@ -112,10 +111,6 @@ const char *get_sinsp_source_last_error(sinsp_source_info_t *ssi)
     return ssi->last_error;
 }
 
-//uint32_t get_sinsp_extractor_id(sinsp_span_t *sinsp_span, void *plugin_id)
-//{
-//}
-
 const char *get_sinsp_source_name(sinsp_source_info_t *ssi)
 {
     return ssi->name;
@@ -169,8 +164,8 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, unsigned field_num, s
     g_strlcpy(field->description, ffi[field_num].m_description, sizeof(ffi[field_num].m_description));
 
     field->is_hidden = ffi[field_num].m_flags & EPF_TABLE_ONLY;
-//    field->is_conversation = ffi[field_num].m_flags & EPF_???
-//     field->is_info = ffi[field_num].m_flags & EPF_???
+    field->is_info = ffi[field_num].m_flags & EPF_INFO_PROP;
+    field->is_conversation = ffi[field_num].m_flags & EPF_CONVERSATION_PROP;
 
     return true;
 }
