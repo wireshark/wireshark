@@ -7356,7 +7356,7 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change,
-          { "Change in number", "ptp.v2.oe.smpte.leapsecondjump",
+          { "Change in number", "ptp.v2.oe.smpte.leapsecondjump.change",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), PTP_V2_FLAGS_OE_SMPTE_LEAP_SECOND_JUMP_CHANGE,
             NULL, HFILL }
         },

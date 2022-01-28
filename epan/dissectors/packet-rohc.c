@@ -2864,7 +2864,7 @@ proto_register_rohc(void)
               }
             },
             { &hf_rohc_ipv6_dst,
-              { "Destination Address","rohc.ipv6.src",
+              { "Destination Address","rohc.ipv6.dst",
                 FT_IPv6, BASE_NONE, NULL, 0,
                 NULL , HFILL
               }

@@ -266,7 +266,7 @@ static hf_register_info hf[] = {
 			  ,NULL			,0x3f		,NULL
 			  ,HFILL}},
 
-	{&hf_cw_seq	,{"Sequence number"	,"pwfr.length"	,FT_UINT16	,BASE_DEC
+	{&hf_cw_seq	,{"Sequence number"	,"pwfr.seqno"	,FT_UINT16	,BASE_DEC
 			  ,NULL			,0		,NULL
 			  ,HFILL}},
 
