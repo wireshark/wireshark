@@ -2761,8 +2761,7 @@ proto_register_wimaxmacphy(void)
             {
                 &hf_wimaxmacphy_prim_number_of_consecutive_frames_with_aas,
                 {
-                    "Number of consecutive frames with AAS Calibration Zone"
-                    " allocation",
+                    "Number of consecutive frames with AAS Calibration Zone allocation",
                     "wimaxmacphy.prim_number_of_consecutive_frames_with_aas",
                     FT_UINT8,
                     BASE_DEC,
@@ -3951,8 +3950,7 @@ proto_register_wimaxmacphy(void)
             {
                 &hf_wimaxmacphy_dl_burst_map_number_of_slots,
                 {
-                    "Number of slots (duration) after repetition code is"
-                    " applied",
+                    "Number of slots (duration) after repetition code is applied",
                     "wimaxmacphy.burst_map_number_of_slots",
                     FT_UINT16,
                     BASE_DEC,

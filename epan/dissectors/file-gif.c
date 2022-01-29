@@ -28,7 +28,6 @@
 void proto_register_gif(void);
 void proto_reg_handoff_gif(void);
 
-#define IMG_GIF "image-gif"
 
 /************************** Variable declarations **************************/
 
@@ -400,127 +399,127 @@ proto_register_gif(void)
 {
     static hf_register_info hf[] = {
         { &hf_version,
-            { "Version", IMG_GIF ".version",
+            { "Version", "image-gif.version",
               FT_STRING, BASE_NONE, NULL, 0x00,
               "GIF Version", HFILL }
         },
         { &hf_screen_width,
-            { "Screen width", IMG_GIF ".screen.width",
+            { "Screen width", "image-gif.screen.width",
               FT_UINT16, BASE_DEC, NULL, 0x00,
               NULL, HFILL }
         },
         { &hf_screen_height,
-            { "Screen height", IMG_GIF ".screen.height",
+            { "Screen height", "image-gif.screen.height",
               FT_UINT16, BASE_DEC, NULL, 0x00,
               NULL, HFILL }
         },
         { &hf_global_color_map_present,
-            { "Global color map is present", IMG_GIF ".global.color_map.present",
+            { "Global color map is present", "image-gif.global.color_map.present",
               FT_UINT8, BASE_DEC, VALS(vals_true_false), 0x80,
               "Indicates if the global color map is present", HFILL }
         },
         { &hf_global_color_resolution,
-            { "Bits per color minus 1", IMG_GIF ".global.color_bpp",
+            { "Bits per color minus 1", "image-gif.global.color_bpp",
               FT_UINT8, BASE_DEC, NULL, 0x70,
               "The number of bits per color is one plus the field value.", HFILL }
         },
         { &hf_global_color_map_ordered,
-            { "Global color map is ordered", IMG_GIF ".global.color_map.ordered",
+            { "Global color map is ordered", "image-gif.global.color_map.ordered",
               FT_UINT8, BASE_DEC, VALS(vals_true_false), 0x08,
               "Indicates whether the global color map is ordered.", HFILL }
         },
         { &hf_global_image_bpp,
-            { "Image bits per pixel minus 1", IMG_GIF ".global.bpp",
+            { "Image bits per pixel minus 1", "image-gif.global.bpp",
               FT_UINT8, BASE_DEC, NULL, 0x07,
               "The number of bits per pixel is one plus the field value.", HFILL }
         },
         { &hf_background_color,
-            { "Background color index", IMG_GIF ".image_background_index",
+            { "Background color index", "image-gif.image_background_index",
               FT_UINT8, BASE_DEC, NULL, 0x00,
               "Index of the background color in the color map.", HFILL }
         },
         { &hf_pixel_aspect_ratio,
-            { "Global pixel aspect ratio", IMG_GIF ".global.pixel_aspect_ratio",
+            { "Global pixel aspect ratio", "image-gif.global.pixel_aspect_ratio",
               FT_UINT8, BASE_DEC, NULL, 0x00,
               "Gives an approximate value of the aspect ratio of the pixels.", HFILL }
         },
         { &hf_global_color_map,
-            { "Global color map", IMG_GIF ".global.color_map",
+            { "Global color map", "image-gif.global.color_map",
               FT_BYTES, BASE_NONE, NULL, 0x00,
               "Global color map.", HFILL }
         },
         { &hf_image_left,
-            { "Image left position", IMG_GIF ".image.left",
+            { "Image left position", "image-gif.image.left",
               FT_UINT16, BASE_DEC, NULL, 0x00,
               "Offset between left of Screen and left of Image.", HFILL }
         },
         { &hf_image_top,
-            { "Image top position", IMG_GIF ".image.top",
+            { "Image top position", "image-gif.image.top",
               FT_UINT16, BASE_DEC, NULL, 0x00,
               "Offset between top of Screen and top of Image.", HFILL }
         },
         { &hf_image_width,
-            { "Image width", IMG_GIF ".image.width",
+            { "Image width", "image-gif.image.width",
               FT_UINT16, BASE_DEC, NULL, 0x00,
               "Image width.", HFILL }
         },
         { &hf_image_height,
-            { "Image height", IMG_GIF ".image.height",
+            { "Image height", "image-gif.image.height",
               FT_UINT16, BASE_DEC, NULL, 0x00,
               "Image height.", HFILL }
         },
         { &hf_local_color_map_present,
-            { "Local color map is present", IMG_GIF ".local.color_map.present",
+            { "Local color map is present", "image-gif.local.color_map.present",
               FT_UINT8, BASE_DEC, VALS(vals_true_false), 0x80,
               "Indicates if the local color map is present", HFILL }
         },
         { &hf_local_color_resolution,
-            { "Bits per color minus 1", IMG_GIF ".local.color_bpp",
+            { "Bits per color minus 1", "image-gif.local.color_bpp",
               FT_UINT8, BASE_DEC, NULL, 0x70,
               "The number of bits per color is one plus the field value.", HFILL }
         },
         { &hf_local_color_map_ordered,
-            { "Local color map is ordered", IMG_GIF ".local.color_map.ordered",
+            { "Local color map is ordered", "image-gif.local.color_map.ordered",
               FT_UINT8, BASE_DEC, VALS(vals_true_false), 0x08,
               "Indicates whether the local color map is ordered.", HFILL }
         },
         { &hf_local_image_bpp,
-            { "Image bits per pixel minus 1", IMG_GIF ".local.bpp",
+            { "Image bits per pixel minus 1", "image-gif.local.bpp",
               FT_UINT8, BASE_DEC, NULL, 0x07,
               "The number of bits per pixel is one plus the field value.", HFILL }
         },
         { &hf_local_color_map,
-            { "Local color map", IMG_GIF ".local.color_map",
+            { "Local color map", "image-gif.local.color_map",
               FT_BYTES, BASE_NONE, NULL, 0x00,
               "Local color map.", HFILL }
         },
         { &hf_extension,
-            { "Extension", IMG_GIF ".extension",
+            { "Extension", "image-gif.extension",
               FT_NONE, BASE_NONE, NULL, 0x00,
               "Extension.", HFILL }
         },
         { &hf_extension_label,
-            { "Extension label", IMG_GIF ".extension.label",
+            { "Extension label", "image-gif.extension.label",
               FT_UINT8, BASE_HEX, VALS(vals_extensions), 0x00,
               "Extension label.", HFILL }
         },
         { &hf_image,
-            { "Image", IMG_GIF ".image",
+            { "Image", "image-gif.image",
               FT_NONE, BASE_NONE, NULL, 0x00,
               "Image.", HFILL }
         },
         { &hf_image_code_size,
-            { "LZW minimum code size", IMG_GIF ".image.code_size",
+            { "LZW minimum code size", "image-gif.image.code_size",
               FT_UINT8, BASE_DEC, NULL, 0x00,
               "Minimum code size for the LZW compression.", HFILL }
         },
         { &hf_trailer,
-            { "Trailer (End of the GIF stream)", IMG_GIF ".end",
+            { "Trailer (End of the GIF stream)", "image-gif.end",
               FT_NONE, BASE_NONE, NULL, 0x00,
               "This byte tells the decoder that the data stream is finished.", HFILL }
         },
         { &hf_data_block,
-            { "Data block", IMG_GIF ".data_block",
+            { "Data block", "image-gif.data_block",
               FT_UINT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x00,
               NULL, HFILL }
         },
@@ -548,7 +547,7 @@ proto_register_gif(void)
     proto_gif = proto_register_protocol(
             "Compuserve GIF",
             "GIF image",
-            IMG_GIF
+            "image-gif"
     );
 
     /* Required function calls to register the header fields
@@ -558,7 +557,7 @@ proto_register_gif(void)
     expert_gif = expert_register_protocol(proto_gif);
     expert_register_field_array(expert_gif, ei, array_length(ei));
 
-    gif_handle = register_dissector(IMG_GIF, dissect_gif, proto_gif);
+    gif_handle = register_dissector("image-gif", dissect_gif, proto_gif);
 }
 
 

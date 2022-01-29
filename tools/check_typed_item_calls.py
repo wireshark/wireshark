@@ -573,7 +573,7 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"(.+)\"\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([\&A-Za-z0-9x_<\|\s\(\)]*)\s*,\s*([ a-zA-Z0-9x_\<\~]*)\s*,', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_[a-z_A-Z0-9]*)\s*,\s*{\s*\"*(.+)\"*\s*,\s*\"([a-zA-Z0-9_\-\.]+)\"\s*,\s*([a-zA-Z0-9_]*)\s*,\s*(.*)\s*,\s*([\&A-Za-z0-9x_<\|\s\(\)]*)\s*,\s*([ a-zA-Z0-9x_\<\~\|\(\)]*)\s*,', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)

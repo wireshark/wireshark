@@ -6663,7 +6663,7 @@ proto_register_scsi(void)
         { &hf_scsi_inq_rmb,
           {"Removable", "scsi.inquiry.removable", FT_BOOLEAN, 8,
            TFS(&scsi_removable_val), 0x80, NULL, HFILL}},
-        { & hf_scsi_inq_version,
+        { &hf_scsi_inq_version,
           {"Version", "scsi.inquiry.version", FT_UINT8, BASE_HEX,
            VALS(scsi_inquiry_vers_val), 0x0, NULL, HFILL}},
         { &hf_scsi_inq_reladrflags,
