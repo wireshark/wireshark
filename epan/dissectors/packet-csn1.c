@@ -221,14 +221,14 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           {
             guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
             pui16  = pui16DATA(data, pDescr->offset);
-            *pui16 = ui16;
+            memcpy(pui16, &ui16, 2);
             proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else if (no_of_bits <= 32)
           {
             guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
             pui32  = pui32DATA(data, pDescr->offset);
-            *pui32 = ui32;
+            memcpy(pui32, &ui32, 4);
             proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
           }
           else
@@ -248,12 +248,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             else if (no_of_bits <= 16)
             {
               pui16  = pui16DATA(data, pDescr->offset);
-              *pui16 = 0;
+              memset(pui16, 0, 2);
             }
             else if (no_of_bits <= 32)
             {
               pui32  = pui32DATA(data, pDescr->offset);
-              *pui32 = 0;
+              memset(pui32, 0, 4);
             }
             proto_tree_add_none_format(tree, hf_null_data, tvb, 0, 0, "[NULL data]: %s Not Present", proto_registrar_get_name(*(pDescr->hf_ptr)));
         }
@@ -284,9 +284,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
           else if (no_of_bits <= 16)
           {
-            guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN) + (guint16)pDescr->descr.value;
             pui16       = pui16DATA(data, pDescr->offset);
-            *pui16      = ui16 + (guint16)pDescr->descr.value;
+            memcpy(pui16, &ui16, 2);
 
             proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
                                                   *pui16, "%u (Raw %u + Offset %u)", *pui16, ui16,
@@ -294,9 +294,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
           else if (no_of_bits <= 32)
           {
-            guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+            guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN) + (guint16)pDescr->descr.value;
             pui32       = pui32DATA(data, pDescr->offset);
-            *pui32      = ui32 + (guint16)pDescr->descr.value;
+            memcpy(pui32, &ui32, 4);
 
             proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits,
                                                   *pui32, "%u (Raw %u + Offset %u)", *pui32, ui32,
@@ -361,13 +361,15 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
           else if (no_of_value_bits <= 16)
           {
+            guint16 ui16 = (guint16) value;
             pui16       = pui16DATA(data, pDescr->offset);
-            *pui16      = (guint16)value;
+            memcpy(pui16, &ui16, 2);
           }
           else if (no_of_value_bits <= 32)
           {
+            guint32 ui32 = (guint32) value;
             pui32       = pui32DATA(data, pDescr->offset);
-            *pui32      = (guint32)value;
+            memcpy(pui32, &ui32, 4);
           }
           else
           {
@@ -405,7 +407,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (pDescr->value != 0)
         { /* nCount specified by a reference to field holding value i.e. M_VAR_UINT_ARRAY(...) */
-          nCount = *pui16DATA(data, nCount);
+          memcpy(&nCount, pui16DATA(data, nCount), 2);
         }
 
         if (remaining_bits_len >= (no_of_bits * nCount))
@@ -770,14 +772,14 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               {
                 guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                 pui16       = pui16DATA(data, pDescr->offset);
-                *pui16      = ui16;
+                memcpy(pui16, &ui16, 2);
                 proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
               }
               else if (no_of_bits <= 32)
               {
                 guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                 pui32       = pui32DATA(data, pDescr->offset);
-                *pui32      = ui32;
+                memcpy(pui32, &ui32, 4);
                 proto_tree_add_bits_item(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 
               }
@@ -812,16 +814,16 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               }
               else if (no_of_bits <= 16)
               {
-                guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                guint16 ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN) + (guint16)pDescr->descr.value;
                 pui16       = pui16DATA(data, pDescr->offset);
-                *pui16      = ui16 + (guint16)pDescr->descr.value;
+                memcpy(pui16, &ui16, 2);
                 proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ui16, "%d", ui16);
               }
-                else if (no_of_bits <= 32)
+              else if (no_of_bits <= 32)
               {
-                guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                guint32 ui32 = tvb_get_bits32(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN) + (guint16)pDescr->descr.value;
                 pui32       = pui32DATA(data, pDescr->offset);
-                *pui32      = ui32 + (guint16)pDescr->descr.value;
+                memcpy(pui32, &ui32, 4);
                 proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ui32, "%d", ui32);
               }
               else
@@ -877,7 +879,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
             if (pDescr->value != 0)
             { /* nCount specified by a reference to field holding value i.e. M_VAR_UINT_ARRAY(...) */
-              nCount = *pui16DATA(data, nCount);
+              memcpy(&nCount, pui16DATA(data, nCount), 2);
             }
 
             if (remaining_bits_len >= (no_of_bits * nCount))
@@ -898,15 +900,17 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               }
               else if (no_of_bits <= 16)
               {
+                guint16 ui16;
                 pui16 = pui16DATA(data, pDescr->offset);
 
                 while (nCount > 0)
                 {
-                  *pui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
-                  proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, *pui16, " (Count %d)", i++);
+                  ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
+                  proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ui16, " (Count %d)", i++);
                   bit_offset += no_of_bits;
                   nCount--;
                 }
+                memcpy(pui16, &ui16, 2);
               }
               else if (no_of_bits <= 32)
               { /* not supported */
