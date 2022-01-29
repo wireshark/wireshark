@@ -7147,7 +7147,7 @@ decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo _U
      * Protocol Configuration Options are defined in octets 3-z of the MBMS
      * Protocol Configuration Options in 3GPP TS 24.008 [5].
      */
-    next_tvb = tvb_new_subset_length(tvb, offset + 3, length);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     de_sm_mbms_prot_conf_opt(next_tvb, ext_tree, pinfo, 0, length, NULL, 0);
 
     return 3 + length;
