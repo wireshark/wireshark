@@ -1629,12 +1629,13 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         break;
     }
 
-    proto_item_set_text(assoc_header_pitem, "%s", buf_desc);
-    col_set_str(pinfo->cinfo, COL_INFO, buf_desc);
+    if (buf_desc) {
+        proto_item_set_text(assoc_header_pitem, "%s", buf_desc);
+        col_set_str(pinfo->cinfo, COL_INFO, buf_desc);
 
-    /* proto_item and proto_tree are one and the same */
-    proto_item_append_text(tree, ", %s", buf_desc);
-
+        /* proto_item and proto_tree are one and the same */
+        proto_item_append_text(tree, ", %s", buf_desc);
+    }
     return offset;
 }
 
