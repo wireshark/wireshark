@@ -218,7 +218,7 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pin
     if (inputFlag)
     {
         proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid, tvb, offset, 1, u8DataStatus);
-        proto_tree_add_item(tree, hf_pn_rt_frame_info_function_meaning_input_conv, tvb, offset, 1, u8DataStatus);
+        proto_tree_add_uint(tree, hf_pn_rt_frame_info_function_meaning_input_conv, tvb, offset, 1, u8DataStatus);
         if (u8State == 0 && u8Redundancy == 0 && u8DataValid == 1)
         {
             proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_input_cr_state_is_backup, tvb, offset, 1, u8DataStatus);
@@ -250,7 +250,7 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pin
     // output conversation is found.
     else if (outputFlag)
     {
-        proto_tree_add_item(tree, hf_pn_rt_frame_info_function_meaning_output_conv, tvb, offset, 1, u8DataStatus);
+        proto_tree_add_uint(tree, hf_pn_rt_frame_info_function_meaning_output_conv, tvb, offset, 1, u8DataStatus);
 
         proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid, tvb, offset, 1, u8DataStatus);
         proto_tree_add_boolean(sub_tree, hf_pn_rt_data_status_redundancy_output_cr, tvb, offset, 1, u8DataStatus);
