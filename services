@@ -5283,6 +5283,7 @@ dlpx-sp		8415/tcp	# Delphix Session Protocol
 espeech		8416/tcp/udp	# eSpeech Session Protocol
 espeech-rtp	8417/tcp/udp	# eSpeech RTP Protocol
 aritts		8423/tcp	# Aristech text-to-speech server
+pgbackrest	8432/tcp	# PostgreSQL Backup
 cybro-a-bus	8442/tcp/udp	# CyBro A-bus Protocol
 pcsync-https	8443/tcp/udp	# PCsync HTTPS
 pcsync-http	8444/tcp/udp	# PCsync HTTP
