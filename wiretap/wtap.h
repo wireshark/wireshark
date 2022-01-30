@@ -289,6 +289,7 @@ extern "C" {
 #define WTAP_ENCAP_ZWAVE_SERIAL                 211
 #define WTAP_ENCAP_ETW                          212
 #define WTAP_ENCAP_ERI_ENB_LOG                  213
+#define WTAP_ENCAP_ZBNCP			214
 
 /* After adding new item here, please also add new item to encap_table_base array */
 

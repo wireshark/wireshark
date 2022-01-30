@@ -1011,7 +1011,7 @@ static const value_string ieee802154_psie_names[] = {
     { 0, NULL }
 };
 
-static const value_string zboss_page_names[] = {
+const value_string zboss_page_names[] = {
     { 0, "2.4 GHz" },
     { 28, "863-868 MHz band"},
     { 29, "868-870, 870-876 MHz band" },

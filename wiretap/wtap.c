@@ -1177,6 +1177,9 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_ERI_ENB_LOG */
 	{ "eri_enb_log", "Ericsson eNode-B raw log" },
 
+	/* WTAP_ENCAP_ZBNCP */
+	{ "zbncp", "ZBOSS NCP" },
+
 };
 
 WS_DLL_LOCAL

@@ -485,6 +485,9 @@ static const struct {
 	/* Event Tracing for Windows records */
 	{ 290,		WTAP_ENCAP_ETW },
 
+	/* Serial NCP (Network Co-Processor) protocol for Zigbee stack ZBOSS */
+	{ 292,		WTAP_ENCAP_ZBNCP },
+
 	/*
 	 * To repeat:
 	 *
