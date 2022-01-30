@@ -73,9 +73,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
-         <property name="inputMask">
-          <string>900000000</string>
-         </property>
         </widget>
        </item>
        <item>

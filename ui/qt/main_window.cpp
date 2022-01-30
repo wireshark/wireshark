@@ -80,6 +80,7 @@ DIAG_ON(frame-larger-than=)
 
 #include <QAction>
 #include <QActionGroup>
+#include <QIntValidator>
 #include <QKeyEvent>
 #include <QList>
 #include <QMessageBox>
@@ -489,6 +490,13 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->actionEditPreferences->setMenuRole(QAction::PreferencesRole);
 
 #endif // Q_OS_MAC
+
+// A billion-1 is equivalent to the inputMask 900000000 previously used
+// Avoid QValidator::Intermediate values by using a top value of all 9's
+#define MAX_GOTO_LINE 999999999
+
+QIntValidator *goToLineQiv = new QIntValidator(0,MAX_GOTO_LINE,this);
+main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
