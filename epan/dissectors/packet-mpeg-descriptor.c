@@ -1448,6 +1448,38 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_private_data_byte, tvb, offset, end - offset, ENC_NA);
 }
 
+/* 0x4B NVOD Reference Descriptor */
+static int hf_mpeg_descr_nvod_reference_tsid = -1;
+static int hf_mpeg_descr_nvod_reference_onid = -1;
+static int hf_mpeg_descr_nvod_reference_sid  = -1;
+
+static gint ett_mpeg_descriptor_nvod_reference_triplet = -1;
+
+static void
+proto_mpeg_descriptor_dissect_nvod_reference(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint end = offset + len;
+
+    proto_tree * triplet_tree;
+
+    while (offset < end) {
+        guint tsid = tvb_get_guint16(tvb, offset + 0, ENC_BIG_ENDIAN);
+        guint onid = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+        guint sid  = tvb_get_guint16(tvb, offset + 4, ENC_BIG_ENDIAN);
+
+        triplet_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_mpeg_descriptor_nvod_reference_triplet, NULL, "NVOD Service Triplet (0x%04X:0x%04X:0x%04X)", tsid, onid, sid);
+
+        proto_tree_add_item(triplet_tree, hf_mpeg_descr_nvod_reference_tsid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(triplet_tree, hf_mpeg_descr_nvod_reference_onid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(triplet_tree, hf_mpeg_descr_nvod_reference_sid,  tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+}
+
 /* 0x4C Time Shifted Service Descriptor */
 static int hf_mpeg_descr_time_shifted_service_id = -1;
 
@@ -4088,6 +4120,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
         case 0x4A: /* Linkage Descriptor */
             proto_mpeg_descriptor_dissect_linkage(tvb, offset, len, descriptor_tree);
             break;
+        case 0x4B: /* NVOD Reference Descriptor */
+            proto_mpeg_descriptor_dissect_nvod_reference(tvb, offset, len, descriptor_tree);
+            break;
         case 0x4C: /* Time Shifted Service Descriptor */
             proto_mpeg_descriptor_dissect_time_shifted_service(tvb, offset, descriptor_tree);
             break;
@@ -4905,6 +4940,22 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_linkage_population_id_mask, {
             "Population ID Mask", "mpeg_descr.population_id_mask",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x4B NVOD Reference Descriptor */
+        { &hf_mpeg_descr_nvod_reference_tsid, {
+            "Transport Stream ID", "mpeg_descr.nvod_ref.tsid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nvod_reference_onid, {
+            "Original Network ID", "mpeg_descr.nvod_ref.onid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_nvod_reference_sid, {
+            "Stream ID", "mpeg_descr.nvod_ref.sid",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
@@ -6178,6 +6229,7 @@ proto_register_mpeg_descriptor(void)
         &ett_mpeg_descriptor_multilng_srv_name_desc_lng,
         &ett_mpeg_descriptor_multilng_component_desc_lng,
         &ett_mpeg_descriptor_country_availability_countries,
+        &ett_mpeg_descriptor_nvod_reference_triplet,
         &ett_mpeg_descriptor_vbi_data_service,
         &ett_mpeg_descriptor_content_identifier_crid,
         &ett_mpeg_descriptor_mosaic_logical_cell,
