@@ -3746,10 +3746,6 @@ Martin Mayer		<martin.mayer[AT]m2-it-solutions.de> {
 	Allied Telesis Loop Detection Frames (LDF) dissector
 }
 
-Horst Kronstorfer	<hkronsto[AT]frequentis.com>> {
-	Realtek protocol support
-}
-
 and by:
 
 Georgi Guninski		<guninski[AT]guninski.com>
@@ -4428,6 +4424,7 @@ Jan Holthuis		<jan.holthuis[AT]ruhr-uni-bochum.de>
 Jan Kaisrlik		<j.kaisrlik[AT]seznam.cz>
 Jan Romann		<jan.romann[AT]gmail.com>
 Jan Seda		<hodor[AT]hodor.cz>
+Jan Snydr-Michal	<jan[AT]dogsontheroof.de>
 Jan Spevak		<jan.spevak[AT]nokia.com>
 Jan-Hendrik Bolte	<jabolte[AT]uos.de>
 Jann Horn		<jannh[AT]google.com>
@@ -4440,6 +4437,7 @@ Jason Uher		<jason.uher[AT]jhuapl.edu>
 Jason Zhekov		<jasssonpet[AT]gmail.com>
 Javier Cardona		<jcardona[AT]fb.com>
 Jean Thomas		<jeanthomas[AT]sierrawireless.com>
+Jean Yap		<jean.yap[AT]team.telstra.com>
 Jean-Philippe Lebel	<jpl[AT]ds.tools>
 Jeff Dyer		<jmasterfunk[AT]gmail.com>
 Jeff Layton		<jlayton[AT]redhat.com>
@@ -4662,6 +4660,7 @@ Michalis Kapsalakis	<kapsalis1989[AT]gmail.com>
 Michaël Bouchaud	<michael.bouchaud[AT]external.thalesaleniaspace.com>
 Michaël Bouchaud	<michael.bouchaud[AT]gmail.com>
 Michał Kaźmierowski	<michal.kazmierowski[AT]q-free.com>
+Michał Kępień		<michal[AT]isc.org>
 Michał Skalski		<mskalski13[AT]gmail.com>
 Michele Baldessari	<michele[AT]acksyn.org>
 Michele Mazzante	<mazzante[AT]gmail.com>
@@ -4745,6 +4744,7 @@ Pau Espin Pedrol	<pespin[AT]sysmocom.de>
 Paul Aurich		<paul[AT]darkrain42.org>
 Paul Chambon		<pchambon[AT]toulouse.viveris.com>
 Paul Emge		<paul.emge[AT]digidescorp.com>
+Paul Koning		<paul_koning[AT]dell.com>
 Paul Offord		<paul.offord58[AT]gmail.com>
 Paul Offord		<paul.offord[AT]advance7.com>
 Paul Thomas		<pthomas8589[AT]gmail.com>
@@ -4998,6 +4998,7 @@ Vincent Helfre		<vincent.helfre[AT]gmx.net>
 Vincenzo Reale		<smart2128vr[AT]gmail.com>
 Vivek Mangala		<vivekmangala[AT]gmail.com>
 Vivek Pandey		<vivek_pandey[AT]comcast.com>
+Vladimir Bespalov	<vladimir.bespalov[AT]dsr-corporation.com>
 Vladimir Kondratiev	<qca_vkondrat[AT]qca.qualcomm.com>
 Vladimir Rutsky		<rutsky[AT]google.com>
 Vladislav Grishenko	<themiron[AT]mail.ru>
@@ -5011,6 +5012,7 @@ Warren Moxam		<warrenmptgrey[AT]gmail.com>
 Wasim Abu Moch		<wasim[AT]mellanox.com>
 Weston Andros Adamson	<dros[AT]primarydata.com>
 Weston Schmidt		<weston_schmidt[AT]alumni.purdue.edu>
+Will Aftring		<william.aftring[AT]outlook.com>
 Will Glynn		<will[AT]willglynn.com>
 Will Robertson		<aliask[AT]gmail.com>
 William Tu		<u9012063[AT]gmail.com>
