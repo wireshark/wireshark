@@ -613,6 +613,29 @@ Windows Build:
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --output-on-failure
 
+ABI Check:
+  extends: .build-ubuntu
+  rules: !reference [.if-merge-request]
+  script:
+    # build-ubuntu puts us in `build`.
+    - DEBIAN_FRONTEND=noninteractive apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get --yes install abi-dumper abi-compliance-checker
+    # Ubuntu 20.04 ships with version 1.1, which has issues: https://github.com/lvc/abi-dumper/issues/21
+    - curl --fail -JL https://raw.githubusercontent.com/lvc/abi-dumper/1.2/abi-dumper.pl > /usr/bin/abi-dumper
+    - CFLAGS="-Og" cmake -G Ninja -DENABLE_CCACHE=ON -DCMAKE_BUILD_TYPE=Debug -DBUILD_wireshark=OFF ..
+    - ninja wiretap-abi-dump epan-abi-dump wsutil-abi-dump
+    - ACC_EXIT=0
+    - abi-compliance-checker -l wiretap -old ../tools/abi-dumps/wiretap-abi-12.0.0.dump -new wiretap-abi-12*.dump || ACC_EXIT=1
+    - abi-compliance-checker -l epan -old ../tools/abi-dumps/epan-abi-15.0.0.dump -new epan-abi-15*.dump || ACC_EXIT=1
+    - abi-compliance-checker -l wsutil -old ../tools/abi-dumps/wsutil-abi-13.0.0.dump -new wsutil-abi-13*.dump || ACC_EXIT=1
+    - mv compat_reports ..
+    - cd ..
+    - zip -9 -r compat_reports.zip compat_reports
+    - exit $ACC_EXIT
+  artifacts:
+    paths:
+      - compat_reports.zip
+
 # Fuzz TShark using ASAN and valgrind.
 .fuzz-ubuntu:
   extends: .build-ubuntu

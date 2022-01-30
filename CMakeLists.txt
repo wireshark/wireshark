@@ -1508,6 +1508,11 @@ set_target_properties(checkAPI
 
 include( UseCheckAPI )
 
+# ABI checks
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	find_program(ABI_DUMPER_EXECUTABLE abi-dumper)
+endif()
+
 # Target platform locations
 # UN*X in general, including macOS if not building an app bundle:
 # $DESTDIR/lib/wireshark/extcap

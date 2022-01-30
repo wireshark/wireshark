@@ -221,6 +221,14 @@ CHECKAPI(
 	  ${LEMON_FILES}
 )
 
+if(ABI_DUMPER_EXECUTABLE)
+	get_target_property(_soversion wiretap VERSION)
+	add_custom_target(wiretap-abi-dump
+		COMMAND abi-dumper $<TARGET_FILE:wiretap> -o ${CMAKE_BINARY_DIR}/wiretap-abi-${_soversion}.dump -lver ${_soversion}
+		DEPENDS wiretap
+	)
+endif()
+
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #

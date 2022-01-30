@@ -320,6 +320,14 @@ CHECKAPI(
 	  ${WSUTIL_COMMON_FILES}
 )
 
+if(ABI_DUMPER_EXECUTABLE)
+	get_target_property(_soversion wsutil VERSION)
+	add_custom_target(wsutil-abi-dump
+		COMMAND abi-dumper $<TARGET_FILE:wsutil> -o ${CMAKE_BINARY_DIR}/wsutil-abi-${_soversion}.dump -lver ${_soversion}
+		DEPENDS wsutil
+	)
+endif()
+
 set_source_files_properties(jsmn.c PROPERTIES COMPILE_DEFINITIONS "JSMN_STRICT")
 
 #

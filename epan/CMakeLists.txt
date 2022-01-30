@@ -435,6 +435,14 @@ CHECKAPI(
 	  ${LIBWIRESHARK_NONGENERATED_FILES}
 )
 
+if(ABI_DUMPER_EXECUTABLE)
+	get_target_property(_soversion epan VERSION)
+	add_custom_target(epan-abi-dump
+		COMMAND abi-dumper $<TARGET_FILE:epan> -o ${CMAKE_BINARY_DIR}/epan-abi-${_soversion}.dump -lver ${_soversion}
+		DEPENDS epan
+	)
+endif()
+
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
