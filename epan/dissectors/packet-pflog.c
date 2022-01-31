@@ -19,7 +19,7 @@
  * FreeBSD PF log:
  *
  *	https://cgit.freebsd.org/src/tree/sys/net/if_pflog.h
- *	https://cgit.freebsd.org/src/tree/ys/netpfil/pf/if_pflog.c
+ *	https://cgit.freebsd.org/src/tree/sys/netpfil/pf/if_pflog.c
  *	https://cgit.freebsd.org/src/tree/sys/netpfil/pf/pf.h
  *
  * NetBSD PF log:
