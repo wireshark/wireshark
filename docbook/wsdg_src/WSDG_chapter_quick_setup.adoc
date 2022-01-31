@@ -237,19 +237,22 @@ You can install Chocolatey packages using the command `choco install` (or its sh
 
 ==== Install Microsoft Visual Studio
 
-https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[Download] and install “Microsoft Visual Studio 2019 Community Edition”.
-This is a small utility that downloads all the other required parts (which are quite large).
+Download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=16[“Microsoft Visual Studio 2019 Community Edition”].
+If you prefer you can instead download and install https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&rel=17[“Microsoft Visual Studio 2022 Community Edition”].
+These are small utilities that download all the other required parts (which are quite large).
 
 Check the checkbox for “Desktop development with {cpp}” and then uncheck
-all the optional components other than the “V{cpp} 2019” item with the
+all the optional components other than the “V{cpp} 2019” or “V{cpp} 2022” item with the
 “latest ... tools”, the “Windows 10 SDK”, and the “Visual {cpp} tools for
 CMake” (unless you want to use them for purposes other than Wireshark).
 
 You can alternatively use Chocolatey to install Visual Studio, using the Visual Studio Community and Native Desktop workload packages.
-Note that this includes CMake.
+Note that this includes Visual Studio’s CMake component.
 
 ----
 PS$> choco install -y visualstudio2019community visualstudio2019-workload-nativedesktop
+PS$> # OR
+PS$> choco install -y visualstudio2022community visualstudio2022-workload-nativedesktop
 ----
 
 // winget has basic VS 2022 and 2019 packages, but no native desktop workload packages.
@@ -292,6 +295,7 @@ deselect all of the other the components such as “Qt Charts” or “Android
 xxxx” as they aren’t required.
 
 Note that installation of separate Qt components are required for 64 bit and 32 bit builds, e.g. “msvc2019 64-bit” and “msvc2019 32-bit”.
+The components are forward compatible; you can build Wireshark using Qt’s “msvc2019 64-bit” and Visual {cpp} 2022.
 The environment variable `https://doc.qt.io/qt-5/cmake-get-started.html[CMAKE_PREFIX_PATH]` should be set as appropriate for your environment and should point to the Qt installation directory, e.g. _C:\Qt{backslash}{qt-lts-version}.2\msvc2019_64_
 
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
@@ -576,6 +580,8 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
 > cmake -G "Visual Studio 16 2019" -A x64 ..\wireshark
+> : or
+> cmake -G "Visual Studio 17 2022" -A x64 ..\wireshark
 ----
 
 Adjusting the path to the Wireshark source tree as required.
@@ -586,6 +592,8 @@ To build a 32-bit / x86 version, specify “Win32” as the architecture:
 
 ----
 > cmake -G "Visual Studio 16 2019" -A Win32 ..\wireshark
+> : or
+> cmake -G "Visual Studio 17 2022" -A Win32 ..\wireshark
 ----
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)

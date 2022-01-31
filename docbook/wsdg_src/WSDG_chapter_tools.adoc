@@ -287,6 +287,7 @@ _windows.h_, _WS2_32.lib_)
 
 Official releases are or were built with the following Visual {cpp} versions:
 
+// * Wireshark 4.0.x: Microsoft Visual {cpp} 2022.
 * Wireshark 3.6.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.4.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.2.x: Microsoft Visual {cpp} 2019.
@@ -306,7 +307,7 @@ Official releases are or were built with the following Visual {cpp} versions:
 Using the release compilers is recommended for Wireshark development work.
 
 “Community” editions of Visual Studio such as “Visual Studio Community
-2019” can be used to compile Wireshark but any PortableApps packages you
+2022” can be used to compile Wireshark but any PortableApps packages you
 create with them might require the installation of a separate Visual
 {cpp} Redistributable package on any machine on which the PortableApps
 package is to be used. See <<msvc-runtime-redistributable>> below for
@@ -320,7 +321,22 @@ Essentials] account if you don't have a Visual Studio (MSDN)
 subscription.  The older versions can be downloaded from
 https://visualstudio.microsoft.com/vs/older-downloads/[].
 
-.Visual {cpp} 2019 Community Edition
+==== Visual {cpp} 2022 Community Edition
+
+IDE + Debugger?:: Yes
+
+SDK required for 64-bit builds?:: No
+
+CMake Generator: *`Visual Studio 17`*
+
+You can use Chocolatey to install Visual Studio, e.g:
+
+[source,cmd]
+----
+PS:\> choco install visualstudiocommunity2022 visualstudio2022-workload-nativedesktop
+----
+
+==== Visual {cpp} 2019 Community Edition
 
 IDE + Debugger?:: Yes
 
@@ -342,11 +358,13 @@ Microsoft toolchain variants and their specific C compiler
 versions ordered by release date.
 
 |===
-|Compiler Package|cl.exe|_MSC_VER
-|Visual Studio 2019|16.0.0|1920
-|Visual Studio 2019|16.1.2|1921
-|Visual Studio 2019|16.2.3|1922
-|Visual Studio 2019|16.3.2|1923
+| Compiler Package   | cl.exe | _MSC_VER
+| Visual Studio 2019 | 16.0.0 | 1920
+| Visual Studio 2019 | 16.1.2 | 1921
+| Visual Studio 2019 | 16.2.3 | 1922
+| Visual Studio 2019 | 16.3.2 | 1923
+| Visual Studio 2022 | 17.0   | 1930
+| Visual Studio 2022 | 17.1   | 1931
 |===
 
 After correct installation of the toolchain, typing
@@ -368,8 +386,8 @@ usage: cl [ option... ] filename... [ /link linkoption... ]
 
 However, the version string may vary.
 
-Documentation on the compiler can be found at
-https://docs.microsoft.com/en-us/cpp/build/reference/compiling-a-c-cpp-program?view=vs-2019[Microsoft Docs]
+Documentation on recent versions of the compiler can be found at
+https://docs.microsoft.com/en-us/cpp/build/reference/compiling-a-c-cpp-program[Microsoft Docs]
 
 ==== link.exe (Linker)
 
@@ -392,8 +410,8 @@ Copyright (C) Microsoft Corporation.  All rights reserved.
 
 However, the version string may vary.
 
-Documentation on the linker can be found at
-https://docs.microsoft.com/en-us/cpp/build/reference/linking?view=vs-2019[Microsoft Docs]
+Documentation on recent versions of the linker can be found at
+https://docs.microsoft.com/en-us/cpp/build/reference/linking[Microsoft Docs]
 
 [#msvc-runtime-redistributable]
 
@@ -409,8 +427,8 @@ Visual {cpp} 2015 and later use the _Universal CRT_ (UCRT).
 
 The Universal CRT comes standard with Windows 10 and is installed as part
 of Windows Update on earlier versions of Windows. The Wireshark .exe
-installers include redistributables (_vcredist_x86.exe_ or
-_vcredist_x64.exe_) which ensure that the Universal CRT is installed and
+installers include redistributables (_vc_redist.x64.exe_ or
+_vc_redist.x86.exe_) which ensure that the Universal CRT is installed and
 up to date.
 
 [NOTE]
@@ -425,9 +443,9 @@ us.
 The following Microsoft Docs link is recommended for the
 interested reader:
 
-https://docs.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=vs-2019[Redistributing Visual {cpp} Files]
+https://docs.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files[Redistributing Visual {cpp} Files]
 
-In all cases where _vcredist_x86.exe_ or _vcredist_x64.exe_ is
+In all cases where _vc_redist.x64.exe_ or _vc_redist.x86.exe_ is
 downloaded it should be downloaded to the directory into which the
 support libraries for Wireshark have been downloaded and installed. This
 directory is specified by the `WIRESHARK_BASE_DIR` or
@@ -975,7 +993,7 @@ You can download it from the link:https://wixtoolset.org/[WiX web site] or insta
 PS$> choco install wixtoolset
 ----
 
-This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2019 Redistributable MSMs” in the Visual Studio installer.
+This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2022 Redistributable MSMs” or “...2019 Redistributable MSMs” as appropriate for your compiler in the Visual Studio installer.
 
 Wireshark’s .msi packaging is currently experimental and the generated packages may be incomplete.
 
