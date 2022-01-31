@@ -501,7 +501,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item_set_text( ti, "%s: %s", key, val );
   proto_item_set_len( ti, offset-orig_offset );
 
-  if( strcmp(key,"message_type")==0 || strcmp(key,"request_type")==0 )
+  if(key && (strcmp(key,"message_type")==0 || strcmp(key,"request_type")==0) )
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s=%s ", key, val);
 
   return offset;
