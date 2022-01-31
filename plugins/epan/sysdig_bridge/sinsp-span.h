@@ -64,9 +64,9 @@ typedef struct sinsp_field_extract_t {
 } sinsp_field_extract_t;
 
 sinsp_span_t *create_sinsp_span(void);
+void destroy_sinsp_span(sinsp_span_t *sinsp_span);
 
 bool create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_info_t **ssi_ptr);
-// XXX destroy_sinsp_source
 
 // Extractor plugin routines.
 // These roughly match common_plugin_info

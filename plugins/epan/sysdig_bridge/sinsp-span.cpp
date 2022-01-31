@@ -47,6 +47,10 @@ sinsp_span_t *create_sinsp_span()
     return new(sinsp_span_t);
 }
 
+void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
+    delete(sinsp_span);
+}
+
 #include <iostream>
 /*
  * Populate a source_plugin_info struct with the symbols coming from a library loaded via libsinsp
