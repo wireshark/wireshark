@@ -19,7 +19,7 @@
  * FreeBSD PF log:
  *
  *	https://cgit.freebsd.org/src/tree/sys/net/if_pflog.h
- *	https://cgit.freebsd.org/src/tree/sys/netpfil/pf/pf.c
+ *	https://cgit.freebsd.org/src/tree/ys/netpfil/pf/if_pflog.c
  *	https://cgit.freebsd.org/src/tree/sys/netpfil/pf/pf.h
  *
  * NetBSD PF log:
@@ -98,7 +98,25 @@ static int hf_old_pflog_dir = -1;
 
 static gint ett_old_pflog = -1;
 
-static gboolean uid_endian = TRUE;
+/*
+ * Because ENC_HOST_ENDIAN is either equal to ENC_BIG_ENDIAN or
+ * ENC_LITTLE_ENDIAN, it will be confusing if we use ENC_ values
+ * directly, as, if the current setting is "Host-endian", it'll
+ * look like "Big-endian" on big-endian machines and like
+ * "Little-endian" on little-endian machines, and will display
+ * as such if you open up the preferences.
+ */
+#define ID_HOST_ENDIAN   0
+#define ID_BIG_ENDIAN    1
+#define ID_LITTLE_ENDIAN 2
+
+static gint id_endian = ID_HOST_ENDIAN;
+static const enum_val_t id_endian_vals[] = {
+	{ "host", "Host-endian", ID_HOST_ENDIAN },
+	{ "big", "Big-endian", ID_BIG_ENDIAN },
+	{ "little", "Little-endian", ID_LITTLE_ENDIAN },
+	{ NULL, NULL, 0 }
+};
 
 /*
  * Length as of OpenBSD 3.4, not including padding.
@@ -293,7 +311,26 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   if(length >= LEN_PFLOG_OPENBSD_3_8)
   {
-    int endian = uid_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+    int endian;
+
+    switch (id_endian) {
+
+    case ID_HOST_ENDIAN:
+      endian = ENC_HOST_ENDIAN;
+      break;
+
+    case ID_BIG_ENDIAN:
+      endian = ENC_BIG_ENDIAN;
+      break;
+
+    case ID_LITTLE_ENDIAN:
+      endian = ENC_LITTLE_ENDIAN;
+      break;
+
+    default:
+      DISSECTOR_ASSERT_NOT_REACHED();
+    }
+
     proto_tree_add_item(pflog_tree, hf_pflog_uid, tvb, offset, 4, endian);
     offset += 4;
 
@@ -417,6 +454,11 @@ proto_register_pflog(void)
      * FT_INT32 here, and at least one capture, from issue #6115, has
      * 0xFFFFFFFF as a sub rule number; that looks suspiciously as
      * if it's -1.
+     *
+     * At least in OpenBSD, the rule and subrule are unsigned in the
+     * kernel, and -1 - which really means 0xFFFFFFFFU - is used if
+     * there is no subrule.  Perhaps we should treat that value
+     * specially and report it as "None" or something such as that.
      */
     { &hf_pflog_rulenr,
       { "Rule Number", "pflog.rulenr", FT_INT32, BASE_DEC, NULL, 0x0,
@@ -488,10 +530,11 @@ proto_register_pflog(void)
 
   pflog_module = prefs_register_protocol(proto_pflog, NULL);
 
-  prefs_register_bool_preference(pflog_module, "uid_endian",
-        "Display UID as big endian value",
-        "Whether or not UID and PID fields are dissected in big or little endian",
-        &uid_endian);
+  prefs_register_enum_preference(pflog_module, "id_endian",
+        "Byte order for UID and PID fields",
+        "Whether or not UID and PID fields are dissected in host, big, or little endian byte order",
+        &id_endian, id_endian_vals, FALSE);
+  prefs_register_obsolete_preference(pflog_module, "uid_endian");
 }
 
 void
