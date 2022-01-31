@@ -1006,29 +1006,31 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
   }
 
   /* Handle encrypted IMSI indices first */
-  if (enc_imsi) {
-    /* Add MNC to tree */
-    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc, tvb,
-      offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen(tokens[1]) + 1 +
-      (guint)strlen("Realm=@wlan.mnc"), (guint)strlen(realm_tokens[2]) -
-      (guint)strlen("mnc"), mcc_mnc);
-    /* Add MCC to tree */
-    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc, tvb,
-      offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen(tokens[1]) + 1 +
-      (guint)strlen(realm_tokens[0]) + (guint)strlen("@wlan.") +
-      (guint)strlen(realm_tokens[2]) + (guint)strlen(".mcc"),
-      (guint)strlen(realm_tokens[3]) - (guint)strlen("mcc"), mcc);
-  } else {
-    /* Add MNC to tree */
-    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc,
-      tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
-      (guint)strlen("mnc"), (guint)strlen(realm_tokens[1]) - (guint)strlen("mnc"),
-      mcc_mnc);
-    /* Add MCC to tree */
-    proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc,
-      tvb, offset + (guint)(strlen(tokens[0]) + (guint)strlen("@wlan.") +
-      (guint)strlen(realm_tokens[1]) + 1 + strlen("mcc")),
-      (guint)strlen(realm_tokens[2]) - (guint)strlen("mcc"), mcc);
+  if(realm_tokens[0] && realm_tokens[1] && realm_tokens[2] && realm_tokens[3]) {
+    if (enc_imsi) {
+      /* Add MNC to tree */
+      proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc, tvb,
+        offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen(tokens[1]) + 1 +
+        (guint)strlen("Realm=@wlan.mnc"), (guint)strlen(realm_tokens[2]) -
+        (guint)strlen("mnc"), mcc_mnc);
+      /* Add MCC to tree */
+      proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc, tvb,
+        offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen(tokens[1]) + 1 +
+        (guint)strlen(realm_tokens[0]) + (guint)strlen("@wlan.") +
+        (guint)strlen(realm_tokens[2]) + (guint)strlen(".mcc"),
+        (guint)strlen(realm_tokens[3]) - (guint)strlen("mcc"), mcc);
+    } else {
+      /* Add MNC to tree */
+      proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc_mnc,
+        tvb, offset + (guint)strlen(tokens[0]) + (guint)strlen("@wlan.") +
+        (guint)strlen("mnc"), (guint)strlen(realm_tokens[1]) - (guint)strlen("mnc"),
+        mcc_mnc);
+      /* Add MCC to tree */
+      proto_tree_add_uint(eap_identity_tree, hf_eap_identity_mcc,
+        tvb, offset + (guint)(strlen(tokens[0]) + (guint)strlen("@wlan.") +
+        (guint)strlen(realm_tokens[1]) + 1 + strlen("mcc")),
+        (guint)strlen(realm_tokens[2]) - (guint)strlen("mcc"), mcc);
+    }
   }
 
 end:
