@@ -5852,11 +5852,12 @@ static stat_tap_table_item sip_stat_fields[] = {
     {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Max Setup (s)", "%8.2f"},
 };
 
+static const char *req_table_name = "SIP Requests";
+static const char *resp_table_name = "SIP Responses";
+
 static void sip_stat_init(stat_tap_table_ui* new_stat)
 {
     /* XXX Should we have a single request + response table instead? */
-    const char *req_table_name = "SIP Requests";
-    const char *resp_table_name = "SIP Responses";
     int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
     stat_tap_table *req_table;
     stat_tap_table *resp_table;
@@ -5922,7 +5923,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 
     if (info_value->request_method && info_value->response_code < 1) {
         /* Request table */
-        stat_tap_table *req_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 1);
+        stat_tap_table *req_table = stat_tap_find_table(stat_data->stat_tap_data, req_table_name);
         stat_tap_table_item_type *item_data;
         guint element;
 
@@ -5937,7 +5938,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 
     } else if (info_value->response_code > 0) {
         /* Response table */
-        stat_tap_table *resp_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
+        stat_tap_table *resp_table = stat_tap_find_table(stat_data->stat_tap_data, resp_table_name);
         guint response_code = info_value->response_code;
         stat_tap_table_item_type *item_data;
         guint element;
