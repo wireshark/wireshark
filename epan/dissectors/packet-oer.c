@@ -317,11 +317,15 @@ dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ct
         * (occupying at least as many whole octets as are necessary to carry the value).
         */
         offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
-        if (length < 5) {
-            proto_tree_add_item_ret_uint64(tree, hf_index, tvb, offset, length, ENC_BIG_ENDIAN, &val);
-            offset += length;
+        if (length > 0) {
+            if (length < 5) {
+                proto_tree_add_item_ret_uint64(tree, hf_index, tvb, offset, length, ENC_BIG_ENDIAN, &val);
+                offset += length;
+            } else {
+                dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer NO_BOUND to many octets");
+            }
         } else {
-            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer NO_BOUND to many octets");
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer unexpected length");
         }
     }
     if (value) {
@@ -342,11 +346,15 @@ dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
      * (occupying at least as many whole octets as are necessary to carry the value).
      */
     offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
-    if (length < 5) {
-        proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, length, ENC_BIG_ENDIAN, &val);
-        offset += length;
+    if (length > 0) {
+        if (length < 5) {
+            proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, length, ENC_BIG_ENDIAN, &val);
+            offset += length;
+        } else {
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer NO_BOUND to many octets");
+        }
     } else {
-        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer NO_BOUND to many octets");
+        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "constrained_integer unexpected length");
     }
 
     if (value) {
