@@ -32,7 +32,6 @@ void do_register_conversation_filter(const char *proto_name, const char *display
     entry->build_filter_string  = build_filter_string;
 
     conv_filter_list = g_list_append(conv_filter_list, entry);
-    g_warning("registered %s %s", proto_name, display_name);
 }
 
 void register_conversation_filter(const char *proto_name, const char *display_name,
@@ -86,7 +85,6 @@ gchar *conversation_filter_from_packet(struct _packet_info *pinfo)
     size_t i;
 
     for (i = 0; i < G_N_ELEMENTS(layers); i++) {
-g_warning("cffp %s", layers[i]);
         conv_filter = find_conversation_filter(layers[i]);
         if (conv_filter && conv_filter->is_filter_valid(pinfo)) {
             if ((filter = conv_filter->build_filter_string(pinfo)) != NULL)
