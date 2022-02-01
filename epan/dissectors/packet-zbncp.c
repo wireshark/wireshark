@@ -4932,7 +4932,7 @@ void proto_register_zbncp(void)
          {"Joined", "zbncp.data.joined", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_joined_bit,
-         {"Device is joined", "zbncp.data.joined", FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}},
+         {"Device is joined", "zbncp.data.device_is_joined", FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}},
 
         {&hf_zbncp_data_parent_bit,
          {"Parent is lost", "zbncp.data.parent_is_lost", FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}},
