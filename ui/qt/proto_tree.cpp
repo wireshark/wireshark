@@ -356,16 +356,16 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 
         ctx_menu.addAction(window()->findChild<QAction *>("actionGoGoToLinkedPacket"));
         ctx_menu.addAction(window()->findChild<QAction *>("actionContextShowLinkedPacketInNewWindow"));
-
-        // The "text only" header field will not give preferences for the selected protocol.
-        // Use parent in this case.
-        proto_node *node = proto_tree_model_->protoNodeFromIndex(index).protoNode();
-        while (node && node->finfo && node->finfo->hfinfo && node->finfo->hfinfo->id == hf_text_only)
-            node = node->parent;
-
-        FieldInformation pref_finfo(node);
-        proto_prefs_menu_.setModule(pref_finfo.moduleName());
     }
+
+    // The "text only" header field will not give preferences for the selected protocol.
+    // Use parent in this case.
+    proto_node *node = proto_tree_model_->protoNodeFromIndex(index).protoNode();
+    while (node && node->finfo && node->finfo->hfinfo && node->finfo->hfinfo->id == hf_text_only)
+        node = node->parent;
+
+    FieldInformation pref_finfo(node);
+    proto_prefs_menu_.setModule(pref_finfo.moduleName());
 
     ctx_menu.exec(event->globalPos());
 }
