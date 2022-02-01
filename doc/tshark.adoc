@@ -2355,6 +2355,20 @@ MinSRT, MaxSRT, AvgSRT, and SumSRT.  No data is collected on unpaired
 messages.
 --
 
+*-z*  someip_messages,tree[,__filter__]::
++
+--
+Create statistic of SOME/IP messages. Messages are counted and displayed
+as Messages grouped by sender/receiver.
+--
+
+*-z*  someipsd_entries,tree[,__filter__]::
++
+--
+Create statistic of SOME/IP-SD entries. Entries are counted and displayed
+as Entries grouped by sender/receiver.
+--
+
 *-z* sv::
 +
 --
