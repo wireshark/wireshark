@@ -21,6 +21,7 @@
 #include <epan/uat.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/reassemble.h>
+#include <epan/addr_resolv.h>
 #include <epan/stats_tree.h>
 
 #include <packet-udp.h>
@@ -2340,7 +2341,7 @@ expert_someip_payload_alignment_error(proto_tree *tree, packet_info *pinfo, tvbu
 
 /*******************************************
  **************** Statistics ***************
- ******************************************/
+ *******************************************/
 
 static void
 someip_messages_stats_tree_init(stats_tree *st) {
@@ -2353,22 +2354,35 @@ static tap_packet_status
 someip_messages_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p) {
     static gchar tmp_srv_str[128];
     static gchar tmp_meth_str[128];
+    static gchar tmp_addr_str[128];
     int tmp;
 
     DISSECTOR_ASSERT(p);
     const someip_messages_tap_t *data = (const someip_messages_tap_t *)p;
 
-    gchar *src_addr = address_to_str(pinfo->pool, &pinfo->net_src);
+    snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_src), address_to_name(&pinfo->net_src));
     tick_stat_node(st, st_str_ip_src, 0, FALSE);
-    int src_id = tick_stat_node(st, src_addr, st_node_ip_src, TRUE);
+    int src_id = tick_stat_node(st, tmp_addr_str, st_node_ip_src, TRUE);
 
-    gchar *dst_addr = address_to_str(pinfo->pool, &pinfo->net_dst);
+    snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_dst), address_to_name(&pinfo->net_dst));
     tick_stat_node(st, st_str_ip_dst, 0, FALSE);
-    int dst_id = tick_stat_node(st, dst_addr, st_node_ip_dst, TRUE);
+    int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, TRUE);
 
-    snprintf(tmp_srv_str, sizeof(tmp_srv_str) - 1, "Service 0x%04x", data->service_id);
-    snprintf(tmp_meth_str, sizeof(tmp_meth_str) - 1, "Method 0x%04x %s", data->method_id,
-             val_to_str(data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
+    char *service_name = someip_lookup_service_name(data->service_id);
+    if (service_name == NULL) {
+        snprintf(tmp_srv_str, sizeof(tmp_srv_str) - 1, "Service 0x%04x", data->service_id);
+    } else {
+        snprintf(tmp_srv_str, sizeof(tmp_srv_str) - 1, "Service 0x%04x (%s)", data->service_id, service_name);
+    }
+
+    char *method_name = someip_lookup_method_name(data->service_id, data->method_id);
+    if (method_name == NULL) {
+        snprintf(tmp_meth_str, sizeof(tmp_meth_str) - 1, "Method 0x%04x %s", data->method_id,
+            val_to_str(data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
+    } else {
+        snprintf(tmp_meth_str, sizeof(tmp_meth_str) - 1, "Method 0x%04x (%s) %s", data->method_id, method_name,
+            val_to_str(data->message_type, someip_msg_type, "Message-Type: 0x%02x"));
+    }
 
     tmp = tick_stat_node(st, tmp_srv_str, src_id, TRUE);
     tick_stat_node(st, tmp_meth_str, tmp, FALSE);

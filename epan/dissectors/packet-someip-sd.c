@@ -836,6 +836,10 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return offset;
 }
 
+/*******************************************
+ **************** Statistics ***************
+ *******************************************/
+
 static void
 someipsd_entries_stats_tree_init(stats_tree *st) {
     st_node_ip_src = stats_tree_create_node(st, st_str_ip_src, 0, STAT_DT_INT, TRUE);
@@ -859,6 +863,10 @@ stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, gchar *ret
     gchar majorver_str[128];
     gchar minorver_str[128];
     gchar eventgrp_str[128];
+    gchar tmp[128];
+
+    char *service_name  = someip_lookup_service_name(data->service_id);
+    char *eventgrp_name = someip_lookup_eventgroup_name(data->service_id, data->eventgroup_id);
 
     stat_number_to_string_with_any(data->service_id, UINT32_MAX, "0x%04x", service_str, sizeof(service_str) - 1);
     stat_number_to_string_with_any(data->instance_id, UINT32_MAX, "0x%04x", instance_str, sizeof(instance_str) - 1);
@@ -868,13 +876,24 @@ stat_create_entry_summary_string(const someip_sd_entries_tap_t *data, gchar *ret
     case SD_ENTRY_FIND_SERVICE:
     case SD_ENTRY_OFFER_SERVICE:
         stat_number_to_string_with_any(data->minor_version, UINT32_MAX, "%d", minorver_str, sizeof(minorver_str) - 1);
-        snprintf(ret, size_limit, "Service %s Version %s.%s Instance %s", service_str, majorver_str, minorver_str, instance_str);
+        if (service_name != NULL) {
+            snprintf(ret, size_limit, "Service %s (%s) Version %s.%s Instance %s", service_str, service_name, majorver_str, minorver_str, instance_str);
+        } else {
+            snprintf(ret, size_limit, "Service %s Version %s.%s Instance %s", service_str, majorver_str, minorver_str, instance_str);
+        }
         break;
 
     case SD_ENTRY_SUBSCRIBE_EVENTGROUP:
     case SD_ENTRY_SUBSCRIBE_EVENTGROUP_ACK:
         stat_number_to_string_with_any(data->eventgroup_id, UINT32_MAX, "0x%04x", eventgrp_str, sizeof(eventgrp_str) - 1);
-        snprintf(ret, size_limit, "Service %s Version %s Instance %s Eventgroup %s", service_str, majorver_str, instance_str, eventgrp_str);
+        if (service_name != NULL) {
+            snprintf(tmp, sizeof(tmp) - 1, "Service %s (%s) Version %s Instance %s Eventgroup %s", service_str, service_name, majorver_str, instance_str, eventgrp_str);
+        } else {
+            snprintf(tmp, sizeof(tmp) - 1, "Service %s Version %s Instance %s Eventgroup %s", service_str, majorver_str, instance_str, eventgrp_str);
+        }
+        if (eventgrp_name != NULL) {
+            snprintf(ret, size_limit, "%s (%s)", tmp, eventgrp_name);
+        }
         break;
     }
 }
@@ -883,14 +902,15 @@ static tap_packet_status
 someipsd_entries_stats_tree_packet(stats_tree *st, packet_info *pinfo, epan_dissect_t *edt _U_, const void *p) {
     DISSECTOR_ASSERT(p);
     const someip_sd_entries_tap_t *data = (const someip_sd_entries_tap_t *)p;
+    static gchar tmp_addr_str[256];
 
-    gchar *src_addr = address_to_str(pinfo->pool, &pinfo->net_src);
-    gchar *dst_addr = address_to_str(pinfo->pool, &pinfo->net_dst);
-
+    snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_src), address_to_name(&pinfo->net_src));
     tick_stat_node(st, st_str_ip_src, 0, FALSE);
-    int src_id = tick_stat_node(st, src_addr, st_node_ip_src, TRUE);
+    int src_id = tick_stat_node(st, tmp_addr_str, st_node_ip_src, TRUE);
+
+    snprintf(tmp_addr_str, sizeof(tmp_addr_str) - 1, "%s (%s)", address_to_str(pinfo->pool, &pinfo->net_dst), address_to_name(&pinfo->net_dst));
     tick_stat_node(st, st_str_ip_dst, 0, FALSE);
-    int dst_id = tick_stat_node(st, dst_addr, st_node_ip_dst, TRUE);
+    int dst_id = tick_stat_node(st, tmp_addr_str, st_node_ip_dst, TRUE);
 
     int tmp_id;
     static gchar tmp_str[128];
