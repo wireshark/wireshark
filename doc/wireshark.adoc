@@ -406,7 +406,7 @@ Network interface names should match one of the names listed in
 "*wireshark -D*" (described above); a number, as reported by
 "*wireshark -D*", can also be used.  If you're using UNIX, "*netstat
  -i*", "*ifconfig -a*" or "*ip link*" might also work to list interface names,
-although not all versions of UNIX support the *-a* flag to *ifconfig*.
+although not all versions of UNIX support the *-a* option to *ifconfig*.
 
 If no interface is specified, *Wireshark* searches the list of
 interfaces, choosing the first non-loopback interface if there are any
@@ -419,6 +419,9 @@ read data from the standard input.  On Windows systems, pipe names must be
 of the form "\\pipe\.\*pipename*".  Data read from pipes must be in
 standard pcapng or pcap format. Pcapng data must have the same
 endianness as the capturing host.
+
+"TCP@<host>:<port>" causes *Wireshark* to attempt to connect to the
+specified port on the specified host and read pcapng or pcap data.
 
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
