@@ -3332,7 +3332,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   proto_tree *flags_tree;
   guint8 oct, e_bit, b_bit, u_bit;
   guint16 stream_id;
-  guint32 tsn, ppid, stream_seq_num = 0;
+  guint32 tsn, rawtsn, ppid, stream_seq_num = 0;
   proto_item *tsn_item = NULL;
   gboolean call_subdissector = FALSE;
   gboolean is_retransmission;
@@ -3376,9 +3376,13 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   b_bit = oct & SCTP_DATA_CHUNK_B_BIT;
   u_bit = oct & SCTP_DATA_CHUNK_U_BIT;
 
-  tsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
-  if((show_relative_tsns) && (ha)) {
-     tsn -= ha->first_tsn;
+  tsn = rawtsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
+  if ((show_relative_tsns) && (ha)) {
+    if (!ha->started) {
+      ha->first_tsn = tsn;
+      ha->started = TRUE;
+    }
+    tsn -= ha->first_tsn;
   }
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "(TSN=%" PRIu32 ") ", tsn);
@@ -3446,7 +3450,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
                              chunk_length - DATA_CHUNK_HEADER_LENGTH, plurality(chunk_length - DATA_CHUNK_HEADER_LENGTH, "", "s"));
   }
 
-  is_retransmission = sctp_tsn(pinfo, chunk_tvb, tsn_item, ha, tsn);
+  is_retransmission = sctp_tsn(pinfo, chunk_tvb, tsn_item, ha, rawtsn);
 
   if (is_idata) {
     header_length = I_DATA_CHUNK_HEADER_LENGTH;
