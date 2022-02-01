@@ -268,6 +268,9 @@ of the form "\\pipe\.\*pipename*".  Data read from pipes must be in
 standard pcapng or pcap format. Pcapng data must have the same
 endianness as the capturing host.
 
+"TCP@<host>:<port>" causes *Dumpcap* to attempt to connect to the
+specified port on the specified host and read pcapng or pcap data.
+
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
 --
