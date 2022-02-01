@@ -75,24 +75,24 @@ Packet capturing is performed with the pcap library.  That library
 supports specifying a filter expression; packets that don't match that
 filter are discarded.  The *-f* option is used to specify a capture
 filter.  The syntax of a capture filter is defined by the pcap library;
-this syntax is different from the read filter syntax described below,
+this syntax is different from the display filter syntax described below,
 and the filtering mechanism is limited in its abilities.
 
-Read filters in *TShark*, which allow you to select which packets are
+Display filters in *TShark*, which allow you to select which packets are
 to be decoded or written to a file, are very powerful; more fields are
 filterable in *TShark* than in other protocol analyzers, and the syntax
 you can use to create your filters is richer.  As *TShark* progresses,
-expect more and more protocol fields to be allowed in read filters.
-Read filters use the same syntax as display and color filters in
-*Wireshark*; a read filter is specified with the *-R* option.
+expect more and more protocol fields to be allowed in display filters.
+Display filters use the same syntax as display and color filters in
+*Wireshark*; a display filter is specified with the *-Y* option.
 
-Read filters can be specified when capturing or when reading from a
+Display filters can be specified when capturing or when reading from a
 capture file.  Note that capture filters are much more efficient
-than read filters, and it may be more difficult for *TShark* to keep up
-with a busy network if a read filter is specified for a live capture, so
-you might be more likely to lose packets if you're using a read filter.
+than display filters, and it may be more difficult for *TShark* to keep up
+with a busy network if a display filter is specified for a live capture, so
+you might be more likely to lose packets if you're using a display filter.
 
-A capture or read filter can either be specified with the *-f* or *-R*
+A capture or display filter can either be specified with the *-f* or *-Y*
 option, respectively, in which case the entire filter expression must be
 specified as a single argument (which means that if it contains spaces,
 it must be quoted), or can be specified with command-line arguments
@@ -100,13 +100,14 @@ after the option arguments, in which case all the arguments after the
 filter arguments are treated as a filter expression.  If the filter is
 specified with command-line arguments after the option arguments, it's a
 capture filter if a capture is being done (i.e., if no *-r* option was
-specified) and a read filter if a capture file is being read (i.e., if a
+specified) and a display filter if a capture file is being read (i.e., if a
 *-r* option was specified).
 
 If the *-w* option is specified when capturing packets or reading from
 a capture file, *TShark* does not display packets on the standard
 output.  Instead, it writes the packets to a capture file with the name
-specified by the *-w* option.
+specified by the *-w* option.  Note that display filters are currently
+not supported when capturing and saving the captured packets.
 
 If you want to write the decoded form of packets to a file, run
 *TShark* without the *-w* option, and redirect its standard output to
