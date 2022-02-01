@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/packet.h>
 #include "packet-amp.h"
 
@@ -117,6 +118,8 @@ static int hf_amp_nack = -1;
 static int hf_amp_ack = 0;
 static int hf_amp_opcode = -1;
 static int hf_amp_rx_name = -1;
+
+static expert_field ei_amp_cbor_malformed = EI_INIT;
 
 static const value_string opcode[] = {
     { 0, "Register Agent" },
@@ -345,7 +348,7 @@ static cborObj cbor_info(tvbuff_t *tvb, int offset)
 }
 
 void
-dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, int offset)
 {
     guint64 messages = 0;
     unsigned int i=0;
@@ -392,7 +395,6 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
     offset += myObj.size;
 
     for ( i=1; i<messages; i++ ) {
-
         // Get the bytestring object that gives the total length of the AMP chunk
         myObj = cbor_info(tvb, offset);
         offset += myObj.size; // Note: myObj.uint is the length of the amp chunk; used later
@@ -408,6 +410,7 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_bitmask(amp_message_tree, tvb, offset, hf_amp_message_header, ett_amp_message_header,
                                amp_message_header, ENC_BIG_ENDIAN);
         offset += 1;
+        int old_offset;
 
         switch ( ampHeader & 0x07)
         {
@@ -419,7 +422,12 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
             offset += tmpObj.size;
             proto_tree_add_item(amp_register_tree, hf_amp_agent_name, tvb, offset,
                                 (int) tmpObj.uint, ENC_ASCII|ENC_NA);
+            old_offset = offset;
             offset += (int) tmpObj.uint;
+            if (offset < old_offset) {
+                proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                return;
+            }
             break;
 
         case 0x01: // Report set
@@ -438,7 +446,12 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
                 offset += tmpObj2.size;
                 proto_tree_add_item(amp_report_set_tree, hf_amp_rx_name, tvb, offset,
                                     (int) tmpObj2.uint, ENC_ASCII|ENC_NA);
+                old_offset = offset;
                 offset += (int) tmpObj2.uint;
+                if (offset < old_offset) {
+                    proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                    return;
+                }
             }
 
             // How many reports?
@@ -487,7 +500,12 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
                     // ARI is NOT Literal
                     proto_tree_add_item(amp_report_tree, hf_amp_report_bytestring, tvb, offset+1, (int) tmpObj3.uint-1, 0x00);
                 }
+                old_offset = offset;
                 offset += (int) tmpObj3.uint;
+                if (offset < old_offset) {
+                    proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                    return;
+                }
 
                 if ( reportHasTimestamp )
                 {
@@ -523,6 +541,10 @@ dissect_amp_as_subtree(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
                 offset += tmpObj3.size;
                 report_types_offset = offset;
                 offset += (int) tmpObj3.uint;
+                if (offset < report_types_offset) {
+                    proto_tree_add_expert(amp_tree, pinfo, &ei_amp_cbor_malformed, tvb, offset, -1);
+                    return;
+                }
 
                 // TNVC data items
                 for ( k=0; k<numTNVCEntries-2; k++ ) {
@@ -777,7 +799,9 @@ proto_register_amp(void)
         &ett_amp_proto
     };
 
-    // expert_module_t* expert_amp;
+    static ei_register_info ei[] = {
+        { &ei_amp_cbor_malformed, { "amp.cbor.malformed", PI_MALFORMED, PI_ERROR, "Malformed CBOR object", EXPFILL }},
+    };
 
     /* Register the protocol name and description */
     proto_amp = proto_register_protocol("AMP", "AMP", "amp");
@@ -785,8 +809,8 @@ proto_register_amp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_amp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    // expert_amp = expert_register_protocol(proto_amp);
-    // expert_register_field_array(expert_amp, ei, array_length(ei));
+    expert_module_t* expert_amp = expert_register_protocol(proto_amp);
+    expert_register_field_array(expert_amp, ei, array_length(ei));
 
     amp_handle = register_dissector("amp", dissect_amp, proto_amp);
 }
