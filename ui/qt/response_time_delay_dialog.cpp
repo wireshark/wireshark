@@ -17,7 +17,7 @@
 #include <QTreeWidget>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 static QHash<const QString, register_rtd_t *> cfg_str_to_rtd_;
 
@@ -31,7 +31,7 @@ rtd_init(const char *args, void*) {
         if (args_l.length() > 2) {
             filter = QStringList(args_l.mid(2)).join(",");
         }
-        wsApp->emitTapParameterSignal(rtd, filter, NULL);
+        mainApp->emitTapParameterSignal(rtd, filter, NULL);
     }
 }
 }

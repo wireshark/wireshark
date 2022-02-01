@@ -23,7 +23,7 @@
 #include "capture_filter_syntax_worker.h"
 #include "filter_dialog.h"
 #include <ui/qt/widgets/stock_icon_tool_button.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QComboBox>
 #include <QCompleter>
@@ -221,8 +221,8 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     syntax_thread_ = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
     syntax_worker_->moveToThread(syntax_thread_);
-    connect(wsApp, &WiresharkApplication::appInitialized, this, &CaptureFilterEdit::updateBookmarkMenu);
-    connect(wsApp, &WiresharkApplication::captureFilterListChanged, this, &CaptureFilterEdit::updateBookmarkMenu);
+    connect(mainApp, &MainApplication::appInitialized, this, &CaptureFilterEdit::updateBookmarkMenu);
+    connect(mainApp, &MainApplication::captureFilterListChanged, this, &CaptureFilterEdit::updateBookmarkMenu);
     connect(syntax_thread_, &QThread::started, this,
             static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
     connect(syntax_worker_, &CaptureFilterSyntaxWorker::syntaxResult,
@@ -331,7 +331,7 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
         actions_->checkedAction()->setChecked(false);
 
     setSyntaxState(Busy);
-    wsApp->popStatus(WiresharkApplication::FilterSyntax);
+    mainApp->popStatus(MainApplication::FilterSyntax);
     setToolTip(QString());
     bool empty = filter.isEmpty();
 
@@ -432,7 +432,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
     if (filter.compare(text()) == 0) { // The user hasn't changed the filter
         setSyntaxState((SyntaxState)state);
         if (!err_msg.isEmpty()) {
-            wsApp->pushStatus(WiresharkApplication::FilterSyntax, err_msg);
+            mainApp->pushStatus(MainApplication::FilterSyntax, err_msg);
             setToolTip(err_msg);
         }
     }

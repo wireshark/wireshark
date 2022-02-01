@@ -24,7 +24,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 /* Needed for the meta type declaration of QList<int>* */
 #include <ui/qt/models/sparkline_delegate.h>
@@ -45,8 +45,8 @@ InterfaceTreeModel::InterfaceTreeModel(QObject *parent) :
     ,stat_cache_(NULL)
 #endif
 {
-    connect(wsApp, &WiresharkApplication::appInitialized, this, &InterfaceTreeModel::interfaceListChanged);
-    connect(wsApp, &WiresharkApplication::localInterfaceListChanged, this, &InterfaceTreeModel::interfaceListChanged);
+    connect(mainApp, &MainApplication::appInitialized, this, &InterfaceTreeModel::interfaceListChanged);
+    connect(mainApp, &MainApplication::localInterfaceListChanged, this, &InterfaceTreeModel::interfaceListChanged);
 }
 
 InterfaceTreeModel::~InterfaceTreeModel(void)

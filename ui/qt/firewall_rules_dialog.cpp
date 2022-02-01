@@ -22,7 +22,7 @@
 #include "wsutil/file_util.h"
 #include "wsutil/utf8_entities.h"
 
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
@@ -172,7 +172,7 @@ void FirewallRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
                 .arg(firewall_product_name(prod_));
         QByteArray file_name = WiresharkFileDialog::getSaveFileName(this,
                                                  save_title,
-                                                 wsApp->lastOpenDir().canonicalPath(),
+                                                 mainApp->lastOpenDir().canonicalPath(),
                                                  tr("Text file (*.txt);;All Files (" ALL_FILES_WILDCARD ")")
                                                  ).toUtf8();
         if (file_name.length() > 0) {
@@ -189,18 +189,18 @@ void FirewallRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             }
 
             /* Save the directory name for future file dialogs. */
-            wsApp->setLastOpenDirFromFilename(file_name);
+            mainApp->setLastOpenDirFromFilename(file_name);
         }
     } else if (button == ui->buttonBox->button(QDialogButtonBox::Apply)) {
         if (ui->textBrowser->textCursor().hasSelection()) {
             ui->textBrowser->copy();
         } else {
-            wsApp->clipboard()->setText(ui->textBrowser->toPlainText());
+            mainApp->clipboard()->setText(ui->textBrowser->toPlainText());
         }
     }
 }
 
 void FirewallRulesDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_FIREWALL_DIALOG);
+    mainApp->helpTopicAction(HELP_FIREWALL_DIALOG);
 }

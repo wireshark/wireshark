@@ -12,10 +12,11 @@
 LogsharkApplication *lsApp = NULL;
 
 LogsharkApplication::LogsharkApplication(int &argc,  char **argv) :
-    WiresharkApplication(argc, argv)
+    MainApplication(argc, argv)
 {
     lsApp = this;
     setApplicationName("Logshark");
+    setDesktopFileName(QStringLiteral("org.wireshark.Logshark"));
 }
 
 LogsharkApplication::~LogsharkApplication()

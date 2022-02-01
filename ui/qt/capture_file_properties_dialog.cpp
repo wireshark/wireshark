@@ -19,7 +19,7 @@
 #include "ui/version_info.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QPushButton>
 #include <QScrollBar>
@@ -604,7 +604,7 @@ void CaptureFilePropertiesDialog::changeEvent(QEvent* event)
 
 void CaptureFilePropertiesDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_STATS_SUMMARY_DIALOG);
+    mainApp->helpTopicAction(HELP_STATS_SUMMARY_DIALOG);
 }
 
 void CaptureFilePropertiesDialog::on_buttonBox_accepted()

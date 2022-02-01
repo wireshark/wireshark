@@ -16,7 +16,7 @@
 #include "ui/recent.h"
 
 #include "progress_frame.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QCheckBox>
 #include <QClipboard>
@@ -70,8 +70,8 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
         nanosecond_timestamps_ = true;
     }
 
-    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(currentTabChanged()));
-    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateWidgets()));
+    connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(currentTabChanged()));
+    connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateWidgets()));
     connect(ui->trafficTableTabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(currentTabChanged()));
     connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
@@ -317,7 +317,7 @@ void TrafficTableDialog::copyAsCsv()
         }
         stream << rdsl.join(",") << '\n';
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 void TrafficTableDialog::copyAsYaml()
@@ -336,7 +336,7 @@ void TrafficTableDialog::copyAsYaml()
             stream << " - " << v.toString() << '\n';
         }
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 TrafficTableTreeWidget::TrafficTableTreeWidget(QWidget *parent, register_ct_t *table) :
@@ -348,7 +348,7 @@ TrafficTableTreeWidget::TrafficTableTreeWidget(QWidget *parent, register_ct_t *t
     setRootIsDecorated(false);
     sortByColumn(0, Qt::AscendingOrder);
 
-    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateItemsForSettingChange()));
+    connect(mainApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateItemsForSettingChange()));
 }
 
 QList<QVariant> TrafficTableTreeWidget::rowData(int row) const

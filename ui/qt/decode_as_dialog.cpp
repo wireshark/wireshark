@@ -20,7 +20,7 @@
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <ui/qt/utils/variant_pointer.h>
 
@@ -63,7 +63,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    setWindowTitle(wsApp->windowTitleString(tr("Decode As…")));
+    setWindowTitle(mainApp->windowTitleString(tr("Decode As…")));
 
     QString abs_path = gchar_free_to_qstring(get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE));
     if (file_exists(abs_path.toUtf8().constData())) {
@@ -200,7 +200,7 @@ void DecodeAsDialog::on_clearToolButton_clicked()
 void DecodeAsDialog::applyChanges()
 {
     model_->applyChanges();
-    wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
+    mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
 }
 
 void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
@@ -223,7 +223,7 @@ void DecodeAsDialog::on_buttonBox_clicked(QAbstractButton *button)
         }
         break;
     case QDialogButtonBox::Help:
-        wsApp->helpTopicAction(HELP_DECODE_AS_SHOW_DIALOG);
+        mainApp->helpTopicAction(HELP_DECODE_AS_SHOW_DIALOG);
         break;
     default:
         break;

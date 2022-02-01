@@ -17,7 +17,7 @@
 
 #include <packet_list.h>
 
-#include <wireshark_application.h>
+#include <main_application.h>
 #include <epan/column.h>
 #include <ui/recent.h>
 #include <ui/preference_utils.h>
@@ -98,7 +98,7 @@ void PacketListHeader::dropEvent(QDropEvent *event)
             event->setDropAction(Qt::CopyAction);
             event->accept();
 
-            MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+            MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
             if (mw)
             {
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0 ,0)

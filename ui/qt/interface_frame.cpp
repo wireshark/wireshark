@@ -19,7 +19,7 @@
 
 #include "ui/qt/interface_frame.h"
 #include <ui/qt/simple_dialog.h>
-#include <ui/qt/wireshark_application.h>
+#include <ui/qt/main_application.h>
 
 #include <ui/qt/models/interface_tree_model.h>
 #include <ui/qt/models/sparkline_delegate.h>
@@ -106,8 +106,8 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
     ui->interfaceTree->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->interfaceTree, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(interfaceListChanged()));
-    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(interfaceListChanged()));
+    connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
 
     connect(ui->interfaceTree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
             this, SLOT(interfaceTreeSelectionChanged(const QItemSelection &, const QItemSelection &)));
@@ -305,7 +305,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
         // used if __APPLE__ is defined, so that it reflects the
         // new message text.
         //
-        QString install_chmodbpf_path = wsApp->applicationDirPath() + "/../Resources/Extras/Install ChmodBPF.pkg";
+        QString install_chmodbpf_path = mainApp->applicationDirPath() + "/../Resources/Extras/Install ChmodBPF.pkg";
         ui->warningLabel->setText(tr(
             "<p>"
             "You don't have permission to capture on local interfaces."

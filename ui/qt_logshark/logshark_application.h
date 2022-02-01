@@ -10,9 +10,9 @@
 #ifndef LOGSHARK_APPLICATION_H
 #define LOGSHARK_APPLICATION_H
 
-#include <wireshark_application.h>
+#include <main_application.h>
 
-class LogsharkApplication : public WiresharkApplication
+class LogsharkApplication : public MainApplication
 {
 public:
     explicit LogsharkApplication(int &argc,  char **argv);

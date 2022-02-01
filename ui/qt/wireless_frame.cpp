@@ -22,7 +22,7 @@
 #include "ui/ws_ui_util.h"
 #include <wsutil/utf8_entities.h>
 #include <wsutil/802_11-utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QProcess>
 #include <QAbstractItemView>
@@ -71,7 +71,7 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
     ui->fcsFilterFrame->setVisible(ws80211_has_fcs_filter());
 
     updateInterfaceList();
-    connect(wsApp, &WiresharkApplication::localInterfaceEvent,
+    connect(mainApp, &MainApplication::localInterfaceEvent,
             this, &WirelessFrame::handleInterfaceEvent);
 }
 
@@ -346,7 +346,7 @@ void WirelessFrame::setInterfaceInfo()
     }
 
     if (!err_str.isEmpty()) {
-        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err_str);
+        mainApp->pushStatus(MainApplication::TemporaryStatus, err_str);
     }
 
     getInterfaceInfo();

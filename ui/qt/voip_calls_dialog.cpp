@@ -22,7 +22,7 @@
 #include "rtp_player_dialog.h"
 #include "sequence_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <ui/qt/models/voip_calls_info_model.h>
 
 #include <QClipboard>
@@ -701,7 +701,7 @@ void VoipCallsDialog::copyAsCSV()
         }
         stream << rdsl.join(",") << '\n';
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 void VoipCallsDialog::copyAsYAML()
@@ -715,7 +715,7 @@ void VoipCallsDialog::copyAsYAML()
             stream << " - " << v.toString() << '\n';
         }
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 void VoipCallsDialog::on_buttonBox_clicked(QAbstractButton *button)
@@ -759,7 +759,7 @@ void VoipCallsDialog::on_displayFilterCheckBox_toggled(bool checked)
 
 void VoipCallsDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_TELEPHONY_VOIP_CALLS_DIALOG);
+    mainApp->helpTopicAction(HELP_TELEPHONY_VOIP_CALLS_DIALOG);
 }
 
 void VoipCallsDialog::switchTimeOfDay()

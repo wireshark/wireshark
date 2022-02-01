@@ -14,7 +14,7 @@
 #include <ui/qt/models/pref_models.h>
 #include <ui_font_color_preferences_frame.h>
 #include <ui/qt/utils/color_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <functional>
 #include <QFontDialog>
@@ -70,7 +70,7 @@ void FontColorPreferencesFrame::showEvent(QShowEvent *)
     QString pangram = QString(font_pangrams_[g_rand_int_range(rand_state, 0, num_font_pangrams_)]) + " 0123456789";
     ui->fontSampleLineEdit->setText(pangram);
     ui->fontSampleLineEdit->setCursorPosition(0);
-    ui->fontSampleLineEdit->setMinimumWidth(wsApp->monospaceTextSize(pangram.toUtf8().constData()) + wsApp->monospaceTextSize(" "));
+    ui->fontSampleLineEdit->setMinimumWidth(mainApp->monospaceTextSize(pangram.toUtf8().constData()) + mainApp->monospaceTextSize(" "));
     g_rand_free(rand_state);
 
     updateWidgets();
@@ -317,7 +317,7 @@ void FontColorPreferencesFrame::colorChanged(pref_t *pref, const QColor &cc)
 void FontColorPreferencesFrame::on_fontPushButton_clicked()
 {
     bool ok;
-    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, wsApp->windowTitleString(tr("Font")));
+    QFont new_font = QFontDialog::getFont(&ok, cur_font_, this, mainApp->windowTitleString(tr("Font")));
     if (ok) {
         prefs_set_string_value(pref_qt_gui_font_name_, new_font.toString().toStdString().c_str(), pref_stashed);
         cur_font_ = new_font;

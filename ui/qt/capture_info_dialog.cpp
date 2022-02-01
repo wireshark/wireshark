@@ -21,7 +21,7 @@
 #include "capture_info_dialog.h"
 #include "ui_capture_info_dialog.h"
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include "ui/qt/models/sparkline_delegate.h"
 
@@ -92,7 +92,7 @@ CaptureInfoDialog::CaptureInfoDialog(struct _capture_info *cap_info, struct _cap
 {
     ui->setupUi(this);
     loadGeometry();
-    setWindowTitle(wsApp->windowTitleString(tr("Capture Information")));
+    setWindowTitle(mainApp->windowTitleString(tr("Capture Information")));
 
     QPushButton *button = ui->buttonBox->button(QDialogButtonBox::Abort);
     button->setText(tr("Stop Capture"));

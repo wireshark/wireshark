@@ -18,7 +18,7 @@
 #include "capture_preferences_frame.h"
 #include <ui/qt/models/pref_models.h>
 #include <ui_capture_preferences_frame.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QSpacerItem>
 
@@ -76,7 +76,7 @@ void CapturePreferencesFrame::updateWidgets()
          * see whether any have showed up (or privileges have changed
          * to allow us to access them).
          */
-        wsApp->refreshLocalInterfaces();
+        mainApp->refreshLocalInterfaces();
     }
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);

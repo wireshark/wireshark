@@ -18,7 +18,7 @@
 #include <ui/preference_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QAbstractItemModel>
 
@@ -51,7 +51,7 @@ void InterfaceSortFilterModel::setStoreOnChange(bool storeOnChange)
     _storeOnChange = storeOnChange;
     if (storeOnChange)
     {
-        connect(wsApp, &WiresharkApplication::preferencesChanged, this, &InterfaceSortFilterModel::resetPreferenceData);
+        connect(mainApp, &MainApplication::preferencesChanged, this, &InterfaceSortFilterModel::resetPreferenceData);
         resetPreferenceData();
     }
 }

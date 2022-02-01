@@ -9,7 +9,7 @@
 
 #include <ui/qt/widgets/follow_stream_text.h>
 
-#include <wireshark_application.h>
+#include <main_application.h>
 
 #include <QMouseEvent>
 #include <QTextCursor>
@@ -25,7 +25,7 @@ FollowStreamText::FollowStreamText(QWidget *parent) :
     setMouseTracking(true);
 //    setMaximumBlockCount(1);
     QTextDocument *text_doc = document();
-    text_doc->setDefaultFont(wsApp->monospaceFont());
+    text_doc->setDefaultFont(mainApp->monospaceFont());
 }
 
 void FollowStreamText::mouseMoveEvent(QMouseEvent *event)

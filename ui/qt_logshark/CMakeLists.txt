@@ -196,6 +196,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/lte_mac_statistics_dialog.h
 	../qt/lte_rlc_graph_dialog.h
 	../qt/lte_rlc_statistics_dialog.h
+	../qt/main_application.h
 	../qt/main_status_bar.h
 	../qt/main_window_preferences_frame.h
 	../qt/main_window.h
@@ -251,7 +252,6 @@ set(WIRESHARK_QT_HEADERS
 	../qt/voip_calls_dialog.h
 	../qt/welcome_page.h
 	../qt/wireless_frame.h
-	../qt/wireshark_application.h
 	../qt/wireshark_dialog.h
 	../qt/wlan_statistics_dialog.h
 	../qt/${WIRESHARK_CUSTOM_QT_HEADERS}
@@ -444,6 +444,7 @@ set(WIRESHARK_QT_SRC
 	../qt/lte_mac_statistics_dialog.cpp
 	../qt/lte_rlc_graph_dialog.cpp
 	../qt/lte_rlc_statistics_dialog.cpp
+	../qt/main_application.cpp
 	../qt/main_status_bar.cpp
 	../qt/main_window_layout.cpp
 	../qt/main_window_preferences_frame.cpp
@@ -500,7 +501,6 @@ set(WIRESHARK_QT_SRC
 	../qt/voip_calls_dialog.cpp
 	../qt/welcome_page.cpp
 	../qt/wireless_frame.cpp
-	../qt/wireshark_application.cpp
 	../qt/wireshark_dialog.cpp
 	../qt/${WIRESHARK_CUSTOM_QT_SRCS}
 )
@@ -671,11 +671,11 @@ endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
 
 set(LOGSHARK_QT_QRC
-	../../image/about.qrc
-	../../image/languages/languages.qrc
-	../../image/layout.qrc
-	../../image/stock_icons.qrc
-	../../image/wsicon.qrc
+	../../resources/about.qrc
+	../../resources/languages/languages.qrc
+	../../resources/layout.qrc
+	../../resources/stock_icons.qrc
+	../../resources/wsicon.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 

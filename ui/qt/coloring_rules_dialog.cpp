@@ -20,7 +20,8 @@
 #include "wsutil/filesystem.h"
 #include "epan/dfilter/dfilter.h"
 
-#include "wireshark_application.h"
+#include "main_application.h"
+
 #include "ui/qt/utils/qt_ui_utils.h"
 #include "ui/qt/widgets/copy_from_profile_button.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
@@ -50,7 +51,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 4 / 5);
 
-    setWindowTitle(wsApp->windowTitleString(tr("Coloring Rules %1").arg(get_profile_name())));
+    setWindowTitle(mainApp->windowTitleString(tr("Coloring Rules %1").arg(get_profile_name())));
 
     ui->coloringRulesTreeView->setModel(&colorRuleModel_);
     ui->coloringRulesTreeView->setItemDelegate(&colorRuleDelegate_);
@@ -433,8 +434,8 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
     QString err;
 
     if (button == import_button_) {
-        QString file_name = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Coloring Rules")),
-                                                         wsApp->lastOpenDir().path());
+        QString file_name = WiresharkFileDialog::getOpenFileName(this, mainApp->windowTitleString(tr("Import Coloring Rules")),
+                                                         mainApp->lastOpenDir().path());
         if (!file_name.isEmpty()) {
             if (!colorRuleModel_.importColors(file_name, err)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
@@ -452,9 +453,9 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
         if (num_items < 1)
             return;
 
-        QString caption = wsApp->windowTitleString(tr("Export %1 Coloring Rules").arg(num_items));
+        QString caption = mainApp->windowTitleString(tr("Export %1 Coloring Rules").arg(num_items));
         QString file_name = WiresharkFileDialog::getSaveFileName(this, caption,
-                                                         wsApp->lastOpenDir().path());
+                                                         mainApp->lastOpenDir().path());
         if (!file_name.isEmpty()) {
             if (!colorRuleModel_.exportColors(file_name, err)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
@@ -473,5 +474,5 @@ void ColoringRulesDialog::on_buttonBox_accepted()
 
 void ColoringRulesDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_COLORING_RULES_DIALOG);
+    mainApp->helpTopicAction(HELP_COLORING_RULES_DIALOG);
 }

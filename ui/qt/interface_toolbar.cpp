@@ -14,7 +14,7 @@
 #include "interface_toolbar.h"
 #include <ui/qt/widgets/interface_toolbar_lineedit.h>
 #include "simple_dialog.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <ui_interface_toolbar.h>
 
 #include "capture_opts.h"
@@ -554,7 +554,7 @@ void InterfaceToolbar::controlReceived(QString ifname, int num, int command, QBy
             break;
 
         case commandStatusMessage:
-            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, payload);
+            mainApp->pushStatus(MainApplication::TemporaryStatus, payload);
             break;
 
         case commandInformationMessage:

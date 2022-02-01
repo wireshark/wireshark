@@ -739,7 +739,7 @@ private slots:
 
     QString findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse);
 
-    friend WiresharkApplication;
+    friend class MainApplication;
 };
 
 #endif // MAINWINDOW_H

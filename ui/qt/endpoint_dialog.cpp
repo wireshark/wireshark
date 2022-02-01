@@ -24,7 +24,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QCheckBox>
 #include <QDesktopServices>
@@ -293,12 +293,12 @@ void EndpointDialog::saveMap()
 
 void EndpointDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_STATS_ENDPOINTS_DIALOG);
+    mainApp->helpTopicAction(HELP_STATS_ENDPOINTS_DIALOG);
 }
 
 void init_endpoint_table(struct register_ct* ct, const char *filter)
 {
-    wsApp->emitStatCommandSignal("Endpoints", filter, GINT_TO_POINTER(get_conversation_proto_id(ct)));
+    mainApp->emitStatCommandSignal("Endpoints", filter, GINT_TO_POINTER(get_conversation_proto_id(ct)));
 }
 
 // EndpointTreeWidgetItem

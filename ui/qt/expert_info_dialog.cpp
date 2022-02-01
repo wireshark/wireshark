@@ -17,7 +17,7 @@
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QAction>
 #include <QHash>
@@ -321,14 +321,14 @@ void ExpertInfoDialog::on_searchLineEdit_textChanged(const QString &search_re)
 
 void ExpertInfoDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_EXPERT_INFO_DIALOG);
+    mainApp->helpTopicAction(HELP_EXPERT_INFO_DIALOG);
 }
 
 // Stat command + args
 
 static void
 expert_info_init(const char *, void*) {
-    wsApp->emitStatCommandSignal("ExpertInfo", NULL, NULL);
+    mainApp->emitStatCommandSignal("ExpertInfo", NULL, NULL);
 }
 
 static stat_tap_ui expert_info_stat_ui = {

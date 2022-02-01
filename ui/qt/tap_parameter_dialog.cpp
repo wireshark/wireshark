@@ -41,7 +41,7 @@
 
 #include "progress_frame.h"
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QClipboard>
 #include <QContextMenuEvent>
@@ -123,10 +123,10 @@ void TapParameterDialog::registerDialog(const QString title, const char *cfg_abb
     QString cfg_str = cfg_abbr;
     cfg_str_to_creator_[cfg_str] = creator;
 
-    QAction *tpd_action = new QAction(title, wsApp);
+    QAction *tpd_action = new QAction(title, mainApp);
     tpd_action->setObjectName(action_name_);
     tpd_action->setData(cfg_str);
-    wsApp->addDynamicMenuGroupItem(group, tpd_action);
+    mainApp->addDynamicMenuGroupItem(group, tpd_action);
 }
 
 TapParameterDialog *TapParameterDialog::showTapParameterStatistics(QWidget &parent, CaptureFile &cf, const QString cfg_str, const QString arg, void *)
@@ -533,7 +533,7 @@ void TapParameterDialog::on_applyFilterButton_clicked()
 
 void TapParameterDialog::on_actionCopyToClipboard_triggered()
 {
-    wsApp->clipboard()->setText(getTreeAsString(ST_FORMAT_PLAIN));
+    mainApp->clipboard()->setText(getTreeAsString(ST_FORMAT_PLAIN));
 }
 
 void TapParameterDialog::on_actionSaveAs_triggered()
@@ -548,7 +548,7 @@ void TapParameterDialog::on_actionSaveAs_triggered()
 #ifdef Q_OS_WIN
     HANDLE da_ctx = set_thread_per_monitor_v2_awareness();
 #endif
-    QFileDialog SaveAsDialog(this, wsApp->windowTitleString(tr("Save Statistics As…")),
+    QFileDialog SaveAsDialog(this, mainApp->windowTitleString(tr("Save Statistics As…")),
                                                             get_last_open_dir());
     SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
                                     "Comma separated values (*.csv);;"
@@ -608,6 +608,6 @@ void TapParameterDialog::on_actionSaveAs_triggered()
 void TapParameterDialog::on_buttonBox_helpRequested()
 {
     if (help_topic_ > 0) {
-        wsApp->helpTopicAction((topic_action_e) help_topic_);
+        mainApp->helpTopicAction((topic_action_e) help_topic_);
     }
 }

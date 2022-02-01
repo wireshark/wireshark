@@ -25,7 +25,7 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 extern "C" {
 
@@ -78,7 +78,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     Q_ASSERT(cf);
 
     pd_ui_->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(tr("Print")));
+    setWindowTitle(mainApp->windowTitleString(tr("Print")));
 
     pd_ui_->previewLayout->insertWidget(0, preview_, Qt::AlignTop);
 
@@ -88,7 +88,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     // XXX Make these configurable
     header_font_.setFamily("Times");
     header_font_.setPointSizeF(header_font_.pointSizeF() * 0.8);
-    packet_font_ = wsApp->monospaceFont();
+    packet_font_ = mainApp->monospaceFont();
     packet_font_.setPointSizeF(packet_font_.pointSizeF() * 0.8);
 
     memset(&print_args_, 0, sizeof(print_args_));
@@ -317,7 +317,7 @@ void PrintDialog::checkValidity()
 
 void PrintDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_PRINT_DIALOG);
+    mainApp->helpTopicAction(HELP_PRINT_DIALOG);
 }
 
 void PrintDialog::on_buttonBox_clicked(QAbstractButton *button)

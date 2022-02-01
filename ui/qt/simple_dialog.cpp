@@ -20,7 +20,7 @@
 #include <wsutil/wslog.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <functional>
 #include <QCheckBox>
@@ -96,7 +96,7 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
     va_list ap;
 
     va_start(ap, msg_format);
-    SimpleDialog sd(wsApp->mainWindow(), type, btn_mask, msg_format, ap);
+    SimpleDialog sd(mainApp->mainWindow(), type, btn_mask, msg_format, ap);
     va_end(ap);
 
     sd.exec();
@@ -109,7 +109,7 @@ simple_dialog_async(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...
     va_list ap;
 
     va_start(ap, msg_format);
-    SimpleDialog sd(wsApp->mainWindow(), type, btn_mask, msg_format, ap);
+    SimpleDialog sd(mainApp->mainWindow(), type, btn_mask, msg_format, ap);
     va_end(ap);
 
     sd.show();
@@ -131,7 +131,7 @@ simple_message_box(ESD_TYPE_E type, gboolean *notagain,
     va_list ap;
 
     va_start(ap, msg_format);
-    SimpleDialog sd(wsApp->mainWindow(), type, ESD_BTN_OK, msg_format, ap);
+    SimpleDialog sd(mainApp->mainWindow(), type, ESD_BTN_OK, msg_format, ap);
     va_end(ap);
 
     sd.setDetailedText(secondary_msg);
@@ -164,7 +164,7 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
         exit(0);
 #endif
 
-    SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
+    SimpleDialog sd(mainApp->mainWindow(), ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
     sd.show();
 }
 
@@ -181,7 +181,7 @@ vsimple_warning_message_box(const char *msg_format, va_list ap)
         exit(0);
 #endif
 
-    SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_WARN, ESD_BTN_OK, msg_format, ap);
+    SimpleDialog sd(mainApp->mainWindow(), ESD_TYPE_WARN, ESD_BTN_OK, msg_format, ap);
     sd.show();
 }
 
@@ -231,7 +231,7 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
         return;
     }
 
-    if (!parent || !wsApp->isInitialized() || wsApp->isReloadingLua()) {
+    if (!parent || !mainApp->isInitialized() || mainApp->isReloadingLua()) {
         message_queue_ << msg_pair;
         if (type > max_severity_) {
             max_severity_ = type;
@@ -299,7 +299,7 @@ void SimpleDialog::displayQueuedMessages(QWidget *parent)
         return;
     }
 
-    QMessageBox mb(parent ? parent : wsApp->mainWindow());
+    QMessageBox mb(parent ? parent : mainApp->mainWindow());
 
     switch(max_severity_) {
     case ESD_TYPE_ERROR:

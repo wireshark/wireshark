@@ -17,7 +17,7 @@
 #include "compiled_filter_output.h"
 #include "manage_interfaces_dialog.h"
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include "extcap.h"
 
@@ -161,7 +161,7 @@ public:
     }
 
     void setApplicable(int column, bool applicable = false) {
-        QPalette palette = wsApp->palette();
+        QPalette palette = mainApp->palette();
 
         if (applicable) {
             setText(column, QString());
@@ -181,7 +181,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     loadGeometry();
-    setWindowTitle(wsApp->windowTitleString(tr("Capture Options")));
+    setWindowTitle(mainApp->windowTitleString(tr("Capture Options")));
 
     stat_timer_ = NULL;
     stat_cache_ = NULL;
@@ -230,7 +230,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     connect(&interface_item_delegate_, SIGNAL(filterChanged(QString)),
             this, SIGNAL(captureFilterTextEdited(QString)));
     connect(this, SIGNAL(ifsChanged()), this, SLOT(refreshInterfaceList()));
-    connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
+    connect(mainApp, SIGNAL(localInterfaceListChanged()), this, SLOT(updateLocalInterfaces()));
     connect(ui->browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
     connect(ui->interfaceTree, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(itemClicked(QTreeWidgetItem*,int)));
     connect(ui->interfaceTree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*)));
@@ -635,7 +635,7 @@ void CaptureOptionsDialog::on_buttonBox_rejected()
 void CaptureOptionsDialog::on_buttonBox_helpRequested()
 {
     // Probably the wrong URL.
-    wsApp->helpTopicAction(HELP_CAPTURE_OPTIONS_DIALOG);
+    mainApp->helpTopicAction(HELP_CAPTURE_OPTIONS_DIALOG);
 }
 
 void CaptureOptionsDialog::updateInterfaces()

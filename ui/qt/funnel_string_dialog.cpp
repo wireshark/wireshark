@@ -14,7 +14,7 @@
 #include <QLineEdit>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 // Helper object used for sending close signal to open dialogs from a C function
 static FunnelStringDialogHelper dialog_helper_;
@@ -28,7 +28,7 @@ FunnelStringDialog::FunnelStringDialog(QWidget *parent, const QString title, con
     dialog_cb_data_free_(dialog_data_free_cb)
 {
     ui->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(title));
+    setWindowTitle(mainApp->windowTitleString(title));
     int one_em = fontMetrics().height();
 
     int row = 0;

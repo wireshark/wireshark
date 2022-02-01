@@ -15,7 +15,7 @@
 
 #include <QTreeWidget>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 // To do:
 // - Hide rows with zero counts.
@@ -32,7 +32,7 @@ simple_stat_init(const char *args, void*) {
         if (args_l.length() > 2) {
             filter = QStringList(args_l.mid(2)).join(",");
         }
-        wsApp->emitTapParameterSignal(simple_stat, filter, NULL);
+        mainApp->emitTapParameterSignal(simple_stat, filter, NULL);
     }
 }
 }

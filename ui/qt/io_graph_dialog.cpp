@@ -26,7 +26,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/qcustomplot.h>
 #include "progress_frame.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <wsutil/report_message.h>
 
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
@@ -1499,14 +1499,14 @@ void IOGraphDialog::on_actionCrosshairs_triggered()
 
 void IOGraphDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_STATS_IO_GRAPH_DIALOG);
+    mainApp->helpTopicAction(HELP_STATS_IO_GRAPH_DIALOG);
 }
 
 // XXX - We have similar code in tcp_stream_dialog and packet_diagram. Should this be a common routine?
 void IOGraphDialog::on_buttonBox_accepted()
 {
     QString file_name, extension;
-    QDir path(wsApp->lastOpenDir());
+    QDir path(mainApp->lastOpenDir());
     QString pdf_filter = tr("Portable Document Format (*.pdf)");
     QString png_filter = tr("Portable Network Graphics (*.png)");
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");
@@ -1524,7 +1524,7 @@ void IOGraphDialog::on_buttonBox_accepted()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileBaseName());
     }
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
+    file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save Graph As…")),
                                              save_file, filter, &extension);
 
     if (file_name.length() > 0) {
@@ -1542,7 +1542,7 @@ void IOGraphDialog::on_buttonBox_accepted()
         }
         // else error dialog?
         if (save_ok) {
-            wsApp->setLastOpenDirFromFilename(file_name);
+            mainApp->setLastOpenDirFromFilename(file_name);
         }
     }
 }
@@ -1590,7 +1590,7 @@ void IOGraphDialog::copyAsCsvClicked()
     QString csv;
     QTextStream stream(&csv, QIODevice::Text);
     makeCsv(stream);
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 bool IOGraphDialog::saveCsv(const QString &file_name) const
@@ -2249,7 +2249,7 @@ void IOGraph::tapDraw(void *iog_ptr)
 
 static void
 io_graph_init(const char *, void*) {
-    wsApp->emitStatCommandSignal("IOGraph", NULL, NULL);
+    mainApp->emitStatCommandSignal("IOGraph", NULL, NULL);
 }
 
 static stat_tap_ui io_stat_ui = {

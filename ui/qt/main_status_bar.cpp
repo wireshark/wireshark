@@ -64,7 +64,7 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
     push_msg = QString::vasprintf(msg_format, ap);
     va_end(ap);
 
-    wsApp->pushStatus(WiresharkApplication::TemporaryStatus, push_msg);
+    mainApp->pushStatus(WiresharkApplication::TemporaryStatus, push_msg);
 }
 
 /*
@@ -167,11 +167,11 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     progress_frame_.enableTaskbarUpdates(true);
 #endif
 
-    connect(wsApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
+    connect(mainApp, SIGNAL(appInitialized()), splitter, SLOT(show()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
     connect(&info_status_, SIGNAL(toggleTemporaryFlash(bool)),
             this, SLOT(toggleBackground(bool)));
-    connect(wsApp, SIGNAL(profileNameChanged(const gchar *)),
+    connect(mainApp, SIGNAL(profileNameChanged(const gchar *)),
             this, SLOT(setProfileName()));
     connect(&profile_status_, SIGNAL(clickedAt(QPoint,Qt::MouseButton)),
             this, SLOT(showProfileMenu(QPoint,Qt::MouseButton)));
@@ -352,7 +352,7 @@ void MainStatusBar::setProfileName()
 void MainStatusBar::appInitialized()
 {
     setProfileName();
-    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+    connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
 }
 
 void MainStatusBar::selectedFrameChanged(QList<int>)
@@ -365,7 +365,7 @@ void MainStatusBar::showCaptureStatistics()
     QString packets_str;
 
     QList<int> rows;
-    MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+    MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
     if (mw)
         rows = mw->selectedRows(true);
 
@@ -607,7 +607,7 @@ void MainStatusBar::switchToProfile()
 
     if (pa && pa->property("profile_name").isValid()) {
         QString profile = pa->property("profile_name").toString();
-        wsApp->setConfigurationProfile(profile.toUtf8().constData());
+        mainApp->setConfigurationProfile(profile.toUtf8().constData());
     }
 }
 

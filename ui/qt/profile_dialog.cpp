@@ -25,7 +25,7 @@
 
 #include "profile_dialog.h"
 #include <ui_profile_dialog.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/simple_dialog.h>
 
@@ -58,7 +58,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 {
     pd_ui_->setupUi(this);
     loadGeometry();
-    setWindowTitle(wsApp->windowTitleString(tr("Configuration Profiles")));
+    setWindowTitle(mainApp->windowTitleString(tr("Configuration Profiles")));
 
     ok_button_ = pd_ui_->buttonBox->button(QDialogButtonBox::Ok);
 
@@ -180,7 +180,7 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
         break;
     case DeleteCurrentProfile:
         if (delete_current_profile()) {
-            wsApp->setConfigurationProfile (Q_NULLPTR);
+            mainApp->setConfigurationProfile (Q_NULLPTR);
         }
         break;
     }
@@ -477,7 +477,7 @@ void ProfileDialog::on_buttonBox_accepted()
 
     if (write_recent) {
         /* Get the current geometry, before writing it to disk */
-        wsApp->emitAppSignal(WiresharkApplication::ProfileChanging);
+        mainApp->emitAppSignal(MainApplication::ProfileChanging);
 
         /* Write recent file for current profile now because
          * the profile may be renamed in apply_profile_changes() */
@@ -513,11 +513,11 @@ void ProfileDialog::on_buttonBox_accepted()
 
     if (profileName.length() > 0 && model_->findByName(profileName) >= 0) {
         // The new profile exists, change.
-        wsApp->setConfigurationProfile (profileName.toUtf8().constData(), FALSE);
+        mainApp->setConfigurationProfile (profileName.toUtf8().constData(), FALSE);
     } else if (!model_->activeProfile().isValid()) {
         // The new profile does not exist, and the previous profile has
         // been deleted.  Change to the default profile.
-        wsApp->setConfigurationProfile (Q_NULLPTR, FALSE);
+        mainApp->setConfigurationProfile (Q_NULLPTR, FALSE);
     }
 }
 
@@ -530,7 +530,7 @@ void ProfileDialog::on_buttonBox_rejected()
 
 void ProfileDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_CONFIG_PROFILES_DIALOG);
+    mainApp->helpTopicAction(HELP_CONFIG_PROFILES_DIALOG);
 }
 
 void ProfileDialog::dataChanged(const QModelIndex &)
@@ -734,8 +734,8 @@ QString ProfileDialog::lastOpenDir()
 
 void ProfileDialog::storeLastDir(QString dir)
 {
-    if (wsApp && dir.length() > 0)
-        wsApp->setLastOpenDir(qUtf8Printable(dir));
+    if (mainApp && dir.length() > 0)
+        mainApp->setLastOpenDir(qUtf8Printable(dir));
 }
 
 void ProfileDialog::resetTreeView()

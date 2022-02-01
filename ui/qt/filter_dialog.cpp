@@ -28,7 +28,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/capture_filter_edit.h>
 #include <ui/qt/widgets/display_filter_edit.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_filter_) :
     GeometryStateDialog(parent),
@@ -39,7 +39,7 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     ui->setupUi(this);
 
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 2 / 3);
-    setWindowIcon(wsApp->normalIcon());
+    setWindowIcon(mainApp->normalIcon());
 
     ui->newToolButton->setStockIcon("list-add");
     ui->deleteToolButton->setStockIcon("list-remove");
@@ -65,12 +65,12 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, QString new_
     const gchar * filename = NULL;
     QString newFilterText;
     if (filter_type == CaptureFilter) {
-        setWindowTitle(wsApp->windowTitleString(tr("Capture Filters")));
+        setWindowTitle(mainApp->windowTitleString(tr("Capture Filters")));
         filename = CFILTER_FILE_NAME;
         newFilterText = tr("New capture filter");
         model_ = new FilterListModel(FilterListModel::Capture, this);
     } else {
-        setWindowTitle(wsApp->windowTitleString(tr("Display Filters")));
+        setWindowTitle(mainApp->windowTitleString(tr("Display Filters")));
         filename = DFILTER_FILE_NAME;
         newFilterText = tr("New display filter");
         model_ = new FilterListModel(FilterListModel::Display, this);
@@ -176,18 +176,18 @@ void FilterDialog::on_buttonBox_accepted()
     model_->saveList();
 
     if (filter_type_ == CaptureFilter) {
-        wsApp->emitAppSignal(WiresharkApplication::CaptureFilterListChanged);
+        mainApp->emitAppSignal(MainApplication::CaptureFilterListChanged);
     } else {
-        wsApp->emitAppSignal(WiresharkApplication::DisplayFilterListChanged);
+        mainApp->emitAppSignal(MainApplication::DisplayFilterListChanged);
     }
 }
 
 void FilterDialog::on_buttonBox_helpRequested()
 {
     if (filter_type_ == CaptureFilter) {
-        wsApp->helpTopicAction(HELP_CAPTURE_FILTERS_DIALOG);
+        mainApp->helpTopicAction(HELP_CAPTURE_FILTERS_DIALOG);
     } else {
-        wsApp->helpTopicAction(HELP_DISPLAY_FILTERS_DIALOG);
+        mainApp->helpTopicAction(HELP_DISPLAY_FILTERS_DIALOG);
     }
 }
 

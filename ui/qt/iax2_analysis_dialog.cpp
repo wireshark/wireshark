@@ -36,7 +36,7 @@
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/stock_icon.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 /*
@@ -551,7 +551,7 @@ void Iax2AnalysisDialog::on_actionSaveGraph_triggered()
     ui->tabWidget->setCurrentWidget(ui->graphTab);
 
     QString file_name, extension;
-    QDir path(wsApp->lastOpenDir());
+    QDir path(mainApp->lastOpenDir());
     QString pdf_filter = tr("Portable Document Format (*.pdf)");
     QString png_filter = tr("Portable Network Graphics (*.png)");
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");
@@ -567,7 +567,7 @@ void Iax2AnalysisDialog::on_actionSaveGraph_triggered()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileBaseName());
     }
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
+    file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save Graph As…")),
                                              save_file, filter, &extension);
 
     if (!file_name.isEmpty()) {
@@ -586,14 +586,14 @@ void Iax2AnalysisDialog::on_actionSaveGraph_triggered()
 //        ui->streamGraph->legend->setVisible(false);
         // else error dialog?
         if (save_ok) {
-            wsApp->setLastOpenDirFromFilename(file_name);
+            mainApp->setLastOpenDirFromFilename(file_name);
         }
     }
 }
 
 void Iax2AnalysisDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_IAX2_ANALYSIS_DIALOG);
+    mainApp->helpTopicAction(HELP_IAX2_ANALYSIS_DIALOG);
 }
 
 void Iax2AnalysisDialog::tapReset(void *tapinfoptr)
@@ -877,7 +877,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     }
     QString sel_filter;
     QString file_path = WiresharkFileDialog::getSaveFileName(
-                this, caption, wsApp->lastOpenDir().absoluteFilePath("Saved RTP Audio.au"),
+                this, caption, mainApp->lastOpenDir().absoluteFilePath("Saved RTP Audio.au"),
                 ext_filter, &sel_filter);
 
     if (file_path.isEmpty()) return;
@@ -1147,7 +1147,7 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
     }
 
     QString file_path = WiresharkFileDialog::getSaveFileName(
-                this, caption, wsApp->lastOpenDir().absoluteFilePath("RTP Packet Data.csv"),
+                this, caption, mainApp->lastOpenDir().absoluteFilePath("RTP Packet Data.csv"),
                 tr("Comma-separated values (*.csv)"));
 
     if (file_path.isEmpty()) return;

@@ -7,7 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "main_window_preferences_frame.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 

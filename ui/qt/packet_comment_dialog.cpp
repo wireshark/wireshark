@@ -10,7 +10,7 @@
 #include "packet_comment_dialog.h"
 #include <ui_packet_comment_dialog.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 PacketCommentDialog::PacketCommentDialog(bool isEdit, QWidget *parent, QString comment) :
     GeometryStateDialog(parent),
@@ -23,7 +23,7 @@ PacketCommentDialog::PacketCommentDialog(bool isEdit, QWidget *parent, QString c
 
     pc_ui_->setupUi(this);
     loadGeometry();
-    setWindowTitle(wsApp->windowTitleString(title));
+    setWindowTitle(mainApp->windowTitleString(title));
 
     pc_ui_->commentTextEdit->setPlainText(comment);
 }
@@ -40,5 +40,5 @@ QString PacketCommentDialog::text()
 
 void PacketCommentDialog::on_buttonBox_helpRequested()
 {
-//    wsApp->helpTopicAction(HELP_PACKET_COMMENT_DIALOG);
+//    mainApp->helpTopicAction(HELP_PACKET_COMMENT_DIALOG);
 }

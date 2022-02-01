@@ -10,10 +10,11 @@
 #include <ui/qt/models/related_packet_delegate.h>
 #include "packet_list_record.h"
 
+#include <ui/qt/main_application.h>
+
 #include <ui/qt/utils/color_utils.h>
 
 #include <ui/qt/main_window.h>
-#include <ui/qt/wireshark_application.h>
 
 #include <QApplication>
 #include <QPainter>
@@ -51,9 +52,9 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 {
 
     /* This prevents the drawing of related objects, if multiple lines are being selected */
-    if (wsApp && wsApp->mainWindow())
+    if (mainApp && mainApp->mainWindow())
     {
-        MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+        MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
         if (mw && mw->hasSelection())
         {
             QStyledItemDelegate::paint(painter, option, index);
@@ -256,9 +257,9 @@ QSize RelatedPacketDelegate::sizeHint(const QStyleOptionViewItem &option,
                                   const QModelIndex &index) const
 {
     /* This prevents the sizeHint for the delegate, if multiple lines are being selected */
-    if (wsApp && wsApp->mainWindow())
+    if (mainApp && mainApp->mainWindow())
     {
-        MainWindow * mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+        MainWindow * mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
         if (mw && mw->selectedRows().count() > 1)
             return QStyledItemDelegate::sizeHint(option, index);
     }

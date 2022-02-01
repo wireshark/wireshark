@@ -30,7 +30,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <wsutil/report_message.h>
 #include <wsutil/utf8_entities.h>
 
@@ -270,12 +270,12 @@ void WirelessTimeline::captureFileReadFinished()
         struct wlan_radio *w = get_wlan_radio(n);
         if (w->start_tsf == 0 || w->end_tsf == 0) {
             QString err = tr("Packet number %1 does not include TSF timestamp, not showing timeline.").arg(n);
-            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
+            mainApp->pushStatus(MainApplication::TemporaryStatus, err);
             return;
         }
         if (w->ifs < -RENDER_EARLY) {
             QString err = tr("Packet number %u has large negative jump in TSF, not showing timeline. Perhaps TSF reference point is set wrong?").arg(n);
-            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, err);
+            mainApp->pushStatus(MainApplication::TemporaryStatus, err);
             return;
         }
     }
@@ -297,7 +297,7 @@ void WirelessTimeline::captureFileReadFinished()
 
 void WirelessTimeline::appInitialized()
 {
-    connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
+    connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)), this, SLOT(selectedFrameChanged(QList<int>)));
 
     GString *error_string;
     error_string = register_tap_listener("wlan_radio_timeline", this, NULL, TL_REQUIRES_NOTHING, tap_timeline_reset, tap_timeline_packet, NULL/*tap_draw_cb tap_draw*/, NULL);
@@ -342,7 +342,7 @@ WirelessTimeline::WirelessTimeline(QWidget *parent) : QWidget(parent)
     capfile = NULL;
 
     radio_packet_list = g_hash_table_new(g_direct_hash, g_direct_equal);
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(appInitialized()));
 }
 
 WirelessTimeline::~WirelessTimeline()

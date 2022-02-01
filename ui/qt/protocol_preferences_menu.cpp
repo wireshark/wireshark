@@ -25,7 +25,7 @@
 #include <ui/qt/models/enabled_protocols_model.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "uat_dialog.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QActionGroup>
 
@@ -91,7 +91,7 @@ public:
 
     void showUatDialog() {
         UatDialog *uat_dlg = new UatDialog(parentWidget(), prefs_get_uat_value(pref_));
-        connect(uat_dlg, SIGNAL(destroyed(QObject*)), wsApp, SLOT(flushAppSignals()));
+        connect(uat_dlg, SIGNAL(destroyed(QObject*)), mainApp, SLOT(flushAppSignals()));
         uat_dlg->setWindowModality(Qt::ApplicationModal);
         uat_dlg->setAttribute(Qt::WA_DeleteOnClose);
         uat_dlg->show();
@@ -303,11 +303,11 @@ void ProtocolPreferencesMenu::boolPreferenceTriggered()
     commandline_options_drop(module_->name, prefs_get_name(bpa->getPref()));
 
     if (changed_flags & PREF_EFFECT_FIELDS) {
-        wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
+        mainApp->emitAppSignal(MainApplication::FieldsChanged);
     }
     /* Protocol preference changes almost always affect dissection,
        so don't bother checking flags */
-    wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+    mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
 }
 
 void ProtocolPreferencesMenu::enumPreferenceTriggered()
@@ -323,11 +323,11 @@ void ProtocolPreferencesMenu::enumPreferenceTriggered()
         commandline_options_drop(module_->name, prefs_get_name(epa->getPref()));
 
         if (changed_flags & PREF_EFFECT_FIELDS) {
-            wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
+            mainApp->emitAppSignal(MainApplication::FieldsChanged);
         }
         /* Protocol preference changes almost always affect dissection,
            so don't bother checking flags */
-        wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+        mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
     }
 }
 

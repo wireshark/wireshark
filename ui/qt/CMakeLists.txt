@@ -186,6 +186,7 @@ set(WIRESHARK_QT_HEADERS
 	lte_mac_statistics_dialog.h
 	lte_rlc_graph_dialog.h
 	lte_rlc_statistics_dialog.h
+	main_application.h
 	main_status_bar.h
 	main_window_preferences_frame.h
 	main_window.h
@@ -420,6 +421,7 @@ set(WIRESHARK_QT_SRC
 	lte_mac_statistics_dialog.cpp
 	lte_rlc_graph_dialog.cpp
 	lte_rlc_statistics_dialog.cpp
+	main_application.cpp
 	main_status_bar.cpp
 	main_window_layout.cpp
 	main_window_preferences_frame.cpp

@@ -155,7 +155,7 @@ bool ColorUtils::themeIsDark()
 // themeLinkBrush and themeLinkStyle provide convenience routines for
 // fetching the link brush and style.
 //
-// We could also override WiresharkApplication::palette, but keeping the
+// We could also override MainApplication::palette, but keeping the
 // routines together here seemed to make more sense.
 QBrush ColorUtils::themeLinkBrush()
 {

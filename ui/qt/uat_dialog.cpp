@@ -9,7 +9,7 @@
 
 #include "uat_dialog.h"
 #include <ui_uat_dialog.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include "epan/strutil.h"
 #include "epan/uat-int.h"
@@ -345,11 +345,11 @@ void UatDialog::applyChanges()
 
     if (uat_->flags & UAT_AFFECTS_FIELDS) {
         /* Recreate list with new fields and redissect packets */
-        wsApp->queueAppSignal(WiresharkApplication::FieldsChanged);
+        mainApp->queueAppSignal(MainApplication::FieldsChanged);
     }
     if (uat_->flags & UAT_AFFECTS_DISSECTION) {
         /* Just redissect packets if we have any */
-        wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
+        mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
     }
 }
 

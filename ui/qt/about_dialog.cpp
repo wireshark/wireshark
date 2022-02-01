@@ -12,7 +12,7 @@
 #include "about_dialog.h"
 #include <ui_about_dialog.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <wsutil/filesystem.h>
 
 #include <QDesktopServices>
@@ -165,7 +165,7 @@ ShortcutListModel::ShortcutListModel(QObject * parent):
         AStringListListModel(parent)
 {
     QMap<QString, QPair<QString, QString> > shortcuts; // name -> (shortcut, description)
-    foreach (const QWidget *child, wsApp->mainWindow()->findChildren<QWidget *>()) {
+    foreach (const QWidget *child, mainApp->mainWindow()->findChildren<QWidget *>()) {
         // Recent items look funny here.
         if (child->objectName().compare("menuOpenRecentCaptureFile") == 0) continue;
         foreach (const QAction *action, child->actions()) {
@@ -257,7 +257,7 @@ FolderListModel::FolderListModel(QObject * parent):
 
 #ifdef Q_OS_MAC
     /* Mac Extras */
-    QString extras_path = wsApp->applicationDirPath() + "/../Resources/Extras";
+    QString extras_path = mainApp->applicationDirPath() + "/../Resources/Extras";
     appendRow(QStringList() << tr("macOS Extras") << QDir::cleanPath(extras_path) << tr("Extra macOS packages"));
 
 #endif

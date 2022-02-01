@@ -26,7 +26,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <ui/qt/main_window.h>
 #include <ui/qt/main_status_bar.h>
 #include <ui/qt/widgets/wireless_timeline.h>
@@ -82,9 +82,9 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     new_visible_rows_.reserve(1000);
     number_to_row_.reserve(reserved_packets_);
 
-    if (qobject_cast<MainWindow *>(wsApp->mainWindow()))
+    if (qobject_cast<MainWindow *>(mainApp->mainWindow()))
     {
-            MainWindow *mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+            MainWindow *mw = qobject_cast<MainWindow *>(mainApp->mainWindow());
             QWidget * wtWidget = mw->findChild<WirelessTimeline *>();
             if (wtWidget && qobject_cast<WirelessTimeline *>(wtWidget))
             {
@@ -358,7 +358,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     // something we can interrupt.
     if (!col_title.isEmpty()) {
         QString busy_msg = tr("Sorting \"%1\"…").arg(col_title);
-        wsApp->pushStatus(WiresharkApplication::BusyStatus, busy_msg);
+        mainApp->pushStatus(MainApplication::BusyStatus, busy_msg);
     }
 
     busy_timer_.start();
@@ -382,7 +382,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     emit endResetModel();
 
     if (!col_title.isEmpty()) {
-        wsApp->popStatus(WiresharkApplication::BusyStatus);
+        mainApp->popStatus(MainApplication::BusyStatus);
     }
 
     if (cap_file_->current_frame) {
@@ -468,7 +468,7 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
     if (busy_timer_.elapsed() > busy_timeout_) {
         // What's the least amount of processing that we can do which will draw
         // the busy indicator?
-        wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+        mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
         busy_timer_.restart();
     }
     if (sort_column_ < 0) {

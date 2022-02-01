@@ -20,7 +20,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/models/timeline_delegate.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QCheckBox>
 #include <QDateTime>
@@ -64,7 +64,7 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
     connect(graph_bt_, SIGNAL(clicked()), this, SLOT(graphTcp()));
 
-    connect(wsApp->mainWindow(), SIGNAL(displayFilterSuccess(bool)),
+    connect(mainApp->mainWindow(), SIGNAL(displayFilterSuccess(bool)),
             this, SLOT(displayFilterSuccess(bool)));
 
     absoluteTimeCheckBox()->show();
@@ -306,7 +306,7 @@ void ConversationDialog::on_displayFilterCheckBox_toggled(bool checked)
 
 void ConversationDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_STATS_CONVERSATIONS_DIALOG);
+    mainApp->helpTopicAction(HELP_STATS_CONVERSATIONS_DIALOG);
 }
 
 void ConversationDialog::displayFilterSuccess(bool success)
@@ -323,7 +323,7 @@ void ConversationDialog::displayFilterSuccess(bool success)
 
 void init_conversation_table(struct register_ct* ct, const char *filter)
 {
-    wsApp->emitStatCommandSignal("Conversations", filter, GINT_TO_POINTER(get_conversation_proto_id(ct)));
+    mainApp->emitStatCommandSignal("Conversations", filter, GINT_TO_POINTER(get_conversation_proto_id(ct)));
 }
 
 

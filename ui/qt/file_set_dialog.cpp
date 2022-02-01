@@ -21,7 +21,7 @@
 #include "file_set_dialog.h"
 #include <ui_file_set_dialog.h>
 #include "models/fileset_entry_model.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -108,7 +108,7 @@ void FileSetDialog::addFile(fileset_entry *entry) {
 void FileSetDialog::beginAddFile()
 {
     cur_idx_ = -1;
-    setWindowTitle(wsApp->windowTitleString(tr("No files in Set")));
+    setWindowTitle(mainApp->windowTitleString(tr("No files in Set")));
     fs_ui_->directoryLabel->setText(tr("No capture loaded"));
     fs_ui_->directoryLabel->setEnabled(false);
 }
@@ -116,7 +116,7 @@ void FileSetDialog::beginAddFile()
 void FileSetDialog::endAddFile()
 {
     if (fileset_entry_model_->entryCount() > 0) {
-        setWindowTitle(wsApp->windowTitleString(tr("%Ln File(s) in Set", "",
+        setWindowTitle(mainApp->windowTitleString(tr("%Ln File(s) in Set", "",
                                                    fileset_entry_model_->entryCount())));
     }
 
@@ -153,5 +153,5 @@ void FileSetDialog::selectionChanged(const QItemSelection &selected, const QItem
 
 void FileSetDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_FILESET_DIALOG);
+    mainApp->helpTopicAction(HELP_FILESET_DIALOG);
 }

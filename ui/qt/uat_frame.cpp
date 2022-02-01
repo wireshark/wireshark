@@ -16,7 +16,7 @@
 #include "uat_frame.h"
 #include <ui_uat_frame.h>
 #include <ui/qt/widgets/display_filter_edit.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -147,11 +147,11 @@ void UatFrame::applyChanges()
 
     if (uat_->flags & UAT_AFFECTS_FIELDS) {
         /* Recreate list with new fields and redissect packets */
-        wsApp->queueAppSignal(WiresharkApplication::FieldsChanged);
+        mainApp->queueAppSignal(MainApplication::FieldsChanged);
     }
     if (uat_->flags & UAT_AFFECTS_DISSECTION) {
         /* Just redissect packets if we have any */
-        wsApp->queueAppSignal(WiresharkApplication::PacketDissectionChanged);
+        mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
     }
 }
 

@@ -17,7 +17,7 @@
 
 #include "rpc_service_response_time_dialog.h"
 #include "scsi_service_response_time_dialog.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QTreeWidget>
 #include <QTreeWidgetItemIterator>
@@ -34,7 +34,7 @@ srt_init(const char *args, void*) {
         if (args_l.length() > 2) {
             filter = QStringList(args_l.mid(2)).join(",");
         }
-        wsApp->emitTapParameterSignal(srt, filter, NULL);
+        mainApp->emitTapParameterSignal(srt, filter, NULL);
     }
 }
 }

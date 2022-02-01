@@ -13,7 +13,7 @@
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/models/uat_model.h>
 #include <ui/qt/filter_action.h>
-#include <ui/qt/wireshark_application.h>
+#include <ui/qt/main_application.h>
 
 #include <epan/filter_expressions.h>
 #include <ui/preference_utils.h>
@@ -53,9 +53,9 @@ FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
     connect(this, &DragDropToolBar::actionMoved, this, &FilterExpressionToolBar::onActionMoved);
     connect(this, &DragDropToolBar::newFilterDropped, this, &FilterExpressionToolBar::onFilterDropped);
 
-    connect(wsApp, &WiresharkApplication::appInitialized,
+    connect(mainApp, &MainApplication::appInitialized,
             this, &FilterExpressionToolBar::filterExpressionsChanged);
-    connect(wsApp, &WiresharkApplication::filterExpressionsChanged,
+    connect(mainApp, &MainApplication::filterExpressionsChanged,
             this, &FilterExpressionToolBar::filterExpressionsChanged);
 
 }

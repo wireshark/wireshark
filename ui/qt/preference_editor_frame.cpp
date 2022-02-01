@@ -25,7 +25,7 @@
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <wsutil/utf8_entities.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QPushButton>
 #include <QKeyEvent>
@@ -148,7 +148,7 @@ void PreferenceEditorFrame::stringLineEditTextEdited(const QString &new_str)
 
 void PreferenceEditorFrame::browsePushButtonClicked()
 {
-    QString caption = wsApp->windowTitleString(prefs_get_title(pref_));
+    QString caption = mainApp->windowTitleString(prefs_get_title(pref_));
     QString dir = prefs_get_string_value(pref_, pref_stashed);
     QString filename;
 
@@ -259,10 +259,10 @@ void PreferenceEditorFrame::on_buttonBox_accepted()
     // Emit signals once UI is hidden
     if (apply) {
         if (changed_flags & PREF_EFFECT_FIELDS) {
-            wsApp->emitAppSignal(WiresharkApplication::FieldsChanged);
+            mainApp->emitAppSignal(MainApplication::FieldsChanged);
         }
-        wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
-        wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
+        mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
+        mainApp->emitAppSignal(MainApplication::PreferencesChanged);
     }
 }
 
@@ -284,7 +284,7 @@ void PreferenceEditorFrame::keyPressEvent(QKeyEvent *event)
             if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
                 on_buttonBox_accepted();
             } else if (ui->preferenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) {
-                wsApp->pushStatus(WiresharkApplication::FilterSyntax, tr("Invalid value."));
+                mainApp->pushStatus(MainApplication::FilterSyntax, tr("Invalid value."));
             }
         }
     }

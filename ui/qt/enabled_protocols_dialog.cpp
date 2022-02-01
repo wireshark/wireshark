@@ -14,7 +14,7 @@
 
 #include <epan/prefs.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -28,7 +28,7 @@ EnabledProtocolsDialog::EnabledProtocolsDialog(QWidget *parent) :
     proxyModel_->setSourceModel(enabled_protocols_model_);
     ui->protocol_tree_->setModel(proxyModel_);
 
-    setWindowTitle(wsApp->windowTitleString(tr("Enabled Protocols")));
+    setWindowTitle(mainApp->windowTitleString(tr("Enabled Protocols")));
 
     // Some protocols have excessively long names. Instead of calling
     // resizeColumnToContents, pick a reasonable-ish em width and apply it.
@@ -121,5 +121,5 @@ void EnabledProtocolsDialog::on_buttonBox_accepted()
 
 void EnabledProtocolsDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_ENABLED_PROTOCOLS_DIALOG);
+    mainApp->helpTopicAction(HELP_ENABLED_PROTOCOLS_DIALOG);
 }

@@ -16,7 +16,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 enum {
     col_src_addr_,
@@ -464,7 +464,7 @@ multicast_statistics_init(const char *args, void*) {
     if (args_l.length() > 2) {
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
-    wsApp->emitStatCommandSignal("MulticastStatistics", filter.constData(), NULL);
+    mainApp->emitStatCommandSignal("MulticastStatistics", filter.constData(), NULL);
 }
 
 static stat_tap_ui multicast_statistics_ui = {

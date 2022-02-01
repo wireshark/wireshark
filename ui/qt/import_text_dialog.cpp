@@ -30,7 +30,7 @@
 #include "wsutil/filesystem.h"
 
 #include <ui_import_text_dialog.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
@@ -76,7 +76,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     int file_type_subtype;
 
     ti_ui_->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(tr("Import From Hex Dump")));
+    setWindowTitle(mainApp->windowTitleString(tr("Import From Hex Dump")));
     memset(&import_info_, 0, sizeof(import_info_));
 
     import_button_ = ti_ui_->buttonBox->button(QDialogButtonBox::Open);
@@ -627,7 +627,7 @@ void ImportTextDialog::on_textFileBrowseButton_clicked()
         }
     }
 
-    QString file_name = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Text File")), open_dir);
+    QString file_name = WiresharkFileDialog::getOpenFileName(this, mainApp->windowTitleString(tr("Import Text File")), open_dir);
     ti_ui_->textFileLineEdit->setText(file_name);
 }
 
@@ -1084,5 +1084,5 @@ void ImportTextDialog::on_maxLengthLineEdit_textChanged(const QString &max_frame
 
 void ImportTextDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_IMPORT_DIALOG);
+    mainApp->helpTopicAction(HELP_IMPORT_DIALOG);
 }

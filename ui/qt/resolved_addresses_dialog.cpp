@@ -25,7 +25,7 @@
 #include <QSortFilterProxyModel>
 
 #include "capture_file.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <ui/qt/models/astringlist_list_model.h>
 #include <ui/qt/models/resolved_addresses_models.h>
@@ -47,9 +47,9 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, QString captur
         file_name_ = captureFile;
         title_parts << file_name_;
     }
-    setWindowTitle(wsApp->windowTitleString(title_parts));
+    setWindowTitle(mainApp->windowTitleString(title_parts));
 
-    ui->plainTextEdit->setFont(wsApp->monospaceFont());
+    ui->plainTextEdit->setFont(mainApp->monospaceFont());
     ui->plainTextEdit->setReadOnly(true);
     ui->plainTextEdit->setWordWrapMode(QTextOption::NoWrap);
 

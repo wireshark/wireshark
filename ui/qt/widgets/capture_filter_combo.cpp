@@ -17,7 +17,7 @@
 
 #include <ui/qt/widgets/capture_filter_combo.h>
 #include <ui/qt/utils/color_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
     QComboBox(parent),
@@ -44,8 +44,8 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
             this, &CaptureFilterCombo::captureFilterSyntaxChanged);
     connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::startCapture);
     connect(cf_edit_, &CaptureFilterEdit::startCapture, this, &CaptureFilterCombo::saveAndRebuildFilterList);
-    connect(wsApp, &WiresharkApplication::appInitialized, this, &CaptureFilterCombo::rebuildFilterList);
-    connect(wsApp, &WiresharkApplication::preferencesChanged, this, &CaptureFilterCombo::rebuildFilterList);
+    connect(mainApp, &MainApplication::appInitialized, this, &CaptureFilterCombo::rebuildFilterList);
+    connect(mainApp, &MainApplication::preferencesChanged, this, &CaptureFilterCombo::rebuildFilterList);
 
     rebuildFilterList();
     clearEditText();

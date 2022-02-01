@@ -28,7 +28,7 @@
 #include <ui/all_files_wildcard.h>
 #include <ui/alert_box.h>
 #include <ui/urls.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -92,7 +92,7 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     connect(verticalScrollBar(), SIGNAL(sliderReleased()),
             this, SLOT(updateContentWidth()));
 
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(connectToMainWindow()));
 
     viewport()->installEventFilter(this);
 }
@@ -104,11 +104,11 @@ void ProtoTree::clear() {
 
 void ProtoTree::connectToMainWindow()
 {
-    if (wsApp->mainWindow())
+    if (mainApp->mainWindow())
     {
-        connect(wsApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)),
+        connect(mainApp->mainWindow(), SIGNAL(fieldSelected(FieldInformation *)),
                 this, SLOT(selectedFieldChanged(FieldInformation *)));
-        connect(wsApp->mainWindow(), SIGNAL(framesSelected(QList<int>)),
+        connect(mainApp->mainWindow(), SIGNAL(framesSelected(QList<int>)),
                 this, SLOT(selectedFrameChanged(QList<int>)));
     }
 }
@@ -128,7 +128,7 @@ void ProtoTree::ctxCopyVisibleItems()
         clip = toString();
 
     if (clip.length() > 0)
-        wsApp->clipboard()->setText(clip);
+        mainApp->clipboard()->setText(clip);
 }
 
 void ProtoTree::ctxCopyAsFilter()
@@ -143,7 +143,7 @@ void ProtoTree::ctxCopyAsFilter()
         wmem_free(Q_NULLPTR, field_filter);
 
         if (filter.length() > 0)
-            wsApp->clipboard()->setText(filter);
+            mainApp->clipboard()->setText(filter);
     }
 }
 
@@ -183,7 +183,7 @@ void ProtoTree::ctxCopySelectedInfo()
     }
 
     if (clip.length() > 0)
-        wsApp->clipboard()->setText(clip);
+        mainApp->clipboard()->setText(clip);
 }
 
 void ProtoTree::ctxOpenUrlWiki()
@@ -204,7 +204,7 @@ void ProtoTree::ctxOpenUrlWiki()
 
     if (! is_field_reference)
     {
-        int ret = QMessageBox::question(this, wsApp->windowTitleString(tr("Wiki Page for %1").arg(proto_abbrev)),
+        int ret = QMessageBox::question(this, mainApp->windowTitleString(tr("Wiki Page for %1").arg(proto_abbrev)),
                                         tr("<p>The Wireshark Wiki is maintained by the community.</p>"
                                         "<p>The page you are about to load might be wonderful, "
                                         "incomplete, wrong, or nonexistent.</p>"
@@ -628,14 +628,14 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index)
         if (QApplication::queryKeyboardModifiers() & Qt::ShiftModifier) {
             emit openPacketInNewWindow(true);
         } else {
-            wsApp->gotoFrame(finfo.fieldInfo()->value.value.uinteger);
+            mainApp->gotoFrame(finfo.fieldInfo()->value.value.uinteger);
         }
     } else {
         QString url = finfo.url();
         if (!url.isEmpty()) {
             QApplication::clipboard()->setText(url);
             QString push_msg = tr("Copied ") + url;
-            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, push_msg);
+            mainApp->pushStatus(MainApplication::TemporaryStatus, push_msg);
         }
     }
 }

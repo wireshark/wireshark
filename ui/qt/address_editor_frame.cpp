@@ -18,6 +18,8 @@
 #include "epan/epan_dissect.h"
 #include "epan/frame_data.h"
 
+#include "main_application.h"
+
 #include "address_editor_frame.h"
 #include <ui_address_editor_frame.h>
 
@@ -25,7 +27,6 @@
 #include <QKeyEvent>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <ui/qt/wireshark_application.h>
 
 // To do:
 // - Fill in currently resolved address.
@@ -170,7 +171,7 @@ void AddressEditorFrame::on_buttonBox_accepted()
     QString name = ui->nameLineEdit->text();
     if (!cf_add_ip_name_from_string(cap_file_, addr.toUtf8().constData(), name.toUtf8().constData())) {
         QString error_msg = tr("Can't assign %1 to %2.").arg(name).arg(addr);
-        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, error_msg);
+        mainApp->pushStatus(MainApplication::TemporaryStatus, error_msg);
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         return;
     }

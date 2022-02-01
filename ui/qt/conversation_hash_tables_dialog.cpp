@@ -18,7 +18,7 @@
 #include <epan/conversation_debug.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 ConversationHashTablesDialog::ConversationHashTablesDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -27,7 +27,7 @@ ConversationHashTablesDialog::ConversationHashTablesDialog(QWidget *parent) :
     ui->setupUi(this);
     if (parent) loadGeometry(parent->width() * 3 / 4, parent->height() * 3 / 4);
     setAttribute(Qt::WA_DeleteOnClose, true);
-    setWindowTitle(wsApp->windowTitleString(tr("Conversation Hash Tables")));
+    setWindowTitle(mainApp->windowTitleString(tr("Conversation Hash Tables")));
 
     QString html;
 

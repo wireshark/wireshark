@@ -9,7 +9,7 @@
 
 #include "splash_overlay.h"
 #include <ui_splash_overlay.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QPainter>
 
@@ -32,7 +32,7 @@
 const int info_update_freq_ = 65; // ~15 fps
 
 void splash_update(register_action_e action, const char *message, void *) {
-    emit wsApp->registerUpdate(action, message);
+    emit mainApp->registerUpdate(action, message);
 }
 
 SplashOverlay::SplashOverlay(QWidget *parent) :
@@ -82,7 +82,7 @@ SplashOverlay::SplashOverlay(QWidget *parent) :
                       )
                   .arg(QColor(tango_aluminium_4).name()));
 
-    connect(wsApp, &WiresharkApplication::splashUpdate, this, &SplashOverlay::splashUpdate);
+    connect(mainApp, &MainApplication::splashUpdate, this, &SplashOverlay::splashUpdate);
 }
 
 SplashOverlay::~SplashOverlay()
@@ -171,6 +171,6 @@ void SplashOverlay::splashUpdate(register_action_e action, const char *message)
 
     so_ui_->progressBar->setValue(register_cur_);
 
-    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+    mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
     elapsed_timer_.restart();
 }

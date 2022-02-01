@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "main_application.h"
 #include "main_window.h"
 
 /*
@@ -67,7 +68,6 @@ DIAG_ON(frame-larger-than=)
 #include "tap_parameter_dialog.h"
 #include "wireless_frame.h"
 #include <ui/qt/widgets/wireless_timeline.h>
-#include "wireshark_application.h"
 
 #include <ui/qt/widgets/additional_toolbar.h>
 #include <ui/qt/widgets/display_filter_edit.h>
@@ -129,8 +129,8 @@ DIAG_OFF_CAST_AWAY_CONST
     {
         unsigned int changed_flags = prefs_store_ext(module_name, pref_name, pref_value);
         if (changed_flags) {
-            wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
-            wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
+            mainApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+            mainApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
         }
     }
 DIAG_ON_CAST_AWAY_CONST
@@ -349,9 +349,9 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 {
     if (!gbl_cur_main_window_) {
-        connect(wsApp, SIGNAL(openStatCommandDialog(QString, const char*, void*)),
+        connect(mainApp, SIGNAL(openStatCommandDialog(QString, const char*, void*)),
                 this, SLOT(openStatCommandDialog(QString, const char*, void*)));
-        connect(wsApp, SIGNAL(openTapParameterDialog(QString, const QString, void*)),
+        connect(mainApp, SIGNAL(openTapParameterDialog(QString, const QString, void*)),
                 this, SLOT(openTapParameterDialog(QString, const QString, void*)));
     }
     gbl_cur_main_window_ = this;
@@ -375,7 +375,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->menuView->removeAction(main_ui_->actionViewWirelessToolbar);
 #endif
 
-    setWindowIcon(wsApp->normalIcon());
+    setWindowIcon(mainApp->normalIcon());
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
     setForCapturedPackets(false);
@@ -396,30 +396,30 @@ MainWindow::MainWindow(QWidget *parent) :
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(applyGlobalCommandLineOptions()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initViewColorizeMenu()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(addPluginIFStructures()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
-    connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initExportObjectsMenus()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(setFeaturesEnabled()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(applyGlobalCommandLineOptions()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(zoomText()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initViewColorizeMenu()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addStatsPluginsToMenu()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addDynamicMenus()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(addPluginIFStructures()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initConversationMenus()));
+    connect(mainApp, SIGNAL(appInitialized()), this, SLOT(initExportObjectsMenus()));
 
-    connect(wsApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updatePreferenceActions()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
-    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(setTitlebarForCaptureFile()));
+    connect(mainApp, SIGNAL(profileChanging()), this, SLOT(saveWindowGeometry()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutPanes()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(updatePreferenceActions()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
+    connect(mainApp, SIGNAL(preferencesChanged()), this, SLOT(setTitlebarForCaptureFile()));
 
-    connect(wsApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
+    connect(mainApp, SIGNAL(updateRecentCaptureStatus(const QString &, qint64, bool)), this, SLOT(updateRecentCaptures()));
     updateRecentCaptures();
 
 #if defined(HAVE_SOFTWARE_UPDATE) && defined(Q_OS_WIN)
-    connect(wsApp, SIGNAL(softwareUpdateRequested()), this, SLOT(softwareUpdateRequested()),
+    connect(mainApp, SIGNAL(softwareUpdateRequested()), this, SLOT(softwareUpdateRequested()),
         Qt::BlockingQueuedConnection);
-    connect(wsApp, SIGNAL(softwareUpdateClose()), this, SLOT(close()),
+    connect(mainApp, SIGNAL(softwareUpdateClose()), this, SLOT(close()),
         Qt::BlockingQueuedConnection);
 #endif
 
@@ -541,7 +541,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
     connect(this, &MainWindow::fieldHighlight,
             main_ui_->statusBar, &MainStatusBar::highlightedFieldChanged);
-    connect(wsApp, &WiresharkApplication::captureActive,
+    connect(mainApp, &WiresharkApplication::captureActive,
             this, &MainWindow::captureActive);
 
     byte_view_tab_ = new ByteViewTab(&master_split_);
@@ -564,26 +564,26 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
             this, SLOT(captureEventHandler(CaptureEvent)));
     connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
-            wsApp, SLOT(captureEventHandler(CaptureEvent)));
+            mainApp, SLOT(captureEventHandler(CaptureEvent)));
     connect(&capture_file_, SIGNAL(captureEvent(CaptureEvent)),
             main_ui_->statusBar, SLOT(captureEventHandler(CaptureEvent)));
 
-    connect(wsApp, SIGNAL(columnsChanged()),
+    connect(mainApp, SIGNAL(columnsChanged()),
             packet_list_, SLOT(columnsChanged()));
-    connect(wsApp, SIGNAL(preferencesChanged()),
+    connect(mainApp, SIGNAL(preferencesChanged()),
             packet_list_, SLOT(preferencesChanged()));
-    connect(wsApp, SIGNAL(recentPreferencesRead()),
+    connect(mainApp, SIGNAL(recentPreferencesRead()),
             this, SLOT(applyRecentPaneGeometry()));
-    connect(wsApp, SIGNAL(recentPreferencesRead()),
+    connect(mainApp, SIGNAL(recentPreferencesRead()),
             this, SLOT(updateRecentActions()));
-    connect(wsApp, SIGNAL(packetDissectionChanged()),
+    connect(mainApp, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()), Qt::QueuedConnection);
 
-    connect(wsApp, SIGNAL(checkDisplayFilter()),
+    connect(mainApp, SIGNAL(checkDisplayFilter()),
             this, SLOT(checkDisplayFilter()));
-    connect(wsApp, SIGNAL(fieldsChanged()),
+    connect(mainApp, SIGNAL(fieldsChanged()),
             this, SLOT(fieldsChanged()));
-    connect(wsApp, SIGNAL(reloadLuaPlugins()),
+    connect(mainApp, SIGNAL(reloadLuaPlugins()),
             this, SLOT(reloadLuaPlugins()));
 
     connect(main_ui_->mainStack, SIGNAL(currentChanged(int)),
@@ -615,9 +615,9 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connect(this, &MainWindow::setCaptureFile,
             proto_tree_, &ProtoTree::setCaptureFile);
 
-    connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
+    connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
             packet_list_, SLOT(setMonospaceFont(QFont)));
-    connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
+    connect(mainApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
 
     connect(main_ui_->actionGoNextPacket, SIGNAL(triggered()),
@@ -815,8 +815,8 @@ void MainWindow::addInterfaceToolbar(const iface_toolbar *toolbar_entry)
     menu->insertAction(before, action);
 
     InterfaceToolbar *interface_toolbar = new InterfaceToolbar(this, toolbar_entry);
-    connect(wsApp, SIGNAL(appInitialized()), interface_toolbar, SLOT(interfaceListChanged()));
-    connect(wsApp, SIGNAL(localInterfaceListChanged()), interface_toolbar, SLOT(interfaceListChanged()));
+    connect(mainApp, SIGNAL(appInitialized()), interface_toolbar, SLOT(interfaceListChanged()));
+    connect(mainApp, SIGNAL(localInterfaceListChanged()), interface_toolbar, SLOT(interfaceListChanged()));
 
     QToolBar *toolbar = new QToolBar(this);
     toolbar->addWidget(interface_toolbar);
@@ -940,7 +940,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event) {
         return;
     }
 
-    if (wsApp->focusWidget() == main_ui_->goToLineEdit) {
+    if (mainApp->focusWidget() == main_ui_->goToLineEdit) {
         if (event->modifiers() == Qt::NoModifier) {
             if (event->key() == Qt::Key_Escape) {
                 on_goToCancel_clicked();
@@ -985,19 +985,19 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     delete welcome_page_;
 
     // One of the many places we assume one main window.
-    if (!wsApp->isInitialized()) {
+    if (!mainApp->isInitialized()) {
         // If we're still initializing, QCoreApplication::quit() won't
         // exit properly because we are not in the event loop. This
         // means that the application won't clean up after itself. We
-        // might want to call wsApp->processEvents() during startup
+        // might want to call mainApp->processEvents() during startup
         // instead so that we can do a normal exit here.
         exit(0);
     }
-    wsApp->quit();
+    mainApp->quit();
     // When the main loop is not yet running (i.e. when openCaptureFile is
     // executing in main.cpp), the above quit action has no effect.
     // Schedule a quit action for the next execution of the main loop.
-    QMetaObject::invokeMethod(wsApp, "quit", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(mainApp, "quit", Qt::QueuedConnection);
 }
 
 // XXX On windows the drag description is "Copy". It should be "Open" or
@@ -1015,7 +1015,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
         // We could alternatively call setAcceptDrops(!capture_in_progress)
         // in setMenusForCaptureInProgress but that wouldn't provide feedback.
 
-        wsApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to drop files during capture."));
+        mainApp->pushStatus(WiresharkApplication::TemporaryStatus, tr("Unable to drop files during capture."));
         event->setDropAction(Qt::IgnoreAction);
         event->ignore();
         return;
@@ -1169,7 +1169,7 @@ void MainWindow::saveWindowGeometry()
 // shown and hidden.
 void MainWindow::freeze()
 {
-    freeze_focus_ = wsApp->focusWidget();
+    freeze_focus_ = mainApp->focusWidget();
 
     // XXX Alternatively we could just disable and enable the main menu.
     for (int i = 0; i < freeze_actions_.size(); i++) {
@@ -1332,7 +1332,7 @@ void MainWindow::mergeCaptureFile()
         }
 
         /* Save the name of the containing directory specified in the path name. */
-        wsApp->setLastOpenDirFromFilename(tmpname);
+        mainApp->setLastOpenDirFromFilename(tmpname);
         g_free(tmpname);
         main_ui_->statusBar->showExpert();
         return;
@@ -2606,7 +2606,7 @@ void MainWindow::setMenusForFileSet(bool enable_list_files) {
 }
 
 void MainWindow::setWindowIcon(const QIcon &icon) {
-    wsApp->setWindowIcon(icon);
+    mainApp->setWindowIcon(icon);
     QMainWindow::setWindowIcon(icon);
 }
 
@@ -2624,12 +2624,12 @@ void MainWindow::changeEvent(QEvent* event)
         case QEvent::LanguageChange:
             main_ui_->retranslateUi(this);
             // make sure that the "Clear Menu" item is retranslated
-            wsApp->emitAppSignal(WiresharkApplication::RecentCapturesChanged);
+            mainApp->emitAppSignal(WiresharkApplication::RecentCapturesChanged);
             break;
         case QEvent::LocaleChange: {
             QString locale = QLocale::system().name();
             locale.truncate(locale.lastIndexOf('_'));
-            wsApp->loadLanguage(locale);
+            mainApp->loadLanguage(locale);
         }
         break;
         case QEvent::WindowStateChange:
@@ -2808,32 +2808,32 @@ void MainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
 void MainWindow::addDynamicMenus()
 {
     // Manual additions
-    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_GSM, main_ui_->actionTelephonyGsmMapSummary);
-    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteMacStatistics);
-    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcStatistics);
-    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcGraph);
-    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_MTP3, main_ui_->actionTelephonyMtp3Summary);
-    wsApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY, main_ui_->actionTelephonySipFlows);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_GSM, main_ui_->actionTelephonyGsmMapSummary);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteMacStatistics);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcStatistics);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcGraph);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_MTP3, main_ui_->actionTelephonyMtp3Summary);
+    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY, main_ui_->actionTelephonySipFlows);
 
     // Fill in each menu
     foreach(register_stat_group_t menu_group, menu_groups) {
-        QList<QAction *>actions = wsApp->dynamicMenuGroupItems(menu_group);
+        QList<QAction *>actions = mainApp->dynamicMenuGroupItems(menu_group);
         addMenuActions(actions, menu_group);
     }
 
     // Empty menus don't show up: https://bugreports.qt.io/browse/QTBUG-33728
     // We've added a placeholder in order to make sure some menus are visible.
     // Hide them as needed.
-    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_ANSI).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_ANSI).length() > 0) {
         main_ui_->actionTelephonyANSIPlaceholder->setVisible(false);
     }
-    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_GSM).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_GSM).length() > 0) {
         main_ui_->actionTelephonyGSMPlaceholder->setVisible(false);
     }
-    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_LTE).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_LTE).length() > 0) {
         main_ui_->actionTelephonyLTEPlaceholder->setVisible(false);
     }
-    if (wsApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_MTP3).length() > 0) {
+    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_MTP3).length() > 0) {
         main_ui_->actionTelephonyMTP3Placeholder->setVisible(false);
     }
 }
@@ -2841,15 +2841,15 @@ void MainWindow::addDynamicMenus()
 void MainWindow::reloadDynamicMenus()
 {
     foreach(register_stat_group_t menu_group, menu_groups) {
-        QList<QAction *>actions = wsApp->removedMenuGroupItems(menu_group);
+        QList<QAction *>actions = mainApp->removedMenuGroupItems(menu_group);
         removeMenuActions(actions, menu_group);
 
-        actions = wsApp->addedMenuGroupItems(menu_group);
+        actions = mainApp->addedMenuGroupItems(menu_group);
         addMenuActions(actions, menu_group);
     }
 
-    wsApp->clearAddedMenuGroupItems();
-    wsApp->clearRemovedMenuGroupItems();
+    mainApp->clearAddedMenuGroupItems();
+    mainApp->clearRemovedMenuGroupItems();
 }
 
 void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)

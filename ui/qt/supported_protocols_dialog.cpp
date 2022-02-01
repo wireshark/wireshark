@@ -14,7 +14,7 @@
 
 #include <QElapsedTimer>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 SupportedProtocolsDialog::SupportedProtocolsDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -34,7 +34,7 @@ SupportedProtocolsDialog::SupportedProtocolsDialog(QWidget *parent) :
         loadGeometry(parent->width() * 3 / 4, parent->height());
     setAttribute(Qt::WA_DeleteOnClose, true);
 
-    setWindowTitle(wsApp->windowTitleString(tr("Supported Protocols")));
+    setWindowTitle(mainApp->windowTitleString(tr("Supported Protocols")));
 
     // Some of our names are unreasonably long.
     int one_em = fontMetrics().height();

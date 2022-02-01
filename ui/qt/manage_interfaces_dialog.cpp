@@ -31,7 +31,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QDebug>
 
@@ -262,7 +262,7 @@ void ManageInterfacesDialog::on_buttonBox_accepted()
     remoteAccepted();
 #endif
     prefs_main_write();
-    wsApp->refreshLocalInterfaces();
+    mainApp->refreshLocalInterfaces();
     emit ifsChanged();
 }
 
@@ -307,7 +307,7 @@ void ManageInterfacesDialog::on_delPipe_clicked()
 
 void ManageInterfacesDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_CAPTURE_MANAGE_INTERFACES_DIALOG);
+    mainApp->helpTopicAction(HELP_CAPTURE_MANAGE_INTERFACES_DIALOG);
 }
 
 #ifdef HAVE_PCAP_REMOTE

@@ -19,7 +19,7 @@
 #include <QTreeWidgetItem>
 #include <QPushButton>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include "ui/recent.h"
 
@@ -985,7 +985,7 @@ lte_rlc_statistics_init(const char *args, void*) {
     if (args_l.length() > 2) {
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
-    wsApp->emitStatCommandSignal("LteRlcStatistics", filter.constData(), NULL);
+    mainApp->emitStatCommandSignal("LteRlcStatistics", filter.constData(), NULL);
 }
 
 static stat_tap_ui lte_rlc_statistics_ui = {

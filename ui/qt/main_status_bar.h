@@ -96,7 +96,7 @@ private slots:
     void manageProfile();
     void showProfileMenu(const QPoint &global_pos, Qt::MouseButton button);
 
-    friend WiresharkApplication;
+    friend MainApplication;
 };
 
 #endif // MAIN_STATUS_BAR_H

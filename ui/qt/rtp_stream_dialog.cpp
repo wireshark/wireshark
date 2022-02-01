@@ -19,7 +19,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_analysis_dialog.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAction>
@@ -713,7 +713,7 @@ void RtpStreamDialog::on_actionCopyAsCsv_triggered()
         }
         stream << rdsl.join(",") << '\n';
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 void RtpStreamDialog::on_actionCopyAsYaml_triggered()
@@ -727,7 +727,7 @@ void RtpStreamDialog::on_actionCopyAsYaml_triggered()
             stream << " - " << v.toString() << '\n';
         }
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
@@ -740,10 +740,10 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
     rtpstream_info_t *stream_info = rsti->streamInfo();
     if (stream_info) {
         QString file_name;
-        QDir path(wsApp->lastOpenDir());
+        QDir path(mainApp->lastOpenDir());
         QString save_file = path.canonicalPath() + "/" + cap_file_.fileBaseName();
         QString extension;
-        file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save RTPDump As…")),
+        file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save RTPDump As…")),
                                                  save_file, "RTPDump Format (*.rtpdump)", &extension);
 
         if (file_name.length() > 0) {
@@ -752,7 +752,7 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
             g_free(dest_file);
             // else error dialog?
             if (save_ok) {
-                wsApp->setLastOpenDirFromFilename(file_name);
+                mainApp->setLastOpenDirFromFilename(file_name);
             }
         }
 
@@ -891,7 +891,7 @@ void RtpStreamDialog::on_streamTreeWidget_itemSelectionChanged()
 
 void RtpStreamDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_TELEPHONY_RTP_STREAMS_DIALOG);
+    mainApp->helpTopicAction(HELP_TELEPHONY_RTP_STREAMS_DIALOG);
 }
 
 void RtpStreamDialog::on_displayFilterCheckBox_toggled(bool checked _U_)

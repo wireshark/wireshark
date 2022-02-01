@@ -20,7 +20,7 @@
 #include <QPropertyAnimation>
 
 #include <ui/qt/widgets/stock_icon_tool_button.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 // To do:
 // - Add an NSProgressIndicator to the dock icon on macOS.
@@ -79,7 +79,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *)
     /*
      * Flush out the update and process any input events.
      */
-    WiresharkApplication::processEvents();
+    MainApplication::processEvents();
 }
 
 /*

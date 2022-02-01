@@ -12,7 +12,7 @@
 #include <epan/packet.h>
 
 #include <ui/qt/utils/variant_pointer.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 static const char* CUSTOM_TABLE_NAME = "Custom Tables";
 static const char* INTEGER_TABLE_NAME = "Integer Tables";

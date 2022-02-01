@@ -16,7 +16,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "wireshark_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "ui/recent.h"
@@ -36,7 +36,7 @@ WiresharkDialog::WiresharkDialog(QWidget &parent, CaptureFile &capture_file) :
     retap_depth_(0),
     dialog_closed_(false)
 {
-    setWindowIcon(wsApp->normalIcon());
+    setWindowIcon(mainApp->normalIcon());
     setWindowSubtitle(QString());
 
     connect(&cap_file_, &CaptureFile::captureEvent, this, &WiresharkDialog::captureEvent);
@@ -59,7 +59,7 @@ void WiresharkDialog::setWindowSubtitle(const QString &subtitle)
 {
     subtitle_ = subtitle;
 
-    QString title = wsApp->windowTitleString(QStringList() << subtitle_ << cap_file_.fileTitle());
+    QString title = mainApp->windowTitleString(QStringList() << subtitle_ << cap_file_.fileTitle());
     QDialog::setWindowTitle(title);
 }
 

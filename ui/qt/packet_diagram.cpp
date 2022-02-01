@@ -16,7 +16,7 @@
 
 #include "wsutil/utf8_entities.h"
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include "ui/qt/main_window.h"
 #include "ui/qt/utils/proto_node.h"
@@ -51,7 +51,7 @@ public:
         padding_rems_(0.5),
         span_mark_offset_rems_(0.2)
     {
-        setFont(wsApp->font());
+        setFont(mainApp->font());
     }
 
     void setFont(QFont font) {
@@ -357,8 +357,8 @@ PacketDiagram::PacketDiagram(QWidget *parent) :
     // XXX Move to setMonospaceFont similar to ProtoTree
     layout_->setFont(font());
 
-    connect(wsApp, &WiresharkApplication::appInitialized, this, &PacketDiagram::connectToMainWindow);
-    connect(wsApp, &WiresharkApplication::zoomRegularFont, this, &PacketDiagram::setFont);
+    connect(mainApp, &MainApplication::appInitialized, this, &PacketDiagram::connectToMainWindow);
+    connect(mainApp, &MainApplication::zoomRegularFont, this, &PacketDiagram::setFont);
 
     resetScene();
 }
@@ -490,7 +490,7 @@ void PacketDiagram::contextMenuEvent(QContextMenuEvent *event)
 
 void PacketDiagram::connectToMainWindow()
 {
-    MainWindow *main_window = qobject_cast<MainWindow *>(wsApp->mainWindow());
+    MainWindow *main_window = qobject_cast<MainWindow *>(mainApp->mainWindow());
     if (!main_window) {
         return;
     }
@@ -757,7 +757,7 @@ void PacketDiagram::showFieldsToggled(bool checked)
 void PacketDiagram::saveAsTriggered()
 {
     QString file_name, extension;
-    QDir path(wsApp->lastOpenDir());
+    QDir path(mainApp->lastOpenDir());
     QString png_filter = tr("Portable Network Graphics (*.png)");
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");
     // Gaze upon my beautiful graph with lossy artifacts!
@@ -769,7 +769,7 @@ void PacketDiagram::saveAsTriggered()
 #endif
     QString filter = fl.join(";;");
 
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
+    file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save Graph As…")),
                                              path.canonicalPath(), filter, &extension);
 
     if (file_name.length() > 0) {
@@ -796,7 +796,7 @@ void PacketDiagram::saveAsTriggered()
 #endif
         // else error dialog?
         if (save_ok) {
-            wsApp->setLastOpenDirFromFilename(file_name);
+            mainApp->setLastOpenDirFromFilename(file_name);
         }
     }
 }
@@ -804,7 +804,7 @@ void PacketDiagram::saveAsTriggered()
 void PacketDiagram::copyAsRasterTriggered()
 {
     QImage raster_diagram = exportToImage();
-    wsApp->clipboard()->setImage(raster_diagram);
+    mainApp->clipboard()->setImage(raster_diagram);
 }
 
 #if defined(QT_SVG_LIB) && !defined(Q_OS_MAC) && 0
@@ -817,6 +817,6 @@ void PacketDiagram::copyAsSvgTriggered()
     // It might be easier to just do "Save As" instead.
     QMimeData *md = new QMimeData();
     md->setData("image/svg+xml", svg_buf);
-    wsApp->clipboard()->setMimeData(md);
+    mainApp->clipboard()->setMimeData(md);
 }
 #endif

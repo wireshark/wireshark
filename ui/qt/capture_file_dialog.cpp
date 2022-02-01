@@ -47,7 +47,7 @@
 
 #include "epan/prefs.h"
 #include <ui/qt/utils/qt_ui_utils.h>
-#include <wireshark_application.h>
+#include <main_application.h>
 
 CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString &display_filter) :
     WiresharkFileDialog(parent),
@@ -70,7 +70,7 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
          * use the "last opened" directory saved in the preferences file if
          * there was one.
          */
-        setDirectory(wsApp->lastOpenDir());
+        setDirectory(mainApp->lastOpenDir());
         break;
 
     case FO_STYLE_SPECIFIED:
@@ -275,7 +275,7 @@ wtap_compression_type CaptureFileDialog::compressionType() {
 }
 
 int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
-    QString title_str = wsApp->windowTitleString(tr("Open Capture File"));
+    QString title_str = mainApp->windowTitleString(tr("Open Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wof_status;
@@ -292,7 +292,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
 }
 
 check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
-    QString title_str = wsApp->windowTitleString(tr("Save Capture File As"));
+    QString title_str = mainApp->windowTitleString(tr("Save Capture File As"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wsf_status;
 
@@ -309,7 +309,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
 }
 
 check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
-    QString title_str = wsApp->windowTitleString(tr("Export Specified Packets"));
+    QString title_str = mainApp->windowTitleString(tr("Export Specified Packets"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     gboolean wespf_status;
 
@@ -331,7 +331,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
 }
 
 int CaptureFileDialog::merge(QString &file_name) {
-    QString title_str = wsApp->windowTitleString(tr("Merge Capture File"));
+    QString title_str = mainApp->windowTitleString(tr("Merge Capture File"));
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wmf_status;
@@ -700,7 +700,7 @@ QDialogButtonBox *CaptureFileDialog::addHelpButton(topic_action_e help_topic)
 }
 
 int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
-    setWindowTitle(wsApp->windowTitleString(tr("Open Capture File")));
+    setWindowTitle(mainApp->windowTitleString(tr("Open Capture File")));
     setNameFilters(buildFileOpenTypeList());
     setFileMode(QFileDialog::ExistingFile);
 
@@ -730,7 +730,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
 }
 
 check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_support_all_comments) {
-    setWindowTitle(wsApp->windowTitleString(tr("Save Capture File As")));
+    setWindowTitle(mainApp->windowTitleString(tr("Save Capture File As")));
     // XXX There doesn't appear to be a way to use setNameFilters without restricting
     // what the user can select. We might want to use our own combobox instead and
     // let the user select anything.
@@ -773,7 +773,7 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
 check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, packet_range_t *range, QString selRange) {
     QDialogButtonBox *button_box;
 
-    setWindowTitle(wsApp->windowTitleString(tr("Export Specified Packets")));
+    setWindowTitle(mainApp->windowTitleString(tr("Export Specified Packets")));
     // XXX See comment in ::saveAs regarding setNameFilters
     setNameFilters(buildFileSaveAsTypeList(false));
     setAcceptMode(QFileDialog::AcceptSave);
@@ -821,7 +821,7 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
 }
 
 int CaptureFileDialog::merge(QString &file_name) {
-    setWindowTitle(wsApp->windowTitleString(tr("Merge Capture File")));
+    setWindowTitle(mainApp->windowTitleString(tr("Merge Capture File")));
     setNameFilters(buildFileOpenTypeList());
     setFileMode(QFileDialog::ExistingFile);
 
@@ -1025,7 +1025,7 @@ void CaptureFileDialog::preview(const QString & path)
 
 void CaptureFileDialog::on_buttonBox_helpRequested()
 {
-    if (help_topic_ != TOPIC_ACTION_NONE) wsApp->helpTopicAction(help_topic_);
+    if (help_topic_ != TOPIC_ACTION_NONE) mainApp->helpTopicAction(help_topic_);
 }
 
 #endif // ! Q_OS_WIN

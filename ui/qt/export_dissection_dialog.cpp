@@ -31,7 +31,7 @@
 #endif // Q_OS_WIN
 
 #include <epan/prefs.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #if !defined(Q_OS_WIN)
 static const QStringList export_extensions = QStringList()
@@ -56,7 +56,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
     , sel_range_(selRange)
 #endif /* Q_OS_WIN */
 {
-    setWindowTitle(wsApp->windowTitleString(tr("Export Packet Dissections")));
+    setWindowTitle(mainApp->windowTitleString(tr("Export Packet Dissections")));
 
     switch (prefs.gui_fileopen_style) {
 
@@ -67,7 +67,7 @@ ExportDissectionDialog::ExportDissectionDialog(QWidget *parent, capture_file *ca
          * use the "last opened" directory saved in the preferences file if
          * there was one.
          */
-        setDirectory(wsApp->lastOpenDir());
+        setDirectory(mainApp->lastOpenDir());
         break;
 
     case FO_STYLE_SPECIFIED:
@@ -284,6 +284,6 @@ void ExportDissectionDialog::checkValidity()
 
 void ExportDissectionDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_EXPORT_FILE_DIALOG);
+    mainApp->helpTopicAction(HELP_EXPORT_FILE_DIALOG);
 }
 #endif // Q_OS_WIN

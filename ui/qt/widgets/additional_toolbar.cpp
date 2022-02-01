@@ -15,7 +15,7 @@
 #include <ui/qt/widgets/apply_line_edit.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
-#include <ui/qt/wireshark_application.h>
+#include <ui/qt/main_application.h>
 
 #include <QLabel>
 #include <QLineEdit>
@@ -100,14 +100,14 @@ AdditionalToolbarWidgetAction::AdditionalToolbarWidgetAction(ext_toolbar_t * ite
 : QWidgetAction(parent),
   toolbar_item(item)
 {
-    connect(wsApp, &WiresharkApplication::captureActive, this, &AdditionalToolbarWidgetAction::captureActive);
+    connect(mainApp, &MainApplication::captureActive, this, &AdditionalToolbarWidgetAction::captureActive);
 }
 
 AdditionalToolbarWidgetAction::AdditionalToolbarWidgetAction(const AdditionalToolbarWidgetAction & copy_object)
 :  QWidgetAction(copy_object.parent()),
    toolbar_item(copy_object.toolbar_item)
 {
-    connect(wsApp, &WiresharkApplication::captureActive, this, &AdditionalToolbarWidgetAction::captureActive);
+    connect(mainApp, &MainApplication::captureActive, this, &AdditionalToolbarWidgetAction::captureActive);
 }
 
 

@@ -13,7 +13,7 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "uat_dialog.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <ui/qt/utils/variant_pointer.h>
 
@@ -522,7 +522,7 @@ void ModulePreferencesScrollArea::saveFilenamePushButtonClicked()
     pref_t *pref = VariantPointer<pref_t>::asPtr(filename_pb->property(pref_prop_));
     if (!pref) return;
 
-    QString filename = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
+    QString filename = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(prefs_get_title(pref)),
                                                     prefs_get_string_value(pref, pref_stashed));
 
     if (!filename.isEmpty()) {
@@ -539,7 +539,7 @@ void ModulePreferencesScrollArea::openFilenamePushButtonClicked()
     pref_t *pref = VariantPointer<pref_t>::asPtr(filename_pb->property(pref_prop_));
     if (!pref) return;
 
-    QString filename = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(prefs_get_title(pref)),
+    QString filename = WiresharkFileDialog::getOpenFileName(this, mainApp->windowTitleString(prefs_get_title(pref)),
                                                     prefs_get_string_value(pref, pref_stashed));
     if (!filename.isEmpty()) {
         prefs_set_string_value(pref, QDir::toNativeSeparators(filename).toStdString().c_str(), pref_stashed);
@@ -555,7 +555,7 @@ void ModulePreferencesScrollArea::dirnamePushButtonClicked()
     pref_t *pref = VariantPointer<pref_t>::asPtr(dirname_pb->property(pref_prop_));
     if (!pref) return;
 
-    QString dirname = WiresharkFileDialog::getExistingDirectory(this, wsApp->windowTitleString(prefs_get_title(pref)),
+    QString dirname = WiresharkFileDialog::getExistingDirectory(this, mainApp->windowTitleString(prefs_get_title(pref)),
                                                  prefs_get_string_value(pref, pref_stashed));
 
     if (!dirname.isEmpty()) {

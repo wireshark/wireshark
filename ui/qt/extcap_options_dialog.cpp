@@ -14,7 +14,7 @@
 #include <extcap_options_dialog.h>
 #include <ui_extcap_options_dialog.h>
 
-#include <wireshark_application.h>
+#include <main_application.h>
 
 #include <QMessageBox>
 #include <QHash>
@@ -47,7 +47,7 @@
 #include <epan/prefs.h>
 #include <ui/preference_utils.h>
 
-#include <ui/qt/wireshark_application.h>
+#include <ui/qt/main_application.h>
 #include <ui/qt/utils/variant_pointer.h>
 
 #include <ui/qt/extcap_argument.h>
@@ -63,7 +63,7 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(bool startCaptureOnClose, QWidget *pare
 {
     ui->setupUi(this);
 
-    setWindowTitle(wsApp->windowTitleString(tr("Interface Options")));
+    setWindowTitle(mainApp->windowTitleString(tr("Interface Options")));
 
     ui->checkSaveOnStart->setCheckState(prefs.extcap_save_on_start ? Qt::Checked : Qt::Unchecked);
 
@@ -101,7 +101,7 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, bo
     resultDialog->device_name = QString(dev_name);
     resultDialog->device_idx = if_idx;
 
-    resultDialog->setWindowTitle(wsApp->windowTitleString(tr("Interface Options") + ": " + device->display_name));
+    resultDialog->setWindowTitle(mainApp->windowTitleString(tr("Interface Options") + ": " + device->display_name));
 
     resultDialog->updateWidgets();
 
@@ -410,7 +410,7 @@ void ExtcapOptionsDialog::on_buttonBox_helpRequested()
     interface_help = QString(extcap_get_help_for_ifname(device->name));
     /* The extcap interface didn't provide an help. Let's go with the default */
     if (interface_help.isEmpty()) {
-        wsApp->helpTopicAction(HELP_EXTCAP_OPTIONS_DIALOG);
+        mainApp->helpTopicAction(HELP_EXTCAP_OPTIONS_DIALOG);
         return;
     }
 
@@ -611,7 +611,7 @@ void ExtcapOptionsDialog::storeValues()
     if (g_hash_table_size(entries) > 0)
     {
         if (prefs_store_ext_multiple("extcap", entries))
-            wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
+            mainApp->emitAppSignal(MainApplication::PreferencesChanged);
 
     }
 }

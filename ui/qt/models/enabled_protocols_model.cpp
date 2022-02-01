@@ -14,7 +14,7 @@
 #include <epan/disabled_protos.h>
 
 #include <ui/qt/utils/variant_pointer.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QRegularExpression>
 
@@ -339,7 +339,7 @@ void EnabledProtocolsModel::saveChanges(bool writeChanges)
     if (writeChanges) {
         save_enabled_and_disabled_lists();
     }
-    wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+    mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
 }
 
 

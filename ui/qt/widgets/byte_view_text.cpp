@@ -17,7 +17,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/color_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "ui/recent.h"
 
 #include <QActionGroup>

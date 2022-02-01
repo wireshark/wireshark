@@ -262,18 +262,18 @@ gather_wireshark_runtime_info(feature_list l)
     gather_airpcap_runtime_info(l);
 #endif
 
-    if (wsApp) {
+    if (mainApp) {
         // Display information
         const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
         with_feature(l, "%s display mode", display_mode);
 
         int hidpi_count = 0;
-        foreach (QScreen *screen, wsApp->screens()) {
+        foreach (QScreen *screen, mainApp->screens()) {
             if (screen->devicePixelRatio() > 1.0) {
                 hidpi_count++;
             }
         }
-        if (hidpi_count == wsApp->screens().count()) {
+        if (hidpi_count == mainApp->screens().count()) {
             with_feature(l, "HiDPI");
         } else if (hidpi_count) {
             with_feature(l, "mixed DPI");

@@ -31,7 +31,7 @@
 #include "ui/simple_dialog.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QTextStream>
 

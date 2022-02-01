@@ -21,7 +21,7 @@
 
 #include "wiretap/wtap.h"
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QIdentityProxyModel>
 
@@ -279,7 +279,7 @@ void InterfaceTreeCacheModel::save()
         ++it;
     }
 
-    wsApp->emitAppSignal(WiresharkApplication::LocalInterfacesChanged);
+    mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
 }
 #endif
 
@@ -580,7 +580,7 @@ void InterfaceTreeCacheModel::deleteDevice(const QModelIndex &index)
         capture_opts_free_interface_t(device);
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, row);
         emit endRemoveRows();
-        wsApp->emitAppSignal(WiresharkApplication::LocalInterfacesChanged);
+        mainApp->emitAppSignal(MainApplication::LocalInterfacesChanged);
     }
 }
 #endif

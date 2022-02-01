@@ -32,7 +32,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 // To do:
 // - Handle menu paths. Do we create a new path (GTK+) or use the base element?
@@ -196,12 +196,12 @@ void FunnelStatistics::reloadPackets()
 void FunnelStatistics::redissectPackets()
 {
     // This will trigger a packet redissection.
-    wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+    mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
 }
 
 void FunnelStatistics::reloadLuaPlugins()
 {
-    wsApp->reloadLuaPluginsDelayed();
+    mainApp->reloadLuaPluginsDelayed();
 }
 
 void FunnelStatistics::emitApplyDisplayFilter()
@@ -261,7 +261,7 @@ void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id) {
 }
 
 void funnel_statistics_copy_to_clipboard(GString *text) {
-    wsApp->clipboard()->setText(text->str);
+    mainApp->clipboard()->setText(text->str);
 }
 
 const gchar *funnel_statistics_get_filter(funnel_ops_id_t *ops_id) {
@@ -356,11 +356,11 @@ static void register_menu_cb(const char *name,
                              gpointer callback_data,
                              gboolean retap)
 {
-    FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap, wsApp);
+    FunnelAction *funnel_action = new FunnelAction(name, callback, callback_data, retap, mainApp);
     if (menus_registered) {
-        wsApp->appendDynamicMenuGroupItem(group, funnel_action);
+        mainApp->appendDynamicMenuGroupItem(group, funnel_action);
     } else {
-        wsApp->addDynamicMenuGroupItem(group, funnel_action);
+        mainApp->addDynamicMenuGroupItem(group, funnel_action);
     }
     if (!funnel_actions_.contains(group)) {
         funnel_actions_[group] = QList<FunnelAction *>();
@@ -377,7 +377,7 @@ static void deregister_menu_cb(funnel_menu_callback callback)
             if (funnel_action->callback() == callback) {
                 // Must set back to title to find the correct sub-menu in Tools
                 funnel_action->setText(funnel_action->title());
-                wsApp->removeDynamicMenuGroupItem(group, funnel_action);
+                mainApp->removeDynamicMenuGroupItem(group, funnel_action);
                 it = funnel_actions_[group].erase(it);
             } else {
                 ++it;

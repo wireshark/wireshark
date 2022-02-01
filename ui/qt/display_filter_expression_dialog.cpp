@@ -20,7 +20,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <ui/qt/utils/variant_pointer.h>
 
@@ -64,8 +64,8 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height());
     setAttribute(Qt::WA_DeleteOnClose, true);
 
-    setWindowTitle(wsApp->windowTitleString(tr("Display Filter Expression")));
-    setWindowIcon(wsApp->normalIcon());
+    setWindowTitle(mainApp->windowTitleString(tr("Display Filter Expression")));
+    setWindowIcon(mainApp->normalIcon());
 
     proto_initialize_all_prefixes();
 
@@ -126,7 +126,7 @@ void DisplayFilterExpressionDialog::fillTree()
         proto_list << proto_ti;
     }
 
-    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+    mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
 
     ui->fieldTreeWidget->invisibleRootItem()->addChildren(proto_list);
     ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
@@ -149,14 +149,14 @@ void DisplayFilterExpressionDialog::fillTree()
 
             field_count++;
             if (field_count % 10000 == 0) {
-                wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+                mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
             }
         }
         std::sort(field_list.begin(), field_list.end());
         proto_ti->addChildren(field_list);
     }
 
-    wsApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
+    mainApp->processEvents(QEventLoop::ExcludeUserInputEvents | QEventLoop::ExcludeSocketNotifiers, 1);
     ui->fieldTreeWidget->sortByColumn(0, Qt::AscendingOrder);
 
     updateWidgets();
@@ -446,5 +446,5 @@ void DisplayFilterExpressionDialog::on_buttonBox_accepted()
 
 void DisplayFilterExpressionDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_FILTER_EXPRESSION_DIALOG);
+    mainApp->helpTopicAction(HELP_FILTER_EXPRESSION_DIALOG);
 }

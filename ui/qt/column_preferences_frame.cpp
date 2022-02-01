@@ -24,7 +24,7 @@
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/models/column_list_model.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QComboBox>
 #include <QTreeWidgetItemIterator>
@@ -84,7 +84,7 @@ ColumnPreferencesFrame::~ColumnPreferencesFrame()
 void ColumnPreferencesFrame::unstash()
 {
     model_->saveColumns();
-    wsApp->emitAppSignal(WiresharkApplication::ColumnsChanged);
+    mainApp->emitAppSignal(MainApplication::ColumnsChanged);
 }
 
 void ColumnPreferencesFrame::on_newToolButton_clicked()

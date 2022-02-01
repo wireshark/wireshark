@@ -11,7 +11,7 @@
 #include <ui_show_packet_bytes_dialog.h>
 
 #include "main_window.h"
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include "epan/charsets.h"
@@ -283,7 +283,7 @@ void ShowPacketBytesDialog::copyBytes()
     {
         QByteArray ba(field_bytes_);
         sanitizeBuffer(ba, true);
-        wsApp->clipboard()->setText(ba);
+        mainApp->clipboard()->setText(ba);
         break;
     }
 
@@ -295,26 +295,26 @@ void ShowPacketBytesDialog::copyBytes()
     case ShowAsJson:
     case ShowAsRAW:
     case ShowAsYAML:
-        wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText());
+        mainApp->clipboard()->setText(ui->tePacketBytes->toPlainText());
         break;
 
     case ShowAsHTML:
-        wsApp->clipboard()->setText(ui->tePacketBytes->toHtml());
+        mainApp->clipboard()->setText(ui->tePacketBytes->toHtml());
         break;
 
     case ShowAsImage:
-        wsApp->clipboard()->setImage(image_);
+        mainApp->clipboard()->setImage(image_);
         break;
 
     case ShowAsCodec:
-        wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText().toUtf8());
+        mainApp->clipboard()->setText(ui->tePacketBytes->toPlainText().toUtf8());
         break;
     }
 }
 
 void ShowPacketBytesDialog::saveAs()
 {
-    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Selected Packet Bytes As…")));
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, mainApp->windowTitleString(tr("Save Selected Packet Bytes As…")));
 
     if (file_name.isEmpty())
         return;
@@ -387,7 +387,7 @@ void ShowPacketBytesDialog::saveAs()
 
 void ShowPacketBytesDialog::helpButton()
 {
-    wsApp->helpTopicAction(HELP_SHOW_PACKET_BYTES_DIALOG);
+    mainApp->helpTopicAction(HELP_SHOW_PACKET_BYTES_DIALOG);
 }
 
 void ShowPacketBytesDialog::on_bFind_clicked()
@@ -596,7 +596,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
     static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
     ui->tePacketBytes->clear();
-    ui->tePacketBytes->setCurrentFont(wsApp->monospaceFont());
+    ui->tePacketBytes->setCurrentFont(mainApp->monospaceFont());
 
     switch (show_as_) {
 

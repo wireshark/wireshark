@@ -19,7 +19,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <QClipboard>
 #include <QPushButton>
@@ -343,7 +343,7 @@ void ProtocolHierarchyDialog::on_actionCopyAsCsv_triggered()
         if (!first) ++iter;
         first = false;
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 void ProtocolHierarchyDialog::on_actionCopyAsYaml_triggered()
@@ -364,10 +364,10 @@ void ProtocolHierarchyDialog::on_actionCopyAsYaml_triggered()
         if (!first) ++iter;
         first = false;
     }
-    wsApp->clipboard()->setText(stream.readAll());
+    mainApp->clipboard()->setText(stream.readAll());
 }
 
 void ProtocolHierarchyDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_STATS_PROTO_HIERARCHY_DIALOG);
+    mainApp->helpTopicAction(HELP_STATS_PROTO_HIERARCHY_DIALOG);
 }

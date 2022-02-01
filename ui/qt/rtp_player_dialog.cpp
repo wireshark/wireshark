@@ -35,7 +35,7 @@
 #include "rtp_audio_stream.h"
 #include <ui/qt/utils/tango_colors.h>
 #include <widgets/rtp_audio_graph.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAudio>
@@ -55,7 +55,7 @@
 #include <QToolButton>
 
 #include <ui/qt/utils/stock_icon.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 // To do:
 // - Threaded decoding?
@@ -172,7 +172,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height());
-    setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
+    setWindowTitle(mainApp->windowTitleString(tr("RTP Player")));
     ui->streamTreeWidget->installEventFilter(this);
     ui->audioPlot->installEventFilter(this);
     installEventFilter(this);
@@ -419,7 +419,7 @@ void RtpPlayerDialog::retapPackets()
     }
     lockUI();
     ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
-    wsApp->processEvents();
+    mainApp->processEvents();
 
     // Clear packets from existing streams before retap
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
@@ -463,7 +463,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     // Show information for a user - it can last long time...
     playback_error_.clear();
     ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
-    wsApp->processEvents();
+    mainApp->processEvents();
 
     QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
     int row_count = ui->streamTreeWidget->topLevelItemCount();
@@ -580,7 +580,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Sequence numbers
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, tango_aluminium_6, Qt::white, wsApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, tango_aluminium_6, Qt::white, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->outOfSequenceTimestamps(relative_timestamps), audio_stream->outOfSequenceSamples(y_offset));
             ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
@@ -596,7 +596,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Jitter drops
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tango_scarlet_red_5, Qt::white, wsApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tango_scarlet_red_5, Qt::white, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->jitterDroppedTimestamps(relative_timestamps), audio_stream->jitterDroppedSamples(y_offset));
             ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
@@ -612,7 +612,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Wrong timestamps
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tango_sky_blue_5, Qt::white, wsApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tango_sky_blue_5, Qt::white, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->wrongTimestampTimestamps(relative_timestamps), audio_stream->wrongTimestampSamples(y_offset));
             ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
@@ -628,7 +628,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             // Inserted silence
             QCPGraph *seq_graph = ui->audioPlot->addGraph();
             seq_graph->setLineStyle(QCPGraph::lsNone);
-            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tango_butter_5, Qt::white, wsApp->font().pointSize())); // Arbitrary
+            seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tango_butter_5, Qt::white, mainApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->insertedSilenceTimestamps(relative_timestamps), audio_stream->insertedSilenceSamples(y_offset));
             ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
@@ -1344,7 +1344,7 @@ void RtpPlayerDialog::on_playButton_clicked()
     double start_time;
 
     ui->hintLabel->setText("<i><small>" + tr("Preparing to play...") + "</i></small>");
-    wsApp->processEvents();
+    mainApp->processEvents();
     ui->pauseButton->setChecked(false);
 
     // Protect start time against move of marker during the play
@@ -1944,7 +1944,7 @@ void RtpPlayerDialog::on_todCheckBox_toggled(bool)
 
 void RtpPlayerDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_TELEPHONY_RTP_PLAYER_DIALOG);
+    mainApp->helpTopicAction(HELP_TELEPHONY_RTP_PLAYER_DIALOG);
 }
 
 double RtpPlayerDialog::getStartPlayMarker()
@@ -2296,7 +2296,7 @@ save_audio_t RtpPlayerDialog::selectFileAudioFormatAndName(QString *file_path)
 
     QString sel_filter;
     *file_path = WiresharkFileDialog::getSaveFileName(
-                this, tr("Save audio"), wsApp->lastOpenDir().absoluteFilePath(""),
+                this, tr("Save audio"), mainApp->lastOpenDir().absoluteFilePath(""),
                 ext_filter, &sel_filter);
 
     if (file_path->isEmpty()) return save_audio_none;
@@ -2319,7 +2319,7 @@ save_payload_t RtpPlayerDialog::selectFilePayloadFormatAndName(QString *file_pat
 
     QString sel_filter;
     *file_path = WiresharkFileDialog::getSaveFileName(
-                this, tr("Save payload"), wsApp->lastOpenDir().absoluteFilePath(""),
+                this, tr("Save payload"), mainApp->lastOpenDir().absoluteFilePath(""),
                 ext_filter, &sel_filter);
 
     if (file_path->isEmpty()) return save_payload_none;

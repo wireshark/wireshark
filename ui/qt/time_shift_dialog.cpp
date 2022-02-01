@@ -10,7 +10,7 @@
 #include "time_shift_dialog.h"
 #include <ui_time_shift_dialog.h>
 
-#include "wireshark_application.h"
+#include "main_application.h"
 
 #include <ui/time_shift.h>
 #include <ui/qt/utils/color_utils.h>
@@ -24,7 +24,7 @@ TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     apply_button_(NULL)
 {
     ts_ui_->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(tr("Time Shift")));
+    setWindowTitle(mainApp->windowTitleString(tr("Time Shift")));
     apply_button_ = ts_ui_->buttonBox->button(QDialogButtonBox::Apply);
     apply_button_->setDefault(true);
     connect(apply_button_, &QPushButton::clicked, this, &TimeShiftDialog::applyTimeShift);
@@ -262,5 +262,5 @@ void TimeShiftDialog::applyTimeShift()
 
 void TimeShiftDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_TIME_SHIFT_DIALOG);
+    mainApp->helpTopicAction(HELP_TIME_SHIFT_DIALOG);
 }

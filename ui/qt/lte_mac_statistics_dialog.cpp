@@ -19,7 +19,7 @@
 #include <QTreeWidgetItem>
 
 #include <ui/qt/models/percent_bar_delegate.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 // TODO: have never tested in a live capture.
 
@@ -903,7 +903,7 @@ lte_mac_statistics_init(const char *args, void*) {
     if (args_l.length() > 2) {
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
-    wsApp->emitStatCommandSignal("LteMacStatistics", filter.constData(), NULL);
+    mainApp->emitStatCommandSignal("LteMacStatistics", filter.constData(), NULL);
 }
 
 static stat_tap_ui lte_mac_statistics_ui = {

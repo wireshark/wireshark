@@ -21,7 +21,7 @@
 
 #include <ui/qt/models/percent_bar_delegate.h>
 #include <ui/qt/utils/qt_ui_utils.h>
-#include "wireshark_application.h"
+#include "main_application.h"
 
 // To do:
 // - Add the name resolution checkbox
@@ -726,7 +726,7 @@ wlan_statistics_init(const char *args, void*) {
     if (args_l.length() > 2) {
         filter = QStringList(args_l.mid(2)).join(",").toUtf8();
     }
-    wsApp->emitStatCommandSignal("WlanStatistics", filter.constData(), NULL);
+    mainApp->emitStatCommandSignal("WlanStatistics", filter.constData(), NULL);
 }
 
 static stat_tap_ui wlan_statistics_ui = {
