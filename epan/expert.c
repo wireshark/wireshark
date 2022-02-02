@@ -20,6 +20,7 @@
 #include "expert.h"
 #include "uat.h"
 #include "prefs.h"
+#include <epan/prefs-int.h>
 #include <epan/wmem_scopes.h>
 #include "tap.h"
 
@@ -221,6 +222,11 @@ expert_packet_init(void)
 		proto_set_cant_toggle(proto_expert);
 
 		module_expert = prefs_register_protocol(proto_expert, NULL);
+		//Since "expert" is really a pseudo protocol, it shouldn't be
+		//categorized with other "real" protocols when it comes to
+		//preferences.  Since it's just a UAT, don't bury it in
+		//with the other protocols
+		module_expert->use_gui = FALSE;
 
 		expert_uat = uat_new("Expert Info Severity Level Configuration",
 			sizeof(expert_level_entry_t),
