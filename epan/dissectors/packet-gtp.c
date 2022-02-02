@@ -3609,6 +3609,24 @@ static _gtp_mess_items umts_mess_items[] = {
             {0, 0, NULL}
         }
     },
+    {
+        GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ, {
+            {GTP_EXT_NSAPI, GTP_MANDATORY, NULL},  /* NSAPI Mandatory 7.7.17 */
+            {GTP_EXT_PROTO_CONF, GTP_OPTIONAL, NULL}, /* Protocol Configuration Options Optional 7.7.31 */
+            {GTP_EXT_QOS_UMTS, GTP_MANDATORY, NULL}, /* Quality of Service Profile Mandatory 7.7.34 */
+            {GTP_EXT_TFT, GTP_CONDITIONAL, NULL}, /* TFT Conditional 7.7.36 */
+            {GTP_EXT_CORRELATION_ID, GTP_MANDATORY, NULL}, /* 7.7.82 */
+            {GTP_EXT_EVO_ALLO_RETE_P1, GTP_OPTIONAL, NULL}, /* 7.7.91 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
+        }
+    },
+    {
+        GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP, {
+            {GTP_EXT_CAUSE, GTP_MANDATORY, NULL},
+            {GTP_EXT_PROTO_CONF, GTP_CONDITIONAL, NULL}, /* Protocol Configuration Options Conditional 7.7.31 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
+        }
+    },
     /* 7.4 Location Management Messages */
     {
         GTP_MSG_SEND_ROUT_INFO_REQ, {
