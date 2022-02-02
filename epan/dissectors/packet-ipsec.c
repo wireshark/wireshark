@@ -2196,7 +2196,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         esp_pad_len = tvb_get_guint8(tvb, esp_packet_len - 14);
         encapsulated_protocol = tvb_get_guint8(tvb, esp_packet_len - 13);
         dissector_handle = dissector_get_uint_handle(ip_dissector_table, encapsulated_protocol);
-        if (dissector_handle) {
+        if (dissector_handle && (ESP_HEADER_LEN + 14 + esp_pad_len) <= esp_packet_len) {
           saved_match_uint  = pinfo->match_uint;
           pinfo->match_uint = encapsulated_protocol;
           next_tvb = tvb_new_subset_length(tvb, ESP_HEADER_LEN, esp_packet_len - ESP_HEADER_LEN - 14 - esp_pad_len);
