@@ -770,9 +770,14 @@ static const per_sequence_t RelativeDistinguishedName_set_of[1] = {
 
 static int
 dissect_atn_ulcs_RelativeDistinguishedName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+  /*
+   * Dissect the first null item only, similar to RDNSequence.
+   */
   offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
                                              ett_atn_ulcs_RelativeDistinguishedName, RelativeDistinguishedName_set_of,
-                                             1, NO_BOUND, FALSE);
+                                             1, 1, FALSE);
+
 
   return offset;
 }
@@ -784,8 +789,21 @@ static const per_sequence_t RDNSequence_sequence_of[1] = {
 
 static int
 dissect_atn_ulcs_RDNSequence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
-                                      ett_atn_ulcs_RDNSequence, RDNSequence_sequence_of);
+
+  /*
+   * atn-ulcs.asn currently defines
+   *
+   * RDNSequence  ::= SEQUENCE OF RelativeDistinguishedName
+   * RelativeDistinguishedName ::= SET SIZE (1 .. MAX) OF AttributeTypeAndValue
+   * AttributeTypeAndValue ::= SEQUENCE { null NULL}
+   *
+   * which makes it easy to spam the dissection tree with null items. Dissect
+   * the first item only.
+   */
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_atn_ulcs_RDNSequence, RDNSequence_sequence_of,
+                                      1, 1, FALSE);
+
 
   return offset;
 }
