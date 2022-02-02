@@ -994,10 +994,15 @@ dissect_tecmp_status_cm_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto
                 proto_item_append_text(ti, " %s", "Degrees Celsius");
         } else if (tvb_captured_length_remaining(tvb, offset) > 1) {
             /* TECMP 1.5 and later */
-            ti = proto_tree_add_item_ret_int(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis, tvb, offset, 1, ENC_NA, &temperature);
-            proto_item_append_text(ti, " %s", "Degrees Celsius");
-            if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
-                proto_item_append_text(ti, " %s", "or more");
+            temperature = tvb_get_gint8(tvb, offset);
+            if (temperature == VENDOR_TECHNICA_TEMP_NA) {
+                proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis, tvb, offset, 1, temperature, "%s", "Not Available");
+            } else {
+                ti = proto_tree_add_item(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis, tvb, offset, 1, ENC_NA);
+                proto_item_append_text(ti, " %s", "Degrees Celsius");
+                if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
+                    proto_item_append_text(ti, " %s", "or more");
+                }
             }
             offset += 1;
 
@@ -1005,7 +1010,7 @@ dissect_tecmp_status_cm_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto
             if ( temperature == VENDOR_TECHNICA_TEMP_NA) {
                 proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, temperature, "%s", "Not Available");
             } else {
-                ti = proto_tree_add_item_ret_int(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA, &temperature);
+                ti = proto_tree_add_item(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA);
                 proto_item_append_text(ti, " %s", "Degrees Celsius");
                 if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
                     proto_item_append_text(ti, " %s", "or more");
