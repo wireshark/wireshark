@@ -3006,7 +3006,7 @@ typedef struct {
 
 typedef struct {
     guint8 code;
-    ext_header fields[32];
+    ext_header fields[40];
 } _gtp_mess_items;
 
 /* ---------------------
@@ -3408,7 +3408,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_TEID, GTP_MANDATORY, NULL},
             {GTP_EXT_TEID_CP, GTP_CONDITIONAL, NULL},
             {GTP_EXT_NSAPI, GTP_MANDATORY, NULL},
-            {GTP_EXT_NSAPI, GTP_CONDITIONAL, NULL},
+            {GTP_EXT_NSAPI, GTP_CONDITIONAL, NULL}, /* Linked NSAPI Conditional */
             {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL, NULL},
             {GTP_EXT_TRACE_REF, GTP_OPTIONAL, NULL},
             {GTP_EXT_TRACE_TYPE, GTP_OPTIONAL, NULL},
@@ -3422,14 +3422,24 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_TFT, GTP_CONDITIONAL, NULL},
             {GTP_EXT_TRIGGER_ID, GTP_OPTIONAL, NULL},
             {GTP_EXT_OMC_ID, GTP_OPTIONAL, NULL},
-            /* TS 29.060 V6.11.0 */
+            {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* Common Flags Optional 7.7.48 */
             {GTP_EXT_APN_RES, GTP_OPTIONAL, NULL},
             {GTP_EXT_RAT_TYPE, GTP_OPTIONAL, NULL},
             {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL, NULL},
             {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL, NULL},
-            {GTP_EXT_IMEISV, GTP_OPTIONAL, NULL},
+            {GTP_EXT_IMEISV, GTP_CONDITIONAL, NULL},
             {GTP_EXT_CAMEL_CHG_INF_CON, GTP_OPTIONAL, NULL},
             {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL, NULL},
+            /* Updated to TS 29.060 V16.0.0 */
+            {GTP_EXT_CORRELATION_ID, GTP_OPTIONAL, NULL}, /* 7.7.82 */
+            {GTP_EXT_EVO_ALLO_RETE_P1, GTP_OPTIONAL, NULL}, /* 7.7.91 */
+            {GTP_EXT_EXTENDED_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* 7.7.93 */
+            {GTP_EXT_UCI, GTP_OPTIONAL, NULL}, /* 7.7.94 */
+            {GTP_EXT_AMBR, GTP_OPTIONAL, NULL}, /* 7.7.98 */
+            {GTP_EXT_SIG_PRI_IND, GTP_OPTIONAL, NULL}, /* 7.7.103 */
+            {GTP_EXT_CN_OP_SEL_ENTITY, GTP_OPTIONAL, NULL}, /* 7.7.116 */
+            {GTP_EXT_MAPPED_UE_USAGE_TYPE, GTP_OPTIONAL, NULL},  /* 7.7.123 */
+            {GTP_EXT_UP_FUN_SEL_IND_FLAGS, GTP_OPTIONAL, NULL},  /* 7.7.124 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3447,12 +3457,22 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_PROTO_CONF, GTP_OPTIONAL, NULL},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_ggsn_addr_for_control_plane},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_ggsn_addr_for_user_plane},
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL}, /* Alternative GGSN Addreses for Control Plane 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL}, /* Alternative GGSN Address for user traffic 7.7.32 */
             {GTP_EXT_QOS_UMTS, GTP_CONDITIONAL, NULL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL, NULL},
             /* TS 29.060 V6.11.0 */
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL, NULL},   /* Alternative Charging Gateway Address Optional 7.7.44 */
             {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* Common Flags Optional 7.7.48 */
             {GTP_EXT_APN_RES, GTP_OPTIONAL, NULL},     /* APN Restriction Optional 7.7.49 */
+            {GTP_EXT_MS_INF_CHG_REP_ACT, GTP_OPTIONAL, NULL}, /* 7.7.80 */
+            {GTP_EXT_BEARER_CONTROL_MODE, GTP_OPTIONAL, NULL}, /* 7.7.83 */
+            {GTP_EXT_EVO_ALLO_RETE_P1, GTP_OPTIONAL, NULL}, /* 7.7.91 */
+            {GTP_EXT_EXTENDED_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* 7.7.93 */
+            {GTP_EXT_CSG_INF_REP_ACT, GTP_OPTIONAL, NULL}, /* 7.7.95 */
+            {GTP_EXT_AMBR, GTP_OPTIONAL, NULL}, /* 7.7.98 */
+            {GTP_EXT_GGSN_BACK_OFF_TIME, GTP_OPTIONAL, NULL}, /* 7.7.102 */
+            {GTP_EXT_EXT_COMMON_FLGS_II, GTP_OPTIONAL, NULL}, /* 7.7.118 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3482,6 +3502,13 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL, NULL},       /* MS Time Zone Optional 7.7.52 */
             {GTP_EXT_ADD_TRS_INF, GTP_OPTIONAL, NULL},        /* Additional Trace Info Optional 7.7.62 */
             {GTP_EXT_DIRECT_TUNNEL_FLGS, GTP_OPTIONAL, NULL}, /* Direct Tunnel Flags     7.7.81 */
+            {GTP_EXT_EVO_ALLO_RETE_P1, GTP_OPTIONAL, NULL}, /* 7.7.91 */
+            {GTP_EXT_EXTENDED_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* 7.7.93 */
+            {GTP_EXT_UCI, GTP_OPTIONAL, NULL}, /* 7.7.94 */
+            {GTP_EXT_AMBR, GTP_OPTIONAL, NULL}, /* 7.7.98 */
+            {GTP_EXT_SIG_PRI_IND, GTP_OPTIONAL, NULL}, /* 7.7.103 */
+            {GTP_EXT_UE_USAGE_TYPE, GTP_OPTIONAL, NULL}, /* 7.7.117 */
+            {GTP_EXT_IMEISV, GTP_OPTIONAL, NULL}, /* 7.7.53 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3501,17 +3528,27 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_QOS_UMTS, GTP_CONDITIONAL, NULL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL, NULL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL, NULL},   /* Alternative Charging Gateway Address Optional 7.7.44 */
-            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {GTP_EXT_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* Common Flags Optional 7.7.48 */
             {GTP_EXT_APN_RES, GTP_OPTIONAL, NULL},     /* APN Restriction Optional 7.7.49 */
+            {GTP_EXT_BEARER_CONTROL_MODE, GTP_OPTIONAL, NULL}, /* 7.7.83 */
+            {GTP_EXT_MS_INF_CHG_REP_ACT, GTP_OPTIONAL, NULL}, /* 7.7.80 */
+            {GTP_EXT_EVO_ALLO_RETE_P1, GTP_OPTIONAL, NULL}, /* 7.7.91 */
+            {GTP_EXT_CSG_INF_REP_ACT, GTP_OPTIONAL, NULL}, /* 7.7.95 */
+            {GTP_EXT_AMBR, GTP_OPTIONAL, NULL}, /* 7.7.98 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
     },
     {
         GTP_MSG_DELETE_PDP_REQ, {
+            {GTP_EXT_CAUSE, GTP_OPTIONAL, NULL},
             {GTP_EXT_TEAR_IND, GTP_CONDITIONAL, NULL},
             {GTP_EXT_NSAPI, GTP_MANDATORY, NULL},
             {GTP_EXT_PROTO_CONF, GTP_OPTIONAL, NULL}, /* Protocol Configuration Options Optional 7.7.31 */
+            {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL, NULL}, /* User Location Information Optional 7.7.51 */
+            {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL, NULL}, /* MS Time Zone Optional 7.7.52 */
+            {GTP_EXT_EXTENDED_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* 7.7.93 */
+            {GTP_EXT_ULI_TIMESTAMP, GTP_OPTIONAL, NULL}, /* 7.7.114 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3520,6 +3557,9 @@ static _gtp_mess_items umts_mess_items[] = {
         GTP_MSG_DELETE_PDP_RESP, {
             {GTP_EXT_CAUSE, GTP_MANDATORY, NULL},
             {GTP_EXT_PROTO_CONF, GTP_OPTIONAL, NULL}, /* Protocol Configuration Options Optional 7.7.31 */
+            {GTP_EXT_USR_LOC_INF, GTP_OPTIONAL, NULL}, /* User Location Information Optional 7.7.51 */
+            {GTP_EXT_MS_TIME_ZONE, GTP_OPTIONAL, NULL}, /* MS Time Zone Optional 7.7.52 */
+            {GTP_EXT_ULI_TIMESTAMP, GTP_OPTIONAL, NULL}, /* 7.7.114 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
