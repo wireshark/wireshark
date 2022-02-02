@@ -614,7 +614,7 @@ proto_register_mpls(void)
         /* Generic/Preferred PW MPLS Control Word fields */
         {&hf_mpls_pw_mcw_flags,
          {"Flags", "pwmcw.flags",
-          FT_UINT8, BASE_HEX, NULL, 0x0FC0,
+          FT_UINT16, BASE_HEX, NULL, 0x0FC0,
           "Generic/Preferred PW MPLS Control Word Flags", HFILL }
         },
 
