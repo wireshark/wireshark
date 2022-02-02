@@ -3494,10 +3494,10 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_TEID_CP, GTP_CONDITIONAL, NULL},
             {GTP_EXT_CHRG_ID, GTP_CONDITIONAL, NULL},
             {GTP_EXT_PROTO_CONF, GTP_OPTIONAL, NULL},  /* Protocol Configuration Options Optional 7.7.31 */
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL},
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL},
-            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, NULL},    /* Alternative SGSN Address for Control Plane Conditional GSN Address 7.7.32 */
-            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, NULL},    /* Alternative SGSN Address for User Traffic Conditional GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_ggsn_addr_for_control_plane},
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_ggsn_addr_for_user_plane},
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL},    /* Alternative GGSN Address for Control Plane Conditional GSN Address 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL},    /* Alternative GGSN Address for User Traffic Conditional GSN Address 7.7.32 */
             {GTP_EXT_QOS_UMTS, GTP_CONDITIONAL, NULL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL, NULL},
             {GTP_EXT_CHRG_ADDR, GTP_OPTIONAL, NULL},   /* Alternative Charging Gateway Address Optional 7.7.44 */
