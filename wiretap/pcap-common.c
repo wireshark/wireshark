@@ -2129,6 +2129,60 @@ pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, guint8 *pd)
 	}
 }
 
+/*
+ * pflog headers, at least as they exist now.
+ */
+#define PFLOG_IFNAMSIZ		16
+#define PFLOG_RULESET_NAME_SIZE	16
+
+struct pfloghdr {
+	guint8		length;
+	guint8		af;
+	guint8		action;
+	guint8		reason;
+	char		ifname[PFLOG_IFNAMSIZ];
+	char		ruleset[PFLOG_RULESET_NAME_SIZE];
+	guint32		rulenr;
+	guint32		subrulenr;
+	guint32		uid;
+	gint32		pid;
+	guint32		rule_uid;
+	gint32		rule_pid;
+	guint8		dir;
+	/* More follows, depending on the header length */
+};
+
+static void
+pcap_byteswap_pflog_pseudoheader(wtap_rec *rec, guint8 *pd)
+{
+	guint packet_size;
+	struct pfloghdr *pflhdr;
+
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = rec->rec_header.packet_header.caplen;
+	if (packet_size > rec->rec_header.packet_header.len)
+		packet_size = rec->rec_header.packet_header.len;
+
+	if (packet_size < sizeof(struct pfloghdr)) {
+		/* Not enough data to have the UID and PID fields */
+		return;
+	}
+
+	pflhdr = (struct pfloghdr *)pd;
+	if (pflhdr->length < (guint) (offsetof(struct pfloghdr, rule_pid) + sizeof pflhdr->rule_pid)) {
+		/* Header doesn't include the UID and PID fields */
+		return;
+	}
+	PBSWAP32((guint8 *)&pflhdr->uid);
+	PBSWAP32((guint8 *)&pflhdr->pid);
+	PBSWAP32((guint8 *)&pflhdr->rule_uid);
+	PBSWAP32((guint8 *)&pflhdr->rule_pid);
+}
+
 int
 pcap_process_pseudo_header(FILE_T fh, gboolean is_nokia, int wtap_encap,
     guint packet_size, wtap_rec *rec, int *err, gchar **err_info)
@@ -2351,6 +2405,11 @@ pcap_read_post_process(gboolean is_nokia, int wtap_encap,
 		 */
 		rec->rec_header.packet_header.len = rec->rec_header.packet_header.pseudo_header.erf.phdr.wlen;
 		rec->rec_header.packet_header.caplen = MIN(rec->rec_header.packet_header.len, rec->rec_header.packet_header.caplen);
+		break;
+
+	case WTAP_ENCAP_PFLOG:
+		if (bytes_swapped)
+			pcap_byteswap_pflog_pseudoheader(rec, pd);
 		break;
 
 	default:
