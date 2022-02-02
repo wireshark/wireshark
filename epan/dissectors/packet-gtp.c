@@ -2911,7 +2911,7 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xba */  {GTP_EXT_MBMS_IP_MCAST_DIST, decode_gtp_mbms_ip_mcast_dist},        /* 7.7.85 */
 /* 0xba */  {GTP_EXT_MBMS_DIST_ACK, decode_gtp_mbms_dist_ack},                  /* 7.7.86 */
 /* 0xbc */  {GTP_EXT_RELIABLE_IRAT_HO_INF, decode_gtp_reliable_irat_ho_inf},    /* 7.7.87 */
-/* 0xbd */  {GTP_EXT_RFSP_INDEX, decode_gtp_rfsp_index},                        /* 7.7.87 */
+/* 0xbd */  {GTP_EXT_RFSP_INDEX, decode_gtp_rfsp_index},                        /* 7.7.88 */
 
 /* 0xbe */  {GTP_EXT_FQDN, decode_gtp_fqdn},                                    /* 7.7.90 */
 /* 0xbf */  {GTP_EXT_EVO_ALLO_RETE_P1, decode_gtp_evolved_allc_rtn_p1},         /* 7.7.91 */
@@ -3006,7 +3006,7 @@ typedef struct {
 
 typedef struct {
     guint8 code;
-    ext_header fields[40];
+    ext_header fields[46];
 } _gtp_mess_items;
 
 /* ---------------------
@@ -3694,6 +3694,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_IMSI, GTP_CONDITIONAL, NULL},
             {GTP_EXT_AUTH_TRI, GTP_CONDITIONAL, NULL},
             {GTP_EXT_AUTH_QUI, GTP_CONDITIONAL, NULL},
+            {GTP_EXT_UE_USAGE_TYPE, GTP_OPTIONAL, NULL}, /* 7.7.117 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3710,6 +3711,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_GSN_ADDR, GTP_MANDATORY, decode_gtp_sgsn_addr_for_control_plane},
             {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, decode_gtp_sgsn_addr_for_control_plane},   /* Alternative SGSN Address for Control Plane Optional 7.7.32 */
             {GTP_EXT_SGSN_NO, GTP_OPTIONAL, NULL},    /* SGSN Number Optional 7.7.47 */
+            {GTP_EXT_RAT_TYPE, GTP_OPTIONAL, NULL},   /* RAT Type Optional 7.7.50 */
             {GTP_EXT_HOP_COUNT, GTP_OPTIONAL, NULL},  /* Hop Counter Optional 7.7.63 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
@@ -3731,6 +3733,24 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_sgsn_addr_for_control_plane},
             {GTP_EXT_PDP_CONT_PRIO, GTP_OPTIONAL, NULL}, /* PDP Context Prioritization Optional 7.7.45 */
             {GTP_EXT_MBMS_UE_CTX, GTP_OPTIONAL, NULL},   /* MBMS UE Context Optional 7.7.55 */
+            {GTP_EXT_RFSP_INDEX, GTP_OPTIONAL, NULL}, /* Subscribed RFSP Index 7.7.88 */
+            {GTP_EXT_RFSP_INDEX, GTP_OPTIONAL, NULL}, /* RFSP Index in use 7.7.88 */
+            {GTP_EXT_FQDN, GTP_OPTIONAL, NULL}, /* Co-located GGSN-PGW FQDN 7.7.90 */
+            {GTP_EXT_EVO_ALLO_RETE_P2, GTP_OPTIONAL, NULL}, /* 7.7.92 */
+            {GTP_EXT_EXTENDED_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* 7.7.93 */
+            {GTP_EXT_UE_NETWORK_CAP, GTP_OPTIONAL, NULL}, /* 7.7.99 */
+            {GTP_EXT_UE_AMBR, GTP_OPTIONAL, NULL}, /* 7.7.100 */
+            {GTP_EXT_APN_AMBR_WITH_NSAPI, GTP_OPTIONAL, NULL}, /* 7.7.101 */
+            {GTP_EXT_SIG_PRI_IND_W_NSAPI, GTP_OPTIONAL, NULL}, /* 7.7.104 */
+            {GTP_EXT_HIGHER_BR_16MB_FLG, GTP_OPTIONAL, NULL}, /* 7.7.105 */
+            {GTP_EXT_SEL_MODE_W_NSAPI, GTP_OPTIONAL, NULL}, /* 7.7.113 */
+            {GTP_EXT_LHN_ID_W_SAPI, GTP_OPTIONAL, NULL }, /* 7.7.115 */
+            {GTP_EXT_UE_USAGE_TYPE, GTP_OPTIONAL, NULL}, /* 7.7.117 */
+            {GTP_EXT_EXT_COMMON_FLGS_II, GTP_OPTIONAL, NULL}, /* 7.7.118 */
+            {GTP_EXT_SCEF_PDN_CONNECTION, GTP_OPTIONAL, NULL }, /* 7.7.121 */
+            {GTP_EXT_IOV_UPDATES_COUNTER, GTP_OPTIONAL, NULL }, /* 7.7.122 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, NULL},    /* Alternative GGSN Address for Control Plane 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, NULL},    /* Alternative GGSN Address for User Traffic 7.7.32 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3740,15 +3760,18 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_CAUSE, GTP_MANDATORY, NULL},
             {GTP_EXT_TEID_II, GTP_CONDITIONAL, NULL},
             {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, decode_gtp_sgsn_addr_for_user_plane},
+            {GTP_EXT_SGSN_NO, GTP_OPTIONAL, NULL},    /* SGSN Number Optional 7.7.47 */
+            {GTP_EXT_NODE_IDENTIFIER, GTP_OPTIONAL, NULL}, /* 7.7.119 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
     },
     {
         GTP_MSG_FORW_RELOC_REQ, {
-            {GTP_EXT_IMSI, GTP_MANDATORY, NULL},
+            {GTP_EXT_IMSI, GTP_CONDITIONAL, NULL}, /* The IMSI shall not be included in the message if the MS is emergency attached and the MS is UICCless */
             {GTP_EXT_TEID_CP, GTP_MANDATORY, NULL},
             {GTP_EXT_RANAP_CAUSE, GTP_MANDATORY, NULL},
+            {GTP_EXT_PKT_FLOW_ID, GTP_OPTIONAL, NULL},
             {GTP_EXT_CHRG_CHAR, GTP_OPTIONAL, NULL},     /* CharingCharacteristics Optional 7.7.23 */
             {GTP_EXT_MM_CNTXT, GTP_MANDATORY, NULL},
             {GTP_EXT_PDP_CNTXT, GTP_CONDITIONAL, NULL},
@@ -3762,8 +3785,34 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_BSS_CONT, GTP_OPTIONAL, NULL},      /* BSS Container Optional 7.7.72 */
             {GTP_EXT_CELL_ID, GTP_OPTIONAL, NULL},       /* Cell Identification Optional 7.7.73 */
             {GTP_EXT_BSSGP_CAUSE, GTP_OPTIONAL, NULL},   /* BSSGP Cause Optional 7.7.75 */
+            {GTP_EXT_PS_HANDOVER_XIP_PAR, GTP_OPTIONAL, NULL}, /* 7.7.79 */
+            {GTP_EXT_DIRECT_TUNNEL_FLGS, GTP_OPTIONAL, NULL}, /* Direct Tunnel Flags     7.7.81 */
+            {GTP_EXT_RELIABLE_IRAT_HO_INF, GTP_OPTIONAL, NULL},    /* 7.7.87 */
+            {GTP_EXT_RFSP_INDEX, GTP_OPTIONAL, NULL}, /* Subscribed RFSP Index 7.7.88 */
+            {GTP_EXT_RFSP_INDEX, GTP_OPTIONAL, NULL}, /* RFSP Index in use 7.7.88 */
+            {GTP_EXT_FQDN, GTP_OPTIONAL, NULL}, /* Co-located GGSN-PGW FQDN 7.7.90 */
+            {GTP_EXT_EVO_ALLO_RETE_P2, GTP_OPTIONAL, NULL}, /* 7.7.92 */
+            {GTP_EXT_EXTENDED_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* 7.7.93 */
+            {GTP_EXT_CSG_ID, GTP_OPTIONAL, NULL}, /* 7.7.96 */
+            {GTP_EXT_CMI, GTP_OPTIONAL, NULL}, /* 7.7.97 */
+            {GTP_EXT_UE_NETWORK_CAP, GTP_OPTIONAL, NULL}, /* 7.7.99 */
+            {GTP_EXT_UE_AMBR, GTP_OPTIONAL, NULL}, /* 7.7.100 */
+            {GTP_EXT_APN_AMBR_WITH_NSAPI, GTP_OPTIONAL, NULL}, /* 7.7.101 */
+            {GTP_EXT_SIG_PRI_IND_W_NSAPI, GTP_OPTIONAL, NULL}, /* 7.7.104 */
+            {GTP_EXT_HIGHER_BR_16MB_FLG, GTP_OPTIONAL, NULL}, /* 7.7.105 */
+            {GTP_EXT_ADD_MM_CTX_SRVCC, GTP_OPTIONAL, NULL}, /* 7.7.107 */
+            {GTP_EXT_ADD_FLGS_SRVCC, GTP_OPTIONAL, NULL}, /* 7.7.108 */
+            {GTP_EXT_STN_SR, GTP_OPTIONAL, NULL}, /* 7.7.109 */
+            {GTP_EXT_C_MSISDN, GTP_OPTIONAL, NULL}, /* 7.7.110 */
+            {GTP_EXT_EXT_RANAP_CAUSE, GTP_OPTIONAL, NULL}, /* 7.7.111 */
+            {GTP_EXT_ENODEB_ID, GTP_OPTIONAL, NULL}, /* 7.7.112 */
+            {GTP_EXT_SEL_MODE_W_NSAPI, GTP_OPTIONAL, NULL}, /* 7.7.113 */
+            {GTP_EXT_UE_USAGE_TYPE, GTP_OPTIONAL, NULL}, /* 7.7.117 */
+            {GTP_EXT_EXT_COMMON_FLGS_II, GTP_OPTIONAL, NULL}, /* 7.7.118 */
+            {GTP_EXT_SCEF_PDN_CONNECTION, GTP_OPTIONAL, NULL }, /* 7.7.121 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, NULL},    /* Alternative GGSN Address for Control Plane 7.7.32 */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, NULL},    /* Alternative GGSN Address for User Traffic 7.7.32 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
-            {GTP_EXT_SGSN_NO, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
     },
@@ -3773,10 +3822,17 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_TEID_CP, GTP_CONDITIONAL, NULL},
             {GTP_EXT_TEID_II, GTP_CONDITIONAL, NULL},           /* Tunnel Endpoint Identifier Data II Optional 7.7.15 */
             {GTP_EXT_RANAP_CAUSE, GTP_CONDITIONAL, NULL},
-            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL},
+            {GTP_EXT_GSN_ADDR, GTP_CONDITIONAL, NULL}, /* SGSN Address for Control plane */
+            {GTP_EXT_GSN_ADDR, GTP_OPTIONAL, NULL}, /* SGSN Address for User Traffic - cannot appear without above Address for Control plane */
             {GTP_EXT_UTRAN_CONT, GTP_OPTIONAL, NULL},
             {GTP_EXT_RAB_SETUP, GTP_CONDITIONAL, NULL},
             {GTP_EXT_ADD_RAB_SETUP_INF, GTP_CONDITIONAL, NULL}, /* Additional RAB Setup Information Conditional 7.7.45A */
+            {GTP_EXT_SGSN_NO, GTP_OPTIONAL, NULL},    /* SGSN Number Optional 7.7.47 */
+            {GTP_EXT_BSS_CONT, GTP_OPTIONAL, NULL},      /* BSS Container Optional 7.7.72 */
+            {GTP_EXT_BSSGP_CAUSE, GTP_OPTIONAL, NULL},   /* BSSGP Cause Optional 7.7.75 */
+            {GTP_EXT_LIST_OF_SETUP_PFCS, GTP_OPTIONAL, NULL}, /* 7.7.78 */
+            {GTP_EXT_EXT_RANAP_CAUSE, GTP_OPTIONAL, NULL}, /* 7.7.111 */
+            {GTP_EXT_NODE_IDENTIFIER, GTP_OPTIONAL, NULL}, /* 7.7.119 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3789,7 +3845,10 @@ static _gtp_mess_items umts_mess_items[] = {
     },
     {
         GTP_MSG_RELOC_CANCEL_REQ, {
-            {GTP_EXT_IMSI, GTP_MANDATORY, NULL},
+            {GTP_EXT_IMSI, GTP_CONDITIONAL, NULL}, /* If MS is emergency attached and the MS is UICCless, the IMSI cannot be included. */
+            {GTP_EXT_IMEISV, GTP_CONDITIONAL, NULL}, /* 7.7.53 */
+            {GTP_EXT_EXTENDED_COMMON_FLGS, GTP_OPTIONAL, NULL}, /* 7.7.93 */
+            {GTP_EXT_EXT_RANAP_CAUSE, GTP_OPTIONAL, NULL}, /* 7.7.111 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
@@ -3830,6 +3889,7 @@ static _gtp_mess_items umts_mess_items[] = {
         GTP_MSG_RAN_INFO_RELAY, {
             {GTP_EXT_RAN_TR_CONT, GTP_MANDATORY, NULL},        /* RAN Transparent Container Mandatory 7.7.43 */
             {GTP_EXT_RIM_RA, GTP_OPTIONAL, NULL},              /* RIM Routing Address Optional 7.7.57 */
+            {GTP_EXT_RIM_ROUTING_ADDR_DISC, GTP_OPTIONAL, NULL}, /* 7.7.77 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
