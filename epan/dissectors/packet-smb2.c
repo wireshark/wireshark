@@ -10162,20 +10162,23 @@ do_decrypt(guint8 *data,
 	}
 
 	/* Open the cipher */
-	if ((err = gcry_cipher_open(&cipher_hd, algo, mode, 0))) {
+	err = gcry_cipher_open(&cipher_hd, algo, mode, 0);
+	if (err != GPG_ERR_NO_ERROR) {
 		DEBUG("GCRY: open %s/%s", gcry_strsource(err), gcry_strerror(err));
 		return FALSE;
 	}
 
 	/* Set the key */
-	if ((err = gcry_cipher_setkey(cipher_hd, key, keylen))) {
+	err = gcry_cipher_setkey(cipher_hd, key, keylen);
+	if (err != GPG_ERR_NO_ERROR) {
 		DEBUG("GCRY: setkey %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return FALSE;
 	}
 
 	/* Set the initial value */
-	if ((err = gcry_cipher_setiv(cipher_hd, nonce, iv_size))) {
+	err = gcry_cipher_setiv(cipher_hd, nonce, iv_size);
+	if (err != GPG_ERR_NO_ERROR) {
 		DEBUG("GCRY: setiv %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return FALSE;
@@ -10186,20 +10189,23 @@ do_decrypt(guint8 *data,
 	lengths[2] = 16; /* tag length (signature size) */
 
 	if (mode == GCRY_CIPHER_MODE_CCM) {
-		if ((err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths)))) {
+		err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths));
+		if (err != GPG_ERR_NO_ERROR) {
 			DEBUG("GCRY: ctl %s/%s", gcry_strsource(err), gcry_strerror(err));
 			gcry_cipher_close(cipher_hd);
 			return FALSE;
 		}
 	}
 
-	if ((err = gcry_cipher_authenticate(cipher_hd, aad, aad_size))) {
+	err = gcry_cipher_authenticate(cipher_hd, aad, aad_size);
+	if (err != GPG_ERR_NO_ERROR) {
 		DEBUG("GCRY: auth %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return FALSE;
 	}
 
-	if ((err = gcry_cipher_decrypt(cipher_hd, data, data_size, NULL, 0))) {
+	err = gcry_cipher_decrypt(cipher_hd, data, data_size, NULL, 0);
+	if (err != GPG_ERR_NO_ERROR) {
 		DEBUG("GCRY: decrypt %s/%s", gcry_strsource(err), gcry_strerror(err));
 		gcry_cipher_close(cipher_hd);
 		return FALSE;
