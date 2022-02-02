@@ -2723,7 +2723,7 @@ proto_register_ip(void)
         NULL, 0x00000003, NULL, HFILL }},
 
     { &hf_ip_opt_sec_rfc791_sec,
-      { "Security", "ip.opt.sec_rfc791_sec", FT_UINT8, BASE_HEX,
+      { "Security", "ip.opt.sec_rfc791_sec", FT_UINT16, BASE_HEX,
         VALS(secl_rfc791_vals), 0x0, NULL, HFILL }},
 
     { &hf_ip_opt_sec_rfc791_comp,

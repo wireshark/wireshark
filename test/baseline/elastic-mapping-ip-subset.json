@@ -189,7 +189,7 @@
                   "type": "long"
                 },
                 "ip_ip_opt_sec_rfc791_sec": {
-                  "type": "short"
+                  "type": "integer"
                 },
                 "ip_ip_opt_sec_rfc791_comp": {
                   "type": "integer"

@@ -2610,7 +2610,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_interface_id,
             { "Interface",                                 "pcapng.interface_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_timestamp_high,

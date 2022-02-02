@@ -2470,7 +2470,7 @@ proto_register_zebra(void)
 		    "Bandwidth of interface", HFILL }},
 		{ &hf_zebra_family,
 		  { "Family",		"zebra.family",
-		    FT_UINT8, BASE_DEC, VALS(families), 0x0,
+		    FT_UINT16, BASE_DEC, VALS(families), 0x0,
 		    "Family of IP address", HFILL }},
 		{ &hf_zebra_flags,
 		  { "Flags",		"zebra.flags",

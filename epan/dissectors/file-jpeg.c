@@ -1202,7 +1202,7 @@ proto_register_jfif(void)
         { &hf_marker,
           {   "Marker",
               "image-jfif.marker",
-              FT_UINT8, BASE_HEX, VALS(vals_marker), 0x00,
+              FT_UINT16, BASE_HEX, VALS(vals_marker), 0x0,
               "JFIF Marker",
               HFILL
           }
@@ -1211,7 +1211,7 @@ proto_register_jfif(void)
         { &hf_marker_segment,
           {   "Marker segment",
               "image-jfif.marker_segment",
-              FT_NONE, BASE_NONE, NULL, 0x00,
+              FT_NONE, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1219,7 +1219,7 @@ proto_register_jfif(void)
         { &hf_len,
           {   "Length",
               "image-jfif.length",
-              FT_UINT16, BASE_DEC, 0, 0x00,
+              FT_UINT16, BASE_DEC, 0, 0x0,
               "Length of segment (including length field)",
               HFILL
           }
@@ -1228,7 +1228,7 @@ proto_register_jfif(void)
         { &hf_identifier,
           {   "Identifier",
               "image-jfif.identifier",
-              FT_STRINGZ, BASE_NONE, NULL, 0x00,
+              FT_STRINGZ, BASE_NONE, NULL, 0x0,
               "Identifier of the segment",
               HFILL
           }
@@ -1237,7 +1237,7 @@ proto_register_jfif(void)
         { &hf_version,
           {   "Version",
               "image-jfif.version",
-              FT_NONE, BASE_NONE, NULL, 0x00,
+              FT_NONE, BASE_NONE, NULL, 0x0,
               "JFIF Version",
               HFILL
           }
@@ -1245,7 +1245,7 @@ proto_register_jfif(void)
         { &hf_version_major,
           {   "Major Version",
               "image-jfif.version.major",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "JFIF Major Version",
               HFILL
           }
@@ -1253,7 +1253,7 @@ proto_register_jfif(void)
         { &hf_version_minor,
           {   "Minor Version",
               "image-jfif.version.minor",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "JFIF Minor Version",
               HFILL
           }
@@ -1261,7 +1261,7 @@ proto_register_jfif(void)
         { &hf_units,
           {   "Units",
               "image-jfif.units",
-              FT_UINT8, BASE_DEC, VALS(vals_units), 0x00,
+              FT_UINT8, BASE_DEC, VALS(vals_units), 0x0,
               "Units used in this segment",
               HFILL
           }
@@ -1269,7 +1269,7 @@ proto_register_jfif(void)
         { &hf_xdensity,
           {   "Xdensity",
               "image-jfif.Xdensity",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               "Horizontal pixel density",
               HFILL
           }
@@ -1277,7 +1277,7 @@ proto_register_jfif(void)
         { &hf_ydensity,
           {   "Ydensity",
               "image-jfif.Ydensity",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               "Vertical pixel density",
               HFILL
           }
@@ -1285,7 +1285,7 @@ proto_register_jfif(void)
         { &hf_xthumbnail,
           {   "Xthumbnail",
               "image-jfif.Xthumbnail",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               "Thumbnail horizontal pixel count",
               HFILL
           }
@@ -1293,7 +1293,7 @@ proto_register_jfif(void)
         { &hf_ythumbnail,
           {   "Ythumbnail",
               "image-jfif.Ythumbnail",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               "Thumbnail vertical pixel count",
               HFILL
           }
@@ -1301,7 +1301,7 @@ proto_register_jfif(void)
         { &hf_rgb,
           {   "RGB values of thumbnail pixels",
               "image-jfif.RGB",
-              FT_BYTES, BASE_NONE, NULL, 0x00,
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               "RGB values of the thumbnail pixels (24 bit per pixel, Xthumbnail x Ythumbnail pixels)",
               HFILL
           }
@@ -1310,7 +1310,7 @@ proto_register_jfif(void)
         { &hf_extension_code,
           {   "Extension code",
               "image-jfif.extension.code",
-              FT_UINT8, BASE_HEX, VALS(vals_extension_code), 0x00,
+              FT_UINT8, BASE_HEX, VALS(vals_extension_code), 0x0,
               "JFXX extension code for thumbnail encoding",
               HFILL
           }
@@ -1319,7 +1319,7 @@ proto_register_jfif(void)
         { &hf_sof_header,
           {   "Start of Frame header",
               "image-jfif.sof",
-              FT_NONE, BASE_NONE, NULL, 0x00,
+              FT_NONE, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1327,7 +1327,7 @@ proto_register_jfif(void)
         { &hf_sof_precision,
           {   "Sample Precision (bits)",
               "image-jfif.sof.precision",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifies the precision in bits for the samples of the components in the frame.",
               HFILL
           }
@@ -1335,7 +1335,7 @@ proto_register_jfif(void)
         { &hf_sof_lines,
           {   "Lines",
               "image-jfif.sof.lines",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifies the maximum number of lines in the source image.",
               HFILL
           }
@@ -1343,7 +1343,7 @@ proto_register_jfif(void)
         { &hf_sof_samples_per_line,
           {   "Samples per line",
               "image-jfif.sof.samples_per_line",
-              FT_UINT16, BASE_DEC, NULL, 0x00,
+              FT_UINT16, BASE_DEC, NULL, 0x0,
               "Specifies the maximum number of samples per line in the source image.",
               HFILL
           }
@@ -1351,7 +1351,7 @@ proto_register_jfif(void)
         { &hf_sof_nf,
           {   "Number of image components in frame",
               "image-jfif.sof.nf",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifies the number of source image components in the frame.",
               HFILL
           }
@@ -1359,7 +1359,7 @@ proto_register_jfif(void)
         { &hf_sof_c_i,
           {   "Component identifier",
               "image-jfif.sof.c_i",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "Assigns a unique label to the ith component in the sequence of frame component specification parameters.",
               HFILL
           }
@@ -1383,7 +1383,7 @@ proto_register_jfif(void)
         { &hf_sof_tq_i,
           {   "Quantization table destination selector",
               "image-jfif.sof.tq_i",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifies one of four possible quantization table destinations from which the quantization table to"
               " use for dequantization of DCT coefficients of component Ci is retrieved.",
               HFILL
@@ -1394,7 +1394,7 @@ proto_register_jfif(void)
         { &hf_sos_header,
           {   "Start of Segment header",
               "image-jfif.header.sos",
-              FT_NONE, BASE_NONE, NULL, 0x00,
+              FT_NONE, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1402,7 +1402,7 @@ proto_register_jfif(void)
         { &hf_sos_ns,
           {   "Number of image components in scan",
               "image-jfif.sos.ns",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifies the number of source image components in the scan.",
               HFILL
           }
@@ -1410,7 +1410,7 @@ proto_register_jfif(void)
         { &hf_sos_cs_j,
           {   "Scan component selector",
               "image-jfif.sos.component_selector",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "Selects which of the Nf image components specified in the frame parameters shall be the jth"
               " component in the scan.",
               HFILL
@@ -1437,7 +1437,7 @@ proto_register_jfif(void)
         { &hf_sos_ss,
           {   "Start of spectral or predictor selection",
               "image-jfif.sos.ss",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "In the DCT modes of operation, this parameter specifies the first DCT coefficient in"
               " each block in zig-zag order which shall be coded in the scan. This parameter shall"
               " be set to zero for the sequential DCT processes. In the lossless mode of operations"
@@ -1448,7 +1448,7 @@ proto_register_jfif(void)
         { &hf_sos_se,
           {   "End of spectral selection",
               "image-jfif.sos.se",
-              FT_UINT8, BASE_DEC, NULL, 0x00,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               "Specifies the last DCT coefficient in each block in zig-zag order which shall be coded"
               " in the scan. This parameter shall be set to 63 for the sequential DCT processes. In the"
               " lossless mode of operations this parameter has no meaning. It shall be set to zero.",
@@ -1483,7 +1483,7 @@ proto_register_jfif(void)
         { &hf_comment_header,
           {   "Comment header",
               "image-jfif.header.comment",
-              FT_NONE, BASE_NONE, NULL, 0x00,
+              FT_NONE, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1499,7 +1499,7 @@ proto_register_jfif(void)
         { &hf_remain_seg_data,
           {   "Remaining segment data",
               "image-jfif.remain_seg_data",
-              FT_BYTES, BASE_NONE, NULL, 0x00,
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1531,7 +1531,7 @@ proto_register_jfif(void)
         { &hf_exif_flashpix_marker,
           {   "Exif FlashPix APP2 application marker",
               "image-jfif.exif_flashpix_marker",
-              FT_NONE, BASE_NONE, NULL, 0x00,
+              FT_NONE, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1539,7 +1539,7 @@ proto_register_jfif(void)
         { &hf_entropy_coded_segment,
           {   "Entropy-coded segment (dissection is not yet implemented)",
               "image-jfif.entropy_coded_segment",
-              FT_BYTES, BASE_NONE, NULL, 0x00,
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1547,7 +1547,7 @@ proto_register_jfif(void)
         { &hf_fill_bytes,
           {   "Fill bytes",
               "image-jfif.fill_bytes",
-              FT_BYTES, BASE_NONE, NULL, 0x00,
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
@@ -1555,7 +1555,7 @@ proto_register_jfif(void)
         { &hf_skipped_tiff_data,
           {   "Skipped data between end of TIFF header and start of IFD",
               "image-jfif.skipped_tiff_data",
-              FT_BYTES, BASE_NONE, NULL, 0x00,
+              FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL,
               HFILL
           }
