@@ -3849,12 +3849,18 @@ static int
 dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
 									proto_tree *tree, int hf_index _U_)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	guint8 *plaintext;
 	int length;
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_captured_length_remaining(tvb, offset);
+
+	if (private_data->etype == 0) {
+		offset=dissect_kerberos_Applications(FALSE, next_tvb, 0, actx , tree, /* hf_index*/ -1);
+		return offset;
+	}
 
 	/* RFC4120 :
 	 * EncKrbCredPart encrypted with usage
@@ -7900,7 +7906,7 @@ dissect_kerberos_PA_SPAKE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 4324 "./asn1/kerberos/packet-kerberos-template.c"
+#line 4330 "./asn1/kerberos/packet-kerberos-template.c"
 
 #ifdef HAVE_KERBEROS
 static const ber_sequence_t PA_ENC_TS_ENC_sequence[] = {
@@ -9776,7 +9782,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 5275 "./asn1/kerberos/packet-kerberos-template.c"
+#line 5281 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -9900,7 +9906,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_PA_SPAKE,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 5308 "./asn1/kerberos/packet-kerberos-template.c"
+#line 5314 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

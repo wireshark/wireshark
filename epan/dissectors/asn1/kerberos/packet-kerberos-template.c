@@ -3397,12 +3397,18 @@ static int
 dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx,
 									proto_tree *tree, int hf_index _U_)
 {
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	guint8 *plaintext;
 	int length;
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_captured_length_remaining(tvb, offset);
+
+	if (private_data->etype == 0) {
+		offset=dissect_kerberos_Applications(FALSE, next_tvb, 0, actx , tree, /* hf_index*/ -1);
+		return offset;
+	}
 
 	/* RFC4120 :
 	 * EncKrbCredPart encrypted with usage
