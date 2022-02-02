@@ -83,8 +83,10 @@ typedef struct _gtp_hdr {
 #define GTP_MSG_FORW_SRNS_CNTXT     0x3A
 #define GTP_MSG_FORW_RELOC_ACK      0x3B
 #define GTP_MSG_FORW_SRNS_CNTXT_ACK 0x3C
+#define GTP_MSG_UE_REG_QUERY_REQ    0x3D
+#define GTP_MSG_UE_REG_QUERY_RESP   0x3E
 /*
- * 61-69 For future use. Shall not be sent. If received,
+ * 63-69 For future use. Shall not be sent. If received,
  * shall be treated as an Unknown message.
  */
 #define GTP_MSG_RAN_INFO_RELAY      70

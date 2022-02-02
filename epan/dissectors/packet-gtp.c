@@ -1173,12 +1173,12 @@ static const value_string gtp_message_type[] = {
     {GTP_MSG_FORW_SRNS_CNTXT,     "Forward SRNS context"},
     {GTP_MSG_FORW_RELOC_ACK,      "Forward relocation complete acknowledge"},
     {GTP_MSG_FORW_SRNS_CNTXT_ACK, "Forward SRNS context acknowledge"},
-    /* 61-69 For future use. Shall not be sent. If received,
+    {GTP_MSG_UE_REG_QUERY_REQ,    "UE Registration Query Request"},
+    {GTP_MSG_UE_REG_QUERY_RESP,   "UE Registration Query Response"},
+    /* 63-69 For future use. Shall not be sent. If received,
      * shall be treated as an Unknown message.
      */
 #if 0
-    {  61,                        "Unknown message(For future use)"},
-    {  62,                        "Unknown message(For future use)"},
     {  63,                        "Unknown message(For future use)"},
     {  64,                        "Unknown message(For future use)"},
     {  65,                        "Unknown message(For future use)"},
@@ -3890,6 +3890,24 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_RAN_TR_CONT, GTP_MANDATORY, NULL},        /* RAN Transparent Container Mandatory 7.7.43 */
             {GTP_EXT_RIM_RA, GTP_OPTIONAL, NULL},              /* RIM Routing Address Optional 7.7.57 */
             {GTP_EXT_RIM_ROUTING_ADDR_DISC, GTP_OPTIONAL, NULL}, /* 7.7.77 */
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
+            {0, 0, NULL}
+        }
+    },
+/*      7.5.15 UE Registration Query Request */
+    {
+        GTP_MSG_UE_REG_QUERY_REQ, {
+            {GTP_EXT_IMSI, GTP_MANDATORY, NULL},
+            {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
+            {0, 0, NULL}
+        }
+    },
+/*      7.5.16 UE Registration Query Response */
+    {
+        GTP_MSG_UE_REG_QUERY_RESP, {
+            {GTP_EXT_CAUSE, GTP_MANDATORY, NULL},
+            {GTP_EXT_IMSI, GTP_MANDATORY, NULL},
+            {GTP_EXT_SEL_PLMN_ID, GTP_CONDITIONAL, NULL}, /* Selected PLMN ID 7.7.64 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL, NULL},
             {0, 0, NULL}
         }
