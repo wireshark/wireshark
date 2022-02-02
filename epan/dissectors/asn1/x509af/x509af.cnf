@@ -101,7 +101,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 # proto_tree *subtree;
 
   dissect_ber_bitstring(FALSE, actx, NULL, tvb, offset,
-                        NULL, 0, -1, -1, &bs_tvb);
+                        NULL, 0, hf_index, -1, &bs_tvb);
 
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
