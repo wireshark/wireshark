@@ -544,12 +544,16 @@ dissect_per_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree
 }
 
 /* 19 this function dissects a sequence of */
+// Arbitrary. Allow a sequence of NULLs, but not too many since we might add
+// a hierarchy of tree items per NULL
+#define PER_SEQUENCE_OF_MAX_NULLS 10
 static guint32
 dissect_per_sequence_of_helper(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, per_type_fn func, int hf_index, guint32 length)
 {
 	guint32 i;
 
 DEBUG_ENTRY("dissect_per_sequence_of_helper");
+	guint32 old_offset = offset;
 	for(i=0;i<length;i++){
 		guint32 lold_offset=offset;
 		proto_item *litem;
@@ -559,6 +563,9 @@ DEBUG_ENTRY("dissect_per_sequence_of_helper");
 
 		offset=(*func)(tvb, offset, actx, ltree, hf_index);
 		proto_item_set_len(litem, (offset>>3)!=(lold_offset>>3)?(offset>>3)-(lold_offset>>3):1);
+		if (i >= PER_SEQUENCE_OF_MAX_NULLS-1 && offset <= old_offset) {
+			dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "too many nulls in sequence");
+		}
 	}
 
 	return offset;
