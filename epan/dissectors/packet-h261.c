@@ -76,7 +76,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		/* GOBN 2nd octet, 4 bits */
 		proto_tree_add_item( h261_tree, hf_h261_gobn, tvb, offset, 1, ENC_NA);
 		/* MBAP 2nd octet, 4 bits, 3rd octet 1 bit */
-		proto_tree_add_item( h261_tree, hf_h261_mbap, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item( h261_tree, hf_h261_mbap, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset++;
 
 		/* QUANT 3rd octet, 5 bits (starting at bit 2!) */
@@ -166,10 +166,10 @@ proto_register_h261(void)
 			{
 				"Macroblock address predictor",
 				"h261.mbap",
-				FT_UINT8,
+				FT_UINT16,
 				BASE_DEC,
 				NULL,
-				0x0E80,
+				0x0F80,
 				NULL, HFILL
 			}
 		},
@@ -190,7 +190,7 @@ proto_register_h261(void)
 			{
 				"Horizontal motion vector data",
 				"h261.hmvd",
-				FT_UINT8,
+				FT_UINT16,
 				BASE_DEC,
 				NULL,
 				0x03E0,
