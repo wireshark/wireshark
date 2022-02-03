@@ -3871,8 +3871,13 @@ tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset, char *buffer, size
 gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
+	guint abs_offset, abs_length = length;
 
-	for (int i = 0; i < length; i++, buf++)
+	if (length == -1) {
+		/* tvb_get_ptr has already checked for exceptions. */
+		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
+	}
+	for (guint i = 0; i < abs_length; i++, buf++)
 		if (!g_ascii_isprint(*buf))
 			return FALSE;
 
