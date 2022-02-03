@@ -553,7 +553,7 @@ Supersedes “Out-Of-Order” and “Retransmission”.
 ==== TCP Keep-Alive
 
 Set when the segment size is zero or one, the current sequence number
-is one byte less than the next expected sequence number, and any of SYN,
+is one byte less than the next expected sequence number, and none of SYN,
 FIN, or RST are set.
 
 Supersedes “Fast Retransmission”, “Out-Of-Order”, “Spurious
