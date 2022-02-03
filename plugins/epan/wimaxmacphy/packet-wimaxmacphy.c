@@ -3205,7 +3205,7 @@ proto_register_wimaxmacphy(void)
                 {
                     "Feedback sub-type",
                     "wimaxmacphy.prim_fast_feedback_sub_type",
-                    FT_UINT8,
+                    FT_UINT16,
                     BASE_DEC,
                     VALS(
                         wimaxmacphy_prim_fast_feedback_sub_type_vals),

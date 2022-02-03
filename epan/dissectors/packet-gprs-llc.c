@@ -1167,7 +1167,7 @@ proto_register_llcgprs(void)
 
 		{ &hf_llcgprs_As,
 		  { "Ackn request bit", "llcgprs.as", FT_BOOLEAN, 16,
-		    TFS(&a_bit), 0x2000 , "Acknowledgement request bit A", HFILL }},
+		    TFS(&a_bit), 0x2000, "Acknowledgement request bit A", HFILL }},
 
 		{ &hf_llcgprs_PF,
 		  { "P/F bit", "llcgprs.pf", FT_BOOLEAN, 8,
