@@ -312,6 +312,11 @@ static int hf_ssh_ecdh_q_s_length = -1;
 /* Miscellaneous */
 static int hf_ssh_mpint_length = -1;
 
+static int hf_ssh_ignore_data_length = -1;
+static int hf_ssh_ignore_data = -1;
+static int hf_ssh_debug_always_display = -1;
+static int hf_ssh_debug_message_length = -1;
+static int hf_ssh_debug_message = -1;
 static int hf_ssh_service_name_length = -1;
 static int hf_ssh_service_name = -1;
 static int hf_ssh_userauth_user_name_length = -1;
@@ -321,12 +326,14 @@ static int hf_ssh_userauth_service_name_length = -1;
 static int hf_ssh_userauth_service_name = -1;
 static int hf_ssh_userauth_method_name_length = -1;
 static int hf_ssh_userauth_method_name = -1;
+static int hf_ssh_userauth_have_signature = -1;
 static int hf_ssh_userauth_password_length = -1;
 static int hf_ssh_userauth_password = -1;
 static int hf_ssh_userauth_new_password_length = -1;
 static int hf_ssh_userauth_new_password = -1;
 static int hf_ssh_auth_failure_list_length = -1;
 static int hf_ssh_auth_failure_list = -1;
+static int hf_ssh_userauth_partial_success = -1;
 static int hf_ssh_userauth_pka_name_len = -1;
 static int hf_ssh_userauth_pka_name = -1;
 static int hf_ssh_pk_blob_name_length = -1;
@@ -344,6 +351,7 @@ static int hf_ssh_connection_maximum_packet_size = -1;
 static int hf_ssh_global_request_name_len = -1;
 static int hf_ssh_global_request_name = -1;
 static int hf_ssh_global_request_want_reply = -1;
+static int hf_ssh_global_request_hostkeys_array_len = -1;
 static int hf_ssh_channel_request_name_len = -1;
 static int hf_ssh_channel_request_name = -1;
 static int hf_ssh_channel_request_want_reply = -1;
@@ -375,6 +383,7 @@ static gint ett_ssh1 = -1;
 static gint ett_ssh2 = -1;
 
 static expert_field ei_ssh_packet_length = EI_INIT;
+static expert_field ei_ssh_packet_decode = EI_INIT;
 static expert_field ei_ssh_invalid_keylen = EI_INIT;
 static expert_field ei_ssh_mac_bad = EI_INIT;
 
@@ -600,20 +609,20 @@ static proto_item * ssh_tree_add_mac(proto_tree *tree, tvbuff_t *tvb, const guin
 static int ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, proto_tree *tree,
         gchar *plaintext, guint plaintext_len);
-static void ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+static int ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
-static void ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+static int ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
-static void ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
+static int ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
 static int ssh_dissect_connection_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         struct ssh_peer_data *peer_data, int offset, proto_item *msg_type_tree,
         guint msg_code);
-static void ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
+static int ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code);
-static void ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
+static int ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree);
-static void ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
+static int ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree);
 
 static dissector_handle_t get_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel);
@@ -1071,13 +1080,15 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 }
 
 static guint
-ssh_tree_add_hostsignature(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
+ssh_tree_add_hostsignature(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree,
                      const char *tree_name, int ett_idx,
                      struct ssh_flow_data *global_data)
 {
     (void)global_data;
     proto_tree *tree = NULL;
+    proto_item* ti = NULL;
     int last_offset;
+    int offset0 = offset;
     int remaining_len;
     guint sig_len, type_len;
     guint8* sig_type;
@@ -1097,7 +1108,7 @@ ssh_tree_add_hostsignature(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, sig_len + 4, ett_idx, NULL,
                                   tree_title);
 
-    proto_tree_add_uint(tree, hf_ssh_hostsig_length, tvb, last_offset, 4, sig_len);
+    ti = proto_tree_add_uint(tree, hf_ssh_hostsig_length, tvb, last_offset, 4, sig_len);
 
     last_offset += 4;
     proto_tree_add_uint(tree, hf_ssh_hostsig_type_length, tvb, last_offset, 4, type_len);
@@ -1119,6 +1130,10 @@ ssh_tree_add_hostsignature(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     } else {
         remaining_len = sig_len - (type_len + 4);
         proto_tree_add_item(tree, hf_ssh_hostsig_data, tvb, offset, remaining_len, ENC_NA);
+    }
+
+    if(offset-offset0!=(int)(4+sig_len)){
+        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", offset-offset0, sig_len);
     }
 
     return 4+sig_len;
@@ -1351,7 +1366,7 @@ static int ssh_dissect_kex_dh(guint8 msg_code, tvbuff_t *tvb,
 #endif
 
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
-        offset += ssh_tree_add_hostsignature(tvb, offset, tree, "KEX host signature",
+        offset += ssh_tree_add_hostsignature(tvb, pinfo, offset, tree, "KEX host signature",
                 ett_key_exchange_host_sig, global_data);
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_dh_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
@@ -1408,7 +1423,7 @@ static int ssh_dissect_kex_dh_gex(guint8 msg_code, tvbuff_t *tvb,
         offset += ssh_tree_add_hostkey(tvb, offset, tree, "KEX host key",
                 ett_key_exchange_host_key, global_data);
         offset += ssh_tree_add_mpint(tvb, offset, tree, hf_ssh_dh_f);
-        offset += ssh_tree_add_hostsignature(tvb, offset, tree, "KEX host signature",
+        offset += ssh_tree_add_hostsignature(tvb, pinfo, offset, tree, "KEX host signature",
                 ett_key_exchange_host_sig, global_data);
         if(global_data->peer_data[SERVER_PEER_DATA].seq_num_gex_rep == 0){
             global_data->peer_data[SERVER_PEER_DATA].sequence_number++;
@@ -1492,7 +1507,7 @@ ssh_dissect_kex_ecdh(guint8 msg_code, tvbuff_t *tvb,
 #endif
 
         offset += ssh_tree_add_string(tvb, offset, tree, hf_ssh_ecdh_q_s, hf_ssh_ecdh_q_s_length);
-        offset += ssh_tree_add_hostsignature(tvb, offset, tree, "KEX host signature",
+        offset += ssh_tree_add_hostsignature(tvb, pinfo, offset, tree, "KEX host signature",
                 ett_key_exchange_host_sig, global_data);
         break;
     }
@@ -2639,6 +2654,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         gchar *plaintext, guint plaintext_len)
 {
     int offset = 0;      // TODO:
+    int dissected_len = 0;
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted packet (plaintext_len=%d)", plaintext_len);
 
@@ -2719,7 +2735,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Transport (generic)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
         offset+=1;
-        ssh_dissect_transport_generic(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+        dissected_len = ssh_dissect_transport_generic(packet_tvb, pinfo, offset, msg_type_tree, msg_code) - offset;
         // offset = ssh_dissect_transport_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
     }
     /* Algorithm negotiation (20-29) */
@@ -2739,8 +2755,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: User Authentication (generic)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset+=1;
-        ssh_dissect_userauth_generic(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+        dissected_len = ssh_dissect_userauth_generic(packet_tvb, pinfo, offset+1, msg_type_tree, msg_code) - offset;
         // TODO: offset = ssh_dissect_userauth_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
     }
     /* User authentication method specific (reusable) (60-79) */
@@ -2748,9 +2763,8 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: User Authentication: (method specific)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset+=1;
         // TODO: offset = ssh_dissect_userauth_specific(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
-        ssh_dissect_userauth_specific(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+        dissected_len = ssh_dissect_userauth_specific(packet_tvb, pinfo, offset+1, msg_type_tree, msg_code) - offset;
     }
 
     /* Connection protocol */
@@ -2759,18 +2773,16 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Connection (generic)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset+=1;
         // TODO: offset = ssh_dissect_connection_generic(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
-        ssh_dissect_connection_generic(packet_tvb, pinfo, offset, msg_type_tree, msg_code);
+        dissected_len = ssh_dissect_connection_generic(packet_tvb, pinfo, offset+1, msg_type_tree, msg_code) - offset;
     }
     /* Channel related messages (90-127) */
     else if (msg_code >= 90 && msg_code <= 127) {
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str(msg_code, ssh2_msg_vals, "Unknown (%u)"));
         msg_type_tree = proto_tree_add_subtree(tree, packet_tvb, offset, plen-1, ett_key_exchange, NULL, "Message: Connection: (channel related message)");
         proto_tree_add_item(msg_type_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset+=1;
         // TODO: offset = ssh_dissect_connection_channel(packet_tvb, pinfo, global_data, offset, msg_type_tree, is_response, msg_code);
-        ssh_dissect_connection_specific(packet_tvb, pinfo, peer_data, offset, msg_type_tree, msg_code);
+        dissected_len = ssh_dissect_connection_specific(packet_tvb, pinfo, peer_data, offset+1, msg_type_tree, msg_code) - offset;
     }
 
     /* Reserved for client protocols (128-191) */
@@ -2795,6 +2807,10 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     if (len > 0) {
         proto_tree_add_item(msg_type_tree, hf_ssh_payload, packet_tvb, offset, len, ENC_NA);
     }
+    if(dissected_len!=(int)len){
+//        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, len);
+        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes [%d]", dissected_len, len, msg_code);
+    }
     offset +=len;
 
     /* padding */
@@ -2804,7 +2820,7 @@ ssh_dissect_decrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
-static void
+static int
 ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code)
 {
@@ -2823,22 +2839,41 @@ ssh_dissect_transport_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag, packet_tvb, offset, nlen, ENC_ASCII);
                 offset += nlen;
+        }else if(msg_code==SSH_MSG_IGNORE){
+                offset += ssh_tree_add_string(packet_tvb, offset, msg_type_tree, hf_ssh_ignore_data, hf_ssh_ignore_data_length);
+        }else if(msg_code==SSH_MSG_DEBUG){
+                guint   slen;
+                proto_tree_add_item(msg_type_tree, hf_ssh_debug_always_display, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_debug_message_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_debug_message, packet_tvb, offset, slen, ENC_UTF_8);
+                offset += slen;
+                slen = tvb_get_ntohl(packet_tvb, offset) ;
+                proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(msg_type_tree, hf_ssh_lang_tag, packet_tvb, offset, slen, ENC_ASCII);
+                offset += slen;
         }else if(msg_code==SSH_MSG_SERVICE_REQUEST){
                 guint   nlen;
                 nlen = tvb_get_ntohl(packet_tvb, offset) ;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
+                offset += nlen;
         }else if(msg_code==SSH_MSG_SERVICE_ACCEPT){
                 guint   nlen;
                 nlen = tvb_get_ntohl(packet_tvb, offset) ;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_service_name, packet_tvb, offset, nlen, ENC_ASCII);
+                offset += nlen;
         }
+        return offset;
 }
 
-static void
+static int
 ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code)
 {
@@ -2866,6 +2901,8 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 if (0 == strcmp(key_type, "none")) {
                 }else if (0 == strcmp(key_type, "publickey")) {
                         guint8 bHaveSignature = tvb_get_guint8(packet_tvb, offset);
+                        int dissected_len = 0;
+                        proto_tree_add_item(msg_type_tree, hf_ssh_userauth_have_signature, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset += 1;
                         slen = tvb_get_ntohl(packet_tvb, offset) ;
                         proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2878,7 +2915,10 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                         offset += 4;
                         blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_blob, NULL, "Public key blob");
 //        proto_tree_add_item(blob_tree, hf_ssh2_msg_code, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
-                        ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree);
+                        dissected_len = ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree) - offset;
+                        if(dissected_len!=(int)slen){
+                            expert_add_info_format(pinfo, blob_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, slen);
+                        }
                         offset += slen;
                         if(bHaveSignature){
                                 slen = tvb_get_ntohl(packet_tvb, offset) ;
@@ -2886,7 +2926,10 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                                 offset += 4;
                                 proto_item *signature_tree = NULL;
                                 signature_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_signautre, NULL, "Public key signature");
-                                ssh_dissect_public_key_signature(packet_tvb, pinfo, offset, signature_tree);
+                                dissected_len = ssh_dissect_public_key_signature(packet_tvb, pinfo, offset, signature_tree) - offset;
+                                if(dissected_len!=(int)slen){
+                                    expert_add_info_format(pinfo, signature_tree, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, slen);
+                                }
                                 offset += slen;
                         }
                 }else if (0 == strcmp(key_type, "password")) {
@@ -2915,15 +2958,20 @@ ssh_dissect_userauth_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += 4;
                 proto_tree_add_item(msg_type_tree, hf_ssh_auth_failure_list, packet_tvb, offset, slen, ENC_ASCII);
                 offset += slen;
+                proto_tree_add_item(msg_type_tree, hf_ssh_userauth_partial_success, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
         }
+        return offset;
 }
 
-static void
+static int
 ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code)
 {
         (void)pinfo;
         if(msg_code==SSH_MSG_USERAUTH_PK_OK){
+                proto_item *ti;
+                int dissected_len = 0;
                 guint   slen;
                 slen = tvb_get_ntohl(packet_tvb, offset) ;
                 proto_tree_add_item(msg_type_tree, hf_ssh_userauth_pka_name_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2932,11 +2980,16 @@ ssh_dissect_userauth_specific(tvbuff_t *packet_tvb, packet_info *pinfo,
                 offset += slen;
                 proto_item *blob_tree = NULL;
                 slen = tvb_get_ntohl(packet_tvb, offset) ;
-                proto_tree_add_item(msg_type_tree, hf_ssh_blob_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(msg_type_tree, hf_ssh_blob_length, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, slen, ett_userauth_pk_blob, NULL, "Public key blob");
-                ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree);
+                dissected_len = ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree) - offset;
+                if(dissected_len!=(int)slen){
+                    expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, slen);
+                }
+                offset += slen;
         }
+        return offset;
 }
 
 static int
@@ -3066,7 +3119,7 @@ set_subdissector_for_channel(struct ssh_peer_data *peer_data, guint uiNumChannel
         }
 }
 
-static void
+static int
 ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree, guint msg_code)
 {
@@ -3083,11 +3136,25 @@ ssh_dissect_connection_generic(tvbuff_t *packet_tvb, packet_info *pinfo,
                 proto_tree_add_item(msg_type_tree, hf_ssh_global_request_want_reply, packet_tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 if (0 == strcmp(request_name, "hostkeys-00@openssh.com")) {
+                    guint   alen;
+                    proto_item *ti;
+                    int dissected_len = 0;
+                    alen = tvb_get_ntohl(packet_tvb, offset) ;
+                    ti = proto_tree_add_item(msg_type_tree, hf_ssh_global_request_hostkeys_array_len, packet_tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    proto_item *blob_tree = NULL;
+                    blob_tree = proto_tree_add_subtree(msg_type_tree, packet_tvb, offset, alen, ett_userauth_pk_blob, NULL, "Public key blob");
+                    dissected_len = ssh_dissect_public_key_blob(packet_tvb, pinfo, offset, blob_tree) - offset;
+                    if(dissected_len!=(int)alen){
+                        expert_add_info_format(pinfo, ti, &ei_ssh_packet_decode, "Decoded %d bytes, but packet legnth is %d bytes", dissected_len, alen);
+                    }
+                    offset += alen;
                 }
         }
+        return offset;
 }
 
-static void
+static int
 ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree)
 {
@@ -3100,9 +3167,10 @@ ssh_dissect_public_key_blob(tvbuff_t *packet_tvb, packet_info *pinfo,
         offset += slen;
         offset += ssh_tree_add_mpint(packet_tvb, offset, msg_type_tree, hf_ssh_blob_e);
         offset += ssh_tree_add_mpint(packet_tvb, offset, msg_type_tree, hf_ssh_blob_p);
+        return offset;
 }
 
-static void
+static int
 ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
         int offset, proto_item *msg_type_tree)
 {
@@ -3118,6 +3186,7 @@ ssh_dissect_public_key_signature(tvbuff_t *packet_tvb, packet_info *pinfo,
         offset += 4;
         proto_tree_add_item(msg_type_tree, hf_ssh_pk_sig_s, packet_tvb, offset, slen, ENC_NA);
         offset += slen;
+        return offset;
 }
 
 #ifdef SSH_DECRYPT_DEBUG /* {{{ */
@@ -3669,6 +3738,31 @@ proto_register_ssh(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ssh_ignore_data_length,
+          { "Debug message length", "ssh.ignore_data_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_ignore_data,
+          { "Ignore data", "ssh.ignore_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_debug_always_display,
+          { "Always Display", "ssh.debug_always_display",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_debug_message_length,
+          { "Debug message length", "ssh.debug_name_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_debug_message,
+          { "Debug message", "ssh.debug_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ssh_service_name_length,
           { "Service Name length", "ssh.service_name_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3739,6 +3833,11 @@ proto_register_ssh(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ssh_userauth_have_signature,
+          { "Have signature", "ssh.userauth.have_signature",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ssh_userauth_password_length,
           { "Password length", "ssh.userauth_password_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3767,6 +3866,11 @@ proto_register_ssh(void)
         { &hf_ssh_auth_failure_list,
           { "Authentications that can continue list", "ssh.auth_failure_cont_list",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ssh_userauth_partial_success,
+          { "Partial success", "ssh.userauth.partial_success",
+            FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ssh_userauth_pka_name_len,
@@ -3874,6 +3978,11 @@ proto_register_ssh(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ssh_global_request_hostkeys_array_len,
+          { "Host keys array length", "ssh.global_request_hostkeys",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ssh_channel_request_name_len,
           { "Channel request name length", "ssh.global_request_name_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3929,9 +4038,10 @@ proto_register_ssh(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_ssh_packet_length, { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
+        { &ei_ssh_packet_length,  { "ssh.packet_length.error", PI_PROTOCOL, PI_WARN, "Overly large number", EXPFILL }},
+        { &ei_ssh_packet_decode,  { "ssh.packet_decode.error", PI_PROTOCOL, PI_WARN, "Packet decoded length not equal to packet length", EXPFILL }},
         { &ei_ssh_invalid_keylen, { "ssh.key_length.error", PI_PROTOCOL, PI_ERROR, "Invalid key length", EXPFILL }},
-        { &ei_ssh_mac_bad,       { "ssh.mac_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad MAC", EXPFILL }},
+        { &ei_ssh_mac_bad,        { "ssh.mac_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad MAC", EXPFILL }},
     };
 
     module_t *ssh_module;
