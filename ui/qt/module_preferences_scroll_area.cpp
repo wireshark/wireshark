@@ -44,22 +44,30 @@ static const QString title_to_shortcut(const char *title) {
     return shortcut_str;
 }
 
+typedef struct 
+{
+    QVBoxLayout *layout;
+    QString moduleName;
+} prefSearchData;
 
 extern "C" {
 // Callbacks prefs routines
 
 /* Add a single preference to the QVBoxLayout of a preference page */
 static guint
-pref_show(pref_t *pref, gpointer layout_ptr)
+pref_show(pref_t *pref, gpointer user_data)
 {
-    QVBoxLayout *vb = static_cast<QVBoxLayout *>(layout_ptr);
+    prefSearchData * data = static_cast<prefSearchData *>(user_data);
 
-    if (!pref || !vb) return 0;
+    if (!pref || !data) return 0;
+
+    QVBoxLayout *vb = data->layout;
 
     // Convert the pref description from plain text to rich text.
     QString description = html_escape(prefs_get_description(pref));
-    description.replace('\n', "<br>");
-    QString tooltip = QString("<span>%1</span>").arg(description);
+    QString name = QString("%1.%2").arg(data->moduleName).arg(prefs_get_name(pref));
+    description.replace('\n', "<br/>");
+    QString tooltip = QString("<span>%1</span><br/><br/>%2").arg(description).arg(name);
 
     switch (prefs_get_type(pref)) {
     case PREF_UINT:
@@ -121,7 +129,9 @@ pref_show(pref_t *pref, gpointer layout_ptr)
             for (ev = prefs_get_enumvals(pref); ev && ev->description; ev++) {
                 enum_cb->addItem(ev->description, QVariant(ev->value));
             }
-            hb->addWidget(new QLabel(prefs_get_title(pref)));
+            QLabel * lbl = new QLabel(prefs_get_title(pref));
+            lbl->setToolTip(tooltip);
+            hb->addWidget(lbl);
             hb->addWidget(enum_cb);
             hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
             vb->addLayout(hb);
@@ -254,8 +264,12 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     label->setFont(font);
     ui->verticalLayout->addWidget(label);
 
+    prefSearchData * searchData = new prefSearchData;
+    searchData->layout = ui->verticalLayout;
+    searchData->moduleName = module->name;
+
     /* Add items for each of the preferences */
-    prefs_pref_foreach(module, pref_show, (gpointer) ui->verticalLayout);
+    prefs_pref_foreach(module, pref_show, (gpointer) searchData);
 
     foreach (QLineEdit *le, findChildren<QLineEdit *>()) {
         pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
