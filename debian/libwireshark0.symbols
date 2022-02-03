@@ -1883,6 +1883,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_uncompress_lz77huff@Base 3.1.0
  tvb_uncompress_lznt1@Base 3.1.0
  tvb_unicode_strsize@Base 1.9.1
+ tvb_utf_8_isprint@Base 3.7.0
  tvb_ws_mempbrk_pattern_guint8@Base 1.99.3
  tvbparse_casestring@Base 1.9.1
  tvbparse_char@Base 1.9.1

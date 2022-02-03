@@ -809,6 +809,18 @@ WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset,
 	const gint length);
 
+/** Iterates over the provided portion of the tvb checking that it is
+* valid UTF-8 consisting entirely of printable characters. (The characters
+* must be complete; if the portion ends in a partial sequence that could
+* begin a valid character, this returns FALSE.) The length may be -1 for
+* "all the way to the end of the tvbuff".
+* Returns TRUE if printable, FALSE otherwise
+*
+* @see isprint_utf8_string()
+*/
+WS_DLL_PUBLIC gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset,
+	const gint length);
+
 /**
  * Given a tvbuff, an offset into the tvbuff, and a length that starts
  * at that offset (which may be -1 for "all the way to the end of the

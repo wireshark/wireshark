@@ -132,7 +132,8 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   BASE_CUSTOM, or BASE_NONE, possibly ORed with
                   BASE_RANGE_STRING, BASE_EXT_STRING, BASE_VAL64_STRING,
                   BASE_ALLOW_ZERO, BASE_UNIT_STRING, BASE_SPECIAL_VALS,
-                  BASE_NO_DISPLAY_VALUE, or BASE_SHOW_ASCII_PRINTABLE
+                  BASE_NO_DISPLAY_VALUE, BASE_SHOW_ASCII_PRINTABLE, or
+                  BASE_SHOW_UTF_8_PRINTABLE
 
                   BASE_NONE may be used with a non-NULL FIELDCONVERT when the
                   numeric value of the field itself is not of significance to
@@ -182,8 +183,8 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
 
                   SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE to provide
                   a separator between bytes; BASE_NONE has no separator
-                  between bytes.  These can be ORed with BASE_ALLOW_ZERO
-                  and BASE_SHOW_ASCII_PRINTABLE.
+                  between bytes.  These can be ORed with BASE_ALLOW_ZERO,
+                  BASE_SHOW_ASCII_PRINTABLE, or BASE_SHOW_UTF_8_PRINTABLE.
 
                   BASE_ALLOW_ZERO displays <none> instead of <MISSING>
                   for a zero-sized byte array.
@@ -191,6 +192,11 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   field's value consists entirely of printable ASCII
                   characters and, if so, will display the field's value
                   as a string, in quotes.  The value will still be
+                  filterable as a byte value.
+                  BASE_SHOW_UTF_8_PRINTABLE will check whether the
+                  field's value is valid UTF-8 consisting entirely of
+                  printable characters and, if so, will display the field's
+                  value as a string, in quotes.  The value will still be
                   filterable as a byte value.
 
                 --For FT_IPv4:

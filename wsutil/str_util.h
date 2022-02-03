@@ -114,14 +114,34 @@ gchar *ascii_strup_inplace(gchar *str);
 WS_DLL_PUBLIC
 gboolean isprint_string(const gchar *str);
 
-/** Check if an entire UTF-8 string consists of printable characters
+/** Given a not-necessarily-null-terminated string, expected to be in
+ *  UTF-8 but possibly containing invalid sequences (as it may have come
+ *  from packet data), and the length of the string, deterimine if the
+ *  string is valid UTF-8 consisting entirely of printable characters.
+ *
+ *  This means that it:
+ *
+ *   does not contain an illegal UTF-8 sequence (including overlong encodings,
+ *   the sequences reserved for UTF-16 surrogate halves, and the values for
+ *   code points above U+10FFFF that are no longer in Unicode)
+ *
+ *   does not contain a non-printable Unicode character such as control
+ *   characters (including internal NULL bytes)
+ *
+ *   does not end in a partial sequence that could begin a valid character;
+ *
+ *   does not start with a partial sequence that could end a valid character;
+ *
+ * and thus guarantees that the result of format_text() would be the same as
+ * that of wmem_strndup() with the same parameters.
  *
  * @param str    The string to be checked
  * @param length The number of bytes to validate
- * @return       TRUE if the entire string is printable, otherwise FALSE
+ * @return       TRUE if the entire string is valid and printable UTF-8,
+ *               otherwise FALSE
  */
 WS_DLL_PUBLIC
-gboolean isprint_utf8_string(const gchar *str, guint length);
+gboolean isprint_utf8_string(const gchar *str, const guint length);
 
 /** Check if an entire string consists of digits
  *

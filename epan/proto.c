@@ -1082,7 +1082,18 @@ hfinfo_format_bytes(wmem_allocator_t *scope, const header_field_info *hfinfo,
 	gboolean is_printable;
 
 	if (bytes) {
-		if (hfinfo->display & BASE_SHOW_ASCII_PRINTABLE) {
+		if (hfinfo->display & BASE_SHOW_UTF_8_PRINTABLE) {
+			/*
+			 * If all bytes are valid and printable UTF-8, show the
+			 * bytes as a string - in quotes to indicate that it's
+			 * a string.
+			 */
+			if (isprint_utf8_string(bytes, length)) {
+				str = wmem_strdup_printf(scope, "\"%.*s\"",
+				    (int)length, bytes);
+				return str;
+			}
+		} else if (hfinfo->display & BASE_SHOW_ASCII_PRINTABLE) {
 			/*
 			 * Check whether all bytes are printable.
 			 */

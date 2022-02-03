@@ -3884,6 +3884,18 @@ gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 	return TRUE;
 }
 
+gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset, const gint length)
+{
+	const guint8* buf = tvb_get_ptr(tvb, offset, length);
+	guint abs_offset, abs_length = length;
+
+	if (length == -1) {
+		/* tvb_get_ptr has already checked for exceptions. */
+		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
+	}
+
+	return isprint_utf8_string(buf, abs_length);
+}
 
 static ws_mempbrk_pattern pbrk_crlf;
 /*

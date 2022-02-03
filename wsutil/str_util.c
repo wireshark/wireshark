@@ -273,18 +273,24 @@ isprint_string(const gchar *str)
 
 /* Check if an entire UTF-8 string is printable. */
 gboolean
-isprint_utf8_string(const gchar *str, guint length)
+isprint_utf8_string(const gchar *str, const guint length)
 {
-    const char *c;
+    const gchar *strend = str + length;
 
-    if (!g_utf8_validate (str, length, NULL)) {
+    if (!g_utf8_validate_len(str, length, NULL)) {
         return FALSE;
     }
 
-    for (c = str; *c; c = g_utf8_next_char(c)) {
-        if (!g_unichar_isprint(g_utf8_get_char(c))) {
+    while (str < strend) {
+        /* This returns false for G_UNICODE_CONTROL | G_UNICODE_FORMAT |
+         * G_UNICODE_UNASSIGNED | G_UNICODE_SURROGATE
+         * XXX: Could it be ok to have certain format characters, e.g.
+         * U+00AD SOFT HYPHEN? If so, format_text() should be changed too.
+         */
+        if (!g_unichar_isprint(g_utf8_get_char(str))) {
             return FALSE;
         }
+        str = g_utf8_next_char(str);
     }
 
     return TRUE;
