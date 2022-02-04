@@ -582,7 +582,7 @@ void proto_register_ppcap(void)
 	{ "Length",         "ppcap.length",
 		FT_UINT16, BASE_DEC, NULL,   0x00, NULL, HFILL}},
 	{ &hf_ppcap_payload_type,
-	{ "Payload Type" , "ppcap.payload_type", FT_STRING,
+	{ "Payload Type", "ppcap.payload_type", FT_STRING,
 		BASE_NONE, 	NULL, 	0x0    , NULL,    HFILL}},
 	{ &hf_ppcap_reserved,
 	{ "Reserved",         "ppcap.reserved",    FT_UINT16,
@@ -652,10 +652,10 @@ void proto_register_ppcap(void)
 	{ "Remote Port",         "ppcap.remote_port",    FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
 	{ &hf_ppcap_transport_prot,
-	{ "Transport Protocol" , "ppcap.transport_prot", FT_STRING,
+	{ "Transport Protocol", "ppcap.transport_prot", FT_STRING,
 		BASE_NONE,      NULL,   0x0    , NULL,    HFILL}},
 	{ &hf_ppcap_sctp_assoc,
-	{ "SCTP Association ID" , "ppcap.sctp_assoc", FT_STRING,
+	{ "SCTP Association ID", "ppcap.sctp_assoc", FT_STRING,
 		BASE_NONE,      NULL,   0x0    , NULL,    HFILL } },
 	};
 

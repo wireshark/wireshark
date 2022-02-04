@@ -1436,7 +1436,7 @@ proto_register_sercosiii(void)
         NULL, HFILL }
     },
     { &hf_siii_mst_type,
-      { "Telegram Type" , "siii.type",
+      { "Telegram Type", "siii.type",
         FT_UINT8, BASE_DEC, VALS(siii_mst_type_text), 0x40,
         NULL, HFILL }
     },

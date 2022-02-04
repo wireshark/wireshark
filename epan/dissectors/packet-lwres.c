@@ -1043,11 +1043,11 @@ proto_register_lwres(void)
             "lwres srv weight", HFILL }},
 
         { &hf_srv_port,
-          { "Port" , "lwres.srv.port", FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "Port", "lwres.srv.port", FT_UINT16, BASE_DEC, NULL, 0x0,
             "lwres srv port", HFILL }},
 
         { &hf_srv_dname,
-          { "DNAME" , "lwres.srv.dname", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "DNAME", "lwres.srv.dname", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_adn_flags,
@@ -1095,7 +1095,7 @@ proto_register_lwres(void)
             "lwres adn addr addr", HFILL }},
 
         { &hf_ns_dname,
-          { "Name" , "lwres.ns.dname", FT_STRING, BASE_NONE, NULL, 0x0,
+          { "Name", "lwres.ns.dname", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         /* Add more fields here */

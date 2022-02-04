@@ -1790,7 +1790,7 @@ void proto_register_ecat_mailbox(void)
       FT_UINT8, BASE_HEX, VALS(FoEOpMode), 0x0, "Op modes", HFILL }
       },
       { &hf_ecat_mailbox_foe_filelength,
-      { "Foe FileLength" , "ecat_mailbox.foe_filelength",
+      { "Foe FileLength", "ecat_mailbox.foe_filelength",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
       },
       { &hf_ecat_mailbox_foe_filename,

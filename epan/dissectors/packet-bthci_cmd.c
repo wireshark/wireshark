@@ -6600,7 +6600,7 @@ proto_register_bthci_cmd(void)
             "Loopback Command Bit", HFILL }
         },
         { &hf_bthci_cmd_evt_mask_31,
-          { "Data Buffer Overflow" , "bthci_cmd.evt_mask_31",
+          { "Data Buffer Overflow", "bthci_cmd.evt_mask_31",
             FT_UINT8, BASE_HEX, VALS(cmd_boolean), 0x02,
             "Data Buffer Overflow Bit", HFILL }
         },

@@ -550,7 +550,7 @@ proto_register_hdfsdata(void)
   Read specific
   ***/
   { &hf_hdfsdata_startoffset,
-    { "HDFSDATA start offset" , "hdfsdata.startoffset",
+    { "HDFSDATA start offset", "hdfsdata.startoffset",
       FT_UINT64, BASE_DEC,
       NULL, 0x0,
       NULL, HFILL }

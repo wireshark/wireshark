@@ -7028,7 +7028,7 @@ proto_register_homeplug_av(void)
         },
         /* Sniffer Confirmation */
         { &hf_homeplug_av_sniffer_cnf,
-          { "Sniffer Confirmation" , "homeplug_av.sniffer_cnf",
+          { "Sniffer Confirmation", "homeplug_av.sniffer_cnf",
             FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_sniffer_cnf_status,

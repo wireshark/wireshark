@@ -1458,7 +1458,7 @@ proto_register_hip(void)
                     FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_locator_address,
-                  { "Locator" , "hip.tlv.locator_address",
+                  { "Locator", "hip.tlv.locator_address",
                     FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_cert_group,
@@ -1498,63 +1498,63 @@ proto_register_hip(void)
                     FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_transaction_minta,
-                  { "Min Ta" , "hip.tlv_transaction_minta",
+                  { "Min Ta", "hip.tlv_transaction_minta",
                     FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_from_address,
-                  { "Address" , "hip.tlv_from_address",
+                  { "Address", "hip.tlv_from_address",
                     FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_rvs_address,
-                  { "RVS Address" , "hip.tlv_rvs_address",
+                  { "RVS Address", "hip.tlv_rvs_address",
                     FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_relay_from_protocol,
-                  { "Protocol" , "hip.tlv_relay_from_protocol",
+                  { "Protocol", "hip.tlv_relay_from_protocol",
                     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_relay_from_reserved,
-                  { "Reserved" , "hip.tlv_relay_from_reserved",
+                  { "Reserved", "hip.tlv_relay_from_reserved",
                     FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_relay_from_address,
-                  { "Address" , "hip.tlv_relay_from_address",
+                  { "Address", "hip.tlv_relay_from_address",
                     FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_relay_to_protocol,
-                  { "Protocol" , "hip.tlv_relay_to_protocol",
+                  { "Protocol", "hip.tlv_relay_to_protocol",
                     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_relay_to_reserved,
-                  { "Reserved" , "hip.tlv_relay_to_reserved",
+                  { "Reserved", "hip.tlv_relay_to_reserved",
                     FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_relay_to_address,
-                  { "Address" , "hip.tlv_relay_to_address",
+                  { "Address", "hip.tlv_relay_to_address",
                     FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_reg_from_protocol,
-                  { "Protocol" , "hip.tlv_reg_from_protocol",
+                  { "Protocol", "hip.tlv_reg_from_protocol",
                     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_reg_from_reserved,
-                  { "Reserved" , "hip.tlv_reg_from_reserved",
+                  { "Reserved", "hip.tlv_reg_from_reserved",
                     FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_reg_from_address,
-                  { "Address" , "hip.tlv_reg_from_address",
+                  { "Address", "hip.tlv_reg_from_address",
                     FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_encrypted_parameter_data,
-                  { "Encrypted Parameter Data" , "hip.encrypted_parameter_data",
+                  { "Encrypted Parameter Data", "hip.encrypted_parameter_data",
                     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_fqdn,
-                  { "FQDN" , "hip.fqdn",
+                  { "FQDN", "hip.fqdn",
                     FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
                 { &hf_hip_nai,
-                  { "NAI" , "hip.nai",
+                  { "NAI", "hip.nai",
                     FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         };

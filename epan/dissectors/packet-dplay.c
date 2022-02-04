@@ -1450,7 +1450,7 @@ void proto_register_dplay(void)
         { "SecDesc CAPI provider type", "dplay.sd.capi_type", FT_UINT32, BASE_HEX,
         NULL, 0x0, NULL, HFILL}},
     { &hf_dplay_sd_enc_alg,
-        { "SecDesc encryption algorithm" , "dplay.sd.enc_alg", FT_UINT32, BASE_HEX,
+        { "SecDesc encryption algorithm", "dplay.sd.enc_alg", FT_UINT32, BASE_HEX,
         VALS(dplay_enc_alg_val), 0x0, NULL, HFILL}},
 
     /* Data fields for message type 0x0001 */
