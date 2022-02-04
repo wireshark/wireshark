@@ -1127,6 +1127,10 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 		length=4;
 	}
 
+	if(length == 0){
+		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "unexpected length");
+	}
+
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	val_tvb = tvb_new_octet_aligned(tvb, offset, length * 8);
 	val=0;
