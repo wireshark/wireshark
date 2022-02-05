@@ -4496,10 +4496,12 @@ static CSN_CallBackStatus_t cb_parse_mi(proto_tree *tree, tvbuff_t *tvb,
 {
   guint8 mi_length = *((guint8 *) _mi_length);
 
-  /* de_mid() requires an octet-aligned buffer */
-  tvbuff_t *mi_tvb = tvb_new_octet_aligned(tvb, bit_offset, mi_length << 3);
-  add_new_data_source(pinfo, mi_tvb, "Mobile Identity");
-  de_mid(mi_tvb, tree, pinfo, 0, -1, NULL, 0);
+  if ((mi_length << 3) != 0) {
+    /* de_mid() requires an octet-aligned buffer */
+    tvbuff_t *mi_tvb = tvb_new_octet_aligned(tvb, bit_offset, mi_length << 3);
+    add_new_data_source(pinfo, mi_tvb, "Mobile Identity");
+    de_mid(mi_tvb, tree, pinfo, 0, -1, NULL, 0);
+  }
 
   return mi_length << 3;
 }
