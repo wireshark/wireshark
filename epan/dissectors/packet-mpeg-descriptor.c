@@ -3290,6 +3290,42 @@ proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, guint offset, guint len, pr
     }
 }
 
+/* 0x72 Service Availability Descriptor */
+static int hf_mpeg_descr_service_availability_flag = -1;
+static int hf_mpeg_descr_service_availability_reserved = -1;
+static int hf_mpeg_descr_service_availability_cell_id = -1;
+
+#define MPEG_DESCR_SRV_AVAIL_FLAG_MASK      0x80
+#define MPEG_DESCR_SRV_AVAIL_RESERVED_MASK  0x7F
+
+static gint ett_mpeg_descriptor_srv_avail_cells = -1;
+
+static const value_string mpeg_descr_srv_avail_flag_vals[] = {
+    { 0x0, "Service is unavailable on the cells" },
+    { 0x1, "Service is available on the cells" },
+
+    { 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_service_availability(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    guint end = offset + len;
+
+    proto_tree * cells_tree;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_service_availability_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_service_availability_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    cells_tree = proto_tree_add_subtree(tree, tvb, offset, end - offset, ett_mpeg_descriptor_srv_avail_cells, NULL, "Cells");
+
+    while (offset < end) {
+        proto_tree_add_item(cells_tree, hf_mpeg_descr_service_availability_cell_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+}
+
 /* 0x73 Default Authority Descriptor */
 static int hf_mpeg_descr_default_authority_name = -1;
 
@@ -4296,6 +4332,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x6F: /* Application Signalling Descriptor */
             proto_mpeg_descriptor_dissect_app_sig(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x72: /* Service Availability Descriptor */
+            proto_mpeg_descriptor_dissect_service_availability(tvb, offset, len, descriptor_tree);
             break;
         case 0x73: /* Default Authority Descriptor */
             proto_mpeg_descriptor_dissect_default_authority(tvb, offset, len, descriptor_tree);
@@ -5922,6 +5961,23 @@ proto_register_mpeg_descriptor(void)
             FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL
         } },
 
+        /* 0x72 Service Availability Descriptor */
+        { &hf_mpeg_descr_service_availability_flag, {
+            "Availability Flag", "mpeg_descr.srv_avail.flag",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_srv_avail_flag_vals),
+            MPEG_DESCR_SRV_AVAIL_FLAG_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_service_availability_reserved, {
+            "Reserved", "mpeg_descr.srv_avail.reserved",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_SRV_AVAIL_RESERVED_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_service_availability_cell_id, {
+            "Cell ID", "mpeg_descr.srv_avail.cid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
         /* 0x73 Default Authority Descriptor */
         { &hf_mpeg_descr_default_authority_name, {
             "Default Authority Name", "mpeg_descr.default_authority.name",
@@ -6419,6 +6475,7 @@ proto_register_mpeg_descriptor(void)
         &ett_mpeg_descriptor_country_availability_countries,
         &ett_mpeg_descriptor_nvod_reference_triplet,
         &ett_mpeg_descriptor_vbi_data_service,
+        &ett_mpeg_descriptor_srv_avail_cells,
         &ett_mpeg_descriptor_content_identifier_crid,
         &ett_mpeg_descriptor_mosaic_logical_cell,
         &ett_mpeg_descriptor_mosaic_elementary_cells,
