@@ -26,7 +26,11 @@
  * value continues into the next byte.
  * The octetCount parameter holds the number of bytes read in order to return
  * the final value. Can be pre-initialised to start at offset+count.
-*/
+ *
+ * XXX This seems to be used exclusively for fetching size values. We should
+ * probably rename this to wap_get_checked_size or something along those lines.
+ */
+#define MAX_WAP_GUINTVAR (100 * 1000 * 1000) // Arbitrary. We need a large number that won't overflow a guint.
 guint
 tvb_get_guintvar (tvbuff_t *tvb, guint offset,
         guint *octetCount, packet_info *pinfo, expert_field *ei)
@@ -48,10 +52,11 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset,
         previous_value = value;
         value <<= 7;  /* Value only exists in 7 of the 8 bits */
         value += (octet & 0x7F);
-        if (value < previous_value) {
+        if (value < previous_value || value > MAX_WAP_GUINTVAR) {
             /* overflow; clamp the value at UINT_MAX */
             proto_tree_add_expert(NULL, pinfo, ei, tvb, offset, counter);
-            value = UINT_MAX;
+            value = MAX_WAP_GUINTVAR;
+            break;
         }
 
 #ifdef DEBUG
