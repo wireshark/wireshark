@@ -125,6 +125,7 @@ static gint ett_zbee_zcl_attr[ZBEE_ZCL_NUM_ATTR_ETT];
 static gint ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT];
 
 static expert_field ei_cfg_rpt_rsp_short_non_success = EI_INIT;
+static expert_field ei_zbee_zero_length_element = EI_INIT;
 
 /* Dissector List. */
 static dissector_table_t    zbee_zcl_dissector_table;
@@ -2182,7 +2183,12 @@ dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 el
             sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 0,
                         ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1], NULL, "Element #%d", i);
 
+        guint old_offset = *offset;
         dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type, client_attr);
+        if (old_offset <= *offset) {
+            proto_tree_add_expert(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset, -1);
+            break;
+        }
         elements_num--;
         i++;
     }
@@ -2218,7 +2224,12 @@ dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elem
             sub_tree = proto_tree_add_subtree(tree, tvb, *offset, 0,
                         ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1], NULL, "Element");
 
+        guint old_offset = *offset;
         dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type, client_attr);
+        if (old_offset <= *offset) {
+            proto_tree_add_expert(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset, -1);
+            break;
+        }
         elements_num--;
         i++;
     }
@@ -2567,6 +2578,9 @@ void proto_register_zbee_zcl(void)
         { &ei_cfg_rpt_rsp_short_non_success,
           { "zbee_zcl.cfg_rpt_rsp_short_non_success", PI_PROTOCOL, PI_WARN,
             "Non-success response without full status records", EXPFILL }},
+        { &ei_zbee_zero_length_element,
+          { "zbee_zcl.zero_length_element", PI_PROTOCOL, PI_ERROR,
+            "Element has zero length", EXPFILL }},
     };
 
     expert_module_t *expert_zbee_zcl;
