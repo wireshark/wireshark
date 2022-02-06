@@ -16,10 +16,10 @@ README.windows for those instructions.
    installed.  Then try running 'pkg-config Qt5Widgets --modversion'
    to see if you have Qt installed. Wireshark requires Qt 5.3 or later,
    but the most recent LTS release is strongly recommended. It needs
-   version 2.32.0 or above of GLib.  If you need to install or
+   version 2.38.0 or above of GLib.  If you need to install or
    re-install GLIB, you can find the packages at:
 
-        https://www.gtk.org
+        https://download.gnome.org/sources/glib/
 
    You can find Qt at:
 
