@@ -277,7 +277,7 @@ isprint_utf8_string(const gchar *str, const guint length)
 {
     const gchar *strend = str + length;
 
-    if (!g_utf8_validate_len(str, length, NULL)) {
+    if (!g_utf8_validate(str, length, NULL)) {
         return FALSE;
     }
 
