@@ -1638,7 +1638,9 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                         for(i=0; i < mihf_id_len/2; i++)
                                         {
                                                 tvb_temp = tvb_new_subset_length(tvb, offset + 2 + 2*i, 1);
-                                                tvb_composite_append(tvb_mihf_id, tvb_temp);
+                                                if (tvb_captured_length(tvb_temp)) {
+                                                        tvb_composite_append(tvb_mihf_id, tvb_temp);
+                                                }
                                         }
                                         TRY
                                         {
