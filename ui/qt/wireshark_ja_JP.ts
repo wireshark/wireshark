@@ -6340,7 +6340,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>900000000</source>
-        <translation>900000000</translation>
+        <translation type="vanished">900000000</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -12884,6 +12884,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Image</source>
         <translation>画像形式</translation>
+    </message>
+    <message>
+        <source>Json</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Raw</source>

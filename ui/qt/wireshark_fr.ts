@@ -6358,7 +6358,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>900000000</source>
-        <translation>900000000</translation>
+        <translation type="vanished">900000000</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -12875,6 +12875,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Json</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

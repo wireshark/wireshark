@@ -6358,7 +6358,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>900000000</source>
-        <translation>900000000</translation>
+        <translation type="vanished">900000000</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -12914,6 +12914,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Image</source>
         <translation>Immagine</translation>
+    </message>
+    <message>
+        <source>Json</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Raw</source>

@@ -6294,7 +6294,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>900000000</source>
-        <translation>900000000</translation>
+        <translation type="vanished">900000000</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -12806,6 +12806,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Image</source>
         <translation>Imagen</translation>
+    </message>
+    <message>
+        <source>Json</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Raw</source>
