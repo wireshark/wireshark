@@ -20,6 +20,7 @@
 
 #include <QAction>
 #include <QImage>
+#include <QJsonDocument>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QPrintDialog>
@@ -72,6 +73,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("Hex Dump"), ShowAsHexDump);
     ui->cbShowAs->addItem(tr("HTML"), ShowAsHTML);
     ui->cbShowAs->addItem(tr("Image"), ShowAsImage);
+    ui->cbShowAs->addItem(tr("Json"), ShowAsJson);
     ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
     ui->cbShowAs->addItem(tr("Rust Array"), ShowAsRustArray);
     // UTF-8 is guaranteed to exist as a QTextCodec
@@ -290,6 +292,7 @@ void ShowPacketBytesDialog::copyBytes()
     case ShowAsRustArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
+    case ShowAsJson:
     case ShowAsRAW:
     case ShowAsYAML:
         wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText());
@@ -325,6 +328,7 @@ void ShowPacketBytesDialog::saveAs()
     // We always save as UTF-8, so set text mode as we would for UTF-8
     case ShowAsCodec:
     case ShowAsHexDump:
+    case ShowAsJson:
     case ShowAsYAML:
     case ShowAsHTML:
         open_mode |= QFile::Text;
@@ -350,6 +354,7 @@ void ShowPacketBytesDialog::saveAs()
     case ShowAsRustArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
+    case ShowAsJson:
     case ShowAsYAML:
     {
         QTextStream out(&file);
@@ -784,6 +789,11 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         save_as_button_->setEnabled(!image_.isNull());
         break;
     }
+
+    case ShowAsJson:
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
+        ui->tePacketBytes->setPlainText(QJsonDocument::fromJson(field_bytes_).toJson());
+        break;
 
     case ShowAsYAML:
     {
