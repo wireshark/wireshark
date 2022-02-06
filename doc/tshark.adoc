@@ -1228,6 +1228,15 @@ Count the number of ANSI MAP messages of each type, and calculate the
 total number of bytes and average bytes of each message type.
 --
 
+*-z* asap,stat[,__filter__]::
++
+--
+Calculate statistics on Aggregate Service Access Protocol (ASAP).
+For each ASAP message type, displays the number, rate, and share among
+all ASAP message types of both packets and bytes, and the first and last
+time that it is seen.
+--
+
 *-z* bacapp_instanceid,tree[,__filter__]::
 +
 --
@@ -1260,6 +1269,15 @@ Displayed information includes source and destination address,
 object ID, and instance ID.
 --
 
+*-z* calcappprotocol,stat[,__filter__]::
++
+--
+Calculate statistics on the Calculation Application Protocol of
+Reliable Server Pooling.  For each message type, displays the number,
+rate, and share among all message types of both packets and bytes,
+and the first and last time that it is seen.
+--
+
 *-z* camel,counter[,__filter__]::
 +
 --
@@ -1283,6 +1301,15 @@ of collectd packets and the total number of value segments, along with the
 host, plugin, and type of the values.
 --
 
+*-z* componentstatusprotocol,stat[,__filter__]::
++
+--
+Calculate statistics on the Calculation Status Protocol of Reliable
+Server Pooling.  For each message type, displays the number, rate
+and share among all message types of both packets and bytes, and the
+first and last time that it is seen.
+--
+
 *-z* conv,__type__[,__filter__]::
 +
 --
@@ -1290,26 +1317,27 @@ Create a table that lists all conversations that could be seen in the
 capture.  __type__ specifies the conversation endpoint types for which we
 want to generate the statistics; currently the supported ones are:
 
-  "bluetooth"  Bluetooth addresses
-  "eth"   Ethernet addresses
-  "fc"    Fibre Channel addresses
-  "fddi"  FDDI addresses
-  "ip"    IPv4 addresses
-  "ipv6"  IPv6 addresses
-  "ipx"   IPX addresses
-  "jxta"  JXTA message addresses
-  "mptcp" Multipath TCP connections
-  "ncp"   NCP connections
-  "rsvp"  RSVP connections
-  "sctp"  SCTP addresses
-  "sll"   Linux "cooked mode" capture addresses
-  "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "tr"    Token Ring addresses
-  "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "usb"   USB addresses
-  "wlan"  IEEE 802.11 addresses
-  "wpan"  IEEE 802.15.4 addresses
-  "zbee_nwk" ZigBee Network Layer addresses
+  "bluetooth" Bluetooth addresses
+  "dccp"      DCCP/IP socket pairs Both IPv4 and IPv6 are supported
+  "eth"       Ethernet addresses
+  "fc"        Fibre Channel addresses
+  "fddi"      FDDI addresses
+  "ip"        IPv4 addresses
+  "ipv6"      IPv6 addresses
+  "ipx"       IPX addresses
+  "jxta"      JXTA message addresses
+  "mptcp"     Multipath TCP connections
+  "ncp"       NCP connections
+  "rsvp"      RSVP connections
+  "sctp"      SCTP/IP socket pairs Both IPv4 and IPv6 are supported
+  "sll"       Linux "cooked mode" capture addresses
+  "tcp"       TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"        Token Ring addresses
+  "udp"       UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"       USB addresses
+  "wlan"      IEEE 802.11 addresses
+  "wpan"      IEEE 802.15.4 addresses
+  "zbee_nwk"  ZigBee Network Layer addresses
 
 The table is presented with one line for each conversation and displays
 the number of packets/bytes in each direction as well as the total
@@ -1428,31 +1456,41 @@ Create a table that lists all endpoints that could be seen in the
 capture.  __type__ specifies the endpoint types for which we
 want to generate the statistics; currently the supported ones are:
 
-  "bluetooth"  Bluetooth addresses
-  "eth"   Ethernet addresses
-  "fc"    Fibre Channel addresses
-  "fddi"  FDDI addresses
-  "ip"    IPv4 addresses
-  "ipv6"  IPv6 addresses
-  "ipx"   IPX addresses
-  "jxta"  JXTA message addresses
-  "mptcp" Multipath TCP connections
-  "ncp"   NCP connections
-  "rsvp"  RSVP connections
-  "sctp"  SCTP addresses
-  "sll"   Linux "cooked mode" capture addresses
-  "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "tr"    Token Ring addresses
-  "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "usb"   USB addresses
-  "wlan"  IEEE 802.11 addresses
-  "wpan"  IEEE 802.15.4 addresses
-  "zbee_nwk" ZigBee Network Layer addresses
+  "bluetooth" Bluetooth addresses
+  "dccp"      DCCP/IP socket pairs Both IPv4 and IPv6 are supported
+  "eth"       Ethernet addresses
+  "fc"        Fibre Channel addresses
+  "fddi"      FDDI addresses
+  "ip"        IPv4 addresses
+  "ipv6"      IPv6 addresses
+  "ipx"       IPX addresses
+  "jxta"      JXTA message addresses
+  "mptcp"     Multipath TCP connections
+  "ncp"       NCP connections
+  "rsvp"      RSVP connections
+  "sctp"      SCTP/IP socket pairs Both IPv4 and IPv6 are supported
+  "sll"       Linux "cooked mode" capture addresses
+  "tcp"       TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"        Token Ring addresses
+  "udp"       UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "usb"       USB addresses
+  "wlan"      IEEE 802.11 addresses
+  "wpan"      IEEE 802.15.4 addresses
+  "zbee_nwk"  ZigBee Network Layer addresses
 
 The table is presented with one line for each conversation and displays
 the number of packets/bytes in each direction as well as the total
 number of packets/bytes.  The table is sorted according to the total
 number of frames.
+--
+
+*-z* enrp,stat[,__filter__]::
++
+--
+Calculate statistics on Endpoint Handlespace Redundancy Protocol (ENRP).
+For each message type, displays the number, rate, and share among
+all message types of both packets and bytes, and the first and last
+time that it is seen.
 --
 
 *-z* expert[__,error|,warn|,note|,chat|,comment__][,__filter__]::
@@ -1468,6 +1506,41 @@ This option can be used multiple times on the command line.
 
 Example: *-z "expert,note,tcp"* will only collect expert items for frames that
 include the tcp protocol, with a severity of note or higher.
+--
+
+*-z* f1ap,tree[,__filter__]::
++
+--
+Calculate the distribution of F1AP packets, grouped by packet types.
+--
+
+*-z* f5_tmm_dist,tree[,__filter__]::
++
+--
+Calculate the F5 Ethernet trailer Traffic Managment Microkernel distribution.
+Displayed information is the number of packets and bytes, grouped by the TMM
+slot and number, whether packets are ingress or egress, and whether there is
+a flow ID and virtual server name, a flow ID without virtual server name, or
+no flow ID, along with total for all packets with F5 trailers.
+--
+
+*-z* f5_virt_dist,tree[,__filter__]::
++
+--
+Calculate F5 Ethernet trailer Virtual Server distribution.
+Displayed information is the number of packets and bytes, grouped by the
+virtual server name if it exists, or by whether there is a flow ID or not
+if there is no virtual server name, as well as totals for all packets with
+F5 trailers.
+--
+
+*-z* fc,srt[,__filter__]::
++
+--
+Collect requests/response SRT (Service Response Time) data for GTP.
+Data collected is the number of request/response pairs, mimimum SRT,
+maximum SRT, average SRT, and sum SRT for each value of the Type field
+(next protocol).  No statistics are gathered on unpaired messages.
 --
 
 *-z* flow,__name__,__mode__[,__filter__]::
@@ -1503,10 +1576,15 @@ __prot__ specifies the transport protocol.  It can be one of:
 
   tcp   TCP
   udp   UDP
+  dccp  DCCP
   tls   TLS or SSL
   http  HTTP streams
   http2 HTTP/2 streams
   quic  QUIC streams
+
+NOTE: While the usage help presents sip as an option, the proper
+stream filters are not implemented so SIP calls cannot be followed
+in *TShark*, only in *Wireshark*.
 
 __mode__ specifies the output mode.  It can be one of:
 
@@ -1525,12 +1603,12 @@ __filter__ specifies the stream to be displayed. There are three formats:
   stream-index
   stream-index,substream-index
 
-The first format specifies IP addresses and TCP or UDP port pairs. (TCP ports
-are used for TLS, HTTP, and HTTP2; QUIC does not support address and port
-matching because of connection migration.)
+The first format specifies IP addresses and TCP, UDP, or DCCP port pairs.
+(TCP ports are used for TLS, HTTP, and HTTP2; QUIC does not support address
+and port matching because of connection migration.)
 
-The second format specifies stream indices, and is used for TCP, UDP, TLS, and
-HTTP. (TLS and HTTP use TCP stream indices.)
+The second format specifies stream indices, and is used for TCP, UDP, DCCP,
+TLS, and HTTP. (TLS and HTTP use TCP stream indices.)
 
 The third format, specifying streams and substreams, is used for HTTP/2 and
 QUIC due to their use of multiplexing. (TCP stream and HTTP/2 stream indices
@@ -1584,6 +1662,15 @@ stream on the first TCP session (index 0) with HTTP/2 Stream ID 1.
       00000020  34 a0 5b b8 21 5c 0b ea  62 d1 bf                 4.[.!\.. b..
       0000002B  00 40 00 00 00 00 00 00  01 89 50 4e 47 0d 0a 1a  .@...... ..PNG...
 
+--
+
+*-z* fractalgeneratorprotocol,stat[,__filter__]::
++
+--
+Calculate statistics on the Fractal Generator Protocol of Reliable
+Server Pooling.  For each message type, displays the number, rate
+and share among all message types of both packets and bytes, and the
+first and last time that it is seen.
 --
 
 *-z* gsm_a::
@@ -1668,7 +1755,7 @@ Example: *-z "h225_ras,rtd,ip.addr==1.2.3.4"* will only collect stats for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 --
 
-*-z* hart_ip,tree,[,__filter__]::
+*-z* hart_ip,tree[,__filter__]::
 +
 --
 Calculate statistics on HART-IP packets, grouping by message types and
@@ -2127,6 +2214,15 @@ the number of packets, number of packets with the RTP market bit set,
 number of AMR frames, jitter analysis, and sequence number analysis.
 --
 
+*-z* pingpongprotocol,stat[,__filter__]::
++
+--
+Calculate statistics on the Ping Pong Protocol of Reliable
+Server Pooling.  For each message type, displays the number, rate
+and share among all message types of both packets and bytes, and the
+first and last time that it is seen.
+--
+
 *-z* plen,tree[,__filter__]::
 +
 --
@@ -2169,7 +2265,6 @@ This option can be used multiple times on the command line.
 --
 Calculate statistics on port types that occur on IPv4 packets.
 --
-
 
 *-z* radius,rtd[,__filter__]::
 +
