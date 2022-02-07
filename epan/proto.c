@@ -6122,7 +6122,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 	case FT_UINT_BYTES:
 		n = get_uint_value(NULL, tvb, start, length, encoding);
 		item_length += n;
-		if ((int)item_length < 0) {
+		if ((int)item_length < length) {
 			THROW(ReportedBoundsError);
 		}
 		break;
@@ -6204,7 +6204,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 	case FT_UINT_STRING:
 		n = get_uint_value(NULL, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
 		item_length += n;
-		if ((int)item_length < 0) {
+		if ((int)item_length < length) {
 			THROW(ReportedBoundsError);
 		}
 		break;
