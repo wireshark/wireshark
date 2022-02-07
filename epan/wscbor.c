@@ -234,7 +234,9 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint 
                 // skip over definite data
                 *offset += datalen;
                 chunk->data_length += datalen;
-                chunk->_priv->str_value = tvb_new_subset_length(tvb, chunk->start + chunk->head_length, datalen);
+                if(datalen) {
+                    chunk->_priv->str_value = tvb_new_subset_length(tvb, chunk->start + chunk->head_length, datalen);
+                }
             }
             else {
                 // indefinite length, sequence of definite items
@@ -262,10 +264,12 @@ wscbor_chunk_t * wscbor_chunk_read(wmem_allocator_t *alloc, tvbuff_t *tvb, gint 
                             const gint datalen = wscbor_get_length(chunk, head->rawvalue);
                             *offset += datalen;
                             chunk->data_length += datalen;
-                            tvb_composite_append(
-                                chunk->_priv->str_value,
-                                tvb_new_subset_length(tvb, head->start + head->length, datalen)
-                            );
+                            if(datalen) {
+                                tvb_composite_append(
+                                    chunk->_priv->str_value,
+                                    tvb_new_subset_length(tvb, head->start + head->length, datalen)
+                                );
+                            }
                         }
                     }
 
@@ -621,13 +625,21 @@ proto_item * proto_tree_add_cbor_bitmask(proto_tree *tree, int hfindex, const gi
 }
 
 proto_item * proto_tree_add_cbor_tstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb _U_, const wscbor_chunk_t *chunk) {
-    proto_item *item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
-    wscbor_chunk_mark_errors(pinfo, item, chunk);
-    return item;
+    if (chunk->_priv->str_value) {
+        proto_item *item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
+        wscbor_chunk_mark_errors(pinfo, item, chunk);
+        return item;
+    } else {
+        return NULL;
+    }
 }
 
 proto_item * proto_tree_add_cbor_bstr(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb _U_, const wscbor_chunk_t *chunk) {
-    proto_item *item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
-    wscbor_chunk_mark_errors(pinfo, item, chunk);
-    return item;
+    if (chunk->_priv->str_value) {
+        proto_item *item = proto_tree_add_item(tree, hfindex, chunk->_priv->str_value, 0, tvb_reported_length(chunk->_priv->str_value), 0);
+        wscbor_chunk_mark_errors(pinfo, item, chunk);
+        return item;
+    } else {
+        return NULL;
+    }
 }
