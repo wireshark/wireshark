@@ -875,6 +875,8 @@ void
 proto_reg_handoff_cbor(void)
 {
 	dissector_add_string("media_type", "application/cbor", cbor_handle); /* RFC 7049 */
+	dissector_add_string("media_type", "application/senml+cbor", cbor_handle); /* RFC 8428 */
+	dissector_add_string("media_type", "application/sensml+cbor", cbor_handle); /* RFC 8428 */
 	dissector_add_string("media_type", "application/cbor-seq", cborseq_handle); /* RFC 8742 */
 }
 
