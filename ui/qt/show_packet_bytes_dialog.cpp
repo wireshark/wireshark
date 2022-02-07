@@ -83,7 +83,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->blockSignals(false);
 
     ui->sbStart->setMinimum(0);
-    ui->sbEnd->setMaximum(finfo_->length);
+    ui->sbEnd->setMaximum(finfo_->length - 1);
 
     print_button_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(print_button_, SIGNAL(clicked()), this, SLOT(printBytes()));
@@ -96,7 +96,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
 
-    setStartAndEnd(0, finfo_->length);
+    setStartAndEnd(0, (finfo_->length - 1));
     updateFieldBytes(true);
 }
 
@@ -127,13 +127,13 @@ void ShowPacketBytesDialog::showSelected(int start, int end)
 {
     if (end == -1) {
         // end set to -1 means show all packet bytes
-        setStartAndEnd(0, finfo_->length);
+        setStartAndEnd(0, (finfo_->length - 1));
     } else {
         if (show_as_ == ShowAsRAW) {
             start /= 2;
             end = (end + 1) / 2;
         }
-        setStartAndEnd(start_ + start, start_ + end);
+        setStartAndEnd(start_ + start, start_ + end - 1);
     }
     updateFieldBytes();
 }
@@ -179,9 +179,9 @@ void ShowPacketBytesDialog::updateHintLabel()
 {
     QString hint = hint_label_;
 
-    if (start_ > 0 || end_ < finfo_->length) {
+    if (start_ > 0 || end_ < (finfo_->length - 1)) {
         hint.append(" <span style=\"color: red\">" +
-                    tr("Displaying %Ln byte(s).", "", end_ - start_) +
+                    tr("Displaying %Ln byte(s).", "", end_ - start_ + 1) +
                     "</span>");
     }
 
@@ -525,7 +525,7 @@ void ShowPacketBytesDialog::rot13(QByteArray &ba)
 void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 {
     int start = finfo_->start + start_;
-    int length = end_ - start_;
+    int length = end_ - start_ + 1;
     const guint8 *bytes;
     gsize new_length = 0;
 
