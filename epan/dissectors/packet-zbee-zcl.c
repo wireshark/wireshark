@@ -2239,7 +2239,7 @@ dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 el
 
         guint old_offset = *offset;
         dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type, client_attr);
-        if (old_offset <= *offset) {
+        if (old_offset >= *offset) {
             proto_tree_add_expert(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset, -1);
             break;
         }
@@ -2280,7 +2280,7 @@ dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elem
 
         guint old_offset = *offset;
         dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type, client_attr);
-        if (old_offset <= *offset) {
+        if (old_offset >= *offset) {
             proto_tree_add_expert(sub_tree, NULL, &ei_zbee_zero_length_element, tvb, old_offset, -1);
             break;
         }
