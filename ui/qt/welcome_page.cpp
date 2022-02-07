@@ -390,6 +390,8 @@ void WelcomePage::showRecentFolder()
     if (!ria) return;
 
     QString cf_path = ria->data().toString();
+    if (cf_path.isEmpty()) return;
+
     desktop_show_in_folder(cf_path);
 }
 
