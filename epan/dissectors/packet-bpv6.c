@@ -701,7 +701,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
                             bundle_header_length);
     if (bundle_header_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
-        return 0;
+        return tvb_reported_length_remaining(tvb, offset);
     }
 
     offset += sdnv_length;
@@ -777,7 +777,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
                             dict_data.bundle_header_dict_length);
     if (dict_data.bundle_header_dict_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
-        return 0;
+        return tvb_reported_length_remaining(tvb, offset);
     }
     offset += sdnv_length;
 
@@ -879,7 +879,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
                             bundle_header_length);
     if (bundle_header_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Bundle Header Length Error");
-        return 0;
+        return tvb_reported_length_remaining(tvb, offset);
     }
 
     offset += sdnv_length;
@@ -998,7 +998,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
                             dict_data.bundle_header_dict_length);
     if (dict_data.bundle_header_dict_length < 0) {
         expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "Dictionary Header Length Error");
-        return 0;
+        return tvb_reported_length_remaining(tvb, offset);
     }
     offset += sdnv_length;
 
@@ -1307,7 +1307,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 
         endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
         if (endpoint_length < 0) {
-            return offset;
+            return tvb_reported_length_remaining(tvb, offset);
         }
         proto_tree_add_int(admin_record_tree, hf_bundle_admin_endpoint_length, tvb, offset, sdnv_length, endpoint_length);
         offset += sdnv_length;
@@ -1376,7 +1376,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
 
         endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
         if (endpoint_length < 0) {
-            return 0;
+            return tvb_reported_length_remaining(tvb, offset);
         }
         proto_tree_add_int(admin_record_tree, hf_bundle_admin_endpoint_length, tvb, offset, sdnv_length, endpoint_length);
         offset += sdnv_length;
@@ -1416,7 +1416,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
                                 sdnv_length_start + sdnv_length_length, fill_start + fill_length - 1);
         if (fill_length < 0 || sdnv_length_length < 0) {
             expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
-            return offset;
+            return tvb_reported_length_remaining(tvb, offset);
         }
 
         right_edge = fill_start + fill_length;
@@ -1438,7 +1438,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo
                                     sdnv_length_gap + sdnv_length_length, right_edge + fill_gap + fill_length - 1);
             if (fill_length < 0 || sdnv_length_length < 0) {
                 expert_add_info_format(pinfo, ti, &ei_bundle_sdnv_length, "ACS: Unable to process CTEB Custody ID Range length SDNV");
-                return offset;
+                return tvb_reported_length_remaining(tvb, offset);
             }
 
             right_edge += fill_gap + fill_length;
@@ -1573,6 +1573,10 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         proto_tree_add_item_ret_length(block_tree, hf_bundle_block_previous_hop_scheme, tvb, offset, 4, ENC_ASCII, &scheme_length);
         offset += scheme_length;
         proto_tree_add_item(block_tree, hf_bundle_block_previous_hop_eid, tvb, offset, block_length-scheme_length, ENC_ASCII|ENC_NA);
+        if (block_length - scheme_length < 1) {
+            expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
+            return tvb_reported_length_remaining(tvb, offset);
+        }
         offset += block_length - scheme_length;
 
         break;
@@ -1611,8 +1615,13 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
             int param_type;
             int item_length;
             proto_tree   *param_tree;
+            expert_field *ei = NULL;
 
-            params_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+            params_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei);
+            if (ei) {
+                proto_tree_add_expert(block_tree, pinfo, ei, tvb, offset, -1);
+                return tvb_reported_length_remaining(tvb, offset);
+            }
             param_tree = proto_tree_add_subtree(block_tree, tvb, offset, params_length+1, ett_sec_block_param_data, NULL, "Ciphersuite Parameters Data");
             proto_tree_add_int(param_tree, hf_block_ciphersuite_params_length, tvb, offset, sdnv_length, params_length);
             offset += sdnv_length;
@@ -1623,8 +1632,14 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
                 proto_tree_add_int(param_tree, hf_block_ciphersuite_param_type, tvb, offset, sdnv_length, param_type);
                 offset += sdnv_length;
 
-                item_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+                ei = NULL;
+                item_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei);
                 proto_tree_add_int(param_tree, hf_block_ciphersuite_params_item_length, tvb, offset, sdnv_length, item_length);
+                if (ei) {
+                    proto_tree_add_expert(param_tree, pinfo, ei, tvb, offset, -1);
+                    return tvb_reported_length_remaining(tvb, offset);
+                }
+
                 offset += sdnv_length;
 
                 //display item data
@@ -1670,8 +1685,14 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
             proto_tree_add_int(result_tree, hf_block_ciphersuite_result_type, tvb, offset, sdnv_length, result_type);
             offset += sdnv_length;
 
-            result_item_length = evaluate_sdnv(tvb, offset, &sdnv_length);
+            expert_field *ei = NULL;
+            result_item_length = evaluate_sdnv_ei(tvb, offset, &sdnv_length, &ei);
             proto_tree_add_int(result_tree, hf_block_ciphersuite_result_item_length, tvb, offset, sdnv_length, result_item_length);
+            if (ei) {
+                proto_tree_add_expert(result_tree, pinfo, ei, tvb, offset, -1);
+                offset = tvb_reported_length_remaining(tvb, offset);
+                break;
+            }
             offset += sdnv_length;
 
             //display item data
@@ -1723,6 +1744,10 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
         offset += sdnv_length;
 
         /* and second is the creator custodian EID */
+        if (block_length - sdnv_length < 1) {
+            expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
+            return tvb_reported_length_remaining(tvb, offset);
+        }
         cteb_creator_custodian_eid_length = block_length - sdnv_length;
         ti = proto_tree_add_item_ret_string(block_tree, hf_block_control_block_cteb_creator_custodian_eid, tvb, offset,
                                 cteb_creator_custodian_eid_length, ENC_ASCII, pinfo->pool, &cteb_creator_custodian_eid);
