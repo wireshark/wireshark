@@ -99,6 +99,9 @@ static int hf_ack_entry = -1;
 static int hf_ack_length = -1;
 static int hf_miss_seq_no = -1;
 static int hf_miss_seq_range = -1;
+static int hf_miss_seq_range_from = -1;
+static int hf_miss_seq_range_delimiter = -1;
+static int hf_miss_seq_range_to = -1;
 static int hf_tot_miss_seq_no = -1;
 static int hf_timestamp_option = -1;
 static int hf_dest_entry = -1;
@@ -1118,17 +1121,12 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
               proto_item_append_text (en, "    (invalid)");
               expert_add_info(pinfo, en, &ei_miss_seq_range);
             } else {
-              proto_tree *missing_tree;
-              guint16 sno;
+              proto_tree *missing_tree = proto_item_add_subtree (en, ett_range_entry);
 
-              missing_tree = proto_item_add_subtree (en, ett_range_entry);
+              proto_tree_add_item (missing_tree, hf_miss_seq_range_from, tvb, offset, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item (missing_tree, hf_miss_seq_range_delimiter, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item (missing_tree, hf_miss_seq_range_to, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
-              for (sno = ack_seq_no; sno <= end_seq_no; sno++) {
-                en = proto_tree_add_uint_format_value(missing_tree, hf_miss_seq_no,
-                                                 tvb, offset, 6, sno,
-                                                 "%d", sno);
-                proto_item_set_generated (en);
-              }
               tot_no_missing += (end_seq_no - ack_seq_no + 1);
             }
 
@@ -1395,6 +1393,15 @@ void proto_register_p_mul (void)
     { &hf_miss_seq_range,
       { "Missing Data PDU Seq Range", "p_mul.missing_seq_range", FT_BYTES,
         BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_miss_seq_range_from,
+      { "Missing Data PDU Seq Range from", "p_mul.missing_seq_range.from", FT_UINT16,
+        BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_miss_seq_range_delimiter,
+      { "Range Delimiter (always zero)", "p_mul.missing_seq_range.delimiter", FT_UINT16,
+        BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_miss_seq_range_to,
+      { "Missing Data PDU Seq Range to", "p_mul.missing_seq_range.to", FT_UINT16,
+        BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_tot_miss_seq_no,
       { "Total Number of Missing Data PDU Sequence Numbers",
         "p_mul.no_missing_seq_no", FT_UINT16, BASE_DEC, NULL, 0x0,
