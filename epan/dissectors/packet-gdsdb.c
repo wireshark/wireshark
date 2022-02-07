@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_gdsdb(void);
 void proto_reg_handoff_gdsdb(void);
@@ -181,6 +182,8 @@ static int hf_gdsdb_cursor_type = -1;
 /* gdsdb_sql_response */
 static int hf_gdsdb_sqlresponse_messages = -1;
 #endif
+
+static expert_field ei_gdsdb_invalid_length = EI_INIT;
 
 enum
 {
@@ -474,7 +477,12 @@ static int add_uint_string(proto_tree *tree, int hf_string, tvbuff_t *tvb, int o
 						offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
 	length = dword_align(tvb_get_ntohl(tvb, offset))+4;
 	proto_item_set_len(ti, length);
-	return offset + length;
+	int ret_offset = offset + length;
+	if (length < 4 || ret_offset < offset) {
+		expert_add_info_format(NULL, ti, &ei_gdsdb_invalid_length, "Invalid length: %d", length);
+		return tvb_reported_length_remaining(tvb, offset);
+	}
+	return ret_offset;
 }
 
 static int add_byte_array(proto_tree *tree, int hf_len, int hf_byte, tvbuff_t *tvb, int offset)
@@ -1407,7 +1415,12 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 								offset, 4, ENC_BIG_ENDIAN);
 
 		/* opcode < op_max */
+		int old_offset = offset;
 		offset = gdsdb_handle_opcode[opcode](tvb, pinfo, gdsdb_tree, offset+4);
+		if (offset <= old_offset) {
+			expert_add_info(NULL, ti, &ei_gdsdb_invalid_length);
+			return tvb_reported_length_remaining(tvb, old_offset);
+		}
 		if (offset < 0)
 		{
 			/* But at this moment we don't know how much we will need */
@@ -2022,12 +2035,20 @@ proto_register_gdsdb(void)
 		&ett_gdsdb_connect_pref
 	};
 
+/* Expert info */
+	static ei_register_info ei[] = {
+		{ &ei_gdsdb_invalid_length, { "gdsdb.invalid_length", PI_MALFORMED, PI_ERROR,
+			"Invalid length", EXPFILL }},
+	};
+
 	proto_gdsdb = proto_register_protocol(
 		"Firebird SQL Database Remote Protocol",
 		"FB/IB GDS DB", "gdsdb");
 
 	proto_register_field_array(proto_gdsdb, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_module_t *expert_gdsdb = expert_register_protocol(proto_gdsdb);
+	expert_register_field_array(expert_gdsdb, ei, array_length(ei));
 }
 
 void
