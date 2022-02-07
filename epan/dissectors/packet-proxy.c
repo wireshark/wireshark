@@ -709,8 +709,8 @@ proto_register_proxy(void)
 void
 proto_reg_handoff_proxy(void)
 {
-    heur_dissector_add("tcp", dissect_proxy_heur, "proxy", "proxy_tcp", proto_proxy, HEURISTIC_ENABLE);
-    heur_dissector_add("udp", dissect_proxy_heur, "proxy", "proxy_udp", proto_proxy, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_proxy_heur, "PROXY over TCP", "proxy_tcp", proto_proxy, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_proxy_heur, "PROXY over UDP", "proxy_udp", proto_proxy, HEURISTIC_ENABLE);
 }
 
 /*

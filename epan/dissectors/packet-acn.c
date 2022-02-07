@@ -8713,7 +8713,7 @@ proto_reg_handoff_acn(void)
 
   rdm_handle      = find_dissector_add_dependency("rdm", proto_acn);
 
-  heur_dissector_add("udp", dissect_acn_heur, "ACN", "acn", proto_acn, HEURISTIC_DISABLE);
+  heur_dissector_add("udp", dissect_acn_heur, "ACN over UDP", "acn", proto_acn, HEURISTIC_DISABLE);
   heur_dissector_add("udp", dissect_rdmnet_over_udp_heur, "RDMnet over UDP (LLRP)", "rdmnet_udp", proto_acn, HEURISTIC_DISABLE);
   heur_dissector_add("tcp", dissect_rdmnet_over_tcp_heur, "RDMnet over TCP (Broker, RPT, EPT)", "rdmnet_tcp", proto_acn, HEURISTIC_DISABLE);
 }

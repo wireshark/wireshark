@@ -999,11 +999,11 @@ proto_reg_handoff_autosar_ipdu_multiplexer(void) {
     if (!initialized) {
         ipdum_handle_can = register_dissector("ipdu_multiplexer_over_can", dissect_ipdum_message_can, proto_ipdu_multiplexer);
         dissector_add_for_decode_as("can.subdissector", ipdum_handle_can);
-        heur_dissector_add("can", dissect_ipdum_message_can_heur, "IPDU-Multiplexer-Heuristic", "ipdu_multiplexer_can_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
+        heur_dissector_add("can", dissect_ipdum_message_can_heur, "IPDU Multiplexer over CAN", "ipdu_multiplexer_can_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
 
         ipdum_handle_flexray = register_dissector("ipdu_multiplexer_over_flexray", dissect_ipdum_message_flexray, proto_ipdu_multiplexer);
         dissector_add_for_decode_as("flexray.subdissector", ipdum_handle_flexray);
-        heur_dissector_add("flexray", dissect_ipdum_message_flexray_heur, "IPDU-Multiplexer-Heuristic", "ipdu_multiplexer_flexray_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
+        heur_dissector_add("flexray", dissect_ipdum_message_flexray_heur, "IPDU Multiplexer over FlexRay", "ipdu_multiplexer_flexray_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
 
         ipdum_handle_lin = register_dissector("ipdu_multiplexer_over_lin", dissect_ipdum_message_lin, proto_ipdu_multiplexer);
 

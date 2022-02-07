@@ -4347,8 +4347,8 @@ proto_reg_handoff_someip(void) {
         dtls_dissector_add(0, someip_handle_udp);
         ssl_dissector_add(0, someip_handle_tcp);
 
-        heur_dissector_add("udp", dissect_some_ip_heur_udp, "SOME/IP_UDP_Heuristic", "someip_udp_heur", proto_someip, HEURISTIC_DISABLE);
-        heur_dissector_add("tcp", dissect_some_ip_heur_tcp, "SOME/IP_TCP_Heuristic", "someip_tcp_heur", proto_someip, HEURISTIC_DISABLE);
+        heur_dissector_add("udp", dissect_some_ip_heur_udp, "SOME/IP over UDP", "someip_udp_heur", proto_someip, HEURISTIC_DISABLE);
+        heur_dissector_add("tcp", dissect_some_ip_heur_tcp, "SOME/IP over TCP", "someip_tcp_heur", proto_someip, HEURISTIC_DISABLE);
 
         stats_tree_register("someip_messages", "someip_messages", "SOME/IP Messages", 0, someip_messages_stats_tree_packet, someip_messages_stats_tree_init, NULL);
 

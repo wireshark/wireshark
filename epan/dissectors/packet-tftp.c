@@ -778,7 +778,7 @@ is_valid_requerest_body(tvbuff_t *tvb)
   offset += tvb_strsize(tvb, offset);
   guint len = tvb_strsize(tvb, offset);
   const gchar* mode = tvb_format_stringzpad(wmem_packet_scope(), tvb, offset, len);
-  
+
   const gchar* modes[] = {"netscii", "octet", "mail"};
   for(guint i = 0; i < array_length(modes); ++i) {
     if (g_ascii_strcasecmp(mode, modes[i]) == 0) return TRUE;

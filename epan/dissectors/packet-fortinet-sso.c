@@ -262,7 +262,7 @@ void
 proto_reg_handoff_fortinet_sso(void)
 {
     dissector_add_uint_with_preference("udp.port", 0, fortinet_sso_handle);
-    heur_dissector_add("udp", dissect_fortinet_fsso_heur, "fortinet_sso", "fortinet_sso", proto_fortinet_sso, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_fortinet_fsso_heur, "Fortinet SSO over UDP", "fortinet_sso", proto_fortinet_sso, HEURISTIC_ENABLE);
 }
 
 /*

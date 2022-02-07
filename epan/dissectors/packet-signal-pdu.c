@@ -2861,11 +2861,11 @@ proto_reg_handoff_signal_pdu(void) {
 
         signal_pdu_handle_can = register_dissector("signal_pdu_over_can", dissect_spdu_message_can, proto_signal_pdu);
         dissector_add_for_decode_as("can.subdissector", signal_pdu_handle_can);
-        heur_dissector_add("can", dissect_spdu_message_can_heur, "Signal-PDU-Heuristic", "signal_pdu_can_heur", proto_signal_pdu, HEURISTIC_ENABLE);
+        heur_dissector_add("can", dissect_spdu_message_can_heur, "Signal PDU over CAN", "signal_pdu_can_heur", proto_signal_pdu, HEURISTIC_ENABLE);
 
         signal_pdu_handle_flexray = register_dissector("signal_pdu_over_flexray", dissect_spdu_message_flexray, proto_signal_pdu);
         dissector_add_for_decode_as("flexray.subdissector", signal_pdu_handle_flexray);
-        heur_dissector_add("flexray", dissect_spdu_message_flexray_heur, "Signal-PDU-Heuristic", "signal_pdu_flexray_heur", proto_signal_pdu, HEURISTIC_ENABLE);
+        heur_dissector_add("flexray", dissect_spdu_message_flexray_heur, "Signal PDU over FlexRay", "signal_pdu_flexray_heur", proto_signal_pdu, HEURISTIC_ENABLE);
 
         signal_pdu_handle_lin = register_dissector("signal_pdu_over_lin", dissect_spdu_message_lin, proto_signal_pdu);
 
@@ -2873,9 +2873,9 @@ proto_reg_handoff_signal_pdu(void) {
 
         signal_pdu_handle_ipdum = register_dissector("signal_pdu_over_IPduM", dissect_spdu_message_ipdum, proto_signal_pdu);
 
-        heur_dissector_add("dlt", dissect_spdu_message_dlt_heur, "Signal-PDU-Heuristic", "signal_pdu_dlt_heur", proto_signal_pdu, HEURISTIC_ENABLE);
+        heur_dissector_add("dlt", dissect_spdu_message_dlt_heur, "Signal PDU over DLT", "signal_pdu_dlt_heur", proto_signal_pdu, HEURISTIC_ENABLE);
 
-        heur_dissector_add("uds", dissect_spdu_message_uds_heur, "Signal-PDU-Heuristic", "signal_pdu_uds_heur", proto_signal_pdu, HEURISTIC_ENABLE);
+        heur_dissector_add("uds", dissect_spdu_message_uds_heur, "Signal PDU over UDS", "signal_pdu_uds_heur", proto_signal_pdu, HEURISTIC_ENABLE);
 
         initialized = TRUE;
     }
