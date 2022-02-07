@@ -196,7 +196,17 @@ void desktop_show_in_folder(const QString file_path)
 {
     bool success = false;
 
-#if defined(Q_OS_MAC)
+#if defined(Q_OS_WIN)
+    const QFileInfo fileInfo(file_path);
+
+
+    QString path = QDir::toNativeSeparators(file_path);
+    /* See comment at https ://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
+     * Apparently, Windows does not like quoted paths in Select statements, when given as arguments. So they are run as a command
+     */
+    QString command = "explorer.exe /select," + path + "";
+    success = QProcess::startDetached(command);
+#elif defined(Q_OS_MAC)
     QStringList script_args;
     QString escaped_path = file_path;
 
