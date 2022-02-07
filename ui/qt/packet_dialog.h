@@ -42,6 +42,7 @@ signals:
 
 private slots:
     void on_buttonBox_helpRequested();
+    void viewVisibilityStateChanged(int);
 
     void setHintText(FieldInformation *);
 

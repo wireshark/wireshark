@@ -3484,6 +3484,11 @@ prefs_register_modules(void)
         "Enables automatic updates for IO Graph",
         &prefs.gui_io_graph_automatic_update);
 
+    prefs_register_bool_preference(gui_module, "show_byteview_in_dialog",
+        "Show the byte view in the packet details dialog",
+        "Show the byte view in the packet details dialog",
+        &prefs.gui_packet_details_show_byteview);
+
     /* Console
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -4225,6 +4230,9 @@ pre_init_prefs(void)
 
     /* set the default values for the io graph dialog */
     prefs.gui_io_graph_automatic_update = TRUE;
+
+    /* set the default values for the packet dialog */
+    prefs.gui_packet_details_show_byteview = TRUE;
 }
 
 /*
