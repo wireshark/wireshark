@@ -105,7 +105,7 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
     // variables for our expert analysis
     conversation_t* conv = NULL;
     msrcp_conv_info_t* msrcp_info = NULL;
-    msrcp_transaction_t* msrcp_trans;
+    msrcp_transaction_t* msrcp_trans = NULL;
     wmem_tree_key_t  key[3];
 
     type = tvb_get_guint8(tvb, MSRCP_OFFSET_TYPE);
