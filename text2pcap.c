@@ -473,7 +473,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
 
         case 'P':
             hdr_export_pdu = TRUE;
-            pcap_link_type = 252;
             info->payload = ws_optarg;
             break;
 
