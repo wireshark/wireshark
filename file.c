@@ -92,9 +92,15 @@ static match_result match_summary_line(capture_file *cf, frame_data *fdata,
     wtap_rec *, Buffer *, void *criterion);
 static match_result match_narrow_and_wide(capture_file *cf, frame_data *fdata,
     wtap_rec *, Buffer *, void *criterion);
+static match_result match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_narrow(capture_file *cf, frame_data *fdata,
     wtap_rec *, Buffer *, void *criterion);
+static match_result match_narrow_case(capture_file *cf, frame_data *fdata,
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_wide(capture_file *cf, frame_data *fdata,
+    wtap_rec *, Buffer *, void *criterion);
+static match_result match_wide_case(capture_file *cf, frame_data *fdata,
     wtap_rec *, Buffer *, void *criterion);
 static match_result match_binary(capture_file *cf, frame_data *fdata,
     wtap_rec *, Buffer *, void *criterion);
@@ -3250,24 +3256,32 @@ match_summary_line(capture_file *cf, frame_data *fdata,
 typedef struct {
     const guint8 *data;
     size_t        data_len;
+    ws_mempbrk_pattern *pattern;
 } cbs_t;    /* "Counted byte string" */
 
 
 /*
  * The current match_* routines only support ASCII case insensitivity and don't
- * convert UTF-8 inputs to UTF-16 for matching.
+ * convert UTF-8 inputs to UTF-16 for matching.  The UTF-16 support just
+ * interleaves with \0 bytes, which works for 7 bit ASCII.
  *
  * We could modify them to use the GLib Unicode routines or the International
  * Components for Unicode library but it's not apparent that we could do so
  * without consuming a lot more CPU and memory or that searching would be
  * significantly better.
+ *
+ * XXX: We could test the search string to see if it's all ASCII, and if not
+ * use Unicode aware routines for case insensitive searches or any UTF-16
+ * search.
  */
 
 gboolean
 cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
                     search_direction dir)
 {
-  cbs_t info;
+  cbs_t  info;
+  guint8 needles[3];
+  ws_mempbrk_pattern pattern;
 
   info.data = string;
   info.data_len = string_size;
@@ -3278,20 +3292,44 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
     return find_packet(cf, match_regex, NULL, dir);
   } else if (cf->string) {
     /* String search - what type of string? */
-    switch (cf->scs_type) {
+    if (cf->case_type) {
+      needles[0] = string[0];
+      needles[1] = g_ascii_tolower(needles[0]);
+      needles[2] = '\0';
+      ws_mempbrk_compile(&pattern, needles);
+      info.pattern = &pattern;
+      switch (cf->scs_type) {
 
-    case SCS_NARROW_AND_WIDE:
-      return find_packet(cf, match_narrow_and_wide, &info, dir);
+      case SCS_NARROW_AND_WIDE:
+        return find_packet(cf, match_narrow_and_wide_case, &info, dir);
 
-    case SCS_NARROW:
-      return find_packet(cf, match_narrow, &info, dir);
+      case SCS_NARROW:
+        return find_packet(cf, match_narrow_case, &info, dir);
 
-    case SCS_WIDE:
-      return find_packet(cf, match_wide, &info, dir);
+      case SCS_WIDE:
+        return find_packet(cf, match_wide_case, &info, dir);
 
-    default:
-      ws_assert_not_reached();
-      return FALSE;
+      default:
+        ws_assert_not_reached();
+        return FALSE;
+      }
+
+    } else {
+      switch (cf->scs_type) {
+
+      case SCS_NARROW_AND_WIDE:
+        return find_packet(cf, match_narrow_and_wide, &info, dir);
+
+      case SCS_NARROW:
+        return find_packet(cf, match_narrow, &info, dir);
+
+      case SCS_WIDE:
+        return find_packet(cf, match_wide, &info, dir);
+
+      default:
+        ws_assert_not_reached();
+        return FALSE;
+      }
     }
   } else
     return find_packet(cf, match_binary, &info, dir);
@@ -3306,7 +3344,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
   size_t        textlen    = info->data_len;
   match_result  result;
   guint32       buf_len;
-  guint8       *pd;
+  guint8       *pd, *buf_start, *buf_end;
   guint32       i;
   guint8        c_char;
   size_t        c_match    = 0;
@@ -3319,31 +3357,129 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(buf);
-  i = 0;
-  while (i < buf_len) {
-    c_char = pd[i];
-    if (cf->case_type)
-      c_char = g_ascii_toupper(c_char);
-    if (c_char != '\0') {
+  buf_start = ws_buffer_start_ptr(buf);
+  buf_end = buf_start + buf_len;
+  for (pd = buf_start; pd < buf_end; pd++) {
+    pd = (guint8 *)memchr(pd, ascii_text[0], buf_end - pd);
+    if (pd == NULL) break;
+    /* Try narrow match at this start location */
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = pd[i];
       if (c_char == ascii_text[c_match]) {
-        c_match += 1;
+        c_match++;
         if (c_match == textlen) {
           result = MR_MATCHED;
-          cf->search_pos = i; /* Save the position of the last character
-                                 for highlighting the field. */
-          cf->search_len = (guint32)textlen;
-          break;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
         }
-      }
-      else {
-        ws_assert(i>=c_match);
-        i -= (guint32)c_match;
-        c_match = 0;
+      } else {
+        break;
       }
     }
-    i += 1;
+
+    /* Now try wide match at the same start location. */
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = pd[i];
+      if (c_char == ascii_text[c_match]) {
+        c_match++;
+        if (c_match == textlen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+        i++;
+        if (pd + i >= buf_end || pd[i] != '\0') break;
+      } else {
+        break;
+      }
+    }
   }
+
+done:
+  return result;
+}
+
+/* Case insensitive match */
+static match_result
+match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
+                      wtap_rec *rec, Buffer *buf, void *criterion)
+{
+  cbs_t        *info       = (cbs_t *)criterion;
+  const guint8 *ascii_text = info->data;
+  size_t        textlen    = info->data_len;
+  ws_mempbrk_pattern *pattern = info->pattern;
+  match_result  result;
+  guint32       buf_len;
+  guint8       *pd, *buf_start, *buf_end;
+  guint32       i;
+  guint8        c_char;
+  size_t        c_match    = 0;
+
+  /* Load the frame's data. */
+  if (!cf_read_record(cf, fdata, rec, buf)) {
+    /* Attempt to get the packet failed. */
+    return MR_ERROR;
+  }
+
+  ws_assert(pattern != NULL);
+
+  result = MR_NOTMATCHED;
+  buf_len = fdata->cap_len;
+  buf_start = ws_buffer_start_ptr(buf);
+  buf_end = buf_start + buf_len;
+  for (pd = buf_start; pd < buf_end; pd++) {
+    pd = (guint8 *)ws_mempbrk_exec(pd, buf_end - pd, pattern, &c_char);
+    if (pd == NULL) break;
+    /* Try narrow match at this start location */
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = g_ascii_toupper(pd[i]);
+      if (c_char == ascii_text[c_match]) {
+        c_match++;
+        if (c_match == textlen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+      } else {
+        break;
+      }
+    }
+
+    /* Now try wide match at the same start location. */
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = g_ascii_toupper(pd[i]);
+      if (c_char == ascii_text[c_match]) {
+        c_match++;
+        if (c_match == textlen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+        i++;
+        if (pd + i >= buf_end || pd[i] != '\0') break;
+      } else {
+        break;
+      }
+    }
+  }
+
+done:
   return result;
 }
 
@@ -3356,7 +3492,7 @@ match_narrow(capture_file *cf, frame_data *fdata,
   size_t        textlen    = info->data_len;
   match_result  result;
   guint32       buf_len;
-  guint8       *pd;
+  guint8       *pd, *buf_start, *buf_end;
   guint32       i;
   guint8        c_char;
   size_t        c_match    = 0;
@@ -3369,30 +3505,85 @@ match_narrow(capture_file *cf, frame_data *fdata,
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(buf);
-  i = 0;
-  while (i < buf_len) {
-    c_char = pd[i];
-    if (cf->case_type)
-      c_char = g_ascii_toupper(c_char);
-    if (c_char == ascii_text[c_match]) {
-      c_match += 1;
-      if (c_match == textlen) {
-        result = MR_MATCHED;
-        cf->search_pos = i; /* Save the position of the last character
-                               for highlighting the field. */
-        cf->search_len = (guint32)textlen;
+  buf_start = ws_buffer_start_ptr(buf);
+  buf_end = buf_start + buf_len;
+  for (pd = buf_start; pd < buf_end; pd++) {
+    pd = (guint8 *)memchr(pd, ascii_text[0], buf_end - pd);
+    if (pd == NULL) break;
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = pd[i];
+      if (c_char == ascii_text[c_match]) {
+        c_match++;
+        if (c_match == textlen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+      } else {
         break;
       }
     }
-    else {
-      ws_assert(i>=c_match);
-      i -= (guint32)c_match;
-      c_match = 0;
-    }
-    i += 1;
   }
 
+done:
+  return result;
+}
+
+/* Case insensitive match */
+static match_result
+match_narrow_case(capture_file *cf, frame_data *fdata,
+             wtap_rec *rec, Buffer *buf, void *criterion)
+{
+  cbs_t        *info       = (cbs_t *)criterion;
+  const guint8 *ascii_text = info->data;
+  size_t        textlen    = info->data_len;
+  ws_mempbrk_pattern *pattern = info->pattern;
+  match_result  result;
+  guint32       buf_len;
+  guint8       *pd, *buf_start, *buf_end;
+  guint32       i;
+  guint8        c_char;
+  size_t        c_match    = 0;
+
+  /* Load the frame's data. */
+  if (!cf_read_record(cf, fdata, rec, buf)) {
+    /* Attempt to get the packet failed. */
+    return MR_ERROR;
+  }
+
+  ws_assert(pattern != NULL);
+
+  result = MR_NOTMATCHED;
+  buf_len = fdata->cap_len;
+  buf_start = ws_buffer_start_ptr(buf);
+  buf_end = buf_start + buf_len;
+  for (pd = buf_start; pd < buf_end; pd++) {
+    pd = (guint8 *)ws_mempbrk_exec(pd, buf_end - pd, pattern, &c_char);
+    if (pd == NULL) break;
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = g_ascii_toupper(pd[i]);
+      if (c_char == ascii_text[c_match]) {
+        c_match++;
+        if (c_match == textlen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+      } else {
+        break;
+      }
+    }
+  }
+
+done:
   return result;
 }
 
@@ -3405,7 +3596,7 @@ match_wide(capture_file *cf, frame_data *fdata,
   size_t        textlen    = info->data_len;
   match_result  result;
   guint32       buf_len;
-  guint8       *pd;
+  guint8       *pd, *buf_start, *buf_end;
   guint32       i;
   guint8        c_char;
   size_t        c_match    = 0;
@@ -3418,30 +3609,89 @@ match_wide(capture_file *cf, frame_data *fdata,
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(buf);
-  i = 0;
-  while (i < buf_len) {
-    c_char = pd[i];
-    if (cf->case_type)
-      c_char = g_ascii_toupper(c_char);
-    if (c_char == ascii_text[c_match]) {
-      c_match += 1;
-      if (c_match == textlen) {
-        result = MR_MATCHED;
-        cf->search_pos = i; /* Save the position of the last character
-                               for highlighting the field. */
-        cf->search_len = (guint32)textlen;
+  buf_start = ws_buffer_start_ptr(buf);
+  buf_end = buf_start + buf_len;
+  for (pd = buf_start; pd < buf_end; pd++) {
+    pd = (guint8 *)memchr(pd, ascii_text[0], buf_end - pd);
+    if (pd == NULL) break;
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = pd[i];
+      if (c_char == ascii_text[c_match]) {
+        c_match++;
+        if (c_match == textlen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+        i++;
+        if (pd + i >= buf_end || pd[i] != '\0') break;
+      } else {
         break;
       }
-      i += 1;
     }
-    else {
-      ws_assert(i>=(c_match*2));
-      i -= (guint32)c_match*2;
-      c_match = 0;
-    }
-    i += 1;
   }
+
+done:
+  return result;
+}
+
+/* Case insensitive match */
+static match_result
+match_wide_case(capture_file *cf, frame_data *fdata,
+           wtap_rec *rec, Buffer *buf, void *criterion)
+{
+  cbs_t        *info       = (cbs_t *)criterion;
+  const guint8 *ascii_text = info->data;
+  size_t        textlen    = info->data_len;
+  ws_mempbrk_pattern *pattern = info->pattern;
+  match_result  result;
+  guint32       buf_len;
+  guint8       *pd, *buf_start, *buf_end;
+  guint32       i;
+  guint8        c_char;
+  size_t        c_match    = 0;
+
+  /* Load the frame's data. */
+  if (!cf_read_record(cf, fdata, rec, buf)) {
+    /* Attempt to get the packet failed. */
+    return MR_ERROR;
+  }
+
+  ws_assert(pattern != NULL);
+
+  result = MR_NOTMATCHED;
+  buf_len = fdata->cap_len;
+  buf_start = ws_buffer_start_ptr(buf);
+  buf_end = buf_start + buf_len;
+  for (pd = buf_start; pd < buf_end; pd++) {
+    pd = (guint8 *)ws_mempbrk_exec(pd, buf_end - pd, pattern, &c_char);
+    if (pd == NULL) break;
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      c_char = g_ascii_toupper(pd[i]);
+      if (c_char == ascii_text[c_match]) {
+        c_match++;
+        if (c_match == textlen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+        i++;
+        if (pd + i >= buf_end || pd[i] != '\0') break;
+      } else {
+        break;
+      }
+    }
+  }
+
+done:
   return result;
 }
 
@@ -3454,7 +3704,7 @@ match_binary(capture_file *cf, frame_data *fdata,
   size_t        datalen     = info->data_len;
   match_result  result;
   guint32       buf_len;
-  guint8       *pd;
+  guint8       *pd, *buf_start, *buf_end;
   guint32       i;
   size_t        c_match     = 0;
 
@@ -3466,26 +3716,33 @@ match_binary(capture_file *cf, frame_data *fdata,
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(buf);
-  i = 0;
-  while (i < buf_len) {
-    if (pd[i] == binary_data[c_match]) {
-      c_match += 1;
-      if (c_match == datalen) {
-        result = MR_MATCHED;
-        cf->search_pos = i; /* Save the position of the last character
-                               for highlighting the field. */
-        cf->search_len = (guint32)datalen;
+  buf_start = ws_buffer_start_ptr(buf);
+  buf_end = buf_start + buf_len;
+  /* Not clear if using memcmp() is faster. memmem() on systems that
+   * have it should be faster, though.
+   */
+  for (pd = buf_start; pd < buf_end; pd++) {
+    pd = (guint8 *)memchr(pd, binary_data[0], buf_end - pd);
+    if (pd == NULL) break;
+    c_match = 0;
+    for (i = 0; i < buf_end - pd; i++) {
+      if (pd[i] == binary_data[c_match]) {
+        c_match++;
+        if (c_match == datalen) {
+          result = MR_MATCHED;
+          cf->search_pos = i + (guint32)(pd - buf_start);
+          /* Save the position of the last character
+             for highlighting the field. */
+          cf->search_len = i + 1;
+          goto done;
+        }
+      } else {
         break;
       }
     }
-    else {
-      ws_assert(i>=c_match);
-      i -= (guint32)c_match;
-      c_match = 0;
-    }
-    i += 1;
   }
+
+done:
   return result;
 }
 
