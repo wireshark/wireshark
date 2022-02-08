@@ -2262,13 +2262,13 @@ dissect_spdu_payload_signal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* if frame data was not created on first pass, we cannot calculate it now */
         if (spdu_frame_data != NULL) {
             if (item->aggregate_sum) {
-                ti = proto_tree_add_double(subtree, *(item->hf_id_agg_sum), tvb, offset, signal_length, spdu_frame_data->sum);
+                proto_tree_add_double(subtree, *(item->hf_id_agg_sum), tvb, offset, signal_length, spdu_frame_data->sum);
             }
             if (item->aggregate_avg) {
-                ti = proto_tree_add_double(subtree, *(item->hf_id_agg_avg), tvb, offset, signal_length, spdu_frame_data->avg);
+                proto_tree_add_double(subtree, *(item->hf_id_agg_avg), tvb, offset, signal_length, spdu_frame_data->avg);
             }
             if (item->aggregate_int && (spdu_frame_data->sum_time_value_products == spdu_frame_data->sum_time_value_products)) {
-                ti = proto_tree_add_double(subtree, *(item->hf_id_agg_int), tvb, offset, signal_length, spdu_frame_data->sum_time_value_products);
+                proto_tree_add_double(subtree, *(item->hf_id_agg_int), tvb, offset, signal_length, spdu_frame_data->sum_time_value_products);
             }
         }
     }
