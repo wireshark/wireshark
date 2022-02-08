@@ -132,7 +132,6 @@ dissect_msrcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U
         {
             if (type == MSRCP_REQUEST)
             {
-                msrcp_trans = (msrcp_transaction_t*)wmem_tree_lookup32_array_le(msrcp_info->pdus, key);
                 msrcp_trans = wmem_new(wmem_file_scope(), msrcp_transaction_t);
                 msrcp_trans->req_frame = pinfo->num;
                 msrcp_trans->rep_frame = 0;
