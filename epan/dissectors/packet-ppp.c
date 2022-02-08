@@ -4898,7 +4898,6 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
             /* dissect 3GPP packet */
             proto_tree_add_item(vsnp_tree, hf_vsnp_3gpp_pdnid, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset+=1;
             next_tvb = tvb_new_subset_remaining(tvb, 1);
             if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, tree)) {
                 col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", PPP_IP);
