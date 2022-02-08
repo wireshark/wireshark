@@ -2354,7 +2354,7 @@ finished_fwd:
 
                     if( seq_not_advanced // XXX is this neccessary?
                     && t < ooo_thres
-                    && tcpd->fwd->tcp_analyze_seq_info->nextseq != seq + seglen ) {
+                    && tcpd->fwd->tcp_analyze_seq_info->nextseq != (seq + seglen + (flags&(TH_SYN|TH_FIN) ? 1 : 0))) {
                         if(!tcpd->ta) {
                             tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
                         }
