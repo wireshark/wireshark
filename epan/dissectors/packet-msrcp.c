@@ -16,6 +16,8 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 
+void proto_register_msrcp(void);
+void proto_reg_handoff_msrcp(void);
 
 #define MSRCP_PORT 3343
 #define MSRCP_REQUEST 0
