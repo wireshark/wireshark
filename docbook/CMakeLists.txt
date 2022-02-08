@@ -23,9 +23,12 @@ endfunction(set_docbook_target_properties)
 
 set(COMMON_FILES
 	common_src/GPL_appendix.adoc
+	common_src/typographic_conventions.adoc
 )
 
 set(COMMON_GRAPHICS
+	common_graphics/caution.svg
+	common_graphics/important.svg
 	common_graphics/note.svg
 	common_graphics/tip.svg
 	common_graphics/warning.svg
