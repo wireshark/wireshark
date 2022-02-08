@@ -6661,10 +6661,10 @@ proto_register_rtcp(void)
             {
                 "MxTBR Mantissa",
                 "rtcp.rtpfb.tmmbr.fci.mantissa",
-                FT_UINT32,
+                FT_UINT24,
                 BASE_DEC,
                 NULL,
-                0x3fffe,
+                0x03fffe,
                 NULL, HFILL
             }
         },

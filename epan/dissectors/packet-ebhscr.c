@@ -1563,7 +1563,7 @@ proto_register_ebhscr(void)
 		{ &hf_flexray_ctrl_id,
 			{ "Controller id", "ebhscr.flexray.ctrl",
 			FT_UINT8, BASE_HEX,
-			NULL, 0x01C,
+			NULL, 0x1C,
 			NULL, HFILL}
 		},
 		{ &hf_flexray_monitoring_bit,

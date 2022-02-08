@@ -246,7 +246,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'ebhscr.eth.rsv',  # matches other fields in same sequence
                                 'v120.lli',  # non-contiguous field (http://www.acacia-net.com/wwwcla/protocol/v120_l2.htm)
                                 'stun.type.class',
-                                'bssgp.csg_id'
+                                'bssgp.csg_id',
+                                'telnet.auth.mod.enc', 'osc.message.midi.bender', 'btle.data_header.rfu'
 
                               }
 ##################################################################################################
@@ -319,7 +320,7 @@ class Item:
         if check_mask:
             if not mask in { 'NULL', '0x0', '0', '0x00'}:
                 self.check_contiguous_bits(mask)
-                self.check_mask_too_long(mask)
+                #self.check_mask_too_long(mask)
                 self.check_num_digits(mask)
                 self.check_digits_all_zeros(mask)
 
@@ -449,7 +450,7 @@ class Item:
     def check_digits_all_zeros(self, mask):
         if mask.startswith('0x') and len(mask) > 3:
             if mask[2:] == '0'*(len(mask)-2):
-                print('Warning: ', self.filename, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
+                print('Warning:', self.filename, 'filter=', self.filter, ' - item has all zeros - this is confusing! :', mask)
                 global warnings_found
                 warnings_found += 1
 

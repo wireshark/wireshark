@@ -5078,7 +5078,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_subobj_sr_sid_ttl,
           {"SID/TTL", "pcep.subobj.sr.sid.ttl",
-            FT_UINT32, BASE_DEC, NULL, 0x0000000FF,
+            FT_UINT32, BASE_DEC, NULL, 0x000000FF,
             "SID represent MPLS Label stack: Time to Live", HFILL }
         },
         { &hf_pcep_subobj_sr_nai_ipv4_node,

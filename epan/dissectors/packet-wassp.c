@@ -6372,7 +6372,7 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_action_field_value,
 			{
 				"SSID/Vlan ID", "wassp.data.mu_action_field_value",  FT_UINT16, BASE_DEC,  NULL,
-				0xfff, "SSID value or VlanID vlaue", HFILL
+				0x0fff, "SSID value or VlanID vlaue", HFILL
 			}
 		},
 		{

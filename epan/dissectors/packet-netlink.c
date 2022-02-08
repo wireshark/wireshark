@@ -526,22 +526,22 @@ proto_register_netlink(void)
 		},
 		{ &hf_netlink_family,
 			{ "Family", "netlink.family",
-			  FT_UINT16, BASE_HEX | BASE_EXT_STRING, &netlink_family_vals_ext, 0x00,
+			  FT_UINT16, BASE_HEX | BASE_EXT_STRING, &netlink_family_vals_ext, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_hdr_len,
 			{ "Length", "netlink.hdr_len",
-			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  "Length of message including header", HFILL }
 		},
 		{ &hf_netlink_hdr_type,
 			{ "Message type", "netlink.hdr_type",
-			  FT_UINT16, BASE_HEX, VALS(type_vals), 0x00,
+			  FT_UINT16, BASE_HEX, VALS(type_vals), 0x0,
 			  "Type of message content", HFILL }
 		},
 		{ &hf_netlink_hdr_flags,
 			{ "Flags", "netlink.hdr_flags",
-			  FT_UINT16, BASE_HEX, NULL, 0x00,
+			  FT_UINT16, BASE_HEX, NULL, 0x0,
 			  "Additional flags", HFILL }
 		},
 		{ &hf_netlink_hdr_flag_dumpfiltered,
@@ -611,22 +611,22 @@ proto_register_netlink(void)
 		},
 		{ &hf_netlink_hdr_seq,
 			{ "Sequence", "netlink.hdr_seq",
-			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  "Sequence number", HFILL }
 		},
 		{ &hf_netlink_hdr_pid,
 			{ "Port ID", "netlink.hdr_pid",
-			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  "Sender port ID", HFILL }
 		},
 		{ &hf_netlink_attr_len,
 			{ "Len", "netlink.attr_len",
-			  FT_UINT16, BASE_DEC, NULL, 0x00,
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_attr_type,
 			{ "Type", "netlink.attr_type",
-			  FT_UINT16, BASE_HEX, NULL, 0x0000,
+			  FT_UINT16, BASE_HEX, NULL, 0x0,
 			  "Netlink Attribute type", HFILL }
 		},
 		{ &hf_netlink_attr_type_nested,
@@ -641,17 +641,17 @@ proto_register_netlink(void)
 		},
 		{ &hf_netlink_attr_index,
 			{ "Index", "netlink.attr_index",
-			  FT_UINT16, BASE_DEC, NULL, 0x0000,
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  "Netlink Attribute type (array index)", HFILL }
 		},
 		{ &hf_netlink_attr_data,
 			{ "Data", "netlink.attr_data",
-			  FT_BYTES, BASE_NONE, NULL, 0x00,
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_error,
 			{ "Error code", "netlink.error",
-			  FT_INT32, BASE_DEC | BASE_EXT_STRING, &linux_negative_errno_vals_ext, 0x00,
+			  FT_INT32, BASE_DEC | BASE_EXT_STRING, &linux_negative_errno_vals_ext, 0x0,
 			  "Negative errno or 0 for acknowledgements", HFILL }
 		},
 	};

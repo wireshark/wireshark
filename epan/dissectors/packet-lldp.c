@@ -5726,6 +5726,7 @@ proto_register_lldp(void)
 			{ "Altitude Resolution", "lldp.media.loc.alt_resolution", FT_UINT16, BASE_DEC,
 			NULL, 0x0FC0, NULL, HFILL }
 		},
+		/* TODO: should mask be 0x3FFFFFFF, or 0x03FFFFFF ? */
 		{ &hf_media_loc_alt,
 			{ "Altitude", "lldp.media.loc.altitude", FT_UINT32, BASE_DEC,
 			NULL, 0x03FFFFFFF, NULL, HFILL }
