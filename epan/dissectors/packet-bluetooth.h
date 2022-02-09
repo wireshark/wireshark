@@ -319,6 +319,9 @@ WS_DLL_PUBLIC const gchar  *print_numeric_uuid(bluetooth_uuid_t *uuid);
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);
 
+WS_DLL_PUBLIC bluetooth_data_t *
+dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

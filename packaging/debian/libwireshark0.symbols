@@ -289,6 +289,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_IDispatch_Invoke_resp@Base 1.9.1
  dissect_IDispatch_Invoke_rqst@Base 1.9.1
  dissect_a21_ie_common@Base 1.99.1
+ dissect_bluetooth_common@Base 3.7.0
  dissect_ber_EmbeddedPDV_Type@Base 1.9.1
  dissect_ber_GeneralizedTime@Base 1.9.1
  dissect_ber_UTCTime@Base 1.9.1

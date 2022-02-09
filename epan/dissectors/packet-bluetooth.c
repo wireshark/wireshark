@@ -3788,7 +3788,7 @@ print_uuid(bluetooth_uuid_t *uuid)
     return "Unknown";
 }
 
-static bluetooth_data_t *
+bluetooth_data_t *
 dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item        *main_item;
