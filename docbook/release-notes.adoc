@@ -29,15 +29,78 @@ It is used for troubleshooting, analysis, development and education.
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2022-01[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxx[].
+* wssalink:2022-01[]
+RTMPT dissector infinite loop.
+wsbuglink:17813[].
+// cveidlink:2021-xxxx[].
+// Fixed in master: 24403a9a35
+// Fixed in release-3.6: b36df1146d
+// Fixed in release-3.4: 0bf7ccb23b
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')
+// * RTMPT dissector inf loop - 100% cpu - denial of service wsbuglink:17813[].
+
+* wssalink:2022-02[]
+Large loops in multiple dissectors.
+wsbuglink:17829[],
+wsbuglink:17842[],
+wsbuglink:17847[],
+wsbuglink:17855[],
+wsbuglink:17891[],
+wsbuglink:17925[],
+wsbuglink:17926[],
+wsbuglink:17931[],
+wsbuglink:17932[],
+wsbuglink:17933[].
 // cveidlink:2021-xxxx[].
 // Fixed in master: xxxx
 // Fixed in release-3.6: xxxx
 // Fixed in release-3.4: xxxx
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
-// CWE-xxx
+// CWE-834: Excessive Iteration
+// * AMP dissector excessive memory and CPU consumption - denial of service wsbuglink:17829[].
+// * ATN-ULCS dissector inf loop - denial of service wsbuglink:17842[].
+// * OpenFlow v5 dissector excessive memory and CPU consumption - denial of service wsbuglink:17847[].
+// * TDS dissector inf loop leads to excessive memory and CPU consumption - denial of service wsbuglink:17855[].
+// * SLSK (SoulSeek) dissector excessive memory and CPU consumption - denial of service wsbuglink:17891[].
+// * WBXML dissector inf loop - 100% cpu - denial of service wsbuglink:17925[].
+// * ZigBee ZCL - uncontrolled memory allocations lead to denial of service wsbuglink:17926[].
+// * GDSDB (Firebird SQL Database Remote Protocol) dissector - inf loop - denial of service wsbuglink:17931[].
+// * P_Mul dissector crafting big loop causes denial of service wsbuglink:17932[].
+// * bpv6 (Bundle) dissector int underflow/overflow leads to inf loop - denial of service wsbuglink:17933[].
+
+* wssalink:2022-03[]
+PVFS dissector crash.
+wsbuglink:17840[].
+// cveidlink:2021-xxxx[].
+// Fixed in master: d9023299e3
+// Fixed in release-3.6: ae86694175
+// Fixed in release-3.4: f4eec1ad36
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-126: Buffer Over-read
+// * Heap overflow - OOB Read in PVFS2 dissector - dissect_pvfs2_getconfig_response wsbuglink:17840[].
+
+* wssalink:2022-04[]
+CSN.1 dissector crash.
+wsbuglink:17882[].
+// cveidlink:2021-xxxx[].
+// Fixed in master: 1fd1853837
+// Fixed in release-3.6: 30b84545d6
+// Fixed in release-3.4: 62fae89682
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-??? Unaligned access
+// * Wireshark stability - multiple dissector bugs - runtime errors wsbuglink:17882[].
+
+* wssalink:2022-05[]
+CMS dissector crash.
+wsbuglink:17935[].
+// cveidlink:2021-xxxx[].
+// Fixed in master: c14d731e45
+// Fixed in release-3.6: b0f679bb4e
+// Fixed in release-3.4: 9369af77d3
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CWE-401: Missing Release of Memory after Effective Lifetime
+// * Fuzz job crash output: fuzz-2022-02-07-6714.pcap wsbuglink:17935[].
 
 The following bugs have been fixed:
 
@@ -45,6 +108,36 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps banging out random chords on your piano and yelling “LIPS LIKE SUGUAR, SUGAR KISSES” because it was funny that one time at a party.
+
+* Support for GSM SMS TPDU in HTTP2 body wsbuglink:17784[].
+
+* Wireshark 3.6.1 broke ABI by removing ws_log_default_writer from libwsutil wsbuglink:17822[].
+
+* Fedora RPM package build failing with RPATH of /usr/local/lib64 wsbuglink:17830[].
+
+* ftp.pcre.org no longer exists wsbuglink:17834[].
+
+* nmap.org/npcap  -> npcap.com: domain/URL change wsbuglink:17838[].
+
+* MPLS ECHO FEC stack change TLV not dissected correctly wsbuglink:17868[].
+
+* Attempting to open a systemd journal export file segfaults wsbuglink:17875[].
+
+* Dissector bug on 802.11ac packets wsbuglink:17878[].
+
+* The Info column shows only one NGAP/S1AP packet of several packets inside an SCTP packet wsbuglink:17886[].
+
+* Uninstalling Wireshark 3.6.1 on Windows 10 fails to remove the installation directory because it doesn't remove the User's Guide subdirectory and all its contents. wsbuglink:17898[].
+
+* 3.6 doesn't build without zlib wsbuglink:17899[].
+
+* SIP Statistics no longer properly reporting method type accounting wsbuglink:17904[].
+
+* Fuzz job crash output: fuzz-2022-01-26-6940.pcap wsbuglink:17909[].
+
+* SCTP retransmission detection broken for the first data chunk of each association with relative TSN wsbuglink:17917[].
+
+* Show In Folder: filenames with spaces; system plugins in Help->About wsbuglink:17927[].
 
 === New and Updated Features
 
@@ -63,15 +156,57 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+AMP
+ASN.1 PER
+ATN-ULCS
+BGP
+BP
+CFLOW
+CMS
+CSN.1
+GDSDB
+GSM RP
+GTP
+HTTP3
+IEEE 802.11 Radiotap
+IPDC
+ISAKMP
+Kafka
+MP2T
+MPEG PES
+MPEG SECT
+MPLS ECHO
+NGAP
+NTLMSSP
+OpenFlow 1.4
+OpenFlow 1.5
+P_MUL
+PN-RT
+PROXY
+PTP
+PVFS
+RSL
+RTMPT
+rtnetlink
+S1AP
+SCTP
+Signal PDU
+SIP
+TDS
+USB
+WAP
+ZigBee ZCL
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+BLF
+libpcap
+--
 
 === New File Format Decoding Support
 
