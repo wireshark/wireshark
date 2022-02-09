@@ -470,7 +470,8 @@ macOS Intel Package:
   needs: []
 
 # Build the User's Guide and Developer's Guide
-Documentation:
+# Disabled until we have versioned docs.
+.Documentation:
   extends: .build-linux
   image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
