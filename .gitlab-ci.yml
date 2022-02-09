@@ -349,9 +349,9 @@ macOS Intel Package:
     - ctest --parallel 4 --output-on-failure
   needs: []
 
-# Build Wireshark manuals
-# Note: Need ubuntu:focal with `ruby-coderay` and `ruby-asciidoctor-pdf` packages to build PDF docs
-Documentation:
+# Build the User's Guide and Developer's Guide
+# Disabled until we have versioned docs.
+.Documentation:
   extends: .build-linux
   image: registry.gitlab.com/wireshark/wireshark-containers/ubuntu-dev
   rules:
