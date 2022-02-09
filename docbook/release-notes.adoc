@@ -110,11 +110,25 @@ They previously shipped with Npcap 1.55.
 // git log --oneline --diff-filter=A --stat v3.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
-Host IP Configuration Protocol (HICP)
-Secure Host IP Configuration Protocol (SHICP)
-Mesh Connex (MCX)
+Allied Telesis Loop Detection (AT LDF)
+AUTOSAR I-PDU Multiplexer (AUTOSAR I-PduM)
+DTN Bundle Protocol Version 7 (BPv7)
+DTN Bundle Protocol Security (BPSec)
+DTN TCP Convergence Layer Protocol (TCPCL)
+DVB Selection Information Table (DVB SIT)
+Enhanced Cash Trading Interface 10.0 (XTI)
+Enhanced Order Book Interface 10.0 (EOBI)
+Enhanced Trading Interface 10.0 (ETI)
 FiveCo's Legacy Register Access Protocol (5co-legacy)
+Generic Data Transfer Protocol (GDT)
+Host IP Configuration Protocol (HICP)
+Mesh Connex (MCX)
 Microsoft Cluster Remote Control Protocol (RCP)
+Realtek
+Secure File Transfer Protocol (sftp)
+Secure Host IP Configuration Protocol (SHICP)
+USB Attached SCSI (UASP)
+ZBOSS NCP
 --
 
 === Updated Protocol Support
