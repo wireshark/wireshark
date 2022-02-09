@@ -45,6 +45,7 @@
 #define OUI_PROFINET        0x000ECF    /* PROFIBUS Nutzerorganisation e.V. */
 #define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
 #define OUI_SONY_ERICSSON_3 0x000FDE    /* Sony Ericsson Mobile Communications AB */
+#define OUI_FORTINET        0x00090F    /* Fortinet */
 #define OUI_CIMETRICS       0x001090    /* Cimetrics, Inc. */
 #define OUI_IEEE_802_3      0x00120F    /* IEEE 802.3 */
 #define OUI_MEDIA_ENDPOINT  0x0012BB    /* Media (TIA TR-41 Committee) */

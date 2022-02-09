@@ -6107,6 +6107,12 @@ static int hf_ieee80211_vs_mist_data = -1;
 static int hf_ieee80211_vs_ruckus_ap_name = -1;
 static int hf_ieee80211_vs_ruckus_data = -1;
 
+static int hf_ieee80211_vs_fortinet_subtype = -1;
+static int hf_ieee80211_vs_fortinet_system_type = -1;
+static int hf_ieee80211_vs_fortinet_system_length = -1;
+static int hf_ieee80211_vs_fortinet_system_apname = -1;
+static int hf_ieee80211_vs_fortinet_data = -1;
+
 static int hf_ieee80211_rsn_ie_ptk_keyid = -1;
 
 static int hf_ieee80211_rsn_ie_gtk_keyid = -1;
@@ -18209,6 +18215,66 @@ dissect_vendor_ie_extreme(proto_item *item _U_, proto_tree *ietree,
   }
 }
 
+#define FORTINET_SYSTEM 10
+static const value_string ieee80211_vs_fortinet_subtype_vals[] = {
+  { FORTINET_SYSTEM, "SYSTEM"},
+  { 0,                 NULL }
+};
+
+#define FORTINET_SYSTEM_APNAME 1
+static const value_string ieee80211_vs_fortinet_system_type_vals[] = {
+  { FORTINET_SYSTEM_APNAME, "AP NAME"},
+  { 0,                 NULL }
+};
+
+static void
+dissect_vendor_ie_fortinet(proto_item *item, proto_tree *ietree,
+                          tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+  guint32 type;
+
+
+  proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_fortinet_subtype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &type);
+  proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_fortinet_subtype_vals, "Unknown"));
+  offset += 2;
+  tag_len -= 2;
+
+  switch (type) {
+  case FORTINET_SYSTEM:
+    while (tag_len > 2) {
+      guint32 system_type, system_length;
+
+      proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_fortinet_system_type, tvb, offset, 1, ENC_NA, &system_type);
+      proto_item_append_text(item, " - %s:", val_to_str_const(system_type, ieee80211_vs_fortinet_system_type_vals, "Unknown"));
+      offset += 1;
+      tag_len -= 1;
+
+      proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_fortinet_system_length, tvb, offset, 1, ENC_NA, &system_length);
+      offset += 1;
+      tag_len -= 1;
+
+      switch (system_type) {
+        case FORTINET_SYSTEM_APNAME:{
+          const guint8* name;
+          proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_fortinet_system_apname, tvb,
+                               offset, system_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
+          proto_item_append_text(item, " (%s)", name);
+        }
+      }
+      offset += system_length;
+      tag_len -= system_length;
+    }
+    break;
+
+  default:
+    proto_tree_add_item(ietree, hf_ieee80211_vs_fortinet_data, tvb, offset,
+      tag_len, ENC_NA);
+    if (tag_len > 0)
+      proto_item_append_text(item, " (Data: %s)", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, tag_len));
+    break;
+  }
+}
+
 /* 802.11-2012 8.4.2.37 QoS Capability element */
 static int
 dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int ftype)
@@ -27386,6 +27452,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     case OUI_SGDSN:
       dissect_vendor_ie_sgdsn(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
+      break;
+    case OUI_FORTINET:
+      dissect_vendor_ie_fortinet(field_data->item_tag, tree, tvb, offset, tag_vs_len);
       break;
 
     default:
@@ -47210,6 +47279,32 @@ proto_register_ieee80211(void)
      {"Data", "wlan.vs.ruckus.data",
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
+
+    /* Vendor Specific : Fortinet */
+    {&hf_ieee80211_vs_fortinet_subtype,
+     {"Subtype", "wlan.vs.fortinet.subtype",
+      FT_UINT16, BASE_DEC, VALS(ieee80211_vs_fortinet_subtype_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_fortinet_system_type,
+     {"Type", "wlan.vs.fortinet.system.type",
+      FT_UINT8, BASE_DEC, VALS(ieee80211_vs_fortinet_system_type_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_fortinet_system_length,
+     {"Length", "wlan.vs.fortinet.system.length",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_fortinet_system_apname,
+     {"AP Name", "wlan.vs.fortinet.system.ap_name",
+      FT_STRINGZ, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_fortinet_data,
+     {"Data", "wlan.vs.fortinet.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_tsinfo,
      {"Traffic Stream (TS) Info", "wlan.ts_info",
