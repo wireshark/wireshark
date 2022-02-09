@@ -20,6 +20,7 @@
 #include "ui/last_open_dir.h"
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
+#include "ui/capture_globals.h"
 
 #include "file.h"
 #include "wsutil/file_util.h"
@@ -510,7 +511,7 @@ int ImportTextDialog::exec() {
     }
     text_import_pre_open(&params, file_type_subtype, import_info_.import_text_filename, interface_name.toUtf8().constData());
     /* Use a random name for the temporary import buffer */
-    import_info_.wdh = wtap_dump_open_tempfile(&tmp, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
+    import_info_.wdh = wtap_dump_open_tempfile(global_capture_opts.temp_dir, &tmp, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
     capfile_name_.append(tmp ? tmp : "temporary file");
     import_info_.output_filename = tmp;
 

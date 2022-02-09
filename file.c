@@ -1400,7 +1400,7 @@ merge_callback(merge_event event, int num _U_,
 
 
 cf_status_t
-cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
+cf_merge_files_to_tempfile(gpointer pd_window, const char *temp_dir, char **out_filenamep,
                            int in_file_count, const char *const *in_filenames,
                            int file_type, gboolean do_append)
 {
@@ -1420,7 +1420,7 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
   cf_callback_invoke(cf_cb_file_merge_started, NULL);
 
   /* merge the files */
-  status = merge_files_to_tempfile(out_filenamep, "wireshark", file_type,
+  status = merge_files_to_tempfile(temp_dir, out_filenamep, "wireshark", file_type,
                                    in_filenames,
                                    in_file_count, do_append,
                                    IDB_MERGE_MODE_ALL_SAME, 0 /* snaplen */,

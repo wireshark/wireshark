@@ -9,12 +9,17 @@
  */
 
 #include "config.h"
+
+#include <errno.h>
+
 #include "tempfile.h"
+#include "file_util.h"
 
  /**
  * Create a tempfile with the given prefix (e.g. "wireshark"). The path
  * is created using g_file_open_tmp.
  *
+ * @param tempdir [in] If not NULL, the directory in which to create the file.
  * @param namebuf [in,out] If not NULL, receives the full path of the temp file.
  *                Must be freed.
  * @param pfx [in] A prefix for the temporary file.
@@ -24,7 +29,7 @@
  * @return The file descriptor of the new tempfile, from mkstemps().
  */
 int
-create_tempfile(gchar **namebuf, const char *pfx, const char *sfx, GError **err)
+create_tempfile(const char *tempdir, gchar **namebuf, const char *pfx, const char *sfx, GError **err)
 {
   int fd;
   gchar *safe_pfx = NULL;
@@ -44,12 +49,61 @@ create_tempfile(gchar **namebuf, const char *pfx, const char *sfx, GError **err)
     safe_pfx = g_strdelimit(safe_pfx, delimiters, '-');
   }
 
-  gchar* filetmpl = ws_strdup_printf("%sXXXXXX%s", safe_pfx ? safe_pfx : "", sfx ? sfx : "");
-  g_free(safe_pfx);
+  if (tempdir == NULL || tempdir[0] == '\0') {
+    /* Use OS default tempdir behaviour */
+    gchar* filetmpl = ws_strdup_printf("%sXXXXXX%s", safe_pfx ? safe_pfx : "", sfx ? sfx : "");
+    g_free(safe_pfx);
 
-  fd = g_file_open_tmp(filetmpl, namebuf, err);
+    fd = g_file_open_tmp(filetmpl, namebuf, err);
+    g_free(filetmpl);
+  }
+  else {
+    /* User-specified tempdir.
+     * We don't get libc's help generating a random name here.
+     */
+    const gchar alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+    const gint32 a_len = 64;
+    gchar* filetmpl = NULL;
 
-  g_free(filetmpl);
+    while(1) {
+      g_free(filetmpl);
+      filetmpl = ws_strdup_printf("%s%c%s%c%c%c%c%c%c%s",
+          tempdir,
+          G_DIR_SEPARATOR,
+          safe_pfx ? safe_pfx : "",
+          alphabet[g_random_int_range(0, a_len)],
+          alphabet[g_random_int_range(0, a_len)],
+          alphabet[g_random_int_range(0, a_len)],
+          alphabet[g_random_int_range(0, a_len)],
+          alphabet[g_random_int_range(0, a_len)],
+          alphabet[g_random_int_range(0, a_len)],
+          sfx ? sfx : "");
+
+      fd = ws_open(filetmpl, O_CREAT|O_EXCL|O_BINARY|O_WRONLY, 0600);
+      if (fd >= 0) {
+        break;
+      }
+      if (errno != EEXIST) {
+        g_set_error_literal(err, G_FILE_ERROR,
+            g_file_error_from_errno(errno), g_strerror(errno));
+        g_free(filetmpl);
+        filetmpl = NULL;
+        break;
+      }
+      /* Loop continues if error was EEXIST, meaning the file we tried
+       * to make already existed at the destination
+       */
+    }
+
+    if (namebuf == NULL) {
+      g_free(filetmpl);
+    }
+    else {
+      *namebuf = filetmpl;
+    }
+    g_free(safe_pfx);
+  }
+
   return fd;
 }
 

@@ -38,6 +38,7 @@ dumpcap - Dump network traffic
 [ *-s*|*--snapshot-length* <capture snaplen> ]
 [ *-S* ]
 [ *-t* ]
+[ *--temp-dir* <directory> ]
 [ *-v*|*--version* ]
 [ *-w* <outfile> ]
 [ *-y*|*--linktype* <capture link type> ]
@@ -458,6 +459,14 @@ Print statistics for each interface once every second.
 +
 --
 Use a separate thread per interface.
+--
+
+--temp-dir <directory>::
++
+--
+Specifies the directory into which temporary files (including capture files)
+are to be written. The default behaviour is to use your system's temporary
+directory (typically __/tmp__ on Linux, and __C:\\Temp__ on Windows).
 --
 
 -v|--version::

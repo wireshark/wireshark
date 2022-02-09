@@ -38,6 +38,7 @@
 
 #include <wsutil/socket.h>
 #include <wsutil/wslog.h>
+#include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBCAP
 # include <sys/prctl.h>
@@ -434,6 +435,8 @@ print_usage(FILE *output)
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           add a capture comment to the output file\n");
     fprintf(output, "                           (only for pcapng)\n");
+    fprintf(output, "  --temp-dir <directory>   write temporary files to this directory\n");
+    fprintf(output, "                           (default: %s)\n", g_get_tmp_dir());
     fprintf(output, "\n");
 
     ws_log_print_usage(output);
@@ -3678,7 +3681,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         } else {
             suffix = ".pcap";
         }
-        *save_file_fd = create_tempfile(&capfile_name, prefix, suffix, &err_tempfile);
+        *save_file_fd = create_tempfile(capture_opts->temp_dir, &capfile_name, prefix, suffix, &err_tempfile);
         g_free(prefix);
         is_tempfile = TRUE;
     }
@@ -5163,6 +5166,7 @@ main(int argc, char *argv[])
         case 'I':        /* Monitor mode */
 #endif
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
+        case LONGOPT_CAPTURE_TMPDIR:       /* capture temp directory */
             status = capture_opts_add_opt(&global_capture_opts, opt, ws_optarg);
             if (status != 0) {
                 exit_main(status);

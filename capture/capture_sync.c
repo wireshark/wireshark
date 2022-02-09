@@ -266,6 +266,11 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         }
     }
 
+    if (capture_opts->temp_dir) {
+            argv = sync_pipe_add_arg(argv, &argc, "--temp-dir");
+            argv = sync_pipe_add_arg(argv, &argc, capture_opts->temp_dir);
+    }
+
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_filesize) {
             char sfilesize[ARGV_NUMBER_LEN];

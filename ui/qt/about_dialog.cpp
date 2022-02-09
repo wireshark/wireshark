@@ -23,6 +23,7 @@
 #endif
 
 #include <epan/maxmind_db.h>
+#include <epan/prefs.h>
 
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
@@ -39,6 +40,7 @@
 #include "wsutil/plugins.h"
 #include "wsutil/copyright_info.h"
 #include "ui/version_info.h"
+#include "ui/capture_globals.h"
 
 #include "extcap.h"
 
@@ -197,7 +199,7 @@ FolderListModel::FolderListModel(QObject * parent):
     appendRow(QStringList() << tr("\"File\" dialogs") << get_last_open_dir() << tr("capture files"));
 
     /* temp */
-    appendRow(QStringList() << tr("Temp") << g_get_tmp_dir() << tr("untitled capture files"));
+    appendRow(QStringList() << tr("Temp") << (global_capture_opts.temp_dir && global_capture_opts.temp_dir[0] ? global_capture_opts.temp_dir : g_get_tmp_dir()) << tr("untitled capture files"));
 
     /* pers conf */
     appendRow(QStringList() << tr("Personal configuration")

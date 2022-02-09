@@ -144,6 +144,7 @@ merge_files(const gchar* out_filename, const int file_type,
 
 /** Merge the given input files to a temporary file
  *
+ * @param tmpdir Points to the directory in which to write the temporary file
  * @param out_filenamep Points to a pointer that's set to point to the
  *        pathname of the temporary file; it's allocated with g_malloc()
  * @param pfx A string to be used as the prefix for the temporary file name
@@ -166,7 +167,7 @@ merge_files(const gchar* out_filename, const int file_type,
  * @return the frame type
  */
 WS_DLL_PUBLIC merge_result
-merge_files_to_tempfile(gchar **out_filenamep, const char *pfx,
+merge_files_to_tempfile(const char *tmpdir, gchar **out_filenamep, const char *pfx,
                         const int file_type, const char *const *in_filenames,
                         const guint in_file_count, const gboolean do_append,
                         const idb_merge_mode mode, guint snaplen,

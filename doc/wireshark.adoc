@@ -670,6 +670,14 @@ was captured
 The default format is relative.
 --
 
+--temp-dir <directory>::
++
+--
+Specifies the directory into which temporary files (including capture files)
+are to be written. The default behaviour is to use your system's temporary
+directory (typically __/tmp__ on Linux, and __C:\\Temp__ on Windows).
+--
+
 --time-stamp-type <type>::
 +
 --

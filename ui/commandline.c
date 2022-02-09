@@ -166,6 +166,9 @@ commandline_print_usage(gboolean for_help_option) {
     fprintf(output, "  --capture-comment <comment>\n");
     fprintf(output, "                           add a capture file comment, if supported\n");
 #endif
+    fprintf(output, "  --temp-dir <directory>   write temporary files to this directory\n");
+    fprintf(output, "                           (default: %s)\n", g_get_tmp_dir());
+    fprintf(output, "\n");
 
     ws_log_print_usage(output);
 
@@ -411,6 +414,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'p':        /* Don't capture in promiscuous mode */
             case 'i':        /* Use interface x */
             case LONGOPT_SET_TSTAMP_TYPE: /* Set capture timestamp type */
+            case LONGOPT_CAPTURE_TMPDIR: /* capture temp directory */
 #ifdef HAVE_PCAP_CREATE
             case 'I':        /* Capture in monitor mode, if available */
 #endif
