@@ -3728,6 +3728,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
         new_fd = fdata;
         break;
       }
+      wtap_rec_reset(&rec);
     }
 
     if (fdata == start_fd) {
