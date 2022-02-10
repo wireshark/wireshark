@@ -217,14 +217,14 @@ tvb_composite_append(tvbuff_t *tvb, tvbuff_t *member)
 	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
 	 * and anyway it makes no sense.
 	 */
-	DISSECTOR_ASSERT(member->length);
+	if (member && member->length) {
+		composite       = &composite_tvb->composite;
+		composite->tvbs = g_slist_append(composite->tvbs, member);
 
-	composite       = &composite_tvb->composite;
-	composite->tvbs = g_slist_append(composite->tvbs, member);
-
-	/* Attach the composite TVB to the first TVB only. */
-	if (!composite->tvbs->next) {
-		tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb);
+		/* Attach the composite TVB to the first TVB only. */
+		if (!composite->tvbs->next) {
+			tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb);
+		}
 	}
 }
 
@@ -240,14 +240,14 @@ tvb_composite_prepend(tvbuff_t *tvb, tvbuff_t *member)
 	/* Don't allow zero-length TVBs: composite_memcpy() can't handle them
 	 * and anyway it makes no sense.
 	 */
-	DISSECTOR_ASSERT(member->length);
+	if (member && member->length) {
+		composite       = &composite_tvb->composite;
+		composite->tvbs = g_slist_prepend(composite->tvbs, member);
 
-	composite       = &composite_tvb->composite;
-	composite->tvbs = g_slist_prepend(composite->tvbs, member);
-
-	/* Attach the composite TVB to the first TVB only. */
-	if (!composite->tvbs->next) {
-		tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb);
+		/* Attach the composite TVB to the first TVB only. */
+		if (!composite->tvbs->next) {
+			tvb_add_to_chain((tvbuff_t *)composite->tvbs->data, tvb);
+		}
 	}
 }
 
