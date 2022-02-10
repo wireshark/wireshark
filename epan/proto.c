@@ -91,6 +91,22 @@ struct ptvcursor {
 	CHECK_FOR_NULL_TREE_AND_FREE(tree, ((void)0))
 
 /** See inlined comments.
+ @param length the length of this item
+ @param free_block a code block to call to free resources if this returns
+ @return NULL if 'length' is lower -1 or equal 0 */
+#define CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_FREE(length, free_block)	\
+	if (length < -1 || length == 0 ) {				\
+		free_block;						\
+		return NULL;						\
+	}
+
+/** See inlined comments.
+ @param length the length of this item
+ @return NULL if 'length' is lower -1 or equal 0 */
+#define CHECK_FOR_ZERO_OR_MINUS_LENGTH(length) \
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_FREE(length, ((void)0))
+
+/** See inlined comments.
  @param tree the tree to append this item to
  @param hfindex field index
  @param hfinfo header_field
@@ -3069,11 +3085,7 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	/* length validation for native number encoding caught by get_uint_value() */
-	/* length has to be -1 or > 0 regardless of encoding */
-	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_int",
-			length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3130,11 +3142,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	/* length validation for native number encoding caught by get_uint_value() */
-	/* length has to be -1 or > 0 regardless of encoding */
-	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint",
-			length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3362,11 +3370,7 @@ ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, gint length, const gui
 		    hfinfo->abbrev);
 	}
 
-	/* length validation for native number encoding caught by get_uint64_value() */
-	/* length has to be -1 or > 0 regardless of encoding */
-	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to ptvcursor_add_ret_boolean",
-			length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3421,11 +3425,7 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	/* length validation for native number encoding caught by get_uint64_value() */
-	/* length has to be -1 or > 0 regardless of encoding */
-	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_uint64",
-			length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3484,11 +3484,7 @@ proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			hfinfo->abbrev);
 	}
 
-	/* length validation for native number encoding caught by get_uint64_value() */
-	/* length has to be -1 or > 0 regardless of encoding */
-	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_int64",
-			length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3595,11 +3591,7 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	/* length validation for native number encoding caught by get_uint64_value() */
-	/* length has to be -1 or > 0 regardless of encoding */
-	if (length < -1 || length == 0)
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_boolean",
-			length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -4086,12 +4078,7 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	DISSECTOR_ASSERT_HINT(validate_proto_tree_add_bytes_ftype(hfinfo->type),
 		"Called proto_tree_add_bytes_item but not a bytes-based FT_XXX type");
 
-	/* length has to be -1 or > 0 regardless of encoding */
-	/* invalid FT_UINT_BYTES length is caught in get_uint_value() */
-	if (length < -1 || length == 0) {
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_bytes_item for %s",
-		    length, ftype_name(hfinfo->type));
-	}
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	if (encoding & ENC_STR_NUM) {
 		REPORT_DISSECTOR_BUG("Decoding number strings for byte arrays is not supported");
@@ -4200,11 +4187,7 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	/* length has to be -1 or > 0 regardless of encoding */
-	if (length < -1 || length == 0) {
-		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_time_item",
-		    length);
-	}
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
 
 	nstime_set_zero(&time_stamp);
 
