@@ -46,7 +46,11 @@ static const range_string class_id_names[] = {
     { 0x0108, 0x0110, "Amazon.com, Inc." },
     { 0x0111, 0x0118, "IBM" },
     { 0x0119, 0x0128, "Ericsson" },
-    { 0x0129, 0xFEFF, "Unassigned" },
+    { 0x0129, 0x0129, "Oxide Computer Company" },
+    { 0x0130, 0x0131, "Cisco Systems, Inc." },
+    { 0x0132, 0x0135, "Google LLC" },
+    { 0x0136, 0x0136, "InfoQuick Global Connection Tech Ltd." },
+    { 0x0137, 0xFEFF, "Unassigned" },
     { 0xFFF0, 0xFFFF, "Experimental" },
     { 0, 0, NULL }
 };
