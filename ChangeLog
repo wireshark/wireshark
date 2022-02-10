@@ -1,0 +1,1060 @@
+commit 7cb008a7e5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Feb 10 10:30:17 2022 -0800
+
+    Build: 3.6.2
+
+    [skip ci]
+
+commit 171c49d487
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 9 11:06:05 2022 -0800
+
+    GitLab CI: Disable the Documentation job for now.
+
+    Disable the Documentation job until we can git versioned docs in place,
+    otherwise we'll unexpectedly clobber the master docs.
+
+commit feb394ddfb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 8 16:54:34 2022 -0800
+
+    Prep for 3.6.2.
+
+commit b1c76b5c92
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Feb 8 20:01:51 2022 -0500
+
+    file: Fix memory leak in Find Packet
+
+    If we don't find the data in a packet, reset the wtap record so
+    that the block we just searched is freed before we lose our pointer
+    to it.
+
+    (cherry picked from commit 26dafbae392150195dafb2fe868cc55d919c3686)
+
+commit e5c46402df
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 6 18:42:28 2022 -0800
+
+    epan: Fix our FT_UINT_BYTES and FT_UINT_STRING checks.
+
+    FT_UINT_BYTES and FT_UINT_STRING lengths are always at least the width
+    of the count bytes. Fix for 1136ce9610 / #17891.
+
+    (cherry picked from commit a8c8ee69081d3a85125645b9b3efd376c9ef947c)
+
+commit 1bc0a95ccc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Feb 7 11:09:42 2022 -0800
+
+    BP: Make sure our offset advances.
+
+    Fixes #17933.
+
+    (cherry picked from commit e93001a8dd4daff66b0778a3e72b200ea3346c93)
+
+commit cfee6adb30
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Feb 7 10:19:52 2022 -0800
+
+    GDSDB: Make sure our offset advances.
+
+    Fixes #17931.
+
+    (cherry picked from commit 8d3c2177793e900cfc7cfaac776a2807e4ea289f)
+
+commit aa54ec1824
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Mon Feb 7 08:50:07 2022 +0100
+
+    p_mul: Change display of missing sequence numbers
+
+    Show missing sequence numbers with from and to instead of listing
+    every number in the range as generated fields.
+
+    Bonus: explicitly show the range delimiter.
+
+    Fixes: #17932
+    (cherry picked from commit 3c4e4cc1348c7c0cff5f77e6e3ddc8ea09f4e415)
+
+commit 1c72676d94
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Feb 5 10:25:25 2022 -0800
+
+    WAP: Clamp our value lengths to a usable value.
+
+    tvb_get_guintvar returns a length which is often used for arithmetic.
+    Clamp it to a value which is less likely to overflow. Fixes #17925.
+
+    (cherry picked from commit 2a4171fc06645ba70c9b657528679e111db0791b)
+
+commit b36df1146d
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Thu Dec 30 01:13:55 2021 +0100
+
+    rtmpt: limit the number of iterations in rtmpt_get_amf_length().
+
+    This prevents a infinite-loop caused by crafted packets.
+
+    Fix: #17813.
+    (cherry picked from commit 24403a9a35cd7fbe5ea6e596b1c6deb9d8633566)
+
+commit 8a9aa9d443
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Feb 7 11:35:28 2022 -0800
+
+    ZigBee ZCL: fix the zero-length item check.
+
+    The fix for #17926 got the check backwards, so non-empty arrays, sets,
+    and bags couldn't be dissected, as they'd always report a "zero-length
+    item" error.  Both versions of the check dissect zero-length items, as
+    they test for equality, but the old version thought that a
+    non-zero-length item was also bad, as the offset was greater after
+    dissecting the item than before dissecting the item.
+
+    (cherry picked from commit 6b3daa9aec7d549bf583e22727c67885cdb9321b)
+
+commit b0f679bb4e
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 6 08:51:54 2022 -0500
+
+    CMS: get rid of globals
+
+    Get rid of the global content_tvb and object_identifier_id in
+    the CMS dissector, and put them in a packet scoped proto data
+    struct, so that when there's a non fatal exception retrieving
+    the OID we don't use the global value from a previous packet
+    (or worse, file), since what the content_tvb and object_identifier_id
+    pointed to were both packet scoped that could lead to memory
+    access violations.
+
+    Clear the values of the OID and the content_tvb each time before
+    they are retrieved, so that values from a previous PDU of CMS
+    in the same packet aren't used either. This was not quite as bad
+    as using a value already freed, but still bad.
+
+    Fix #17800, #17809, #17835, #17935
+
+    (cherry picked from commit c14d731e4580adea858b5745aa89c7975eff8966)
+
+commit 4f7a1b11e6
+Author: Roland Knall <r.knall@moba.cc>
+Date:   Mon Feb 7 10:53:49 2022 +0100
+
+    Qt: Fix show in folder issue
+
+    Opening a folder on Windows lead to undesired behaviour
+
+    Fixes: #17927
+
+commit 60b8bc7166
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 6 16:37:29 2022 +0000
+
+    [Automatic update for 2022-02-06]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7487b059d0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Feb 5 11:11:32 2022 -0800
+
+    ZigBee ZCL: Make sure our offset advances.
+
+    Fixes #17926.
+
+    (cherry picked from commit ebe22f7b7b6238d2cbe35889c89ffc3c485ea696)
+
+commit 30b84545d6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jan 29 15:37:45 2022 -0800
+
+    CSN.1: Fix some alignment issues.
+
+    Not all architectures allow unaligned access. Copy our 16- and 32-bit
+    values instead of using direct assignment. Ping #17882.
+
+    (cherry picked from commit 1fd1853837a28699ee6f3951b37b6e231204af02)
+
+commit 532e98c3f8
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Fri Feb 4 21:00:17 2022 +0100
+
+    PER: Check length calling tvb_new_octet_aligned()
+
+    Fix calling tvb_new_octet_aligned() with length == 0
+
+    Related to #17890 case 1 and 6
+
+    (cherry picked from commit 64f98ee13c6d234e2c5781a5d7e61753240de17c)
+
+commit 950a13969b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 1 14:45:10 2022 -0800
+
+    AMP: Fix large / infinite loops.
+
+    Make sure our offset advances in a few places. Fixes #17829.
+
+    (cherry picked from commit 1d8690f8efb7d2284c25abd2047205da92d5e992)
+
+commit 74c487e507
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 2 12:42:30 2022 -0800
+
+    epan: Check our FT_UINT_BYTES and FT_UINT_STRING lengths.
+
+    Add length checks to get_full_length for FT_UINT_BYTES and
+    FT_UINT_STRING items. Fixes #17891.
+
+    (cherry picked from commit 1136ce96106591f286612a4abcf9836d9df1d0db)
+
+commit c1a07d87ce
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 1 18:44:42 2022 -0800
+
+    ASN.1 PER + ATN-ULCS: Add checks for nulls in sequences.
+
+    In ASN.1 PER, Stop dissection if our sequence offset hasn't advanced
+    after 10 items.
+
+    atn-ulcs.asn overrides the definition of AttributeTypeAndValue as a
+    sequence of NULLs. Update our .cnf file so that we only dissect the
+    first item in that case.
+
+    Fixes #17842.
+
+    (cherry picked from commit 13f5d72453689fa22dea660cf9e38bc15c3e5418)
+
+commit b2679c912f
+Author: Stefan Metzmacher <metze@samba.org>
+Date:   Wed Jan 26 17:26:14 2022 +0100
+
+    packet-ntlmssp: only mark invalid target_info lists without failing the rest
+
+    This copes with invalid target info AvPairs, see
+    https://bugzilla.samba.org/show_bug.cgi?id=14932
+    and
+    https://gitlab.com/wireshark/wireshark/-/issues/17817
+
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
+    (cherry picked from commit a0426314a766f0d344d26d7503b2d2d03d29a513)
+
+commit 11a0edb3cf
+Author: Stefan Metzmacher <metze@samba.org>
+Date:   Wed Jan 26 11:17:33 2022 +0100
+
+    Revert "NTLMv2 dissector: skip target info for AUTHENTICATE_MESSAGE"
+
+    This reverts commit e8e6a2c6df5ffaf983bdc8b4ccb88c340df8b6cf.
+
+    This introduced regression of skipping valid target_info blobs.
+
+    The next commit will fix
+    https://gitlab.com/wireshark/wireshark/-/issues/17817
+    in a better way.
+
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
+    (cherry picked from commit c9e1c2cf4e5d4d6cd3134563349865381bf13e34)
+
+commit 72980f6fe5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 31 20:57:21 2022 -0500
+
+    SCTP: Fix relative sequence number calculation first pass
+
+    Calculate the relative sequence number correctly for the first
+    data chunk of an association in the first pass. This fixes
+    tshark display and fixes calculation of retransmissions if the
+    first data chunk of an association is retransmitted. Fix #17917.
+
+    (cherry picked from commit b88b7ce7983b64541a1172be2fe671a4cf608553)
+
+commit 38a7a33ffe
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Jan 31 21:31:48 2022 -0800
+
+    TShark, Wireshark: add some more documentation of "-i TCP@<host>:<port>".
+
+    Add a mention of the meaning of the "TCP@<host>:<port>" syntax in the
+    text about the -i option.
+
+    (cherry picked from commit 08dc06027f6db9320dbd5820aea57e10b40344d0)
+
+commit fae1392649
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Jan 31 16:45:31 2022 -0800
+
+    dumpcap: add some more documentation of "-i TCP@<host>:<port>".
+
+    Add a mention of the meaning of the "TCP@<host>:<port>" syntax in the
+    text about the -i option.
+
+    (cherry picked from commit 778fc283a7bf468fea7fbfdaa8f944e2ebb72b8e)
+
+commit f0a6012f97
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun Jan 30 19:59:01 2022 -0500
+
+    SIP: Fix SIP Statistics in GUI
+
+    At some point the indices of the request and response stat tables
+    got switched, and stats were being looked up in the wrong table.
+    Use stat_tap_find_table to lookup the tables rather than hardcoding
+    the indices. Fix #17904
+
+    (cherry picked from commit b0036e01f878fb718be5a6835d06ecf73dcc93df)
+
+commit 17088f3a6f
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jan 29 23:37:16 2022 -0500
+
+    PROFINET: Fix incorrect API call, assertion
+
+    Fix two calls of proto_tree_add_item() when proto_tree_add_uint()
+    was meant. Passing the actual value of a field instead of an encoding
+    into proto_tree_add_item() has unexpected results. Fix #17909.
+
+    (The whole area of this dissector would probably be cleaner with
+    more calls to add_item(), but this is a smaller change consistent
+    with the rest.)
+
+    (cherry picked from commit e0a11d06077d84b16e2d416845017e68d7deb607)
+
+commit a05d2a6547
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 30 16:38:24 2022 +0000
+
+    [Automatic update for 2022-01-30]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 5b9a3179bc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 4 09:36:50 2022 -0500
+
+    packaging: Fix git-export-release.sh when CI_COMMIT_SHA undefined
+
+    Commit 0d820ddc8d2dde1070c312093699cc34623c36c5 added set -u to
+    the script, so the test for CI_COMMIT_SHA (added in commit
+    e7296d5208ad98dfba9aa109d58df9bcbeb05f4d) needs to be changed
+    so there isn't a fatal error if it is unset.
+
+    (cherry picked from commit 007883408f459d4a3ff560d89d9c4eb54849b8b8)
+
+commit 331a33e596
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sat Jan 15 10:58:19 2022 +0100
+
+    ieee80211: fix wrong proto_tree_add_item call.
+
+    Data from packet has been used as encoding instead of an actual
+    encoding. Fix by using ENC_NA, since the field is FT_UINT8.
+
+    Fix: #17878.
+
+    (cherry picked from commit 8e805674e0f69d71cd6ef7a57fa49ccb27f5ae3d)
+
+commit e86aced64f
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Nov 24 22:50:15 2021 +0100
+
+    Signal-Pdu: return the parsed length (bugfix)
+
+    Before the code was return length - (offset + 1). This did not make any
+    sense and caused lots of problems.
+
+commit 2fa40b82a3
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jan 19 05:19:45 2022 +0000
+
+    TVB: Don't uncompress zero sized buffers
+
+    (cherry picked from commit e1f025d9f4b2f2ff090485d8a6f70041bcea2f70)
+
+commit a2eb6dc59b
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Jan 18 06:01:54 2022 +0000
+
+    tvbuff: add robustness to tvb search related functions
+
+    (cherry picked from commit 3c4d2a28ea5446401ad9e75b88159f2e6d4a20cd)
+
+commit cf7f98ca7f
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Tue Jan 18 11:43:08 2022 +0100
+
+    tvbuff: assert the called len is > 0.
+
+    This assert will notify the higher layers that the dissector needs
+    to be fixed. ieee1722 and zbee-zcl dissectors have been updated to
+    prevent such a call.
+
+    Ref: #17882.
+    (cherry picked from commit f7b6ebcc042f114a4b89aae3df9955d380d2133a)
+
+commit e66bcc2a53
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jan 17 08:31:17 2022 +0000
+
+    IPDC: implement proper length checks
+
+    (cherry picked from commit 5ee3116113beb3b7744e65138b81f3df6b201652)
+
+commit 9544ddb272
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Jan 16 19:49:48 2022 +0000
+
+    tvbuff: add robustness to memory copy related functions
+
+    (cherry picked from commit 1b461768492ffdbdcd898b2b57fdabca49ad19fc)
+
+commit cb327922db
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 23 19:13:32 2022 -0800
+
+    NSIS: Completely remove the User's Guide.
+
+    The "Wireshark User's Guide" directory has two levels of directories
+    underneath it, so remove it recursively in the NSIS uninstaller.
+    Fixes #17898.
+
+    (cherry picked from commit 5f29a00814897a5552b4d7f46bf3419066ed2fbd)
+
+commit 3bc649d0e4
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 26 19:33:44 2022 -0500
+
+    GTP: Fix wrong GGSN control plane address field
+
+    Fix a typo / copy and paste error
+
+    (cherry picked from commit f31881ef0b95d15a4bf787b1dd9805b79f393fd5)
+
+commit d06cb6e8d4
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Mon Jan 24 02:51:57 2022 +0000
+
+    GTP: Fix wrong value_string for PDP organization
+
+commit b82f0020d2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 23 16:49:07 2022 +0000
+
+    [Automatic update for 2022-01-23]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 5dc11653a3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Jan 21 15:04:28 2022 -0800
+
+    Fix no-ZLib builds.
+
+    Don't use ZLib routines or data types if we're built without ZLib.
+
+    Don't support --compress-type=gzip, or a gzip check box in the Output
+    pane of the Capture Options dialog, if we're built without ZLib.
+
+    Fixes #17899.
+
+    (cherry picked from commit 125f5cbd881c2e1236d968a3e8fdcf5af2606e77)
+
+commit 7822861fe0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jan 21 08:49:36 2022 -0500
+
+    GTP: Don't include padding in the RAC in ULI
+
+    From 3GPP TS 29.06 V 17.1.0 7.7.51:
+    The routing area code consists of 2 octets and is found in octet 10
+    and octet 11. Only the first octet (10) contains the RAC and the
+    second octet (11) is coded as "11111111".
+
+    Don't include the spare octet 11 in the RAC field. The RAC is only
+    one octet.
+
+    (cherry picked from commit b2f78b47b43ced0ae5904f41fca8205268bef134)
+
+commit ef45903f68
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Thu Jan 20 18:00:19 2022 +0000
+
+    Update libwsutil13.symbols marking ws_log_default_writer() as appearing in 3.6.2
+
+commit ffcf4de9f7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 19 10:58:49 2022 -0800
+
+    wsutil: Add back ws_log_default_writer.
+
+    Add back ws_log_default_writer, which was removed in 3.6.1. Make it a
+    simple warapper around ws_log_console_writer and mark it deprecated.
+    Fixes #17822.
+
+commit f174f41966
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jan 18 21:21:52 2022 +0100
+
+    GSM RP: fix dissection of SMS in 5G Nf interface
+
+    Closes #17784
+
+    (cherry picked from commit c6de71552aa322d96386ba86affc5599bdfc6503)
+
+commit 11ba0faf9b
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Jan 14 21:52:33 2022 +0100
+
+    BLF: improved checks to avoid hangs
+
+    Improvements to fix a few hang scenarios found by fuzzing.
+
+commit 170d55b8bc
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Jan 14 21:21:49 2022 +0100
+
+    BLF: Improve handling of zlib errors
+
+commit 06dd0ca066
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jan 18 15:22:32 2022 +0100
+
+    NGAP: stop clearing the fence
+
+    Closes #17886
+
+    (cherry picked from commit 26d2cb085ddc15f65c6a950cad3e4c875fda15e3)
+
+commit 0bfe71c689
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jan 18 15:21:53 2022 +0100
+
+    S1AP: stop clearing the fence
+
+    Related to #17886
+
+    (cherry picked from commit 4165159263466aae5056f55f7ff7b42e0a18d54d)
+
+    Conflicts:
+            epan/dissectors/packet-s1ap.c
+
+commit 5b235761d7
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Mon Jan 17 10:46:42 2022 +0100
+
+    ISAKMP: Fix Typo
+
+    (cherry picked from commit a56998c974901eb1dd4e93f167184c6bfe833516)
+
+commit 9b369178c5
+Author: Lucas Pardue <lucaspardue.24.7@gmail.com>
+Date:   Sun Jan 16 05:20:27 2022 +0000
+
+    http3: fix QPACK blocked streams filter
+
+    (cherry picked from commit 4d72af63d502a0e3705ce39d662861e2a16f6932)
+
+commit 468fd6a5ea
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 16 11:09:02 2022 -0800
+
+    BLF: Make sure a struct is completely initialized.
+
+    Initialize infstream. Fixes
+
+    ```
+    *** CID 1497282:    (UNINIT)
+    /builds/wireshark/wireshark/wiretap/blf.c: 506 in blf_pull_logcontainer_into_memory()
+    500             }
+    501
+    502             int ret = inflate(&infstream, Z_NO_FLUSH);
+    503             /* Z_OK should not happen here since we know how big the buffer should be */
+    504             if (Z_STREAM_END != ret) {
+    505                 ws_debug("inflate failed (return code %d) for LogContainer %d", ret, index_log_container);
+    >>>     CID 1497282:    (UNINIT)
+    >>>     Using uninitialized value "infstream.msg".
+    506                 if (infstream.msg != NULL) {
+    507                     ws_debug("inflate returned: \"%s\"", infstream.msg);
+    508                 }
+    509                 return FALSE;
+    510             }
+    511
+    /builds/wireshark/wireshark/wiretap/blf.c: 514 in blf_pull_logcontainer_into_memory()
+    508                 }
+    509                 return FALSE;
+    510             }
+    511
+    512             if (Z_OK != inflateEnd(&infstream)) {
+    513                 ws_debug("inflateEnd failed for LogContainer %d", index_log_container);
+    >>>     CID 1497282:    (UNINIT)
+    >>>     Using uninitialized value "infstream.msg".
+    514                 if (infstream.msg != NULL) {
+    515                     ws_debug("inflateEnd returned: \"%s\"", infstream.msg);
+    516                 }
+    517                 return FALSE;
+    518             }
+    519
+    /builds/wireshark/wireshark/wiretap/blf.c: 496 in blf_pull_logcontainer_into_memory()
+    490             infstream.avail_out = (unsigned int)tmp.real_length;
+    491             infstream.next_out  = buf;
+    492
+    493             /* the actual DE-compression work. */
+    494             if (Z_OK != inflateInit(&infstream)) {
+    495                 ws_debug("inflateInit failed for LogContainer %d", index_log_container);
+    >>>     CID 1497282:    (UNINIT)
+    >>>     Using uninitialized value "infstream.msg".
+    496                 if (infstream.msg != NULL) {
+    497                     ws_debug("inflateInit returned: \"%s\"", infstream.msg);
+    498                 }
+    499                 return FALSE;
+    500             }
+    501
+    ```
+
+    (cherry picked from commit 46cb5d52524582ad3b2e4adda5178ac4f65fc711)
+
+commit f87c9e4492
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 16 16:39:03 2022 +0000
+
+    [Automatic update for 2022-01-16]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit fb2f93c87a
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 13 08:10:35 2022 -0500
+
+    wiretap: Fix description of Custom Block
+
+    (cherry picked from commit a9e6f2660e191634b65d6fccda8aa09b652e61ce)
+
+commit 2092ba64b5
+Author: Bahadir Ozgun <bhdrozgn@gmail.com>
+Date:   Fri Jan 14 12:09:13 2022 +0000
+
+    Fixed a typo
+
+    (cherry picked from commit 308add2f3a20eddbb13c944db45538f1865afe72)
+
+commit 3d56b76ded
+Author: Andy Grover <agrover@cloudflare.com>
+Date:   Tue Jan 11 09:49:54 2022 -0800
+
+    proxy protocol: Fix parsing of TLV values
+
+    Do not attempt to look for TLVs in the entire rest of the packet, only
+    look in the proxy protocol header bytes.
+
+    (cherry picked from commit c6e60da604fa9282e14c92acc28cb627d8ff4279)
+
+commit b9d1c06951
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 12 23:42:13 2022 -0500
+
+    wiretap: Register a systemd Journal Export Block
+
+    The block is lightweight and doesn't have any options so the create
+    function doesn't really do anything, but it needs to be registered
+    so that when systemd journal files are opened, the wtap_block_create()
+    call works and doesn't segfault. Fix #17875
+
+    (cherry picked from commit 203820f3d02dbc4ea6fbd64b35700fc510e29684)
+
+commit dcca62139b
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Thu Jan 13 10:11:46 2022 +0100
+
+    openflow_v5: prevent infinite loops.
+
+    Check lenghts and add expert info when they are too small and
+    cause infinite loops.
+
+    Fix: #17847.
+
+commit d6c15b8655
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Thu Jan 13 10:14:54 2022 +0100
+
+    openflow_v6: add one more sanity check.
+
+    Ref: #17847.
+
+commit ef01229898
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Thu Jan 13 10:27:36 2022 +0100
+
+    tds: consider 0 as invalid token size.
+
+    Instead of consider just negative sizes as invalid, threat 0 the
+    same way. The size is used to increment the packet offset and 0
+    causes an infinite loop.
+
+    Fix: #17855.
+
+commit 10e649a32e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jan 13 11:46:36 2022 -0800
+
+    libpcap: remove definition of unused structure.
+
+    We don't allocate a per-dumper private data structure, so there's no
+    need to define a structure type.
+
+    (cherry picked from commit 7da31cb1398041d9a71467eab82c9db2935f3c4c)
+
+commit 9ba4304a70
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Jan 13 17:40:21 2022 +0000
+
+    netlink protocol: Add Keepalived and OpenR protocol identifiers
+
+commit d2d00209a5
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Wed Jan 12 11:40:33 2022 +0100
+
+    packet-rsl: Fix dissect of RLM Cause IE with length 0
+
+    The IE is defined in 3GPP TS 48.058 section 8.3.3 "ERROR INDICATION" as
+    being a TLV of size 2-4, which means length=0 is an accepted form. Avoid
+    showing "Malformed packet" error if such packet is found.
+
+    (cherry picked from commit 85e79ae1fdb9092bb25e8f16bceb95d00f81c29a)
+
+commit aadaa2c5b0
+Author: Nicolas Fella <nicolas.fella@gmx.de>
+Date:   Wed Jan 12 01:41:48 2022 +0100
+
+    Set desktop file name for QApplication
+
+    This must match the base name of the .desktop file (without the .desktop suffix).
+
+    The implicit default is 'wireshark', which worked until the file got renamed in 42a09ad02e7f51707927230ecd124938462d18c0
+
+    Setting this is important for several desktop enviromnent features to work, for example the window icon on Plasma Wayland
+
+    (cherry picked from commit 34c7a0edfd39238322ec0e05fb404ca7f4756115)
+
+commit cec4e36d55
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Jan 11 07:31:36 2022 +0100
+
+    MPLS ECHO: Fix FEC stack change TLV dissection
+
+    Closes #17868
+
+    (cherry picked from commit fcc6613ac79f9bc329cff0ceb160ca7b467fbbe5)
+
+commit 216b144ae5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 9 16:38:09 2022 +0000
+
+    [Automatic update for 2022-01-09]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b0de003322
+Author: Roman Volkov <volkoff_roman@ukr.net>
+Date:   Sat Jan 8 23:20:43 2022 +0200
+
+    mp2t: add descriptions for additional reserved PIDs
+
+    According modern EN 300 468 releases reserved PID list includes not
+    only range 0x00...0x0F from ISO 13818-1 but 0x10...0x1F also.
+    I added descriptions of the second ones from DVB BlueBook A038r14.
+
+    Formally, due to old ISO 13818-1, values 0x10...0x1F (among others)
+    may be used freely for other purposes but I didn't see such appliance.
+
+    (cherry picked from commit 21833071dc90788c4e8901ff6cf7a0b7db41e928)
+
+commit ae86694175
+Author: Sharon Brizinov <SharonBrizinov@users.noreply.github.com>
+Date:   Fri Jan 7 17:53:48 2022 +0200
+
+    fixing heap overflow oob read 1 byte
+
+    (cherry picked from commit d9023299e3d9d41d6231c7924e5f5bc12ec58f16)
+
+commit 77a79c5ee9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 6 11:24:18 2022 -0800
+
+    Tools: Remove git-review from rpm-setup.
+
+    (cherry picked from commit 7f5f7c82854ced9652a49f67ad9c434bbb543485)
+
+commit 8f2f1e5670
+Author: Roman Volkov <volkoff_roman@ukr.net>
+Date:   Wed Jan 5 16:06:40 2022 +0200
+
+    mpeg pes: unify PES header bit fields displaying
+
+    Add a bit-mask for 'scrambling-control' field to add a displaying of
+    bits occupied by the field.
+
+    (cherry picked from commit 5573d3c4e8b2a0d2845d87eb0a1ebc1b36e47041)
+
+commit cbd1829105
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jan 6 09:10:00 2022 -0500
+
+    MPEG PES: Update conformance file for unify PES header bit fields
+
+    Update the conformance file for MPEG PES to produce the changes of
+    commit 5573d3c4e8b2a0d2845d87eb0a1ebc1b36e47041
+
+    (cherry picked from commit bc9e8ea5b380e0fdc84309fa74a3630b53f16105)
+
+commit e006a3a28c
+Author: John Keeping <john@metanate.com>
+Date:   Thu Jan 6 11:59:53 2022 +0000
+
+    usb: dissect other speed config descriptors
+
+    Other speed config descriptors are identical to config descriptors, it's
+    just the request that is different.  Handle this request so that other
+    speed config responses are decoded.
+
+    (cherry picked from commit e9900c38c26d80e05ea1baedef022cf015b4d551)
+
+commit 0559b06df3
+Author: Michael Tuexen <tuexen@wireshark.org>
+Date:   Wed Jan 5 21:09:55 2022 +0100
+
+    macos-setup.sh: Simplify building nghttp2
+
+    (cherry picked from commit b3c24758b31ae2a972ac5e538a5a59e6c7dd87f4)
+
+commit 5140f65ff1
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 4 18:19:20 2022 -0800
+
+    macos-setup.sh: Update the PCRE URL.
+
+    As noted on https://pcre.org/, ftp.pcre.org has been shut down. Switch
+    to SourceForge and bump the version to 8.45. Fixes #17834.
+
+    (cherry picked from commit e9bc60ace47b1e9765799777f08a31d719cc5c85)
+
+commit 48ed757aea
+Author: Roman Volkov <volkoff_roman@ukr.net>
+Date:   Tue Dec 28 16:44:37 2021 +0200
+
+    mpeg table: add IDs for EIT schedule tables (0x50 - 0x6F)
+
+    (cherry picked from commit b1bf0db06972abc51003c7941e2dd2dbdba86d22)
+
+commit b21d7fcfa3
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Jan 7 21:21:29 2022 +0000
+
+    NTLMv2 dissector: skip target info for AUTHENTICATE_MESSAGE
+
+commit c0d5ead934
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sat Jan 1 14:17:43 2022 +0000
+
+    macos-setup: Update nghttp2 release
+
+    there is some CVE and bug fix...
+
+    (cherry picked from commit a68fd7b09d1b075b46dfa3c1d67c3418835e402f)
+
+commit c1c399f219
+Author: Luca Deri <deri@ntop.org>
+Date:   Tue Jan 4 13:54:50 2022 +0100
+
+    Added missing nDPI ClassifierId
+
+    For more information about classification engine ids see:
+    https://www.iana.org/assignments/ipfix/ipfix.xhtml#classification-engine-ids
+
+    (cherry picked from commit 39df51c46dfbed63464611b743db8671bb34dd58)
+
+commit 216fce3b16
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jan 6 17:15:32 2022 -0800
+
+    FAQ: point to the User's Guide section of the Npcap guide.
+
+    (Yes, the top-level page calls it the "User's Guide", but it has a
+    section called the "User's Guide", as well as an "Introduction" and
+    sections about development with Npcap and about the Npcap internals.)
+
+    (cherry picked from commit 06bc298fbdbfaf9293371e3229b849a1553b8a79)
+
+commit 81028dbd95
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 6 16:10:32 2022 -0800
+
+    Update our Npcap URLs.
+
+    The official Npcap web site is now https://npcap.com/. Update our URLs
+    to match. Fixes #17838.
+
+    (cherry picked from commit c65f0a5a155d0eca8221bb5c745c5c8f70d1605d)
+
+commit 21d71c83a1
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jan 5 21:43:43 2022 -0500
+
+    packaging: Fix RPM -qt subpackage requires
+
+    The BuildRequires and Requires for the -qt subpackage need to
+    go into its %package section, not its %description section.
+    The dependencies were not being enforced, but instead being added
+    to the description of the GUI package.
+
+    (cherry picked from commit 858402d3c77a308956005aa41aa53b9e18b3d32c)
+
+commit 409fafa530
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 5 17:55:51 2022 -0800
+
+    GitLab CI: Update a couple of RPM builds.
+
+    Switch from Centos 8 to Rocky Linux 8 and switch from openSUSE 15.2 to
+    15.3. Alphabetize our Linux jobs.
+
+    (cherry picked from commit 734d8cfbeed9eae8aa89621557b50ee5cba22b84)
+
+commit 7d79fe739e
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Thu Jan 6 10:50:51 2022 +0100
+
+    BGP: Fix next_hop decoding
+
+    Related to wireshark/wireshark#17836
+
+    (cherry picked from commit b587d6a266e24ec520079af4efc4f63a238bfb57)
+
+commit c92eb1eef2
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Jan 5 17:40:32 2022 +0000
+
+    PTP: Source Code Cleanup (formatting)
+
+    (cherry picked from commit 9b43910bc2b32d91d278ca1252d054eeb04b5608)
+
+commit e1f6a4b570
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Jan 4 21:28:17 2022 -0500
+
+    packaging: ENABLE_RPATH_ORIGIN on Fedora RPM build
+
+    Fedora Linux recently turned on some hardcore RPATH hardening
+    that causes RPM build to fail with a wide variety of prefixes unless
+    $ORIGIN is enabled.
+
+    It builds fine with /usr as the prefix because in that case we disable
+    the RPATH.
+
+    In the long run perhaps we should have the rpm-package target use the
+    standard prefix of /usr instead of the CMAKE_INSTALL_PREFIX, but even
+    so we want the spec file to work if /usr/local is set as the prefix.
+    Fix #17830
+
+    (cherry picked from commit 98378d76d0d48bbc2195100918e39845c93be625)
+
+commit 0540e4f83d
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Sun Jan 2 23:09:37 2022 +0100
+
+    UAT: Fix Wireshark crash on missing UAT columns
+
+    Wireshark crashes when missing an UAT column due to a read access
+    violation. This was introduced by the code to add better compatibility
+    to UAT changes.
+
+    See "UAT: Allow missing fields."
+
+    This codes add a check, if the defaults are NULL before accessing them.
+
+commit 2c9f550ea1
+Author: Samuel D. Leslie <sdl@nexiom.net>
+Date:   Sun Jan 2 14:11:08 2022 +1100
+
+    Add support for some additional Cisco IKEv2 VIDs
+
+    - CISCO-DYNAMIC-ROUTE
+      Indicates support for IKEv2 Dynamic Routing
+    - CISCO-VPN-REV-02
+      Not so sure about this one. Presumably indicates to peers internal
+      differences in the IKE implementation which can influence subsequent
+      configuration of the security associations.
+
+    (cherry picked from commit 40256c64e0987a1c72af4b3252c26726ea4a941e)
+
+commit 51427096cd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 2 16:39:43 2022 +0000
+
+    [Automatic update for 2022-01-02]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 57c56d1905
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Jan 1 14:08:38 2022 +0100
+
+    Happy New Year 2022
+
+    (cherry picked from commit d8474fdee791eb5a500ba4e3d8a3dfa1be6e059d)
+
+commit a3fac6cec0
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Dec 30 15:14:28 2021 -0500
+
+    wsutil+tvbuff: Fix time zone handling.
+
+    Time zone handling was reversed, partially due to the tests having
+    it backwards.
+
+    (Ported from commit 156a958d3f545f43e8a333512118afa32ae2ae7f but
+    3.6 has older timezone handling)
+
+commit 4e984e0513
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 29 15:06:13 2021 -0800
+
+    NSIS: Complain about installing a 32-bit Wireshark on 64-bit Windows.
+
+    Show a warning messagebox if we're installing a 32-bit executable on
+    64-bit Windows.
+
+    (cherry picked from commit 797c66cc4c99889fcc9dc710d83e00c31eb56daf)
+
+commit 99b90295c0
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Thu Dec 30 00:13:20 2021 +0100
+
+    kafka: remove compiler warnings.
+
+     1508 |     proto_item_append_text(header_ti, " (Key: %s)",
+          |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     1509 |                            tvb_get_string_enc(pinfo->pool, tvb, key_off, key_len, ENC_UTF_8));
+          |                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ../epan/dissectors/packet-kafka.c:1501:18: note: ‘key_len’ was declared here
+     1501 |     int key_off, key_len;
+          |                  ^~~~~~~
+    ../epan/dissectors/packet-kafka.c:1508:5: warning: ‘key_off’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+     1508 |     proto_item_append_text(header_ti, " (Key: %s)",
+          |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     1509 |                            tvb_get_string_enc(pinfo->pool, tvb, key_off, key_len, ENC_UTF_8));
+          |                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ../epan/dissectors/packet-kafka.c:1501:9: note: ‘key_off’ was declared here
+     1501 |     int key_off, key_len;
+          |         ^~~~~~~
+
+    (cherry picked from commit ae9d3d1d4ffd34e256c45a3230abeba41150daf0)
+
+commit 655cdb2701
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 29 14:07:02 2021 -0800
+
+    Version: 3.6.1 → 3.6.2
+
+    [skip ci]

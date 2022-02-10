@@ -27,7 +27,7 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
 * wssalink:2022-01[]
 RTMPT dissector infinite loop.
@@ -111,13 +111,13 @@ The following bugs have been fixed:
 
 * Support for GSM SMS TPDU in HTTP2 body wsbuglink:17784[].
 
-* Wireshark 3.6.1 broke ABI by removing ws_log_default_writer from libwsutil wsbuglink:17822[].
+* Wireshark 3.6.1 broke the ABI by removing ws_log_default_writer from libwsutil wsbuglink:17822[].
 
 * Fedora RPM package build failing with RPATH of /usr/local/lib64 wsbuglink:17830[].
 
-* ftp.pcre.org no longer exists wsbuglink:17834[].
+* macos-setup.sh: ftp.pcre.org no longer exists wsbuglink:17834[].
 
-* nmap.org/npcap  -> npcap.com: domain/URL change wsbuglink:17838[].
+* nmap.org/npcap -> npcap.com: domain/URL change wsbuglink:17838[].
 
 * MPLS ECHO FEC stack change TLV not dissected correctly wsbuglink:17868[].
 
@@ -137,7 +137,7 @@ The following bugs have been fixed:
 
 * SCTP retransmission detection broken for the first data chunk of each association with relative TSN wsbuglink:17917[].
 
-* Show In Folder: filenames with spaces; system plugins in Help->About wsbuglink:17927[].
+* “Show In Folder” doesn't work correctly for filenames with spaces wsbuglink:17927[].
 
 === New and Updated Features
 
