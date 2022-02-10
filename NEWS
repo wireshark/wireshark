@@ -9,7 +9,40 @@ Wireshark 3.4.12 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2021-22[1] Kafka dissector infinite loop. Issue
+       17811[2].
+
+     • wnpa-sec-2022-01[3] RTMPT dissector infinite loop. Issue
+       17813[4].
+
+     • wnpa-sec-2022-02[5] Large loops in multiple dissectors. Issue
+       17829[6], Issue 17842[7], Issue 17847[8], Issue 17855[9], Issue
+       17891[10], Issue 17925[11], Issue 17926[12], Issue 17931[13],
+       Issue 17932[14], Issue 17933[15].
+
+     • wnpa-sec-2022-03[16] PVFS dissector crash. Issue 17840[17].
+
+     • wnpa-sec-2022-04[18] CSN.1 dissector crash. Issue 17882[19].
+
+     • wnpa-sec-2022-05[20] CMS dissector crash. Issue 17935[21].
+
    The following bugs have been fixed:
+
+     • Support for GSM SMS TPDU in HTTP2 body Issue 17784[22].
+
+     • macos-setup.sh: ftp.pcre.org no longer exists Issue 17834[23].
+
+     • MPLS ECHO FEC stack change TLV not dissected correctly Issue
+       17868[24].
+
+     • Dissector bug on 802.11ac packets Issue 17878[25].
+
+     • The Info column shows only one NGAP/S1AP packet of several
+       packets inside an SCTP packet Issue 17886[26].
+
+     • Fuzz job crash output: fuzz-2022-01-26-6940.pcap Issue 17909[27].
 
   New and Updated Features
 
@@ -18,6 +51,11 @@ Wireshark 3.4.12 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   AMP, ASN.1 PER, ATN-ULCS, BP, CMS, CSN.1, GDSDB, GSM RP, GTP, IEEE
+   802.11 Radiotap, IPDC, ISAKMP, Kafka, MP2T, MPEG SECT, MPLS ECHO,
+   NGAP, OpenFlow 1.4, OpenFlow 1.5, P_MUL, PN-RT, PROXY, PVFS, RSL,
+   RTMPT, rtnetlink, S1AP, TDS, WAP, and ZigBee ZCL
 
   New and Updated Capture File Support
 
@@ -33,7 +71,7 @@ Wireshark 3.4.12 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[28] on the Wireshark web site.
 
  File Locations
 
@@ -47,22 +85,49 @@ Wireshark 3.4.12 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[29] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[30].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[31].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[32].
 
-  Last updated 2022-02-06 16:06:39 UTC
+  Last updated 2022-02-10 18:45:05 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2021-22
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17811
+   3. https://www.wireshark.org/security/wnpa-sec-2022-01
+   4. https://gitlab.com/wireshark/wireshark/-/issues/17813
+   5. https://www.wireshark.org/security/wnpa-sec-2022-02
+   6. https://gitlab.com/wireshark/wireshark/-/issues/17829
+   7. https://gitlab.com/wireshark/wireshark/-/issues/17842
+   8. https://gitlab.com/wireshark/wireshark/-/issues/17847
+   9. https://gitlab.com/wireshark/wireshark/-/issues/17855
+  10. https://gitlab.com/wireshark/wireshark/-/issues/17891
+  11. https://gitlab.com/wireshark/wireshark/-/issues/17925
+  12. https://gitlab.com/wireshark/wireshark/-/issues/17926
+  13. https://gitlab.com/wireshark/wireshark/-/issues/17931
+  14. https://gitlab.com/wireshark/wireshark/-/issues/17932
+  15. https://gitlab.com/wireshark/wireshark/-/issues/17933
+  16. https://www.wireshark.org/security/wnpa-sec-2022-03
+  17. https://gitlab.com/wireshark/wireshark/-/issues/17840
+  18. https://www.wireshark.org/security/wnpa-sec-2022-04
+  19. https://gitlab.com/wireshark/wireshark/-/issues/17882
+  20. https://www.wireshark.org/security/wnpa-sec-2022-05
+  21. https://gitlab.com/wireshark/wireshark/-/issues/17935
+  22. https://gitlab.com/wireshark/wireshark/-/issues/17784
+  23. https://gitlab.com/wireshark/wireshark/-/issues/17834
+  24. https://gitlab.com/wireshark/wireshark/-/issues/17868
+  25. https://gitlab.com/wireshark/wireshark/-/issues/17878
+  26. https://gitlab.com/wireshark/wireshark/-/issues/17886
+  27. https://gitlab.com/wireshark/wireshark/-/issues/17909
+  28. https://www.wireshark.org/download.html#thirdparty
+  29. https://ask.wireshark.org/
+  30. https://www.wireshark.org/lists/
+  31. https://gitlab.com/wireshark/wireshark/-/issues
+  32. https://www.wireshark.org/faq.html

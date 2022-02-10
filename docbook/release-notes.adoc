@@ -120,7 +120,7 @@ The following bugs have been fixed:
 
 * Support for GSM SMS TPDU in HTTP2 body wsbuglink:17784[].
 
-* ftp.pcre.org no longer exists wsbuglink:17834[].
+* macos-setup.sh: ftp.pcre.org no longer exists wsbuglink:17834[].
 
 * MPLS ECHO FEC stack change TLV not dissected correctly wsbuglink:17868[].
 
@@ -152,7 +152,36 @@ There are no new protocols in this release.
 // ag -A1 '(define PSNAME|proto_register_protocol[^_])' $(git diff --name-only v3.4.9.. | ag packet- | sort -u)
 [commaize]
 --
+AMP
+ASN.1 PER
+ATN-ULCS
+BP
+CMS
+CSN.1
+GDSDB
+GSM RP
+GTP
+IEEE 802.11 Radiotap
+IPDC
+ISAKMP
 Kafka
+MP2T
+MPEG SECT
+MPLS ECHO
+NGAP
+OpenFlow 1.4
+OpenFlow 1.5
+P_MUL
+PN-RT
+PROXY
+PVFS
+RSL
+RTMPT
+rtnetlink
+S1AP
+TDS
+WAP
+ZigBee ZCL
 --
 
 === New and Updated Capture File Support
