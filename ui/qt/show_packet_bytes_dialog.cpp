@@ -19,6 +19,7 @@
 #include "wsutil/utf8_entities.h"
 
 #include <QAction>
+#include <QClipboard>
 #include <QImage>
 #include <QJsonDocument>
 #include <QKeyEvent>

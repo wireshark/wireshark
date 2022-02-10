@@ -12,6 +12,7 @@
 #include <ui/qt/main_application.h>
 #include <ui/qt/main_window.h>
 
+#include <QClipboard>
 #include <QMenu>
 
 FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type, FilterAction::ActionDirection direction) :

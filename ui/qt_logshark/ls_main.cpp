@@ -81,7 +81,7 @@
 #include "ui/qt/utils/color_utils.h"
 #include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
-#include "ui/qt/main_window.h"
+#include "ui/qt_logshark/logwolf_main_window.h"
 #include "ui/qt/response_time_delay_dialog.h"
 #include "ui/qt/service_response_time_dialog.h"
 #include "ui/qt/simple_dialog.h"
@@ -418,7 +418,7 @@ macos_enable_layer_backing(void)
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *qt_argv[])
 {
-    MainWindow *main_w;
+    LogwolfMainWindow *main_w;
 
 #ifdef _WIN32
     LPWSTR              *wc_argv;
@@ -697,7 +697,7 @@ int main(int argc, char *qt_argv[])
     /* ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "Translator %s", language); */
 
     // Init the main window (and splash)
-    main_w = new(MainWindow);
+    main_w = new(LogwolfMainWindow);
     main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.

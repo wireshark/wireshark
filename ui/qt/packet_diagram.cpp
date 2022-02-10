@@ -19,14 +19,16 @@
 #include "main_application.h"
 
 #include "ui/qt/main_window.h"
+#include "ui/qt/capture_file_dialog.h"
 #include "ui/qt/utils/proto_node.h"
 #include "ui/qt/utils/variant_pointer.h"
 #include "ui/recent.h"
 
-
+#include <QClipboard>
 #include <QContextMenuEvent>
 #include <QGraphicsItem>
 #include <QMenu>
+#include <QStyleOptionGraphicsItem>
 
 #if defined(QT_SVG_LIB) && 0
 #include <QBuffer>

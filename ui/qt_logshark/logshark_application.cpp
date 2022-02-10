@@ -15,8 +15,8 @@ LogsharkApplication::LogsharkApplication(int &argc,  char **argv) :
     MainApplication(argc, argv)
 {
     lsApp = this;
-    setApplicationName("Logshark");
-    setDesktopFileName(QStringLiteral("org.wireshark.Logshark"));
+    setApplicationName("Logwolf");
+    setDesktopFileName(QStringLiteral("org.wireshark.Logwolf"));
 }
 
 LogsharkApplication::~LogsharkApplication()

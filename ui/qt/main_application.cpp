@@ -72,7 +72,7 @@
 #include <ui/qt/capture_file.h>
 
 #include <ui/qt/main_window.h>
-#include <ui_main_window.h>
+#include <ui/qt/main_status_bar.h>
 
 #include <QAction>
 #include <QApplication>
@@ -1301,10 +1301,10 @@ void MainApplication::pushStatus(StatusInfo status, const QString &message, cons
         return;
 
     MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
-    if (! mw->main_ui_ || ! mw->main_ui_->statusBar)
+    if (! mw->statusBar())
         return;
 
-    MainStatusBar * bar = mw->main_ui_->statusBar;
+    MainStatusBar * bar = mw->statusBar();
 
     switch(status)
     {
@@ -1335,10 +1335,10 @@ void MainApplication::popStatus(StatusInfo status)
         return;
 
     MainWindow * mw = qobject_cast<MainWindow *>(mainWindow());
-    if (! mw->main_ui_ || ! mw->main_ui_->statusBar)
+    if (! mw->statusBar())
         return;
 
-    MainStatusBar * bar = mw->main_ui_->statusBar;
+    MainStatusBar * bar = mw->statusBar();
 
     switch(status)
     {

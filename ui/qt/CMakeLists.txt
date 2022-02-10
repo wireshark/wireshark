@@ -245,6 +245,7 @@ set(WIRESHARK_QT_HEADERS
 	wireless_frame.h
 	wireshark_application.h
 	wireshark_dialog.h
+	wireshark_main_window.h
 	wlan_statistics_dialog.h
 	${WIRESHARK_CUSTOM_QT_HEADERS}
 )
@@ -425,7 +426,6 @@ set(WIRESHARK_QT_SRC
 	main_status_bar.cpp
 	main_window_layout.cpp
 	main_window_preferences_frame.cpp
-	main_window_slots.cpp
 	main_window.cpp
 	main.cpp
 	manage_interfaces_dialog.cpp
@@ -481,6 +481,8 @@ set(WIRESHARK_QT_SRC
 	wireless_frame.cpp
 	wireshark_application.cpp
 	wireshark_dialog.cpp
+	wireshark_main_window.cpp
+	wireshark_main_window_slots.cpp
 	${WIRESHARK_CUSTOM_QT_SRCS}
 )
 
@@ -563,7 +565,6 @@ set(WIRESHARK_QT_UI
 	lbm_stream_dialog.ui
 	lte_rlc_graph_dialog.ui
 	main_window_preferences_frame.ui
-	main_window.ui
 	manage_interfaces_dialog.ui
 	module_preferences_scroll_area.ui
 	mtp3_summary_dialog.ui
@@ -603,6 +604,7 @@ set(WIRESHARK_QT_UI
 	welcome_page.ui
 	widgets/splash_overlay.ui
 	wireless_frame.ui
+	wireshark_main_window.ui
 )
 
 if(HAVE_PCAP_REMOTE)

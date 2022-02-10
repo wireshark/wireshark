@@ -25,6 +25,7 @@
 #include <ui/qt/main_window.h>
 
 #include <models/packet_list_model.h>
+#include <models/pref_models.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/packet_list_header.h>
 

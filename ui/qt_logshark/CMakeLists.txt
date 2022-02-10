@@ -137,10 +137,6 @@ set(WIRESHARK_QT_HEADERS
 	../qt/about_dialog.h
 	../qt/accordion_frame.h
 	../qt/address_editor_frame.h
-	../qt/bluetooth_att_server_attributes_dialog.h
-	../qt/bluetooth_device_dialog.h
-	../qt/bluetooth_devices_dialog.h
-	../qt/bluetooth_hci_summary_dialog.h
 	../qt/byte_view_tab.h
 	../qt/capture_file_dialog.h
 	../qt/capture_file_properties_dialog.h
@@ -253,7 +249,6 @@ set(WIRESHARK_QT_HEADERS
 	../qt/welcome_page.h
 	../qt/wireless_frame.h
 	../qt/wireshark_dialog.h
-	../qt/wlan_statistics_dialog.h
 	../qt/${WIRESHARK_CUSTOM_QT_HEADERS}
 )
 
@@ -271,6 +266,7 @@ endif()
 
 set (LOGSHARK_QT_HEADERS
 	logshark_application.h
+	logwolf_main_window.h
 	${WIRESHARK_QT_HEADERS}
 )
 
@@ -390,10 +386,6 @@ set(WIRESHARK_QT_SRC
 	../qt/about_dialog.cpp
 	../qt/accordion_frame.cpp
 	../qt/address_editor_frame.cpp
-	../qt/bluetooth_att_server_attributes_dialog.cpp
-	../qt/bluetooth_device_dialog.cpp
-	../qt/bluetooth_devices_dialog.cpp
-	../qt/bluetooth_hci_summary_dialog.cpp
 	../qt/byte_view_tab.cpp
 	../qt/capture_file_dialog.cpp
 	../qt/capture_file_properties_dialog.cpp
@@ -448,9 +440,7 @@ set(WIRESHARK_QT_SRC
 	../qt/main_status_bar.cpp
 	../qt/main_window_layout.cpp
 	../qt/main_window_preferences_frame.cpp
-	../qt/main_window_slots.cpp
 	../qt/main_window.cpp
-	# ../qt/main.cpp
 	../qt/manage_interfaces_dialog.cpp
 	../qt/module_preferences_scroll_area.cpp
 	../qt/packet_comment_dialog.cpp
@@ -519,6 +509,8 @@ endif()
 
 set (LOGSHARK_QT_SRC
 	ls_main.cpp
+	logwolf_main_window.cpp
+	logwolf_main_window_slots.cpp
 	logshark_application.cpp
 	${WIRESHARK_QT_SRC})
 
@@ -535,7 +527,6 @@ set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/sctp_all_assocs_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/sctp_assoc_analyse_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/stats_tree_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/wlan_statistics_dialog.cpp
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
@@ -593,7 +584,6 @@ set(WIRESHARK_QT_UI
 	../qt/lbm_stream_dialog.ui
 	../qt/lte_rlc_graph_dialog.ui
 	../qt/main_window_preferences_frame.ui
-	../qt/main_window.ui
 	../qt/manage_interfaces_dialog.ui
 	../qt/module_preferences_scroll_area.ui
 	../qt/mtp3_summary_dialog.ui
@@ -641,7 +631,10 @@ if(HAVE_PCAP_REMOTE)
 	)
 endif()
 
-set (LOGSHARK_QT_UI ${WIRESHARK_QT_UI})
+set (LOGSHARK_QT_UI
+	logwolf_main_window.ui
+	${WIRESHARK_QT_UI}
+)
 
 set(WIRESHARK_QT_TS
 	../qt/wireshark_de.ts
