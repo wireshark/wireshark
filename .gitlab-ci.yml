@@ -221,6 +221,7 @@ Debian Stable APT Package:
   rules: !reference [.if-merged]
   image: registry.gitlab.com/wireshark/wireshark-containers/debian-stable-dev
   script:
+    - ln --symbolic --no-dereference --force packaging/debian
     - perl tools/make-version.pl --set-release
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -303,6 +304,7 @@ Ubuntu APT Package:
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
+    - ln --symbolic --no-dereference --force packaging/debian
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ MAKE=ninja dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - mkdir ubuntu-packages
     - mv ../*.deb ubuntu-packages/

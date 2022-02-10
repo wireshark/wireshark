@@ -17,7 +17,8 @@ fi
 
 DIST=$1
 VERSION=$(git describe --tags | sed 's/v//;s/-/~/g;s/rc/~rc/')
-rm debian/changelog || true
+ln --symbolic --no-dereference --force packaging/debian ./debian
+rm packaging/debian/changelog || true
 EDITOR=touch dch -p --package wireshark --create --force-distribution -v${VERSION}~${DIST}1 -D $DIST
-sed -i 's/\* Initial release.*/* Nightly build for '${DIST^}'/' debian/changelog
+sed -i 's/\* Initial release.*/* Nightly build for '${DIST^}'/' packaging/debian/changelog
 dpkg-buildpackage -S -d

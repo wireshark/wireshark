@@ -17,7 +17,7 @@ set -e
 
 for i in codecs wireshark wiretap wsutil; do
     NEW_VERSION=$(grep SOVERSION "$(grep -l lib${i} ./*/CMakeLists.txt)" | sed 's/.*SOVERSION \([0-9]*\).*/\1/')
-    rename "s/0\\./${NEW_VERSION}./" debian/lib${i}0.*
-    grep -l -R "lib${i}0" debian/ | xargs sed -i "s/lib${i}0/lib${i}${NEW_VERSION}/"
-    grep -l -R "lib${i}\\.so\\.0" debian/ | xargs sed -i "s/lib${i}\\.so\\.0/lib${i}.so.${NEW_VERSION}/"
+    rename "s/0\\./${NEW_VERSION}./" packaging/debian/lib${i}0.*
+    grep -l -R "lib${i}0" packaging/debian/ | xargs sed -i "s/lib${i}0/lib${i}${NEW_VERSION}/"
+    grep -l -R "lib${i}\\.so\\.0" packaging/debian/ | xargs sed -i "s/lib${i}\\.so\\.0/lib${i}.so.${NEW_VERSION}/"
 done

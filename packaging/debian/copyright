@@ -9,6 +9,7 @@ Comment: Wireshark and the "fin" logo are trademarks of Gerald Combs.
 License: GPL-2+
 
 Files: debian/*
+       packaging/debian/*
 Copyright: 1998-2008 Frederic Peters <fpeters@debian.org>
            2005-2009 Joost Yervante Damad <andete@debian.org>
            2009-2017 Balint Reczey <balint@balintreczey.hu>
