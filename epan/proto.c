@@ -3068,11 +3068,11 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
                             const gint start, gint length,
                             const guint encoding, gint32 *retval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	gint32		   value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_INT8:
@@ -3133,11 +3133,11 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
                              const gint start, gint length,
                              const guint encoding, guint32 *retval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	guint32		   value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_CHAR:
@@ -3429,11 +3429,11 @@ proto_item *
 proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, guint64 *retval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	guint64		   value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_UINT40:
@@ -3494,11 +3494,11 @@ proto_item *
 proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	const gint start, gint length, const guint encoding, gint64 *retval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	gint64		   value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_INT40:
@@ -3554,11 +3554,11 @@ proto_item *
 proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, guint64 *retval, gint *lenretval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	*new_fi;
 	guint64		value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	if ((!IS_FT_INT(hfinfo->type)) && (!IS_FT_UINT(hfinfo->type))) {
 		REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT or FT_INT",
@@ -3613,11 +3613,11 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
                                 const gint start, gint length,
                                 const guint encoding, gboolean *retval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	guint64		   value, bitval;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	if (hfinfo->type != FT_BOOLEAN) {
 		REPORT_DISSECTOR_BUG("field %s is not of type FT_BOOLEAN",
@@ -3665,11 +3665,11 @@ proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
                              const gint start, gint length,
                              const guint encoding, ws_in4_addr *retval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	ws_in4_addr	   value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_IPv4:
@@ -3723,11 +3723,11 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
                                           gint *lenretval)
 {
 	proto_item *pi;
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	const guint8	  *value;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_STRING:
@@ -3804,12 +3804,12 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
                                                   gint *lenretval)
 {
 	proto_item *pi;
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	const guint8	  *value;
 	guint32		   n = 0;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_STRING:
@@ -3921,11 +3921,11 @@ proto_tree_add_item_ret_time_string(proto_tree *tree, int hfindex,
 	const gint start, gint length, const guint encoding,
 	wmem_allocator_t *scope, char **retval)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	field_info	  *new_fi;
 	nstime_t    time_stamp;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_ABSOLUTE_TIME:
@@ -13105,14 +13105,14 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 		const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
 		packet_info *pinfo, guint32 computed_checksum, const guint encoding, const guint flags)
 {
-	header_field_info *hfinfo = proto_registrar_get_nth(hf_checksum);
+	header_field_info *hfinfo;
 	guint32 checksum;
 	guint32 len;
 	proto_item* ti = NULL;
 	proto_item* ti2;
 	gboolean incorrect_checksum = TRUE;
 
-	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+	PROTO_REGISTRAR_GET_NTH(hf_checksum, hfinfo);
 
 	switch (hfinfo->type) {
 	case FT_UINT8:
