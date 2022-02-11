@@ -59,6 +59,8 @@ WelcomePage::WelcomePage(QWidget *parent) :
 
     welcome_ui_->captureFilterComboBox->setEnabled(false);
 
+    welcome_ui_->mainWelcomeBanner->setText(tr("Welcome to %1").arg(mainApp->applicationName()));
+
     updateStyleSheets();
 
 

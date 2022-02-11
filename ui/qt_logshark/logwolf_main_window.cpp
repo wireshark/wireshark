@@ -2382,7 +2382,7 @@ QString LogwolfMainWindow::replaceWindowTitleVariables(QString title)
 void LogwolfMainWindow::setWSWindowTitle(QString title)
 {
     if (title.isEmpty()) {
-        title = tr("The Wireshark Network Analyzer");
+        title = tr("The Logwolf System Log Analyzer");
     }
 
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {
