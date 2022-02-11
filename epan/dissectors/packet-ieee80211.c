@@ -19533,8 +19533,12 @@ dissect_ssid_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
     offset++;
     proto_tree_add_uint(entry, hf_ieee80211_tag_length, tvb, offset, 1, len);
     offset++;
+    /* XXX: IEEE 802.11-2020 seems to say that these SSIDs are also affected
+     * by the UTF-8 Encoding bit in the Extended Capabilities element
+     * (though at least SSID List comes after Extended Capabilities).
+     */
     proto_tree_add_item(entry, hf_ieee80211_tag_ssid, tvb, offset, len,
-                        ENC_ASCII);
+                        ENC_NA);
     offset += len;
   }
 
@@ -24307,17 +24311,16 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
   /* 7.3.2.1 SSID element (0) */
-  gchar *ssid; /* The SSID may consist of arbitrary bytes */
-  gint ssid_len = tag_len;
+  gchar ssid[MAX_SSID_LEN]; /* The SSID may consist of arbitrary bytes */
+  gint ssid_len;
 
   if (beacon_padding != 0) /* padding bug */
     return offset;
 
-  if (ssid_len > MAX_SSID_LEN) {
+  if (tag_len > MAX_SSID_LEN) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
                            "SSID length (%u) greater than maximum (%u)",
-                           ssid_len, MAX_SSID_LEN);
-    ssid_len = MAX_SSID_LEN;
+                           tag_len, MAX_SSID_LEN);
   }
 
   /*
@@ -24345,32 +24348,47 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    *
    * and the SSIDEncoding parameter can either be UNSPECIFIED or UTF-8.
    *
+   * IEEE Std 802.11-2020, section 9.4.2.2 "SSID element" changes the
+   * wording to:
+   *
+   *    When the UTF-8 SSID subfield of the Extended Capabilities element is
+   *    equal to 1 in the frame that includes the SSID element, or the Extended
+   *    Capabilities of the source of the SSID information is known to include
+   *    the UTF-8 SSID capability based on a previously received Extended
+   *    Capabilities element, the SSID is a sequence of UTF-8 encoded code
+   *    points. Otherwise, the character encoding of the octets in this SSID
+   *    element is unspecified.
+   *
+   *    NOTE—If the SSID is a sequence of UTF-8 encoded code points, a
+   *    terminating null might or might not be present.
+   *
    * So I *guess* that means that, if the UTF-8 SSID subfield isn't
    * equal to 1, the SSID is, in theory, just a bunch of octets, but
-   * in practice, *probably* ASCII as that's the typical convention,
-   * and, if it is equal to 1, it's a UTF-8 string.  (Of course, a
-   * host can put anything there it wants to, so we shouldn't just
-   * assume that it's *valid* ASCII or *valid* UTF-8.)
+   * in practice, *probably* UTF-8 as that's the typical convention,
+   * and, if it is equal to 1, it's a possibly null-terminated UTF-8
+   * string.  (Of course, a host can put anything there it wants to,
+   * so we shouldn't just assume that it's *valid* ASCII or *valid* UTF-8.)
    *
    * So we really should extract it as an array of ssid_len bytes,
    * pass those bytes to Dot11DecryptSetLastSSID(), and:
    *
    *    If the UTF-8 SSID subfield isn't set to 1, put the SSID in
-   *    as an ENC_ASCII string;
+   *    a FT_BYTES as BASE_SHOW_UTF_8_PRINTABLE;
    *
    *    If the UTF-8 SSID subfield is set to 1, put it in as an
    *    ENC_UTF_8 string;
    *
-   * and rely on the libwireshark core code to somehow deal with
-   * non-ASCII characters or invalid UTF-8 sequences or valid-but-
-   * not-all-printable ASCII or UTF-8 strings in the protocol tree
-   * display.  I'm not sure we can currently rely on it to handle
-   * invalid UTF-8 or non-printable characters in UTF-8 strings,
-   * however, so we just treat it as ASCII for now.
-   *
-   * We also need a better way of getting the display format of a
-   * string value, so we can do something other than run it through
-   * format_text(), which won't handle UTF-8.
+   * XXX: Note that the Extended Capabilities tagged parameter is specified
+   * to come *after* the SSID parameter (and "Fields and elements appear
+   * in the specified, relative order" per 9.3.3.1 of IEEE 802.11 2020),
+   * isn't sent with Response frames, and isn't guaranteed to appear with
+   * Request frames (if none of the bits would be set, then it isn't
+   * mandatory). We could store the bit if it appears in the conversation
+   * data, which would handle Response frames and subsequent passes, but
+   * for the first pass we don't know the value of the subfield until later.
+   * We could store the proto_item with the ssid and add the string version
+   * later, or add the string always as a hidden item and make it visible
+   * later, or something else.
    *
    * Addendum: 802.11 2012 points out that a Zero-length SSID means
    * the Wildcard SSID. Make it so. From 8.4.2.2 of 802.11 2012:
@@ -24385,17 +24403,21 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    * one place and is used in call to dissector_try_uint_new, it is
    * OK to do so.
    */
-  ssid = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ssid_len, ENC_ASCII);
+  ssid_len = tvb_get_raw_bytes_as_string(tvb_new_subset_length(tvb, offset, tag_len), offset, ssid, MAX_SSID_LEN);
   if (ssid_len == (gint)tag_len) {
     Dot11DecryptSetLastSSID(&dot11decrypt_ctx, (CHAR *) ssid, ssid_len);
   }
-  proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset, tag_len,
-                      ENC_ASCII);
+  gchar *s;
+  /* XXX: 802.11-2020 9.4.2.2 notes that it might or might not include
+   * a terminating null when the UTF-8 SSID bit is set; if we handle
+   * that properly and add it as a ENC_UTF_8 FT_STRING, that will work,
+   * but the FT_BYTES BASE_SHOW_*_PRINTABLE doesn't handle an optional
+   * terminating null. (Maybe it should?) */
+  proto_tree_add_item_ret_display_string(tree, hf_ieee80211_tag_ssid, tvb,
+        offset, tag_len, ENC_NA, pinfo->pool, &s);
 
   if (ssid_len > 0) {
-    gchar* s = format_text(wmem_packet_scope(), ssid, ssid_len);
     proto_item_append_text(field_data->item_tag, ": %s", s);
-
     col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", s);
 
     /* Wlan Stats */
@@ -38759,7 +38781,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ssid,
      {"SSID", "wlan.ssid",
-      FT_STRING, BASE_NONE, NULL, 0,
+      FT_BYTES, BASE_SHOW_UTF_8_PRINTABLE, NULL, 0,
       "Indicates the identity of an ESS or IBSS", HFILL }},
 
     {&hf_ieee80211_tag_supp_rates,
