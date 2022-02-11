@@ -24,8 +24,8 @@
 
 #include "config.h"
 
-/* Start with G_MESSAGES_DEBUG=sftp to see messages. */
-#define G_LOG_DOMAIN "sftp"
+/* Start with WIRESHARK_LOG_DOMAINS=sftp and WIRESHARK_LOG_LEVEL=debug to see messages. */
+#define WS_LOG_DOMAIN "sftp"
 
 #include <epan/packet.h>
 #include <epan/expert.h>
