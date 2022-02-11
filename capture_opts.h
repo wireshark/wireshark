@@ -307,6 +307,9 @@ typedef struct capture_options_tag {
     gboolean           has_autostop_packets;  /**< TRUE if maximum packet count is
                                                    specified */
     int                autostop_packets;      /**< Maximum packet count */
+    gboolean           has_autostop_written_packets;  /**< TRUE if maximum packet count is
+                                                   specified */
+    int                autostop_written_packets;      /**< Maximum packet count */
     gboolean           has_autostop_filesize; /**< TRUE if maximum capture file size
                                                    is specified */
     guint32            autostop_filesize;     /**< Maximum capture file size in kB */

@@ -116,6 +116,8 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->autostop_files                  = 1;
     capture_opts->has_autostop_packets            = FALSE;
     capture_opts->autostop_packets                = 0;
+    capture_opts->has_autostop_written_packets    = FALSE;
+    capture_opts->autostop_written_packets        = 0;
     capture_opts->has_autostop_filesize           = FALSE;
     capture_opts->autostop_filesize               = 1000;             /* 1 MB */
     capture_opts->has_autostop_duration           = FALSE;
@@ -265,6 +267,7 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
 
     ws_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     ws_log(log_domain, log_level, "AutostopPackets (%u) : %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
+    ws_log(log_domain, log_level, "AutostopWrittenPackets (%u) : %u", capture_opts->has_autostop_written_packets, capture_opts->autostop_written_packets);
     ws_log(log_domain, log_level, "AutostopFilesize(%u) : %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
     ws_log(log_domain, log_level, "AutostopDuration(%u) : %.3f", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
     ws_log(log_domain, log_level, "Temporary Directory  : %s", capture_opts->temp_dir && capture_opts->temp_dir[0] ? capture_opts->temp_dir : g_get_tmp_dir());
@@ -315,8 +318,8 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
         capture_opts->has_autostop_files = TRUE;
         capture_opts->autostop_files = get_positive_int(p,"autostop files");
     } else if (strcmp(autostoparg,"packets") == 0) {
-        capture_opts->has_autostop_packets = TRUE;
-        capture_opts->autostop_packets = get_positive_int(p,"packet count");
+        capture_opts->has_autostop_written_packets = TRUE;
+        capture_opts->autostop_written_packets = get_positive_int(p,"packet write count");
     } else {
         return FALSE;
     }

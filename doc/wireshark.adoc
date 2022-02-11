@@ -189,7 +189,7 @@ filesize is reached.  Note that the filesize is limited to a maximum value of
 2 GiB.
 
 *packets*:__value__ Stop writing to a capture file after it contains __value__
-packets. Same as *-c*<capture packet count>.
+packets. Acts the same as *-c*<capture packet count>.
 --
 
 -b|--ring-buffer  <capture ring buffer option>::
@@ -266,7 +266,7 @@ the default capture buffer size is used instead.
 +
 --
 Set the maximum number of packets to read when capturing live
-data. Same as *-a packets:*<capture packet count>.
+data. Acts the same as *-a packets:*<capture packet count>.
 --
 
 -C  <configuration profile>::

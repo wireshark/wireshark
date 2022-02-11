@@ -244,7 +244,7 @@ typedef enum {
   PROCESS_FILE_ERROR,
   PROCESS_FILE_INTERRUPTED
 } process_file_status_t;
-static process_file_status_t process_cap_file(capture_file *, char *, int, gboolean, int, gint64);
+static process_file_status_t process_cap_file(capture_file *, char *, int, gboolean, int, gint64, int);
 
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, wtap_rec *rec, Buffer *buf,
@@ -2173,9 +2173,11 @@ main(int argc, char *argv[])
       status = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res,
 #ifdef HAVE_LIBPCAP
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
-          global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
+          global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0,
+          global_capture_opts.has_autostop_written_packets ? global_capture_opts.autostop_written_packets : 0);
 #else
           max_packet_count,
+          0,
           0);
 #endif
     }
@@ -3194,6 +3196,7 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
   epan_dissect_t *edt = NULL;
   gint64          data_offset;
   pass_status_t   status = PASS_SUCCEEDED;
+  int             framenum = 0;
 
   wtap_rec_init(&rec);
   ws_buffer_init(&buf, 1514);
@@ -3232,15 +3235,18 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
       status = PASS_INTERRUPTED;
       break;
     }
+    framenum++;
+
     if (process_packet_first_pass(cf, edt, data_offset, &rec, &buf)) {
-      /* Stop reading if we have the maximum number of packets;
-       * When the -c option has not been used, max_packet_count
-       * starts at 0, which practically means, never stop reading.
-       * (unless we roll over max_packet_count ?)
-       */
-      if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-        ws_debug("tshark: max_packet_count (%d) or max_byte_count (%" PRId64 "/%" PRId64 ") reached",
-                      max_packet_count, data_offset, max_byte_count);
+      /* Stop reading if we hit a stop condition */
+      if (max_packet_count > 0 && framenum >= max_packet_count) {
+        ws_debug("tshark: max_packet_count (%d) reached", max_packet_count);
+        *err = 0; /* This is not an error */
+        break;
+      }
+      if (max_byte_count != 0 && data_offset >= max_byte_count) {
+        ws_debug("tshark: max_byte_count (%" PRId64 "/%" PRId64 ") reached",
+            data_offset, max_byte_count);
         *err = 0; /* This is not an error */
         break;
       }
@@ -3382,11 +3388,13 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, int *err, gchar **err_info)
 static pass_status_t
 process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
                              int *err, gchar **err_info,
-                             volatile guint32 *err_framenum)
+                             volatile guint32 *err_framenum,
+                             int max_write_packet_count)
 {
   wtap_rec        rec;
   Buffer          buf;
-  guint32         framenum;
+  int             framenum = 0;
+  int             write_framenum = 0;
   frame_data     *fdata;
   gboolean        filtering_tap_listeners;
   guint           tap_flags;
@@ -3447,7 +3455,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
    */
   set_resolution_synchrony(TRUE);
 
-  for (framenum = 1; framenum <= cf->count; framenum++) {
+  for (framenum = 1; framenum <= (int)cf->count; framenum++) {
     if (read_interrupted) {
       status = PASS_INTERRUPTED;
       break;
@@ -3464,13 +3472,20 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
       /* Either there's no read filtering or this packet passed the
          filter, so, if we're writing to a capture file, write
          this packet out. */
+      write_framenum++;
       if (pdh != NULL) {
-        ws_debug("tshark: writing packet #%d to outfile", framenum);
+        ws_debug("tshark: writing packet #%d to outfile packet #%d", framenum, write_framenum);
         if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&buf), err, err_info)) {
           /* Error writing to the output file. */
           ws_debug("tshark: error writing to a capture file (%d)", *err);
           *err_framenum = framenum;
           status = PASS_WRITE_ERROR;
+          break;
+        }
+        /* Stop reading if we hit a stop condition */
+        if (max_write_packet_count > 0 && write_framenum >= max_write_packet_count) {
+          ws_debug("tshark: max_write_packet_count (%d) reached", max_write_packet_count);
+          *err = 0; /* This is not an error */
           break;
         }
       }
@@ -3490,6 +3505,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
 static pass_status_t
 process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
                              int max_packet_count, gint64 max_byte_count,
+                             int max_write_packet_count,
                              int *err, gchar **err_info,
                              volatile guint32 *err_framenum)
 {
@@ -3498,15 +3514,14 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
   gboolean create_proto_tree = FALSE;
   gboolean        filtering_tap_listeners;
   guint           tap_flags;
-  guint32         framenum;
+  int             framenum = 0;
+  int             write_framenum = 0;
   epan_dissect_t *edt = NULL;
   gint64          data_offset;
   pass_status_t   status = PASS_SUCCEEDED;
 
   wtap_rec_init(&rec);
   ws_buffer_init(&buf, 1514);
-
-  framenum = 0;
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -3581,8 +3596,10 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
       /* Either there's no read filtering or this packet passed the
          filter, so, if we're writing to a capture file, write
          this packet out. */
+      write_framenum++;
       if (pdh != NULL) {
-        ws_debug("tshark: writing packet #%d to outfile", framenum);
+        ws_debug("tshark: writing packet #%d to outfile as #%d",
+            framenum, write_framenum);
         if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&buf), err, err_info)) {
           /* Error writing to the output file. */
           ws_debug("tshark: error writing to a capture file (%d)", *err);
@@ -3592,14 +3609,20 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
         }
       }
     }
-    /* Stop reading if we have the maximum number of packets;
-     * When the -c option has not been used, max_packet_count
-     * starts at 0, which practically means, never stop reading.
-     * (unless we roll over max_packet_count ?)
-     */
-    if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-      ws_debug("tshark: max_packet_count (%d) or max_byte_count (%" PRId64 "/%" PRId64 ") reached",
-                    max_packet_count, data_offset, max_byte_count);
+    /* Stop reading if we hit a stop condition */
+    if (max_packet_count > 0 && framenum >= max_packet_count) {
+      ws_debug("tshark: max_packet_count (%d) reached", max_packet_count);
+      *err = 0; /* This is not an error */
+      break;
+    }
+    if (max_write_packet_count > 0 && write_framenum >= max_write_packet_count) {
+      ws_debug("tshark: max_write_packet_count (%d) reached", max_write_packet_count);
+      *err = 0; /* This is not an error */
+      break;
+    }
+    if (max_byte_count != 0 && data_offset >= max_byte_count) {
+      ws_debug("tshark: max_byte_count (%" PRId64 "/%" PRId64 ") reached",
+                    data_offset, max_byte_count);
       *err = 0; /* This is not an error */
       break;
     }
@@ -3621,7 +3644,8 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
 static process_file_status_t
 process_cap_file(capture_file *cf, char *save_file, int out_file_type,
-    gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
+    gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count,
+    int max_write_packet_count)
 {
   process_file_status_t status = PROCESS_FILE_SUCCEEDED;
   wtap_dumper *pdh;
@@ -3749,7 +3773,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
        * at the end.
        */
       second_pass_status = process_cap_file_second_pass(cf, pdh, &err, &err_info,
-                                                        &err_framenum);
+                                                        &err_framenum,
+                                                        max_write_packet_count);
 
       ws_debug("tshark: done with second pass");
     }
@@ -3762,6 +3787,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     second_pass_status = process_cap_file_single_pass(cf, pdh,
                                                       max_packet_count,
                                                       max_byte_count,
+                                                      max_write_packet_count,
                                                       &err, &err_info,
                                                       &err_framenum);
   }

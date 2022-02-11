@@ -4488,8 +4488,14 @@ capture_loop_wrote_one_packet(capture_src *pcap_src) {
         pcap_src->received++;
     }
 
-    /* check -c NUM / -a packets:NUM */
+    /* check -c NUM */
     if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
+        fflush(global_ld.pdh);
+        global_ld.go = FALSE;
+        return;
+    }
+    /* check -a packets:NUM (treat like -c NUM) */
+    if (global_capture_opts.has_autostop_written_packets && global_ld.packets_captured >= global_capture_opts.autostop_written_packets) {
         fflush(global_ld.pdh);
         global_ld.go = FALSE;
         return;

@@ -343,6 +343,13 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 
+    if (capture_opts->has_autostop_written_packets) {
+        char scount[ARGV_NUMBER_LEN];
+        argv = sync_pipe_add_arg(argv, &argc, "-a");
+        snprintf(scount, ARGV_NUMBER_LEN, "packets:%d",capture_opts->autostop_written_packets);
+        argv = sync_pipe_add_arg(argv, &argc, scount);
+    }
+
     if (capture_opts->group_read_access) {
         argv = sync_pipe_add_arg(argv, &argc, "-g");
     }

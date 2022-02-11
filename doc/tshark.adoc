@@ -184,7 +184,9 @@ packet  will be read, so more bytes than this number may be read).  Note that
 the filesize is limited to a maximum value of 2 GiB.
 
 *packets*:__value__ switch to the next file after it contains __value__
-packets. Same as *-c*<capture packet count>.
+packets.
+This does not include any packets that do not pass the display filter, so it
+may differ from *-c*<capture packet count>.
 --
 
 -A  <user>:<password>::
@@ -279,8 +281,10 @@ the default capture buffer size is used instead.
 +
 --
 Set the maximum number of packets to read when capturing live
-data. Same as *-a packets:*<capture packet count>.
+data.
 If reading a capture file, set the maximum number of packets to read.
+This includes any packets that do not pass the display filter, so it
+may differ from *-a packets:*<capture packet count>.
 --
 
 -C  <configuration profile>::
