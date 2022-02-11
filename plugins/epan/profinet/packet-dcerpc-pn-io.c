@@ -11351,6 +11351,8 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8012):   /* Maintenance required in all codings for one subslot */
     case(0x8013):   /* Maintenance demanded in all codings for one subslot */
     case(0x801e):   /* SubstituteValues for one subslot */
+    case(0x8020):   /* PDIRSubframeData for one subslot */
+    case(0x8027):   /* PDPortDataRealExtended for one subslot */
     case(0x8028):   /* RecordInputDataObjectElement for one subslot */
     case(0x8029):   /* RecordOutputDataObjectElement for one subslot */
     case(0x8050):   /* PDInterfaceMrpDataReal for one subslot */
@@ -11361,6 +11363,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8060):   /* PDPortFODataReal for one subslot */
     case(0x8061):   /* PDPortFODataCheck for one subslot */
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
+    case(0x8063):   /* PDPortSFPDataCheck for one subslot */
     case(0x8070):   /* PDNCDataCheck for one subslot */
     case(0x8071):   /* PDPortStatistic for one subslot */
     case(0x8080):   /* PDInterfaceDataReal */
@@ -11449,7 +11452,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x802e):   /* Expected PDSyncData for one subslot with SyncID value 0 for PTCPoverRTC */
     case(0x802f):   /* PDPortDataAdjust */
     case(0x8030):   /* IsochronousModeData for one subslot */
-    case(0x8031):   /* Expected PDSyncData for one subslot with SyncID value 1 */
+    case(0x8031):   /* PDTimeData for one subslot */
     case(0x8032):
     case(0x8033):
     case(0x8034):
@@ -11480,7 +11483,10 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x804d):
     case(0x804e):
     case(0x804f):   /* Expected PDSyncData for one subslot with SyncID value 31 */
-    case(0x8072):    /* PDPortStatistic for one subslot */
+    case(0x8055):   /* PDPortMrpIcDataAdjust for one subslot */
+    case(0x8056):   /* PDPortMrpIcDataCheck for one subslot */
+    case(0x8057):   /* PDPortMrpIcDataReal for one subslot */
+    case(0x8072):   /* PDPortStatistic for one subslot */
     case(0xc000):   /* ExpectedIdentificationData for one slot */
     case(0xc001):   /* RealIdentificationData for one slot */
     case(0xc00a):   /* Diagnosis in channel coding for one slot */
@@ -11815,11 +11821,15 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     case(0x802e):   /* Expected PDSyncData for one subslot with SyncID value 0 for PTCPoverRTC */
     case(0x802f):   /* PDPortDataAdjust for one subslot */
     case(0x8030):   /* IsochronousModeData for one subslot */
+    case(0x8031):   /* PDTimeData for one subslot */
     case(0x8051):   /* PDInterfaceMrpDataCheck for one subslot */
     case(0x8052):   /* PDInterfaceMrpDataAdjust for one subslot */
     case(0x8053):   /* PDPortMrpDataAdjust for one subslot */
+    case(0x8055):   /* PDPortMrpIcDataAdjust for one subslot */
+    case(0x8056):   /* PDPortMrpIcDataCheck for one subslot */
     case(0x8061):   /* PDPortFODataCheck for one subslot */
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
+    case(0x8063):   /* PDPortSFPDataCheck for one subslot */
     case(0x8070):   /* PDNCDataCheck for one subslot */
     case(0x8071):   /* PDInterfaceAdjust */
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
