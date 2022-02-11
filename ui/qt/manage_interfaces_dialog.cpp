@@ -559,67 +559,31 @@ void ManageInterfacesDialog::on_addRemote_clicked()
     dlg->show();
 }
 
-int  ManageInterfacesDialog::remoteInterfacesExists(char* device_name){
-    int exists = 0;
-    QTreeWidgetItemIterator it(ui->remoteList);
-
-    while (*it) {
-        QTreeWidgetItem * item = *it;
-
-        if ( 0 == strcmp( device_name , item->text(col_r_host_dev_).toStdString().c_str() ) ){
-            exists = 1;
-            break;
-        }
-        it++;
-
-    }
-
-    return exists;
-}
-
-QTreeWidgetItem* ManageInterfacesDialog::getRemoteHostItem( char* name ){
-    QTreeWidgetItemIterator it(ui->remoteList);
-
-    while (*it) {
-        QTreeWidgetItem * item = *it;
-
-        if ( item->text(col_r_host_dev_) == QString( name ) ){
-            return item;
-        }
-
-        it++;
-    }
-
-    QTreeWidgetItem* item = new QTreeWidgetItem(ui->remoteList);
-    item->setText(col_r_host_dev_, QString(name));
-    item->setExpanded(true);
-
-    return item;
-}
-
 void ManageInterfacesDialog::showRemoteInterfaces()
 {
     guint i;
     interface_t *device;
-    QTreeWidgetItem *item = NULL;
 
     // We assume that remote interfaces are grouped by host.
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        QTreeWidgetItem *child;
         device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
         if (!device->local) {
 
+            QList<QTreeWidgetItem*> items = ui->remoteList->findItems(QString(device->name), Qt::MatchCaseSensitive | Qt::MatchFixedString, col_r_host_dev_);
+
             // check if the QTreeWidgetItem for that interface already exists
-            if ( 1 == remoteInterfacesExists( device->name )){
-               continue;
+            if (items.count() == 0) {
+                items = ui->remoteList->findItems(QString(device->remote_opts.remote_host_opts.remote_host),
+                    Qt::MatchCaseSensitive | Qt::MatchFixedString, col_r_host_dev_);
+
+                if (items.count() == 0) {
+                    // get or create the QTreeWidgetItem for the host
+                    QTreeWidgetItem* item = items.at(0);
+                    QTreeWidgetItem* child = new QTreeWidgetItem(item);
+                    child->setCheckState(col_r_show_, device->hidden ? Qt::Unchecked : Qt::Checked);
+                    child->setText(col_r_host_dev_, QString(device->name));
+                }
             }
-
-            // get or create the QTreeWidgetItem for the host
-            item = getRemoteHostItem( device->remote_opts.remote_host_opts.remote_host );
-
-            child = new QTreeWidgetItem(item);
-            child->setCheckState(col_r_show_, device->hidden ? Qt::Unchecked : Qt::Checked);
-            child->setText(col_r_host_dev_, QString(device->name));
         }
     }
 }
