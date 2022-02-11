@@ -2554,6 +2554,12 @@ static void ssh_derive_symmetric_keys(ssh_bignum *secret, gchar *exchange_hash,
             ssh_debug_printf("ssh: cipher (%d) is unknown or not set\n", peer_data->cipher_id);
             ssh_debug_flush();
         }
+        if(peer_data->mac_id == CIPHER_MAC_SHA2_256){
+            need = 32;
+        }else{
+            ssh_debug_printf("ssh: MAC (%d) is unknown or not set\n", peer_data->mac_id);
+            ssh_debug_flush();
+        }
         if (we_need<need) {
             we_need = need;
         }
