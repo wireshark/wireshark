@@ -43,12 +43,11 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/pref_module_view.h
 	../qt/widgets/profile_tree_view.h
 	../qt/widgets/range_syntax_lineedit.h
-	../qt/widgets/rtp_audio_graph.h
 	../qt/widgets/splash_overlay.h
 	../qt/widgets/stock_icon_tool_button.h
 	../qt/widgets/syntax_line_edit.h
+	../qt/widgets/wireless_timeline.h # Required by PacketListModel
 	../qt/widgets/tabnav_tree_view.h
-	../qt/widgets/wireless_timeline.h
 	../qt/widgets/wireshark_file_dialog.h
 )
 
@@ -75,10 +74,6 @@ set(WIRESHARK_UTILS_HEADERS
 	../qt/utils/idata_printable.h
 	../qt/utils/proto_node.h
 	../qt/utils/qt_ui_utils.h
-	../qt/utils/rtp_audio_file.h
-	../qt/utils/rtp_audio_routing_filter.h
-	../qt/utils/rtp_audio_routing.h
-	../qt/utils/rtp_audio_silence_generator.h
 	../qt/utils/stock_icon.h
 	../qt/utils/tango_colors.h
 	../qt/utils/variant_pointer.h
@@ -126,7 +121,6 @@ set(WIRESHARK_MODEL_HEADERS
 	../qt/models/uat_delegate.h
 	../qt/models/uat_model.h
 	../qt/models/url_link_delegate.h
-	../qt/models/voip_calls_info_model.h
 )
 
 set (LOGSHARK_MODEL_HEADERS ${WIRESHARK_MODEL_HEADERS})
@@ -178,27 +172,18 @@ set(WIRESHARK_QT_HEADERS
 	../qt/funnel_string_dialog.h
 	../qt/funnel_text_dialog.h
 	../qt/geometry_state_dialog.h
-	../qt/gsm_map_summary_dialog.h
-	../qt/iax2_analysis_dialog.h
 	../qt/import_text_dialog.h
 	../qt/interface_frame.h
 	../qt/interface_toolbar_reader.h
 	../qt/interface_toolbar.h
 	../qt/io_graph_dialog.h
 	../qt/layout_preferences_frame.h
-	../qt/lbm_lbtrm_transport_dialog.h
-	../qt/lbm_lbtru_transport_dialog.h
-	../qt/lbm_stream_dialog.h
-	../qt/lte_mac_statistics_dialog.h
-	../qt/lte_rlc_graph_dialog.h
-	../qt/lte_rlc_statistics_dialog.h
 	../qt/main_application.h
 	../qt/main_status_bar.h
 	../qt/main_window_preferences_frame.h
 	../qt/main_window.h
 	../qt/manage_interfaces_dialog.h
 	../qt/module_preferences_scroll_area.h
-	../qt/mtp3_summary_dialog.h
 	../qt/multicast_statistics_dialog.h
 	../qt/packet_comment_dialog.h
 	../qt/packet_diagram.h
@@ -219,20 +204,11 @@ set(WIRESHARK_QT_HEADERS
 	../qt/response_time_delay_dialog.h
 	../qt/rpc_service_response_time_dialog.h
 	../qt/rsa_keys_frame.h
-	../qt/rtp_analysis_dialog.h
-	../qt/rtp_audio_stream.h
-	../qt/rtp_player_dialog.h
-	../qt/rtp_stream_dialog.h
 	../qt/scsi_service_response_time_dialog.h
-	../qt/sctp_all_assocs_dialog.h
-	../qt/sctp_assoc_analyse_dialog.h
-	../qt/sctp_chunk_statistics_dialog.h
-	../qt/sctp_graph_arwnd_dialog.h
-	../qt/sctp_graph_byte_dialog.h
-	../qt/sctp_graph_dialog.h
 	../qt/search_frame.h
-	../qt/sequence_diagram.h
-	../qt/sequence_dialog.h
+	# XXX Depends on RTP Stream Dialog
+	# ../qt/sequence_diagram.h
+	# ../qt/sequence_dialog.h
 	../qt/service_response_time_dialog.h
 	../qt/show_packet_bytes_dialog.h
 	../qt/simple_statistics_dialog.h
@@ -245,9 +221,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/traffic_table_dialog.h
 	../qt/uat_dialog.h
 	../qt/uat_frame.h
-	../qt/voip_calls_dialog.h
 	../qt/welcome_page.h
-	../qt/wireless_frame.h
 	../qt/wireshark_dialog.h
 	../qt/${WIRESHARK_CUSTOM_QT_HEADERS}
 )
@@ -298,12 +272,11 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/pref_module_view.cpp
 	../qt/widgets/profile_tree_view.cpp
 	../qt/widgets/range_syntax_lineedit.cpp
-	../qt/widgets/rtp_audio_graph.cpp
 	../qt/widgets/splash_overlay.cpp
 	../qt/widgets/stock_icon_tool_button.cpp
 	../qt/widgets/syntax_line_edit.cpp
+	../qt/widgets/wireless_timeline.cpp # Required by PacketListModel
 	../qt/widgets/tabnav_tree_view.cpp
-	../qt/widgets/wireless_timeline.cpp
 	../qt/widgets/wireshark_file_dialog.cpp
 )
 
@@ -329,10 +302,6 @@ set(WIRESHARK_UTILS_SRCS
 	../qt/utils/frame_information.cpp
 	../qt/utils/proto_node.cpp
 	../qt/utils/qt_ui_utils.cpp
-	../qt/utils/rtp_audio_file.cpp
-	../qt/utils/rtp_audio_routing_filter.cpp
-	../qt/utils/rtp_audio_routing.cpp
-	../qt/utils/rtp_audio_silence_generator.cpp
 	../qt/utils/stock_icon.cpp
 	../qt/utils/wireshark_mime_data.cpp
 	../qt/utils/wireshark_zip_helper.cpp
@@ -377,7 +346,6 @@ set(WIRESHARK_MODEL_SRCS
 	../qt/models/uat_delegate.cpp
 	../qt/models/uat_model.cpp
 	../qt/models/url_link_delegate.cpp
-	../qt/models/voip_calls_info_model.cpp
 )
 
 set (LOGSHARK_MODEL_SRCS ${WIRESHARK_MODEL_SRCS})
@@ -424,7 +392,6 @@ set(WIRESHARK_QT_SRC
 	../qt/funnel_string_dialog.cpp
 	../qt/funnel_text_dialog.cpp
 	../qt/geometry_state_dialog.cpp
-	../qt/iax2_analysis_dialog.cpp
 	../qt/import_text_dialog.cpp
 	../qt/interface_frame.cpp
 	../qt/interface_toolbar_reader.cpp
@@ -433,9 +400,6 @@ set(WIRESHARK_QT_SRC
 	../qt/lbm_lbtrm_transport_dialog.cpp
 	../qt/lbm_lbtru_transport_dialog.cpp
 	../qt/lbm_stream_dialog.cpp
-	../qt/lte_mac_statistics_dialog.cpp
-	../qt/lte_rlc_graph_dialog.cpp
-	../qt/lte_rlc_statistics_dialog.cpp
 	../qt/main_application.cpp
 	../qt/main_status_bar.cpp
 	../qt/main_window_layout.cpp
@@ -462,20 +426,11 @@ set(WIRESHARK_QT_SRC
 	../qt/response_time_delay_dialog.cpp
 	../qt/rpc_service_response_time_dialog.cpp
 	../qt/rsa_keys_frame.cpp
-	../qt/rtp_analysis_dialog.cpp
-	../qt/rtp_audio_stream.cpp
-	../qt/rtp_player_dialog.cpp
-	../qt/rtp_stream_dialog.cpp
 	../qt/scsi_service_response_time_dialog.cpp
-	../qt/sctp_all_assocs_dialog.cpp
-	../qt/sctp_assoc_analyse_dialog.cpp
-	../qt/sctp_chunk_statistics_dialog.cpp
-	../qt/sctp_graph_arwnd_dialog.cpp
-	../qt/sctp_graph_byte_dialog.cpp
-	../qt/sctp_graph_dialog.cpp
 	../qt/search_frame.cpp
-	../qt/sequence_diagram.cpp
-	../qt/sequence_dialog.cpp
+	# XXX Depends on RTP Stream Dialog
+	# ../qt/sequence_diagram.cpp
+	# ../qt/sequence_dialog.cpp
 	../qt/service_response_time_dialog.cpp
 	../qt/show_packet_bytes_dialog.cpp
 	../qt/simple_dialog.cpp
@@ -488,9 +443,7 @@ set(WIRESHARK_QT_SRC
 	../qt/traffic_table_dialog.cpp
 	../qt/uat_dialog.cpp
 	../qt/uat_frame.cpp
-	../qt/voip_calls_dialog.cpp
 	../qt/welcome_page.cpp
-	../qt/wireless_frame.cpp
 	../qt/wireshark_dialog.cpp
 	../qt/${WIRESHARK_CUSTOM_QT_SRCS}
 )
@@ -517,15 +470,8 @@ set (LOGSHARK_QT_SRC
 set(WIRESHARK_QT_TAP_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/expert_info_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/funnel_statistics.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/gsm_map_summary_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/io_graph_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/lte_mac_statistics_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/lte_rlc_statistics_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/mtp3_summary_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/multicast_statistics_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/rtp_stream_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/sctp_all_assocs_dialog.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../qt/sctp_assoc_analyse_dialog.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/../qt/stats_tree_dialog.cpp
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
@@ -542,10 +488,6 @@ set (LOGSHARK_QT_FILES ${WIRESHARK_QT_FILES})
 set(WIRESHARK_QT_UI
 	../qt/about_dialog.ui
 	../qt/address_editor_frame.ui
-	../qt/bluetooth_att_server_attributes_dialog.ui
-	../qt/bluetooth_device_dialog.ui
-	../qt/bluetooth_devices_dialog.ui
-	../qt/bluetooth_hci_summary_dialog.ui
 	../qt/capture_file_properties_dialog.ui
 	../qt/capture_info_dialog.ui
 	../qt/capture_options_dialog.ui
@@ -572,8 +514,6 @@ set(WIRESHARK_QT_UI
 	../qt/font_color_preferences_frame.ui
 	../qt/funnel_string_dialog.ui
 	../qt/funnel_text_dialog.ui
-	../qt/gsm_map_summary_dialog.ui
-	../qt/iax2_analysis_dialog.ui
 	../qt/import_text_dialog.ui
 	../qt/interface_frame.ui
 	../qt/interface_toolbar.ui
@@ -582,11 +522,9 @@ set(WIRESHARK_QT_UI
 	../qt/lbm_lbtrm_transport_dialog.ui
 	../qt/lbm_lbtru_transport_dialog.ui
 	../qt/lbm_stream_dialog.ui
-	../qt/lte_rlc_graph_dialog.ui
 	../qt/main_window_preferences_frame.ui
 	../qt/manage_interfaces_dialog.ui
 	../qt/module_preferences_scroll_area.ui
-	../qt/mtp3_summary_dialog.ui
 	../qt/packet_comment_dialog.ui
 	../qt/packet_dialog.ui
 	../qt/packet_format_group_box.ui
@@ -599,17 +537,9 @@ set(WIRESHARK_QT_UI
 	../qt/protocol_hierarchy_dialog.ui
 	../qt/resolved_addresses_dialog.ui
 	../qt/rsa_keys_frame.ui
-	../qt/rtp_analysis_dialog.ui
-	../qt/rtp_player_dialog.ui
-	../qt/rtp_stream_dialog.ui
-	../qt/sctp_all_assocs_dialog.ui
-	../qt/sctp_assoc_analyse_dialog.ui
-	../qt/sctp_chunk_statistics_dialog.ui
-	../qt/sctp_graph_arwnd_dialog.ui
-	../qt/sctp_graph_byte_dialog.ui
-	../qt/sctp_graph_dialog.ui
 	../qt/search_frame.ui
-	../qt/sequence_dialog.ui
+	# XXX Depends on RTP Stream Dialog
+	# ../qt/sequence_dialog.ui
 	../qt/show_packet_bytes_dialog.ui
 	../qt/supported_protocols_dialog.ui
 	../qt/tap_parameter_dialog.ui
@@ -618,10 +548,8 @@ set(WIRESHARK_QT_UI
 	../qt/traffic_table_dialog.ui
 	../qt/uat_dialog.ui
 	../qt/uat_frame.ui
-	../qt/voip_calls_dialog.ui
 	../qt/welcome_page.ui
 	../qt/widgets/splash_overlay.ui
-	../qt/wireless_frame.ui
 )
 
 if(HAVE_PCAP_REMOTE)

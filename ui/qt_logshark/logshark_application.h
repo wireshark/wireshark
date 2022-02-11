@@ -12,6 +12,10 @@
 
 #include <main_application.h>
 
+// To do:
+// - Remove SequenceDiagram dependency on RTPStreamDialog
+// - Remove PacketListModel dependency on WirelessTimeline
+
 class LogsharkApplication : public MainApplication
 {
 public:

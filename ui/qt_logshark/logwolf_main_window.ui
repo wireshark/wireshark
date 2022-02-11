@@ -123,9 +123,6 @@
      <widget class="FilterExpressionFrame" name="filterExpressionFrame"/>
     </item>
     <item>
-     <widget class="WirelessTimeline" name="wirelessTimelineWidget" native="true"/>
-    </item>
-    <item>
      <widget class="QStackedWidget" name="mainStack">
       <property name="enabled">
        <bool>true</bool>
@@ -141,7 +138,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -355,7 +352,6 @@
     </widget>
     <addaction name="actionViewMainToolbar"/>
     <addaction name="actionViewFilterToolbar"/>
-    <addaction name="actionViewWirelessToolbar"/>
     <addaction name="menuInterfaceToolbars"/>
     <addaction name="menuAdditionalToolbars"/>
     <addaction name="actionViewStatusBar"/>
@@ -404,14 +400,6 @@
       <string>Prepare as Filter</string>
      </property>
     </widget>
-    <widget class="QMenu" name="menuSCTP">
-     <property name="title">
-      <string>SCTP</string>
-     </property>
-     <addaction name="actionSCTPAnalyseThisAssociation"/>
-     <addaction name="actionSCTPShowAllAssociations"/>
-     <addaction name="actionSCTPFilterThisAssociation"/>
-    </widget>
     <widget class="QMenu" name="menuFollow">
      <property name="title">
       <string>Follow</string>
@@ -423,7 +411,6 @@
      <addaction name="actionAnalyzeFollowHTTPStream"/>
      <addaction name="actionAnalyzeFollowHTTP2Stream"/>
      <addaction name="actionAnalyzeFollowQUICStream"/>
-     <addaction name="actionAnalyzeFollowSIPCall"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -443,7 +430,6 @@
     <addaction name="actionAnalyzeDecodeAs"/>
     <addaction name="actionAnalyzeReloadLuaPlugins"/>
     <addaction name="separator"/>
-    <addaction name="menuSCTP"/>
     <addaction name="menuFollow"/>
     <addaction name="separator"/>
     <addaction name="actionAnalyzeShowPacketBytes"/>
@@ -526,6 +512,18 @@
       <string>Service &amp;Response Time</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuRSerPool">
+     <property name="title">
+      <string>Reliable Server Pooling (RSerPool)</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuSOMEIP">
+     <property name="title">
+      <string>SOME/IP</string>
+     </property>
+     <addaction name="actionStatisticsSOMEIPmessages"/>
+     <addaction name="actionStatisticsSOMEIPSDentries"/>
+    </widget>
     <addaction name="actionStatisticsCaptureFileProperties"/>
     <addaction name="actionStatisticsResolvedAddresses"/>
     <addaction name="actionStatisticsProtocolHierarchy"/>
@@ -550,91 +548,8 @@
     <addaction name="menuTcpStreamGraphs"/>
     <addaction name="actionStatisticsUdpMulticastStreams"/>
     <addaction name="menuRSerPool"/>
-    <widget class="QMenu" name="menuRSerPool">
-     <property name="title">
-      <string>Reliable Server Pooling (RSerPool)</string>
-     </property>
-    </widget>
     <addaction name="actionStatistics_REGISTER_STAT_GROUP_RSERPOOL"/>
     <addaction name="menuSOMEIP"/>
-    <widget class="QMenu" name="menuSOMEIP">
-     <property name="title">
-      <string>SOME/IP</string>
-     </property>
-     <addaction name="actionStatisticsSOMEIPmessages"/>
-     <addaction name="actionStatisticsSOMEIPSDentries"/>
-    </widget>
-   </widget>
-   <widget class="QMenu" name="menuTelephony">
-    <property name="title">
-     <string>Telephon&amp;y</string>
-    </property>
-    <widget class="QMenu" name="menuRTSP">
-     <property name="title">
-      <string>RTSP</string>
-     </property>
-     <addaction name="actionTelephonyRTSPPacketCounter"/>
-    </widget>
-    <widget class="QMenu" name="menuRTP">
-     <property name="title">
-      <string>&amp;RTP</string>
-     </property>
-     <addaction name="actionTelephonyRtpStreams"/>
-     <addaction name="actionTelephonyRtpStreamAnalysis"/>
-     <addaction name="actionTelephonyRtpPlayer"/>
-    </widget>
-    <widget class="QMenu" name="menuTelephonySCTP">
-     <property name="title">
-      <string>S&amp;CTP</string>
-     </property>
-     <addaction name="actionSCTPAnalyseThisAssociation"/>
-     <addaction name="actionSCTPShowAllAssociations"/>
-    </widget>
-    <widget class="QMenu" name="menuANSI">
-     <property name="title">
-      <string>&amp;ANSI</string>
-     </property>
-     <addaction name="actionTelephonyANSIPlaceholder"/>
-    </widget>
-    <widget class="QMenu" name="menuGSM">
-     <property name="title">
-      <string>&amp;GSM</string>
-     </property>
-     <addaction name="actionTelephonyGSMPlaceholder"/>
-    </widget>
-    <widget class="QMenu" name="menuLTE">
-     <property name="title">
-      <string>&amp;LTE</string>
-     </property>
-     <addaction name="actionTelephonyLTEPlaceholder"/>
-    </widget>
-    <widget class="QMenu" name="menuMTP3">
-     <property name="title">
-      <string>&amp;MTP3</string>
-     </property>
-     <addaction name="actionTelephonyMTP3Placeholder"/>
-    </widget>
-    <widget class="QMenu" name="menuOsmux">
-     <property name="title">
-      <string>Osmux</string>
-     </property>
-     <addaction name="actionTelephonyOsmuxPacketCounter"/>
-    </widget>
-    <addaction name="actionTelephonyVoipCalls"/>
-    <addaction name="menuANSI"/>
-    <addaction name="menuGSM"/>
-    <addaction name="actionTelephonyIax2StreamAnalysis"/>
-    <addaction name="actionTelephonyISUPMessages"/>
-    <addaction name="menuLTE"/>
-    <addaction name="menuMTP3"/>
-    <addaction name="menuOsmux"/>
-    <addaction name="menuRTP"/>
-    <addaction name="menuRTSP"/>
-    <addaction name="menuTelephonySCTP"/>
-    <addaction name="actionTelephonySMPPOperations"/>
-    <addaction name="actionTelephonyUCPMessages"/>
-    <addaction name="actionTelephonyF1APMessages"/>
-    <addaction name="actionTelephonyNGAPMessages"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -655,6 +570,11 @@
      <addaction name="actionEditCopyValue"/>
      <addaction name="separator"/>
      <addaction name="actionEditCopyAsFilter"/>
+    </widget>
+    <widget class="QMenu" name="menuPacketComment">
+     <property name="title">
+      <string>Packet Comments</string>
+     </property>
     </widget>
     <addaction name="menuEditCopy"/>
     <addaction name="actionEditFindPacket"/>
@@ -678,11 +598,6 @@
     <addaction name="separator"/>
     <addaction name="actionEditTimeShift"/>
     <addaction name="separator"/>
-    <widget class="QMenu" name="menuPacketComment">
-     <property name="title">
-      <string>Packet Comments</string>
-     </property>
-    </widget>
     <addaction name="menuPacketComment"/>
     <addaction name="actionDeleteAllPacketComments"/>
     <addaction name="separator"/>
@@ -703,8 +618,6 @@
    <addaction name="menuCapture"/>
    <addaction name="menuAnalyze"/>
    <addaction name="menuStatistics"/>
-   <addaction name="menuTelephony"/>
-   <addaction name="menuWireless"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -782,20 +695,6 @@
     <bool>true</bool>
    </attribute>
    <addaction name="actionNewDisplayFilterExpression"/>
-  </widget>
-  <widget class="QToolBar" name="wirelessToolBar">
-   <property name="windowTitle">
-    <string>Wireless Toolbar</string>
-   </property>
-   <property name="movable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>true</bool>
-   </attribute>
   </widget>
   <action name="actionFileOpen">
    <property name="text">
@@ -1767,30 +1666,12 @@
     <string>QUIC Stream</string>
    </property>
   </action>
-  <action name="actionAnalyzeFollowSIPCall">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>SIP Call</string>
-   </property>
-  </action>
   <action name="actionStatisticsTcpStreamTcptrace">
    <property name="text">
     <string>Time Sequence (tcptrace)</string>
    </property>
    <property name="toolTip">
     <string>TCP time sequence graph (tcptrace)</string>
-   </property>
-  </action>
-  <action name="actionSCTPAnalyseThisAssociation">
-   <property name="text">
-    <string>Analyse this Association</string>
-   </property>
-  </action>
-  <action name="actionSCTPShowAllAssociations">
-   <property name="text">
-    <string>Show All Associations</string>
    </property>
   </action>
   <action name="actionStatisticsFlowGraph">
@@ -1929,76 +1810,20 @@
     <string>Sametime statistics</string>
    </property>
   </action>
-   <action name="actionStatisticsSOMEIPmessages">
-     <property name="text">
-       <string>SOME/IP Messages</string>
-     </property>
-     <property name="toolTip">
-       <string>SOME/IP Message statistics</string>
-     </property>
-   </action>
-   <action name="actionStatisticsSOMEIPSDentries">
+  <action name="actionStatisticsSOMEIPmessages">
+   <property name="text">
+    <string>SOME/IP Messages</string>
+   </property>
+   <property name="toolTip">
+    <string>SOME/IP Message statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsSOMEIPSDentries">
    <property name="text">
     <string>SOME/IP-SD Entries</string>
    </property>
    <property name="toolTip">
     <string>SOME/IP-SD Entries statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyISUPMessages">
-   <property name="text">
-    <string>&amp;ISUP Messages</string>
-   </property>
-   <property name="toolTip">
-    <string>ISUP message statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyOsmuxPacketCounter">
-   <property name="text">
-    <string>Packet Counter</string>
-   </property>
-   <property name="toolTip">
-    <string>Osmux packet counts</string>
-   </property>
-  </action>
-  <action name="actionTelephonyRTSPPacketCounter">
-   <property name="text">
-    <string>Packet Counter</string>
-   </property>
-   <property name="toolTip">
-    <string>RTSP packet counts</string>
-   </property>
-  </action>
-  <action name="actionTelephonySMPPOperations">
-   <property name="text">
-    <string>SM&amp;PP Operations</string>
-   </property>
-   <property name="toolTip">
-    <string>SMPP operation statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyUCPMessages">
-   <property name="text">
-    <string>&amp;UCP Messages</string>
-   </property>
-   <property name="toolTip">
-    <string>UCP message statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyF1APMessages">
-   <property name="text">
-    <string>F1AP</string>
-   </property>
-   <property name="toolTip">
-    <string>F1AP Messages</string>
-   </property>
-  </action>
-  <action name="actionTelephonyNGAPMessages">
-   <property name="text">
-    <string>NGAP</string>
-   </property>
-   <property name="toolTip">
-    <string>NGAP Messages</string>
    </property>
   </action>
   <action name="actionAnalyzeDecodeAs">
@@ -2096,14 +1921,6 @@
   <action name="actionStatistics29WestLBTRU">
    <property name="text">
     <string>LBT-RU</string>
-   </property>
-  </action>
-  <action name="actionSCTPFilterThisAssociation">
-   <property name="text">
-    <string>Filter this Association</string>
-   </property>
-   <property name="toolTip">
-    <string>Filter this Association</string>
    </property>
   </action>
   <action name="actionFileExportPDU">
@@ -2466,17 +2283,6 @@
     <string>Show names for known TCP, UDP, and SCTP services. Lookups can generate traffic on some systems.</string>
    </property>
   </action>
-  <action name="actionViewWirelessToolbar">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Wire&amp;less Toolbar</string>
-   </property>
-   <property name="toolTip">
-    <string>Show or hide the wireless toolbar</string>
-   </property>
-  </action>
   <action name="actionViewStatusBar">
    <property name="checkable">
     <bool>true</bool>
@@ -2571,67 +2377,6 @@
     <string>Show the currently supported protocols and display filter fields</string>
    </property>
   </action>
-  <action name="actionTelephonyGsmMapSummary">
-   <property name="text">
-    <string>MAP Summary</string>
-   </property>
-   <property name="toolTip">
-    <string>GSM MAP summary statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyLteMacStatistics">
-   <property name="text">
-    <string>MAC Statistics</string>
-   </property>
-   <property name="toolTip">
-    <string>LTE MAC statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyLteRlcStatistics">
-   <property name="text">
-    <string>RLC Statistics</string>
-   </property>
-   <property name="toolTip">
-    <string>LTE RLC statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyLteRlcGraph">
-   <property name="text">
-    <string>RLC &amp;Graph</string>
-   </property>
-   <property name="toolTip">
-    <string>LTE RLC graph</string>
-   </property>
-  </action>
-  <action name="actionTelephonyMtp3Summary">
-   <property name="text">
-    <string>MTP3 Summary</string>
-   </property>
-   <property name="toolTip">
-    <string>MTP3 summary statistics</string>
-   </property>
-  </action>
-  <action name="actionTelephonyVoipCalls">
-   <property name="text">
-    <string>&amp;VoIP Calls</string>
-   </property>
-   <property name="toolTip">
-    <string>All VoIP Calls</string>
-   </property>
-  </action>
-  <action name="actionTelephonySipFlows">
-   <property name="text">
-    <string>SIP &amp;Flows</string>
-   </property>
-   <property name="toolTip">
-    <string>SIP Flows</string>
-   </property>
-  </action>
-  <action name="actionTelephonyRtpStreams">
-   <property name="text">
-    <string>RTP Streams</string>
-   </property>
-  </action>
   <action name="actionViewColoringRules">
    <property name="text">
     <string>&amp;Coloring Rules…</string>
@@ -2712,38 +2457,6 @@
    </property>
    <property name="menuRole">
     <enum>QAction::NoRole</enum>
-   </property>
-  </action>
-  <action name="actionTelephonyANSIPlaceholder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>No ANSI statistics registered</string>
-   </property>
-  </action>
-  <action name="actionTelephonyGSMPlaceholder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>No GSM statistics registered</string>
-   </property>
-  </action>
-  <action name="actionTelephonyLTEPlaceholder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>No LTE statistics registered</string>
-   </property>
-  </action>
-  <action name="actionTelephonyMTP3Placeholder">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>No MTP3 statistics registered</string>
    </property>
   </action>
   <action name="actionStatisticsResolvedAddresses">
@@ -2880,30 +2593,6 @@
     <string notr="true">Ctrl+Space</string>
    </property>
   </action>
-  <action name="actionTelephonyRtpStreamAnalysis">
-   <property name="text">
-    <string>RTP Stream Analysis</string>
-   </property>
-   <property name="toolTip">
-    <string>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</string>
-   </property>
-  </action>
-  <action name="actionTelephonyRtpPlayer">
-   <property name="text">
-    <string>RTP Player</string>
-   </property>
-   <property name="toolTip">
-    <string>Play selected stream. Press CTRL key for playing reverse stream too.</string>
-   </property>
-  </action>
-  <action name="actionTelephonyIax2StreamAnalysis">
-   <property name="text">
-    <string>IA&amp;X2 Stream Analysis</string>
-   </property>
-   <property name="toolTip">
-    <string>IAX2 Stream Analysis</string>
-   </property>
-  </action>
   <action name="actionViewEditResolvedName">
    <property name="text">
     <string>Edit Resolved Name</string>
@@ -3038,14 +2727,9 @@
    <header>filter_expression_frame.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>WirelessTimeline</class>
-   <extends>QWidget</extends>
-   <header>widgets/wireless_timeline.h</header>
-   <container>1</container>
-  </customwidget>
  </customwidgets>
  <resources>
+  <include location="../../image/stock_icons.qrc"/>
   <include location="../../image/stock_icons.qrc"/>
  </resources>
  <connections>

@@ -114,19 +114,13 @@ DIAG_ON(frame-larger-than=)
 #include "filter_dialog.h"
 #include "firewall_rules_dialog.h"
 #include "funnel_statistics.h"
-#include "gsm_map_summary_dialog.h"
-#include "iax2_analysis_dialog.h"
 #include "interface_toolbar.h"
 #include "io_graph_dialog.h"
 #include <ui/qt/widgets/additional_toolbar.h>
 #include "lbm_stream_dialog.h"
 #include "lbm_lbtrm_transport_dialog.h"
 #include "lbm_lbtru_transport_dialog.h"
-#include "lte_mac_statistics_dialog.h"
-#include "lte_rlc_statistics_dialog.h"
-#include "lte_rlc_graph_dialog.h"
 #include "main_application.h"
-#include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
 #include "packet_diagram.h"
@@ -140,12 +134,7 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "resolved_addresses_dialog.h"
 #include "rpc_service_response_time_dialog.h"
-#include "rtp_stream_dialog.h"
-#include "rtp_analysis_dialog.h"
-#include "sctp_all_assocs_dialog.h"
-#include "sctp_assoc_analyse_dialog.h"
-#include "sctp_graph_dialog.h"
-#include "sequence_dialog.h"
+//#include "sequence_dialog.h"
 #include "show_packet_bytes_dialog.h"
 #include "stats_tree_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
@@ -154,8 +143,6 @@ DIAG_ON(frame-larger-than=)
 #include "tcp_stream_dialog.h"
 #include "time_shift_dialog.h"
 #include "uat_dialog.h"
-#include "voip_calls_dialog.h"
-#include <ui/qt/widgets/wireless_timeline.h>
 
 #include <functional>
 #include <QClipboard>
@@ -330,9 +317,6 @@ void LogwolfMainWindow::layoutToolbars()
 
     main_ui_->mainToolBar->setVisible(recent.main_toolbar_show);
     main_ui_->displayFilterToolBar->setVisible(recent.filter_toolbar_show);
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    main_ui_->wirelessToolBar->setVisible(recent.wireless_toolbar_show);
-#endif
     main_ui_->statusBar->setVisible(recent.statusbar_show);
 
     foreach(QAction *action, main_ui_->menuInterfaceToolbars->actions()) {
@@ -377,7 +361,6 @@ void LogwolfMainWindow::updateRecentActions()
 {
     main_ui_->actionViewMainToolbar->setChecked(recent.main_toolbar_show);
     main_ui_->actionViewFilterToolbar->setChecked(recent.filter_toolbar_show);
-    main_ui_->actionViewWirelessToolbar->setChecked(recent.wireless_toolbar_show);
     main_ui_->actionViewStatusBar->setChecked(recent.statusbar_show);
     main_ui_->actionViewPacketList->setChecked(recent.packet_list_show && prefs_has_layout_pane_content(layout_pane_content_plist));
     main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show && prefs_has_layout_pane_content(layout_pane_content_pdetails));
@@ -755,7 +738,6 @@ void LogwolfMainWindow::captureFileReadStarted(const QString &action) {
     mainApp->pushStatus(WiresharkApplication::FileStatus, msg, msgtip);
     showCapture();
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
-    main_ui_->wirelessTimelineWidget->captureFileReadStarted(capture_file_.capFile());
 }
 
 void LogwolfMainWindow::captureFileReadFinished() {
@@ -769,9 +751,6 @@ void LogwolfMainWindow::captureFileReadFinished() {
 
     /* Update the appropriate parts of the main window. */
     updateForUnsavedChanges();
-
-    /* enable wireless timeline if capture allows it */
-    main_ui_->wirelessTimelineWidget->captureFileReadFinished();
 
     /* Enable menu items that make sense if you have some captured packets. */
     setForCapturedPackets(true);
@@ -1201,7 +1180,7 @@ void LogwolfMainWindow::setEditCommentsMenu()
 void LogwolfMainWindow::setMenusForSelectedPacket()
 {
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
-             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE, is_exported_pdu = FALSE;
+             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_exported_pdu = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1275,7 +1254,6 @@ void LogwolfMainWindow::setMenusForSelectedPacket()
             is_http2 = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http2");
             /* TODO: to follow a QUIC stream we need a *decrypted* QUIC connection, i.e. checking for "quic" in the protocol stack is not enough */
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
-            is_sip = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "sip");
             is_exported_pdu = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "exported_pdu");
             /* For Exported PDU there is a tag inserting IP addresses into the SRC and DST columns */
             if (is_exported_pdu &&
@@ -1330,7 +1308,6 @@ void LogwolfMainWindow::setMenusForSelectedPacket()
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
     main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
     main_ui_->actionAnalyzeFollowQUICStream->setEnabled(is_quic);
-    main_ui_->actionAnalyzeFollowSIPCall->setEnabled(is_sip);
 
     foreach(QAction *cc_action, cc_actions) {
         cc_action->setEnabled(frame_selected);
@@ -1354,15 +1331,7 @@ void LogwolfMainWindow::setMenusForSelectedPacket()
     main_ui_->actionStatisticsTcpStreamStevens->setEnabled(is_tcp);
     main_ui_->actionStatisticsTcpStreamTcptrace->setEnabled(is_tcp);
     main_ui_->actionStatisticsTcpStreamThroughput->setEnabled(is_tcp);
-    main_ui_->actionStatisticsTcpStreamWindowScaling->setEnabled(is_tcp);
-
-    main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
-    main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
-    main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
-    main_ui_->actionTelephonyRtpStreamAnalysis->setEnabled(is_rtp);
-    main_ui_->actionTelephonyRtpPlayer->setEnabled(is_rtp);
-    main_ui_->actionTelephonyLteRlcGraph->setEnabled(is_lte_rlc);
-}
+    main_ui_->actionStatisticsTcpStreamWindowScaling->setEnabled(is_tcp);}
 
 void LogwolfMainWindow::setMenusForSelectedTreeRow(FieldInformation *finfo) {
 
@@ -2406,11 +2375,6 @@ void LogwolfMainWindow::showHideMainWidgets(QAction *action)
     } else if (widget == main_ui_->displayFilterToolBar) {
         recent.filter_toolbar_show = show;
         main_ui_->actionViewFilterToolbar->setChecked(show);
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    } else if (widget == main_ui_->wirelessToolBar) {
-        recent.wireless_toolbar_show = show;
-        main_ui_->actionViewWirelessToolbar->setChecked(show);
-#endif
     } else if (widget == main_ui_->statusBar) {
         recent.statusbar_show = show;
         main_ui_->actionViewStatusBar->setChecked(show);
@@ -3019,71 +2983,6 @@ void LogwolfMainWindow::on_actionAnalyzeFollowQUICStream_triggered()
     openFollowStreamDialogForType(FOLLOW_QUIC);
 }
 
-void LogwolfMainWindow::on_actionAnalyzeFollowSIPCall_triggered()
-{
-    openFollowStreamDialogForType(FOLLOW_SIP);
-}
-
-void LogwolfMainWindow::openSCTPAllAssocsDialog()
-{
-    SCTPAllAssocsDialog *sctp_dialog = new SCTPAllAssocsDialog(this, capture_file_.capFile());
-    connect(sctp_dialog, SIGNAL(filterPackets(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-    connect(this, SIGNAL(setCaptureFile(capture_file*)),
-            sctp_dialog, SLOT(setCaptureFile(capture_file*)));
-    sctp_dialog->fillTable();
-
-    if (sctp_dialog->isMinimized() == true)
-    {
-        sctp_dialog->showNormal();
-    }
-    else
-    {
-        sctp_dialog->show();
-    }
-
-    sctp_dialog->raise();
-    sctp_dialog->activateWindow();
-}
-
-void LogwolfMainWindow::on_actionSCTPShowAllAssociations_triggered()
-{
-    openSCTPAllAssocsDialog();
-}
-
-void LogwolfMainWindow::on_actionSCTPAnalyseThisAssociation_triggered()
-{
-    const sctp_assoc_info_t* assoc = SCTPAssocAnalyseDialog::findAssocForPacket(capture_file_.capFile());
-    if (!assoc) {
-        return;
-    }
-    SCTPAssocAnalyseDialog *sctp_analyse = new SCTPAssocAnalyseDialog(this, assoc, capture_file_.capFile());
-    connect(sctp_analyse, SIGNAL(filterPackets(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-
-    if (sctp_analyse->isMinimized() == true)
-    {
-        sctp_analyse->showNormal();
-    }
-    else
-    {
-        sctp_analyse->show();
-    }
-
-    sctp_analyse->raise();
-    sctp_analyse->activateWindow();
-}
-
-void LogwolfMainWindow::on_actionSCTPFilterThisAssociation_triggered()
-{
-    const sctp_assoc_info_t* assoc = SCTPAssocAnalyseDialog::findAssocForPacket(capture_file_.capFile());
-    if (assoc) {
-        QString newFilter = QString("sctp.assoc_index==%1").arg(assoc->assoc_id);
-        assoc = NULL;
-        emit filterPackets(newFilter, false);
-    }
-}
-
 // -z expert
 void LogwolfMainWindow::statCommandExpertInfo(const char *, void *)
 {
@@ -3112,8 +3011,9 @@ void LogwolfMainWindow::on_actionAnalyzeExpertInfo_triggered()
 
 void LogwolfMainWindow::on_actionStatisticsFlowGraph_triggered()
 {
-    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
-    sequence_dialog->show();
+    QMessageBox::warning(this, "Oops", "SequenceDialog depends on RTPStreamDialog");
+//    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
+//    sequence_dialog->show();
 }
 
 void LogwolfMainWindow::openTcpStreamDialog(int graph_type)
@@ -3407,231 +3307,6 @@ void LogwolfMainWindow::on_actionStatisticsSOMEIPmessages_triggered()
 void LogwolfMainWindow::on_actionStatisticsSOMEIPSDentries_triggered()
 {
     openStatisticsTreeDialog("someipsd_entries");
-}
-
-// Telephony Menu
-
-RtpPlayerDialog *LogwolfMainWindow::openTelephonyRtpPlayerDialog()
-{
-    RtpPlayerDialog *dialog;
-
-#ifdef HAVE_LIBPCAP
-    dialog = RtpPlayerDialog::openRtpPlayerDialog(*this, capture_file_, packet_list_, captureSession()->state != CAPTURE_STOPPED);
-#else
-    dialog = RtpPlayerDialog::openRtpPlayerDialog(*this, capture_file_, packet_list_, false);
-#endif
-
-    dialog->show();
-
-    return dialog;
-}
-
-VoipCallsDialog *LogwolfMainWindow::openTelephonyVoipCallsDialogVoip()
-{
-    VoipCallsDialog *dialog;
-
-    dialog = VoipCallsDialog::openVoipCallsDialogVoip(*this, capture_file_, packet_list_);
-    dialog->show();
-
-    return dialog;
-}
-
-VoipCallsDialog *LogwolfMainWindow::openTelephonyVoipCallsDialogSip()
-{
-    VoipCallsDialog *dialog;
-
-    dialog = VoipCallsDialog::openVoipCallsDialogSip(*this, capture_file_, packet_list_);
-    dialog->show();
-
-    return dialog;
-}
-
-RtpAnalysisDialog *LogwolfMainWindow::openTelephonyRtpAnalysisDialog()
-{
-    RtpAnalysisDialog *dialog;
-
-    dialog = RtpAnalysisDialog::openRtpAnalysisDialog(*this, capture_file_, packet_list_);
-    dialog->show();
-
-    return dialog;
-}
-
-void LogwolfMainWindow::on_actionTelephonyVoipCalls_triggered()
-{
-    openTelephonyVoipCallsDialogVoip();
-}
-
-void LogwolfMainWindow::on_actionTelephonyGsmMapSummary_triggered()
-{
-    GsmMapSummaryDialog *gms_dialog = new GsmMapSummaryDialog(*this, capture_file_);
-    gms_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionTelephonyIax2StreamAnalysis_triggered()
-{
-    Iax2AnalysisDialog *iax2_analysis_dialog = new  Iax2AnalysisDialog(*this, capture_file_);
-    connect(iax2_analysis_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    iax2_analysis_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionTelephonyISUPMessages_triggered()
-{
-    openStatisticsTreeDialog("isup_msg");
-}
-
-// -z mac-lte,stat
-void LogwolfMainWindow::statCommandLteMacStatistics(const char *arg, void *)
-{
-    LteMacStatisticsDialog *lte_mac_stats_dlg = new LteMacStatisticsDialog(*this, capture_file_, arg);
-    connect(lte_mac_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    lte_mac_stats_dlg->show();
-}
-
-void LogwolfMainWindow::on_actionTelephonyLteMacStatistics_triggered()
-{
-    statCommandLteMacStatistics(NULL, NULL);
-}
-
-void LogwolfMainWindow::statCommandLteRlcStatistics(const char *arg, void *)
-{
-    LteRlcStatisticsDialog *lte_rlc_stats_dlg = new LteRlcStatisticsDialog(*this, capture_file_, arg);
-    connect(lte_rlc_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    // N.B. It is necessary for the RLC Statistics window to launch the RLC graph in this way, to ensure
-    // that the goToPacket() signal/slot connection gets set up...
-    connect(lte_rlc_stats_dlg, SIGNAL(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)),
-            this, SLOT(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)));
-
-    lte_rlc_stats_dlg->show();
-}
-
-void LogwolfMainWindow::on_actionTelephonyLteRlcStatistics_triggered()
-{
-    statCommandLteRlcStatistics(NULL, NULL);
-}
-
-void LogwolfMainWindow::launchRLCGraph(bool channelKnown,
-    guint16 ueid, guint8 rlcMode,
-    guint16 channelType, guint16 channelId, guint8 direction)
-{
-    LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_, channelKnown);
-    connect(lrg_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
-    // This is a bit messy, but wanted to hide these parameters from users of
-    // on_actionTelephonyLteRlcGraph_triggered().
-    if (channelKnown) {
-        lrg_dialog->setChannelInfo(ueid, rlcMode, channelType, channelId, direction);
-    }
-    lrg_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionTelephonyLteRlcGraph_triggered()
-{
-    // We don't yet know the channel.
-    launchRLCGraph(false, 0, 0, 0, 0, 0);
-}
-
-void LogwolfMainWindow::on_actionTelephonyMtp3Summary_triggered()
-{
-    Mtp3SummaryDialog *mtp3s_dialog = new Mtp3SummaryDialog(*this, capture_file_);
-    mtp3s_dialog->show();
-}
-
-void LogwolfMainWindow::on_actionTelephonyOsmuxPacketCounter_triggered()
-{
-    openStatisticsTreeDialog("osmux");
-}
-
-RtpStreamDialog *LogwolfMainWindow::openTelephonyRtpStreamsDialog()
-{
-    RtpStreamDialog *dialog;
-
-    dialog = RtpStreamDialog::openRtpStreamDialog(*this, capture_file_, packet_list_);
-    dialog->show();
-
-    return dialog;
-}
-
-void LogwolfMainWindow::on_actionTelephonyRtpStreams_triggered()
-{
-    openTelephonyRtpStreamsDialog();
-}
-
-void LogwolfMainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
-{
-    QVector<rtpstream_id_t *> stream_ids;
-    QString err;
-
-    if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
-        err = findRtpStreams(&stream_ids, true);
-    } else {
-        err = findRtpStreams(&stream_ids, false);
-    }
-    if (!err.isNull()) {
-        QMessageBox::warning(this, tr("RTP packet search failed"),
-                             err,
-                             QMessageBox::Ok);
-    } else {
-        openTelephonyRtpAnalysisDialog()->addRtpStreams(stream_ids);
-    }
-    foreach(rtpstream_id_t *id, stream_ids) {
-        rtpstream_id_free(id);
-    }
-}
-
-void LogwolfMainWindow::on_actionTelephonyRtpPlayer_triggered()
-{
-    QVector<rtpstream_id_t *> stream_ids;
-    QString err;
-
-    if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
-        err = findRtpStreams(&stream_ids, true);
-    } else {
-        err = findRtpStreams(&stream_ids, false);
-    }
-    if (!err.isNull()) {
-        QMessageBox::warning(this, tr("RTP packet search failed"),
-                             err,
-                             QMessageBox::Ok);
-#ifdef QT_MULTIMEDIA_LIB
-    } else {
-        openTelephonyRtpPlayerDialog()->addRtpStreams(stream_ids);
-#endif // QT_MULTIMEDIA_LIB
-    }
-    foreach(rtpstream_id_t *id, stream_ids) {
-        rtpstream_id_free(id);
-    }
-}
-
-void LogwolfMainWindow::on_actionTelephonyRTSPPacketCounter_triggered()
-{
-    openStatisticsTreeDialog("rtsp");
-}
-
-void LogwolfMainWindow::on_actionTelephonySMPPOperations_triggered()
-{
-    openStatisticsTreeDialog("smpp_commands");
-}
-
-void LogwolfMainWindow::on_actionTelephonyUCPMessages_triggered()
-{
-    openStatisticsTreeDialog("ucp_messages");
-}
-
-void LogwolfMainWindow::on_actionTelephonyF1APMessages_triggered()
-{
-	openStatisticsTreeDialog("f1ap");
-}
-
-void LogwolfMainWindow::on_actionTelephonyNGAPMessages_triggered()
-{
-    openStatisticsTreeDialog("ngap");
-}
-
-void LogwolfMainWindow::on_actionTelephonySipFlows_triggered()
-{
-    openTelephonyVoipCallsDialogSip();
 }
 
 // Tools Menu
@@ -4144,52 +3819,6 @@ void LogwolfMainWindow::activatePluginIFToolbar(bool)
             }
         }
     }
-}
-
-void LogwolfMainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids _U_)
-{
-#ifdef QT_MULTIMEDIA_LIB
-    openTelephonyRtpPlayerDialog()->replaceRtpStreams(stream_ids);
-#endif
-}
-
-void LogwolfMainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids _U_)
-{
-#ifdef QT_MULTIMEDIA_LIB
-    openTelephonyRtpPlayerDialog()->addRtpStreams(stream_ids);
-#endif
-}
-
-void LogwolfMainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids _U_)
-{
-#ifdef QT_MULTIMEDIA_LIB
-    openTelephonyRtpPlayerDialog()->removeRtpStreams(stream_ids);
-#endif
-}
-
-void LogwolfMainWindow::rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
-{
-    openTelephonyRtpAnalysisDialog()->replaceRtpStreams(stream_ids);
-}
-
-void LogwolfMainWindow::rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids)
-{
-    openTelephonyRtpAnalysisDialog()->addRtpStreams(stream_ids);
-}
-
-void LogwolfMainWindow::rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids)
-{
-    openTelephonyRtpAnalysisDialog()->removeRtpStreams(stream_ids);
-}
-
-void LogwolfMainWindow::rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_ids)
-{
-    openTelephonyRtpStreamsDialog()->selectRtpStream(stream_ids);
-}
-
-void LogwolfMainWindow::rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids)
-{
-    openTelephonyRtpStreamsDialog()->deselectRtpStream(stream_ids);
 }
 
 #ifdef _MSC_VER

@@ -73,9 +73,6 @@
 #include <ui/qt/widgets/display_filter_combo.h>
 #include "follow_stream_dialog.h"
 #include "main_window.h"
-#include "rtp_stream_dialog.h"
-#include "voip_calls_dialog.h"
-#include "rtp_analysis_dialog.h"
 
 class AccordionFrame;
 class ByteViewTab;
@@ -89,9 +86,6 @@ class PacketCommentDialog;
 class PacketDiagram;
 class PacketList;
 class ProtoTree;
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-class WirelessFrame;
-#endif
 class FilterExpressionToolBar;
 class WiresharkApplication;
 
@@ -175,9 +169,6 @@ private:
     CaptureFile capture_file_;
     QFont mono_font_;
     QMap<QString, QTextCodec *> text_codec_map_;
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    WirelessFrame *wireless_frame_;
-#endif
     QWidget *previous_focus_;
     FileSetDialog *file_set_dialog_;
     QActionGroup *show_hide_actions_;
@@ -281,8 +272,6 @@ signals:
     void fieldHighlight(FieldInformation *);
 
     void captureActive(int);
-    void selectRtpStream(rtpstream_id_t *id);
-    void deselectRtpStream(rtpstream_id_t *id);
 
 #ifdef HAVE_LIBPCAP
     void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
@@ -323,19 +312,7 @@ public slots:
     void captureFileClosing();
     void captureFileClosed();
 
-    void launchRLCGraph(bool channelKnown, guint16 ueid, guint8 rlcMode,
-                        guint16 channelType, guint16 channelId, guint8 direction);
-
     void on_actionViewFullScreen_triggered(bool checked);
-
-    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
-    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids);
-    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids);
-    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
-    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids);
-    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids);
-    void rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
-    void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
 private slots:
 
@@ -563,7 +540,6 @@ private slots:
     void on_actionAnalyzeFollowHTTPStream_triggered();
     void on_actionAnalyzeFollowHTTP2Stream_triggered();
     void on_actionAnalyzeFollowQUICStream_triggered();
-    void on_actionAnalyzeFollowSIPCall_triggered();
 
     void statCommandExpertInfo(const char *, void *);
     void on_actionAnalyzeExpertInfo_triggered();
@@ -608,10 +584,6 @@ private slots:
     void on_actionStatisticsTcpStreamThroughput_triggered();
     void on_actionStatisticsTcpStreamRoundTripTime_triggered();
     void on_actionStatisticsTcpStreamWindowScaling_triggered();
-    void openSCTPAllAssocsDialog();
-    void on_actionSCTPShowAllAssociations_triggered();
-    void on_actionSCTPAnalyseThisAssociation_triggered();
-    void on_actionSCTPFilterThisAssociation_triggered();
     void statCommandMulticastStatistics(const char *arg, void *);
     void on_actionStatisticsUdpMulticastStreams_triggered();
 
@@ -656,32 +628,6 @@ private slots:
     void on_actionStatisticsSOMEIPmessages_triggered();
     void on_actionStatisticsSOMEIPSDentries_triggered();
 
-    RtpStreamDialog *openTelephonyRtpStreamsDialog();
-    RtpPlayerDialog *openTelephonyRtpPlayerDialog();
-    VoipCallsDialog *openTelephonyVoipCallsDialogVoip();
-    VoipCallsDialog *openTelephonyVoipCallsDialogSip();
-    RtpAnalysisDialog *openTelephonyRtpAnalysisDialog();
-    void on_actionTelephonyVoipCalls_triggered();
-    void on_actionTelephonyGsmMapSummary_triggered();
-    void statCommandLteMacStatistics(const char *arg, void *);
-    void on_actionTelephonyLteRlcStatistics_triggered();
-    void statCommandLteRlcStatistics(const char *arg, void *);
-    void on_actionTelephonyLteMacStatistics_triggered();
-    void on_actionTelephonyLteRlcGraph_triggered();
-    void on_actionTelephonyIax2StreamAnalysis_triggered();
-    void on_actionTelephonyISUPMessages_triggered();
-    void on_actionTelephonyMtp3Summary_triggered();
-    void on_actionTelephonyOsmuxPacketCounter_triggered();
-    void on_actionTelephonyRtpStreams_triggered();
-    void on_actionTelephonyRtpStreamAnalysis_triggered();
-    void on_actionTelephonyRtpPlayer_triggered();
-    void on_actionTelephonyRTSPPacketCounter_triggered();
-    void on_actionTelephonySMPPOperations_triggered();
-    void on_actionTelephonyUCPMessages_triggered();
-    void on_actionTelephonyF1APMessages_triggered();
-    void on_actionTelephonyNGAPMessages_triggered();
-    void on_actionTelephonySipFlows_triggered();
-
     void on_actionToolsFirewallAclRules_triggered();
     void on_actionToolsCredentials_triggered();
 
@@ -694,8 +640,6 @@ private slots:
 
     void extcap_options_finished(int result);
     void showExtcapOptionsDialog(QString & device_name, bool startCaptureOnClose);
-
-    QString findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse);
 
     friend class MainApplication;
 };

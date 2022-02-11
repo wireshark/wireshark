@@ -66,8 +66,6 @@ DIAG_ON(frame-larger-than=)
 #include "proto_tree.h"
 #include "simple_dialog.h"
 #include "tap_parameter_dialog.h"
-#include "wireless_frame.h"
-#include <ui/qt/widgets/wireless_timeline.h>
 
 #include <ui/qt/widgets/additional_toolbar.h>
 #include <ui/qt/widgets/display_filter_edit.h>
@@ -364,13 +362,6 @@ LogwolfMainWindow::LogwolfMainWindow(QWidget *parent) :
 #ifdef HAVE_SOFTWARE_UPDATE
     update_action_ = new QAction(tr("Check for Updates…"), main_ui_->menuHelp);
 #endif
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    wireless_frame_ = new WirelessFrame(this);
-    main_ui_->wirelessToolBar->addWidget(wireless_frame_);
-#else
-    removeToolBar(main_ui_->wirelessToolBar);
-    main_ui_->menuView->removeAction(main_ui_->actionViewWirelessToolbar);
-#endif
 
     setWindowIcon(mainApp->normalIcon());
     setTitlebarForCaptureFile();
@@ -446,11 +437,6 @@ LogwolfMainWindow::LogwolfMainWindow(QWidget *parent) :
 
     main_ui_->displayFilterToolBar->addWidget(filter_expression_toolbar_);
 
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    connect(wireless_frame_, SIGNAL(showWirelessPreferences(QString)),
-            this, SLOT(showPreferencesDialog(QString)));
-#endif
-
     main_ui_->goToFrame->hide();
     connect(main_ui_->goToFrame, SIGNAL(visibilityChanged(bool)),
             main_ui_->actionGoGoToPacket, SLOT(setChecked(bool)));
@@ -511,7 +497,6 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     empty_pane_.setVisible(false);
 
     packet_list_ = new PacketList(&master_split_);
-    main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
     connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SLOT(setMenusForSelectedPacket()));
     connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SIGNAL(framesSelected(QList<int>)));
 
@@ -758,9 +743,6 @@ QMenu *LogwolfMainWindow::createPopupMenu()
     QMenu *menu = new QMenu();
     menu->addAction(main_ui_->actionViewMainToolbar);
     menu->addAction(main_ui_->actionViewFilterToolbar);
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    menu->addAction(main_ui_->actionViewWirelessToolbar);
-#endif
 
     if (!main_ui_->menuInterfaceToolbars->actions().isEmpty()) {
         QMenu *submenu = menu->addMenu(main_ui_->menuInterfaceToolbars->title());
@@ -2152,9 +2134,6 @@ void LogwolfMainWindow::initShowHideMainWidgets()
     show_hide_actions_->setExclusive(false);
     shmw_actions[main_ui_->actionViewMainToolbar] = main_ui_->mainToolBar;
     shmw_actions[main_ui_->actionViewFilterToolbar] = main_ui_->displayFilterToolBar;
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    shmw_actions[main_ui_->actionViewWirelessToolbar] = main_ui_->wirelessToolBar;
-#endif
     shmw_actions[main_ui_->actionViewStatusBar] = main_ui_->statusBar;
     shmw_actions[main_ui_->actionViewPacketList] = packet_list_;
     shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
@@ -2639,10 +2618,6 @@ void LogwolfMainWindow::setForCaptureInProgress(bool capture_in_progress, bool h
 {
     setMenusForCaptureInProgress(capture_in_progress);
 
-#if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
-    wireless_frame_->setCaptureInProgress(capture_in_progress);
-#endif
-
 #ifdef HAVE_LIBPCAP
     packet_list_->setCaptureInProgress(capture_in_progress);
     packet_list_->setVerticalAutoScroll(capture_in_progress && main_ui_->actionGoAutoScroll->isChecked());
@@ -2671,12 +2646,6 @@ static QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
             << REGISTER_STAT_GROUP_ENDPOINT_LIST
             << REGISTER_STAT_GROUP_RESPONSE_TIME
             << REGISTER_STAT_GROUP_RSERPOOL
-            << REGISTER_STAT_GROUP_TELEPHONY
-            << REGISTER_STAT_GROUP_TELEPHONY_ANSI
-            << REGISTER_STAT_GROUP_TELEPHONY_GSM
-            << REGISTER_STAT_GROUP_TELEPHONY_LTE
-            << REGISTER_STAT_GROUP_TELEPHONY_MTP3
-            << REGISTER_STAT_GROUP_TELEPHONY_SCTP
             << REGISTER_TOOLS_GROUP_UNSORTED;
 
 void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
@@ -2694,21 +2663,6 @@ void LogwolfMainWindow::addMenuActions(QList<QAction *> &actions, int menu_group
             break;
         case REGISTER_STAT_GROUP_RSERPOOL:
             main_ui_->menuRSerPool->addAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY:
-            main_ui_->menuTelephony->addAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
-            main_ui_->menuANSI->addAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_GSM:
-            main_ui_->menuGSM->addAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_LTE:
-            main_ui_->menuLTE->addAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
-            main_ui_->menuMTP3->addAction(action);
             break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
@@ -2761,21 +2715,6 @@ void LogwolfMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_gr
         case REGISTER_STAT_GROUP_RSERPOOL:
             main_ui_->menuRSerPool->removeAction(action);
             break;
-        case REGISTER_STAT_GROUP_TELEPHONY:
-            main_ui_->menuTelephony->removeAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_ANSI:
-            main_ui_->menuANSI->removeAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_GSM:
-            main_ui_->menuGSM->removeAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_LTE:
-            main_ui_->menuLTE->removeAction(action);
-            break;
-        case REGISTER_STAT_GROUP_TELEPHONY_MTP3:
-            main_ui_->menuMTP3->removeAction(action);
-            break;
         case REGISTER_TOOLS_GROUP_UNSORTED:
         {
             // Allow removal of submenus.
@@ -2799,34 +2738,10 @@ void LogwolfMainWindow::removeMenuActions(QList<QAction *> &actions, int menu_gr
 
 void LogwolfMainWindow::addDynamicMenus()
 {
-    // Manual additions
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_GSM, main_ui_->actionTelephonyGsmMapSummary);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteMacStatistics);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcStatistics);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_LTE, main_ui_->actionTelephonyLteRlcGraph);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY_MTP3, main_ui_->actionTelephonyMtp3Summary);
-    mainApp->addDynamicMenuGroupItem(REGISTER_STAT_GROUP_TELEPHONY, main_ui_->actionTelephonySipFlows);
-
     // Fill in each menu
     foreach(register_stat_group_t menu_group, menu_groups) {
         QList<QAction *>actions = mainApp->dynamicMenuGroupItems(menu_group);
         addMenuActions(actions, menu_group);
-    }
-
-    // Empty menus don't show up: https://bugreports.qt.io/browse/QTBUG-33728
-    // We've added a placeholder in order to make sure some menus are visible.
-    // Hide them as needed.
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_ANSI).length() > 0) {
-        main_ui_->actionTelephonyANSIPlaceholder->setVisible(false);
-    }
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_GSM).length() > 0) {
-        main_ui_->actionTelephonyGSMPlaceholder->setVisible(false);
-    }
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_LTE).length() > 0) {
-        main_ui_->actionTelephonyLTEPlaceholder->setVisible(false);
-    }
-    if (mainApp->dynamicMenuGroupItems(REGISTER_STAT_GROUP_TELEPHONY_MTP3).length() > 0) {
-        main_ui_->actionTelephonyMTP3Placeholder->setVisible(false);
     }
 }
 
@@ -3031,130 +2946,3 @@ frame_data * LogwolfMainWindow::frameDataForRow(int row) const
 
     return Q_NULLPTR;
 }
-
-// Finds rtp id for selected stream and adds it to stream_ids
-// If reverse is set, tries to find reverse stream too
-// Return error string if error happens
-//
-// Note: Caller must free each returned rtpstream_info_t
-QString LogwolfMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse)
-{
-    rtpstream_tapinfo_t tapinfo;
-    rtpstream_id_t *fwd_id, *rev_id;
-    bool fwd_id_used, rev_id_used;
-    const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
-    dfilter_t *sfcode;
-    gchar *err_msg;
-
-    /* Try to get the hfid for "rtp.ssrc". */
-    int hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
-    if (hfid_rtp_ssrc == -1) {
-        return tr("There is no \"rtp.ssrc\" field in this version of Wireshark.");
-    }
-
-    /* Try to compile the filter. */
-    if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
-        QString err = QString(err_msg);
-        g_free(err_msg);
-        return err;
-    }
-
-    if (!capture_file_.capFile() || !capture_file_.capFile()->current_frame) close();
-
-    if (!cf_read_current_record(capture_file_.capFile())) close();
-
-    frame_data *fdata = capture_file_.capFile()->current_frame;
-
-    epan_dissect_t edt;
-
-    epan_dissect_init(&edt, capture_file_.capFile()->epan, true, false);
-    epan_dissect_prime_with_dfilter(&edt, sfcode);
-    epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
-    epan_dissect_run(&edt, capture_file_.capFile()->cd_t,
-                     &capture_file_.capFile()->rec,
-                     frame_tvbuff_new_buffer(
-                         &capture_file_.capFile()->provider, fdata,
-                         &capture_file_.capFile()->buf),
-                     fdata, NULL);
-
-    /*
-     * Packet must be an RTPv2 packet with an SSRC; we use the filter to
-     * check.
-     */
-    if (!dfilter_apply_edt(sfcode, &edt)) {
-        epan_dissect_cleanup(&edt);
-        dfilter_free(sfcode);
-        return tr("Please select an RTPv2 packet with an SSRC value");
-    }
-
-    dfilter_free(sfcode);
-
-    /* We need the SSRC value of the current frame; try to get it. */
-    GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
-    if (gp == NULL || gp->len == 0) {
-        /* XXX - should not happen, as the filter includes rtp.ssrc */
-        epan_dissect_cleanup(&edt);
-        return tr("SSRC value not found.");
-    }
-
-    /*
-     * OK, we have the SSRC value, so we can proceed.
-     * Allocate RTP stream ID structures.
-     */
-    fwd_id = g_new0(rtpstream_id_t, 1);
-    fwd_id_used = false;
-    rev_id = g_new0(rtpstream_id_t, 1);
-    rev_id_used = false;
-
-    /* Get the IP and port values for the forward direction. */
-    rtpstream_id_copy_pinfo(&(edt.pi), fwd_id, false);
-
-    /* assume the inverse ip/port combination for the reverse direction */
-    rtpstream_id_copy_pinfo(&(edt.pi), rev_id, true);
-
-    /* Save the SSRC value for the forward direction. */
-    fwd_id->ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
-
-    epan_dissect_cleanup(&edt);
-
-    /* Register the tap listener */
-    memset(&tapinfo, 0, sizeof(rtpstream_tapinfo_t));
-    tapinfo.tap_data = this;
-    tapinfo.mode = TAP_ANALYSE;
-
-    /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo, capture_file_.capFile(), Q_NULLPTR);
-
-    for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
-        rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
-        if (rtpstream_id_equal(&(strinfo->id), fwd_id,RTPSTREAM_ID_EQUAL_NONE))
-        {
-            *stream_ids << fwd_id;
-            fwd_id_used = true;
-        }
-
-        if (rtpstream_id_equal(&(strinfo->id), rev_id,RTPSTREAM_ID_EQUAL_NONE))
-        {
-            if (rev_id->ssrc == 0) {
-                rev_id->ssrc = strinfo->id.ssrc;
-            }
-            if (reverse) {
-                *stream_ids << rev_id;
-                rev_id_used = true;
-            }
-        }
-    }
-
-    //
-    // XXX - is it guaranteed that fwd_id and rev_id were both added to
-    // *stream_ids?  If so, this isn't necessary.
-    //
-    if (!fwd_id_used) {
-        rtpstream_id_free(fwd_id);
-    }
-    if (!rev_id_used) {
-        rtpstream_id_free(rev_id);
-    }
-    return NULL;
-}
-
