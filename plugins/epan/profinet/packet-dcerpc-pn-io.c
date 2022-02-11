@@ -374,6 +374,7 @@ static int hf_pn_io_ext_channel_error_type0x8008 = -1;
 static int hf_pn_io_ext_channel_error_type0x800A = -1;
 static int hf_pn_io_ext_channel_error_type0x800B = -1;
 static int hf_pn_io_ext_channel_error_type0x800C = -1;
+static int hf_pn_io_ext_channel_error_type0x8010 = -1;
 
 static int hf_pn_io_ext_channel_error_type = -1;
 
@@ -1475,68 +1476,62 @@ static const value_string pn_io_index[] = {
     { 0x8013, "Maintenance demanded in all codings for one subslot" },
     /*0x8014 - 0x801D reserved */
     { 0x801E, "SubstituteValues for one subslot" },
-    /*0x801F - 0x8027 reserved */
+    /*0x801F reserved */
+    { 0x8020, "PDIRSubframeData for one subslot" },
+    /*0x8021 - 0x8026 reserved */
+    { 0x8027, "PDPortDataRealExtended for one subslot" },
     { 0x8028, "RecordInputDataObjectElement for one subslot" },
     { 0x8029, "RecordOutputDataObjectElement for one subslot" },
     { 0x802A, "PDPortDataReal for one subslot" },
     { 0x802B, "PDPortDataCheck for one subslot" },
     { 0x802C, "PDIRData for one subslot" },
-    { 0x802D, "Expected PDSyncData for one subslot with SyncID value 0" },
+    { 0x802D, "PDSyncData for one subslot with SyncID value 0" },
     /*0x802E reserved */
     { 0x802F, "PDPortDataAdjust for one subslot" },
     { 0x8030, "IsochronousModeData for one subslot" },
-    { 0x8031, "Expected PDSyncData for one subslot with SyncID value 1" },
-    { 0x8032, "Expected PDSyncData for one subslot with SyncID value 2" },
-    { 0x8033, "Expected PDSyncData for one subslot with SyncID value 3" },
-    { 0x8034, "Expected PDSyncData for one subslot with SyncID value 4" },
-    { 0x8035, "Expected PDSyncData for one subslot with SyncID value 5" },
-    { 0x8036, "Expected PDSyncData for one subslot with SyncID value 6" },
-    { 0x8037, "Expected PDSyncData for one subslot with SyncID value 7" },
-    { 0x8038, "Expected PDSyncData for one subslot with SyncID value 8" },
-    { 0x8039, "Expected PDSyncData for one subslot with SyncID value 9" },
-    { 0x803A, "Expected PDSyncData for one subslot with SyncID value 10" },
-    { 0x803B, "Expected PDSyncData for one subslot with SyncID value 11" },
-    { 0x803C, "Expected PDSyncData for one subslot with SyncID value 12" },
-    { 0x803D, "Expected PDSyncData for one subslot with SyncID value 13" },
-    { 0x803E, "Expected PDSyncData for one subslot with SyncID value 14" },
-    { 0x803F, "Expected PDSyncData for one subslot with SyncID value 15" },
-    { 0x8040, "Expected PDSyncData for one subslot with SyncID value 16" },
-    { 0x8041, "Expected PDSyncData for one subslot with SyncID value 17" },
-    { 0x8042, "Expected PDSyncData for one subslot with SyncID value 18" },
-    { 0x8043, "Expected PDSyncData for one subslot with SyncID value 19" },
-    { 0x8044, "Expected PDSyncData for one subslot with SyncID value 20" },
-    { 0x8045, "Expected PDSyncData for one subslot with SyncID value 21" },
-    { 0x8046, "Expected PDSyncData for one subslot with SyncID value 22" },
-    { 0x8047, "Expected PDSyncData for one subslot with SyncID value 23" },
-    { 0x8048, "Expected PDSyncData for one subslot with SyncID value 24" },
-    { 0x8049, "Expected PDSyncData for one subslot with SyncID value 25" },
-    { 0x804A, "Expected PDSyncData for one subslot with SyncID value 26" },
-    { 0x804B, "Expected PDSyncData for one subslot with SyncID value 27" },
-    { 0x804C, "Expected PDSyncData for one subslot with SyncID value 28" },
-    { 0x804D, "Expected PDSyncData for one subslot with SyncID value 29" },
-    { 0x804E, "Expected PDSyncData for one subslot with SyncID value 30" },
-    { 0x804F, "Expected PDSyncData for one subslot with SyncID value 31" },
+    { 0x8031, "PDTimeData for one subslot" },
+    /*0x8032 - 0x804F reserved */
     { 0x8050, "PDInterfaceMrpDataReal for one subslot" },
     { 0x8051, "PDInterfaceMrpDataCheck for one subslot" },
     { 0x8052, "PDInterfaceMrpDataAdjust for one subslot" },
     { 0x8053, "PDPortMrpDataAdjust for one subslot" },
     { 0x8054, "PDPortMrpDataReal for one subslot" },
-    /*0x8055 - 0x805F reserved */
+    { 0x8055, "PDPortMrpIcDataAdjust for one subslot" },
+    { 0x8056, "PDPortMrpIcDataCheck for one subslot" },
+    { 0x8057, "PDPortMrpIcDataReal for one subslot" },
+    /*0x8058 - 0x805F reserved */
     { 0x8060, "PDPortFODataReal for one subslot" },
     { 0x8061, "PDPortFODataCheck for one subslot" },
     { 0x8062, "PDPortFODataAdjust for one subslot" },
-    /*0x8063 - 0x806F reserved */
+    { 0x8063, "PDPortSFPDataCheck for one subslot" },
+    /*0x8064 - 0x806F reserved */
     { 0x8070, "PDNCDataCheck for one subslot" },
     { 0x8071, "PDInterfaceAdjust for one subslot" },
     { 0x8072, "PDPortStatistic for one subslot" },
     /*0x8071 - 0x807F reserved */
     { 0x8080, "PDInterfaceDataReal" },
     /*0x8081 - 0x808F reserved */
-    { 0x8090, "Expected PDInterfaceFSUDataAdjust" },
-    /*0x8091 - 0xAFEF reserved except 0x80B0, 0x80AF and 0x80CF*/
+    { 0x8090, "PDInterfaceFSUDataAdjust" },
+    /*0x8091 - 0x809F reserved */
+    { 0x80A0, "Profiles covering energy saving - Record_0" },
+    /*0x80A1 - 0x80AE reserved */
     { 0x80AF, "PE_EntityStatusData for one subslot" },
     { 0x80B0, "CombinedObjectContainer" },
+    /*0x80B1 - 0x80CE reserved */
     { 0x80CF, "RS_AdjustObserver" },
+    { 0x80D0, "Profiles covering condition monitoring - Record_0" },
+    /*0x80D1 - 0x80DF reserved */
+    { 0x80F0, "TSNNetworkControlDataReal" },
+    { 0x80F1, "TSNStreamPathData" },
+    { 0x80F2, "TSNSyncTreeData" },
+    { 0x80F3, "TSNUploadNetworkAttributes" },
+    { 0x80F4, "TSNExpectedNetworkAttributes" },
+    { 0x80F5, "TSNNetworkControlDataAdjust" },
+    { 0x80F6, "TSNStreamPathDataReal for stream class High" },
+    { 0x80F7, "TSNStreamPathDataReal for stream class High Redundant" },
+    { 0x80F8, "TSNStreamPathDataReal for stream class Low" },
+    { 0x80F9, "TSNStreamPathDataReal for stream class Low Redundant" },
+    /*0x80FA - 0xAFEF reserved */
     { 0xAFF0, "I&M0" },
     { 0xAFF1, "I&M1" },
     { 0xAFF2, "I&M2" },
@@ -1647,7 +1642,8 @@ static const value_string pn_io_index[] = {
     { 0xE031, "PE_EntityStatusData for one AR" },
     /*0xE032 - 0xE03F reserved */
     { 0xE040, "MultipleWrite" },
-    /*0xE041 - 0xE04F reserved */
+    { 0xE041, "ApplicationReadyBlock" },
+    /*0xE042 - 0xE04F reserved */
     { 0xE050, "ARFSUDataAdjust data for one AR" },
     /*0xE051 - 0xE05F reserved */
     { 0xE060, "RS_GetEvent (using RecordDataRead service)" },
@@ -1685,11 +1681,24 @@ static const value_string pn_io_index[] = {
     { 0xF842, "PDExpectedData" },
     /*0xF843 - 0xF84F reserved */
     { 0xF850, "AutoConfiguration" },
+    { 0xF860, "GSD upload using UploadBLOBQuery and UploadBLOB" },
     { 0xF870, "PE_EntityFilterData" },
     { 0xF871, "PE_EntityStatusData" },
-    { 0xF880, "AssetManagementData" },
-    /*0xF851 - 0xFBFF reserved except 0xF880*/
+    { 0xF880, "AssetManagementData - contains all or first chunk of complete assets" },
+    { 0xF881, "AssetManagementData - second chunk" },
+    { 0xF882, "AssetManagementData - third chunk" },
+    { 0xF883, "AssetManagementData - fourth chunk" },
+    { 0xF884, "AssetManagementData - fifth chunk" },
+    { 0xF885, "AssetManagementData - sixth chunk" },
+    { 0xF886, "AssetManagementData - seventh chunk" },
+    { 0xF887, "AssetManagementData - eighth chunk" },
+    { 0xF888, "AssetManagementData - ninth chunk" },
+    { 0xF889, "AssetManagementData - tenth chunk" },
+    { 0xF8F0, "Stream Add using TSNAddStreamReq and TSNAddStreamRsp" },
     { 0xF8F1, "PDRsiInstances" },
+    { 0xF8F2, "Stream Remove using TSNRemoveStreamReq and TSNRemoveStreamRsp" },
+    { 0xF8F3, "Stream Renew using TSNRenewStreamReq and TSNRenewStreamRsp" },
+    { 0xFBFF, "Trigger index for RPC connection monitoring" },
     /*0xFC00 - 0xFFFF reserved for profiles */
     { 0, NULL }
 };
@@ -1702,12 +1711,15 @@ static const value_string pn_io_user_structure_identifier[] = {
     { 0x8003, "QualifiedChannelDiagnosis" },
     /*0x8004 - 0x80FF reserved */
     { 0x8100, "Maintenance" },
-    /*0x8101 - 0x8FFF reserved  except 8300, 8301, 8302, 8303 */
-    { 0x8300, "Sequence of events RS_LowWatermark" },
-    { 0x8301, "Sequence of events RS_Timeout" },
-    { 0x8302, "Sequence of events RS_Overflow" },
-    { 0x8303, "Sequence of events RS_Event" },
+    /*0x8101 - 0x8FFF reserved except 8200, 8201, 8300, 8301, 8302, 8303, 8310, 8320 */
+    { 0x8200, "Upload&Retrieval" },
+    { 0x8201, "iParameter" },
+    { 0x8300, "Reporting system RS_LowWatermark" },
+    { 0x8301, "Reporting system RS_Timeout" },
+    { 0x8302, "Reporting system RS_Overflow" },
+    { 0x8303, "Reporting system RS_Event" },
     { 0x8310, "PE_EnergySavingStatus" },
+    { 0x8320, "Channel related Process Alarm reasons" },
     /*0x9000 - 0x9FFF reserved for profiles */
     /*0xA000 - 0xFFFF reserved */
     { 0, NULL }
@@ -1720,28 +1732,47 @@ static const value_string pn_io_channel_error_type[] = {
     { 0x0003, "Overvoltage" },
     { 0x0004, "Overload" },
     { 0x0005, "Overtemperature" },
-    { 0x0006, "line break" },
-    { 0x0007, "upper limit value exceeded" },
-    { 0x0008, "lower limit value exceeded" },
+    { 0x0006, "Wire break" },
+    { 0x0007, "Upper limit value exceeded" },
+    { 0x0008, "Lower limit value exceeded" },
     { 0x0009, "Error" },
-    /*0x000A - 0x000F reserved */
-    { 0x0010, "parameterization fault" },
-    { 0x0011, "power supply fault" },
-    { 0x0012, "fuse blown / open" },
+    { 0x000A, "Simulation active" },
+    /*0x000B - 0x000E reserved */
+    { 0x000F, "Parameter missing" },
+    { 0x0010, "Parameterization fault" },
+    { 0x0011, "Power supply fault" },
+    { 0x0012, "Fuse blown / open" },
     { 0x0013, "Manufacturer specific" },
-    { 0x0014, "ground fault" },
-    { 0x0015, "reference point lost" },
-    { 0x0016, "process event lost / sampling error" },
-    { 0x0017, "threshold warning" },
-    { 0x0018, "output disabled" },
-    { 0x0019, "safety event" },
-    { 0x001A, "external fault" },
+    { 0x0014, "Ground fault" },
+    { 0x0015, "Reference point lost" },
+    { 0x0016, "Process event lost / sampling error" },
+    { 0x0017, "Threshold warning" },
+    { 0x0018, "Output disabled" },
+    { 0x0019, "FunctionalSafety event" },
+    { 0x001A, "External fault" },
     /*0x001B - 0x001F manufacturer specific */
+    { 0x001F, "Temporary fault" },
     /*0x0020 - 0x00FF reserved for common profiles */
+    { 0x0040, "Mismatch of safety destination address" },
+    { 0x0041, "Safety destination address not valid" },
+    { 0x0042, "Safety source address not valid" },
+    { 0x0043, "Safety watchdog time value is 0ms" },
+    { 0x0044, "Parameter F_SIL exceeds SIL of specific application" },
+    { 0x0045, "Parameter F_CRC_Length does not match generated values" },
+    { 0x0046, "Version of F-Parameter set incorrect" },
+    { 0x0047, "Data inconsistent in received F-Parameter block (CRC1 error)" },
+    { 0x0048, "Device specific or unspecific diagnosis information, see manual" },
+    { 0x0049, "Save iParameter watchdog time exceeded" },
+    { 0x004A, "Restore iParameter watchdog time exceeded" },
+    { 0x004B, "Inconsistent iParameters (iParCRC error)" },
+    { 0x004C, "F_Block_ID not supported" },
+    { 0x004D, "Transmission error: data inconsistent (CRC2 error)" },
+    { 0x004E, "Transmission error: timeout" },
+    { 0x004F, "Acknowledge needed to enable the channel(s)" },
     /*0x0100 - 0x7FFF manufacturer specific */
     { 0x8000, "Data transmission impossible" },
     { 0x8001, "Remote mismatch" },
-    { 0x8002, "Media redundancy mismatch" },
+    { 0x8002, "Media redundancy mismatch - Ring" },
     { 0x8003, "Sync mismatch" },
     { 0x8004, "IsochronousMode mismatch" },
     { 0x8005, "Multicast CR mismatch" },
@@ -1753,6 +1784,8 @@ static const value_string pn_io_channel_error_type[] = {
     { 0x800A, "Dynamic frame packing function mismatch" },
     { 0x800B, "Media redundancy with planned duplication mismatch"},
     { 0x800C, "System redundancy mismatch"},
+    { 0x800D, "Multiple interface mismatch"},
+    { 0x8010, "Power failure over Single Pair Ethernet"},
     /* ends */
     /*0x800D - 0x8FFF reserved */
     /*0x9000 - 0x9FFF reserved for profile */
@@ -1789,8 +1822,8 @@ static const value_string pn_io_ext_channel_error_type0x8000[] = {
 static const value_string pn_io_ext_channel_error_type0x8001[] = {
     /* 0x0000 Reserved */
     /* 0x0001 - 0x7FFF Manufacturer specific */
-    { 0x8000, "Peer Chassis ID mismatch"},
-    { 0x8001, "Peer Port ID mismatch"},
+    { 0x8000, "Peer name of station mismatch"},
+    { 0x8001, "Peer name of port mismatch"},
     { 0x8002, "Peer RT_CLASS_3 mismatch a"},
     { 0x8003, "Peer MAUType mismatch"},
     { 0x8004, "Peer MRP domain mismatch"},
@@ -1800,7 +1833,8 @@ static const value_string pn_io_ext_channel_error_type0x8001[] = {
     { 0x8008, "Peer PTCP mismatch b"},
     { 0x8009, "Peer Preamble Length mismatch"},
     { 0x800A, "Peer Fragmentation mismatch"},
-    /* 0x800B - 0x8FFF Reserved */
+    { 0x800B, "Peer MRP Interconnection domain mismatch"},
+    /* 0x800C - 0x8FFF Reserved */
     /* 0x9000 - 0x9FFF Reserved for profiles */
     /* 0xA000 - 0xFFFF Reserved */
     { 0, NULL }
@@ -1909,7 +1943,16 @@ static const value_string pn_io_ext_channel_error_type0x8007[] = {
     /* 0x0000 Reserved */
     /* 0x0001 - 0x7FFF Manufacturer specific */
     { 0x8000, "Power Budget"},
-    /* 0x8001 - 0x8FFF Reserved */
+    { 0x8001, "SFP - Temperature threshold violation (High)"},
+    { 0x8002, "SFP - TX Bias threshold violation (High)"},
+    { 0x8003, "SFP - TX Bias threshold violation (Low)"},
+    { 0x8004, "SFP - TX Power threshold violation (High)"},
+    { 0x8005, "SFP - TX Power threshold violation (Low)"},
+    { 0x8006, "SFP - RX Power threshold violation (High)"},
+    { 0x8007, "SFP - RX Power threshold violation (Low)"},
+    { 0x8008, "SFP - TX Fault State indication"},
+    { 0x8009, "SFP - RX Loss State indication"},
+    /* 0x800A - 0x8FFF Reserved */
     /* 0x9000 - 0x9FFF Reserved for profiles */
     /* 0xA000 - 0xFFFF Reserved */
     { 0, NULL }
@@ -1959,6 +2002,20 @@ static const value_string pn_io_ext_channel_error_type0x800C[] = {
     /* 0x0001 - 0x7FFF Manufacturer specific */
     { 0x8000, "System redundancy event"},
     /* 0x8001 - 0x8FFF Reserved */
+    /* 0x9000 - 0x9FFF Reserved for profiles */
+    /* 0xA000 - 0xFFFF Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType "Power failure over Single Pair Ethernet" 0x8010 */
+static const value_string pn_io_ext_channel_error_type0x8010[] = {
+    /* 0x0000 Reserved */
+    /* 0x0001 - 0x7FFF Manufacturer specific */
+    { 0x8000, "SPE power supply - Short circuit"},
+    { 0x8001, "SPE power supply - Open circuit"},
+    { 0x8002, "SPE power supply - Voltage level"},
+    { 0x8003, "SPE power supply - Current level"},
+    /* 0x8004 - 0x8FFF Reserved */
     /* 0x9000 - 0x9FFF Reserved for profiles */
     /* 0xA000 - 0xFFFF Reserved */
     { 0, NULL }
@@ -3455,6 +3512,11 @@ dissect_Diagnosis(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     {
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_ext_channel_error_type0x800C, &u16ExtChannelErrorType);
+    }
+    else if (u16ChannelErrorType == 0x8010)
+    {
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_ext_channel_error_type0x8010, &u16ExtChannelErrorType);
     }
     else
     {
@@ -13509,6 +13571,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_ext_channel_error_type0x800C,
       { "ExtChannelErrorType", "pn_io.ext_channel_error_type800C",
         FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800C), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ext_channel_error_type0x8010,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8010",
+        FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8010), 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_ext_channel_error_type,
