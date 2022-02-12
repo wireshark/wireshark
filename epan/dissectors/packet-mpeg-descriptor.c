@@ -122,6 +122,7 @@ static const value_string mpeg_descriptor_tag_vals[] = {
     { 0x6E, "Announcement Support Descriptor" },
     { 0x6F, "Application Signalling Descriptor" },
     { 0x70, "Adaptation Field Data Descriptor" },
+    /* SID (0x71) from ETSI TS 102 812 */
     { 0x71, "Service Identifier Descriptor" },
     { 0x72, "Service Availability Descriptor" },
     { 0x73, "Default Authority Descriptor" },
@@ -3290,6 +3291,15 @@ proto_mpeg_descriptor_dissect_app_sig(tvbuff_t *tvb, guint offset, guint len, pr
     }
 }
 
+/* 0x71 Service Identifier Descriptor */
+static int hf_mpeg_descr_service_identifier = -1;
+
+static void
+proto_mpeg_descriptor_dissect_service_identifier(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_mpeg_descr_service_identifier, tvb, offset, len, ENC_ASCII|ENC_NA);
+}
+
 /* 0x72 Service Availability Descriptor */
 static int hf_mpeg_descr_service_availability_flag = -1;
 static int hf_mpeg_descr_service_availability_reserved = -1;
@@ -4332,6 +4342,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x6F: /* Application Signalling Descriptor */
             proto_mpeg_descriptor_dissect_app_sig(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x71: /* Service Identifier Descriptor */
+            proto_mpeg_descriptor_dissect_service_identifier(tvb, offset, len, descriptor_tree);
             break;
         case 0x72: /* Service Availability Descriptor */
             proto_mpeg_descriptor_dissect_service_availability(tvb, offset, len, descriptor_tree);
@@ -5959,6 +5972,12 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_app_sig_ait_ver, {
             "AIT version", "mpeg_descr.app_sig.ait_ver",
             FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL
+        } },
+
+        /* 0x71 Service Identifier Descriptor */
+        { &hf_mpeg_descr_service_identifier, {
+            "Service Textual Identifier", "mpeg_descr.sid.txt_identifier",
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x72 Service Availability Descriptor */
