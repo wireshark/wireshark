@@ -1605,6 +1605,19 @@ proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_
 
 }
 
+/* 0x4F Time Shifted Event Descriptor */
+static int hf_mpeg_descr_time_shifted_event_reference_service_id = -1;
+static int hf_mpeg_descr_time_shifted_event_reference_event_id = -1;
+
+static void
+proto_mpeg_descriptor_dissect_time_shifted_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_mpeg_descr_time_shifted_event_reference_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_time_shifted_event_reference_event_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+}
+
 /* 0x50 Component Descriptor */
 static int hf_mpeg_descr_component_stream_content_ext = -1;
 static int hf_mpeg_descr_component_stream_content = -1;
@@ -4280,6 +4293,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
         case 0x4E: /* Extended Event Descriptor */
             proto_mpeg_descriptor_dissect_extended_event(tvb, offset, descriptor_tree);
             break;
+        case 0x4F: /* Time Shifted Event Descriptor */
+            proto_mpeg_descriptor_dissect_time_shifted_event(tvb, offset, descriptor_tree);
+            break;
         case 0x50: /* Component Descriptor */
             proto_mpeg_descriptor_dissect_component(tvb, offset, len, descriptor_tree);
             break;
@@ -5212,6 +5228,17 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_extended_event_text, {
             "Text", "mpeg_descr.ext_evt.txt",
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x4F Time Shifted Event Descriptor */
+        { &hf_mpeg_descr_time_shifted_event_reference_service_id, {
+            "Reference Service ID", "mpeg_descr.tshift_evt.sid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_time_shifted_event_reference_event_id, {
+            "Reference Event ID", "mpeg_descr.tshift_evt.eid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
         /* 0x50 Component Descriptor */
