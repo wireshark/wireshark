@@ -3033,6 +3033,102 @@ proto_mpeg_descriptor_dissect_private_data_specifier(tvbuff_t *tvb, guint offset
     proto_tree_add_item(tree, hf_mpeg_descr_private_data_specifier_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
+/* 0x61 Short Smoothing Buffer Descriptor */
+static int hf_mpeg_descr_short_smoothing_buffer_sb_size = -1;
+static int hf_mpeg_descr_short_smoothing_buffer_sb_leak_rate = -1;
+static int hf_mpeg_descr_short_smoothing_buffer_dvb_reserved = -1;
+
+#define MPEG_DESCR_SHORT_SMOOTHING_BUFFER_SB_SIZE_MASK      0xC0
+#define MPEG_DESCR_SHORT_SMOOTHING_BUFFER_SB_LEAK_RATE_MASK 0x3F
+
+static const value_string mpeg_descr_ssb_sb_size_vals[] = {
+    { 0, "DVB_reserved" },
+    { 1, "1 536" },
+    { 2, "DVB_reserved" },
+    { 3, "DVB_reserved" },
+    { 0, NULL }
+};
+
+static const value_string mpeg_descr_ssb_sb_leak_rate_vals[] = {
+    { 0, "DVB_reserved" },
+    { 1, "0,0009 Mbit/s" },
+    { 2, "0,0018 Mbit/s" },
+    { 3, "0,0036 Mbit/s" },
+    { 4, "0,0072 Mbit/s" },
+    { 5, "0,0108 Mbit/s" },
+    { 6, "0,0144 Mbit/s" },
+    { 7, "0,0216 Mbit/s" },
+    { 8, "0,0288 Mbit/s" },
+    { 9, "0,075 Mbit/s" },
+    { 10, "0,5 Mbit/s" },
+    { 11, "0,5625 Mbit/s" },
+    { 12, "0,8437 Mbit/s" },
+    { 13, "1,0 Mbit/s" },
+    { 14, "1,1250 Mbit/s" },
+    { 15, "1,5 Mbit/s" },
+    { 16, "1,6875 Mbit/s" },
+    { 17, "2,0 Mbit/s" },
+    { 18, "2,2500 Mbit/s" },
+    { 19, "2,5 Mbit/s" },
+    { 20, "3,0 Mbit/s" },
+    { 21, "3,3750 Mbit/s" },
+    { 22, "3,5 Mbit/s" },
+    { 23, "4,0 Mbit/s" },
+    { 24, "4,5 Mbit/s" },
+    { 25, "5,0 Mbit/s" },
+    { 26, "5,5 Mbit/s" },
+    { 27, "6,0 Mbit/s" },
+    { 28, "6,5 Mbit/s" },
+    { 29, "6,7500 Mbit/s" },
+    { 30, "7,0 Mbit/s" },
+    { 31, "7,5 Mbit/s" },
+    { 32, "8,0 Mbit/s" },
+    { 33, "9,0 Mbit/s" },
+    { 34, "10,0 Mbit/s" },
+    { 35, "11,0 Mbit/s" },
+    { 36, "12,0 Mbit/s" },
+    { 37, "13,0 Mbit/s" },
+    { 38, "13,5 Mbit/s" },
+    { 39, "14,0 Mbit/s" },
+    { 40, "15,0 Mbit/s" },
+    { 41, "16,0 Mbit/s" },
+    { 42, "17,0 Mbit/s" },
+    { 43, "18,0 Mbit/s" },
+    { 44, "20,0 Mbit/s" },
+    { 45, "22,0 Mbit/s" },
+    { 46, "24,0 Mbit/s" },
+    { 47, "26,0 Mbit/s" },
+    { 48, "27,0 Mbit/s" },
+    { 49, "28,0 Mbit/s" },
+    { 50, "30,0 Mbit/s" },
+    { 51, "32,0 Mbit/s" },
+    { 52, "34,0 Mbit/s" },
+    { 53, "36,0 Mbit/s" },
+    { 54, "38,0 Mbit/s" },
+    { 55, "40,0 Mbit/s" },
+    { 56, "44,0 Mbit/s" },
+    { 57, "48,0 Mbit/s" },
+    { 58, "54,0 Mbit/s" },
+    { 59, "72,0 Mbit/s" },
+    { 60, "108,0 Mbit/s" },
+    { 61, "DVB_reserved" },
+    { 62, "DVB_reserved" },
+    { 63, "DVB_reserved" },
+    { 0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_short_smoothing_buffer(tvbuff_t *tvb, guint offset, guint len, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_mpeg_descr_short_smoothing_buffer_sb_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_short_smoothing_buffer_sb_leak_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if (len == 1) return;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_short_smoothing_buffer_dvb_reserved, tvb, offset, len-1, ENC_NA);
+}
+
 /* 0x63 Partial Transport Stream Descriptor */
 static int hf_mpeg_descr_partial_transport_stream_reserved_future_use1 = -1;
 static int hf_mpeg_descr_partial_transport_stream_peak_rate = -1;
@@ -4372,6 +4468,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x5F: /* Private Data Specifier Descriptor */
             proto_mpeg_descriptor_dissect_private_data_specifier(tvb, offset, descriptor_tree);
+            break;
+        case 0x61: /* Short Smoothing Buffer Descriptor */
+            proto_mpeg_descriptor_dissect_short_smoothing_buffer(tvb, offset, len, descriptor_tree);
             break;
         case 0x63: /* Partial Transport Stream Descriptor */
             proto_mpeg_descriptor_dissect_partial_transport_stream(tvb, offset, len, descriptor_tree);
@@ -5869,6 +5968,24 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_private_data_specifier_id, {
             "Private Data Specifier", "mpeg_descr.private_data_specifier.id",
             FT_UINT32, BASE_HEX, VALS(mpeg_descr_data_specifier_id_vals), 0, NULL, HFILL
+        } },
+
+        /* 0x61 Short Smoothing Buffer Descriptor */
+        { &hf_mpeg_descr_short_smoothing_buffer_sb_size, {
+            "SB Size", "mpeg_descr.ssb.sb_size",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ssb_sb_size_vals),
+            MPEG_DESCR_SHORT_SMOOTHING_BUFFER_SB_SIZE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_short_smoothing_buffer_sb_leak_rate, {
+            "SB Leak Rate", "mpeg_descr.ssb.sb_leak_rate",
+            FT_UINT8, BASE_HEX, VALS(mpeg_descr_ssb_sb_leak_rate_vals),
+            MPEG_DESCR_SHORT_SMOOTHING_BUFFER_SB_LEAK_RATE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_short_smoothing_buffer_dvb_reserved, {
+            "DVB Reserved", "mpeg_descr.ssb.dvb_reserved",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         /* 0x63 Partial Transport Stream Descriptor */
