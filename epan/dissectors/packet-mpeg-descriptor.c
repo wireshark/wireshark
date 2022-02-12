@@ -135,6 +135,7 @@ static const value_string mpeg_descriptor_tag_vals[] = {
     { 0x7A, "Enhanced AC-3 Descriptor" },
     { 0x7B, "DTS Descriptor" },
     { 0x7C, "AAC Descriptor" },
+    /* 0x7D from ETSI TS 102 727 */
     { 0x7D, "XAIT Content Location Descriptor" },
     { 0x7E, "FTA Content Management Descriptor" },
     { 0x7F, "Extension Descriptor" },
@@ -3430,6 +3431,34 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
 
 }
 
+/* 0x7D XAIT Content Location Descriptor */
+static int hf_mpeg_descr_xait_onid = -1;
+static int hf_mpeg_descr_xait_sid = -1;
+static int hf_mpeg_descr_xait_version_number = -1;
+static int hf_mpeg_descr_xait_update_policy = -1;
+
+#define MPEG_DESCR_XAIT_VERSION_NUM_MASK    0xF8
+#define MPEG_DESCR_XAIT_UPDATE_POLICY_MASK  0x07
+
+static const range_string mpeg_descr_xait_update_policy_vals[] = {
+    { 0, 0, "When the XAIT version changes, immediately re-load the XAIT" },
+    { 1, 1, "Ignore XAIT version changes until a reset or reinitialize" },
+    { 2, 7, "Reserved for future use" },
+    { 0, 0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_xait(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+    proto_tree_add_item(tree, hf_mpeg_descr_xait_onid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_xait_sid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_mpeg_descr_xait_version_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_xait_update_policy, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
+
 /* 0x7F Extension Descriptor */
 static int hf_mpeg_descr_extension_tag_extension = -1;
 static int hf_mpeg_descr_extension_data = -1;
@@ -4370,6 +4399,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x76: /* Content Identifier Descriptor */
             proto_mpeg_descriptor_dissect_content_identifier(tvb, offset, len, descriptor_tree);
+            break;
+        case 0x7D: /* XAIT Content Location Descriptor */
+            proto_mpeg_descriptor_dissect_xait(tvb, offset, descriptor_tree);
             break;
         case 0x7F: /* Extension Descriptor */
             proto_mpeg_descriptor_dissect_extension(tvb, offset, len, descriptor_tree);
@@ -6056,6 +6088,28 @@ proto_register_mpeg_descriptor(void)
         { &hf_mpeg_descr_content_identifier_cird_ref, {
             "CRID Reference", "mpeg_descr.content_identifier.crid_ref",
             FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        /* 0x7D XAIT Content Location Descriptor */
+        { &hf_mpeg_descr_xait_onid, {
+            "Original Network ID", "mpeg_descr.xait.onid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_xait_sid, {
+            "Service ID", "mpeg_descr.xait.sid",
+            FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_xait_version_number, {
+            "Version Number", "mpeg_descr.xait.version",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_XAIT_VERSION_NUM_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_xait_update_policy, {
+            "Update Policy", "mpeg_descr.xait.update_policy",
+            FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(mpeg_descr_xait_update_policy_vals),
+            MPEG_DESCR_XAIT_UPDATE_POLICY_MASK, NULL, HFILL
         } },
 
         /* 0x7F Extension Descriptor */
