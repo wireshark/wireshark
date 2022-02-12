@@ -883,7 +883,7 @@ static const value_string camel_Component_vals[] = {
 
 const value_string  camelSRTtype_naming[]= {
   { CAMELSRT_SESSION,         "TCAP_Session" },
-  { CAMELSRT_VOICE_INITIALDP, "InialDP/Continue" },
+  { CAMELSRT_VOICE_INITIALDP, "InitialDP/Continue" },
   { CAMELSRT_VOICE_ACR1,      "Slice1_ACR/ACH" },
   { CAMELSRT_VOICE_ACR2,      "Slice2_ACR/ACH" },
   { CAMELSRT_VOICE_ACR3,      "Slice3_ACR/ACH" },

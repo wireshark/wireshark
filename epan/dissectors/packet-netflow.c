@@ -16960,7 +16960,7 @@ proto_register_netflow(void)
         },
         /* ntop, 35632 / 320 */
         {&hf_pie_ntop_mysql_appl_latency_usec,
-         {"MySQL request->response latecy (usec)", "cflow.pie.ntop.mysql_appl_latency_usec",
+         {"MySQL request->response latency (usec)", "cflow.pie.ntop.mysql_appl_latency_usec",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },

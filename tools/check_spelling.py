@@ -142,6 +142,16 @@ class File:
 
         return False
 
+    def numberPlusUnits(self, word):
+        m = re.search(r'^([0-9]+)([a-zA-Z]+)$', word)
+        if m:
+            if m.group(2).lower() in { "bit", "bits", "gb", "kbps", "gig", "mb", "th", "mhz", "v", "hz", "k",
+                                       "mbps", "m", "g", "ms", "nd", "nds", "rd", "kb", "kbit",
+                                       "khz", "km", "ms", "usec", "sec", "gbe", "ns", "ksps", "qam" }:
+                return True
+        return False
+
+
     # Check the spelling of all the words we have found
     def spellCheck(self):
 
@@ -212,6 +222,9 @@ class File:
                 word = word.replace('“', '')
                 word = word.replace('”', '')
 
+                if self.numberPlusUnits(word):
+                    continue
+
                 if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
                     print(self.file, this_value, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
                          ' -> ', '?')
@@ -232,7 +245,8 @@ def removeContractions(code_string):
                      "you’d", "developer’s", "doesn’t", "what’s", "let’s", "haven’t", "can’t", "you’ve",
                      "shouldn’t", "didn’t", "wouldn’t", "aren’t", "there’s", "packet’s", "couldn’t", "world’s",
                      "needn’t", "graph’s", "table’s", "parent’s", "entity’s", "server’s", "node’s",
-                     "querier’s", "sender’s", "receiver’s", "computer’s", "frame’s", "vendor’s", "system’s"]
+                     "querier’s", "sender’s", "receiver’s", "computer’s", "frame’s", "vendor’s", "system’s",
+                     "we’ll", "asciidoctor’s", "protocol’s", "microsoft’s" ]
     for c in contractions:
         code_string = code_string.replace(c, "")
         code_string = code_string.replace(c.capitalize(), "")

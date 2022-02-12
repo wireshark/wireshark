@@ -1,19 +1,15 @@
 0x%02x
 0x%08x
-100gb
-100kbps
-100mb
 10base
 10gig
 16apsk
-16bit
 1xrtt
-32bit
 3gpp2
 3pcap
 5views
 80211n
 80mhz
+abbrev
 accelerometer
 acceptor
 accessor
@@ -27,6 +23,7 @@ activations
 actuator
 acyclic
 addba
+additionals
 additionsr
 adjacency
 adlink
@@ -122,6 +119,7 @@ bibliographic
 bibliography
 bidirectional
 bidirectionally
+bigint
 bitfield
 bitmask
 bitrate
@@ -182,6 +180,7 @@ carrierid
 casio
 categorizes
 cccid
+ccitt
 ccpch
 cctrch
 cdma2000
@@ -204,6 +203,7 @@ checkbox
 checkout
 checksum
 chksum
+chmod
 choco
 chocolatey
 choplen
@@ -218,6 +218,7 @@ ciphertext
 ciplus
 citrix
 cksum
+classifiers
 classmark
 classmark3
 clientkey
@@ -260,6 +261,7 @@ connectionless
 connid
 const
 contactless
+contiguity
 contiguously
 coord
 Coord3D
@@ -284,6 +286,7 @@ crnti
 crypto
 cryptographic
 csapi
+ctime
 ctype
 customizable
 customization
@@ -438,12 +441,14 @@ endace
 endian
 endianness
 endif
+endpoint
 engineid
 enodeb
 enqueue
 enrollee
 entityid
 entryid
+enttec
 enumerates
 enumerations
 enumerator
@@ -483,6 +488,7 @@ fastcom
 fastip
 fastmsg
 fattr
+featureful
 fiber
 fileset
 firewall
@@ -595,6 +601,7 @@ illuminance
 immersive
 implementations
 implementer
+implementers
 implementor
 inactivated
 inband
@@ -632,9 +639,11 @@ interferer
 interleaving
 interruptible
 interworking
+inuse
 invalidation
 ioctl
 ioerr
+ioflag
 iograph
 iotecha
 ipaccess
@@ -662,6 +671,7 @@ iterator
 itunes
 iwarp
 ixveriwave
+jacobson
 jetds
 jsonraw
 kademlia
@@ -750,6 +760,7 @@ meshcop
 messageid
 metadata
 meteorological
+metermod
 México
 mgmtmsg
 microbit
@@ -764,12 +775,14 @@ mirrorlink
 misconfiguration
 misconfigured
 mitsubishi
+mkdir
 mode01
 mode7
 modepage
 modespecificinfo
 modulo
 motorola
+mozilla
 mpeg4
 mplstp
 mpsse
@@ -783,6 +796,7 @@ msisdn
 mtftp
 mtrace
 mudurl
+mulaw
 multiband
 multicarrier
 multicast
@@ -847,6 +861,8 @@ nonblock
 noncriticalextension
 noncriticalextensions
 nopad
+noqueue
+nordig
 nortel
 notarized
 notational
@@ -868,6 +884,7 @@ nstrace
 ntlmssp
 nullptr
 nvmeof
+nvram
 obfuscated
 objectid
 objkey
@@ -900,6 +917,7 @@ optimizations
 optimizer
 optiplex
 ordinal
+oscillatory
 osmocom
 ospf6
 outhdr
@@ -986,6 +1004,7 @@ privkey
 procid
 profidrive
 profinet
+promiscsniff
 promiscuously
 propertykey
 protected
@@ -1006,6 +1025,7 @@ pubkey
 pucch
 pusch
 pwach
+pxeclient
 pytest
 qam16
 qam64
@@ -1015,6 +1035,7 @@ qsearch
 quadrature
 quadro
 quantifiers
+queryhit
 quiescing
 quintuplet
 quintuplets
@@ -1159,6 +1180,8 @@ rsocket
 rsrvd
 rtpmidi
 rtpmux
+ruleset
+rxchannel
 rxreq
 s7comm
 sacch
@@ -1189,12 +1212,14 @@ sercos
 serialize
 serialized
 sessionid
+sessionkey
 setattr
 setcap
 setuid
 severities
 sflow
 sftpserver
+sftserver
 sgdsn
 sgsap
 sha256
@@ -1383,6 +1408,7 @@ tuples
 tvbuff
 twamp
 twopc
+txchannel
 type1
 type2
 type3
@@ -1391,6 +1417,7 @@ uarfcn
 uavcan
 uboot
 ubuntu
+ucast
 udpcp
 udpdump
 udphdr
@@ -1537,6 +1564,7 @@ v1610
 validator
 varint
 vcredist
+vcxproj
 verbosity
 verifier
 verizon
@@ -1548,6 +1576,7 @@ version6
 version7
 versioned
 versioning
+vhdset
 viavi
 virtex
 virtualization
@@ -1567,6 +1596,7 @@ wikipedia
 wikis
 wimax
 wimaxasncp
+winget
 winpcap
 winspool
 wireshark
@@ -1584,13 +1614,18 @@ wscbor
 wslua
 wsluarm
 wsutil
+X32bit
+x509if
 x509sat
 xattr
 xchannel
+xetra
 xferext
 xmlns
 xsltproc
 xtreme
 z3950
+zbncp
 zeroes
 zigbee
+zugtyp

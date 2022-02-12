@@ -2267,7 +2267,7 @@ proto_register_sbus(void)
               { &hf_sbus_block_nr,
                      { "Block/Element nr",           "sbus.block_nr",
                      FT_UINT16, BASE_DEC, NULL, 0,
-                     "Program block / DatatBlock number", HFILL }
+                     "Program block / DataBlock number", HFILL }
               },
 
               { &hf_sbus_nbr_elements,
@@ -2285,7 +2285,7 @@ proto_register_sbus(void)
               { &hf_sbus_data_rtc,
                      { "S-Bus 32-bit data",      "sbus.data_rtc",
                      FT_UINT32, BASE_DEC, NULL, 0,
-                     "One regiser/timer of counter (32 bit value)", HFILL }
+                     "One register/timer of counter (32 bit value)", HFILL }
               },
 
               { &hf_sbus_data_byte,
