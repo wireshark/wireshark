@@ -1,4 +1,4 @@
-TShark (Wireshark) 3.7.0 (v3.7.0rc0-1084-ga9490f354c04)
+TShark (Wireshark) 3.7.0 (v3.7.0rc0-1333-g7d171d378238)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -132,6 +132,8 @@ Output:
                            values
   --elastic-mapping-filter <protocols> If -G elastic-mapping is specified, put only the
                            specified protocols within the mapping file
+  --temp-dir <directory>   write temporary files to this directory
+                           (default: /tmp)
 
 Diagnostic output:
   --log-level <level>      sets the active log level ("critical", "warning", etc.)

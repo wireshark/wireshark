@@ -1474,6 +1474,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Arrête la capture à la fin du temps défini.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory for temporary files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Options</source>
         <translation>Options de Capture</translation>
     </message>
@@ -1488,6 +1496,10 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     <message>
         <source>Specify a Capture File</source>
         <translation>Préciser un fichier de capture</translation>
+    </message>
+    <message>
+        <source>Specify temporary directory</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -6357,10 +6369,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>HTTP</translation>
     </message>
     <message>
-        <source>900000000</source>
-        <translation type="vanished">900000000</translation>
-    </message>
-    <message>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
     </message>
@@ -8866,6 +8874,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
+        <source>Show packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation>Paquet %1</translation>
     </message>
@@ -8943,6 +8955,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Bytes</source>
         <translation>Octets</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

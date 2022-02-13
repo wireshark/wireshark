@@ -1474,6 +1474,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Sluta fånga efter den angivna tidsrymden har passerat.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory for temporary files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Options</source>
         <translation>Fångstalternativ</translation>
     </message>
@@ -1488,6 +1496,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Specify a Capture File</source>
         <translation>Ange en fångstfil</translation>
+    </message>
+    <message>
+        <source>Specify temporary directory</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -6357,10 +6369,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>HTTP</translation>
     </message>
     <message>
-        <source>900000000</source>
-        <translation type="vanished">900000000</translation>
-    </message>
-    <message>
         <source>&amp;File</source>
         <translation>&amp;Arkiv</translation>
     </message>
@@ -8872,6 +8880,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
+        <source>Show packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation>Paket %1</translation>
     </message>
@@ -8949,6 +8961,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Bytes</source>
         <translation>Byte</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

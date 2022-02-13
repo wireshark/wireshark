@@ -126,10 +126,17 @@ Wireshark 3.7.0 Release Notes
 
   New Protocol Support
 
-   FiveCo’s Legacy Register Access Protocol (5co-legacy), Host IP
-   Configuration Protocol (HICP), Mesh Connex (MCX), Microsoft Cluster
-   Remote Control Protocol (RCP), and Secure Host IP Configuration
-   Protocol (SHICP)
+   Allied Telesis Loop Detection (AT LDF), AUTOSAR I-PDU Multiplexer
+   (AUTOSAR I-PduM), DTN Bundle Protocol Security (BPSec), DTN Bundle
+   Protocol Version 7 (BPv7), DTN TCP Convergence Layer Protocol
+   (TCPCL), DVB Selection Information Table (DVB SIT), Enhanced Cash
+   Trading Interface 10.0 (XTI), Enhanced Order Book Interface 10.0
+   (EOBI), Enhanced Trading Interface 10.0 (ETI), FiveCo’s Legacy
+   Register Access Protocol (5co-legacy), Generic Data Transfer Protocol
+   (GDT), Host IP Configuration Protocol (HICP), Mesh Connex (MCX),
+   Microsoft Cluster Remote Control Protocol (RCP), Realtek, Secure File
+   Transfer Protocol (sftp), Secure Host IP Configuration Protocol
+   (SHICP), USB Attached SCSI (UASP), and ZBOSS NCP
 
   Updated Protocol Support
 
@@ -177,7 +184,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-02-06 16:06:14 UTC
+  Last updated 2022-02-13 16:06:15 UTC
 
  References
 

@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2022.02.06
- * Date:    2022-02-06 03:15:01
+ * Version: 2022.02.13
+ * Date:    2022-02-13 03:15:02
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -1072,12 +1072,10 @@ pci_id_t pci_vid_1000[] = {
 {0x1000, 0x10E4, 0xFFFF, 0xFFFF, "MegaRAID 12GSAS/PCIe Unsupported SAS38xx(0x10E4)"},
 {0x1000, 0x10E5, 0xFFFF, 0xFFFF, "MegaRAID 12GSAS/PCIe SAS38xx(0x10E5)"},
 {0x1000, 0x10E6, 0xFFFF, 0xFFFF, "MegaRAID 12GSAS/PCIe Secure SAS38xx(0x10E6)"},
-{0x1000, 0x10E6, 0x1028, 0x2170, "HBA350i Mini(0x1028-0x2170)"},
 {0x1000, 0x10E6, 0x1028, 0x2172, "PERC H355 Adapter(0x1028-0x2172)"},
 {0x1000, 0x10E6, 0x1028, 0x2173, "PERC H355 Front(0x1028-0x2173)"},
 {0x1000, 0x10E6, 0x1028, 0x2174, "PERC H350 Mini(0x1028-0x2174)"},
 {0x1000, 0x10E6, 0x1028, 0x2177, "PERC H350 Adapter(0x1028-0x2177)"},
-{0x1000, 0x10E6, 0x1028, 0x2197, "HBA350i Mini LP(0x1028-0x2197)"},
 {0x1000, 0x10E6, 0x1028, 0x2199, "PERC H350 Mini LP(0x1028-0x2199)"},
 {0x1000, 0x10E6, 0x1D49, 0x0505, "ThinkSystem RAID 540-8i PCIe Gen4 12Gb Adapter(0x1D49-0x0505)"},
 {0x1000, 0x10E6, 0x1D49, 0x0506, "ThinkSystem RAID 540-16i PCIe Gen4 12Gb Adapter(0x1D49-0x0506)"},
@@ -28346,7 +28344,8 @@ pci_id_t pci_vid_1AA8[] = {
 
 pci_id_t pci_vid_1AA9[] = {
 {0x1AA9, 0xFFFF, 0xFFFF, 0xFFFF, "Schweitzer Engineering Laboratories(0x1AA9)"},
-{0x1AA9, 0x000D, 0xFFFF, 0xFFFF, "SEL-3390S8 serial adaptor(0x000D)"},
+{0x1AA9, 0x000D, 0xFFFF, 0xFFFF, "SEL-3390S8 Serial Adapter(0x000D)"},
+{0x1AA9, 0x0018, 0xFFFF, 0xFFFF, "SEL-3390E4 Ethernet Adapter(0x0018)"},
 }; /* pci_vid_1AA9[] */
 
 pci_id_t pci_vid_1AAE[] = {
@@ -28683,6 +28682,7 @@ pci_id_t pci_vid_1B4B[] = {
 {0x1B4B, 0x9128, 0xFFFF, 0xFFFF, "88SE9128 PCIe SATA 6 Gb/s RAID controller(0x9128)"},
 {0x1B4B, 0x9130, 0xFFFF, 0xFFFF, "88SE9128 PCIe SATA 6 Gb/s RAID controller with HyperDuo(0x9130)"},
 {0x1B4B, 0x9130, 0x1043, 0x8438, "P8P67 Deluxe Motherboard(0x1043-0x8438)"},
+{0x1B4B, 0x9170, 0xFFFF, 0xFFFF, "88SE9170 PCIe 2.0 x1 2-port SATA 6 Gb/s Controller(0x9170)"},
 {0x1B4B, 0x9172, 0xFFFF, 0xFFFF, "88SE9172 SATA 6Gb/s Controller(0x9172)"},
 {0x1B4B, 0x9178, 0xFFFF, 0xFFFF, "88SE9170 PCIe SATA 6Gb/s Controller(0x9178)"},
 {0x1B4B, 0x917A, 0xFFFF, 0xFFFF, "88SE9172 SATA III 6Gb/s RAID Controller(0x917A)"},
@@ -29454,6 +29454,7 @@ pci_id_t pci_vid_1D6C[] = {
 {0x1D6C, 0x101C, 0xFFFF, 0xFFFF, "AR-ARK-SRIOV-VF [Arkville Virtual Function](0x101C)"},
 {0x1D6C, 0x101D, 0xFFFF, 0xFFFF, "AR-ARK-NIC [Arkville ArkNIC Kernel Path Device](0x101D)"},
 {0x1D6C, 0x101E, 0xFFFF, 0xFFFF, "AR-ARKA-FX1 [Arkville 64B DPDK Data Mover for Agilex R-Tile](0x101E)"},
+{0x1D6C, 0x101F, 0xFFFF, 0xFFFF, "AR-Q420F [2x100GbE Packet Capture Device](0x101F)"},
 {0x1D6C, 0x4200, 0xFFFF, 0xFFFF, "A5PL-E1-10GETI [10 GbE Ethernet Traffic Instrument](0x4200)"},
 }; /* pci_vid_1D6C[] */
 
@@ -38811,6 +38812,7 @@ pci_id_t pci_vid_8086[] = {
 {0x8086, 0x9B61, 0x1028, 0x09BE, "Latitude 7410(0x1028-0x09BE)"},
 {0x8086, 0x9B63, 0xFFFF, 0xFFFF, "10th Gen Core Processor Host Bridge/DRAM Registers(0x9B63)"},
 {0x8086, 0x9B64, 0xFFFF, 0xFFFF, "10th Gen Core Processor Host Bridge/DRAM Registers(0x9B64)"},
+{0x8086, 0x9BA8, 0xFFFF, 0xFFFF, "CometLake-S GT1 [UHD Graphics 610](0x9BA8)"},
 {0x8086, 0x9BC4, 0xFFFF, 0xFFFF, "CometLake-H GT2 [UHD Graphics](0x9BC4)"},
 {0x8086, 0x9BC5, 0xFFFF, 0xFFFF, "CometLake-S GT2 [UHD Graphics 630](0x9BC5)"},
 {0x8086, 0x9BC8, 0xFFFF, 0xFFFF, "CometLake-S GT2 [UHD Graphics 630](0x9BC8)"},
@@ -40868,7 +40870,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x0E55, 1, pci_vid_0E55 },
 {0x0EAC, 2, pci_vid_0EAC },
 {0x0F62, 1, pci_vid_0F62 },
-{0x1000, 710, pci_vid_1000 },
+{0x1000, 708, pci_vid_1000 },
 {0x1001, 10, pci_vid_1001 },
 {0x1002, 3162, pci_vid_1002 },
 {0x1003, 2, pci_vid_1003 },
@@ -42647,7 +42649,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1A8C, 2, pci_vid_1A8C },
 {0x1A8E, 2, pci_vid_1A8E },
 {0x1AA8, 3, pci_vid_1AA8 },
-{0x1AA9, 2, pci_vid_1AA9 },
+{0x1AA9, 3, pci_vid_1AA9 },
 {0x1AAE, 1, pci_vid_1AAE },
 {0x1AB4, 1, pci_vid_1AB4 },
 {0x1AB6, 2, pci_vid_1AB6 },
@@ -42686,7 +42688,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1B3E, 4, pci_vid_1B3E },
 {0x1B40, 1, pci_vid_1B40 },
 {0x1B47, 3, pci_vid_1B47 },
-{0x1B4B, 41, pci_vid_1B4B },
+{0x1B4B, 42, pci_vid_1B4B },
 {0x1B4C, 1, pci_vid_1B4C },
 {0x1B55, 7, pci_vid_1B55 },
 {0x1B66, 2, pci_vid_1B66 },
@@ -42768,7 +42770,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1D65, 2, pci_vid_1D65 },
 {0x1D69, 3, pci_vid_1D69 },
 {0x1D6A, 11, pci_vid_1D6A },
-{0x1D6C, 34, pci_vid_1D6C },
+{0x1D6C, 35, pci_vid_1D6C },
 {0x1D72, 1, pci_vid_1D72 },
 {0x1D78, 14, pci_vid_1D78 },
 {0x1D7C, 2, pci_vid_1D7C },
@@ -42975,7 +42977,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x7FED, 1, pci_vid_7FED },
 {0x8008, 4, pci_vid_8008 },
 {0x807D, 1, pci_vid_807D },
-{0x8086, 8186, pci_vid_8086 },
+{0x8086, 8187, pci_vid_8086 },
 {0x8088, 51, pci_vid_8088 },
 {0x80EE, 3, pci_vid_80EE },
 {0x8322, 1, pci_vid_8322 },

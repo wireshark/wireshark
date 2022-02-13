@@ -1471,6 +1471,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory for temporary files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1484,6 +1492,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Specify a Capture File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Specify temporary directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8809,6 +8821,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Show packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8885,6 +8901,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

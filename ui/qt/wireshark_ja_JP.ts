@@ -1466,6 +1466,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>指定時間が経過した後キャプチャを停止します</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory for temporary files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Options</source>
         <translation>キャプチャオプション</translation>
     </message>
@@ -1480,6 +1488,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Specify a Capture File</source>
         <translation>キャプチャファイルを指定します</translation>
+    </message>
+    <message>
+        <source>Specify temporary directory</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -6339,10 +6351,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>HTTP</translation>
     </message>
     <message>
-        <source>900000000</source>
-        <translation type="vanished">900000000</translation>
-    </message>
-    <message>
         <source>&amp;File</source>
         <translation>ファイル(&amp;F)</translation>
     </message>
@@ -8851,6 +8859,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
+        <source>Show packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation>パケット %1</translation>
     </message>
@@ -8928,6 +8940,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Bytes</source>
         <translation>バイト列</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12887,7 +12907,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Json</source>
-        <translation type="unfinished"></translation>
+        <translation>Json</translation>
     </message>
     <message>
         <source>Raw</source>

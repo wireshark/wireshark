@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 251f703483d4445d0de97792a95bd55154a8a514
+git revision: 7a9ffc7df8a35c24ec18dfc5c001fa8ce05590ed
 
 
 */
@@ -31384,9 +31384,9 @@ static const FieldPart *I062_V1_17_390_DST_PARTS[] = {
 static const AsterixField I062_V1_17_390_DST = { FIXED, 4, 0, 0, &hf_062_V1_17_390_DST, I062_V1_17_390_DST_PARTS, { NULL } };
 static gint hf_062_V1_17_390_RDS = -1;
 static gint hf_062_V1_17_390_RDS_NU1 = -1;
-static const FieldPart I062_V1_17_390_RDS_NU1 = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_17_390_RDS_NU1, NULL };
+static const FieldPart I062_V1_17_390_RDS_NU1 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_17_390_RDS_NU1, NULL };
 static gint hf_062_V1_17_390_RDS_NU2 = -1;
-static const FieldPart I062_V1_17_390_RDS_NU2 = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_17_390_RDS_NU2, NULL };
+static const FieldPart I062_V1_17_390_RDS_NU2 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_17_390_RDS_NU2, NULL };
 static gint hf_062_V1_17_390_RDS_LTR = -1;
 static const FieldPart I062_V1_17_390_RDS_LTR = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_17_390_RDS_LTR, NULL };
 static const FieldPart *I062_V1_17_390_RDS_PARTS[] = {
@@ -33584,9 +33584,9 @@ static const FieldPart *I062_V1_18_390_DST_PARTS[] = {
 static const AsterixField I062_V1_18_390_DST = { FIXED, 4, 0, 0, &hf_062_V1_18_390_DST, I062_V1_18_390_DST_PARTS, { NULL } };
 static gint hf_062_V1_18_390_RDS = -1;
 static gint hf_062_V1_18_390_RDS_NU1 = -1;
-static const FieldPart I062_V1_18_390_RDS_NU1 = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_18_390_RDS_NU1, NULL };
+static const FieldPart I062_V1_18_390_RDS_NU1 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_18_390_RDS_NU1, NULL };
 static gint hf_062_V1_18_390_RDS_NU2 = -1;
-static const FieldPart I062_V1_18_390_RDS_NU2 = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_18_390_RDS_NU2, NULL };
+static const FieldPart I062_V1_18_390_RDS_NU2 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_18_390_RDS_NU2, NULL };
 static gint hf_062_V1_18_390_RDS_LTR = -1;
 static const FieldPart I062_V1_18_390_RDS_LTR = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_18_390_RDS_LTR, NULL };
 static const FieldPart *I062_V1_18_390_RDS_PARTS[] = {
@@ -35784,9 +35784,9 @@ static const FieldPart *I062_V1_19_390_DST_PARTS[] = {
 static const AsterixField I062_V1_19_390_DST = { FIXED, 4, 0, 0, &hf_062_V1_19_390_DST, I062_V1_19_390_DST_PARTS, { NULL } };
 static gint hf_062_V1_19_390_RDS = -1;
 static gint hf_062_V1_19_390_RDS_NU1 = -1;
-static const FieldPart I062_V1_19_390_RDS_NU1 = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_19_390_RDS_NU1, NULL };
+static const FieldPart I062_V1_19_390_RDS_NU1 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_19_390_RDS_NU1, NULL };
 static gint hf_062_V1_19_390_RDS_NU2 = -1;
-static const FieldPart I062_V1_19_390_RDS_NU2 = { 8, 1.0, FIELD_PART_HEX, &hf_062_V1_19_390_RDS_NU2, NULL };
+static const FieldPart I062_V1_19_390_RDS_NU2 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_19_390_RDS_NU2, NULL };
 static gint hf_062_V1_19_390_RDS_LTR = -1;
 static const FieldPart I062_V1_19_390_RDS_LTR = { 8, 1.0, FIELD_PART_ASCII, &hf_062_V1_19_390_RDS_LTR, NULL };
 static const FieldPart *I062_V1_19_390_RDS_PARTS[] = {
@@ -37939,9 +37939,9 @@ static const FieldPart *I062_390_DST_PARTS[] = {
 static const AsterixField I062_390_DST = { FIXED, 4, 0, 0, &hf_062_390_DST, I062_390_DST_PARTS, { NULL } };
 static gint hf_062_390_RDS = -1;
 static gint hf_062_390_RDS_NU1 = -1;
-static const FieldPart I062_390_RDS_NU1 = { 8, 1.0, FIELD_PART_HEX, &hf_062_390_RDS_NU1, NULL };
+static const FieldPart I062_390_RDS_NU1 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_390_RDS_NU1, NULL };
 static gint hf_062_390_RDS_NU2 = -1;
-static const FieldPart I062_390_RDS_NU2 = { 8, 1.0, FIELD_PART_HEX, &hf_062_390_RDS_NU2, NULL };
+static const FieldPart I062_390_RDS_NU2 = { 8, 1.0, FIELD_PART_ASCII, &hf_062_390_RDS_NU2, NULL };
 static gint hf_062_390_RDS_LTR = -1;
 static const FieldPart I062_390_RDS_LTR = { 8, 1.0, FIELD_PART_ASCII, &hf_062_390_RDS_LTR, NULL };
 static const FieldPart *I062_390_RDS_PARTS[] = {
@@ -45511,8 +45511,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_17_390_DST, { "DST, Destination Airport", "asterix.062_V1_17_390_DST", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_390_DST_VALUE, { "Destination Airport", "asterix.062_V1_17_390_DST_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_390_RDS, { "RDS, Runway Designation", "asterix.062_V1_17_390_RDS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_390_RDS_NU1, { "NU1, First Number", "asterix.062_V1_17_390_RDS_NU1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_17_390_RDS_NU2, { "NU2, Second Number", "asterix.062_V1_17_390_RDS_NU2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_17_390_RDS_NU1, { "NU1, First Number", "asterix.062_V1_17_390_RDS_NU1", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_17_390_RDS_NU2, { "NU2, Second Number", "asterix.062_V1_17_390_RDS_NU2", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_390_RDS_LTR, { "LTR, Letter", "asterix.062_V1_17_390_RDS_LTR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_390_CFL, { "CFL, Current Cleared Flight Level", "asterix.062_V1_17_390_CFL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_17_390_CFL_VALUE, { "Current Cleared Flight Level, [FL]", "asterix.062_V1_17_390_CFL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -45908,8 +45908,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_18_390_DST, { "DST, Destination Airport", "asterix.062_V1_18_390_DST", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_390_DST_VALUE, { "Destination Airport", "asterix.062_V1_18_390_DST_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_390_RDS, { "RDS, Runway Designation", "asterix.062_V1_18_390_RDS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_390_RDS_NU1, { "NU1, First Number", "asterix.062_V1_18_390_RDS_NU1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_18_390_RDS_NU2, { "NU2, Second Number", "asterix.062_V1_18_390_RDS_NU2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_18_390_RDS_NU1, { "NU1, First Number", "asterix.062_V1_18_390_RDS_NU1", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_18_390_RDS_NU2, { "NU2, Second Number", "asterix.062_V1_18_390_RDS_NU2", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_390_RDS_LTR, { "LTR, Letter", "asterix.062_V1_18_390_RDS_LTR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_390_CFL, { "CFL, Current Cleared Flight Level", "asterix.062_V1_18_390_CFL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_18_390_CFL_VALUE, { "Current Cleared Flight Level, [FL]", "asterix.062_V1_18_390_CFL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -46305,8 +46305,8 @@ void proto_register_asterix (void)
         { &hf_062_V1_19_390_DST, { "DST, Destination Airport", "asterix.062_V1_19_390_DST", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_390_DST_VALUE, { "Destination Airport", "asterix.062_V1_19_390_DST_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_390_RDS, { "RDS, Runway Designation", "asterix.062_V1_19_390_RDS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_390_RDS_NU1, { "NU1, First Number", "asterix.062_V1_19_390_RDS_NU1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_V1_19_390_RDS_NU2, { "NU2, Second Number", "asterix.062_V1_19_390_RDS_NU2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_19_390_RDS_NU1, { "NU1, First Number", "asterix.062_V1_19_390_RDS_NU1", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_V1_19_390_RDS_NU2, { "NU2, Second Number", "asterix.062_V1_19_390_RDS_NU2", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_390_RDS_LTR, { "LTR, Letter", "asterix.062_V1_19_390_RDS_LTR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_390_CFL, { "CFL, Current Cleared Flight Level", "asterix.062_V1_19_390_CFL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_V1_19_390_CFL_VALUE, { "Current Cleared Flight Level, [FL]", "asterix.062_V1_19_390_CFL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -46702,8 +46702,8 @@ void proto_register_asterix (void)
         { &hf_062_390_DST, { "DST, Destination Airport", "asterix.062_390_DST", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_390_DST_VALUE, { "Destination Airport", "asterix.062_390_DST_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_390_RDS, { "RDS, Runway Designation", "asterix.062_390_RDS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_390_RDS_NU1, { "NU1, First Number", "asterix.062_390_RDS_NU1", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
-        { &hf_062_390_RDS_NU2, { "NU2, Second Number", "asterix.062_390_RDS_NU2", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_390_RDS_NU1, { "NU1, First Number", "asterix.062_390_RDS_NU1", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_062_390_RDS_NU2, { "NU2, Second Number", "asterix.062_390_RDS_NU2", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_390_RDS_LTR, { "LTR, Letter", "asterix.062_390_RDS_LTR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_390_CFL, { "CFL, Current Cleared Flight Level", "asterix.062_390_CFL", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_062_390_CFL_VALUE, { "Current Cleared Flight Level, [FL]", "asterix.062_390_CFL_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },

@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 3.7.0 (v3.7.0rc0-906-g40256c64e098)
+Dumpcap (Wireshark) 3.7.0 (v3.7.0rc0-1333-g7d171d378238)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -60,6 +60,8 @@ Output (files):
   --capture-comment <comment>
                            add a capture comment to the output file
                            (only for pcapng)
+  --temp-dir <directory>   write temporary files to this directory
+                           (default: /tmp)
 
 Diagnostic output:
   --log-level <level>      sets the active log level ("critical", "warning", etc.)

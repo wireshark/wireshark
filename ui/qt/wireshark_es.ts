@@ -1449,6 +1449,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Detiene la captura después de que haya pasado la cantidad de tiempo especificada.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Directory for temporary files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Capture Options</source>
         <translation>Opciones de captura</translation>
     </message>
@@ -1463,6 +1471,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Specify a Capture File</source>
         <translation>Especifique un archivo de captura</translation>
+    </message>
+    <message>
+        <source>Specify temporary directory</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -6293,10 +6305,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>HTTP</translation>
     </message>
     <message>
-        <source>900000000</source>
-        <translation type="vanished">900000000</translation>
-    </message>
-    <message>
         <source>&amp;File</source>
         <translation>&amp;Archivo</translation>
     </message>
@@ -8800,6 +8808,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
+        <source>Show packet bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8877,6 +8889,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Bytes</source>
         <translation>Bytes</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
