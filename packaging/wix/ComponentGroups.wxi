@@ -36,9 +36,6 @@
         <Component Id="cmpREADME_txt" Guid="*">
           <File Id="filREADME_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.txt" />
         </Component>
-        <Component Id="cmpREADME_windows_txt" Guid="*">
-          <File Id="filREADME_windows_txt" KeyPath="yes" Source="$(var.Staging.Dir)\README.windows.txt" />
-        </Component>
         <Component Id="cmpWka" Guid="*">
           <File Id="filWka" KeyPath="yes" Source="$(var.Staging.Dir)\wka" />
         </Component>
@@ -79,7 +76,6 @@
         <ComponentRef Id="cmpCOPYING_txt" />
         <ComponentRef Id="cmpNEWS_txt" />
         <ComponentRef Id="cmpREADME_txt" />
-        <ComponentRef Id="cmpREADME_windows_txt" />
         <ComponentRef Id="cmpWka" />
         <ComponentRef Id="cmpPdml2html_xsl" />
         <ComponentRef Id="cmpWs_css" />

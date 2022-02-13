@@ -7,7 +7,8 @@ Installation
 
 These are installation instructions for Unix and Unix-like systems.
 These are not the installation instructions for Windows systems; see
-README.windows for those instructions.
+the Wireshark User's Guide and Wireshark Developer's Guide at
+https://www.wireshark.org/docs/ for those.
 
 0. This is software.  Beware.
 
