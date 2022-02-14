@@ -221,6 +221,11 @@ struct ieee80211_radiotap_tlv {
 	guint8 data[];
 };
 
+/* TLVs we understand. */
+#define IEEE80211_RADIOTAP_TLV_S1G        32
+#define IEEE80211_RADIOTAP_TLV_U_SIG      33
+#define IEEE80211_RADIOTAP_TLV_EHT        34
+
 /* Channel flags. */
 /* 0x00000008 undefined (reserved?) */
 #define IEEE80211_CHAN_700MHZ   0x00000001 /* S1G 700 MHz spectrum channel. */

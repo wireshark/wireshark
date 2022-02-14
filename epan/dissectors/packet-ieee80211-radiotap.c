@@ -1038,6 +1038,19 @@ capture_radiotap(const guchar * pd, int offset, int len, capture_packet_info_t *
 	return call_capture_dissector(ieee80211_cap_handle, pd, offset + it_len, len, cpinfo, pseudo_header);
 }
 
+static void
+add_tlv_items(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset -= 4;
+
+	proto_tree_add_item(tree, hf_radiotap_tlv_type, tvb,
+			    offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_radiotap_tlv_datalen, tvb,
+			    offset, 2, ENC_LITTLE_ENDIAN);
+}
+
 static const true_false_string tfs_known_unknown = {
 	"Known",
 	"Unknown"
@@ -1172,7 +1185,7 @@ static const value_string he_midamble_periodicity_vals[] = {
 
 static void
 dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int offset, struct ieee_802_11ax *info_11ax)
+	int offset, struct ieee_802_11ax *info_11ax, gboolean is_tlv)
 {
 	guint16 ppdu_format = tvb_get_letohs(tvb, offset) &
 		IEEE80211_RADIOTAP_HE_PPDU_FORMAT_MASK;
@@ -1303,6 +1316,10 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	he_info_tree = proto_tree_add_subtree(tree, tvb, offset, 12,
 		ett_radiotap_he_info, NULL, "HE information");
+
+	if (is_tlv) {
+		add_tlv_items(he_info_tree, tvb, offset);
+	}
 
 	/* Add the bitmasks for each of D1 through D6 */
 	proto_tree_add_bitmask(he_info_tree, tvb, offset,
@@ -1463,8 +1480,8 @@ he_sig_b_symbols_custom(gchar *result, guint32 value)
 }
 
 static void
-dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int offset)
+dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_,
+		proto_tree *tree, int offset, gboolean is_tlv)
 {
 	proto_tree *he_mu_info_tree = NULL;
 	guint16 flags1 = tvb_get_letohs(tvb, offset);
@@ -1668,6 +1685,10 @@ dissect_radiotap_he_mu_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	he_mu_info_tree = proto_tree_add_subtree(tree, tvb, offset, 12,
 		ett_radiotap_he_mu_info, NULL, "HE-MU information");
+
+	if (is_tlv) {
+		add_tlv_items(he_mu_info_tree, tvb, offset);
+	}
 
 	proto_tree_add_bitmask(he_mu_info_tree, tvb, offset,
 				hf_radiotap_he_mu_info_flags_1,
@@ -2228,61 +2249,30 @@ static int * const s1g_data2_headers[] = {
 };
 
 static void
-dissect_radiotap_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-        int offset, struct ieee_802_11_phdr *phdr _U_)
+dissect_radiotap_s1g(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        int offset, struct ieee_802_11_phdr *phdr, gboolean is_tlv _U_)
 {
-	guint16 type = tvb_get_letohs(tvb, offset);
-	guint16 length = tvb_get_letohs(tvb, offset + 2);
-	proto_tree *unknown_tlv = NULL;
 	proto_tree *s1g_tree = NULL;
 
-	/* Insert code here to call the dissector for your TLV type */
-	switch (type) {
-		case IEEE80211_RADIOTAP_TLV_S1G:
-		phdr->phy = PHDR_802_11_PHY_11AH;
-		s1g_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
-				ett_radiotap_s1g, NULL, "S1G");
+	phdr->phy = PHDR_802_11_PHY_11AH;
+	s1g_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
+					  ett_radiotap_s1g, NULL, "S1G");
 
-		proto_tree_add_item(s1g_tree, hf_radiotap_tlv_type, tvb,
-				    offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+	add_tlv_items(s1g_tree, tvb, offset);
 
-		proto_tree_add_item(s1g_tree, hf_radiotap_tlv_datalen, tvb,
-				    offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
+	proto_tree_add_bitmask(s1g_tree, tvb, offset,
+			hf_radiotap_s1g_known, ett_radiotap_s1g_known,
+			s1g_known_headers, ENC_LITTLE_ENDIAN);
+	offset += 2;
 
-		proto_tree_add_bitmask(s1g_tree, tvb, offset,
-				hf_radiotap_s1g_known, ett_radiotap_s1g_known,
-				s1g_known_headers, ENC_LITTLE_ENDIAN);
-		offset += 2;
+	proto_tree_add_bitmask(s1g_tree, tvb, offset,
+			hf_radiotap_s1g_data_1, ett_radiotap_s1g_data_1,
+			s1g_data1_headers, ENC_LITTLE_ENDIAN);
+	offset += 2;
 
-		proto_tree_add_bitmask(s1g_tree, tvb, offset,
-				hf_radiotap_s1g_data_1, ett_radiotap_s1g_data_1,
-				s1g_data1_headers, ENC_LITTLE_ENDIAN);
-		offset += 2;
-
-		proto_tree_add_bitmask(s1g_tree, tvb, offset,
-				hf_radiotap_s1g_data_2, ett_radiotap_s1g_data_2,
-				s1g_data2_headers, ENC_LITTLE_ENDIAN);
-		break;
-
-	default:
-		unknown_tlv = proto_tree_add_subtree(tree, tvb, offset,
-						    length + 4,
-						    ett_radiotap_unknown_tlv,
-						    NULL, "Unknown TLV");
-		proto_tree_add_item(unknown_tlv, hf_radiotap_tlv_type, tvb,
-				    offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
-
-		proto_tree_add_item(unknown_tlv, hf_radiotap_tlv_datalen, tvb,
-				    offset, 2, ENC_LITTLE_ENDIAN);
-		offset += 2;
-
-		proto_tree_add_item(unknown_tlv, hf_radiotap_unknown_tlv_data,
-				    tvb, offset, length, ENC_NA);
-		break;
-	}
+	proto_tree_add_bitmask(s1g_tree, tvb, offset,
+			hf_radiotap_s1g_data_2, ett_radiotap_s1g_data_2,
+			s1g_data2_headers, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -3049,18 +3039,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		offset = (int)((guchar *) iter.this_arg - (guchar *) data);
 
-		if (iter.tlv_mode) {
-
-			offset -= sizeof(struct ieee80211_radiotap_tlv);
-
-			dissect_radiotap_tlv(tvb, pinfo, radiotap_tree, offset,
-					     &phdr);
-
-			continue;
-		}
-
 		if (iter.this_arg_index == IEEE80211_RADIOTAP_VENDOR_NAMESPACE
-		    && tree) {
+		    && tree && !iter.tlv_mode) {
 			proto_tree *ven_tree;
 			proto_item *vt;
 			const gchar *manuf_name;
@@ -3645,10 +3625,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			 * without this field.
 			 */
 			phdr.phy = PHDR_802_11_PHY_11AX;
-			dissect_radiotap_he_info(tvb, pinfo, radiotap_tree, offset, &phdr.phy_info.info_11ax);
+			dissect_radiotap_he_info(tvb, pinfo, radiotap_tree,
+					offset, &phdr.phy_info.info_11ax,
+					iter.tlv_mode);
 			break;
 		case IEEE80211_RADIOTAP_HE_MU:
-			dissect_radiotap_he_mu_info(tvb, pinfo, item_tree, offset);
+			dissect_radiotap_he_mu_info(tvb, pinfo, item_tree,
+					offset, iter.tlv_mode);
 			break;
 		case IEEE80211_RADIOTAP_0_LENGTH_PSDU:
 			dissect_radiotap_0_length_psdu(tvb, pinfo, item_tree, offset, &phdr);
@@ -3660,9 +3643,38 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		case IEEE80211_RADIOTAP_TLVS:
 			/* used for padding */
 			break;
+		case IEEE80211_RADIOTAP_TLV_S1G:
+			dissect_radiotap_s1g(tvb, pinfo, item_tree, offset,
+					     &phdr, iter.tlv_mode);
+			break;
 		default:
-			proto_tree_add_item(item_tree, hf_radiotap_unknown_tlv_data, tvb,
-					    offset, iter.this_arg_size, ENC_NA);
+			if (iter.tlv_mode) {
+				proto_tree *unknown_tlv;
+
+				unknown_tlv = proto_tree_add_subtree(tree, tvb,
+						offset,
+						length + 4,
+						ett_radiotap_unknown_tlv,
+						NULL, "Unknown TLV");
+				proto_tree_add_item(unknown_tlv,
+						hf_radiotap_tlv_type, tvb,
+						offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+
+				proto_tree_add_item(unknown_tlv,
+						hf_radiotap_tlv_datalen, tvb,
+						offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+
+				proto_tree_add_item(unknown_tlv,
+						hf_radiotap_unknown_tlv_data,
+						tvb, offset, length, ENC_NA);
+			} else {
+				proto_tree_add_item(item_tree,
+						hf_radiotap_unknown_tlv_data,
+						tvb, offset,
+						iter.this_arg_size, ENC_NA);
+			}
 			break;
 		}
 	}
