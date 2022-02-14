@@ -21,6 +21,7 @@ the listing in "oui.txt", "iab.txt", etc, with the entries in
 
 import codecs
 import csv
+import html
 import io
 import os
 import re
@@ -242,6 +243,8 @@ def main():
             #IAB,0050C2DD6,Transas Marine Limited,Datavagen 37 Askim Vastra Gotaland SE 436 32
             oui = prefix_to_oui(ieee_row[1].upper())
             manuf = ieee_row[2].strip()
+            # The Organization Name field occasionally contains HTML entities. Undo them.
+            manuf = html.unescape(manuf)
             if oui in oui_d:
                 print(u'{} - Skipping IEEE "{}" in favor of "{}"'.format(oui, manuf, oui_d[oui]))
                 ieee_d[db]['skipped'] += 1
