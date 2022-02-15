@@ -8228,7 +8228,7 @@ ssl_dissect_hnd_hello_ext_supported_groups(ssl_common_dissect_t *hf, tvbuff_t *t
         proto_tree_add_item_ret_uint(groups_tree, hf->hf.hs_ext_supported_group, tvb, offset, 2,
                                      ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
-        if (ja3) {
+        if (ja3 && ((ja3_value & 0x0f0f) != 0x0a0a)) {
             wmem_strbuf_append_printf(ja3, "%i", ja3_value);
             if (offset < offset_end) {
                 wmem_strbuf_append_c(ja3, '-');
@@ -8822,9 +8822,11 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         proto_tree_add_item_ret_uint(cs_tree, hf->hf.hs_cipher_suite, tvb, offset, 2,
                                      ENC_BIG_ENDIAN, &ja3_value);
         offset += 2;
-        wmem_strbuf_append_printf(ja3, "%i", ja3_value);
-        if (offset < next_offset) {
-            wmem_strbuf_append_c(ja3, '-');
+        if ((ja3_value & 0x0f0f) != 0x0a0a) {
+            wmem_strbuf_append_printf(ja3, "%i", ja3_value);
+            if (offset < next_offset) {
+                wmem_strbuf_append_c(ja3, '-');
+            }
         }
     }
     wmem_strbuf_append_c(ja3, ',');
@@ -9621,7 +9623,7 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         proto_tree_add_uint(ext_tree, hf->hf.hs_ext_type,
                             tvb, offset, 2, ext_type);
         offset += 2;
-        if (ja3) {
+        if (ja3 && ((ext_type & 0x0f0f) != 0x0a0a)) {
             wmem_strbuf_append_printf(ja3, "%i", ext_type);
             if (offset_end - offset - ext_len > 2) {
                 wmem_strbuf_append_c(ja3, '-');
