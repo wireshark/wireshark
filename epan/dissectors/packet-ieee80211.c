@@ -6111,6 +6111,8 @@ static int hf_ieee80211_vs_fortinet_subtype = -1;
 static int hf_ieee80211_vs_fortinet_system_type = -1;
 static int hf_ieee80211_vs_fortinet_system_length = -1;
 static int hf_ieee80211_vs_fortinet_system_apname = -1;
+static int hf_ieee80211_vs_fortinet_system_apmodel = -1;
+static int hf_ieee80211_vs_fortinet_system_apserial = -1;
 static int hf_ieee80211_vs_fortinet_data = -1;
 
 static int hf_ieee80211_rsn_ie_ptk_keyid = -1;
@@ -18222,8 +18224,12 @@ static const value_string ieee80211_vs_fortinet_subtype_vals[] = {
 };
 
 #define FORTINET_SYSTEM_APNAME 1
+#define FORTINET_SYSTEM_APMODEL 2
+#define FORTINET_SYSTEM_APSERIAL 3
 static const value_string ieee80211_vs_fortinet_system_type_vals[] = {
   { FORTINET_SYSTEM_APNAME, "AP NAME"},
+  { FORTINET_SYSTEM_APMODEL, "AP MODEL"},
+  { FORTINET_SYSTEM_APSERIAL, "AP SERIAL"},
   { 0,                 NULL }
 };
 
@@ -18258,8 +18264,23 @@ dissect_vendor_ie_fortinet(proto_item *item, proto_tree *ietree,
           const guint8* name;
           proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_fortinet_system_apname, tvb,
                                offset, system_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &name);
-          proto_item_append_text(item, " (%s)", name);
+          proto_item_append_text(item, " %s", name);
         }
+        break;
+        case FORTINET_SYSTEM_APMODEL:{
+          const guint8* model;
+          proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_fortinet_system_apmodel, tvb,
+                               offset, system_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &model);
+          proto_item_append_text(item, " %s", model);
+        }
+        break;
+        case FORTINET_SYSTEM_APSERIAL:{
+          const guint8* serial;
+          proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_fortinet_system_apserial, tvb,
+                               offset, system_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &serial);
+          proto_item_append_text(item, " %s", serial);
+        }
+        break;
       }
       offset += system_length;
       tag_len -= system_length;
@@ -47298,6 +47319,16 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vs_fortinet_system_apname,
      {"AP Name", "wlan.vs.fortinet.system.ap_name",
+      FT_STRINGZ, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_fortinet_system_apmodel,
+     {"AP Model", "wlan.vs.fortinet.system.ap_model",
+      FT_STRINGZ, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_fortinet_system_apserial,
+     {"AP Serial", "wlan.vs.fortinet.system.ap_serial",
       FT_STRINGZ, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
