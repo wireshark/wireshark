@@ -9039,10 +9039,14 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	char		   *addr_str;
 	char		   *tmp;
 
+	if (!label_str) {
+		ws_warning("NULL label_str passed to proto_item_fill_label.");
+		return;
+	}
+
+	label_str[0]= '\0';
+
 	if (!fi) {
-		if (label_str)
-			label_str[0]= '\0';
-		/* XXX: Check validity of hfinfo->type */
 		return;
 	}
 
