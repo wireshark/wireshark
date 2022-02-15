@@ -410,7 +410,7 @@ create_string_tree(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint32* offset
 
   /* string */
   proto_tree_add_item(subtree, hf_string_value, tvb, *offset, string_length,
-                      ENC_ASCII|ENC_NA);
+                      ENC_ASCII);
   *offset += string_length;
 
   return subtree;

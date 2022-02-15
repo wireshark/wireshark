@@ -94,7 +94,7 @@ my @types_STRING =
     "ENC_BIG_ENDIAN"               => "ENC_ASCII",
     "ENC_NA"                       => "ENC_ASCII",
 
-    "ENC_ASCII|NA"                 => "ENC_ASCII",
+    "ENC_ASCII|ENC_NA"             => "ENC_ASCII",
     "ENC_ASCII|ENC_LITTLE_ENDIAN"  => "ENC_ASCII",
     "ENC_ASCII|ENC_BIG_ENDIAN"     => "ENC_ASCII",
 

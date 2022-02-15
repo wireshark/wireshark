@@ -259,7 +259,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, packet_info *pinfo, pr
                         tvb,
                         LWRES_LWPACKET_LENGTH + 8,
                         realnamelen,
-                        ENC_ASCII|ENC_NA);
+                        ENC_ASCII);
 
     offset=LWRES_LWPACKET_LENGTH + 8 + realnamelen;
 
@@ -285,7 +285,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, packet_info *pinfo, pr
                                 tvb,
                                 offset + 2,
                                 aliaslen,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
 
             offset+=(2 + aliaslen + 1);
         }
@@ -334,7 +334,7 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
                 tvb,
                 LWRES_LWPACKET_LENGTH+10,
                 namelen,
-                ENC_ASCII|ENC_NA);
+                ENC_ASCII);
 
 }
 
@@ -377,7 +377,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, packet_info *pinfo, p
                 LWRES_LWPACKET_LENGTH + 8, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_resp_tree, hf_adn_realname, tvb,
-                LWRES_LWPACKET_LENGTH + 10, realnamelen, ENC_ASCII|ENC_NA);
+                LWRES_LWPACKET_LENGTH + 10, realnamelen, ENC_ASCII);
 
     offset = LWRES_LWPACKET_LENGTH + 10 + realnamelen + 1;
 
@@ -395,7 +395,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, packet_info *pinfo, p
                         offset, 2, aliaslen);
 
             proto_tree_add_item(alias_tree, hf_adn_aliasname, tvb,
-                        offset + 2, aliaslen, ENC_ASCII|ENC_NA);
+                        offset + 2, aliaslen, ENC_ASCII);
 
             offset+=(2 + aliaslen + 1);
         }
@@ -665,7 +665,7 @@ static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
             tvb,
             LWRES_LWPACKET_LENGTH+10,
             namelen,
-                ENC_ASCII|ENC_NA);
+                ENC_ASCII);
 
 }
 
@@ -741,7 +741,7 @@ static void dissect_rdata_response(tvbuff_t* tvb, packet_info *pinfo, proto_tree
                         tvb,
                         LWRES_LWPACKET_LENGTH+18,
                         realnamelen,
-                ENC_ASCII|ENC_NA);
+                ENC_ASCII);
 
     switch(rdtype)
     {

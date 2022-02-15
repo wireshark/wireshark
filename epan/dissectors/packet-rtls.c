@@ -295,7 +295,7 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
             offset += 6;
             proto_tree_add_item(rtls_tree, hf_rtls_ser_bssid, tvb, offset, 6, ENC_NA);
             offset += 6;
-            proto_tree_add_item(rtls_tree, hf_rtls_ser_essid, tvb, offset, 33, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rtls_tree, hf_rtls_ser_essid, tvb, offset, 33, ENC_ASCII);
             offset += 33;
             proto_tree_add_item(rtls_tree, hf_rtls_ser_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -319,7 +319,7 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
        case AR_AP_EX_REPORT:
             proto_tree_add_item(rtls_tree, hf_rtls_aer_bssid, tvb, offset, 6, ENC_NA );
             offset += 6;
-            proto_tree_add_item(rtls_tree, hf_rtls_aer_essid, tvb, offset, 33, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rtls_tree, hf_rtls_aer_essid, tvb, offset, 33, ENC_ASCII);
             offset += 33;
             proto_tree_add_item(rtls_tree, hf_rtls_aer_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;

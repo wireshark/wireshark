@@ -4074,7 +4074,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             for(i = 0; i < number_of_versions; i++)
             {
                 proto_tree_add_item(tree,
-                    hf_isobus_vt_extendedgetversions_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA);
+                    hf_isobus_vt_extendedgetversions_versionlabel, tvb, offset, 32, ENC_ASCII);
                 offset += 32;
             }
 
@@ -4215,7 +4215,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             for(i = 0; i < number_of_versions; i++)
             {
                 proto_tree_add_item(tree,
-                    hf_isobus_vt_getversions_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA);
+                    hf_isobus_vt_getversions_versionlabel, tvb, offset, 7, ENC_ASCII);
                 offset += 7;
             }
 

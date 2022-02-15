@@ -192,7 +192,7 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(prefix_tree, hf_lisp_tcp_message_eid_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(prefix_tree, hf_lisp_tcp_message_eid_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
     }

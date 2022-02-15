@@ -5443,7 +5443,7 @@ static gint parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree
             lengthInBytes += 1;/* add another byte for the remaining bits */
 
         proto_tree_add_item(sub_tree, hf_dis_variable_datum_value, tvb, offset, lengthInBytes, ENC_NA);
-        proto_tree_add_item(sub_tree, hf_dis_variable_datum_value_as_text, tvb, offset, lengthInBytes, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_tree, hf_dis_variable_datum_value_as_text, tvb, offset, lengthInBytes, ENC_ASCII);
 
         offset += lengthInBytes;
 
@@ -5627,13 +5627,13 @@ static int dissect_DIS_FIELDS_VR_APPLICATION_INITIALIZATION(tvbuff_t *tvb, proto
     proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
     offset++;
 
-    proto_tree_add_item(tree, hf_dis_vr_exercise_file_path, tvb, offset, 256, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_dis_vr_exercise_file_path, tvb, offset, 256, ENC_ASCII);
     offset += 256;
 
-    proto_tree_add_item(tree, hf_dis_vr_exercise_file_name, tvb, offset, 128, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_dis_vr_exercise_file_name, tvb, offset, 128, ENC_ASCII);
     offset += 128;
 
-    proto_tree_add_item(tree, hf_dis_vr_application_role, tvb, offset, 64, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_dis_vr_application_role, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     return offset;
@@ -7964,13 +7964,13 @@ static int dissect_DIS_PARSER_SIMULATOR_PRESENT_PO_PDU(tvbuff_t *tvb, packet_inf
     proto_tree_add_item(tree, hf_dis_relative_battle_scheme, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_dis_terrain_name, tvb, offset, 32, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_dis_terrain_name, tvb, offset, 32, ENC_ASCII);
     offset += 32;
 
     proto_tree_add_item(tree, hf_dis_terrain_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_dis_host_name, tvb, offset, 32, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_dis_host_name, tvb, offset, 32, ENC_ASCII);
     offset += 32;
 
     return offset;

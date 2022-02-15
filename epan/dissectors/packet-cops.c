@@ -1463,12 +1463,12 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
             break;
 
         if (tvb_strnlen(tvb, offset, len) == -1) {
-            ti = proto_tree_add_item(tree, hf_cops_pepid, tvb, offset, len, ENC_ASCII|ENC_NA);
+            ti = proto_tree_add_item(tree, hf_cops_pepid, tvb, offset, len, ENC_ASCII);
             expert_add_info(pinfo, ti, &ei_cops_pepid_not_null);
         }
         else
             proto_tree_add_item(tree, hf_cops_pepid, tvb, offset,
-                                tvb_strnlen(tvb, offset, len) + 1, ENC_ASCII|ENC_NA);
+                                tvb_strnlen(tvb, offset, len) + 1, ENC_ASCII);
 
         break;
     case COPS_OBJ_REPORT_TYPE:
@@ -3260,11 +3260,11 @@ cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
      offset += 4;
 
      /* BCID Element ID */
-     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII);
      offset += 8;
 
      /* BCID Time Zone */
-     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII|ENC_NA);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII);
      offset += 8;
 
      /* BCID Event Counter */
@@ -3318,11 +3318,11 @@ cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offse
      offset += 4;
 
      /* BCID Element ID */
-     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII);
      offset += 8;
 
      /* BCID Time Zone */
-     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII|ENC_NA);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII);
      offset += 8;
 
      /* BCID Event Counter */
@@ -3842,7 +3842,7 @@ cops_docsis_service_class_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st
     offset += 3;
 
     if (object_len >= 12) {
-        proto_tree_add_item(stt, hf_cops_pcmm_docsis_scn, tvb, offset, object_len - 8, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(stt, hf_cops_pcmm_docsis_scn, tvb, offset, object_len - 8, ENC_ASCII);
         offset += object_len - 8;
     } else {
         proto_tree_add_expert_format(stt, pinfo, &ei_cops_bad_cops_object_length,
@@ -5676,11 +5676,11 @@ cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 of
      offset += 4;
 
      /* BCID Element ID */
-     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_id, tvb, offset, 8, ENC_ASCII);
      offset += 8;
 
      /* BCID Time Zone */
-     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII|ENC_NA);
+     proto_tree_add_item(stt, hf_cops_pc_bcid_tz, tvb, offset, 8, ENC_ASCII);
      offset += 8;
 
      /* BCID Event Counter */

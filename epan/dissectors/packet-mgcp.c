@@ -1584,7 +1584,7 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 	gchar **tokens;
 	guint i;
 
-	item = proto_tree_add_item(parent_tree, hf_mgcp_param_connectionparam, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_connectionparam, tvb, offset, param_type_len+param_val_len, ENC_ASCII);
 	tree = proto_item_add_subtree(item, ett_mgcp_param_connectionparam);
 
 	/* The P: line */
@@ -1691,7 +1691,7 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 	gchar **tokens;
 	guint i;
 
-	item = proto_tree_add_item(parent_tree, hf_mgcp_param_localconnoptions, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_localconnoptions, tvb, offset, param_type_len+param_val_len, ENC_ASCII);
 	tree = proto_item_add_subtree(item, ett_mgcp_param_localconnectionoptions);
 
 	/* The L: line */
@@ -1853,7 +1853,7 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint offs
 
 	if (parent_tree)
 	{
-	item = proto_tree_add_item(parent_tree, hf_mgcp_param_localvoicemetrics, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_localvoicemetrics, tvb, offset, param_type_len+param_val_len, ENC_ASCII);
 		tree = proto_item_add_subtree(item, ett_mgcp_param_localvoicemetrics);
 	}
 
@@ -2004,7 +2004,7 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, tvbuff_t *tvb, gint off
 
 	if (parent_tree)
 	{
-	item = proto_tree_add_item(parent_tree, hf_mgcp_param_remotevoicemetrics, tvb, offset, param_type_len+param_val_len, ENC_ASCII|ENC_NA);
+	item = proto_tree_add_item(parent_tree, hf_mgcp_param_remotevoicemetrics, tvb, offset, param_type_len+param_val_len, ENC_ASCII);
 		tree = proto_item_add_subtree(item, ett_mgcp_param_remotevoicemetrics);
 	}
 

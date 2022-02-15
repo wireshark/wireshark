@@ -506,7 +506,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb_a, packet_info *pinfo,
                 proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_dvdrw, try_tvb, try_offset, 1, ENC_BIG_ENDIAN);
                 break;
             case 0x0108: /* logical unit serial number */
-                proto_tree_add_item (tree, hf_scsi_mmc_feature_lun_sn, try_tvb, try_offset, additional_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item (tree, hf_scsi_mmc_feature_lun_sn, try_tvb, try_offset, additional_length, ENC_ASCII);
                 break;
             default:
                 proto_tree_add_expert(tree, pinfo, &ei_scsi_mmc_unknown_feature_data, try_tvb, try_offset, additional_length);
@@ -802,10 +802,10 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         proto_tree_add_item (tree, hf_scsi_mmc_adip_eib0, tvb, offset+18, 1, ENC_BIG_ENDIAN);
 
         /* disk manufacturer id */
-        proto_tree_add_item (tree, hf_scsi_mmc_adip_device_manuf_id, tvb, offset+19, 8, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_device_manuf_id, tvb, offset+19, 8, ENC_ASCII);
 
         /* media type id */
-        proto_tree_add_item (tree, hf_scsi_mmc_adip_media_type_id, tvb, offset+27, 3, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (tree, hf_scsi_mmc_adip_media_type_id, tvb, offset+27, 3, ENC_ASCII);
 
         /* product revision number */
         proto_tree_add_item (tree, hf_scsi_mmc_adip_product_revision_number, tvb, offset+30, 1, ENC_BIG_ENDIAN);

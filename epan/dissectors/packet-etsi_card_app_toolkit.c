@@ -1233,7 +1233,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				break;
 			case 0x04: /* 8bit */
 				/* XXX - ASCII, or some extended ASCII? */
-				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_ASCII);
 				break;
 			case 0x08: /* UCS2 */
 				proto_tree_add_item(elem_tree, hf_ctlv_text_string, tvb, pos+1, len-1, ENC_UCS_2|ENC_BIG_ENDIAN);
@@ -1341,16 +1341,16 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			}
 			break;
 		case 0x28:	/* AT Command */
-			proto_tree_add_item(elem_tree, hf_ctlv_at_cmd, tvb, pos, len, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_at_cmd, tvb, pos, len, ENC_ASCII);
 			break;
 		case 0x29:	/* AT Response */
-			proto_tree_add_item(elem_tree, hf_ctlv_at_rsp, tvb, pos, len, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_at_rsp, tvb, pos, len, ENC_ASCII);
 			break;
 		case 0x2c:	/* DTMF string */
 			dissect_cat_efadn_coding(tvb, elem_tree, pos, len, hf_ctlv_dtmf_string);
 			break;
 		case 0x2d:	/* language */
-			proto_tree_add_item(elem_tree, hf_ctlv_language, tvb, pos, len, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(elem_tree, hf_ctlv_language, tvb, pos, len, ENC_ASCII);
 			break;
 		case 0x2e:	/* Timing Advance */
 			proto_tree_add_item(elem_tree, hf_ctlv_me_status, tvb, pos, 1, ENC_BIG_ENDIAN);

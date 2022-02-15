@@ -153,7 +153,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	dlt = tvb_get_letohl(tvb, offset);
 	offset += 4;
 	proto_tree_add_item(pktap_tree, hf_pktap_ifname, tvb, offset, 24,
-	    ENC_ASCII|ENC_NA);
+	    ENC_ASCII);
 	offset += 24;
 	proto_tree_add_item(pktap_tree, hf_pktap_flags, tvb, offset, 4,
 	    ENC_LITTLE_ENDIAN);

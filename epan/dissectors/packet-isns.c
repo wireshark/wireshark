@@ -879,7 +879,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             /* delimiter has no data */
             break;
         case ISNS_ATTR_TAG_ENTITY_IDENTIFIER:
-            proto_tree_add_item(attr_tree, hf_isns_entity_identifier, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_entity_identifier, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_ENTITY_PROTOCOL:
             ISNS_REQUIRE_ATTR_LEN(4);
@@ -912,7 +912,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             dissect_isns_attr_port(tvb, offset, attr_tree, hf_isns_portal_port, ISNS_OTHER_PORT, pinfo);
             break;
         case ISNS_ATTR_TAG_PORTAL_SYMBOLIC_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_portal_symbolic_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_portal_symbolic_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_ESI_INTERVAL:
             proto_tree_add_item(attr_tree, hf_isns_esi_interval, tvb, offset, len, ENC_BIG_ENDIAN);
@@ -933,14 +933,14 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             dissect_isns_attr_portal_security_bitmap(tvb, offset, attr_tree);
             break;
         case ISNS_ATTR_TAG_ISCSI_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_iscsi_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_iscsi_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_ISCSI_NODE_TYPE:
             ISNS_REQUIRE_ATTR_LEN(4);
             dissect_isns_attr_iscsi_node_type(tvb, offset, attr_tree);
             break;
         case ISNS_ATTR_TAG_ISCSI_ALIAS:
-            proto_tree_add_item(attr_tree, hf_isns_iscsi_alias, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_iscsi_alias, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_ISCSI_SCN_BITMAP:
             ISNS_REQUIRE_ATTR_LEN(4);
@@ -959,10 +959,10 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             proto_tree_add_item(attr_tree, hf_isns_node_next_index, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_ISCSI_AUTH_METHOD:
-            proto_tree_add_item(attr_tree, hf_isns_iscsi_auth_method, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_iscsi_auth_method, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_PG_ISCSI_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_pg_iscsi_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_pg_iscsi_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_PG_PORTAL_IP_ADDR:
             proto_tree_add_item(attr_tree, hf_isns_pg_portal_ip_addr, tvb, offset, len, ENC_NA);
@@ -1002,7 +1002,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
                0xFF12           iFCP Port
              */
         case ISNS_ATTR_TAG_SYMBOLIC_PORT_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_symbolic_port_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_symbolic_port_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_FABRIC_PORT_NAME:
             ISNS_REQUIRE_ATTR_LEN(8);
@@ -1021,7 +1021,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
                bit 28             Fibre Channel Class 3 Supported
              */
         case ISNS_ATTR_TAG_FC4_DESCRIPTOR:
-            proto_tree_add_item(attr_tree, hf_isns_fc4_descriptor, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_fc4_descriptor, tvb, offset, len, ENC_ASCII);
             break;
             /*
                bit 29              Control
@@ -1038,7 +1038,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             proto_tree_add_item(attr_tree, hf_isns_fc_node_name_wwnn, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_SYMBOLIC_NODE_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_symbolic_node_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_symbolic_node_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_NODE_IP_ADDRESS:
             ISNS_REQUIRE_ATTR_LEN(16);
@@ -1049,7 +1049,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             proto_tree_add_item(attr_tree, hf_isns_node_ipa, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_PROXY_ISCSI_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_proxy_iscsi_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_proxy_iscsi_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_SWITCH_NAME:
             ISNS_REQUIRE_ATTR_LEN(8);
@@ -1064,7 +1064,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             proto_tree_add_item(attr_tree, hf_isns_assigned_id, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_VIRTUAL_FABRIC_ID:
-            proto_tree_add_item(attr_tree, hf_isns_virtual_fabric_id, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_virtual_fabric_id, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_VENDOR_OUI:
             ISNS_REQUIRE_ATTR_LEN(4);
@@ -1075,7 +1075,7 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             proto_tree_add_item(attr_tree, hf_isns_dd_set_id, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_DD_SET_SYMBOLIC_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_dd_set_symbolic_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_dd_set_symbolic_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_DD_SET_NEXT_ID:
             ISNS_REQUIRE_ATTR_LEN(4);
@@ -1086,14 +1086,14 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
             proto_tree_add_item(attr_tree, hf_isns_dd_id, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_DD_SYMBOLIC_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_dd_symbolic_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_dd_symbolic_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_DD_MEMBER_ISCSI_INDEX:
             ISNS_REQUIRE_ATTR_LEN(4);
             proto_tree_add_item(attr_tree, hf_isns_member_iscsi_index, tvb, offset, len, ENC_BIG_ENDIAN);
             break;
         case ISNS_ATTR_TAG_DD_MEMBER_ISCSI_NAME:
-            proto_tree_add_item(attr_tree, hf_isns_dd_member_iscsi_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(attr_tree, hf_isns_dd_member_iscsi_name, tvb, offset, len, ENC_ASCII);
             break;
         case ISNS_ATTR_TAG_DD_MEMBER_FC_PORT_NAME:
             ISNS_REQUIRE_ATTR_LEN(4);

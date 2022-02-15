@@ -206,7 +206,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		/* Check for text data in front */
 		if (urgent_offset > offset)
 		{
-			proto_tree_add_item(rlogin_tree, hf_data, tvb, offset, urgent_offset, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(rlogin_tree, hf_data, tvb, offset, urgent_offset, ENC_ASCII);
 		}
 
 		/* Show control byte */
@@ -263,13 +263,13 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		/* Client user name. */
 		str_len = tvb_strsize(tvb, offset);
 		proto_tree_add_item(user_info_tree, hf_user_info_client_user_name,
-		                    tvb, offset, str_len, ENC_ASCII|ENC_NA);
+		                    tvb, offset, str_len, ENC_ASCII);
 		offset += str_len;
 
 		/* Server user name. */
 		str_len = tvb_strsize(tvb, offset);
 		proto_tree_add_item(user_info_tree, hf_user_info_server_user_name,
-		                    tvb, offset, str_len, ENC_ASCII|ENC_NA);
+		                    tvb, offset, str_len, ENC_ASCII);
 		offset += str_len;
 
 		/* Terminal type/speed. */
@@ -283,7 +283,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 			/* Terminal type */
 			proto_tree_add_item(user_info_tree, hf_user_info_terminal_type,
-			                    tvb, offset, slash_offset-offset, ENC_ASCII|ENC_NA);
+			                    tvb, offset, slash_offset-offset, ENC_ASCII);
 			offset = slash_offset + 1;
 
 			/* Terminal speed */
@@ -323,7 +323,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		{
 			/* There's data before the terminal info. */
 			proto_tree_add_item(rlogin_tree, hf_data, tvb,
-			                    offset, ti_offset - offset, ENC_ASCII|ENC_NA);
+			                    offset, ti_offset - offset, ENC_ASCII);
 		}
 
 		/* Create window info tree */
@@ -336,7 +336,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		offset += 2;
 
 		/* These bytes should be "ss" */
-		proto_tree_add_item(window_tree, hf_window_info_ss, tvb, offset, 2, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(window_tree, hf_window_info_ss, tvb, offset, 2, ENC_ASCII);
 		offset += 2;
 
 		/* Character rows */
@@ -369,7 +369,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	if (tvb_offset_exists(tvb, offset))
 	{
 		/* There's more data in the frame. */
-		proto_tree_add_item(rlogin_tree, hf_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(rlogin_tree, hf_data, tvb, offset, -1, ENC_ASCII);
 	}
 }
 

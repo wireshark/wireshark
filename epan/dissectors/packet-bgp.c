@@ -5054,7 +5054,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_node_name_value, tvb, offset + 4, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_node_name_value, tvb, offset + 4, length, ENC_ASCII);
             break;
 
         case BGP_NLRI_TLV_IS_IS_AREA_IDENTIFIER:
@@ -5493,7 +5493,7 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
             tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_link_state);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_type, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_bgp_ls_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_link_name_attribute_value, tvb, offset + 4, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_bgp_ls_tlv_link_name_attribute_value, tvb, offset + 4, length, ENC_ASCII);
             break;
 
         case BGP_LS_SR_TLV_ADJ_SID:
@@ -7449,14 +7449,14 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             hostname_len = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_hostname, tvb, offset, hostname_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_hostname, tvb, offset, hostname_len, ENC_ASCII);
             offset += hostname_len;
 
             proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_domain_name_len, tvb, offset, 1, ENC_NA);
             domain_name_len = tvb_get_guint8(tvb, offset);
             offset += 1;
 
-            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_domain_name, tvb, offset, domain_name_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(cap_tree, hf_bgp_cap_fqdn_domain_name, tvb, offset, domain_name_len, ENC_ASCII);
             offset += domain_name_len;
 
             }
@@ -8588,7 +8588,7 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
                 proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_len, tvb, offset+14+rn_addr_length, 2, ENC_BIG_ENDIAN);
                 opaque_value_length = tvb_get_ntohs(tvb, offset+14+rn_addr_length);
                 proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_str, tvb, offset+16+rn_addr_length,
-                                    opaque_value_length, ENC_ASCII|ENC_NA);
+                                    opaque_value_length, ENC_ASCII);
             }
             else {
                 /* This covers situation when opaque id is 0 (reserved) or any other value */
@@ -9424,7 +9424,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                                 proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_policy_name_reserved, tvb, q, 1, ENC_BIG_ENDIAN);
                                 q += 1;
                                 proto_tree_add_item(subtree6, hf_bgp_update_encaps_tunnel_subtlv_policy_name_name, tvb, q,
-                                        encaps_tunnel_sublen - 1, ENC_ASCII|ENC_NA);
+                                        encaps_tunnel_sublen - 1, ENC_ASCII);
                                 q += (encaps_tunnel_sublen - 1);
                                 break;
                             default:

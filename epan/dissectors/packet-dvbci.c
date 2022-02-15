@@ -2015,7 +2015,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset, conversation_t *conv,
         /* everything from here to the descriptor's end is a hostname */
         hostname_len = (offset_body+len_field)-offset;
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_hostname,
-                tvb, offset, hostname_len, ENC_ASCII|ENC_NA);
+                tvb, offset, hostname_len, ENC_ASCII);
         offset += hostname_len;
     } else {
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_data,
@@ -3614,7 +3614,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
         case T_CC_PIN_MMI_REQ:
             proto_tree_add_item(tree, hf_dvbci_pincode, tvb, offset,
                     tvb_reported_length_remaining(tvb, offset),
-                    ENC_ASCII|ENC_NA);
+                    ENC_ASCII);
             break;
         default:
             break;
@@ -3761,7 +3761,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             }
             offset += app_dom_id_len;
             proto_tree_add_item(tree, hf_dvbci_init_obj,
-                    tvb, offset, init_obj_len, ENC_ASCII|ENC_NA);
+                    tvb, offset, init_obj_len, ENC_ASCII);
             break;
         case T_REQUEST_START_ACK:
             ack_code = tvb_get_guint8(tvb, offset);
@@ -4080,7 +4080,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           proto_tree_add_item(tree, hf_dvbci_opp_lang_code,
-                  tvb, offset, 3, ENC_ASCII|ENC_NA);
+                  tvb, offset, 3, ENC_ASCII);
           offset += 3;
           /* hf_dvbci_prof_name is an FT_UINT_STRING, one leading len byte */
           proto_tree_add_item(tree, hf_dvbci_prof_name,
@@ -4831,14 +4831,14 @@ dissect_dvbci_cis_payload_tpll_v1(tvbuff_t *data_tvb,
     if (offset_str_end<offset) /* offset_str_end==offset is ok */
         return offset;
     proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_manuf,
-            data_tvb, offset, offset_str_end-offset, ENC_ASCII|ENC_NA);
+            data_tvb, offset, offset_str_end-offset, ENC_ASCII);
     offset = offset_str_end+1; /* +1 for 0 termination */
 
     offset_str_end = tvb_find_guint8(data_tvb, offset, -1, 0x0);
     if (offset_str_end<offset)
         return offset;
     proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_name,
-            data_tvb, offset, offset_str_end-offset, ENC_ASCII|ENC_NA);
+            data_tvb, offset, offset_str_end-offset, ENC_ASCII);
     offset = offset_str_end+1;
 
     /* the pc-card spec mentions two additional info strings,
@@ -4849,7 +4849,7 @@ dissect_dvbci_cis_payload_tpll_v1(tvbuff_t *data_tvb,
         if (offset_str_end<offset)
             break;
         proto_tree_add_item(tree, hf_dvbci_cis_tpll_v1_info_additional,
-                data_tvb, offset, offset_str_end-offset, ENC_ASCII|ENC_NA);
+                data_tvb, offset, offset_str_end-offset, ENC_ASCII);
         offset = offset_str_end+1;
     }
 
@@ -4921,7 +4921,7 @@ dissect_dvbci_cis_payload_config(tvbuff_t *data_tvb,
             /* the stci_str field could consist of multiple strings,
                this case is not supported for now */
             proto_tree_add_item(st_tree, hf_dvbci_cis_stci_str,
-                    data_tvb, offset, st_len-stci_ifn_size, ENC_ASCII|ENC_NA);
+                    data_tvb, offset, st_len-stci_ifn_size, ENC_ASCII);
             offset += st_len-stci_ifn_size;
         }
         else {

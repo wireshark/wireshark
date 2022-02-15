@@ -148,7 +148,7 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
     case SS_READY_TYPE:
       info_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - MESSAGE_RDY_INFO_OFFSET;
       if (info_length > 0) {
-        proto_tree_add_item(ssprotocol_tree, hf_message_info, message_tvb, MESSAGE_RDY_INFO_OFFSET, info_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ssprotocol_tree, hf_message_info, message_tvb, MESSAGE_RDY_INFO_OFFSET, info_length, ENC_ASCII);
         total_length += info_length;
       }
       break;
@@ -156,7 +156,7 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
       info_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - MESSAGE_NOTRDY_INFO_OFFSET;
       if (info_length > 0) {
         proto_tree_add_item(ssprotocol_tree, hf_message_reason, message_tvb, MESSAGE_NOTRDY_REASON_OFFSET, MESSAGE_NOTRDY_REASON_LENGTH, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ssprotocol_tree, hf_message_info,   message_tvb, MESSAGE_NOTRDY_INFO_OFFSET, info_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ssprotocol_tree, hf_message_info,   message_tvb, MESSAGE_NOTRDY_INFO_OFFSET, info_length, ENC_ASCII);
         total_length += info_length;
       }
       break;

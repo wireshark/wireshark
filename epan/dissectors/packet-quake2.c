@@ -93,7 +93,7 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     len = tvb_captured_length_remaining(tvb, offset);
     proto_tree_add_item(cl_tree, hf_quake2_connectionless_text,
-            tvb, offset, len, ENC_ASCII|ENC_NA);
+            tvb, offset, len, ENC_ASCII);
     /*offset += len;*/
 
     /* we should analyse the result 'text' a bit further */

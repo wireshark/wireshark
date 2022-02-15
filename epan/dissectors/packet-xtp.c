@@ -856,7 +856,7 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	offset += 4;
 	/* message(n) */
 	proto_tree_add_item(xtp_subtree, hf_xtp_diag_msg,
-			tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+			tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
 
 	return;
 }

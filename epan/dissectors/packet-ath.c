@@ -108,7 +108,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* BEGIN
      */
-      proto_tree_add_item(ath_tree, hf_ath_begin, tvb, offset, 8, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_begin, tvb, offset, 8, ENC_ASCII);
       offset += 8;
 
       /* LENGTH
@@ -157,7 +157,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* COMMAND
        */
-      proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII);
       if (clen != -1)
         info_command = tvb_get_string_enc(pinfo->pool, tvb, offset, clen, ENC_ASCII);
       offset += clen;
@@ -169,7 +169,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* DOMAIN
        */
-      proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII);
       if (dlen != 0)
         info_domain = tvb_get_string_enc(pinfo->pool, tvb, offset, dlen, ENC_ASCII);
       offset += dlen;
@@ -186,12 +186,12 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* PAYLOAD
        */
-      proto_tree_add_item(ath_tree, hf_ath_payload, tvb, offset, plen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_payload, tvb, offset, plen, ENC_ASCII);
       offset += plen;
 
       /* END
        */
-      proto_tree_add_item(ath_tree, hf_ath_end, tvb, offset, 8, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_end, tvb, offset, 8, ENC_ASCII);
   }
 
   /* dissecting a Tomcat 7/8 packet
@@ -200,7 +200,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* BEGIN
      */
-      proto_tree_add_item(ath_tree, hf_ath_begin, tvb, offset, 8, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_begin, tvb, offset, 8, ENC_ASCII);
       offset += 8;
 
       proto_tree_add_item(ath_tree, hf_ath_padding, tvb, offset, 2, ENC_ASCII|ENC_NA);
@@ -257,7 +257,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* COMMAND
        */
-      proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_comm, tvb, offset, clen, ENC_ASCII);
       if (clen != -1)
         info_command = tvb_get_string_enc(pinfo->pool, tvb, offset, clen, ENC_ASCII);
       offset += clen;
@@ -269,7 +269,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* DOMAIN
        */
-      proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_domain, tvb, offset, dlen, ENC_ASCII);
       if (dlen != 0)
         info_domain = tvb_get_string_enc(pinfo->pool, tvb, offset, dlen, ENC_ASCII);
       offset += dlen;
@@ -286,12 +286,12 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
       /* PAYLOAD
        */
-      proto_tree_add_item(ath_tree, hf_ath_payload, tvb, offset, plen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_payload, tvb, offset, plen, ENC_ASCII);
       offset += plen;
 
       /* END
        */
-      proto_tree_add_item(ath_tree, hf_ath_end, tvb, offset, 8, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ath_tree, hf_ath_end, tvb, offset, 8, ENC_ASCII);
 
   } else {
     proto_tree_add_expert(tree, pinfo, &ei_ath_hmark_invalid, tvb, offset, -1);

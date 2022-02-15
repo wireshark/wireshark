@@ -4571,7 +4571,7 @@ netlogon_dissect_UAS_INFO_0(tvbuff_t *tvb, int offset,
         return offset;
     }
 
-    proto_tree_add_item(tree, hf_netlogon_computer_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_netlogon_computer_name, tvb, offset, 16, ENC_ASCII);
     offset += 16;
 
     time_created = tvb_get_guint32(tvb, offset, DREP_ENC_INTEGER(drep));
@@ -7655,14 +7655,14 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
     /* netbios domain name */
     if (messageflags&0x00000001) {
         len = tvb_strsize(tvb, offset);
-        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_domain, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_domain, tvb, offset, len, ENC_ASCII);
         offset += len;
     }
 
     /* netbios host name */
     if (messageflags&0x00000002) {
         len = tvb_strsize(tvb, offset);
-        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_host, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_host, tvb, offset, len, ENC_ASCII);
         offset += len;
     }
 

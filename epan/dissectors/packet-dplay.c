@@ -698,7 +698,7 @@ static gint dissect_dplay_header(proto_tree *tree, tvbuff_t *tvb, gint offset)
     proto_tree_add_uint(tree, hf_dplay_token, tvb, offset, 4, token);
     offset += 4;
     offset = dissect_sockaddr_in(tree, tvb, offset);
-    proto_tree_add_item(tree, hf_dplay_play_str, tvb, offset, 4, ENC_ASCII|ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_play_str, tvb, offset, 4, ENC_ASCII); offset += 4;
     proto_tree_add_item(tree, hf_dplay_command, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
     proto_tree_add_item(tree, hf_dplay_proto_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
     return offset;
@@ -849,7 +849,7 @@ static gint dissect_type15_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
     enc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dplay_enc_packet, NULL, "DirectPlay encapsulated packet");
 
-    proto_tree_add_item(enc_tree, hf_dplay_play_str_2, tvb, offset, 4, ENC_ASCII|ENC_NA); offset += 4;
+    proto_tree_add_item(enc_tree, hf_dplay_play_str_2, tvb, offset, 4, ENC_ASCII); offset += 4;
     proto_tree_add_item(enc_tree, hf_dplay_command_2, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
     proto_tree_add_item(enc_tree, hf_dplay_proto_dialect_2, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 

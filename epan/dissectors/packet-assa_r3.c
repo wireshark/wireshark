@@ -3562,10 +3562,10 @@ dissect_serialnumber (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, p
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_manufacturer, tvb, start_offset +  0, 2, s, "%s (%s)", s, str_to_str (s, r3_snmanufacturernames, "[Unknown]"));
   s = tvb_get_string_enc (pinfo->pool, tvb, start_offset +  2, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_year, tvb, start_offset +  2, 1, s, "%s (%s)", s, str_to_str (s, r3_snyearnames, "[Unknown]"));
-  proto_tree_add_item(sn_tree, hf_r3_sn_week, tvb, start_offset +  3, 2, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(sn_tree, hf_r3_sn_week, tvb, start_offset +  3, 2, ENC_ASCII);
   s = tvb_get_string_enc (pinfo->pool, tvb, start_offset +  5, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_model, tvb, start_offset +  5, 1, s, "%s (%s)", s, str_to_str (s, r3_snmodelnames, "[Unknown]"));
-  proto_tree_add_item(sn_tree, hf_r3_sn_sequence, tvb, start_offset +  6, 4, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(sn_tree, hf_r3_sn_sequence, tvb, start_offset +  6, 4, ENC_ASCII);
   s = tvb_get_string_enc (pinfo->pool, tvb, start_offset + 10, 1, ENC_ASCII|ENC_NA);
   proto_tree_add_string_format_value(sn_tree, hf_r3_sn_group, tvb, start_offset + 10, 1, s, "%s (%s)", s, str_to_str (s, r3_sngroupnames, "[Unknown]"));
   s = tvb_get_string_enc (pinfo->pool, tvb, start_offset + 11, 1, ENC_ASCII|ENC_NA);
@@ -3855,7 +3855,7 @@ dissect_r3_upstreamcommand_debugmsg (tvbuff_t *tvb, guint32 start_offset, guint3
 
   debugmsg_tree = proto_tree_add_subtree(tree, tvb, 0, -1, ett_r3debugmsg, NULL, "Debug message");
 
-  proto_tree_add_item (debugmsg_tree, hf_r3_debugmsg, tvb, 1, -1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (debugmsg_tree, hf_r3_debugmsg, tvb, 1, -1, ENC_ASCII);
 }
 
 static void
@@ -3994,7 +3994,7 @@ dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start_offset, gui
         break;
 
       case CONFIGTYPE_STRING :
-        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_string, tvb, offset + 3, item_length - 3, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_string, tvb, offset + 3, item_length - 3, ENC_ASCII);
         break;
 
       default :
@@ -5000,7 +5000,7 @@ dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset, guint3
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
-  proto_tree_add_item (tree, hf_r3_testmagcard, tvb, 0, -1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (tree, hf_r3_testmagcard, tvb, 0, -1, ENC_ASCII);
 }
 
 static void
@@ -5008,7 +5008,7 @@ dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, guint32 start_offset, guint
 {
   DISSECTOR_ASSERT(start_offset == 0);
 
-  proto_tree_add_item (tree, hf_r3_testproxcard, tvb, 0, -1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (tree, hf_r3_testproxcard, tvb, 0, -1, ENC_ASCII);
 }
 
 /*
@@ -5260,7 +5260,7 @@ dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint32 length _U
 
         case CONFIGTYPE_STRING :
           proto_tree_add_item (sc_tree, hf_r3_configitemdata_string, payload_tvb, offset + 2,
-                               item_length - 2, ENC_ASCII|ENC_NA);
+                               item_length - 2, ENC_ASCII);
           break;
 
         default :
@@ -6593,7 +6593,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
   if (tvb_strneql (tvb, 0, "~~~ds", 5) == 0)
   {
     if (r3_tree)
-      proto_tree_add_item (r3_tree, hf_r3_tildex3ds, tvb, 0, -1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (r3_tree, hf_r3_tildex3ds, tvb, 0, -1, ENC_ASCII);
 
     return 5;
   }

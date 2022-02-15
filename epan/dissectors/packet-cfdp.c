@@ -620,13 +620,13 @@ static guint32 dissect_cfdp_filestore_req_tlv(tvbuff_t *tvb, proto_tree *tree, g
 
         aux_byte = tvb_get_guint8(tvb, offset);
         offset += 1;
-        proto_tree_add_item(cfdp_filestore_req_tree, hf_cfdp_first_file_name, tvb, offset, aux_byte, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(cfdp_filestore_req_tree, hf_cfdp_first_file_name, tvb, offset, aux_byte, ENC_ASCII);
         offset += aux_byte;
 
         aux_byte = tvb_get_guint8(tvb, offset);
         offset += 1;
         if(aux_byte > 0){
-            proto_tree_add_item(cfdp_filestore_req_tree, hf_cfdp_second_file_name, tvb, offset, aux_byte, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(cfdp_filestore_req_tree, hf_cfdp_second_file_name, tvb, offset, aux_byte, ENC_ASCII);
             offset += aux_byte;
         }
     }
@@ -689,13 +689,13 @@ static guint32 dissect_cfdp_filestore_resp_tlv(tvbuff_t *tvb, proto_tree *tree, 
 
         aux_byte = tvb_get_guint8(tvb, offset);
         offset += 1;
-        proto_tree_add_item(cfdp_filestore_resp_tree, hf_cfdp_first_file_name, tvb, offset, aux_byte, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(cfdp_filestore_resp_tree, hf_cfdp_first_file_name, tvb, offset, aux_byte, ENC_ASCII);
         offset += aux_byte;
 
         aux_byte = tvb_get_guint8(tvb, offset);
         offset += 1;
         if(aux_byte > 0){
-            proto_tree_add_item(cfdp_filestore_resp_tree, hf_cfdp_second_file_name, tvb, offset, aux_byte, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(cfdp_filestore_resp_tree, hf_cfdp_second_file_name, tvb, offset, aux_byte, ENC_ASCII);
             offset += aux_byte;
         }
 
@@ -780,12 +780,12 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, packet_info *pinfo, p
 
                 tlv_len = tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_src_file_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_src_file_name, tvb, offset, tlv_len, ENC_ASCII);
                 offset += tlv_len;
 
                 tlv_len = tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_dst_file_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_dst_file_name, tvb, offset, tlv_len, ENC_ASCII);
                 offset += tlv_len;
 
                 break;
@@ -871,12 +871,12 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, packet_info *pinfo, p
                 /* Directory Name */
                 tlv_len =  tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_name, tvb, offset, tlv_len, ENC_ASCII);
                 offset += tlv_len;
                 /* Directory File Name */
                 tlv_len =  tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_file_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_file_name, tvb, offset, tlv_len, ENC_ASCII);
                 offset += tlv_len;
                 break;
 
@@ -888,12 +888,12 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, packet_info *pinfo, p
                 /* Directory Name */
                 tlv_len =  tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_name, tvb, offset, tlv_len, ENC_ASCII);
                 offset += tlv_len;
                 /* Directory File Name */
                 tlv_len =  tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_file_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_directory_file_name, tvb, offset, tlv_len, ENC_ASCII);
                 offset += tlv_len;
                 break;
 
@@ -917,7 +917,7 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, packet_info *pinfo, p
                 /* Report File Name */
                 tlv_len =  tvb_get_guint8(tvb, offset);
                 offset += 1;
-                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_report_file_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(cfdp_msg_to_user_tree, hf_cfdp_report_file_name, tvb, offset, tlv_len, ENC_ASCII);
                 offset += tlv_len;
                 break;
 
@@ -1156,10 +1156,10 @@ static guint32 dissect_cfdp_metadata_pdu(tvbuff_t *tvb, packet_info *pinfo, prot
     offset += 4;
     aux_byte = tvb_get_guint8(tvb, offset);
     if(aux_byte >0){
-        proto_tree_add_item(tree, hf_cfdp_src_file_name, tvb, offset+1, aux_byte, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_cfdp_src_file_name, tvb, offset+1, aux_byte, ENC_ASCII);
         offset += aux_byte+1;
         aux_byte = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_cfdp_dst_file_name, tvb, offset+1, aux_byte, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_cfdp_dst_file_name, tvb, offset+1, aux_byte, ENC_ASCII);
         offset += aux_byte+1;
     }
     /* Add TLV fields */

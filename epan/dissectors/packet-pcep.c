@@ -1625,7 +1625,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gi
                 break;
 
             case 17:    /* SYMBOLIC-PATH-NAME TLV */
-                proto_tree_add_item(tlv, hf_pcep_symbolic_path_name, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_symbolic_path_name, tvb, offset+4+j, tlv_length, ENC_ASCII);
                 break;
 
             case 18:    /* IPV4-LSP-IDENTIFIERS TLV */
@@ -1649,7 +1649,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gi
                 break;
 
             case 21:    /* RSVP-ERROR-SPEC TLV */
-                proto_tree_add_item(tlv, hf_pcep_rsvp_user_error_spec, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_rsvp_user_error_spec, tvb, offset+4+j, tlv_length, ENC_ASCII);
                 break;
 
             case 23:    /* LSP-DB-VERSION TLV */
@@ -1657,7 +1657,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gi
                 break;
 
             case 24:    /* SPEAKER-ENTITY-ID TLV */
-                proto_tree_add_item(tlv, hf_pcep_speaker_entity_id, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_speaker_entity_id, tvb, offset+4+j, tlv_length, ENC_ASCII);
                 break;
 
             case 26:    /* SR-PCE-CAPABILITY TLV Deprecated */
@@ -1744,7 +1744,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gi
                 break;
 
             case 56:   /* SRPOLICY-POL-NAME */
-                proto_tree_add_item(tlv, hf_pcep_sr_policy_name, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_name, tvb, offset+4+j, tlv_length, ENC_ASCII);
                 break;
 
             case 57:   /* SRPOLICY-CPATH-ID */
@@ -1755,7 +1755,7 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gi
                 break;
 
             case 58:   /* SRPOLICY-CPATH-NAME */
-                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_name, tvb, offset+4+j, tlv_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_sr_policy_cpath_name, tvb, offset+4+j, tlv_length, ENC_ASCII);
                 break;
 
             case 59:   /* SRPOLICY-CPATH-PREFERENCE */

@@ -754,7 +754,7 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 			offset += 16;
 			break;
 		case CQL_RESULT_ROW_TYPE_VARCHAR:
-			proto_tree_add_item(columns_subtree, hf_cql_varchar, tvb, offset, bytes_length, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(columns_subtree, hf_cql_varchar, tvb, offset, bytes_length, ENC_ASCII);
 			offset += bytes_length;
 			break;
 		case CQL_RESULT_ROW_TYPE_VARINT:

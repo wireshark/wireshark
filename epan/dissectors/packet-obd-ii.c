@@ -1259,7 +1259,7 @@ dissect_obdii_mode_09(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 		proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_VAL_OFF, oinfo->value_bytes, ENC_NA);
 		break;
 	case OBDII_MODE09_VIN02:
-		proto_tree_add_item(tree, hf_obdii_vin, tvb, OBDII_VAL_OFF+1, oinfo->value_bytes-1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_obdii_vin, tvb, OBDII_VAL_OFF+1, oinfo->value_bytes-1, ENC_ASCII);
 		break;
 	case OBDII_MODE09_CALIBRATION_ID04:
 	case OBDII_MODE09_CAL_VER_NUMBERS06:
@@ -1267,7 +1267,7 @@ dissect_obdii_mode_09(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 		proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_VAL_OFF, oinfo->value_bytes, ENC_NA);
 		break;
 	case OBDII_MODE09_ECU_NAME0A:
-		proto_tree_add_item(tree, hf_obdii_ecu_name, tvb, OBDII_VAL_OFF+1, oinfo->value_bytes-1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_obdii_ecu_name, tvb, OBDII_VAL_OFF+1, oinfo->value_bytes-1, ENC_ASCII);
 		break;
 	case OBDII_MODE09_PERFORMANCE_COMPRESSION0B:
 	default:

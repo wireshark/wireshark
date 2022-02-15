@@ -260,9 +260,9 @@ static void decode_packetcable_bcid (tvbuff_t *tvb, proto_tree *tree, int offset
 {
 
 	proto_tree_add_item(tree, hf_packetcable_bcid_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_packetcable_bcid_element_id, tvb, offset + 4, 8, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_bcid_element_id, tvb, offset + 4, 8, ENC_ASCII);
 	proto_tree_add_item(tree, hf_packetcable_bcid_time_zone_dst, tvb, offset + 12, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_packetcable_bcid_time_zone_offset, tvb, offset + 13, 7, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_bcid_time_zone_offset, tvb, offset + 13, 7, ENC_ASCII);
 	proto_tree_add_item(tree, hf_packetcable_bcid_event_counter, tvb, offset + 20, 4, ENC_BIG_ENDIAN);
 }
 
@@ -276,11 +276,11 @@ static const gchar* dissect_packetcable_em_hdr(proto_tree* tree, tvbuff_t* tvb, 
 
 	proto_tree_add_item(tree, hf_packetcable_em_header_event_message_type, tvb,  26, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_em_header_element_type, tvb,  28, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_packetcable_em_header_element_id, tvb, 30, 8, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_em_header_element_id, tvb, 30, 8, ENC_ASCII);
 	proto_tree_add_item(tree, hf_packetcable_em_header_time_zone_dst, tvb, 38, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_packetcable_em_header_time_zone_offset, tvb, 39, 7, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_em_header_time_zone_offset, tvb, 39, 7, ENC_ASCII);
 	proto_tree_add_item(tree, hf_packetcable_em_header_sequence_number, tvb,  46, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_packetcable_em_header_event_time, tvb, 50, 18, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_em_header_event_time, tvb, 50, 18, ENC_ASCII);
 
 	ti = proto_tree_add_item(tree, hf_packetcable_em_header_status, tvb,  68, 4, ENC_BIG_ENDIAN);
 	obj_tree = proto_item_add_subtree(ti, ett_radius_vendor_packetcable_status);
@@ -344,7 +344,7 @@ static const gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_
 	proto_tree_add_bitmask(tree, tvb, 0, hf_packetcable_qos_status,
 			       ett_radius_vendor_packetcable_qos_status, qos_flags, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_packetcable_qos_service_class_name, tvb, 4, 16, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_qos_service_class_name, tvb, 4, 16, ENC_ASCII);
 
 	for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
 		if (packetcable_qos_flags & packetcable_qos_desc_mask[intval]) {
@@ -365,9 +365,9 @@ static const gchar* dissect_packetcable_time_adjustment(proto_tree* tree, tvbuff
 
 static const gchar* dissect_packetcable_redirected_from_info(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo _U_) {
 
-	proto_tree_add_item(tree, hf_packetcable_redirected_from_last_redirecting_party, tvb, 0, 20, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_redirected_from_last_redirecting_party, tvb, 0, 20, ENC_ASCII);
 
-	proto_tree_add_item(tree, hf_packetcable_redirected_from_original_called_party, tvb, 20, 20, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_packetcable_redirected_from_original_called_party, tvb, 20, 20, ENC_ASCII);
 
 	proto_tree_add_item(tree, hf_packetcable_redirected_from_info_number_of_redirections,
 						tvb, 40, 2, ENC_BIG_ENDIAN);
@@ -421,25 +421,25 @@ static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff
 
 	if (bitmask & PACKETCABLE_GENERAL_DISPLAY) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_general_display,
-							tvb, intval, 80, ENC_ASCII|ENC_NA);
+							tvb, intval, 80, ENC_ASCII);
 		intval += 80;
 	}
 
 	if (bitmask & PACKETCABLE_CALLING_NUMBER) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_number,
-							tvb, intval, 40, ENC_ASCII|ENC_NA);
+							tvb, intval, 40, ENC_ASCII);
 		intval += 40;
 	}
 
 	if (bitmask & PACKETCABLE_CALLING_NAME) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_name,
-							tvb, intval, 40, ENC_ASCII|ENC_NA);
+							tvb, intval, 40, ENC_ASCII);
 		intval += 40;
 	}
 
 	if (bitmask & PACKETCABLE_MESSAGE_WAITING) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_message_waiting,
-							tvb, intval, 40, ENC_ASCII|ENC_NA);
+							tvb, intval, 40, ENC_ASCII);
 	}
 
 	return "";

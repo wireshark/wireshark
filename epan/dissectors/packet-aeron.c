@@ -2667,7 +2667,7 @@ static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     string_length = frame_length - ofs;
     if (string_length > 0)
     {
-        proto_tree_add_item(subtree, hf_aeron_err_string, tvb, offset + ofs, string_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_aeron_err_string, tvb, offset + ofs, string_length, ENC_ASCII);
     }
     rounded_length = (int) frame_length;
     if (rounded_length < 0)

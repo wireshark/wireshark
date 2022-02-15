@@ -447,14 +447,14 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             /* display user name */
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item( tree, hf_socks_username, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item( tree, hf_socks_username, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
 
             if ( ipaddr[0] == 0 && ipaddr[1] == 0 &&
                  ipaddr[2] == 0 && ipaddr[3] != 0) {
                 /* 0.0.0.x , where x!=0 means v4a support */
                 str_len = tvb_strsize(tvb, offset);
-                proto_tree_add_item( tree, hf_v4a_dns_name, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item( tree, hf_v4a_dns_name, tvb, offset, str_len, ENC_ASCII);
             }
             break;
         default:

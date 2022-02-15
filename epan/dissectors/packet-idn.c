@@ -1003,7 +1003,7 @@ static int dissect_idn_servicemap_entry(tvbuff_t *tvb, int offset, proto_tree *i
 	offset += 1;
 	proto_tree_add_item(idn_servicemap_entry_tree, idn_relay_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(idn_servicemap_entry_tree, idn_name, tvb, offset, 20, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(idn_servicemap_entry_tree, idn_name, tvb, offset, 20, ENC_ASCII);
 	offset += 20;
 	return offset;
 }
@@ -1063,7 +1063,7 @@ static int dissect_idn_scan_response(tvbuff_t *tvb, int offset, proto_tree *idn_
 	offset += 1;
 	proto_tree_add_item(idn_scanreply_header_tree, idn_unit_id, tvb, offset, 16, ENC_NA);
 	offset += 16;
-	proto_tree_add_item(idn_scanreply_header_tree, idn_name, tvb, offset, 20, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(idn_scanreply_header_tree, idn_name, tvb, offset, 20, ENC_ASCII);
 	offset += 20;
 	return offset;
 }

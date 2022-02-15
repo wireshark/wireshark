@@ -444,9 +444,9 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
 				/* And add the key and value separately inside */
 				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_key, tvb,
-				                    offset, keylen, ENC_ASCII|ENC_NA);
+				                    offset, keylen, ENC_ASCII);
 				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_value, tvb,
-				                    offset+keylen+2, vallen, ENC_ASCII|ENC_NA);
+				                    offset+keylen+2, vallen, ENC_ASCII);
 
 				/* Move beyone key and value lines */
 				offset += keylen+2+vallen+2;

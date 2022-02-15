@@ -3049,7 +3049,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
 
   if (dmp.body_format == FREE_TEXT_SUBJECT) {
     len = tvb_strsize (tvb, offset);
-    proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_ASCII);
     offset += len;
   }
 
@@ -3134,7 +3134,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     if (eit != EIT_BILATERAL && body_len > 0) {
       field_tree = proto_item_add_subtree (tf, ett_message_body);
       proto_tree_add_item (field_tree, hf_message_body_plain, body_tvb,
-                           body_offset, body_len, ENC_ASCII|ENC_NA);
+                           body_offset, body_len, ENC_ASCII);
     }
   }
   offset += len;
@@ -3285,7 +3285,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
                                 128 - (offset - boffset));
       }
       field_tree = proto_item_add_subtree (tf, ett_report_suppl_info);
-      proto_tree_add_item (field_tree, hf_report_suppl_info, tvb, offset, len, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (field_tree, hf_report_suppl_info, tvb, offset, len, ENC_ASCII);
     }
     offset += len;
   }
@@ -3358,7 +3358,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
                                 128 - (offset - boffset));
       }
       field_tree = proto_item_add_subtree (tf, ett_notif_suppl_info);
-      proto_tree_add_item (field_tree, hf_notif_suppl_info, tvb, offset, len, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (field_tree, hf_notif_suppl_info, tvb, offset, len, ENC_ASCII);
     }
     offset += len;
 
@@ -3374,7 +3374,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
           proto_item_append_text (tf, " (incorrect, must be less than 64)");
         }
         field_tree = proto_item_add_subtree (tf, ett_notif_acp127recip);
-        proto_tree_add_item (field_tree, hf_notif_acp127recip, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (field_tree, hf_notif_acp127recip, tvb, offset, len, ENC_ASCII);
       }
       offset += len;
     }

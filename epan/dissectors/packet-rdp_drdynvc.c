@@ -306,7 +306,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				guint nameLen = tvb_strsize(tvb, offset);
 
 				col_set_str(pinfo->cinfo, COL_INFO, "CreateChannel Request");
-				proto_tree_add_item(tree, hf_rdp_drdynvc_channelName, tvb, offset, -1, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tree, hf_rdp_drdynvc_channelName, tvb, offset, -1, ENC_ASCII);
 
 				if (info->maxChannels < DRDYNVC_MAX_CHANNELS) {
 					drdynvc_channel_def_t *channel = &info->channels[info->maxChannels];

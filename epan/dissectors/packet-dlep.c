@@ -1037,7 +1037,7 @@ decode_signal_header(tvbuff_t *tvb, int offset, proto_item* pi, proto_tree *pt, 
   tmp_pi = proto_tree_add_item(pt, hf_dlep_signal, tvb, offset, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(tmp_pi);
 
-  proto_tree_add_item(pt, hf_dlep_signal_signature, tvb, offset, 4, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(pt, hf_dlep_signal_signature, tvb, offset, 4, ENC_ASCII);
   offset+=4;
 
   proto_tree_add_item_ret_uint(pt, hf_dlep_signal_type, tvb, offset, 2, ENC_BIG_ENDIAN, &signal_type);

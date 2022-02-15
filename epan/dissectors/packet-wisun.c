@@ -820,7 +820,7 @@ dissect_wisun_netnameie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     subtree = proto_item_add_subtree(item, ett_wisun_netnameie);
 
     proto_tree_add_bitmask(subtree, tvb, 0, hf_wisun_wsie, ett_wisun_wsie_bitmap, wisun_format_nested_ie_short, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(subtree, hf_wisun_netnameie_name, tvb, 2, tvb_reported_length_remaining(tvb, 2), ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_wisun_netnameie_name, tvb, 2, tvb_reported_length_remaining(tvb, 2), ENC_ASCII);
 
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "Netname: %s",
                         tvb_get_string_enc(pinfo->pool, tvb, 2, tvb_reported_length_remaining(tvb, 2), ENC_ASCII));

@@ -467,7 +467,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					if (poe_tag_length > 0)
 					{
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name, tvb,
-						                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+						                    tagstart+4, poe_tag_length, ENC_ASCII);
 					}
 					break;
 				case PPPOE_TAG_AC_NAME:
@@ -633,15 +633,15 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 				   strings. */
 				case PPPOE_TAG_SVC_ERR:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name_error, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+					                    tagstart+4, poe_tag_length, ENC_ASCII);
 					break;
 				case PPPOE_TAG_AC_ERR:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_system_error, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+					                    tagstart+4, poe_tag_length, ENC_ASCII);
 					break;
 				case PPPOE_TAG_GENERIC_ERR:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_generic_error, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+					                    tagstart+4, poe_tag_length, ENC_ASCII);
 					break;
 
 				/* Get out if see end-of-list tag */

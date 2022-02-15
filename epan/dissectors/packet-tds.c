@@ -2799,7 +2799,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                         break;
                     case TDS_DATA_TYPE_TEXT:
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII);
                         break;
                     default: /*TODO*/
                         proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
@@ -2878,7 +2878,7 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_
     cur += 1;
     len -= 1;
 
-    proto_tree_add_item(tree, hf_tds_lang_language_text, tvb, cur, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_tds_lang_language_text, tvb, cur, len, ENC_ASCII);
     cur += len;
 
     return cur - offset;
@@ -4248,7 +4248,7 @@ dissect_tds45_remotepassword(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         if (server_len > 0) {
             proto_tree_add_item(rempw_tree, hf_tdslogin_rempw_servername, tvb,
-                                offset + cur + 1, server_len, ENC_ASCII|ENC_NA);
+                                offset + cur + 1, server_len, ENC_ASCII);
         }
         length_item = proto_tree_add_item_ret_uint(rempw_tree, hf_tdslogin_rempw_password_length, tvb,
                                                    offset + cur + 1 + server_len, 1, ENC_NA, &password_len);
@@ -4259,7 +4259,7 @@ dissect_tds45_remotepassword(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         if (password_len > 0) {
             proto_tree_add_item(rempw_tree, hf_tdslogin_rempw_password, tvb,
-                                offset + cur + 1 + server_len + 1, password_len, ENC_ASCII|ENC_NA);
+                                offset + cur + 1 + server_len + 1, password_len, ENC_ASCII);
         }
         cur += (1 + server_len + 1 + password_len);
     }
@@ -6401,7 +6401,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
             case TDS_PROTOCOL_5:
                 len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_tds_rpc_name_length8, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(tree, hf_tds_rpc_name, tvb, offset + 1, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tree, hf_tds_rpc_name, tvb, offset + 1, len, ENC_ASCII);
                 offset += 1 + len;
                 break;
 

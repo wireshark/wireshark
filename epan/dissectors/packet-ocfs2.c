@@ -492,7 +492,7 @@ static int dlm_name_handler(proto_tree *tree, tvbuff_t *tvb, guint offset, int n
 	guint64 blkno;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, hf_dlm_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+	ti = proto_tree_add_item(tree, hf_dlm_name, tvb, offset, namelen, ENC_ASCII);
 	lock_type = tvb_get_guint8(tvb, offset);
 	if (lock_type == 'N') {
 		blkno = tvb_get_ntoh64(tvb, offset + OCFS2_DENTRY_LOCK_INO_START);
@@ -574,7 +574,7 @@ static void dissect_dlm_migrate_lockres(proto_tree *tree, tvbuff_t *tvb, int off
 	offset = dlm_cookie_handler(tree, tvb, offset, hf_dlm_mres_mig_cookie);
 
 	/* lockname */
-	proto_tree_add_item(tree, hf_dlm_name, tvb, offset, 32, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_dlm_name, tvb, offset, 32, ENC_ASCII);
 	offset += 32;
 
 	/* lvb */
@@ -678,7 +678,7 @@ static void dissect_dlm_query_join_request(proto_tree *tree, tvbuff_t *tvb, int 
 	}
 
 	/* domain */
-	proto_tree_add_item(tree, hf_dlm_domain_name, tvb, offset, 64, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_dlm_domain_name, tvb, offset, 64, ENC_ASCII);
 	offset += 64;
 
 	/* node_map */
@@ -720,7 +720,7 @@ static void dissect_dlm_query_region(proto_tree *tree, tvbuff_t *tvb,
 	offset += 1;
 
 	/* qr_domain */
-	proto_tree_add_item(tree, hf_dlm_qr_domain, tvb, offset, 64, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_dlm_qr_domain, tvb, offset, 64, ENC_ASCII);
 	offset += 64;
 
 	/* qr_regions */
@@ -748,7 +748,7 @@ static void dissect_dlm_query_nodeinfo(proto_tree *tree, tvbuff_t *tvb, guint of
 	offset += 1;
 
 	/* qn_domain */
-	proto_tree_add_item(tree, hf_dlm_qn_domain, tvb, offset, 64, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_dlm_qn_domain, tvb, offset, 64, ENC_ASCII);
 	offset += 64;
 
 	/* qn_nodes */
@@ -960,7 +960,7 @@ static int dissect_dlm_joined_msg(proto_tree *tree, tvbuff_t *tvb, int offset)
 	proto_tree_add_item(tree, hf_dlm_domain_name_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_dlm_domain_name, tvb, offset, 64, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_dlm_domain_name, tvb, offset, 64, ENC_ASCII);
 	offset += 64;
 
 	return offset;

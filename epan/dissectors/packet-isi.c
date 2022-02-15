@@ -679,11 +679,11 @@ static int dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *i
 			cmd = tvb_get_guint8(tvb, 2);
 			switch(cmd) {
 				case 0x00: /* DISABLE */
-					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 3, -1, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 3, -1, ENC_ASCII);
 					col_set_str(pinfo->cinfo, COL_INFO, "disable SIM startup protection");
 					break;
 				case 0x01: /* ENABLE */
-					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 3, -1, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 3, -1, ENC_ASCII);
 					col_set_str(pinfo->cinfo, COL_INFO, "enable SIM startup protection");
 					break;
 				case 0x04: /* STATUS */
@@ -707,8 +707,8 @@ static int dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *i
 			switch(code) {
 				case 0x02: /* PIN */
 					col_set_str(pinfo->cinfo, COL_INFO, "update SIM PIN");
-					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 2, 11, ENC_ASCII|ENC_NA);
-					proto_tree_add_item(tree, hf_isi_sim_auth_new_pin, tvb, 13, 11, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 2, 11, ENC_ASCII);
+					proto_tree_add_item(tree, hf_isi_sim_auth_new_pin, tvb, 13, 11, ENC_ASCII);
 					break;
 				case 0x03: /* PUK */
 					col_set_str(pinfo->cinfo, COL_INFO, "update SIM PUK");
@@ -730,12 +730,12 @@ static int dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *i
 			switch(code) {
 				case 0x02: /* PIN */
 					col_set_str(pinfo->cinfo, COL_INFO, "SIM Authentication with PIN");
-					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 2, 11, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(tree, hf_isi_sim_auth_pin, tvb, 2, 11, ENC_ASCII);
 					break;
 				case 0x03: /* PUK */
 					col_set_str(pinfo->cinfo, COL_INFO, "SIM Authentication with PUK");
-					proto_tree_add_item(tree, hf_isi_sim_auth_puk, tvb, 2, 11, ENC_ASCII|ENC_NA);
-					proto_tree_add_item(tree, hf_isi_sim_auth_new_pin, tvb, 13, 11, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(tree, hf_isi_sim_auth_puk, tvb, 2, 11, ENC_ASCII);
+					proto_tree_add_item(tree, hf_isi_sim_auth_new_pin, tvb, 13, 11, ENC_ASCII);
 					break;
 				default:
 					col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM Authentication request");

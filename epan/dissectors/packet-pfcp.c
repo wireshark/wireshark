@@ -2394,7 +2394,7 @@ dissect_pfcp_sdf_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
          * The Flow Description field, when present, shall be encoded as an OctetString
          * as specified in subclause 5.4.2 of 3GPP TS 29.212
          */
-        proto_tree_add_item(flow_desc_tree, hf_pfcp_flow_desc, tvb, offset, fd_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(flow_desc_tree, hf_pfcp_flow_desc, tvb, offset, fd_length, ENC_ASCII);
         offset += fd_length;
     }
     if ((flags_val & 0x2) == 2) {
@@ -3732,7 +3732,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (m+2) to p   Flow Description */
-        proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, len, ENC_ASCII);
         offset += len;
     }
 
@@ -3745,7 +3745,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (q+2) to r   URL */
-        proto_tree_add_item(tree, hf_pfcp_url, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_url, tvb, offset, len, ENC_ASCII);
         offset += len;
 
     }
@@ -3759,7 +3759,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (s+2) to t   Domain Name */
-        proto_tree_add_item(tree, hf_pfcp_dn, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_dn, tvb, offset, len, ENC_ASCII);
         offset += len;
     }
 
@@ -3789,7 +3789,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += 2;
 
         /* (w+2) to x   Domain Name Protocol */
-        proto_tree_add_item(tree, hf_pfcp_dnp, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_dnp, tvb, offset, len, ENC_ASCII);
         offset += len;
     }
 
@@ -3814,7 +3814,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             dissected_len += 2;
 
             /* (y+4) to i   Flow Description */
-            proto_tree_add_item(afd_tree, hf_pfcp_flow_desc, tvb, offset+2, flow_desc_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(afd_tree, hf_pfcp_flow_desc, tvb, offset+2, flow_desc_len, ENC_ASCII);
             offset += flow_desc_len;
             dissected_len += flow_desc_len;
         }
@@ -3840,7 +3840,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             offset += 2;
 
             /* (a+4) to o   URL */
-            proto_tree_add_item(aurl_tree, hf_pfcp_url, tvb, offset, url_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(aurl_tree, hf_pfcp_url, tvb, offset, url_len, ENC_ASCII);
             dissected_len += url_len;
             offset += url_len;
         }
@@ -3866,7 +3866,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             offset += 2;
 
             /* (c+4) to pd   Domain Name */
-            proto_tree_add_item(adnp_tree, hf_pfcp_dn, tvb, offset, domain_name_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(adnp_tree, hf_pfcp_dn, tvb, offset, domain_name_len, ENC_ASCII);
             dissected_len += domain_name_len;
             offset += domain_name_len;
 
@@ -3876,7 +3876,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             offset += 2;
 
             /* (pe+2) to ph   Domain Name Protocol */
-            proto_tree_add_item(adnp_tree, hf_pfcp_dnp, tvb, offset, domain_name_prot_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(adnp_tree, hf_pfcp_dnp, tvb, offset, domain_name_prot_len, ENC_ASCII);
             dissected_len += domain_name_prot_len;
             offset += domain_name_prot_len;
         }
@@ -4680,7 +4680,7 @@ dissect_pfcp_flow_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
     * The Flow Description field, when present, shall be encoded as an OctetString
     * as specified in subclause 5.4.2 of 3GPP TS 29.212
     */
-    proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_flow_desc, tvb, offset, len, ENC_ASCII);
     offset += len;
 
     if (offset < length) {
@@ -6062,7 +6062,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_nai, tvb, offset, 1, ENC_BIG_ENDIAN, &length_nai);
         offset += 1;
         /* (f+1) to g    NAI */
-        proto_tree_add_item(tree, hf_pfcp_user_id_nai, tvb, offset, length_nai, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_user_id_nai, tvb, offset, length_nai, ENC_ASCII);
         offset += length_nai;
     }
 
@@ -6072,7 +6072,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_supi, tvb, offset, 1, ENC_BIG_ENDIAN, &length_supi);
         offset += 1;
         /* (f+1) to g    SUPI */
-        proto_tree_add_item(tree, hf_pfcp_user_id_supi, tvb, offset, length_supi, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_user_id_supi, tvb, offset, length_supi, ENC_ASCII);
         offset += length_supi;
     }
 
@@ -6082,7 +6082,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_gpsi, tvb, offset, 1, ENC_BIG_ENDIAN, &length_gpsi);
         offset += 1;
         /* (f+1) to g    GPSI */
-        proto_tree_add_item(tree, hf_pfcp_user_id_gpsi, tvb, offset, length_gpsi, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_user_id_gpsi, tvb, offset, length_gpsi, ENC_ASCII);
         offset += length_gpsi;
     }
 
@@ -6092,7 +6092,7 @@ static void dissect_pfcp_user_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item_ret_uint(tree, hf_pfcp_user_id_length_of_pei, tvb, offset, 1, ENC_BIG_ENDIAN, &length_pei);
         offset += 1;
         /* (f+1) to g    PEI */
-        proto_tree_add_item(tree, hf_pfcp_user_id_pei, tvb, offset, length_pei, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_user_id_pei, tvb, offset, length_pei, ENC_ASCII);
         offset += length_pei;
     }
 

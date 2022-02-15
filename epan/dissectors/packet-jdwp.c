@@ -418,7 +418,7 @@ dissect_jdwp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
   }
 
   if (packet_type == 0) {
-    proto_tree_add_item(jdwp_tree, hf_jdwp_type, tvb, offset, 14, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(jdwp_tree, hf_jdwp_type, tvb, offset, 14, ENC_ASCII);
     return tvb_captured_length(tvb);
   }
 

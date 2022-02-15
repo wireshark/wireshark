@@ -560,7 +560,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				}
 				offset += 1; /* skip the 0 terminator */
 				proto_item_set_end(ti, tvb, offset);
-				proto_tree_add_item(data_tree, hf_tns_data_setp_cli_plat, tvb, offset, -1, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(data_tree, hf_tns_data_setp_cli_plat, tvb, offset, -1, ENC_ASCII);
 
 				return; /* skip call_data_dissector */
 			}
@@ -691,7 +691,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 
-				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner, tvb, offset, len, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_banner, tvb, offset, len, ENC_ASCII);
 				offset += len + (skip == 1 ? 1 : 0);
 
 				proto_tree_add_item(data_tree, hf_tns_data_opi_version2_vsnum, tvb, offset, 4, skip == 1 ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
@@ -741,7 +741,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 					/* Name */
 					if ( !(len == 0 || len == 2) ) /* Not empty (2 - SQLDeveloper specific sign). */
 					{
-						proto_tree_add_item(par_tree, hf_tns_data_opi_param_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(par_tree, hf_tns_data_opi_param_name, tvb, offset, len, ENC_ASCII);
 						offset += len;
 					}
 
@@ -772,7 +772,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 						proto_tree_add_item(par_tree, hf_tns_data_opi_param_length, tvb, offset, 1, ENC_NA);
 						offset += 1;
 
-						proto_tree_add_item(par_tree, hf_tns_data_opi_param_value, tvb, offset, len, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(par_tree, hf_tns_data_opi_param_value, tvb, offset, len, ENC_ASCII);
 						offset += len;
 
 						offset_prev = offset; /* Save offset to calculate rest of unused data */
@@ -941,7 +941,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	if ( cd_len > 0)
 	{
 		proto_tree_add_item(connect_tree, hf_tns_connect_data, tvb,
-			tns_offset+cd_offset, -1, ENC_ASCII|ENC_NA);
+			tns_offset+cd_offset, -1, ENC_ASCII);
 	}
 }
 
@@ -990,7 +990,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	if ( accept_len > 0)
 	{
 		proto_tree_add_item(accept_tree, hf_tns_accept_data, tvb,
-			tns_offset+accept_offset, -1, ENC_ASCII|ENC_NA);
+			tns_offset+accept_offset, -1, ENC_ASCII);
 	}
 	return;
 }
@@ -1021,7 +1021,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	offset += 2;
 
 	proto_tree_add_item(refuse_tree, hf_tns_refuse_data, tvb,
-			offset, -1, ENC_ASCII|ENC_NA);
+			offset, -1, ENC_ASCII);
 }
 
 
@@ -1041,7 +1041,7 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset += 1;
 
 	proto_tree_add_item(abort_tree, hf_tns_abort_data, tvb,
-			offset, -1, ENC_ASCII|ENC_NA);
+			offset, -1, ENC_ASCII);
 }
 
 
@@ -1085,7 +1085,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo _
 	offset += 2;
 
 	proto_tree_add_item(redirect_tree, hf_tns_redirect_data, tvb,
-			offset, -1, ENC_ASCII|ENC_NA);
+			offset, -1, ENC_ASCII);
 }
 
 static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tns_tree)

@@ -593,7 +593,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       break;
     case MN_NAI_EXT:
       proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, offset,
-                          ext_len, ENC_ASCII|ENC_NA);
+                          ext_len, ENC_ASCII);
       break;
 
     case GEN_AUTH_EXT:      /* RFC 3012 */
@@ -638,7 +638,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
       proto_tree_add_item(ext_tree, hf_mip_mstrext_stype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
       /* text */
-      proto_tree_add_item(ext_tree, hf_mip_mstrext_text, tvb, offset + 1, ext_len-1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(ext_tree, hf_mip_mstrext_text, tvb, offset + 1, ext_len-1, ENC_ASCII);
       break;
     case UDP_TUN_REQ_EXT:   /* RFC 3519 */
       {

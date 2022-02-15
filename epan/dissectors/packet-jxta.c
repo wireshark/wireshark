@@ -515,7 +515,7 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
     gchar *content_type = NULL;
     tvbuff_t *jxta_message_tvb;
 
-    proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, (int)sizeof(JXTA_UDP_SIG), ENC_ASCII|ENC_NA);
+    proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, (int)sizeof(JXTA_UDP_SIG), ENC_ASCII);
     tree_offset += (int)sizeof(JXTA_UDP_SIG);
 
     jxta_message_framing_tvb = tvb_new_subset_remaining(tvb, tree_offset);
@@ -845,7 +845,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         }
 
         if (NULL != *current_token) {
-            proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_sig, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+            proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_sig, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
 
             token_offset += (guint) strlen(*current_token) + 1;
             current_token++;
@@ -858,7 +858,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         if (NULL != *current_token) {
             if (jxta_welcome_tree) {
                 proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_destAddr, tvb, token_offset, (gint) strlen(*current_token),
-                                    ENC_ASCII|ENC_NA);
+                                    ENC_ASCII);
             }
 
             token_offset += (guint) strlen(*current_token) + 1;
@@ -871,7 +871,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         if (NULL != *current_token) {
             if (jxta_welcome_tree) {
-                proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_pubAddr, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+                proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_pubAddr, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
             }
 
             token_offset += (guint) strlen(*current_token) + 1;
@@ -884,7 +884,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         if (NULL != *current_token) {
             if (jxta_welcome_tree) {
-                proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_peerid, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+                proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_peerid, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
             }
 
             col_append_str(pinfo->cinfo, COL_INFO, (initiator ? " -> " : " <- ") );
@@ -919,32 +919,32 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
             if( (2 == variable_tokens) && (0 == strcmp(JXTA_WELCOME_MSG_VERSION_1_1, current_token[variable_tokens -1])) ) {
                   if (jxta_welcome_tree) {
-                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_noProp, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_noProp, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
                   }
 
                   token_offset += (guint) strlen(*current_token) + 1;
                   current_token++;
 
                   if (jxta_welcome_tree) {
-                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_version, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_version, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
                   }
             } else if( (3 == variable_tokens) && (0 == strcmp(JXTA_WELCOME_MSG_VERSION_3_0, current_token[variable_tokens -1])) ) {
                   if (jxta_welcome_tree) {
-                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_noProp, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_noProp, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
                   }
 
                   token_offset += (guint) strlen(*current_token) + 1;
                   current_token++;
 
                   if (jxta_welcome_tree) {
-                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_msgVers, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_msgVers, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
                   }
 
                   token_offset += (guint) strlen(*current_token) + 1;
                   current_token++;
 
                   if (jxta_welcome_tree) {
-                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_version, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
+                      proto_tree_add_item(jxta_welcome_tree, hf_jxta_welcome_version, tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII);
                   }
             } else {
                 /* Unrecognized Welcome Version */
@@ -1344,7 +1344,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         jxta_msg_tree = proto_item_add_subtree(jxta_msg_tree_item, ett_jxta_msg);
 
-        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_sig, tvb, tree_offset, (int)sizeof(JXTA_MSG_SIG), ENC_ASCII|ENC_NA);
+        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_sig, tvb, tree_offset, (int)sizeof(JXTA_MSG_SIG), ENC_ASCII);
         tree_offset += (int)sizeof(JXTA_MSG_SIG);
 
         tree_item = proto_tree_add_string(jxta_msg_tree, hf_jxta_message_src, tvb, 0, 0, wmem_strbuf_get_str(src_addr));
@@ -1628,7 +1628,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         NULL
     };
 
-    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
+    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII);
     tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
     namespaceID = tvb_get_guint8(tvb, tree_offset);
@@ -1889,7 +1889,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         NULL
     };
 
-    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII|ENC_NA);
+    proto_tree_add_item(jxta_elem_tree, hf_jxta_element_sig, tvb, tree_offset, (int)sizeof(JXTA_MSGELEM_SIG), ENC_ASCII);
     tree_offset += (int)sizeof(JXTA_MSGELEM_SIG);
 
     flags = tvb_get_guint8(tvb, tree_offset);

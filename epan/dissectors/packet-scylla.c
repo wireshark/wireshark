@@ -229,7 +229,7 @@ dissect_scylla_negotiation_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sc
 
     proto_tree *scylla_negotiation_tree = proto_tree_add_subtree(scylla_tree, tvb, offset,
             len, ett_scylla_negotiation, NULL, "Protocol negotiation");
-    proto_tree_add_item(scylla_negotiation_tree, hf_scylla_negotiation_magic, tvb, offset, 8, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(scylla_negotiation_tree, hf_scylla_negotiation_magic, tvb, offset, 8, ENC_ASCII);
     gint negotiation_offset = 8;
     proto_tree_add_item(scylla_negotiation_tree, hf_scylla_negotiation_size, tvb, offset + negotiation_offset, 4, ENC_LITTLE_ENDIAN);
     negotiation_offset += 4;

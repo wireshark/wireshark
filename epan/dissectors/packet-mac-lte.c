@@ -2989,7 +2989,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Create tree for this Body */
     rar_body_ti = proto_tree_add_item(tree,
                                       hf_mac_lte_rar_body,
-                                      tvb, offset, 0, ENC_ASCII|ENC_NA);
+                                      tvb, offset, 0, ENC_ASCII);
     rar_body_tree = proto_item_add_subtree(rar_body_ti, ett_mac_lte_rar_body);
 
     /* Dissect an RAR entry */
@@ -3232,7 +3232,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /* Create headers tree */
     rar_headers_ti = proto_tree_add_item(tree,
                                          hf_mac_lte_rar_headers,
-                                         tvb, offset, 0, ENC_ASCII|ENC_NA);
+                                         tvb, offset, 0, ENC_ASCII);
     rar_headers_tree = proto_item_add_subtree(rar_headers_ti, ett_mac_lte_rar_headers);
 
 
@@ -3248,7 +3248,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* Create tree for this header */
         rar_header_ti = proto_tree_add_item(rar_headers_tree,
                                             hf_mac_lte_rar_header,
-                                            tvb, offset, 0, ENC_ASCII|ENC_NA);
+                                            tvb, offset, 0, ENC_ASCII);
         rar_header_tree = proto_item_add_subtree(rar_header_ti, ett_mac_lte_rar_header);
 
         /* Extension */
@@ -7200,7 +7200,7 @@ static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         switch (p_mac_lte_info->oob_event) {
             case ltemac_send_preamble:
                 preamble_ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_preamble,
-                                                  tvb, 0, 0, ENC_ASCII|ENC_NA);
+                                                  tvb, 0, 0, ENC_ASCII);
                 preamble_tree = proto_item_add_subtree(preamble_ti, ett_mac_lte_oob);
                 proto_item_set_generated(ti);
 

@@ -300,7 +300,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_tree_add_item_ret_string(pflog_tree, hf_pflog_ifname, tvb, offset, 16, ENC_ASCII|ENC_NA, pinfo->pool, &ifname);
   offset += 16;
 
-  proto_tree_add_item(pflog_tree, hf_pflog_ruleset, tvb, offset, 16, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(pflog_tree, hf_pflog_ruleset, tvb, offset, 16, ENC_ASCII);
   offset += 16;
 
   proto_tree_add_item_ret_int(pflog_tree, hf_pflog_rulenr, tvb, offset, 4, ENC_BIG_ENDIAN, &rulenr);

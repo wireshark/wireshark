@@ -192,7 +192,7 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
     offset += 3;
     proto_tree_add_item(tree, hf_syslog_msgid_utf8, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8);
   } else {
-    proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
   }
 }
 
@@ -208,7 +208,7 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
   if (tvb_get_guint8(tvb, offset + 3) == ' ' && tvb_get_guint8(tvb, offset + 6) == ' ' &&
         tvb_get_guint8(tvb, offset + 9) == ':' && tvb_get_guint8(tvb, offset + 12) == ':' &&
         tvb_get_guint8(tvb, offset + 15) == ' ') {
-    proto_tree_add_item(tree, hf_syslog_timestamp_old, tvb, offset, 15, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_syslog_timestamp_old, tvb, offset, 15, ENC_ASCII);
     offset += 16;
   } else {
     return;
@@ -220,12 +220,12 @@ dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
     guint8 octet;
     octet = tvb_get_guint8(tvb, tvb_offset);
     if (!g_ascii_isalnum(octet)){
-      proto_tree_add_item(tree, hf_syslog_procid, tvb, offset, tvb_offset - offset, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(tree, hf_syslog_procid, tvb, offset, tvb_offset - offset, ENC_ASCII);
       offset = tvb_offset;
       break;
     }
   }
-  proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
 }
 
 /* The message format is defined in RFC 3164 */

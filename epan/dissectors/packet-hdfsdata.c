@@ -149,7 +149,7 @@ dissect_variable_int_string(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offse
   int len = dissect_variable_length_long (tvb, hdfsdata_tree, offset);
 
   /* client id = amount of bytes in previous */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_clientid, tvb, *offset, len, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_clientid, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 }
 
@@ -165,7 +165,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   *offset += 1;
 
   /* token id = amount of bytes in previous */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenid, tvb, *offset, len, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenid, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 
   len = tvb_get_guint8(tvb, *offset);
@@ -173,7 +173,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   *offset += 1;
 
   /* token password = amount of bytes in previous */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenpassword, tvb, *offset, len, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenpassword, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 
   len = tvb_get_guint8(tvb, *offset);
@@ -181,7 +181,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   *offset += 1;
 
   /* token type = amount of bytes in previous */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokentype, tvb, *offset, len, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokentype, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 
   len = tvb_get_guint8(tvb, *offset);
@@ -189,7 +189,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   *offset += 1;
 
   /* token service = amount of bytes in previous; */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenservice, tvb, *offset, len, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenservice, tvb, *offset, len, ENC_ASCII);
   *offset += len;
 }
 
@@ -360,7 +360,7 @@ dissect_write_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
   offset += 8;
 
   /* add the rest -> RESPONSE_DATA */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_rest, tvb, offset, (tvb_reported_length(tvb)) - offset, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_rest, tvb, offset, (tvb_reported_length(tvb)) - offset, ENC_ASCII);
    /* offset += (tvb_reported_length(tvb)); */
 }
 
@@ -428,7 +428,7 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
       /* This message just contains data so we can display it all as one block */
 
-      proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_rest, tvb, offset, (tvb_reported_length(tvb)) - offset, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_rest, tvb, offset, (tvb_reported_length(tvb)) - offset, ENC_ASCII);
 
     } else {
 
@@ -466,7 +466,7 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
       } else {
         /* This message contains some form of data that we have not successfully been able to
            pattern match and catagorize. Display all of it as data. */
-        proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_rest, tvb, offset, (tvb_reported_length(tvb)), ENC_ASCII|ENC_NA);
+        proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_rest, tvb, offset, (tvb_reported_length(tvb)), ENC_ASCII);
       }
     }
   }

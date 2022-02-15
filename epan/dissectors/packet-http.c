@@ -1997,7 +1997,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_request_method, tvb, offset, tokenlen,
-			    ENC_ASCII|ENC_NA);
+			    ENC_ASCII);
 	if ((next_token - line) > 2 && next_token[-1] == ' ' && next_token[-2] == ' ') {
 	  /* Two spaces in a now indicates empty URI, so roll back one here */
 	  next_token--;
@@ -2039,7 +2039,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/* Everything to the end of the line is the version. */
 	tokenlen = (int) (lineend - line);
 	proto_tree_add_item(tree, hf_http_request_version, tvb, offset, tokenlen,
-	    ENC_ASCII|ENC_NA);
+	    ENC_ASCII);
 }
 
 static gint
@@ -2090,7 +2090,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_response_version, tvb, offset, tokenlen,
-			    ENC_ASCII|ENC_NA);
+			    ENC_ASCII);
 	/* Advance to the start of the next token. */
 	offset += (int) (next_token - line);
 	line = next_token;
@@ -2130,7 +2130,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = (int) (lineend - line);
 	if (tokenlen >= 1) {
 		proto_tree_add_item(tree, hf_http_response_phrase, tvb, offset,
-				tokenlen, ENC_ASCII|ENC_NA);
+				tokenlen, ENC_ASCII);
 	}
 }
 
@@ -2454,7 +2454,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			if (trailer_len > 0) {
 				proto_tree_add_item(subtree,
 					hf_http_chunked_trailer_part,
-					tvb, offset, trailer_len, ENC_ASCII|ENC_NA);
+					tvb, offset, trailer_len, ENC_ASCII);
 				offset += trailer_len;
 				datalen -= trailer_len;
 			}

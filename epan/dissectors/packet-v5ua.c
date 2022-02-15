@@ -296,7 +296,7 @@ dissect_draft_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
    proto_tree_add_item(parameter_tree, hf_draft_error_code, parameter_tvb, offset, MGMT_ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
    offset += MGMT_ERROR_CODE_LENGTH ;
    if( tvb_reported_length_remaining(parameter_tvb,offset) > 0 )
-      proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, offset, msg_length - offset,ENC_ASCII|ENC_NA);
+      proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, offset, msg_length - offset,ENC_ASCII);
 }
 /*----------------------Error Indication (Draft)-------------------------------*/
 

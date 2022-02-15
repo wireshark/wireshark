@@ -511,11 +511,11 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	case NSPR_HEADER_VERSION205:
 
 		if(src_vmname_len){
-			proto_tree_add_item(ns_tree,hf_ns_src_vm,tvb,pnstr->data_offset,src_vmname_len,ENC_ASCII|ENC_NA);
+			proto_tree_add_item(ns_tree,hf_ns_src_vm,tvb,pnstr->data_offset,src_vmname_len,ENC_ASCII);
 			}
 
 		if(dst_vmname_len){
-			proto_tree_add_item(ns_tree,hf_ns_dst_vm,tvb,pnstr->data_offset+src_vmname_len,dst_vmname_len,ENC_ASCII|ENC_NA);
+			proto_tree_add_item(ns_tree,hf_ns_dst_vm,tvb,pnstr->data_offset+src_vmname_len,dst_vmname_len,ENC_ASCII);
 			}
 		/* fall through */
 
@@ -878,7 +878,7 @@ static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 			case NSREC_INFO:
 				subitem = proto_tree_add_item(ns_tree, hf_ns_inforec, tvb, offset, reclen, ENC_NA);
 				subtree = proto_item_add_subtree(subitem, ett_ns_inforec);
-				proto_tree_add_item(subtree, hf_ns_inforec_info, tvb, offset+3, reclen-3, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(subtree, hf_ns_inforec_info, tvb, offset+3, reclen-3, ENC_ASCII);
 
 				offset += reclen;
 				cur_record = nextrec;
@@ -908,9 +908,9 @@ static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 				subitem = proto_tree_add_item(ns_tree, hf_ns_vmnamerec, tvb, offset, reclen, ENC_NA);
 				subtree = proto_item_add_subtree(subitem, ett_ns_vmnamerec);
 				proto_tree_add_item(subtree, hf_ns_vmnamerec_srcvmname, tvb, offset+5,
-														srcvmnamelen, ENC_ASCII|ENC_NA);
+														srcvmnamelen, ENC_ASCII);
 				proto_tree_add_item(subtree, hf_ns_vmnamerec_dstvmname, tvb, offset+5+srcvmnamelen,
-														dstvmnamelen, ENC_ASCII|ENC_NA);
+														dstvmnamelen, ENC_ASCII);
 
 				offset += reclen;
 				cur_record = nextrec;

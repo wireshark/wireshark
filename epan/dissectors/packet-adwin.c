@@ -608,7 +608,7 @@ dissect_UDPH1_generic(tvbuff_t *tvb, packet_info *pinfo,
 
 	proto_tree_add_item(adwin_tree, hf_adwin_instruction,          tvb, 0,  4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(adwin_tree, hf_adwin_packet_index,         tvb, 4,  4, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(adwin_tree, hf_adwin_password,             tvb, 8, 10, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(adwin_tree, hf_adwin_password,             tvb, 8, 10, ENC_ASCII);
 	proto_tree_add_item(adwin_debug_tree, hf_adwin_unused,        tvb, 18,  2, ENC_NA);
 
 	switch(instructionID) {

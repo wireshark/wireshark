@@ -283,11 +283,11 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (pinfo->srcport == global_pcomtcp_tcp_port ){ // Reply
         proto_tree_add_item(pcomascii_tree, hf_pcomascii_stx, tvb,
-                offset, 2, ENC_ASCII|ENC_NA); // "/A"
+                offset, 2, ENC_ASCII); // "/A"
         offset += 2;
     }else{
         proto_tree_add_item(pcomascii_tree, hf_pcomascii_stx, tvb,
-                offset, 1, ENC_ASCII|ENC_NA); // "/"
+                offset, 1, ENC_ASCII); // "/"
         offset += 1;
     }
 
@@ -364,17 +364,17 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if(pinfo->destport == global_pcomtcp_tcp_port){ // request
             if(op_type == 1 || op_type == 2) { // read & write op
                 proto_tree_add_item(pcomascii_tree, hf_pcomascii_address,
-                                tvb, offset, 4, ENC_ASCII|ENC_NA);
+                                tvb, offset, 4, ENC_ASCII);
                 offset += 4;
                 proto_tree_add_item(pcomascii_tree, hf_pcomascii_length,
-                            tvb, offset, 2, ENC_ASCII|ENC_NA);
+                            tvb, offset, 2, ENC_ASCII);
                 offset += 2;
             }
             if(op_type == 2) { // write only
                 nvalues = (tvb_reported_length(tvb)-3-offset) / op_size;
                 for (i = 0; i < nvalues; i++) {
                     proto_tree_add_item(pcomascii_tree, hf_pcomascii_address_value,
-                             tvb, offset, op_size , ENC_ASCII|ENC_NA);
+                             tvb, offset, op_size , ENC_ASCII);
                     offset += op_size;
                 }
             }
@@ -383,7 +383,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 nvalues = (tvb_reported_length(tvb)-offset-3) / op_size;
                 for (i = 0; i < nvalues; i++) {
                     proto_tree_add_item(pcomascii_tree, hf_pcomascii_address_value,
-                             tvb, offset, op_size , ENC_ASCII|ENC_NA);
+                             tvb, offset, op_size , ENC_ASCII);
                     offset += op_size;
                 }
             }
@@ -393,7 +393,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (tvb_reported_length(tvb)-offset-3 > 0){ // remaining (variable) bytes between CC and checksum
         hf_pcomascii_command_item = proto_tree_add_item(pcomascii_tree, hf_pcomascii_command, tvb,
-                offset, tvb_reported_length(tvb)-offset-3, ENC_ASCII|ENC_NA);
+                offset, tvb_reported_length(tvb)-offset-3, ENC_ASCII);
         offset += (tvb_reported_length(tvb)-offset-3); //-3 from checksum and etx
         if(cc_len <= 0){
             expert_add_info_format(pinfo, hf_pcomascii_command_item,
@@ -405,7 +405,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(pcomascii_tree, hf_pcomascii_etx, tvb,
-            offset, 1, ENC_ASCII|ENC_NA);
+            offset, 1, ENC_ASCII);
 
     return tvb_reported_length(tvb);
 }
@@ -433,7 +433,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pcombinary_tree = proto_item_add_subtree(ti, ett_pcombinary);
 
     proto_tree_add_item(pcombinary_tree, hf_pcombinary_stx, tvb,
-            offset, 6, ENC_ASCII|ENC_NA);
+            offset, 6, ENC_ASCII);
 
     offset += 6;
     if (pinfo->srcport == global_pcomtcp_tcp_port){ //these bytes are transposed
@@ -508,7 +508,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(pcombinary_tree, hf_pcombinary_etx, tvb,
-            offset, 1, ENC_ASCII|ENC_NA);
+            offset, 1, ENC_ASCII);
 
     return tvb_reported_length(tvb);
 }

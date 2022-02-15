@@ -2201,7 +2201,7 @@ s7comm_decode_szl_id_0111_idx_0001(tvbuff_t *tvb,
 {
     proto_tree_add_item(tree, hf_s7comm_szl_xy11_0001_index, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_s7comm_szl_xy11_0001_mlfb, tvb, offset, 20, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_s7comm_szl_xy11_0001_mlfb, tvb, offset, 20, ENC_ASCII);
     offset += 20;
     proto_tree_add_item(tree, hf_s7comm_szl_xy11_0001_bgtyp, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -5072,39 +5072,39 @@ s7comm_decode_szl_id_xy1c_idx_000x(tvbuff_t *tvb,
     /* For redundant H-CPUs there may be some upper bits set to identify the CPU */
     switch (idx & 0x000f) {
         case 0x0001:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_0001_name, tvb, offset, 24, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_0001_name, tvb, offset, 24, ENC_ASCII);
             offset += 24;
             proto_tree_add_item(tree, hf_s7comm_szl_001c_000x_res, tvb, offset, 8, ENC_NA);
             offset += 8;
             break;
         case 0x0002:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_0002_name, tvb, offset, 24, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_0002_name, tvb, offset, 24, ENC_ASCII);
             offset += 24;
             proto_tree_add_item(tree, hf_s7comm_szl_001c_000x_res, tvb, offset, 8, ENC_NA);
             offset += 8;
             break;
         case 0x0003:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_0003_tag, tvb, offset, 32, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_0003_tag, tvb, offset, 32, ENC_ASCII);
             offset += 32;
             break;
         case 0x0004:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_0004_copyright, tvb, offset, 26, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_0004_copyright, tvb, offset, 26, ENC_ASCII);
             offset += 26;
             proto_tree_add_item(tree, hf_s7comm_szl_001c_000x_res, tvb, offset, 6, ENC_NA);
             offset += 6;
             break;
         case 0x0005:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_0005_serialn, tvb, offset, 24, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_0005_serialn, tvb, offset, 24, ENC_ASCII);
             offset += 24;
             proto_tree_add_item(tree, hf_s7comm_szl_001c_000x_res, tvb, offset, 8, ENC_NA);
             offset += 8;
             break;
         case 0x0007:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_0007_cputypname, tvb, offset, 32, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_0007_cputypname, tvb, offset, 32, ENC_ASCII);
             offset += 32;
             break;
         case 0x0008:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_0008_snmcmmc, tvb, offset, 32, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_0008_snmcmmc, tvb, offset, 32, ENC_ASCII);
             offset += 32;
             break;
         case 0x0009:
@@ -5118,7 +5118,7 @@ s7comm_decode_szl_id_xy1c_idx_000x(tvbuff_t *tvb,
             offset += 26;
             break;
         case 0x000a:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_000a_oem_copyright_string, tvb, offset, 26, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_000a_oem_copyright_string, tvb, offset, 26, ENC_ASCII);
             offset += 26;
             proto_tree_add_item(tree, hf_s7comm_szl_001c_000a_oem_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -5126,7 +5126,7 @@ s7comm_decode_szl_id_xy1c_idx_000x(tvbuff_t *tvb,
             offset += 4;
             break;
         case 0x000b:
-            proto_tree_add_item(tree, hf_s7comm_szl_001c_000b_loc_id, tvb, offset, 32, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_s7comm_szl_001c_000b_loc_id, tvb, offset, 32, ENC_ASCII);
             offset += 32;
             break;
         default:

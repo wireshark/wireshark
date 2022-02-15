@@ -734,7 +734,7 @@ dissect_thrift_string_as_preferred(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_UTF_8);
                 break;
             case DECODE_BINARY_AS_ASCII:
-                proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tree, hf_thrift_string, tvb, *offset, str_len, ENC_ASCII);
                 break;
             case DECODE_BINARY_AS_AUTO_UTF8:
                 /* When there is no data at all, consider it a string

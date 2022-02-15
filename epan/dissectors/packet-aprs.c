@@ -339,7 +339,7 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 	if ( parent_tree )
 		{
 		proto_tree *tc;
-		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, 7, ENC_ASCII|ENC_NA );
+		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, 7, ENC_ASCII );
 		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
 		}
 
@@ -348,13 +348,13 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 	if ( g_ascii_isdigit( ch ) )
 		{
 		if ( wind )
-			proto_tree_add_item( msg_tree, hf_aprs_msg_dir, tvb, offset, 3, ENC_ASCII|ENC_NA );
+			proto_tree_add_item( msg_tree, hf_aprs_msg_dir, tvb, offset, 3, ENC_ASCII );
 		else
-			proto_tree_add_item( msg_tree, hf_aprs_msg_cse, tvb, offset, 3, ENC_ASCII|ENC_NA );
+			proto_tree_add_item( msg_tree, hf_aprs_msg_cse, tvb, offset, 3, ENC_ASCII );
 		offset += 3;
 		/* verify the separator */
 		offset += 1;
-		proto_tree_add_item( msg_tree, hf_aprs_msg_spd, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( msg_tree, hf_aprs_msg_spd, tvb, offset, 3, ENC_ASCII );
 		offset += 3;
 		}
 	else
@@ -363,34 +363,34 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 			{
 			case 'D' :	/* dfs */
 				offset += 3;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_s, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_s, tvb, offset, 1, ENC_ASCII );
 				offset += 1;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_h, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_h, tvb, offset, 1, ENC_ASCII );
 				offset += 1;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_g, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_g, tvb, offset, 1, ENC_ASCII );
 				offset += 1;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_d, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_dfs_d, tvb, offset, 1, ENC_ASCII );
 				break;
 			case 'P' :	/* phgd */
 				offset += 3;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_p, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_p, tvb, offset, 1, ENC_ASCII );
 				offset += 1;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_h, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_h, tvb, offset, 1, ENC_ASCII );
 				offset += 1;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_g, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_g, tvb, offset, 1, ENC_ASCII );
 				offset += 1;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_d, tvb, offset, 1, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_phg_d, tvb, offset, 1, ENC_ASCII );
 				break;
 			case 'R' :	/* rng */
-				proto_tree_add_item( msg_tree, hf_aprs_msg_rng, tvb, offset, 7, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_rng, tvb, offset, 7, ENC_ASCII );
 				break;
 			case 'T' :	/* aod */
 				offset += 1;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_aod_t, tvb, offset, 2, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_aod_t, tvb, offset, 2, ENC_ASCII );
 				offset += 2;
 				/* step over the /C */
 				offset += 2;
-				proto_tree_add_item( msg_tree, hf_aprs_msg_aod_c, tvb, offset, 2, ENC_ASCII|ENC_NA );
+				proto_tree_add_item( msg_tree, hf_aprs_msg_aod_c, tvb, offset, 2, ENC_ASCII );
 				break;
 			default  :	/* wtf */
 				break;
@@ -398,11 +398,11 @@ dissect_aprs_msg(	tvbuff_t	  *tvb,
 		}
 	if ( brg_nrq )
 		{
-		proto_tree_add_item( msg_tree, hf_aprs_msg_brg, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( msg_tree, hf_aprs_msg_brg, tvb, offset, 3, ENC_ASCII );
 		offset += 3;
 		/* verify the separator */
 		offset += 1;
-		proto_tree_add_item( msg_tree, hf_aprs_msg_nrq, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( msg_tree, hf_aprs_msg_nrq, tvb, offset, 3, ENC_ASCII );
 		offset += 3;
 		}
 
@@ -431,7 +431,7 @@ dissect_aprs_compressed_msg(	tvbuff_t *tvb,
 
 	if ( parent_tree )
 		{
-		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+		tc = proto_tree_add_item( parent_tree, hf_aprs_msg, tvb, offset, data_len, ENC_ASCII );
 		msg_tree = proto_item_add_subtree( tc, ett_aprs_msg );
 
 		ch = tvb_get_guint8( tvb, offset );
@@ -642,10 +642,10 @@ dissect_mic_e(	tvbuff_t    *tvb,
 		proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_spd_se,    tvb, offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, hf_aprs_sym_code,  tvb, offset, 1, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( mic_e_tree, hf_aprs_sym_code,  tvb, offset, 1, ENC_ASCII );
 		offset += 1;
 
-		proto_tree_add_item( mic_e_tree, hf_aprs_sym_id,    tvb, offset, 1, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( mic_e_tree, hf_aprs_sym_id,    tvb, offset, 1, ENC_ASCII );
 		offset += 1;
 
 		if ( offset < new_offset )
@@ -656,7 +656,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 						     tvb, offset, -1, ENC_NA );
 			else
 				proto_tree_add_item( mic_e_tree, hf_aprs_mic_e_status,
-						     tvb, offset, -1, ENC_ASCII|ENC_NA );
+						     tvb, offset, -1, ENC_ASCII );
 			}
 
 		}
@@ -673,27 +673,27 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 	proto_tree  *storm_tree;
 	proto_tree *tc;
 
-	tc = proto_tree_add_item( parent_tree, hf_aprs_storm, tvb, offset, -1, ENC_ASCII|ENC_NA );
+	tc = proto_tree_add_item( parent_tree, hf_aprs_storm, tvb, offset, -1, ENC_ASCII );
 	storm_tree = proto_item_add_subtree( tc, ett_aprs_storm );
 
-	proto_tree_add_item( storm_tree, hf_aprs_storm_dir,  tvb, offset, 3, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_dir,  tvb, offset, 3, ENC_ASCII );
 	offset += 3;
 	offset += 1;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_spd,  tvb, offset, 3, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_spd,  tvb, offset, 3, ENC_ASCII );
 	offset += 3;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_type, tvb, offset, 3, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_type, tvb, offset, 3, ENC_ASCII );
 	offset += 3;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_sws,  tvb, offset, 4, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_sws,  tvb, offset, 4, ENC_ASCII );
 	offset += 4;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_pwg,  tvb, offset, 4, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_pwg,  tvb, offset, 4, ENC_ASCII );
 	offset += 4;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_cp,   tvb, offset, 5, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_cp,   tvb, offset, 5, ENC_ASCII );
 	offset += 5;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_rhw,  tvb, offset, 4, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_rhw,  tvb, offset, 4, ENC_ASCII );
 	offset += 4;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_rtsw, tvb, offset, 4, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_rtsw, tvb, offset, 4, ENC_ASCII );
 	offset += 4;
-	proto_tree_add_item( storm_tree, hf_aprs_storm_rwg,  tvb, offset, 4, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( storm_tree, hf_aprs_storm_rwg,  tvb, offset, 4, ENC_ASCII );
 	offset += 4;
 
 	return offset;
@@ -715,17 +715,17 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 	data_len    = tvb_reported_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
-	tc = proto_tree_add_item( parent_tree, hf_aprs_weather, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+	tc = proto_tree_add_item( parent_tree, hf_aprs_weather, tvb, offset, data_len, ENC_ASCII );
 	weather_tree = proto_item_add_subtree( tc, ett_aprs_weather );
 
 	ch = tvb_get_guint8( tvb, offset );
 	if ( g_ascii_isdigit( ch ) )
 		{
-		proto_tree_add_item( weather_tree, hf_aprs_weather_dir, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( weather_tree, hf_aprs_weather_dir, tvb, offset, 3, ENC_ASCII );
 		offset += 3;
 		/* verify the separator */
 		offset += 1;
-		proto_tree_add_item( weather_tree, hf_aprs_weather_spd, tvb, offset, 3, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( weather_tree, hf_aprs_weather_spd, tvb, offset, 3, ENC_ASCII );
 		offset += 3;
 		}
 
@@ -738,63 +738,63 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 				{
 				case 'c' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_dir,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 's' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_spd,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 'g' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_peak,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 't' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_temp,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 'r' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_rain_1,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 'P' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_rain_24,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 'p' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_rain,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 'h' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_humidty,
-						tvb, offset, 3, ENC_ASCII|ENC_NA );
+						tvb, offset, 3, ENC_ASCII );
 					offset += 3;
 					break;
 				case 'b' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_press,
-						tvb, offset, 6, ENC_ASCII|ENC_NA );
+						tvb, offset, 6, ENC_ASCII );
 					offset += 6;
 					break;
 				case 'l' :
 				case 'L' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_luminosity,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case 'S' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_snow,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				case '#' :
 					proto_tree_add_item( weather_tree, hf_aprs_weather_raw_rain,
-						tvb, offset, 4, ENC_ASCII|ENC_NA );
+						tvb, offset, 4, ENC_ASCII );
 					offset += 4;
 					break;
 				default  : {
@@ -814,10 +814,10 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 						}
 #endif
 					proto_tree_add_item( weather_tree, hf_aprs_weather_software,
-						tvb, offset, 1, ENC_ASCII|ENC_NA );
+						tvb, offset, 1, ENC_ASCII );
 					offset += 1;
 					proto_tree_add_item( weather_tree, hf_aprs_weather_unit,
-						tvb, offset, lr-1, ENC_ASCII|ENC_NA );
+						tvb, offset, lr-1, ENC_ASCII );
 					offset = new_offset;
 					break;
 					}
@@ -840,7 +840,7 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 	ch= tvb_get_guint8( tvb, offset + 6 );
 	if ( g_ascii_isdigit( ch ) )
 		{ /* MDHM */
-		proto_tree_add_item( aprs_tree, hf_aprs_mdhm, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( aprs_tree, hf_aprs_mdhm, tvb, offset, data_len, ENC_ASCII );
 		proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, tzone );
 		}
 	else
@@ -848,7 +848,7 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 		data_len -= 1;
 		if ( ch  == 'h' )
 			{ /* HMS */
-			proto_tree_add_item( aprs_tree, hf_aprs_hms,  tvb, offset, data_len, ENC_ASCII|ENC_NA );
+			proto_tree_add_item( aprs_tree, hf_aprs_hms,  tvb, offset, data_len, ENC_ASCII );
 			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, data_len, tzone );
 			}
 		else
@@ -859,7 +859,7 @@ aprs_timestamp( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 				case '/' : tzone = "local";   break;
 				default  : tzone = "unknown"; break;
 				}
-			proto_tree_add_item( aprs_tree, hf_aprs_dhm,  tvb, offset, data_len, ENC_ASCII|ENC_NA );
+			proto_tree_add_item( aprs_tree, hf_aprs_dhm,  tvb, offset, data_len, ENC_ASCII );
 			proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset + 6, 1, tzone );
 			}
 		}
@@ -918,14 +918,14 @@ aprs_status( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 
 	if ( ( data_len > 7 ) && ( tvb_get_guint8( tvb, offset+6 ) == 'z' ) )
 		{
-		proto_tree_add_item( aprs_tree, hf_aprs_dhm, tvb, offset, 6, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( aprs_tree, hf_aprs_dhm, tvb, offset, 6, ENC_ASCII );
 		offset	 += 6;
 		data_len -= 6;
 		proto_tree_add_string( aprs_tree, hf_aprs_tz, tvb, offset, 1, "zulu" );
 		offset	 += 1;
 		data_len -= 1;
 		}
-	proto_tree_add_item( aprs_tree, hf_aprs_status, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( aprs_tree, hf_aprs_status, tvb, offset, data_len, ENC_ASCII );
 
 	return offset + data_len;
 }
@@ -1176,7 +1176,7 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	ti = proto_tree_add_protocol_format( parent_tree , proto_aprs, tvb, 0, -1, "%s", wmem_strbuf_get_str(sb) );
 	aprs_tree = proto_item_add_subtree( ti, ett_aprs );
 
-	proto_tree_add_item( aprs_tree, hf_aprs_dti, tvb, offset, 1, ENC_ASCII|ENC_NA );
+	proto_tree_add_item( aprs_tree, hf_aprs_dti, tvb, offset, 1, ENC_ASCII );
 	offset += 1;
 
 	switch ( dti )

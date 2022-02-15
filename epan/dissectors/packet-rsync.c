@@ -89,10 +89,10 @@ dissect_rsync_version_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rsyn
     guint8 *version;
     guint len;
 
-    proto_tree_add_item(rsync_tree, hf_rsync_hdr_magic, tvb, offset, RSYNCD_MAGIC_HEADER_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(rsync_tree, hf_rsync_hdr_magic, tvb, offset, RSYNCD_MAGIC_HEADER_LEN, ENC_ASCII);
     offset += RSYNCD_MAGIC_HEADER_LEN;
     offset += 1; /* skip the space */
-    proto_tree_add_item(rsync_tree, hf_rsync_hdr_version, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(rsync_tree, hf_rsync_hdr_version, tvb, offset, -1, ENC_ASCII);
     len = tvb_reported_length_remaining(tvb, offset);
     version = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII|ENC_NA);
 
@@ -158,7 +158,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSYNC_SERV_MOTD:
-            proto_tree_add_item(rsync_tree, hf_rsync_motd_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_motd_string, tvb, offset, -1, ENC_ASCII);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Server MOTD");
 
@@ -170,14 +170,14 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* there are two cases - file list, or authentication */
             if (0 == tvb_strneql(tvb, offset, RSYNCD_AUTHREQD, RSYNCD_AUTHREQD_LEN)) {
                 /* matches, so we assume it's an authentication message */
-                proto_tree_add_item(rsync_tree, hf_rsync_rsyncdok_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(rsync_tree, hf_rsync_rsyncdok_string, tvb, offset, -1, ENC_ASCII);
 
                 col_set_str(pinfo->cinfo, COL_INFO, "Authentication");
                 conversation_data->server_state = RSYNC_DATA;
 
             } else { /*  it didn't match, so it is probably a module list */
 
-                proto_tree_add_item(rsync_tree, hf_rsync_module_list_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(rsync_tree, hf_rsync_module_list_string, tvb, offset, -1, ENC_ASCII);
 
                 /* we need to check the end of the buffer for magic string */
                 buff_length = tvb_captured_length_remaining(tvb, offset);
@@ -217,7 +217,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSYNC_CLIENT_QUERY:
-            proto_tree_add_item(rsync_tree, hf_rsync_query_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_query_string, tvb, offset, -1, ENC_ASCII);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Client Query");
 
@@ -234,7 +234,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         case RSYNC_COMMAND:
             /* then we are still sending commands */
-            proto_tree_add_item(rsync_tree, hf_rsync_command_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(rsync_tree, hf_rsync_command_string, tvb, offset, -1, ENC_ASCII);
 
             col_set_str(pinfo->cinfo, COL_INFO, "Client Command");
 

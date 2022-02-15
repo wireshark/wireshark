@@ -486,13 +486,13 @@ prt_none16(gchar *buff, guint32 val)
 static gint
 dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 {
-	proto_tree_add_item(seg_tree, hf_4607_mission_plan, tvb, offset, 12, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_plan, tvb, offset, 12, ENC_ASCII);
 	offset += 12;
-	proto_tree_add_item(seg_tree, hf_4607_mission_flight_plan, tvb, offset, 12, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_flight_plan, tvb, offset, 12, ENC_ASCII);
 	offset += 12;
 	proto_tree_add_item(seg_tree, hf_4607_mission_platform, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_mission_platform_config, tvb, offset, 10, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_platform_config, tvb, offset, 10, ENC_ASCII);
 	offset += 10;
 	proto_tree_add_item(seg_tree, hf_4607_mission_time_year, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -714,7 +714,7 @@ dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 4;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_model, tvb, offset, 6, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_model, tvb, offset, 6, ENC_ASCII);
 	offset += 6;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_filter, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -847,14 +847,14 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_stanag4607, tvb, 0, -1, ENC_NA);
 		hdr_tree = proto_item_add_subtree(ti, ett_4607_hdr);
-		proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII);
 		ti = proto_tree_add_item(hdr_tree, hf_4607_packet_size, tvb, 2, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_nationality, tvb, 6, 2, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_nationality, tvb, 6, 2, ENC_ASCII);
 		proto_tree_add_item(hdr_tree, hf_4607_sec_class, tvb, 8, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_sec_system, tvb, 9, 2, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_sec_system, tvb, 9, 2, ENC_ASCII);
 		proto_tree_add_item(hdr_tree, hf_4607_sec_code, tvb, 11, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_exercise_indicator, tvb, 13, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII);
 		proto_tree_add_item(hdr_tree, hf_4607_mission_id, tvb, 24, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN);
 	}

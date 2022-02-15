@@ -247,7 +247,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     case AUTH_PASSWORD: /* Plain text password */
         proto_tree_add_item(rip_authentication_tree, hf_rip_auth_passwd,
-                        tvb, offset+4, 16, ENC_ASCII|ENC_NA);
+                        tvb, offset+4, 16, ENC_ASCII);
         break;
 
     case AUTH_KEYED_MSG_DIGEST: /* Keyed MD5 rfc 2082 */
@@ -257,7 +257,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
         auth_data_len = tvb_get_guint8( tvb, offset+7 );
         proto_tree_add_item( rip_authentication_tree, hf_rip_auth_data_len, tvb, offset+7, 1, ENC_NA);
         proto_tree_add_item( rip_authentication_tree, hf_rip_auth_seq_num, tvb, offset+8, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item( rip_authentication_tree, hf_rip_zero_padding, tvb, offset+12, 8, ENC_ASCII|ENC_NA);
+        proto_tree_add_item( rip_authentication_tree, hf_rip_zero_padding, tvb, offset+12, 8, ENC_ASCII);
         rip_authentication_tree = proto_tree_add_subtree( rip_authentication_tree, tvb, offset-4+digest_off,
                         MD5_AUTH_DATA_LEN+4, ett_auth_vec, NULL, "Authentication Data Trailer" );
         proto_tree_add_item( rip_authentication_tree, hf_rip_authentication_data, tvb, offset-4+digest_off+4,

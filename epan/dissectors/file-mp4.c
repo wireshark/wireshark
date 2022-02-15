@@ -416,7 +416,7 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
 
     offset_start = offset;
     proto_tree_add_item(tree, hf_mp4_ftyp_brand,
-            tvb, offset, 4, ENC_ASCII|ENC_NA);
+            tvb, offset, 4, ENC_ASCII);
     offset += 4;
     proto_tree_add_item(tree, hf_mp4_ftyp_ver,
             tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -424,7 +424,7 @@ dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
 
     while ((offset-offset_start) < len) {
         proto_tree_add_item(tree, hf_mp4_ftyp_add_brand,
-                tvb, offset, 4, ENC_ASCII|ENC_NA);
+                tvb, offset, 4, ENC_ASCII);
         offset += 4;
     }
 
@@ -532,7 +532,7 @@ dissect_mp4_hdlr_body(tvbuff_t *tvb, gint offset, gint len _U_,
     offset += 4;   /* four reserved 0 bytes */
 
     proto_tree_add_item(tree, hf_mp4_hdlr_type,
-            tvb, offset, 4, ENC_ASCII|ENC_NA);
+            tvb, offset, 4, ENC_ASCII);
     offset += 4;
 
     offset += 12;   /* 3x32bit reserved */
@@ -857,7 +857,7 @@ dissect_mp4_box(guint32 parent_box_type _U_, guint depth,
 
     offset += 4;
     proto_tree_add_item(box_tree, hf_mp4_box_type_str,
-            tvb, offset, 4, ENC_ASCII|ENC_NA);
+            tvb, offset, 4, ENC_ASCII);
     offset += 4;
 
     if (box_size == BOX_SIZE_EXTENDED) {

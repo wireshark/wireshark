@@ -6180,7 +6180,7 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
       offset += 4;
 
       /* protocol string */
-      proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_ept_protocol_string, tvb, data_offset, 32, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_ept_protocol_string, tvb, data_offset, 32, ENC_ASCII);
       data_offset += 32;
     }
     break;
@@ -6200,7 +6200,7 @@ dissect_broker_connect(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offs
   proto_tree      *flag_tree;
 
   /* client scope */
-  proto_tree_add_item(tree, hf_rdmnet_broker_connect_client_scope, tvb, offset, 63, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_rdmnet_broker_connect_client_scope, tvb, offset, 63, ENC_ASCII);
   offset += 63;
 
   /* e133 version */
@@ -6208,7 +6208,7 @@ dissect_broker_connect(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offs
   offset += 2;
 
   /* search domain */
-  proto_tree_add_item(tree, hf_rdmnet_broker_connect_search_domain, tvb, offset, 231, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_rdmnet_broker_connect_search_domain, tvb, offset, 231, ENC_ASCII);
   offset += 231;
 
   /* connection flags */
@@ -6596,37 +6596,37 @@ dissect_rpt_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
   switch (vector) {
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_RPT_UID:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rpt_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rpt_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_RDM_TIMEOUT:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_timeout_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_timeout_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_RDM_INVALID_RESPONSE:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_invalid_response_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_invalid_response_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_RDM_UID:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rdm_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rdm_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_ENDPOINT:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_endpoint_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_endpoint_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_BROADCAST_COMPLETE:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_broadcast_complete_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_broadcast_complete_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_VECTOR:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_INVALID_MESSAGE:
@@ -6888,7 +6888,7 @@ dissect_ept_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
 
       /* status string */
       pdu_end = pdu_start + pdu_length;
-      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_status_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_status_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
       break;
   case RDMNET_EPT_VECTOR_UNKNOWN_VECTOR:
       /* unknown cid (4 bytes) */
@@ -6897,7 +6897,7 @@ dissect_ept_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
 
       /* vector string */
       pdu_end = pdu_start + pdu_length;
-      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
       break;
   }
 

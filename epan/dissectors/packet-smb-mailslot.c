@@ -163,7 +163,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 
 		/* mailslot name */
 		len = tvb_strsize(mshdr_tvb, offset);
-		proto_tree_add_item(tree, hf_name, mshdr_tvb, offset, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_name, mshdr_tvb, offset, len, ENC_ASCII);
 		offset += len;
 		proto_item_set_len(item, offset);
 	}

@@ -1245,7 +1245,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	case Q2931_CAUSE_REC_TIMER_EXP:
 		if (len < 3)
 			return;
-		proto_tree_add_item(tree, hf_q2931_cause_timer, tvb, offset, 3, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_cause_timer, tvb, offset, 3, ENC_ASCII);
 		break;
 
 	default:
@@ -1359,7 +1359,7 @@ dissect_q2931_number_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	switch (numbering_plan) {
 
 	case Q2931_ISDN_NUMBERING:
-		proto_tree_add_item(tree, hf_q2931_number_string, tvb, offset, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_q2931_number_string, tvb, offset, len, ENC_ASCII);
 		break;
 
 	case Q2931_NSAP_ADDRESSING:

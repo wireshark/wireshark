@@ -1143,7 +1143,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			return TRUE; /* we still hope to get a SERVER_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
-				    7, ENC_ASCII|ENC_NA);
+				    7, ENC_ASCII);
 		per_conversation_info->server_proto_ver =
 			g_ascii_strtod((char *)tvb_get_string_enc(wmem_packet_scope(), tvb, 4, 7, ENC_ASCII), NULL);
 		per_conversation_info->server_port = pinfo->srcport;
@@ -1160,7 +1160,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			return TRUE; /* we still hope to get a CLIENT_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
-				    4, 7, ENC_ASCII|ENC_NA);
+				    4, 7, ENC_ASCII);
 		per_conversation_info->client_proto_ver =
 			g_ascii_strtod((char *)tvb_get_string_enc(wmem_packet_scope(), tvb, 4, 7, ENC_ASCII), NULL);
 
@@ -1289,8 +1289,8 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			 */
 
 			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_code, tvb, offset, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_vendor, tvb, offset + 4, 4, ENC_ASCII|ENC_NA);
-			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_signature, tvb, offset + 8, 8, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_vendor, tvb, offset + 4, 4, ENC_ASCII);
+			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_signature, tvb, offset + 8, 8, ENC_ASCII);
 			offset += 16;
 		}
 
@@ -1491,7 +1491,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				offset += 4;
 
 				proto_tree_add_item(tree, hf_vnc_auth_error, tvb,
-						    offset, text_len, ENC_ASCII|ENC_NA);
+						    offset, text_len, ENC_ASCII);
 			}
 
 			return TRUE; /* All versions: Do not continue
@@ -1642,7 +1642,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 			proto_tree_add_item(tree, hf_vnc_desktop_name,
 					    tvb, offset, desktop_name_len,
-					    ENC_ASCII|ENC_NA);
+					    ENC_ASCII);
 		}
 
 		if(per_conversation_info->tight_enabled == TRUE)
@@ -2055,7 +2055,7 @@ vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 4;
 
 	proto_tree_add_item(tree, hf_vnc_client_cut_text, tvb, *offset,
-			    text_len, ENC_ASCII|ENC_NA);
+			    text_len, ENC_ASCII);
 	*offset += text_len;
 
 }
@@ -2575,7 +2575,7 @@ vnc_server_identity(tvbuff_t *tvb, gint *offset, proto_tree *tree,
 {
 	VNC_BYTES_NEEDED(width);
 	proto_tree_add_item(tree, hf_vnc_server_identity,
-			    tvb, *offset, width, ENC_ASCII|ENC_NA);
+			    tvb, *offset, width, ENC_ASCII);
 	*offset += width;
 
 	return 0; /* bytes_needed */
@@ -2672,16 +2672,16 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	case VNC_ML_EXT_CLIENT_EVENT_CONFIGURATION :
 		VNC_BYTES_NEEDED(28);
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_keyboard_language,
-				    tvb, *offset, 2, ENC_ASCII|ENC_NA);
+				    tvb, *offset, 2, ENC_ASCII);
 		*offset += 2;
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_keyboard_country,
-				    tvb, *offset, 2, ENC_ASCII|ENC_NA);
+				    tvb, *offset, 2, ENC_ASCII);
 		*offset += 2;
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_ui_language,
-				    tvb, *offset, 2, ENC_ASCII|ENC_NA);
+				    tvb, *offset, 2, ENC_ASCII);
 		*offset += 2;
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_ui_country,
-				    tvb, *offset, 2, ENC_ASCII|ENC_NA);
+				    tvb, *offset, 2, ENC_ASCII);
 		*offset += 2;
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_knob_keys,
 				    tvb, *offset, 4, ENC_BIG_ENDIAN);
@@ -2864,7 +2864,7 @@ vnc_mirrorlink(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		*offset += 2;
 		VNC_BYTES_NEEDED(num);
 		proto_tree_add_item(tree, hf_vnc_mirrorlink_text,
-				    tvb, *offset, num, ENC_ASCII|ENC_NA);
+				    tvb, *offset, num, ENC_ASCII);
 		*offset += num;
 		break;
 
@@ -3497,7 +3497,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	VNC_BYTES_NEEDED(text_len);
 
 	proto_tree_add_item(tree, hf_vnc_server_cut_text, tvb, *offset,
-			    text_len, ENC_ASCII|ENC_NA);
+			    text_len, ENC_ASCII);
 	*offset += text_len;
 
 	return *offset;

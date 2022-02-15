@@ -1803,15 +1803,15 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			break;
 		case NM_ATT_IPACC_LOCATION:
 			proto_tree_add_item(att_tree, hf_attr_ipa_location_name,
-					    tvb, offset, len, ENC_ASCII|ENC_NA);
+					    tvb, offset, len, ENC_ASCII);
 			break;
 		case NM_ATT_IPACC_UNIT_ID:
 			proto_tree_add_item(att_tree, hf_attr_ipa_unit_id,
-					    tvb, offset, len, ENC_ASCII|ENC_NA);
+					    tvb, offset, len, ENC_ASCII);
 			break;
 		case NM_ATT_IPACC_UNIT_NAME:
 			proto_tree_add_item(att_tree, hf_attr_ipa_unit_name,
-					    tvb, offset, len, ENC_ASCII|ENC_NA);
+					    tvb, offset, len, ENC_ASCII);
 			break;
 		case NM_ATT_IPACC_PRIM_OML_CFG_LIST:
 			proto_tree_add_item(att_tree, hf_attr_ipa_prim_oml_ip,
@@ -1979,7 +1979,7 @@ dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item_ret_uint(tree, hf_oml_manuf_id_len, tvb,
 				     offset, 1, ENC_NA, &len);
 	proto_tree_add_item(tree, hf_oml_manuf_id_val, tvb,
-			    offset + 1, len, ENC_ASCII|ENC_NA);
+			    offset + 1, len, ENC_ASCII);
 
 	/* Some implementations include '\0', some don't - handle this */
 	if ((len == (sizeof(ipaccess_magic) + 1) || len == sizeof(ipaccess_magic)) &&

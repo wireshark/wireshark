@@ -4373,7 +4373,7 @@ static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint 
   /* If major revision is smaller than 5, release interpreted as char */
   if (vendor_id == RTPS_VENDOR_RTI_DDS && major < 5) {
     proto_tree_add_item(subtree, hf_rtps_param_product_version_release_as_char,
-        tvb, offset + release_offset, 1, ENC_ASCII|ENC_NA);
+        tvb, offset + release_offset, 1, ENC_ASCII);
   } else {
     proto_tree_add_item(subtree, hf_rtps_param_product_version_release,
         tvb, offset + release_offset, 1, ENC_NA);

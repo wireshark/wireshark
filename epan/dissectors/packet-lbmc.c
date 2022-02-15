@@ -8641,7 +8641,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             }
             else
             {
-                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_release_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_release_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII);
             }
             len_dissected += L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len;
             break;
@@ -8662,7 +8662,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             }
             else
             {
-                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII);
             }
             len_dissected += L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len;
             break;
@@ -8682,7 +8682,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             }
             else
             {
-                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII);
             }
             len_dissected += L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len;
             break;
@@ -8703,7 +8703,7 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             }
             else
             {
-                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII);
             }
             len_dissected += L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len;
             break;
@@ -8767,7 +8767,7 @@ static int dissect_nhdr_umq_idx_cmd_resp(tvbuff_t * tvb, int offset, packet_info
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_resp_err);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_err_reserved, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RESP_ERR_HDR_T_RESERVED, L_LBMC_CNTL_UMQ_IDX_CMD_RESP_ERR_HDR_T_RESERVED, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_err_code, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RESP_ERR_HDR_T_CODE, L_LBMC_CNTL_UMQ_IDX_CMD_RESP_ERR_HDR_T_CODE, ENC_BIG_ENDIAN);
-            proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_err_error_string, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RESP_ERR_HDR_T, string_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_err_error_string, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RESP_ERR_HDR_T, string_len, ENC_ASCII);
             len_dissected += (L_LBMC_CNTL_UMQ_IDX_CMD_RESP_ERR_HDR_T + string_len);
             break;
         case LBMC_UMQ_IDX_CMD_RESP_RCV_STOP_IDX_ASSIGN_TYPE:
@@ -8839,7 +8839,7 @@ static int dissect_nhdr_umq_idx_cmd_resp(tvbuff_t * tvb, int offset, packet_info
             }
             else
             {
-                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RESP_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_IDX_CMD_RESP_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII);
             }
             len_dissected += (L_LBMC_CNTL_UMQ_IDX_CMD_RESP_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len);
             break;
@@ -8860,7 +8860,7 @@ static int dissect_nhdr_umq_idx_cmd_resp(tvbuff_t * tvb, int offset, packet_info
             }
             else
             {
-                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_ulb_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_resp_ulb_reserve_assign_string_index, tvb, offset + L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T, (gint)index_len, ENC_ASCII);
             }
             len_dissected += (L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len);
             break;
@@ -9293,7 +9293,7 @@ static int dissect_nhdr_umq_cmd_resp_ctx_topic_list_appset_entry(tvbuff_t * tvb,
     len_dissected = L_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_APPSET_ENTRY_HDR_T;
     appset_name_len = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_APPSET_ENTRY_HDR_T_APPSET_NAME_LEN);
     len_dissected += (int)appset_name_len;
-    proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_topic_list_topic_entry_appset_entry_name, tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_APPSET_ENTRY_HDR_T, (int)appset_name_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_topic_list_topic_entry_appset_entry_name, tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_APPSET_ENTRY_HDR_T, (int)appset_name_len, ENC_ASCII);
     num_receiver_type_ids = tvb_get_ntohs(tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_APPSET_ENTRY_HDR_T_NUM_RECEIVER_TYPE_IDS);
     if (num_receiver_type_ids > 0)
     {
@@ -9329,7 +9329,7 @@ static int dissect_nhdr_umq_cmd_resp_ctx_topic_list_topic_entry(tvbuff_t * tvb, 
     len_dissected = L_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_TOPIC_ENTRY_HDR_T;
     topic_len = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_TOPIC_ENTRY_HDR_T_TOPIC_LEN);
     len_dissected += (int)topic_len;
-    proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_topic_list_topic_entry_topic, tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_TOPIC_ENTRY_HDR_T, (int)topic_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_topic_list_topic_entry_topic, tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_TOPIC_ENTRY_HDR_T, (int)topic_len, ENC_ASCII);
     num_appsets = tvb_get_ntohs(tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_CTX_TOPIC_LIST_TOPIC_ENTRY_HDR_T_NUM_APPSETS);
     if (num_appsets > 0)
     {
@@ -9381,7 +9381,7 @@ static int dissect_nhdr_umq_cmd_resp_err(tvbuff_t * tvb, int offset, packet_info
     proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_err_code, tvb, offset + O_LBMC_CNTL_UMQ_CMD_RESP_ERR_HDR_T_CODE, L_LBMC_CNTL_UMQ_CMD_RESP_ERR_HDR_T_CODE, ENC_BIG_ENDIAN);
     len_dissected = L_LBMC_CNTL_UMQ_CMD_RESP_ERR_HDR_T;
     errmsg_len = tvb_reported_length_remaining(tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_ERR_HDR_T);
-    proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_err_errmsg, tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_ERR_HDR_T, errmsg_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_lbmc_umq_cmd_resp_err_errmsg, tvb, offset + L_LBMC_CNTL_UMQ_CMD_RESP_ERR_HDR_T, errmsg_len, ENC_ASCII);
     len_dissected += errmsg_len;
     proto_item_set_len(subtree_item, len_dissected);
     return (len_dissected);
@@ -9632,7 +9632,7 @@ static int dissect_nhdr_auth_request(tvbuff_t * tvb, int offset, packet_info * p
     user_len = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_AUTH_REQUEST_HDR_T_USER_LEN);
     if (user_len > 0)
     {
-        proto_tree_add_item(subtree, hf_lbmc_auth_request_user_name, tvb, data_offset, (int)user_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_lbmc_auth_request_user_name, tvb, data_offset, (int)user_len, ENC_ASCII);
         len_dissected += (int)user_len;
     }
     proto_item_set_len(subtree_item, len_dissected);
@@ -10041,8 +10041,8 @@ static int dissect_nhdr_extopt_cfgopt(tvbuff_t * tvb, int offset, packet_info * 
         subtree = proto_item_add_subtree(subtree_item, ett_lbmc_extopt_cfgopt);
         proto_tree_add_item(subtree, hf_lbmc_extopt_cfgopt_scope, tvb, curr_offset + O_LBMC_EXTOPT_CFGOPT_HDR_T_SCOPE, L_LBMC_EXTOPT_CFGOPT_HDR_T_SCOPE, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_lbmc_extopt_cfgopt_parent, tvb, curr_offset + O_LBMC_EXTOPT_CFGOPT_HDR_T_PARENT, L_LBMC_EXTOPT_CFGOPT_HDR_T_PARENT, ENC_BIG_ENDIAN);
-        proto_tree_add_item(subtree, hf_lbmc_extopt_cfgopt_name, tvb, name_offset, name_len, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(subtree, hf_lbmc_extopt_cfgopt_value, tvb, value_offset, value_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_lbmc_extopt_cfgopt_name, tvb, name_offset, name_len, ENC_ASCII);
+        proto_tree_add_item(subtree, hf_lbmc_extopt_cfgopt_value, tvb, value_offset, value_len, ENC_ASCII);
         curr_offset += optlen;
         len_dissected += optlen;
     }
@@ -10118,7 +10118,7 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
             switch (reassembly->subtype)
             {
                 case LBMC_EXT_NHDR_MSGSEL:
-                    proto_tree_add_item(rtree, hf_lbmc_extopt_reassembled_data_msgsel, reassembly_tvb, 0, reassembly->len, ENC_ASCII|ENC_NA);
+                    proto_tree_add_item(rtree, hf_lbmc_extopt_reassembled_data_msgsel, reassembly_tvb, 0, reassembly->len, ENC_ASCII);
                     break;
                 case LBMC_EXT_NHDR_CFGOPT:
                     len_dissected += dissect_nhdr_extopt_cfgopt(reassembly_tvb, 0, pinfo, rtree);
@@ -10134,7 +10134,7 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
             switch (subtype)
             {
                 case LBMC_EXT_NHDR_MSGSEL:
-                    proto_tree_add_item(subtree, hf_lbmc_extopt_msgsel, tvb, data_offset, data_len, ENC_ASCII|ENC_NA);
+                    proto_tree_add_item(subtree, hf_lbmc_extopt_msgsel, tvb, data_offset, data_len, ENC_ASCII);
                     break;
                 case LBMC_EXT_NHDR_CFGOPT:
                     len_dissected += dissect_nhdr_extopt_cfgopt(tvb, data_offset, pinfo, subtree);

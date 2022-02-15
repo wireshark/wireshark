@@ -251,9 +251,9 @@ static int dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
          pkt_size = tvb_get_guint8(tvb, hdr_offset);
          proto_tree_add_uint_format_value(xot_tree, hf_xot_pvc_send_out_pkt_size, tvb, hdr_offset, 1, pkt_size, "2^%u", pkt_size);
          hdr_offset += 1;
-         proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name, tvb, hdr_offset, init_itf_name_len, ENC_ASCII|ENC_NA);
+         proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name, tvb, hdr_offset, init_itf_name_len, ENC_ASCII);
          hdr_offset += init_itf_name_len;
-         proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, ENC_ASCII|ENC_NA);
+         proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, ENC_ASCII);
       } else {
          next_tvb = tvb_new_subset_length_caplen(tvb, offset,
                                    MIN(plen, tvb_captured_length_remaining(tvb, offset)), plen);

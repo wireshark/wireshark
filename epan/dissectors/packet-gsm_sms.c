@@ -2153,7 +2153,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
                     if (p_frag_params) {
                         proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
-                                            p_frag_params->length, ENC_ASCII|ENC_NA);
+                                            p_frag_params->length, ENC_ASCII);
                         total_sms_len += p_frag_params->length;
                     }
                 }

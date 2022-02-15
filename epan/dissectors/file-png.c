@@ -345,7 +345,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
         }
 
         proto_tree_add_item(chunk_tree, hf_png_chunk_type_str,
-                tvb, offset, 4, ENC_ASCII|ENC_NA);
+                tvb, offset, 4, ENC_ASCII);
 
         proto_tree_add_item(chunk_tree, hf_png_chunk_flag_anc, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(chunk_tree, hf_png_chunk_flag_priv, tvb, offset, 4, ENC_BIG_ENDIAN);

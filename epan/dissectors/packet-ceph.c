@@ -6717,7 +6717,7 @@ guint c_dissect_new(proto_tree *tree,
 	if (bansize != C_BANNER_SIZE) /* Note -1 != C_BANNER_SIZE */
 		return C_INVALID;
 
-	proto_tree_add_item(tree, hf_banner, tvb, off, bansize, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_banner, tvb, off, bansize, ENC_ASCII);
 	off += bansize;
 
 	c_set_type(data, "Connect");

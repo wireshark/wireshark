@@ -1483,7 +1483,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             case TAG_SCFG:{
                 guint32 scfg_tag_number;
 
-                proto_tree_add_item(tag_tree, hf_gquic_tag_scfg, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_scfg, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
                 tag_offset += 4;
                 proto_tree_add_item(tag_tree, hf_gquic_tag_scfg_number, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
                 scfg_tag_number = tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN);
@@ -1507,7 +1507,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             case TAG_AEAD:
                 while(offset_end - tag_offset >= 4){
                     proto_tree *ti_aead;
-                    ti_aead = proto_tree_add_item(tag_tree, hf_gquic_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                    ti_aead = proto_tree_add_item(tag_tree, hf_gquic_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
                     proto_item_append_text(ti_aead, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
                     proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
                     tag_offset += 4;
@@ -1529,7 +1529,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             case TAG_KEXS:
                 while(offset_end - tag_offset >= 4){
                     proto_tree *ti_kexs;
-                    ti_kexs = proto_tree_add_item(tag_tree, hf_gquic_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                    ti_kexs = proto_tree_add_item(tag_tree, hf_gquic_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
                     proto_item_append_text(ti_kexs, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
                     proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
                     tag_offset += 4;
@@ -1571,7 +1571,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             break;
             case TAG_COPT:
                 while(offset_end - tag_offset >= 4){
-                    proto_tree_add_item(tag_tree, hf_gquic_tag_copt, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                    proto_tree_add_item(tag_tree, hf_gquic_tag_copt, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
                     tag_offset += 4;
                 }
             break;
@@ -1793,7 +1793,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase_length, tvb, offset, 2, gquic_info->encoding);
                 len_reason = tvb_get_guint16(tvb, offset, gquic_info->encoding);
                 offset += 2;
-                proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_cc_reason_phrase, tvb, offset, len_reason, ENC_ASCII);
                 offset += len_reason;
                 proto_item_append_text(ti_ft, " Error code: %s", val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "Connection Close");
@@ -1810,7 +1810,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase_length, tvb, offset, 2, gquic_info->encoding);
                 len_reason = tvb_get_guint16(tvb, offset, gquic_info->encoding);
                 offset += 2;
-                proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(ft_tree, hf_gquic_frame_type_goaway_reason_phrase, tvb, offset, len_reason, ENC_ASCII);
                 offset += len_reason;
                 proto_item_append_text(ti_ft, " Stream ID: %u, Error code: %s", last_good_stream_id, val_to_str_ext(error_code, &error_code_vals_ext, "Unknown (%d)"));
                 col_set_str(pinfo->cinfo, COL_INFO, "GOAWAY");
@@ -2221,14 +2221,14 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(puflags & PUFLAGS_VRSN){
         if(pinfo->srcport == gquic_info->server_port){ /* Version Negotiation Packet */
             while(tvb_reported_length_remaining(tvb, offset) > 0){
-                proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII);
                 offset += 4;
             }
             col_add_fstr(pinfo->cinfo, COL_INFO, "Version Negotiation, CID: %" PRIu64, cid);
             return offset;
         }
         else{
-            proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII);
             offset += 4;
         }
     }
@@ -2237,7 +2237,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(puflags & PUFLAGS_RST){
         guint32 tag_number, message_tag;
 
-        ti = proto_tree_add_item(gquic_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII|ENC_NA);
+        ti = proto_tree_add_item(gquic_tree, hf_gquic_tag, tvb, offset, 4, ENC_ASCII);
         message_tag = tvb_get_ntohl(tvb, offset);
         proto_item_append_text(ti, " (%s)", val_to_str(message_tag, message_tag_vals, "Unknown Tag"));
         offset += 4;
@@ -2355,7 +2355,7 @@ dissect_gquic_q046(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(firstbyte_tree, hf_gquic_packet_number_length, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(gquic_tree, hf_gquic_version, tvb, offset, 4, ENC_ASCII);
         offset += 4;
 
         proto_tree_add_item(gquic_tree, hf_gquic_dcil, tvb, offset, 1, ENC_NA);

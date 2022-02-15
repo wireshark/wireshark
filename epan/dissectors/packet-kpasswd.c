@@ -115,7 +115,7 @@ dissect_kpasswd_user_data_reply(packet_info *pinfo, tvbuff_t *tvb, proto_tree *t
 
     /* optional result string */
     if(tvb_reported_length_remaining(tvb, offset) > 0){
-        proto_tree_add_item(tree, hf_kpasswd_result_string, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_kpasswd_result_string, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
         offset = tvb_reported_length(tvb);
     }
 

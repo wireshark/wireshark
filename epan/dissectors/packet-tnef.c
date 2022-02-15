@@ -272,14 +272,14 @@ static gint dissect_counted_address(tvbuff_t *tvb, gint offset, packet_info *pin
   proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, ENC_ASCII);
   offset += length;
 
   length = tvb_get_letohs(tvb, offset);
   proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, ENC_ASCII);
   offset += length;
 
   return offset;
@@ -564,10 +564,10 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       proto_tree_add_item(attr_tree, hf_tnef_version, tvb, offset, length, ENC_LITTLE_ENDIAN);
       break;
     case ATT_MESSAGE_CLASS:
-      proto_tree_add_item(attr_tree, hf_tnef_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(attr_tree, hf_tnef_message_class, tvb, offset, length, ENC_ASCII);
       break;
     case ATT_ORIGINAL_MESSAGE_CLASS:
-      proto_tree_add_item(attr_tree, hf_tnef_original_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(attr_tree, hf_tnef_original_message_class, tvb, offset, length, ENC_ASCII);
       break;
     case ATT_MAPI_PROPS:
       item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, ENC_NA);

@@ -119,7 +119,7 @@ static int is_client_exchange(tvbuff_t *tvb) {
 static int dissect_server_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pmproxy_tree) {
     int offset = PMPROXY_START_OF_PACKET;
     col_set_str(pinfo->cinfo, COL_INFO, "Server exchange");
-    proto_tree_add_item(pmproxy_tree, hf_pmproxy_server_version, tvb, offset, PMPROXY_CLIENT_SERVER_VERSION_LENGTH, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pmproxy_tree, hf_pmproxy_server_version, tvb, offset, PMPROXY_CLIENT_SERVER_VERSION_LENGTH, ENC_ASCII);
     offset += PMPROXY_CLIENT_SERVER_VERSION_LENGTH;
     return offset;
 }
@@ -127,7 +127,7 @@ static int dissect_server_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int dissect_client_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pmproxy_tree) {
     int offset = PMPROXY_START_OF_PACKET;
     col_set_str(pinfo->cinfo, COL_INFO, "Client exchange");
-    proto_tree_add_item(pmproxy_tree, hf_pmproxy_client_version, tvb, offset, PMPROXY_CLIENT_SERVER_VERSION_LENGTH, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pmproxy_tree, hf_pmproxy_client_version, tvb, offset, PMPROXY_CLIENT_SERVER_VERSION_LENGTH, ENC_ASCII);
     offset += PMPROXY_CLIENT_SERVER_VERSION_LENGTH;
     return offset;
 }

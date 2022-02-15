@@ -253,14 +253,14 @@ dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
                 proto_item_set_generated(pi);
             }
             new_offset += ksiz;
 
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
                 proto_item_set_generated(pi);
             }
             new_offset += vsiz;
@@ -314,7 +314,7 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, rnum);
             new_offset += 4;
 
-            proto_tree_add_item(tree, hf_kt_name, tvb, new_offset, nsiz, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_kt_name, tvb, new_offset, nsiz, ENC_ASCII);
             new_offset += nsiz;
 
             while (rnum > 0) {
@@ -333,14 +333,14 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 
                 proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
-                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
+                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
                     proto_item_set_generated(pi);
                 }
                 new_offset += ksiz;
 
                 proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
-                    pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
+                    pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
                     proto_item_set_generated(pi);
                 }
                 new_offset += vsiz;
@@ -382,14 +382,14 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
                 proto_item_set_generated(pi);
             }
             new_offset += ksiz;
 
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
                 proto_item_set_generated(pi);
             }
             new_offset += vsiz;
@@ -447,7 +447,7 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 
                 proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
-                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
+                    pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
                     proto_item_set_generated(pi);
                 }
                 new_offset += ksiz;
@@ -497,14 +497,14 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
                 proto_item_set_generated(pi);
             }
             new_offset += ksiz;
 
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
                 proto_item_set_generated(pi);
             }
             new_offset += vsiz;
@@ -559,7 +559,7 @@ dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
-                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
+                pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
                 proto_item_set_generated(pi);
             }
             new_offset += ksiz;

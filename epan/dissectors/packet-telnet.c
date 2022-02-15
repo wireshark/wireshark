@@ -1149,7 +1149,7 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
     }
     break;
   case TN_AC_NAME:
-    proto_tree_add_item(tree, hf_telnet_auth_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_telnet_auth_name, tvb, offset, len, ENC_ASCII);
     break;
   }
 }
@@ -1831,7 +1831,7 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
      */
     linelen = next_offset - offset;
 
-    proto_tree_add_item(tree, hf_telnet_data, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_telnet_data, tvb, offset, linelen, ENC_ASCII);
     offset = next_offset;
   }
 }

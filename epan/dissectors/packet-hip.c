@@ -997,10 +997,10 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                         break;
                 if (di_type == 1) {
                         /* RFC 1035 */
-                        proto_tree_add_item(t, hf_hip_fqdn, tvb, offset+16+hi_len, di_len, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(t, hf_hip_fqdn, tvb, offset+16+hi_len, di_len, ENC_ASCII);
                 } else if (di_type == 2) {
                         /* RFC 4282 */
-                        proto_tree_add_item(t, hf_hip_nai, tvb, offset+16+hi_len, di_len, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(t, hf_hip_nai, tvb, offset+16+hi_len, di_len, ENC_ASCII);
                 }
                 break;
         case PARAM_CERT: /* CERT */

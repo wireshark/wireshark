@@ -556,7 +556,7 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
     /* Create root of source info */
     source_ti = proto_tree_add_item(tree,
                                     hf_rlc_lte_reassembly_source,
-                                    tvb, 0, 0, ENC_ASCII|ENC_NA);
+                                    tvb, 0, 0, ENC_ASCII);
     source_tree = proto_item_add_subtree(source_ti, ett_rlc_lte_reassembly_source);
     proto_item_set_generated(source_ti);
 

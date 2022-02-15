@@ -862,7 +862,7 @@ gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_t
     }
 
     /*BiosVersion*/
-    proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationBiosVersion, tvb, Offset, 6, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationBiosVersion, tvb, Offset, 6, ENC_ASCII);
 
     /*Board Number*/
     proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationBoardNumber, tvb, Offset + 6, 2, ENC_LITTLE_ENDIAN);
@@ -1227,7 +1227,7 @@ gint WrethCodefMasterInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info * 
     proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_CyclicFlux, tvb, Offset, 1, ENC_LITTLE_ENDIAN);
     Offset += 1;
     /*szProtocolName*/
-    proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_szProtocolName, tvb, Offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_szProtocolName, tvb, Offset, 16, ENC_ASCII);
     Offset += 16;
     /*bMaxTypeEquipment*/
     proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_MaxTypeEquipment, tvb, Offset, 1, ENC_LITTLE_ENDIAN);
@@ -1289,10 +1289,10 @@ gint WrethCodefEquipmentInfoDissection(tvbuff_t *tvb, guint8 Offset, packet_info
     /*Free*/
     Offset += 4;
     /*DllItemName*/
-    proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_DllItemName, tvb, Offset, 14, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_DllItemName, tvb, Offset, 14, ENC_ASCII);
     Offset += 14;
     /*szEquipmentName*/
-    proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_szEquipmentName, tvb, Offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pWrethMailboxDataTree, hf_Wreth_Mail_Mastinf_szEquipmentName, tvb, Offset, 16, ENC_ASCII);
     Offset += 16;
     /*Free*/
     Offset += 2;

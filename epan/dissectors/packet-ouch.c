@@ -475,7 +475,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -493,7 +493,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_stock,
                                 tvb, offset, 8,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 8;
 
             proto_tree_add_item(ouch_tree,
@@ -511,7 +511,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_firm,
                                 tvb, offset, 4,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 4;
 
             proto_tree_add_item(ouch_tree,
@@ -562,7 +562,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -580,7 +580,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_stock,
                                 tvb, offset, 8,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 8;
 
             proto_tree_add_item(ouch_tree,
@@ -598,7 +598,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_firm,
                                 tvb, offset, 4,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 4;
 
             proto_tree_add_item(ouch_tree,
@@ -656,13 +656,13 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_existing_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_replacement_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -706,7 +706,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -720,7 +720,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -758,7 +758,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_replacement_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -776,7 +776,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_stock,
                                 tvb, offset, 8,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 8;
 
             proto_tree_add_item(ouch_tree,
@@ -794,7 +794,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_firm,
                                 tvb, offset, 4,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 4;
 
             proto_tree_add_item(ouch_tree,
@@ -842,7 +842,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_previous_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             if (reported_len >= 80) { /* Added in 4.2 */
@@ -863,7 +863,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -888,7 +888,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -931,7 +931,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -968,7 +968,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -993,7 +993,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -1036,7 +1036,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -1085,7 +1085,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -1116,7 +1116,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -1135,7 +1135,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
             break;
 
@@ -1148,7 +1148,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
             break;
 
@@ -1161,7 +1161,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,
@@ -1192,7 +1192,7 @@ dissect_ouch(
             proto_tree_add_item(ouch_tree,
                                 hf_ouch_order_token,
                                 tvb, offset, 14,
-                                ENC_ASCII|ENC_NA);
+                                ENC_ASCII);
             offset += 14;
 
             proto_tree_add_item(ouch_tree,

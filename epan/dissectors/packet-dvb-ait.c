@@ -181,7 +181,7 @@ dissect_dvb_ait_app_name_desc_body(tvbuff_t *tvb, guint offset,
     offset_start = offset;
     while (offset-offset_start < body_len) {
         proto_tree_add_item(tree, hf_dvb_ait_descr_app_name_lang,
-              tvb, offset, 3, ENC_ASCII|ENC_NA);
+              tvb, offset, 3, ENC_ASCII);
         offset += 3;
         len = tvb_get_guint8(tvb, offset);
           /* FT_UINT_STRING with 1 leading len byte */
@@ -315,7 +315,7 @@ dissect_dvb_ait_descriptor(tvbuff_t *tvb, guint offset,
             case AIT_DESCR_SIM_APP_LOC:
                 proto_tree_add_item(descr_tree,
                         hf_dvb_ait_descr_sal_init_path,
-                        tvb, offset, len, ENC_ASCII|ENC_NA);
+                        tvb, offset, len, ENC_ASCII);
                 offset += len;
                 break;
             default:

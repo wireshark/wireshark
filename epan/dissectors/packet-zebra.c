@@ -1525,7 +1525,7 @@ zebra_interface(proto_tree *tree, tvbuff_t *tvb, int offset,
 {
 	gint maclen;
 	proto_tree_add_item(tree, hf_zebra_interface,
-			    tvb, offset, INTERFACE_NAMSIZ, ENC_ASCII|ENC_NA);
+			    tvb, offset, INTERFACE_NAMSIZ, ENC_ASCII);
 	offset += INTERFACE_NAMSIZ;
 	proto_tree_add_item(tree, hf_zebra_index, tvb,
 			    offset, 4, ENC_BIG_ENDIAN);

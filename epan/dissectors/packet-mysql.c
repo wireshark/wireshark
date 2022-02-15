@@ -1435,7 +1435,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tvb_format_text(pinfo->pool, tvb, conn_data->is_mariadb_server ? offset + 6 : offset, conn_data->is_mariadb_server ? lenstr - 7 : lenstr-1));
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, lenstr, ENC_ASCII);
 	conn_data->major_version = 0;
 	for (ver_offset = 0; ver_offset < lenstr; ver_offset++) {
 		guint8 ver_char = tvb_get_guint8(tvb, offset + ver_offset);
@@ -1450,7 +1450,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	/* salt string */
 	lenstr = tvb_strsize(tvb,offset);
-	proto_tree_add_item(greeting_tree, hf_mysql_salt, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(greeting_tree, hf_mysql_salt, tvb, offset, lenstr, ENC_ASCII);
 	offset += lenstr;
 
 	/* rest is optional */
@@ -1491,14 +1491,14 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	/* 4.1+ server: rest of salt */
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		lenstr = tvb_strsize(tvb,offset);
-		proto_tree_add_item(greeting_tree, hf_mysql_salt2, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(greeting_tree, hf_mysql_salt2, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
 	/* 5.x server: auth plugin */
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		lenstr = tvb_strsize(tvb,offset);
-		proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -1601,7 +1601,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	lenstr = my_tvb_strsize(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s ",
 			tvb_format_text(pinfo->pool, tvb, offset, lenstr-1));
-	proto_tree_add_item(login_tree, hf_mysql_user, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(login_tree, hf_mysql_user, tvb, offset, lenstr, ENC_ASCII);
 	offset += lenstr;
 
 	/* rest is optional */
@@ -1634,7 +1634,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			tvb_format_text(pinfo->pool, tvb, offset, lenstr-1));
 		col_set_fence(pinfo->cinfo, COL_INFO);
 
-		proto_tree_add_item(login_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(login_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -1643,7 +1643,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	{
 		mysql_set_conn_state(pinfo, conn_data, AUTH_SWITCH_REQUEST);
 		lenstr= my_tvb_strsize(tvb,offset);
-		proto_tree_add_item(login_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(login_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 	}
 
@@ -1882,14 +1882,14 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 	case MYSQL_CREATE_DB:
 	case MYSQL_DROP_DB:
 		lenstr = my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(req_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_OK);
 		break;
 
 	case MYSQL_QUERY:
 		lenstr = my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII);
 		if (mysql_showquery) {
 			col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ",
 					tvb_format_text(pinfo->pool, tvb, offset, lenstr));
@@ -1901,7 +1901,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 	case MYSQL_STMT_PREPARE:
 		lenstr = my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_PREPARE);
 		break;
@@ -1920,7 +1920,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 	case MYSQL_FIELD_LIST:
 		lenstr = my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_table_name, tvb,  offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(req_tree, hf_mysql_table_name, tvb,  offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_SHOW_FIELDS);
 		break;
@@ -1933,7 +1933,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 
 	case MYSQL_CHANGE_USER:
 		lenstr = tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_user, tvb,  offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(req_tree, hf_mysql_user, tvb,  offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 
 		if (conn_data->clnt_caps & MYSQL_CAPS_SC) {
@@ -1946,7 +1946,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		offset += lenstr;
 
 		lenstr = my_tvb_strsize(tvb, offset);
-		proto_tree_add_item(req_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(req_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII);
 		offset += lenstr;
 
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -1960,7 +1960,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		{
 			mysql_set_conn_state(pinfo, conn_data, AUTH_SWITCH_REQUEST);
 			lenstr= my_tvb_strsize(tvb,offset);
-			proto_tree_add_item(req_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(req_tree, hf_mysql_client_auth_plugin, tvb, offset, lenstr, ENC_ASCII);
 			offset += lenstr;
 		}
 
@@ -2164,7 +2164,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 		/* binlog file name ? */
 		lenstr = tvb_reported_length_remaining(tvb, offset);
 		if (tree &&  lenstr > 0) {
-			proto_tree_add_item(req_tree, hf_mysql_binlog_file_name, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(req_tree, hf_mysql_binlog_file_name, tvb, offset, lenstr, ENC_ASCII);
 		}
 		offset += lenstr;
 
@@ -2291,7 +2291,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		switch (current_state) {
 		case RESPONSE_MESSAGE:
 			if ((lenstr = tvb_reported_length_remaining(tvb, offset))) {
-				proto_tree_add_item(tree, hf_mysql_message, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tree, hf_mysql_message, tvb, offset, lenstr, ENC_ASCII);
 				offset += lenstr;
 			}
 			mysql_set_conn_state(pinfo, conn_data, REQUEST);
@@ -2351,11 +2351,11 @@ mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
 	if (tvb_get_guint8(tvb, offset) == '#')
 	{
 		offset += 1;
-		proto_tree_add_item(tree, hf_mysql_sqlstate, tvb, offset, 5, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_mysql_sqlstate, tvb, offset, 5, ENC_ASCII);
 		offset += 5;
 	}
 
-	proto_tree_add_item(tree, hf_mysql_error_string, tvb, offset, -1, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_mysql_error_string, tvb, offset, -1, ENC_ASCII);
 	offset += tvb_reported_length_remaining(tvb, offset);
 
 	return offset;
@@ -2392,14 +2392,14 @@ add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_sysvar_length, tvb, offset, lenfle, lenstr);
 		offset += lenfle;
 
-		proto_tree_add_item(session_track_tree, hf_mysql_session_track_sysvar_name, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_sysvar_name, tvb, offset, (gint)lenstr, ENC_ASCII);
 		offset += (int)lenstr;
 
 		lenfle = tvb_get_fle(tvb, session_track_tree, offset, &lenstr, NULL);
 		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_sysvar_length, tvb, offset, lenfle, lenstr);
 		offset += lenfle;
 
-		proto_tree_add_item(session_track_tree, hf_mysql_session_track_sysvar_value, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_sysvar_value, tvb, offset, (gint)lenstr, ENC_ASCII);
 		offset += (int)lenstr;
 		break;
 	case 1: /* CURRENT_SCHEMA_TRACKER */
@@ -2407,11 +2407,11 @@ add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_schema_length, tvb, offset, lenfle, lenstr);
 		offset += lenfle;
 
-		proto_tree_add_item(session_track_tree, hf_mysql_session_track_schema, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_schema, tvb, offset, (gint)lenstr, ENC_ASCII);
 		offset += (int)lenstr;
 		break;
 	case 2: /* SESSION_STATE_CHANGE_TRACKER */
-		proto_tree_add_item(session_track_tree, hf_mysql_session_state_change, tvb, offset, 1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(session_track_tree, hf_mysql_session_state_change, tvb, offset, 1, ENC_ASCII);
 		offset++;
 		break;
 	case 3: /* SESSION_TRACK_GTIDS */
@@ -2421,7 +2421,7 @@ add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_gtids_length, tvb, offset, lenfle, lenstr);
 		offset += lenfle;
 
-		proto_tree_add_item(session_track_tree, hf_mysql_session_track_gtids, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_gtids, tvb, offset, (gint)lenstr, ENC_ASCII);
 		offset += (int)lenstr;
 		break;
 	case 4: /* SESSION_TRACK_TRANSACTION_CHARACTERISTICS */
@@ -2429,7 +2429,7 @@ add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_transaction_characteristics_length, tvb, offset, lenfle, lenstr);
 		offset += lenfle;
 
-		proto_tree_add_item(session_track_tree, hf_mysql_session_track_transaction_characteristics, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_transaction_characteristics, tvb, offset, (gint)lenstr, ENC_ASCII);
 		offset += (int)lenstr;
 		break;
 	case 5: /* SESSION_TRACK_TRANSACTION_STATE */
@@ -2437,7 +2437,7 @@ add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item 
 		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_transaction_state_length, tvb, offset, lenfle, lenstr);
 		offset += lenfle;
 
-		proto_tree_add_item(session_track_tree, hf_mysql_session_track_transaction_state, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_transaction_state, tvb, offset, (gint)lenstr, ENC_ASCII);
 		offset += (int)lenstr;
 		break;
 	default: /* unsupported types skipped */
@@ -2493,7 +2493,7 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			offset += tvb_get_fle(tvb, tree, offset, &lenstr, NULL);
 			/* first read the optional message */
 			if (lenstr) {
-				proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII);
 				offset += (int)lenstr;
 			}
 
@@ -2516,7 +2516,7 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		/* optional: message string */
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
 			lenstr = tvb_reported_length_remaining(tvb, offset);
-			proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII);
 			offset += (int)lenstr;
 		}
 	}
@@ -2771,7 +2771,7 @@ mysql_dissect_auth_switch_request(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	/* name */
 	lenstr = my_tvb_strsize(tvb, offset);
-	proto_tree_add_item(tree, hf_mysql_auth_switch_request_name, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_mysql_auth_switch_request_name, tvb, offset, lenstr, ENC_ASCII);
 	offset += lenstr;
 
 	/* Data */

@@ -539,7 +539,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
                    "Unknown msgType: %u (0x%x)", msgType, msgType);
         break;
     case MSG_TEXT:
-        proto_tree_add_item(subtree, hf_icq_msg, tvb, offset, left, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_icq_msg, tvb, offset, left, ENC_ASCII);
         break;
     case MSG_URL:
         for (n = 0; n < N_URL_FIELDS; n++) {
@@ -646,7 +646,7 @@ icqv5_decode_msgType(proto_tree *tree, tvbuff_t *tvb, int offset, int size,
 
             if (n_local == 0) {
                 /* The first element is the number of Nick/UIN pairs follow */
-                proto_tree_add_item(subtree, hf_icq_num_uin_pairs, tvb, offset, sz_local, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(subtree, hf_icq_num_uin_pairs, tvb, offset, sz_local, ENC_ASCII);
                 n_local++;
             } else if (!last) {
                 int svsz = sz_local;
@@ -694,7 +694,7 @@ icqv5_cmd_send_text_code(proto_tree *tree, /* Tree to put the data in */
     proto_tree_add_item(subtree, hf_icq_text_code_length, tvb, offset + CMD_SEND_TEXT_CODE_LEN, 2, ENC_LITTLE_ENDIAN);
 
     if (len>0) {
-        proto_tree_add_item(subtree, hf_icq_text_code, tvb, offset + CMD_SEND_TEXT_CODE_TEXT, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_icq_text_code, tvb, offset + CMD_SEND_TEXT_CODE_TEXT, len, ENC_ASCII);
     }
 
     proto_tree_add_item(subtree, hf_icq_x1, tvb, offset + CMD_SEND_TEXT_CODE_TEXT + len, 2, ENC_LITTLE_ENDIAN);
@@ -726,7 +726,7 @@ icqv5_cmd_login(proto_tree *tree, tvbuff_t *tvb, int offset)
                     (guint32)theTime, "%u = %s", (guint32)theTime, aTime);
         proto_tree_add_item(subtree, hf_icq_login_port, tvb, offset + CMD_LOGIN_PORT, 4, ENC_LITTLE_ENDIAN);
         passwdLen = tvb_get_letohs(tvb, offset + CMD_LOGIN_PASSLEN);
-        proto_tree_add_item(subtree, hf_icq_login_password, tvb, offset + CMD_LOGIN_PASSLEN, 2 + passwdLen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_icq_login_password, tvb, offset + CMD_LOGIN_PASSLEN, 2 + passwdLen, ENC_ASCII);
         proto_tree_add_item(subtree, hf_icq_login_ip, tvb, offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_IP, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_icq_status, tvb, offset + CMD_LOGIN_PASSWD + passwdLen + CMD_LOGIN_STATUS, 4, ENC_LITTLE_ENDIAN);
     }

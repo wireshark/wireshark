@@ -2804,7 +2804,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
               /* Filename */
               if (al_filename_len > 0) {
-                proto_tree_add_item(point_tree, hf_dnp3_al_file_name, tvb, data_pos, al_filename_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(point_tree, hf_dnp3_al_file_name, tvb, data_pos, al_filename_len, ENC_ASCII);
               }
               data_pos += al_filename_len;
               proto_item_set_len(point_item, data_pos - offset);

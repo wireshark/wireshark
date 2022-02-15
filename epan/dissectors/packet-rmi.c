@@ -178,7 +178,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                     tvb, offset + 1, 2, len);
                 if (len > 0) {
                     proto_tree_add_item(endpoint_tree, hf_rmi_epid_hostname,
-                                      tvb, offset + 3, len, ENC_ASCII|ENC_NA);
+                                      tvb, offset + 3, len, ENC_ASCII);
                 } else {
                     proto_tree_add_string(endpoint_tree, hf_rmi_epid_hostname,
                                       tvb, offset + 3, len, "[Empty]");

@@ -1647,7 +1647,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 #endif
 
     proto_tree_add_item(tree, hf_ssh_protocol,
-                    tvb, offset, protolen, ENC_ASCII|ENC_NA);
+                    tvb, offset, protolen, ENC_ASCII);
     offset += linelen;
     return offset;
 }

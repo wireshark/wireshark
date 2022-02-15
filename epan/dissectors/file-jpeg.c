@@ -686,7 +686,7 @@ process_comment_header(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(subtree, hf_comment, tvb, 4, len-2, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_comment, tvb, 4, len-2, ENC_ASCII);
 }
 
 
@@ -719,7 +719,7 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
     str = (char *)tvb_get_stringz_enc(pinfo->pool, tvb, 4, &str_size, ENC_ASCII);
-    ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII);
     if (strcmp(str, "JFIF") == 0) {
         /* Version */
         ti = proto_tree_add_none_format(subtree, hf_version,
@@ -1005,7 +1005,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     offset += 2;
 
     str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, offset, &str_size, ENC_ASCII);
-    ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, ENC_ASCII);
     offset += str_size;
 
     if (show_first_identifier_not_jfif && strcmp(str, "JFIF") != 0) {
@@ -1049,7 +1049,7 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint3
     proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
     str = (char*)tvb_get_stringz_enc(pinfo->pool, tvb, 4, &str_size, ENC_ASCII);
-    ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII);
     if (strcmp(str, "FPXR") == 0) {
         proto_tree_add_item(tree, hf_exif_flashpix_marker, tvb, 0, -1, ENC_NA);
     } else {

@@ -938,7 +938,7 @@ static guint32 vsip_PingResp(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t 
 
    if (len > 0)
    {
-       proto_tree_add_item(tree, hf_vsip_PingResp_Subtype, tvb, offset, len, ENC_ASCII|ENC_NA);
+       proto_tree_add_item(tree, hf_vsip_PingResp_Subtype, tvb, offset, len, ENC_ASCII);
        offset += len;
    }
 

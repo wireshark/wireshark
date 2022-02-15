@@ -2763,7 +2763,7 @@ dissect_lcp_internationalization_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     proto_tree_add_item(field_tree, hf_lcp_opt_MIBenum, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_lcp_opt_language_tag, tvb, offset + 6,
-        length - 6, ENC_ASCII|ENC_NA);
+        length - 6, ENC_ASCII);
 
     return tvb_captured_length(tvb);
 }
@@ -4726,7 +4726,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
                 ENC_BIG_ENDIAN);
         if (length > 4) {
             proto_tree_add_item(fh_tree, hf_lcp_message, tvb, offset + 4,
-                    length - 4, ENC_ASCII|ENC_NA);
+                    length - 4, ENC_ASCII);
         }
         break;
 
@@ -4739,7 +4739,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
                 (secs_remaining == 0xffffffff) ? "(forever)" : "seconds");
         if (length > 8) {
             proto_tree_add_item(fh_tree, hf_lcp_message, tvb, offset + 8,
-                    length - 8, ENC_ASCII|ENC_NA);
+                    length - 8, ENC_ASCII);
         }
         break;
 
@@ -6188,7 +6188,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset++;
 
         proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset,
-                            peer_id_length, ENC_ASCII|ENC_NA);
+                            peer_id_length, ENC_ASCII);
         peer_id = tvb_format_text(pinfo->pool, tvb, offset, peer_id_length);
         offset += peer_id_length;
 
@@ -6198,7 +6198,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset++;
 
         proto_tree_add_item(data_tree, hf_pap_password, tvb, offset,
-                            password_length, ENC_ASCII|ENC_NA);
+                            password_length, ENC_ASCII);
         password = tvb_format_text(pinfo->pool, tvb, offset, password_length);
 
         col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -6213,7 +6213,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         offset +=1;
 
         proto_tree_add_item(data_tree, hf_pap_message, tvb, offset,
-                            message_length, ENC_ASCII|ENC_NA);
+                            message_length, ENC_ASCII);
         message = tvb_format_text(pinfo->pool, tvb, offset, message_length);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')",
@@ -6310,7 +6310,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 /* Find name in remaining bytes */
                 if (length > 0) {
                     proto_tree_add_item(field_tree, hf_chap_name, tvb,
-                                        offset, length, ENC_ASCII|ENC_NA);
+                                        offset, length, ENC_ASCII);
                     name_offset = offset;
                     name_size = length;
                 }
@@ -6331,7 +6331,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     case CHAP_FAIL:
         if (length > 0) {
             proto_tree_add_item(fh_tree, hf_chap_message, tvb, offset,
-                    length, ENC_ASCII|ENC_NA);
+                    length, ENC_ASCII);
         }
 
         /* Show message in info column */

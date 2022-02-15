@@ -241,7 +241,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset = offset + pad_len;
 			break;
 		case 7: /* ERROR-INFO */
-			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_error_info_text, tvb, offset, length-3, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_error_info_text, tvb, offset, length-3, ENC_ASCII);
 			offset = offset + length-3;
 			pad_len = length & 0x03;
 			if(pad_len != 0){
@@ -251,7 +251,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset = offset + pad_len;
 			break;
 		case 8: /* PARTICIPANT-PROVIDED-INFO */
-			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_part_prov_info_text, tvb, offset, length-3, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_part_prov_info_text, tvb, offset, length-3, ENC_ASCII);
 			offset = offset + length-3;
 			pad_len = length & 0x03;
 			if(pad_len != 0){
@@ -261,7 +261,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset = offset + pad_len;
 			break;
 		case 9: /* STATUS-INFO */
-			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_status_info_text, tvb, offset, length-3, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_status_info_text, tvb, offset, length-3, ENC_ASCII);
 			offset = offset + length-3;
 			pad_len = length & 0x03;
 			if(pad_len != 0){
@@ -297,7 +297,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset = offset + pad_len;
 			break;
 		case 12: /* USER-DISPLAY-NAME */
-			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_user_disp_name, tvb, offset, length-3, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_user_disp_name, tvb, offset, length-3, ENC_ASCII);
 			offset = offset + length-3;
 			pad_len = length & 0x03;
 			if(pad_len != 0){
@@ -307,7 +307,7 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			offset = offset + pad_len;
 			break;
 		case 13: /* USER-URI */
-			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_user_uri, tvb, offset, length-3, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(bfcp_attr_tree, hf_bfcp_user_uri, tvb, offset, length-3, ENC_ASCII);
 			offset = offset + length-3;
 			pad_len = length & 0x03;
 			if(pad_len != 0){

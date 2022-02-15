@@ -937,7 +937,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   {
     len = BM_LEN*2;
     exp = proto_tree_add_item(iso8583_tree, hf_iso8583_bitmap1, tvb,
-        offset, len, ENC_ASCII|ENC_NA);
+        offset, len, ENC_ASCII);
     if(!ishex_str((gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, len , ENC_ASCII), len))
     {
       expert_add_info(pinfo, exp, &ei_iso8583_MALFORMED);
@@ -959,7 +959,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if(bin_encode_pref == BIN_ASCII_ENC)
     {
       exp = proto_tree_add_item(iso8583_tree, hf_iso8583_bitmap2, tvb,
-          offset, len, ENC_ASCII|ENC_NA);
+          offset, len, ENC_ASCII);
       if(!ishex_str((gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, len , ENC_ASCII), len))
       {
         expert_add_info(pinfo, exp, &ei_iso8583_MALFORMED);

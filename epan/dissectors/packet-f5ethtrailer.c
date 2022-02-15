@@ -2481,7 +2481,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         gint viplen = tvb_get_guint8(tvb, offset);
         /* Make sure VIP Name Length does not extend past the TVB */
         if (tvb_reported_length_remaining(tvb, offset) < viplen) {
-            pi = proto_tree_add_item(tree, hf_vip, tvb, offset, 0, ENC_ASCII|ENC_NA);
+            pi = proto_tree_add_item(tree, hf_vip, tvb, offset, 0, ENC_ASCII);
             expert_add_info(pinfo, pi, &ei_f5eth_badlen);
             /* Cannot go any further */
             return len;
@@ -2492,7 +2492,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             "Virtual Server: %s", text);
         proto_tree_add_item(ti, hf_vipnamelen, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item(ti, hf_vip, tvb, offset, viplen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ti, hf_vip, tvb, offset, viplen, ENC_ASCII);
         if (viplen > 0 && have_tap_listener(tap_f5ethtrailer)) {
             tdata->virtual_name = text;
         }

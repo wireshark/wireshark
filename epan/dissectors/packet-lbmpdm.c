@@ -959,7 +959,7 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
             if (string_name_len > 0)
             {
                 string_name_ofs = ofs + def_ofs + L_LBMPDM_FIELD_INFO_T;
-                proto_tree_add_item(field_tree, hf_lbmpdm_segment_def_field_str_name, tvb, string_name_ofs, (int)string_name_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(field_tree, hf_lbmpdm_segment_def_field_str_name, tvb, string_name_ofs, (int)string_name_len, ENC_ASCII);
                 type_ofs += string_name_len;
             }
         }

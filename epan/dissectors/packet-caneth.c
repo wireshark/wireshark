@@ -150,7 +150,7 @@ dissect_caneth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     ti = proto_tree_add_item(tree, proto_caneth, tvb, 0, -1, ENC_NA);
     caneth_tree = proto_item_add_subtree(ti, ett_caneth);
 
-    proto_tree_add_item(caneth_tree, hf_caneth_magic, tvb, 0, 8, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(caneth_tree, hf_caneth_magic, tvb, 0, 8, ENC_ASCII);
     proto_tree_add_item(caneth_tree, hf_caneth_version, tvb, 8, 1, ENC_NA);
     proto_tree_add_item_ret_uint(caneth_tree, hf_caneth_frames, tvb, 9, 1, ENC_NA, &frame_count);
 

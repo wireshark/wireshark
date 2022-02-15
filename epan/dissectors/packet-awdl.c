@@ -966,7 +966,7 @@ awdl_tag_datapath_state(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
   offset += 2;
 
   if (flags & 0x0100) {
-    proto_tree_add_item(tree, hf_awdl_datastate_countrycode, tvb, offset, 3, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_awdl_datastate_countrycode, tvb, offset, 3, ENC_ASCII);
     offset += 3;
   }
   if (flags & 0x0200) {

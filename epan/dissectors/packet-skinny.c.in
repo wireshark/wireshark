@@ -212,7 +212,7 @@ dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32
 
   ptvcursor_add_no_advance(cursor, hfindex, length, ENC_ASCII|ENC_NA);
 
-  item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, offset, length, ENC_ASCII|ENC_NA);
+  item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, offset, length, ENC_ASCII);
   subtree = proto_item_add_subtree(item, 0);
   next_tvb = tvb_new_subset_length_caplen(tvb, offset, length, -1);
   if (xml_handle != NULL) {

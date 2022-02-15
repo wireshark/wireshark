@@ -185,10 +185,10 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
             break;
           case UB_FIRMWARE_FULL:
-            proto_tree_add_item(tlv_tree, hf_ubdp_firmware_full, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_firmware_full, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_USERNAME:
-            proto_tree_add_item(tlv_tree, hf_ubdp_username, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_username, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_UPTIME:
             if(ubdp_length == 4){
@@ -199,7 +199,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
             break;
           case UB_HOSTNAME:
-            proto_tree_add_item(tlv_tree, hf_ubdp_hostname, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_hostname, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_PRODUCT:
             uValue = tvb_get_string_enc(pinfo->pool, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
@@ -207,7 +207,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_string(tlv_tree, hf_ubdp_product, ubdp_tvb, offset, ubdp_length, uModel ? uModel : uValue);
             break;
           case UB_ESSID:
-            proto_tree_add_item(tlv_tree, hf_ubdp_ssid, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_ssid, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_WLAN_MODE:
             if(ubdp_length == 1){
@@ -244,10 +244,10 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_string(tlv_tree, hf_ubdp_model, ubdp_tvb, offset, ubdp_length, uModel ? uModel : uValue);
             break;
           case UB_FIRMWARE:
-            proto_tree_add_item(tlv_tree, hf_ubdp_firmware, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_firmware, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_PLATFORM_VERS:
-            proto_tree_add_item(tlv_tree, hf_ubdp_platform_vers, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_platform_vers, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           default:
             proto_tree_add_item(tlv_tree, hf_ubdp_generic, ubdp_tvb, offset, ubdp_length, ENC_NA);

@@ -1447,7 +1447,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		if (_9p_version == _9P2000_u) {
 			_9p_len = tvb_get_letohs(tvb, offset);
-			proto_tree_add_item(ninep_tree, hf_9P_extension, tvb, offset+2, 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(ninep_tree, hf_9P_extension, tvb, offset+2, 4, ENC_ASCII);
 			offset += 2 + _9p_len;
 		}
 

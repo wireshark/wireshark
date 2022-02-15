@@ -1247,7 +1247,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /* Subheader */
         proto_item *subheader_ti = proto_tree_add_item(tree,
                                                        hf_mac_nr_rar_subheader,
-                                                       tvb, offset, 0, ENC_ASCII|ENC_NA);
+                                                       tvb, offset, 0, ENC_ASCII);
         proto_tree *rar_subheader_tree = proto_item_add_subtree(subheader_ti, ett_mac_nr_rar_subheader);
 
         /* Note extension & T bits */
@@ -1378,7 +1378,7 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     /* Subtree for this entry */
     proto_item *entry_ti = proto_tree_add_item(tree,
                                                hf_mac_nr_control_me_phr_entry,
-                                               tvb, *offset, 0, ENC_ASCII|ENC_NA);
+                                               tvb, *offset, 0, ENC_ASCII);
     proto_tree *entry_tree = proto_item_add_subtree(entry_ti, ett_mac_nr_me_phr_entry);
 
     /* P */
@@ -1593,7 +1593,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Subheader */
         proto_item *subheader_ti = proto_tree_add_item(tree,
                                                        hf_mac_nr_subheader,
-                                                       tvb, offset, 0, ENC_ASCII|ENC_NA);
+                                                       tvb, offset, 0, ENC_ASCII);
         proto_tree *subheader_tree = proto_item_add_subtree(subheader_ti, ett_mac_nr_subheader);
 
 

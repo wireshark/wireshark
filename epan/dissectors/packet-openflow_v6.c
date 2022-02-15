@@ -2956,7 +2956,7 @@ dissect_openflow_port_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     offset+=2;
 
     /* char name[OFP_MAX_PORT_NAME_LEN]; Null-terminated */
-    proto_tree_add_item(port_tree, hf_openflow_v6_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(port_tree, hf_openflow_v6_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII);
 
     proto_item_append_text(port_tree, " (%s)", tvb_get_string_enc(pinfo->pool, tvb, offset, OFP_ETH_ALEN, ENC_ASCII));
     offset+=OFP_MAX_PORT_NAME_LEN;
@@ -4020,7 +4020,7 @@ dissect_openflow_table_features_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     offset+=5;
 
     /* char name[OFP_MAX_TABLE_NAME_LEN]; */
-    proto_tree_add_item(feat_tree, hf_openflow_v6_table_features_name, tvb, offset, OFP_MAX_TABLE_NAME_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(feat_tree, hf_openflow_v6_table_features_name, tvb, offset, OFP_MAX_TABLE_NAME_LEN, ENC_ASCII);
     offset+=OFP_MAX_TABLE_NAME_LEN;
 
     /* uint64_t metadata_match; */
@@ -4481,23 +4481,23 @@ static void
 dissect_openflow_switch_description_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
 {
     /* char mfr_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v6_switch_description_mfr_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_switch_description_mfr_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII);
     offset+=DESC_STR_LEN;
 
     /* char hw_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v6_switch_description_hw_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_switch_description_hw_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII);
     offset+=DESC_STR_LEN;
 
     /* char sw_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v6_switch_description_sw_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_switch_description_sw_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII);
     offset+=DESC_STR_LEN;
 
     /* char serial_num[SERIAL_NUM_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v6_switch_description_serial_num, tvb, offset, SERIAL_NUM_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_switch_description_serial_num, tvb, offset, SERIAL_NUM_LEN, ENC_ASCII);
     offset+=SERIAL_NUM_LEN;
 
     /* char dp_desc[DESC_STR_LEN]; */
-    proto_tree_add_item(tree, hf_openflow_v6_switch_description_dp_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_v6_switch_description_dp_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII);
     /*offset+=DESC_STR_LEN;*/
 }
 
@@ -5675,7 +5675,7 @@ dissect_openflow_controller_status_prop_v6(tvbuff_t *tvb, packet_info *pinfo _U_
     switch (prop_type) {
     case OFPCSPT_URI:
         /* uint8_t uri[0]; */
-        proto_tree_add_item(tree, hf_openflow_v6_controller_status_prop_uri, tvb, offset, prop_length - 4, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_openflow_v6_controller_status_prop_uri, tvb, offset, prop_length - 4, ENC_ASCII);
         offset += body_end;
         break;
     case OFPCSPT_EXPERIMENTER:

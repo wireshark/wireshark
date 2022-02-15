@@ -5052,7 +5052,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EID_DHCP_HOST_NAME:                      // 382
 		case EID_MU_ECP_PW:                           // 385
 		case EID_MU_ECP_TOKEN:                        // 386
-			proto_tree_add_item(tlv_tree, hf_wassp_tlv_value_string, tvb, offset + TLV_VALUE, length - 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tlv_tree, hf_wassp_tlv_value_string, tvb, offset + TLV_VALUE, length - 4, ENC_ASCII);
 			offset += length;
 			break;
 

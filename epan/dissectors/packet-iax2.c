@@ -1850,7 +1850,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
 
   case AST_FRAME_DTMF_BEGIN:
   case AST_FRAME_DTMF_END:
-    proto_tree_add_item(packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, ENC_ASCII);
     offset += 10;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " digit %c", csub);

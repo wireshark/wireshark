@@ -1777,7 +1777,7 @@ dissect_struct_obd_uuid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, int 
      /* struct obd_uuid { */
      /*     char uuid[UUID_MAX]; */
      /* }; */
-     proto_tree_add_item(tree, hf_lustre_obd_uuid, tvb, offset, 40, ENC_ASCII|ENC_NA);
+     proto_tree_add_item(tree, hf_lustre_obd_uuid, tvb, offset, 40, ENC_ASCII);
      offset += 40;
 
      return offset;
@@ -2280,7 +2280,7 @@ dissect_struct_changelog_rec(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
         offset = dissect_struct_lu_fid(tvb, offset, tree, hf_lustre_changelog_ext_rename_spfid);
     }
     if (flags & CLF_JOBID) {
-        proto_tree_add_item(tree, hf_lustre_changelog_ext_jobid_jobid, tvb, offset, 32, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_lustre_changelog_ext_jobid_jobid, tvb, offset, 32, ENC_ASCII);
         offset += 32;
     }
     if (flags & CLF_EXTRA_FLAGS) {
@@ -2288,7 +2288,7 @@ dissect_struct_changelog_rec(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
         offset += 8;
     }
     if (namelen > 0) {
-        proto_tree_add_item(tree, hf_lustre_changelog_ext_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_lustre_changelog_ext_name, tvb, offset, namelen, ENC_ASCII);
         offset += namelen;
     }
 
@@ -2328,9 +2328,9 @@ dissect_struct_cfg_marker(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     offset += 8;
     proto_tree_add_item(tree, hf_lustre_cfg_marker_canceltime, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
-    proto_tree_add_item(tree, hf_lustre_cfg_marker_tgtname, tvb, offset, 64, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lustre_cfg_marker_tgtname, tvb, offset, 64, ENC_ASCII);
     offset += 64;
-    proto_tree_add_item(tree, hf_lustre_cfg_marker_comment, tvb, offset, 64, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lustre_cfg_marker_comment, tvb, offset, 64, ENC_ASCII);
     offset += 64;
 
     return offset;
@@ -2390,7 +2390,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
         if (count == 2) {
             len = tvb_get_letohl(tvb, buf_offset);
             len += buffer_padding_length(len+offset);
-            proto_tree_add_item(tree, hf_lustre_lustre_cfg_buffer, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_lustre_lustre_cfg_buffer, tvb, offset, len, ENC_ASCII);
             offset += len;
             offset = dissect_struct_lov_desc(tvb, offset, tree);
             break;
@@ -2400,7 +2400,7 @@ dissect_struct_lustre_cfg(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
         for (i = 0; i < count; ++i) {
             len = tvb_get_letohl(tvb, buf_offset+(4*i));
             len += buffer_padding_length(len+offset);
-            proto_tree_add_item(tree, hf_lustre_lustre_cfg_buffer, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_lustre_lustre_cfg_buffer, tvb, offset, len, ENC_ASCII);
             offset += len;
         }
         break;
@@ -2462,7 +2462,7 @@ dissect_struct_ldlm_lock_desc(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
                     *ltype = tvb_get_letoh64(tvb, offset);
                 proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             } else
-                proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_string, tvb, offset, 8, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_string, tvb, offset, 8, ENC_ASCII);
             break;
         default:
             proto_tree_add_item(id_tree, hf_lustre_ldlm_res_id_name, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -2793,7 +2793,7 @@ dissect_struct_mgs_config_body(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
     /* }; */
     /* MTI_NAME_MAXLEN == 64 */
 
-    proto_tree_add_item(tree, hf_lustre_mgs_config_body_name, tvb, offset, 64, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lustre_mgs_config_body_name, tvb, offset, 64, ENC_ASCII);
     offset += 64;
     proto_tree_add_item(tree, hf_lustre_mgs_config_body_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
@@ -2888,7 +2888,7 @@ dissect_struct_mgs_target_info(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
     offset += 64;
     proto_tree_add_item(tree, hf_lustre_mgs_target_info_mti_svname, tvb, offset, 64, ENC_NA);
     offset += 64;
-    proto_tree_add_item(tree, hf_lustre_mgs_target_info_mti_uuid, tvb, offset, 40, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lustre_mgs_target_info_mti_uuid, tvb, offset, 40, ENC_ASCII);
     offset += 40;
     for (i = 0; i < count; ++i)
         offset = lnet_dissect_struct_nid(tvb, tree, offset, hf_lustre_mgs_target_info_mti_nids);
@@ -3231,7 +3231,7 @@ dissect_struct_lmv_mds_md_v1(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, 
     offset += 4;
     proto_tree_add_item(tree, hf_lustre_lmv_mds_md_padding, tvb, offset, 20, ENC_NA);
     offset += 20;
-    proto_tree_add_item(tree, hf_lustre_lmv_mds_md_pool_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lustre_lmv_mds_md_pool_name, tvb, offset, 16, ENC_ASCII);
     offset += 16;
 
     for (i = 0; i < count && magic == LMV_MAGIC_V1; ++i)
@@ -3323,7 +3323,7 @@ dissect_struct_lov_mds_md(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
     proto_tree_add_item(tree, hf_lustre_lov_mds_md_lmm_layout_gen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     if (magic == LOV_MAGIC_V3) {
-        proto_tree_add_item(tree, hf_lustre_lov_mds_md_lmm_pool_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_lustre_lov_mds_md_lmm_pool_name, tvb, offset, 16, ENC_ASCII);
         offset += 16;
     }
 
@@ -4229,7 +4229,7 @@ dissect_struct_ptlrpc_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent
 
     if (pb_version == LUSTRE_PTLRPC_MSG_VERSION && offset-old_offset < buf_len) {
         /* the length of the string is 32 bytes max, with \0 inside */
-        proto_tree_add_item(tree, hf_lustre_ptlrpc_body_pb_jobid, tvb, offset, 32, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_lustre_ptlrpc_body_pb_jobid, tvb, offset, 32, ENC_ASCII);
         offset+=32;
     }
 
@@ -4734,7 +4734,7 @@ dissect_xattr_buffers(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
         //@@ Add name to text
         proto_item_append_text(item, " [%d]", i);
-        proto_tree_add_item(tree, hf_lustre_xattr_name, tvb, nameoffset, namesize, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_lustre_xattr_name, tvb, nameoffset, namesize, ENC_ASCII);
         nameoffset += namesize;
 
         proto_tree_add_item(tree, hf_lustre_xattr_data, tvb, dataoffset, datasize, ENC_NA);
@@ -5022,7 +5022,7 @@ dissect_struct_obd_statfs(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
     offset += 8;
     proto_tree_add_item(tree, hf_lustre_obd_statfs_os_ffree, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
-    proto_tree_add_item(tree, hf_lustre_obd_statfs_os_fsid, tvb, offset, 40, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lustre_obd_statfs_os_fsid, tvb, offset, 40, ENC_ASCII);
     offset += 40;
     proto_tree_add_item(tree, hf_lustre_obd_statfs_os_bsize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;

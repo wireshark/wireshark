@@ -1321,11 +1321,11 @@ dissect_capwap_ac_information(tvbuff_t *tvb, proto_tree *ac_information_type_tre
 
     switch (ac_information_type) {
     case AC_INFORMATION_HARDWARE_VERSION:
-        proto_tree_add_item(sub_ac_information_type_tree, hf_capwap_msg_element_type_ac_information_hardware_version, tvb, offset+8, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_ac_information_type_tree, hf_capwap_msg_element_type_ac_information_hardware_version, tvb, offset+8, optlen, ENC_ASCII);
         break;
 
     case AC_INFORMATION_SOFTWARE_VERSION:
-        proto_tree_add_item(sub_ac_information_type_tree, hf_capwap_msg_element_type_ac_information_software_version, tvb, offset+8, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_ac_information_type_tree, hf_capwap_msg_element_type_ac_information_software_version, tvb, offset+8, optlen, ENC_ASCII);
         break;
 
     default:
@@ -1361,19 +1361,19 @@ dissect_capwap_wtp_descriptor(tvbuff_t *tvb, proto_tree *wtp_descriptor_type_tre
 
     switch (wtp_descriptor_type) {
     case WTP_DESCRIPTOR_HARDWARE_VERSION:
-        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_hardware_version, tvb, offset+8, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_hardware_version, tvb, offset+8, optlen, ENC_ASCII);
         break;
 
     case WTP_DESCRIPTOR_ACTIVE_SOFTWARE_VERSION:
-        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_active_software_version, tvb, offset+8, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_active_software_version, tvb, offset+8, optlen, ENC_ASCII);
         break;
 
     case WTP_DESCRIPTOR_BOOT_VERSION:
-        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_boot_version, tvb, offset+8, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_boot_version, tvb, offset+8, optlen, ENC_ASCII);
         break;
 
     case WTP_DESCRIPTOR_OTHER_SOFTWARE_VERSION:
-        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_other_software_version, tvb, offset+8, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_wtp_descriptor_type_tree, hf_capwap_msg_element_type_wtp_descriptor_other_software_version, tvb, offset+8, optlen, ENC_ASCII);
         break;
 
     default:
@@ -1407,19 +1407,19 @@ dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, guint
     proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_value, tvb, offset+4, optlen, ENC_NA);
     switch (board_data_type) {
     case BOARD_DATA_WTP_MODEL_NUMBER:
-        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_model_number, tvb, offset+4, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_model_number, tvb, offset+4, optlen, ENC_ASCII);
         break;
 
     case BOARD_DATA_WTP_SERIAL_NUMBER:
-        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_serial_number, tvb, offset+4, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_serial_number, tvb, offset+4, optlen, ENC_ASCII);
         break;
 
     case BOARD_DATA_BOARD_ID:
-        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_board_id, tvb, offset+4, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_board_id, tvb, offset+4, optlen, ENC_ASCII);
         break;
 
     case BOARD_DATA_BOARD_REVISION:
-        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_board_revision, tvb, offset+4, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_wtp_board_revision, tvb, offset+4, optlen, ENC_ASCII);
         break;
 
     case BOARD_DATA_BASE_MAC_ADDRESS:
@@ -1579,7 +1579,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             }
         break;
         case VSP_FORTINET_WTP_ALLOW: /* 34 */
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wtp_allow_sn, tvb, offset, optlen-1, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wtp_allow_sn, tvb, offset, optlen-1, ENC_ASCII);
             offset += optlen - 1;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_wtp_allow_allow, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -1623,7 +1623,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn_length, tvb, offset, 2, ENC_NA);
             sn_length = tvb_get_ntohs(tvb, offset);
             offset += 2;
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn, tvb, offset, sn_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_sn, tvb, offset, sn_length, ENC_ASCII);
             offset += sn_length;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_mvap_unknown, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
@@ -1678,11 +1678,11 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             offset += 4;
         break;
         case VSP_FORTINET_ADMIN_PASSWD: /* 82 */
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_admin_passwd, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_admin_passwd, tvb, offset, optlen, ENC_ASCII);
             offset += optlen;
         break;
         case VSP_FORTINET_REGCODE: /* 83 */
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_regcode, tvb, offset, 3, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_regcode, tvb, offset, 3, ENC_ASCII);
             offset += 3;
         break;
         case VSP_FORTINET_COUNTRYCODE: /* 84 */
@@ -1690,7 +1690,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             offset += 1;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_countrycode_code, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_countrycode_string, tvb, offset, 3, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_countrycode_string, tvb, offset, 3, ENC_ASCII);
             offset += 3;
         break;
         case VSP_FORTINET_STA_SCAN: /* 99 */
@@ -1726,7 +1726,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sa_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             optlen -= 1;
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sa_ssid, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_sa_ssid, tvb, offset, optlen, ENC_ASCII);
             offset += optlen;
         break;
         case VSP_FORTINET_DARRP_CFG: /* 112 */
@@ -1803,7 +1803,7 @@ dissect_capwap_message_element_vendor_fortinet_type(tvbuff_t *tvb, proto_tree *s
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_psk_passwd_wid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             optlen -= 1;
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_psk_passwd_key, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_fortinet_vap_psk_passwd_key, tvb, offset, optlen, ENC_ASCII);
             offset += optlen;
         break;
         case VSP_FORTINET_MESH_ETH_BRIDGE_ENABLE: /* 176 */
@@ -2050,15 +2050,15 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
             offset += 4;
         break;
         case VSP_CISCO_RAD_NAME: /* RAD (AP) Name (5) */
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_rad_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_rad_name, tvb, offset, optlen, ENC_ASCII);
             offset += optlen;
         break;
         case VSP_CISCO_MWAR: /* MWAR (6) */
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_type, tvb, offset, 1, ENC_NA);
             offset += 1;
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_hardware, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_hardware, tvb, offset, 4, ENC_ASCII);
             offset += 4;
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_software, tvb, offset, 4, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_software, tvb, offset, 4, ENC_ASCII);
             offset += 4;
             proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_mwar_active_ms, tvb, offset, 2, ENC_NA);
             offset += 2;
@@ -2094,7 +2094,7 @@ dissect_capwap_message_element_vendor_cisco_type(tvbuff_t *tvb, proto_tree *sub_
             offset += 4;
         break;
         case VSP_CISCO_AP_GROUP_NAME: /* AP Group Name (123) */
-            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_group_name, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_cisco_ap_group_name, tvb, offset, optlen, ENC_ASCII);
             offset += optlen;
         break;
         case VSP_CISCO_AP_LED_STATE_CONFIG: /* AP Led State (125) */
@@ -2228,7 +2228,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
                            "AC Name length %u wrong, must be >= 1", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name, tvb, offset+4, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name, tvb, offset+4, optlen, ENC_ASCII);
         break;
 
     case TYPE_AC_NAME_W_PRIORITY: /* AC Name With Priority (5) */
@@ -2238,7 +2238,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         break;
         }
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name_with_priority, tvb, offset+4, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name, tvb, offset+5, optlen-1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ac_name, tvb, offset+5, optlen-1, ENC_ASCII);
         break;
 
     case TYPE_AC_TIMESTAMP: /* AC Timestamp (6) */
@@ -2273,7 +2273,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
         }
 
         if(optlen -(2 + maclength)) {
-                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_vlan_name, tvb, offset+6+maclength, optlen -(2 + maclength), ENC_ASCII|ENC_NA);
+                proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_add_station_vlan_name, tvb, offset+6+maclength, optlen -(2 + maclength), ENC_ASCII);
         }
         }
         break;
@@ -2366,7 +2366,7 @@ hf_capwap_msg_element_type_ac_descriptor_dtls_policy, ett_capwap_ac_descriptor_d
                            "Location Data length %u wrong, must be >= 1", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_location_data, tvb, offset+4, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_location_data, tvb, offset+4, optlen, ENC_ASCII);
         break;
 
     case TYPE_MAXIMUM_MESSAGE_LENGTH: /* Maximum Message Length (29) */
@@ -2542,7 +2542,7 @@ hf_capwap_msg_element_type_wtp_frame_tunnel_mode, ett_capwap_wtp_frame_tunnel_mo
                            "WTP Name length %u wrong, must be >= 1", optlen);
         break;
         }
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_name, tvb, offset+4, optlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_name, tvb, offset+4, optlen, ENC_ASCII);
         break;
 
     case TYPE_WTP_REBOOT_STATISTICS: /* WTP Reboot Statistics (48) */
@@ -2620,7 +2620,7 @@ hf_capwap_msg_element_type_ieee80211_add_wlan_capability, ett_capwap_ieee80211_a
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_mac_mode, tvb, offset+key_length+20, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_tunnel_mode, tvb, offset+key_length+21, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_suppress_ssid, tvb, offset+key_length+22, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_ssid, tvb, offset+key_length+23, optlen-(key_length+23-4), ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_ssid, tvb, offset+key_length+23, optlen-(key_length+23-4), ENC_ASCII);
         }
         break;
 
@@ -2890,7 +2890,7 @@ hf_capwap_msg_element_type_ieee80211_update_wlan_capability, ett_capwap_ieee8021
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_cfg_dtim_period, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_cfg_bssid, tvb, offset+8, 6, ENC_NA);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_cfg_beacon_period, tvb, offset+14, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_cfg_country_string, tvb, offset+16, 4, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_wtp_radio_cfg_country_string, tvb, offset+16, 4, ENC_ASCII);
         break;
 
     case IEEE80211_WTP_RADIO_INFORMATION: /* ieee80211 WTP Radio Information (1048) */

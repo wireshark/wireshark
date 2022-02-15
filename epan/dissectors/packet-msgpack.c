@@ -245,11 +245,11 @@ static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	if (lensize == 0) {
 		proto_tree_add_uint_format(subtree, hf_msgpack_type, tvb, *offset, 1, type, "Type: String");
 		proto_tree_add_uint_format(subtree, hf_msgpack_string_len, tvb, *offset, 1, lensize, "Length: 1");
-		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII);
 	} else {
 		proto_tree_add_item(subtree, hf_msgpack_type, tvb, *offset, 1, ENC_NA);
 		proto_tree_add_item(subtree, hf_msgpack_string_len, tvb, *offset + 1, lensize, ENC_BIG_ENDIAN);
-		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII);
 	}
 	*offset += 1 + lensize + len;
 

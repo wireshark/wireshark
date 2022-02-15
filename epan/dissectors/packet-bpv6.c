@@ -554,34 +554,34 @@ dissect_dictionary(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
          */
 
         proto_tree_add_item(dict_tree, hf_bundle_dest_scheme,
-                            tvb, offset + dict_data->dest_scheme_offset, -1, ENC_ASCII|ENC_NA);
+                            tvb, offset + dict_data->dest_scheme_offset, -1, ENC_ASCII);
         proto_tree_add_item(dict_tree, hf_bundle_dest_ssp,
-                            tvb, offset + dict_data->dest_ssp_offset, -1, ENC_ASCII|ENC_NA);
+                            tvb, offset + dict_data->dest_ssp_offset, -1, ENC_ASCII);
 
         /*
          * Source info
          */
 
         proto_tree_add_item(dict_tree, hf_bundle_source_scheme,
-                            tvb, offset + dict_data->source_scheme_offset, -1, ENC_ASCII|ENC_NA);
+                            tvb, offset + dict_data->source_scheme_offset, -1, ENC_ASCII);
         proto_tree_add_item(dict_tree, hf_bundle_source_ssp,
-                            tvb, offset + dict_data->source_ssp_offset, -1, ENC_ASCII|ENC_NA);
+                            tvb, offset + dict_data->source_ssp_offset, -1, ENC_ASCII);
 
         /*
          * Report to info
          */
 
         proto_tree_add_item(dict_tree, hf_bundle_report_scheme,
-                            tvb, offset + dict_data->report_scheme_offset, -1, ENC_ASCII|ENC_NA);
+                            tvb, offset + dict_data->report_scheme_offset, -1, ENC_ASCII);
         proto_tree_add_item(dict_tree, hf_bundle_report_ssp,
-                            tvb, offset + dict_data->report_ssp_offset, -1, ENC_ASCII|ENC_NA);
+                            tvb, offset + dict_data->report_ssp_offset, -1, ENC_ASCII);
 
         /*
          * Custodian info
          */
 
-        proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + dict_data->cust_scheme_offset, -1, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + dict_data->cust_ssp_offset, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(dict_tree, hf_bundle_custodian_scheme, tvb, offset + dict_data->cust_scheme_offset, -1, ENC_ASCII);
+        proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + dict_data->cust_ssp_offset, -1, ENC_ASCII);
 
         /*
          * Add Source/Destination to INFO Field
@@ -1572,7 +1572,7 @@ display_extension_block(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int
 
         proto_tree_add_item_ret_length(block_tree, hf_bundle_block_previous_hop_scheme, tvb, offset, 4, ENC_ASCII, &scheme_length);
         offset += scheme_length;
-        proto_tree_add_item(block_tree, hf_bundle_block_previous_hop_eid, tvb, offset, block_length-scheme_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(block_tree, hf_bundle_block_previous_hop_eid, tvb, offset, block_length-scheme_length, ENC_ASCII);
         if (block_length - scheme_length < 1) {
             expert_add_info_format(pinfo, ti, &ei_bundle_offset_error, "Metadata Block Length Error");
             return tvb_reported_length_remaining(tvb, offset);

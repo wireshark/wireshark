@@ -3744,7 +3744,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     case BPKM_RESERVED:
       break;
     case BPKM_SERIAL_NUM:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_serial_num, tvb, pos, length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_serial_num, tvb, pos, length, ENC_ASCII);
       break;
     case BPKM_MANUFACTURER_ID:
       if (length == 3)
@@ -3768,7 +3768,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       dissect_attrs (attr_tvb, pinfo, attr_subtree);
       break;
     case BPKM_DISPLAY_STR:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_display_str, tvb, pos, length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_display_str, tvb, pos, length, ENC_ASCII);
       break;
     case BPKM_AUTH_KEY:
       if ((length == 96) || (length == 128) || (length == 256))

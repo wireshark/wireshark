@@ -87,7 +87,7 @@ static int dissect_kdp(tvbuff_t *tvb,
   if (version != 2) {
     /* Version other than 2 is really SDDP in UDP */
     proto_tree_add_item(kdp_tree, hf_kdp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(kdp_tree, hf_kdp_xml_body, tvb, 0, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdp_tree, hf_kdp_xml_body, tvb, 0, -1, ENC_ASCII);
   } else {
     proto_tree *flags_tree;
     header_len = tvb_get_guint8(tvb, 1) * 4;

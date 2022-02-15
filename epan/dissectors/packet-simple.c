@@ -317,7 +317,7 @@ static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     name = tvb_get_stringzpad(pinfo->pool, tvb, offset, SIMPLE_STATUS_NAME_LEN, ENC_ASCII|ENC_NA);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Name: %s", name);
-    proto_tree_add_item(tree, hf_simple_status_name, tvb, offset, SIMPLE_STATUS_NAME_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_simple_status_name, tvb, offset, SIMPLE_STATUS_NAME_LEN, ENC_ASCII);
     offset += SIMPLE_STATUS_NAME_LEN;
 
     proto_tree_add_item(tree, hf_simple_status_time_hours, tvb, offset, 1, ENC_NA);
@@ -344,7 +344,7 @@ static void dissect_simple_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_bitmask_text(tree, tvb, offset, 2, "Data Extraction Flags", NULL, ett_simple_status_dx_flag, simple_status_dx_flag_fields, ENC_LITTLE_ENDIAN, 0);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_simple_status_dx_file_id, tvb, offset, 8, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_simple_status_dx_file_id, tvb, offset, 8, ENC_ASCII);
     offset += 8;
 
     proto_tree_add_item(tree, hf_simple_status_spare_1, tvb, offset, 2, ENC_NA);

@@ -177,7 +177,7 @@ dissect_quake_CCREQ_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
-			tvb, 0, -1, ENC_ASCII|ENC_NA);
+			tvb, 0, -1, ENC_ASCII);
 }
 
 
@@ -202,7 +202,7 @@ dissect_quake_CCREP_REJECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_quake_CCREP_REJECT_reason,
-			tvb, 0, -1, ENC_ASCII|ENC_NA);
+			tvb, 0, -1, ENC_ASCII);
 }
 
 
@@ -283,7 +283,7 @@ dissect_quake_CCREP_PLAYER_INFO
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_address,
-			tvb, offset, -1, ENC_ASCII|ENC_NA);
+			tvb, offset, -1, ENC_ASCII);
 }
 
 
@@ -301,7 +301,7 @@ dissect_quake_CCREP_RULE_INFO
 	offset += item_len;
 
 	proto_tree_add_item(tree, hf_quake_CCREP_RULE_INFO_value,
-			tvb, offset, -1, ENC_ASCII|ENC_NA);
+			tvb, offset, -1, ENC_ASCII);
 }
 
 

@@ -780,7 +780,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
     if (left <= 0)
       break;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name,
-                        tvb, offset, left, ENC_ASCII|ENC_NA);
+                        tvb, offset, left, ENC_ASCII);
     break;
   case MS_CHAP_V2_RESPONSE:
     if (left <= 0)
@@ -811,19 +811,19 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, in
     }
     if (left <= 0)
       break;
-    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name, tvb, offset, left, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_name, tvb, offset, left, ENC_ASCII);
     break;
   case MS_CHAP_V2_SUCCESS:
     if (left <= 0)
       break;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_message,
-                            tvb, offset, left, ENC_ASCII|ENC_NA);
+                            tvb, offset, left, ENC_ASCII);
     break;
   case MS_CHAP_V2_FAILURE:
     if (left <= 0)
       break;
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_failure_request,
-                            tvb, offset, left, ENC_ASCII|ENC_NA);
+                            tvb, offset, left, ENC_ASCII);
     break;
   default:
     proto_tree_add_item(eap_tree, hf_eap_ms_chap_v2_data, tvb, offset, left, ENC_NA);
@@ -882,7 +882,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     /* tokens[0] is the identity, tokens[1] is the NAI Realm */
     if (ntokens != 2) {
       ret = FALSE;
-      proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII);
       goto end;
     }
 
@@ -899,7 +899,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
         g_ascii_strncasecmp(realm_tokens[3], "3gppnetwork", 11) ||
         g_ascii_strncasecmp(realm_tokens[4], "org", 3)) {
       ret = FALSE;
-      proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(tree, hf_eap_identity, tvb, offset, size, ENC_ASCII);
       goto end;
     }
   }
@@ -928,27 +928,27 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     case '3': /* EAP-SIM Pseudonym */
     case '7': /* EAP-AKA' Pseudonym */
       proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII);
       break;
     case '4': /* EAP-AKA Reauth ID */
     case '5': /* EAP-SIM Reauth ID */
     case '8': /* EAP-AKA' Reauth ID */
       proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII);
       break;
     case 'C': /* Conservative Peer */
       proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII);
       break;
     case 'a': /* Anonymous User */
       proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset, size, ENC_ASCII || ENC_NA);
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset, (guint)strlen(tokens[0]), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset, (guint)strlen(tokens[0]), ENC_ASCII);
       break;
     case 'G': /* TODO: 'G' Unknown */
     case 'I': /* TODO: 'I' Unknown */
     default:
       proto_tree_add_item(eap_identity_tree, hf_eap_identity_full, tvb, offset + 1, size - 1, ENC_ASCII || ENC_NA);
-      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(eap_identity_tree, hf_eap_identity, tvb, offset + 1, (guint)strlen(tokens[0]) - 1, ENC_ASCII);
       expert_add_info(pinfo, item, &ei_eap_identity_invalid);
   }
 
@@ -963,7 +963,7 @@ dissect_eap_identity_wlan(tvbuff_t *tvb, packet_info* pinfo, proto_tree* tree, i
     /* Add Certificate Serial Number to the tree */
     proto_tree_add_item(eap_identity_tree, hf_eap_identity_certificate_sn, tvb,
       offset + 1 + (guint)strlen(tokens[0]) + 1 + (guint)strlen("CertificateSerialNumber="),
-      (guint)strlen(tokens[1]) - (guint)strlen("CertificateSerialNumber="), ENC_ASCII|ENC_NA);
+      (guint)strlen(tokens[1]) - (guint)strlen("CertificateSerialNumber="), ENC_ASCII);
 
     /* Check for the optional NAI Realm string */
     if (ntokens != 3 || g_ascii_strncasecmp(tokens[2], "Realm", 5)) {
@@ -1756,7 +1756,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         **********************************************************************/
       case EAP_TYPE_NOTIFY:
         proto_tree_add_item(eap_tree, hf_eap_notification, tvb,
-            offset, size, ENC_ASCII|ENC_NA);
+            offset, size, ENC_ASCII);
         break;
 
         /*********************************************************************
@@ -2166,7 +2166,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         /* Name    (Length-(8+Count)) */
         namesize = eap_len - (8+count);
-        proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_ASCII);
       }
 
       break; /* EAP_TYPE_LEAP */

@@ -112,7 +112,7 @@ static gint dissect_usb_printer_ctl(
             offset += 2;
             if (dev_id_len > 2) {
                 proto_tree_add_item(tree, hf_usb_printer_dev_id,
-                        tvb, offset, dev_id_len-2, ENC_ASCII|ENC_NA);
+                        tvb, offset, dev_id_len-2, ENC_ASCII);
                 offset += dev_id_len-2;
             }
             /* XXX - expert info for invalid dev_id_len */

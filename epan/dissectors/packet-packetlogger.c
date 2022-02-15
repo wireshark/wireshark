@@ -103,23 +103,23 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     len = tvb_strsize (tvb, offset);
-    proto_tree_add_item (sub_tree, hf_syslog_process, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (sub_tree, hf_syslog_process, tvb, offset, len, ENC_ASCII);
     offset += len;
 
     len = tvb_strsize (tvb, offset);
-    proto_tree_add_item (sub_tree, hf_syslog_sender, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (sub_tree, hf_syslog_sender, tvb, offset, len, ENC_ASCII);
     offset += len;
 
     len = tvb_strsize (tvb, offset);
-    proto_tree_add_item (sub_tree, hf_syslog_subsystem, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (sub_tree, hf_syslog_subsystem, tvb, offset, len, ENC_ASCII);
     offset += len;
 
     len = tvb_strsize (tvb, offset);
-    proto_tree_add_item (sub_tree, hf_syslog_category, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (sub_tree, hf_syslog_category, tvb, offset, len, ENC_ASCII);
     offset += len;
 
     len = tvb_strsize (tvb, offset);
-    proto_tree_add_item (sub_tree, hf_syslog_message, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (sub_tree, hf_syslog_message, tvb, offset, len, ENC_ASCII);
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, tvb, offset, len));
 }
 
@@ -199,7 +199,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
     case PKT_NOTE:
     case PKT_CONFIG:
     case PKT_NEW_CONTROLLER:
-      proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII);
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, next_tvb, 0, len));
       break;
     default:

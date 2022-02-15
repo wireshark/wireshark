@@ -1159,37 +1159,37 @@ dissect_u3v_register(guint64 addr, proto_tree *branch, tvbuff_t *tvb, gint offse
             break;
         case U3V_ABRM_MANUFACTURER_NAME:
             if ( length <= 64 ) {
-                proto_tree_add_item(branch, hf_u3v_bootstrap_Manufacturer_Name, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(branch, hf_u3v_bootstrap_Manufacturer_Name, tvb, offset, length, ENC_ASCII);
             }
             break;
         case U3V_ABRM_MODEL_NAME:
             if ( length <= 64 ) {
-                proto_tree_add_item(branch, hf_u3v_bootstrap_Model_Name, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(branch, hf_u3v_bootstrap_Model_Name, tvb, offset, length, ENC_ASCII);
             }
             break;
         case U3V_ABRM_FAMILY_NAME:
             if ( length <= 64 ) {
-                proto_tree_add_item(branch, hf_u3v_bootstrap_Family_Name, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(branch, hf_u3v_bootstrap_Family_Name, tvb, offset, length, ENC_ASCII);
             }
             break;
         case U3V_ABRM_DEVICE_VERSION:
             if ( length <= 64 ) {
-                proto_tree_add_item(branch, hf_u3v_bootstrap_Device_Version, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(branch, hf_u3v_bootstrap_Device_Version, tvb, offset, length, ENC_ASCII);
             }
             break;
         case U3V_ABRM_MANUFACTURER_INFO:
             if ( length <= 64 ) {
-                proto_tree_add_item(branch, hf_u3v_bootstrap_Manufacturer_Info, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(branch, hf_u3v_bootstrap_Manufacturer_Info, tvb, offset, length, ENC_ASCII);
             }
             break;
         case U3V_ABRM_SERIAL_NUMBER:
             if ( length <= 64 ) {
-                proto_tree_add_item(branch, hf_u3v_bootstrap_Serial_Number, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(branch, hf_u3v_bootstrap_Serial_Number, tvb, offset, length, ENC_ASCII);
             }
             break;
         case U3V_ABRM_USER_DEFINED_NAME:
             if ( length <= 64 ) {
-                proto_tree_add_item(branch, hf_u3v_bootstrap_User_Defined_Name, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(branch, hf_u3v_bootstrap_User_Defined_Name, tvb, offset, length, ENC_ASCII);
             }
             break;
         case U3V_ABRM_DEVICE_CAPABILITY:

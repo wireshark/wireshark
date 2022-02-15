@@ -47,7 +47,7 @@ dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     proto_tree_add_boolean(daytime_tree, hf_response_request, tvb, 0, 0, pinfo->srcport==DAYTIME_PORT);
     if (pinfo->srcport == DAYTIME_PORT) {
-      proto_tree_add_item(daytime_tree, hf_daytime_string, tvb, 0, -1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(daytime_tree, hf_daytime_string, tvb, 0, -1, ENC_ASCII);
     }
   }
   return tvb_captured_length(tvb);

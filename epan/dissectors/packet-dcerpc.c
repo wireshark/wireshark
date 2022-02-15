@@ -4218,7 +4218,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    hf_dcerpc_cn_sec_addr_len, &sec_addr_len);
     if (sec_addr_len != 0) {
         proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_sec_addr, tvb, offset,
-                            sec_addr_len, ENC_ASCII|ENC_NA);
+                            sec_addr_len, ENC_ASCII);
         offset += sec_addr_len;
     }
 

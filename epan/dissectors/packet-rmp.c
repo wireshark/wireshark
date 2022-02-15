@@ -116,7 +116,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			proto_tree_add_item(rmp_tree,
 				hf_rmp_version, tvb, 8, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(rmp_tree,
-				hf_rmp_machtype, tvb, 10, 20, ENC_ASCII|ENC_NA);
+				hf_rmp_machtype, tvb, 10, 20, ENC_ASCII);
 			/* The remaining fields are optional */
 			if(!tvb_offset_exists(tvb, 30))
 				return 30;

@@ -1223,7 +1223,7 @@ static void
 dissect_attr_country_code(proto_tree* attr_tree, tvbuff_t* tvb, gint offset)
 {
     guint sub_offset = offset + 3;
-    proto_tree_add_item(attr_tree, hf_nan_attr_country_code, tvb, sub_offset, 2, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(attr_tree, hf_nan_attr_country_code, tvb, sub_offset, 2, ENC_ASCII);
 }
 
 static void

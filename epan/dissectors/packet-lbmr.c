@@ -3188,7 +3188,7 @@ static int dissect_lbmr_tnwg_name_opt(tvbuff_t * tvb, int offset, packet_info * 
     proto_tree_add_item(opt_tree, hf_lbmr_tnwg_opt_name_type, tvb, offset + O_LBMR_TNWG_OPT_T_TYPE, L_LBMR_TNWG_OPT_T_TYPE, ENC_BIG_ENDIAN);
     proto_tree_add_item(opt_tree, hf_lbmr_tnwg_opt_name_len, tvb, offset + O_LBMR_TNWG_OPT_T_LEN, L_LBMR_TNWG_OPT_T_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(opt_tree, tvb, offset + O_LBMR_TNWG_OPT_T_FLAGS, hf_lbmr_tnwg_opt_name_flags, ett_lbmr_tnwg_name_opt_flags, flags, ENC_BIG_ENDIAN);
-    proto_tree_add_item(opt_tree, hf_lbmr_tnwg_opt_name_name, tvb, offset + L_LBMR_TNWG_OPT_T, name_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(opt_tree, hf_lbmr_tnwg_opt_name_name, tvb, offset + L_LBMR_TNWG_OPT_T, name_len, ENC_ASCII);
     return ((int)opt_len);
 }
 
@@ -3282,7 +3282,7 @@ static int dissect_lbmr_tnwg_interest_rec(tvbuff_t * tvb, int offset, packet_inf
     proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_pattype, tvb, offset + O_LBMR_TNWG_INTEREST_REC_T_PATTYPE, L_LBMR_TNWG_INTEREST_REC_T_PATTYPE, ENC_BIG_ENDIAN);
     proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_domain_id, tvb, offset + O_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID, L_LBMR_TNWG_INTEREST_REC_T_DOMAIN_ID, ENC_BIG_ENDIAN);
     string_len = rec_len - L_LBMR_TNWG_INTEREST_REC_T;
-    proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_symbol, tvb, offset + L_LBMR_TNWG_INTEREST_REC_T, string_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(rec_tree, hf_lbmr_tnwg_interest_rec_symbol, tvb, offset + L_LBMR_TNWG_INTEREST_REC_T, string_len, ENC_ASCII);
     return ((int)rec_len);
 }
 
@@ -3466,7 +3466,7 @@ static int dissect_lbmr_tmr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_len, tvb, offset + O_LBMR_TMR_T_LEN, L_LBMR_TMR_T_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_type, tvb, offset + O_LBMR_TMR_T_TYPE, L_LBMR_TMR_T_TYPE, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(tinfo_tree, tvb, offset + O_LBMR_TMR_T_FLAGS, hf_lbmr_tmr_flags, ett_lbmr_tmr_flags, flags, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_name, tvb, name_offset, namelen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tinfo_tree, hf_lbmr_tmr_name, tvb, name_offset, namelen, ENC_ASCII);
     return ((int) tmr_len);
 }
 
@@ -3535,12 +3535,12 @@ static int dissect_lbmr_tqr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     if (wildcard_tqr)
     {
         proto_tree_add_item(tqr_tree, hf_lbmr_tqr_pattern_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tqr_tree, hf_lbmr_tqr_pattern, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tqr_tree, hf_lbmr_tqr_pattern, tvb, offset, namelen, ENC_ASCII);
         add_contents_wctqr(contents, pattern_type, name);
     }
     else
     {
-        proto_tree_add_item(tqr_tree, hf_lbmr_tqr_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tqr_tree, hf_lbmr_tqr_name, tvb, offset, namelen, ENC_ASCII);
         add_contents_tqr(contents, name);
     }
     return (reclen);
@@ -3782,7 +3782,7 @@ static int dissect_lbmr_tir_options(tvbuff_t * tvb, int offset, packet_info * pi
                 proto_tree_add_item(opt_tree, hf_lbmr_topt_umq_qinfo_len, tvb, curr_offset + O_LBMR_TOPIC_OPT_T_LEN, L_LBMR_TOPIC_OPT_T_LEN, ENC_BIG_ENDIAN);
                 qname_len = opt_len - L_LBMR_TOPIC_OPT_T;
                 proto_tree_add_bitmask(opt_tree, tvb, curr_offset + O_LBMR_TOPIC_OPT_T_FLAGS, hf_lbmr_topt_umq_qinfo_flags, ett_lbmr_topt_umq_qinfo_flags, opt_umq_qinfo_flags, ENC_BIG_ENDIAN);
-                proto_tree_add_item(opt_tree, hf_lbmr_topt_umq_qinfo_queue, tvb, curr_offset + L_LBMR_TOPIC_OPT_T, qname_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(opt_tree, hf_lbmr_topt_umq_qinfo_queue, tvb, curr_offset + L_LBMR_TOPIC_OPT_T, qname_len, ENC_ASCII);
                 break;
             case LBMR_TOPIC_OPT_COST_TYPE:
                 opt_item = proto_tree_add_item(otree, hf_lbmr_topt_cost, tvb, curr_offset + O_LBMR_TOPIC_OPT_T_TYPE, opt_len, ENC_NA);
@@ -4124,7 +4124,7 @@ static int dissect_lbmr_tir_entry(tvbuff_t * tvb, int offset, packet_info * pinf
     ti = proto_tree_add_none_format(tree, hf_lbmr_tir, tvb, offset, reclen, "%s: %s, Length %u, Index %" PRIu32 ", TTL %" PRIu16,
         name, val_to_str((transport & LBMR_TIR_TRANSPORT), lbmr_transport_type, "Unknown (0x%02x)"), tlen, idx, ttl);
     tinfo_tree = proto_item_add_subtree(ti, ett_lbmr_tir);
-    proto_tree_add_item(tinfo_tree, hf_lbmr_tir_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tinfo_tree, hf_lbmr_tir_name, tvb, offset, namelen, ENC_ASCII);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tir_transport_opts, tvb, tinfo_offset + O_LBMR_TIR_T_TRANSPORT, L_LBMR_TIR_T_TRANSPORT, ENC_BIG_ENDIAN);
     proto_tree_add_item(tinfo_tree, hf_lbmr_tir_transport_type, tvb, tinfo_offset + O_LBMR_TIR_T_TRANSPORT, L_LBMR_TIR_T_TRANSPORT, ENC_BIG_ENDIAN);
     transport_len_item = proto_tree_add_item(tinfo_tree, hf_lbmr_tir_tlen, tvb, tinfo_offset + O_LBMR_TIR_T_TLEN, L_LBMR_TIR_T_TLEN, ENC_BIG_ENDIAN);
@@ -4175,7 +4175,7 @@ static int dissect_lbmr_qqr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &namelen, ENC_ASCII);
     reclen += namelen;
     add_contents_qqr(contents, name);
-    proto_tree_add_item(tree, hf_lbmr_qqr_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lbmr_qqr_name, tvb, offset, namelen, ENC_ASCII);
     return (reclen);
 }
 
@@ -4288,8 +4288,8 @@ static int dissect_lbmr_qir_entry(tvbuff_t * tvb, int offset, packet_info * pinf
     queue_blks = tvb_get_ntohs(tvb, curr_offset + O_LBMR_QIR_T_QUEUE_BLKS);
     qirti = proto_tree_add_none_format(tree, hf_lbmr_qir, tvb, offset, reclen, "%s: %s, ID %" PRIu32, qname, tname, queue_id);
     qirtree = proto_item_add_subtree(qirti, ett_lbmr_qir);
-    proto_tree_add_item(qirtree, hf_lbmr_qir_queue_name, tvb, qnameoffset, qnamelen, ENC_ASCII|ENC_NA);
-    proto_tree_add_item(qirtree, hf_lbmr_qir_topic_name, tvb, tnameoffset, tnamelen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(qirtree, hf_lbmr_qir_queue_name, tvb, qnameoffset, qnamelen, ENC_ASCII);
+    proto_tree_add_item(qirtree, hf_lbmr_qir_topic_name, tvb, tnameoffset, tnamelen, ENC_ASCII);
     proto_tree_add_item(qirtree, hf_lbmr_qir_queue_id, tvb, curr_offset + O_LBMR_QIR_T_QUEUE_ID, L_LBMR_QIR_T_QUEUE_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(qirtree, hf_lbmr_qir_queue_ver, tvb, curr_offset + O_LBMR_QIR_T_QUEUE_VER, L_LBMR_QIR_T_QUEUE_VER, ENC_BIG_ENDIAN);
     proto_tree_add_item(qirtree, hf_lbmr_qir_queue_prev_ver, tvb, curr_offset + O_LBMR_QIR_T_QUEUE_PREV_VER, L_LBMR_QIR_T_QUEUE_PREV_VER, ENC_BIG_ENDIAN);
@@ -4385,7 +4385,7 @@ static int dissect_lbmr_pser(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_tree_add_item(tree, hf_lbmr_pser_topic_idx, tvb, offset + O_LBMR_PSER_T_TOPIC_IDX, L_LBMR_PSER_T_TOPIC_IDX, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_lbmr_pser_source_port, tvb, offset + O_LBMR_PSER_T_SOURCE_PORT, L_LBMR_PSER_T_SOURCE_PORT, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_lbmr_pser_store_port, tvb, offset + O_LBMR_PSER_T_STORE_PORT, L_LBMR_PSER_T_STORE_PORT, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_lbmr_pser_topic, tvb, offset + O_LBMR_PSER_T_TOPIC, topic_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_lbmr_pser_topic, tvb, offset + O_LBMR_PSER_T_TOPIC, topic_len, ENC_ASCII);
     curr_offset += hdr_len;
     len = hdr_len;
     if ((flags_val & LBMR_PSER_OPT_FLAG) != 0)
@@ -4598,7 +4598,7 @@ int lbmr_dissect_umq_qmgmt(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
         int qnamelen = tvb_reported_length_remaining(tvb, curr_offset);
         if (qnamelen > 1)
         {
-            proto_tree_add_item(tree, hf_qmgmt_qname, tvb, curr_offset, qnamelen, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_qmgmt_qname, tvb, curr_offset, qnamelen, ENC_ASCII);
         }
         len_dissected += qnamelen;
     }
@@ -4634,7 +4634,7 @@ static int dissect_lbmr_ctxinfo(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(tree, hf_lbmr_ctxinfo_instance, tvb, offset + O_LBMR_CTXINFO_T_INSTANCE, L_LBMR_CTXINFO_T_INSTANCE, ENC_NA);
     if ((flags16 & LBMR_CTXINFO_NAME_FLAG) != 0)
     {
-        proto_tree_add_item(tree, hf_lbmr_ctxinfo_name, tvb, offset + L_LBMR_CTXINFO_T, reclen - L_LBMR_CTXINFO_T, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_lbmr_ctxinfo_name, tvb, offset + L_LBMR_CTXINFO_T, reclen - L_LBMR_CTXINFO_T, ENC_ASCII);
     }
     return ((int)reclen);
 }
@@ -4753,7 +4753,7 @@ static int dissect_lbmr_rctxinfo_rec_name_opt(tvbuff_t * tvb, int offset, packet
     proto_tree_add_item(subtree, hf_lbmr_rctxinfo_rec_name_len, tvb, offset + O_LBMR_RCTXINFO_REC_NAME_OPT_T_LEN, L_LBMR_RCTXINFO_REC_NAME_OPT_T_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmr_rctxinfo_rec_name_flags, tvb, offset + O_LBMR_RCTXINFO_REC_NAME_OPT_T_FLAGS, L_LBMR_RCTXINFO_REC_NAME_OPT_T_FLAGS, ENC_BIG_ENDIAN);
     name_len = ((int)len) - L_LBMR_RCTXINFO_REC_NAME_OPT_T;
-    proto_tree_add_item(subtree, hf_lbmr_rctxinfo_rec_name_name, tvb, offset + L_LBMR_RCTXINFO_REC_NAME_OPT_T, name_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_lbmr_rctxinfo_rec_name_name, tvb, offset + L_LBMR_RCTXINFO_REC_NAME_OPT_T, name_len, ENC_ASCII);
     return ((int)len);
 }
 

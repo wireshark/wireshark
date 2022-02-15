@@ -89,7 +89,7 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 		dx_tree = proto_item_add_subtree( ti, ett_dx );
 		offset = 0;
 
-		proto_tree_add_item( dx_tree, hf_dx_report, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( dx_tree, hf_dx_report, tvb, offset, data_len, ENC_ASCII );
 	}
 
 	return tvb_captured_length(tvb);

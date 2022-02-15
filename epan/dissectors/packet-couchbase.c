@@ -2156,7 +2156,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (opcode == PROTOCOL_BINARY_CMD_OBSERVE) {
       proto_tree *observe_tree;
       gint oo = offset, end = offset + value_len;
-      ti = proto_tree_add_item(tree, hf_observe, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+      ti = proto_tree_add_item(tree, hf_observe, tvb, offset, value_len, ENC_ASCII);
       observe_tree = proto_item_add_subtree(ti, ett_observe);
       while (oo < end) {
         guint16 kl; /* keylength */
@@ -2165,7 +2165,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         kl = tvb_get_ntohs(tvb, oo);
         proto_tree_add_item(observe_tree, hf_observe_keylength, tvb, oo, 2, ENC_BIG_ENDIAN);
         oo += 2;
-        proto_tree_add_item(observe_tree, hf_observe_key, tvb, oo, kl, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(observe_tree, hf_observe_key, tvb, oo, kl, ENC_ASCII);
         oo += kl;
         if (!request) {
           proto_tree_add_item(observe_tree, hf_observe_status, tvb, oo, 1, ENC_BIG_ENDIAN);
@@ -2234,7 +2234,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       } else {
         proto_tree *failover_log_tree;
         gint cur = offset, end = offset + value_len;
-        ti = proto_tree_add_item(tree, hf_failover_log, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+        ti = proto_tree_add_item(tree, hf_failover_log, tvb, offset, value_len, ENC_ASCII);
         failover_log_tree = proto_item_add_subtree(ti, ett_failover_log);
         ti = proto_tree_add_uint(failover_log_tree, hf_failover_log_size, tvb, offset, 0, (end - cur) / 16);
         proto_item_set_generated(ti);
@@ -2251,7 +2251,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       } else {
         proto_tree *vbucket_states_tree;
         gint cur = offset, end = offset + value_len;
-        ti = proto_tree_add_item(tree, hf_vbucket_states, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+        ti = proto_tree_add_item(tree, hf_vbucket_states, tvb, offset, value_len, ENC_ASCII);
         vbucket_states_tree = proto_item_add_subtree(ti, ett_vbucket_states);
         ti = proto_tree_add_uint(vbucket_states_tree, hf_vbucket_states_size, tvb, offset, 0, (end - cur) / 10);
         proto_item_set_generated(ti);
@@ -2282,7 +2282,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     } else if (opcode == PROTOCOL_BINARY_CMD_HELLO) {
       gint curr = offset, end = offset + value_len;
       proto_tree *hello_features_tree;
-      ti = proto_tree_add_item(tree, hf_hello_features, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+      ti = proto_tree_add_item(tree, hf_hello_features, tvb, offset, value_len, ENC_ASCII);
       hello_features_tree = proto_item_add_subtree(ti, ett_hello_features);
       while (curr < end) {
         proto_tree_add_item(hello_features_tree, hf_hello_features_feature, tvb, curr, 2, ENC_BIG_ENDIAN);
@@ -2304,7 +2304,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       sep = tvb_find_guint8(tvb, offset, value_len, 0x00);
       if (sep == -1) {
-        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+        ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII);
         expert_add_info_format(pinfo, ti, &ef_separator_not_found, "Null byte not found");
       } else {
         proto_tree_add_item(tree, hf_bucket_type, tvb, offset, sep - offset, ENC_ASCII | ENC_NA);

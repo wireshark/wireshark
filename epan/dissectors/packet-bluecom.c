@@ -183,7 +183,7 @@ dissect_bcp_connect_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
         offset += 4;
         proto_tree_add_item(bcp_subtree, hf_bcp_connectreq_ipaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(bcp_subtree, hf_bcp_connectreq_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(bcp_subtree, hf_bcp_connectreq_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII);
         offset += BCP_NAME_LEN;
         proto_tree_add_item(bcp_subtree, hf_bcp_connectreq_ethaddr, tvb, offset, BCP_ETHADDR_LEN, ENC_NA);
         offset += BCP_ETHADDR_LEN;
@@ -262,7 +262,7 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
                 break;
 
             case BCP_SEARCH_NAME:
-                proto_tree_add_item(bcp_subtree, hf_bcp_searchreq_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(bcp_subtree, hf_bcp_searchreq_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII);
                 break;
 
             default:
@@ -292,7 +292,7 @@ dissect_bcp_search_data(proto_tree *bcp_tree, tvbuff_t *tvb, gint flags)
         offset += 2;
         proto_tree_add_item(bcp_subtree, hf_bcp_searchrsp_ipaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(bcp_subtree, hf_bcp_searchrsp_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(bcp_subtree, hf_bcp_searchrsp_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII);
         offset += BCP_NAME_LEN;
         proto_tree_add_item(bcp_subtree, hf_bcp_searchrsp_ethaddr, tvb, offset, BCP_ETHADDR_LEN, ENC_NA);
         offset += BCP_ETHADDR_LEN;
@@ -329,7 +329,7 @@ dissect_bcp_identify_data(proto_tree *bcp_tree, tvbuff_t *tvb)
     offset += 4;
     proto_tree_add_item(bcp_subtree, hf_bcp_identify_ipaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(bcp_subtree, hf_bcp_identify_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(bcp_subtree, hf_bcp_identify_name, tvb, offset, BCP_NAME_LEN, ENC_ASCII);
     offset += BCP_NAME_LEN;
     proto_tree_add_item(bcp_subtree, hf_bcp_identify_ethaddr, tvb, offset, BCP_ETHADDR_LEN, ENC_NA);
     offset += BCP_ETHADDR_LEN;

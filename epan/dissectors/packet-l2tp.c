@@ -1843,7 +1843,7 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_conn_type, tvb, offset, 1, ENC_NA);
         break;
     case ERICSSON_STN_NAME:
-        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_stn_name, tvb, offset, avp_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_stn_name, tvb, offset, avp_len, ENC_ASCII);
         break;
     case ERICSSON_CRC_ENABLED:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_crc32_enable, tvb, offset, avp_len, ENC_NA);
@@ -2122,7 +2122,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_len == 0)
                 break;
-            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_error_message, tvb, idx, avp_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_error_message, tvb, idx, avp_len, ENC_ASCII);
             break;
 
         case PROTOCOL_VERSION:
@@ -2230,14 +2230,14 @@ static void process_control_avps(tvbuff_t *tvb,
             if (avp_len == 0)
                 break;
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_called_number,
-                                tvb, idx, avp_len, ENC_ASCII|ENC_NA);
+                                tvb, idx, avp_len, ENC_ASCII);
             break;
 
         case CALLING_NUMBER:
             if (avp_len == 0)
                 break;
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_calling_number,
-                                tvb, idx, avp_len, ENC_ASCII|ENC_NA);
+                                tvb, idx, avp_len, ENC_ASCII);
             break;
 
         case SUB_ADDRESS:

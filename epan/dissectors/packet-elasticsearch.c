@@ -444,7 +444,7 @@ static int elasticsearch_dissect_valid_binary_packet(tvbuff_t *tvb, packet_info 
     *
     * Token/Magic number that is at the start of all ES packets
     */
-    proto_tree_add_item(tree, hf_elasticsearch_header_token, tvb, offset, 2, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_elasticsearch_header_token, tvb, offset, 2, ENC_ASCII);
     offset += 2;
 
     /* Message length */

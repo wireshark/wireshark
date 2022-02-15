@@ -296,7 +296,7 @@ dissect_octet_string(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 flags)
 	 * XXX - an "octet string" is not necessarily a text string, so
 	 * having hf_ostring be FT_STRING is not necessarily appropriate.
 	 */
-	proto_tree_add_item(tree, hf_ostring, tvb, offset + 4, n_oct, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_ostring, tvb, offset + 4, n_oct, ENC_ASCII);
 	return p_noct + 4;
 
 }

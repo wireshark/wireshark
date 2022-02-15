@@ -134,13 +134,13 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Type=%s", record_data);
 					break;
 					case INDIGOCARE_ICALL_CALL_ADDITION:
-						proto_tree_add_item(icall_header_tree, hf_icall_call_addition_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(icall_header_tree, hf_icall_call_addition_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_ICALL_CALL_ID:
-						proto_tree_add_item(icall_header_tree, hf_icall_call_id_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(icall_header_tree, hf_icall_call_id_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_ICALL_CALL_TASK:
-						proto_tree_add_item(icall_header_tree, hf_icall_call_task_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(icall_header_tree, hf_icall_call_task_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_ICALL_CALL_LOCATION:
 						proto_tree_add_item_ret_string(icall_header_tree, hf_icall_call_location_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA, pinfo->pool, &record_data);
@@ -155,10 +155,10 @@ dissect_icall(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *dat
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Name 2=%s", record_data);
 					break;
 					case INDIGOCARE_ICALL_CALL_TYPE_NUMERICAL:
-						proto_tree_add_item(icall_header_tree, hf_icall_call_numerical_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(icall_header_tree, hf_icall_call_numerical_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_ICALL_CALL_NURSE:
-						proto_tree_add_item(icall_header_tree, hf_icall_call_nurse_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(icall_header_tree, hf_icall_call_nurse_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					default:
 						proto_tree_add_expert_format(icall_header_tree, pinfo, &ei_icall_unexpected_record, tvb, identifier_start, data_offset - identifier_start, "Unexpected record %d with value %s", record_identifier, record_data);

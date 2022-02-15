@@ -105,7 +105,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			if (code <= 9 && printer_len != -1) {
 				proto_tree_add_uint_format(lpd_tree, hf_lpd_client_code, tvb, 0, 1, code,
 					"%s", val_to_str(code, lpd_client_code, "Unknown client code: %u"));
-				proto_tree_add_item(lpd_tree, hf_lpd_printer_option, tvb, 1, printer_len, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(lpd_tree, hf_lpd_printer_option, tvb, 1, printer_len, ENC_ASCII);
 			}
 			else {
 				call_data_dissector(tvb, pinfo, lpd_tree);

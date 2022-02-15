@@ -301,7 +301,7 @@ static int display_application_name(tvbuff_t *tvb, int offset,
 	int length;
 
 	length = tvb_strnlen( tvb, offset, 255);
-	proto_tree_add_item(tree, hf_msproxy_application, tvb, offset, length, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_msproxy_application, tvb, offset, length, ENC_ASCII);
 
 	return length;
 }
@@ -362,19 +362,19 @@ static void dissect_user_info_2(tvbuff_t *tvb, int offset,
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
-		proto_tree_add_item(tree, hf_msproxy_user_name, tvb, offset, length + 1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_msproxy_user_name, tvb, offset, length + 1, ENC_ASCII);
 		offset += length + 2;
 
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
-		proto_tree_add_item(tree, hf_msproxy_application_name, tvb, offset, length + 1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_msproxy_application_name, tvb, offset, length + 1, ENC_ASCII);
 		offset += length + 1;
 
 		length = tvb_strnlen( tvb, offset, 255);
 		if (length == -1)
 			return;
-		proto_tree_add_item(tree, hf_msproxy_client_computer_name, tvb, offset, length + 1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_msproxy_client_computer_name, tvb, offset, length + 1, ENC_ASCII);
 	}
 }
 
@@ -569,7 +569,7 @@ static void dissect_request_resolve(tvbuff_t *tvb, int offset,
 		++offset;
 		offset += 17;
 
-		proto_tree_add_item(name_tree, hf_msproxy_host_name, tvb, offset, length, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(name_tree, hf_msproxy_host_name, tvb, offset, length, ENC_ASCII);
 	}
 }
 
@@ -777,7 +777,7 @@ static void dissect_auth_1_ack(tvbuff_t *tvb, int offset,
 		offset += 48;
 
 		/* XXX - always 255? */
-		proto_tree_add_item(tree, hf_msproxy_nt_domain, tvb, offset, 255, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_msproxy_nt_domain, tvb, offset, 255, ENC_ASCII);
 	}
 }
 

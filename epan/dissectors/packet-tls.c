@@ -2873,7 +2873,7 @@ dissect_ssl3_hnd_encrypted_exts(tvbuff_t *tvb, proto_tree *tree,
         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(tree, hf_tls_handshake_npn_selected_protocol,
-        tvb, offset, selected_protocol_len, ENC_ASCII|ENC_NA);
+        tvb, offset, selected_protocol_len, ENC_ASCII);
     offset += selected_protocol_len;
 
     padding_len = tvb_get_guint8(tvb, offset);

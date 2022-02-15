@@ -1480,7 +1480,7 @@ dissect_sdp_media_attribute_candidate(proto_tree *tree, packet_info *pinfo, tvbu
     if (tokenlen == 0)
         return;
     proto_tree_add_item(tree, hf_ice_candidate_foundation,
-            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+            tvb, offset, tokenlen, ENC_ASCII);
     offset = next_offset + 1;
 
     /* component-id: integer between 1 and 256.
@@ -1489,7 +1489,7 @@ dissect_sdp_media_attribute_candidate(proto_tree *tree, packet_info *pinfo, tvbu
     if (tokenlen == 0)
         return;
     proto_tree_add_item(tree, hf_ice_candidate_componentid,
-            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+            tvb, offset, tokenlen, ENC_ASCII);
     offset = next_offset + 1;
 
     /* transport: "UDP", etc. */
@@ -1497,7 +1497,7 @@ dissect_sdp_media_attribute_candidate(proto_tree *tree, packet_info *pinfo, tvbu
     if (tokenlen == 0)
         return;
     proto_tree_add_item(tree, hf_ice_candidate_transport,
-            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+            tvb, offset, tokenlen, ENC_ASCII);
     offset = next_offset + 1;
 
     /* priority: integer between 1 and 2^31-1 */
@@ -1505,7 +1505,7 @@ dissect_sdp_media_attribute_candidate(proto_tree *tree, packet_info *pinfo, tvbu
     if (tokenlen == 0)
         return;
     proto_tree_add_item(tree, hf_ice_candidate_priority,
-            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+            tvb, offset, tokenlen, ENC_ASCII);
     offset = next_offset + 1;
 
     /* connection-address: IPv4, IPv6 address or FQDN. */
@@ -1513,7 +1513,7 @@ dissect_sdp_media_attribute_candidate(proto_tree *tree, packet_info *pinfo, tvbu
     if (tokenlen == 0)
         return;
     proto_tree_add_item(tree, hf_ice_candidate_address,
-            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+            tvb, offset, tokenlen, ENC_ASCII);
     offset = next_offset + 1;
 
     /* port */
@@ -1521,7 +1521,7 @@ dissect_sdp_media_attribute_candidate(proto_tree *tree, packet_info *pinfo, tvbu
     if (tokenlen == 0)
         return;
     proto_tree_add_item(tree, hf_ice_candidate_port,
-            tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+            tvb, offset, tokenlen, ENC_ASCII);
     offset = next_offset + 1;
 
     /* cand-type: type of candidate (where it learned the candidate)

@@ -2126,7 +2126,7 @@ dissect_generic_phy_device_info(tvbuff_t *tvb, packet_info *pinfo _U_,
         offset++;
 
         proto_tree_add_item(intf_tree, hf_ieee1905_local_intf_url, tvb,
-                            offset, url_field_count, ENC_ASCII|ENC_NA);
+                            offset, url_field_count, ENC_ASCII);
         offset += url_field_count;
 
         proto_tree_add_item(intf_tree, hf_ieee1905_local_intf_spec, tvb,
@@ -2173,7 +2173,7 @@ dissect_control_url_type(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, guint offset, guint16 len)
 {
     proto_tree_add_item(tree, hf_ieee1905_control_url, tvb, offset,
-                        len, ENC_ASCII|ENC_NA);
+                        len, ENC_ASCII);
     offset += len;
 
     return offset;
@@ -2870,7 +2870,7 @@ dissect_ap_operational_bss(tvbuff_t *tvb, packet_info *pinfo _U_,
             offset++;
 
             proto_tree_add_item(local_intf_tree, hf_ieee1905_ap_local_intf_ssid,
-                                tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+                                tvb, offset, ssid_len, ENC_ASCII);
             offset += ssid_len;
 
             proto_item_set_len(itpi, offset - local_intf_offset);
@@ -4133,7 +4133,7 @@ dissect_beacon_metrics_query(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset++;
 
     proto_tree_add_item(tree, hf_ieee1905_beacon_metrics_query_ssid,
-                        tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+                        tvb, offset, ssid_len, ENC_ASCII);
     offset += ssid_len;
 
     /*
@@ -5379,7 +5379,7 @@ dissect_channel_scan_result(tvbuff_t *tvb, packet_info *pinfo _U_,
                 offset += 1;
 
                 proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_ssid,
-                                    tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+                                    tvb, offset, ssid_len, ENC_ASCII);
                 offset += ssid_len;
 
                 proto_tree_add_item(neigh_tree,
@@ -5393,7 +5393,7 @@ dissect_channel_scan_result(tvbuff_t *tvb, packet_info *pinfo _U_,
                 offset += 1;
 
                 proto_tree_add_item(neigh_tree, hf_ieee1905_channel_scan_result_bw,
-                                tvb, offset, channel_bw_len, ENC_ASCII|ENC_NA);
+                                tvb, offset, channel_bw_len, ENC_ASCII);
                 offset += channel_bw_len;
 
                 flags = tvb_get_guint8(tvb, offset);
@@ -6519,7 +6519,7 @@ dissect_traffic_separation_policy(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         proto_tree_add_item(ssid_tree,
                             hf_ieee1905_traffic_separation_policy_ssid,
-                            tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+                            tvb, offset, ssid_len, ENC_ASCII);
         offset += ssid_len;
 
         proto_tree_add_item(ssid_tree,
@@ -6648,7 +6648,7 @@ dissect_bss_configuration_report(tvbuff_t *tvb, packet_info *pinfo _U_,
 
                 proto_tree_add_item(bss_tree,
                             hf_ieee1905_bss_config_report_ssid,
-                            tvb, offset, ssid_len, ENC_ASCII|ENC_NA);
+                            tvb, offset, ssid_len, ENC_ASCII);
                 offset += ssid_len;
 
                 proto_item_set_len(bti, offset - bss_item_start);
@@ -7500,7 +7500,7 @@ dissect_dpp_bootstrapping_uri_notification(tvbuff_t *tvb, packet_info *pinfo _U_
     /* Assume we got the whole URI */
     uri_len = len - 18;
     proto_tree_add_item(tree, hf_ieee1905_dpp_bootstrapping_uri_received,
-                        tvb, offset, uri_len, ENC_ASCII|ENC_NA);
+                        tvb, offset, uri_len, ENC_ASCII);
     offset += uri_len;
 
     return offset;
@@ -7580,7 +7580,7 @@ dissect_device_inventory(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 1;
 
     proto_tree_add_item(tree, hf_ieee1905_dev_inventory_serial, tvb, offset,
-                        lsn, ENC_ASCII|ENC_NA);
+                        lsn, ENC_ASCII);
     offset += lsn;
 
     lsv = tvb_get_guint8(tvb, offset);
@@ -7589,7 +7589,7 @@ dissect_device_inventory(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 1;
 
     proto_tree_add_item(tree, hf_ieee1905_dev_inventory_sw_vers, tvb, offset,
-                        lsv, ENC_ASCII|ENC_NA);
+                        lsv, ENC_ASCII);
     offset += lsv;
 
     lee = tvb_get_guint8(tvb, offset);
@@ -7598,7 +7598,7 @@ dissect_device_inventory(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 1;
 
     proto_tree_add_item(tree, hf_ieee1905_dev_inventory_exec_env, tvb, offset,
-                        lee, ENC_ASCII|ENC_NA);
+                        lee, ENC_ASCII);
     offset += lee;
 
     num_radios = tvb_get_guint8(tvb, offset);
@@ -7636,7 +7636,7 @@ dissect_device_inventory(tvbuff_t *tvb, packet_info *pinfo _U_,
             offset += 1;
 
             proto_tree_add_item(radio_tree, hf_ieee1905_dev_inventory_chp_ven,
-                                tvb, offset, lcv, ENC_ASCII|ENC_NA);
+                                tvb, offset, lcv, ENC_ASCII);
             offset += lcv;
 
             proto_item_set_len(rti, offset - start_tree_offset);

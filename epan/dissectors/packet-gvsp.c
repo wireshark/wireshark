@@ -1418,7 +1418,7 @@ static gint dissect_file_leader(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_inf
 
     /* Filename */
     file_length = tvb_strsize(tvb, offset + 20);
-    proto_tree_add_item(gvsp_tree, hf_gvsp_filename, tvb, offset + 20, file_length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(gvsp_tree, hf_gvsp_filename, tvb, offset + 20, file_length, ENC_ASCII);
 
     if (20 + file_length > G_MAXINT)
         return -1;
@@ -1915,7 +1915,7 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
             proto_tree* gvsp_gendc_container_header_component_offsets_tree = 0;
 
             /* GenDC container header signature */
-            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_signature_v2_2, tvb, offset + 16, 4, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_signature_v2_2, tvb, offset + 16, 4, ENC_ASCII);
 
             /* GenDC container header major version */
             proto_tree_add_item(gvsp_gendc_container_descriptor_tree, hf_gvsp_gendc_container_header_version_major_v2_2, tvb, offset + 20, 1, ENC_LITTLE_ENDIAN);

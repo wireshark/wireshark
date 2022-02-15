@@ -158,8 +158,8 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			{
 				proto_tree_add_item_ret_uint(tacacs_tree, hf_tacacs_userlen, tvb, 4, 1, ENC_NA, &userlen);
 				proto_tree_add_item_ret_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1, ENC_NA, &passlen);
-				proto_tree_add_item(tacacs_tree, hf_tacacs_username, tvb, 6, userlen, ENC_ASCII|ENC_NA);
-				proto_tree_add_item(tacacs_tree, hf_tacacs_password, tvb, 6+userlen, passlen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_username, tvb, 6, userlen, ENC_ASCII);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_password, tvb, 6+userlen, passlen, ENC_ASCII);
 			}
 			else
 			{
@@ -181,8 +181,8 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			proto_tree_add_item(tacacs_tree, hf_tacacs_result3, tvb, 24, 2, ENC_BIG_ENDIAN);
 			if (type!=TACACS_RESPONSE)
 			{
-				proto_tree_add_item(tacacs_tree, hf_tacacs_username, tvb, 26, userlen, ENC_ASCII|ENC_NA);
-				proto_tree_add_item(tacacs_tree, hf_tacacs_password, tvb, 26+userlen, passlen, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_username, tvb, 26, userlen, ENC_ASCII);
+				proto_tree_add_item(tacacs_tree, hf_tacacs_password, tvb, 26+userlen, passlen, ENC_ASCII);
 			}
 		}
 	}
@@ -420,7 +420,7 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	proto_tree_add_uint(tree, hf_tacplus_user_len, tvb, offset, 1, val);
 
 	if( val ){
-		proto_tree_add_item(tree, hf_tacplus_user, tvb, var_off, val, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_user, tvb, var_off, val, ENC_ASCII);
 		var_off+=val;
 	}
 	offset++;
@@ -430,7 +430,7 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	val=tvb_get_guint8(tvb,offset);
 	proto_tree_add_uint(tree, hf_tacplus_port_len, tvb, offset, 1, val);
 	if( val ){
-		proto_tree_add_item(tree, hf_tacplus_port, tvb, var_off, val, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_port, tvb, var_off, val, ENC_ASCII);
 		var_off+=val;
 	}
 	offset++;
@@ -439,7 +439,7 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	val=tvb_get_guint8(tvb,offset);
 	proto_tree_add_uint(tree, hf_tacplus_remote_address_len, tvb, offset, 1, val);
 	if( val ){
-		proto_tree_add_item(tree, hf_tacplus_remote_address, tvb, var_off, val, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_remote_address, tvb, var_off, val, ENC_ASCII);
 		var_off+=val;
 	}
 	return var_off;
@@ -462,7 +462,7 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 		case TAC_PLUS_AUTHEN_TYPE_PAP:
 			proto_tree_add_item(tree, hf_tacplus_password_length, tvb, AUTHEN_S_DATA_LEN_OFF, 1, ENC_BIG_ENDIAN);
 			if( val ) {
-				proto_tree_add_item(tree, hf_tacplus_auth_password, tvb, var_off, val, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(tree, hf_tacplus_auth_password, tvb, var_off, val, ENC_ASCII);
 			}
 			break;
 
@@ -474,9 +474,9 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "CHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_chap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;
-				proto_tree_add_item(pt, hf_tacplus_chap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_chap_challenge, tvb, var_off, chal_len, ENC_ASCII);
 				var_off+=chal_len;
-				proto_tree_add_item(pt, hf_tacplus_chap_response, tvb, var_off, 16, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_chap_response, tvb, var_off, 16, ENC_ASCII);
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_MSCHAP:
@@ -487,9 +487,9 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "MSCHAP Data" );
 				proto_tree_add_item(pt, hf_tacplus_mschap_id, tvb, var_off, 1, ENC_BIG_ENDIAN);
 				var_off++;
-				proto_tree_add_item(pt, hf_tacplus_mschap_challenge, tvb, var_off, chal_len, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_mschap_challenge, tvb, var_off, chal_len, ENC_ASCII);
 				var_off+=chal_len;
-				proto_tree_add_item(pt, hf_tacplus_mschap_response, tvb, var_off, 49, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_mschap_response, tvb, var_off, 49, ENC_ASCII);
 			}
 			break;
 		case TAC_PLUS_AUTHEN_TYPE_ARAP:
@@ -497,11 +497,11 @@ dissect_tacplus_body_authen_req_login( tvbuff_t* tvb, proto_tree *tree, int var_
 			if( val ) {
 				proto_tree *pt;
 				pt = proto_tree_add_subtree(tree, tvb, var_off, val, ett_tacplus_body_chap, NULL, "ARAP Data" );
-				proto_tree_add_item(pt, hf_tacplus_arap_nas_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_arap_nas_challenge, tvb, var_off, 8, ENC_ASCII);
 				var_off+=8;
-				proto_tree_add_item(pt, hf_tacplus_arap_remote_challenge, tvb, var_off, 8, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_arap_remote_challenge, tvb, var_off, 8, ENC_ASCII);
 				var_off+=8;
-				proto_tree_add_item(pt, hf_tacplus_arap_remote_response, tvb, var_off, 8, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(pt, hf_tacplus_arap_remote_response, tvb, var_off, 8, ENC_ASCII);
 			}
 			break;
 
@@ -548,7 +548,7 @@ dissect_tacplus_body_authen_req_cont( tvbuff_t *tvb, proto_tree *tree )
 	val=tvb_get_ntohs( tvb, AUTHEN_C_USER_LEN_OFF );
 	proto_tree_add_uint(tree, hf_tacplus_body_authen_req_cont_user_length, tvb, AUTHEN_C_USER_LEN_OFF, 2, val);
 	if( val ){
-		proto_tree_add_item(tree, hf_tacplus_body_authen_req_cont_user, tvb, var_off, val, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_body_authen_req_cont_user, tvb, var_off, val, ENC_ASCII);
 		var_off+=val;
 	}
 
@@ -579,7 +579,7 @@ dissect_tacplus_body_authen_rep( tvbuff_t *tvb, proto_tree *tree )
 	proto_tree_add_uint(tree, hf_tacplus_body_authen_rep_server_msg_len, tvb, AUTHEN_R_SRV_MSG_LEN_OFF, 2, val);
 
 	if( val ) {
-		proto_tree_add_item(tree, hf_tacplus_body_authen_rep_server_msg, tvb, var_off, val, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_body_authen_rep_server_msg, tvb, var_off, val, ENC_ASCII);
 		var_off+=val;
 	}
 
@@ -677,7 +677,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 	val=tvb_get_ntohs( tvb, ACCT_R_SRV_MSG_LEN_OFF );
 	proto_tree_add_item(tree, hf_tacplus_body_acct_server_msg_len, tvb, ACCT_R_SRV_MSG_LEN_OFF, 2, ENC_BIG_ENDIAN);
 	if( val ) {
-		proto_tree_add_item(tree, hf_tacplus_body_acct_server_msg, tvb, var_off, val, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_body_acct_server_msg, tvb, var_off, val, ENC_ASCII);
 		var_off+=val;
 	}
 
@@ -685,7 +685,7 @@ dissect_tacplus_body_acct_rep( tvbuff_t* tvb, proto_tree *tree )
 	val=tvb_get_ntohs( tvb, ACCT_R_DATA_LEN_OFF );
 	proto_tree_add_item(tree, hf_tacplus_body_acct_data_len, tvb, ACCT_R_DATA_LEN_OFF, 2, ENC_BIG_ENDIAN);
 	if( val ) {
-		proto_tree_add_item(tree, hf_tacplus_body_acct_data, tvb, var_off, val, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_body_acct_data, tvb, var_off, val, ENC_ASCII);
 	}
 }
 

@@ -88,7 +88,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   ti = proto_tree_add_item(tree, proto_lsd, tvb, 0, -1, ENC_NA);
   lsd_tree = proto_item_add_subtree(ti, ett_lsd);
 
-  proto_tree_add_item(lsd_tree, hf_lsd_header, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(lsd_tree, hf_lsd_header, tvb, offset, linelen, ENC_ASCII);
 
   offset = next_offset;
   if (!parse_string_field(lsd_tree, hf_lsd_host, pinfo, tvb, offset, &next_offset, &linelen))

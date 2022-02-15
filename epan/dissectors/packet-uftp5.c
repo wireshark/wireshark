@@ -1288,10 +1288,10 @@ static void dissect_uftp_fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     tstamp = usec_to_nstime(tvb_get_ntoh64(tvb, offset));
     proto_tree_add_time(fileinfo_tree, hf_uftp_fileinfo_tstamp, tvb, offset, 8, &tstamp);
     offset += 8;
-    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_name, tvb, offset, namelen, ENC_ASCII);
     offset += namelen;
     if (linklen > 0) {
-        proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_link, tvb, offset, linklen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_link, tvb, offset, linklen, ENC_ASCII);
     }
 
     destcount = (tvb_reported_length(tvb) - hlen) / 4;
@@ -2118,7 +2118,7 @@ static void dissect_uftp_abort(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset += 1;
     proto_tree_add_item(abort_tree, hf_uftp_abort_clientid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(abort_tree, hf_uftp_abort_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(abort_tree, hf_uftp_abort_message, tvb, offset, -1, ENC_ASCII);
 }
 
 static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

@@ -723,7 +723,7 @@ static void dissect_homeplug_loader(ptvcursor_t * cursor, packet_info * pinfo)
       ptvcursor_add(cursor, hf_homeplug_loader_length, 2, ENC_BIG_ENDIAN);
       if (length != 0) {
         ptvcursor_add(cursor, hf_homeplug_loader_status, 1, ENC_BIG_ENDIAN);
-        ptvcursor_add(cursor, hf_homeplug_loader_version, -1, ENC_ASCII|ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_loader_version, -1, ENC_ASCII);
       }
       break;
     case HOMEPLUG_MID_LSF:
@@ -965,12 +965,12 @@ static void dissect_homeplug_hrsp(ptvcursor_t * cursor, packet_info * pinfo)
     case HOMEPLUG_MID_GDVR:
       col_set_str(pinfo->cinfo, COL_INFO, "Host Response: Get Device Version");
       ptvcursor_add(cursor, hf_homeplug_hrsp_gdvr, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_hrsp_version, -1, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_hrsp_version, -1, ENC_ASCII);
       break;
     case HOMEPLUG_MID_GFVR:
       col_set_str(pinfo->cinfo, COL_INFO, "Host Response: Get Firmware Version");
       ptvcursor_add(cursor, hf_homeplug_hrsp_gfvr, 1, ENC_BIG_ENDIAN);
-      ptvcursor_add(cursor, hf_homeplug_hrsp_version, -1, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_hrsp_version, -1, ENC_ASCII);
       break;
     case HOMEPLUG_MID_GNEKR:
       col_set_str(pinfo->cinfo, COL_INFO, "Get Network Encryption Key");

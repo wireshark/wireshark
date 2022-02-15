@@ -1710,9 +1710,9 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
 
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_vid, cmd_tvb, 0, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_ssvid, cmd_tvb, 2, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_sn, cmd_tvb, 4, 20, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_sn, cmd_tvb, 4, 20, ENC_ASCII);
 
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_mn, cmd_tvb, 24, 40, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_mn, cmd_tvb, 24, 40, ENC_ASCII);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_fr, cmd_tvb, 64, 8, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_rab, cmd_tvb, 72, 1, ENC_LITTLE_ENDIAN);
 
@@ -1811,7 +1811,7 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_mnan, cmd_tvb, 540, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_rsvd4, cmd_tvb, 544, 224, ENC_NA);
 
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_subnqn, cmd_tvb, 768, 256, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_subnqn, cmd_tvb, 768, 256, ENC_ASCII);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_rsvd5, cmd_tvb, 1024, 68, ENC_NA);
     dissect_nvme_identify_ctrl_resp_nvmeof(cmd_tvb, cmd_tree);
 
@@ -1997,16 +1997,16 @@ static void dissect_nvme_get_logpage_ify_rcrd_resp(tvbuff_t *cmd_tvb, proto_tree
         proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_rsvd0, cmd_tvb, off-roff+10, 22, ENC_NA);
 
     if (roff <= 32 && (62-roff) <= len)
-        proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_trsvcid, cmd_tvb, off-roff+32, 32, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_trsvcid, cmd_tvb, off-roff+32, 32, ENC_ASCII);
 
     if (roff <= 64 && (256-roff) <= len)
         proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_rsvd1, cmd_tvb, off-roff+64, 192, ENC_NA);
 
     if (roff <= 256 && (512-roff) <= len)
-        proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_subnqn, cmd_tvb, off-roff+256, 256, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_subnqn, cmd_tvb, off-roff+256, 256, ENC_ASCII);
 
     if (roff <= 512 && (768-roff) <= len)
-        proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_traddr, cmd_tvb, off-roff+512, 256, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_traddr, cmd_tvb, off-roff+512, 256, ENC_ASCII);
 
     if (roff <= 768 && (1024-roff) <= len) {
         ti = proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rcrd_tsas, cmd_tvb, off-roff+768, 256, ENC_NA);

@@ -10389,7 +10389,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
@@ -10402,7 +10402,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
@@ -10420,7 +10420,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* message */
 	CHECK_BYTE_COUNT(message_len);
 	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
-	    ENC_ASCII|ENC_NA);
+	    ENC_ASCII);
 	COUNT_BYTES(message_len);
 
 	END_OF_SMB
@@ -10449,7 +10449,7 @@ dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
@@ -10462,7 +10462,7 @@ dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -10515,7 +10515,7 @@ dissect_send_multi_block_message_text_request(tvbuff_t *tvb, packet_info *pinfo 
 	/* message */
 	CHECK_BYTE_COUNT(message_len);
 	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
-	    ENC_ASCII|ENC_NA);
+	    ENC_ASCII);
 	COUNT_BYTES(message_len);
 
 	END_OF_SMB
@@ -10544,7 +10544,7 @@ dissect_forwarded_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_forwarded_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -10573,7 +10573,7 @@ dissect_get_machine_name_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_machine_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB

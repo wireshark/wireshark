@@ -3349,7 +3349,7 @@ dissect_homeplug_av_get_sw_cnf(ptvcursor_t *cursor)
         ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_status, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_dev_id, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_ver_len, 1, ENC_BIG_ENDIAN);
-        ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_ver_str, 64, ENC_ASCII|ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_ver_str, 64, ENC_ASCII);
         ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_upg, 1, ENC_BIG_ENDIAN);
     }
     ptvcursor_pop_subtree(cursor);
@@ -4136,7 +4136,7 @@ dissect_homeplug_av_mfg_string_cnf(ptvcursor_t *cursor)
     {
         ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_status, 1, ENC_BIG_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_len, 1, ENC_BIG_ENDIAN);
-        ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_string, 64, ENC_ASCII|ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_string, 64, ENC_ASCII);
     }
     ptvcursor_pop_subtree(cursor);
 }
@@ -4313,15 +4313,15 @@ dissect_homeplug_av_op_attr_bin_report(ptvcursor_t *cursor)
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_op_attr_data);
     {
-        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_hw, 16, ENC_ASCII|ENC_NA);
-        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw, 16, ENC_ASCII|ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_hw, 16, ENC_ASCII);
+        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw, 16, ENC_ASCII);
         ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_major, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_minor, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_sub, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_num, 4, ENC_LITTLE_ENDIAN);
         ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
-        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_date, 8, ENC_ASCII|ENC_NA);
-        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_rel, 12, ENC_ASCII|ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_date, 8, ENC_ASCII);
+        ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_rel, 12, ENC_ASCII);
         ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_sdram_type, 1, ENC_NA);
         ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
         ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_data_sw_linefreq, 1, ENC_NA);
@@ -5086,7 +5086,7 @@ dissect_homeplug_av_st_iotecha_stp_discover_tlv(ptvcursor_t *cursor) {
             if (Type == HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_DEVICE_TYPE) {
                 ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv_value_bytes, Length, ENC_NA);
             } else {
-                ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv_value_string, Length, ENC_ASCII|ENC_NA);
+                ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_stp_discover_tlv_value_string, Length, ENC_ASCII);
             }
         }
         ptvcursor_pop_subtree(cursor);
@@ -5362,7 +5362,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_item_req(ptvcursor_t *cursor) {
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_offset, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_total_length, 4, ENC_LITTLE_ENDIAN);
     tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
-    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size-1, ENC_ASCII|ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size-1, ENC_ASCII);
     /* Skip terminator */
     ptvcursor_advance(cursor, 1);
 }
@@ -5378,7 +5378,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_item_cnf(ptvcursor_t *cursor) {
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_offset, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_item_total_length, 4, ENC_LITTLE_ENDIAN);
     tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
-    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII|ENC_NA);
+    ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII);
     /* Skip terminator */
     ptvcursor_advance(cursor,1);
     ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_value, -1, ENC_NA);
@@ -5398,7 +5398,7 @@ dissect_homeplug_av_st_iotecha_stp_mfct_get_keylist_cnf(ptvcursor_t *cursor) {
             && (tvb_get_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1) == '\0'))
             break;
         tvb_get_const_stringz(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor), &name_size);
-        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII|ENC_NA);
+        ptvcursor_add(cursor, hf_homeplug_av_st_iotecha_mfct_name, name_size - 1, ENC_ASCII);
         /* Skip terminator */
         ptvcursor_advance(cursor,1);
     }
@@ -5482,7 +5482,7 @@ dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_
         ptvcursor_add(cursor,
                       hf_homeplug_av_st_iotecha_user_message_info,
                       null_offset - ptvcursor_current_offset(cursor),
-                      ENC_ASCII|ENC_NA);
+                      ENC_ASCII);
     }
 
     null_offset = tvb_find_guint8(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, -1, 0);
@@ -5491,7 +5491,7 @@ dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_
         ptvcursor_add(cursor,
                       hf_homeplug_av_st_iotecha_user_message_details,
                       null_offset - ptvcursor_current_offset(cursor),
-                      ENC_ASCII|ENC_NA);
+                      ENC_ASCII);
     }
 
 }

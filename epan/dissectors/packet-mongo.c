@@ -290,16 +290,16 @@ dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
   proto_tree *fcn_tree;
 
   fcn_length = tvb_strsize(tvb, offset);
-  ti = proto_tree_add_item(tree, hf_mongo_fullcollectionname, tvb, offset, fcn_length, ENC_ASCII|ENC_NA);
+  ti = proto_tree_add_item(tree, hf_mongo_fullcollectionname, tvb, offset, fcn_length, ENC_ASCII);
 
   /* If this doesn't find anything, we'll just throw an exception below */
   dbn_length = tvb_find_guint8(tvb, offset, fcn_length, '.') - offset;
 
   fcn_tree = proto_item_add_subtree(ti, ett_mongo_fcn);
 
-  proto_tree_add_item(fcn_tree, hf_mongo_database_name, tvb, offset, dbn_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(fcn_tree, hf_mongo_database_name, tvb, offset, dbn_length, ENC_ASCII);
 
-  proto_tree_add_item(fcn_tree, hf_mongo_collection_name, tvb, offset + 1 + dbn_length, fcn_length - dbn_length - 2, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(fcn_tree, hf_mongo_collection_name, tvb, offset + 1 + dbn_length, fcn_length - dbn_length - 2, ENC_ASCII);
 
   return fcn_length;
 }
@@ -507,7 +507,7 @@ dissect_mongo_reply(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree 
 static int
 dissect_mongo_msg(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-  proto_tree_add_item(tree, hf_mongo_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_mongo_message, tvb, offset, -1, ENC_ASCII);
   offset += tvb_strsize(tvb, offset);
 
   return offset;
@@ -652,11 +652,11 @@ dissect_mongo_op_command(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
   gint32 db_length, cmd_length;
 
   db_length = tvb_strsize(tvb, offset);
-  proto_tree_add_item(tree, hf_mongo_database, tvb, offset, db_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_mongo_database, tvb, offset, db_length, ENC_ASCII);
   offset += db_length;
 
   cmd_length = tvb_strsize(tvb, offset);
-  proto_tree_add_item(tree, hf_mongo_commandname, tvb, offset, cmd_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_mongo_commandname, tvb, offset, cmd_length, ENC_ASCII);
   offset += cmd_length;
 
   offset += dissect_bson_document(tvb, pinfo, offset, tree, hf_mongo_metadata);
@@ -806,7 +806,7 @@ dissect_op_msg_section(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tr
       to_read -= 4;
 
       dsi_length = tvb_strsize(tvb, offset);
-      proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_doc_sequence_id, tvb, offset, dsi_length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(section_tree, hf_mongo_msg_sections_section_doc_sequence_id, tvb, offset, dsi_length, ENC_ASCII);
       offset += dsi_length;
       to_read -= dsi_length;
 

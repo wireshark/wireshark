@@ -1012,7 +1012,7 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 		break;
 
 	case GVCP_USER_DEFINED_NAME:
-		proto_tree_add_item(branch, hf_gvcp_user_defined_name, tvb, offset, 4, ENC_ASCII|ENC_NA); /*? */
+		proto_tree_add_item(branch, hf_gvcp_user_defined_name, tvb, offset, 4, ENC_ASCII); /*? */
 		break;
 
 	case GVCP_FIRST_URL:
@@ -1461,56 +1461,56 @@ static int dissect_register_data(guint32 addr, proto_tree *branch, tvbuff_t *tvb
 	case GVCP_MANUFACTURER_NAME:
 		if (length == 32)
 		{
-			proto_tree_add_item(branch, hf_gvcp_manufacturer_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_manufacturer_name, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
 	case GVCP_MODEL_NAME:
 		if (length == 32)
 		{
-			proto_tree_add_item(branch, hf_gvcp_model_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_model_name, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
 	case GVCP_DEVICE_VERSION:
 		if (length == 32)
 		{
-			proto_tree_add_item(branch, hf_gvcp_device_version, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_device_version, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
 	case GVCP_MANUFACTURER_INFO:
 		if (length == 48)
 		{
-			proto_tree_add_item(branch, hf_gvcp_manufacturer_specific_info, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_manufacturer_specific_info, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
 	case GVCP_SERIAL_NUMBER:
 		if (length == 16)
 		{
-			proto_tree_add_item(branch, hf_gvcp_serial_number, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_serial_number, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
 	case GVCP_USER_DEFINED_NAME:
 		if (length == 16)
 		{
-			proto_tree_add_item(branch, hf_gvcp_user_defined_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_user_defined_name, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
 	case GVCP_FIRST_URL:
 		if (length == 512)
 		{
-			proto_tree_add_item(branch, hf_gvcp_first_xml_device_description_file, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_first_xml_device_description_file, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
 	case GVCP_SECOND_URL:
 		if (length == 512)
 		{
-			proto_tree_add_item(branch, hf_gvcp_second_xml_device_description_file, tvb, offset, -1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(branch, hf_gvcp_second_xml_device_description_file, tvb, offset, -1, ENC_ASCII);
 		}
 		break;
 
@@ -2169,22 +2169,22 @@ static void dissect_discovery_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 		dissect_register(GVCP_CURRENT_DEFAULT_GATEWAY_0, gvcp_telegram_tree, tvb, offset + 68, 4);
 
 		/* Manufacturer name */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_manufacturer_name, tvb, offset + 72, -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_manufacturer_name, tvb, offset + 72, -1, ENC_ASCII);
 
 		/* Model name */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_model_name, tvb, offset + 104, -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_model_name, tvb, offset + 104, -1, ENC_ASCII);
 
 		/* Device version */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_device_version, tvb, offset + 136, -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_device_version, tvb, offset + 136, -1, ENC_ASCII);
 
 		/* Manufacturer specific information */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_manufacturer_specific_info, tvb, offset + 168, -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_manufacturer_specific_info, tvb, offset + 168, -1, ENC_ASCII);
 
 		/* Serial number */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_serial_number, tvb, offset + 216, -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_serial_number, tvb, offset + 216, -1, ENC_ASCII);
 
 		/* User defined name */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_user_defined_name, tvb, offset + 232, -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_user_defined_name, tvb, offset + 232, -1, ENC_ASCII);
 	}
 }
 

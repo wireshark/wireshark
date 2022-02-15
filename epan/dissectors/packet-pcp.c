@@ -799,7 +799,7 @@ static int dissect_pcp_message_pmns_traverse(tvbuff_t *tvb, packet_info *pinfo, 
     name_len = tvb_get_ntohl(tvb, offset); /* get the actual length out so we can use it in the next item */
     offset += 4;
     /* name */
-    proto_tree_add_item(pcp_pmns_traverse_tree, hf_pcp_pmns_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pcp_pmns_traverse_tree, hf_pcp_pmns_name, tvb, offset, name_len, ENC_ASCII);
     offset += name_len; /* increment by whatever the length of the name string was */
 
     /* "padding" (not really padding, just what is left over in the old buffer) */
@@ -891,7 +891,7 @@ static int dissect_pcp_message_pmns_names(tvbuff_t *tvb, packet_info *pinfo, pro
             add_candidate_name_for_pmid_resolution(pinfo, tvb, offset, name_len);
         }
         proto_tree_add_item(pcp_pmns_names_name_tree, hf_pcp_pmns_names_nametree_name,
-                            tvb, offset, name_len, ENC_ASCII|ENC_NA);
+                            tvb, offset, name_len, ENC_ASCII);
         offset += name_len;
         /* padding */
         padding = name_len % 4; /* names are padded to the nearest 4 byte boundary */
@@ -935,7 +935,7 @@ static int dissect_pcp_message_pmns_child(tvbuff_t *tvb, packet_info *pinfo, pro
     offset += 4;
 
     /* name */
-    proto_tree_add_item(pcp_pmns_child_tree, hf_pcp_pmns_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pcp_pmns_child_tree, hf_pcp_pmns_name, tvb, offset, name_len, ENC_ASCII);
     offset += 4;
     return offset;
 }
@@ -1229,7 +1229,7 @@ static int dissect_pcp_message_result(tvbuff_t *tvb, packet_info *pinfo, proto_t
                             break;
                         case PM_TYPE_STRING:
                             proto_tree_add_item(pcp_result_instance_tree, hf_pcp_instance_value_ptr, tvb,
-                                pmvalueblock_offset, pmvalueblock_value_length-4, ENC_ASCII|ENC_NA);
+                                pmvalueblock_offset, pmvalueblock_value_length-4, ENC_ASCII);
                             break;
                         case PM_TYPE_AGGREGATE:
                         case PM_TYPE_AGGREGATE_STATIC:
@@ -1398,7 +1398,7 @@ static int dissect_pcp_message_instance_req(tvbuff_t *tvb, packet_info *pinfo, p
 
     /* name */
     if (name_len > 0) {
-        proto_tree_add_item(pcp_instance_req_tree, hf_pcp_instance_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(pcp_instance_req_tree, hf_pcp_instance_name, tvb, offset, name_len, ENC_ASCII);
         offset += name_len;
     }
     return offset;
@@ -1473,7 +1473,7 @@ static int dissect_pcp_message_text(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     offset += 4;
 
     /* buffer */
-    proto_tree_add_item(pcp_text_tree, hf_pcp_text_buffer, tvb, offset, buflen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(pcp_text_tree, hf_pcp_text_buffer, tvb, offset, buflen, ENC_ASCII);
     offset += buflen;
 
     return offset;
@@ -1616,7 +1616,7 @@ static int dissect_pcp_message_instance(tvbuff_t *tvb, packet_info *pinfo, proto
 
         /* name */
         if (name_len > 0) {
-            proto_tree_add_item(pcp_instance_tree, hf_pcp_instance_name, tvb, offset, name_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(pcp_instance_tree, hf_pcp_instance_name, tvb, offset, name_len, ENC_ASCII);
             offset += name_len;
         }
 

@@ -4584,7 +4584,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     offset += len;
     /* ProvURL */
     proto_tree_add_item (tree, hf_sir_prov_url,
-            tvb, offset, val_len, ENC_ASCII|ENC_NA);
+            tvb, offset, val_len, ENC_ASCII);
     offset += val_len;
 
     /* Number of entries in the CPITag list */
@@ -5098,7 +5098,7 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             tvb, URILenOffset, count, uriLen);
 
     proto_tree_add_item (tree, hf_wsp_header_uri,
-            tvb, URIOffset, uriLen, ENC_ASCII|ENC_NA);
+            tvb, URIOffset, uriLen, ENC_ASCII);
 
     str = tvb_format_text (pinfo->pool, tvb, URIOffset, uriLen);
     /* XXX - tvb_format_text(pinfo->pool, ) returns a pointer to a static text string

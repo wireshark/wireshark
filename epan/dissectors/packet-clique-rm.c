@@ -231,7 +231,7 @@ dissect_unreliable_packet(proto_tree *clique_rm_tree, guint8 type, tvbuff_t *tvb
           hf_clique_rm_whois_reply_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         proto_tree_add_item(clique_rm_tree,
-          hf_clique_rm_whois_reply_name, tvb, offset, len, ENC_ASCII|ENC_NA);
+          hf_clique_rm_whois_reply_name, tvb, offset, len, ENC_ASCII);
         break;
       case PACKET_TYPE_REPAIR_REQUEST:
         proto_tree_add_item(clique_rm_tree,

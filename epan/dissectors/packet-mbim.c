@@ -5108,7 +5108,7 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
                 proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_payload_text,
-                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
+                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
@@ -5161,7 +5161,7 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
                 proto_tree_add_item(subtree, hf_mbim_ussd_info_ussd_payload_text,
-                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
+                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
@@ -9255,7 +9255,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item_set_hidden(ti);
 
     subtree = proto_tree_add_subtree(mbim_tree, tvb, 0, 0, ett_mbim_msg_header, NULL, "NCM Transfer Header");
-    proto_tree_add_item(subtree, hf_mbim_bulk_nth_signature, tvb, 0, 4, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_bulk_nth_signature, tvb, 0, 4, ENC_ASCII);
     proto_tree_add_item_ret_uint(subtree, hf_mbim_bulk_nth_header_length, tvb, 4, 2, ENC_LITTLE_ENDIAN, &length);
     proto_item_set_len(ti, length);
     proto_tree_add_item(subtree, hf_mbim_bulk_nth_sequence_number, tvb, 6, 2, ENC_LITTLE_ENDIAN);

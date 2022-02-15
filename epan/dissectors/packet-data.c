@@ -83,9 +83,9 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 			if (show_as_text) {
 				if (uncompr_tvb && uncompr_len > 0) {
-					proto_tree_add_item(data_tree, hf_data_text, uncompr_tvb, 0, uncompr_len, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(data_tree, hf_data_text, uncompr_tvb, 0, uncompr_len, ENC_ASCII);
 				} else {
-					proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, ENC_ASCII);
 				}
 			}
 

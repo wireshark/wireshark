@@ -281,7 +281,7 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 31:
           /* Tag String */
           metamako_tlv_pos -= ( metamako_tlv_len + 1 ) * 4;
-          proto_tree_add_item(extensions_tree, hf_metamako_tagstring, tvb, metamako_tlv_pos + 4, metamako_tlv_len * 4, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(extensions_tree, hf_metamako_tagstring, tvb, metamako_tlv_pos + 4, metamako_tlv_len * 4, ENC_ASCII);
           /* Increment the offset by the Data + Tag size */
           offset += ( metamako_tlv_len + 1 ) * 4;
           break;

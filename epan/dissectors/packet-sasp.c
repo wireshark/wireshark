@@ -676,7 +676,7 @@ static guint32 dissect_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load, guint32 
     offset += 1;
 
     /*Label*/
-    proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_label, tvb, offset, lab_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_label, tvb, offset, lab_len, ENC_ASCII);
     offset += lab_len;
 
     if (mdct_p != NULL)
@@ -710,7 +710,7 @@ static guint32 dissect_grpdatacomp(tvbuff_t *tvb, proto_tree *pay_load, guint32 
     offset += 1;
 
     proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_LB_uid,
-        tvb, offset, LB_uid_len, ENC_ASCII|ENC_NA);
+        tvb, offset, LB_uid_len, ENC_ASCII);
     offset += (guint8)LB_uid_len;
 
     grp_name_len = tvb_get_guint8(tvb, offset);
@@ -722,7 +722,7 @@ static guint32 dissect_grpdatacomp(tvbuff_t *tvb, proto_tree *pay_load, guint32 
 
     /*Group Name*/
     proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_grp_name,
-        tvb, offset, grp_name_len, ENC_ASCII|ENC_NA);
+        tvb, offset, grp_name_len, ENC_ASCII);
     offset += grp_name_len;
 
     return offset;
@@ -842,7 +842,7 @@ static void dissect_setlbstate_req(tvbuff_t *tvb, proto_tree *pay_load, guint32 
 
     /*LB UID*/
     proto_tree_add_item(setlbstate_req_tree, hf_sasp_setlbstate_req_LB_uid,
-        tvb, offset, LB_uid_len, ENC_ASCII|ENC_NA);
+        tvb, offset, LB_uid_len, ENC_ASCII);
     offset += (guint8)LB_uid_len;
 
     /*LB Health*/

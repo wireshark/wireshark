@@ -869,7 +869,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 			offset += 1;
 		}
 		if (obj_end_offset >= offset + int_name_length) {
-			proto_tree_add_item(int_name_object_tree, hf_icmp_int_info_name_string, tvb, offset, int_name_length - 1, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(int_name_object_tree, hf_icmp_int_info_name_string, tvb, offset, int_name_length - 1, ENC_ASCII);
 			offset += int_name_length - 1;
 		}
 	}
@@ -915,7 +915,7 @@ dissect_interface_identification_object(tvbuff_t * tvb, gint offset,
 
 	switch(c_type) {
 		case ICMP_EXT_ECHO_IDENT_NAME:
-			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_name_string, tvb, offset, obj_length - 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_name_string, tvb, offset, obj_length - 4, ENC_ASCII);
 			break;
 		case ICMP_EXT_ECHO_IDENT_INDEX:
 			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_index, tvb, offset, 4, ENC_NA);

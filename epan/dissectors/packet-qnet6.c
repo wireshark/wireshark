@@ -3100,7 +3100,7 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
        */
       if (path_len > 0)
         {
-          proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_path, tvb, *poffset, path_len, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_path, tvb, *poffset, path_len, ENC_ASCII);
           *poffset += path_len;
           rlen -= path_len;
         }
@@ -3155,18 +3155,18 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
                   /*
                    * extra data is the symlink new path name
                    */
-                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_symlink_path, tvb, *poffset, extra_len, ENC_ASCII|ENC_NA);
+                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_symlink_path, tvb, *poffset, extra_len, ENC_ASCII);
                   break;
                 case QNX_IO_CONNECT_EXTRA_RENAME:
                   /*
                    * extra data is the mv old new ,extra is old path
                    * name path is the new name
                    */
-                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_rename_path, tvb, *poffset, extra_len, ENC_ASCII|ENC_NA);
+                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_rename_path, tvb, *poffset, extra_len, ENC_ASCII);
                   break;
                 case QNX_IO_CONNECT_EXTRA_MOUNT:
                 case QNX_IO_CONNECT_EXTRA_MOUNT_OCB:
-                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_mount, tvb, *poffset, extra_len, ENC_ASCII|ENC_NA);
+                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_mount, tvb, *poffset, extra_len, ENC_ASCII);
                   break;
                 case QNX_IO_CONNECT_EXTRA_NONE: /* 0 */
                 default:

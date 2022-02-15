@@ -6480,7 +6480,7 @@ dissect_gtpv2_detach_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 static void
 dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
-    proto_tree_add_item(tree, hf_gtpv2_ldn, tvb, 0, length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_gtpv2_ldn, tvb, 0, length, ENC_ASCII);
 }
 
 /* 8.83 Node Features */
@@ -6945,7 +6945,7 @@ dissect_gtpv2_twan_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
             break;
         case 1:
             /* fall trough */
-            proto_tree_add_item(tree, hf_gtpv2_twan_relay_id, tvb, offset, relay_id_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_gtpv2_twan_relay_id, tvb, offset, relay_id_len, ENC_ASCII);
             offset += relay_id_len;
         default:
             break;

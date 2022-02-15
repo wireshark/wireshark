@@ -265,7 +265,7 @@ dissect_http3_priority_update(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree*
     offset += lenvar;
     priority_field_value_len = frame_length - lenvar;
 
-    proto_tree_add_item(http3_tree, hf_http3_priority_update_field_value, tvb, offset, (int)priority_field_value_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(http3_tree, hf_http3_priority_update_field_value, tvb, offset, (int)priority_field_value_len, ENC_ASCII);
     offset += (int)priority_field_value_len;
 
     return offset;

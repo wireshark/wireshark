@@ -617,7 +617,7 @@ static void before_dtd_doctype(void *tvbparse_data, const void *wanted_data _U_,
     tvbparse_elem_t *name_tok      = tok->sub->next->next->next->sub->sub;
     proto_tree      *dtd_item      = proto_tree_add_item(current_frame->tree, hf_doctype,
                                                          name_tok->tvb, name_tok->offset,
-                                                         name_tok->len, ENC_ASCII|ENC_NA);
+                                                         name_tok->len, ENC_ASCII);
 
     proto_item_set_text(dtd_item, "%s", tvb_format_text(wmem_packet_scope(), tok->tvb, tok->offset, tok->len));
 

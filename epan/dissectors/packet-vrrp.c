@@ -204,7 +204,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     if (auth_type == VRRP_AUTH_TYPE_SIMPLE_TEXT) {
-        proto_tree_add_item(vrrp_tree, hf_vrrp_auth_string, tvb, offset, VRRP_AUTH_DATA_LEN, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(vrrp_tree, hf_vrrp_auth_string, tvb, offset, VRRP_AUTH_DATA_LEN, ENC_ASCII);
         offset += VRRP_AUTH_DATA_LEN;
     } else if (auth_type == VRRP_AUTH_TYPE_IP_MD5) {
         if (vrrp_len - offset >= 16) {
