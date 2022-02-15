@@ -69,6 +69,8 @@
 #define PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET     0x07
 #define PROTOCOL_BINARY_RESPONSE_NO_VBUCKET         0x08
 #define PROTOCOL_BINARY_RESPONSE_LOCKED             0x09
+#define PROTOCOL_BINARY_RESPONSE_DCP_STREAM_NOT_FOUND 0x0a
+#define PROTOCOL_BINARY_RESPONSE_OPAQUE_NO_MATCH    0x0b
 #define PROTOCOL_BINARY_RESPONSE_AUTH_STALE         0x1f
 #define PROTOCOL_BINARY_RESPONSE_AUTH_ERROR         0x20
 #define PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE      0x21
@@ -76,6 +78,11 @@
 #define PROTOCOL_BINARY_RESPONSE_ROLLBACK           0x23
 #define PROTOCOL_BINARY_RESPONSE_EACCESS            0x24
 #define PROTOCOL_BINARY_RESPONSE_NOT_INITIALIZED    0x25
+#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_INGRESS 0x30
+#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_EGRESS 0x31
+#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_CONNECTIONS 0x32
+#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_COMMANDS 0x33
+#define PROTOCOL_BINARY_RESPONSE_SCOPE_SIZE_LIMIT_EXCEEDED 0x34
 #define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND    0x81
 #define PROTOCOL_BINARY_RESPONSE_ENOMEM             0x82
 #define PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED      0x83
@@ -599,6 +606,8 @@ static const value_string status_vals[] = {
   { PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET,    "Not my vBucket"          },
   { PROTOCOL_BINARY_RESPONSE_NO_VBUCKET,        "Not connected to a bucket" },
   { PROTOCOL_BINARY_RESPONSE_LOCKED,            "The requested resource is locked" },
+  { PROTOCOL_BINARY_RESPONSE_DCP_STREAM_NOT_FOUND, "No DCP Stream for this request" },
+  { PROTOCOL_BINARY_RESPONSE_OPAQUE_NO_MATCH,   "Opaque does not match" },
   { PROTOCOL_BINARY_RESPONSE_AUTH_STALE,        "Authentication context is stale. Should reauthenticate." },
   { PROTOCOL_BINARY_RESPONSE_AUTH_ERROR,        "Authentication error"    },
   { PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE,     "Authentication continue" },
@@ -608,6 +617,11 @@ static const value_string status_vals[] = {
   { PROTOCOL_BINARY_RESPONSE_NOT_INITIALIZED,
     "The Couchbase cluster is currently initializing this node, and "
     "the Cluster manager has not yet granted all users access to the cluster."},
+  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_INGRESS, "Rate limit: Network ingress"},
+  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_EGRESS, "Rate limit: Network Egress"},
+  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_CONNECTIONS, "Rate limit: Max Connections"},
+  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_COMMANDS, "Rate limit: Max Commands"},
+  {PROTOCOL_BINARY_RESPONSE_SCOPE_SIZE_LIMIT_EXCEEDED, "To much data in Scope"},
   { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND,   "Unknown command"         },
   { PROTOCOL_BINARY_RESPONSE_ENOMEM,            "Out of memory"           },
   { PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED,     "Command isn't supported" },
