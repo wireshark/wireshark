@@ -2843,8 +2843,8 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
       case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID:
           break;
       default:
-          proto_item_append_text(couchbase_item, ", VBucket: 0x%x", vbucket);
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", VBucket: 0x%x", vbucket);
+          proto_item_append_text(couchbase_item, ", vb:%d", vbucket);
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", vb:%d", vbucket);
     }
   }
   offset += 2;
