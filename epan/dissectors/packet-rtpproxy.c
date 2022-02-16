@@ -273,7 +273,7 @@ static gint ett_rtpproxy_reply = -1;
 static gint ett_rtpproxy_ng_bencode = -1;
 
 /* Default values */
-#define RTPPROXY_PORT 22222  /* Not IANA registered */
+#define RTPPROXY_PORT "22222"  /* Not IANA registered */
 static gboolean rtpproxy_establish_conversation = TRUE;
 /* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
 /* See - http://www.kamailio.org/docs/modules/4.3.x/modules/rtpproxy.html#idp15794952 */
@@ -1475,8 +1475,8 @@ proto_reg_handoff_rtpproxy(void)
         rtpproxy_udp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
 
         /* Register TCP port for dissection */
-        dissector_add_uint_with_preference("tcp.port", RTPPROXY_PORT, rtpproxy_tcp_handle);
-        dissector_add_uint_with_preference("udp.port", RTPPROXY_PORT, rtpproxy_udp_handle);
+        dissector_add_uint_range_with_preference("tcp.port", RTPPROXY_PORT, rtpproxy_tcp_handle);
+        dissector_add_uint_range_with_preference("udp.port", RTPPROXY_PORT, rtpproxy_udp_handle);
         rtpproxy_initialized = TRUE;
     }
 
