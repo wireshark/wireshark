@@ -217,7 +217,7 @@ void ProtoTree::ctxOpenUrlWiki()
 
         if (ret != QMessageBox::Yes) return;
 
-        url = QString(WS_WIKI_URL("Protocols/%1")).arg(proto_abbrev);
+        url = QString(WS_WIKI_URL("%1")).arg(proto_abbrev);
     }
     else
     {
