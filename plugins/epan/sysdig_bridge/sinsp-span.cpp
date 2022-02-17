@@ -51,7 +51,6 @@ void destroy_sinsp_span(sinsp_span_t *sinsp_span) {
     delete(sinsp_span);
 }
 
-#include <iostream>
 /*
  * Populate a source_plugin_info struct with the symbols coming from a library loaded via libsinsp
  */
@@ -136,7 +135,7 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, unsigned field_num, s
         return false;
     }
 
-    const filtercheck_field_info *ffi = ssi->source->fields();
+    const filtercheck_field_info *ffi = &ssi->source->fields()[field_num];
 
     switch (ffi->m_type) {
     case PT_CHARBUF:
@@ -163,13 +162,13 @@ bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, unsigned field_num, s
         field->display_format = SFDF_UNKNOWN;
     }
 
-    g_strlcpy(field->abbrev, ffi[field_num].m_name, sizeof(ffi[field_num].m_name));
-    g_strlcpy(field->display, ffi[field_num].m_display, sizeof(ffi[field_num].m_display));
-    g_strlcpy(field->description, ffi[field_num].m_description, sizeof(ffi[field_num].m_description));
+    g_strlcpy(field->abbrev, ffi->m_name, sizeof(ffi->m_name));
+    g_strlcpy(field->display, ffi->m_display, sizeof(ffi->m_display));
+    g_strlcpy(field->description, ffi->m_description, sizeof(ffi->m_description));
 
-    field->is_hidden = ffi[field_num].m_flags & EPF_TABLE_ONLY;
-    field->is_info = ffi[field_num].m_flags & EPF_INFO_PROP;
-    field->is_conversation = ffi[field_num].m_flags & EPF_CONVERSATION_PROP;
+    field->is_hidden = ffi->m_flags & EPF_TABLE_ONLY;
+    field->is_info = ffi->m_flags & EPF_INFO;
+    field->is_conversation = ffi->m_flags & EPF_CONVERSATION;
 
     return true;
 }
