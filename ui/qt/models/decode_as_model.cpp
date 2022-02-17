@@ -101,13 +101,13 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         case colTable:
             return tr("Match using this field");
         case colSelector:
-            return tr("Current\"Decode As\" behavior");
+            return tr("Change behavior when the field matches this value");
         case colType:
-            return QVariant();
+            return tr("Field value type (and base, if Integer)");
         case colDefault:
             return tr("Default \"Decode As\" behavior");
         case colProtocol:
-            return tr("Change behavior when the protocol field matches this value");
+            return tr("Current\"Decode As\" behavior");
         }
         return QVariant();
     case Qt::DisplayRole:
