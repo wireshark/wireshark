@@ -7745,6 +7745,142 @@ netlogon_dissect_dsrderegisterdnshostrecords_reply(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/*
+ * TODO
+ * IDL long NetrChainSetClientAttributes(
+ * IDL );
+
+NetrChainSetClientAttributes(
+[in,string,ref] LOGONSRV_HANDLE PrimaryName,
+[in,string,ref] wchar_t * ChainedFromServerName,
+[in,string,ref] wchar_t * ChainedForClientName,
+[in,ref] PNETLOGON_AUTHENTICATOR Authenticator,
+[in,out,ref] PNETLOGON_AUTHENTICATOR ReturnAuthenticator,
+[in] DWORD dwInVersion,
+[in,ref] [switch_is(dwInVersion)]
+NL_IN_CHAIN_SET_CLIENT_ATTRIBUTES *pmsgIn,
+[in,out,ref] DWORD * pdwOutVersion,
+[in,out,ref] [switch_is(*pdwOutVersion)]
+NL_OUT_CHAIN_SET_CLIENT_ATTRIBUTES *pmsgOut
+);
+
+typedef struct _NL_OSVERSIONINFO_V1{
+DWORD dwOSVersionInfoSize;
+DWORD dwMajorVersion;
+DWORD dwMinorVersion;
+DWORD dwBuildNumber;
+DWORD dwPlatformId;
+wchar_t szCSDVersion[128];
+USHORT wServicePackMajor;
+USHORT wServicePackMinor;
+USHORT wSuiteMask;
+UCHAR wProductType;
+UCHAR wReserved;
+} NL_OSVERSIONINFO_V1;
+typedef struct _NL_IN_CHAIN_SET_CLIENT_ATTRIBUTES_V1{
+[unique,string] wchar_t * ClientDnsHostName;
+[unique] NL_OSVERSIONINFO_V1 *OsVersionInfo_V1;
+[unique,string] wchar_t * OsName;
+} NL_IN_CHAIN_SET_CLIENT_ATTRIBUTES_V1;
+typedef [switch_type(DWORD)] union{
+[case(1)] NL_IN_CHAIN_SET_CLIENT_ATTRIBUTES_V1 V1;
+} NL_IN_CHAIN_SET_CLIENT_ATTRIBUTES;
+typedef struct _NL_OUT_CHAIN_SET_CLIENT_ATTRIBUTES_V1{
+[unique,string] wchar_t *HubName;
+[unique,string] wchar_t **OldDnsHostName;
+[unique] ULONG * SupportedEncTypes;
+} NL_OUT_CHAIN_SET_CLIENT_ATTRIBUTES_V1;
+typedef [switch_type(DWORD)] union{
+[case(1)] NL_OUT_CHAIN_SET_CLIENT_ATTRIBUTES_V1 V1;
+} NL_OUT_CHAIN_SET_CLIENT_ATTRIBUTES;
+
+static int
+netlogon_dissect_NL_IN_CHAIN_SET_CLIENT_ATTRIBUTES(tvbuff_t *tvb, int offset,
+                                    packet_info *pinfo, proto_tree *tree,
+                                    dcerpc_info *di, guint8 *drep)
+{
+    guint32 level;
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_level, &level);
+    switch (level) {
+    case 1:
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                     netlogon_dissect_WORKSTATION_INFORMATION, NDR_POINTER_UNIQUE,
+                                     "LSA POLICY INFO", -1);
+        break;
+    }
+    return offset;
+}
+ */
+static int
+netlogon_dissect_netrchainsetclientattributes_rqst(tvbuff_t *tvb, int offset,
+                                                   packet_info *pinfo,
+                                                   proto_tree *tree,
+                                                   dcerpc_info *di,
+                                                   guint8 *drep)
+{
+    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
+                                          NDR_POINTER_REF, "Server Handle",
+                                          hf_netlogon_logonsrv_handle, 0);
+
+    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
+                                          NDR_POINTER_REF, "ChainedFromServerName",
+                                          hf_netlogon_computer_name, 0);
+
+    offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
+                                          NDR_POINTER_REF, "ChainedForClientName",
+                                          hf_netlogon_computer_name, 0);
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+                                 "AUTHENTICATOR: credential", -1);
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+                                 "AUTHENTICATOR: return_authenticator", -1);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_level, NULL); // in_version
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 NULL, NDR_POINTER_REF,
+                                 "IN_CHAIN_SET_CLIENT_ATTRIBUTES", -1);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_level, NULL); // out_version
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 NULL, NDR_POINTER_REF,
+                                 "OUT_CHAIN_SET_CLIENT_ATTRIBUTES", -1);
+
+    return offset;
+}
+
+static int
+netlogon_dissect_netrchainsetclientattributes_reply(tvbuff_t *tvb, int offset,
+                                                    packet_info *pinfo,
+                                                    proto_tree *tree,
+                                                    dcerpc_info *di,
+                                                    guint8 *drep)
+{
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
+                                 "AUTHENTICATOR: return_authenticator", -1);
+
+    offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
+                                hf_netlogon_level, NULL); // out_version
+
+    offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
+                                 NULL, NDR_POINTER_REF,
+                                 "OUT_CHAIN_SET_CLIENT_ATTRIBUTES", -1);
+
+    offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
+                              hf_netlogon_rc, NULL);
+
+    return offset;
+}
+
 /* Dissect secure channel stuff */
 
 static int hf_netlogon_secchan_nl_message_type;
@@ -8007,7 +8143,8 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
     { NETLOGON_DSRUPDATEREADONLYSERVERDNSRECORDS, "DsrUpdateReadOnlyServerDnsRecords",
       NULL, NULL },
     { NETLOGON_NETRCHAINSETCLIENTATTRIBUTES, "NetrChainSetClientAttributes",
-      NULL, NULL },
+      netlogon_dissect_netrchainsetclientattributes_rqst,
+      netlogon_dissect_netrchainsetclientattributes_reply },
     {0, NULL, NULL,  NULL }
 };
 
