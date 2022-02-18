@@ -3463,7 +3463,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             dissected_len += 2;
 
             /* (y+4) to i   Flow Description */
-            proto_tree_add_item(afd_tree, hf_pfcp_flow_desc, tvb, offset+2, flow_desc_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(afd_tree, hf_pfcp_flow_desc, tvb, offset, flow_desc_len, ENC_ASCII|ENC_NA);
             offset += flow_desc_len;
             dissected_len += flow_desc_len;
         }
