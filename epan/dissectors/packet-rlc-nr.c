@@ -29,8 +29,7 @@
 /* TODO:
 - add sequence analysis
 - take configuration of reordering timer, and stop reassembly if timeout exceeded?
-- add tap info
-- call more upper layer dissectors once they appear
+- add tap info (for stats / SN graph)
 */
 
 void proto_register_rlc_nr(void);
@@ -287,7 +286,7 @@ static const true_false_string header_only_vals =
 /* Reassembly state */
 static reassembly_table pdu_reassembly_table;
 
-static guint pdu_hash(gconstpointer k _U_)
+static guint pdu_hash(gconstpointer k)
 {
     return GPOINTER_TO_UINT(k);
 }
@@ -297,7 +296,7 @@ static gint pdu_equal(gconstpointer k1, gconstpointer k2)
     return k1 == k2;
 }
 
-static gpointer pdu_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data _U_)
+static gpointer pdu_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data)
 {
     return (gpointer)data;
 }
@@ -373,10 +372,8 @@ static void write_pdu_label_and_info_literal(proto_item *pdu_ti, proto_item *sub
 
 /* Show in the info column how many bytes are in the UM/AM PDU, and indicate
    whether or not the beginning and end are included in this packet */
-static void show_PDU_in_info(packet_info *pinfo,
-                             proto_item *top_ti,
-                             gint32 length,
-                             guint8 seg_info)
+static void show_PDU_in_info(packet_info *pinfo, proto_item *top_ti,
+                             gint32 length, guint8 seg_info)
 {
     /* Reflect this PDU in the info column */
     if (length > 0) {
@@ -669,10 +666,8 @@ static void reassembly_frame_complete(packet_info *pinfo,
 /***************************************************/
 /* Unacknowledged mode PDU                         */
 static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree,
-                               int offset,
-                               rlc_nr_info *p_rlc_nr_info,
-                               proto_item *top_ti)
+                              proto_tree *tree, int offset,
+                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti)
 {
     guint32 seg_info, sn;
     guint64 reserved;
@@ -761,7 +756,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
     /* Handle any reassembly. */
     tvbuff_t *next_tvb = NULL;
     if (global_rlc_nr_reassemble_um_pdus && seg_info && tvb_reported_length_remaining(tvb, offset) > 0) {
-        // Set fragmented flag.
+        /* Set fragmented flag. */
         gboolean save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
         fragment_head *fh;
@@ -999,10 +994,8 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
 /***************************************************/
 /* Acknowledged mode PDU                           */
 static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
-                              proto_tree *tree,
-                              int offset,
-                              rlc_nr_info *p_rlc_nr_info,
-                              proto_item *top_ti)
+                              proto_tree *tree, int offset,
+                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti)
 {
     gboolean dc, polling;
     guint32 seg_info, sn;
@@ -1115,7 +1108,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Handle any reassembly. */
     tvbuff_t *next_tvb = NULL;
     if (global_rlc_nr_reassemble_am_pdus && seg_info && tvb_reported_length_remaining(tvb, offset) > 0) {
-        // Set fragmented flag.
+        /* Set fragmented flag. */
         gboolean save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
         fragment_head *fh;
@@ -1248,7 +1241,7 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create tvb that starts at actual RLC PDU */
     rlc_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_rlc_nr_common(rlc_tvb, pinfo, tree, TRUE);
+    dissect_rlc_nr_common(rlc_tvb, pinfo, tree, TRUE /* udp framing */);
     return TRUE;
 }
 
@@ -1258,7 +1251,7 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 static int dissect_rlc_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_rlc_nr_common(tvb, pinfo, tree, FALSE);
+    dissect_rlc_nr_common(tvb, pinfo, tree, FALSE /* not udp framing */);
     return tvb_captured_length(tvb);
 }
 
@@ -1625,7 +1618,6 @@ void proto_register_rlc_nr(void)
               "Acknowledged Mode Data", HFILL
             }
         },
-
         { &hf_rlc_nr_am_cpt,
             { "Control PDU Type",
               "rlc-nr.am.cpt", FT_UINT8, BASE_HEX, VALS(control_pdu_type_vals), 0x70,
@@ -1756,8 +1748,7 @@ void proto_register_rlc_nr(void)
             "rlc-nr.reassembled.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "The reassembled payload", HFILL }
-        },
-
+        }
     };
 
     static gint *ett[] =
