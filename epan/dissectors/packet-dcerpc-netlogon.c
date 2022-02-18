@@ -2711,8 +2711,8 @@ netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvbuff_t *tvb, int offset,
                                               packet_info *pinfo, proto_tree *tree,
                                               dcerpc_info *di, guint8 *drep)
 {
-    offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_secure_channel_type, NULL);
+    offset = dissect_ndr_uint1632(tvb, offset, pinfo, tree, di, drep,
+                                  hf_netlogon_secure_channel_type, NULL);
 
     return offset;
 }
