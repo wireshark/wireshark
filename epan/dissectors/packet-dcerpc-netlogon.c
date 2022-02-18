@@ -208,6 +208,8 @@ static int hf_netlogon_trust_extension;
 static int hf_netlogon_trust_max;
 static int hf_netlogon_trust_offset;
 static int hf_netlogon_trust_len;
+static int hf_netlogon_opaque_buffer_enc;
+static int hf_netlogon_opaque_buffer_size;
 static int hf_netlogon_dummy_string;
 static int hf_netlogon_dummy_string2;
 static int hf_netlogon_dummy_string3;
@@ -7132,6 +7134,38 @@ netlogon_dissect_netrserverpasswordget_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
+netlogon_dissect_opaque_buffer_block(tvbuff_t *tvb, int offset, int length,
+                                     packet_info *pinfo, proto_tree *tree,
+                                     dcerpc_info *di, guint8 *drep)
+{
+    proto_tree_add_item(tree, di->hf_index, tvb, offset, length, ENC_NA);
+    offset += length;
+
+    return offset;
+}
+
+static int
+netlogon_dissect_opaque_buffer(tvbuff_t *tvb, int offset,
+                            packet_info *pinfo, proto_tree *tree,
+                            dcerpc_info *di, guint8 *drep)
+{
+    offset = dissect_ndr_ucarray_block(tvb, offset, pinfo, tree, di, drep,
+                                       netlogon_dissect_opaque_buffer_block);
+
+    return offset;
+}
+
+/*
+ * IDL long NetrLogonSendToSam(
+ * IDL      [in][unique][string] wchar_t *ServerName,
+ * IDL      [in][ref][string] wchar_t *Workstation,
+ * IDL      [in][ref] AUTHENTICATOR *credential,
+ * IDL      [in][out][ref] AUTHENTICATOR *returnauthenticator,
+ * IDL      [in, size_is(OpaqueBufferSize)][ref] UCHAR * OpaqueBuffer,
+ * IDL      [in] ULONG OpaqueBufferSize
+ * IDL );
+ */
+static int
 netlogon_dissect_netrlogonsendtosam_rqst(tvbuff_t *tvb, int offset,
                                          packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
@@ -7139,19 +7173,19 @@ netlogon_dissect_netrlogonsendtosam_rqst(tvbuff_t *tvb, int offset,
                                               pinfo, tree, di, drep);
 
     offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
-                                          NDR_POINTER_UNIQUE, "unknown string",
-                                          hf_netlogon_unknown_string, 0);
+                                          NDR_POINTER_REF, "Computer Name",
+                                          hf_netlogon_computer_name, 0);
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
                                  netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
                                  "AUTHENTICATOR: credential", -1);
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_BYTE_array, NDR_POINTER_UNIQUE,
-                                 "BYTE pointer: unknown_BYTE", -1);
+                                 netlogon_dissect_opaque_buffer, NDR_POINTER_REF,
+                                 "OpaqueBuffer", hf_netlogon_opaque_buffer_enc);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
-                                hf_netlogon_unknown_long, NULL);
+                                hf_netlogon_opaque_buffer_size, NULL);
 
     return offset;
 }
@@ -7162,7 +7196,7 @@ netlogon_dissect_netrlogonsendtosam_reply(tvbuff_t *tvb, int offset,
                                           packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
-                                 netlogon_dissect_AUTHENTICATOR, NDR_POINTER_UNIQUE,
+                                 netlogon_dissect_AUTHENTICATOR, NDR_POINTER_REF,
                                  "AUTHENTICATOR: return_authenticator", -1);
 
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep,
@@ -8376,6 +8410,14 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_trust_max,
           { "Max Count", "netlogon.trust.extension.maxcount", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }},
+
+        { &hf_netlogon_opaque_buffer_enc,
+          { "Encrypted", "netlogon.sendtosam.opaquebuffer.enc", FT_BYTES, BASE_NONE,
+            NULL, 0x0, "OpaqueBuffer (Encrypted)", HFILL }},
+
+        { &hf_netlogon_opaque_buffer_size,
+          { "OpaqueBufferSize", "netlogon.sendtosam.opaquebuffer.size", FT_UINT32, BASE_HEX,
+            NULL, 0x0, "Size of the OpaqueBuffer", HFILL }},
 
         { &hf_netlogon_dummy_string2,
           { "Dummy String2", "netlogon.dummy_string", FT_STRING, BASE_NONE,
