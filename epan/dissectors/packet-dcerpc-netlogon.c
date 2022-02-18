@@ -209,6 +209,7 @@ static int hf_netlogon_trust_max;
 static int hf_netlogon_trust_offset;
 static int hf_netlogon_trust_len;
 static int hf_netlogon_opaque_buffer_enc;
+static int hf_netlogon_opaque_buffer_dec;
 static int hf_netlogon_opaque_buffer_size;
 static int hf_netlogon_dummy_string;
 static int hf_netlogon_dummy_string2;
@@ -7133,14 +7134,176 @@ netlogon_dissect_netrserverpasswordget_reply(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
+static gcry_error_t prepare_session_key_cipher_aes(netlogon_auth_vars *vars,
+                                                   gcry_cipher_hd_t *_cipher_hd)
+{
+    gcry_error_t err;
+    gcry_cipher_hd_t cipher_hd = NULL;
+    guint8 iv[16] = { 0 };
+
+    /* Open the cipher */
+    err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
+    if (err != 0) {
+        ws_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        return err;
+    }
+
+    /* Set the initial value */
+    err = gcry_cipher_setiv(cipher_hd, iv, sizeof(iv));
+    if (err != 0) {
+        ws_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return err;
+    }
+
+    /* Set the key */
+    err = gcry_cipher_setkey(cipher_hd, vars->session_key, 16);
+    if (err != 0) {
+        ws_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return err;
+    }
+
+    *_cipher_hd = cipher_hd;
+    return 0;
+}
+#endif
+
+static gcry_error_t prepare_session_key_cipher_strong(netlogon_auth_vars *vars,
+                                                      gcry_cipher_hd_t *_cipher_hd)
+{
+    gcry_error_t err;
+    gcry_cipher_hd_t cipher_hd = NULL;
+
+    /* Open the cipher */
+    err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0);
+    if (err != 0) {
+        ws_warning("GCRY: cipher open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        return err;
+    }
+
+    /* Set the key */
+    err = gcry_cipher_setkey(cipher_hd, vars->session_key, 16);
+    if (err != 0) {
+        ws_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return err;
+    }
+
+    *_cipher_hd = cipher_hd;
+    return 0;
+}
+
+static gcry_error_t prepare_session_key_cipher(netlogon_auth_vars *vars,
+                                               gcry_cipher_hd_t *_cipher_hd)
+{
+    *_cipher_hd = NULL;
+
+#if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
+    if (vars->flags & NETLOGON_FLAG_AES) {
+        return prepare_session_key_cipher_aes(vars, _cipher_hd);
+    }
+#endif
+
+    if (vars->flags & NETLOGON_FLAG_STRONGKEY) {
+        return prepare_session_key_cipher_strong(vars, _cipher_hd);
+    }
+
+    return GPG_ERR_UNSUPPORTED_ALGORITHM;
+}
+
 static int
 netlogon_dissect_opaque_buffer_block(tvbuff_t *tvb, int offset, int length,
                                      packet_info *pinfo, proto_tree *tree,
-                                     dcerpc_info *di, guint8 *drep)
+                                     dcerpc_info *di, guint8 *drep _U_)
 {
+    int orig_offset = offset;
+    unsigned char is_server = 0;
+    netlogon_auth_vars *vars;
+    netlogon_auth_key key;
+    gcry_error_t err;
+    gcry_cipher_hd_t cipher_hd = NULL;
+    guint8 *buffer = NULL;
+    tvbuff_t *dectvb = NULL;
+    guint32 expected_len;
+    guint32 decrypted_len;
+
     proto_tree_add_item(tree, di->hf_index, tvb, offset, length, ENC_NA);
     offset += length;
 
+    if (length < 8) {
+        return offset;
+    }
+
+    generate_hash_key(pinfo,is_server,&key);
+    vars = (netlogon_auth_vars *)wmem_map_lookup(netlogon_auths,(gconstpointer*) &key);
+
+    while(vars != NULL && vars->next_start != -1 && vars->next_start <  (int)pinfo->num ) {
+        vars = vars->next;
+    }
+    if (vars == NULL ) {
+        debugprintf("Vars not found %d (packet_data)\n",wmem_map_size(netlogon_auths));
+        expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+            &ei_netlogon_session_key,
+            "No session key found");
+        return offset;
+    }
+
+    err = prepare_session_key_cipher(vars, &cipher_hd);
+    if (err != 0) {
+        ws_warning("GCRY: prepare_session_key_cipher %s/%s\n",
+                   gcry_strsource(err), gcry_strerror(err));
+        return offset;
+    }
+
+    buffer = (guint8*)tvb_memdup(pinfo->pool, tvb, orig_offset, length);
+    if (buffer == NULL) {
+        gcry_cipher_close(cipher_hd);
+        return offset;
+    }
+
+    err = gcry_cipher_decrypt(cipher_hd, buffer, length, NULL, 0);
+    gcry_cipher_close(cipher_hd);
+    if (err != 0) {
+        ws_warning("GCRY: prepare_session_key_cipher %s/%s\n",
+                   gcry_strsource(err), gcry_strerror(err));
+        return offset;
+    }
+
+    dectvb = tvb_new_child_real_data(tvb, buffer, length, length);
+    if (dectvb == NULL) {
+        return offset;
+    }
+
+    expected_len = length - 8;
+    decrypted_len = tvb_get_letohl(dectvb, 4);
+    if (decrypted_len != expected_len) {
+        expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+             &ei_netlogon_session_key,
+             "Unusable session key learned in frame %d ("
+             "%02x%02x%02x%02x"
+             ") from %s",
+             vars->auth_fd_num,
+             vars->session_key[0] & 0xFF,  vars->session_key[1] & 0xFF,
+             vars->session_key[2] & 0xFF,  vars->session_key[3] & 0xFF,
+             vars->nthash.key_origin);
+        return offset;
+    }
+
+    expert_add_info_format(pinfo, proto_tree_get_parent(tree),
+             &ei_netlogon_session_key,
+             "Using session key learned in frame %d ("
+             "%02x%02x%02x%02x"
+             ") from %s",
+             vars->auth_fd_num,
+             vars->session_key[0] & 0xFF,  vars->session_key[1] & 0xFF,
+             vars->session_key[2] & 0xFF,  vars->session_key[3] & 0xFF,
+             vars->nthash.key_origin);
+
+    add_new_data_source(pinfo, dectvb, "OpaqueBuffer (Decrypted)");
+
+    proto_tree_add_item(tree, hf_netlogon_opaque_buffer_dec, dectvb, 0, length, ENC_NA);
     return offset;
 }
 
@@ -8414,6 +8577,10 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_opaque_buffer_enc,
           { "Encrypted", "netlogon.sendtosam.opaquebuffer.enc", FT_BYTES, BASE_NONE,
             NULL, 0x0, "OpaqueBuffer (Encrypted)", HFILL }},
+
+        { &hf_netlogon_opaque_buffer_dec,
+          { "Decrypted", "netlogon.sendtosam.opaquebuffer.dec", FT_BYTES, BASE_NONE,
+            NULL, 0x0, "OpaqueBuffer (Decrypted)", HFILL }},
 
         { &hf_netlogon_opaque_buffer_size,
           { "OpaqueBufferSize", "netlogon.sendtosam.opaquebuffer.size", FT_UINT32, BASE_HEX,
