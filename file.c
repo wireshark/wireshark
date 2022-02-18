@@ -3364,7 +3364,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
     if (pd == NULL) break;
     /* Try narrow match at this start location */
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = pd[i];
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3383,7 +3383,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
 
     /* Now try wide match at the same start location. */
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = pd[i];
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3440,7 +3440,7 @@ match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
     if (pd == NULL) break;
     /* Try narrow match at this start location */
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = g_ascii_toupper(pd[i]);
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3459,7 +3459,7 @@ match_narrow_and_wide_case(capture_file *cf, frame_data *fdata,
 
     /* Now try wide match at the same start location. */
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = g_ascii_toupper(pd[i]);
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3511,7 +3511,7 @@ match_narrow(capture_file *cf, frame_data *fdata,
     pd = (guint8 *)memchr(pd, ascii_text[0], buf_end - pd);
     if (pd == NULL) break;
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = pd[i];
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3565,7 +3565,7 @@ match_narrow_case(capture_file *cf, frame_data *fdata,
     pd = (guint8 *)ws_mempbrk_exec(pd, buf_end - pd, pattern, &c_char);
     if (pd == NULL) break;
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = g_ascii_toupper(pd[i]);
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3615,7 +3615,7 @@ match_wide(capture_file *cf, frame_data *fdata,
     pd = (guint8 *)memchr(pd, ascii_text[0], buf_end - pd);
     if (pd == NULL) break;
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = pd[i];
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3671,7 +3671,7 @@ match_wide_case(capture_file *cf, frame_data *fdata,
     pd = (guint8 *)ws_mempbrk_exec(pd, buf_end - pd, pattern, &c_char);
     if (pd == NULL) break;
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       c_char = g_ascii_toupper(pd[i]);
       if (c_char == ascii_text[c_match]) {
         c_match++;
@@ -3725,7 +3725,7 @@ match_binary(capture_file *cf, frame_data *fdata,
     pd = (guint8 *)memchr(pd, binary_data[0], buf_end - pd);
     if (pd == NULL) break;
     c_match = 0;
-    for (i = 0; i < buf_end - pd; i++) {
+    for (i = 0; pd + i < buf_end; i++) {
       if (pd[i] == binary_data[c_match]) {
         c_match++;
         if (c_match == datalen) {
