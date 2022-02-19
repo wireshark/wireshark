@@ -6245,7 +6245,7 @@ proto_register_mpeg_descriptor(void)
             FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
-        /* 0x77 Content Identifier Descriptor */
+        /* 0x76 Content Identifier Descriptor */
         { &hf_mpeg_descr_content_identifier_crid_type, {
             "CRID Type", "mpeg_descr.content_identifier.crid_type",
             FT_UINT8, BASE_HEX, VALS(mpeg_descr_content_identifier_crid_type_vals),
