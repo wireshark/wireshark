@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <wsutil/str_util.h>
+
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "grammar.h"
@@ -340,8 +342,11 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 }
 
 . {
- 	/* Default */
-	dfilter_fail(yyextra->dfw, "\"%s\" was unexpected in this context.", yytext);
+	/* Default */
+	if (isprint_string(yytext))
+		dfilter_fail(yyextra->dfw, "\"%s\" was unexpected in this context.", yytext);
+	else
+		dfilter_fail(yyextra->dfw, "Non-printable ASCII characters may only appear inside double-quotes.");
 	return SCAN_FAILED;
 }
 
