@@ -1991,16 +1991,18 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (matched_headers & (1 << dvb_s2_default_modeadapt)) {
         /* If the default value from preferences matches, use it first */
         modeadapt_type = dvb_s2_default_modeadapt;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L3SIZE)) {
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L3)) {
         /* In my experience and in product data sheets, L.3 format is the most
          * common for outputting over UDP or RTP, so give it highest priority
          * (or second highest if another is set to default) by trying it last.
          */
         modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L4SIZE)) {
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L4)) {
         modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L2SIZE)) {
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L2)) {
         modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
+    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L1)) {
+        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L1;
     } else {
         /* If nothing matches, use the default value from preferences.
          */
