@@ -2872,9 +2872,9 @@ tvb_get_fle(tvbuff_t *tvb, proto_tree *tree, int offset, guint64 *res, guint8 *i
 		offset++;
 		break;
 	case 253:
-		proto_item_append_text(ti, " Length in following 4 bytes");
-		num_bytes = 5;
-		len_len = 4;
+		proto_item_append_text(ti, " Length in following 3 bytes");
+		num_bytes = 4;
+		len_len = 3;
 		offset++;
 		break;
 	case 254:
