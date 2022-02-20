@@ -142,13 +142,7 @@ entity(E) ::= CHARCONST(C).
 }
 entity(E) ::= UNPARSED(U).
 {
-    header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, df_lval_value(U));
-    if (hfinfo != NULL) {
-        E = stnode_new(STTYPE_FIELD, hfinfo, df_lval_value(U));
-    }
-    else {
-        E = stnode_new_literal(df_lval_value(U), df_lval_value(U));
-    }
+    E = stnode_new_unparsed(df_lval_value(U), df_lval_value(U));
     df_lval_free(U, FALSE);
 }
 entity(E) ::= LITERAL(S).

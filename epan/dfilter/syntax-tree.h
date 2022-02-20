@@ -23,6 +23,7 @@ typedef enum {
 	STTYPE_UNINITIALIZED,
 	STTYPE_TEST,
 	STTYPE_LITERAL,
+	STTYPE_UNPARSED,
 	STTYPE_STRING,
 	STTYPE_CHARCONST,
 	STTYPE_FIELD,
@@ -111,6 +112,9 @@ stnode_t *
 stnode_new_string(const char *str, char *token);
 
 stnode_t *
+stnode_new_unparsed(const char *str, char *token);
+
+stnode_t *
 stnode_new_literal(const char *str, char *token);
 
 stnode_t *
@@ -127,6 +131,9 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token);
 
 void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
+
+void
+stnode_change_type(stnode_t *node, sttype_id_t new_type);
 
 void
 stnode_free(stnode_t *node);
