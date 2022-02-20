@@ -1978,6 +1978,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>このフィールドを使って照合</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>現在の &quot;...としてデコード&quot; の振る舞い</translation>
     </message>
@@ -1987,7 +1995,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>プロトコルフィールドがこの値に一致した際の振る舞いを変更</translation>
+        <translation type="vanished">プロトコルフィールドがこの値に一致した際の振る舞いを変更</translation>
     </message>
     <message>
         <source>String</source>

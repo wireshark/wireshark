@@ -1468,11 +1468,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;İsteğe bağlı olarak, adsız yakalama dosyaları için geçici bir dizin belirtin.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Directory for temporary files</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçici dosyalar için dizin</translation>
     </message>
     <message>
         <source>Capture Options</source>
@@ -1492,7 +1492,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Specify temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Geçici dizini belirtin</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -1979,6 +1979,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bu alanı kullanarak eşleştir</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>Geçerli &quot;Kodu Farklı Çöz&quot; davranışı</translation>
     </message>
@@ -1988,7 +1996,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Protokol alanı bu değerle eşleştiğinde davranışı değiştir</translation>
+        <translation type="vanished">Protokol alanı bu değerle eşleştiğinde davranışı değiştir</translation>
     </message>
     <message>
         <source>String</source>
@@ -8857,7 +8865,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket baytlarını göster</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -8940,11 +8948,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished"></translation>
+        <translation>İkincil veri kaynaklarını dahil et</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Çerçeveye ek olarak yeniden birleştirilmiş veya şifresi çözülmüş arabellekler gibi ikincil veri kaynakları için onaltılık dökümler oluşturun&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>

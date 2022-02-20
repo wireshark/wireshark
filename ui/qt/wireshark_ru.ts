@@ -1993,6 +1993,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Подобрать, используя это поле</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>Текущее поведение  &quot;Декодировать как&quot;</translation>
     </message>
@@ -2002,7 +2010,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Изменить поведение, когда поле протокола соответствует этой величине</translation>
+        <translation type="vanished">Изменить поведение, когда поле протокола соответствует этой величине</translation>
     </message>
     <message>
         <source>String</source>

@@ -1977,6 +1977,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>使用此字段匹配</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>当前“解码为”行为</translation>
     </message>
@@ -1986,7 +1994,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>协议字段与此值匹配时更改行为</translation>
+        <translation type="vanished">协议字段与此值匹配时更改行为</translation>
     </message>
     <message>
         <source>String</source>

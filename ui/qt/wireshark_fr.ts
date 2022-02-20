@@ -1986,6 +1986,14 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Faire correspondre en utilisant ce champ</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>Comportement &quot;Décoder comme&quot; actuel</translation>
     </message>
@@ -1995,7 +2003,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Modifer le comportement lorsque le champ de protocole correspond à cette valeur</translation>
+        <translation type="vanished">Modifer le comportement lorsque le champ de protocole correspond à cette valeur</translation>
     </message>
     <message>
         <source>String</source>

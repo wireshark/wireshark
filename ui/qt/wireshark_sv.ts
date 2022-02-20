@@ -1986,6 +1986,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Matcha mot detta fält</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>Aktuellt ”avkoda som”-beteende</translation>
     </message>
@@ -1995,7 +2003,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Ändra beteenden när protokollfältet matchar detta värde</translation>
+        <translation type="vanished">Ändra beteenden när protokollfältet matchar detta värde</translation>
     </message>
     <message>
         <source>String</source>

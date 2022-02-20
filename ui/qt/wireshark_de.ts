@@ -1986,6 +1986,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Übereinstimmend mit diesem Feld</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>Aktuelles &quot;Dekodieren als&quot;-Verhalten</translation>
     </message>
@@ -1995,7 +2003,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Wenn dieser Wert auf das Protokollfeld zutrifft, soll das Verhalten geändert werden</translation>
+        <translation type="vanished">Wenn dieser Wert auf das Protokollfeld zutrifft, soll das Verhalten geändert werden</translation>
     </message>
     <message>
         <source>String</source>
