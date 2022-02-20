@@ -43,7 +43,7 @@ static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
 int
 main(int argc, char **argv)
 {
-    char		*init_progfile_dir_error;
+    char		*configuration_init_error;
     static const struct report_message_routines dftest_report_routines = {
         failure_message,
         failure_message,
@@ -77,11 +77,11 @@ main(int argc, char **argv)
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    init_progfile_dir_error = init_progfile_dir(argv[0]);
-    if (init_progfile_dir_error != NULL) {
+    configuration_init_error = configuration_init(argv[0], NULL);
+    if (configuration_init_error != NULL) {
         fprintf(stderr, "dftest: Can't get pathname of directory containing the dftest program: %s.\n",
-                init_progfile_dir_error);
-        g_free(init_progfile_dir_error);
+            configuration_init_error);
+        g_free(configuration_init_error);
     }
 
     init_report_message("dftest", &dftest_report_routines);

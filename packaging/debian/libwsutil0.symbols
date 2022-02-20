@@ -21,6 +21,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  codecs_init@Base 3.1.0
  codecs_register_plugin@Base 3.1.0
  config_file_exists_with_entries@Base 2.9.0
+ configuration_init@Base 3.7.0
  copy_file_binary_mode@Base 1.12.0~rc1
  copy_persconffile_profile@Base 1.12.0~rc1
  crc11_307_noreflect_noxor@Base 1.10.0
@@ -115,7 +116,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ieee80211_mhz_to_chan@Base 1.99.7
  ieee80211_mhz_to_str@Base 1.99.7
  init_process_policies@Base 1.10.0
- init_progfile_dir@Base 1.12.0~rc1
  init_report_message@Base 2.3.0
  int64_to_str_back@Base 3.5.1
  int_to_str_back@Base 3.5.1

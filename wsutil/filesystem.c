@@ -11,6 +11,8 @@
 #include "config.h"
 #include "filesystem.h"
 
+#define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,7 +51,19 @@
 #define PLUGINS_DIR_NAME    "plugins"
 #define PROFILES_INFO_NAME  "profile_files.txt"
 
-#define ENV_CONFIG_PATH_VAR  "WIRESHARK_CONFIG_DIR"
+/*
+ * Application configuration namespace. Used to construct configuration
+ * paths and environment variables.
+ */
+enum configuration_namespace_e {
+    CONFIGURATION_NAMESPACE_UNINITIALIZED,
+    CONFIGURATION_NAMESPACE_WIRESHARK,
+    CONFIGURATION_NAMESPACE_LOGWOLF
+};
+enum configuration_namespace_e configuration_namespace = CONFIGURATION_NAMESPACE_UNINITIALIZED;
+
+#define CONFIGURATION_NAMESPACE_LOWER (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "wireshark" : "logwolf")
+#define CONFIGURATION_ENVIRONMENT_VARIABLE(suffix) (configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "WIRESHARK_" suffix : "LOGWOLF_" suffix)
 
 char *persconffile_dir = NULL;
 char *datafile_dir = NULL;
@@ -257,6 +271,35 @@ static char *appbundle_dir;
  * with special privileges.
  */
 static gboolean running_in_build_directory_flag = FALSE;
+
+/*
+ * Set our configuration namespace. This will be used for top-level
+ * configuration directory names and environment variable prefixes.
+ */
+static void
+set_configuration_namespace(const char *namespace_name)
+{
+
+    if (namespace_name != CONFIGURATION_NAMESPACE_UNINITIALIZED) {
+        return;
+    }
+
+    if (!namespace_name || g_ascii_strcasecmp(namespace_name, "wireshark") == 0)
+    {
+        configuration_namespace = CONFIGURATION_NAMESPACE_WIRESHARK;
+    }
+    else if (namespace_name && g_ascii_strcasecmp(namespace_name, "logwolf") == 0)
+    {
+        configuration_namespace = CONFIGURATION_NAMESPACE_LOGWOLF;
+    }
+    else
+    {
+        ws_error("Unknown configuration namespace %s", namespace_name);
+    }
+
+    ws_debug("Using configuration namespace %s.",
+             configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Logwolf");
+}
 
 #ifndef _WIN32
 /*
@@ -467,14 +510,17 @@ get_executable_path(void)
  * g_mallocated string containing an error on failure.
  */
 char *
-init_progfile_dir(
+configuration_init(
 #ifdef _WIN32
-    const char* arg0 _U_
+    const char* arg0 _U_,
 #else
-    const char* arg0
+    const char* arg0,
 #endif
+    const char *namespace_name
 )
 {
+    set_configuration_namespace(namespace_name);
+
 #ifdef _WIN32
     TCHAR prog_pathname_w[_MAX_PATH+2];
     char *prog_pathname;
@@ -547,7 +593,7 @@ init_progfile_dir(
     char *dir_end;
 
     /*
-     * Check whether WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set in the
+     * Check whether XXX_RUN_FROM_BUILD_DIRECTORY is set in the
      * environment; if so, set running_in_build_directory_flag if we
      * weren't started with special privileges.  (If we were started
      * with special privileges, it's not safe to allow the user to point
@@ -555,9 +601,11 @@ init_progfile_dir(
      * set, causes us to look for plugins and the like in the build
      * directory.)
      */
-    if (g_getenv("WIRESHARK_RUN_FROM_BUILD_DIRECTORY") != NULL
-        && !started_with_special_privs())
+    const char *run_from_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("RUN_FROM_BUILD_DIRECTORY");
+    if (g_getenv(run_from_envar) != NULL
+        && !started_with_special_privs()) {
         running_in_build_directory_flag = TRUE;
+    }
 
     execname = get_executable_path();
     if (execname == NULL) {
@@ -841,13 +889,14 @@ get_datafile_dir(void)
     }
 #else
 
-    if (g_getenv("WIRESHARK_DATA_DIR") && !started_with_special_privs()) {
+    const char *data_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("DATA_DIR");
+    if (g_getenv(data_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for data files
          * and we aren't running with special privileges.
          * XXX - We might be able to dispense with the priv check
          */
-        datafile_dir = g_strdup(g_getenv("WIRESHARK_DATA_DIR"));
+        datafile_dir = g_strdup(g_getenv(data_dir_envar));
     }
 #ifdef __APPLE__
     /*
@@ -860,8 +909,8 @@ get_datafile_dir(void)
      * it; we don't need to call started_with_special_privs().)
      */
     else if (appbundle_dir != NULL) {
-        datafile_dir = ws_strdup_printf("%s/Contents/Resources/share/wireshark",
-                                       appbundle_dir);
+        datafile_dir = ws_strdup_printf("%s/Contents/Resources/share/%s",
+                                        appbundle_dir, CONFIGURATION_NAMESPACE_LOWER);
     }
 #endif
     else if (running_in_build_directory_flag && progfile_dir != NULL) {
@@ -881,7 +930,6 @@ get_datafile_dir(void)
     } else {
         datafile_dir = g_strdup(DATA_DIR);
     }
-
 #endif
     return datafile_dir;
 }
@@ -959,12 +1007,13 @@ init_plugin_dir(void)
          */
         plugin_dir = g_build_filename(get_progfile_dir(), "plugins", (gchar *)NULL);
     } else {
-        if (g_getenv("WIRESHARK_PLUGIN_DIR") && !started_with_special_privs()) {
+        const char *plugin_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("PLUGIN_DIR");
+        if (g_getenv(plugin_dir_envar) && !started_with_special_privs()) {
             /*
              * The user specified a different directory for plugins
              * and we aren't running with special privileges.
              */
-            plugin_dir = g_strdup(g_getenv("WIRESHARK_PLUGIN_DIR"));
+            plugin_dir = g_strdup(g_getenv(plugin_dir_envar));
         }
 #ifdef __APPLE__
         /*
@@ -977,7 +1026,8 @@ init_plugin_dir(void)
          * it; we don't need to call started_with_special_privs().)
          */
         else if (appbundle_dir != NULL) {
-            plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns/wireshark", (gchar *)NULL);
+            plugin_dir = g_build_filename(appbundle_dir, "Contents/PlugIns",
+                                          CONFIGURATION_NAMESPACE_LOWER, (gchar *)NULL);
         }
 #endif
         else {
@@ -995,7 +1045,8 @@ init_plugin_pers_dir(void)
 #ifdef _WIN32
     plugin_pers_dir = get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
 #else
-    plugin_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib/wireshark/" PLUGINS_DIR_NAME, (gchar *)NULL);
+    plugin_pers_dir = g_build_filename(g_get_home_dir(), ".local/lib",
+                                       CONFIGURATION_NAMESPACE_LOWER, PLUGINS_DIR_NAME, (gchar *)NULL);
 #endif
 #endif /* defined(HAVE_PLUGINS) || defined(HAVE_LUA) */
 }
@@ -1061,12 +1112,13 @@ get_plugins_pers_dir_with_version(void)
 static char *extcap_dir = NULL;
 
 static void init_extcap_dir(void) {
-    if (g_getenv("WIRESHARK_EXTCAP_DIR") && !started_with_special_privs()) {
+    const char *extcap_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("EXTCAP_DIR");
+    if (g_getenv(extcap_dir_envar) && !started_with_special_privs()) {
         /*
          * The user specified a different directory for extcap hooks
          * and we aren't running with special privileges.
          */
-        extcap_dir = g_strdup(g_getenv("WIRESHARK_EXTCAP_DIR"));
+        extcap_dir = g_strdup(g_getenv(extcap_dir_envar));
     }
 #ifdef _WIN32
     else {
@@ -1255,7 +1307,8 @@ get_persconffile_dir_no_profile(void)
     /*
      * See if the user has selected an alternate environment.
      */
-    env = g_getenv(ENV_CONFIG_PATH_VAR);
+    const char *config_dir_envar = CONFIGURATION_ENVIRONMENT_VARIABLE("CONFIG_DIR");
+    env = g_getenv(config_dir_envar);
 #ifdef _WIN32
     if (env == NULL) {
         /* for backward compatibility */
@@ -1277,11 +1330,12 @@ get_persconffile_dir_no_profile(void)
      * is an inaccessible network drive.
      */
     env = g_getenv("APPDATA");
+    const char *persconf_namespace = configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? "Wireshark" : "Logwolf";
     if (env != NULL) {
         /*
-         * Concatenate %APPDATA% with "\Wireshark".
+         * Concatenate %APPDATA% with "\Wireshark" or "\Logwolf".
          */
-        persconffile_dir = g_build_filename(env, "Wireshark", NULL);
+        persconffile_dir = g_build_filename(env, persconf_namespace, NULL);
         return persconffile_dir;
     }
 
@@ -1290,14 +1344,14 @@ get_persconffile_dir_no_profile(void)
      */
     env = g_getenv("USERPROFILE");
     if (env != NULL) {
-        persconffile_dir = g_build_filename(env, "Application Data", "Wireshark", NULL);
+        persconffile_dir = g_build_filename(env, "Application Data", persconf_namespace, NULL);
         return persconffile_dir;
     }
 
     /*
      * Give up and use "C:".
      */
-    persconffile_dir = g_build_filename("C:", "Wireshark", NULL);
+    persconffile_dir = g_build_filename("C:", persconf_namespace, NULL);
     return persconffile_dir;
 #else
     char *xdg_path, *path;
@@ -1307,7 +1361,8 @@ get_persconffile_dir_no_profile(void)
     /*
      * Check if XDG_CONFIG_HOME/wireshark exists and is a directory.
      */
-    xdg_path = g_build_filename(g_get_user_config_dir(), "wireshark", NULL);
+    xdg_path = g_build_filename(g_get_user_config_dir(),
+                                CONFIGURATION_NAMESPACE_LOWER, NULL);
     if (g_file_test(xdg_path, G_FILE_TEST_IS_DIR)) {
         persconffile_dir = xdg_path;
         return persconffile_dir;
@@ -1338,7 +1393,9 @@ get_persconffile_dir_no_profile(void)
             homedir = "/tmp";
         }
     }
-    path = g_build_filename(homedir, ".wireshark", NULL);
+    path = g_build_filename(homedir,
+                            configuration_namespace == CONFIGURATION_NAMESPACE_WIRESHARK ? ".wireshark" : ".logwolf",
+                            NULL);
     if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
         g_free(xdg_path);
         persconffile_dir = path;

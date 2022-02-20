@@ -456,7 +456,7 @@ init_dll_load_paths()
     if (program_path && system_path && npcap_path)
         return TRUE;
 
-    /* XXX - Duplicate code in filesystem.c:init_progfile_dir */
+    /* XXX - Duplicate code in filesystem.c:configuration_init */
     if (GetModuleFileName(NULL, path_w, MAX_PATH) == 0 || GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
         return FALSE;
     }

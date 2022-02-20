@@ -560,7 +560,7 @@ int main(int argc, char *qt_argv[])
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    /* init_progfile_dir_error = */ init_progfile_dir(argv[0]);
+    /* configuration_init_error = */ configuration_init(argv[0], NULL);
     /* ws_log(NULL, LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir()); */
 
 #ifdef _WIN32

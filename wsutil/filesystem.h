@@ -22,13 +22,22 @@ extern "C" {
  */
 #define DEFAULT_PROFILE      "Default"
 
-
-/*
+/**
+ * Initialize our configuration environment.
+ *
  * Get the pathname of the directory from which the executable came,
- * and save it for future use.  Returns NULL on success, and a
- * g_mallocated string containing an error on failure.
+ * and save it for future use.
+ *
+ * Set our configuration namespace, which determines the top-level
+ * configuration directory name and environment variable prefixes.
+ * Default is "Wireshark".
+ *
+ * @param arg0 Executable name hint. Should be argv[0].
+ * @param namespace_name The namespace to use. "Wireshark" or NULL uses
+ *        the Wireshark namespace. "Logwolf" uses the Logwolf namespace.
+ * @return NULL on success, and a g_mallocated string containing an error on failure.
  */
-WS_DLL_PUBLIC char *init_progfile_dir(const char *arg0);
+WS_DLL_PUBLIC char *configuration_init(const char *arg0, const char *namespace_name);
 
 /*
  * Get the directory in which the program resides.
@@ -37,7 +46,7 @@ WS_DLL_PUBLIC const char *get_progfile_dir(void);
 
 /*
  * Get the directory in which plugins are stored; this must not be called
- * before init_progfile_dir() is called, as they might be stored in a
+ * before configuration_init() is called, as they might be stored in a
  * subdirectory of the program file directory.
  */
 WS_DLL_PUBLIC const char *get_plugins_dir(void);
@@ -59,7 +68,7 @@ WS_DLL_PUBLIC const char *get_plugins_pers_dir_with_version(void);
 
 /*
  * Get the directory in which extcap hooks are stored; this must not be called
- * before init_progfile_dir() is called, as they might be stored in a
+ * before configuration_init() is called, as they might be stored in a
  * subdirectory of the program file directory.
  */
 WS_DLL_PUBLIC const char *get_extcap_dir(void);

@@ -98,7 +98,7 @@ print_current_user(void)
 int
 main(int argc, char *argv[])
 {
-    char                *init_progfile_dir_error;
+    char                *configuration_init_error;
 
     char                *err_msg = NULL;
     e_prefs             *prefs_p;
@@ -136,10 +136,10 @@ main(int argc, char *argv[])
     /*
      * Attempt to get the pathname of the executable file.
      */
-    init_progfile_dir_error = init_progfile_dir(argv[0]);
-    if (init_progfile_dir_error != NULL) {
+    configuration_init_error = configuration_init(argv[0], NULL);
+    if (configuration_init_error != NULL) {
         fprintf(stderr, "sharkd: Can't get pathname of sharkd program: %s.\n",
-                init_progfile_dir_error);
+                configuration_init_error);
     }
 
     /* Initialize the version information. */

@@ -1667,6 +1667,12 @@ if(ENABLE_APPLICATION_BUNDLE)
 		# Xcode
 		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 	endif()
+	if(CMAKE_CFG_INTDIR STREQUAL ".")
+		set(_logshark_plugin_dir "${CMAKE_BINARY_DIR}/run/Logshark.app/Contents/PlugIns/logwolf/${PLUGIN_PATH_ID}")
+	else()
+		# Xcode
+		set(_logshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Logshark.app/Contents/PlugIns/logwolf/${PLUGIN_PATH_ID}")
+	endif()
 elseif(WIN32 AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
 	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${PLUGIN_VERSION_DIR}")
 else()
