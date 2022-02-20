@@ -665,7 +665,7 @@ def checkFile(filename, check_mask=False, check_label=False, check_consecutive=F
 # command-line args.  Controls which dissector files should be checked.
 # If no args given, will just scan epan/dissectors folder.
 parser = argparse.ArgumentParser(description='Check calls in dissectors')
-parser.add_argument('--file', action='store', default='',
+parser.add_argument('--file', action='append',
                     help='specify individual dissector file to test')
 parser.add_argument('--folder', action='store', default='',
                     help='specify folder to test')
@@ -690,11 +690,15 @@ args = parser.parse_args()
 # Get files from wherever command-line args indicate.
 files = []
 if args.file:
-    # Add single specified file
-    if not args.file.startswith('epan') and not os.path.exists(args.file):
-        files.append(os.path.join('epan', 'dissectors', args.file))
-    else:
-        files.append(args.file)
+    # Add specified file(s)
+    for f in args.file:
+        if not f.startswith('epan'):
+            f = os.path.join('epan', 'dissectors', f)
+        if not os.path.isfile(f):
+            print('Chosen file', f, 'does not exist.')
+            exit(1)
+        else:
+            files.append(f)
 elif args.folder:
     # Add all files from a given folder.
     folder = args.folder

@@ -387,7 +387,7 @@ def checkFile(filename):
 # command-line args.  Controls which files should be checked.
 # If no args given, will just scan epan/dissectors folder.
 parser = argparse.ArgumentParser(description='Check spellings in specified files')
-parser.add_argument('--file', action='store', default='',
+parser.add_argument('--file', action='append',
                     help='specify individual file to test')
 parser.add_argument('--folder', action='store', default='',
                     help='specify folder to test')
@@ -404,12 +404,13 @@ args = parser.parse_args()
 # Get files from wherever command-line args indicate.
 files = []
 if args.file:
-    # Add single specified file..
-    if not os.path.isfile(args.file):
-        print('Chosen file', args.file, 'does not exist.')
-        exit(1)
-    else:
-        files.append(args.file)
+    # Add specified file(s)
+    for f in args.file:
+        if not os.path.isfile(f):
+            print('Chosen file', f, 'does not exist.')
+            exit(1)
+        else:
+            files.append(f)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
