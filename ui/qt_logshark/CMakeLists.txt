@@ -51,20 +51,20 @@ set(WIRESHARK_WIDGET_HEADERS
 	../qt/widgets/wireshark_file_dialog.h
 )
 
-set (LOGSHARK_WIDGET_HEADERS ${WIRESHARK_WIDGET_HEADERS})
+set (LOGWOLF_WIDGET_HEADERS ${WIRESHARK_WIDGET_HEADERS})
 
 set(WIRESHARK_3RD_PARTY_WIDGET_HEADERS
 	../qt/widgets/qcustomplot.h
 )
 
-set (LOGSHARK_3RD_PARTY_WIDGET_HEADERS ${WIRESHARK_3RD_PARTY_WIDGET_HEADERS})
+set (LOGWOLF_3RD_PARTY_WIDGET_HEADERS ${WIRESHARK_3RD_PARTY_WIDGET_HEADERS})
 
 set(WIRESHARK_MANAGER_HEADERS
 	../qt/manager/preference_manager.h
 	../qt/manager/wireshark_preference.h
 )
 
-set (LOGSHARK_MANAGER_HEADERS ${WIRESHARK_MANAGER_HEADERS})
+set (LOGWOLF_MANAGER_HEADERS ${WIRESHARK_MANAGER_HEADERS})
 
 set(WIRESHARK_UTILS_HEADERS
 	../qt/utils/color_utils.h
@@ -81,7 +81,7 @@ set(WIRESHARK_UTILS_HEADERS
 	../qt/utils/wireshark_zip_helper.h
 )
 
-set (LOGSHARK_UTILS_HEADERS ${WIRESHARK_UTILS_HEADERS})
+set (LOGWOLF_UTILS_HEADERS ${WIRESHARK_UTILS_HEADERS})
 
 set(WIRESHARK_MODEL_HEADERS
 	../qt/models/astringlist_list_model.h
@@ -123,7 +123,7 @@ set(WIRESHARK_MODEL_HEADERS
 	../qt/models/url_link_delegate.h
 )
 
-set (LOGSHARK_MODEL_HEADERS ${WIRESHARK_MODEL_HEADERS})
+set (LOGWOLF_MODEL_HEADERS ${WIRESHARK_MODEL_HEADERS})
 
 # All .h files which inherit from QObject aka which use the Q_OBJECT macro
 # need to go here.
@@ -238,8 +238,8 @@ if(ENABLE_PCAP)
 	endif()
 endif()
 
-set (LOGSHARK_QT_HEADERS
-	logshark_application.h
+set (LOGWOLF_QT_HEADERS
+	logwolf_application.h
 	logwolf_main_window.h
 	${WIRESHARK_QT_HEADERS}
 )
@@ -280,20 +280,20 @@ set(WIRESHARK_WIDGET_SRCS
 	../qt/widgets/wireshark_file_dialog.cpp
 )
 
-set (LOGSHARK_WIDGET_SRCS ${WIRESHARK_WIDGET_SRCS})
+set (LOGWOLF_WIDGET_SRCS ${WIRESHARK_WIDGET_SRCS})
 
 set(WIRESHARK_3RD_PARTY_WIDGET_SRCS
 	../qt/widgets/qcustomplot.cpp
 )
 
-set (LOGSHARK_3RD_PARTY_WIDGET_SRCS ${WIRESHARK_3RD_PARTY_WIDGET_SRCS})
+set (LOGWOLF_3RD_PARTY_WIDGET_SRCS ${WIRESHARK_3RD_PARTY_WIDGET_SRCS})
 
 set(WIRESHARK_MANAGER_SRCS
 	../qt/manager/preference_manager.cpp
 	../qt/manager/wireshark_preference.cpp
 )
 
-set (LOGSHARK_MANAGER_SRCS ${WIRESHARK_MANAGER_SRCS})
+set (LOGWOLF_MANAGER_SRCS ${WIRESHARK_MANAGER_SRCS})
 
 set(WIRESHARK_UTILS_SRCS
 	../qt/utils/color_utils.cpp
@@ -307,7 +307,7 @@ set(WIRESHARK_UTILS_SRCS
 	../qt/utils/wireshark_zip_helper.cpp
 )
 
-set (LOGSHARK_UTILS_SRCS ${WIRESHARK_UTILS_SRCS})
+set (LOGWOLF_UTILS_SRCS ${WIRESHARK_UTILS_SRCS})
 
 set(WIRESHARK_MODEL_SRCS
 	../qt/models/astringlist_list_model.cpp
@@ -348,7 +348,7 @@ set(WIRESHARK_MODEL_SRCS
 	../qt/models/url_link_delegate.cpp
 )
 
-set (LOGSHARK_MODEL_SRCS ${WIRESHARK_MODEL_SRCS})
+set (LOGWOLF_MODEL_SRCS ${WIRESHARK_MODEL_SRCS})
 
 set(WIRESHARK_QT_SRC
 	../qt/about_dialog.cpp
@@ -460,11 +460,11 @@ if(ENABLE_PCAP)
 	endif()
 endif()
 
-set (LOGSHARK_QT_SRC
-	ls_main.cpp
+set (LOGWOLF_QT_SRC
+	logwolf_application.cpp
+	logwolf_main.cpp
 	logwolf_main_window.cpp
 	logwolf_main_window_slots.cpp
-	logshark_application.cpp
 	${WIRESHARK_QT_SRC})
 
 set(WIRESHARK_QT_TAP_SRC
@@ -476,14 +476,14 @@ set(WIRESHARK_QT_TAP_SRC
 	${WIRESHARK_CUSTOM_TAP_SRC}
 )
 
-set (LOGSHARK_QT_TAP_SRC ${WIRESHARK_QT_TAP_SRC})
+set (LOGWOLF_QT_TAP_SRC ${WIRESHARK_QT_TAP_SRC})
 
 set(WIRESHARK_QT_FILES
 	${WIRESHARK_QT_SRC}
 	${WIRESHARK_QT_TAP_SRC}
 )
 
-set (LOGSHARK_QT_FILES ${WIRESHARK_QT_FILES})
+set (LOGWOLF_QT_FILES ${WIRESHARK_QT_FILES})
 
 set(WIRESHARK_QT_UI
 	../qt/about_dialog.ui
@@ -559,7 +559,7 @@ if(HAVE_PCAP_REMOTE)
 	)
 endif()
 
-set (LOGSHARK_QT_UI
+set (LOGWOLF_QT_UI
 	logwolf_main_window.ui
 	${WIRESHARK_QT_UI}
 )
@@ -579,19 +579,19 @@ set(WIRESHARK_QT_TS
 	../qt/wireshark_zh_CN.ts
 )
 
-set(LOGSHARK_QT_TS
-	logshark_en.ts
+set(LOGWOLF_QT_TS
+	logwolf_en.ts
 	${WIRESHARK_QT_TS}
 )
 
-foreach(_file ${LOGSHARK_QT_TS})
+foreach(_file ${LOGWOLF_QT_TS})
 	get_filename_component(_qresource ${_file} NAME_WE)
 	set(_qresource_qm "${_qresource}.qm")
 	set(i18n_qresource "${i18n_qresource}\n    <file>${_qresource_qm}</file>")
 endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
 
-set(LOGSHARK_QT_QRC
+set(LOGWOLF_QT_QRC
 	../../resources/about.qrc
 	../../resources/languages/languages.qrc
 	../../resources/layout.qrc
@@ -610,75 +610,75 @@ if(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.9")
 endif()
 
 if (USE_qt6)
-	QT6_ADD_TRANSLATION(LOGSHARK_QT_QM ${LOGSHARK_QT_TS} OPTIONS -silent)
+	QT6_ADD_TRANSLATION(LOGWOLF_QT_QM ${LOGWOLF_QT_TS} OPTIONS -silent)
 elseif(NOT Qt${qtver}Widgets_VERSION VERSION_LESS "5.11")
-	QT5_ADD_TRANSLATION(LOGSHARK_QT_QM ${LOGSHARK_QT_TS} OPTIONS -silent)
+	QT5_ADD_TRANSLATION(LOGWOLF_QT_QM ${LOGWOLF_QT_TS} OPTIONS -silent)
 else()
-	QT5_ADD_TRANSLATION(LOGSHARK_QT_QM ${LOGSHARK_QT_TS})
+	QT5_ADD_TRANSLATION(LOGWOLF_QT_QM ${LOGWOLF_QT_TS})
 endif()
 
 add_custom_target(
-	logshark_translations
+	logwolf_translations
 	DEPENDS
-		${LOGSHARK_QT_QM}
+		${LOGWOLF_QT_QM}
 )
-set_target_properties(logshark_translations PROPERTIES FOLDER "UI")
+set_target_properties(logwolf_translations PROPERTIES FOLDER "UI")
 
 set_source_files_properties(
-	${LOGSHARK_QT_FILES}
+	${LOGWOLF_QT_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
 set_source_files_properties(
-	logshark-tap-register.c
+	logwolf-tap-register.c
 	PROPERTIES
 	SKIP_AUTOGEN ON
 )
 
 add_definitions(${QT_DEFINITIONS})
 
-register_tap_files(logshark-tap-register.c
-	${LOGSHARK_QT_TAP_SRC}
+register_tap_files(logwolf-tap-register.c
+	${LOGWOLF_QT_TAP_SRC}
 )
 
-source_group("ui\\UIC Files" FILES ${LOGSHARK_QT_UI})
-source_group("ui\\qrc" FILES ${LOGSHARK_QT_QRC})
-source_group("ui\\Header" FILES ${LOGSHARK_QT_HEADERS})
-source_group("ui\\Widget Header" FILES ${LOGSHARK_WIDGET_HEADERS})
-source_group("ui\\Widget Source" FILES ${LOGSHARK_WIDGET_SRCS})
-source_group("ui\\Utils Headers Files" FILES ${LOGSHARK_UTILS_HEADERS})
-source_group("ui\\Utils Source" FILES ${LOGSHARK_UTILS_SRCS})
-source_group("ui\\Models Headers" FILES ${LOGSHARK_MODEL_HEADERS})
-source_group("ui\\Models Source" FILES ${LOGSHARK_MODEL_SRCS})
-source_group("ui\\Manager Headers" FILES ${LOGSHARK_MANAGER_HEADERS})
-source_group("ui\\Manager Source" FILES ${LOGSHARK_MANAGER_SRCS})
+source_group("ui\\UIC Files" FILES ${LOGWOLF_QT_UI})
+source_group("ui\\qrc" FILES ${LOGWOLF_QT_QRC})
+source_group("ui\\Header" FILES ${LOGWOLF_QT_HEADERS})
+source_group("ui\\Widget Header" FILES ${LOGWOLF_WIDGET_HEADERS})
+source_group("ui\\Widget Source" FILES ${LOGWOLF_WIDGET_SRCS})
+source_group("ui\\Utils Headers Files" FILES ${LOGWOLF_UTILS_HEADERS})
+source_group("ui\\Utils Source" FILES ${LOGWOLF_UTILS_SRCS})
+source_group("ui\\Models Headers" FILES ${LOGWOLF_MODEL_HEADERS})
+source_group("ui\\Models Source" FILES ${LOGWOLF_MODEL_SRCS})
+source_group("ui\\Manager Headers" FILES ${LOGWOLF_MANAGER_HEADERS})
+source_group("ui\\Manager Source" FILES ${LOGWOLF_MANAGER_SRCS})
 
-add_library(ui_qt_logshark OBJECT
+add_library(ui_qt_logwolf OBJECT
 	#Included so that Visual Studio can properly put header files in solution
-	${LOGSHARK_QT_HEADERS}
-	${LOGSHARK_WIDGET_HEADERS}
-	${LOGSHARK_3RD_PARTY_WIDGET_HEADERS}
-	${LOGSHARK_MANAGER_HEADERS}
-	${LOGSHARK_UTILS_HEADERS}
-	${LOGSHARK_MODEL_HEADERS}
+	${LOGWOLF_QT_HEADERS}
+	${LOGWOLF_WIDGET_HEADERS}
+	${LOGWOLF_3RD_PARTY_WIDGET_HEADERS}
+	${LOGWOLF_MANAGER_HEADERS}
+	${LOGWOLF_UTILS_HEADERS}
+	${LOGWOLF_MODEL_HEADERS}
 
-	${LOGSHARK_QT_SRC}
-	${LOGSHARK_WIDGET_SRCS}
-	${LOGSHARK_3RD_PARTY_WIDGET_SRCS}
-	${LOGSHARK_MANAGER_SRCS}
-	${LOGSHARK_UTILS_SRCS}
-	${LOGSHARK_MODEL_SRCS}
+	${LOGWOLF_QT_SRC}
+	${LOGWOLF_WIDGET_SRCS}
+	${LOGWOLF_3RD_PARTY_WIDGET_SRCS}
+	${LOGWOLF_MANAGER_SRCS}
+	${LOGWOLF_UTILS_SRCS}
+	${LOGWOLF_MODEL_SRCS}
 
 	# For AUTOUIC and AUTORCC.
-	${LOGSHARK_QT_UI}
-	${LOGSHARK_QT_QRC}
+	${LOGWOLF_QT_UI}
+	${LOGWOLF_QT_QRC}
 
-	${LOGSHARK_QT_TAP_SRC}
-	logshark-tap-register.c
+	${LOGWOLF_QT_TAP_SRC}
+	logwolf-tap-register.c
 )
 
-target_include_directories(ui_qt_logshark
+target_include_directories(ui_qt_logwolf
 	SYSTEM PRIVATE
 		# Include Qt before anything else, see the comment about
 		# QT_INCLUDE_DIRS in the top-level CMakeLists.txt
@@ -696,45 +696,45 @@ target_include_directories(ui_qt_logshark
 		${CMAKE_CURRENT_SOURCE_DIR}/../qt
 )
 
-target_compile_definitions(ui_qt_logshark
+target_compile_definitions(ui_qt_logwolf
 	PUBLIC
 		${QT_COMPILE_DEFINITIONS}
 )
 
-set_target_properties(ui_qt_logshark PROPERTIES
+set_target_properties(ui_qt_logwolf PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"
 	AUTOMOC ON
 	AUTOUIC ON
 	AUTORCC ON
 	# Ensure .qm files are generated before autogenerating i18n.qrc
-	AUTOGEN_TARGET_DEPENDS "${LOGSHARK_QT_QM}"
+	AUTOGEN_TARGET_DEPENDS "${LOGWOLF_QT_QM}"
 )
 
 if(MSVC)
-	set_target_properties(ui_qt_logshark PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+	set_target_properties(ui_qt_logwolf PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 endif()
 
 CHECKAPI(
 	NAME
-		ui-qt-logshark
+		ui-qt-logwolf
 	SWITCHES
 		--nocheck-shadow
 	SOURCES
-		# QCustomPlot (LOGSHARK_3RD_PARTY_WIDGET_{HEADERS,SRCS}) uses
+		# QCustomPlot (LOGWOLF_3RD_PARTY_WIDGET_{HEADERS,SRCS}) uses
 		# prohibited APIs.
-		${LOGSHARK_QT_HEADERS}
-		${LOGSHARK_WIDGET_HEADERS}
-		${LOGSHARK_MANAGER_HEADERS}
-		${LOGSHARK_UTILS_HEADERS}
-		${LOGSHARK_MODEL_HEADERS}
+		${LOGWOLF_QT_HEADERS}
+		${LOGWOLF_WIDGET_HEADERS}
+		${LOGWOLF_MANAGER_HEADERS}
+		${LOGWOLF_UTILS_HEADERS}
+		${LOGWOLF_MODEL_HEADERS}
 
-		${LOGSHARK_QT_SRC}
-		${LOGSHARK_WIDGET_SRCS}
-		${LOGSHARK_MANAGER_SRCS}
-		${LOGSHARK_UTILS_SRCS}
-		${LOGSHARK_MODEL_SRCS}
-		${LOGSHARK_QT_TAP_SRC}
+		${LOGWOLF_QT_SRC}
+		${LOGWOLF_WIDGET_SRCS}
+		${LOGWOLF_MANAGER_SRCS}
+		${LOGWOLF_UTILS_SRCS}
+		${LOGWOLF_MODEL_SRCS}
+		${LOGWOLF_QT_TAP_SRC}
 )
 
 #

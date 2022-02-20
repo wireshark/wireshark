@@ -16,13 +16,13 @@
 // - Remove SequenceDiagram dependency on RTPStreamDialog
 // - Remove PacketListModel dependency on WirelessTimeline
 
-class LogsharkApplication : public MainApplication
+class LogwolfApplication : public MainApplication
 {
 public:
-    explicit LogsharkApplication(int &argc,  char **argv);
-    ~LogsharkApplication();
+    explicit LogwolfApplication(int &argc, char **argv);
+    ~LogwolfApplication();
 };
 
-extern LogsharkApplication *lsApp;
+extern LogwolfApplication *lwApp;
 
 #endif // LOGWOLF_APPLICATION_H

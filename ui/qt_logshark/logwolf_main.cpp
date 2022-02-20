@@ -1,6 +1,6 @@
-/* main.cpp
+/* logwolf_main.cpp
  *
- * Wireshark - Network traffic analyzer
+ * Logwolf - Event log analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
@@ -87,7 +87,7 @@
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
 #include <ui/qt/widgets/splash_overlay.h>
-#include "ui/qt_logshark/logshark_application.h"
+#include "ui/qt_logshark/logwolf_application.h"
 
 #include "capture/capture-pcap-util.h"
 
@@ -120,7 +120,7 @@
 /* update the main window */
 void main_window_update(void)
 {
-    LogsharkApplication::processEvents();
+    LogwolfApplication::processEvents();
 }
 
 #ifdef HAVE_LIBPCAP
@@ -128,14 +128,14 @@ void main_window_update(void)
 /* quit the main window */
 void main_window_quit(void)
 {
-    lsApp->quit();
+    lwApp->quit();
 }
 
 #endif /* HAVE_LIBPCAP */
 
 void exit_application(int status) {
-    if (lsApp) {
-        lsApp->quit();
+    if (lwApp) {
+        lwApp->quit();
     }
     exit(status);
 }
@@ -182,12 +182,12 @@ void exit_application(int status) {
  */
 // xxx copied from ../gtk/main.c
 static void
-logshark_cmdarg_err(const char *fmt, va_list ap)
+logwolf_cmdarg_err(const char *fmt, va_list ap)
 {
 #ifdef _WIN32
     create_console();
 #endif
-    fprintf(stderr, "logshark: ");
+    fprintf(stderr, "logwolf: ");
     vfprintf(stderr, fmt, ap);
     fprintf(stderr, "\n");
 }
@@ -198,7 +198,7 @@ logshark_cmdarg_err(const char *fmt, va_list ap)
  */
 // xxx copied from ../gtk/main.c
 static void
-logshark_cmdarg_err_cont(const char *fmt, va_list ap)
+logwolf_cmdarg_err_cont(const char *fmt, va_list ap)
 {
 #ifdef _WIN32
     create_console();
@@ -491,10 +491,10 @@ int main(int argc, char *qt_argv[])
     macos_enable_layer_backing();
 #endif
 
-    cmdarg_err_init(logshark_cmdarg_err, logshark_cmdarg_err_cont);
+    cmdarg_err_init(logwolf_cmdarg_err, logwolf_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init_with_writer("logshark", console_log_writer, vcmdarg_err);
+    ws_log_init_with_writer("logwolf", console_log_writer, vcmdarg_err);
     /* For backward compatibility with GLib logging and Wireshark 3.4. */
     ws_log_console_writer_set_use_stdout(TRUE);
 
@@ -657,7 +657,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
     /* Create The Wireshark app */
-    LogsharkApplication ls_app(argc, qt_argv);
+    LogwolfApplication ls_app(argc, qt_argv);
 
     /* initialize the funnel mini-api */
     // xxx qtshark
@@ -688,11 +688,11 @@ int main(int argc, char *qt_argv[])
                       rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
-    lsApp->applyCustomColorsFromRecent();
+    lwApp->applyCustomColorsFromRecent();
 
     // Initialize our language
     read_language_prefs();
-    lsApp->loadLanguage(language);
+    lwApp->loadLanguage(language);
 
     /* ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_DEBUG, "Translator %s", language); */
 
@@ -710,9 +710,9 @@ int main(int argc, char *qt_argv[])
     /* (do this after the path settings are processed) */
     if (recent.gui_fileopen_remembered_dir &&
         test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
-      lsApp->setLastOpenDir(recent.gui_fileopen_remembered_dir);
+      lwApp->setLastOpenDir(recent.gui_fileopen_remembered_dir);
     } else {
-      lsApp->setLastOpenDir(get_persdatafile_dir());
+      lwApp->setLastOpenDir(get_persdatafile_dir());
     }
 
 #ifdef DEBUG_STARTUP_TIME
@@ -725,7 +725,7 @@ int main(int argc, char *qt_argv[])
     capture_opts_init(&global_capture_opts);
 #endif
 
-    init_report_message("Logshark", &wireshark_report_routines);
+    init_report_message("Logwolf", &wireshark_report_routines);
 
     /*
      * Libwiretap must be initialized before libwireshark is, so that
@@ -765,7 +765,7 @@ int main(int argc, char *qt_argv[])
                       rf_path, g_strerror(rf_open_errno));
         g_free(rf_path);
     }
-    lsApp->refreshRecentCaptures();
+    lwApp->refreshRecentCaptures();
 
     splash_update(RA_LISTENERS, NULL, NULL);
 #ifdef DEBUG_STARTUP_TIME
@@ -896,7 +896,7 @@ int main(int argc, char *qt_argv[])
 #endif
     prefs_apply_all();
     prefs_to_capture_opts();
-    lsApp->emitAppSignal(LogsharkApplication::PreferencesChanged);
+    lwApp->emitAppSignal(LogwolfApplication::PreferencesChanged);
 
 #ifdef HAVE_LIBPCAP
     if ((global_capture_opts.num_selected == 0) &&
@@ -924,10 +924,10 @@ int main(int argc, char *qt_argv[])
     }
 
     build_column_format_array(&CaptureFile::globalCapFile()->cinfo, global_commandline_info.prefs_p->num_cols, TRUE);
-    lsApp->emitAppSignal(LogsharkApplication::ColumnsChanged); // We read "recent" widths above.
-    lsApp->emitAppSignal(LogsharkApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
+    lwApp->emitAppSignal(LogwolfApplication::ColumnsChanged); // We read "recent" widths above.
+    lwApp->emitAppSignal(LogwolfApplication::RecentPreferencesRead); // Must be emitted after PreferencesChanged.
 
-    lsApp->setMonospaceFont(prefs.gui_qt_font_name);
+    lwApp->setMonospaceFont(prefs.gui_qt_font_name);
 
     /* For update of WindowTitle (When use gui.window_title preference) */
     main_w->setWSWindowTitle();
@@ -937,8 +937,8 @@ int main(int argc, char *qt_argv[])
         g_free(err_msg);
     }
 
-    lsApp->allSystemsGo();
-    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Logshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
+    lwApp->allSystemsGo();
+    ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Logwolf is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */
@@ -1025,10 +1025,10 @@ int main(int argc, char *qt_argv[])
 
     profile_store_persconffiles(FALSE);
 
-    // If the lsApp->exec() event loop exits cleanly, we call
-    // LogsharkApplication::cleanup().
-    ret_val = lsApp->exec();
-    lsApp = NULL;
+    // If the lwApp->exec() event loop exits cleanly, we call
+    // LogwolfApplication::cleanup().
+    ret_val = lwApp->exec();
+    lwApp = NULL;
 
     // Many widgets assume that they always have valid epan data, so this
     // must be called before epan_cleanup().

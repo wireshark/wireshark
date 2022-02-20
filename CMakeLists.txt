@@ -2451,7 +2451,7 @@ if(BUILD_logshark AND QT_FOUND)
 	)
 	set(logshark_FILES
 		$<TARGET_OBJECTS:capture_opts>
-		$<TARGET_OBJECTS:ui_qt_logshark>
+		$<TARGET_OBJECTS:ui_qt_logwolf>
 		$<TARGET_OBJECTS:shark_common>
 		${LOGSHARK_SRC}
 		${PLATFORM_UI_RC_FILES}
