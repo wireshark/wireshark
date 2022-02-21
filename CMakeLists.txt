@@ -1584,7 +1584,7 @@ if(BUILD_wireshark AND QT_FOUND)
 endif()
 
 if(BUILD_logshark AND QT_FOUND)
-	add_subdirectory( ui/qt_logshark )
+	add_subdirectory( ui/qt_logwolf )
 endif()
 
 # Location of our plugins. PLUGIN_DIR should allow running
