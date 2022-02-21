@@ -39,6 +39,10 @@ void proto_register_e212(void);
  * Amended with information from http://www.mcc-mnc.com
  * - Chinese PLMN codes
  * - Iranian PLMN codes
+ * - Kazakhstani PLMN codes (see also [1] and [2])
+ *
+ * [1] https://ru.wikipedia.org/wiki/MNC
+ * [2] https://htmlweb.ru/geo/oper.php?country=KZ
  */
 static const value_string E212_codes[] = {
     /* 001 is used by some telecoms for internal TEST networks. */
@@ -1541,8 +1545,11 @@ static const value_string mcc_mnc_2digits_codes[] = {
     { 40004, "\"Azerfon\" LLC" },
     { 40005, "Special State Protection Service of the Republic of Azerbaijan" },
     { 40006, "\"Nakhtel\" LLC" },
-    { 40101, "Kar-Tel llc" },
-    { 40102, "TSC Kazak Telecom" },
+    { 40101, "Beeline / K-Mobile" },
+    { 40102, "Kcell / Activ" },
+    { 40107, "Altel / Dalacom" },
+    { 40108, "Kazakhtelecom CDMA2000" },
+    { 40177, "Tele2 / NEO" },
     { 40211, "Bhutan Telecom Ltd" },
     { 40217, "B-Mobile of Bhutan Telecom" },
     { 40400, "Dishnet Wireless Ltd, Madhya Pradesh" },
