@@ -113,13 +113,22 @@ def replace_string(s, mapping):
         s = s.replace(key, val)
     return s
 
-def replace_unicode(s):
-    """Unicode replacement table."""
+def safe_string(s):
+    """String replacement table."""
     return replace_string(s, {
-        u'–': '-',
-        u'“': '',
-        u'”': '',
-        u'°': ' deg',
+        # from C reference manual
+        chr(92): r"\\", # Backslash character.
+        '?':    r"\?",  # Question mark character.
+        "'":    r"\'",  # Single quotation mark.
+        '"':    r'\"',  # Double quotation mark.
+        "\a":   "",     # Audible alert.
+        "\b":   "",     # Backspace character.
+        "\e":   "",     # <ESC> character. (This is a GNU extension.)
+        "\f":   "",     # Form feed.
+        "\n":   "",     # Newline character.
+        "\r":   "",     # Carriage return.
+        "\t":   " ",    # Horizontal tab.
+        "\v":   "",     # Vertical tab.
     })
 
 def get_scaling(content):
@@ -308,7 +317,7 @@ def get_description(item, content=None):
     name = item['name'] if not is_generated(item) else None
     title = item.get('title')
     if content is not None and content.get('unit'):
-        unit = '[{}]'.format(replace_unicode(content['unit']))
+        unit = '[{}]'.format(safe_string(content['unit']))
     else:
         unit = None
 
@@ -382,7 +391,7 @@ def part1(ctx, get_ref, catalogue):
                 if content['type'] == 'Table':
                     tell('static const value_string valstr_{}[] = {}'.format(ref, '{'))
                     for (a,b) in content['values']:
-                        tell('    {} {}, "{}" {},'.format('{', a, replace_unicode(b), '}'))
+                        tell('    {} {}, "{}" {},'.format('{', a, safe_string(b), '}'))
                     tell('    {} 0, NULL {}'.format('{', '}'))
                     tell('};')
 
