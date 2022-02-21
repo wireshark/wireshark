@@ -900,17 +900,17 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
               }
               else if (no_of_bits <= 16)
               {
-                guint16 ui16;
                 pui16 = pui16DATA(data, pDescr->offset);
 
                 while (nCount > 0)
                 {
+                  guint16 ui16;
                   ui16 = tvb_get_bits16(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
                   proto_tree_add_uint_bits_format_value(tree, *(pDescr->hf_ptr), tvb, bit_offset, no_of_bits, ui16, ENC_BIG_ENDIAN, " (Count %d)", i++);
+                  memcpy(pui16++, &ui16, sizeof(ui16));
                   bit_offset += no_of_bits;
                   nCount--;
                 }
-                memcpy(pui16, &ui16, 2);
               }
               else if (no_of_bits <= 32)
               { /* not supported */
