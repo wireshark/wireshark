@@ -59,272 +59,272 @@
 #define MAGIC_REQUEST_FLEX    0x08
 
  /* Response Status */
-#define PROTOCOL_BINARY_RESPONSE_SUCCESS            0x00
-#define PROTOCOL_BINARY_RESPONSE_KEY_ENOENT         0x01
-#define PROTOCOL_BINARY_RESPONSE_KEY_EEXISTS        0x02
-#define PROTOCOL_BINARY_RESPONSE_E2BIG              0x03
-#define PROTOCOL_BINARY_RESPONSE_EINVAL             0x04
-#define PROTOCOL_BINARY_RESPONSE_NOT_STORED         0x05
-#define PROTOCOL_BINARY_RESPONSE_DELTA_BADVAL       0x06
-#define PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET     0x07
-#define PROTOCOL_BINARY_RESPONSE_NO_VBUCKET         0x08
-#define PROTOCOL_BINARY_RESPONSE_LOCKED             0x09
-#define PROTOCOL_BINARY_RESPONSE_DCP_STREAM_NOT_FOUND 0x0a
-#define PROTOCOL_BINARY_RESPONSE_OPAQUE_NO_MATCH    0x0b
-#define PROTOCOL_BINARY_RESPONSE_AUTH_STALE         0x1f
-#define PROTOCOL_BINARY_RESPONSE_AUTH_ERROR         0x20
-#define PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE      0x21
-#define PROTOCOL_BINARY_RESPONSE_ERANGE             0x22
-#define PROTOCOL_BINARY_RESPONSE_ROLLBACK           0x23
-#define PROTOCOL_BINARY_RESPONSE_EACCESS            0x24
-#define PROTOCOL_BINARY_RESPONSE_NOT_INITIALIZED    0x25
-#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_INGRESS 0x30
-#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_EGRESS 0x31
-#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_CONNECTIONS 0x32
-#define PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_COMMANDS 0x33
-#define PROTOCOL_BINARY_RESPONSE_SCOPE_SIZE_LIMIT_EXCEEDED 0x34
-#define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND    0x81
-#define PROTOCOL_BINARY_RESPONSE_ENOMEM             0x82
-#define PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED      0x83
-#define PROTOCOL_BINARY_RESPONSE_EINTERNAL          0x84
-#define PROTOCOL_BINARY_RESPONSE_EBUSY              0x85
-#define PROTOCOL_BINARY_RESPONSE_ETMPFAIL           0x86
-#define PROTOCOL_BINARY_RESPONSE_XATTR_EINVAL       0x87
-#define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION         0x88
-#define PROTOCOL_BINARY_RESPONSE_NO_COLLECTIONS_MANIFEST    0x89
-#define PROTOCOL_BINARY_RESPONSE_CANNOT_APPLY_MANIFEST      0x8a
-#define PROTOCOL_BINARY_RESPONSE_MANIFEST_IS_AHEAD          0x8b
-#define PROTOCOL_BINARY_RESPONSE_UNKNOWN_SCOPE              0x8c
-#define PROTOCOL_BINARY_RESPONSE_DCP_STREAMID_INVALID       0x8d
-#define PROTOCOL_BINARY_RESPONSE_DURABILITY_INVALID_LEVEL         0xa0
-#define PROTOCOL_BINARY_RESPONSE_DURABILITY_IMPOSSIBLE            0xa1
-#define PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_IN_PROGRESS           0xa2
-#define PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_AMBIGUOUS             0xa3
-#define PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_RECOMMIT_IN_PROGRESS  0xa4
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT         0xc0
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH       0xc1
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EINVAL         0xc2
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_E2BIG          0xc3
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_E2DEEP          0xc4
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_CANTINSERT    0xc5
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_NOTJSON         0xc6
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_NUM_ERANGE          0xc7
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DELTA_ERANGE        0xc8
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EEXISTS        0xc9
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_ETOODEEP      0xca
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_COMBO       0xcb
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE  0xcc
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_SUCCESS_DELETED            0xcd
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_FLAG_COMBO   0xce
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_KEY_COMBO    0xcf
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_MACRO        0xd0
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR        0xd1
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_CANT_MODIFY_VATTR    0xd2
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE_DELETED 0xd3
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER        0xd4
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO  0xd5
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS 0xd6
-#define PROTOCOL_BINARY_RESPONSE_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE  0xd7
+#define STATUS_SUCCESS            0x00
+#define STATUS_KEY_ENOENT         0x01
+#define STATUS_KEY_EEXISTS        0x02
+#define STATUS_E2BIG              0x03
+#define STATUS_EINVAL             0x04
+#define STATUS_NOT_STORED         0x05
+#define STATUS_DELTA_BADVAL       0x06
+#define STATUS_NOT_MY_VBUCKET     0x07
+#define STATUS_NO_VBUCKET         0x08
+#define STATUS_LOCKED             0x09
+#define STATUS_DCP_STREAM_NOT_FOUND 0x0a
+#define STATUS_OPAQUE_NO_MATCH    0x0b
+#define STATUS_AUTH_STALE         0x1f
+#define STATUS_AUTH_ERROR         0x20
+#define STATUS_AUTH_CONTINUE      0x21
+#define STATUS_ERANGE             0x22
+#define STATUS_ROLLBACK           0x23
+#define STATUS_EACCESS            0x24
+#define STATUS_NOT_INITIALIZED    0x25
+#define STATUS_RATELIMITED_NETWORK_INGRESS 0x30
+#define STATUS_RATELIMITED_NETWORK_EGRESS 0x31
+#define STATUS_RATELIMITED_MAX_CONNECTIONS 0x32
+#define STATUS_RATELIMITED_MAX_COMMANDS 0x33
+#define STATUS_SCOPE_SIZE_LIMIT_EXCEEDED 0x34
+#define STATUS_UNKNOWN_COMMAND    0x81
+#define STATUS_ENOMEM             0x82
+#define STATUS_NOT_SUPPORTED      0x83
+#define STATUS_EINTERNAL          0x84
+#define STATUS_EBUSY              0x85
+#define STATUS_ETMPFAIL           0x86
+#define STATUS_XATTR_EINVAL       0x87
+#define STATUS_UNKNOWN_COLLECTION         0x88
+#define STATUS_NO_COLLECTIONS_MANIFEST    0x89
+#define STATUS_CANNOT_APPLY_MANIFEST      0x8a
+#define STATUS_MANIFEST_IS_AHEAD          0x8b
+#define STATUS_UNKNOWN_SCOPE              0x8c
+#define STATUS_DCP_STREAMID_INVALID       0x8d
+#define STATUS_DURABILITY_INVALID_LEVEL         0xa0
+#define STATUS_DURABILITY_IMPOSSIBLE            0xa1
+#define STATUS_SYNC_WRITE_IN_PROGRESS           0xa2
+#define STATUS_SYNC_WRITE_AMBIGUOUS             0xa3
+#define STATUS_SYNC_WRITE_RECOMMIT_IN_PROGRESS  0xa4
+#define STATUS_SUBDOC_PATH_ENOENT         0xc0
+#define STATUS_SUBDOC_PATH_MISMATCH       0xc1
+#define STATUS_SUBDOC_PATH_EINVAL         0xc2
+#define STATUS_SUBDOC_PATH_E2BIG          0xc3
+#define STATUS_SUBDOC_DOC_E2DEEP          0xc4
+#define STATUS_SUBDOC_VALUE_CANTINSERT    0xc5
+#define STATUS_SUBDOC_DOC_NOTJSON         0xc6
+#define STATUS_SUBDOC_NUM_ERANGE          0xc7
+#define STATUS_SUBDOC_DELTA_ERANGE        0xc8
+#define STATUS_SUBDOC_PATH_EEXISTS        0xc9
+#define STATUS_SUBDOC_VALUE_ETOODEEP      0xca
+#define STATUS_SUBDOC_INVALID_COMBO       0xcb
+#define STATUS_SUBDOC_MULTI_PATH_FAILURE  0xcc
+#define STATUS_SUBDOC_SUCCESS_DELETED            0xcd
+#define STATUS_SUBDOC_XATTR_INVALID_FLAG_COMBO   0xce
+#define STATUS_SUBDOC_XATTR_INVALID_KEY_COMBO    0xcf
+#define STATUS_SUBDOC_XATTR_UNKNOWN_MACRO        0xd0
+#define STATUS_SUBDOC_XATTR_UNKNOWN_VATTR        0xd1
+#define STATUS_SUBDOC_XATTR_CANT_MODIFY_VATTR    0xd2
+#define STATUS_SUBDOC_MULTI_PATH_FAILURE_DELETED 0xd3
+#define STATUS_SUBDOC_INVALID_XATTR_ORDER        0xd4
+#define STATUS_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO  0xd5
+#define STATUS_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS 0xd6
+#define STATUS_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE  0xd7
 
  /* Command Opcodes */
-#define PROTOCOL_BINARY_CMD_GET                     0x00
-#define PROTOCOL_BINARY_CMD_SET                     0x01
-#define PROTOCOL_BINARY_CMD_ADD                     0x02
-#define PROTOCOL_BINARY_CMD_REPLACE                 0x03
-#define PROTOCOL_BINARY_CMD_DELETE                  0x04
-#define PROTOCOL_BINARY_CMD_INCREMENT               0x05
-#define PROTOCOL_BINARY_CMD_DECREMENT               0x06
-#define PROTOCOL_BINARY_CMD_QUIT                    0x07
-#define PROTOCOL_BINARY_CMD_FLUSH                   0x08
-#define PROTOCOL_BINARY_CMD_GETQ                    0x09
-#define PROTOCOL_BINARY_CMD_NOOP                    0x0a
-#define PROTOCOL_BINARY_CMD_VERSION                 0x0b
-#define PROTOCOL_BINARY_CMD_GETK                    0x0c
-#define PROTOCOL_BINARY_CMD_GETKQ                   0x0d
-#define PROTOCOL_BINARY_CMD_APPEND                  0x0e
-#define PROTOCOL_BINARY_CMD_PREPEND                 0x0f
-#define PROTOCOL_BINARY_CMD_STAT                    0x10
-#define PROTOCOL_BINARY_CMD_SETQ                    0x11
-#define PROTOCOL_BINARY_CMD_ADDQ                    0x12
-#define PROTOCOL_BINARY_CMD_REPLACEQ                0x13
-#define PROTOCOL_BINARY_CMD_DELETEQ                 0x14
-#define PROTOCOL_BINARY_CMD_INCREMENTQ              0x15
-#define PROTOCOL_BINARY_CMD_DECREMENTQ              0x16
-#define PROTOCOL_BINARY_CMD_QUITQ                   0x17
-#define PROTOCOL_BINARY_CMD_FLUSHQ                  0x18
-#define PROTOCOL_BINARY_CMD_APPENDQ                 0x19
-#define PROTOCOL_BINARY_CMD_PREPENDQ                0x1a
-#define PROTOCOL_BINARY_CMD_VERBOSITY               0x1b
-#define PROTOCOL_BINARY_CMD_TOUCH                   0x1c
-#define PROTOCOL_BINARY_CMD_GAT                     0x1d
-#define PROTOCOL_BINARY_CMD_GATQ                    0x1e
-#define PROTOCOL_BINARY_CMD_HELLO                   0x1f
+#define CLIENT_OPCODE_GET                     0x00
+#define CLIENT_OPCODE_SET                     0x01
+#define CLIENT_OPCODE_ADD                     0x02
+#define CLIENT_OPCODE_REPLACE                 0x03
+#define CLIENT_OPCODE_DELETE                  0x04
+#define CLIENT_OPCODE_INCREMENT               0x05
+#define CLIENT_OPCODE_DECREMENT               0x06
+#define CLIENT_OPCODE_QUIT                    0x07
+#define CLIENT_OPCODE_FLUSH                   0x08
+#define CLIENT_OPCODE_GETQ                    0x09
+#define CLIENT_OPCODE_NOOP                    0x0a
+#define CLIENT_OPCODE_VERSION                 0x0b
+#define CLIENT_OPCODE_GETK                    0x0c
+#define CLIENT_OPCODE_GETKQ                   0x0d
+#define CLIENT_OPCODE_APPEND                  0x0e
+#define CLIENT_OPCODE_PREPEND                 0x0f
+#define CLIENT_OPCODE_STAT                    0x10
+#define CLIENT_OPCODE_SETQ                    0x11
+#define CLIENT_OPCODE_ADDQ                    0x12
+#define CLIENT_OPCODE_REPLACEQ                0x13
+#define CLIENT_OPCODE_DELETEQ                 0x14
+#define CLIENT_OPCODE_INCREMENTQ              0x15
+#define CLIENT_OPCODE_DECREMENTQ              0x16
+#define CLIENT_OPCODE_QUITQ                   0x17
+#define CLIENT_OPCODE_FLUSHQ                  0x18
+#define CLIENT_OPCODE_APPENDQ                 0x19
+#define CLIENT_OPCODE_PREPENDQ                0x1a
+#define CLIENT_OPCODE_VERBOSITY               0x1b
+#define CLIENT_OPCODE_TOUCH                   0x1c
+#define CLIENT_OPCODE_GAT                     0x1d
+#define CLIENT_OPCODE_GATQ                    0x1e
+#define CLIENT_OPCODE_HELLO                   0x1f
 
  /* SASL operations */
-#define PROTOCOL_BINARY_CMD_SASL_LIST_MECHS         0x20
-#define PROTOCOL_BINARY_CMD_SASL_AUTH               0x21
-#define PROTOCOL_BINARY_CMD_SASL_STEP               0x22
+#define CLIENT_OPCODE_SASL_LIST_MECHS         0x20
+#define CLIENT_OPCODE_SASL_AUTH               0x21
+#define CLIENT_OPCODE_SASL_STEP               0x22
 
 /* Control */
-#define PROTOCOL_BINARY_CMD_IOCTL_GET               0x23
-#define PROTOCOL_BINARY_CMD_IOCTL_SET               0x24
-#define PROTOCOL_BINARY_CMD_CONFIG_VALIDATE         0x25
-#define PROTOCOL_BINARY_CMD_CONFIG_RELOAD           0x26
-#define PROTOCOL_BINARY_CMD_AUDIT_PUT               0x27
-#define PROTOCOL_BINARY_CMD_AUDIT_CONFIG_RELOAD     0x28
-#define PROTOCOL_BINARY_CMD_SHUTDOWN                0x29
+#define CLIENT_OPCODE_IOCTL_GET               0x23
+#define CLIENT_OPCODE_IOCTL_SET               0x24
+#define CLIENT_OPCODE_CONFIG_VALIDATE         0x25
+#define CLIENT_OPCODE_CONFIG_RELOAD           0x26
+#define CLIENT_OPCODE_AUDIT_PUT               0x27
+#define CLIENT_OPCODE_AUDIT_CONFIG_RELOAD     0x28
+#define CLIENT_OPCODE_SHUTDOWN                0x29
 
  /* Range operations.
   * These commands are used for range operations and exist within
   * protocol_binary.h for use in other projects. Range operations are
   * not expected to be implemented in the memcached server itself.
   */
-#define PROTOCOL_BINARY_CMD_RGET                    0x30
-#define PROTOCOL_BINARY_CMD_RSET                    0x31
-#define PROTOCOL_BINARY_CMD_RSETQ                   0x32
-#define PROTOCOL_BINARY_CMD_RAPPEND                 0x33
-#define PROTOCOL_BINARY_CMD_RAPPENDQ                0x34
-#define PROTOCOL_BINARY_CMD_RPREPEND                0x35
-#define PROTOCOL_BINARY_CMD_RPREPENDQ               0x36
-#define PROTOCOL_BINARY_CMD_RDELETE                 0x37
-#define PROTOCOL_BINARY_CMD_RDELETEQ                0x38
-#define PROTOCOL_BINARY_CMD_RINCR                   0x39
-#define PROTOCOL_BINARY_CMD_RINCRQ                  0x3a
-#define PROTOCOL_BINARY_CMD_RDECR                   0x3b
-#define PROTOCOL_BINARY_CMD_RDECRQ                  0x3c
+#define CLIENT_OPCODE_RGET                    0x30
+#define CLIENT_OPCODE_RSET                    0x31
+#define CLIENT_OPCODE_RSETQ                   0x32
+#define CLIENT_OPCODE_RAPPEND                 0x33
+#define CLIENT_OPCODE_RAPPENDQ                0x34
+#define CLIENT_OPCODE_RPREPEND                0x35
+#define CLIENT_OPCODE_RPREPENDQ               0x36
+#define CLIENT_OPCODE_RDELETE                 0x37
+#define CLIENT_OPCODE_RDELETEQ                0x38
+#define CLIENT_OPCODE_RINCR                   0x39
+#define CLIENT_OPCODE_RINCRQ                  0x3a
+#define CLIENT_OPCODE_RDECR                   0x3b
+#define CLIENT_OPCODE_RDECRQ                  0x3c
 
 
  /* VBucket commands */
-#define PROTOCOL_BINARY_CMD_SET_VBUCKET             0x3d
-#define PROTOCOL_BINARY_CMD_GET_VBUCKET             0x3e
-#define PROTOCOL_BINARY_CMD_DEL_VBUCKET             0x3f
+#define CLIENT_OPCODE_SET_VBUCKET             0x3d
+#define CLIENT_OPCODE_GET_VBUCKET             0x3e
+#define CLIENT_OPCODE_DEL_VBUCKET             0x3f
 
  /* TAP commands */
-#define PROTOCOL_BINARY_CMD_TAP_CONNECT             0x40
-#define PROTOCOL_BINARY_CMD_TAP_MUTATION            0x41
-#define PROTOCOL_BINARY_CMD_TAP_DELETE              0x42
-#define PROTOCOL_BINARY_CMD_TAP_FLUSH               0x43
-#define PROTOCOL_BINARY_CMD_TAP_OPAQUE              0x44
-#define PROTOCOL_BINARY_CMD_TAP_VBUCKET_SET         0x45
-#define PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START    0x46
-#define PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END      0x47
+#define CLIENT_OPCODE_TAP_CONNECT             0x40
+#define CLIENT_OPCODE_TAP_MUTATION            0x41
+#define CLIENT_OPCODE_TAP_DELETE              0x42
+#define CLIENT_OPCODE_TAP_FLUSH               0x43
+#define CLIENT_OPCODE_TAP_OPAQUE              0x44
+#define CLIENT_OPCODE_TAP_VBUCKET_SET         0x45
+#define CLIENT_OPCODE_TAP_CHECKPOINT_START    0x46
+#define CLIENT_OPCODE_TAP_CHECKPOINT_END      0x47
 
-#define PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS       0x48
+#define CLIENT_OPCODE_GET_ALL_VB_SEQNOS       0x48
 
 /* DCP commands */
-#define PROTOCOL_BINARY_DCP_OPEN_CONNECTION         0x50
-#define PROTOCOL_BINARY_DCP_ADD_STREAM              0x51
-#define PROTOCOL_BINARY_DCP_CLOSE_STREAM            0x52
-#define PROTOCOL_BINARY_DCP_STREAM_REQUEST          0x53
-#define PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST    0x54
-#define PROTOCOL_BINARY_DCP_STREAM_END              0x55
-#define PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER         0x56
-#define PROTOCOL_BINARY_DCP_MUTATION                0x57
-#define PROTOCOL_BINARY_DCP_DELETION                0x58
-#define PROTOCOL_BINARY_DCP_EXPIRATION              0x59
-#define PROTOCOL_BINARY_DCP_FLUSH                   0x5a
-#define PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE       0x5b
-#define PROTOCOL_BINARY_DCP_NOOP                    0x5c
-#define PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT  0x5d
-#define PROTOCOL_BINARY_DCP_CONTROL                 0x5e
-#define PROTOCOL_BINARY_DCP_SYSTEM_EVENT            0x5f
-#define PROTOCOL_BINARY_DCP_PREPARE                 0x60
-#define PROTOCOL_BINARY_DCP_SEQNO_ACK               0x61
-#define PROTOCOL_BINARY_DCP_COMMIT                  0x62
-#define PROTOCOL_BINARY_DCP_ABORT                   0x63
-#define PROTOCOL_BINARY_DCP_SEQNO_ADVANCED          0x64
-#define PROTOCOL_BINARY_DCP_OSO_SNAPSHOT            0x65
+#define CLIENT_OPCODE_DCP_OPEN_CONNECTION         0x50
+#define CLIENT_OPCODE_DCP_ADD_STREAM              0x51
+#define CLIENT_OPCODE_DCP_CLOSE_STREAM            0x52
+#define CLIENT_OPCODE_DCP_STREAM_REQUEST          0x53
+#define CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST    0x54
+#define CLIENT_OPCODE_DCP_STREAM_END              0x55
+#define CLIENT_OPCODE_DCP_SNAPSHOT_MARKER         0x56
+#define CLIENT_OPCODE_DCP_MUTATION                0x57
+#define CLIENT_OPCODE_DCP_DELETION                0x58
+#define CLIENT_OPCODE_DCP_EXPIRATION              0x59
+#define CLIENT_OPCODE_DCP_FLUSH                   0x5a
+#define CLIENT_OPCODE_DCP_SET_VBUCKET_STATE       0x5b
+#define CLIENT_OPCODE_DCP_NOOP                    0x5c
+#define CLIENT_OPCODE_DCP_BUFFER_ACKNOWLEDGEMENT  0x5d
+#define CLIENT_OPCODE_DCP_CONTROL                 0x5e
+#define CLIENT_OPCODE_DCP_SYSTEM_EVENT            0x5f
+#define CLIENT_OPCODE_DCP_PREPARE                 0x60
+#define CLIENT_OPCODE_DCP_SEQNO_ACK               0x61
+#define CLIENT_OPCODE_DCP_COMMIT                  0x62
+#define CLIENT_OPCODE_DCP_ABORT                   0x63
+#define CLIENT_OPCODE_DCP_SEQNO_ADVANCED          0x64
+#define CLIENT_OPCODE_DCP_OSO_SNAPSHOT            0x65
 
  /* Commands from EP (eventually persistent) and bucket engines */
-#define PROTOCOL_BINARY_CMD_STOP_PERSISTENCE        0x80
-#define PROTOCOL_BINARY_CMD_START_PERSISTENCE       0x81
-#define PROTOCOL_BINARY_CMD_SET_PARAM               0x82
-#define PROTOCOL_BINARY_CMD_GET_REPLICA             0x83
-#define PROTOCOL_BINARY_CMD_CREATE_BUCKET           0x85
-#define PROTOCOL_BINARY_CMD_DELETE_BUCKET           0x86
-#define PROTOCOL_BINARY_CMD_LIST_BUCKETS            0x87
-#define PROTOCOL_BINARY_CMD_EXPAND_BUCKET           0x88
-#define PROTOCOL_BINARY_CMD_SELECT_BUCKET           0x89
-#define PROTOCOL_BINARY_CMD_START_REPLICATION       0x90
-#define PROTOCOL_BINARY_CMD_OBSERVE_SEQNO           0x91
-#define PROTOCOL_BINARY_CMD_OBSERVE                 0x92
-#define PROTOCOL_BINARY_CMD_EVICT_KEY               0x93
-#define PROTOCOL_BINARY_CMD_GET_LOCKED              0x94
-#define PROTOCOL_BINARY_CMD_UNLOCK_KEY              0x95
-#define PROTOCOL_BINARY_CMD_SYNC                    0x96
-#define PROTOCOL_BINARY_CMD_LAST_CLOSED_CHECKPOINT  0x97
-#define PROTOCOL_BINARY_CMD_RESTORE_FILE            0x98
-#define PROTOCOL_BINARY_CMD_RESTORE_ABORT           0x99
-#define PROTOCOL_BINARY_CMD_RESTORE_COMPLETE        0x9a
-#define PROTOCOL_BINARY_CMD_ONLINE_UPDATE_START     0x9b
-#define PROTOCOL_BINARY_CMD_ONLINE_UPDATE_COMPLETE  0x9c
-#define PROTOCOL_BINARY_CMD_ONLINE_UPDATE_REVERT    0x9d
-#define PROTOCOL_BINARY_CMD_DEREGISTER_TAP_CLIENT   0x9e
-#define PROTOCOL_BINARY_CMD_RESET_REPLICATION_CHAIN 0x9f
-#define PROTOCOL_BINARY_CMD_GET_META                0xa0
-#define PROTOCOL_BINARY_CMD_GETQ_META               0xa1
-#define PROTOCOL_BINARY_CMD_SET_WITH_META           0xa2
-#define PROTOCOL_BINARY_CMD_SETQ_WITH_META          0xa3
-#define PROTOCOL_BINARY_CMD_ADD_WITH_META           0xa4
-#define PROTOCOL_BINARY_CMD_ADDQ_WITH_META          0xa5
-#define PROTOCOL_BINARY_CMD_SNAPSHOT_VB_STATES      0xa6
-#define PROTOCOL_BINARY_CMD_VBUCKET_BATCH_COUNT     0xa7
-#define PROTOCOL_BINARY_CMD_DEL_WITH_META           0xa8
-#define PROTOCOL_BINARY_CMD_DELQ_WITH_META          0xa9
-#define PROTOCOL_BINARY_CMD_CREATE_CHECKPOINT       0xaa
-#define PROTOCOL_BINARY_CMD_NOTIFY_VBUCKET_UPDATE   0xac
-#define PROTOCOL_BINARY_CMD_ENABLE_TRAFFIC          0xad
-#define PROTOCOL_BINARY_CMD_DISABLE_TRAFFIC         0xae
-#define PROTOCOL_BINARY_CMD_IFCONFIG                0xaf
-#define PROTOCOL_BINARY_CMD_CHANGE_VB_FILTER        0xb0
-#define PROTOCOL_BINARY_CMD_CHECKPOINT_PERSISTENCE  0xb1
-#define PROTOCOL_BINARY_CMD_RETURN_META             0xb2
-#define PROTOCOL_BINARY_CMD_COMPACT_DB              0xb3
+#define CLIENT_OPCODE_STOP_PERSISTENCE        0x80
+#define CLIENT_OPCODE_START_PERSISTENCE       0x81
+#define CLIENT_OPCODE_SET_PARAM               0x82
+#define CLIENT_OPCODE_GET_REPLICA             0x83
+#define CLIENT_OPCODE_CREATE_BUCKET           0x85
+#define CLIENT_OPCODE_DELETE_BUCKET           0x86
+#define CLIENT_OPCODE_LIST_BUCKETS            0x87
+#define CLIENT_OPCODE_EXPAND_BUCKET           0x88
+#define CLIENT_OPCODE_SELECT_BUCKET           0x89
+#define CLIENT_OPCODE_START_REPLICATION       0x90
+#define CLIENT_OPCODE_OBSERVE_SEQNO           0x91
+#define CLIENT_OPCODE_OBSERVE                 0x92
+#define CLIENT_OPCODE_EVICT_KEY               0x93
+#define CLIENT_OPCODE_GET_LOCKED              0x94
+#define CLIENT_OPCODE_UNLOCK_KEY              0x95
+#define CLIENT_OPCODE_SYNC                    0x96
+#define CLIENT_OPCODE_LAST_CLOSED_CHECKPOINT  0x97
+#define CLIENT_OPCODE_RESTORE_FILE            0x98
+#define CLIENT_OPCODE_RESTORE_ABORT           0x99
+#define CLIENT_OPCODE_RESTORE_COMPLETE        0x9a
+#define CLIENT_OPCODE_ONLINE_UPDATE_START     0x9b
+#define CLIENT_OPCODE_ONLINE_UPDATE_COMPLETE  0x9c
+#define CLIENT_OPCODE_ONLINE_UPDATE_REVERT    0x9d
+#define CLIENT_OPCODE_DEREGISTER_TAP_CLIENT   0x9e
+#define CLIENT_OPCODE_RESET_REPLICATION_CHAIN 0x9f
+#define CLIENT_OPCODE_GET_META                0xa0
+#define CLIENT_OPCODE_GETQ_META               0xa1
+#define CLIENT_OPCODE_SET_WITH_META           0xa2
+#define CLIENT_OPCODE_SETQ_WITH_META          0xa3
+#define CLIENT_OPCODE_ADD_WITH_META           0xa4
+#define CLIENT_OPCODE_ADDQ_WITH_META          0xa5
+#define CLIENT_OPCODE_SNAPSHOT_VB_STATES      0xa6
+#define CLIENT_OPCODE_VBUCKET_BATCH_COUNT     0xa7
+#define CLIENT_OPCODE_DEL_WITH_META           0xa8
+#define CLIENT_OPCODE_DELQ_WITH_META          0xa9
+#define CLIENT_OPCODE_CREATE_CHECKPOINT       0xaa
+#define CLIENT_OPCODE_NOTIFY_VBUCKET_UPDATE   0xac
+#define CLIENT_OPCODE_ENABLE_TRAFFIC          0xad
+#define CLIENT_OPCODE_DISABLE_TRAFFIC         0xae
+#define CLIENT_OPCODE_IFCONFIG                0xaf
+#define CLIENT_OPCODE_CHANGE_VB_FILTER        0xb0
+#define CLIENT_OPCODE_CHECKPOINT_PERSISTENCE  0xb1
+#define CLIENT_OPCODE_RETURN_META             0xb2
+#define CLIENT_OPCODE_COMPACT_DB              0xb3
 
 
-#define PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG      0xb4
-#define PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG      0xb5
-#define PROTOCOL_BINARY_CMD_GET_RANDOM_KEY          0xb6
-#define PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE       0xb7
-#define PROTOCOL_BINARY_CMD_GET_KEYS                0xb8
-#define PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST 0xb9
-#define PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST 0xba
-#define PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID       0xbb
-#define PROTOCOL_BINARY_CMD_COLLECTIONS_GET_SCOPE_ID 0xbc
+#define CLIENT_OPCODE_SET_CLUSTER_CONFIG      0xb4
+#define CLIENT_OPCODE_GET_CLUSTER_CONFIG      0xb5
+#define CLIENT_OPCODE_GET_RANDOM_KEY          0xb6
+#define CLIENT_OPCODE_SEQNO_PERSISTENCE       0xb7
+#define CLIENT_OPCODE_GET_KEYS                0xb8
+#define CLIENT_OPCODE_COLLECTIONS_SET_MANIFEST 0xb9
+#define CLIENT_OPCODE_COLLECTIONS_GET_MANIFEST 0xba
+#define CLIENT_OPCODE_COLLECTIONS_GET_ID       0xbb
+#define CLIENT_OPCODE_COLLECTIONS_GET_SCOPE_ID 0xbc
 
-#define PROTOCOL_BINARY_CMD_SET_DRIFT_COUNTER_STATE 0xc1
-#define PROTOCOL_BINARY_CMD_GET_ADJUSTED_TIME       0xc2
+#define CLIENT_OPCODE_SET_DRIFT_COUNTER_STATE 0xc1
+#define CLIENT_OPCODE_GET_ADJUSTED_TIME       0xc2
 
 /* Sub-document API commands */
-#define PROTOCOL_BINARY_CMD_SUBDOC_GET              0xc5
-#define PROTOCOL_BINARY_CMD_SUBDOC_EXISTS           0xc6
-#define PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD         0xc7
-#define PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT      0xc8
-#define PROTOCOL_BINARY_CMD_SUBDOC_DELETE           0xc9
-#define PROTOCOL_BINARY_CMD_SUBDOC_REPLACE          0xca
-#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST  0xcb
-#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST 0xcc
-#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT     0xcd
-#define PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE 0xce
-#define PROTOCOL_BINARY_CMD_SUBDOC_COUNTER          0xcf
-#define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP     0xd0
-#define PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION   0xd1
-#define PROTOCOL_BINARY_CMD_SUBDOC_GET_COUNT        0xd2
-#define PROTOCOL_BINARY_CMD_SUBDOC_REPLACE_BODY_WITH_XATTR 0xd3
+#define CLIENT_OPCODE_SUBDOC_GET              0xc5
+#define CLIENT_OPCODE_SUBDOC_EXISTS           0xc6
+#define CLIENT_OPCODE_SUBDOC_DICT_ADD         0xc7
+#define CLIENT_OPCODE_SUBDOC_DICT_UPSERT      0xc8
+#define CLIENT_OPCODE_SUBDOC_DELETE           0xc9
+#define CLIENT_OPCODE_SUBDOC_REPLACE          0xca
+#define CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_LAST  0xcb
+#define CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_FIRST 0xcc
+#define CLIENT_OPCODE_SUBDOC_ARRAY_INSERT     0xcd
+#define CLIENT_OPCODE_SUBDOC_ARRAY_ADD_UNIQUE 0xce
+#define CLIENT_OPCODE_SUBDOC_COUNTER          0xcf
+#define CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP     0xd0
+#define CLIENT_OPCODE_SUBDOC_MULTI_MUTATION   0xd1
+#define CLIENT_OPCODE_SUBDOC_GET_COUNT        0xd2
+#define CLIENT_OPCODE_SUBDOC_REPLACE_BODY_WITH_XATTR 0xd3
 
-#define PROTOCOL_BINARY_CMD_SCRUB                   0xf0
-#define PROTOCOL_BINARY_CMD_ISASL_REFRESH           0xf1
-#define PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH       0xf2
-#define PROTOCOL_BINARY_CMD_GET_CMD_TIMER           0xf3
-#define PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN          0xf4
-#define PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN          0xf5
-#define PROTOCOL_BINARY_CMD_UPDATE_EXTERNAL_USER_PERMISSIONS 0xf6
-#define PROTOCOL_BINARY_CMD_RBAC_REFRESH            0xf7
-#define PROTOCOL_BINARY_CMD_AUTH_PROVIDER           0xf8
-#define PROTOCOL_BINARY_CMD_DROP_PRIVILEGE          0xfb
-#define PROTOCOL_BINARY_CMD_ADJUST_TIMEOFDAY        0xfc
-#define PROTOCOL_BINARY_CMD_EWOULDBLOCK_CTL         0xfd
-#define PROTOCOL_BINARY_CMD_GET_ERROR_MAP           0xfe
+#define CLIENT_OPCODE_SCRUB                   0xf0
+#define CLIENT_OPCODE_ISASL_REFRESH           0xf1
+#define CLIENT_OPCODE_SSL_CERTS_REFRESH       0xf2
+#define CLIENT_OPCODE_GET_CMD_TIMER           0xf3
+#define CLIENT_OPCODE_SET_CTRL_TOKEN          0xf4
+#define CLIENT_OPCODE_GET_CTRL_TOKEN          0xf5
+#define CLIENT_OPCODE_UPDATE_EXTERNAL_USER_PERMISSIONS 0xf6
+#define CLIENT_OPCODE_RBAC_REFRESH            0xf7
+#define CLIENT_OPCODE_AUTH_PROVIDER           0xf8
+#define CLIENT_OPCODE_DROP_PRIVILEGE          0xfb
+#define CLIENT_OPCODE_ADJUST_TIMEOFDAY        0xfc
+#define CLIENT_OPCODE_EWOULDBLOCK_CTL         0xfd
+#define CLIENT_OPCODE_GET_ERROR_MAP           0xfe
 
  /* vBucket states */
 #define VBUCKET_ACTIVE                              0x01
@@ -596,109 +596,109 @@ static const value_string flex_frame_durability_req[] = {
 };
 
 static const value_string status_vals[] = {
-  { PROTOCOL_BINARY_RESPONSE_SUCCESS,           "Success"                 },
-  { PROTOCOL_BINARY_RESPONSE_KEY_ENOENT,        "Key not found"           },
-  { PROTOCOL_BINARY_RESPONSE_KEY_EEXISTS,       "Key exists"              },
-  { PROTOCOL_BINARY_RESPONSE_E2BIG,             "Value too big"           },
-  { PROTOCOL_BINARY_RESPONSE_EINVAL,            "Invalid arguments"       },
-  { PROTOCOL_BINARY_RESPONSE_NOT_STORED,        "Key not stored"          },
-  { PROTOCOL_BINARY_RESPONSE_DELTA_BADVAL,      "Bad value to incr/decr"  },
-  { PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET,    "Not my vBucket"          },
-  { PROTOCOL_BINARY_RESPONSE_NO_VBUCKET,        "Not connected to a bucket" },
-  { PROTOCOL_BINARY_RESPONSE_LOCKED,            "The requested resource is locked" },
-  { PROTOCOL_BINARY_RESPONSE_DCP_STREAM_NOT_FOUND, "No DCP Stream for this request" },
-  { PROTOCOL_BINARY_RESPONSE_OPAQUE_NO_MATCH,   "Opaque does not match" },
-  { PROTOCOL_BINARY_RESPONSE_AUTH_STALE,        "Authentication context is stale. Should reauthenticate." },
-  { PROTOCOL_BINARY_RESPONSE_AUTH_ERROR,        "Authentication error"    },
-  { PROTOCOL_BINARY_RESPONSE_AUTH_CONTINUE,     "Authentication continue" },
-  { PROTOCOL_BINARY_RESPONSE_ERANGE,            "Range error"             },
-  { PROTOCOL_BINARY_RESPONSE_ROLLBACK,          "Rollback"                },
-  { PROTOCOL_BINARY_RESPONSE_EACCESS,           "Access error"            },
-  { PROTOCOL_BINARY_RESPONSE_NOT_INITIALIZED,
+  { STATUS_SUCCESS,           "Success"                 },
+  { STATUS_KEY_ENOENT,        "Key not found"           },
+  { STATUS_KEY_EEXISTS,       "Key exists"              },
+  { STATUS_E2BIG,             "Value too big"           },
+  { STATUS_EINVAL,            "Invalid arguments"       },
+  { STATUS_NOT_STORED,        "Key not stored"          },
+  { STATUS_DELTA_BADVAL,      "Bad value to incr/decr"  },
+  { STATUS_NOT_MY_VBUCKET,    "Not my vBucket"          },
+  { STATUS_NO_VBUCKET,        "Not connected to a bucket" },
+  { STATUS_LOCKED,            "The requested resource is locked" },
+  { STATUS_DCP_STREAM_NOT_FOUND, "No DCP Stream for this request" },
+  { STATUS_OPAQUE_NO_MATCH,   "Opaque does not match" },
+  { STATUS_AUTH_STALE,        "Authentication context is stale. Should reauthenticate." },
+  { STATUS_AUTH_ERROR,        "Authentication error"    },
+  { STATUS_AUTH_CONTINUE,     "Authentication continue" },
+  { STATUS_ERANGE,            "Range error"             },
+  { STATUS_ROLLBACK,          "Rollback"                },
+  { STATUS_EACCESS,           "Access error"            },
+  { STATUS_NOT_INITIALIZED,
     "The Couchbase cluster is currently initializing this node, and "
     "the Cluster manager has not yet granted all users access to the cluster."},
-  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_INGRESS, "Rate limit: Network ingress"},
-  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_NETWORK_EGRESS, "Rate limit: Network Egress"},
-  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_CONNECTIONS, "Rate limit: Max Connections"},
-  { PROTOCOL_BINARY_RESPONSE_RATELIMITED_MAX_COMMANDS, "Rate limit: Max Commands"},
-  {PROTOCOL_BINARY_RESPONSE_SCOPE_SIZE_LIMIT_EXCEEDED, "To much data in Scope"},
-  { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COMMAND,   "Unknown command"         },
-  { PROTOCOL_BINARY_RESPONSE_ENOMEM,            "Out of memory"           },
-  { PROTOCOL_BINARY_RESPONSE_NOT_SUPPORTED,     "Command isn't supported" },
-  { PROTOCOL_BINARY_RESPONSE_EINTERNAL,         "Internal error"          },
-  { PROTOCOL_BINARY_RESPONSE_EBUSY,             "Server is busy"          },
-  { PROTOCOL_BINARY_RESPONSE_ETMPFAIL,          "Temporary failure"       },
-  { PROTOCOL_BINARY_RESPONSE_XATTR_EINVAL,
+  { STATUS_RATELIMITED_NETWORK_INGRESS, "Rate limit: Network ingress"},
+  { STATUS_RATELIMITED_NETWORK_EGRESS, "Rate limit: Network Egress"},
+  { STATUS_RATELIMITED_MAX_CONNECTIONS, "Rate limit: Max Connections"},
+  { STATUS_RATELIMITED_MAX_COMMANDS, "Rate limit: Max Commands"},
+  {STATUS_SCOPE_SIZE_LIMIT_EXCEEDED, "To much data in Scope"},
+  { STATUS_UNKNOWN_COMMAND,   "Unknown command"         },
+  { STATUS_ENOMEM,            "Out of memory"           },
+  { STATUS_NOT_SUPPORTED,     "Command isn't supported" },
+  { STATUS_EINTERNAL,         "Internal error"          },
+  { STATUS_EBUSY,             "Server is busy"          },
+  { STATUS_ETMPFAIL,          "Temporary failure"       },
+  { STATUS_XATTR_EINVAL,
     "There is something wrong with the syntax of the provided XATTR."},
-  { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION,
+  { STATUS_UNKNOWN_COLLECTION,
     "Operation attempted with an unknown collection."},
-  { PROTOCOL_BINARY_RESPONSE_NO_COLLECTIONS_MANIFEST,
+  { STATUS_NO_COLLECTIONS_MANIFEST,
     "No collections manifest has been set"},
-  { PROTOCOL_BINARY_RESPONSE_CANNOT_APPLY_MANIFEST,
+  { STATUS_CANNOT_APPLY_MANIFEST,
     "Cannot apply the given manifest"},
-  { PROTOCOL_BINARY_RESPONSE_MANIFEST_IS_AHEAD,
+  { STATUS_MANIFEST_IS_AHEAD,
     "Operation attempted with a manifest ahead of the server"},
-  { PROTOCOL_BINARY_RESPONSE_UNKNOWN_SCOPE,
+  { STATUS_UNKNOWN_SCOPE,
     "Operation attempted with an unknown scope."},
-  { PROTOCOL_BINARY_RESPONSE_DCP_STREAMID_INVALID,
+  { STATUS_DCP_STREAMID_INVALID,
     "DCP Stream ID is invalid"},
-  { PROTOCOL_BINARY_RESPONSE_DURABILITY_INVALID_LEVEL,
+  { STATUS_DURABILITY_INVALID_LEVEL,
     "The specified durability level is invalid" },
-  { PROTOCOL_BINARY_RESPONSE_DURABILITY_IMPOSSIBLE,
+  { STATUS_DURABILITY_IMPOSSIBLE,
     "The specified durability requirements are not currently possible" },
-  { PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_IN_PROGRESS,
+  { STATUS_SYNC_WRITE_IN_PROGRESS,
     "A SyncWrite is already in progress on the specified key"},
-  { PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_AMBIGUOUS,
+  { STATUS_SYNC_WRITE_AMBIGUOUS,
     "The SyncWrite request has not completed in the specified time and has ambiguous result"},
-  { PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_RECOMMIT_IN_PROGRESS,
+  { STATUS_SYNC_WRITE_RECOMMIT_IN_PROGRESS,
     "The SyncWrite is being re-committed after a change in active node"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT,
+  { STATUS_SUBDOC_PATH_ENOENT,
     "Subdoc: Path not does not exist"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH,
+  { STATUS_SUBDOC_PATH_MISMATCH,
     "Subdoc: Path mismatch"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EINVAL,
+  { STATUS_SUBDOC_PATH_EINVAL,
     "Subdoc: Invalid path"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_E2BIG,
+  { STATUS_SUBDOC_PATH_E2BIG,
     "Subdoc: Path too large"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_E2DEEP,
+  { STATUS_SUBDOC_DOC_E2DEEP,
     "Subdoc: Document too deep"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_CANTINSERT,
+  { STATUS_SUBDOC_VALUE_CANTINSERT,
     "Subdoc: Cannot insert specified value"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DOC_NOTJSON,
+  { STATUS_SUBDOC_DOC_NOTJSON,
     "Subdoc: Existing document not JSON"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_NUM_ERANGE,
+  { STATUS_SUBDOC_NUM_ERANGE,
     "Subdoc: Existing number outside valid arithmetic range"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DELTA_ERANGE,
+  { STATUS_SUBDOC_DELTA_ERANGE,
     "Subdoc: Delta outside valid arithmetic range"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EEXISTS,
+  { STATUS_SUBDOC_PATH_EEXISTS,
     "Subdoc: Document path already exists"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_VALUE_ETOODEEP,
+  { STATUS_SUBDOC_VALUE_ETOODEEP,
     "Subdoc: Inserting value would make document too deep"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_COMBO,
+  { STATUS_SUBDOC_INVALID_COMBO,
     "Subdoc: Invalid combination for multi-path command"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE,
+  { STATUS_SUBDOC_MULTI_PATH_FAILURE,
     "Subdoc: One or more paths in a multi-path command failed"},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_SUCCESS_DELETED,
+  { STATUS_SUBDOC_SUCCESS_DELETED,
     "Subdoc: The operation completed successfully, but operated on a deleted document."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_FLAG_COMBO,
+  { STATUS_SUBDOC_XATTR_INVALID_FLAG_COMBO,
     "Subdoc: The combination of the subdoc flags for the xattrs doesn't make any sense."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_INVALID_KEY_COMBO,
+  { STATUS_SUBDOC_XATTR_INVALID_KEY_COMBO,
     "Subdoc: Only a single xattr key may be accessed at the same time."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_MACRO,
+  { STATUS_SUBDOC_XATTR_UNKNOWN_MACRO,
     "Subdoc: The server has no knowledge of the requested macro."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR,
+  { STATUS_SUBDOC_XATTR_UNKNOWN_VATTR,
     "Subdoc: The server has no knowledge of the requested virtual xattr."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_CANT_MODIFY_VATTR,
+  { STATUS_SUBDOC_XATTR_CANT_MODIFY_VATTR,
     "Subdoc: Virtual xattrs can't be modified."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE_DELETED,
+  { STATUS_SUBDOC_MULTI_PATH_FAILURE_DELETED,
     "Subdoc: Specified key was found as a deleted document, but one or more path operations failed."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_INVALID_XATTR_ORDER,
+  { STATUS_SUBDOC_INVALID_XATTR_ORDER,
     "Subdoc: According to the spec all xattr commands should come first, followed by the commands for the document body."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO,
+  { STATUS_SUBDOC_XATTR_UNKNOWN_VATTR_MACRO,
     "Subdoc: The server does not know about this virtual macro."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS,
+  { STATUS_SUBDOC_CAN_ONLY_REVIVE_DELETED_DOCUMENTS,
     "Subdoc: The document isn't dead (and we wanted to revive the document)."},
-  { PROTOCOL_BINARY_RESPONSE_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE,
+  { STATUS_SUBDOC_DELETED_DOCUMENT_CANT_HAVE_VALUE,
     "Subdoc: A deleted document can't have a user value."},
   { 0, NULL }
 };
@@ -706,178 +706,178 @@ static const value_string status_vals[] = {
 static value_string_ext status_vals_ext = VALUE_STRING_EXT_INIT(status_vals);
 
 static const value_string opcode_vals[] = {
-  { PROTOCOL_BINARY_CMD_GET,                        "Get"                      },
-  { PROTOCOL_BINARY_CMD_SET,                        "Set"                      },
-  { PROTOCOL_BINARY_CMD_ADD,                        "Add"                      },
-  { PROTOCOL_BINARY_CMD_REPLACE,                    "Replace"                  },
-  { PROTOCOL_BINARY_CMD_DELETE,                     "Delete"                   },
-  { PROTOCOL_BINARY_CMD_INCREMENT,                  "Increment"                },
-  { PROTOCOL_BINARY_CMD_DECREMENT,                  "Decrement"                },
-  { PROTOCOL_BINARY_CMD_QUIT,                       "Quit"                     },
-  { PROTOCOL_BINARY_CMD_FLUSH,                      "Flush"                    },
-  { PROTOCOL_BINARY_CMD_GETQ,                       "Get Quietly"              },
-  { PROTOCOL_BINARY_CMD_NOOP,                       "NOOP"                     },
-  { PROTOCOL_BINARY_CMD_VERSION,                    "Version"                  },
-  { PROTOCOL_BINARY_CMD_GETK,                       "Get Key"                  },
-  { PROTOCOL_BINARY_CMD_GETKQ,                      "Get Key Quietly"          },
-  { PROTOCOL_BINARY_CMD_APPEND,                     "Append"                   },
-  { PROTOCOL_BINARY_CMD_PREPEND,                    "Prepend"                  },
-  { PROTOCOL_BINARY_CMD_STAT,                       "Statistics"               },
-  { PROTOCOL_BINARY_CMD_SETQ,                       "Set Quietly"              },
-  { PROTOCOL_BINARY_CMD_ADDQ,                       "Add Quietly"              },
-  { PROTOCOL_BINARY_CMD_REPLACEQ,                   "Replace Quietly"          },
-  { PROTOCOL_BINARY_CMD_DELETEQ,                    "Delete Quietly"           },
-  { PROTOCOL_BINARY_CMD_INCREMENTQ,                 "Increment Quietly"        },
-  { PROTOCOL_BINARY_CMD_DECREMENTQ,                 "Decrement Quietly"        },
-  { PROTOCOL_BINARY_CMD_QUITQ,                      "Quit Quietly"             },
-  { PROTOCOL_BINARY_CMD_FLUSHQ,                     "Flush Quietly"            },
-  { PROTOCOL_BINARY_CMD_APPENDQ,                    "Append Quietly"           },
-  { PROTOCOL_BINARY_CMD_PREPENDQ,                   "Prepend Quietly"          },
-  { PROTOCOL_BINARY_CMD_VERBOSITY,                  "Verbosity"                },
-  { PROTOCOL_BINARY_CMD_TOUCH,                      "Touch"                    },
-  { PROTOCOL_BINARY_CMD_GAT,                        "Get and Touch"            },
-  { PROTOCOL_BINARY_CMD_GATQ,                       "Gat and Touch Quietly"    },
-  { PROTOCOL_BINARY_CMD_HELLO,                      "Hello"                    },
-  { PROTOCOL_BINARY_CMD_SASL_LIST_MECHS,            "List SASL Mechanisms"     },
-  { PROTOCOL_BINARY_CMD_SASL_AUTH,                  "SASL Authenticate"        },
-  { PROTOCOL_BINARY_CMD_SASL_STEP,                  "SASL Step"                },
-  { PROTOCOL_BINARY_CMD_IOCTL_GET,                  "IOCTL Get"                },
-  { PROTOCOL_BINARY_CMD_IOCTL_SET,                  "IOCTL Set"                },
-  { PROTOCOL_BINARY_CMD_CONFIG_VALIDATE,            "Config Validate"          },
-  { PROTOCOL_BINARY_CMD_CONFIG_RELOAD,              "Config Reload"            },
-  { PROTOCOL_BINARY_CMD_AUDIT_PUT,                  "Audit Put"                },
-  { PROTOCOL_BINARY_CMD_AUDIT_CONFIG_RELOAD,        "Audit Config Reload"      },
-  { PROTOCOL_BINARY_CMD_SHUTDOWN,                   "Shutdown"                 },
-  { PROTOCOL_BINARY_CMD_RGET,                       "Range Get"                },
-  { PROTOCOL_BINARY_CMD_RSET,                       "Range Set"                },
-  { PROTOCOL_BINARY_CMD_RSETQ,                      "Range Set Quietly"        },
-  { PROTOCOL_BINARY_CMD_RAPPEND,                    "Range Append"             },
-  { PROTOCOL_BINARY_CMD_RAPPENDQ,                   "Range Append Quietly"     },
-  { PROTOCOL_BINARY_CMD_RPREPEND,                   "Range Prepend"            },
-  { PROTOCOL_BINARY_CMD_RPREPENDQ,                  "Range Prepend Quietly"    },
-  { PROTOCOL_BINARY_CMD_RDELETE,                    "Range Delete"             },
-  { PROTOCOL_BINARY_CMD_RDELETEQ,                   "Range Delete Quietly"     },
-  { PROTOCOL_BINARY_CMD_RINCR,                      "Range Increment"          },
-  { PROTOCOL_BINARY_CMD_RINCRQ,                     "Range Increment Quietly"  },
-  { PROTOCOL_BINARY_CMD_RDECR,                      "Range Decrement"          },
-  { PROTOCOL_BINARY_CMD_RDECRQ,                     "Range Decrement Quietly"  },
-  { PROTOCOL_BINARY_CMD_SET_VBUCKET,                "Set VBucket"              },
-  { PROTOCOL_BINARY_CMD_GET_VBUCKET,                "Get VBucket"              },
-  { PROTOCOL_BINARY_CMD_DEL_VBUCKET,                "Delete VBucket"           },
-  { PROTOCOL_BINARY_CMD_TAP_CONNECT,                "TAP Connect"              },
-  { PROTOCOL_BINARY_CMD_TAP_MUTATION,               "TAP Mutation"             },
-  { PROTOCOL_BINARY_CMD_TAP_DELETE,                 "TAP Delete"               },
-  { PROTOCOL_BINARY_CMD_TAP_FLUSH,                  "TAP Flush"                },
-  { PROTOCOL_BINARY_CMD_TAP_OPAQUE,                 "TAP Opaque"               },
-  { PROTOCOL_BINARY_CMD_TAP_VBUCKET_SET,            "TAP VBucket Set"          },
-  { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START,       "TAP Checkpoint Start"     },
-  { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END,         "TAP Checkpoint End"       },
-  { PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS,          "Get All VBucket Seqnos"   },
-  { PROTOCOL_BINARY_DCP_OPEN_CONNECTION,            "DCP Open Connection"      },
-  { PROTOCOL_BINARY_DCP_ADD_STREAM,                 "DCP Add Stream"           },
-  { PROTOCOL_BINARY_DCP_CLOSE_STREAM,               "DCP Close Stream"         },
-  { PROTOCOL_BINARY_DCP_STREAM_REQUEST,             "DCP Stream Request"       },
-  { PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST,       "DCP Get Failover Log"     },
-  { PROTOCOL_BINARY_DCP_STREAM_END,                 "DCP Stream End"           },
-  { PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER,            "DCP Snapshot Marker"      },
-  { PROTOCOL_BINARY_DCP_MUTATION,                   "DCP (Key) Mutation"       },
-  { PROTOCOL_BINARY_DCP_DELETION,                   "DCP (Key) Deletion"       },
-  { PROTOCOL_BINARY_DCP_EXPIRATION,                 "DCP (Key) Expiration"     },
-  { PROTOCOL_BINARY_DCP_FLUSH,                      "DCP Flush"                },
-  { PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE,          "DCP Set VBucket State"    },
-  { PROTOCOL_BINARY_DCP_NOOP,                       "DCP NOOP"                 },
-  { PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT,     "DCP Buffer Acknowledgement"},
-  { PROTOCOL_BINARY_DCP_CONTROL,                    "DCP Control"              },
-  { PROTOCOL_BINARY_DCP_SYSTEM_EVENT,               "DCP System Event"         },
-  { PROTOCOL_BINARY_DCP_PREPARE,                    "DCP Prepare"              },
-  { PROTOCOL_BINARY_DCP_SEQNO_ACK,                  "DCP Seqno Acknowledgement"},
-  { PROTOCOL_BINARY_DCP_COMMIT,                     "DCP Commit"               },
-  { PROTOCOL_BINARY_DCP_ABORT,                      "DCP Abort"                },
-  { PROTOCOL_BINARY_DCP_SEQNO_ADVANCED,             "DCP Seqno Advanced"       },
-  { PROTOCOL_BINARY_DCP_OSO_SNAPSHOT,               "DCP Out of Sequence Order Snapshot"},
-  { PROTOCOL_BINARY_CMD_STOP_PERSISTENCE,           "Stop Persistence"         },
-  { PROTOCOL_BINARY_CMD_START_PERSISTENCE,          "Start Persistence"        },
-  { PROTOCOL_BINARY_CMD_SET_PARAM,                  "Set Parameter"            },
-  { PROTOCOL_BINARY_CMD_GET_REPLICA,                "Get Replica"              },
-  { PROTOCOL_BINARY_CMD_CREATE_BUCKET,              "Create Bucket"            },
-  { PROTOCOL_BINARY_CMD_DELETE_BUCKET,              "Delete Bucket"            },
-  { PROTOCOL_BINARY_CMD_LIST_BUCKETS,               "List Buckets"             },
-  { PROTOCOL_BINARY_CMD_EXPAND_BUCKET,              "Expand Bucket"            },
-  { PROTOCOL_BINARY_CMD_SELECT_BUCKET,              "Select Bucket"            },
-  { PROTOCOL_BINARY_CMD_START_REPLICATION,          "Start Replication"        },
-  { PROTOCOL_BINARY_CMD_OBSERVE_SEQNO,              "Observe Sequence Number"  },
-  { PROTOCOL_BINARY_CMD_OBSERVE,                    "Observe"                  },
-  { PROTOCOL_BINARY_CMD_EVICT_KEY,                  "Evict Key"                },
-  { PROTOCOL_BINARY_CMD_GET_LOCKED,                 "Get Locked"               },
-  { PROTOCOL_BINARY_CMD_UNLOCK_KEY,                 "Unlock Key"               },
-  { PROTOCOL_BINARY_CMD_SYNC,                       "Sync"                     },
-  { PROTOCOL_BINARY_CMD_LAST_CLOSED_CHECKPOINT,     "Last Closed Checkpoint"   },
-  { PROTOCOL_BINARY_CMD_RESTORE_FILE,               "Restore File"             },
-  { PROTOCOL_BINARY_CMD_RESTORE_ABORT,              "Restore Abort"            },
-  { PROTOCOL_BINARY_CMD_RESTORE_COMPLETE,           "Restore Complete"         },
-  { PROTOCOL_BINARY_CMD_ONLINE_UPDATE_START,        "Online Update Start"      },
-  { PROTOCOL_BINARY_CMD_ONLINE_UPDATE_COMPLETE,     "Online Update Complete"   },
-  { PROTOCOL_BINARY_CMD_ONLINE_UPDATE_REVERT,       "Online Update Revert"     },
-  { PROTOCOL_BINARY_CMD_DEREGISTER_TAP_CLIENT,      "Deregister TAP Client"    },
-  { PROTOCOL_BINARY_CMD_RESET_REPLICATION_CHAIN,    "Reset Replication Chain"  },
-  { PROTOCOL_BINARY_CMD_GET_META,                   "Get Meta"                 },
-  { PROTOCOL_BINARY_CMD_GETQ_META,                  "Get Meta Quietly"         },
-  { PROTOCOL_BINARY_CMD_SET_WITH_META,              "Set with Meta"            },
-  { PROTOCOL_BINARY_CMD_SETQ_WITH_META,             "Set with Meta Quietly"    },
-  { PROTOCOL_BINARY_CMD_ADD_WITH_META,              "Add with Meta"            },
-  { PROTOCOL_BINARY_CMD_ADDQ_WITH_META,             "Add with Meta Quietly"    },
-  { PROTOCOL_BINARY_CMD_SNAPSHOT_VB_STATES,         "Snapshot VBuckets States" },
-  { PROTOCOL_BINARY_CMD_VBUCKET_BATCH_COUNT,        "VBucket Batch Count"      },
-  { PROTOCOL_BINARY_CMD_DEL_WITH_META,              "Delete with Meta"         },
-  { PROTOCOL_BINARY_CMD_DELQ_WITH_META,             "Delete with Meta Quietly" },
-  { PROTOCOL_BINARY_CMD_CREATE_CHECKPOINT,          "Create Checkpoint"        },
-  { PROTOCOL_BINARY_CMD_NOTIFY_VBUCKET_UPDATE,      "Notify VBucket Update"    },
-  { PROTOCOL_BINARY_CMD_ENABLE_TRAFFIC,             "Enable Traffic"           },
-  { PROTOCOL_BINARY_CMD_DISABLE_TRAFFIC,            "Disable Traffic"          },
-  { PROTOCOL_BINARY_CMD_IFCONFIG,                   "Ifconfig"                 },
-  { PROTOCOL_BINARY_CMD_CHANGE_VB_FILTER,           "Change VBucket Filter"    },
-  { PROTOCOL_BINARY_CMD_CHECKPOINT_PERSISTENCE,     "Checkpoint Persistence"   },
-  { PROTOCOL_BINARY_CMD_RETURN_META,                "Return Meta"              },
-  { PROTOCOL_BINARY_CMD_COMPACT_DB,                 "Compact Database"         },
-  { PROTOCOL_BINARY_CMD_SET_CLUSTER_CONFIG,         "Set Cluster Config"       },
-  { PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
-  { PROTOCOL_BINARY_CMD_GET_RANDOM_KEY,             "Get Random Key"           },
-  { PROTOCOL_BINARY_CMD_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
-  { PROTOCOL_BINARY_CMD_GET_KEYS,                   "Get Keys"                 },
-  { PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST,   "Set Collection's Manifest" },
-  { PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST,   "Get Collection's Manifest" },
-  { PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID,         "Get Collection ID"        },
-  { PROTOCOL_BINARY_CMD_COLLECTIONS_GET_SCOPE_ID,   "Get Scope ID"             },
-  { PROTOCOL_BINARY_CMD_SET_DRIFT_COUNTER_STATE,    "Set Drift Counter State"  },
-  { PROTOCOL_BINARY_CMD_GET_ADJUSTED_TIME,          "Get Adjusted Time"        },
-  { PROTOCOL_BINARY_CMD_SUBDOC_GET,                 "Subdoc Get"               },
-  { PROTOCOL_BINARY_CMD_SUBDOC_EXISTS,              "Subdoc Exists"            },
-  { PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD,            "Subdoc Dictionary Add"    },
-  { PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT,         "Subdoc Dictionary Upsert" },
-  { PROTOCOL_BINARY_CMD_SUBDOC_DELETE,              "Subdoc Delete"            },
-  { PROTOCOL_BINARY_CMD_SUBDOC_REPLACE,             "Subdoc Replace"           },
-  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST,     "Subdoc Array Push Last"   },
-  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST,    "Subdoc Array Push First"  },
-  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT,        "Subdoc Array Insert"      },
-  { PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE,    "Subdoc Array Add Unique"  },
-  { PROTOCOL_BINARY_CMD_SUBDOC_COUNTER,             "Subdoc Counter"           },
-  { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP,        "Subdoc Multipath Lookup"  },
-  { PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION,      "Subdoc Multipath Mutation"},
-  { PROTOCOL_BINARY_CMD_SUBDOC_GET_COUNT,           "Subdoc Get Count"         },
-  { PROTOCOL_BINARY_CMD_SUBDOC_REPLACE_BODY_WITH_XATTR, "Subdoc Replace Body With Xattr"},
-  { PROTOCOL_BINARY_CMD_SCRUB,                      "Scrub"                    },
-  { PROTOCOL_BINARY_CMD_ISASL_REFRESH,              "isasl Refresh"            },
-  { PROTOCOL_BINARY_CMD_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
-  { PROTOCOL_BINARY_CMD_GET_CMD_TIMER,              "Internal Timer Control"   },
-  { PROTOCOL_BINARY_CMD_SET_CTRL_TOKEN,             "Set Control Token"        },
-  { PROTOCOL_BINARY_CMD_GET_CTRL_TOKEN,             "Get Control Token"        },
-  { PROTOCOL_BINARY_CMD_UPDATE_EXTERNAL_USER_PERMISSIONS, "Update External User Permissions"},
-  { PROTOCOL_BINARY_CMD_RBAC_REFRESH,               "RBAC Refresh"             },
-  { PROTOCOL_BINARY_CMD_AUTH_PROVIDER,              "Auth Provider"            },
-  { PROTOCOL_BINARY_CMD_DROP_PRIVILEGE,             "Drop Privilege"           },
-  { PROTOCOL_BINARY_CMD_ADJUST_TIMEOFDAY,           "Adjust Timeofday"         },
-  { PROTOCOL_BINARY_CMD_EWOULDBLOCK_CTL,            "EWOULDBLOCK Control"      },
-  { PROTOCOL_BINARY_CMD_GET_ERROR_MAP,              "Get Error Map"            },
+  { CLIENT_OPCODE_GET,                        "Get"                      },
+  { CLIENT_OPCODE_SET,                        "Set"                      },
+  { CLIENT_OPCODE_ADD,                        "Add"                      },
+  { CLIENT_OPCODE_REPLACE,                    "Replace"                  },
+  { CLIENT_OPCODE_DELETE,                     "Delete"                   },
+  { CLIENT_OPCODE_INCREMENT,                  "Increment"                },
+  { CLIENT_OPCODE_DECREMENT,                  "Decrement"                },
+  { CLIENT_OPCODE_QUIT,                       "Quit"                     },
+  { CLIENT_OPCODE_FLUSH,                      "Flush"                    },
+  { CLIENT_OPCODE_GETQ,                       "Get Quietly"              },
+  { CLIENT_OPCODE_NOOP,                       "NOOP"                     },
+  { CLIENT_OPCODE_VERSION,                    "Version"                  },
+  { CLIENT_OPCODE_GETK,                       "Get Key"                  },
+  { CLIENT_OPCODE_GETKQ,                      "Get Key Quietly"          },
+  { CLIENT_OPCODE_APPEND,                     "Append"                   },
+  { CLIENT_OPCODE_PREPEND,                    "Prepend"                  },
+  { CLIENT_OPCODE_STAT,                       "Statistics"               },
+  { CLIENT_OPCODE_SETQ,                       "Set Quietly"              },
+  { CLIENT_OPCODE_ADDQ,                       "Add Quietly"              },
+  { CLIENT_OPCODE_REPLACEQ,                   "Replace Quietly"          },
+  { CLIENT_OPCODE_DELETEQ,                    "Delete Quietly"           },
+  { CLIENT_OPCODE_INCREMENTQ,                 "Increment Quietly"        },
+  { CLIENT_OPCODE_DECREMENTQ,                 "Decrement Quietly"        },
+  { CLIENT_OPCODE_QUITQ,                      "Quit Quietly"             },
+  { CLIENT_OPCODE_FLUSHQ,                     "Flush Quietly"            },
+  { CLIENT_OPCODE_APPENDQ,                    "Append Quietly"           },
+  { CLIENT_OPCODE_PREPENDQ,                   "Prepend Quietly"          },
+  { CLIENT_OPCODE_VERBOSITY,                  "Verbosity"                },
+  { CLIENT_OPCODE_TOUCH,                      "Touch"                    },
+  { CLIENT_OPCODE_GAT,                        "Get and Touch"            },
+  { CLIENT_OPCODE_GATQ,                       "Gat and Touch Quietly"    },
+  { CLIENT_OPCODE_HELLO,                      "Hello"                    },
+  { CLIENT_OPCODE_SASL_LIST_MECHS,            "List SASL Mechanisms"     },
+  { CLIENT_OPCODE_SASL_AUTH,                  "SASL Authenticate"        },
+  { CLIENT_OPCODE_SASL_STEP,                  "SASL Step"                },
+  { CLIENT_OPCODE_IOCTL_GET,                  "IOCTL Get"                },
+  { CLIENT_OPCODE_IOCTL_SET,                  "IOCTL Set"                },
+  { CLIENT_OPCODE_CONFIG_VALIDATE,            "Config Validate"          },
+  { CLIENT_OPCODE_CONFIG_RELOAD,              "Config Reload"            },
+  { CLIENT_OPCODE_AUDIT_PUT,                  "Audit Put"                },
+  { CLIENT_OPCODE_AUDIT_CONFIG_RELOAD,        "Audit Config Reload"      },
+  { CLIENT_OPCODE_SHUTDOWN,                   "Shutdown"                 },
+  { CLIENT_OPCODE_RGET,                       "Range Get"                },
+  { CLIENT_OPCODE_RSET,                       "Range Set"                },
+  { CLIENT_OPCODE_RSETQ,                      "Range Set Quietly"        },
+  { CLIENT_OPCODE_RAPPEND,                    "Range Append"             },
+  { CLIENT_OPCODE_RAPPENDQ,                   "Range Append Quietly"     },
+  { CLIENT_OPCODE_RPREPEND,                   "Range Prepend"            },
+  { CLIENT_OPCODE_RPREPENDQ,                  "Range Prepend Quietly"    },
+  { CLIENT_OPCODE_RDELETE,                    "Range Delete"             },
+  { CLIENT_OPCODE_RDELETEQ,                   "Range Delete Quietly"     },
+  { CLIENT_OPCODE_RINCR,                      "Range Increment"          },
+  { CLIENT_OPCODE_RINCRQ,                     "Range Increment Quietly"  },
+  { CLIENT_OPCODE_RDECR,                      "Range Decrement"          },
+  { CLIENT_OPCODE_RDECRQ,                     "Range Decrement Quietly"  },
+  { CLIENT_OPCODE_SET_VBUCKET,                "Set VBucket"              },
+  { CLIENT_OPCODE_GET_VBUCKET,                "Get VBucket"              },
+  { CLIENT_OPCODE_DEL_VBUCKET,                "Delete VBucket"           },
+  { CLIENT_OPCODE_TAP_CONNECT,                "TAP Connect"              },
+  { CLIENT_OPCODE_TAP_MUTATION,               "TAP Mutation"             },
+  { CLIENT_OPCODE_TAP_DELETE,                 "TAP Delete"               },
+  { CLIENT_OPCODE_TAP_FLUSH,                  "TAP Flush"                },
+  { CLIENT_OPCODE_TAP_OPAQUE,                 "TAP Opaque"               },
+  { CLIENT_OPCODE_TAP_VBUCKET_SET,            "TAP VBucket Set"          },
+  { CLIENT_OPCODE_TAP_CHECKPOINT_START,       "TAP Checkpoint Start"     },
+  { CLIENT_OPCODE_TAP_CHECKPOINT_END,         "TAP Checkpoint End"       },
+  { CLIENT_OPCODE_GET_ALL_VB_SEQNOS,          "Get All VBucket Seqnos"   },
+  { CLIENT_OPCODE_DCP_OPEN_CONNECTION,        "DCP Open Connection"      },
+  { CLIENT_OPCODE_DCP_ADD_STREAM,             "DCP Add Stream"           },
+  { CLIENT_OPCODE_DCP_CLOSE_STREAM,           "DCP Close Stream"         },
+  { CLIENT_OPCODE_DCP_STREAM_REQUEST,         "DCP Stream Request"       },
+  { CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST,   "DCP Get Failover Log"     },
+  { CLIENT_OPCODE_DCP_STREAM_END,             "DCP Stream End"           },
+  { CLIENT_OPCODE_DCP_SNAPSHOT_MARKER,        "DCP Snapshot Marker"      },
+  { CLIENT_OPCODE_DCP_MUTATION,               "DCP (Key) Mutation"       },
+  { CLIENT_OPCODE_DCP_DELETION,               "DCP (Key) Deletion"       },
+  { CLIENT_OPCODE_DCP_EXPIRATION,             "DCP (Key) Expiration"     },
+  { CLIENT_OPCODE_DCP_FLUSH,                  "DCP Flush"                },
+  { CLIENT_OPCODE_DCP_SET_VBUCKET_STATE,      "DCP Set VBucket State"    },
+  { CLIENT_OPCODE_DCP_NOOP,                   "DCP NOOP"                 },
+  { CLIENT_OPCODE_DCP_BUFFER_ACKNOWLEDGEMENT, "DCP Buffer Acknowledgement"},
+  { CLIENT_OPCODE_DCP_CONTROL,                "DCP Control"              },
+  { CLIENT_OPCODE_DCP_SYSTEM_EVENT,           "DCP System Event"         },
+  { CLIENT_OPCODE_DCP_PREPARE,                "DCP Prepare"              },
+  { CLIENT_OPCODE_DCP_SEQNO_ACK,              "DCP Seqno Acknowledgement"},
+  { CLIENT_OPCODE_DCP_COMMIT,                 "DCP Commit"               },
+  { CLIENT_OPCODE_DCP_ABORT,                  "DCP Abort"                },
+  { CLIENT_OPCODE_DCP_SEQNO_ADVANCED,         "DCP Seqno Advanced"       },
+  { CLIENT_OPCODE_DCP_OSO_SNAPSHOT,           "DCP Out of Sequence Order Snapshot"},
+  { CLIENT_OPCODE_STOP_PERSISTENCE,           "Stop Persistence"         },
+  { CLIENT_OPCODE_START_PERSISTENCE,          "Start Persistence"        },
+  { CLIENT_OPCODE_SET_PARAM,                  "Set Parameter"            },
+  { CLIENT_OPCODE_GET_REPLICA,                "Get Replica"              },
+  { CLIENT_OPCODE_CREATE_BUCKET,              "Create Bucket"            },
+  { CLIENT_OPCODE_DELETE_BUCKET,              "Delete Bucket"            },
+  { CLIENT_OPCODE_LIST_BUCKETS,               "List Buckets"             },
+  { CLIENT_OPCODE_EXPAND_BUCKET,              "Expand Bucket"            },
+  { CLIENT_OPCODE_SELECT_BUCKET,              "Select Bucket"            },
+  { CLIENT_OPCODE_START_REPLICATION,          "Start Replication"        },
+  { CLIENT_OPCODE_OBSERVE_SEQNO,              "Observe Sequence Number"  },
+  { CLIENT_OPCODE_OBSERVE,                    "Observe"                  },
+  { CLIENT_OPCODE_EVICT_KEY,                  "Evict Key"                },
+  { CLIENT_OPCODE_GET_LOCKED,                 "Get Locked"               },
+  { CLIENT_OPCODE_UNLOCK_KEY,                 "Unlock Key"               },
+  { CLIENT_OPCODE_SYNC,                       "Sync"                     },
+  { CLIENT_OPCODE_LAST_CLOSED_CHECKPOINT,     "Last Closed Checkpoint"   },
+  { CLIENT_OPCODE_RESTORE_FILE,               "Restore File"             },
+  { CLIENT_OPCODE_RESTORE_ABORT,              "Restore Abort"            },
+  { CLIENT_OPCODE_RESTORE_COMPLETE,           "Restore Complete"         },
+  { CLIENT_OPCODE_ONLINE_UPDATE_START,        "Online Update Start"      },
+  { CLIENT_OPCODE_ONLINE_UPDATE_COMPLETE,     "Online Update Complete"   },
+  { CLIENT_OPCODE_ONLINE_UPDATE_REVERT,       "Online Update Revert"     },
+  { CLIENT_OPCODE_DEREGISTER_TAP_CLIENT,      "Deregister TAP Client"    },
+  { CLIENT_OPCODE_RESET_REPLICATION_CHAIN,    "Reset Replication Chain"  },
+  { CLIENT_OPCODE_GET_META,                   "Get Meta"                 },
+  { CLIENT_OPCODE_GETQ_META,                  "Get Meta Quietly"         },
+  { CLIENT_OPCODE_SET_WITH_META,              "Set with Meta"            },
+  { CLIENT_OPCODE_SETQ_WITH_META,             "Set with Meta Quietly"    },
+  { CLIENT_OPCODE_ADD_WITH_META,              "Add with Meta"            },
+  { CLIENT_OPCODE_ADDQ_WITH_META,             "Add with Meta Quietly"    },
+  { CLIENT_OPCODE_SNAPSHOT_VB_STATES,         "Snapshot VBuckets States" },
+  { CLIENT_OPCODE_VBUCKET_BATCH_COUNT,        "VBucket Batch Count"      },
+  { CLIENT_OPCODE_DEL_WITH_META,              "Delete with Meta"         },
+  { CLIENT_OPCODE_DELQ_WITH_META,             "Delete with Meta Quietly" },
+  { CLIENT_OPCODE_CREATE_CHECKPOINT,          "Create Checkpoint"        },
+  { CLIENT_OPCODE_NOTIFY_VBUCKET_UPDATE,      "Notify VBucket Update"    },
+  { CLIENT_OPCODE_ENABLE_TRAFFIC,             "Enable Traffic"           },
+  { CLIENT_OPCODE_DISABLE_TRAFFIC,            "Disable Traffic"          },
+  { CLIENT_OPCODE_IFCONFIG,                   "Ifconfig"                 },
+  { CLIENT_OPCODE_CHANGE_VB_FILTER,           "Change VBucket Filter"    },
+  { CLIENT_OPCODE_CHECKPOINT_PERSISTENCE,     "Checkpoint Persistence"   },
+  { CLIENT_OPCODE_RETURN_META,                "Return Meta"              },
+  { CLIENT_OPCODE_COMPACT_DB,                 "Compact Database"         },
+  { CLIENT_OPCODE_SET_CLUSTER_CONFIG,         "Set Cluster Config"       },
+  { CLIENT_OPCODE_GET_CLUSTER_CONFIG,         "Get Cluster Config"       },
+  { CLIENT_OPCODE_GET_RANDOM_KEY,             "Get Random Key"           },
+  { CLIENT_OPCODE_SEQNO_PERSISTENCE,          "Seqno Persistence"        },
+  { CLIENT_OPCODE_GET_KEYS,                   "Get Keys"                 },
+  { CLIENT_OPCODE_COLLECTIONS_SET_MANIFEST,   "Set Collection's Manifest" },
+  { CLIENT_OPCODE_COLLECTIONS_GET_MANIFEST,   "Get Collection's Manifest" },
+  { CLIENT_OPCODE_COLLECTIONS_GET_ID,         "Get Collection ID"        },
+  { CLIENT_OPCODE_COLLECTIONS_GET_SCOPE_ID,   "Get Scope ID"             },
+  { CLIENT_OPCODE_SET_DRIFT_COUNTER_STATE,    "Set Drift Counter State"  },
+  { CLIENT_OPCODE_GET_ADJUSTED_TIME,          "Get Adjusted Time"        },
+  { CLIENT_OPCODE_SUBDOC_GET,                 "Subdoc Get"               },
+  { CLIENT_OPCODE_SUBDOC_EXISTS,              "Subdoc Exists"            },
+  { CLIENT_OPCODE_SUBDOC_DICT_ADD,            "Subdoc Dictionary Add"    },
+  { CLIENT_OPCODE_SUBDOC_DICT_UPSERT,         "Subdoc Dictionary Upsert" },
+  { CLIENT_OPCODE_SUBDOC_DELETE,              "Subdoc Delete"            },
+  { CLIENT_OPCODE_SUBDOC_REPLACE,             "Subdoc Replace"           },
+  { CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_LAST,     "Subdoc Array Push Last"   },
+  { CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_FIRST,    "Subdoc Array Push First"  },
+  { CLIENT_OPCODE_SUBDOC_ARRAY_INSERT,        "Subdoc Array Insert"      },
+  { CLIENT_OPCODE_SUBDOC_ARRAY_ADD_UNIQUE,    "Subdoc Array Add Unique"  },
+  { CLIENT_OPCODE_SUBDOC_COUNTER,             "Subdoc Counter"           },
+  { CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP,        "Subdoc Multipath Lookup"  },
+  { CLIENT_OPCODE_SUBDOC_MULTI_MUTATION,      "Subdoc Multipath Mutation"},
+  { CLIENT_OPCODE_SUBDOC_GET_COUNT,           "Subdoc Get Count"         },
+  { CLIENT_OPCODE_SUBDOC_REPLACE_BODY_WITH_XATTR, "Subdoc Replace Body With Xattr"},
+  { CLIENT_OPCODE_SCRUB,                      "Scrub"                    },
+  { CLIENT_OPCODE_ISASL_REFRESH,              "isasl Refresh"            },
+  { CLIENT_OPCODE_SSL_CERTS_REFRESH,          "SSL Certificates Refresh" },
+  { CLIENT_OPCODE_GET_CMD_TIMER,              "Internal Timer Control"   },
+  { CLIENT_OPCODE_SET_CTRL_TOKEN,             "Set Control Token"        },
+  { CLIENT_OPCODE_GET_CTRL_TOKEN,             "Get Control Token"        },
+  { CLIENT_OPCODE_UPDATE_EXTERNAL_USER_PERMISSIONS, "Update External User Permissions"},
+  { CLIENT_OPCODE_RBAC_REFRESH,               "RBAC Refresh"             },
+  { CLIENT_OPCODE_AUTH_PROVIDER,              "Auth Provider"            },
+  { CLIENT_OPCODE_DROP_PRIVILEGE,             "Drop Privilege"           },
+  { CLIENT_OPCODE_ADJUST_TIMEOFDAY,           "Adjust Timeofday"         },
+  { CLIENT_OPCODE_EWOULDBLOCK_CTL,            "EWOULDBLOCK Control"      },
+  { CLIENT_OPCODE_GET_ERROR_MAP,              "Get Error Map"            },
 
   /* Internally defined values not valid here */
   { 0, NULL }
@@ -1019,7 +1019,7 @@ has_json_value(gboolean is_request, guint8 opcode)
 {
   if (is_request) {
     switch (opcode) {
-    case PROTOCOL_BINARY_CMD_AUDIT_PUT:
+    case CLIENT_OPCODE_AUDIT_PUT:
       return TRUE;
 
     default:
@@ -1027,10 +1027,10 @@ has_json_value(gboolean is_request, guint8 opcode)
     }
   } else {
     switch (opcode) {
-    case PROTOCOL_BINARY_CMD_GET_CLUSTER_CONFIG:
-    case PROTOCOL_BINARY_CMD_SUBDOC_GET:
-    case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST:
-    case PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST:
+    case CLIENT_OPCODE_GET_CLUSTER_CONFIG:
+    case CLIENT_OPCODE_SUBDOC_GET:
+    case CLIENT_OPCODE_COLLECTIONS_GET_MANIFEST:
+    case CLIENT_OPCODE_COLLECTIONS_SET_MANIFEST:
       return TRUE;
 
     default:
@@ -1138,10 +1138,10 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   switch (opcode) {
 
-  case PROTOCOL_BINARY_CMD_GET:
-  case PROTOCOL_BINARY_CMD_GETQ:
-  case PROTOCOL_BINARY_CMD_GETK:
-  case PROTOCOL_BINARY_CMD_GETKQ:
+  case CLIENT_OPCODE_GET:
+  case CLIENT_OPCODE_GETQ:
+  case CLIENT_OPCODE_GETK:
+  case CLIENT_OPCODE_GETKQ:
     if (extlen) {
       if (request) {
         /* Request shall not have extras */
@@ -1156,12 +1156,12 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_SET:
-  case PROTOCOL_BINARY_CMD_SETQ:
-  case PROTOCOL_BINARY_CMD_ADD:
-  case PROTOCOL_BINARY_CMD_ADDQ:
-  case PROTOCOL_BINARY_CMD_REPLACE:
-  case PROTOCOL_BINARY_CMD_REPLACEQ:
+  case CLIENT_OPCODE_SET:
+  case CLIENT_OPCODE_SETQ:
+  case CLIENT_OPCODE_ADD:
+  case CLIENT_OPCODE_ADDQ:
+  case CLIENT_OPCODE_REPLACE:
+  case CLIENT_OPCODE_REPLACEQ:
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1182,10 +1182,10 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_INCREMENT:
-  case PROTOCOL_BINARY_CMD_INCREMENTQ:
-  case PROTOCOL_BINARY_CMD_DECREMENT:
-  case PROTOCOL_BINARY_CMD_DECREMENTQ:
+  case CLIENT_OPCODE_INCREMENT:
+  case CLIENT_OPCODE_INCREMENTQ:
+  case CLIENT_OPCODE_DECREMENT:
+  case CLIENT_OPCODE_DECREMENTQ:
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_delta, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1209,20 +1209,20 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_FLUSH:
-  case PROTOCOL_BINARY_CMD_FLUSHQ:
+  case CLIENT_OPCODE_FLUSH:
+  case CLIENT_OPCODE_FLUSHQ:
     if (extlen) {
       proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_DELETE:
-  case PROTOCOL_BINARY_CMD_DELETEQ:
-  case PROTOCOL_BINARY_CMD_APPEND:
-  case PROTOCOL_BINARY_CMD_APPENDQ:
-  case PROTOCOL_BINARY_CMD_PREPEND:
-  case PROTOCOL_BINARY_CMD_PREPENDQ:
+  case CLIENT_OPCODE_DELETE:
+  case CLIENT_OPCODE_DELETEQ:
+  case CLIENT_OPCODE_APPEND:
+  case CLIENT_OPCODE_APPENDQ:
+  case CLIENT_OPCODE_PREPEND:
+  case CLIENT_OPCODE_PREPENDQ:
     if (extlen) {
       if (request) {
         /* Must not have extras */
@@ -1237,19 +1237,19 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_QUIT:
-  case PROTOCOL_BINARY_CMD_QUITQ:
-  case PROTOCOL_BINARY_CMD_VERSION:
-  case PROTOCOL_BINARY_CMD_STAT:
-  case PROTOCOL_BINARY_CMD_OBSERVE:
-  case PROTOCOL_BINARY_CMD_OBSERVE_SEQNO:
+  case CLIENT_OPCODE_QUIT:
+  case CLIENT_OPCODE_QUITQ:
+  case CLIENT_OPCODE_VERSION:
+  case CLIENT_OPCODE_STAT:
+  case CLIENT_OPCODE_OBSERVE:
+  case CLIENT_OPCODE_OBSERVE_SEQNO:
     /* Must not have extras */
     if (extlen) {
       illegal = TRUE;
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS:
+  case CLIENT_OPCODE_GET_ALL_VB_SEQNOS:
     if (extlen) {
       if (request) {
         /* May have extras */
@@ -1262,7 +1262,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_TAP_CONNECT:
+  case CLIENT_OPCODE_TAP_CONNECT:
     {
     static int * const extra_flags[] = {
         &hf_extras_flags_backfill,
@@ -1301,16 +1301,16 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_TAP_MUTATION:
-  case PROTOCOL_BINARY_CMD_TAP_DELETE:
-  case PROTOCOL_BINARY_CMD_TAP_FLUSH:
-  case PROTOCOL_BINARY_CMD_TAP_OPAQUE:
-  case PROTOCOL_BINARY_CMD_TAP_VBUCKET_SET:
-  case PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START:
-  case PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END:
+  case CLIENT_OPCODE_TAP_MUTATION:
+  case CLIENT_OPCODE_TAP_DELETE:
+  case CLIENT_OPCODE_TAP_FLUSH:
+  case CLIENT_OPCODE_TAP_OPAQUE:
+  case CLIENT_OPCODE_TAP_VBUCKET_SET:
+  case CLIENT_OPCODE_TAP_CHECKPOINT_START:
+  case CLIENT_OPCODE_TAP_CHECKPOINT_END:
     break;
 
-  case PROTOCOL_BINARY_DCP_OPEN_CONNECTION:
+  case CLIENT_OPCODE_DCP_OPEN_CONNECTION:
     if (extlen) {
       if (request) {
         static int * const extra_flags[] = {
@@ -1336,7 +1336,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_DCP_ADD_STREAM:
+  case CLIENT_OPCODE_DCP_ADD_STREAM:
     if (extlen) {
       if (request) {
         static int * const extra_flags[] = {
@@ -1357,7 +1357,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_DCP_STREAM_REQUEST:
+  case CLIENT_OPCODE_DCP_STREAM_REQUEST:
     if (extlen) {
       if (request) {
         /* No extra_flags and proto_tree_add_bitmask don't work with empty flags See Bug:17890
@@ -1388,7 +1388,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER:
+  case CLIENT_OPCODE_DCP_SNAPSHOT_MARKER:
     if (extlen) {
       if (request) {
         // Two formats exist and the extlen allows us to know which is which
@@ -1414,7 +1414,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_DCP_MUTATION:
+  case CLIENT_OPCODE_DCP_MUTATION:
     if (extlen) {
       if (request) {
         /* No extra_flags and proto_tree_add_bitmask don't work with empty flags See Bug:17890
@@ -1449,7 +1449,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_DCP_DELETION:
+  case CLIENT_OPCODE_DCP_DELETION:
     if (request) {
       if (extlen == 18 || extlen == 21) {
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1474,7 +1474,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         illegal = TRUE; // response with extras
     }
     break;
-  case PROTOCOL_BINARY_DCP_EXPIRATION:
+  case CLIENT_OPCODE_DCP_EXPIRATION:
     if (extlen) {
         if (request) {
             proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1497,7 +1497,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         missing = TRUE;
     }
     break;
-  case PROTOCOL_BINARY_DCP_FLUSH:
+  case CLIENT_OPCODE_DCP_FLUSH:
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1515,7 +1515,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT:
+  case CLIENT_OPCODE_DCP_BUFFER_ACKNOWLEDGEMENT:
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_bytes_to_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1528,7 +1528,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       missing = TRUE;
     }
     break;
-  case PROTOCOL_BINARY_DCP_SYSTEM_EVENT: {
+  case CLIENT_OPCODE_DCP_SYSTEM_EVENT: {
     if (request && extlen == 13) {
       proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
       offset += 8;
@@ -1539,7 +1539,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   }
-  case PROTOCOL_BINARY_DCP_PREPARE: {
+  case CLIENT_OPCODE_DCP_PREPARE: {
     if (extlen) {
       if (request) {
         /* No extra_flags and proto_tree_add_bitmask don't work with empty flags See Bug:17890
@@ -1576,7 +1576,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   }
-  case PROTOCOL_BINARY_DCP_SEQNO_ACK: {
+  case CLIENT_OPCODE_DCP_SEQNO_ACK: {
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1590,7 +1590,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   }
-  case PROTOCOL_BINARY_DCP_COMMIT: {
+  case CLIENT_OPCODE_DCP_COMMIT: {
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_prepared_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1606,7 +1606,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   }
-  case PROTOCOL_BINARY_DCP_ABORT: {
+  case CLIENT_OPCODE_DCP_ABORT: {
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_prepared_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1622,7 +1622,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   }
-  case PROTOCOL_BINARY_DCP_SEQNO_ADVANCED: {
+  case CLIENT_OPCODE_DCP_SEQNO_ADVANCED: {
     if (extlen) {
       if (request) {
         proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
@@ -1636,7 +1636,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   }
-  case PROTOCOL_BINARY_DCP_OSO_SNAPSHOT: {
+  case CLIENT_OPCODE_DCP_OSO_SNAPSHOT: {
     if (extlen) {
       if (request) {
         static int * const extra_flags[] = {
@@ -1661,8 +1661,8 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
   }
-  case PROTOCOL_BINARY_CMD_SUBDOC_GET:
-  case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
+  case CLIENT_OPCODE_SUBDOC_GET:
+  case CLIENT_OPCODE_SUBDOC_EXISTS:
     dissect_subdoc_spath_required_extras(tvb, extras_tree, extlen, request,
                                          &offset, path_len, &illegal);
     if (extlen == 4) {
@@ -1672,15 +1672,15 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD:
-  case PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT:
-  case PROTOCOL_BINARY_CMD_SUBDOC_DELETE:
-  case PROTOCOL_BINARY_CMD_SUBDOC_REPLACE:
-  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST:
-  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST:
-  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT:
-  case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE:
-  case PROTOCOL_BINARY_CMD_SUBDOC_COUNTER:
+  case CLIENT_OPCODE_SUBDOC_DICT_ADD:
+  case CLIENT_OPCODE_SUBDOC_DICT_UPSERT:
+  case CLIENT_OPCODE_SUBDOC_DELETE:
+  case CLIENT_OPCODE_SUBDOC_REPLACE:
+  case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_LAST:
+  case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_FIRST:
+  case CLIENT_OPCODE_SUBDOC_ARRAY_INSERT:
+  case CLIENT_OPCODE_SUBDOC_ARRAY_ADD_UNIQUE:
+  case CLIENT_OPCODE_SUBDOC_COUNTER:
     dissect_subdoc_spath_required_extras(tvb, extras_tree, extlen, request,
                                          &offset, path_len, &illegal);
     if (request) {
@@ -1705,7 +1705,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP:
+  case CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP:
     if (request) {
       if (extlen == 1) {
         proto_tree_add_bitmask(extras_tree, tvb, offset, hf_subdoc_doc_flags,
@@ -1718,7 +1718,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION:
+  case CLIENT_OPCODE_SUBDOC_MULTI_MUTATION:
     if (request) {
       if (extlen == 4 || extlen == 5) {
         proto_tree_add_item(extras_tree, hf_extras_expiration, tvb, offset, 4,
@@ -1736,8 +1736,8 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_DEL_WITH_META:
-  case PROTOCOL_BINARY_CMD_SET_WITH_META:
+  case CLIENT_OPCODE_DEL_WITH_META:
+  case CLIENT_OPCODE_SET_WITH_META:
     if (request) {
       proto_tree_add_item(extras_tree, hf_meta_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
@@ -1760,7 +1760,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                   offset,
                   hf_meta_options,
                   ett_extras_flags,
-                  (opcode == PROTOCOL_BINARY_CMD_DEL_WITH_META) ?
+                  (opcode == CLIENT_OPCODE_DEL_WITH_META) ?
                       del_with_meta_extra_flags : set_with_meta_extra_flags,
                   ENC_BIG_ENDIAN);
           offset += 4;
@@ -1773,7 +1773,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
-  case PROTOCOL_BINARY_CMD_GET_META:
+  case CLIENT_OPCODE_GET_META:
     if (request) {
       if(extlen) {
         proto_tree_add_item(extras_tree, hf_meta_reqextmeta, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1794,7 +1794,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     }
     break;
-  case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID:
+  case CLIENT_OPCODE_COLLECTIONS_GET_ID:
     if (!request) {
       proto_tree_add_item(extras_tree, hf_collection_manifest_id, tvb, offset, 8, ENC_BIG_ENDIAN);
       offset += 8;
@@ -1913,43 +1913,43 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* inSanity check */
   if (keylen) {
     switch (opcode) {
-    case PROTOCOL_BINARY_CMD_QUIT:
-    case PROTOCOL_BINARY_CMD_QUITQ:
-    case PROTOCOL_BINARY_CMD_NOOP:
-    case PROTOCOL_BINARY_CMD_VERSION:
-    case PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST:
-    case PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT:
-    case PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS:
+    case CLIENT_OPCODE_QUIT:
+    case CLIENT_OPCODE_QUITQ:
+    case CLIENT_OPCODE_NOOP:
+    case CLIENT_OPCODE_VERSION:
+    case CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST:
+    case CLIENT_OPCODE_DCP_BUFFER_ACKNOWLEDGEMENT:
+    case CLIENT_OPCODE_GET_ALL_VB_SEQNOS:
       /* Request and Response must not have key */
       illegal = TRUE;
       break;
 
-    case PROTOCOL_BINARY_CMD_SET:
-    case PROTOCOL_BINARY_CMD_ADD:
-    case PROTOCOL_BINARY_CMD_REPLACE:
-    case PROTOCOL_BINARY_CMD_DELETE:
-    case PROTOCOL_BINARY_CMD_SETQ:
-    case PROTOCOL_BINARY_CMD_ADDQ:
-    case PROTOCOL_BINARY_CMD_REPLACEQ:
-    case PROTOCOL_BINARY_CMD_DELETEQ:
-    case PROTOCOL_BINARY_CMD_FLUSH:
-    case PROTOCOL_BINARY_CMD_APPEND:
-    case PROTOCOL_BINARY_CMD_PREPEND:
-    case PROTOCOL_BINARY_CMD_FLUSHQ:
-    case PROTOCOL_BINARY_CMD_APPENDQ:
-    case PROTOCOL_BINARY_CMD_PREPENDQ:
+    case CLIENT_OPCODE_SET:
+    case CLIENT_OPCODE_ADD:
+    case CLIENT_OPCODE_REPLACE:
+    case CLIENT_OPCODE_DELETE:
+    case CLIENT_OPCODE_SETQ:
+    case CLIENT_OPCODE_ADDQ:
+    case CLIENT_OPCODE_REPLACEQ:
+    case CLIENT_OPCODE_DELETEQ:
+    case CLIENT_OPCODE_FLUSH:
+    case CLIENT_OPCODE_APPEND:
+    case CLIENT_OPCODE_PREPEND:
+    case CLIENT_OPCODE_FLUSHQ:
+    case CLIENT_OPCODE_APPENDQ:
+    case CLIENT_OPCODE_PREPENDQ:
       /* Response must not have a key */
       if (!request) {
         illegal = TRUE;
       }
       break;
 
-    case PROTOCOL_BINARY_DCP_ADD_STREAM:
-    case PROTOCOL_BINARY_DCP_CLOSE_STREAM:
-    case PROTOCOL_BINARY_DCP_STREAM_END:
-    case PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER:
-    case PROTOCOL_BINARY_DCP_FLUSH:
-    case PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE:
+    case CLIENT_OPCODE_DCP_ADD_STREAM:
+    case CLIENT_OPCODE_DCP_CLOSE_STREAM:
+    case CLIENT_OPCODE_DCP_STREAM_END:
+    case CLIENT_OPCODE_DCP_SNAPSHOT_MARKER:
+    case CLIENT_OPCODE_DCP_FLUSH:
+    case CLIENT_OPCODE_DCP_SET_VBUCKET_STATE:
       /* Request must not have a key */
       if (request) {
         illegal = TRUE;
@@ -1958,27 +1958,27 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   } else {
     switch (opcode) {
-    case PROTOCOL_BINARY_CMD_GET:
-    case PROTOCOL_BINARY_CMD_GETQ:
-    case PROTOCOL_BINARY_CMD_GETK:
-    case PROTOCOL_BINARY_CMD_GETKQ:
-    case PROTOCOL_BINARY_CMD_SET:
-    case PROTOCOL_BINARY_CMD_ADD:
-    case PROTOCOL_BINARY_CMD_REPLACE:
-    case PROTOCOL_BINARY_CMD_DELETE:
-    case PROTOCOL_BINARY_CMD_SETQ:
-    case PROTOCOL_BINARY_CMD_ADDQ:
-    case PROTOCOL_BINARY_CMD_REPLACEQ:
-    case PROTOCOL_BINARY_CMD_DELETEQ:
-    case PROTOCOL_BINARY_CMD_INCREMENT:
-    case PROTOCOL_BINARY_CMD_DECREMENT:
-    case PROTOCOL_BINARY_CMD_INCREMENTQ:
-    case PROTOCOL_BINARY_CMD_DECREMENTQ:
-    case PROTOCOL_BINARY_DCP_OPEN_CONNECTION:
-    case PROTOCOL_BINARY_DCP_MUTATION:
-    case PROTOCOL_BINARY_DCP_DELETION:
-    case PROTOCOL_BINARY_DCP_EXPIRATION:
-    case PROTOCOL_BINARY_DCP_SYSTEM_EVENT:
+    case CLIENT_OPCODE_GET:
+    case CLIENT_OPCODE_GETQ:
+    case CLIENT_OPCODE_GETK:
+    case CLIENT_OPCODE_GETKQ:
+    case CLIENT_OPCODE_SET:
+    case CLIENT_OPCODE_ADD:
+    case CLIENT_OPCODE_REPLACE:
+    case CLIENT_OPCODE_DELETE:
+    case CLIENT_OPCODE_SETQ:
+    case CLIENT_OPCODE_ADDQ:
+    case CLIENT_OPCODE_REPLACEQ:
+    case CLIENT_OPCODE_DELETEQ:
+    case CLIENT_OPCODE_INCREMENT:
+    case CLIENT_OPCODE_DECREMENT:
+    case CLIENT_OPCODE_INCREMENTQ:
+    case CLIENT_OPCODE_DECREMENTQ:
+    case CLIENT_OPCODE_DCP_OPEN_CONNECTION:
+    case CLIENT_OPCODE_DCP_MUTATION:
+    case CLIENT_OPCODE_DCP_DELETION:
+    case CLIENT_OPCODE_DCP_EXPIRATION:
+    case CLIENT_OPCODE_DCP_SYSTEM_EVENT:
       /* Request must have key */
       if (request) {
         missing = TRUE;
@@ -2068,7 +2068,7 @@ dissect_multipath_mutation_response(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item_ret_uint(multipath_tree, hf_status, tvb, offset, 2,
                                  ENC_BIG_ENDIAN, &status);
     offset += 2;
-    if (status == PROTOCOL_BINARY_RESPONSE_SUCCESS) {
+    if (status == STATUS_SUCCESS) {
       guint32 result_len;
       proto_tree_add_item_ret_uint(multipath_tree, hf_value_length, tvb,
                                    offset, 4, ENC_BIG_ENDIAN, &result_len);
@@ -2168,7 +2168,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean    missing = FALSE;  /* Set when value is missing */
 
   if (value_len > 0) {
-    if (opcode == PROTOCOL_BINARY_CMD_OBSERVE) {
+    if (opcode == CLIENT_OPCODE_OBSERVE) {
       proto_tree *observe_tree;
       gint oo = offset, end = offset + value_len;
       ti = proto_tree_add_item(tree, hf_observe, tvb, offset, value_len, ENC_ASCII);
@@ -2189,7 +2189,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           oo += 8;
         }
       }
-    } else if (opcode == PROTOCOL_BINARY_CMD_OBSERVE_SEQNO) {
+    } else if (opcode == CLIENT_OPCODE_OBSERVE_SEQNO) {
       if (request) {
         ti = proto_tree_add_item(tree, hf_observe_vbucket_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
         if (value_len != 8) {
@@ -2243,7 +2243,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(tree, hf_observe_last_received_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         }
       }
-    } else if (!request && (opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST || opcode == PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST)) {
+    } else if (!request && (opcode == CLIENT_OPCODE_DCP_STREAM_REQUEST || opcode == CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST)) {
       if (value_len % 16 != 0) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad failover log length");
       } else {
@@ -2260,7 +2260,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           cur += 8;
         }
       }
-    } else if (!request && opcode == PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS) {
+    } else if (!request && opcode == CLIENT_OPCODE_GET_ALL_VB_SEQNOS) {
       if (value_len % 10 != 0) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad body length");
       } else {
@@ -2277,7 +2277,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           cur += 8;
         }
       }
-    } else if (!request && (opcode == PROTOCOL_BINARY_CMD_INCREMENT || opcode == PROTOCOL_BINARY_CMD_DECREMENT)) {
+    } else if (!request && (opcode == CLIENT_OPCODE_INCREMENT || opcode == CLIENT_OPCODE_DECREMENT)) {
       ti = proto_tree_add_item(tree, hf_uint64_response, tvb, offset, 8, ENC_BIG_ENDIAN);
       if (value_len != 8) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 8");
@@ -2288,13 +2288,13 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       json_tvb = tvb_new_subset_length_caplen(tvb, offset, value_len, value_len);
       call_dissector(json_handle, json_tvb, pinfo, tree);
 
-    } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP ||
-               opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION) {
+    } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP ||
+               opcode == CLIENT_OPCODE_SUBDOC_MULTI_MUTATION) {
       dissect_multipath_value(tvb, pinfo, tree, offset, value_len,
-                              (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION),
+                              (opcode == CLIENT_OPCODE_SUBDOC_MULTI_MUTATION),
                               request);
 
-    } else if (opcode == PROTOCOL_BINARY_CMD_HELLO) {
+    } else if (opcode == CLIENT_OPCODE_HELLO) {
       gint curr = offset, end = offset + value_len;
       proto_tree *hello_features_tree;
       ti = proto_tree_add_item(tree, hf_hello_features, tvb, offset, value_len, ENC_ASCII);
@@ -2310,7 +2310,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_item(tree, hf_value, tvb, offset + path_len,
                                      value_len, ENC_ASCII | ENC_NA);
         }
-    } else if (request && opcode == PROTOCOL_BINARY_CMD_CREATE_BUCKET) {
+    } else if (request && opcode == CLIENT_OPCODE_CREATE_BUCKET) {
       gint sep, equals_pos, sep_pos, config_len;
       proto_tree *key_tree, *config_tree = NULL;
 
@@ -2361,22 +2361,22 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           offset = sep_pos + 1;
         }
       }
-    } else if ((datatype & DT_XATTR) && (opcode == PROTOCOL_BINARY_CMD_SET_WITH_META ||
-      opcode == PROTOCOL_BINARY_DCP_MUTATION || opcode == PROTOCOL_BINARY_DCP_DELETION ||
-      opcode == PROTOCOL_BINARY_DCP_EXPIRATION || opcode == PROTOCOL_BINARY_DCP_PREPARE ||
-      opcode == PROTOCOL_BINARY_CMD_DEL_WITH_META || opcode == PROTOCOL_BINARY_CMD_ADD_WITH_META ||
-      opcode == PROTOCOL_BINARY_CMD_SETQ_WITH_META || opcode == PROTOCOL_BINARY_CMD_DELQ_WITH_META ||
-      opcode == PROTOCOL_BINARY_CMD_ADDQ_WITH_META )) {
+    } else if ((datatype & DT_XATTR) && (opcode == CLIENT_OPCODE_SET_WITH_META ||
+      opcode == CLIENT_OPCODE_DCP_MUTATION || opcode == CLIENT_OPCODE_DCP_DELETION ||
+      opcode == CLIENT_OPCODE_DCP_EXPIRATION || opcode == CLIENT_OPCODE_DCP_PREPARE ||
+      opcode == CLIENT_OPCODE_DEL_WITH_META || opcode == CLIENT_OPCODE_ADD_WITH_META ||
+      opcode == CLIENT_OPCODE_SETQ_WITH_META || opcode == CLIENT_OPCODE_DELQ_WITH_META ||
+      opcode == CLIENT_OPCODE_ADDQ_WITH_META )) {
 
       dissect_dcp_xattrs(tvb, tree, value_len, offset, pinfo);
-    } else if (request && opcode == PROTOCOL_BINARY_CMD_GET_ERROR_MAP) {
+    } else if (request && opcode == CLIENT_OPCODE_GET_ERROR_MAP) {
       if (value_len != 2) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 2");
         ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
       } else {
         ti = proto_tree_add_item(tree, hf_get_errmap_version, tvb, offset, value_len, ENC_BIG_ENDIAN);
       }
-    } else if (request && opcode == PROTOCOL_BINARY_DCP_SNAPSHOT_MARKER) {
+    } else if (request && opcode == CLIENT_OPCODE_DCP_SNAPSHOT_MARKER) {
       if (value_len != 36) {
         expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Illegal Value length, should be 36");
         ti = proto_tree_add_item(tree, hf_value, tvb, offset, value_len, ENC_ASCII | ENC_NA);
@@ -2429,49 +2429,49 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* Sanity check */
   if (value_len) {
     switch (opcode) {
-    case PROTOCOL_BINARY_CMD_GET:
-    case PROTOCOL_BINARY_CMD_GETQ:
-    case PROTOCOL_BINARY_CMD_GETK:
-    case PROTOCOL_BINARY_CMD_GETKQ:
-    case PROTOCOL_BINARY_CMD_INCREMENT:
-    case PROTOCOL_BINARY_CMD_DECREMENT:
-    case PROTOCOL_BINARY_CMD_VERSION:
-    case PROTOCOL_BINARY_CMD_INCREMENTQ:
-    case PROTOCOL_BINARY_CMD_DECREMENTQ:
-    case PROTOCOL_BINARY_DCP_OPEN_CONNECTION:
-    case PROTOCOL_BINARY_DCP_ADD_STREAM:
-    case PROTOCOL_BINARY_DCP_CLOSE_STREAM:
-    case PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST:
-    case PROTOCOL_BINARY_DCP_STREAM_END:
-    case PROTOCOL_BINARY_DCP_DELETION:
-    case PROTOCOL_BINARY_DCP_EXPIRATION:
-    case PROTOCOL_BINARY_DCP_FLUSH:
-    case PROTOCOL_BINARY_DCP_SET_VBUCKET_STATE:
+    case CLIENT_OPCODE_GET:
+    case CLIENT_OPCODE_GETQ:
+    case CLIENT_OPCODE_GETK:
+    case CLIENT_OPCODE_GETKQ:
+    case CLIENT_OPCODE_INCREMENT:
+    case CLIENT_OPCODE_DECREMENT:
+    case CLIENT_OPCODE_VERSION:
+    case CLIENT_OPCODE_INCREMENTQ:
+    case CLIENT_OPCODE_DECREMENTQ:
+    case CLIENT_OPCODE_DCP_OPEN_CONNECTION:
+    case CLIENT_OPCODE_DCP_ADD_STREAM:
+    case CLIENT_OPCODE_DCP_CLOSE_STREAM:
+    case CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST:
+    case CLIENT_OPCODE_DCP_STREAM_END:
+    case CLIENT_OPCODE_DCP_DELETION:
+    case CLIENT_OPCODE_DCP_EXPIRATION:
+    case CLIENT_OPCODE_DCP_FLUSH:
+    case CLIENT_OPCODE_DCP_SET_VBUCKET_STATE:
       /* Request must not have value */
       if (request) {
         illegal = TRUE;
       }
       break;
-    case PROTOCOL_BINARY_CMD_DELETE:
-    case PROTOCOL_BINARY_CMD_QUIT:
-    case PROTOCOL_BINARY_CMD_FLUSH:
-    case PROTOCOL_BINARY_CMD_NOOP:
-    case PROTOCOL_BINARY_CMD_DELETEQ:
-    case PROTOCOL_BINARY_CMD_QUITQ:
-    case PROTOCOL_BINARY_CMD_FLUSHQ:
+    case CLIENT_OPCODE_DELETE:
+    case CLIENT_OPCODE_QUIT:
+    case CLIENT_OPCODE_FLUSH:
+    case CLIENT_OPCODE_NOOP:
+    case CLIENT_OPCODE_DELETEQ:
+    case CLIENT_OPCODE_QUITQ:
+    case CLIENT_OPCODE_FLUSHQ:
       /* Request and Response must not have value */
       illegal = TRUE;
       break;
-    case PROTOCOL_BINARY_CMD_SET:
-    case PROTOCOL_BINARY_CMD_ADD:
-    case PROTOCOL_BINARY_CMD_REPLACE:
-    case PROTOCOL_BINARY_CMD_SETQ:
-    case PROTOCOL_BINARY_CMD_ADDQ:
-    case PROTOCOL_BINARY_CMD_REPLACEQ:
-    case PROTOCOL_BINARY_CMD_APPEND:
-    case PROTOCOL_BINARY_CMD_PREPEND:
-    case PROTOCOL_BINARY_CMD_APPENDQ:
-    case PROTOCOL_BINARY_CMD_PREPENDQ:
+    case CLIENT_OPCODE_SET:
+    case CLIENT_OPCODE_ADD:
+    case CLIENT_OPCODE_REPLACE:
+    case CLIENT_OPCODE_SETQ:
+    case CLIENT_OPCODE_ADDQ:
+    case CLIENT_OPCODE_REPLACEQ:
+    case CLIENT_OPCODE_APPEND:
+    case CLIENT_OPCODE_PREPEND:
+    case CLIENT_OPCODE_APPENDQ:
+    case CLIENT_OPCODE_PREPENDQ:
       /* Response must not have value */
       if (!request) {
         illegal = TRUE;
@@ -2480,7 +2480,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   } else {
     switch (opcode) {
-    case PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST:
+    case CLIENT_OPCODE_DCP_FAILOVER_LOG_REQUEST:
       /* Successful response must have value */
       if (!request) {
         missing = TRUE;
@@ -2751,7 +2751,7 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
 static gboolean
 is_xerror(guint8 datatype, guint16 status)
 {
-  if ((datatype & DT_JSON) && status != PROTOCOL_BINARY_RESPONSE_SUBDOC_MULTI_PATH_FAILURE) {
+  if ((datatype & DT_JSON) && status != STATUS_SUBDOC_MULTI_PATH_FAILURE) {
     return TRUE;
   }
   return FALSE;
@@ -2839,8 +2839,8 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     vbucket = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(couchbase_tree, hf_vbucket, tvb, offset, 2, ENC_BIG_ENDIAN);
     switch (opcode) {
-      case PROTOCOL_BINARY_CMD_OBSERVE:
-      case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID:
+      case CLIENT_OPCODE_OBSERVE:
+      case CLIENT_OPCODE_COLLECTIONS_GET_ID:
           break;
       default:
           proto_item_append_text(couchbase_item, ", vb:%d", vbucket);
@@ -2862,7 +2862,7 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   proto_tree_add_item(couchbase_tree, hf_opaque, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  if (opcode == PROTOCOL_BINARY_CMD_OBSERVE) {
+  if (opcode == CLIENT_OPCODE_OBSERVE) {
     proto_tree_add_item(couchbase_tree, hf_ttp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(couchbase_tree, hf_ttr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2898,15 +2898,15 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   } else if (value_len) {
     proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, value_len,
                         ENC_ASCII | ENC_NA);
-    if (status == PROTOCOL_BINARY_RESPONSE_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
+    if (status == STATUS_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
       tvbuff_t *json_tvb;
       json_tvb = tvb_new_subset_length_caplen(tvb, offset, value_len, value_len);
       call_dissector(json_handle, json_tvb, pinfo, couchbase_tree);
 
-    } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP) {
+    } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP) {
         dissect_multipath_lookup_response(tvb, pinfo, tree, offset, value_len);
 
-    } else if (opcode == PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION) {
+    } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_MUTATION) {
         dissect_multipath_mutation_response(tvb, pinfo, tree, offset, value_len);
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -2914,19 +2914,19 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   } else {
     /* Newer opcodes do not include a value in non-SUCCESS responses. */
     switch (opcode) {
-    case PROTOCOL_BINARY_CMD_SUBDOC_GET:
-    case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
-    case PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD:
-    case PROTOCOL_BINARY_CMD_SUBDOC_DICT_UPSERT:
-    case PROTOCOL_BINARY_CMD_SUBDOC_DELETE:
-    case PROTOCOL_BINARY_CMD_SUBDOC_REPLACE:
-    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_LAST:
-    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_PUSH_FIRST:
-    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_INSERT:
-    case PROTOCOL_BINARY_CMD_SUBDOC_ARRAY_ADD_UNIQUE:
-    case PROTOCOL_BINARY_CMD_SUBDOC_COUNTER:
-    case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_LOOKUP:
-    case PROTOCOL_BINARY_CMD_SUBDOC_MULTI_MUTATION:
+    case CLIENT_OPCODE_SUBDOC_GET:
+    case CLIENT_OPCODE_SUBDOC_EXISTS:
+    case CLIENT_OPCODE_SUBDOC_DICT_ADD:
+    case CLIENT_OPCODE_SUBDOC_DICT_UPSERT:
+    case CLIENT_OPCODE_SUBDOC_DELETE:
+    case CLIENT_OPCODE_SUBDOC_REPLACE:
+    case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_LAST:
+    case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_FIRST:
+    case CLIENT_OPCODE_SUBDOC_ARRAY_INSERT:
+    case CLIENT_OPCODE_SUBDOC_ARRAY_ADD_UNIQUE:
+    case CLIENT_OPCODE_SUBDOC_COUNTER:
+    case CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP:
+    case CLIENT_OPCODE_SUBDOC_MULTI_MUTATION:
       break;
 
     default:
