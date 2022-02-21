@@ -996,6 +996,76 @@ static gboolean couchbase_desegment_body = TRUE;
 static guint couchbase_ssl_port = 11207;
 static guint couchbase_ssl_port_pref = 11207;
 
+/** Is the frame using flex encoding or not */
+static bool is_flex_encoded(guint8 magic) {
+  switch (magic) {
+    case MAGIC_RESPONSE_FLEX:
+    case MAGIC_REQUEST_FLEX:
+      return TRUE;
+    default:
+      return FALSE;
+  }
+}
+
+/** Does the frame represent a request or a response */
+static bool is_request_magic(guint8 magic) {
+  switch (magic) {
+    case MAGIC_REQUEST_FLEX:
+    case MAGIC_REQUEST:
+      return TRUE;
+
+    case MAGIC_RESPONSE_FLEX:
+    case MAGIC_RESPONSE:
+    default:
+      return FALSE;
+  }
+}
+
+/** Read out the magic byte (located at offset 0 in the header) */
+static guint8 get_magic(tvbuff_t *tvb) {
+  return tvb_get_guint8(tvb, 0);
+}
+
+/** Read out the opcode (located at offset 1 in the header) */
+static guint8 get_opcode(tvbuff_t *tvb) {
+  return tvb_get_guint8(tvb, 1);
+}
+
+/** Read out the status code from the header (only "valid" for response packets) */
+static guint16 get_status(tvbuff_t *tvb) {
+  return tvb_get_ntohs(tvb, 6);
+}
+
+/** Read out flex size (using the upper bits of the key length when using flex encoding) */
+static guint8 get_flex_framing_extras_length(tvbuff_t *tvb) {
+  if (is_flex_encoded(get_magic(tvb))) {
+    return tvb_get_guint8(tvb, 2);
+  }
+  return 0;
+}
+
+/** Read out the size of the extras section (located at offset 4) */
+static guint8 get_extras_length(tvbuff_t *tvb) {
+  return tvb_get_guint8(tvb, 4);
+}
+
+/** Read out the datatype section (located at offset 5) */
+static guint8 get_datatype(tvbuff_t *tvb) {
+  return tvb_get_guint8(tvb, 5);
+}
+
+/** Read out the length of the key (1 or 2 bytes depending on the encoding) */
+static guint16 get_key_length(tvbuff_t *tvb) {
+  if (is_flex_encoded(get_magic(tvb))) {
+    return tvb_get_guint8(tvb, 3);
+  }
+  return tvb_get_ntohs(tvb, 2);
+}
+
+/** Read out the size for the rest of the frame data */
+static guint32 get_body_length(tvbuff_t *tvb) {
+  return tvb_get_ntohl(tvb, 8);
+}
 
 static guint
 get_couchbase_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -2759,189 +2829,298 @@ is_xerror(guint8 datatype, guint16 status)
   return FALSE;
 }
 
-static int
-dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
-{
-  proto_tree *couchbase_tree;
-  proto_item *couchbase_item, *ti;
-  gint        offset = 0;
-  guint8      magic, opcode, extlen, datatype, flex_frame_extras = 0;
-  guint16     keylen, status = 0, vbucket;
-  guint32     bodylen, value_len;
-  gboolean    request;
+/**
+ * Does the opcode use the vbucket or not? (does it make any sense to
+ * add the vbucket to the info)
+ */
+static bool opcode_use_vbucket(guint8 magic _U_, guint8 opcode) {
+  switch (opcode) {
+    case CLIENT_OPCODE_OBSERVE:
+    case CLIENT_OPCODE_COLLECTIONS_GET_ID:
+    case CLIENT_OPCODE_IFCONFIG:
+    case CLIENT_OPCODE_SASL_LIST_MECHS:
+    case CLIENT_OPCODE_SASL_AUTH:
+    case CLIENT_OPCODE_SASL_STEP:
+    case CLIENT_OPCODE_SHUTDOWN:
+    case CLIENT_OPCODE_AUDIT_CONFIG_RELOAD:
+    case CLIENT_OPCODE_AUDIT_PUT:
+    case CLIENT_OPCODE_CONFIG_RELOAD:
+    case CLIENT_OPCODE_CONFIG_VALIDATE:
+    case CLIENT_OPCODE_IOCTL_SET:
+    case CLIENT_OPCODE_IOCTL_GET:
+    case CLIENT_OPCODE_HELLO:
+    case CLIENT_OPCODE_VERBOSITY:
+    case CLIENT_OPCODE_VERSION:
+    case CLIENT_OPCODE_NOOP:
+    case CLIENT_OPCODE_QUIT:
+    case CLIENT_OPCODE_LIST_BUCKETS:
+    case CLIENT_OPCODE_CREATE_BUCKET:
+    case CLIENT_OPCODE_DELETE_BUCKET:
+    case CLIENT_OPCODE_SELECT_BUCKET:
+      return FALSE;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
-  col_clear(pinfo->cinfo, COL_INFO);
+    default:
+      return TRUE;
+  }
+}
 
-  couchbase_item = proto_tree_add_item(tree, proto_couchbase, tvb, offset, -1, ENC_NA);
-  couchbase_tree = proto_item_add_subtree(couchbase_item, ett_couchbase);
-
-  magic = tvb_get_guint8(tvb, offset);
-  ti = proto_tree_add_item(couchbase_tree, hf_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset += 1;
-
+/**
+ * Each frame header consist of 24 bytes in two slightly different formats
+ * (byte 6 and 7 is vbucket id in a request and status in a response).
+ *
+ * This method dissect the frame header. Please refer to
+ * https://github.com/couchbase/kv_engine/blob/master/docs/BinaryProtocol.md#request-header
+ * for the layout of the frame header.
+ */
+static void dissect_frame_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *couchbase_tree, proto_item *couchbase_item) {
+  guint8 magic = get_magic(tvb);
+  proto_item *ti = proto_tree_add_item(couchbase_tree, hf_magic, tvb, 0, 1, ENC_BIG_ENDIAN);
   if (try_val_to_str(magic, magic_vals) == NULL) {
     expert_add_info_format(pinfo, ti, &ef_warn_unknown_magic_byte, "Unknown magic byte: 0x%x", magic);
   }
 
-  opcode = tvb_get_guint8(tvb, offset);
-  ti = proto_tree_add_item(couchbase_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset += 1;
+  guint8 opcode = get_opcode(tvb);
 
-  if (try_val_to_str_ext(opcode, &opcode_vals_ext) == NULL) {
+  ti = proto_tree_add_item(couchbase_tree, hf_opcode, tvb, 1, 1, ENC_BIG_ENDIAN);
+  const gchar *opcode_name = try_val_to_str_ext(opcode, &opcode_vals_ext);
+  if (opcode_name == NULL) {
     expert_add_info_format(pinfo, ti, &ef_warn_unknown_opcode, "Unknown opcode: 0x%x", opcode);
+    opcode_name = "Unknown opcode";
   }
-
   proto_item_append_text(couchbase_item, ", %s %s, Opcode: 0x%x",
-                         val_to_str_ext(opcode, &opcode_vals_ext, "Unknown opcode"),
+                         opcode_name,
                          val_to_str(magic, magic_vals, "Unknown magic (0x%x)"),
                          opcode);
-
   col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s, Opcode: 0x%x",
-                  val_to_str_ext(opcode, &opcode_vals_ext, "Unknown opcode (0x%x)"),
+                  opcode_name,
                   val_to_str(magic, magic_vals, "Unknown magic (0x%x)"),
                   opcode);
 
   /* Check for flex magic, which changes the header format */
-  if (magic == MAGIC_RESPONSE_FLEX || magic == MAGIC_REQUEST_FLEX) {
+  guint16 keylen;
+  guint8 flex_frame_extras = get_flex_framing_extras_length(tvb);
+  if (is_flex_encoded(magic)) {
     /* 2 separate bytes for the flex_extras and keylen */
-    flex_frame_extras = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(couchbase_tree, hf_flex_extras_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    keylen = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(couchbase_tree, hf_flex_keylength, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    proto_tree_add_item(couchbase_tree, hf_flex_extras_length, tvb, 2, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(couchbase_tree, hf_flex_keylength, tvb, 3, 1, ENC_BIG_ENDIAN);
   } else {
     /* 2 bytes for the key */
-    keylen = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(couchbase_tree, hf_keylength, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
+    proto_tree_add_item(couchbase_tree, hf_keylength, tvb, 2, 2, ENC_BIG_ENDIAN);
   }
+  keylen = get_key_length(tvb);
 
-  extlen = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(couchbase_tree, hf_extlength, tvb, offset, 1, ENC_BIG_ENDIAN);
-  offset += 1;
+  guint8 extlen = get_extras_length(tvb);
+  proto_tree_add_item(couchbase_tree, hf_extlength, tvb, 4, 1, ENC_BIG_ENDIAN);
 
-  datatype = tvb_get_guint8(tvb, offset);
-  proto_tree_add_bitmask(couchbase_tree, tvb, offset, hf_datatype, ett_datatype, datatype_vals, ENC_BIG_ENDIAN);
-  offset += 1;
+  proto_tree_add_bitmask(couchbase_tree, tvb, 5, hf_datatype, ett_datatype, datatype_vals, ENC_BIG_ENDIAN);
 
-  /* We suppose this is a response, even when unknown magic byte */
-  if (magic & 0x01 || magic == MAGIC_RESPONSE_FLEX) {
-    request = FALSE;
-    status = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(couchbase_tree, hf_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+  if (is_request_magic(magic)) {
+    guint16 vbucket = tvb_get_ntohs(tvb, 6);
+    proto_tree_add_item(couchbase_tree, hf_vbucket, tvb, 6, 2, ENC_BIG_ENDIAN);
+    if (opcode_use_vbucket(magic, opcode)) {
+      proto_item_append_text(couchbase_item, ", vb:%d", vbucket);
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", vb:%d", vbucket);
+    }
+  } else {
+    /* This is a response or invalid magic... */
+    guint16 status = get_status(tvb);
+    ti = proto_tree_add_item(couchbase_tree, hf_status, tvb, 6, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
       expert_add_info_format(pinfo, ti, &ef_warn_unknown_opcode, "%s: %s",
                              val_to_str_ext(opcode, &opcode_vals_ext, "Unknown opcode (0x%x)"),
                              val_to_str_ext(status, &status_vals_ext, "Status: 0x%x"));
     }
-  } else {
-    request = TRUE;
-    vbucket = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(couchbase_tree, hf_vbucket, tvb, offset, 2, ENC_BIG_ENDIAN);
-    switch (opcode) {
-      case CLIENT_OPCODE_OBSERVE:
-      case CLIENT_OPCODE_COLLECTIONS_GET_ID:
-          break;
-      default:
-          proto_item_append_text(couchbase_item, ", vb:%d", vbucket);
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", vb:%d", vbucket);
-    }
   }
-  offset += 2;
 
-  bodylen = tvb_get_ntohl(tvb, offset);
-  value_len = bodylen - extlen - keylen - flex_frame_extras;
-  ti = proto_tree_add_uint(couchbase_tree, hf_value_length, tvb, offset, 0, value_len);
+  guint32 bodylen = get_body_length(tvb);
+  guint32 value_len = bodylen - extlen - keylen - flex_frame_extras;
+  ti = proto_tree_add_uint(couchbase_tree, hf_value_length, tvb, 8, 0, value_len);
   proto_item_set_generated(ti);
 
-  proto_tree_add_item(couchbase_tree, hf_total_bodylength, tvb, offset, 4, ENC_BIG_ENDIAN);
-  offset += 4;
+  proto_tree_add_item(couchbase_tree, hf_total_bodylength, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-  /* little endian (network) encoding because the client shouldn't apply any
-   * conversions */
-  proto_tree_add_item(couchbase_tree, hf_opaque, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  offset += 4;
+  /*
+   * use little endian (network) encoding for the opaque as this is an opaque
+   * field the client could use for whatever they want
+   */
+  proto_tree_add_item(couchbase_tree, hf_opaque, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 
+  // Finally we've got the CAS (which observe has a special use for)
   if (opcode == CLIENT_OPCODE_OBSERVE) {
-    proto_tree_add_item(couchbase_tree, hf_ttp, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-    proto_tree_add_item(couchbase_tree, hf_ttr, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
+    proto_tree_add_item(couchbase_tree, hf_ttp, tvb, 16, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(couchbase_tree, hf_ttr, tvb, 20, 4, ENC_BIG_ENDIAN);
   } else {
-    proto_tree_add_item(couchbase_tree, hf_cas, tvb, offset, 8, ENC_BIG_ENDIAN);
-    offset += 8;
+    proto_tree_add_item(couchbase_tree, hf_cas, tvb, 16, 8, ENC_BIG_ENDIAN);
   }
+}
 
-  // Flex frame extras should be dissected for success and errors
-  if (flex_frame_extras) {
+/**
+ * Dissect the flexible frame info's encoded in the packet
+ */
+static void dissect_frame_flex_info_section(tvbuff_t *tvb,
+                                            packet_info *pinfo,
+                                            proto_tree *tree,
+                                            gint offset,
+                                            guint8 size,
+                                            guint8 magic) {
+  if (is_flex_encoded(magic)) {
     dissect_flexible_framing_extras(tvb,
                                     pinfo,
-                                    couchbase_tree,
+                                    tree,
                                     offset,
-                                    flex_frame_extras,
-                                    magic == MAGIC_REQUEST_FLEX);
-    offset += flex_frame_extras;
+                                    size,
+                                    is_request_magic(magic));
   }
+}
 
-  if (status == 0) {
-    guint16 path_len = 0;
+/**
+ * Dissect the extras section in the frame
+ */
+static void dissect_frame_extras(tvbuff_t *tvb,
+                                 packet_info *pinfo,
+                                 proto_tree *tree,
+                                 gint offset,
+                                 guint8 size,
+                                 guint8 magic,
+                                 guint8 opcode,
+                                 guint16 *subdoc_path_len) {
+  dissect_extras(tvb, pinfo, tree, offset, size,
+                 opcode, is_request_magic(magic), subdoc_path_len);
+}
 
-    dissect_extras(tvb, pinfo, couchbase_tree, offset, extlen, opcode, request,
-                   &path_len);
-    offset += extlen;
+/**
+ * Dissect the key section in the frame
+ */
+static void dissect_frame_key(tvbuff_t *tvb,
+                              packet_info *pinfo,
+                              proto_tree *tree,
+                              gint offset,
+                              guint16 size,
+                              guint8 magic,
+                              guint8 opcode) {
+  dissect_key(tvb, pinfo, tree, offset, size, opcode, is_request_magic(magic));
+}
 
-    dissect_key(tvb, pinfo, couchbase_tree, offset, keylen, opcode, request);
-    offset += keylen;
-
-    dissect_value(tvb, pinfo, couchbase_tree, offset, value_len, path_len,
-                  opcode, request, datatype);
-  } else if (value_len) {
-    proto_tree_add_item(couchbase_tree, hf_value, tvb, offset, value_len,
-                        ENC_ASCII | ENC_NA);
-    if (status == STATUS_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
-      tvbuff_t *json_tvb;
-      json_tvb = tvb_new_subset_length_caplen(tvb, offset, value_len, value_len);
-      call_dissector(json_handle, json_tvb, pinfo, couchbase_tree);
-
-    } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP) {
-        dissect_multipath_lookup_response(tvb, pinfo, tree, offset, value_len);
-
-    } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_MUTATION) {
-        dissect_multipath_mutation_response(tvb, pinfo, tree, offset, value_len);
-    }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                    val_to_str_ext(status, &status_vals_ext, "Unknown status: 0x%x"));
+/**
+ * Dissect the value section in the frame
+ */
+static void dissect_frame_value(tvbuff_t *tvb,
+                                packet_info *pinfo,
+                                proto_tree *tree,
+                                gint offset,
+                                guint32 size,
+                                guint8 magic,
+                                guint8 opcode,
+                                guint16 subdoc_path_len) {
+  guint8 datatype = get_datatype(tvb);
+  if (is_request_magic(magic)) {
+    dissect_value(tvb, pinfo, tree, offset, size, subdoc_path_len, opcode, true, datatype);
   } else {
-    /* Newer opcodes do not include a value in non-SUCCESS responses. */
-    switch (opcode) {
-    case CLIENT_OPCODE_SUBDOC_GET:
-    case CLIENT_OPCODE_SUBDOC_EXISTS:
-    case CLIENT_OPCODE_SUBDOC_DICT_ADD:
-    case CLIENT_OPCODE_SUBDOC_DICT_UPSERT:
-    case CLIENT_OPCODE_SUBDOC_DELETE:
-    case CLIENT_OPCODE_SUBDOC_REPLACE:
-    case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_LAST:
-    case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_FIRST:
-    case CLIENT_OPCODE_SUBDOC_ARRAY_INSERT:
-    case CLIENT_OPCODE_SUBDOC_ARRAY_ADD_UNIQUE:
-    case CLIENT_OPCODE_SUBDOC_COUNTER:
-    case CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP:
-    case CLIENT_OPCODE_SUBDOC_MULTI_MUTATION:
-      break;
+    guint16 status = get_status(tvb);
+    if (status == 0) {
+      dissect_value(tvb, pinfo, tree, offset, size, subdoc_path_len, opcode, false, datatype);
+    } else if (size) {
+      proto_tree_add_item(tree, hf_value, tvb, offset, size, ENC_ASCII | ENC_NA);
+      if (status == STATUS_NOT_MY_VBUCKET || is_xerror(datatype, status)) {
+        tvbuff_t *json_tvb;
+        json_tvb = tvb_new_subset_length_caplen(tvb, offset, size, size);
+        call_dissector(json_handle, json_tvb, pinfo, tree);
+      } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP) {
+        dissect_multipath_lookup_response(tvb, pinfo, tree, offset, size);
+      } else if (opcode == CLIENT_OPCODE_SUBDOC_MULTI_MUTATION) {
+        dissect_multipath_mutation_response(tvb, pinfo, tree, offset, size);
+      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                      val_to_str_ext(status, &status_vals_ext,
+                                     "Unknown status: 0x%x"));
+    } else {
+      /* Newer opcodes do not include a value in non-SUCCESS responses. */
+      proto_tree *ti;
+      switch (opcode) {
+        case CLIENT_OPCODE_SUBDOC_GET:
+        case CLIENT_OPCODE_SUBDOC_EXISTS:
+        case CLIENT_OPCODE_SUBDOC_DICT_ADD:
+        case CLIENT_OPCODE_SUBDOC_DICT_UPSERT:
+        case CLIENT_OPCODE_SUBDOC_DELETE:
+        case CLIENT_OPCODE_SUBDOC_REPLACE:
+        case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_LAST:
+        case CLIENT_OPCODE_SUBDOC_ARRAY_PUSH_FIRST:
+        case CLIENT_OPCODE_SUBDOC_ARRAY_INSERT:
+        case CLIENT_OPCODE_SUBDOC_ARRAY_ADD_UNIQUE:
+        case CLIENT_OPCODE_SUBDOC_COUNTER:
+        case CLIENT_OPCODE_SUBDOC_MULTI_LOOKUP:
+        case CLIENT_OPCODE_SUBDOC_MULTI_MUTATION:
+          break;
 
-    default:
-      ti = proto_tree_add_item(tree, hf_value, tvb, offset, 0,
-                               ENC_ASCII | ENC_NA);
-      expert_add_info_format(pinfo, ti, &ei_value_missing,
-                             "%s with status %s (0x%x) must have Value",
-                             val_to_str_ext(opcode, &opcode_vals_ext, "Opcode 0x%x"),
-                             val_to_str_ext(status, &status_vals_ext, "Unknown"),
-                             status);
-      break;
+        default:
+          ti = proto_tree_add_item(tree, hf_value, tvb, offset, 0,
+                                   ENC_ASCII | ENC_NA);
+          expert_add_info_format(pinfo, ti, &ei_value_missing,
+                                 "%s with status %s (0x%x) must have Value",
+                                 val_to_str_ext(opcode,
+                                                &opcode_vals_ext,
+                                                "Opcode 0x%x"),
+                                 val_to_str_ext(status,
+                                                &status_vals_ext,
+                                                "Unknown"),
+                                 status);
+      }
     }
   }
+}
+
+/**
+ * Each frame in the protocol consists of a 24 byte header, followed by
+ * a variable number of sections (all of the sizes is located in the
+ * first 24 byte header):
+ *
+ * |---------------------------------------|
+ * |  Fixed 24 byte frame header           |
+ * |---------------------------------------|
+ * |  n bytes flex frame info              |
+ * |---------------------------------------|
+ * |  n bytes extras                       |
+ * |---------------------------------------|
+ * |  n bytes key                          |
+ * |---------------------------------------|
+ * |  n bytes value                        |
+ * |---------------------------------------|
+ *
+ * Call each function responsible for printing the segment
+ */
+static int
+dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  proto_item *couchbase_item = proto_tree_add_item(tree, proto_couchbase, tvb, 0, -1, ENC_NA);
+  proto_tree *couchbase_tree = proto_item_add_subtree(couchbase_item, ett_couchbase);
+
+  dissect_frame_header(tvb, pinfo, couchbase_tree, couchbase_item);
+  guint8 magic = get_magic(tvb);
+  gint offset = 24;
+
+  guint8 flex_frame_extra_len = get_flex_framing_extras_length(tvb);
+  guint8 opcode = get_opcode(tvb);
+  guint8 extras_length = get_extras_length(tvb);
+  guint16 key_length = get_key_length(tvb);
+  guint32 body_length = get_body_length(tvb);
+  guint32 value_len = body_length - key_length - extras_length - flex_frame_extra_len;
+
+  dissect_frame_flex_info_section(tvb, pinfo, couchbase_tree, offset, flex_frame_extra_len, magic);
+  offset += flex_frame_extra_len;
+
+  guint16 subdoc_path_len = 0;
+  // Dissect the extras section
+  dissect_frame_extras(tvb, pinfo, couchbase_tree, offset, extras_length, magic, opcode, &subdoc_path_len);
+  offset += extras_length;
+
+  // dissect the key
+  dissect_frame_key(tvb, pinfo, couchbase_tree, offset, key_length, magic, opcode);
+  offset += key_length;
+
+  dissect_frame_value(tvb, pinfo, couchbase_tree, offset, value_len, magic, opcode, subdoc_path_len);
   return tvb_reported_length(tvb);
 }
 
@@ -2949,13 +3128,10 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 static int
 dissect_couchbase_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-  gint        offset = 0;
-  guint8      magic;
-
-  magic = tvb_get_guint8(tvb, offset);
-
-  if (try_val_to_str(magic, magic_vals) == NULL)
-      return 0;
+  guint8 magic = get_magic(tvb);
+  if (try_val_to_str(magic, magic_vals) == NULL) {
+    return 0;
+  }
 
   tcp_dissect_pdus(tvb, pinfo, tree, couchbase_desegment_body, 12,
                      get_couchbase_pdu_len, dissect_couchbase, data);
