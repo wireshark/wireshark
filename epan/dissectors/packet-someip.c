@@ -234,8 +234,8 @@ static range_t *someip_ports_udp = NULL;
 static range_t *someip_ports_tcp = NULL;
 
 static gboolean someip_tp_reassemble = TRUE;
-static gboolean someip_derserializer_activated = FALSE;
-static gboolean someip_derserializer_wtlv_default = FALSE;
+static gboolean someip_deserializer_activated = TRUE;
+static gboolean someip_deserializer_wtlv_default = FALSE;
 
 /* SOME/IP Message Types */
 static const value_string someip_msg_type[] = {
@@ -3273,7 +3273,7 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     gint      offset_orig_bits = offset_bits;
     gint      bits_parsed = 0;
 
-    if (items == NULL && !someip_derserializer_wtlv_default) {
+    if (items == NULL && !someip_deserializer_wtlv_default) {
         return 0;
     }
 
@@ -3397,7 +3397,7 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
     paramlist = get_parameter_config(serviceid, methodid, version, msgtype);
 
     if (paramlist == NULL) {
-        if (someip_derserializer_wtlv_default) {
+        if (someip_deserializer_wtlv_default) {
             bits_parsed = dissect_someip_payload_parameters(tvb, pinfo, tree, offset, offset_bits, NULL, 0, TRUE);
         } else {
             return;
@@ -3617,8 +3617,12 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             if (tmp==0) {
                 ti = proto_tree_add_item(someip_tree, hf_someip_payload, subtvb, 0, tvb_length, ENC_NA);
 
-                if (someip_derserializer_activated) {
+                if (someip_deserializer_activated) {
                     dissect_someip_payload(subtvb, pinfo, ti, (guint16)someip_serviceid, (guint16)someip_methodid, (guint8)version, (guint8)(~SOMEIP_MSGTYPE_TP_MASK)&msgtype);
+                }
+                else {
+                    proto_tree* payload_dissection_disabled_info_sub_tree = proto_item_add_subtree(ti, ett_someip_payload);
+                    proto_tree_add_text_internal(payload_dissection_disabled_info_sub_tree, subtvb, 0, tvb_length, "Dissection of payload is disabled. It can be enabled via protocol preferences.");
                 }
             }
         }
@@ -4153,12 +4157,12 @@ proto_register_someip(void) {
     prefs_register_bool_preference(someip_module, "payload_dissector_activated",
         "Dissect Payload",
         "Should the SOME/IP Dissector use the payload dissector?",
-        &someip_derserializer_activated);
+        &someip_deserializer_activated);
 
     prefs_register_bool_preference(someip_module, "payload_dissector_wtlv_default",
         "Try WTLV payload dissection for unconfigured messages (not pure SOME/IP)",
         "Should the SOME/IP Dissector use the payload dissector with the experimental WTLV encoding for unconfigured messages?",
-        &someip_derserializer_wtlv_default);
+        &someip_deserializer_wtlv_default);
 
     prefs_register_uat_preference(someip_module, "_someip_parameter_list", "SOME/IP Parameter List",
         "A table to define names of SOME/IP parameters", someip_parameter_list_uat);
