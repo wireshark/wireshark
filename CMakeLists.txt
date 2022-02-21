@@ -1179,7 +1179,7 @@ ws_find_package(AIRPCAP ENABLE_AIRPCAP HAVE_AIRPCAP)
 ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build one of the Qt GUIs?
-if(BUILD_wireshark OR BUILD_logshark)
+if(BUILD_wireshark OR BUILD_logwolf)
 	if(USE_qt6)
 		set(qtver "6")
 		if(DEFINED ENV{WIRESHARK_QT6_PREFIX_PATH})
@@ -1340,7 +1340,7 @@ find_package( Asciidoctor 1.5 )
 find_package(DOXYGEN)
 
 # The SpeexDSP resampler is required iff building wireshark or sharkd.
-if(BUILD_wireshark OR BUILD_logshark OR BUILD_sharkd)
+if(BUILD_wireshark OR BUILD_logwolf OR BUILD_sharkd)
 	# We don't provide a binary package for SpeexDSP in our repository.
 	# If using the repository don't bother searching for a system SpeexDSP
 	# installation and just use the bundled resampler code instead.
@@ -1583,7 +1583,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 endif()
 
-if(BUILD_logshark AND QT_FOUND)
+if(BUILD_logwolf AND QT_FOUND)
 	add_subdirectory( ui/qt_logwolf )
 endif()
 
@@ -1616,8 +1616,9 @@ if(ENABLE_PLUGINS)
 		plugins/codecs/l16_mono
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
+	set(LOGWOLF_PLUGIN_SRC_DIRS)
 	if(SINSP_FOUND)
-		list(APPEND PLUGIN_SRC_DIRS
+		list(APPEND LOGWOLF_PLUGIN_SRC_DIRS
 			plugins/epan/falco_bridge
 		)
 	endif()
@@ -1658,6 +1659,7 @@ if(ENABLE_PLUGINS)
 
 else()
 	set(PLUGIN_SRC_DIRS )
+	set(LOGWOLF_PLUGIN_SRC_DIRS )
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
@@ -1668,19 +1670,22 @@ if(ENABLE_APPLICATION_BUNDLE)
 		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 	endif()
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
-		set(_logshark_plugin_dir "${CMAKE_BINARY_DIR}/run/Logshark.app/Contents/PlugIns/logwolf/${PLUGIN_PATH_ID}")
+		set(_logwolf_plugin_dir "${CMAKE_BINARY_DIR}/run/Logwolf.app/Contents/PlugIns/logwolf/${PLUGIN_PATH_ID}")
 	else()
 		# Xcode
-		set(_logshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Logshark.app/Contents/PlugIns/logwolf/${PLUGIN_PATH_ID}")
+		set(_logwolf_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Logwolf.app/Contents/PlugIns/logwolf/${PLUGIN_PATH_ID}")
 	endif()
 elseif(WIN32 AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
 	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${PLUGIN_VERSION_DIR}")
+	set(_logwolf_plugin_dir ${_plugin_dir})
 else()
 	set(_plugin_dir "${DATAFILE_DIR}/${PLUGIN_VERSION_DIR}")
+	set(_logwolf_plugin_dir ${_plugin_dir})
 endif()
 set (PLUGIN_DIR ${_plugin_dir} CACHE INTERNAL "Build time plugin location.")
+set (LOGWOLF_PLUGIN_DIR ${_logwolf_plugin_dir} CACHE INTERNAL "Build time Logwolf plugin location.")
 
-foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS})
+foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS} ${LOGWOLF_PLUGIN_SRC_DIRS})
 	add_subdirectory( ${_plugin_src_dir} )
 endforeach()
 
@@ -1720,12 +1725,12 @@ set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(CFG_OUT_FILES
 	doxygen.cfg
-	packaging/macosx/WiresharkInfo.plist
-	packaging/macosx/LogsharkInfo.plist
+	packaging/macosx/LogwolfInfo.plist
 	packaging/macosx/osx-app.sh
 	packaging/macosx/osx-dmg.sh
 	packaging/macosx/wireshark-app.dmgbuild
 	packaging/macosx/wireshark-dsym.dmgbuild
+	packaging/macosx/WiresharkInfo.plist
 	packaging/source/git-export-release.sh
 	resources/dumpcap.rc
 	resources/libwireshark.rc
@@ -2443,20 +2448,20 @@ if(BUILD_wireshark AND QT_FOUND)
 	set_executable_resources(wireshark "Wireshark" UNIQUE_RC)
 endif()
 
-if(BUILD_logshark AND QT_FOUND)
-	set(LOGSHARK_SRC
+if(BUILD_logwolf AND QT_FOUND)
+	set(LOGWOLF_SRC
 		file.c
 		fileset.c
 		${PLATFORM_UI_SRC}
 	)
-	set(logshark_FILES
+	set(logwolf_FILES
 		$<TARGET_OBJECTS:capture_opts>
 		$<TARGET_OBJECTS:ui_qt_logwolf>
 		$<TARGET_OBJECTS:shark_common>
-		${LOGSHARK_SRC}
+		${LOGWOLF_SRC}
 		${PLATFORM_UI_RC_FILES}
 	)
-	set_executable_resources(logshark "Logshark" UNIQUE_RC)
+	set_executable_resources(logwolf "Logwolf" UNIQUE_RC)
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
@@ -2633,8 +2638,8 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif(QT_WINDEPLOYQT_EXECUTABLE)
 endif()
 
-if(BUILD_logshark AND QT_FOUND)
-	set(logshark_LIBS
+if(BUILD_logwolf AND QT_FOUND)
+	set(logwolf_LIBS
 		ui
 		capchild
 		caputils
@@ -2655,12 +2660,12 @@ if(BUILD_logshark AND QT_FOUND)
 		${MINIZIP_LIBRARIES}
 	)
 
-	add_executable(logshark WIN32 MACOSX_BUNDLE ${logshark_FILES} ${EXTRA_BUNDLE_FILES})
+	add_executable(logwolf WIN32 MACOSX_BUNDLE ${logwolf_FILES} ${EXTRA_BUNDLE_FILES})
 	if(WIN32 AND NOT BUILD_wireshark)
-		set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT logshark)
+		set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT logwolf)
 	endif()
-	set(PROGLIST ${PROGLIST} logshark)
-	set_target_properties(logshark PROPERTIES
+	set(PROGLIST ${PROGLIST} logwolf)
+	set_target_properties(logwolf PROPERTIES
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Executables"
 		INSTALL_RPATH "${EXECUTABLE_INSTALL_RPATH}"
@@ -2669,44 +2674,44 @@ if(BUILD_logshark AND QT_FOUND)
 		AUTORCC ON
 	)
 	if(MSVC)
-		set_target_properties(logshark PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+		set_target_properties(logwolf PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
 	endif()
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
-		set_target_properties(logshark PROPERTIES OUTPUT_NAME Logshark)
+		set_target_properties(logwolf PROPERTIES OUTPUT_NAME Logwolf)
 	endif()
 
 	if(ENABLE_APPLICATION_BUNDLE)
 		if(ASCIIDOCTOR_FOUND)
 			# Make sure to generate files referenced by
 			# BUNDLE_RESOURCE_SHARE_MAN1_FILES
-			add_dependencies(logshark manpages)
+			add_dependencies(logwolf manpages)
 		endif()
 		set_target_properties(
-			logshark PROPERTIES
-				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/LogsharkInfo.plist
+			logwolf PROPERTIES
+				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/LogwolfInfo.plist
 		)
 		if(CMAKE_CFG_INTDIR STREQUAL ".")
 			# Add a wrapper script which opens the bundle. This adds
 			# convenience but makes debugging more difficult.
 			# It is not created if using Xcode
-			# XXX Running run/Logshark.app/Contents/MacOS/Logshark works
+			# XXX Running run/Logwolf.app/Contents/MacOS/Logwolf works
 			# fine for me (Gerald) here on Mojave. Can we just make this a
 			# symlink?
-			file(REMOVE ${CMAKE_BINARY_DIR}/run/logshark)
-			file(WRITE ${CMAKE_BINARY_DIR}/run/logshark "#!/bin/sh\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/logshark "# Generated by ${CMAKE_CURRENT_LIST_FILE}\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/logshark "# Wrapper script which should work around the issue described at\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/logshark "# https://stackoverflow.com/questions/25318524/what-exactly-should-i-pass-to-nsapp-activateignoringotherapps-to-get-my-appl\n")
-			file(APPEND ${CMAKE_BINARY_DIR}/run/logshark "exec ${CMAKE_BINARY_DIR}/run/Logshark.app/Contents/MacOS/Logshark \"\$\@\"\n")
-			execute_process(COMMAND chmod a+x ${CMAKE_BINARY_DIR}/run/logshark)
+			file(REMOVE ${CMAKE_BINARY_DIR}/run/logwolf)
+			file(WRITE ${CMAKE_BINARY_DIR}/run/logwolf "#!/bin/sh\n")
+			file(APPEND ${CMAKE_BINARY_DIR}/run/logwolf "# Generated by ${CMAKE_CURRENT_LIST_FILE}\n")
+			file(APPEND ${CMAKE_BINARY_DIR}/run/logwolf "# Wrapper script which should work around the issue described at\n")
+			file(APPEND ${CMAKE_BINARY_DIR}/run/logwolf "# https://stackoverflow.com/questions/25318524/what-exactly-should-i-pass-to-nsapp-activateignoringotherapps-to-get-my-appl\n")
+			file(APPEND ${CMAKE_BINARY_DIR}/run/logwolf "exec ${CMAKE_BINARY_DIR}/run/Logwolf.app/Contents/MacOS/Logwolf \"\$\@\"\n")
+			execute_process(COMMAND chmod a+x ${CMAKE_BINARY_DIR}/run/logwolf)
 		endif()
 	endif()
 
-	target_link_libraries(logshark ${logshark_LIBS})
-	target_include_directories(logshark SYSTEM PRIVATE ${SPARKLE_INCLUDE_DIRS})
+	target_link_libraries(logwolf ${logwolf_LIBS})
+	target_include_directories(logwolf SYSTEM PRIVATE ${SPARKLE_INCLUDE_DIRS})
 
 	install(
-		TARGETS logshark
+		TARGETS logwolf
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 		BUNDLE DESTINATION ${CMAKE_INSTALL_BINDIR}
 	)
@@ -2723,14 +2728,14 @@ if(BUILD_logshark AND QT_FOUND)
 				--no-compiler-runtime
 				--verbose 0
 				$<$<BOOL:${MSVC}>:--pdb>
-				"$<TARGET_FILE:logshark>"
+				"$<TARGET_FILE:logwolf>"
 		)
-		add_dependencies(copy_ls_qt_dlls logshark)
+		add_dependencies(copy_ls_qt_dlls logwolf)
 
 		install(CODE "execute_process(COMMAND
 			\"${QT_WINDEPLOYQT_EXECUTABLE}\"
 			--no-compiler-runtime
-			\"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/Logshark.exe\")"
+			\"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/Logwolf.exe\")"
 		)
 
 	endif(QT_WINDEPLOYQT_EXECUTABLE)

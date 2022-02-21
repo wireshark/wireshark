@@ -1,8 +1,8 @@
 # Build options for use by CMake
 
 option(BUILD_wireshark     "Build Wireshark" ON)
-option(BUILD_logshark     "Build Logshark" OFF)
-if(BUILD_wireshark OR BUILD_logshark)
+option(BUILD_logwolf       "Build Logwolf" OFF)
+if(BUILD_wireshark OR BUILD_logwolf)
 	option(USE_qt6     "Use Qt6 instead of Qt5 - WIP, GUI developers only!" OFF)
 endif()
 option(BUILD_tshark        "Build tshark" ON)

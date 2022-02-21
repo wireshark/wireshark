@@ -53,6 +53,14 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 	add_dependencies(plugins ${_plugin})
 endmacro()
 
+macro(ADD_LOGWOLF_PLUGIN_LIBRARY _plugin _subfolder)
+	ADD_PLUGIN_LIBRARY(${_plugin} ${_subfolder})
+
+	set_target_properties(${_plugin} PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${LOGWOLF_PLUGIN_DIR}/${_subfolder}
+	)
+endmacro()
+
 macro(INSTALL_PLUGIN _plugin _subfolder)
 	install(TARGETS ${_plugin}
 		LIBRARY DESTINATION ${PLUGIN_INSTALL_VERSION_LIBDIR}/${_subfolder} NAMELINK_SKIP
