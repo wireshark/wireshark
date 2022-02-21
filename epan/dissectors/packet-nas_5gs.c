@@ -7587,6 +7587,12 @@ Bits
 0 0 0 1 0 0 0 0    Preferred access type type
 0 0 0 1 0 0 0 1    Multi-access preference type
 0 0 1 0 0 0 0 0    Non-seamless non-3GPP offload indication type
+0 1 0 0 0 0 0 0    Location criteria type
+1 0 0 0 0 0 0 0    Time window type
+1 0 0 0 0 0 0 1    5G ProSe layer-3 UE-to-network relay offload indication type
+1 0 0 0 0 0 1 0    PDU session pair ID type (NOTE 5)
+1 0 0 0 0 0 1 1    RSN type (NOTE 5)
+
 All other values are spare. If received they shall be interpreted as unknown.
 
 */
@@ -7598,6 +7604,11 @@ static const value_string nas_5gs_ursp_r_sel_desc_comp_type_values[] = {
     { 0x10, "Preferred access type" },
     { 0x11, "Multi-access preference" },
     { 0x20, "Non-seamless non-3GPP offload indication" },
+    { 0x40, "Location criteria type" },
+    { 0x80, "Time window type" },
+    { 0x81, "5G ProSe layer-3 UE-to-network relay offload type" },
+    { 0x82, "PDU session pair ID type" },
+    { 0x83, "RSN type" },
     { 0, NULL }
 };
 
@@ -7628,12 +7639,12 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             break;
         case 0x02: /* S-NSSAI type*/
             /* For "S-NSSAI type", the route selection descriptor component value field shall be encoded as a
-               sequence of a one octet S-NSSAI length field and an S-NSSAI value field of a variable size.
-               The S-NSSAI value shall be encoded as the value part of NSSAI information element defined in
-               subclause 9.11.3.37 of 3GPP TS 24.501 [11].*/
-            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
+             * sequence of a one octet S-NSSAI length field and an S-NSSAI value field of a variable size.
+             * The S-NSSAI value shall be encoded as the value part of the S-NSSAI information element defined
+             * in clause 9.11.2.8 of 3GPP TS 24.501 */
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_len_of_mapped_s_nssai, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
             offset++;
-            de_nas_5gs_mm_nssai(tvb, tree, pinfo, offset, length, NULL, 0);
+            de_nas_5gs_cmn_s_nssai(tvb, tree, pinfo, offset, length, NULL, 0);
             offset += length;
             break;
         case 0x04: /* DNN */
