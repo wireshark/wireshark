@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 7a9ffc7df8a35c24ec18dfc5c001fa8ce05590ed
+git revision: 808fb7b68c8d4383a7fbd11286f0ba837573d5a4
 
 
 */
@@ -5493,14 +5493,14 @@ static gint hf_008_V1_2_020_I = -1;
 static const FieldPart I008_V1_2_020_I = { 3, 1.0, FIELD_PART_UINT, &hf_008_V1_2_020_I, NULL };
 static gint hf_008_V1_2_020_S = -1;
 static const value_string valstr_008_V1_2_020_S[] = {
-    { 0, "0 deg" },
-    { 1, "22.5 deg" },
-    { 2, "45 deg" },
-    { 3, "67.5 deg" },
-    { 4, "90 deg" },
-    { 5, "112.5 deg" },
-    { 6, "135 deg" },
-    { 7, "157.5 deg" },
+    { 0, "0°" },
+    { 1, "22.5°" },
+    { 2, "45°" },
+    { 3, "67.5°" },
+    { 4, "90°" },
+    { 5, "112.5°" },
+    { 6, "135°" },
+    { 7, "157.5°" },
     { 0, NULL }
 };
 static const FieldPart I008_V1_2_020_S = { 3, 1.0, FIELD_PART_UINT, &hf_008_V1_2_020_S, NULL };
@@ -5726,14 +5726,14 @@ static gint hf_008_V1_3_020_I = -1;
 static const FieldPart I008_V1_3_020_I = { 3, 1.0, FIELD_PART_UINT, &hf_008_V1_3_020_I, NULL };
 static gint hf_008_V1_3_020_S = -1;
 static const value_string valstr_008_V1_3_020_S[] = {
-    { 0, "0 deg" },
-    { 1, "22.5 deg" },
-    { 2, "45 deg" },
-    { 3, "67.5 deg" },
-    { 4, "90 deg" },
-    { 5, "112.5 deg" },
-    { 6, "135 deg" },
-    { 7, "157.5 deg" },
+    { 0, "0°" },
+    { 1, "22.5°" },
+    { 2, "45°" },
+    { 3, "67.5°" },
+    { 4, "90°" },
+    { 5, "112.5°" },
+    { 6, "135°" },
+    { 7, "157.5°" },
     { 0, NULL }
 };
 static const FieldPart I008_V1_3_020_S = { 3, 1.0, FIELD_PART_UINT, &hf_008_V1_3_020_S, NULL };
@@ -5935,14 +5935,14 @@ static gint hf_008_020_I = -1;
 static const FieldPart I008_020_I = { 3, 1.0, FIELD_PART_UINT, &hf_008_020_I, NULL };
 static gint hf_008_020_S = -1;
 static const value_string valstr_008_020_S[] = {
-    { 0, "0 deg" },
-    { 1, "22.5 deg" },
-    { 2, "45 deg" },
-    { 3, "67.5 deg" },
-    { 4, "90 deg" },
-    { 5, "112.5 deg" },
-    { 6, "135 deg" },
-    { 7, "157.5 deg" },
+    { 0, "0°" },
+    { 1, "22.5°" },
+    { 2, "45°" },
+    { 3, "67.5°" },
+    { 4, "90°" },
+    { 5, "112.5°" },
+    { 6, "135°" },
+    { 7, "157.5°" },
     { 0, NULL }
 };
 static const FieldPart I008_020_S = { 3, 1.0, FIELD_PART_UINT, &hf_008_020_S, NULL };
@@ -6190,14 +6190,14 @@ static gint hf_009_V2_1_020_I = -1;
 static const FieldPart I009_V2_1_020_I = { 3, 1.0, FIELD_PART_UINT, &hf_009_V2_1_020_I, NULL };
 static gint hf_009_V2_1_020_S = -1;
 static const value_string valstr_009_V2_1_020_S[] = {
-    { 0, "0 deg" },
-    { 1, "22.5 deg" },
-    { 2, "45 deg" },
-    { 3, "67.5 deg" },
-    { 4, "90 deg" },
-    { 5, "112.5 deg" },
-    { 6, "135 deg" },
-    { 7, "157.5 deg" },
+    { 0, "0°" },
+    { 1, "22.5°" },
+    { 2, "45°" },
+    { 3, "67.5°" },
+    { 4, "90°" },
+    { 5, "112.5°" },
+    { 6, "135°" },
+    { 7, "157.5°" },
     { 0, NULL }
 };
 static const FieldPart I009_V2_1_020_S = { 3, 1.0, FIELD_PART_UINT, &hf_009_V2_1_020_S, NULL };
@@ -6325,14 +6325,14 @@ static gint hf_009_020_I = -1;
 static const FieldPart I009_020_I = { 3, 1.0, FIELD_PART_UINT, &hf_009_020_I, NULL };
 static gint hf_009_020_S = -1;
 static const value_string valstr_009_020_S[] = {
-    { 0, "0 deg" },
-    { 1, "22.5 deg" },
-    { 2, "45 deg" },
-    { 3, "67.5 deg" },
-    { 4, "90 deg" },
-    { 5, "112.5 deg" },
-    { 6, "135 deg" },
-    { 7, "157.5 deg" },
+    { 0, "0°" },
+    { 1, "22.5°" },
+    { 2, "45°" },
+    { 3, "67.5°" },
+    { 4, "90°" },
+    { 5, "112.5°" },
+    { 6, "135°" },
+    { 7, "157.5°" },
     { 0, NULL }
 };
 static const FieldPart I009_020_S = { 3, 1.0, FIELD_PART_UINT, &hf_009_020_S, NULL };
@@ -6748,7 +6748,7 @@ static const value_string valstr_010_V1_1_170_MAH[] = {
 static const FieldPart I010_V1_1_170_MAH = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1_1_170_MAH, NULL };
 static gint hf_010_V1_1_170_TCC = -1;
 static const value_string valstr_010_V1_1_170_TCC[] = {
-    { 0, "Tracking performed in 'Sensor Plane', i.e. neither slant range correction nor projection was applied" },
+    { 0, "Tracking performed in \'Sensor Plane\', i.e. neither slant range correction nor projection was applied" },
     { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Sensor Site co-ordinates" },
     { 0, NULL }
 };
@@ -6955,7 +6955,7 @@ static const FieldPart I010_V1_1_310_TRB = { 1, 1.0, FIELD_PART_UINT, &hf_010_V1
 static gint hf_010_V1_1_310_MSG = -1;
 static const value_string valstr_010_V1_1_310_MSG[] = {
     { 1, "Towing aircraft" },
-    { 2, "Follow me operation" },
+    { 2, "“Follow me” operation" },
     { 3, "Runway check" },
     { 4, "Emergency operation (fire, medical...)" },
     { 5, "Work in progress (maintenance, birds scarer, sweepers...)" },
@@ -7323,7 +7323,7 @@ static const value_string valstr_010_170_MAH[] = {
 static const FieldPart I010_170_MAH = { 1, 1.0, FIELD_PART_UINT, &hf_010_170_MAH, NULL };
 static gint hf_010_170_TCC = -1;
 static const value_string valstr_010_170_TCC[] = {
-    { 0, "Tracking performed in 'Sensor Plane', i.e. neither slant range correction nor projection was applied" },
+    { 0, "Tracking performed in \'Sensor Plane\', i.e. neither slant range correction nor projection was applied" },
     { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Sensor Site co-ordinates" },
     { 0, NULL }
 };
@@ -7530,7 +7530,7 @@ static const FieldPart I010_310_TRB = { 1, 1.0, FIELD_PART_UINT, &hf_010_310_TRB
 static gint hf_010_310_MSG = -1;
 static const value_string valstr_010_310_MSG[] = {
     { 1, "Towing aircraft" },
-    { 2, "Follow me operation" },
+    { 2, "“Follow me” operation" },
     { 3, "Runway check" },
     { 4, "Emergency operation (fire, medical...)" },
     { 5, "Work in progress (maintenance, birds scarer, sweepers...)" },
@@ -22171,6 +22171,2468 @@ static const AsterixField **I023[] = {
 };
 DIAG_ON_PEDANTIC
 
+/* Category 025, edition 1.5 */
+static gint hf_025_V1_5_000 = -1;
+static gint hf_025_V1_5_000_RTYP = -1;
+static const FieldPart I025_V1_5_000_RTYP = { 7, 1.0, FIELD_PART_HEX, &hf_025_V1_5_000_RTYP, NULL };
+static gint hf_025_V1_5_000_RG = -1;
+static const value_string valstr_025_V1_5_000_RG[] = {
+    { 0, "Periodic Report" },
+    { 1, "Event Driven Report" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_000_RG = { 1, 1.0, FIELD_PART_UINT, &hf_025_V1_5_000_RG, NULL };
+static const FieldPart *I025_V1_5_000_PARTS[] = {
+    &I025_V1_5_000_RTYP,
+    &I025_V1_5_000_RG,
+    NULL
+};
+static const AsterixField I025_V1_5_000 = { FIXED, 1, 0, 0, &hf_025_V1_5_000, I025_V1_5_000_PARTS, { NULL } };
+static gint hf_025_V1_5_010 = -1;
+static gint hf_025_V1_5_010_SAC = -1;
+static const FieldPart I025_V1_5_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_025_V1_5_010_SAC, NULL };
+static gint hf_025_V1_5_010_SIC = -1;
+static const FieldPart I025_V1_5_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_025_V1_5_010_SIC, NULL };
+static const FieldPart *I025_V1_5_010_PARTS[] = {
+    &I025_V1_5_010_SAC,
+    &I025_V1_5_010_SIC,
+    NULL
+};
+static const AsterixField I025_V1_5_010 = { FIXED, 2, 0, 0, &hf_025_V1_5_010, I025_V1_5_010_PARTS, { NULL } };
+static gint hf_025_V1_5_015 = -1;
+static gint hf_025_V1_5_015_VALUE = -1;
+static const FieldPart I025_V1_5_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_025_V1_5_015_VALUE, NULL };
+static const FieldPart *I025_V1_5_015_PARTS[] = {
+    &I025_V1_5_015_VALUE,
+    NULL
+};
+static const AsterixField I025_V1_5_015 = { FIXED, 1, 0, 0, &hf_025_V1_5_015, I025_V1_5_015_PARTS, { NULL } };
+static gint hf_025_V1_5_020 = -1;
+static gint hf_025_V1_5_020_VALUE = -1;
+static const FieldPart I025_V1_5_020_VALUE = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_025_V1_5_020_VALUE, NULL };
+static const FieldPart *I025_V1_5_020_PARTS[] = {
+    &I025_V1_5_020_VALUE,
+    NULL
+};
+static const AsterixField I025_V1_5_020 = { FIXED, 6, 0, 0, &hf_025_V1_5_020, I025_V1_5_020_PARTS, { NULL } };
+static gint hf_025_V1_5_070 = -1;
+static gint hf_025_V1_5_070_VALUE = -1;
+static const FieldPart I025_V1_5_070_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_025_V1_5_070_VALUE, NULL };
+static const FieldPart *I025_V1_5_070_PARTS[] = {
+    &I025_V1_5_070_VALUE,
+    NULL
+};
+static const AsterixField I025_V1_5_070 = { FIXED, 3, 0, 0, &hf_025_V1_5_070, I025_V1_5_070_PARTS, { NULL } };
+static gint hf_025_V1_5_100 = -1;
+static gint hf_025_V1_5_100_NOGO = -1;
+static const value_string valstr_025_V1_5_100_NOGO[] = {
+    { 0, "Data is released for operational use" },
+    { 1, "Data must not be used operationally" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_100_NOGO = { 1, 1.0, FIELD_PART_UINT, &hf_025_V1_5_100_NOGO, NULL };
+static gint hf_025_V1_5_100_OPS = -1;
+static const value_string valstr_025_V1_5_100_OPS[] = {
+    { 0, "Operational" },
+    { 1, "Operational but in Standby" },
+    { 2, "Maintenance" },
+    { 3, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_100_OPS = { 2, 1.0, FIELD_PART_UINT, &hf_025_V1_5_100_OPS, NULL };
+static gint hf_025_V1_5_100_SSTAT = -1;
+static const value_string valstr_025_V1_5_100_SSTAT[] = {
+    { 0, "Running" },
+    { 1, "Failed" },
+    { 2, "Degraded" },
+    { 3, "Undefined" },
+    { 4, "Reserved for future use" },
+    { 5, "Reserved for future use" },
+    { 6, "Reserved for future use" },
+    { 7, "Reserved for future use" },
+    { 8, "Reserved for future use" },
+    { 9, "Reserved for future use" },
+    { 10, "Reserved for future use" },
+    { 11, "Reserved for future use" },
+    { 12, "Reserved for future use" },
+    { 13, "Reserved for future use" },
+    { 14, "Reserved for future use" },
+    { 15, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_100_SSTAT = { 4, 1.0, FIELD_PART_UINT, &hf_025_V1_5_100_SSTAT, NULL };
+static gint hf_025_V1_5_100_SYSTAT = -1;
+static const value_string valstr_025_V1_5_100_SYSTAT[] = {
+    { 0, "Running / OK" },
+    { 1, "Failed" },
+    { 2, "Degraded" },
+    { 3, "Undefined" },
+    { 4, "Reserved for future use" },
+    { 5, "Reserved for future use" },
+    { 6, "Reserved for future use" },
+    { 7, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_100_SYSTAT = { 3, 1.0, FIELD_PART_UINT, &hf_025_V1_5_100_SYSTAT, NULL };
+static gint hf_025_V1_5_100_SESTAT = -1;
+static const value_string valstr_025_V1_5_100_SESTAT[] = {
+    { 0, "OK" },
+    { 1, "Failed" },
+    { 2, "Degraded" },
+    { 3, "Undefined" },
+    { 4, "Reserved for future use" },
+    { 5, "Reserved for future use" },
+    { 6, "Reserved for future use" },
+    { 7, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_100_SESTAT = { 3, 1.0, FIELD_PART_UINT, &hf_025_V1_5_100_SESTAT, NULL };
+static const FieldPart *I025_V1_5_100_PARTS[] = {
+    &I025_V1_5_100_NOGO,
+    &I025_V1_5_100_OPS,
+    &I025_V1_5_100_SSTAT,
+    &IXXX_FX,
+    &IXXX_1bit_spare,
+    &I025_V1_5_100_SYSTAT,
+    &I025_V1_5_100_SESTAT,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I025_V1_5_100 = { FX, 1, 0, 0, &hf_025_V1_5_100, I025_V1_5_100_PARTS, { NULL } };
+static gint hf_025_V1_5_105 = -1;
+static gint hf_025_V1_5_105_VALUE = -1;
+static const value_string valstr_025_V1_5_105_VALUE[] = {
+    { 0, "No error detected (shall not be sent)" },
+    { 1, "Error Code Undefined" },
+    { 2, "Time Source Invalid" },
+    { 3, "Time Source Coasting" },
+    { 4, "Track ID numbering has restarted" },
+    { 5, "Data Processor Overload" },
+    { 6, "Ground Interface Data Communications Overload" },
+    { 7, "System stopped by operator" },
+    { 8, "CBIT failed" },
+    { 9, "Test Target Failure" },
+    { 10, "Reserved for allocation by the AMG" },
+    { 11, "Reserved for allocation by the AMG" },
+    { 12, "Reserved for allocation by the AMG" },
+    { 13, "Reserved for allocation by the AMG" },
+    { 14, "Reserved for allocation by the AMG" },
+    { 15, "Reserved for allocation by the AMG" },
+    { 16, "Reserved for allocation by the AMG" },
+    { 17, "Reserved for allocation by the AMG" },
+    { 18, "Reserved for allocation by the AMG" },
+    { 19, "Reserved for allocation by the AMG" },
+    { 20, "Reserved for allocation by the AMG" },
+    { 21, "Reserved for allocation by the AMG" },
+    { 22, "Reserved for allocation by the AMG" },
+    { 23, "Reserved for allocation by the AMG" },
+    { 24, "Reserved for allocation by the AMG" },
+    { 25, "Reserved for allocation by the AMG" },
+    { 26, "Reserved for allocation by the AMG" },
+    { 27, "Reserved for allocation by the AMG" },
+    { 28, "Reserved for allocation by the AMG" },
+    { 29, "Reserved for allocation by the AMG" },
+    { 30, "Reserved for allocation by the AMG" },
+    { 31, "Reserved for allocation by the AMG" },
+    { 32, "Reserved for allocation by system manufacturers" },
+    { 33, "Reserved for allocation by system manufacturers" },
+    { 34, "Reserved for allocation by system manufacturers" },
+    { 35, "Reserved for allocation by system manufacturers" },
+    { 36, "Reserved for allocation by system manufacturers" },
+    { 37, "Reserved for allocation by system manufacturers" },
+    { 38, "Reserved for allocation by system manufacturers" },
+    { 39, "Reserved for allocation by system manufacturers" },
+    { 40, "Reserved for allocation by system manufacturers" },
+    { 41, "Reserved for allocation by system manufacturers" },
+    { 42, "Reserved for allocation by system manufacturers" },
+    { 43, "Reserved for allocation by system manufacturers" },
+    { 44, "Reserved for allocation by system manufacturers" },
+    { 45, "Reserved for allocation by system manufacturers" },
+    { 46, "Reserved for allocation by system manufacturers" },
+    { 47, "Reserved for allocation by system manufacturers" },
+    { 48, "Reserved for allocation by system manufacturers" },
+    { 49, "Reserved for allocation by system manufacturers" },
+    { 50, "Reserved for allocation by system manufacturers" },
+    { 51, "Reserved for allocation by system manufacturers" },
+    { 52, "Reserved for allocation by system manufacturers" },
+    { 53, "Reserved for allocation by system manufacturers" },
+    { 54, "Reserved for allocation by system manufacturers" },
+    { 55, "Reserved for allocation by system manufacturers" },
+    { 56, "Reserved for allocation by system manufacturers" },
+    { 57, "Reserved for allocation by system manufacturers" },
+    { 58, "Reserved for allocation by system manufacturers" },
+    { 59, "Reserved for allocation by system manufacturers" },
+    { 60, "Reserved for allocation by system manufacturers" },
+    { 61, "Reserved for allocation by system manufacturers" },
+    { 62, "Reserved for allocation by system manufacturers" },
+    { 63, "Reserved for allocation by system manufacturers" },
+    { 64, "Reserved for allocation by system manufacturers" },
+    { 65, "Reserved for allocation by system manufacturers" },
+    { 66, "Reserved for allocation by system manufacturers" },
+    { 67, "Reserved for allocation by system manufacturers" },
+    { 68, "Reserved for allocation by system manufacturers" },
+    { 69, "Reserved for allocation by system manufacturers" },
+    { 70, "Reserved for allocation by system manufacturers" },
+    { 71, "Reserved for allocation by system manufacturers" },
+    { 72, "Reserved for allocation by system manufacturers" },
+    { 73, "Reserved for allocation by system manufacturers" },
+    { 74, "Reserved for allocation by system manufacturers" },
+    { 75, "Reserved for allocation by system manufacturers" },
+    { 76, "Reserved for allocation by system manufacturers" },
+    { 77, "Reserved for allocation by system manufacturers" },
+    { 78, "Reserved for allocation by system manufacturers" },
+    { 79, "Reserved for allocation by system manufacturers" },
+    { 80, "Reserved for allocation by system manufacturers" },
+    { 81, "Reserved for allocation by system manufacturers" },
+    { 82, "Reserved for allocation by system manufacturers" },
+    { 83, "Reserved for allocation by system manufacturers" },
+    { 84, "Reserved for allocation by system manufacturers" },
+    { 85, "Reserved for allocation by system manufacturers" },
+    { 86, "Reserved for allocation by system manufacturers" },
+    { 87, "Reserved for allocation by system manufacturers" },
+    { 88, "Reserved for allocation by system manufacturers" },
+    { 89, "Reserved for allocation by system manufacturers" },
+    { 90, "Reserved for allocation by system manufacturers" },
+    { 91, "Reserved for allocation by system manufacturers" },
+    { 92, "Reserved for allocation by system manufacturers" },
+    { 93, "Reserved for allocation by system manufacturers" },
+    { 94, "Reserved for allocation by system manufacturers" },
+    { 95, "Reserved for allocation by system manufacturers" },
+    { 96, "Reserved for allocation by system manufacturers" },
+    { 97, "Reserved for allocation by system manufacturers" },
+    { 98, "Reserved for allocation by system manufacturers" },
+    { 99, "Reserved for allocation by system manufacturers" },
+    { 100, "Reserved for allocation by system manufacturers" },
+    { 101, "Reserved for allocation by system manufacturers" },
+    { 102, "Reserved for allocation by system manufacturers" },
+    { 103, "Reserved for allocation by system manufacturers" },
+    { 104, "Reserved for allocation by system manufacturers" },
+    { 105, "Reserved for allocation by system manufacturers" },
+    { 106, "Reserved for allocation by system manufacturers" },
+    { 107, "Reserved for allocation by system manufacturers" },
+    { 108, "Reserved for allocation by system manufacturers" },
+    { 109, "Reserved for allocation by system manufacturers" },
+    { 110, "Reserved for allocation by system manufacturers" },
+    { 111, "Reserved for allocation by system manufacturers" },
+    { 112, "Reserved for allocation by system manufacturers" },
+    { 113, "Reserved for allocation by system manufacturers" },
+    { 114, "Reserved for allocation by system manufacturers" },
+    { 115, "Reserved for allocation by system manufacturers" },
+    { 116, "Reserved for allocation by system manufacturers" },
+    { 117, "Reserved for allocation by system manufacturers" },
+    { 118, "Reserved for allocation by system manufacturers" },
+    { 119, "Reserved for allocation by system manufacturers" },
+    { 120, "Reserved for allocation by system manufacturers" },
+    { 121, "Reserved for allocation by system manufacturers" },
+    { 122, "Reserved for allocation by system manufacturers" },
+    { 123, "Reserved for allocation by system manufacturers" },
+    { 124, "Reserved for allocation by system manufacturers" },
+    { 125, "Reserved for allocation by system manufacturers" },
+    { 126, "Reserved for allocation by system manufacturers" },
+    { 127, "Reserved for allocation by system manufacturers" },
+    { 128, "Reserved for allocation by system manufacturers" },
+    { 129, "Reserved for allocation by system manufacturers" },
+    { 130, "Reserved for allocation by system manufacturers" },
+    { 131, "Reserved for allocation by system manufacturers" },
+    { 132, "Reserved for allocation by system manufacturers" },
+    { 133, "Reserved for allocation by system manufacturers" },
+    { 134, "Reserved for allocation by system manufacturers" },
+    { 135, "Reserved for allocation by system manufacturers" },
+    { 136, "Reserved for allocation by system manufacturers" },
+    { 137, "Reserved for allocation by system manufacturers" },
+    { 138, "Reserved for allocation by system manufacturers" },
+    { 139, "Reserved for allocation by system manufacturers" },
+    { 140, "Reserved for allocation by system manufacturers" },
+    { 141, "Reserved for allocation by system manufacturers" },
+    { 142, "Reserved for allocation by system manufacturers" },
+    { 143, "Reserved for allocation by system manufacturers" },
+    { 144, "Reserved for allocation by system manufacturers" },
+    { 145, "Reserved for allocation by system manufacturers" },
+    { 146, "Reserved for allocation by system manufacturers" },
+    { 147, "Reserved for allocation by system manufacturers" },
+    { 148, "Reserved for allocation by system manufacturers" },
+    { 149, "Reserved for allocation by system manufacturers" },
+    { 150, "Reserved for allocation by system manufacturers" },
+    { 151, "Reserved for allocation by system manufacturers" },
+    { 152, "Reserved for allocation by system manufacturers" },
+    { 153, "Reserved for allocation by system manufacturers" },
+    { 154, "Reserved for allocation by system manufacturers" },
+    { 155, "Reserved for allocation by system manufacturers" },
+    { 156, "Reserved for allocation by system manufacturers" },
+    { 157, "Reserved for allocation by system manufacturers" },
+    { 158, "Reserved for allocation by system manufacturers" },
+    { 159, "Reserved for allocation by system manufacturers" },
+    { 160, "Reserved for allocation by system manufacturers" },
+    { 161, "Reserved for allocation by system manufacturers" },
+    { 162, "Reserved for allocation by system manufacturers" },
+    { 163, "Reserved for allocation by system manufacturers" },
+    { 164, "Reserved for allocation by system manufacturers" },
+    { 165, "Reserved for allocation by system manufacturers" },
+    { 166, "Reserved for allocation by system manufacturers" },
+    { 167, "Reserved for allocation by system manufacturers" },
+    { 168, "Reserved for allocation by system manufacturers" },
+    { 169, "Reserved for allocation by system manufacturers" },
+    { 170, "Reserved for allocation by system manufacturers" },
+    { 171, "Reserved for allocation by system manufacturers" },
+    { 172, "Reserved for allocation by system manufacturers" },
+    { 173, "Reserved for allocation by system manufacturers" },
+    { 174, "Reserved for allocation by system manufacturers" },
+    { 175, "Reserved for allocation by system manufacturers" },
+    { 176, "Reserved for allocation by system manufacturers" },
+    { 177, "Reserved for allocation by system manufacturers" },
+    { 178, "Reserved for allocation by system manufacturers" },
+    { 179, "Reserved for allocation by system manufacturers" },
+    { 180, "Reserved for allocation by system manufacturers" },
+    { 181, "Reserved for allocation by system manufacturers" },
+    { 182, "Reserved for allocation by system manufacturers" },
+    { 183, "Reserved for allocation by system manufacturers" },
+    { 184, "Reserved for allocation by system manufacturers" },
+    { 185, "Reserved for allocation by system manufacturers" },
+    { 186, "Reserved for allocation by system manufacturers" },
+    { 187, "Reserved for allocation by system manufacturers" },
+    { 188, "Reserved for allocation by system manufacturers" },
+    { 189, "Reserved for allocation by system manufacturers" },
+    { 190, "Reserved for allocation by system manufacturers" },
+    { 191, "Reserved for allocation by system manufacturers" },
+    { 192, "Reserved for allocation by system manufacturers" },
+    { 193, "Reserved for allocation by system manufacturers" },
+    { 194, "Reserved for allocation by system manufacturers" },
+    { 195, "Reserved for allocation by system manufacturers" },
+    { 196, "Reserved for allocation by system manufacturers" },
+    { 197, "Reserved for allocation by system manufacturers" },
+    { 198, "Reserved for allocation by system manufacturers" },
+    { 199, "Reserved for allocation by system manufacturers" },
+    { 200, "Reserved for allocation by system manufacturers" },
+    { 201, "Reserved for allocation by system manufacturers" },
+    { 202, "Reserved for allocation by system manufacturers" },
+    { 203, "Reserved for allocation by system manufacturers" },
+    { 204, "Reserved for allocation by system manufacturers" },
+    { 205, "Reserved for allocation by system manufacturers" },
+    { 206, "Reserved for allocation by system manufacturers" },
+    { 207, "Reserved for allocation by system manufacturers" },
+    { 208, "Reserved for allocation by system manufacturers" },
+    { 209, "Reserved for allocation by system manufacturers" },
+    { 210, "Reserved for allocation by system manufacturers" },
+    { 211, "Reserved for allocation by system manufacturers" },
+    { 212, "Reserved for allocation by system manufacturers" },
+    { 213, "Reserved for allocation by system manufacturers" },
+    { 214, "Reserved for allocation by system manufacturers" },
+    { 215, "Reserved for allocation by system manufacturers" },
+    { 216, "Reserved for allocation by system manufacturers" },
+    { 217, "Reserved for allocation by system manufacturers" },
+    { 218, "Reserved for allocation by system manufacturers" },
+    { 219, "Reserved for allocation by system manufacturers" },
+    { 220, "Reserved for allocation by system manufacturers" },
+    { 221, "Reserved for allocation by system manufacturers" },
+    { 222, "Reserved for allocation by system manufacturers" },
+    { 223, "Reserved for allocation by system manufacturers" },
+    { 224, "Reserved for allocation by system manufacturers" },
+    { 225, "Reserved for allocation by system manufacturers" },
+    { 226, "Reserved for allocation by system manufacturers" },
+    { 227, "Reserved for allocation by system manufacturers" },
+    { 228, "Reserved for allocation by system manufacturers" },
+    { 229, "Reserved for allocation by system manufacturers" },
+    { 230, "Reserved for allocation by system manufacturers" },
+    { 231, "Reserved for allocation by system manufacturers" },
+    { 232, "Reserved for allocation by system manufacturers" },
+    { 233, "Reserved for allocation by system manufacturers" },
+    { 234, "Reserved for allocation by system manufacturers" },
+    { 235, "Reserved for allocation by system manufacturers" },
+    { 236, "Reserved for allocation by system manufacturers" },
+    { 237, "Reserved for allocation by system manufacturers" },
+    { 238, "Reserved for allocation by system manufacturers" },
+    { 239, "Reserved for allocation by system manufacturers" },
+    { 240, "Reserved for allocation by system manufacturers" },
+    { 241, "Reserved for allocation by system manufacturers" },
+    { 242, "Reserved for allocation by system manufacturers" },
+    { 243, "Reserved for allocation by system manufacturers" },
+    { 244, "Reserved for allocation by system manufacturers" },
+    { 245, "Reserved for allocation by system manufacturers" },
+    { 246, "Reserved for allocation by system manufacturers" },
+    { 247, "Reserved for allocation by system manufacturers" },
+    { 248, "Reserved for allocation by system manufacturers" },
+    { 249, "Reserved for allocation by system manufacturers" },
+    { 250, "Reserved for allocation by system manufacturers" },
+    { 251, "Reserved for allocation by system manufacturers" },
+    { 252, "Reserved for allocation by system manufacturers" },
+    { 253, "Reserved for allocation by system manufacturers" },
+    { 254, "Reserved for allocation by system manufacturers" },
+    { 255, "Reserved for allocation by system manufacturers" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_105_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_025_V1_5_105_VALUE, NULL };
+static const FieldPart *I025_V1_5_105_PARTS[] = {
+    &I025_V1_5_105_VALUE,
+    NULL
+};
+static const AsterixField I025_V1_5_105 = { REPETITIVE, 1, 1, 0, &hf_025_V1_5_105, I025_V1_5_105_PARTS, { NULL } };
+static gint hf_025_V1_5_120 = -1;
+static gint hf_025_V1_5_120_CID = -1;
+static const FieldPart I025_V1_5_120_CID = { 16, 1.0, FIELD_PART_HEX, &hf_025_V1_5_120_CID, NULL };
+static gint hf_025_V1_5_120_ERRC = -1;
+static const value_string valstr_025_V1_5_120_ERRC[] = {
+    { 0, "No Error Detected" },
+    { 1, "Error Code Undefined" },
+    { 2, "Reserved for allocation by the AMG" },
+    { 3, "Reserved for allocation by the AMG" },
+    { 4, "Reserved for allocation by the AMG" },
+    { 5, "Reserved for allocation by the AMG" },
+    { 6, "Reserved for allocation by the AMG" },
+    { 7, "Reserved for allocation by the AMG" },
+    { 8, "Reserved for allocation by the AMG" },
+    { 9, "Reserved for allocation by the AMG" },
+    { 10, "Reserved for allocation by the AMG" },
+    { 11, "Reserved for allocation by the AMG" },
+    { 12, "Reserved for allocation by the AMG" },
+    { 13, "Reserved for allocation by the AMG" },
+    { 14, "Reserved for allocation by the AMG" },
+    { 15, "Reserved for allocation by the AMG" },
+    { 16, "Reserved for allocation by system manufacturers" },
+    { 17, "Reserved for allocation by system manufacturers" },
+    { 18, "Reserved for allocation by system manufacturers" },
+    { 19, "Reserved for allocation by system manufacturers" },
+    { 20, "Reserved for allocation by system manufacturers" },
+    { 21, "Reserved for allocation by system manufacturers" },
+    { 22, "Reserved for allocation by system manufacturers" },
+    { 23, "Reserved for allocation by system manufacturers" },
+    { 24, "Reserved for allocation by system manufacturers" },
+    { 25, "Reserved for allocation by system manufacturers" },
+    { 26, "Reserved for allocation by system manufacturers" },
+    { 27, "Reserved for allocation by system manufacturers" },
+    { 28, "Reserved for allocation by system manufacturers" },
+    { 29, "Reserved for allocation by system manufacturers" },
+    { 30, "Reserved for allocation by system manufacturers" },
+    { 31, "Reserved for allocation by system manufacturers" },
+    { 32, "Reserved for allocation by system manufacturers" },
+    { 33, "Reserved for allocation by system manufacturers" },
+    { 34, "Reserved for allocation by system manufacturers" },
+    { 35, "Reserved for allocation by system manufacturers" },
+    { 36, "Reserved for allocation by system manufacturers" },
+    { 37, "Reserved for allocation by system manufacturers" },
+    { 38, "Reserved for allocation by system manufacturers" },
+    { 39, "Reserved for allocation by system manufacturers" },
+    { 40, "Reserved for allocation by system manufacturers" },
+    { 41, "Reserved for allocation by system manufacturers" },
+    { 42, "Reserved for allocation by system manufacturers" },
+    { 43, "Reserved for allocation by system manufacturers" },
+    { 44, "Reserved for allocation by system manufacturers" },
+    { 45, "Reserved for allocation by system manufacturers" },
+    { 46, "Reserved for allocation by system manufacturers" },
+    { 47, "Reserved for allocation by system manufacturers" },
+    { 48, "Reserved for allocation by system manufacturers" },
+    { 49, "Reserved for allocation by system manufacturers" },
+    { 50, "Reserved for allocation by system manufacturers" },
+    { 51, "Reserved for allocation by system manufacturers" },
+    { 52, "Reserved for allocation by system manufacturers" },
+    { 53, "Reserved for allocation by system manufacturers" },
+    { 54, "Reserved for allocation by system manufacturers" },
+    { 55, "Reserved for allocation by system manufacturers" },
+    { 56, "Reserved for allocation by system manufacturers" },
+    { 57, "Reserved for allocation by system manufacturers" },
+    { 58, "Reserved for allocation by system manufacturers" },
+    { 59, "Reserved for allocation by system manufacturers" },
+    { 60, "Reserved for allocation by system manufacturers" },
+    { 61, "Reserved for allocation by system manufacturers" },
+    { 62, "Reserved for allocation by system manufacturers" },
+    { 63, "Reserved for allocation by system manufacturers" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_120_ERRC = { 6, 1.0, FIELD_PART_UINT, &hf_025_V1_5_120_ERRC, NULL };
+static gint hf_025_V1_5_120_CS = -1;
+static const value_string valstr_025_V1_5_120_CS[] = {
+    { 0, "Running" },
+    { 1, "Failed" },
+    { 2, "Maintenance" },
+    { 3, "Reserved" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_120_CS = { 2, 1.0, FIELD_PART_UINT, &hf_025_V1_5_120_CS, NULL };
+static const FieldPart *I025_V1_5_120_PARTS[] = {
+    &I025_V1_5_120_CID,
+    &I025_V1_5_120_ERRC,
+    &I025_V1_5_120_CS,
+    NULL
+};
+static const AsterixField I025_V1_5_120 = { REPETITIVE, 3, 1, 0, &hf_025_V1_5_120, I025_V1_5_120_PARTS, { NULL } };
+static gint hf_025_V1_5_140 = -1;
+static gint hf_025_V1_5_140_TYPE = -1;
+static const value_string valstr_025_V1_5_140_TYPE[] = {
+    { 0, "Number of unknown messages received" },
+    { 1, "Number of \"too old\" messages received" },
+    { 2, "Number of failed message conversions" },
+    { 3, "Total Number of messages received" },
+    { 4, "Total number of messages transmitted" },
+    { 5, "Reserved for AMG" },
+    { 6, "Reserved for AMG" },
+    { 7, "Reserved for AMG" },
+    { 8, "Reserved for AMG" },
+    { 9, "Reserved for AMG" },
+    { 10, "Reserved for AMG" },
+    { 11, "Reserved for AMG" },
+    { 12, "Reserved for AMG" },
+    { 13, "Reserved for AMG" },
+    { 14, "Reserved for AMG" },
+    { 15, "Reserved for AMG" },
+    { 16, "Reserved for AMG" },
+    { 17, "Reserved for AMG" },
+    { 18, "Reserved for AMG" },
+    { 19, "Reserved for AMG" },
+    { 20, "Implementation specific" },
+    { 21, "Implementation specific" },
+    { 22, "Implementation specific" },
+    { 23, "Implementation specific" },
+    { 24, "Implementation specific" },
+    { 25, "Implementation specific" },
+    { 26, "Implementation specific" },
+    { 27, "Implementation specific" },
+    { 28, "Implementation specific" },
+    { 29, "Implementation specific" },
+    { 30, "Implementation specific" },
+    { 31, "Implementation specific" },
+    { 32, "Implementation specific" },
+    { 33, "Implementation specific" },
+    { 34, "Implementation specific" },
+    { 35, "Implementation specific" },
+    { 36, "Implementation specific" },
+    { 37, "Implementation specific" },
+    { 38, "Implementation specific" },
+    { 39, "Implementation specific" },
+    { 40, "Implementation specific" },
+    { 41, "Implementation specific" },
+    { 42, "Implementation specific" },
+    { 43, "Implementation specific" },
+    { 44, "Implementation specific" },
+    { 45, "Implementation specific" },
+    { 46, "Implementation specific" },
+    { 47, "Implementation specific" },
+    { 48, "Implementation specific" },
+    { 49, "Implementation specific" },
+    { 50, "Implementation specific" },
+    { 51, "Implementation specific" },
+    { 52, "Implementation specific" },
+    { 53, "Implementation specific" },
+    { 54, "Implementation specific" },
+    { 55, "Implementation specific" },
+    { 56, "Implementation specific" },
+    { 57, "Implementation specific" },
+    { 58, "Implementation specific" },
+    { 59, "Implementation specific" },
+    { 60, "Implementation specific" },
+    { 61, "Implementation specific" },
+    { 62, "Implementation specific" },
+    { 63, "Implementation specific" },
+    { 64, "Implementation specific" },
+    { 65, "Implementation specific" },
+    { 66, "Implementation specific" },
+    { 67, "Implementation specific" },
+    { 68, "Implementation specific" },
+    { 69, "Implementation specific" },
+    { 70, "Implementation specific" },
+    { 71, "Implementation specific" },
+    { 72, "Implementation specific" },
+    { 73, "Implementation specific" },
+    { 74, "Implementation specific" },
+    { 75, "Implementation specific" },
+    { 76, "Implementation specific" },
+    { 77, "Implementation specific" },
+    { 78, "Implementation specific" },
+    { 79, "Implementation specific" },
+    { 80, "Implementation specific" },
+    { 81, "Implementation specific" },
+    { 82, "Implementation specific" },
+    { 83, "Implementation specific" },
+    { 84, "Implementation specific" },
+    { 85, "Implementation specific" },
+    { 86, "Implementation specific" },
+    { 87, "Implementation specific" },
+    { 88, "Implementation specific" },
+    { 89, "Implementation specific" },
+    { 90, "Implementation specific" },
+    { 91, "Implementation specific" },
+    { 92, "Implementation specific" },
+    { 93, "Implementation specific" },
+    { 94, "Implementation specific" },
+    { 95, "Implementation specific" },
+    { 96, "Implementation specific" },
+    { 97, "Implementation specific" },
+    { 98, "Implementation specific" },
+    { 99, "Implementation specific" },
+    { 100, "Implementation specific" },
+    { 101, "Implementation specific" },
+    { 102, "Implementation specific" },
+    { 103, "Implementation specific" },
+    { 104, "Implementation specific" },
+    { 105, "Implementation specific" },
+    { 106, "Implementation specific" },
+    { 107, "Implementation specific" },
+    { 108, "Implementation specific" },
+    { 109, "Implementation specific" },
+    { 110, "Implementation specific" },
+    { 111, "Implementation specific" },
+    { 112, "Implementation specific" },
+    { 113, "Implementation specific" },
+    { 114, "Implementation specific" },
+    { 115, "Implementation specific" },
+    { 116, "Implementation specific" },
+    { 117, "Implementation specific" },
+    { 118, "Implementation specific" },
+    { 119, "Implementation specific" },
+    { 120, "Implementation specific" },
+    { 121, "Implementation specific" },
+    { 122, "Implementation specific" },
+    { 123, "Implementation specific" },
+    { 124, "Implementation specific" },
+    { 125, "Implementation specific" },
+    { 126, "Implementation specific" },
+    { 127, "Implementation specific" },
+    { 128, "Implementation specific" },
+    { 129, "Implementation specific" },
+    { 130, "Implementation specific" },
+    { 131, "Implementation specific" },
+    { 132, "Implementation specific" },
+    { 133, "Implementation specific" },
+    { 134, "Implementation specific" },
+    { 135, "Implementation specific" },
+    { 136, "Implementation specific" },
+    { 137, "Implementation specific" },
+    { 138, "Implementation specific" },
+    { 139, "Implementation specific" },
+    { 140, "Implementation specific" },
+    { 141, "Implementation specific" },
+    { 142, "Implementation specific" },
+    { 143, "Implementation specific" },
+    { 144, "Implementation specific" },
+    { 145, "Implementation specific" },
+    { 146, "Implementation specific" },
+    { 147, "Implementation specific" },
+    { 148, "Implementation specific" },
+    { 149, "Implementation specific" },
+    { 150, "Implementation specific" },
+    { 151, "Implementation specific" },
+    { 152, "Implementation specific" },
+    { 153, "Implementation specific" },
+    { 154, "Implementation specific" },
+    { 155, "Implementation specific" },
+    { 156, "Implementation specific" },
+    { 157, "Implementation specific" },
+    { 158, "Implementation specific" },
+    { 159, "Implementation specific" },
+    { 160, "Implementation specific" },
+    { 161, "Implementation specific" },
+    { 162, "Implementation specific" },
+    { 163, "Implementation specific" },
+    { 164, "Implementation specific" },
+    { 165, "Implementation specific" },
+    { 166, "Implementation specific" },
+    { 167, "Implementation specific" },
+    { 168, "Implementation specific" },
+    { 169, "Implementation specific" },
+    { 170, "Implementation specific" },
+    { 171, "Implementation specific" },
+    { 172, "Implementation specific" },
+    { 173, "Implementation specific" },
+    { 174, "Implementation specific" },
+    { 175, "Implementation specific" },
+    { 176, "Implementation specific" },
+    { 177, "Implementation specific" },
+    { 178, "Implementation specific" },
+    { 179, "Implementation specific" },
+    { 180, "Implementation specific" },
+    { 181, "Implementation specific" },
+    { 182, "Implementation specific" },
+    { 183, "Implementation specific" },
+    { 184, "Implementation specific" },
+    { 185, "Implementation specific" },
+    { 186, "Implementation specific" },
+    { 187, "Implementation specific" },
+    { 188, "Implementation specific" },
+    { 189, "Implementation specific" },
+    { 190, "Implementation specific" },
+    { 191, "Implementation specific" },
+    { 192, "Implementation specific" },
+    { 193, "Implementation specific" },
+    { 194, "Implementation specific" },
+    { 195, "Implementation specific" },
+    { 196, "Implementation specific" },
+    { 197, "Implementation specific" },
+    { 198, "Implementation specific" },
+    { 199, "Implementation specific" },
+    { 200, "Implementation specific" },
+    { 201, "Implementation specific" },
+    { 202, "Implementation specific" },
+    { 203, "Implementation specific" },
+    { 204, "Implementation specific" },
+    { 205, "Implementation specific" },
+    { 206, "Implementation specific" },
+    { 207, "Implementation specific" },
+    { 208, "Implementation specific" },
+    { 209, "Implementation specific" },
+    { 210, "Implementation specific" },
+    { 211, "Implementation specific" },
+    { 212, "Implementation specific" },
+    { 213, "Implementation specific" },
+    { 214, "Implementation specific" },
+    { 215, "Implementation specific" },
+    { 216, "Implementation specific" },
+    { 217, "Implementation specific" },
+    { 218, "Implementation specific" },
+    { 219, "Implementation specific" },
+    { 220, "Implementation specific" },
+    { 221, "Implementation specific" },
+    { 222, "Implementation specific" },
+    { 223, "Implementation specific" },
+    { 224, "Implementation specific" },
+    { 225, "Implementation specific" },
+    { 226, "Implementation specific" },
+    { 227, "Implementation specific" },
+    { 228, "Implementation specific" },
+    { 229, "Implementation specific" },
+    { 230, "Implementation specific" },
+    { 231, "Implementation specific" },
+    { 232, "Implementation specific" },
+    { 233, "Implementation specific" },
+    { 234, "Implementation specific" },
+    { 235, "Implementation specific" },
+    { 236, "Implementation specific" },
+    { 237, "Implementation specific" },
+    { 238, "Implementation specific" },
+    { 239, "Implementation specific" },
+    { 240, "Implementation specific" },
+    { 241, "Implementation specific" },
+    { 242, "Implementation specific" },
+    { 243, "Implementation specific" },
+    { 244, "Implementation specific" },
+    { 245, "Implementation specific" },
+    { 246, "Implementation specific" },
+    { 247, "Implementation specific" },
+    { 248, "Implementation specific" },
+    { 249, "Implementation specific" },
+    { 250, "Implementation specific" },
+    { 251, "Implementation specific" },
+    { 252, "Implementation specific" },
+    { 253, "Implementation specific" },
+    { 254, "Implementation specific" },
+    { 255, "Implementation specific" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_140_TYPE = { 8, 1.0, FIELD_PART_UINT, &hf_025_V1_5_140_TYPE, NULL };
+static gint hf_025_V1_5_140_REF = -1;
+static const value_string valstr_025_V1_5_140_REF[] = {
+    { 0, "From UTC midnight" },
+    { 1, "From the previous report" },
+    { 0, NULL }
+};
+static const FieldPart I025_V1_5_140_REF = { 1, 1.0, FIELD_PART_UINT, &hf_025_V1_5_140_REF, NULL };
+static gint hf_025_V1_5_140_COUNT = -1;
+static const FieldPart I025_V1_5_140_COUNT = { 32, 1.0, FIELD_PART_UINT, &hf_025_V1_5_140_COUNT, NULL };
+static const FieldPart *I025_V1_5_140_PARTS[] = {
+    &I025_V1_5_140_TYPE,
+    &I025_V1_5_140_REF,
+    &IXXX_7bit_spare,
+    &I025_V1_5_140_COUNT,
+    NULL
+};
+static const AsterixField I025_V1_5_140 = { REPETITIVE, 6, 1, 0, &hf_025_V1_5_140, I025_V1_5_140_PARTS, { NULL } };
+static gint hf_025_V1_5_200 = -1;
+static gint hf_025_V1_5_200_VALUE = -1;
+static const FieldPart I025_V1_5_200_VALUE = { 24, 1.0, FIELD_PART_UINT, &hf_025_V1_5_200_VALUE, NULL };
+static const FieldPart *I025_V1_5_200_PARTS[] = {
+    &I025_V1_5_200_VALUE,
+    NULL
+};
+static const AsterixField I025_V1_5_200 = { FIXED, 3, 0, 0, &hf_025_V1_5_200, I025_V1_5_200_PARTS, { NULL } };
+static gint hf_025_V1_5_600 = -1;
+static gint hf_025_V1_5_600_LAT = -1;
+static const FieldPart I025_V1_5_600_LAT = { 32, 0.00000004190951585769653320312, FIELD_PART_FLOAT, &hf_025_V1_5_600_LAT, NULL };
+static gint hf_025_V1_5_600_LON = -1;
+static const FieldPart I025_V1_5_600_LON = { 32, 0.00000004190951585769653320312, FIELD_PART_FLOAT, &hf_025_V1_5_600_LON, NULL };
+static const FieldPart *I025_V1_5_600_PARTS[] = {
+    &I025_V1_5_600_LAT,
+    &I025_V1_5_600_LON,
+    NULL
+};
+static const AsterixField I025_V1_5_600 = { FIXED, 8, 0, 0, &hf_025_V1_5_600, I025_V1_5_600_PARTS, { NULL } };
+static gint hf_025_V1_5_610 = -1;
+static gint hf_025_V1_5_610_VALUE = -1;
+static const FieldPart I025_V1_5_610_VALUE = { 16, 0.25, FIELD_PART_FLOAT, &hf_025_V1_5_610_VALUE, NULL };
+static const FieldPart *I025_V1_5_610_PARTS[] = {
+    &I025_V1_5_610_VALUE,
+    NULL
+};
+static const AsterixField I025_V1_5_610 = { FIXED, 2, 0, 0, &hf_025_V1_5_610, I025_V1_5_610_PARTS, { NULL } };
+static gint hf_025_V1_5_SP = -1;
+static const AsterixField I025_V1_5_SP = { EXP, 0, 0, 1, &hf_025_V1_5_SP, NULL, { NULL } };
+
+/* Category 025, edition 1.5 (latest) */
+static gint hf_025_000 = -1;
+static gint hf_025_000_RTYP = -1;
+static const FieldPart I025_000_RTYP = { 7, 1.0, FIELD_PART_HEX, &hf_025_000_RTYP, NULL };
+static gint hf_025_000_RG = -1;
+static const value_string valstr_025_000_RG[] = {
+    { 0, "Periodic Report" },
+    { 1, "Event Driven Report" },
+    { 0, NULL }
+};
+static const FieldPart I025_000_RG = { 1, 1.0, FIELD_PART_UINT, &hf_025_000_RG, NULL };
+static const FieldPart *I025_000_PARTS[] = {
+    &I025_000_RTYP,
+    &I025_000_RG,
+    NULL
+};
+static const AsterixField I025_000 = { FIXED, 1, 0, 0, &hf_025_000, I025_000_PARTS, { NULL } };
+static gint hf_025_010 = -1;
+static gint hf_025_010_SAC = -1;
+static const FieldPart I025_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_025_010_SAC, NULL };
+static gint hf_025_010_SIC = -1;
+static const FieldPart I025_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_025_010_SIC, NULL };
+static const FieldPart *I025_010_PARTS[] = {
+    &I025_010_SAC,
+    &I025_010_SIC,
+    NULL
+};
+static const AsterixField I025_010 = { FIXED, 2, 0, 0, &hf_025_010, I025_010_PARTS, { NULL } };
+static gint hf_025_015 = -1;
+static gint hf_025_015_VALUE = -1;
+static const FieldPart I025_015_VALUE = { 8, 1.0, FIELD_PART_HEX, &hf_025_015_VALUE, NULL };
+static const FieldPart *I025_015_PARTS[] = {
+    &I025_015_VALUE,
+    NULL
+};
+static const AsterixField I025_015 = { FIXED, 1, 0, 0, &hf_025_015, I025_015_PARTS, { NULL } };
+static gint hf_025_020 = -1;
+static gint hf_025_020_VALUE = -1;
+static const FieldPart I025_020_VALUE = { 48, 1.0, FIELD_PART_CALLSIGN, &hf_025_020_VALUE, NULL };
+static const FieldPart *I025_020_PARTS[] = {
+    &I025_020_VALUE,
+    NULL
+};
+static const AsterixField I025_020 = { FIXED, 6, 0, 0, &hf_025_020, I025_020_PARTS, { NULL } };
+static gint hf_025_070 = -1;
+static gint hf_025_070_VALUE = -1;
+static const FieldPart I025_070_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_025_070_VALUE, NULL };
+static const FieldPart *I025_070_PARTS[] = {
+    &I025_070_VALUE,
+    NULL
+};
+static const AsterixField I025_070 = { FIXED, 3, 0, 0, &hf_025_070, I025_070_PARTS, { NULL } };
+static gint hf_025_100 = -1;
+static gint hf_025_100_NOGO = -1;
+static const value_string valstr_025_100_NOGO[] = {
+    { 0, "Data is released for operational use" },
+    { 1, "Data must not be used operationally" },
+    { 0, NULL }
+};
+static const FieldPart I025_100_NOGO = { 1, 1.0, FIELD_PART_UINT, &hf_025_100_NOGO, NULL };
+static gint hf_025_100_OPS = -1;
+static const value_string valstr_025_100_OPS[] = {
+    { 0, "Operational" },
+    { 1, "Operational but in Standby" },
+    { 2, "Maintenance" },
+    { 3, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_100_OPS = { 2, 1.0, FIELD_PART_UINT, &hf_025_100_OPS, NULL };
+static gint hf_025_100_SSTAT = -1;
+static const value_string valstr_025_100_SSTAT[] = {
+    { 0, "Running" },
+    { 1, "Failed" },
+    { 2, "Degraded" },
+    { 3, "Undefined" },
+    { 4, "Reserved for future use" },
+    { 5, "Reserved for future use" },
+    { 6, "Reserved for future use" },
+    { 7, "Reserved for future use" },
+    { 8, "Reserved for future use" },
+    { 9, "Reserved for future use" },
+    { 10, "Reserved for future use" },
+    { 11, "Reserved for future use" },
+    { 12, "Reserved for future use" },
+    { 13, "Reserved for future use" },
+    { 14, "Reserved for future use" },
+    { 15, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_100_SSTAT = { 4, 1.0, FIELD_PART_UINT, &hf_025_100_SSTAT, NULL };
+static gint hf_025_100_SYSTAT = -1;
+static const value_string valstr_025_100_SYSTAT[] = {
+    { 0, "Running / OK" },
+    { 1, "Failed" },
+    { 2, "Degraded" },
+    { 3, "Undefined" },
+    { 4, "Reserved for future use" },
+    { 5, "Reserved for future use" },
+    { 6, "Reserved for future use" },
+    { 7, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_100_SYSTAT = { 3, 1.0, FIELD_PART_UINT, &hf_025_100_SYSTAT, NULL };
+static gint hf_025_100_SESTAT = -1;
+static const value_string valstr_025_100_SESTAT[] = {
+    { 0, "OK" },
+    { 1, "Failed" },
+    { 2, "Degraded" },
+    { 3, "Undefined" },
+    { 4, "Reserved for future use" },
+    { 5, "Reserved for future use" },
+    { 6, "Reserved for future use" },
+    { 7, "Reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I025_100_SESTAT = { 3, 1.0, FIELD_PART_UINT, &hf_025_100_SESTAT, NULL };
+static const FieldPart *I025_100_PARTS[] = {
+    &I025_100_NOGO,
+    &I025_100_OPS,
+    &I025_100_SSTAT,
+    &IXXX_FX,
+    &IXXX_1bit_spare,
+    &I025_100_SYSTAT,
+    &I025_100_SESTAT,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I025_100 = { FX, 1, 0, 0, &hf_025_100, I025_100_PARTS, { NULL } };
+static gint hf_025_105 = -1;
+static gint hf_025_105_VALUE = -1;
+static const value_string valstr_025_105_VALUE[] = {
+    { 0, "No error detected (shall not be sent)" },
+    { 1, "Error Code Undefined" },
+    { 2, "Time Source Invalid" },
+    { 3, "Time Source Coasting" },
+    { 4, "Track ID numbering has restarted" },
+    { 5, "Data Processor Overload" },
+    { 6, "Ground Interface Data Communications Overload" },
+    { 7, "System stopped by operator" },
+    { 8, "CBIT failed" },
+    { 9, "Test Target Failure" },
+    { 10, "Reserved for allocation by the AMG" },
+    { 11, "Reserved for allocation by the AMG" },
+    { 12, "Reserved for allocation by the AMG" },
+    { 13, "Reserved for allocation by the AMG" },
+    { 14, "Reserved for allocation by the AMG" },
+    { 15, "Reserved for allocation by the AMG" },
+    { 16, "Reserved for allocation by the AMG" },
+    { 17, "Reserved for allocation by the AMG" },
+    { 18, "Reserved for allocation by the AMG" },
+    { 19, "Reserved for allocation by the AMG" },
+    { 20, "Reserved for allocation by the AMG" },
+    { 21, "Reserved for allocation by the AMG" },
+    { 22, "Reserved for allocation by the AMG" },
+    { 23, "Reserved for allocation by the AMG" },
+    { 24, "Reserved for allocation by the AMG" },
+    { 25, "Reserved for allocation by the AMG" },
+    { 26, "Reserved for allocation by the AMG" },
+    { 27, "Reserved for allocation by the AMG" },
+    { 28, "Reserved for allocation by the AMG" },
+    { 29, "Reserved for allocation by the AMG" },
+    { 30, "Reserved for allocation by the AMG" },
+    { 31, "Reserved for allocation by the AMG" },
+    { 32, "Reserved for allocation by system manufacturers" },
+    { 33, "Reserved for allocation by system manufacturers" },
+    { 34, "Reserved for allocation by system manufacturers" },
+    { 35, "Reserved for allocation by system manufacturers" },
+    { 36, "Reserved for allocation by system manufacturers" },
+    { 37, "Reserved for allocation by system manufacturers" },
+    { 38, "Reserved for allocation by system manufacturers" },
+    { 39, "Reserved for allocation by system manufacturers" },
+    { 40, "Reserved for allocation by system manufacturers" },
+    { 41, "Reserved for allocation by system manufacturers" },
+    { 42, "Reserved for allocation by system manufacturers" },
+    { 43, "Reserved for allocation by system manufacturers" },
+    { 44, "Reserved for allocation by system manufacturers" },
+    { 45, "Reserved for allocation by system manufacturers" },
+    { 46, "Reserved for allocation by system manufacturers" },
+    { 47, "Reserved for allocation by system manufacturers" },
+    { 48, "Reserved for allocation by system manufacturers" },
+    { 49, "Reserved for allocation by system manufacturers" },
+    { 50, "Reserved for allocation by system manufacturers" },
+    { 51, "Reserved for allocation by system manufacturers" },
+    { 52, "Reserved for allocation by system manufacturers" },
+    { 53, "Reserved for allocation by system manufacturers" },
+    { 54, "Reserved for allocation by system manufacturers" },
+    { 55, "Reserved for allocation by system manufacturers" },
+    { 56, "Reserved for allocation by system manufacturers" },
+    { 57, "Reserved for allocation by system manufacturers" },
+    { 58, "Reserved for allocation by system manufacturers" },
+    { 59, "Reserved for allocation by system manufacturers" },
+    { 60, "Reserved for allocation by system manufacturers" },
+    { 61, "Reserved for allocation by system manufacturers" },
+    { 62, "Reserved for allocation by system manufacturers" },
+    { 63, "Reserved for allocation by system manufacturers" },
+    { 64, "Reserved for allocation by system manufacturers" },
+    { 65, "Reserved for allocation by system manufacturers" },
+    { 66, "Reserved for allocation by system manufacturers" },
+    { 67, "Reserved for allocation by system manufacturers" },
+    { 68, "Reserved for allocation by system manufacturers" },
+    { 69, "Reserved for allocation by system manufacturers" },
+    { 70, "Reserved for allocation by system manufacturers" },
+    { 71, "Reserved for allocation by system manufacturers" },
+    { 72, "Reserved for allocation by system manufacturers" },
+    { 73, "Reserved for allocation by system manufacturers" },
+    { 74, "Reserved for allocation by system manufacturers" },
+    { 75, "Reserved for allocation by system manufacturers" },
+    { 76, "Reserved for allocation by system manufacturers" },
+    { 77, "Reserved for allocation by system manufacturers" },
+    { 78, "Reserved for allocation by system manufacturers" },
+    { 79, "Reserved for allocation by system manufacturers" },
+    { 80, "Reserved for allocation by system manufacturers" },
+    { 81, "Reserved for allocation by system manufacturers" },
+    { 82, "Reserved for allocation by system manufacturers" },
+    { 83, "Reserved for allocation by system manufacturers" },
+    { 84, "Reserved for allocation by system manufacturers" },
+    { 85, "Reserved for allocation by system manufacturers" },
+    { 86, "Reserved for allocation by system manufacturers" },
+    { 87, "Reserved for allocation by system manufacturers" },
+    { 88, "Reserved for allocation by system manufacturers" },
+    { 89, "Reserved for allocation by system manufacturers" },
+    { 90, "Reserved for allocation by system manufacturers" },
+    { 91, "Reserved for allocation by system manufacturers" },
+    { 92, "Reserved for allocation by system manufacturers" },
+    { 93, "Reserved for allocation by system manufacturers" },
+    { 94, "Reserved for allocation by system manufacturers" },
+    { 95, "Reserved for allocation by system manufacturers" },
+    { 96, "Reserved for allocation by system manufacturers" },
+    { 97, "Reserved for allocation by system manufacturers" },
+    { 98, "Reserved for allocation by system manufacturers" },
+    { 99, "Reserved for allocation by system manufacturers" },
+    { 100, "Reserved for allocation by system manufacturers" },
+    { 101, "Reserved for allocation by system manufacturers" },
+    { 102, "Reserved for allocation by system manufacturers" },
+    { 103, "Reserved for allocation by system manufacturers" },
+    { 104, "Reserved for allocation by system manufacturers" },
+    { 105, "Reserved for allocation by system manufacturers" },
+    { 106, "Reserved for allocation by system manufacturers" },
+    { 107, "Reserved for allocation by system manufacturers" },
+    { 108, "Reserved for allocation by system manufacturers" },
+    { 109, "Reserved for allocation by system manufacturers" },
+    { 110, "Reserved for allocation by system manufacturers" },
+    { 111, "Reserved for allocation by system manufacturers" },
+    { 112, "Reserved for allocation by system manufacturers" },
+    { 113, "Reserved for allocation by system manufacturers" },
+    { 114, "Reserved for allocation by system manufacturers" },
+    { 115, "Reserved for allocation by system manufacturers" },
+    { 116, "Reserved for allocation by system manufacturers" },
+    { 117, "Reserved for allocation by system manufacturers" },
+    { 118, "Reserved for allocation by system manufacturers" },
+    { 119, "Reserved for allocation by system manufacturers" },
+    { 120, "Reserved for allocation by system manufacturers" },
+    { 121, "Reserved for allocation by system manufacturers" },
+    { 122, "Reserved for allocation by system manufacturers" },
+    { 123, "Reserved for allocation by system manufacturers" },
+    { 124, "Reserved for allocation by system manufacturers" },
+    { 125, "Reserved for allocation by system manufacturers" },
+    { 126, "Reserved for allocation by system manufacturers" },
+    { 127, "Reserved for allocation by system manufacturers" },
+    { 128, "Reserved for allocation by system manufacturers" },
+    { 129, "Reserved for allocation by system manufacturers" },
+    { 130, "Reserved for allocation by system manufacturers" },
+    { 131, "Reserved for allocation by system manufacturers" },
+    { 132, "Reserved for allocation by system manufacturers" },
+    { 133, "Reserved for allocation by system manufacturers" },
+    { 134, "Reserved for allocation by system manufacturers" },
+    { 135, "Reserved for allocation by system manufacturers" },
+    { 136, "Reserved for allocation by system manufacturers" },
+    { 137, "Reserved for allocation by system manufacturers" },
+    { 138, "Reserved for allocation by system manufacturers" },
+    { 139, "Reserved for allocation by system manufacturers" },
+    { 140, "Reserved for allocation by system manufacturers" },
+    { 141, "Reserved for allocation by system manufacturers" },
+    { 142, "Reserved for allocation by system manufacturers" },
+    { 143, "Reserved for allocation by system manufacturers" },
+    { 144, "Reserved for allocation by system manufacturers" },
+    { 145, "Reserved for allocation by system manufacturers" },
+    { 146, "Reserved for allocation by system manufacturers" },
+    { 147, "Reserved for allocation by system manufacturers" },
+    { 148, "Reserved for allocation by system manufacturers" },
+    { 149, "Reserved for allocation by system manufacturers" },
+    { 150, "Reserved for allocation by system manufacturers" },
+    { 151, "Reserved for allocation by system manufacturers" },
+    { 152, "Reserved for allocation by system manufacturers" },
+    { 153, "Reserved for allocation by system manufacturers" },
+    { 154, "Reserved for allocation by system manufacturers" },
+    { 155, "Reserved for allocation by system manufacturers" },
+    { 156, "Reserved for allocation by system manufacturers" },
+    { 157, "Reserved for allocation by system manufacturers" },
+    { 158, "Reserved for allocation by system manufacturers" },
+    { 159, "Reserved for allocation by system manufacturers" },
+    { 160, "Reserved for allocation by system manufacturers" },
+    { 161, "Reserved for allocation by system manufacturers" },
+    { 162, "Reserved for allocation by system manufacturers" },
+    { 163, "Reserved for allocation by system manufacturers" },
+    { 164, "Reserved for allocation by system manufacturers" },
+    { 165, "Reserved for allocation by system manufacturers" },
+    { 166, "Reserved for allocation by system manufacturers" },
+    { 167, "Reserved for allocation by system manufacturers" },
+    { 168, "Reserved for allocation by system manufacturers" },
+    { 169, "Reserved for allocation by system manufacturers" },
+    { 170, "Reserved for allocation by system manufacturers" },
+    { 171, "Reserved for allocation by system manufacturers" },
+    { 172, "Reserved for allocation by system manufacturers" },
+    { 173, "Reserved for allocation by system manufacturers" },
+    { 174, "Reserved for allocation by system manufacturers" },
+    { 175, "Reserved for allocation by system manufacturers" },
+    { 176, "Reserved for allocation by system manufacturers" },
+    { 177, "Reserved for allocation by system manufacturers" },
+    { 178, "Reserved for allocation by system manufacturers" },
+    { 179, "Reserved for allocation by system manufacturers" },
+    { 180, "Reserved for allocation by system manufacturers" },
+    { 181, "Reserved for allocation by system manufacturers" },
+    { 182, "Reserved for allocation by system manufacturers" },
+    { 183, "Reserved for allocation by system manufacturers" },
+    { 184, "Reserved for allocation by system manufacturers" },
+    { 185, "Reserved for allocation by system manufacturers" },
+    { 186, "Reserved for allocation by system manufacturers" },
+    { 187, "Reserved for allocation by system manufacturers" },
+    { 188, "Reserved for allocation by system manufacturers" },
+    { 189, "Reserved for allocation by system manufacturers" },
+    { 190, "Reserved for allocation by system manufacturers" },
+    { 191, "Reserved for allocation by system manufacturers" },
+    { 192, "Reserved for allocation by system manufacturers" },
+    { 193, "Reserved for allocation by system manufacturers" },
+    { 194, "Reserved for allocation by system manufacturers" },
+    { 195, "Reserved for allocation by system manufacturers" },
+    { 196, "Reserved for allocation by system manufacturers" },
+    { 197, "Reserved for allocation by system manufacturers" },
+    { 198, "Reserved for allocation by system manufacturers" },
+    { 199, "Reserved for allocation by system manufacturers" },
+    { 200, "Reserved for allocation by system manufacturers" },
+    { 201, "Reserved for allocation by system manufacturers" },
+    { 202, "Reserved for allocation by system manufacturers" },
+    { 203, "Reserved for allocation by system manufacturers" },
+    { 204, "Reserved for allocation by system manufacturers" },
+    { 205, "Reserved for allocation by system manufacturers" },
+    { 206, "Reserved for allocation by system manufacturers" },
+    { 207, "Reserved for allocation by system manufacturers" },
+    { 208, "Reserved for allocation by system manufacturers" },
+    { 209, "Reserved for allocation by system manufacturers" },
+    { 210, "Reserved for allocation by system manufacturers" },
+    { 211, "Reserved for allocation by system manufacturers" },
+    { 212, "Reserved for allocation by system manufacturers" },
+    { 213, "Reserved for allocation by system manufacturers" },
+    { 214, "Reserved for allocation by system manufacturers" },
+    { 215, "Reserved for allocation by system manufacturers" },
+    { 216, "Reserved for allocation by system manufacturers" },
+    { 217, "Reserved for allocation by system manufacturers" },
+    { 218, "Reserved for allocation by system manufacturers" },
+    { 219, "Reserved for allocation by system manufacturers" },
+    { 220, "Reserved for allocation by system manufacturers" },
+    { 221, "Reserved for allocation by system manufacturers" },
+    { 222, "Reserved for allocation by system manufacturers" },
+    { 223, "Reserved for allocation by system manufacturers" },
+    { 224, "Reserved for allocation by system manufacturers" },
+    { 225, "Reserved for allocation by system manufacturers" },
+    { 226, "Reserved for allocation by system manufacturers" },
+    { 227, "Reserved for allocation by system manufacturers" },
+    { 228, "Reserved for allocation by system manufacturers" },
+    { 229, "Reserved for allocation by system manufacturers" },
+    { 230, "Reserved for allocation by system manufacturers" },
+    { 231, "Reserved for allocation by system manufacturers" },
+    { 232, "Reserved for allocation by system manufacturers" },
+    { 233, "Reserved for allocation by system manufacturers" },
+    { 234, "Reserved for allocation by system manufacturers" },
+    { 235, "Reserved for allocation by system manufacturers" },
+    { 236, "Reserved for allocation by system manufacturers" },
+    { 237, "Reserved for allocation by system manufacturers" },
+    { 238, "Reserved for allocation by system manufacturers" },
+    { 239, "Reserved for allocation by system manufacturers" },
+    { 240, "Reserved for allocation by system manufacturers" },
+    { 241, "Reserved for allocation by system manufacturers" },
+    { 242, "Reserved for allocation by system manufacturers" },
+    { 243, "Reserved for allocation by system manufacturers" },
+    { 244, "Reserved for allocation by system manufacturers" },
+    { 245, "Reserved for allocation by system manufacturers" },
+    { 246, "Reserved for allocation by system manufacturers" },
+    { 247, "Reserved for allocation by system manufacturers" },
+    { 248, "Reserved for allocation by system manufacturers" },
+    { 249, "Reserved for allocation by system manufacturers" },
+    { 250, "Reserved for allocation by system manufacturers" },
+    { 251, "Reserved for allocation by system manufacturers" },
+    { 252, "Reserved for allocation by system manufacturers" },
+    { 253, "Reserved for allocation by system manufacturers" },
+    { 254, "Reserved for allocation by system manufacturers" },
+    { 255, "Reserved for allocation by system manufacturers" },
+    { 0, NULL }
+};
+static const FieldPart I025_105_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_025_105_VALUE, NULL };
+static const FieldPart *I025_105_PARTS[] = {
+    &I025_105_VALUE,
+    NULL
+};
+static const AsterixField I025_105 = { REPETITIVE, 1, 1, 0, &hf_025_105, I025_105_PARTS, { NULL } };
+static gint hf_025_120 = -1;
+static gint hf_025_120_CID = -1;
+static const FieldPart I025_120_CID = { 16, 1.0, FIELD_PART_HEX, &hf_025_120_CID, NULL };
+static gint hf_025_120_ERRC = -1;
+static const value_string valstr_025_120_ERRC[] = {
+    { 0, "No Error Detected" },
+    { 1, "Error Code Undefined" },
+    { 2, "Reserved for allocation by the AMG" },
+    { 3, "Reserved for allocation by the AMG" },
+    { 4, "Reserved for allocation by the AMG" },
+    { 5, "Reserved for allocation by the AMG" },
+    { 6, "Reserved for allocation by the AMG" },
+    { 7, "Reserved for allocation by the AMG" },
+    { 8, "Reserved for allocation by the AMG" },
+    { 9, "Reserved for allocation by the AMG" },
+    { 10, "Reserved for allocation by the AMG" },
+    { 11, "Reserved for allocation by the AMG" },
+    { 12, "Reserved for allocation by the AMG" },
+    { 13, "Reserved for allocation by the AMG" },
+    { 14, "Reserved for allocation by the AMG" },
+    { 15, "Reserved for allocation by the AMG" },
+    { 16, "Reserved for allocation by system manufacturers" },
+    { 17, "Reserved for allocation by system manufacturers" },
+    { 18, "Reserved for allocation by system manufacturers" },
+    { 19, "Reserved for allocation by system manufacturers" },
+    { 20, "Reserved for allocation by system manufacturers" },
+    { 21, "Reserved for allocation by system manufacturers" },
+    { 22, "Reserved for allocation by system manufacturers" },
+    { 23, "Reserved for allocation by system manufacturers" },
+    { 24, "Reserved for allocation by system manufacturers" },
+    { 25, "Reserved for allocation by system manufacturers" },
+    { 26, "Reserved for allocation by system manufacturers" },
+    { 27, "Reserved for allocation by system manufacturers" },
+    { 28, "Reserved for allocation by system manufacturers" },
+    { 29, "Reserved for allocation by system manufacturers" },
+    { 30, "Reserved for allocation by system manufacturers" },
+    { 31, "Reserved for allocation by system manufacturers" },
+    { 32, "Reserved for allocation by system manufacturers" },
+    { 33, "Reserved for allocation by system manufacturers" },
+    { 34, "Reserved for allocation by system manufacturers" },
+    { 35, "Reserved for allocation by system manufacturers" },
+    { 36, "Reserved for allocation by system manufacturers" },
+    { 37, "Reserved for allocation by system manufacturers" },
+    { 38, "Reserved for allocation by system manufacturers" },
+    { 39, "Reserved for allocation by system manufacturers" },
+    { 40, "Reserved for allocation by system manufacturers" },
+    { 41, "Reserved for allocation by system manufacturers" },
+    { 42, "Reserved for allocation by system manufacturers" },
+    { 43, "Reserved for allocation by system manufacturers" },
+    { 44, "Reserved for allocation by system manufacturers" },
+    { 45, "Reserved for allocation by system manufacturers" },
+    { 46, "Reserved for allocation by system manufacturers" },
+    { 47, "Reserved for allocation by system manufacturers" },
+    { 48, "Reserved for allocation by system manufacturers" },
+    { 49, "Reserved for allocation by system manufacturers" },
+    { 50, "Reserved for allocation by system manufacturers" },
+    { 51, "Reserved for allocation by system manufacturers" },
+    { 52, "Reserved for allocation by system manufacturers" },
+    { 53, "Reserved for allocation by system manufacturers" },
+    { 54, "Reserved for allocation by system manufacturers" },
+    { 55, "Reserved for allocation by system manufacturers" },
+    { 56, "Reserved for allocation by system manufacturers" },
+    { 57, "Reserved for allocation by system manufacturers" },
+    { 58, "Reserved for allocation by system manufacturers" },
+    { 59, "Reserved for allocation by system manufacturers" },
+    { 60, "Reserved for allocation by system manufacturers" },
+    { 61, "Reserved for allocation by system manufacturers" },
+    { 62, "Reserved for allocation by system manufacturers" },
+    { 63, "Reserved for allocation by system manufacturers" },
+    { 0, NULL }
+};
+static const FieldPart I025_120_ERRC = { 6, 1.0, FIELD_PART_UINT, &hf_025_120_ERRC, NULL };
+static gint hf_025_120_CS = -1;
+static const value_string valstr_025_120_CS[] = {
+    { 0, "Running" },
+    { 1, "Failed" },
+    { 2, "Maintenance" },
+    { 3, "Reserved" },
+    { 0, NULL }
+};
+static const FieldPart I025_120_CS = { 2, 1.0, FIELD_PART_UINT, &hf_025_120_CS, NULL };
+static const FieldPart *I025_120_PARTS[] = {
+    &I025_120_CID,
+    &I025_120_ERRC,
+    &I025_120_CS,
+    NULL
+};
+static const AsterixField I025_120 = { REPETITIVE, 3, 1, 0, &hf_025_120, I025_120_PARTS, { NULL } };
+static gint hf_025_140 = -1;
+static gint hf_025_140_TYPE = -1;
+static const value_string valstr_025_140_TYPE[] = {
+    { 0, "Number of unknown messages received" },
+    { 1, "Number of \"too old\" messages received" },
+    { 2, "Number of failed message conversions" },
+    { 3, "Total Number of messages received" },
+    { 4, "Total number of messages transmitted" },
+    { 5, "Reserved for AMG" },
+    { 6, "Reserved for AMG" },
+    { 7, "Reserved for AMG" },
+    { 8, "Reserved for AMG" },
+    { 9, "Reserved for AMG" },
+    { 10, "Reserved for AMG" },
+    { 11, "Reserved for AMG" },
+    { 12, "Reserved for AMG" },
+    { 13, "Reserved for AMG" },
+    { 14, "Reserved for AMG" },
+    { 15, "Reserved for AMG" },
+    { 16, "Reserved for AMG" },
+    { 17, "Reserved for AMG" },
+    { 18, "Reserved for AMG" },
+    { 19, "Reserved for AMG" },
+    { 20, "Implementation specific" },
+    { 21, "Implementation specific" },
+    { 22, "Implementation specific" },
+    { 23, "Implementation specific" },
+    { 24, "Implementation specific" },
+    { 25, "Implementation specific" },
+    { 26, "Implementation specific" },
+    { 27, "Implementation specific" },
+    { 28, "Implementation specific" },
+    { 29, "Implementation specific" },
+    { 30, "Implementation specific" },
+    { 31, "Implementation specific" },
+    { 32, "Implementation specific" },
+    { 33, "Implementation specific" },
+    { 34, "Implementation specific" },
+    { 35, "Implementation specific" },
+    { 36, "Implementation specific" },
+    { 37, "Implementation specific" },
+    { 38, "Implementation specific" },
+    { 39, "Implementation specific" },
+    { 40, "Implementation specific" },
+    { 41, "Implementation specific" },
+    { 42, "Implementation specific" },
+    { 43, "Implementation specific" },
+    { 44, "Implementation specific" },
+    { 45, "Implementation specific" },
+    { 46, "Implementation specific" },
+    { 47, "Implementation specific" },
+    { 48, "Implementation specific" },
+    { 49, "Implementation specific" },
+    { 50, "Implementation specific" },
+    { 51, "Implementation specific" },
+    { 52, "Implementation specific" },
+    { 53, "Implementation specific" },
+    { 54, "Implementation specific" },
+    { 55, "Implementation specific" },
+    { 56, "Implementation specific" },
+    { 57, "Implementation specific" },
+    { 58, "Implementation specific" },
+    { 59, "Implementation specific" },
+    { 60, "Implementation specific" },
+    { 61, "Implementation specific" },
+    { 62, "Implementation specific" },
+    { 63, "Implementation specific" },
+    { 64, "Implementation specific" },
+    { 65, "Implementation specific" },
+    { 66, "Implementation specific" },
+    { 67, "Implementation specific" },
+    { 68, "Implementation specific" },
+    { 69, "Implementation specific" },
+    { 70, "Implementation specific" },
+    { 71, "Implementation specific" },
+    { 72, "Implementation specific" },
+    { 73, "Implementation specific" },
+    { 74, "Implementation specific" },
+    { 75, "Implementation specific" },
+    { 76, "Implementation specific" },
+    { 77, "Implementation specific" },
+    { 78, "Implementation specific" },
+    { 79, "Implementation specific" },
+    { 80, "Implementation specific" },
+    { 81, "Implementation specific" },
+    { 82, "Implementation specific" },
+    { 83, "Implementation specific" },
+    { 84, "Implementation specific" },
+    { 85, "Implementation specific" },
+    { 86, "Implementation specific" },
+    { 87, "Implementation specific" },
+    { 88, "Implementation specific" },
+    { 89, "Implementation specific" },
+    { 90, "Implementation specific" },
+    { 91, "Implementation specific" },
+    { 92, "Implementation specific" },
+    { 93, "Implementation specific" },
+    { 94, "Implementation specific" },
+    { 95, "Implementation specific" },
+    { 96, "Implementation specific" },
+    { 97, "Implementation specific" },
+    { 98, "Implementation specific" },
+    { 99, "Implementation specific" },
+    { 100, "Implementation specific" },
+    { 101, "Implementation specific" },
+    { 102, "Implementation specific" },
+    { 103, "Implementation specific" },
+    { 104, "Implementation specific" },
+    { 105, "Implementation specific" },
+    { 106, "Implementation specific" },
+    { 107, "Implementation specific" },
+    { 108, "Implementation specific" },
+    { 109, "Implementation specific" },
+    { 110, "Implementation specific" },
+    { 111, "Implementation specific" },
+    { 112, "Implementation specific" },
+    { 113, "Implementation specific" },
+    { 114, "Implementation specific" },
+    { 115, "Implementation specific" },
+    { 116, "Implementation specific" },
+    { 117, "Implementation specific" },
+    { 118, "Implementation specific" },
+    { 119, "Implementation specific" },
+    { 120, "Implementation specific" },
+    { 121, "Implementation specific" },
+    { 122, "Implementation specific" },
+    { 123, "Implementation specific" },
+    { 124, "Implementation specific" },
+    { 125, "Implementation specific" },
+    { 126, "Implementation specific" },
+    { 127, "Implementation specific" },
+    { 128, "Implementation specific" },
+    { 129, "Implementation specific" },
+    { 130, "Implementation specific" },
+    { 131, "Implementation specific" },
+    { 132, "Implementation specific" },
+    { 133, "Implementation specific" },
+    { 134, "Implementation specific" },
+    { 135, "Implementation specific" },
+    { 136, "Implementation specific" },
+    { 137, "Implementation specific" },
+    { 138, "Implementation specific" },
+    { 139, "Implementation specific" },
+    { 140, "Implementation specific" },
+    { 141, "Implementation specific" },
+    { 142, "Implementation specific" },
+    { 143, "Implementation specific" },
+    { 144, "Implementation specific" },
+    { 145, "Implementation specific" },
+    { 146, "Implementation specific" },
+    { 147, "Implementation specific" },
+    { 148, "Implementation specific" },
+    { 149, "Implementation specific" },
+    { 150, "Implementation specific" },
+    { 151, "Implementation specific" },
+    { 152, "Implementation specific" },
+    { 153, "Implementation specific" },
+    { 154, "Implementation specific" },
+    { 155, "Implementation specific" },
+    { 156, "Implementation specific" },
+    { 157, "Implementation specific" },
+    { 158, "Implementation specific" },
+    { 159, "Implementation specific" },
+    { 160, "Implementation specific" },
+    { 161, "Implementation specific" },
+    { 162, "Implementation specific" },
+    { 163, "Implementation specific" },
+    { 164, "Implementation specific" },
+    { 165, "Implementation specific" },
+    { 166, "Implementation specific" },
+    { 167, "Implementation specific" },
+    { 168, "Implementation specific" },
+    { 169, "Implementation specific" },
+    { 170, "Implementation specific" },
+    { 171, "Implementation specific" },
+    { 172, "Implementation specific" },
+    { 173, "Implementation specific" },
+    { 174, "Implementation specific" },
+    { 175, "Implementation specific" },
+    { 176, "Implementation specific" },
+    { 177, "Implementation specific" },
+    { 178, "Implementation specific" },
+    { 179, "Implementation specific" },
+    { 180, "Implementation specific" },
+    { 181, "Implementation specific" },
+    { 182, "Implementation specific" },
+    { 183, "Implementation specific" },
+    { 184, "Implementation specific" },
+    { 185, "Implementation specific" },
+    { 186, "Implementation specific" },
+    { 187, "Implementation specific" },
+    { 188, "Implementation specific" },
+    { 189, "Implementation specific" },
+    { 190, "Implementation specific" },
+    { 191, "Implementation specific" },
+    { 192, "Implementation specific" },
+    { 193, "Implementation specific" },
+    { 194, "Implementation specific" },
+    { 195, "Implementation specific" },
+    { 196, "Implementation specific" },
+    { 197, "Implementation specific" },
+    { 198, "Implementation specific" },
+    { 199, "Implementation specific" },
+    { 200, "Implementation specific" },
+    { 201, "Implementation specific" },
+    { 202, "Implementation specific" },
+    { 203, "Implementation specific" },
+    { 204, "Implementation specific" },
+    { 205, "Implementation specific" },
+    { 206, "Implementation specific" },
+    { 207, "Implementation specific" },
+    { 208, "Implementation specific" },
+    { 209, "Implementation specific" },
+    { 210, "Implementation specific" },
+    { 211, "Implementation specific" },
+    { 212, "Implementation specific" },
+    { 213, "Implementation specific" },
+    { 214, "Implementation specific" },
+    { 215, "Implementation specific" },
+    { 216, "Implementation specific" },
+    { 217, "Implementation specific" },
+    { 218, "Implementation specific" },
+    { 219, "Implementation specific" },
+    { 220, "Implementation specific" },
+    { 221, "Implementation specific" },
+    { 222, "Implementation specific" },
+    { 223, "Implementation specific" },
+    { 224, "Implementation specific" },
+    { 225, "Implementation specific" },
+    { 226, "Implementation specific" },
+    { 227, "Implementation specific" },
+    { 228, "Implementation specific" },
+    { 229, "Implementation specific" },
+    { 230, "Implementation specific" },
+    { 231, "Implementation specific" },
+    { 232, "Implementation specific" },
+    { 233, "Implementation specific" },
+    { 234, "Implementation specific" },
+    { 235, "Implementation specific" },
+    { 236, "Implementation specific" },
+    { 237, "Implementation specific" },
+    { 238, "Implementation specific" },
+    { 239, "Implementation specific" },
+    { 240, "Implementation specific" },
+    { 241, "Implementation specific" },
+    { 242, "Implementation specific" },
+    { 243, "Implementation specific" },
+    { 244, "Implementation specific" },
+    { 245, "Implementation specific" },
+    { 246, "Implementation specific" },
+    { 247, "Implementation specific" },
+    { 248, "Implementation specific" },
+    { 249, "Implementation specific" },
+    { 250, "Implementation specific" },
+    { 251, "Implementation specific" },
+    { 252, "Implementation specific" },
+    { 253, "Implementation specific" },
+    { 254, "Implementation specific" },
+    { 255, "Implementation specific" },
+    { 0, NULL }
+};
+static const FieldPart I025_140_TYPE = { 8, 1.0, FIELD_PART_UINT, &hf_025_140_TYPE, NULL };
+static gint hf_025_140_REF = -1;
+static const value_string valstr_025_140_REF[] = {
+    { 0, "From UTC midnight" },
+    { 1, "From the previous report" },
+    { 0, NULL }
+};
+static const FieldPart I025_140_REF = { 1, 1.0, FIELD_PART_UINT, &hf_025_140_REF, NULL };
+static gint hf_025_140_COUNT = -1;
+static const FieldPart I025_140_COUNT = { 32, 1.0, FIELD_PART_UINT, &hf_025_140_COUNT, NULL };
+static const FieldPart *I025_140_PARTS[] = {
+    &I025_140_TYPE,
+    &I025_140_REF,
+    &IXXX_7bit_spare,
+    &I025_140_COUNT,
+    NULL
+};
+static const AsterixField I025_140 = { REPETITIVE, 6, 1, 0, &hf_025_140, I025_140_PARTS, { NULL } };
+static gint hf_025_200 = -1;
+static gint hf_025_200_VALUE = -1;
+static const FieldPart I025_200_VALUE = { 24, 1.0, FIELD_PART_UINT, &hf_025_200_VALUE, NULL };
+static const FieldPart *I025_200_PARTS[] = {
+    &I025_200_VALUE,
+    NULL
+};
+static const AsterixField I025_200 = { FIXED, 3, 0, 0, &hf_025_200, I025_200_PARTS, { NULL } };
+static gint hf_025_600 = -1;
+static gint hf_025_600_LAT = -1;
+static const FieldPart I025_600_LAT = { 32, 0.00000004190951585769653320312, FIELD_PART_FLOAT, &hf_025_600_LAT, NULL };
+static gint hf_025_600_LON = -1;
+static const FieldPart I025_600_LON = { 32, 0.00000004190951585769653320312, FIELD_PART_FLOAT, &hf_025_600_LON, NULL };
+static const FieldPart *I025_600_PARTS[] = {
+    &I025_600_LAT,
+    &I025_600_LON,
+    NULL
+};
+static const AsterixField I025_600 = { FIXED, 8, 0, 0, &hf_025_600, I025_600_PARTS, { NULL } };
+static gint hf_025_610 = -1;
+static gint hf_025_610_VALUE = -1;
+static const FieldPart I025_610_VALUE = { 16, 0.25, FIELD_PART_FLOAT, &hf_025_610_VALUE, NULL };
+static const FieldPart *I025_610_PARTS[] = {
+    &I025_610_VALUE,
+    NULL
+};
+static const AsterixField I025_610 = { FIXED, 2, 0, 0, &hf_025_610, I025_610_PARTS, { NULL } };
+static gint hf_025_SP = -1;
+static const AsterixField I025_SP = { EXP, 0, 0, 1, &hf_025_SP, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I025_V1_5_uap[] = {
+    &I025_V1_5_010,
+    &I025_V1_5_000,
+    &I025_V1_5_200,
+    &I025_V1_5_015,
+    &I025_V1_5_020,
+    &I025_V1_5_070,
+    &I025_V1_5_100,
+    &I025_V1_5_105,
+    &I025_V1_5_120,
+    &I025_V1_5_140,
+    &I025_V1_5_SP,
+    &I025_V1_5_600,
+    &I025_V1_5_610,
+    NULL
+};
+static const AsterixField **I025_V1_5[] = {
+    I025_V1_5_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I025_uap[] = {
+    &I025_010,
+    &I025_000,
+    &I025_200,
+    &I025_015,
+    &I025_020,
+    &I025_070,
+    &I025_100,
+    &I025_105,
+    &I025_120,
+    &I025_140,
+    &I025_SP,
+    &I025_600,
+    &I025_610,
+    NULL
+};
+static const AsterixField **I025[] = {
+    I025_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+/* Category 032, edition 1.1 */
+static gint hf_032_V1_1_010 = -1;
+static gint hf_032_V1_1_010_SAC = -1;
+static const FieldPart I032_V1_1_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_032_V1_1_010_SAC, NULL };
+static gint hf_032_V1_1_010_SIC = -1;
+static const FieldPart I032_V1_1_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_032_V1_1_010_SIC, NULL };
+static const FieldPart *I032_V1_1_010_PARTS[] = {
+    &I032_V1_1_010_SAC,
+    &I032_V1_1_010_SIC,
+    NULL
+};
+static const AsterixField I032_V1_1_010 = { FIXED, 2, 0, 0, &hf_032_V1_1_010, I032_V1_1_010_PARTS, { NULL } };
+static gint hf_032_V1_1_015 = -1;
+static gint hf_032_V1_1_015_VALUE = -1;
+static const FieldPart I032_V1_1_015_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_032_V1_1_015_VALUE, NULL };
+static const FieldPart *I032_V1_1_015_PARTS[] = {
+    &I032_V1_1_015_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_015 = { FIXED, 2, 0, 0, &hf_032_V1_1_015, I032_V1_1_015_PARTS, { NULL } };
+static gint hf_032_V1_1_018 = -1;
+static gint hf_032_V1_1_018_SAC = -1;
+static const FieldPart I032_V1_1_018_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_032_V1_1_018_SAC, NULL };
+static gint hf_032_V1_1_018_SIC = -1;
+static const FieldPart I032_V1_1_018_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_032_V1_1_018_SIC, NULL };
+static const FieldPart *I032_V1_1_018_PARTS[] = {
+    &I032_V1_1_018_SAC,
+    &I032_V1_1_018_SIC,
+    NULL
+};
+static const AsterixField I032_V1_1_018 = { FIXED, 2, 0, 0, &hf_032_V1_1_018, I032_V1_1_018_PARTS, { NULL } };
+static gint hf_032_V1_1_020 = -1;
+static gint hf_032_V1_1_020_VALUE = -1;
+static const FieldPart I032_V1_1_020_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_032_V1_1_020_VALUE, NULL };
+static const FieldPart *I032_V1_1_020_PARTS[] = {
+    &I032_V1_1_020_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_020 = { FIXED, 3, 0, 0, &hf_032_V1_1_020, I032_V1_1_020_PARTS, { NULL } };
+static gint hf_032_V1_1_035 = -1;
+static gint hf_032_V1_1_035_FAMILY = -1;
+static const value_string valstr_032_V1_1_035_FAMILY[] = {
+    { 1, "Information sent by an FPPS" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_035_FAMILY = { 4, 1.0, FIELD_PART_UINT, &hf_032_V1_1_035_FAMILY, NULL };
+static gint hf_032_V1_1_035_NATURE = -1;
+static const value_string valstr_032_V1_1_035_NATURE[] = {
+    { 1, "Flight Plan to track initial correlation" },
+    { 2, "Miniplan update" },
+    { 3, "End of correlation" },
+    { 4, "Miniplan Cancellation" },
+    { 5, "Retained Miniplan" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_035_NATURE = { 4, 1.0, FIELD_PART_UINT, &hf_032_V1_1_035_NATURE, NULL };
+static const FieldPart *I032_V1_1_035_PARTS[] = {
+    &I032_V1_1_035_FAMILY,
+    &I032_V1_1_035_NATURE,
+    NULL
+};
+static const AsterixField I032_V1_1_035 = { FIXED, 1, 0, 0, &hf_032_V1_1_035, I032_V1_1_035_PARTS, { NULL } };
+static gint hf_032_V1_1_040 = -1;
+static gint hf_032_V1_1_040_VALUE = -1;
+static const FieldPart I032_V1_1_040_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_032_V1_1_040_VALUE, NULL };
+static const FieldPart *I032_V1_1_040_PARTS[] = {
+    &I032_V1_1_040_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_040 = { FIXED, 2, 0, 0, &hf_032_V1_1_040, I032_V1_1_040_PARTS, { NULL } };
+static gint hf_032_V1_1_050 = -1;
+static gint hf_032_V1_1_050_SUI = -1;
+static const FieldPart I032_V1_1_050_SUI = { 8, 1.0, FIELD_PART_UINT, &hf_032_V1_1_050_SUI, NULL };
+static gint hf_032_V1_1_050_STN = -1;
+static const FieldPart I032_V1_1_050_STN = { 15, 1.0, FIELD_PART_UINT, &hf_032_V1_1_050_STN, NULL };
+static const FieldPart *I032_V1_1_050_PARTS[] = {
+    &I032_V1_1_050_SUI,
+    &I032_V1_1_050_STN,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I032_V1_1_050 = { FX, 3, 0, 2, &hf_032_V1_1_050, I032_V1_1_050_PARTS, { NULL } };
+static gint hf_032_V1_1_060 = -1;
+static gint hf_032_V1_1_060_MODE3A = -1;
+static const FieldPart I032_V1_1_060_MODE3A = { 12, 1.0, FIELD_PART_SQUAWK, &hf_032_V1_1_060_MODE3A, NULL };
+static const FieldPart *I032_V1_1_060_PARTS[] = {
+    &IXXX_4bit_spare,
+    &I032_V1_1_060_MODE3A,
+    NULL
+};
+static const AsterixField I032_V1_1_060 = { FIXED, 2, 0, 0, &hf_032_V1_1_060, I032_V1_1_060_PARTS, { NULL } };
+static gint hf_032_V1_1_400 = -1;
+static gint hf_032_V1_1_400_VALUE = -1;
+static const FieldPart I032_V1_1_400_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_400_VALUE, NULL };
+static const FieldPart *I032_V1_1_400_PARTS[] = {
+    &I032_V1_1_400_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_400 = { FIXED, 7, 0, 0, &hf_032_V1_1_400, I032_V1_1_400_PARTS, { NULL } };
+static gint hf_032_V1_1_410 = -1;
+static gint hf_032_V1_1_410_VALUE = -1;
+static const FieldPart I032_V1_1_410_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_032_V1_1_410_VALUE, NULL };
+static const FieldPart *I032_V1_1_410_PARTS[] = {
+    &I032_V1_1_410_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_410 = { FIXED, 2, 0, 0, &hf_032_V1_1_410, I032_V1_1_410_PARTS, { NULL } };
+static gint hf_032_V1_1_420 = -1;
+static gint hf_032_V1_1_420_GATOAT = -1;
+static const value_string valstr_032_V1_1_420_GATOAT[] = {
+    { 0, "Unknown" },
+    { 1, "General Air Traffic" },
+    { 2, "Operational Air Traffic" },
+    { 3, "Not applicable" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_420_GATOAT = { 2, 1.0, FIELD_PART_UINT, &hf_032_V1_1_420_GATOAT, NULL };
+static gint hf_032_V1_1_420_FR1FR2 = -1;
+static const value_string valstr_032_V1_1_420_FR1FR2[] = {
+    { 0, "Instrument Flight Rules" },
+    { 1, "Visual Flight rules" },
+    { 2, "Not applicable" },
+    { 3, "Controlled Visual Flight Rules" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_420_FR1FR2 = { 2, 1.0, FIELD_PART_UINT, &hf_032_V1_1_420_FR1FR2, NULL };
+static gint hf_032_V1_1_420_SP3 = -1;
+static const FieldPart I032_V1_1_420_SP3 = { 1, 1.0, FIELD_PART_HEX, &hf_032_V1_1_420_SP3, NULL };
+static gint hf_032_V1_1_420_SP2 = -1;
+static const FieldPart I032_V1_1_420_SP2 = { 1, 1.0, FIELD_PART_HEX, &hf_032_V1_1_420_SP2, NULL };
+static gint hf_032_V1_1_420_SP1 = -1;
+static const FieldPart I032_V1_1_420_SP1 = { 1, 1.0, FIELD_PART_HEX, &hf_032_V1_1_420_SP1, NULL };
+static const FieldPart *I032_V1_1_420_PARTS[] = {
+    &I032_V1_1_420_GATOAT,
+    &I032_V1_1_420_FR1FR2,
+    &I032_V1_1_420_SP3,
+    &I032_V1_1_420_SP2,
+    &I032_V1_1_420_SP1,
+    &IXXX_1bit_spare,
+    NULL
+};
+static const AsterixField I032_V1_1_420 = { FIXED, 1, 0, 0, &hf_032_V1_1_420, I032_V1_1_420_PARTS, { NULL } };
+static gint hf_032_V1_1_430 = -1;
+static gint hf_032_V1_1_430_VALUE = -1;
+static const FieldPart I032_V1_1_430_VALUE = { 32, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_430_VALUE, NULL };
+static const FieldPart *I032_V1_1_430_PARTS[] = {
+    &I032_V1_1_430_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_430 = { FIXED, 4, 0, 0, &hf_032_V1_1_430, I032_V1_1_430_PARTS, { NULL } };
+static gint hf_032_V1_1_435 = -1;
+static gint hf_032_V1_1_435_VALUE = -1;
+static const value_string valstr_032_V1_1_435_VALUE[] = {
+    { 76, "Light" },
+    { 77, "Medium" },
+    { 72, "Heavy" },
+    { 74, "Super" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_435_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_032_V1_1_435_VALUE, NULL };
+static const FieldPart *I032_V1_1_435_PARTS[] = {
+    &I032_V1_1_435_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_435 = { FIXED, 1, 0, 0, &hf_032_V1_1_435, I032_V1_1_435_PARTS, { NULL } };
+static gint hf_032_V1_1_440 = -1;
+static gint hf_032_V1_1_440_VALUE = -1;
+static const FieldPart I032_V1_1_440_VALUE = { 32, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_440_VALUE, NULL };
+static const FieldPart *I032_V1_1_440_PARTS[] = {
+    &I032_V1_1_440_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_440 = { FIXED, 4, 0, 0, &hf_032_V1_1_440, I032_V1_1_440_PARTS, { NULL } };
+static gint hf_032_V1_1_450 = -1;
+static gint hf_032_V1_1_450_VALUE = -1;
+static const FieldPart I032_V1_1_450_VALUE = { 32, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_450_VALUE, NULL };
+static const FieldPart *I032_V1_1_450_PARTS[] = {
+    &I032_V1_1_450_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_450 = { FIXED, 4, 0, 0, &hf_032_V1_1_450, I032_V1_1_450_PARTS, { NULL } };
+static gint hf_032_V1_1_460 = -1;
+static gint hf_032_V1_1_460_OCT1 = -1;
+static const FieldPart I032_V1_1_460_OCT1 = { 3, 1.0, FIELD_PART_HEX, &hf_032_V1_1_460_OCT1, NULL };
+static gint hf_032_V1_1_460_OCT2 = -1;
+static const FieldPart I032_V1_1_460_OCT2 = { 3, 1.0, FIELD_PART_HEX, &hf_032_V1_1_460_OCT2, NULL };
+static gint hf_032_V1_1_460_OCT3 = -1;
+static const FieldPart I032_V1_1_460_OCT3 = { 3, 1.0, FIELD_PART_HEX, &hf_032_V1_1_460_OCT3, NULL };
+static gint hf_032_V1_1_460_OCT4 = -1;
+static const FieldPart I032_V1_1_460_OCT4 = { 3, 1.0, FIELD_PART_HEX, &hf_032_V1_1_460_OCT4, NULL };
+static const FieldPart *I032_V1_1_460_PARTS[] = {
+    &IXXX_4bit_spare,
+    &I032_V1_1_460_OCT1,
+    &I032_V1_1_460_OCT2,
+    &I032_V1_1_460_OCT3,
+    &I032_V1_1_460_OCT4,
+    NULL
+};
+static const AsterixField I032_V1_1_460 = { REPETITIVE, 2, 1, 0, &hf_032_V1_1_460, I032_V1_1_460_PARTS, { NULL } };
+static gint hf_032_V1_1_480 = -1;
+static gint hf_032_V1_1_480_VALUE = -1;
+static const FieldPart I032_V1_1_480_VALUE = { 16, 0.25, FIELD_PART_UFLOAT, &hf_032_V1_1_480_VALUE, NULL };
+static const FieldPart *I032_V1_1_480_PARTS[] = {
+    &I032_V1_1_480_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_480 = { FIXED, 2, 0, 0, &hf_032_V1_1_480, I032_V1_1_480_PARTS, { NULL } };
+static gint hf_032_V1_1_490 = -1;
+static gint hf_032_V1_1_490_CEN = -1;
+static const FieldPart I032_V1_1_490_CEN = { 8, 1.0, FIELD_PART_HEX, &hf_032_V1_1_490_CEN, NULL };
+static gint hf_032_V1_1_490_POS = -1;
+static const FieldPart I032_V1_1_490_POS = { 8, 1.0, FIELD_PART_HEX, &hf_032_V1_1_490_POS, NULL };
+static const FieldPart *I032_V1_1_490_PARTS[] = {
+    &I032_V1_1_490_CEN,
+    &I032_V1_1_490_POS,
+    NULL
+};
+static const AsterixField I032_V1_1_490 = { FIXED, 2, 0, 0, &hf_032_V1_1_490, I032_V1_1_490_PARTS, { NULL } };
+static gint hf_032_V1_1_500 = -1;
+static gint hf_032_V1_1_500_IFI = -1;
+static gint hf_032_V1_1_500_IFI_TYP = -1;
+static const value_string valstr_032_V1_1_500_IFI_TYP[] = {
+    { 0, "Plan Number" },
+    { 1, "Unit 1 internal flight number" },
+    { 2, "Unit 2 internal flight number" },
+    { 3, "Unit 3 internal flight number" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_IFI_TYP = { 2, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_IFI_TYP, NULL };
+static gint hf_032_V1_1_500_IFI_NBR = -1;
+static const FieldPart I032_V1_1_500_IFI_NBR = { 27, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_IFI_NBR, NULL };
+static const FieldPart *I032_V1_1_500_IFI_PARTS[] = {
+    &I032_V1_1_500_IFI_TYP,
+    &IXXX_3bit_spare,
+    &I032_V1_1_500_IFI_NBR,
+    NULL
+};
+static const AsterixField I032_V1_1_500_IFI = { FIXED, 4, 0, 0, &hf_032_V1_1_500_IFI, I032_V1_1_500_IFI_PARTS, { NULL } };
+static gint hf_032_V1_1_500_RVP = -1;
+static gint hf_032_V1_1_500_RVP_RVSM = -1;
+static const value_string valstr_032_V1_1_500_RVP_RVSM[] = {
+    { 0, "Unknown" },
+    { 1, "Approved" },
+    { 2, "Exempt" },
+    { 3, "Not approved" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_RVP_RVSM = { 2, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_RVP_RVSM, NULL };
+static gint hf_032_V1_1_500_RVP_HPR = -1;
+static const value_string valstr_032_V1_1_500_RVP_HPR[] = {
+    { 0, "Normal Priority Flight" },
+    { 1, "High Priority Flight" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_RVP_HPR = { 1, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_RVP_HPR, NULL };
+static const FieldPart *I032_V1_1_500_RVP_PARTS[] = {
+    &IXXX_5bit_spare,
+    &I032_V1_1_500_RVP_RVSM,
+    &I032_V1_1_500_RVP_HPR,
+    NULL
+};
+static const AsterixField I032_V1_1_500_RVP = { FIXED, 1, 0, 0, &hf_032_V1_1_500_RVP, I032_V1_1_500_RVP_PARTS, { NULL } };
+static gint hf_032_V1_1_500_RDS = -1;
+static gint hf_032_V1_1_500_RDS_NU1 = -1;
+static const FieldPart I032_V1_1_500_RDS_NU1 = { 8, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_500_RDS_NU1, NULL };
+static gint hf_032_V1_1_500_RDS_NU2 = -1;
+static const FieldPart I032_V1_1_500_RDS_NU2 = { 8, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_500_RDS_NU2, NULL };
+static gint hf_032_V1_1_500_RDS_LTR = -1;
+static const FieldPart I032_V1_1_500_RDS_LTR = { 8, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_500_RDS_LTR, NULL };
+static const FieldPart *I032_V1_1_500_RDS_PARTS[] = {
+    &I032_V1_1_500_RDS_NU1,
+    &I032_V1_1_500_RDS_NU2,
+    &I032_V1_1_500_RDS_LTR,
+    NULL
+};
+static const AsterixField I032_V1_1_500_RDS = { FIXED, 3, 0, 0, &hf_032_V1_1_500_RDS, I032_V1_1_500_RDS_PARTS, { NULL } };
+static gint hf_032_V1_1_500_TOD = -1;
+static gint hf_032_V1_1_500_TOD_TYP = -1;
+static const value_string valstr_032_V1_1_500_TOD_TYP[] = {
+    { 0, "Scheduled Off-Block Time" },
+    { 1, "Estimated Off-Block Time" },
+    { 2, "Estimated Take-Off Time" },
+    { 3, "Actual Off-Block Time" },
+    { 4, "Predicted Time at Runway Hold" },
+    { 5, "Actual Time at Runway Hold" },
+    { 6, "Actual Line-Up Time" },
+    { 7, "Actual Take-Off Time" },
+    { 8, "Estimated Time of Arrival" },
+    { 9, "Predicted Landing Time" },
+    { 10, "Actual Landing Time" },
+    { 11, "Actual Time off Runway" },
+    { 12, "Predicted Time to Gate" },
+    { 13, "Actual On-Block Time" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_TOD_TYP = { 5, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_TOD_TYP, NULL };
+static gint hf_032_V1_1_500_TOD_DAY = -1;
+static const value_string valstr_032_V1_1_500_TOD_DAY[] = {
+    { 0, "Today" },
+    { 1, "Yesterday" },
+    { 2, "Tomorrow" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_TOD_DAY = { 2, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_TOD_DAY, NULL };
+static gint hf_032_V1_1_500_TOD_HOR = -1;
+static const FieldPart I032_V1_1_500_TOD_HOR = { 5, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_TOD_HOR, NULL };
+static gint hf_032_V1_1_500_TOD_MIN = -1;
+static const FieldPart I032_V1_1_500_TOD_MIN = { 6, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_TOD_MIN, NULL };
+static gint hf_032_V1_1_500_TOD_AVS = -1;
+static const value_string valstr_032_V1_1_500_TOD_AVS[] = {
+    { 0, "Seconds available" },
+    { 1, "Seconds not available" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_TOD_AVS = { 1, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_TOD_AVS, NULL };
+static gint hf_032_V1_1_500_TOD_SEC = -1;
+static const FieldPart I032_V1_1_500_TOD_SEC = { 6, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_TOD_SEC, NULL };
+static const FieldPart *I032_V1_1_500_TOD_PARTS[] = {
+    &I032_V1_1_500_TOD_TYP,
+    &I032_V1_1_500_TOD_DAY,
+    &IXXX_4bit_spare,
+    &I032_V1_1_500_TOD_HOR,
+    &IXXX_2bit_spare,
+    &I032_V1_1_500_TOD_MIN,
+    &I032_V1_1_500_TOD_AVS,
+    &IXXX_1bit_spare,
+    &I032_V1_1_500_TOD_SEC,
+    NULL
+};
+static const AsterixField I032_V1_1_500_TOD = { REPETITIVE, 4, 1, 0, &hf_032_V1_1_500_TOD, I032_V1_1_500_TOD_PARTS, { NULL } };
+static gint hf_032_V1_1_500_AST = -1;
+static gint hf_032_V1_1_500_AST_VALUE = -1;
+static const FieldPart I032_V1_1_500_AST_VALUE = { 48, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_500_AST_VALUE, NULL };
+static const FieldPart *I032_V1_1_500_AST_PARTS[] = {
+    &I032_V1_1_500_AST_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_500_AST = { FIXED, 6, 0, 0, &hf_032_V1_1_500_AST, I032_V1_1_500_AST_PARTS, { NULL } };
+static gint hf_032_V1_1_500_STS = -1;
+static gint hf_032_V1_1_500_STS_EMP = -1;
+static const value_string valstr_032_V1_1_500_STS_EMP[] = {
+    { 0, "Empty" },
+    { 1, "Occupied" },
+    { 2, "Unknown" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_STS_EMP = { 2, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_STS_EMP, NULL };
+static gint hf_032_V1_1_500_STS_AVL = -1;
+static const value_string valstr_032_V1_1_500_STS_AVL[] = {
+    { 0, "Available" },
+    { 1, "Not available" },
+    { 2, "Unknown" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I032_V1_1_500_STS_AVL = { 2, 1.0, FIELD_PART_UINT, &hf_032_V1_1_500_STS_AVL, NULL };
+static const FieldPart *I032_V1_1_500_STS_PARTS[] = {
+    &I032_V1_1_500_STS_EMP,
+    &I032_V1_1_500_STS_AVL,
+    &IXXX_4bit_spare,
+    NULL
+};
+static const AsterixField I032_V1_1_500_STS = { FIXED, 1, 0, 0, &hf_032_V1_1_500_STS, I032_V1_1_500_STS_PARTS, { NULL } };
+static gint hf_032_V1_1_500_SID = -1;
+static gint hf_032_V1_1_500_SID_VALUE = -1;
+static const FieldPart I032_V1_1_500_SID_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_500_SID_VALUE, NULL };
+static const FieldPart *I032_V1_1_500_SID_PARTS[] = {
+    &I032_V1_1_500_SID_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_500_SID = { FIXED, 7, 0, 0, &hf_032_V1_1_500_SID, I032_V1_1_500_SID_PARTS, { NULL } };
+static gint hf_032_V1_1_500_STAR = -1;
+static gint hf_032_V1_1_500_STAR_VALUE = -1;
+static const FieldPart I032_V1_1_500_STAR_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_032_V1_1_500_STAR_VALUE, NULL };
+static const FieldPart *I032_V1_1_500_STAR_PARTS[] = {
+    &I032_V1_1_500_STAR_VALUE,
+    NULL
+};
+static const AsterixField I032_V1_1_500_STAR = { FIXED, 7, 0, 0, &hf_032_V1_1_500_STAR, I032_V1_1_500_STAR_PARTS, { NULL } };
+static const AsterixField I032_V1_1_500 = { COMPOUND, 0, 0, 0, &hf_032_V1_1_500, NULL, { &I032_V1_1_500_IFI, &I032_V1_1_500_RVP, &I032_V1_1_500_RDS, &I032_V1_1_500_TOD, &I032_V1_1_500_AST, &I032_V1_1_500_STS, &I032_V1_1_500_SID, &I032_V1_1_500_STAR, NULL } };
+static gint hf_032_V1_1_RE = -1;
+static const AsterixField I032_V1_1_RE = { EXP, 0, 0, 1, &hf_032_V1_1_RE, NULL, { NULL } };
+
+/* Category 032, edition 1.1 (latest) */
+static gint hf_032_010 = -1;
+static gint hf_032_010_SAC = -1;
+static const FieldPart I032_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_032_010_SAC, NULL };
+static gint hf_032_010_SIC = -1;
+static const FieldPart I032_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_032_010_SIC, NULL };
+static const FieldPart *I032_010_PARTS[] = {
+    &I032_010_SAC,
+    &I032_010_SIC,
+    NULL
+};
+static const AsterixField I032_010 = { FIXED, 2, 0, 0, &hf_032_010, I032_010_PARTS, { NULL } };
+static gint hf_032_015 = -1;
+static gint hf_032_015_VALUE = -1;
+static const FieldPart I032_015_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_032_015_VALUE, NULL };
+static const FieldPart *I032_015_PARTS[] = {
+    &I032_015_VALUE,
+    NULL
+};
+static const AsterixField I032_015 = { FIXED, 2, 0, 0, &hf_032_015, I032_015_PARTS, { NULL } };
+static gint hf_032_018 = -1;
+static gint hf_032_018_SAC = -1;
+static const FieldPart I032_018_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_032_018_SAC, NULL };
+static gint hf_032_018_SIC = -1;
+static const FieldPart I032_018_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_032_018_SIC, NULL };
+static const FieldPart *I032_018_PARTS[] = {
+    &I032_018_SAC,
+    &I032_018_SIC,
+    NULL
+};
+static const AsterixField I032_018 = { FIXED, 2, 0, 0, &hf_032_018, I032_018_PARTS, { NULL } };
+static gint hf_032_020 = -1;
+static gint hf_032_020_VALUE = -1;
+static const FieldPart I032_020_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_032_020_VALUE, NULL };
+static const FieldPart *I032_020_PARTS[] = {
+    &I032_020_VALUE,
+    NULL
+};
+static const AsterixField I032_020 = { FIXED, 3, 0, 0, &hf_032_020, I032_020_PARTS, { NULL } };
+static gint hf_032_035 = -1;
+static gint hf_032_035_FAMILY = -1;
+static const value_string valstr_032_035_FAMILY[] = {
+    { 1, "Information sent by an FPPS" },
+    { 0, NULL }
+};
+static const FieldPart I032_035_FAMILY = { 4, 1.0, FIELD_PART_UINT, &hf_032_035_FAMILY, NULL };
+static gint hf_032_035_NATURE = -1;
+static const value_string valstr_032_035_NATURE[] = {
+    { 1, "Flight Plan to track initial correlation" },
+    { 2, "Miniplan update" },
+    { 3, "End of correlation" },
+    { 4, "Miniplan Cancellation" },
+    { 5, "Retained Miniplan" },
+    { 0, NULL }
+};
+static const FieldPart I032_035_NATURE = { 4, 1.0, FIELD_PART_UINT, &hf_032_035_NATURE, NULL };
+static const FieldPart *I032_035_PARTS[] = {
+    &I032_035_FAMILY,
+    &I032_035_NATURE,
+    NULL
+};
+static const AsterixField I032_035 = { FIXED, 1, 0, 0, &hf_032_035, I032_035_PARTS, { NULL } };
+static gint hf_032_040 = -1;
+static gint hf_032_040_VALUE = -1;
+static const FieldPart I032_040_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_032_040_VALUE, NULL };
+static const FieldPart *I032_040_PARTS[] = {
+    &I032_040_VALUE,
+    NULL
+};
+static const AsterixField I032_040 = { FIXED, 2, 0, 0, &hf_032_040, I032_040_PARTS, { NULL } };
+static gint hf_032_050 = -1;
+static gint hf_032_050_SUI = -1;
+static const FieldPart I032_050_SUI = { 8, 1.0, FIELD_PART_UINT, &hf_032_050_SUI, NULL };
+static gint hf_032_050_STN = -1;
+static const FieldPart I032_050_STN = { 15, 1.0, FIELD_PART_UINT, &hf_032_050_STN, NULL };
+static const FieldPart *I032_050_PARTS[] = {
+    &I032_050_SUI,
+    &I032_050_STN,
+    &IXXX_FX,
+    NULL
+};
+static const AsterixField I032_050 = { FX, 3, 0, 2, &hf_032_050, I032_050_PARTS, { NULL } };
+static gint hf_032_060 = -1;
+static gint hf_032_060_MODE3A = -1;
+static const FieldPart I032_060_MODE3A = { 12, 1.0, FIELD_PART_SQUAWK, &hf_032_060_MODE3A, NULL };
+static const FieldPart *I032_060_PARTS[] = {
+    &IXXX_4bit_spare,
+    &I032_060_MODE3A,
+    NULL
+};
+static const AsterixField I032_060 = { FIXED, 2, 0, 0, &hf_032_060, I032_060_PARTS, { NULL } };
+static gint hf_032_400 = -1;
+static gint hf_032_400_VALUE = -1;
+static const FieldPart I032_400_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_032_400_VALUE, NULL };
+static const FieldPart *I032_400_PARTS[] = {
+    &I032_400_VALUE,
+    NULL
+};
+static const AsterixField I032_400 = { FIXED, 7, 0, 0, &hf_032_400, I032_400_PARTS, { NULL } };
+static gint hf_032_410 = -1;
+static gint hf_032_410_VALUE = -1;
+static const FieldPart I032_410_VALUE = { 16, 1.0, FIELD_PART_UINT, &hf_032_410_VALUE, NULL };
+static const FieldPart *I032_410_PARTS[] = {
+    &I032_410_VALUE,
+    NULL
+};
+static const AsterixField I032_410 = { FIXED, 2, 0, 0, &hf_032_410, I032_410_PARTS, { NULL } };
+static gint hf_032_420 = -1;
+static gint hf_032_420_GATOAT = -1;
+static const value_string valstr_032_420_GATOAT[] = {
+    { 0, "Unknown" },
+    { 1, "General Air Traffic" },
+    { 2, "Operational Air Traffic" },
+    { 3, "Not applicable" },
+    { 0, NULL }
+};
+static const FieldPart I032_420_GATOAT = { 2, 1.0, FIELD_PART_UINT, &hf_032_420_GATOAT, NULL };
+static gint hf_032_420_FR1FR2 = -1;
+static const value_string valstr_032_420_FR1FR2[] = {
+    { 0, "Instrument Flight Rules" },
+    { 1, "Visual Flight rules" },
+    { 2, "Not applicable" },
+    { 3, "Controlled Visual Flight Rules" },
+    { 0, NULL }
+};
+static const FieldPart I032_420_FR1FR2 = { 2, 1.0, FIELD_PART_UINT, &hf_032_420_FR1FR2, NULL };
+static gint hf_032_420_SP3 = -1;
+static const FieldPart I032_420_SP3 = { 1, 1.0, FIELD_PART_HEX, &hf_032_420_SP3, NULL };
+static gint hf_032_420_SP2 = -1;
+static const FieldPart I032_420_SP2 = { 1, 1.0, FIELD_PART_HEX, &hf_032_420_SP2, NULL };
+static gint hf_032_420_SP1 = -1;
+static const FieldPart I032_420_SP1 = { 1, 1.0, FIELD_PART_HEX, &hf_032_420_SP1, NULL };
+static const FieldPart *I032_420_PARTS[] = {
+    &I032_420_GATOAT,
+    &I032_420_FR1FR2,
+    &I032_420_SP3,
+    &I032_420_SP2,
+    &I032_420_SP1,
+    &IXXX_1bit_spare,
+    NULL
+};
+static const AsterixField I032_420 = { FIXED, 1, 0, 0, &hf_032_420, I032_420_PARTS, { NULL } };
+static gint hf_032_430 = -1;
+static gint hf_032_430_VALUE = -1;
+static const FieldPart I032_430_VALUE = { 32, 1.0, FIELD_PART_ASCII, &hf_032_430_VALUE, NULL };
+static const FieldPart *I032_430_PARTS[] = {
+    &I032_430_VALUE,
+    NULL
+};
+static const AsterixField I032_430 = { FIXED, 4, 0, 0, &hf_032_430, I032_430_PARTS, { NULL } };
+static gint hf_032_435 = -1;
+static gint hf_032_435_VALUE = -1;
+static const value_string valstr_032_435_VALUE[] = {
+    { 76, "Light" },
+    { 77, "Medium" },
+    { 72, "Heavy" },
+    { 74, "Super" },
+    { 0, NULL }
+};
+static const FieldPart I032_435_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_032_435_VALUE, NULL };
+static const FieldPart *I032_435_PARTS[] = {
+    &I032_435_VALUE,
+    NULL
+};
+static const AsterixField I032_435 = { FIXED, 1, 0, 0, &hf_032_435, I032_435_PARTS, { NULL } };
+static gint hf_032_440 = -1;
+static gint hf_032_440_VALUE = -1;
+static const FieldPart I032_440_VALUE = { 32, 1.0, FIELD_PART_ASCII, &hf_032_440_VALUE, NULL };
+static const FieldPart *I032_440_PARTS[] = {
+    &I032_440_VALUE,
+    NULL
+};
+static const AsterixField I032_440 = { FIXED, 4, 0, 0, &hf_032_440, I032_440_PARTS, { NULL } };
+static gint hf_032_450 = -1;
+static gint hf_032_450_VALUE = -1;
+static const FieldPart I032_450_VALUE = { 32, 1.0, FIELD_PART_ASCII, &hf_032_450_VALUE, NULL };
+static const FieldPart *I032_450_PARTS[] = {
+    &I032_450_VALUE,
+    NULL
+};
+static const AsterixField I032_450 = { FIXED, 4, 0, 0, &hf_032_450, I032_450_PARTS, { NULL } };
+static gint hf_032_460 = -1;
+static gint hf_032_460_OCT1 = -1;
+static const FieldPart I032_460_OCT1 = { 3, 1.0, FIELD_PART_HEX, &hf_032_460_OCT1, NULL };
+static gint hf_032_460_OCT2 = -1;
+static const FieldPart I032_460_OCT2 = { 3, 1.0, FIELD_PART_HEX, &hf_032_460_OCT2, NULL };
+static gint hf_032_460_OCT3 = -1;
+static const FieldPart I032_460_OCT3 = { 3, 1.0, FIELD_PART_HEX, &hf_032_460_OCT3, NULL };
+static gint hf_032_460_OCT4 = -1;
+static const FieldPart I032_460_OCT4 = { 3, 1.0, FIELD_PART_HEX, &hf_032_460_OCT4, NULL };
+static const FieldPart *I032_460_PARTS[] = {
+    &IXXX_4bit_spare,
+    &I032_460_OCT1,
+    &I032_460_OCT2,
+    &I032_460_OCT3,
+    &I032_460_OCT4,
+    NULL
+};
+static const AsterixField I032_460 = { REPETITIVE, 2, 1, 0, &hf_032_460, I032_460_PARTS, { NULL } };
+static gint hf_032_480 = -1;
+static gint hf_032_480_VALUE = -1;
+static const FieldPart I032_480_VALUE = { 16, 0.25, FIELD_PART_UFLOAT, &hf_032_480_VALUE, NULL };
+static const FieldPart *I032_480_PARTS[] = {
+    &I032_480_VALUE,
+    NULL
+};
+static const AsterixField I032_480 = { FIXED, 2, 0, 0, &hf_032_480, I032_480_PARTS, { NULL } };
+static gint hf_032_490 = -1;
+static gint hf_032_490_CEN = -1;
+static const FieldPart I032_490_CEN = { 8, 1.0, FIELD_PART_HEX, &hf_032_490_CEN, NULL };
+static gint hf_032_490_POS = -1;
+static const FieldPart I032_490_POS = { 8, 1.0, FIELD_PART_HEX, &hf_032_490_POS, NULL };
+static const FieldPart *I032_490_PARTS[] = {
+    &I032_490_CEN,
+    &I032_490_POS,
+    NULL
+};
+static const AsterixField I032_490 = { FIXED, 2, 0, 0, &hf_032_490, I032_490_PARTS, { NULL } };
+static gint hf_032_500 = -1;
+static gint hf_032_500_IFI = -1;
+static gint hf_032_500_IFI_TYP = -1;
+static const value_string valstr_032_500_IFI_TYP[] = {
+    { 0, "Plan Number" },
+    { 1, "Unit 1 internal flight number" },
+    { 2, "Unit 2 internal flight number" },
+    { 3, "Unit 3 internal flight number" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_IFI_TYP = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_IFI_TYP, NULL };
+static gint hf_032_500_IFI_NBR = -1;
+static const FieldPart I032_500_IFI_NBR = { 27, 1.0, FIELD_PART_UINT, &hf_032_500_IFI_NBR, NULL };
+static const FieldPart *I032_500_IFI_PARTS[] = {
+    &I032_500_IFI_TYP,
+    &IXXX_3bit_spare,
+    &I032_500_IFI_NBR,
+    NULL
+};
+static const AsterixField I032_500_IFI = { FIXED, 4, 0, 0, &hf_032_500_IFI, I032_500_IFI_PARTS, { NULL } };
+static gint hf_032_500_RVP = -1;
+static gint hf_032_500_RVP_RVSM = -1;
+static const value_string valstr_032_500_RVP_RVSM[] = {
+    { 0, "Unknown" },
+    { 1, "Approved" },
+    { 2, "Exempt" },
+    { 3, "Not approved" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_RVP_RVSM = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_RVP_RVSM, NULL };
+static gint hf_032_500_RVP_HPR = -1;
+static const value_string valstr_032_500_RVP_HPR[] = {
+    { 0, "Normal Priority Flight" },
+    { 1, "High Priority Flight" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_RVP_HPR = { 1, 1.0, FIELD_PART_UINT, &hf_032_500_RVP_HPR, NULL };
+static const FieldPart *I032_500_RVP_PARTS[] = {
+    &IXXX_5bit_spare,
+    &I032_500_RVP_RVSM,
+    &I032_500_RVP_HPR,
+    NULL
+};
+static const AsterixField I032_500_RVP = { FIXED, 1, 0, 0, &hf_032_500_RVP, I032_500_RVP_PARTS, { NULL } };
+static gint hf_032_500_RDS = -1;
+static gint hf_032_500_RDS_NU1 = -1;
+static const FieldPart I032_500_RDS_NU1 = { 8, 1.0, FIELD_PART_ASCII, &hf_032_500_RDS_NU1, NULL };
+static gint hf_032_500_RDS_NU2 = -1;
+static const FieldPart I032_500_RDS_NU2 = { 8, 1.0, FIELD_PART_ASCII, &hf_032_500_RDS_NU2, NULL };
+static gint hf_032_500_RDS_LTR = -1;
+static const FieldPart I032_500_RDS_LTR = { 8, 1.0, FIELD_PART_ASCII, &hf_032_500_RDS_LTR, NULL };
+static const FieldPart *I032_500_RDS_PARTS[] = {
+    &I032_500_RDS_NU1,
+    &I032_500_RDS_NU2,
+    &I032_500_RDS_LTR,
+    NULL
+};
+static const AsterixField I032_500_RDS = { FIXED, 3, 0, 0, &hf_032_500_RDS, I032_500_RDS_PARTS, { NULL } };
+static gint hf_032_500_TOD = -1;
+static gint hf_032_500_TOD_TYP = -1;
+static const value_string valstr_032_500_TOD_TYP[] = {
+    { 0, "Scheduled Off-Block Time" },
+    { 1, "Estimated Off-Block Time" },
+    { 2, "Estimated Take-Off Time" },
+    { 3, "Actual Off-Block Time" },
+    { 4, "Predicted Time at Runway Hold" },
+    { 5, "Actual Time at Runway Hold" },
+    { 6, "Actual Line-Up Time" },
+    { 7, "Actual Take-Off Time" },
+    { 8, "Estimated Time of Arrival" },
+    { 9, "Predicted Landing Time" },
+    { 10, "Actual Landing Time" },
+    { 11, "Actual Time off Runway" },
+    { 12, "Predicted Time to Gate" },
+    { 13, "Actual On-Block Time" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_TOD_TYP = { 5, 1.0, FIELD_PART_UINT, &hf_032_500_TOD_TYP, NULL };
+static gint hf_032_500_TOD_DAY = -1;
+static const value_string valstr_032_500_TOD_DAY[] = {
+    { 0, "Today" },
+    { 1, "Yesterday" },
+    { 2, "Tomorrow" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_TOD_DAY = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_TOD_DAY, NULL };
+static gint hf_032_500_TOD_HOR = -1;
+static const FieldPart I032_500_TOD_HOR = { 5, 1.0, FIELD_PART_UINT, &hf_032_500_TOD_HOR, NULL };
+static gint hf_032_500_TOD_MIN = -1;
+static const FieldPart I032_500_TOD_MIN = { 6, 1.0, FIELD_PART_UINT, &hf_032_500_TOD_MIN, NULL };
+static gint hf_032_500_TOD_AVS = -1;
+static const value_string valstr_032_500_TOD_AVS[] = {
+    { 0, "Seconds available" },
+    { 1, "Seconds not available" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_TOD_AVS = { 1, 1.0, FIELD_PART_UINT, &hf_032_500_TOD_AVS, NULL };
+static gint hf_032_500_TOD_SEC = -1;
+static const FieldPart I032_500_TOD_SEC = { 6, 1.0, FIELD_PART_UINT, &hf_032_500_TOD_SEC, NULL };
+static const FieldPart *I032_500_TOD_PARTS[] = {
+    &I032_500_TOD_TYP,
+    &I032_500_TOD_DAY,
+    &IXXX_4bit_spare,
+    &I032_500_TOD_HOR,
+    &IXXX_2bit_spare,
+    &I032_500_TOD_MIN,
+    &I032_500_TOD_AVS,
+    &IXXX_1bit_spare,
+    &I032_500_TOD_SEC,
+    NULL
+};
+static const AsterixField I032_500_TOD = { REPETITIVE, 4, 1, 0, &hf_032_500_TOD, I032_500_TOD_PARTS, { NULL } };
+static gint hf_032_500_AST = -1;
+static gint hf_032_500_AST_VALUE = -1;
+static const FieldPart I032_500_AST_VALUE = { 48, 1.0, FIELD_PART_ASCII, &hf_032_500_AST_VALUE, NULL };
+static const FieldPart *I032_500_AST_PARTS[] = {
+    &I032_500_AST_VALUE,
+    NULL
+};
+static const AsterixField I032_500_AST = { FIXED, 6, 0, 0, &hf_032_500_AST, I032_500_AST_PARTS, { NULL } };
+static gint hf_032_500_STS = -1;
+static gint hf_032_500_STS_EMP = -1;
+static const value_string valstr_032_500_STS_EMP[] = {
+    { 0, "Empty" },
+    { 1, "Occupied" },
+    { 2, "Unknown" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_STS_EMP = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_STS_EMP, NULL };
+static gint hf_032_500_STS_AVL = -1;
+static const value_string valstr_032_500_STS_AVL[] = {
+    { 0, "Available" },
+    { 1, "Not available" },
+    { 2, "Unknown" },
+    { 3, "Invalid" },
+    { 0, NULL }
+};
+static const FieldPart I032_500_STS_AVL = { 2, 1.0, FIELD_PART_UINT, &hf_032_500_STS_AVL, NULL };
+static const FieldPart *I032_500_STS_PARTS[] = {
+    &I032_500_STS_EMP,
+    &I032_500_STS_AVL,
+    &IXXX_4bit_spare,
+    NULL
+};
+static const AsterixField I032_500_STS = { FIXED, 1, 0, 0, &hf_032_500_STS, I032_500_STS_PARTS, { NULL } };
+static gint hf_032_500_SID = -1;
+static gint hf_032_500_SID_VALUE = -1;
+static const FieldPart I032_500_SID_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_032_500_SID_VALUE, NULL };
+static const FieldPart *I032_500_SID_PARTS[] = {
+    &I032_500_SID_VALUE,
+    NULL
+};
+static const AsterixField I032_500_SID = { FIXED, 7, 0, 0, &hf_032_500_SID, I032_500_SID_PARTS, { NULL } };
+static gint hf_032_500_STAR = -1;
+static gint hf_032_500_STAR_VALUE = -1;
+static const FieldPart I032_500_STAR_VALUE = { 56, 1.0, FIELD_PART_ASCII, &hf_032_500_STAR_VALUE, NULL };
+static const FieldPart *I032_500_STAR_PARTS[] = {
+    &I032_500_STAR_VALUE,
+    NULL
+};
+static const AsterixField I032_500_STAR = { FIXED, 7, 0, 0, &hf_032_500_STAR, I032_500_STAR_PARTS, { NULL } };
+static const AsterixField I032_500 = { COMPOUND, 0, 0, 0, &hf_032_500, NULL, { &I032_500_IFI, &I032_500_RVP, &I032_500_RDS, &I032_500_TOD, &I032_500_AST, &I032_500_STS, &I032_500_SID, &I032_500_STAR, NULL } };
+static gint hf_032_RE = -1;
+static const AsterixField I032_RE = { EXP, 0, 0, 1, &hf_032_RE, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I032_V1_1_uap[] = {
+    &I032_V1_1_010,
+    &I032_V1_1_015,
+    &I032_V1_1_018,
+    &I032_V1_1_035,
+    &I032_V1_1_020,
+    &I032_V1_1_040,
+    &I032_V1_1_050,
+    &I032_V1_1_060,
+    &I032_V1_1_400,
+    &I032_V1_1_410,
+    &I032_V1_1_420,
+    &I032_V1_1_440,
+    &I032_V1_1_450,
+    &I032_V1_1_480,
+    &I032_V1_1_490,
+    &I032_V1_1_430,
+    &I032_V1_1_435,
+    &I032_V1_1_460,
+    &I032_V1_1_500,
+    &IX_SPARE,
+    &I032_V1_1_RE,
+    NULL
+};
+static const AsterixField **I032_V1_1[] = {
+    I032_V1_1_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I032_uap[] = {
+    &I032_010,
+    &I032_015,
+    &I032_018,
+    &I032_035,
+    &I032_020,
+    &I032_040,
+    &I032_050,
+    &I032_060,
+    &I032_400,
+    &I032_410,
+    &I032_420,
+    &I032_440,
+    &I032_450,
+    &I032_480,
+    &I032_490,
+    &I032_430,
+    &I032_435,
+    &I032_460,
+    &I032_500,
+    &IX_SPARE,
+    &I032_RE,
+    NULL
+};
+static const AsterixField **I032[] = {
+    I032_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
 /* Category 034, edition 1.27 */
 static gint hf_034_V1_27_000 = -1;
 static gint hf_034_V1_27_000_VALUE = -1;
@@ -25097,7 +27559,7 @@ static const value_string valstr_048_V1_27_170_SUP[] = {
 static const FieldPart I048_V1_27_170_SUP = { 1, 1.0, FIELD_PART_UINT, &hf_048_V1_27_170_SUP, NULL };
 static gint hf_048_V1_27_170_TCC = -1;
 static const value_string valstr_048_V1_27_170_TCC[] = {
-    { 0, "Tracking performed in so-called 'Radar Plane', i.e. neither slant range correction nor stereographical projection was applied" },
+    { 0, "Tracking performed in so-called \'Radar Plane\', i.e. neither slant range correction nor stereographical projection was applied" },
     { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Radar Site co-ordinates" },
     { 0, NULL }
 };
@@ -26153,7 +28615,7 @@ static const value_string valstr_048_V1_28_170_SUP[] = {
 static const FieldPart I048_V1_28_170_SUP = { 1, 1.0, FIELD_PART_UINT, &hf_048_V1_28_170_SUP, NULL };
 static gint hf_048_V1_28_170_TCC = -1;
 static const value_string valstr_048_V1_28_170_TCC[] = {
-    { 0, "Tracking performed in so-called 'Radar Plane', i.e. neither slant range correction nor stereographical projection was applied" },
+    { 0, "Tracking performed in so-called \'Radar Plane\', i.e. neither slant range correction nor stereographical projection was applied" },
     { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Radar Site co-ordinates" },
     { 0, NULL }
 };
@@ -27209,7 +29671,7 @@ static const value_string valstr_048_V1_29_170_SUP[] = {
 static const FieldPart I048_V1_29_170_SUP = { 1, 1.0, FIELD_PART_UINT, &hf_048_V1_29_170_SUP, NULL };
 static gint hf_048_V1_29_170_TCC = -1;
 static const value_string valstr_048_V1_29_170_TCC[] = {
-    { 0, "Tracking performed in so-called 'Radar Plane', i.e. neither slant range correction nor stereographical projection was applied" },
+    { 0, "Tracking performed in so-called \'Radar Plane\', i.e. neither slant range correction nor stereographical projection was applied" },
     { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Radar Site co-ordinates" },
     { 0, NULL }
 };
@@ -28265,7 +30727,7 @@ static const value_string valstr_048_V1_30_170_SUP[] = {
 static const FieldPart I048_V1_30_170_SUP = { 1, 1.0, FIELD_PART_UINT, &hf_048_V1_30_170_SUP, NULL };
 static gint hf_048_V1_30_170_TCC = -1;
 static const value_string valstr_048_V1_30_170_TCC[] = {
-    { 0, "Tracking performed in so-called 'Radar Plane', i.e. neither slant range correction nor stereographical projection was applied" },
+    { 0, "Tracking performed in so-called \'Radar Plane\', i.e. neither slant range correction nor stereographical projection was applied" },
     { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Radar Site co-ordinates" },
     { 0, NULL }
 };
@@ -29283,7 +31745,7 @@ static const value_string valstr_048_170_SUP[] = {
 static const FieldPart I048_170_SUP = { 1, 1.0, FIELD_PART_UINT, &hf_048_170_SUP, NULL };
 static gint hf_048_170_TCC = -1;
 static const value_string valstr_048_170_TCC[] = {
-    { 0, "Tracking performed in so-called 'Radar Plane', i.e. neither slant range correction nor stereographical projection was applied" },
+    { 0, "Tracking performed in so-called \'Radar Plane\', i.e. neither slant range correction nor stereographical projection was applied" },
     { 1, "Slant range correction and a suitable projection technique are used to track in a 2D.reference plane, tangential to the earth model at the Radar Site co-ordinates" },
     { 0, NULL }
 };
@@ -39390,6 +41852,26 @@ static const enum_val_t I023_versions[] = {
 };
 
 DIAG_OFF_PEDANTIC
+static const AsterixField ***I025all[] = { I025, I025_V1_5 };
+DIAG_ON_PEDANTIC
+
+static const enum_val_t I025_versions[] = {
+    { "I025", "Version 1.5 (latest)", 0 },
+    { "I025_v1_5", "Version 1.5", 1 },
+    { NULL, NULL, 0 }
+};
+
+DIAG_OFF_PEDANTIC
+static const AsterixField ***I032all[] = { I032, I032_V1_1 };
+DIAG_ON_PEDANTIC
+
+static const enum_val_t I032_versions[] = {
+    { "I032", "Version 1.1 (latest)", 0 },
+    { "I032_v1_1", "Version 1.1", 1 },
+    { NULL, NULL, 0 }
+};
+
+DIAG_OFF_PEDANTIC
 static const AsterixField ***I034all[] = { I034, I034_V1_29, I034_V1_28, I034_V1_27 };
 DIAG_ON_PEDANTIC
 
@@ -39483,14 +41965,14 @@ static const AsterixField ****categories[] = {
     NULL, /* 022 */
     I023all, /* 023 */
     NULL, /* 024 */
-    NULL, /* 025 */
+    I025all, /* 025 */
     NULL, /* 026 */
     NULL, /* 027 */
     NULL, /* 028 */
     NULL, /* 029 */
     NULL, /* 030 */
     NULL, /* 031 */
-    NULL, /* 032 */
+    I032all, /* 032 */
     NULL, /* 033 */
     I034all, /* 034 */
     NULL, /* 035 */
@@ -44100,6 +46582,230 @@ void proto_register_asterix (void)
         { &hf_023_200_VALUE, { "Operational Range, [NM]", "asterix.023_200_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_023_RE, { "RE, Reserved Expansion Field", "asterix.023_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_023_SP, { "SP, Special Purpose Field", "asterix.023_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_000, { "000, Report Type", "asterix.025_V1_5_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_000_RTYP, { "RTYP, Report Type", "asterix.025_V1_5_000_RTYP", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_025_V1_5_000_RG, { "RG, Report Generation", "asterix.025_V1_5_000_RG", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_000_RG), 0x01, NULL, HFILL } },
+        { &hf_025_V1_5_010, { "010, Data Source Identifier", "asterix.025_V1_5_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_010_SAC, { "SAC, System Area Code", "asterix.025_V1_5_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_010_SIC, { "SIC, System Identification Code", "asterix.025_V1_5_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_015, { "015, Service Identification", "asterix.025_V1_5_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_015_VALUE, { "Service Identification", "asterix.025_V1_5_015_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_020, { "020, Service Designator", "asterix.025_V1_5_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_020_VALUE, { "Service Designator", "asterix.025_V1_5_020_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_070, { "070, Time of Day", "asterix.025_V1_5_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_070_VALUE, { "Time of Day, [s]", "asterix.025_V1_5_070_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_100, { "100, System and Service Status", "asterix.025_V1_5_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_100_NOGO, { "NOGO", "asterix.025_V1_5_100_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_100_NOGO), 0x80, NULL, HFILL } },
+        { &hf_025_V1_5_100_OPS, { "OPS", "asterix.025_V1_5_100_OPS", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_100_OPS), 0x60, NULL, HFILL } },
+        { &hf_025_V1_5_100_SSTAT, { "SSTAT", "asterix.025_V1_5_100_SSTAT", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_100_SSTAT), 0x1e, NULL, HFILL } },
+        { &hf_025_V1_5_100_SYSTAT, { "SYSTAT", "asterix.025_V1_5_100_SYSTAT", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_100_SYSTAT), 0x70, NULL, HFILL } },
+        { &hf_025_V1_5_100_SESTAT, { "SESTAT", "asterix.025_V1_5_100_SESTAT", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_100_SESTAT), 0x0e, NULL, HFILL } },
+        { &hf_025_V1_5_105, { "105, System and Service Error Codes", "asterix.025_V1_5_105", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_105_VALUE, { "System and Service Error Codes", "asterix.025_V1_5_105_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_105_VALUE), 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_120, { "120, Component Status", "asterix.025_V1_5_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_120_CID, { "CID, Component ID", "asterix.025_V1_5_120_CID", FT_UINT16, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_120_ERRC, { "ERRC, Error Code", "asterix.025_V1_5_120_ERRC", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_120_ERRC), 0xfc, NULL, HFILL } },
+        { &hf_025_V1_5_120_CS, { "CS, Component State/Mode", "asterix.025_V1_5_120_CS", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_120_CS), 0x03, NULL, HFILL } },
+        { &hf_025_V1_5_140, { "140, Service Statistics", "asterix.025_V1_5_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_140_TYPE, { "TYPE, Type of Report Counter", "asterix.025_V1_5_140_TYPE", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_140_TYPE), 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_140_REF, { "REF, Reference from which the Messages Are Counted", "asterix.025_V1_5_140_REF", FT_UINT8, BASE_DEC, VALS (valstr_025_V1_5_140_REF), 0x80, NULL, HFILL } },
+        { &hf_025_V1_5_140_COUNT, { "COUNT, Counter Value", "asterix.025_V1_5_140_COUNT", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_200, { "200, Message Identification", "asterix.025_V1_5_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_200_VALUE, { "Message Identification", "asterix.025_V1_5_200_VALUE", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_600, { "600, Position of the System Reference Point", "asterix.025_V1_5_600", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_600_LAT, { "LAT, Latitude, [deg]", "asterix.025_V1_5_600_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_600_LON, { "LON, Longitude, [deg]", "asterix.025_V1_5_600_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_610, { "610, Height of the System Reference Point", "asterix.025_V1_5_610", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_610_VALUE, { "Height of the System Reference Point, [m]", "asterix.025_V1_5_610_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_V1_5_SP, { "SP, Special Purpose Field", "asterix.025_V1_5_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_000, { "000, Report Type", "asterix.025_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_000_RTYP, { "RTYP, Report Type", "asterix.025_000_RTYP", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_025_000_RG, { "RG, Report Generation", "asterix.025_000_RG", FT_UINT8, BASE_DEC, VALS (valstr_025_000_RG), 0x01, NULL, HFILL } },
+        { &hf_025_010, { "010, Data Source Identifier", "asterix.025_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_010_SAC, { "SAC, System Area Code", "asterix.025_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_010_SIC, { "SIC, System Identification Code", "asterix.025_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_015, { "015, Service Identification", "asterix.025_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_015_VALUE, { "Service Identification", "asterix.025_015_VALUE", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_020, { "020, Service Designator", "asterix.025_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_020_VALUE, { "Service Designator", "asterix.025_020_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_070, { "070, Time of Day", "asterix.025_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_070_VALUE, { "Time of Day, [s]", "asterix.025_070_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_100, { "100, System and Service Status", "asterix.025_100", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_100_NOGO, { "NOGO", "asterix.025_100_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_025_100_NOGO), 0x80, NULL, HFILL } },
+        { &hf_025_100_OPS, { "OPS", "asterix.025_100_OPS", FT_UINT8, BASE_DEC, VALS (valstr_025_100_OPS), 0x60, NULL, HFILL } },
+        { &hf_025_100_SSTAT, { "SSTAT", "asterix.025_100_SSTAT", FT_UINT8, BASE_DEC, VALS (valstr_025_100_SSTAT), 0x1e, NULL, HFILL } },
+        { &hf_025_100_SYSTAT, { "SYSTAT", "asterix.025_100_SYSTAT", FT_UINT8, BASE_DEC, VALS (valstr_025_100_SYSTAT), 0x70, NULL, HFILL } },
+        { &hf_025_100_SESTAT, { "SESTAT", "asterix.025_100_SESTAT", FT_UINT8, BASE_DEC, VALS (valstr_025_100_SESTAT), 0x0e, NULL, HFILL } },
+        { &hf_025_105, { "105, System and Service Error Codes", "asterix.025_105", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_105_VALUE, { "System and Service Error Codes", "asterix.025_105_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_025_105_VALUE), 0x00, NULL, HFILL } },
+        { &hf_025_120, { "120, Component Status", "asterix.025_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_120_CID, { "CID, Component ID", "asterix.025_120_CID", FT_UINT16, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_120_ERRC, { "ERRC, Error Code", "asterix.025_120_ERRC", FT_UINT8, BASE_DEC, VALS (valstr_025_120_ERRC), 0xfc, NULL, HFILL } },
+        { &hf_025_120_CS, { "CS, Component State/Mode", "asterix.025_120_CS", FT_UINT8, BASE_DEC, VALS (valstr_025_120_CS), 0x03, NULL, HFILL } },
+        { &hf_025_140, { "140, Service Statistics", "asterix.025_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_140_TYPE, { "TYPE, Type of Report Counter", "asterix.025_140_TYPE", FT_UINT8, BASE_DEC, VALS (valstr_025_140_TYPE), 0x00, NULL, HFILL } },
+        { &hf_025_140_REF, { "REF, Reference from which the Messages Are Counted", "asterix.025_140_REF", FT_UINT8, BASE_DEC, VALS (valstr_025_140_REF), 0x80, NULL, HFILL } },
+        { &hf_025_140_COUNT, { "COUNT, Counter Value", "asterix.025_140_COUNT", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_200, { "200, Message Identification", "asterix.025_200", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_200_VALUE, { "Message Identification", "asterix.025_200_VALUE", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_600, { "600, Position of the System Reference Point", "asterix.025_600", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_600_LAT, { "LAT, Latitude, [deg]", "asterix.025_600_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_600_LON, { "LON, Longitude, [deg]", "asterix.025_600_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_610, { "610, Height of the System Reference Point", "asterix.025_610", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_610_VALUE, { "Height of the System Reference Point, [m]", "asterix.025_610_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_025_SP, { "SP, Special Purpose Field", "asterix.025_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_010, { "010, Server Identification Tag", "asterix.032_V1_1_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_010_SAC, { "SAC, System Area Code", "asterix.032_V1_1_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_010_SIC, { "SIC, System Identification Code", "asterix.032_V1_1_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_015, { "015, User Number", "asterix.032_V1_1_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_015_VALUE, { "User Number", "asterix.032_V1_1_015_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_018, { "018, Data Source Identification Tag", "asterix.032_V1_1_018", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_018_SAC, { "SAC, System Area Code", "asterix.032_V1_1_018_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_018_SIC, { "SIC, System Identification Code", "asterix.032_V1_1_018_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_020, { "020, Time of ASTERIX Report Generation", "asterix.032_V1_1_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_020_VALUE, { "Time of ASTERIX Report Generation, [s]", "asterix.032_V1_1_020_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_035, { "035, Type of Message", "asterix.032_V1_1_035", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_035_FAMILY, { "FAMILY", "asterix.032_V1_1_035_FAMILY", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_035_FAMILY), 0xf0, NULL, HFILL } },
+        { &hf_032_V1_1_035_NATURE, { "NATURE", "asterix.032_V1_1_035_NATURE", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_035_NATURE), 0x0f, NULL, HFILL } },
+        { &hf_032_V1_1_040, { "040, Track Number", "asterix.032_V1_1_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_040_VALUE, { "Track Number", "asterix.032_V1_1_040_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_050, { "050, Composed Track Number", "asterix.032_V1_1_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_050_SUI, { "SUI, System Unit Identification", "asterix.032_V1_1_050_SUI", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_050_STN, { "STN, System Track Number", "asterix.032_V1_1_050_STN", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
+        { &hf_032_V1_1_060, { "060, Track Mode 3/A", "asterix.032_V1_1_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_060_MODE3A, { "MODE3A, (Mode 3/A Code) 4 Digits, Octal Representation", "asterix.032_V1_1_060_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_032_V1_1_400, { "400, Callsign", "asterix.032_V1_1_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_400_VALUE, { "Callsign", "asterix.032_V1_1_400_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_410, { "410, Plan Number", "asterix.032_V1_1_410", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_410_VALUE, { "Plan Number", "asterix.032_V1_1_410_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_420, { "420, Flight Category", "asterix.032_V1_1_420", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_420_GATOAT, { "GATOAT", "asterix.032_V1_1_420_GATOAT", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_420_GATOAT), 0xc0, NULL, HFILL } },
+        { &hf_032_V1_1_420_FR1FR2, { "FR1FR2", "asterix.032_V1_1_420_FR1FR2", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_420_FR1FR2), 0x30, NULL, HFILL } },
+        { &hf_032_V1_1_420_SP3, { "SP3", "asterix.032_V1_1_420_SP3", FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL } },
+        { &hf_032_V1_1_420_SP2, { "SP2", "asterix.032_V1_1_420_SP2", FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL } },
+        { &hf_032_V1_1_420_SP1, { "SP1", "asterix.032_V1_1_420_SP1", FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL } },
+        { &hf_032_V1_1_430, { "430, Type of Aircraft", "asterix.032_V1_1_430", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_430_VALUE, { "Type of Aircraft", "asterix.032_V1_1_430_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_435, { "435, Wake Turbulence Category", "asterix.032_V1_1_435", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_435_VALUE, { "Wake Turbulence Category", "asterix.032_V1_1_435_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_435_VALUE), 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_440, { "440, Departure Aerodrome", "asterix.032_V1_1_440", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_440_VALUE, { "Departure Aerodrome", "asterix.032_V1_1_440_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_450, { "450, Destination Aerodrome", "asterix.032_V1_1_450", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_450_VALUE, { "Destination Aerodrome", "asterix.032_V1_1_450_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_460, { "460, Allocated SSR Codes", "asterix.032_V1_1_460", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_460_OCT1, { "OCT1, 1st Octal Digit", "asterix.032_V1_1_460_OCT1", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
+        { &hf_032_V1_1_460_OCT2, { "OCT2, 2nd Octal Digit", "asterix.032_V1_1_460_OCT2", FT_UINT16, BASE_DEC, NULL, 0x01c0, NULL, HFILL } },
+        { &hf_032_V1_1_460_OCT3, { "OCT3, 3rd Octal Digit", "asterix.032_V1_1_460_OCT3", FT_UINT8, BASE_DEC, NULL, 0x38, NULL, HFILL } },
+        { &hf_032_V1_1_460_OCT4, { "OCT4, 4th Octal Digit", "asterix.032_V1_1_460_OCT4", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
+        { &hf_032_V1_1_480, { "480, Current Cleared Flight Level", "asterix.032_V1_1_480", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_480_VALUE, { "Current Cleared Flight Level, [FL]", "asterix.032_V1_1_480_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_490, { "490, Current Control Position", "asterix.032_V1_1_490", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_490_CEN, { "CEN, Centre", "asterix.032_V1_1_490_CEN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_490_POS, { "POS, Position", "asterix.032_V1_1_490_POS", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500, { "500, Supplementary Flight Data", "asterix.032_V1_1_500", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_IFI, { "IFI, IFPS FLIGHT ID", "asterix.032_V1_1_500_IFI", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_IFI_TYP, { "TYP", "asterix.032_V1_1_500_IFI_TYP", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_IFI_TYP), 0xc0, NULL, HFILL } },
+        { &hf_032_V1_1_500_IFI_NBR, { "NBR", "asterix.032_V1_1_500_IFI_NBR", FT_UINT32, BASE_DEC, NULL, 0x07ffffff, NULL, HFILL } },
+        { &hf_032_V1_1_500_RVP, { "RVP, RVSM & Flight Priority", "asterix.032_V1_1_500_RVP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_RVP_RVSM, { "RVSM", "asterix.032_V1_1_500_RVP_RVSM", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_RVP_RVSM), 0x06, NULL, HFILL } },
+        { &hf_032_V1_1_500_RVP_HPR, { "HPR", "asterix.032_V1_1_500_RVP_HPR", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_RVP_HPR), 0x01, NULL, HFILL } },
+        { &hf_032_V1_1_500_RDS, { "RDS, Runway Designation", "asterix.032_V1_1_500_RDS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_RDS_NU1, { "NU1, First Number", "asterix.032_V1_1_500_RDS_NU1", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_RDS_NU2, { "NU2, Second Number", "asterix.032_V1_1_500_RDS_NU2", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_RDS_LTR, { "LTR, Letter", "asterix.032_V1_1_500_RDS_LTR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_TOD, { "TOD, Time of Departure / Arrival", "asterix.032_V1_1_500_TOD", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_TOD_TYP, { "TYP", "asterix.032_V1_1_500_TOD_TYP", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_TOD_TYP), 0xf8, NULL, HFILL } },
+        { &hf_032_V1_1_500_TOD_DAY, { "DAY", "asterix.032_V1_1_500_TOD_DAY", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_TOD_DAY), 0x06, NULL, HFILL } },
+        { &hf_032_V1_1_500_TOD_HOR, { "HOR", "asterix.032_V1_1_500_TOD_HOR", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
+        { &hf_032_V1_1_500_TOD_MIN, { "MIN", "asterix.032_V1_1_500_TOD_MIN", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL } },
+        { &hf_032_V1_1_500_TOD_AVS, { "AVS", "asterix.032_V1_1_500_TOD_AVS", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_TOD_AVS), 0x80, NULL, HFILL } },
+        { &hf_032_V1_1_500_TOD_SEC, { "SEC", "asterix.032_V1_1_500_TOD_SEC", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL } },
+        { &hf_032_V1_1_500_AST, { "AST, Aircraft Stand", "asterix.032_V1_1_500_AST", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_AST_VALUE, { "Aircraft Stand", "asterix.032_V1_1_500_AST_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_STS, { "STS, Stand Status", "asterix.032_V1_1_500_STS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_STS_EMP, { "EMP", "asterix.032_V1_1_500_STS_EMP", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_STS_EMP), 0xc0, NULL, HFILL } },
+        { &hf_032_V1_1_500_STS_AVL, { "AVL", "asterix.032_V1_1_500_STS_AVL", FT_UINT8, BASE_DEC, VALS (valstr_032_V1_1_500_STS_AVL), 0x30, NULL, HFILL } },
+        { &hf_032_V1_1_500_SID, { "SID, Standard Instrument Departure", "asterix.032_V1_1_500_SID", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_SID_VALUE, { "Standard Instrument Departure", "asterix.032_V1_1_500_SID_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_STAR, { "STAR, Standard Instrument Arrival", "asterix.032_V1_1_500_STAR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_500_STAR_VALUE, { "Standard Instrument Arrival", "asterix.032_V1_1_500_STAR_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_V1_1_RE, { "RE, Reserved Expansion Field", "asterix.032_V1_1_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_010, { "010, Server Identification Tag", "asterix.032_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_010_SAC, { "SAC, System Area Code", "asterix.032_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_010_SIC, { "SIC, System Identification Code", "asterix.032_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_015, { "015, User Number", "asterix.032_015", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_015_VALUE, { "User Number", "asterix.032_015_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_018, { "018, Data Source Identification Tag", "asterix.032_018", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_018_SAC, { "SAC, System Area Code", "asterix.032_018_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_018_SIC, { "SIC, System Identification Code", "asterix.032_018_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_020, { "020, Time of ASTERIX Report Generation", "asterix.032_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_020_VALUE, { "Time of ASTERIX Report Generation, [s]", "asterix.032_020_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_035, { "035, Type of Message", "asterix.032_035", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_035_FAMILY, { "FAMILY", "asterix.032_035_FAMILY", FT_UINT8, BASE_DEC, VALS (valstr_032_035_FAMILY), 0xf0, NULL, HFILL } },
+        { &hf_032_035_NATURE, { "NATURE", "asterix.032_035_NATURE", FT_UINT8, BASE_DEC, VALS (valstr_032_035_NATURE), 0x0f, NULL, HFILL } },
+        { &hf_032_040, { "040, Track Number", "asterix.032_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_040_VALUE, { "Track Number", "asterix.032_040_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_050, { "050, Composed Track Number", "asterix.032_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_050_SUI, { "SUI, System Unit Identification", "asterix.032_050_SUI", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_050_STN, { "STN, System Track Number", "asterix.032_050_STN", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
+        { &hf_032_060, { "060, Track Mode 3/A", "asterix.032_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_060_MODE3A, { "MODE3A, (Mode 3/A Code) 4 Digits, Octal Representation", "asterix.032_060_MODE3A", FT_UINT16, BASE_OCT, NULL, 0x0fff, NULL, HFILL } },
+        { &hf_032_400, { "400, Callsign", "asterix.032_400", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_400_VALUE, { "Callsign", "asterix.032_400_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_410, { "410, Plan Number", "asterix.032_410", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_410_VALUE, { "Plan Number", "asterix.032_410_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_420, { "420, Flight Category", "asterix.032_420", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_420_GATOAT, { "GATOAT", "asterix.032_420_GATOAT", FT_UINT8, BASE_DEC, VALS (valstr_032_420_GATOAT), 0xc0, NULL, HFILL } },
+        { &hf_032_420_FR1FR2, { "FR1FR2", "asterix.032_420_FR1FR2", FT_UINT8, BASE_DEC, VALS (valstr_032_420_FR1FR2), 0x30, NULL, HFILL } },
+        { &hf_032_420_SP3, { "SP3", "asterix.032_420_SP3", FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL } },
+        { &hf_032_420_SP2, { "SP2", "asterix.032_420_SP2", FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL } },
+        { &hf_032_420_SP1, { "SP1", "asterix.032_420_SP1", FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL } },
+        { &hf_032_430, { "430, Type of Aircraft", "asterix.032_430", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_430_VALUE, { "Type of Aircraft", "asterix.032_430_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_435, { "435, Wake Turbulence Category", "asterix.032_435", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_435_VALUE, { "Wake Turbulence Category", "asterix.032_435_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_032_435_VALUE), 0x00, NULL, HFILL } },
+        { &hf_032_440, { "440, Departure Aerodrome", "asterix.032_440", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_440_VALUE, { "Departure Aerodrome", "asterix.032_440_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_450, { "450, Destination Aerodrome", "asterix.032_450", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_450_VALUE, { "Destination Aerodrome", "asterix.032_450_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_460, { "460, Allocated SSR Codes", "asterix.032_460", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_460_OCT1, { "OCT1, 1st Octal Digit", "asterix.032_460_OCT1", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
+        { &hf_032_460_OCT2, { "OCT2, 2nd Octal Digit", "asterix.032_460_OCT2", FT_UINT16, BASE_DEC, NULL, 0x01c0, NULL, HFILL } },
+        { &hf_032_460_OCT3, { "OCT3, 3rd Octal Digit", "asterix.032_460_OCT3", FT_UINT8, BASE_DEC, NULL, 0x38, NULL, HFILL } },
+        { &hf_032_460_OCT4, { "OCT4, 4th Octal Digit", "asterix.032_460_OCT4", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
+        { &hf_032_480, { "480, Current Cleared Flight Level", "asterix.032_480", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_480_VALUE, { "Current Cleared Flight Level, [FL]", "asterix.032_480_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_490, { "490, Current Control Position", "asterix.032_490", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_490_CEN, { "CEN, Centre", "asterix.032_490_CEN", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_490_POS, { "POS, Position", "asterix.032_490_POS", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500, { "500, Supplementary Flight Data", "asterix.032_500", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_IFI, { "IFI, IFPS FLIGHT ID", "asterix.032_500_IFI", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_IFI_TYP, { "TYP", "asterix.032_500_IFI_TYP", FT_UINT8, BASE_DEC, VALS (valstr_032_500_IFI_TYP), 0xc0, NULL, HFILL } },
+        { &hf_032_500_IFI_NBR, { "NBR", "asterix.032_500_IFI_NBR", FT_UINT32, BASE_DEC, NULL, 0x07ffffff, NULL, HFILL } },
+        { &hf_032_500_RVP, { "RVP, RVSM & Flight Priority", "asterix.032_500_RVP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_RVP_RVSM, { "RVSM", "asterix.032_500_RVP_RVSM", FT_UINT8, BASE_DEC, VALS (valstr_032_500_RVP_RVSM), 0x06, NULL, HFILL } },
+        { &hf_032_500_RVP_HPR, { "HPR", "asterix.032_500_RVP_HPR", FT_UINT8, BASE_DEC, VALS (valstr_032_500_RVP_HPR), 0x01, NULL, HFILL } },
+        { &hf_032_500_RDS, { "RDS, Runway Designation", "asterix.032_500_RDS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_RDS_NU1, { "NU1, First Number", "asterix.032_500_RDS_NU1", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_RDS_NU2, { "NU2, Second Number", "asterix.032_500_RDS_NU2", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_RDS_LTR, { "LTR, Letter", "asterix.032_500_RDS_LTR", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_TOD, { "TOD, Time of Departure / Arrival", "asterix.032_500_TOD", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_TOD_TYP, { "TYP", "asterix.032_500_TOD_TYP", FT_UINT8, BASE_DEC, VALS (valstr_032_500_TOD_TYP), 0xf8, NULL, HFILL } },
+        { &hf_032_500_TOD_DAY, { "DAY", "asterix.032_500_TOD_DAY", FT_UINT8, BASE_DEC, VALS (valstr_032_500_TOD_DAY), 0x06, NULL, HFILL } },
+        { &hf_032_500_TOD_HOR, { "HOR", "asterix.032_500_TOD_HOR", FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
+        { &hf_032_500_TOD_MIN, { "MIN", "asterix.032_500_TOD_MIN", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL } },
+        { &hf_032_500_TOD_AVS, { "AVS", "asterix.032_500_TOD_AVS", FT_UINT8, BASE_DEC, VALS (valstr_032_500_TOD_AVS), 0x80, NULL, HFILL } },
+        { &hf_032_500_TOD_SEC, { "SEC", "asterix.032_500_TOD_SEC", FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL } },
+        { &hf_032_500_AST, { "AST, Aircraft Stand", "asterix.032_500_AST", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_AST_VALUE, { "Aircraft Stand", "asterix.032_500_AST_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_STS, { "STS, Stand Status", "asterix.032_500_STS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_STS_EMP, { "EMP", "asterix.032_500_STS_EMP", FT_UINT8, BASE_DEC, VALS (valstr_032_500_STS_EMP), 0xc0, NULL, HFILL } },
+        { &hf_032_500_STS_AVL, { "AVL", "asterix.032_500_STS_AVL", FT_UINT8, BASE_DEC, VALS (valstr_032_500_STS_AVL), 0x30, NULL, HFILL } },
+        { &hf_032_500_SID, { "SID, Standard Instrument Departure", "asterix.032_500_SID", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_SID_VALUE, { "Standard Instrument Departure", "asterix.032_500_SID_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_STAR, { "STAR, Standard Instrument Arrival", "asterix.032_500_STAR", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_500_STAR_VALUE, { "Standard Instrument Arrival", "asterix.032_500_STAR_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_RE, { "RE, Reserved Expansion Field", "asterix.032_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_034_V1_27_000, { "000, Message Type", "asterix.034_V1_27_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_034_V1_27_000_VALUE, { "Message Type", "asterix.034_V1_27_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_034_V1_27_000_VALUE), 0x00, NULL, HFILL } },
         { &hf_034_V1_27_010, { "010, Data Source Identifier", "asterix.034_V1_27_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -46960,6 +49666,8 @@ void proto_register_asterix (void)
     prefs_register_enum_preference (asterix_prefs_module, "i020_version", "I020 version", "Select the CAT020 version", &global_categories_version[20], I020_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i021_version", "I021 version", "Select the CAT021 version", &global_categories_version[21], I021_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i023_version", "I023 version", "Select the CAT023 version", &global_categories_version[23], I023_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i025_version", "I025 version", "Select the CAT025 version", &global_categories_version[25], I025_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i032_version", "I032 version", "Select the CAT032 version", &global_categories_version[32], I032_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i034_version", "I034 version", "Select the CAT034 version", &global_categories_version[34], I034_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i048_version", "I048 version", "Select the CAT048 version", &global_categories_version[48], I048_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i062_version", "I062 version", "Select the CAT062 version", &global_categories_version[62], I062_versions, FALSE);
