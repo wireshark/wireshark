@@ -3957,37 +3957,59 @@ void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tre
 
 static void
 dissect_nvmeof_fabric_connect_cmd_data(tvbuff_t *data_tvb, proto_tree *data_tree,
-                                     guint offset)
+                                     guint pkt_off, guint off, guint len)
 {
-    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_hostid, data_tvb,
-                        offset, 16, ENC_NA);
-    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_cntlid, data_tvb,
-                        offset + 16, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_rsvd0, data_tvb,
-                        offset + 18, 238, ENC_NA);
-    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_subnqn, data_tvb,
-                        offset + 256, 256, ENC_ASCII | ENC_NA);
-    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_hostnqn, data_tvb,
-                        offset + 512, 256, ENC_ASCII | ENC_NA);
-    proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_rsvd1, data_tvb,
-                        offset + 768, 256, ENC_NA);
+    if (!off) {
+        CHECK_STOP_PARSE(0, 16);
+        proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_hostid, data_tvb,
+                            pkt_off, 16, ENC_NA);
+    }
+    if (off <= 16) {
+        CHECK_STOP_PARSE(16, 2);
+        proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_cntlid, data_tvb,
+                            pkt_off + 16 - off, 2, ENC_LITTLE_ENDIAN);
+    }
+    if (off <= 18) {
+        CHECK_STOP_PARSE(18, 238);
+        proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_rsvd0, data_tvb,
+                            pkt_off + 18 - off, 238, ENC_NA);
+    }
+    if (off <= 256) {
+        CHECK_STOP_PARSE(256, 256);
+        proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_subnqn, data_tvb,
+                            pkt_off + 256 - off, 256, ENC_ASCII | ENC_NA);
+    }
+    if (off <= 512) {
+        CHECK_STOP_PARSE(512, 256);
+        proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_hostnqn, data_tvb,
+                            pkt_off + 512 - off, 256, ENC_ASCII | ENC_NA);
+    }
+    if (off <= 768) {
+        CHECK_STOP_PARSE(768, 256);
+        proto_tree_add_item(data_tree, hf_nvmeof_cmd_connect_data_rsvd1, data_tvb,
+                            pkt_off + 768 - off, 256, ENC_NA);
+    }
 }
 
 void
 dissect_nvmeof_cmd_data(tvbuff_t *data_tvb, packet_info *pinfo, proto_tree *data_tree,
-                                 guint offset, struct nvme_cmd_ctx *cmd, guint len)
+                                 guint pkt_off, struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd, guint len)
 {
-    if (!offset)
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "| ", "NVMeoF Data for %s", val_to_str_const(cmd->cmd_ctx.fabric_cmd.fctype, fctype_tbl, "Unknown Command"));
+    guint32 tr_off = (PINFO_FD_VISITED(pinfo)) ? nvme_lookup_data_tr_off(q_ctx, pinfo->num) : cmd->tr_bytes;
+
+    if (!pkt_off) {
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, "| ", "NVMeoF Data for %s, offset %u",
+            val_to_str_const(cmd->cmd_ctx.fabric_cmd.fctype, fctype_tbl, "Unknown Command"), tr_off);
+    }
     if (cmd->cmd_ctx.fabric_cmd.fctype == NVME_FCTYPE_CONNECT && len >= 768)
-        dissect_nvmeof_fabric_connect_cmd_data(data_tvb, data_tree, offset);
+        dissect_nvmeof_fabric_connect_cmd_data(data_tvb, data_tree, pkt_off, tr_off, len);
 }
 
 static void
 dissect_nvmeof_status_prop_get(proto_tree *cqe_tree, tvbuff_t *cqe_tvb, struct nvme_cmd_ctx *cmd, guint off)
 {
     dissect_nvmeof_fabric_prop_data(cqe_tree, cqe_tvb, off, cmd->cmd_ctx.fabric_cmd.prop_get.offset, 1);
-};
+}
 
 static void
 dissect_nvmeof_cqe_status_8B(proto_tree *cqe_tree, tvbuff_t *cqe_tvb,

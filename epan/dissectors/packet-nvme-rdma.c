@@ -420,7 +420,7 @@ static void dissect_rdma_read_transfer(tvbuff_t *data_tvb, packet_info *pinfo, p
                        struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *rdma_cmd, guint len)
 {
     if (rdma_cmd->n_cmd_ctx.fabric == TRUE)
-        dissect_nvmeof_cmd_data(data_tvb, pinfo, data_tree, 0, &rdma_cmd->n_cmd_ctx, len);
+        dissect_nvmeof_cmd_data(data_tvb, pinfo, data_tree, 0, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len);
     else
         dissect_nvme_data_response(data_tvb, pinfo, data_tree, &q_ctx->n_q_ctx, &rdma_cmd->n_cmd_ctx, len, FALSE);
 }

@@ -329,7 +329,7 @@ dissect_nvme_tcp_command(tvbuff_t *tvb,
 
             ti = proto_tree_add_item(nvme_tcp_tree, hf_nvme_fabrics_cmd_data, tvb, offset, incapsuled_data_size, ENC_NA);
             data_tree = proto_item_add_subtree(ti, ett_nvme_tcp);
-            dissect_nvmeof_cmd_data(tvb, pinfo, data_tree, offset + NVME_FABRIC_CMD_SIZE + data_offset, &cmd_ctx->n_cmd_ctx, incapsuled_data_size);
+            dissect_nvmeof_cmd_data(tvb, pinfo, data_tree, offset + NVME_FABRIC_CMD_SIZE + data_offset, &queue->n_q_ctx, &cmd_ctx->n_cmd_ctx, incapsuled_data_size);
         }
         return;
     }
