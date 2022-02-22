@@ -324,7 +324,6 @@ static unsigned char _use_low_rolloff_value = 0;
 #define DVB_S2_MODEADAPT_SYNCBYTE               0xB8
 
 /* second byte */
-#define DVB_S2_MODEADAPT_OFFS_ACMBYTE         1
 #define DVB_S2_MODEADAPT_MODCODS_MASK   0x1F
 #define DVB_S2_MODEADAPT_MODCODS_S2X_MASK   0xDF
 static const value_string modeadapt_modcods[] = {
@@ -2039,23 +2038,22 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L2 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L3 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L4) {
-            mc = tvb_get_guint8(tvb, 1);
-            //mc = tvb_get_letohs(tvb, 0);
+            mc = tvb_get_guint8(tvb, cur_off);
             if (mc & 0x80) {
                 modcod = 0x80;
                 modcod |= ((mc & 0x1F) << 2);
                 modcod |= ((mc & 0x40) >> 5);
                 tf = proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_acm, tvb,
-                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, ENC_BIG_ENDIAN);
+                        cur_off, 1, ENC_BIG_ENDIAN);
 
                 dvb_s2_modeadapt_acm_tree = proto_item_add_subtree(tf, ett_dvb_s2_modeadapt_acm);
 
                 proto_tree_add_item(dvb_s2_modeadapt_acm_tree, hf_dvb_s2_modeadapt_acm_pilot, tvb,
-                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, ENC_BIG_ENDIAN);
+                        cur_off, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_uint_format_value(dvb_s2_modeadapt_acm_tree, hf_dvb_s2_modeadapt_acm_modcod_s2x, tvb,
-                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, mc, "DVBS2X %s(%d)", modeadapt_modcods[modcod].strptr, modcod);
+                        cur_off, 1, mc, "DVBS2X %s(%d)", modeadapt_modcods[modcod].strptr, modcod);
             } else {
-                proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, DVB_S2_MODEADAPT_OFFS_ACMBYTE, hf_dvb_s2_modeadapt_acm,
+                proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, cur_off, hf_dvb_s2_modeadapt_acm,
                         ett_dvb_s2_modeadapt_acm, modeadapt_acm_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
             }
             cur_off++;
