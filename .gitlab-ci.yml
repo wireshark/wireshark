@@ -425,11 +425,11 @@ macOS Arm Package:
     - mkdir build
     - cd build
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
-    - arch -arch arm64 cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_SYSROOT=macosx11.3 -DCMAKE_OSX_ARCHITECTURES=arm64 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
+    - cmake -DENABLE_CCACHE=ON -DCMAKE_APPLE_SILICON_PROCESSOR=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_SYSROOT=macosx11.3 -DCMAKE_OSX_ARCHITECTURES=arm64 -DTEST_EXTRA_ARGS=--enable-release -G Ninja ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
-    - arch -arch arm64 ninja
+    - ninja
     - package-prep
-    - arch -arch arm64 ninja dmg_package
+    - ninja dmg_package
     - cd run
     - notarize-build
     - stat -f "%N %z bytes" Wireshark*Arm*.dmg
@@ -439,8 +439,8 @@ macOS Arm Package:
         aws s3 cp Wireshark*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
     - cd ..
-    - arch -arch arm64 ninja test-programs
-    - arch -arch arm64 ctest --parallel 4 --output-on-failure
+    - ninja test-programs
+    - ctest --parallel 4 --output-on-failure
   needs: []
 
 macOS Intel Package:
