@@ -2311,9 +2311,9 @@ static void dissect_nvme_get_logpage_ify_rcrd_resp(tvbuff_t *cmd_tvb, proto_tree
     }
 }
 
-static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
-    guint64 off = cmd_ctx->cmd_ctx.get_logpage.off;
+    guint64 off = cmd_ctx->cmd_ctx.get_logpage.off + tr_off;
     proto_tree *grp;
     guint poff;
     guint roff;
@@ -2330,8 +2330,12 @@ static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb,
     if (off <= 8 && (16 - (guint)off) <= len)
         proto_tree_add_item_ret_uint64(grp, hf_nvme_get_logpage_ify_numrec, cmd_tvb, (guint)(8-off), 8, ENC_LITTLE_ENDIAN, &recnum);
 
-    if (off <= 16 && (18 - (guint)off) <= len)
+    if (off <= 16 && (18 - (guint)off) <= len) {
         proto_tree_add_item(grp, hf_nvme_get_logpage_ify_recfmt, cmd_tvb, (guint)(16-off), 2, ENC_LITTLE_ENDIAN);
+        cmd_ctx->cmd_ctx.get_logpage.records = (recnum & 0xffffffff);
+    } else if (tr_off) {
+        recnum = cmd_ctx->cmd_ctx.get_logpage.records;
+    }
 
     if (off <= 18 && (1024 - (guint)off) <= len)
         proto_tree_add_item(grp, hf_nvme_get_logpage_ify_rsvd, cmd_tvb, (guint)(18-off), 1006, ENC_NA);
@@ -2350,23 +2354,22 @@ static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb,
         max_bytes = 1024 - (roff);
         rcrd = (off - roff) / 1024 - 1;
     }
+
     max_bytes = (max_bytes <= len) ? max_bytes : len;
     dissect_nvme_get_logpage_ify_rcrd_resp(cmd_tvb, grp, rcrd, roff, poff, len);
     poff += max_bytes;
     len -= max_bytes;
     rcrd++;
+
     if (!recnum)
         recnum = (len  + 1023) / 1024;
-    else
-        recnum--;
 
-    while (len && recnum) {
+    while (len && rcrd < recnum) {
         max_bytes = (len >= 1024) ? 1024 : len;
         dissect_nvme_get_logpage_ify_rcrd_resp(cmd_tvb, grp, rcrd, 0, poff, len);
         poff += max_bytes;
         len -= max_bytes;
         rcrd++;
-        recnum--;
     }
 }
 
@@ -2633,13 +2636,14 @@ static void dissect_nvme_get_logpage_cmd_sup_and_eff_grp(proto_tree *grp, tvbuff
 }
 
 
-static void dissect_nvme_get_logpage_cmd_sup_and_eff_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_cmd_sup_and_eff_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
     proto_tree *grp;
     guint nrec = 0;
     guint fidx;
 
+    off += tr_off;
     if (cmd_ctx->cmd_ctx.get_logpage.off >= 4096)
         return; /* max allowed offset is < 4096, so we do not loose bits by casting to guint type */
 
@@ -2713,12 +2717,13 @@ static void dissect_nvme_get_logpage_selftest_result(proto_tree *grp, tvbuff_t *
     proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_vs, cmd_tvb, off+26, 2, ENC_LITTLE_ENDIAN);
 }
 
-static void dissect_nvme_get_logpage_selftest_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_selftest_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
     proto_tree *grp;
     guint tst_idx;
 
+    off += tr_off;
     if (cmd_ctx->cmd_ctx.get_logpage.off > 536)
         return; /* max offset is <= 536, so we do not loose bits by casting to guint type */
 
@@ -2747,7 +2752,7 @@ static void dissect_nvme_get_logpage_selftest_resp(proto_item *ti, tvbuff_t *cmd
     }
 }
 
-static void dissect_nvme_get_logpage_telemetry_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_telemetry_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off  & 0xffffffff; /* need guint type to silence clang-11 errors */
     proto_tree *grp;
@@ -2755,8 +2760,9 @@ static void dissect_nvme_get_logpage_telemetry_resp(proto_item *ti, tvbuff_t *cm
     guint32 poff;
     const char *pfx = (cmd_ctx->cmd_ctx.get_logpage.lid == 0x7) ? "Host-Initiated" : "Controller-Initiated";
 
-    poff = 512 - (cmd_ctx->cmd_ctx.get_logpage.off & 0x1ff);
-    next_block = (cmd_ctx->cmd_ctx.get_logpage.off + poff) / 512;
+    off += tr_off;
+    poff = 512 - (off & 0x1ff);
+    next_block = (off + poff) / 512;
 
     grp =  proto_item_add_subtree(ti, ett_data);
 
@@ -2902,12 +2908,13 @@ static void dissect_nvme_get_logpage_pred_lat_resp(proto_item *ti, tvbuff_t *cmd
     proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_rsvd3,  cmd_tvb, poff, len - poff, ENC_NA);
 }
 
-static void dissect_nvme_get_logpage_pred_lat_aggreg_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_pred_lat_aggreg_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
     guint64 off = cmd_ctx->cmd_ctx.get_logpage.off;
     proto_tree *grp;
     guint poff;
 
+    off += tr_off;
     if (off < 8) {
         poff = (cmd_ctx->cmd_ctx.get_logpage.off & 0x7);
         poff = 8 - poff;
@@ -2937,56 +2944,99 @@ static const value_string ana_state_tbl[] = {
     { 0, NULL}
 };
 
-static guint dissect_nvme_get_logpage_ana_resp_grp(proto_tree *grp, tvbuff_t *cmd_tvb, guint len, guint32 poff)
+static guint dissect_nvme_get_logpage_ana_resp_grp(proto_tree *grp, tvbuff_t *cmd_tvb,  struct nvme_cmd_ctx *cmd_ctx, guint len, guint32 poff)
 {
     guint done = 0;
     guint bytes;
     proto_item *ti;
+    guint group_id;
     guint nns;
+    guint prev_off = cmd_ctx->cmd_ctx.get_logpage.tr_off;
 
-    if (len < 4)
+    if (len < 4) {
+        if (prev_off)
+            cmd_ctx->cmd_ctx.get_logpage.tr_off += len;
         return 0;
-
-    if (len < 8) {
-        bytes = len;
-    } else {
-        bytes = 32 + 4 * tvb_get_guint32(cmd_tvb, poff+4, ENC_LITTLE_ENDIAN);
-        if (bytes > len)
-            bytes = len;
     }
+
+    if (prev_off <= 4) {
+        nns = tvb_get_guint32(cmd_tvb, poff+4-prev_off, ENC_LITTLE_ENDIAN);
+        bytes = 32 + 4 * nns;
+        cmd_ctx->cmd_ctx.get_logpage.tr_sub_entries = nns;
+    } else if (prev_off ) {
+        nns = cmd_ctx->cmd_ctx.get_logpage.tr_sub_entries;
+        bytes = (prev_off > 32) ? 4 * nns : ((32-prev_off) + 4 * nns);
+    } else {
+        bytes = len;
+    }
+
+    if (bytes > len)
+            bytes = len;
+
     ti = proto_tree_add_bytes_format_value(grp, hf_nvme_get_logpage_ana_grp, cmd_tvb, poff, bytes, NULL,
             "ANA Group Descriptor");
     grp =  proto_item_add_subtree(ti, ett_data);
 
-    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_id,  cmd_tvb, poff, 4, ENC_LITTLE_ENDIAN);
-    done += 4;
+    if (prev_off) {
+        group_id = cmd_ctx->cmd_ctx.get_logpage.tr_rcrd_id;
+        proto_item_append_text(ti, " %u (continued)", group_id);
+    } else {
+        proto_tree_add_item_ret_uint(grp, hf_nvme_get_logpage_ana_grp_id,  cmd_tvb, poff, 4, ENC_LITTLE_ENDIAN, &group_id);
+        done += 4;
+        proto_item_append_text(ti, " %u", group_id);
+        cmd_ctx->cmd_ctx.get_logpage.tr_rcrd_id = group_id;
+    }
 
-    if ((len - done) < 4)
-        return done;
-    proto_tree_add_item_ret_uint(grp, hf_nvme_get_logpage_ana_grp_nns,  cmd_tvb, poff+4, 4, ENC_LITTLE_ENDIAN, &nns);
-    done += 4;
+    if (prev_off <= 4) {
+        if ((len - done) < 4) {
+            cmd_ctx->cmd_ctx.get_logpage.tr_off += done;
+            return done;
+        }
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_nns,  cmd_tvb, poff+4-prev_off, 4, ENC_LITTLE_ENDIAN);
+        done += 4;
+    }
+    if (prev_off <= 8) {
+        if ((len - done) < 8) {
+            cmd_ctx->cmd_ctx.get_logpage.tr_off += done;
+            return done;
+        }
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_chcnt,  cmd_tvb, poff+8-prev_off, 8, ENC_LITTLE_ENDIAN);
+        done += 8;
+    }
 
-    if ((len - done) < 8)
-        return done;
-    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_chcnt,  cmd_tvb, poff+8, 8, ENC_LITTLE_ENDIAN);
-    done += 8;
+    if (prev_off <= 16) {
+        if ((len - done) < 1) {
+            cmd_ctx->cmd_ctx.get_logpage.tr_off += done;
+            return done;
+        }
+        add_group_mask_entry(cmd_tvb, grp, poff+16-prev_off, 1, ASPEC(hf_nvme_get_logpage_ana_grp_anas));
+        done += 1;
+    }
 
-    if ((len - done) < 1)
-        return done;
-    add_group_mask_entry(cmd_tvb, grp, poff+16, 1, ASPEC(hf_nvme_get_logpage_ana_grp_anas));
-    done += 1;
+    if (prev_off <= 17) {
+        if ((len - done) < 15) {
+            cmd_ctx->cmd_ctx.get_logpage.tr_off += done;
+            return done;
+        }
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_rsvd,  cmd_tvb, poff+17-prev_off, 15, ENC_NA);
+        done += 15;
+    }
 
-    if ((len - done) < 15)
-        return done;
-    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_rsvd,  cmd_tvb, poff+17, 15, ENC_NA);
-    done += 15;
-
-    poff += 32;
+    poff += done;
     while ((len - done) >= 4 && nns) {
         proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_nsid,  cmd_tvb, poff, 4, ENC_LITTLE_ENDIAN);
         poff += 4;
         done += 4;
         nns--;
+    }
+    if (nns) {
+        cmd_ctx->cmd_ctx.get_logpage.tr_off += done;
+        cmd_ctx->cmd_ctx.get_logpage.tr_sub_entries = nns;
+    } else {
+        cmd_ctx->cmd_ctx.get_logpage.tr_off = 0;
+        cmd_ctx->cmd_ctx.get_logpage.tr_sub_entries = 0;
+        cmd_ctx->cmd_ctx.get_logpage.tr_rcrd_id = 0;
+        cmd_ctx->cmd_ctx.get_logpage.records--;
     }
     return done;
 }
@@ -3003,7 +3053,7 @@ static guint dissect_nvme_get_logpage_ana_resp_header(proto_tree *grp, tvbuff_t 
     return groups;
 }
 
-static void dissect_nvme_get_logpage_ana_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_ana_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
     proto_tree *grp;
@@ -3011,13 +3061,16 @@ static void dissect_nvme_get_logpage_ana_resp(proto_item *ti, tvbuff_t *cmd_tvb,
     guint groups = 1;
 
     grp =  proto_item_add_subtree(ti, ett_data);
-    if (cmd_ctx->cmd_ctx.get_logpage.off < 16) {
+    if (cmd_ctx->cmd_ctx.get_logpage.off < 16 && !tr_off) {
         groups = dissect_nvme_get_logpage_ana_resp_header(grp, cmd_tvb, len, off);
+        cmd_ctx->cmd_ctx.get_logpage.records = groups;
         poff = 16 - off;
+    } else if (tr_off) {
+        groups = cmd_ctx->cmd_ctx.get_logpage.records;
     }
     len -= poff;
     while (len >= 4 && groups) {
-        guint done = dissect_nvme_get_logpage_ana_resp_grp(grp, cmd_tvb, len, poff);
+        guint done = dissect_nvme_get_logpage_ana_resp_grp(grp, cmd_tvb, cmd_ctx, len, poff);
         poff += done;
         len -= done;
         groups--;
@@ -3094,13 +3147,14 @@ static guint dissect_nvme_get_logpage_lba_status_lba_range(proto_tree *grp, tvbu
     return done;
 }
 
-static void dissect_nvme_get_logpage_lba_status_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_lba_status_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
     proto_tree *grp = NULL;
     guint poff = 0;
 
-    if (cmd_ctx->cmd_ctx.get_logpage.off < 16) {
+    off += tr_off;
+    if (off < 16) {
         grp =  proto_item_add_subtree(ti, ett_data);
         dissect_nvme_get_logpage_lba_status_resp_header(grp, cmd_tvb, len, off);
         poff = 16 - off;
@@ -3111,7 +3165,7 @@ static void dissect_nvme_get_logpage_lba_status_resp(proto_item *ti, tvbuff_t *c
     if (len < (poff + 8))
         return;
 
-    if (cmd_ctx->cmd_ctx.get_logpage.off >= 16)
+    if (off >= 16)
         grp =  proto_item_add_subtree(ti, ett_data);
 
     len -= poff;
@@ -3125,22 +3179,24 @@ static void dissect_nvme_get_logpage_lba_status_resp(proto_item *ti, tvbuff_t *c
     }
 }
 
-static void dissect_nvme_get_logpage_egroup_aggreg_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_egroup_aggreg_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint tr_off, guint len)
 {
     proto_tree *grp;
     guint poff = 0;
 
-    if (cmd_ctx->cmd_ctx.get_logpage.off < 8) {
-        poff = 8 - (guint)cmd_ctx->cmd_ctx.get_logpage.off;
-        if (poff > len || (cmd_ctx->cmd_ctx.get_logpage.off && poff == len))
+    if (!tr_off) {
+        if (cmd_ctx->cmd_ctx.get_logpage.off < 8) {
+            poff = 8 - (guint)cmd_ctx->cmd_ctx.get_logpage.off;
+            if (poff > len || (cmd_ctx->cmd_ctx.get_logpage.off && poff == len))
+                return;
+        } else if (len < 2) {
             return;
-    } else if (len < 2) {
-        return;
+        }
     }
 
     len -= poff;
     grp =  proto_item_add_subtree(ti, ett_data);
-    if (!cmd_ctx->cmd_ctx.get_logpage.off)
+    if (!(cmd_ctx->cmd_ctx.get_logpage.off + tr_off))
         proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_aggreg_ne, cmd_tvb, 0, 8, ENC_LITTLE_ENDIAN);
     while (len >= 2) {
         proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_aggreg_eg, cmd_tvb, poff, 2, ENC_LITTLE_ENDIAN);
@@ -3243,43 +3299,51 @@ static void dissect_nvme_get_logpage_sanitize_resp(proto_item *ti, tvbuff_t *cmd
     proto_tree_add_item(grp, hf_nvme_get_logpage_sanitize_rsvd,  cmd_tvb, poff, len, ENC_NA);
 }
 
-static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint off, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
                             "NVMe Get Log Page (%s)", get_logpage_name(cmd_ctx->cmd_ctx.get_logpage.lid));
     switch(cmd_ctx->cmd_ctx.get_logpage.lid) {
         case 0x70:
-            dissect_nvme_get_logpage_ify_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_ify_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0x1:
+            /* fits smallest mtu */
             dissect_nvme_get_logpage_err_inf_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x2:
+            /* fits smallest mtu */
             dissect_nvme_get_logpage_smart_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x3:
+            /* fits smallest mtu */
             dissect_nvme_get_logpage_fw_slot_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x4:
+            /* decodes array of integers, does need to know packet offset */
             dissect_nvme_get_logpage_changed_nslist_resp(ti, cmd_tvb, len); break;
         case 0x5:
-            dissect_nvme_get_logpage_cmd_sup_and_eff_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_cmd_sup_and_eff_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0x6:
-            dissect_nvme_get_logpage_selftest_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_selftest_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0x7:
         case 0x8:
-            dissect_nvme_get_logpage_telemetry_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_telemetry_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0x9:
+            /* fits smallest mtu */
             dissect_nvme_get_logpage_egroup_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0xA:
+            /* fits smallest mtu */
             dissect_nvme_get_logpage_pred_lat_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0xB:
-            dissect_nvme_get_logpage_pred_lat_aggreg_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_pred_lat_aggreg_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0xC:
-            dissect_nvme_get_logpage_ana_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_ana_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0xE:
-            dissect_nvme_get_logpage_lba_status_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_lba_status_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0xF:
-            dissect_nvme_get_logpage_egroup_aggreg_resp(ti, cmd_tvb, cmd_ctx, len); break;
+            dissect_nvme_get_logpage_egroup_aggreg_resp(ti, cmd_tvb, cmd_ctx, off, len); break;
         case 0x80:
+            /* fits smallest mtu */
             dissect_nvme_get_logpage_reserv_notif_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x81:
+            /* fits smallest mtu */
             dissect_nvme_get_logpage_sanitize_resp(ti, cmd_tvb, cmd_ctx, len); break;
         default:
             return;
@@ -3655,8 +3719,7 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             dissect_nvme_identify_resp(nvme_tvb, cmd_tree, cmd_ctx, off, len);
             break;
         case NVME_AQ_OPC_GET_LOG_PAGE:
-            if (!off)
-                dissect_nvme_get_logpage_resp(nvme_tvb, cmd_tree, cmd_ctx, len);
+                dissect_nvme_get_logpage_resp(nvme_tvb, cmd_tree, cmd_ctx, off, len);
             break;
 
         case NVME_AQ_OPC_SET_FEATURES:

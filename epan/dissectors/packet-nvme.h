@@ -46,6 +46,10 @@ struct nvme_cmd_ctx {
             guint16 cns;
         } cmd_identify;
         struct {
+            guint records;
+            guint tr_rcrd_id;
+            guint tr_off;
+            guint tr_sub_entries;
             guint16 lsi;
             guint8 lid;
             guint8 lsp;
