@@ -130,6 +130,7 @@ static const enum_val_t dvb_s2_modeadapt_enum[] = {
 static gboolean dvb_s2_full_dissection = FALSE;
 static gboolean dvb_s2_df_dissection = FALSE;
 static gint dvb_s2_default_modeadapt = DVB_S2_MODEADAPT_TYPE_L3;
+static gboolean dvb_s2_try_all_modeadapt = TRUE;
 
 /* Initialize the protocol and registered fields */
 static int proto_dvb_s2_modeadapt = -1;
@@ -1986,26 +1987,29 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         NULL
     };
 
-    matched_headers = detect_dvb_s2_modeadapt(tvb);
-
-    if (matched_headers & (1 << dvb_s2_default_modeadapt)) {
-        /* If the default value from preferences matches, use it first */
-        modeadapt_type = dvb_s2_default_modeadapt;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L3)) {
-        /* In my experience and in product data sheets, L.3 format is the most
-         * common for outputting over UDP or RTP, so give it highest priority
-         * (or second highest if another is set to default) by trying it last.
-         */
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L4)) {
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L2)) {
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L1)) {
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L1;
+    if (dvb_s2_try_all_modeadapt) {
+        matched_headers = detect_dvb_s2_modeadapt(tvb);
+        if (matched_headers & (1 << dvb_s2_default_modeadapt)) {
+            /* If the default value from preferences matches, use it first */
+            modeadapt_type = dvb_s2_default_modeadapt;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L3)) {
+            /* In my experience and in product data sheets, L.3 format is the
+             * most common for outputting over UDP or RTP, so try it next.
+             */
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L4)) {
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L2)) {
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L1)) {
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L1;
+        } else {
+            /* If nothing matches, use the default value from preferences.
+             */
+            modeadapt_type = dvb_s2_default_modeadapt;
+        }
     } else {
-        /* If nothing matches, use the default value from preferences.
-         */
+        /* Assume it's the preferred type */
         modeadapt_type = dvb_s2_default_modeadapt;
     }
     modeadapt_len = dvb_s2_modeadapt_sizes[modeadapt_type];
@@ -2077,10 +2081,14 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static gboolean dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int matched_headers = detect_dvb_s2_modeadapt(tvb);
-    if (matched_headers == 0) {
-        /* This does not look like a DVB-S2-BB frame at all. We are a
-           heuristic dissector, so we should just punt and let another
-           dissector have a try at this one. */
+    if (dvb_s2_try_all_modeadapt) {
+        if (matched_headers == 0) {
+            /* This does not look like a DVB-S2-BB frame at all. We are a
+               heuristic dissector, so we should just punt and let another
+               dissector have a try at this one. */
+            return FALSE;
+        }
+    } else if (! (matched_headers & (1 << dvb_s2_default_modeadapt))) {
         return FALSE;
     }
 
@@ -2526,8 +2534,15 @@ void proto_register_dvb_s2_modeadapt(void)
 
     prefs_register_enum_preference(dvb_s2_modeadapt_module, "default_modeadapt",
         "Preferred Mode Adaptation Interface",
-        "The preferred Mode Adaptation Interface in the case of ambiguity",
+        "The preferred Mode Adaptation Interface",
         &dvb_s2_default_modeadapt, dvb_s2_modeadapt_enum, FALSE);
+
+    prefs_register_bool_preference(dvb_s2_modeadapt_module, "try_all_modeadapt",
+        "Try all Mode Adaptation Interface Types",
+        "Try all supported Mode Adaptation Interface Types, using the preferred"
+        " value in the case of ambiguity; if unset, only look for Base Band"
+        " Frames with the preferred type",
+        &dvb_s2_try_all_modeadapt);
 
     prefs_register_range_preference(dvb_s2_modeadapt_module, "dynamic.payload.type",
                             "DVB-S2 RTP dynamic payload types",
