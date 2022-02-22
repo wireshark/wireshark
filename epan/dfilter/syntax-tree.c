@@ -15,6 +15,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>
 #include "sttype-test.h"
+#include "dfilter-int.h"
 
 /* Keep track of sttype_t's via their sttype_id_t number */
 static sttype_t* type_list[STTYPE_NUM_TYPES];
@@ -172,7 +173,8 @@ stnode_new_string(const char *str, char *token)
 stnode_t *
 stnode_new_unparsed(const char *str, char *token)
 {
-	return stnode_new(STTYPE_UNPARSED, g_strdup(str), token);
+	char *value = dfilter_literal_normalized(str);
+	return stnode_new(STTYPE_UNPARSED, value, token);
 }
 
 stnode_t *

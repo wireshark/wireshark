@@ -98,6 +98,8 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 
 %}
 
+WORD_CHAR			[][:alnum:]_:/+-]
+
 %x RANGE
 %x DQUOTE
 %x SQUOTE
@@ -315,29 +317,24 @@ static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *val
 
 
 	/* None of the patterns below can match ".." anywhere in the token string. */
- 
-[-+[:alnum:]_:./]+ {
-	char *s, *value;
 
-	/* Hack (but lesser) to make sure that ".." is interpreted as a token on its own. */
-	if ((s = strstr(yytext, "..")) != NULL) {
-		/* If it starts with ".." it is its own token. */
-		if (yytext[0] == '.' && yytext[1] == '.') {
-			yyless(2);
-			df_lval->value = g_strdup("..");
-			return TOKEN_DOTDOT;
-		}
+:{WORD_CHAR}+(\.{WORD_CHAR}+)*		{
+	/* Literal. */
+	return set_lval_str(TOKEN_LITERAL, yytext);
+}
 
-		/* Match only the prefix before "..". */
-		*s = '\0';
-		value = g_strdup(yytext);
-		*s = '.'; /* Restore */
-		yyless(strlen(value));
-		df_lval->value = value;
-		return TOKEN_UNPARSED;
-	}
+"<"[^>=]+">"			{
+	/* Literal. */
+	return set_lval_str(TOKEN_LITERAL, yytext);
+}
 
-	/* It is a variable or a literal value (CIDR, bytes, number, ...). */
+\.{WORD_CHAR}+(\.{WORD_CHAR}+)*		{
+	/* Identifier */
+	return set_lval_str(TOKEN_IDENTIFIER, yytext);
+}
+
+{WORD_CHAR}+(\.{WORD_CHAR}+)*		{
+	/* Unparsed word token. */
 	return set_lval_str(TOKEN_UNPARSED, yytext);
 }
 

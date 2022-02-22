@@ -135,3 +135,15 @@ class case_equality(unittest.TestCase):
     def test_all_ne_1(self, checkDFilterCount):
         dfilter = "udp.port != 5060"
         checkDFilterCount(dfilter, 1)
+
+    def test_root_1(self, checkDFilterCount):
+        dfilter = "udp.srcport == .udp.dstport"
+        checkDFilterCount(dfilter, 2)
+
+    def test_literal_1(self, checkDFilterCount):
+        dfilter = "udp.port == :5070"
+        checkDFilterCount(dfilter, 3)
+
+    def test_literal_2(self, checkDFilterCount):
+        dfilter = "udp contains <ce:13>"
+        checkDFilterCount(dfilter, 1)

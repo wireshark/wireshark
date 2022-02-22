@@ -72,10 +72,12 @@ class case_membership(unittest.TestCase):
         dfilter = 'ip.addr in { 10.0.0.5 .. 10.0.0.9 , 10.0.0.1..10.0.0.1 }'
         checkDFilterCount(dfilter, 1)
 
-    def test_membership_9_range_weird_float(self, checkDFilterCount):
+    def test_membership_9_range_invalid_float(self, checkDFilterFail):
         # expression should be parsed as "0.1 .. .7"
+        # .7 is the identifier (protocol) named "7"
         dfilter = 'frame.time_delta in {0.1...7}'
-        checkDFilterCount(dfilter, 0)
+        error = 'not a valid protocol or protocol field'
+        checkDFilterFail(dfilter, error)
 
     def test_membership_10_bad_lhs_number(self, checkDFilterFail):
         dfilter = '123 in {ip}'
