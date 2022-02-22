@@ -2085,6 +2085,10 @@ proto_reg_handoff_protobuf(void)
     old_dissect_bytes_as_string = dissect_bytes_as_string;
     dissector_add_string("grpc_message_type", "application/grpc", protobuf_handle);
     dissector_add_string("grpc_message_type", "application/grpc+proto", protobuf_handle);
+    dissector_add_string("grpc_message_type", "application/grpc-web", protobuf_handle);
+    dissector_add_string("grpc_message_type", "application/grpc-web+proto", protobuf_handle);
+    dissector_add_string("grpc_message_type", "application/grpc-web-text", protobuf_handle);
+    dissector_add_string("grpc_message_type", "application/grpc-web-text+proto", protobuf_handle);
 }
 
 /*

@@ -1,0 +1,22 @@
+// This file is from https://github.com/grpc/grpc-dotnet/blob/v2.42.x/examples/Browser/Proto/greet.proto
+
+syntax = "proto3";
+
+package greet;
+
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply);
+  rpc SayHellos (HelloRequest) returns (stream HelloReply);
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}

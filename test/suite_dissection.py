@@ -216,6 +216,146 @@ class case_dissect_grpc(subprocesstest.SubprocessTestCase):
             ))
         self.assertEqual(self.countOutput('DATA'), 2)
 
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_grpc_web(subprocesstest.SubprocessTestCase):
+
+    def test_grpc_web_unary_call_over_http1(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web unary call over http1'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57226,http',
+                '-Y', '(tcp.stream eq 0) && (pbf.greet.HelloRequest.name == "88888888"'
+                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                        '|| pbf.greet.HelloReply.message == "Hello 99999999")',
+            ))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 2)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 1)
+
+    def test_grpc_web_unary_call_over_http2(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web unary call over http2'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57228,http2',
+                '-Y', '(tcp.stream eq 1) && (pbf.greet.HelloRequest.name == "88888888"'
+                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                        '|| pbf.greet.HelloReply.message == "Hello 99999999")',
+            ))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 2)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 1)
+
+    def test_grpc_web_reassembly_and_stream_over_http2(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web data reassembly and server stream over http2'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57228,http2',
+                '-Y', '(tcp.stream eq 2) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
+                       '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
+            ))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 2)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 4)
+
+    def test_grpc_web_text_unary_call_over_http1(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web-Text unary call over http1'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57226,http',
+                '-Y', '(tcp.stream eq 5) && (pbf.greet.HelloRequest.name == "88888888"'
+                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                        '|| pbf.greet.HelloReply.message == "Hello 99999999")',
+            ))
+        self.assertTrue(self.grepOutput('GRPC-Web-Text'))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 2)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 1)
+
+    def test_grpc_web_text_unary_call_over_http2(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web-Text unary call over http2'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57228,http2',
+                '-Y', '(tcp.stream eq 6) && (pbf.greet.HelloRequest.name == "88888888"'
+                        '|| pbf.greet.HelloRequest.name == "99999999"'
+                        '|| pbf.greet.HelloReply.message == "Hello 99999999")',
+            ))
+        self.assertTrue(self.grepOutput('GRPC-Web-Text'))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 2)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 1)
+
+    def test_grpc_web_text_reassembly_and_stream_over_http2(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web-Text data reassembly and server stream over http2'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57228,http2',
+                '-Y', '(tcp.stream eq 8) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
+                       '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
+            ))
+        self.assertTrue(self.grepOutput('GRPC-Web-Text'))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 2)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 4)
+
+    def test_grpc_web_text_reassembly_over_http1(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC-Web-Text data reassembly over http1'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_web.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-d', 'tcp.port==57226,http',
+                '-Y', '(tcp.stream eq 7) && (grpc.message_length == 80004 || grpc.message_length == 80010)',
+            ))
+        self.assertTrue(self.grepOutput('GRPC-Web-Text'))
+        self.assertEqual(self.countOutput('greet.HelloRequest'), 1)
+        self.assertEqual(self.countOutput('greet.HelloReply'), 1)
+
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_http(subprocesstest.SubprocessTestCase):

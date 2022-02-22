@@ -130,6 +130,7 @@ Secure File Transfer Protocol (sftp)
 Secure Host IP Configuration Protocol (SHICP)
 USB Attached SCSI (UASP)
 ZBOSS NCP
+gRPC Web (gRPC-Web)
 --
 
 === Updated Protocol Support
