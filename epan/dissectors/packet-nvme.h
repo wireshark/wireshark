@@ -22,18 +22,23 @@ struct nvme_q_ctx {
     wmem_tree_t *done_cmds;
     wmem_tree_t *data_requests;
     wmem_tree_t *data_responses;
+    wmem_tree_t *data_offsets;
     guint16     qid;
 };
+
+#define NVME_CMD_MAX_TRS (16)
 
 struct nvme_cmd_ctx {
     guint32 cmd_pkt_num;  /* pkt number of the cmd */
     guint32 cqe_pkt_num;  /* pkt number of the cqe */
 
     guint32 data_req_pkt_num;
-    guint32 data_resp_pkt_num;
+    guint32 data_tr_pkt_num[NVME_CMD_MAX_TRS];
+    guint32 first_tr_psn;
 
     nstime_t cmd_start_time;
     nstime_t cmd_end_time;
+    guint32 tr_bytes;   /* bytes transferred so far */
     gboolean fabric;     /* indicate whether cmd fabric type or not */
 
     union {
@@ -83,6 +88,10 @@ nvme_publish_to_data_req_link(proto_tree *tree, tvbuff_t *tvb,
 void
 nvme_publish_to_data_resp_link(proto_tree *tree, tvbuff_t *tvb,
                              int hf_index, struct nvme_cmd_ctx *cmd_ctx);
+void
+nvme_publish_link(proto_tree *tree, tvbuff_t *tvb, int hf_index,
+                             guint32 pkt_no, gboolean zero_ok);
+
 void nvme_update_cmd_end_info(packet_info *pinfo, struct nvme_cmd_ctx *cmd_ctx);
 
 void
@@ -117,11 +126,17 @@ struct nvme_cmd_ctx*
 nvme_lookup_data_request(struct nvme_q_ctx *q_ctx, struct keyed_data_req *req);
 
 void
-nvme_add_data_response(struct nvme_q_ctx *q_ctx,
+nvme_add_data_tr_pkt(struct nvme_q_ctx *q_ctx,
                        struct nvme_cmd_ctx *cmd_ctx, guint32 rkey, guint32 frame_num);
 struct nvme_cmd_ctx*
-nvme_lookup_data_response(struct nvme_q_ctx *q_ctx,
+nvme_lookup_data_tr_pkt(struct nvme_q_ctx *q_ctx,
                           guint32 rkey, guint32 frame_num);
+
+void
+nvme_add_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 off, guint32 frame_num);
+
+guint32
+nvme_lookup_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 frame_num);
 
 void
 nvme_add_cmd_cqe_to_done_list(struct nvme_q_ctx *q_ctx,

@@ -28,7 +28,6 @@
 void proto_register_nvme(void);
 
 static int proto_nvme = -1;
-
 /* Windows compiler does not support designated Initializers */
 #define NEG_LST_2 -1, -1
 #define NEG_LST_3 -1, -1, -1
@@ -50,6 +49,7 @@ static int proto_nvme = -1;
 #define NEG_LST_19 NEG_LST_10, NEG_LST_9
 #define NEG_LST_20 NEG_LST_10, NEG_LST_10
 #define NEG_LST_32 NEG_LST_16, NEG_LST_16
+
 
 #define NVME_FCTYPE_PROP_SET  0x0
 #define NVME_FCTYPE_CONNECT   0x1
@@ -129,6 +129,7 @@ static int hf_nvmeof_cqe_prop_set_rsvd = -1;
 /* tracking Cmd and its respective CQE */
 int hf_nvmeof_cmd_pkt = -1;
 int hf_nvmeof_data_req = -1;
+int hf_nvmeof_data_tr[NVME_CMD_MAX_TRS] = {NEG_LST_16};
 static int hf_nvmeof_cqe_pkt = -1;
 static int hf_nvmeof_cmd_latency = -1;
 
@@ -637,6 +638,7 @@ static int hf_nvme_cqe_status_rsvd = -1;
 /* tracking Cmd and its respective CQE */
 static int hf_nvme_cmd_pkt = -1;
 static int hf_nvme_data_req = -1;
+static int hf_nvme_data_tr[NVME_CMD_MAX_TRS] = {NEG_LST_16};
 static int hf_nvme_cqe_pkt = -1;
 static int hf_nvme_cmd_latency = -1;
 
@@ -1038,14 +1040,20 @@ static void nvme_build_pending_cmd_key(wmem_tree_key_t *cmd_key, guint32 *key)
 }
 
 static void
-nvme_build_done_cmd_key(wmem_tree_key_t *cmd_key, guint32 *key, guint32 *frame_num)
+nvme_build_done_frame_key(wmem_tree_key_t *cmd_key, guint32 *key, guint32 *frame)
 {
-    cmd_key[0].length = 1;
-    cmd_key[0].key = key;
-    cmd_key[1].length = frame_num ? 1 : 0;
-    cmd_key[1].key = frame_num;
-    cmd_key[2].length = 0;
-    cmd_key[2].key = NULL;
+    guint idx = 0;
+    if (key) {
+        cmd_key[0].length = 1;
+        cmd_key[0].key = key;
+        idx = 1;
+    }
+    cmd_key[idx].length = 1;
+    cmd_key[idx].key = frame;
+    idx++;
+
+    cmd_key[idx].length = 0;
+    cmd_key[idx].key = NULL;
 }
 
 void
@@ -1086,8 +1094,8 @@ static void nvme_build_pending_transfer_key(wmem_tree_key_t *key, struct keyed_d
     key[1].key = &req->key;
     key[2].length = 1;
     key[2].key = &req->size;
-    key[2].length = 0;
-    key[2].key = NULL;
+    key[3].length = 0;
+    key[3].key = NULL;
 }
 
 void nvme_add_data_request(struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ctx,
@@ -1095,7 +1103,7 @@ void nvme_add_data_request(struct nvme_q_ctx *q_ctx, struct nvme_cmd_ctx *cmd_ct
 {
     wmem_tree_key_t tr_key[4];
 
-    cmd_ctx->data_resp_pkt_num = 0;
+    memset(cmd_ctx->data_tr_pkt_num, 0, sizeof(cmd_ctx->data_tr_pkt_num));
     nvme_build_pending_transfer_key(tr_key, req);
     wmem_tree_insert32_array(q_ctx->data_requests, tr_key, (void *)cmd_ctx);
 }
@@ -1110,27 +1118,41 @@ struct nvme_cmd_ctx* nvme_lookup_data_request(struct nvme_q_ctx *q_ctx,
 }
 
 void
-nvme_add_data_response(struct nvme_q_ctx *q_ctx,
+nvme_add_data_tr_pkt(struct nvme_q_ctx *q_ctx,
                        struct nvme_cmd_ctx *cmd_ctx, guint32 rkey, guint32 frame_num)
 {
     wmem_tree_key_t cmd_key[3];
-    guint32 key = rkey;
 
-    frame_num = cmd_ctx->data_resp_pkt_num;
-    nvme_build_done_cmd_key(cmd_key, &key, frame_num ? &frame_num : NULL);
+    nvme_build_done_frame_key(cmd_key, rkey ? &rkey : NULL, &frame_num);
     wmem_tree_insert32_array(q_ctx->data_responses, cmd_key, (void*)cmd_ctx);
 }
 
 struct nvme_cmd_ctx*
-nvme_lookup_data_response(struct nvme_q_ctx *q_ctx,
+nvme_lookup_data_tr_pkt(struct nvme_q_ctx *q_ctx,
                           guint32 rkey, guint32 frame_num)
 {
     wmem_tree_key_t cmd_key[3];
-    guint32 key = rkey;
 
-    nvme_build_done_cmd_key(cmd_key, &key, frame_num ? &frame_num : NULL);
-
+    nvme_build_done_frame_key(cmd_key, rkey ? &rkey : NULL, &frame_num);
     return (struct nvme_cmd_ctx*)wmem_tree_lookup32_array(q_ctx->data_responses, cmd_key);
+}
+
+void
+nvme_add_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 off, guint32 frame_num)
+{
+    wmem_tree_key_t cmd_key[2];
+
+    nvme_build_done_frame_key(cmd_key, NULL, &frame_num);
+    wmem_tree_insert32_array(q_ctx->data_offsets, cmd_key, (void*)(guint64)off);
+}
+
+guint32
+nvme_lookup_data_tr_off(struct nvme_q_ctx *q_ctx, guint32 frame_num)
+{
+    wmem_tree_key_t cmd_key[2];
+
+    nvme_build_done_frame_key(cmd_key, NULL, &frame_num);
+    return (guint32)(guint64)wmem_tree_lookup32_array(q_ctx->data_offsets, cmd_key);
 }
 
 void
@@ -1141,7 +1163,7 @@ nvme_add_cmd_cqe_to_done_list(struct nvme_q_ctx *q_ctx,
     guint32 key = cmd_id;
     guint32 frame_num;
 
-    nvme_build_done_cmd_key(cmd_key, &key, &frame_num);
+    nvme_build_done_frame_key(cmd_key, &key, &frame_num);
 
     /* found matchng entry. Add entries to the matched table for both cmd and cqe.
      */
@@ -1160,7 +1182,7 @@ nvme_lookup_cmd_in_done_list(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
     guint32 key = cmd_id;
     guint32 frame_num = pinfo->num;
 
-    nvme_build_done_cmd_key(cmd_key, &key, &frame_num);
+    nvme_build_done_frame_key(cmd_key, &key, &frame_num);
 
     return wmem_tree_lookup32_array(q_ctx->done_cmds, cmd_key);
 }
@@ -1187,7 +1209,7 @@ void nvme_update_cmd_end_info(packet_info *pinfo, struct nvme_cmd_ctx *cmd_ctx)
     cmd_ctx->cqe_pkt_num = pinfo->num;
 }
 
-static void
+void
 nvme_publish_link(proto_tree *tree, tvbuff_t *tvb, int hf_index,
                                        guint32 pkt_no, gboolean zero_ok)
 {
@@ -1221,10 +1243,19 @@ nvme_publish_to_data_req_link(proto_tree *tree, tvbuff_t *tvb,
     nvme_publish_link(tree, tvb, hf_index, cmd_ctx->data_req_pkt_num, FALSE);
 }
 
+static void
+nvme_publish_to_data_tr_links(proto_tree *tree, tvbuff_t *tvb,
+                             int *index_arr, struct nvme_cmd_ctx *cmd_ctx)
+{
+    guint i;
+    for (i = 0; i < NVME_CMD_MAX_TRS; i++)
+        nvme_publish_link(tree, tvb, index_arr[i], cmd_ctx->data_tr_pkt_num[i], FALSE);
+}
+
 void nvme_publish_to_data_resp_link(proto_tree *tree, tvbuff_t *tvb,
                              int hf_index, struct nvme_cmd_ctx *cmd_ctx)
 {
-    nvme_publish_link(tree, tvb, hf_index, cmd_ctx->data_resp_pkt_num, FALSE);
+    nvme_publish_link(tree, tvb, hf_index, cmd_ctx->data_tr_pkt_num[0], FALSE);
 }
 
 void dissect_nvme_cmd_sgl(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
@@ -3342,6 +3373,9 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
     proto_tree *cmd_tree;
     proto_item *ti;
     const guint8 *str_opcode;
+    guint32 off;
+
+    off = (PINFO_FD_VISITED(pinfo)) ? nvme_lookup_data_tr_off(q_ctx, pinfo->num) : cmd_ctx->tr_bytes;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NVMe");
     ti = proto_tree_add_item(root_tree, proto_nvme, nvme_tvb, 0,
@@ -3350,34 +3384,28 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
     if (q_ctx->qid) { //IOQ
         str_opcode = val_to_str_const(cmd_ctx->opcode, ioq_opc_tbl,
                                       "Unknown Command");
-        switch (cmd_ctx->opcode) {
-        case NVME_IOQ_OPC_READ:
-        case NVME_IOQ_OPC_WRITE:
-        default:
-            proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data,
-                                              nvme_tvb, 0, len, NULL,
-                                              "%s", str_opcode);
-            break;
-        }
-    } else { //AQ
+      } else { //AQ
         str_opcode = val_to_str_const(cmd_ctx->opcode, aq_opc_tbl,
                                       "Unknown Command");
         switch (cmd_ctx->opcode) {
         case NVME_AQ_OPC_IDENTIFY:
-            dissect_nvme_identify_resp(nvme_tvb, cmd_tree, cmd_ctx);
+            if (!off)
+                dissect_nvme_identify_resp(nvme_tvb, cmd_tree, cmd_ctx);
             break;
         case NVME_AQ_OPC_GET_LOG_PAGE:
-            dissect_nvme_get_logpage_resp(nvme_tvb, cmd_tree, cmd_ctx, len);
+            if (!off)
+                dissect_nvme_get_logpage_resp(nvme_tvb, cmd_tree, cmd_ctx, len);
             break;
 
         case NVME_AQ_OPC_SET_FEATURES:
-            dissect_nvme_set_features_transfer(nvme_tvb, cmd_tree, cmd_ctx, len);
+            if (!off)
+                dissect_nvme_set_features_transfer(nvme_tvb, cmd_tree, cmd_ctx, len);
             break;
 
         default:
             proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data,
                                               nvme_tvb, 0, len, NULL,
-                                              "%s", str_opcode);
+                                              "%s, offset %u", str_opcode, off);
             break;
         }
     }
@@ -3386,9 +3414,11 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, "| ", "NVMeOF Data for %s", str_opcode);
     if (!q_ctx->qid) {
         if (cmd_ctx->opcode == NVME_AQ_OPC_IDENTIFY)
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", val_to_str_const(cmd_ctx->cmd_ctx.cmd_identify.cns, cns_table, "Unknown"));
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s, offset %u", val_to_str_const(cmd_ctx->cmd_ctx.cmd_identify.cns, cns_table, "Unknown"), off);
         else if (cmd_ctx->opcode == NVME_AQ_OPC_GET_LOG_PAGE)
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", get_logpage_name(cmd_ctx->cmd_ctx.get_logpage.lid));
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s, offset %u", get_logpage_name(cmd_ctx->cmd_ctx.get_logpage.lid), off);
+    } else {
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "offset %u", off);
     }
 }
 
@@ -3566,6 +3596,7 @@ void dissect_nvmeof_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tre
     cmd->opcode = NVME_FABRIC_OPC;
     if (link_data_req)
         nvme_publish_to_data_req_link(cmd_tree, nvme_tvb, hf_nvmeof_data_req, cmd);
+    nvme_publish_to_data_tr_links(cmd_tree, nvme_tvb, hf_nvmeof_data_tr, cmd);
     nvme_publish_to_cqe_link(cmd_tree, nvme_tvb, hf_nvmeof_cqe_pkt, cmd);
 
     proto_tree_add_item(cmd_tree, hf_nvmeof_cmd_rsvd, nvme_tvb,
@@ -3738,6 +3769,7 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
     }
 
     nvme_publish_to_data_req_link(cmd_tree, nvme_tvb, hf_nvme_data_req, cmd_ctx);
+    nvme_publish_to_data_tr_links(cmd_tree, nvme_tvb, hf_nvme_data_tr, cmd_ctx);
     nvme_publish_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_cqe_pkt, cmd_ctx);
 
     proto_tree_add_item(cmd_tree, hf_nvme_cmd_fuse_op, nvme_tvb,
@@ -4389,6 +4421,86 @@ proto_register_nvme(void)
             { "DATA Transfer Request", "nvme.fabrics.data_req",
               FT_FRAMENUM, BASE_NONE, NULL, 0,
               "DATA transfer request for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[0],
+            { "DATA Transfer 0", "nvme.fabrics.data.tr0",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 0 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[1],
+            { "DATA Transfer 1", "nvme.fabrics.data_tr1",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 1 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[2],
+            { "DATA Transfer 2", "nvme.fabrics.data_tr2",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 2 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[3],
+            { "DATA Transfer 3", "nvme.fabrics.data_tr3",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 3 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[4],
+            { "DATA Transfer 4", "nvme.fabrics.data_tr4",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 4 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[5],
+            { "DATA Transfer 5", "nvme.fabrics.data_tr5",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 5 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[6],
+            { "DATA Transfer 6", "nvme.fabrics.data_tr6",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 6 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[7],
+            { "DATA Transfer 7", "nvme.fabrics.data_tr7",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 7 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[8],
+            { "DATA Transfer 8", "nvme.fabrics.data_tr8",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 8 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[9],
+            { "DATA Transfer 9", "nvme.fabrics.data_tr9",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 9 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[10],
+            { "DATA Transfer 10", "nvme.fabrics.data_tr10",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 10 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[11],
+            { "DATA Transfer 11", "nvme.fabrics.data_tr11",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 11 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[12],
+            { "DATA Transfer 12", "nvme.fabrics.data_tr12",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 12 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[13],
+            { "DATA Transfer 13", "nvme.fabrics.data_tr13",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 13 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[14],
+            { "DATA Transfer 14", "nvme.fabrics.data_tr14",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 14 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvmeof_data_tr[15],
+            { "DATA Transfer 15", "nvme.fabrics.data_tr15",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 15 for this transaction is in this frame", HFILL }
         },
         { &hf_nvmeof_cmd_latency,
             { "Cmd Latency", "nvme.fabrics.cmd_latency",
@@ -7512,6 +7624,86 @@ proto_register_nvme(void)
             { "DATA Transfer Request", "nvme.data_req",
               FT_FRAMENUM, BASE_NONE, NULL, 0,
               "DATA transfer request for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[0],
+            { "DATA Transfer 0", "nvme.data.tr0",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 0 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[1],
+            { "DATA Transfer 1", "nvme.data_tr1",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 1 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[2],
+            { "DATA Transfer 2", "nvme.data_tr2",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 2 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[3],
+            { "DATA Transfer 3", "nvme.data_tr3",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 3 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[4],
+            { "DATA Transfer 4", "nvme.data_tr4",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 4 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[5],
+            { "DATA Transfer 5", "nvme.data_tr5",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 5 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[6],
+            { "DATA Transfer 6", "nvme.data_tr6",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 6 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[7],
+            { "DATA Transfer 7", "nvme.data_tr7",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 7 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[8],
+            { "DATA Transfer 8", "nvme.data_tr8",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 8 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[9],
+            { "DATA Transfer 9", "nvme.data_tr9",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 9 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[10],
+            { "DATA Transfer 10", "nvme.data_tr10",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 10 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[11],
+            { "DATA Transfer 11", "nvme.data_tr11",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 11 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[12],
+            { "DATA Transfer 12", "nvme.data_tr12",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 12 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[13],
+            { "DATA Transfer 13", "nvme.data_tr13",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 13 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[14],
+            { "DATA Transfer 14", "nvme.data_tr14",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 14 for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_data_tr[15],
+            { "DATA Transfer 15", "nvme.data_tr15",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer 15 for this transaction is in this frame", HFILL }
         },
         { &hf_nvme_cqe_pkt,
             { "Cqe in", "nvme.cqe_pkt",

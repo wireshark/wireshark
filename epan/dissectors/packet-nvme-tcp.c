@@ -422,10 +422,10 @@ dissect_nvme_tcp_c2h_data(tvbuff_t *tvb,
 
         /* In order to later lookup for command context lets add this command
          * to data responses */
-        cmd_ctx->n_cmd_ctx.data_resp_pkt_num = pinfo->num;
-        nvme_add_data_response(&queue->n_q_ctx, &cmd_ctx->n_cmd_ctx, cmd_id, pinfo->num);
+        cmd_ctx->n_cmd_ctx.data_tr_pkt_num[0] = pinfo->num;
+        nvme_add_data_tr_pkt(&queue->n_q_ctx, &cmd_ctx->n_cmd_ctx, cmd_id, pinfo->num);
     } else {
-        cmd_ctx = (struct nvme_tcp_cmd_ctx*) nvme_lookup_data_response(&queue->n_q_ctx,
+        cmd_ctx = (struct nvme_tcp_cmd_ctx*) nvme_lookup_data_tr_pkt(&queue->n_q_ctx,
                                 cmd_id, pinfo->num);
         if (!cmd_ctx) {
             proto_tree_add_item(root_tree, hf_nvme_tcp_unknown_data, tvb, offset + 16,
@@ -475,7 +475,7 @@ static void nvme_tcp_add_data_request(packet_info *pinfo, struct nvme_q_ctx *q_c
 
     nvme_tcp_build_cmd_key(&pinfo->num, &cmd_id_key, cmd_key);
     cmd_ctx->n_cmd_ctx.data_req_pkt_num = pinfo->num;
-    cmd_ctx->n_cmd_ctx.data_resp_pkt_num = 0;
+    cmd_ctx->n_cmd_ctx.data_tr_pkt_num[0] = 0;
     wmem_tree_insert32_array(q_ctx->data_requests, cmd_key, (void *)cmd_ctx);
 }
 

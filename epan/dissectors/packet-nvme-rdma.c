@@ -96,7 +96,8 @@ struct nvme_rdma_q_ctx {
     struct nvme_q_ctx n_q_ctx;
     struct {
         struct nvme_rdma_cmd_ctx *cmd_ctx;
-        guint32 pkt_seq;
+        guint32 first_psn;
+        guint32 psn;
     } rdma_ctx;
 };
 
@@ -131,8 +132,12 @@ static int hf_nvmeof_from_host_unknown_data = -1;
 static int hf_nvmeof_read_to_host_req = -1;
 static int hf_nvmeof_read_to_host_unmatched = -1;
 static int hf_nvmeof_read_from_host_resp = -1;
+static int hf_nvmeof_read_from_host_prev = -1;
+static int hf_nvmeof_read_from_host_next = -1;
 static int hf_nvmeof_read_from_host_unmatched = -1;
 static int hf_nvmeof_write_to_host_req = -1;
+static int hf_nvmeof_write_to_host_prev = -1;
+static int hf_nvmeof_write_to_host_next = -1;
 static int hf_nvmeof_write_to_host_unmatched = -1;
 static int hf_nvmeof_to_host_unknown_data = -1;
 
@@ -238,6 +243,7 @@ find_add_q_ctx(packet_info *pinfo, conversation_t *conv)
         q_ctx->n_q_ctx.done_cmds = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.data_requests = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.data_responses = wmem_tree_new(wmem_file_scope());
+        q_ctx->n_q_ctx.data_offsets = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.qid = qid;
         conversation_add_proto_data(conv, proto_nvme_rdma, q_ctx);
     }
@@ -429,30 +435,51 @@ dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
 {
     switch (info->opCode) {
     case RC_RDMA_READ_RESPONSE_FIRST:
-    case  RC_RDMA_READ_RESPONSE_ONLY:
+    case RC_RDMA_READ_RESPONSE_MIDDLE:
+    case RC_RDMA_READ_RESPONSE_LAST:
+    case RC_RDMA_READ_RESPONSE_ONLY:
     {
         struct nvme_cmd_ctx *cmd = NULL;
-        /* try fast path - is this transaction cached? */
-        if (q_ctx->rdma_ctx.pkt_seq == info->packet_seq_num) {
-            cmd = &q_ctx->rdma_ctx.cmd_ctx->n_cmd_ctx;
-            if (!PINFO_FD_VISITED(pinfo))
-                nvme_add_data_response(&q_ctx->n_q_ctx, cmd, info->packet_seq_num, 0);
+        guint idx = 0;
+        if (info->opCode == RC_RDMA_READ_RESPONSE_FIRST || info->opCode == RC_RDMA_READ_RESPONSE_ONLY) {
+            cmd = nvme_lookup_data_tr_pkt(&q_ctx->n_q_ctx, 0, info->packet_seq_num);
+            if (cmd && !PINFO_FD_VISITED(pinfo)) {
+                q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
+                q_ctx->rdma_ctx.psn = q_ctx->rdma_ctx.first_psn = info->packet_seq_num;
+                cmd->tr_bytes = 0;
+                cmd->first_tr_psn = info->packet_seq_num;
+                cmd->data_tr_pkt_num[0] = pinfo->num;
+            }
         } else {
-            cmd = nvme_lookup_data_response(&q_ctx->n_q_ctx, info->packet_seq_num, 0);
+            if (!PINFO_FD_VISITED(pinfo)) {
+                if (q_ctx->rdma_ctx.cmd_ctx && (q_ctx->rdma_ctx.psn + 1) == info->packet_seq_num) {
+                    idx = info->packet_seq_num - q_ctx->rdma_ctx.first_psn;
+                    q_ctx->rdma_ctx.psn++;
+                    cmd = &q_ctx->rdma_ctx.cmd_ctx->n_cmd_ctx;
+                    if (idx < NVME_CMD_MAX_TRS)
+                        cmd->data_tr_pkt_num[idx] = pinfo->num;
+                    nvme_add_data_tr_pkt(&q_ctx->n_q_ctx, cmd, 0, info->packet_seq_num);
+                    nvme_add_data_tr_off(&q_ctx->n_q_ctx, cmd->tr_bytes, pinfo->num);
+                }
+            } else {
+                cmd = nvme_lookup_data_tr_pkt(&q_ctx->n_q_ctx, 0, info->packet_seq_num);
+                if (cmd)
+                    idx = info->packet_seq_num - cmd->first_tr_psn;
+            }
         }
         if (cmd) {
-            struct nvme_rdma_cmd_ctx *rdma_cmd = nvme_cmd_to_nvme_rdma_cmd(cmd);
-            proto_item *ti = proto_tree_add_item(nvme_tree,
-                hf_nvmeof_read_from_host_resp, nvme_tvb, 0, len, ENC_NA);
+            proto_item *ti = proto_tree_add_item(nvme_tree, hf_nvmeof_read_from_host_resp, nvme_tvb, 0, len, ENC_NA);
             proto_tree *rdma_tree = proto_item_add_subtree(ti, ett_data);
-            cmd->data_resp_pkt_num = pinfo->num;
-            nvme_publish_to_data_req_link(rdma_tree, nvme_tvb,
-                                    hf_nvmeof_data_req, cmd);
-            nvme_publish_to_cmd_link(rdma_tree, nvme_tvb,
-                                    hf_nvmeof_cmd_pkt, cmd);
-            q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
-            q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
-            dissect_rdma_read_transfer(nvme_tvb, pinfo, rdma_tree, q_ctx, rdma_cmd, len);
+            nvme_publish_to_cmd_link(rdma_tree, nvme_tvb, hf_nvmeof_cmd_pkt, cmd);
+            nvme_publish_to_data_req_link(rdma_tree, nvme_tvb, hf_nvmeof_data_req, cmd);
+            if (idx && (idx-1) < NVME_CMD_MAX_TRS)
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_read_from_host_prev , cmd->data_tr_pkt_num[idx-1], FALSE);
+            if ((idx + 1) < NVME_CMD_MAX_TRS)
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_read_from_host_next , cmd->data_tr_pkt_num[idx+1], FALSE);
+
+            dissect_rdma_read_transfer(nvme_tvb, pinfo, rdma_tree, q_ctx, nvme_cmd_to_nvme_rdma_cmd(cmd), len);
+            if (!PINFO_FD_VISITED(pinfo))
+                 cmd->tr_bytes += len;
         } else {
             proto_tree_add_item(nvme_tree, hf_nvmeof_read_from_host_unmatched,
                                     nvme_tvb, 0, len, ENC_NA);
@@ -523,8 +550,6 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                      struct infinibandinfo *info,
                      struct nvme_rdma_q_ctx *q_ctx, guint len)
 {
-    struct nvme_rdma_cmd_ctx *cmd_ctx = NULL;
-
     switch (info->opCode) {
     case RC_RDMA_READ_REQUEST:
     {
@@ -533,7 +558,14 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
             .key = info->reth_remote_key,
             .size = info->reth_dma_length
         };
-        struct nvme_cmd_ctx *cmd = nvme_lookup_data_request(&q_ctx->n_q_ctx, &req);
+        struct nvme_cmd_ctx *cmd = NULL;
+        if (!PINFO_FD_VISITED(pinfo)) {
+            cmd = nvme_lookup_data_request(&q_ctx->n_q_ctx, &req);
+            if (cmd)
+                 nvme_add_data_tr_pkt(&q_ctx->n_q_ctx, cmd, 0, info->packet_seq_num);
+        } else {
+            cmd = nvme_lookup_data_tr_pkt(&q_ctx->n_q_ctx, 0, info->packet_seq_num);
+        }
         if (cmd) {
             proto_item *ti = proto_tree_add_item(nvme_tree,
                     hf_nvmeof_read_to_host_req, nvme_tvb, 0, 0, ENC_NA);
@@ -543,8 +575,6 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                                     hf_nvmeof_data_resp, cmd);
             nvme_publish_to_cmd_link(rdma_tree, nvme_tvb,
                                      hf_nvmeof_cmd_pkt, cmd);
-            q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
-            q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
             nvme_update_transfer_request(pinfo, cmd, &q_ctx->n_q_ctx);
         } else {
             proto_tree_add_item(nvme_tree, hf_nvmeof_read_to_host_unmatched,
@@ -562,33 +592,58 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
         break;
     case RC_RDMA_WRITE_ONLY:
     case RC_RDMA_WRITE_FIRST:
+    case RC_RDMA_WRITE_LAST:
+    case RC_RDMA_WRITE_MIDDLE:
     {
-        struct nvme_cmd_ctx *cmd;
-        struct keyed_data_req req = {
-            .addr = info->reth_remote_address,
-            .key =  info->reth_remote_key,
-            .size = info->reth_dma_length
-        };
-        cmd = nvme_lookup_data_request(&q_ctx->n_q_ctx, &req);
-        if (cmd) {
-            proto_item *ti = proto_tree_add_item(nvme_tree,
-                    hf_nvmeof_write_to_host_req, nvme_tvb, 0, 0, ENC_NA);
-            proto_tree *rdma_tree = proto_item_add_subtree(ti, ett_data);
-            cmd->data_req_pkt_num = pinfo->num;
-            nvme_publish_to_data_resp_link(rdma_tree, nvme_tvb,
-                                    hf_nvmeof_data_resp, cmd);
-            nvme_publish_to_cmd_link(rdma_tree, nvme_tvb, hf_nvmeof_cmd_pkt, cmd);
-            q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
-            q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
-            cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
+        struct nvme_cmd_ctx *cmd = NULL;
+        guint idx = 0;
+        if (info->opCode == RC_RDMA_WRITE_ONLY || info->opCode == RC_RDMA_WRITE_FIRST) {
+            struct keyed_data_req req = {
+                .addr = info->reth_remote_address,
+                .key =  info->reth_remote_key,
+                .size = info->reth_dma_length
+            };
+            if (!PINFO_FD_VISITED(pinfo)) {
+                cmd = nvme_lookup_data_request(&q_ctx->n_q_ctx, &req);
+                if (cmd) {
+                    nvme_add_data_tr_pkt(&q_ctx->n_q_ctx, cmd, 0, info->packet_seq_num);
+                    cmd->first_tr_psn = info->packet_seq_num;
+                    cmd->data_tr_pkt_num[0] = pinfo->num;
+                    q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
+                    q_ctx->rdma_ctx.first_psn = q_ctx->rdma_ctx.psn = info->packet_seq_num;
+                }
+            } else {
+                cmd = nvme_lookup_data_tr_pkt(&q_ctx->n_q_ctx, 0, info->packet_seq_num);
+            }
         } else {
-            proto_tree_add_item(nvme_tree, hf_nvmeof_write_to_host_unmatched,
-                                        nvme_tvb, 0, len, ENC_NA);
+            if (PINFO_FD_VISITED(pinfo)) {
+                cmd = nvme_lookup_data_tr_pkt(&q_ctx->n_q_ctx, 0, info->packet_seq_num);
+                if (cmd)
+                    idx = info->packet_seq_num - cmd->first_tr_psn;
+            } else  if (q_ctx->rdma_ctx.cmd_ctx && (q_ctx->rdma_ctx.psn + 1) == info->packet_seq_num) {
+                idx = info->packet_seq_num - q_ctx->rdma_ctx.first_psn;
+                q_ctx->rdma_ctx.psn++;
+                cmd = &q_ctx->rdma_ctx.cmd_ctx->n_cmd_ctx;
+                if (idx < NVME_CMD_MAX_TRS)
+                    cmd->data_tr_pkt_num[idx] = pinfo->num;
+                nvme_add_data_tr_pkt(&q_ctx->n_q_ctx, cmd, 0, info->packet_seq_num);
+                nvme_add_data_tr_off(&q_ctx->n_q_ctx, cmd->tr_bytes, pinfo->num);
+            }
         }
-
-        if (cmd_ctx)
-            dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx,
-                                       &cmd_ctx->n_cmd_ctx, len, FALSE);
+        if (cmd) {
+                proto_item *ti = proto_tree_add_item(nvme_tree, hf_nvmeof_write_to_host_req, nvme_tvb, 0, 0, ENC_NA);
+            proto_tree *rdma_tree = proto_item_add_subtree(ti, ett_data);
+            nvme_publish_to_cmd_link(rdma_tree, nvme_tvb, hf_nvmeof_cmd_pkt, cmd);
+            if (idx && (idx-1) < NVME_CMD_MAX_TRS)
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_prev , cmd->data_tr_pkt_num[idx-1], FALSE);
+            if ((idx + 1) < NVME_CMD_MAX_TRS)
+                nvme_publish_link(rdma_tree, nvme_tvb, hf_nvmeof_write_to_host_next , cmd->data_tr_pkt_num[idx+1], FALSE);
+            dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx, cmd, len, FALSE);
+            if (!PINFO_FD_VISITED(pinfo))
+                 cmd->tr_bytes += len;
+        } else {
+            proto_tree_add_item(nvme_tree, hf_nvmeof_write_to_host_unmatched, nvme_tvb, 0, len, ENC_NA);
+        }
         break;
     }
     default:
@@ -698,6 +753,14 @@ proto_register_nvme_rdma(void)
             { "RDMA Read Transfer Sent from Host", "nvme-rdma.read_from_host_resp",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
+        { &hf_nvmeof_read_from_host_prev,
+            { "Previous Read Transfer", "nvme-rdma.read_from_host_prev",
+               FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Previous read transfer is in this frame", HFILL}
+        },
+        { &hf_nvmeof_read_from_host_next,
+            { "Next Read Transfer", "nvme-rdma.read_from_host_next",
+               FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Next read transfer is in this frame", HFILL}
+        },
         { &hf_nvmeof_read_from_host_unmatched,
             { "RDMA Read Transfer Sent from Host (no Command Match)", "nvme-rdma.read_from_host_resp",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -705,6 +768,14 @@ proto_register_nvme_rdma(void)
         { &hf_nvmeof_write_to_host_req,
             { "RDMA Write Request Sent to Host", "nvme-rdma.write_to_host_req",
                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvmeof_write_to_host_prev,
+            { "Previous Write Transfer", "nvme-rdma.write_to_host_prev",
+               FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Previous write transfer is in this frame", HFILL}
+        },
+        { &hf_nvmeof_write_to_host_next,
+            { "Next Write Transfer", "nvme-rdma.write_to_host_next",
+               FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Next write transfer is in this frame", HFILL}
         },
         { &hf_nvmeof_write_to_host_unmatched,
             { "RDMA Write Request Sent to Host (no Command Match)", "nvme-rdma.write_to_host_req",
