@@ -254,6 +254,10 @@ def get_ft(ref, n, content, offset):
     t = content['type']
 
     if t == 'Raw':
+        if n > 64:          # very long items
+            assert (n % 8) == 0, "very long items require byte alignment"
+            return 'FT_NONE, BASE_NONE, NULL, 0x00'
+
         if (n % 8):         # not byte aligned
             base = 'DEC'
         else:               # byte aligned

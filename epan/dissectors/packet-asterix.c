@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 808fb7b68c8d4383a7fbd11286f0ba837573d5a4
+git revision: e603aaae8a33e12870241e8202501048c51f7dca
 
 
 */
@@ -99,7 +99,7 @@ static dissector_handle_t asterix_handle;
 
 typedef struct FieldPart_s FieldPart;
 struct FieldPart_s {
-    guint8      bit_length;     /* length of field in bits */
+    guint16     bit_length;     /* length of field in bits */
     double      scaling_factor; /* scaling factor of the field (for instance: 1/128) */
     guint8      type;           /* Pre-defined type for proper presentation */
     gint       *hf;             /* Pointer to hf representing this kind of data */
@@ -22658,7 +22658,7 @@ static gint hf_025_V1_5_140 = -1;
 static gint hf_025_V1_5_140_TYPE = -1;
 static const value_string valstr_025_V1_5_140_TYPE[] = {
     { 0, "Number of unknown messages received" },
-    { 1, "Number of \"too old\" messages received" },
+    { 1, "Number of too old messages received" },
     { 2, "Number of failed message conversions" },
     { 3, "Total Number of messages received" },
     { 4, "Total number of messages transmitted" },
@@ -23450,7 +23450,7 @@ static gint hf_025_140 = -1;
 static gint hf_025_140_TYPE = -1;
 static const value_string valstr_025_140_TYPE[] = {
     { 0, "Number of unknown messages received" },
-    { 1, "Number of \"too old\" messages received" },
+    { 1, "Number of too old messages received" },
     { 2, "Number of failed message conversions" },
     { 3, "Total Number of messages received" },
     { 4, "Total number of messages transmitted" },
@@ -41513,6 +41513,352 @@ static const AsterixField **I065[] = {
 };
 DIAG_ON_PEDANTIC
 
+/* Category 240, edition 1.3 */
+static gint hf_240_V1_3_000 = -1;
+static gint hf_240_V1_3_000_VALUE = -1;
+static const value_string valstr_240_V1_3_000_VALUE[] = {
+    { 1, "Video Summary message" },
+    { 2, "Video message" },
+    { 0, NULL }
+};
+static const FieldPart I240_V1_3_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_240_V1_3_000_VALUE, NULL };
+static const FieldPart *I240_V1_3_000_PARTS[] = {
+    &I240_V1_3_000_VALUE,
+    NULL
+};
+static const AsterixField I240_V1_3_000 = { FIXED, 1, 0, 0, &hf_240_V1_3_000, I240_V1_3_000_PARTS, { NULL } };
+static gint hf_240_V1_3_010 = -1;
+static gint hf_240_V1_3_010_SAC = -1;
+static const FieldPart I240_V1_3_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_240_V1_3_010_SAC, NULL };
+static gint hf_240_V1_3_010_SIC = -1;
+static const FieldPart I240_V1_3_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_240_V1_3_010_SIC, NULL };
+static const FieldPart *I240_V1_3_010_PARTS[] = {
+    &I240_V1_3_010_SAC,
+    &I240_V1_3_010_SIC,
+    NULL
+};
+static const AsterixField I240_V1_3_010 = { FIXED, 2, 0, 0, &hf_240_V1_3_010, I240_V1_3_010_PARTS, { NULL } };
+static gint hf_240_V1_3_020 = -1;
+static gint hf_240_V1_3_020_VALUE = -1;
+static const FieldPart I240_V1_3_020_VALUE = { 32, 1.0, FIELD_PART_UINT, &hf_240_V1_3_020_VALUE, NULL };
+static const FieldPart *I240_V1_3_020_PARTS[] = {
+    &I240_V1_3_020_VALUE,
+    NULL
+};
+static const AsterixField I240_V1_3_020 = { FIXED, 4, 0, 0, &hf_240_V1_3_020, I240_V1_3_020_PARTS, { NULL } };
+static gint hf_240_V1_3_030 = -1;
+static gint hf_240_V1_3_030_VALUE = -1;
+static const FieldPart I240_V1_3_030_VALUE = { 8, 1.0, FIELD_PART_ASCII, &hf_240_V1_3_030_VALUE, NULL };
+static const FieldPart *I240_V1_3_030_PARTS[] = {
+    &I240_V1_3_030_VALUE,
+    NULL
+};
+static const AsterixField I240_V1_3_030 = { REPETITIVE, 1, 1, 0, &hf_240_V1_3_030, I240_V1_3_030_PARTS, { NULL } };
+static gint hf_240_V1_3_040 = -1;
+static gint hf_240_V1_3_040_STARTAZ = -1;
+static const FieldPart I240_V1_3_040_STARTAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_V1_3_040_STARTAZ, NULL };
+static gint hf_240_V1_3_040_ENDAZ = -1;
+static const FieldPart I240_V1_3_040_ENDAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_V1_3_040_ENDAZ, NULL };
+static gint hf_240_V1_3_040_STARTRG = -1;
+static const FieldPart I240_V1_3_040_STARTRG = { 32, 1.0, FIELD_PART_UINT, &hf_240_V1_3_040_STARTRG, NULL };
+static gint hf_240_V1_3_040_CELLDUR = -1;
+static const FieldPart I240_V1_3_040_CELLDUR = { 32, 1.0, FIELD_PART_UFLOAT, &hf_240_V1_3_040_CELLDUR, NULL };
+static const FieldPart *I240_V1_3_040_PARTS[] = {
+    &I240_V1_3_040_STARTAZ,
+    &I240_V1_3_040_ENDAZ,
+    &I240_V1_3_040_STARTRG,
+    &I240_V1_3_040_CELLDUR,
+    NULL
+};
+static const AsterixField I240_V1_3_040 = { FIXED, 12, 0, 0, &hf_240_V1_3_040, I240_V1_3_040_PARTS, { NULL } };
+static gint hf_240_V1_3_041 = -1;
+static gint hf_240_V1_3_041_STARTAZ = -1;
+static const FieldPart I240_V1_3_041_STARTAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_V1_3_041_STARTAZ, NULL };
+static gint hf_240_V1_3_041_ENDAZ = -1;
+static const FieldPart I240_V1_3_041_ENDAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_V1_3_041_ENDAZ, NULL };
+static gint hf_240_V1_3_041_STARTRG = -1;
+static const FieldPart I240_V1_3_041_STARTRG = { 32, 1.0, FIELD_PART_UINT, &hf_240_V1_3_041_STARTRG, NULL };
+static gint hf_240_V1_3_041_CELLDUR = -1;
+static const FieldPart I240_V1_3_041_CELLDUR = { 32, 1.0, FIELD_PART_UFLOAT, &hf_240_V1_3_041_CELLDUR, NULL };
+static const FieldPart *I240_V1_3_041_PARTS[] = {
+    &I240_V1_3_041_STARTAZ,
+    &I240_V1_3_041_ENDAZ,
+    &I240_V1_3_041_STARTRG,
+    &I240_V1_3_041_CELLDUR,
+    NULL
+};
+static const AsterixField I240_V1_3_041 = { FIXED, 12, 0, 0, &hf_240_V1_3_041, I240_V1_3_041_PARTS, { NULL } };
+static gint hf_240_V1_3_048 = -1;
+static gint hf_240_V1_3_048_C = -1;
+static const value_string valstr_240_V1_3_048_C[] = {
+    { 0, "No compression applied" },
+    { 1, "Compression applied" },
+    { 0, NULL }
+};
+static const FieldPart I240_V1_3_048_C = { 1, 1.0, FIELD_PART_UINT, &hf_240_V1_3_048_C, NULL };
+static gint hf_240_V1_3_048_RES = -1;
+static const value_string valstr_240_V1_3_048_RES[] = {
+    { 1, "Monobit Resolution (1 bit)" },
+    { 2, "Low Resolution (2 bits)" },
+    { 3, "Medium Resolution (4 bits)" },
+    { 4, "High Resolution (8 bits)" },
+    { 5, "Very High Resolution (16 bits)" },
+    { 6, "Ultra High Resolution (32 bits)" },
+    { 0, NULL }
+};
+static const FieldPart I240_V1_3_048_RES = { 8, 1.0, FIELD_PART_UINT, &hf_240_V1_3_048_RES, NULL };
+static const FieldPart *I240_V1_3_048_PARTS[] = {
+    &I240_V1_3_048_C,
+    &IXXX_7bit_spare,
+    &I240_V1_3_048_RES,
+    NULL
+};
+static const AsterixField I240_V1_3_048 = { FIXED, 2, 0, 0, &hf_240_V1_3_048, I240_V1_3_048_PARTS, { NULL } };
+static gint hf_240_V1_3_049 = -1;
+static gint hf_240_V1_3_049_NBVB = -1;
+static const FieldPart I240_V1_3_049_NBVB = { 16, 1.0, FIELD_PART_UINT, &hf_240_V1_3_049_NBVB, NULL };
+static gint hf_240_V1_3_049_NBCELLS = -1;
+static const FieldPart I240_V1_3_049_NBCELLS = { 24, 1.0, FIELD_PART_UINT, &hf_240_V1_3_049_NBCELLS, NULL };
+static const FieldPart *I240_V1_3_049_PARTS[] = {
+    &I240_V1_3_049_NBVB,
+    &I240_V1_3_049_NBCELLS,
+    NULL
+};
+static const AsterixField I240_V1_3_049 = { FIXED, 5, 0, 0, &hf_240_V1_3_049, I240_V1_3_049_PARTS, { NULL } };
+static gint hf_240_V1_3_050 = -1;
+static gint hf_240_V1_3_050_VALUE = -1;
+static const FieldPart I240_V1_3_050_VALUE = { 32, 1.0, FIELD_PART_HEX, &hf_240_V1_3_050_VALUE, NULL };
+static const FieldPart *I240_V1_3_050_PARTS[] = {
+    &I240_V1_3_050_VALUE,
+    NULL
+};
+static const AsterixField I240_V1_3_050 = { REPETITIVE, 4, 1, 0, &hf_240_V1_3_050, I240_V1_3_050_PARTS, { NULL } };
+static gint hf_240_V1_3_051 = -1;
+static gint hf_240_V1_3_051_VALUE = -1;
+static const FieldPart I240_V1_3_051_VALUE = { 512, 1.0, FIELD_PART_HEX, &hf_240_V1_3_051_VALUE, NULL };
+static const FieldPart *I240_V1_3_051_PARTS[] = {
+    &I240_V1_3_051_VALUE,
+    NULL
+};
+static const AsterixField I240_V1_3_051 = { REPETITIVE, 64, 1, 0, &hf_240_V1_3_051, I240_V1_3_051_PARTS, { NULL } };
+static gint hf_240_V1_3_052 = -1;
+static gint hf_240_V1_3_052_VALUE = -1;
+static const FieldPart I240_V1_3_052_VALUE = { 2048, 1.0, FIELD_PART_HEX, &hf_240_V1_3_052_VALUE, NULL };
+static const FieldPart *I240_V1_3_052_PARTS[] = {
+    &I240_V1_3_052_VALUE,
+    NULL
+};
+static const AsterixField I240_V1_3_052 = { REPETITIVE, 256, 1, 0, &hf_240_V1_3_052, I240_V1_3_052_PARTS, { NULL } };
+static gint hf_240_V1_3_140 = -1;
+static gint hf_240_V1_3_140_VALUE = -1;
+static const FieldPart I240_V1_3_140_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_240_V1_3_140_VALUE, NULL };
+static const FieldPart *I240_V1_3_140_PARTS[] = {
+    &I240_V1_3_140_VALUE,
+    NULL
+};
+static const AsterixField I240_V1_3_140 = { FIXED, 3, 0, 0, &hf_240_V1_3_140, I240_V1_3_140_PARTS, { NULL } };
+static gint hf_240_V1_3_RE = -1;
+static const AsterixField I240_V1_3_RE = { EXP, 0, 0, 1, &hf_240_V1_3_RE, NULL, { NULL } };
+static gint hf_240_V1_3_SP = -1;
+static const AsterixField I240_V1_3_SP = { EXP, 0, 0, 1, &hf_240_V1_3_SP, NULL, { NULL } };
+
+/* Category 240, edition 1.3 (latest) */
+static gint hf_240_000 = -1;
+static gint hf_240_000_VALUE = -1;
+static const value_string valstr_240_000_VALUE[] = {
+    { 1, "Video Summary message" },
+    { 2, "Video message" },
+    { 0, NULL }
+};
+static const FieldPart I240_000_VALUE = { 8, 1.0, FIELD_PART_UINT, &hf_240_000_VALUE, NULL };
+static const FieldPart *I240_000_PARTS[] = {
+    &I240_000_VALUE,
+    NULL
+};
+static const AsterixField I240_000 = { FIXED, 1, 0, 0, &hf_240_000, I240_000_PARTS, { NULL } };
+static gint hf_240_010 = -1;
+static gint hf_240_010_SAC = -1;
+static const FieldPart I240_010_SAC = { 8, 1.0, FIELD_PART_HEX, &hf_240_010_SAC, NULL };
+static gint hf_240_010_SIC = -1;
+static const FieldPart I240_010_SIC = { 8, 1.0, FIELD_PART_HEX, &hf_240_010_SIC, NULL };
+static const FieldPart *I240_010_PARTS[] = {
+    &I240_010_SAC,
+    &I240_010_SIC,
+    NULL
+};
+static const AsterixField I240_010 = { FIXED, 2, 0, 0, &hf_240_010, I240_010_PARTS, { NULL } };
+static gint hf_240_020 = -1;
+static gint hf_240_020_VALUE = -1;
+static const FieldPart I240_020_VALUE = { 32, 1.0, FIELD_PART_UINT, &hf_240_020_VALUE, NULL };
+static const FieldPart *I240_020_PARTS[] = {
+    &I240_020_VALUE,
+    NULL
+};
+static const AsterixField I240_020 = { FIXED, 4, 0, 0, &hf_240_020, I240_020_PARTS, { NULL } };
+static gint hf_240_030 = -1;
+static gint hf_240_030_VALUE = -1;
+static const FieldPart I240_030_VALUE = { 8, 1.0, FIELD_PART_ASCII, &hf_240_030_VALUE, NULL };
+static const FieldPart *I240_030_PARTS[] = {
+    &I240_030_VALUE,
+    NULL
+};
+static const AsterixField I240_030 = { REPETITIVE, 1, 1, 0, &hf_240_030, I240_030_PARTS, { NULL } };
+static gint hf_240_040 = -1;
+static gint hf_240_040_STARTAZ = -1;
+static const FieldPart I240_040_STARTAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_040_STARTAZ, NULL };
+static gint hf_240_040_ENDAZ = -1;
+static const FieldPart I240_040_ENDAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_040_ENDAZ, NULL };
+static gint hf_240_040_STARTRG = -1;
+static const FieldPart I240_040_STARTRG = { 32, 1.0, FIELD_PART_UINT, &hf_240_040_STARTRG, NULL };
+static gint hf_240_040_CELLDUR = -1;
+static const FieldPart I240_040_CELLDUR = { 32, 1.0, FIELD_PART_UFLOAT, &hf_240_040_CELLDUR, NULL };
+static const FieldPart *I240_040_PARTS[] = {
+    &I240_040_STARTAZ,
+    &I240_040_ENDAZ,
+    &I240_040_STARTRG,
+    &I240_040_CELLDUR,
+    NULL
+};
+static const AsterixField I240_040 = { FIXED, 12, 0, 0, &hf_240_040, I240_040_PARTS, { NULL } };
+static gint hf_240_041 = -1;
+static gint hf_240_041_STARTAZ = -1;
+static const FieldPart I240_041_STARTAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_041_STARTAZ, NULL };
+static gint hf_240_041_ENDAZ = -1;
+static const FieldPart I240_041_ENDAZ = { 16, 0.0054931640625, FIELD_PART_UFLOAT, &hf_240_041_ENDAZ, NULL };
+static gint hf_240_041_STARTRG = -1;
+static const FieldPart I240_041_STARTRG = { 32, 1.0, FIELD_PART_UINT, &hf_240_041_STARTRG, NULL };
+static gint hf_240_041_CELLDUR = -1;
+static const FieldPart I240_041_CELLDUR = { 32, 1.0, FIELD_PART_UFLOAT, &hf_240_041_CELLDUR, NULL };
+static const FieldPart *I240_041_PARTS[] = {
+    &I240_041_STARTAZ,
+    &I240_041_ENDAZ,
+    &I240_041_STARTRG,
+    &I240_041_CELLDUR,
+    NULL
+};
+static const AsterixField I240_041 = { FIXED, 12, 0, 0, &hf_240_041, I240_041_PARTS, { NULL } };
+static gint hf_240_048 = -1;
+static gint hf_240_048_C = -1;
+static const value_string valstr_240_048_C[] = {
+    { 0, "No compression applied" },
+    { 1, "Compression applied" },
+    { 0, NULL }
+};
+static const FieldPart I240_048_C = { 1, 1.0, FIELD_PART_UINT, &hf_240_048_C, NULL };
+static gint hf_240_048_RES = -1;
+static const value_string valstr_240_048_RES[] = {
+    { 1, "Monobit Resolution (1 bit)" },
+    { 2, "Low Resolution (2 bits)" },
+    { 3, "Medium Resolution (4 bits)" },
+    { 4, "High Resolution (8 bits)" },
+    { 5, "Very High Resolution (16 bits)" },
+    { 6, "Ultra High Resolution (32 bits)" },
+    { 0, NULL }
+};
+static const FieldPart I240_048_RES = { 8, 1.0, FIELD_PART_UINT, &hf_240_048_RES, NULL };
+static const FieldPart *I240_048_PARTS[] = {
+    &I240_048_C,
+    &IXXX_7bit_spare,
+    &I240_048_RES,
+    NULL
+};
+static const AsterixField I240_048 = { FIXED, 2, 0, 0, &hf_240_048, I240_048_PARTS, { NULL } };
+static gint hf_240_049 = -1;
+static gint hf_240_049_NBVB = -1;
+static const FieldPart I240_049_NBVB = { 16, 1.0, FIELD_PART_UINT, &hf_240_049_NBVB, NULL };
+static gint hf_240_049_NBCELLS = -1;
+static const FieldPart I240_049_NBCELLS = { 24, 1.0, FIELD_PART_UINT, &hf_240_049_NBCELLS, NULL };
+static const FieldPart *I240_049_PARTS[] = {
+    &I240_049_NBVB,
+    &I240_049_NBCELLS,
+    NULL
+};
+static const AsterixField I240_049 = { FIXED, 5, 0, 0, &hf_240_049, I240_049_PARTS, { NULL } };
+static gint hf_240_050 = -1;
+static gint hf_240_050_VALUE = -1;
+static const FieldPart I240_050_VALUE = { 32, 1.0, FIELD_PART_HEX, &hf_240_050_VALUE, NULL };
+static const FieldPart *I240_050_PARTS[] = {
+    &I240_050_VALUE,
+    NULL
+};
+static const AsterixField I240_050 = { REPETITIVE, 4, 1, 0, &hf_240_050, I240_050_PARTS, { NULL } };
+static gint hf_240_051 = -1;
+static gint hf_240_051_VALUE = -1;
+static const FieldPart I240_051_VALUE = { 512, 1.0, FIELD_PART_HEX, &hf_240_051_VALUE, NULL };
+static const FieldPart *I240_051_PARTS[] = {
+    &I240_051_VALUE,
+    NULL
+};
+static const AsterixField I240_051 = { REPETITIVE, 64, 1, 0, &hf_240_051, I240_051_PARTS, { NULL } };
+static gint hf_240_052 = -1;
+static gint hf_240_052_VALUE = -1;
+static const FieldPart I240_052_VALUE = { 2048, 1.0, FIELD_PART_HEX, &hf_240_052_VALUE, NULL };
+static const FieldPart *I240_052_PARTS[] = {
+    &I240_052_VALUE,
+    NULL
+};
+static const AsterixField I240_052 = { REPETITIVE, 256, 1, 0, &hf_240_052, I240_052_PARTS, { NULL } };
+static gint hf_240_140 = -1;
+static gint hf_240_140_VALUE = -1;
+static const FieldPart I240_140_VALUE = { 24, 0.0078125, FIELD_PART_UFLOAT, &hf_240_140_VALUE, NULL };
+static const FieldPart *I240_140_PARTS[] = {
+    &I240_140_VALUE,
+    NULL
+};
+static const AsterixField I240_140 = { FIXED, 3, 0, 0, &hf_240_140, I240_140_PARTS, { NULL } };
+static gint hf_240_RE = -1;
+static const AsterixField I240_RE = { EXP, 0, 0, 1, &hf_240_RE, NULL, { NULL } };
+static gint hf_240_SP = -1;
+static const AsterixField I240_SP = { EXP, 0, 0, 1, &hf_240_SP, NULL, { NULL } };
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I240_V1_3_uap[] = {
+    &I240_V1_3_010,
+    &I240_V1_3_000,
+    &I240_V1_3_020,
+    &I240_V1_3_030,
+    &I240_V1_3_040,
+    &I240_V1_3_041,
+    &I240_V1_3_048,
+    &I240_V1_3_049,
+    &I240_V1_3_050,
+    &I240_V1_3_051,
+    &I240_V1_3_052,
+    &I240_V1_3_140,
+    &I240_V1_3_RE,
+    &I240_V1_3_SP,
+    NULL
+};
+static const AsterixField **I240_V1_3[] = {
+    I240_V1_3_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
+DIAG_OFF_PEDANTIC
+static const AsterixField *I240_uap[] = {
+    &I240_010,
+    &I240_000,
+    &I240_020,
+    &I240_030,
+    &I240_040,
+    &I240_041,
+    &I240_048,
+    &I240_049,
+    &I240_050,
+    &I240_051,
+    &I240_052,
+    &I240_140,
+    &I240_RE,
+    &I240_SP,
+    NULL
+};
+static const AsterixField **I240[] = {
+    I240_uap,
+    NULL
+};
+DIAG_ON_PEDANTIC
+
 /* Category 247, edition 1.2 */
 static gint hf_247_V1_2_010 = -1;
 static gint hf_247_V1_2_010_SAC = -1;
@@ -41929,6 +42275,16 @@ static const enum_val_t I065_versions[] = {
 };
 
 DIAG_OFF_PEDANTIC
+static const AsterixField ***I240all[] = { I240, I240_V1_3 };
+DIAG_ON_PEDANTIC
+
+static const enum_val_t I240_versions[] = {
+    { "I240", "Version 1.3 (latest)", 0 },
+    { "I240_v1_3", "Version 1.3", 1 },
+    { NULL, NULL, 0 }
+};
+
+DIAG_OFF_PEDANTIC
 static const AsterixField ***I247all[] = { I247, I247_V1_3, I247_V1_2 };
 DIAG_ON_PEDANTIC
 
@@ -42180,7 +42536,7 @@ static const AsterixField ****categories[] = {
     NULL, /* 237 */
     NULL, /* 238 */
     NULL, /* 239 */
-    NULL, /* 240 */
+    I240all, /* 240 */
     NULL, /* 241 */
     NULL, /* 242 */
     NULL, /* 243 */
@@ -49585,6 +49941,76 @@ void proto_register_asterix (void)
         { &hf_065_050_VALUE, { "Service Status Report", "asterix.065_050_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_065_050_VALUE), 0x00, NULL, HFILL } },
         { &hf_065_RE, { "RE, Reserved Expansion Field", "asterix.065_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_065_SP, { "SP, Special Purpose Field", "asterix.065_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_000, { "000, Message Type", "asterix.240_V1_3_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_000_VALUE, { "Message Type", "asterix.240_V1_3_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_240_V1_3_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_010, { "010, Data Source Identifier", "asterix.240_V1_3_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_010_SAC, { "SAC, System Area Code", "asterix.240_V1_3_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_010_SIC, { "SIC, System Identification Code", "asterix.240_V1_3_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_020, { "020, Video Record Header", "asterix.240_V1_3_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_020_VALUE, { "Video Record Header", "asterix.240_V1_3_020_VALUE", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_030, { "030, Video Summary", "asterix.240_V1_3_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_030_VALUE, { "Video Summary", "asterix.240_V1_3_030_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_040, { "040, Video Header Nano", "asterix.240_V1_3_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_040_STARTAZ, { "STARTAZ, Start Azimuth of the Cells Group, [deg]", "asterix.240_V1_3_040_STARTAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_040_ENDAZ, { "ENDAZ, End Azimuth of the Cells Group, [deg]", "asterix.240_V1_3_040_ENDAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_040_STARTRG, { "STARTRG, Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_V1_3_040_STARTRG", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_040_CELLDUR, { "CELLDUR, Video Cell Duration in Nano-seconds, [ns]", "asterix.240_V1_3_040_CELLDUR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_041, { "041, Video Header Femto", "asterix.240_V1_3_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_041_STARTAZ, { "STARTAZ, Start Azimuth of the Cells Group, [deg]", "asterix.240_V1_3_041_STARTAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_041_ENDAZ, { "ENDAZ, End Azimuth of the Cells Group, [deg]", "asterix.240_V1_3_041_ENDAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_041_STARTRG, { "STARTRG, Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_V1_3_041_STARTRG", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_041_CELLDUR, { "CELLDUR, Video Cell Duration in Femto-seconds, [fs]", "asterix.240_V1_3_041_CELLDUR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_048, { "048, Video Cells Resolution & Data Compression Indicator", "asterix.240_V1_3_048", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_048_C, { "C, Data Compression Indicator", "asterix.240_V1_3_048_C", FT_UINT8, BASE_DEC, VALS (valstr_240_V1_3_048_C), 0x80, NULL, HFILL } },
+        { &hf_240_V1_3_048_RES, { "RES, Bit Resolution", "asterix.240_V1_3_048_RES", FT_UINT8, BASE_DEC, VALS (valstr_240_V1_3_048_RES), 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_049, { "049, Video Octets & Video Cells Counters", "asterix.240_V1_3_049", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_049_NBVB, { "NBVB, Number of 'valid' Octets", "asterix.240_V1_3_049_NBVB", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_049_NBCELLS, { "NBCELLS, Number of 'valid' Cells", "asterix.240_V1_3_049_NBCELLS", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_050, { "050, Video Block Low Data Volume", "asterix.240_V1_3_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_050_VALUE, { "Video Block Low Data Volume", "asterix.240_V1_3_050_VALUE", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_051, { "051, Video Block Medium Data Volume", "asterix.240_V1_3_051", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_051_VALUE, { "Video Block Medium Data Volume", "asterix.240_V1_3_051_VALUE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_052, { "052, Video Block High Data Volume", "asterix.240_V1_3_052", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_052_VALUE, { "Video Block High Data Volume", "asterix.240_V1_3_052_VALUE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_140, { "140, Time of Day", "asterix.240_V1_3_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_140_VALUE, { "Time of Day, [s]", "asterix.240_V1_3_140_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_RE, { "RE, Reserved Expansion Field", "asterix.240_V1_3_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_V1_3_SP, { "SP, Special Purpose Field", "asterix.240_V1_3_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_000, { "000, Message Type", "asterix.240_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_000_VALUE, { "Message Type", "asterix.240_000_VALUE", FT_UINT8, BASE_DEC, VALS (valstr_240_000_VALUE), 0x00, NULL, HFILL } },
+        { &hf_240_010, { "010, Data Source Identifier", "asterix.240_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_010_SAC, { "SAC, System Area Code", "asterix.240_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_010_SIC, { "SIC, System Identification Code", "asterix.240_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_020, { "020, Video Record Header", "asterix.240_020", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_020_VALUE, { "Video Record Header", "asterix.240_020_VALUE", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_030, { "030, Video Summary", "asterix.240_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_030_VALUE, { "Video Summary", "asterix.240_030_VALUE", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_040, { "040, Video Header Nano", "asterix.240_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_040_STARTAZ, { "STARTAZ, Start Azimuth of the Cells Group, [deg]", "asterix.240_040_STARTAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_040_ENDAZ, { "ENDAZ, End Azimuth of the Cells Group, [deg]", "asterix.240_040_ENDAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_040_STARTRG, { "STARTRG, Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_040_STARTRG", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_040_CELLDUR, { "CELLDUR, Video Cell Duration in Nano-seconds, [ns]", "asterix.240_040_CELLDUR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_041, { "041, Video Header Femto", "asterix.240_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_041_STARTAZ, { "STARTAZ, Start Azimuth of the Cells Group, [deg]", "asterix.240_041_STARTAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_041_ENDAZ, { "ENDAZ, End Azimuth of the Cells Group, [deg]", "asterix.240_041_ENDAZ", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_041_STARTRG, { "STARTRG, Starting Range of the Cells Group, Expressed in Number of Cells", "asterix.240_041_STARTRG", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_041_CELLDUR, { "CELLDUR, Video Cell Duration in Femto-seconds, [fs]", "asterix.240_041_CELLDUR", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_048, { "048, Video Cells Resolution & Data Compression Indicator", "asterix.240_048", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_048_C, { "C, Data Compression Indicator", "asterix.240_048_C", FT_UINT8, BASE_DEC, VALS (valstr_240_048_C), 0x80, NULL, HFILL } },
+        { &hf_240_048_RES, { "RES, Bit Resolution", "asterix.240_048_RES", FT_UINT8, BASE_DEC, VALS (valstr_240_048_RES), 0x00, NULL, HFILL } },
+        { &hf_240_049, { "049, Video Octets & Video Cells Counters", "asterix.240_049", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_049_NBVB, { "NBVB, Number of 'valid' Octets", "asterix.240_049_NBVB", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_049_NBCELLS, { "NBCELLS, Number of 'valid' Cells", "asterix.240_049_NBCELLS", FT_UINT24, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_050, { "050, Video Block Low Data Volume", "asterix.240_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_050_VALUE, { "Video Block Low Data Volume", "asterix.240_050_VALUE", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_051, { "051, Video Block Medium Data Volume", "asterix.240_051", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_051_VALUE, { "Video Block Medium Data Volume", "asterix.240_051_VALUE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_052, { "052, Video Block High Data Volume", "asterix.240_052", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_052_VALUE, { "Video Block High Data Volume", "asterix.240_052_VALUE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_140, { "140, Time of Day", "asterix.240_140", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_140_VALUE, { "Time of Day, [s]", "asterix.240_140_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_RE, { "RE, Reserved Expansion Field", "asterix.240_RE", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_240_SP, { "SP, Special Purpose Field", "asterix.240_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_247_V1_2_010, { "010, Data Source Identifier", "asterix.247_V1_2_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_247_V1_2_010_SAC, { "SAC, System Area Code", "asterix.247_V1_2_010_SAC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_247_V1_2_010_SIC, { "SIC, System Identification Code", "asterix.247_V1_2_010_SIC", FT_UINT8, BASE_HEX_DEC, NULL, 0x00, NULL, HFILL } },
@@ -49673,6 +50099,7 @@ void proto_register_asterix (void)
     prefs_register_enum_preference (asterix_prefs_module, "i062_version", "I062 version", "Select the CAT062 version", &global_categories_version[62], I062_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i063_version", "I063 version", "Select the CAT063 version", &global_categories_version[63], I063_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i065_version", "I065 version", "Select the CAT065 version", &global_categories_version[65], I065_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i240_version", "I240 version", "Select the CAT240 version", &global_categories_version[240], I240_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i247_version", "I247 version", "Select the CAT247 version", &global_categories_version[247], I247_versions, FALSE);
 /* insert3 */
 }

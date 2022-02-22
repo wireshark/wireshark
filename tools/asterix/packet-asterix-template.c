@@ -98,7 +98,7 @@ static dissector_handle_t asterix_handle;
 
 typedef struct FieldPart_s FieldPart;
 struct FieldPart_s {
-    guint8      bit_length;     /* length of field in bits */
+    guint16     bit_length;     /* length of field in bits */
     double      scaling_factor; /* scaling factor of the field (for instance: 1/128) */
     guint8      type;           /* Pre-defined type for proper presentation */
     gint       *hf;             /* Pointer to hf representing this kind of data */
