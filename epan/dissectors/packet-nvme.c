@@ -3525,23 +3525,23 @@ static const value_string sf_lbart_type_table[] = {
     { 0, NULL },
 };
 
-static void dissect_nvme_set_features_transfer_lbart(tvbuff_t *tvb, proto_tree *tree, guint len)
+static void dissect_nvme_set_features_transfer_lbart(tvbuff_t *tvb, proto_tree *tree, guint off, guint len)
 {
     proto_tree *grp;
     proto_item *ti;
-    guint off = 0;
+    guint done = 0;
     while (len >= 64) {
-        ti =  proto_tree_add_bytes_format_value(tree, hf_nvme_set_features_tr_lbart, tvb, 0, 64, NULL, "LBA Range Structure %u", off / 64);
+        ti =  proto_tree_add_bytes_format_value(tree, hf_nvme_set_features_tr_lbart, tvb, 0, 64, NULL, "LBA Range Structure %u", (done + off) / 64);
         grp =  proto_item_add_subtree(ti, ett_data);
-        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_type, tvb, off, 1, ENC_LITTLE_ENDIAN);
-        add_group_mask_entry(tvb, grp, off+1, 1, ASPEC(hf_nvme_set_features_tr_lbart_attr));
-        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_rsvd0, tvb, off+2, 14, ENC_NA);
-        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_slba, tvb, off+16, 8, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_nlb, tvb, off+24, 8, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_guid, tvb, off+32, 16, ENC_NA);
-        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_rsvd1, tvb, off+48, 16, ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_type, tvb, done, 1, ENC_LITTLE_ENDIAN);
+        add_group_mask_entry(tvb, grp, done+1, 1, ASPEC(hf_nvme_set_features_tr_lbart_attr));
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_rsvd0, tvb, done+2, 14, ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_slba, tvb, done+16, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_nlb, tvb, done+24, 8, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_guid, tvb, done+32, 16, ENC_NA);
+        proto_tree_add_item(grp, hf_nvme_set_features_tr_lbart_rsvd1, tvb, done+48, 16, ENC_NA);
         len -= 64;
-        off += 64;
+        done += 64;
     }
 }
 
@@ -3587,11 +3587,11 @@ static void dissect_nvme_set_features_transfer_hbs(tvbuff_t *tvb, proto_tree *tr
     proto_tree_add_item(grp, hf_nvme_set_features_tr_hbs_rsvd, tvb, 1, len-1, ENC_NA);
 }
 
-static void dissect_nvme_set_features_transfer(tvbuff_t *tvb, proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
+static void dissect_nvme_set_features_transfer(tvbuff_t *tvb, proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx, guint off, guint len)
 {
     switch(cmd_ctx->cmd_ctx.set_features.fid) {
         case F_LBA_RANGE_TYPE:
-            dissect_nvme_set_features_transfer_lbart(tvb, tree, len);
+            dissect_nvme_set_features_transfer_lbart(tvb, tree, off, len);
             break;
         case F_AUTO_PS_TRANSITION:
             dissect_nvme_set_features_transfer_apst(tvb, tree, len);
@@ -3660,8 +3660,7 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             break;
 
         case NVME_AQ_OPC_SET_FEATURES:
-            if (!off)
-                dissect_nvme_set_features_transfer(nvme_tvb, cmd_tree, cmd_ctx, len);
+                dissect_nvme_set_features_transfer(nvme_tvb, cmd_tree, cmd_ctx, off, len);
             break;
 
         default:
