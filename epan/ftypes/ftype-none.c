@@ -22,7 +22,7 @@ ftype_register_none(void)
 		0,				/* wire_size */
 		NULL,				/* new_value */
 		NULL,				/* free_value */
-		NULL,				/* val_from_unparsed */
+		NULL,				/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		NULL,				/* val_to_string_repr */

@@ -78,7 +78,7 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	GByteArray *bytes;
 	tvbuff_t *new_tvb;
@@ -89,7 +89,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	fv->value.protocol.proto_string = NULL;
 
 	/* Does this look like a byte string? */
-	bytes = byte_array_from_unparsed(s, err_msg);
+	bytes = byte_array_from_literal(s, err_msg);
 	if (bytes != NULL) {
 		/* Make a tvbuff from the bytes */
 		new_tvb = tvb_new_real_data(bytes->data, bytes->len, bytes->len);
@@ -314,7 +314,7 @@ ftype_register_tvbuff(void)
 		0,				/* wire_size */
 		value_new,			/* new_value */
 		value_free,			/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		val_to_repr,			/* val_to_string_repr */

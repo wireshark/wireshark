@@ -67,7 +67,7 @@ get_guid(const char *s, e_guid_t *guid)
 }
 
 static gboolean
-guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+guid_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
      e_guid_t guid;
 
@@ -104,7 +104,7 @@ ftype_register_guid(void)
         GUID_LEN,            /* wire_size */
         NULL,                /* new_value */
         NULL,                /* free_value */
-        guid_from_unparsed,  /* val_from_unparsed */
+        guid_from_literal,   /* val_from_literal */
         NULL,                /* val_from_string */
         NULL,                /* val_from_charconst */
         guid_to_repr,        /* val_to_string_repr */

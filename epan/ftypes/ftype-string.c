@@ -70,11 +70,11 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	/* Just turn it into a string */
 	/* XXX Should probably be a syntax error instead. It's more user-friendly to ask the
-	 * user to be explicit about the meaning of unparsed than them trying to figure out
+	 * user to be explicit about the meaning of an unquoted literal than them trying to figure out
 	 * why a valid filter expression is giving wrong results. */
 	return val_from_string(fv, s, err_msg);
 }
@@ -82,7 +82,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 static gboolean
 val_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
 {
-	/* XXX Should be a syntax error if unparsed is also a syntax error. */
+	/* XXX Should be a syntax error if literal is also a syntax error. */
 
 	/* Free up the old value, if we have one */
 	string_fvalue_free(fv);
@@ -166,7 +166,7 @@ ftype_register_string(void)
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
 		string_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
@@ -189,7 +189,7 @@ ftype_register_string(void)
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
 		string_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
@@ -212,7 +212,7 @@ ftype_register_string(void)
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
 		string_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
@@ -235,7 +235,7 @@ ftype_register_string(void)
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
 		string_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */
@@ -258,7 +258,7 @@ ftype_register_string(void)
 		0,				/* wire_size */
 		string_fvalue_new,		/* new_value */
 		string_fvalue_free,		/* free_value */
-		val_from_unparsed,		/* val_from_unparsed */
+		val_from_literal,		/* val_from_literal */
 		val_from_string,		/* val_from_string */
 		val_from_charconst,		/* val_from_charconst */
 		string_to_repr,			/* val_to_string_repr */

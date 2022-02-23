@@ -169,7 +169,7 @@ bytes_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 }
 
 GByteArray *
-byte_array_from_unparsed(const char *s, gchar **err_msg)
+byte_array_from_literal(const char *s, gchar **err_msg)
 {
 	GByteArray	*bytes;
 	gboolean	res;
@@ -198,11 +198,11 @@ byte_array_from_unparsed(const char *s, gchar **err_msg)
 }
 
 static gboolean
-bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+bytes_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	GByteArray	*bytes;
 
-	bytes = byte_array_from_unparsed(s, err_msg);
+	bytes = byte_array_from_literal(s, err_msg);
 	if (bytes == NULL)
 		return FALSE;
 
@@ -248,14 +248,14 @@ bytes_from_charconst(fvalue_t *fv, unsigned long num, gchar **err_msg)
 }
 
 static gboolean
-ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+ax25_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	/*
-	 * Don't request an error message if bytes_from_unparsed fails;
+	 * Don't request an error message if bytes_from_literal fails;
 	 * if it does, we'll report an error specific to this address
 	 * type.
 	 */
-	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+	if (bytes_from_literal(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_AX25_ADDR_LEN) {
 			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid AX.25 address.",
@@ -311,14 +311,14 @@ ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gc
 }
 
 static gboolean
-vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+vines_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	/*
-	 * Don't request an error message if bytes_from_unparsed fails;
+	 * Don't request an error message if bytes_from_literal fails;
 	 * if it does, we'll report an error specific to this address
 	 * type.
 	 */
-	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+	if (bytes_from_literal(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_VINES_ADDR_LEN) {
 			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid Vines address.",
@@ -345,14 +345,14 @@ vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 }
 
 static gboolean
-ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
+ether_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	/*
-	 * Don't request an error message if bytes_from_unparsed fails;
+	 * Don't request an error message if bytes_from_literal fails;
 	 * if it does, we'll report an error specific to this address
 	 * type.
 	 */
-	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+	if (bytes_from_literal(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_ETHER_LEN) {
 			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid Ethernet address.",
@@ -379,7 +379,7 @@ ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, g
 }
 
 static gboolean
-oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+oid_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	GByteArray	*bytes;
 	gboolean	res;
@@ -392,7 +392,7 @@ oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	 * we'll log a message.
 	 */
 	/* do not try it as '.' is handled as valid separator for hexbytes :( */
-	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+	if (bytes_from_literal(fv, s, TRUE, NULL)) {
 		return TRUE;
 	}
 #endif
@@ -414,7 +414,7 @@ oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 }
 
 static gboolean
-rel_oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+rel_oid_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	GByteArray	*bytes;
 	gboolean	res;
@@ -436,14 +436,14 @@ rel_oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value 
 }
 
 static gboolean
-system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+system_id_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	/*
-	 * Don't request an error message if bytes_from_unparsed fails;
+	 * Don't request an error message if bytes_from_literal fails;
 	 * if it does, we'll report an error specific to this address
 	 * type.
 	 */
-	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+	if (bytes_from_literal(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > MAX_SYSTEMID_LEN) {
 			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid OSI System-ID.",
@@ -463,14 +463,14 @@ system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_valu
 }
 
 static gboolean
-fcwwn_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+fcwwn_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	/*
-	 * Don't request an error message if bytes_from_unparsed fails;
+	 * Don't request an error message if bytes_from_literal fails;
 	 * if it does, we'll report an error specific to this address
 	 * type.
 	 */
-	if (bytes_from_unparsed(fv, s, TRUE, NULL)) {
+	if (bytes_from_literal(fv, s, TRUE, NULL)) {
 		if (fv->value.bytes->len > FT_FCWWN_LEN) {
 			if (err_msg != NULL) {
 				*err_msg = ws_strdup_printf("\"%s\" contains too many bytes to be a valid FCWWN.",
@@ -572,7 +572,7 @@ ftype_register_bytes(void)
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		bytes_from_unparsed,		/* val_from_unparsed */
+		bytes_from_literal,		/* val_from_literal */
 		bytes_from_string,		/* val_from_string */
 		bytes_from_charconst,		/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
@@ -596,7 +596,7 @@ ftype_register_bytes(void)
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		bytes_from_unparsed,		/* val_from_unparsed */
+		bytes_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
@@ -620,7 +620,7 @@ ftype_register_bytes(void)
 		FT_AX25_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		ax25_from_unparsed,		/* val_from_unparsed */
+		ax25_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
@@ -644,7 +644,7 @@ ftype_register_bytes(void)
 		FT_VINES_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		vines_from_unparsed,		/* val_from_unparsed */
+		vines_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
@@ -668,7 +668,7 @@ ftype_register_bytes(void)
 		FT_ETHER_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		ether_from_unparsed,		/* val_from_unparsed */
+		ether_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */
@@ -692,7 +692,7 @@ ftype_register_bytes(void)
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		oid_from_unparsed,		/* val_from_unparsed */
+		oid_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		oid_to_repr,			/* val_to_string_repr */
@@ -716,7 +716,7 @@ ftype_register_bytes(void)
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		rel_oid_from_unparsed,		/* val_from_unparsed */
+		rel_oid_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		rel_oid_to_repr,		/* val_to_string_repr */
@@ -740,7 +740,7 @@ ftype_register_bytes(void)
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		system_id_from_unparsed,	/* val_from_unparsed */
+		system_id_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		system_id_to_repr,		/* val_to_string_repr */
@@ -764,7 +764,7 @@ ftype_register_bytes(void)
 		FT_FCWWN_LEN,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		fcwwn_from_unparsed,		/* val_from_unparsed */
+		fcwwn_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		bytes_to_repr,			/* val_to_string_repr */

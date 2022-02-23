@@ -42,7 +42,7 @@ sfloat_ieee_11073_fvalue_new(fvalue_t *fv)
 }
 
 static gboolean
-sfloat_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg _U_)
+sfloat_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg _U_)
 {
     const char *i_char = s;
     char          c;
@@ -467,7 +467,7 @@ float_ieee_11073_fvalue_new(fvalue_t *fv)
 }
 
 static gboolean
-float_ieee_11073_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg _U_)
+float_ieee_11073_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg _U_)
 {
     const char *i_char = s;
     char          c;
@@ -905,7 +905,7 @@ Example: 114 is 0x0072
 
         sfloat_ieee_11073_fvalue_new,         /* new_value */
         NULL,                                 /* free_value */
-        sfloat_ieee_11073_val_from_unparsed,  /* val_from_unparsed */
+        sfloat_ieee_11073_val_from_literal,   /* val_from_literal */
         NULL,                                 /* val_from_string */
         NULL,                                 /* val_from_charconst */
         sfloat_ieee_11073_val_to_repr,        /* val_to_string_repr */
@@ -956,7 +956,7 @@ Example: 36.4 is 0xFF00016C
 
         float_ieee_11073_fvalue_new,         /* new_value */
         NULL,                                /* free_value */
-        float_ieee_11073_val_from_unparsed,  /* val_from_unparsed */
+        float_ieee_11073_val_from_literal,   /* val_from_literal */
         NULL,                                /* val_from_string */
         NULL,                                /* val_from_charconst */
         float_ieee_11073_val_to_repr,        /* val_to_string_repr */

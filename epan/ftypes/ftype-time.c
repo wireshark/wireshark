@@ -91,7 +91,7 @@ get_nsecs(const char *startp, int *nsecs, const char **endptr)
 }
 
 static gboolean
-relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	const char    *curptr;
 	char *endptr;
@@ -308,7 +308,7 @@ fail:
 }
 
 static gboolean
-absolute_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+absolute_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	return absolute_val_from_string(fv, s, err_msg);
 }
@@ -416,7 +416,7 @@ ftype_register_time(void)
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */
 		NULL,				/* free_value */
-		absolute_val_from_unparsed,	/* val_from_unparsed */
+		absolute_val_from_literal,	/* val_from_literal */
 		absolute_val_from_string,	/* val_from_string */
 		NULL,				/* val_from_charconst */
 		absolute_val_to_repr,		/* val_to_string_repr */
@@ -439,7 +439,7 @@ ftype_register_time(void)
 		0,				/* wire_size */
 		time_fvalue_new,		/* new_value */
 		NULL,				/* free_value */
-		relative_val_from_unparsed,	/* val_from_unparsed */
+		relative_val_from_literal,	/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		relative_val_to_repr,		/* val_to_string_repr */

@@ -23,7 +23,7 @@ ipv6_fvalue_set(fvalue_t *fv, const guint8 *value)
 }
 
 static gboolean
-ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+ipv6_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
 {
 	const char *slash;
 	const char *addr_str;
@@ -56,7 +56,7 @@ ipv6_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 	/* If prefix */
 	if (slash) {
 		/* XXX - this is inefficient */
-		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, slash+1, FALSE, err_msg);
+		nmask_fvalue = fvalue_from_literal(FT_UINT32, slash+1, FALSE, err_msg);
 		if (!nmask_fvalue) {
 			return FALSE;
 		}
@@ -175,7 +175,7 @@ ftype_register_ipv6(void)
 		FT_IPv6_LEN,			/* wire_size */
 		NULL,				/* new_value */
 		NULL,				/* free_value */
-		ipv6_from_unparsed,		/* val_from_unparsed */
+		ipv6_from_literal,		/* val_from_literal */
 		NULL,				/* val_from_string */
 		NULL,				/* val_from_charconst */
 		ipv6_to_repr,			/* val_to_string_repr */

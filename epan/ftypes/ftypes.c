@@ -264,13 +264,13 @@ fvalue_free(fvalue_t *fv)
 }
 
 fvalue_t*
-fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg)
+fvalue_from_literal(ftenum_t ftype, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
 	fvalue_t	*fv;
 
 	fv = fvalue_new(ftype);
-	if (fv->ftype->val_from_unparsed) {
-		if (fv->ftype->val_from_unparsed(fv, s, allow_partial_value, err_msg)) {
+	if (fv->ftype->val_from_literal) {
+		if (fv->ftype->val_from_literal(fv, s, allow_partial_value, err_msg)) {
 			/* Success */
 			if (err_msg != NULL)
 				*err_msg = NULL;

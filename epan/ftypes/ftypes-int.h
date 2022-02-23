@@ -16,7 +16,7 @@
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
-typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, const char*, gboolean, gchar **);
+typedef gboolean (*FvalueFromLiteral)(fvalue_t*, const char*, gboolean, gchar **);
 typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, gchar **);
 typedef gboolean (*FvalueFromCharConst)(fvalue_t*, unsigned long, gchar **);
 typedef char *(*FvalueToStringRepr)(wmem_allocator_t *, const fvalue_t*, ftrepr_t, int field_display);
@@ -55,7 +55,7 @@ struct _ftype_t {
 	int			wire_size;
 	FvalueNewFunc		new_value;
 	FvalueFreeFunc		free_value;
-	FvalueFromUnparsed	val_from_unparsed;
+	FvalueFromLiteral	val_from_literal;
 	FvalueFromString	val_from_string;
 	FvalueFromCharConst	val_from_charconst;
 	FvalueToStringRepr	val_to_string_repr;
@@ -107,7 +107,7 @@ void ftype_register_time(void);
 void ftype_register_tvbuff(void);
 
 GByteArray *
-byte_array_from_unparsed(const char *s, gchar **err_msg);
+byte_array_from_literal(const char *s, gchar **err_msg);
 
 GByteArray *
 byte_array_from_charconst(unsigned long num, gchar **err_msg);

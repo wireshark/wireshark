@@ -147,14 +147,13 @@ entity(E) ::= UNPARSED(U).
         E = stnode_new(STTYPE_FIELD, hfinfo, df_lval_value(U));
     }
     else {
-        E = stnode_new_unparsed(df_lval_value(U), df_lval_value(U));
+        E = stnode_new_literal(df_lval_value(U), df_lval_value(U));
     }
     df_lval_free(U, FALSE);
 }
 entity(E) ::= LITERAL(S).
 {
-    /* Literals are unparsed that do not get resolved to protocols/fields. */
-    E = stnode_new_unparsed(df_lval_value(S), df_lval_value(S));
+    E = stnode_new_literal(df_lval_value(S), df_lval_value(S));
     df_lval_free(S, FALSE);
 }
 entity(E) ::= IDENTIFIER(F).
