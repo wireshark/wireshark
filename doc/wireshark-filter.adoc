@@ -172,13 +172,14 @@ Each protocol field is typed. The types are:
     Unsigned integer, 1, 2, 3, 4, or 8 bytes
     1-byte ASCII character
 
-An integer may be expressed in decimal, octal, or hexadecimal notation,
+An integer may be expressed in decimal, octal, hexadecimal or binary notation,
 or as a C-style character constant.  The following six display filters
 are equivalent:
 
     frame.len > 10
     frame.len > 012
     frame.len > 0xa
+    frame.len > 0b1010
     frame.len > '\n'
     frame.len > '\x0a'
     frame.len > '\012'

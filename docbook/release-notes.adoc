@@ -57,6 +57,7 @@ They previously shipped with Npcap 1.55.
 ** Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
 ** Date and time can be given in UTC using ISO 8601 (with 'Z' timezone) or by appending the suffix "UTC" to the legacy formats.
    Otherwise local time is used.
+** Integer literal constants may be written in binary (in addition to decimal/octal/hexadecimal) using the prefix "0b" or "0B".
 
 * text2pcap and "Import from Hex Dump":
 ** text2pcap supports writing the output file in all the capture file formats

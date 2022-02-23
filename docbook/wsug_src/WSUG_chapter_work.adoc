@@ -541,17 +541,19 @@ of the types with examples of how to use them in display filters.
 
 Unsigned integer::
   Can be 8, 16, 24, 32, or 64 bits. You can express integers in decimal, octal,
-  or hexadecimal. The following display filters are equivalent:
+  hexadecimal or binary. The following display filters are equivalent:
 +
 `ip.len le 1500`
 +
 `ip.len le 02734`
 +
 `ip.len le 0x5dc`
++
+`ip.len le 0b10111011100`
 
 Signed integer::
   Can be 8, 16, 24, 32, or 64 bits. As with unsigned integers you can use
-  decimal, octal, or hexadecimal.
+  decimal, octal, hexadecimal or binary.
 
 Boolean::
   Can be 1 (for true), or 0 (for false).

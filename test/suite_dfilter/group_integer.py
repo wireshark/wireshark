@@ -37,6 +37,22 @@ class case_integer(unittest.TestCase):
         error = '"the" was unexpected in this context.'
         checkDFilterFail(dfilter, error)
 
+    def test_eq_6(self, checkDFilterCount):
+        dfilter = "udp.srcport == 123"
+        checkDFilterCount(dfilter, 1)
+
+    def test_eq_7(self, checkDFilterCount):
+        dfilter = "udp.srcport == 0173"
+        checkDFilterCount(dfilter, 1)
+
+    def test_eq_8(self, checkDFilterCount):
+        dfilter = "udp.srcport == 0x7B"
+        checkDFilterCount(dfilter, 1)
+
+    def test_eq_9(self, checkDFilterCount):
+        dfilter = "udp.srcport == 0b1111011"
+        checkDFilterCount(dfilter, 1)
+
     def test_ne_1(self, checkDFilterCount):
         dfilter = "ip.version != 0"
         checkDFilterCount(dfilter, 1)
