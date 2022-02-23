@@ -120,6 +120,18 @@ class case_syntax(unittest.TestCase):
 class case_equality(unittest.TestCase):
     trace_file = "sip.pcapng"
 
-    def test_charconst_lhs(self, checkDFilterCount):
+    def test_all_eq_1(self, checkDFilterCount):
         dfilter = "udp.port === 5060"
         checkDFilterCount(dfilter, 2)
+
+    def test_any_ne_1(self, checkDFilterCount):
+        dfilter = "udp.port !== 5060"
+        checkDFilterCount(dfilter, 4)
+
+    def test_any_eq_1(self, checkDFilterCount):
+        dfilter = "udp.port == 5060"
+        checkDFilterCount(dfilter, 5)
+
+    def test_all_ne_1(self, checkDFilterCount):
+        dfilter = "udp.port != 5060"
+        checkDFilterCount(dfilter, 1)
