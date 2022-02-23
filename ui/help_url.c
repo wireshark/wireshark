@@ -53,7 +53,7 @@ user_guide_url(const gchar *page) {
 
     /* Fall back to wireshark.org. */
     if (url->len == 0) {
-        g_string_printf(url, WS_DOCS_URL "/wsug_html_chunked/%s", page);
+        g_string_printf(url, WS_DOCS_URL "wsug_html_chunked/%s", page);
     }
     return g_string_free(url, FALSE);
 }
@@ -78,7 +78,7 @@ topic_action_url(topic_action_e action)
         url = g_strdup(WS_DOCS_URL);
         break;
     case(ONLINEPAGE_USERGUIDE):
-        url = g_strdup(WS_DOCS_URL "/wsug_html_chunked/");
+        url = g_strdup(WS_DOCS_URL "wsug_html_chunked/");
         break;
     case(ONLINEPAGE_FAQ):
         url = g_strdup(WS_FAQ_URL);

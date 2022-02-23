@@ -218,7 +218,7 @@ void ProtoTree::ctxOpenUrlWiki()
     else
     {
         if (field_id != hf_text_only) {
-            url = QString(WS_DOCS_URL "/dfref/%1/%2")
+            url = QString(WS_DOCS_URL "dfref/%1/%2")
                 .arg(proto_abbrev[0])
                 .arg(proto_abbrev);
         } else {
@@ -243,11 +243,12 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         buildForDialog = true;
 
     QMenu ctx_menu(this);
+    ctx_menu.setProperty("toolTipsVisible", QVariant::fromValue(true));
 
     QMenu *main_menu_item, *submenu;
     QAction *action;
 
-     bool have_subtree = false;
+    bool have_subtree = false;
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
     field_info * fi = finfo.fieldInfo();
     bool is_selected = false;
@@ -342,9 +343,23 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         ctx_menu.addSeparator();
     }
 
-    ctx_menu.addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
+    int field_id = finfo.headerInfo().id;
+    action = ctx_menu.addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
+    action->setProperty("toolTip", QString(WS_WIKI_URL("Protocols/%1")).arg(proto_registrar_get_abbrev(field_id)));
+
     action = ctx_menu.addAction(tr("Filter Field Reference"), this, SLOT(ctxOpenUrlWiki()));
     action->setProperty("field_reference", QVariant::fromValue(true));
+    if (field_id != hf_text_only) {
+        action->setEnabled(true);
+        const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
+        action->setProperty("toolTip", QString(WS_DOCS_URL "dfref/%1/%2")
+                .arg(proto_abbrev[0])
+                .arg(proto_abbrev));
+    }
+    else {
+        action->setEnabled(false);
+        action->setProperty("toolTip", tr("No field reference available for text labels."));
+    }
     ctx_menu.addMenu(&proto_prefs_menu_);
     ctx_menu.addSeparator();
 
