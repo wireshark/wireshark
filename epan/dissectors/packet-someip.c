@@ -3214,7 +3214,7 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
     someip_payload_parameter_struct_t  *tmp_struct_config;
     someip_parameter_union_t           *tmp_union_config;
 
-    switch (item->data_type) {
+    switch (data_type) {
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRING:
         tmp_string_config = get_string_config(id_ref);
         if (tmp_string_config == NULL) {
