@@ -1056,6 +1056,10 @@ static void
   ldap_conv_info_t *ldap_info = NULL;
   proto_item *ldap_item = NULL;
   proto_tree *ldap_tree = NULL;
+  guint32 sasl_length = 0;
+  guint32 remaining_length = 0;
+  guint8 sasl_start[2] = { 0, };
+  gboolean detected_sasl_security = FALSE;
 
   ldm_tree = NULL;
 
@@ -1094,12 +1098,29 @@ static void
   * check if it looks like it could be a SASL blob here
   * and in that case just assume it is GSS-SPNEGO
   */
-  if(!doing_sasl_security && (tvb_bytes_exist(tvb, offset, 5))
-    &&(tvb_get_ntohl(tvb, offset)<=(guint)(tvb_reported_length_remaining(tvb, offset)-4))
-    &&(tvb_get_guint8(tvb, offset+4)==0x60) ){
+  if(!doing_sasl_security && tvb_bytes_exist(tvb, offset, 6)) {
+      sasl_length = tvb_get_ntohl(tvb, offset);
+      remaining_length = tvb_reported_length_remaining(tvb, offset);
+      sasl_start[0] = tvb_get_guint8(tvb, offset+4);
+      sasl_start[1] = tvb_get_guint8(tvb, offset+5);
+  }
+  if ((sasl_length + 4) <= remaining_length) {
+      if (sasl_start[0] == 0x05 && sasl_start[1] == 0x04) {
+        /*
+         * Likely modern kerberos signing
+         */
+        detected_sasl_security = TRUE;
+      } else if (sasl_start[0] == 0x60) {
+        /*
+         * Likely ASN.1 based kerberos
+         */
+        detected_sasl_security = TRUE;
+      }
+  }
+  if (detected_sasl_security) {
       ldap_info->auth_type=LDAP_AUTH_SASL;
       ldap_info->first_auth_frame=pinfo->num;
-      ldap_info->auth_mech=wmem_strdup(wmem_file_scope(), "GSS-SPNEGO");
+      ldap_info->auth_mech=wmem_strdup(wmem_file_scope(), "UNKNOWN");
       doing_sasl_security=TRUE;
   }
 
