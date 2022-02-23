@@ -108,6 +108,14 @@ class case_syntax(unittest.TestCase):
         dfilter = "'H' == frame[54]"
         checkDFilterCount(dfilter, 1)
 
+    def test_bool_1(self, checkDFilterCount):
+        dfilter = "tcp.flags.push == 1"
+        checkDFilterCount(dfilter, 1)
+
+    def test_bool_2(self, checkDFilterCount):
+        dfilter = "tcp.flags.push == true"
+        checkDFilterCount(dfilter, 1)
+
 @fixtures.uses_fixtures
 class case_equality(unittest.TestCase):
     trace_file = "sip.pcapng"

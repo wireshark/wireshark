@@ -20,7 +20,7 @@
 static void
 int_fvalue_new(fvalue_t *fv)
 {
-	fv->value.uinteger = 0;
+	memset(&fv->value, 0, sizeof(fv->value));
 }
 
 static void
@@ -754,10 +754,19 @@ cmp_bitwise_and64(const fvalue_t *a, const fvalue_t *b)
 
 /* BOOLEAN-specific */
 
-static void
-boolean_fvalue_new(fvalue_t *fv)
+static gboolean
+boolean_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, gchar **err_msg)
 {
-	fv->value.uinteger64 = TRUE;
+	if (g_ascii_strcasecmp(s, "true") == 0) {
+		fv->value.uinteger64 = 1;
+		return TRUE;
+	}
+	if (g_ascii_strcasecmp(s, "false") == 0) {
+		fv->value.uinteger64 = 0;
+		return TRUE;
+	}
+
+	return uint64_from_unparsed(fv, s, allow_partial_value, err_msg);
 }
 
 static char *
@@ -776,7 +785,7 @@ boolean_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _U_,
  * T  F   1
  */
 static int
-bool_cmp_order(const fvalue_t *a, const fvalue_t *b)
+boolean_cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
 	if (a->value.uinteger64) {
 		if (b->value.uinteger64) {
@@ -1240,9 +1249,9 @@ ftype_register_integers(void)
 		"FT_BOOLEAN",			/* name */
 		"Boolean",			/* pretty_name */
 		0,				/* wire_size */
-		boolean_fvalue_new,		/* new_value */
+		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
-		uint64_from_unparsed,		/* val_from_unparsed */
+		boolean_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		uint64_from_charconst,		/* val_from_charconst */
 		boolean_to_repr,		/* val_to_string_repr */
@@ -1250,7 +1259,7 @@ ftype_register_integers(void)
 		{ .set_value_uinteger64 = set_uinteger64 },	/* union set_value */
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
-		bool_cmp_order,			/* cmp_eq */
+		boolean_cmp_order,		/* cmp_eq */
 		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
