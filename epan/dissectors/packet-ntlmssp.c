@@ -316,6 +316,9 @@ typedef struct _ntlmssp_packet_info {
   gboolean  verifier_decrypted;
 } ntlmssp_packet_info;
 
+static int
+dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+
 #ifdef DEBUG_NTLMSSP
 static void printnbyte(const guint8* tab, int nb, const char* txt, const char* txt2)
 {
@@ -2374,6 +2377,16 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   proto_tree *volatile  ntlmssp_tree = NULL;
   proto_item           *tf, *type_item;
   ntlmssp_header_t     *ntlmssph;
+
+  /* Check if it is a signing signature */
+  if (tvb_bytes_exist(tvb, offset, 16) &&
+      tvb_reported_length_remaining(tvb, offset) == 16 &&
+      tvb_get_guint8(tvb, offset) == 0x01)
+  {
+      tvbuff_t *verf_tvb = tvb_new_subset_length(tvb, offset, 16);
+      offset += dissect_ntlmssp_verf(verf_tvb, pinfo, tree, NULL);
+      return offset;
+  }
 
   ntlmssph = wmem_new(wmem_packet_scope(), ntlmssp_header_t);
   ntlmssph->type = 0;
