@@ -2048,8 +2048,12 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   /* If there are more bytes before the data block dissect a version field
      if NTLMSSP_NEGOTIATE_VERSION is set in the flags (see MS-NLMP) */
   if (offset < data_start) {
-    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION)
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_VERSION) {
       offset = dissect_ntlmssp_version(tvb, offset, ntlmssp_tree);
+    } else {
+      proto_tree_add_item(ntlmssp_tree, hf_ntlmssp_ntlmv2_response_z, tvb, offset, 8, ENC_NA);
+      offset += 8;
+    }
   }
 
   /* If there are still more bytes before the data block dissect an MIC (message integrity_code) field */
