@@ -426,6 +426,7 @@ MainWindow::MainWindow(QWidget *parent) :
     df_combo_box_ = new DisplayFilterCombo(this);
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
+    connect(df_combo_box_, &QComboBox::editTextChanged, funnel_statistics_, &FunnelStatistics::displayFilterTextChanged);
     connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &MainWindow::setDisplayFilter);
     connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
             this, SLOT(openCaptureFile(QString, QString)));
