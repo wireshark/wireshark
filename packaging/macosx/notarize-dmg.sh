@@ -67,8 +67,8 @@ if [[ "$request_uuid" != *-*-*-*-* ]] ; then
 	exit 1
 fi
 
-eval_info_cmd=(xcrun altool \
-	--eval-info "$request_uuid" \
+notarization_info_cmd=(xcrun altool \
+	--notarization-info "$request_uuid" \
 	--user "$username" \
 	--password "@keychain:${generic_pw_service}" \
 	)
@@ -82,7 +82,7 @@ while true ; do
 	sleep 15
 	elapsed=$(( SECONDS - start ))
 	echo "done. Checking status after ${elapsed}s"
- 	"${eval_info_cmd[@]}" 2>&1 | tee "$altool_out"
+	"${notarization_info_cmd[@]}" 2>&1 | tee "$altool_out"
 	grep "Status: in progress" "$altool_out" > /dev/null 2>&1 || break
 	if [[ $elapsed -gt $max_status_wait ]] ; then break ; fi
 done
@@ -93,7 +93,7 @@ if ! grep "Status: success" "$altool_out" > /dev/null 2>&1 ; then
 	echo "Notarization failed or timed out:"
 	cat "$altool_out"
 	echo -e "\\nInfo command:"
-	echo "${eval_info_cmd[@]}"
+	echo "${notarization_info_cmd[@]}"
 	echo -e "\\nStaple command:"
 	echo "${staple_cmd[@]}"
 	echo "You can check the status of the Notary Service at https://developer.apple.com/system-status/."
