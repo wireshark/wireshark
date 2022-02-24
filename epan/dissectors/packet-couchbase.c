@@ -1944,41 +1944,53 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean    missing = FALSE;  /* Set when key is missing */
 
   if (keylen) {
-    ti = proto_tree_add_item(tree, hf_key, tvb, offset, keylen, ENC_UTF_8|ENC_STR_HEX);
-
-    /* assume collections are enabled and add a field for the CID */
-    guint32 cid = 0;
-    gint ok = dissect_unsigned_leb128(tvb, offset, offset + keylen, &cid);
-
-    /* Add collection info to a subtree */
-    proto_tree* cid_tree = proto_item_add_subtree(ti,
-                                                  ett_collection_key);
-
-    if (ok != -1) {
-      proto_tree_add_uint(cid_tree,
-                          hf_collection_key_id,
-                          tvb,
-                          offset,
-                          (ok - offset),
-                          cid);
-      proto_tree_add_item(cid_tree,
-                          hf_collection_key_logical,
-                          tvb,
-                          ok,
-                          keylen - (ok - offset),
-                          ENC_UTF_8|ENC_STR_HEX);
-    } else {
-      /* cid decode issue, could just be a non-collection stream, don't warn
-         just add some info */
-      proto_tree_add_string_format(cid_tree,
-                                   hf_collection_key_logical,
-                                   tvb,
-                                   offset,
-                                   keylen,
-                                   NULL,
-                                   "Collection ID didn't decode, maybe no CID.");
+    bool collection_encoded_key = TRUE;
+    switch (opcode) {
+      case CLIENT_OPCODE_STAT:
+      case CLIENT_OPCODE_HELLO:
+      case CLIENT_OPCODE_SASL_AUTH:
+      case CLIENT_OPCODE_SASL_STEP:
+      case CLIENT_OPCODE_IOCTL_GET:
+      case CLIENT_OPCODE_IOCTL_SET:
+      case CLIENT_OPCODE_DCP_CONTROL:
+      case CLIENT_OPCODE_SET_PARAM:
+      case CLIENT_OPCODE_CREATE_BUCKET:
+      case CLIENT_OPCODE_DELETE_BUCKET:
+      case CLIENT_OPCODE_SELECT_BUCKET:
+      case CLIENT_OPCODE_IFCONFIG:
+        collection_encoded_key = FALSE;
+        break;
+      default:
+        break;
     }
 
+    ti = proto_tree_add_item(tree, hf_key, tvb, offset, keylen, ENC_UTF_8|ENC_STR_HEX);
+
+    if (collection_encoded_key) {
+      /* assume collections are enabled and add a field for the CID */
+      guint32 cid = 0;
+      gint ok = dissect_unsigned_leb128(tvb, offset, offset + keylen, &cid);
+
+      /* Add collection info to a subtree */
+      proto_tree *cid_tree = proto_item_add_subtree(ti, ett_collection_key);
+
+      if (ok == -1) {
+        /* cid decode issue, could just be a non-collection stream, don't warn
+           just add some info */
+        proto_tree_add_string_format(cid_tree,
+                                     hf_collection_key_logical,
+                                     tvb,
+                                     offset,
+                                     keylen,
+                                     NULL,
+                                     "Collection ID didn't decode, maybe no CID.");
+      } else {
+        proto_tree_add_uint(cid_tree, hf_collection_key_id, tvb, offset,
+                            (ok - offset), cid);
+        proto_tree_add_item(cid_tree, hf_collection_key_logical, tvb,
+                            ok, keylen - (ok - offset), ENC_UTF_8 | ENC_STR_HEX);
+      }
+    }
     offset += keylen;
   }
 
