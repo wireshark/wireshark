@@ -34,7 +34,9 @@ jobs:
         run: pytest
         working-directory: build
       - name: Build debian pkg
-        run: dpkg-buildpackage -b -us -uc -jauto
+        run: |
+          ln --symbolic --no-dereference --force packaging/debian
+          dpkg-buildpackage -b -us -uc -jauto
       - name: Move deb packages
         run: |
           mkdir deb
