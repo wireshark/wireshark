@@ -3863,33 +3863,26 @@ capture_loop_dequeue_packet(void) {
 static char *
 handle_npcap_bug(char *adapter_name _U_, char *cap_err_str _U_)
 {
-    GString *pcap_info_str;
-    GString *windows_info_str;
-    char *msg;
+    gboolean have_npcap = FALSE;
 
-    pcap_info_str = g_string_new("");
-    // TODO: test directly for Npcap here, so we can remove
-    // get_runtime_caplibs_version()
-    get_runtime_caplibs_version(pcap_info_str);
-    if (!g_str_has_prefix(pcap_info_str->str, "Npcap")) {
+#ifdef _WIN32
+    have_npcap = caplibs_have_npcap();
+#endif
+
+    if (!have_npcap) {
         /*
          * We're not using Npcap, so don't recomment a user
          * file a bug against Npcap.
          */
-        g_string_free(pcap_info_str, TRUE);
         return g_strdup("");
     }
-    windows_info_str = g_string_new("");
-    get_os_version_info(windows_info_str);
-    msg = ws_strdup_printf("If you have not removed that adapter, this "
+
+    return ws_strdup_printf("If you have not removed that adapter, this "
                           "is probably a known issue in Npcap resulting from "
                           "the behavior of the Windows networking stack. "
                           "Work is being done in Npcap to improve the "
                           "handling of this issue; it does not need to "
                           "be reported as a Wireshark or Npcap bug.");
-    g_string_free(windows_info_str, TRUE);
-    g_string_free(pcap_info_str, TRUE);
-    return msg;
 }
 
 /* Do the low-level work of a capture.

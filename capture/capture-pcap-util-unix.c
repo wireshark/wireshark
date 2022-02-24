@@ -160,25 +160,6 @@ gather_caplibs_compile_info(feature_list l)
 #endif /* __linux__ */
 }
 
-/*
- * Append the version of libpcap with which we're running to a GString.
- * Used in dumpcap when reporting a pcap bug.
- */
-void
-get_runtime_caplibs_version(GString *str)
-{
-	const char *vstr = pcap_lib_version();
-
-	/*
-	 * Remove the substring "version" from the output of pcap_lib_version()
-	 * to be consistent with our format.
-	 */
-	if (g_str_has_prefix(vstr, "libpcap version ")) /* Sanity check */
-		g_string_append_printf(str, "libpcap %s", vstr + strlen("libpcap version "));
-	else
-		g_string_append(str, vstr);
-}
-
 void
 gather_caplibs_runtime_info(feature_list l)
 {
@@ -205,14 +186,6 @@ void
 gather_caplibs_compile_info(feature_list l)
 {
 	without_feature(l, "libpcap");
-}
-
-/*
- * Don't append anything, as we weren't even compiled to use libpcap.
- */
-void
-get_runtime_caplibs_version(GString *str _U_)
-{
 }
 
 void

@@ -88,8 +88,11 @@ extern void gather_caplibs_compile_info(feature_list l);
  * WinPcap/Npcap wasn't loaded, or nothing, if we weren't compiled with
  * libpcap/WinPcap/Npcap.
  */
-extern void get_runtime_caplibs_version(GString *str);
 extern void gather_caplibs_runtime_info(feature_list l);
+
+#ifdef _WIN32
+extern gboolean caplibs_have_npcap(void);
+#endif
 
 #ifdef __cplusplus
 }

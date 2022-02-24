@@ -221,6 +221,12 @@ load_wpcap(void)
 	has_wpcap = TRUE;
 }
 
+gboolean
+caplibs_have_npcap(void)
+{
+	return has_wpcap && g_str_has_prefix(p_pcap_lib_version(), "Npcap");
+}
+
 static char *
 local_code_page_str_to_utf8(char *str)
 {
@@ -819,24 +825,6 @@ gather_caplibs_compile_info(feature_list l)
 	with_feature(l, "libpcap");
 }
 
-
-/*
- * Append the version of Npcap with which we're running to a GString.
- * Used in dumpcap when reporting a pcap bug.
- */
-void
-get_runtime_caplibs_version(GString *str)
-{
-	/*
-	 * On Windows, we might have been compiled with WinPcap/Npcap but
-	 * might not have it loaded; indicate whether we have it or
-	 * not and, if we have it, what version we have.
-	 */
-	if (has_wpcap) {
-		g_string_append(str, p_pcap_lib_version());
-	}
-}
-
 void
 gather_caplibs_runtime_info(feature_list l)
 {
@@ -903,18 +891,15 @@ gather_caplibs_compile_info(feature_list l)
 	without_feature(l, "libpcap");
 }
 
-
-/*
- * Don't append anything, as we weren't even compiled to use WinPcap/Npcap.
- */
-void
-get_runtime_caplibs_version(GString *str _U_)
-{
-}
-
 void
 gather_caplibs_runtime_info(feature_list l _U_)
 {
+}
+
+gboolean
+caplibs_have_npcap(void)
+{
+	return FALSE;
 }
 
 #endif /* HAVE_LIBPCAP */
