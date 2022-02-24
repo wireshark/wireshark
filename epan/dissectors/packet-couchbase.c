@@ -966,6 +966,8 @@ static const value_string feature_vals[] = {
   {0x15, "VAttr"},
   {0x16, "Point in Time Recovery"},
   {0x17, "SubdocCreateAsDeleted"},
+  {0x18, "SubdocDocumentMacroSupport"},
+  {0x19, "SubdocReplaceBodyWithXattr"},
   {0, NULL}
 };
 
@@ -3142,7 +3144,7 @@ proto_register_couchbase(void)
     { &hf_bucket_config, {"Bucket Config", "couchbase.bucket.config", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_config_key, {"Key", "couchbase.bucket.config.key", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_config_value, {"Value", "couchbase.bucket.config.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
-    { &hf_hello_features, {"Hello Features", "couchbase.hello.features", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_hello_features, {"Hello Features", "couchbase.hello.features", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_hello_features_feature, {"Feature", "couchbase.hello.features.feature", FT_UINT16, BASE_HEX, VALS(feature_vals), 0x0, NULL, HFILL} },
 
     { &hf_xattrs, { "XATTRs", "couchbase.xattrs", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL} },
