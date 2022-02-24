@@ -1,4 +1,4 @@
-/* str_util.h
+/** @file
  * String utility definitions
  *
  * Wireshark - Network traffic analyzer
@@ -17,6 +17,58 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+WS_DLL_PUBLIC
+gchar *
+wmem_strconcat(wmem_allocator_t *allocator, const gchar *first, ...)
+G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
+
+WS_DLL_PUBLIC
+gchar *
+wmem_strjoin(wmem_allocator_t *allocator,
+             const gchar *separator, const gchar *first, ...)
+G_GNUC_MALLOC G_GNUC_NULL_TERMINATED;
+
+WS_DLL_PUBLIC
+gchar *
+wmem_strjoinv(wmem_allocator_t *allocator,
+              const gchar *separator, gchar **str_array)
+G_GNUC_MALLOC;
+
+/**
+ * Splits a string into a maximum of max_tokens pieces, using the given
+ * delimiter. If max_tokens is reached, the remainder of string is appended
+ * to the last token. Successive tokens are not folded and will instead result
+ * in an empty string as element.
+ *
+ * If src or delimiter are NULL, or if delimiter is empty, this will return
+ * NULL.
+ *
+ * Do not use with a NULL allocator, use g_strsplit instead.
+ */
+WS_DLL_PUBLIC
+gchar **
+wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
+        const gchar *delimiter, int max_tokens);
+
+/**
+ * wmem_ascii_strdown:
+ * Based on g_ascii_strdown
+ * @param allocator  An enumeration of the different types of available allocators.
+ * @param str a string.
+ * @param len length of str in bytes, or -1 if str is nul-terminated.
+ *
+ * Converts all upper case ASCII letters to lower case ASCII letters.
+ *
+ * Return value: a newly-allocated string, with all the upper case
+ *               characters in str converted to lower case, with
+ *               semantics that exactly match g_ascii_tolower(). (Note
+ *               that this is unlike the old g_strdown(), which modified
+ *               the string in place.)
+ **/
+WS_DLL_PUBLIC
+gchar*
+wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len);
 
 /** Convert all upper-case ASCII letters to their ASCII lower-case
  *  equivalents, in place, with a simple non-locale-dependent
@@ -62,14 +114,34 @@ gchar *ascii_strup_inplace(gchar *str);
 WS_DLL_PUBLIC
 gboolean isprint_string(const gchar *str);
 
-/** Check if an entire UTF-8 string consists of printable characters
+/** Given a not-necessarily-null-terminated string, expected to be in
+ *  UTF-8 but possibly containing invalid sequences (as it may have come
+ *  from packet data), and the length of the string, deterimine if the
+ *  string is valid UTF-8 consisting entirely of printable characters.
+ *
+ *  This means that it:
+ *
+ *   does not contain an illegal UTF-8 sequence (including overlong encodings,
+ *   the sequences reserved for UTF-16 surrogate halves, and the values for
+ *   code points above U+10FFFF that are no longer in Unicode)
+ *
+ *   does not contain a non-printable Unicode character such as control
+ *   characters (including internal NULL bytes)
+ *
+ *   does not end in a partial sequence that could begin a valid character;
+ *
+ *   does not start with a partial sequence that could end a valid character;
+ *
+ * and thus guarantees that the result of format_text() would be the same as
+ * that of wmem_strndup() with the same parameters.
  *
  * @param str    The string to be checked
  * @param length The number of bytes to validate
- * @return       TRUE if the entire string is printable, otherwise FALSE
+ * @return       TRUE if the entire string is valid and printable UTF-8,
+ *               otherwise FALSE
  */
 WS_DLL_PUBLIC
-gboolean isprint_utf8_string(const gchar *str, guint length);
+gboolean isprint_utf8_string(const gchar *str, const guint length);
 
 /** Check if an entire string consists of digits
  *
@@ -79,21 +151,50 @@ gboolean isprint_utf8_string(const gchar *str, guint length);
 WS_DLL_PUBLIC
 gboolean isdigit_string(const guchar *str);
 
+/**
+ * Return the first occurrence of needle in haystack.
+ *
+ * @param haystack The data to search
+ * @param haystack_len The length of the search data
+ * @param needle The string to look for
+ * @param needle_len The length of the search string
+ * @return A pointer to the first occurrence of "needle" in
+ *         "haystack".  If "needle" isn't found or is NULL, or if
+ *         "needle_len" is 0, NULL is returned.
+ */
+WS_DLL_PUBLIC
+const guint8 *ws_memmem(const void *haystack, size_t haystack_len,
+                        const void *needle, size_t needle_len);
+
+/** Finds the first occurrence of string 'needle' in string 'haystack'.
+ *  The matching is done in a case insensitive manner.
+ *
+ * @param haystack The string possibly containing the substring
+ * @param needle The substring to be searched
+ * @return A pointer into 'haystack' where 'needle' is first found.
+ *   Otherwise it returns NULL.
+ */
+WS_DLL_PUBLIC
+const char *ws_strcasestr(const char *haystack, const char *needle);
+
+WS_DLL_PUBLIC
+char *ws_escape_string(wmem_allocator_t *alloc, const char *string, bool add_quotes);
+
 WS_DLL_PUBLIC
 int ws_xton(char ch);
 
 typedef enum {
-    format_size_unit_none      = 0,     /**< No unit will be appended. You must supply your own. */
-    format_size_unit_bytes     = 1,     /**< "bytes" for un-prefixed sizes, "B" otherwise. */
-    format_size_unit_bits      = 2,     /**< "bits" for un-prefixed sizes, "b" otherwise. */
-    format_size_unit_bits_s    = 3,     /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
-    format_size_unit_bytes_s   = 4,     /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
-    format_size_unit_packets   = 5,     /**< "packets" */
-    format_size_unit_packets_s = 6,     /**< "packets/s" */
-    format_size_prefix_si    = 0 << 8,  /**< SI (power of 1000) prefixes will be used. */
-    format_size_prefix_iec   = 1 << 8   /**< IEC (power of 1024) prefixes will be used. */
-    /* XXX format_size_prefix_default_for_this_particular_os ? */
-} format_size_flags_e;
+    FORMAT_SIZE_UNIT_NONE,          /**< No unit will be appended. You must supply your own. */
+    FORMAT_SIZE_UNIT_BYTES,         /**< "bytes" for un-prefixed sizes, "B" otherwise. */
+    FORMAT_SIZE_UNIT_BITS,          /**< "bits" for un-prefixed sizes, "b" otherwise. */
+    FORMAT_SIZE_UNIT_BITS_S,        /**< "bits/s" for un-prefixed sizes, "bps" otherwise. */
+    FORMAT_SIZE_UNIT_BYTES_S,       /**< "bytes/s" for un-prefixed sizes, "Bps" otherwise. */
+    FORMAT_SIZE_UNIT_PACKETS,       /**< "packets" */
+    FORMAT_SIZE_UNIT_PACKETS_S,     /**< "packets/s" */
+} format_size_units_e;
+
+#define FORMAT_SIZE_PREFIX_SI   (1 << 0)    /**< SI (power of 1000) prefixes will be used. */
+#define FORMAT_SIZE_PREFIX_IEC  (1 << 1)    /**< IEC (power of 1024) prefixes will be used. */
 
 /** Given a size, return its value in a human-readable format
  *
@@ -105,23 +206,27 @@ typedef enum {
  * @return A newly-allocated string representing the value.
  */
 WS_DLL_PUBLIC
-gchar *format_size_wmem(wmem_allocator_t *allocator, gint64 size, format_size_flags_e flags);
+char *format_size_wmem(wmem_allocator_t *allocator, int64_t size,
+                        format_size_units_e unit, uint16_t flags);
 
-#define format_size(size, flags)    format_size_wmem(NULL, size, flags)
+#define format_size(size, unit, flags) \
+    format_size_wmem(NULL, size, unit, flags)
 
 WS_DLL_PUBLIC
 gchar printable_char_or_period(gchar c);
+
+WS_DLL_PUBLIC WS_RETNONNULL
+const char *ws_strerrorname_r(int errnum, char *buf, size_t buf_size);
 
 /* To pass one of two strings, singular or plural */
 #define plurality(d,s,p) ((d) == 1 ? (s) : (p))
 
 #define true_or_false(val) ((val) ? "TRUE" : "FALSE")
 
+#define string_or_null(val) ((val) ? (val) : "[NULL]")
+
 #ifdef __cplusplus
 }
-
-/* Should we just have separate unit and prefix enums instead? */
-extern format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs);
 #endif /* __cplusplus */
 
 #endif /* __STR_UTIL_H__ */

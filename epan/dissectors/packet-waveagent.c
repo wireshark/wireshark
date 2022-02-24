@@ -218,7 +218,7 @@ static void dissect_wlan_if_stats(guint32 starting_offset, proto_item *parent_tr
     /* two bytes of pad go here */
 
     proto_tree_add_item(parent_tree,
-        hf_waveagent_ifwlanssid, tvb, starting_offset + 8, 32, ENC_ASCII|ENC_NA);
+        hf_waveagent_ifwlanssid, tvb, starting_offset + 8, 32, ENC_ASCII);
 
     /* 4 byte SSID length field not reported */
 
@@ -334,7 +334,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 hf_waveagent_iflinkspeed, tvb, starting_offset + 20, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_ifdescription, tvb, starting_offset + 24, 128, ENC_ASCII|ENC_NA);
+                hf_waveagent_ifdescription, tvb, starting_offset + 24, 128, ENC_ASCII);
 
             /* 4 byte length field goes here - skip it */
 
@@ -458,7 +458,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 hf_waveagent_oidcode, tvb, starting_offset + 4, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_oidvalue, tvb, starting_offset + 12, 1024, ENC_ASCII|ENC_NA);
+                hf_waveagent_oidvalue, tvb, starting_offset + 12, 1024, ENC_ASCII);
 
             break;
 
@@ -505,7 +505,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 current_offset = offset + iLoop * delta;
 
                 bssIndex = proto_tree_add_item(parent_tree,
-                    hf_waveagent_scanssid, tvb, current_offset, 32, ENC_ASCII|ENC_NA);
+                    hf_waveagent_scanssid, tvb, current_offset, 32, ENC_ASCII);
 
                 bss_tree = proto_item_add_subtree(bssIndex, ett_bss[iLoop]);
 
@@ -747,7 +747,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 hf_waveagent_connecttype, tvb, starting_offset + 8, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_scanssid, tvb, starting_offset + 12, 32, ENC_ASCII|ENC_NA);
+                hf_waveagent_scanssid, tvb, starting_offset + 12, 32, ENC_ASCII);
 
             num_bss_entries = tvb_get_ntohl(tvb, starting_offset + 142);
 
@@ -802,13 +802,13 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 hf_waveagent_capimpl, tvb, starting_offset, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_id, tvb, starting_offset + 4, 128, ENC_ASCII|ENC_NA);
+                hf_waveagent_id, tvb, starting_offset + 4, 128, ENC_ASCII);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_bindtag, tvb, starting_offset + 136, 128, ENC_ASCII|ENC_NA);
+                hf_waveagent_bindtag, tvb, starting_offset + 136, 128, ENC_ASCII);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_version, tvb, starting_offset + 268, 128, ENC_ASCII|ENC_NA);
+                hf_waveagent_version, tvb, starting_offset + 268, 128, ENC_ASCII);
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_brokerip, tvb, starting_offset + 400, 4, ENC_BIG_ENDIAN);
@@ -837,7 +837,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
 
         case 0x82:    /* Reserve request */
             proto_tree_add_item(parent_tree,
-                hf_waveagent_bindtag, tvb, starting_offset, 128, ENC_ASCII|ENC_NA);
+                hf_waveagent_bindtag, tvb, starting_offset, 128, ENC_ASCII);
 
             proto_tree_add_item(parent_tree,
                 hf_waveagent_brokerip, tvb, starting_offset + 132, 4, ENC_BIG_ENDIAN);
@@ -932,7 +932,7 @@ static void dissect_wa_payload(guint32 starting_offset, proto_item *parent_tree,
                 hf_waveagent_syserrno, tvb, starting_offset + 4, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(parent_tree,
-                hf_waveagent_statusstring, tvb, starting_offset + 8, 128, ENC_ASCII|ENC_NA);
+                hf_waveagent_statusstring, tvb, starting_offset + 8, 128, ENC_ASCII);
 
             break;
     }

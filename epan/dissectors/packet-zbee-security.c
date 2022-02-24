@@ -148,7 +148,7 @@ static gboolean uat_key_record_update_cb(void* r, char** err) {
         if (rec->string[0] != 0) {
             *err = NULL;
             if ( !zbee_security_parse_key(rec->string, key, rec->byte_order) ) {
-                *err = g_strdup_printf("Expecting %d hexadecimal bytes or\n"
+                *err = ws_strdup_printf("Expecting %d hexadecimal bytes or\n"
                         "a %d character double-quoted string", ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
                 return FALSE;
             }
@@ -1129,7 +1129,7 @@ zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
      * append the byte 0x80.
      */
     cipher_in[j++] = 0x80;
-    /* Pad with '0' until the the current block is exactly 'n' bits from the
+    /* Pad with '0' until the current block is exactly 'n' bits from the
      * end.
      */
     while (j!=(ZBEE_SEC_CONST_BLOCKSIZE-2)) {

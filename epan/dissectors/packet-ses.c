@@ -549,7 +549,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		proto_tree_add_item(param_tree,
 			    hf_initial_serial_number,
-			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
+			    tvb, offset, param_len, ENC_ASCII);
 		break;
 
 	case EnclosureItem:
@@ -629,7 +629,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 		proto_tree_add_item(param_tree,
 			    hf_serial_number,
-			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
+			    tvb, offset, param_len, ENC_ASCII);
 		break;
 
 	case Reason_Code:
@@ -688,7 +688,7 @@ PICS.    */
 
 		proto_tree_add_item(param_tree,
 			    hf_second_serial_number,
-			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
+			    tvb, offset, param_len, ENC_ASCII);
 		break;
 
 	case Second_Initial_Serial_Number:
@@ -697,7 +697,7 @@ PICS.    */
 
 		proto_tree_add_item(param_tree,
 			    hf_second_initial_serial_number,
-			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
+			    tvb, offset, param_len, ENC_ASCII);
 		break;
 
 	case Large_Initial_Serial_Number:
@@ -706,7 +706,7 @@ PICS.    */
 
 		proto_tree_add_item(param_tree,
 			    hf_large_initial_serial_number,
-			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
+			    tvb, offset, param_len, ENC_ASCII);
 		break;
 
 	case Large_Second_Initial_Serial_Number:
@@ -715,7 +715,7 @@ PICS.    */
 
 		proto_tree_add_item(param_tree,
 			    hf_large_second_initial_serial_number,
-			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
+			    tvb, offset, param_len, ENC_ASCII);
 		break;
 
 	default:

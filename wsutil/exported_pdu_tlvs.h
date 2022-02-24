@@ -1,5 +1,5 @@
-/*
- * exported_pdu_tlvs.h
+/** @file
+ *
  * Definitions for exported_pdu TLVs
  * Copyright 2013, Anders Broman <anders-broman@ericsson.com>
  *

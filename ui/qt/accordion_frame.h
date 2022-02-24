@@ -1,4 +1,4 @@
-/* accordion_frame.cpp
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

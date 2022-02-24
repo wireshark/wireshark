@@ -233,15 +233,15 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
     case ITU_STANDARD:
       switch (itu_pc_structure) {
         case ITU_PC_STRUCTURE_NONE:
-          g_snprintf(buf, buf_len, "%u", pc);
+          snprintf(buf, buf_len, "%u", pc);
           break;
         case ITU_PC_STRUCTURE_3_8_3:
           /* this format is used in international ITU networks */
-          g_snprintf(buf, buf_len, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
+          snprintf(buf, buf_len, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
           break;
         case ITU_PC_STRUCTURE_4_3_4_3:
           /* this format is used in some national ITU networks, the German one for example. */
-          g_snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
+          snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
           break;
         default:
           DISSECTOR_ASSERT_NOT_REACHED();
@@ -249,20 +249,20 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
       break;
     case ANSI_STANDARD:
     case CHINESE_ITU_STANDARD:
-      g_snprintf(buf, buf_len, "%u-%u-%u", (pc & ANSI_NETWORK_MASK) >> 16, (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK));
+      snprintf(buf, buf_len, "%u-%u-%u", (pc & ANSI_NETWORK_MASK) >> 16, (pc & ANSI_CLUSTER_MASK) >> 8, (pc & ANSI_MEMBER_MASK));
       break;
     case JAPAN_STANDARD:
       switch (japan_pc_structure) {
         case JAPAN_PC_STRUCTURE_NONE:
-          g_snprintf(buf, buf_len, "%u", pc);
+          snprintf(buf, buf_len, "%u", pc);
           break;
         case JAPAN_PC_STRUCTURE_7_4_5:
           /* This format is specified by NTT */
-          g_snprintf(buf, buf_len, "%u-%u-%u", (pc & 0xfe00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
+          snprintf(buf, buf_len, "%u-%u-%u", (pc & 0xfe00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
           break;
         case JAPAN_PC_STRUCTURE_3_4_4_5:
           /* Where does this format come from? */
-          g_snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0xe000)>>13, (pc & 0x1e00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
+          snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0xe000)>>13, (pc & 0x1e00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
           break;
         default:
           DISSECTOR_ASSERT_NOT_REACHED();
@@ -310,14 +310,14 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & ITU_PC_MASK);
+          snprintf(buf, buf_len, "%u", addr_pc_p->pc & ITU_PC_MASK);
           break;
         case JAPAN_STANDARD:
-          g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & JAPAN_PC_MASK);
+          snprintf(buf, buf_len, "%u", addr_pc_p->pc & JAPAN_PC_MASK);
           break;
         default:
           /* assuming 24-bit */
-          g_snprintf(buf, buf_len, "%u", addr_pc_p->pc & ANSI_PC_MASK);
+          snprintf(buf, buf_len, "%u", addr_pc_p->pc & ANSI_PC_MASK);
           break;
       }
       break;
@@ -326,14 +326,14 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          g_snprintf(buf, buf_len, "%x", addr_pc_p->pc & ITU_PC_MASK);
+          snprintf(buf, buf_len, "%x", addr_pc_p->pc & ITU_PC_MASK);
           break;
         case JAPAN_STANDARD:
-          g_snprintf(buf, buf_len, "%x", addr_pc_p->pc & JAPAN_PC_MASK);
+          snprintf(buf, buf_len, "%x", addr_pc_p->pc & JAPAN_PC_MASK);
           break;
         default:
           /* assuming 24-bit */
-          g_snprintf(buf, buf_len, "%x", addr_pc_p->pc & ANSI_PC_MASK);
+          snprintf(buf, buf_len, "%x", addr_pc_p->pc & ANSI_PC_MASK);
           break;
       }
       break;
@@ -342,14 +342,14 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
+          snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
           break;
         case JAPAN_STANDARD:
-          g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
+          snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
           break;
         default:
           /* assuming 24-bit */
-          g_snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
+          snprintf(buf, buf_len, "%u:%u", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
           break;
       }
       break;
@@ -358,14 +358,14 @@ mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
       switch (addr_pc_p->type)
       {
         case ITU_STANDARD:
-          g_snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
+          snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ITU_PC_MASK);
           break;
         case JAPAN_STANDARD:
-          g_snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
+          snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & JAPAN_PC_MASK);
           break;
         default:
           /* assuming 24-bit */
-          g_snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
+          snprintf(buf, buf_len, "%u:%x", addr_pc_p->ni, addr_pc_p->pc & ANSI_PC_MASK);
           break;
       }
       break;
@@ -459,11 +459,11 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
    * NOTE: each of these formats is shown to the user,
    * so I think that using hidden fields in this case is OK.
    */
-  g_snprintf(pc_string, sizeof(pc_string), "%u", pc);
+  snprintf(pc_string, sizeof(pc_string), "%u", pc);
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
   proto_item_set_hidden(hidden_item);
-  g_snprintf(pc_string, sizeof(pc_string), "0x%x", pc);
+  snprintf(pc_string, sizeof(pc_string), "0x%x", pc);
   proto_item_append_text(pc_item, " (%s)", pc_string);
   hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
   proto_item_set_hidden(hidden_item);
@@ -924,7 +924,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
     if (sis) {
       col_str = g_strdup(sis);
     } else {
-      col_str = g_strdup_printf("Unknown service indicator %d", m3tr->mtp3_si_code);
+      col_str = ws_strdup_printf("Unknown service indicator %d", m3tr->mtp3_si_code);
     }
 
     item_data = stat_tap_get_field_data(table, element, SI_COLUMN);

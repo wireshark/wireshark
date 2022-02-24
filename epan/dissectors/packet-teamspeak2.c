@@ -623,13 +623,13 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree, wmem_allo
         proto_tree_add_item(ts2_tree, hf_ts2_max_users, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset+=2;
         tvb_get_stringz_enc(pool, tvb, offset, &string_len, ENC_ASCII);
-        proto_tree_add_item(ts2_tree, hf_ts2_channel_name, tvb, offset, string_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ts2_tree, hf_ts2_channel_name, tvb, offset, string_len, ENC_ASCII);
         offset+=string_len;
         tvb_get_stringz_enc(pool, tvb, offset, &string_len, ENC_ASCII);
-        proto_tree_add_item(ts2_tree, hf_ts2_channel_topic, tvb, offset, string_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ts2_tree, hf_ts2_channel_topic, tvb, offset, string_len, ENC_ASCII);
         offset+=string_len;
         tvb_get_stringz_enc(pool, tvb, offset, &string_len, ENC_ASCII);
-        proto_tree_add_item(ts2_tree, hf_ts2_channel_description, tvb, offset, string_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ts2_tree, hf_ts2_channel_description, tvb, offset, string_len, ENC_ASCII);
         offset+=string_len;
     }
 }

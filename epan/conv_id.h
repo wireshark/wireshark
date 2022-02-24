@@ -1,4 +1,5 @@
-/* conv_id.h
+/** @file
+ *
  * conv_id   2011 Robert Bullen
  *
  * Wireshark - Network traffic analyzer

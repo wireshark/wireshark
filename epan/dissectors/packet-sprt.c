@@ -674,8 +674,8 @@ static const value_string sprt_prof_xchg_support[] = {
 
 static const range_string sprt_payload_dlci1[] = {
     { SPRT_VALUE_RANGE(SPRT_PAYLOAD_DLCI1_DTE2DTE),                               "DTE-to-DTE (V.24 interfaces) data" },
-    { SPRT_PAYLOAD_DLCI1_RESERVED_START,     SPRT_PAYLOAD_DLCI1_RESERVED_END,     "Reserved for for ITU-T" },
-    { SPRT_PAYLOAD_DLCI1_NOT_RESERVED_START, SPRT_PAYLOAD_DLCI1_NOT_RESERVED_END, "Not reserved for for ITU-T" },
+    { SPRT_PAYLOAD_DLCI1_RESERVED_START,     SPRT_PAYLOAD_DLCI1_RESERVED_END,     "Reserved for ITU-T" },
+    { SPRT_PAYLOAD_DLCI1_NOT_RESERVED_START, SPRT_PAYLOAD_DLCI1_NOT_RESERVED_END, "Not reserved for ITU-T" },
     { SPRT_VALUE_RANGE(SPRT_PAYLOAD_DLCI1_CTRLFN2CTRLFN),                         "Control-function to control-function information" },
     { 0, 0, NULL }
 };

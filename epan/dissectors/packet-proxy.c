@@ -133,9 +133,9 @@ static const value_string proxy2_tlv_vals[] = {
 };
 
 static int
-dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset)
+dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset, int header_len)
 {
-    while ( tvb_reported_length_remaining(tvb, offset) > 0) {
+    while (offset < header_len) {
         guint32 type, length;
         proto_item *ti_tlv;
         proto_tree *tlv_tree;
@@ -157,28 +157,28 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
             offset += 1;
             proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_verify, tvb, offset, 4, ENC_NA);
             offset += 4;
-            offset = dissect_proxy_v2_tlv(tvb, pinfo, tlv_tree, offset);
+            offset = dissect_proxy_v2_tlv(tvb, pinfo, tlv_tree, offset, header_len);
         break;
         case PP2_SUBTYPE_SSL_VERSION: /* SSL Version */
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_version, tvb, offset, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_version, tvb, offset, length, ENC_ASCII);
             proto_item_append_text(ti_tlv, ": %s", tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII));
             offset += length;
         break;
         case PP2_SUBTYPE_SSL_CN: /* SSL CommonName */
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_cn, tvb, offset, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_cn, tvb, offset, length, ENC_ASCII);
             proto_item_append_text(ti_tlv, ": %s", tvb_get_string_enc(pinfo->pool, tvb, offset, length, ENC_ASCII));
             offset += length;
         break;
         case PP2_SUBTYPE_SSL_CIPHER: /* SSL Cipher */
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_cipher, tvb, offset, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_cipher, tvb, offset, length, ENC_ASCII);
             offset += length;
         break;
         case PP2_SUBTYPE_SSL_SIG_ALG: /* SSL Signature Algorithm */
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_sig_alg, tvb, offset, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_sig_alg, tvb, offset, length, ENC_ASCII);
             offset += length;
         break;
         case PP2_SUBTYPE_SSL_KEY_ALG: /* SSL Key Algorithm */
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_key_alg, tvb, offset, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_key_alg, tvb, offset, length, ENC_ASCII);
             offset += length;
         break;
         default:
@@ -483,7 +483,7 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (offset < header_len) {
         /* TLV */
-        offset = dissect_proxy_v2_tlv(tvb, pinfo, proxy_tree, offset);
+        offset = dissect_proxy_v2_tlv(tvb, pinfo, proxy_tree, offset, header_len);
     }
 
     return offset;
@@ -709,8 +709,8 @@ proto_register_proxy(void)
 void
 proto_reg_handoff_proxy(void)
 {
-    heur_dissector_add("tcp", dissect_proxy_heur, "proxy", "proxy_tcp", proto_proxy, HEURISTIC_ENABLE);
-    heur_dissector_add("udp", dissect_proxy_heur, "proxy", "proxy_udp", proto_proxy, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_proxy_heur, "PROXY over TCP", "proxy_tcp", proto_proxy, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_proxy_heur, "PROXY over UDP", "proxy_udp", proto_proxy, HEURISTIC_ENABLE);
 }
 
 /*

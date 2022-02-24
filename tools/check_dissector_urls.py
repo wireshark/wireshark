@@ -103,7 +103,7 @@ class Link(object):
 
             try:
                 # Try it.
-                self.r = session.get(self.url, timeout=15)
+                self.r = session.get(self.url, timeout=25)
 
                 # Cache this result.
                 cached_lookups[self.url] = self.r
@@ -166,7 +166,7 @@ def find_links_in_folder(folder):
 # command-line args.  Controls which dissector files should be scanned.
 # If no args given, will just scan epan/dissectors folder.
 parser = argparse.ArgumentParser(description='Check URL links in dissectors')
-parser.add_argument('--file', action='store', default='',
+parser.add_argument('--file', action='append',
                     help='specify individual dissector file to test')
 parser.add_argument('--commits', action='store',
                     help='last N commits to check')
@@ -185,8 +185,15 @@ def is_dissector_file(filename):
 
 # Get files from wherever command-line args indicate.
 if args.file:
-    # Fetch links from single file.
-    find_links_in_file(args.file)
+    # Add specified file(s)
+    for f in args.file:
+        if not f.startswith('epan'):
+            f = os.path.join('epan', 'dissectors', f)
+        if not os.path.isfile(f):
+            print('Chosen file', f, 'does not exist.')
+            exit(1)
+        else:
+            files.append(f)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]

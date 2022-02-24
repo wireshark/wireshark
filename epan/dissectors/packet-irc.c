@@ -97,7 +97,7 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
     }
 
     /* Placeholder to call CTCP dissector, strip out delimiter */
-    proto_tree_add_item(tree, hf_irc_ctcp, tvb, offset+1, datalen-2, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_irc_ctcp, tvb, offset+1, datalen-2, ENC_ASCII);
 }
 
 static void
@@ -115,7 +115,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     guchar        found_tag_needle            = 0;
     gboolean      first_command_param         = TRUE;
 
-    request_item = proto_tree_add_item(tree, hf_irc_request, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    request_item = proto_tree_add_item(tree, hf_irc_request, tvb, offset, linelen, ENC_ASCII);
     if (linelen <= 0)
         return;
 
@@ -132,7 +132,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             return;
         }
 
-        proto_tree_add_item(request_tree, hf_irc_request_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(request_tree, hf_irc_request_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII);
         offset = eop_offset+1;
     }
 
@@ -193,7 +193,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     /* Check if message has a trailer */
     if (tvb_get_guint8(tvb, offset) == ':')
     {
-        proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII);
         dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
         return;
     }
@@ -219,11 +219,11 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
 
             if (eocp_offset == -1)
             {
-                proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, end_offset-offset, ENC_ASCII);
                 return;
             }
 
-            proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(command_tree, hf_irc_request_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII);
             offset = eocp_offset+1;
 
             /* clear out any whitespace before next command parameter */
@@ -239,7 +239,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
             /* Check if message has a trailer */
             if (tvb_get_guint8(tvb, offset) == ':')
             {
-                proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(request_tree, hf_irc_request_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII);
                 dissect_irc_tag_data(request_tree, request_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
                 return;
             }
@@ -279,7 +279,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     guchar        found_tag_needle             = 0;
     gboolean      first_command_param          = TRUE;
 
-    response_item = proto_tree_add_item(tree, hf_irc_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+    response_item = proto_tree_add_item(tree, hf_irc_response, tvb, offset, linelen, ENC_ASCII);
     if (linelen <= 0)
         return;
 
@@ -296,7 +296,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
             return;
         }
 
-        proto_tree_add_item(response_tree, hf_irc_response_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(response_tree, hf_irc_response_prefix, tvb, offset+1, eop_offset-offset-1, ENC_ASCII);
         offset = eop_offset+1;
     }
 
@@ -361,7 +361,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     /* Check if message has a trailer */
     if (tvb_get_guint8(tvb, offset) == ':')
     {
-        proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII);
         dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
         return;
     }
@@ -385,11 +385,11 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
             if (eocp_offset == -1)
             {
-                proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, end_offset-offset, ENC_ASCII);
                 return;
             }
 
-            proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(command_tree, hf_irc_response_command_param, tvb, offset, eocp_offset-offset, ENC_ASCII);
             offset = eocp_offset+1;
 
             /* clear out any whitespace before next command parameter */
@@ -405,7 +405,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
             /* Check if message has a trailer */
             if (tvb_get_guint8(tvb, offset) == ':')
             {
-                proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(response_tree, hf_irc_response_trailer, tvb, offset+1, end_offset-offset-1, ENC_ASCII);
                 dissect_irc_tag_data(response_tree, response_item, tvb, offset+1, end_offset-offset-1, pinfo, str_command);
                 return;
             }
@@ -485,40 +485,40 @@ void
 proto_register_irc(void)
 {
     static hf_register_info hf[] = {
-        { &hf_irc_response, { "Response", "irc.response", FT_STRING, STR_ASCII,
+        { &hf_irc_response, { "Response", "irc.response", FT_STRING, BASE_NONE,
           NULL, 0x0, "Line of response message", HFILL }},
 
-        { &hf_irc_request, { "Request", "irc.request", FT_STRING, STR_ASCII,
+        { &hf_irc_request, { "Request", "irc.request", FT_STRING, BASE_NONE,
           NULL, 0x0, "Line of request message", HFILL }},
 
-        { &hf_irc_request_prefix, { "Prefix", "irc.request.prefix", FT_STRING, STR_ASCII,
+        { &hf_irc_request_prefix, { "Prefix", "irc.request.prefix", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request prefix", HFILL }},
 
-        { &hf_irc_request_command, { "Command", "irc.request.command", FT_STRING, STR_ASCII,
+        { &hf_irc_request_command, { "Command", "irc.request.command", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request command", HFILL }},
 
-        { &hf_irc_request_command_param, { "Parameter", "irc.request.command_parameter", FT_STRING, STR_ASCII,
+        { &hf_irc_request_command_param, { "Parameter", "irc.request.command_parameter", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request command parameter", HFILL }},
 
-        { &hf_irc_request_trailer, { "Trailer", "irc.request.trailer", FT_STRING, STR_ASCII,
+        { &hf_irc_request_trailer, { "Trailer", "irc.request.trailer", FT_STRING, BASE_NONE,
           NULL, 0x0, "Request trailer", HFILL }},
 
-        { &hf_irc_response_prefix, { "Prefix", "irc.response.prefix", FT_STRING, STR_ASCII,
+        { &hf_irc_response_prefix, { "Prefix", "irc.response.prefix", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response prefix", HFILL }},
 
-        { &hf_irc_response_command, { "Command", "irc.response.command", FT_STRING, STR_ASCII,
+        { &hf_irc_response_command, { "Command", "irc.response.command", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response command", HFILL }},
 
         { &hf_irc_response_num_command, { "Command", "irc.response.num_command", FT_UINT16, BASE_DEC,
           NULL, 0x0, "Response (numeric) command", HFILL }},
 
-        { &hf_irc_response_command_param, { "Parameter", "irc.response.command_parameter", FT_STRING, STR_ASCII,
+        { &hf_irc_response_command_param, { "Parameter", "irc.response.command_parameter", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response command parameter", HFILL }},
 
-        { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, STR_ASCII,
+        { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response trailer", HFILL }},
 
-        { &hf_irc_ctcp, { "CTCP Data", "irc.ctcp", FT_STRING, STR_ASCII,
+        { &hf_irc_ctcp, { "CTCP Data", "irc.ctcp", FT_STRING, BASE_NONE,
           NULL, 0x0, "Placeholder to dissect CTCP data", HFILL }}
     };
 

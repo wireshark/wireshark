@@ -1,4 +1,4 @@
-/* inet_addr.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -10,10 +10,8 @@
 #ifndef __WS_INET_ADDR_H__
 #define __WS_INET_ADDR_H__
 
-#include "ws_symbol_export.h"
-#include "ws_attributes.h"
+#include <wireshark.h>
 
-#include <glib.h>
 #include "inet_ipv4.h"
 #include "inet_ipv6.h"
 
@@ -50,20 +48,28 @@
 #define WS_INET_ADDRSTRLEN      16
 #define WS_INET6_ADDRSTRLEN     46
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * To check for errors set errno to zero before calling ws_inet_ntop{4,6}.
  * ENOSPC is set if the result exceeds the given buffer size.
  */
-WS_DLL_PUBLIC WS_RETNONNULL const gchar *
-ws_inet_ntop4(gconstpointer src, gchar *dst, guint dst_size);
+WS_DLL_PUBLIC WS_RETNONNULL const char *
+ws_inet_ntop4(const void *src, char *dst, size_t dst_size);
 
-WS_DLL_PUBLIC WS_RETNONNULL const gchar *
-ws_inet_ntop6(gconstpointer src, gchar *dst, guint dst_size);
+WS_DLL_PUBLIC WS_RETNONNULL const char *
+ws_inet_ntop6(const void *src, char *dst, size_t dst_size);
 
-WS_DLL_PUBLIC gboolean
-ws_inet_pton4(const gchar *src, ws_in4_addr *dst);
+WS_DLL_PUBLIC bool
+ws_inet_pton4(const char *src, ws_in4_addr *dst);
 
-WS_DLL_PUBLIC gboolean
-ws_inet_pton6(const gchar *src, ws_in6_addr *dst);
+WS_DLL_PUBLIC bool
+ws_inet_pton6(const char *src, ws_in6_addr *dst);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif

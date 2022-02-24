@@ -52,7 +52,7 @@ dissect_chargen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* disse
 	proto_tree_add_string_format(chargen_tree, hf_chargen_data, tvb, 0,
 		len, "Data", "Data (%u): %s", len, data);
 
-/*	proto_tree_add_item(chargen_tree, hf_chargen_data, tvb, 0, -1, ENC_ASCII|ENC_NA); */
+/*	proto_tree_add_item(chargen_tree, hf_chargen_data, tvb, 0, -1, ENC_ASCII); */
 	return tvb_captured_length(tvb);
 }
 

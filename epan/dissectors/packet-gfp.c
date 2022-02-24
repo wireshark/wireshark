@@ -175,7 +175,7 @@ static const range_string gfp_upi_management_rvals[] = {
 
 static void gfp_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "UPI %u as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "UPI %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_gfp, 0)));
 }
 
@@ -582,7 +582,7 @@ proto_register_gfp(void)
  * should accommodate being called more than once by use of the static
  * 'initialized' variable included below.
  *
- * This form of the reg_handoff function is used if if you perform registration
+ * This form of the reg_handoff function is used if you perform registration
  * functions which are dependent upon prefs.
  */
 void

@@ -230,10 +230,10 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
   proto_tree_add_item(tree, hf_pptp_firmware_revision,    tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_host_name,            tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_host_name,            tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
-  proto_tree_add_item(tree, hf_pptp_vendor_name,          tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_vendor_name,          tvb, offset, 64, ENC_ASCII);
 }
 
 static void
@@ -265,10 +265,10 @@ dissect_cntrl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   proto_tree_add_item(tree, hf_pptp_firmware_revision,    tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_host_name,            tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_host_name,            tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
-  proto_tree_add_item(tree, hf_pptp_vendor_name,          tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_vendor_name,          tvb, offset, 64, ENC_ASCII);
 
 }
 
@@ -366,10 +366,10 @@ dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
   proto_tree_add_item(tree, hf_pptp_reserved,                   tvb, offset, 2, ENC_NA);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_phone_number,               tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_phone_number,               tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
-  proto_tree_add_item(tree, hf_pptp_subaddress,                 tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_subaddress,                 tvb, offset, 64, ENC_ASCII);
 }
 
 static void
@@ -429,13 +429,13 @@ dissect_in_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
   proto_tree_add_item(tree, hf_pptp_dialing_number_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_dialed_number,         tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_dialed_number,         tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
-  proto_tree_add_item(tree, hf_pptp_dialing_number,        tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_dialing_number,        tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
-  proto_tree_add_item(tree, hf_pptp_subaddress,            tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_subaddress,            tvb, offset, 64, ENC_ASCII);
 }
 
 static void
@@ -522,7 +522,7 @@ dissect_disc_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
   proto_tree_add_item(tree, hf_pptp_reserved,        tvb, offset, 2, ENC_NA);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_call_statistics, tvb, offset, 64, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_pptp_call_statistics, tvb, offset, 64, ENC_ASCII);
 }
 
 static void

@@ -1547,13 +1547,13 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	}
 
 	sid_in_dec_str = wmem_strbuf_new_label(wmem_packet_scope());
-	wmem_strbuf_append_printf (sid_in_dec_str, "S-%u-%" G_GINT64_MODIFIER "u", revision, authority);
+	wmem_strbuf_append_printf (sid_in_dec_str, "S-%u-%" PRIu64, revision, authority);
 
 	/*  If sid_display_hex is set, sid_in_dec_str is still needed for
 		looking up well-known SIDs*/
 	if (sid_display_hex) {
 		sid_in_hex_str = wmem_strbuf_new_label(wmem_packet_scope());
-		wmem_strbuf_append_printf (sid_in_hex_str, "S-%x-%" G_GINT64_MODIFIER "x", revision, authority);
+		wmem_strbuf_append_printf (sid_in_hex_str, "S-%x-%" PRIx64, revision, authority);
 	}
 
 	wkwn_sid1_str = wmem_strbuf_new_label(wmem_packet_scope());

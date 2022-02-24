@@ -1,4 +1,5 @@
-/* taps.h
+/** @file
+ *
  * Definitions for tap registration
  *
  * Wireshark - Network traffic analyzer

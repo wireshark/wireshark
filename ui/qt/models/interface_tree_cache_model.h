@@ -1,4 +1,5 @@
-/* interface_tree_cache_model.h
+/** @file
+ *
  * Model caching interface changes before sending them to global storage
  *
  * Wireshark - Network traffic analyzer

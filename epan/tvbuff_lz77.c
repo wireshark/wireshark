@@ -28,7 +28,7 @@ static gboolean do_uncompress(tvbuff_t *tvb, int offset, int in_size,
 	if (!tvb)
 		return FALSE;
 
-	if (in_size > MAX_INPUT_SIZE)
+	if (!in_size || in_size > MAX_INPUT_SIZE)
 		return FALSE;
 
 	while (1) {

@@ -7,9 +7,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -86,70 +83,21 @@ static dissector_handle_t sll2_handle;
 static dissector_handle_t ethertype_handle;
 static dissector_handle_t netlink_handle;
 
-static header_field_info *hfi_sll = NULL;
-
 static int proto_sll;
 static int sll_tap = -1;
 
-#define SLL_HFI_INIT HFI_INIT(proto_sll)
-
-static header_field_info hfi_sll_pkttype SLL_HFI_INIT =
-	{ "Packet type",	"sll.pkttype", FT_UINT16, BASE_DEC,
-	  VALS(packet_type_vals), 0x0, NULL, HFILL };
-
-/* ARP hardware type?  With Linux extensions? */
-static header_field_info hfi_sll_hatype SLL_HFI_INIT =
-	{ "Link-layer address type",	"sll.hatype", FT_UINT16, BASE_DEC,
-	  VALS(arp_hrd_vals), 0x0, NULL, HFILL };
-
-static header_field_info hfi_sll_halen SLL_HFI_INIT =
-	{ "Link-layer address length",	"sll.halen", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL };
-
-/* Source address if it's an Ethernet-type address */
-static header_field_info hfi_sll_src_eth SLL_HFI_INIT =
-	{ "Source",	"sll.src.eth", FT_ETHER, BASE_NONE,
-	  NULL, 0x0, "Source link-layer address", HFILL };
-
-/* Source address if it's an IPv4 address */
-static header_field_info hfi_sll_src_ipv4 SLL_HFI_INIT =
-	{ "Source",	"sll.src.ipv4", FT_IPv4, BASE_NONE,
-	  NULL, 0x0, "Source link-layer address", HFILL };
-
-/* Source address if it's not an Ethernet-type address */
-static header_field_info hfi_sll_src_other SLL_HFI_INIT =
-	{ "Source",	"sll.src.other", FT_BYTES, BASE_NONE,
-	  NULL, 0x0, "Source link-layer address", HFILL };
-
-/* Unused remaining bytes */
-static header_field_info hfi_sll_unused SLL_HFI_INIT =
-	{ "Unused", "sll.unused", FT_BYTES, BASE_NONE,
-	  NULL, 0x0, "Unused bytes", HFILL };
-
-/* if the protocol field is an internal Linux protocol type */
-static header_field_info hfi_sll_ltype SLL_HFI_INIT =
-	{ "Protocol",	"sll.ltype", FT_UINT16, BASE_HEX,
-	  VALS(ltype_vals), 0x0, "Linux protocol type", HFILL };
-
-/* if the protocol field is a GRE protocol type */
-static header_field_info hfi_sll_gretype SLL_HFI_INIT =
-	{ "Protocol",	"sll.gretype", FT_UINT16, BASE_HEX,
-	  VALS(gre_typevals), 0x0, "GRE protocol type", HFILL };
-
-/* registered here but handled in ethertype.c */
-static header_field_info hfi_sll_etype SLL_HFI_INIT =
-	{ "Protocol",	"sll.etype", FT_UINT16, BASE_HEX,
-	  VALS(etype_vals), 0x0, "Ethernet protocol type", HFILL };
-
-static header_field_info hfi_sll_trailer SLL_HFI_INIT =
-	{ "Trailer", "sll.trailer", FT_BYTES, BASE_NONE,
-	  NULL, 0x0, NULL, HFILL };
-
-/* SLL2 only */
-static header_field_info hfi_sll_ifindex SLL_HFI_INIT =
-	{ "Interface index",	"sll.ifindex", FT_UINT16, BASE_DEC,
-	  NULL, 0x0, NULL, HFILL };
-
+static int hf_sll_etype = -1;
+static int hf_sll_gretype = -1;
+static int hf_sll_halen = -1;
+static int hf_sll_hatype = -1;
+static int hf_sll_ifindex = -1;
+static int hf_sll_ltype = -1;
+static int hf_sll_pkttype = -1;
+static int hf_sll_src_eth = -1;
+static int hf_sll_src_ipv4 = -1;
+static int hf_sll_src_other = -1;
+static int hf_sll_trailer = -1;
+static int hf_sll_unused = -1;
 
 static gint ett_sll = -1;
 
@@ -159,7 +107,7 @@ static dissector_table_t gre_dissector_table;
 
 static void sll_prompt(packet_info *pinfo, gchar* result)
 {
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "SLL protocol type 0x%04x as",
+	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "SLL protocol type 0x%04x as",
 		GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sll, 0)));
 }
 
@@ -293,33 +241,33 @@ add_ll_address(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	 * For now, we just assume ha_len 4 is IPv4 and ha_len 6
 	 * is Ethernet.
 	 */
-	proto_tree_add_item_ret_uint(tree, &hfi_sll_halen, tvb, halen_offset, halen_len, ENC_BIG_ENDIAN, &ha_len);
+	proto_tree_add_item_ret_uint(tree, hf_sll_halen, tvb, halen_offset, halen_len, ENC_BIG_ENDIAN, &ha_len);
 
 	switch (ha_len) {
 	case 4:
 		set_address_tvb(&pinfo->dl_src, AT_IPv4, 4, tvb, ha_offset);
 		copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 		copy_address_wmem(wmem_file_scope(), &tap_data->src_address, &pinfo->src);
-		proto_tree_add_item(tree, &hfi_sll_src_ipv4, tvb, ha_offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sll_src_ipv4, tvb, ha_offset, 4, ENC_BIG_ENDIAN);
 		break;
 	case 6:
 		set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, ha_offset);
 		copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 		copy_address_wmem(wmem_file_scope(), &tap_data->src_address, &pinfo->src);
-		proto_tree_add_item(tree, &hfi_sll_src_eth, tvb, ha_offset, 6, ENC_NA);
+		proto_tree_add_item(tree, hf_sll_src_eth, tvb, ha_offset, 6, ENC_NA);
 		break;
 	case 0:
 		break;
 	default:
-		proto_tree_add_item(tree, &hfi_sll_src_other, tvb,
+		proto_tree_add_item(tree, hf_sll_src_other, tvb,
 			    ha_offset, ha_len > 8 ? 8 : ha_len, ENC_NA);
 		break;
 	}
 
 	/* Not all bytes of SLL_ADDRLEN have been used. Add remaining as unused */
 	if (ha_len < SLL_ADDRLEN)
-		proto_tree_add_item(tree, &hfi_sll_unused, tvb, ha_offset + ha_len,
-				SLL_ADDRLEN - ha_len, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_sll_unused, tvb, ha_offset + ha_len,
+				SLL_ADDRLEN - ha_len, ENC_NA);
 }
 
 static guint16
@@ -337,7 +285,7 @@ add_protocol_type(proto_tree *fh_tree, tvbuff_t *tvb, int protocol_offset,
 		 * be trailer data.
 		 * XXX - do the same thing we do for packets with Ethertypes?
 		 */
-		proto_tree_add_uint(fh_tree, &hfi_sll_ltype, tvb,
+		proto_tree_add_uint(fh_tree, hf_sll_ltype, tvb,
 		    protocol_offset, 2, protocol);
 	} else {
 		switch (hatype) {
@@ -351,12 +299,12 @@ add_protocol_type(proto_tree *fh_tree, tvbuff_t *tvb, int protocol_offset,
 			 * so we can't provide the flags and version to
 			 * the dissector.
 			 */
-			proto_tree_add_uint(fh_tree, &hfi_sll_gretype, tvb,
+			proto_tree_add_uint(fh_tree, hf_sll_gretype, tvb,
 			    protocol_offset, 2, protocol);
 			break;
 
 		default:
-			proto_tree_add_uint(fh_tree, &hfi_sll_etype, tvb,
+			proto_tree_add_uint(fh_tree, hf_sll_etype, tvb,
 			    protocol_offset, 2, protocol);
 			break;
 		}
@@ -408,7 +356,7 @@ dissect_payload(proto_tree *tree, packet_info *pinfo, proto_tree *fh_tree,
 			ethertype_data.etype = protocol;
 			ethertype_data.payload_offset = header_size;
 			ethertype_data.fh_tree = fh_tree;
-			ethertype_data.trailer_id = hfi_sll_trailer.id;
+			ethertype_data.trailer_id = hf_sll_trailer;
 			ethertype_data.fcs_len = 0;
 
 			call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
@@ -499,7 +447,7 @@ dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int enca
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(pkttype, packet_type_vals, "Unknown (%u)"));
 
-	ti = proto_tree_add_protocol_format(tree, hfi_sll->id, tvb, 0,
+	ti = proto_tree_add_protocol_format(tree, proto_sll, tvb, 0,
 			header_size, "Linux cooked capture v%d", version);
 	fh_tree = proto_item_add_subtree(ti, ett_sll);
 	tap_data = wmem_new0(wmem_file_scope(), sll_tap_data);
@@ -507,9 +455,9 @@ dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int enca
 	switch (encap) {
 
 	case WTAP_ENCAP_SLL:
-		proto_tree_add_item(fh_tree, &hfi_sll_pkttype, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fh_tree, hf_sll_pkttype, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_uint(fh_tree, &hfi_sll_hatype, tvb, 2, 2, hatype);
+		proto_tree_add_uint(fh_tree, hf_sll_hatype, tvb, 2, 2, hatype);
 
 		add_ll_address(fh_tree, pinfo, tvb, 4, 2, tap_data);
 
@@ -521,11 +469,11 @@ dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int enca
 	case WTAP_ENCAP_SLL2:
 		protocol = add_protocol_type(fh_tree, tvb, 0, hatype);
 
-		proto_tree_add_item(fh_tree, &hfi_sll_ifindex, tvb, 4, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fh_tree, hf_sll_ifindex, tvb, 4, 4, ENC_BIG_ENDIAN);
 
-		proto_tree_add_uint(fh_tree, &hfi_sll_hatype, tvb, 8, 2, hatype);
+		proto_tree_add_uint(fh_tree, hf_sll_hatype, tvb, 8, 2, hatype);
 
-		proto_tree_add_item(fh_tree, &hfi_sll_pkttype, tvb, 10, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fh_tree, hf_sll_pkttype, tvb, 10, 1, ENC_BIG_ENDIAN);
 
 		add_ll_address(fh_tree, pinfo, tvb, 11, 1, tap_data);
 
@@ -556,23 +504,68 @@ dissect_sll_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 void
 proto_register_sll(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_sll_pkttype,
-		/* ARP hardware type?  With Linux extensions? */
-		&hfi_sll_hatype,
-		&hfi_sll_halen,
-		&hfi_sll_src_eth,
-		&hfi_sll_src_ipv4,
-		&hfi_sll_src_other,
-		&hfi_sll_unused,
-		&hfi_sll_ltype,
-		&hfi_sll_gretype,
-		&hfi_sll_etype,
-		&hfi_sll_trailer,
-		&hfi_sll_ifindex,
+	static hf_register_info hf[] = {
+		{ &hf_sll_pkttype,
+			{ "Packet type", "sll.pkttype",
+			  FT_UINT16, BASE_DEC, VALS(packet_type_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_sll_hatype,
+			{ "Link-layer address type", "sll.hatype",
+			  FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_sll_halen,
+			{ "Link-layer address length", "sll.halen",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_sll_src_eth,
+			{ "Source", "sll.src.eth",
+			  FT_ETHER, BASE_NONE, NULL, 0x0,
+			  "Source link-layer address", HFILL }
+		},
+		{ &hf_sll_src_ipv4,
+			{ "Source", "sll.src.ipv4",
+			  FT_IPv4, BASE_NONE, NULL, 0x0,
+			  "Source link-layer address", HFILL }
+		},
+		{ &hf_sll_src_other,
+			{ "Source", "sll.src.other",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  "Source link-layer address", HFILL }
+		},
+		{ &hf_sll_unused,
+			{ "Unused", "sll.unused",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  "Unused bytes", HFILL }
+		},
+		{ &hf_sll_ltype,
+			{ "Protocol", "sll.ltype",
+			  FT_UINT16, BASE_HEX, VALS(ltype_vals), 0x0,
+			  "Linux protocol type", HFILL }
+		},
+		{ &hf_sll_gretype,
+			{ "Protocol", "sll.gretype",
+			  FT_UINT16, BASE_HEX, VALS(gre_typevals), 0x0,
+			  "GRE protocol type", HFILL }
+		},
+		{ &hf_sll_etype,
+			{ "Protocol", "sll.etype",
+			  FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+			  "Ethernet protocol type", HFILL }
+		},
+		{ &hf_sll_trailer,
+			{ "Trailer", "sll.trailer",
+			  FT_BYTES, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_sll_ifindex,
+			{ "Interface index", "sll.ifindex",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  NULL, HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_sll
@@ -584,11 +577,8 @@ proto_register_sll(void)
 	static decode_as_t sll_da = {"sll.ltype", "sll.ltype", 1, 0, &sll_da_values, NULL, NULL,
 				decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-	proto_sll = proto_register_protocol("Linux cooked-mode capture",
-	    "SLL", "sll" );
-	hfi_sll = proto_registrar_get_nth(proto_sll);
-
-	proto_register_fields(proto_sll, hfi, array_length(hfi));
+	proto_sll = proto_register_protocol("Linux cooked-mode capture", "SLL", "sll" );
+	proto_register_field_array(proto_sll, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	sll_handle = create_dissector_handle(dissect_sll_v1, proto_sll);

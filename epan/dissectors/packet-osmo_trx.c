@@ -165,14 +165,14 @@ static const guint16 otrxd_burst_len[] = {
 /* RSSI is encoded without a negative sign, so we need to show it */
 static void format_rssi(gchar *buf, const guint32 rssi)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", rssi, unit_name_string_get_value(rssi, &units_dbm));
+	snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", rssi, unit_name_string_get_value(rssi, &units_dbm));
 }
 
 /* TSC (Training Sequence Code) set number in 3GPP TS 45.002 starts
  * from 1, while 'on the wire' it's encoded as X - 1 (starts from 0). */
 static void format_tsc_set(gchar *buf, guint32 tsc_set)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "%u", tsc_set + 1);
+	snprintf(buf, ITEM_LABEL_LENGTH, "%u", tsc_set + 1);
 }
 
 /* Message direction */

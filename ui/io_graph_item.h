@@ -1,4 +1,5 @@
-/* io_graph_item.h
+/** @file
+ *
  * Definitions and functions for I/O graph items
  *
  * Copied from gtk/io_stat.c, (c) 2002 Ronnie Sahlberg

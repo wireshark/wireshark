@@ -39,6 +39,7 @@ set(ASN1_SRC_DIRS
 	ess
 	f1ap
 	ftam
+        gdt
 	glow
 	goose
 	gprscdr

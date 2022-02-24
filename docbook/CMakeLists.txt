@@ -23,25 +23,18 @@ endfunction(set_docbook_target_properties)
 
 set(COMMON_FILES
 	common_src/GPL_appendix.adoc
+	common_src/typographic_conventions.adoc
 )
 
 set(COMMON_GRAPHICS
+	common_graphics/caution.svg
+	common_graphics/important.svg
 	common_graphics/note.svg
 	common_graphics/tip.svg
 	common_graphics/warning.svg
 )
 
 set(GUIDE_INSTALL_DIRS)
-
-# This is automatically updated each week. You probably don't need to run it
-# or depend on it.
-add_custom_target(update_tools_help
-	COMMAND ${CMAKE_COMMAND} -E env PYTHONIOENCODING=UTF-8
-		${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/update-tools-help.py
-		--program-path $<TARGET_FILE_DIR:tshark>
-	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-set_docbook_target_properties(update_tools_help)
 
 set(WSUG_TITLE "Wireshark User's Guide")
 

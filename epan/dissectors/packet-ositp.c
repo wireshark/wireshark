@@ -383,20 +383,20 @@ static gchar *print_tsap(tvbuff_t *tvb, int offset, int length)
   cur=(gchar *)wmem_alloc(wmem_packet_scope(), MAX_TSAP_LEN * 2 + 3);
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN)
-    g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
+    snprintf(cur, MAX_TSAP_LEN * 2 + 3, "<unsupported TSAP length>");
   else {
     allprintable = tvb_ascii_isprint(tvb, offset, length);
     if (!allprintable) {
-      returned_length = g_snprintf(cur, MAX_TSAP_LEN * 2 + 3, "0x");
+      returned_length = snprintf(cur, MAX_TSAP_LEN * 2 + 3, "0x");
       idx += MIN(returned_length, MAX_TSAP_LEN * 2 + 3 - 1);
     }
     while (length != 0) {
       if (allprintable) {
-        returned_length = g_snprintf(&cur[idx], MAX_TSAP_LEN * 2 + 3 - idx,
+        returned_length = snprintf(&cur[idx], MAX_TSAP_LEN * 2 + 3 - idx,
                                      "%c", *tsap ++);
         idx += MIN(returned_length, MAX_TSAP_LEN * 2 + 3 - idx - 1);
       } else {
-        returned_length = g_snprintf(&cur[idx], MAX_TSAP_LEN * 2 + 3 - idx,
+        returned_length = snprintf(&cur[idx], MAX_TSAP_LEN * 2 + 3 - idx,
                                      "%02x", *tsap ++);
         idx += MIN(returned_length, MAX_TSAP_LEN * 2 + 3 - idx - 1);
       }

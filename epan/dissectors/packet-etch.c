@@ -298,7 +298,7 @@ add_symbols_of_file(const char *filename)
       pos = strcspn(line, ",");
       if ((line[pos] != '\0') && (line[pos+1] !='\0')) /* require at least 1 char in symbol */
         gbl_symbols_array_append(hash,
-                                 g_strdup_printf("%." ETCH_MAX_SYMBOL_LENGTH "s", &line[pos+1]));
+                                 ws_strdup_printf("%." ETCH_MAX_SYMBOL_LENGTH "s", &line[pos+1]));
       }
     fclose(pFile);
   }
@@ -335,7 +335,7 @@ read_hashed_symbols_from_dir(const char *dirname)
 
       if (g_str_has_suffix(file, ".ewh")) {
         filename =
-          g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname,
+          ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname,
                           name);
         add_symbols_of_file(filename);
         g_free(filename);
@@ -493,7 +493,7 @@ read_string(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   byteLength = read_length(offset, tvb, etch_tree);
 
   proto_tree_add_item(etch_tree, hf_etch_string, tvb, *offset,
-                      byteLength, ENC_ASCII|ENC_NA);
+                      byteLength, ENC_ASCII);
   (*offset) += byteLength;
 }
 

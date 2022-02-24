@@ -189,7 +189,7 @@ dissect_pcli20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 static void
 pcli_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PCLI payload as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PCLI payload as");
 }
 
 void

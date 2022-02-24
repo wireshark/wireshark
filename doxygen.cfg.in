@@ -832,8 +832,7 @@ WARN_LOGFILE           =
 # ls */*.h | xargs -n1 dirname | sort -u
 INPUT                  = @DOXYGEN_INPUT_DIRECTORY@/wireshark.dox \
                          @DOXYGEN_TOP_LEVEL_SOURCES@ \
-                         @DOXYGEN_INPUT_DIRECTORY@/capchild \
-                         @DOXYGEN_INPUT_DIRECTORY@/caputils \
+                         @DOXYGEN_INPUT_DIRECTORY@/capture \
                          @DOXYGEN_INPUT_DIRECTORY@/epan \
                          @DOXYGEN_INPUT_DIRECTORY@/extcap \
                          @DOXYGEN_INPUT_DIRECTORY@/plugins \

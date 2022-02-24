@@ -121,7 +121,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 			uint64 = tvb_get_ntoh64(tvb, *offset + 1);
 			proto_tree_add_uint64(tree, hf_msgpack_uint_64, tvb, *offset, 9, uint64);
 			if (value)
-				*value = wmem_strdup_printf(pinfo->pool, "%" G_GINT64_MODIFIER "u", uint64);
+				*value = wmem_strdup_printf(pinfo->pool, "%" PRIu64, uint64);
 			*offset += 9;
 			break;
 		case 0xd0:
@@ -149,7 +149,7 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 			int64 = tvb_get_ntoh64(tvb, *offset + 1);
 			proto_tree_add_int64(tree, hf_msgpack_int_64, tvb, *offset, 9, int64);
 			if (value)
-				*value = wmem_strdup_printf(pinfo->pool, "%" G_GINT64_MODIFIER "d", int64);
+				*value = wmem_strdup_printf(pinfo->pool, "%" PRId64, int64);
 			*offset += 9;
 			break;
 		default:
@@ -245,11 +245,11 @@ static void dissect_msgpack_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	if (lensize == 0) {
 		proto_tree_add_uint_format(subtree, hf_msgpack_type, tvb, *offset, 1, type, "Type: String");
 		proto_tree_add_uint_format(subtree, hf_msgpack_string_len, tvb, *offset, 1, lensize, "Length: 1");
-		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII);
 	} else {
 		proto_tree_add_item(subtree, hf_msgpack_type, tvb, *offset, 1, ENC_NA);
 		proto_tree_add_item(subtree, hf_msgpack_string_len, tvb, *offset + 1, lensize, ENC_BIG_ENDIAN);
-		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(subtree, hf_msgpack_string, tvb, *offset + 1 + lensize, len, ENC_ASCII);
 	}
 	*offset += 1 + lensize + len;
 
@@ -331,7 +331,7 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 	if (type == 0xc2 || type == 0xc3) {
 		proto_tree_add_boolean(tree, hf_msgpack_bool, tvb, *offset, 1, type - 0xc2);
 		if (value)
-			*value = (type - 0xc2 ? "True" : "False");
+			*value = (type - 0xc2) ? "True" : "False";
 		*offset += 1;
 		return;
 	}

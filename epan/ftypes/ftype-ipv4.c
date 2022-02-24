@@ -53,7 +53,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 
 	if (!get_host_ipaddr(addr_str, &addr)) {
 		if (err_msg != NULL) {
-			*err_msg = g_strdup_printf("\"%s\" is not a valid hostname or IPv4 address.",
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid hostname or IPv4 address.",
 			    addr_str);
 		}
 		if (addr_str_to_free)
@@ -80,7 +80,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 
 		if (nmask_bits > 32) {
 			if (err_msg != NULL) {
-				*err_msg = g_strdup_printf("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
+				*err_msg = ws_strdup_printf("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
 						nmask_bits);
 			}
 			return FALSE;
@@ -155,6 +155,7 @@ ftype_register_ipv4(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		val_to_repr,			/* val_to_string_repr */
 
 		{ .set_value_uinteger = set_uinteger },	/* union set_value */

@@ -21,7 +21,7 @@ static void report_error(mate_config* mc, const gchar* fmt, ...) {
 	va_list list;
 
 	va_start( list, fmt );
-	g_vsnprintf(error_buffer,DEBUG_BUFFER_SIZE,fmt,list);
+	vsnprintf(error_buffer,DEBUG_BUFFER_SIZE,fmt,list);
 	va_end( list );
 
 	g_string_append(mc->config_error,error_buffer);
@@ -196,7 +196,7 @@ extern gchar* add_ranges(mate_config* mc, gchar* range,GPtrArray* range_ptr_arr)
 				g_ptr_array_add(range_ptr_arr,(gpointer)hfidp);
 			} else {
 				g_strfreev(ranges);
-				return g_strdup_printf("no such proto: '%s'",ranges[i]);
+				return ws_strdup_printf("no such proto: '%s'",ranges[i]);
 			}
 		}
 
@@ -215,12 +215,12 @@ static void new_attr_hfri(mate_config* mc, gchar* item_name, GHashTable* hfids, 
 	*p_id = -1;
 	hfri.p_id = p_id;
 	hfri.hfinfo.name = g_strdup(name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.%s",item_name,name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.%s",item_name,name);
 	hfri.hfinfo.type = FT_STRING;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.strings = NULL;
 	hfri.hfinfo.bitmask = 0;
-	hfri.hfinfo.blurb = g_strdup_printf("%s attribute of %s",name,item_name);
+	hfri.hfinfo.blurb = ws_strdup_printf("%s attribute of %s",name,item_name);
 
 	*p_id = -1;
 	g_hash_table_insert(hfids,name,p_id);
@@ -271,16 +271,16 @@ static void analyze_pdu_config(mate_config* mc, mate_cfg_pdu* cfg) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup(cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("%s id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_pdu_rel_time);
-	hfri.hfinfo.name = g_strdup_printf("%s time",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.RelativeTime",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s time",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.RelativeTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of capture";
@@ -288,8 +288,8 @@ static void analyze_pdu_config(mate_config* mc, mate_cfg_pdu* cfg) {
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_pdu_time_in_gop);
-	hfri.hfinfo.name = g_strdup_printf("%s time since beginning of Gop",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.TimeInGop",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s time since beginning of Gop",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.TimeInGop",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = "Seconds passed since the start of the GOP";
@@ -326,49 +326,49 @@ static void analyze_gop_config(gpointer k _U_, gpointer v, gpointer p) {
 
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup(cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("%s id",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("%s id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_start_time);
-	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s start time",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.StartTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
 	hfri.hfinfo.display = BASE_NONE;
-	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_stop_time);
-	hfri.hfinfo.name = g_strdup_printf("%s hold time",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Time",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("Duration in seconds from start to stop of this %s",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s hold time",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.Time",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("Duration in seconds from start to stop of this %s",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_last_time);
-	hfri.hfinfo.name = g_strdup_printf("%s duration",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Duration",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s duration",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.Duration",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gop_num_pdus);
-	hfri.hfinfo.name = g_strdup_printf("%s number of PDUs",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.NumOfPdus",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("Number of PDUs assigned to this %s",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s number of PDUs",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.NumOfPdus",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("Number of PDUs assigned to this %s",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gop_pdu);
-	hfri.hfinfo.name = g_strdup_printf("A PDU of %s",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Pdu",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("A PDU assigned to this %s",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("A PDU of %s",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.Pdu",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("A PDU assigned to this %s",cfg->name);
 
 	if (cfg->pdu_tree_mode == GOP_FRAME_TREE) {
 		hfri.hfinfo.type = FT_FRAMENUM;
@@ -445,8 +445,8 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	/* create the hf array for this gog */
 	hfri.p_id = &(cfg->hfid);
 	hfri.hfinfo.name = g_strdup(cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("%s Id",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("%s Id",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
 
@@ -454,16 +454,16 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 
 	hfri.p_id = &(cfg->hfid_gog_num_of_gops);
 	hfri.hfinfo.name = "number of GOPs";
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.NumOfGops",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.NumOfGops",cfg->name);
 	hfri.hfinfo.type = FT_UINT32;
 	hfri.hfinfo.display = BASE_DEC;
-	hfri.hfinfo.blurb = g_strdup_printf("Number of GOPs assigned to this %s",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("Number of GOPs assigned to this %s",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_gog_gopstart);
 	hfri.hfinfo.name = "GopStart frame";
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.GopStart",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.GopStart",cfg->name);
 	hfri.hfinfo.type = FT_FRAMENUM;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup("The start frame of a GOP");
@@ -472,7 +472,7 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 
 	hfri.p_id = &(cfg->hfid_gog_gopstop);
 	hfri.hfinfo.name = "GopStop frame";
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.GopStop",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.GopStop",cfg->name);
 	hfri.hfinfo.type = FT_FRAMENUM;
 	hfri.hfinfo.display = BASE_NONE;
 	hfri.hfinfo.blurb = g_strdup("The stop frame of a GOP");
@@ -480,27 +480,27 @@ static void analyze_gog_config(gpointer k _U_, gpointer v, gpointer p) {
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_start_time);
-	hfri.hfinfo.name = g_strdup_printf("%s start time",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.StartTime",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s start time",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.StartTime",cfg->name);
 	hfri.hfinfo.type = FT_FLOAT;
-	hfri.hfinfo.blurb = g_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("Seconds passed since the beginning of capture to the start of this %s",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	hfri.p_id = &(cfg->hfid_last_time);
-	hfri.hfinfo.name = g_strdup_printf("%s duration",cfg->name);
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Duration",cfg->name);
-	hfri.hfinfo.blurb = g_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
+	hfri.hfinfo.name = ws_strdup_printf("%s duration",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.Duration",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("Time passed between the start of this %s and the last pdu assigned to it",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);
 
 	/* this might become mate.gogname.gopname */
 	hfri.p_id = &(cfg->hfid_gog_gop);
 	hfri.hfinfo.name = "a GOP";
-	hfri.hfinfo.abbrev = g_strdup_printf("mate.%s.Gop",cfg->name);
+	hfri.hfinfo.abbrev = ws_strdup_printf("mate.%s.Gop",cfg->name);
 	hfri.hfinfo.type = FT_STRING;
 	hfri.hfinfo.display = BASE_NONE;
-	hfri.hfinfo.blurb = g_strdup_printf("a GOPs assigned to this %s",cfg->name);
+	hfri.hfinfo.blurb = ws_strdup_printf("a GOPs assigned to this %s",cfg->name);
 
 	g_array_append_val(mc->hfrs,hfri);
 
@@ -586,7 +586,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 
 	mc->dbg_facility = NULL;
 
-	mc->mate_lib_path = g_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
+	mc->mate_lib_path = ws_strdup_printf("%s%c%s%c",get_datafile_dir(),DIR_SEP,DEFAULT_MATE_LIB_PATH,DIR_SEP);
 
 	mc->pducfgs = g_hash_table_new(g_str_hash,g_str_equal);
 	mc->gopcfgs = g_hash_table_new(g_str_hash,g_str_equal);

@@ -51,7 +51,7 @@ get_interface_list(int *err, char **err_str)
 gchar *
 cant_get_if_list_error_message(const char *err_str)
 {
-	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
+	return ws_strdup_printf("Can't get list of interfaces: %s", err_str);
 }
 
 if_capabilities_t *
@@ -160,7 +160,7 @@ get_compiled_caplibs_version(GString *str)
 }
 
 /*
- * Append the version of libpcap with which we we're running to a GString.
+ * Append the version of libpcap with which we're running to a GString.
  */
 void
 get_runtime_caplibs_version(GString *str)

@@ -1,4 +1,5 @@
-/* glib-compat.h
+/** @file
+*
 * Definitions to provide some functions that are not present in older
 * GLIB versions (down to 2.22)
 *
@@ -15,6 +16,7 @@
 #include "ws_attributes.h"
 
 #include <glib.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {

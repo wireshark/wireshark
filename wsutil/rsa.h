@@ -1,4 +1,4 @@
-/* rsa.h
+/** @file
  *
  * Functions for RSA private key reading and use
  *

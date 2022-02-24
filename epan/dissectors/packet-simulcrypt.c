@@ -1069,7 +1069,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_EIS_ERROR_DESCRIPTION:
-		proto_tree_add_item(tree, hf_simulcrypt_error_description, tvb, offset, plen, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_simulcrypt_error_description, tvb, offset, plen, ENC_ASCII);
 		break;
 
 	default:  /* Unknown parameter type */

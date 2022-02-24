@@ -422,7 +422,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 
   ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, ENC_NA);
   pft_tree = proto_item_add_subtree (ti, ett_pft);
-  proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII);
 
   offset += 2;
   seq = tvb_get_ntohs (tvb, offset);
@@ -513,7 +513,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
 
   ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, ENC_NA);
   af_tree = proto_item_add_subtree (ti, ett_af);
-  proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII);
 
   offset += 2;
   payload_len = tvb_get_ntohl(tvb, offset);
@@ -540,7 +540,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
 
   offset += 1;
   pt = tvb_get_guint8 (tvb, offset);
-  proto_tree_add_item (af_tree, hf_edcp_pt, tvb, offset, 1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (af_tree, hf_edcp_pt, tvb, offset, 1, ENC_ASCII);
   offset += 1;
   next_tvb = tvb_new_subset_length_caplen (tvb, offset, payload_len, payload_len);
   offset += payload_len;

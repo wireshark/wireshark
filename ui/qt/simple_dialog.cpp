@@ -26,7 +26,7 @@
 #include <QCheckBox>
 #include <QMessageBox>
 #include <QMutex>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextCodec>
 
 /* Simple dialog function - Displays a dialog box with the supplied message
@@ -205,7 +205,7 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     gchar *vmessage;
     QString message;
 
-    vmessage = g_strdup_vprintf(msg_format, ap);
+    vmessage = ws_strdup_vprintf(msg_format, ap);
 #ifdef _WIN32
     //
     // On Windows, filename strings inside Wireshark are UTF-8 strings,
@@ -225,7 +225,7 @@ SimpleDialog::SimpleDialog(QWidget *parent, ESD_TYPE_E type, int btn_mask, const
     // Remove leading and trailing whitespace along with excessive newline runs.
     QString primary = msg_pair.first.trimmed();
     QString secondary = msg_pair.second.trimmed();
-    secondary.replace(QRegExp("\n\n+"), "\n\n");
+    secondary.replace(QRegularExpression("\n\n+"), "\n\n");
 
     if (primary.isEmpty()) {
         return;

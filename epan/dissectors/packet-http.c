@@ -198,7 +198,7 @@ header_fields_update_cb(void *r, char **err)
 	 */
 	c = proto_check_field_name(rec->header_name);
 	if (c) {
-		*err = g_strdup_printf("Header name can't contain '%c'", c);
+		*err = ws_strdup_printf("Header name can't contain '%c'", c);
 		return FALSE;
 	}
 
@@ -637,7 +637,7 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 
 		tick_stat_node(st, resp_str, st_node_responses, FALSE);
 
-		g_snprintf(str, sizeof(str), "%u %s", i,
+		snprintf(str, sizeof(str), "%u %s", i,
 			   val_to_str(i, vals_http_status_code, "Unknown (%d)"));
 		tick_stat_node(st, str, resp_grp, FALSE);
 	} else if (v->request_method) {
@@ -1718,7 +1718,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * At this point, any chunked *transfer* coding has been removed
 		 * (the entity body has been dechunked) so it can be presented
 		 * for the following operation (*content* encoding), or it has
-		 * been been handed off to the data dissector.
+		 * been handed off to the data dissector.
 		 *
 		 * Handle *content* encodings other than "identity" (which
 		 * shouldn't appear in a Content-Encoding header, but
@@ -1997,7 +1997,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_request_method, tvb, offset, tokenlen,
-			    ENC_ASCII|ENC_NA);
+			    ENC_ASCII);
 	if ((next_token - line) > 2 && next_token[-1] == ' ' && next_token[-2] == ' ') {
 	  /* Two spaces in a now indicates empty URI, so roll back one here */
 	  next_token--;
@@ -2039,7 +2039,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/* Everything to the end of the line is the version. */
 	tokenlen = (int) (lineend - line);
 	proto_tree_add_item(tree, hf_http_request_version, tvb, offset, tokenlen,
-	    ENC_ASCII|ENC_NA);
+	    ENC_ASCII);
 }
 
 static gint
@@ -2090,7 +2090,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_response_version, tvb, offset, tokenlen,
-			    ENC_ASCII|ENC_NA);
+			    ENC_ASCII);
 	/* Advance to the start of the next token. */
 	offset += (int) (next_token - line);
 	line = next_token;
@@ -2130,7 +2130,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	tokenlen = (int) (lineend - line);
 	if (tokenlen >= 1) {
 		proto_tree_add_item(tree, hf_http_response_phrase, tvb, offset,
-				tokenlen, ENC_ASCII|ENC_NA);
+				tokenlen, ENC_ASCII);
 	}
 }
 
@@ -2454,7 +2454,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 			if (trailer_len > 0) {
 				proto_tree_add_item(subtree,
 					hf_http_chunked_trailer_part,
-					tvb, offset, trailer_len, ENC_ASCII|ENC_NA);
+					tvb, offset, trailer_len, ENC_ASCII);
 				offset += trailer_len;
 				datalen -= trailer_len;
 			}
@@ -2891,7 +2891,7 @@ header_fields_post_update_cb(void)
 
 			dynamic_hf[i].p_id = hf_id;
 			dynamic_hf[i].hfinfo.name = header_name;
-			dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("http.header.%s", header_name);
+			dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf("http.header.%s", header_name);
 			dynamic_hf[i].hfinfo.type = FT_STRING;
 			dynamic_hf[i].hfinfo.display = BASE_NONE;
 			dynamic_hf[i].hfinfo.strings = NULL;
@@ -3942,19 +3942,19 @@ proto_register_http(void)
 		"HTTP Request Method", HFILL }},
 	    { &hf_http_request_uri,
 	      { "Request URI", "http.request.uri",
-		FT_STRING, STR_UNICODE, NULL, 0x0,
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request-URI", HFILL }},
 	    { &hf_http_request_path,
 	      { "Request URI Path", "http.request.uri.path",
-		FT_STRING, STR_UNICODE, NULL, 0x0,
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request-URI Path", HFILL }},
 	    { &hf_http_request_query,
 	      { "Request URI Query", "http.request.uri.query",
-		FT_STRING, STR_UNICODE, NULL, 0x0,
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request-URI Query", HFILL }},
 	    { &hf_http_request_query_parameter,
 	      { "Request URI Query Parameter", "http.request.uri.query.parameter",
-		FT_STRING, STR_UNICODE, NULL, 0x0,
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request-URI Query Parameter", HFILL }},
 	    { &hf_http_request_version,
 	      { "Request Version", "http.request.version",
@@ -3978,7 +3978,7 @@ proto_register_http(void)
 		"HTTP Response Status Code Description", HFILL }},
 	    { &hf_http_response_for_uri,
 	      { "Request URI", "http.response_for.uri",
-		FT_STRING, STR_UNICODE, NULL, 0x0,
+		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Response For-URI", HFILL }},
 	    { &hf_http_response_phrase,
 	      { "Response Phrase", "http.response.phrase",
@@ -4162,7 +4162,7 @@ proto_register_http(void)
 		NULL, HFILL }},
 	    { &hf_http_file_data,
 	      { "File Data", "http.file_data",
-		FT_STRING, STR_UNICODE, NULL, 0,
+		FT_STRING, BASE_NONE, NULL, 0,
 		NULL, HFILL }},
 	    { &hf_http_unknown_header,
 	      { "Unknown header", "http.unknown_header",

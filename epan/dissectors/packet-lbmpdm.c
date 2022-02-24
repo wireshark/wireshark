@@ -596,7 +596,7 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, g
                         shift_count--;
                     }
                     proto_tree_add_none_format(tree, hf_lbmpdm_field_value_decimal, tvb, offset, field_length,
-                        "DECIMAL Value: %" G_GINT64_FORMAT " (%" G_GINT64_FORMAT "e%d)", whole, mantissa, exponent);
+                        "DECIMAL Value: %" PRId64 " (%" PRId64 "e%d)", whole, mantissa, exponent);
                 }
                 else
                 {
@@ -623,7 +623,7 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, g
                         whole *= -1;
                     }
                     proto_tree_add_none_format(tree, hf_lbmpdm_field_value_decimal, tvb, offset, field_length,
-                        "DECIMAL Value: %" G_GINT64_FORMAT ".%0*" G_GUINT64_FORMAT " (%" G_GINT64_FORMAT "e%d)",
+                        "DECIMAL Value: %" PRId64 ".%0*" PRIu64 " (%" PRId64 "e%d)",
                         whole, decimal_digits, fraction, mantissa, exponent);
                 }
             }
@@ -959,7 +959,7 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
             if (string_name_len > 0)
             {
                 string_name_ofs = ofs + def_ofs + L_LBMPDM_FIELD_INFO_T;
-                proto_tree_add_item(field_tree, hf_lbmpdm_segment_def_field_str_name, tvb, string_name_ofs, (int)string_name_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(field_tree, hf_lbmpdm_segment_def_field_str_name, tvb, string_name_ofs, (int)string_name_len, ENC_ASCII);
                 type_ofs += string_name_len;
             }
         }

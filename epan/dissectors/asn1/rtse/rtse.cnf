@@ -120,7 +120,7 @@ RTSE-apdus
                                                                             tvb_reported_length(string), ENC_T61));
 
 #.TYPE_ATTR
-CallingSSuserReference/t61String DISPLAY = STR_UNICODE
+CallingSSuserReference/t61String DISPLAY = BASE_NONE
 
 #.FN_PARS CommonReference
   VAL_PTR=&string
@@ -181,6 +181,6 @@ CallingSSuserReference/t61String DISPLAY = STR_UNICODE
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(reason, rtse_AbortReason_vals, "reason(%%d)"));
 
 #.TYPE_ATTR
-AdditionalReferenceInformation DISPLAY = STR_UNICODE
+AdditionalReferenceInformation DISPLAY = BASE_NONE
 
 #.END

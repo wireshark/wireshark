@@ -275,9 +275,9 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
                                    ett_tftp_option, NULL, "Option: %s = %s", optionname, optionvalue);
 
     proto_tree_add_item(opt_tree, hf_tftp_option_name, tvb, offset,
-                        option_len, ENC_ASCII|ENC_NA);
+                        option_len, ENC_ASCII);
     proto_tree_add_item(opt_tree, hf_tftp_option_value, tvb, value_offset,
-                        value_len, ENC_ASCII|ENC_NA);
+                        value_len, ENC_ASCII);
 
     offset += option_len + value_len;
 
@@ -452,7 +452,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     i1 = tvb_strsize(tvb, offset);
     proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
-                        tvb, offset, i1, ENC_ASCII|ENC_NA);
+                        tvb, offset, i1, ENC_ASCII);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
                     tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
@@ -478,7 +478,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     i1 = tvb_strsize(tvb, offset);
     proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
-                        tvb, offset, i1, ENC_ASCII|ENC_NA);
+                        tvb, offset, i1, ENC_ASCII);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
                     tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
@@ -692,7 +692,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     i1 = tvb_strsize(tvb, offset);
     proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
-                        i1, ENC_ASCII|ENC_NA);
+                        i1, ENC_ASCII);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
                     tvb_format_stringzpad(pinfo->pool, tvb, offset, i1));
@@ -778,7 +778,7 @@ is_valid_requerest_body(tvbuff_t *tvb)
   offset += tvb_strsize(tvb, offset);
   guint len = tvb_strsize(tvb, offset);
   const gchar* mode = tvb_format_stringzpad(wmem_packet_scope(), tvb, offset, len);
-  
+
   const gchar* modes[] = {"netscii", "octet", "mail"};
   for(guint i = 0; i < array_length(modes); ++i) {
     if (g_ascii_strcasecmp(mode, modes[i]) == 0) return TRUE;

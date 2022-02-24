@@ -79,7 +79,7 @@ fuzzshark_pref_set(const char *name, const char *value)
 
 	prefs_set_pref_e ret;
 
-	g_snprintf(pref, sizeof(pref), "%s:%s", name, value);
+	snprintf(pref, sizeof(pref), "%s:%s", name, value);
 
 	ret = prefs_set_pref(pref, &errmsg);
 	g_free(errmsg);

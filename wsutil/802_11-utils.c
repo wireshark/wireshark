@@ -9,9 +9,6 @@
  */
 
 #include "config.h"
-
-#include <glib.h>
-
 #include "802_11-utils.h"
 
 typedef struct freq_cvt_s {
@@ -95,9 +92,9 @@ ieee80211_mhz_to_str(guint freq){
     gboolean is_bg = FREQ_IS_BG(freq);
 
     if (chan < 0) {
-        return g_strdup_printf("%u", freq);
+        return ws_strdup_printf("%u", freq);
     } else {
-        return g_strdup_printf("%u [%s %u]", freq, is_bg ? "BG" : "A",
+        return ws_strdup_printf("%u [%s %u]", freq, is_bg ? "BG" : "A",
             chan);
     }
 }

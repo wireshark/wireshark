@@ -1,4 +1,5 @@
-/* register.h
+/** @file
+ *
  * Definitions for protocol registration
  *
  * Wireshark - Network traffic analyzer

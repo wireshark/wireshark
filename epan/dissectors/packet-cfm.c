@@ -19,7 +19,7 @@
  * - ITU-T Y.1731 recommendation (05/2006,) which is not formally released
  *    at the time of this dissector development.
  *    Any updates to these documents may require additional modifications to this code.
- *    ITU-T G.8013/Y.1731 (11/2013) is the current version (as of Sep 11, 2014)
+ *    ITU-T G.8013/Y.1731 (08/2015) is the current version (as of Jan 1, 2022)
  *    ToDo: Update dissector to reflect this document.
  */
 
@@ -55,6 +55,8 @@
 #define EXR 0x30
 #define VSM 0x33
 #define VSR 0x32
+#define CSF 0x34
+#define OSL 0x35
 #define SLM 0x37
 #define SLR 0x36
 
@@ -111,6 +113,8 @@ static const value_string opcodetypenames[] = {
 	{ EXR,		"Experimental OAM Reply (EXR)" },
 	{ VSM,		"Vendor Specific Message (VSM)" },
 	{ VSR,		"Vendor Specific Reply (VSR)" },
+	{ CSF,		"Client Signal Fail (CSF)" },
+	{ OSL,		"One Way Synthetic Loss Measurement (1SL)" },
 	{ SLM,		"Synthetic Loss Message (SLM)"},
 	{ SLR,		"Synthetic Loss Reply (SLR))"},
 	{ 0,            NULL }
@@ -289,6 +293,24 @@ static const value_string gnmsubopcodetypenames[] = {
 	{ BNM, 		"Bandwidth Notification Message" },
 	{ 0,  NULL }
 };
+static const value_string cfm_csf_flags_type_vals[] = {
+	{ 0,  "LOS" },
+	{ 1,  "FDI/AIS" },
+	{ 2,  "RDI" },
+	{ 3,  "DCI" },
+	{ 0,  NULL }
+};
+static const value_string cfm_csf_flags_period_vals[] = {
+	{ 0, "Invalid" },
+	{ 1, "For further study" },
+	{ 2, "For further study" },
+	{ 3, "For further study" },
+	{ 4, "1s" },
+	{ 5, "For further study" },
+	{ 6, "1 min" },
+	{ 7, "For further study" },
+	{ 0,  NULL }
+};
 
 
 static int hf_cfm_md_level = -1;
@@ -404,6 +426,17 @@ static int hf_cfm_exm_exr_data = -1;
 static int hf_cfm_vsm_pdu = -1;
 static int hf_cfm_vsr_pdu = -1;
 static int hf_cfm_vsm_vsr_data = -1;
+
+static int hf_cfm_csf_pdu = -1;
+static int hf_cfm_csf_flags_Reserved = -1;
+static int hf_cfm_csf_flags_Type =-1;
+static int hf_cfm_csf_flags_Period = -1;
+
+static int hf_cfm_osl_pdu = -1;
+static int hf_cfm_osl_src_mep = -1;
+static int hf_cfm_osl_reserved = -1;
+static int hf_cfm_osl_testid = -1;
+static int hf_cfm_osl_txfcf  = -1;
 
 static int hf_cfm_slm_pdu = -1;
 static int hf_cfm_slr_pdu = -1;
@@ -524,7 +557,7 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 			} else {
 				/* MD name format is regular string or DNS string */
 				proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_string,
-					tvb, maid_offset, cfm_maid_md_name_length, ENC_ASCII|ENC_NA);
+					tvb, maid_offset, cfm_maid_md_name_length, ENC_ASCII);
 			}
 			maid_offset += cfm_maid_md_name_length;
 		}
@@ -538,7 +571,7 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	if ((cfm_maid_ma_name_format == 2) ||
 	    (cfm_maid_ma_name_format == 32)) {
 		proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_ma_name_string,
-			tvb, maid_offset, cfm_maid_ma_name_length, ENC_ASCII|ENC_NA);
+			tvb, maid_offset, cfm_maid_ma_name_length, ENC_ASCII);
 	} else {
 		proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_ma_name_hex,
 			tvb, maid_offset, cfm_maid_ma_name_length, ENC_NA);
@@ -1206,6 +1239,63 @@ static int dissect_cfm_vsr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	return offset;
 }
 
+static int dissect_cfm_csf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_item *fi;
+	proto_tree *cfm_pdu_tree;
+	proto_tree *cfm_flag_tree;
+
+	ti = proto_tree_add_item(tree, hf_cfm_csf_pdu, tvb, offset, -1, ENC_NA);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_csf_flags_Reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_csf_flags_Type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_csf_flags_Period, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	return offset;
+}
+
+static int dissect_cfm_osl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	proto_item *ti;
+	proto_item *fi;
+	proto_tree *cfm_pdu_tree;
+	proto_tree *cfm_flag_tree;
+
+	ti = proto_tree_add_item(tree, hf_cfm_osl_pdu, tvb, offset, -1, ENC_NA);
+	cfm_pdu_tree = proto_item_add_subtree(ti, ett_cfm_pdu);
+
+	fi = proto_tree_add_item(cfm_pdu_tree, hf_cfm_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+	cfm_flag_tree = proto_item_add_subtree(fi, ett_cfm_flags);
+	proto_tree_add_item(cfm_flag_tree, hf_cfm_flags_Reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_first_tlv_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_src_mep, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_reserved, tvb, offset, 2, ENC_NA);
+	offset += 2;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_testid, tvb, offset, 4, ENC_NA);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_txfcf, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_osl_reserved, tvb, offset, 4, ENC_NA);
+	offset += 4;
+
+	return offset;
+}
+
 static int dissect_cfm_slm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 	proto_item *ti;
@@ -1373,6 +1463,12 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			break;
 		case VSR:
 			offset = dissect_cfm_vsr(tvb, pinfo, tree, offset);
+			break;
+		case CSF:
+			offset = dissect_cfm_csf(tvb, pinfo, tree, offset);
+			break;
+		case OSL:
+			offset = dissect_cfm_osl(tvb, pinfo, tree, offset);
 			break;
 		case SLM:
 			offset = dissect_cfm_slm(tvb, pinfo, tree, offset);
@@ -2044,6 +2140,46 @@ void proto_register_cfm(void)
 		{ &hf_cfm_vsr_pdu,
 			{ "CFM VSR PDU", "cfm.vsr.pdu", FT_NONE,
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+
+		/* CFM CSF */
+		{ &hf_cfm_csf_pdu,
+			{ "CFM CSF PDU", "cfm.csf.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_csf_flags_Reserved,
+			{ "Reserved", "cfm.csf.flags.Reserved", FT_UINT8,
+			BASE_HEX, NULL, 0xC0, NULL, HFILL }
+		},
+		{ &hf_cfm_csf_flags_Type,
+			{ "Type", "cfm.csf.flags.Type", FT_UINT8,
+			BASE_DEC, VALS(cfm_csf_flags_type_vals), 0x38, NULL, HFILL }
+		},
+		{ &hf_cfm_csf_flags_Period,
+			{ "Type", "cfm.csf.flags.Period", FT_UINT8,
+			BASE_DEC, VALS(cfm_csf_flags_period_vals), 0x07, NULL, HFILL }
+		},
+
+		/* CFM 1SL */
+		{ &hf_cfm_osl_pdu,
+			{ "CFM 1SL PDU", "cfm.osf.pdu", FT_NONE,
+			BASE_NONE, NULL, 0x0, NULL, HFILL	}
+		},
+		{ &hf_cfm_osl_src_mep,
+			{ "Source MEP ID", "cfm.osl.src_mep_id", FT_UINT16,
+			BASE_DEC, NULL, 0x1FFF, NULL, HFILL }
+		},
+		{ &hf_cfm_osl_reserved,
+			{ "1SL Reserved", "cfm.osl.reserved", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_osl_testid,
+			{ "TestID", "cfm.osl.test_id", FT_BYTES,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_cfm_osl_txfcf,
+			{ "TxFcF", "cfm.osl.txfcf", FT_UINT32,
+			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 
 		/* Synthetic Loss values */

@@ -495,10 +495,7 @@ int main(int argc, char *argv[])
 	char* help_header = NULL;
 
 	/* Initialize log handler early so we can have proper logging during startup. */
-	ws_log_init("dpauxmon", NULL);
-
-	/* Early logging command-line initialization. */
-	ws_log_parse_args(&argc, argv, NULL, LOG_ARGS_NOEXIT);
+	extcap_log_init("dpauxmon");
 
 	/*
 	 * Get credential information for later use.
@@ -520,7 +517,7 @@ int main(int argc, char *argv[])
 		NULL);
 	extcap_base_register_interface(extcap_conf, DPAUXMON_EXTCAP_INTERFACE, "DisplayPort AUX channel monitor capture", 275, "DisplayPort AUX channel monitor");
 
-	help_header = g_strdup_printf(
+	help_header = ws_strdup_printf(
 		" %s --extcap-interfaces\n"
 		" %s --extcap-interface=%s --extcap-dlts\n"
 		" %s --extcap-interface=%s --extcap-config\n"

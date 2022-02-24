@@ -1758,13 +1758,13 @@ proto_register_atalk(void)
       { "Enumerator",           "nbp.enum",     FT_UINT8,  BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_object,
-      { "Object",               "nbp.object",   FT_UINT_STRING,  STR_UNICODE,
+      { "Object",               "nbp.object",   FT_UINT_STRING,  BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_type,
-      { "Type",         "nbp.type",     FT_UINT_STRING,  STR_UNICODE,
+      { "Type",         "nbp.type",     FT_UINT_STRING,  BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_zone,
-      { "Zone",         "nbp.zone",     FT_UINT_STRING,  STR_UNICODE,
+      { "Zone",         "nbp.zone",     FT_UINT_STRING,  BASE_NONE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_tid,
       { "Transaction ID",               "nbp.tid",      FT_UINT8,  BASE_DEC,
@@ -1978,11 +1978,11 @@ proto_register_atalk(void)
         NULL, HFILL }},
 
     { &hf_zip_zone_name,
-      { "Zone",         "zip.zone_name", FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
+      { "Zone",         "zip.zone_name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_zip_default_zone,
-      { "Default zone", "zip.default_zone",FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
+      { "Default zone", "zip.default_zone",FT_UINT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_zip_multicast_length,
@@ -2025,7 +2025,7 @@ proto_register_atalk(void)
         "Sequence number", HFILL }},
 
     { &hf_pap_status,
-      { "Status",       "prap.status",   FT_UINT_STRING,  STR_UNICODE, NULL, 0x0,
+      { "Status",       "prap.status",   FT_UINT_STRING,  BASE_NONE, NULL, 0x0,
                 "Printer status", HFILL }},
 
     { &hf_pap_eof,

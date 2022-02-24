@@ -187,9 +187,9 @@ init_pipe_args(int *argc) {
 
     /* take Wireshark's absolute program path and replace "Wireshark" with "dumpcap" */
 #ifdef _WIN32
-    exename = g_strdup_printf("%s\\dumpcap.exe", progfile_dir);
+    exename = ws_strdup_printf("%s\\dumpcap.exe", progfile_dir);
 #else
-    exename = g_strdup_printf("%s/dumpcap", progfile_dir);
+    exename = ws_strdup_printf("%s/dumpcap", progfile_dir);
 #endif
 
     /* Make that the first argument in the argument list (argv[0]). */
@@ -266,60 +266,65 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         }
     }
 
+    if (capture_opts->temp_dir) {
+            argv = sync_pipe_add_arg(argv, &argc, "--temp-dir");
+            argv = sync_pipe_add_arg(argv, &argc, capture_opts->temp_dir);
+    }
+
     if (capture_opts->multi_files_on) {
         if (capture_opts->has_autostop_filesize) {
             char sfilesize[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
+            snprintf(sfilesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
             argv = sync_pipe_add_arg(argv, &argc, sfilesize);
         }
 
         if (capture_opts->has_file_duration) {
             char sfile_duration[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(sfile_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->file_duration);
+            snprintf(sfile_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->file_duration);
             argv = sync_pipe_add_arg(argv, &argc, sfile_duration);
         }
 
         if (capture_opts->has_file_interval) {
             char sfile_interval[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(sfile_interval, ARGV_NUMBER_LEN, "interval:%d",capture_opts->file_interval);
+            snprintf(sfile_interval, ARGV_NUMBER_LEN, "interval:%d",capture_opts->file_interval);
             argv = sync_pipe_add_arg(argv, &argc, sfile_interval);
         }
 
         if (capture_opts->has_file_packets) {
             char sfile_packets[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(sfile_packets, ARGV_NUMBER_LEN, "packets:%d",capture_opts->file_packets);
+            snprintf(sfile_packets, ARGV_NUMBER_LEN, "packets:%d",capture_opts->file_packets);
             argv = sync_pipe_add_arg(argv, &argc, sfile_packets);
         }
 
         if (capture_opts->has_ring_num_files) {
             char sring_num_files[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(sring_num_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->ring_num_files);
+            snprintf(sring_num_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->ring_num_files);
             argv = sync_pipe_add_arg(argv, &argc, sring_num_files);
         }
 
         if (capture_opts->has_nametimenum) {
             char nametimenum[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-b");
-            g_snprintf(nametimenum, ARGV_NUMBER_LEN, "nametimenum:2");
+            snprintf(nametimenum, ARGV_NUMBER_LEN, "nametimenum:2");
             argv = sync_pipe_add_arg(argv, &argc, nametimenum);
         }
 
         if (capture_opts->has_autostop_files) {
             char sautostop_files[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-a");
-            g_snprintf(sautostop_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->autostop_files);
+            snprintf(sautostop_files, ARGV_NUMBER_LEN, "files:%d",capture_opts->autostop_files);
             argv = sync_pipe_add_arg(argv, &argc, sautostop_files);
         }
     } else {
         if (capture_opts->has_autostop_filesize) {
             char sautostop_filesize[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-a");
-            g_snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
+            snprintf(sautostop_filesize, ARGV_NUMBER_LEN, "filesize:%u",capture_opts->autostop_filesize);
             argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
         }
     }
@@ -327,15 +332,22 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
     if (capture_opts->has_autostop_packets) {
         char scount[ARGV_NUMBER_LEN];
         argv = sync_pipe_add_arg(argv, &argc, "-c");
-        g_snprintf(scount, ARGV_NUMBER_LEN, "%d",capture_opts->autostop_packets);
+        snprintf(scount, ARGV_NUMBER_LEN, "%d",capture_opts->autostop_packets);
         argv = sync_pipe_add_arg(argv, &argc, scount);
     }
 
     if (capture_opts->has_autostop_duration) {
         char sautostop_duration[ARGV_NUMBER_LEN];
         argv = sync_pipe_add_arg(argv, &argc, "-a");
-        g_snprintf(sautostop_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->autostop_duration);
+        snprintf(sautostop_duration, ARGV_NUMBER_LEN, "duration:%f",capture_opts->autostop_duration);
         argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
+    }
+
+    if (capture_opts->has_autostop_written_packets) {
+        char scount[ARGV_NUMBER_LEN];
+        argv = sync_pipe_add_arg(argv, &argc, "-a");
+        snprintf(scount, ARGV_NUMBER_LEN, "packets:%d",capture_opts->autostop_written_packets);
+        argv = sync_pipe_add_arg(argv, &argc, scount);
     }
 
     if (capture_opts->group_read_access) {
@@ -349,7 +361,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         if (interface_opts->extcap_fifo != NULL)
         {
 #ifdef _WIN32
-            char *pipe = g_strdup_printf("%s%" G_GUINTPTR_FORMAT, EXTCAP_PIPE_PREFIX, interface_opts->extcap_pipe_h);
+            char *pipe = ws_strdup_printf("%s%" PRIuPTR, EXTCAP_PIPE_PREFIX, interface_opts->extcap_pipe_h);
             argv = sync_pipe_add_arg(argv, &argc, pipe);
             g_free(pipe);
 #else
@@ -375,7 +387,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         if (interface_opts->has_snaplen) {
             char ssnap[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-s");
-            g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts->snaplen);
+            snprintf(ssnap, ARGV_NUMBER_LEN, "%d", interface_opts->snaplen);
             argv = sync_pipe_add_arg(argv, &argc, ssnap);
         }
 
@@ -398,7 +410,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
             argv = sync_pipe_add_arg(argv, &argc, "-B");
             if(interface_opts->buffer_size == 0x00)
                 interface_opts->buffer_size = DEFAULT_CAPTURE_BUFFER_SIZE;
-            g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts->buffer_size);
+            snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts->buffer_size);
             argv = sync_pipe_add_arg(argv, &argc, buffer_size);
         }
 #endif
@@ -419,7 +431,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
             char sauth[256];
             argv = sync_pipe_add_arg(argv, &argc, "-A");
-            g_snprintf(sauth, sizeof(sauth), "%s:%s",
+            snprintf(sauth, sizeof(sauth), "%s:%s",
                        interface_opts->auth_username,
                        interface_opts->auth_password);
             argv = sync_pipe_add_arg(argv, &argc, sauth);
@@ -430,7 +442,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         if (interface_opts->sampling_method != CAPTURE_SAMP_NONE) {
             char ssampling[ARGV_NUMBER_LEN];
             argv = sync_pipe_add_arg(argv, &argc, "-m");
-            g_snprintf(ssampling, ARGV_NUMBER_LEN, "%s:%d",
+            snprintf(ssampling, ARGV_NUMBER_LEN, "%s:%d",
                        interface_opts->sampling_method == CAPTURE_SAMP_BY_COUNT ? "count" :
                        interface_opts->sampling_method == CAPTURE_SAMP_BY_TIMER ? "timer" :
                        "undef",
@@ -448,7 +460,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
 #ifdef _WIN32
-    g_snprintf(control_id, ARGV_NUMBER_LEN, "%d", GetCurrentProcessId());
+    snprintf(control_id, ARGV_NUMBER_LEN, "%d", GetCurrentProcessId());
     argv = sync_pipe_add_arg(argv, &argc, control_id);
 #else
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
@@ -501,7 +513,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
     }
 
     /* Create the signal pipe */
-    signal_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, control_id);
+    signal_pipe_name = ws_strdup_printf(SIGNAL_PIPE_FORMAT, control_id);
     signal_pipe = CreateNamedPipe(utf_8to16(signal_pipe_name),
                                   PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 65535, 65535, 0, NULL);
     g_free(signal_pipe_name);
@@ -595,7 +607,7 @@ sync_pipe_start(capture_options *capture_opts, GPtrArray *capture_comments,
         dup2(sync_pipe[PIPE_WRITE], 2);
         ws_close(sync_pipe[PIPE_READ]);
         execv(argv[0], argv);
-        g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+        snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                    argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
 
@@ -715,7 +727,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe[PIPE_READ], &sync_pipe[PIPE_WRITE], &sa, 5120)) {
         /* Couldn't create the message pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create sync pipe: %s",
+        *msg = ws_strdup_printf("Couldn't create sync pipe: %s",
                                win32strerror(GetLastError()));
         return -1;
     }
@@ -729,7 +741,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
      */
     *message_read_fd = _open_osfhandle( (intptr_t) sync_pipe[PIPE_READ], _O_BINARY);
     if (*message_read_fd == -1) {
-        *msg = g_strdup_printf("Couldn't get C file handle for message read pipe: %s", g_strerror(errno));
+        *msg = ws_strdup_printf("Couldn't get C file handle for message read pipe: %s", g_strerror(errno));
         CloseHandle(sync_pipe[PIPE_READ]);
         CloseHandle(sync_pipe[PIPE_WRITE]);
         return -1;
@@ -739,7 +751,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&data_pipe[PIPE_READ], &data_pipe[PIPE_WRITE], &sa, 5120)) {
         /* Couldn't create the message pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create data pipe: %s",
+        *msg = ws_strdup_printf("Couldn't create data pipe: %s",
                                win32strerror(GetLastError()));
         ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
@@ -755,7 +767,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
      */
     *data_read_fd = _open_osfhandle( (intptr_t) data_pipe[PIPE_READ], _O_BINARY);
     if (*data_read_fd == -1) {
-        *msg = g_strdup_printf("Couldn't get C file handle for data read pipe: %s", g_strerror(errno));
+        *msg = ws_strdup_printf("Couldn't get C file handle for data read pipe: %s", g_strerror(errno));
         CloseHandle(data_pipe[PIPE_READ]);
         CloseHandle(data_pipe[PIPE_WRITE]);
         ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
@@ -792,7 +804,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     /* call dumpcap */
     if(!win32_create_process(argv[0], args->str, NULL, NULL, TRUE,
                                CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        *msg = g_strdup_printf("Couldn't run %s in child process: %s",
+        *msg = ws_strdup_printf("Couldn't run %s in child process: %s",
                                args->str, win32strerror(GetLastError()));
         ws_close(*data_read_fd);       /* Should close data_pipe[PIPE_READ] */
         CloseHandle(data_pipe[PIPE_WRITE]);
@@ -809,14 +821,14 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     /* Create a pipe for the child process to send us messages */
     if (pipe(sync_pipe) < 0) {
         /* Couldn't create the message pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create sync pipe: %s", g_strerror(errno));
+        *msg = ws_strdup_printf("Couldn't create sync pipe: %s", g_strerror(errno));
         return -1;
     }
 
     /* Create a pipe for the child process to send us data */
     if (pipe(data_pipe) < 0) {
         /* Couldn't create the data pipe between parent and child. */
-        *msg = g_strdup_printf("Couldn't create data pipe: %s", g_strerror(errno));
+        *msg = ws_strdup_printf("Couldn't create data pipe: %s", g_strerror(errno));
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
         return -1;
@@ -834,7 +846,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
         ws_close(sync_pipe[PIPE_READ]);
         ws_close(sync_pipe[PIPE_WRITE]);
         execv(argv[0], argv);
-        g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+        snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
                    argv[0], g_strerror(errno));
         sync_pipe_errmsg_to_parent(2, errmsg, "");
 
@@ -872,7 +884,7 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
 
     if (*fork_child == WS_INVALID_PID) {
         /* We couldn't even create the child process. */
-        *msg = g_strdup_printf("Couldn't create child process: %s", g_strerror(errno));
+        *msg = ws_strdup_printf("Couldn't create child process: %s", g_strerror(errno));
         ws_close(*data_read_fd);
         ws_close(*message_read_fd);
         return -1;
@@ -982,7 +994,7 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
             /* We got an error from the sync pipe.  If ret is -1, report
                both the sync pipe I/O error and the wait error. */
             if (ret == -1) {
-                combined_msg = g_strdup_printf("%s\n\n%s", *primary_msg, wait_msg);
+                combined_msg = ws_strdup_printf("%s\n\n%s", *primary_msg, wait_msg);
                 g_free(*primary_msg);
                 g_free(wait_msg);
                 *primary_msg = combined_msg;
@@ -1085,7 +1097,7 @@ sync_pipe_run_command_actual(char* const argv[], gchar **data, gchar **primary_m
             /*
              * Child process returned an unknown status.
              */
-            *primary_msg = g_strdup_printf("dumpcap process gave an unexpected message type: 0x%02x",
+            *primary_msg = ws_strdup_printf("dumpcap process gave an unexpected message type: 0x%02x",
                                            indicator);
             *secondary_msg = NULL;
             ret = -1;
@@ -1153,11 +1165,11 @@ sync_interface_set_80211_chan(const gchar *iface, const char *freq, const gchar 
     argv = sync_pipe_add_arg(argv, &argc, iface);
 
     if (center_freq2)
-        opt = g_strdup_printf("%s,%s,%s,%s", freq, type, center_freq1, center_freq2);
+        opt = ws_strdup_printf("%s,%s,%s,%s", freq, type, center_freq1, center_freq2);
     else if (center_freq1)
-        opt = g_strdup_printf("%s,%s,%s", freq, type, center_freq1);
+        opt = ws_strdup_printf("%s,%s,%s", freq, type, center_freq1);
     else if (type)
-        opt = g_strdup_printf("%s,%s", freq, type);
+        opt = ws_strdup_printf("%s,%s", freq, type);
     else
         opt = g_strdup(freq);
 
@@ -1366,7 +1378,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
             /* We got an error from the sync pipe.  If ret is -1, report
                both the sync pipe I/O error and the wait error. */
             if (ret == -1) {
-                combined_msg = g_strdup_printf("%s\n\n%s", *msg, wait_msg);
+                combined_msg = ws_strdup_printf("%s\n\n%s", *msg, wait_msg);
                 g_free(*msg);
                 g_free(wait_msg);
                 *msg = combined_msg;
@@ -1433,7 +1445,7 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
             /*
              * Child process returned an unknown status.
              */
-            *msg = g_strdup_printf("dumpcap process gave an unexpected message type: 0x%02x",
+            *msg = ws_strdup_printf("dumpcap process gave an unexpected message type: 0x%02x",
                                    indicator);
             ret = -1;
         }
@@ -1477,7 +1489,7 @@ pipe_read_bytes(int pipe_fd, char *bytes, int required, char **msg)
             /* error */
             error = errno;
             ws_debug("read from pipe %d: error(%u): %s", pipe_fd, error, g_strerror(error));
-            *msg = g_strdup_printf("Error reading from sync pipe: %s",
+            *msg = ws_strdup_printf("Error reading from sync pipe: %s",
                                    g_strerror(error));
             return newly;
         }
@@ -1564,7 +1576,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
             /*
              * Short read, but not an immediate EOF.
              */
-            *err_msg = g_strdup_printf("Premature EOF reading from sync pipe: got only %ld bytes",
+            *err_msg = ws_strdup_printf("Premature EOF reading from sync pipe: got only %ld bytes",
                                        (long)newly);
         }
         return -1;
@@ -1591,7 +1603,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
         if (newly < 0) { /* error */
             ws_debug("read from pipe %d: error(%u): %s", pipe_fd, errno, g_strerror(errno));
         }
-        *err_msg = g_strdup_printf("Unknown message from dumpcap reading header, try to show it as a string: %s",
+        *err_msg = ws_strdup_printf("Unknown message from dumpcap reading header, try to show it as a string: %s",
                                    msg);
         return -1;
     }
@@ -1601,7 +1613,7 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     newly = pipe_read_bytes(pipe_fd, msg, required, err_msg);
     if(newly != required) {
         if (newly != -1) {
-            *err_msg = g_strdup_printf("Unknown message from dumpcap reading data, try to show it as a string: %s",
+            *err_msg = ws_strdup_printf("Unknown message from dumpcap reading data, try to show it as a string: %s",
                                        msg);
         }
         return -1;
@@ -1660,7 +1672,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
             /* We got an error from the sync pipe.  If ret is -1, report
                both the sync pipe I/O error and the wait error. */
             if (ret == -1) {
-                combined_msg = g_strdup_printf("%s\n\n%s", primary_msg, wait_msg);
+                combined_msg = ws_strdup_printf("%s\n\n%s", primary_msg, wait_msg);
                 g_free(primary_msg);
                 g_free(wait_msg);
                 primary_msg = combined_msg;
@@ -1789,7 +1801,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
     *msgp = NULL; /* assume no error */
 #ifdef _WIN32
     if (_cwait(&fork_child_status, (intptr_t) fork_child, _WAIT_CHILD) == -1) {
-        *msgp = g_strdup_printf("Error from cwait(): %s", g_strerror(errno));
+        *msgp = ws_strdup_printf("Error from cwait(): %s", g_strerror(errno));
         ret = -1;
     } else {
         /*
@@ -1799,7 +1811,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
         ret = fork_child_status;
         if ((fork_child_status & 0xC0000000) == ERROR_SEVERITY_ERROR) {
             /* Probably an exception code */
-            *msgp = g_strdup_printf("Child dumpcap process died: %s",
+            *msgp = ws_strdup_printf("Child dumpcap process died: %s",
                                     win32strexception(fork_child_status));
             ret = -1;
         }
@@ -1816,19 +1828,19 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
                 ret = WEXITSTATUS(fork_child_status);
             } else if (WIFSTOPPED(fork_child_status)) {
                 /* It stopped, rather than exiting.  "Should not happen." */
-                *msgp = g_strdup_printf("Child dumpcap process stopped: %s",
+                *msgp = ws_strdup_printf("Child dumpcap process stopped: %s",
                                         sync_pipe_signame(WSTOPSIG(fork_child_status)));
                 ret = -1;
             } else if (WIFSIGNALED(fork_child_status)) {
                 /* It died with a signal. */
-                *msgp = g_strdup_printf("Child dumpcap process died: %s%s",
+                *msgp = ws_strdup_printf("Child dumpcap process died: %s%s",
                                         sync_pipe_signame(WTERMSIG(fork_child_status)),
                                         WCOREDUMP(fork_child_status) ? " - core dumped" : "");
                 ret = -1;
             } else {
                 /* What?  It had to either have exited, or stopped, or died with
                    a signal; what happened here? */
-                *msgp = g_strdup_printf("Bad status from waitpid(): %#o",
+                *msgp = ws_strdup_printf("Bad status from waitpid(): %#o",
                                         fork_child_status);
                 ret = -1;
             }
@@ -1863,7 +1875,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
                ret = fetch_dumpcap_pid ? 0 : -1;
             } else {
                 /* Unknown error. */
-                *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
+                *msgp = ws_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
                 ret = -1;
             }
         }
@@ -1965,7 +1977,7 @@ sync_pipe_signame(int sig)
 
     default:
         /* Returning a static buffer is ok in the context we use it here */
-        g_snprintf(sigmsg_buf, sizeof sigmsg_buf, "Signal %d", sig);
+        snprintf(sigmsg_buf, sizeof sigmsg_buf, "Signal %d", sig);
         sigmsg = sigmsg_buf;
         break;
     }
@@ -1982,11 +1994,11 @@ static void create_dummy_signal_pipe() {
     if (dummy_signal_pipe != NULL) return;
 
     if (!dummy_control_id) {
-        dummy_control_id = g_strdup_printf("%d.dummy", GetCurrentProcessId());
+        dummy_control_id = ws_strdup_printf("%d.dummy", GetCurrentProcessId());
     }
 
     /* Create the signal pipe */
-    dummy_signal_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, dummy_control_id);
+    dummy_signal_pipe_name = ws_strdup_printf(SIGNAL_PIPE_FORMAT, dummy_control_id);
     dummy_signal_pipe = CreateNamedPipe(utf_8to16(dummy_signal_pipe_name),
                                   PIPE_ACCESS_OUTBOUND, PIPE_TYPE_BYTE, 1, 65535, 65535, 0, NULL);
     g_free(dummy_signal_pipe_name);

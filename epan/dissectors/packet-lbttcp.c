@@ -173,11 +173,11 @@ char * lbttcp_transport_source_string(const address * source_address, guint16 so
 
     if (session_id == 0)
     {
-        bufptr = wmem_strdup_printf(wmem_file_scope(), "TCP:%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), source_address), source_port);
+        bufptr = wmem_strdup_printf(wmem_file_scope(), "TCP:%s:%" PRIu16, address_to_str(wmem_packet_scope(), source_address), source_port);
     }
     else
     {
-        bufptr = wmem_strdup_printf(wmem_file_scope(), "TCP:%s:%" G_GUINT16_FORMAT ":%08x", address_to_str(wmem_packet_scope(), source_address), source_port, session_id);
+        bufptr = wmem_strdup_printf(wmem_file_scope(), "TCP:%s:%" PRIu16 ":%08x", address_to_str(wmem_packet_scope(), source_address), source_port, session_id);
     }
     return (bufptr);
 }

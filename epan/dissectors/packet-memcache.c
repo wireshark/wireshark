@@ -379,7 +379,7 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean    missing = FALSE;  /* Set when key is missing */
 
   if (key_len) {
-    ti = proto_tree_add_item (tree, hf_key, tvb, offset, key_len, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item (tree, hf_key, tvb, offset, key_len, ENC_ASCII);
     offset += key_len;
 
     if ((opcode == OP_QUIT) || (opcode == OP_QUIT_Q) || (opcode == OP_NO_OP) || (opcode == OP_VERSION)) {
@@ -434,7 +434,7 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info_format(pinfo, ti, &ei_value_length, "Illegal Value length, should be 8");
       }
     } else {
-      ti = proto_tree_add_item (tree, hf_value, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+      ti = proto_tree_add_item (tree, hf_value, tvb, offset, value_len, ENC_ASCII);
     }
     offset += value_len;
   }
@@ -581,7 +581,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     dissect_value (tvb, pinfo, memcache_tree, offset, value_len, opcode, request);
     /*offset += value_len;*/
   } else if (body_len) {
-    proto_tree_add_item (memcache_tree, hf_value, tvb, offset, body_len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (memcache_tree, hf_value, tvb, offset, body_len, ENC_ASCII);
     /*offset += body_len;*/
 
     col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
@@ -1052,7 +1052,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
 
     tokenlen = get_token_len (line, lineend, &next_token);
     if ((tokenlen == 4) && strncmp (line, "STAT", tokenlen) == 0) {
-      proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, ENC_ASCII);
       offset += (int) (next_token - line);
       line = next_token;
       occurrences = find_stat_colon (line, lineend, &first_colon, &last_colon);
@@ -1069,7 +1069,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
     case 2: /* stats items: 2 colons */
       /* subcommand 'items' */
       tokenlen = (int) (first_colon - line);
-      proto_tree_add_item (tree, hf_subcommand, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (tree, hf_subcommand, tvb, offset, tokenlen, ENC_ASCII);
       offset += tokenlen + 1;
 
       /* slabclass */
@@ -1115,7 +1115,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
       return -1; /* invalid token */
     }
 
-    proto_tree_add_item (tree, hf_name, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (tree, hf_name, tvb, offset, tokenlen, ENC_ASCII);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1124,7 +1124,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
     if (tokenlen == 0) {
       return -1; /* invalid token */
     }
-    proto_tree_add_item (tree, hf_name_value, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (tree, hf_name_value, tvb, offset, tokenlen, ENC_ASCII);
 
     offset = next_offset;
   }
@@ -1288,7 +1288,7 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       return -1;
     }
 
-    proto_tree_add_item (tree, hf_version, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (tree, hf_version, tvb, offset, tokenlen, ENC_ASCII);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1327,7 +1327,7 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       (tokenlen == 2 && strncmp (line, "OK", tokenlen) == 0) ||
       (tokenlen == 3 && strncmp (line, "END", tokenlen) == 0))
   {
-    proto_tree_add_item (tree, hf_response, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (tree, hf_response, tvb, offset, tokenlen, ENC_ASCII);
     offset += (int) (next_token - line);
     return offset;
   }
@@ -1365,7 +1365,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (tokenlen == 0) {
     return -1;
   }
-  proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, ENC_ASCII);
   offset += (int) (next_token - line);
   line = next_token;
 
@@ -1452,7 +1452,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tokenlen = get_token_len (line, lineend, &next_token);
     if (tokenlen != 0) {
       if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
-        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       }
       offset += (int) (next_token - line);
     }
@@ -1481,7 +1481,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen == 0) {
       return -1;
     }
-    proto_tree_add_item (tree, hf_value, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (tree, hf_value, tvb, offset, tokenlen, ENC_ASCII);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1491,7 +1491,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return offset; /* reached CRLF */
     }
     if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
-      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       offset += (int) (next_token - line);
       line = next_token;
     } else {
@@ -1527,7 +1527,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen <= 10) {
       if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
         /* noreply */
-        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       } else {
         /* expiration */
         memcpy (response_chars, line, tokenlen);
@@ -1574,7 +1574,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen == 0) { /* just the 'stats' command;*/
       return offset;
     } else { /* there is a sub command; record it*/
-      proto_tree_add_item (tree, hf_subcommand, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (tree, hf_subcommand, tvb, offset, tokenlen, ENC_ASCII);
       offset += (int) (next_token - line);
       line = next_token;
     }
@@ -1598,7 +1598,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen <= 10) {
       if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
         /* noreply */
-        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       } else {
         /* expiration */
         memcpy (response_chars, line, tokenlen);
@@ -1620,7 +1620,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
       /* noreply */
-      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_ASCII);
       offset += (int) (next_token - line);
     } else {
       return -1; /* expecting CRLF and if not noreply*/

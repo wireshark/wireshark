@@ -1,4 +1,5 @@
-/* netlink.h
+/** @file
+ *
  * netlink-related definitions shared between libwireshark and other parts
  *
  * Copyright 2018, Martin Kaiser

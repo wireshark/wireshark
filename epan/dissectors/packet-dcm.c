@@ -1629,12 +1629,13 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         break;
     }
 
-    proto_item_set_text(assoc_header_pitem, "%s", buf_desc);
-    col_set_str(pinfo->cinfo, COL_INFO, buf_desc);
+    if (buf_desc) {
+        proto_item_set_text(assoc_header_pitem, "%s", buf_desc);
+        col_set_str(pinfo->cinfo, COL_INFO, buf_desc);
 
-    /* proto_item and proto_tree are one and the same */
-    proto_item_append_text(tree, ", %s", buf_desc);
-
+        /* proto_item and proto_tree are one and the same */
+        proto_item_append_text(tree, ", %s", buf_desc);
+    }
     return offset;
 }
 
@@ -1848,7 +1849,7 @@ dissect_dcm_assoc_user_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field, tvb, offset, primary_field_length, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_primary_field, tvb, offset, primary_field_length, ENC_UTF_8);
     proto_item_append_text(assoc_item_user_identify_item, ": %s", tvb_get_string_enc(pinfo->pool, tvb, offset, primary_field_length, ENC_UTF_8|ENC_NA));
     offset += primary_field_length;
 
@@ -1857,7 +1858,7 @@ dissect_dcm_assoc_user_identify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field, tvb, offset, secondary_field_length, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item(assoc_item_user_identify_tree, hf_dcm_info_user_identify_secondary_field, tvb, offset, secondary_field_length, ENC_UTF_8);
         proto_item_append_text(assoc_item_user_identify_item, ", %s", tvb_get_string_enc(pinfo->pool, tvb, offset, secondary_field_length, ENC_UTF_8|ENC_NA));
     }
 }

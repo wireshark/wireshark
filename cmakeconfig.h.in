@@ -40,6 +40,9 @@
 /* Define to 1 if you have the `clock_gettime` function. */
 #cmakedefine HAVE_CLOCK_GETTIME 1
 
+/* Define to 1 if you have the `timespec_get` function. */
+#cmakedefine HAVE_TIMESPEC_GET 1
+
 /* Define to use the MaxMind DB library */
 #cmakedefine HAVE_MAXMINDDB 1
 
@@ -60,9 +63,6 @@
 
 /* Define if you have the 'dlget' function. */
 #cmakedefine HAVE_DLGET 1
-
-/* Define if you have the 'getexecname' function. */
-#cmakedefine HAVE_GETEXECNAME 1
 
 /* Define to 1 if you have the <grp.h> header file. */
 #cmakedefine HAVE_GRP_H 1
@@ -250,6 +250,18 @@
 /* Define if you have the 'strptime' function. */
 #cmakedefine HAVE_STRPTIME 1
 
+/* Define if you have the 'memmem' function. */
+#cmakedefine HAVE_MEMMEM 1
+
+/* Define if you have the 'strcasestr' function. */
+#cmakedefine HAVE_STRCASESTR 1
+
+/* Define if you have the 'strerrorname_np' function. */
+#cmakedefine HAVE_STRERRORNAME_NP 1
+
+/* Define if you have the 'vasprintf' function. */
+#cmakedefine HAVE_VASPRINTF 1
+
 /* Define to 1 if `st_birthtime' is a member of `struct stat'. */
 #cmakedefine HAVE_STRUCT_STAT_ST_BIRTHTIME 1
 
@@ -281,7 +293,7 @@
 #cmakedefine HAVE_UNISTD_H 1
 
 /* Define if we have QtMultimedia */
-#define QT_MULTIMEDIA_LIB 1
+#cmakedefine QT_MULTIMEDIA_LIB 1
 
 /* Build androiddump with libpcap instead of wireshark stuff */
 #cmakedefine ANDROIDDUMP_USE_LIBPCAP 1
@@ -293,10 +305,6 @@
 
 /* Define to 1 if the 'ssize_t' type exists. */
 #cmakedefine HAVE_SSIZE_T 1
-
-#ifndef HAVE_SSIZE_T
-#  define ssize_t long int
-#endif
 
 #if defined(_MSC_VER)
 #  define strncasecmp strnicmp

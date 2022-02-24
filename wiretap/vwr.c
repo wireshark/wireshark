@@ -944,7 +944,7 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
         if ((f_len = decode_msg(vwr, header, &v_type, IS_TX, log_mode)) != 0) {
             if (f_len > B_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("vwr: Invalid message record length %d", f_len);
+                *err_info = ws_strdup_printf("vwr: Invalid message record length %d", f_len);
                 return FALSE;
             }
             else if (v_type != VT_FRAME) {
@@ -1174,7 +1174,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
      * The record data must be large enough to hold the statistics trailer.
      */
     if (rec_size < v22_W_STATS_LEN) {
-        *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
+        *err_info = ws_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
                                     rec_size, v22_W_STATS_LEN);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
@@ -1205,7 +1205,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
      * Report an error if it is.
      */
     if (actual_octets > rec_size - v22_W_STATS_LEN) {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
+        *err_info = ws_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
                                     actual_octets);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
@@ -1227,7 +1227,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
     if (actual_octets >= plcp_hdr_len)
        actual_octets -= plcp_hdr_len;
     else {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include %u-byte PLCP header)",
+        *err_info = ws_strdup_printf("vwr: Invalid data length %u (too short to include %u-byte PLCP header)",
                                     actual_octets, plcp_hdr_len);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
@@ -1248,7 +1248,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, wtap_rec *record,
      */
     if (actual_octets < 4) {
         if (actual_octets != 0) {
-            *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include %u-byte PLCP header and 4 bytes of FCS)",
+            *err_info = ws_strdup_printf("vwr: Invalid data length %u (too short to include %u-byte PLCP header and 4 bytes of FCS)",
                                         actual_octets, plcp_hdr_len);
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;
@@ -1453,7 +1453,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
      * the PLCP, and the statistics trailer.
      */
     if ((guint)rec_size < vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN) {
-        *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
+        *err_info = ws_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
                                     rec_size,
                                     vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
         *err = WTAP_ERR_BAD_FILE;
@@ -1503,7 +1503,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
      * Report an error if it is.
      */
     if (actual_octets > rec_size - (vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN)) {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
+        *err_info = ws_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
                                     actual_octets);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
@@ -1649,7 +1649,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, wtap_rec *record,
      */
     if (actual_octets < 4) {
         if (actual_octets != 0) {
-            *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+            *err_info = ws_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
                                         actual_octets);
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;
@@ -1871,7 +1871,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
      */
     if (IS_TX == 3) {       /*IS_TX =3, i.e., command type is RF Modified*/
         if ((guint)rec_size < OCTO_MODIFIED_RF_LEN) {
-            *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
+            *err_info = ws_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
                                         rec_size,
                                         OCTO_MODIFIED_RF_LEN);
             *err = WTAP_ERR_BAD_FILE;
@@ -1918,7 +1918,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         {
             stats_offset = OCTO_RF_MOD_ACTUAL_LEN;
             if ((guint)rec_size < stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN) {
-                *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
+                *err_info = ws_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
                                             rec_size,
                                             stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
                 *err = WTAP_ERR_BAD_FILE;
@@ -1931,7 +1931,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         {
             stats_offset = 0;
             if ((guint)rec_size < vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN) {
-                *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
+                *err_info = ws_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
                                             rec_size,
                                             vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN);
                 *err = WTAP_ERR_BAD_FILE;
@@ -2020,7 +2020,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
          * Report an error if it is.
          */
         if (actual_octets > rec_size - (stats_offset + vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN)) {
-            *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
+            *err_info = ws_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
                                         actual_octets);
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;
@@ -2143,7 +2143,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
                  */
                 if (actual_octets < 4) {
                     if (actual_octets != 0) {
-                        *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+                        *err_info = ws_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
                                                     actual_octets);
                         *err = WTAP_ERR_BAD_FILE;
                         return FALSE;
@@ -2218,7 +2218,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
              * so that our caller doesn't blow up trying to allocate
              * space for an immensely-large packet.
              */
-            *err_info = g_strdup_printf("vwr: File has %u-byte packet, bigger than maximum of %u",
+            *err_info = ws_strdup_printf("vwr: File has %u-byte packet, bigger than maximum of %u",
                                         record->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;
@@ -2582,7 +2582,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
     guint16          vw_flags;                            /* VeriWave-specific packet flags */
 
     if ((guint)rec_size < vwr->STATS_LEN) {
-        *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
+        *err_info = ws_strdup_printf("vwr: Invalid record length %d (must be at least %u)", rec_size, vwr->STATS_LEN);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
     }
@@ -2603,7 +2603,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
      * Report an error if it is.
      */
     if (actual_octets > rec_size - vwr->STATS_LEN) {
-        *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
+        *err_info = ws_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
                                     actual_octets);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
@@ -2655,7 +2655,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, wtap_rec *record,
      */
     if (actual_octets < 4) {
         if (actual_octets != 0) {
-            *err_info = g_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
+            *err_info = ws_strdup_printf("vwr: Invalid data length %u (too short to include 4 bytes of FCS)",
                                         actual_octets);
             *err = WTAP_ERR_BAD_FILE;
             return FALSE;

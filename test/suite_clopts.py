@@ -142,9 +142,12 @@ class case_tshark_capture_clopts(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_tshark_name_resolution_clopts(subprocesstest.SubprocessTestCase):
-    def test_tshark_valid_name_resolution(self, cmd_tshark, capture_interface):
+    def test_tshark_valid_name_resolution(self, cmd_tshark, capture_file):
         # $TSHARK -N mnNtdv -a duration:1 > ./testout.txt 2>&1
-        self.assertRun((cmd_tshark, '-N', 'mnNtdv', '-a', 'duration: 1'))
+        self.assertRun((cmd_tshark,
+            '-r', capture_file('empty.pcap'),
+            '-N', 'mnNtdv',
+        ))
 
     # XXX Add invalid name resolution.
 

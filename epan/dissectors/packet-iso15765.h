@@ -21,8 +21,8 @@ struct iso15765_info {
     guint32  bus_type;
     guint32  id;
     guint32  len;
-    guint16  target_address;
-    guint16  source_address;
+    guint32  target_address;
+    guint32  source_address;
     guint8   number_of_addresses_valid;
 };
 

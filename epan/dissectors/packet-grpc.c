@@ -58,6 +58,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/strutil.h>
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-http2.h>
 

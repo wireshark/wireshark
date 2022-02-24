@@ -54,6 +54,8 @@ file if it finds that the input file is already in order.
 Print the version and exit.
 --
 
+include::diagnostic-options.adoc[]
+
 == SEE ALSO
 
 xref:https://www.tcpdump.org/manpages/pcap.3pcap.html[pcap](3), xref:wireshark.html[wireshark](1), xref:tshark.html[tshark](1), xref:dumpcap.html[dumpcap](1), xref:editcap.html[editcap](1), xref:mergecap.html[mergecap](1),

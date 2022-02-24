@@ -1,4 +1,5 @@
-/* commandline.h
+/** @file
+ *
  * Common command line handling between GUIs
  *
  * Wireshark - Network traffic analyzer

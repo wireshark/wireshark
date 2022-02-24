@@ -937,7 +937,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   {
     len = BM_LEN*2;
     exp = proto_tree_add_item(iso8583_tree, hf_iso8583_bitmap1, tvb,
-        offset, len, ENC_ASCII|ENC_NA);
+        offset, len, ENC_ASCII);
     if(!ishex_str((gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, len , ENC_ASCII), len))
     {
       expert_add_info(pinfo, exp, &ei_iso8583_MALFORMED);
@@ -959,7 +959,7 @@ static int dissect_iso8583_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if(bin_encode_pref == BIN_ASCII_ENC)
     {
       exp = proto_tree_add_item(iso8583_tree, hf_iso8583_bitmap2, tvb,
-          offset, len, ENC_ASCII|ENC_NA);
+          offset, len, ENC_ASCII);
       if(!ishex_str((gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, len , ENC_ASCII), len))
       {
         expert_add_info(pinfo, exp, &ei_iso8583_MALFORMED);
@@ -1013,17 +1013,17 @@ proto_register_iso8583(void)
     },
     { &hf_iso8583_mti,
       { "MTI", "iso8583.mti",
-        FT_STRING, STR_ASCII, NULL , 0,
+        FT_STRING, BASE_NONE, NULL , 0,
         "Message Type Indicator (MTI)", HFILL }
     },
     { &hf_iso8583_bitmap1,
       { "Bitmap 1", "iso8583.map1",
-        FT_STRING, STR_ASCII, NULL , 0,
+        FT_STRING, BASE_NONE, NULL , 0,
         "First Bitmap (hex representation)", HFILL }
     },
     { &hf_iso8583_bitmap2,
       { "Bitmap 2", "iso8583.map2",
-        FT_STRING, STR_ASCII, NULL , 0,
+        FT_STRING, BASE_NONE, NULL , 0,
         "Second Bitmap (hex representation)", HFILL }
     }
   };
@@ -1317,7 +1317,7 @@ proto_register_iso8583(void)
     else
     {
       hf_data[i].hfinfo.type = FT_STRING;
-      hf_data[i].hfinfo.display = STR_ASCII;
+      hf_data[i].hfinfo.display = BASE_NONE;
     }
     hf_data[i].hfinfo.strings = NULL;
     hf_data[i].hfinfo.bitmask = 0;

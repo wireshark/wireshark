@@ -1,6 +1,6 @@
 // WSUG Appendix Messages
 
-[[AppMessages]]
+[#AppMessages]
 
 [appendix]
 == Wireshark Messages
@@ -9,7 +9,7 @@ Wireshark provides you with additional information generated out of the plain
 packet data or it may need to indicate dissection problems. Messages generated
 by Wireshark are usually placed in square brackets (“[]”).
 
-[[AppMessagesList]]
+[#AppMessagesList]
 
 === Packet List Messages
 
@@ -52,7 +52,7 @@ was simply running out of packet bytes and had to give up. There’s nothing els
 you can do now, except to repeat the whole capture process again with a higher
 (or no) packet size limitation.
 
-[[AppMessagesDetails]]
+[#AppMessagesDetails]
 
 === Packet Details Messages
 

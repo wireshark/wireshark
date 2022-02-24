@@ -652,7 +652,7 @@ getQueryName = function (tvbr)
         end
         pos = pos + 1  -- move past label length octet
         -- sadly, there's no current way to get a raw Lua string from a ByteArray (nor from Tvb for that matter)
-        -- so we need to do it one character at a a time
+        -- so we need to do it one character at a time
         -- append the label and a dot to name string
         name = name .. byteArray2String(barray, pos, label_len) .. "."
         len_remaining = len_remaining - (label_len + 1) -- subtract label and its length octet

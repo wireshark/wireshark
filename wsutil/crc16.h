@@ -1,4 +1,4 @@
-/* crc16.h
+/** @file
  * Declaration of CRC-16 routines and table
  *
  * 2004 Richard van der Hoff <richardv@mxtelecom.com>

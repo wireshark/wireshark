@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 cmake_policy(SET CMP0048 NEW)
 
 project(Hello VERSION 0.0.1 DESCRIPTION "Wireshark Hello Plugin" LANGUAGES C)
@@ -18,12 +18,18 @@ if(NOT Wireshark_PLUGINS_ENABLED)
 	message(WARNING "Wireshark was compiled without support for plugins")
 endif()
 
+include(CheckTypeSize)
+check_type_size("ssize_t" SSIZE_T)
+
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 if (CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS  "-Wall -Wextra ${CMAKE_C_FLAGS}")
 endif()
 
-add_definitions(-DVERSION=\"${PROJECT_VERSION}\")
+add_compile_definitions(
+	VERSION=\"${PROJECT_VERSION}\"
+	$<$<BOOL:${HAVE_SSIZE_T}>:HAVE_SSIZE_T>
+)
 
 add_library(hello MODULE hello.c)
 set_target_properties(hello PROPERTIES PREFIX "" DEFINE_SYMBOL "")

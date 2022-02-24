@@ -950,7 +950,7 @@ sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void sccp_prompt(packet_info *pinfo _U_, gchar* result)
 {
-  g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect SSN %d as",
+  snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect SSN %d as",
      GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sccp, 0)));
 }
 

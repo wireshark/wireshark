@@ -1,4 +1,4 @@
-/*
+/** @file
  * Cross platform defines for exporting symbols from shared libraries
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,5 @@
-/* summary.h
+/** @file
+ *
  * Definitions for capture file summary data
  *
  * Wireshark - Network traffic analyzer

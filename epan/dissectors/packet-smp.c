@@ -74,7 +74,7 @@ static gboolean reassemble_smp = TRUE;
 
 static void smp_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
 /* Code to actually dissect the packets */

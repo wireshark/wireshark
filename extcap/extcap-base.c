@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EXTCAP
 
 #include "extcap-base.h"
 
@@ -42,6 +43,10 @@ typedef struct _extcap_option {
     char * optname;
     char * optdesc;
 } extcap_option_t;
+
+static FILE *custom_log = NULL;
+
+static void extcap_init_log_file(const char *filename);
 
 void extcap_base_register_interface(extcap_parameters * extcap, const char * interface, const char * ifdescription, uint16_t dlt, const char * dltdescription )
 {
@@ -77,7 +82,7 @@ void extcap_base_set_util_info(extcap_parameters * extcap, const char * exename,
     if (!minor)
         ws_assert(!release);
 
-    extcap->version = g_strdup_printf("%s%s%s%s%s",
+    extcap->version = ws_strdup_printf("%s%s%s%s%s",
         major,
         minor ? "." : "",
         minor ? minor : "",
@@ -91,7 +96,7 @@ void extcap_base_set_compiled_with(extcap_parameters * extcap, const char *fmt, 
     va_list ap;
 
     va_start(ap, fmt);
-    extcap->compiled_with = g_strdup_vprintf(fmt, ap);
+    extcap->compiled_with = ws_strdup_vprintf(fmt, ap);
     va_end(ap);
 }
 
@@ -100,20 +105,35 @@ void extcap_base_set_running_with(extcap_parameters * extcap, const char *fmt, .
     va_list ap;
 
     va_start(ap, fmt);
-    extcap->running_with = g_strdup_vprintf(fmt, ap);
+    extcap->running_with = ws_strdup_vprintf(fmt, ap);
     va_end(ap);
+}
+
+void extcap_log_init(const char *progname)
+{
+    ws_log_init(progname, NULL);
+    /* extcaps cannot write debug information to parent on stderr. */
+    ws_log_console_writer_set_use_stdout(TRUE);
 }
 
 uint8_t extcap_base_parse_options(extcap_parameters * extcap, int result, char * optargument)
 {
     uint8_t ret = 1;
+    enum ws_log_level level;
 
     switch (result) {
-        case EXTCAP_OPT_DEBUG:
-            extcap->debug = TRUE;
+        case EXTCAP_OPT_LOG_LEVEL:
+            level = ws_log_set_level_str(optargument);
+            if (level == LOG_LEVEL_NONE) {
+                /* Invalid log level string. */
+                ret = 0;
+            }
+            else if (level <= LOG_LEVEL_DEBUG) {
+                extcap->debug = TRUE;
+            }
             break;
-        case EXTCAP_OPT_DEBUG_FILE:
-            extcap_init_custom_log(optargument);
+        case EXTCAP_OPT_LOG_FILE:
+            extcap_init_log_file(optargument);
             break;
         case EXTCAP_OPT_LIST_INTERFACES:
             extcap->do_list_interfaces = 1;
@@ -298,15 +318,14 @@ void extcap_help_add_header(extcap_parameters * extcap, char * help_header)
     extcap_help_add_option(extcap, "--extcap-capture-filter <filter>", "the capture filter");
     extcap_help_add_option(extcap, "--fifo <file>", "dump data to file or fifo");
     extcap_help_add_option(extcap, "--extcap-version", "print tool version");
-    extcap_help_add_option(extcap, "--debug", "print additional messages");
-    extcap_help_add_option(extcap, "--debug-file", "print debug messages to file");
+    extcap_help_add_option(extcap, "--log-level", "Set the log level");
+    extcap_help_add_option(extcap, "--log-file", "Set a log file to log messages in addition to the console");
 }
 
-void extcap_init_custom_log(const char* filename)
+static void extcap_init_log_file(const char* filename)
 {
-    FILE *custom_log;
     if (!filename || strlen(filename) == 0)
-        return;
+        ws_error("Missing log file name");
     custom_log = fopen(filename, "w");
     if (!custom_log)
         ws_error("Can't open custom log file: %s (%s)", filename, strerror(errno));
@@ -315,11 +334,16 @@ void extcap_init_custom_log(const char* filename)
 
 void extcap_config_debug(unsigned* count)
 {
-    printf("arg {number=%u}{call=--debug}{display=Run in debug mode}"
-    "{type=boolflag}{default=false}{tooltip=Print debug messages}{required=false}"
-    "{group=Debug}\n", (*count)++);
-    printf("arg {number=%u}{call=--debug-file}{display=Use a file for debug}"
-    "{type=string}{tooltip=Set a file where the debug messages are written}{required=false}"
+    printf("arg {number=%u}{call=--log-level}{display=Set the log level}"
+    "{type=selector}{tooltip=Set the log level}{required=false}"
+    "{group=Debug}\n", *count);
+    printf("value {arg=%u}{value=message}{display=Message}{default=true}\n", *count);
+    printf("value {arg=%u}{value=info}{display=Info}\n", *count);
+    printf("value {arg=%u}{value=debug}{display=Debug}\n", *count);
+    printf("value {arg=%u}{value=noisy}{display=Noisy}\n", *count);
+    (*count)++;
+    printf("arg {number=%u}{call=--log-file}{display=Use a file for logging}"
+    "{type=fileselect}{tooltip=Set a file where log messages are written}{required=false}"
     "{group=Debug}\n", (*count)++);
 }
 

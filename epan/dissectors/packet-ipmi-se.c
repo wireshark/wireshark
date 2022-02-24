@@ -2014,7 +2014,7 @@ cfgparam_13(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_se_cp13_stringsel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_cp13_blocksel, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_se_cp13_string, tvb, 2, -1, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_se_cp13_string, tvb, 2, -1, ENC_ASCII);
 }
 
 static void

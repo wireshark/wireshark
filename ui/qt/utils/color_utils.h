@@ -1,4 +1,4 @@
-/* color_utils.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -69,6 +69,12 @@ public:
      * @return A contrasting foreground color for the current mode / theme.
      */
     static const QColor contrastingTextColor(const QColor color);
+
+    /**
+     * Returns an appropriate background color for hovered abstract items.
+     * @return The background color.
+     */
+    static const QColor hoverBackground();
 
     /**
      * Returns an appropriate warning background color for the current mode.

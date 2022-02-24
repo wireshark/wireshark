@@ -1787,7 +1787,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 uid_counter = tvb_get_ntohs(tvb, offset);
                 offset += 2;
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" PRIx64 ", UidCounter: 0x%04x",
                         val_to_str_const(scope, scope_vals, "unknown"), uid, uid_counter);
             } else {
                 guint status;
@@ -1815,7 +1815,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 uid_counter = tvb_get_ntohs(tvb, offset);
                 offset += 2;
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" PRIx64 ", UidCounter: 0x%04x",
                         val_to_str_const(scope, scope_vals, "unknown"), uid, uid_counter);
             } else {
                 guint status;
@@ -1981,7 +1981,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 uid = tvb_get_ntoh64(tvb, offset);
                 offset += 8;
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Direction: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Direction: %s, Uid: 0x%016" PRIx64 ", UidCounter: 0x%04x",
                         val_to_str_const(direction, direction_vals, "unknown"), uid, uid_counter);
             } else {
                 guint number_of_items;
@@ -2011,7 +2011,7 @@ dissect_browsing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(tree, hf_btavrcp_number_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
                 number_of_attributes = tvb_get_guint8(tvb, offset);
 
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" G_GINT64_MODIFIER "x, UidCounter: 0x%04x",
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - Scope: %s, Uid: 0x%016" PRIx64 ", UidCounter: 0x%04x",
                         val_to_str_const(scope, scope_vals, "unknown"), uid, uid_counter);
 
                 offset += 1;

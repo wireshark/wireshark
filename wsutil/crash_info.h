@@ -1,4 +1,4 @@
-/* crash_info.h
+/** @file
  * Routines to try to provide more useful information in crash dumps.
  *
  * Wireshark - Network traffic analyzer
@@ -11,8 +11,7 @@
 #ifndef __CRASH_INFO_H__
 #define __CRASH_INFO_H__
 
-#include "ws_symbol_export.h"
-#include "ws_attributes.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

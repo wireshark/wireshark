@@ -1,4 +1,4 @@
-/* wtap-int.h
+/** @file
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -9,7 +9,7 @@
 #ifndef __WTAP_INT_H__
 #define __WTAP_INT_H__
 
-#include <glib.h>
+#include "wtap.h"
 #include <time.h>
 
 #ifdef _WIN32
@@ -18,7 +18,6 @@
 
 #include <wsutil/file_util.h>
 
-#include "wtap.h"
 #include "wtap_opttypes.h"
 
 void wtap_init_file_type_subtypes(void);

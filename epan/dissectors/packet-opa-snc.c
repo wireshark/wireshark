@@ -150,11 +150,11 @@ static expert_field ei_opa_snc_nobypass = EI_INIT;
 
 static void cf_opa_snc_dw_to_b(gchar *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u DWORDS, %u Bytes", value, value * 4);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u DWORDS, %u Bytes", value, value * 4);
 }
 static void cf_opa_snc_qw_to_b(gchar *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u QWORDS, %u Bytes", value, value * 8);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u QWORDS, %u Bytes", value, value * 8);
 }
 
 /* Dissector Declarations */

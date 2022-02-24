@@ -1008,7 +1008,7 @@ static void dissect_ptpIP_protocol_version(tvbuff_t *tvb, proto_tree *tree, guin
     /* logic to format version */
     minorVersion = protoVersion & 0xFFFF;
     majorVersion = (protoVersion & 0xFFFF0000) >>16;
-    g_snprintf(version, sizeof(version), "%u.%u", majorVersion, minorVersion);
+    snprintf(version, sizeof(version), "%u.%u", majorVersion, minorVersion);
     proto_tree_add_string(tree, hf_ptpIP_version, tvb, *offset, 4, version);
     *offset += 4;
 }
@@ -1042,7 +1042,7 @@ void proto_register_ptpip( void )
             "GUID", "ptpip.guid", FT_BYTES, BASE_NONE,
             NULL, 0, NULL, HFILL }},
         { &hf_ptpIP_name, {
-            "Host Name", "ptpip.name", FT_STRINGZ, STR_UNICODE,
+            "Host Name", "ptpip.name", FT_STRINGZ, BASE_NONE,
             NULL, 0, NULL, HFILL }},
         { &hf_ptpIP_version, {
             "Version", "ptpip.version", FT_STRING, BASE_NONE,

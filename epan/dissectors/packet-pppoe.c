@@ -467,7 +467,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					if (poe_tag_length > 0)
 					{
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name, tvb,
-						                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+						                    tagstart+4, poe_tag_length, ENC_ASCII);
 					}
 					break;
 				case PPPOE_TAG_AC_NAME:
@@ -633,15 +633,15 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 				   strings. */
 				case PPPOE_TAG_SVC_ERR:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name_error, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+					                    tagstart+4, poe_tag_length, ENC_ASCII);
 					break;
 				case PPPOE_TAG_AC_ERR:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_system_error, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+					                    tagstart+4, poe_tag_length, ENC_ASCII);
 					break;
 				case PPPOE_TAG_GENERIC_ERR:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_generic_error, tvb,
-					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
+					                    tagstart+4, poe_tag_length, ENC_ASCII);
 					break;
 
 				/* Get out if see end-of-list tag */
@@ -743,12 +743,12 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_service_name,
-			{ "Service-Name", "pppoed.tags.service_name", FT_STRING, STR_ASCII,
+			{ "Service-Name", "pppoed.tags.service_name", FT_STRING, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_ac_name,
-			{ "AC-Name", "pppoed.tags.ac_name", FT_STRING, STR_ASCII,
+			{ "AC-Name", "pppoed.tags.ac_name", FT_STRING, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
@@ -783,12 +783,12 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_vspec_circuit_id,
-		        { "Circuit ID", "pppoed.tags.circuit_id", FT_STRING, STR_ASCII,
+		        { "Circuit ID", "pppoed.tags.circuit_id", FT_STRING, BASE_NONE,
 		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
 		{ &hf_pppoed_tag_vspec_remote_id,
-		        { "Remote ID", "pppoed.tags.remote_id", FT_STRING, STR_ASCII,
+		        { "Remote ID", "pppoed.tags.remote_id", FT_STRING, BASE_NONE,
 		                 NULL, 0x0, NULL, HFILL
 		        }
 		},
@@ -978,17 +978,17 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_service_name_error,
-			{ "Service-Name-Error", "pppoed.tags.service_name_error", FT_STRING, STR_ASCII,
+			{ "Service-Name-Error", "pppoed.tags.service_name_error", FT_STRING, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_ac_system_error,
-			{ "AC-System-Error", "pppoed.tags.ac_system_error", FT_STRING, STR_ASCII,
+			{ "AC-System-Error", "pppoed.tags.ac_system_error", FT_STRING, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		},
 		{ &hf_pppoed_tag_generic_error,
-			{ "Generic-Error", "pppoed.tags.generic_error", FT_STRING, STR_ASCII,
+			{ "Generic-Error", "pppoed.tags.generic_error", FT_STRING, BASE_NONE,
 				 NULL, 0x0, NULL, HFILL
 			}
 		}

@@ -1,4 +1,4 @@
-/* cpu_info.h
+/** @file
  * Declarations of routines to report CPU information
  *
  * Wireshark - Network traffic analyzer

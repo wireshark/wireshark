@@ -1,4 +1,4 @@
-/* log_3gpp.h
+/** @file
 *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

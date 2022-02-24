@@ -1,4 +1,5 @@
-/* t35.h
+/** @file
+ *
  * T.35 and H.221 tables
  * 2003  Tomas Kukosa
  *

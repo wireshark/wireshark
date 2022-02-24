@@ -1,4 +1,5 @@
-/* arcnet_pids.h
+/** @file
+ *
  * ARCNET protocol ID values
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *

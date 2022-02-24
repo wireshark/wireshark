@@ -18,7 +18,7 @@
 /*
  * Modified to support throwing an exception with a null message pointer,
  * and to have the message not be const (as we generate messages with
- * "g_strdup_sprintf()", which means they need to be freed; using
+ * "ws_strdup_printf()", which means they need to be freed; using
  * a null message means that we don't have to use a special string
  * for exceptions with no message, and don't have to worry about
  * not freeing that).
@@ -128,8 +128,17 @@ void except_deinit(void)
     pthread_mutex_unlock(&init_mtx);
 }
 
-#else /* no thread support */
+#else /* not using POSIX thread support */
 
+/*
+ * We make the catcher stack per-thread, because we must.
+ *
+ * We don't make the unhandled-exception-catcher, the allocator, or the
+ * deallocator thread-specific, as we don't need to.
+ *
+ * We don't protext the init level with a mutex, as we only initialize
+ * it and de-initialize it once.
+ */
 static int init_counter;
 static void unhandled_catcher(except_t *);
 static void (*uh_catcher_ptr)(except_t *) = unhandled_catcher;
@@ -143,7 +152,7 @@ static void (*uh_catcher_ptr)(except_t *) = unhandled_catcher;
  * the size_t issue doesn't exists here. Pheew.. */
 static void *(*allocator)(size_t) = (void *(*)(size_t)) g_malloc;
 static void (*deallocator)(void *) = g_free;
-static struct except_stacknode *stack_top;
+static WS_THREAD_LOCAL struct except_stacknode *stack_top;
 
 #define get_top() (stack_top)
 #define set_top(T) (stack_top = (T))
@@ -303,7 +312,7 @@ WS_NORETURN void except_throwd(long group, long code, const char *msg, void *dat
 }
 
 /*
- * XXX - should we use g_strdup_sprintf() here, so we're not limited by
+ * XXX - should we use ws_strdup_printf() here, so we're not limited by
  * XCEPT_BUFFER_SIZE?  We could then just use this to generate formatted
  * messages.
  */
@@ -312,7 +321,7 @@ WS_NORETURN void except_vthrowf(long group, long code, const char *fmt,
 {
     char *buf = (char *)except_alloc(XCEPT_BUFFER_SIZE);
 
-    g_vsnprintf(buf, XCEPT_BUFFER_SIZE, fmt, vl);
+    vsnprintf(buf, XCEPT_BUFFER_SIZE, fmt, vl);
     except_throwd(group, code, buf, buf);
 }
 

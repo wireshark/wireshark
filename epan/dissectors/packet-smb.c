@@ -1306,7 +1306,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 		if (new_file->is_out_of_memory) {
 			entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
+				ws_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
 								aux_smb_fid_type_string,
 								new_file->data_gathered,
 								new_file->file_length,
@@ -1319,7 +1319,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			}
 
 			entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
+				ws_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
 								aux_smb_fid_type_string,
 								new_file->data_gathered,
 								new_file->file_length,
@@ -1341,7 +1341,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		/* Modify the current_entry object_type string */
 		if (current_file->is_out_of_memory) {
 			current_entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"?/%"G_GUINT64_FORMAT") %s [mem!!]",
+				ws_strdup_printf("%s (%"PRIu64"?/%"PRIu64") %s [mem!!]",
 								aux_smb_fid_type_string,
 								current_file->data_gathered,
 								current_file->file_length,
@@ -1349,7 +1349,7 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		} else {
 			percent = (gfloat) (100*current_file->data_gathered/current_file->file_length);
 			current_entry->content_type =
-				g_strdup_printf("%s (%"G_GUINT64_FORMAT"/%"G_GUINT64_FORMAT") %s [%5.2f%%]",
+				ws_strdup_printf("%s (%"PRIu64"/%"PRIu64") %s [%5.2f%%]",
 								aux_smb_fid_type_string,
 								current_file->data_gathered,
 								current_file->file_length,
@@ -5491,13 +5491,13 @@ smbext20_timeout_msecs_to_str(gint32 timeout)
 	if (timeout <= 0) {
 		buf = (gchar *)wmem_alloc(wmem_packet_scope(), SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1);
 		if (timeout == 0) {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Return immediately (0)");
 		} else if (timeout == -1) {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Wait indefinitely (-1)");
 		} else if (timeout == -2) {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Use default timeout (-2)");
 		} else {
-			g_snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", timeout);
+			snprintf(buf, SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN+1, "Unknown reserved value (%d)", timeout);
 		}
 		return buf;
 	}
@@ -7073,7 +7073,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	ofs = (ofs<<32) | offsetlow;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %" G_GINT64_MODIFIER "u",
+				", %u byte%s at offset %" PRIu64,
 				maxcnt, (maxcnt == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
@@ -7340,7 +7340,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	ofs = (ofs<<32) | offsetlow;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %" G_GINT64_MODIFIER "u",
+				", %u byte%s at offset %" PRIu64,
 				datalen, (datalen == 1) ? "" : "s", ofs);
 
 	/* save the offset/len for this transaction */
@@ -10389,7 +10389,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
@@ -10402,7 +10402,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
@@ -10420,7 +10420,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* message */
 	CHECK_BYTE_COUNT(message_len);
 	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
-	    ENC_ASCII|ENC_NA);
+	    ENC_ASCII);
 	COUNT_BYTES(message_len);
 
 	END_OF_SMB
@@ -10449,7 +10449,7 @@ dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
@@ -10462,7 +10462,7 @@ dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -10515,7 +10515,7 @@ dissect_send_multi_block_message_text_request(tvbuff_t *tvb, packet_info *pinfo 
 	/* message */
 	CHECK_BYTE_COUNT(message_len);
 	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
-	    ENC_ASCII|ENC_NA);
+	    ENC_ASCII);
 	COUNT_BYTES(message_len);
 
 	END_OF_SMB
@@ -10544,7 +10544,7 @@ dissect_forwarded_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_forwarded_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -10573,7 +10573,7 @@ dissect_get_machine_name_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_machine_name, tvb, offset,
-	    name_len, ENC_ASCII|ENC_NA);
+	    name_len, ENC_ASCII);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -11692,7 +11692,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific parameter block".  (That means
 		 * we may not be able to dissect it in any case.)
 		 */
@@ -11703,7 +11703,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific parameter block".  (That
 		 * means we may not be able to dissect it in any case.)
 		 */
@@ -14028,7 +14028,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific data block".  (That means we
 		 * may not be able to dissect it in any case.)
 		 */
@@ -14039,7 +14039,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific data block".  (That
 		 * means we may not be able to dissect it in any case.)
 		 */
@@ -14050,7 +14050,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "additional
+		 * July 19, 1990" says this contains "additional
 		 * level dependent match data".
 		 */
 		break;
@@ -14060,7 +14060,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "additional
+		 * July 19, 1990" says this contains "additional
 		 * level dependent monitor information".
 		 */
 		break;
@@ -16468,7 +16468,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific return data block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)
@@ -16480,7 +16480,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific return data block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)
@@ -16492,7 +16492,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "the level
+		 * July 19, 1990" says this contains "the level
 		 * dependent information about the changes which
 		 * occurred".
 		 */
@@ -16503,7 +16503,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains "the level
+		 * July 19, 1990" says this contains "the level
 		 * dependent information about the changes which
 		 * occurred".
 		 */
@@ -16715,7 +16715,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "File system specific return parameter block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)
@@ -16727,7 +16727,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		/*
 		 * XXX - "Microsoft Networks SMB File Sharing Protocol
 		 * Extensions Version 3.0, Document Version 1.11,
-		 * July 19, 1990" says this this contains a
+		 * July 19, 1990" says this contains a
 		 * "Device/function specific return parameter block".
 		 * (That means we may not be able to dissect it in any
 		 * case.)
@@ -18699,11 +18699,11 @@ proto_register_smb(void)
 		VALS(buffer_format_vals), 0x0, "Buffer Format, type of buffer", HFILL }},
 
 	{ &hf_smb_dialect,
-		{ "Dialect", "smb.dialect", FT_STRING, STR_UNICODE,
+		{ "Dialect", "smb.dialect", FT_STRING, BASE_NONE,
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_dialect_name,
-		{ "Name", "smb.dialect.name", FT_STRING, STR_UNICODE,
+		{ "Name", "smb.dialect.name", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of dialect", HFILL }},
 
 	{ &hf_smb_dialect_index,
@@ -18739,11 +18739,11 @@ proto_register_smb(void)
 		NULL, 0, "Challenge Data (for LM2.1 dialect)", HFILL }},
 
 	{ &hf_smb_primary_domain,
-		{ "Primary Domain", "smb.primary_domain", FT_STRING, STR_UNICODE,
+		{ "Primary Domain", "smb.primary_domain", FT_STRING, BASE_NONE,
 		NULL, 0, "The server's primary domain", HFILL }},
 
 	{ &hf_smb_server,
-		{ "Server", "smb.server", FT_STRING, STR_UNICODE,
+		{ "Server", "smb.server", FT_STRING, BASE_NONE,
 		NULL, 0, "The name of the DC/server", HFILL }},
 
 	{ &hf_smb_max_raw_buf_size,
@@ -18913,7 +18913,7 @@ proto_register_smb(void)
 		NULL, 0, "Unknown Data. Should be implemented by someone", HFILL }},
 
 	{ &hf_smb_dir_name,
-		{ "Directory", "smb.dir_name", FT_STRING, STR_UNICODE,
+		{ "Directory", "smb.dir_name", FT_STRING, BASE_NONE,
 		NULL, 0, "SMB Directory Name", HFILL }},
 
 	{ &hf_smb_echo_count,
@@ -18933,11 +18933,11 @@ proto_register_smb(void)
 		NULL, 0, "Max client buffer size", HFILL }},
 
 	{ &hf_smb_path,
-		{ "Path", "smb.path", FT_STRING, STR_UNICODE,
+		{ "Path", "smb.path", FT_STRING, BASE_NONE,
 		NULL, 0, "Path. Server name and share name", HFILL }},
 
 	{ &hf_smb_service,
-		{ "Service", "smb.service", FT_STRING, STR_UNICODE,
+		{ "Service", "smb.service", FT_STRING, BASE_NONE,
 		NULL, 0, "Service name", HFILL }},
 
 	{ &hf_smb_password,
@@ -19017,7 +19017,7 @@ proto_register_smb(void)
 		NULL, 0, "Count number of items/bytes, High 16 bits", HFILL }},
 
 	{ &hf_smb_file_name,
-		{ "File Name", "smb.file", FT_STRING, STR_UNICODE,
+		{ "File Name", "smb.file", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_open_function,
@@ -19275,7 +19275,7 @@ proto_register_smb(void)
 		NULL, 0, "Last Write Time, SMB_TIME format", HFILL }},
 
 	{ &hf_smb_old_file_name,
-		{ "Old File Name", "smb.old_file", FT_STRING, STR_UNICODE,
+		{ "Old File Name", "smb.old_file", FT_STRING, BASE_NONE,
 		NULL, 0, "Old File Name (When renaming a file)", HFILL }},
 
 	{ &hf_smb_offset,
@@ -19573,15 +19573,15 @@ proto_register_smb(void)
 		NULL, 0, "Length of Unicode password", HFILL }},
 
 	{ &hf_smb_account,
-		{ "Account", "smb.account", FT_STRING, STR_UNICODE,
+		{ "Account", "smb.account", FT_STRING, BASE_NONE,
 		NULL, 0, "Account, username", HFILL }},
 
 	{ &hf_smb_os,
-		{ "Native OS", "smb.native_os", FT_STRING, STR_UNICODE,
+		{ "Native OS", "smb.native_os", FT_STRING, BASE_NONE,
 		NULL, 0, "Which OS we are running", HFILL }},
 
 	{ &hf_smb_lanman,
-		{ "Native LAN Manager", "smb.native_lanman", FT_STRING, STR_UNICODE,
+		{ "Native LAN Manager", "smb.native_lanman", FT_STRING, BASE_NONE,
 		NULL, 0, "Which LANMAN protocol we are running", HFILL }},
 
 	{ &hf_smb_setup_action,
@@ -19593,7 +19593,7 @@ proto_register_smb(void)
 		TFS(&tfs_setup_action_guest), 0x0001, "Client logged in as GUEST?", HFILL }},
 
 	{ &hf_smb_fs,
-		{ "Native File System", "smb.native_fs", FT_STRING, STR_UNICODE,
+		{ "Native File System", "smb.native_fs", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_connect_flags,
@@ -19814,7 +19814,7 @@ proto_register_smb(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_name,
-		{ "EA Name", "smb.ea.name", FT_STRING, STR_UNICODE,
+		{ "EA Name", "smb.ea.name", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_data,
@@ -20178,7 +20178,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of target file name", HFILL }},
 
 	{ &hf_smb_target_name,
-		{ "Target name", "smb.target_name", FT_STRING, STR_UNICODE,
+		{ "Target name", "smb.target_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Target file name", HFILL }},
 
 	{ &hf_smb_device_type,
@@ -20206,7 +20206,7 @@ proto_register_smb(void)
 		VALS(print_mode_vals), 0, "Text or Graphics mode", HFILL }},
 
 	{ &hf_smb_print_identifier,
-		{ "Identifier", "smb.print.identifier", FT_STRING, STR_UNICODE,
+		{ "Identifier", "smb.print.identifier", FT_STRING, BASE_NONE,
 		NULL, 0, "Identifier string for this print job", HFILL }},
 
 	{ &hf_smb_restart_index,
@@ -20238,7 +20238,7 @@ proto_register_smb(void)
 		NULL, 0, "Number of bytes in spool file", HFILL }},
 
 	{ &hf_smb_print_spool_file_name,
-		{ "Name", "smb.print.spool.name", FT_STRINGZ, STR_UNICODE,
+		{ "Name", "smb.print.spool.name", FT_STRINGZ, BASE_NONE,
 		NULL, 0, "Name of client that submitted this job", HFILL }},
 
 	{ &hf_smb_start_index,
@@ -20246,11 +20246,11 @@ proto_register_smb(void)
 		NULL, 0, "First queue entry to return", HFILL }},
 
 	{ &hf_smb_originator_name,
-		{ "Originator Name", "smb.originator_name", FT_STRINGZ, STR_UNICODE,
+		{ "Originator Name", "smb.originator_name", FT_STRINGZ, BASE_NONE,
 		NULL, 0, "Name of sender of message", HFILL }},
 
 	{ &hf_smb_destination_name,
-		{ "Destination Name", "smb.destination_name", FT_STRINGZ, STR_UNICODE,
+		{ "Destination Name", "smb.destination_name", FT_STRINGZ, BASE_NONE,
 		NULL, 0, "Name of recipient of message", HFILL }},
 
 	{ &hf_smb_message_len,
@@ -20258,7 +20258,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of message", HFILL }},
 
 	{ &hf_smb_message,
-		{ "Message", "smb.message", FT_STRING, STR_UNICODE,
+		{ "Message", "smb.message", FT_STRING, BASE_NONE,
 		NULL, 0, "Message text", HFILL }},
 
 	{ &hf_smb_mgid,
@@ -20266,11 +20266,11 @@ proto_register_smb(void)
 		NULL, 0, "Message group ID for multi-block messages", HFILL }},
 
 	{ &hf_smb_forwarded_name,
-		{ "Forwarded Name", "smb.forwarded_name", FT_STRINGZ, STR_UNICODE,
+		{ "Forwarded Name", "smb.forwarded_name", FT_STRINGZ, BASE_NONE,
 		NULL, 0, "Recipient name being forwarded", HFILL }},
 
 	{ &hf_smb_machine_name,
-		{ "Machine Name", "smb.machine_name", FT_STRINGZ, STR_UNICODE,
+		{ "Machine Name", "smb.machine_name", FT_STRINGZ, BASE_NONE,
 		NULL, 0, "Name of target machine", HFILL }},
 
 	{ &hf_smb_cancel_to,
@@ -20278,7 +20278,7 @@ proto_register_smb(void)
 		NULL, 0, "This packet is a cancellation of the packet in this frame", HFILL }},
 
 	{ &hf_smb_trans_name,
-		{ "Transaction Name", "smb.trans_name", FT_STRING, STR_UNICODE,
+		{ "Transaction Name", "smb.trans_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of transaction", HFILL }},
 
 	{ &hf_smb_transaction_flags,
@@ -20298,7 +20298,7 @@ proto_register_smb(void)
 		NULL, 0, "Maximum number of search entries to return", HFILL }},
 
 	{ &hf_smb_search_pattern,
-		{ "Search Pattern", "smb.search_pattern", FT_STRING, STR_UNICODE,
+		{ "Search Pattern", "smb.search_pattern", FT_STRING, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ff2,
@@ -20414,7 +20414,7 @@ proto_register_smb(void)
 		NULL, 0, "Size of the stream in number of bytes", HFILL }},
 
 	{ &hf_smb_t2_stream_name,
-		{ "Stream Name", "smb.stream_name", FT_STRING, STR_UNICODE,
+		{ "Stream Name", "smb.stream_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of the stream", HFILL }},
 
 	{ &hf_smb_t2_compressed_file_size,
@@ -20490,7 +20490,7 @@ proto_register_smb(void)
 		NULL, 0, "Offset of name of entity to visit next", HFILL }},
 
 	{ &hf_smb_dfs_referral_node,
-		{ "Node", "smb.dfs.referral.node", FT_STRING, STR_UNICODE,
+		{ "Node", "smb.dfs.referral.node", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of entity to visit next", HFILL }},
 
 	{ &hf_smb_dfs_referral_proximity,
@@ -20506,7 +20506,7 @@ proto_register_smb(void)
 		NULL, 0, "Offset of Dfs Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_path,
-		{ "Path", "smb.dfs.referral.path", FT_STRING, STR_UNICODE,
+		{ "Path", "smb.dfs.referral.path", FT_STRING, BASE_NONE,
 		NULL, 0, "Dfs Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_alt_path_offset,
@@ -20514,7 +20514,7 @@ proto_register_smb(void)
 		NULL, 0, "Offset of alternative(8.3) Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_alt_path,
-		{ "Alt Path", "smb.dfs.referral.alt_path", FT_STRING, STR_UNICODE,
+		{ "Alt Path", "smb.dfs.referral.alt_path", FT_STRING, BASE_NONE,
 		NULL, 0, "Alternative(8.3) Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_domain_offset,
@@ -20530,11 +20530,11 @@ proto_register_smb(void)
 		NULL, 0, "Offset of Dfs Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_domain_name,
-		{ "Domain Name", "smb.dfs.referral.domain_name", FT_STRING, STR_UNICODE,
+		{ "Domain Name", "smb.dfs.referral.domain_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Dfs referral domain name", HFILL }},
 
 	{ &hf_smb_dfs_referral_expname,
-		{ "Expanded Name", "smb.dfs.referral.expname", FT_STRING, STR_UNICODE,
+		{ "Expanded Name", "smb.dfs.referral.expname", FT_STRING, BASE_NONE,
 		NULL, 0, "Dfs expanded name", HFILL }},
 
 	{ &hf_smb_dfs_referral_server_guid,
@@ -20566,7 +20566,7 @@ proto_register_smb(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_short_file_name,
-		{ "Short File Name", "smb.short_file", FT_STRING, STR_UNICODE,
+		{ "Short File Name", "smb.short_file", FT_STRING, BASE_NONE,
 		NULL, 0, "Short (8.3) File Name", HFILL }},
 
 	{ &hf_smb_short_file_name_len,
@@ -20602,7 +20602,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of volume label", HFILL }},
 
 	{ &hf_smb_volume_label,
-		{ "Label", "smb.volume.label", FT_STRING, STR_UNICODE,
+		{ "Label", "smb.volume.label", FT_STRING, BASE_NONE,
 		NULL, 0, "Volume label", HFILL }},
 
 	{ &hf_smb_free_alloc_units64,
@@ -20638,7 +20638,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of filesystem name in bytes", HFILL }},
 
 	{ &hf_smb_fs_name,
-		{ "FS Name", "smb.fs_name", FT_STRING, STR_UNICODE,
+		{ "FS Name", "smb.fs_name", FT_STRING, BASE_NONE,
 		NULL, 0, "Name of filesystem", HFILL }},
 
 	{ &hf_smb_device_char,
@@ -21099,7 +21099,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_unix_file_name,
 	  { "File name", "smb.unix.file.name", FT_STRING,
-	    STR_UNICODE, NULL, 0, NULL, HFILL }},
+	    BASE_NONE, NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_find_file_nextoffset,
 	  { "Next entry offset", "smb.unix.find_file.next_offset", FT_UINT32, BASE_DEC,

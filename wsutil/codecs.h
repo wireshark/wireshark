@@ -1,4 +1,4 @@
-/* codecs.h
+/** @file
  * codecs interface   2007 Tomas Kukosa
  *
  * Wireshark - Network traffic analyzer

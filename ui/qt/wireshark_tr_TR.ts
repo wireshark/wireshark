@@ -377,8 +377,8 @@
         <translation>Satırı İşaretle/İşaretini Kaldır</translation>
     </message>
     <message>
-        <source>Ctrl-M</source>
-        <translation>Ctrl-M</translation>
+        <source>Ctrl+M</source>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -721,8 +721,8 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <source>Allow hover selection</source>
-        <translation>Fareyle üzerine gelme seçimine izin ver</translation>
+        <source>Allow hover highlighting</source>
+        <translation>Fareyle vurgulamaya izin ver</translation>
     </message>
     <message>
         <source>Show bytes as hexadecimal</source>
@@ -1467,6 +1467,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Belirtilen süre geçtikten sonra yakalamayı durdurun.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;İsteğe bağlı olarak, adsız yakalama dosyaları için geçici bir dizin belirtin.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Directory for temporary files</source>
+        <translation>Geçici dosyalar için dizin</translation>
+    </message>
+    <message>
         <source>Capture Options</source>
         <translation>Yakalama Seçenekleri</translation>
     </message>
@@ -1481,6 +1489,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Specify a Capture File</source>
         <translation>Bir Yakalama Dosyası Belirtin</translation>
+    </message>
+    <message>
+        <source>Specify temporary directory</source>
+        <translation>Geçici dizini belirtin</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -1967,6 +1979,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Bu alanı kullanarak eşleştir</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>Geçerli &quot;Kodu Farklı Çöz&quot; davranışı</translation>
     </message>
@@ -1976,7 +1996,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Protokol alanı bu değerle eşleştiğinde davranışı değiştir</translation>
+        <translation type="vanished">Protokol alanı bu değerle eşleştiğinde davranışı değiştir</translation>
     </message>
     <message>
         <source>String</source>
@@ -2661,8 +2681,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Başla</translation>
     </message>
     <message>
+        <source>Save</source>
+        <translation>Kaydet</translation>
+    </message>
+    <message>
         <source>Default</source>
         <translation>Ön tanımlı</translation>
+    </message>
+    <message>
+        <source>Restore default value of the item</source>
+        <translation>Öğenin varsayılan değerini geri yükle</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4306,6 +4334,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Onluk</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Onaltılık bayt gibi görünse bile, bir hex+ASCII satırının sonunda ASCII gösteriminin başlangıcını tespit etmek için ek işlem yapılıp yapılmayacağı.&lt;/p&gt;&lt;p&gt;Onaltılık döküm ASCII içermiyorsa etkinleştirmeyin.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>ASCII identification:</source>
+        <translation>ASCII tanımlaması:</translation>
+    </message>
+    <message>
         <source>Regular Expression</source>
         <translation>Düzenli İfade</translation>
     </message>
@@ -4370,6 +4406,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>PDU Dışa aktarma</translation>
     </message>
     <message>
+        <source>IP version:</source>
+        <translation>IP sürümü:</translation>
+    </message>
+    <message>
+        <source>Interface name:</source>
+        <translation>Arayüz adı:</translation>
+    </message>
+    <message>
+        <source>The name of the interface to write to the import capture file</source>
+        <translation>İçe aktarma yakalama dosyasına yazılacak arabirimin adı</translation>
+    </message>
+    <message>
+        <source>Fake IF, Import from Hex Dump</source>
+        <translation>Sahte EĞER, Hex Dump&apos;tan İçe Aktar</translation>
+    </message>
+    <message>
         <source>Maximum frame length:</source>
         <translation>Azami çerçeve uzunluğu:</translation>
     </message>
@@ -4394,8 +4446,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Metin dosyasındaki zaman damgalarının ayrıştırılacağı biçim (ör. %H:%M:%S.). Biçim belirteçleri strptime(3)&apos;e dayalıdır</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it&apos;s length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Metin dosyasındaki zaman damgalarının ayrıştırılacağı biçim (örn. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Biçim belirteçleri temel alınır. ikinci kesirler için %f eklenmesiyle strptime(3) üzerinde. %f&apos;nin kesinliği, uzunluğundan belirlenir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The precision of %f is determined from its length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Metin dosyasındaki zaman damgalarının ayrıştırılacağı biçim (ör. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Biçim belirteçleri, ikinci kesirler için %f eklenmesiyle strptime(3)&apos;e dayanır. %f&apos;nin kesinliği, uzunluğundan belirlenir.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
@@ -4414,8 +4466,52 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>İçe aktarma yakalama dosyasındaki çerçevelerin kapsülleme türü</translation>
     </message>
     <message>
+        <source>Prefix each frame with an Ethernet and IP header</source>
+        <translation>Her kareye bir Ethernet ve IP başlığı ile önek ekleyin</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and UDP header</source>
+        <translation>Her çerçeveye bir Ethernet, IP ve UDP başlığı ile önek ekleyin</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and TCP header</source>
+        <translation>Her çerçeveye bir Ethernet, IP ve TCP başlığı ile önek ekleyin</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
+        <translation>Her çerçeveye bir Ethernet, IP ve SCTP başlığı ile önek ekleyin</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
+        <translation>Her çerçeveye bir Ethernet, IP ve SCTP (DATA) başlığı ekleyin</translation>
+    </message>
+    <message>
+        <source>Source address:</source>
+        <translation>Kaynak adresi:</translation>
+    </message>
+    <message>
+        <source>Destination address:</source>
+        <translation>Hedef adresi:</translation>
+    </message>
+    <message>
         <source>Dissector</source>
         <translation>Tespit edici</translation>
+    </message>
+    <message>
+        <source>The IP protocol ID for each frame</source>
+        <translation>Her çerçeve için IP protokolü kimliği</translation>
+    </message>
+    <message>
+        <source>The IP source address for each frame</source>
+        <translation>Her çerçeve için IP kaynak adresi</translation>
+    </message>
+    <message>
+        <source>The IP destination address for each frame</source>
+        <translation>Her çerçeve için IP hedef adresi</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4436,10 +4532,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Ethernet</source>
         <translation>Ethernet</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation>Her kareye bir Ethernet, IPv4 ve SCTP başlığı ile önek ekleyin</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -4466,10 +4558,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>İşaret:</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation>Her kareye bir Ethernet, IPv4 ve UDP başlığı ekleyin</translation>
-    </message>
-    <message>
         <source>UDP</source>
         <translation>UDP</translation>
     </message>
@@ -4480,10 +4568,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The Ethertype value of each frame</source>
         <translation>Her çerçevenin Ethertype değeri</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation>Her kareye bir Ethernet, IPv4 ve TCP başlığı ekleyin</translation>
     </message>
     <message>
         <source>TCP</source>
@@ -4502,28 +4586,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Etertipi (hex):</translation>
     </message>
     <message>
-        <source>The IPv4 protocol ID for each frame</source>
-        <translation>Her çerçeve için IPv4 protokol kimliği</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation>Her çerçeveye bir Ethernet, IPv4 ve SCTP (DATA) başlığı ekleyin</translation>
-    </message>
-    <message>
         <source>SCTP (Data)</source>
         <translation>SCTP (Veri)</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation>Her kareye bir Ethernet ve IPv4 başlığı ekleyin</translation>
-    </message>
-    <message>
-        <source>IPv4</source>
-        <translation>IPv4</translation>
-    </message>
-    <message>
         <source>The dissector to use for each frame</source>
         <translation>Her çerçeve için kullanılacak disektör</translation>
+    </message>
+    <message>
+        <source>The IP Version to use for the dummy IP header</source>
+        <translation>Sahte IP başlığı için kullanılacak IP Sürümü</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
@@ -4609,8 +4681,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Harici yakalama arayüzleri devre dışı bırakıldı.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Paket yakalama sürücüsü yüklü olmadığı için yerel arayüzler kullanılamıyor.&lt;/p&gt;&lt;p&gt;Bu sorunu &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; yükleyerek düzeltebilirsiniz. veya &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Paket yakalama sürücüsü yüklü olmadığı için yerel arabirimler kullanılamıyor.&lt;/p&gt;&lt;p&gt;Bu sorunu &lt;a href=&quot;https://npcap.com/&quot;&gt;Nccap&lt;/a&gt;.yükleyerek düzeltebilirsiniz.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
@@ -6284,10 +6356,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>HTTP</translation>
     </message>
     <message>
-        <source>900000000</source>
-        <translation>900000000</translation>
-    </message>
-    <message>
         <source>&amp;File</source>
         <translation>&amp;DOSYA</translation>
     </message>
@@ -6638,6 +6706,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Reliable Server Pooling (RSerPool)</source>
         <translation>Güvenilir Sunucu Havuzu (RSerPool)</translation>
+    </message>
+    <message>
+        <source>SOME/IP</source>
+        <translation>BAZI/IP</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -7101,6 +7173,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Sametime statistics</source>
         <translation>Aynı Zaman istatistikleri</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation>BAZI/IP Mesajları</translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation>BAZI/IP Mesaj istatistikleri</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation>BAZI/IP-SD Girdileri</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation>BAZI/IP-SD Girdi istatistikleri</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8218,6 +8306,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>%1 kaydediliyor…</translation>
     </message>
     <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation>Yakalamaya başlamadan önce tüm dış harfleri yapılandırın.</translation>
+    </message>
+    <message>
         <source>Invalid capture filter.</source>
         <translation>Geçersiz yakalama filtresi.</translation>
     </message>
@@ -8772,6 +8864,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
+        <source>Show packet bytes</source>
+        <translation>Paket baytlarını göster</translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation>Paket %1</translation>
     </message>
@@ -8849,6 +8945,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Bytes</source>
         <translation>Bayt</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation>İkincil veri kaynaklarını dahil et</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Çerçeveye ek olarak yeniden birleştirilmiş veya şifresi çözülmüş arabellekler gibi ikincil veri kaynakları için onaltılık dökümler oluşturun&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -12807,8 +12911,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Görüntü</translation>
     </message>
     <message>
+        <source>Json</source>
+        <translation>Json</translation>
+    </message>
+    <message>
         <source>Raw</source>
         <translation>Ham</translation>
+    </message>
+    <message>
+        <source>Rust Array</source>
+        <translation>Rust Dizisi</translation>
     </message>
     <message>
         <source>UTF-8</source>
@@ -13604,6 +13716,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save the displayed data in various formats</source>
         <translation>Görüntülenen verileri çeşitli biçimlerde kaydedin</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Hepsini Daralt</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Hepsini Genişlet</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>

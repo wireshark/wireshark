@@ -272,7 +272,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int is_
 			break;
 		}
 
-		g_snprintf(info, 80, "S%s, func=%s, N(R)=%u",
+		snprintf(info, 80, "S%s, func=%s, N(R)=%u",
 			poll_final ? (is_response ? " F" : " P") : "",
 			frame_type,
 			(ctl & LAPSAT_CTL_N_R_MSK) >> LAPSAT_CTL_N_R_SHIFT);
@@ -305,7 +305,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int is_
 			break;
 		}
 
-		g_snprintf(info, 80, "U%s, func=%s",
+		snprintf(info, 80, "U%s, func=%s",
 			poll_final ? (is_response ? " F" : " P") : "",
 			frame_type);
 
@@ -315,7 +315,7 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int is_
 		/*
 		 * Information frame
 		 */
-		g_snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
+		snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
 			poll_final ? " P" : "",
 			(ctl & LAPSAT_CTL_N_R_MSK) >> LAPSAT_CTL_N_R_SHIFT,
 			(ctl & LAPSAT_CTL_N_S_MSK) >> LAPSAT_CTL_N_S_SHIFT);

@@ -508,7 +508,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
           break;
 
         case OPT_DESCRIPTION:
-          proto_tree_add_item(option_sub_tree, hf_option_description, tvb, offset, option_length, ENC_UTF_8|ENC_NA);
+          proto_tree_add_item(option_sub_tree, hf_option_description, tvb, offset, option_length, ENC_UTF_8);
           break;
 
         case OPT_PREFIX64:

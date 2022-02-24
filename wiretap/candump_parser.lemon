@@ -70,7 +70,7 @@ DIAG_OFF(unreachable-code)
 #endif
 
     g_free(state->parse_error);
-    state->parse_error = g_strdup_printf("Syntax Error");
+    state->parse_error = ws_strdup_printf("Syntax Error");
 #ifdef CANDUMP_DEBUG
     candump_debug_printf("%s: Syntax Error\n", G_STRFUNC);
 #endif

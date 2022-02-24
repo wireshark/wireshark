@@ -1,4 +1,4 @@
-/* frame_data_sequence.h
+/** @file
  * Implements a sequence of frame_data structures
  *
  * Wireshark - Network traffic analyzer

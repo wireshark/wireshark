@@ -350,7 +350,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     /* we haven't found a match - try and match it up */
 
     if(isInvoke) {
-      /* this a a request - add it to the unmatched list */
+      /* this is a request - add it to the unmatched list */
 
       /* check that we don't already have one of those in the
 	 unmatched list and if so remove it */

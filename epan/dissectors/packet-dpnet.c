@@ -553,7 +553,7 @@ proto_register_dpnet(void)
         },
         { &hf_dpnet_session_name,
             { "Session name", "dpnet.session_name",
-            FT_STRING, STR_UNICODE,
+            FT_STRING, BASE_NONE,
             NULL, 0,
             NULL, HFILL }
         },

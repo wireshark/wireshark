@@ -115,7 +115,7 @@ static guint num_legacy_channels = 14;
 static gchar *
 cant_get_airpcap_if_list_error_message(const char *err_str)
 {
-    return g_strdup_printf("Can't get list of Wireless interfaces: %s", err_str);
+    return ws_strdup_printf("Can't get list of Wireless interfaces: %s", err_str);
 }
 
 /*
@@ -931,7 +931,7 @@ airpcap_get_if_string_number(airpcap_if_info_t* if_info)
     }
     else
     {
-        number = g_strdup_printf("%.2u",n);
+        number = ws_strdup_printf("%.2u",n);
     }
 
     return number;
@@ -1198,7 +1198,7 @@ get_compiled_airpcap_version(GString *str)
 }
 
 /*
- * Append the version of AirPcap with which we we're running to a GString.
+ * Append the version of AirPcap with which we're running to a GString.
  */
 void
 get_runtime_airpcap_version(GString *str)

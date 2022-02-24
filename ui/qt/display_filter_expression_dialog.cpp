@@ -28,6 +28,7 @@
 #include <QDialogButtonBox>
 #include <QListWidgetItem>
 #include <QTreeWidgetItem>
+#include <QRegularExpression>
 
 // To do:
 // - Speed up initialization.
@@ -266,11 +267,7 @@ void DisplayFilterExpressionDialog::fillEnumRangeValues(const _range_string *rva
 
         // Tell the user which values are valid here. Default to value_min below.
         if (rvals[i].value_min != rvals[i].value_max) {
-            range_t range;
-            range.nranges = 1;
-            range.ranges[0].low = rvals[i].value_min;
-            range.ranges[0].high = rvals[i].value_max;
-            range_text.append(QString(" (%1 valid)").arg(range_to_qstring(&range)));
+            range_text.append(QString(" (%1 valid)").arg(range_to_qstring(&rvals[i])));
         }
 
         QListWidgetItem *eli = new QListWidgetItem(range_text, ui->enumListWidget);
@@ -421,7 +418,7 @@ void DisplayFilterExpressionDialog::on_searchLineEdit_textChanged(const QString 
 {
     ui->fieldTreeWidget->setUpdatesEnabled(false);
     QTreeWidgetItemIterator it(ui->fieldTreeWidget);
-    QRegExp regex(search_re, Qt::CaseInsensitive);
+    QRegularExpression regex(search_re, QRegularExpression::CaseInsensitiveOption);
     while (*it) {
         bool hidden = true;
         if (search_re.isEmpty() || (*it)->text(0).contains(regex)) {

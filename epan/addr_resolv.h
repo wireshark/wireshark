@@ -1,4 +1,4 @@
-/* addr_resolv.h
+/** @file
  * Definitions for network object lookup
  *
  * Laurent Deniel <laurent.deniel@free.fr>
@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 /* The buffers returned by these functions are all allocated with a
- * packet lifetime and does not have have to be freed.
+ * packet lifetime and does not have to be freed.
  * However, take into account that when the packet dissection
  * completes, these buffers will be automatically reclaimed/freed.
  * If you need the buffer to remain for a longer scope than packet lifetime
@@ -166,7 +166,7 @@ WS_DLL_PUBLIC gchar *port_with_resolution_to_str(wmem_allocator_t *scope,
 
 /*
  * port_with_resolution_to_str_buf() prints the "<resolved> (<numerical>)" port
- * string to 'buf'. Return value is the same as g_snprintf().
+ * string to 'buf'. Return value is the same as snprintf().
  */
 WS_DLL_PUBLIC int port_with_resolution_to_str_buf(gchar *buf, gulong buf_size,
                                         port_type proto, guint port);

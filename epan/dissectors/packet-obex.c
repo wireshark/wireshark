@@ -1063,9 +1063,9 @@ static void media_type_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Media Type %s as", (gchar *) value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Media Type %s as", (gchar *) value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown Media Type");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown Media Type");
 }
 
 static gpointer media_type_value(packet_info *pinfo)
@@ -1086,9 +1086,9 @@ static void obex_profile_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (guint) *value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "OBEX Profile 0x%04x as", (guint) *value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown OBEX Profile");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown OBEX Profile");
 }
 
 static gpointer obex_profile_value(packet_info *pinfo)
@@ -1863,7 +1863,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                         case 0x02:
                             proto_tree_add_item(parameter_tree, hf_authentication_info_charset, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset += 1;
-                            proto_tree_add_item(parameter_tree, hf_authentication_info, tvb, offset, sub_parameter_length - 1, ENC_ASCII|ENC_NA);
+                            proto_tree_add_item(parameter_tree, hf_authentication_info, tvb, offset, sub_parameter_length - 1, ENC_ASCII);
                             offset += sub_parameter_length - 1;
                             break;
                         default:
@@ -3553,12 +3553,12 @@ proto_register_obex(void)
         },
         { &hf_ctn_application_parameter_data_filter_period_begin,
           { "Filter Period Begin", "obex.parameter.ctn.filter_period_begin",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_filter_period_end,
           { "Filter Period End", "obex.parameter.ctn.filter_period_end",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_parameter_mask,
@@ -3638,12 +3638,12 @@ proto_register_obex(void)
         },
         { &hf_ctn_application_parameter_data_email_uri,
           { "Email URI", "obex.parameter.ctn.email_uri",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_cse_time,
           { "CSE Time", "obex.parameter.ctn.cse_time",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         { &hf_ctn_application_parameter_data_recurrent,
@@ -3658,7 +3658,7 @@ proto_register_obex(void)
         },
         { &hf_ctn_application_parameter_data_last_update,
           { "Last Update", "obex.parameter.ctn.last_update",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL}
         },
         /* for fragmentation */
@@ -3707,15 +3707,15 @@ proto_register_obex(void)
             "Bluetooth Profile used in this OBEX session", HFILL }
         },
         { &hf_type,
-          { "Type", "obex.type", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+          { "Type", "obex.type", FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_object_class,
-          { "Object Class", "obex.object_class", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+          { "Object Class", "obex.object_class", FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_time_iso8601,
-          { "Time", "obex.time", FT_STRINGZ, STR_ASCII, NULL, 0x0,
+          { "Time", "obex.time", FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_hdr_val_action,

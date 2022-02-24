@@ -105,7 +105,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 			ws_warning("Error fetching cursor: %s", g_strerror(jr));
 			goto end;
 		}
-		data_end += g_snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__CURSOR=%s\n", cursor);
+		data_end += snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__CURSOR=%s\n", cursor);
 		free(cursor);
 
 		jr = sd_journal_get_realtime_usec(jnl, &pkt_rt_ts);
@@ -113,7 +113,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 			ws_warning("Error fetching realtime timestamp: %s", g_strerror(jr));
 			goto end;
 		}
-		data_end += g_snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__REALTIME_TIMESTAMP=%" G_GUINT64_FORMAT "\n", pkt_rt_ts);
+		data_end += snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__REALTIME_TIMESTAMP=%" PRIu64 "\n", pkt_rt_ts);
 
 		jr = sd_journal_get_monotonic_usec(jnl, &mono_ts, &boot_id);
 		if (jr < 0) {
@@ -121,7 +121,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 			goto end;
 		}
 		sd_id128_to_string(boot_id, boot_id_str + strlen(FLD_BOOT_ID));
-		data_end += g_snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__MONOTONIC_TIMESTAMP=%" G_GUINT64_FORMAT "\n%s\n", mono_ts, boot_id_str);
+		data_end += snprintf(entry_buff+data_end, MAX_EXPORT_ENTRY_LENGTH-data_end, "__MONOTONIC_TIMESTAMP=%" PRIu64 "\n%s\n", mono_ts, boot_id_str);
 		ws_debug("Entry header is %u bytes", data_end);
 
 		SD_JOURNAL_FOREACH_DATA(jnl, fld_data, fld_len) {
@@ -210,7 +210,7 @@ static int sdj_start_export(const int start_from_entries, const gboolean start_f
 	}
 
 
-	appname = g_strdup_printf(SDJOURNAL_EXTCAP_INTERFACE " (Wireshark) %s.%s.%s",
+	appname = ws_strdup_printf(SDJOURNAL_EXTCAP_INTERFACE " (Wireshark) %s.%s.%s",
 		SDJOURNAL_VERSION_MAJOR, SDJOURNAL_VERSION_MINOR, SDJOURNAL_VERSION_RELEASE);
 	success = pcapng_write_section_header_block(fp,
 							NULL,    /* Comment */
@@ -342,10 +342,7 @@ int main(int argc, char **argv)
 	char* help_header = NULL;
 
 	/* Initialize log handler early so we can have proper logging during startup. */
-	ws_log_init("sdjournal", NULL);
-
-	/* Early logging command-line initialization. */
-	ws_log_parse_args(&argc, argv, NULL, LOG_ARGS_NOEXIT);
+	extcap_log_init("sdjournal");
 
 	/*
 	 * Get credential information for later use.
@@ -370,7 +367,7 @@ int main(int argc, char **argv)
 	// We don't have an SDJOURNAL DLT, so use USER0 (147).
 	extcap_base_register_interface(extcap_conf, SDJOURNAL_EXTCAP_INTERFACE, "systemd Journal Export", 147, "USER0");
 
-	help_header = g_strdup_printf(
+	help_header = ws_strdup_printf(
 			" %s --extcap-interfaces\n"
 			" %s --extcap-interface=%s --extcap-dlts\n"
 			" %s --extcap-interface=%s --extcap-config\n"

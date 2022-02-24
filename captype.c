@@ -46,12 +46,12 @@
 static void
 print_usage(FILE *output)
 {
-  fprintf(output, "\n");
-  fprintf(output, "Usage: captype [options] <infile> ...\n");
-  fprintf(output, "\n");
-  fprintf(output, "Miscellaneous:\n");
-  fprintf(output, "  -h, --help               display this help and exit\n");
-  fprintf(output, "  -v, --version            display version info and exit\n");
+    fprintf(output, "\n");
+    fprintf(output, "Usage: captype [options] <infile> ...\n");
+    fprintf(output, "\n");
+    fprintf(output, "Miscellaneous:\n");
+    fprintf(output, "  -h, --help               display this help and exit\n");
+    fprintf(output, "  -v, --version            display version info and exit\n");
 }
 
 /*
@@ -60,9 +60,9 @@ print_usage(FILE *output)
 static void
 captype_cmdarg_err(const char *msg_format, va_list ap)
 {
-  fprintf(stderr, "captype: ");
-  vfprintf(stderr, msg_format, ap);
-  fprintf(stderr, "\n");
+    fprintf(stderr, "captype: ");
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
 }
 
 /*
@@ -71,145 +71,132 @@ captype_cmdarg_err(const char *msg_format, va_list ap)
 static void
 captype_cmdarg_err_cont(const char *msg_format, va_list ap)
 {
-  vfprintf(stderr, msg_format, ap);
-  fprintf(stderr, "\n");
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
 }
 
 int
 main(int argc, char *argv[])
 {
-  char  *init_progfile_dir_error;
-  static const struct report_message_routines captype_report_routines = {
-      failure_message,
-      failure_message,
-      open_failure_message,
-      read_failure_message,
-      write_failure_message,
-      cfile_open_failure_message,
-      cfile_dump_open_failure_message,
-      cfile_read_failure_message,
-      cfile_write_failure_message,
-      cfile_close_failure_message
-  };
-  wtap  *wth;
-  int    err;
-  gchar *err_info;
-  int    i;
-  int    opt;
-  int    overall_error_status;
-  static const struct ws_option long_options[] = {
-      {"help", ws_no_argument, NULL, 'h'},
-      {"version", ws_no_argument, NULL, 'v'},
-      {0, 0, 0, 0 }
-  };
+    char  *init_progfile_dir_error;
+    static const struct report_message_routines captype_report_routines = {
+        failure_message,
+        failure_message,
+        open_failure_message,
+        read_failure_message,
+        write_failure_message,
+        cfile_open_failure_message,
+        cfile_dump_open_failure_message,
+        cfile_read_failure_message,
+        cfile_write_failure_message,
+        cfile_close_failure_message
+    };
+    wtap  *wth;
+    int    err;
+    gchar *err_info;
+    int    i;
+    int    opt;
+    int    overall_error_status;
+    static const struct ws_option long_options[] = {
+        {"help", ws_no_argument, NULL, 'h'},
+        {"version", ws_no_argument, NULL, 'v'},
+        {0, 0, 0, 0 }
+    };
 
-  /*
-   * Set the C-language locale to the native environment and set the
-   * code page to UTF-8 on Windows.
-   */
+    /*
+     * Set the C-language locale to the native environment and set the
+     * code page to UTF-8 on Windows.
+     */
 #ifdef _WIN32
-  setlocale(LC_ALL, ".UTF-8");
+    setlocale(LC_ALL, ".UTF-8");
 #else
-  setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "");
 #endif
 
-  cmdarg_err_init(captype_cmdarg_err, captype_cmdarg_err_cont);
+    cmdarg_err_init(captype_cmdarg_err, captype_cmdarg_err_cont);
 
-  /* Initialize log handler early so we can have proper logging during startup. */
-  ws_log_init("captype", vcmdarg_err);
+    /* Initialize log handler early so we can have proper logging during startup. */
+    ws_log_init("captype", vcmdarg_err);
 
-  /* Early logging command-line initialization. */
-  ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
+    /* Early logging command-line initialization. */
+    ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
-  /* Initialize the version information. */
-  ws_init_version_info("Captype (Wireshark)", NULL, NULL, NULL);
+    /* Initialize the version information. */
+    ws_init_version_info("Captype (Wireshark)", NULL, NULL, NULL);
 
 #ifdef _WIN32
-  create_app_running_mutex();
+    create_app_running_mutex();
 #endif /* _WIN32 */
 
-  /*
-   * Get credential information for later use.
-   */
-  init_process_policies();
+    /*
+     * Get credential information for later use.
+     */
+    init_process_policies();
 
-  /*
-   * Attempt to get the pathname of the directory containing the
-   * executable file.
-   */
-  init_progfile_dir_error = init_progfile_dir(argv[0]);
-  if (init_progfile_dir_error != NULL) {
-    fprintf(stderr,
-            "captype: Can't get pathname of directory containing the captype program: %s.\n",
-            init_progfile_dir_error);
-    g_free(init_progfile_dir_error);
-  }
+    /*
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
+     */
+    init_progfile_dir_error = init_progfile_dir(argv[0]);
+    if (init_progfile_dir_error != NULL) {
+        fprintf(stderr,
+                "captype: Can't get pathname of directory containing the captype program: %s.\n",
+                init_progfile_dir_error);
+        g_free(init_progfile_dir_error);
+    }
 
-  init_report_message("captype", &captype_report_routines);
+    init_report_message("captype", &captype_report_routines);
 
-  wtap_init(TRUE);
+    wtap_init(TRUE);
 
-  /* Process the options */
-  while ((opt = ws_getopt_long(argc, argv, "hv", long_options, NULL)) !=-1) {
+    /* Process the options */
+    while ((opt = ws_getopt_long(argc, argv, "hv", long_options, NULL)) !=-1) {
 
-    switch (opt) {
+        switch (opt) {
 
-      case 'h':
-        show_help_header("Print the file types of capture files.");
-        print_usage(stdout);
-        exit(0);
-        break;
+            case 'h':
+                show_help_header("Print the file types of capture files.");
+                print_usage(stdout);
+                exit(0);
+                break;
 
-      case 'v':
-        show_version();
-        exit(0);
-        break;
+            case 'v':
+                show_version();
+                exit(0);
+                break;
 
-      case '?':              /* Bad flag - print usage message */
+            case '?':              /* Bad flag - print usage message */
+                print_usage(stderr);
+                exit(1);
+                break;
+        }
+    }
+
+    if (argc < 2) {
         print_usage(stderr);
-        exit(1);
-        break;
-    }
-  }
-
-  if (argc < 2) {
-    print_usage(stderr);
-    return 1;
-  }
-
-  overall_error_status = 0;
-
-  for (i = 1; i < argc; i++) {
-    wth = wtap_open_offline(argv[i], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-
-    if(wth) {
-      printf("%s: %s\n", argv[i], wtap_file_type_subtype_name(wtap_file_type_subtype(wth)));
-      wtap_close(wth);
-    } else {
-      if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT)
-        printf("%s: unknown\n", argv[i]);
-      else {
-        cfile_open_failure_message(argv[i], err, err_info);
-        overall_error_status = 2; /* remember that an error has occurred */
-      }
+        return 1;
     }
 
-  }
+    overall_error_status = 0;
 
-  wtap_cleanup();
-  free_progdirs();
-  return overall_error_status;
+    for (i = 1; i < argc; i++) {
+        wth = wtap_open_offline(argv[i], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+
+        if(wth) {
+            printf("%s: %s\n", argv[i], wtap_file_type_subtype_name(wtap_file_type_subtype(wth)));
+            wtap_close(wth);
+        } else {
+            if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT)
+                printf("%s: unknown\n", argv[i]);
+            else {
+                cfile_open_failure_message(argv[i], err, err_info);
+                overall_error_status = 2; /* remember that an error has occurred */
+            }
+        }
+
+    }
+
+    wtap_cleanup();
+    free_progdirs();
+    return overall_error_status;
 }
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 2
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
- */

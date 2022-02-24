@@ -1,4 +1,5 @@
-/* uat_model.h
+/** @file
+ *
  * Data model for UAT records.
  *
  * Copyright 2016 Peter Wu <peter@lekensteyn.nl>

@@ -93,195 +93,133 @@ get_zonename(struct tm *tmp)
 #endif /* _WIN32 */
 }
 
-gchar *
-abs_time_to_str(wmem_allocator_t *scope, const nstime_t *abs_time, const absolute_time_display_e fmt,
-		gboolean show_zone)
+static struct tm *
+get_fmt_broken_down_time(field_display_e fmt, const time_t *secs)
 {
-	struct tm *tmp = NULL;
-	const char *zonename = "???";
-	gchar *buf = NULL;
-
-
 	switch (fmt) {
-
 		case ABSOLUTE_TIME_UTC:
 		case ABSOLUTE_TIME_DOY_UTC:
 		case ABSOLUTE_TIME_NTP_UTC:
-			tmp = gmtime(&abs_time->secs);
-			zonename = "UTC";
-			break;
-
+			return gmtime(secs);
 		case ABSOLUTE_TIME_LOCAL:
-			tmp = localtime(&abs_time->secs);
-			if (tmp) {
-				zonename = get_zonename(tmp);
-			}
+			return localtime(secs);
+		default:
 			break;
 	}
-	if (tmp) {
-		switch (fmt) {
+	ws_assert_not_reached();
+}
 
-			case ABSOLUTE_TIME_DOY_UTC:
-				if (show_zone) {
-					buf = wmem_strdup_printf(scope,
-							"%04d/%03d:%02d:%02d:%02d.%09ld %s",
-							tmp->tm_year + 1900,
-							tmp->tm_yday + 1,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							(long)abs_time->nsecs,
-							zonename);
-				} else {
-					buf = wmem_strdup_printf(scope,
-							"%04d/%03d:%02d:%02d:%02d.%09ld",
-							tmp->tm_year + 1900,
-							tmp->tm_yday + 1,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							(long)abs_time->nsecs);
-				}
-				break;
-			case ABSOLUTE_TIME_NTP_UTC:
-				/* FALLTHROUGH */
-			case ABSOLUTE_TIME_UTC:
-			case ABSOLUTE_TIME_LOCAL:
-				if ((abs_time->secs == 0) && (abs_time->nsecs == 0)) {
-					if (show_zone) {
-						buf = wmem_strdup_printf(scope,
-							"(0)%s %2d, %d %02d:%02d:%02d.%09ld %s",
-							mon_names[tmp->tm_mon],
-							tmp->tm_mday,
-							tmp->tm_year + 1900,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							(long)abs_time->nsecs,
-							zonename);
-					} else {
-						buf = wmem_strdup_printf(scope,
-							"(0)%s %2d, %d %02d:%02d:%02d.%09ld",
-							mon_names[tmp->tm_mon],
-							tmp->tm_mday,
-							tmp->tm_year + 1900,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							(long)abs_time->nsecs);
-					}
-					break;
-				}
-				if (show_zone) {
-					buf = wmem_strdup_printf(scope,
-							"%s %2d, %d %02d:%02d:%02d.%09ld %s",
-							mon_names[tmp->tm_mon],
-							tmp->tm_mday,
-							tmp->tm_year + 1900,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							(long)abs_time->nsecs,
-							zonename);
-				} else {
-					buf = wmem_strdup_printf(scope,
-							"%s %2d, %d %02d:%02d:%02d.%09ld",
-							mon_names[tmp->tm_mon],
-							tmp->tm_mday,
-							tmp->tm_year + 1900,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							(long)abs_time->nsecs);
-				}
-				break;
-		}
-	} else
-		buf = wmem_strdup(scope, "Not representable");
+static const char *
+get_fmt_zonename(char *buf, size_t size, field_display_e fmt, struct tm *tmp, int flags)
+{
+	switch (fmt) {
+		case ABSOLUTE_TIME_UTC:
+		case ABSOLUTE_TIME_DOY_UTC:
+		case ABSOLUTE_TIME_NTP_UTC:
+			snprintf(buf, size, " UTC");
+			break;
+		case ABSOLUTE_TIME_LOCAL:
+			if (flags & ABS_TIME_TO_STR_SHOW_ZONE)
+				snprintf(buf, size, " %s", get_zonename(tmp));
+			else
+				*buf = '\0';
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+
 	return buf;
 }
 
-gchar *
-abs_time_secs_to_str(wmem_allocator_t *scope, const time_t abs_time, const absolute_time_display_e fmt,
-		gboolean show_zone)
+static char *
+snprint_abs_time_secs(wmem_allocator_t *scope,
+				field_display_e fmt, struct tm *tmp,
+				const char *nsecs_str, const char *tzone_str,
+				gboolean add_quotes)
 {
-	struct tm *tmp = NULL;
-	const char *zonename = "???";
-	gchar *buf = NULL;
+	char *buf;
 
 	switch (fmt) {
-
-		case ABSOLUTE_TIME_UTC:
 		case ABSOLUTE_TIME_DOY_UTC:
-		case ABSOLUTE_TIME_NTP_UTC:
-			tmp = gmtime(&abs_time);
-			zonename = "UTC";
+			buf = wmem_strdup_printf(scope,
+					"%s%04d/%03d:%02d:%02d:%02d%s%s%s",
+					add_quotes ? "\"" : "",
+					tmp->tm_year + 1900,
+					tmp->tm_yday + 1,
+					tmp->tm_hour,
+					tmp->tm_min,
+					tmp->tm_sec,
+					nsecs_str,
+					tzone_str,
+					add_quotes ? "\"" : "");
 			break;
-
+		case ABSOLUTE_TIME_NTP_UTC:	/* FALLTHROUGH */
+		case ABSOLUTE_TIME_UTC:		/* FALLTHROUGH */
 		case ABSOLUTE_TIME_LOCAL:
-			tmp = localtime(&abs_time);
-			if (tmp) {
-				zonename = get_zonename(tmp);
-			}
+			buf = wmem_strdup_printf(scope,
+					"%s%s %2d, %d %02d:%02d:%02d%s%s%s",
+					add_quotes ? "\"" : "",
+					mon_names[tmp->tm_mon],
+					tmp->tm_mday,
+					tmp->tm_year + 1900,
+					tmp->tm_hour,
+					tmp->tm_min,
+					tmp->tm_sec,
+					nsecs_str,
+					tzone_str,
+					add_quotes ? "\"" : "");
 			break;
+		default:
+			ws_assert_not_reached();
 	}
-	if (tmp) {
-		switch (fmt) {
-
-			case ABSOLUTE_TIME_DOY_UTC:
-				if (show_zone) {
-					buf = wmem_strdup_printf(scope,
-							"%04d/%03d:%02d:%02d:%02d %s",
-							tmp->tm_year + 1900,
-							tmp->tm_yday + 1,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							zonename);
-				} else {
-					buf = wmem_strdup_printf(scope,
-							"%04d/%03d:%02d:%02d:%02d",
-							tmp->tm_year + 1900,
-							tmp->tm_yday + 1,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec);
-				}
-				break;
-
-			case ABSOLUTE_TIME_NTP_UTC:
-				if (abs_time == 0) {
-					buf = wmem_strdup(scope, "NULL");
-					break;
-				}
-				/* FALLTHROUGH */
-			case ABSOLUTE_TIME_UTC:
-			case ABSOLUTE_TIME_LOCAL:
-				if (show_zone) {
-					buf = wmem_strdup_printf(scope,
-							"%s %2d, %d %02d:%02d:%02d %s",
-							mon_names[tmp->tm_mon],
-							tmp->tm_mday,
-							tmp->tm_year + 1900,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec,
-							zonename);
-				} else {
-					buf = wmem_strdup_printf(scope,
-							"%s %2d, %d %02d:%02d:%02d",
-							mon_names[tmp->tm_mon],
-							tmp->tm_mday,
-							tmp->tm_year + 1900,
-							tmp->tm_hour,
-							tmp->tm_min,
-							tmp->tm_sec);
-				}
-				break;
-		}
-	} else
-		buf = wmem_strdup(scope, "Not representable");
 	return buf;
+}
+
+char *
+abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_display_e fmt,
+			int flags)
+{
+	struct tm *tmp;
+	char buf_nsecs[32];
+	char buf_tzone[32];
+
+	if (fmt == BASE_NONE)
+		fmt = ABSOLUTE_TIME_LOCAL;
+
+	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
+
+	if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time->secs == 0 &&
+				(abs_time->nsecs == 0 || abs_time->nsecs == G_MAXINT)) {
+		return wmem_strdup(scope, "NULL");
+	}
+
+	tmp = get_fmt_broken_down_time(fmt, &abs_time->secs);
+	if (tmp == NULL) {
+		return wmem_strdup(scope, "Not representable");
+	}
+
+	*buf_nsecs = '\0';
+	if (abs_time->nsecs != G_MAXINT) {
+		snprintf(buf_nsecs, sizeof(buf_nsecs), ".%09d", abs_time->nsecs);
+	}
+
+	*buf_tzone = '\0';
+	if (flags & ABS_TIME_TO_STR_SHOW_ZONE || flags & ABS_TIME_TO_STR_SHOW_UTC_ONLY) {
+		get_fmt_zonename(buf_tzone, sizeof(buf_tzone), fmt, tmp, flags);
+	}
+
+	return snprint_abs_time_secs(scope, fmt, tmp, buf_nsecs, buf_tzone, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
+}
+
+char *
+abs_time_secs_to_str_ex(wmem_allocator_t *scope, const time_t abs_time_secs, field_display_e fmt,
+			int flags)
+{
+	nstime_t abs_time;
+
+	nstime_set_unset(&abs_time);
+	abs_time.secs = abs_time_secs;
+	return abs_time_to_str_ex(scope, &abs_time, fmt, flags);
 }
 
 void
@@ -312,27 +250,27 @@ display_epoch_time(gchar *buf, int buflen, const time_t sec, gint32 frac,
 	switch (units) {
 
 		case TO_STR_TIME_RES_T_SECS:
-			g_snprintf(buf, buflen, "%0.0f", elapsed_secs);
+			snprintf(buf, buflen, "%0.0f", elapsed_secs);
 			break;
 
 		case TO_STR_TIME_RES_T_DSECS:
-			g_snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
+			snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
 			break;
 
 		case TO_STR_TIME_RES_T_CSECS:
-			g_snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
+			snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
 			break;
 
 		case TO_STR_TIME_RES_T_MSECS:
-			g_snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
+			snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
 			break;
 
 		case TO_STR_TIME_RES_T_USECS:
-			g_snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
+			snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
 			break;
 
 		case TO_STR_TIME_RES_T_NSECS:
-			g_snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
+			snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
 			break;
 	}
 }

@@ -963,7 +963,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 10:		/* UNC SGW Fully Qualified Domain/Host Name */
 		if ( ie_len > 0){
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_FQDN, tvb, ie_offset, ie_len, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_FQDN, tvb, ie_offset, ie_len, ENC_ASCII);
 		}else{
 			proto_tree_add_expert(urr_ie_tree, pinfo, &ei_uma_fqdn_not_present, tvb, offset, 1);
 		}
@@ -1258,7 +1258,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * 3629 [50]. This means that the 1st octet of the UTF-8 string is coded in octet 4 and the
 		 * last octet of the UTF-8 string is coded in the last octet of this IE (octet n).
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_Service_name_value, tvb, ie_offset, ie_len -1, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_Service_name_value, tvb, ie_offset, ie_len -1, ENC_ASCII);
 		break;
 	case 62:
 		/* 11.2.62 GAN Service Zone Information
@@ -1271,7 +1271,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		str_len = tvb_get_guint8(tvb,ie_offset);
 		ie_offset++;
 		/* UMA Service Zone string, 1st character */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str, tvb, ie_offset, str_len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str, tvb, ie_offset, str_len, ENC_ASCII);
 		break;
 	/* 11.2.63 RTP Redundancy Configuration */
 	case 63:

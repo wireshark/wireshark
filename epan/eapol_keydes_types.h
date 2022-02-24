@@ -1,4 +1,5 @@
-/* eapol_keydes_types.h
+/** @file
+ *
  * Declarations of EAPOL Key Descriptor types
  *
  * Wireshark - Network traffic analyzer

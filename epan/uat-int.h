@@ -1,5 +1,4 @@
-/*
- *  uat-int.h
+/** @file
  *
  *  User Accessible Tables
  *  Maintain an array of user accessible data structures

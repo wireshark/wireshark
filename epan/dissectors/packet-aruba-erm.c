@@ -386,7 +386,7 @@ dissect_aruba_erm_type6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static void
 aruba_erm_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Aruba ERM payload as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Aruba ERM payload as");
 }
 
 void

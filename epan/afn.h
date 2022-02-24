@@ -1,4 +1,5 @@
-/* afn.h
+/** @file
+ *
  * RFC 1700 address family numbers
  *
  * Wireshark - Network traffic analyzer

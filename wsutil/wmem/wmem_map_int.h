@@ -1,4 +1,5 @@
-/* wmem_map_int.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager Hash Map Internals
  * Copyright 2014, Evan Huus <eapache@gmail.com>
  *

@@ -1,4 +1,5 @@
-/* nlpid.h
+/** @file
+ *
  * Definitions of OSI NLPIDs (Network Layer Protocol IDs)
  * Laurent Deniel <laurent.deniel@free.fr>
  *

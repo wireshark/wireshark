@@ -59,7 +59,7 @@ typedef struct {
 WS_DLL_PUBLIC void nstime_set_zero(nstime_t *nstime);
 
 /** is the given nstime_t currently zero? */
-WS_DLL_PUBLIC gboolean nstime_is_zero(nstime_t *nstime);
+WS_DLL_PUBLIC gboolean nstime_is_zero(const nstime_t *nstime);
 
 /** set the given nstime_t to (0,maxint) to mark it as "unset"
  * That way we can find the first frame even when a timestamp
@@ -123,10 +123,16 @@ WS_DLL_PUBLIC gboolean filetime_to_nstime(nstime_t *nstime, guint64 filetime);
     FALSE on failure */
 WS_DLL_PUBLIC gboolean nsfiletime_to_nstime(nstime_t *nstime, guint64 nsfiletime);
 
+typedef enum {
+    ISO8601_DATETIME,       /** e.g. 2014-07-04T12:34:56.789+00:00 */
+    ISO8601_DATETIME_BASIC, /** ISO8601 Basic format, i.e. no - : separators */
+    ISO8601_DATETIME_AUTO,  /** Autodetect the presence of separators */
+} iso8601_fmt_e;
+
 /** parse an ISO 8601 format datetime string to nstime, returns number of
     chars parsed on success, 0 on failure.
     Note that nstime is set to unset in the case of failure */
-WS_DLL_PUBLIC guint8 iso8601_to_nstime(nstime_t *nstime, const char *ptr);
+WS_DLL_PUBLIC guint8 iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso8601_fmt_e format);
 
 /** parse an Unix epoch timestamp format datetime string to nstime, returns
     number of chars parsed on success, 0 on failure.

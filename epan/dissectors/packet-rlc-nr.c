@@ -29,8 +29,7 @@
 /* TODO:
 - add sequence analysis
 - take configuration of reordering timer, and stop reassembly if timeout exceeded?
-- add tap info
-- call more upper layer dissectors once they appear
+- add tap info (for stats / SN graph)
 */
 
 void proto_register_rlc_nr(void);
@@ -67,6 +66,13 @@ static gboolean global_rlc_nr_reassemble_am_pdus = TRUE;
 /* Tree storing UE related parameters (ueid, drbid) -> pdcp_bearer_parameters */
 static wmem_tree_t *ue_parameters_tree;
 
+/* Table storing starting frame for reassembly session during first pass */
+/* Key is (ueId, direction, bearertype, bearerid, sn) */
+static wmem_tree_t *reassembly_start_table;
+
+/* Table storing starting frame for reassembly session during subsequent passes */
+/* Key is (ueId, direction, bearertype, bearerid, sn, frame) */
+static wmem_tree_t *reassembly_start_table_stored;
 
 /**************************************************/
 /* Initialize the protocol and registered fields. */
@@ -280,7 +286,7 @@ static const true_false_string header_only_vals =
 /* Reassembly state */
 static reassembly_table pdu_reassembly_table;
 
-static guint pdu_hash(gconstpointer k _U_)
+static guint pdu_hash(gconstpointer k)
 {
     return GPOINTER_TO_UINT(k);
 }
@@ -290,7 +296,7 @@ static gint pdu_equal(gconstpointer k1, gconstpointer k2)
     return k1 == k2;
 }
 
-static gpointer pdu_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data _U_)
+static gpointer pdu_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_, const void *data)
 {
     return (gpointer)data;
 }
@@ -338,7 +344,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
     va_list ap;
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -349,7 +355,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti, proto_item *sub_ti,
     }
 }
 
-/* Version of function above, where no g_vsnprintf() call needed
+/* Version of function above, where no vsnprintf() call needed
    - the info column
    - the top-level RLC PDU item
    - another subtree item (if supplied) */
@@ -366,10 +372,8 @@ static void write_pdu_label_and_info_literal(proto_item *pdu_ti, proto_item *sub
 
 /* Show in the info column how many bytes are in the UM/AM PDU, and indicate
    whether or not the beginning and end are included in this packet */
-static void show_PDU_in_info(packet_info *pinfo,
-                             proto_item *top_ti,
-                             gint32 length,
-                             guint8 seg_info)
+static void show_PDU_in_info(packet_info *pinfo, proto_item *top_ti,
+                             gint32 length, guint8 seg_info)
 {
     /* Reflect this PDU in the info column */
     if (length > 0) {
@@ -570,15 +574,100 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+/* Look up / set the frame thought to be the start segment of this RLC PDU. */
+/* N.B. this algorithm will not be correct in all cases, but is good enough to be useful.. */
+static guint32 get_reassembly_start_frame(packet_info *pinfo, guint32 seg_info,
+                                          rlc_nr_info *p_rlc_nr_info, guint32 sn)
+{
+    guint32 frame_id = 0;
+
+    guint32 key_values[] = { p_rlc_nr_info->ueid,
+                             p_rlc_nr_info->direction,
+                             p_rlc_nr_info->bearerType,
+                             p_rlc_nr_info->bearerId,
+                             sn,
+                             pinfo->num          /* N.B. only used for subsquent/_stored table */
+                           };
+
+    /* Is this the first segment of SN? */
+    gboolean first_segment = (seg_info & 0x2) == 0;
+
+    /* Set Key. */
+    wmem_tree_key_t key[2];
+    key[0].length = 5;       /* Ignoring this frame num */
+    key[0].key = key_values;
+    key[1].length = 0;
+    key[1].key = NULL;
+
+    guint32 *p_frame_id = NULL;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* On first pass, maintain reassembly_start_table. */
+
+        /* Look for existing entry. */
+        p_frame_id = (guint32*)wmem_tree_lookup32_array(reassembly_start_table, key);
+
+
+        if (first_segment) {
+            /* Let it start from here */
+            wmem_tree_insert32_array(reassembly_start_table, key, GUINT_TO_POINTER(pinfo->num));
+            frame_id = pinfo->num;
+        }
+        else {
+            if (p_frame_id) {
+                /* Use existing entry (or zero) if not found */
+                frame_id = GPOINTER_TO_UINT(p_frame_id);
+            }
+        }
+
+        /* Store this result for subsequent passes. Don't store 0 though. */
+        if (frame_id) {
+            key[0].length = 6;
+            wmem_tree_insert32_array(reassembly_start_table_stored, key, GUINT_TO_POINTER(frame_id));
+        }
+    }
+    else {
+        /* For subsequent passes, use stored value */
+        key[0].length = 6;  /* i.e. include this framenum in key */
+        p_frame_id = (guint32*)wmem_tree_lookup32_array(reassembly_start_table_stored, key);
+        if (p_frame_id) {
+            /* Use found value */
+            frame_id = GPOINTER_TO_UINT(p_frame_id);
+        }
+    }
+
+    return frame_id;
+}
+
+static void reassembly_frame_complete(packet_info *pinfo,
+                                      rlc_nr_info *p_rlc_nr_info, guint32 sn)
+{
+    if (!PINFO_FD_VISITED(pinfo)) {
+        guint32 key_values[] = { p_rlc_nr_info->ueid,
+                                 p_rlc_nr_info->direction,
+                                 p_rlc_nr_info->bearerType,
+                                 p_rlc_nr_info->bearerId,
+                                 sn
+                               };
+
+        /* Set Key. */
+        wmem_tree_key_t key[2];
+        key[0].length = 4;       /* Ignoring this frame num */
+        key[0].key = key_values;
+        key[1].length = 0;
+        key[1].key = NULL;
+
+        /* Clear entry out */
+        wmem_tree_insert32_array(reassembly_start_table, key, GUINT_TO_POINTER(0));
+    }
+}
 
 
 /***************************************************/
 /* Unacknowledged mode PDU                         */
 static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree,
-                               int offset,
-                               rlc_nr_info *p_rlc_nr_info,
-                               proto_item *top_ti)
+                              proto_tree *tree, int offset,
+                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti)
 {
     guint32 seg_info, sn;
     guint64 reserved;
@@ -667,30 +756,27 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
     /* Handle any reassembly. */
     tvbuff_t *next_tvb = NULL;
     if (global_rlc_nr_reassemble_um_pdus && seg_info && tvb_reported_length_remaining(tvb, offset) > 0) {
-        // Set fragmented flag.
+        /* Set fragmented flag. */
         gboolean save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
         fragment_head *fh;
         gboolean more_frags = seg_info & 0x01;
-        /* TODO: This should be unique enough, but is there a way to get frame number of first frame in reassembly table? */
-        guint32 id = p_rlc_nr_info->direction +       /* 1 bit */
-                    (p_rlc_nr_info->ueid<<1) +        /* 7 bits */
-                    (p_rlc_nr_info->bearerId<<8) +    /* 5 bits */
-                    (sn<<13);                         /* Leave 19 bits for SN - overlaps with other fields but room to overflow into msb */
+        guint32 id = get_reassembly_start_frame(pinfo, seg_info, p_rlc_nr_info, sn);                        /* Leave 19 bits for SN - overlaps with other fields but room to overflow into msb */
+        if (id != 0) {
+            fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
+                              id,                                         /* id */
+                              GUINT_TO_POINTER(id),                       /* data */
+                              so,                                         /* frag_offset */
+                              tvb_reported_length_remaining(tvb, offset), /* frag_data_len */
+                              more_frags                                  /* more_frags */
+                              );
 
-        fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
-                          id,                                         /* id */
-                          GUINT_TO_POINTER(id),                       /* data */
-                          so,                                         /* frag_offset */
-                          tvb_reported_length_remaining(tvb, offset), /* frag_data_len */
-                          more_frags                                  /* more_frags */
-                          );
-
-        gboolean update_col_info = TRUE;
-        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
-                                            fh, &rlc_nr_frag_items,
-                                            &update_col_info, tree);
-        pinfo->fragmented = save_fragmented;
+            gboolean update_col_info = TRUE;
+            next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
+                                                fh, &rlc_nr_frag_items,
+                                                &update_col_info, tree);
+            pinfo->fragmented = save_fragmented;
+        }
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -703,6 +789,9 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
             add_new_data_source(pinfo, next_tvb, "Reassembled RLC-NR PDU");
             show_PDU_in_tree(pinfo, tree, next_tvb, 0, tvb_captured_length(next_tvb),
                              p_rlc_nr_info, seg_info, TRUE);
+
+            /* Note that PDU is now completed (so won't try to add to it) */
+            reassembly_frame_complete(pinfo, p_rlc_nr_info, sn);
         }
     } else if (!global_rlc_nr_headers_expected) {
         /* Report that expected data was missing (unless we know it might happen) */
@@ -796,7 +885,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
         /* We shouldn't NACK the ACK_SN! */
         if (nack_sn == ack_sn) {
             expert_add_info_format(pinfo, nack_ti, &ei_rlc_nr_am_nack_sn_ack_same,
-                                   "Status PDU shouldn't ACK and NACK the same sequence number (%" G_GINT64_MODIFIER "u)",
+                                   "Status PDU shouldn't ACK and NACK the same sequence number (%" PRIu64 ")",
                                    ack_sn);
         }
 
@@ -905,10 +994,8 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
 /***************************************************/
 /* Acknowledged mode PDU                           */
 static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
-                              proto_tree *tree,
-                              int offset,
-                              rlc_nr_info *p_rlc_nr_info,
-                              proto_item *top_ti)
+                              proto_tree *tree, int offset,
+                              rlc_nr_info *p_rlc_nr_info, proto_item *top_ti)
 {
     gboolean dc, polling;
     guint32 seg_info, sn;
@@ -1021,30 +1108,27 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Handle any reassembly. */
     tvbuff_t *next_tvb = NULL;
     if (global_rlc_nr_reassemble_am_pdus && seg_info && tvb_reported_length_remaining(tvb, offset) > 0) {
-        // Set fragmented flag.
+        /* Set fragmented flag. */
         gboolean save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
         fragment_head *fh;
         gboolean more_frags = seg_info & 0x01;
-        /* TODO: This should be unique enough, but is there a way to get frame number of first frame in reassembly table? */
-        guint32 id = p_rlc_nr_info->direction +       /* 1 bit */
-                    (p_rlc_nr_info->ueid<<1) +        /* 7 bits */
-                    (p_rlc_nr_info->bearerId<<8) +    /* 5 bits */
-                    (sn<<13);                         /* Leave 19 bits for SN - overlaps with other fields but room to overflow into msb */
+        guint32 id = get_reassembly_start_frame(pinfo, seg_info, p_rlc_nr_info, sn);
+        if (id != 0) {
+            fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
+                              id,                                         /* id */
+                              GUINT_TO_POINTER(id),                       /* data */
+                              so,                                         /* frag_offset */
+                              tvb_reported_length_remaining(tvb, offset), /* frag_data_len */
+                              more_frags                                  /* more_frags */
+                              );
 
-        fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
-                          id,                                         /* id */
-                          GUINT_TO_POINTER(id),                       /* data */
-                          so,                                         /* frag_offset */
-                          tvb_reported_length_remaining(tvb, offset), /* frag_data_len */
-                          more_frags                                  /* more_frags */
-                          );
-
-        gboolean update_col_info = TRUE;
-        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
-                                            fh, &rlc_nr_frag_items,
-                                            &update_col_info, tree);
-        pinfo->fragmented = save_fragmented;
+            gboolean update_col_info = TRUE;
+            next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
+                                                fh, &rlc_nr_frag_items,
+                                                &update_col_info, tree);
+            pinfo->fragmented = save_fragmented;
+        }
     }
 
 
@@ -1157,7 +1241,7 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create tvb that starts at actual RLC PDU */
     rlc_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_rlc_nr_common(rlc_tvb, pinfo, tree, TRUE);
+    dissect_rlc_nr_common(rlc_tvb, pinfo, tree, TRUE /* udp framing */);
     return TRUE;
 }
 
@@ -1167,7 +1251,7 @@ static gboolean dissect_rlc_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 static int dissect_rlc_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    dissect_rlc_nr_common(tvb, pinfo, tree, FALSE);
+    dissect_rlc_nr_common(tvb, pinfo, tree, FALSE /* not udp framing */);
     return tvb_captured_length(tvb);
 }
 
@@ -1534,7 +1618,6 @@ void proto_register_rlc_nr(void)
               "Acknowledged Mode Data", HFILL
             }
         },
-
         { &hf_rlc_nr_am_cpt,
             { "Control PDU Type",
               "rlc-nr.am.cpt", FT_UINT8, BASE_HEX, VALS(control_pdu_type_vals), 0x70,
@@ -1665,8 +1748,7 @@ void proto_register_rlc_nr(void)
             "rlc-nr.reassembled.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "The reassembled payload", HFILL }
-        },
-
+        }
     };
 
     static gint *ett[] =
@@ -1756,6 +1838,8 @@ void proto_register_rlc_nr(void)
         &global_rlc_nr_reassemble_um_pdus);
 
     ue_parameters_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    reassembly_start_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    reassembly_start_table_stored = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     /* Register reassembly table. */
     reassembly_table_register(&pdu_reassembly_table, &pdu_reassembly_table_functions);

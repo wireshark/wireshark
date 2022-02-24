@@ -13,7 +13,7 @@
 
 #include "config.h"
 
-#include <stdio.h>
+#include <stdio.h>	/* fprintf() */
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
@@ -356,7 +356,7 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array)
 	hf_index=rpc_prog_hf(tap_data->program, tap_data->version);
 	hfi=proto_registrar_get_nth(hf_index);
 
-	g_snprintf(table_name, sizeof(table_name), "%s Version %u", tap_data->prog, tap_data->version);
+	snprintf(table_name, sizeof(table_name), "%s Version %u", tap_data->prog, tap_data->version);
 	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, tap_data);
 	for (i = 0; i < rpc_srt_table->num_procs; i++)
 	{
@@ -422,7 +422,7 @@ rpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
 
 		tap_data->num_procedures = rpc_max_proc+1;
 		if (rpc_min_proc == -1) {
-			*err = g_strdup_printf("Program:%u version:%u isn't supported", rpc_program, rpc_version);
+			*err = ws_strdup_printf("Program:%u version:%u isn't supported", rpc_program, rpc_version);
 		}
 	}
 	else
@@ -2531,15 +2531,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 16;
 
 		offset = dissect_rpc_cred(tvb, rpc_tree, offset, pinfo, rpc_conv_info);
+		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
+
 		/* pass rpc_info to subdissectors */
 		rpc_call->request=TRUE;
-
-		if (gss_proc == RPCSEC_GSS_DESTROY) {
-			/* there is no verifier for GSS destroy packets */
-			break;
-		}
-
-		offset = dissect_rpc_verf(tvb, rpc_tree, offset, msg_type, pinfo);
 
 		/* go to the next dissector */
 

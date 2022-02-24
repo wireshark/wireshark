@@ -112,7 +112,7 @@ add_extensions(GSList *extensions, const gchar *extension,
 	    compression_type_extension != NULL;
 	    compression_type_extension = g_slist_next(compression_type_extension)) {
 		extensions = g_slist_prepend(extensions,
-		    g_strdup_printf("%s.%s", extension,
+		    ws_strdup_printf("%s.%s", extension,
 		        (const char *)compression_type_extension->data));
 	}
 
@@ -2289,26 +2289,32 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 
 		case WTAP_TSPREC_SEC:
 			descr_mand->time_units_per_second = 1;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 0);
 			break;
 
 		case WTAP_TSPREC_DSEC:
 			descr_mand->time_units_per_second = 10;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 1);
 			break;
 
 		case WTAP_TSPREC_CSEC:
 			descr_mand->time_units_per_second = 100;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 2);
 			break;
 
 		case WTAP_TSPREC_MSEC:
 			descr_mand->time_units_per_second = 1000;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 3);
 			break;
 
 		case WTAP_TSPREC_USEC:
 			descr_mand->time_units_per_second = 1000000;
+			/* This is the default, so we save a few bytes by not adding the option. */
 			break;
 
 		case WTAP_TSPREC_NSEC:
 			descr_mand->time_units_per_second = 1000000000;
+			wtap_block_add_uint8_option(descr, OPT_IDB_TSRESOL, 9);
 			break;
 
 		default:
@@ -2389,7 +2395,7 @@ wtap_dump_open(const char *filename, int file_type_subtype,
 }
 
 wtap_dumper *
-wtap_dump_open_tempfile(char **filenamep, const char *pfx,
+wtap_dump_open_tempfile(const char *tmpdir, char **filenamep, const char *pfx,
     int file_type_subtype, wtap_compression_type compression_type,
     const wtap_dump_params *params, int *err, gchar **err_info)
 {
@@ -2420,7 +2426,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	(void) g_strlcat(sfx, ext, 16);
 
 	/* Choose a random name for the file */
-	fd = create_tempfile(filenamep, pfx, sfx, NULL);
+	fd = create_tempfile(tmpdir, filenamep, pfx, sfx, NULL);
 	if (fd == -1) {
 		*err = WTAP_ERR_CANT_OPEN;
 		g_free(wdh);

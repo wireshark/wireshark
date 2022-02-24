@@ -1,4 +1,4 @@
-/* mcast_stream.h
+/** @file
  *
  * Copyright 2006, Iskratel , Slovenia
  * By Jakob Bratkovic <j.bratkovic@iskratel.si> and

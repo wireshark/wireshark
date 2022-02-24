@@ -22,7 +22,6 @@
 #include <epan/proto.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
-#include <stdio.h>
 #include <inttypes.h>
 
 void proto_register_cose(void);
@@ -37,6 +36,7 @@ static const char *const proto_name_cose = "COSE";
 
 /// Protocol handles
 static int proto_cose = -1;
+static int proto_cose_params = -1;
 
 /// Dissect opaque CBOR data
 static dissector_handle_t handle_cbor = NULL;
@@ -226,16 +226,16 @@ static hf_register_info fields[] = {
     {&hf_tag, {"Tag", "cose.msg.mac_tag", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_hdr_label_int, {"Label", "cose.header_label.int", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_hdr_label_tstr, {"Label", "cose.header_label.tstr", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_hdr_label_tstr, {"Label", "cose.header_label.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_hdr_salt, {"Salt", "cose.salt", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_static_key, {"Static Key", "cose.static_key", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_ephem_key, {"Ephemeral Key", "cose.ephem_key", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_alg_int, {"Algorithm", "cose.alg.int", FT_INT64, BASE_DEC | BASE_VAL64_STRING, VALS64(alg_vals), 0x0, NULL, HFILL}},
-    {&hf_hdr_alg_tstr, {"Algorithm", "cose.alg.tstr", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_hdr_alg_tstr, {"Algorithm", "cose.alg.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_crit_list, {"Critical Headers, Count", "cose.crit", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_ctype_uint, {"Content-Format", "cose.content-type.uint", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_hdr_ctype_tstr, {"Content-Type", "cose.content-type.tstr", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_hdr_ctype_tstr, {"Content-Type", "cose.content-type.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_kid, {"Key identifier", "cose.kid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_iv, {"IV", "cose.iv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_piv, {"Partial IV", "cose.piv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -244,18 +244,18 @@ static hf_register_info fields[] = {
     {&hf_hdr_x5chain, {"X509 Chain (x5chain)", "cose.x5chain", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_x5t, {"X509 Thumbprint (x5t)", "cose.x5t", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_hdr_x5t_hash, {"Hash Value", "cose.x5t.hash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_hdr_x5u, {"X509 URI (x5u)", "cose.x5u", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_hdr_x5u, {"X509 URI (x5u)", "cose.x5u", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_key, {"COSE_Key", "cose.key", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_keyparam_kty_int, {"Key Type", "cose.kty.int", FT_INT64, BASE_DEC | BASE_VAL64_STRING, VALS64(kty_vals), 0x0, NULL, HFILL}},
-    {&hf_keyparam_kty_tstr, {"Key Type", "cose.kty.tstr", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_keyparam_kty_tstr, {"Key Type", "cose.kty.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_keyops_list, {"Key Operations", "cose.keyops", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_keyops_int, {"Operation", "cose.keyops.int", FT_INT64, BASE_DEC | BASE_VAL64_STRING, VALS64(keyops_vals), 0x0, NULL, HFILL}},
-    {&hf_keyparam_keyops_tstr, {"Operation", "cose.keyops.tstr", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_keyparam_keyops_tstr, {"Operation", "cose.keyops.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_baseiv, {"Base IV", "cose.baseiv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_crv_int, {"Curve Type", "cose.crv.int", FT_INT64, BASE_DEC | BASE_VAL64_STRING, VALS64(crv_vals), 0x0, NULL, HFILL}},
-    {&hf_keyparam_crv_tstr, {"Curve Type", "cose.crv.tstr", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_keyparam_crv_tstr, {"Curve Type", "cose.crv.tstr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_xcoord, {"X-coordinate", "cose.key.xcoord", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_ycoord, {"Y-coordinate", "cose.key.ycoord", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_keyparam_dcoord, {"Private Key", "cose.key.dcoord", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -357,6 +357,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
 
     cose_param_key_t key = { 0 };
 
+    const char *label_str = NULL;
     switch (chunk_label->type_major) {
         case CBOR_TYPE_UINT:
         case CBOR_TYPE_NEGINT: {
@@ -365,6 +366,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
             if (label) {
                 key.label = ctx->label =
                     g_variant_new_int64(*label);
+                label_str = wmem_strdup_printf(wmem_packet_scope(), "%" PRId64, *label);
             }
             break;
         }
@@ -374,6 +376,7 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
             if (label) {
                 key.label = ctx->label =
                     g_variant_new_string(label);
+                label_str = label;
             }
             break;
         }
@@ -388,6 +391,11 @@ static void dissect_header_pair(dissector_table_t dis_table, cose_header_context
         key.principal = NULL;
         dissector = dissector_get_custom_table_handle(dis_table, &key);
     }
+    const char *dis_name = dissector_handle_get_dissector_name(dissector);
+    if (dis_name) {
+        proto_item_set_text(item_label, "Label: %s (%s)", dis_name, label_str);
+    }
+
     tree_label = proto_item_add_subtree(item_label, ett_hdr_label);
 
     // Peek into the value as tvb
@@ -698,7 +706,7 @@ static int dissect_cose_msg_tagged(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!dissector) {
             continue;
         }
-        g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" G_GUINT64_FORMAT, tag->value);
+        g_log(LOG_DOMAIN, G_LOG_LEVEL_INFO, "main dissector using tag %" PRIu64, tag->value);
         int sublen = call_dissector_only(dissector, tvb, pinfo, tree, tag);
         if (sublen > 0) {
             return sublen;
@@ -1143,9 +1151,12 @@ static void register_msg_dissector(dissector_handle_t dis_h, guint64 tag_int, co
 }
 
 /** Register a header dissector.
+ * @param dissector The dissector function.
+ * @param label The associated map label.
+ * @param name The header name.
  */
-static void register_header_dissector(dissector_t dissector, GVariant *label) {
-    dissector_handle_t dis_h = create_dissector_handle(dissector, proto_cose);
+static void register_header_dissector(dissector_t dissector, GVariant *label, const char *name) {
+    dissector_handle_t dis_h = create_dissector_handle_with_name(dissector, proto_cose_params, name);
 
     cose_param_key_t *key = g_new0(cose_param_key_t, 1);
     key->label = label;
@@ -1156,9 +1167,11 @@ static void register_header_dissector(dissector_t dissector, GVariant *label) {
 /** Register a key parameter dissector.
  * @param dissector The dissector function.
  * @param kty The associated key type "kty" or NULL.
+ * @param label The associated map label.
+ * @param name The header name.
  */
-static void register_keyparam_dissector(dissector_t dissector, GVariant *kty, GVariant *label) {
-    dissector_handle_t dis_h = create_dissector_handle(dissector, proto_cose);
+static void register_keyparam_dissector(dissector_t dissector, GVariant *kty, GVariant *label, const char *name) {
+    dissector_handle_t dis_h = create_dissector_handle_with_name(dissector, proto_cose_params, name);
 
     cose_param_key_t *key = g_new0(cose_param_key_t, 1);
     if (kty) {
@@ -1192,6 +1205,14 @@ void proto_register_cose(void) {
     register_init_routine(&cose_init);
     register_cleanup_routine(&cose_cleanup);
 
+    proto_cose_params = proto_register_protocol_in_name_only(
+        "COSE Parameter Subdissectors",
+        "COSE Parameter Subdissectors",
+        "cose_params",
+        proto_cose,
+        FT_PROTOCOL
+    );
+
     proto_register_field_array(proto_cose, fields, array_length(fields));
     proto_register_subtree_array(ett, array_length(ett));
     expert_module_t *expert = expert_register_protocol(proto_cose);
@@ -1200,7 +1221,7 @@ void proto_register_cose(void) {
     handle_cose_msg_hdr = register_dissector("cose.msg.headers", dissect_cose_msg_header_map, proto_cose);
 
     table_cose_msg_tag = register_custom_dissector_table("cose.msgtag", "COSE Message Tag", proto_cose, g_int64_hash, g_int64_equal);
-    handle_cose_msg_tagged = register_dissector("cose", dissect_cose_msg_tagged, proto_cose);
+    handle_cose_msg_tagged = register_dissector("cose", dissect_cose_msg_tagged, proto_cose_params);
     handle_cose_sign = register_dissector("cose_sign", dissect_cose_sign, proto_cose);
     handle_cose_sign1 = register_dissector("cose_sign1", dissect_cose_sign1, proto_cose);
     handle_cose_encrypt = register_dissector("cose_encrypt", dissect_cose_encrypt, proto_cose);
@@ -1233,46 +1254,46 @@ void proto_reg_handoff_cose(void) {
     register_msg_dissector(handle_cose_mac0, 17, "application/cose; cose-type=\"cose-mac0\"");
 
     // RFC 8152 header labels
-    register_header_dissector(dissect_header_salt, g_variant_new_int64(-20));
-    register_header_dissector(dissect_header_static_key, g_variant_new_int64(-2));
-    register_header_dissector(dissect_header_ephem_key, g_variant_new_int64(-1));
-    register_header_dissector(dissect_header_alg, g_variant_new_int64(1));
-    register_header_dissector(dissect_header_crit, g_variant_new_int64(2));
-    register_header_dissector(dissect_header_ctype, g_variant_new_int64(3));
-    register_header_dissector(dissect_header_kid, g_variant_new_int64(4));
-    register_header_dissector(dissect_header_iv, g_variant_new_int64(5));
-    register_header_dissector(dissect_header_piv, g_variant_new_int64(6));
+    register_header_dissector(dissect_header_salt, g_variant_new_int64(-20), "salt");
+    register_header_dissector(dissect_header_static_key, g_variant_new_int64(-2), "static key");
+    register_header_dissector(dissect_header_ephem_key, g_variant_new_int64(-1), "ephemeral key");
+    register_header_dissector(dissect_header_alg, g_variant_new_int64(1), "alg");
+    register_header_dissector(dissect_header_crit, g_variant_new_int64(2), "crit");
+    register_header_dissector(dissect_header_ctype, g_variant_new_int64(3), "content type");
+    register_header_dissector(dissect_header_kid, g_variant_new_int64(4), "kid");
+    register_header_dissector(dissect_header_iv, g_variant_new_int64(5), "IV");
+    register_header_dissector(dissect_header_piv, g_variant_new_int64(6), "Partial IV");
     // draft-ietf-cose-x509 header labels
-    register_header_dissector(dissect_header_x5bag, g_variant_new_int64(32));
-    register_header_dissector(dissect_header_x5chain, g_variant_new_int64(33));
-    register_header_dissector(dissect_header_x5t, g_variant_new_int64(34));
-    register_header_dissector(dissect_header_x5u, g_variant_new_int64(35));
+    register_header_dissector(dissect_header_x5bag, g_variant_new_int64(32), "x5bag");
+    register_header_dissector(dissect_header_x5chain, g_variant_new_int64(33), "x5chain");
+    register_header_dissector(dissect_header_x5t, g_variant_new_int64(34), "x5t");
+    register_header_dissector(dissect_header_x5u, g_variant_new_int64(35), "x5u");
 
     dissector_add_string("media_type", "application/cose-key", handle_cose_key);
     dissector_add_string("media_type", "application/cose-key-set", handle_cose_key_set);
     // RFC 8152 key parameter labels
-    register_keyparam_dissector(dissect_keyparam_kty, NULL, g_variant_new_int64(1));
-    register_keyparam_dissector(dissect_header_kid, NULL, g_variant_new_int64(2));
-    register_keyparam_dissector(dissect_header_alg, NULL, g_variant_new_int64(3));
-    register_keyparam_dissector(dissect_keyparam_keyops, NULL, g_variant_new_int64(4));
-    register_keyparam_dissector(dissect_keyparam_baseiv, NULL, g_variant_new_int64(5));
+    register_keyparam_dissector(dissect_keyparam_kty, NULL, g_variant_new_int64(1), "kty");
+    register_keyparam_dissector(dissect_header_kid, NULL, g_variant_new_int64(2), "kid");
+    register_keyparam_dissector(dissect_header_alg, NULL, g_variant_new_int64(3), "alg");
+    register_keyparam_dissector(dissect_keyparam_keyops, NULL, g_variant_new_int64(4), "key_ops");
+    register_keyparam_dissector(dissect_keyparam_baseiv, NULL, g_variant_new_int64(5), "Base IV");
     // kty-specific parameters
     {
         GVariant *kty = g_variant_new_int64(1);
-        register_keyparam_dissector(dissect_keyparam_crv, kty, g_variant_new_int64(-1));
-        register_keyparam_dissector(dissect_keyparam_xcoord, kty, g_variant_new_int64(-2));
-        register_keyparam_dissector(dissect_keyparam_dcoord, kty, g_variant_new_int64(-3));
+        register_keyparam_dissector(dissect_keyparam_crv, kty, g_variant_new_int64(-1), "crv");
+        register_keyparam_dissector(dissect_keyparam_xcoord, kty, g_variant_new_int64(-2), "x");
+        register_keyparam_dissector(dissect_keyparam_dcoord, kty, g_variant_new_int64(-3), "d");
     }
     {
         GVariant *kty = g_variant_new_int64(2);
-        register_keyparam_dissector(dissect_keyparam_crv, kty, g_variant_new_int64(-1));
-        register_keyparam_dissector(dissect_keyparam_xcoord, kty, g_variant_new_int64(-2));
-        register_keyparam_dissector(dissect_keyparam_ycoord, kty, g_variant_new_int64(-3));
-        register_keyparam_dissector(dissect_keyparam_dcoord, kty, g_variant_new_int64(-4));
+        register_keyparam_dissector(dissect_keyparam_crv, kty, g_variant_new_int64(-1), "crv");
+        register_keyparam_dissector(dissect_keyparam_xcoord, kty, g_variant_new_int64(-2), "x");
+        register_keyparam_dissector(dissect_keyparam_ycoord, kty, g_variant_new_int64(-3), "y");
+        register_keyparam_dissector(dissect_keyparam_dcoord, kty, g_variant_new_int64(-4), "d");
     }
     {
         GVariant *kty = g_variant_new_int64(4);
-        register_keyparam_dissector(dissect_keyparam_k, kty, g_variant_new_int64(-1));
+        register_keyparam_dissector(dissect_keyparam_k, kty, g_variant_new_int64(-1), "k");
     }
 
     cose_reinit();

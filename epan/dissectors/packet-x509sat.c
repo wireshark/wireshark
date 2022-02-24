@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-p1.h"
@@ -207,7 +208,7 @@ static int hf_x509sat_T_bitNamedDays_friday = -1;
 static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- End of included file: packet-x509sat-hf.c ---*/
-#line 33 "./asn1/x509sat/packet-x509sat-template.c"
+#line 34 "./asn1/x509sat/packet-x509sat-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -262,7 +263,7 @@ static gint ett_x509sat_T_between = -1;
 static gint ett_x509sat_LocaleContextSyntax = -1;
 
 /*--- End of included file: packet-x509sat-ett.c ---*/
-#line 36 "./asn1/x509sat/packet-x509sat-template.c"
+#line 37 "./asn1/x509sat/packet-x509sat-template.c"
 
 
 /*--- Included file: packet-x509sat-fn.c ---*/
@@ -1906,7 +1907,7 @@ static int dissect_GUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
-#line 38 "./asn1/x509sat/packet-x509sat-template.c"
+#line 39 "./asn1/x509sat/packet-x509sat-template.c"
 
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -2007,7 +2008,7 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
     { &hf_x509sat_SyntaxGeneralizedTime_PDU,
       { "GeneralizedTime", "x509sat.GeneralizedTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxUTCTime_PDU,
       { "UTCTime", "x509sat.UTCTime",
@@ -2039,15 +2040,15 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
     { &hf_x509sat_SyntaxTeletexString_PDU,
       { "TeletexString", "x509sat.TeletexString",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxT61String_PDU,
       { "T61String", "x509sat.T61String",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxVideotexString_PDU,
       { "VideotexString", "x509sat.VideotexString",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_SyntaxGraphicString_PDU,
       { "GraphicString", "x509sat.GraphicString",
@@ -2071,7 +2072,7 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
     { &hf_x509sat_teletexString,
       { "teletexString", "x509sat.teletexString",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_x509sat_printableString,
       { "printableString", "x509sat.printableString",
@@ -2279,11 +2280,11 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
     { &hf_x509sat_startTime,
       { "startTime", "x509sat.startTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_x509sat_endTime,
       { "endTime", "x509sat.endTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_x509sat_periodic,
       { "periodic", "x509sat.periodic",
@@ -2431,7 +2432,7 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
     { &hf_x509sat_at,
       { "at", "x509sat.at",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_x509sat_between,
       { "between", "x509sat.between_element",
@@ -2575,7 +2576,7 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509sat-hfarr.c ---*/
-#line 46 "./asn1/x509sat/packet-x509sat-template.c"
+#line 47 "./asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* List of subtrees */
@@ -2632,7 +2633,7 @@ void proto_register_x509sat(void) {
     &ett_x509sat_LocaleContextSyntax,
 
 /*--- End of included file: packet-x509sat-ettarr.c ---*/
-#line 51 "./asn1/x509sat/packet-x509sat-template.c"
+#line 52 "./asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* Register protocol */
@@ -2685,7 +2686,7 @@ void proto_register_x509sat(void) {
   register_ber_syntax_dissector("X121Address", proto_x509sat, dissect_X121Address_PDU);
 
 /*--- End of included file: packet-x509sat-syn-reg.c ---*/
-#line 61 "./asn1/x509sat/packet-x509sat-template.c"
+#line 62 "./asn1/x509sat/packet-x509sat-template.c"
 
 }
 
@@ -2878,7 +2879,7 @@ void proto_reg_handoff_x509sat(void) {
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
-#line 68 "./asn1/x509sat/packet-x509sat-template.c"
+#line 69 "./asn1/x509sat/packet-x509sat-template.c"
 
   /* OBJECT CLASSES */
 

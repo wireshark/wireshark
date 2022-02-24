@@ -16,6 +16,7 @@
 
 #include <QApplication>
 #include <QPalette>
+#include <QFont>
 
 // To do:
 // - Add ProtoTreeDelegate

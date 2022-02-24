@@ -4382,7 +4382,7 @@ static const char* wassp_match_strval(const WASSP_SUBTLV_DECODER_INFO_t *in_ptr,
 static void
 port_range_print(char *buf, guint32 temp)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, " %d - %d", (temp & 0xffff), (temp >> 16));
+	snprintf(buf, ITEM_LABEL_LENGTH, " %d - %d", (temp & 0xffff), (temp >> 16));
 }
 
 
@@ -4396,27 +4396,27 @@ static void topology_moder_print(char *buf, guint16 temp)
 	{
 	case 0xc000:
 		if (temp4)
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Routed At Controller  with vlanId = %d  (0x%x)", temp4, temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Routed At Controller  with vlanId = %d  (0x%x)", temp4, temp);
 		else
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Routed At Controller,  Untagged (0x%x)", temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Routed At Controller,  Untagged (0x%x)", temp);
 		break;
 	case 0x4000:
 		if (temp4)
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At AP with vlanId = %d  (0x%x)", temp4, temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At AP with vlanId = %d  (0x%x)", temp4, temp);
 		else
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At AP,  Untagged  (0x%x) ", temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At AP,  Untagged  (0x%x) ", temp);
 		break;
 	case 0x8000:
 		if (temp4)
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At Controller with vlanId = %d  (0x%x)  ", temp4, temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At Controller with vlanId = %d  (0x%x)  ", temp4, temp);
 		else
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At Controller,  Untagged  (0x%x) ", temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Bridge At Controller,  Untagged  (0x%x) ", temp);
 		break;
 	default:
 		if (temp4)
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Unknown mode with vlanId = %d (0x%x)", temp4, temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Unknown mode with vlanId = %d (0x%x)", temp4, temp);
 		else
-			g_snprintf(buf, ITEM_LABEL_LENGTH, " Unknown mode,  Untagged (0x%x) ", temp);
+			snprintf(buf, ITEM_LABEL_LENGTH, " Unknown mode,  Untagged (0x%x) ", temp);
 		break;
 	}
 }
@@ -4426,19 +4426,19 @@ static void topology_moder_print(char *buf, guint16 temp)
 static void
 maskbit_priority_print(char *buf, guint8 temp)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, " Type of Service Mask bits  : %d     Priority TxQ : %d", (temp >> 4) & 0xf, temp & 0xf);
+	snprintf(buf, ITEM_LABEL_LENGTH, " Type of Service Mask bits  : %d     Priority TxQ : %d", (temp >> 4) & 0xf, temp & 0xf);
 }
 
 static void
 cos_priority_txq_print(char *buf, guint8 temp)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, " Class of Service priority bits  : %d     Class of Service Transmit Queue : %d", (temp >> 4) & 0xf, temp & 0xf);
+	snprintf(buf, ITEM_LABEL_LENGTH, " Class of Service priority bits  : %d     Class of Service Transmit Queue : %d", (temp >> 4) & 0xf, temp & 0xf);
 }
 
 static void
 cos_rate_id_print(char *buf, guint8 temp)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, " Class of Service Inbound Rate Limit ID  : %d    Class of Service Outbound Rate Limit ID : %d", (temp >> 4) & 0xf, temp & 0xf);
+	snprintf(buf, ITEM_LABEL_LENGTH, " Class of Service Inbound Rate Limit ID  : %d    Class of Service Outbound Rate Limit ID : %d", (temp >> 4) & 0xf, temp & 0xf);
 }
 
 
@@ -5052,7 +5052,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 		case EID_DHCP_HOST_NAME:                      // 382
 		case EID_MU_ECP_PW:                           // 385
 		case EID_MU_ECP_TOKEN:                        // 386
-			proto_tree_add_item(tlv_tree, hf_wassp_tlv_value_string, tvb, offset + TLV_VALUE, length - 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tlv_tree, hf_wassp_tlv_value_string, tvb, offset + TLV_VALUE, length - 4, ENC_ASCII);
 			offset += length;
 			break;
 
@@ -5599,11 +5599,11 @@ static void
 mu_association_status(char *buf, guint8 value)
 {
 	if (value == 1)
-		g_snprintf(buf, ITEM_LABEL_LENGTH, " Success (%d)", value);
+		snprintf(buf, ITEM_LABEL_LENGTH, " Success (%d)", value);
 	else if (value == 2)
-		g_snprintf(buf, ITEM_LABEL_LENGTH, " Reject (%d)", value);
+		snprintf(buf, ITEM_LABEL_LENGTH, " Reject (%d)", value);
 	else
-		g_snprintf(buf, ITEM_LABEL_LENGTH, " Failure (%d)", value);
+		snprintf(buf, ITEM_LABEL_LENGTH, " Failure (%d)", value);
 }
 
 
@@ -6372,7 +6372,7 @@ void proto_register_wassp(void)
 			&hf_wassp_mu_action_field_value,
 			{
 				"SSID/Vlan ID", "wassp.data.mu_action_field_value",  FT_UINT16, BASE_DEC,  NULL,
-				0xfff, "SSID value or VlanID vlaue", HFILL
+				0x0fff, "SSID value or VlanID vlaue", HFILL
 			}
 		},
 		{

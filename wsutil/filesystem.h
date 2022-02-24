@@ -1,4 +1,4 @@
-/* filesystem.h
+/** @file
  * Filesystem utility definitions
  *
  * Wireshark - Network traffic analyzer
@@ -11,8 +11,7 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include "ws_symbol_export.h"
-#include "ws_attributes.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

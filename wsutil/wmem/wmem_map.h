@@ -1,4 +1,4 @@
-/* wmem_map.h
+/** @file
  * Definitions for the Wireshark Memory Manager Hash Map
  * Copyright 2014, Evan Huus <eapache@gmail.com>
  *

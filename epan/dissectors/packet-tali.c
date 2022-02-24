@@ -17,9 +17,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -46,25 +43,17 @@
 void proto_reg_handoff_tali(void);
 void proto_register_tali(void);
 
+static int proto_tali = -1;
+
+static int hf_tali_length_indicator = -1;
+static int hf_tali_opcode_indicator = -1;
+static int hf_tali_sync_indicator = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_tali = -1;
 static gint ett_tali_sync = -1;
 static gint ett_tali_opcode = -1;
 static gint ett_tali_msu_length = -1;
-
-static header_field_info *hfi_tali = NULL;
-
-#define TALI_HFI_INIT HFI_INIT(proto_tali)
-
-/* Initialize the protocol and registered fields */
-static header_field_info hfi_tali_sync_indicator TALI_HFI_INIT = {
-  "Sync", "tali.sync", FT_STRING, BASE_NONE, NULL, 0x00, "TALI SYNC", HFILL };
-
-static header_field_info hfi_tali_opcode_indicator TALI_HFI_INIT = {
-  "Opcode", "tali.opcode", FT_STRING, BASE_NONE, NULL, 0x00, "TALI Operation Code", HFILL };
-
-static header_field_info hfi_tali_length_indicator TALI_HFI_INIT = {
-  "Length", "tali.msu_length", FT_UINT16, BASE_DEC, NULL, 0x00, "TALI MSU Length", HFILL };
 
 static dissector_table_t tali_dissector_table;
 
@@ -103,11 +92,11 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
   if (tree) {
     /* create display subtree for the protocol */
-    tali_item = proto_tree_add_item(tree, hfi_tali, tvb, 0, TALI_HEADER_LENGTH, ENC_NA);
+    tali_item = proto_tree_add_item(tree, proto_tali, tvb, 0, TALI_HEADER_LENGTH, ENC_NA);
     tali_tree = proto_item_add_subtree(tali_item, ett_tali);
-    proto_tree_add_string(tali_tree, &hfi_tali_sync_indicator,   tvb, 0, TALI_SYNC_LENGTH, TALI_SYNC);
-    proto_tree_add_string(tali_tree, &hfi_tali_opcode_indicator, tvb, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH, opcode);
-    proto_tree_add_uint(tali_tree, &hfi_tali_length_indicator, tvb, TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH, TALI_MSU_LENGTH, length);
+    proto_tree_add_string(tali_tree, hf_tali_sync_indicator,   tvb, 0, TALI_SYNC_LENGTH, TALI_SYNC);
+    proto_tree_add_string(tali_tree, hf_tali_opcode_indicator, tvb, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH, opcode);
+    proto_tree_add_uint(tali_tree, hf_tali_length_indicator, tvb, TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH, TALI_MSU_LENGTH, length);
   }
 
   if (length > 0) {
@@ -173,13 +162,23 @@ dissect_tali_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 void
 proto_register_tali(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-  static header_field_info *hfi[] = {
-    &hfi_tali_sync_indicator,
-    &hfi_tali_opcode_indicator,
-    &hfi_tali_length_indicator
+  static hf_register_info hf[] = {
+    { &hf_tali_sync_indicator,
+      { "Sync", "tali.sync",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "TALI SYNC", HFILL }
+    },
+    { &hf_tali_opcode_indicator,
+      { "Opcode", "tali.opcode",
+        FT_STRING, BASE_NONE, NULL, 0x00,
+        "TALI Operation Code", HFILL }
+    },
+    { &hf_tali_length_indicator,
+      { "Length", "tali.msu_length",
+        FT_UINT16, BASE_DEC, NULL, 0x00,
+        "TALI MSU Length", HFILL }
+    },
   };
-#endif
 
   /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -190,17 +189,12 @@ proto_register_tali(void)
   };
   module_t *tali_module;
 
-  int proto_tali;
-
   /* Register the protocol name and description */
   proto_tali = proto_register_protocol("Transport Adapter Layer Interface v1.0, RFC 3094", "TALI", "tali");
-  hfi_tali   = proto_registrar_get_nth(proto_tali);
+  proto_register_field_array(proto_tali, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("tali", dissect_tali, proto_tali);
-
-  /* Required function calls to register the header fields and subtrees used */
-  proto_register_fields(proto_tali, hfi, array_length(hfi));
-  proto_register_subtree_array(ett, array_length(ett));
 
   tali_dissector_table = register_dissector_table("tali.opcode", "Tali OPCODE", proto_tali, FT_STRING, BASE_NONE);
 
@@ -215,7 +209,7 @@ proto_register_tali(void)
 void
 proto_reg_handoff_tali(void)
 {
-  heur_dissector_add("tcp", dissect_tali_heur, "Tali over TCP", "tali_tcp", hfi_tali->id, HEURISTIC_ENABLE);
+  heur_dissector_add("tcp", dissect_tali_heur, "Tali over TCP", "tali_tcp", proto_tali, HEURISTIC_ENABLE);
 }
 
 /*

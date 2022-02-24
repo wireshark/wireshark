@@ -7,28 +7,14 @@
  */
 
 #include "config.h"
+#include "ftypes-int.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
-#ifndef __USE_XOPEN
-#  define __USE_XOPEN
-#endif
-
-#include <time.h>
-
-#include <ftypes-int.h>
 #include <epan/to_str.h>
-
-#ifndef HAVE_STRPTIME
-#include "wsutil/strptime.h"
-#endif
+#include <wsutil/time_util.h>
 
 
 static int
@@ -41,11 +27,13 @@ cmp_order(const fvalue_t *a, const fvalue_t *b)
  * Get a nanoseconds value, starting at "p".
  *
  * Returns true on success, false on failure.
+ *
+ * If successful endptr points to the first invalid character.
  */
 static gboolean
-get_nsecs(const char *startp, int *nsecs)
+get_nsecs(const char *startp, int *nsecs, const char **endptr)
 {
-	int ndigits;
+	int ndigits = 0;
 	int scale;
 	const char *p;
 	int val;
@@ -53,9 +41,10 @@ get_nsecs(const char *startp, int *nsecs)
 	int i;
 
 	/*
-	 * How many characters are in the string?
+	 * How many digits are in the string?
 	 */
-	ndigits = (int)strlen(startp);
+	for (p = startp; g_ascii_isdigit(*p); p++)
+		ndigits++;
 
 	/*
 	 * If there are N characters in the string, the last of the
@@ -67,7 +56,6 @@ get_nsecs(const char *startp, int *nsecs)
 	/*
 	 * Start at the last character, and work backwards.
 	 */
-	p = startp + ndigits;
 	val = 0;
 	while (p != startp) {
 		p--;
@@ -97,6 +85,8 @@ get_nsecs(const char *startp, int *nsecs)
 		scale++;
 	}
 	*nsecs = val;
+	if (endptr)
+		*endptr = startp + ndigits;
 	return TRUE;
 }
 
@@ -144,7 +134,7 @@ relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_v
 		/*
 		 * Get the nanoseconds value.
 		 */
-		if (!get_nsecs(curptr, &fv->value.time.nsecs))
+		if (!get_nsecs(curptr, &fv->value.time.nsecs, NULL))
 			goto fail;
 	} else {
 		/*
@@ -161,7 +151,7 @@ relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_v
 
 fail:
 	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid time.", s);
+		*err_msg = ws_strdup_printf("\"%s\" is not a valid time.", s);
 	return FALSE;
 }
 
@@ -183,20 +173,32 @@ parse_month_name(const char *s, int *tm_mon)
 	return FALSE;
 }
 
-/* Parses an absolute time value from a string. The string cannot have
- * a time zone suffix and is always interpreted in local time.
+/*
+ * Parses an absolute time value from a string. The string can have
+ * a UTC time zone suffix. In that case it is interpreted in UTC. Otherwise
+ * it is interpreted in local time.
  *
  * OS-dependent; e.g., on 32 bit versions of Windows when compiled to use
  * _mktime32 treats dates before January 1, 1970 as invalid.
  * (https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/mktime-mktime32-mktime64)
  */
+
+#define EXAMPLE "Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\""
+
 static gboolean
-absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
+absolute_val_from_string(fvalue_t *fv, const char *s, char **err_msg_ptr)
 {
 	struct tm tm;
-	char    *curptr = NULL;
+	const char *curptr = NULL;
+	const char *endptr;
 	gboolean has_seconds = TRUE;
+	char *err_msg = NULL;
 
+	/* Try ISO 8601 format first. */
+	if (iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME) == strlen(s))
+		return TRUE;
+
+	/* Try other legacy formats. */
 	memset(&tm, 0, sizeof(tm));
 
 	if (strlen(s) < sizeof("2000-1-1") - 1)
@@ -204,44 +206,75 @@ absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 
 	/* Do not use '%b' to parse the month name, it is locale-specific. */
 	if (s[3] == ' ' && parse_month_name(s, &tm.tm_mon))
-		curptr = strptime(s + 4, "%d, %Y %H:%M:%S", &tm);
+		curptr = ws_strptime(s + 4, "%d, %Y %H:%M:%S", &tm);
 
-	if (curptr == NULL)
-		curptr = strptime(s,"%Y-%m-%dT%H:%M:%S", &tm);
-	if (curptr == NULL)
-		curptr = strptime(s,"%Y-%m-%d %H:%M:%S", &tm);
 	if (curptr == NULL) {
 		has_seconds = FALSE;
-		curptr = strptime(s,"%Y-%m-%d %H:%M", &tm);
+		curptr = ws_strptime(s,"%Y-%m-%d %H:%M", &tm);
 	}
 	if (curptr == NULL)
-		curptr = strptime(s,"%Y-%m-%d %H", &tm);
+		curptr = ws_strptime(s,"%Y-%m-%d %H", &tm);
 	if (curptr == NULL)
-		curptr = strptime(s,"%Y-%m-%d", &tm);
+		curptr = ws_strptime(s,"%Y-%m-%d", &tm);
 	if (curptr == NULL)
 		goto fail;
 	tm.tm_isdst = -1;	/* let the computer figure out if it's DST */
-	fv->value.time.secs = mktime(&tm);
-	if (*curptr != '\0') {
-		/*
-		 * Something came after the seconds field; it must be
-		 * a nanoseconds field.
-		 */
-		if (*curptr != '.' || !has_seconds)
-			goto fail;	/* it's not */
+
+	if (*curptr == '.') {
+		/* Nanoseconds */
+		if (!has_seconds) {
+			err_msg = ws_strdup("Subsecond precision requires a seconds field.");
+			goto fail;	/* Requires seconds */
+		}
 		curptr++;	/* skip the "." */
-		if (!g_ascii_isdigit((unsigned char)*curptr))
-			goto fail;	/* not a digit, so not valid */
-		if (!get_nsecs(curptr, &fv->value.time.nsecs))
+		if (!g_ascii_isdigit((unsigned char)*curptr)) {
+			/* not a digit, so not valid */
+			err_msg = ws_strdup("Subseconds value is not a number.");
 			goto fail;
-	} else {
+		}
+		if (!get_nsecs(curptr, &fv->value.time.nsecs, &endptr)) {
+			err_msg = ws_strdup("Subseconds value is invalid.");
+			goto fail;
+		}
+		curptr = endptr;
+	}
+	else {
 		/*
 		 * No nanoseconds value - it's 0.
 		 */
 		fv->value.time.nsecs = 0;
 	}
 
-	if (fv->value.time.secs == -1) {
+	/* Skip whitespace */
+	while (g_ascii_isspace(*curptr)) {
+		curptr++;
+	}
+
+	/* Do we have a Timezone? */
+	if (strcmp(curptr, "UTC") == 0) {
+		curptr += strlen("UTC");
+		if (*curptr == '\0') {
+			/* It's UTC */
+			fv->value.time.secs = mktime_utc(&tm);
+			goto done;
+		}
+		else {
+			err_msg = ws_strdup("Unexpected data after time value.");
+			goto fail;
+		}
+	}
+	if (*curptr == '\0') {
+		/* Local time */
+		fv->value.time.secs = mktime(&tm);
+		goto done;
+	}
+	else {
+		err_msg = ws_strdup("Unexpected data after time value.");
+		goto fail;
+	}
+
+done:
+	if (fv->value.time.secs == (time_t)-1) {
 		/*
 		 * XXX - should we supply an error message that mentions
 		 * that the time specified might be syntactically valid
@@ -252,15 +285,25 @@ absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 		 * backward, so that there are two different times that
 		 * it could be)?
 		 */
+		err_msg = ws_strdup("\"%s\" cannot be converted to a valid calendar time.");
 		goto fail;
 	}
 
 	return TRUE;
 
 fail:
-	if (err_msg != NULL)
-		*err_msg = g_strdup_printf("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\"",
-		    s);
+	if (err_msg_ptr != NULL) {
+		if (err_msg == NULL) {
+			*err_msg_ptr = ws_strdup_printf("\"%s\" is not a valid absolute time. " EXAMPLE, s);
+		}
+		else {
+			*err_msg_ptr = err_msg;
+		}
+	}
+	else {
+		g_free(err_msg);
+	}
+
 	return FALSE;
 }
 
@@ -290,22 +333,62 @@ value_get(fvalue_t *fv)
 }
 
 static char *
+abs_time_to_ftrepr_dfilter(wmem_allocator_t *scope,
+			const nstime_t *nstime, bool use_utc)
+{
+	struct tm *tm;
+	char datetime_format[128];
+	int nsecs;
+	char nsecs_buf[32];
+
+	if (use_utc) {
+		tm = gmtime(&nstime->secs);
+		if (tm != NULL)
+			strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%sZ\"", tm);
+		else
+			snprintf(datetime_format, sizeof(datetime_format), "Not representable");
+	}
+	else {
+		tm = localtime(&nstime->secs);
+		/* Displaying the timezone could be made into a preference. */
+		if (tm != NULL)
+			strftime(datetime_format, sizeof(datetime_format), "\"%Y-%m-%d %H:%M:%S%%s%z\"", tm);
+		else
+			snprintf(datetime_format, sizeof(datetime_format), "Not representable");
+	}
+
+	if (nstime->nsecs == 0)
+		return wmem_strdup_printf(scope, datetime_format, "");
+
+	nsecs = nstime->nsecs;
+	while (nsecs > 0 && (nsecs % 10) == 0) {
+		nsecs /= 10;
+	}
+	snprintf(nsecs_buf, sizeof(nsecs_buf), ".%d", nsecs);
+
+	return wmem_strdup_printf(scope, datetime_format, nsecs_buf);
+}
+
+static char *
 absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display)
 {
-	gchar *rep;
-	char *buf;
+	char *rep;
+
+	if (field_display == BASE_NONE)
+		field_display = ABSOLUTE_TIME_LOCAL;
 
 	switch (rtype) {
 		case FTREPR_DISPLAY:
-			rep = abs_time_to_str(scope, &fv->value.time,
-					(absolute_time_display_e)field_display, TRUE);
+			rep = abs_time_to_str_ex(scope, &fv->value.time,
+					field_display, ABS_TIME_TO_STR_SHOW_ZONE);
 			break;
 
 		case FTREPR_DFILTER:
-			/* absolute_val_from_string only accepts local time,
-			 * with no time zone, so match that. */
-			rep = abs_time_to_str(scope, &fv->value.time,
-					ABSOLUTE_TIME_LOCAL, FALSE);
+			/* Only ABSOLUTE_TIME_LOCAL and ABSOLUTE_TIME_UTC
+			 * are supported. Normalize the field_display value. */
+			if (field_display != ABSOLUTE_TIME_LOCAL)
+				field_display = ABSOLUTE_TIME_UTC;
+			rep = abs_time_to_ftrepr_dfilter(scope, &fv->value.time, field_display != ABSOLUTE_TIME_LOCAL);
 			break;
 
 		default:
@@ -313,14 +396,7 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 			break;
 	}
 
-	if (rtype == FTREPR_DFILTER) {
-		buf = wmem_strdup_printf(scope, "\"%s\"", rep);
-		wmem_free(scope, rep);
-	}
-	else {
-		buf = rep;
-	}
-	return buf;
+	return rep;
 }
 
 static char *
@@ -342,6 +418,7 @@ ftype_register_time(void)
 		NULL,				/* free_value */
 		absolute_val_from_unparsed,	/* val_from_unparsed */
 		absolute_val_from_string,	/* val_from_string */
+		NULL,				/* val_from_charconst */
 		absolute_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */
@@ -364,6 +441,7 @@ ftype_register_time(void)
 		NULL,				/* free_value */
 		relative_val_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		relative_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_time = time_fvalue_set },	/* union set_value */

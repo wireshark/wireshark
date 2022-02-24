@@ -105,31 +105,31 @@ void toolbar_cb(gpointer toolbar_item, gpointer item_data, gpointer user_data _U
         pluginifdemo_toolbar_log("Button pressed at toolbar");
         guint32 fnum = GPOINTER_TO_UINT(plugin_if_get_frame_data(get_frame_data_cb, NULL));
         if (fnum) {
-            message = g_strdup_printf("Current frame is: %u", fnum);
+            message = ws_strdup_printf("Current frame is: %u", fnum);
             pluginifdemo_toolbar_log(message);
         }
         const gchar* fnm = (const gchar*)plugin_if_get_capture_file(get_capture_file_cb, NULL);
         if (fnm) {
-            message = g_strdup_printf("Capture file name is: %s", fnm);
+            message = ws_strdup_printf("Capture file name is: %s", fnm);
             pluginifdemo_toolbar_log(message);
         }
     }
     else if ( entry->item_type == EXT_TOOLBAR_BOOLEAN )
     {
         gboolean data = *((gboolean *)item_data);
-        message = g_strdup_printf( "Checkbox selected value: %d", (int) (data) );
+        message = ws_strdup_printf( "Checkbox selected value: %d", (int) (data) );
         pluginifdemo_toolbar_log(message);
     }
     else if ( entry->item_type == EXT_TOOLBAR_STRING )
     {
         gchar * data = (gchar *)item_data;
-        message = g_strdup_printf( "String entered in toolbar: %s", data );
+        message = ws_strdup_printf( "String entered in toolbar: %s", data );
         pluginifdemo_toolbar_log(message);
     }
     else if ( entry->item_type == EXT_TOOLBAR_SELECTOR )
     {
         ext_toolbar_value_t * data = (ext_toolbar_value_t *)item_data;
-        message = g_strdup_printf( "Value from toolbar: %s", data->value );
+        message = ws_strdup_printf( "Value from toolbar: %s", data->value );
         pluginifdemo_toolbar_log(message);
     }
 

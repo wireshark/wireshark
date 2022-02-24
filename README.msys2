@@ -37,7 +37,7 @@ From this point on it's a typical ninja build:
 
 3. Run cmake:
 
-     $ cmake -DENABLE_CCACHE=Yes -DDISABLE_WERROR=Yes ..
+     $ cmake -DENABLE_CCACHE=Yes -DENABLE_WERROR=No ..
 
 4. Build by running "ninja" in the build directory:
 

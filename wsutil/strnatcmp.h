@@ -1,4 +1,4 @@
-/* strnatcmp.h
+/** @file
  *
  * Original code downloaded from: http://sourcefrog.net/projects/natsort/
 

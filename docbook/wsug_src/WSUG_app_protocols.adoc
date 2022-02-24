@@ -1,6 +1,6 @@
 // WSUG Appendix Protocols
 
-[[AppProtocols]]
+[#AppProtocols]
 
 [appendix]
 == Protocols and Protocol Fields

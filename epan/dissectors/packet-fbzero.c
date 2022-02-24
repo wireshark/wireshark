@@ -258,7 +258,7 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
                 if(tag_offset_valid){
                     while(offset_end - tag_offset >= 4){
                         proto_tree *ti_aead;
-                        ti_aead = proto_tree_add_item(tag_tree, hf_fb_zero_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                        ti_aead = proto_tree_add_item(tag_tree, hf_fb_zero_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
                         proto_item_append_text(ti_aead, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
                         proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
                         tag_offset += 4;
@@ -328,7 +328,7 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
                 if(tag_offset_valid){
                     while(offset_end - tag_offset >= 4){
                         proto_tree *ti_kexs;
-                        ti_kexs = proto_tree_add_item(tag_tree, hf_fb_zero_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                        ti_kexs = proto_tree_add_item(tag_tree, hf_fb_zero_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII);
                         proto_item_append_text(ti_kexs, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
                         proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
                         tag_offset += 4;
@@ -455,7 +455,7 @@ dissect_fb_zero_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(puflags & PUFLAGS_VRSN){
         version = tvb_get_ntoh24(tvb, offset);
         if(version == VERSION_QTV){
-            proto_tree_add_item(fb_zero_tree, hf_fb_zero_version, tvb, offset, 3, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(fb_zero_tree, hf_fb_zero_version, tvb, offset, 3, ENC_ASCII);
             offset += 3;
         }
     }

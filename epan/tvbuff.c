@@ -41,17 +41,7 @@
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 #include "exceptions.h"
 
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
 #include <time.h>
-/*#ifndef HAVE_STRPTIME*/
-#ifndef strptime
-#include "wsutil/strptime.h"
-#endif
- /*#endif*/
 
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
@@ -938,11 +928,11 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 	DISSECTOR_ASSERT(length <= 0x7FFFFFFF);
 	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
 
-	if (tvb->real_data) {
+	if (target && tvb->real_data) {
 		return memcpy(target, tvb->real_data + abs_offset, abs_length);
 	}
 
-	if (tvb->ops->tvb_memcpy)
+	if (target && tvb->ops->tvb_memcpy)
 		return tvb->ops->tvb_memcpy(tvb, target, abs_offset, abs_length);
 
 	/*
@@ -984,6 +974,9 @@ tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, size_t len
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	check_offset_length(tvb, offset, (gint) length, &abs_offset, &abs_length);
+
+	if (abs_length == 0)
+		return NULL;
 
 	duped = wmem_alloc(scope, abs_length);
 	return tvb_memcpy(tvb, duped, abs_offset, abs_length);
@@ -1798,194 +1791,140 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 	begin = (gchar*) tvb_get_raw_string(NULL, tvb, offset, length);
 	ptr = begin;
 
-	memset(&tm, 0, sizeof(tm));
-	tm.tm_isdst = -1;
-	ns->secs    = 0;
-	ns->nsecs   = 0;
-
 	while (*ptr == ' ') ptr++;
 
 	if (*ptr) {
-		/* note: sscanf is known to be inconsistent across platforms with respect
-		   to whether a %n is counted as a return value or not, so we have to use
-		   '>=' a lot */
 		if ((encoding & ENC_ISO_8601_DATE_TIME) == ENC_ISO_8601_DATE_TIME) {
-			/* TODO: using sscanf this many times is probably slow; might want
-			   to parse it by hand in the future */
-			/* 2014-04-07T05:41:56+00:00 */
-			if (sscanf(ptr, "%d-%d-%d%*c%d:%d:%d%c%d:%d%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &tm.tm_sec,
-			    &sign,
-			    &off_hr,
-			    &off_min,
-			    &num_chars) >= 9)
-			{
-				matched = TRUE;
+			if ((num_chars = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME))) {
+				errno = 0;
+				end = ptr + num_chars;
 			}
-			/* no seconds is ok */
-			else if (sscanf(ptr, "%d-%d-%d%*c%d:%d%c%d:%d%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &sign,
-			    &off_hr,
-			    &off_min,
-			    &num_chars) >= 8)
-			{
-				matched = TRUE;
+		} else if ((encoding & ENC_ISO_8601_DATE_TIME_BASIC) == ENC_ISO_8601_DATE_TIME_BASIC) {
+			if ((num_chars = iso8601_to_nstime(ns, ptr, ISO8601_DATETIME_BASIC))) {
+				errno = 0;
+				end = ptr + num_chars;
 			}
-			/* 2007-04-05T14:30:56Z */
-			else if (sscanf(ptr, "%d-%d-%d%*c%d:%d:%dZ%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &tm.tm_sec,
-			    &num_chars) >= 6)
-			{
-				matched = TRUE;
-				off_hr = 0;
-				off_min = 0;
-			}
-			/* 2007-04-05T14:30Z no seconds is ok */
-			else if (sscanf(ptr, "%d-%d-%d%*c%d:%dZ%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &num_chars) >= 5)
-			{
-				matched = TRUE;
-				off_hr = 0;
-				off_min = 0;
-			}
+		} else {
+			memset(&tm, 0, sizeof(tm));
+			tm.tm_isdst = -1;
+			ns->secs    = 0;
+			ns->nsecs   = 0;
 
-			if (matched) {
-				errno = 0;
-				end = ptr + num_chars;
-				tm.tm_mon--;
-				if (tm.tm_year > 1900) tm.tm_year -= 1900;
-				if (sign == '-') off_hr = -off_hr;
-			}
-		}
-		else if (encoding & ENC_ISO_8601_DATE) {
-			/* 2014-04-07 */
-			if (sscanf(ptr, "%d-%d-%d%n",
-			    &tm.tm_year,
-			    &tm.tm_mon,
-			    &tm.tm_mday,
-			    &num_chars) >= 3)
-			{
-				errno = 0;
-				end = ptr + num_chars;
-				tm.tm_mon--;
-				if (tm.tm_year > 1900) tm.tm_year -= 1900;
-			}
-		}
-		else if (encoding & ENC_ISO_8601_TIME) {
-			/* 2014-04-07 */
-			if (sscanf(ptr, "%d:%d:%d%n",
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &tm.tm_sec,
-			    &num_chars) >= 2)
-			{
-				/* what should we do about day/month/year? */
-				/* setting it to "now" for now */
-				time_t time_now = time(NULL);
-				struct tm *tm_now = gmtime(&time_now);
-				if (tm_now != NULL) {
-					tm.tm_year = tm_now->tm_year;
-					tm.tm_mon  = tm_now->tm_mon;
-					tm.tm_mday = tm_now->tm_mday;
-				} else {
-					/* The second before the Epoch */
-					tm.tm_year = 69;
-					tm.tm_mon = 12;
-					tm.tm_mday = 31;
+			/* note: sscanf is known to be inconsistent across platforms with respect
+			   to whether a %n is counted as a return value or not, so we have to use
+			   '>=' a lot */
+			if (encoding & ENC_ISO_8601_DATE) {
+				/* 2014-04-07 */
+				if (sscanf(ptr, "%d-%d-%d%n",
+				    &tm.tm_year,
+				    &tm.tm_mon,
+				    &tm.tm_mday,
+				    &num_chars) >= 3)
+				{
+					errno = 0;
+					end = ptr + num_chars;
+					tm.tm_mon--;
+					if (tm.tm_year > 1900) tm.tm_year -= 1900;
 				}
-				end = ptr + num_chars;
-				errno = 0;
-
 			}
-		}
-		else if (encoding & ENC_RFC_822 || encoding & ENC_RFC_1123) {
-			/*
-			 * Match [dow,] day month year hh:mm[:ss] with two-digit
-			 * years (RFC 822) or four-digit years (RFC 1123). Skip
-			 * the day of week since it is locale dependent and does
-			 * not affect the resulting date anyway.
-			 */
-			if (g_ascii_isalpha(ptr[0]) && g_ascii_isalpha(ptr[1]) && g_ascii_isalpha(ptr[2]) && ptr[3] == ',')
-				ptr += 4;   /* Skip day of week. */
-			char month_name[4] = { 0 };
-			if (sscanf(ptr, "%d %3s %d %d:%d%n:%d%n",
-			    &tm.tm_mday,
-			    month_name,
-			    &tm.tm_year,
-			    &tm.tm_hour,
-			    &tm.tm_min,
-			    &num_chars,
-			    &tm.tm_sec,
-			    &num_chars) >= 5)
-			{
-				if (encoding & ENC_RFC_822) {
-					/* Match strptime behavior: years 00-68
-					 * are in the 21th century. */
-					if (tm.tm_year <= 68) {
-						tm.tm_year += 100;
-						matched = TRUE;
-					} else if (tm.tm_year <= 99) {
+			else if (encoding & ENC_ISO_8601_TIME) {
+				/* 2014-04-07 */
+				if (sscanf(ptr, "%d:%d:%d%n",
+				    &tm.tm_hour,
+				    &tm.tm_min,
+				    &tm.tm_sec,
+				    &num_chars) >= 2)
+				{
+					/* what should we do about day/month/year? */
+					/* setting it to "now" for now */
+					time_t time_now = time(NULL);
+					struct tm *tm_now = gmtime(&time_now);
+					if (tm_now != NULL) {
+						tm.tm_year = tm_now->tm_year;
+						tm.tm_mon  = tm_now->tm_mon;
+						tm.tm_mday = tm_now->tm_mday;
+					} else {
+						/* The second before the Epoch */
+						tm.tm_year = 69;
+						tm.tm_mon = 12;
+						tm.tm_mday = 31;
+					}
+					end = ptr + num_chars;
+					errno = 0;
+
+				}
+			}
+			else if (encoding & ENC_RFC_822 || encoding & ENC_RFC_1123) {
+				/*
+				 * Match [dow,] day month year hh:mm[:ss] with two-digit
+				 * years (RFC 822) or four-digit years (RFC 1123). Skip
+				 * the day of week since it is locale dependent and does
+				 * not affect the resulting date anyway.
+				 */
+				if (g_ascii_isalpha(ptr[0]) && g_ascii_isalpha(ptr[1]) && g_ascii_isalpha(ptr[2]) && ptr[3] == ',')
+					ptr += 4;   /* Skip day of week. */
+				char month_name[4] = { 0 };
+				if (sscanf(ptr, "%d %3s %d %d:%d%n:%d%n",
+				    &tm.tm_mday,
+				    month_name,
+				    &tm.tm_year,
+				    &tm.tm_hour,
+				    &tm.tm_min,
+				    &num_chars,
+				    &tm.tm_sec,
+				    &num_chars) >= 5)
+				{
+					if (encoding & ENC_RFC_822) {
+						/* Match strptime behavior: years 00-68
+						 * are in the 21th century. */
+						if (tm.tm_year <= 68) {
+							tm.tm_year += 100;
+							matched = TRUE;
+						} else if (tm.tm_year <= 99) {
+							matched = TRUE;
+						}
+					} else if (encoding & ENC_RFC_1123) {
+						tm.tm_year -= 1900;
 						matched = TRUE;
 					}
-				} else if (encoding & ENC_RFC_1123) {
-					tm.tm_year -= 1900;
-					matched = TRUE;
+					if (!parse_month_name(month_name, &tm.tm_mon))
+						matched = FALSE;
+					if (matched)
+						end = ptr + num_chars;
 				}
-				if (!parse_month_name(month_name, &tm.tm_mon))
-					matched = FALSE;
-				if (matched)
-					end = ptr + num_chars;
+				if (end) {
+					errno = 0;
+					if (*end == ' ') end++;
+					if (g_ascii_strncasecmp(end, "UT", 2) == 0)
+					{
+						end += 2;
+					}
+					else if (g_ascii_strncasecmp(end, "GMT", 3) == 0)
+					{
+						end += 3;
+					}
+					else if (sscanf(end, "%c%2d%2d%n",
+					    &sign,
+					    &off_hr,
+					    &off_min,
+					    &num_chars) < 3)
+					{
+						errno = ERANGE;
+					}
+					if (sign == '-') off_hr = -off_hr;
+				}
 			}
-			if (end) {
-				errno = 0;
-				if (*end == ' ') end++;
-				if (g_ascii_strncasecmp(end, "UT", 2) == 0)
-				{
-					end += 2;
-				}
-				else if (g_ascii_strncasecmp(end, "GMT", 3) == 0)
-				{
-					end += 3;
-				}
-				else if (sscanf(end, "%c%2d%2d%n",
-				    &sign,
-				    &off_hr,
-				    &off_min,
-				    &num_chars) < 3)
-				{
-					errno = ERANGE;
-				}
-				if (sign == '-') off_hr = -off_hr;
+			if (errno == 0) {
+				ns->secs = mktime_utc (&tm);
+				if (off_hr > 0)
+					ns->secs += (off_hr * 3600) + (off_min * 60);
+				else if (off_hr < 0)
+					ns->secs -= ((-off_hr) * 3600) + (off_min * 60);
 			}
 		}
 	}
 
 	if (errno == 0) {
-		ns->secs = mktime_utc (&tm);
-		if (off_hr > 0)
-			ns->secs += (off_hr * 3600) + (off_min * 60);
-		else if (off_hr < 0)
-			ns->secs -= ((-off_hr) * 3600) + (off_min * 60);
 		retval = ns;
 		if (endoff)
 		    *endoff = (gint)(offset + (end - begin));
@@ -2292,6 +2231,8 @@ tvb_find_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 nee
 	const guint8 *result;
 
 	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr() */
+	if (!ptr)
+		return -1;
 
 	result = (const guint8 *) memchr(ptr, needle, limit);
 	if (!result)
@@ -2394,6 +2335,8 @@ tvb_ws_mempbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, cons
 	const guint8 *result;
 
 	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr */
+	if (!ptr)
+		return -1;
 
 	result = ws_mempbrk_exec(ptr, limit, pattern, found_needle);
 	if (!result)
@@ -3766,7 +3709,7 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
  * Returns length of string (not including terminating NUL), or -1 if the string was
  * truncated in the buffer due to not having reached the terminating NUL.
- * In this way, it acts like g_snprintf().
+ * In this way, it acts like snprintf().
  *
  * bufsize MUST be greater than 0.
  *
@@ -3852,7 +3795,7 @@ _tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
  * Returns length of string (not including terminating NUL), or -1 if the string was
  * truncated in the buffer due to not having reached the terminating NUL.
- * In this way, it acts like g_snprintf().
+ * In this way, it acts like snprintf().
  *
  * When processing a packet where the remaining number of bytes is less
  * than bufsize, an exception is not thrown if the end of the packet
@@ -3928,14 +3871,31 @@ tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset, char *buffer, size
 gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
+	guint abs_offset, abs_length = length;
 
-	for (int i = 0; i < length; i++, buf++)
+	if (length == -1) {
+		/* tvb_get_ptr has already checked for exceptions. */
+		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
+	}
+	for (guint i = 0; i < abs_length; i++, buf++)
 		if (!g_ascii_isprint(*buf))
 			return FALSE;
 
 	return TRUE;
 }
 
+gboolean tvb_utf_8_isprint(tvbuff_t *tvb, const gint offset, const gint length)
+{
+	const guint8* buf = tvb_get_ptr(tvb, offset, length);
+	guint abs_offset, abs_length = length;
+
+	if (length == -1) {
+		/* tvb_get_ptr has already checked for exceptions. */
+		compute_offset_and_remaining(tvb, offset, &abs_offset, &abs_length);
+	}
+
+	return isprint_utf8_string(buf, abs_length);
+}
 
 static ws_mempbrk_pattern pbrk_crlf;
 /*
@@ -4375,6 +4335,7 @@ int tvb_get_token_len(tvbuff_t *tvb, const gint offset, int len, gint *next_offs
 gchar *
 tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint len, const gchar punct)
 {
+	DISSECTOR_ASSERT(len > 0);
 	return bytes_to_str_punct(scope, ensure_contiguous(tvb, offset, len), len, punct);
 }
 
@@ -4517,7 +4478,7 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, const gint haystack_o
 	check_offset_length(haystack_tvb, haystack_offset, -1,
 			&haystack_abs_offset, &haystack_abs_length);
 
-	location = epan_memmem(haystack_data + haystack_abs_offset, haystack_abs_length,
+	location = ws_memmem(haystack_data + haystack_abs_offset, haystack_abs_length,
 			needle_data, needle_len);
 
 	if (location) {
@@ -4550,7 +4511,9 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 {
 	*value = 0;
 
-	if (encoding & ENC_VARINT_PROTOBUF) {
+	switch (encoding & ENC_VARINT_MASK) {
+	case ENC_VARINT_PROTOBUF:
+	{
 		guint i;
 		guint64 b; /* current byte */
 
@@ -4563,7 +4526,11 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 				return i + 1;
 			}
 		}
-	} else if (encoding & ENC_VARINT_ZIGZAG) {
+		break;
+	}
+
+	case ENC_VARINT_ZIGZAG:
+	{
 		guint i;
 		guint64 b; /* current byte */
 
@@ -4577,9 +4544,11 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 				return i + 1;
 			}
 		}
+		break;
 	}
-	else if (encoding & ENC_VARINT_QUIC) {
 
+	case ENC_VARINT_QUIC:
+	{
 		/* calculate variable length */
 		*value = tvb_get_guint8(tvb, offset);
 		switch((*value) >> 6) {
@@ -4599,7 +4568,11 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 			ws_assert_not_reached();
 			break;
 		}
+		break;
+	}
 
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
 
 	return 0; /* 10 bytes scanned, but no bytes' msb is zero */

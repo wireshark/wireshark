@@ -966,7 +966,7 @@ proto_register_usb_com(void)
             { "Network_Connection", "usbcom.descriptor.acm.capabilities.network_connection", FT_BOOLEAN, 8,
               TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }},
         { &hf_usb_com_descriptor_acm_capabilities_send_break,
-            { "Send_Break", "usbcom.descriptor.acm.capabilities.network_connection", FT_BOOLEAN, 8,
+            { "Send_Break", "usbcom.descriptor.acm.capabilities.send_break", FT_BOOLEAN, 8,
               TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
         { &hf_usb_com_descriptor_acm_capabilities_line_and_state,
             { "Line Requests and State Notification", "usbcom.descriptor.acm.capabilities.line_and_state", FT_BOOLEAN, 8,

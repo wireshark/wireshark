@@ -1,4 +1,4 @@
-/* vwr.h
+/** @file
  *
  * Wiretap Library
  * Copyright (c) 1998-2010 by Tom Alexander <talexander@ixiacom.com>

@@ -1,4 +1,5 @@
-/* range_syntax_lineedit.h
+/** @file
+ *
  * Delegates for editing prefereneces.
  *
  * Wireshark - Network traffic analyzer

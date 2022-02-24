@@ -178,7 +178,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
             asize = ACCOUNT_SIZE;
         }
         /* XXX - encoding? */
-        proto_tree_add_item(tree, hf_account, tvb, offset, asize, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_account, tvb, offset, asize, ENC_ASCII);
     }
     offset += ACCOUNT_SIZE;
 
@@ -193,7 +193,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
         case IGAP_SUBTYPE_PASSWORD_LEAVE:
             /* Challenge field is user's password */
             /* XXX - encoding? */
-            proto_tree_add_item(tree, hf_igap_user_password, tvb, offset, msize, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_igap_user_password, tvb, offset, msize, ENC_ASCII);
             break;
         case IGAP_SUBTYPE_CHALLENGE_RESPONSE_JOIN:
         case IGAP_SUBTYPE_CHALLENGE_RESPONSE_LEAVE:

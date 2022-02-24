@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#include <stdio.h>
+#include <stdio.h>      /* for sscanf() */
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
@@ -2101,11 +2101,11 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             int hex_string_length = 1+(2*tty_string_length)+1;
             hex_string = (char *)wmem_alloc(pinfo->pool, hex_string_length);
 
-            idx = g_snprintf(hex_string, hex_string_length, "$");
+            idx = snprintf(hex_string, hex_string_length, "$");
 
             /* Write hex out to new string */
             for (n=0; n < tty_string_length; n++) {
-                idx += g_snprintf(hex_string+idx, 3, "%02x",
+                idx += snprintf(hex_string+idx, 3, "%02x",
                                   tvb_get_guint8(tvb, offset+n));
             }
             string = hex_string;
@@ -2310,7 +2310,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     context_name = tvb_get_const_stringz(tvb, offset, &context_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_context, tvb,
-                            offset, context_length, ENC_ASCII|ENC_NA);
+                            offset, context_length, ENC_ASCII);
     }
     offset += context_length;
 
@@ -2359,7 +2359,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     protocol_name = tvb_get_const_stringz(tvb, offset, &protocol_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
-                            offset, protocol_length, ENC_ASCII|ENC_NA);
+                            offset, protocol_length, ENC_ASCII);
     }
     is_comment = (strcmp(protocol_name, "comment") == 0);
     if (!is_comment) {
@@ -2372,7 +2372,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     variant_string = tvb_get_const_stringz(tvb, offset, &variant_length);
     if (!is_comment && !is_sprint) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
-                            offset, variant_length, ENC_ASCII|ENC_NA);
+                            offset, variant_length, ENC_ASCII);
     }
     offset += variant_length;
 
@@ -2380,7 +2380,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     outhdr_string = tvb_get_const_stringz(tvb, offset, &outhdr_length);
     if (!is_comment && !is_sprint && (outhdr_length > 1)) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
-                            offset, outhdr_length, ENC_ASCII|ENC_NA);
+                            offset, outhdr_length, ENC_ASCII);
     }
     offset += outhdr_length;
 
@@ -2926,10 +2926,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 guint16      conn_id_offset = 0;
                 int          offset_before_ipprim_header = offset;
 
-                /* Will give up if couldn't match protocol anyway... */
-                heur_protocol_handle = look_for_dissector(protocol_name);
-                if ((heur_protocol_handle != 0) &&
-                    find_ipprim_data_offset(tvb, &offset, direction,
+                /* For ipprim, want to show ipprim header even if can't find dissector to call for payload.. */
+                if (find_ipprim_data_offset(tvb, &offset, direction,
                                             &source_addr_offset, &source_addr_length,
                                             &dest_addr_offset, &dest_addr_length,
                                             &source_port_offset, &dest_port_offset,
@@ -2950,6 +2948,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 
                     /* Will use this dissector then. */
+                    heur_protocol_handle = look_for_dissector(protocol_name);
                     protocol_handle = heur_protocol_handle;
 
                     /* Add address parameters to tree */
@@ -3182,7 +3181,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             if (protocol_handle == 0) {
                 /* TODO: only look inside if a preference enabled? */
                 char dotted_protocol_name[128];
-                /* N.B. avoiding g_snprintf(), which was slow */
+                /* N.B. avoiding snprintf(), which was slow */
                 (void) g_strlcpy(dotted_protocol_name, "dct2000.", 128);
                 (void) g_strlcpy(dotted_protocol_name+8, protocol_name, 128-8);
                 protocol_handle = find_dissector(dotted_protocol_name);

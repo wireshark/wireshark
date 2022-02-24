@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.7.0 (2021-10)
+-- 3GPP TS 36.413 V16.8.0 (2021-12)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -2260,7 +2260,8 @@ UECapabilityInfoIndicationIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-UERadioCapabilityForPaging	CRITICALITY ignore	TYPE UERadioCapabilityForPaging		PRESENCE optional}|
 	{ ID id-UE-Application-Layer-Measurement-Capability		CRITICALITY ignore	TYPE UE-Application-Layer-Measurement-Capability							PRESENCE optional}|
 	{ ID id-LTE-M-Indication				CRITICALITY ignore	TYPE LTE-M-Indication				PRESENCE optional}|
-	{ ID id-UERadioCapability-NR-Format	CRITICALITY ignore	TYPE UERadioCapability				PRESENCE optional},
+	{ ID id-UERadioCapability-NR-Format	CRITICALITY ignore	TYPE UERadioCapability				PRESENCE optional}|
+	{ ID id-UERadioCapabilityForPaging-NR-Format	CRITICALITY ignore	TYPE UERadioCapabilityForPaging				PRESENCE optional},
 	...
 }
 

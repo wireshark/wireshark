@@ -1,4 +1,4 @@
-/* eap.h
+/** @file
  * Extenal definitions for EAP Extensible Authentication Protocol dissection
  * RFC 2284, RFC 3748
  *
@@ -40,6 +40,7 @@ WS_DLL_PUBLIC const value_string eap_code_vals[];
 #define EAP_TYPE_PAX        46
 #define EAP_TYPE_PSK        47
 #define EAP_TYPE_SAKE       48
+#define EAP_TYPE_IKEV2      49
 #define EAP_TYPE_AKA_PRIME  50
 #define EAP_TYPE_GPSK       51
 #define EAP_TYPE_TEAP       55

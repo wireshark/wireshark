@@ -88,7 +88,7 @@ linux_get_memory(gsize *ptotal, gsize *prss)
 	if (fd < 0) {
 		char path[64];
 
-		g_snprintf(path, sizeof(path), "/proc/%d/statm", getpid());
+		snprintf(path, sizeof(path), "/proc/%d/statm", getpid());
 
 		fd = ws_open(path, O_RDONLY);
 

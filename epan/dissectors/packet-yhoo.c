@@ -198,7 +198,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_version, tvb,
-			offset, 8, ENC_ASCII|ENC_NA);
+			offset, 8, ENC_ASCII);
 		offset += 8;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_len, tvb,
@@ -226,15 +226,15 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 		offset += 4;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, tvb,
-			offset, 36, ENC_ASCII|ENC_NA);
+			offset, 36, ENC_ASCII);
 		offset += 36;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_nick2, tvb,
-			offset, 36, ENC_ASCII|ENC_NA);
+			offset, 36, ENC_ASCII);
 		offset += 36;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_content, tvb, -1,
-			offset, ENC_ASCII|ENC_NA);
+			offset, ENC_ASCII);
 	}
 
 	return TRUE;

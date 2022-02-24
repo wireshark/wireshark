@@ -1,4 +1,4 @@
-/* dot11decrypt_ws.h
+/** @file
  *
  * Copyright (c) 2006 CACE Technologies, Davis (California)
  * All rights reserved.

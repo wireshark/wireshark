@@ -1,4 +1,4 @@
-/* crc8.h
+/** @file
  *
  * Checks the checksum (FCS) of the 3G TS 27.010 Multiplexing protocol.
  * The algorithm to check the FCS is described in "3G TS 27.010 V2.0.0 (1999-06)"

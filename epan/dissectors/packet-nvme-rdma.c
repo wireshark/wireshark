@@ -259,12 +259,12 @@ find_ib_cm_conversation(packet_info *pinfo)
 
 static void add_rdma_cm_qid(gchar *result, guint32 val)
 {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%x (%s)", val, val ? "IOQ" : "AQ");
+    snprintf(result, ITEM_LABEL_LENGTH, "%x (%s)", val, val ? "IOQ" : "AQ");
 }
 
 static void add_zero_base(gchar *result, guint32 val)
 {
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%u", val+1);
+    snprintf(result, ITEM_LABEL_LENGTH, "%u", val+1);
 }
 
 static void dissect_rdma_cm_req_packet(tvbuff_t *tvb, proto_tree *tree)

@@ -1359,7 +1359,7 @@ void proto_register_ess(void) {
         "EntityIdentifier", HFILL }},
     { &hf_ess_expansionTime,
       { "expansionTime", "ess.expansionTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_ess_mlReceiptPolicy,
       { "mlReceiptPolicy", "ess.mlReceiptPolicy",

@@ -1,4 +1,4 @@
-/* wtap.h
+/** @file
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -9,14 +9,12 @@
 #ifndef __WTAP_H__
 #define __WTAP_H__
 
-#include <glib.h>
+#include <wireshark.h>
 #include <time.h>
 #include <wsutil/buffer.h>
 #include <wsutil/nstime.h>
 #include <wsutil/inet_addr.h>
 #include "wtap_opttypes.h"
-#include "ws_symbol_export.h"
-#include "ws_attributes.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -291,6 +289,7 @@ extern "C" {
 #define WTAP_ENCAP_ZWAVE_SERIAL                 211
 #define WTAP_ENCAP_ETW                          212
 #define WTAP_ENCAP_ERI_ENB_LOG                  213
+#define WTAP_ENCAP_ZBNCP			214
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -2024,6 +2023,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
 /**
  * @brief Creates a dumper for a temporary file.
  *
+ * @param tmpdir Directory in which to create the temporary file.
  * @param filenamep Points to a pointer that's set to point to the
  *        pathname of the temporary file; it's allocated with g_malloc()
  * @param pfx A string to be used as the prefix for the temporary file name
@@ -2036,7 +2036,8 @@ wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype,
  * @return The newly created dumper object, or NULL on failure.
  */
 WS_DLL_PUBLIC
-wtap_dumper* wtap_dump_open_tempfile(char **filenamep, const char *pfx,
+wtap_dumper* wtap_dump_open_tempfile(const char *tmpdir, char **filenamep,
+    const char *pfx,
     int file_type_subtype, wtap_compression_type compression_type,
     const wtap_dump_params *params, int *err, gchar **err_info);
 
@@ -2294,7 +2295,7 @@ void wtap_cleanup(void);
     /** The file couldn't be closed, reason unknown */
 
 #define WTAP_ERR_SHORT_READ                   -12
-    /** An attempt to read read less data than it should have */
+    /** An attempt to read less data than it should have */
 
 #define WTAP_ERR_BAD_FILE                     -13
     /** The file appears to be damaged or corrupted or otherwise bogus */

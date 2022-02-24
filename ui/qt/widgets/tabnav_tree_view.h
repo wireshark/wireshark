@@ -1,4 +1,5 @@
-/* tabnav_tree_view.h
+/** @file
+ *
  * Tree view with saner tab navigation functionality.
  *
  * Copyright 2016 Peter Wu <peter@lekensteyn.nl>

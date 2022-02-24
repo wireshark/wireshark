@@ -19,8 +19,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  UnregRequestReason_vals@Base 1.9.1
  _try_val64_to_str_ext_init@Base 2.9.0
  _try_val_to_str_ext_init@Base 1.9.1
- abs_time_secs_to_str@Base 1.99.0
- abs_time_to_str@Base 1.99.0
+ abs_time_secs_to_str_ex@Base 3.7.0
+ abs_time_to_str_ex@Base 3.7.0
  add_conversation_table_data@Base 2.5.0
  add_conversation_table_data_with_conv_id@Base 2.5.0
  add_hostlist_table_data@Base 2.5.0
@@ -586,15 +586,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_get_version@Base 1.9.1
  epan_get_version_number@Base 2.5.0
  epan_init@Base 2.9.0
+ epan_inspect_enums@Base 3.7.0
+ epan_inspect_enums_bsearch@Base 3.7.0
+ epan_inspect_enums_count@Base 3.7.0
  epan_load_settings@Base 2.3.0
- epan_memmem@Base 1.9.1
  epan_new@Base 1.12.0~rc1
  epan_plugins_supported@Base 3.5.0
  epan_register_plugin@Base 2.5.0
  epan_set_always_visible@Base 3.5.1
- epan_strcasestr@Base 1.9.1
- escape_string@Base 1.9.1
- escape_string_len@Base 1.9.1
  esp_sa_record_add_from_dissector@Base 1.12.0~rc1
  etype_vals@Base 1.9.1
  ex_opt_add@Base 1.9.1
@@ -687,7 +686,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  format_text_chr@Base 1.12.0~rc1
  format_text_string@Base 3.3.0
  format_text_wsp@Base 1.9.1
- format_uri@Base 1.9.1
  fragment_add@Base 1.9.1
  fragment_add_check@Base 1.9.1
  fragment_add_multiple_ok@Base 1.9.1
@@ -1016,6 +1014,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  p_get_proto_data@Base 1.9.1
  p_get_proto_depth@Base 3.3.0
  p_remove_proto_data@Base 1.12.0~rc1
+ p_set_proto_data@Base 3.7.0
  p_set_proto_depth@Base 3.3.0
  parse_key_string@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
@@ -1053,6 +1052,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_get_module_effect_flags@Base 2.5.0
  prefs_get_max_value@Base 2.3.0
  prefs_get_name@Base 2.3.0
+ prefs_get_password_value@Base 3.7.0
  prefs_get_range_value@Base 2.3.0
  prefs_get_range_value_real@Base 2.3.0
  prefs_get_string_list@Base 1.9.1
@@ -1085,6 +1085,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_filename_preference@Base 1.9.1
  prefs_register_module_alias@Base 2.9.0
  prefs_register_obsolete_preference@Base 1.9.1
+ prefs_register_password_preference@Base 3.7.0
  prefs_register_protocol@Base 1.9.1
  prefs_register_protocol_obsolete@Base 3.5.0
  prefs_register_protocol_subtree@Base 1.9.1
@@ -1106,6 +1107,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_set_enum_string_value@Base 3.5.0
  prefs_set_gui_theme_is_dark@Base 2.5.0
  prefs_set_module_effect_flags@Base 2.5.0
+ prefs_set_password_value@Base 3.7.0
  prefs_set_pref@Base 1.9.1
  prefs_set_preference_effect_fields@Base 3.3.0
  prefs_set_range_value@Base 2.1.0
@@ -1190,8 +1192,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_reenable_all@Base 2.3.0
  proto_register_alias@Base 2.9.0
  proto_register_field_array@Base 1.9.1
- proto_register_fields_manual@Base 1.12.0~rc1
- proto_register_fields_section@Base 1.12.0~rc1
  proto_register_plugin@Base 2.5.0
  proto_register_prefix@Base 1.9.1
  proto_register_protocol@Base 1.9.1
@@ -1599,8 +1599,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stream_find_frag@Base 1.9.1
  stream_new@Base 3.5.0
  stream_process_reassembled@Base 1.9.1
- string_or_null@Base 1.9.1
- string_replace@Base 1.9.1
  string_to_name_resolve@Base 1.9.1
  sua_co_class_type_acro_values@Base 1.9.1
  t30_facsimile_control_field_vals_ext@Base 1.12.0~rc1
@@ -1885,6 +1883,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_uncompress_lz77huff@Base 3.1.0
  tvb_uncompress_lznt1@Base 3.1.0
  tvb_unicode_strsize@Base 1.9.1
+ tvb_utf_8_isprint@Base 3.7.0
  tvb_ws_mempbrk_pattern_guint8@Base 1.99.3
  tvbparse_casestring@Base 1.9.1
  tvbparse_char@Base 1.9.1
@@ -2051,8 +2050,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  write_psml_finale@Base 1.12.0~rc1
  write_psml_preamble@Base 1.12.0~rc1
  ws_find_media_type_parameter@Base 2.2.0
- ws_strdup_escape_char@Base 1.9.1
- ws_strdup_unescape_char@Base 1.9.1
  wscbor_chunk_free@Base 3.5.1
  wscbor_chunk_mark_errors@Base 3.5.1
  wscbor_chunk_read@Base 3.5.1

@@ -2,10 +2,9 @@
 #
 # make-usb - Creates a file containing vendor and product ids.
 # It use the databases from
-# https://usb-ids.gowdy.us/
+# - The USB ID Repository: https://usb-ids.gowdy.us (http://www.linux-usb.org), mirrored at Sourceforge
+# - libgphoto2 from gPhoto: https://github.com/gphoto/libgphoto2 (http://gphoto.org), available at GitHub
 # to create our file epan/dissectors/usb.c
-#
-# It also uses the values culled out of libgphoto2 using usb-ptp-extract-models.pl
 
 import re
 import sys
@@ -18,9 +17,6 @@ MIN_PRODUCTS = 20000 # 20361 as of 2020-11-15
 
 mode = MODE_IDLE
 
-# The canonical location for the usb.ids file is http://www.linux-usb.org/usb.ids.
-# As of November 2020 that site isn't available over HTTPS. Use what appears to
-# be the source code repository for the site.
 req_headers = { 'User-Agent': 'Wireshark make-usb' }
 req = urllib.request.Request('https://sourceforge.net/p/linux-usb/repo/HEAD/tree/trunk/htdocs/usb.ids?format=raw', headers=req_headers)
 response = urllib.request.urlopen(req)
@@ -63,12 +59,42 @@ for utf8line in lines:
             product = "%s%s"%(last_vendor, line[:4])
             products[product] = line[4:].strip()
 
+req = urllib.request.Request('https://raw.githubusercontent.com/gphoto/libgphoto2/master/camlibs/ptp2/library.c', headers=req_headers)
+response = urllib.request.urlopen(req)
+lines = response.read().decode('UTF-8', 'replace').splitlines()
 
-# Grab from libgphoto (indirectly through tools/usb-ptp-extract-models.pl)
-u = open('tools/usb-ptp-extract-models.txt','r')
-for line in u.readlines():
-    fields=line.split()
-    products[fields[0]]= ' '.join(fields[1:])
+mode = MODE_IDLE
+
+for line in lines:
+    if mode == MODE_IDLE and re.match(r".*\bmodels\[\]", line):
+        mode = MODE_VENDOR_PRODUCT
+        continue
+
+    if mode == MODE_VENDOR_PRODUCT and re.match(r"};", line):
+        mode = MODE_IDLE
+
+    if mode == MODE_IDLE:
+        continue
+
+    m = re.match(r"\s*{\"(.*):(.*)\",\s*0x([0-9a-fA-F]{4}),\s*0x([0-9a-fA-F]{4}),.*},", line)
+    if m is not None:
+        manuf = m.group(1).strip()
+        model = re.sub(r"\(.*\)", "", m.group(2)).strip()
+        product = m.group(3) + m.group(4)
+        products[product] = ' '.join((manuf, model))
+
+req = urllib.request.Request('https://raw.githubusercontent.com/gphoto/libgphoto2/master/camlibs/ptp2/music-players.h', headers=req_headers)
+response = urllib.request.urlopen(req)
+lines = response.read().decode('UTF-8', 'replace').splitlines()
+
+for line in lines:
+    m = re.match(r"\s*{\s*\"(.*)\",\s*0x([0-9a-fA-F]{4}),\s*\"(.*)\",\s*0x([0-9a-fA-F]{4}),", line)
+    if m is not None:
+        manuf = m.group(1).strip()
+        model = m.group(3).strip()
+        product = m.group(2) + m.group(4)
+        products[product] = ' '.join((manuf, model))
+
 
 if (len(vendors) < MIN_VENDORS):
     sys.stderr.write("Not enough vendors: %d\n" % len(vendors))

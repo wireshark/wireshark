@@ -2521,16 +2521,16 @@ de_nas_5gs_mm_nssai_inc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 static void
 nas_5gs_mm_access_cat_number(gchar *s, guint32 val)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 32+val, val);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u (%u)", 32+val, val);
 }
 
 static void
 nas_5gs_mm_access_standardized_cat_number(gchar *s, guint32 val)
 {
     if (val <= 7)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%u", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%u", val);
     else
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Reserved (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Reserved (%u)", val);
 }
 
 static const value_string nas_5gs_mm_op_def_access_cat_criteria_type_vals[] = {
@@ -4785,7 +4785,7 @@ de_nas_5gs_sm_pdu_dn_req_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_item(tree, hf_nas_5gs_sm_dm_spec_id, tvb, offset, len, ENC_UTF_8|ENC_NA);
+    proto_tree_add_item(tree, hf_nas_5gs_sm_dm_spec_id, tvb, offset, len, ENC_UTF_8);
 
     return len;
 }
@@ -7587,6 +7587,12 @@ Bits
 0 0 0 1 0 0 0 0    Preferred access type type
 0 0 0 1 0 0 0 1    Multi-access preference type
 0 0 1 0 0 0 0 0    Non-seamless non-3GPP offload indication type
+0 1 0 0 0 0 0 0    Location criteria type
+1 0 0 0 0 0 0 0    Time window type
+1 0 0 0 0 0 0 1    5G ProSe layer-3 UE-to-network relay offload indication type
+1 0 0 0 0 0 1 0    PDU session pair ID type (NOTE 5)
+1 0 0 0 0 0 1 1    RSN type (NOTE 5)
+
 All other values are spare. If received they shall be interpreted as unknown.
 
 */
@@ -7598,6 +7604,11 @@ static const value_string nas_5gs_ursp_r_sel_desc_comp_type_values[] = {
     { 0x10, "Preferred access type" },
     { 0x11, "Multi-access preference" },
     { 0x20, "Non-seamless non-3GPP offload indication" },
+    { 0x40, "Location criteria type" },
+    { 0x80, "Time window type" },
+    { 0x81, "5G ProSe layer-3 UE-to-network relay offload type" },
+    { 0x82, "PDU session pair ID type" },
+    { 0x83, "RSN type" },
     { 0, NULL }
 };
 
@@ -7628,12 +7639,12 @@ de_nas_5gs_ursp_r_sel_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             break;
         case 0x02: /* S-NSSAI type*/
             /* For "S-NSSAI type", the route selection descriptor component value field shall be encoded as a
-               sequence of a one octet S-NSSAI length field and an S-NSSAI value field of a variable size.
-               The S-NSSAI value shall be encoded as the value part of NSSAI information element defined in
-               subclause 9.11.3.37 of 3GPP TS 24.501 [11].*/
-            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
+             * sequence of a one octet S-NSSAI length field and an S-NSSAI value field of a variable size.
+             * The S-NSSAI value shall be encoded as the value part of the S-NSSAI information element defined
+             * in clause 9.11.2.8 of 3GPP TS 24.501 */
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_len_of_mapped_s_nssai, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
             offset++;
-            de_nas_5gs_mm_nssai(tvb, tree, pinfo, offset, length, NULL, 0);
+            de_nas_5gs_cmn_s_nssai(tvb, tree, pinfo, offset, length, NULL, 0);
             offset += length;
             break;
         case 0x04: /* DNN */
@@ -10788,7 +10799,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_dm_spec_id,
         { "DN-specific identity",   "nas_5gs.sm.dm_spec_id",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_all_ssc_mode_b0,

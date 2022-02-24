@@ -60,7 +60,6 @@ wireshark-tap-register.c
 /*build*/
 CMakeCache.txt
 CMakeFiles
-CMakeLists.txt.user*
 cmake_install.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
@@ -79,24 +78,15 @@ epan/dissectors/dcerpc/*-stamp
 
 # Doc #
 ########
-*.html
-*.[14]
-AUTHORS.git
-AUTHORS-SHORT
-AUTHORS-SHORT-FORMAT
-help/faq.txt
-pod2htm[di].tmp
-wireshark.pod
-docbook/developer-guide-toc.hhc
-docbook/developer-guide.hhp
+doc/*.html
+doc/*.[14]
+doc/AUTHORS-SHORT
+doc/ws.css
 docbook/developer-guide*.xml
-docbook/user-guide-toc.hhc
-docbook/user-guide.hhp
 docbook/user-guide*.xml
 docbook/*-guide-*.pdf
 docbook/ws?g_html/
 docbook/ws?g_html_chunked/
-docbook/ws?g_chm/
 docbook/release-notes-*.pdf
 docbook/release-notes.txt
 docbook/wsluarm
@@ -113,7 +103,6 @@ wsar_html.zip
 /ui/qt/qrc_*.cpp
 /ui/qt/ui_*.h
 /ui/qt/console.lua
-/wireshark-qt*
 
 # Windows Stuff #
 #################
@@ -121,7 +110,6 @@ wsar_html.zip
 *.dir/
 *.dsp
 *.dsw
-*.chm
 *.exp
 *.lib
 *.ilk
@@ -136,17 +124,35 @@ wsar_html.zip
 /News.txt
 /README.txt
 /README.windows.txt
-Win32/
 Wireshark.opensdf
 Wireshark.sdf
 Wireshark.sln
 Wireshark.*.suo
-x64/
-_libs_check_
-doc/ws.css
 packaging/nsis/all-manifest.nsh
-/packaging/portableapps/WiresharkPortable/
+packaging/nsis/config.nsh
+packaging/nsis/qt-dll-manifest.nsh
+packaging/portableapps/WiresharkPortable/
+packaging/portableapps/Files/
+packaging/portableapps/appinfo.ini
 wireshark-win??-libs*/
+
+# macOS Stuff
+.DS_Store
+macosx-support-libs
+packaging/macosx/Info.plist
+packaging/macosx/osx-dmg.sh
+packaging/macosx/PkgInfo
+
+# clangd #
+##########
+.cache
+compile_commands.json
+
+# Qt Creator
+CMakeLists.txt.user*
+
+# Debian packaging
+debian/
 
 # Misc #
 ########
@@ -155,18 +161,10 @@ wireshark-win??-libs*/
 .idea
 *.swp
 *~
-.DS_Store
 cscope.*
 tags
 TAGS
-macosx-support-libs
-packaging/macosx/Info.plist
-packaging/macosx/osx-dmg.sh
-packaging/macosx/PkgInfo
-packaging/nsis/config.nsh
-packaging/nsis/qt-dll-manifest.nsh
-packaging/portableapps/Files/
-packaging/portableapps/appinfo.ini
 vgcore.*
 .pytest_cache/
 test/*.log
+*.code-workspace

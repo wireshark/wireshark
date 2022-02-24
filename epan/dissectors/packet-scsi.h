@@ -72,7 +72,7 @@ typedef struct _itlq_nexus_t {
     nstime_t fc_time;
 
 
-    void *extra_data;     /* extra data that that is task specific */
+    void *extra_data;     /* extra data that is task specific */
 } itlq_nexus_t;
 
 

@@ -372,7 +372,7 @@ static const value_string AMS_CommandId_vals[] =
 
 static void NetIdFormater(tvbuff_t *tvb, guint offset, char *szText, gint nMax)
 {
-   g_snprintf ( szText, nMax, "%d.%d.%d.%d.%d.%d", tvb_get_guint8(tvb, offset),
+   snprintf ( szText, nMax, "%d.%d.%d.%d.%d.%d", tvb_get_guint8(tvb, offset),
       tvb_get_guint8(tvb, offset+1),
       tvb_get_guint8(tvb, offset+2),
       tvb_get_guint8(tvb, offset+3),

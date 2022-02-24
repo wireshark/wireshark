@@ -1,4 +1,5 @@
-/* path_chooser_delegate.h
+/** @file
+ *
  * Delegate to select a file path for a treeview entry
  *
  * Wireshark - Network traffic analyzer

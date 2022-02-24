@@ -292,7 +292,7 @@ dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
        * Put this line.
        */
       proto_tree_add_item(smtp_tree, hf_smtp_message, tvb,
-                          offset, next_offset - offset, ENC_ASCII|ENC_NA);
+                          offset, next_offset - offset, ENC_ASCII);
 
       /*
        * Step to the next line.
@@ -365,7 +365,7 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   else {
     ti = proto_tree_add_item(tree, hf_smtp_username_password, tvb,
-                          a_offset, a_linelen, ENC_ASCII|ENC_NA);
+                          a_offset, a_linelen, ENC_ASCII);
     expert_add_info(pinfo, ti, &ei_smtp_base64_decode);
     col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, decrypt, a_linelen));
   }
@@ -915,7 +915,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               decrypt_len = linelen;
               col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, decrypt, linelen));
               proto_tree_add_item(smtp_tree, hf_smtp_command_line, tvb,
-                                  loffset, linelen, ENC_ASCII|ENC_NA);
+                                  loffset, linelen, ENC_ASCII);
             }
             else {
               base64_string = tvb_get_string_enc(pinfo->pool, tvb, loffset, linelen, ENC_ASCII);
@@ -925,7 +925,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           else {
             col_append_str(pinfo->cinfo, COL_INFO, format_text(pinfo->pool, decrypt, linelen));
             proto_tree_add_item(smtp_tree, hf_smtp_command_line, tvb,
-                                loffset, linelen, ENC_ASCII|ENC_NA);
+                                loffset, linelen, ENC_ASCII);
           }
         } else if (session_state->user_pass_frame == pinfo->num) {
           decode_plain_auth(tvb, pinfo, smtp_tree, loffset, linelen);
@@ -940,15 +940,15 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
            * Put the command line into the protocol tree.
            */
           ti =  proto_tree_add_item(smtp_tree, hf_smtp_command_line, tvb,
-                          loffset, next_offset - loffset, ENC_ASCII|ENC_NA);
+                          loffset, next_offset - loffset, ENC_ASCII);
           cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
 
           proto_tree_add_item(cmdresp_tree, hf_smtp_req_command, tvb,
-                            loffset, cmdlen, ENC_ASCII|ENC_NA);
+                            loffset, cmdlen, ENC_ASCII);
 
           if ((linelen > 5) && (session_state->username_cmd_frame == pinfo->num) ) {
             proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
-                              loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
+                              loffset + 5, linelen - 5, ENC_ASCII);
 
             if (linelen >= 11) {
               if (decrypt == NULL) {
@@ -977,7 +977,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           }
           else if ((linelen > 5) && (session_state->ntlm_req_frame == pinfo->num) ) {
             proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
-                              loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
+                              loffset + 5, linelen - 5, ENC_ASCII);
             if (linelen >= 10) {
               decrypt = tvb_get_string_enc(pinfo->pool, tvb, loffset + 10, linelen - 10, ENC_ASCII);
               decrypt_len = linelen - 10;
@@ -1012,14 +1012,14 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           }
           else if ((linelen > 5) && (session_state->user_pass_cmd_frame == pinfo->num) ) {
             proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
-                              loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
+                              loffset + 5, linelen - 5, ENC_ASCII);
             col_append_str(pinfo->cinfo, COL_INFO,
                            tvb_format_text(pinfo->pool, tvb, loffset, 11));
             decode_plain_auth(tvb, pinfo, cmdresp_tree, loffset + 11, linelen - 11);
           }
           else if (linelen > 5) {
             proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
-                              loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
+                              loffset + 5, linelen - 5, ENC_ASCII);
             col_append_str(pinfo->cinfo, COL_INFO,
                            tvb_format_text(pinfo->pool, tvb, loffset, linelen));
           }
@@ -1206,7 +1206,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
                 if (decrypt == NULL) {
                     proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
-                                      offset + 4, linelen - 4, ENC_ASCII|ENC_NA);
+                                      offset + 4, linelen - 4, ENC_ASCII);
 
                     if ((multiline_state != SMTP_MULTILINE_CONTINUE) &&
                         (multiline_state != SMTP_MULTILINE_END)) {

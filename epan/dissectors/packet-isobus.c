@@ -383,19 +383,19 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item_set_generated(ti);
 
     /* put source address in source field */
-    g_snprintf(str_src, 4, "%d", src_addr);
+    snprintf(str_src, 4, "%d", src_addr);
     alloc_address_wmem(pinfo->pool, &pinfo->src, AT_STRINGZ, (int)strlen(str_src) + 1, str_src);
 
     if(pdu_format <= 239) /* PDU1 format */
     {
         /* put destination address in address field */
-        g_snprintf(str_dst, 4, "%d", pdu_specific);
+        snprintf(str_dst, 4, "%d", pdu_specific);
         alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_STRINGZ, (int)strlen(str_dst) + 1, str_dst);
     }
     else
     {
         /* put group destination address in address field and add (grp) to it */
-        g_snprintf(str_dst, 10, "%d (grp)", pdu_specific);
+        snprintf(str_dst, 10, "%d (grp)", pdu_specific);
         alloc_address_wmem(pinfo->pool, &pinfo->dst, AT_STRINGZ, (int)strlen(str_dst) + 1, str_dst);
     }
 

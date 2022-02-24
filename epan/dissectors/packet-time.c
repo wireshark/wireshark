@@ -34,13 +34,10 @@ static int hf_time_time = -1;
 static int hf_time_response = -1;
 
 static gint ett_time = -1;
-/* Instead of using absolute_time_display_e as the type for
- * time_display_type, we use gint to avoid a type-punning problem
- * with prefs_register_enum_preference(). This variable is also
- * used with abs_time_secs_to_ep_str(), which _does_ take
- * an absolute_time_display_e, but gcc doesn't complain about
- * casting the gint to absolute_time_display_e */
-static gint time_display_type = ABSOLUTE_TIME_LOCAL;
+
+/* Use int instead of a field_display_type_e enum to avoid incompatible
+ * pointer type warnings with prefs_register_enum_preference() */
+static int time_display_type = ABSOLUTE_TIME_LOCAL;
 
 /* This dissector works for TCP and UDP time packets */
 #define TIME_PORT 37
@@ -66,7 +63,7 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree_add_uint_format(time_tree, hf_time_time, tvb, 0, 4,
                 delta_seconds, "%s",
                 abs_time_secs_to_str(pinfo->pool, delta_seconds-EPOCH_DELTA_1900_01_01_00_00_00_UTC,
-                    (absolute_time_display_e)time_display_type, TRUE));
+                                        time_display_type, TRUE));
     }
     return tvb_captured_length(tvb);
 }
@@ -100,7 +97,7 @@ proto_register_time(void)
             "display_time_type",
             "Time Display",
             "Time display type",
-            (gint *)&time_display_type,
+            &time_display_type,
             time_display_types,
             FALSE);
 }

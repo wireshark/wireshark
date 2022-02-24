@@ -44,21 +44,21 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	if (endptr == s || *endptr != '\0') {
 		/* This isn't a valid number. */
 		if (err_msg != NULL)
-			*err_msg = g_strdup_printf("\"%s\" is not a valid number.", s);
+			*err_msg = ws_strdup_printf("\"%s\" is not a valid number.", s);
 		return FALSE;
 	}
 	if (errno == ERANGE) {
 		if (fv->value.floating == 0) {
 			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" causes floating-point underflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes floating-point underflow.", s);
 		}
 		else if (fv->value.floating == HUGE_VAL) {
 			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" causes floating-point overflow.", s);
+				*err_msg = ws_strdup_printf("\"%s\" causes floating-point overflow.", s);
 		}
 		else {
 			if (err_msg != NULL)
-				*err_msg = g_strdup_printf("\"%s\" is not a valid floating-point number.",
+				*err_msg = ws_strdup_printf("\"%s\" is not a valid floating-point number.",
 				    s);
 		}
 		return FALSE;
@@ -108,6 +108,7 @@ ftype_register_double(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		float_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */
@@ -131,6 +132,7 @@ ftype_register_double(void)
 		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
+		NULL,				/* val_from_charconst */
 		double_val_to_repr,		/* val_to_string_repr */
 
 		{ .set_value_floating = double_fvalue_set_floating },		/* union set_value */

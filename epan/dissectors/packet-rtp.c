@@ -54,6 +54,7 @@
 #include <epan/decode_as.h>
 
 #include "packet-rtp.h"
+#include "packet-rtcp.h"
 #include "packet-tcp.h"
 
 #include <epan/rtp_pt.h>
@@ -642,11 +643,11 @@ static void rtp_prompt(packet_info *pinfo _U_, gchar* result)
     /* Dynamic payload range, don't expose value as it may change within conversation */
     if (payload_type > 95)
     {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type as");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type as");
     }
     else
     {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type %d as", payload_type);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "RTP payload type %d as", payload_type);
     }
 }
 
@@ -688,7 +689,7 @@ rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload) {
             DENDENT();
             return;
         }
-        DPRINT2(("ref_count=%" G_GSIZE_FORMAT, rtp_dyn_payload->ref_count));
+        DPRINT2(("ref_count=%zu", rtp_dyn_payload->ref_count));
         if (!rtp_dyn_payload->table) {
             DPRINT2(("null rtp_dyn_payload table"));
             DENDENT();
@@ -1107,6 +1108,17 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
 
     /* Set dissector */
     if (ptype == PT_UDP) {
+        /* For RFC 5761 multiplexing, go ahead and create/update [S]RTCP
+         * info for the conversation, since this dissector will pass RTCP PTs
+         * to the RTCP dissector anyway.
+         * XXX: We only do this on UDP, as RFC 4571 specifies RTP and RTCP on
+         * different ports, but the RTCP dissector (like SDP) doesn't support
+         * RFC 4571 currently anyway.
+         */
+        srtcp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, srtp_info);
+        /* Set the dissector afterwards, since RTCP will set the conversation
+         * to its dissector, but packets should go to RTP first.
+         */
         conversation_set_dissector(p_conv, rtp_handle);
     } else if (ptype == PT_TCP) {
         conversation_set_dissector(p_conv, rtp_rfc4571_handle);
@@ -1915,6 +1927,33 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     octet1 = tvb_get_guint8( tvb, offset );
     version = RTP_VERSION( octet1 );
 
+    /* RFC 7983 gives current best practice in demultiplexing RTP packets:
+     * Examine the first byte of the packet:
+     *              +----------------+
+     *              |        [0..3] -+--> forward to STUN
+     *              |                |
+     *              |      [16..19] -+--> forward to ZRTP
+     *              |                |
+     *  packet -->  |      [20..63] -+--> forward to DTLS
+     *              |                |
+     *              |      [64..79] -+--> forward to TURN Channel
+     *              |                |
+     *              |    [128..191] -+--> forward to RTP/RTCP
+     *              +----------------+
+     *
+     * DTLS-SRTP MUST support multiplexing of DTLS and RTP over the same
+     * port pair (RFCs 5764, 8835), and this frequently occurs after SDP
+     * has been used to set up a RTP conversation and set the conversation
+     * dissector RTP. In addition, STUN packets sharing one port are common
+     * as well.
+     *
+     * In practice, the default of RTP0_INVALID rejects packets and lets
+     * heuristic dissectors take a look. The STUN, ZRTP, and DTLS heuristic
+     * dissectors are all enabled by default so out of the box it more or
+     * less looks correct - at least on the second pass, on tshark there's
+     * incorrect RTP information in the tree.
+     * XXX: Maybe there should be a "according to RFC 7983" option in the enum?
+     */
     if (version == 0) {
         switch (global_rtp_version0_type) {
         case RTP0_STUN:
@@ -1961,6 +2000,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
                 offset, 1, octet1);
         }
+        /* XXX: Offset is zero here, so in practice this rejects the packet
+         * and lets heuristic dissectors make an attempt, though after
+         * adding entries to the tree (at least on a first pass in tshark.)
+         */
         return offset;
     }
 

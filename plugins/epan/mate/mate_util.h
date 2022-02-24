@@ -150,7 +150,7 @@ extern void delete_avp(AVP* avp);
  * avp methods
  */
 /* returns a newly allocated string containing a representation of the avp */
-#define avp_to_str(avp) (g_strdup_printf("%s%c%s",avp->n,avp->o,avp->v))
+#define avp_to_str(avp) (ws_strdup_printf("%s%c%s",avp->n,avp->o,avp->v))
 
 /* returns the src avp if the src avp matches(*) the op avp or NULL if it doesn't */
 extern AVP* match_avp(AVP* src, AVP* op);

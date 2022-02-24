@@ -125,7 +125,7 @@ extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *me
     entry->proto = parent->proto;
     entry->is_plugin = parent->is_plugin;
     /* Create unique name, which is used by GTK to provide the menu */
-    entry->name = g_strdup_printf("%sS%02d", parent->name, parent->submenu_cnt);
+    entry->name = ws_strdup_printf("%sS%02d", parent->name, parent->submenu_cnt);
     entry->label = g_strdup(menulabel);
     entry->tooltip = g_strdup(menulabel);
 
@@ -151,7 +151,7 @@ static void ext_menubar_add_generic_entry (
     entry = g_new0(ext_menubar_t, 1);
     entry->type = type;
     /* Create unique name, which is used by GTK to provide the menu */
-    entry->name = g_strdup_printf("%sI%02d", parent->name, parent->item_cnt);
+    entry->name = ws_strdup_printf("%sI%02d", parent->name, parent->item_cnt);
     entry->label = g_strdup(label);
 
     if ( tooltip != NULL && strlen(tooltip) > 0 )

@@ -167,7 +167,7 @@ dissect_elmi_sub_info_elem(
 
     switch (sub_tag) {
         case SUB_TAG_UNI_ID:
-            proto_tree_add_item(sub_info_elem_tree, hf_elmi_uni_id, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_info_elem_tree, hf_elmi_uni_id, tvb, offset, len, ENC_ASCII);
             offset += len;
             break;
         case SUB_TAG_EVC_PRM:
@@ -175,7 +175,7 @@ dissect_elmi_sub_info_elem(
             offset++;
             break;
         case SUB_TAG_EVC_ID:
-            proto_tree_add_item(sub_info_elem_tree, hf_elmi_evc_id, tvb, offset, len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(sub_info_elem_tree, hf_elmi_evc_id, tvb, offset, len, ENC_ASCII);
             offset += len;
             break;
         case SUB_TAG_EVC_MAP:
@@ -424,7 +424,7 @@ proto_register_elmi(void)
             { "Default EVC", "elmi.map.evc", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), 0x1, NULL, HFILL } },
         { &hf_elmi_sub_info_elem,
-            { "Sub-Info Element :" , "elmi.sub_info.tag", FT_UINT8, BASE_HEX,
+            { "Sub-Info Element :", "elmi.sub_info.tag", FT_UINT8, BASE_HEX,
                 VALS(elmi_sub_info_elem_tag), 0, NULL, HFILL } },
         { &hf_elmi_sub_info_elem_len,
             { "Sub-Info Length", "elmi.sub_info.len", FT_UINT8, BASE_DEC,

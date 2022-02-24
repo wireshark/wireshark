@@ -245,7 +245,7 @@ class ParseXML(xml.sax.handler.ContentHandler):
 
         # Add element as child to previous element as long
         # as there is more than 1 element in the stack. Only
-        # one element in the stack means that the the element in
+        # one element in the stack means that the element in
         # the stack is the single CaptureFile element, and we don't
         # want to add this element to that, as we only want one
         # Packet element in memory at a time.

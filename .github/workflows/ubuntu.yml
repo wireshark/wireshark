@@ -40,7 +40,7 @@ jobs:
           mkdir deb
           mv ../*.deb deb
       - name: Upload deb packages
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: packages
           path: deb

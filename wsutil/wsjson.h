@@ -1,4 +1,5 @@
-/* wsjson.h
+/** @file
+ *
  * JSON parsing functions.
  *
  * Copyright 2016, Dario Lombardo

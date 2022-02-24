@@ -310,7 +310,7 @@ static void dissect_rbm_struct_data(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
 	rbm_set_info(pinfo, "Struct");
 	get_rbm_integer(tvb, *offset, &value, &len);
-	proto_tree_add_item(tree, hf_rbm_struct, tvb, *offset + 1, value, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_rbm_struct, tvb, *offset + 1, value, ENC_ASCII);
 	*offset += 1 + value;
 	if (value_str)
 		*value_str = wmem_strdup_printf(pinfo->pool, "%d", value);

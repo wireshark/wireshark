@@ -1,4 +1,4 @@
-/* packet_dialog.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -42,6 +42,7 @@ signals:
 
 private slots:
     void on_buttonBox_helpRequested();
+    void viewVisibilityStateChanged(int);
 
     void setHintText(FieldInformation *);
 

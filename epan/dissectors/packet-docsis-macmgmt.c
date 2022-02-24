@@ -1616,7 +1616,7 @@ two_compl_frac(
     gint16 frac = value;
 
 
-    g_snprintf(buf, ITEM_LABEL_LENGTH,
+    snprintf(buf, ITEM_LABEL_LENGTH,
         "%f",
         frac/16384.0);
 }
@@ -2492,31 +2492,31 @@ static const unit_name_string local_units_hz = { "Hz", NULL };
 static void
 ofdma_ir_pow_ctrl_start_pow(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dBmV/1.6MHz", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%f dBmV/1.6MHz", value/4.0);
 }
 
 static void
 ofdma_ir_pow_ctrl_step_size(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
 }
 
 static void
 fourth_db(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
 }
 
 static void
 subc_assign_range(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u - %u", value >> 16, value &0xFFFF);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u - %u", value >> 16, value &0xFFFF);
 }
 
 static void
 multipart_number_of_fragments(char *buf, guint32 value)
 {
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (Actual Number of Fragments: %u)", value, value + 1);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u (Actual Number of Fragments: %u)", value, value + 1);
 }
 
 static reassembly_table docsis_tlv_reassembly_table;
@@ -3744,7 +3744,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     case BPKM_RESERVED:
       break;
     case BPKM_SERIAL_NUM:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_serial_num, tvb, pos, length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_serial_num, tvb, pos, length, ENC_ASCII);
       break;
     case BPKM_MANUFACTURER_ID:
       if (length == 3)
@@ -3768,7 +3768,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       dissect_attrs (attr_tvb, pinfo, attr_subtree);
       break;
     case BPKM_DISPLAY_STR:
-      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_display_str, tvb, pos, length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (attr_tree, hf_docsis_bpkmattr_display_str, tvb, pos, length, ENC_ASCII);
       break;
     case BPKM_AUTH_KEY:
       if ((length == 96) || (length == 128) || (length == 256))

@@ -14,6 +14,8 @@
 
 #include "epan/column.h"
 #include "epan/ftypes/ftypes.h"
+#include "epan/prefs.h"
+#include "ui/preference_utils.h"
 
 #include "frame_tvbuff.h"
 
@@ -87,6 +89,14 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     ui->hintLabel->setText(col_info_);
 
+    /* Handle preference value correctly */
+    Qt::CheckState state = Qt::Checked;
+    if (!prefs.gui_packet_details_show_byteview) {
+        state = Qt::Unchecked;
+        byte_view_tab_->setVisible(false);
+    }
+    ui->chkShowByteView->setCheckState(state);
+
     connect(wsApp, SIGNAL(zoomMonospaceFont(QFont)),
             proto_tree_, SLOT(setMonospaceFont(QFont)));
 
@@ -102,6 +112,8 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
             this, SIGNAL(showProtocolPreferences(QString)));
     connect(proto_tree_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
             this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
+
+    connect(ui->chkShowByteView, &QCheckBox::stateChanged, this, &PacketDialog::viewVisibilityStateChanged);
 }
 
 PacketDialog::~PacketDialog()
@@ -145,4 +157,12 @@ void PacketDialog::setHintText(FieldInformation * finfo)
                  .arg(finfo->headerInfo().abbreviation);
      }
      ui->hintLabel->setText(hint);
+}
+
+void PacketDialog::viewVisibilityStateChanged(int state)
+{
+    byte_view_tab_->setVisible(state == Qt::Checked);
+
+    prefs.gui_packet_details_show_byteview = (state == Qt::Checked ? TRUE : FALSE);
+    prefs_main_write();
 }

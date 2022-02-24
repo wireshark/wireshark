@@ -13,6 +13,7 @@
 #include "syntax-tree.h"
 #include <wsutil/wmem/wmem.h>
 #include <wsutil/str_util.h>
+#include <wsutil/glib-compat.h>
 #include "sttype-test.h"
 
 /* Keep track of sttype_t's via their sttype_id_t number */
@@ -92,10 +93,12 @@ stnode_clear(stnode_t *node)
 	node->repr_display = NULL;
 	g_free(node->repr_debug);
 	node->repr_debug = NULL;
+	g_free(node->repr_token);
+	node->repr_token = NULL;
 }
 
 void
-stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
+stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data, char *token)
 {
 	sttype_t	*type;
 
@@ -105,6 +108,7 @@ stnode_init(stnode_t *node, sttype_id_t type_id, gpointer data)
 	node->flags = 0;
 	node->repr_display = NULL;
 	node->repr_debug = NULL;
+	node->repr_token = token;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -129,59 +133,52 @@ void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 {
 	uint16_t flags = node->flags; /* Save flags. */
+	char *repr_token = g_strdup(node->repr_token);
 	stnode_clear(node);
-	stnode_init(node, type_id, data);
+	stnode_init(node, type_id, data, NULL);
 	node->flags = flags;
-}
-
-void
-stnode_replace_string(stnode_t *node, const char *str)
-{
-	stnode_replace(node, STTYPE_STRING, g_strdup(str));
-}
-
-void
-stnode_replace_unparsed(stnode_t *node, const char *str)
-{
-	stnode_replace(node, STTYPE_UNPARSED, g_strdup(str));
+	node->repr_token = repr_token;
 }
 
 stnode_t*
-stnode_new(sttype_id_t type_id, gpointer data)
+stnode_new(sttype_id_t type_id, gpointer data, char *token)
 {
 	stnode_t	*node;
 
 	node = g_new0(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
 
-	stnode_init(node, type_id, data);
+	stnode_init(node, type_id, data, token);
 
 	return node;
 }
 
 stnode_t *
-stnode_new_test(test_op_t op, stnode_t *val1, stnode_t *val2)
+stnode_new_test(test_op_t op, char *token)
 {
 	stnode_t *node;
 
-	node = stnode_new(STTYPE_TEST, NULL);
-	if (val2 != NULL)
-		sttype_test_set2(node, op, val1, val2);
-	else
-		sttype_test_set1(node, op, val1);
+	node = stnode_new(STTYPE_TEST, NULL, token);
+	sttype_test_set_op(node, op);
 	return node;
 }
 
 stnode_t *
-stnode_new_string(const char *str)
+stnode_new_string(const char *str, char *token)
 {
-	return stnode_new(STTYPE_STRING, g_strdup(str));
+	return stnode_new(STTYPE_STRING, g_strdup(str), token);
 }
 
 stnode_t *
-stnode_new_unparsed(const char *str)
+stnode_new_unparsed(const char *str, char *token)
 {
-	return stnode_new(STTYPE_UNPARSED, g_strdup(str));
+	return stnode_new(STTYPE_UNPARSED, g_strdup(str), token);
+}
+
+stnode_t *
+stnode_new_charconst(unsigned long number, char *token)
+{
+	return stnode_new(STTYPE_CHARCONST, g_memdup2(&number, sizeof(number)), token);
 }
 
 stnode_t*
@@ -195,6 +192,7 @@ stnode_dup(const stnode_t *node)
 	new->flags = node->flags;
 	new->repr_display = NULL;
 	new->repr_debug = NULL;
+	new->repr_token = g_strdup(node->repr_token);
 
 	new->type = node->type;
 	if (node->type == NULL)
@@ -286,7 +284,7 @@ _node_tostr(stnode_t *node, gboolean pretty)
 		repr = s;
 	}
 	else {
-		repr = g_strdup_printf("%s<%s>", stnode_type_name(node), s);
+		repr = ws_strdup_printf("%s<%s>", stnode_type_name(node), s);
 		g_free(s);
 	}
 
@@ -300,6 +298,15 @@ stnode_tostr(stnode_t *node, gboolean pretty)
 
 	if (pretty && node->repr_display != NULL)
 		return node->repr_display;
+
+	if (pretty && node->repr_token != NULL) {
+		if (stnode_type_id(node) == STTYPE_CHARCONST) {
+			return node->repr_token;
+		}
+
+		node->repr_display = ws_strdup_printf("\"%s\"", node->repr_token);
+		return node->repr_display;
+	}
 
 	if (!pretty && node->repr_debug != NULL)
 		return node->repr_debug;
@@ -321,7 +328,7 @@ sprint_node(stnode_t *node)
 	wmem_strbuf_append_printf(buf, "stnode{ ");
 	wmem_strbuf_append_printf(buf, "magic=0x%"PRIx32", ", node->magic);
 	wmem_strbuf_append_printf(buf, "type=%s, ", stnode_type_name(node));
-	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todisplay(node));
+	wmem_strbuf_append_printf(buf, "data=<%s>, ", stnode_todebug(node));
 	wmem_strbuf_append_printf(buf, "flags=0x%04"PRIx16" }", node->flags);
 	return wmem_strbuf_finalize(buf);
 }

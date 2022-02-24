@@ -69,6 +69,8 @@ static int hf_imf_content_transfer_encoding = -1;
 static int hf_imf_content_description = -1;
 static int hf_imf_mime_version = -1;
 static int hf_imf_thread_index = -1;
+static int hf_imf_lines = -1;
+static int hf_imf_precedence = -1;
 static int hf_imf_ext_mailer = -1;
 static int hf_imf_ext_mimeole = -1;
 static int hf_imf_ext_tnef_correlator = -1;
@@ -76,6 +78,7 @@ static int hf_imf_ext_expiry_date = -1;
 static int hf_imf_ext_uidl = -1;
 static int hf_imf_ext_authentication_warning = -1;
 static int hf_imf_ext_virus_scanned = -1;
+static int hf_imf_ext_original_to = -1;
 static int hf_imf_extension = -1;
 static int hf_imf_extension_type = -1;
 static int hf_imf_extension_value = -1;
@@ -169,14 +172,14 @@ imf_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     /* Only include the string inside of the "<>" brackets. If there is nothing between
     the two brackets use the sender_data string */
     if(start && stop && stop > start && (stop - start) > 2){
-        entry->hostname = g_strdup_printf("%.*s", (int) (stop - start - 1), start + 1);
+        entry->hostname = ws_strdup_printf("%.*s", (int) (stop - start - 1), start + 1);
     } else {
         entry->hostname = g_strdup(eo_info->sender_data);
     }
 
     entry->pkt_num = pinfo->num;
     entry->content_type = g_strdup("EML file");
-    entry->filename = g_strdup_printf("%s.eml", eo_info->subject_data);
+    entry->filename = ws_strdup_printf("%s.eml", eo_info->subject_data);
     entry->payload_len = eo_info->payload_len;
     entry->payload_data = (guint8 *)g_memdup2(eo_info->payload_data, eo_info->payload_len);
 
@@ -268,12 +271,15 @@ static struct imf_field imf_fields[] = {
   /* some others */
   {"x-mailer",                            &hf_imf_ext_mailer, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"thread-index",                        &hf_imf_thread_index, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"lines",                               &hf_imf_lines, NULL, FALSE},
+  {"precedence",                          &hf_imf_precedence, NULL, FALSE},
   {"x-mimeole",                           &hf_imf_ext_mimeole, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"expiry-date",                         &hf_imf_ext_expiry_date, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-ms-tnef-correlator",                &hf_imf_ext_tnef_correlator, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-uidl",                              &hf_imf_ext_uidl, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-authentication-warning",            &hf_imf_ext_authentication_warning, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-virus-scanned",                     &hf_imf_ext_virus_scanned, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"x-original-to",                       &hf_imf_ext_original_to, dissect_imf_address_list, FALSE},
   {"sio-label",                           &hf_imf_siolabel, dissect_imf_siolabel, FALSE}, /* sio-label */
   {NULL, NULL, NULL, FALSE},
 };
@@ -339,7 +345,7 @@ header_fields_update_cb(void *r, char **err)
    */
   c = proto_check_field_name(rec->header_name);
   if (c) {
-    *err = g_strdup_printf("Header name can't contain '%c'", c);
+    *err = ws_strdup_printf("Header name can't contain '%c'", c);
     return FALSE;
   }
 
@@ -398,7 +404,7 @@ dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
     group_tree = proto_item_add_subtree(item, ett_imf_group);
 
     /* the display-name is mandatory */
-    group_item = proto_tree_add_item(group_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII|ENC_NA);
+    group_item = proto_tree_add_item(group_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII);
 
     /* consume any whitespace */
     for(addr_pos++ ;addr_pos < (offset + length); addr_pos++) {
@@ -435,7 +441,7 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
   if((addr_pos = tvb_find_guint8(tvb, offset, length, '<')) == -1) {
     /* we can't find an angle bracket - the whole field is therefore the address */
 
-    (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, offset, length, ENC_ASCII|ENC_NA);
+    (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, offset, length, ENC_ASCII);
 
   } else {
     /* we can find an angle bracket - let's see if we can find a display name */
@@ -448,12 +454,12 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
     }
 
     if(offset != addr_pos) { /* there is a display name */
-      (void) proto_tree_add_item(mbox_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII|ENC_NA);
+      (void) proto_tree_add_item(mbox_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII);
     }
     end_pos = tvb_find_guint8(tvb, addr_pos + 1, length - (addr_pos + 1 - offset), '>');
 
     if(end_pos != -1) {
-      (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, addr_pos + 1, end_pos - addr_pos - 1, ENC_ASCII|ENC_NA);
+      (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, addr_pos + 1, end_pos - addr_pos - 1, ENC_ASCII);
     }
   }
 }
@@ -485,7 +491,7 @@ dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item
     } else {
       item_length = end_offset - item_offset;
     }
-    addr_item = proto_tree_add_item(tree, hf_imf_address_list_item, tvb, item_offset, item_length, ENC_ASCII|ENC_NA);
+    addr_item = proto_tree_add_item(tree, hf_imf_address_list_item, tvb, item_offset, item_length, ENC_ASCII);
     dissect_imf_address(tvb, item_offset, item_length, addr_item, pinfo);
 
     if(end_offset != -1) {
@@ -524,7 +530,7 @@ dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item
     } else {
       item_length = end_offset - item_offset;
     }
-    mbox_item = proto_tree_add_item(tree, hf_imf_mailbox_list_item, tvb, item_offset, item_length, ENC_ASCII|ENC_NA);
+    mbox_item = proto_tree_add_item(tree, hf_imf_mailbox_list_item, tvb, item_offset, item_length, ENC_ASCII);
     dissect_imf_mailbox(tvb, item_offset, item_length, mbox_item, pinfo);
 
     if(end_offset != -1) {
@@ -583,14 +589,14 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
       proto_item_append_text(item, ": %s", marking);
 
     } else if (tvb_strneql(tvb, item_offset, "fgcolor", 7) == 0) {
-      proto_tree_add_item(tree, hf_imf_siolabel_fgcolor, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(tree, hf_imf_siolabel_fgcolor, tvb, value_offset, value_length, ENC_ASCII);
 
     } else if (tvb_strneql(tvb, item_offset, "bgcolor", 7) == 0) {
-      proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, ENC_ASCII);
 
     } else if (tvb_strneql(tvb, item_offset, "type", 4) == 0) {
       type = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
-      proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII);
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
       gchar *label = tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
@@ -601,11 +607,11 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
       } else {
-        proto_tree_add_item(tree, hf_imf_siolabel_label, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_imf_siolabel_label, tvb, value_offset, value_length, ENC_ASCII);
       }
 
     } else {
-      sub_item = proto_tree_add_item(tree, hf_imf_siolabel_unknown, tvb, item_offset, item_length, ENC_ASCII|ENC_NA);
+      sub_item = proto_tree_add_item(tree, hf_imf_siolabel_unknown, tvb, item_offset, item_length, ENC_ASCII);
       expert_add_info(pinfo, sub_item, &ei_imf_unknown_param);
     }
 
@@ -813,16 +819,16 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       if(hf_id == hf_imf_extension_type) {
 
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */
-        item = proto_tree_add_item(tree, hf_imf_extension, tvb, unknown_offset, end_offset - unknown_offset - 2, ENC_ASCII|ENC_NA);
+        item = proto_tree_add_item(tree, hf_imf_extension, tvb, unknown_offset, end_offset - unknown_offset - 2, ENC_ASCII);
 
         proto_item_append_text(item, " (Contact Wireshark developers if you want this supported.)");
 
         unknown_tree = proto_item_add_subtree(item, ett_imf_extension);
 
-        proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, ENC_ASCII);
 
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */
-        item = proto_tree_add_item(unknown_tree, hf_imf_extension_value, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII|ENC_NA);
+        item = proto_tree_add_item(unknown_tree, hf_imf_extension_value, tvb, value_offset, end_offset - value_offset - 2, ENC_ASCII);
 
       } else {
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */
@@ -983,7 +989,7 @@ header_fields_post_update_cb (void)
 
       dynamic_hf[i].p_id = hf_id;
       dynamic_hf[i].hfinfo.name = header_name;
-      dynamic_hf[i].hfinfo.abbrev = g_strdup_printf ("imf.header.%s", header_name);
+      dynamic_hf[i].hfinfo.abbrev = ws_strdup_printf ("imf.header.%s", header_name);
       dynamic_hf[i].hfinfo.type = FT_STRING;
       dynamic_hf[i].hfinfo.display = BASE_NONE;
       dynamic_hf[i].hfinfo.strings = NULL;
@@ -1234,8 +1240,17 @@ proto_register_imf(void)
     { &hf_imf_ext_virus_scanned,
       { "X-Virus-Scanned", "imf.ext.virus_scanned", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_imf_ext_original_to,
+      { "X-Original-To", "imf.ext.original-to", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_imf_thread_index,
       { "Thread-Index", "imf.thread-index", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_lines,
+      { "Lines", "imf.lines", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_precedence,
+      { "Precedence", "imf.precedence", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_imf_extension,
       { "Unknown-Extension", "imf.extension", FT_STRING,  BASE_NONE, NULL, 0x0,

@@ -837,7 +837,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 } else if (value_u64 == 1000000000) {
                     const_str = "1 Gbps";
                 } else {
-                    const_str = wmem_strdup_printf(pinfo->pool, "%"G_GUINT64_FORMAT, value_u64);
+                    const_str = wmem_strdup_printf(pinfo->pool, "%"PRIu64, value_u64);
                 }
                 proto_item_append_text(p_item, "%s", const_str);
                 proto_item_append_text(option_item, " = %s", const_str);
@@ -1018,7 +1018,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_timestamp_offset, tvb, offset, 8, encoding, &value_u64);
                 offset += 8;
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
 
                 if (interface_description) {
                     interface_description->timestamp_offset = value_u64;
@@ -1151,7 +1151,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_received, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1163,7 +1163,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_dropped, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1175,7 +1175,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_accepted_by_filter, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1187,7 +1187,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_dropped_by_os, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1199,7 +1199,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_delivered_to_user, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1249,7 +1249,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_packet_drop_count, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
+                proto_item_append_text(option_item, " = %"PRIu64, value_u64);
                 offset += 8;
 
                 break;
@@ -1261,7 +1261,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_packet_id, tvb, offset, 8, encoding, &value_u64);
-                proto_item_append_text(option_item, " = 0x%016"G_GINT64_MODIFIER"x", value_u64);
+                proto_item_append_text(option_item, " = 0x%016"PRIx64, value_u64);
                 offset += 8;
 
                 break;
@@ -2215,7 +2215,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_comment,
             { "Comment",                                   "pcapng.options.option.data.comment",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_section_header_byte_order_magic,
@@ -2245,27 +2245,27 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_section_header_hardware,
             { "Hardware",                                  "pcapng.options.option.data.hardware",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_section_header_os,
             { "OS",                                        "pcapng.options.option.data.os",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_section_header_user_application,
             { "User Application",                          "pcapng.options.option.data.user_application",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_interface_description_name,
             { "Name",                                      "pcapng.options.option.data.interface.name",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_interface_description_description,
             { "Description",                               "pcapng.options.option.data.interface.description",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_ipv4,
@@ -2330,7 +2330,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_interface_filter_string,
             { "Filter string",                             "pcapng.options.option.data.interface.filter.string",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_interface_filter_bpf_program,
@@ -2345,12 +2345,12 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_interface_os,
             { "OS",                                        "pcapng.options.option.data.interface.os",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_interface_hardware,
             { "Hardware",                                  "pcapng.options.option.data.interface.hardware",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_interface_fcs_length,
@@ -2525,7 +2525,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_data_dns_name,
             { "DNS Name",                                  "pcapng.options.option.data.dns_name",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_start_time,
@@ -2610,7 +2610,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_interface_id,
             { "Interface",                                 "pcapng.interface_id",
-            FT_UINT16, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_timestamp_high,
@@ -2670,7 +2670,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_record_name,
             { "Name",                                      "pcapng.records.record.data.name",
-            FT_STRINGZ, STR_ASCII, NULL, 0x00,
+            FT_STRINGZ, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_dsb_secrets_type,
@@ -2695,7 +2695,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_option_darwin_process_name,
             { "Darwin Process Name",                       "pcapng.darwin.process_name",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_darwin_process_uuid,

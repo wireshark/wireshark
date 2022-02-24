@@ -299,7 +299,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
     if (fileVersion != 9) {
         /* We only support version 9. */
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("peektagged: version %u unsupported",
+        *err_info = ws_strdup_printf("peektagged: version %u unsupported",
             fileVersion);
         return WTAP_OPEN_ERROR;
     }
@@ -352,7 +352,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
     if (mediaSubType >= NUM_PEEKTAGGED_ENCAPS
         || peektagged_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("peektagged: network type %u unknown or unsupported",
+        *err_info = ws_strdup_printf("peektagged: network type %u unknown or unsupported",
             mediaSubType);
         return WTAP_OPEN_ERROR;
     }
@@ -725,7 +725,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
          * to allocate space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("peektagged: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("peektagged: File has %u-byte packet, bigger than maximum of %u",
             sliceLength, WTAP_MAX_PACKET_SIZE_STANDARD);
         return -1;
     }
@@ -857,7 +857,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
         else {
             if (rec->rec_header.packet_header.len < 4 || rec->rec_header.packet_header.caplen < 4) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("peektagged: 802.11 packet has length < 4");
+                *err_info = ws_strdup_printf("peektagged: 802.11 packet has length < 4");
                 return FALSE;
             }
             rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = 0;
@@ -876,7 +876,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
          */
         if (rec->rec_header.packet_header.len < 4 || rec->rec_header.packet_header.caplen < 4) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("peektagged: Ethernet packet has length < 4");
+            *err_info = ws_strdup_printf("peektagged: Ethernet packet has length < 4");
             return FALSE;
         }
         rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;

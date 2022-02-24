@@ -126,7 +126,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * using other character encodings.
      */
     if (is_query) {
-        expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_ASCII|ENC_NA);
+        expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_ASCII);
         if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
             /*
              * From RFC3912, section 2:
@@ -172,7 +172,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * Put this line.
              */
             proto_tree_add_item(whois_tree, hf_whois_answer, tvb, offset,
-                next_offset - offset, ENC_ASCII|ENC_NA);
+                next_offset - offset, ENC_ASCII);
             offset = next_offset;
         }
     }

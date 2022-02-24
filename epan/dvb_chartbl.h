@@ -1,4 +1,4 @@
-/* dvb_chartbl.h
+/** @file
  * Routines for handling DVB-SI character tables (as defined in EN 300 468)
  *
  * Wireshark - Network traffic analyzer

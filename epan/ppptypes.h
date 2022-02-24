@@ -1,4 +1,4 @@
-/* ppptypes.h
+/** @file
  * Defines PPP packet types.
  *
  * Wireshark - Network traffic analyzer

@@ -1,4 +1,5 @@
-/* color.h
+/** @file
+ *
  * Definitions for colors
  *
  * Wireshark - Network traffic analyzer

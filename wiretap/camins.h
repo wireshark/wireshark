@@ -1,4 +1,4 @@
-/* camins.h
+/** @file
  *
  * File format support for Rabbit Labs CAM Inspector files
  * Copyright (c) 2013 by Martin Kaiser <martin@kaiser.cx>

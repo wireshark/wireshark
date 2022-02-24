@@ -232,7 +232,7 @@ asphodel_fmt_version(gchar *result, guint32 version)
     guint8 major = version >> 8;
     guint8 minor = (version >> 4) & 0x0F;
     guint8 subminor = version & 0x0F;
-    g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d", major, minor, subminor);
+    snprintf(result, ITEM_LABEL_LENGTH, "%d.%d.%d", major, minor, subminor);
 }
 
 static int
@@ -772,7 +772,7 @@ proto_reg_handoff_asphodel(void)
     asphodel_response_handle = create_dissector_handle(dissect_asphodel_response, proto_asphodel);
     asphodel_tcp_handle = create_dissector_handle(dissect_asphodel_tcp, proto_asphodel);
 
-    heur_dissector_add("udp", dissect_asphodel_heur_udp, "Asphodel",
+    heur_dissector_add("udp", dissect_asphodel_heur_udp, "Asphodel over UDP",
                        "asphodel_inquiry", proto_asphodel, HEURISTIC_ENABLE);
     dissector_add_for_decode_as("udp.port", asphodel_response_handle);
     dissector_add_for_decode_as("tcp.port", asphodel_tcp_handle);

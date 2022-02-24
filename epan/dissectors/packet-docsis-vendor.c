@@ -202,7 +202,7 @@ dissect_cisco (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint vsif
             break;
           case IOS_CONFIG_FILE:
             proto_tree_add_item (tree, hf_docsis_vsif_cisco_config_file, tvb,
-                                 pos, length, ENC_ASCII|ENC_NA);
+                                 pos, length, ENC_ASCII);
         }
       pos += length;
     }
@@ -366,7 +366,7 @@ dissect_sav(tvbuff_t * tvb, packet_info * pinfo,  proto_tree *tree, int start, g
       switch (type)
         {
         case GEX_SAV_GROUP_NAME:
-          proto_tree_add_item (sav_tree, hf_docsis_vsif_gex_sav_group_name, tvb, pos, length, ENC_ASCII|ENC_NA);
+          proto_tree_add_item (sav_tree, hf_docsis_vsif_gex_sav_group_name, tvb, pos, length, ENC_ASCII);
           break;
         case GEX_SAV_STATIC_PREFIX_RULE:
           dissect_sav_static_prefix_rule(tvb, pinfo, sav_tree, pos, length);
@@ -532,7 +532,7 @@ dissect_ip_multicast_join_authorization(tvbuff_t * tvb, packet_info * pinfo,  pr
             if ((length < 1) || (length > 15)) {
               expert_add_info_format(pinfo, imja_it, &ei_docsis_vsif_tlvlen_bad, "Wrong TLV length: %u", length);
             }
-            proto_tree_add_item (imja_tree, hf_docsis_vsif_gex_imja_ip_multicast_profile_name, tvb, pos, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item (imja_tree, hf_docsis_vsif_gex_imja_ip_multicast_profile_name, tvb, pos, length, ENC_ASCII);
             break;
           case GEX_IMJA_IP_MULTICAST_PROFILE_JOIN_AUTHORIZATION_STATIC_SESSION_RULE:
             dissect_ip_multicast_join_authorization_static_session_rule(tvb, pinfo, imja_tree, pos, length);
@@ -608,7 +608,7 @@ dissect_general_extension_information (tvbuff_t * tvb, packet_info * pinfo, prot
             dissect_ip_multicast_join_authorization(tvb, pinfo, tree, pos, length);
             break;
           case GEX_SERVICE_TYPE_IDENTIFIER:
-            proto_tree_add_item (tree, hf_docsis_vsif_gex_service_type_identifier, tvb, pos, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item (tree, hf_docsis_vsif_gex_service_type_identifier, tvb, pos, length, ENC_ASCII);
             break;
           default:
             proto_tree_add_item (tree, hf_docsis_vsif_tlv_unknown, tvb, pos, length, ENC_NA);

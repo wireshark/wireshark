@@ -54,13 +54,12 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 #include <epan/proto_data.h>
-#if 0
-#include <stdio.h>
-#endif
+
 void proto_register_selfm(void);
 
 /* Initialize the protocol and registered fields */
@@ -1165,7 +1164,7 @@ dissect_fmconfig_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
                     ett_selfm_fmconfig_ai, NULL, "Analog Channel: %s", ai_name);
 
         /* Add Channel Name, Channel Data Type, Scale Factor Type and Scale Factor Offset to tree */
-        proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_channel, tvb, offset, 6, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_channel, tvb, offset, 6, ENC_ASCII);
         proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_type, tvb, offset+6, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_sf_type, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(fmconfig_ai_tree, hf_selfm_fmconfig_ai_sf_ofs, tvb, offset+8, 2, ENC_BIG_ENDIAN);
@@ -1262,7 +1261,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
 
                 /* If the stored config_cmd matches the expected one we are looking for, mark that the config data was found */
                 if (config_cmd == config_cmd_match) {
-                    proto_item_append_text(fmdata_item, ", using frame number %"G_GUINT32_FORMAT" as Configuration Frame",
+                    proto_item_append_text(fmdata_item, ", using frame number %"PRIu32" as Configuration Frame",
                                    cfg_data->fnum);
                     config_found = TRUE;
                 }
@@ -1840,7 +1839,7 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
 
                         case FAST_MSG_TAGTYPE_CHAR8:
                         case FAST_MSG_TAGTYPE_CHAR16:
-                            proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fmdata_ai_value_string, payload_tvb, payload_offset, data_size, ENC_ASCII|ENC_NA);
+                            proto_tree_add_item(fastmsg_tag_tree, hf_selfm_fmdata_ai_value_string, payload_tvb, payload_offset, data_size, ENC_ASCII);
                             payload_offset += data_size;
                             break;
 
@@ -2261,8 +2260,8 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
         case FAST_MSG_DEVDESC_RESP:  /* 0xB0 (resp to 0x30) - Device Description Response */
 
             /* Add FID / RID ASCII data to tree */
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fid, tvb, offset, 50, ENC_ASCII|ENC_NA);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_rid, tvb, offset+50, 40, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_fid, tvb, offset, 50, ENC_ASCII);
+            proto_tree_add_item(fastmsg_tree, hf_selfm_rid, tvb, offset+50, 40, ENC_ASCII);
             offset += 90;
 
             /* 16-bit field with number of data areas */
@@ -2291,7 +2290,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                                 ett_selfm_fastmsg_datareg, NULL, "Fast Message Data Region #%d", cnt+1);
 
                 /* 10-Byte Region description */
-                proto_tree_add_item(fastmsg_datareg_tree, hf_selfm_fastmsg_data_region_name, tvb, offset, 10, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(fastmsg_datareg_tree, hf_selfm_fastmsg_data_region_name, tvb, offset, 10, ENC_ASCII);
                 offset += 10;
 
                 /* 32-bit field with base address of data region */

@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <config.h>
+#include "config.h"
 
 #include "unicode-utils.h"
 
@@ -94,7 +94,7 @@ utf_8to16_snprintf(TCHAR *utf16buf, gint utf16buf_len, const gchar* fmt, ...)
   gchar* dst;
 
   va_start(ap,fmt);
-  dst = g_strdup_vprintf(fmt, ap);
+  dst = ws_strdup_vprintf(fmt, ap);
   va_end(ap);
 
   StringCchPrintf(utf16buf, utf16buf_len, _T("%s"), utf_8to16(dst));

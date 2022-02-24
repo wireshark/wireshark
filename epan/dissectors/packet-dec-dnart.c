@@ -1094,7 +1094,7 @@ handle_connect_contents(
         /* The name field for formats 1 and 2 */
         image_len = tvb_get_guint8(tvb, my_offset);
         my_offset++;
-        proto_tree_add_item(contents_tree, hf_dec_sess_dst_name, tvb, my_offset, image_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(contents_tree, hf_dec_sess_dst_name, tvb, my_offset, image_len, ENC_ASCII);
         my_offset += image_len;
     }
     /* The source end user */
@@ -1115,7 +1115,7 @@ handle_connect_contents(
         image_len = tvb_get_guint8(tvb, my_offset);
         my_offset++;
         proto_tree_add_item(contents_tree, hf_dec_sess_src_name,
-            tvb, my_offset, image_len, ENC_ASCII|ENC_NA);
+            tvb, my_offset, image_len, ENC_ASCII);
         my_offset += image_len;
     }
     /* Now the MENUVER field */
@@ -1130,17 +1130,17 @@ handle_connect_contents(
             image_len = tvb_get_guint8(tvb, my_offset);
             my_offset++;
             proto_tree_add_item(contents_tree, hf_dec_sess_rqstr_id,
-                tvb, my_offset, image_len, ENC_ASCII|ENC_NA);
+                tvb, my_offset, image_len, ENC_ASCII);
             my_offset += image_len;
             image_len = tvb_get_guint8(tvb, my_offset);
             my_offset++;
             proto_tree_add_item(contents_tree, hf_dec_sess_rqstr_id,
-                tvb, my_offset, image_len, ENC_ASCII|ENC_NA);
+                tvb, my_offset, image_len, ENC_ASCII);
             my_offset += image_len;
             image_len = tvb_get_guint8(tvb, my_offset);
             my_offset++;
             proto_tree_add_item(contents_tree, hf_dec_sess_rqstr_id,
-                tvb, my_offset, image_len, ENC_ASCII|ENC_NA);
+                tvb, my_offset, image_len, ENC_ASCII);
             my_offset += image_len;
 
 

@@ -20,6 +20,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include "proto_data.h"
 
 #ifdef HAVE_ZLIB
@@ -180,7 +181,7 @@ message_hash_key_convo(packet_info *pinfo,
 	// msgtype:srcport:destport:messagenum
 
 	const gchar *msg_type = get_message_type(value_frame_flags);
-	gchar *hash_key = wmem_strdup_printf(pinfo->pool, "%s:%u:%u:%" G_GINT64_MODIFIER "u",
+	gchar *hash_key = wmem_strdup_printf(pinfo->pool, "%s:%u:%u:%" PRIu64,
 			msg_type, pinfo->srcport, pinfo->destport, value_message_num);
 
 	return hash_key;
@@ -444,7 +445,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 	offset += varint_frame_flags_length;
 
 	const gchar* msg_type = get_message_type(value_frame_flags);
-	gchar* msg_num = wmem_strdup_printf(pinfo->pool, "#%" G_GUINT64_FORMAT, value_message_num);
+	gchar* msg_num = wmem_strdup_printf(pinfo->pool, "#%" PRIu64, value_message_num);
 	gchar* col_info = wmem_strconcat(pinfo->pool, msg_type, msg_num, NULL);
 	col_add_str(pinfo->cinfo, COL_INFO, col_info);
 
@@ -543,7 +544,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 	}
 
 	if(reported_length_remaining > 0) {
-		proto_tree_add_item(blip_tree, hf_blip_message_body, tvb_to_use, offset, reported_length_remaining, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(blip_tree, hf_blip_message_body, tvb_to_use, offset, reported_length_remaining, ENC_UTF_8);
 	}
 
 	proto_tree_add_item(blip_tree, hf_blip_checksum, tvb, tvb_reported_length(tvb) - BLIP_BODY_CHECKSUM_SIZE, BLIP_BODY_CHECKSUM_SIZE, ENC_BIG_ENDIAN);
@@ -570,11 +571,11 @@ proto_register_blip(void)
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_properties,
-		{ "Properties", "blip.props", FT_STRING, STR_UNICODE,
+		{ "Properties", "blip.props", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 	{ &hf_blip_message_body,
-		{ "Message Body", "blip.messagebody", FT_STRING, STR_UNICODE,
+		{ "Message Body", "blip.messagebody", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 	},
 	{ &hf_blip_ack_size,

@@ -90,6 +90,8 @@ BASIC_LIST="base-devel \
 
 ADDITIONAL_LIST="asciidoctor \
 	ccache \
+	docbook-xml \
+	docbook-xsl \
 	doxygen \
 	libxslt"
 

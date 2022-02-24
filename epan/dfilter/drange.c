@@ -15,7 +15,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
-#include <wsutil/ws_assert.h>
+
 
 /* drange_node constructor */
 drange_node*
@@ -40,11 +40,11 @@ drange_str_to_gint32(const char *s, gint32 *pint, char **endptr, char **err_ptr)
     integer = strtol(s, endptr, 0);
     if (errno == EINVAL || *endptr == s) {
         /* This isn't a valid number. */
-        *err_ptr = g_strdup_printf("\"%s\" is not a valid number.", s);
+        *err_ptr = ws_strdup_printf("\"%s\" is not a valid number.", s);
         return FALSE;
     }
     if (errno == ERANGE || integer > G_MAXINT32 || integer < G_MININT32) {
-        *err_ptr = g_strdup_printf("\"%s\" causes an integer overflow.", s);
+        *err_ptr = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
         return FALSE;
     }
     *pint = (gint32)integer;
@@ -116,7 +116,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
         str++;
 
     if (!ok || *str != '\0') {
-        *err_ptr = g_strdup_printf("\"%s\" is not a valid range.", range_str);
+        *err_ptr = ws_strdup_printf("\"%s\" is not a valid range.", range_str);
         return NULL;
     }
 
@@ -125,7 +125,7 @@ drange_node_from_str(const char *range_str, char **err_ptr)
     switch (end) {
         case DRANGE_NODE_END_T_LENGTH:
             if (upper <= 0) {
-                *err_ptr = g_strdup_printf("Range %s isn't valid "
+                *err_ptr = ws_strdup_printf("Range %s isn't valid "
                                     "because length %d isn't positive",
                                     range_str, upper);
                 drange_node_free(dn);
@@ -135,14 +135,14 @@ drange_node_from_str(const char *range_str, char **err_ptr)
             break;
         case DRANGE_NODE_END_T_OFFSET:
             if ((lower < 0 && upper > 0) || (lower > 0 && upper < 0)) {
-                *err_ptr = g_strdup_printf("Range %s isn't valid "
+                *err_ptr = ws_strdup_printf("Range %s isn't valid "
                                     "because %d and %d have different signs",
                                     range_str, lower, upper);
                 drange_node_free(dn);
                 return NULL;
             }
             if (upper <= lower) {
-                *err_ptr = g_strdup_printf("Range %s isn't valid "
+                *err_ptr = ws_strdup_printf("Range %s isn't valid "
                                     "because %d is greater or equal than %d",
                                     range_str, lower, upper);
                 drange_node_free(dn);

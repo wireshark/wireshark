@@ -1,4 +1,4 @@
-/* crc32.h
+/** @file
  * Declaration of CRC-32 routine and table
  *
  * Wireshark - Network traffic analyzer

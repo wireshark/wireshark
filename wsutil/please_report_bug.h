@@ -1,4 +1,4 @@
-/* please_report_bug.h
+/** @file
  * Declarations of routines returning strings to use when reporting a bug.
  * They ask the user to report a bug to the Wireshark developers.
  *

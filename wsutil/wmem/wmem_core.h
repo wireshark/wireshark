@@ -1,4 +1,4 @@
-/* wmem_core.h
+/** @file
  * Definitions for the Wireshark Memory Manager Core
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
@@ -15,7 +15,7 @@
 #include <string.h>
 #include <glib.h>
 #include <ws_symbol_export.h>
-#include "ws_attributes.h"
+#include <ws_attributes.h>
 
 #ifdef __cplusplus
 extern "C" {

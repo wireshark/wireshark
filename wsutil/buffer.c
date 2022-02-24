@@ -114,7 +114,7 @@ ws_buffer_remove_start(Buffer* buffer, gsize bytes)
 {
 	ws_assert(buffer);
 	if (buffer->start + bytes > buffer->first_free) {
-		ws_error("ws_buffer_remove_start trying to remove %" G_GINT64_MODIFIER "u bytes. s=%" G_GINT64_MODIFIER "u ff=%" G_GINT64_MODIFIER "u!\n",
+		ws_error("ws_buffer_remove_start trying to remove %" PRIu64 " bytes. s=%" PRIu64 " ff=%" PRIu64 "!\n",
 			(guint64)bytes, (guint64)buffer->start,
 			(guint64)buffer->first_free);
 		/** ws_error() does an abort() and thus never returns **/

@@ -71,9 +71,9 @@ endpoints_draw(void *arg)
 				if (display_port) {
 					/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
 					port_str = get_conversation_port(NULL, host->port, host->etype, TRUE);
-					printf("%-20s      %5s     %6" G_GINT64_MODIFIER "u     %9" G_GINT64_MODIFIER
-					       "u     %6" G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u      %6"
-					       G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u   \n",
+					printf("%-20s      %5s     %6" PRIu64 "     %9" PRIu64
+					       "     %6" PRIu64 "       %9" PRIu64 "      %6"
+					       PRIu64 "       %9" PRIu64 "   \n",
 						conversation_str,
 						port_str,
 						host->tx_frames+host->rx_frames, host->tx_bytes+host->rx_bytes,
@@ -81,9 +81,9 @@ endpoints_draw(void *arg)
 						host->rx_frames, host->rx_bytes);
 					wmem_free(NULL, port_str);
 				} else {
-					printf("%-20s      %6" G_GINT64_MODIFIER "u     %9" G_GINT64_MODIFIER
-					       "u     %6" G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u      %6"
-					       G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u   \n",
+					printf("%-20s      %6" PRIu64 "     %9" PRIu64
+					       "     %6" PRIu64 "       %9" PRIu64 "      %6"
+					       PRIu64 "       %9" PRIu64 "   \n",
 						/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
 						conversation_str,
 						host->tx_frames+host->rx_frames, host->tx_bytes+host->rx_bytes,

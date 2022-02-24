@@ -1,4 +1,4 @@
-/* capture_filter_edit.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

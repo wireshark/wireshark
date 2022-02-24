@@ -512,7 +512,7 @@ dissect_identity_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
     for(i=0; i < no_of_ids; i++) {
         gchar number[4] = {0};
 
-        g_snprintf(number, 4, "%d", i);
+        snprintf(number, 4, "%d", i);
         offset += dissect_identity(tvb, offset, id_list_tree, number);
     }
 

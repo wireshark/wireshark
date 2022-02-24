@@ -164,7 +164,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 			if (++ctr > WTAP_MAX_PACKET_SIZE_STANDARD) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("dpa400: File has data record bigger than maximum of %u",
+				*err_info = ws_strdup_printf("dpa400: File has data record bigger than maximum of %u",
 					WTAP_MAX_PACKET_SIZE_STANDARD);
 				return FALSE;
 			}
@@ -193,7 +193,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 	default:
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("dpa400: unknown packet type %02x", chunk[0]);
+		*err_info = ws_strdup_printf("dpa400: unknown packet type %02x", chunk[0]);
 		return FALSE;
 	}
 

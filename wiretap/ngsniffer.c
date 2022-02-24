@@ -613,7 +613,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	if (version.network >= NUM_NGSNIFF_ENCAPS
 	    || sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("ngsniffer: network type %u unknown or unsupported",
+		*err_info = ws_strdup_printf("ngsniffer: network type %u unknown or unsupported",
 		    version.network);
 		return WTAP_OPEN_ERROR;
 	}
@@ -621,7 +621,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	/* Check the time unit */
 	if (version.timeunit >= NUM_NGSNIFF_TIMEUNITS) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("ngsniffer: Unknown timeunit %u", version.timeunit);
+		*err_info = ws_strdup_printf("ngsniffer: Unknown timeunit %u", version.timeunit);
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -911,7 +911,7 @@ process_rec_header2_v2(wtap *wth, unsigned char *buffer, guint16 length,
 		wth->file_encap = WTAP_ENCAP_LAPB;
 	} else {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("ngsniffer: WAN capture protocol string %.*s unknown",
+		*err_info = ws_strdup_printf("ngsniffer: WAN capture protocol string %.*s unknown",
 		    length, buffer);
 		return -1;
 	}
@@ -1018,7 +1018,7 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 		 * Reject these until we can figure them out.
 		 */
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("ngsniffer: WAN network subtype %u unknown or unsupported",
+		*err_info = ws_strdup_printf("ngsniffer: WAN network subtype %u unknown or unsupported",
 		    buffer[4]);
 		return -1;
 	}
@@ -1328,7 +1328,7 @@ process_frame_record(wtap *wth, gboolean is_random, guint *padding,
 	}
 
 	/*
-	 * Is the frame data size greater than than what's left of the
+	 * Is the frame data size greater than what's left of the
 	 * record?
 	 */
 	if (size > rec_length_remaining) {

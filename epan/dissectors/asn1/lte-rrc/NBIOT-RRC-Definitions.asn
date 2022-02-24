@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.6.0 (2021-09)
+-- 3GPP TS 36.331 V16.7.0 (2021-12)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -2029,7 +2029,7 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 	[[	npusch-ConfigDedicated-v1610		NPUSCH-ConfigDedicated-NB-v1610
 																	OPTIONAL,	-- Cond twoHARQ
 		npdsch-ConfigDedicated-r16			NPDSCH-ConfigDedicated-NB-r16
-																	OPTIONAL,
+																	OPTIONAL,	-- Need ON
 		resourceReservationConfigDL-r16		CHOICE {release NULL, setup ResourceReservationConfig-NB-r16}
 																		OPTIONAL,	-- Cond dl-NonAnchor
 		resourceReservationConfigUL-r16		CHOICE {release NULL, setup ResourceReservationConfig-NB-r16}

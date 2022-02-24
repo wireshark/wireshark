@@ -1,4 +1,5 @@
-/* wireless_timeline.h
+/** @file
+ *
  * GUI to show an 802.11 wireless timeline of packets
  *
  * Wireshark - Network traffic analyzer

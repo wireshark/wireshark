@@ -833,7 +833,7 @@ kink_fmt_version( gchar *result, guint32 version )
   major_version = (guint8)((version & FRONT_FOUR_BIT) >> VERSION_BIT_SHIFT);
   minor_version = (guint8)(version & SECOND_FOUR_BIT);
 
-  g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", major_version, minor_version);
+  snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", major_version, minor_version);
 }
 
 /* Output part */

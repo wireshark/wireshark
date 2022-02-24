@@ -1746,7 +1746,7 @@ dissect_atm_pw_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 static void atm_prompt(packet_info *pinfo _U_, gchar* result)
 {
-  g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode AAL2 traffic as");
+  snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Decode AAL2 traffic as");
 }
 
 static gpointer atm_value(packet_info *pinfo)

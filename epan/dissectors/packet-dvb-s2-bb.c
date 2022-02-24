@@ -130,6 +130,7 @@ static const enum_val_t dvb_s2_modeadapt_enum[] = {
 static gboolean dvb_s2_full_dissection = FALSE;
 static gboolean dvb_s2_df_dissection = FALSE;
 static gint dvb_s2_default_modeadapt = DVB_S2_MODEADAPT_TYPE_L3;
+static gboolean dvb_s2_try_all_modeadapt = TRUE;
 
 /* Initialize the protocol and registered fields */
 static int proto_dvb_s2_modeadapt = -1;
@@ -323,7 +324,6 @@ static unsigned char _use_low_rolloff_value = 0;
 #define DVB_S2_MODEADAPT_SYNCBYTE               0xB8
 
 /* second byte */
-#define DVB_S2_MODEADAPT_OFFS_ACMBYTE         1
 #define DVB_S2_MODEADAPT_MODCODS_MASK   0x1F
 #define DVB_S2_MODEADAPT_MODCODS_S2X_MASK   0xDF
 static const value_string modeadapt_modcods[] = {
@@ -1986,24 +1986,29 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         NULL
     };
 
-    matched_headers = detect_dvb_s2_modeadapt(tvb);
-
-    if (matched_headers & (1 << dvb_s2_default_modeadapt)) {
-        /* If the default value from preferences matches, use it first */
-        modeadapt_type = dvb_s2_default_modeadapt;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L3SIZE)) {
-        /* In my experience and in product data sheets, L.3 format is the most
-         * common for outputting over UDP or RTP, so give it highest priority
-         * (or second highest if another is set to default) by trying it last.
-         */
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L4SIZE)) {
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
-    } else if (matched_headers & (1 << DVB_S2_MODEADAPT_L2SIZE)) {
-        modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
+    if (dvb_s2_try_all_modeadapt) {
+        matched_headers = detect_dvb_s2_modeadapt(tvb);
+        if (matched_headers & (1 << dvb_s2_default_modeadapt)) {
+            /* If the default value from preferences matches, use it first */
+            modeadapt_type = dvb_s2_default_modeadapt;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L3)) {
+            /* In my experience and in product data sheets, L.3 format is the
+             * most common for outputting over UDP or RTP, so try it next.
+             */
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L3;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L4)) {
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L4;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L2)) {
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L2;
+        } else if (matched_headers & (1 << DVB_S2_MODEADAPT_TYPE_L1)) {
+            modeadapt_type = DVB_S2_MODEADAPT_TYPE_L1;
+        } else {
+            /* If nothing matches, use the default value from preferences.
+             */
+            modeadapt_type = dvb_s2_default_modeadapt;
+        }
     } else {
-        /* If nothing matches, use the default value from preferences.
-         */
+        /* Assume it's the preferred type */
         modeadapt_type = dvb_s2_default_modeadapt;
     }
     modeadapt_len = dvb_s2_modeadapt_sizes[modeadapt_type];
@@ -2033,23 +2038,22 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         if (modeadapt_type == DVB_S2_MODEADAPT_TYPE_L2 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L3 ||
             modeadapt_type == DVB_S2_MODEADAPT_TYPE_L4) {
-            mc = tvb_get_guint8(tvb, 1);
-            //mc = tvb_get_letohs(tvb, 0);
+            mc = tvb_get_guint8(tvb, cur_off);
             if (mc & 0x80) {
                 modcod = 0x80;
                 modcod |= ((mc & 0x1F) << 2);
                 modcod |= ((mc & 0x40) >> 5);
                 tf = proto_tree_add_item(dvb_s2_modeadapt_tree, hf_dvb_s2_modeadapt_acm, tvb,
-                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, ENC_BIG_ENDIAN);
+                        cur_off, 1, ENC_BIG_ENDIAN);
 
                 dvb_s2_modeadapt_acm_tree = proto_item_add_subtree(tf, ett_dvb_s2_modeadapt_acm);
 
                 proto_tree_add_item(dvb_s2_modeadapt_acm_tree, hf_dvb_s2_modeadapt_acm_pilot, tvb,
-                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, ENC_BIG_ENDIAN);
+                        cur_off, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_uint_format_value(dvb_s2_modeadapt_acm_tree, hf_dvb_s2_modeadapt_acm_modcod_s2x, tvb,
-                        DVB_S2_MODEADAPT_OFFS_ACMBYTE, 1, mc, "DVBS2X %s(%d)", modeadapt_modcods[modcod].strptr, modcod);
+                        cur_off, 1, mc, "DVBS2X %s(%d)", modeadapt_modcods[modcod].strptr, modcod);
             } else {
-                proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, DVB_S2_MODEADAPT_OFFS_ACMBYTE, hf_dvb_s2_modeadapt_acm,
+                proto_tree_add_bitmask_with_flags(dvb_s2_modeadapt_tree, tvb, cur_off, hf_dvb_s2_modeadapt_acm,
                         ett_dvb_s2_modeadapt_acm, modeadapt_acm_bitfields, ENC_BIG_ENDIAN, BMT_NO_FLAGS);
             }
             cur_off++;
@@ -2075,10 +2079,14 @@ static int dissect_dvb_s2_modeadapt(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static gboolean dissect_dvb_s2_modeadapt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     int matched_headers = detect_dvb_s2_modeadapt(tvb);
-    if (matched_headers == 0) {
-        /* This does not look like a DVB-S2-BB frame at all. We are a
-           heuristic dissector, so we should just punt and let another
-           dissector have a try at this one. */
+    if (dvb_s2_try_all_modeadapt) {
+        if (matched_headers == 0) {
+            /* This does not look like a DVB-S2-BB frame at all. We are a
+               heuristic dissector, so we should just punt and let another
+               dissector have a try at this one. */
+            return FALSE;
+        }
+    } else if (! (matched_headers & (1 << dvb_s2_default_modeadapt))) {
         return FALSE;
     }
 
@@ -2193,12 +2201,12 @@ void proto_register_dvb_s2_modeadapt(void)
         },
         {&hf_dvb_s2_bb_upl, {
                 "UPL", "dvb-s2_bb.upl",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "User Packet Length", HFILL}
         },
         {&hf_dvb_s2_bb_dfl, {
                 "DFL", "dvb-s2_bb.dfl",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Data Field Length", HFILL}
         },
         {&hf_dvb_s2_bb_sync, {
@@ -2524,8 +2532,15 @@ void proto_register_dvb_s2_modeadapt(void)
 
     prefs_register_enum_preference(dvb_s2_modeadapt_module, "default_modeadapt",
         "Preferred Mode Adaptation Interface",
-        "The preferred Mode Adaptation Interface in the case of ambiguity",
+        "The preferred Mode Adaptation Interface",
         &dvb_s2_default_modeadapt, dvb_s2_modeadapt_enum, FALSE);
+
+    prefs_register_bool_preference(dvb_s2_modeadapt_module, "try_all_modeadapt",
+        "Try all Mode Adaptation Interface Types",
+        "Try all supported Mode Adaptation Interface Types, using the preferred"
+        " value in the case of ambiguity; if unset, only look for Base Band"
+        " Frames with the preferred type",
+        &dvb_s2_try_all_modeadapt);
 
     prefs_register_range_preference(dvb_s2_modeadapt_module, "dynamic.payload.type",
                             "DVB-S2 RTP dynamic payload types",

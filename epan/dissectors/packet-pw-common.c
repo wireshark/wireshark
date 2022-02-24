@@ -52,7 +52,7 @@ void pwc_item_append_cw(proto_item* item, const guint32 cw, const gboolean appen
 		{
 			proto_item_append_text(item, ", CW");
 		}
-		proto_item_append_text(item, ": 0x%.8" G_GINT32_MODIFIER "x", cw);
+		proto_item_append_text(item, ": 0x%.8" PRIx32, cw);
 	}
 	return;
 }

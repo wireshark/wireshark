@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Copyright 2021, João Valverde <j@v6e.pt>
  *
  * Wireshark - Network traffic analyzer
@@ -11,9 +12,11 @@
 #ifndef __WSLOG_H__
 #define __WSLOG_H__
 
+#include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <time.h>
 #include <stdarg.h>
+#include <time.h>
 #include <glib.h>
 
 #include <ws_symbol_export.h>
@@ -26,6 +29,12 @@
 #define _LOG_DOMAIN ""
 #endif
 
+#ifdef WS_DISABLE_DEBUG
+#define _LOG_DEBUG_ENABLED false
+#else
+#define _LOG_DEBUG_ENABLED true
+#endif
+
 /*
  * Define the macro WS_LOG_DOMAIN *before* including this header,
  * for example:
@@ -36,16 +45,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
-typedef struct {
-    time_t tv_sec;  /* -1 if no time source is available */
-    long tv_nsec;   /* -1 if subsecond resolution is not available */
-} ws_log_time_t;
-
 
 /** Callback for registering a log writer. */
 typedef void (ws_log_writer_cb)(const char *domain, enum ws_log_level level,
-                            ws_log_time_t timestamp,
-                            const char *file, int line, const char *func,
+                            struct timespec timestamp,
+                            const char *file, long line, const char *func,
                             const char *user_format, va_list user_ap,
                             void *user_data);
 
@@ -55,11 +59,27 @@ typedef void (ws_log_writer_free_data_cb)(void *user_data);
 
 
 WS_DLL_PUBLIC
-void ws_log_default_writer(const char *domain, enum ws_log_level level,
-                            ws_log_time_t timestamp,
-                            const char *file, int line, const char *func,
-                            const char *user_format, va_list user_ap,
-                            void *user_data);
+void ws_log_file_writer(FILE *fp, const char *domain, enum ws_log_level level,
+                            struct timespec timestamp,
+                            const char *file, long line, const char *func,
+                            const char *user_format, va_list user_ap);
+
+
+WS_DLL_PUBLIC
+void ws_log_console_writer(const char *domain, enum ws_log_level level,
+                            struct timespec timestamp,
+                            const char *file, long line, const char *func,
+                            const char *user_format, va_list user_ap);
+
+
+/** Configure log levels "info" and below to use stdout.
+ *
+ * Normally all log messages are written to stderr. For backward compatibility
+ * with GLib calling this function with TRUE configures log levels "info",
+ * "debug" and "noisy" to be written to stdout.
+ */
+WS_DLL_PUBLIC
+void ws_log_console_writer_set_use_stdout(bool use_stdout);
 
 
 /** Convert a numerical level to its string representation. */
@@ -73,7 +93,7 @@ const char *ws_log_level_to_string(enum ws_log_level level);
  * Returns TRUE if a message will be printed for the domain/level combo.
  */
 WS_DLL_PUBLIC
-gboolean ws_log_msg_is_active(const char *domain, enum ws_log_level level);
+bool ws_log_msg_is_active(const char *domain, enum ws_log_level level);
 
 
 /** Return the currently active log level. */
@@ -81,9 +101,10 @@ WS_DLL_PUBLIC
 enum ws_log_level ws_log_get_level(void);
 
 
-/** Set the active log level. */
+/** Set the active log level. Returns the active level or LOG_LEVEL_NONE
+ * if level is invalid. */
 WS_DLL_PUBLIC
-void ws_log_set_level(enum ws_log_level level);
+enum ws_log_level ws_log_set_level(enum ws_log_level level);
 
 
 /** Set the active log level from a string.
@@ -144,6 +165,26 @@ void ws_log_set_fatal(enum ws_log_level level);
  */
 WS_DLL_PUBLIC
 enum ws_log_level  ws_log_set_fatal_str(const char *str_level);
+
+
+/** Set the active log writer.
+ *
+ * The parameter 'writer' can be NULL to use the default writer.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_writer(ws_log_writer_cb *writer);
+
+
+/** Set the active log writer.
+ *
+ * The parameter 'writer' can be NULL to use the default writer.
+ * Accepts an extra user_data parameter that will be passed to
+ * the log writer.
+ */
+WS_DLL_PUBLIC
+void ws_log_set_writer_with_data(ws_log_writer_cb *writer,
+                        void *user_data,
+                        ws_log_writer_free_data_cb *free_user_data);
 
 
 #define LOG_ARGS_NOEXIT -1
@@ -219,7 +260,7 @@ void ws_logv(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, ...) G_GNUC_PRINTF(6,7);
 
 
@@ -230,18 +271,36 @@ void ws_log_full(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_logv_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, va_list ap);
 
 
-#define _LOG_FULL(level, ...) \
-            ws_log_full(_LOG_DOMAIN, level,  \
-                        __FILE__, __LINE__, __func__, __VA_ARGS__)
+WS_DLL_PUBLIC
+WS_NORETURN
+void ws_log_fatal_full(const char *domain, enum ws_log_level level,
+                    const char *file, long line, const char *func,
+                    const char *format, ...) G_GNUC_PRINTF(6,7);
 
-#define _LOG_SIMPLE(level, ...) \
-            ws_log_full(_LOG_DOMAIN, level,  \
-                        NULL, -1, NULL, __VA_ARGS__)
 
+/*
+ * The if condition avoids -Wunused warnings for variables used only with
+ * !WS_DISABLE_DEBUG, typically inside a ws_debug() call. The compiler will
+ * optimize away the dead execution branch.
+ */
+#define _LOG_IF_ACTIVE(active, level, file, line, func, ...) \
+        do {                                        \
+            if (active) {                           \
+                ws_log_full(_LOG_DOMAIN, level,     \
+                            file, line, func,       \
+                            __VA_ARGS__);           \
+            }                                       \
+        } while (0)
+
+#define _LOG_FULL(active, level, ...) \
+        _LOG_IF_ACTIVE(active, level, __FILE__, __LINE__, __func__, __VA_ARGS__)
+
+#define _LOG_SIMPLE(active, level, ...) \
+        _LOG_IF_ACTIVE(active, level, NULL, -1, NULL, __VA_ARGS__)
 
 /** Logs with "error" level.
  *
@@ -249,58 +308,56 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  *
  * "error" is always fatal and terminates the program with a coredump.
  */
-#define ws_error(...)    _LOG_FULL(LOG_LEVEL_ERROR, __VA_ARGS__)
+#define ws_error(...) \
+        ws_log_fatal_full(_LOG_DOMAIN, LOG_LEVEL_ERROR, \
+                            __FILE__, __LINE__, __func__, __VA_ARGS__)
 
 /** Logs with "critical" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_critical(...) _LOG_FULL(LOG_LEVEL_CRITICAL, __VA_ARGS__)
+#define ws_critical(...) \
+        _LOG_FULL(true, LOG_LEVEL_CRITICAL, __VA_ARGS__)
 
 /** Logs with "warning" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_warning(...)  _LOG_FULL(LOG_LEVEL_WARNING, __VA_ARGS__)
+#define ws_warning(...) \
+        _LOG_FULL(true, LOG_LEVEL_WARNING, __VA_ARGS__)
 
 /** Logs with "message" level.
  *
  * Accepts a format string and *does not* include the file and function
  * name. This is the default log level.
  */
-#define ws_message(...)  _LOG_SIMPLE(LOG_LEVEL_MESSAGE, __VA_ARGS__)
+#define ws_message(...) \
+        _LOG_SIMPLE(true, LOG_LEVEL_MESSAGE, __VA_ARGS__)
 
 /** Logs with "info" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_info(...)     _LOG_FULL(LOG_LEVEL_INFO, __VA_ARGS__)
-
-#ifdef WS_DISABLE_DEBUG
-/*
- * This avoids -Wunused warnings for variables used only with
- * !WS_DISABLE_DEBUG,typically inside a ws_debug() call. The compiler will
- * optimize away the dead execution branch.
- */
-#define _LOG_DEBUG(level, ...) \
-          G_STMT_START { \
-               if (0) _LOG_FULL(level, __VA_ARGS__); \
-          } G_STMT_END
-#else
-#define _LOG_DEBUG(level, ...)   _LOG_FULL(level, __VA_ARGS__)
-#endif
+#define ws_info(...) \
+        _LOG_FULL(true, LOG_LEVEL_INFO, __VA_ARGS__)
 
 /** Logs with "debug" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_debug(...)    _LOG_DEBUG(LOG_LEVEL_DEBUG, __VA_ARGS__)
+#define ws_debug(...) \
+        _LOG_FULL(_LOG_DEBUG_ENABLED, LOG_LEVEL_DEBUG, __VA_ARGS__)
 
 /** Logs with "noisy" level.
  *
  * Accepts a format string and includes the file and function name.
  */
-#define ws_noisy(...)    _LOG_DEBUG(LOG_LEVEL_NOISY, __VA_ARGS__)
+#define ws_noisy(...) \
+        _LOG_FULL(_LOG_DEBUG_ENABLED, LOG_LEVEL_NOISY, __VA_ARGS__)
+
+/** Used for temporary debug print outs, always active. */
+#define WS_DEBUG_HERE(...) \
+        _LOG_FULL(true, LOG_LEVEL_ECHO, __VA_ARGS__)
 
 
 /** This function is called to log a buffer (bytes array).
@@ -309,24 +366,19 @@ void ws_logv_full(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_buffer_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
-                    const guint8 *buffer, size_t size,
+                    const char *file, long line, const char *func,
+                    const uint8_t *buffer, size_t size,
                     size_t max_bytes_len, const char *msg);
 
 
-#define _LOG_BUFFER(buf, size) \
-    ws_log_buffer_full(_LOG_DOMAIN, LOG_LEVEL_DEBUG, \
-                        __FILE__, __LINE__, __func__, \
-                        buf, size, 36, #buf)
-
-#ifdef WS_DISABLE_DEBUG
 #define ws_log_buffer(buf, size) \
-          G_STMT_START { \
-               if (0) _LOG_BUFFER(buf, size); \
-          } G_STMT_END
-#else
-#define ws_log_buffer(buf, size) _LOG_BUFFER(buf, size)
-#endif
+        do {                                                        \
+            if (_LOG_DEBUG_ENABLED) {                               \
+                ws_log_buffer_full(_LOG_DOMAIN, LOG_LEVEL_DEBUG,    \
+                        __FILE__, __LINE__, __func__,               \
+                        buf, size, 36, #buf);                       \
+            }                                                       \
+        } while (0)
 
 
 /** Auxiliary function to write custom logging functions.
@@ -338,7 +390,7 @@ void ws_log_buffer_full(const char *domain, enum ws_log_level level,
  */
 WS_DLL_PUBLIC
 void ws_log_write_always_full(const char *domain, enum ws_log_level level,
-                    const char *file, int line, const char *func,
+                    const char *file, long line, const char *func,
                     const char *format, ...) G_GNUC_PRINTF(6,7);
 
 

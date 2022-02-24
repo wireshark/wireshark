@@ -94,7 +94,7 @@ guint32 UlpMessage;
   }
 
 #.TYPE_ATTR
-Notification/requestorId TYPE=FT_STRING DISPLAY=STR_UNICODE
+Notification/requestorId TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY Notification/clientName VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -126,7 +126,7 @@ Notification/requestorId TYPE=FT_STRING DISPLAY=STR_UNICODE
   }
 
 #.TYPE_ATTR
-Notification/clientName TYPE=FT_STRING DISPLAY=STR_UNICODE
+Notification/clientName TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.TYPE_ATTR
 NavigationModel/gpsToe DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_hours
@@ -618,7 +618,7 @@ WlanAPInformation/setSignaltoNoiseDelta DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_
   }
 
 #.TYPE_ATTR
-WlanAPInformation/apSSID TYPE=FT_STRING DISPLAY=STR_ASCII
+WlanAPInformation/apSSID TYPE=FT_STRING DISPLAY=BASE_NONE
 
 #.FN_BODY WlanAPInformation/setMACAddress VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;

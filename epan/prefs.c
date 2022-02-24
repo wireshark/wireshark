@@ -334,6 +334,7 @@ free_pref(gpointer data, gpointer user_data _U_)
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
         free_string_like_preference(pref);
         break;
     case PREF_RANGE:
@@ -1906,6 +1907,21 @@ void prefs_register_decode_as_preference(module_t *module, const char *name,
     preference->info.base = 10;
 }
 
+/*
+ * Register a preference with password value.
+ */
+void
+prefs_register_password_preference(module_t *module, const char *name,
+                                 const char *title, const char *description,
+                                 const char **var)
+{
+DIAG_OFF(cast-qual)
+    register_string_like_preference(module, name, title, description,
+                                    (char **)var, PREF_PASSWORD, NULL, FALSE);
+DIAG_ON(cast-qual)
+}
+
+
 gboolean prefs_add_decode_as_value(pref_t *pref, guint value, gboolean replace)
 {
     switch(pref->type)
@@ -2026,6 +2042,7 @@ pref_stash(pref_t *pref, gpointer unused _U_)
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
         g_free(pref->stashed_val.string);
         pref->stashed_val.string = g_strdup(*pref->varp.string);
         break;
@@ -2111,6 +2128,7 @@ pref_unstash(pref_t *pref, gpointer unstash_data_p)
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
         if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
             unstash_data->module->prefs_changed_flags |= prefs_get_effect_flags(pref);
             g_free(*pref->varp.string);
@@ -2217,6 +2235,7 @@ reset_stashed_pref(pref_t *pref) {
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
         g_free(pref->stashed_val.string);
         pref->stashed_val.string = g_strdup(pref->default_val.string);
         break;
@@ -2261,6 +2280,7 @@ pref_clean_stash(pref_t *pref, gpointer unused _U_)
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
         if (pref->stashed_val.string != NULL) {
             g_free(pref->stashed_val.string);
             pref->stashed_val.string = NULL;
@@ -2477,7 +2497,7 @@ column_hidden_to_str_cb(pref_t* pref, gboolean default_val)
         gchar *prefs_fmt;
         cfmt = (fmt_data *) clp->data;
         if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
-            prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
+            prefs_fmt = ws_strdup_printf("%s:%s:%d:%c",
                     col_format_to_string(cfmt->fmt),
                     cfmt->custom_fields,
                     cfmt->custom_occurrence,
@@ -2748,7 +2768,7 @@ column_format_to_str_cb(pref_t* pref, gboolean default_val)
         cfmt = (fmt_data *) clp->data;
         col_l = g_list_append(col_l, g_strdup(cfmt->title));
         if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
-            prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
+            prefs_fmt = ws_strdup_printf("%s:%s:%d:%c",
                     col_format_to_string(cfmt->fmt),
                     cfmt->custom_fields,
                     cfmt->custom_occurrence,
@@ -3464,6 +3484,11 @@ prefs_register_modules(void)
         "Enables automatic updates for IO Graph",
         &prefs.gui_io_graph_automatic_update);
 
+    prefs_register_bool_preference(gui_module, "show_byteview_in_dialog",
+        "Show the byte view in the packet details dialog",
+        "Show the byte view in the packet details dialog",
+        &prefs.gui_packet_details_show_byteview);
+
     /* Console
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -3743,7 +3768,7 @@ prefs_get_string_list(const gchar *str)
                 g_free(slstr);
             break;
         }
-        if (cur_c == '"' && ! backslash) {
+        if (cur_c == '"' && !backslash) {
             switch (state) {
             case PRE_STRING:
                 /* We hadn't yet started processing a string; this starts the
@@ -3763,7 +3788,7 @@ prefs_get_string_list(const gchar *str)
             default:
                 break;
             }
-        } else if (cur_c == '\\' && ! backslash) {
+        } else if (cur_c == '\\' && !backslash) {
             /* We saw a backslash, and the previous character wasn't a
                backslash; escape the next character.
 
@@ -3771,7 +3796,7 @@ prefs_get_string_list(const gchar *str)
             backslash = TRUE;
             if (state == PRE_STRING)
                 state = NOT_IN_QUOT;
-        } else if (cur_c == ',' && state != IN_QUOT && ! backslash) {
+        } else if (cur_c == ',' && state != IN_QUOT && !backslash) {
             /* We saw a comma, and we're not in the middle of a quoted string
                and it wasn't preceded by a backslash; it's the end of
                the string we were working on...  */
@@ -3966,7 +3991,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
         strncmp(fmt, cust_format, cust_format_len) == 0) {
         /* Yes. */
         col_fmt = COL_CUSTOM;
-        cust_format_info = g_strsplit(&fmt[cust_format_len+1],":",3); /* add 1 for ':' */
+        cust_format_info = g_strsplit(&fmt[cust_format_len+1], ":", 3); /* add 1 for ':' */
         col_custom_fields = g_strdup(cust_format_info[0]);
         if (col_custom_fields && cust_format_info[1]) {
             col_custom_occurrence = strtol(cust_format_info[1], &p, 10);
@@ -4205,6 +4230,9 @@ pre_init_prefs(void)
 
     /* set the default values for the io graph dialog */
     prefs.gui_io_graph_automatic_update = TRUE;
+
+    /* set the default values for the packet dialog */
+    prefs.gui_packet_details_show_byteview = TRUE;
 }
 
 /*
@@ -4255,6 +4283,7 @@ reset_pref(pref_t *pref)
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
         reset_string_like_preference(pref);
         break;
 
@@ -4774,6 +4803,12 @@ guint prefs_get_uint_value(const char *module_name, const char* pref_name)
     return prefs_get_uint_value_real(prefs_find_preference(prefs_find_module(module_name), pref_name), pref_current);
 }
 
+char* prefs_get_password_value(pref_t *pref, pref_source_t source)
+{
+    return prefs_get_string_value(pref, source);
+}
+
+
 unsigned int prefs_set_uint_value(pref_t *pref, guint value, pref_source_t source)
 {
     unsigned int changed = 0;
@@ -4804,6 +4839,16 @@ unsigned int prefs_set_uint_value(pref_t *pref, guint value, pref_source_t sourc
 
     return changed;
 }
+
+/*
+ * For use by UI code that sets preferences.
+ */
+unsigned int
+prefs_set_password_value(pref_t *pref, const char* value, pref_source_t source)
+{
+    return prefs_set_string_value(pref, value, source);
+}
+
 
 guint prefs_get_uint_base(pref_t *pref)
 {
@@ -5025,7 +5070,7 @@ try_convert_to_custom_column(gpointer *el_data)
          ++haystack_idx) {
 
         if (strcmp(migrated_columns[haystack_idx].col_fmt, *fmt) == 0) {
-            gchar *cust_col = g_strdup_printf("%%Cus:%s:0",
+            gchar *cust_col = ws_strdup_printf("%%Cus:%s:0",
                                 migrated_columns[haystack_idx].col_expr);
 
             g_free(*fmt);
@@ -5487,6 +5532,9 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
          /* Handled within deprecated_enable_dissector_pref() if found */
     } else if (deprecated_port_pref(pref_name, value)) {
          /* Handled within deprecated_port_pref() if found */
+    } else if (strcmp(pref_name, "console.log.level") == 0) {
+        /* Handled on the command line within ws_log_parse_args() */
+        return PREFS_SET_OK;
     } else {
         /* Handle deprecated "global" options that don't have a module
          * associated with them
@@ -5937,6 +5985,11 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             containing_module->prefs_changed_flags |= prefs_set_string_value(pref, value, pref_current);
             break;
 
+        case PREF_PASSWORD:
+            /* Read value is everytime empty */
+            containing_module->prefs_changed_flags |= prefs_set_string_value(pref, "", pref_current);
+            break;
+
         case PREF_RANGE:
         {
             if (!prefs_set_range_value_work(pref, value, return_range_errors,
@@ -6121,6 +6174,10 @@ prefs_pref_type_name(pref_t *pref)
     case PREF_UAT:
         type_name = "UAT";
         break;
+
+    case PREF_PASSWORD:
+        type_name = "Password";
+        break;
     }
     return type_name;
 }
@@ -6172,7 +6229,7 @@ prefs_pref_type_description(pref_t *pref)
     int type;
 
     if (!pref) {
-        return g_strdup_printf("%s.", type_desc); /* ...or maybe assert? */
+        return ws_strdup_printf("%s.", type_desc); /* ...or maybe assert? */
     }
 
     type = pref->type;
@@ -6267,6 +6324,10 @@ prefs_pref_type_description(pref_t *pref)
         type_desc = "Configuration data stored in its own file";
         break;
 
+    case PREF_PASSWORD:
+        type_desc = "Password (never stored on disk)";
+        break;
+
     default:
         break;
     }
@@ -6312,6 +6373,7 @@ prefs_pref_is_default(pref_t *pref)
     case PREF_SAVE_FILENAME:
     case PREF_OPEN_FILENAME:
     case PREF_DIRNAME:
+    case PREF_PASSWORD:
         if (!(g_strcmp0(pref->default_val.string, *pref->varp.string)))
             return TRUE;
         break;
@@ -6393,13 +6455,13 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
         switch (pref->info.base) {
 
         case 10:
-            return g_strdup_printf("%u", pref_uint);
+            return ws_strdup_printf("%u", pref_uint);
 
         case 8:
-            return g_strdup_printf("%#o", pref_uint);
+            return ws_strdup_printf("%#o", pref_uint);
 
         case 16:
-            return g_strdup_printf("%#x", pref_uint);
+            return ws_strdup_printf("%#x", pref_uint);
         }
         break;
     }
@@ -6441,7 +6503,7 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
         return ret_value;
 
     case PREF_COLOR:
-        return g_strdup_printf("%02x%02x%02x",
+        return ws_strdup_printf("%02x%02x%02x",
                    (pref_color->red * 255 / 65535),
                    (pref_color->green * 255 / 65535),
                    (pref_color->blue * 255 / 65535));
@@ -6460,11 +6522,14 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     {
         uat_t *uat = pref->varp.uat;
         if (uat && uat->filename)
-            return g_strdup_printf("[Managed in the file \"%s\"]", uat->filename);
+            return ws_strdup_printf("[Managed in the file \"%s\"]", uat->filename);
         else
             pref_text = "[Managed in an unknown file]";
         break;
     }
+
+    case PREF_PASSWORD:
+        return g_strdup(*(const char **) valp);
 
     default:
         break;
@@ -6521,14 +6586,15 @@ write_pref(gpointer data, gpointer user_data)
         char *type_desc, *pref_text;
         const char * def_prefix = prefs_pref_is_default(pref) ? "#" : "";
 
-        if (pref->type == PREF_CUSTOM) fprintf(arg->pf, "\n# %s", pref->custom_cbs.type_name_cb());
+        if (pref->type == PREF_CUSTOM)
+            fprintf(arg->pf, "\n# %s", pref->custom_cbs.type_name_cb());
         fprintf(arg->pf, "\n");
         if (pref->description &&
                 (g_ascii_strncasecmp(pref->description,"", 2) != 0)) {
             if (pref->type != PREF_CUSTOM) {
                 /* We get duplicate lines otherwise. */
 
-                desc_lines = g_strsplit(pref->description,"\n",0);
+                desc_lines = g_strsplit(pref->description, "\n", 0);
                 for (i = 0; desc_lines[i] != NULL; ++i) {
                     fprintf(arg->pf, "# %s\n", desc_lines[i]);
                 }
@@ -6539,7 +6605,7 @@ write_pref(gpointer data, gpointer user_data)
         }
 
         type_desc = prefs_pref_type_description(pref);
-        desc_lines = g_strsplit(type_desc,"\n",0);
+        desc_lines = g_strsplit(type_desc, "\n", 0);
         for (i = 0; desc_lines[i] != NULL; ++i) {
             fprintf(arg->pf, "# %s\n", desc_lines[i]);
         }
@@ -6548,12 +6614,19 @@ write_pref(gpointer data, gpointer user_data)
 
         pref_text = prefs_pref_to_str(pref, pref_current);
         fprintf(arg->pf, "%s%s.%s: ", def_prefix, name_prefix, pref->name);
-        desc_lines = g_strsplit(pref_text,"\n",0);
-        for (i = 0; desc_lines[i] != NULL; ++i) {
-            fprintf(arg->pf, "%s%s\n", i == 0 ? "" : def_prefix, desc_lines[i]);
+        if (pref->type != PREF_PASSWORD)
+        {
+            desc_lines = g_strsplit(pref_text, "\n", 0);
+            for (i = 0; desc_lines[i] != NULL; ++i) {
+                fprintf(arg->pf, "%s%s\n", i == 0 ? "" : def_prefix, desc_lines[i]);
+            }
+            if (i == 0)
+                fprintf(arg->pf, "\n");
+            g_strfreev(desc_lines);
+        } else {
+            /* We never store password value */
+            fprintf(arg->pf, "\n");
         }
-        if (i == 0) fprintf(arg->pf, "\n");
-        g_strfreev(desc_lines);
         g_free(pref_text);
     }
 

@@ -195,6 +195,27 @@ class case_dissect_grpc(subprocesstest.SubprocessTestCase):
             ))
         self.assertEqual(self.countOutput('DATA'), 8)
 
+    def test_grpc_http2_fake_headers(self, cmd_tshark, features, dirs, capture_file):
+        '''HTTP2/gRPC fake headers (used when HTTP2 initial HEADERS frame is missing)'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_person_search_protobuf_with_image-missing_headers.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}"'.format(
+                            '50051','3','IN',':path','/tutorial.PersonSearchService/Search','TRUE'),
+                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}"'.format(
+                            '50051','0','IN','content-type','application/grpc','TRUE'),
+                '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}"'.format(
+                            '50051','0','OUT','content-type','application/grpc','TRUE'),
+                '-d', 'tcp.port==50051,http2',
+                '-Y', 'protobuf.field.value.string == "Jason" || protobuf.field.value.string == "Lily"',
+            ))
+        self.assertEqual(self.countOutput('DATA'), 2)
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_http(subprocesstest.SubprocessTestCase):

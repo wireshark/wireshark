@@ -103,7 +103,7 @@ wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
     hdr.version = g_ntohl(hdr.version);
     if (hdr.version != 1) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("btsnoop: version %u unsupported", hdr.version);
+        *err_info = ws_strdup_printf("btsnoop: version %u unsupported", hdr.version);
         return WTAP_OPEN_ERROR;
     }
 
@@ -132,7 +132,7 @@ wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_ERROR;
     default:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("btsnoop: datalink type %u unknown or unsupported", hdr.datalink);
+        *err_info = ws_strdup_printf("btsnoop: datalink type %u unknown or unsupported", hdr.datalink);
         return WTAP_OPEN_ERROR;
     }
 
@@ -194,7 +194,7 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
          * to allocate space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
                                     packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }
@@ -302,7 +302,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
         case BTHCI_CHANNEL_COMMAND:
             if (!pseudo_header->bthci.sent) {
                 *err = WTAP_ERR_UNWRITABLE_REC_DATA;
-                *err_info = g_strdup_printf("btsnoop: Command channel, sent FALSE");
+                *err_info = ws_strdup_printf("btsnoop: Command channel, sent FALSE");
                 return FALSE;
             }
             flags = KHciLoggerCommandOrEvent|KHciLoggerHostToController;
@@ -311,7 +311,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
         case BTHCI_CHANNEL_EVENT:
             if (pseudo_header->bthci.sent) {
                 *err = WTAP_ERR_UNWRITABLE_REC_DATA;
-                *err_info = g_strdup_printf("btsnoop: Event channel, sent TRUE");
+                *err_info = ws_strdup_printf("btsnoop: Event channel, sent TRUE");
                 return FALSE;
             }
             flags = KHciLoggerCommandOrEvent|KHciLoggerControllerToHost;
@@ -326,7 +326,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
 
         default:
             *err = WTAP_ERR_UNWRITABLE_REC_DATA;
-            *err_info = g_strdup_printf("btsnoop: Unknown channel %u",
+            *err_info = ws_strdup_printf("btsnoop: Unknown channel %u",
                                         pseudo_header->bthci.channel);
             return FALSE;
         }
@@ -350,7 +350,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
         /* We should never get here - our open routine should only get
            called for the types above. */
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("btsnoop: invalid encapsulation %u",
+        *err_info = ws_strdup_printf("btsnoop: invalid encapsulation %u",
                                     wdh->encap);
         return FALSE;
     }
@@ -403,7 +403,7 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
         /* We should never get here - our open routine should only get
            called for the types above. */
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("btsnoop: invalid encapsulation %u",
+        *err_info = ws_strdup_printf("btsnoop: invalid encapsulation %u",
                                     wdh->encap);
         return FALSE;
     }

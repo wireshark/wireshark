@@ -51,7 +51,7 @@ static dissector_table_t moldudp64_payload_table;
 
 static void moldudp64_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
 /* Code to dissect a message block */
@@ -155,7 +155,7 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     moldudp64_tree = proto_item_add_subtree(ti, ett_moldudp64);
 
     proto_tree_add_item(moldudp64_tree, hf_moldudp64_session,
-                        tvb, offset, MOLDUDP64_SESSION_LEN, ENC_ASCII|ENC_NA);
+                        tvb, offset, MOLDUDP64_SESSION_LEN, ENC_ASCII);
     offset += MOLDUDP64_SESSION_LEN;
 
     proto_tree_add_item(moldudp64_tree, hf_moldudp64_sequence,

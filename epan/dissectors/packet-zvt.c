@@ -1358,7 +1358,7 @@ proto_register_zvt(void)
                 FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_zvt_text_lines_line,
             { "Text line", "zvt.tlv.text_lines.line",
-                FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_zvt_permitted_cmd,
             { "Permitted command", "zvt.tlv.permitted_command",
                 FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },

@@ -4671,7 +4671,7 @@ typedef struct
   guint8 MESSAGE_TYPE;
   guint8 PAGE_MODE;
 
-  PacketDownlinkID_t ID; /* use the PDA ID as it is the same as as the PMO */
+  PacketDownlinkID_t ID; /* use the PDA ID as it is the same as the PMO */
 
   guint8 PMO_INDEX;
   guint8 PMO_COUNT;

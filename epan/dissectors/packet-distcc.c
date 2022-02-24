@@ -204,7 +204,7 @@ dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
     col_append_str(pinfo->cinfo, COL_INFO, "DOTI source ");
 
-    ti = proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, ENC_ASCII);
 
     if(len!=(gint)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short DOTI PDU]");

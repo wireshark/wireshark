@@ -1,4 +1,4 @@
-/* import_text_dialog.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -23,6 +23,7 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QButtonGroup>
 
 namespace Ui {
 class ImportTextDialog;
@@ -38,12 +39,14 @@ public:
     QString &capfileName();
 
 private:
-    void enableHeaderWidgets(bool enable_ethernet_buttons = true, bool enable_export_pdu_buttons = true);
+    void enableHeaderWidgets(uint encapsulation = WTAP_ENCAP_ETHERNET);
 
     /* regex fields */
     void enableFieldWidgets(bool enable_direction_input = true, bool enable_time_input = true);
 
     void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
+    void checkAddress(SyntaxLineEdit *le, bool &ok_enable, const QString &addr_str, ws_in4_addr *val_ptr);
+    void checkIPv6Address(SyntaxLineEdit *le, bool &ok_enable, const QString &addr_str, ws_in6_addr *val_ptr);
     bool checkDateTimeFormat(const QString &time_format);
 
     void loadSettingsFile();
@@ -57,7 +60,7 @@ private:
     QVariantMap settings;
 
     QPushButton *import_button_;
-    QList<QRadioButton *>encap_buttons_;
+    QButtonGroup *encap_buttons;
     text_import_info_t import_info_;
     QString capfile_name_;
     bool file_ok_;
@@ -72,6 +75,8 @@ private:
 
     bool ether_type_ok_;
     bool proto_ok_;
+    bool source_addr_ok_;
+    bool dest_addr_ok_;
     bool source_port_ok_;
     bool dest_port_ok_;
     bool tag_ok_;
@@ -91,6 +96,7 @@ private slots:
     /* Hex Dump input */
     void on_noOffsetButton_toggled(bool checked);
     void on_directionIndicationCheckBox_toggled(bool checked);
+    void on_asciiIdentificationCheckBox_toggled(bool checked);
 
     /* Regex input */
     void on_regexTextEdit_textChanged();
@@ -100,21 +106,18 @@ private slots:
 
     /* Encapsulation input */
     void on_encapComboBox_currentIndexChanged(int index);
-    void on_noDummyButton_toggled(bool checked);
-    void on_ethernetButton_toggled(bool checked);
-    void on_ipv4Button_toggled(bool checked);
-    void on_udpButton_toggled(bool checked);
-    void on_tcpButton_toggled(bool checked);
-    void on_sctpButton_toggled(bool checked);
-    void on_sctpDataButton_toggled(bool checked);
-    void on_exportPduButton_toggled(bool checked);
+    void encap_buttonsToggled(QAbstractButton *button, bool checked);
+    void on_ipVersionComboBox_currentIndexChanged(int index);
     void on_ethertypeLineEdit_textChanged(const QString &ethertype_str);
     void on_protocolLineEdit_textChanged(const QString &protocol_str);
+    void on_sourceAddressLineEdit_textChanged(const QString &source_addr_str);
+    void on_destinationAddressLineEdit_textChanged(const QString &destination_addr_str);
     void on_sourcePortLineEdit_textChanged(const QString &source_port_str);
     void on_destinationPortLineEdit_textChanged(const QString &destination_port_str);
     void on_tagLineEdit_textChanged(const QString &tag_str);
     void on_ppiLineEdit_textChanged(const QString &ppi_str);
 
+    /* Footer input */
     void on_maxLengthLineEdit_textChanged(const QString &max_frame_len_str);
     void on_buttonBox_helpRequested();
 };

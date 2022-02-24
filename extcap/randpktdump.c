@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN "randpktdump"
 
 #include "extcap-base.h"
 
@@ -154,10 +155,7 @@ int main(int argc, char *argv[])
 	cmdarg_err_init(randpktdump_cmdarg_err, randpktdump_cmdarg_err);
 
 	/* Initialize log handler early so we can have proper logging during startup. */
-	ws_log_init("randpktdump", NULL);
-
-	/* Early logging command-line initialization. */
-	ws_log_parse_args(&argc, argv, NULL, LOG_ARGS_NOEXIT);
+	extcap_log_init("randpktdump");
 
 	/*
 	 * Get credential information for later use.
@@ -181,7 +179,7 @@ int main(int argc, char *argv[])
 	g_free(help_url);
 	extcap_base_register_interface(extcap_conf, RANDPKT_EXTCAP_INTERFACE, "Random packet generator", 147, "Generator dependent DLT");
 
-	help_header = g_strdup_printf(
+	help_header = ws_strdup_printf(
 		" %s --extcap-interfaces\n"
 		" %s --extcap-interface=%s --extcap-dlts\n"
 		" %s --extcap-interface=%s --extcap-config\n"

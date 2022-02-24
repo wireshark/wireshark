@@ -1060,7 +1060,7 @@ tvb_ntp_fmt_ts_sec(tvbuff_t *tvb, gint offset)
 	}
 
 	buff = (char *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
-	g_snprintf(buff, NTP_TS_SIZE,
+	snprintf(buff, NTP_TS_SIZE,
 		"%s %2d, %d %02d:%02d:%02d UTC",
 		mon_names[bd->tm_mon],
 		bd->tm_mday,
@@ -1254,11 +1254,11 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	 */
 	buff = (gchar *)wmem_alloc(wmem_packet_scope(), NTP_TS_SIZE);
 	if (stratum <= 1) {
-		g_snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%s'",
+		snprintf (buff, NTP_TS_SIZE, "Unidentified reference source '%s'",
 			tvb_get_string_enc(wmem_packet_scope(), tvb, 12, 4, ENC_ASCII));
 		for (i = 0; primary_sources[i].id; i++) {
 			if (tvb_memeql(tvb, 12, primary_sources[i].id, 4) == 0) {
-				g_snprintf(buff, NTP_TS_SIZE, "%s",
+				snprintf(buff, NTP_TS_SIZE, "%s",
 					primary_sources[i].data);
 				break;
 			}
@@ -1266,7 +1266,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 	} else {
 		int buffpos;
 		refid_addr = tvb_get_ipv4(tvb, 12);
-		buffpos = g_snprintf(buff, NTP_TS_SIZE, "%s", get_hostname (refid_addr));
+		buffpos = snprintf(buff, NTP_TS_SIZE, "%s", get_hostname (refid_addr));
 		if (buffpos >= NTP_TS_SIZE) {
 			buff[NTP_TS_SIZE-4]='.';
 			buff[NTP_TS_SIZE-3]='.';
@@ -1557,23 +1557,23 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 			}
 			break;
 		case NTPCTRL_OP_ASYNCMSG:
-			proto_tree_add_item(data_tree, hf_ntpctrl_trapmsg, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(data_tree, hf_ntpctrl_trapmsg, tvb, data_offset, datalen, ENC_ASCII);
 			break;
 		case NTPCTRL_OP_CONFIGURE:
 		case NTPCTRL_OP_SAVECONFIG:
-			proto_tree_add_item(data_tree, hf_ntpctrl_configuration, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(data_tree, hf_ntpctrl_configuration, tvb, data_offset, datalen, ENC_ASCII);
 			auth_diss = TRUE;
 			break;
 		case NTPCTRL_OP_READ_MRU:
-			proto_tree_add_item(data_tree, hf_ntpctrl_mru, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(data_tree, hf_ntpctrl_mru, tvb, data_offset, datalen, ENC_ASCII);
 			auth_diss = TRUE;
 			break;
 		case NTPCTRL_OP_READ_ORDLIST_A:
-			proto_tree_add_item(data_tree, hf_ntpctrl_ordlist, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(data_tree, hf_ntpctrl_ordlist, tvb, data_offset, datalen, ENC_ASCII);
 			auth_diss = TRUE;
 			break;
 		case NTPCTRL_OP_REQ_NONCE:
-			proto_tree_add_item(data_tree, hf_ntpctrl_nonce, tvb, data_offset, datalen, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(data_tree, hf_ntpctrl_nonce, tvb, data_offset, datalen, ENC_ASCII);
 			auth_diss = TRUE;
 			break;
 		/* these opcodes doesn't carry any data: NTPCTRL_OP_SETTRAP, NTPCTRL_OP_UNSETTRAP, NTPCTRL_OP_UNSPEC */
@@ -2210,7 +2210,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				offset += 2;
 				proto_tree_add_item(mode7_item_tree, hf_ntp_keyid, tvb, offset, 4, ENC_NA);
 				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_key_file, tvb, offset, 128, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_key_file, tvb, offset, 128, ENC_ASCII);
 				offset += 128;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
@@ -2521,7 +2521,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				}
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_v6_flag, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
-				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_name, tvb, offset, 32, ENC_ASCII|ENC_NA);
+				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_name, tvb, offset, 32, ENC_ASCII);
 				offset += 32;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_int_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;

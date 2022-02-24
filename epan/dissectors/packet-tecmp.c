@@ -1,7 +1,7 @@
 /* packet-tecmp.c
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2019-2021 Dr. Lars Voelker
+ * Copyright 2019-2022 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
@@ -41,6 +41,7 @@ static dissector_handle_t eth_handle;
 static int proto_vlan;
 
 static gboolean heuristic_first = FALSE;
+static gboolean analog_samples_are_signed_int = FALSE;
 
 static dissector_table_t fr_subdissector_table;
 static heur_dissector_list_t fr_heur_subdissector_list;
@@ -135,6 +136,7 @@ static int hf_tecmp_payload_data_frame_id = -1;
 
 /* Analog */
 static int hf_tecmp_payload_data_analog_value_raw = -1;
+static int hf_tecmp_payload_data_analog_value_raw_signed = -1;
 static int hf_tecmp_payload_data_analog_value_volt = -1;
 static int hf_tecmp_payload_data_analog_value_amp = -1;
 
@@ -488,7 +490,7 @@ update_generic_one_identifier_16bit(void *r, char **err) {
     generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
 
     if (rec->id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
         return FALSE;
     }
 
@@ -555,7 +557,7 @@ update_channel_config(void *r, char **err) {
     channel_config_t *rec = (channel_config_t *)r;
 
     if (rec->id > 0xffffffff) {
-        *err = g_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
+        *err = ws_strdup_printf("We currently only support 32 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
         return FALSE;
     }
 
@@ -565,7 +567,7 @@ update_channel_config(void *r, char **err) {
     }
 
     if (rec->bus_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit bus identifiers (ID: %i  Name: %s  Bus-ID: %i)", rec->id, rec->name, rec->bus_id);
+        *err = ws_strdup_printf("We currently only support 16 bit bus identifiers (ID: %i  Name: %s  Bus-ID: %i)", rec->id, rec->name, rec->bus_id);
         return FALSE;
     }
 
@@ -992,10 +994,15 @@ dissect_tecmp_status_cm_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto
                 proto_item_append_text(ti, " %s", "Degrees Celsius");
         } else if (tvb_captured_length_remaining(tvb, offset) > 1) {
             /* TECMP 1.5 and later */
-            ti = proto_tree_add_item_ret_int(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis, tvb, offset, 1, ENC_NA, &temperature);
-            proto_item_append_text(ti, " %s", "Degrees Celsius");
-            if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
-                proto_item_append_text(ti, " %s", "or more");
+            temperature = tvb_get_gint8(tvb, offset);
+            if (temperature == VENDOR_TECHNICA_TEMP_NA) {
+                proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis, tvb, offset, 1, temperature, "%s", "Not Available");
+            } else {
+                ti = proto_tree_add_item(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis, tvb, offset, 1, ENC_NA);
+                proto_item_append_text(ti, " %s", "Degrees Celsius");
+                if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
+                    proto_item_append_text(ti, " %s", "or more");
+                }
             }
             offset += 1;
 
@@ -1003,7 +1010,7 @@ dissect_tecmp_status_cm_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto
             if ( temperature == VENDOR_TECHNICA_TEMP_NA) {
                 proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, temperature, "%s", "Not Available");
             } else {
-                ti = proto_tree_add_item_ret_int(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA, &temperature);
+                ti = proto_tree_add_item(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA);
                 proto_item_append_text(ti, " %s", "Degrees Celsius");
                 if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
                     proto_item_append_text(ti, " %s", "or more");
@@ -1244,7 +1251,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 if (length2 > 0) {
                     lin_info.len = tvb_captured_length_remaining(sub_tvb, offset2);
-                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2 - 1);
+                    payload_tvb = tvb_new_subset_length(sub_tvb, offset2, length2);
                     guint32 bus_frame_id = lin_info.id | (lin_info.bus_id << 16);
                     if (!dissector_try_uint_new(lin_subdissector_table, bus_frame_id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
                         if (!dissector_try_uint_new(lin_subdissector_table, lin_info.id, payload_tvb, pinfo, tree, FALSE, &lin_info)) {
@@ -1343,16 +1350,27 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 tmp = offset2 + length;
                 while (offset2 + 2 <= tmp) {
-                    guint value = tvb_get_guint16(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    gdouble scaled_value;
+
+                    if (analog_samples_are_signed_int) {
+                        scaled_value = analog_value_scale_factor * tvb_get_gint16(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    } else {
+                        scaled_value = analog_value_scale_factor * tvb_get_guint16(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    }
+
                     switch ((dataflags & TECMP_DATAFLAGS_UNIT_MASK) >> TECMP_DATAFLAGS_UNIT_SHIFT) {
                     case 0x0:
-                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_volt, sub_tvb, offset2, 2, (analog_value_scale_factor * value));
+                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_volt, sub_tvb, offset2, 2, scaled_value);
                         break;
                     case 0x01:
-                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_amp, sub_tvb, offset2, 2, (analog_value_scale_factor * value));
+                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_amp, sub_tvb, offset2, 2, scaled_value);
                         break;
                     default:
-                        ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value_raw, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                        if (analog_samples_are_signed_int) {
+                            ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value_raw_signed, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                        } else {
+                            ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value_raw, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                        }
                         proto_item_append_text(ti, "%s", " (raw)");
                     }
                     offset2 += 2;
@@ -1723,6 +1741,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_analog_value_raw,
             { "Analog Value", "tecmp.payload.data.analog_value",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_data_analog_value_raw_signed,
+            { "Analog Value", "tecmp.payload.data.analog_value_signed",
+            FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_tecmp_payload_data_analog_value_volt,
             { "Analog Value", "tecmp.payload.data.analog_value_volt",
             FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_volt, 0x0, NULL, HFILL } },
@@ -1830,7 +1851,7 @@ proto_register_tecmp(void) {
     proto_tecmp = proto_register_protocol("Technically Enhanced Capture Module Protocol", "TECMP", "tecmp");
     proto_register_field_array(proto_tecmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    tecmp_module = prefs_register_protocol(proto_tecmp, &proto_reg_handoff_tecmp);
+    tecmp_module = prefs_register_protocol(proto_tecmp, NULL);
 
     /* UATs */
     tecmp_cmid_uat = uat_new("TECMP Capture Modules",
@@ -1876,6 +1897,11 @@ proto_register_tecmp(void) {
         "Try to decode a packet using an heuristic sub-dissector"
         " before using a sub-dissector registered to \"decode as\"",
         &heuristic_first);
+
+    prefs_register_bool_preference(tecmp_module, "analog_samples_sint",
+        "Decode Analog Samples as Signed Integer",
+        "Treat the analog samples as signed integers and decode them accordingly.",
+        &analog_samples_are_signed_int);
 }
 
 void
@@ -1889,7 +1915,6 @@ proto_reg_handoff_tecmp(void) {
     fr_heur_subdissector_list = find_heur_dissector_list("flexray");
 
     lin_subdissector_table = find_dissector_table("lin.frame_id");
-
 }
 
 /*

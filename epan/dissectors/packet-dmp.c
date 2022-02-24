@@ -1265,7 +1265,7 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
 
   if (no_char >= MAX_SIC_LEN) {
     /* Illegal length */
-    g_snprintf (sic, MAX_SIC_LEN, "Illegal length: %d", no_char);
+    snprintf (sic, MAX_SIC_LEN, "Illegal length: %d", no_char);
     return TRUE;
   }
 
@@ -1725,7 +1725,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 
   } else if (key <= 0xBF) {
     /* Reserved (not used) */
-    g_snprintf (sic, MAX_SIC_LEN, "Reserved");
+    snprintf (sic, MAX_SIC_LEN, "Reserved");
     no_sic = TRUE;
 
   } else if (key <= 0xCF) {
@@ -1860,7 +1860,7 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
       failure = dmp_dec_xbyte_sic (value, sic, length, any);
       bf = proto_tree_add_string_format (sic_tree, hf_message_sic, tvb,
                                          offset, bytes, sic,
-                                         "SIC %d: %s (%d bytes: %" G_GINT64_MODIFIER "x)%s",
+                                         "SIC %d: %s (%d bytes: %" PRIx64 ")%s",
                                          i + 1, sic, bytes, value,
                                          failure ? " (invalid)": "");
       if (bitmap & (1 << (7 - i))) {
@@ -1882,12 +1882,12 @@ static gint dissect_dmp_sic (tvbuff_t *tvb, packet_info *pinfo,
 
   } else if (key == 0xFE) {
     /* No SIC */
-    g_snprintf (sic, MAX_SIC_LEN, "Not present");
+    snprintf (sic, MAX_SIC_LEN, "Not present");
     no_sic = TRUE;
 
   } else {
     /* Resered (not used) */
-    g_snprintf (sic, MAX_SIC_LEN, "Reserved");
+    snprintf (sic, MAX_SIC_LEN, "Reserved");
     no_sic = TRUE;
   }
 
@@ -3049,7 +3049,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
 
   if (dmp.body_format == FREE_TEXT_SUBJECT) {
     len = tvb_strsize (tvb, offset);
-    proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_ASCII);
     offset += len;
   }
 
@@ -3134,7 +3134,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     if (eit != EIT_BILATERAL && body_len > 0) {
       field_tree = proto_item_add_subtree (tf, ett_message_body);
       proto_tree_add_item (field_tree, hf_message_body_plain, body_tvb,
-                           body_offset, body_len, ENC_ASCII|ENC_NA);
+                           body_offset, body_len, ENC_ASCII);
     }
   }
   offset += len;
@@ -3285,7 +3285,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
                                 128 - (offset - boffset));
       }
       field_tree = proto_item_add_subtree (tf, ett_report_suppl_info);
-      proto_tree_add_item (field_tree, hf_report_suppl_info, tvb, offset, len, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (field_tree, hf_report_suppl_info, tvb, offset, len, ENC_ASCII);
     }
     offset += len;
   }
@@ -3358,7 +3358,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
                                 128 - (offset - boffset));
       }
       field_tree = proto_item_add_subtree (tf, ett_notif_suppl_info);
-      proto_tree_add_item (field_tree, hf_notif_suppl_info, tvb, offset, len, ENC_ASCII|ENC_NA);
+      proto_tree_add_item (field_tree, hf_notif_suppl_info, tvb, offset, len, ENC_ASCII);
     }
     offset += len;
 
@@ -3374,7 +3374,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
           proto_item_append_text (tf, " (incorrect, must be less than 64)");
         }
         field_tree = proto_item_add_subtree (tf, ett_notif_acp127recip);
-        proto_tree_add_item (field_tree, hf_notif_acp127recip, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item (field_tree, hf_notif_acp127recip, tvb, offset, len, ENC_ASCII);
       }
       offset += len;
     }

@@ -1,11 +1,11 @@
-[[wsluarm]]
+[#wsluarm]
 
 // Attributes
 :build_dir: .
 
 == Lua Support in Wireshark
 
-[[wsluarm_intro]]
+[#wsluarm_intro]
 
 === Introduction
 
@@ -41,7 +41,7 @@ Wireshark for Windows uses a modified Lua runtime
 support Unicode (UTF-8) filesystem paths. This brings consistency with other
 platforms (for example, Linux and macOS).
 
-[[wslua_menu_example]]
+[#wslua_menu_example]
 
 === Example: Creating a Menu with Lua
 
@@ -75,7 +75,7 @@ end
 
 ----
 
-[[wslua_dissector_example]]
+[#wslua_dissector_example]
 
 === Example: Dissector written in Lua
 
@@ -146,7 +146,7 @@ wtap_encap_table:add(wtap.USER12, p_multi)
 udp_encap_table:add(7555, p_multi)
 ----
 
-[[wslua_tap_example]]
+[#wslua_tap_example]
 
 === Example: Listener written in Lua
 
@@ -206,7 +206,7 @@ end
 register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)
 ----
 
-[[wsluarm_modules]]
+[#wsluarm_modules]
 
 == Wireshark’s Lua API Reference Manual
 
@@ -248,7 +248,7 @@ include::{build_dir}/wsluarm_src/wslua_util.adoc[]
 include::{build_dir}/wsluarm_src/wslua_int64.adoc[]
 include::{build_dir}/wsluarm_src/wslua_struct.adoc[]
 
-[[lua_module_GRegex]]
+[#lua_module_GRegex]
 
 === GLib Regular Expressions
 
@@ -295,7 +295,7 @@ The GLib Regular expression syntax (which is essentially PCRE syntax) can be
 found at
 https://developer-old.gnome.org/glib/stable/glib-regex-syntax.html[]
 
-[[lua_class_GRegex]]
+[#lua_class_GRegex]
 
 ==== GRegex
 
@@ -303,7 +303,7 @@ GLib Regular Expressions based on PCRE.
 
 Since: 1.11.3
 
-[[lua_class_GRegex_notes]]
+[#lua_class_GRegex_notes]
 
 ===== Notes
 
@@ -348,7 +348,7 @@ characters stand for compilation flags. Combinations of the following characters
   that they are not greedy by default, but become greedy if followed by “?”.
   It can also be set by a “(?U)” option setting within the pattern.
 
-[[lua_fn_GRegex_new_pattern_]]
+[#lua_fn_GRegex_new_pattern_]
 
 ===== GRegex.new(pattern)
 
@@ -374,7 +374,7 @@ The compiled regular expression (a userdata object)
 
 * A malformed pattern generates a Lua error
 
-[[lua_fn_GRegex_flags__table__]]
+[#lua_fn_GRegex_flags__table__]
 
 ===== GRegex.flags([table])
 
@@ -398,7 +398,7 @@ table (optional):: A table for placing results into
 
 A table filled with the results.
 
-[[lua_fn_GRegex_compile_flags__table__]]
+[#lua_fn_GRegex_compile_flags__table__]
 
 
 ===== GRegex.compile_flags([table])
@@ -420,7 +420,7 @@ table (optional):: A table for placing results into
 
 A table filled with the results.
 
-[[lua_fn_GRegex_match_flags__table__]]
+[#lua_fn_GRegex_match_flags__table__]
 
 ===== GRegex.match_flags([table])
 
@@ -441,7 +441,7 @@ table (optional):: A table for placing results into
 
 A table filled with the results.
 
-[[lua_fn_GRegex_match_subject__pattern___init____cf____ef__]]
+[#lua_fn_GRegex_match_subject__pattern___init____cf____ef__]
 
 ===== GRegex.match(subject, pattern, [init], [cf], [ef])
 
@@ -472,7 +472,7 @@ in the pattern. false is returned for sub-patterns that did not participate in
 the match. If the pattern specified no captures then the whole matched substring
 is returned. On failure, returns nil.
 
-[[lua_fn_GRegex_find_subject__pattern___init____cf____ef__]]
+[#lua_fn_GRegex_find_subject__pattern___init____cf____ef__]
 
 ===== GRegex.find(subject, pattern, [init], [cf], [ef])
 
@@ -503,7 +503,7 @@ the match (a number), and all substring matches ("captures"), in the order they
 appear in the pattern. false is returned for sub-patterns that did not
 participate in the match. On failure, returns nil.
 
-[[lua_fn_GRegex_gmatch_subject__pattern___init____cf____ef__]]
+[#lua_fn_GRegex_gmatch_subject__pattern___init____cf____ef__]
 
 
 ===== GRegex.gmatch(subject, pattern, [init], [cf], [ef])
@@ -536,7 +536,7 @@ match), it returns all captures in the order they appear in the pattern (or the
 entire match if the pattern specified no captures). The iteration will continue
 till the subject fails to match.
 
-[[lua_fn_GRegex_gsub_subject__pattern___repl____max____cf____ef__]]
+[#lua_fn_GRegex_gsub_subject__pattern___repl____max____cf____ef__]
 
 ===== GRegex.gsub(subject, pattern, [repl], [max], [cf], [ef])
 
@@ -570,7 +570,7 @@ ef (optional):: Match execution flags (bitwise OR)
 On success, returns the subject string with the substitutions made, the number
 of matches found, and the number of substitutions made.
 
-[[lua_fn_GRegex_split_subject__sep___cf____ef__]]
+[#lua_fn_GRegex_split_subject__sep___cf____ef__]
 
 ===== GRegex.split(subject, sep, [cf], [ef])
 
@@ -605,7 +605,7 @@ captures). If there is no match (this can occur only in the last iteration),
 then nothing is returned after the subject section. The iteration will continue
 till the end of the subject.
 
-[[lua_fn_GRegex_version__]]
+[#lua_fn_GRegex_version__]
 
 ===== GRegex.version()
 
@@ -618,7 +618,7 @@ Since: 1.11.3
 
 The version string
 
-[[lua_fn_gregex_match_subject___init____ef__]]
+[#lua_fn_gregex_match_subject___init____ef__]
 
 ===== gregex:match(subject, [init], [ef])
 
@@ -644,7 +644,7 @@ in the pattern. false is returned for sub-patterns that did not participate in
 the match. If the pattern specified no captures then the whole matched substring
 is returned. nil is returned if the pattern did not match.
 
-[[lua_fn_gregex_find_subject___init____ef__]]
+[#lua_fn_gregex_find_subject___init____ef__]
 
 ===== gregex:find(subject, [init], [ef])
 
@@ -670,7 +670,7 @@ the match (a number), and all substring matches ("captures"), in the order they
 appear in the pattern. false is returned for sub-patterns that did not
 participate in the match. On failure, returns nil.
 
-[[lua_fn_gregex_exec_subject___init____ef__]]
+[#lua_fn_gregex_exec_subject___init____ef__]
 
 ===== gregex:exec(subject, [init], [ef])
 
@@ -699,7 +699,7 @@ participate in the match. On failure, returns nil. Example: If the whole match
 is at offsets 10,20 and substring matches are at offsets 12,14 and 16,19 then
 the function returns the following: 10, 20, { 12,14,16,19 }.
 
-[[lua_fn_gregex_dfa_exec_subject___init____ef__]]
+[#lua_fn_gregex_dfa_exec_subject___init____ef__]
 
 ===== gregex:dfa_exec(subject, [init], [ef])
 
@@ -727,7 +727,7 @@ Example: If there are 3 matches found starting at offset 10 and ending at
 offsets 15, 20 and 25 then the function returns the following: 10, { 25,20,15 },
 3
 
-[[lua_fn_gregex___tostring__]]
+[#lua_fn_gregex___tostring__]
 
 ===== gregex:__tostring()
 

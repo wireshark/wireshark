@@ -44,11 +44,6 @@ gboolean has_wpcap = FALSE;
 
 #define MAX_WIN_IF_NAME_LEN 511
 
-/*
- * XXX - should we require at least WinPcap 3.1 both for building an
- * for using Wireshark?
- */
-
 static void    (*p_pcap_close) (pcap_t *);
 static int     (*p_pcap_stats) (pcap_t *, struct pcap_stat *);
 static int     (*p_pcap_dispatch) (pcap_t *, int, pcap_handler, guchar *);
@@ -263,20 +258,20 @@ convert_errbuf_to_utf8(char *errbuf)
 	}
 	errbuf[PCAP_ERRBUF_SIZE - 1] = '\0';
 	utf8_err = local_code_page_str_to_utf8(errbuf);
-	g_snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s", utf8_err);
+	snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s", utf8_err);
 	g_free(utf8_err);
 }
 
 static char *
 cant_load_winpcap_err(const char *app_name)
 {
-	return g_strdup_printf(
+	return ws_strdup_printf(
 "Unable to load Npcap or WinPcap (wpcap.dll); %s will not be able to\n"
 "capture packets.\n"
 "\n"
 "In order to capture packets Npcap or WinPcap must be installed. See\n"
 "\n"
-"        https://nmap.org/npcap/\n"
+"        https://npcap.com/\n"
 "\n"
 "for a downloadable version of Npcap and for instructions on how to\n"
 "install it.",
@@ -374,7 +369,7 @@ pcap_open_live(const char *a, int b, int c, int d, char *errbuf)
 {
 	pcap_t *p;
 	if (!has_wpcap) {
-		g_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			   "unable to load Npcap or WinPcap (wpcap.dll); can't open %s to capture",
 			   a);
 		return NULL;
@@ -409,7 +404,7 @@ pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *errb
 {
 	pcap_t *ret;
 	if (!has_wpcap) {
-		g_snprintf(errbuf, PCAP_ERRBUF_SIZE,
+		snprintf(errbuf, PCAP_ERRBUF_SIZE,
 			   "unable to load Npcap or WinPcap (wpcap.dll); can't open %s to capture",
 			   a);
 		return NULL;
@@ -563,7 +558,7 @@ pcap_statustostr(int a)
     }
 
     /* XXX copy routine from pcap.c ??? */
-    (void)g_snprintf(ebuf, sizeof ebuf, "Don't have pcap_statustostr(), can't translate error: %d", a);
+    (void)snprintf(ebuf, sizeof ebuf, "Don't have pcap_statustostr(), can't translate error: %d", a);
     return(ebuf);
 
 }
@@ -710,8 +705,6 @@ int pcap_setbuff(pcap_t *a, int b)
 	return p_pcap_setbuff(a, b);
 }
 
-/* pcap_next_ex is available since libpcap 0.8 / WinPcap 3.0! */
-/* (if you get a declaration warning here, try to update to at least WinPcap 3.1b4 develpack) */
 int pcap_next_ex(pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 {
 	ws_assert(has_wpcap);
@@ -771,12 +764,12 @@ cant_get_if_list_error_message(const char *err_str)
 	 */
 	if (strstr(err_str, "Not enough storage is available to process this command") != NULL ||
 	    strstr(err_str, "The operation completed successfully") != NULL) {
-		return g_strdup_printf("Can't get list of interfaces: %s\n"
+		return ws_strdup_printf("Can't get list of interfaces: %s\n"
 "This might be a problem with WinPcap 3.0. You should try updating to\n"
-"Npcap. See https://nmap.org/npcap/ for more information.",
+"Npcap. See https://npcap.com/ for more information.",
 		    err_str);
 	}
-	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
+	return ws_strdup_printf("Can't get list of interfaces: %s", err_str);
 }
 
 if_capabilities_t *
@@ -827,7 +820,7 @@ get_compiled_caplibs_version(GString *str)
 }
 
 /*
- * Append the version of Npcap with which we we're running to a GString.
+ * Append the version of Npcap with which we're running to a GString.
  */
 void
 get_runtime_caplibs_version(GString *str)

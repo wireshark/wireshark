@@ -177,7 +177,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 		fi_name=(field_info *)gp_names->pdata[num_rids-1];
 		(void) g_strlcpy(sid_name_str, sid, 256);
 		sid_name_str[len++]='-';
-		g_snprintf(sid_name_str+len, 256-len, "%d",fi_rid->value.value.sinteger);
+		snprintf(sid_name_str+len, 256-len, "%d",fi_rid->value.value.sinteger);
 		add_sid_name_mapping(sid_name_str, fi_name->value.value.string);
 	}
 	return TAP_PACKET_REDRAW;

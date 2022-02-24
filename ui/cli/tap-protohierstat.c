@@ -129,13 +129,13 @@ phs_draw(phs_t *rs, int indentation)
 		stroff = 0;
 		for (i=0; i<indentation; i++) {
 			if (i > 15) {
-				stroff += g_snprintf(str+stroff, MAXPHSLINE-stroff, "...");
+				stroff += snprintf(str+stroff, MAXPHSLINE-stroff, "...");
 				break;
 			}
-			stroff += g_snprintf(str+stroff, MAXPHSLINE-stroff, "  ");
+			stroff += snprintf(str+stroff, MAXPHSLINE-stroff, "  ");
 		}
-		g_snprintf(str+stroff, MAXPHSLINE-stroff, "%s", rs->proto_name);
-		printf("%-40s frames:%u bytes:%" G_GINT64_MODIFIER "u\n", str, rs->frames, rs->bytes);
+		snprintf(str+stroff, MAXPHSLINE-stroff, "%s", rs->proto_name);
+		printf("%-40s frames:%u bytes:%" PRIu64 "\n", str, rs->frames, rs->bytes);
 		phs_draw(rs->child, indentation+1);
 	}
 }

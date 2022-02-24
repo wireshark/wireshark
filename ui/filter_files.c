@@ -480,7 +480,7 @@ save_filter_list(filter_list_type_t list_type)
     /* Write to "XXX.new", and rename if that succeeds.
        That means we don't trash the file if we fail to write it out
        completely. */
-    ff_path_new = g_strdup_printf("%s.new", ff_path);
+    ff_path_new = ws_strdup_printf("%s.new", ff_path);
 
     if ((ff = ws_fopen(ff_path_new, "w")) == NULL) {
         /* We had an error saving the filter. */

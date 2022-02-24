@@ -2442,7 +2442,7 @@ static guint dissect_lbmsrs_data(tvbuff_t * tvb, packet_info * pinfo, proto_tree
         default:
         {
             expert_add_info_format(pinfo, tree, &ei_lbmsrs_analysis_invalid_msg_id,
-                "Invalid LBMSRS Message Id :%" G_GUINT16_FORMAT, message_id);
+                "Invalid LBMSRS Message Id :%" PRIu16, message_id);
 
         }
 
@@ -2672,7 +2672,7 @@ void proto_register_lbmsrs(void)
         { &hf_lbmsrs_rsocket_mdata_len,
         { "Metadata Length", "lbmsrs.rsocket.metadata_len", FT_UINT24, BASE_DEC, NULL,0x0, NULL, HFILL } },
         { &hf_lbmsrs_rsocket_mdata,
-        { "Metadata", "lbmsrs.rsocket.metadata", FT_STRING, STR_ASCII, NULL, 0x0, NULL,HFILL } },
+        { "Metadata", "lbmsrs.rsocket.metadata", FT_STRING, BASE_NONE, NULL, 0x0, NULL,HFILL } },
         { &hf_lbmsrs_rsocket_ignore_flag,
         { "Ignore", "lbmsrs.rsocket.flags.ignore", FT_BOOLEAN, 16, NULL, 0x0200, NULL,HFILL } },
         { &hf_lbmsrs_rsocket_metadata_flag,
@@ -2700,11 +2700,11 @@ void proto_register_lbmsrs(void)
         { &hf_lbmsrs_rsocket_mdata_mime_length,
         { "Metadata MIME Length", "lbmsrs.rsocket.mdata_mime_length", FT_UINT8, BASE_DEC,NULL, 0x0, NULL, HFILL } },
         { &hf_lbmsrs_rsocket_mdata_mime_type,
-        { "Metadata MIME Type", "lbmsrs.rsocket.mdata_mime_type", FT_STRING, STR_ASCII,NULL, 0x0, NULL, HFILL } },
+        { "Metadata MIME Type", "lbmsrs.rsocket.mdata_mime_type", FT_STRING, BASE_NONE,NULL, 0x0, NULL, HFILL } },
         { &hf_lbmsrs_rsocket_data_mime_length,
         { "Data MIME Length", "lbmsrs.rsocket.data_mime_length", FT_UINT8, BASE_DEC,NULL, 0x0, NULL, HFILL } },
         { &hf_lbmsrs_rsocket_data_mime_type,
-        { "Data MIME Type", "lbmsrs.rsocket.data_mime_type", FT_STRING, STR_ASCII, NULL,0x0, NULL, HFILL } },
+        { "Data MIME Type", "lbmsrs.rsocket.data_mime_type", FT_STRING, BASE_NONE, NULL,0x0, NULL, HFILL } },
         { &hf_lbmsrs_rsocket_req_n,
         { "Request N", "lbmsrs.rsocket.request_n", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,HFILL } },
         { &hf_lbmsrs_rsocket_error_code,
@@ -2714,7 +2714,7 @@ void proto_register_lbmsrs(void)
         { &hf_lbmsrs_rsocket_resume_token_len,
         { "Resume Token Length", "lbmsrs.rsocket.resume.token.len", FT_UINT16, BASE_DEC,NULL, 0x0, NULL, HFILL } },
         { &hf_lbmsrs_rsocket_resume_token,
-        { "Resume Token", "lbmsrs.rsocket.resume.token", FT_STRING, STR_ASCII, NULL, 0x0,NULL, HFILL } },
+        { "Resume Token", "lbmsrs.rsocket.resume.token", FT_STRING, BASE_NONE, NULL, 0x0,NULL, HFILL } },
         /*rsocket related items end*/
 
         /*SRS Registration Request items start*/

@@ -1,4 +1,5 @@
-/* firewall_rules.h
+/** @file
+ *
  * Produce ACL rules for various products from a packet.
  *
  * Wireshark - Network traffic analyzer

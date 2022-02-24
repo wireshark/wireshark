@@ -1,4 +1,4 @@
-/* show_exception.h
+/** @file
  *
  * Routines to put exception information into the protocol tree
  *

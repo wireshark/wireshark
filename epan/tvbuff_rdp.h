@@ -1,4 +1,5 @@
-/* tvbuff_rdp.h
+/** @file
+ *
  *	Various decompression routines used by RDP
  *
  * Copyright (c) 2021 by David Fort <contact@hardening-consulting.com>

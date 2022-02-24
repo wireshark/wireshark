@@ -92,13 +92,13 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	frame_data.h
 	frame_data_sequence.h
 	funnel.h
-	garrayfix.h
 	#geoip_db.h
 	golay.h
 	guid-utils.h
 	iana_charsets.h
 	iax2_codec_type.h
 	in_cksum.h
+	introspection.h
 	ip_opts.h
 	ipproto.h
 	ipv4.h
@@ -151,7 +151,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	timestamp.h
 	timestats.h
 	tfs.h
-	time_fmt.h
 	to_str.h
 	tvbparse.h
 	tvbuff.h
@@ -210,6 +209,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	guid-utils.c
 	iana_charsets.c
 	in_cksum.c
+	introspection.c
 	ipproto.c
 	maxmind_db.c
 	media_params.c
@@ -426,6 +426,23 @@ target_link_libraries(wscbor_test epan)
 set_target_properties(wscbor_test PROPERTIES
     FOLDER "Tests"
     EXCLUDE_FROM_DEFAULT_BUILD True
+)
+
+set(ENUM_FILES
+	epan/address.h
+	epan/ipproto.h
+	epan/proto.h
+	epan/ftypes/ftypes.h
+)
+
+# This tries to parse C headers using Python to extract enums for
+# introspection. It is slow and has some particular dependencies.
+# It's also not foolproof. It should not be part of the ALL target.
+add_custom_target(gen-enums
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-enums.py
+		--outfile ${CMAKE_CURRENT_SOURCE_DIR}/introspection-enums.c
+		${ENUM_FILES}
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 CHECKAPI(

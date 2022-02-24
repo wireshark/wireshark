@@ -1204,10 +1204,10 @@ static void format_custom_msgtype(gchar *out, guint32 in)
 	}
 
 	if (tmp)
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
 	else {
 		tmp_str = val_to_str_wmem(NULL, in, oml_fom_msgtype_vals, "Unknown 0x%02x");
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
 		wmem_free(NULL, tmp_str);
 	}
 }
@@ -1231,10 +1231,10 @@ static void format_custom_attr(gchar *out, guint32 in)
 	}
 
 	if (tmp)
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp);
 	else {
 		tmp_str = val_to_str_wmem(NULL, in, oml_fom_attr_vals, "Unknown 0x%02x");
-		g_snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
+		snprintf(out, ITEM_LABEL_LENGTH, "%s", tmp_str);
 		wmem_free(NULL, tmp_str);
 	}
 }
@@ -1242,7 +1242,7 @@ static void format_custom_attr(gchar *out, guint32 in)
 /* Interference level boundaries are coded as a binary presentation of -x dBm */
 static void format_interf_bound(gchar *buf, const guint32 in)
 {
-	g_snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", in,
+	snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", in,
 		   unit_name_string_get_value(in, &units_dbm));
 }
 
@@ -1803,15 +1803,15 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			break;
 		case NM_ATT_IPACC_LOCATION:
 			proto_tree_add_item(att_tree, hf_attr_ipa_location_name,
-					    tvb, offset, len, ENC_ASCII|ENC_NA);
+					    tvb, offset, len, ENC_ASCII);
 			break;
 		case NM_ATT_IPACC_UNIT_ID:
 			proto_tree_add_item(att_tree, hf_attr_ipa_unit_id,
-					    tvb, offset, len, ENC_ASCII|ENC_NA);
+					    tvb, offset, len, ENC_ASCII);
 			break;
 		case NM_ATT_IPACC_UNIT_NAME:
 			proto_tree_add_item(att_tree, hf_attr_ipa_unit_name,
-					    tvb, offset, len, ENC_ASCII|ENC_NA);
+					    tvb, offset, len, ENC_ASCII);
 			break;
 		case NM_ATT_IPACC_PRIM_OML_CFG_LIST:
 			proto_tree_add_item(att_tree, hf_attr_ipa_prim_oml_ip,
@@ -1979,7 +1979,7 @@ dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item_ret_uint(tree, hf_oml_manuf_id_len, tvb,
 				     offset, 1, ENC_NA, &len);
 	proto_tree_add_item(tree, hf_oml_manuf_id_val, tvb,
-			    offset + 1, len, ENC_ASCII|ENC_NA);
+			    offset + 1, len, ENC_ASCII);
 
 	/* Some implementations include '\0', some don't - handle this */
 	if ((len == (sizeof(ipaccess_magic) + 1) || len == sizeof(ipaccess_magic)) &&

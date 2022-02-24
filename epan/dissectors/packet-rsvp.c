@@ -1538,7 +1538,7 @@ static value_string_ext adspec_params_ext = VALUE_STRING_EXT_INIT(adspec_params)
 
 /*
  * FF: please keep this list in sync with
- * http://www.iana.org/assignments/gmpls-sig-parameters
+ * http://www.iana.org/assignments/gmpls-sig-parameters/gmpls-sig-parameters.xhtml
  * Registry Name: 'LSP Encoding Types'
  */
 const range_string gmpls_lsp_enc_rvals[] = {
@@ -1563,7 +1563,7 @@ const range_string gmpls_lsp_enc_rvals[] = {
 
 /*
  * FF: please keep this list in sync with
- * http://www.iana.org/assignments/gmpls-sig-parameters
+ * http://www.iana.org/assignments/gmpls-sig-parameters/gmpls-sig-parameters.xhtml
  * Registry Name: 'Switching Types'
  */
 const range_string gmpls_switching_type_rvals[] = {
@@ -1593,7 +1593,7 @@ const range_string gmpls_switching_type_rvals[] = {
 
 /*
  * FF: please keep this list in sync with
- * http://www.iana.org/assignments/gmpls-sig-parameters
+ * http://www.iana.org/assignments/gmpls-sig-parameters/gmpls-sig-parameters.xhtml
  * Registry Name: 'Generalized PID (G-PID)'
  */
 static const range_string gmpls_gpid_rvals[] = {

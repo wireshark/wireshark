@@ -3368,15 +3368,15 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_short_name,
-                      tvb, offset, 18, ENC_ASCII|ENC_NA);
+                      tvb, offset, 18, ENC_ASCII);
   offset += 18;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_long_name,
-                      tvb, offset, 64, ENC_ASCII|ENC_NA);
+                      tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_node_report,
-                      tvb, offset, 64, ENC_ASCII|ENC_NA);
+                      tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
 
@@ -3673,11 +3673,11 @@ dissect_artnet_address(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_address_short_name,
-                      tvb, offset, 18, ENC_ASCII|ENC_NA);
+                      tvb, offset, 18, ENC_ASCII);
   offset += 18;
 
   proto_tree_add_item(tree, hf_artnet_address_long_name,
-                      tvb, offset, 64, ENC_ASCII|ENC_NA);
+                      tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
   hi = proto_tree_add_item(tree,
@@ -3823,7 +3823,7 @@ dissect_artnet_video_setup(tvbuff_t *tvb, guint offset, proto_tree *tree ) {
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_video_setup_win_font_name,
-                      tvb, offset, 64, ENC_ASCII|ENC_NA);
+                      tvb, offset, 64, ENC_ASCII);
   offset += 64;
 
   size = last_font * font_height;
@@ -4307,7 +4307,7 @@ dissect_artnet_diag_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset+=2;
 
   proto_tree_add_item(tree, hf_artnet_diag_data_data, tvb,
-                      offset, length, ENC_ASCII|ENC_NA);
+                      offset, length, ENC_ASCII);
   offset += length;
 
   return offset;
@@ -4425,11 +4425,11 @@ dissect_artnet_directory_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_name, tvb,
-                      offset, 16, ENC_ASCII|ENC_NA);
+                      offset, 16, ENC_ASCII);
   offset += 16;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_desc, tvb,
-                      offset, 64, ENC_ASCII|ENC_NA);
+                      offset, 64, ENC_ASCII);
   offset += 64;
 
   proto_tree_add_item(tree, hf_artnet_directory_reply_length, tvb,
@@ -4478,7 +4478,7 @@ dissect_artnet_file_tn_master(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_file_tn_master_name, tvb,
-                      offset, 14, ENC_ASCII|ENC_NA);
+                      offset, 14, ENC_ASCII);
   offset += 14;
 
   proto_tree_add_checksum(tree, tvb, offset, hf_artnet_file_tn_master_checksum, -1, NULL, NULL, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);

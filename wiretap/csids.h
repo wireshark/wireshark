@@ -1,4 +1,4 @@
- /* csids.h
+/** @file
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) Cisco Systems

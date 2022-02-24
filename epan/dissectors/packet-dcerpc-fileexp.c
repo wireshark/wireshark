@@ -721,7 +721,7 @@ dissect_afsTaggedPath (tvbuff_t *tvb, int offset,
     dissect_ndr_uint16 (tvb, offset, pinfo, tree, di, drep,
                         hf_fileexp_afsTaggedPath_tp_length, &tp_length);
   proto_tree_add_item (tree, hf_fileexp_afsTaggedPath_tp_chars, tvb, offset,
-                       tp_length, ENC_ASCII|ENC_NA);
+                       tp_length, ENC_ASCII);
   tp_chars = tvb_get_string_enc (pinfo->pool, tvb, offset, 1025, ENC_ASCII);
   offset += 1025;
   col_append_fstr (pinfo->cinfo, COL_INFO, " :tp_chars %s", tp_chars);
@@ -1263,7 +1263,7 @@ dissect_afstaggedname (tvbuff_t *tvb, int offset,
   if (tn_length < 254)
     {
       proto_tree_add_item (tree, hf_fileexp_tn_string, tvb, offset,
-                             tn_length, ENC_ASCII|ENC_NA);
+                             tn_length, ENC_ASCII);
       tn_string = tvb_get_string_enc (pinfo->pool, tvb, offset, 257, ENC_ASCII);
       offset += 257;
         col_append_fstr (pinfo->cinfo, COL_INFO, " :tn_tag: %s", tn_string);

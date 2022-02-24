@@ -923,7 +923,7 @@ wtap_block_add_string_option_vformat(wtap_block_t block, guint option_id, const 
     ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_STRING, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    opt->value.stringval = g_strdup_vprintf(format, va);
+    opt->value.stringval = ws_strdup_vprintf(format, va);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -938,7 +938,7 @@ wtap_block_add_string_option_format(wtap_block_t block, guint option_id, const c
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     va_start(va, format);
-    opt->value.stringval = g_strdup_vprintf(format, va);
+    opt->value.stringval = ws_strdup_vprintf(format, va);
     va_end(va);
     return WTAP_OPTTYPE_SUCCESS;
 }
@@ -1004,7 +1004,7 @@ wtap_block_set_string_option_value_format(wtap_block_t block, guint option_id, c
     }
     g_free(optval->stringval);
     va_start(va, format);
-    optval->stringval = g_strdup_vprintf(format, va);
+    optval->stringval = ws_strdup_vprintf(format, va);
     va_end(va);
     return WTAP_OPTTYPE_SUCCESS;
 }
@@ -1021,7 +1021,7 @@ wtap_block_set_nth_string_option_value_format(wtap_block_t block, guint option_i
         return ret;
     g_free(optval->stringval);
     va_start(va, format);
-    optval->stringval = g_strdup_vprintf(format, va);
+    optval->stringval = ws_strdup_vprintf(format, va);
     va_end(va);
     return WTAP_OPTTYPE_SUCCESS;
 }
@@ -1623,6 +1623,12 @@ static void pkt_create(wtap_block_t block)
     block->mandatory_data = NULL;
 }
 
+static void sjeb_create(wtap_block_t block)
+{
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
+}
+
 static void cb_create(wtap_block_t block)
 {
     /* Ensure this is null, so when g_free is called on it, it simply returns */
@@ -1853,10 +1859,20 @@ void wtap_opttypes_initialize(void)
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
 
+    static wtap_blocktype_t journal_block = {
+        WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT, /* block_type */
+        "SJEB",                         /* name */
+        "systemd Journal Export Block", /* description */
+        sjeb_create,                    /* create */
+        NULL,                           /* free_mand */
+        NULL,                           /* copy_mand */
+        NULL                            /* options */
+    };
+
     static wtap_blocktype_t cb_block = {
         WTAP_BLOCK_CUSTOM,            /* block_type */
         "CB",                         /* name */
-        "Packet Block",               /* description */
+        "Custom Block",               /* description */
         cb_create,                    /* create */
         NULL,                         /* free_mand */
         NULL,                         /* copy_mand */
@@ -1922,6 +1938,11 @@ void wtap_opttypes_initialize(void)
     wtap_opttype_option_register(&pkt_block, OPT_PKT_QUEUE, &pkt_queue);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_HASH, &pkt_hash);
     wtap_opttype_option_register(&pkt_block, OPT_PKT_VERDICT, &pkt_verdict);
+
+    /*
+     * Register the SJEB and the (no) options that can appear in it.
+     */
+    wtap_opttype_block_register(&journal_block);
 
     /*
      * Register the CB and the options that can appear in it.

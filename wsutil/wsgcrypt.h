@@ -1,4 +1,4 @@
-/* wsgcrypt.h
+/** @file
  *
  * Wrapper around libgcrypt's include file gcrypt.h.
  * For libgcrypt 1.5.0, including gcrypt.h directly brings up lots of
@@ -15,9 +15,7 @@
 #ifndef __WSGCRYPT_H__
 #define __WSGCRYPT_H__
 
-#include <ws_diag_control.h>
-#include "ws_symbol_export.h"
-#include <glib.h>
+#include <wireshark.h>
 
 DIAG_OFF(deprecated-declarations)
 

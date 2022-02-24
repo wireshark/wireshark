@@ -5013,7 +5013,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                    */
                   if (tmp > G_MAXINT32) {
                         ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1, ENC_NA);
-                        expert_add_info_format(pinfo, ti, &ei_x11_request_length, "Bogus request length (%"G_GINT64_MODIFIER"d)", tmp);
+                        expert_add_info_format(pinfo, ti, &ei_x11_request_length, "Bogus request length (%"PRId64")", tmp);
                         return;
                   }
                   plen = (gint)tmp;

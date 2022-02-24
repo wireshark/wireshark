@@ -134,8 +134,8 @@ static const value_string param_set_type_vals[] = {
 static const value_string macsec_capability_type_vals[] = {
   { 0,                     "MACsec not implemented" },
   { 1,                     "MACsec Integrity without confidentiality" },
-  { 2,                     "MACsec Integrity with no confidentiality offset" },
-  { 3,                     "MACsec Integrity with confidentiality offset" },
+  { 2,                     "MACsec Integrity with/without confidentiality, no confidentiality offset" },
+  { 3,                     "MACsec Integrity with/without confidentiality, confidentiality offset 0, 30, or 50" },
   { 0, NULL }
 };
 
@@ -566,7 +566,6 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
     guint16 tlv_item_offset;
 
     if (offset2 + 2 + tlv_length > announcement_len) {
-      offset2 = announcement_len;
       break;
     }
 
@@ -588,7 +587,7 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
           guint16 cipher_suite_cap = tvb_get_guint16(tvb, offset + offset2 + tlv_item_offset, ENC_BIG_ENDIAN) & 0x0003;
 
           ti = proto_tree_add_none_format(tlv_tree, hf_mka_tlv_entry, tvb, offset + offset2, tlv_length + 2, "Cipher Suite: %s, %s",
-                                          val64_to_str(cipher_suite_id, macsec_cipher_suite_vals, "Unknown Cipher Suite (0x%" G_GINT64_MODIFIER "x)"),
+                                          val64_to_str(cipher_suite_id, macsec_cipher_suite_vals, "Unknown Cipher Suite (0x%" PRIx64 ")"),
                                           val_to_str(cipher_suite_cap, macsec_capability_type_vals, "Unknown Capability (%d)"));
           cipher_suite_entry = proto_item_add_subtree(ti, ett_mka_cipher_suite_entry);
 

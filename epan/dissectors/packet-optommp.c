@@ -377,7 +377,7 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             guint64 destination_offset = 0;
             destination_offset = tvb_get_ntoh48(tvb, 6);
             col_add_fstr(pinfo->cinfo, COL_INFO,
-                " type: %s, dest_off: 0x%012" G_GINT64_MODIFIER "x",
+                " type: %s, dest_off: 0x%012" PRIx64,
                 val_to_str(tcode, optommp_tcode_names, "Unknown (0x%02x)"),
                 destination_offset);
         }
@@ -408,7 +408,7 @@ static gint dissect_optommp(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 guint64 destination_offset = 0;
                 destination_offset = tvb_get_ntoh48(tvb, 6);
                 proto_item_append_text(root_ti,
-                    ", dest_off: 0x%012" G_GINT64_MODIFIER "x",
+                    ", dest_off: 0x%012" PRIx64,
                     destination_offset);
             }
             /* Add an expansion to the tree */

@@ -411,7 +411,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 					offset += (2*size);
 					/* Feature Negotiation String */
 					if(version > 2) {
-					        proto_tree_add_item(conn_header_tree, hf_linx_conn_feat_neg_str, tvb, offset, -1, ENC_ASCII|ENC_NA);
+					        proto_tree_add_item(conn_header_tree, hf_linx_conn_feat_neg_str, tvb, offset, -1, ENC_ASCII);
 						offset += tvb_strnlen(tvb, offset, -1);
 					}
 					break;
@@ -529,13 +529,13 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 							case RLNH_QUERY_NAME:
 									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, tvb, offset, -1, ENC_ASCII);
 									offset += tvb_strnlen(tvb, offset, -1);
 								break;
 							case RLNH_PUBLISH:
 									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, tvb, offset, -1, ENC_ASCII);
 									offset += tvb_strnlen(tvb, offset, -1);
 								break;
 							case RLNH_UNPUBLISH:
@@ -556,7 +556,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
 									if(rlnh_version > 1) {
-									        proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_feat_neg_str, tvb, offset, -1, ENC_ASCII|ENC_NA);
+									        proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_feat_neg_str, tvb, offset, -1, ENC_ASCII);
 										offset += tvb_strnlen(tvb, offset, -1);
 									}
 								break;
@@ -915,13 +915,13 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 				case RLNH_QUERY_NAME:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, tvb, offset, -1, ENC_ASCII);
 					/*offset += tvb_strnlen(tvb, offset, -1);*/
 					break;
 				case RLNH_PUBLISH:
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_src_linkaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
-					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
+					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_name, tvb, offset, -1, ENC_ASCII);
 					/*offset += tvb_strnlen(tvb, offset, -1);*/
 					break;
 				case RLNH_UNPUBLISH:
@@ -941,7 +941,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 					proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					if(rlnh_version > 1) {
-						proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_feat_neg_str, tvb, offset, -1, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(rlnh_header_tree, hf_linx_tcp_rlnh_feat_neg_str, tvb, offset, -1, ENC_ASCII);
 						/*offset += tvb_strnlen(tvb, offset, -1);*/
 					}
 					break;

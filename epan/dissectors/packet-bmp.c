@@ -614,7 +614,7 @@ dissect_bmp_termination(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     offset += 2;
 
     if (term_type == BMP_TERM_TYPE_STRING) {
-        proto_tree_add_item(subtree, hf_term_info, tvb, offset, term_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_term_info, tvb, offset, term_len, ENC_ASCII);
     } else {
         proto_tree_add_item(subtree, hf_term_reason, tvb, offset, term_len, ENC_BIG_ENDIAN);
     }
@@ -772,7 +772,7 @@ dissect_bmp_init(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int of
         proto_tree_add_item(subtree, hf_init_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(subtree, hf_init_info, tvb, offset, init_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_init_info, tvb, offset, init_len, ENC_ASCII);
         offset += init_len;
     }
 }
@@ -860,7 +860,7 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
         switch(type){
             case BMP_ROUTE_POLICY_TLV_VRF: {
                 proto_tree_add_item(tlv_tree, hf_route_policy_tlv_vrf_table_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_vrf_table_name, tvb, offset+4, length-4, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_vrf_table_name, tvb, offset+4, length-4, ENC_ASCII);
                 offset += length;
                 single_event_length -=length;
             }
@@ -955,7 +955,7 @@ dissect_bmp_route_policy_event(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
             }
             break;
             case BMP_ROUTE_POLICY_TLV_STRING: {
-                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_string, tvb, offset, length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_route_policy_tlv_string, tvb, offset, length, ENC_ASCII);
                 offset += length;
                 single_event_length -= length;
             }

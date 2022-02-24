@@ -423,7 +423,7 @@ dissect_openflow_phy_port(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     offset+=2;
     proto_tree_add_item(tree, hf_openflow_hw_addr, tvb, offset, 6, ENC_NA);
     offset+=6;
-    proto_tree_add_item(tree, hf_openflow_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_openflow_port_name, tvb, offset, OFP_MAX_PORT_NAME_LEN, ENC_ASCII);
     offset+=OFP_MAX_PORT_NAME_LEN;
 
     /* Bitmap of OFPPC_* flags. */

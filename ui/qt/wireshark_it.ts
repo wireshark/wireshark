@@ -378,8 +378,8 @@
         <translation>Marca/Deseleziona riga</translation>
     </message>
     <message>
-        <source>Ctrl-M</source>
-        <translation>Ctrl-M</translation>
+        <source>Ctrl+M</source>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -722,7 +722,7 @@
 <context>
     <name>ByteViewText</name>
     <message>
-        <source>Allow hover selection</source>
+        <source>Allow hover highlighting</source>
         <translation>Consenti la selezione al passaggio del mouse </translation>
     </message>
     <message>
@@ -1474,6 +1474,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ferma la cattura dopo che la quantità di tempo specificato è trascorsa.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Specifica opzionalmente una cartella temporanea per i file catturati senza nome.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Directory for temporary files</source>
+        <translation>Cartella per i file temporanei</translation>
+    </message>
+    <message>
         <source>Capture Options</source>
         <translation>Opzioni di cattura</translation>
     </message>
@@ -1488,6 +1496,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Specify a Capture File</source>
         <translation>Specifica un file di cattura</translation>
+    </message>
+    <message>
+        <source>Specify temporary directory</source>
+        <translation>Specifica cartella temporanea</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -1974,6 +1986,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Cerca usando questo campo</translation>
     </message>
     <message>
+        <source>Change behavior when the field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field value type (and base, if Integer)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Current&quot;Decode As&quot; behavior</source>
         <translation>Comportamento attuale di &quot;Decodifica come&quot;</translation>
     </message>
@@ -1983,7 +2003,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Change behavior when the protocol field matches this value</source>
-        <translation>Cambia il comportamento quando il campo del protocollo corrisponde a questo valore</translation>
+        <translation type="vanished">Cambia il comportamento quando il campo del protocollo corrisponde a questo valore</translation>
     </message>
     <message>
         <source>String</source>
@@ -2668,8 +2688,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Avvia</translation>
     </message>
     <message>
+        <source>Save</source>
+        <translation>Salva</translation>
+    </message>
+    <message>
         <source>Default</source>
         <translation>Predefinito</translation>
+    </message>
+    <message>
+        <source>Restore default value of the item</source>
+        <translation>Ripristina il valore predefinito dell&apos;elemento</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -4323,6 +4351,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Decimale</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Decidi se eseguire un&apos;elaborazione aggiuntiva durante la rilevazione della rappresentazione ASCII alla fine di una riga hex+ASCII anche se sembrano byte esadecimali.&lt;/p&gt;&lt;p&gt;Non abilitarla se il dump esadecimale non contiene ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>ASCII identification:</source>
+        <translation>Identificazione ASCII:</translation>
+    </message>
+    <message>
         <source>Regular Expression</source>
         <translation>Espressione regolare</translation>
     </message>
@@ -4387,6 +4423,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>EsportaPDU</translation>
     </message>
     <message>
+        <source>IP version:</source>
+        <translation>Versione IP:</translation>
+    </message>
+    <message>
+        <source>Interface name:</source>
+        <translation>Nome interfaccia:</translation>
+    </message>
+    <message>
+        <source>The name of the interface to write to the import capture file</source>
+        <translation>Il nome dell&apos;interfaccia da scrivere su file di cattura da importare</translation>
+    </message>
+    <message>
+        <source>Fake IF, Import from Hex Dump</source>
+        <translation>IF finta, importazione da dump esadecimale</translation>
+    </message>
+    <message>
         <source>Maximum frame length:</source>
         <translation>Lunghezza massima del frame:</translation>
     </message>
@@ -4411,8 +4463,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Il formato in cui leggere le marche temporali nel file di testo (es. %H:%M:%S.). Gli specificatori di formato sono basati su strptime(3)</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it&apos;s length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Il formato in cui leggere le marche temporali nel file di testo (es. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Gli specificatori di formato sono basati su strptime(3) con l&apos;aggiunta di %f per le frazioni di secondo. La precisione di %f è determinata dalla sua lunghezza.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The precision of %f is determined from its length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Il formato in cui elaborare le marche temporali nel file di testo (es. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Gli specificatori di formato sono basati su strptime(3) con l&apos;aggiunta di %f per le frazioni di secondo. La precisione di %f è determinata dalla sua lunghezza.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>%H:%M:%S.%f</source>
@@ -4431,8 +4483,52 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tipo di incapsulamento dei frame nel file di importazione della cattura</translation>
     </message>
     <message>
+        <source>Prefix each frame with an Ethernet and IP header</source>
+        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet e IP</translation>
+    </message>
+    <message>
+        <source>IP</source>
+        <translation>IP</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and UDP header</source>
+        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IP e UDP</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and TCP header</source>
+        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IP e TCP</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP header</source>
+        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IP e SCTP</translation>
+    </message>
+    <message>
+        <source>Prefix each frame with an Ethernet, IP and SCTP (DATA) header</source>
+        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IP e SCTP (DATA)</translation>
+    </message>
+    <message>
+        <source>Source address:</source>
+        <translation>Indirizzo sorgente:</translation>
+    </message>
+    <message>
+        <source>Destination address:</source>
+        <translation>Indirizzo di destinazione:</translation>
+    </message>
+    <message>
         <source>Dissector</source>
         <translation>Decodificatore</translation>
+    </message>
+    <message>
+        <source>The IP protocol ID for each frame</source>
+        <translation>L&apos;ID di protocollo IP per ogni frame</translation>
+    </message>
+    <message>
+        <source>The IP source address for each frame</source>
+        <translation>L&apos;indirizzo IP sorgente per ogni frame</translation>
+    </message>
+    <message>
+        <source>The IP destination address for each frame</source>
+        <translation>L&apos;indirizzo IP di destinazione per ogni frame</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4453,10 +4549,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Ethernet</source>
         <translation>Ethernet</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -4483,10 +4575,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tag:</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and UDP header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e UDP</translation>
-    </message>
-    <message>
         <source>UDP</source>
         <translation>UDP</translation>
     </message>
@@ -4497,10 +4585,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>The Ethertype value of each frame</source>
         <translation>Il valore di Ethertype per ogni frame</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and TCP header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e TCP</translation>
     </message>
     <message>
         <source>TCP</source>
@@ -4519,28 +4603,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ethertype (esa):</translation>
     </message>
     <message>
-        <source>The IPv4 protocol ID for each frame</source>
-        <translation>ID di protocollo IPv4 per ogni frame</translation>
-    </message>
-    <message>
-        <source>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet, IPv4 e SCTP (DATA)</translation>
-    </message>
-    <message>
         <source>SCTP (Data)</source>
         <translation>SCTP (Dati)</translation>
     </message>
     <message>
-        <source>Prefix each frame with an Ethernet and IPv4 header</source>
-        <translation>Anteponi a ogni frame un&apos;intestazione Ethernet e IPv4</translation>
-    </message>
-    <message>
-        <source>IPv4</source>
-        <translation>IPv4</translation>
-    </message>
-    <message>
         <source>The dissector to use for each frame</source>
         <translation>Il decodificatore da utilizzare per ogni frame</translation>
+    </message>
+    <message>
+        <source>The IP Version to use for the dummy IP header</source>
+        <translation>La versione IP da utilizzare con l&apos;intestazione IP fittizia</translation>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
@@ -4626,8 +4698,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Interfacce di cattura esterne disabilitate.</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; or &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Le interfacce locali non sono disponibili poiché non è installato alcun driver di cattura.&lt;/p&gt;&lt;p&gt;Puoi correggere questo problema installando &lt;a href=&quot;https://nmap.org/npcap/&quot;&gt;Npcap&lt;/a&gt; o &lt;a href=&quot;https://www.winpcap.org/install/default.htm&quot;&gt;WinPcap&lt;/a&gt;.&lt;/p&gt;</translation>
+        <source>&lt;p&gt;Local interfaces are unavailable because no packet capture driver is installed.&lt;/p&gt;&lt;p&gt;You can fix this by installing &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Le interfacce locali non sono disponibili poiché non è installato alcun driver di cattura.&lt;/p&gt;&lt;p&gt;Puoi correggere questo problema installando &lt;a href=&quot;https://npcap.com/&quot;&gt;Npcap&lt;/a&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Local interfaces are unavailable because the packet capture driver isn&apos;t loaded.&lt;/p&gt;&lt;p&gt;You can fix this by running &lt;pre&gt;net start npcap&lt;/pre&gt; if you have Npcap installed or &lt;pre&gt;net start npf&lt;/pre&gt; if you have WinPcap installed. Both commands must be run as Administrator.&lt;/p&gt;</source>
@@ -6305,10 +6377,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>HTTP</translation>
     </message>
     <message>
-        <source>900000000</source>
-        <translation>900000000</translation>
-    </message>
-    <message>
         <source>&amp;File</source>
         <translation>&amp;File</translation>
     </message>
@@ -6659,6 +6727,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Reliable Server Pooling (RSerPool)</source>
         <translation>Reliable Server Pooling (RSerPool)</translation>
+    </message>
+    <message>
+        <source>SOME/IP</source>
+        <translation>SOME/IP</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -7122,6 +7194,22 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Sametime statistics</source>
         <translation>Statistiche sametime</translation>
+    </message>
+    <message>
+        <source>SOME/IP Messages</source>
+        <translation>SOME/Messaggi IP</translation>
+    </message>
+    <message>
+        <source>SOME/IP Message statistics</source>
+        <translation>Statistiche SOME/Messaggi IP</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries</source>
+        <translation>Voci SOME/IP-SD</translation>
+    </message>
+    <message>
+        <source>SOME/IP-SD Entries statistics</source>
+        <translation>Statistiche voci SOME/Messaggi IP</translation>
     </message>
     <message>
         <source>&amp;ISUP Messages</source>
@@ -8240,6 +8328,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Salvataggio di %1...</translation>
     </message>
     <message>
+        <source>Configure all extcaps before start of capture.</source>
+        <translation>Configura tutte le extcap prima di avviare la cattura.</translation>
+    </message>
+    <message>
         <source>Invalid capture filter.</source>
         <translation>Filtro di cattura invalido.</translation>
     </message>
@@ -8796,6 +8888,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
+        <source>Show packet bytes</source>
+        <translation>Mostra byte del pacchetto</translation>
+    </message>
+    <message>
         <source>Packet %1</source>
         <translation>Pacchetto %1</translation>
     </message>
@@ -8873,6 +8969,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Bytes</source>
         <translation>Byte</translation>
+    </message>
+    <message>
+        <source>Include secondary data sources</source>
+        <translation>Includi le fonti di dati secondarie</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Genera dump esadecimali per le fonti di dati secondarie come buffer riassemblati o decifrati in aggiunta al frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -12840,8 +12944,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Immagine</translation>
     </message>
     <message>
+        <source>Json</source>
+        <translation>Json</translation>
+    </message>
+    <message>
         <source>Raw</source>
         <translation>Grezzo</translation>
+    </message>
+    <message>
+        <source>Rust Array</source>
+        <translation>Array Rust</translation>
     </message>
     <message>
         <source>UTF-8</source>
@@ -13633,6 +13745,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Save the displayed data in various formats</source>
         <translation>Salva i dati visualizzati in vari formati</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation>Contrai tutti</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation>Espandi tutti</translation>
     </message>
     <message>
         <source>Save Statistics As…</source>

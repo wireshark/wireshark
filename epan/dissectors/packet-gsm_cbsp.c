@@ -869,7 +869,7 @@ proto_register_cbsp(void)
 		{ &hf_cbsp_cb_msg_page, { "CBS Message Information Page", "cbsp.cb_msg_page",
 		  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_cbsp_cbs_page_content, { "CBS Page Content", "cbsp.cb_page_content",
-		  FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL } },
+		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_cbsp_sched_period, { "Schedule Period", "cbsp.sched_period",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_cbsp_num_of_res_slots, { "Number of Reserved Slots", "cbsp.num_of_res_slots",

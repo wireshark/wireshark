@@ -7,9 +7,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -22,15 +19,10 @@ void proto_reg_handoff_http_urlencoded(void);
 
 static dissector_handle_t form_urlencoded_handle;
 
-static header_field_info *hfi_urlencoded = NULL;
+static int proto_urlencoded = -1;
 
-#define URLENCODED_HFI_INIT HFI_INIT(proto_urlencoded)
-
-static header_field_info hfi_form_key URLENCODED_HFI_INIT =
-	{ "Key", "urlencoded-form.key", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL };
-
-static header_field_info hfi_form_value URLENCODED_HFI_INIT =
-	{ "Value", "urlencoded-form.value", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL };
+static int hf_form_key = -1;
+static int hf_form_value = -1;
 
 static gint ett_form_urlencoded = -1;
 static gint ett_form_keyvalue = -1;
@@ -140,7 +132,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	if (data_name)
 		col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)", data_name);
 
-	ti = proto_tree_add_item(tree, hfi_urlencoded, tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, proto_urlencoded, tvb, 0, -1, ENC_NA);
 	if (data_name)
 		proto_item_append_text(ti, ": %s", data_name);
 	url_tree = proto_item_add_subtree(ti, ett_form_urlencoded);
@@ -154,7 +146,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		next_offset = get_form_key_value(tvb, &key, offset, '=');
 		if (next_offset == -1)
 			break;
-		proto_tree_add_string(sub, &hfi_form_key, tvb, offset, next_offset - offset, key);
+		proto_tree_add_string(sub, hf_form_key, tvb, offset, next_offset - offset, key);
 		proto_item_append_text(sub, ": \"%s\"", key);
 
 		offset = next_offset+1;
@@ -162,7 +154,7 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		next_offset = get_form_key_value(tvb, &value, offset, '&');
 		if (next_offset == -1)
 			break;
-		proto_tree_add_string(sub, &hfi_form_value, tvb, offset, next_offset - offset, value);
+		proto_tree_add_string(sub, hf_form_value, tvb, offset, next_offset - offset, value);
 		proto_item_append_text(sub, " = \"%s\"", value);
 
 		offset = next_offset+1;
@@ -176,26 +168,29 @@ dissect_form_urlencoded(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 void
 proto_register_http_urlencoded(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_form_key,
-		&hfi_form_value,
+	static hf_register_info hf[] = {
+		{ &hf_form_key,
+			{ "Key", "urlencoded-form.key",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
+		{ &hf_form_value,
+			{ "Value", "urlencoded-form.value",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+			  NULL, HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_form_urlencoded,
 		&ett_form_keyvalue
 	};
 
-	int proto_urlencoded;
-
 	proto_urlencoded = proto_register_protocol("HTML Form URL Encoded", "URL Encoded Form Data", "urlencoded-form");
-	hfi_urlencoded = proto_registrar_get_nth(proto_urlencoded);
 
 	form_urlencoded_handle = register_dissector("urlencoded-form", dissect_form_urlencoded, proto_urlencoded);
 
-	proto_register_fields(proto_urlencoded, hfi, array_length(hfi));
+	proto_register_field_array(proto_urlencoded, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

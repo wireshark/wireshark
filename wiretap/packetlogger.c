@@ -351,7 +351,7 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 	if (pl_hdr.len < 8) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("packetlogger: record length %u is too small", pl_hdr.len);
+		*err_info = ws_strdup_printf("packetlogger: record length %u is too small", pl_hdr.len);
 		return FALSE;
 	}
 	if (pl_hdr.len - 8 > WTAP_MAX_PACKET_SIZE_STANDARD) {
@@ -360,7 +360,7 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("packetlogger: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("packetlogger: File has %u-byte packet, bigger than maximum of %u",
 		    pl_hdr.len - 8, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}

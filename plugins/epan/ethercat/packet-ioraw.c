@@ -33,7 +33,7 @@ static int hf_ioraw_data = -1;
 /*ioraw*/
 static void IoRawSummaryFormater( char *szText, int nMax)
 {
-   g_snprintf ( szText, nMax, "Raw IO Data" );
+   snprintf ( szText, nMax, "Raw IO Data" );
 }
 
 static int dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

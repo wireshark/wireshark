@@ -269,13 +269,13 @@ dissect_soupbintcp_common(
         case '+': /* Debug Message */
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_text,
-                                tvb, offset, expected_len - 1, ENC_ASCII|ENC_NA);
+                                tvb, offset, expected_len - 1, ENC_ASCII);
             break;
 
         case 'A': /* Login Accept */
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_session,
-                                tvb, offset, 10, ENC_ASCII|ENC_NA);
+                                tvb, offset, 10, ENC_ASCII);
             offset += 10;
 
             seq_num_valid = ws_strtoi32(tvb_get_string_enc(pinfo->pool,
@@ -314,17 +314,17 @@ dissect_soupbintcp_common(
         case 'L': /* Login Request */
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_username,
-                                tvb, offset, 6, ENC_ASCII|ENC_NA);
+                                tvb, offset, 6, ENC_ASCII);
             offset += 6;
 
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_password,
-                                tvb, offset, 10, ENC_ASCII|ENC_NA);
+                                tvb, offset, 10, ENC_ASCII);
             offset += 10;
 
             proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_session,
-                                tvb, offset, 10, ENC_ASCII|ENC_NA);
+                                tvb, offset, 10, ENC_ASCII);
             offset += 10;
 
             seq_num_valid = ws_strtoi32(tvb_get_string_enc(pinfo->pool,

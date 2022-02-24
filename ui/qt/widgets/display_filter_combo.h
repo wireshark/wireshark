@@ -1,4 +1,4 @@
-/* display_filter_combo.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

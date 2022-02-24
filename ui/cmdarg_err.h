@@ -1,4 +1,5 @@
-/* cmdarg_err.h
+/** @file
+ *
  * Declarations of routines to report command-line argument errors.
  *
  * Wireshark - Network traffic analyzer

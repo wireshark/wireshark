@@ -38,6 +38,7 @@ dumpcap - Dump network traffic
 [ *-s*|*--snapshot-length* <capture snaplen> ]
 [ *-S* ]
 [ *-t* ]
+[ *--temp-dir* <directory> ]
 [ *-v*|*--version* ]
 [ *-w* <outfile> ]
 [ *-y*|*--linktype* <capture link type> ]
@@ -87,7 +88,7 @@ stop writing to the current capture file and switch to the next one if filesize
 is reached.  Note that the filesize is limited to a maximum value of 2 GiB.
 
 *packets*:__value__ Stop writing to a capture file after __value__ packets
-have been written. Same as *-c* <capture packet count>.
+have been written. Acts the same as *-c* <capture packet count>.
 --
 
 -b|--ring-buffer  <capture ring buffer option>::
@@ -99,7 +100,7 @@ fills up, *Dumpcap* will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the *-w* option,
 the number of the file and on the creation date and time,
-e.g. outfile_00001_20210714120117.pcap, outfile_00002_20210714120523.pcap, ...
+e.g. outfile_00001_20220714120117.pcap, outfile_00002_20220714120523.pcap, ...
 
 With the __files__ option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
@@ -169,7 +170,7 @@ the default capture buffer size is used instead.
 +
 --
 Set the maximum number of packets to read when capturing live
-data. Same as *-a packets:*<capture packet count>.
+data. Acts the same as *-a packets:*<capture packet count>.
 --
 
 -C  <byte limit>::
@@ -268,6 +269,9 @@ of the form "\\pipe\.\*pipename*".  Data read from pipes must be in
 standard pcapng or pcap format. Pcapng data must have the same
 endianness as the capturing host.
 
+"TCP@<host>:<port>" causes *Dumpcap* to attempt to connect to the
+specified port on the specified host and read pcapng or pcap data.
+
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
 --
@@ -282,7 +286,7 @@ interface or pipe specified before it with *-i*.
 --ifname> <name>::
 +
 --
-Use __name__ as the name in the capture file for the the interface or
+Use __name__ as the name in the capture file for the interface or
 pipe specified before it with *-i*.
 --
 
@@ -457,6 +461,14 @@ Print statistics for each interface once every second.
 Use a separate thread per interface.
 --
 
+--temp-dir <directory>::
++
+--
+Specifies the directory into which temporary files (including capture files)
+are to be written. The default behaviour is to use your system's temporary
+directory (typically __/tmp__ on Linux, and __C:\\Temp__ on Windows).
+--
+
 -v|--version::
 +
 --
@@ -508,6 +520,8 @@ set, no time stamp types are listed.
 --
 Change the interface's timestamp method.
 --
+
+include::diagnostic-options.adoc[]
 
 == CAPTURE FILTER SYNTAX
 

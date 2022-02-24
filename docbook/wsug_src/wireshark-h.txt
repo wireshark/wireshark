@@ -1,4 +1,4 @@
-Wireshark 3.7.0 (v3.7.0rc0-33-g0d276b47d120)
+Wireshark 3.7.0 (v3.7.0rc0-1333-g7d171d378238)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -81,6 +81,9 @@ Output:
   -w <outfile|->           set the output filename (or '-' for stdout)
   --capture-comment <comment>
                            add a capture file comment, if supported
+  --temp-dir <directory>   write temporary files to this directory
+                           (default: /tmp)
+
 Diagnostic output:
   --log-level <level>      sets the active log level ("critical", "warning", etc.)
   --log-fatal <level>      sets level to abort the program ("critical" or "warning")

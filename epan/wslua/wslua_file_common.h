@@ -1,5 +1,4 @@
-/*
- * wslua_file_common.h
+/** @file
  *
  * Wireshark's interface to the Lua Programming Language
  * for file handling related source files.

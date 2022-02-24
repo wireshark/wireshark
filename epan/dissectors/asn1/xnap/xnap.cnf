@@ -1,6 +1,6 @@
 # xnap.cnf
 # xnap conformation file
-# Copyright 2018-2021 Pascal Quantin
+# Copyright 2018-2022 Pascal Quantin
 
 #.OPT
 PER
@@ -508,7 +508,7 @@ VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
   }
 
 #.TYPE_ATTR
-BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -663,7 +663,7 @@ Threshold-SINR DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(xnap_Threshold_SINR_fmt)
   }
 
 #.TYPE_ATTR
-WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+WLANName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1218,6 +1218,8 @@ id-SCGIndicator                                   ProtocolIE-ID
 id-UESpecificDRX                                  ProtocolIE-ID
 id-PDUSessionExpectedUEActivityBehaviour          ProtocolIE-ID
 id-QoS-Mapping-Information                        ProtocolIE-ID
+id-AdditionLocationInformation                    ProtocolIE-ID
+id-dataForwardingInfoFromTargetE-UTRANnode        ProtocolIE-ID
 
 #.REGISTER
 
@@ -1477,6 +1479,9 @@ SFN-Offset                                        N xnap.extension id-SFN-Offset
 QoSMonitoringDisabled                             N xnap.extension id-QoSMonitoringDisabled
 ExpectedUEActivityBehaviour                       N xnap.extension id-PDUSessionExpectedUEActivityBehaviour
 QoS-Mapping-Information                           N xnap.extension id-QoS-Mapping-Information
+Cause                                             N xnap.extension id-Cause
+AdditionLocationInformation                       N xnap.extension id-AdditionLocationInformation
+DataForwardingInfoFromTargetE-UTRANnode           N xnap.extension id-dataForwardingInfoFromTargetE-UTRANnode
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

@@ -104,7 +104,7 @@ static int vsock_addr_to_str(const address* addr, gchar *buf, int buf_len)
     if(pletoh64(&addrp[0])==2){
         (void) g_strlcpy(buf, "host", buf_len);
     } else {
-        g_snprintf(buf, buf_len, "%" G_GINT64_MODIFIER "u", pletoh64(&addrp[0]));
+        snprintf(buf, buf_len, "%" PRIu64, pletoh64(&addrp[0]));
     }
 
     return (int)(strlen(buf)+1);

@@ -48,7 +48,7 @@ static dissector_table_t moldudp_payload_table;
 
 static void moldudp_prompt(packet_info *pinfo _U_, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Payload as");
 }
 
 /* Code to dissect a message block */
@@ -152,7 +152,7 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     moldudp_tree = proto_item_add_subtree(ti, ett_moldudp);
 
     proto_tree_add_item(moldudp_tree, hf_moldudp_session,
-                        tvb, offset, MOLDUDP_SESSION_LEN, ENC_ASCII|ENC_NA);
+                        tvb, offset, MOLDUDP_SESSION_LEN, ENC_ASCII);
     offset += MOLDUDP_SESSION_LEN;
 
     sequence = tvb_get_letohl(tvb, offset);

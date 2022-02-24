@@ -60,7 +60,7 @@ sub_nanos_base_custom(gchar *result, guint32 value)
 {
   double temp_double;
   temp_double = ((double)value) / (1U << 24);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%1.9fns", temp_double);
+  snprintf(result, ITEM_LABEL_LENGTH, "%1.9fns", temp_double);
 }
 
 static int
@@ -143,8 +143,8 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
   /* Loop through the trailer bytes, try to find a valid trailer.
    * Only try twice:
-   *   - First try the case there there IS NO trailing FCS
-   *   - Second try the case where where IS a trailing FCS
+   *   - First try the case where IS NO trailing FCS
+   *   - Second try the case where there IS a trailing FCS
    */
   for ( i = 0; i < 2 && metamako_trailer_bytes >= 12 && !trailer_valid; i++ ) {
     /* Start at the tail of the trailer and work inwards */
@@ -281,7 +281,7 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         case 31:
           /* Tag String */
           metamako_tlv_pos -= ( metamako_tlv_len + 1 ) * 4;
-          proto_tree_add_item(extensions_tree, hf_metamako_tagstring, tvb, metamako_tlv_pos + 4, metamako_tlv_len * 4, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(extensions_tree, hf_metamako_tagstring, tvb, metamako_tlv_pos + 4, metamako_tlv_len * 4, ENC_ASCII);
           /* Increment the offset by the Data + Tag size */
           offset += ( metamako_tlv_len + 1 ) * 4;
           break;

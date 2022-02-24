@@ -1,4 +1,5 @@
-/* capture.h
+/** @file
+ *
  * Definitions for packet capture windows
  *
  * Wireshark - Network traffic analyzer

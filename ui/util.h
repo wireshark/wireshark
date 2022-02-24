@@ -1,4 +1,5 @@
-/* util.h
+/** @file
+ *
  * Utility definitions
  *
  * Wireshark - Network traffic analyzer

@@ -3472,9 +3472,9 @@ static void bluetooth_uuid_prompt(packet_info *pinfo, gchar* result)
 
     value_data = (gchar *) p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID);
     if (value_data)
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "BT Service UUID %s as", (gchar *) value_data);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "BT Service UUID %s as", (gchar *) value_data);
     else
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown BT Service UUID");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown BT Service UUID");
 }
 
 static gpointer bluetooth_uuid_value(packet_info *pinfo)
@@ -4029,17 +4029,17 @@ proto_register_bluetooth(void)
         },
         { &hf_bluetooth_src_str,
             { "Source",                              "bluetooth.src_str",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bluetooth_dst_str,
             { "Destination",                         "bluetooth.dst_str",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bluetooth_addr_str,
             { "Source or Destination",               "bluetooth.addr_str",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
     };

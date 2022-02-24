@@ -1447,7 +1447,7 @@ static int dissect_9P_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		if (_9p_version == _9P2000_u) {
 			_9p_len = tvb_get_letohs(tvb, offset);
-			proto_tree_add_item(ninep_tree, hf_9P_extension, tvb, offset+2, 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(ninep_tree, hf_9P_extension, tvb, offset+2, 4, ENC_ASCII);
 			offset += 2 + _9p_len;
 		}
 
@@ -2115,7 +2115,7 @@ static void dissect_9P_qid(tvbuff_t *tvb,  proto_tree *tree, int offset)
 	path = tvb_get_letoh64(tvb, offset+1+4);
 
 	qid_tree = proto_tree_add_subtree_format(tree, tvb, offset, 13, ett_9P_qid, NULL,
-		    "Qid type=0x%02x vers=%d path=%" G_GINT64_MODIFIER "u", type, vers, path);
+		    "Qid type=0x%02x vers=%d path=%" PRIu64, type, vers, path);
 
 	qidtype_item = proto_tree_add_item(qid_tree, hf_9P_qidtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	qidtype_tree = proto_item_add_subtree(qidtype_item, ett_9P_qidtype);

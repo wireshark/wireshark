@@ -2739,7 +2739,7 @@ static const guint8 VID_CISCO_FRAG[] = { /* Cisco Fragmentation */
         0x80, 0x00, 0x00, 0x00
 };
 
-static const guint8 VID_CISCO_FLEXVPN_SUPPORTED[] = { /* "FLEXVPN-SUPPORTED" */
+static const guint8 VID_CISCO_FLEXVPN_SUPPORTED[] = { /* FLEXVPN-SUPPORTED */
         0x46, 0x4c, 0x45, 0x58, 0x56, 0x50, 0x4e, 0x2d,
         0x53, 0x55, 0x50, 0x50, 0x4f, 0x52, 0x54, 0x45,
         0x44
@@ -2749,6 +2749,17 @@ static const guint8 VID_CISCO_DELETE_REASON[] = { /* CISCO-DELETE-REASON */
         0x43, 0x49, 0x53, 0x43, 0x4f, 0x2d, 0x44, 0x45,
         0x4c, 0x45, 0x54, 0x45, 0x2d, 0x52, 0x45, 0x41,
         0x53, 0x4f, 0x4e
+};
+
+static const guint8 VID_CISCO_DYNAMIC_ROUTE[] = { /* CISCO-DYNAMIC-ROUTE */
+        0x43, 0x49, 0x53, 0x43, 0x4f, 0x2d, 0x44, 0x59,
+        0x4e, 0x41, 0x4d, 0x49, 0x43, 0x2d, 0x52, 0x4f,
+        0x55, 0x54, 0x45
+};
+
+static const guint8 VID_CISCO_VPN_REV_02[] = { /* CISCO-VPN-REV-02 */
+        0x43, 0x49, 0x53, 0x43, 0x4f, 0x56, 0x50, 0x4e,
+        0x2d, 0x52, 0x45, 0x56, 0x2d, 0x30, 0x32
 };
 
 /* CISCO(COPYRIGHT)&Copyright (c) 2009 Cisco Systems, Inc. */
@@ -3041,6 +3052,8 @@ static const bytes_string vendor_id[] = {
   { VID_CISCO_FRAG2, sizeof(VID_CISCO_FRAG2), "Cisco Fragmentation" },
   { VID_CISCO_FLEXVPN_SUPPORTED, sizeof(VID_CISCO_FLEXVPN_SUPPORTED), "Cisco FlexVPN Supported" },
   { VID_CISCO_DELETE_REASON, sizeof(VID_CISCO_DELETE_REASON), "Cisco Delete Reason Supported"},
+  { VID_CISCO_DYNAMIC_ROUTE, sizeof(VID_CISCO_DYNAMIC_ROUTE), "Cisco Dynamic Route Supported"},
+  { VID_CISCO_VPN_REV_02, sizeof(VID_CISCO_VPN_REV_02), "Cisco VPN Revision 2"},
   { VID_CISCO_COPYRIGHT, sizeof(VID_CISCO_COPYRIGHT), "Cisco Copyright"},
   { VID_CISCO_GRE_MODE, sizeof(VID_CISCO_GRE_MODE), "Cisco GRE Mode Supported"},
   { VID_MS_VID_INITIAL_CONTACT, sizeof(VID_MS_VID_INITIAL_CONTACT), "Microsoft Vid-Initial-Contact" },
@@ -3250,7 +3263,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 {
   int             offset      = 0, len;
   isakmp_hdr_t    hdr;
-  proto_item     *ti, *vers_item;
+  proto_item     *ti, *vers_item, *ti_root;
   proto_tree     *isakmp_tree = NULL, *vers_tree;
   int             isakmp_version;
   void*           decr_data   = NULL;
@@ -3272,8 +3285,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   else if (tvb_get_ntohl(tvb, ISAKMP_HDR_SIZE-4) < ISAKMP_HDR_SIZE)
     return 0;
 
-  ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, ENC_NA);
-  isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
+  ti_root = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, ENC_NA);
+  isakmp_tree = proto_item_add_subtree(ti_root, ett_isakmp);
 
   /* RFC3948 2.3 NAT Keepalive packet:
    * 1 byte payload with the value 0xff.
@@ -3446,9 +3459,13 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
       dissect_payloads(tvb, isakmp_tree, isakmp_version, hdr.next_payload,
                        offset, len, pinfo, hdr.message_id, !(flags & R_FLAG), decr_data);
     }
+
+    offset += len;
   }
 
-  return tvb_captured_length(tvb);
+  proto_item_set_end(ti_root, tvb, offset);
+
+  return offset;
 }
 
 
@@ -3787,37 +3804,37 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf_ui
       guint64 val;
       val = tvb_get_ntoh40(tvb, offset);
 
-      proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-      proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", val);
+      proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" PRIu64, val);
+      proto_item_append_text(ti, ": %" PRIu64, val);
       break;
     }
     case 6: {
         guint64 val;
         val = tvb_get_ntoh48(tvb, offset);
 
-        proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-        proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", val);
+        proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" PRIu64, val);
+        proto_item_append_text(ti, ": %" PRIu64, val);
         break;
     }
     case 7: {
       guint64 val;
       val = tvb_get_ntoh56(tvb, offset);
 
-      proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-      proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", val);
+      proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" PRIu64, val);
+      proto_item_append_text(ti, ": %" PRIu64, val);
       break;
     }
     case 8: {
       guint64 val;
       val = tvb_get_ntoh64(tvb, offset);
 
-      proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
-      proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "u", val);
+      proto_tree_add_uint64_format_value(tree, hf_uint64, tvb, offset, len, val, "%" PRIu64, val);
+      proto_item_append_text(ti, ": %" PRIu64, val);
       break;
     }
     default:
       proto_tree_add_item(tree, hf_bytes, tvb, offset, len, ENC_NA);
-      proto_item_append_text(ti, ": %" G_GINT64_MODIFIER "x ...", tvb_get_ntoh64(tvb, offset));
+      proto_item_append_text(ti, ": %" PRIx64 " ...", tvb_get_ntoh64(tvb, offset));
       break;
   }
 }
@@ -4390,7 +4407,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp
         offset += 20;
         length -= 20;
 
-        ti_url = proto_tree_add_item(tree, hf_isakmp_cert_x509_url, tvb, offset, length, ENC_ASCII|ENC_NA);
+        ti_url = proto_tree_add_item(tree, hf_isakmp_cert_x509_url, tvb, offset, length, ENC_ASCII);
         proto_item_set_url(ti_url);
         }
         break;
@@ -4859,7 +4876,7 @@ dissect_notif(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_t
             proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv6, tvb, offset+2, 16, ENC_NA);
             break;
           case 3:
-            proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_fqdn, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_fqdn, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_ASCII);
             break;
           default :
             proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_NA);
@@ -5122,7 +5139,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   if (length >= 19 && memcmp(pVID, VID_ARUBA_VIA_AUTH_PROFILE, 19) == 0)
   {
     offset += 19;
-    proto_tree_add_item(tree, hf_isakmp_vid_aruba_via_auth_profile, tvb, offset, length-19, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_isakmp_vid_aruba_via_auth_profile, tvb, offset, length-19, ENC_ASCII);
     offset += 4;
   }
 
@@ -6292,7 +6309,7 @@ static gboolean ikev1_uat_data_update_cb(void* p, char** err) {
   ikev1_uat_data_key_t *ud = (ikev1_uat_data_key_t *)p;
 
   if (ud->icookie_len != COOKIE_SIZE) {
-    *err = g_strdup_printf("Length of Initiator's COOKIE must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = ws_strdup_printf("Length of Initiator's COOKIE must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return FALSE;
   }
 
@@ -6302,7 +6319,7 @@ static gboolean ikev1_uat_data_update_cb(void* p, char** err) {
   }
 
   if (ud->key_len > MAX_KEY_SIZE) {
-    *err = g_strdup_printf("Length of Encryption key limited to %d octets (%d hex characters).", MAX_KEY_SIZE, MAX_KEY_SIZE * 2);
+    *err = ws_strdup_printf("Length of Encryption key limited to %d octets (%d hex characters).", MAX_KEY_SIZE, MAX_KEY_SIZE * 2);
     return FALSE;
   }
 
@@ -6377,12 +6394,12 @@ static gboolean ikev2_uat_data_update_cb(void* p, char** err) {
   ikev2_uat_data_t *ud = (ikev2_uat_data_t *)p;
 
   if (ud->key.spii_len != COOKIE_SIZE) {
-    *err = g_strdup_printf("Length of Initiator's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = ws_strdup_printf("Length of Initiator's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return FALSE;
   }
 
   if (ud->key.spir_len != COOKIE_SIZE) {
-    *err = g_strdup_printf("Length of Responder's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
+    *err = ws_strdup_printf("Length of Responder's SPI must be %d octets (%d hex characters).", COOKIE_SIZE, COOKIE_SIZE * 2);
     return FALSE;
   }
 
@@ -6395,31 +6412,31 @@ static gboolean ikev2_uat_data_update_cb(void* p, char** err) {
   }
 
   if (ud->encr_spec->icv_len && ud->auth_spec->number != IKEV2_AUTH_NONE) {
-    *err = g_strdup_printf("Selected encryption_algorithm %s requires selecting NONE integrity algorithm.",
+    *err = ws_strdup_printf("Selected encryption_algorithm %s requires selecting NONE integrity algorithm.",
              val_to_str(ud->encr_spec->number, vs_ikev2_encr_algs, "other-%d"));
     return FALSE;
   }
 
   if (ud->sk_ei_len != ud->encr_spec->key_len) {
-    *err = g_strdup_printf("Length of SK_ei (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
+    *err = ws_strdup_printf("Length of SK_ei (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
              ud->sk_ei_len, ud->encr_spec->key_len);
     return FALSE;
   }
 
   if (ud->sk_er_len != ud->encr_spec->key_len) {
-    *err = g_strdup_printf("Length of SK_er (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
+    *err = ws_strdup_printf("Length of SK_er (%u octets) does not match the key length (%u octets) of the selected encryption algorithm.",
              ud->sk_er_len, ud->encr_spec->key_len);
     return FALSE;
   }
 
   if (ud->sk_ai_len != ud->auth_spec->key_len) {
-    *err = g_strdup_printf("Length of SK_ai (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
+    *err = ws_strdup_printf("Length of SK_ai (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
              ud->sk_ai_len, ud->auth_spec->key_len);
     return FALSE;
   }
 
   if (ud->sk_ar_len != ud->auth_spec->key_len) {
-    *err = g_strdup_printf("Length of SK_ar (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
+    *err = ws_strdup_printf("Length of SK_ar (%u octets) does not match the key length (%u octets) of the selected integrity algorithm.",
              ud->sk_ar_len, ud->auth_spec->key_len);
     return FALSE;
   }

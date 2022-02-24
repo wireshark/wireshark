@@ -1,4 +1,5 @@
-/* extcap.h
+/** @file
+ *
  * Definitions for extcap external capture
  * Copyright 2013, Mike Ryan <mikeryan@lacklustre.net>
  *

@@ -61,7 +61,7 @@ simple_draw(void *arg)
 				if (field_data->type == TABLE_ITEM_NONE) /* Nothing for us here */
 					break;
 
-				g_snprintf(fmt_string, sizeof(fmt_string), "%s |", field->field_format);
+				snprintf(fmt_string, sizeof(fmt_string), "%s |", field->field_format);
 				switch(field->type)
 				{
 				case TABLE_ITEM_UINT:

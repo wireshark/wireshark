@@ -2064,7 +2064,7 @@ create_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
 
   if (p_tcaphash_contcall1) {
     /* Walk through list of transaction with identical keys */
-    /* go the the end to insert new record */
+    /* go to the end to insert new record */
     do {
       if (!p_tcaphash_contcall1->next_contcall) {
         p_tcaphash_contcall=append_tcaphash_contcall(p_tcaphash_contcall1,
@@ -2093,7 +2093,7 @@ create_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
 
   if (p_tcaphash_endcall1) {
     /* Walk through list of transaction with identical keys */
-    /* go the the end to insert new record */
+    /* go to the end to insert new record */
     do {
       if (!p_tcaphash_endcall1->next_endcall) {
         p_tcaphash_endcall=append_tcaphash_endcall(p_tcaphash_endcall1,

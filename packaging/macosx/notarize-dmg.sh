@@ -52,18 +52,6 @@ if ! altool_out=$( mktemp /tmp/notarize-dmg.out.XXXXX ) ; then
 fi
 # trap 'rm -f "$altool_out"' EXIT
 
-max_upload_wait=$(( 5 * 60))
-start=$SECONDS
-while test -n "$( find "$HOME"/Library/Caches/com.apple.amp.itmstransporter/UploadTokens -iname "*.token" -mtime -4h )"  ; do
-	echo -e "Another upload in progress. Waiting 5s\xe2\x80\xa6"
-	sleep 5
-	elapsed=$(( SECONDS - start ))
-	if [[ $elapsed -gt $max_upload_wait ]] ; then
-		echo "Timed out after ${max_upload_wait}s"
-		exit 1
-	fi
-done
-
 xcrun altool \
 	--notarize-app \
 	--type osx \
@@ -79,13 +67,12 @@ if [[ "$request_uuid" != *-*-*-*-* ]] ; then
 	exit 1
 fi
 
-eval_info_cmd=(xcrun altool \
-	--eval-info "$request_uuid" \
+notarization_info_cmd=(xcrun altool \
+	--notarization-info "$request_uuid" \
 	--user "$username" \
 	--password "@keychain:${generic_pw_service}" \
 	)
 
-max_upload_wait=300
 start=$SECONDS
 
 max_status_wait=$(( 20 * 60))
@@ -95,7 +82,7 @@ while true ; do
 	sleep 15
 	elapsed=$(( SECONDS - start ))
 	echo "done. Checking status after ${elapsed}s"
- 	"${eval_info_cmd[@]}" 2>&1 | tee "$altool_out"
+	"${notarization_info_cmd[@]}" 2>&1 | tee "$altool_out"
 	grep "Status: in progress" "$altool_out" > /dev/null 2>&1 || break
 	if [[ $elapsed -gt $max_status_wait ]] ; then break ; fi
 done
@@ -106,7 +93,7 @@ if ! grep "Status: success" "$altool_out" > /dev/null 2>&1 ; then
 	echo "Notarization failed or timed out:"
 	cat "$altool_out"
 	echo -e "\\nInfo command:"
-	echo "${eval_info_cmd[@]}"
+	echo "${notarization_info_cmd[@]}"
 	echo -e "\\nStaple command:"
 	echo "${staple_cmd[@]}"
 	echo "You can check the status of the Notary Service at https://developer.apple.com/system-status/."

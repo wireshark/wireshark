@@ -989,7 +989,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            packet type field is the first two bytes of "Lip Echo Data"
            (with "Lip" not capitalized, and with "Echo Data" not followed
            by blanks) */
-        proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr, 13, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr, 13, ENC_ASCII);
         break;
 
     case NCP_BURST_MODE_XFER:    /* Packet Burst Packet */
@@ -1196,7 +1196,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
         if (is_lip_echo_allocate_slot) {
             length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
-            proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr + 4, LIP_ECHO_MAGIC_LEN, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr + 4, LIP_ECHO_MAGIC_LEN, ENC_ASCII);
             if (length_remaining > LIP_ECHO_MAGIC_LEN)
                 proto_tree_add_item(ncp_tree, hf_lip_echo_payload, tvb, commhdr+4+LIP_ECHO_MAGIC_LEN, length_remaining - LIP_ECHO_MAGIC_LEN, ENC_NA);
         }

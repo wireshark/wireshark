@@ -240,23 +240,23 @@ optsstr(wmem_allocator_t *pool, guint8 opts)
 
 	msg=(char *)wmem_alloc(pool, MAX_STR_LEN);
 	if (opts & PGM_OPT){
-		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Present");
+		returned_length = snprintf(&msg[idx], MAX_STR_LEN-idx, "Present");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (opts & PGM_OPT_NETSIG){
-		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sNetSig", (!idx)?"":",");
+		returned_length = snprintf(&msg[idx], MAX_STR_LEN-idx, "%sNetSig", (!idx)?"":",");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (opts & PGM_OPT_VAR_PKTLEN){
-		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sVarLen", (!idx)?"":",");
+		returned_length = snprintf(&msg[idx], MAX_STR_LEN-idx, "%sVarLen", (!idx)?"":",");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (opts & PGM_OPT_PARITY){
-		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sParity", (!idx)?"":",");
+		returned_length = snprintf(&msg[idx], MAX_STR_LEN-idx, "%sParity", (!idx)?"":",");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (!idx) {
-		g_snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", opts);
+		snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", opts);
 	}
 	return(msg);
 }
@@ -272,15 +272,15 @@ paritystr(wmem_allocator_t *pool, guint8 parity)
 
 	msg=(char *)wmem_alloc(pool, MAX_STR_LEN);
 	if (parity & PGM_OPT_PARITY_PRM_PRO){
-		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "Pro-active");
+		returned_length = snprintf(&msg[idx], MAX_STR_LEN-idx, "Pro-active");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (parity & PGM_OPT_PARITY_PRM_OND){
-		returned_length = g_snprintf(&msg[idx], MAX_STR_LEN-idx, "%sOn-demand", (!idx)?"":",");
+		returned_length = snprintf(&msg[idx], MAX_STR_LEN-idx, "%sOn-demand", (!idx)?"":",");
 		idx += MIN(returned_length, MAX_STR_LEN-idx);
 	}
 	if (!idx) {
-		g_snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", parity);
+		snprintf(&msg[idx], MAX_STR_LEN-idx, "0x%x", parity);
 	}
 	return(msg);
 }
@@ -486,7 +486,7 @@ dissect_pgmopts(ptvcursor_t* cursor, packet_info *pinfo, const char *pktname)
 			 */
 			for (i=0; i < naks; i++) {
 				soffset += MIN(8192-soffset,
-					g_snprintf(nakbuf+soffset, 8192-soffset, "0x%lx ",
+					snprintf(nakbuf+soffset, 8192-soffset, "0x%lx ",
 						(unsigned long)g_ntohl(naklist[i])));
 				if ((++j % 8) == 0) {
 					if (firsttime) {

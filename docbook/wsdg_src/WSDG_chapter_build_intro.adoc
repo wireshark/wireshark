@@ -1,10 +1,10 @@
 // WSDG Chapter Build Introduction
 
-[[ChapterBuildIntro]]
+[#ChapterBuildIntro]
 
 == Introduction
 
-[[ChCodeOverview]]
+[#ChCodeOverview]
 
 === Source overview
 
@@ -24,14 +24,14 @@ the _/capture_ directory
 
 * Help - using an external web browser and text output
 
-[[ChCodeStyle]]
+[#ChCodeStyle]
 
 === Coding Style
 
 The coding style guides for Wireshark can be found in the “Portability”
 section of the file _doc/README.developer_.
 
-[[ChCodeGLib]]
+[#ChCodeGLib]
 
 === The GLib library
 

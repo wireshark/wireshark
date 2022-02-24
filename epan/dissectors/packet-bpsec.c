@@ -22,9 +22,11 @@
 #include <epan/to_str.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
-#include <stdio.h>
 #include <inttypes.h>
 #include "epan/wscbor.h"
+
+void proto_register_bpsec(void);
+void proto_reg_handoff_bpsec(void);
 
 /// Glib logging "domain" name
 //static const char *LOG_DOMAIN = "bpsec";
@@ -90,7 +92,7 @@ static hf_register_info fields[] = {
     {&hf_asb_flags, {"Flags", "bpsec.asb.flags", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
     {&hf_asb_flags_has_params, {"Parameters Present", "bpsec.asb.flags.has_params", FT_BOOLEAN, 8, TFS(&tfs_set_notset), BPSEC_ASB_HAS_PARAMS, NULL, HFILL}},
     {&hf_asb_secsrc_nodeid, {"Security Source", "bpsec.asb.secsrc.nodeid", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_asb_secsrc_uri, {"Security Source URI", "bpsec.asb.secsrc.uri", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_asb_secsrc_uri, {"Security Source URI", "bpsec.asb.secsrc.uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_asb_param_list, {"Security Parameters, Count", "bpsec.asb.param_count", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_asb_param_pair, {"Parameter", "bpsec.asb.param", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_asb_param_id, {"Type ID", "bpsec.asb.param.id", FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -197,11 +199,6 @@ guint bpsec_id_hash(gconstpointer key) {
 
 /** Dissect an ID-value pair within a context.
  *
- * @param dissector
- * @param typeid
- * @param tvb
- * @param pinfo
- * @param tree
  */
 static gint dissect_value(dissector_handle_t dissector, gint64 *typeid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     gint sublen = 0;
@@ -311,7 +308,7 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     gint64 *paramid = wscbor_require_int64(wmem_packet_scope(), chunk_paramid);
                     proto_tree_add_cbor_int64(tree_param_pair, hf_asb_param_id, pinfo, tvb, chunk_paramid, paramid);
                     if (paramid) {
-                        proto_item_append_text(item_param_pair, ", ID: %" G_GINT64_FORMAT, *paramid);
+                        proto_item_append_text(item_param_pair, ", ID: %" PRId64, *paramid);
                     }
 
                     const gint offset_value = offset;
@@ -370,7 +367,7 @@ static int dissect_block_asb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         gint64 *resultid = wscbor_require_int64(wmem_packet_scope(), chunk_resultid);
                         proto_tree_add_cbor_int64(tree_result_pair, hf_asb_result_id, pinfo, tvb, chunk_resultid, resultid);
                         if (resultid) {
-                            proto_item_append_text(item_result_pair, ", ID: %" G_GINT64_FORMAT, *resultid);
+                            proto_item_append_text(item_result_pair, ", ID: %" PRId64, *resultid);
                         }
 
                         const gint offset_value = offset;

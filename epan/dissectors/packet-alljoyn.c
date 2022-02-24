@@ -540,12 +540,12 @@ handle_message_sasl(tvbuff_t    *tvb,
             col_add_fstr(pinfo->cinfo, COL_INFO, "SASL-%s", command->text);
 
             /* Add a subtree/row for the command. */
-            proto_tree_add_item(message_tree, hf_alljoyn_sasl_command, tvb, offset, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(message_tree, hf_alljoyn_sasl_command, tvb, offset, length, ENC_ASCII);
             offset += length;
             length = newline_offset - offset;
 
             /* Add a subtree for the parameter. */
-            proto_tree_add_item(message_tree, hf_alljoyn_sasl_parameter, tvb, offset, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(message_tree, hf_alljoyn_sasl_parameter, tvb, offset, length, ENC_ASCII);
 
             return_value = newline_offset;
         }
@@ -1049,7 +1049,7 @@ parse_arg(tvbuff_t      *tvb,
         proto_tree_add_item(field_tree, hf_alljoyn_uint32, tvb, offset, 4, encoding);
         offset += 4;
 
-        proto_tree_add_item(field_tree, hf_alljoyn_string_data, tvb, offset, length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(field_tree, hf_alljoyn_string_data, tvb, offset, length, ENC_ASCII);
         offset += length;
         break;
 
@@ -1289,7 +1289,7 @@ parse_arg(tvbuff_t      *tvb,
 static void
 alljoyn_typeid( gchar *result, guint32 type )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "'%c' => ", type);
+   snprintf( result, ITEM_LABEL_LENGTH, "'%c' => ", type);
 }
 
 /* This is called by handle_message_header_fields() to handle a single
@@ -1761,7 +1761,7 @@ ns_parse_questions(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint8
             proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
             (*offset) += 1;
 
-            proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII);
             (*offset) += bus_name_size;
         }
 
@@ -1856,7 +1856,7 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
             (*offset) += 1;
 
-            proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_data, tvb, *offset, guid_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_data, tvb, *offset, guid_size, ENC_ASCII);
             (*offset) += guid_size;
         }
 
@@ -1878,7 +1878,7 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
             (*offset) += 1;
 
-            proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII);
             (*offset) += bus_name_size;
         }
     }
@@ -1889,7 +1889,7 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
  *      Bit 0 (ISAT_U6): If '1' then the IPv6 endpoint of an unreliable method
  *      (UDP) transport (IP address and port) is present.
  *
- *      Bit 1 (ISAT_R6): If '1' the the IPv6 endpoint of a reliable method
+ *      Bit 1 (ISAT_R6): If '1' then the IPv6 endpoint of a reliable method
  *      (TCP) transport (IP address and port) is present.
  *
  *      Bit 2 (ISAT_U4): If '1' then the IPv4 endpoint of an unreliable method
@@ -2021,7 +2021,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
             (*offset) += 1;
 
-            proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_data, tvb, *offset, guid_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_data, tvb, *offset, guid_size, ENC_ASCII);
             (*offset) += guid_size;
         }
 
@@ -2045,7 +2045,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
             (*offset) += 1;
 
-            proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII);
             (*offset) += bus_name_size;
         }
     }

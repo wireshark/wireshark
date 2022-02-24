@@ -54,7 +54,7 @@ typedef struct
 */
 static int proto_sndcp_xid   = -1;
 
-/* These fields are used to store store the algorithm ID
+/* These fields are used to store the algorithm ID
 * When the P bit is not set, try to decode the algo based on what whas stored.
 * Entity ranges from 0 to 31 (6.5.1.1.3)
 */

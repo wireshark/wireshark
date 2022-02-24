@@ -35,11 +35,6 @@
 #include <QUuid>
 #include <QScreen>
 
-/* Make the format_size_flags_e enum usable in C++ */
-format_size_flags_e operator|(format_size_flags_e lhs, format_size_flags_e rhs) {
-    return (format_size_flags_e) ((int)lhs| (int)rhs);
-}
-
 /*
  * We might want to create our own "wsstring" class with convenience
  * methods for handling g_malloc()ed strings, GStrings, and a shortcut
@@ -134,13 +129,11 @@ const QString val_ext_to_qstring(const guint32 val, value_string_ext *vse, const
     return val_qstr;
 }
 
-const QString range_to_qstring(const epan_range *range)
+const QString range_to_qstring(const range_string *range)
 {
     QString range_qstr = QString();
     if (range) {
-        gchar *range_gchar_p = range_convert_range(NULL, range);
-        range_qstr = range_gchar_p;
-        wmem_free(NULL, range_gchar_p);
+        range_qstr += QString("%1-%2").arg(range->value_min).arg(range->value_max);
     }
     return range_qstr;
 }
@@ -148,13 +141,13 @@ const QString range_to_qstring(const epan_range *range)
 const QString bits_s_to_qstring(const double bits_s)
 {
     return gchar_free_to_qstring(
-                format_size(bits_s, format_size_unit_none|format_size_prefix_si));
+                format_size(bits_s, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
 }
 
 const QString file_size_to_qstring(const gint64 size)
 {
     return gchar_free_to_qstring(
-                format_size(size, format_size_unit_bytes|format_size_prefix_si));
+                format_size(size, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI));
 }
 
 const QString time_t_to_qstring(time_t ti_time)
@@ -198,15 +191,18 @@ bool qStringCaseLessThan(const QString &s1, const QString &s2)
     return s1.compare(s2, Qt::CaseInsensitive) < 0;
 }
 
-// https://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
 void desktop_show_in_folder(const QString file_path)
 {
     bool success = false;
 
+    // https://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
+
 #if defined(Q_OS_WIN)
+    QString command = "explorer.exe";
+    QStringList arguments;
     QString path = QDir::toNativeSeparators(file_path);
-    QStringList explorer_args = QStringList() << "/select," + path;
-    success = QProcess::startDetached("explorer.exe", explorer_args);
+    arguments << "/select," << path + "";
+    success = QProcess::startDetached(command, arguments);
 #elif defined(Q_OS_MAC)
     QStringList script_args;
     QString escaped_path = file_path;
@@ -225,8 +221,8 @@ void desktop_show_in_folder(const QString file_path)
 #else
     // Is there a way to highlight the file using xdg-open?
 #endif
-    if (!success) { // Last resort
-        QFileInfo file_info = file_path;
+    if (!success) {
+        QFileInfo file_info(file_path);
         QDesktopServices::openUrl(QUrl::fromLocalFile(file_info.dir().absolutePath()));
     }
 }

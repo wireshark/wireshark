@@ -212,4 +212,5 @@ editcap: The available encapsulation types for the "-T" flag are:
     x2e-xoraya - X2E Xoraya
     x25-nettl - X.25 with nettl headers
     xeth - Xerox 3MB Ethernet
+    zbncp - ZBOSS NCP
     zwave-serial - Z-Wave Serial API packets

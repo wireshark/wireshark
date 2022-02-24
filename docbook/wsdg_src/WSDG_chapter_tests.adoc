@@ -1,6 +1,6 @@
 // WSDG Chapter Tests
 
-[[ChapterTests]]
+[#ChapterTests]
 == Wireshark Tests
 
 The Wireshark sources include a collection of Python scripts that test
@@ -12,7 +12,7 @@ The command line options of Wireshark and its companion command line
 tools are numerous. These tests help to ensure that we don't introduce
 bugs as Wireshark grows and evolves.
 
-[[TestsQuickStart]]
+[#TestsQuickStart]
 === Quick Start
 
 The recommended steps to prepare for and to run tests:
@@ -38,12 +38,12 @@ see all options. For more details, see <<ChTestsRun>>.
 
 CMake currently runs `test/test.py` when the “test” target is built.
 
-[[ChTestsStructure]]
+[#ChTestsStructure]
 === Test suite structure
 
 The following sections describes how the test suite is organized.
 
-[[TestCoverage]]
+[#TestCoverage]
 ==== Test Coverage And Availability
 
 The testing framework can run programs and check their stdout, stderr,
@@ -63,7 +63,7 @@ If a feature is unavailable, the test will be skipped. For example, if
 an old version of Libgcrypt is in use, then some decryption tests will
 be skipped while other tests can still run to completion.
 
-[[TestsLayout]]
+[#TestsLayout]
 ==== Suites, Cases, and Tests
 
 The `test/test.py` script uses Python's “unittest” module. Our tests are
@@ -76,7 +76,7 @@ capture filter test in the TShark capture command line options test case
 in the command line options suite has the ID
 “suite_clopts.case_tshark_capture_clopts.test_tshark_invalid_capfilter”.
 
-[[TestsPytest]]
+[#TestsPytest]
 ==== pytest fixtures
 
 A test has typically additional dependencies, like the path to an
@@ -105,7 +105,7 @@ Each unittest test case must be decorated with
 `@fixtures.uses_fixtures` to ensure that unittest test classes can
 actually request fixture dependencies.
 
-[[ChTestsRun]]
+[#ChTestsRun]
 === Listing And Running Tests
 
 Tests can be run via the `test/test.py` Python script. To run all tests,
@@ -157,7 +157,7 @@ $ python3 test/test.py suite_clopts
 
 Run `python3 test/test.py --help` for all available options.
 
-[[ChTestsRunPytest]]
+[#ChTestsRunPytest]
 === Listing And Running Tests (pytest)
 
 Tests can also be run with https://pytest.org/[pytest]. Advantages include finer
@@ -233,7 +233,7 @@ Note that with the option `--pdb`, stray processes are not killed on
 test failures since the `SubprocessTestCase.tearDown` method is not
 executed. This limitation might be addressed in the future.
 
-[[ChTestsDevelop]]
+[#ChTestsDevelop]
 === Adding Or Modifying Built-In Tests
 
 Tests must be in a Python module whose name matches “suite_*.py”. The
@@ -302,7 +302,7 @@ be unique for each test. “subprocesstest.filename_from_id” can be used
 to generate a filename based on the current test name. It also ensures
 that the file will be automatically removed after the test has run.
 
-[[ChTestsExternal]]
+[#ChTestsExternal]
 === Adding Or Modifying External Tests
 
 You can test the dissection of files outside the Wireshark source code repository by using the external test generator, which creates tests using a JSON configuration file.

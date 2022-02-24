@@ -747,21 +747,21 @@ get_custom_field_tooltip (gchar *custom_field, gint occurrence)
     header_field_info *hfi = proto_registrar_get_byname(custom_field);
     if (hfi == NULL) {
         /* Not a valid field */
-        return g_strdup_printf("Unknown Field: %s", custom_field);
+        return ws_strdup_printf("Unknown Field: %s", custom_field);
     }
 
     if (hfi->parent == -1) {
         /* Protocol */
-        return g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+        return ws_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
     }
 
     if (occurrence == 0) {
         /* All occurrences */
-        return g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+        return ws_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
     }
 
     /* One given occurrence */
-    return g_strdup_printf("%s\n%s (%s#%d)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev, occurrence);
+    return ws_strdup_printf("%s\n%s (%s#%d)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev, occurrence);
 }
 
 gchar *

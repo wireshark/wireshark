@@ -1,4 +1,4 @@
-/* wireshark_mime_data.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

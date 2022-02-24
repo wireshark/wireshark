@@ -26,7 +26,6 @@
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
 #include <wsutil/utf8_entities.h>
-#include <stdio.h>
 #include <inttypes.h>
 
 /// Glib logging "domain" name
@@ -245,11 +244,11 @@ static hf_register_info fields[] = {
     {&hf_create_ts_seqno, {"Sequence Number", "bpv7.create_ts.seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_eid_scheme, {"Scheme Code", "bpv7.eid.scheme", FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(eid_schemes), 0x0, NULL, HFILL}},
     {&hf_eid_dtn_ssp_code, {"DTN SSP", "bpv7.eid.dtn_ssp_code", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_eid_dtn_ssp_text, {"DTN SSP", "bpv7.eid.dtn_ssp_text", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_eid_dtn_ssp_text, {"DTN SSP", "bpv7.eid.dtn_ssp_text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_eid_ipn_node, {"IPN Node Number", "bpv7.eid.ipn_node", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_eid_ipn_service, {"IPN Service Number", "bpv7.eid.ipn_service", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_eid_dtn_wkssp, {"Well-known SSP", "bpv7.eid.wkssp", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
-    {&hf_eid_dtn_serv, {"Service Name", "bpv7.eid.serv", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_eid_dtn_wkssp, {"Well-known SSP", "bpv7.eid.wkssp", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+    {&hf_eid_dtn_serv, {"Service Name", "bpv7.eid.serv", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_primary_version, {"Version", "bpv7.primary.version", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_primary_bundle_flags, {"Bundle Flags", "bpv7.primary.bundle_flags", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
@@ -263,11 +262,11 @@ static hf_register_info fields[] = {
     {&hf_primary_bundle_flags_delivery_report, {"Request reporting of bundle delivery", "bpv7.primary.bundle_flags.delivery_report", FT_BOOLEAN, 24, TFS(&tfs_set_notset), BP_BUNDLE_REQ_DELIVERY_REPORT, NULL, HFILL}},
     {&hf_primary_bundle_flags_deletion_report, {"Request reporting of bundle deletion", "bpv7.primary.bundle_flags.deletion_report", FT_BOOLEAN, 24, TFS(&tfs_set_notset), BP_BUNDLE_REQ_DELETION_REPORT, NULL, HFILL}},
     {&hf_primary_dst_eid, {"Destination Endpoint ID", "bpv7.primary.dst_eid", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_primary_dst_uri, {"Destination URI", "bpv7.primary.dst_uri", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_primary_dst_uri, {"Destination URI", "bpv7.primary.dst_uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_primary_src_nodeid, {"Source Node ID", "bpv7.primary.src_nodeid", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_primary_src_uri, {"Source URI", "bpv7.primary.src_uri", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_primary_src_uri, {"Source URI", "bpv7.primary.src_uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_primary_report_nodeid, {"Report-to Node ID", "bpv7.primary.report_nodeid", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_primary_report_uri, {"Report-to URI", "bpv7.primary.report_uri", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_primary_report_uri, {"Report-to URI", "bpv7.primary.report_uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_primary_create_ts, {"Creation Timestamp", "bpv7.primary.create_ts", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_primary_lifetime, {"Lifetime", "bpv7.primary.lifetime", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}},
     {&hf_primary_lifetime_exp, {"Lifetime Expanded", "bpv7.primary.lifetime_exp", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -275,7 +274,7 @@ static hf_register_info fields[] = {
     {&hf_primary_frag_offset, {"Fragment Offset", "bpv7.primary.frag_offset", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
     {&hf_primary_total_length, {"Total Application Data Unit Length", "bpv7.primary.total_len", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, &units_octet_octets, 0x0, NULL, HFILL}},
 
-    {&hf_bundle_ident, {"Bundle Identity", "bpv7.bundle.identity", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_bundle_ident, {"Bundle Identity", "bpv7.bundle.identity", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_bundle_seen, {"First Seen", "bpv7.bundle.first_seen", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RETRANS_PREV), 0x0, NULL, HFILL}},
     {&hf_bundle_seen_time_diff, {"Seen Time", "bpv7.bundle.seen_time_diff", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_bundle_status_ref, {"Status Bundle", "bpv7.bundle.status_ref", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -326,7 +325,7 @@ static hf_register_info fields[] = {
         FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 
     {&hf_previous_node_nodeid, {"Previous Node ID", "bpv7.previous_node.nodeid", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_previous_node_uri, {"Previous URI", "bpv7.previous_node.uri", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_previous_node_uri, {"Previous URI", "bpv7.previous_node.uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
     {&hf_bundle_age_time, {"Bundle Age", "bpv7.bundle_age.time", FT_UINT64, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0, NULL, HFILL}},
 
@@ -345,11 +344,11 @@ static hf_register_info fields[] = {
     {&hf_status_rep_deleted, {"Reporting node deleted bundle", "bpv7.status_rep.deleted", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_status_rep_reason_code, {"Reason Code", "bpv7.status_rep.reason_code", FT_UINT64, BASE_DEC | BASE_VAL64_STRING, VALS64(status_report_reason_vals), 0x0, NULL, HFILL}},
     {&hf_status_rep_subj_src_nodeid, {"Subject Source Node ID", "bpv7.status_rep.subj_src_nodeid", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-    {&hf_status_rep_subj_src_uri, {"Subject Source URI", "bpv7.status_rep.subj_src_uri", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_status_rep_subj_src_uri, {"Subject Source URI", "bpv7.status_rep.subj_src_uri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_status_rep_subj_ts, {"Subject Creation Timestamp", "bpv7.status_rep.subj_ts", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_status_rep_subj_frag_offset, {"Subject Fragment Offset", "bpv7.status_rep.subj_frag_offset", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     {&hf_status_rep_subj_payload_len, {"Subject Payload Length", "bpv7.status_rep.subj_payload_len", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-    {&hf_status_rep_subj_ident, {"Subject Identity", "bpv7.status_rep.identity", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+    {&hf_status_rep_subj_ident, {"Subject Identity", "bpv7.status_rep.identity", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     {&hf_status_rep_subj_ref, {"Subject Bundle", "bpv7.status_rep.subj_ref", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, NULL, HFILL}},
     {&hf_status_time_diff, {"Status Time", "bpv7.status_rep.subj_time_diff", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 };
@@ -734,7 +733,7 @@ proto_item * proto_tree_add_cbor_eid(proto_tree *tree, int hfindex, int hfindex_
                 const guint64 *service = wscbor_require_uint64(wmem_packet_scope(), chunk);
                 proto_tree_add_cbor_uint64(tree_eid, hf_eid_ipn_service, pinfo, tvb, chunk, service);
 
-                wmem_strbuf_append_printf(uribuf, "ipn:%" G_GUINT64_FORMAT ".%" G_GUINT64_FORMAT, node ? *node : 0, service ? *service : 0);
+                wmem_strbuf_append_printf(uribuf, "ipn:%" PRIu64 ".%" PRIu64, node ? *node : 0, service ? *service : 0);
             }
             break;
         }
@@ -909,16 +908,16 @@ static void proto_tree_add_ident(proto_tree *tree, int hfindex, tvbuff_t *tvb, c
     wmem_strbuf_t *ident_text = wmem_strbuf_new(wmem_packet_scope(), NULL);
     wmem_strbuf_append_printf(
         ident_text,
-        "Source: %s, DTN Time: %" G_GUINT64_FORMAT ", Seq: %" G_GUINT64_FORMAT,
+        "Source: %s, DTN Time: %" PRIu64 ", Seq: %" PRIu64,
         ident->src,
         ident->ts->abstime.dtntime,
         ident->ts->seqno
     );
     if (ident->frag_offset) {
-        wmem_strbuf_append_printf(ident_text, ", Frag Offset: %" G_GUINT64_FORMAT, *(ident->frag_offset));
+        wmem_strbuf_append_printf(ident_text, ", Frag Offset: %" PRIu64, *(ident->frag_offset));
     }
     if (ident->total_len) {
-        wmem_strbuf_append_printf(ident_text, ", Total Length: %" G_GUINT64_FORMAT, *(ident->total_len));
+        wmem_strbuf_append_printf(ident_text, ", Total Length: %" PRIu64, *(ident->total_len));
     }
 
     proto_item *item_subj_ident = proto_tree_add_string(tree, hfindex, tvb, 0, 0, wmem_strbuf_get_str(ident_text));
@@ -942,7 +941,7 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         return offset - start;
     }
 #if 0
-    proto_item_append_text(item_block, ", Items: %" G_GUINT64_FORMAT, chunk_block->head_value);
+    proto_item_append_text(item_block, ", Items: %" PRIu64, chunk_block->head_value);
 #endif
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -965,7 +964,7 @@ static gint dissect_block_primary(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     field_ix++;
     block->crc_type = (crc_type ? (BundleCrcType)(*crc_type) : BP_CRC_NONE);
     if (crc_type) {
-        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" G_GUINT64_FORMAT));
+        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" PRIu64));
     }
 
     proto_tree_add_cbor_eid(tree_block, hf_primary_dst_eid, hf_primary_dst_uri, pinfo, tvb, &offset, block->dst_eid);
@@ -1064,7 +1063,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         return offset - start;
     }
 #if 0
-    proto_item_append_text(item_block, ", Items: %" G_GUINT64_FORMAT, chunk_block->head_value);
+    proto_item_append_text(item_block, ", Items: %" PRIu64, chunk_block->head_value);
 #endif
 
     wscbor_chunk_t *chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1074,7 +1073,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     block->type_code = type_code;
 
     if (type_code) {
-        proto_item_append_text(item_block, ": %s", val64_to_str(*type_code, blocktype_vals, "Type %" G_GUINT64_FORMAT));
+        proto_item_append_text(item_block, ": %s", val64_to_str(*type_code, blocktype_vals, "Type %" PRIu64));
 
         // Check duplicate of this type
         guint64 limit = UINT64_MAX;
@@ -1113,7 +1112,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     field_ix++;
     block->block_number = block_num;
     if (block_num) {
-        proto_item_append_text(item_block, ", Block Num: %" G_GUINT64_FORMAT, *block_num);
+        proto_item_append_text(item_block, ", Block Num: %" PRIu64, *block_num);
     }
 
     chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1128,7 +1127,7 @@ static gint dissect_block_canonical(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     field_ix++;
     block->crc_type = (crc_type ? (BundleCrcType)(*crc_type) : BP_CRC_NONE);
     if (crc_type) {
-        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" G_GUINT64_FORMAT));
+        proto_item_append_text(item_block, ", CRC Type: %s", val64_to_str(*crc_type, crc_vals, "%" PRIu64));
     }
 
     chunk = wscbor_chunk_read(wmem_packet_scope(), tvb, &offset);
@@ -1212,7 +1211,7 @@ static void mark_target_block(gpointer key, gpointer value _U_, gpointer user_da
     const bpsec_block_mark_t *mark = (bpsec_block_mark_t *)user_data;
     expert_add_info_format(
         mark->pinfo, mark->pi, mark->eiindex,
-        "Block is targed by %s block number %" G_GUINT64_FORMAT, mark->sectype, *blk_num
+        "Block is targed by %s block number %" PRIu64, mark->sectype, *blk_num
     );
 }
 static void apply_bpsec_mark(const security_mark_t *sec, packet_info *pinfo, proto_item *pi) {
@@ -1417,14 +1416,14 @@ static int dissect_bp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         apply_bpsec_mark(&(block->sec), pinfo, block->item_block);
     }
 
-    proto_item_append_text(item_bundle, ", Blocks: %" G_GUINT64_FORMAT, block_ix);
+    proto_item_append_text(item_bundle, ", Blocks: %" PRIu64, block_ix);
     if (bundle->primary) {
         const bp_block_primary_t *block = bundle->primary;
         proto_item_append_text(item_bundle, ", Dst: %s", block->dst_eid ? block->dst_eid->uri : NULL);
         proto_item_append_text(item_bundle, ", Src: %s", block->src_nodeid ? block->src_nodeid->uri : NULL);
         if (bundle->ident && (bundle->ident->ts)) {
-            proto_item_append_text(item_bundle, ", Time: %" G_GUINT64_FORMAT, bundle->ident->ts->abstime.dtntime);
-            proto_item_append_text(item_bundle, ", Seq: %" G_GUINT64_FORMAT, bundle->ident->ts->seqno);
+            proto_item_append_text(item_bundle, ", Time: %" PRIu64, bundle->ident->ts->abstime.dtntime);
+            proto_item_append_text(item_bundle, ", Seq: %" PRIu64, bundle->ident->ts->seqno);
         }
     }
     {
@@ -1495,7 +1494,7 @@ static int dissect_payload_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         dissector_handle_t admin_dissect = NULL;
         if (type_code) {
-            proto_item_append_text(item_rec, ": %s", val64_to_str(*type_code, admin_type_vals, "Type %" G_GUINT64_FORMAT));
+            proto_item_append_text(item_rec, ": %s", val64_to_str(*type_code, admin_type_vals, "Type %" PRIu64));
             admin_dissect = dissector_get_custom_table_handle(admin_dissectors, type_code);
         }
         tvbuff_t *tvb_record = tvb_new_subset_remaining(tvb, offset);
@@ -1653,7 +1652,7 @@ static int dissect_status_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                             status_buf);
     }
     if (reason_code) {
-        proto_item_append_text(item_admin, ", Reason: %s", val64_to_str(*reason_code, status_report_reason_vals, "%" G_GUINT64_FORMAT));
+        proto_item_append_text(item_admin, ", Reason: %s", val64_to_str(*reason_code, status_report_reason_vals, "%" PRIu64));
     }
 
     proto_item_set_len(item_status, offset - chunk_status->start);

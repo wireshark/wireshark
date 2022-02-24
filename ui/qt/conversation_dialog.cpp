@@ -369,15 +369,15 @@ public:
             case CONV_COLUMN_PACKETS:
                 return QString("%L1").arg(conv_item->tx_frames + conv_item->rx_frames);
             case CONV_COLUMN_BYTES:
-                return gchar_free_to_qstring(format_size(conv_item->tx_bytes + conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
+                return gchar_free_to_qstring(format_size(conv_item->tx_bytes + conv_item->rx_bytes, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
             case CONV_COLUMN_PKT_AB:
                 return QString("%L1").arg(conv_item->tx_frames);
             case CONV_COLUMN_BYTES_AB:
-                return gchar_free_to_qstring(format_size(conv_item->tx_bytes, format_size_unit_none|format_size_prefix_si));
+                return gchar_free_to_qstring(format_size(conv_item->tx_bytes, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
             case CONV_COLUMN_PKT_BA:
                 return QString("%L1").arg(conv_item->rx_frames);
             case CONV_COLUMN_BYTES_BA:
-                return gchar_free_to_qstring(format_size(conv_item->rx_bytes, format_size_unit_none|format_size_prefix_si));
+                return gchar_free_to_qstring(format_size(conv_item->rx_bytes, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
             case CONV_COLUMN_START:
             {
                 bool use_ns = treeWidget()->window()->property("nanosecond_precision").toBool();
@@ -406,12 +406,12 @@ public:
             }
             case CONV_COLUMN_BPS_AB:
                 if (duration > min_bw_calc_duration_) {
-                    bps_ab = gchar_free_to_qstring(format_size((gint64) conv_item->tx_bytes * 8 / duration, format_size_unit_none|format_size_prefix_si));
+                    bps_ab = gchar_free_to_qstring(format_size((gint64) conv_item->tx_bytes * 8 / duration, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
                 }
                 return bps_ab;
             case CONV_COLUMN_BPS_BA:
                 if (duration > min_bw_calc_duration_) {
-                    bps_ba = gchar_free_to_qstring(format_size((gint64) conv_item->rx_bytes * 8 / duration, format_size_unit_none|format_size_prefix_si));
+                    bps_ba = gchar_free_to_qstring(format_size((gint64) conv_item->rx_bytes * 8 / duration, FORMAT_SIZE_UNIT_NONE, FORMAT_SIZE_PREFIX_SI));
                 }
                 return bps_ba;
             default:

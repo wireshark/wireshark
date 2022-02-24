@@ -54,10 +54,10 @@ hands off a packet to the heuristic dissectors before the "normal" dissectors
 are called. This allows the HD the chance to receive packets and process them
 differently than they otherwise would be. Of course if no HD is interested in
 the packet, then the packet will ultimately get handed off to the "normal"
-dissector as if the HD wasn't involved at all. As of this writing, the DCCP,
-SCTP, TCP, TIPC and UDP dissectors all provide this capability via their
-"Try heuristic sub-dissectors first" preference, but none of them have this
-option enabled by default.
+dissector as if the HD wasn't involved at all. As of this writing,
+16 dissectors (including DCCP, SCTP, TCP, TIPC and UDP) provide this capability
+via their "Try heuristic sub-dissectors first" preference, but most of them have
+this option disabled by default.
 
 Once a packet for a particular "connection" has been identified as belonging
 to a particular protocol, Wireshark must then be set up to always directly
@@ -103,7 +103,7 @@ Heuristic Code Example
 ----------------------
 You can find a lot of code examples in the Wireshark sources, e.g.:
 grep -l heur_dissector_add epan/dissectors/*.c
-returns 177 files (October 2015).
+returns 236 files (December 2021).
 
 For the above example criteria, the following code example might do the work
 (combine this with the dissector skeleton in README.developer):
@@ -238,3 +238,7 @@ tendency to re-use known port numbers for new protocols. But TCP and UDP are
 not the only dissectors that provide support for HDs.  You can find more
 examples by searching the Wireshark sources as follows:
 grep -l register_heur_dissector_list epan/dissectors/packet-*.c
+
+There are a small number of cases where heuristic dissectors have been added
+for formats that were specifically created for use with Wireshark (e.g.
+LTE and NR L2 MAC, RLC and PDCP dissectors).

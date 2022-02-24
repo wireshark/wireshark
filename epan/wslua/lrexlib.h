@@ -1,4 +1,4 @@
-/* common.h */
+/** @file */
 /*
 License of Lrexlib release
 --------------------------

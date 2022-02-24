@@ -182,7 +182,7 @@ void ExportObjectModel::saveAllEntries(QString path)
                 char generic_name[EXPORT_OBJECT_MAXFILELEN+1];
                 const char *ext;
                 ext = eo_ct2ext(entry->content_type);
-                g_snprintf(generic_name, sizeof(generic_name),
+                snprintf(generic_name, sizeof(generic_name),
                     "object%u%s%s", entry->pkt_num, ext ? "." : "",
                     ext ? ext : "");
                 safe_filename = eo_massage_str(generic_name,

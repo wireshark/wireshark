@@ -371,7 +371,7 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
   col_append_fstr (pinfo->cinfo, COL_INFO, ": %s",
                    tvb_format_text_wsp (pinfo->pool, tvb, offset, len));
 
-  ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII|ENC_NA);
+  ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII);
   expert_add_info_format(pinfo, ti, &ei_error,
                          "Error: %s", tvb_format_text_wsp (pinfo->pool, tvb, offset, len));
 }
@@ -618,7 +618,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   if (desclen) {
-    proto_tree_add_item (tree, hf_if_desc, tvb, offset, desclen, ENC_ASCII|ENC_NA);
+    proto_tree_add_item (tree, hf_if_desc, tvb, offset, desclen, ENC_ASCII);
     offset += desclen;
   }
 
@@ -825,7 +825,7 @@ dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   gint len;
 
   len = tvb_reported_length_remaining (tvb, offset);
-  proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, ENC_ASCII);
 }
 
 

@@ -105,13 +105,13 @@ struct packet_netlink_data {
  * Dissects the Netlink message header (struct nlmsghdr). The "hfi_type" field
  * is added for the "nlmsg_type" field and returned into pi_type.
  */
-int dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, header_field_info *hfi_type, proto_item **pi_type);
+int dissect_netlink_header(tvbuff_t *tvb, proto_tree *tree, int offset, int encoding, int hf_type, proto_item **pi_type);
 
 typedef int netlink_attributes_cb_t(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len);
 
-int dissect_netlink_attributes(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data,  proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);
+int dissect_netlink_attributes(tvbuff_t *tvb, int hf_type, int ett, void *data, struct packet_netlink_data *nl_data,  proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);
 
-int dissect_netlink_attributes_to_end(tvbuff_t *tvb, header_field_info *hfi_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb);
+int dissect_netlink_attributes_to_end(tvbuff_t *tvb, int hf_type, int ett, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, netlink_attributes_cb_t cb);
 
 /*
  * Similar to dissect_netlink_attributes, but used to parse nested attributes
@@ -119,7 +119,7 @@ int dissect_netlink_attributes_to_end(tvbuff_t *tvb, header_field_info *hfi_type
  * array elements and its type field is the array index. The next level (tree
  * ett_attrib) contains attributes (where hfi_type applies).
  */
-int dissect_netlink_attributes_array(tvbuff_t *tvb, header_field_info *hfi_type, int ett_array, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);
+int dissect_netlink_attributes_array(tvbuff_t *tvb, int hf_type, int ett_array, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb);
 
 #define NLA_F_NESTED            0x8000
 #define NLA_F_NET_BYTEORDER     0x4000
@@ -141,7 +141,7 @@ typedef struct {
 	/* XXX This should contain a family version number as well. */
 } genl_info_t;
 
-int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, header_field_info *hfi_cmd);
+int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, int hf_cmd);
 
 #endif /* __PACKET_NETLINK_H__ */
 

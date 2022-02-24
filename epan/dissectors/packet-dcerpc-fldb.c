@@ -315,7 +315,7 @@ dissect_vlconf_cell (tvbuff_t *tvb, int offset,
     }
 
   /* byte name[MAXVLCELLCHARS];          Cell name */
-  proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_ASCII);
   name = tvb_get_string_enc(pinfo->pool, tvb, offset, MAXVLCELLCHARS, ENC_ASCII); /* XXX why 114 above and 128 here?? */
   offset += MAXVLCELLCHARS;     /* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   col_append_fstr (pinfo->cinfo, COL_INFO, " Name: %s", name);

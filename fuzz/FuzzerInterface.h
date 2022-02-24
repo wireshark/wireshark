@@ -1,3 +1,4 @@
+/** @file */
 /* based on http://llvm.org/svn/llvm-project/compiler-rt/trunk/lib/fuzzer/FuzzerInterface.h r321218 (20 Dec 2017) */
 
 /* http://llvm.org/svn/llvm-project/compiler-rt/trunk/LICENSE.TXT follows */

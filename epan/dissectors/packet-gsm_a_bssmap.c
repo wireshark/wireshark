@@ -1087,7 +1087,7 @@ be_cic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
     curr_offset += 2;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
+        snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
 
     /* no length check possible */
 
@@ -1246,7 +1246,7 @@ bssmap_dissect_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
             curr_offset++;
 
             if (add_string)
-                g_snprintf(add_string, string_len, " - (National Cause)");
+                snprintf(add_string, string_len, " - (National Cause)");
         }
         else
         {
@@ -1262,7 +1262,7 @@ bssmap_dissect_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
         curr_offset++;
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f,
+            snprintf(add_string, string_len, " - (%u) %s", oct & 0x7f,
                 rval_to_str_const(oct & 0x7f, gsm_a_bssap_cause_rvals, "Unknown"));
     }
 
@@ -1295,7 +1295,7 @@ be_tmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, gui
         value);
 
     if (add_string)
-    g_snprintf(add_string, string_len, " - (0x%04x)", value);
+    snprintf(add_string, string_len, " - (0x%04x)", value);
 
     curr_offset += 4;
 
@@ -1429,7 +1429,7 @@ static const range_string gsm_a_bssap_channel_rate_and_type_rvals[] = {
     { 0x1a,     0x1a, "Full or Half rate TCH channel, Full rate preferred, changes allowed also after first channel allocation as a result of the request" },
     { 0x1b,     0x1b, "Full or Half rate TCH channel, Half rate preferred, changes allowed also after first channel allocation as a result of the request" },
     { 0x1c,     0x1f, "Reserved" },
-    { 0x20,     0x27, "Full rate TCH channels in a multislot configuration, changes by the BSS of the the number of TCHs and if applicable the used radio interface rate per channel allowed after first channel allocation as a result of the request" },
+    { 0x20,     0x27, "Full rate TCH channels in a multislot configuration, changes by the BSS of the number of TCHs and if applicable the used radio interface rate per channel allowed after first channel allocation as a result of the request" },
     { 0x28,     0x2f, "Reserved" },
     { 0x30,     0x37, "Full rate TCH channels in a multislot configuration, changes by the BSS of the number of TCHs or the used radio interface rate per channel not allowed after first channel allocation as a result of the request" },
     { 0x38,     0xff, "Reserved" },
@@ -1454,7 +1454,7 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     proto_tree_add_item(tree, hf_gsm_a_bssmap_speech_data_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%s)", val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
+        snprintf(add_string, string_len, " - (%s)", val_to_str_const(tvb_get_guint8(tvb, curr_offset) & 0x0f,
                 gsm_a_bssap_speech_data_ind_vals,
                 "Unknown"));
 
@@ -1810,7 +1810,7 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
         curr_offset += 2;
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - LAC (0x%04x)", value);
+            snprintf(add_string, string_len, " - LAC (0x%04x)", value);
         if (disc == 0x0b) {
             /* If SAI, SAC follows */
             proto_tree_add_item(tree, hf_gsm_a_bssmap_sac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
@@ -1835,11 +1835,13 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
             {
                 if (add_string[0] == '\0')
                 {
-                    g_snprintf(add_string, string_len, " - RNC-ID (%u)", value);
+                    snprintf(add_string, string_len, " - RNC-ID (%u)", value);
                 }
                 else
                 {
-                    g_snprintf(add_string, string_len, "%s/RNC-ID (%u)", add_string, value);
+                    char *str = ws_strdup_printf("%s/RNC-ID (%u)", add_string, value);
+                    g_strlcpy(add_string, str, string_len);
+                    g_free(str);
                 }
             }
             break;
@@ -1862,11 +1864,13 @@ be_cell_id_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
         {
             if (add_string[0] == '\0')
             {
-                g_snprintf(add_string, string_len, " - CI (%u)", value);
+                snprintf(add_string, string_len, " - CI (%u)", value);
             }
             else
             {
-                g_snprintf(add_string, string_len, "%s/CI (%u)", add_string, value);
+                char *str = ws_strdup_printf("%s/CI (%u)", add_string, value);
+                g_strlcpy(add_string, str, string_len);
+                g_free(str);
             }
         }
         break;
@@ -1948,7 +1952,7 @@ be_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
     proto_tree_add_item(tree, hf_gsm_a_bssmap_priority_level, tvb, curr_offset, 1, ENC_NA);
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
+        snprintf(add_string, string_len, " - (%u)", (oct & 0x3c) >> 2);
 
     proto_tree_add_item(tree, hf_gsm_a_bssmap_qa, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_bssmap_pvi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2199,7 +2203,7 @@ be_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     while ((len - (curr_offset - offset)) > 0 && consumed > 0);
 
     if (add_string) {
-        g_snprintf(add_string, string_len, " - %u cell%s",
+        snprintf(add_string, string_len, " - %u cell%s",
             num_cells, plurality(num_cells, "", "s"));
     }
 
@@ -2588,7 +2592,7 @@ be_trace_trigger_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_trigger_id, tvb, curr_offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_trigger_id, tvb, curr_offset, len, ENC_ASCII);
     curr_offset += len;
 
     /* no length check possible */
@@ -2651,7 +2655,7 @@ be_trace_omc_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_omc_id, tvb, curr_offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_trace_omc_id, tvb, curr_offset, len, ENC_ASCII);
     curr_offset += len;
 
     /* no length check possible */
@@ -2713,7 +2717,7 @@ be_chosen_enc_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     curr_offset++;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, gsm_a_bssmap_algorithm_id_vals, "Unknown"));
+        snprintf(add_string, string_len, " - %s", val_to_str_const(oct, gsm_a_bssmap_algorithm_id_vals, "Unknown"));
 
     /* no length check possible */
 
@@ -2751,7 +2755,7 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
     curr_offset++;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%u)", oct);
+        snprintf(add_string, string_len, " - (%u)", oct);
 
     /* no length check possible */
 
@@ -2864,7 +2868,7 @@ be_speech_ver(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     curr_offset++;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - (%s)", rval_to_str_const(oct & 0x7f, speech_version_id_short_rvals, "Reserved"));
+        snprintf(add_string, string_len, " - (%s)", rval_to_str_const(oct & 0x7f, speech_version_id_short_rvals, "Reserved"));
 
     /* no length check possible */
 

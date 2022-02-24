@@ -20,6 +20,7 @@
 
 #include <QAction>
 #include <QImage>
+#include <QJsonDocument>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QPrintDialog>
@@ -72,7 +73,9 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->addItem(tr("Hex Dump"), ShowAsHexDump);
     ui->cbShowAs->addItem(tr("HTML"), ShowAsHTML);
     ui->cbShowAs->addItem(tr("Image"), ShowAsImage);
+    ui->cbShowAs->addItem(tr("Json"), ShowAsJson);
     ui->cbShowAs->addItem(tr("Raw"), ShowAsRAW);
+    ui->cbShowAs->addItem(tr("Rust Array"), ShowAsRustArray);
     // UTF-8 is guaranteed to exist as a QTextCodec
     ui->cbShowAs->addItem(tr("UTF-8"), ShowAsCodec);
     ui->cbShowAs->addItem(tr("YAML"), ShowAsYAML);
@@ -80,7 +83,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     ui->cbShowAs->blockSignals(false);
 
     ui->sbStart->setMinimum(0);
-    ui->sbEnd->setMaximum(finfo_->length);
+    ui->sbEnd->setMaximum(finfo_->length - 1);
 
     print_button_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(print_button_, SIGNAL(clicked()), this, SLOT(printBytes()));
@@ -93,7 +96,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
 
-    setStartAndEnd(0, finfo_->length);
+    setStartAndEnd(0, (finfo_->length - 1));
     updateFieldBytes(true);
 }
 
@@ -124,13 +127,13 @@ void ShowPacketBytesDialog::showSelected(int start, int end)
 {
     if (end == -1) {
         // end set to -1 means show all packet bytes
-        setStartAndEnd(0, finfo_->length);
+        setStartAndEnd(0, (finfo_->length - 1));
     } else {
         if (show_as_ == ShowAsRAW) {
             start /= 2;
             end = (end + 1) / 2;
         }
-        setStartAndEnd(start_ + start, start_ + end);
+        setStartAndEnd(start_ + start, start_ + end - 1);
     }
     updateFieldBytes();
 }
@@ -176,9 +179,9 @@ void ShowPacketBytesDialog::updateHintLabel()
 {
     QString hint = hint_label_;
 
-    if (start_ > 0 || end_ < finfo_->length) {
+    if (start_ > 0 || end_ < (finfo_->length - 1)) {
         hint.append(" <span style=\"color: red\">" +
-                    tr("Displaying %Ln byte(s).", "", end_ - start_) +
+                    tr("Displaying %Ln byte(s).", "", end_ - start_ + 1) +
                     "</span>");
     }
 
@@ -244,7 +247,11 @@ void ShowPacketBytesDialog::findText(bool go_back)
 
     bool found;
     if (use_regex_find_) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+        QRegularExpression regex(ui->leFind->text(), QRegularExpression::UseUnicodePropertiesOption);
+#else
         QRegExp regex(ui->leFind->text());
+#endif
         found = ui->tePacketBytes->find(regex);
     } else {
         found = ui->tePacketBytes->find(ui->leFind->text());
@@ -282,8 +289,10 @@ void ShowPacketBytesDialog::copyBytes()
 
     case ShowAsASCIIandControl:
     case ShowAsCArray:
+    case ShowAsRustArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
+    case ShowAsJson:
     case ShowAsRAW:
     case ShowAsYAML:
         wsApp->clipboard()->setText(ui->tePacketBytes->toPlainText());
@@ -315,9 +324,11 @@ void ShowPacketBytesDialog::saveAs()
     case ShowAsASCII:
     case ShowAsASCIIandControl:
     case ShowAsCArray:
+    case ShowAsRustArray:
     // We always save as UTF-8, so set text mode as we would for UTF-8
     case ShowAsCodec:
     case ShowAsHexDump:
+    case ShowAsJson:
     case ShowAsYAML:
     case ShowAsHTML:
         open_mode |= QFile::Text;
@@ -340,8 +351,10 @@ void ShowPacketBytesDialog::saveAs()
 
     case ShowAsASCIIandControl:
     case ShowAsCArray:
+    case ShowAsRustArray:
     case ShowAsEBCDIC:
     case ShowAsHexDump:
+    case ShowAsJson:
     case ShowAsYAML:
     {
         QTextStream out(&file);
@@ -512,7 +525,7 @@ void ShowPacketBytesDialog::rot13(QByteArray &ba)
 void ShowPacketBytesDialog::updateFieldBytes(bool initialization)
 {
     int start = finfo_->start + start_;
-    int length = end_ - start_;
+    int length = end_ - start_ + 1;
     const guint8 *bytes;
     gsize new_length = 0;
 
@@ -642,6 +655,43 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         break;
     }
 
+    case ShowAsRustArray:
+    {
+        int pos = 0, len = field_bytes_.length();
+        QString text("let packet_bytes: [u8; _] = [\n");
+
+        while (pos < len) {
+            gchar hexbuf[256];
+            char *cur = hexbuf;
+            int i;
+
+            *cur++ = ' ';
+            for (i = 0; i < 8 && pos + i < len; i++) {
+                // Prepend entries with " 0x"
+                *cur++ = ' ';
+                *cur++ = '0';
+                *cur++ = 'x';
+                *cur++ = hexchars[(field_bytes_[pos + i] & 0xf0) >> 4];
+                *cur++ = hexchars[field_bytes_[pos + i] & 0x0f];
+
+                // Delimit array entries with a comma
+                if (pos + i + 1 < len)
+                    *cur++ = ',';
+            }
+
+            pos += i;
+            *cur++ = '\n';
+            *cur = 0;
+
+            text.append(hexbuf);
+        }
+
+        text.append("];\n");
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
+        ui->tePacketBytes->setPlainText(text);
+        break;
+    }
+
     case ShowAsCodec:
     {
         // The QTextCodecs docs say that there's a flag to cause invalid
@@ -680,7 +730,7 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
             int i;
 
             // Dump offset
-            cur += g_snprintf(cur, 20, "%0*X  ", offset_chars, pos);
+            cur += snprintf(cur, 20, "%0*X  ", offset_chars, pos);
 
             // Dump bytes as hex
             for (i = 0; i < 16 && pos + i < len; i++) {
@@ -739,6 +789,11 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
         save_as_button_->setEnabled(!image_.isNull());
         break;
     }
+
+    case ShowAsJson:
+        ui->tePacketBytes->setLineWrapMode(QTextEdit::NoWrap);
+        ui->tePacketBytes->setPlainText(QJsonDocument::fromJson(field_bytes_).toJson());
+        break;
 
     case ShowAsYAML:
     {

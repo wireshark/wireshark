@@ -1,4 +1,4 @@
-/* packet_list_record.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -2507,7 +2507,7 @@ static int dissect_sml (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 static void
 sml_fmt_length( gchar *result, guint32 length )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d %s", length, plurality(length, "octet", "octets"));
+   snprintf( result, ITEM_LABEL_LENGTH, "%d %s", length, plurality(length, "octet", "octets"));
 }
 
 void proto_register_sml (void) {

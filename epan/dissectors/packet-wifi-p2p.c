@@ -507,7 +507,7 @@ static void dissect_listen_channel(proto_item *tlv_root, proto_item *tlv_item,
                                    tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_listen_channel_country, tvb,
-                      offset + 3, 3, ENC_ASCII|ENC_NA);
+                      offset + 3, 3, ENC_ASCII);
   proto_tree_add_item(tlv_root, hf_p2p_attr_listen_channel_oper_class, tvb,
                       offset + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(tlv_root, hf_p2p_attr_listen_channel_number, tvb,
@@ -523,7 +523,7 @@ static void dissect_operating_channel(proto_item *tlv_root,
                                       tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_operating_channel_country, tvb,
-                      offset + 3, 3, ENC_ASCII|ENC_NA);
+                      offset + 3, 3, ENC_ASCII);
   proto_tree_add_item(tlv_root, hf_p2p_attr_operating_channel_oper_class, tvb,
                       offset + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(tlv_root, hf_p2p_attr_operating_channel_number, tvb,
@@ -541,7 +541,7 @@ static void dissect_channel_list(proto_item *tlv_root, tvbuff_t *tvb,
   guint8 num_chan;
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_channel_list_country, tvb,
-                      s_offset, 3, ENC_ASCII|ENC_NA);
+                      s_offset, 3, ENC_ASCII);
   s_offset += 3;
 
   while (offset + 3 + slen > s_offset) {
@@ -649,7 +649,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
     item = proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_dev_name,
                                tvb, s_offset,
                                nlen > attr_len ? attr_len : nlen,
-                               ENC_ASCII|ENC_NA);
+                               ENC_ASCII);
   if (nlen != attr_len) {
     expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
   }
@@ -704,7 +704,7 @@ static void dissect_wifi_p2p_group_id(proto_item *tlv_root,
   proto_item_append_text(tlv_item, ": %s", tvb_ether_to_str(wmem_packet_scope(), tvb, offset + 3));
   s_offset += 6;
   proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_id_ssid, tvb,
-                      s_offset, offset + 3 + slen - s_offset, ENC_ASCII|ENC_NA);
+                      s_offset, offset + 3 + slen - s_offset, ENC_ASCII);
 }
 
 static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
@@ -872,7 +872,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
       item = proto_tree_add_item(tree, hf_p2p_attr_gi_dev_name,
                                  tvb, s_offset,
                                  nlen > attr_len ? attr_len : nlen,
-                                 ENC_ASCII|ENC_NA);
+                                 ENC_ASCII);
     if (nlen != attr_len) {
       expert_add_info_format(pinfo, item, &ei_wifi_p2p_attr_len, "Invalid Device Name attribute");
     }
@@ -927,7 +927,7 @@ static void dissect_oob_group_owner_negotiation_channel(proto_item *tlv_root,
                                                         tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_oob_group_owner_negotiation_channel_country, tvb,
-                      offset + 3, 3, ENC_ASCII|ENC_NA);
+                      offset + 3, 3, ENC_ASCII);
   proto_tree_add_item(tlv_root, hf_p2p_attr_oob_group_owner_negotiation_channel_oper_class, tvb,
                       offset + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(tlv_root, hf_p2p_attr_oob_group_owner_negotiation_channel_number, tvb,
@@ -959,7 +959,7 @@ static void dissect_session_information(proto_item *tlv_root,
                                         tvbuff_t *tvb, int offset, int slen)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_session_information, tvb,
-                      offset+3, slen, ENC_ASCII|ENC_NA);
+                      offset+3, slen, ENC_ASCII);
 
 }
 
@@ -1010,7 +1010,7 @@ static void dissect_advertised_service(proto_item *tlv_root,
     s_offset += 1;
 
     proto_tree_add_item(subtree, hf_p2p_attr_advertised_service_service_name, tvb,
-                        s_offset, len_service_name, ENC_ASCII|ENC_NA);
+                        s_offset, len_service_name, ENC_ASCII);
     s_offset += len_service_name;
 
   }
@@ -1047,7 +1047,7 @@ static void dissect_persistent_group(proto_item *tlv_root,
                       offset+3, 6, ENC_NA);
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_persistent_group_ssid, tvb,
-                      offset+3+6, slen+6, ENC_ASCII|ENC_NA);
+                      offset+3+6, slen+6, ENC_ASCII);
 
 }
 

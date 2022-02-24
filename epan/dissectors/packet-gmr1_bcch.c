@@ -951,7 +951,7 @@ CSN_DESCR_END  (SystemInformation2_t)
 static void
 segx_half_db_value_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%2.1f dB (%u)", v * 0.5f, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%2.1f dB (%u)", v * 0.5f, v);
 }
 
 /* Segment 1A - [3] 11.5.2.66 */
@@ -959,7 +959,7 @@ static void
 seg1a_syncinfo_sa_freq_offset_fmt(gchar *s, guint32 v)
 {
 	gint32 sv = (gint32)v;
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d Hz (%d)", sv * 5, sv);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d Hz (%d)", sv * 5, sv);
 }
 
 static const value_string seg1a_rachctrl_acc_vals[] = {
@@ -1000,7 +1000,7 @@ seg3a_latitude_fmt(gchar *s, guint32 v)
 	} else
 		c = 'N';
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %c (%d)", sv / 10.0f, c, sv);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.1f %c (%d)", sv / 10.0f, c, sv);
 }
 
 static void
@@ -1017,7 +1017,7 @@ seg3a_longitude_fmt(gchar *s, guint32 v)
 		sv = 3600 - v;
 	}
 
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f %c (%u)", sv / 10.0f, c, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.1f %c (%u)", sv / 10.0f, c, v);
 }
 
 static void
@@ -1025,13 +1025,13 @@ seg3a_satpos_radius_fmt(gchar *s, guint32 v)
 {
 	gint32 sv = (gint32)v;
 	gint32 a = (42162 * 1000) + (sv * 5);
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%.3lf km (%u)", a / 1000.0, sv);
+	snprintf(s, ITEM_LABEL_LENGTH, "%.3lf km (%u)", a / 1000.0, sv);
 }
 
 static void
 seg3a_miscinfo_sb_reselection_timer_fmt(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%d minutes (%u)", v*4, v);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d minutes (%u)", v*4, v);
 }
 
 /* System Information 1 - [1] 10.3.31 */

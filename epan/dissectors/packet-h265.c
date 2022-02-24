@@ -997,11 +997,11 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 		*start_bit_offset = bit_offset;
 		/* We will probably get a BoundsError later in the packet. */
 		if (descriptor == H265_SE_V) {
-			ti = proto_tree_add_int_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" G_GINT32_MODIFIER "d", leading_zero_bits, se_value);
+			ti = proto_tree_add_int_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" PRId32, leading_zero_bits, se_value);
 			expert_add_info(NULL, ti, &ei_h265_oversized_exp_golomb_code);
 			return se_value;
 		} else {
-			ti = proto_tree_add_uint_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" G_GINT32_MODIFIER "u", leading_zero_bits, codenum);
+			ti = proto_tree_add_uint_format_value(tree, hf_index, tvb, start_offset, (bit_offset >> 3) - start_offset + 1, codenum, "Invalid value (%d leading zero bits), clamped to %" PRIu32, leading_zero_bits, codenum);
 			expert_add_info(NULL, ti, &ei_h265_oversized_exp_golomb_code);
 			return codenum;
 		}

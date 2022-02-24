@@ -231,7 +231,7 @@ dissect_mojito_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		contact_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_mojito_contact, &contact_item, "Contact");
 	}
 
-	proto_tree_add_item(contact_tree, hf_mojito_contactvendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(contact_tree, hf_mojito_contactvendor, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
 
 	version_item = proto_tree_add_item(contact_tree, hf_mojito_contactversion, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -293,7 +293,7 @@ dissect_mojito_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	contact_start_offset = offset;
 	contact_tree = proto_tree_add_subtree(header_tree, tvb, offset, 35, ett_mojito_contact, &contact_item, "Originating Contact");
 
-	proto_tree_add_item(contact_tree, hf_mojito_vendor, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(contact_tree, hf_mojito_vendor, tvb, offset, 4, ENC_ASCII);
 	offset += 4;
 
 	version_tree = proto_tree_add_subtree(contact_tree, tvb, offset, 2, ett_mojito_contact_version, NULL, "Contact Version");
@@ -414,7 +414,7 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_kuid, tvb, offset, 20, ENC_NA);
 		offset += 20;
 
-		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_valuetype, tvb, offset, 4, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_valuetype, tvb, offset, 4, ENC_ASCII);
 		offset += 4;
 
 		/* Version */
@@ -430,7 +430,7 @@ dissect_mojito_store_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_value, tvb, offset, dhtvaluelength, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_value, tvb, offset, dhtvaluelength, ENC_ASCII);
 		offset += dhtvaluelength;
 
 		proto_item_set_len(dht_item, offset-start_offset);
@@ -474,7 +474,7 @@ dissect_mojito_store_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 		proto_tree_add_item(sc_tree, hf_mojito_dhtvalue_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(sc_tree, hf_mojito_dhtvalue_value, tvb, offset, dhtvaluelength, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(sc_tree, hf_mojito_dhtvalue_value, tvb, offset, dhtvaluelength, ENC_ASCII);
 		offset += dhtvaluelength;
 
 		proto_item_set_len(sc_item, offset-start_offset);
@@ -534,7 +534,7 @@ dissect_mojito_find_value_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		offset += 20;
 	}
 
-	proto_tree_add_item(tree, hf_mojito_dhtvaluetype, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_mojito_dhtvaluetype, tvb, offset, 4, ENC_ASCII);
 	/*offset += 4;*/
 }
 
@@ -568,7 +568,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_kuid, tvb, offset, 20, ENC_NA);
 		offset += 20;
 
-		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_valuetype, tvb, offset, 4, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_valuetype, tvb, offset, 4, ENC_ASCII);
 		offset += 4;
 
 		/* Version */
@@ -586,7 +586,7 @@ dissect_mojito_find_value_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		offset += 2;
 
 		/* Value */
-		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_value, tvb, offset, dhtvaluelength, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(dht_tree, hf_mojito_dhtvalue_value, tvb, offset, dhtvaluelength, ENC_ASCII);
 		offset += dhtvaluelength;
 
 		proto_item_set_len(dht_item, offset-start_offset);

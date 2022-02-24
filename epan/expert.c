@@ -20,6 +20,7 @@
 #include "expert.h"
 #include "uat.h"
 #include "prefs.h"
+#include <epan/prefs-int.h>
 #include <epan/wmem_scopes.h>
 #include "tap.h"
 
@@ -123,7 +124,7 @@ static gboolean uat_expert_update_cb(void *r, char **err)
 	expert_level_entry_t *rec = (expert_level_entry_t *)r;
 
 	if (expert_registrar_get_byname(rec->field) == NULL) {
-		*err = g_strdup_printf("Expert Info field doesn't exist");
+		*err = ws_strdup_printf("Expert Info field doesn't exist");
 		return FALSE;
 	}
 	return TRUE;
@@ -221,6 +222,11 @@ expert_packet_init(void)
 		proto_set_cant_toggle(proto_expert);
 
 		module_expert = prefs_register_protocol(proto_expert, NULL);
+		//Since "expert" is really a pseudo protocol, it shouldn't be
+		//categorized with other "real" protocols when it comes to
+		//preferences.  Since it's just a UAT, don't bury it in
+		//with the other protocols
+		module_expert->use_gui = FALSE;
 
 		expert_uat = uat_new("Expert Info Severity Level Configuration",
 			sizeof(expert_level_entry_t),

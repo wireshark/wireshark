@@ -712,7 +712,7 @@ proto_register_elcom(void)
                 },
 
                 { &hf_elcom_datarequest_oid,
-                  { "Obkect Name",        "elcom.datarequest.oid",
+                  { "Object Name",        "elcom.datarequest.oid",
                     FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
                 },
                 { &hf_elcom_strangeleftover,

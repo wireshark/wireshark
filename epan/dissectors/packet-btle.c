@@ -2378,21 +2378,21 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 switch (direction) {
                 case BTLE_DIR_MASTER_SLAVE:
-                    g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_info->access_address);
-                    g_snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_src, str_addr_len, "Master_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_dst, str_addr_len, "Slave_0x%08x", connection_info->access_address);
                     set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->master_bd_addr), connection_info->master_bd_addr);
                     set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->slave_bd_addr), connection_info->slave_bd_addr);
                     break;
                 case BTLE_DIR_SLAVE_MASTER:
-                    g_snprintf(str_addr_src, str_addr_len, "Slave_0x%08x", connection_info->access_address);
-                    g_snprintf(str_addr_dst, str_addr_len, "Master_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_src, str_addr_len, "Slave_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_dst, str_addr_len, "Master_0x%08x", connection_info->access_address);
                     set_address(&pinfo->dl_src, AT_ETHER, sizeof(connection_info->slave_bd_addr), connection_info->slave_bd_addr);
                     set_address(&pinfo->dl_dst, AT_ETHER, sizeof(connection_info->master_bd_addr), connection_info->master_bd_addr);
                     break;
                 default:
                     /* BTLE_DIR_UNKNOWN */
-                    g_snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
-                    g_snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_src, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
+                    snprintf(str_addr_dst, str_addr_len, "Unknown_0x%08x", connection_info->access_address);
                     clear_address(&pinfo->dl_src);
                     clear_address(&pinfo->dl_dst);
                     break;
@@ -3766,7 +3766,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, broadcastiso_connection_info->master_bd_addr);
                 proto_item_set_generated(sub_item);
 
-                g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", broadcastiso_connection_info->access_address);
+                snprintf(str_addr_src, str_addr_len, "Master_0x%08x", broadcastiso_connection_info->access_address);
                 set_address(&pinfo->dl_src, AT_ETHER, sizeof(broadcastiso_connection_info->master_bd_addr), broadcastiso_connection_info->master_bd_addr);
                 clear_address(&pinfo->dl_dst);
 

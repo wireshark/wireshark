@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.7.0 (2021-10)
+-- 3GPP TS 38.473 V16.8.0 (2021-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -647,6 +647,8 @@ id-TransmissionStopIndicator						ProtocolIE-ID ::= 430
 id-SrsFrequency										ProtocolIE-ID ::= 431
 id-SCGIndicator										ProtocolIE-ID ::= 432
 id-EstimatedArrivalProbability						ProtocolIE-ID ::= 433
+id-TRPType											ProtocolIE-ID ::= 434
+id-SRSSpatialRelationPerSRSResource					ProtocolIE-ID ::= 435
 
 
 END

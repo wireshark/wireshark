@@ -285,8 +285,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
             "<p>"
             "Local interfaces are unavailable because no packet capture driver is installed."
             "</p><p>"
-            "You can fix this by installing <a href=\"https://nmap.org/npcap/\">Npcap</a>"
-            " or <a href=\"https://www.winpcap.org/install/default.htm\">WinPcap</a>."
+            "You can fix this by installing <a href=\"https://npcap.com/\">Npcap</a>."
             "</p>"));
     } else if (!npf_sys_is_running()) {
         ui->warningLabel->setText(tr(
@@ -423,7 +422,7 @@ void InterfaceFrame::on_interfaceTree_doubleClicked(const QModelIndex &index)
         /* this checks if configuration is required and not yet provided or saved via prefs */
         if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE))
         {
-            emit showExtcapOptions(device_name);
+            emit showExtcapOptions(device_name, true);
             return;
         }
     }
@@ -451,7 +450,7 @@ void InterfaceFrame::on_interfaceTree_clicked(const QModelIndex &index)
             /* this checks if configuration is required and not yet provided or saved via prefs */
             if (extcap_has_configuration((const char *)(device_name.toStdString().c_str()), FALSE))
             {
-                emit showExtcapOptions(device_name);
+                emit showExtcapOptions(device_name, false);
                 return;
             }
         }

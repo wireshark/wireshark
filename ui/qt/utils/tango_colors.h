@@ -1,4 +1,5 @@
-/* qt_gui_utils.h
+/** @file
+ *
  * Tango theme colors
  *
  * Wireshark - Network traffic analyzer

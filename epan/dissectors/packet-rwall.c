@@ -6,9 +6,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include "packet-rpc.h"
@@ -16,34 +13,27 @@
 void proto_register_rwall(void);
 void proto_reg_handoff_rwall(void);
 
-static header_field_info *hfi_rwall = NULL;
-
 /* there is no procedure 1 */
 #define RWALL_WALL 2
 
 #define RWALL_PROGRAM 100008
-
-#define RWALL_HFI_INIT HFI_INIT(proto_rwall)
 
 static const value_string rwall1_proc_vals[] = {
 	{ RWALL_WALL,	"RWALL" },
 	{ 0,	NULL }
 };
 
-static header_field_info hfi_rwall_procedure_v1 RWALL_HFI_INIT = {
-	"V1 Procedure", "rwall.procedure_v1", FT_UINT32, BASE_DEC,
-	VALS(rwall1_proc_vals), 0, NULL, HFILL };
+static int proto_rwall = -1;
 
-static header_field_info hfi_rwall_message RWALL_HFI_INIT = {
-	"Message", "rwall.message", FT_STRING, BASE_NONE,
-	NULL, 0, NULL, HFILL };
+static int hf_rwall_message = -1;
+static int hf_rwall_procedure_v1 = -1;
 
 static gint ett_rwall = -1;
 
 static int
 dissect_rwall_call(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
-	return dissect_rpc_string(tvb, tree, hfi_rwall_message.id, 0, NULL);
+	return dissect_rpc_string(tvb, tree, hf_rwall_message, 0, NULL);
 }
 
 static const vsff rwall1_proc[] = {
@@ -52,29 +42,31 @@ static const vsff rwall1_proc[] = {
 };
 
 static const rpc_prog_vers_info rwall_vers_info[] = {
-	{ 1, rwall1_proc, &hfi_rwall_procedure_v1.id },
+	{ 1, rwall1_proc, &hf_rwall_procedure_v1 },
 };
 
 void
 proto_register_rwall(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_rwall_procedure_v1,
-		&hfi_rwall_message,
+	static hf_register_info hf[] = {
+		{ &hf_rwall_procedure_v1,
+			{ "V1 Procedure", "rwall.procedure_v1",
+			  FT_UINT32, BASE_DEC, VALS(rwall1_proc_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_rwall_message,
+			{ "Message", "rwall.message",
+			  FT_STRING, BASE_NONE, NULL, 0,
+			  NULL, HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_rwall,
 	};
 
-	int proto_rwall;
-
 	proto_rwall = proto_register_protocol("Remote Wall protocol", "RWALL", "rwall");
-	hfi_rwall = proto_registrar_get_nth(proto_rwall);
-
-	proto_register_fields(proto_rwall, hfi, array_length(hfi));
+	proto_register_field_array(proto_rwall, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -82,7 +74,7 @@ void
 proto_reg_handoff_rwall(void)
 {
 	/* Register the protocol as RPC */
-	rpc_init_prog(hfi_rwall->id, RWALL_PROGRAM, ett_rwall,
+	rpc_init_prog(proto_rwall, RWALL_PROGRAM, ett_rwall,
 	    G_N_ELEMENTS(rwall_vers_info), rwall_vers_info);
 }
 

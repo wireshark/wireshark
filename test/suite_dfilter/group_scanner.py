@@ -31,6 +31,6 @@ class case_scanner(unittest.TestCase):
         dfilter = 'http.request.method == "\\111EAD"'
         checkDFilterCount(dfilter, 0)
 
-    def test_dquote_6(self, checkDFilterCount):
-        dfilter = 'http.request.method == "\\HEAD"'
-        checkDFilterCount(dfilter, 1)
+    def test_dquote_6(self, checkDFilterFail):
+        dfilter = r'http.request.method == "\HEAD"'
+        checkDFilterFail(dfilter, 'not a valid character escape sequence')

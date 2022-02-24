@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * musl as a whole is licensed under the following standard MIT license:
  *
  * ----------------------------------------------------------------------

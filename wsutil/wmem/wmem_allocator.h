@@ -1,4 +1,5 @@
-/* wmem_allocator.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager Allocator
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

@@ -15964,14 +15964,14 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
     /* Reverse order to invoke */
     switch(ansi_map_response_matching_type){
         case ANSI_MAP_TID_ONLY:
-            g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
+            snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
             break;
         case ANSI_MAP_TID_AND_SOURCE:
-            g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
+            snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
             break;
         case ANSI_MAP_TID_SOURCE_AND_DEST:
         default:
-            g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
+            snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
             break;
     }
 
@@ -18500,7 +18500,7 @@ void proto_register_ansi_map(void) {
         NULL, HFILL }},
     { &hf_ansi_map_generalizedTime,
       { "generalizedTime", "ansi_map.generalizedTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         NULL, HFILL }},
     { &hf_ansi_map_geographicPosition,
       { "geographicPosition", "ansi_map.geographicPosition",

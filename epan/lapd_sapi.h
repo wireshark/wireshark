@@ -1,4 +1,5 @@
-/* lapd_sapi.h
+/** @file
+ *
  * Declarations of LAPD SAPI values.
  *
  * Wireshark - Network traffic analyzer

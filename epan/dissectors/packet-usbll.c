@@ -798,11 +798,11 @@ static int usbll_addr_to_str(const address* addr, gchar *buf, int buf_len)
          * In split transaction we use : to mark that the last part is port not
          * endpoint.
          */
-        g_snprintf(buf, buf_len, "%d:%d", addrp->device,
+        snprintf(buf, buf_len, "%d:%d", addrp->device,
                        addrp->endpoint);
     } else {
         /* Just a standard address.endpoint notation. */
-        g_snprintf(buf, buf_len, "%d.%d", addrp->device,
+        snprintf(buf, buf_len, "%d.%d", addrp->device,
                        addrp->endpoint);
     }
 
@@ -1475,7 +1475,7 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                         transfer->more_frags = FALSE;
                         /* Expect requested_length when reading from control endpoint.
                          * The data should start with DATA1. If we receive DATA0 then
-                         * is is really device failure.
+                         * this is really device failure.
                          */
                         ep_in->requested_transfer_length = requested_length;
                         ep_in->last_data_pid = pid;
@@ -1945,15 +1945,15 @@ proto_register_usbll(void)
               "USB Packet ID", HFILL }},
         { &hf_usbll_src,
             { "Source", "usbll.src",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_usbll_dst,
             { "Destination", "usbll.dst",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_usbll_addr,
             { "Source or Destination", "usbll.addr",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         /* Token header fields */

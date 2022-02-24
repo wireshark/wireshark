@@ -1,4 +1,5 @@
-/* software_update.h
+/** @file
+ *
  * Wrappers and routines to check for software updates.
  *
  * Wireshark - Network traffic analyzer

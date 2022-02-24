@@ -785,7 +785,7 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
     sub_offset = offset;
     proto_tree_add_item(sub_tree,
                         hf_dlm3_rl_name_contents, tvb, sub_offset,
-                        namelen, ENC_ASCII|ENC_NA);
+                        namelen, ENC_ASCII);
 
     sub_offset += namelen;
     proto_tree_add_item(sub_tree,
@@ -1710,7 +1710,7 @@ proto_register_dlm3(void)
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL}},
     { &hf_dlm3_rl_flags_user,
-      { "User space lock realted", "dlm3.rl.flags.user",
+      { "User space lock related", "dlm3.rl.flags.user",
         FT_BOOLEAN, 32, NULL, DLM3_IFL_USER,
         NULL, HFILL}},
     { &hf_dlm3_rl_flags_orphan,

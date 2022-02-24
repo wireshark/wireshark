@@ -41,7 +41,7 @@ static gboolean hcidump_read_packet(FILE_T fh, wtap_rec *rec,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("hcidump: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("hcidump: File has %u-byte packet, bigger than maximum of %u",
 			packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}

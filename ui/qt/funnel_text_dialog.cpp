@@ -11,7 +11,7 @@
 #include <ui_funnel_text_dialog.h>
 
 #include <QPushButton>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QTextCharFormat>
 #include <QTextCursor>
 
@@ -141,7 +141,8 @@ void FunnelTextDialog::buttonClicked()
 
 void FunnelTextDialog::on_findLineEdit_textChanged(const QString &pattern)
 {
-    QRegExp re(pattern, Qt::CaseInsensitive);
+    QRegularExpression re(pattern, QRegularExpression::CaseInsensitiveOption |
+                          QRegularExpression::UseUnicodePropertiesOption);
     QTextCharFormat plain_fmt, highlight_fmt;
     highlight_fmt.setBackground(Qt::yellow);
     QTextCursor csr(ui->textEdit->document());
@@ -155,13 +156,13 @@ void FunnelTextDialog::on_findLineEdit_textChanged(const QString &pattern)
     csr.setCharFormat(plain_fmt);
 
     // Apply new highlighting
-    if (!pattern.isEmpty()) {
-        int match_pos = 0;
-        while ((match_pos = re.indexIn(ui->textEdit->toPlainText(), match_pos)) > -1) {
-            csr.setPosition(match_pos, QTextCursor::MoveAnchor);
-            csr.setPosition(match_pos + re.matchedLength(), QTextCursor::KeepAnchor);
+    if (!pattern.isEmpty() && re.isValid()) {
+        QRegularExpressionMatchIterator iter = re.globalMatch(ui->textEdit->toPlainText());
+        while (iter.hasNext()) {
+            QRegularExpressionMatch match = iter.next();
+            csr.setPosition(match.capturedStart(), QTextCursor::MoveAnchor);
+            csr.setPosition(match.capturedEnd(), QTextCursor::KeepAnchor);
             csr.setCharFormat(highlight_fmt);
-            match_pos += re.matchedLength();
         }
     }
 

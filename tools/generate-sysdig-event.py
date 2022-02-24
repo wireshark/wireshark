@@ -13,7 +13,7 @@ Reads driver/event_table.c and driver/ppm_events_public.h and generates
 corresponding dissection code in packet-sysdig-event.c. Updates are
 performed in-place in the dissector code.
 
-Requires an Internet connection. Assets are loaded from GitHub over HTTPS.
+Requires an Internet connection. Assets are loaded from GitHub over HTTPS, from falcosecurity/libs master.
 '''
 
 import logging
@@ -23,7 +23,7 @@ import re
 import urllib.request, urllib.error, urllib.parse
 import sys
 
-sysdig_repo_pfx = 'https://raw.githubusercontent.com/draios/sysdig/0.26.1/'
+sysdig_repo_pfx = 'https://raw.githubusercontent.com/falcosecurity/libs/master/'
 
 def exit_msg(msg=None, status=1):
     if msg is not None:
@@ -72,7 +72,7 @@ ppm_ev_table_lines = get_url_lines(sysdig_repo_pfx + 'driver/event_table.c')
 hf_d = {}
 
 event_info_re = re.compile('^\s+/\*\s*PPME_.*\*\/\s*{\s*"([A-Za-z0-9_]+)"\s*,[^,]+,[^,]+,\s*([0-9]+)\s*[,{}]')
-event_param_re = re.compile('{\s*"([A-Za-z0-9_]+)"\s*,\s*PT_([A-Z0-9_]+)\s*,\s*PF_([A-Z0-9_]+)\s*[,}]')
+event_param_re = re.compile('{\s*"([A-Za-z0-9_ ]+)"\s*,\s*PT_([A-Z0-9_]+)\s*,\s*PF_([A-Z0-9_]+)\s*[,}]')
 
 def get_event_names():
     '''Return a contiguous list of event names. Names are lower case.'''
@@ -110,7 +110,7 @@ def get_event_params():
             src_param_count = int(ei.group(2))
             if len(ep) != src_param_count:
                 err_msg = '{}: found {} parameters. Expected {}. Params: {}'.format(
-                    ei.group(1), len(ep), src_param_count, repr(ep))
+                    event_name, len(ep), src_param_count, repr(ep))
                 if len(ep) > src_param_count:
                     logging.warning(err_msg)
                     del ep[src_param_count:]
@@ -150,7 +150,8 @@ def get_event_params():
                 param_d = {
                     'event_name': event_name,
                     'event_num': event_num,
-                    'param_name': p[0],
+                    # use replace() to account for "plugin ID" param name (ie: param names with space)
+                    'param_name': p[0].replace(" ", "_"),
                     'param_type': param_type,
                     'param_format': param_format,
                 }

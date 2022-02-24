@@ -1,4 +1,5 @@
-/* wmem.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

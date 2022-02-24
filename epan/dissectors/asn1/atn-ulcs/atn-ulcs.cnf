@@ -422,6 +422,35 @@ PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_ar
 
 #.END
 
+#.FN_BODY RDNSequence
+
+  /*
+   * atn-ulcs.asn currently defines
+   *
+   * RDNSequence  ::= SEQUENCE OF RelativeDistinguishedName
+   * RelativeDistinguishedName ::= SET SIZE (1 .. MAX) OF AttributeTypeAndValue
+   * AttributeTypeAndValue ::= SEQUENCE { null NULL}
+   *
+   * which makes it easy to spam the dissection tree with null items. Dissect
+   * the first item only.
+   */
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_atn_ulcs_RDNSequence, RDNSequence_sequence_of,
+                                      1, 1, FALSE);
+
+#.END
+
+#.FN_BODY RelativeDistinguishedName
+
+  /*
+   * Dissect the first null item only, similar to RDNSequence.
+   */
+  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
+                                             ett_atn_ulcs_RelativeDistinguishedName, RelativeDistinguishedName_set_of,
+                                             1, 1, FALSE);
+
+#.END
+
 #.FN_BODY EXTERNALt/data-value-descriptor
 
   offset = dissect_per_octet_string(

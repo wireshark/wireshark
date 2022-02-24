@@ -4599,7 +4599,7 @@ parse_SMSG_CHAR_ENUM(ptvcursor_t* ptv)
                                                      ptvcursor_current_offset(ptv),
                                                      &character_name_length, ENC_UTF_8);
 
-        ptvcursor_add(ptv, hf_woww_character_name, character_name_length, ENC_UTF_8|ENC_NA);
+        ptvcursor_add(ptv, hf_woww_character_name, character_name_length, ENC_UTF_8);
 
         guint32 race = 0;
         ptvcursor_add_ret_uint(ptv, hf_woww_character_race, 1, ENC_NA, &race);
@@ -4670,7 +4670,7 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_server_id, 4, ENC_LITTLE_ENDIAN);
 
             len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
-            ptvcursor_add(ptv, hf_woww_account_name, len, ENC_UTF_8|ENC_NA);
+            ptvcursor_add(ptv, hf_woww_account_name, len, ENC_UTF_8);
 
             ptvcursor_add(ptv, hf_woww_challenge_seed, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_client_proof, 20, ENC_NA);
@@ -4737,10 +4737,10 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_character_guid, 8, ENC_LITTLE_ENDIAN);
 
             len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
-            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8|ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8);
 
             len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
-            ptvcursor_add(ptv, hf_woww_realm_name, len, ENC_UTF_8|ENC_NA);
+            ptvcursor_add(ptv, hf_woww_realm_name, len, ENC_UTF_8);
 
             ptvcursor_add(ptv, hf_woww_character_race, 4, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_character_gender, 4, ENC_LITTLE_ENDIAN);
@@ -4751,12 +4751,12 @@ add_body_fields(guint32 opcode,
             ptvcursor_add(ptv, hf_woww_character_guid, 8, ENC_LITTLE_ENDIAN);
 
             len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
-            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8|ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8);
             break;
 
         case CMSG_CHAR_CREATE:
             len = get_null_terminated_string_length(tvb, ptvcursor_current_offset(ptv));
-            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8|ENC_NA);
+            ptvcursor_add(ptv, hf_woww_character_name, len, ENC_UTF_8);
 
             ptvcursor_add(ptv, hf_woww_character_race, 1, ENC_NA);
             ptvcursor_add(ptv, hf_woww_character_class, 1, ENC_NA);

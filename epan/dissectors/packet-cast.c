@@ -764,13 +764,13 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     case 0x10 :    /* CallInfo */
       i = offset+12;
-      proto_tree_add_item(cast_tree, hf_cast_callingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_callingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
-      proto_tree_add_item(cast_tree, hf_cast_callingParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_callingParty, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(cast_tree, hf_cast_calledPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_calledPartyName, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
-      proto_tree_add_item(cast_tree, hf_cast_calledParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_calledParty, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
       proto_tree_add_item(cast_tree, hf_cast_lineInstance, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
@@ -778,25 +778,25 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
       i += 4;
       proto_tree_add_item(cast_tree, hf_cast_callType, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(cast_tree, hf_cast_originalCalledPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_originalCalledPartyName, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
-      proto_tree_add_item(cast_tree, hf_cast_originalCalledParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_originalCalledParty, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(cast_tree, hf_cast_lastRedirectingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_lastRedirectingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
-      proto_tree_add_item(cast_tree, hf_cast_lastRedirectingParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_lastRedirectingParty, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
       proto_tree_add_item(cast_tree, hf_cast_originalCdpnRedirectReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
       proto_tree_add_item(cast_tree, hf_cast_lastRedirectingReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(cast_tree, hf_cast_cgpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_cgpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(cast_tree, hf_cast_cdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_cdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(cast_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(cast_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII);
       i += StationMaxDirnumSize;
       proto_tree_add_item(cast_tree, hf_cast_callInstance, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
@@ -823,7 +823,7 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
       break;
 
     case 0x13 :    /* MakeCall */
-      proto_tree_add_item(cast_tree, hf_cast_calledParty, tvb, offset+12, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_calledParty, tvb, offset+12, StationMaxDirnumSize, ENC_ASCII);
       proto_tree_add_item(cast_tree, hf_cast_lineInstance, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       break;
 
@@ -904,22 +904,22 @@ dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     case 0x90 :    /* RemoteInfoRequest */
       i = offset+12;
-      proto_tree_add_item(cast_tree, hf_cast_stationFriendlyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_stationFriendlyName, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
-      proto_tree_add_item(cast_tree, hf_cast_stationGUID, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_stationGUID, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
       proto_tree_add_item(cast_tree, hf_cast_requestorIpAddress, tvb, i, 4, ENC_LITTLE_ENDIAN);
       break;
 
     case 0x91 :    /* RemoteInfoResponse */
       i = offset+12;
-      proto_tree_add_item(cast_tree, hf_cast_stationFriendlyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_stationFriendlyName, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
-      proto_tree_add_item(cast_tree, hf_cast_stationGUID, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_stationGUID, tvb, i, StationMaxNameSize, ENC_ASCII);
       i += StationMaxNameSize;
       proto_tree_add_item(cast_tree, hf_cast_stationIpAddress, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(cast_tree, hf_cast_directoryNumber, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(cast_tree, hf_cast_directoryNumber, tvb, i, StationMaxNameSize, ENC_ASCII);
       break;
 
 

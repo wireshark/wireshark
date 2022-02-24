@@ -1,4 +1,5 @@
-/* wmem_user_cb_int.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager User Callback Internals
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

@@ -1,4 +1,5 @@
-/* file_dlg_win32.h
+/** @file
+ *
  * Native Windows file dialog routines
  *
  * Wireshark - Network traffic analyzer
@@ -25,7 +26,7 @@ extern "C" {
  *
  * Qt <= 5.9 supports setting old (Windows 8.1) per-monitor DPI awareness
  * via Qt:AA_EnableHighDpiScaling. We do this in main.cpp. In order for
- * native dialogs to be rendered correctly we need to to set per-monitor
+ * native dialogs to be rendered correctly we need to set per-monitor
  * *v2* awareness prior to creating the dialog, which we can do here.
  * Qt doesn't render correctly when per-monitor v2 awareness is enabled, so
  * we need to revert our thread context when we're done.
@@ -169,7 +170,8 @@ void win32_export_file (HWND h_wnd, const wchar_t *title, capture_file *cf, expo
 #define EWFD_PKT_DETAIL_CB    1053
 #define EWFD_PKT_DETAIL_COMBO 1054
 #define EWFD_PKT_BYTES_CB     1055
-#define EWFD_PKT_NEW_PAGE_CB  1056
+#define EWFD_DATA_SOURCES_CB  1056
+#define EWFD_PKT_NEW_PAGE_CB  1057
 
 #ifdef __cplusplus
 }

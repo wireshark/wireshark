@@ -468,7 +468,7 @@ void proto_register_a615a(void)
 
 void proto_reg_handoff_a615a(void)
 {
-    heur_dissector_add("tftp", dissect_a615a_heur, "Arinc 615a Protocol", "a615a", proto_a615a,
+    heur_dissector_add("tftp", dissect_a615a_heur, "Arinc 615a Protocol over TFTP", "a615a", proto_a615a,
                        HEURISTIC_ENABLE);
     dissector_add_uint_with_preference("udp.port", FIND_PORT, find_handle);
 }

@@ -1,4 +1,4 @@
-/* epan_dissect.h
+/** @file
  *
  * Wireshark Protocol Analyzer Library
  *

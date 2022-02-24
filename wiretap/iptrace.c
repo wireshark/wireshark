@@ -218,7 +218,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * packet information header.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet information header",
+		*err_info = ws_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet information header",
 		    record_length);
 		return FALSE;
 	}
@@ -241,7 +241,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	rec->rec_header.packet_header.pkt_encap = wtap_encap_ift(info.if_type);
 	if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
+		*err_info = ws_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    info.if_type);
 		return FALSE;
 	}
@@ -264,7 +264,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 			 * the padding.
 			 */
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
+			*err_info = ws_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
 			    record_length);
 			return FALSE;
 		}
@@ -282,7 +282,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
@@ -472,7 +472,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * packet information header.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet information header",
+		*err_info = ws_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet information header",
 		    record_length);
 		return FALSE;
 	}
@@ -512,7 +512,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	 */
 	if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
+		*err_info = ws_strdup_printf("iptrace: interface type IFT=0x%02x unknown or unsupported",
 		    info.if_type);
 		return FALSE;
 	}
@@ -536,7 +536,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 			 * the padding.
 			 */
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
+			*err_info = ws_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
 			    record_length);
 			return FALSE;
 		}
@@ -554,7 +554,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}

@@ -453,7 +453,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     /* MESSAGE DATA (COPOUT)
      */
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_data,  tvb, pos+2, -1, ENC_UTF_8|ENC_NA);
+      proto_tree_add_item(ajp13_tree, hf_ajp13_data,  tvb, pos+2, -1, ENC_UTF_8);
     break;
   }
 }
@@ -508,7 +508,7 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
     return;
   }
   cd->content_length -= content_length;
-  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length, ENC_UTF_8|ENC_NA);
+  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length, ENC_UTF_8);
 }
 
 

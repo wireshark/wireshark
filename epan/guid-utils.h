@@ -1,4 +1,4 @@
-/* guid-utils.h
+/** @file
  * Definitions for GUID handling
  *
  * Wireshark - Network traffic analyzer

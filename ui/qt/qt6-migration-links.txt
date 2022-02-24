@@ -1,0 +1,12 @@
+https://doc.qt.io/qt-5/qtmac-obsolete.html
+https://doc.qt.io/qt-6/extras-changes-qt6.html
+https://doc.qt.io/qt-6/modulechanges.html
+https://doc.qt.io/qt-6/cmake-qt5-and-qt6-compatibility.html
+https://www.qt.io/blog/porting-from-qt-5-to-qt-6-using-qt5compat-library
+https://dangelog.wordpress.com/2012/04/07/qregularexpression/
+https://doc.qt.io/qt-6/qtcore-changes-qt6.html#regular-expression-classes
+
+
+https://doc.qt.io/qt-6/qtmodules.html
+https://doc.qt.io/qt-6/whatsnew60.html
+

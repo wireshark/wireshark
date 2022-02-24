@@ -531,7 +531,7 @@ dissect_daap_one_tag(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
             /* Tags contain strings
                XXX - verify that they're really 7bit ASCII */
             proto_tree_add_item(tag_tree, hf_daap_data_string,
-                  tvb, offset, tagsize, ENC_ASCII|ENC_NA);
+                  tvb, offset, tagsize, ENC_ASCII);
             break;
 
          case daap_mper:
@@ -717,7 +717,7 @@ proto_register_daap(void)
       },
       { &hf_daap_data_string,
         { "Data string", "daap.data_string",
-           FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+           FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
       },
       { &hf_daap_persistent_id,
         { "Persistent Id", "daap.persistent_id",

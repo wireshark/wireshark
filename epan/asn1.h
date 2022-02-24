@@ -1,4 +1,5 @@
-/* asn1.h
+/** @file
+ *
  * Common data for ASN.1
  * 2007  Anders Broman
  *

@@ -66,97 +66,62 @@
 
 #include <config.h>
 
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
-#ifndef __USE_XOPEN
-#  define __USE_XOPEN
-#endif
-#ifndef _XOPEN_SOURCE
-#  ifndef __sun
-#    define _XOPEN_SOURCE 600
-#  endif
-#endif
-
-/*
- * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
- * using glibc, to expand the set of things system header files define.
- *
- * Unfortunately, on other platforms, such as some versions of Solaris
- * (including Solaris 10), it *reduces* that set as well, causing
- * strptime() not to be declared, presumably because the version of the
- * X/Open spec that _XOPEN_SOURCE implies doesn't include strptime() and
- * blah blah blah namespace pollution blah blah blah.
- *
- * So we define __EXTENSIONS__ so that "strptime()" is declared.
- */
-#ifndef __EXTENSIONS__
-#  define __EXTENSIONS__
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>
 #include <cli_main.h>
+#include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
+#include <ui/text_import.h>
 #include <ui/version_info.h>
+#include <ui/failure_message.h>
+#include <wsutil/report_message.h>
 #include <wsutil/inet_addr.h>
-#include <wsutil/wslog.h>
+#include <wsutil/cpu_info.h>
+#include <wsutil/os_version_info.h>
+#include <wsutil/privileges.h>
+#include <wsutil/strtoi.h>
 
-#ifdef _WIN32
-#include <io.h>     /* for _setmode */
-#include <fcntl.h>  /* for O_BINARY */
-#endif
-
-#include <time.h>
 #include <glib.h>
 
+#include <wsutil/str_util.h>
+#include <wsutil/strnatcmp.h>
+#include <wsutil/wslog.h>
 #include <wsutil/ws_getopt.h>
 
 #include <errno.h>
-#include <assert.h>
 
-#ifndef HAVE_STRPTIME
-# include "wsutil/strptime.h"
-#endif
-
-#include "writecap/pcapio.h"
 #include "text2pcap.h"
 
 #include "wiretap/wtap.h"
+#include "wiretap/pcap-encap.h"
 
 /*--- Options --------------------------------------------------------------------*/
 
-/* File format */
-static gboolean use_pcapng = FALSE;
-
-/* Interface name */
-static char *interface_name = NULL;
-
-/* Debug level */
-static int debug = 0;
 /* Be quiet */
 static gboolean quiet = FALSE;
 
 /* Dummy Ethernet header */
 static gboolean hdr_ethernet = FALSE;
+#if 0
+/* XXX: Maybe add custom Ethernet Address options? */
 static guint8 hdr_eth_dest_addr[6] = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02};
 static guint8 hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
+#endif
 static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
 static gboolean hdr_ip = FALSE;
 static gboolean hdr_ipv6 = FALSE;
-static long hdr_ip_proto = -1;
+static gboolean have_hdr_ip_proto = FALSE;
+static guint8 hdr_ip_proto = 0;
 
 /* Destination and source addresses for IP header */
 static guint32 hdr_ip_dest_addr = 0;
 static guint32 hdr_ip_src_addr = 0;
 static ws_in6_addr hdr_ipv6_dest_addr = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 static ws_in6_addr hdr_ipv6_src_addr  = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
 /* Dummy UDP header */
 static gboolean hdr_udp = FALSE;
@@ -166,10 +131,6 @@ static guint32 hdr_src_port  = 0;
 /* Dummy TCP header */
 static gboolean hdr_tcp = FALSE;
 
-/* TCP sequence numbers when has_direction is true */
-static guint32 tcp_in_seq_num = 0;
-static guint32 tcp_out_seq_num = 0;
-
 /* Dummy SCTP header */
 static gboolean hdr_sctp = FALSE;
 static guint32 hdr_sctp_src  = 0;
@@ -178,1174 +139,29 @@ static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
 static gboolean hdr_data_chunk = FALSE;
-static guint8  hdr_data_chunk_type = 0;
-static guint8  hdr_data_chunk_bits = 0;
 static guint32 hdr_data_chunk_tsn  = 0;
 static guint16 hdr_data_chunk_sid  = 0;
 static guint16 hdr_data_chunk_ssn  = 0;
 static guint32 hdr_data_chunk_ppid = 0;
 
-/* ASCII text dump identification */
-static gboolean identify_ascii = FALSE;
-
-static gboolean has_direction = FALSE;
-static guint32 direction = PACK_FLAGS_DIRECTION_UNKNOWN;
+/* Export PDU */
+static gboolean hdr_export_pdu = FALSE;
 
 /*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
-static guint8  packet_buf[WTAP_MAX_PACKET_SIZE_STANDARD];
-static guint32 header_length;
-static guint32 ip_offset;
-static guint32 curr_offset = 0;
 static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
-static guint32 packet_start = 0;
-
-static int start_new_packet(gboolean);
-
-/* This buffer contains strings present before the packet offset 0 */
-#define PACKET_PREAMBLE_MAX_LEN     2048
-static guint8 packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
-static int    packet_preamble_len = 0;
-
-/* Number of packets read and written */
-static guint32 num_packets_read    = 0;
-static guint32 num_packets_written = 0;
-static guint64 bytes_written       = 0;
 
 /* Time code of packet, derived from packet_preamble */
-static time_t   ts_sec  = 0;
-static guint32  ts_nsec = 0;
-static char    *ts_fmt  = NULL;
-static struct tm timecode_default;
-
-static guint8* pkt_lnstart;
+static int      ts_fmt_iso = 0;
 
 /* Input file */
 static char *input_filename;
 static FILE       *input_file  = NULL;
 /* Output file */
 static char *output_filename;
-static FILE       *output_file = NULL;
 
-/* Offset base to parse */
-static guint32 offset_base = 16;
-
-extern FILE *text2pcap_in;
-
-/* ----- State machine -----------------------------------------------------------*/
-
-/* Current state of parser */
-typedef enum {
-    INIT,             /* Waiting for start of new packet */
-    START_OF_LINE,    /* Starting from beginning of line */
-    READ_OFFSET,      /* Just read the offset */
-    READ_BYTE,        /* Just read a byte */
-    READ_TEXT         /* Just read text - ignore until EOL */
-} parser_state_t;
-static parser_state_t state = INIT;
-
-static const char *state_str[] = {"Init",
-                           "Start-of-line",
-                           "Offset",
-                           "Byte",
-                           "Text"
-};
-
-static const char *token_str[] = {"",
-                           "Byte",
-                           "Offset",
-                           "Directive",
-                           "Text",
-                           "End-of-line"
-};
-
-/* ----- Skeleton Packet Headers --------------------------------------------------*/
-
-typedef struct {
-    guint8  dest_addr[6];
-    guint8  src_addr[6];
-    guint16 l3pid;
-} hdr_ethernet_t;
-
-static hdr_ethernet_t HDR_ETHERNET;
-
-typedef struct {
-    guint8  ver_hdrlen;
-    guint8  dscp;
-    guint16 packet_length;
-    guint16 identification;
-    guint8  flags;
-    guint8  fragment;
-    guint8  ttl;
-    guint8  protocol;
-    guint16 hdr_checksum;
-    guint32 src_addr;
-    guint32 dest_addr;
-} hdr_ip_t;
-
-/* Fixed IP address values */
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-#define IP_ID  0x1234
-#define IP_SRC 0x0a010101
-#define IP_DST 0x0a020202
-#else
-#define IP_ID  0x3412
-#define IP_SRC 0x0101010a
-#define IP_DST 0x0202020a
-#endif
-
-static hdr_ip_t HDR_IP = {0x45, 0, 0, IP_ID, 0, 0, 0xff, 0, 0, IP_SRC, IP_DST};
-
-static struct {         /* pseudo header for checksum calculation */
-    guint32 src_addr;
-    guint32 dest_addr;
-    guint8  zero;
-    guint8  protocol;
-    guint16 length;
-} pseudoh;
-
-
-/* headers taken from glibc */
-
-typedef struct {
-    union  {
-        struct ip6_hdrctl {
-            guint32 ip6_un1_flow;   /* 24 bits of flow-ID */
-            guint16 ip6_un1_plen;   /* payload length */
-            guint8  ip6_un1_nxt;    /* next header */
-            guint8  ip6_un1_hlim;   /* hop limit */
-        } ip6_un1;
-        guint8 ip6_un2_vfc;       /* 4 bits version, 4 bits priority */
-    } ip6_ctlun;
-    ws_in6_addr ip6_src;      /* source address */
-    ws_in6_addr ip6_dst;      /* destination address */
-} hdr_ipv6_t;
-
-static hdr_ipv6_t HDR_IPv6;
-
-/* https://tools.ietf.org/html/rfc2460#section-8.1 */
-static struct {                 /* pseudo header ipv6 for checksum calculation */
-    struct  e_in6_addr src_addr6;
-    struct  e_in6_addr dst_addr6;
-    guint32 length;
-    guint8 zero[3];
-    guint8 next_header;
-} pseudoh6;
-
-
-typedef struct {
-    guint16 source_port;
-    guint16 dest_port;
-    guint16 length;
-    guint16 checksum;
-} hdr_udp_t;
-
-static hdr_udp_t HDR_UDP = {0, 0, 0, 0};
-
-typedef struct {
-    guint16 source_port;
-    guint16 dest_port;
-    guint32 seq_num;
-    guint32 ack_num;
-    guint8  hdr_length;
-    guint8  flags;
-    guint16 window;
-    guint16 checksum;
-    guint16 urg;
-} hdr_tcp_t;
-
-static hdr_tcp_t HDR_TCP = {0, 0, 0, 0, 0x50, 0, 0, 0, 0};
-
-typedef struct {
-    guint16 src_port;
-    guint16 dest_port;
-    guint32 tag;
-    guint32 checksum;
-} hdr_sctp_t;
-
-static hdr_sctp_t HDR_SCTP = {0, 0, 0, 0};
-
-typedef struct {
-    guint8  type;
-    guint8  bits;
-    guint16 length;
-    guint32 tsn;
-    guint16 sid;
-    guint16 ssn;
-    guint32 ppid;
-} hdr_data_chunk_t;
-
-static hdr_data_chunk_t HDR_DATA_CHUNK = {0, 0, 0, 0, 0, 0, 0};
-
-static char tempbuf[64];
-
-/*----------------------------------------------------------------------
- * Stuff for writing a PCap file
- */
-
-/* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
-static guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
-
-/*----------------------------------------------------------------------
- * Parse a single hex number
- * Will abort the program if it can't parse the number
- * Pass in TRUE if this is an offset, FALSE if not
- */
-static int
-parse_num(const char *str, int offset, guint32* num)
-{
-    char    *c;
-
-    if (str == NULL) {
-        fprintf(stderr, "FATAL ERROR: str is NULL\n");
-        return EXIT_FAILURE;
-    }
-
-    *num = (guint32)strtoul(str, &c, offset ? offset_base : 16);
-    if (c == str) {
-        fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
-        return EXIT_FAILURE;
-    }
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Write this byte into current packet
- */
-static int
-write_byte(const char *str)
-{
-    guint32 num;
-
-    if (parse_num(str, FALSE, &num) != EXIT_SUCCESS)
-        return EXIT_FAILURE;
-
-    packet_buf[curr_offset] = (guint8) num;
-    curr_offset++;
-    if (curr_offset - header_length >= max_offset) /* packet full */
-        if (start_new_packet(TRUE) != EXIT_SUCCESS)
-            return EXIT_FAILURE;
-
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Write a number of bytes into current packet
- */
-
-static void
-write_bytes (const char bytes[], guint32 nbytes)
-{
-    if (curr_offset + nbytes < WTAP_MAX_PACKET_SIZE_STANDARD) {
-        memcpy(&packet_buf[curr_offset], bytes, nbytes);
-        curr_offset += nbytes;
-    }
-}
-
-/*----------------------------------------------------------------------
- * Remove bytes from the current packet
- */
-static void
-unwrite_bytes (guint32 nbytes)
-{
-    curr_offset -= nbytes;
-}
-
-/*----------------------------------------------------------------------
- * Determine SCTP chunk padding length
- */
-static guint32
-number_of_padding_bytes (guint32 length)
-{
-    guint32 remainder;
-
-    remainder = length % 4;
-
-    if (remainder == 0)
-        return 0;
-    else
-        return 4 - remainder;
-}
-
-/*----------------------------------------------------------------------
- * Compute one's complement checksum (from RFC1071)
- */
-static guint16
-in_checksum (void *buf, guint32 count)
-{
-    guint32 sum = 0;
-    guint16 *addr = (guint16 *)buf;
-
-    while (count > 1) {
-        /*  This is the inner loop */
-        sum += g_ntohs(* (guint16 *) addr);
-        addr++;
-        count -= 2;
-    }
-
-    /*  Add left-over byte, if any */
-    if (count > 0)
-        sum += g_ntohs(* (guint8 *) addr);
-
-    /*  Fold 32-bit sum to 16 bits */
-    while (sum>>16)
-        sum = (sum & 0xffff) + (sum >> 16);
-
-    sum = ~sum;
-    return g_htons(sum);
-}
-
-/* The CRC32C code is taken from draft-ietf-tsvwg-sctpcsum-01.txt.
- * That code is copyrighted by D. Otis and has been modified.
- */
-
-#define CRC32C(c,d) (c=(c>>8)^crc_c[(c^(d))&0xFF])
-static guint32 crc_c[256] =
-{
-0x00000000U, 0xF26B8303U, 0xE13B70F7U, 0x1350F3F4U,
-0xC79A971FU, 0x35F1141CU, 0x26A1E7E8U, 0xD4CA64EBU,
-0x8AD958CFU, 0x78B2DBCCU, 0x6BE22838U, 0x9989AB3BU,
-0x4D43CFD0U, 0xBF284CD3U, 0xAC78BF27U, 0x5E133C24U,
-0x105EC76FU, 0xE235446CU, 0xF165B798U, 0x030E349BU,
-0xD7C45070U, 0x25AFD373U, 0x36FF2087U, 0xC494A384U,
-0x9A879FA0U, 0x68EC1CA3U, 0x7BBCEF57U, 0x89D76C54U,
-0x5D1D08BFU, 0xAF768BBCU, 0xBC267848U, 0x4E4DFB4BU,
-0x20BD8EDEU, 0xD2D60DDDU, 0xC186FE29U, 0x33ED7D2AU,
-0xE72719C1U, 0x154C9AC2U, 0x061C6936U, 0xF477EA35U,
-0xAA64D611U, 0x580F5512U, 0x4B5FA6E6U, 0xB93425E5U,
-0x6DFE410EU, 0x9F95C20DU, 0x8CC531F9U, 0x7EAEB2FAU,
-0x30E349B1U, 0xC288CAB2U, 0xD1D83946U, 0x23B3BA45U,
-0xF779DEAEU, 0x05125DADU, 0x1642AE59U, 0xE4292D5AU,
-0xBA3A117EU, 0x4851927DU, 0x5B016189U, 0xA96AE28AU,
-0x7DA08661U, 0x8FCB0562U, 0x9C9BF696U, 0x6EF07595U,
-0x417B1DBCU, 0xB3109EBFU, 0xA0406D4BU, 0x522BEE48U,
-0x86E18AA3U, 0x748A09A0U, 0x67DAFA54U, 0x95B17957U,
-0xCBA24573U, 0x39C9C670U, 0x2A993584U, 0xD8F2B687U,
-0x0C38D26CU, 0xFE53516FU, 0xED03A29BU, 0x1F682198U,
-0x5125DAD3U, 0xA34E59D0U, 0xB01EAA24U, 0x42752927U,
-0x96BF4DCCU, 0x64D4CECFU, 0x77843D3BU, 0x85EFBE38U,
-0xDBFC821CU, 0x2997011FU, 0x3AC7F2EBU, 0xC8AC71E8U,
-0x1C661503U, 0xEE0D9600U, 0xFD5D65F4U, 0x0F36E6F7U,
-0x61C69362U, 0x93AD1061U, 0x80FDE395U, 0x72966096U,
-0xA65C047DU, 0x5437877EU, 0x4767748AU, 0xB50CF789U,
-0xEB1FCBADU, 0x197448AEU, 0x0A24BB5AU, 0xF84F3859U,
-0x2C855CB2U, 0xDEEEDFB1U, 0xCDBE2C45U, 0x3FD5AF46U,
-0x7198540DU, 0x83F3D70EU, 0x90A324FAU, 0x62C8A7F9U,
-0xB602C312U, 0x44694011U, 0x5739B3E5U, 0xA55230E6U,
-0xFB410CC2U, 0x092A8FC1U, 0x1A7A7C35U, 0xE811FF36U,
-0x3CDB9BDDU, 0xCEB018DEU, 0xDDE0EB2AU, 0x2F8B6829U,
-0x82F63B78U, 0x709DB87BU, 0x63CD4B8FU, 0x91A6C88CU,
-0x456CAC67U, 0xB7072F64U, 0xA457DC90U, 0x563C5F93U,
-0x082F63B7U, 0xFA44E0B4U, 0xE9141340U, 0x1B7F9043U,
-0xCFB5F4A8U, 0x3DDE77ABU, 0x2E8E845FU, 0xDCE5075CU,
-0x92A8FC17U, 0x60C37F14U, 0x73938CE0U, 0x81F80FE3U,
-0x55326B08U, 0xA759E80BU, 0xB4091BFFU, 0x466298FCU,
-0x1871A4D8U, 0xEA1A27DBU, 0xF94AD42FU, 0x0B21572CU,
-0xDFEB33C7U, 0x2D80B0C4U, 0x3ED04330U, 0xCCBBC033U,
-0xA24BB5A6U, 0x502036A5U, 0x4370C551U, 0xB11B4652U,
-0x65D122B9U, 0x97BAA1BAU, 0x84EA524EU, 0x7681D14DU,
-0x2892ED69U, 0xDAF96E6AU, 0xC9A99D9EU, 0x3BC21E9DU,
-0xEF087A76U, 0x1D63F975U, 0x0E330A81U, 0xFC588982U,
-0xB21572C9U, 0x407EF1CAU, 0x532E023EU, 0xA145813DU,
-0x758FE5D6U, 0x87E466D5U, 0x94B49521U, 0x66DF1622U,
-0x38CC2A06U, 0xCAA7A905U, 0xD9F75AF1U, 0x2B9CD9F2U,
-0xFF56BD19U, 0x0D3D3E1AU, 0x1E6DCDEEU, 0xEC064EEDU,
-0xC38D26C4U, 0x31E6A5C7U, 0x22B65633U, 0xD0DDD530U,
-0x0417B1DBU, 0xF67C32D8U, 0xE52CC12CU, 0x1747422FU,
-0x49547E0BU, 0xBB3FFD08U, 0xA86F0EFCU, 0x5A048DFFU,
-0x8ECEE914U, 0x7CA56A17U, 0x6FF599E3U, 0x9D9E1AE0U,
-0xD3D3E1ABU, 0x21B862A8U, 0x32E8915CU, 0xC083125FU,
-0x144976B4U, 0xE622F5B7U, 0xF5720643U, 0x07198540U,
-0x590AB964U, 0xAB613A67U, 0xB831C993U, 0x4A5A4A90U,
-0x9E902E7BU, 0x6CFBAD78U, 0x7FAB5E8CU, 0x8DC0DD8FU,
-0xE330A81AU, 0x115B2B19U, 0x020BD8EDU, 0xF0605BEEU,
-0x24AA3F05U, 0xD6C1BC06U, 0xC5914FF2U, 0x37FACCF1U,
-0x69E9F0D5U, 0x9B8273D6U, 0x88D28022U, 0x7AB90321U,
-0xAE7367CAU, 0x5C18E4C9U, 0x4F48173DU, 0xBD23943EU,
-0xF36E6F75U, 0x0105EC76U, 0x12551F82U, 0xE03E9C81U,
-0x34F4F86AU, 0xC69F7B69U, 0xD5CF889DU, 0x27A40B9EU,
-0x79B737BAU, 0x8BDCB4B9U, 0x988C474DU, 0x6AE7C44EU,
-0xBE2DA0A5U, 0x4C4623A6U, 0x5F16D052U, 0xAD7D5351U,
-};
-
-static guint32
-crc32c (const guint8* buf, unsigned int len, guint32 crc32_init)
-{
-    unsigned int i;
-    guint32 crc;
-
-    crc = crc32_init;
-    for (i = 0; i < len; i++)
-        CRC32C(crc, buf[i]);
-
-    return crc;
-}
-
-static guint32
-finalize_crc32c (guint32 crc)
-{
-    guint32 result;
-    guint8 byte0,byte1,byte2,byte3;
-
-    result = ~crc;
-    byte0 = result & 0xff;
-    byte1 = (result>>8) & 0xff;
-    byte2 = (result>>16) & 0xff;
-    byte3 = (result>>24) & 0xff;
-    result = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
-    return result;
-}
-
-/*----------------------------------------------------------------------
- * Write current packet out
- */
-static int
-write_current_packet (gboolean cont)
-{
-    guint32  length         = 0;
-    guint16  padding_length = 0;
-    int      err;
-    gboolean success;
-
-    if (curr_offset > header_length) {
-        /* Write the packet */
-
-        /* Is direction indication on with an outbound packet? */
-        gboolean isOutbound = has_direction && (direction == PACK_FLAGS_DIRECTION_OUTBOUND);
-
-        /* Compute packet length */
-        length = curr_offset;
-        if (hdr_sctp) {
-            padding_length = number_of_padding_bytes(length - header_length );
-        } else {
-            padding_length = 0;
-        }
-        /* Reset curr_offset, since we now write the headers */
-        curr_offset = 0;
-
-        /* Write Ethernet header */
-        if (hdr_ethernet) {
-            if (isOutbound)
-            {
-                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_src_addr, 6);
-                memcpy(HDR_ETHERNET.src_addr, hdr_eth_dest_addr, 6);
-            } else {
-                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_dest_addr, 6);
-                memcpy(HDR_ETHERNET.src_addr, hdr_eth_src_addr, 6);
-            }
-            HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
-            write_bytes((const char *)&HDR_ETHERNET, sizeof(HDR_ETHERNET));
-        }
-
-        /* Write IP header */
-        if (hdr_ip) {
-            if (isOutbound) {
-                HDR_IP.src_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
-                HDR_IP.dest_addr = hdr_ip_src_addr? hdr_ip_src_addr : IP_SRC;
-            }
-            else {
-                HDR_IP.src_addr = hdr_ip_src_addr? hdr_ip_src_addr : IP_SRC;
-                HDR_IP.dest_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
-            }
-
-            HDR_IP.packet_length = g_htons(length - ip_offset + padding_length);
-            HDR_IP.protocol = (guint8) hdr_ip_proto;
-            HDR_IP.hdr_checksum = 0;
-            HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
-            write_bytes((const char *)&HDR_IP, sizeof(HDR_IP));
-
-            /* initialize pseudo header for checksum calculation */
-            pseudoh.src_addr    = HDR_IP.src_addr;
-            pseudoh.dest_addr   = HDR_IP.dest_addr;
-            pseudoh.zero        = 0;
-            pseudoh.protocol    = (guint8) hdr_ip_proto;
-            if (hdr_tcp) {
-                pseudoh.length      = g_htons(length - header_length + sizeof(HDR_TCP));
-            } else if (hdr_udp) {
-                pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
-            }
-        } else if (hdr_ipv6) {
-            if (memcmp(isOutbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_src, isOutbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(ws_in6_addr));
-            if (memcmp(isOutbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_dst, isOutbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, sizeof(ws_in6_addr));
-
-            HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
-            HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
-            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen = g_htons(length - ip_offset - sizeof(HDR_IPv6) + padding_length);
-            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_nxt  = (guint8) hdr_ip_proto;
-            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = 32;
-            write_bytes((const char *)&HDR_IPv6, sizeof(HDR_IPv6));
-
-            /* initialize pseudo ipv6 header for checksum calculation */
-            pseudoh6.src_addr6  = HDR_IPv6.ip6_src;
-            pseudoh6.dst_addr6  = HDR_IPv6.ip6_dst;
-            memset(pseudoh6.zero, 0, sizeof(pseudoh6.zero));
-            pseudoh6.next_header   = (guint8) hdr_ip_proto;
-            if (hdr_tcp) {
-                pseudoh6.length      = g_htons(length - header_length + sizeof(HDR_TCP));
-            } else if (hdr_udp) {
-                pseudoh6.length      = g_htons(length - header_length + sizeof(HDR_UDP));
-            }
-        }
-
-        /* Write UDP header */
-        if (hdr_udp) {
-            guint16 x16;
-            guint32 u;
-
-            /* initialize the UDP header */
-            HDR_UDP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_UDP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
-            HDR_UDP.length      = hdr_ipv6 ? pseudoh6.length : pseudoh.length;
-            HDR_UDP.checksum = 0;
-            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-            x16  = hdr_ipv6 ? in_checksum(&pseudoh6, sizeof(pseudoh6)) : in_checksum(&pseudoh, sizeof(pseudoh));
-            u    = g_ntohs(x16);
-            x16  = in_checksum(&HDR_UDP, sizeof(HDR_UDP));
-            u   += g_ntohs(x16);
-            x16  = in_checksum(packet_buf + header_length, length - header_length);
-            u   += g_ntohs(x16);
-            x16  = (u & 0xffff) + (u>>16);
-            HDR_UDP.checksum = g_htons(x16);
-            if (HDR_UDP.checksum == 0) /* differentiate between 'none' and 0 */
-                HDR_UDP.checksum = g_htons(1);
-            write_bytes((const char *)&HDR_UDP, sizeof(HDR_UDP));
-        }
-
-        /* Write TCP header */
-        if (hdr_tcp) {
-            guint16 x16;
-            guint32 u;
-
-            /* initialize the TCP header */
-            HDR_TCP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_TCP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
-            /* set ack number if we have direction */
-            if (has_direction) {
-                HDR_TCP.flags = 0x10;
-                HDR_TCP.ack_num = g_ntohl(isOutbound ? tcp_out_seq_num : tcp_in_seq_num);
-                HDR_TCP.ack_num = g_htonl(HDR_TCP.ack_num);
-            }
-            else {
-                HDR_TCP.flags = 0;
-                HDR_TCP.ack_num = 0;
-            }
-            HDR_TCP.seq_num = isOutbound ? tcp_in_seq_num : tcp_out_seq_num;
-            HDR_TCP.window = g_htons(0x2000);
-            HDR_TCP.checksum = 0;
-            /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
-            x16  = hdr_ipv6 ? in_checksum(&pseudoh6, sizeof(pseudoh6)) : in_checksum(&pseudoh, sizeof(pseudoh));
-            u    = g_ntohs(x16);
-            x16  = in_checksum(&HDR_TCP, sizeof(HDR_TCP));
-            u   += g_ntohs(x16);
-            x16  = in_checksum(packet_buf + header_length, length - header_length);
-            u   += g_ntohs(x16);
-            x16  = (u & 0xffff) + (u>>16);
-            HDR_TCP.checksum = g_htons(x16);
-            if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
-                HDR_TCP.checksum = g_htons(1);
-            write_bytes((const char *)&HDR_TCP, sizeof(HDR_TCP));
-            if (isOutbound) {
-                tcp_in_seq_num = g_ntohl(tcp_in_seq_num) + length - header_length;
-                tcp_in_seq_num = g_htonl(tcp_in_seq_num);
-            }
-            else {
-                tcp_out_seq_num = g_ntohl(tcp_out_seq_num) + length - header_length;
-                tcp_out_seq_num = g_htonl(tcp_out_seq_num);
-            }
-        }
-
-        /* Compute DATA chunk header */
-        if (hdr_data_chunk) {
-            hdr_data_chunk_bits = 0;
-            if (packet_start == 0) {
-                hdr_data_chunk_bits |= 0x02;
-            }
-            if (!cont) {
-                hdr_data_chunk_bits |= 0x01;
-            }
-            HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
-            HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
-            HDR_DATA_CHUNK.length = g_htons(length - header_length + sizeof(HDR_DATA_CHUNK));
-            HDR_DATA_CHUNK.tsn    = g_htonl(hdr_data_chunk_tsn);
-            HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
-            HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
-            HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
-            hdr_data_chunk_tsn++;
-            if (!cont) {
-                hdr_data_chunk_ssn++;
-            }
-        }
-
-        /* Write SCTP common header */
-        if (hdr_sctp) {
-            guint32 zero = 0;
-
-            HDR_SCTP.src_port  = isOutbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = isOutbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
-            HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
-            HDR_SCTP.checksum  = g_htonl(0);
-            HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0);
-            if (hdr_data_chunk) {
-                HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
-                HDR_SCTP.checksum  = crc32c((guint8 *)packet_buf + header_length, length - header_length, HDR_SCTP.checksum);
-                HDR_SCTP.checksum  = crc32c((guint8 *)&zero, padding_length, HDR_SCTP.checksum);
-            } else {
-                HDR_SCTP.checksum  = crc32c((guint8 *)packet_buf + header_length, length - header_length, HDR_SCTP.checksum);
-            }
-            HDR_SCTP.checksum = finalize_crc32c(HDR_SCTP.checksum);
-            HDR_SCTP.checksum  = g_htonl(HDR_SCTP.checksum);
-            write_bytes((const char *)&HDR_SCTP, sizeof(HDR_SCTP));
-        }
-
-        /* Write DATA chunk header */
-        if (hdr_data_chunk) {
-            write_bytes((const char *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK));
-        }
-
-        /* Reset curr_offset, since we now write the trailers */
-        curr_offset = length;
-
-        /* Write DATA chunk padding */
-        if (hdr_data_chunk && (padding_length > 0)) {
-            memset(tempbuf, 0, padding_length);
-            write_bytes((const char *)&tempbuf, padding_length);
-            length += padding_length;
-        }
-
-        /* Write Ethernet trailer */
-        if (hdr_ethernet && (length < 60)) {
-            memset(tempbuf, 0, 60 - length);
-            write_bytes((const char *)&tempbuf, 60 - length);
-            length = 60;
-        }
-        if (use_pcapng) {
-            success = pcapng_write_enhanced_packet_block(output_file,
-                                                         NULL,
-                                                         ts_sec, ts_nsec,
-                                                         length, length,
-                                                         0,
-                                                         1000000000,
-                                                         packet_buf,
-                                                         (direction << PACK_FLAGS_DIRECTION_SHIFT),
-                                                         &bytes_written, &err);
-        } else {
-            success = libpcap_write_packet(output_file,
-                                           ts_sec, ts_nsec/1000,
-                                           length, length,
-                                           packet_buf,
-                                           &bytes_written, &err);
-        }
-        if (!success) {
-            fprintf(stderr, "File write error [%s] : %s\n",
-                    output_filename, g_strerror(err));
-            return EXIT_FAILURE;
-        }
-        if (ts_fmt == NULL) {
-            /* fake packet counter */
-            if (use_pcapng)
-                ts_nsec++;
-            else
-                ts_nsec += 1000;
-        }
-        if (!quiet) {
-            fprintf(stderr, "Wrote packet of %u bytes.\n", length);
-        }
-        num_packets_written++;
-    }
-
-    packet_start += curr_offset - header_length;
-    curr_offset = header_length;
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Write file header and trailer
- */
-static int
-write_file_header (void)
-{
-    int      err;
-    gboolean success;
-
-    if (use_pcapng) {
-        char *comment;
-        GPtrArray *comments;
-
-        comment = g_strdup_printf("Generated from input file %s.", input_filename);
-        comments = g_ptr_array_new_with_free_func(g_free);
-        g_ptr_array_add(comments, comment);
-        success = pcapng_write_section_header_block(output_file,
-                                                    comments,
-                                                    NULL,    /* HW */
-                                                    NULL,    /* OS */
-                                                    get_appname_and_version(),
-                                                    -1,      /* section_length */
-                                                    &bytes_written,
-                                                    &err);
-        g_ptr_array_free(comments, TRUE);
-        if (success) {
-            success = pcapng_write_interface_description_block(output_file,
-                                                               NULL,
-                                                               interface_name,
-                                                               NULL,
-                                                               "",
-                                                               NULL,
-                                                               NULL,
-                                                               pcap_link_type,
-                                                               WTAP_MAX_PACKET_SIZE_STANDARD,
-                                                               &bytes_written,
-                                                               0,
-                                                               9,
-                                                               &err);
-        }
-    } else {
-        success = libpcap_write_file_header(output_file, pcap_link_type,
-                                            WTAP_MAX_PACKET_SIZE_STANDARD, FALSE,
-                                            &bytes_written, &err);
-    }
-    if (!success) {
-        fprintf(stderr, "File write error [%s] : %s\n",
-                output_filename, g_strerror(err));
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Append a token to the packet preamble.
- */
-static void
-append_to_preamble (char *str)
-{
-    size_t toklen;
-
-    if (packet_preamble_len != 0) {
-        if (packet_preamble_len == PACKET_PREAMBLE_MAX_LEN)
-            return; /* no room to add more preamble */
-        /* Add a blank separator between the previous token and this token. */
-        packet_preamble[packet_preamble_len++] = ' ';
-    }
-    toklen = strlen(str);
-    if (toklen != 0) {
-        if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
-            return; /* no room to add the token to the preamble */
-        (void) g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
-        packet_preamble_len += (int) toklen;
-        if (debug >= 2) {
-            char *c;
-            char xs[PACKET_PREAMBLE_MAX_LEN];
-            (void) g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
-            while ((c = strchr(xs, '\r')) != NULL) *c=' ';
-            fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
-        }
-    }
-}
-
-/*----------------------------------------------------------------------
- * Parse the preamble to get the timecode.
- */
-
-static void
-parse_preamble (void)
-{
-    struct tm  timecode;
-    char      *subsecs;
-    char      *p;
-    int        subseclen;
-    int        i;
-
-     /*
-     * Null-terminate the preamble.
-     */
-    packet_preamble[packet_preamble_len] = '\0';
-    if (debug > 0)
-        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-
-    if (has_direction) {
-        switch (packet_preamble[0]) {
-        case 'i':
-        case 'I':
-            direction = PACK_FLAGS_DIRECTION_INBOUND;
-            packet_preamble[0] = ' ';
-            break;
-        case 'o':
-        case 'O':
-            direction = PACK_FLAGS_DIRECTION_OUTBOUND;
-            packet_preamble[0] = ' ';
-            break;
-        default:
-            direction = PACK_FLAGS_DIRECTION_UNKNOWN;
-            break;
-        }
-        i = 0;
-        while (packet_preamble[i] == ' ' ||
-               packet_preamble[i] == '\r' ||
-               packet_preamble[i] == '\t') {
-            i++;
-        }
-        packet_preamble_len -= i;
-        /* Also move the trailing '\0'. */
-        memmove(packet_preamble, packet_preamble + i, packet_preamble_len + 1);
-    }
-
-
-    /*
-     * If no "-t" flag was specified, don't attempt to parse the packet
-     * preamble to extract a time stamp.
-     */
-    if (ts_fmt == NULL) {
-        /* Clear Preamble */
-        packet_preamble_len = 0;
-        return;
-    }
-
-    /*
-     * Initialize to today localtime, just in case not all fields
-     * of the date and time are specified.
-     */
-
-    timecode = timecode_default;
-    ts_nsec = 0;
-
-    /* Ensure preamble has more than two chars before attempting to parse.
-     * This should cover line breaks etc that get counted.
-     */
-    if (strlen(packet_preamble) > 2) {
-        /* Get Time leaving subseconds */
-        subsecs = strptime( packet_preamble, ts_fmt, &timecode );
-        if (subsecs != NULL) {
-            /* Get the long time from the tm structure */
-            /*  (will return -1 if failure)            */
-            ts_sec  = mktime( &timecode );
-        } else
-            ts_sec = -1;    /* we failed to parse it */
-
-        /* This will ensure incorrectly parsed dates get set to zero */
-        if (-1 == ts_sec) {
-            /* Sanitize - remove all '\r' */
-            char *c;
-            while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-            fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
-                 packet_preamble, ts_fmt);
-            if (debug >= 2) {
-                fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
-                    timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
-                    timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
-            }
-            ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-            ts_nsec = 0;
-        } else {
-            /* Parse subseconds */
-            ts_nsec = (guint32)strtol(subsecs, &p, 10);
-            if (subsecs == p) {
-                /* Error */
-                ts_nsec = 0;
-            } else {
-                /*
-                 * Convert that number to a number
-                 * of nanoseconds; if it's N digits
-                 * long, it's in units of 10^(-N) seconds,
-                 * so, to convert it to units of
-                 * 10^-9 seconds, we multiply by
-                 * 10^(9-N).
-                 */
-                subseclen = (int) (p - subsecs);
-                if (subseclen > 9) {
-                    /*
-                     * *More* than 9 digits; 9-N is
-                     * negative, so we divide by
-                     * 10^(N-9).
-                     */
-                    for (i = subseclen - 9; i != 0; i--)
-                        ts_nsec /= 10;
-                } else if (subseclen < 9) {
-                    for (i = 9 - subseclen; i != 0; i--)
-                        ts_nsec *= 10;
-                }
-            }
-        }
-    }
-    if (debug >= 2) {
-        char *c;
-        while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
-    }
-
-
-    /* Clear Preamble */
-    packet_preamble_len = 0;
-}
-
-/*----------------------------------------------------------------------
- * Start a new packet
- */
-static int
-start_new_packet (gboolean cont)
-{
-    if (debug >= 1)
-        fprintf(stderr, "Start new packet (cont = %s).\n", cont ? "TRUE" : "FALSE");
-
-    /* Write out the current packet, if required */
-    if (write_current_packet(cont) != EXIT_SUCCESS)
-        return EXIT_FAILURE;
-    num_packets_read++;
-
-    /* Ensure we parse the packet preamble as it may contain the time */
-    parse_preamble();
-
-    return EXIT_SUCCESS;
-}
-
-/*----------------------------------------------------------------------
- * Process a directive
- */
-static void
-process_directive (char *str)
-{
-    fprintf(stderr, "\n--- Directive [%s] currently unsupported ---\n", str + 10);
-}
-
-/*----------------------------------------------------------------------
- * Parse a single token (called from the scanner)
- */
-int
-parse_token (token_t token, char *str)
-{
-    guint32  num;
-    int      by_eol;
-    int      rollback = 0;
-    int      line_size;
-    int      i;
-    char    *s2;
-    char     tmp_str[3];
-
-    /*
-     * This is implemented as a simple state machine of five states.
-     * State transitions are caused by tokens being received from the
-     * scanner. The code should be self-documenting.
-     */
-
-    if (debug >= 2) {
-        /* Sanitize - remove all '\r' */
-        char *c;
-        if (str!=NULL) { while ((c = strchr(str, '\r')) != NULL) *c=' '; }
-
-        fprintf(stderr, "(%s, %s \"%s\") -> (",
-                state_str[state], token_str[token], str ? str : "");
-    }
-
-    switch (state) {
-
-    /* ----- Waiting for new packet -------------------------------------------*/
-    case INIT:
-        if (!str && token != T_EOL) goto fail_null_str;
-        switch (token) {
-        case T_TEXT:
-            append_to_preamble(str);
-            break;
-        case T_DIRECTIVE:
-            process_directive(str);
-            break;
-        case T_OFFSET:
-            if (parse_num(str, TRUE, &num) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            if (num == 0) {
-                /* New packet starts here */
-                if (start_new_packet(FALSE) != EXIT_SUCCESS)
-                    return EXIT_FAILURE;
-                state = READ_OFFSET;
-                pkt_lnstart = packet_buf + num;
-            }
-            break;
-        case T_EOL:
-            /* Some describing text may be parsed as offset, but the invalid
-               offset will be checked in the state of START_OF_LINE, so
-               we add this transition to gain flexibility */
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, start of new line -----------------------------*/
-    case START_OF_LINE:
-        if (!str && token != T_EOL) goto fail_null_str;
-        switch (token) {
-        case T_TEXT:
-            append_to_preamble(str);
-            break;
-        case T_DIRECTIVE:
-            process_directive(str);
-            break;
-        case T_OFFSET:
-            if (parse_num(str, TRUE, &num) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            if (num == 0) {
-                /* New packet starts here */
-                if (start_new_packet(FALSE) != EXIT_SUCCESS)
-                    return EXIT_FAILURE;
-                packet_start = 0;
-                state = READ_OFFSET;
-            } else if ((num - packet_start) != curr_offset - header_length) {
-                /*
-                 * The offset we read isn't the one we expected.
-                 * This may only mean that we mistakenly interpreted
-                 * some text as byte values (e.g., if the text dump
-                 * of packet data included a number with spaces around
-                 * it).  If the offset is less than what we expected,
-                 * assume that's the problem, and throw away the putative
-                 * extra byte values.
-                 */
-                if (num < curr_offset) {
-                    unwrite_bytes(curr_offset - num);
-                    state = READ_OFFSET;
-                } else {
-                    /* Bad offset; switch to INIT state */
-                    if (debug >= 1)
-                        fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
-                                curr_offset, num);
-                    if (write_current_packet(FALSE) != EXIT_SUCCESS)
-                        return EXIT_FAILURE;
-                    state = INIT;
-                }
-            } else {
-                state = READ_OFFSET;
-            }
-            pkt_lnstart = packet_buf + num;
-            break;
-        case T_EOL:
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, read offset -----------------------------------*/
-    case READ_OFFSET:
-        switch (token) {
-        case T_BYTE:
-            /* Record the byte */
-            state = READ_BYTE;
-            if (!str) goto fail_null_str;
-            if (write_byte(str) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            break;
-        case T_TEXT:
-        case T_DIRECTIVE:
-        case T_OFFSET:
-            state = READ_TEXT;
-            break;
-        case T_EOL:
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, read byte -------------------------------------*/
-    case READ_BYTE:
-        switch (token) {
-        case T_BYTE:
-            /* Record the byte */
-            if (write_byte(str) != EXIT_SUCCESS)
-                return EXIT_FAILURE;
-            break;
-        case T_TEXT:
-        case T_DIRECTIVE:
-        case T_OFFSET:
-        case T_EOL:
-            by_eol = 0;
-            state = READ_TEXT;
-            if (token == T_EOL) {
-                by_eol = 1;
-                state = START_OF_LINE;
-            }
-            if (identify_ascii) {
-                /* Here a line of pkt bytes reading is finished
-                   compare the ascii and hex to avoid such situation:
-                   "61 62 20 ab ", when ab is ascii dump then it should
-                   not be treat as byte */
-                rollback = 0;
-                /* s2 is the ASCII string, s1 is the HEX string, e.g, when
-                   s2 = "ab ", s1 = "616220"
-                   we should find out the largest tail of s1 matches the head
-                   of s2, it means the matched part in tail is the ASCII dump
-                   of the head byte. These matched should be rollback */
-                line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
-                s2 = (char*)g_malloc((line_size+1)/4+1);
-                /* gather the possible pattern */
-                for (i = 0; i < (line_size+1)/4; i++) {
-                    tmp_str[0] = pkt_lnstart[i*3];
-                    tmp_str[1] = pkt_lnstart[i*3+1];
-                    tmp_str[2] = '\0';
-                    /* it is a valid convertable string */
-                    if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[1])) {
-                        break;
-                    }
-                    s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
-                    rollback++;
-                    /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
-                    if (!(pkt_lnstart[i*3+2] == ' ')) {
-                        if (by_eol != 1)
-                            rollback--;
-                        break;
-                    }
-                }
-                /* If packet line start contains possible byte pattern, the line end
-                   should contain the matched pattern if the user open the -a flag.
-                   The packet will be possible invalid if the byte pattern cannot find
-                   a matched one in the line of packet buffer.*/
-                if (rollback > 0) {
-                    if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
-                        unwrite_bytes(rollback);
-                    }
-                    /* Not matched. This line contains invalid packet bytes, so
-                       discard the whole line */
-                    else {
-                        unwrite_bytes(line_size);
-                    }
-                }
-                g_free(s2);
-            }
-            break;
-        default:
-            break;
-        }
-        break;
-
-    /* ----- Processing packet, read text -------------------------------------*/
-    case READ_TEXT:
-        switch (token) {
-        case T_EOL:
-            state = START_OF_LINE;
-            break;
-        default:
-            break;
-        }
-        break;
-
-    default:
-        fprintf(stderr, "FATAL ERROR: Bad state (%d)", state);
-        return EXIT_FAILURE;
-    }
-
-    if (debug >= 2)
-        fprintf(stderr, ", %s)\n", state_str[state]);
-
-    return EXIT_SUCCESS;
-
-fail_null_str:
-    fprintf(stderr, "FATAL ERROR: got NULL str pointer in state (%d)", state);
-    return EXIT_FAILURE;
-}
+static wtap_dumper* wdh;
 
 /*----------------------------------------------------------------------
  * Print usage string and exit
@@ -1361,35 +177,48 @@ print_usage (FILE *output)
             "      <outfile> specifies output filename (use - for standard output)\n"
             "\n"
             "Input:\n"
-            "  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal;\n"
+            "  -o hex|oct|dec|none    parse offsets as (h)ex, (o)ctal, (d)ecimal, or (n)one;\n"
             "                         default is hex.\n"
             "  -t <timefmt>           treat the text before the packet as a date/time code;\n"
-            "                         the specified argument is a format string of the sort\n"
-            "                         supported by strptime.\n"
+            "                         <timefmt> is a format string supported by strptime,\n"
+            "                         with an optional %%f descriptor for fractional seconds.\n"
             "                         Example: The time \"10:15:14.5476\" has the format code\n"
-            "                         \"%%H:%%M:%%S.\"\n"
-            "                         NOTE: The subsecond component delimiter, '.', must be\n"
-            "                         given, but no pattern is required; the remaining\n"
-            "                         number is assumed to be fractions of a second.\n"
+            "                         \"%%H:%%M:%%S.%%f\"\n"
+            "                         The special format string ISO supports ISO-8601 times.\n"
             "                         NOTE: Date/time fields from the current date/time are\n"
             "                         used as the default for unspecified fields.\n"
             "  -D                     the text before the packet starts with an I or an O,\n"
             "                         indicating that the packet is inbound or outbound.\n"
-            "                         This is used when generating dummy headers.\n"
-            "                         The indication is only stored if the output format is pcapng.\n"
+            "                         This is used when generating dummy headers if the\n"
+            "                         output format supports it (e.g. pcapng).\n"
             "  -a                     enable ASCII text dump identification.\n"
             "                         The start of the ASCII text dump can be identified\n"
             "                         and excluded from the packet data, even if it looks\n"
             "                         like a HEX dump.\n"
             "                         NOTE: Do not enable it if the input file does not\n"
             "                         contain the ASCII text dump.\n"
+            "  -r <regex>             enable regex mode. Scan the input using <regex>, a Perl\n"
+            "                         compatible regular expression matching a single packet.\n"
+            "                         Named capturing subgroups are used to identify fields:\n"
+            "                         <data> (mand.), and <time>, <dir>, and <seqno> (opt.)\n"
+            "                         The time field format is taken from the -t option\n"
+            "                         Example: -r '^(?<dir>[<>])\\s(?<time>\\d+:\\d\\d:\\d\\d.\\d+)\\s(?<data>[0-9a-fA-F]+)$'\n"
+            "                         could match a file with lines like\n"
+            "                         > 0:00:00.265620 a130368b000000080060\n"
+            "                         < 0:00:00.295459 a2010800000000000000000800000000\n"
+            "  -b 2|8|16|64           encoding base (radix) of the packet data in regex mode\n"
+            "                         (def: 16: hexadecimal) No effect in hexdump mode.\n"
             "\n"
             "Output:\n"
-            "  -l <typenum>           link-layer type number; default is 1 (Ethernet).  See\n"
+            "  -F <capture type>      set the output file type; default is pcap.\n"
+            "                         an empty \"-F\" option will list the file types.\n"
+            "  -E <encap type>        set the output file encapsulation type; default is\n"
+            "                         ether (Ethernet). An empty \"-E\" option will list\n"
+            "                         the encapsulation types.\n"
+            "  -l <typenum>           set the output file encapsulation type via link-layer\n"
+            "                         type number; default is 1 (Ethernet). See\n"
             "                         https://www.tcpdump.org/linktypes.html for a list of\n"
-            "                         numbers.  Use this option if your dump is a complete\n"
-            "                         hex dump of an encapsulated packet and you wish to\n"
-            "                         specify the exact type of encapsulation.\n"
+            "                         numbers.\n"
             "                         Example: -l 7 for ARCNet packets.\n"
             "  -m <max-packet>        max packet length in output; default is %d\n"
             "  -n                     use pcapng instead of pcap as output format.\n"
@@ -1401,14 +230,15 @@ print_usage (FILE *output)
             "                         Example: -e 0x806 to specify an ARP packet.\n"
             "  -i <proto>             prepend dummy IP header with specified IP protocol\n"
             "                         (in DECIMAL).\n"
-            "                         Automatically prepends Ethernet header as well.\n"
+            "                         Automatically prepends Ethernet header as well if\n"
+            "                         link-layer type is Ethernet.\n"
             "                         Example: -i 46\n"
             "  -4 <srcip>,<destip>    prepend dummy IPv4 header with specified\n"
             "                         dest and source address.\n"
             "                         Example: -4 10.0.0.1,10.0.0.2\n"
             "  -6 <srcip>,<destip>    prepend dummy IPv6 header with specified\n"
             "                         dest and source address.\n"
-            "                         Example: -6 fe80::202:b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334\n"
+            "                         Example: -6 2001:db8::b3ff:fe1e:8329,2001:0db8:85a3::8a2e:0370:7334\n"
             "  -u <srcp>,<destp>      prepend dummy UDP header with specified\n"
             "                         source and destination ports (in DECIMAL).\n"
             "                         Automatically prepends Ethernet & IP headers as well.\n"
@@ -1427,22 +257,103 @@ print_usage (FILE *output)
             "                         Automatically prepends a dummy SCTP DATA\n"
             "                         chunk header with payload protocol identifier ppi.\n"
             "                         Example: -S 30,40,34\n"
-            "\n"
-            "Miscellaneous:\n"
-            "  -h                     display this help and exit.\n"
-            "  -v                     print version information and exit.\n"
-            "  -d                     show detailed debug of parser states.\n"
-            "  -q                     generate no output at all (automatically disables -d).\n"
-            "",
+            "  -P <dissector>         prepend EXPORTED_PDU header with specifieddissector\n"
+            "                         as the payload PROTO_NAME tag.\n"
+            "                         Automatically sets link type to Upper PDU Export.\n"
+            "                         EXPORTED_PDU payload defaults to \"data\" otherwise.\n"
+            "\n",
             WTAP_MAX_PACKET_SIZE_STANDARD);
+
+    ws_log_print_usage(output);
+
+    fprintf(output, "\n"
+            "Miscellaneous:\n"
+            "  -h                     display this help and exit\n"
+            "  -v                     print version information and exit\n"
+            "  -q                     don't report processed packet counts\n"
+            "");
+}
+
+/*
+ * Set the hdr_ip_proto parameter, and set the flag indicate that the
+ * parameter has been specified.
+ *
+ * XXX - catch the case where two different options set it differently?
+ */
+static void
+set_hdr_ip_proto(guint8 ip_proto)
+{
+    have_hdr_ip_proto = TRUE;
+    hdr_ip_proto = ip_proto;
+}
+
+static void
+list_capture_types(void) {
+    GArray *writable_type_subtypes;
+
+    cmdarg_err("The available capture file types for the \"-F\" flag are:\n");
+    writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+    for (guint i = 0; i < writable_type_subtypes->len; i++) {
+        int ft = g_array_index(writable_type_subtypes, int, i);
+        fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
+            wtap_file_type_subtype_description(ft));
+    }
+    g_array_free(writable_type_subtypes, TRUE);
+}
+
+struct string_elem {
+    const char *sstr;   /* The short string */
+    const char *lstr;   /* The long string */
+};
+
+static gint
+string_nat_compare(gconstpointer a, gconstpointer b)
+{
+    return ws_ascii_strnatcmp(((const struct string_elem *)a)->sstr,
+        ((const struct string_elem *)b)->sstr);
+}
+
+static void
+string_elem_print(gpointer data, gpointer stream_ptr)
+{
+    fprintf((FILE *) stream_ptr, "    %s - %s\n",
+        ((struct string_elem *)data)->sstr,
+        ((struct string_elem *)data)->lstr);
+}
+
+static void
+list_encap_types(void) {
+    int i;
+    struct string_elem *encaps;
+    GSList *list = NULL;
+
+    encaps = g_new(struct string_elem, wtap_get_num_encap_types());
+    cmdarg_err("The available encapsulation types for the \"-E\" flag are:\n");
+    for (i = 0; i < wtap_get_num_encap_types(); i++) {
+        /* Exclude wtap encapsulations that require a pseudo header,
+         * because we won't setup one from the text we import and
+         * wiretap doesn't allow us to write 'raw' frames
+         */
+        if (!wtap_encap_requires_phdr(i)) {
+            encaps[i].sstr = wtap_encap_name(i);
+            if (encaps[i].sstr != NULL) {
+                encaps[i].lstr = wtap_encap_description(i);
+                list = g_slist_insert_sorted(list, &encaps[i], string_nat_compare);
+            }
+        }
+    }
+    g_slist_foreach(list, string_elem_print, stderr);
+    g_slist_free(list);
+    g_free(encaps);
 }
 
 /*----------------------------------------------------------------------
  * Parse CLI options
  */
 static int
-parse_options (int argc, char *argv[])
+parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump_params * const params)
 {
+    int   ret;
     int   c;
     char *p;
     static const struct ws_option long_options[] = {
@@ -1450,56 +361,141 @@ parse_options (int argc, char *argv[])
         {"version", ws_no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
-    struct tm *now_tm;
+    const char *interface_name = NULL;
+    /* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
+    guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
+    int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+    int wtap_encap_type = WTAP_ENCAP_ETHERNET;
+    int err;
+    char* err_info;
+    GError* gerror = NULL;
+    GRegex* regex = NULL;
+
+    info->mode = TEXT_IMPORT_HEXDUMP;
+    info->hexdump.offset_type = OFFSET_HEX;
+    info->regex.encoding = ENCODING_PLAIN_HEX;
+    info->payload = "data";
 
     /* Initialize the version information. */
     ws_init_version_info("Text2pcap (Wireshark)", NULL, NULL, NULL);
 
     /* Scan CLI parameters */
-    while ((c = ws_getopt_long(argc, argv, "aDdhqe:i:l:m:nN:o:u:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
+    while ((c = ws_getopt_long(argc, argv, "hqab:De:E:F:i:l:m:nN:o:u:P:r:s:S:t:T:v4:6:", long_options, NULL)) != -1) {
         switch (c) {
         case 'h':
             show_help_header("Generate a capture file from an ASCII hexdump of packets.");
             print_usage(stdout);
             exit(0);
             break;
-        case 'd': if (!quiet) debug++; break;
-        case 'D': has_direction = TRUE; break;
-        case 'q': quiet = TRUE; debug = 0; break;
-        case 'l': pcap_link_type = (guint32)strtol(ws_optarg, NULL, 0); break;
+        case 'q': quiet = TRUE; break;
+        case 'a': info->hexdump.identify_ascii = TRUE; break;
+        case 'D': info->hexdump.has_direction = TRUE; break;
+        case 'l':
+            pcap_link_type = (guint32)strtol(ws_optarg, NULL, 0);
+            wtap_encap_type = wtap_pcap_encap_to_wtap_encap(pcap_link_type);
+            break;
         case 'm': max_offset = (guint32)strtol(ws_optarg, NULL, 0); break;
-        case 'n': use_pcapng = TRUE; break;
+        case 'n': file_type_subtype = wtap_pcapng_file_type_subtype(); break;
         case 'N': interface_name = ws_optarg; break;
-        case 'o':
-            if (ws_optarg[0] != 'h' && ws_optarg[0] != 'o' && ws_optarg[0] != 'd') {
-                fprintf(stderr, "Bad argument for '-o': %s\n", ws_optarg);
+        case 'b':
+        {
+            guint8 radix;
+            if (!ws_strtou8(ws_optarg, NULL, &radix)) {
+                cmdarg_err("Bad argument for '-b': %s", ws_optarg);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
-            switch (ws_optarg[0]) {
-            case 'o': offset_base =  8; break;
-            case 'h': offset_base = 16; break;
-            case 'd': offset_base = 10; break;
+            switch (radix) {
+            case  2: info->regex.encoding = ENCODING_PLAIN_BIN; break;
+            case  8: info->regex.encoding = ENCODING_PLAIN_OCT; break;
+            case 16: info->regex.encoding = ENCODING_PLAIN_HEX; break;
+            case 64: info->regex.encoding = ENCODING_BASE64; break;
+            default:
+                cmdarg_err("Bad argument for '-b': %s", ws_optarg);
+                print_usage(stderr);
+                return INVALID_OPTION;
             }
             break;
+        }
+
+        case 'o':
+            if (ws_optarg[0] != 'h' && ws_optarg[0] != 'o' && ws_optarg[0] != 'd' && ws_optarg[0] != 'n') {
+                cmdarg_err("Bad argument for '-o': %s", ws_optarg);
+                print_usage(stderr);
+                return INVALID_OPTION;
+            }
+            switch (ws_optarg[0]) {
+            case 'o': info->hexdump.offset_type = OFFSET_OCT; break;
+            case 'h': info->hexdump.offset_type = OFFSET_HEX; break;
+            case 'd': info->hexdump.offset_type = OFFSET_DEC; break;
+            case 'n': info->hexdump.offset_type = OFFSET_NONE; break;
+            }
+            break;
+
         case 'e':
             hdr_ethernet = TRUE;
             if (sscanf(ws_optarg, "%x", &hdr_ethernet_proto) < 1) {
-                fprintf(stderr, "Bad argument for '-e': %s\n", ws_optarg);
+                cmdarg_err("Bad argument for '-e': %s", ws_optarg);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
+            }
+            break;
+
+        case 'E':
+            wtap_encap_type = wtap_name_to_encap(ws_optarg);
+            if (wtap_encap_type < 0) {
+                cmdarg_err("\"%s\" isn't a valid encapsulation type", ws_optarg);
+                list_encap_types();
+                return INVALID_OPTION;
+            }
+            break;
+
+        case 'F':
+            file_type_subtype = wtap_name_to_file_type_subtype(ws_optarg);
+            if  (file_type_subtype < 0) {
+                cmdarg_err("\"%s\" isn't a valid capture file type", ws_optarg);
+                list_capture_types();
+                return INVALID_OPTION;
             }
             break;
 
         case 'i':
-            hdr_ip_proto = strtol(ws_optarg, &p, 10);
-            if (p == ws_optarg || *p != '\0' || hdr_ip_proto < 0 ||
-                  hdr_ip_proto > 255) {
-                fprintf(stderr, "Bad argument for '-i': %s\n", ws_optarg);
+        {
+            guint8 ip_proto;
+            if (!ws_strtou8(ws_optarg, NULL, &ip_proto)) {
+                cmdarg_err("Bad argument for '-i': %s", ws_optarg);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(ip_proto);
+            break;
+        }
+
+        case 'P':
+            hdr_export_pdu = TRUE;
+            info->payload = ws_optarg;
+            break;
+
+        case 'r':
+            info->mode = TEXT_IMPORT_REGEX;
+            if (regex != NULL) {
+                /* XXX: Used the option twice. Should we warn? */
+                g_regex_unref(regex);
+            }
+            regex = g_regex_new(ws_optarg, G_REGEX_DUPNAMES | G_REGEX_OPTIMIZE | G_REGEX_MULTILINE, G_REGEX_MATCH_NOTEMPTY, &gerror);
+            if (gerror) {
+                cmdarg_err("%s", gerror->message);
+                g_error_free(gerror);
+                print_usage(stderr);
+                return INVALID_OPTION;
+            } else {
+                if (g_regex_get_string_number(regex, "data") == -1) {
+                    cmdarg_err("Regex missing capturing group data (use (?<data>(...)) )");
+                    g_regex_unref(regex);
+                    print_usage(stderr);
+                    return INVALID_OPTION;
+                }
+            }
             break;
 
         case 's':
@@ -1509,40 +505,40 @@ parse_options (int argc, char *argv[])
             hdr_udp = FALSE;
             hdr_sctp_src   = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
-                fprintf(stderr, "Bad src port for '-%c'\n", c);
+                cmdarg_err("Bad src port for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             if (*p == '\0') {
-                fprintf(stderr, "No dest port specified for '-%c'\n", c);
+                cmdarg_err("No dest port specified for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
             hdr_sctp_dest = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
-                fprintf(stderr, "Bad dest port for '-s'\n");
+                cmdarg_err("Bad dest port for '-s'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             if (*p == '\0') {
-                fprintf(stderr, "No tag specified for '-%c'\n", c);
+                cmdarg_err("No tag specified for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
             hdr_sctp_tag = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
-                fprintf(stderr, "Bad tag for '-%c'\n", c);
+                cmdarg_err("Bad tag for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
 
-            hdr_ip_proto = 132;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(132);
             break;
+
         case 'S':
             hdr_sctp = TRUE;
             hdr_data_chunk = TRUE;
@@ -1550,43 +546,44 @@ parse_options (int argc, char *argv[])
             hdr_udp = FALSE;
             hdr_sctp_src   = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
-                fprintf(stderr, "Bad src port for '-%c'\n", c);
+                cmdarg_err("Bad src port for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             if (*p == '\0') {
-                fprintf(stderr, "No dest port specified for '-%c'\n", c);
+                cmdarg_err("No dest port specified for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
             hdr_sctp_dest = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
-                fprintf(stderr, "Bad dest port for '-s'\n");
+                cmdarg_err("Bad dest port for '-s'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             if (*p == '\0') {
-                fprintf(stderr, "No ppi specified for '-%c'\n", c);
+                cmdarg_err("No ppi specified for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
             hdr_data_chunk_ppid = (guint32)strtoul(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
-                fprintf(stderr, "Bad ppi for '-%c'\n", c);
+                cmdarg_err("Bad ppi for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
 
-            hdr_ip_proto = 132;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(132);
             break;
 
         case 't':
-            ts_fmt = ws_optarg;
+            info->timestamp_format = ws_optarg;
+            if (!strcmp(ws_optarg, "ISO"))
+              ts_fmt_iso = 1;
             break;
 
         case 'u':
@@ -1596,25 +593,24 @@ parse_options (int argc, char *argv[])
             hdr_data_chunk = FALSE;
             hdr_src_port = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
-                fprintf(stderr, "Bad src port for '-u'\n");
+                cmdarg_err("Bad src port for '-u'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             if (*p == '\0') {
-                fprintf(stderr, "No dest port specified for '-u'\n");
+                cmdarg_err("No dest port specified for '-u'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
             hdr_dest_port = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
-                fprintf(stderr, "Bad dest port for '-u'\n");
+                cmdarg_err("Bad dest port for '-u'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
-            hdr_ip_proto = 17;
-            hdr_ethernet = TRUE;
+            set_hdr_ip_proto(17);
             break;
 
         case 'T':
@@ -1624,29 +620,24 @@ parse_options (int argc, char *argv[])
             hdr_data_chunk = FALSE;
             hdr_src_port = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || (*p != ',' && *p != '\0')) {
-                fprintf(stderr, "Bad src port for '-T'\n");
+                cmdarg_err("Bad src port for '-T'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             if (*p == '\0') {
-                fprintf(stderr, "No dest port specified for '-u'\n");
+                cmdarg_err("No dest port specified for '-u'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
             p++;
             ws_optarg = p;
             hdr_dest_port = (guint32)strtol(ws_optarg, &p, 10);
             if (p == ws_optarg || *p != '\0') {
-                fprintf(stderr, "Bad dest port for '-T'\n");
+                cmdarg_err("Bad dest port for '-T'");
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
-            hdr_ip_proto = 6;
-            hdr_ethernet = TRUE;
-            break;
-
-        case 'a':
-            identify_ascii = TRUE;
+            set_hdr_ip_proto(6);
             break;
 
         case 'v':
@@ -1659,9 +650,9 @@ parse_options (int argc, char *argv[])
             p = strchr(ws_optarg, ',');
 
             if (!p) {
-                fprintf(stderr, "Bad source param addr for '-%c'\n", c);
+                cmdarg_err("Bad source param addr for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
 
             *p = '\0';
@@ -1679,136 +670,100 @@ parse_options (int argc, char *argv[])
 
             if (hdr_ipv6 == TRUE) {
                 if (!ws_inet_pton6(ws_optarg, &hdr_ipv6_src_addr)) {
-                        fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
+                        cmdarg_err("Bad src addr -%c '%s'", c, p);
                         print_usage(stderr);
-                        return EXIT_FAILURE;
+                        return INVALID_OPTION;
                 }
             } else {
                 if (!ws_inet_pton4(ws_optarg, &hdr_ip_src_addr)) {
-                        fprintf(stderr, "Bad src addr -%c '%s'\n", c, p);
+                        cmdarg_err("Bad src addr -%c '%s'", c, p);
                         print_usage(stderr);
-                        return EXIT_FAILURE;
+                        return INVALID_OPTION;
                 }
             }
 
             p++;
             if (*p == '\0') {
-                fprintf(stderr, "No dest addr specified for '-%c'\n", c);
+                cmdarg_err("No dest addr specified for '-%c'", c);
                 print_usage(stderr);
-                return EXIT_FAILURE;
+                return INVALID_OPTION;
             }
 
             if (hdr_ipv6 == TRUE) {
                 if (!ws_inet_pton6(p, &hdr_ipv6_dest_addr)) {
-                        fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
+                        cmdarg_err("Bad dest addr for -%c '%s'", c, p);
                         print_usage(stderr);
-                        return EXIT_FAILURE;
+                        return INVALID_OPTION;
                 }
             } else {
                 if (!ws_inet_pton4(p, &hdr_ip_dest_addr)) {
-                        fprintf(stderr, "Bad dest addr for -%c '%s'\n", c, p);
+                        cmdarg_err("Bad dest addr for -%c '%s'", c, p);
                         print_usage(stderr);
-                        return EXIT_FAILURE;
+                        return INVALID_OPTION;
                 }
             }
             break;
 
 
         case '?':
+            switch(ws_optopt) {
+            case 'E':
+                list_encap_types();
+                return INVALID_OPTION;
+                break;
+            case 'F':
+                list_capture_types();
+                return INVALID_OPTION;
+                break;
+            }
+            /* FALLTHROUGH */
+
         default:
             print_usage(stderr);
-            return EXIT_FAILURE;
+            return INVALID_OPTION;
         }
     }
 
     if (ws_optind >= argc || argc-ws_optind < 2) {
-        fprintf(stderr, "Must specify input and output filename\n");
+        cmdarg_err("Must specify input and output filename");
         print_usage(stderr);
-        return EXIT_FAILURE;
+        return INVALID_OPTION;
     }
 
     if (max_offset > WTAP_MAX_PACKET_SIZE_STANDARD) {
-        fprintf(stderr, "Maximum packet length cannot be more than %d bytes\n",
+        cmdarg_err("Maximum packet length cannot be more than %d bytes",
                 WTAP_MAX_PACKET_SIZE_STANDARD);
-        return EXIT_FAILURE;
-    }
-
-    if (strcmp(argv[ws_optind], "-") != 0) {
-        input_filename = argv[ws_optind];
-        input_file = ws_fopen(input_filename, "rb");
-        if (!input_file) {
-            fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
-                    input_filename, g_strerror(errno));
-            return EXIT_FAILURE;
-        }
-    } else {
-        input_filename = "Standard input";
-        input_file = stdin;
-    }
-
-    if (strcmp(argv[ws_optind+1], "-") != 0) {
-        /* Write to a file.  Open the file, in binary mode. */
-        output_filename = argv[ws_optind+1];
-        output_file = ws_fopen(output_filename, "wb");
-        if (!output_file) {
-            fprintf(stderr, "Cannot open file [%s] for writing: %s\n",
-                    output_filename, g_strerror(errno));
-            return EXIT_FAILURE;
-        }
-    } else {
-        /* Write to the standard output. */
-#ifdef _WIN32
-        /* Put the standard output in binary mode. */
-        if (_setmode(1, O_BINARY) == -1) {
-            /* "Should not happen" */
-            fprintf(stderr, "Cannot put standard output in binary mode: %s\n",
-                    g_strerror(errno));
-            return EXIT_FAILURE;
-        }
-#endif
-        output_filename = "Standard output";
-        output_file = stdout;
+        return INVALID_OPTION;
     }
 
     /* Some validation */
-    if (pcap_link_type != 1 && hdr_ethernet) {
-        fprintf(stderr, "Dummy headers (-e, -i, -u, -s, -S -T) cannot be specified with link type override (-l)\n");
-        return EXIT_FAILURE;
+
+    if (info->mode == TEXT_IMPORT_REGEX) {
+        info->regex.format = regex;
+        /* need option for data encoding */
+        if (g_regex_get_string_number(regex, "dir") > -1) {
+            /* XXX: Add parameter(s?) to specify these? */
+            info->regex.in_indication = "iI<";
+            info->regex.out_indication = "oO>";
+        }
+        if (g_regex_get_string_number(regex, "time") > -1 && info->timestamp_format == NULL) {
+            cmdarg_err("Regex with <time> capturing group requires time format (-t)");
+            return INVALID_OPTION;
+        }
     }
 
-    /* Set up our variables */
-    if (!input_file) {
-        input_file = stdin;
-        input_filename = "Standard input";
-    }
-    if (!output_file) {
-        output_file = stdout;
-        output_filename = "Standard output";
-    }
-
-    ts_sec = time(0);               /* initialize to current time */
-    now_tm = localtime(&ts_sec);
-    if (now_tm == NULL) {
+    if (have_hdr_ip_proto && !(hdr_ip || hdr_ipv6)) {
         /*
-         * This shouldn't happen - on UN*X, this should Just Work, and
-         * on Windows, it won't work if ts_sec is before the Epoch,
-         * but it's long after 1970, so....
+         * If we have an IP protocol to add to the header, but neither an
+         * IPv4 nor an IPv6 header was specified,  add an IPv4 header.
          */
-        fprintf(stderr, "localtime(right now) failed\n");
-        return EXIT_FAILURE;
-    }
-    timecode_default = *now_tm;
-    timecode_default.tm_isdst = -1; /* Unknown for now, depends on time given to the strptime() function */
-
-    if (hdr_ip_proto != -1 && !(hdr_ip || hdr_ipv6)) {
-        /* If -i <proto> option is specified without -4 or -6 then add the default IPv4 header */
         hdr_ip = TRUE;
     }
 
-    if (hdr_ip_proto == -1 && (hdr_ip || hdr_ipv6)) {
+    if (!have_hdr_ip_proto && (hdr_ip || hdr_ipv6)) {
         /* if -4 or -6 option is specified without an IP protocol then fail */
-        fprintf(stderr, "IP protocol requires a next layer protocol number\n");
-        return EXIT_FAILURE;
+        cmdarg_err("IP protocol requires a next layer protocol number");
+        return INVALID_OPTION;
     }
 
     if ((hdr_tcp || hdr_udp || hdr_sctp) && !(hdr_ip || hdr_ipv6)) {
@@ -1819,25 +774,179 @@ parse_options (int argc, char *argv[])
         hdr_ip = TRUE;
     }
 
-    if (hdr_ip)
-    {
-        hdr_ethernet_proto = 0x0800;
-    } else if (hdr_ipv6)
-    {
-        hdr_ethernet_proto = 0x86DD;
+    if (hdr_export_pdu && wtap_encap_type != WTAP_ENCAP_WIRESHARK_UPPER_PDU) {
+        cmdarg_err("Export PDU (-P) requires WIRESHARK_UPPER_PDU link type (252)");
+        return INVALID_OPTION;
     }
+
+    /* The other dummy headers require a IPv4 or IPv6 header. Allow
+     * encapsulation types of Ethernet (and add a Ethernet header in that
+     * case if we haven't already), or the appropriate raw IP types.
+     */
+    if (hdr_ip) {
+        switch (wtap_encap_type) {
+
+        case (WTAP_ENCAP_ETHERNET):
+            hdr_ethernet = TRUE;
+            hdr_ethernet_proto = 0x0800;
+            break;
+
+        case (WTAP_ENCAP_RAW_IP):
+        case (WTAP_ENCAP_RAW_IP4):
+            break;
+
+        default:
+            cmdarg_err("Dummy IPv4 header not supported with encapsulation %s (%s)", wtap_encap_description(wtap_encap_type), wtap_encap_name(wtap_encap_type));
+            return INVALID_OPTION;
+        }
+    } else if (hdr_ipv6) {
+        switch (wtap_encap_type) {
+
+        case (WTAP_ENCAP_ETHERNET):
+            hdr_ethernet = TRUE;
+            hdr_ethernet_proto = 0x86DD;
+            break;
+
+        case (WTAP_ENCAP_RAW_IP):
+        case (WTAP_ENCAP_RAW_IP6):
+            break;
+
+        default:
+            cmdarg_err("Dummy IPv6 header not supported with encapsulation %s (%s)", wtap_encap_description(wtap_encap_type), wtap_encap_name(wtap_encap_type));
+            return INVALID_OPTION;
+        }
+    }
+
+    if (strcmp(argv[ws_optind], "-") != 0) {
+        input_filename = argv[ws_optind];
+        if (info->mode == TEXT_IMPORT_REGEX) {
+            info->regex.import_text_GMappedFile = g_mapped_file_new(input_filename, TRUE, &gerror);
+            if (gerror) {
+                cmdarg_err("%s", gerror->message);
+                g_error_free(gerror);
+                return OPEN_ERROR;
+            }
+        } else {
+            input_file = ws_fopen(input_filename, "rb");
+            if (!input_file) {
+                open_failure_message(input_filename, errno, FALSE);
+                return OPEN_ERROR;
+            }
+        }
+    } else {
+        if (info->mode == TEXT_IMPORT_REGEX) {
+            /* text_import_regex requires a memory mapped file, so this likely
+             * won't work, unless the user has redirected a file (not a FIFO)
+             * to stdin, though that's pretty silly and unnecessary.
+             * XXX: We could read until EOF, write it to a temp file, and then
+             * mmap that (ugh)?
+             */
+            info->regex.import_text_GMappedFile = g_mapped_file_new_from_fd(0, TRUE, &gerror);
+            if (gerror) {
+                cmdarg_err("%s", gerror->message);
+                cmdarg_err("regex import requires memory-mapped I/O and cannot be used with terminals or pipes");
+                g_error_free(gerror);
+                return INVALID_OPTION;
+            }
+        }
+        input_filename = "Standard input";
+        input_file = stdin;
+    }
+
+    wtap_dump_params_init(params, NULL);
+
+    params->encap = wtap_encap_type;
+    params->snaplen = max_offset;
+    if (file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+        file_type_subtype = wtap_pcap_file_type_subtype();
+    }
+    /* Request nanosecond precision. Most file formats only support one time
+     * precision and ignore this parameter (and the related options in the
+     * generated IDB), but it affects pcapng.
+     */
+    params->tsprec = WTAP_TSPREC_NSEC;
+    if ((ret = text_import_pre_open(params, file_type_subtype, input_filename, interface_name)) != EXIT_SUCCESS) {
+        g_free(params->idb_inf);
+        wtap_dump_params_cleanup(params);
+        return ret;
+    }
+
+    if (strcmp(argv[ws_optind+1], "-") != 0) {
+        /* Write to a file.  Open the file. */
+        output_filename = argv[ws_optind+1];
+        wdh = wtap_dump_open(output_filename, file_type_subtype, WTAP_UNCOMPRESSED, params, &err, &err_info);
+    } else {
+        /* Write to the standard output. */
+        output_filename = "Standard output";
+        wdh = wtap_dump_open_stdout(file_type_subtype, WTAP_UNCOMPRESSED, params, &err, &err_info);
+    }
+
+    if (!wdh) {
+        cfile_dump_open_failure_message(output_filename, err, err_info,
+                                        file_type_subtype);
+        g_free(params->idb_inf);
+        wtap_dump_params_cleanup(params);
+        return OPEN_ERROR;
+    }
+
+    info->import_text_filename = input_filename;
+    info->output_filename = output_filename;
+    info->hexdump.import_text_FILE = input_file;
+
+    info->encapsulation = wtap_encap_type;
+    info->wdh = wdh;
+
+    if (hdr_export_pdu) {
+        info->dummy_header_type = HEADER_EXPORT_PDU;
+    } else if (hdr_data_chunk) {
+        info->dummy_header_type = HEADER_SCTP_DATA;
+    } else if (hdr_sctp) {
+        info->dummy_header_type = HEADER_SCTP;
+    } else if (hdr_tcp) {
+        info->dummy_header_type = HEADER_TCP;
+    } else if (hdr_udp) {
+        info->dummy_header_type = HEADER_UDP;
+    } else if (hdr_ip) {
+        info->dummy_header_type = HEADER_IPV4;
+    } else if (hdr_ipv6) {
+        info->dummy_header_type = HEADER_IPV4;
+    } else if (hdr_ethernet) {
+        info->dummy_header_type = HEADER_ETH;
+    } else {
+        info->dummy_header_type = HEADER_NONE;
+    }
+    info->pid = hdr_ethernet_proto;
+    if (hdr_ip) {
+        info->ip_src_addr.ipv4 = hdr_ip_src_addr;
+        info->ip_dest_addr.ipv4 = hdr_ip_dest_addr;
+    } else if (hdr_ipv6) {
+        info->ipv6 = TRUE;
+        info->ip_src_addr.ipv6 = hdr_ipv6_src_addr;
+        info->ip_dest_addr.ipv6 = hdr_ipv6_dest_addr;
+    }
+    info->protocol = hdr_ip_proto;
+    if (hdr_sctp) {
+        info->src_port = hdr_sctp_src;
+        info->dst_port = hdr_sctp_dest;
+    } else {
+        info->src_port = hdr_src_port;
+        info->dst_port = hdr_dest_port;
+    }
+    info->tag = hdr_sctp_tag;
+    info->ppi = hdr_data_chunk_ppid;
+
+    info->max_frame_length = max_offset;
 
     /* Display summary of our state */
     if (!quiet) {
         fprintf(stderr, "Input from: %s\n", input_filename);
         fprintf(stderr, "Output to: %s\n",  output_filename);
-        fprintf(stderr, "Output format: %s\n", use_pcapng ? "pcapng" : "pcap");
-
+        fprintf(stderr, "Output format: %s\n", wtap_file_type_subtype_name(file_type_subtype));
         if (hdr_ethernet) fprintf(stderr, "Generate dummy Ethernet header: Protocol: 0x%0X\n",
                                   hdr_ethernet_proto);
-        if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %ld\n",
+        if (hdr_ip) fprintf(stderr, "Generate dummy IP header: Protocol: %u\n",
                             hdr_ip_proto);
-        if (hdr_ipv6) fprintf(stderr, "Generate dummy IPv6 header: Protocol: %ld\n",
+        if (hdr_ipv6) fprintf(stderr, "Generate dummy IPv6 header: Protocol: %u\n",
                             hdr_ip_proto);
         if (hdr_udp) fprintf(stderr, "Generate dummy UDP header: Source port: %u. Dest port: %u\n",
                              hdr_src_port, hdr_dest_port);
@@ -1852,87 +961,101 @@ parse_options (int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
+/*
+ * General errors and warnings are reported with an console message
+ * in text2pcap.
+ */
 static void
-text2pcap_vcmdarg_err(const char *fmt, va_list ap)
+text2pcap_cmdarg_err(const char *msg_format, va_list ap)
 {
-    vfprintf(stderr, fmt, ap);
-    fputc('\n', stderr);
+    fprintf(stderr, "text2pcap: ");
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
+}
+
+/*
+ * Report additional information for an error in command-line arguments.
+ */
+static void
+text2pcap_cmdarg_err_cont(const char *msg_format, va_list ap)
+{
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
 }
 
 int
 main(int argc, char *argv[])
 {
+    static const struct report_message_routines text2pcap_report_routines = {
+        failure_message,
+        failure_message,
+        open_failure_message,
+        read_failure_message,
+        write_failure_message,
+        cfile_open_failure_message,
+        cfile_dump_open_failure_message,
+        cfile_read_failure_message,
+        cfile_write_failure_message,
+        cfile_close_failure_message
+    };
     int ret = EXIT_SUCCESS;
+    text_import_info_t info;
+    wtap_dump_params params;
+    guint64 bytes_written;
+
+    cmdarg_err_init(text2pcap_cmdarg_err, text2pcap_cmdarg_err_cont);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("text2pcap", text2pcap_vcmdarg_err);
+    ws_log_init("text2pcap", vcmdarg_err);
 
     /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, text2pcap_vcmdarg_err, 1);
+    ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
 
 #ifdef _WIN32
     create_app_running_mutex();
 #endif /* _WIN32 */
 
-    if (parse_options(argc, argv) != EXIT_SUCCESS) {
-        ret = EXIT_FAILURE;
+    init_process_policies();
+    init_report_message("text2pcap", &text2pcap_report_routines);
+    wtap_init(TRUE);
+
+    memset(&info, 0, sizeof(info));
+    if ((ret = parse_options(argc, argv, &info, &params)) != EXIT_SUCCESS) {
         goto clean_exit;
     }
 
-    assert(input_file  != NULL);
-    assert(output_file != NULL);
+    ws_assert(input_file != NULL || info.regex.import_text_GMappedFile != NULL);
+    ws_assert(wdh != NULL);
 
-    if (write_file_header() != EXIT_SUCCESS) {
-        ret = EXIT_FAILURE;
-        goto clean_exit;
-    }
+    ret = text_import(&info);
 
-    header_length = 0;
-    if (hdr_ethernet) {
-        header_length += (int)sizeof(HDR_ETHERNET);
-    }
-    if (hdr_ip) {
-        ip_offset = header_length;
-        header_length += (int)sizeof(HDR_IP);
-    } else if (hdr_ipv6) {
-        ip_offset = header_length;
-        header_length += (int)sizeof(HDR_IPv6);
-    }
-    if (hdr_sctp) {
-        header_length += (int)sizeof(HDR_SCTP);
-    }
-    if (hdr_data_chunk) {
-        header_length += (int)sizeof(HDR_DATA_CHUNK);
-    }
-    if (hdr_tcp) {
-        header_length += (int)sizeof(HDR_TCP);
-    }
-    if (hdr_udp) {
-        header_length += (int)sizeof(HDR_UDP);
-    }
-    curr_offset = header_length;
-
-    text2pcap_in = input_file;
-    if (text2pcap_scan() == EXIT_SUCCESS) {
-        if (write_current_packet(FALSE) != EXIT_SUCCESS)
-            ret = EXIT_FAILURE;
-    } else {
-        ret = EXIT_FAILURE;
-    }
-    if (debug)
+    if (ws_log_get_level() >= LOG_LEVEL_DEBUG)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
-        fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s (%" G_GINT64_MODIFIER "u byte%s).\n",
-                num_packets_read, (num_packets_read == 1) ? "" : "s",
-                num_packets_written, (num_packets_written == 1) ? "" : "s",
-                bytes_written, (bytes_written == 1) ? "" : "s");
+        bytes_written = wtap_get_bytes_dumped(wdh);
+        fprintf(stderr, "Read %u potential packet%s, wrote %u packet%s (%" PRIu64 " byte%s including overhead).\n",
+                info.num_packets_read, plurality(info.num_packets_read, "", "s"),
+                info.num_packets_written, plurality(info.num_packets_written, "", "s"),
+                bytes_written, plurality(bytes_written, "", "s"));
     }
 clean_exit:
     if (input_file) {
         fclose(input_file);
     }
-    if (output_file) {
-        fclose(output_file);
+    if (info.regex.import_text_GMappedFile) {
+        g_mapped_file_unref(info.regex.import_text_GMappedFile);
+    }
+    if (info.regex.format) {
+        g_regex_unref(info.regex.format);
+    }
+    if (wdh) {
+        int err;
+        char *err_info;
+        if (!wtap_dump_close(wdh, &err, &err_info)) {
+            cfile_close_failure_message(output_filename, err, err_info);
+            ret = 2;
+        }
+        g_free(params.idb_inf);
     }
     return ret;
 }

@@ -161,20 +161,20 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 dir_tree = proto_item_add_subtree(ti, ett_dir_item);
                 proto_tree_add_item(dir_tree, hf_gopher_di_type, tvb, offset, 1, ENC_ASCII|ENC_NA);
                 proto_tree_add_item(dir_tree, hf_gopher_di_name, tvb, offset + 1,
-                                    sel_start - offset - 2, ENC_ASCII|ENC_NA);
+                                    sel_start - offset - 2, ENC_ASCII);
                 proto_tree_add_item(dir_tree, hf_gopher_di_selector, tvb, sel_start,
-                                    host_start - sel_start - 1, ENC_ASCII|ENC_NA);
+                                    host_start - sel_start - 1, ENC_ASCII);
                 proto_tree_add_item(dir_tree, hf_gopher_di_host, tvb, host_start,
-                                    port_start - host_start - 1, ENC_ASCII|ENC_NA);
+                                    port_start - host_start - 1, ENC_ASCII);
                 proto_tree_add_item(dir_tree, hf_gopher_di_port, tvb, port_start,
-                                    line_len - (port_start - offset - 1), ENC_ASCII|ENC_NA);
+                                    line_len - (port_start - offset - 1), ENC_ASCII);
                 is_dir = TRUE;
                 offset = next_offset;
             }
 
             if (!is_dir) {
                 proto_item_append_text(ti, "[Unknown]");
-                proto_tree_add_item(gopher_tree, hf_gopher_unknown, tvb, 0, -1, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(gopher_tree, hf_gopher_unknown, tvb, 0, -1, ENC_ASCII);
             }
         }
 

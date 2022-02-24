@@ -433,7 +433,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 
 					if (num_written > PPPD_BUF_SIZE) {
 						*err = WTAP_ERR_BAD_FILE;
-						*err_info = g_strdup_printf("pppdump: File has %u-byte packet, bigger than maximum of %u",
+						*err_info = ws_strdup_printf("pppdump: File has %u-byte packet, bigger than maximum of %u",
 						    num_written, PPPD_BUF_SIZE);
 						return -1;
 					}
@@ -528,7 +528,7 @@ process_data(pppdump_t *state, FILE_T fh, pkt_t *pkt, int n, guint8 *pd,
 
 				if (pkt->cnt >= PPPD_BUF_SIZE) {
 					*err = WTAP_ERR_BAD_FILE;
-					*err_info = g_strdup_printf("pppdump: File has %u-byte packet, bigger than maximum of %u",
+					*err_info = ws_strdup_printf("pppdump: File has %u-byte packet, bigger than maximum of %u",
 					    pkt->cnt - 1, PPPD_BUF_SIZE);
 					return -1;
 				}
@@ -698,7 +698,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 			default:
 				/* XXX - bad file */
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("pppdump: bad ID byte 0x%02x", id);
+				*err_info = ws_strdup_printf("pppdump: bad ID byte 0x%02x", id);
 				return FALSE;
 		}
 

@@ -336,14 +336,14 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
                 descr = capture_dev_user_descr_find(if_info->name);
                 if (descr != NULL) {
                     /* Yes, we have a user-supplied description; use it. */
-                    if_string = g_strdup_printf("%s: %s", descr, if_info->name);
+                    if_string = ws_strdup_printf("%s: %s", descr, if_info->name);
                     g_free(descr);
                 } else {
                     /* No, we don't have a user-supplied description; did we get
                        one from the OS or libpcap? */
                     if (if_info->vendor_description != NULL) {
                         /* Yes - use it. */
-                        if_string = g_strdup_printf("%s: %s",
+                        if_string = ws_strdup_printf("%s: %s",
                                 if_info->vendor_description,
                                 if_info->name);
                     } else {

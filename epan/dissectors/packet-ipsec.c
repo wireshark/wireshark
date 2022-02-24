@@ -69,7 +69,7 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 #include <epan/decode_as.h>
 #include <epan/capture_dissectors.h>
 
-#include <stdio.h>
+#include <stdio.h>    /* for sscanf() */
 #include <epan/uat.h>
 #include <wsutil/str_util.h>
 #include <wsutil/wsgcrypt.h>
@@ -320,7 +320,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key, char **err)
         {
           g_free(*ascii_key);
           *ascii_key = NULL;
-          *err = g_strdup_printf("Key %s begins with an invalid hex char (%c)", key, key[i]);
+          *err = ws_strdup_printf("Key %s begins with an invalid hex char (%c)", key, key[i]);
           return -1;    /* not a valid hex digit */
         }
         (*ascii_key)[j] = (guchar)hex_digit;
@@ -345,7 +345,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key, char **err)
         {
           g_free(*ascii_key);
           *ascii_key = NULL;
-          *err = g_strdup_printf("Key %s has an invalid hex char (%c)",
+          *err = ws_strdup_printf("Key %s has an invalid hex char (%c)",
                      key, key[i-1]);
           return -1;    /* not a valid hex digit */
         }
@@ -356,7 +356,7 @@ compute_ascii_key(gchar **ascii_key, const gchar *key, char **err)
         {
           g_free(*ascii_key);
           *ascii_key = NULL;
-          *err = g_strdup_printf("Key %s has an invalid hex char (%c)", key, key[i-1]);
+          *err = ws_strdup_printf("Key %s has an invalid hex char (%c)", key, key[i-1]);
           return -1;    /* not a valid hex digit */
         }
         key_byte |= (guchar)hex_digit;
@@ -813,7 +813,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
            break;
         addr_byte &= (0x0F << (4 * (i + 1) - mask));
         addr_byte &= 0x0F;
-        g_snprintf(ipv6_addr_expanded + i, 4, "%X", addr_byte);
+        snprintf(ipv6_addr_expanded + i, 4, "%X", addr_byte);
       }
     }
   }
@@ -897,9 +897,9 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
             return FALSE;
 
           if(addr_byte < 16)
-            g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+            snprintf(addr_byte_string,4,"0%X",addr_byte);
           else
-            g_snprintf(addr_byte_string,4,"%X",addr_byte);
+            snprintf(addr_byte_string,4,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];
@@ -926,9 +926,9 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
             return FALSE;
 
           if(addr_byte < 16)
-            g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+            snprintf(addr_byte_string,4,"0%X",addr_byte);
           else
-            g_snprintf(addr_byte_string,4,"%X",addr_byte);
+            snprintf(addr_byte_string,4,"%X",addr_byte);
           for(i = 0; i < strlen(addr_byte_string); i++)
           {
             ipv4_address_expanded[cpt] = addr_byte_string[i];
@@ -968,7 +968,7 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
              return FALSE;
           addr_byte &= (0x0F << (4 * (i + 1) - mask));
           addr_byte &= 0x0F;
-          g_snprintf(ipv4_address_expanded + i, 4, "%X", addr_byte);
+          snprintf(ipv4_address_expanded + i, 4, "%X", addr_byte);
         }
       }
     }
@@ -1059,7 +1059,7 @@ filter_spi_match(guint spi, gchar *filter)
   if (strchr(filter, IPSEC_SA_WILDCARDS_ANY) != NULL) {
     gchar spi_string[IPSEC_SPI_LEN_MAX];
 
-    g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
+    snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
 
     /* Lengths need to match exactly... */
     if(strlen(spi_string) != filter_len)
@@ -1184,7 +1184,7 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  guint spi,
 
 static void ah_prompt(packet_info *pinfo, gchar *result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ah, pinfo->curr_layer_num)));
 }
 
@@ -2196,7 +2196,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         esp_pad_len = tvb_get_guint8(tvb, esp_packet_len - 14);
         encapsulated_protocol = tvb_get_guint8(tvb, esp_packet_len - 13);
         dissector_handle = dissector_get_uint_handle(ip_dissector_table, encapsulated_protocol);
-        if (dissector_handle) {
+        if (dissector_handle && (ESP_HEADER_LEN + 14 + esp_pad_len) <= esp_packet_len) {
           saved_match_uint  = pinfo->match_uint;
           pinfo->match_uint = encapsulated_protocol;
           next_tvb = tvb_new_subset_length(tvb, ESP_HEADER_LEN, esp_packet_len - ESP_HEADER_LEN - 14 - esp_pad_len);
@@ -2210,17 +2210,30 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if(decrypt_dissect_ok)
     {
-      if(decr_tree)
+      if(esp_tree)
       {
-        proto_tree_add_uint(decr_tree, hf_esp_pad_len, tvb,
-                            esp_decr_data_len-2, 1,
+        proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb,
+                            esp_packet_len - 14, 1,
                             esp_pad_len);
 
-        proto_tree_add_uint_format(decr_tree, hf_esp_protocol, tvb,
-                                   esp_decr_data_len-2, 1,
+        proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb,
+                                   esp_packet_len - 13, 1,
                                    encapsulated_protocol,
                                    "Next header: %s (0x%02x)",
                                    ipprotostr(encapsulated_protocol), encapsulated_protocol);
+
+        /* Make sure we have the auth trailer data */
+        if(tvb_bytes_exist(tvb, esp_packet_len - 12, 12))
+        {
+          proto_tree_add_item(esp_tree, hf_esp_icv, tvb, esp_packet_len - 12, 12, ENC_NA);
+        }
+        else
+        {
+          /* Truncated so just display what we have */
+          proto_tree_add_bytes_format(esp_tree, hf_esp_icv, tvb, esp_packet_len - 12,
+                                      12 - (esp_packet_len - tvb_captured_length(tvb)),
+                                      NULL, "Integrity Check Value (truncated)");
+        }
       }
     }
   }

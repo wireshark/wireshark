@@ -993,15 +993,15 @@ static char *decode_key_name(int unicode)
         || (unicode == 0xE9)
         || (unicode == 0xF9))
     {
-        g_snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
+        snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
     }
     else if (unicode <= 0xFF)
     {
-        g_snprintf(key_name, 24, "%c", unicode);
+        snprintf(key_name, 24, "%c", unicode);
     }
     else
     {
-        g_snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
+        snprintf(key_name, 24, "%s", val_to_str_ext_const(unicode, &str_key_name_ext, "Unknown"));
     }
     return key_name;
 }
@@ -1252,7 +1252,7 @@ static void decode_evt(proto_tree  *tree,
             }
             unicode_value = decode_utf8(utf8_value);
             key_name      = (char *)wmem_alloc(wmem_packet_scope(), 30);
-            g_snprintf(key_name, 30, "\"%s\"", decode_key_name((int)unicode_value));
+            snprintf(key_name, 30, "\"%s\"", decode_key_name((int)unicode_value));
 
             /* add text to the frame "INFO" column */
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", key_name);
@@ -1264,7 +1264,7 @@ static void decode_evt(proto_tree  *tree,
                 tvb,
                 offset,
                 length, key_name,
-                "%s (UTF-8 Value: %s, Unicode Value: 0x%" G_GINT64_MODIFIER "x)",
+                "%s (UTF-8 Value: %s, Unicode Value: 0x%" PRIx64 ")",
                 key_name,
                 tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, length),
                 unicode_value);

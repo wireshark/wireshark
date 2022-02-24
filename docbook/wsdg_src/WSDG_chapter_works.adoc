@@ -1,22 +1,22 @@
 // WSDG Chapter Works
 
-[[ChapterWorks]]
+[#ChapterWorks]
 
 == How Wireshark Works
 
-[[ChWorksIntro]]
+[#ChWorksIntro]
 
 === Introduction
 
 This chapter will give you a short overview of how Wireshark works.
 
-[[ChWorksOverview]]
+[#ChWorksOverview]
 
 === Overview
 
 The following will give you a simplified overview of Wireshark’s function blocks:
 
-[[ChWorksFigOverview]]
+[#ChWorksFigOverview]
 
 .Wireshark function blocks
 image::wsdg_graphics/ws-function-blocks.png[{pdf-scaledwidth}]
@@ -61,7 +61,7 @@ significantly different mechanism. That’s why there are different display and
 capture filter syntaxes.
 
 
-[[ChWorksCapturePackets]]
+[#ChWorksCapturePackets]
 
 === Capturing packets
 
@@ -78,7 +78,7 @@ and Npcap (see <<ChLibsPcap>>) libraries are used. These libraries provide a
 general purpose interface to capture packets and are used by a wide variety of
 applications.
 
-[[ChWorksCaptureFiles]]
+[#ChWorksCaptureFiles]
 
 === Capture Files
 
@@ -90,7 +90,7 @@ Wireshark's wiretap library, which provides a general purpose interface for
 reading and writing packet capture formats and supports more than twenty
 packet capture formats.
 
-[[ChWorksDissectPackets]]
+[#ChWorksDissectPackets]
 
 === Dissect packets
 

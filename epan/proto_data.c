@@ -73,6 +73,33 @@ p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int pr
   *proto_list = g_slist_prepend(*proto_list, p1);
 }
 
+void
+p_set_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data)
+{
+  proto_data_t  temp;
+  GSList       *item;
+
+  temp.proto = proto;
+  temp.key = key;
+  temp.proto_data = NULL;
+
+  if (scope == pinfo->pool) {
+    item = g_slist_find_custom(pinfo->proto_data, &temp, p_compare);
+  } else if (scope == wmem_file_scope()) {
+    item = g_slist_find_custom(pinfo->fd->pfd, &temp, p_compare);
+  } else {
+    DISSECTOR_ASSERT(!"invalid wmem scope");
+  }
+
+  if (item) {
+    proto_data_t *pd = (proto_data_t *)item->data;
+    pd->proto_data = proto_data;
+    return;
+  }
+
+  p_add_proto_data(scope, pinfo, proto, key, proto_data);
+}
+
 void *
 p_get_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key)
 {
@@ -143,7 +170,7 @@ p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, gu
 #define PROTO_DEPTH_KEY 0x3c233fb5 // printf "0x%02x%02x\n" ${RANDOM} ${RANDOM}
 
 void p_set_proto_depth(struct _packet_info *pinfo, int proto, unsigned depth) {
-  p_add_proto_data(pinfo->pool, pinfo, proto, PROTO_DEPTH_KEY, GUINT_TO_POINTER(depth));
+  p_set_proto_data(pinfo->pool, pinfo, proto, PROTO_DEPTH_KEY, GUINT_TO_POINTER(depth));
 }
 
 unsigned p_get_proto_depth(struct _packet_info *pinfo, int proto) {

@@ -51,6 +51,7 @@ static guint   dissect_zbee_t2                 (tvbuff_t *tvb, proto_tree *tree,
 /* Helper routine. */
 static guint   zbee_apf_transaction_len    (tvbuff_t *tvb, guint offset, guint8 type);
 
+void dissect_zbee_aps_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 void proto_register_zbee_aps(void);
 
 /********************
@@ -1920,6 +1921,13 @@ static const enum_val_t zbee_zcl_protocol_version_enums[] = {
 
 gint gPREF_zbee_se_protocol_version = ZBEE_SE_VERSION_1_4;
 
+void
+dissect_zbee_aps_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    guint status = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_aps_cmd_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(status, zbee_aps_status_names, "Unknown Status"));
+}
 /**
  *ZigBee APS protocol registration routine.
  *

@@ -197,7 +197,7 @@ eth_filter_valid(packet_info *pinfo)
 static gchar*
 eth_build_filter(packet_info *pinfo)
 {
-    return g_strdup_printf("eth.addr eq %s and eth.addr eq %s",
+    return ws_strdup_printf("eth.addr eq %s and eth.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->dl_src),
                 address_to_str(pinfo->pool, &pinfo->dl_dst));
 }

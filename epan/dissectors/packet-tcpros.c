@@ -83,7 +83,7 @@ dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 
 		proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_length, tvb, offset, SIZE_OF_LENGTH_FIELD, ENC_LITTLE_ENDIAN);
 		offset += SIZE_OF_LENGTH_FIELD;
-		ti = proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_data, tvb, offset, fLen, ENC_UTF_8|ENC_NA);
+		ti = proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_data, tvb, offset, fLen, ENC_UTF_8);
 
 		/** Look for the '=' separator */
 		sep = (tvb_find_guint8(tvb, offset, fLen, '=') - offset);
@@ -93,7 +93,7 @@ dissect_ros_connection_header_field(tvbuff_t *tvb, proto_tree *tree, packet_info
 			const guint8* field;
 			field_tree = proto_item_add_subtree(ti, ett_tcpros);
 			proto_tree_add_item_ret_string(field_tree, hf_tcpros_connection_header_field_name, tvb, offset, sep, ENC_UTF_8|ENC_NA, pinfo->pool, &field);
-			proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_value, tvb, offset+sep+1, fLen - sep - 1, ENC_UTF_8|ENC_NA);
+			proto_tree_add_item(field_tree, hf_tcpros_connection_header_field_value, tvb, offset+sep+1, fLen - sep - 1, ENC_UTF_8);
 
 			col_append_str(pinfo->cinfo, COL_INFO, field);
 		}

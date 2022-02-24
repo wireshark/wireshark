@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
@@ -17,6 +18,7 @@ typedef void (*FvalueFreeFunc)(fvalue_t*);
 
 typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, const char*, gboolean, gchar **);
 typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, gchar **);
+typedef gboolean (*FvalueFromCharConst)(fvalue_t*, unsigned long, gchar **);
 typedef char *(*FvalueToStringRepr)(wmem_allocator_t *, const fvalue_t*, ftrepr_t, int field_display);
 
 typedef void (*FvalueSetByteArrayFunc)(fvalue_t*, GByteArray *);
@@ -55,6 +57,7 @@ struct _ftype_t {
 	FvalueFreeFunc		free_value;
 	FvalueFromUnparsed	val_from_unparsed;
 	FvalueFromString	val_from_string;
+	FvalueFromCharConst	val_from_charconst;
 	FvalueToStringRepr	val_to_string_repr;
 
 	union {
@@ -106,8 +109,8 @@ void ftype_register_tvbuff(void);
 GByteArray *
 byte_array_from_unparsed(const char *s, gchar **err_msg);
 
-gboolean
-parse_charconst(const char *s, unsigned long *valuep, gchar **err_msg);
+GByteArray *
+byte_array_from_charconst(unsigned long num, gchar **err_msg);
 
 #endif /* FTYPES_INT_H */
 

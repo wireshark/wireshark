@@ -1,4 +1,4 @@
-/* protobuf_lang_tree.h
+/** @file
  *
  * Routines of building and reading Protocol Buffers Language grammar tree.
  * Copyright 2019, Huang Qiangxiong <qiangxiong.huang@qq.com>
@@ -13,11 +13,10 @@
 #ifndef __PROTOBUF_LANG_TREE_H__
 #define __PROTOBUF_LANG_TREE_H__
 
-#include <glib.h>
+#include <wireshark.h>
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "ws_attributes.h"
 
 #ifdef __cplusplus
 extern "C" {

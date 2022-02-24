@@ -46,7 +46,7 @@ endif()
 set (MMDBRESOLVE_EXE ${MAXMINDDB_FOUND})
 
 # Must match ${EXTRA_INSTALLER_DIR}/Npcap-X.Y.Z.exe
-set(NPCAP_PACKAGE_VERSION "1.55")
+set(NPCAP_PACKAGE_VERSION "1.60")
 
 set(USBPCAP_PACKAGE_VERSION "1.5.4.0")
 
@@ -81,8 +81,9 @@ endif()
 # 1912 = VS2017 15.5        / 14.12
 # 1913 = VS2017 15.6        / 14.13
 # 1914 = VS2017 15.7        / 14.14
-set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
-if(MSVC_VERSION GREATER_EQUAL 1920)
+if(MSVC_VERSION GREATER_EQUAL 1930)
+	set(_ws_vcredist_subdir "vcredist_MSVC2022")
+elseif(MSVC_VERSION GREATER_EQUAL 1920)
 	set(_ws_vcredist_subdir "vcredist_MSVC2019")
 	set(_msvs_version 15.0) # Doesn't appear to be set
 elseif(MSVC_VERSION GREATER_EQUAL 1910)
@@ -115,14 +116,19 @@ if(MSVC_VERSION GREATER_EQUAL 1910 AND VCINSTALLDIR)
 		"${VCINSTALLDIR}/Redist/MSVC/14.*.*")
 endif()
 
-find_program(VCREDIST_EXE "${_vcredist_name}"
+find_program(_vcredist
+	NAMES
+		"vc_redist.${TARGET_MACHINE}.exe" # Visual Studio 2022 and later
+		"vcredist_${TARGET_MACHINE}.exe" # Visual Studio 2019 and earlier
 	PATHS "${_PROJECT_LIB_DIR}" $ENV{VCToolsRedistDir} "${VCINSTALLDIR}"
 	PATH_SUFFIXES ${_ws_vcredist_subdir} ${_ms_vcredist_subdir}
 	NO_DEFAULT_PATH
 )
-if(VCREDIST_EXE)
-	file(TO_NATIVE_PATH "${VCREDIST_EXE}" VCREDIST_EXE)
-	message(STATUS "Using ${VCREDIST_EXE} for the NSIS installer.")
+if(_vcredist)
+	file(TO_NATIVE_PATH "${_vcredist}" _vcredist)
+	message(STATUS "Using ${_vcredist} for the NSIS installer.")
+	get_filename_component(VCREDIST_DIR ${_vcredist} DIRECTORY)
+	get_filename_component(VCREDIST_EXE ${_vcredist} NAME)
 endif()
 
 # Ideally we would generate this at compile time using a separate cmake
@@ -170,7 +176,7 @@ set(NSIS_OPTIONS
 	/DSTAGING_DIR=${_staging_dir}
 	/DOUTFILE_DIR=${_outfile_dir}
 	/DNSIS_INCLUDE_DIR=${_nsis_include_dir}
-	/V4
+	/V2
 	PARENT_SCOPE
 )
 

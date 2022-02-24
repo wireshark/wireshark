@@ -1,4 +1,4 @@
-/* print_stream.h
+/** @file
  * Definitions for print streams.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>

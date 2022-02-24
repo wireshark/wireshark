@@ -91,7 +91,8 @@ static const guint8 *get_field_data(GSList *src_list, field_info *fi);
 static void pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi);
 static void json_write_field_hex_value(write_json_data *pdata, field_info *fi);
 static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
-                                      guint length, packet_char_enc encoding);
+                                      guint length, packet_char_enc encoding,
+                                      guint hexdump_options);
 static void write_specified_fields(fields_format format,
                                    output_fields_t *fields,
                                    epan_dissect_t *edt, column_info *cinfo,
@@ -223,7 +224,7 @@ proto_tree_print_node(proto_node *node, gpointer data)
                 return;
             }
             if (!print_hex_data_buffer(pdata->stream, pd,
-                                       fi->length, pdata->encoding)) {
+                                       fi->length, pdata->encoding, HEXDUMP_ASCII_INCLUDE)) {
                 pdata->success = FALSE;
                 return;
             }
@@ -372,7 +373,7 @@ write_ek_proto_tree(output_fields_t* fields,
 
     /* Timestamp added for time indexing in Elasticsearch */
     json_dumper_set_member_name(&dumper, "timestamp");
-    json_dumper_value_anyf(&dumper, "\"%" G_GUINT64_FORMAT "%03d\"", (guint64)edt->pi.abs_ts.secs, edt->pi.abs_ts.nsecs/1000000);
+    json_dumper_value_anyf(&dumper, "\"%" PRIu64 "%03d\"", (guint64)edt->pi.abs_ts.secs, edt->pi.abs_ts.nsecs/1000000);
 
     if (print_summary)
         write_ek_summary(edt->pi.cinfo, &data);
@@ -598,14 +599,14 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                         case FT_INT48:
                         case FT_INT56:
                         case FT_INT64:
-                            fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_sinteger64(&fi->value));
+                            fprintf(pdata->fh, "%" PRIX64, fvalue_get_sinteger64(&fi->value));
                             break;
                         case FT_UINT40:
                         case FT_UINT48:
                         case FT_UINT56:
                         case FT_UINT64:
                         case FT_BOOLEAN:
-                            fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X", fvalue_get_uinteger64(&fi->value));
+                            fprintf(pdata->fh, "%" PRIX64, fvalue_get_uinteger64(&fi->value));
                             break;
                         default:
                             ws_assert_not_reached();
@@ -716,7 +717,7 @@ write_json_index(json_dumper *dumper, epan_dissect_t *edt)
         (void) g_strlcpy(ts, "XXXX-XX-XX", sizeof(ts)); /* XXX - better way of saying "Not representable"? */
     }
     json_dumper_set_member_name(dumper, "_index");
-    str = g_strdup_printf("packets-%s", ts);
+    str = ws_strdup_printf("packets-%s", ts);
     json_dumper_value_string(dumper, str);
     g_free(str);
 }
@@ -886,7 +887,7 @@ write_json_proto_node(GSList *node_values_head,
     // Retrieve json key from first value.
     proto_node *first_value = (proto_node *) node_values_head->data;
     const char *json_key = proto_node_to_json_key(first_value);
-    gchar* json_key_suffix = g_strdup_printf("%s%s", json_key, suffix);
+    gchar* json_key_suffix = ws_strdup_printf("%s%s", json_key, suffix);
     json_dumper_set_member_name(pdata->dumper, json_key_suffix);
     g_free(json_key_suffix);
     write_json_proto_node_value_list(node_values_head, value_writer, pdata);
@@ -961,14 +962,14 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
             case FT_INT48:
             case FT_INT56:
             case FT_INT64:
-                json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_sinteger64(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_sinteger64(&fi->value));
                 break;
             case FT_UINT40:
             case FT_UINT48:
             case FT_UINT56:
             case FT_UINT64:
             case FT_BOOLEAN:
-                json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_uinteger64(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_uinteger64(&fi->value));
                 break;
             default:
                 ws_assert_not_reached();
@@ -978,10 +979,10 @@ write_json_proto_node_hex_dump(proto_node *node, write_json_data *pdata)
     }
 
     /* Dump raw hex-encoded dissected information including position, length, bitmask, type */
-    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", fi->start);
-    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", fi->length);
-    json_dumper_value_anyf(pdata->dumper, "%" G_GUINT64_FORMAT, fi->hfinfo->bitmask);
-    json_dumper_value_anyf(pdata->dumper, "%" G_GINT32_MODIFIER "d", (gint32)fvalue_type_ftenum(&fi->value));
+    json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->start);
+    json_dumper_value_anyf(pdata->dumper, "%" PRId32, fi->length);
+    json_dumper_value_anyf(pdata->dumper, "%" PRIu64, fi->hfinfo->bitmask);
+    json_dumper_value_anyf(pdata->dumper, "%" PRId32, (gint32)fvalue_type_ftenum(&fi->value));
 
     json_dumper_end_array(pdata->dumper);
 }
@@ -1253,10 +1254,10 @@ ek_write_name(proto_node *pnode, gchar* suffix, write_json_data* pdata)
 
     if (fi->hfinfo->parent != -1) {
         header_field_info* parent = proto_registrar_get_nth(fi->hfinfo->parent);
-        str = g_strdup_printf("%s_%s%s", parent->abbrev, fi->hfinfo->abbrev, suffix ? suffix : "");
+        str = ws_strdup_printf("%s_%s%s", parent->abbrev, fi->hfinfo->abbrev, suffix ? suffix : "");
         json_dumper_set_member_name(pdata->dumper, str);
     } else {
-        str = g_strdup_printf("%s%s", fi->hfinfo->abbrev, suffix ? suffix : "");
+        str = ws_strdup_printf("%s%s", fi->hfinfo->abbrev, suffix ? suffix : "");
         json_dumper_set_member_name(pdata->dumper, str);
     }
     g_free(str);
@@ -1284,14 +1285,14 @@ ek_write_hex(field_info *fi, write_json_data *pdata)
             case FT_INT48:
             case FT_INT56:
             case FT_INT64:
-                json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_sinteger64(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_sinteger64(&fi->value));
                 break;
             case FT_UINT40:
             case FT_UINT48:
             case FT_UINT56:
             case FT_UINT64:
             case FT_BOOLEAN:
-                json_dumper_value_anyf(pdata->dumper, "\"%" G_GINT64_MODIFIER "X\"", fvalue_get_uinteger64(&fi->value));
+                json_dumper_value_anyf(pdata->dumper, "\"%" PRIX64 "\"", fvalue_get_uinteger64(&fi->value));
                 break;
             default:
                 ws_assert_not_reached();
@@ -1961,7 +1962,7 @@ json_write_field_hex_value(write_json_data *pdata, field_info *fi)
 }
 
 gboolean
-print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
+print_hex_data(print_stream_t *stream, epan_dissect_t *edt, guint hexdump_options)
 {
     gboolean      multiple_sources;
     GSList       *src_le;
@@ -1983,9 +1984,9 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
          src_le = src_le->next) {
         src = (struct data_source *)src_le->data;
         tvb = get_data_source_tvb(src);
-        if (multiple_sources) {
+        if (multiple_sources && (HEXDUMP_SOURCE_OPTION(hexdump_options) == HEXDUMP_SOURCE_MULTI)) {
             name = get_data_source_name(src);
-            line = g_strdup_printf("%s:", name);
+            line = ws_strdup_printf("%s:", name);
             wmem_free(NULL, name);
             print_line(stream, 0, line);
             g_free(line);
@@ -1995,8 +1996,12 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
             return TRUE;
         cp = tvb_get_ptr(tvb, 0, length);
         if (!print_hex_data_buffer(stream, cp, length,
-                                   (packet_char_enc)edt->pi.fd->encoding))
+                                   (packet_char_enc)edt->pi.fd->encoding,
+                                   HEXDUMP_ASCII_OPTION(hexdump_options)))
             return FALSE;
+        if (HEXDUMP_SOURCE_OPTION(hexdump_options) == HEXDUMP_SOURCE_PRIMARY) {
+            return TRUE;
+        }
     }
     return TRUE;
 }
@@ -2013,10 +2018,11 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 #define HEX_DUMP_LEN    (BYTES_PER_LINE*3)
                                 /* max number of characters hex dump takes -
                                    2 digits plus trailing blank */
-#define DATA_DUMP_LEN   (HEX_DUMP_LEN + 2 + BYTES_PER_LINE)
+#define DATA_DUMP_LEN   (HEX_DUMP_LEN + 2 + 2 + BYTES_PER_LINE)
                                 /* number of characters those bytes take;
                                    3 characters per byte of hex dump,
                                    2 blanks separating hex from ASCII,
+                                   2 optional ASCII dump delimiters,
                                    1 character per byte of ASCII dump */
 #define MAX_LINE_LEN    (MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
                                 /* number of characters per line;
@@ -2025,7 +2031,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 
 static gboolean
 print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
-                      guint length, packet_char_enc encoding)
+                      guint length, packet_char_enc encoding, guint ascii_option)
 {
     register unsigned int ad, i, j, k, l;
     guchar                c;
@@ -2076,15 +2082,19 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
              * Offset in line of ASCII dump.
              */
             k = j + HEX_DUMP_LEN + 2;
+            if (ascii_option == HEXDUMP_ASCII_DELIMIT)
+                line[k++] = '|';
         }
         c = *cp++;
         line[j++] = binhex[c>>4];
         line[j++] = binhex[c&0xf];
         j++;
-        if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
-            c = EBCDIC_to_ASCII1(c);
+        if (ascii_option != HEXDUMP_ASCII_EXCLUDE ) {
+            if (encoding == PACKET_CHAR_ENC_CHAR_EBCDIC) {
+                c = EBCDIC_to_ASCII1(c);
+            }
+            line[k++] = ((c >= ' ') && (c < 0x7f)) ? c : '.';
         }
-        line[k++] = ((c >= ' ') && (c < 0x7f)) ? c : '.';
         i++;
         if (((i & 15) == 0) || (i == length)) {
             /*
@@ -2093,6 +2103,8 @@ print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
              * dump out the line we've constructed,
              * and advance the offset.
              */
+            if (ascii_option == HEXDUMP_ASCII_DELIMIT)
+                line[k++] = '|';
             line[k] = '\0';
             if (!print_line(stream, 0, line))
                 return FALSE;
@@ -2406,7 +2418,7 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, g
              * character as a separator between the previous element
              * and this element.
              */
-            g_ptr_array_add(fv_p, (gpointer)g_strdup_printf("%c", fields->aggregator));
+            g_ptr_array_add(fv_p, (gpointer)ws_strdup_printf("%c", fields->aggregator));
         }
         break;
     default:
@@ -2498,7 +2510,7 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
             if (!get_column_visible(col))
                 continue;
             /* Prepend COLUMN_FIELD_FILTER as the field name */
-            col_name = g_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
+            col_name = ws_strdup_printf("%s%s", COLUMN_FIELD_FILTER, cinfo->columns[col].col_title);
             field_index = g_hash_table_lookup(fields->field_indicies, col_name);
             g_free(col_name);
 
@@ -2746,7 +2758,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
         p = buffer;
         /* Print a simple hex dump */
         for (i = 0 ; i < fi->length; i++) {
-            g_snprintf(p, chars_per_byte+1, "%02x", pd[i]);
+            snprintf(p, chars_per_byte+1, "%02x", pd[i]);
             p += chars_per_byte;
         }
         return buffer;

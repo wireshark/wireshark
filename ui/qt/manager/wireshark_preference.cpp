@@ -81,6 +81,20 @@ public:
 REGISTER_PREFERENCE_TYPE(PREF_STRING, StringPreference)
 REGISTER_PREFERENCE_TYPE(PREF_CUSTOM, StringPreference)
 
+class PasswordPreference : public StringPreference
+{
+public:
+    PasswordPreference(QObject * parent = Q_NULLPTR) : StringPreference(parent) {}
+    virtual QWidget * editor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index)
+    {
+        QLineEdit *le = static_cast<QLineEdit *>(StringPreference::editor(parent, option, index));
+
+        le->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+        return le;
+    }
+};
+REGISTER_PREFERENCE_TYPE(PREF_PASSWORD, PasswordPreference)
+
 class UIntPreference : public StringPreference
 {
 public:

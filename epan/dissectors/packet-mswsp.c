@@ -2958,21 +2958,23 @@ static void get_name_from_fullpropspec(struct CFullPropSpec *v, char *out, int b
 	id_str = pset ? try_val_to_str(v->u.propid, pset->id_map) : NULL;
 
 	if (id_str) {
-		g_snprintf(dest, bufsize, "%s", id_str);
+		snprintf(dest, bufsize, "%s", id_str);
 	} else {
 		guid_str = guids_get_guid_name(&v->guid, wmem_packet_scope());
 		if (guid_str) {
-			g_snprintf(dest, bufsize, "\"%s\"", guid_str);
+			snprintf(dest, bufsize, "\"%s\"", guid_str);
 		} else {
 			guid_str = guid_to_str(wmem_packet_scope(), &v->guid);
-			g_snprintf(dest, bufsize, "{%s}", guid_str);
+			snprintf(dest, bufsize, "{%s}", guid_str);
 		}
 		if (v->kind == PRSPEC_LPWSTR) {
-			g_snprintf(dest, bufsize, "%s \"%s\"", guid_str, v->u.name);
+			snprintf(dest, bufsize, "%s \"%s\"", guid_str, v->u.name);
 		} else if (v->kind == PRSPEC_PROPID) {
-			g_snprintf(dest, bufsize, "%s 0x%08x", guid_str, v->u.propid);
+			snprintf(dest, bufsize, "%s 0x%08x", guid_str, v->u.propid);
 		} else {
-			g_snprintf(dest, bufsize, "%s <INVALID>", dest);
+			char *str = ws_strdup_printf("%s <INVALID>", dest);
+			g_strlcpy(dest, str, bufsize);
+			g_free(str);
 		}
 	}
 }
@@ -4055,7 +4057,7 @@ static void vvalue_strbuf_append_i4(wmem_strbuf_t *strbuf, void *ptr)
 static void vvalue_strbuf_append_i8(wmem_strbuf_t *strbuf, void *ptr)
 {
 	gint64 i8 = *(gint64*)ptr;
-	wmem_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "d", i8);
+	wmem_strbuf_append_printf(strbuf, "%" PRId64, i8);
 }
 
 static void vvalue_strbuf_append_ui1(wmem_strbuf_t *strbuf, void *ptr)
@@ -4079,7 +4081,7 @@ static void vvalue_strbuf_append_ui4(wmem_strbuf_t *strbuf, void *ptr)
 static void vvalue_strbuf_append_ui8(wmem_strbuf_t *strbuf, void *ptr)
 {
 	guint64 ui8 = *(guint64*)ptr;
-	wmem_strbuf_append_printf(strbuf, "%" G_GINT64_MODIFIER "u", ui8);
+	wmem_strbuf_append_printf(strbuf, "%" PRIu64, ui8);
 }
 
 static void vvalue_strbuf_append_r4(wmem_strbuf_t *strbuf, void *ptr)
@@ -5218,7 +5220,7 @@ static int parse_VariantColVector(tvbuff_t *tvb, int offset, proto_tree *tree, g
 			size = 8;
 			address_of_address = buf_offset + (i * size);
 			item_address = tvb_get_letoh64(tvb, address_of_address);
-			proto_tree_add_uint64_format(sub_tree, hf_mswsp_rowvariant_item_address64, tvb, address_of_address, size, item_address, "address[%d] 0x%" G_GINT64_MODIFIER "x", i, item_address);
+			proto_tree_add_uint64_format(sub_tree, hf_mswsp_rowvariant_item_address64, tvb, address_of_address, size, item_address, "address[%d] 0x%" PRIx64, i, item_address);
 		} else {
 			size = 4;
 			item_address = tvb_get_letohl(tvb, buf_offset + (i * size));

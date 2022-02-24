@@ -75,37 +75,7 @@
  */
 
 #include "config.h"
-
-/*
- * Just make sure we include the prototype for strptime as well
- * (needed for glibc 2.2) but make sure we do this only if not
- * yet defined.
- */
-#ifndef __USE_XOPEN
-#  define __USE_XOPEN
-#endif
-#ifndef _XOPEN_SOURCE
-#  ifndef __sun
-#    define _XOPEN_SOURCE 600
-#  endif
-#endif
 #include "text_import.h"
-
-/*
- * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
- * using glibc, to expand the set of things system header files define.
- *
- * Unfortunately, on other platforms, such as some versions of Solaris
- * (including Solaris 10), it *reduces* that set as well, causing
- * strptime() not to be declared, presumably because the version of the
- * X/Open spec that _XOPEN_SOURCE implies doesn't include strptime() and
- * blah blah blah namespace pollution blah blah blah.
- *
- * So we define __EXTENSIONS__ so that "strptime()" is declared.
- */
-#ifndef __EXTENSIONS__
-#  define __EXTENSIONS__
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -122,11 +92,16 @@
 #include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
+#include <ui/exit_codes.h>
+#include <wsutil/report_message.h>
 #include <wsutil/exported_pdu_tlvs.h>
 
-#ifndef HAVE_STRPTIME
-# include "wsutil/strptime.h"
-#endif
+#include <wsutil/nstime.h>
+#include <wsutil/time_util.h>
+
+#include <ui/version_info.h>
+#include <wsutil/cpu_info.h>
+#include <wsutil/os_version_info.h>
 
 #include "text_import_scanner.h"
 #include "text_import_scanner_lex.h"
@@ -134,16 +109,10 @@
 
 /*--- Options --------------------------------------------------------------------*/
 
-/* Debug level */
-static int debug = 0;
-
-/* time percision stored in file: 1[file] = 1^(-SUBSEC_PREC) */
+/* maximum time precision we can handle = 10^(-SUBSEC_PREC) */
 #define SUBSEC_PREC 9
 
-#define debug_printf(level,  ...) \
-    if (debug >= (level)) { \
-        printf(__VA_ARGS__); \
-    }
+static text_import_info_t *info_p;
 
 /* Dummy Ethernet header */
 static gboolean hdr_ethernet = FALSE;
@@ -153,12 +122,19 @@ static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
 static gboolean hdr_ip = FALSE;
+static gboolean hdr_ipv6 = FALSE;
 static guint hdr_ip_proto = 0;
+
+/* Destination and source addresses for IP header */
+static ws_in6_addr NO_IPv6_ADDRESS    = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+/* These IPv6 default addresses are unique local addresses generated using
+ * the pseudo-random method from Section 3.2.2 of RFC 4193
+ */
+static ws_in6_addr IPv6_SRC = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}};
+static ws_in6_addr IPv6_DST = {{0xfd, 0xce, 0xd8, 0x62, 0x14, 0x1b, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02}};
 
 /* Dummy UDP header */
 static gboolean hdr_udp = FALSE;
-static guint32 hdr_dest_port = 0;
-static guint32 hdr_src_port = 0;
 
 /* Dummy TCP header */
 static gboolean hdr_tcp = FALSE;
@@ -169,22 +145,21 @@ static guint32 tcp_out_seq_num = 0;
 
 /* Dummy SCTP header */
 static gboolean hdr_sctp = FALSE;
-static guint32 hdr_sctp_src  = 0;
-static guint32 hdr_sctp_dest = 0;
-static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
 static gboolean hdr_data_chunk = FALSE;
 static guint8  hdr_data_chunk_type = 0;
-static guint8  hdr_data_chunk_bits = 3;
+static guint8  hdr_data_chunk_bits = 0;
 static guint32 hdr_data_chunk_tsn  = 0;
 static guint16 hdr_data_chunk_sid  = 0;
 static guint16 hdr_data_chunk_ssn  = 0;
-static guint32 hdr_data_chunk_ppid = 0;
 
 /* Dummy ExportPdu header */
 static gboolean hdr_export_pdu = FALSE;
-static const gchar* hdr_export_pdu_payload = NULL;
+
+/* Hex+ASCII text dump identification, to handle an edge case where
+ * the ASCII representation contains patterns that look like bytes. */
+static guint8* pkt_lnstart;
 
 static gboolean has_direction = FALSE;
 static guint32 direction = PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED;
@@ -195,9 +170,9 @@ static guint64 seqno = 0;
 /* This is where we store the packet currently being built */
 static guint8 *packet_buf;
 static guint32 curr_offset = 0;
-static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 static guint32 packet_start = 0;
-static void start_new_packet (void);
+static gboolean offset_warned = FALSE;
+static import_status_t start_new_packet(gboolean);
 
 /* This buffer contains strings present before the packet offset 0 */
 #define PACKET_PREAMBLE_MAX_LEN    2048
@@ -205,12 +180,18 @@ static guint8 packet_preamble[PACKET_PREAMBLE_MAX_LEN+1];
 static int packet_preamble_len = 0;
 
 /* Time code of packet, derived from packet_preamble */
-static time_t ts_sec = 0;
-static guint32 ts_nsec = 0;
-static const char *ts_fmt = NULL;
+static time_t   ts_sec = 0;
+static guint32  ts_nsec = 0;
+static gboolean ts_fmt_iso = FALSE;
 static struct tm timecode_default;
-
-static wtap_dumper* wdh;
+static gboolean timecode_warned = FALSE;
+/* The time delta to add to packets without a valid time code.
+ * This can be no smaller than the time resolution of the dump
+ * file, so the default is 1000 nanoseconds, or 1 microsecond.
+ * XXX: We should at least get this from the resolution of the file we're
+ * writing to, and possibly allow the user to set a different value.
+ */
+static guint32 ts_tick = 1000;
 
 /* HDR_ETH Offset base to parse */
 static guint32 offset_base = 16;
@@ -239,7 +220,8 @@ static const char *token_str[] = {"",
                            "Offset",
                            "Directive",
                            "Text",
-                           "End-of-line"
+                           "End-of-line",
+                           "End-of-file"
 };
 
 /* ----- Skeleton Packet Headers --------------------------------------------------*/
@@ -266,14 +248,15 @@ typedef struct {
     guint32 dest_addr;
 } hdr_ip_t;
 
+/* Default IPv4 addresses if none supplied */
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 #define IP_ID  0x1234
-#define IP_SRC 0x01010101
-#define IP_DST 0x02020202
+#define IP_SRC 0x0a010101
+#define IP_DST 0x0a020202
 #else
 #define IP_ID  0x3412
-#define IP_SRC 0x01010101
-#define IP_DST 0x02020202
+#define IP_SRC 0x0101010a
+#define IP_DST 0x0202020a
 #endif
 
 static hdr_ip_t HDR_IP =
@@ -286,6 +269,35 @@ static struct {         /* pseudo header for checksum calculation */
     guint8  protocol;
     guint16 length;
 } pseudoh;
+
+
+/* headers taken from glibc */
+
+typedef struct {
+    union  {
+        struct ip6_hdrctl {
+            guint32 ip6_un1_flow;   /* 24 bits of flow-ID */
+            guint16 ip6_un1_plen;   /* payload length */
+            guint8  ip6_un1_nxt;    /* next header */
+            guint8  ip6_un1_hlim;   /* hop limit */
+        } ip6_un1;
+        guint8 ip6_un2_vfc;       /* 4 bits version, 4 bits priority */
+    } ip6_ctlun;
+    ws_in6_addr ip6_src;      /* source address */
+    ws_in6_addr ip6_dst;      /* destination address */
+} hdr_ipv6_t;
+
+static hdr_ipv6_t HDR_IPv6;
+
+/* https://tools.ietf.org/html/rfc2460#section-8.1 */
+static struct {                 /* pseudo header ipv6 for checksum calculation */
+    struct  e_in6_addr src_addr6;
+    struct  e_in6_addr dst_addr6;
+    guint32 length;
+    guint8 zero[3];
+    guint8 next_header;
+} pseudoh6;
+
 
 typedef struct {
     guint16 source_port;
@@ -340,45 +352,59 @@ static hdr_export_pdu_t HDR_EXPORT_PDU = {0, 0};
 
 #define EXPORT_PDU_END_OF_OPTIONS_SIZE 4
 
-/* Link-layer type; see net/bpf.h for details */
-static guint pcap_link_type = 1;   /* Default is DLT_EN10MB */
-
 /*----------------------------------------------------------------------
  * Parse a single hex number
  * Will abort the program if it can't parse the number
  * Pass in TRUE if this is an offset, FALSE if not
  */
-static guint32
-parse_num (const char *str, int offset)
+static import_status_t
+parse_num(const char *str, int offset, guint32* num)
 {
-    unsigned long num;
     char *c;
 
     if (str == NULL) {
-        fprintf(stderr, "FATAL ERROR: str is NULL\n");
-        exit(1);
+        report_failure("FATAL ERROR: str is NULL");
+        return IMPORT_FAILURE;
     }
 
-    num = strtoul(str, &c, offset ? offset_base : 16);
-    if (c == str) {
-        fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
+    errno = 0;
+    unsigned long ulnum = strtoul(str, &c, offset ? offset_base : 16);
+    if (errno != 0) {
+        report_failure("Unable to convert %s to base %u: %s", str,
+            offset ? offset_base : 16, g_strerror(errno));
+        return IMPORT_FAILURE;
     }
-    return (guint32)num;
+    if (c == str) {
+        report_failure("Unable to convert %s to base %u", str,
+            offset ? offset_base : 16);
+        return IMPORT_FAILURE;
+    }
+    if (ulnum > G_MAXUINT32) {
+        report_failure("%s too large", str);
+        return IMPORT_FAILURE;
+    }
+    *num = (guint32) ulnum;
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
  * Write this byte into current packet
  */
-static void
-write_byte (const char *str)
+static import_status_t
+write_byte(const char *str)
 {
     guint32 num;
 
-    num = parse_num(str, FALSE);
+    if (parse_num(str, FALSE, &num) != IMPORT_SUCCESS)
+        return IMPORT_FAILURE;
+
     packet_buf[curr_offset] = (guint8) num;
-    curr_offset ++;
-    if (curr_offset >= max_offset) /* packet full */
-        start_new_packet();
+    curr_offset++;
+    if (curr_offset >= info_p->max_frame_length) /* packet full */
+        if (start_new_packet(TRUE) != IMPORT_SUCCESS)
+           return IMPORT_FAILURE;
+
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
@@ -396,21 +422,26 @@ unwrite_bytes (guint32 nbytes)
 static guint32
 number_of_padding_bytes (guint32 length)
 {
-  guint32 remainder;
+    guint32 remainder;
 
-  remainder = length % 4;
+    remainder = length % 4;
 
-  if (remainder == 0)
-    return 0;
-  else
-    return 4 - remainder;
+    if (remainder == 0)
+        return 0;
+    else
+        return 4 - remainder;
 }
 
 /*----------------------------------------------------------------------
  * Write current packet out
+ *
+ * @param cont [IN] TRUE if a packet is being written because the max frame
+ * length was reached, and the original packet from the input file is
+ * continued in a later frame. Used to set fragmentation fields in dummy
+ * headers (currently only implemented for SCTP; IPv4 could be added later.)
  */
-static void
-write_current_packet (void)
+static import_status_t
+write_current_packet(gboolean cont)
 {
     int prefix_length = 0;
     int proto_length = 0;
@@ -428,7 +459,7 @@ write_current_packet (void)
         /* Compute packet length */
         prefix_length = 0;
         if (hdr_export_pdu) {
-            prefix_length += (int)sizeof(HDR_EXPORT_PDU) + (int)strlen(hdr_export_pdu_payload) + EXPORT_PDU_END_OF_OPTIONS_SIZE;
+            prefix_length += (int)sizeof(HDR_EXPORT_PDU) + (int)strlen(info_p->payload) + EXPORT_PDU_END_OF_OPTIONS_SIZE;
             proto_length = prefix_length + curr_offset;
         }
         if (hdr_data_chunk) { prefix_length += (int)sizeof(HDR_DATA_CHUNK); }
@@ -438,6 +469,13 @@ write_current_packet (void)
         if (hdr_ip) {
             prefix_length += (int)sizeof(HDR_IP);
             ip_length = prefix_length + curr_offset + ((hdr_data_chunk) ? number_of_padding_bytes(curr_offset) : 0);
+        } else if (hdr_ipv6) {
+            ip_length = prefix_length + curr_offset + ((hdr_data_chunk) ? number_of_padding_bytes(curr_offset) : 0);
+            /* IPv6 payload length field does not include the header itself.
+             * It does include extension headers, but we don't put any
+             * (if we later do fragments, that would change.)
+             */
+            prefix_length += (int)sizeof(HDR_IPv6);
         }
         if (hdr_ethernet) { prefix_length += (int)sizeof(HDR_ETHERNET); }
 
@@ -471,11 +509,12 @@ write_current_packet (void)
             vec_t cksum_vector[1];
 
             if (isOutbound) {
-                HDR_IP.src_addr = IP_DST;
-                HDR_IP.dest_addr = IP_SRC;
-            } else {
-                HDR_IP.src_addr = IP_SRC;
-                HDR_IP.dest_addr = IP_DST;
+                HDR_IP.src_addr = info_p->ip_dest_addr.ipv4 ? info_p->ip_dest_addr.ipv4 : IP_DST;
+                HDR_IP.dest_addr = info_p->ip_src_addr.ipv4 ? info_p->ip_src_addr.ipv4 : IP_SRC;
+            }
+            else {
+                HDR_IP.src_addr = info_p->ip_src_addr.ipv4 ? info_p->ip_src_addr.ipv4 : IP_SRC;
+                HDR_IP.dest_addr = info_p->ip_dest_addr.ipv4 ? info_p->ip_dest_addr.ipv4 : IP_DST;
             }
             HDR_IP.packet_length = g_htons(ip_length);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
@@ -485,25 +524,56 @@ write_current_packet (void)
 
             memcpy(&packet_buf[prefix_index], &HDR_IP, sizeof(HDR_IP));
             prefix_index += (int)sizeof(HDR_IP);
-        }
 
-        /* initialize pseudo header for checksum calculation */
-        pseudoh.src_addr    = HDR_IP.src_addr;
-        pseudoh.dest_addr   = HDR_IP.dest_addr;
-        pseudoh.zero        = 0;
-        pseudoh.protocol    = (guint8) hdr_ip_proto;
-        pseudoh.length      = g_htons(proto_length);
+            /* initialize pseudo header for checksum calculation */
+            pseudoh.src_addr    = HDR_IP.src_addr;
+            pseudoh.dest_addr   = HDR_IP.dest_addr;
+            pseudoh.zero        = 0;
+            pseudoh.protocol    = (guint8) hdr_ip_proto;
+            pseudoh.length      = g_htons(proto_length);
+        } else if (hdr_ipv6) {
+            if (memcmp(&info_p->ip_dest_addr.ipv6, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr))) {
+                memcpy(isOutbound ? &HDR_IPv6.ip6_src : &HDR_IPv6.ip6_dst, &info_p->ip_dest_addr.ipv6, sizeof(ws_in6_addr));
+            } else {
+                memcpy(isOutbound ? &HDR_IPv6.ip6_src : &HDR_IPv6.ip6_dst, &IPv6_DST, sizeof(ws_in6_addr));
+            }
+            if (memcmp(&info_p->ip_src_addr.ipv6, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr))) {
+                memcpy(isOutbound ? &HDR_IPv6.ip6_dst : &HDR_IPv6.ip6_src, &info_p->ip_src_addr.ipv6, sizeof(ws_in6_addr));
+            } else {
+                memcpy(isOutbound ? &HDR_IPv6.ip6_dst : &HDR_IPv6.ip6_src, &IPv6_SRC, sizeof(ws_in6_addr));
+            }
+
+            HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
+            HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
+            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_plen = g_htons(ip_length);
+            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_nxt  = (guint8) hdr_ip_proto;
+            HDR_IPv6.ip6_ctlun.ip6_un1.ip6_un1_hlim = 32;
+
+            memcpy(&packet_buf[prefix_index], &HDR_IPv6, sizeof(HDR_IPv6));
+            prefix_index += (int)sizeof(HDR_IPv6);
+
+            /* initialize pseudo ipv6 header for checksum calculation */
+            pseudoh6.src_addr6  = HDR_IPv6.ip6_src;
+            pseudoh6.dst_addr6  = HDR_IPv6.ip6_dst;
+            memset(pseudoh6.zero, 0, sizeof(pseudoh6.zero));
+            pseudoh6.next_header   = (guint8) hdr_ip_proto;
+            pseudoh6.length      = g_htons(proto_length);
+        }
 
         /* Write UDP header */
         if (hdr_udp) {
             vec_t cksum_vector[3];
 
-            HDR_UDP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_UDP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
+            HDR_UDP.source_port = isOutbound ? g_htons(info_p->dst_port): g_htons(info_p->src_port);
+            HDR_UDP.dest_port = isOutbound ? g_htons(info_p->src_port) : g_htons(info_p->dst_port);
             HDR_UDP.length = g_htons(proto_length);
 
             HDR_UDP.checksum = 0;
-            cksum_vector[0].ptr = (guint8 *)&pseudoh; cksum_vector[0].len = sizeof(pseudoh);
+            if (hdr_ipv6) {
+                cksum_vector[0].ptr = (guint8 *)&pseudoh6; cksum_vector[0].len = sizeof(pseudoh6);
+            } else {
+                cksum_vector[0].ptr = (guint8 *)&pseudoh; cksum_vector[0].len = sizeof(pseudoh);
+            }
             cksum_vector[1].ptr = (guint8 *)&HDR_UDP; cksum_vector[1].len = sizeof(HDR_UDP);
             cksum_vector[2].ptr = &packet_buf[prefix_length]; cksum_vector[2].len = curr_offset;
             HDR_UDP.checksum = in_cksum(cksum_vector, 3);
@@ -516,8 +586,8 @@ write_current_packet (void)
         if (hdr_tcp) {
             vec_t cksum_vector[3];
 
-            HDR_TCP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_TCP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
+            HDR_TCP.source_port = isOutbound ? g_htons(info_p->dst_port): g_htons(info_p->src_port);
+            HDR_TCP.dest_port = isOutbound ? g_htons(info_p->src_port) : g_htons(info_p->dst_port);
             /* set ack number if we have direction */
             if (has_direction) {
                 HDR_TCP.flags = 0x10;
@@ -532,7 +602,11 @@ write_current_packet (void)
             HDR_TCP.window = g_htons(0x2000);
 
             HDR_TCP.checksum = 0;
-            cksum_vector[0].ptr = (guint8 *)&pseudoh; cksum_vector[0].len = sizeof(pseudoh);
+            if (hdr_ipv6) {
+                cksum_vector[0].ptr = (guint8 *)&pseudoh6; cksum_vector[0].len = sizeof(pseudoh6);
+            } else {
+                cksum_vector[0].ptr = (guint8 *)&pseudoh; cksum_vector[0].len = sizeof(pseudoh);
+            }
             cksum_vector[1].ptr = (guint8 *)&HDR_TCP; cksum_vector[1].len = sizeof(HDR_TCP);
             cksum_vector[2].ptr = &packet_buf[prefix_length]; cksum_vector[2].len = curr_offset;
             HDR_TCP.checksum = in_cksum(cksum_vector, 3);
@@ -551,14 +625,24 @@ write_current_packet (void)
 
         /* Compute DATA chunk header and append padding */
         if (hdr_data_chunk) {
+            hdr_data_chunk_bits = 0;
+            if (packet_start == 0) {
+                hdr_data_chunk_bits |= 0x02;
+            }
+            if (!cont) {
+                hdr_data_chunk_bits |= 0x01;
+            }
             HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
             HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
             HDR_DATA_CHUNK.length = g_htons(curr_offset + sizeof(HDR_DATA_CHUNK));
             HDR_DATA_CHUNK.tsn    = g_htonl(hdr_data_chunk_tsn);
             HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
             HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
-            HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
-
+            HDR_DATA_CHUNK.ppid   = g_htonl(info_p->ppi);
+            hdr_data_chunk_tsn++;
+            if (!cont) {
+                hdr_data_chunk_ssn++;
+            }
             padding_length = number_of_padding_bytes(curr_offset);
             for (i=0; i<padding_length; i++)
                 packet_buf[prefix_length+curr_offset+i] = 0;
@@ -567,9 +651,9 @@ write_current_packet (void)
 
         /* Write SCTP header */
         if (hdr_sctp) {
-            HDR_SCTP.src_port  = isOutbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = isOutbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
-            HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
+            HDR_SCTP.src_port  = isOutbound ? g_htons(info_p->dst_port): g_htons(info_p->src_port);
+            HDR_SCTP.dest_port = isOutbound ? g_htons(info_p->src_port) : g_htons(info_p->dst_port);
+            HDR_SCTP.tag       = g_htonl(info_p->tag);
             HDR_SCTP.checksum  = g_htonl(0);
 
             HDR_SCTP.checksum  = crc32c_calculate(&HDR_SCTP, sizeof(HDR_SCTP), CRC32C_PRELOAD);
@@ -589,12 +673,12 @@ write_current_packet (void)
 
         /* Write ExportPDU header */
         if (hdr_export_pdu) {
-            guint payload_len = (guint)strlen(hdr_export_pdu_payload);
+            guint payload_len = (guint)strlen(info_p->payload);
             HDR_EXPORT_PDU.tag_type = g_htons(EXP_PDU_TAG_PROTO_NAME);
             HDR_EXPORT_PDU.payload_len = g_htons(payload_len);
             memcpy(&packet_buf[prefix_index], &HDR_EXPORT_PDU, sizeof(HDR_EXPORT_PDU));
             prefix_index += sizeof(HDR_EXPORT_PDU);
-            memcpy(&packet_buf[prefix_index], hdr_export_pdu_payload, payload_len);
+            memcpy(&packet_buf[prefix_index], info_p->payload, payload_len);
             prefix_index += payload_len;
             /* Add end-of-options tag */
             memset(&packet_buf[prefix_index], 0x00, 4);
@@ -608,21 +692,32 @@ write_current_packet (void)
         HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + curr_offset;
         HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
 
-        {
-            /* Write the packet */
-            wtap_rec rec;
-            int err;
-            gchar *err_info;
+        /* Write the packet */
+        wtap_rec rec;
+        int err;
+        gchar *err_info;
 
-            memset(&rec, 0, sizeof rec);
+        memset(&rec, 0, sizeof rec);
 
+        if (info_p->encapsulation == WTAP_ENCAP_SYSTEMD_JOURNAL) {
+            rec.rec_type = REC_TYPE_SYSTEMD_JOURNAL_EXPORT;
+            rec.block = wtap_block_create(WTAP_BLOCK_SYSTEMD_JOURNAL_EXPORT);
+            rec.rec_header.systemd_journal_export_header.record_len = prefix_length + curr_offset + eth_trailer_length;
+            rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_TS;
+            /* XXX: Ignore our direction, packet id, and timestamp. For a
+             * systemd Journal Export Block the timestamp comes from the
+             * __REALTIME_TIMESTAMP= field. We don't check to see if that
+             * field is there (it MUST be, but we don't check whether our
+             * input is malformed in general), but since the presence flags
+             * aren't really used when writing, it doesn't matter.
+             */
+        } else {
             rec.rec_type = REC_TYPE_PACKET;
             rec.block = wtap_block_create(WTAP_BLOCK_PACKET);
+            rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
             rec.ts.secs = ts_sec;
             rec.ts.nsecs = ts_nsec;
-            if (ts_fmt == NULL) { ts_nsec++; }  /* fake packet counter */
-            rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
-            rec.rec_header.packet_header.pkt_encap = pcap_link_type;
+            rec.rec_header.packet_header.pkt_encap = info_p->encapsulation;
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS;
             if (has_direction) {
                 wtap_block_add_uint32_option(rec.block, OPT_PKT_FLAGS, direction);
@@ -630,60 +725,63 @@ write_current_packet (void)
             if (has_seqno) {
                 wtap_block_add_uint64_option(rec.block, OPT_PKT_PACKETID, seqno);
             }
-
-            /* XXX - report errors! */
-            if (!wtap_dump(wdh, &rec, packet_buf, &err, &err_info)) {
-                switch (err) {
-
-                case WTAP_ERR_UNWRITABLE_REC_DATA:
-                    g_free(err_info);
-                    break;
-
-                default:
-                    break;
-                }
-            }
-            wtap_block_unref(rec.block);
         }
+
+        if (!wtap_dump(info_p->wdh, &rec, packet_buf, &err, &err_info)) {
+            report_cfile_write_failure(info_p->import_text_filename,
+                    info_p->output_filename, err, err_info,
+                    info_p->num_packets_read,
+                    wtap_dump_file_type_subtype(info_p->wdh));
+            wtap_block_unref(rec.block);
+            return IMPORT_FAILURE;
+        }
+        wtap_block_unref(rec.block);
+        info_p->num_packets_written++;
     }
 
     packet_start += curr_offset;
     curr_offset = 0;
+    return IMPORT_SUCCESS;
 }
 
 
 /*----------------------------------------------------------------------
  * Append a token to the packet preamble.
  */
-static void
+static import_status_t
 append_to_preamble(char *str)
 {
     size_t toklen;
 
     if (packet_preamble_len != 0) {
         if (packet_preamble_len == PACKET_PREAMBLE_MAX_LEN)
-            return;    /* no room to add more preamble */
+            return IMPORT_SUCCESS;    /* no room to add more preamble */
+            /* XXX: Just keep going? This is probably not a problem, unless
+             * someone had >2000 bytes of whitespace before the timestamp... */
         /* Add a blank separator between the previous token and this token. */
         packet_preamble[packet_preamble_len++] = ' ';
     }
     if(str == NULL){
-        fprintf(stderr, "FATAL ERROR: str is NULL\n");
-        exit(1);
+        report_failure("FATAL ERROR: str is NULL");
+        return IMPORT_FAILURE;
     }
     toklen = strlen(str);
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
-            return;    /* no room to add the token to the preamble */
+            return IMPORT_SUCCESS;    /* no room to add token to the preamble */
+            /* XXX: Just keep going? This is probably not a problem, as above.*/
         (void) g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
-        if (debug >= 2) {
+        if (ws_log_get_level() >= LOG_LEVEL_NOISY) {
             char *c;
             char xs[PACKET_PREAMBLE_MAX_LEN];
             (void) g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
             while ((c = strchr(xs, '\r')) != NULL) *c=' ';
-            fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
+            ws_noisy("[[append_to_preamble: \"%s\"]]", xs);
         }
     }
+
+    return IMPORT_SUCCESS;
 }
 
 #define INVALID_VALUE (-1)
@@ -827,16 +925,19 @@ static int parse_plain_data(guchar** src, const guchar* src_end,
      */
     guint64 val;
     int j;
-    debug_printf(3, "parsing data: ");
+    if (ws_log_get_level() >= LOG_LEVEL_NOISY) {
+        char* debug_str = wmem_strndup(NULL, *src, (src_end-*src));
+        ws_noisy("parsing data: %s", debug_str);
+        wmem_free(NULL, debug_str);
+    }
     while (*src < src_end && *dest + encoding->bytes_per_unit <= dest_end) {
-        debug_printf(3, "%c", **src);
         val = encoding->table[**src];
         switch (val) {
           case INVALID_VALUE:
             status = -1;
             goto remainder;
           case WHITESPACE_VALUE:
-            fprintf(stderr, "Unexpected char %d in data\n", **src);
+            ws_warning("Unexpected char %d in data", **src);
             break;
           default:
             c_val = c_val << encoding->bits_per_char | val;
@@ -860,13 +961,12 @@ remainder:
         **dest = (gchar) (c_val >> (j - 8));
         *dest += 1;
     }
-    debug_printf(3, "\n");
     return status * units;
 }
 
 void parse_data(guchar* start_field, guchar* end_field, enum data_encoding encoding) {
     guint8* dest = &packet_buf[curr_offset];
-    guint8* dest_end = &packet_buf[max_offset];
+    guint8* dest_end = &packet_buf[info_p->max_frame_length];
 
     const struct plain_decoding_data* table; /* should be further down */
     switch (encoding) {
@@ -891,18 +991,19 @@ void parse_data(guchar* start_field, guchar* end_field, enum data_encoding encod
           default:
             return;
         }
+        info_p->num_packets_read++;
         while (1) {
             parse_plain_data(&start_field, end_field, &dest, dest_end, table, NULL);
             curr_offset = (int) (dest - packet_buf);
-            if (curr_offset == max_offset) {
-                write_current_packet();
+            if (curr_offset == info_p->max_frame_length) {
+                write_current_packet(TRUE);
                 dest = &packet_buf[curr_offset];
             } else
                 break;
         }
         break;
       default:
-          fprintf(stderr, "not implemented/invalid encoding type\n");
+          ws_critical("not implemented/invalid encoding type");
           return;
     }
 }
@@ -931,10 +1032,15 @@ void parse_dir(const guchar* start_field, const guchar* end_field, const gchar* 
 
 #define PARSE_BUF 64
 
-static void _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _format, time_t* sec, gint* nsec) {
+/* Attempt to parse a time according to the given format. If the conversion
+ * succeeds, set sec and nsec appropriately and return TRUE. If it fails,
+ * leave sec and nsec unchanged and return FALSE.
+ */
+static gboolean
+_parse_time(const guchar* start_field, const guchar* end_field, const gchar* _format, time_t* sec, gint* nsec) {
     struct tm timecode;
     time_t sec_buf;
-    gint nsec_buf;
+    gint nsec_buf = 0;
 
     char field[PARSE_BUF];
     char format[PARSE_BUF];
@@ -947,77 +1053,95 @@ static void _parse_time(const guchar* start_field, const guchar* end_field, cons
     int  i;
 
     (void) g_strlcpy(field, start_field, MIN(end_field - start_field + 1, PARSE_BUF));
-    (void) g_strlcpy(format, _format, PARSE_BUF);
+    if (ts_fmt_iso) {
+        nstime_t ts_iso;
+        if (!iso8601_to_nstime(&ts_iso, field, ISO8601_DATETIME_AUTO)) {
+            return FALSE;
+        }
+        *sec = ts_iso.secs;
+        *nsec = ts_iso.nsecs;
+    } else {
+        (void) g_strlcpy(format, _format, PARSE_BUF);
 
-    /*
-     * Initialize to today localtime, just in case not all fields
-     * of the date and time are specified.
-     */
-    timecode = timecode_default;
-    cursor = &field[0];
-
-    /*
-     * %f is for fractions of seconds not supported by strptime
-     * BTW: what is this function name? is this some russian joke?
-     */
-    subsecs_fmt = g_strrstr (format, "%f");
-    if (subsecs_fmt)
-        *subsecs_fmt = 0;
-    else
-      /* arbitrary counter if no fractions */
-        ++*nsec;
-
-    cursor = strptime(cursor, format, &timecode);
-
-    if (cursor != NULL && subsecs_fmt != NULL) {
         /*
-         * Parse subsecs and any following format
+         * Initialize to today, local time, just in case not all fields
+         * of the date and time are specified.
          */
-        nsec_buf = (guint) strtol(cursor, &p, 10);
-        if (p > cursor) {
-            *nsec = nsec_buf;
+        timecode = timecode_default;
+        cursor = &field[0];
+
+        /*
+         * %f is for fractions of seconds not supported by strptime
+         * BTW: what is this function name? is this some russian joke?
+         */
+        subsecs_fmt = g_strrstr(format, "%f");
+        if (subsecs_fmt) {
+            *subsecs_fmt = 0;
+        }
+
+        cursor = ws_strptime(cursor, format, &timecode);
+
+        if (cursor == NULL) {
+            return FALSE;
+        }
+
+        if (subsecs_fmt != NULL) {
+            /*
+             * Parse subsecs and any following format
+             */
+            nsec_buf = (guint) strtol(cursor, &p, 10);
+            if (p == cursor) {
+                return FALSE;
+            }
+
             subseclen = (int) (p - cursor);
             cursor = p;
-            strptime(cursor, subsecs_fmt + 2, &timecode);
-        } else {
-            ++*nsec;
-            subseclen = -1;
+            cursor = ws_strptime(cursor, subsecs_fmt + 2, &timecode);
+            if (cursor == NULL) {
+                return FALSE;
+            }
         }
-    }
 
-    if (subseclen > 0) {
-        /*
-         * Convert that number to a number
-         * of nanoseconds; if it's N digits
-         * long, it's in units of 10^(-N) seconds,
-         * so, to convert it to units of
-         * 10^-9 seconds, we multiply by
-         * 10^(9-N).
-         */
-        if (subseclen > SUBSEC_PREC) {
+        if (subseclen > 0) {
             /*
-             * *More* than 9 digits; 9-N is
-             * negative, so we divide by
-             * 10^(N-9).
+             * Convert that number to a number
+             * of nanoseconds; if it's N digits
+             * long, it's in units of 10^(-N) seconds,
+             * so, to convert it to units of
+             * 10^-9 seconds, we multiply by
+             * 10^(9-N).
              */
-            for (i = subseclen - SUBSEC_PREC; i != 0; i--)
-                *nsec /= 10;
-        } else if (subseclen < SUBSEC_PREC) {
-            for (i = SUBSEC_PREC - subseclen; i != 0; i--)
-                *nsec *= 10;
+            if (subseclen > SUBSEC_PREC) {
+                /*
+                 * *More* than 9 digits; 9-N is
+                 * negative, so we divide by
+                 * 10^(N-9).
+                 */
+                for (i = subseclen - SUBSEC_PREC; i != 0; i--)
+                    nsec_buf /= 10;
+            } else if (subseclen < SUBSEC_PREC) {
+                for (i = SUBSEC_PREC - subseclen; i != 0; i--)
+                    nsec_buf *= 10;
+            }
         }
+
+        if ( -1 == (sec_buf = mktime(&timecode)) ) {
+            return FALSE;
+        }
+
+        *sec = sec_buf;
+        *nsec = nsec_buf;
     }
 
-    if ( -1 == (sec_buf = mktime(&timecode)) ) {
-        ++*sec;
-    } else {
-        *sec = sec_buf;
-    }
-    debug_printf(3, "parsed time %s Format(%s), time(%u), subsecs(%u)\n", field, _format, (guint32)*sec, (guint32)*nsec);
+    ws_noisy("parsed time %s Format(%s), time(%u), subsecs(%u)\n", field, _format, (guint32)*sec, (guint32)*nsec);
+
+    return TRUE;
 }
 
 void parse_time(const guchar* start_field, const guchar* end_field, const gchar* format) {
-    _parse_time(start_field, end_field, format, &ts_sec, &ts_nsec);
+    if (format == NULL || !_parse_time(start_field, end_field, format, &ts_sec, &ts_nsec)) {
+        ts_nsec += ts_tick;
+    }
 }
 
 void parse_seqno(const guchar* start_field, const guchar* end_field) {
@@ -1027,7 +1151,7 @@ void parse_seqno(const guchar* start_field, const guchar* end_field) {
 }
 
 void flush_packet(void) {
-    write_current_packet();
+    write_current_packet(FALSE);
 }
 
 /*----------------------------------------------------------------------
@@ -1038,6 +1162,7 @@ static void
 parse_preamble (void)
 {
     int  i;
+    gboolean got_time = FALSE;
 
     /*
      * Null-terminate the preamble.
@@ -1046,7 +1171,7 @@ parse_preamble (void)
 
     if (has_direction) {
         _parse_dir(&packet_preamble[0], &packet_preamble[1], "iI", "oO", &direction);
-        i = 0;
+        i = (direction == PACK_FLAGS_DIRECTION_UNKNOWN) ? 0 : 1;
         while (packet_preamble[i] == ' ' ||
                packet_preamble[i] == '\r' ||
                packet_preamble[i] == '\t') {
@@ -1061,27 +1186,32 @@ parse_preamble (void)
      * If no time stamp format was specified, don't attempt to parse
      * the packet preamble to extract a time stamp.
      */
-    if (ts_fmt == NULL)
-        return;
-
-    /*
-     * Initialize to today localtime, just in case not all fields
-     * of the date and time are specified.
-     */
 
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
      */
-    if ( strlen(packet_preamble) > 2 ) {
-        _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble + 1), ts_fmt, &ts_sec, &ts_nsec);
+    if ( info_p->timestamp_format != NULL && strlen(packet_preamble) > 2 ) {
+        got_time = _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble), info_p->timestamp_format, &ts_sec, &ts_nsec);
+        if (!got_time) {
+            /* Let's only have a possible GUI popup once, other messages to log
+             */
+            if (!timecode_warned) {
+                report_warning("Time conversions (%s) failed, advancing time by %d ns from previous packet on failure. First failure was for %s on input packet %d.", info_p->timestamp_format, ts_tick, packet_preamble, info_p->num_packets_read);
+                timecode_warned = TRUE;
+            }
+            ws_warning("Time conversion (%s) failed for %s on input packet %d.", info_p->timestamp_format, packet_preamble, info_p->num_packets_read);
+        }
     }
-    if (debug >= 2) {
+    if (ws_log_get_level() >= LOG_LEVEL_NOISY) {
         char *c;
         while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-        fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
+        ws_noisy("[[parse_preamble: \"%s\"]]", packet_preamble);
+        ws_noisy("Format(%s), time(%u), subsecs(%u)", info_p->timestamp_format, (guint32)ts_sec, ts_nsec);
     }
 
+    if (!got_time) {
+        ts_nsec += ts_tick;
+    }
 
     /* Clear Preamble */
     packet_preamble_len = 0;
@@ -1089,38 +1219,57 @@ parse_preamble (void)
 
 /*----------------------------------------------------------------------
  * Start a new packet
+ *
+ * @param cont [IN] TRUE if a new packet is starting because the max frame
+ * length was reached on the current packet, and the original packet from the
+ * input file is continued in a later frame. Passed to write_current_packet,
+ * where it is used to set fragmentation fields in dummy headers (currently
+ * only implemented for SCTP; IPv4 could be added later.)
  */
-static void
-start_new_packet (void)
+static import_status_t
+start_new_packet(gboolean cont)
 {
-    if (debug>=1)
-        fprintf(stderr, "Start new packet\n");
+    ws_debug("Start new packet (cont = %s).", cont ? "TRUE" : "FALSE");
 
     /* Write out the current packet, if required */
-    write_current_packet();
+    if (write_current_packet(cont) != IMPORT_SUCCESS)
+        return IMPORT_FAILURE;
+    info_p->num_packets_read++;
 
     /* Ensure we parse the packet preamble as it may contain the time */
-    /* THIS IMPLEIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
+    /* THIS IMPLIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
     parse_preamble();
+
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
  * Process a directive
  */
 static void
-process_directive (char *str)
+process_directive (char *str _U_)
 {
-    fprintf(stderr, "\n--- Directive [%s] currently unsupported ---\n", str+10);
-
+    char **tokens;
+    tokens = g_strsplit_set(str+10, "\r\n", 2);
+    ws_message("--- Directive [%s] currently unsupported ---", tokens[0]);
+    g_strfreev(tokens);
 }
 
 /*----------------------------------------------------------------------
  * Parse a single token (called from the scanner)
  */
-void
-parse_token (token_t token, char *str)
+import_status_t
+parse_token(token_t token, char *str)
 {
     guint32 num;
+    /* Variables for the hex+ASCII identification / lookback */
+    int     by_eol;
+    int	    rollback = 0;
+    int     line_size;
+    int     i;
+    char   *s2;
+    char    tmp_str[3];
+    char  **tokens;
 
     /*
      * This is implemented as a simple state machine of five states.
@@ -1128,12 +1277,12 @@ parse_token (token_t token, char *str)
      * scanner. The code should be self_documenting.
      */
 
-    if (debug>=2) {
+    if (ws_log_get_level() >= LOG_LEVEL_NOISY) {
         /* Sanitize - remove all '\r' */
         char *c;
         if (str!=NULL) { while ((c = strchr(str, '\r')) != NULL) *c=' '; }
 
-        fprintf(stderr, "(%s, %s \"%s\") -> (",
+        ws_noisy("(%s, %s \"%s\") -> (",
                 state_str[state], token_str[token], str ? str : "");
     }
 
@@ -1149,22 +1298,44 @@ parse_token (token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
-            num = parse_num(str, TRUE);
-            if (num==0) {
+            if (offset_base == 0) {
+                append_to_preamble(str);
+                /* If we're still in the INIT state, maybe there's something
+                 * odd like a time format with no separators. That wouldn't
+                 * work in a mode with an offset, but give it a try.
+                 */
+                tokens = g_strsplit_set(str, ": \t\r\n", 2);
+                if (!offset_warned) {
+                    report_warning("Running in no offset mode but read offset (%s) at start of file, treating as preamble", tokens[0]);
+                    offset_warned = TRUE;
+                }
+                ws_warning("Running in no offset mode but read offset (%s) at start of file, treating as preamble", tokens[0]);
+                g_strfreev(tokens);
+                break;
+            }
+            if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
+            if (num == 0) {
                 /* New packet starts here */
-                start_new_packet();
+                if (start_new_packet(FALSE) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 state = READ_OFFSET;
+                pkt_lnstart = packet_buf + num;
             }
             break;
         case T_BYTE:
             if (offset_base == 0) {
-                start_new_packet();
-                write_byte(str);
+                if (start_new_packet(FALSE) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
+                if (write_byte(str) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 state = READ_BYTE;
+                pkt_lnstart = packet_buf;
             }
             break;
         case T_EOF:
-            write_current_packet();
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1181,10 +1352,26 @@ parse_token (token_t token, char *str)
             process_directive(str);
             break;
         case T_OFFSET:
-            num = parse_num(str, TRUE);
-            if (num==0) {
+            if (offset_base == 0) {
+                /* After starting the packet there's no point adding it to
+                 * the preamble in this mode (we only do one packet.)
+                 * Use a generic warning message to suppress the many
+                 * expected duplicates. */
+                tokens = g_strsplit_set(str, ": \t\r\n", 2);
+                if (!offset_warned) {
+                    report_warning("Running in no offset mode but read offset (%s) at start of line, ignoring", tokens[0]);
+                    offset_warned = TRUE;
+                }
+                ws_warning("Running in no offset mode but read offset (%s) at start of line, ignoring.", tokens[0]);
+                g_strfreev(tokens);
+                break;
+            }
+            if (parse_num(str, TRUE, &num) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
+            if (num == 0) {
                 /* New packet starts here */
-                start_new_packet();
+                if (start_new_packet(FALSE) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 packet_start = 0;
                 state = READ_OFFSET;
             } else if ((num - packet_start) != curr_offset) {
@@ -1202,23 +1389,28 @@ parse_token (token_t token, char *str)
                     state = READ_OFFSET;
                 } else {
                     /* Bad offset; switch to INIT state */
-                    if (debug>=1)
-                        fprintf(stderr, "Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet\n",
+                    ws_message("Inconsistent offset. Expecting %0X, got %0X. Ignoring rest of packet",
                                 curr_offset, num);
-                    write_current_packet();
+                    if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                        return IMPORT_FAILURE;
                     state = INIT;
                 }
-            } else
+            } else {
                 state = READ_OFFSET;
+            }
+            pkt_lnstart = packet_buf + num;
             break;
         case T_BYTE:
             if (offset_base == 0) {
-                write_byte(str);
+                if (write_byte(str) != IMPORT_SUCCESS)
+                    return IMPORT_FAILURE;
                 state = READ_BYTE;
+                pkt_lnstart = packet_buf;
             }
             break;
         case T_EOF:
-            write_current_packet();
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1231,7 +1423,8 @@ parse_token (token_t token, char *str)
         case T_BYTE:
             /* Record the byte */
             state = READ_BYTE;
-            write_byte(str);
+            if (write_byte(str) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         case T_TEXT:
         case T_DIRECTIVE:
@@ -1242,7 +1435,8 @@ parse_token (token_t token, char *str)
             state = START_OF_LINE;
             break;
         case T_EOF:
-            write_current_packet();
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1254,18 +1448,70 @@ parse_token (token_t token, char *str)
         switch(token) {
         case T_BYTE:
             /* Record the byte */
-            write_byte(str);
+            if (write_byte(str) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         case T_TEXT:
         case T_DIRECTIVE:
         case T_OFFSET:
-            state = READ_TEXT;
-            break;
         case T_EOL:
-            state = START_OF_LINE;
+            by_eol = 0;
+            state = READ_TEXT;
+            if (token == T_EOL) {
+                by_eol = 1;
+                state = START_OF_LINE;
+            }
+            if (info_p->hexdump.identify_ascii) {
+                /* Here a line of pkt bytes reading is finished
+                   compare the ascii and hex to avoid such situation:
+                   "61 62 20 ab ", when ab is ascii dump then it should
+                   not be treat as byte */
+                rollback = 0;
+                /* s2 is the ASCII string, s1 is the HEX string, e.g, when
+                   s2 = "ab ", s1 = "616220"
+                   we should find out the largest tail of s1 matches the head
+                   of s2, it means the matched part in tail is the ASCII dump
+                   of the head byte. These matched should be rollback */
+                line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
+                s2 = (char*)g_malloc((line_size+1)/4+1);
+                /* gather the possible pattern */
+                for (i = 0; i < (line_size+1)/4; i++) {
+                    tmp_str[0] = pkt_lnstart[i*3];
+                    tmp_str[1] = pkt_lnstart[i*3+1];
+                    tmp_str[2] = '\0';
+                    /* it is a valid convertable string */
+                    if (!g_ascii_isxdigit(tmp_str[0]) || !g_ascii_isxdigit(tmp_str[1])) {
+                        break;
+                    }
+                    s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
+                    rollback++;
+                    /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
+                    if (!(pkt_lnstart[i*3+2] == ' ')) {
+                        if (by_eol != 1)
+                            rollback--;
+                        break;
+                    }
+                }
+                /* If packet line start contains possible byte pattern, the line end
+                   should contain the matched pattern if the user open the -a flag.
+                   The packet will be possible invalid if the byte pattern cannot find
+                   a matched one in the line of packet buffer.*/
+                if (rollback > 0) {
+                    if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
+                        unwrite_bytes(rollback);
+                    }
+                    /* Not matched. This line contains invalid packet bytes, so
+                       discard the whole line */
+                    else {
+                        unwrite_bytes(line_size);
+                    }
+                }
+                g_free(s2);
+            }
             break;
         case T_EOF:
-            write_current_packet();
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1279,7 +1525,8 @@ parse_token (token_t token, char *str)
             state = START_OF_LINE;
             break;
         case T_EOF:
-            write_current_packet();
+            if (write_current_packet(FALSE) != IMPORT_SUCCESS)
+                return IMPORT_FAILURE;
             break;
         default:
             break;
@@ -1287,54 +1534,49 @@ parse_token (token_t token, char *str)
         break;
 
     default:
-        fprintf(stderr, "FATAL ERROR: Bad state (%d)", state);
-        exit(-1);
+        report_failure("FATAL ERROR: Bad state (%d)", state);
+        return IMPORT_FAILURE;
     }
 
-    if (debug>=2)
-        fprintf(stderr, ", %s)\n", state_str[state]);
+    ws_noisy(", %s)", state_str[state]);
 
+    return IMPORT_SUCCESS;
 }
 
 /*----------------------------------------------------------------------
  * Import a text file.
  */
 int
-text_import(const text_import_info_t *info)
+text_import(text_import_info_t * const info)
 {
+    import_status_t status;
     int ret;
     struct tm *now_tm;
-
-    packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
-                                    sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
-                                    sizeof(HDR_EXPORT_PDU) + WTAP_MAX_PACKET_SIZE_STANDARD);
-
-    if (!packet_buf)
-    {
-        fprintf(stderr, "FATAL ERROR: no memory for packet buffer");
-        exit(-1);
-    }
 
     /* Lets start from the beginning */
     state = INIT;
     curr_offset = 0;
     packet_start = 0;
     packet_preamble_len = 0;
+    direction = PACK_FLAGS_DIRECTION_UNKNOWN;
     ts_sec = time(0);            /* initialize to current time */
     now_tm = localtime(&ts_sec);
-    direction = PACK_FLAGS_DIRECTION_UNKNOWN;
     if (now_tm == NULL) {
         /*
          * This shouldn't happen - on UN*X, this should Just Work, and
-         * on Windows, it won't work if ts_sec is before the Epoch,
-         * but it's long after 1970, so....
+         * on 32 bit Windows built with 32 bit time_t, it won't work if ts_sec
+         * is before the Epoch, but it's long after 1970 (and even 32 bit
+         * Windows builds with 64 bit time_t by default now), so....
          */
-        fprintf(stderr, "localtime(right now) failed\n");
-        exit(-1);
+        report_failure("localtime(right now) failed");
+        return INIT_FAILED;
     }
     timecode_default = *now_tm;
     timecode_default.tm_isdst = -1;     /* Unknown for now, depends on time given to the strptime() function */
     ts_nsec = 0;
+
+    /* Get input parameters. */
+    info_p = info;
 
     /* Dummy headers */
     hdr_ethernet = FALSE;
@@ -1368,14 +1610,19 @@ text_import(const text_import_info_t *info)
         has_seqno = g_regex_get_string_number(info->regex.format, "seqno") >= 0;
     }
 
-    if (info->timestamp_format)
-    {
-        ts_fmt = info->timestamp_format;
+    if (info->timestamp_format == NULL || g_ascii_strcasecmp(info->timestamp_format, "ISO")) {
+        ts_fmt_iso = FALSE;
+    } else {
+        ts_fmt_iso = TRUE;
     }
+    offset_warned = FALSE;
+    timecode_warned = FALSE;
 
-    pcap_link_type = info->encapsulation;
-
-    wdh = info->wdh;
+    /* XXX: It would be good to know the time precision of the file,
+     * to use for the time delta for packets without timestamps. (ts_tick)
+     * That could either be added to text_import_info_t or a method
+     * added to get it from wtap_dumper (which is opaque.)
+     */
 
     switch (info->dummy_header_type)
     {
@@ -1387,73 +1634,238 @@ text_import(const text_import_info_t *info)
         case HEADER_IPV4:
             hdr_ip = TRUE;
             hdr_ip_proto = info->protocol;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_UDP:
             hdr_udp = TRUE;
             hdr_tcp = FALSE;
-            hdr_src_port = info->src_port;
-            hdr_dest_port = info->dst_port;
             hdr_ip = TRUE;
             hdr_ip_proto = 17;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_TCP:
             hdr_tcp = TRUE;
             hdr_udp = FALSE;
-            hdr_src_port = info->src_port;
-            hdr_dest_port = info->dst_port;
             hdr_ip = TRUE;
             hdr_ip_proto = 6;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_SCTP:
             hdr_sctp = TRUE;
-            hdr_sctp_src = info->src_port;
-            hdr_sctp_dest = info->dst_port;
-            hdr_sctp_tag = info->tag;
             hdr_ip = TRUE;
             hdr_ip_proto = 132;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_SCTP_DATA:
             hdr_sctp = TRUE;
             hdr_data_chunk = TRUE;
-            hdr_sctp_src = info->src_port;
-            hdr_sctp_dest = info->dst_port;
-            hdr_data_chunk_ppid = info->ppi;
             hdr_ip = TRUE;
             hdr_ip_proto = 132;
-            hdr_ethernet = TRUE;
-            hdr_ethernet_proto = 0x800;
             break;
 
         case HEADER_EXPORT_PDU:
             hdr_export_pdu = TRUE;
-            hdr_export_pdu_payload = info->payload;
             break;
 
         default:
             break;
     }
 
-    max_offset = info->max_frame_length;
+    if (hdr_ip) {
+        if (info->ipv6) {
+            hdr_ipv6 = TRUE;
+            hdr_ip = FALSE;
+            hdr_ethernet_proto = 0x86DD;
+        } else {
+            hdr_ethernet_proto = 0x0800;
+        }
+
+        switch (info->encapsulation) {
+
+        case (WTAP_ENCAP_ETHERNET):
+            hdr_ethernet = TRUE;
+            break;
+
+        case (WTAP_ENCAP_RAW_IP):
+            break;
+
+        case (WTAP_ENCAP_RAW_IP4):
+            if (info->ipv6) {
+                report_failure("Encapsulation %s only supports IPv4 headers, not IPv6", wtap_encap_name(info->encapsulation));
+                return INVALID_OPTION;
+            }
+            break;
+
+        case (WTAP_ENCAP_RAW_IP6):
+            if (!info->ipv6) {
+                report_failure("Encapsulation %s only supports IPv6 headers, not IPv4", wtap_encap_name(info->encapsulation));
+                return INVALID_OPTION;
+            }
+            break;
+
+        default:
+            report_failure("Dummy IP header not supported with encapsulation: %s (%s)", wtap_encap_name(info->encapsulation), wtap_encap_description(info->encapsulation));
+            return INVALID_OPTION;
+        }
+    }
+
+    info->num_packets_read = 0;
+    info->num_packets_written = 0;
+
+    packet_buf = (guint8 *)g_malloc(sizeof(HDR_ETHERNET) + sizeof(HDR_IP) +
+                                    sizeof(HDR_SCTP) + sizeof(HDR_DATA_CHUNK) +
+                                    sizeof(HDR_EXPORT_PDU) + WTAP_MAX_PACKET_SIZE_STANDARD);
+
+    if (!packet_buf)
+    {
+        /* XXX: This doesn't happen, because g_malloc aborts the program on
+         * error, unlike malloc or g_try_malloc.
+         */
+        report_failure("FATAL ERROR: no memory for packet buffer");
+        return INIT_FAILED;
+    }
 
     if (info->mode == TEXT_IMPORT_HEXDUMP) {
-        ret = text_import_scan(info->hexdump.import_text_FILE);
+        status = text_import_scan(info->hexdump.import_text_FILE);
+        switch(status) {
+        case (IMPORT_SUCCESS):
+            ret = 0;
+            break;
+        case (IMPORT_FAILURE):
+            ret = INVALID_FILE;
+            break;
+        case (IMPORT_INIT_FAILED):
+            report_failure("Can't initialize scanner: %s", g_strerror(errno));
+            ret = INIT_FAILED;
+            break;
+        default:
+            ret = 0;
+        }
     } else if (info->mode == TEXT_IMPORT_REGEX) {
         ret = text_import_regex(info);
+        if (ret > 0) {
+            info->num_packets_read = ret;
+            ret = 0;
+        } else if (ret < 0) {
+            ret = INVALID_FILE;
+        }
     } else {
-        ret = -1;
+        ret = INVALID_OPTION;
     }
     g_free(packet_buf);
     return ret;
+}
+
+/* Write the SHB and IDB to the wtap_dump_params before opening the wtap dump
+ * file. While dummy headers can be written automatically, this writes out
+ * some extra information including an optional interface name.
+ */
+int
+text_import_pre_open(wtap_dump_params * const params, int file_type_subtype, const char* const input_filename, const char* const interface_name)
+{
+    wtap_block_t shb_hdr;
+    wtap_block_t int_data;
+    wtapng_if_descr_mandatory_t *int_data_mand;
+    char    *comment;
+    GString *info_str;
+
+    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_SECTION) != BLOCK_NOT_SUPPORTED &&
+        wtap_file_type_subtype_supports_option(file_type_subtype, WTAP_BLOCK_SECTION, OPT_COMMENT) != OPTION_NOT_SUPPORTED) {
+
+        shb_hdr = wtap_block_create(WTAP_BLOCK_SECTION);
+
+        comment = ws_strdup_printf("Generated from input file %s.", input_filename);
+        wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
+        g_free(comment);
+
+        info_str = g_string_new("");
+        get_cpu_info(info_str);
+        if (info_str->str) {
+            wtap_block_add_string_option(shb_hdr, OPT_SHB_HARDWARE, info_str->str, info_str->len);
+        }
+        g_string_free(info_str, TRUE);
+
+        info_str = g_string_new("");
+        get_os_version_info(info_str);
+        if (info_str->str) {
+            wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, info_str->str, info_str->len);
+        }
+        g_string_free(info_str, TRUE);
+
+        wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
+
+        params->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        g_array_append_val(params->shb_hdrs, shb_hdr);
+    }
+
+    /* wtap_dump_init_dumper() will create a interface block if the file type
+     * supports it and one isn't created already, but since we have the
+     * option of including the interface name, create it ourself.
+     *
+     * (XXX: IDBs should be optional for wtap_dump_init_dumper(), e.g. if
+     * the encap type is WTAP_ENCAP_SYSTEMD_JOURNAL, which doesn't use
+     * interfaces. But it's not, so always create it here.)
+     */
+    if (wtap_file_type_subtype_supports_block(file_type_subtype, WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
+        int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+
+        int_data_mand->wtap_encap = params->encap;
+        int_data_mand->time_units_per_second = 1000000000;
+        int_data_mand->snap_len = params->snaplen;
+
+        if (interface_name != NULL) {
+            wtap_block_add_string_option(int_data, OPT_IDB_NAME, interface_name, strlen(interface_name));
+        } else {
+            wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, text2pcap", strlen("Fake IF, text2pcap"));
+        }
+        switch (params->tsprec) {
+
+        case WTAP_TSPREC_SEC:
+                int_data_mand->time_units_per_second = 1;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 0);
+                break;
+
+        case WTAP_TSPREC_DSEC:
+                int_data_mand->time_units_per_second = 10;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 1);
+                break;
+
+        case WTAP_TSPREC_CSEC:
+                int_data_mand->time_units_per_second = 100;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 2);
+                break;
+
+        case WTAP_TSPREC_MSEC:
+                int_data_mand->time_units_per_second = 1000;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 3);
+                break;
+
+        case WTAP_TSPREC_USEC:
+                int_data_mand->time_units_per_second = 1000000;
+                /* This is the default, so no need to add an option */
+                break;
+
+        case WTAP_TSPREC_NSEC:
+                int_data_mand->time_units_per_second = 1000000000;
+                wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
+                break;
+
+        case WTAP_TSPREC_PER_PACKET:
+        case WTAP_TSPREC_UNKNOWN:
+        default:
+                /*
+                 * Don't do this.
+                 */
+                ws_assert_not_reached();
+                break;
+        }
+
+        params->idb_inf = g_new(wtapng_iface_descriptions_t,1);
+        params->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        g_array_append_val(params->idb_inf->interface_data, int_data);
+
+    }
+
+    return EXIT_SUCCESS;
 }

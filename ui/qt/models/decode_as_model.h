@@ -1,4 +1,5 @@
-/* decode_as_model.h
+/** @file
+ *
  * Data model for Decode As records.
  *
  * Wireshark - Network traffic analyzer

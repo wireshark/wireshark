@@ -5314,7 +5314,7 @@ heur_dissect_fp_unknown_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     /* The CRC is correct! */
-    /* Attaching 'FP Conversation Info' the the UDP conversation so other */
+    /* Attaching 'FP Conversation Info' to the UDP conversation so other */
     /* packets (both Control AND Data) will be marked as FP */
     umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
     umts_fp_conversation_info->channel = CHANNEL_UNKNOWN;

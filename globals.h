@@ -1,4 +1,5 @@
-/* globals.h
+/** @file
+ *
  * Global defines, etc.
  *
  * Wireshark - Network traffic analyzer

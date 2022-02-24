@@ -883,7 +883,7 @@ static const value_string camel_Component_vals[] = {
 
 const value_string  camelSRTtype_naming[]= {
   { CAMELSRT_SESSION,         "TCAP_Session" },
-  { CAMELSRT_VOICE_INITIALDP, "InialDP/Continue" },
+  { CAMELSRT_VOICE_INITIALDP, "InitialDP/Continue" },
   { CAMELSRT_VOICE_ACR1,      "Slice1_ACR/ACH" },
   { CAMELSRT_VOICE_ACR2,      "Slice2_ACR/ACH" },
   { CAMELSRT_VOICE_ACR3,      "Slice3_ACR/ACH" },
@@ -8213,9 +8213,9 @@ static void camel_stat_init(stat_tap_table_ui* new_stat)
     const char *ocs = try_val_to_str(i, camel_opr_code_strings);
     char *col_str;
     if (ocs) {
-      col_str = g_strdup_printf("Request %s", ocs);
+      col_str = ws_strdup_printf("Request %s", ocs);
     } else {
-      col_str = g_strdup_printf("Unknown op code %d", i);
+      col_str = ws_strdup_printf("Unknown op code %d", i);
     }
 
     items[MESSAGE_TYPE_COLUMN].value.string_value = col_str;

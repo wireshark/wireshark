@@ -596,14 +596,14 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                     } else {
                         col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");
 
-                        g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
+                        snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
                     }
 
 
                     if (p_t38_packet_conv_info->packet_lost) {
-                        g_snprintf(t38_info->desc_comment, MAX_T38_DESC, " Pack lost: %d, Pack burst lost: %d", p_t38_packet_conv_info->packet_lost, p_t38_packet_conv_info->burst_lost);
+                        snprintf(t38_info->desc_comment, MAX_T38_DESC, " Pack lost: %d, Pack burst lost: %d", p_t38_packet_conv_info->packet_lost, p_t38_packet_conv_info->burst_lost);
                     } else {
-                        g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
+                        snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
                     }
 
                     process_reassembled_data(tvb, offset, actx->pinfo,

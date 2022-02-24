@@ -11,6 +11,7 @@
 #include "expert_info_model.h"
 
 #include "file.h"
+#include <epan/proto.h>
 
 ExpertPacketItem::ExpertPacketItem(const expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent) :
     packet_num_(expert_info.packet_num),
@@ -238,52 +239,64 @@ Qt::ItemFlags ExpertInfoModel::flags(const QModelIndex &index) const
 
 QVariant ExpertInfoModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || role != Qt::DisplayRole)
+    if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::ToolTipRole))
         return QVariant();
 
     ExpertPacketItem* item = static_cast<ExpertPacketItem*>(index.internalPointer());
     if (item == NULL)
         return QVariant();
 
-    switch ((enum ExpertColumn)index.column()) {
-    case colSeverity:
-        return QString(val_to_str_const(item->severity(), expert_severity_vals, "Unknown"));
-    case colSummary:
-        if (index.parent().isValid())
-        {
-            if (item->severity() == PI_COMMENT)
-                return item->summary().simplified();
-            if (group_by_summary_)
-                return item->colInfo().simplified();
-
-            return item->summary().simplified();
-        }
-        else
-        {
-            if (group_by_summary_)
+    if (role == Qt::ToolTipRole)
+    {
+        QString filterName = proto_registrar_get_abbrev(item->hfId());
+        return filterName;
+    }
+    else if (role == Qt::DisplayRole)
+    {
+        switch ((enum ExpertColumn)index.column()) {
+        case colSeverity:
+            return QString(val_to_str_const(item->severity(), expert_severity_vals, "Unknown"));
+        case colSummary:
+            if (index.parent().isValid())
             {
                 if (item->severity() == PI_COMMENT)
-                    return "Packet comments listed below.";
+                    return item->summary().simplified();
+                if (group_by_summary_)
+                    return item->colInfo().simplified();
+
                 return item->summary().simplified();
             }
+            else
+            {
+                if (group_by_summary_)
+                {
+                    if (item->severity() == PI_COMMENT)
+                        return "Packet comments listed below.";
+                    if (item->hfId() != -1) {
+                        return proto_registrar_get_name(item->hfId());
+                    } else {
+                        return item->summary().simplified();
+                    }
+                }
+            }
+            return QVariant();
+        case colGroup:
+            return QString(val_to_str_const(item->group(), expert_group_vals, "Unknown"));
+        case colProtocol:
+            return item->protocol();
+        case colCount:
+            if (!index.parent().isValid())
+            {
+                return item->childCount();
+            }
+            break;
+        case colPacket:
+            return item->packetNum();
+        case colHf:
+            return item->hfId();
+        default:
+            break;
         }
-        return QVariant();
-    case colGroup:
-        return QString(val_to_str_const(item->group(), expert_group_vals, "Unknown"));
-    case colProtocol:
-        return item->protocol();
-    case colCount:
-        if (!index.parent().isValid())
-        {
-            return item->childCount();
-        }
-        break;
-    case colPacket:
-        return item->packetNum();
-    case colHf:
-        return item->hfId();
-    default:
-        break;
     }
 
     return QVariant();

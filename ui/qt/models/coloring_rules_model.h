@@ -1,4 +1,5 @@
-/* coloring_rules_model.h
+/** @file
+ *
  * Data model for coloring rules.
  *
  * Wireshark - Network traffic analyzer

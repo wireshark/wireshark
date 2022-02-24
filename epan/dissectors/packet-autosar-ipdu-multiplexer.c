@@ -1,7 +1,7 @@
 /* packet-autosar-ipdu-multiplexer.c
  * Dissector for AUTOSAR I-PDU Multiplexer.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
- * Copyright 2021-2021 Dr. Lars Voelker
+ * Copyright 2021-2022 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -194,22 +194,22 @@ update_ipdum_message_list(void *r, char **err) {
     ipdum_message_list_uat_t *rec = (ipdum_message_list_uat_t *)r;
 
     if (rec->pos >= 0xffff) {
-        *err = g_strdup_printf("Position too big");
+        *err = ws_strdup_printf("Position too big");
         return FALSE;
     }
 
     if (rec->num_of_params >= 0xffff) {
-        *err = g_strdup_printf("Number of PDUs too big");
+        *err = ws_strdup_printf("Number of PDUs too big");
         return FALSE;
     }
 
     if (rec->pos >= rec->num_of_params) {
-        *err = g_strdup_printf("Position >= Number of PDUs");
+        *err = ws_strdup_printf("Position >= Number of PDUs");
         return FALSE;
     }
 
     if (rec->name == NULL || rec->name[0] == 0) {
-        *err = g_strdup_printf("Name cannot be empty");
+        *err = ws_strdup_printf("Name cannot be empty");
         return FALSE;
     }
 
@@ -292,12 +292,8 @@ get_message_config(guint32 id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = id;
-    ipdum_message_list_t *tmp = (ipdum_message_list_t*)g_hash_table_lookup(data_ipdum_messages, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = (gint64)id;
+    return (ipdum_message_list_t *)g_hash_table_lookup(data_ipdum_messages, &key);
 }
 
 
@@ -318,6 +314,23 @@ copy_ipdum_can_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
+static gboolean
+update_ipdum_can_mapping(void *r, char **err) {
+    ipdum_can_mapping_uat_t *rec = (ipdum_can_mapping_uat_t *)r;
+
+    if ((rec->can_id & (CAN_RTR_FLAG | CAN_ERR_FLAG)) != 0) {
+        *err = g_strdup_printf("We currently do not support CAN IDs with RTR or Error Flag set (CAN_ID: 0x%x)", rec->can_id);
+        return FALSE;
+    }
+
+    if ((rec->can_id & CAN_EFF_FLAG) == 0 && rec->can_id > CAN_SFF_MASK) {
+        *err = g_strdup_printf("Standard CAN ID (EFF flag not set) cannot be bigger than 0x7ff (CAN_ID: 0x%x)", rec->can_id);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static void
 post_update_register_can(void) {
     if (ipdum_handle_can == NULL) {
@@ -333,14 +346,16 @@ post_update_register_can(void) {
 
         GList *tmp;
         for (tmp = keys; tmp != NULL; tmp = tmp->next) {
-            gint32 *id = ((gint32*)tmp->data);
+            gint32 id = (*(gint32*)tmp->data);
 
-            *id &= CAN_EFF_MASK;
-            dissector_add_uint("can.extended_id", *id, ipdum_handle_can);
-            if (*id <= CAN_SFF_MASK) {
-                dissector_add_uint("can.id", *id, ipdum_handle_can);
+            if ((id & CAN_EFF_FLAG) == CAN_EFF_FLAG) {
+                dissector_add_uint("can.extended_id", id & CAN_EFF_MASK, ipdum_handle_can);
+            } else {
+                dissector_add_uint("can.id", id & CAN_SFF_MASK, ipdum_handle_can);
             }
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -380,17 +395,13 @@ get_can_mapping(guint32 id, guint16 bus_id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = id & CAN_EFF_MASK;
-    *key |= ((gint64)bus_id << 32);
-    ipdum_can_mapping_t *tmp = (ipdum_can_mapping_t*)g_hash_table_lookup(data_ipdum_can_mappings, key);
+    gint64 key = ((gint64)id & (CAN_EFF_MASK | CAN_EFF_FLAG)) | ((gint64)bus_id << 32);
+    ipdum_can_mapping_t *tmp = (ipdum_can_mapping_t *)g_hash_table_lookup(data_ipdum_can_mappings, &key);
     if (tmp == NULL) {
         /* try again without Bus ID set */
-        *key = id & CAN_EFF_MASK;
-        tmp = (ipdum_can_mapping_t*)g_hash_table_lookup(data_ipdum_can_mappings, key);
+        key = id & (CAN_EFF_MASK | CAN_EFF_FLAG);
+        tmp = (ipdum_can_mapping_t *)g_hash_table_lookup(data_ipdum_can_mappings, &key);
     }
-
-    wmem_free(wmem_epan_scope(), key);
 
     return tmp;
 }
@@ -420,12 +431,12 @@ update_ipdum_flexray_mapping(void *r, char **err) {
     ipdum_flexray_mapping_uat_t *rec = (ipdum_flexray_mapping_uat_t *)r;
 
     if (rec->cycle > 0xff) {
-        *err = g_strdup_printf("We currently only support 8 bit Cycles (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
+        *err = ws_strdup_printf("We currently only support 8 bit Cycles (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
         return FALSE;
     }
 
     if (rec->frame_id > 0xffff) {
-        *err = g_strdup_printf("We currently only support 16 bit Frame IDs (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
+        *err = ws_strdup_printf("We currently only support 16 bit Frame IDs (Cycle: %i  Frame ID: %i)", rec->cycle, rec->frame_id);
         return FALSE;
     }
 
@@ -498,12 +509,12 @@ update_ipdum_lin_mapping(void *r, char **err) {
     ipdum_lin_mapping_uat_t *rec = (ipdum_lin_mapping_uat_t *)r;
 
     if (rec->frame_id > LIN_ID_MASK) {
-        *err = g_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
+        *err = ws_strdup_printf("LIN Frame IDs are only uint with 6 bits (ID: %i)", rec->frame_id);
         return FALSE;
     }
 
     if (rec->bus_id > 0xffff) {
-        *err = g_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
+        *err = ws_strdup_printf("LIN Bus IDs are only uint with 16 bits (ID: 0x%x, Bus ID: 0x%x)", rec->frame_id, rec->bus_id);
         return FALSE;
     }
 
@@ -528,6 +539,8 @@ post_update_register_lin(void) {
             /* we register the combination of bus and frame id */
             dissector_add_uint("lin.frame_id", *id, ipdum_handle_lin);
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -567,19 +580,15 @@ get_lin_mapping(lin_info_t *lininfo) {
         return NULL;
     }
 
-    gint32 *key = wmem_new(wmem_epan_scope(), gint32);
-    *key = (lininfo->id) & LIN_ID_MASK;
-    *key |= ((lininfo->bus_id) & 0xffff) << 16;
+    gint32 key = ((lininfo->id) & LIN_ID_MASK) | (((lininfo->bus_id) & 0xffff) << 16);
 
-    ipdum_lin_mapping_t *tmp = (ipdum_lin_mapping_t *)g_hash_table_lookup(data_ipdum_lin_mappings, key);
+    ipdum_lin_mapping_t *tmp = (ipdum_lin_mapping_t *)g_hash_table_lookup(data_ipdum_lin_mappings, &key);
 
     if (tmp == NULL) {
         /* try again without Bus ID set */
-        *key = (lininfo->id) & LIN_ID_MASK;
-        tmp = (ipdum_lin_mapping_t *)g_hash_table_lookup(data_ipdum_lin_mappings, key);
+        key = (lininfo->id) & LIN_ID_MASK;
+        tmp = (ipdum_lin_mapping_t *)g_hash_table_lookup(data_ipdum_lin_mappings, &key);
     }
-
-    wmem_free(wmem_epan_scope(), key);
 
     return tmp;
 }
@@ -605,7 +614,7 @@ update_ipdum_pdu_transport_mapping(void *r, char **err) {
     ipdum_pdu_transport_mapping_uat_t *rec = (ipdum_pdu_transport_mapping_uat_t *)r;
 
     if (rec->pdu_id > 0xffffffff) {
-        *err = g_strdup_printf("PDU-Transport IDs are only uint32 (ID: %i)", rec->pdu_id);
+        *err = ws_strdup_printf("PDU-Transport IDs are only uint32 (ID: %i)", rec->pdu_id);
         return FALSE;
     }
 
@@ -629,6 +638,8 @@ post_update_register_pdu_transport(void) {
             gint64 *id = (gint64*)tmp->data;
             dissector_add_uint("pdu_transport.id", ((guint32)((guint64)(*id)) & 0xffffffff), ipdum_handle_pdu_transport);
         }
+
+        g_list_free(keys);
     }
 }
 
@@ -667,13 +678,8 @@ get_pdu_transport_mapping(guint32 pdu_transport_id) {
         return NULL;
     }
 
-    gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = pdu_transport_id;
-
-    ipdum_pdu_transport_mapping_t *tmp = (ipdum_pdu_transport_mapping_t*)g_hash_table_lookup(data_ipdum_pdu_transport_mappings, key);
-    wmem_free(wmem_epan_scope(), key);
-
-    return tmp;
+    gint64 key = (gint64)pdu_transport_id;
+    return (ipdum_pdu_transport_mapping_t *)g_hash_table_lookup(data_ipdum_pdu_transport_mappings, &key);
 }
 
 /**************************************
@@ -758,7 +764,6 @@ dissect_ipdum_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static gboolean
 dissect_ipdum_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     return dissect_ipdum_message_can(tvb, pinfo, tree, data) != 0;
-    return 0;
 }
 
 static int
@@ -856,7 +861,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
     };
 
     static uat_field_t ipdum_can_mapping_uat_fields[] = {
-        UAT_FLD_HEX(ipdum_can_mapping, can_id,                      "CAN ID",                   "CAN ID (32bit hex without leading 0x)"),
+        UAT_FLD_HEX(ipdum_can_mapping, can_id,                      "CAN ID",                   "CAN ID (32bit hex without leading 0x, highest bit 1 for extended, 0 for standard ID)"),
         UAT_FLD_HEX(ipdum_can_mapping, bus_id,                      "Bus ID",                   "Bus ID on which frame was recorded with 0=any (16bit hex without leading 0x)"),
         UAT_FLD_HEX(ipdum_can_mapping, message_id,                  "Message ID",               "ID of the I-PduM Config (32bit hex without leading 0x)"),
         UAT_END_FIELDS
@@ -922,7 +927,7 @@ proto_register_autosar_ipdu_multiplexer(void) {
         UAT_AFFECTS_DISSECTION,
         NULL, /* help */
         copy_ipdum_can_mapping_cb,
-        NULL,
+        update_ipdum_can_mapping,
         NULL,
         post_update_ipdum_can_mapping_cb,
         NULL, /* reset */
@@ -994,11 +999,11 @@ proto_reg_handoff_autosar_ipdu_multiplexer(void) {
     if (!initialized) {
         ipdum_handle_can = register_dissector("ipdu_multiplexer_over_can", dissect_ipdum_message_can, proto_ipdu_multiplexer);
         dissector_add_for_decode_as("can.subdissector", ipdum_handle_can);
-        heur_dissector_add("can", dissect_ipdum_message_can_heur, "IPDU-Multiplexer-Heuristic", "ipdu_multiplexer_can_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
+        heur_dissector_add("can", dissect_ipdum_message_can_heur, "IPDU Multiplexer over CAN", "ipdu_multiplexer_can_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
 
         ipdum_handle_flexray = register_dissector("ipdu_multiplexer_over_flexray", dissect_ipdum_message_flexray, proto_ipdu_multiplexer);
         dissector_add_for_decode_as("flexray.subdissector", ipdum_handle_flexray);
-        heur_dissector_add("flexray", dissect_ipdum_message_flexray_heur, "IPDU-Multiplexer-Heuristic", "ipdu_multiplexer_flexray_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
+        heur_dissector_add("flexray", dissect_ipdum_message_flexray_heur, "IPDU Multiplexer over FlexRay", "ipdu_multiplexer_flexray_heur", proto_ipdu_multiplexer, HEURISTIC_ENABLE);
 
         ipdum_handle_lin = register_dissector("ipdu_multiplexer_over_lin", dissect_ipdum_message_lin, proto_ipdu_multiplexer);
 

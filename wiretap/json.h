@@ -1,4 +1,4 @@
-/* json.h
+/** @file
  *
  * Copyright 2015, Dario Lombardo <lomato@gmail.com>
  *

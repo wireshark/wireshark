@@ -228,7 +228,7 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 	if (hdr.length < sizeof(hdr)) {
 		*err = WTAP_ERR_BAD_FILE;	/* record length < header! */
-		*err_info = g_strdup_printf("i4btrace: record length %u < header length %lu",
+		*err_info = ws_strdup_printf("i4btrace: record length %u < header length %lu",
 		    hdr.length, (unsigned long)sizeof(hdr));
 		return FALSE;
 	}
@@ -239,7 +239,7 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("i4btrace: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("i4btrace: File has %u-byte packet, bigger than maximum of %u",
 		    length, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}

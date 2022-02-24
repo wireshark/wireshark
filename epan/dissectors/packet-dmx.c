@@ -355,7 +355,7 @@ dissect_dmx_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		size = tvb_reported_length_remaining(tvb, offset);
 
 		proto_tree_add_item(dmx_text_tree, hf_dmx_text_string, tvb,
-							offset, size, ENC_ASCII|ENC_NA);
+							offset, size, ENC_ASCII);
 	}
 	return tvb_captured_length(tvb);
 }

@@ -752,7 +752,7 @@ epl_wmem_print_iarr(epl_wmem_iarray_t *iarr)
 	for (i = 0; i < len; i++)
 	{
 
-		ws_debug_printf("Range: low=%" G_GUINT32_FORMAT " high=%" G_GUINT32_FORMAT "\n", elem->low, elem->high);
+		ws_debug_printf("Range: low=%" PRIu32 " high=%" PRIu32 "\n", elem->low, elem->high);
 
 		elem = (range_admin_t*)((char*)elem + g_array_get_element_size(iarr->arr));
 	}

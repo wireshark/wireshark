@@ -197,7 +197,7 @@ static gboolean check_valid_key_string(const char* raw_string, char* checked_str
     /* Can't be valid if not long enough. */
     if (length < 32) {
         if (length > 0) {
-            *error = g_strdup_printf("PDCP NR: Invalid key string (%s) - should include 32 ASCII hex characters (16 bytes) but only %u chars given",
+            *error = ws_strdup_printf("PDCP NR: Invalid key string (%s) - should include 32 ASCII hex characters (16 bytes) but only %u chars given",
                                      raw_string, length);
         }
         return FALSE;
@@ -218,18 +218,18 @@ static gboolean check_valid_key_string(const char* raw_string, char* checked_str
             checked_string[written++] = c;
         }
         else {
-            *error = g_strdup_printf("PDCP-NR: Invalid char '%c' given in key", c);
+            *error = ws_strdup_printf("PDCP-NR: Invalid char '%c' given in key", c);
             return FALSE;
         }
     }
 
     /* Must have found exactly 32 hex ascii chars for 16-byte key */
     if (n<length) {
-        *error = g_strdup_printf("PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but more detected", raw_string);
+        *error = ws_strdup_printf("PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but more detected", raw_string);
         return FALSE;
     }
     if (written != 32) {
-        *error = g_strdup_printf("PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but %u detected", raw_string, written);
+        *error = ws_strdup_printf("PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but %u detected", raw_string, written);
         return FALSE;
     }
     else {
@@ -1130,7 +1130,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti,
     va_list ap;
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -1153,7 +1153,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     proto_tree *configuration_tree;
     proto_item *configuration_ti = proto_tree_add_item(tree,
                                                        hf_pdcp_nr_configuration,
-                                                       tvb, 0, 0, ENC_ASCII|ENC_NA);
+                                                       tvb, 0, 0, ENC_ASCII);
     configuration_tree = proto_item_add_subtree(configuration_ti, ett_pdcp_configuration);
 
     /* Direction */
@@ -1938,7 +1938,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     /* MACI always present for SRBs */
-    if (p_pdcp_info->plane == NR_SIGNALING_PLANE) {
+    if ((p_pdcp_info->plane == NR_SIGNALING_PLANE) && (p_pdcp_info->bearerType == Bearer_DCCH)) {
         p_pdcp_info->maci_present = TRUE;
     }
 
@@ -2049,25 +2049,27 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     /*****************************/
     /* Signalling plane messages */
     if (p_pdcp_info->plane == NR_SIGNALING_PLANE) {
-        /* Always 12 bits SN */
-        /* Verify 4 reserved bits are 0 */
-        guint8 reserved = (first_byte & 0xf0) >> 4;
-        ti = proto_tree_add_item(pdcp_tree, hf_pdcp_nr_control_plane_reserved,
-                                 tvb, offset, 1, ENC_BIG_ENDIAN);
-        if (reserved != 0) {
-            expert_add_info_format(pinfo, ti, &ei_pdcp_nr_reserved_bits_not_zero,
-                                   "PDCP signalling header reserved bits not zero");
-        }
+        if (p_pdcp_info->bearerType == Bearer_DCCH) {
+            /* Always 12 bits SN */
+            /* Verify 4 reserved bits are 0 */
+            guint8 reserved = (first_byte & 0xf0) >> 4;
+            ti = proto_tree_add_item(pdcp_tree, hf_pdcp_nr_control_plane_reserved,
+                                     tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (reserved != 0) {
+                expert_add_info_format(pinfo, ti, &ei_pdcp_nr_reserved_bits_not_zero,
+                                       "PDCP signalling header reserved bits not zero");
+            }
 
-        /* 12-bit sequence number */
-        proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_seq_num_12, tvb, offset, 2, ENC_BIG_ENDIAN, &seqnum);
-        seqnum_set = TRUE;
-        write_pdu_label_and_info(root_ti, pinfo, " (SN=%-4u)", seqnum);
-        offset += 2;
+            /* 12-bit sequence number */
+            proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_nr_seq_num_12, tvb, offset, 2, ENC_BIG_ENDIAN, &seqnum);
+            seqnum_set = TRUE;
+            write_pdu_label_and_info(root_ti, pinfo, " (SN=%-4u)", seqnum);
+            offset += 2;
 
-        if (tvb_captured_length_remaining(tvb, offset) == 0) {
-            /* Only PDCP header was captured, stop dissection here */
-            return offset;
+            if (tvb_captured_length_remaining(tvb, offset) == 0) {
+                /* Only PDCP header was captured, stop dissection here */
+                return offset;
+            }
         }
     }
     else if (p_pdcp_info->plane == NR_USER_PLANE) {
@@ -2177,7 +2179,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                             if ((bits << l) & 0x80) {
                                 if (bitmap_tree) {
                                     /* TODO: better to do mod and show as SN instead? */
-                                    j += g_snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
+                                    j += snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
                                 }
                             } else {
                                 if (bitmap_tree) {

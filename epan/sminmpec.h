@@ -1,4 +1,5 @@
-/* sminmpec.h
+/** @file
+ *
  * SMI Network Management Private Enterprise Codes for organizations
  *
  * Wireshark - Network traffic analyzer

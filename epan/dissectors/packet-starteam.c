@@ -529,7 +529,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
       if(tvb_reported_length_remaining(tvb, offset) >= 16){
         starteam_tree = proto_tree_add_subtree(starteamroot_tree, tvb, offset, 16, ett_starteam_ph, NULL, STARTEAM_TEXT_PH);
 
-        proto_tree_add_item(starteam_tree, hf_starteam_ph_signature,   tvb, offset + 0,  4,  ENC_ASCII|ENC_NA);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_signature,   tvb, offset + 0,  4,  ENC_ASCII);
         proto_tree_add_item(starteam_tree, hf_starteam_ph_packet_size, tvb, offset + 4,  4,  ENC_LITTLE_ENDIAN);
         proto_tree_add_item(starteam_tree, hf_starteam_ph_data_size,   tvb, offset + 8,  4,  ENC_LITTLE_ENDIAN);
         proto_tree_add_item(starteam_tree, hf_starteam_ph_data_flags,  tvb, offset + 12, 4, ENC_LITTLE_ENDIAN);
@@ -540,7 +540,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             starteam_tree = proto_tree_add_subtree(starteamroot_tree, tvb, offset, 38, ett_starteam_id, NULL, STARTEAM_TEXT_ID);
 
             proto_tree_add_item(starteam_tree, hf_starteam_id_revision_level, tvb, offset + 0,  2, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(starteam_tree, hf_starteam_id_client,         tvb, offset + 2, 16, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_client,         tvb, offset + 2, 16, ENC_ASCII);
             proto_tree_add_item(starteam_tree, hf_starteam_id_connect,        tvb, offset + 18, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(starteam_tree, hf_starteam_id_component,      tvb, offset + 22, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(starteam_tree, hf_starteam_id_command,        tvb, offset + 26, 4, ENC_LITTLE_ENDIAN);
@@ -551,7 +551,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
         if(tvb_reported_length_remaining(tvb, offset) > 0){
           starteam_tree = proto_tree_add_subtree(starteamroot_tree, tvb, offset, -1, ett_starteam_data, NULL, STARTEAM_TEXT_DATA);
-          proto_tree_add_item(starteam_tree, hf_starteam_data_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
+          proto_tree_add_item(starteam_tree, hf_starteam_data_data, tvb, offset, -1, ENC_ASCII);
         }
       }
     }

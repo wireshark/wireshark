@@ -35,16 +35,28 @@ Important and notable items are marked as follows:
 You should pay attention to a warning, otherwise data loss might occur.
 ====
 
-[NOTE]
-.This is a note
+[CAUTION]
+.This is a caution
 ====
-A note will point you to common mistakes and things that might not be obvious.
+Act carefully (i.e., exercise care).
+====
+
+[IMPORTANT]
+.This is important information
+====
+RTFM - Read The Fine Manual
 ====
 
 [TIP]
 .This is a tip
 ====
 Tips are helpful for your everyday work using Wireshark.
+====
+
+[NOTE]
+.This is a note
+====
+A note will point you to common mistakes and things that might not be obvious.
 ====
 
 ==== Shell Prompt and Source Code Examples

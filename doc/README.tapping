@@ -1,7 +1,7 @@
 The TAP system in Wireshark is a powerful and flexible mechanism to get event
 driven notification on packets matching certain protocols and/or filters.
 In order to use the tapping system, very little knowledge of Wireshark
-internals are required.
+internals is required.
 
 As examples on how to use the tap system see the implementation of
 tap-rpcprogs.c (tshark version)
@@ -30,7 +30,7 @@ If not, then you have to add a tap but don't worry, this is extremely easy to
 do and is done in four easy steps;
 (see packet-rpc.c and search for tap for an example)
 
-1, We need tap.h so just add '#include "tap.h"' (preceded by packet.h) to
+1, We need tap.h so just add '#include <epan/tap.h>' (preceded by packet.h) to
 the includes.
 
 2, We need a tap handler so just add 'static int <protocol>_tap = -1;'
@@ -43,7 +43,7 @@ have returned, just add 'tap_queue_packet(<protocol>_tap, pinfo, <pointer>);'
 
 <pointer> is used if the tap has any special additional data to provide to the
 tap listeners. What this points to is dependent on the protocol that is tapped,
-or if there are no useful extra data to provide just specify NULL.  For
+or if there is no useful extra data to provide, just specify NULL.  For
 packet-rpc.c what we specify there is the persistent structure 'rpc_call' which
 contains lots of useful information from the rpc layer that a listener might
 need.
@@ -84,7 +84,7 @@ pointer to distinguish between different instances of a tap.
 Just make sure that it is unique by letting it be the pointer to a struct
 holding all state variables. If you want to allow multiple concurrent
 instances, just put ALL state variables inside a struct allocated by
-g_malloc() and use that pointer.
+g_new() and use that pointer.
 (tap-rpcstat.c use this technique to allow multiple simultaneous instances)
 
 *fstring
@@ -123,6 +123,11 @@ is a set of flags for the tap listener.  The flags that can be set are:
 	set if your tap listener "packet" routine requires the column
 	strings to be constructed.
 
+    TL_REQUIRES_ERROR_PACKET
+
+        set if your tap listener should be updated even when pinfo->flags.in_error_pkt is set
+        e.g. if it is inside an ICMP unreachable packet
+
     If no flags are needed, use TL_REQUIRES_NOTHING.
 
 void (*reset)(void *tapdata)
@@ -133,7 +138,7 @@ in the *tapdata instance.
 
 tap_packet_status (*packet)(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data)
 This callback is used whenever a new packet has arrived at the tap and that
-it has passed the filter (if there were a filter).
+it has passed the filter (if there was a filter).
 The *data structure type is specific to each tap.
 This function returns a tap_packet_status enum and it should return
  TAP_PACKET_REDRAW, if the data in the packet caused state to be updated

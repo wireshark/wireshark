@@ -1,4 +1,4 @@
-/* interface.c
+/** @file
  * Utility functions to get infos from interfaces
  *
  * Copyright 2016, Dario Lombardo

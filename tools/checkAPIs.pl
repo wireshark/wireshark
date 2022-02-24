@@ -76,6 +76,9 @@ my %APIs = (
                 # See https://gitlab.com/wireshark/wireshark/-/issues/6695#note_400659130
                 'g_fprintf',
                 'g_vfprintf',
+                # use native snprintf() and vsnprintf() instead of these:
+                'g_snprintf',
+                'g_vsnprintf',
                 ### non-ANSI C
                 # use memset, memcpy, memcmp instead of these:
                 'bzero',
@@ -295,6 +298,13 @@ my %APIs = (
 );
 
 my @apiGroups = qw(prohibited deprecated soft-deprecated);
+
+# Defines array of pairs function/variable which are excluded
+# from prefs_register_*_preference checks
+my @excludePrefsCheck = (
+         [ qw(prefs_register_password_preference), '(const char **)arg->pref_valptr' ],
+         [ qw(prefs_register_string_preference), '(const char **)arg->pref_valptr' ],
+);
 
 
 # Given a ref to a hash containing "functions" and "functions_count" entries:
@@ -708,17 +718,8 @@ sub check_hf_entries($$)
                                   &\s*([A-Z0-9_\[\]-]+)         # &hf
                                   \s*,\s*
         }xis;
-        if (${$fileContentsRef} =~ /^#define\s+NEW_PROTO_TREE_API/m) {
-                $hfRegex = qr{
-                                  \sheader_field_info\s+
-                                  ([A-Z0-9_]+)
-                                  \s+
-                                  [A-Z0-9_]*
-                                  \s*=\s*
-                }xis;
-        }
         @items = (${$fileContentsRef} =~ m{
-                                  $hfRegex                      # &hf or "new" hfi name
+                                  $hfRegex                      # &hf
                                   \{\s*
                                   ("[A-Z0-9 '\./\(\)_:-]+")     # name
                                   \s*,\s*
@@ -875,6 +876,7 @@ sub check_pref_var_dupes($$)
         my @dupes;
         my %count;
         while ($filecontents =~ /prefs_register_(\w+?)_preference/gs) {
+                my ($func) = "prefs_register_$1_preference";
                 my ($args) = extract_bracketed(substr($filecontents, $+[0]), '()');
                 $args = substr($args, 1, -1); # strip parens
 
@@ -882,7 +884,17 @@ sub check_pref_var_dupes($$)
                 next if exists $prefs_register_var_pos{$1} and not defined $pos;
                 $pos //= -1;
                 my $var = (split /\s*,\s*(?![^(]*\))/, $args)[$pos]; # only commas outside parens
-                push @dupes, $var if $count{$var}++ == 1;
+
+                my $ignore = 0;
+                for my $row (@excludePrefsCheck) {
+                        my ($rfunc, $rvar) = @$row;
+                        if (($rfunc eq $func) && ($rvar eq $var)) {
+                                $ignore = 1
+                        }
+                }
+                if (!$ignore) {
+                        push @dupes, $var if $count{$var}++ == 1;
+                }
         }
 
         if (@dupes) {
@@ -1181,7 +1193,7 @@ while ($_ = pop @filelist)
 
         if ($fileContents =~ m{ %ll }xo)
         {
-                # use G_GINT64_MODIFIER instead of ll
+                # use PRI[dux...]N instead of ll
                 print STDERR "Error: Found %ll in " .$filename."\n";
                 $errorCount++;
         }

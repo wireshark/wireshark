@@ -811,7 +811,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             case AFNUM_DISTNAME:
                 str_len = tvb_strsize(tvb, offset);
-                proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_dn, tvb, offset, str_len, ENC_ASCII);
                 proto_item_append_text(tir, " %d. Distinguished Name: %s", i, tvb_get_const_stringz(tvb, offset, NULL));
                 offset    += str_len;
                 remaining -= str_len;
@@ -891,7 +891,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(tree, hf_lisp_lcaf_iid_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_lisp_lcaf_iid_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
         default:
@@ -965,7 +965,7 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(tree, hf_lisp_lcaf_asn_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_lisp_lcaf_asn_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
         default:
@@ -1134,7 +1134,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(tree, hf_lisp_lcaf_geo_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_lisp_lcaf_geo_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
         default:
@@ -1283,7 +1283,7 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
         default:
@@ -1683,7 +1683,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
         default:
@@ -1727,7 +1727,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
         default:
@@ -2151,7 +2151,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_eid_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_eid_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
     }
@@ -2398,7 +2398,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
                 break;
             case AFNUM_DISTNAME:
                 str_len = tvb_strsize(tvb, offset);
-                proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_dn, tvb, offset, str_len, ENC_ASCII);
                 offset += str_len;
                 break;
         }

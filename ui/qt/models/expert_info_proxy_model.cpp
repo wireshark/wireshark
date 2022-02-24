@@ -12,6 +12,8 @@
 #include <ui/qt/models/expert_info_proxy_model.h>
 #include <ui/qt/utils/color_utils.h>
 
+#include <QRegularExpression>
+
 ExpertInfoProxyModel::ExpertInfoProxyModel(QObject *parent) : QSortFilterProxyModel(parent),
     severityMode_(Group)
 {
@@ -230,7 +232,8 @@ bool ExpertInfoProxyModel::filterAcceptItem(ExpertPacketItem& item) const
         return false;
 
     if (!textFilter_.isEmpty()) {
-        QRegExp regex(textFilter_, Qt::CaseInsensitive);
+        QRegularExpression regex(textFilter_, QRegularExpression::CaseInsensitiveOption |
+                                 QRegularExpression::UseUnicodePropertiesOption);
 
         if (item.protocol().contains(regex))
             return true;

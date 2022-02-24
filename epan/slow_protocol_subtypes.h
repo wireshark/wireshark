@@ -1,4 +1,5 @@
-/* slow_protocol_subtypes.h
+/** @file
+ *
  * Defines subtypes for 802.3 "slow protocols"
  *
  * Copyright 2002 Steve Housley <steve_housley@3com.com>

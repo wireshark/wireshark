@@ -1,5 +1,4 @@
-/*
- ** diam_dict.h
+/** @file
  ** Diameter Dictionary Import Routines
  **
  ** (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>

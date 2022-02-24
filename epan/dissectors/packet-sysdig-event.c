@@ -78,6 +78,7 @@ static int hf_param_clockid_uint8 = -1;
 static int hf_param_cmd_bytes = -1;
 static int hf_param_cmd_int64 = -1;
 static int hf_param_comm_string = -1;
+static int hf_param_core_uint8 = -1;
 static int hf_param_cpu_sys_uint64 = -1;
 static int hf_param_cpu_uint32 = -1;
 static int hf_param_cpu_usr_uint64 = -1;
@@ -106,6 +107,7 @@ static int hf_param_egid_bytes = -1;
 static int hf_param_env_string = -1;
 static int hf_param_error_bytes = -1;
 static int hf_param_euid_bytes = -1;
+static int hf_param_event_data_bytes = -1;
 static int hf_param_event_data_uint64 = -1;
 static int hf_param_event_type_uint32 = -1;
 static int hf_param_exe_string = -1;
@@ -117,6 +119,7 @@ static int hf_param_fd_out_int64 = -1;
 static int hf_param_fdlimit_int64 = -1;
 static int hf_param_fdlimit_uint64 = -1;
 static int hf_param_fds_bytes = -1;
+static int hf_param_filename_bytes = -1;
 static int hf_param_filename_string = -1;
 static int hf_param_flags_bytes = -1;
 static int hf_param_flags_uint32 = -1;
@@ -137,6 +140,7 @@ static int hf_param_key_int32 = -1;
 static int hf_param_length_uint64 = -1;
 static int hf_param_level_bytes = -1;
 static int hf_param_linkdirfd_int64 = -1;
+static int hf_param_linkpath_bytes = -1;
 static int hf_param_linkpath_string = -1;
 static int hf_param_loginuid_int32 = -1;
 static int hf_param_mask_uint32 = -1;
@@ -144,12 +148,14 @@ static int hf_param_max_int64 = -1;
 static int hf_param_maxevents_bytes = -1;
 static int hf_param_mode_bytes = -1;
 static int hf_param_mode_uint32 = -1;
+static int hf_param_name_bytes = -1;
 static int hf_param_name_string = -1;
 static int hf_param_nativeID_uint16 = -1;
 static int hf_param_newcur_int64 = -1;
 static int hf_param_newdir_int64 = -1;
 static int hf_param_newdirfd_int64 = -1;
 static int hf_param_newmax_int64 = -1;
+static int hf_param_newpath_bytes = -1;
 static int hf_param_newpath_string = -1;
 static int hf_param_next_bytes = -1;
 static int hf_param_nsems_int32 = -1;
@@ -160,6 +166,7 @@ static int hf_param_oldcur_int64 = -1;
 static int hf_param_olddir_int64 = -1;
 static int hf_param_olddirfd_int64 = -1;
 static int hf_param_oldmax_int64 = -1;
+static int hf_param_oldpath_bytes = -1;
 static int hf_param_oldpath_string = -1;
 static int hf_param_op_bytes = -1;
 static int hf_param_op_uint64 = -1;
@@ -167,6 +174,7 @@ static int hf_param_operation_bytes = -1;
 static int hf_param_optlen_uint32 = -1;
 static int hf_param_optname_bytes = -1;
 static int hf_param_out_fd_int64 = -1;
+static int hf_param_path_bytes = -1;
 static int hf_param_path_string = -1;
 static int hf_param_peer_uint64 = -1;
 static int hf_param_pgft_maj_uint64 = -1;
@@ -174,6 +182,7 @@ static int hf_param_pgft_min_uint64 = -1;
 static int hf_param_pgid_bytes = -1;
 static int hf_param_pgoffset_uint64 = -1;
 static int hf_param_pid_bytes = -1;
+static int hf_param_plugin_ID_uint32 = -1;
 static int hf_param_pos_uint64 = -1;
 static int hf_param_prot_bytes = -1;
 static int hf_param_proto_uint32 = -1;
@@ -191,7 +200,9 @@ static int hf_param_res_bytes = -1;
 static int hf_param_res_int64 = -1;
 static int hf_param_res_or_fd_bytes = -1;
 static int hf_param_res_uint64 = -1;
+static int hf_param_resolve_bytes = -1;
 static int hf_param_resource_bytes = -1;
+static int hf_param_ret_bytes = -1;
 static int hf_param_rgid_bytes = -1;
 static int hf_param_ruid_bytes = -1;
 static int hf_param_scope_string = -1;
@@ -256,6 +267,7 @@ static gint ett_sysdig_syscall = -1;
 #define EVT_STR_BPF                      "bpf"
 #define EVT_STR_BRK                      "brk"
 #define EVT_STR_CHDIR                    "chdir"
+#define EVT_STR_CHMOD                    "chmod"
 #define EVT_STR_CHROOT                   "chroot"
 #define EVT_STR_CLONE                    "clone"
 #define EVT_STR_CLOSE                    "close"
@@ -269,6 +281,8 @@ static gint ett_sysdig_syscall = -1;
 #define EVT_STR_EVENTFD                  "eventfd"
 #define EVT_STR_EXECVE                   "execve"
 #define EVT_STR_FCHDIR                   "fchdir"
+#define EVT_STR_FCHMOD                   "fchmod"
+#define EVT_STR_FCHMODAT                 "fchmodat"
 #define EVT_STR_FCNTL                    "fcntl"
 #define EVT_STR_FLOCK                    "flock"
 #define EVT_STR_FORK                     "fork"
@@ -311,8 +325,10 @@ static gint ett_sysdig_syscall = -1;
 #define EVT_STR_NOTIFICATION             "notification"
 #define EVT_STR_OPEN                     "open"
 #define EVT_STR_OPENAT                   "openat"
+#define EVT_STR_OPENAT2                  "openat2"
 #define EVT_STR_PAGE_FAULT               "page_fault"
 #define EVT_STR_PIPE                     "pipe"
+#define EVT_STR_PLUGINEVENT              "pluginevent"
 #define EVT_STR_POLL                     "poll"
 #define EVT_STR_PPOLL                    "ppoll"
 #define EVT_STR_PREAD                    "pread"
@@ -332,6 +348,7 @@ static gint ett_sysdig_syscall = -1;
 #define EVT_STR_RECVMSG                  "recvmsg"
 #define EVT_STR_RENAME                   "rename"
 #define EVT_STR_RENAMEAT                 "renameat"
+#define EVT_STR_RENAMEAT2                "renameat2"
 #define EVT_STR_RMDIR                    "rmdir"
 #define EVT_STR_SECCOMP                  "seccomp"
 #define EVT_STR_SELECT                   "select"
@@ -373,6 +390,7 @@ static gint ett_sysdig_syscall = -1;
 #define EVT_STR_UNLINK                   "unlink"
 #define EVT_STR_UNLINKAT                 "unlinkat"
 #define EVT_STR_UNSHARE                  "unshare"
+#define EVT_STR_USERFAULTFD              "userfaultfd"
 #define EVT_STR_VFORK                    "vfork"
 #define EVT_STR_WRITE                    "write"
 #define EVT_STR_WRITEV                   "writev"
@@ -691,6 +709,22 @@ static gint ett_sysdig_syscall = -1;
 #define EVT_SYSCALL_LINK_2_X         309
 #define EVT_SYSCALL_LINKAT_2_E       310
 #define EVT_SYSCALL_LINKAT_2_X       311
+#define EVT_SYSCALL_FCHMODAT_E       312
+#define EVT_SYSCALL_FCHMODAT_X       313
+#define EVT_SYSCALL_CHMOD_E          314
+#define EVT_SYSCALL_CHMOD_X          315
+#define EVT_SYSCALL_FCHMOD_E         316
+#define EVT_SYSCALL_FCHMOD_X         317
+#define EVT_SYSCALL_RENAMEAT2_E      318
+#define EVT_SYSCALL_RENAMEAT2_X      319
+#define EVT_SYSCALL_USERFAULTFD_E    320
+#define EVT_SYSCALL_USERFAULTFD_X    321
+#define EVT_PLUGINEVENT_E            322
+#define EVT_PLUGINEVENT_X            323
+#define EVT_CONTAINER_JSON_2_E       324
+#define EVT_CONTAINER_JSON_2_X       325
+#define EVT_SYSCALL_OPENAT2_E        326
+#define EVT_SYSCALL_OPENAT2_X        327
 
 static const value_string event_type_vals[] = {
 /* Value strings. Automatically generated by tools/generate-sysdig-event.py */
@@ -1006,6 +1040,22 @@ static const value_string event_type_vals[] = {
     { EVT_SYSCALL_LINK_2_X,            EVT_STR_LINK },
     { EVT_SYSCALL_LINKAT_2_E,          EVT_STR_LINKAT },
     { EVT_SYSCALL_LINKAT_2_X,          EVT_STR_LINKAT },
+    { EVT_SYSCALL_FCHMODAT_E,          EVT_STR_FCHMODAT },
+    { EVT_SYSCALL_FCHMODAT_X,          EVT_STR_FCHMODAT },
+    { EVT_SYSCALL_CHMOD_E,             EVT_STR_CHMOD },
+    { EVT_SYSCALL_CHMOD_X,             EVT_STR_CHMOD },
+    { EVT_SYSCALL_FCHMOD_E,            EVT_STR_FCHMOD },
+    { EVT_SYSCALL_FCHMOD_X,            EVT_STR_FCHMOD },
+    { EVT_SYSCALL_RENAMEAT2_E,         EVT_STR_RENAMEAT2 },
+    { EVT_SYSCALL_RENAMEAT2_X,         EVT_STR_RENAMEAT2 },
+    { EVT_SYSCALL_USERFAULTFD_E,       EVT_STR_USERFAULTFD },
+    { EVT_SYSCALL_USERFAULTFD_X,       EVT_STR_USERFAULTFD },
+    { EVT_PLUGINEVENT_E,               EVT_STR_PLUGINEVENT },
+    { EVT_PLUGINEVENT_X,               EVT_STR_PLUGINEVENT },
+    { EVT_CONTAINER_JSON_2_E,          EVT_STR_CONTAINER },
+    { EVT_CONTAINER_JSON_2_X,          EVT_STR_CONTAINER },
+    { EVT_SYSCALL_OPENAT2_E,           EVT_STR_OPENAT2 },
+    { EVT_SYSCALL_OPENAT2_X,           EVT_STR_OPENAT2 },
 
     {0, NULL }
 };
@@ -1249,16 +1299,16 @@ static int * const syscall_execve_14_x_indexes[] = { &hf_param_res_bytes, &hf_pa
 #define syscall_rename_e_indexes no_indexes
 static int * const syscall_rename_x_indexes[] = { &hf_param_res_bytes, &hf_param_oldpath_string, &hf_param_newpath_string, NULL };
 #define syscall_renameat_e_indexes no_indexes
-static int * const syscall_renameat_x_indexes[] = { &hf_param_res_bytes, &hf_param_olddirfd_int64, &hf_param_oldpath_string, &hf_param_newdirfd_int64, &hf_param_newpath_string, NULL };
+static int * const syscall_renameat_x_indexes[] = { &hf_param_res_bytes, &hf_param_olddirfd_int64, &hf_param_oldpath_bytes, &hf_param_newdirfd_int64, &hf_param_newpath_bytes, NULL };
 #define syscall_symlink_e_indexes no_indexes
 static int * const syscall_symlink_x_indexes[] = { &hf_param_res_bytes, &hf_param_target_string, &hf_param_linkpath_string, NULL };
 #define syscall_symlinkat_e_indexes no_indexes
-static int * const syscall_symlinkat_x_indexes[] = { &hf_param_res_bytes, &hf_param_target_string, &hf_param_linkdirfd_int64, &hf_param_linkpath_string, NULL };
+static int * const syscall_symlinkat_x_indexes[] = { &hf_param_res_bytes, &hf_param_target_string, &hf_param_linkdirfd_int64, &hf_param_linkpath_bytes, NULL };
 #define syscall_fork_e_indexes no_indexes
 #define syscall_fork_x_indexes syscall_clone_16_x_indexes
 #define syscall_vfork_e_indexes no_indexes
 #define syscall_vfork_x_indexes syscall_clone_16_x_indexes
-static int * const procexit_1_e_indexes[] = { &hf_param_status_bytes, NULL };
+static int * const procexit_1_e_indexes[] = { &hf_param_status_bytes, &hf_param_ret_bytes, &hf_param_sig_bytes, &hf_param_core_uint8, NULL };
 #define procexit_1_x_indexes no_indexes
 static int * const syscall_sendfile_e_indexes[] = { &hf_param_out_fd_int64, &hf_param_in_fd_int64, &hf_param_offset_uint64, &hf_param_size_uint64, NULL };
 static int * const syscall_sendfile_x_indexes[] = { &hf_param_res_bytes, &hf_param_offset_uint64, NULL };
@@ -1375,15 +1425,31 @@ static int * const syscall_seccomp_e_indexes[] = { &hf_param_op_uint64, NULL };
 #define syscall_unlink_2_e_indexes no_indexes
 #define syscall_unlink_2_x_indexes syscall_stat_x_indexes
 #define syscall_unlinkat_2_e_indexes no_indexes
-static int * const syscall_unlinkat_2_x_indexes[] = { &hf_param_res_bytes, &hf_param_dirfd_int64, &hf_param_name_string, &hf_param_flags_bytes, NULL };
+static int * const syscall_unlinkat_2_x_indexes[] = { &hf_param_res_bytes, &hf_param_dirfd_int64, &hf_param_name_bytes, &hf_param_flags_bytes, NULL };
 #define syscall_mkdirat_e_indexes no_indexes
-static int * const syscall_mkdirat_x_indexes[] = { &hf_param_res_bytes, &hf_param_dirfd_int64, &hf_param_path_string, &hf_param_mode_uint32, NULL };
+static int * const syscall_mkdirat_x_indexes[] = { &hf_param_res_bytes, &hf_param_dirfd_int64, &hf_param_path_bytes, &hf_param_mode_uint32, NULL };
 #define syscall_openat_2_e_indexes no_indexes
-static int * const syscall_openat_2_x_indexes[] = { &hf_param_fd_int64, &hf_param_dirfd_int64, &hf_param_name_string, &hf_param_flags_bytes, &hf_param_mode_uint32, &hf_param_dev_uint32, NULL };
+static int * const syscall_openat_2_x_indexes[] = { &hf_param_fd_int64, &hf_param_dirfd_int64, &hf_param_name_bytes, &hf_param_flags_bytes, &hf_param_mode_uint32, &hf_param_dev_uint32, NULL };
 #define syscall_link_2_e_indexes no_indexes
 #define syscall_link_2_x_indexes syscall_rename_x_indexes
 #define syscall_linkat_2_e_indexes no_indexes
-static int * const syscall_linkat_2_x_indexes[] = { &hf_param_res_bytes, &hf_param_olddir_int64, &hf_param_oldpath_string, &hf_param_newdir_int64, &hf_param_newpath_string, &hf_param_flags_bytes, NULL };
+static int * const syscall_linkat_2_x_indexes[] = { &hf_param_res_bytes, &hf_param_olddir_int64, &hf_param_oldpath_bytes, &hf_param_newdir_int64, &hf_param_newpath_bytes, &hf_param_flags_bytes, NULL };
+#define syscall_fchmodat_e_indexes no_indexes
+static int * const syscall_fchmodat_x_indexes[] = { &hf_param_res_bytes, &hf_param_dirfd_int64, &hf_param_filename_bytes, &hf_param_mode_bytes, NULL };
+#define syscall_chmod_e_indexes no_indexes
+static int * const syscall_chmod_x_indexes[] = { &hf_param_res_bytes, &hf_param_filename_string, &hf_param_mode_bytes, NULL };
+#define syscall_fchmod_e_indexes no_indexes
+static int * const syscall_fchmod_x_indexes[] = { &hf_param_res_bytes, &hf_param_fd_int64, &hf_param_mode_bytes, NULL };
+#define syscall_renameat2_e_indexes no_indexes
+static int * const syscall_renameat2_x_indexes[] = { &hf_param_res_bytes, &hf_param_olddirfd_int64, &hf_param_oldpath_bytes, &hf_param_newdirfd_int64, &hf_param_newpath_bytes, &hf_param_flags_bytes, NULL };
+#define syscall_userfaultfd_e_indexes no_indexes
+static int * const syscall_userfaultfd_x_indexes[] = { &hf_param_res_bytes, &hf_param_flags_bytes, NULL };
+static int * const pluginevent_e_indexes[] = { &hf_param_plugin_ID_uint32, &hf_param_event_data_bytes, NULL };
+#define pluginevent_x_indexes no_indexes
+#define container_json_2_e_indexes k8s_e_indexes
+#define container_json_2_x_indexes no_indexes
+#define syscall_openat2_e_indexes no_indexes
+static int * const syscall_openat2_x_indexes[] = { &hf_param_fd_int64, &hf_param_dirfd_int64, &hf_param_name_bytes, &hf_param_flags_bytes, &hf_param_mode_uint32, &hf_param_resolve_bytes, NULL };
 
 static const struct _event_tree_info event_tree_info[] = {
 /* Event tree. Automatically generated by tools/generate-sysdig-event.py */
@@ -1699,6 +1765,22 @@ static const struct _event_tree_info event_tree_info[] = {
     { EVT_SYSCALL_LINK_2_X, syscall_link_2_x_indexes },
     { EVT_SYSCALL_LINKAT_2_E, syscall_linkat_2_e_indexes },
     { EVT_SYSCALL_LINKAT_2_X, syscall_linkat_2_x_indexes },
+    { EVT_SYSCALL_FCHMODAT_E, syscall_fchmodat_e_indexes },
+    { EVT_SYSCALL_FCHMODAT_X, syscall_fchmodat_x_indexes },
+    { EVT_SYSCALL_CHMOD_E, syscall_chmod_e_indexes },
+    { EVT_SYSCALL_CHMOD_X, syscall_chmod_x_indexes },
+    { EVT_SYSCALL_FCHMOD_E, syscall_fchmod_e_indexes },
+    { EVT_SYSCALL_FCHMOD_X, syscall_fchmod_x_indexes },
+    { EVT_SYSCALL_RENAMEAT2_E, syscall_renameat2_e_indexes },
+    { EVT_SYSCALL_RENAMEAT2_X, syscall_renameat2_x_indexes },
+    { EVT_SYSCALL_USERFAULTFD_E, syscall_userfaultfd_e_indexes },
+    { EVT_SYSCALL_USERFAULTFD_X, syscall_userfaultfd_x_indexes },
+    { EVT_PLUGINEVENT_E, pluginevent_e_indexes },
+    { EVT_PLUGINEVENT_X, pluginevent_x_indexes },
+    { EVT_CONTAINER_JSON_2_E, container_json_2_e_indexes },
+    { EVT_CONTAINER_JSON_2_X, container_json_2_x_indexes },
+    { EVT_SYSCALL_OPENAT2_E, syscall_openat2_e_indexes },
+    { EVT_SYSCALL_OPENAT2_X, syscall_openat2_x_indexes },
 
     { 0, NULL }
 };
@@ -2174,8 +2256,15 @@ dissect_event_params(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int off
     }
 
     for (cur_param = 0; cur_param < syscall_header->nparams; cur_param++) {
+        if (!hf_indexes[cur_param]) {
+            // This happens when new params are added to existent events in sysdig,
+            // if the event is already mapped in wireshark with a lower number of params.
+            // hf_indexes array size would be < than event being dissected, leading to SIGSEGV.
+            break;
+        }
+
         guint32 param_len;
-        if (syscall_header->record_type == SYSDIG_PARAM_SIZE_V2_LARGE) {
+        if (syscall_header->record_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE) {
             param_len = tvb_get_guint32(tvb, len_offset, encoding);
         } else {
             param_len = tvb_get_guint16(tvb, len_offset, encoding);
@@ -2244,7 +2333,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         col_append_str(pinfo->cinfo, COL_INFO, format_param_str(tvb, param_offset, param_len));
                         break;
                     case FT_UINT64:
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%" G_GUINT64_FORMAT, tvb_get_guint64(tvb, param_offset, encoding));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "%" PRIu64, tvb_get_guint64(tvb, param_offset, encoding));
                     default:
                         break;
                     }
@@ -2336,6 +2425,7 @@ proto_register_sysdig_event(void)
         { &hf_param_cmd_bytes, { "cmd", "sysdig.param.semctl.cmd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_cmd_int64, { "cmd", "sysdig.param.bpf.cmd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_comm_string, { "Command", "sysdig.param.execve.comm", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_core_uint8, { "core", "sysdig.param.procexit.core", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_cpu_sys_uint64, { "cpu_sys", "sysdig.param.procinfo.cpu_sys", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_cpu_uint32, { "cpu", "sysdig.param.cpu_hotplug.cpu", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_cpu_usr_uint64, { "cpu_usr", "sysdig.param.procinfo.cpu_usr", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2347,7 +2437,7 @@ proto_register_sysdig_event(void)
         { &hf_param_dev_string, { "dev", "sysdig.param.mount.dev", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_dev_uint32, { "dev", "sysdig.param.openat.dev", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_param_dir_string, { "dir", "sysdig.param.mount.dir", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_param_dirfd_int64, { "dirfd", "sysdig.param.openat.dirfd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_param_dirfd_int64, { "dirfd", "sysdig.param.openat2.dirfd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_domain_bytes, { "domain", "sysdig.param.socketpair.domain", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_dpid_bytes, { "dpid", "sysdig.param.signaldeliver.dpid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_dqb_bhardlimit_uint64, { "dqb_bhardlimit", "sysdig.param.quotactl.dqb_bhardlimit", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2364,19 +2454,21 @@ proto_register_sysdig_event(void)
         { &hf_param_env_string, { "env", "sysdig.param.execve.env", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_error_bytes, { "error", "sysdig.param.page_fault.error", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_euid_bytes, { "euid", "sysdig.param.getresuid.euid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_event_data_bytes, { "event_data", "sysdig.param.pluginevent.event_data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_event_data_uint64, { "event_data", "sysdig.param.sysdigevent.event_data", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_event_type_uint32, { "event_type", "sysdig.param.sysdigevent.event_type", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_exe_string, { "exe", "sysdig.param.execve.exe", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_fd1_int64, { "fd1", "sysdig.param.pipe.fd1", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_fd2_int64, { "fd2", "sysdig.param.pipe.fd2", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_fd_in_int64, { "fd_in", "sysdig.param.splice.fd_in", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_param_fd_int64, { "fd", "sysdig.param.openat.fd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_param_fd_int64, { "fd", "sysdig.param.openat2.fd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_fd_out_int64, { "fd_out", "sysdig.param.splice.fd_out", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_fdlimit_int64, { "fdlimit", "sysdig.param.vfork.fdlimit", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_fdlimit_uint64, { "fdlimit", "sysdig.param.execve.fdlimit", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_fds_bytes, { "fds", "sysdig.param.ppoll.fds", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_param_filename_string, { "filename", "sysdig.param.execve.filename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_param_flags_bytes, { "flags", "sysdig.param.linkat.flags", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_filename_bytes, { "filename", "sysdig.param.fchmodat.filename", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_filename_string, { "filename", "sysdig.param.chmod.filename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_flags_bytes, { "flags", "sysdig.param.openat2.flags", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_flags_uint32, { "flags", "sysdig.param.accept.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_param_gid_bytes, { "gid", "sysdig.param.getgid.gid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_gid_uint32, { "gid", "sysdig.param.vfork.gid", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2395,20 +2487,23 @@ proto_register_sysdig_event(void)
         { &hf_param_length_uint64, { "length", "sysdig.param.munmap.length", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_level_bytes, { "level", "sysdig.param.getsockopt.level", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_linkdirfd_int64, { "linkdirfd", "sysdig.param.symlinkat.linkdirfd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_param_linkpath_string, { "linkpath", "sysdig.param.symlinkat.linkpath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_linkpath_bytes, { "linkpath", "sysdig.param.symlinkat.linkpath", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_linkpath_string, { "linkpath", "sysdig.param.symlink.linkpath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_loginuid_int32, { "loginuid", "sysdig.param.execve.loginuid", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_mask_uint32, { "mask", "sysdig.param.signalfd.mask", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_param_max_int64, { "max", "sysdig.param.setrlimit.max", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_maxevents_bytes, { "maxevents", "sysdig.param.epoll_wait.maxevents", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_param_mode_bytes, { "mode", "sysdig.param.access.mode", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_param_mode_uint32, { "mode", "sysdig.param.openat.mode", FT_UINT32, BASE_OCT, NULL, 0, NULL, HFILL } },
-        { &hf_param_name_string, { "name", "sysdig.param.openat.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_mode_bytes, { "mode", "sysdig.param.fchmod.mode", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_mode_uint32, { "mode", "sysdig.param.openat2.mode", FT_UINT32, BASE_OCT, NULL, 0, NULL, HFILL } },
+        { &hf_param_name_bytes, { "name", "sysdig.param.openat2.name", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_name_string, { "name", "sysdig.param.infra.name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_nativeID_uint16, { "nativeID", "sysdig.param.syscall.nativeID", FT_UINT16, BASE_DEC, VALS(nativeID_uint16_vals), 0, NULL, HFILL } },
         { &hf_param_newcur_int64, { "newcur", "sysdig.param.prlimit.newcur", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_newdir_int64, { "newdir", "sysdig.param.linkat.newdir", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_param_newdirfd_int64, { "newdirfd", "sysdig.param.renameat.newdirfd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_param_newdirfd_int64, { "newdirfd", "sysdig.param.renameat2.newdirfd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_newmax_int64, { "newmax", "sysdig.param.prlimit.newmax", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_param_newpath_string, { "newpath", "sysdig.param.linkat.newpath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_newpath_bytes, { "newpath", "sysdig.param.renameat2.newpath", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_newpath_string, { "newpath", "sysdig.param.link.newpath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_next_bytes, { "next", "sysdig.param.switch.next", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_nsems_int32, { "nsems", "sysdig.param.semget.nsems", FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_nsops_uint32, { "nsops", "sysdig.param.semop.nsops", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2416,22 +2511,25 @@ proto_register_sysdig_event(void)
         { &hf_param_offset_uint64, { "offset", "sysdig.param.sendfile.offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_oldcur_int64, { "oldcur", "sysdig.param.prlimit.oldcur", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_olddir_int64, { "olddir", "sysdig.param.linkat.olddir", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_param_olddirfd_int64, { "olddirfd", "sysdig.param.renameat.olddirfd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_param_olddirfd_int64, { "olddirfd", "sysdig.param.renameat2.olddirfd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_oldmax_int64, { "oldmax", "sysdig.param.prlimit.oldmax", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_param_oldpath_string, { "oldpath", "sysdig.param.linkat.oldpath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_oldpath_bytes, { "oldpath", "sysdig.param.renameat2.oldpath", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_oldpath_string, { "oldpath", "sysdig.param.link.oldpath", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_op_bytes, { "op", "sysdig.param.futex.op", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_op_uint64, { "op", "sysdig.param.seccomp.op", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_operation_bytes, { "operation", "sysdig.param.flock.operation", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_optlen_uint32, { "optlen", "sysdig.param.getsockopt.optlen", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_optname_bytes, { "optname", "sysdig.param.getsockopt.optname", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_out_fd_int64, { "out_fd", "sysdig.param.sendfile.out_fd", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_param_path_string, { "path", "sysdig.param.mkdirat.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_path_bytes, { "path", "sysdig.param.mkdirat.path", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_path_string, { "path", "sysdig.param.unlink.path", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_peer_uint64, { "peer", "sysdig.param.socketpair.peer", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_param_pgft_maj_uint64, { "pgft_maj", "sysdig.param.execve.pgft_maj", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_pgft_min_uint64, { "pgft_min", "sysdig.param.execve.pgft_min", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_pgid_bytes, { "pgid", "sysdig.param.setpgid.pgid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_pgoffset_uint64, { "pgoffset", "sysdig.param.mmap2.pgoffset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_pid_bytes, { "pid", "sysdig.param.setpgid.pid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_plugin_ID_uint32, { "plugin_ID", "sysdig.param.pluginevent.plugin_ID", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_pos_uint64, { "pos", "sysdig.param.pwritev.pos", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_prot_bytes, { "prot", "sysdig.param.mmap2.prot", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_proto_uint32, { "proto", "sysdig.param.socketpair.proto", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -2445,11 +2543,13 @@ proto_register_sysdig_event(void)
         { &hf_param_ratio_uint32, { "ratio", "sysdig.param.drop.ratio", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_request_bytes, { "request", "sysdig.param.ptrace.request", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_request_uint64, { "I/O control: request", "sysdig.param.ioctl.request", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_param_res_bytes, { "res", "sysdig.param.linkat.res", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_res_bytes, { "res", "sysdig.param.userfaultfd.res", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_res_int64, { "res", "sysdig.param.fcntl.res", FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_param_res_or_fd_bytes, { "res_or_fd", "sysdig.param.bpf.res_or_fd", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_res_uint64, { "res", "sysdig.param.mmap2.res", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_param_resolve_bytes, { "resolve", "sysdig.param.openat2.resolve", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_resource_bytes, { "resource", "sysdig.param.prlimit.resource", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_param_ret_bytes, { "ret", "sysdig.param.procexit.ret", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_rgid_bytes, { "rgid", "sysdig.param.getresgid.rgid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_ruid_bytes, { "ruid", "sysdig.param.getresuid.ruid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_scope_string, { "scope", "sysdig.param.infra.scope", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -2494,7 +2594,6 @@ proto_register_sysdig_event(void)
         { &hf_param_vpid_bytes, { "vpid", "sysdig.param.vfork.vpid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_vtid_bytes, { "vtid", "sysdig.param.vfork.vtid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_param_whence_bytes, { "whence", "sysdig.param.llseek.whence", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
-
     };
 
     /* Setup protocol subtree array */

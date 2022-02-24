@@ -1,4 +1,5 @@
-/* oui.h
+/** @file
+ *
  * Definitions of OUIs
  *
  * Wireshark - Network traffic analyzer
@@ -44,6 +45,7 @@
 #define OUI_PROFINET        0x000ECF    /* PROFIBUS Nutzerorganisation e.V. */
 #define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
 #define OUI_SONY_ERICSSON_3 0x000FDE    /* Sony Ericsson Mobile Communications AB */
+#define OUI_FORTINET        0x00090F    /* Fortinet */
 #define OUI_CIMETRICS       0x001090    /* Cimetrics, Inc. */
 #define OUI_IEEE_802_3      0x00120F    /* IEEE 802.3 */
 #define OUI_MEDIA_ENDPOINT  0x0012BB    /* Media (TIA TR-41 Committee) */
@@ -56,6 +58,7 @@
 #define OUI_BLUETOOTH       0x001958    /* Bluetooth SIG */
 #define OUI_SONY_ERICSSON_8 0x001963    /* Sony Ericsson Mobile Communications AB */
 #define OUI_AEROHIVE        0x001977    /* Aerohive AP to AP communication */
+#define OUI_ITU_T           0x0019a7    /* International Telecommunication Union (ITU) Telecommunication Standardization Sector */
 #define OUI_DCBX            0x001B21    /* Data Center Bridging Capabilities Exchange Protocol */
 #define OUI_CISCO_UBI       0x001B67    /* Cisco/Ubiquisys */
 #define OUI_IEEE_802_1QBG   0x001B3F    /* IEEE 802.1 Qbg */

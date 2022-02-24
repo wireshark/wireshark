@@ -55,7 +55,7 @@ $ echo Linux and UNIX
 C:\> echo Windows
 ----
 
-Admonitions ([NOTE], [TIP], and [WARNING]) can be used to highlight important
+Admonitions ([NOTE], [TIP], [IMPORTANT], [CAUTION] and [WARNING]) can be used to highlight important
 information. Keep in mind that they interrupt the flow of text by design. Too
 many (especially in a row) are distracting and annoying.
 

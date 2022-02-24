@@ -2153,7 +2153,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
                     if (p_frag_params) {
                         proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
-                                            p_frag_params->length, ENC_ASCII|ENC_NA);
+                                            p_frag_params->length, ENC_ASCII);
                         total_sms_len += p_frag_params->length;
                     }
                 }
@@ -2986,22 +2986,22 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_tp_oa,
               { "TP-OA Digits", "gsm_sms.tp-oa",
-                FT_STRING, STR_UNICODE, NULL, 0x00,
+                FT_STRING, BASE_NONE, NULL, 0x00,
                 "TP-Originating-Address Digits", HFILL }
             },
             { &hf_gsm_sms_tp_da,
               { "TP-DA Digits", "gsm_sms.tp-da",
-                FT_STRING, STR_UNICODE, NULL, 0x00,
+                FT_STRING, BASE_NONE, NULL, 0x00,
                 "TP-Destination-Address Digits", HFILL }
             },
             { &hf_gsm_sms_tp_ra,
               { "TP-RA Digits", "gsm_sms.tp-ra",
-                FT_STRING, STR_UNICODE, NULL, 0x00,
+                FT_STRING, BASE_NONE, NULL, 0x00,
                 "TP-Recipient-Address Digits", HFILL }
             },
             { &hf_gsm_sms_tp_digits,
               { "Digits", "gsm_sms.tp-digits",
-                FT_STRING, STR_UNICODE, NULL, 0x00,
+                FT_STRING, BASE_NONE, NULL, 0x00,
                 "TP (Unknown) Digits", HFILL }
             },
             { &hf_gsm_sms_tp_pid,
@@ -3066,7 +3066,7 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_text,
               { "SMS text", "gsm_sms.sms_text",
-                FT_STRING, STR_UNICODE, NULL, 0x00,
+                FT_STRING, BASE_NONE, NULL, 0x00,
                 "The text of the SMS", HFILL }
             },
             { &hf_gsm_sms_body,

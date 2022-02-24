@@ -180,19 +180,19 @@ void proto_reg_handoff_acr122(void);
 
 static void
 duration_base(gchar *buf, guint32 value) {
-        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u.%03u s", value * 100 / 1000, value * 100 % 1000);
+        snprintf(buf, ITEM_LABEL_LENGTH, "%u.%03u s", value * 100 / 1000, value * 100 % 1000);
 }
 
 static void
 timeout_base(gchar *buf, guint32 value) {
         if (value == 0x00)
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "No timeout check");
+            snprintf(buf, ITEM_LABEL_LENGTH, "No timeout check");
         else if (value == 0xFF)
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "Wait until the contactless chip responds");
+            snprintf(buf, ITEM_LABEL_LENGTH, "Wait until the contactless chip responds");
         else if (value < 12)
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%u [s]", value * 5);
+            snprintf(buf, ITEM_LABEL_LENGTH, "%u [s]", value * 5);
         else
-            g_snprintf(buf, ITEM_LABEL_LENGTH, "%u:%02u [mm:ss]", value * 5 / 60, value * 5 % 60);
+            snprintf(buf, ITEM_LABEL_LENGTH, "%u:%02u [mm:ss]", value * 5 / 60, value * 5 % 60);
 }
 
 

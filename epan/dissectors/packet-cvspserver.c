@@ -42,7 +42,7 @@ dissect_cvspserver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* di
 	for (offset = 0; tvb_offset_exists(tvb, offset); offset = next_offset)
 	{
 		length = tvb_find_line_end_unquoted(tvb, offset, -1, &next_offset);
-		proto_tree_add_item(cvspserver_tree, hf_cvspserver_data, tvb, offset, length, ENC_UTF_8|ENC_NA);
+		proto_tree_add_item(cvspserver_tree, hf_cvspserver_data, tvb, offset, length, ENC_UTF_8);
 		lines++;
 	}
 

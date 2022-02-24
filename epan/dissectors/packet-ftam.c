@@ -4747,7 +4747,7 @@ dissect_ftam_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_ftam_unstructured_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, void* data _U_)
 {
-	proto_tree_add_item (parent_tree, hf_ftam_unstructured_text, tvb, 0, tvb_reported_length_remaining(tvb, 0), ENC_ASCII|ENC_NA);
+	proto_tree_add_item (parent_tree, hf_ftam_unstructured_text, tvb, 0, tvb_reported_length_remaining(tvb, 0), ENC_ASCII);
 	return tvb_captured_length(tvb);
 }
 
@@ -5619,7 +5619,7 @@ void proto_register_ftam(void) {
         NULL, HFILL }},
     { &hf_ftam_actual_values5,
       { "actual-values", "ftam.actual_values5",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_ftam_actual_values8,
       { "actual-values", "ftam.actual_values8",
@@ -6035,7 +6035,7 @@ void proto_register_ftam(void) {
         "Equality_Comparision", HFILL }},
     { &hf_ftam_time_and_date_value,
       { "time-and-date-value", "ftam.time_and_date_value",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_ftam_relational_comparision,
       { "relational-comparision", "ftam.relational_comparision",

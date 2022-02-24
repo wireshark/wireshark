@@ -527,7 +527,7 @@ Dot11DecryptDecryptKeyData(PDOT11DECRYPT_CONTEXT ctx,
  * @param ctx [IN] pointer to the current context
  * @param id [IN] id of the association (composed by BSSID and MAC of
  * the station)
- * @return a pointer the the requested SA. NULL if it doesn't exist.
+ * @return a pointer of the requested SA. NULL if it doesn't exist.
  */
 static PDOT11DECRYPT_SEC_ASSOCIATION
 Dot11DecryptGetSa(

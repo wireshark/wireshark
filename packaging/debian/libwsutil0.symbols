@@ -116,7 +116,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  init_progfile_dir@Base 1.12.0~rc1
  init_report_message@Base 2.3.0
  int64_to_str_back@Base 3.5.1
- int_compare@Base 3.6.0
  int_to_str_back@Base 3.5.1
  ip6_to_str@Base 3.5.1
  ip6_to_str_buf@Base 3.5.1
@@ -219,7 +218,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  tm_is_valid@Base 3.5.0
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
- uint_compare@Base 3.6.0
  uint64_to_str_back@Base 3.5.1
  uint64_to_str_back_len@Base 3.5.1
  uint_to_str_back@Base 3.5.1
@@ -244,6 +242,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_array_try_index@Base 3.5.0
  wmem_ascii_strdown@Base 3.5.0
  wmem_cleanup@Base 3.5.0
+ wmem_compare_int@Base 3.7.0
+ wmem_compare_uint@Base 3.7.0
  wmem_destroy_allocator@Base 3.5.0
  wmem_destroy_array@Base 3.5.0
  wmem_destroy_list@Base 3.5.0
@@ -296,6 +296,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  wmem_multimap_new_autoreset@Base 3.7.0
  wmem_multimap_remove32@Base 3.7.0
  wmem_multimap_size@Base 3.7.0
+ wmem_print_tree@Base 3.7.0
  wmem_realloc@Base 3.5.0
  wmem_register_callback@Base 3.5.0
  wmem_stack_peek@Base 3.5.0
@@ -347,7 +348,6 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_add_crash_info@Base 1.10.0
  ws_ascii_strnatcasecmp@Base 1.99.1
  ws_ascii_strnatcmp@Base 1.99.1
- ws_assert_failed@Base 3.5.0
  ws_base32_decode@Base 2.3.0
  ws_basestrtou16@Base 2.9.0
  ws_basestrtou32@Base 2.9.0
@@ -360,7 +360,9 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_buffer_init@Base 1.99.0
  ws_buffer_remove_start@Base 1.99.0
  ws_cleanup_sockets@Base 3.1.0
+ ws_clock_get_realtime@Base 3.7.0
  ws_cmac_buffer@Base 3.1.0
+ ws_escape_string@Base 3.7.0
  ws_getopt@Base 3.5.1
  ws_getopt_long@Base 3.5.1
  ws_getopt_long_only@Base 3.5.1
@@ -379,7 +381,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log@Base 3.5.0
  ws_log_add_custom_file@Base 3.5.0
  ws_log_buffer_full@Base 3.5.1
- ws_log_default_writer@Base 3.5.0
+ ws_log_console_writer@Base 3.7.0
+ ws_log_console_writer_set_use_stdout@Base 3.7.0
+ ws_log_fatal_full@Base 3.7.0
+ ws_log_file_writer@Base 3.7.0
  ws_log_full@Base 3.5.0
  ws_log_get_level@Base 3.5.0
  ws_log_init@Base 3.5.0
@@ -396,9 +401,12 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_log_set_fatal_str@Base 3.5.0
  ws_log_set_level@Base 3.5.0
  ws_log_set_level_str@Base 3.5.0
+ ws_log_set_writer@Base 3.7.0
+ ws_log_set_writer_with_data@Base 3.7.0
  ws_log_write_always_full@Base 3.5.0
  ws_logv@Base 3.5.0
  ws_logv_full@Base 3.5.0
+ ws_memmem@Base 3.7.0
  ws_mempbrk_compile@Base 1.99.4
  ws_mempbrk_exec@Base 1.99.4
  ws_optarg@Base 3.5.1
@@ -416,8 +424,12 @@ libwsutil.so.0 libwsutil0 #MINVER#
  ws_regex_compile@Base 3.7.0
  ws_regex_free@Base 3.7.0
  ws_regex_matches@Base 3.7.0
+ ws_regex_matches_length@Base 3.7.0
  ws_regex_pattern@Base 3.7.0
  ws_socket_ptoa@Base 3.1.1
+ ws_strcasestr@Base 3.7.0
+ ws_strerrorname_r@Base 3.7.0
+ ws_strptime@Base 3.7.0
  ws_strtoi16@Base 2.3.0
  ws_strtoi32@Base 2.3.0
  ws_strtoi64@Base 2.3.0

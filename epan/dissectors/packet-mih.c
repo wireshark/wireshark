@@ -1004,7 +1004,7 @@ static gint16 dissect_link_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tr
         case 4 :/*3GPP2_ADDR*/
         case 5 :/*OTHER_L2_ADDR*/
                 len = tvb_get_guint8(tvb, offset+1);
-                proto_tree_add_item(tlv_tree, hf_link_addr_string, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_link_addr_string, tvb, offset+2, len, ENC_ASCII);
                 return (offset + 2 + len);
         }
         return 0;
@@ -1021,7 +1021,7 @@ static gint16 dissect_tsp_container(tvbuff_t *tvb, gint16 offset, proto_tree *tl
         else if(tvb_get_guint8(tvb, offset) == 2)
         {
                 len = tvb_get_guint8(tvb, offset+1);
-                proto_tree_add_item(tlv_tree, hf_tsp_carrier, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_tsp_carrier, tvb, offset+2, len, ENC_ASCII);
                 return (offset + len + 2);
         }
         else
@@ -1034,12 +1034,12 @@ static gint16 dissect_iq_rdf_data(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_
         if(tvb_get_guint8(tvb, offset))
         {
                 len = tvb_get_guint8(tvb, offset+1);
-                proto_tree_add_item(tlv_tree, hf_rdf_mime_type, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_rdf_mime_type, tvb, offset+2, len, ENC_ASCII);
                 offset += len + 1;
         }
         offset++;
         len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tlv_tree, hf_rdf_data, tvb, offset+1, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tlv_tree, hf_rdf_data, tvb, offset+1, len, ENC_ASCII);
         return (offset+len+1);
 }
 
@@ -1082,7 +1082,7 @@ static gint16 dissect_dev_states(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_t
                 /*DEVICE INFO*/
                 offset++;
                 len = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(sub_tree, hf_dev_info, tvb, offset+1, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(sub_tree, hf_dev_info, tvb, offset+1, len, ENC_ASCII);
                 return (offset + len + 1);
 
         }
@@ -1138,7 +1138,7 @@ static gint16 dissect_net_type(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tre
         {
                 /*TYPE_EXT*/
                 len = tvb_get_guint8(tvb, offset+1);
-                proto_tree_add_item(tlv_tree, hf_link_type_ext, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_link_type_ext, tvb, offset+2, len, ENC_ASCII);
                 offset += len + 2;
         }
         return (offset);
@@ -1169,14 +1169,14 @@ static gint16 dissect_tgt_net_info(tvbuff_t *tvb, gint16 offset, proto_tree *tlv
 
                 /*NETWORK_ID*/
                 len = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII);
                 offset += len + 2;
                 if(!tvb_get_guint8(tvb, offset))
                 {
                         /*NET_AUX_ID*/
                         offset +=1;
                         len = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_item(tlv_tree, hf_net_aux_id, tvb, offset+1, len, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_net_aux_id, tvb, offset+1, len, ENC_ASCII);
                         return (offset + 1);
                 }
                 return (offset + 2);
@@ -1274,10 +1274,10 @@ static gint16 dissect_link_det_info(tvbuff_t *tvb, gint16 offset, proto_tree *tl
         }
         offset++;
         len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII);
         offset += len + 1;
         len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tlv_tree, hf_net_aux_id, tvb, offset+1, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tlv_tree, hf_net_aux_id, tvb, offset+1, len, ENC_ASCII);
         offset += len + 1;
         if(tvb_get_guint8(tvb, offset))
                 proto_tree_add_item(tlv_tree, hf_sig_strength_per, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1300,7 +1300,7 @@ static gint16 dissect_link_scan_rsp(tvbuff_t *tvb, gint16 offset, proto_tree *tl
         guint8 len = 0;
         offset = dissect_link_addr(tvb, offset, tlv_tree);
         len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+1, len, ENC_ASCII);
         offset = offset + len + 1;
         if(tvb_get_guint8(tvb, offset))
                 proto_tree_add_item(tlv_tree, hf_sig_strength_per, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1555,7 +1555,7 @@ static gint16 dissect_link_det_cfg(tvbuff_t *tvb, gint16 offset, proto_tree *tlv
         if(tvb_get_guint8(tvb, offset))
         {
                 len = tvb_get_guint8(tvb, offset+1);
-                proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_network_id, tvb, offset+2, len, ENC_ASCII);
                 offset += len + 1;
         }
         offset++;
@@ -1629,7 +1629,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         value.*/
                         mihf_id_first_char = (char)tvb_get_guint8(tvb, offset+1);
                         if(mihf_id_first_char!='\\')
-                                proto_tree_add_item(tlv_tree, hf_mihf_id, tvb, offset+1, mihf_id_len, ENC_ASCII|ENC_NA);
+                                proto_tree_add_item(tlv_tree, hf_mihf_id, tvb, offset+1, mihf_id_len, ENC_ASCII);
                         else
                         {
                                 if(mihf_id_len<tvb_reported_length_remaining(tvb,0) && (mihf_id_len==12 || mihf_id_len==64 || mihf_id_len==128))
@@ -1638,7 +1638,9 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                         for(i=0; i < mihf_id_len/2; i++)
                                         {
                                                 tvb_temp = tvb_new_subset_length(tvb, offset + 2 + 2*i, 1);
-                                                tvb_composite_append(tvb_mihf_id, tvb_temp);
+                                                if (tvb_captured_length(tvb_temp)) {
+                                                        tvb_composite_append(tvb_mihf_id, tvb_temp);
+                                                }
                                         }
                                         TRY
                                         {
@@ -1876,7 +1878,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 case IQ_BIN_DATA_LIST :
                         /*IQ_BIN_DATA LIST*/
-                        proto_tree_add_item(tlv_tree, hf_iq_bin_data_x, tvb, offset, length, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_iq_bin_data_x, tvb, offset, length, ENC_ASCII);
                         break;
 
                 case IQ_RDF_DATA_LIST :
@@ -1891,7 +1893,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         for(i=0; i < tvb_get_guint8(tvb, offset); i++)
                         {
                                 len = tvb_get_guint8(tvb, offset+1);
-                                proto_tree_add_item(tlv_tree, hf_rdf_sch, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+                                proto_tree_add_item(tlv_tree, hf_rdf_sch, tvb, offset+2, len, ENC_ASCII);
                                 offset += len;
                         }
                         break;
@@ -1903,7 +1905,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 case IR_BIN_DATA_LIST :
                         /*IR_BIN_DATA LIST*/
-                        proto_tree_add_item(tlv_tree, hf_ir_bin_data, tvb, offset, length, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_ir_bin_data, tvb, offset, length, ENC_ASCII);
                         break;
 
                 case IR_SCHM_URL_LIST :
@@ -1911,7 +1913,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                         for(i=0; i < tvb_get_guint8(tvb, offset); i++)
                         {
                                 len = tvb_get_guint8(tvb, offset+1);
-                                proto_tree_add_item(tlv_tree, hf_rdf_sch_url, tvb, offset+2, len, ENC_ASCII|ENC_NA);
+                                proto_tree_add_item(tlv_tree, hf_rdf_sch_url, tvb, offset+2, len, ENC_ASCII);
                                 offset += len;
                         }
                         break;
@@ -1956,7 +1958,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                 case VEND_SPECIFIC_TLV :
                         /*Vendor specific tlv*/
-                        proto_tree_add_item(tlv_tree, hf_vendor_specific_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(tlv_tree, hf_vendor_specific_tlv, tvb, offset, length, ENC_ASCII);
                         break;
 
                 default :/*did not match type*/
@@ -1964,15 +1966,15 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
 
                         /*RESERVED TLVs*/
                         if(type > 63 && type < 100)
-                                proto_tree_add_item(tlv_tree, hf_reserved_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
+                                proto_tree_add_item(tlv_tree, hf_reserved_tlv, tvb, offset, length, ENC_ASCII);
 
                                                 /*EXPERIMENTAL TLVs*/
                         else if(type > 100 && type < 255)
-                                proto_tree_add_item(tlv_tree, hf_experimental_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
+                                proto_tree_add_item(tlv_tree, hf_experimental_tlv, tvb, offset, length, ENC_ASCII);
 
                         /*UNKNOWN TLVs*/
                         else
-                                proto_tree_add_item(tlv_tree, hf_unknown_tlv, tvb, offset, length, ENC_ASCII|ENC_NA);
+                                proto_tree_add_item(tlv_tree, hf_unknown_tlv, tvb, offset, length, ENC_ASCII);
         }
         return;
 }

@@ -242,15 +242,15 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             break;
 
         case TZSP_DEVICE_NAME:
-            proto_tree_add_item(tag_tree, hf_device_name, tvb, pos, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tag_tree, hf_device_name, tvb, pos, length, ENC_ASCII);
             break;
 
         case TZSP_CAPTURE_LOCATION:
-            proto_tree_add_item(tag_tree, hf_capture_location, tvb, pos, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tag_tree, hf_capture_location, tvb, pos, length, ENC_ASCII);
             break;
 
         case TZSP_INFO:
-            proto_tree_add_item(tag_tree, hf_capture_info, tvb, pos, length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tag_tree, hf_capture_info, tvb, pos, length, ENC_ASCII);
             break;
 
         case TZSP_CAPTURE_ID:
@@ -638,15 +638,15 @@ proto_register_tzsp(void)
             NULL, 0, "Sensor MAC", HFILL }},
 
         { &hf_device_name, {
-            "Device Name", "tzsp.device_name", FT_STRING, STR_ASCII,
+            "Device Name", "tzsp.device_name", FT_STRING, BASE_NONE,
             NULL, 0, "DeviceName", HFILL }},
 
         { &hf_capture_location, {
-            "Capture Location", "tzsp.capture_location", FT_STRING, STR_ASCII,
+            "Capture Location", "tzsp.capture_location", FT_STRING, BASE_NONE,
             NULL, 0, "CaptureLocation", HFILL }},
 
         { &hf_capture_info, {
-            "Capture Information", "tzsp.device_info", FT_STRING, STR_ASCII,
+            "Capture Information", "tzsp.device_info", FT_STRING, BASE_NONE,
             NULL, 0, "CaptureInformation", HFILL }},
 
         { &hf_capture_id, {

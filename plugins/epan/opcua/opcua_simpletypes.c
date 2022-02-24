@@ -1134,7 +1134,7 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint
     for (i=0; i<iLen; i++)
     {
         char szNum[20];
-        g_snprintf(szNum, 20, "[%i]", i);
+        snprintf(szNum, 20, "[%i]", i);
         (*pParserFunction)(subtree, tvb, pinfo, pOffset, szNum);
     }
     proto_item_set_end(ti, tvb, *pOffset);

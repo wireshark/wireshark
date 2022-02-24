@@ -287,7 +287,11 @@ void FollowStreamDialog::findText(bool go_back)
 
     bool found;
     if (use_regex_find_) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+        QRegularExpression regex(ui->leFind->text(), QRegularExpression::UseUnicodePropertiesOption);
+#else
         QRegExp regex(ui->leFind->text());
+#endif
         found = ui->teStreamContent->find(regex);
     } else {
         found = ui->teStreamContent->find(ui->leFind->text());
@@ -583,8 +587,8 @@ FollowStreamDialog::readStream()
         break;
 
     default :
-        ws_assert_not_reached();
         ret = (frs_return_t)0;
+        ws_assert_not_reached();
         break;
     }
 
@@ -761,7 +765,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
                 memset(cur, ' ', 4);
                 cur += 4;
             }
-            cur += g_snprintf(cur, 20, "%08X  ", *global_pos);
+            cur += snprintf(cur, 20, "%08X  ", *global_pos);
             /* 49 is space consumed by hex chars */
             ascii_start = cur + 49 + 2;
             for (i = 0; i < 16 && current_pos + i < nchars; i++) {
@@ -797,7 +801,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
 
     case SHOW_CARRAY:
         current_pos = 0;
-        g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = { /* Packet %u */\n",
+        snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = { /* Packet %u */\n",
                    is_from_server ? 1 : 0,
                    is_from_server ? server_buffer_count_++ : client_buffer_count_++,
                    packet_num);
@@ -1148,7 +1152,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
             .arg(hostname1).arg(port1)
             .arg(gchar_free_to_qstring(format_size(
                                             follow_info_.bytes_written[0],
-                                        format_size_unit_bytes|format_size_prefix_si)));
+                                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
     client_to_server_string =
             QString("%1:%2 %3 %4:%5 (%6)")
@@ -1157,7 +1161,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
             .arg(hostname0).arg(port0)
             .arg(gchar_free_to_qstring(format_size(
                                             follow_info_.bytes_written[1],
-                                        format_size_unit_bytes|format_size_prefix_si)));
+                                        FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
 
     wmem_free(NULL, port0);
     wmem_free(NULL, port1);
@@ -1165,7 +1169,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     both_directions_string = tr("Entire conversation (%1)")
             .arg(gchar_free_to_qstring(format_size(
                                             follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
-                    format_size_unit_bytes|format_size_prefix_si)));
+                    FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
     setWindowSubtitle(tr("Follow %1 Stream (%2)").arg(proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_))))
                                                  .arg(follow_filter));
 

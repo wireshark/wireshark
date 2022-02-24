@@ -1009,7 +1009,7 @@ dissect_q933_cause_ie(tvbuff_t *tvb, int offset, int len,
 	case Q933_CAUSE_REC_TIMER_EXP:
 		if (len < 3)
 			return;
-		proto_tree_add_item(tree, hf_q933_timer, tvb, offset, 3, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(tree, hf_q933_timer, tvb, offset, 3, ENC_ASCII);
 		break;
 
 	default:

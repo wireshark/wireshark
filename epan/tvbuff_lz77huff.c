@@ -289,7 +289,7 @@ static gboolean do_uncompress(struct input *input,
 	if (!input->tvb)
 		return FALSE;
 
-	if (input->size > MAX_INPUT_SIZE)
+	if (!input->size || input->size > MAX_INPUT_SIZE)
 		return FALSE;
 
 	rc = PrefixCodeTreeRebuild(&tree, input);

@@ -1,4 +1,4 @@
-/* to_str.h
+/** @file
  * Definitions for utilities to convert various other types to strings.
  *
  * Wireshark - Network traffic analyzer
@@ -15,7 +15,7 @@
 
 #include "wsutil/nstime.h"
 #include <wsutil/inet_addr.h>
-#include "time_fmt.h"
+#include <epan/proto.h>
 #include <epan/packet_info.h>
 #include <epan/ipv6.h>
 #include "ws_symbol_export.h"
@@ -28,6 +28,15 @@
 #define EUI64_STR_LEN    24
 #define AX25_ADDR_LEN    7
 #define FCWWN_ADDR_LEN   8
+
+typedef enum {
+    TO_STR_TIME_RES_T_SECS,     /* seconds      */
+    TO_STR_TIME_RES_T_DSECS,    /* deciseconds  */
+    TO_STR_TIME_RES_T_CSECS,    /* centiseconds */
+    TO_STR_TIME_RES_T_MSECS,    /* milliseconds */
+    TO_STR_TIME_RES_T_USECS,    /* microseconds */
+    TO_STR_TIME_RES_T_NSECS     /* nanoseconds  */
+} to_str_time_res_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -121,11 +130,23 @@ WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *t
  ************** Time
  */
 
-WS_DLL_PUBLIC gchar *abs_time_to_str(wmem_allocator_t *scope, const nstime_t*, const absolute_time_display_e fmt,
-                                                                                    gboolean show_zone);
+#define ABS_TIME_TO_STR_SHOW_ZONE       (1U << 0)
+#define ABS_TIME_TO_STR_ADD_DQUOTES     (1U << 1)
+#define ABS_TIME_TO_STR_SHOW_UTC_ONLY   (1U << 2)
 
-WS_DLL_PUBLIC gchar *abs_time_secs_to_str(wmem_allocator_t *scope, const time_t, const absolute_time_display_e fmt,
-                                                                                    gboolean show_zone);
+WS_DLL_PUBLIC char *abs_time_to_str_ex(wmem_allocator_t *scope,
+                                        const nstime_t *, field_display_e fmt,
+                                        int flags);
+
+#define abs_time_to_str(scope, nst, fmt, show_zone) \
+        abs_time_to_str_ex(scope, nst, fmt, (show_zone) ? ABS_TIME_TO_STR_SHOW_ZONE : 0)
+
+WS_DLL_PUBLIC char *abs_time_secs_to_str_ex(wmem_allocator_t *scope,
+                                        const time_t, field_display_e fmt,
+                                        int flags);
+
+#define abs_time_secs_to_str(scope, nst, fmt, show_zone) \
+        abs_time_secs_to_str_ex(scope, nst, fmt, (show_zone) ? ABS_TIME_TO_STR_SHOW_ZONE : 0)
 
 WS_DLL_PUBLIC void display_epoch_time(gchar *, int, const time_t, gint32, const to_str_time_res_t);
 

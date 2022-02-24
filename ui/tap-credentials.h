@@ -1,4 +1,5 @@
-/* tap-credentials.h
+/** @file
+ *
  * Tap credentials data structure
  * Copyright 2019 - Dario Lombardo <lomato@gmail.com>
  *

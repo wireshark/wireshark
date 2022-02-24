@@ -1,4 +1,5 @@
-/* wmem_allocator_block_fast.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager Fast Large-Block Allocator
  *
  * Wireshark - Network traffic analyzer

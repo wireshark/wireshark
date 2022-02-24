@@ -209,7 +209,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (is_extended) {
             poll_final = (control & XDLC_P_F_EXT);
-            g_snprintf(info, 80, "S%s, func=%s, N(R)=%u",
+            snprintf(info, 80, "S%s, func=%s, N(R)=%u",
                         (poll_final ?
                             (is_response ? " F" : " P") :
                             ""),
@@ -217,7 +217,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         (control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT);
         } else {
             poll_final = (control & XDLC_P_F);
-            g_snprintf(info, 80, "S%s, func=%s, N(R)=%u",
+            snprintf(info, 80, "S%s, func=%s, N(R)=%u",
                         (poll_final ?
                             (is_response ? " F" : " P") :
                             ""),
@@ -277,7 +277,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
                         u_modifier_short_vals_cmd, "Unknown");
         }
         poll_final = (control & XDLC_P_F);
-        g_snprintf(info, 80, "U%s, func=%s",
+        snprintf(info, 80, "U%s, func=%s",
                 (poll_final ?
                     (is_response ? " F" : " P") :
                     ""),
@@ -318,7 +318,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
             cf_items = cf_items_ext;
             control_format = "Control field: %s (0x%04X)";
             poll_final = (control & XDLC_P_F_EXT);
-            g_snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
+            snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
                         ((control & XDLC_P_F_EXT) ? " P" : ""),
                         (control & XDLC_N_R_EXT_MASK) >> XDLC_N_R_EXT_SHIFT,
                         (control & XDLC_N_S_EXT_MASK) >> XDLC_N_S_EXT_SHIFT);
@@ -328,7 +328,7 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
             cf_items = cf_items_nonext;
             control_format = "Control field: %s (0x%02X)";
             poll_final = (control & XDLC_P_F);
-            g_snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
+            snprintf(info, 80, "I%s, N(R)=%u, N(S)=%u",
                         ((control & XDLC_P_F) ? " P" : ""),
                         (control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
                         (control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);

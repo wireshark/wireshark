@@ -59,7 +59,8 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
     textBox = new QLineEdit(text, parent);
     textBox->setReadOnly(true);
 
-    const char *prefval = _argument->pref_valptr ? *_argument->pref_valptr : NULL;
+    /* Value is empty if no file is selected */
+    const char *prefval = (_argument->pref_valptr && (*_argument->pref_valptr)) ? *_argument->pref_valptr : NULL;
     if (prefval)
     {
         QString storeValue(prefval);
@@ -161,3 +162,9 @@ bool ExtcapArgumentFileSelection::isValid()
 
     return valid;
 }
+
+void ExtcapArgumentFileSelection::setDefaultValue()
+{
+    clearFilename();
+}
+

@@ -62,7 +62,7 @@ typedef enum {
     _T("C Arrays (packet bytes) (*.c)\0")                _T("*.c\0")     \
     _T("JSON (*.json)\0")                                _T("*.json\0")
 
-static TCHAR *FILE_EXT_EXPORT[] =
+static const TCHAR *FILE_EXT_EXPORT[] =
 {
     _T(""), /* export type starts at 1 */
     _T("txt"),
@@ -521,6 +521,7 @@ win32_export_file(HWND h_wnd, const wchar_t *title, capture_file *cf, export_typ
     print_args.print_col_headings  = TRUE;
     print_args.print_dissections   = print_dissections_as_displayed;
     print_args.print_hex           = FALSE;
+    print_args.hexdump_options     = HEXDUMP_SOURCE_MULTI;
     print_args.print_formfeed      = FALSE;
     print_args.stream              = NULL;
 
@@ -643,10 +644,19 @@ print_update_dynamic(HWND dlg_hwnd, print_args_t *args) {
     }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
-    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED) {
         args->print_hex = TRUE;
-    else
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
+        EnableWindow(cur_ctrl, TRUE);
+        if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
+            args->hexdump_options = HEXDUMP_SOURCE_MULTI;
+        else
+            args->hexdump_options = HEXDUMP_SOURCE_PRIMARY;
+    } else {
         args->print_hex = FALSE;
+        cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
+        EnableWindow(cur_ctrl, FALSE);
+    }
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -693,6 +703,8 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
     /* Set the "Packet bytes" box */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_BYTES_CB);
     SendMessage(cur_ctrl, BM_SETCHECK, args->print_hex, 0);
+    cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DATA_SOURCES_CB);
+    SendMessage(cur_ctrl, BM_SETCHECK, !(args->hexdump_options & HEXDUMP_SOURCE_PRIMARY), 0);
 
     /* Set the "Each packet on a new page" box */
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_PKT_NEW_PAGE_CB);
@@ -773,7 +785,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     /* Size */
     filesize = wtap_file_size(wth, &err);
     // Windows Explorer uses IEC.
-    size_str = format_size(filesize, format_size_unit_bytes|format_size_prefix_iec);
+    size_str = format_size(filesize, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC);
 
     status = get_stats_for_preview(wth, &stats, &err, &err_info);
 
@@ -1269,7 +1281,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param _U_, LPARAM l_para
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
                     if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                        gchar *str = g_strdup_printf(
+                        gchar *str = ws_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
                             "Please choose a different filename.",
                             file_name8);
@@ -1342,7 +1354,7 @@ export_specified_packets_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, 
                     file_name8 = utf_16to8(notify->lpOFN->lpstrFile);
                     if (files_identical(cf->filename, file_name8)) {
                         /* XXX: Is MessageBox the best way to pop up an error ? How to make text bold ? */
-                        gchar *str = g_strdup_printf(
+                        gchar *str = ws_strdup_printf(
                             "Capture File \"%s\" identical to loaded file.\n\n"
                             "Please choose a different filename.",
                             file_name8);

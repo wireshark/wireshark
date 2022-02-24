@@ -656,7 +656,7 @@ add_description(proto_item *li_ti, proto_item *length_ti,
     va_list ap;
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     proto_item_append_text(li_ti, " (%s)", info_buffer);
@@ -2095,11 +2095,11 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
                     bits = tvb_get_bits8(tvb, bit_offset, 8);
                     for (l=0, j=0; l<8; l++) {
                         if ((bits << l) & 0x80) {
-                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "%4u,", (unsigned)(sn+(8*i)+l)&0xfff);
+                            j += snprintf(&buff[j], BUFF_SIZE-j, "%4u,", (unsigned)(sn+(8*i)+l)&0xfff);
                             col_append_fstr(pinfo->cinfo, COL_INFO, " %u", (unsigned)(sn+(8*i)+l)&0xfff);
                             number_of_bitmap_entries++;
                         } else {
-                            j += g_snprintf(&buff[j], BUFF_SIZE-j, "    ,");
+                            j += snprintf(&buff[j], BUFF_SIZE-j, "    ,");
                         }
                     }
                     proto_tree_add_string_format(bitmap_tree, hf_rlc_bitmap_string, tvb, bit_offset/8, 1, buff, "%s", buff);

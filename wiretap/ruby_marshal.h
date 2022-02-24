@@ -1,4 +1,4 @@
-/* ruby_marshal.h
+/** @file
  *
  * Copyright 2018, Dario Lombardo <lomato@gmail.com>
  *

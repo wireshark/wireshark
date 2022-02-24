@@ -21,7 +21,8 @@ WS_DLL_PUBLIC void dtls_dissector_delete(guint port, dissector_handle_t handle);
 /* Shared with packet-tls-utils.c */
 
 gint
-dtls_dissect_hnd_hello_ext_use_srtp(tvbuff_t *tvb, proto_tree *tree,
-                                    guint32 offset, guint32 ext_len);
+dtls_dissect_hnd_hello_ext_use_srtp(packet_info *pinfo, tvbuff_t *tvb,
+                                    proto_tree *tree, guint32 offset,
+                                    guint32 ext_len, gboolean is_server);
 
 #endif  /* __PACKET_DTLS_H__ */

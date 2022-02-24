@@ -10,6 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #include "config.h"
+#define WS_LOG_DOMAIN "androiddump"
 
 #include "extcap-base.h"
 
@@ -657,7 +658,7 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         return NULL;
     }
 
-    g_snprintf(buffer, (gulong)buffer_length, ADB_HEX4_FORMAT, adb_service_length);
+    snprintf(buffer, (gulong)buffer_length, ADB_HEX4_FORMAT, adb_service_length);
     result = send(sock, buffer, ADB_HEX4_LEN, 0);
     if (result < ADB_HEX4_LEN) {
         ws_warning("Error while sending <%s> length to ADB daemon", adb_service);
@@ -745,7 +746,7 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
     size_t   adb_service_length;
 
     adb_service_length = strlen(adb_service);
-    g_snprintf(buffer, buffer_length, ADB_HEX4_FORMAT, adb_service_length);
+    snprintf(buffer, buffer_length, ADB_HEX4_FORMAT, adb_service_length);
 
     result = send(sock, buffer, ADB_HEX4_LEN, 0);
     if (result < ADB_HEX4_LEN) {
@@ -811,7 +812,7 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
     size_t   adb_service_length;
 
     adb_service_length = strlen(adb_service);
-    g_snprintf(buffer, sizeof(buffer), ADB_HEX4_FORMAT, adb_service_length);
+    snprintf(buffer, sizeof(buffer), ADB_HEX4_FORMAT, adb_service_length);
 
     result = send(sock, buffer, ADB_HEX4_LEN, 0);
     if (result < ADB_HEX4_LEN) {
@@ -868,7 +869,7 @@ adb_connect_transport(const char *server_ip, unsigned short *server_tcp_port,
     if (!serial_number) {
         transport = adb_transport_any;
     } else {
-        result = g_snprintf(transport_buf, sizeof(transport_buf), adb_transport_serial_templace, serial_number);
+        result = snprintf(transport_buf, sizeof(transport_buf), adb_transport_serial_templace, serial_number);
         if (result <= 0 || result > (int)sizeof(transport_buf)) {
             ws_warning("Error while completing adb packet for transport");
             closesocket(sock);
@@ -889,8 +890,8 @@ adb_connect_transport(const char *server_ip, unsigned short *server_tcp_port,
 static void new_interface(extcap_parameters * extcap_conf, const gchar *interface_id,
         const gchar *model_name, const gchar *serial_number, const gchar *display_name)
 {
-    char *interface = g_strdup_printf("%s-%s", interface_id, serial_number);
-    char *ifdisplay = g_strdup_printf("%s %s %s", display_name, model_name, serial_number);
+    char *interface = ws_strdup_printf("%s-%s", interface_id, serial_number);
+    char *ifdisplay = ws_strdup_printf("%s %s %s", display_name, model_name, serial_number);
 
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) ||
             is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) ||
@@ -968,7 +969,7 @@ static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *a
             gchar *flags = g_match_info_fetch_named(match, "flags");
 
             if (!flags_supported || (flags && strstr(flags, "Up"))) {
-                g_snprintf(iface_name, sizeof(iface_name), INTERFACE_ANDROID_TCPDUMP_FORMAT, iface);
+                snprintf(iface_name, sizeof(iface_name), INTERFACE_ANDROID_TCPDUMP_FORMAT, iface);
                 new_interface(extcap_conf, iface_name, iface, serial_number, "Android tcpdump");
             }
             g_free(flags);
@@ -988,7 +989,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
     char                   check_port_buf[80];
     char                  *response;
     char                  *device_list;
-    gssize                 data_length;
+    ssize_t                data_length;
     size_t                 device_length;
     socket_handle_t        sock;
     const char            *adb_check_port_templace       = "shell:cat /proc/%s/net/tcp";
@@ -1106,8 +1107,8 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             closesocket(sock);
 
             if (!response || data_length < 1) {
-                ws_warning("Error while getting hcidump version by <%s> (%p len=%"G_GSSIZE_FORMAT")",
-                    adb_hcidump_version, (void*)response, data_length);
+                ws_warning("Error while getting hcidump version by <%s> (%p len=%"PRIdMAX")",
+                    adb_hcidump_version, (void*)response, (intmax_t)data_length);
                 ws_debug("Android hcidump version for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
@@ -1135,7 +1136,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
             closesocket(sock);
             if (!response || data_length < 1) {
                 ws_warning("Error while getting Bluetooth application process id by <%s> "
-                    "(%p len=%"G_GSSIZE_FORMAT")", adb_ps_droid_bluetooth, (void*)response, data_length);
+                    "(%p len=%"PRIdMAX")", adb_ps_droid_bluetooth, (void*)response, (intmax_t)data_length);
                 ws_debug( "Android Bluetooth application PID for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
@@ -1149,7 +1150,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 if (data_str && sscanf(data_str, "%*s %15s", pid) == 1) {
                     ws_debug("Android Bluetooth application PID for %s is %s", serial_number, pid);
 
-                    result = g_snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, pid);
+                    result = snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, pid);
                     if (result <= 0 || result > (int)sizeof(check_port_buf)) {
                         ws_warning("Error while completing adb packet");
                         return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_6;
@@ -1206,7 +1207,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
 
             if (!response || data_length < 1) {
                 ws_warning("Error while getting Bluetooth application process id by <%s> "
-                    "(%p len=%"G_GSSIZE_FORMAT")", ps_cmd, (void*)response, data_length);
+                    "(%p len=%"PRIdMAX")", ps_cmd, (void*)response, (intmax_t)data_length);
                 ws_debug("Android Bluetooth application PID for %s is unknown", serial_number);
                 disable_interface = 1;
             } else {
@@ -1224,7 +1225,7 @@ static int register_interfaces(extcap_parameters * extcap_conf, const char *adb_
                 if (data_str && sscanf(data_str, "%*s %15s", pid) == 1) {
                     ws_debug("Android Bluetooth application PID for %s is %s", serial_number, pid);
 
-                    result = g_snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, pid);
+                    result = snprintf(check_port_buf, sizeof(check_port_buf), adb_check_port_templace, pid);
                     if (result <= 0 || result > (int)sizeof(check_port_buf)) {
                         ws_warning("Error while completing adb packet");
                         return EXIT_CODE_BAD_SIZE_OF_ASSEMBLED_ADB_PACKET_9;
@@ -1626,7 +1627,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 #define BLUEDROID_TIMESTAMP_SIZE  8
 #define BLUEDROID_H4_SIZE  1
 
-static const uint64_t BLUEDROID_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f2f8000);
+static const uint64_t BLUEDROID_TIMESTAMP_BASE = UINT64_C(0x00dcddb30f2f8000);
 
 #define BLUEDROID_H4_PACKET_TYPE_HCI_CMD  0x01
 #define BLUEDROID_H4_PACKET_TYPE_ACL      0x02
@@ -1647,7 +1648,7 @@ static int adb_forward(char *serial_number, const char *adb_server_ip, unsigned 
     if (sock == INVALID_SOCKET)
         return EXIT_CODE_INVALID_SOCKET_5;
 
-    result = g_snprintf(helpful_packet, PACKET_LENGTH, adb_forward_template, (serial_number) ? "host-serial:" : "host", (serial_number) ?  serial_number: "", local_tcp_port, server_tcp_port);
+    result = snprintf(helpful_packet, PACKET_LENGTH, adb_forward_template, (serial_number) ? "host-serial:" : "host", (serial_number) ?  serial_number: "", local_tcp_port, server_tcp_port);
     if (result <= 0 || result > PACKET_LENGTH) {
         ws_warning("Error while completing adb packet");
         closesocket(sock);
@@ -1672,8 +1673,8 @@ static int capture_android_bluetooth_external_parser(char *interface,
     guint8                        *payload = packet + sizeof(own_pcap_bluetooth_h4_header);
     const char                    *adb_tcp_bluedroid_external_parser_template = "tcp:%05u";
     socklen_t                      slen;
-    gssize                         length;
-    gssize                         used_buffer_length = 0;
+    ssize_t                        length;
+    ssize_t                        used_buffer_length = 0;
     uint64_t                       ts;
     socket_handle_t                sock;
     struct sockaddr_in             server;
@@ -1739,7 +1740,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
         if (sock == INVALID_SOCKET)
             return EXIT_CODE_INVALID_SOCKET_6;
 
-        result = g_snprintf((char *) buffer, PACKET_LENGTH, adb_tcp_bluedroid_external_parser_template, *bt_server_tcp_port);
+        result = snprintf((char *) buffer, PACKET_LENGTH, adb_tcp_bluedroid_external_parser_template, *bt_server_tcp_port);
         if (result <= 0 || result > PACKET_LENGTH) {
             ws_warning("Error while completing adb packet");
             closesocket(sock);
@@ -1803,7 +1804,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
 
         used_buffer_length += length;
 
-        ws_debug("Received: length=%"G_GSSIZE_FORMAT"", length);
+        ws_debug("Received: length=%"PRIdMAX, (intmax_t)length);
 
         while (((payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_HCI_CMD || payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_SCO) &&
                     used_buffer_length >= BLUEDROID_TIMESTAMP_SIZE + BLUEDROID_H4_SIZE + 2 + 1 &&
@@ -1859,7 +1860,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 return EXIT_CODE_GENERIC;
             }
 
-            ws_debug("\t Packet %u: used_buffer_length=%"G_GSSIZE_FORMAT" length=%"G_GSSIZE_FORMAT" captured_length=%i type=0x%02x", id, used_buffer_length, length, captured_length, payload[BLUEDROID_H4_PACKET_TYPE]);
+            ws_debug("\t Packet %u: used_buffer_length=%"PRIdMAX" length=%"PRIdMAX" captured_length=%i type=0x%02x", id, (intmax_t)used_buffer_length, (intmax_t)length, captured_length, payload[BLUEDROID_H4_PACKET_TYPE]);
             if (payload[BLUEDROID_H4_PACKET_TYPE] == BLUEDROID_H4_PACKET_TYPE_HCI_EVT)
                 ws_debug("\t Packet: %02x %02x %02x", (unsigned int) payload[0], (unsigned int) payload[1], (unsigned int)payload[2]);
             id +=1;
@@ -1901,7 +1902,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     int                            result;
     char                          *serial_number;
     uint64_t                       ts;
-    static const uint64_t          BTSNOOP_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f2f8000);
+    static const uint64_t          BTSNOOP_TIMESTAMP_BASE = UINT64_C(0x00dcddb30f2f8000);
     uint32_t                      *reported_length;
     uint32_t                      *captured_length;
     uint32_t                      *flags;
@@ -2060,7 +2061,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     if (!logcat_custom_parameter)
         logcat_custom_parameter = "";
 
-    result = g_snprintf((char *) packet, PACKET_LENGTH, adb_logcat_template, logcat_buffer, logcat_log_buffer, logcat_custom_parameter);
+    result = snprintf((char *) packet, PACKET_LENGTH, adb_logcat_template, logcat_buffer, logcat_log_buffer, logcat_custom_parameter);
     if (result <= 0 || result > PACKET_LENGTH) {
         ws_warning("Error while completing adb packet");
         closesocket(sock);
@@ -2357,7 +2358,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
         return EXIT_CODE_INVALID_SOCKET_11;
     }
 
-    g_snprintf(tcpdump_cmd, sizeof(tcpdump_cmd), adb_shell_tcpdump_format, iface);
+    snprintf(tcpdump_cmd, sizeof(tcpdump_cmd), adb_shell_tcpdump_format, iface);
     g_free(iface);
     result = adb_send(sock, tcpdump_cmd);
     if (result) {
@@ -2527,10 +2528,7 @@ int main(int argc, char *argv[]) {
     cmdarg_err_init(androiddump_cmdarg_err, androiddump_cmdarg_err);
 
     /* Initialize log handler early so we can have proper logging during startup. */
-    ws_log_init("androiddump", NULL);
-
-    /* Early logging command-line initialization. */
-    ws_log_parse_args(&argc, argv, NULL, LOG_ARGS_NOEXIT);
+    extcap_log_init("androiddump");
 
     /*
      * Get credential information for later use.
@@ -2557,7 +2555,7 @@ int main(int argc, char *argv[]) {
         ANDROIDDUMP_VERSION_RELEASE, help_url);
     g_free(help_url);
 
-    help_header = g_strdup_printf(
+    help_header = ws_strdup_printf(
         " %s --extcap-interfaces [--adb-server-ip=<arg>] [--adb-server-tcp-port=<arg>]\n"
         " %s --extcap-interface=INTERFACE --extcap-dlts\n"
         " %s --extcap-interface=INTERFACE --extcap-config\n"

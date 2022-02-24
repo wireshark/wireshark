@@ -58,71 +58,68 @@ BuildRequires:  python3
 BuildRequires:	gcc
 BuildRequires:	perl
 BuildRequires:	flex
+%if %{with ninja}
+%if 0%{?fedora} || 0%{?rhel}
+BuildRequires:  ninja-build
+%else
+BuildRequires:  ninja
+%endif
+%endif
 # XXX We always require Asciidoctor for packaging builds as of 84ab55cf75,
-# unfortunately it's not evently distributed across distros.
-# CentOS 7: rubygem-asciidoctor
+# unfortunately it's not evenly distributed across distros.
+# Fedora & CentOS 7: rubygem-asciidoctor
 # CentOS 8: <no package?>
-# Fedora: rubygem-asciidoctor
-# openSUSE 15.2: ruby2.5-rubygem-asciidoctor
-# BuildRequires:	asciidoctor
+# openSUSE 15.3: ruby2.5-rubygem-asciidoctor
+# SLES 12 SP5: ruby2.1-rubygem-asciidoctor
+# All of the packages provide this, so we can rely on it:
+%if ! 0%{?el8}
+BuildRequires:  /usr/bin/asciidoctor
+%endif
+# No CentOS 8 package, so we install it from rubygems directly, but that
+# means the package manager doesn't know about it and we can't require it.
 
-BuildRequires:	glib2-devel >= 2.32.0
-Requires:	glib2
+# For the HTML guides, we need xsltproc, and the docbook stylesheets
+%if %{with guides}
+BuildRequires:  /usr/bin/xsltproc
+%if 0%{?suse_version}
+BuildRequires:  docbook-xsl-stylesheets
+%else
+BuildRequires:  docbook-style-xsl
+%endif
+%endif
+
+BuildRequires:	glib2-devel >= 2.38.0
 BuildRequires:	libpcap-devel
-%if 0%{?suse_version}
-Requires:	libpcap1
-%else
-Requires:	libpcap
-%endif
 BuildRequires:	zlib-devel
-Requires:	zlib
 BuildRequires:	libgcrypt-devel
-%if 0%{?suse_version}
-Requires:	libgcrypt20
-%else
-Requires:	libgcrypt
-%endif
+BuildRequires:	pcre2-devel
 
 %if %{with lz4_and_snappy}
 %if 0%{?suse_version}
 BuildRequires:	liblz4-devel
-%if 0%{?sle_version} >= 150000
-Requires:	liblz4-1
-%else
-Requires:	liblz4-1_4
-%endif
-BuildRequires:	snappy-devel
-Requires:	libsnappy1
 %else
 BuildRequires:	lz4-devel
-Requires:	lz4
-BuildRequires:	snappy-devel
-Requires:	snappy
 %endif
+BuildRequires:	snappy-devel
 %endif
 
 %if 0%{?suse_version}
-# SUSE uses these package names (yes 2!):
+# SUSE uses this package name:
 BuildRequires:	libcares-devel
-Requires:	libcares2
 %else
 # ... while Red Hat uses this one:
 # (What other RPM-based distros do will have to be determined...)
 BuildRequires:	c-ares-devel
-Requires:	c-ares
 %endif
 
 %if %{with lua}
 %if 0%{?fedora} || ( 0%{?rhel} >= 8 )
 BuildRequires:	compat-lua-devel < 5.3
-Requires:	compat-lua < 5.3
 %else
 %if 0%{?suse_version}
 BuildRequires:	lua51-devel
-Requires:	lua51
 %else
 BuildRequires:	lua-devel < 5.3
-Requires:	lua < 5.3
 %endif
 %endif
 %endif
@@ -135,20 +132,10 @@ Requires:	lua < 5.3
 
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
-%if 0%{?suse_version}
-Requires:	libnghttp2-14
-%else
-Requires:	libnghttp2
-%endif
 %endif
 
 %if %{with sdjournal}
 BuildRequires:	systemd-devel
-%if 0%{?suse_version}
-Requires:	libsystemd0
-%else
-Requires:	systemd-libs
-%endif
 %endif
 
 %if %{with brotli}
@@ -159,20 +146,13 @@ BuildRequires:	libbrotli-devel
 # packages, leaving the libbrotlidec.so symlink broken, so we have to include libbrotlidec1
 # as a build-time dependency...
 BuildRequires:	libbrotlidec1
-Requires:	libbrotlidec1
 %else
 BuildRequires:	brotli-devel
-Requires:	brotli
 %endif
 %endif
 
 %if %{with zstd}
 BuildRequires:	libzstd-devel
-%if 0%{?suse_version}
-Requires:	libzstd1
-%else
-Requires:	libzstd
-%endif
 %endif
 
 # Uncomment these if you want to be sure you get them...
@@ -185,11 +165,6 @@ Requires:	libzstd
 
 %if %{with mmdbresolve}
 BuildRequires:	libmaxminddb-devel
-%if 0%{?suse_version}
-Requires:	libmaxminddb0
-%else
-Requires:	libmaxminddb
-%endif
 %endif
 
 %if %{use_wireshark_group}
@@ -235,32 +210,21 @@ Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
 # XXX Recent versions of rpm (Fedora 33 et al.) warn about unversioned "Obsoletes".
 Obsoletes:	wireshark-gnome wireshark-gtk
-%description qt
-This package contains the Qt Wireshark GUI and desktop integration files.
-
 Requires:	%{name} = %{version}-%{release}
 BuildRequires:	gcc-c++
 %if 0%{?suse_version}
 BuildRequires:	libQt5Core-devel
-Requires:	libQt5Core5
 BuildRequires:	libQt5Gui-devel
-Requires:	libQt5Gui5
 BuildRequires:	libQt5Widgets-devel
-Requires:	libQt5Widgets5
 BuildRequires:	libQt5PrintSupport-devel
-Requires:	libQt5PrintSupport5
 BuildRequires:	libqt5-qtmultimedia-devel
-Requires:	libQt5Multimedia5
 BuildRequires:	libqt5-linguist-devel
 Requires:	libQt5Svg5
 # Need this for SUSE's suse_update_desktop_file macro
 BuildRequires:	update-desktop-files
 %else
 BuildRequires:	qt5-qtbase-devel
-Requires:	qt5-qtbase
-Requires:	qt5-qtbase-gui
 BuildRequires:	qt5-qtmultimedia-devel
-Requires:	qt5-qtmultimedia
 BuildRequires:	qt5-linguist
 Requires:	qt5-qtsvg
 %endif
@@ -270,12 +234,16 @@ BuildRequires:	desktop-file-utils
 Requires(post):	desktop-file-utils
 # Add this for more readable fonts on some distributions/versions
 #Requires:	dejavu-sans-mono-fonts
+
+%description qt
+This package contains the Qt Wireshark GUI and desktop integration files.
 %endif
 
 %package	devel
 Summary:	Development headers for Wireshark
 Group:		Applications/Internet
 Requires:	%{name} = %{version}-%{release}
+
 %description devel
 The wireshark-devel package contains the header and other files required for
 development of Wireshark scripts and plugins.
@@ -284,7 +252,9 @@ development of Wireshark scripts and plugins.
 %prep
 %setup -q -n %{name}-%{package_version}
 
-# SUSE has a wrong bindir for cmake. Set it to the right one.
+# The SUSE macros for cmake and ninja depend upon _bindir, which depends
+# on _prefix (and is thus wrong if _prefix is anything other than /usr).
+# Set _bindir to the correct value regardless of _prefix.
 %if 0%{?suse_version}
 %define _bindir /usr/bin
 %if %{with ninja}
@@ -300,14 +270,17 @@ development of Wireshark scripts and plugins.
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/CMake/
 # https://fedoraproject.org/wiki/Changes/CMake_to_do_out-of-source_builds
 # https://en.opensuse.org/openSUSE:Build_system_recipes#cmake
+# Fedora's new RPATH hardening means we need to enable $ORIGIN if the
+# prefix is anything other than /usr:
+# https://fedoraproject.org/wiki/Changes/Broken_RPATH_will_fail_rpmbuild
 %if 0%{?rhel} && ( 0%{?rhel} <= 7 )
 cmake3 \
-%else
-%if 0%{?el8}
-cmake \
+  -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
 %else
 %cmake \
 %endif
+%if 0%{?fedora} && ( "%{_prefix}" != "/usr" )
+  -DENABLE_RPATH_ORIGIN=ON \
 %endif
 %if %{with ccache}
   -DENABLE_CCACHE=ON \
@@ -364,7 +337,7 @@ cmake \
 %else
   -DENABLE_BROTLI=OFF \
 %endif
-  -DDISABLE_WERROR=ON \
+  -DENABLE_WERROR=OFF \
 %if %{with ninja}
   -G Ninja \
 %endif
@@ -379,16 +352,23 @@ cmake \
   -DENABLE_OPUS=OFF \
 %endif
 
+# Fedora and SUSE 15 do out of source builds by default, but they store
+# the build directory in different macros. Older distributions don't define
+# that macro at all. Let's make it so that one macro contains the build
+# directory (which will be "." for any distribution that doesn't define
+# either macro, and thus presumably does in-source builds.)
+%{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
+
+%if 0%{?rhel} && ( 0%{?rhel} <= 7 ) || (0%{?suse_version} && 0%{?sle_version} <= 150100)
 %if %{with ninja}
-%if 0%{?fedora} || ( 0%{?suse_version} && 0%{?sle_version} >= 150200 )
-%cmake_build
-%else
 %ninja_build
-%endif
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
 # %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
 make %{?_smp_mflags} -C %{__cmake_builddir}
+%endif
+%else
+%cmake_build
 %endif
 
 %install
@@ -397,22 +377,20 @@ rm -rf $RPM_BUILD_ROOT
 cd build
 %endif
 
+%if 0%{?rhel} && ( 0%{?rhel} <= 7 ) || (0%{?suse_version} && 0%{?sle_version} <= 150100)
 %if %{with ninja}
-%if 0%{?fedora} || ( 0%{?suse_version} && 0%{?sle_version} >= 150200 )
-%cmake_install
-%else
 %ninja_install
-%endif
-%if %{with guides}
-%if 0%{?fedora}
-DESTDIR=$RPM_BUILD_ROOT %ninja_build install_guides -C %{__cmake_builddir}
-%else
-DESTDIR=$RPM_BUILD_ROOT %ninja_build install_guides
-%endif
-%endif
 %else
 make DESTDIR=$RPM_BUILD_ROOT install -C %{__cmake_builddir}
+%endif
+%else
+%cmake_install
+%endif
+
 %if %{with guides}
+%if %{with ninja}
+%ninja_install install_guides -C %{__cmake_builddir}
+%else
 make DESTDIR=$RPM_BUILD_ROOT install_guides -C %{__cmake_builddir}
 %endif
 %endif
@@ -434,7 +412,9 @@ cd -
 # SUSE's packaging conventions
 # (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
-install -Dm 0644 %{buildroot}/usr/local/share/applications/org.wireshark.Wireshark.desktop %{buildroot}/usr/share/applications/org.wireshark.Wireshark.desktop
+%if "%{_prefix}" != "/usr"
+install -Dm 0644 %{buildroot}%{_prefix}/share/applications/org.wireshark.Wireshark.desktop %{buildroot}/usr/share/applications/org.wireshark.Wireshark.desktop
+%endif
 %suse_update_desktop_file org.wireshark.Wireshark
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
@@ -470,7 +450,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 
 %if 0%{?suse_version}
 # Before packing, we need to restore the bindir to the wireshark one
-%define _bindir /usr/local/bin
+%define _bindir %{_prefix}/bin
 %endif
 
 %defattr(-,root,root)
@@ -479,7 +459,7 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 # Include the User Guide:
 %if %{with guides}
 %docdir %{_datadir}/doc/wireshark/
-# HTML manuals are installed to %{_datadir}/wireshark because that is
+# HTML manuals are installed to %%{_datadir}/wireshark because that is
 # where Wireshark's Help menu expects to launch them from.
 %exclude %{_datadir}/doc/wireshark/*.html
 %{_datadir}/doc/wireshark/
@@ -550,6 +530,11 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Wed Jan  5 2022 John Thacker
+- pcre2 is required now (most distros will get this as part of a dependency
+  chain glib2-devel->libselinux-devel->pcre2-devel anyway)
+- Remove Requires that automatic dependency handling picks up
+
 * Mon Mar 29 2021 Joao Valverde
 - Update HTML documentation location
 

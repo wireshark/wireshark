@@ -237,7 +237,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 
 		if(pkt_len != CELL_LEN) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf(
+			*err_info = ws_strdup_printf(
 			    "eyesdn: ATM cell has a length != 53 (%u)",
 			    pkt_len);
 			return FALSE;
@@ -293,7 +293,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 
 	if(pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
 		    pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}

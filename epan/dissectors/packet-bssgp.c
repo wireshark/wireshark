@@ -701,7 +701,7 @@ de_bssgp_bvci(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     curr_offset+=2;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - 0x%x", bvci);
+        snprintf(add_string, string_len, " - 0x%x", bvci);
 
 
     return(curr_offset-offset);
@@ -855,9 +855,11 @@ de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     ci = tvb_get_ntohs(tvb, curr_offset);
     proto_tree_add_item(tree, hf_bssgp_ci, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset+=2;
-    if (add_string)
-        g_snprintf(add_string, string_len, "%s, CI %u", add_string, ci);
-
+    if (add_string) {
+        char *str = ws_strdup_printf("%s, CI %u", add_string, ci);
+        g_strlcpy(add_string, str, string_len);
+        g_free(str);
+    }
 
     return(curr_offset-offset);
 }
@@ -922,7 +924,7 @@ de_bssgp_flush_action(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     proto_tree_add_item(tree, hf_bssgp_flush_action, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset+=1;
     if (add_string)
-        g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, bssgp_flush_action_vals, "Reserved"));
+        snprintf(add_string, string_len, " - %s", val_to_str_const(oct, bssgp_flush_action_vals, "Reserved"));
 
 
     return(curr_offset-offset);
@@ -980,7 +982,7 @@ de_bssgp_llc_frames_disc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     curr_offset+=1;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - %u Frames", oct);
+        snprintf(add_string, string_len, " - %u Frames", oct);
 
     return(curr_offset-offset);
 }
@@ -1418,7 +1420,7 @@ de_bssgp_no_of_oct_affected(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_offset+=3;
 
     if (add_string)
-        g_snprintf(add_string, string_len, " - %u", no_of_oct);
+        snprintf(add_string, string_len, " - %u", no_of_oct);
 
     return(curr_offset-offset);
 }
@@ -2309,8 +2311,11 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
             rnc_id = tvb_get_ntohs(tvb, curr_offset);
             proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
-            if (add_string)
-                g_snprintf(add_string, string_len, " %s, RNC-ID %u", add_string, rnc_id);
+            if (add_string) {
+                char *str = ws_strdup_printf(" %s, RNC-ID %u", add_string, rnc_id);
+                g_strlcpy(add_string, str, string_len);
+                g_free(str);
+            }
             break;
         case 2:
             /* RIM Routing Address discriminator = 0010:
@@ -2642,7 +2647,7 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 /*
  * 11.3.83  List of set-up PFCs
  */
-static guint16
+guint16
 de_bssgp_list_of_setup_pfcs(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *pfc_tree;
@@ -2763,8 +2768,11 @@ de_bssgp_rnc_identifier(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset+=2;
 
-    if (add_string)
-        g_snprintf(add_string, string_len, " %s, RNC-ID %u", add_string, rnc_id);
+    if (add_string) {
+        char *str = ws_strdup_printf(" %s, RNC-ID %u", add_string, rnc_id);
+        g_strlcpy(add_string, str, string_len);
+        g_free(str);
+    }
 
     return(curr_offset-offset);
 

@@ -206,7 +206,7 @@ dissect_dtp_tlv(packet_info *pinfo, tvbuff_t *tvb, int offset, int length,
 	case DTP_TLV_DOMAIN:
 		if (length <= 33) { /* VTP domain name is at most 32 bytes long and is null-terminated */
 			proto_item_append_text(ti, ": %s", tvb_format_text(pinfo->pool, tvb, offset, length - 1));
-			proto_tree_add_item(tree, hf_dtp_domain, tvb, offset, length, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_dtp_domain, tvb, offset, length, ENC_ASCII);
 		}
 		else
 			expert_add_info(pinfo, tlv_length_item, &ei_dtp_tlv_length_invalid);

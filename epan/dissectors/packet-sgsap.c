@@ -109,7 +109,7 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     proto_tree_add_item(tree, hf_sgsap_eps_location_update_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (add_string) {
         oct = tvb_get_guint8(tvb, curr_offset);
-        g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_eps_location_update_type_values, "Reserved"));
+        snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_eps_location_update_type_values, "Reserved"));
     }
 
     curr_offset++;
@@ -147,7 +147,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     get_sgsap_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
     if (msg_str) {
         if (add_string)
-            g_snprintf(add_string, string_len, " - %s", msg_str);
+            snprintf(add_string, string_len, " - %s", msg_str);
 
     }
     if (msg_fcn_p){
@@ -227,7 +227,7 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     proto_tree_add_item_ret_display_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9, pinfo->pool, &imeisv_str);
     if (add_string) {
         /* (len<<2)+4 = the maximum number of bytes to produce (including the terminating nul character). */
-        g_snprintf(add_string, (len<<2)+4, " - %s", imeisv_str);
+        snprintf(add_string, (len<<2)+4, " - %s", imeisv_str);
     }
 
     return(len);
@@ -376,7 +376,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         }
         proto_tree_add_string(tree, hf_sgsap_mme_name, tvb, offset, len, fqdn);
         if (add_string)
-            g_snprintf(add_string, string_len, " - %s", fqdn);
+            snprintf(add_string, string_len, " - %s", fqdn);
 
     }
 
@@ -447,7 +447,7 @@ de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     proto_tree_add_item(tree, hf_sgsap_service_indicator_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (add_string) {
         oct = tvb_get_guint8(tvb, curr_offset);
-        g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_service_indicator_values, "Reserved"));
+        snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_service_indicator_values, "Reserved"));
     }
     curr_offset++;
 
@@ -490,7 +490,7 @@ de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_item(tree, hf_sgsap_sgs_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (add_string) {
         oct = tvb_get_guint8(tvb, curr_offset);
-        g_snprintf(add_string, string_len, " - %s", val_to_str_ext_const(oct, &sgsap_sgs_cause_values_ext, "Reserved"));
+        snprintf(add_string, string_len, " - %s", val_to_str_ext_const(oct, &sgsap_sgs_cause_values_ext, "Reserved"));
     }
     curr_offset++;
 
@@ -577,7 +577,7 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         }
         proto_tree_add_string(tree, hf_sgsap_vlr_name, tvb, offset, len, fqdn);
         if (add_string)
-            g_snprintf(add_string, string_len, " - %s", fqdn);
+            snprintf(add_string, string_len, " - %s", fqdn);
     }
 
     return(len);

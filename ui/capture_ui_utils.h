@@ -1,4 +1,5 @@
-/* capture_ui_utils.c
+/** @file
+ *
  * Declarations of utilities for capture user interfaces
  *
  * Wireshark - Network traffic analyzer

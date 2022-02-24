@@ -1,4 +1,4 @@
-/* capture_options_dialog.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -89,7 +89,10 @@ private slots:
     void updateLocalInterfaces();
     void browseButtonClicked();
     void interfaceItemChanged(QTreeWidgetItem *item, int column);
+    void itemClicked(QTreeWidgetItem *item, int column);
+    void itemDoubleClicked(QTreeWidgetItem *item);
     void changeEvent(QEvent* event);
+    void tempDirBrowseButtonClicked();
 
 signals:
     void startCapture();
@@ -101,6 +104,7 @@ signals:
     void ifsChanged();
     void interfaceListChanged();
     void captureFilterTextEdited(const QString & text);
+    void showExtcapOptions(QString &device_name, bool startCaptureOnClose);
 
 private:
     Ui::CaptureOptionsDialog *ui;

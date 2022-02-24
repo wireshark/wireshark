@@ -223,7 +223,7 @@ extern "C" void menu_recent_file_write_all(FILE *rf) {
         QString cf_name;
         /* get capture filename from the menu item label */
         cf_name = rii.previous()->filename;
-        if (cf_name != NULL) {
+        if (!cf_name.isNull()) {
             fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", qUtf8Printable(cf_name));
         }
     }
@@ -543,7 +543,7 @@ void WiresharkApplication::storeCustomColorsInRecent()
         recent.custom_colors = NULL;
         for (int i = 0; i < QColorDialog::customCount(); i++) {
             QRgb rgb = QColorDialog::customColor(i).rgb();
-            recent.custom_colors = g_list_append(recent.custom_colors, g_strdup_printf("%08x", rgb));
+            recent.custom_colors = g_list_append(recent.custom_colors, ws_strdup_printf("%08x", rgb));
         }
     }
 }
@@ -662,6 +662,8 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
     styleHints()->setShowShortcutsInContextMenus(true);
 #endif
+
+    setDesktopFileName(QStringLiteral("org.wireshark.Wireshark"));
 
     //
     // XXX - this means we try to check for the existence of all files
@@ -1086,6 +1088,9 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(bool reset)
         create_console();
     }
 #endif
+
+    /* Read the capture filter file. */
+    read_filter_list(CFILTER_LIST);
 
     return prefs_p;
 }

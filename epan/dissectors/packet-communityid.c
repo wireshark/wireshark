@@ -141,7 +141,7 @@ static void communityid_sha1_dbg(const gchar *msg, const void* data, gsize len)
     gsize i;
 
     for (i = 0; i < len; i++, ptr += 2) {
-        g_snprintf(ptr, 3, "%02x", ((guchar*)data)[i]);
+        snprintf(ptr, 3, "%02x", ((guchar*)data)[i]);
     }
 
     fprintf(stderr, "Community ID dbg [%s]: %s\n", msg, buf);
@@ -379,7 +379,7 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
         gsize len = strlen(CID_VERSION_PREFIX) + strlen(str) + 1;
 
         *result = (gchar*) g_malloc(len);
-        g_snprintf(*result, (gulong) len, "%s%s", CID_VERSION_PREFIX, str);
+        snprintf(*result, (gulong) len, "%s%s", CID_VERSION_PREFIX, str);
         g_free(str);
     } else {
         /* Convert binary SHA-1 to ASCII representation.
@@ -392,7 +392,7 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
         memcpy(*result, CID_VERSION_PREFIX, strlen(CID_VERSION_PREFIX));
         ptr = *result + strlen(CID_VERSION_PREFIX);
         for (i = 0; i < sha1_buf_len; i++, ptr += 2) {
-            g_snprintf(ptr, 3, "%02x", sha1_buf[i]);
+            snprintf(ptr, 3, "%02x", sha1_buf[i]);
         }
     }
 

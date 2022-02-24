@@ -101,39 +101,39 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
             if ( g_ascii_strcasecmp(field, "tivoconnect") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_flavor, tvb, offset+fieldlen,
-                    length-fieldlen-1, ENC_ASCII|ENC_NA);
+                    length-fieldlen-1, ENC_ASCII);
             }
             else if ( g_ascii_strcasecmp(field, "method") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_method, tvb, offset+fieldlen,
-                    length-fieldlen-1, ENC_ASCII|ENC_NA);
+                    length-fieldlen-1, ENC_ASCII);
             }
             else if ( g_ascii_strcasecmp(field, "platform") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_platform, tvb, offset+fieldlen,
-                    length-fieldlen-1, ENC_ASCII|ENC_NA);
+                    length-fieldlen-1, ENC_ASCII);
             }
             else if ( g_ascii_strcasecmp(field, "machine") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_machine, tvb, offset+fieldlen,
-                    length-fieldlen-1, ENC_ASCII|ENC_NA);
+                    length-fieldlen-1, ENC_ASCII);
                 packet_machine = value;
             }
             else if ( g_ascii_strcasecmp(field, "identity") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_identity, tvb, offset+fieldlen,
-                    length-fieldlen-1, ENC_ASCII|ENC_NA);
+                    length-fieldlen-1, ENC_ASCII);
                 packet_identity = value;
             }
             else if ( g_ascii_strcasecmp(field, "services") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_services, tvb, offset+fieldlen,
-                    length-fieldlen-1, ENC_ASCII|ENC_NA);
+                    length-fieldlen-1, ENC_ASCII);
             }
             else if ( g_ascii_strcasecmp(field, "swversion") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_version, tvb, offset+fieldlen,
-                    length-fieldlen-1, ENC_ASCII|ENC_NA);
+                    length-fieldlen-1, ENC_ASCII);
             }
             else {
                 /* unknown field! */

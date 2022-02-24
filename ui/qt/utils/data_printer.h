@@ -1,4 +1,4 @@
-/* data_printer.h
+/** @file
  *
  * Used by ByteView and others, to create data dumps in printable
  * form

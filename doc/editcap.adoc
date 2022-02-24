@@ -460,6 +460,8 @@ file. Does not discard comments added by *--capture-comment* in the same
 command line.
 --
 
+include::diagnostic-options.adoc[]
+
 == EXAMPLES
 
 To see more detailed description of the options use:

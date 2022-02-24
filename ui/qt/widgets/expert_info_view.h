@@ -1,4 +1,5 @@
-/* expert_info_view.h
+/** @file
+ *
  * Tree view of Expert Info data.
  *
  * Wireshark - Network traffic analyzer

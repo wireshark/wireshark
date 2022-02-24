@@ -1004,7 +1004,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_CONFIRMATION_URL4: /* max len is 64 */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url4, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url4, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_confirmation_url4;
       if (tlv_len > 64)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1012,7 +1012,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_CONFIRMATION_URL6: /* max len is 76 */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url6, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url6, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_confirmation_url6;
       if (tlv_len > 76)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1041,7 +1041,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_DEVICE_NAME: /* len <= 32, check !  */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_device_name, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_device_name, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_device_name;
       if ((tlv_len > 32) && pinfo)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1129,7 +1129,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     case WPS_TLV_TYPE_IDENTITY:
       /* check that tlv_len <= 80  */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_identity, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_identity, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_identity;
       if ((tlv_len > 80) && pinfo)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1162,7 +1162,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     case WPS_TLV_TYPE_MANUFACTURER:
       /* check tlv_len <= 64 byte  */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_manufacturer, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_manufacturer, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_manufacturer;
       if ((tlv_len > 64) && pinfo)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1180,7 +1180,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     case WPS_TLV_TYPE_MODEL_NAME:
       /* check tlv_len <= 32 byte  */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_name, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_name, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_model_name;
       if ((tlv_len > 32) && pinfo)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1189,7 +1189,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     case WPS_TLV_TYPE_MODEL_NUMBER:
       /* check tlv_len <= 32 byte  */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_number, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_number, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_model_number;
       if ((tlv_len > 32) && pinfo)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1372,7 +1372,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     case WPS_TLV_TYPE_SERIAL_NUMBER:
       /* check tlv_len <= 32 bytes  */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_serial_number, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_serial_number, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_serial_number;
       if ((tlv_len > 32) && pinfo)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);
@@ -1387,7 +1387,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
     case WPS_TLV_TYPE_SSID:
       /* check tlv_len <= 32 bytes  */
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_ssid, tvb, offset+4, tlv_len, ENC_ASCII|ENC_NA);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_ssid, tvb, offset+4, tlv_len, ENC_ASCII);
       hfindex = hf_eapwps_tlv_ssid;
       if ((tlv_len > 32) && pinfo)
         expert_add_info_format(pinfo, tmp_item, &ei_eapwps_fmt_warn_too_long, fmt_warn_too_long, tlv_len);

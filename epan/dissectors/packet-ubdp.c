@@ -9,7 +9,6 @@
  */
 
 #include "config.h"
-#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 
@@ -186,10 +185,10 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
             break;
           case UB_FIRMWARE_FULL:
-            proto_tree_add_item(tlv_tree, hf_ubdp_firmware_full, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_firmware_full, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_USERNAME:
-            proto_tree_add_item(tlv_tree, hf_ubdp_username, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_username, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_UPTIME:
             if(ubdp_length == 4){
@@ -200,7 +199,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             }
             break;
           case UB_HOSTNAME:
-            proto_tree_add_item(tlv_tree, hf_ubdp_hostname, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_hostname, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_PRODUCT:
             uValue = tvb_get_string_enc(pinfo->pool, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
@@ -208,7 +207,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_string(tlv_tree, hf_ubdp_product, ubdp_tvb, offset, ubdp_length, uModel ? uModel : uValue);
             break;
           case UB_ESSID:
-            proto_tree_add_item(tlv_tree, hf_ubdp_ssid, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_ssid, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_WLAN_MODE:
             if(ubdp_length == 1){
@@ -245,10 +244,10 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_string(tlv_tree, hf_ubdp_model, ubdp_tvb, offset, ubdp_length, uModel ? uModel : uValue);
             break;
           case UB_FIRMWARE:
-            proto_tree_add_item(tlv_tree, hf_ubdp_firmware, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_firmware, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           case UB_PLATFORM_VERS:
-            proto_tree_add_item(tlv_tree, hf_ubdp_platform_vers, ubdp_tvb, offset, ubdp_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_ubdp_platform_vers, ubdp_tvb, offset, ubdp_length, ENC_ASCII);
             break;
           default:
             proto_tree_add_item(tlv_tree, hf_ubdp_generic, ubdp_tvb, offset, ubdp_length, ENC_NA);
@@ -271,18 +270,18 @@ proto_register_ubdp(void)
         { &hf_ubdp_len, {"Length","ubdp.len",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_mac, {"MAC","ubdp.mac",FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_ip, {"IP","ubdp.ip",FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_firmware_full, {"Firmware Path","ubdp.firmware_full",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_username, {"Username", "ubdp.username", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_firmware_full, {"Firmware Path","ubdp.firmware_full",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_username, {"Username", "ubdp.username", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_uptime, {"Uptime","ubdp.uptime",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_hostname, {"Hostname","ubdp.hostname",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_product, {"Product","ubdp.product",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_ssid, {"SSID","ubdp.ssid",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_hostname, {"Hostname","ubdp.hostname",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_product, {"Product","ubdp.product",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_ssid, {"SSID","ubdp.ssid",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_wlan_mode, {"Wireless Mode","ubdp.wlan_mode",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_seq_num, {"Counter","ubdp.seq_num",FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_model, {"Model","ubdp.model",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_model, {"Model","ubdp.model",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_system_id, {"System ID","ubdp.system_id",FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_firmware, {"Version","ubdp.firmware",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
-        { &hf_ubdp_platform_vers, {"Platform Version","ubdp.platform_vers",FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_firmware, {"Version","ubdp.firmware",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ubdp_platform_vers, {"Platform Version","ubdp.platform_vers",FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ubdp_generic, {"Unknown Field","ubdp.unk",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
     };
 

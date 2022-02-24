@@ -1,4 +1,4 @@
-/* crc8.h
+/** @file
  * Declaration of CRC-8 routine and tables
  *
  * 2011 Roland Knall <rknall@gmail.com>

@@ -434,7 +434,8 @@ check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 			break;
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
-			FAIL(dfw, "\"%s\" is neither a field nor a protocol name.",
+		case STTYPE_CHARCONST:
+			FAIL(dfw, "%s is neither a field nor a protocol name.",
 					stnode_todisplay(st_arg1));
 			break;
 
@@ -491,7 +492,7 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 		/* Should this be rejected instead? */
 		check_drange_sanity(dfw, entity1);
 	} else {
-		FAIL(dfw, "Range is not supported for entity \"%s\" of type %s",
+		FAIL(dfw, "Range is not supported for entity %s of type %s",
 					stnode_todisplay(entity1), stnode_type_name(entity1));
 	}
 }
@@ -539,12 +540,28 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 	}
 }
 
+WS_RETNONNULL
+static fvalue_t *
+dfilter_fvalue_from_charconst(dfwork_t *dfw, ftenum_t ftype, stnode_t *st)
+{
+	fvalue_t *fvalue;
+	unsigned long *nump = stnode_data(st);
+
+	fvalue = fvalue_from_charconst(ftype, *nump,
+			dfw->error_message == NULL ? &dfw->error_message : NULL);
+	if (fvalue == NULL)
+		THROW(TypeError);
+
+	return fvalue;
+}
+
 /* If the LHS of a relation test is a FIELD, run some checks
  * and possibly some modifications of syntax tree nodes. */
 static void
 check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node _U_, stnode_t *st_arg1, stnode_t *st_arg2)
+		stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
 	header_field_info	*hfinfo1, *hfinfo2;
@@ -558,9 +575,9 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 	ftype1 = hfinfo1->type;
 
 	if (!can_func(ftype1)) {
-		FAIL(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
+		FAIL(dfw, "%s (type=%s) cannot participate in %s comparison.",
 				hfinfo1->abbrev, ftype_pretty_name(ftype1),
-				sttype_test_todisplay(st_op));
+				stnode_todisplay(st_node));
 	}
 
 	if (type2 == STTYPE_FIELD) {
@@ -593,6 +610,10 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 		else {
 			fvalue = dfilter_fvalue_from_unparsed(dfw, ftype1, st_arg2, allow_partial_value, hfinfo1);
 		}
+		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
+	}
+	else if (type2 == STTYPE_CHARCONST) {
+		fvalue = dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_RANGE) {
@@ -634,9 +655,9 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 }
 
 static void
-check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op,
+check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op _U_,
 		FtypeCanFunc can_func, gboolean allow_partial_value _U_,
-		stnode_t *st_node _U_,
+		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
@@ -652,17 +673,18 @@ check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op,
 		ftype2 = hfinfo2->type;
 
 		if (!can_func(ftype2)) {
-			FAIL(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
+			FAIL(dfw, "%s (type=%s) cannot participate in %s comparison.",
 					hfinfo2->abbrev, ftype_pretty_name(ftype2),
-					sttype_test_todisplay(st_op));
+					stnode_todisplay(st_node));
 		}
 
 		fvalue = dfilter_fvalue_from_string(dfw, ftype2, st_arg1, hfinfo2);
 		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
 	}
-	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
+	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED ||
+	         type2 == STTYPE_CHARCONST) {
 		/* Well now that's silly... */
-		FAIL(dfw, "Neither \"%s\" nor \"%s\" are field or protocol names.",
+		FAIL(dfw, "Neither %s nor %s are field or protocol names.",
 				stnode_todisplay(st_arg1),
 				stnode_todisplay(st_arg2));
 	}
@@ -678,9 +700,9 @@ check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op,
 		ftype2  = funcdef->retval_ftype;
 
 		if (!can_func(ftype2)) {
-			FAIL(dfw, "Return value of function %s (type=%s) cannot participate in '%s' comparison.",
+			FAIL(dfw, "Return value of function %s (type=%s) cannot participate in %s comparison.",
 				funcdef->name, ftype_pretty_name(ftype2),
-				sttype_test_todisplay(st_op));
+				stnode_todisplay(st_node));
 		}
 
 		fvalue = dfilter_fvalue_from_string(dfw, ftype2, st_arg1, NULL);
@@ -692,9 +714,9 @@ check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op,
 }
 
 static void
-check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op,
+check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op _U_,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
-		stnode_t *st_node _U_,
+		stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
@@ -710,17 +732,18 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op,
 		ftype2 = hfinfo2->type;
 
 		if (!can_func(ftype2)) {
-			FAIL(dfw, "%s (type=%s) cannot participate in '%s' comparison.",
+			FAIL(dfw, "%s (type=%s) cannot participate in %s comparison.",
 					hfinfo2->abbrev, ftype_pretty_name(ftype2),
-					sttype_test_todisplay(st_op));
+					stnode_todisplay(st_node));
 		}
 
 		fvalue = dfilter_fvalue_from_unparsed(dfw, ftype2, st_arg1, allow_partial_value, hfinfo2);
 		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
 	}
-	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED) {
+	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED ||
+	         type2 == STTYPE_CHARCONST) {
 		/* Well now that's silly... */
-		FAIL(dfw, "Neither \"%s\" nor \"%s\" are field or protocol names.",
+		FAIL(dfw, "Neither %s nor %s are field or protocol names.",
 				stnode_todisplay(st_arg1),
 				stnode_todisplay(st_arg2));
 	}
@@ -736,11 +759,69 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op,
 		ftype2  = funcdef->retval_ftype;
 
 		if (!can_func(ftype2)) {
-			FAIL(dfw, "return value of function %s() (type=%s) cannot participate in '%s' comparison.",
-					funcdef->name, ftype_pretty_name(ftype2), sttype_test_todisplay(st_op));
+			FAIL(dfw, "return value of function %s() (type=%s) cannot participate in %s comparison.",
+					funcdef->name, ftype_pretty_name(ftype2), stnode_todisplay(st_node));
 		}
 
 		fvalue = dfilter_fvalue_from_unparsed(dfw, ftype2, st_arg1, allow_partial_value, NULL);
+		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
+	}
+	else {
+		ws_assert_not_reached();
+	}
+}
+
+static void
+check_relation_LHS_CHARCONST(dfwork_t *dfw, test_op_t st_op _U_,
+		FtypeCanFunc can_func, gboolean allow_partial_value _U_,
+		stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	sttype_id_t		type2;
+	header_field_info	*hfinfo2;
+	df_func_def_t		*funcdef;
+	ftenum_t		ftype2;
+	fvalue_t		*fvalue;
+
+	type2 = stnode_type_id(st_arg2);
+
+	if (type2 == STTYPE_FIELD) {
+		hfinfo2 = stnode_data(st_arg2);
+		ftype2 = hfinfo2->type;
+
+		if (!can_func(ftype2)) {
+			FAIL(dfw, "%s (type=%s) cannot participate in %s comparison.",
+					hfinfo2->abbrev, ftype_pretty_name(ftype2),
+					stnode_todisplay(st_node));
+		}
+
+		fvalue = dfilter_fvalue_from_charconst(dfw, ftype2, st_arg1);
+		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
+	}
+	else if (type2 == STTYPE_STRING || type2 == STTYPE_UNPARSED ||
+	         type2 == STTYPE_CHARCONST) {
+		/* Well now that's silly... */
+		FAIL(dfw, "Neither %s nor %s are field or protocol names.",
+				stnode_todisplay(st_arg1),
+				stnode_todisplay(st_arg2));
+	}
+	else if (type2 == STTYPE_RANGE) {
+		check_drange_sanity(dfw, st_arg2);
+		fvalue = dfilter_fvalue_from_charconst(dfw, FT_BYTES, st_arg1);
+		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
+	}
+	else if (type2 == STTYPE_FUNCTION) {
+		check_function(dfw, st_arg2);
+
+		funcdef = sttype_function_funcdef(st_arg2);
+		ftype2  = funcdef->retval_ftype;
+
+		if (!can_func(ftype2)) {
+			FAIL(dfw, "return value of function %s() (type=%s) cannot participate in %s comparison.",
+					funcdef->name, ftype_pretty_name(ftype2), stnode_todisplay(st_node));
+		}
+
+		fvalue = dfilter_fvalue_from_charconst(dfw, ftype2, st_arg1);
 		stnode_replace(st_arg1, STTYPE_FVALUE, fvalue);
 	}
 	else {
@@ -787,6 +868,10 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 		fvalue = dfilter_fvalue_from_unparsed(dfw, FT_BYTES, st_arg2, allow_partial_value, NULL);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
+	else if (type2 == STTYPE_CHARCONST) {
+		fvalue = dfilter_fvalue_from_charconst(dfw, FT_BYTES, st_arg2);
+		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
+	}
 	else if (type2 == STTYPE_RANGE) {
 		check_drange_sanity(dfw, st_arg2);
 	}
@@ -819,9 +904,9 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
  * and possibly some modifications of syntax tree nodes. */
 static void
 check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
-		FtypeCanFunc can_func,
-		gboolean allow_partial_value,
-		stnode_t *st_node _U_, stnode_t *st_arg1, stnode_t *st_arg2)
+		FtypeCanFunc can_func, gboolean allow_partial_value,
+		stnode_t *st_node,
+		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	sttype_id_t		type2;
 	header_field_info	*hfinfo2;
@@ -838,9 +923,9 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 	ftype1 = funcdef->retval_ftype;
 
 	if (!can_func(ftype1)) {
-		FAIL(dfw, "Function %s (type=%s) cannot participate in '%s' comparison.",
+		FAIL(dfw, "Function %s (type=%s) cannot participate in %s comparison.",
 				funcdef->name, ftype_pretty_name(ftype1),
-				sttype_test_todisplay(st_op));
+				stnode_todisplay(st_node));
 	}
 
 	if (type2 == STTYPE_FIELD) {
@@ -864,6 +949,10 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 	}
 	else if (type2 == STTYPE_UNPARSED) {
 		fvalue = dfilter_fvalue_from_unparsed(dfw, ftype1, st_arg2, allow_partial_value, NULL);
+		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
+	}
+	else if (type2 == STTYPE_CHARCONST) {
+		fvalue = dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_RANGE) {
@@ -929,6 +1018,10 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 			check_relation_LHS_UNPARSED(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
+		case STTYPE_CHARCONST:
+			check_relation_LHS_CHARCONST(dfw, st_op, can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
+			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
@@ -968,7 +1061,7 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 			 * functions will take care of it as if it didn't
 			 * match a protocol string.
 			 */
-			stnode_replace_unparsed(st_arg2, hfinfo->abbrev);
+			stnode_replace(st_arg2, STTYPE_UNPARSED, g_strdup(hfinfo->abbrev));
 		}
 	}
 
@@ -987,7 +1080,8 @@ check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
-			FAIL(dfw, "\"%s\" is not a valid operand for contains.", stnode_todisplay(st_arg1));
+		case STTYPE_CHARCONST:
+			FAIL(dfw, "%s is not a valid operand for contains.", stnode_todisplay(st_arg1));
 			break;
 		default:
 			ws_assert_not_reached();
@@ -1003,7 +1097,7 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	const char *patt;
 
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
-		FAIL(dfw, "Expected a double quoted string not '%s'", stnode_todisplay(st_arg2));
+		FAIL(dfw, "Matches requires a double quoted string on the right side.");
 	}
 
 	patt = stnode_data(st_arg2);
@@ -1033,7 +1127,8 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 			break;
 		case STTYPE_STRING:
 		case STTYPE_UNPARSED:
-			FAIL(dfw, "\"%s\" is not a valid operand for matches.", stnode_todisplay(st_arg1));
+		case STTYPE_CHARCONST:
+			FAIL(dfw, "Matches requires a field-like value on the left side.");
 			break;
 		default:
 			ws_assert_not_reached();
@@ -1045,7 +1140,7 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	GSList *nodelist;
-	stnode_t *node, *node_right;
+	stnode_t *node_left, *node_right;
 
 	if (stnode_type_id(st_arg1) != STTYPE_FIELD) {
 		FAIL(dfw, "Only a field may be tested for membership in a set.");
@@ -1059,10 +1154,10 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 	 * value if the element is a range. */
 	nodelist = stnode_data(st_arg2);
 	while (nodelist) {
-		node = nodelist->data;
+		node_left = nodelist->data;
 
 		/* Don't let a range on the RHS affect the LHS field. */
-		if (stnode_type_id(node) == STTYPE_RANGE) {
+		if (stnode_type_id(node_left) == STTYPE_RANGE) {
 			FAIL(dfw, "A range may not appear inside a set.");
 			break;
 		}
@@ -1072,12 +1167,12 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 		node_right = nodelist->data;
 		if (node_right) {
 			check_relation_LHS_FIELD(dfw, TEST_OP_GE, ftype_can_cmp,
-					FALSE, st_arg2, st_arg1, node);
+					FALSE, st_node, st_arg1, node_left);
 			check_relation_LHS_FIELD(dfw, TEST_OP_LE, ftype_can_cmp,
-					FALSE, st_arg2, st_arg1, node_right);
+					FALSE, st_node, st_arg1, node_right);
 		} else {
 			check_relation_LHS_FIELD(dfw, TEST_OP_ANY_EQ, ftype_can_eq,
-					FALSE, st_arg2, st_arg1, node);
+					FALSE, st_node, st_arg1, node_left);
 		}
 		nodelist = g_slist_next(nodelist);
 	}
@@ -1129,6 +1224,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			semcheck(dfw, st_arg2);
 			break;
 
+		case TEST_OP_ALL_EQ:
 		case TEST_OP_ANY_EQ:
 		case TEST_OP_ALL_NE:
 		case TEST_OP_ANY_NE:

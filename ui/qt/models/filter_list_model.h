@@ -1,4 +1,5 @@
-/* filter_list_model.h
+/** @file
+ *
  * Model for all filter types
  *
  * Wireshark - Network traffic analyzer

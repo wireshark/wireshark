@@ -212,7 +212,7 @@ stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offse
 {
   char *stock_p = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 6, ENC_ASCII);
 
-  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_stock, tvb, offset, 6, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_stock, tvb, offset, 6, ENC_ASCII);
   col_append_fstr(pinfo->cinfo, COL_INFO, "<%s> ", stock_p);
 
   return offset + 6;
@@ -229,7 +229,7 @@ order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int offse
   value = tvb_get_guint8(tvb, offset);
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "%c ", value);
-  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_buy_sell, tvb, offset, 1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_buy_sell, tvb, offset, 1, ENC_ASCII);
   offset += 1;
 
   offset = number_of_shares(tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_shares, offset, big);
@@ -248,7 +248,7 @@ executed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *nasdaq_itch_tree, int of
 
   offset = number_of_shares(tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_executed, offset, big);
 
-  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII);
   offset += 9;
   return offset;
 }
@@ -324,7 +324,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     offset += 1;
     proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_financial_status, tvb, offset, 1, ENC_ASCII|ENC_NA);
     offset += 1;
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_round_lot_size, tvb, offset, 6, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_round_lot_size, tvb, offset, 6, ENC_ASCII);
     offset += 6;
     proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_round_lots_only, tvb, offset, 1, ENC_ASCII|ENC_NA);
     /*offset += 1;*/
@@ -333,11 +333,11 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   case 'H': /* Stock trading action */
     offset = stock(tvb, pinfo, nasdaq_itch_tree, offset);
 
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_trading_state, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_trading_state, tvb, offset, 1, ENC_ASCII);
     offset += 1;
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_reserved, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_reserved, tvb, offset, 1, ENC_ASCII);
     offset += 1;
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_reason, tvb, offset, 4, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_reason, tvb, offset, 4, ENC_ASCII);
     /*offset += 4;*/
     break;
 
@@ -347,14 +347,14 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   case 'A': /* Add order, no MPID */
     offset = order(tvb, pinfo, nasdaq_itch_tree, offset, big);
     if (version == 2) {
-      proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_printable, tvb, offset, 1, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_printable, tvb, offset, 1, ENC_ASCII);
       /*offset += 1;*/
     }
     break;
 
   case 'F': /* Add order, MPID */
     offset = order(tvb, pinfo, nasdaq_itch_tree, offset, big);
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_attribution, tvb, offset, 4, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_attribution, tvb, offset, 4, ENC_ASCII);
     /*offset += 4;*/
     break;
 
@@ -367,7 +367,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
   case 'C' : /* Order executed with price */
     offset = executed(tvb, pinfo, nasdaq_itch_tree, offset, big);
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_printable, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_printable, tvb, offset, 1, ENC_ASCII);
     offset += 1;
 
     /*offset = */price(tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_execution_price, offset, big);
@@ -391,7 +391,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /* FALL THROUGH */
   case 'P' : /* Trade identifier */
     offset = order(tvb, pinfo, nasdaq_itch_tree, offset, big);
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII);
     /*offset += 9;*/
     break;
 
@@ -402,27 +402,27 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     offset = price(tvb, pinfo, nasdaq_itch_tree, hf_nasdaq_itch_price, offset, big);
 
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII);
     offset += 9;
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_cross, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_cross, tvb, offset, 1, ENC_ASCII);
     /*offset += 1;*/
     break;
 
   case 'B' : /* Broken Trade */
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_match, tvb, offset, 9, ENC_ASCII);
     /*offset += 9;*/
     break;
 
   case 'I': /* NOII, FIXME */
     offset = stock(tvb, pinfo, nasdaq_itch_tree, offset);
 
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_cross, tvb, offset, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_cross, tvb, offset, 1, ENC_ASCII);
     /*offset += 1;*/
     break;
 
   default:
     /* unknown */
-    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(nasdaq_itch_tree, hf_nasdaq_itch_message, tvb, offset, -1, ENC_ASCII);
     /*offset += 5-1;*/
     break;
   }

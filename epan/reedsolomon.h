@@ -1,4 +1,4 @@
-/* reedsolomon.h
+/** @file
  *
  * Global definitions for Reed-Solomon encoder/decoder,
  * by Phil Karn (karn@ka9q.ampr.org) September 1996

@@ -1,4 +1,4 @@
-/* wsjson.h
+/** @file
  * Routines for serializing data as JSON.
  *
  * Copyright 2018, Peter Wu <peter@lekensteyn.nl>

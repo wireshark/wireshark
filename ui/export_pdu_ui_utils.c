@@ -18,6 +18,7 @@
 #include "ui/version_info.h"
 
 #include <epan/tap.h>
+#include <epan/prefs.h>
 #include <epan/exported_pdu.h>
 #include <epan/epan_dissect.h>
 #include <wiretap/wtap.h>
@@ -29,13 +30,13 @@
 #include "export_pdu_ui_utils.h"
 
 void
-do_export_pdu(const char *filter, const gchar *tap_name)
+do_export_pdu(const char *filter, const gchar *temp_dir, const gchar *tap_name)
 {
     exp_pdu_t exp_pdu_tap_data;
     char *error;
     int   import_file_fd;
     int   file_type_subtype;
-    char *capfile_name, *comment;
+    char *capfile_name = NULL, *comment;
     gboolean status;
     int   err;
     gchar *err_info;
@@ -50,7 +51,7 @@ do_export_pdu(const char *filter, const gchar *tap_name)
 
     /* Choose a random name for the temporary import buffer */
     GError *err_tempfile = NULL;
-    import_file_fd = create_tempfile(&capfile_name, "Wireshark_PDU_", NULL, &err_tempfile);
+    import_file_fd = create_tempfile(temp_dir, &capfile_name, "Wireshark_PDU_", NULL, &err_tempfile);
     if (import_file_fd < 0) {
         failure_alert_box("Temporary file could not be created: %s", err_tempfile->message);
         g_error_free(err_tempfile);
@@ -61,7 +62,7 @@ do_export_pdu(const char *filter, const gchar *tap_name)
     /* Write a pcapng file... */
     file_type_subtype = wtap_pcapng_file_type_subtype();
     /* ...with this comment */
-    comment = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
+    comment = ws_strdup_printf("Dump of PDUs from %s", cfile.filename);
     status = exp_pdu_open(&exp_pdu_tap_data, capfile_name, file_type_subtype,
                           import_file_fd, comment, &err, &err_info);
     g_free(comment);

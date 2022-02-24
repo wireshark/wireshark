@@ -282,6 +282,7 @@ static const value_string g_BrowseDirectionTable[] = {
   { 0, "Forward" },
   { 1, "Inverse" },
   { 2, "Both" },
+  { 3, "Invalid" },
   { 0, NULL }
 };
 static int hf_opcua_BrowseDirection = -1;

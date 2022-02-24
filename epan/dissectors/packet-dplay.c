@@ -698,7 +698,7 @@ static gint dissect_dplay_header(proto_tree *tree, tvbuff_t *tvb, gint offset)
     proto_tree_add_uint(tree, hf_dplay_token, tvb, offset, 4, token);
     offset += 4;
     offset = dissect_sockaddr_in(tree, tvb, offset);
-    proto_tree_add_item(tree, hf_dplay_play_str, tvb, offset, 4, ENC_ASCII|ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_play_str, tvb, offset, 4, ENC_ASCII); offset += 4;
     proto_tree_add_item(tree, hf_dplay_command, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
     proto_tree_add_item(tree, hf_dplay_proto_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
     return offset;
@@ -849,7 +849,7 @@ static gint dissect_type15_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
     enc_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dplay_enc_packet, NULL, "DirectPlay encapsulated packet");
 
-    proto_tree_add_item(enc_tree, hf_dplay_play_str_2, tvb, offset, 4, ENC_ASCII|ENC_NA); offset += 4;
+    proto_tree_add_item(enc_tree, hf_dplay_play_str_2, tvb, offset, 4, ENC_ASCII); offset += 4;
     proto_tree_add_item(enc_tree, hf_dplay_command_2, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
     proto_tree_add_item(enc_tree, hf_dplay_proto_dialect_2, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 
@@ -1450,7 +1450,7 @@ void proto_register_dplay(void)
         { "SecDesc CAPI provider type", "dplay.sd.capi_type", FT_UINT32, BASE_HEX,
         NULL, 0x0, NULL, HFILL}},
     { &hf_dplay_sd_enc_alg,
-        { "SecDesc encryption algorithm" , "dplay.sd.enc_alg", FT_UINT32, BASE_HEX,
+        { "SecDesc encryption algorithm", "dplay.sd.enc_alg", FT_UINT32, BASE_HEX,
         VALS(dplay_enc_alg_val), 0x0, NULL, HFILL}},
 
     /* Data fields for message type 0x0001 */

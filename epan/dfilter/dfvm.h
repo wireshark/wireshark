@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
@@ -53,6 +54,7 @@ typedef enum {
 	READ_TREE,
 	PUT_FVALUE,
 	PUT_PCRE,
+	ALL_EQ,
 	ANY_EQ,
 	ALL_NE,
 	ANY_NE,

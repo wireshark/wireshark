@@ -1,4 +1,5 @@
-/* xtea.h
+/** @file
+ *
  * Implementation of XTEA cipher
  * By Ahmad Fatoum <ahmad[AT]a3f.at>
  * Copyright 2017 Ahmad Fatoum

@@ -266,7 +266,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     default:
         ws_info("Capture Interface Capabilities returned bad information.");
         if (err_primary_msg) {
-            *err_primary_msg = g_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
+            *err_primary_msg = ws_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
                                        raw_list[0]);
         }
         g_free(caps);

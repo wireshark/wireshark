@@ -1,4 +1,4 @@
-/* interface_toolbar_lineedit.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -11,6 +11,7 @@
 #define INTERFACE_TOOLBAR_LINEEDIT_H
 
 #include <QLineEdit>
+#include <QRegularExpression>
 
 class StockIconToolButton;
 
@@ -38,7 +39,7 @@ private:
     void updateStyleSheet(bool is_valid);
 
     StockIconToolButton *apply_button_;
-    QRegExp regex_expr_;
+    QRegularExpression regex_expr_;
     bool is_required_;
     bool text_edited_;
 };

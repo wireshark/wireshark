@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Wrappers for printf like functions.
  *
  * Wireshark - Network traffic analyzer

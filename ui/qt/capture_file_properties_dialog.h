@@ -1,4 +1,4 @@
-/* capture_file_properties_dialog.h
+/** @file
  *
  * GSoC 2013 - QtShark
  *

@@ -1,4 +1,4 @@
-/* timestats.h
+/** @file
  * Routines and definitions for time statistics
  * Copyright 2003 Lars Roland
  *

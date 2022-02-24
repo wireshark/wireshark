@@ -15,7 +15,6 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
-#include <stdio.h>
 
 #include "packet-rdp.h"
 #include "packet-rdpudp.h"

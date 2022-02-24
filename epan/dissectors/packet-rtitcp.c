@@ -262,7 +262,7 @@ static void rtitcp_util_add_error_attribute(proto_tree *attribute, tvbuff_t* tvb
                              gint offset, guint size) {
     proto_tree_add_item(attribute, hf_rtitcp_control_attribute_error_code_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(attribute, hf_rtitcp_control_attribute_error_code_description, tvb, offset + 4,
-            size - 4, ENC_ASCII|ENC_NA);
+            size - 4, ENC_ASCII);
 }
 
 static void rtitcp_util_add_locator_t(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t * tvb,

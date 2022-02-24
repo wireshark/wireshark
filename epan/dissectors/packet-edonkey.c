@@ -678,7 +678,7 @@ static proto_item* edonkey_tree_add_metatag_name(proto_tree *tree, tvbuff_t *tvb
      */
     tag_name = try_val_to_str(special_tagtype, edonkey_special_tags);
     if (tag_name == NULL) {
-        return proto_tree_add_item(tree, hf_edonkey_metatag_name, tvb, start, length, ENC_ASCII|ENC_NA);
+        return proto_tree_add_item(tree, hf_edonkey_metatag_name, tvb, start, length, ENC_ASCII);
     }
     else {
         return proto_tree_add_uint_format(tree, hf_edonkey_metatag_id, tvb, start, length,
@@ -765,7 +765,7 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
                 proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
             edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
             proto_tree_add_uint(metatag_tree, hf_edonkey_string_length, tvb, tag_offset, 2, string_length);
-            proto_tree_add_item(metatag_tree, hf_edonkey_string, tvb, tag_offset+2, string_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(metatag_tree, hf_edonkey_string, tvb, tag_offset+2, string_length, ENC_ASCII);
             break;
 
         case EDONKEY_MTAG_DWORD:
@@ -884,7 +884,7 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
                 if (real_tag_type==tag_type)
                     proto_tree_add_uint(metatag_tree, hf_edonkey_metatag_namesize, tvb, offset+1, 2, tag_name_size);
                 edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
-                proto_tree_add_item(metatag_tree, hf_edonkey_string, tvb, tag_offset, string_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(metatag_tree, hf_edonkey_string, tvb, tag_offset, string_length, ENC_ASCII);
 
             } else {
                 /* Unknown tag type - actual tag length is also unknown */
@@ -998,7 +998,7 @@ static int dissect_kademlia_string(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
 
     /* TODO: ASCII or UTF-8? */
-    proto_tree_add_item(tree, hf_edonkey_kademlia_string, tvb, offset+2, string_length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_edonkey_kademlia_string, tvb, offset+2, string_length, ENC_ASCII);
 
     return offset+2+string_length;
 }
@@ -1138,7 +1138,7 @@ static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo _U_,
     hidden_item = proto_tree_add_item_ret_string(tree, hf_edonkey_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), string_value);
     proto_item_set_hidden(hidden_item);
 
-    proto_tree_add_item(tree, hf_kademlia_tag_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_kademlia_tag_string, tvb, offset + 2, string_length, ENC_ASCII);
     return offset + 2 + string_length;
 }
 
@@ -1166,7 +1166,7 @@ static int dissect_edonkey_string(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <String> ::= <String length (guint16)> DATA */
     guint16 string_length = tvb_get_letohs(tvb, offset);
     proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
-    proto_tree_add_item(tree, hf_edonkey_string, tvb, offset+2, string_length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_edonkey_string, tvb, offset+2, string_length, ENC_ASCII);
     return offset+2+string_length;
 }
 
@@ -1177,7 +1177,7 @@ static int dissect_edonkey_directory(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <Directory> ::= <String> */
     guint16 string_length = tvb_get_letohs(tvb, offset);
     proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
-    proto_tree_add_item(tree, hf_edonkey_directory, tvb, offset+2, string_length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_edonkey_directory, tvb, offset+2, string_length, ENC_ASCII);
     return offset+2+string_length;
 }
 
@@ -1695,7 +1695,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
 
             /* Add query info */
             proto_tree_add_uint(search_tree, hf_edonkey_string_length, tvb, string_offset, 2, string_length);
-            proto_tree_add_item(search_tree, hf_edonkey_string, tvb, string_offset+2, string_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(search_tree, hf_edonkey_string, tvb, string_offset+2, string_length, ENC_ASCII);
             offset += search_length;
             break;
 
@@ -1716,7 +1716,7 @@ static int dissect_edonkey_search_query(tvbuff_t *tvb, packet_info *pinfo,
 
             /* Add query info */
             proto_tree_add_uint(search_tree, hf_edonkey_string_length, tvb, string_offset, 2, string_length);
-            proto_tree_add_item(search_tree, hf_edonkey_string, tvb, string_offset+2, string_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(search_tree, hf_edonkey_string, tvb, string_offset+2, string_length, ENC_ASCII);
             proto_tree_add_uint(search_tree, hf_edonkey_metatag_namesize, tvb, tag_name_offset, 2, tag_name_size);
             edonkey_tree_add_metatag_name(search_tree, tvb, tag_name_offset+2, tag_name_size, special_tagtype);
             offset += search_length;
@@ -2408,7 +2408,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item( subtree, hf_kademlia_tag_uint64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
                 value = tvb_get_letoh64( tvb, offset );
-                proto_item_append_text( tag_node, "%" G_GINT64_MODIFIER "u (0x%08" G_GINT64_MODIFIER "X)", value, value );
+                proto_item_append_text( tag_node, "%" PRIu64 " (0x%08" PRIX64 ")", value, value );
 
                 offset += 8;
             }
@@ -3082,7 +3082,7 @@ static int dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void
 edonkey_fmt_revision(gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint16)(revision & 0xFFFF), (guint16)(( revision & 0xFFFF0000 ) >> 16) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint16)(revision & 0xFFFF), (guint16)(( revision & 0xFFFF0000 ) >> 16) );
 }
 
 void proto_register_edonkey(void) {
@@ -3129,7 +3129,7 @@ void proto_register_edonkey(void) {
                 FT_UINT8, BASE_HEX, NULL, 0, "eDonkey Meta Tag ID", HFILL } },
         { &hf_edonkey_metatag_name,
             { "Meta Tag Name", "edonkey.metatag.name",
-                FT_STRING, STR_ASCII, NULL, 0, "eDonkey Meta Tag Name", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "eDonkey Meta Tag Name", HFILL } },
         { &hf_edonkey_metatag_namesize,
             { "Meta Tag Name Size", "edonkey.metatag.namesize",
                 FT_UINT16, BASE_DEC, NULL, 0, "eDonkey Meta Tag Name Size", HFILL } },
@@ -3138,7 +3138,7 @@ void proto_register_edonkey(void) {
                 FT_BYTES, BASE_NONE, NULL, 0, "eDonkey Hash", HFILL } },
         { &hf_edonkey_string,
             { "String", "edonkey.string",
-                FT_STRING, STR_ASCII, NULL, 0, "eDonkey String", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "eDonkey String", HFILL } },
         { &hf_edonkey_string_length,
             { "String Length", "edonkey.string_length",
                 FT_UINT16, BASE_DEC, NULL, 0, "eDonkey String Length", HFILL } },
@@ -3150,7 +3150,7 @@ void proto_register_edonkey(void) {
                 FT_BYTES, BASE_NONE, NULL, 0, "eDonkey File Status", HFILL } },
         { &hf_edonkey_directory,
             { "Directory", "edonkey.directory",
-                FT_STRING, STR_ASCII, NULL, 0, "eDonkey Directory", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "eDonkey Directory", HFILL } },
         { &hf_edonkey_fileinfo,
             { "eDonkey File Info", "edonkey.fileinfo",
                 FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -3210,28 +3210,28 @@ void proto_register_edonkey(void) {
                 FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_kademlia_peer_id,
             { "Peer ID", "edonkey.kademlia.peer.id",
-                FT_STRING, STR_ASCII, NULL, 0, "Kademlia Peer ID", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "Kademlia Peer ID", HFILL } },
         { &hf_kademlia_hash,
             { "Kademlia Hash", "edonkey.kademlia.hash",
-                FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_kademlia_file_id,
             { "File ID", "edonkey.kademlia.file.id",
-                FT_STRING, STR_ASCII, NULL, 0, "Kademlia File ID", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "Kademlia File ID", HFILL } },
         { &hf_kademlia_keyword_hash,
             { "Keyword Hash", "edonkey.kademlia.keyword.hash",
-                FT_STRING, STR_ASCII, NULL, 0, "Kademlia Keyword Hash", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "Kademlia Keyword Hash", HFILL } },
         { &hf_kademlia_recipients_id,
             { "Recipient's ID", "edonkey.kademlia.recipients.id",
-                FT_STRING, STR_ASCII, NULL, 0, "Kademlia Recipient's ID", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "Kademlia Recipient's ID", HFILL } },
         { &hf_kademlia_sender_id,
             { "Sender ID", "edonkey.kademlia.sender.id",
-                FT_STRING, STR_ASCII, NULL, 0, "Kademlia Sender ID", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "Kademlia Sender ID", HFILL } },
         { &hf_kademlia_target_id,
             { "Target ID", "edonkey.kademlia.target.id",
-                FT_STRING, STR_ASCII, NULL, 0, "Kademlia Target ID", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "Kademlia Target ID", HFILL } },
         { &hf_kademlia_distance,
             { "XOR Distance", "edonkey.kademlia.distance",
-                FT_STRING, STR_ASCII, NULL, 0, "Kademlia XOR Distance", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "Kademlia XOR Distance", HFILL } },
         { &hf_kademlia_version,
             { "Kad Version", "edonkey.kademlia.version",
                 FT_UINT8, BASE_DEC_HEX, VALS(kademlia_versions), 0, NULL, HFILL } },
@@ -3258,7 +3258,7 @@ void proto_register_edonkey(void) {
                 FT_STRING, BASE_NONE, NULL, 0, "HASH Tag Value", HFILL } },
         { &hf_kademlia_tag_string,
             { "Tag Value (String)", "edonkey.kademlia.tag.value.string",
-                FT_STRING, STR_ASCII, NULL, 0, "String Tag Value", HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, "String Tag Value", HFILL } },
         { &hf_kademlia_tag_bsob,
             { "Tag Value (BSOB)", "edonkey.kademlia.tag.value.bsob",
                 FT_BYTES, BASE_NONE, NULL, 0, "BSOB Tag Value", HFILL } },

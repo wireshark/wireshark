@@ -261,16 +261,16 @@ my $function;
 my @functions;
 
 my $asciidoc_template = {
-	module_header =>               "[[lua_module_%s]]\n\n",
+	module_header =>               "[#lua_module_%s]\n\n",
 	# module_desc =>                 "\t<title>%s</title>\n",
-	class_header =>                "[[lua_class_%s]]\n\n" .
+	class_header =>                "[#lua_class_%s]\n\n" .
 								"==== %s\n\n",
 	#class_desc =>                  "\t\t<para>%s</para>\n",
-	class_attr_header =>           "[[lua_class_attrib_%s]]\n\n" .
+	class_attr_header =>           "[#lua_class_attrib_%s]\n\n" .
 								"===== %s\n\n",
 	#class_attr_descr =>            "\t\t\t<para>%s%s</para>\n",
 	class_attr_footer =>           "// End %s\n\n",
-	function_header =>             "[[lua_fn_%s]]\n\n" .
+	function_header =>             "[#lua_fn_%s]\n\n" .
 								"===== %s\n\n",
 	#function_descr =>              "\t\t\t<para>%s</para>\n",
 	function_args_header =>        "[float]\n" .
@@ -294,7 +294,7 @@ my $asciidoc_template = {
 	function_errors_footer =>      "// function_errors_footer: %s\n",
 	function_footer =>             "// function_footer: %s\n\n",
 	class_footer =>                "// class_footer: %s\n",
-	global_functions_header =>     "[[global_functions_%s]]\n\n" .
+	global_functions_header =>     "[#global_functions_%s]\n\n" .
 								   "==== Global Functions\n\n",
 	global_functions_footer =>     "// Global function\n",
 	module_footer =>               "// end of module\n",

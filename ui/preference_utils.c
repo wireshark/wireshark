@@ -85,11 +85,11 @@ prefs_store_ext_helper(const char * module_name, const char *pref_name, const ch
     pref_t * pref = NULL;
     unsigned int pref_changed = 0;
 
-    if ( ! prefs_is_registered_protocol(module_name))
+    if ( !prefs_is_registered_protocol(module_name))
         return 0;
 
     module = prefs_find_module(module_name);
-    if ( ! module )
+    if ( !module )
         return 0;
 
     pref = prefs_find_preference(module, pref_name);
@@ -100,8 +100,13 @@ prefs_store_ext_helper(const char * module_name, const char *pref_name, const ch
     if (prefs_get_type(pref) == PREF_STRING )
     {
         pref_changed |= prefs_set_string_value(pref, pref_value, pref_stashed);
-        if ( ! pref_changed || prefs_get_string_value(pref, pref_stashed) != 0 )
+        if ( !pref_changed || prefs_get_string_value(pref, pref_stashed) != 0 )
             pref_changed |= prefs_set_string_value(pref, pref_value, pref_current);
+    } else if (prefs_get_type(pref) == PREF_PASSWORD )
+    {
+        pref_changed |= prefs_set_password_value(pref, pref_value, pref_stashed);
+        if ( !pref_changed || prefs_get_password_value(pref, pref_stashed) != 0 )
+            pref_changed |= prefs_set_password_value(pref, pref_value, pref_current);
     }
 
     return pref_changed;
@@ -128,11 +133,11 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
     gboolean pref_changed = FALSE;
     GList * keys = NULL;
 
-    if ( ! prefs_is_registered_protocol(module))
+    if ( !prefs_is_registered_protocol(module))
         return pref_changed;
 
     keys = g_hash_table_get_keys(pref_values);
-    if ( ! keys )
+    if ( !keys )
         return pref_changed;
 
     for ( GList * key = keys; key != NULL; key = g_list_next(key) )

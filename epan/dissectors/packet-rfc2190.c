@@ -485,7 +485,7 @@ proto_register_rfc2190(void)
                 FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x07F0,
+                0x0FE0,
                 "Horizontal motion vector predictor for the first MB in this packet", HFILL
             }
         },
@@ -494,10 +494,10 @@ proto_register_rfc2190(void)
             {
                 "Vertical motion vector 1",
                 "rfc2190.vmv1",
-                FT_UINT8,
+                FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x03F8,
+                0x01FC,
                 "Vertical motion vector predictor for the first MB in this packet", HFILL
             }
         },
@@ -506,10 +506,10 @@ proto_register_rfc2190(void)
             {
                 "Horizontal motion vector 2",
                 "rfc2190.hmv2",
-                FT_UINT8,
+                FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x01FC,
+                0x03F8,
                 "Horizontal motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
             }
         },

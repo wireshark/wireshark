@@ -260,7 +260,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         case  PPI_ANTENNA_SERIALNUM:
             if (length_remaining < 32)
                 break;
-            proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_serialnum, tvb, offset, 32, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_serialnum, tvb, offset, 32, ENC_ASCII);
             offset+=32;
             length_remaining-=32;
             break;
@@ -269,7 +269,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             if (length_remaining < 32)
                 break;
             if (tree) {
-                /* proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_modelname, tvb, offset, 32, ENC_ASCII|ENC_NA); */
+                /* proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_modelname, tvb, offset, 32, ENC_ASCII); */
                 curr_str = tvb_format_stringzpad(pinfo->pool, tvb, offset, 32);
                 proto_tree_add_string(ppi_antenna_tree, hf_ppi_antenna_modelname, tvb, offset, 32, curr_str);
                 proto_item_append_text(antenna_line, " (%s)", curr_str);
@@ -281,7 +281,7 @@ dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             if (length_remaining < 32)
                 break;
             if (tree) {
-                /*proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_descstr, tvb, offset, 32, ENC_ASCII|ENC_NA);*/
+                /*proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_descstr, tvb, offset, 32, ENC_ASCII);*/
                 curr_str = tvb_format_stringzpad(pinfo->pool, tvb, offset, 32);
                 proto_tree_add_string(ppi_antenna_tree, hf_ppi_antenna_descstr, tvb, offset, 32, curr_str);
                 proto_item_append_text(antenna_line, " (%s)", curr_str);

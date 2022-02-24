@@ -281,7 +281,7 @@ static const value_string stanag4607_target_vals[] = {
 	{   131, "Rotary Wing Aircraft, Simulated Target" },
 	{   132, "Fixed Wing Aircraft, Simulated Target" },
 	{   133, "Stationary Rotator, Simulated Target" },
-	{   134, "Maritme, Simulated Target" },
+	{   134, "Maritime, Simulated Target" },
 	{   135, "Beacon, Simulated Target" },
 	{   136, "Amphibious, Simulated Target" },
 	{   137, "Person, Simulated Target" },
@@ -353,7 +353,7 @@ prt_sa32(gchar *buff, guint32 val)
 	min = floor(60.0 * (x - deg));
 	sec = 60.0 * (60.0 * (x - deg) - min);
 	/* checkAPI.pl doesn't like the unicode degree symbol, I don't know what to do... */
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
 }
 
 static void
@@ -367,7 +367,7 @@ prt_ba32(gchar *buff, guint32 val)
 	min = floor(60.0 * (x - deg));
 	sec = 60.0 * (60.0 * (x - deg) - min);
 	/* checkAPI.pl doesn't like the unicode degree symbol, I don't know what to do... */
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.8f degrees (%.0f %.0f\' %.2f\")", x, deg, min, sec);
 }
 
 static void
@@ -376,7 +376,7 @@ prt_sa16(gchar *buff, guint32 val)
 	double x = (double) ((gint32) val);
 	x /= (double) (1<<14);
 	x *= 90.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
 }
 
 static void
@@ -385,7 +385,7 @@ prt_ba16(gchar *buff, guint32 val)
 	double x = (double) val;
 	x /= (double) (1<<14);
 	x *= 90.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
 }
 
 static void
@@ -395,9 +395,9 @@ prt_ba16_none(gchar *buff, guint32 val)
 	x /= (double) (1<<14);
 	x *= 90.0;
 	if (val <= 65536)
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
+		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
 	else
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
+		snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
 }
 
 static void
@@ -405,14 +405,14 @@ prt_kilo(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 128.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.2f kilometers", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f kilometers", x);
 }
 
 static void
 prt_meters(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.0f meters", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.0f meters", x);
 }
 
 static void
@@ -420,7 +420,7 @@ prt_decimeters(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 10.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters", x);
 }
 
 static void
@@ -428,7 +428,7 @@ prt_centimeters(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 100.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters", x);
 }
 
 static void
@@ -436,7 +436,7 @@ prt_speed(gchar *buff, guint32 val)
 {
 	double x = (double) val;
 	x /= 1000.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f meters/second", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f meters/second", x);
 }
 
 static void
@@ -444,7 +444,7 @@ prt_speed_centi(gchar *buff, guint32 val)
 {
 	double x = (double) ((gint32) val);
 	x /= 100.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters/second", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.2f meters/second", x);
 }
 
 static void
@@ -453,7 +453,7 @@ prt_speed_deci(gchar *buff, guint32 val)
 	/* Usually 8-bit, signed */
 	double x = (double) ((gint32) val);
 	x /= 10.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters/second", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.1f meters/second", x);
 }
 
 static void
@@ -461,38 +461,38 @@ prt_millisec(gchar *buff, guint32 val)
 {
 	double x = (double) val;
 	x /= 1000.0;
-	g_snprintf(buff, ITEM_LABEL_LENGTH, "%.3f seconds", x);
+	snprintf(buff, ITEM_LABEL_LENGTH, "%.3f seconds", x);
 }
 
 static void
 prt_none8(gchar *buff, guint32 val)
 {
 	if (0xff == val)
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
+		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
 	else
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
+		snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
 }
 
 static void
 prt_none16(gchar *buff, guint32 val)
 {
 	if (0xffff == val)
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
+		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
 	else
-		g_snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
+		snprintf(buff, ITEM_LABEL_LENGTH, "%d", val);
 }
 
 
 static gint
 dissect_mission(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 {
-	proto_tree_add_item(seg_tree, hf_4607_mission_plan, tvb, offset, 12, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_plan, tvb, offset, 12, ENC_ASCII);
 	offset += 12;
-	proto_tree_add_item(seg_tree, hf_4607_mission_flight_plan, tvb, offset, 12, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_flight_plan, tvb, offset, 12, ENC_ASCII);
 	offset += 12;
 	proto_tree_add_item(seg_tree, hf_4607_mission_platform, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_mission_platform_config, tvb, offset, 10, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_mission_platform_config, tvb, offset, 10, ENC_ASCII);
 	offset += 10;
 	proto_tree_add_item(seg_tree, hf_4607_mission_time_year, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -714,7 +714,7 @@ dissect_jobdef(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 	offset += 4;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_model, tvb, offset, 6, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(seg_tree, hf_4607_jobdef_sensor_model, tvb, offset, 6, ENC_ASCII);
 	offset += 6;
 	proto_tree_add_item(seg_tree, hf_4607_jobdef_filter, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -847,14 +847,14 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_stanag4607, tvb, 0, -1, ENC_NA);
 		hdr_tree = proto_item_add_subtree(ti, ett_4607_hdr);
-		proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_version, tvb, 0, 2, ENC_ASCII);
 		ti = proto_tree_add_item(hdr_tree, hf_4607_packet_size, tvb, 2, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_nationality, tvb, 6, 2, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_nationality, tvb, 6, 2, ENC_ASCII);
 		proto_tree_add_item(hdr_tree, hf_4607_sec_class, tvb, 8, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_sec_system, tvb, 9, 2, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_sec_system, tvb, 9, 2, ENC_ASCII);
 		proto_tree_add_item(hdr_tree, hf_4607_sec_code, tvb, 11, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_exercise_indicator, tvb, 13, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(hdr_tree, hf_4607_platform_id, tvb, 14, 10, ENC_ASCII);
 		proto_tree_add_item(hdr_tree, hf_4607_mission_id, tvb, 24, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(hdr_tree, hf_4607_job_id, tvb, 28, 4, ENC_BIG_ENDIAN);
 	}

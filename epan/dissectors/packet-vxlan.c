@@ -4,7 +4,7 @@
  * RFC 7348 plus draft-smith-vxlan-group-policy-01
  *
  * (c) Copyright 2016, Sumit Kumar Jha <sjha3@ncsu.edu>
- * Support for VXLAN GPE (https://www.ietf.org/id/draft-ietf-nvo3-vxlan-gpe-02.txt)
+ * Support for VXLAN GPE (https://datatracker.ietf.org/doc/html/draft-ietf-nvo3-vxlan-gpe-02)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

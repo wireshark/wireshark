@@ -263,19 +263,19 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 			case INDIGOCARE_NETRIX_SYSTEMINFO:
 				switch (record_identifier) {
 					case INDIGOCARE_NETRIX_SYSTEMINFO_COMPUTERNAME:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_computername_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_computername_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Computername=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_SYSTEMINFO_IPADDRESS:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_ipaddress_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_ipaddress_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " IP Address=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_SYSTEMINFO_VERSION:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_version_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_version_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Systeminfo=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_SYSTEMINFO_BEEP:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_beep_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_systeminfo_beep_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					default:
 						proto_tree_add_expert_format(netrix_header_tree, pinfo, &ei_netrix_unexpected_record, tvb, identifier_start, data_offset - identifier_start, "Unexpected record %d with value %s", record_identifier, record_data);
@@ -290,25 +290,25 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Groupnumber=%d", group_number);
 					break;
 					case INDIGOCARE_NETRIX_GROUP_TYPE:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_type_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_type_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Type=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_GROUP_ADDITION:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_addition_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_addition_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_NETRIX_GROUP_IDBOSCHLOC:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_idboschloc_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_idboschloc_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_NETRIX_GROUP_NAME:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_name_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_name_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Name=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_GROUP_ROOM:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_room_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_room_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Room=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_GROUP_LOCATION:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_location_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_groupcall_location_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Location=%s", record_data);
 					break;
 					default:
@@ -324,25 +324,25 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Profilenumber=%d", profile_number);
 					break;
 					case INDIGOCARE_NETRIX_PROFILE_TYPE:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_type_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_type_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Type=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_PROFILE_ADDITION:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_addition_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_addition_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_NETRIX_PROFILE_IDBOSCHLOC:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_idboschloc_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_idboschloc_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 					break;
 					case INDIGOCARE_NETRIX_PROFILE_NAME:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_name_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_name_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Name=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_PROFILE_ROOM:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_room_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_room_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Room=%s", record_data);
 					break;
 					case INDIGOCARE_NETRIX_PROFILE_LOCATION:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_location_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_profilecall_location_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Location=%s", record_data);
 					break;
 					default:
@@ -353,7 +353,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 			case INDIGOCARE_NETRIX_GET_CONVERSIONTABLE:
 				switch (record_identifier) {
 					case INDIGOCARE_NETRIX_GET_CONVERSIONTABLE_TABLE:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_get_conversiontable_table_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_get_conversiontable_table_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Table=%s", record_data);
 					break;
 				}
@@ -361,7 +361,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 			case INDIGOCARE_NETRIX_SEARCH_CONVERSIONTABLES:
 				switch (record_identifier) {
 					case INDIGOCARE_NETRIX_SEARCH_CONVERSIONTABLES_KEY:
-						proto_tree_add_item(netrix_header_tree, hf_netrix_search_conversiontables_key_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+						proto_tree_add_item(netrix_header_tree, hf_netrix_search_conversiontables_key_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 						col_append_fstr(pinfo->cinfo, COL_INFO, " Key=%s", record_data);
 					break;
 					default:
@@ -373,11 +373,11 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 				if ((header >= INDIGOCARE_NETRIX_GET_CONVERSIONTABLE_BEGIN) && (header <= INDIGOCARE_NETRIX_GET_CONVERSIONTABLE_END)) {
 					switch (record_identifier) {
 						case INDIGOCARE_NETRIX_GET_CONVERSIONTABLE_KEY:
-							proto_tree_add_item(netrix_header_tree, hf_netrix_get_conversiontable_key_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+							proto_tree_add_item(netrix_header_tree, hf_netrix_get_conversiontable_key_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 							col_append_fstr(pinfo->cinfo, COL_INFO, " Key=%s", record_data);
 						break;
 						case INDIGOCARE_NETRIX_GET_CONVERSIONTABLE_VALUE:
-							proto_tree_add_item(netrix_header_tree, hf_netrix_get_conversiontable_value_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+							proto_tree_add_item(netrix_header_tree, hf_netrix_get_conversiontable_value_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 							col_append_fstr(pinfo->cinfo, COL_INFO, " Value=%s", record_data);
 						break;
 						default:
@@ -387,7 +387,7 @@ dissect_netrix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *da
 				} else if ((header >= INDIGOCARE_NETRIX_SEARCH_CONVERSIONTABLES_BEGIN) && (header <= INDIGOCARE_NETRIX_SEARCH_CONVERSIONTABLES_END)) {
 					switch (record_identifier) {
 						case INDIGOCARE_NETRIX_SEARCH_CONVERSIONTABLES_TABLE:
-							proto_tree_add_item(netrix_header_tree, hf_netrix_search_conversiontables_table_type, tvb, data_start, data_offset - data_start, ENC_ASCII|ENC_NA);
+							proto_tree_add_item(netrix_header_tree, hf_netrix_search_conversiontables_table_type, tvb, data_start, data_offset - data_start, ENC_ASCII);
 							col_append_fstr(pinfo->cinfo, COL_INFO, " Table=%s", record_data);
 						break;
 						default:

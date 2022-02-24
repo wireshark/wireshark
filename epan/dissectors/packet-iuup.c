@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/crc10-tvb.h>
+#include <epan/crc6-tvb.h>
 #include <wsutil/crc10.h>
 #include <wsutil/crc6.h>
 
@@ -341,12 +342,15 @@ iuup_proto_tree_add_bits(proto_tree* tree, int hf, tvbuff_t* tvb, int offset, in
     return pi;
 }
 
-static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint rfci_id _U_, int offset, guint32 circuit_id) {
+static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint rfci_id, int offset, guint32 circuit_id) {
     iuup_circuit_t* iuup_circuit;
     iuup_rfci_t *rfci;
     int last_offset = tvb_reported_length(tvb) - 1;
     guint bit_offset = 0;
     proto_item* pi;
+
+    if (offset == (int)tvb_reported_length(tvb)) /* NO_DATA */
+      return;
 
     pi = proto_tree_add_item(tree,hf_iuup_payload,tvb,offset,-1,ENC_NA);
 
@@ -552,15 +556,10 @@ static void dissect_iuup_ratectl(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
 
 }
 
-static void add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree, guint16 crccheck)
+static void add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
 {
-    proto_item *crc_item;
-
-    crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,ENC_BIG_ENDIAN);
-    if (crccheck) {
-        proto_item_append_text(crc_item, "%s", " [incorrect]");
-        expert_add_info(pinfo, crc_item, &ei_iuup_hdr_crc_bad);
-    }
+    proto_tree_add_checksum(iuup_tree, tvb, 2, hf_iuup_hdr_crc, -1, &ei_iuup_hdr_crc_bad,
+                            pinfo, crc6_compute_tvb(tvb, 2), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 }
 
 static guint16
@@ -604,11 +603,8 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
     proto_item* ack_item = NULL;
     guint8 first_octet;
     guint8 second_octet;
-    guint8 octet_array[2];
     guint8 pdutype;
     guint phdr = 0;
-    guint16  hdrcrc6;
-    guint16  crccheck;
     tvbuff_t* tvb = tvb_in;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IuUP");
@@ -628,10 +624,8 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
         tvb = tvb_new_subset_length(tvb_in,2,len);
     }
 
-    octet_array[0] = first_octet =  tvb_get_guint8(tvb,0);
-    octet_array[1] = second_octet =  tvb_get_guint8(tvb,1);
-    hdrcrc6 = tvb_get_guint8(tvb, 2) >> 2;
-    crccheck = crc6_0X6F(hdrcrc6, octet_array, 2);
+    first_octet =  tvb_get_guint8(tvb,0);
+    second_octet =  tvb_get_guint8(tvb,1);
 
     pdutype = ( first_octet & PDUTYPE_MASK ) >> 4;
 
@@ -656,7 +650,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
             }
 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
-            add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
+            add_hdr_crc(tvb, pinfo, iuup_tree);
             add_payload_crc(tvb, pinfo, iuup_tree);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,4, conversation_get_endpoint_by_id(pinfo, ENDPOINT_IUUP, USE_LAST_ENDPOINT));
             return tvb_captured_length(tvb);
@@ -671,7 +665,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
             }
 
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
-            add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
+            add_hdr_crc(tvb, pinfo, iuup_tree);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,3, conversation_get_endpoint_by_id(pinfo, ENDPOINT_IUUP, USE_LAST_ENDPOINT));
             return tvb_captured_length(tvb);
         case PDUTYPE_DATA_CONTROL_PROC:
@@ -680,7 +674,7 @@ static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, 
                 proto_tree_add_item(iuup_tree,hf_iuup_frame_number_t14,tvb,0,1,ENC_BIG_ENDIAN);
                 proto_tree_add_item(iuup_tree,hf_iuup_mode_version,tvb,1,1,ENC_BIG_ENDIAN);
                 proc_item = proto_tree_add_item(iuup_tree,hf_iuup_procedure_indicator,tvb,1,1,ENC_BIG_ENDIAN);
-                add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
+                add_hdr_crc(tvb, pinfo, iuup_tree);
             }
 
             col_append_str(pinfo->cinfo, COL_INFO,

@@ -1,4 +1,4 @@
-/* address_types.h
+/** @file
  * Definitions for address types
  *
  * Wireshark - Network traffic analyzer

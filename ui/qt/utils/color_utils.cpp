@@ -9,8 +9,8 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/tango_colors.h>
-#include <ui/qt/wireshark_application.h>
 
+#include <QApplication>
 #include <QPalette>
 
 // Colors we use in various parts of the UI.
@@ -143,7 +143,7 @@ QRgb ColorUtils::sequenceColor(int item)
 
 bool ColorUtils::themeIsDark()
 {
-    return wsApp->palette().windowText().color().lightness() > wsApp->palette().window().color().lightness();
+    return qApp->palette().windowText().color().lightness() > qApp->palette().window().color().lightness();
 }
 
 // Qt < 5.12.6 on macOS always uses Qt::blue for the link color, which is
@@ -165,7 +165,7 @@ QBrush ColorUtils::themeLinkBrush()
         return QBrush(tango_sky_blue_2);
     }
 #endif
-    return wsApp->palette().link();
+    return qApp->palette().link();
 }
 
 QString ColorUtils::themeLinkStyle()
@@ -186,6 +186,17 @@ const QColor ColorUtils::contrastingTextColor(const QColor color)
         return QApplication::palette().text().color();
     }
     return QApplication::palette().base().color();
+}
+
+const QColor ColorUtils::hoverBackground()
+{
+    QPalette hover_palette = QApplication::palette();
+#if defined(Q_OS_MAC)
+    hover_palette.setCurrentColorGroup(QPalette::Active);
+    return hover_palette.highlight().color();
+#else
+    return ColorUtils::alphaBlend(hover_palette.window(), hover_palette.highlight(), 0.5);
+#endif
 }
 
 const QColor ColorUtils::warningBackground()

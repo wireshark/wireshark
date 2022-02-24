@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.7.0 (2021-10)
+-- 3GPP TS 38.463 V16.8.0 (2021-12)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -1335,8 +1335,8 @@ DeactivateTraceIEs E1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 CellTrafficTrace ::= SEQUENCE {
-    protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
-    ...
+protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
+...
 }
 
 CellTrafficTraceIEs E1AP-PROTOCOL-IES ::= {
@@ -1345,7 +1345,7 @@ CellTrafficTraceIEs E1AP-PROTOCOL-IES ::= {
 	{ID id-TraceID					           CRITICALITY ignore	TYPE TraceID			            PRESENCE mandatory}|
 	{ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress		   PRESENCE mandatory	}|
 	{ID id-PrivacyIndicator					CRITICALITY ignore	TYPE PrivacyIndicator			        PRESENCE optional}|
-    {ID id-URIaddress	                     CRITICALITY ignore	    TYPE URIaddress		            PRESENCE optional},
+{ID id-URIaddress	                     CRITICALITY ignore	    TYPE URIaddress		            PRESENCE optional},
 	...
 }
 

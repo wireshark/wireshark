@@ -1,10 +1,10 @@
 // WSDG Chapter Tools
 
-[[ChapterTools]]
+[#ChapterTools]
 
 == Tool Reference
 
-[[ChToolsIntro]]
+[#ChToolsIntro]
 
 === Introduction
 
@@ -43,7 +43,7 @@ for the UNIX based tools with `**toolname** --help` or the man page via `man
 You will find explanations of the tool usage for some of the specific
 development tasks in <<ChapterSources>>.
 
-[[ChToolsChocolatey]]
+[#ChToolsChocolatey]
 === Chocolatey
 
 Chocolatey is a Windows package manager that can be used to install (and update)
@@ -71,20 +71,15 @@ behavior you'll probably want to install Python using the packages from
 python.org.
 
 Other package managers for Windows include the https://docs.microsoft.com/en-us/windows/package-manager/[Windows Package Manager (winget)] and https://scoop.sh/[Scoop].
-As of May 2020 neither option provides all of the packages we require, but that might change in the future.
+As of January 2022 neither option provides all of the packages we require, but that might change in the future.
 
-[[ChToolsCMake]]
+[#ChToolsCMake]
 
 === CMake
 
-Wireshark’s build environment can be configured using CMake on various
-UNIX-like platforms, including Linux, macOS, and *BSD, and on Windows.
-CMake is designed to support out-of-tree builds - so much so that
-in-tree builds do not work properly in all cases.  Along with being
-cross-platform, CMake supports many build tools and environments
-including traditional make, Ninja, and MSBuild.  Our Buildbot runs
-CMake steps on Ubuntu, Win32, Win64, and macOS.  In particular, the
-macOS and Windows packages are built using CMake.
+Wireshark’s build environment can be configured using CMake on various UNIX-like platforms, including Linux, macOS, and *BSD, and on Windows.
+CMake is designed to support out-of-tree builds - so much so that in-tree builds do not work properly in all cases.
+Along with being cross-platform, CMake supports many build tools and environments including traditional make, Ninja, and MSBuild.
 
 Building with CMake typically includes creating a build directory and
 specifying a *generator*, aka a build tool. For example, to build
@@ -149,11 +144,11 @@ Useful variables: https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/Use
 
 Frequently Asked Questions: https://gitlab.kitware.com/cmake/community/wikis/FAQ
 
-[[ChToolsGNUChain]]
+[#ChToolsGNUChain]
 
 === GNU Compiler Toolchain (UNIX And UNIX-like Platforms)
 
-[[ChToolsGCC]]
+[#ChToolsGCC]
 
 ==== gcc (GNU Compiler Collection)
 
@@ -183,7 +178,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 Your version string may vary, of course.
 
-[[ChToolsGDB]]
+[#ChToolsGDB]
 
 ==== gdb (GNU Project Debugger)
 
@@ -217,7 +212,7 @@ There is NO WARRANTY, to the extent permitted by law.
 
 Your version string may vary, of course.
 
-[[ChToolsGNUmake]]
+[#ChToolsGNUmake]
 
 ==== make (GNU Make)
 
@@ -268,7 +263,7 @@ available as a package for your platform, you can get it from:
 https://ninja-build.org.  You can download the source code or binaries
 for Linux, macOS, and Windows (we have not tested Ninja on Windows).
 
-[[ChToolsMSChain]]
+[#ChToolsMSChain]
 
 === Microsoft compiler toolchain (Windows native)
 
@@ -292,6 +287,8 @@ _windows.h_, _WS2_32.lib_)
 
 Official releases are or were built with the following Visual {cpp} versions:
 
+// * Wireshark 4.0.x: Microsoft Visual {cpp} 2022.
+* Wireshark 3.6.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.4.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.2.x: Microsoft Visual {cpp} 2019.
 * Wireshark 3.0.x: Microsoft Visual {cpp} 2017.
@@ -310,7 +307,7 @@ Official releases are or were built with the following Visual {cpp} versions:
 Using the release compilers is recommended for Wireshark development work.
 
 “Community” editions of Visual Studio such as “Visual Studio Community
-2019” can be used to compile Wireshark but any PortableApps packages you
+2022” can be used to compile Wireshark but any PortableApps packages you
 create with them might require the installation of a separate Visual
 {cpp} Redistributable package on any machine on which the PortableApps
 package is to be used. See <<msvc-runtime-redistributable>> below for
@@ -324,7 +321,22 @@ Essentials] account if you don't have a Visual Studio (MSDN)
 subscription.  The older versions can be downloaded from
 https://visualstudio.microsoft.com/vs/older-downloads/[].
 
-.Visual {cpp} 2019 Community Edition
+==== Visual {cpp} 2022 Community Edition
+
+IDE + Debugger?:: Yes
+
+SDK required for 64-bit builds?:: No
+
+CMake Generator: *`Visual Studio 17`*
+
+You can use Chocolatey to install Visual Studio, e.g:
+
+[source,cmd]
+----
+PS:\> choco install visualstudiocommunity2022 visualstudio2022-workload-nativedesktop
+----
+
+==== Visual {cpp} 2019 Community Edition
 
 IDE + Debugger?:: Yes
 
@@ -346,11 +358,13 @@ Microsoft toolchain variants and their specific C compiler
 versions ordered by release date.
 
 |===
-|Compiler Package|cl.exe|_MSC_VER
-|Visual Studio 2019|16.0.0|1920
-|Visual Studio 2019|16.1.2|1921
-|Visual Studio 2019|16.2.3|1922
-|Visual Studio 2019|16.3.2|1923
+| Compiler Package   | cl.exe | _MSC_VER
+| Visual Studio 2019 | 16.0.0 | 1920
+| Visual Studio 2019 | 16.1.2 | 1921
+| Visual Studio 2019 | 16.2.3 | 1922
+| Visual Studio 2019 | 16.3.2 | 1923
+| Visual Studio 2022 | 17.0   | 1930
+| Visual Studio 2022 | 17.1   | 1931
 |===
 
 After correct installation of the toolchain, typing
@@ -372,8 +386,8 @@ usage: cl [ option... ] filename... [ /link linkoption... ]
 
 However, the version string may vary.
 
-Documentation on the compiler can be found at
-https://docs.microsoft.com/en-us/cpp/build/reference/compiling-a-c-cpp-program?view=vs-2019[Microsoft Docs]
+Documentation on recent versions of the compiler can be found at
+https://docs.microsoft.com/en-us/cpp/build/reference/compiling-a-c-cpp-program[Microsoft Docs]
 
 ==== link.exe (Linker)
 
@@ -396,10 +410,10 @@ Copyright (C) Microsoft Corporation.  All rights reserved.
 
 However, the version string may vary.
 
-Documentation on the linker can be found at
-https://docs.microsoft.com/en-us/cpp/build/reference/linking?view=vs-2019[Microsoft Docs]
+Documentation on recent versions of the linker can be found at
+https://docs.microsoft.com/en-us/cpp/build/reference/linking[Microsoft Docs]
 
-[[msvc-runtime-redistributable]]
+[#msvc-runtime-redistributable]
 
 ==== Visual {cpp} Runtime “Redistributable” Files
 
@@ -413,8 +427,8 @@ Visual {cpp} 2015 and later use the _Universal CRT_ (UCRT).
 
 The Universal CRT comes standard with Windows 10 and is installed as part
 of Windows Update on earlier versions of Windows. The Wireshark .exe
-installers include redistributables (_vcredist_x86.exe_ or
-_vcredist_x64.exe_) which ensure that the Universal CRT is installed and
+installers include redistributables (_vc_redist.x64.exe_ or
+_vc_redist.x86.exe_) which ensure that the Universal CRT is installed and
 up to date.
 
 [NOTE]
@@ -429,9 +443,9 @@ us.
 The following Microsoft Docs link is recommended for the
 interested reader:
 
-https://docs.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=vs-2019[Redistributing Visual {cpp} Files]
+https://docs.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files[Redistributing Visual {cpp} Files]
 
-In all cases where _vcredist_x86.exe_ or _vcredist_x64.exe_ is
+In all cases where _vc_redist.x64.exe_ or _vc_redist.x86.exe_ is
 downloaded it should be downloaded to the directory into which the
 support libraries for Wireshark have been downloaded and installed. This
 directory is specified by the `WIRESHARK_BASE_DIR` or
@@ -449,7 +463,7 @@ include new and updated APIs.
 When you purchase a commercial Visual Studio or use the Community
 Edition, it will include an SDK.
 
-[[ChToolsDocumentationToolchain]]
+[#ChToolsDocumentationToolchain]
 === Documentation Toolchain
 
 Wireshark’s documentation is split across two directories.
@@ -496,7 +510,7 @@ These are available via installable packages on most Linux distributions, Chocol
 http://xmlsoft.org/xslt/[xsltproc] converts DocBook XML to various formats based on XSL stylesheets.
 It either ships as part of the operating system or is available via an installable package on most Linux distributions, Chocolatey, and Homebrew.
 
-[[ChToolsDebugger]]
+[#ChToolsDebugger]
 
 === Debugger
 
@@ -505,7 +519,7 @@ Using a good debugger can save you a lot of development time.
 The debugger you use must match the C compiler Wireshark was compiled with,
 otherwise the debugger will simply fail or you will only see a lot of garbage.
 
-[[ChToolsMSVCDebugger]]
+[#ChToolsMSVCDebugger]
 
 ==== Visual Studio Integrated Debugger
 
@@ -548,7 +562,7 @@ order of statements can jump around.
 
 If you require a non-optimised version, then build using a debug configuration.
 
-[[ChToolsMSDebuggingTools]]
+[#ChToolsMSDebuggingTools]
 
 ==== Debugging Tools For Windows
 
@@ -578,13 +592,13 @@ If you require a non-optimised version, then build using a debug configuration, 
 *`msbuild /m /p:Configuration=Debug Wireshark.sln`*. The build products will be found
 in C:\Development\wsbuild64\run\Debug\.
 
-[[ChToolsBash]]
+[#ChToolsBash]
 
 === bash
 
 The bash shell is needed to run several shell scripts.
 
-[[ChToolsGNUBash]]
+[#ChToolsGNUBash]
 
 [discrete]
 ==== Unix
@@ -610,7 +624,7 @@ Copyright (C) 2016 Free Software Foundation, Inc.
 
 Your version string will likely vary.
 
-[[ChToolsPython]]
+[#ChToolsPython]
 
 === Python
 
@@ -657,7 +671,7 @@ Python 3.5.1
 
 Your version string may vary of course.
 
-[[ChToolsPerl]]
+[#ChToolsPerl]
 
 === Perl
 
@@ -667,7 +681,7 @@ https://www.perl.org[]. Perl is used to convert
 various text files into usable source code. Perl version 5.6
 and above should work fine.
 
-[[ChToolsUnixPerl]]
+[#ChToolsUnixPerl]
 
 [discrete]
 ==== Unix
@@ -702,7 +716,7 @@ Internet, point your browser at http://www.perl.org/, the Perl Home Page.
 
 However, the version string may vary.
 
-[[ChToolsWindowsPerl]]
+[#ChToolsWindowsPerl]
 
 [discrete]
 ==== Windows
@@ -746,14 +760,14 @@ Built 18:08:02 Feb  4 2003
 
 However, the version string may vary.
 
-[[ChToolsFlex]]
+[#ChToolsFlex]
 
 === Flex
 
 Flex is a lexical analyzer generator used for Wireshark’s display filters, some
 file formats, and other features.
 
-[[ChToolsUnixFlex]]
+[#ChToolsUnixFlex]
 
 [discrete]
 ==== Unix
@@ -779,7 +793,7 @@ flex version 2.5.4
 
 Your version string may vary.
 
-[[ChToolsWindowsFlex]]
+[#ChToolsWindowsFlex]
 
 [discrete]
 ==== Windows
@@ -797,7 +811,7 @@ Native packages are available from other sources such as
 http://gnuwin32.sourceforge.net/packages/flex.htm[GnuWin]. They aren't
 officially supported but _should_ work.
 
-[[ChToolsGit]]
+[#ChToolsGit]
 
 === Git client
 
@@ -813,7 +827,7 @@ the different ways to obtain the Wireshark sources, see <<ChSrcObtain>>.
 You will find more instructions in <<ChSrcGit>> on how to use the Git
 client.
 
-[[ChToolsUnixGit]]
+[#ChToolsUnixGit]
 
 [discrete]
 ==== Unix
@@ -837,7 +851,7 @@ git version 2.14.1
 
 Your version will likely be different.
 
-[[ChToolsWindowsGit]]
+[#ChToolsWindowsGit]
 
 [discrete]
 ==== Windows
@@ -866,7 +880,7 @@ git version 2.16.1.windows.1
 
 However, the version string may vary.
 
-[[ChToolsGitPowerShellExtensions]]
+[#ChToolsGitPowerShellExtensions]
 
 === Git Powershell Extensions (Optional)
 
@@ -879,7 +893,7 @@ copy status.  You can install it using Chocolatey:
 PS:\> choco install poshgit
 ----
 
-[[ChToolsGitGUI]]
+[#ChToolsGitGUI]
 
 === Git GUI Client (Optional)
 
@@ -890,7 +904,7 @@ https://git-scm.com/downloads/guis[] for details.
 // [[ChToolsUnixGitGUI]]
 // XXX Add Gui client section
 
-[[ChToolsPatch]]
+[#ChToolsPatch]
 
 === patch (Optional)
 
@@ -904,7 +918,7 @@ handle patches for you.
 
 // You will find more instructions in <<ChSrcPatchApply>>on how to use the patch tool.
 
-[[ChToolsUnixPatch]]
+[#ChToolsUnixPatch]
 
 [discrete]
 ==== Unix
@@ -938,7 +952,7 @@ written by Larry Wall and Paul Eggert
 
 However, the version string may vary.
 
-[[ChToolsWindowsPatch]]
+[#ChToolsWindowsPatch]
 
 [discrete]
 ==== Windows
@@ -947,12 +961,12 @@ The Windows native Git tools provide patch. A native Windows patch package can b
 http://gnuwin32.sourceforge.net/[]. The
 installation should be straightforward.
 
-[[ChToolsNSIS]]
+[#ChToolsNSIS]
 
 === Windows: NSIS (Optional)
 
 The NSIS (Nullsoft Scriptable Install System) is used to generate
-_Wireshark-win32-{wireshark-version}.exe_ from all the files
+_Wireshark-win64-{wireshark-version}.exe_ from all the files
 needed to be installed, including all required DLLs, plugins, and supporting
 files.
 
@@ -967,7 +981,7 @@ PS$> choco install nsis
 
 You can find more instructions on using NSIS in <<ChSrcNSIS>>.
 
-[[ChToolsWiX]]
+[#ChToolsWiX]
 
 === Windows: WiX Toolset (Optional)
 
@@ -979,11 +993,11 @@ You can download it from the link:https://wixtoolset.org/[WiX web site] or insta
 PS$> choco install wixtoolset
 ----
 
-This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2019 Redistributable MSMs” in the Visual Studio installer.
+This also requires the Visual C++ redistributable merge modules, which can be installed by selecting “Individual Components -> {cpp} 2022 Redistributable MSMs” or “...2019 Redistributable MSMs” as appropriate for your compiler in the Visual Studio installer.
 
 Wireshark’s .msi packaging is currently experimental and the generated packages may be incomplete.
 
-[[ChToolsPortableApps]]
+[#ChToolsPortableApps]
 === Windows: PortableApps (Optional)
 
 The PortableApps.com Installer is used to generate

@@ -53,7 +53,6 @@
  * numbers).
  */
 #include "config.h"
-#include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -65,7 +64,6 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rtps.h>
 
-#include <stdio.h>
 
 #define CONTENT_KIND_RTPS                        0x01
 #define CONTENT_KIND_LOSS_INFO                   0x02
@@ -556,7 +554,7 @@ static gint dissect_parameter_transport_rtps_type(
                         0,
                         rtpsvt_ett_monitoring_sn,
                         NULL,
-                        "Monitoring Sequence Number: %" G_GUINT64_FORMAT,
+                        "Monitoring Sequence Number: %" PRIu64,
                         seqNr);
 
                 /* Add parameter identifier and length */
@@ -589,7 +587,7 @@ static gint dissect_parameter_transport_rtps_type(
                 /* Add summary to packet identifier header */
                 proto_item_append_text(
                         rtpsvt_tree_identifier,
-                        ", SeqNum: %" G_GUINT64_FORMAT,
+                        ", SeqNum: %" PRIu64,
                         seqNr);
             }
             break;
@@ -612,18 +610,18 @@ static gint dissect_parameter_transport_rtps_type(
                             tvb,
                             OFFSET_TO_VAL + (gint) (strlen(prefix)),
                             ENC_BIG_ENDIAN);
-                    g_snprintf(addr, sizeof(addr), "%u", pid);
+                    snprintf(addr, sizeof(addr), "%u", pid);
                 } else if (memcmp(
                         &addr_raw.bytes,
                         bytes_zeroed,
                         sizeof(bytes_zeroed)) == 0){
-                    g_snprintf(
+                    snprintf(
                             addr,
                             sizeof(addr),
                             "%s",
                             tvb_ip_to_str(pinfo->pool, tvb, OFFSET_TO_VAL + sizeof(bytes_zeroed)));
                 } else {
-                    g_snprintf(
+                    snprintf(
                             addr,
                             sizeof(addr),
                             "%s",
@@ -765,18 +763,18 @@ static gint dissect_parameter_transport_rtps_type(
                             tvb,
                             OFFSET_TO_VAL + (gint) (strlen(prefix)),
                             ENC_BIG_ENDIAN);
-                    g_snprintf(addr, sizeof(addr), "%u", pid);
+                    snprintf(addr, sizeof(addr), "%u", pid);
                 } else if (memcmp(
                         &addr_raw.bytes,
                         bytes_zeroed,
                         sizeof(bytes_zeroed)) == 0){
-                    g_snprintf(
+                    snprintf(
                             addr,
                             sizeof(addr),
                             "%s",
                             tvb_ip_to_str(pinfo->pool, tvb, OFFSET_TO_VAL + sizeof(bytes_zeroed)));
                 } else {
-                    g_snprintf(
+                    snprintf(
                             addr,
                             sizeof(addr),
                             "%s",
@@ -979,10 +977,10 @@ static gint dissect_rtps_virtual_transport_loss_info_type(
 
         if (pinfo->cinfo) {
             char info[COL_MAX_INFO_LEN] = {'\0'};
-            g_snprintf(
+            snprintf(
                     info,
                     sizeof(info),
-                    "Missing RTPS messages [%" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT "]",
+                    "Missing RTPS messages [%" PRIu64 "-%" PRIu64 "]",
                     first_lost,
                     last_lost);
             col_append_str(pinfo->cinfo, COL_INFO, info);

@@ -1017,7 +1017,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     switch (sbus_cmd_code){
                             case SBUS_WEB_SERVER_SERIAL_COMM:
                                     /* Special treatment of web server request
-                                    * as is is very helpful to see more information in the packetlist */
+                                    * as this is very helpful to see more information in the packetlist */
                                     sbus_web_aid = tvb_get_guint8(tvb, 12);
                                     sbus_web_seq = tvb_get_guint8(tvb, 13);
                                     col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -1095,7 +1095,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                 case SBUS_RESPONSE:
                     /* Special treatment of web server request
-                        * as is is very helpful to see more information in the packetlist */
+                        * as this is very helpful to see more information in the packetlist */
                     if (request_val && ((request_val->cmd_code) == SBUS_WEB_SERVER_SERIAL_COMM)) {
                             sbus_web_size = tvb_get_guint8(tvb,9);
                             sbus_web_aid = tvb_get_guint8(tvb,10);
@@ -1850,10 +1850,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                    /* Response: Firmware version */
                             case SBUS_RD_PROGRAM_VERSION:
                                    /*PCD type*/
-                                   proto_tree_add_item(sbus_tree, hf_sbus_cpu_type, tvb, offset, 5, ENC_ASCII|ENC_NA);
+                                   proto_tree_add_item(sbus_tree, hf_sbus_cpu_type, tvb, offset, 5, ENC_ASCII);
                                    offset += 5;
                                    /*FW version*/
-                                   proto_tree_add_item(sbus_tree, hf_sbus_fw_version, tvb, offset, 3, ENC_ASCII|ENC_NA);
+                                   proto_tree_add_item(sbus_tree, hf_sbus_fw_version, tvb, offset, 3, ENC_ASCII);
                                    offset += 4;
                                    break;
 
@@ -2267,7 +2267,7 @@ proto_register_sbus(void)
               { &hf_sbus_block_nr,
                      { "Block/Element nr",           "sbus.block_nr",
                      FT_UINT16, BASE_DEC, NULL, 0,
-                     "Program block / DatatBlock number", HFILL }
+                     "Program block / DataBlock number", HFILL }
               },
 
               { &hf_sbus_nbr_elements,
@@ -2285,7 +2285,7 @@ proto_register_sbus(void)
               { &hf_sbus_data_rtc,
                      { "S-Bus 32-bit data",      "sbus.data_rtc",
                      FT_UINT32, BASE_DEC, NULL, 0,
-                     "One regiser/timer of counter (32 bit value)", HFILL }
+                     "One register/timer of counter (32 bit value)", HFILL }
               },
 
               { &hf_sbus_data_byte,

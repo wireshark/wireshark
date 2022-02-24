@@ -110,7 +110,7 @@ static dissector_handle_t ftdi_mpsse_handle;
  * not have is_response_set flag set, is added to rx_command_info with the current packet number in the key.
  *
  * After first pass, RX packets always obtain relevant command_data_t entry without traversing the list.
- * If there wasn't a separate tree TX packets (tx_command_info), TX packet dissection would have to to
+ * If there wasn't a separate tree TX packets (tx_command_info), TX packet dissection would have to
  * traverse the list from the pointer obtained from rx_command_info. In normal conditions the number of
  * entries to skip in such case is low. However, when the capture file has either:
  *   * A lot of TX packets with commands expecting response but no RX packets, or
@@ -485,15 +485,15 @@ static gchar* freq_to_str(gfloat freq)
 {
     if (freq < 1e3)
     {
-        return g_strdup_printf("%.12g Hz", freq);
+        return ws_strdup_printf("%.12g Hz", freq);
     }
     else if (freq < 1e6)
     {
-        return g_strdup_printf("%.12g kHz", freq / 1e3);
+        return ws_strdup_printf("%.12g kHz", freq / 1e3);
     }
     else
     {
-        return g_strdup_printf("%.12g MHz", freq / 1e6);
+        return ws_strdup_printf("%.12g MHz", freq / 1e6);
     }
 }
 
@@ -1224,7 +1224,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             expert_tree = proto_item_add_subtree(item, ett_mpsse_skipped_response_data);
 
             command_in = proto_tree_add_uint_format(expert_tree, hf_mpsse_command_in, NULL, 0, 0, cmd_data->command_in_packet,
-                                                    "Bad Command 0x%02x in: %" G_GUINT32_FORMAT, cmd_data->cmd, cmd_data->command_in_packet);
+                                                    "Bad Command 0x%02x in: %" PRIu32, cmd_data->cmd, cmd_data->command_in_packet);
             proto_item_set_generated(command_in);
             if (cmd_data->is_response_set)
             {
@@ -1252,7 +1252,7 @@ dissect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     rsp_tree = proto_item_add_subtree(rsp_data, ett_mpsse_response_data);
 
     command_in = proto_tree_add_uint_format(rsp_tree, hf_mpsse_command_in, NULL, 0, 0, cmd_data->command_in_packet,
-                                            "Command 0x%02x in: %" G_GUINT32_FORMAT, cmd_data->cmd, cmd_data->command_in_packet);
+                                            "Command 0x%02x in: %" PRIu32, cmd_data->cmd, cmd_data->command_in_packet);
     proto_item_set_generated(command_in);
 
     offset += dissect_response_data(tvb, pinfo, rsp_tree, offset, cmd_data);

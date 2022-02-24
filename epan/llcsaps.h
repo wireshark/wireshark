@@ -1,4 +1,5 @@
-/* llcsaps.h
+/** @file
+ *
  * Defines LLC SAP values.
  *
  * Wireshark - Network traffic analyzer

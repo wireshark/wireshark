@@ -21,7 +21,7 @@
 
 InterfaceToolbarLineEdit::InterfaceToolbarLineEdit(QWidget *parent, QString validation_regex, bool is_required) :
     QLineEdit(parent),
-    regex_expr_(validation_regex),
+    regex_expr_(validation_regex, QRegularExpression::UseUnicodePropertiesOption),
     is_required_(is_required),
     text_edited_(false)
 {
@@ -83,9 +83,9 @@ bool InterfaceToolbarLineEdit::isValid()
         valid = false;
     }
 
-    if (!regex_expr_.isEmpty() && text().length() > 0)
+    if (!regex_expr_.pattern().isEmpty() && text().length() > 0)
     {
-        if (!regex_expr_.isValid() || regex_expr_.indexIn(text(), 0) == -1)
+        if (!regex_expr_.isValid() || !regex_expr_.match(text()).hasMatch())
         {
             valid = false;
         }

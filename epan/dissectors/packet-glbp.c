@@ -256,7 +256,7 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset,
   offset++;
   switch(authtype) {
   case 1:
-    proto_tree_add_item(tlv_tree, hf_glbp_auth_plainpass, tvb, offset, authlength, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tlv_tree, hf_glbp_auth_plainpass, tvb, offset, authlength, ENC_ASCII);
     offset += authlength;
     break;
   case 2:

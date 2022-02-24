@@ -19,7 +19,6 @@
 #include <epan/to_str.h>
 #include <epan/nlpid.h>
 #include <epan/etypes.h>
-#include <stdio.h>
 #include <epan/ws_printf.h>
 
 void proto_register_vpp(void);

@@ -174,7 +174,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* dat
 		proto_item* item;
 
 		item_headline = proto_tree_add_item(tree, proto_encaps, tvb, 0, 4, ENC_NA);
-		proto_item_append_text(item_headline, ": 0x%.8" G_GINT32_MODIFIER "x", tvb_get_ntohl(tvb, 0));
+		proto_item_append_text(item_headline, ": 0x%.8" PRIx32, tvb_get_ntohl(tvb, 0));
 		subtree = proto_item_add_subtree(item_headline, ett_encaps);
 
 		if (packet_quality & PQ_CW_BAD_BITS03) /*display only if value is wrong*/
@@ -266,7 +266,7 @@ static hf_register_info hf[] = {
 			  ,NULL			,0x3f		,NULL
 			  ,HFILL}},
 
-	{&hf_cw_seq	,{"Sequence number"	,"pwfr.length"	,FT_UINT16	,BASE_DEC
+	{&hf_cw_seq	,{"Sequence number"	,"pwfr.seqno"	,FT_UINT16	,BASE_DEC
 			  ,NULL			,0		,NULL
 			  ,HFILL}},
 

@@ -1,4 +1,4 @@
-/* ws_pow2.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

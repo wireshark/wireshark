@@ -1,4 +1,4 @@
-TShark (Wireshark) 3.7.0 (v3.7.0rc0-33-g0d276b47d120)
+TShark (Wireshark) 3.7.0 (v3.7.0rc0-1333-g7d171d378238)
 Dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -81,6 +81,13 @@ Output:
   -P, --print              print packet summary even when writing to a file
   -S <separator>           the line separator to print between packets
   -x                       add output of hex and ASCII dump (Packet Bytes)
+  --hexdump <hexoption>    add hexdump, set options for data source and ASCII dump
+     all                   dump all data sources (-x default)
+     frames                dump only frame data source
+     ascii                 include ASCII dump text (-x default)
+     delimit               delimit ASCII dump text with '|' characters
+     noascii               exclude ASCII dump text
+     help                  display help for --hexdump and exit
   -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
                            format of text output (def: text)
   -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected
@@ -125,6 +132,9 @@ Output:
                            values
   --elastic-mapping-filter <protocols> If -G elastic-mapping is specified, put only the
                            specified protocols within the mapping file
+  --temp-dir <directory>   write temporary files to this directory
+                           (default: /tmp)
+
 Diagnostic output:
   --log-level <level>      sets the active log level ("critical", "warning", etc.)
   --log-fatal <level>      sets level to abort the program ("critical" or "warning")

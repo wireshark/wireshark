@@ -131,7 +131,7 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 	ptr = strstr(str, pattern);
 	if (ptr == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("dct3trace: %s not found", pattern);
+		*err_info = ws_strdup_printf("dct3trace: %s not found", pattern);
 		return FALSE;
 	}
 	/*
@@ -140,7 +140,7 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 	start = strchr(ptr, '"');
 	if (start == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("dct3trace: opening quote for %s not found", pattern);
+		*err_info = ws_strdup_printf("dct3trace: opening quote for %s not found", pattern);
 		return FALSE;
 	}
 	start++;
@@ -151,12 +151,12 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 	end = strchr(start, '"');
 	if (end == NULL) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("dct3trace: closing quote for %s not found", pattern);
+		*err_info = ws_strdup_printf("dct3trace: closing quote for %s not found", pattern);
 		return FALSE;
 	}
 	if (end - start > 31) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("dct3trace: %s value is too long", pattern);
+		*err_info = ws_strdup_printf("dct3trace: %s value is too long", pattern);
 		return FALSE;
 	}
 
@@ -170,16 +170,16 @@ xml_get_int(int *val, const char *str, const char *pattern, int *err, gchar **er
 		*err = WTAP_ERR_BAD_FILE;
 		if (errno == ERANGE) {
 			if (*val < 0)
-				*err_info = g_strdup_printf("dct3trace: %s value is too small, minimum is %d", pattern, *val);
+				*err_info = ws_strdup_printf("dct3trace: %s value is too small, minimum is %d", pattern, *val);
 			else
-				*err_info = g_strdup_printf("dct3trace: %s value is too large, maximum is %d", pattern, *val);
+				*err_info = ws_strdup_printf("dct3trace: %s value is too large, maximum is %d", pattern, *val);
 		} else
-			*err_info = g_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
+			*err_info = ws_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
 		return FALSE;
 	}
 	if (*endptr != '\0') {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
+		*err_info = ws_strdup_printf("dct3trace: %s value \"%s\" not a number", pattern, buf);
 		return FALSE;
 	}
 	return TRUE;
@@ -322,7 +322,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 				if (len == -1)
 				{
 					*err = WTAP_ERR_BAD_FILE;
-					*err_info = g_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
+					*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
 					return FALSE;
 				}
 			}
@@ -362,7 +362,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 			if (data_len == -1)
 			{
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
+				*err_info = ws_strdup_printf("dct3trace: record length %d too long", rec->rec_header.packet_header.caplen);
 				return FALSE;
 			}
 			len += data_len;

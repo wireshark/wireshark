@@ -23,6 +23,7 @@
 #endif
 
 #include <epan/maxmind_db.h>
+#include <epan/prefs.h>
 
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
@@ -39,6 +40,7 @@
 #include "wsutil/plugins.h"
 #include "wsutil/copyright_info.h"
 #include "ui/version_info.h"
+#include "ui/capture_globals.h"
 
 #include "extcap.h"
 
@@ -53,7 +55,7 @@
 #include <QKeySequence>
 #include <QTextStream>
 #include <QUrl>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QAbstractItemModel>
 #include <QHash>
 #include <QDesktopServices>
@@ -71,9 +73,13 @@ AStringListListModel(parent)
     f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
     f_authors.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_authors(&f_authors);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    ReadFile_authors.setEncoding(QStringConverter::Utf8);
+#else
     ReadFile_authors.setCodec("UTF-8");
+#endif
 
-    QRegExp rx("(.*)[<(]([\\s'a-zA-Z0-9._%+-]+(\\[[Aa][Tt]\\])?[a-zA-Z0-9._%+-]+)[>)]");
+    QRegularExpression rx("(.*)[<(]([\\s'a-zA-Z0-9._%+-]+(\\[[Aa][Tt]\\])?[a-zA-Z0-9._%+-]+)[>)]");
     acknowledgement_.clear();
     while (!ReadFile_authors.atEnd()) {
         QString line = ReadFile_authors.readLine();
@@ -83,13 +89,14 @@ AStringListListModel(parent)
         if (line.startsWith("------"))
             continue;
 
-        if (line.contains("Acknowledgements"))
-        {
+        if (line.contains("Acknowledgements")) {
             readAck = true;
             continue;
+        } else {
+            QRegularExpressionMatch match = rx.match(line);
+            if (match.hasMatch())
+                appendRow(QStringList() << match.captured(1).trimmed() << match.captured(2).trimmed());
         }
-        else if (rx.indexIn(line) != -1)
-            appendRow(QStringList() << rx.cap(1).trimmed() << rx.cap(2).trimmed());
 
         if (readAck && (!line.isEmpty() || !acknowledgement_.isEmpty()))
             acknowledgement_.append(QString("%1\n").arg(line));
@@ -192,7 +199,7 @@ FolderListModel::FolderListModel(QObject * parent):
     appendRow(QStringList() << tr("\"File\" dialogs") << get_last_open_dir() << tr("capture files"));
 
     /* temp */
-    appendRow(QStringList() << tr("Temp") << g_get_tmp_dir() << tr("untitled capture files"));
+    appendRow(QStringList() << tr("Temp") << (global_capture_opts.temp_dir && global_capture_opts.temp_dir[0] ? global_capture_opts.temp_dir : g_get_tmp_dir()) << tr("untitled capture files"));
 
     /* pers conf */
     appendRow(QStringList() << tr("Personal configuration")
@@ -626,7 +633,7 @@ void AboutDialog::on_tblPlugins_doubleClicked(const QModelIndex &index)
     }
     const int row = index.row();
     const QAbstractItemModel *model = index.model();
-    if (model->index(row, path_col).data().toString().contains(QRegExp(script_pattern))) {
+    if (model->index(row, path_col).data().toString().contains(QRegularExpression(script_pattern))) {
         QDesktopServices::openUrl(QUrl::fromLocalFile(model->index(row, path_col).data().toString()));
     }
 }

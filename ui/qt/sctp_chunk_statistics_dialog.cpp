@@ -67,7 +67,7 @@ void SCTPChunkStatisticsDialog::initializeChunkMap()
     for (int i = 0; i < 256; i++) {
         temp.id = i;
         temp.row = i;
-        g_snprintf(buf, sizeof buf, "%d", i);
+        snprintf(buf, sizeof buf, "%d", i);
         (void) g_strlcpy(temp.name, val_to_str_const(i, chunk_type_values, "NA"), sizeof temp.name);
         if (strcmp(temp.name, "NA") == 0) {
             temp.hide = 1;
@@ -248,7 +248,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
 
     for (int i = 0; i < chunks.size(); i++) {
         tempChunk = chunks.value(i);
-        g_snprintf(str, sizeof str, "\"%d\",\"%s\",\"%s\"\n", tempChunk.id, tempChunk.name, tempChunk.hide==0?"Show":"Hide");
+        snprintf(str, sizeof str, "\"%d\",\"%s\",\"%s\"\n", tempChunk.id, tempChunk.name, tempChunk.hide==0?"Show":"Hide");
         fputs(str, fp);
         void *rec = g_malloc0(uat->record_size);
         uat_add_record(uat, rec, TRUE);

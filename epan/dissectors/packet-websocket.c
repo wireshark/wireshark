@@ -331,7 +331,7 @@ dissect_websocket_control_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       if (length >= 2) {
         proto_tree_add_item(subtree, hf_ws_payload_close_status_code, tvb, offset, 2, ENC_BIG_ENDIAN);
         if (length > 2)
-          proto_tree_add_item(subtree, hf_ws_payload_close_reason, tvb, offset+2, length-2, ENC_UTF_8|ENC_NA);
+          proto_tree_add_item(subtree, hf_ws_payload_close_reason, tvb, offset+2, length-2, ENC_UTF_8);
       }
       break;
 
@@ -759,7 +759,7 @@ test_websocket(packet_info* pinfo _U_, tvbuff_t* tvb, int offset _U_, void* data
 
   guint8 op_code = first_byte & 0x0F;
 
-  // op_code must be one one of WS_CONTINUE, WS_TEXT, WS_BINARY, WS_CLOSE, WS_PING or WS_PONG
+  // op_code must be one of WS_CONTINUE, WS_TEXT, WS_BINARY, WS_CLOSE, WS_PING or WS_PONG
   if (!(op_code == WS_CONTINUE || op_code == WS_TEXT || op_code == WS_BINARY || op_code == WS_CLOSE || op_code == WS_PING || op_code == WS_PONG))
   {
     return FALSE;
@@ -985,7 +985,7 @@ proto_register_websocket(void)
 
   websocket_handle = register_dissector("websocket", dissect_websocket, proto_websocket);
 
-  websocket_module = prefs_register_protocol(proto_websocket, proto_reg_handoff_websocket);
+  websocket_module = prefs_register_protocol(proto_websocket, NULL);
 
   prefs_register_enum_preference(websocket_module, "text_type",
         "Dissect websocket text as",

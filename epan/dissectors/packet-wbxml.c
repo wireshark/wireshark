@@ -7816,7 +7816,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					tvb, 1, publicid_len, publicid);
 	} else { /* Public identifier in string table */
 		proto_tree_add_item (wbxml_tree, hf_wbxml_public_id_literal,
-					    tvb, 1, publicid_len, ENC_ASCII|ENC_NA);
+					    tvb, 1, publicid_len, ENC_ASCII);
 	}
 	offset = 1 + publicid_len;
 
@@ -7954,7 +7954,7 @@ proto_register_wbxml(void)
 		{ &hf_wbxml_string_table_item_string,
 		  { "String",
 		    "wbxml.string_table_item_string",
-		    FT_STRINGZ, STR_UNICODE,
+		    FT_STRINGZ, BASE_NONE,
 		    NULL, 0x00,
 		    NULL, HFILL }
 		},

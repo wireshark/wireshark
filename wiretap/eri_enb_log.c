@@ -47,7 +47,7 @@ static gboolean eri_enb_log_get_packet(FILE_T fh, wtap_rec* rec,
 			length = length - 1;
 		}
 
-		if (0 < iso8601_to_nstime(&packet_time, line+1)) {
+		if (0 < iso8601_to_nstime(&packet_time, line+1, ISO8601_DATETIME)) {
 			rec->ts.secs = packet_time.secs;
 			rec->ts.nsecs = packet_time.nsecs;
 			rec->presence_flags |= WTAP_HAS_TS;

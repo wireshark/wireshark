@@ -1,4 +1,4 @@
-/* plugin_if.h
+/** @file
  * An API for Wireshark plugins
  *
  * This enables wireshark dissectors, especially those implemented by plugins

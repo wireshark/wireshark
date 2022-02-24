@@ -1,4 +1,5 @@
-/* info_proxy_model.h
+/** @file
+ *
  * Proxy model for displaying an info text at the end of any QAbstractListModel
  *
  * Wireshark - Network traffic analyzer

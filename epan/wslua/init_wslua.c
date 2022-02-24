@@ -462,7 +462,7 @@ static void wslua_clear_plugin_list(void)
 }
 
 static int lua_script_push_args(const int script_num) {
-    gchar* argname = g_strdup_printf("lua_script%d", script_num);
+    gchar* argname = ws_strdup_printf("lua_script%d", script_num);
     const gchar* argvalue = NULL;
     int i, count = ex_opt_count(argname);
 
@@ -654,7 +654,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
             if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
                 continue;        /* skip "." and ".." */
 
-            filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
+            filename = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
             if (test_for_directory(filename) == EISDIR) {
                 sorted_dirnames = g_list_prepend(sorted_dirnames, (gpointer)filename);
                 continue;

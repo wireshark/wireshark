@@ -438,9 +438,9 @@ col_snprint_port(gchar *buf, size_t buf_siz, port_type typ, guint16 val)
 
   if (gbl_resolv_flags.transport_name &&
         (str = try_serv_name_lookup(typ, val)) != NULL) {
-    snprintf(buf, buf_siz, "%s(%"G_GUINT16_FORMAT")", str, val);
+    snprintf(buf, buf_siz, "%s(%"PRIu16")", str, val);
   } else {
-    snprintf(buf, buf_siz, "%"G_GUINT16_FORMAT, val);
+    snprintf(buf, buf_siz, "%"PRIu16, val);
   }
 }
 
@@ -498,7 +498,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
       if (len < max_len) {
         va_list ap2;
 
-        G_VA_COPY(ap2, ap);
+        va_copy(ap2, ap);
         vsnprintf(&col_item->col_buf[len], max_len - len, format, ap2);
         va_end(ap2);
       }

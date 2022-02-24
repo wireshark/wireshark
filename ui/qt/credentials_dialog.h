@@ -1,5 +1,4 @@
-/*
- * credentials_dialog.h
+/** @file
  *
  * Copyright 2019 - Dario Lombardo <lomato@gmail.com>
  *

@@ -14,6 +14,7 @@
 #include <QAction>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QRegularExpression>
 
 void FindLineEdit::contextMenuEvent(QContextMenuEvent *event)
 {
@@ -52,7 +53,7 @@ void FindLineEdit::validateText()
     if (!use_regex_ || text().isEmpty()) {
         setStyleSheet(style.arg(QString("")));
     } else {
-        QRegExp regexp(text());
+        QRegularExpression regexp(text(), QRegularExpression::UseUnicodePropertiesOption);
         if (regexp.isValid()) {
             setStyleSheet(style.arg(ColorUtils::fromColorT(prefs.gui_text_valid).name()));
         } else {

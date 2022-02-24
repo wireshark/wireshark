@@ -1,4 +1,5 @@
-/* numeric_value_chooser_delegate.h
+/** @file
+ *
  * Delegate to select a numeric value for a treeview entry
  *
  * Wireshark - Network traffic analyzer

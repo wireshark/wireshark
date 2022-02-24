@@ -1,4 +1,4 @@
-/* curve25519.h
+/** @file
  * NaCl/Sodium-compatible API for Curve25519 cryptography.
  *
  * Copyright (c) 2018, Peter Wu <peter@lekensteyn.nl>

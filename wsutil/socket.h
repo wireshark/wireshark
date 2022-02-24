@@ -1,4 +1,4 @@
-/* socket.h
+/** @file
  * Socket wrappers
  *
  * Copyright 2016, Dario Lombardo
@@ -12,7 +12,7 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	#include <windows.h>

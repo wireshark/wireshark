@@ -1,4 +1,4 @@
-/* extcap_argument_file.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -30,6 +30,8 @@ public:
     virtual QString value();
 
     virtual bool isValid();
+
+    virtual void setDefaultValue();
 
 protected:
     QLineEdit * textBox;

@@ -114,7 +114,7 @@ dissect_open_request_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         proto_tree_add_item(flags_tree, hf_unordered_allowed, tvb, FLAGS_OFFSET, FLAGS_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcdc_tree, hf_reliability, tvb, RELIABILITY_OFFSET, RELIABILITY_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcdc_tree, hf_priority, tvb, PRIORITY_OFFSET, PRIORITY_LENGTH, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rtcdc_tree, hf_label, tvb, LABEL_OFFSET, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(rtcdc_tree, hf_label, tvb, LABEL_OFFSET, -1, ENC_ASCII);
     }
     return;
 }
@@ -216,8 +216,8 @@ dissect_new_open_request_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(rtcdc_tree, hf_new_reliability, tvb, NEW_RELIABILITY_OFFSET, NEW_RELIABILITY_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcdc_tree, hf_new_label_length, tvb, NEW_LABEL_LENGTH_OFFSET, NEW_LABEL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
         proto_tree_add_item(rtcdc_tree, hf_new_protocol_length, tvb, NEW_PROTOCOL_LENGTH_OFFSET, NEW_PROTOCOL_LENGTH_LENGTH, ENC_BIG_ENDIAN);
-        proto_tree_add_item(rtcdc_tree, hf_new_label, tvb, NEW_LABEL_OFFSET, label_length, ENC_ASCII|ENC_NA);
-        proto_tree_add_item(rtcdc_tree, hf_new_protocol, tvb, NEW_LABEL_OFFSET + label_length, protocol_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(rtcdc_tree, hf_new_label, tvb, NEW_LABEL_OFFSET, label_length, ENC_ASCII);
+        proto_tree_add_item(rtcdc_tree, hf_new_protocol, tvb, NEW_LABEL_OFFSET + label_length, protocol_length, ENC_ASCII);
     }
     return;
 }

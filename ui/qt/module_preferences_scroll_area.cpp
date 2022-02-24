@@ -32,6 +32,7 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QSpacerItem>
+#include <QRegularExpression>
 
 const char *pref_prop_ = "pref_ptr";
 
@@ -43,22 +44,30 @@ static const QString title_to_shortcut(const char *title) {
     return shortcut_str;
 }
 
+typedef struct 
+{
+    QVBoxLayout *layout;
+    QString moduleName;
+} prefSearchData;
 
 extern "C" {
 // Callbacks prefs routines
 
 /* Add a single preference to the QVBoxLayout of a preference page */
 static guint
-pref_show(pref_t *pref, gpointer layout_ptr)
+pref_show(pref_t *pref, gpointer user_data)
 {
-    QVBoxLayout *vb = static_cast<QVBoxLayout *>(layout_ptr);
+    prefSearchData * data = static_cast<prefSearchData *>(user_data);
 
-    if (!pref || !vb) return 0;
+    if (!pref || !data) return 0;
+
+    QVBoxLayout *vb = data->layout;
 
     // Convert the pref description from plain text to rich text.
     QString description = html_escape(prefs_get_description(pref));
-    description.replace('\n', "<br>");
-    QString tooltip = QString("<span>%1</span>").arg(description);
+    QString name = QString("%1.%2").arg(data->moduleName).arg(prefs_get_name(pref));
+    description.replace('\n', "<br/>");
+    QString tooltip = QString("<span>%1</span><br/><br/>%2").arg(description).arg(name);
 
     switch (prefs_get_type(pref)) {
     case PREF_UINT:
@@ -120,7 +129,9 @@ pref_show(pref_t *pref, gpointer layout_ptr)
             for (ev = prefs_get_enumvals(pref); ev && ev->description; ev++) {
                 enum_cb->addItem(ev->description, QVariant(ev->value));
             }
-            hb->addWidget(new QLabel(prefs_get_title(pref)));
+            QLabel * lbl = new QLabel(prefs_get_title(pref));
+            lbl->setToolTip(tooltip);
+            hb->addWidget(lbl);
             hb->addWidget(enum_cb);
             hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
             vb->addLayout(hb);
@@ -137,6 +148,22 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         string_le->setToolTip(tooltip);
         string_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         string_le->setMinimumWidth(string_le->fontMetrics().height() * 20);
+        hb->addWidget(string_le);
+        hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        vb->addLayout(hb);
+        break;
+    }
+    case PREF_PASSWORD:
+    {
+        QHBoxLayout *hb = new QHBoxLayout();
+        QLabel *label = new QLabel(prefs_get_title(pref));
+        label->setToolTip(tooltip);
+        hb->addWidget(label);
+        QLineEdit *string_le = new QLineEdit();
+        string_le->setToolTip(tooltip);
+        string_le->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
+        string_le->setMinimumWidth(string_le->fontMetrics().height() * 20);
+        string_le->setEchoMode(QLineEdit::PasswordEchoOnEdit);
         hb->addWidget(string_le);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
         vb->addLayout(hb);
@@ -237,8 +264,12 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
     label->setFont(font);
     ui->verticalLayout->addWidget(label);
 
+    prefSearchData * searchData = new prefSearchData;
+    searchData->layout = ui->verticalLayout;
+    searchData->moduleName = module->name;
+
     /* Add items for each of the preferences */
-    prefs_pref_foreach(module, pref_show, (gpointer) ui->verticalLayout);
+    prefs_pref_foreach(module, pref_show, (gpointer) searchData);
 
     foreach (QLineEdit *le, findChildren<QLineEdit *>()) {
         pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
@@ -255,6 +286,7 @@ ModulePreferencesScrollArea::ModulePreferencesScrollArea(module_t *module, QWidg
         case PREF_SAVE_FILENAME:
         case PREF_OPEN_FILENAME:
         case PREF_DIRNAME:
+        case PREF_PASSWORD:
             connect(le, &QLineEdit::textEdited, this, &ModulePreferencesScrollArea::stringLineEditTextEdited);
             break;
         case PREF_RANGE:
@@ -344,7 +376,7 @@ void ModulePreferencesScrollArea::updateWidgets()
         pref_t *pref = VariantPointer<pref_t>::asPtr(le->property(pref_prop_));
         if (!pref) continue;
 
-        le->setText(gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed)).remove(QRegExp("\n\t")));
+        le->setText(gchar_free_to_qstring(prefs_pref_to_str(pref, pref_stashed)).remove(QRegularExpression("\n\t")));
     }
 
     foreach (QCheckBox *cb, findChildren<QCheckBox *>()) {

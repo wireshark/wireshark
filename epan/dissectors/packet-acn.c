@@ -5531,7 +5531,7 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_string(pdu_tree, hf_acn_dmx_data, tvb, data_offset, dmx_count, buffer);
 
       /* start our line */
-      g_snprintf(buffer, BUFFER_SIZE, "001-%03d: ", perline);
+      snprintf(buffer, BUFFER_SIZE, "001-%03d: ", perline);
       buf_ptr = buffer + 9;
 
       total_cnt = 0;
@@ -5553,7 +5553,7 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
           /* add leader... */
           proto_tree_add_string_format(pdu_tree, hf_acn_dmx_data, tvb, data_offset, item_cnt, buffer, "%s", buffer);
           data_offset += perline;
-          g_snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+perline);
+          snprintf(buffer, BUFFER_SIZE, "%03d-%03d: ",total_cnt, total_cnt+perline);
           buf_ptr = buffer + 9;
           item_cnt = 0;
         } else {
@@ -5645,10 +5645,10 @@ dissect_acn_dmx_base_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   switch (vector) {
     case ACN_DMP_VECTOR_SET_PROPERTY:
       if (protocol_id == ACN_PROTOCOL_ID_DMX_2 || protocol_id == ACN_PROTOCOL_ID_DMX_3) {
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 64, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 64, ENC_UTF_8);
         data_offset += 64;
       } else {
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 32, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 32, ENC_UTF_8);
         data_offset += 32;
       }
 
@@ -6180,7 +6180,7 @@ dissect_broker_client_entry_pdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
       offset += 4;
 
       /* protocol string */
-      proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_ept_protocol_string, tvb, data_offset, 32, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_broker_client_ept_protocol_string, tvb, data_offset, 32, ENC_ASCII);
       data_offset += 32;
     }
     break;
@@ -6200,7 +6200,7 @@ dissect_broker_connect(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offs
   proto_tree      *flag_tree;
 
   /* client scope */
-  proto_tree_add_item(tree, hf_rdmnet_broker_connect_client_scope, tvb, offset, 63, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_rdmnet_broker_connect_client_scope, tvb, offset, 63, ENC_ASCII);
   offset += 63;
 
   /* e133 version */
@@ -6208,7 +6208,7 @@ dissect_broker_connect(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offs
   offset += 2;
 
   /* search domain */
-  proto_tree_add_item(tree, hf_rdmnet_broker_connect_search_domain, tvb, offset, 231, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(tree, hf_rdmnet_broker_connect_search_domain, tvb, offset, 231, ENC_ASCII);
   offset += 231;
 
   /* connection flags */
@@ -6596,37 +6596,37 @@ dissect_rpt_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
   switch (vector) {
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_RPT_UID:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rpt_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rpt_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_RDM_TIMEOUT:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_timeout_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_timeout_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_RDM_INVALID_RESPONSE:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_invalid_response_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_rdm_invalid_response_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_RDM_UID:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rdm_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_rdm_uid_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_ENDPOINT:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_endpoint_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_endpoint_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_BROADCAST_COMPLETE:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_broadcast_complete_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_broadcast_complete_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_UNKNOWN_VECTOR:
     if (pdu_end > data_offset) {
-      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_rpt_status_unknown_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
     }
     break;
   case RDMNET_RPT_VECTOR_STATUS_INVALID_MESSAGE:
@@ -6888,7 +6888,7 @@ dissect_ept_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
 
       /* status string */
       pdu_end = pdu_start + pdu_length;
-      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_status_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_status_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
       break;
   case RDMNET_EPT_VECTOR_UNKNOWN_VECTOR:
       /* unknown cid (4 bytes) */
@@ -6897,7 +6897,7 @@ dissect_ept_status(tvbuff_t *tvb, proto_tree *tree, int offset, acn_pdu_offsets 
 
       /* vector string */
       pdu_end = pdu_start + pdu_length;
-      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII|ENC_NA);
+      proto_tree_add_item(pdu_tree, hf_rdmnet_ept_status_vector_string, tvb, data_offset, (pdu_end - data_offset), ENC_ASCII);
       break;
   }
 
@@ -8713,7 +8713,7 @@ proto_reg_handoff_acn(void)
 
   rdm_handle      = find_dissector_add_dependency("rdm", proto_acn);
 
-  heur_dissector_add("udp", dissect_acn_heur, "ACN", "acn", proto_acn, HEURISTIC_DISABLE);
+  heur_dissector_add("udp", dissect_acn_heur, "ACN over UDP", "acn", proto_acn, HEURISTIC_DISABLE);
   heur_dissector_add("udp", dissect_rdmnet_over_udp_heur, "RDMnet over UDP (LLRP)", "rdmnet_udp", proto_acn, HEURISTIC_DISABLE);
   heur_dissector_add("tcp", dissect_rdmnet_over_tcp_heur, "RDMnet over TCP (Broker, RPT, EPT)", "rdmnet_tcp", proto_acn, HEURISTIC_DISABLE);
 }

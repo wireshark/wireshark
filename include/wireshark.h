@@ -28,8 +28,10 @@
  */
 
 /* System headers.*/
-#include <stdint.h>
+#include <inttypes.h>
 #include <stdbool.h>
+#include <string.h>
+
 #include <glib.h>
 
 /*
@@ -38,13 +40,18 @@
  * Only public headers and symbols can be included here. Nothing related
  * with configuration.
  */
+#include <ws_version.h>
+
 #include <ws_attributes.h>
 #include <ws_compiler_tests.h>
 #include <ws_diag_control.h>
+#include <ws_posix_compat.h>
 #include <ws_symbol_export.h>
 
 #include <wsutil/ws_assert.h>
 #include <wsutil/wslog.h>
+#include <wsutil/glib-compat.h>
+#include <wsutil/wmem/wmem.h>
 
 #endif /* __WIRESHARK_H__ */
 

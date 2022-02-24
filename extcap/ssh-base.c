@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_EXTCAP
 
 #include "ssh-base.h"
 
@@ -50,7 +51,7 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 	}
 
 	if (ssh_options_set(sshs, SSH_OPTIONS_HOST, ssh_params->host)) {
-		*err_info = g_strdup_printf("Can't set the host: %s", ssh_params->host);
+		*err_info = ws_strdup_printf("Can't set the host: %s", ssh_params->host);
 		goto failure;
 	}
 
@@ -70,21 +71,21 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 	if (ssh_params->port != 0) {
 		port = ssh_params->port;
 		if (ssh_options_set(sshs, SSH_OPTIONS_PORT, &port)) {
-			*err_info = g_strdup_printf("Can't set the port: %u", port);
+			*err_info = ws_strdup_printf("Can't set the port: %u", port);
 			goto failure;
 		}
 	}
 
 	if (ssh_params->proxycommand) {
 		if (ssh_options_set(sshs, SSH_OPTIONS_PROXYCOMMAND, ssh_params->proxycommand)) {
-			*err_info = g_strdup_printf("Can't set the ProxyCommand: %s", ssh_params->proxycommand);
+			*err_info = ws_strdup_printf("Can't set the ProxyCommand: %s", ssh_params->proxycommand);
 			goto failure;
 		}
 	}
 
 	if (ssh_params->username) {
 		if (ssh_options_set(sshs, SSH_OPTIONS_USER, ssh_params->username)) {
-			*err_info = g_strdup_printf("Can't set the username: %s", ssh_params->username);
+			*err_info = ws_strdup_printf("Can't set the username: %s", ssh_params->username);
 			goto failure;
 		}
 	}
@@ -99,7 +100,7 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 
 	/* Connect to server */
 	if (ssh_connect(sshs) != SSH_OK) {
-		*err_info = g_strdup_printf("Connection error: %s", ssh_get_error(sshs));
+		*err_info = ws_strdup_printf("Connection error: %s", ssh_get_error(sshs));
 		goto failure;
 	}
 
@@ -122,25 +123,35 @@ ssh_session create_ssh_connection(const ssh_params_t* ssh_params, char** err_inf
 		ws_info("failed (%s)", ssh_get_error(sshs));
 	}
 
-	/* Try to authenticate using standard public key */
-	ws_info("Connecting using standard public key...");
-	if (ssh_userauth_publickey_auto(sshs, NULL, NULL) == SSH_AUTH_SUCCESS) {
-		ws_info("done");
-		return sshs;
+	/* Workaround: it may happen that libssh closes socket in meantime and any next ssh_ call fails so we should detect it in advance */
+	if (ssh_get_fd(sshs) != -1) {
+		/* If a password has been provided and all previous attempts failed, try to use it */
+		if (ssh_params->password) {
+			ws_info("Connecting using password...");
+			if (ssh_userauth_password(sshs, ssh_params->username, ssh_params->password) == SSH_AUTH_SUCCESS) {
+				ws_info("done");
+				return sshs;
+			}
+			ws_info("failed");
+		}
+	} else {
+		ws_info("ssh connection closed before password authentication");
 	}
-	ws_info("failed");
 
-	/* If a password has been provided and all previous attempts failed, try to use it */
-	if (ssh_params->password) {
-		ws_info("Connecting using password...");
-		if (ssh_userauth_password(sshs, ssh_params->username, ssh_params->password) == SSH_AUTH_SUCCESS) {
+	/* Workaround: it may happen that libssh closes socket in meantime and any next ssh_ call fails so we should detect it in advance */
+	if (ssh_get_fd(sshs) != -1) {
+		/* Try to authenticate using standard public key */
+		ws_info("Connecting using standard public key...");
+		if (ssh_userauth_publickey_auto(sshs, NULL, NULL) == SSH_AUTH_SUCCESS) {
 			ws_info("done");
 			return sshs;
 		}
 		ws_info("failed");
+	} else {
+		ws_info("ssh connection closed before public key authentication");
 	}
 
-	*err_info = g_strdup_printf("Can't find a valid authentication. Disconnecting.");
+	*err_info = ws_strdup_printf("Can't find a valid authentication. Disconnecting.");
 
 	/* All authentication failed. Disconnect and return */
 	ssh_disconnect(sshs);
@@ -157,7 +168,7 @@ int ssh_channel_printf(ssh_channel channel, const char* fmt, ...)
 	int ret = EXIT_SUCCESS;
 
 	va_start(arg, fmt);
-	buf = g_strdup_vprintf(fmt, arg);
+	buf = ws_strdup_vprintf(fmt, arg);
 	if (ssh_channel_write(channel, buf, (guint32)strlen(buf)) == SSH_ERROR)
 		ret = EXIT_FAILURE;
 	va_end(arg);

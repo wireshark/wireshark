@@ -132,6 +132,13 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
     model->flushVisibleRows();
     int row = model->visibleIndexOf(fdata_needle);
     if (row >= 0) {
+        /* Calling ClearAndSelect with setCurrentIndex clears the "current"
+         * item, but doesn't clear the "selected" item. We want to clear
+         * the "selected" item as well so that selectionChanged() will be
+         * emitted in order to force an update of the packet details and
+         * packet bytes after a search.
+         */
+        gbl_cur_packet_list->selectionModel()->clearSelection();
         gbl_cur_packet_list->selectionModel()->setCurrentIndex(model->index(row, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         return TRUE;
     }
@@ -305,19 +312,11 @@ void PacketList::colorsChanged()
 
     QString hover_style;
 #if !defined(Q_OS_WIN)
-#if defined(Q_OS_MAC)
-    QPalette default_pal = QApplication::palette();
-    default_pal.setCurrentColorGroup(QPalette::Active);
-    QColor hover_color = default_pal.highlight().color();
-#else
-    QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
-#endif
-
     hover_style = QString(
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"
-        "}").arg(hover_color.name(QColor::HexArgb));
+        "}").arg(ColorUtils::hoverBackground().name(QColor::HexArgb));
 #endif
 
     QString active_style   = QString();
@@ -956,9 +955,15 @@ int PacketList::sizeHintForColumn(int column) const
     // This is a bit hacky but Qt does a fine job of column sizing and
     // reimplementing QTreeView::sizeHintForColumn seems like a worse idea.
     if (itemDelegateForColumn(column)) {
+        QStyleOptionViewItem option;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        initViewItemOption(&option);
+#else
+        option = viewOptions();
+#endif
         // In my (gcc) testing this results in correct behavior on Windows but adds extra space
         // on macOS and Linux. We might want to add Q_OS_... #ifdefs accordingly.
-        size_hint = itemDelegateForColumn(column)->sizeHint(viewOptions(), QModelIndex()).width();
+        size_hint = itemDelegateForColumn(column)->sizeHint(option, QModelIndex()).width();
     }
     size_hint += QTreeView::sizeHintForColumn(column); // Decoration padding
     return size_hint;
@@ -988,7 +993,13 @@ void PacketList::setRecentColumnWidth(int col)
 #endif
         // Custom delegate padding
         if (itemDelegateForColumn(col)) {
-            col_width += itemDelegateForColumn(col)->sizeHint(viewOptions(), QModelIndex()).width();
+            QStyleOptionViewItem option;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+            initViewItemOption(&option);
+#else
+            option = viewOptions();
+#endif
+            col_width += itemDelegateForColumn(col)->sizeHint(option, QModelIndex()).width();
         }
     }
 
@@ -1471,7 +1482,7 @@ QString PacketList::allPacketComments()
                     buf_str.append(QString(tr("Frame %1: %2\n\n")).arg(framenum).arg(comment_text));
                     if (buf_str.length() > max_comments_to_fetch_) {
                         buf_str.append(QString(tr("[ Comment text exceeds %1. Stopping. ]"))
-                                .arg(format_size(max_comments_to_fetch_, format_size_unit_bytes|format_size_prefix_si)));
+                                .arg(format_size(max_comments_to_fetch_, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_SI)));
                         return buf_str;
                     }
                 }
@@ -1866,7 +1877,12 @@ void PacketList::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisua
 
 void PacketList::updateRowHeights(const QModelIndex &ih_index)
 {
-    QStyleOptionViewItem option = viewOptions();
+    QStyleOptionViewItem option;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    initViewItemOption(&option);
+#else
+    option = viewOptions();
+#endif
     int max_height = 0;
 
     // One of our columns increased the maximum row height. Find out which one.

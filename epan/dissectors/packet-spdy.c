@@ -1734,7 +1734,7 @@ void proto_register_spdy(void)
       }
     },
     { &hf_spdy_flags_unidirectional,
-      { "Unidirectional", "spdy.flags.fin",
+      { "Unidirectional", "spdy.flags.unidirectional",
         FT_BOOLEAN, 8,
         TFS(&tfs_set_notset), SPDY_FLAG_UNIDIRECTIONAL,
         NULL, HFILL

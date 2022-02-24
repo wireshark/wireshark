@@ -11,7 +11,6 @@
  */
 
 #include "wsgcrypt.h"
-#include "ws_attributes.h"
 
 gcry_error_t ws_hmac_buffer(int algo, void *digest, const void *buffer, size_t length, const void *key, size_t keylen)
 {
@@ -96,14 +95,14 @@ size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboole
 	/* create mpi representation of encrypted data */
 	rc = gcry_mpi_scan(&encr_mpi, GCRYMPI_FMT_USG, data, len, NULL);
 	if (rc != 0 ) {
-		*err = g_strdup_printf("can't convert data to mpi (size %d):%s", len, gcry_strerror(rc));
+		*err = ws_strdup_printf("can't convert data to mpi (size %d):%s", len, gcry_strerror(rc));
 		return 0;
 	}
 
 	/* put the data into a simple list */
 	rc = gcry_sexp_build(&s_data, NULL, "(enc-val(rsa(a%m)))", encr_mpi);
 	if (rc != 0) {
-		*err = g_strdup_printf("can't build encr_sexp:%s", gcry_strerror(rc));
+		*err = ws_strdup_printf("can't build encr_sexp:%s", gcry_strerror(rc));
 		decr_len = 0;
 		goto out;
 	}
@@ -112,7 +111,7 @@ size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboole
 	rc = gcry_pk_decrypt(&s_plain, s_data, pk);
 	if (rc != 0)
 	{
-		*err = g_strdup_printf("can't decrypt key:%s", gcry_strerror(rc));
+		*err = ws_strdup_printf("can't decrypt key:%s", gcry_strerror(rc));
 		decr_len = 0;
 		goto out;
 	}
@@ -128,14 +127,14 @@ size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboole
 	/* compute size requested for plaintext buffer */
 	rc = gcry_mpi_print(GCRYMPI_FMT_USG, NULL, 0, &decr_len, text);
 	if (rc != 0) {
-		*err = g_strdup_printf("can't compute decr size:%s", gcry_strerror(rc));
+		*err = ws_strdup_printf("can't compute decr size:%s", gcry_strerror(rc));
 		decr_len = 0;
 		goto out;
 	}
 
 	/* sanity check on out buffer */
 	if (decr_len > len) {
-		*err = g_strdup_printf("decrypted data is too long ?!? (%" G_GSIZE_MODIFIER "u max %d)", decr_len, len);
+		*err = ws_strdup_printf("decrypted data is too long ?!? (%zu max %d)", decr_len, len);
 		decr_len = 0;
 		goto out;
 	}
@@ -143,7 +142,7 @@ size_t rsa_decrypt_inplace(const guint len, guchar* data, gcry_sexp_t pk, gboole
 	/* write plain text to newly allocated buffer */
 	rc = gcry_mpi_print(GCRYMPI_FMT_USG, data, len, &decr_len, text);
 	if (rc != 0) {
-		*err = g_strdup_printf("can't print decr data to mpi (size %" G_GSIZE_MODIFIER "u):%s", decr_len, gcry_strerror(rc));
+		*err = ws_strdup_printf("can't print decr data to mpi (size %zu):%s", decr_len, gcry_strerror(rc));
 		decr_len = 0;
 		goto out;
 	}

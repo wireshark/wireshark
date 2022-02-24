@@ -10,5 +10,5 @@ Description: Network Packet Dissection Library
 Version: @VERSION@
 
 Requires: glib-2.0, gmodule-2.0, gthread-2.0
-Libs: -L${libdir} -lwireshark
+Libs: -L${libdir} -lwireshark -lwsutil
 Cflags: -I${includedir}/wireshark

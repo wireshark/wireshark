@@ -650,7 +650,7 @@ static gchar *key_to_str( const iax_circuit_key *key )
   strp = str[i];
 
   addrstr = address_to_str(NULL, &key->addr);
-  g_snprintf(strp, 80, "{%s:%i,%i}",
+  snprintf(strp, 80, "{%s:%i,%i}",
              addrstr,
              key->port,
              key->callno);
@@ -1850,7 +1850,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
 
   case AST_FRAME_DTMF_BEGIN:
   case AST_FRAME_DTMF_END:
-    proto_tree_add_item(packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(packet_type_tree, hf_iax2_dtmf_csub, tvb, offset+9, 1, ENC_ASCII);
     offset += 10;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " digit %c", csub);
@@ -1938,7 +1938,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       int textlen = tvb_captured_length_remaining(tvb, offset);
       if (textlen > 0)
       {
-        proto_tree_add_item(packet_type_tree, hf_iax2_text_text, tvb, offset, textlen, ENC_UTF_8|ENC_NA);
+        proto_tree_add_item(packet_type_tree, hf_iax2_text_text, tvb, offset, textlen, ENC_UTF_8);
         offset += textlen;
       }
     }
@@ -1953,7 +1953,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       int urllen = tvb_captured_length_remaining(tvb, offset);
       if (urllen > 0)
       {
-        proto_item *pi = proto_tree_add_item(packet_type_tree, hf_iax2_html_url, tvb, offset, urllen, ENC_UTF_8|ENC_NA);
+        proto_item *pi = proto_tree_add_item(packet_type_tree, hf_iax2_html_url, tvb, offset, urllen, ENC_UTF_8);
         proto_item_set_url(pi);
         offset += urllen;
       }

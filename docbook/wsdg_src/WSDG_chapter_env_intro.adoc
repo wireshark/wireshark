@@ -1,16 +1,16 @@
 // WSDG Chapter Introduction
 
-[[ChapterIntroduction]]
+[#ChapterIntroduction]
 
 == Introduction
 
-[[ChIntroIntro]]
+[#ChIntroIntro]
 
 === Introduction
 
 This chapter will provide a general overview of Wireshark development.
 
-[[ChIntroWhatIs]]
+[#ChIntroWhatIs]
 
 === What Is Wireshark?
 
@@ -19,7 +19,7 @@ know what Wireshark is doing. If not, please have a look at the
 link:{wireshark-users-guide-url}[Wireshark User’s Guide],
 which will provide a lot of general information about it.
 
-[[ChIntroPlatforms]]
+[#ChIntroPlatforms]
 
 === Supported Platforms
 
@@ -96,7 +96,7 @@ Development on Windows 7, Server 2008 R2, Vista, Server 2008, and older versions
 Some versions of Windows support https://devblogs.microsoft.com/commandline/per-directory-case-sensitivity-and-wsl/[case sensitive directories].
 We don’t officially support building or running Wireshark in this environment, but we will accept patches to fix any issues that might arise.
 
-[[ChIntroDevelopment]]
+[#ChIntroDevelopment]
 
 === Development And Maintenance Of Wireshark
 
@@ -122,11 +122,11 @@ Wireshark mailing lists available.
 
 ==== Programming Languages Used
 
-Most of Wireshark is implemented in C99.
+Most of Wireshark is implemented in C.
 A notable exception is the code in _ui/qt_, which is written in {cpp}.
 
 The typical task for a new Wireshark developer is to extend an existing dissector, or write a new dissector for a specific network protocol.
-Most dissectors are written in C99, so a good knowledge of C will be sufficient for Wireshark development in almost any case.
+Most dissectors are written in C11, so a good knowledge of C will be sufficient for Wireshark development in almost any case.
 Dissectors can also be written in Lua, which might be more suitable for your specific needs.
 As noted above, if you’re going to modify Wireshark’s user interface you will need a knowledge of {cpp}.
 
@@ -170,7 +170,7 @@ available on the download page of the Wireshark website:
 {wireshark-download-url}.
 
 
-[[ChIntroReleases]]
+[#ChIntroReleases]
 
 === Releases And Distributions
 
@@ -179,7 +179,7 @@ Minor releases typically happen every six weeks and typically include bug fixes 
 Major releases happen about once a year and include new features and new protocol support.
 Official releases include binary packages for Windows and macOS along with source code.
 
-[[ChIntroReleaseBinary]]
+[#ChIntroReleaseBinary]
 
 ==== Binary Distributions
 
@@ -212,7 +212,7 @@ The Wireshark sources include support for creating the following types of packag
 
 You can also create your own binary packages. See <<ChSrcBinary>> for details.
 
-[[ChIntroReleaseSource]]
+[#ChIntroReleaseSource]
 
 ==== The Source Code Distribution
 
@@ -227,17 +227,19 @@ For details about the different ways to get the Wireshark source code see <<ChSr
 Before building Wireshark from a source distribution, make sure you have all the tools and libraries required to build.
 Later chapters describe the required tools and libraries in detail.
 
-[[ChIntroAutomated]]
+[#ChIntroAutomated]
 
-=== Automated Builds (GitLab CI And Buildbot)
+=== Automated Builds (GitLab CI)
 
-The Wireshark development team uses GitLab’s continuous integration (CI) system and Buildbot to automatically build Wireshark for each Git merge request and commit. Automated builds provide several useful services:
+The Wireshark development team uses GitLab’s continuous integration (CI) system to automatically build Wireshark for each Git merge request and commit.
+Automated builds provide several useful services:
 
 * Cross-platform testing.
   Inbound merge requests and commits can be tested on each of our supported plaforms, which ensures that a developer on one platform doesn’t break the build on other platforms.
 
 * A health indicator for the source code.
-  The CI badges at https://gitlab.com/wireshark/wireshark/ and the waterfall status at https://buildbot.wireshark.org/wireshark-master/ can quickly tell you how healthy the latest code is. Green is good, red is bad.
+  The CI badges at {wireshark-gitlab-project-url} can quickly tell you how healthy the latest code is.
+  Green is good, red is bad.
 
 * Fast code delivery.
   After a change is committed to the repository, an installer is usually available within an hour at https://www.wireshark.org/download/automated/.
@@ -248,7 +250,8 @@ The Wireshark development team uses GitLab’s continuous integration (CI) syste
 
 ==== What Do The Automated Builds Do?
 
-GitLab’s CI and Buildbot operate by running a series of steps and reporting success or failure. A typical CI job might do the following:
+GitLab’s CI operates by running a series of steps and reporting success or failure.
+A typical CI job might do the following:
 
 . Check out Wireshark from the source repository.
 
@@ -259,8 +262,7 @@ GitLab’s CI and Buildbot operate by running a series of steps and reporting su
 . Run regression tests.
 
 GitLab’s CI marks successful jobs with a green checkmark and failed jobs with a red “X”.
-Buildbot similarly colors successful jobs and steps green and failed ones red.
-Jobs and steps provide a link to the corresponding console logfile which provides additional information.
+Jobs provide a link to the corresponding console logfile which provides additional information.
 
 Release packages are built on the following platforms:
 
@@ -280,7 +282,7 @@ Static code analysis and fuzz tests are run on the following platforms:
 
 Each platform is represented at the status page by a single column, the most recent entries are at the top.
 
-[[ChIntroHelp]]
+[#ChIntroHelp]
 
 
 === Reporting problems and getting help
@@ -289,14 +291,14 @@ If you have problems, or need help with Wireshark, there are several
 places that may be of interest to you (well, beside this guide of
 course).
 
-[[ChIntroHomepage]]
+[#ChIntroHomepage]
 
 ==== Website
 
 You will find lots of useful information on the Wireshark homepage at
 {wireshark-main-url}.
 
-[[ChIntroWiki]]
+[#ChIntroWiki]
 
 ==== Wiki
 
@@ -310,7 +312,7 @@ And best of all, if you would like to contribute your knowledge on a
 specific topic (maybe a network protocol you know well), you can edit the
 Wiki pages by simply using your webbrowser.
 
-[[ChIntroFAQ]]
+[#ChIntroFAQ]
 
 
 ==== FAQ
@@ -330,7 +332,7 @@ An online version is available at the Wireshark website:
 {wireshark-faq-url}. You might prefer this online version as it’s
 typically more up to date and the HTML format is easier to use.
 
-[[ChIntroOtherSources]]
+[#ChIntroOtherSources]
 
 ==== Other sources
 
@@ -357,7 +359,7 @@ APIs available to the dissector developer, etc.
 
 * The different mailing lists. See <<ChIntroMailingLists>>
 
-[[ChIntroQA]]
+[#ChIntroQA]
 
 ==== Q&amp;A Site
 
@@ -368,7 +370,7 @@ knew about the issue. Answers are graded, so you can pick out the best
 ones easily. If your issue isn't discussed before you can post one
 yourself.
 
-[[ChIntroMailingLists]]
+[#ChIntroMailingLists]
 
 ==== Mailing Lists
 
@@ -411,16 +413,14 @@ question and maybe already got an answer. That way you don't have to wait until
 someone answers your question.
 ====
 
-[[ChIntroBugDatabase]]
+[#ChIntroBugDatabase]
 
-==== Bug database (Gitlab Issues)
+==== Bug Database (Gitlab Issues)
 
-The Wireshark community collects bug reports in an issues database at
-{wireshark-bugs-url}. This database is filled with manually filed bug
-reports, usually after some discussion on wireshark-dev, and automatic
-bug reports from the Buildbot tools.
+The Wireshark community collects bug reports in an issues database at {wireshark-bugs-url}.
+This database is filled with manually filed bug reports, usually after some discussion on wireshark-dev, and automatic bug reports from continuous integration jobs.
 
-[[ChIntroReportProblems]]
+[#ChIntroReportProblems]
 
 ==== Reporting Problems
 

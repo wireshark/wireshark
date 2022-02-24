@@ -1,4 +1,5 @@
-/* decode_as_delegate.h
+/** @file
+ *
  * Delegates for editing various field types in a Decode As record.
  *
  * Wireshark - Network traffic analyzer

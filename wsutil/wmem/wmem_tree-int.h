@@ -1,4 +1,5 @@
-/* wmem_tree_internals.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager Red-Black Tree
  * Copyright 2013, Evan Huus <eapache@gmail.com>
  *

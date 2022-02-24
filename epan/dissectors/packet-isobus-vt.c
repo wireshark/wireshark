@@ -1328,7 +1328,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_preferredassignment_auxinputunit_numberofpreferredfunctions, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_preferred_functions);
                 offset += 1;
 
-                proto_item_set_text(input_unit_item, "Input Unit name 0x%" G_GINT64_MODIFIER "X model identification code %u", name, model_identification_code);
+                proto_item_set_text(input_unit_item, "Input Unit name 0x%" PRIX64 " model identification code %u", name, model_identification_code);
                 proto_item_set_len(input_unit_item, 8 + 2 + 1 + ((2 + 2) * number_of_preferred_functions));
 
                 for(j = 0; j < number_of_preferred_functions; j++)
@@ -1474,7 +1474,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
 
         if(direction == ecu_to_vt)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Assign %s of name 0x%" G_GINT64_MODIFIER "X to function %s",
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Assign %s of name 0x%" PRIX64 " to function %s",
                 get_object_id_string(auxiliary_input_object_id), name, get_object_id_string(auxiliary_function_object_id));
         }
         else if(direction == vt_to_ecu)
@@ -1630,7 +1630,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                     hf_isobus_vt_auxiliarycapabilities_auxiliaryunit_numberofdifferentsets, tvb, offset, 1, ENC_LITTLE_ENDIAN, &number_of_different_sets);
                 offset += 1;
 
-                proto_item_set_text(input_unit_item, "Auxiliary unit name 0x%" G_GINT64_MODIFIER "X", name);
+                proto_item_set_text(input_unit_item, "Auxiliary unit name 0x%" PRIX64, name);
                 proto_item_set_len(input_unit_item, 8 + 1 + (3 * number_of_different_sets));
 
                 for(j = 0; j < number_of_different_sets; j++)
@@ -4074,7 +4074,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             for(i = 0; i < number_of_versions; i++)
             {
                 proto_tree_add_item(tree,
-                    hf_isobus_vt_extendedgetversions_versionlabel, tvb, offset, 32, ENC_ASCII|ENC_NA);
+                    hf_isobus_vt_extendedgetversions_versionlabel, tvb, offset, 32, ENC_ASCII);
                 offset += 32;
             }
 
@@ -4215,7 +4215,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             for(i = 0; i < number_of_versions; i++)
             {
                 proto_tree_add_item(tree,
-                    hf_isobus_vt_getversions_versionlabel, tvb, offset, 7, ENC_ASCII|ENC_NA);
+                    hf_isobus_vt_getversions_versionlabel, tvb, offset, 7, ENC_ASCII);
                 offset += 7;
             }
 
@@ -4530,7 +4530,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_vtchgstrval_value,
           { "Value",                    "isobus.vt.vt_chg_str_val.val",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_vtonuserlayouthideshow_objectid_1,
@@ -5175,7 +5175,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_chgstrval_value,
           { "Value", "isobus.vt.change_string_value.value",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_changebackgroundcolour_objectid,
@@ -5395,7 +5395,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_graphicscontext_drawtext_textstring,
           { "Text string", "isobus.vt.graphics_context.draw_text.point.text_string",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_graphicscontext_panviewport_viewportx,
@@ -5810,7 +5810,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_storeversion_versionlabel,
           { "Version Label",       "isobus.vt.store_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_storeversion_errorcodes,
@@ -5820,7 +5820,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_loadversion_versionlabel,
           { "Version Label",       "isobus.vt.load_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_loadversion_errorcodes,
@@ -5830,7 +5830,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_deleteversion_versionlabel,
           { "Version Label",       "isobus.vt.delete_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_deleteversion_errorcodes,
@@ -5845,12 +5845,12 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_extendedgetversions_versionlabel,
           { "Version label",  "isobus.vt.extended_get_versions.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendedstoreversion_versionlabel,
           { "Version Label",       "isobus.vt.extended_store_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendedstoreversion_errorcodes,
@@ -5860,7 +5860,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_extendedloadversion_versionlabel,
           { "Version Label",       "isobus.vt.extended_load_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendedloadversion_errorcodes,
@@ -5870,7 +5870,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_extendeddeleteversion_versionlabel,
           { "Version Label",       "isobus.vt.extended_delete_version.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_extendeddeleteversion_errorcodes,
@@ -5885,7 +5885,7 @@ proto_register_isobus_vt(void)
         },
         { &hf_isobus_vt_getversions_versionlabel,
           { "Version label",  "isobus.vt.get_versions.version_label",
-            FT_STRING, STR_ASCII, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_isobus_vt_unsupportedvtfunction_unsupportedvtfunction,

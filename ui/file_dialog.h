@@ -1,4 +1,5 @@
-/* file_dialog.h
+/** @file
+ *
  * Common file dialog definitions
  *
  * Wireshark - Network traffic analyzer

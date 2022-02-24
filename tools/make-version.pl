@@ -506,13 +506,13 @@ sub update_docinfo_asciidoc
 	}
 }
 
-# Read debian/changelog, then write back out an updated version.
+# Read packaging/debian/changelog, then write back out an updated version.
 sub update_debian_changelog
 {
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$src_dir/debian/changelog";
+	my $filepath = "$src_dir/packaging/debian/changelog";
 
 	open(CHANGELOG, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CHANGELOG>) {
@@ -782,7 +782,7 @@ Print the vcs version to standard output
 
 Set the major, minor, and micro versions in the top-level
 CMakeLists.txt, configure.ac, docbook/attributes.adoc,
-debian/changelog, and the CMakeLists.txt for all libraries
+packaging/debian/changelog, and the CMakeLists.txt for all libraries
 to the provided version number.
 
 =item --set-release, -r

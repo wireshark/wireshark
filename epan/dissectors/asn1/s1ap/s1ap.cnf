@@ -684,7 +684,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     if (s1ap_data->protocol_ie_id == id_UERadioCapability_NR_Format) {
       handle = nr_rrc_ue_radio_access_cap_info_handle;
     } else if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
-        (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
+               (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
       handle = lte_rrc_ue_radio_access_cap_info_nb_handle;
     } else {
       handle = lte_rrc_ue_radio_access_cap_info_handle;
@@ -769,10 +769,13 @@ if (gcsna_handle) {
     return offset;
 
   if (g_s1ap_dissect_container) {
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     volatile dissector_handle_t handle;
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioPagingInformation);
-    if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
-        (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
+    if (s1ap_data->protocol_ie_id == id_UERadioCapabilityForPaging_NR_Format) {
+      handle = nr_rrc_ue_radio_paging_info_handle;
+    } else if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
+               (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
       handle = lte_rrc_ue_radio_paging_info_nb_handle;
     } else {
       handle = lte_rrc_ue_radio_paging_info_handle;
@@ -1219,7 +1222,7 @@ ExtendedRepetitionPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_second
   }
 
 #.TYPE_ATTR
-LHN-ID TYPE=FT_STRING DISPLAY = STR_UNICODE
+LHN-ID TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY LHN-ID VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1471,7 +1474,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Packet_LossRate_fmt)
 
 #.TYPE_ATTR
-BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
+BluetoothName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY BluetoothName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1479,7 +1482,7 @@ BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
 #.END
 
 #.TYPE_ATTR
-WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
+WLANName TYPE=FT_STRING DISPLAY = BASE_NONE
 #.FN_BODY WLANName VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1893,6 +1896,7 @@ id-WUS-Assistance-Information                       ProtocolIE-ID
 id-NB-IoT-PagingDRX                                 ProtocolIE-ID
 id-TraceCollectionEntityURI                         ProtocolIE-ID
 id-EmergencyIndicator                               ProtocolIE-ID
+id-UERadioCapabilityForPaging-NR-Format             ProtocolIE-ID
 
 #.END
 
@@ -2141,6 +2145,7 @@ ENB-EarlyStatusTransfer-TransparentContainer    N s1ap.ies id-eNB-EarlyStatusTra
 Bearers-SubjectToEarlyStatusTransfer-Item       N s1ap.ies id-Bearers-SubjectToEarlyStatusTransfer-Item
 WUS-Assistance-Information                      N s1ap.ies id-WUS-Assistance-Information
 NB-IoT-PagingDRX                                N s1ap.ies id-NB-IoT-PagingDRX
+UERadioCapabilityForPaging                      N s1ap.ies id-UERadioCapabilityForPaging-NR-Format
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem

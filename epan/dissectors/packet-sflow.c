@@ -600,8 +600,8 @@ static int hf_sflow_5_extended_80211_tx_retransmissions = -1;
 static int hf_sflow_5_extended_80211_rx_version = -1;
 static int hf_sflow_flow_sample_dropped_packets = -1;
 static int hf_sflow_counters_sample_expanded_source_id_index = -1;
-static int hf_sflow_245_header_payload_removed = -1;
-static int hf_sflow_245_original_packet_header_length = -1;
+static int hf_sflow_245_header_payload_stripped = -1;
+static int hf_sflow_245_sampled_header_length = -1;
 static int hf_sflow_245_ethernet_destination_mac_address = -1;
 static int hf_sflow_counters_sample_source_id_class = -1;
 static int hf_sflow_5_extended_url_url_length = -1;
@@ -699,11 +699,11 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
     offset += 4;
 
     if (version == 5) {
-        proto_tree_add_item(tree, hf_sflow_245_header_payload_removed, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_sflow_245_header_payload_stripped, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 
-    proto_tree_add_item_ret_uint(tree, hf_sflow_245_original_packet_header_length, tvb, offset, 4, ENC_BIG_ENDIAN, &header_length);
+    proto_tree_add_item_ret_uint(tree, hf_sflow_245_sampled_header_length, tvb, offset, 4, ENC_BIG_ENDIAN, &header_length);
     offset += 4;
 
     if (header_length % 4) /* XDR requires 4-byte alignment */
@@ -3119,13 +3119,13 @@ proto_register_sflow(void) {
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
-      { &hf_sflow_245_header_payload_removed,
-        { "Payload removed", "sflow_245.header.payload_removed",
+      { &hf_sflow_245_header_payload_stripped,
+        { "Payload stripped", "sflow_245.header.payload_stripped",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
-      { &hf_sflow_245_original_packet_header_length,
-        { "Original packet length", "sflow_245.header.original_packet_header_length",
+      { &hf_sflow_245_sampled_header_length,
+        { "Sampled header length", "sflow_245.header.sampled_header_length",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },

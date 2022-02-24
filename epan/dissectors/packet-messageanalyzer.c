@@ -1234,7 +1234,7 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_ma_wfp_capture_auth_process_path,
 			{ "Payload Length", "message_analyzer.wfp_capture.auth.process_path",
-			FT_UINT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
 
@@ -1245,7 +1245,7 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_wfp_capture_driver_name,
 			{ "Driver Name", "etw.wfp_capture.driver_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_wfp_capture_major_version,
 			{ "Major Version", "etw.wfp_capture.major_version",
@@ -1269,11 +1269,11 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_wfp_capture_driver_error_message,
 			{ "Driver Name", "etw.wfp_capture.driver_error_message",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_wfp_capture_callout_error_message,
 			{ "Driver Name", "etw.wfp_capture.callout_error_message",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_wfp_capture_nt_status,
 			{ "NT Status", "etw.wfp_capture.nt_status",
@@ -1316,15 +1316,15 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_ndis_source_port_name,
 			{ "Source port name", "etw.ndis.source_port_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_source_nic_name,
 			{ "Source NIC name", "etw.ndis.source_nic_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_source_nic_type,
 			{ "Source NIC type", "etw.ndis.source_nic_type",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_destination_count,
 			{ "Destination count", "etw.ndis.destination_count",
@@ -1336,15 +1336,15 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_ndis_destination_port_name,
 			{ "Destination port name", "etw.ndis.destination_port_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_destination_nic_name,
 			{ "Destination NIC name", "etw.ndis.destination_nic_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_destination_nic_type,
 			{ "Destination NIC type", "etw.ndis.destination_nic_type",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_oob_data_size,
 			{ "OOB data size", "etw.ndis.oob_data_size",
@@ -1360,19 +1360,19 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_ndis_friendly_name,
 			{ "Friendly name", "etw.ndis.friendly_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_unique_name,
 			{ "Unique name", "etw.ndis.unique_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_service_name,
 			{ "Service name", "etw.ndis.service_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_version,
 			{ "Version", "etw.ndis.version",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_media_type,
 			{ "Media types", "etw.ndis.media_type",
@@ -1436,15 +1436,15 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_ndis_param_str,
 			{ "Param String", "etw.ndis.param_str",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_description,
 			{ "Description", "etw.ndis.description",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_source_name,
 			{ "Source name", "etw.ndis.source_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_if_index,
 			{ "IfIndex", "etw.ndis.if_index",
@@ -1460,7 +1460,7 @@ void proto_register_message_analyzer(void)
 		},
 		{ &hf_etw_ndis_layer_name,
 			{ "Layer name", "etw.ndis.layer_name",
-			FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }
+			FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_keyword,
 			{ "Keyword", "etw.ndis.keyword",

@@ -196,7 +196,7 @@ const value_string etype_vals[] = {
 
 static void eth_prompt(packet_info *pinfo, gchar* result)
 {
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Ethertype 0x%04x as",
+	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Ethertype 0x%04x as",
 		GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ethertype, pinfo->curr_layer_num)));
 }
 

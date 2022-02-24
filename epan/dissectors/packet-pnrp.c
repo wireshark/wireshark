@@ -1001,7 +1001,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
             /* Friendly Name Length */
             proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_friendlyName_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             /* Friendly Name */
-            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_friendlyName, tvb, offset+2, tvb_get_letohs(tvb,offset), ENC_ASCII|ENC_NA);
+            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_friendlyName, tvb, offset+2, tvb_get_letohs(tvb,offset), ENC_ASCII);
             offset +=tvb_get_letohs(tvb,offset)+2;
         }
         /* Service Address List */
@@ -1086,10 +1086,10 @@ static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length,
         proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_unused_bits, tvb, offset, 1, ENC_NA);
         offset +=1;
         /* Algorithm ObjID */
-        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_objID, tvb, offset, objIDLength, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_objID, tvb, offset, objIDLength, ENC_ASCII);
         offset += objIDLength;
         /*  Public Key Data */
-        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_publicKeyData, tvb, offset, cbDataLength, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_publicKeyData, tvb, offset, cbDataLength, ENC_ASCII);
     }
 }
 static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
@@ -1196,7 +1196,7 @@ void proto_register_pnrp(void)
             { "Entry Length", "pnrp.segment.classifier.entryLength", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_classifier_string,
-            { "Classifier", "pnrp.segment.classifier.string", FT_STRING, STR_UNICODE, NULL, 0x0,
+            { "Classifier", "pnrp.segment.classifier.string", FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         /* Ack Flags */
         { &hf_pnrp_message_ack_flags_reserved,

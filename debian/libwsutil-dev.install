@@ -1,4 +1,0 @@
-usr/lib/*/libwsutil.so
-include/*.h usr/include/wireshark
-wsutil/*.h usr/include/wireshark/wsutil
-wsutil/wmem/*.h usr/include/wireshark/wsutil/wmem

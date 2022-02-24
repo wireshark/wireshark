@@ -499,7 +499,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		 */
 		if (rec->rec_header.packet_header.len < RADIO_INFO_SIZE || rec->rec_header.packet_header.caplen < RADIO_INFO_SIZE) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("peekclassic: 802.11 packet has length < 4");
+			*err_info = ws_strdup_printf("peekclassic: 802.11 packet has length < 4");
 			return -1;
 		}
 		rec->rec_header.packet_header.len -= RADIO_INFO_SIZE;
@@ -551,7 +551,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		 */
 		if (rec->rec_header.packet_header.len < 4 || rec->rec_header.packet_header.caplen < 4) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("peekclassic: 802.11 packet has length < 8");
+			*err_info = ws_strdup_printf("peekclassic: 802.11 packet has length < 8");
 			return -1;
 		}
 		rec->rec_header.packet_header.len -= 4;

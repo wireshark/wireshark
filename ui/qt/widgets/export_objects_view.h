@@ -1,4 +1,5 @@
-/* export_objects_view.h
+/** @file
+ *
  * Tree view of Export object data.
  *
  * Wireshark - Network traffic analyzer

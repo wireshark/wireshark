@@ -1,4 +1,4 @@
-/* follow_stream_dialog.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -29,6 +29,7 @@
 #include <QFile>
 #include <QMap>
 #include <QPushButton>
+#include <QTextCodec>
 
 namespace Ui {
 class FollowStreamDialog;

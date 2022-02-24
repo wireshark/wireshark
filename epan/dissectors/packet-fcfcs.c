@@ -242,17 +242,17 @@ dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         prevlen = 0;
         len = tvb_strsize(tvb, offset+4);
         proto_tree_add_item (tree, hf_fcs_vendorname, tvb, offset+4,
-                len, ENC_ASCII|ENC_NA);
+                len, ENC_ASCII);
         prevlen += len;
 
         len = tvb_strsize(tvb, offset+4+prevlen);
         proto_tree_add_item (tree, hf_fcs_modelname, tvb, offset+4+prevlen,
-                len, ENC_ASCII|ENC_NA);
+                len, ENC_ASCII);
         prevlen += len;
 
         len = tvb_strsize(tvb, offset+4+prevlen);
         proto_tree_add_item (tree, hf_fcs_releasecode, tvb,
-                offset+4+prevlen, len, ENC_ASCII|ENC_NA);
+                offset+4+prevlen, len, ENC_ASCII);
         prevlen += len;
         offset += (4+prevlen);
         while (tot_len > prevlen) {

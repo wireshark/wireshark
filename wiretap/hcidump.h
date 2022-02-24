@@ -1,4 +1,4 @@
-/* hcidump.h
+/** @file
  *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *

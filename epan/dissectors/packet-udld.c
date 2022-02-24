@@ -152,7 +152,7 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
                 offset + TLV_LENGTH, 2, length);
             proto_tree_add_item(tlv_tree, hf_udld_device_id, tvb, offset + 4,
-                length - 4, ENC_ASCII|ENC_NA);
+                length - 4, ENC_ASCII);
         }
         offset += length;
         break;
@@ -182,7 +182,7 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_uint(tlv_tree, hf_udld_tlvlength, tvb,
                 offset + TLV_LENGTH, 2, length);
             proto_tree_add_item(tlv_tree, hf_udld_sent_through_interface, tvb, offset + 4,
-                real_length - 4, ENC_ASCII|ENC_NA);
+                real_length - 4, ENC_ASCII);
         }
         offset += real_length;
         break;

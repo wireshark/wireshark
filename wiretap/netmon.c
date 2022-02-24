@@ -454,7 +454,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("netmon: major version %u unsupported", hdr.ver_major);
+		*err_info = ws_strdup_printf("netmon: major version %u unsupported", hdr.ver_major);
 		return WTAP_OPEN_ERROR;
 	}
 
@@ -462,7 +462,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	if (hdr.network >= NUM_NETMON_ENCAPS
 	    || netmon_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+		*err_info = ws_strdup_printf("netmon: network type %u unknown or unsupported",
 		    hdr.network);
 		return WTAP_OPEN_ERROR;
 	}
@@ -554,13 +554,13 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	frame_table_size = frame_table_length / (guint32)sizeof (guint32);
 	if ((frame_table_size * sizeof (guint32)) != frame_table_length) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
+		*err_info = ws_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
 		    frame_table_length);
 		return WTAP_OPEN_ERROR;
 	}
 	if (frame_table_size == 0) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("netmon: frame table length is %u, which means it's less than one entry in size",
+		*err_info = ws_strdup_printf("netmon: frame table length is %u, which means it's less than one entry in size",
 		    frame_table_length);
 		return WTAP_OPEN_ERROR;
 	}
@@ -579,7 +579,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	 */
 	if (frame_table_size > 512*1024*1024) {
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("netmon: frame table length is %u, which is larger than we support",
+		*err_info = ws_strdup_printf("netmon: frame table length is %u, which is larger than we support",
 		    frame_table_length);
 		return WTAP_OPEN_ERROR;
 	}
@@ -600,21 +600,21 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		if (comment_table_size > 512*1024*1024) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("netmon: comment table size is %u, which is larger than we support",
+			*err_info = ws_strdup_printf("netmon: comment table size is %u, which is larger than we support",
 				comment_table_size);
 			return WTAP_OPEN_ERROR;
 		}
 
 		if (comment_table_size < 17) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("netmon: comment table size is %u, which is too small to use",
+			*err_info = ws_strdup_printf("netmon: comment table size is %u, which is too small to use",
 				comment_table_size);
 			return WTAP_OPEN_ERROR;
 		}
 
 		if (comment_table_offset > file_size) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("netmon: comment table offset (%u) is larger than file",
+			*err_info = ws_strdup_printf("netmon: comment table offset (%u) is larger than file",
 				comment_table_offset);
 			return WTAP_OPEN_ERROR;
 		}
@@ -631,14 +631,14 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		if (process_info_table_count > 512*1024) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("netmon: process info table size is %u, which is larger than we support",
+			*err_info = ws_strdup_printf("netmon: process info table size is %u, which is larger than we support",
 				process_info_table_count);
 			return WTAP_OPEN_ERROR;
 		}
 
 		if (process_info_table_offset > file_size) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("netmon: process info table offset (%u) is larger than file",
+			*err_info = ws_strdup_printf("netmon: process info table offset (%u) is larger than file",
 				process_info_table_offset);
 			return WTAP_OPEN_ERROR;
 		}
@@ -711,7 +711,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			}
 			if (title_length > comment_table_size) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: comment title size is %u, which is larger than the amount remaining in the comment section (%u)",
+				*err_info = ws_strdup_printf("netmon: comment title size is %u, which is larger than the amount remaining in the comment section (%u)",
 						title_length, comment_table_size);
 				g_hash_table_destroy(comment_table);
 				return WTAP_OPEN_ERROR;
@@ -763,7 +763,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 				/* Make sure comment size is sane */
 				if (comment_rec->descLength > comment_table_size) {
 					*err = WTAP_ERR_BAD_FILE;
-					*err_info = g_strdup_printf("netmon: comment description size is %u, which is larger than the amount remaining in the comment section (%u)",
+					*err_info = ws_strdup_printf("netmon: comment description size is %u, which is larger than the amount remaining in the comment section (%u)",
 								comment_rec->descLength, comment_table_size);
 					g_hash_table_destroy(comment_table);
 					return WTAP_OPEN_ERROR;
@@ -823,7 +823,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 			path_size = pletoh32(&tmp32);
 			if (path_size > MATH_PROCINFO_PATH_SIZE) {
 				*err = WTAP_ERR_BAD_FILE;
-				*err_info = g_strdup_printf("netmon: Path size for process info record is %u, which is larger than allowed max value (%u)",
+				*err_info = ws_strdup_printf("netmon: Path size for process info record is %u, which is larger than allowed max value (%u)",
 				    path_size, MATH_PROCINFO_PATH_SIZE);
 				g_free(process_info);
 				g_hash_table_destroy(process_info_table);
@@ -1071,7 +1071,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("netmon: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("netmon: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FAILURE;
 	}
@@ -1095,7 +1095,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
+			*err_info = ws_strdup_printf("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
 			    packet_size);
 			return FAILURE;
 		}
@@ -1240,7 +1240,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 			case 0xE089:    // "Pef Ndis Msg";
 			case 0xE08A:    // "Pef Ndis Wifi Meta Msg";
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported", network);
+				*err_info = ws_strdup_printf("netmon: network type %u unknown or unsupported", network);
 				return FAILURE;
 			case 0xE083:
 				pkt_encap = WTAP_ENCAP_MA_WFP_CAPTURE_V4;
@@ -1273,7 +1273,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 			pkt_encap = wtap_pcap_encap_to_wtap_encap(network);
 			if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf("netmon: converted pcap network type %u unknown or unsupported",
+				*err_info = ws_strdup_printf("netmon: converted pcap network type %u unknown or unsupported",
 				    network);
 				return FAILURE;
 			}
@@ -1284,7 +1284,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 			pkt_encap = netmon_encap[network];
 			if (pkt_encap == WTAP_ENCAP_UNKNOWN) {
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+				*err_info = ws_strdup_printf("netmon: network type %u unknown or unsupported",
 				    network);
 				return FAILURE;
 			}
@@ -1343,7 +1343,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 
 			default:
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf("netmon: network type %u unknown or unsupported",
+				*err_info = ws_strdup_printf("netmon: network type %u unknown or unsupported",
 				    network);
 				return FAILURE;
 			}

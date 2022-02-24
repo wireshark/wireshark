@@ -1,4 +1,4 @@
-/* ipproto.h
+/** @file
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
@@ -13,6 +13,7 @@
 #define __IPPROTO_H__
 
 #include "ws_symbol_export.h"
+#include <epan/value_string.h>
 
 /*
  * IP protocol numbers.

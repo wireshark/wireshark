@@ -1672,10 +1672,19 @@ static const value_string isup_satellite_ind_value[] = {
 #define CONTINUITY_CHECK_NOT_REQUIRED           0
 #define CONTINUITY_CHECK_REQUIRED               1
 #define CONTINUITY_CHECK_ON_A_PREVIOUS_CIRCUIT  2
+#define CONTINUITY_CHECK_SPARE                  3
 static const value_string isup_continuity_check_ind_value[] = {
   { CONTINUITY_CHECK_NOT_REQUIRED,               "Continuity check not required"},
   { CONTINUITY_CHECK_REQUIRED,                   "Continuity check required on this circuit"},
   { CONTINUITY_CHECK_ON_A_PREVIOUS_CIRCUIT ,     "Continuity check performed on a previous circuit"},
+  { CONTINUITY_CHECK_SPARE ,                     "spare"},
+  { 0,                                 NULL}};
+
+static const value_string bicc_continuity_check_ind_value[] = {
+  { CONTINUITY_CHECK_NOT_REQUIRED,               "no COT to be expected"},
+  { CONTINUITY_CHECK_REQUIRED,                   "reserved"},
+  { CONTINUITY_CHECK_ON_A_PREVIOUS_CIRCUIT ,     "COT to be expected"},
+  { CONTINUITY_CHECK_SPARE ,                     "spare"},
   { 0,                                 NULL}};
 
 static const true_false_string isup_echo_control_device_ind_value = {
@@ -1699,6 +1708,13 @@ static const value_string isup_end_to_end_method_ind_value[] = {
   { PASS_ALONG_AND_SCCP_METHOD_AVAILABLE,    "pass-along and SCCP method available (national use)"},
   { 0,                                 NULL}};
 
+static const value_string bicc_end_to_end_method_ind_value[] = {
+  { NO_END_TO_END_METHOD_AVAILABLE,          "No End-to-end method available (only link-by-link method available)"},
+  { PASS_ALONG_METHOD_AVAILABLE,             "reserved"},
+  { SCCP_METHOD_AVAILABLE,                   "reserved"},
+  { PASS_ALONG_AND_SCCP_METHOD_AVAILABLE,    "reserved"},
+  { 0,                                 NULL}};
+
 static const true_false_string isup_interworking_ind_value = {
   "interworking encountered",
   "no interworking encountered (No.7 signalling all the way)"
@@ -1707,6 +1723,11 @@ static const true_false_string isup_interworking_ind_value = {
 static const true_false_string isup_end_to_end_info_ind_value = {
   "end-to-end information available",
   "no end-to-end information available"
+};
+
+static const true_false_string bicc_end_to_end_info_ind_value = {
+    "reserved",
+    "no end-to-end information available"
 };
 
 static const true_false_string ansi_isup_iam_seg_ind_value = {
@@ -1719,6 +1740,11 @@ static const true_false_string isup_ISDN_user_part_ind_value = {
   "ISDN user part not used all the way"
 };
 
+static const true_false_string bicc_ISDN_user_part_ind_value = {
+    "BICC used all the way",
+    "BICC not used all the way"
+};
+
 #define ISUP_PREFERRED_ALL_THE_WAY              0
 #define ISUP_NOT_REQUIRED_ALL_THE_WAY           1
 #define ISUP_REQUIRED_ALL_WAY                   2
@@ -1729,6 +1755,13 @@ static const value_string isup_preferences_ind_value[] = {
   { ISUP_REQUIRED_ALL_WAY,                       "ISDN user part required all the way"},
   { ISUP_ISDN_USER_PART_IND_SPARE,               "spare"},
   { 0,                                 NULL}};
+
+static const value_string bicc_preferences_ind_value[] = {
+    { ISUP_PREFERRED_ALL_THE_WAY,                  "BICC preferred all the way"},
+    { ISUP_NOT_REQUIRED_ALL_THE_WAY,               "BICC not required all the way"},
+    { ISUP_REQUIRED_ALL_WAY,                       "BICC required all the way"},
+    { ISUP_ISDN_USER_PART_IND_SPARE,               "spare"},
+    { 0,                                 NULL}};
 
 static const true_false_string isup_ISDN_originating_access_ind_value = {
   "originating access ISDN",
@@ -1747,14 +1780,21 @@ static const true_false_string isup_ISDN_qor_attempt_ind_value = {
 
 #define NO_INDICATION                                0
 #define CONNECTIONLESS_METHOD_AVAILABLE              1
-#define CONNECITON_ORIENTED_METHOD_AVAILABLE         2
+#define CONNECTION_ORIENTED_METHOD_AVAILABLE         2
 #define CONNECTIONLESS_AND_ORIENTED_METHOD_AVAILABLE 3
 static const value_string isup_SCCP_method_ind_value[] = {
   { NO_INDICATION,                                  "No indication"},
   { CONNECTIONLESS_METHOD_AVAILABLE,                "Connectionless method available (national use)"},
-  { CONNECITON_ORIENTED_METHOD_AVAILABLE,           "Connection oriented method available"},
+  { CONNECTION_ORIENTED_METHOD_AVAILABLE,           "Connection oriented method available"},
   { CONNECTIONLESS_AND_ORIENTED_METHOD_AVAILABLE,   "Connectionless and -oriented method available (national use)"},
   { 0,                                 NULL}};
+
+static const value_string bicc_SCCP_method_ind_value[] = {
+    { NO_INDICATION,                                  "No indication"},
+    { CONNECTIONLESS_METHOD_AVAILABLE,                "reserved"},
+    { CONNECTION_ORIENTED_METHOD_AVAILABLE,           "reserved"},
+    { CONNECTIONLESS_AND_ORIENTED_METHOD_AVAILABLE,   "reserved"},
+    { 0,                                 NULL}};
 
 #define UNKNOWN_AT_THIS_TIME                 0
 #define OPERATOR_FRENCH                      1
@@ -2761,18 +2801,24 @@ static int hf_isup_cvr_cont_chk_ind = -1;
 
 static int hf_isup_satellite_indicator = -1;
 static int hf_isup_continuity_check_indicator = -1;
+static int hf_bicc_continuity_check_indicator = -1;
 static int hf_isup_echo_control_device_indicator = -1;
 
 static int hf_isup_forw_call_natnl_inatnl_call_indicator = -1;
 static int hf_isup_forw_call_end_to_end_method_indicator = -1;
+static int hf_bicc_forw_call_end_to_end_method_indicator = -1;
 static int hf_isup_forw_call_interworking_indicator = -1;
 static int hf_isup_forw_call_end_to_end_info_indicator = -1;
+static int hf_bicc_forw_call_end_to_end_info_indicator = -1;
 static int hf_isup_forw_call_isdn_user_part_indicator = -1;
+static int hf_bicc_forw_call_isdn_user_part_indicator = -1;
 static int hf_isup_forw_call_preferences_indicator = -1;
+static int hf_bicc_forw_call_preferences_indicator = -1;
 static int hf_isup_forw_call_isdn_access_indicator = -1;
 static int hf_isup_forw_call_ported_num_trans_indicator = -1;
 static int hf_isup_forw_call_qor_attempt_indicator = -1;
 static int hf_isup_forw_call_sccp_method_indicator = -1;
+static int hf_bicc_forw_call_sccp_method_indicator = -1;
 
 static int hf_isup_calling_partys_category = -1;
 static int hf_russian_isup_calling_partys_category = -1;
@@ -2822,14 +2868,18 @@ static int hf_isup_backw_call_charge_ind = -1 ;
 static int hf_isup_backw_call_called_partys_status_ind = -1;
 static int hf_isup_backw_call_called_partys_category_ind = -1;
 static int hf_isup_backw_call_end_to_end_method_ind = -1;
+static int hf_bicc_backw_call_end_to_end_method_ind = -1;
 static int hf_isup_backw_call_interworking_ind = -1;
 static int hf_isup_backw_call_end_to_end_info_ind = -1;
+static int hf_bicc_backw_call_end_to_end_info_ind = -1;
 static int hf_isup_backw_call_iam_seg_ind = -1;
 static int hf_isup_backw_call_isdn_user_part_ind = -1;
+static int hf_bicc_backw_call_isdn_user_part_ind = -1;
 static int hf_isup_backw_call_holding_ind = -1;
 static int hf_isup_backw_call_isdn_access_ind = -1;
 static int hf_isup_backw_call_echo_control_device_ind = -1;
 static int hf_isup_backw_call_sccp_method_ind = -1;
+static int hf_bicc_backw_call_sccp_method_ind = -1;
 
 static int hf_isup_cause_indicator = -1;
 static int hf_ansi_isup_cause_indicator = -1;
@@ -3254,18 +3304,26 @@ dissect_isup_circuit_group_char_ind_parameter(tvbuff_t *parameter_tvb, proto_tre
  Dissector Parameter nature of connection flags
  */
 static void
-dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 nature_of_connection_ind;
-  static int * const indicators[] = {
+  static int * const isup_indicators[] = {
     &hf_isup_satellite_indicator,
     &hf_isup_continuity_check_indicator,
     &hf_isup_echo_control_device_indicator,
     NULL
   };
 
+  static int * const bicc_indicators[] = {
+    &hf_isup_satellite_indicator,
+    &hf_bicc_continuity_check_indicator,
+    &hf_isup_echo_control_device_indicator,
+    NULL
+  };
+
   nature_of_connection_ind = tvb_get_guint8(parameter_tvb, 0);
-  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, NATURE_OF_CONNECTION_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, NATURE_OF_CONNECTION_IND_LENGTH,
+                              g_str_equal(pinfo -> current_proto, "ISUP") ? isup_indicators : bicc_indicators, ENC_BIG_ENDIAN);
 
   proto_item_append_text(parameter_item, " : 0x%x", nature_of_connection_ind);
 }
@@ -3274,10 +3332,10 @@ dissect_isup_nature_of_connection_indicators_parameter(tvbuff_t *parameter_tvb, 
  Dissector Parameter Forward Call Indicators
  */
 static void
-dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_item *parameter_item, proto_tree *parameter_tree)
 {
   guint16 forward_call_ind = tvb_get_ntohs(parameter_tvb, 0);
-  static int * const indicators[] = {
+  static int * const isup_indicators[] = {
     &hf_isup_forw_call_natnl_inatnl_call_indicator,
     &hf_isup_forw_call_end_to_end_method_indicator,
     &hf_isup_forw_call_interworking_indicator,
@@ -3291,7 +3349,22 @@ dissect_isup_forward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tr
     NULL
   };
 
-  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
+  static int * const bicc_indicators[] = {
+    &hf_isup_forw_call_natnl_inatnl_call_indicator,
+    &hf_bicc_forw_call_end_to_end_method_indicator,
+    &hf_isup_forw_call_interworking_indicator,
+    &hf_bicc_forw_call_end_to_end_info_indicator,
+    &hf_bicc_forw_call_isdn_user_part_indicator,
+    &hf_bicc_forw_call_preferences_indicator,
+    &hf_isup_forw_call_isdn_access_indicator,
+    &hf_bicc_forw_call_sccp_method_indicator,
+    &hf_isup_forw_call_ported_num_trans_indicator,
+    &hf_isup_forw_call_qor_attempt_indicator,
+    NULL
+  };
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, FORWARD_CALL_IND_LENGTH,
+                              g_str_equal(pinfo -> current_proto, "ISUP") ? isup_indicators : bicc_indicators, ENC_BIG_ENDIAN);
 
   proto_item_append_text(parameter_item, " : 0x%x", forward_call_ind);
 }
@@ -3551,9 +3624,9 @@ dissect_isup_continuity_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
  Dissector Parameter Backward Call Indicators
  */
 static void
-dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static int * const indicators[] = {
+  static int * const isup_indicators[] = {
     &hf_isup_backw_call_charge_ind,
     &hf_isup_backw_call_called_partys_status_ind,
     &hf_isup_backw_call_called_partys_category_ind,
@@ -3568,14 +3641,31 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_t
     NULL
   };
 
-  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
+  static int * const bicc_indicators[] = {
+      &hf_isup_backw_call_charge_ind,
+      &hf_isup_backw_call_called_partys_status_ind,
+      &hf_isup_backw_call_called_partys_category_ind,
+      &hf_bicc_backw_call_end_to_end_method_ind,
+      &hf_isup_backw_call_interworking_ind,
+      &hf_bicc_backw_call_end_to_end_info_ind,
+      &hf_bicc_backw_call_isdn_user_part_ind,
+      &hf_isup_backw_call_holding_ind,
+      &hf_isup_backw_call_isdn_access_ind,
+      &hf_isup_backw_call_echo_control_device_ind,
+      &hf_bicc_backw_call_sccp_method_ind,
+      NULL
+  };
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH,
+                              g_str_equal(pinfo -> current_proto, "ISUP") ? isup_indicators : bicc_indicators,
+                              ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " : 0x%x", tvb_get_ntohs(parameter_tvb, 0));
 }
 
 static void
-dissect_ansi_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_ansi_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  static int * const indicators[] = {
+  static int * const isup_indicators[] = {
     &hf_isup_backw_call_charge_ind,
     &hf_isup_backw_call_called_partys_status_ind,
     &hf_isup_backw_call_called_partys_category_ind,
@@ -3590,7 +3680,23 @@ dissect_ansi_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, pr
     NULL
   };
 
-  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
+  static int * const bicc_indicators[] = {
+      &hf_isup_backw_call_charge_ind,
+      &hf_isup_backw_call_called_partys_status_ind,
+      &hf_isup_backw_call_called_partys_category_ind,
+      &hf_bicc_backw_call_end_to_end_method_ind,
+      &hf_isup_backw_call_interworking_ind,
+      &hf_isup_backw_call_iam_seg_ind,
+      &hf_bicc_backw_call_isdn_user_part_ind,
+      &hf_isup_backw_call_holding_ind,
+      &hf_isup_backw_call_isdn_access_ind,
+      &hf_isup_backw_call_echo_control_device_ind,
+      &hf_bicc_backw_call_sccp_method_ind,
+      NULL
+  };
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH,
+                              g_str_equal(pinfo -> current_proto, "ISUP") ? isup_indicators : bicc_indicators, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " : 0x%x", tvb_get_ntohs(parameter_tvb, 0));
 }
 /* ------------------------------------------------------------------
@@ -7996,10 +8102,10 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
             dissect_isup_subsequent_number_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_NATURE_OF_CONN_IND:
-            dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_FORW_CALL_IND:
-            dissect_isup_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_forward_call_indicators_parameter(parameter_tvb, pinfo, parameter_item, parameter_tree);
             break;
           case PARAM_TYPE_OPT_FORW_CALL_IND:
             dissect_isup_optional_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -8029,7 +8135,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
             dissect_isup_continuity_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_BACKW_CALL_IND:
-            dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_backward_call_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_CAUSE_INDICATORS:
             dissect_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -8353,10 +8459,10 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
             dissect_isup_subsequent_number_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_NATURE_OF_CONN_IND:
-            dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_FORW_CALL_IND:
-            dissect_isup_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_isup_forward_call_indicators_parameter(parameter_tvb, pinfo, parameter_item, parameter_tree);
             break;
           case PARAM_TYPE_OPT_FORW_CALL_IND:
             dissect_isup_optional_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -8386,7 +8492,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
             dissect_isup_continuity_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_BACKW_CALL_IND:
-            dissect_ansi_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_ansi_isup_backward_call_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_CAUSE_INDICATORS:
             dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -8669,7 +8775,7 @@ dissect_ansi_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, pr
   Dissector Message Type Circuit Reservation
  */
 static gint
-dissect_ansi_isup_circuit_reservation_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_ansi_isup_circuit_reservation_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
 { proto_item *parameter_item;
   proto_tree *parameter_tree;
   tvbuff_t   *parameter_tvb;
@@ -8684,7 +8790,7 @@ dissect_ansi_isup_circuit_reservation_message(tvbuff_t *message_tvb, proto_tree 
   proto_tree_add_uint(parameter_tree, hf_isup_mand_parameter_type, message_tvb, 0, 0, parameter_type);
   actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(NATURE_OF_CONNECTION_IND_LENGTH, actual_length), NATURE_OF_CONNECTION_IND_LENGTH);
-  dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
   offset += NATURE_OF_CONNECTION_IND_LENGTH;
 
   return offset;
@@ -8709,7 +8815,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, packet_info *pinfo, 
   proto_tree_add_uint(parameter_tree, hf_isup_mand_parameter_type, message_tvb, 0, 0, parameter_type);
   actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(NATURE_OF_CONNECTION_IND_LENGTH, actual_length), NATURE_OF_CONNECTION_IND_LENGTH);
-  dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_isup_nature_of_connection_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
   offset += NATURE_OF_CONNECTION_IND_LENGTH;
 
   /* Do stuff for 2nd mandatory fixed parameter: Forward Call Indicators */
@@ -8720,7 +8826,7 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, packet_info *pinfo, 
   proto_tree_add_uint(parameter_tree, hf_isup_mand_parameter_type, message_tvb, 0, 0, parameter_type);
   actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(FORWARD_CALL_IND_LENGTH, actual_length), FORWARD_CALL_IND_LENGTH);
-  dissect_isup_forward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_isup_forward_call_indicators_parameter(parameter_tvb, pinfo, parameter_item, parameter_tree);
   offset +=  FORWARD_CALL_IND_LENGTH;
 
   /* Do stuff for 3nd mandatory fixed parameter: Calling party's category */
@@ -8918,8 +9024,9 @@ dissect_isup_continuity_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   Dissector Message Type Address complete
  */
 static gint
-dissect_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
-{ proto_item *parameter_item;
+dissect_isup_address_complete_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
+{
+  proto_item *parameter_item;
   proto_tree *parameter_tree;
   tvbuff_t   *parameter_tvb;
   gint        offset = 0;
@@ -8933,13 +9040,13 @@ dissect_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tr
   proto_tree_add_uint(parameter_tree, hf_isup_mand_parameter_type, message_tvb, 0, 0, parameter_type);
   actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(BACKWARD_CALL_IND_LENGTH, actual_length), BACKWARD_CALL_IND_LENGTH);
-  dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_isup_backward_call_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
   offset += BACKWARD_CALL_IND_LENGTH;
   return offset;
 }
 
 static gint
-dissect_ansi_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_ansi_isup_address_complete_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
 {
   proto_item *parameter_item;
   proto_tree *parameter_tree;
@@ -8955,7 +9062,7 @@ dissect_ansi_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *is
   proto_tree_add_uint(parameter_tree, hf_isup_mand_parameter_type, message_tvb, 0, 0, parameter_type);
   actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(BACKWARD_CALL_IND_LENGTH, actual_length), BACKWARD_CALL_IND_LENGTH);
-  dissect_ansi_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_ansi_isup_backward_call_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
   offset += BACKWARD_CALL_IND_LENGTH;
   return offset;
 }
@@ -8964,7 +9071,7 @@ dissect_ansi_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *is
   Dissector Message Type Connect
  */
 static gint
-dissect_isup_connect_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+dissect_isup_connect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup_tree)
 { proto_item *parameter_item;
   proto_tree *parameter_tree;
   tvbuff_t   *parameter_tvb;
@@ -8979,7 +9086,7 @@ dissect_isup_connect_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
   proto_tree_add_uint(parameter_tree, hf_isup_mand_parameter_type, message_tvb, 0, 0, parameter_type);
   actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(BACKWARD_CALL_IND_LENGTH, actual_length), BACKWARD_CALL_IND_LENGTH);
-  dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  dissect_isup_backward_call_indicators_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
   offset += BACKWARD_CALL_IND_LENGTH;
   return offset;
 }
@@ -9674,11 +9781,11 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
       offset += dissect_isup_continuity_message(parameter_tvb, isup_tree);
       break;
     case MESSAGE_TYPE_ADDR_CMPL:
-      offset += dissect_ansi_isup_address_complete_message(parameter_tvb, isup_tree);
+      offset += dissect_ansi_isup_address_complete_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = TRUE;
       break;
     case MESSAGE_TYPE_CONNECT:
-      offset += dissect_isup_connect_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_connect_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = TRUE;
       break;
     case MESSAGE_TYPE_FORW_TRANS:
@@ -9847,7 +9954,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
       /* no dissector necessary since no mandatory parameters included */
       break;
     case ANSI_ISUP_MESSAGE_TYPE_CIRCUIT_RES:
-      offset += dissect_ansi_isup_circuit_reservation_message(parameter_tvb, isup_tree);
+      offset += dissect_ansi_isup_circuit_reservation_message(parameter_tvb, pinfo, isup_tree);
       break;
     case ANSI_ISUP_MESSAGE_TYPE_CCT_VAL_TEST_RSP:
       opt_part_possible = TRUE;
@@ -9975,11 +10082,11 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       offset += dissect_isup_continuity_message(parameter_tvb, isup_tree);
       break;
     case MESSAGE_TYPE_ADDR_CMPL:
-      offset += dissect_isup_address_complete_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_address_complete_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = TRUE;
       break;
     case MESSAGE_TYPE_CONNECT:
-      offset += dissect_isup_connect_message(parameter_tvb, isup_tree);
+      offset += dissect_isup_connect_message(parameter_tvb, pinfo, isup_tree);
       opt_part_possible = TRUE;
       break;
     case MESSAGE_TYPE_FORW_TRANS:
@@ -12168,6 +12275,46 @@ proto_register_bicc(void)
     { &hf_bicc_cic,
       { "Call identification Code (CIC)",           "bicc.cic",
         FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_bicc_continuity_check_indicator,
+      { "Continuity Indicator",  "bicc.continuity_check_indicator",
+        FT_UINT8, BASE_HEX, VALS(bicc_continuity_check_ind_value), DC_8BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_forw_call_end_to_end_method_indicator,
+      { "End-to-end method indicator",  "bicc.forw_call_end_to_end_method_indicator",
+        FT_UINT16, BASE_HEX, VALS(bicc_end_to_end_method_ind_value), CB_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_backw_call_end_to_end_method_ind,
+      { "End-to-end method indicator",  "bicc.backw_call_end_to_end_method_indicator",
+        FT_UINT16, BASE_HEX, VALS(bicc_end_to_end_method_ind_value), HG_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_backw_call_end_to_end_info_ind,
+      { "End-to-end information indicator",  "bicc.backw_call_end_to_end_information_indicator",
+        FT_BOOLEAN, 16, TFS(&bicc_end_to_end_info_ind_value), J_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_backw_call_isdn_user_part_ind,
+      { "BICC indicator",  "bicc.backw_call_isdn_user_part_indicator",
+        FT_BOOLEAN, 16, TFS(&bicc_ISDN_user_part_ind_value), K_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_backw_call_sccp_method_ind,
+      { "SCCP method indicator",  "bicc.backw_call_sccp_method_indicator",
+        FT_UINT16, BASE_HEX, VALS(bicc_SCCP_method_ind_value), PO_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_forw_call_end_to_end_info_indicator,
+      { "End-to-end information indicator",  "bicc.forw_call_end_to_end_information_indicator",
+        FT_BOOLEAN, 16, TFS(&bicc_end_to_end_info_ind_value), E_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_forw_call_isdn_user_part_indicator,
+      { "BICC indicator",  "bicc.forw_call_isdn_user_part_indicator",
+        FT_BOOLEAN, 16, TFS(&bicc_ISDN_user_part_ind_value), F_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_forw_call_preferences_indicator,
+      { "BICC preference indicator",  "bicc.forw_call_preferences_indicator",
+        FT_UINT16, BASE_HEX, VALS(bicc_preferences_ind_value), HG_16BIT_MASK,
+        NULL, HFILL }},
+    { &hf_bicc_forw_call_sccp_method_indicator,
+      { "SCCP method indicator",  "bicc.forw_call_sccp_method_indicator",
+        FT_UINT16, BASE_HEX, VALS(bicc_SCCP_method_ind_value), KJ_16BIT_MASK,
         NULL, HFILL }},
   };
 

@@ -1,4 +1,5 @@
-/* console_win32.h
+/** @file
+ *
  * Console support for MSWindows
  *
  * Wireshark - Network traffic analyzer

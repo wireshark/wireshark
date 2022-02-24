@@ -492,7 +492,7 @@ static guint dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, gb
 
     head = tvb_get_guint8(tvb, offset);
 
-    g_snprintf(buf, 128, ", Credit=%d", head & ~TTP_PARAMETERS);
+    snprintf(buf, 128, ", Credit=%d", head & ~TTP_PARAMETERS);
     col_append_str(pinfo->cinfo, COL_INFO, buf);
 
     if (root)
@@ -743,7 +743,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                         break;
 
                     case IAS_OCT_SEQ:
-                        g_snprintf(buf, 300, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
+                        snprintf(buf, 300, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
                         break;
 
                     case IAS_STRING:
@@ -1764,7 +1764,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     circuit_id = tvb_get_guint8(tvb, 0);
 
     /* initially set address columns to connection address */
-    g_snprintf(addr, sizeof(addr)-1, "0x%02X", circuit_id >> 1);
+    snprintf(addr, sizeof(addr)-1, "0x%02X", circuit_id >> 1);
     col_add_str(pinfo->cinfo, COL_DEF_SRC, addr);
     col_add_str(pinfo->cinfo, COL_DEF_DST, addr);
 

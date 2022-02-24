@@ -2930,9 +2930,9 @@ static void
 de_emm_wus_assist_info_ue_paging_prob_fmt(gchar *s, guint32 val)
 {
     if (val < 20) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "p%u (%u)", val*5, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "p%u (%u)", val*5, val);
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "p100 (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "p100 (%u)", val);
     }
 }
 
@@ -7426,7 +7426,7 @@ proto_register_nas_eps(void)
     },
     { &hf_eps_emm_ext_emerg_num_list_emerg_num,
         { "Emergency number","nas_eps.emm.ext_emerg_num_list.emerg_num",
-        FT_STRING, STR_ASCII, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_eps_emm_ext_emerg_num_list_sub_serv_field_len,
@@ -7436,7 +7436,7 @@ proto_register_nas_eps(void)
     },
     { &hf_eps_emm_ext_emerg_num_list_sub_serv_field,
         { "Sub-services field","nas_eps.emm.ext_emerg_num_list.sub_serv_field",
-        FT_STRING, STR_UNICODE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_prose_dd_cap,

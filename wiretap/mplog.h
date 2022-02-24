@@ -1,4 +1,4 @@
-/* mplog.h
+/** @file
  *
  * File format support for Micropross mplog files
  * Copyright (c) 2016 by Martin Kaiser <martin@kaiser.cx>

@@ -1,4 +1,5 @@
-/* time_shift.h
+/** @file
+ *
  * Submitted by Edwin Groothuis <wireshark@mavetju.org>
  *
  * Wireshark - Network traffic analyzer

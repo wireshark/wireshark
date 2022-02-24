@@ -9067,7 +9067,7 @@ void proto_register_z3950(void) {
         "OBJECT_IDENTIFIER", HFILL }},
     { &hf_z3950_dateTime,
       { "dateTime", "z3950.dateTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_z3950_external,
       { "external", "z3950.external_element",
@@ -10551,7 +10551,7 @@ void proto_register_z3950(void) {
         "HumanString", HFILL }},
     { &hf_z3950_lastUpdate,
       { "lastUpdate", "z3950.lastUpdate",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_z3950_updateInterval,
       { "updateInterval", "z3950.updateInterval_element",
@@ -11135,15 +11135,15 @@ void proto_register_z3950(void) {
         "InternationalString", HFILL }},
     { &hf_z3950_dateAdded,
       { "dateAdded", "z3950.dateAdded",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_z3950_dateChanged,
       { "dateChanged", "z3950.dateChanged",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_z3950_expiry,
       { "expiry", "z3950.expiry",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_z3950_humanString_Language,
       { "humanString-Language", "z3950.humanString_Language",
@@ -11615,7 +11615,7 @@ void proto_register_z3950(void) {
         "Variant", HFILL }},
     { &hf_z3950_date,
       { "date", "z3950.date",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_z3950_ext,
       { "ext", "z3950.ext_element",
@@ -11779,7 +11779,7 @@ void proto_register_z3950(void) {
         "OCTET_STRING", HFILL }},
     { &hf_z3950_creationDateTime,
       { "creationDateTime", "z3950.creationDateTime",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
         "GeneralizedTime", HFILL }},
     { &hf_z3950_taskStatus,
       { "taskStatus", "z3950.taskStatus",
@@ -12998,7 +12998,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
 
         if (marc_directory[dir_index].tag < 10) {
             proto_tree_add_item(field_tree, hf_marc_field_control,
-                    tvb, offset, marc_directory[dir_index].length - 1, ENC_ASCII|ENC_NA);
+                    tvb, offset, marc_directory[dir_index].length - 1, ENC_ASCII);
             offset += marc_directory[dir_index].length - 1;
             proto_tree_add_item(field_tree, hf_marc_field_terminator,
                     tvb, offset, 1, ENC_ASCII);
@@ -13024,12 +13024,12 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                                                 MARC_SUBFIELD_INDICATOR);
                 if (next_subfield >= 0) {
                     proto_tree_add_item(field_tree, hf_marc_field_subfield,
-                            tvb, offset, next_subfield - offset, ENC_ASCII|ENC_NA);
+                            tvb, offset, next_subfield - offset, ENC_ASCII);
                     offset += (next_subfield - offset);
                 }
                 else {
                     proto_tree_add_item(field_tree, hf_marc_field_subfield,
-                            tvb, offset, next_offset - offset, ENC_ASCII|ENC_NA);
+                            tvb, offset, next_offset - offset, ENC_ASCII);
                     offset = next_offset;
                 }
             } while (offset < next_offset);

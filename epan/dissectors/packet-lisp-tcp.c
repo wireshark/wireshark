@@ -192,7 +192,7 @@ dissect_lisp_tcp_message_eid_prefix(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             break;
         case AFNUM_DISTNAME:
             str_len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(prefix_tree, hf_lisp_tcp_message_eid_dn, tvb, offset, str_len, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(prefix_tree, hf_lisp_tcp_message_eid_dn, tvb, offset, str_len, ENC_ASCII);
             offset += str_len;
             break;
     }
@@ -401,7 +401,7 @@ dissect_lisp_tcp_membership_message(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         proto_tree_add_item(message_tree, hf_lisp_tcp_message_site_id, tvb, offset, LISP_SITEID_LEN, ENC_NA);
         offset += 8;
         data_len -= 8;
-        proto_item_append_text(tim, ", Site-ID: %"G_GINT64_MODIFIER"u", siteid);
+        proto_item_append_text(tim, ", Site-ID: %"PRIu64, siteid);
 
         /* RLOC AFI (2 bytes) */
         afi = tvb_get_ntohs(tvb, offset);

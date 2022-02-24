@@ -1,4 +1,4 @@
-/* ftypes.h
+/** @file
  * Definitions for field types
  *
  * Wireshark - Network traffic analyzer
@@ -251,6 +251,9 @@ fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value
 
 fvalue_t*
 fvalue_from_string(ftenum_t ftype, const char *s, gchar **err_msg);
+
+fvalue_t*
+fvalue_from_charconst(ftenum_t ftype, unsigned long number, gchar **err_msg);
 
 /* Creates the string representation of the field value.
  * Memory for the buffer is allocated based on wmem allocator

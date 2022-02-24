@@ -21,7 +21,6 @@
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include "packet-http.h"
-#include <stdio.h>
 
 void proto_register_ipp(void);
 void proto_reg_handoff_ipp(void);
@@ -941,7 +940,7 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int valoffset = offset + 1 + 2 + name_length + 2;
 
     if (name_length > 0)
-        proto_tree_add_item(tree, hf_ipp_name, tvb, offset + 1 + 2, name_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_ipp_name, tvb, offset + 1 + 2, name_length, ENC_ASCII);
 
     switch (tag) {
         case TAG_BOOLEAN:
@@ -1250,8 +1249,9 @@ add_octetstring_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int name_lengt
             break;
 
         default :
-            value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1 + 2 + name_length + 2, value_length);
-
+            if (value_length > 0 ) {
+                value = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + 1 + 2 + name_length + 2, value_length);
+            }
             valoffset += 1 + 2 + name_length + 2 + value_length;
             break;
     }
@@ -1269,11 +1269,11 @@ add_octetstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int endoffset;
 
     if (name_length > 0)
-        proto_tree_add_item(tree, hf_ipp_name, tvb, offset + 1 + 2, name_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_ipp_name, tvb, offset + 1 + 2, name_length, ENC_ASCII);
 
     switch (tag) {
         case TAG_OCTETSTRING :
-            proto_tree_add_item(tree, hf_ipp_octetstring_value, tvb, valoffset, value_length, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_ipp_octetstring_value, tvb, valoffset, value_length, ENC_ASCII);
             break;
 
         case TAG_DATETIME :
@@ -1422,10 +1422,10 @@ add_charstring_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
     int valoffset = offset + 1 + 2 + name_length + 2;
 
     if (name_length > 0)
-        proto_tree_add_item(tree, hf_ipp_name, tvb, offset + 1 + 2, name_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_ipp_name, tvb, offset + 1 + 2, name_length, ENC_ASCII);
 
     if (tag == TAG_MEMBERATTRNAME)
-        proto_tree_add_item(tree, hf_ipp_memberattrname, tvb, valoffset, value_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(tree, hf_ipp_memberattrname, tvb, valoffset, value_length, ENC_ASCII);
     else
         proto_tree_add_string_format(tree, hf_ipp_charstring_value, tvb, valoffset, value_length, NULL, "%s value: '%s'", tag_desc, tvb_format_text(wmem_packet_scope(), tvb, valoffset, value_length));
 }
@@ -1501,7 +1501,7 @@ ipp_fmt_collection(tvbuff_t *tvb, int valoffset, char *buffer, int bufsize)
 static void
 ipp_fmt_version( gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%u.%u", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 void

@@ -1697,7 +1697,7 @@ add_data_until_next_order_code(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offs
   if (datalen > 0) {
     /* XXX: Need to handle "Format Control Orders" ??  */
     proto_tree_add_item(tn3270_tree, hf_tn3270_field_data, tvb, offset,
-                        datalen, ENC_EBCDIC|ENC_NA);
+                        datalen, ENC_EBCDIC);
   }
 
   return datalen;
@@ -1888,7 +1888,7 @@ dissect_load_format_storage(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
   if (operand == LOAD_FORMAT_STORAGE_OPERAND_ADD) {
     gint fmtln = sf_body_length - (offset - start);
     proto_tree_add_item(tn3270_tree, hf_tn3270_load_format_storage_format_data,
-                        tvb, offset, fmtln, ENC_EBCDIC|ENC_NA);
+                        tvb, offset, fmtln, ENC_EBCDIC);
     offset += fmtln;
   }
 
@@ -2126,7 +2126,7 @@ dissect_present_absolute_format(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                       hf_tn3270_format_name,
                       tvb, offset,
                       sf_body_length - (offset - start),
-                      ENC_EBCDIC|ENC_NA);
+                      ENC_EBCDIC);
   offset += (sf_body_length - (offset - start));
 
   return (offset - start);
@@ -2166,7 +2166,7 @@ dissect_present_relative_format(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                       hf_tn3270_format_name,
                       tvb, offset,
                       sf_body_length - (offset - start),
-                      ENC_EBCDIC|ENC_NA);
+                      ENC_EBCDIC);
   offset += (sf_body_length - (offset - start));
 
   return (offset - start);
@@ -2507,7 +2507,7 @@ dissect_type_1_text(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                       hf_tn3270_field_data,
                       tvb, offset,
                       sf_body_length - (offset - start),
-                      ENC_EBCDIC|ENC_NA);
+                      ENC_EBCDIC);
   offset += (sf_body_length - (offset - start));
 
   return (offset - start);
@@ -3220,7 +3220,7 @@ dissect_query_reply_cooperative(proto_tree *tn3270_tree, tvbuff_t *tvb, gint off
                       hf_tn3270_field_data,
                       tvb, offset,
                       sf_body_length - (offset-start),
-                      ENC_EBCDIC|ENC_NA);
+                      ENC_EBCDIC);
   offset += (sf_body_length - (offset - start));
 
   /* Uses same Self-Defining Parm as OEM Auxiliary Device */
@@ -3472,7 +3472,7 @@ dissect_query_reply_extended_drawing_routine(proto_tree *tn3270_tree, tvbuff_t *
   gint start = offset;
 
   proto_tree_add_item(tn3270_tree, hf_tn3270_field_data ,tvb, offset,
-                      sf_body_length, ENC_EBCDIC|ENC_NA);
+                      sf_body_length, ENC_EBCDIC);
 
   offset += sf_body_length;
 
@@ -3953,7 +3953,7 @@ dissect_query_reply_rpq_names(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
                       hf_tn3270_rpq_name,
                       tvb, offset,
                       (rpql - 1),
-                      ENC_EBCDIC|ENC_NA);
+                      ENC_EBCDIC);
   offset += (rpql-1);
 
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_body_length);
@@ -4448,7 +4448,7 @@ process_outbound_structured_field(proto_tree *sf_tree, packet_info *pinfo, tvbuf
                           hf_tn3270_format_group,
                           tvb, offset,
                           (sf_body_length - (offset - start)),
-                          ENC_EBCDIC|ENC_NA);
+                          ENC_EBCDIC);
       offset += (sf_body_length - (offset - start));
       break;
     case SF_OB_SET_WINDOW_ORIGIN:
@@ -5062,7 +5062,7 @@ dissect_tn3270e_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
     case TN3270E_SCS_DATA:
     case TN3270E_SSCP_LU_DATA:
     case TN3270E_UNBIND:
-      proto_tree_add_item(tn3270e_hdr_tree, hf_tn3270_tn3270e_header_data, tvb, offset, -1, ENC_EBCDIC|ENC_NA);
+      proto_tree_add_item(tn3270e_hdr_tree, hf_tn3270_tn3270e_header_data, tvb, offset, -1, ENC_EBCDIC);
       offset += tvb_reported_length_remaining(tvb, offset);
       break;
     default:

@@ -90,7 +90,7 @@ void k12_hex_ascii_dump(guint level, gint64 offset, const char* label, const uns
 
     if (debug_level < level) return;
 
-    fprintf(dbg_out,"%s(%.8" G_GINT64_MODIFIER "x,%.4x):\n",label,offset,len);
+    fprintf(dbg_out,"%s(%.8" PRIx64 ",%.4x):\n",label,offset,len);
 
     for (i=0 ; i<len ; i += 16) {
         for (j=0; j<16; j++) {
@@ -431,7 +431,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
      */
     guint junky_offset = 8192 - (gint) ( (file_offset - K12_FILE_HDR_LEN) % 8192 );
 
-    K12_DBG(6,("get_record: ENTER: junky_offset=%" G_GINT64_MODIFIER "d, file_offset=%" G_GINT64_MODIFIER "d",junky_offset,file_offset));
+    K12_DBG(6,("get_record: ENTER: junky_offset=%" PRId64 ", file_offset=%" PRId64,junky_offset,file_offset));
 
     /* no buffer is given, lets create it */
     if (buffer == NULL) {
@@ -484,12 +484,12 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
      */
     if (left < 8) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("k12: Record length %u is less than 8 bytes long",left);
+        *err_info = ws_strdup_printf("k12: Record length %u is less than 8 bytes long",left);
         return -1;
     }
     if (left > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("k12: Record length %u is greater than the maximum %u",left,WTAP_MAX_PACKET_SIZE_STANDARD);
+        *err_info = ws_strdup_printf("k12: Record length %u is greater than the maximum %u",left,WTAP_MAX_PACKET_SIZE_STANDARD);
         return -1;
     }
 
@@ -513,7 +513,7 @@ static gint get_record(k12_t *file_data, FILE_T fh, gint64 file_offset,
 
     /* Read the rest of the record. */
     do {
-        K12_DBG(6,("get_record: looping left=%d junky_offset=%" G_GINT64_MODIFIER "d",left,junky_offset));
+        K12_DBG(6,("get_record: looping left=%d junky_offset=%" PRId64,left,junky_offset));
 
         if (junky_offset > left) {
             /*
@@ -582,7 +582,7 @@ process_packet_data(wtap_rec *rec, Buffer *target, guint8 *buffer,
     buffer_offset = (type == K12_REC_D0020) ? K12_PACKET_FRAME_D0020 : K12_PACKET_FRAME;
     if (buffer_offset > record_len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("k12: Frame data offset %u > record length %u",
+        *err_info = ws_strdup_printf("k12: Frame data offset %u > record length %u",
                                     buffer_offset, record_len);
         return FALSE;
     }
@@ -590,7 +590,7 @@ process_packet_data(wtap_rec *rec, Buffer *target, guint8 *buffer,
     length = pntoh32(buffer + K12_RECORD_FRAME_LEN) & 0x00001FFF;
     if (length > record_len - buffer_offset) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("k12: Frame length %u > record frame data %u",
+        *err_info = ws_strdup_printf("k12: Frame length %u > record frame data %u",
                                     length, record_len - buffer_offset);
         return FALSE;
     }
@@ -699,7 +699,7 @@ static gboolean k12_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar 
         } else if (len < K12_RECORD_SRC_ID + 4) {
             /* Record not large enough to contain a src ID */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("k12: Data record length %d too short", len);
+            *err_info = ws_strdup_printf("k12: Data record length %d too short", len);
             return FALSE;
         }
         k12->num_of_records--;
@@ -884,7 +884,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
         file_data->num_of_records = pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_1 );
         if ( file_data->num_of_records != pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ) ) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("k12: two different record counts, %u at 0x%02x and %u at 0x%02x",
+            *err_info = ws_strdup_printf("k12: two different record counts, %u at 0x%02x and %u at 0x%02x",
                                         file_data->num_of_records,
                                         K12_FILE_HDR_RECORD_COUNT_1,
                                         pntoh32( header_buffer + K12_FILE_HDR_RECORD_COUNT_2 ),
@@ -926,7 +926,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
         if (rec_len < K12_RECORD_TYPE + 4) {
             /* Record isn't long enough to have a type field */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("k12: record length %u < %u",
+            *err_info = ws_strdup_printf("k12: record length %u < %u",
                                         rec_len, K12_RECORD_TYPE + 4);
             destroy_k12_file_data(file_data);
             return WTAP_OPEN_ERROR;
@@ -958,7 +958,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                  * of the source descriptor field.
                  */
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("k12: source descriptor record length %u < %u",
+                *err_info = ws_strdup_printf("k12: source descriptor record length %u < %u",
                                             rec_len, K12_SRCDESC_HWPART);
                 destroy_k12_file_data(file_data);
                 g_free(rec);
@@ -991,7 +991,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                  * field, including the variable-length parts.
                  */
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("k12: source descriptor record length %u < %u (%u + %u + %u + %u)",
+                *err_info = ws_strdup_printf("k12: source descriptor record length %u < %u (%u + %u + %u + %u)",
                                             rec_len,
                                             K12_SRCDESC_HWPART + hwpart_len + name_len + stack_len,
                                             K12_SRCDESC_HWPART, hwpart_len, name_len, stack_len);
@@ -1004,7 +1004,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                 if (hwpart_len < 4) {
                     /* Hardware part isn't long enough to have a type field */
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("k12: source descriptor hardware part length %u < 4",
+                    *err_info = ws_strdup_printf("k12: source descriptor hardware part length %u < 4",
                                                 hwpart_len);
                     destroy_k12_file_data(file_data);
                     g_free(rec);
@@ -1024,7 +1024,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
                         if (hwpart_len < K12_SRCDESC_ATM_VCI + 2) {
                             /* Hardware part isn't long enough to have ATM information */
                             *err = WTAP_ERR_BAD_FILE;
-                            *err_info = g_strdup_printf("k12: source descriptor hardware part length %u < %u",
+                            *err_info = ws_strdup_printf("k12: source descriptor hardware part length %u < %u",
                                                         hwpart_len,
                                                         K12_SRCDESC_ATM_VCI + 2);
                             destroy_k12_file_data(file_data);

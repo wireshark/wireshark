@@ -189,8 +189,10 @@ print_usage(FILE *output)
     fprintf(output, "  -S                       format string for fields\n");
     fprintf(output, "                           (%%D - name, %%S - stringval, %%N numval)\n");
     fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
+    fprintf(output, "\n");
 
     ws_log_print_usage(output);
+    fprintf(output, "\n");
 
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
@@ -603,8 +605,13 @@ main(int argc, char *argv[])
                         break;
 
                     case PREFS_SET_NO_SUCH_PREF:
-                    case PREFS_SET_OBSOLETE:
                         cmdarg_err("-o flag \"%s\" specifies unknown preference", ws_optarg);
+                        ret = INVALID_OPTION;
+                        goto clean_exit;
+                        break;
+
+                    case PREFS_SET_OBSOLETE:
+                        cmdarg_err("-o flag \"%s\" specifies obsolete preference", ws_optarg);
                         ret = INVALID_OPTION;
                         goto clean_exit;
                         break;
@@ -895,7 +902,7 @@ raw_pipe_read(wtap_rec *rec, Buffer *buf, int *err, gchar **err_info, gint64 *da
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Bad packet length: %lu",
+        *err_info = ws_strdup_printf("Bad packet length: %lu",
                    (unsigned long) bytes_needed);
         return FALSE;
     }
@@ -966,7 +973,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
         /* The user sends an empty packet when he wants to get output from us even if we don't currently have
            packets to process. We spit out a line with the timestamp and the text "void"
         */
-        printf("%lu %" G_GUINT64_FORMAT " %d void -\n", (unsigned long int)cf->count,
+        printf("%lu %" PRIu64 " %d void -\n", (unsigned long int)cf->count,
                (guint64)rec->ts.secs, rec->ts.nsecs);
 
         fflush(stdout);
@@ -1099,7 +1106,7 @@ static void field_display_to_string(header_field_info *hfi, char* buf, int size)
     }
     else
     {
-        g_snprintf(buf, size, "(Bit count: %d)", hfi->display);
+        snprintf(buf, size, "(Bit count: %d)", hfi->display);
     }
 }
 
@@ -1112,7 +1119,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 {
     header_field_info   *hfinfo;
     char                *fs_buf;
-    char                *fs_ptr;
+    char                *fs_ptr = NULL;
     static GString     *label_s = NULL;
     size_t              fs_len;
     guint              i;

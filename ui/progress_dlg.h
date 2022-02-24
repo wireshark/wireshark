@@ -1,4 +1,5 @@
-/* progress_dlg.h
+/** @file
+ *
  * Definitions for progress dialog box routines
  *
  * Wireshark - Network traffic analyzer

@@ -949,7 +949,7 @@ void CaptureFileDialog::preview(const QString & path)
     // Size
     gint64 filesize = wtap_file_size(wth, &err);
     // Finder and Windows Explorer use IEC. What do the various Linux file managers use?
-    QString size_str(gchar_free_to_qstring(format_size(filesize, format_size_unit_bytes|format_size_prefix_iec)));
+    QString size_str(gchar_free_to_qstring(format_size(filesize, FORMAT_SIZE_UNIT_BYTES, FORMAT_SIZE_PREFIX_IEC)));
 
     status = get_stats_for_preview(wth, &stats, &err, &err_info);
 

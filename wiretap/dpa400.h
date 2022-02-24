@@ -1,4 +1,4 @@
-/* dpa400.h
+/** @file
  *
  * Copyright 2018, Dirk Eibach, Guntermann & Drunck GmbH <dirk.eibach@gdsys.cc>
  *

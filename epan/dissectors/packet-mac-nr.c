@@ -11,7 +11,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
@@ -53,6 +52,7 @@ static int hf_mac_nr_subheader_reserved = -1;
 static int hf_mac_nr_subheader_f = -1;
 static int hf_mac_nr_subheader_length_1_byte = -1;
 static int hf_mac_nr_subheader_length_2_bytes = -1;
+static int hf_mac_nr_lcid = -1;
 static int hf_mac_nr_ulsch_lcid = -1;
 static int hf_mac_nr_dlsch_lcid = -1;
 static int hf_mac_nr_dlsch_sdu = -1;
@@ -1110,7 +1110,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 
     va_start(ap, format);
-    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
     va_end(ap);
 
     /* Add to indicated places */
@@ -1125,7 +1125,7 @@ static void write_pdu_label_and_info(proto_item *ti1, proto_item *ti2,
     }
 }
 
-/* Version of function above, where no g_vsnprintf() call needed */
+/* Version of function above, where no vsnprintf() call needed */
 static void write_pdu_label_and_info_literal(proto_item *ti1, proto_item *ti2,
                                              packet_info *pinfo, const char *info_buffer)
 {
@@ -1247,7 +1247,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         /* Subheader */
         proto_item *subheader_ti = proto_tree_add_item(tree,
                                                        hf_mac_nr_rar_subheader,
-                                                       tvb, offset, 0, ENC_ASCII|ENC_NA);
+                                                       tvb, offset, 0, ENC_ASCII);
         proto_tree *rar_subheader_tree = proto_item_add_subtree(subheader_ti, ett_mac_nr_rar_subheader);
 
         /* Note extension & T bits */
@@ -1378,7 +1378,7 @@ static proto_item* dissect_me_phr_ph(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     /* Subtree for this entry */
     proto_item *entry_ti = proto_tree_add_item(tree,
                                                hf_mac_nr_control_me_phr_entry,
-                                               tvb, *offset, 0, ENC_ASCII|ENC_NA);
+                                               tvb, *offset, 0, ENC_ASCII);
     proto_tree *entry_tree = proto_item_add_subtree(entry_ti, ett_mac_nr_me_phr_entry);
 
     /* P */
@@ -1548,13 +1548,13 @@ mac_nr_phr_fmt(gchar *s, guint32 v)
     gint32 val = (gint32)v;
 
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "PH < -32 dB (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "PH < -32 dB (0)");
     } else if (val == 63) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "PH >= 38 dB (63)");
+        snprintf(s, ITEM_LABEL_LENGTH, "PH >= 38 dB (63)");
     } else if (val <= 54) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", val - 33, val - 32, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", val - 33, val - 32, val);
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", 22 + 2 * (val - 55), 24 + 2 * (val - 55), val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dB <= PH < %d dB (%d)", 22 + 2 * (val - 55), 24 + 2 * (val - 55), val);
     }
 }
 
@@ -1565,11 +1565,11 @@ mac_nr_pcmax_f_c_fmt(gchar *s, guint32 v)
     gint32 val = (gint32)v;
 
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c < -29 dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c < -29 dBm (0)");
     } else if (val == 63) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c >= 33 dBm (63)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Pcmax,f,c >= 33 dBm (63)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= Pcmax,f,c < %d dBm (%d)", val - 30, val - 29, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= Pcmax,f,c < %d dBm (%d)", val - 30, val - 29, val);
     }
 }
 
@@ -1593,7 +1593,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Subheader */
         proto_item *subheader_ti = proto_tree_add_item(tree,
                                                        hf_mac_nr_subheader,
-                                                       tvb, offset, 0, ENC_ASCII|ENC_NA);
+                                                       tvb, offset, 0, ENC_ASCII);
         proto_tree *subheader_tree = proto_item_add_subtree(subheader_ti, ett_mac_nr_subheader);
 
 
@@ -1613,11 +1613,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_subheader_f, tvb, offset, 1, ENC_BIG_ENDIAN, &F);
         }
 
-        /* LCID */
+        /* LCID (UL or DL) */
         proto_tree_add_uint(subheader_tree,
                             (p_mac_nr_info->direction == DIRECTION_UPLINK) ?
                                   hf_mac_nr_ulsch_lcid : hf_mac_nr_dlsch_lcid,
                             tvb, offset, 1, lcid);
+        /* Also add as a hidden, direction-less field */
+        proto_item *bi_di_lcid = proto_tree_add_uint(subheader_tree, hf_mac_nr_lcid, tvb, offset, 1, lcid);
+        proto_item_set_hidden(bi_di_lcid);
         offset++;
 
         if (!fixed_len) {
@@ -2967,6 +2970,13 @@ void proto_register_mac_nr(void)
             { "SDU Length",
               "mac-nr.subheader.sdu-length", FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL
+            }
+        },
+        /* Will be hidden, but useful for bi-directional filtering */
+        { &hf_mac_nr_lcid,
+            { "LCID",
+              "mac-nr.lcid", FT_UINT8, BASE_HEX, NULL, 0x3f,
+              "Logical Channel Identifier", HFILL
             }
         },
         { &hf_mac_nr_ulsch_lcid,

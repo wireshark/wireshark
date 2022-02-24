@@ -1,4 +1,5 @@
-/* all_files_wildcard.h
+/** @file
+ *
  * Definition of a macro for the file wildcard pattern that matches
  * all files
  *

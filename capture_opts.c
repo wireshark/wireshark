@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #ifdef HAVE_LIBPCAP
 
 #include <string.h>
@@ -112,6 +116,8 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->autostop_files                  = 1;
     capture_opts->has_autostop_packets            = FALSE;
     capture_opts->autostop_packets                = 0;
+    capture_opts->has_autostop_written_packets    = FALSE;
+    capture_opts->autostop_written_packets        = 0;
     capture_opts->has_autostop_filesize           = FALSE;
     capture_opts->autostop_filesize               = 1000;             /* 1 MB */
     capture_opts->has_autostop_duration           = FALSE;
@@ -121,6 +127,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->capture_child                   = FALSE;
     capture_opts->print_file_names                = FALSE;
     capture_opts->print_name_to                   = NULL;
+    capture_opts->temp_dir                        = NULL;
     capture_opts->compress_type                   = NULL;
 }
 
@@ -147,6 +154,7 @@ capture_opts_cleanup(capture_options *capture_opts)
         capture_opts->all_ifaces = NULL;
     }
     g_free(capture_opts->save_file);
+    g_free(capture_opts->temp_dir);
 }
 
 /* log content of capture_opts */
@@ -259,8 +267,10 @@ capture_opts_log(const char *log_domain, enum ws_log_level log_level, capture_op
 
     ws_log(log_domain, log_level, "AutostopFiles   (%u) : %u", capture_opts->has_autostop_files, capture_opts->autostop_files);
     ws_log(log_domain, log_level, "AutostopPackets (%u) : %u", capture_opts->has_autostop_packets, capture_opts->autostop_packets);
+    ws_log(log_domain, log_level, "AutostopWrittenPackets (%u) : %u", capture_opts->has_autostop_written_packets, capture_opts->autostop_written_packets);
     ws_log(log_domain, log_level, "AutostopFilesize(%u) : %u (KB)", capture_opts->has_autostop_filesize, capture_opts->autostop_filesize);
     ws_log(log_domain, log_level, "AutostopDuration(%u) : %.3f", capture_opts->has_autostop_duration, capture_opts->autostop_duration);
+    ws_log(log_domain, log_level, "Temporary Directory  : %s", capture_opts->temp_dir && capture_opts->temp_dir[0] ? capture_opts->temp_dir : g_get_tmp_dir());
 }
 
 /*
@@ -308,8 +318,8 @@ set_autostop_criterion(capture_options *capture_opts, const char *autostoparg)
         capture_opts->has_autostop_files = TRUE;
         capture_opts->autostop_files = get_positive_int(p,"autostop files");
     } else if (strcmp(autostoparg,"packets") == 0) {
-        capture_opts->has_autostop_packets = TRUE;
-        capture_opts->autostop_packets = get_positive_int(p,"packet count");
+        capture_opts->has_autostop_written_packets = TRUE;
+        capture_opts->autostop_written_packets = get_positive_int(p,"packet write count");
     } else {
         return FALSE;
     }
@@ -544,7 +554,7 @@ capture_opts_generate_display_name(const char *friendly_name,
      * On UN*X, however, users are more used to interface names,
      * and may find it helpful to see them.
      */
-    return g_strdup_printf("%s: %s", friendly_name, name);
+    return ws_strdup_printf("%s: %s", friendly_name, name);
 }
 #endif
 
@@ -801,6 +811,7 @@ int
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_str_p)
 {
     int status, snaplen;
+    ws_statb64 fstat;
 
     switch(opt) {
     case 'a':        /* autostop criteria */
@@ -986,12 +997,45 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         if (strcmp(optarg_str_p, "none") == 0) {
             ;
         } else if (strcmp(optarg_str_p, "gzip") == 0) {
+#ifdef HAVE_ZLIB
             ;
+#else
+            cmdarg_err("'gzip' compression is not supported");
+            return 1;
+#endif
         } else {
+#ifdef HAVE_ZLIB
             cmdarg_err("parameter of --compress-type can be 'none' or 'gzip'");
+#else
+            cmdarg_err("parameter of --compress-type can only be 'none'");
+#endif
             return 1;
         }
         capture_opts->compress_type = g_strdup(optarg_str_p);
+        break;
+    case LONGOPT_CAPTURE_TMPDIR:  /* capture temporary directory */
+        if (capture_opts->temp_dir) {
+            cmdarg_err("--temp-dir can be set only once");
+            return 1;
+        }
+        if (ws_stat64(optarg_str_p, &fstat) < 0) {
+            cmdarg_err("Can't set temporary directory %s: %s",
+                    optarg_str_p, g_strerror(errno));
+            return 1;
+        }
+        if (!S_ISDIR(fstat.st_mode)) {
+            cmdarg_err("Can't set temporary directory %s: not a directory",
+                    optarg_str_p);
+            return 1;
+        }
+#ifdef S_IRWXU
+        if ((fstat.st_mode & S_IRWXU) != S_IRWXU) {
+            cmdarg_err("Can't set temporary directory %s: not a writable directory",
+                    optarg_str_p);
+            return 1;
+        }
+#endif /* S_IRWXU */
+        capture_opts->temp_dir = g_strdup(optarg_str_p);
         break;
     default:
         /* the caller is responsible to send us only the right opt's */

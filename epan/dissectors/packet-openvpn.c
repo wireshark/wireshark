@@ -47,6 +47,7 @@ void proto_reg_handoff_openvpn(void);
 #define P_CONTROL_HARD_RESET_CLIENT_V2  7
 #define P_CONTROL_HARD_RESET_SERVER_V2  8
 #define P_DATA_V2                       9
+#define P_CONTROL_HARD_RESET_CLIENT_V3  10
 
 static gint ett_openvpn = -1;
 static gint ett_openvpn_data = -1;
@@ -91,6 +92,7 @@ static const value_string openvpn_message_types[] =
   {   P_CONTROL_HARD_RESET_CLIENT_V2,  "P_CONTROL_HARD_RESET_CLIENT_V2" },
   {   P_CONTROL_HARD_RESET_SERVER_V2,  "P_CONTROL_HARD_RESET_SERVER_V2" },
   {   P_DATA_V2,                       "P_DATA_V2" },
+  {   P_CONTROL_HARD_RESET_CLIENT_V3,  "P_CONTROL_HARD_RESET_CLIENT_V3" },
   {   0, NULL }
 };
 

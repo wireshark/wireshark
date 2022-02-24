@@ -221,7 +221,7 @@ dissect_ppcap_payload_type(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset, 
 		*payload_type = PPCAP_GTPV2;
 	}
 
-	proto_tree_add_item(ppcap_tree1, hf_ppcap_payload_type, tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_payload_type, tvb, offset, msg_len, ENC_UTF_8);
 
 	if (msg_len%4)
 		msg_len = msg_len+(4-(msg_len%4));
@@ -306,7 +306,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 	else if (key1 == 4)
 
 	{
-		proto_tree_add_item(ppcap_tree1, hf_ppcap_source_nodeid, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(ppcap_tree1, hf_ppcap_source_nodeid, tvb, offset, msg_len, ENC_ASCII);
 		set_address_tvb(&pinfo->net_src, AT_STRINGZ, msg_len, tvb, offset);
 		copy_address_shallow(&pinfo->src, &pinfo->net_src);
 	}
@@ -425,7 +425,7 @@ dissect_ppcap_info_string(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset)
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
-	proto_tree_add_item(ppcap_tree1, hf_ppcap_info, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_info, tvb, offset, msg_len, ENC_ASCII);
 
 	if (msg_len%4)
 		msg_len = msg_len +( 4- (msg_len%4));
@@ -582,7 +582,7 @@ void proto_register_ppcap(void)
 	{ "Length",         "ppcap.length",
 		FT_UINT16, BASE_DEC, NULL,   0x00, NULL, HFILL}},
 	{ &hf_ppcap_payload_type,
-	{ "Payload Type" , "ppcap.payload_type", FT_STRING,
+	{ "Payload Type", "ppcap.payload_type", FT_STRING,
 		BASE_NONE, 	NULL, 	0x0    , NULL,    HFILL}},
 	{ &hf_ppcap_reserved,
 	{ "Reserved",         "ppcap.reserved",    FT_UINT16,
@@ -652,10 +652,10 @@ void proto_register_ppcap(void)
 	{ "Remote Port",         "ppcap.remote_port",    FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
 	{ &hf_ppcap_transport_prot,
-	{ "Transport Protocol" , "ppcap.transport_prot", FT_STRING,
+	{ "Transport Protocol", "ppcap.transport_prot", FT_STRING,
 		BASE_NONE,      NULL,   0x0    , NULL,    HFILL}},
 	{ &hf_ppcap_sctp_assoc,
-	{ "SCTP Association ID" , "ppcap.sctp_assoc", FT_STRING,
+	{ "SCTP Association ID", "ppcap.sctp_assoc", FT_STRING,
 		BASE_NONE,      NULL,   0x0    , NULL,    HFILL } },
 	};
 

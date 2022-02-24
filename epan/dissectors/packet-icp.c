@@ -94,7 +94,7 @@ static void dissect_icp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
-		proto_tree_add_item(pload_tree, hf_icp_url, tvb, offset, stringlength, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(pload_tree, hf_icp_url, tvb, offset, stringlength, ENC_ASCII);
 		break;
 
 	case CODE_ICP_OP_SECHO:
@@ -105,13 +105,13 @@ static void dissect_icp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	case CODE_ICP_OP_MISS_NOFETCH:
 	case CODE_ICP_OP_DENIED:
 		stringlength = tvb_strsize(tvb, offset);
-		proto_tree_add_item(pload_tree, hf_icp_url, tvb, offset, stringlength, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(pload_tree, hf_icp_url, tvb, offset, stringlength, ENC_ASCII);
 		break;
 
 	case CODE_ICP_OP_HIT_OBJ:
 		/* null terminated URL */
 		stringlength = tvb_strsize(tvb, offset);
-		proto_tree_add_item(pload_tree, hf_icp_url, tvb, offset, stringlength, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(pload_tree, hf_icp_url, tvb, offset, stringlength, ENC_ASCII);
 		offset += stringlength;
 
 		/* 2 byte object size */

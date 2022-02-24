@@ -1,4 +1,4 @@
-/* wmem_strbuf.h
+/** @file
  * Definitions for the Wireshark Memory Manager String Buffer
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

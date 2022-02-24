@@ -75,7 +75,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	ilh_tree = proto_tree_add_subtree(il_tree, tvb, 0, 12, ett_interlink_header, NULL, "Interlink Header");
 
 	if (ilh_tree) {
-		proto_tree_add_item(ilh_tree, hf_interlink_id, tvb, offset, 4, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(ilh_tree, hf_interlink_id, tvb, offset, 4, ENC_ASCII);
 		offset += 4;
 		proto_tree_add_item(ilh_tree, hf_interlink_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;

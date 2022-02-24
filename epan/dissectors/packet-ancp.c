@@ -434,7 +434,7 @@ dissect_ancp_tlv(tvbuff_t *tvb, proto_tree *tlv_tree, gint offset)
                 default:
                     /* Assume TLV value is string - covers ALCID, OAM resp */
                     proto_tree_add_item(tlv_tree, hf_ancp_ext_tlv_value_str,
-                            tvb, offset, tlen, ENC_ASCII|ENC_NA);
+                            tvb, offset, tlen, ENC_ASCII);
                     offset += tlen;
                     SKIPPADDING(offset, tlen);
                     break;

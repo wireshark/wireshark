@@ -3071,7 +3071,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                     proto_tree_add_item(next_tree, hf_bip_total_imaging_data_capacity, tvb, offset, 8, ENC_BIG_ENDIAN);
                     value_64 = tvb_get_ntoh64(tvb, offset);
 
-                    wmem_strbuf_append_printf(info_buf, "%"G_GUINT64_FORMAT, value_64);
+                    wmem_strbuf_append_printf(info_buf, "%"PRIu64, value_64);
                     break;
                 default:
                     found = FALSE;

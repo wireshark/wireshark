@@ -45,7 +45,7 @@ if [ -f "${DESTDIR}/wireshark-$VERSION.tar.xz" ] ; then
 fi
 
 COMMIT="HEAD"
-if [ -n "$CI_COMMIT_SHA" ] ; then
+if [ -n "${CI_COMMIT_SHA-}" ] ; then
     COMMIT=$CI_COMMIT_SHA
 fi
 

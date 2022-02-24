@@ -2502,7 +2502,7 @@ epl_set_sequence_nr(packet_info *pinfo, guint16 seqnum)
 static void
 elp_version( gchar *result, guint32 version )
 {
-	g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d", hi_nibble(version), lo_nibble(version));
+	snprintf( result, ITEM_LABEL_LENGTH, "%d.%d", hi_nibble(version), lo_nibble(version));
 }
 /* Code to actually dissect the packets */
 static int
@@ -2807,7 +2807,7 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 			guint64 val;
 			item = proto_tree_add_item_ret_uint64(epl_tree, *type->hf,
 						tvb, offset, type->len, type->encoding, &val);
-			proto_item_append_text(item, " (0x%.*" G_GINT64_MODIFIER "x)", 2*type->len, val);
+			proto_item_append_text(item, " (0x%.*" PRIx64 ")", 2*type->len, val);
 		}
 	}
 	/* If a mapping uses a type of fixed width that's not equal to
@@ -2821,7 +2821,7 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 			guint64 val;
 			item = proto_tree_add_item_ret_uint64(epl_tree, hf_epl_od_uint,
 						payload_tvb, 0, payload_len, ENC_LITTLE_ENDIAN, &val);
-			proto_item_append_text(item, " (0x%.*" G_GINT64_MODIFIER "x)", 2*payload_len, val);
+			proto_item_append_text(item, " (0x%.*" PRIx64 ")", 2*payload_len, val);
 		}
 		else
 		{
@@ -3512,7 +3512,7 @@ dissect_epl_asnd_ires(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *t
 	proto_tree_add_ipv4(epl_tree , hf_epl_asnd_identresponse_gtw, tvb, offset, 4, epl_asnd_identresponse_gtw);
 	offset += 4;
 
-	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_hn, tvb, offset, 32, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_hn, tvb, offset, 32, ENC_ASCII);
 	offset += 32;
 
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vex2, tvb, offset, 48, ENC_NA);
@@ -4330,9 +4330,9 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 	{
 		/* TODO One could think of a better string here? */
 		if (nosub)
-			g_snprintf(map.title, sizeof(map.title), "PDO - %04X", map.pdo.idx);
+			snprintf(map.title, sizeof(map.title), "PDO - %04X", map.pdo.idx);
 		else
-			g_snprintf(map.title, sizeof(map.title), "PDO - %04X:%02X", map.pdo.idx, map.pdo.subindex);
+			snprintf(map.title, sizeof(map.title), "PDO - %04X:%02X", map.pdo.idx, map.pdo.subindex);
 
 		add_object_mapping(mappings, &map);
 	}
@@ -5723,7 +5723,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_asnd_identresponse_profile_path,
 			{ "Profile Path", "epl.asnd.ires.profilepath",
-				FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL }
+				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_vid,
 			{ "VendorId", "epl.asnd.ires.vendorid",
@@ -6208,7 +6208,7 @@ proto_register_epl(void)
 		/* EPL Data types */
 		{ &hf_epl_pdo,
 			{ "PDO", "epl.pdo",
-				FT_STRING, STR_ASCII, NULL, 0x00, NULL, HFILL }
+				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_pdo_index,
 			{ "Index", "epl.pdo.index",
@@ -6266,7 +6266,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_od_string,
 			{ "Data", "epl.od.data.string",
-				FT_STRING, STR_UNICODE, NULL, 0x00, NULL, HFILL }
+				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_od_octet_string,
 			{ "Data", "epl.od.data.bytestring",
@@ -6503,7 +6503,7 @@ epl_profile_uat_fld_fileopen_check_cb(void *record _U_, const char *path, guint 
 
 	if (ws_stat64(path, &st) != 0)
 	{
-		*err = g_strdup_printf("File '%s' does not exist or access was denied.", path);
+		*err = ws_strdup_printf("File '%s' does not exist or access was denied.", path);
 		return FALSE;
 	}
 
@@ -6520,7 +6520,7 @@ epl_profile_uat_fld_fileopen_check_cb(void *record _U_, const char *path, guint 
 		*err = NULL;
 		return TRUE;
 #else
-		*err = g_strdup_printf("*.xdd and *.xdc support not compiled in. %s", supported);
+		*err = ws_strdup_printf("*.xdd and *.xdc support not compiled in. %s", supported);
 		return FALSE;
 #endif
 	}

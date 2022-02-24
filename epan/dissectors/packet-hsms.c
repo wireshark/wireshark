@@ -252,7 +252,7 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         value_length = (guint*)wmem_map_lookup(value_lengths, GUINT_TO_POINTER(item_format_code));
 
         len = GPOINTER_TO_UINT(value_length) * length;
-        proto_tree_add_item(hsms_data_item_tree, hf_hsms_data_item_value_string, tvb, *offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(hsms_data_item_tree, hf_hsms_data_item_value_string, tvb, *offset, len, ENC_ASCII);
         itemLength = len;
         *offset += len;
         break;

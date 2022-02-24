@@ -1,4 +1,5 @@
-/* wmem_allocator_strict.h
+/** @file
+ *
  * Definitions for the Wireshark Memory Manager Strict Allocator
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *

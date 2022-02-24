@@ -1,4 +1,5 @@
-/* capture_info.h
+/** @file
+ *
  * Declarations of platform-dependent capture info functions.
  *
  * Wireshark - Network traffic analyzer

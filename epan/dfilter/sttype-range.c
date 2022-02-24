@@ -81,7 +81,7 @@ range_tostr(const void *data, gboolean pretty)
 	char *repr, *drange_str;
 
 	drange_str = drange_tostr(range->drange);
-	repr = g_strdup_printf("%s[%s]",
+	repr = ws_strdup_printf("%s[%s]",
 			stnode_tostr(range->entity, pretty),
 			drange_str);
 	g_free(drange_str);

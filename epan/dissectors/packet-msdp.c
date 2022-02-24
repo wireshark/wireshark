@@ -505,7 +505,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         if (tlv_len < 1) {
                                 expert_add_info_format(pinfo, length_item,
                                     &ei_msdp_tlv_len_too_short,
-                                    "TLV length for Notification SA-Response Invalid Invalid Sprefix Length Error < 6");
+                                    "TLV length for Notification SA-Response Invalid Sprefix Length Error < 6");
                                 return;
                         }
                         proto_tree_add_item(tree, hf_msdp_not_sprefix_len, tvb, *offset, 1, ENC_BIG_ENDIAN);

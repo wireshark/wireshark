@@ -1,4 +1,4 @@
-/* lbm_stream_dialog.h
+/** @file
  *
  * Copyright (c) 2005-2014 Informatica Corporation. All Rights Reserved.
  *

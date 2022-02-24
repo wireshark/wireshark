@@ -1,4 +1,5 @@
-/* utf8_entities.h
+/** @file
+ *
  * Byte sequences for various UTF-8 entities
  *
  * Wireshark - Network traffic analyzer

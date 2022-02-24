@@ -1452,14 +1452,14 @@ dissect_radiotap_he_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static void
 not_captured_custom(gchar *result, guint32 value _U_)
 {
-	g_snprintf(result, ITEM_LABEL_LENGTH,
+	snprintf(result, ITEM_LABEL_LENGTH,
 		"NOT CAPTURED BY CAPTURE SOFTWARE");
 }
 
 static void
 he_sig_b_symbols_custom(gchar *result, guint32 value)
 {
-	g_snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
+	snprintf(result, ITEM_LABEL_LENGTH, "%d", value+1);
 }
 
 static void
@@ -1741,11 +1741,14 @@ dissect_radiotap_0_length_psdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	guint32 psdu_type;
 	tvbuff_t *new_tvb = NULL;
 
-	zero_len_tree = proto_tree_add_subtree(tree, tvb, offset, 1,
+	zero_len_tree = proto_tree_add_subtree(tree, tvb, offset,
+		tvb_captured_length_remaining(tvb, offset),
 		ett_radiotap_0_length_psdu, NULL, "0-length PSDU");
 
 	proto_tree_add_item_ret_uint(zero_len_tree, hf_radiotap_0_length_psdu_type,
 		tvb, offset, 1, ENC_NA, &psdu_type);
+	offset += 1;
+
 	switch (psdu_type) {
 
 	case 0:
@@ -2239,6 +2242,14 @@ dissect_radiotap_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		phdr->phy = PHDR_802_11_PHY_11AH;
 		s1g_tree = proto_tree_add_subtree(tree, tvb, offset, 6,
 				ett_radiotap_s1g, NULL, "S1G");
+
+		proto_tree_add_item(s1g_tree, hf_radiotap_tlv_type, tvb,
+				    offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(s1g_tree, hf_radiotap_tlv_datalen, tvb,
+				    offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 
 		proto_tree_add_bitmask(s1g_tree, tvb, offset,
 				hf_radiotap_s1g_known, ett_radiotap_s1g_known,
@@ -3435,7 +3446,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 						tvb, offset, 12, ENC_NA);
 				vht_tree = proto_item_add_subtree(it_root, ett_radiotap_vht);
 				it = proto_tree_add_item(vht_tree, hf_radiotap_vht_known,
-						tvb, offset, 2, known);
+						tvb, offset, 2, ENC_NA);
 				vht_known_tree = proto_item_add_subtree(it, ett_radiotap_vht_known);
 
 				proto_tree_add_item(vht_known_tree, hf_radiotap_vht_have_stbc,
@@ -4498,8 +4509,8 @@ void proto_register_radiotap(void)
 		  "Number of Space Time Block Code streams", HFILL}},
 
 		{&hf_radiotap_mcs_ness_bit0,
-		 {"Number of extension spatial streams bit 0", "radiotap.mcs.ness_bit1",
-		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_NESS_BIT1,
+		 {"Number of extension spatial streams bit 0", "radiotap.mcs.ness_bit0",
+		  FT_UINT8, BASE_DEC, NULL, IEEE80211_RADIOTAP_MCS_NESS_BIT0,
 		  "Bit 0 of number of extension spatial streams information", HFILL}},
 
 		{&hf_radiotap_mcs_index,
@@ -4911,7 +4922,7 @@ void proto_register_radiotap(void)
 		  IEEE80211_RADIOTAP_HE_SPATIAL_REUSE_4_KNOWN, NULL, HFILL}},
 
 		{&hf_radiotap_he_data_bw_ru_allocation_known,
-		 {"dat BW/RU allocation known", "radiotap.he.data_1.data_bw_ru_allocation_known",
+		 {"data BW/RU allocation known", "radiotap.he.data_1.data_bw_ru_allocation_known",
 		  FT_BOOLEAN, 16, TFS(&tfs_known_unknown),
 		  IEEE80211_RADIOTAP_HE_DATA_BW_RU_ALLOCATION_KNOWN, NULL, HFILL}},
 

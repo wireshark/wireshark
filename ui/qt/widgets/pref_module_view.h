@@ -1,4 +1,5 @@
-/* pref_module_view.h
+/** @file
+ *
  * Tree view of preference module data.
  *
  * Wireshark - Network traffic analyzer

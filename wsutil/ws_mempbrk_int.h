@@ -1,4 +1,4 @@
-/* ws_mempbrk_int.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

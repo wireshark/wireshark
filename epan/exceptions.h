@@ -1,4 +1,5 @@
-/* exceptions.h
+/** @file
+ *
  * Wireshark's exceptions.
  *
  * Wireshark - Network traffic analyzer

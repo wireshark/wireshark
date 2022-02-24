@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <wsutil/str_util.h>
+
 #include "dfilter-int.h"
 #include "syntax-tree.h"
 #include "grammar.h"
@@ -79,7 +81,8 @@ df_lval_t *df_lval;
 
 static int set_lval_str(int token, const char *token_value);
 #define simple(token) set_lval_str(token, yytext)
-static GString *append_escaped_char(GString *str, char c);
+static gboolean append_escaped_char(dfwork_t *dfw, GString *str, char c);
+static gboolean parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -112,8 +115,13 @@ static GString *append_escaped_char(GString *str, char c);
 
 "=="		return simple(TOKEN_TEST_ANY_EQ);
 "eq"		return simple(TOKEN_TEST_ANY_EQ);
+"any_eq"	return simple(TOKEN_TEST_ANY_EQ);
 "!="		return simple(TOKEN_TEST_ALL_NE);
 "ne"		return simple(TOKEN_TEST_ALL_NE);
+"all_ne"	return simple(TOKEN_TEST_ALL_NE);
+"==="		return simple(TOKEN_TEST_ALL_EQ);
+"all_eq"	return simple(TOKEN_TEST_ALL_EQ);
+"!=="		return simple(TOKEN_TEST_ANY_NE);
 "~="		return simple(TOKEN_TEST_ANY_NE);
 "any_ne"	return simple(TOKEN_TEST_ANY_NE);
 ">"		return simple(TOKEN_TEST_GT);
@@ -255,8 +263,10 @@ static GString *append_escaped_char(GString *str, char c);
 	if (yyextra->raw_string) {
 		g_string_append(yyextra->quoted_string, yytext);
 	}
-	else {
-		append_escaped_char(yyextra->quoted_string, yytext[1]);
+	else if (!append_escaped_char(yyextra->dfw, yyextra->quoted_string, yytext[1])) {
+		g_string_free(yyextra->quoted_string, TRUE);
+		yyextra->quoted_string = NULL;
+		return SCAN_FAILED;
 	}
 }
 
@@ -286,6 +296,10 @@ static GString *append_escaped_char(GString *str, char c);
 	g_string_append_c(yyextra->quoted_string, '\'');
 	df_lval->value = g_string_free(yyextra->quoted_string, FALSE);
 	yyextra->quoted_string = NULL;
+
+	if (!parse_charconst(yyextra->dfw, df_lval->value, &df_lval->number)) {
+		return SCAN_FAILED;
+	}
 	return TOKEN_CHARCONST;
 }
 
@@ -328,8 +342,11 @@ static GString *append_escaped_char(GString *str, char c);
 }
 
 . {
- 	/* Default */
-	dfilter_fail(yyextra->dfw, "\"%s\" was unexpected in this context.", yytext);
+	/* Default */
+	if (isprint_string(yytext))
+		dfilter_fail(yyextra->dfw, "\"%s\" was unexpected in this context.", yytext);
+	else
+		dfilter_fail(yyextra->dfw, "Non-printable ASCII characters may only appear inside double-quotes.");
 	return SCAN_FAILED;
 }
 
@@ -348,8 +365,8 @@ set_lval_str(int token, const char *token_value)
 	return token;
 }
 
-static GString *
-append_escaped_char(GString *str, char c)
+static gboolean
+append_escaped_char(dfwork_t *dfw, GString *str, char c)
 {
 	switch (c) {
 		case 'a':
@@ -373,14 +390,160 @@ append_escaped_char(GString *str, char c)
 		case 'v':
 			c = '\v';
 			break;
-		default:
-			/* Unrecognized escapes are treated as a literal character.
-			 * If this is turned into an error instead (which is a backward
-			 * incompatibility but arguably the right thing to do)
-			 * we need to take care to accept all valid sequences
-			 * (like \" and \\). */
+		case '\\':
+		case '\'':
+		case '\"':
 			break;
+		default:
+			dfilter_fail(dfw, "\\%c is not a valid character escape sequence", c);
+			return FALSE;
 	}
 
-	return g_string_append_c(str, c);
+	g_string_append_c(str, c);
+	return TRUE;
+}
+
+static gboolean
+parse_charconst(dfwork_t *dfw, const char *s, unsigned long *valuep)
+{
+	const char *cp;
+	unsigned long value;
+
+	cp = s + 1;	/* skip the leading ' */
+	if (*cp == '\'') {
+		dfilter_fail(dfw, "Empty character constant.");
+		return FALSE;
+	}
+
+	if (*cp == '\\') {
+		/*
+		 * C escape sequence.
+		 * An escape sequence is an octal number \NNN,
+		 * an hex number \xNN, or one of \' \" \\ \a \b \f \n \r \t \v
+		 * that stands for the byte value of the equivalent
+		 * C-escape in ASCII encoding.
+		 */
+		cp++;
+		switch (*cp) {
+
+		case '\0':
+			dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+			return FALSE;
+
+		case 'a':
+			value = '\a';
+			break;
+
+		case 'b':
+			value = '\b';
+			break;
+
+		case 'f':
+			value = '\f';
+			break;
+
+		case 'n':
+			value = '\n';
+			break;
+
+		case 'r':
+			value = '\r';
+			break;
+
+		case 't':
+			value = '\t';
+			break;
+
+		case 'v':
+			value = '\v';
+			break;
+
+		case '\'':
+			value = '\'';
+			break;
+
+		case '\\':
+			value = '\\';
+			break;
+
+		case '"':
+			value = '"';
+			break;
+
+		case 'x':
+			cp++;
+			if (*cp >= '0' && *cp <= '9')
+				value = *cp - '0';
+			else if (*cp >= 'A' && *cp <= 'F')
+				value = 10 + (*cp - 'A');
+			else if (*cp >= 'a' && *cp <= 'f')
+				value = 10 + (*cp - 'a');
+			else {
+				dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+				return FALSE;
+			}
+			cp++;
+			if (*cp != '\'') {
+				value <<= 4;
+				if (*cp >= '0' && *cp <= '9')
+					value |= *cp - '0';
+				else if (*cp >= 'A' && *cp <= 'F')
+					value |= 10 + (*cp - 'A');
+				else if (*cp >= 'a' && *cp <= 'f')
+					value |= 10 + (*cp - 'a');
+				else {
+					dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+					return FALSE;
+				}
+			}
+			break;
+
+		default:
+			/* Octal */
+			if (*cp >= '0' && *cp <= '7')
+				value = *cp - '0';
+			else {
+				dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+				return FALSE;
+			}
+			if (*(cp + 1) != '\'') {
+				cp++;
+				value <<= 3;
+				if (*cp >= '0' && *cp <= '7')
+					value |= *cp - '0';
+				else {
+					dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+					return FALSE;
+				}
+				if (*(cp + 1) != '\'') {
+					cp++;
+					value <<= 3;
+					if (*cp >= '0' && *cp <= '7')
+						value |= *cp - '0';
+					else {
+						dfilter_fail(dfw, "%s isn't a valid character constant.", s);
+						return FALSE;
+					}
+				}
+			}
+			if (value > 0xFF) {
+				dfilter_fail(dfw, "%s is too large to be a valid character constant.", s);
+				return FALSE;
+			}
+		}
+	} else {
+		value = *cp;
+		if (!g_ascii_isprint(value)) {
+			dfilter_fail(dfw, "Non-printable value '0x%02lx' in character constant.", value);
+			return FALSE;
+		}
+	}
+	cp++;
+	if ((*cp != '\'') || (*(cp + 1) != '\0')){
+		dfilter_fail(dfw, "%s is too long to be a valid character constant.", s);
+		return FALSE;
+	}
+
+	*valuep = value;
+	return TRUE;
 }

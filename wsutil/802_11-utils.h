@@ -11,7 +11,7 @@
 #ifndef __802_11_UTILS_H__
 #define __802_11_UTILS_H__
 
-#include "ws_symbol_export.h"
+#include <wireshark.h>
 
 #ifdef __cplusplus
 extern "C" {

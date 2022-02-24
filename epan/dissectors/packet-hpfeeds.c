@@ -97,7 +97,7 @@ static const value_string opcode_vals[] = {
 static void
 dissect_hpfeeds_error_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    proto_tree_add_item(tree, hf_hpfeeds_errmsg, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_hpfeeds_errmsg, tvb, offset, -1, ENC_ASCII);
 }
 
 static void
@@ -117,7 +117,7 @@ dissect_hpfeeds_info_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
     offset += 1;
 
     proto_tree_add_item(data_subtree, hf_hpfeeds_server, tvb, offset, len,
-        ENC_ASCII|ENC_NA);
+        ENC_ASCII);
     offset += len;
 
     proto_tree_add_item(data_subtree, hf_hpfeeds_nonce, tvb, offset, -1,
@@ -134,7 +134,7 @@ dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
                     offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb,
-                    offset, len, ENC_ASCII|ENC_NA);
+                    offset, len, ENC_ASCII);
     offset += len;
 
     proto_tree_add_item(tree, hf_hpfeeds_secret, tvb,
@@ -173,7 +173,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_ident_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len, ENC_ASCII);
     offset += len;
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -257,11 +257,11 @@ dissect_hpfeeds_subscribe_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
     offset += 1;
 
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len,
-        ENC_ASCII|ENC_NA);
+        ENC_ASCII);
     /* move forward inside data */
     offset += len;
     proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, -1,
-        ENC_ASCII|ENC_NA);
+        ENC_ASCII);
 }
 
 /*

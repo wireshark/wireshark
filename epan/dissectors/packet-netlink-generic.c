@@ -10,8 +10,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define NEW_PROTO_TREE_API
-
 #include "config.h"
 
 #include <epan/packet.h>
@@ -116,15 +114,34 @@ static const value_string genl_ctrl_group_attr_vals[] = {
 	{ 0, NULL }
 };
 
-static int proto_netlink_generic;
-
 static dissector_handle_t netlink_generic;
 static dissector_handle_t netlink_generic_ctrl;
 static dissector_table_t genl_dissector_table;
 
-static header_field_info *hfi_netlink_generic = NULL;
+static int proto_netlink_generic;
 
-#define NETLINK_GENERIC_HFI_INIT HFI_INIT(proto_netlink_generic)
+static int hf_genl_cmd = -1;
+static int hf_genl_ctrl_attr = -1;
+static int hf_genl_ctrl_cmd = -1;
+static int hf_genl_ctrl_family_id = -1;
+static int hf_genl_ctrl_family_name = -1;
+static int hf_genl_ctrl_group_id = -1;
+static int hf_genl_ctrl_group_name = -1;
+static int hf_genl_ctrl_groups_attr = -1;
+static int hf_genl_ctrl_hdrsize = -1;
+static int hf_genl_ctrl_maxattr = -1;
+static int hf_genl_ctrl_op_flags = -1;
+static int hf_genl_ctrl_op_flags_admin_perm = -1;
+static int hf_genl_ctrl_op_flags_cmd_cap_do = -1;
+static int hf_genl_ctrl_op_flags_cmd_cap_dump = -1;
+static int hf_genl_ctrl_op_flags_cmd_cap_haspol = -1;
+static int hf_genl_ctrl_op_flags_uns_admin_perm = -1;
+static int hf_genl_ctrl_op_id = -1;
+static int hf_genl_ctrl_ops_attr = -1;
+static int hf_genl_ctrl_version = -1;
+static int hf_genl_family_id = -1;
+static int hf_genl_reserved = -1;
+static int hf_genl_version = -1;
 
 static gint ett_netlink_generic = -1;
 static gint ett_genl_ctrl_attr = -1;
@@ -140,41 +157,12 @@ static gint ett_genl_nested_attr = -1;
  */
 static wmem_map_t *genl_family_map;
 
-
-static header_field_info hfi_genl_ctrl_op_id NETLINK_GENERIC_HFI_INIT =
-	{ "Operation ID", "genl.ctrl.op_id", FT_UINT32, BASE_DEC,
-	  NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_op_flags NETLINK_GENERIC_HFI_INIT =
-	{ "Operation Flags", "genl.ctrl.op_flags", FT_UINT32, BASE_HEX,
-	  NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_op_flags_admin_perm NETLINK_GENERIC_HFI_INIT =
-	{ "GENL_ADMIN_PERM", "genl.ctrl.op_flags.admin_perm", FT_BOOLEAN, 32,
-	  NULL, 0x01, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_op_flags_cmd_cap_do NETLINK_GENERIC_HFI_INIT =
-	{ "GENL_CMD_CAP_DO", "genl.ctrl.op_flags.cmd_cap_do", FT_BOOLEAN, 32,
-	  NULL, 0x02, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_op_flags_cmd_cap_dump NETLINK_GENERIC_HFI_INIT =
-	{ "GENL_CMD_CAP_DUMP", "genl.ctrl.op_flags.cmd_cap_dump", FT_BOOLEAN, 32,
-	  NULL, 0x04, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_op_flags_cmd_cap_haspol NETLINK_GENERIC_HFI_INIT =
-	{ "GENL_CMD_CAP_HASPOL", "genl.ctrl.op_flags.cmd_cap_haspol", FT_BOOLEAN, 32,
-	  NULL, 0x08, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_op_flags_uns_admin_perm NETLINK_GENERIC_HFI_INIT =
-	{ "GENL_UNS_ADMIN_PERM", "genl.ctrl.op_flags.uns_admin_perm", FT_BOOLEAN, 32,
-	  NULL, 0x10, NULL, HFILL };
-
 static int * const genl_ctrl_op_flags_fields[] = {
-	&hfi_genl_ctrl_op_flags_admin_perm.id,
-	&hfi_genl_ctrl_op_flags_cmd_cap_do.id,
-	&hfi_genl_ctrl_op_flags_cmd_cap_dump.id,
-	&hfi_genl_ctrl_op_flags_cmd_cap_haspol.id,
-	&hfi_genl_ctrl_op_flags_uns_admin_perm.id,
+	&hf_genl_ctrl_op_flags_admin_perm,
+	&hf_genl_ctrl_op_flags_cmd_cap_do,
+	&hf_genl_ctrl_op_flags_cmd_cap_dump,
+	&hf_genl_ctrl_op_flags_cmd_cap_haspol,
+	&hf_genl_ctrl_op_flags_uns_admin_perm,
 	NULL
 };
 
@@ -190,7 +178,7 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 		break;
 	case WS_CTRL_ATTR_OP_ID:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_op_id, tvb, offset, 4, nl_data->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, hf_genl_ctrl_op_id, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			proto_item_append_text(ptree, ", id=%u", value);
 			offset += 4;
@@ -200,7 +188,7 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 		if (len == 4) {
 			guint64 op_flags;
 			/* XXX it would be nice if the flag names are appended to the tree */
-			proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, &hfi_genl_ctrl_op_flags,
+			proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_genl_ctrl_op_flags,
 				ett_genl_ctrl_op_flags, genl_ctrl_op_flags_fields, nl_data->encoding, BMT_NO_FALSE, &op_flags);
 			proto_item_append_text(tree, ": 0x%08x", (guint32)op_flags);
 			proto_item_append_text(ptree, ", flags=0x%08x", (guint32)op_flags);
@@ -211,15 +199,6 @@ dissect_genl_ctrl_ops_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink
 
 	return offset;
 }
-
-
-static header_field_info hfi_genl_ctrl_group_name NETLINK_GENERIC_HFI_INIT =
-	{ "Group Name", "genl.ctrl.group_name", FT_STRINGZ, STR_ASCII,
-	  NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_group_id NETLINK_GENERIC_HFI_INIT =
-	{ "Group ID", "genl.ctrl.group_id", FT_UINT32, BASE_HEX,
-	  NULL, 0x00, NULL, HFILL };
 
 static int
 dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
@@ -233,14 +212,14 @@ dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netl
 	case WS_CTRL_ATTR_MCAST_GRP_UNSPEC:
 		break;
 	case WS_CTRL_ATTR_MCAST_GRP_NAME:
-		proto_tree_add_item_ret_string(tree, &hfi_genl_ctrl_group_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &strval);
+		proto_tree_add_item_ret_string(tree, hf_genl_ctrl_group_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &strval);
 		proto_item_append_text(tree, ": %s", strval);
 		proto_item_append_text(ptree, ", name=%s", strval);
 		offset += len;
 		break;
 	case WS_CTRL_ATTR_MCAST_GRP_ID:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_group_id, tvb, offset, 4, nl_data->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, hf_genl_ctrl_group_id, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			proto_item_append_text(ptree, ", id=%u", value);
 			offset += 4;
@@ -250,35 +229,6 @@ dissect_genl_ctrl_groups_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netl
 
 	return offset;
 }
-
-
-static header_field_info hfi_genl_ctrl_family_id NETLINK_GENERIC_HFI_INIT =
-	{ "Family ID", "genl.ctrl.family_id", FT_UINT16, BASE_HEX,
-	  NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_family_name NETLINK_GENERIC_HFI_INIT =
-	{ "Family Name", "genl.ctrl.family_name", FT_STRINGZ, STR_ASCII,
-	  NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_version NETLINK_GENERIC_HFI_INIT =
-	{ "Version", "genl.ctrl.version", FT_UINT32, BASE_DEC,
-	  NULL, 0x00, "Family-specific version number", HFILL };
-
-static header_field_info hfi_genl_ctrl_hdrsize NETLINK_GENERIC_HFI_INIT =
-	{ "Header Size", "genl.ctrl.hdrsize", FT_UINT32, BASE_DEC,
-	  NULL, 0x00, "Size of family-specific header", HFILL };
-
-static header_field_info hfi_genl_ctrl_maxattr NETLINK_GENERIC_HFI_INIT =
-	{ "Maximum Attributes", "genl.ctrl.maxattr", FT_UINT32, BASE_DEC,
-	  NULL, 0x00, "Maximum number of attributes", HFILL };
-
-static header_field_info hfi_genl_ctrl_ops_attr NETLINK_GENERIC_HFI_INIT =
-	{ "Type", "genl.ctrl.ops_attr", FT_UINT16, BASE_DEC,
-	  VALS(genl_ctrl_op_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
-
-static header_field_info hfi_genl_ctrl_groups_attr NETLINK_GENERIC_HFI_INIT =
-	{ "Type", "genl.ctrl.groups_attr", FT_UINT16, BASE_DEC,
-	  VALS(genl_ctrl_group_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static int
 dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int nla_type, int offset, int len)
@@ -292,56 +242,48 @@ dissect_genl_ctrl_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *n
 		break;
 	case WS_CTRL_ATTR_FAMILY_ID:
 		if (len == 2) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_family_id, tvb, offset, 2, nl_data->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, hf_genl_ctrl_family_id, tvb, offset, 2, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %#x", value);
 			info->family_id = value;
 			offset += 2;
 		}
 		break;
 	case WS_CTRL_ATTR_FAMILY_NAME:
-		proto_tree_add_item_ret_string(tree, &hfi_genl_ctrl_family_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &info->family_name);
+		proto_tree_add_item_ret_string(tree, hf_genl_ctrl_family_name, tvb, offset, len, ENC_ASCII, wmem_packet_scope(), &info->family_name);
 		proto_item_append_text(tree, ": %s", info->family_name);
 		offset += len;
 		break;
 	case WS_CTRL_ATTR_VERSION:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_version, tvb, offset, 4, nl_data->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, hf_genl_ctrl_version, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
 		break;
 	case WS_CTRL_ATTR_HDRSIZE:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_hdrsize, tvb, offset, 4, nl_data->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, hf_genl_ctrl_hdrsize, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
 		break;
 	case WS_CTRL_ATTR_MAXATTR:
 		if (len == 4) {
-			proto_tree_add_item_ret_uint(tree, &hfi_genl_ctrl_maxattr, tvb, offset, 4, nl_data->encoding, &value);
+			proto_tree_add_item_ret_uint(tree, hf_genl_ctrl_maxattr, tvb, offset, 4, nl_data->encoding, &value);
 			proto_item_append_text(tree, ": %u", value);
 			offset += 4;
 		}
 		break;
 	case WS_CTRL_ATTR_OPS:
-		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_ops_attr, ett_genl_ctrl_ops, ett_genl_ctrl_ops_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_ops_attrs);
+		offset = dissect_netlink_attributes_array(tvb, hf_genl_ctrl_ops_attr, ett_genl_ctrl_ops, ett_genl_ctrl_ops_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_ops_attrs);
 		break;
 	case WS_CTRL_ATTR_MCAST_GROUPS:
-		offset = dissect_netlink_attributes_array(tvb, &hfi_genl_ctrl_groups_attr, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
+		offset = dissect_netlink_attributes_array(tvb, hf_genl_ctrl_groups_attr, ett_genl_ctrl_groups, ett_genl_ctrl_groups_attr, info, nl_data, tree, offset, len, dissect_genl_ctrl_groups_attrs);
 		break;
 	}
 
 	return offset;
 }
-
-static header_field_info hfi_genl_ctrl_cmd NETLINK_GENERIC_HFI_INIT =
-	{ "Command", "genl.ctrl.cmd", FT_UINT8, BASE_DEC,
-	  VALS(genl_ctrl_cmds), 0x00, "Generic Netlink command", HFILL };
-
-static header_field_info hfi_genl_ctrl_attr NETLINK_GENERIC_HFI_INIT =
-	{ "Type", "genl.ctrl_attr", FT_UINT16, BASE_DEC,
-	  VALS(genl_ctrl_attr_vals), NLA_TYPE_MASK, NULL, HFILL };
 
 static int
 dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data)
@@ -357,13 +299,13 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 	info.family_id = 0;
 	info.family_name = NULL;
 
-	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, &hfi_genl_ctrl_cmd);
+	offset = dissect_genl_header(tvb, genl_info, genl_info->nl_data, hf_genl_ctrl_cmd);
 
 	/* Return if command has no payload */
 	if (!tvb_reported_length_remaining(tvb, offset))
 	    return offset;
 
-	dissect_netlink_attributes_to_end(tvb, &hfi_genl_ctrl_attr, ett_genl_ctrl_attr, &info, genl_info->nl_data, genl_info->genl_tree, offset, dissect_genl_ctrl_attrs);
+	dissect_netlink_attributes_to_end(tvb, hf_genl_ctrl_attr, ett_genl_ctrl_attr, &info, genl_info->nl_data, genl_info->genl_tree, offset, dissect_genl_ctrl_attrs);
 
 	/*
 	 * Remember association of dynamic ID with the family name such that
@@ -377,36 +319,19 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 	return tvb_captured_length(tvb);
 }
 
-
-static header_field_info hfi_genl_family_id NETLINK_GENERIC_HFI_INIT =
-	{ "Family ID", "genl.family_id", FT_UINT8, BASE_HEX,
-	  NULL, 0x00, NULL, HFILL };
-
-static header_field_info hfi_genl_cmd NETLINK_GENERIC_HFI_INIT =
-	{ "Command", "genl.cmd", FT_UINT8, BASE_DEC,
-	  NULL, 0x00, "Generic Netlink command", HFILL };
-
-static header_field_info hfi_genl_version NETLINK_GENERIC_HFI_INIT =
-	{ "Family Version", "genl.version", FT_UINT8, BASE_DEC,
-	  NULL, 0x00, "Family-specfic version", HFILL };
-
-static header_field_info hfi_genl_reserved NETLINK_GENERIC_HFI_INIT =
-	{ "Reserved", "genl.reserved", FT_NONE, BASE_NONE,
-	  NULL, 0x00, NULL, HFILL };
-
-int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, header_field_info *hfi_cmd)
+int dissect_genl_header(tvbuff_t *tvb, genl_info_t *genl_info, struct packet_netlink_data *nl_data, int hf_cmd)
 {
 	int offset = 0;
 
-	if (!hfi_cmd) {
-		hfi_cmd = &hfi_genl_cmd;
+	if (hf_cmd < 0) {
+		hf_cmd = hf_genl_cmd;
 	}
-	proto_tree_add_item(genl_info->genl_tree, hfi_cmd, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(genl_info->genl_tree, hf_cmd, tvb, offset, 1, ENC_NA);
 	offset++;
 	/* XXX Family dissectors may want to know this */
-	proto_tree_add_item(genl_info->genl_tree, &hfi_genl_version, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(genl_info->genl_tree, hf_genl_version, tvb, offset, 1, ENC_NA);
 	offset++;
-	proto_tree_add_item(genl_info->genl_tree, &hfi_genl_reserved, tvb, offset, 2, nl_data->encoding);
+	proto_tree_add_item(genl_info->genl_tree, hf_genl_reserved, tvb, offset, 2, nl_data->encoding);
 	offset += 2;
 	return offset;
 }
@@ -427,11 +352,11 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink generic");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_generic), tvb, 0, -1, ENC_NA);
+	pi = proto_tree_add_item(tree, proto_netlink_generic, tvb, 0, -1, ENC_NA);
 	nlmsg_tree = proto_item_add_subtree(pi, ett_netlink_generic);
 
 	/* Netlink message header (nlmsghdr) */
-	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, &hfi_genl_family_id, &pi_type);
+	offset = dissect_netlink_header(tvb, nlmsg_tree, offset, nl_data->encoding, hf_genl_family_id, &pi_type);
 	family_name = (const char *)wmem_map_lookup(genl_family_map, GUINT_TO_POINTER(nl_data->type));
 	proto_item_append_text(pi_type, " (%s)", family_name ? family_name : "Unknown");
 
@@ -452,7 +377,7 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	/* No subdissector added the genl header, do it now. */
-	offset = dissect_genl_header(next_tvb, &info, nl_data, NULL);
+	offset = dissect_genl_header(next_tvb, &info, nl_data, -1);
 	if (tvb_reported_length_remaining(tvb, offset)) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);
@@ -471,33 +396,118 @@ genl_init(void)
 void
 proto_register_netlink_generic(void)
 {
-#ifndef HAVE_HFI_SECTION_INIT
-	static header_field_info *hfi[] = {
-		&hfi_genl_family_id,
-		&hfi_genl_cmd,
-		&hfi_genl_version,
-		&hfi_genl_reserved,
-		&hfi_genl_ctrl_attr,
-		/* Controller */
-		&hfi_genl_ctrl_cmd,
-		&hfi_genl_ctrl_family_id,
-		&hfi_genl_ctrl_family_name,
-		&hfi_genl_ctrl_version,
-		&hfi_genl_ctrl_hdrsize,
-		&hfi_genl_ctrl_maxattr,
-		&hfi_genl_ctrl_ops_attr,
-		&hfi_genl_ctrl_groups_attr,
-		&hfi_genl_ctrl_op_id,
-		&hfi_genl_ctrl_op_flags,
-		&hfi_genl_ctrl_op_flags_admin_perm,
-		&hfi_genl_ctrl_op_flags_cmd_cap_do,
-		&hfi_genl_ctrl_op_flags_cmd_cap_dump,
-		&hfi_genl_ctrl_op_flags_cmd_cap_haspol,
-		&hfi_genl_ctrl_op_flags_uns_admin_perm,
-		&hfi_genl_ctrl_group_name,
-		&hfi_genl_ctrl_group_id,
+	static hf_register_info hf[] = {
+		{ &hf_genl_ctrl_op_id,
+			{ "Operation ID", "genl.ctrl.op_id",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_op_flags,
+			{ "Operation Flags", "genl.ctrl.op_flags",
+			  FT_UINT32, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_op_flags_admin_perm,
+			{ "GENL_ADMIN_PERM", "genl.ctrl.op_flags.admin_perm",
+			  FT_BOOLEAN, 32, NULL, 0x01,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_op_flags_cmd_cap_do,
+			{ "GENL_CMD_CAP_DO", "genl.ctrl.op_flags.cmd_cap_do",
+			  FT_BOOLEAN, 32, NULL, 0x02,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_op_flags_cmd_cap_dump,
+			{ "GENL_CMD_CAP_DUMP", "genl.ctrl.op_flags.cmd_cap_dump",
+			  FT_BOOLEAN, 32, NULL, 0x04,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_op_flags_cmd_cap_haspol,
+			{ "GENL_CMD_CAP_HASPOL", "genl.ctrl.op_flags.cmd_cap_haspol",
+			  FT_BOOLEAN, 32, NULL, 0x08,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_op_flags_uns_admin_perm,
+			{ "GENL_UNS_ADMIN_PERM", "genl.ctrl.op_flags.uns_admin_perm",
+			  FT_BOOLEAN, 32, NULL, 0x10,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_group_name,
+			{ "Group Name", "genl.ctrl.group_name",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_group_id,
+			{ "Group ID", "genl.ctrl.group_id",
+			  FT_UINT32, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_family_id,
+			{ "Family ID", "genl.ctrl.family_id",
+			  FT_UINT16, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_family_name,
+			{ "Family Name", "genl.ctrl.family_name",
+			  FT_STRINGZ, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_version,
+			{ "Version", "genl.ctrl.version",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  "Family-specific version number", HFILL }
+		},
+		{ &hf_genl_ctrl_hdrsize,
+			{ "Header Size", "genl.ctrl.hdrsize",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  "Size of family-specific header", HFILL }
+		},
+		{ &hf_genl_ctrl_maxattr,
+			{ "Maximum Attributes", "genl.ctrl.maxattr",
+			  FT_UINT32, BASE_DEC, NULL, 0x00,
+			  "Maximum number of attributes", HFILL }
+		},
+		{ &hf_genl_ctrl_ops_attr,
+			{ "Type", "genl.ctrl.ops_attr",
+			  FT_UINT16, BASE_DEC, VALS(genl_ctrl_op_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_groups_attr,
+			{ "Type", "genl.ctrl.groups_attr",
+			  FT_UINT16, BASE_DEC, VALS(genl_ctrl_group_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_ctrl_cmd,
+			{ "Command", "genl.ctrl.cmd",
+			  FT_UINT8, BASE_DEC, VALS(genl_ctrl_cmds), 0x00,
+			  "Generic Netlink command", HFILL }
+		},
+		{ &hf_genl_ctrl_attr,
+			{ "Type", "genl.ctrl_attr",
+			  FT_UINT16, BASE_DEC, VALS(genl_ctrl_attr_vals), NLA_TYPE_MASK,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_family_id,
+			{ "Family ID", "genl.family_id",
+			  FT_UINT8, BASE_HEX, NULL, 0x00,
+			  NULL, HFILL }
+		},
+		{ &hf_genl_cmd,
+			{ "Command", "genl.cmd",
+			  FT_UINT8, BASE_DEC, NULL, 0x00,
+			  "Generic Netlink command", HFILL }
+		},
+		{ &hf_genl_version,
+			{ "Family Version", "genl.version",
+			  FT_UINT8, BASE_DEC, NULL, 0x00,
+			  "Family-specfic version", HFILL }
+		},
+		{ &hf_genl_reserved,
+			{ "Reserved", "genl.reserved",
+			  FT_NONE, BASE_NONE, NULL, 0x00,
+			  NULL, HFILL }
+		},
 	};
-#endif
 
 	static gint *ett[] = {
 		&ett_netlink_generic,
@@ -511,9 +521,7 @@ proto_register_netlink_generic(void)
 	};
 
 	proto_netlink_generic = proto_register_protocol("Linux Generic Netlink protocol", "genl", "genl");
-	hfi_netlink_generic = proto_registrar_get_nth(proto_netlink_generic);
-
-	proto_register_fields(proto_netlink_generic, hfi, array_length(hfi));
+	proto_register_field_array(proto_netlink_generic, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	netlink_generic = create_dissector_handle(dissect_netlink_generic, proto_netlink_generic);

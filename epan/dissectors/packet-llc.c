@@ -210,7 +210,7 @@ static wmem_map_t *oui_info_table = NULL;
 static void
 llc_sap_value( gchar *result, guint32 sap )
 {
-	g_snprintf( result, ITEM_LABEL_LENGTH, "%s", val_to_str_const(sap<<1, sap_vals, "Unknown"));
+	snprintf( result, ITEM_LABEL_LENGTH, "%s", val_to_str_const(sap<<1, sap_vals, "Unknown"));
 }
 
 /*

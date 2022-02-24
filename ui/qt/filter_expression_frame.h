@@ -1,4 +1,4 @@
-/* filter_expression_frame.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

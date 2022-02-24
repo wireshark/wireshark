@@ -159,7 +159,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
          * The packet data begins before the file header ends.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Observer: The first packet begins in the middle of the file header");
+        *err_info = ws_strdup_printf("Observer: The first packet begins in the middle of the file header");
         return WTAP_OPEN_ERROR;
     }
 
@@ -182,7 +182,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
              * but we have the IE header to read.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("Observer: TLVs run into the first packet data");
+            *err_info = ws_strdup_printf("Observer: TLVs run into the first packet data");
             return WTAP_OPEN_ERROR;
         }
 
@@ -194,7 +194,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
 
         if (tlvh.length < sizeof tlvh) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("Observer: bad record (TLV length %u < %zu)",
+            *err_info = ws_strdup_printf("Observer: bad record (TLV length %u < %zu)",
                 tlvh.length, sizeof tlvh);
             return WTAP_OPEN_ERROR;
         }
@@ -210,7 +210,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
              * but we have the IE data to read.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("Observer: TLVs run into the first packet data");
+            *err_info = ws_strdup_printf("Observer: TLVs run into the first packet data");
             return WTAP_OPEN_ERROR;
         }
 
@@ -220,7 +220,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
         case INFORMATION_TYPE_TIME_INFO:
             if (tlv_data_length != sizeof private_state->time_format) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("Observer: bad record (time information TLV length %u != %zu)",
+                *err_info = ws_strdup_printf("Observer: bad record (time information TLV length %u != %zu)",
                     tlvh.length,
                     sizeof tlvh + sizeof private_state->time_format);
                 return WTAP_OPEN_ERROR;
@@ -268,7 +268,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
              * EOF, so there *are* no records.
              */
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("Observer: No records in the file, so we can't determine the link-layer type");
+            *err_info = ws_strdup_printf("Observer: No records in the file, so we can't determine the link-layer type");
         }
         return WTAP_OPEN_ERROR;
     }
@@ -277,14 +277,14 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
     /* check the packet's magic number */
     if (packet_header.packet_magic != observer_packet_magic) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("Observer: unsupported packet version %ul", packet_header.packet_magic);
+        *err_info = ws_strdup_printf("Observer: unsupported packet version %ul", packet_header.packet_magic);
         return WTAP_OPEN_ERROR;
     }
 
     /* check the data link type */
     if (observer_to_wtap_encap(packet_header.network_type) == WTAP_ENCAP_UNKNOWN) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("Observer: network type %u unknown or unsupported", packet_header.network_type);
+        *err_info = ws_strdup_printf("Observer: network type %u unknown or unsupported", packet_header.network_type);
         return WTAP_OPEN_ERROR;
     }
     wth->file_encap = observer_to_wtap_encap(packet_header.network_type);
@@ -307,7 +307,7 @@ wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
     err_str = init_gmt_to_localtime_offset();
     if (err_str != NULL) {
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("observer: %s", err_str);
+        *err_info = ws_strdup_printf("observer: %s", err_str);
         return WTAP_OPEN_ERROR;
     }
 
@@ -442,7 +442,7 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
         }
 
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Observer: bad record: Invalid magic number 0x%08x",
+        *err_info = ws_strdup_printf("Observer: bad record: Invalid magic number 0x%08x",
             packet_header->packet_magic);
         return -1;
     }
@@ -475,7 +475,7 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
 
         if (tlvh.length < sizeof tlvh) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("Observer: bad record (TLV length %u < %zu)",
+            *err_info = ws_strdup_printf("Observer: bad record (TLV length %u < %zu)",
                 tlvh.length, sizeof tlvh);
             return -1;
         }
@@ -486,7 +486,7 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
         case INFORMATION_TYPE_WIRELESS:
             if (tlv_data_length != sizeof wireless_header) {
                 *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("Observer: bad record (wireless TLV length %u != %zu)",
+                *err_info = ws_strdup_printf("Observer: bad record (wireless TLV length %u != %zu)",
                     tlvh.length, sizeof tlvh + sizeof wireless_header);
                 return -1;
             }
@@ -575,7 +575,7 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
          */
         if (packet_header->network_size < 4) {
             *err = WTAP_ERR_BAD_FILE;
-            *err_info = g_strdup_printf("Observer: bad record: Packet length %u < 4",
+            *err_info = ws_strdup_printf("Observer: bad record: Packet length %u < 4",
                                         packet_header->network_size);
             return FALSE;
         }
@@ -632,7 +632,7 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
     /* validate offsets */
     if (offset_to_frame < current_offset_from_packet_header) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Observer: bad record (offset to packet data %d < %d)",
+        *err_info = ws_strdup_printf("Observer: bad record (offset to packet data %d < %d)",
             offset_to_frame, current_offset_from_packet_header);
         return -1;
     }
@@ -663,7 +663,7 @@ skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_fro
     /* validate offsets */
     if (offset_to_next_packet < current_offset_from_packet_header) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("Observer: bad record (offset to next packet %d < %d)",
+        *err_info = ws_strdup_printf("Observer: bad record (offset to next packet %d < %d)",
             offset_to_next_packet, current_offset_from_packet_header);
         return FALSE;
     }
@@ -730,9 +730,9 @@ static gboolean observer_dump_open(wtap_dumper *wdh, int *err,
         current_time = localtime(&system_time);
         memset(&comment, 0x00, sizeof(comment));
         if (current_time != NULL)
-            g_snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
+            snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
         else
-            g_snprintf(comment, 64, "This capture was saved from Wireshark");
+            snprintf(comment, 64, "This capture was saved from Wireshark");
         comment_length = strlen(comment);
 
         comment_header.type = INFORMATION_TYPE_COMMENT;
@@ -797,7 +797,7 @@ static gboolean observer_dump_open(wtap_dumper *wdh, int *err,
     err_str = init_gmt_to_localtime_offset();
     if (err_str != NULL) {
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("observer: %s", err_str);
+        *err_info = ws_strdup_printf("observer: %s", err_str);
         return FALSE;
     }
 

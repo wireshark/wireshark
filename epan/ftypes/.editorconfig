@@ -43,3 +43,7 @@ indent_size = tab
 [ftypes.[ch]]
 indent_style = tab
 indent_size = tab
+
+[ftypes-int.h]
+indent_style = tab
+indent_size = tab

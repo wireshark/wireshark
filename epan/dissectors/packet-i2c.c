@@ -68,7 +68,7 @@ static dissector_handle_t ipmb_handle;
 
 static void i2c_prompt(packet_info *pinfo _U_, gchar* result)
 {
-	g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Interpret I2C messages as");
+	snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Interpret I2C messages as");
 }
 
 static gboolean

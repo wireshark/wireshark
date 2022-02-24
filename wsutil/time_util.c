@@ -7,22 +7,22 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-
+#define _GNU_SOURCE /* For strptime(). */
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WSUTIL
-
-#include <glib.h>
+#include "time_util.h"
 
 #include <wsutil/epochs.h>
-#include <wsutil/wslog.h>
-
-#include "time_util.h"
 
 #ifndef _WIN32
 #include <sys/time.h>
 #include <sys/resource.h>
 #else
 #include <windows.h>
+#endif
+
+#ifndef HAVE_STRPTIME
+#include "strptime.h"
 #endif
 
 /* Test if the given year is a leap year */
@@ -92,6 +92,9 @@ tm_is_valid(struct tm *tm)
 	if (tm->tm_hour < 0 || tm->tm_hour > 23) {
 		return FALSE;
 	}
+	/* XXX: ISO 8601 and others allow 24:00:00 for end of day, perhaps that
+	 * one case should be allowed?
+	 */
 	if (tm->tm_min < 0 || tm->tm_min > 59) {
 		return FALSE;
 	}
@@ -158,53 +161,93 @@ void log_resource_usage(gboolean reset_delta, const char *format, ...) {
 /* Copied from pcapio.c pcapng_write_interface_statistics_block()*/
 guint64
 create_timestamp(void) {
-    guint64  timestamp;
+	guint64  timestamp;
 #ifdef _WIN32
-    FILETIME now;
+	FILETIME now;
 #else
-    struct timeval now;
+	struct timeval now;
 #endif
 
 #ifdef _WIN32
-    /*
-     * Current time, represented as 100-nanosecond intervals since
-     * January 1, 1601, 00:00:00 UTC.
-     *
-     * I think DWORD might be signed, so cast both parts of "now"
-     * to guint32 so that the sign bit doesn't get treated specially.
-     *
-     * Windows 8 provides GetSystemTimePreciseAsFileTime which we
-     * might want to use instead.
-     */
-    GetSystemTimeAsFileTime(&now);
-    timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
-                (guint32)now.dwLowDateTime;
+	/*
+	 * Current time, represented as 100-nanosecond intervals since
+	 * January 1, 1601, 00:00:00 UTC.
+	 *
+	 * I think DWORD might be signed, so cast both parts of "now"
+	 * to guint32 so that the sign bit doesn't get treated specially.
+	 *
+	 * Windows 8 provides GetSystemTimePreciseAsFileTime which we
+	 * might want to use instead.
+	 */
+	GetSystemTimeAsFileTime(&now);
+	timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
+				(guint32)now.dwLowDateTime;
 
-    /*
-     * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
-     * intervals.
-     */
-    timestamp /= 10;
+	/*
+	 * Convert to same thing but as 1-microsecond, i.e. 1000-nanosecond,
+	 * intervals.
+	 */
+	timestamp /= 10;
 
-    /*
-     * Subtract difference, in microseconds, between January 1, 1601
-     * 00:00:00 UTC and January 1, 1970, 00:00:00 UTC.
-     */
-    timestamp -= EPOCH_DELTA_1601_01_01_00_00_00_UTC*1000000;
+	/*
+	 * Subtract difference, in microseconds, between January 1, 1601
+	 * 00:00:00 UTC and January 1, 1970, 00:00:00 UTC.
+	 */
+	timestamp -= EPOCH_DELTA_1601_01_01_00_00_00_UTC*1000000;
 #else
-    /*
-     * Current time, represented as seconds and microseconds since
-     * January 1, 1970, 00:00:00 UTC.
-     */
-    gettimeofday(&now, NULL);
+	/*
+	 * Current time, represented as seconds and microseconds since
+	 * January 1, 1970, 00:00:00 UTC.
+	 */
+	gettimeofday(&now, NULL);
 
-    /*
-     * Convert to delta in microseconds.
-     */
-    timestamp = (guint64)(now.tv_sec) * 1000000 +
-                (guint64)(now.tv_usec);
+	/*
+	 * Convert to delta in microseconds.
+	 */
+	timestamp = (guint64)(now.tv_sec) * 1000000 + (guint64)(now.tv_usec);
 #endif
-    return timestamp;
+	return timestamp;
+}
+
+struct timespec *
+ws_clock_get_realtime(struct timespec *ts)
+{
+	/*
+	 * This function is used in the wslog log handler context.
+	 * We must not call anything, even indirectly, that might log a message
+	 * using wslog (including GLib).
+	 */
+#if defined(HAVE_CLOCK_GETTIME)
+	if (clock_gettime(CLOCK_REALTIME, ts) == 0)
+		return ts;
+#elif defined(HAVE_TIMESPEC_GET)
+	if (timespec_get(ts, TIME_UTC) == TIME_UTC)
+		return ts;
+#endif
+
+#ifndef _WIN32
+	/* Fall back on gettimeofday(). */
+	struct timeval usectimenow;
+	gettimeofday(&usectimenow, NULL);
+	ts->tv_sec = usectimenow.tv_sec;
+	ts->tv_nsec = usectimenow.tv_usec*1000;
+	return ts;
+#else
+	/* Fall back on time(). */
+	ts->tv_sec = time(NULL);
+	ts->tv_nsec = 0;
+	return ts;
+#endif
+}
+
+char *ws_strptime(const char *restrict s, const char *restrict format,
+			struct tm *restrict tm)
+{
+#ifdef HAVE_STRPTIME
+	return strptime(s, format, tm);
+#else
+	return strptime_gnulib(s, format, tm);
+#endif
 }
 
 /*

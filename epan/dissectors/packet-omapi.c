@@ -154,7 +154,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   while (msglength)
   {
     ptvcursor_add(cursor, hf_omapi_msg_name_len, 2, ENC_BIG_ENDIAN);
-    ptvcursor_add(cursor, hf_omapi_msg_name, msglength, ENC_ASCII|ENC_NA);
+    ptvcursor_add(cursor, hf_omapi_msg_name, msglength, ENC_ASCII);
     msglength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_omapi_msg_value_len, 4, ENC_BIG_ENDIAN);
 
@@ -168,7 +168,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
     else
     {
-      ptvcursor_add(cursor, hf_omapi_msg_value, msglength, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_omapi_msg_value, msglength, ENC_ASCII);
     }
 
     msglength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
@@ -180,7 +180,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   while (objlength)
   {
     ptvcursor_add(cursor, hf_omapi_obj_name_len, 2, ENC_BIG_ENDIAN);
-    ptvcursor_add(cursor, hf_omapi_obj_name, objlength, ENC_ASCII|ENC_NA);
+    ptvcursor_add(cursor, hf_omapi_obj_name, objlength, ENC_ASCII);
     objlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
     ptvcursor_add(cursor, hf_omapi_obj_value_len, 4, ENC_BIG_ENDIAN);
 

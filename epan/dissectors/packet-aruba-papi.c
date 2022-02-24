@@ -449,11 +449,11 @@ dissect_papi_license_manager(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                 proto_item_append_text(tlv_item, ": %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
             break;
             case 2: /* Serial Number */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_serial_number, tvb, offset, 32, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_serial_number, tvb, offset, 32, ENC_ASCII);
                 proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(pinfo->pool,tvb, offset, optlen, ENC_ASCII));
             break;
             case 3: /* Hostname */
-                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_hostname, tvb, offset, optlen, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(licmgr_subtree, hf_papi_licmgr_hostname, tvb, offset, optlen, ENC_ASCII);
                 proto_item_append_text(tlv_item, ": %s", tvb_get_string_enc(pinfo->pool,tvb, offset, optlen, ENC_ASCII));
             break;
             case 5: /* MAC Address */
@@ -524,7 +524,7 @@ dissect_papi_debug(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *
     while(offset < tvb_reported_length(tvb)) {
         switch(tvb_get_guint8(tvb,offset)) {
         case 0x00:
-            ti = proto_tree_add_item(debug_tree, hf_papi_debug_text, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), ENC_ASCII|ENC_NA);
+            ti = proto_tree_add_item(debug_tree, hf_papi_debug_text, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), ENC_ASCII);
             debug_sub_tree = proto_item_add_subtree(ti, ett_papi);
             proto_tree_add_item(debug_sub_tree, hf_papi_debug_text_length, tvb, offset+1, 2, ENC_BIG_ENDIAN);
             offset += tvb_get_ntohs(tvb, offset+1) + 3;

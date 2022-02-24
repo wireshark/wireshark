@@ -708,7 +708,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     while (fgetline(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file)) {
         special_type = TPNCP_NORMAL;
         since = 0;
-        g_snprintf(entry_copy, MAX_TPNCP_DB_ENTRY_LEN, "%s", tpncp_db_entry);
+        snprintf(entry_copy, MAX_TPNCP_DB_ENTRY_LEN, "%s", tpncp_db_entry);
         if (!strncmp(tpncp_db_entry, "#####", 5)) {
             hf_size--;
             break;
@@ -908,7 +908,7 @@ init_tpncp_db(void)
     gchar tpncp_dat_file_path[MAX_TPNCP_DB_ENTRY_LEN];
     FILE *file;
 
-    g_snprintf(tpncp_dat_file_path, MAX_TPNCP_DB_ENTRY_LEN,
+    snprintf(tpncp_dat_file_path, MAX_TPNCP_DB_ENTRY_LEN,
                "%s" G_DIR_SEPARATOR_S "tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
 
     /* Open file with TPNCP data. */

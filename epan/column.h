@@ -1,4 +1,4 @@
-/* column.h
+/** @file
  * Definitions for column handling routines
  *
  * Wireshark - Network traffic analyzer

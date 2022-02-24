@@ -1,5 +1,4 @@
-/*
- *  ex-opt.h
+/** @file
  *
  * eXtension command line options
  *

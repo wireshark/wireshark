@@ -401,6 +401,8 @@ Displays the average data rate, in bytes/sec
 Displays the average packet size, in bytes
 --
 
+include::diagnostic-options.adoc[]
+
 == EXAMPLES
 
 To see a description of the options use:

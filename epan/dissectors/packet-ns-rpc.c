@@ -1210,7 +1210,7 @@ proto_register_ns_rpc(void)
 void proto_reg_handoff_ns_rpc(void)
 {
 	/* Heuristic not strong enough to be enabled by default */
-	heur_dissector_add("tcp", dissect_ns_rpc_heur, "netscaler-nsrpc", "nsrpc", proto_ns_rpc, HEURISTIC_DISABLE);
+	heur_dissector_add("tcp", dissect_ns_rpc_heur, "NSRPC over TCP", "nsrpc", proto_ns_rpc, HEURISTIC_DISABLE);
 }
 
 /*

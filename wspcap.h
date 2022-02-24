@@ -1,4 +1,4 @@
-/* wspcap.h
+/** @file
  *
  * Wrapper around libpcap/WinPcap's pcap.h.
  *

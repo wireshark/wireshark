@@ -1,4 +1,5 @@
-/* preference_utils.h
+/** @file
+ *
  * Routines for handling preferences
  *
  * Wireshark - Network traffic analyzer

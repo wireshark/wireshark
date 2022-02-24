@@ -870,7 +870,7 @@ proto_register_adb(void)
         },
         { &hf_connection_info,
             { "Info",                            "adb.connection_info",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         }
     };

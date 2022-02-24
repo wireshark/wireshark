@@ -1,4 +1,5 @@
-/* expert_info_model.h
+/** @file
+ *
  * Data model for Expert Info tap data.
  *
  * Wireshark - Network traffic analyzer

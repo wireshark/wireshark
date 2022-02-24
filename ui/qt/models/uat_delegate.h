@@ -1,4 +1,5 @@
-/* uat_delegate.h
+/** @file
+ *
  * Delegates for editing various field types in a UAT record.
  *
  * Copyright 2016 Peter Wu <peter@lekensteyn.nl>

@@ -471,7 +471,7 @@ sctp_chunk_type_update_cb(void *r, char **err)
   */
   c = proto_check_field_name(rec->type_name);
   if (c) {
-    *err = g_strdup_printf("Header name can't contain '%c'", c);
+    *err = ws_strdup_printf("Header name can't contain '%c'", c);
     return FALSE;
   }
 
@@ -670,7 +670,7 @@ sctp_src_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_source_port, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "source (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
 static gpointer
@@ -684,7 +684,7 @@ sctp_dst_prompt(packet_info *pinfo, gchar *result)
 {
     guint32 port = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_destination_port, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "destination (%s%u)", UTF8_RIGHTWARDS_ARROW, port);
 }
 
 static gpointer
@@ -699,7 +699,7 @@ sctp_both_prompt(packet_info *pinfo, gchar *result)
     guint32 srcport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_source_port, pinfo->curr_layer_num)),
             destport = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, hf_destination_port, pinfo->curr_layer_num));
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "both (%u%s%u)", srcport, UTF8_LEFT_RIGHT_ARROW, destport);
 }
 
 static void
@@ -708,9 +708,9 @@ sctp_ppi_prompt1(packet_info *pinfo _U_, gchar* result)
     guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 0));
 
     if (ppid == LAST_PPID) {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
     } else {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
     }
 }
 
@@ -720,9 +720,9 @@ sctp_ppi_prompt2(packet_info *pinfo _U_, gchar* result)
     guint32 ppid = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_sctp, 1));
 
     if (ppid == LAST_PPID) {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (none)");
     } else {
-        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
+        snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PPID (%d)", ppid);
     }
 }
 
@@ -1077,7 +1077,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
     char ds[64];
 
     if (t->retransmit_count > MAX_RETRANS_TRACKED_PER_TSN)
-      g_snprintf(ds, sizeof(ds), " (only %d displayed)", MAX_RETRANS_TRACKED_PER_TSN);
+      snprintf(ds, sizeof(ds), " (only %d displayed)", MAX_RETRANS_TRACKED_PER_TSN);
     else
       ds[0] = 0;
 
@@ -1422,7 +1422,7 @@ dissect_hostname_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, 
   guint16 hostname_length;
 
   hostname_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(parameter_tree, hf_hostname, parameter_tvb, HOSTNAME_OFFSET, hostname_length, ENC_ASCII);
   proto_item_append_text(parameter_item, " (Hostname: %.*s)", hostname_length, tvb_format_text(wmem_packet_scope(), parameter_tvb, HOSTNAME_OFFSET, hostname_length));
 
 }
@@ -2456,7 +2456,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     try_ppi = FALSE;
     if (dissector_is_uint_changed(sctp_ppi_dissector_table, ppi)) {
       if (dissector_try_uint_new(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
-	return TRUE;
+        return TRUE;
       }
     } else {
       /* The default; try it later */
@@ -2467,11 +2467,11 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     if (low_port != 0) {
       if (dissector_is_uint_changed(sctp_port_dissector_table, low_port)) {
         if (dissector_try_uint_new(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
-	  return TRUE;
-	}
+          return TRUE;
+        }
       } else {
-	/* The default; try it later */
-	try_low_port = TRUE;
+        /* The default; try it later */
+        try_low_port = TRUE;
       }
     }
 
@@ -2479,11 +2479,11 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
     if (high_port != 0) {
       if (dissector_is_uint_changed(sctp_port_dissector_table, high_port)) {
         if (dissector_try_uint_new(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree, TRUE, GUINT_TO_POINTER(ppi))) {
-	  return TRUE;
-	}
+          return TRUE;
+        }
       } else {
-	/* The default; try it later */
-	try_high_port = TRUE;
+        /* The default; try it later */
+        try_high_port = TRUE;
       }
     }
 
@@ -2613,7 +2613,6 @@ frag_hash(gconstpointer k)
   return key->sport ^ key->dport ^ key->verification_tag ^
          key->stream_id ^ key->stream_seq_num ^ key->u_bit;
 }
-
 
 
 static void
@@ -3333,7 +3332,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   proto_tree *flags_tree;
   guint8 oct, e_bit, b_bit, u_bit;
   guint16 stream_id;
-  guint32 tsn, ppid, stream_seq_num = 0;
+  guint32 tsn, rawtsn, ppid, stream_seq_num = 0;
   proto_item *tsn_item = NULL;
   gboolean call_subdissector = FALSE;
   gboolean is_retransmission;
@@ -3377,12 +3376,16 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   b_bit = oct & SCTP_DATA_CHUNK_B_BIT;
   u_bit = oct & SCTP_DATA_CHUNK_U_BIT;
 
-  tsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
-  if((show_relative_tsns) && (ha)) {
-     tsn -= ha->first_tsn;
+  tsn = rawtsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
+  if ((show_relative_tsns) && (ha)) {
+    if (!ha->started) {
+      ha->first_tsn = tsn;
+      ha->started = TRUE;
+    }
+    tsn -= ha->first_tsn;
   }
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, "(TSN=%" G_GUINT32_FORMAT ") ", tsn);
+  col_append_fstr(pinfo->cinfo, COL_INFO, "(TSN=%" PRIu32 ") ", tsn);
 
   if (chunk_tree) {
     if (is_idata)
@@ -3447,7 +3450,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
                              chunk_length - DATA_CHUNK_HEADER_LENGTH, plurality(chunk_length - DATA_CHUNK_HEADER_LENGTH, "", "s"));
   }
 
-  is_retransmission = sctp_tsn(pinfo, chunk_tvb, tsn_item, ha, tsn);
+  is_retransmission = sctp_tsn(pinfo, chunk_tvb, tsn_item, ha, rawtsn);
 
   if (is_idata) {
     header_length = I_DATA_CHUNK_HEADER_LENGTH;
@@ -3742,13 +3745,13 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   if(last_end == 0) {
     /* No GapAck -> only show CumAck */
     col_append_fstr(pinfo->cinfo, COL_INFO,
-                    "(Ack=%" G_GUINT32_FORMAT ", Arwnd=%" G_GUINT32_FORMAT ") ",
+                    "(Ack=%" PRIu32 ", Arwnd=%" PRIu32 ") ",
                     cum_tsn_ack, a_rwnd);
   }
   else {
     /* Show CumAck + highest GapAck */
     col_append_fstr(pinfo->cinfo, COL_INFO,
-                    "(Ack=%" G_GUINT32_FORMAT "+%" G_GUINT32_FORMAT ", Arwnd=%" G_GUINT32_FORMAT ") ",
+                    "(Ack=%" PRIu32 "+%" PRIu32 ", Arwnd=%" PRIu32 ") ",
                     cum_tsn_ack, last_end, a_rwnd);
   }
 

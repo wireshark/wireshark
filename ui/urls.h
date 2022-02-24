@@ -1,4 +1,4 @@
-/* urls.h
+/** @file
  *
  * Define URLs for various Wireshark sites, so that if they move, we only
  * have to change the URLs here.

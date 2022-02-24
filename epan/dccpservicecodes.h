@@ -1,4 +1,5 @@
-/* dccpservicecodes.h
+/** @file
+ *
  * Declarations of DCCP payload protocol IDs.
  *
  * Copyright 2021 by Thomas Dreibholz <dreibh [AT] simula.no>

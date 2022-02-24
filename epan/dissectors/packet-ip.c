@@ -476,7 +476,7 @@ const value_string ip_version_vals[] = {
 
 static void ip_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as",
         GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ip, pinfo->curr_layer_num)));
 }
 
@@ -545,7 +545,7 @@ ip_filter_valid(packet_info *pinfo)
 static gchar*
 ip_build_filter(packet_info *pinfo)
 {
-    return g_strdup_printf("ip.addr eq %s and ip.addr eq %s",
+    return ws_strdup_printf("ip.addr eq %s and ip.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
                 address_to_str(pinfo->pool, &pinfo->net_dst));
 }
@@ -839,10 +839,10 @@ dissect_ipopt_security(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                           tvb, curr_offset, 2, ENC_BIG_ENDIAN);
       curr_offset += 2;
       proto_tree_add_item(field_tree, hf_ip_opt_sec_rfc791_hr,
-                          tvb, curr_offset, 2, ENC_ASCII|ENC_NA);
+                          tvb, curr_offset, 2, ENC_ASCII);
       curr_offset += 2;
       proto_tree_add_item(field_tree, hf_ip_opt_sec_rfc791_tcc,
-                          tvb, curr_offset, 3, ENC_ASCII|ENC_NA);
+                          tvb, curr_offset, 3, ENC_ASCII);
       return curr_offset;
     }
   }
@@ -984,7 +984,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
           bit_spot = 0;
           while (bit_spot < 8) {
             if (val_ptr[byte_spot] & bitmask) {
-              g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
+              snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
                          byte_spot * 8 + bit_spot);
               if (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN)) {
                 char *cat_str_new;
@@ -1034,7 +1034,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
         char *cat_str_tmp = (char *)wmem_alloc(pinfo->pool, USHRT_MAX_STRLEN);
 
         while ((offset + 2) <= offset_max_cat) {
-          g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
+          snprintf(cat_str_tmp, USHRT_MAX_STRLEN, "%u",
                      tvb_get_ntohs(tvb, offset));
           offset += 2;
           if (cat_str[0] != '\0')
@@ -1076,10 +1076,10 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
             offset += 2;
           }
           if (cat_low != cat_high)
-            g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u-%u",
+            snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u-%u",
                        cat_high, cat_low);
           else
-            g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u", cat_high);
+            snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u", cat_high);
 
           if (cat_str[0] != '\0')
             (void) g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 16);
@@ -1181,7 +1181,7 @@ dissect_ipopt_route(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int pro
       dissect_option_route(field_tree, tvb, offset + optoffset, hf_ip_rec_rt,
                            hf_ip_rec_rt_host, FALSE);
     } else if (optoffset == (len - 4)) {
-      /* This is the the destination */
+      /* This is the destination */
       proto_item *item;
       guint32 addr;
       const char *dst_host;
@@ -2521,19 +2521,19 @@ proto_register_ip(void)
 
     { &hf_geoip_country,
       { "Source or Destination GeoIP Country", "ip.geoip.country",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_country_iso,
       { "Source or Destination GeoIP ISO Two Letter Country Code", "ip.geoip.country_iso",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_city,
       { "Source or Destination GeoIP City", "ip.geoip.city",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_as_number,
       { "Source or Destination GeoIP AS Number", "ip.geoip.asnum",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_as_org,
       { "Source or Destination GeoIP AS Organization", "ip.geoip.org",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_latitude,
       { "Source or Destination GeoIP Latitude", "ip.geoip.lat",
         FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2542,22 +2542,22 @@ proto_register_ip(void)
         FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_summary,
       { "Source GeoIP", "ip.geoip.src_summary",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_country,
       { "Source GeoIP Country", "ip.geoip.src_country",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_country_iso,
       { "Source GeoIP ISO Two Letter Country Code", "ip.geoip.src_country_iso",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_city,
       { "Source GeoIP City", "ip.geoip.src_city",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_as_number,
       { "Source GeoIP AS Number", "ip.geoip.src_asnum",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_as_org,
       { "Source GeoIP AS Organization", "ip.geoip.src_org",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_src_latitude,
       { "Source GeoIP Latitude", "ip.geoip.src_lat",
         FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2566,22 +2566,22 @@ proto_register_ip(void)
         FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_summary,
       { "Destination GeoIP", "ip.geoip.dst_summary",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_country,
       { "Destination GeoIP Country", "ip.geoip.dst_country",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_country_iso,
       { "Destination GeoIP ISO Two Letter Country Code", "ip.geoip.dst_country_iso",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_city,
       { "Destination GeoIP City", "ip.geoip.dst_city",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_as_number,
       { "Destination GeoIP AS Number", "ip.geoip.dst_asnum",
         FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_as_org,
       { "Destination GeoIP AS Organization", "ip.geoip.dst_org",
-        FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL }},
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_geoip_dst_latitude,
       { "Destination GeoIP Latitude", "ip.geoip.dst_lat",
         FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2723,7 +2723,7 @@ proto_register_ip(void)
         NULL, 0x00000003, NULL, HFILL }},
 
     { &hf_ip_opt_sec_rfc791_sec,
-      { "Security", "ip.opt.sec_rfc791_sec", FT_UINT8, BASE_HEX,
+      { "Security", "ip.opt.sec_rfc791_sec", FT_UINT16, BASE_HEX,
         VALS(secl_rfc791_vals), 0x0, NULL, HFILL }},
 
     { &hf_ip_opt_sec_rfc791_comp,

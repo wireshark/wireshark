@@ -1,4 +1,4 @@
-/* sparkle_bridge.h
+/** @file
  *
  * C wrapper for the Sparkle API
  *

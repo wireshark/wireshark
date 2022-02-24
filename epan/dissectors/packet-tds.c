@@ -143,6 +143,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/strutil.h>
 
 #include <wsutil/epochs.h>
 
@@ -1332,6 +1333,7 @@ static dissector_handle_t tds_tcp_handle;
 static dissector_handle_t ntlmssp_handle;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t smp_handle;
+static dissector_handle_t tls_handle;
 
 #define TDS_CURSOR_NAME_VALID           0x01
 #define TDS_CURSOR_ID_VALID             0x02
@@ -2340,7 +2342,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                     break;
                 case 8:
                     proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(item, " (%"G_GINT64_MODIFIER"d)", tvb_get_letoh64(tvb, *offset));
+                    proto_item_append_text(item, " (%"PRId64")", tvb_get_letoh64(tvb, *offset));
                     break;
                 default:
                     expert_add_info(pinfo, length_item, &ei_tds_invalid_length);
@@ -2600,7 +2602,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         }
                         if(scale == 0) {
                             proto_item_append_text(numericitem,
-                                " (%" G_GINT64_MODIFIER "d)",
+                                " (%" PRId64 ")",
                                 (sign ? -int64_value : int64_value));
                         }
                         else {
@@ -2660,7 +2662,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         }
                         if(scale == 0) {
                             proto_item_append_text(numericitem,
-                                " (%" G_GINT64_MODIFIER "d)",
+                                " (%" PRId64 ")",
                                 (sign ? -int64_value : int64_value));
                         }
                         else {
@@ -2797,7 +2799,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
                         break;
                     case TDS_DATA_TYPE_TEXT:
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII|ENC_NA);
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, ENC_ASCII);
                         break;
                     default: /*TODO*/
                         proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
@@ -2876,7 +2878,7 @@ dissect_tds5_lang_token(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_
     cur += 1;
     len -= 1;
 
-    proto_tree_add_item(tree, hf_tds_lang_language_text, tvb, cur, len, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_tds_lang_language_text, tvb, cur, len, ENC_ASCII);
     cur += len;
 
     return cur - offset;
@@ -3565,7 +3567,7 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                 case TDS_CAP_REQUEST:
                     if (cap < array_length(hf_req_array)) {
                         hf_array = hf_req_array[cap];
-                        g_snprintf(name, ITEM_LABEL_LENGTH, "Req caps %d-%d: ",
+                        snprintf(name, ITEM_LABEL_LENGTH, "Req caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_req;
                     }
@@ -3573,7 +3575,7 @@ dissect_tds5_capability_token(tvbuff_t *tvb, packet_info *pinfo, guint offset,
                 case TDS_CAP_RESPONSE:
                     if (cap < array_length(hf_resp_array)) {
                         hf_array = hf_resp_array[cap];
-                        g_snprintf(name, ITEM_LABEL_LENGTH, "Resp caps %d-%d: ",
+                        snprintf(name, ITEM_LABEL_LENGTH, "Resp caps %d-%d: ",
                                    cap*8, (cap + 1)*8 - 1);
                         ett = ett_tds_capability_resp;
                     }
@@ -3919,7 +3921,7 @@ dissect_tds5_tokenized_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                          ett_tds_token, &token_item, "Token 0x%02x %s", token,
                                          val_to_str_const(token, token_names, "Unknown Token Type"));
 
-        if ((int) token_sz < 0) {
+        if ((int) token_sz <= 0) {
             expert_add_info_format(pinfo, token_item, &ei_tds_token_length_invalid, "Bogus token size: %u", token_sz);
             break;
         }
@@ -4091,7 +4093,7 @@ static int detect_tls(tvbuff_t *tvb)
 }
 
 static void
-dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *tds_info,
+dissect_tds7_prelogin_packet(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree, tds_conv_info_t *tds_info,
                              gboolean is_response)
 {
     guint8 token;
@@ -4104,7 +4106,8 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree, tds_conv_info_t *t
 
     if(detect_tls(tvb))
     {
-        proto_item_append_text(item, " - TLS exchange");
+        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(tls_handle, next_tvb, pinfo, tree);
         return;
     }
 
@@ -4245,7 +4248,7 @@ dissect_tds45_remotepassword(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         if (server_len > 0) {
             proto_tree_add_item(rempw_tree, hf_tdslogin_rempw_servername, tvb,
-                                offset + cur + 1, server_len, ENC_ASCII|ENC_NA);
+                                offset + cur + 1, server_len, ENC_ASCII);
         }
         length_item = proto_tree_add_item_ret_uint(rempw_tree, hf_tdslogin_rempw_password_length, tvb,
                                                    offset + cur + 1 + server_len, 1, ENC_NA, &password_len);
@@ -4256,7 +4259,7 @@ dissect_tds45_remotepassword(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
         if (password_len > 0) {
             proto_tree_add_item(rempw_tree, hf_tdslogin_rempw_password, tvb,
-                                offset + cur + 1 + server_len + 1, password_len, ENC_ASCII|ENC_NA);
+                                offset + cur + 1 + server_len + 1, password_len, ENC_ASCII);
         }
         cur += (1 + server_len + 1 + password_len);
     }
@@ -5208,7 +5211,7 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
 }
 
 static gboolean
-dissect_tds_prelogin_response(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
+dissect_tds_prelogin_response(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint8 token = 0;
     gint tokenoffset, tokenlen, cur = offset;
@@ -5258,7 +5261,7 @@ dissect_tds_prelogin_response(tvbuff_t *tvb, guint offset, proto_tree *tree, tds
 
     if(valid) {
         /* The prelogin response has the same form as the prelogin request. */
-        dissect_tds7_prelogin_packet(tvb, tree, tds_info, TRUE);
+        dissect_tds7_prelogin_packet(tvb, pinfo, tree, tds_info, TRUE);
     }
 
     return valid;
@@ -6398,7 +6401,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_in
             case TDS_PROTOCOL_5:
                 len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(tree, hf_tds_rpc_name_length8, tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(tree, hf_tds_rpc_name, tvb, offset + 1, len, ENC_ASCII|ENC_NA);
+                proto_tree_add_item(tree, hf_tds_rpc_name, tvb, offset + 1, len, ENC_ASCII);
                 offset += 1 + len;
                 break;
 
@@ -6594,7 +6597,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
     (void) memset(&nl_data, '\0', sizeof nl_data);
 
     /* Test for pre-login response in case this response is not a token stream */
-    if(dissect_tds_prelogin_response(tvb, pos, tree, tds_info) == TRUE)
+    if(dissect_tds_prelogin_response(tvb, pinfo, pos, tree, tds_info) == TRUE)
     {
         return;
     }
@@ -6838,8 +6841,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(detect_tls(tvb))
     {
-        tds_item = proto_tree_add_item(tree, hf_tds_prelogin, tvb, 0, -1, ENC_NA);
-        proto_item_append_text(tds_item, " - TLS exchange");
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(tls_handle, next_tvb, pinfo, tree);
         return;
     }
 
@@ -7028,7 +7031,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case TDS_ATTENTION_PKT:
                 break;
             case TDS_PRELOGIN_PKT:
-                dissect_tds7_prelogin_packet(next_tvb, tds_tree, tds_info, FALSE);
+                dissect_tds7_prelogin_packet(next_tvb, pinfo, tds_tree, tds_info, FALSE);
                 break;
 
             default:
@@ -7163,7 +7166,7 @@ version_convert( gchar *result, guint32 hexver )
      * By specifying ENC_BIG_ENDIAN, the bytes have been swapped before we
      * see them.
      */
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d",
+    snprintf( result, ITEM_LABEL_LENGTH, "%d.%d.%d",
         (hexver >> 24) & 0xFF, (hexver >> 16) & 0xFF, (hexver & 0xFFFF));
 }
 
@@ -8093,7 +8096,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_colname,
           { "Column Name", "tds.colmetadata.colname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_table_name_parts,
@@ -8103,7 +8106,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_table_name,
           { "Table name", "tds.colmetadata.table_name",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_table_name_length,
@@ -8188,7 +8191,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_dbname,
           { "Database name length", "tds.colmetadata.dbname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_schemaname_length,
@@ -8198,7 +8201,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_schemaname,
           { "Schema name", "tds.colmetadata.schemaname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_typename_length,
@@ -8208,7 +8211,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_typename,
           { "Type name", "tds.colmetadata.typename",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_assemblyqualifiedname_length,
@@ -8218,7 +8221,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_assemblyqualifiedname,
           { "Assembly qualified name", "tds.colmetadata.assemblyqualifiedname",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_owningschema_length,
@@ -8228,7 +8231,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_owningschema,
           { "Owning schema name", "tds.colmetadata.owningschema",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_xmlschemacollection_length,
@@ -8238,7 +8241,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_xmlschemacollection,
           { "XML schema collection", "tds.colmetadata.xmlschemacollection",
-            FT_STRING, STR_UNICODE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -10394,6 +10397,7 @@ proto_reg_handoff_tds(void)
     ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_tds);
     gssapi_handle = find_dissector_add_dependency("gssapi", proto_tds);
     smp_handle = find_dissector_add_dependency("smp_tds", proto_tds);
+    tls_handle = find_dissector_add_dependency("tls", proto_tds);
 
     /* Isn't required, but allows user to override current payload */
     dissector_add_for_decode_as("smp.payload", create_dissector_handle(dissect_tds_pdu, proto_tds));

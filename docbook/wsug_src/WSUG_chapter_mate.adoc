@@ -1,8 +1,8 @@
-[[ChMate]]
+[#ChMate]
 
 == MATE
 
-[[ChMateIntroduction]]
+[#ChMateIntroduction]
 
 === Introduction
 
@@ -41,7 +41,7 @@ that timeout)
 * Follow requests through more gateways/proxies.
 * more...
 
-[[ChMateGettingStarted]]
+[#ChMateGettingStarted]
 
 === Getting Started
 
@@ -62,7 +62,7 @@ If anything went well, your packet details might look something like this:
 
 image::wsug_graphics/ws-mate-tcp-output.png[]
 
-[[ChMateManual]]
+[#ChMateManual]
 
 === MATE Manual
 
@@ -116,7 +116,7 @@ AVPLs to operate against the Gop's AVPL to relate Gops together into Gogs.
 A good understanding on how AVPs and AVPLs work is fundamental to understand how
 MATE works.
 
-[[AVP]]
+[#AVP]
 ==== Attribute Value Pairs
 
 Information used by MATE to relate different frames is contained in Attribute/
@@ -896,7 +896,7 @@ from huge capture files using just the calling number. Later he used the time he
 had saved to make it flexible enough to work with protocols other than the ones
 he was directly involved with.
 
-[[ChMateConfigurationTutorial]]
+[#ChMateConfigurationTutorial]
 
 === MATE's configuration tutorial
 
@@ -1156,7 +1156,7 @@ declarations the following way:
 
 Now we got it, every "usage" gets it's own Gog.
 
-[[ChMateConfigurationExamples]]
+[#ChMateConfigurationExamples]
 
 === MATE configuration examples
 
@@ -1409,7 +1409,7 @@ Gog mms {
 };
 ----
 
-[[ChMateConfigurationLibrary]]
+[#ChMateConfigurationLibrary]
 
 === MATE's configuration library
 
@@ -1543,7 +1543,7 @@ Action=GopStop; For=mgc_tr; megaco_msg=Reply;
 Action=GopExtra; For=mgc_tr; term^DS1; megaco_ctx!Choose one;
 ----
 
-[[ChMateReferenceManual]]
+[#ChMateReferenceManual]
 
 === MATE's reference manual
 
@@ -1603,7 +1603,7 @@ higher than the configuration value string.
 * <<Exists,Exists>> _?_ (can be omitted) will match if the AVP name matches, regardless
 what the value string is.
 
-[[Equal]]
+[#Equal]
 ====== Equal AVP Operator
 
 This operator tests whether the values of the operator and the operand AVP are
@@ -1613,7 +1613,7 @@ Example::
 attrib=aaa *matches* attrib=aaa +
 attrib=aaa *does not match* attrib=bbb
 
-[[NotEqual]]
+[#NotEqual]
 ====== Not equal AVP operator
 
 This operator matches if the value strings of two AVPs are not equal.
@@ -1622,7 +1622,7 @@ Example::
 attrib=aaa matches attrib!bbb +
 attrib=aaa does not match attrib!aaa
 
-[[OneOf]]
+[#OneOf]
 ====== "One of" AVP operator
 
 The "one of" operator matches if the data AVP value is equal to one of the
@@ -1633,7 +1633,7 @@ attrib=1 matches attrib{1|2|3} +
 attrib=2 matches attrib{1|2|3} +
 attrib=4 does not match attrib{1|2|3}
 
-[[StartsWith]]
+[#StartsWith]
 ====== "Starts with" AVP operator
 
 The "starts with" operator matches if the first characters of the data AVP
@@ -1646,7 +1646,7 @@ attrib=ab does not match attrib^abc +
 attrib=abcd does not match attrib^bcd +
 attrib=abc does not match attrib^abcd +
 
-[[EndsWith]]
+[#EndsWith]
 ====== "Ends with" operator
 
 The ends with operator will match if the last bytes of the data AVP value are
@@ -1657,7 +1657,7 @@ attrib=wxyz matches attrib$xyz +
 attrib=yz does not match attrib$xyz +
 attrib=abc...wxyz does not match attrib$abc
 
-[[Contains]]
+[#Contains]
 ====== Contains operator
 
 The "contains" operator will match if the data AVP value contains a string
@@ -1669,7 +1669,7 @@ attrib=abcde matches attrib~abc +
 attrib=abcde matches attrib~cde +
 attrib=abcde does not match attrib~xyz
 
-[[LowerThan]]
+[#LowerThan]
 ====== "Lower than" operator
 
 The "lower than" operator will match if the data AVP value is semantically lower
@@ -1686,7 +1686,7 @@ BUGS
 
 It should check whether the values are numbers and compare them numerically
 
-[[HigherThan]]
+[#HigherThan]
 ====== "Higher than" operator
 
 The "higher than" operator will match if the data AVP value is semantically
@@ -1704,7 +1704,7 @@ BUGS
 
 It should check whether the values are numbers and compare them numerically
 
-[[Exists]]
+[#Exists]
 ====== Exists operator
 
 The exists operator will always match as far as the two operands have the same
@@ -1747,7 +1747,7 @@ configuration AVPL.
 configuration AVPL has at least one match in the data AVPL. If it matches, it
 returns a result AVPL containing those AVPs from the data AVPL that matched.
 
-[[Loose]]
+[#Loose]
 ====== Loose Match
 
 A loose match between AVPLs succeeds if at least one of the data AVPs matches at
@@ -1774,7 +1774,7 @@ Loose Match Examples
 
 (attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Loose (attr_a=xxx; attr_c=ccc) ==> No Match!
 
-[[Every]]
+[#Every]
 ====== Every Match
 
 An "every" match between AVPLs succeeds if none of the configuration's AVPs that
@@ -1799,7 +1799,7 @@ https://gitlab.com/wireshark/wireshark/-/issues/12184[issue 12184].
 
 (attr_a=aaa; attr_b=bbb; attr_c=xxx) Match Every (attr_a=xxx, attr_c=ccc) ==> No Match!
 
-[[Strict]]
+[#Strict]
 ====== Strict Match
 
 A Strict match between AVPLs succeeds if and only if every AVP in the
@@ -1819,7 +1819,7 @@ Examples
 
 (attr_a=aaa, attr_b=bbb, attr_c=xxx) Match Strict (attr_a?, attr_c?, attr_d?) ==> No Match!
 
-[[Merge]]
+[#Merge]
 ====== AVPL Merge
 
 An AVPL may be merged into another one. That would add to the latter every AVP
@@ -1841,7 +1841,7 @@ Examples
 
 (attr_a=aaa, attr_b=bbb) Merge (attr_c=xxx, attr_d=ddd) former becomes (attr_a=aaa, attr_b=bbb, attr_c=xxx, attr_d=ddd)
 
-[[Transform]]
+[#Transform]
 ====== Transforms
 
 A Transform is a sequence of Match rules optionally followed by an instruction
@@ -1871,9 +1871,9 @@ and in the order given, i.e. left to right.
 In MATE configuration file, a Transform must be declared before declaring any
 item which uses it.
 
-[[Config]]
+[#Config]
 === Configuration AVPLs
-[[Pdu]]
+[#Pdu]
 ==== Pdsu's configuration actions
 
 The following configuration AVPLs deal with PDU creation and data extraction.
@@ -1980,7 +1980,7 @@ it. The list is always executed completely, left to right. On the contrary, the
 list of Match clauses inside each individual _Transform_ is executed only until
 the first match succeeds.
 
-[[Criteria]]
+[#Criteria]
 ====== Criteria clause
 
 This clause tells MATE whether to use the Pdu for analysis. It specifies a match
@@ -2012,7 +2012,7 @@ Pdus of other types in the frame. If set to _TRUE_, it will not try to create
 Pdus of other types from the current frame, yet it will continue to try for the
 current type.
 
-[[Gop]]
+[#Gop]
 ===== Gop's configuration actions
 
 ====== Gop declaration block header
@@ -2131,7 +2131,7 @@ Whether or not to show the times subtree of the Gop. If _TRUE_, the default,
 the subtree with the timers is added to the Gop's tree. If _FALSE_, the subtree
 is suppressed.
 
-[[Gog]]
+[#Gog]
 ===== Gog's configuration actions
 
 ====== Gop declaration block header

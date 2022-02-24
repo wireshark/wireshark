@@ -1,4 +1,4 @@
-/* idata_printable.h
+/** @file
  *
  * Interface class for classes, which provide an interface to
  * print objects

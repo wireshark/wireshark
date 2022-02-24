@@ -692,7 +692,7 @@ dissect_hello_ip_authentication_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree *tree, int offset, isis_data_t *isis _U_, int length)
 {
     if ( length != 0 ) {
-       proto_tree_add_item( tree, hf_isis_hello_clv_ip_authentication, tvb, offset, length, ENC_ASCII|ENC_NA);
+       proto_tree_add_item( tree, hf_isis_hello_clv_ip_authentication, tvb, offset, length, ENC_ASCII);
     }
 }
 

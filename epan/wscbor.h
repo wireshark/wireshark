@@ -1,4 +1,4 @@
-/* wscbor.h
+/** @file
  * Definitions for the Wireshark CBOR item decoding API.
  * References:
  *     RFC 8949: https://tools.ietf.org/html/rfc8949
@@ -95,7 +95,7 @@ typedef struct {
 
     /// The start offset of this chunk
     gint start;
-    /// The length of just this header any any preceding tags
+    /// The length of just this header and any preceding tags
     gint head_length;
     /// The length of this chunk and its immediate definite data (i.e. strings)
     gint data_length;

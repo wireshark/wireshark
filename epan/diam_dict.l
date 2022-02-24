@@ -726,7 +726,7 @@ ddict_open(const char* system_directory, const char* filename)
 	FILE* fh;
 	char* fname;
 	if (system_directory) {
-		fname = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
+		fname = ws_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 		    system_directory,filename);
 	} else {
 		fname = g_strdup(filename);

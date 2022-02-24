@@ -1,4 +1,5 @@
-/* tap-rlc-stream.h
+/** @file
+ *
  * LTE RLC stream statistics
  *
  * Wireshark - Network traffic analyzer

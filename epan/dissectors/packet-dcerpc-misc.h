@@ -25,6 +25,13 @@ int misc_dissect_struct_policy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_
 extern const value_string misc_netr_SchannelType_vals[];
 int misc_dissect_enum_netr_SchannelType(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_);
 int misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+
+#ifndef REG_NONE
+/*
+ * REG_NONE and others might already be defined,
+ * via WinNT.h, which might be injected via
+ * wsutil/wsgcrypt.h => gcrypt.h before in the Windows build
+ */
 #define REG_NONE (0)
 #define REG_SZ (1)
 #define REG_EXPAND_SZ (2)
@@ -37,6 +44,7 @@ int misc_dissect_struct_KRB5_EDATA_NTSTATUS(tvbuff_t *tvb _U_, int offset _U_, p
 #define REG_FULL_RESOURCE_DESCRIPTOR (9)
 #define REG_RESOURCE_REQUIREMENTS_LIST (10)
 #define REG_QWORD (11)
+#endif /* ! REG_NONE */
 extern const value_string misc_winreg_Type_vals[];
 int misc_dissect_enum_winreg_Type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_);
 #endif /* __PACKET_DCERPC_MISC_H */

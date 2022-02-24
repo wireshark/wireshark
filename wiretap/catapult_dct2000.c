@@ -277,7 +277,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
-/* Ugly, but much faster than using g_snprintf! */
+/* Ugly, but much faster than using snprintf! */
 static void write_timestamp_string(char *timestamp_string, int secs, int tenthousandths)
 {
     int idx = 0;
@@ -317,7 +317,7 @@ static void write_timestamp_string(char *timestamp_string, int secs, int tenthou
         timestamp_string[idx++] = ((secs % 10))               + '0';
     }
     else {
-        g_snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", secs, tenthousandths);
+        snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", secs, tenthousandths);
         return;
     }
 
@@ -504,8 +504,8 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 
     /* If get here, must have failed */
     *err = errno;
-    *err_info = g_strdup_printf("catapult dct2000: seek_read failed to read/parse "
-                                "line at position %" G_GINT64_MODIFIER "d",
+    *err_info = ws_strdup_printf("catapult dct2000: seek_read failed to read/parse "
+                                "line at position %" PRId64,
                                 seek_off);
     return FALSE;
 }
@@ -1312,7 +1312,7 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
          * space for an immensely-large packet.
          */
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("catapult dct2000: File has %u-byte packet, bigger than maximum of %u",
+        *err_info = ws_strdup_printf("catapult dct2000: File has %u-byte packet, bigger than maximum of %u",
                                     rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
         return FALSE;
     }

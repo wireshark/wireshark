@@ -41,6 +41,7 @@
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <epan/strutil.h>
+#include <epan/ipproto.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -96,7 +97,37 @@ static int hf_mbim_tlv_ie_padding_length = -1;
 static int hf_mbim_tlv_ie_data_length = -1;
 static int hf_mbim_tlv_ie_unnamed_data = -1;
 static int hf_mbim_tlv_ie_data_wchar_str = -1;
+static int hf_mbim_tlv_ie_data_int32 = -1;
+static int hf_mbim_tlv_ie_data_guid = -1;
 static int hf_mbim_tlv_ie_padding = -1;
+static int hf_mbim_ms_ursp_tc_length = -1;
+static int hf_mbim_ms_ursp_precedence = -1;
+static int hf_mbim_ms_ursp_tc_type = -1;
+static int hf_mbim_ms_ursp_tc_os_id = -1;
+static int hf_mbim_ms_ursp_tc_dnn = -1;
+static int hf_mbim_ms_ursp_tc_fqdn = -1;
+static int hf_mbim_ms_ursp_tc_ipv4 = -1;
+static int hf_mbim_ms_ursp_tc_ipv4_mask = -1;
+static int hf_mbim_ms_ursp_tc_ipv6 = -1;
+static int hf_mbim_ms_ursp_tc_ipv6_prefix_length = -1;
+static int hf_mbim_ms_ursp_tc_proto_id = -1;
+static int hf_mbim_ms_ursp_tc_port = -1;
+static int hf_mbim_ms_ursp_tc_port_range_low = -1;
+static int hf_mbim_ms_ursp_tc_port_range_high = -1;
+static int hf_mbim_ms_ursp_tc_app_id = -1;
+static int hf_mbim_ms_ursp_tc_byte_value = -1;
+static int hf_mbim_ms_ursp_tc_capability = -1;
+static int hf_mbim_ms_ursp_tc_connection_capability_flag_ims = -1;
+static int hf_mbim_ms_ursp_tc_connection_capability_flag_mms = -1;
+static int hf_mbim_ms_ursp_tc_connection_capability_flag_supl = -1;
+static int hf_mbim_ms_ursp_tc_connection_capability_flag_internet = -1;
+static int hf_mbim_ms_snssai_length = -1;
+static int hf_mbim_ms_snssai_slice_service_type = -1;
+static int hf_mbim_ms_snssai_slice_differentiator = -1;
+static int hf_mbim_ms_snssai_mapped_slice_service_type = -1;
+static int hf_mbim_ms_snssai_mapped_slice_differentiator = -1;
+static int hf_mbim_ms_rej_snssai_cause = -1;
+static int hf_mbim_ms_pre_dflt_nssai_info_access_type = -1;
 static int hf_mbim_device_caps_info_device_type = -1;
 static int hf_mbim_device_caps_info_cellular_class = -1;
 static int hf_mbim_device_caps_info_voice_class = -1;
@@ -135,6 +166,7 @@ static int hf_mbim_device_caps_info_control_caps_multi_carrier = -1;
 static int hf_mbim_device_caps_info_control_caps_esim = -1;
 static int hf_mbim_device_caps_info_control_caps_ue_policy_route_selection = -1;
 static int hf_mbim_device_caps_info_control_caps_sim_hot_swap_capable = -1;
+static int hf_mbim_device_caps_info_control_caps_use_ursp_rule_on_epc_capable = -1;
 static int hf_mbim_device_caps_info_data_subclass = -1;
 static int hf_mbim_data_subclass_5gendc = -1;
 static int hf_mbim_data_subclass_5gnr = -1;
@@ -161,6 +193,7 @@ static int hf_mbim_subscr_ready_status_flags = -1;
 static int hf_mbim_subscr_ready_status_flag_esim = -1;
 static int hf_mbim_subscr_ready_status_flag_sim_removability_known = -1;
 static int hf_mbim_subscr_ready_status_flag_sim_removable = -1;
+static int hf_mbim_subscr_ready_status_flag_sim_slot_active = -1;
 static int hf_mbim_subscr_ready_status_susbcr_id_offset = -1;
 static int hf_mbim_subscr_ready_status_susbcr_id_size = -1;
 static int hf_mbim_subscr_ready_status_sim_icc_id_offset = -1;
@@ -267,6 +300,7 @@ static int hf_mbim_signal_state_info_elem_count = -1;
 static int hf_mbim_context_type = -1;
 static int hf_mbim_set_connect_session_id = -1;
 static int hf_mbim_set_connect_activation_command = -1;
+static int hf_mbim_set_connect_activation_option = -1;
 static int hf_mbim_set_connect_access_string_offset = -1;
 static int hf_mbim_set_connect_access_string_size = -1;
 static int hf_mbim_set_connect_user_name_offset = -1;
@@ -839,6 +873,8 @@ static int hf_mbim_ms_registration_params_info_drx_params = -1;
 static int hf_mbim_ms_registration_params_info_ladn_info = -1;
 static int hf_mbim_ms_registration_params_info_default_pdu_hint = -1;
 static int hf_mbim_ms_registration_params_info_re_register_if_needed = -1;
+static int hf_mbim_ms_network_params_info_mico_indication = -1;
+static int hf_mbim_ms_network_params_info_drx_params = -1;
 static int hf_mbim_ms_wake_reason_wake_type = -1;
 static int hf_mbim_ms_wake_reason_session_id = -1;
 static int hf_mbim_ms_wake_reason_command_payload_offset = -1;
@@ -848,20 +884,46 @@ static int hf_mbim_ms_wake_reason_packet_original_size = -1;
 static int hf_mbim_ms_wake_reason_packet_saved_offset = -1;
 static int hf_mbim_ms_wake_reason_packet_saved_size = -1;
 static int hf_mbim_ms_wake_reason_packet_saved_data = -1;
+static int hf_mbim_ms_slot_id = -1;
+static int hf_mbim_ms_open_channel_app_id_size = -1;
+static int hf_mbim_ms_open_channel_app_id_offset = -1;
+static int hf_mbim_ms_open_channel_select_p2_arg = -1;
+static int hf_mbim_ms_uicc_channel_group = -1;
+static int hf_mbim_ms_open_channel_app_id = -1;
+static int hf_mbim_ms_uicc_status = -1;
+static int hf_mbim_ms_uicc_channel = -1;
+static int hf_mbim_ms_uicc_response_length = -1;
+static int hf_mbim_ms_uicc_response_offset = -1;
+static int hf_mbim_ms_uicc_response = -1;
+static int hf_mbim_ms_apdu_secure_messaging = -1;
+static int hf_mbim_ms_apdu_type = -1;
+static int hf_mbim_ms_apdu_command_size = -1;
+static int hf_mbim_ms_apdu_command_offset = -1;
+static int hf_mbim_ms_apdu_command = -1;
+static int hf_mbim_ms_terminal_capability_count = -1;
+static int hf_mbim_ms_terminal_capability_offset = -1;
+static int hf_mbim_ms_terminal_capability_size = -1;
+static int hf_mbim_ms_terminal_capability = -1;
+static int hf_mbim_ms_reset_pass_through_action = -1;
 static int hf_mbim_ms_atr_info_atr_offset = -1;
 static int hf_mbim_ms_atr_info_atr_size = -1;
 static int hf_mbim_ms_app_info_app_type = -1;
+static int hf_mbim_ms_app_info_app_id_offset = -1;
 static int hf_mbim_ms_app_info_app_id_size = -1;
 static int hf_mbim_ms_app_info_app_id = -1;
-static int hf_mbim_ms_app_info_app_name_length = -1;
+static int hf_mbim_ms_app_info_app_name_offset = -1;
+static int hf_mbim_ms_app_info_app_name_size = -1;
 static int hf_mbim_ms_app_info_app_name = -1;
 static int hf_mbim_ms_app_info_num_pins = -1;
+static int hf_mbim_ms_app_info_pin_ref_offset = -1;
+static int hf_mbim_ms_app_info_pin_ref_size = -1;
 static int hf_mbim_ms_app_info_pin_ref = -1;
 static int hf_mbim_ms_app_list_version = -1;
 static int hf_mbim_ms_app_list_app_count = -1;
 static int hf_mbim_ms_app_list_active_app_index = -1;
-static int hf_mbim_ms_app_list_app_list_offset = -1;
-static int hf_mbim_ms_app_list_app_list_size = -1;
+static int hf_mbim_ms_app_list_size = -1;
+static int hf_mbim_ms_app_list_app_info_offset = -1;
+static int hf_mbim_ms_app_list_app_info_size = -1;
 static int hf_mbim_ms_file_path_version = -1;
 static int hf_mbim_ms_file_path_app_id_offset = -1;
 static int hf_mbim_ms_file_path_app_id_size = -1;
@@ -1033,13 +1095,15 @@ enum mbim_extended_version_vals {
     MBIM_Extended_Version_Unknown,
     MBIM_Extended_Version_1,
     MBIM_Extended_Version_2,
-    MBIM_Extended_Version_3
+    MBIM_Extended_Version_3,
+    MBIM_Extended_Version_4,
 };
 
 static const enum_val_t preferred_mbim_extended_version_vals[] = {
     {"1.0", "1.0", MBIM_Extended_Version_1},
     {"2.0", "2.0", MBIM_Extended_Version_2},
     {"3.0", "3.0", MBIM_Extended_Version_3},
+    {"4.0", "4.0", MBIM_Extended_Version_4},
     {NULL, NULL, -1}
 };
 static gint preferred_mbim_extended_version = MBIM_Extended_Version_1;
@@ -1059,6 +1123,10 @@ static gint preferred_mbim_extended_version = MBIM_Extended_Version_1;
 #define SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv) \
             (mbim_conv->mbim_extended_version >= MBIM_Extended_Version_3 || \
             (mbim_conv->mbim_extended_version == MBIM_Extended_Version_Unknown && preferred_mbim_extended_version >= MBIM_Extended_Version_3)) ? 1 : 0
+
+#define SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv) \
+            (mbim_conv->mbim_extended_version >= MBIM_Extended_Version_4 || \
+            (mbim_conv->mbim_extended_version == MBIM_Extended_Version_Unknown && preferred_mbim_extended_version >= MBIM_Extended_Version_4)) ? 1 : 0
 
 #define ROUND_UP_COUNT(Count,Pow2) \
         ( ((Count)+(Pow2)-1) & (~(((int)(Pow2))-1)) )
@@ -1180,11 +1248,24 @@ static const value_string mbim_status_code_vals[] = {
     {  36, "AUTH_SYNC_FAILURE"},
     {  37, "AUTH_AMF_NOT_SET"},
     {  38, "CONTEXT_NOT_SUPPORTED"},
+    {  39, "SHAREABILITY_CONDITION_ERROR"},
+    {  40, "PIN_FAILURE"},
+    {  41, "NO_LTE_ATTACH_CONFIG"},
+    {  42, "SESSION_ALREADY_EXISTS"},
     { 100, "SMS_UNKNOWN_SMSC_ADDRESS"},
     { 101, "SMS_NETWORK_TIMEOUT"},
     { 102, "SMS_LANG_NOT_SUPPORTED"},
     { 103, "SMS_ENCODING_NOT_SUPPORTED"},
     { 104, "SMS_FORMAT_NOT_SUPPORTED"},
+    { 105, "SMS_MORE_DATA"},
+    { 200, "MATCHING_PDU_SESSION_FOUND"},
+    { 201, "DISSOCIATION_NEEDED_FOR_APPLICATION"},
+    { 202, "ERROR_INVALID_SLOT"},
+    { 203, "NO_MATCHING_URSP_RULE"},
+    { 204, "DEFAULT_URSP_RULE"},
+    { 0x87430001, "UICC_NO_LOGICAL_CHANNELS"},
+    { 0x87430002, "UICC_SELECT_FAILED"},
+    { 0x87430003, "UICC_INVALID_LOGICAL_CHANNEL"},
     { 0, NULL}
 };
 static value_string_ext mbim_status_code_vals_ext = VALUE_STRING_EXT_INIT(mbim_status_code_vals);
@@ -1534,6 +1615,7 @@ static const value_string mbim_uuid_multiflow_cid_vals[] = {
 #define MBIM_CID_MS_REGISTRATION_PARAMS    17
 #define MBIM_CID_MS_NETWORK_PARAMS         18
 #define MBIM_CID_MS_WAKE_REASON            19
+#define MBIM_CID_MS_UE_POLICY              20
 
 static const value_string mbim_uuid_basic_connect_extensions_cid_vals[] = {
     { MBIM_CID_MS_PROVISIONED_CONTEXT_V2, "MS_PROVISIONED_CONTEXT_V2"},
@@ -1555,6 +1637,7 @@ static const value_string mbim_uuid_basic_connect_extensions_cid_vals[] = {
     { MBIM_CID_MS_REGISTRATION_PARAMS, "MS_REGISTRATION_PARAMS"},
     { MBIM_CID_MS_NETWORK_PARAMS, "MS_NETWORK_PARAMS"},
     { MBIM_CID_MS_WAKE_REASON, "MS_WAKE_REASON"},
+    { MBIM_CID_MS_UE_POLICY, "MS_UE_POLICY"},
     { 0, NULL}
 };
 
@@ -1702,6 +1785,7 @@ static int * const mbim_device_caps_info_control_caps_fields[] = {
     &hf_mbim_device_caps_info_control_caps_esim,
     &hf_mbim_device_caps_info_control_caps_ue_policy_route_selection,
     &hf_mbim_device_caps_info_control_caps_sim_hot_swap_capable,
+    &hf_mbim_device_caps_info_control_caps_use_ursp_rule_on_epc_capable,
     NULL
 };
 
@@ -1729,6 +1813,7 @@ static int * const mbim_subscr_ready_status_flags_fields[] = {
     &hf_mbim_subscr_ready_status_flag_esim,
     &hf_mbim_subscr_ready_status_flag_sim_removability_known,
     &hf_mbim_subscr_ready_status_flag_sim_removable,
+    &hf_mbim_subscr_ready_status_flag_sim_slot_active,
     NULL
 };
 
@@ -1811,6 +1896,18 @@ static const value_string mbim_ms_mico_mode_vals[] = {
     { 0, NULL}
 };
 
+static const value_string mbim_ms_mico_indication_vals[] = {
+    { 0, "Not Allocated"},
+    { 1, "Allocated"},
+    { 0xffffffff, "Not Available"},
+    { 0, NULL}
+};
+static const value_string mbim_ms_pre_dflt_nssai_info_access_type_vals[] = {
+    { 0, "Unknown"},
+    { 1, "3GPP"},
+    { 2, "Non3GPP"},
+    { 0, NULL}
+};
 static const value_string mbim_ms_default_pdu_hint_vals[] = {
     { 0, "Activation Unlikely"},
     { 1, "Activation Likely"},
@@ -1858,6 +1955,10 @@ static const value_string hf_mbim_ms_wake_reason_wake_type_vals[] = {
 #define TLV_TYPE_TRAFFIC_PARAMETERS            15
 #define TLV_TYPE_WAKE_COMMAND                  16
 #define TLV_TYPE_WAKE_PACKET                   17
+#define TLV_TYPE_TYPE_OSID                     18
+#define TLV_TYPE_TYPE_3GPP_REL_VERSION         19
+#define TLV_TYPE_TYPE_URSP_RULES_TD_ONLY       20
+#define TLV_TYPE_TYPE_SESSION_ID               21
 
 static const value_string mbim_tlv_type_vals[] = {
     { TLV_TYPE_UNKNOWN, "UNKNOWN"},
@@ -1878,6 +1979,10 @@ static const value_string mbim_tlv_type_vals[] = {
     { TLV_TYPE_TRAFFIC_PARAMETERS, "TRAFFIC_PARAMETERS"},
     { TLV_TYPE_WAKE_COMMAND, "WAKE_COMMAND"},
     { TLV_TYPE_WAKE_PACKET, "WAKE_PACKET"},
+    { TLV_TYPE_TYPE_OSID, "OS_ID"},
+    { TLV_TYPE_TYPE_3GPP_REL_VERSION, "3GPP_REL_VERSION"},
+    { TLV_TYPE_TYPE_URSP_RULES_TD_ONLY, "URSP_RULES_TD_ONLY"},
+    { TLV_TYPE_TYPE_SESSION_ID, "SESSION_ID"},
     { 0, NULL}
 };
 
@@ -1891,19 +1996,71 @@ static int * const mbim_provider_state_fields[] = {
     NULL
 };
 
+#define URSP_TC_TYPE_MATCH_ALL                      0x1
+#define URSP_TC_TYPE_OSID_APPID                     0x8
+#define URSP_TC_TYPE_IPV4                           0x10
+#define URSP_TC_TYPE_IPV6                           0x21
+#define URSP_TC_TYPE_PROTOCOL_ID_OR_NEXT_HEADER     0x30
+#define URSP_TC_TYPE_PORT                           0x50
+#define URSP_TC_TYPE_PORT_RANGE                     0x51
+#define URSP_TC_TYPE_SECURITY_PARAM_INDEX           0x60
+#define URSP_TC_TYPE_SERVICE_OR_TRAFFIC_CLASS       0x70
+#define URSP_TC_TYPE_FLOW_LABEL                     0x80
+#define URSP_TC_TYPE_MAC_ADDRESS                    0x81
+#define URSP_TC_TYPE_C_TAG_VID                      0x83
+#define URSP_TC_TYPE_S_TAG_VID                      0x84
+#define URSP_TC_TYPE_C_TAG_PCP_AND_DEI              0x85
+#define URSP_TC_TYPE_S_TAG_PCP_AND_DEI              0x86
+#define URSP_TC_TYPE_ETHER                          0x87
+#define URSP_TC_TYPE_DNN                            0x88
+#define URSP_TC_TYPE_CONNECTION_CAPABILITY          0x90
+#define URSP_TC_TYPE_FQDN                           0x91
+#define URSP_TC_TYPE_APPID                          0xa0
+
+static const value_string ursp_tc_type_vals[] = {
+    { URSP_TC_TYPE_MATCH_ALL, "Match all"},
+    { URSP_TC_TYPE_OSID_APPID, "OS Id + OS App Id"},
+    { URSP_TC_TYPE_IPV4, "IPv4 remote address"},
+    { URSP_TC_TYPE_IPV6, "IPv6 remote address/prefix length"},
+    { URSP_TC_TYPE_PROTOCOL_ID_OR_NEXT_HEADER, "Protocol identifier/next header"},
+    { URSP_TC_TYPE_PORT, "Single remote port"},
+    { URSP_TC_TYPE_PORT_RANGE, "Remote port range"},
+    { URSP_TC_TYPE_SECURITY_PARAM_INDEX, "Security parameter index"},
+    { URSP_TC_TYPE_SERVICE_OR_TRAFFIC_CLASS, "Type of service/traffic class"},
+    { URSP_TC_TYPE_FLOW_LABEL, "Flow label"},
+    { URSP_TC_TYPE_MAC_ADDRESS, "Destination MAC address"},
+    { URSP_TC_TYPE_C_TAG_VID, "802.1Q C-TAG VID"},
+    { URSP_TC_TYPE_S_TAG_VID, "802.1Q S-TAG VID"},
+    { URSP_TC_TYPE_C_TAG_PCP_AND_DEI, "802.1Q C-TAG PCP/DEI"},
+    { URSP_TC_TYPE_S_TAG_PCP_AND_DEI, "802.1Q S-TAG PCP/DEI"},
+    { URSP_TC_TYPE_ETHER, "Ethertype"},
+    { URSP_TC_TYPE_DNN, "DNN"},
+    { URSP_TC_TYPE_CONNECTION_CAPABILITY, "Connection capabilities"},
+    { URSP_TC_TYPE_FQDN, "Destination FQDN"},
+    { URSP_TC_TYPE_APPID, "OS App Id"},
+    { 0, NULL}
+};
+static int* const ursp_tc_connection_capability_flags_fields[] = {
+    &hf_mbim_ms_ursp_tc_connection_capability_flag_ims,
+    &hf_mbim_ms_ursp_tc_connection_capability_flag_mms,
+    &hf_mbim_ms_ursp_tc_connection_capability_flag_supl,
+    &hf_mbim_ms_ursp_tc_connection_capability_flag_internet,
+    NULL
+};
+
 static void
 mbim_rssi_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-113 or less dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-113 or less dBm (0)");
     } else if (val < 31) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -113 + 2*val, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -113 + 2*val, val);
     } else if (val == 31) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-51 or greater dBm (31)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-51 or greater dBm (31)");
     } else if (val == 99) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (99)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (99)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
     }
 }
 
@@ -1962,6 +2119,13 @@ static const value_string mbim_packet_service_action_vals[] = {
     { 0, NULL}
 };
 
+static const value_string mbim_tai_list_type_vals[] = {
+    { 0, "Non Consecutive TAC"},
+    { 1, "Consecutive TAC"},
+    { 2, "Multi PLMN TAC"},
+    { 0, NULL}
+};
+
 static const value_string mbim_packet_service_state_vals[] = {
     { 0, "Unknown"},
     { 1, "Attaching"},
@@ -1974,6 +2138,14 @@ static const value_string mbim_packet_service_state_vals[] = {
 static const value_string mbim_activation_command_vals[] = {
     { 0, "Deactivate"},
     { 1, "Activate"},
+    { 0, NULL}
+};
+
+static const value_string mbim_activation_option_vals[] = {
+    { 0, "Default"},
+    { 1, "Per Non Default URSP Rules"},
+    { 2, "Per Default URSP Rules"},
+    { 3, "Per URSP Rules"},
     { 0, NULL}
 };
 
@@ -2547,7 +2719,7 @@ static const value_string mbim_sar_status_vals[] = {
 static void
 mbim_degrees_fmt(gchar *s, guint32 v)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f Degrees Celsius (%u)", (float)v/10.0, v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.1f Degrees Celsius (%u)", (float)v/10.0, v);
 }
 
 static const value_string mbim_adpclk_activate_state_vals[] = {
@@ -2585,15 +2757,15 @@ static void
 mbim_rscp_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-120 or less dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-120 or less dBm (0)");
     } else if (val < 96) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -120 + val, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -120 + val, val);
     } else if (val == 96) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-24 or greater dBm (96)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-24 or greater dBm (96)");
     } else if (val == 255) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
     }
 }
 
@@ -2601,15 +2773,15 @@ static void
 mbim_ecno_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-24 or less dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-24 or less dBm (0)");
     } else if (val < 49) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f dBm (%u)", -24 + ((float)val/2), val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.1f dBm (%u)", -24 + ((float)val/2), val);
     } else if (val == 49) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "0.5 or greater dBm (49)");
+        snprintf(s, ITEM_LABEL_LENGTH, "0.5 or greater dBm (49)");
     } else if (val == 255) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
     }
 }
 
@@ -2617,15 +2789,15 @@ static void
 mbim_rsrq_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-19.5 or less dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-19.5 or less dBm (0)");
     } else if (val < 34) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f dBm (%u)", -19.5 + ((float)val/2), val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.1f dBm (%u)", -19.5 + ((float)val/2), val);
     } else if (val == 34) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-2.5 or greater dBm (34)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-2.5 or greater dBm (34)");
     } else if (val == 255) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
     }
 }
 
@@ -2633,15 +2805,15 @@ static void
 mbim_rsrp_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-140 or less dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-140 or less dBm (0)");
     } else if (val < 97) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -140 + val, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dBm (%u)", -140 + val, val);
     } else if (val == 97) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-43 or greater dBm (97)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-43 or greater dBm (97)");
     } else if (val == 255) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
     }
 }
 
@@ -2649,15 +2821,15 @@ static void
 mbim_rssnr_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-5 or less dB (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-5 or less dB (0)");
     } else if (val < 35) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%u)", -5 + val, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%d dB (%u)", -5 + val, val);
     } else if (val == 35) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "30 or greater dB (35)");
+        snprintf(s, ITEM_LABEL_LENGTH, "30 or greater dB (35)");
     } else if (val == 255) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
+        snprintf(s, ITEM_LABEL_LENGTH, "Unknown or undetectable (255)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid value (%u)", val);
     }
 }
 
@@ -2665,13 +2837,13 @@ static void
 mbim_rsrp_signal_state_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "SS-RSRP < -156dBm (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "SS-RSRP < -156dBm (0)");
     } else if (val < 126) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= SS-RSRP < %ddBm (%u)", val - 157, val - 156, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= SS-RSRP < %ddBm (%u)", val - 157, val - 156, val);
     } else if (val == 126) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "-31dBm <= SS-RSRP (126)");
+        snprintf(s, ITEM_LABEL_LENGTH, "-31dBm <= SS-RSRP (126)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "invalid (127)");
+        snprintf(s, ITEM_LABEL_LENGTH, "invalid (127)");
     }
 }
 
@@ -2679,20 +2851,20 @@ static void
 mbim_snr_signal_state_fmt(gchar *s, guint32 val)
 {
     if (val == 0) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "SS-SINR < -23dB (0)");
+        snprintf(s, ITEM_LABEL_LENGTH, "SS-SINR < -23dB (0)");
     } else if (val < 127) {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= SS-SINR < %.1fdB (%u)", (((float)val - 1) / 2) - 23, ((float)val / 2) - 23, val);
+        snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= SS-SINR < %.1fdB (%u)", (((float)val - 1) / 2) - 23, ((float)val / 2) - 23, val);
     } else if (val == 127){
-        g_snprintf(s, ITEM_LABEL_LENGTH, "40dB <= SS-SINR (127)");
+        snprintf(s, ITEM_LABEL_LENGTH, "40dB <= SS-SINR (127)");
     } else {
-        g_snprintf(s, ITEM_LABEL_LENGTH, "invalid (128)");
+        snprintf(s, ITEM_LABEL_LENGTH, "invalid (128)");
     }
 }
 
 static void
 mbim_version_fmt(gchar* s, guint32 val)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%u.%u", val / 256, val % 256);
+    snprintf(s, ITEM_LABEL_LENGTH, "%u.%u", val / 256, val % 256);
 }
 
 static const value_string mbim_atds_operator_plmn_mode_vals[] = {
@@ -2724,7 +2896,7 @@ mbim_projection_table_coeff_fmt(gchar *s, guint32 val)
 {
     gint32 coeff = (gint32)val;
 
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.3f (%d)", ((float)coeff)/1000, coeff);
+    snprintf(s, ITEM_LABEL_LENGTH, "%.3f (%d)", ((float)coeff)/1000, coeff);
 }
 
 #define MBIM_NDP_CTRL_MULTIFLOW_STATUS 0
@@ -2823,6 +2995,7 @@ static const value_string mbim_base_station_serving_cell_flag_vals[] = {
     { 1, "Serving cell"},
     { 0, NULL}
 };
+
 static const value_string mbim_ms_uicc_app_type_vals[] = {
     { 0, "Unknown"},
     { 1, "Mf"},
@@ -2831,6 +3004,21 @@ static const value_string mbim_ms_uicc_app_type_vals[] = {
     { 4, "USIM"},
     { 5, "CSIM"},
     { 6, "ISIM"},
+    { 0, NULL}
+};
+static const value_string mbim_ms_apdu_secure_messaging_vals[] = {
+    { 0, "None"},
+    { 1, "No Hdr Auth"},
+    { 0, NULL}
+};
+static const value_string mbim_ms_apdu_type_vals[] = {
+    { 0, "Interindustry"},
+    { 1, "Extended"},
+    { 0, NULL}
+};
+static const value_string mbim_ms_reset_pass_through_action_vals[] = {
+    { 0, "Disabled"},
+    { 1, "Enabled"},
     { 0, NULL}
 };
 
@@ -2857,6 +3045,8 @@ static const value_string mbim_uicc_file_structure_vals[] = {
     { 4, "BerTLV"},
     { 0, NULL}
 };
+
+static void mbim_dissect_tlv_ie(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset);
 
 static guint8
 mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint hf,
@@ -2939,41 +3129,37 @@ mbim_dissect_ms_plmn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
     proto_tree_add_item(tree, hf_mbim_ms_plmn_mcc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     mnc = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-    if (mnc & 0x8000)
-    {
+    if (mnc & 0x8000) {
         proto_tree_add_uint_format_value(tree, hf_mbim_ms_plmn_mnc, tvb, offset, 2, mnc, "%02u", mnc & 0x7fff);
     }
-    else
-    {
+    else {
         proto_tree_add_uint_format_value(tree, hf_mbim_ms_plmn_mnc, tvb, offset, 2, mnc, "%03u", mnc & 0x7fff);
     }
     /* offset += 2; */
 }
 
 static void
-mbim_dissect_ms_tai_list_single_plmn(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint* offset)
+mbim_dissect_ms_tai_list_single_plmn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
 {
     guint32 tac_element, i;
     mbim_dissect_ms_plmn(tvb, pinfo, tree, *offset);
     *offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_tai_list_single_plmn_tac_element, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tac_element);
     *offset += 1;
-    for (i = 0; i < tac_element; i++)
-    {
+    for (i = 0; i < tac_element; i++) {
         proto_tree_add_item(tree, hf_mbim_ms_tai_tac, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
     }
 }
 
 static void
-mbim_dissect_ms_tai_list_multi_plmn(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint* offset)
+mbim_dissect_ms_tai_list_multi_plmn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
 {
     proto_tree* subtree;
     guint32 tai_element, i;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_tai_list_multi_plmn_tai_element, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tai_element);
     *offset += 1;
-    for (i = 0; i < tai_element; i++)
-    {
+    for (i = 0; i < tai_element; i++) {
         subtree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_mbim_pair_list, NULL, "TAI #%u", i + 1);
         mbim_dissect_ms_plmn(tvb, pinfo, subtree, *offset);
         *offset += 4;
@@ -2982,29 +3168,36 @@ mbim_dissect_ms_tai_list_multi_plmn(tvbuff_t* tvb, packet_info* pinfo _U_, proto
     }
 }
 
+static gboolean
+mbim_dissect_ms_single_tai(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+{
+    guint32 tai_list_type;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_tai_list_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tai_list_type);
+    *offset += 1;
+    switch (tai_list_type) {
+        case 0:
+        case 1:
+            mbim_dissect_ms_tai_list_single_plmn(tvb, pinfo, tree, offset);
+            break;
+        case 2:
+            mbim_dissect_ms_tai_list_multi_plmn(tvb, pinfo, tree, offset);
+            break;
+        default:
+            proto_tree_add_expert(tree, pinfo, &ei_mbim_unexpected_msg, tvb, *offset, 1);
+            return FALSE;
+    }
+    return TRUE;
+}
 static void
-mbim_dissect_ms_tai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, guint32 data_len)
+mbim_dissect_ms_tai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint32 data_len)
 {
     proto_tree* subtree;
     gint32 base_offset = offset;
     gint32 tai_list_info_element_pos = 1;
-    guint32 tai_list_type;
-    while ((guint32)offset - base_offset < data_len)
-    {
+    while ((guint32)offset - base_offset < data_len) {
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "TAI List Info #%u", tai_list_info_element_pos);
-        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_tai_list_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &tai_list_type);
-        offset += 1;
-        switch (tai_list_type)
-        {
-        case 0:
-        case 1:
-            mbim_dissect_ms_tai_list_single_plmn(tvb, pinfo, subtree, &offset);
+        if (!mbim_dissect_ms_single_tai(tvb, pinfo, subtree, &offset)) {
             break;
-        case 2:
-            mbim_dissect_ms_tai_list_multi_plmn(tvb, pinfo, subtree, &offset);
-            break;
-        default:
-            return;
         }
         tai_list_info_element_pos++;
     }
@@ -3060,8 +3253,269 @@ mbim_dissect_ms_wake_packet(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* t
 }
 
 static void
-mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint *offset)
+mbim_dissect_snssai(tvbuff_t* tvb, proto_tree* tree, gint* offset)
 {
+    guint snssai_length;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_snssai_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &snssai_length);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_mbim_ms_snssai_slice_service_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    if(snssai_length >= 4) {
+        proto_tree_add_item(tree, hf_mbim_ms_snssai_slice_differentiator, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+        *offset += 3;
+    }
+    if (snssai_length == 2 || snssai_length>=5) {
+        proto_tree_add_item(tree, hf_mbim_ms_snssai_mapped_slice_service_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+    }
+    if (snssai_length == 8) {
+        proto_tree_add_item(tree, hf_mbim_ms_snssai_mapped_slice_differentiator, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+        *offset += 3;
+    }
+}
+
+static void
+mbim_dissect_nssai(tvbuff_t* tvb, proto_tree* tree, gint offset, gint nssai_buffer_length)
+{
+    proto_tree* subtree;
+    gint base_offset = offset;
+    gint snssai_pos = 1;
+    while (offset - base_offset < nssai_buffer_length) {
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "S-NSSAI #%u", snssai_pos);
+        mbim_dissect_snssai(tvb,subtree, &offset);
+        snssai_pos++;
+    }
+}
+
+static void
+mbim_dissect_precfg_dflt_cfg_nssai(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gint nssai_buffer_length)
+{
+    proto_tree* subtree;
+    gint base_offset = offset;
+    gint precfg_dflt_cfg_nssai_pos = 1;
+    while ((offset - base_offset < nssai_buffer_length) && precfg_dflt_cfg_nssai_pos < 2) {
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Preconfigured default configured NSSAI #%u", precfg_dflt_cfg_nssai_pos);
+        proto_tree_add_item(subtree, hf_mbim_ms_pre_dflt_nssai_info_access_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        subtree = proto_tree_add_subtree_format(subtree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Default configured NSSAI");
+        mbim_dissect_tlv_ie(tvb, pinfo, subtree, &offset);
+        precfg_dflt_cfg_nssai_pos++;
+    }
+}
+
+static void
+mbim_dissect_rej_snssai(tvbuff_t* tvb, proto_tree* tree, gint* offset)
+{
+    guint snssai_length;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_snssai_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &snssai_length);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_mbim_ms_rej_snssai_cause, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    proto_tree_add_item(tree, hf_mbim_ms_snssai_slice_service_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+    if (snssai_length == 4) {
+        proto_tree_add_item(tree, hf_mbim_ms_snssai_slice_differentiator, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+        *offset += 3;
+    }
+}
+
+static void
+mbim_dissect_rej_nssai(tvbuff_t* tvb, proto_tree* tree, gint offset, gint rej_nssai_buffer_length)
+{
+    proto_tree* subtree;
+    gint base_offset = offset;
+    gint snssai_pos = 1;
+    while (offset - base_offset < rej_nssai_buffer_length) {
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Rejected S-NSSAI #%u", snssai_pos);
+        mbim_dissect_rej_snssai(tvb, subtree, &offset);
+        snssai_pos++;
+    }
+}
+
+static void
+mbim_dissect_ladn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gint rej_nssai_buffer_length)
+{
+    proto_tree* subtree, * ladn_tree;
+    gint base_offset = offset;
+    gint ladn_pos = 1;
+    while (offset - base_offset < rej_nssai_buffer_length) {
+        ladn_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "LADN #%u", ladn_pos);
+        subtree = proto_tree_add_subtree_format(ladn_tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "DNN");
+        mbim_dissect_tlv_ie(tvb, pinfo, subtree, &offset);
+        subtree = proto_tree_add_subtree_format(ladn_tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "TAI");
+        if (!mbim_dissect_ms_single_tai(tvb, pinfo, subtree, &offset)) {
+            break;
+        }
+        ladn_pos++;
+    }
+}
+
+static void
+mbim_dissect_tcs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, gint tcs_buffer_length)
+{
+    proto_tree* subtree;
+    gint base_offset = *offset;
+    gint tc_pos = 1;
+    gint tc_type;
+    gint tc_value_length;
+    while (*offset - base_offset < tcs_buffer_length) {
+        subtree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_mbim_pair_list, NULL, "Traffic component #%u", tc_pos);
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_type, tvb, *offset, 1, ENC_BIG_ENDIAN, &tc_type);
+        *offset += 1;
+        switch (tc_type) {
+            case URSP_TC_TYPE_MATCH_ALL:
+                break;
+            case URSP_TC_TYPE_OSID_APPID:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_os_id, tvb, *offset, 16, ENC_NA);
+                *offset += 16;
+                proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_BIG_ENDIAN, &tc_value_length);
+                *offset += 1;
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_app_id, tvb, *offset, tc_value_length, ENC_ASCII | ENC_NA);
+                *offset += tc_value_length;
+                break;
+            case URSP_TC_TYPE_IPV4:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_ipv4, tvb, *offset, 4, ENC_NA);
+                *offset += 4;
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_ipv4_mask, tvb, *offset, 4, ENC_NA);
+                *offset += 4;
+                break;
+            case URSP_TC_TYPE_IPV6:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_ipv6, tvb, *offset, 16, ENC_NA);
+                *offset += 16;
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_ipv6_prefix_length, tvb, *offset, 1, ENC_NA);
+                *offset += 1;
+                break;
+            case URSP_TC_TYPE_PROTOCOL_ID_OR_NEXT_HEADER:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_proto_id, tvb, *offset, 1, ENC_BIG_ENDIAN);
+                *offset += 1;
+                break;
+            case URSP_TC_TYPE_PORT:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_port, tvb, *offset, 2, ENC_BIG_ENDIAN);
+                *offset += 2;
+                break;
+            case URSP_TC_TYPE_PORT_RANGE:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_port_range_low, tvb, *offset, 2, ENC_BIG_ENDIAN);
+                *offset += 2;
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_port_range_high, tvb, *offset, 2, ENC_BIG_ENDIAN);
+                *offset += 2;
+                break;
+            case URSP_TC_TYPE_SECURITY_PARAM_INDEX:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 4, ENC_NA);
+                *offset += 4;
+                break;
+            case URSP_TC_TYPE_SERVICE_OR_TRAFFIC_CLASS:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 2, ENC_NA);
+                *offset += 2;
+                break;
+            case URSP_TC_TYPE_FLOW_LABEL:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 3, ENC_NA);
+                *offset += 3;
+                break;
+            case URSP_TC_TYPE_MAC_ADDRESS:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 6, ENC_NA);
+                *offset += 6;
+                break;
+            case URSP_TC_TYPE_C_TAG_VID:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 2, ENC_NA);
+                *offset += 2;
+                break;
+            case URSP_TC_TYPE_S_TAG_VID:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 2, ENC_NA);
+                *offset += 2;
+                break;
+            case URSP_TC_TYPE_C_TAG_PCP_AND_DEI:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 1, ENC_NA);
+                *offset += 1;
+                break;
+            case URSP_TC_TYPE_S_TAG_PCP_AND_DEI:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 1, ENC_NA);
+                *offset += 1;
+                break;
+            case URSP_TC_TYPE_ETHER:
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_byte_value, tvb, *offset, 2, ENC_NA);
+                *offset += 2;
+                break;
+            case URSP_TC_TYPE_DNN:
+                proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tc_value_length);
+                *offset += 1;
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_dnn, tvb, *offset, tc_value_length, ENC_APN_STR | ENC_NA);
+                *offset += tc_value_length;
+                break;
+            case URSP_TC_TYPE_CONNECTION_CAPABILITY:
+                proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tc_value_length);
+                *offset += 1;
+                for (int i = 0; i < tc_value_length; i++) {
+                    proto_tree_add_bitmask(subtree, tvb, *offset, hf_mbim_ms_ursp_tc_capability, ett_mbim_bitmap,
+                        ursp_tc_connection_capability_flags_fields, ENC_LITTLE_ENDIAN);
+                    *offset += 1;
+                }
+                break;
+            case URSP_TC_TYPE_FQDN:
+                proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tc_value_length);
+                *offset += 1;
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_fqdn, tvb, *offset, tc_value_length, ENC_APN_STR | ENC_NA);
+                *offset += tc_value_length;
+                break;
+            case URSP_TC_TYPE_APPID:
+                proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tc_value_length);
+                *offset += 1;
+                proto_tree_add_item(subtree, hf_mbim_ms_ursp_tc_app_id, tvb, *offset, tc_value_length, ENC_LITTLE_ENDIAN | ENC_ASCII);
+                *offset += tc_value_length;
+                break;
+            default:
+                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, tvb, *offset, tcs_buffer_length - (*offset - base_offset));
+                return;
+        }
+        tc_pos++;
+    }
+}
+
+static void
+mbim_dissect_td(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+{
+    proto_tree* subtree;
+    guint tcs_length;
+    subtree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_mbim_pair_list, NULL, "Traffic descriptor");
+    proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, *offset, 2, ENC_BIG_ENDIAN, &tcs_length);
+    *offset += 2;
+    mbim_dissect_tcs(tvb, pinfo, subtree, offset, tcs_length);
+}
+
+static void
+mbim_dissect_tps(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gint tp_buffer_length)
+{
+    proto_tree* subtree;
+    gint base_offset = offset;
+    gint tp_pos = 1;
+    gint tp_length;
+    while (offset - base_offset < tp_buffer_length) {
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Traffic parameter #%u", tp_pos);
+        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_ursp_tc_length, tvb, offset, 2, ENC_BIG_ENDIAN, &tp_length);
+        offset += 2;
+        mbim_dissect_tcs(tvb, pinfo, subtree, &offset, tp_length);
+        tp_pos++;
+    }
+}
+
+static void
+mbim_dissect_ursp_rules(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, gint ursp_rules_buffer_length)
+{
+    proto_tree* subtree;
+    gint base_offset = offset;
+    gint ursp_rule_pos = 1;
+    while (offset - base_offset < ursp_rules_buffer_length) {
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "URSP rule #%u", ursp_rule_pos);
+        proto_tree_add_item(subtree, hf_mbim_ms_ursp_precedence, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        mbim_dissect_td(tvb, pinfo, subtree, &offset);
+        ursp_rule_pos++;
+    }
+}
+
+static void
+mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
+{
+    guint tlv_data_offset;
     guint padding_length;
     guint data_length;
     guint tlv_type = TLV_TYPE_UNKNOWN;
@@ -3074,14 +3528,35 @@ mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gin
     *offset += 1;
     proto_tree_add_item_ret_uint(tree, hf_mbim_tlv_ie_data_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &data_length);
     *offset += 4;
+    tlv_data_offset = *offset;
     if (data_length) {
         // New TLV types will be added here
         switch (tlv_type) {
+            case TLV_TYPE_SINGLE_NSSAI:
+                mbim_dissect_snssai(tvb, tree, offset);
+                break;
+            case TLV_TYPE_ALLOWED_NSSAI:
+            case TLV_TYPE_CFG_NSSAI:
+            case TLV_TYPE_DFLT_CFG_NSSAI:
+                mbim_dissect_nssai(tvb, tree, *offset, data_length);
+                break;
+            case TLV_TYPE_PRECFG_DFLT_CFG_NSSAI:
+                mbim_dissect_precfg_dflt_cfg_nssai(tvb, pinfo, tree, *offset, data_length);
+                break;
+            case TLV_TYPE_REJ_NSSAI:
+                mbim_dissect_rej_nssai(tvb, tree, *offset, data_length);
+                break;
+            case TLV_TYPE_LADN:
+                mbim_dissect_ladn(tvb, pinfo, tree, *offset, data_length);
+                break;
             case TLV_TYPE_TAI:
                 mbim_dissect_ms_tai(tvb, pinfo, tree, *offset, data_length);
                 break;
             case TLV_TYPE_WCHAR_STR:
-                proto_tree_add_item(tree, hf_mbim_tlv_ie_data_wchar_str, tvb, *offset, data_length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
+                proto_tree_add_item(tree, hf_mbim_tlv_ie_data_wchar_str, tvb, *offset, data_length, ENC_LITTLE_ENDIAN | ENC_UTF_16);
+                break;
+            case TLV_TYPE_TRAFFIC_PARAMETERS:
+                mbim_dissect_tps(tvb, pinfo, tree, *offset, data_length);
                 break;
             case TLV_TYPE_WAKE_COMMAND:
                 mbim_dissect_ms_wake_command(tvb, pinfo, tree, *offset);
@@ -3089,15 +3564,37 @@ mbim_dissect_tlv_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gin
             case TLV_TYPE_WAKE_PACKET:
                 mbim_dissect_ms_wake_packet(tvb, pinfo, tree, *offset);
                 break;
+            case TLV_TYPE_TYPE_OSID:
+                proto_tree_add_item(tree, hf_mbim_tlv_ie_data_guid, tvb, *offset, 16, ENC_NA);
+                break;
+            case TLV_TYPE_TYPE_3GPP_REL_VERSION:
+                proto_tree_add_item(tree, hf_mbim_tlv_ie_data_int32, tvb, *offset, data_length, ENC_LITTLE_ENDIAN);
+                break;
+            case TLV_TYPE_TYPE_URSP_RULES_TD_ONLY:
+                mbim_dissect_ursp_rules(tvb,pinfo, tree, *offset, data_length);
+                break;
+            case TLV_TYPE_TYPE_SESSION_ID:
+                proto_tree_add_item(tree, hf_mbim_tlv_ie_data_int32, tvb, *offset, data_length, ENC_LITTLE_ENDIAN);
+                break;
             default:
                 proto_tree_add_item(tree, hf_mbim_tlv_ie_unnamed_data, tvb, *offset, data_length, ENC_NA);
                 break;
         }
-        *offset += data_length;
+        *offset = tlv_data_offset + data_length;
     }
     if (padding_length) {
-        proto_tree_add_item(tree, hf_mbim_tlv_ie_padding, tvb, *offset, padding_length, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_mbim_tlv_ie_padding, tvb, *offset, padding_length, ENC_NA);
         *offset += padding_length;
+    }
+}
+
+static void
+mbim_dissect_tlv_ie_list(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint tlv_offset, gint buffer_base_offset, gint buffer_length)
+{
+    proto_tree* unnamed_ies;
+    while (tlv_offset - buffer_base_offset < buffer_length) {
+        unnamed_ies = proto_tree_add_subtree_format(tree, tvb, tlv_offset, 0, ett_mbim_pair_list, NULL, "Unnamed IE's");
+        mbim_dissect_tlv_ie(tvb, pinfo, unnamed_ies, &tlv_offset);
     }
 }
 
@@ -3194,7 +3691,7 @@ mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_subscr_ready_status_ready_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    if (SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv)) {
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_subscr_ready_status_flags, ett_mbim_bitmap,
             mbim_subscr_ready_status_flags_fields, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -3211,6 +3708,11 @@ mbim_dissect_subscriber_ready_status(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_subscr_ready_status_elem_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &elem_count);
     offset += 4;
+
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
     if (elem_count) {
         pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
         subtree = proto_tree_add_subtree(tree, tvb, offset, 8*elem_count, ett_mbim_pair_list, NULL, "Telephone Numbers Ref List");
@@ -3492,8 +3994,9 @@ mbim_dissect_registration_state_info(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static void
 mbim_dissect_packet_service_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, struct mbim_conv_info* mbim_conv, guint32 buffer_len)
 {
-    proto_tree *tai_ie, *unnamed_ies;
+    proto_tree *tai_ie;
     guint32 nw_error;
+    guint32 base_offset = offset;
 
     nw_error = tvb_get_letohl(tvb, offset);
     if (nw_error == 0) {
@@ -3518,17 +4021,18 @@ mbim_dissect_packet_service_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset += 8;
     if (SHOULD_MBIM_EX2_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_item(tree, hf_mbim_packet_service_info_frequency_range, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
     }
-    if (SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv)) {
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_packet_service_info_data_subclass, ett_mbim_bitmap,
             mbim_data_subclass_fields, ENC_LITTLE_ENDIAN);
         offset += 4;
         tai_ie = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Tracking Area Identity");
-        mbim_dissect_tlv_ie(tvb, pinfo, tai_ie, &offset);
-        while ((guint32)offset < buffer_len) {
-            unnamed_ies = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Unnamed IE's");
-            mbim_dissect_tlv_ie(tvb, pinfo, unnamed_ies, &offset);
-        }
+        mbim_dissect_ms_plmn(tvb, pinfo, tai_ie, offset);
+        offset += 4;
+        proto_tree_add_item(tai_ie, hf_mbim_ms_tai_tac, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        mbim_dissect_tlv_ie_list(tvb, pinfo, tree, offset, base_offset, buffer_len);
     }
 }
 
@@ -3682,14 +4186,19 @@ mbim_dissect_set_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 }
 
 static void
-mbim_dissect_set_connect_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint32 buffer_len)
+mbim_dissect_set_connect_v3_and_higher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint32 buffer_len, struct mbim_conv_info* mbim_conv)
 {
-    proto_tree *access_string, *user_name, *password, *unnamed_ies;
+    gint32 base_offset = offset;
+    proto_tree *access_string, *user_name, *password, *snssai;
 
     proto_tree_add_item(tree, hf_mbim_set_connect_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_set_connect_activation_command, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_set_connect_activation_option, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
     proto_tree_add_item(tree, hf_mbim_set_connect_compression, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_set_connect_auth_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3705,16 +4214,18 @@ mbim_dissect_set_connect_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     mbim_dissect_tlv_ie(tvb, pinfo, user_name, &offset);
     password = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Password");
     mbim_dissect_tlv_ie(tvb, pinfo, password, &offset);
-    while ((guint32)offset < buffer_len) {
-        unnamed_ies = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Unnamed IE's");
-        mbim_dissect_tlv_ie(tvb, pinfo, unnamed_ies, &offset);
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        snssai = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "S-NSSAI");
+        mbim_dissect_tlv_ie(tvb, pinfo, snssai, &offset);
     }
+    mbim_dissect_tlv_ie_list(tvb, pinfo, tree, offset, base_offset, buffer_len);
 }
 
 static void
 mbim_dissect_connect_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, struct mbim_conv_info* mbim_conv, guint32 buffer_len)
 {
-    proto_tree *access_string, *unnamed_ies;
+    gint32 base_offset = offset;
+    proto_tree *access_string, *snssai;
     guint32 nw_error;
 
     proto_tree_add_item(tree, hf_mbim_connect_info_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3732,16 +4243,17 @@ mbim_dissect_connect_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     } else {
         proto_tree_add_uint(tree, hf_mbim_connect_info_nw_error, tvb, offset, 4, nw_error);
     }
-    if (SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv)) {
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         offset += 4;
         proto_tree_add_item(tree, hf_mbim_connect_info_access_media, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         access_string = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Access String");
         mbim_dissect_tlv_ie(tvb, pinfo, access_string, &offset);
-        while ((guint32)offset < buffer_len) {
-            unnamed_ies = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Unnamed IE's");
-            mbim_dissect_tlv_ie(tvb, pinfo, unnamed_ies, &offset);
+        if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+            snssai = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "S-NSSAI");
+            mbim_dissect_tlv_ie(tvb, pinfo, snssai, &offset);
         }
+        mbim_dissect_tlv_ie_list(tvb, pinfo, tree, offset, base_offset, buffer_len);
     }
 }
 
@@ -4127,7 +4639,7 @@ mbim_dissect_single_packet_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_single_packet_filter_packet_mask_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_mask_offset);
     offset += 4;
-    if (SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv)) {
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
         proto_tree_add_item(tree, hf_mbim_single_packet_filter_filter_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         /* offset += 4; */
     }
@@ -4596,7 +5108,7 @@ mbim_dissect_set_ussd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint 
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
                 proto_tree_add_item(subtree, hf_mbim_set_ussd_ussd_payload_text,
-                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
+                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
@@ -4649,7 +5161,7 @@ mbim_dissect_ussd_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             case SMS_ENCODING_8BIT:
                 /* XXX - ASCII, or some extended ASCII? */
                 proto_tree_add_item(subtree, hf_mbim_ussd_info_ussd_payload_text,
-                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII|ENC_NA);
+                                    ussd_tvb , 0, ussd_payload_length, ENC_ASCII);
                 break;
             case SMS_ENCODING_UCS2:
             case SMS_ENCODING_UCS2_LANG:
@@ -5395,10 +5907,11 @@ mbim_dissect_multiflow_tft_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void
-mbim_dissect_ms_context_v2_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, gint base_offset)
+mbim_dissect_ms_context_v2_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, gint base_offset, struct mbim_conv_info* mbim_conv)
 {
     guint32 access_string_offset, access_string_size, user_name_offset, user_name_size, password_offset, password_size;
     proto_item *it;
+    proto_tree* snssai;
 
     mbim_dissect_context_type_uuid(tvb, pinfo, tree, offset);
     proto_tree_add_item(tree, hf_mbim_set_ms_provisioned_context_v2_ip_type, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
@@ -5427,6 +5940,10 @@ mbim_dissect_ms_context_v2_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     *offset += 4;
     proto_tree_add_item(tree, hf_mbim_set_ms_provisioned_context_v2_auth_protocol, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        snssai = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_mbim_pair_list, NULL, "S-NSSAI");
+        mbim_dissect_tlv_ie(tvb, pinfo, snssai, offset);
+    }
     if (access_string_offset && access_string_size) {
         it = proto_tree_add_item(tree, hf_mbim_set_ms_provisioned_context_v2_access_string, tvb,
                                  base_offset + access_string_offset, access_string_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
@@ -5451,18 +5968,18 @@ mbim_dissect_ms_context_v2_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void
-mbim_dissect_set_ms_provisioned_context_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+mbim_dissect_set_ms_provisioned_context_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, struct mbim_conv_info* mbim_conv)
 {
     gint base_offset;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_set_ms_provisioned_context_v2_operation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    mbim_dissect_ms_context_v2_base(tvb, pinfo, tree, &offset, base_offset);
+    mbim_dissect_ms_context_v2_base(tvb, pinfo, tree, &offset, base_offset, mbim_conv);
 }
 
 static void
-mbim_dissect_ms_provisioned_context_info_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+mbim_dissect_ms_provisioned_context_info_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, struct mbim_conv_info* mbim_conv)
 {
     proto_tree *subtree;
     gint base_offset, item_offset, base_item_offset;
@@ -5494,7 +6011,7 @@ mbim_dissect_ms_provisioned_context_info_v2(tvbuff_t *tvb, packet_info *pinfo, p
                 base_item_offset = item_offset;
                 proto_tree_add_item(subtree, hf_mbim_ms_provisioned_context_info_v2_context_id, tvb, item_offset, 4, ENC_LITTLE_ENDIAN);
                 item_offset += 4;
-                mbim_dissect_ms_context_v2_base(tvb, pinfo, subtree, &item_offset, base_item_offset);
+                mbim_dissect_ms_context_v2_base(tvb, pinfo, subtree, &item_offset, base_item_offset, mbim_conv);
             }
         }
     }
@@ -5636,7 +6153,7 @@ mbim_dissect_device_caps_v2_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
-mbim_dissect_device_caps_v3_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
+mbim_dissect_device_caps_v3_and_higher_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
     struct mbim_conv_info *mbim_conv)
 {
     proto_tree *lte_band_class, *nr_band_class, *custom_data_class, *device_id, *firmware_info, *hardware_info;
@@ -5765,7 +6282,6 @@ static void mbim_dissect_base_station_gsm_serving_cell_info(tvbuff_t* tvb, proto
     proto_tree_add_item(tree, hf_mbim_base_station_base_station_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_base_station_rx_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
     proto_tree_add_item(tree, hf_mbim_base_station_provider_id, tvb, base_offset + provider_id_offset,
         provider_id_size, ENC_LITTLE_ENDIAN | ENC_UTF_16);
 }
@@ -6020,7 +6536,7 @@ mbim_dissect_base_station_info(tvbuff_t* tvb, proto_tree* tree, gint offset,
     gint base_offset = offset;
     guint32 gsm_serving_cell_offset, gsm_serving_cell_size, umts_serving_cell_offset, umts_serving_cell_size, td_scdma_serving_cell_offset, td_scdma_serving_cell_size,
         lte_serving_cell_offset, lte_serving_cell_size, gsm_nmr_offset, gsm_nmr_size, umts_mrl_offset, umts_mrl_size, td_scdma_mrl_offset, td_scdma_mrl_size,
-        lte_mrl_offset, lte_mrl_size, cdma_mrl_offset, cdma_mrl_size, nr_serving_cells_offset, nr_serving_cells_size, nr_neighbor_cells_offset, nr_neighbor_cells_size;
+        lte_mrl_offset, lte_mrl_size, cdma_mrl_offset, cdma_mrl_size, nr_serving_cells_offset = 0, nr_serving_cells_size = 0, nr_neighbor_cells_offset = 0, nr_neighbor_cells_size = 0;
 
     guint32 count;
 
@@ -6068,13 +6584,15 @@ mbim_dissect_base_station_info(tvbuff_t* tvb, proto_tree* tree, gint offset,
     offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_cdma_mrl_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cdma_mrl_size);
     offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_serving_cell_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_serving_cells_offset);
-    offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_serving_cell_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_serving_cells_size);
-    offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_neighbor_cells_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_neighbor_cells_offset);
-    offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_neighbor_cells_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_neighbor_cells_size);
+    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_serving_cell_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_serving_cells_offset);
+        offset += 4;
+        proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_serving_cell_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_serving_cells_size);
+        offset += 4;
+        proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_neighbor_cells_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_neighbor_cells_offset);
+        offset += 4;
+        proto_tree_add_item_ret_uint(tree, hf_mbim_base_station_nr_neighbor_cells_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &nr_neighbor_cells_size);
+    }
 
     if (gsm_serving_cell_offset && gsm_serving_cell_size) {
         offset = base_offset + gsm_serving_cell_offset;
@@ -6188,20 +6706,22 @@ mbim_dissect_version(tvbuff_t* tvb, proto_tree* tree, gint offset, struct mbim_c
     proto_tree_add_item(tree, hf_mbim_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item_ret_uint(tree, hf_mbim_extended_version, tvb, offset, 2, ENC_LITTLE_ENDIAN, &extended_version);
-    switch (extended_version)
-    {
-    case 0x0100:
-        mbim_conv->mbim_extended_version = MBIM_Extended_Version_1;
-        break;
-    case 0x0200:
-        mbim_conv->mbim_extended_version = MBIM_Extended_Version_2;
-        break;
-    case 0x0300:
-        mbim_conv->mbim_extended_version = MBIM_Extended_Version_3;
-        break;
-    default:
-        mbim_conv->mbim_extended_version = MBIM_Extended_Version_Unknown;
-        break;
+    switch (extended_version) {
+        case 0x0100:
+            mbim_conv->mbim_extended_version = MBIM_Extended_Version_1;
+            break;
+        case 0x0200:
+            mbim_conv->mbim_extended_version = MBIM_Extended_Version_2;
+            break;
+        case 0x0300:
+            mbim_conv->mbim_extended_version = MBIM_Extended_Version_3;
+            break;
+        case 0x0400:
+            mbim_conv->mbim_extended_version = MBIM_Extended_Version_4;
+            break;
+        default:
+            mbim_conv->mbim_extended_version = MBIM_Extended_Version_Unknown;
+            break;
     }
 }
 
@@ -6225,7 +6745,6 @@ mbim_dissect_ms_modem_config_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 static void
 mbim_dissect_ms_registration_params_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, guint32 buffer_len)
 {
-    proto_tree *unnamed_ies;
     guint32 base_offset;
 
     base_offset = offset;
@@ -6239,10 +6758,20 @@ mbim_dissect_ms_registration_params_info(tvbuff_t *tvb, packet_info *pinfo _U_, 
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_ms_registration_params_info_re_register_if_needed, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    while ((guint32)offset - base_offset < buffer_len) {
-        unnamed_ies = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "Unnamed IE's");
-        mbim_dissect_tlv_ie(tvb, pinfo, unnamed_ies, &offset);
-    }
+
+    mbim_dissect_tlv_ie_list(tvb, pinfo, tree, offset, base_offset, buffer_len);
+}
+
+static void
+mbim_dissect_ms_network_params_info(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset, guint32 buffer_len)
+{
+    guint32 base_offset =  offset;
+    proto_tree_add_item(tree, hf_mbim_ms_network_params_info_mico_indication, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_network_params_info_drx_params, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    mbim_dissect_tlv_ie_list(tvb, pinfo, tree, offset, base_offset, buffer_len);
 }
 
 static void
@@ -6282,38 +6811,202 @@ mbim_dissect_ms_atr_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 }
 
 static void
-mbim_dissect_ms_app_info_elements(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset, guint32 app_count)
+mbim_dissect_ms_open_channel(tvbuff_t* tvb, proto_tree* tree, gint offset, struct mbim_conv_info* mbim_conv)
 {
-    guint32 app_name_length, i;
-    guint32 app_id_size, num_pins;
-    proto_tree* subtree;
-    const gint app_info_size = 296;
+    guint32 base_offset = offset;
+    guint32 app_id_offset, app_id_size;
 
-    for (i = 0; i < app_count; i++) {
-        subtree = proto_tree_add_subtree_format(tree, tvb, offset, app_info_size, ett_mbim_pair_list, NULL, "App Info #%u", i + 1);
-        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
-        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_app_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_size);
-        offset += 4;
-        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_id, tvb, offset, app_id_size, ENC_NA);
-        offset += 16;
-        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_app_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_name_length);
-        offset += 4;
-        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_name, tvb, offset, app_name_length, ENC_UTF_8|ENC_NA);
-        offset += 256;
-        proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_num_pins, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_pins);
-        offset += 4;
-        if (num_pins) {
-            proto_tree_add_item(subtree, hf_mbim_ms_app_info_pin_ref, tvb, offset, num_pins, ENC_NA);
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_open_channel_app_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_open_channel_app_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_offset);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_open_channel_select_p2_arg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_uicc_channel_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+    if (app_id_offset && app_id_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_open_channel_app_id, tvb, base_offset + app_id_offset, app_id_size, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_open_channel_info(tvbuff_t* tvb, proto_tree* tree, gint offset)
+{
+    guint32 base_offset = offset;
+    guint32 response_offset, response_length;
+
+    proto_tree_add_item(tree, hf_mbim_ms_uicc_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_uicc_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_length);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_offset);
+
+    if (response_offset && response_length) {
+        proto_tree_add_item(tree, hf_mbim_ms_uicc_response, tvb, base_offset + response_offset, response_length, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_close_channel(tvbuff_t* tvb, proto_tree* tree, gint offset, struct mbim_conv_info* mbim_conv)
+{
+    proto_tree_add_item(tree, hf_mbim_ms_uicc_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_uicc_channel_group, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void
+mbim_dissect_ms_apdu(tvbuff_t* tvb, proto_tree* tree, gint offset, struct mbim_conv_info* mbim_conv)
+{
+    guint32 base_offset = offset;
+    guint32 command_offset, command_size;
+    proto_tree_add_item(tree, hf_mbim_ms_uicc_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_apdu_secure_messaging, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mbim_ms_apdu_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_apdu_command_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &command_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_apdu_command_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &command_offset);
+    offset += 4;
+
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+    if (command_offset && command_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_apdu_command, tvb, base_offset + command_offset, command_size, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_apdu_info(tvbuff_t* tvb, proto_tree* tree, gint offset)
+{
+    guint32 base_offset = offset;
+    guint32 response_offset, response_length;
+
+    proto_tree_add_item(tree, hf_mbim_ms_uicc_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_length);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_uicc_response_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &response_offset);
+
+    if (response_offset && response_length) {
+        proto_tree_add_item(tree, hf_mbim_ms_uicc_response, tvb, base_offset + response_offset, response_length, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_terminal_capability_info(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint information_buffer_base_offset, gint offset)
+{
+    guint32 capability_count;
+    wmem_array_t* pair_list = NULL;
+    struct mbim_pair_list pair_list_item, * p_pair_list_item;
+    proto_tree* subtree;
+
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_terminal_capability_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &capability_count);
+    offset += 4;
+    if (capability_count) {
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8 * capability_count, ett_mbim_pair_list, NULL, "Capability List");
+        for (guint32 i = 0; i < capability_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_terminal_capability_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_terminal_capability_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+    }
+    for (guint32 i = 0; i < capability_count; i++) {
+        p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+        offset = information_buffer_base_offset + p_pair_list_item->offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, p_pair_list_item->size,
+            ett_mbim_pair_list, NULL, "Capability #%u", i + 1);
+        if (p_pair_list_item->size && p_pair_list_item->offset) {
+            proto_tree_add_item(subtree, hf_mbim_ms_terminal_capability, tvb, offset, p_pair_list_item->size, ENC_NA);
         }
     }
 }
 
 static void
-mbim_dissect_ms_app_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+mbim_dissect_ms_set_terminal_capability(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset, struct mbim_conv_info* mbim_conv)
+{
+    gint base_offset = offset;
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+
+    mbim_dissect_ms_terminal_capability_info(tvb,pinfo, tree, base_offset, offset);
+}
+
+static void
+mbim_dissect_ms_set_reset(tvbuff_t* tvb, proto_tree* tree, gint offset, struct mbim_conv_info* mbim_conv)
+{
+    proto_tree_add_item(tree, hf_mbim_ms_reset_pass_through_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+        proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void
+mbim_dissect_ms_query_reset(tvbuff_t* tvb, proto_tree* tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_mbim_ms_slot_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+}
+
+static void
+mbim_dissect_ms_app_info_elements(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset)
+{
+    guint32 base_offset = offset;
+    guint32 app_id_offset, app_id_size, app_name_offset, app_name_size, pin_ref_offset, pin_ref_size, num_pins;
+
+    proto_tree_add_item(tree, hf_mbim_ms_app_info_app_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_app_id_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_app_id_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_id_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_app_name_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_name_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_app_name_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_name_size);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_num_pins, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_pins);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_pin_ref_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pin_ref_offset);
+    offset += 4;
+    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_info_pin_ref_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pin_ref_size);
+
+    if (app_id_offset && app_id_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_app_info_app_id, tvb, base_offset + app_id_offset, app_id_size, ENC_NA);
+    }
+    if (app_name_offset && app_name_size) {
+        proto_tree_add_item(tree, hf_mbim_ms_app_info_app_name, tvb, base_offset + app_name_offset, app_name_size, ENC_UTF_8 | ENC_NA);
+    }
+    if (num_pins) {
+        proto_tree_add_item(tree, hf_mbim_ms_app_info_pin_ref, tvb, base_offset + pin_ref_offset, pin_ref_size, ENC_NA);
+    }
+}
+
+static void
+mbim_dissect_ms_app_list(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint offset)
 {
     gint base_offset;
-    guint32 app_count, app_list_offset;
+    guint32 app_count;
+    wmem_array_t* pair_list = NULL;
+    struct mbim_pair_list pair_list_item, * p_pair_list_item;
+    proto_tree* subtree;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_ms_app_list_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -6322,13 +7015,27 @@ mbim_dissect_ms_app_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_ms_app_list_active_app_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_list_app_list_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_list_offset);
+    proto_tree_add_item(tree, hf_mbim_ms_app_list_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_mbim_ms_app_list_app_list_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    /*offset += 4;*/
-    if (app_count && app_list_offset) {
-        offset = base_offset + app_list_offset;
-        mbim_dissect_ms_app_info_elements(tvb, pinfo, tree, offset, app_count);
+    if (app_count) {
+        pair_list = wmem_array_new(pinfo->pool, sizeof(struct mbim_pair_list));
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 8 * app_count, ett_mbim_pair_list, NULL, "App List");
+        for (guint32 i = 0; i < app_count; i++) {
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_list_app_info_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.offset);
+            offset += 4;
+            proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_list_app_info_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &pair_list_item.size);
+            offset += 4;
+            wmem_array_append_one(pair_list, pair_list_item);
+        }
+    }
+    for (guint32 i = 0; i < app_count; i++) {
+        p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
+        offset = base_offset + p_pair_list_item->offset;
+        subtree = proto_tree_add_subtree_format(tree, tvb, offset, p_pair_list_item->size,
+            ett_mbim_pair_list, NULL, "App Info #%u", i + 1);
+        if (p_pair_list_item->size && p_pair_list_item->offset) {
+            mbim_dissect_ms_app_info_elements(tvb, pinfo, subtree, offset);
+        }
     }
 }
 
@@ -6649,7 +7356,11 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 if (cmd_type == MBIM_COMMAND_SET) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 } else if (info_buff_len) {
+                                    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+                                        proto_tree_add_item(subtree, hf_mbim_ms_slot_id, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                    } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                    }
                                 }
                                 break;
                             case MBIM_CID_RADIO_STATE:
@@ -6718,8 +7429,8 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_CONNECT:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    if (SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv)) {
-                                        mbim_dissect_set_connect_v3(frag_tvb, pinfo, subtree, offset, info_buff_len);
+                                    if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+                                        mbim_dissect_set_connect_v3_and_higher(frag_tvb, pinfo, subtree, offset, info_buff_len, mbim_conv);
                                     } else {
                                         mbim_dissect_set_connect(frag_tvb, pinfo, subtree, offset);
                                     }
@@ -7274,7 +7985,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         switch (cid) {
                             case MBIM_CID_MS_PROVISIONED_CONTEXT_V2:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    mbim_dissect_set_ms_provisioned_context_v2(frag_tvb, pinfo, subtree, offset);
+                                    mbim_dissect_set_ms_provisioned_context_v2(frag_tvb, pinfo, subtree, offset, mbim_conv);
                                 } else if (info_buff_len) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
                                 }
@@ -7360,13 +8071,34 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 }
                                 break;
                             case MBIM_CID_MS_REGISTRATION_PARAMS:
-                                mbim_dissect_ms_registration_params_info(frag_tvb, pinfo, subtree, offset, info_buff_len);
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_registration_params_info(frag_tvb, pinfo, subtree, offset, info_buff_len);
+                                }
+                                else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
+                            case MBIM_CID_MS_NETWORK_PARAMS:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                else if (info_buff_len) {
+                                    mbim_dissect_tlv_ie_list(frag_tvb, pinfo, subtree, offset, offset, info_buff_len);
+                                }
                                 break;
                             case MBIM_CID_MS_WAKE_REASON:
                                 if (cmd_type == MBIM_COMMAND_SET) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 } else if (info_buff_len) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                                break;
+                            case MBIM_CID_MS_UE_POLICY:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                else if (info_buff_len) {
+                                    mbim_dissect_tlv_ie_list(frag_tvb, pinfo, subtree, offset, offset, info_buff_len);
                                 }
                                 break;
                             default:
@@ -7393,16 +8125,54 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 if (cmd_type == MBIM_COMMAND_SET) {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 } else if (info_buff_len) {
+                                    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+                                        proto_tree_add_item(subtree, hf_mbim_ms_slot_id, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                    } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                    }
                                 }
                                 break;
                             case MBIM_CID_MS_UICC_OPEN_CHANNEL:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_open_channel(frag_tvb, subtree, offset, mbim_conv);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_CLOSE_CHANNEL:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_close_channel(frag_tvb, subtree, offset, mbim_conv);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_APDU:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_apdu(frag_tvb, subtree, offset, mbim_conv);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_TERMINAL_CAPABILITY:
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_set_terminal_capability(frag_tvb, pinfo, subtree, offset, mbim_conv);
+                                } else if (info_buff_len) {
+                                    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+                                        proto_tree_add_item(subtree, hf_mbim_ms_slot_id, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                    } else {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                    }
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_RESET:
-                                if (info_buff_len) {
-                                    proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                if (cmd_type == MBIM_COMMAND_SET) {
+                                    mbim_dissect_ms_set_reset(frag_tvb, subtree, offset, mbim_conv);
+                                } else if (info_buff_len) {
+                                    if (SHOULD_MBIM_EX4_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+                                        mbim_dissect_ms_query_reset(frag_tvb, subtree, offset);
+                                    } else {
+                                        proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                    }
                                 }
                                 break;
                             case MBIM_CID_MS_UICC_APP_LIST:
@@ -8179,7 +8949,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     case UUID_BASIC_CONNECT_EXTENSIONS:
                         switch (cid) {
                             case MBIM_CID_MS_PROVISIONED_CONTEXT_V2:
-                                mbim_dissect_ms_provisioned_context_info_v2(frag_tvb, pinfo, subtree, offset);
+                                mbim_dissect_ms_provisioned_context_info_v2(frag_tvb, pinfo, subtree, offset, mbim_conv);
                                 break;
                             case MBIM_CID_MS_NETWORK_BLACKLIST:
                                 mbim_dissect_ms_network_blacklist_info(pinfo, frag_tvb, subtree, offset);
@@ -8204,8 +8974,8 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     if (mbim_info && (mbim_info->cmd_type == MBIM_COMMAND_SET)) {
                                         proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                     } else {
-                                        if (SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv)) {
-                                            mbim_dissect_device_caps_v3_info(frag_tvb, pinfo, subtree, offset, mbim_conv);
+                                        if (SHOULD_MBIM_EX3_AND_HIGHER_BE_APPLIED(mbim_conv)) {
+                                            mbim_dissect_device_caps_v3_and_higher_info(frag_tvb, pinfo, subtree, offset, mbim_conv);
                                         } else {
                                             mbim_dissect_device_caps_v2_info(frag_tvb, pinfo, subtree, offset, mbim_conv);
                                         }
@@ -8275,6 +9045,12 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                             case MBIM_CID_MS_REGISTRATION_PARAMS:
                                 mbim_dissect_ms_registration_params_info(frag_tvb, pinfo, subtree, offset, info_buff_len);
                                 break;
+                            case MBIM_CID_MS_NETWORK_PARAMS:
+                                mbim_dissect_ms_network_params_info(frag_tvb, pinfo, subtree, offset, info_buff_len);
+                                break;
+                            case MBIM_CID_MS_UE_POLICY:
+                                mbim_dissect_tlv_ie_list(frag_tvb, pinfo, subtree, offset, offset, info_buff_len);
+                                break;
                             case MBIM_CID_MS_WAKE_REASON:
                                 mbim_dissect_ms_wake_reason(frag_tvb, pinfo, subtree, offset);
                                 break;
@@ -8308,11 +9084,39 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 }
                                 break;
                             case MBIM_CID_MS_UICC_OPEN_CHANNEL:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    mbim_dissect_ms_open_channel_info(frag_tvb, subtree, offset);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_CLOSE_CHANNEL:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    proto_tree_add_item(subtree, hf_mbim_ms_uicc_status, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_APDU:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    mbim_dissect_ms_apdu_info(frag_tvb, subtree, offset);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_TERMINAL_CAPABILITY:
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    mbim_dissect_ms_terminal_capability_info(frag_tvb, pinfo, subtree, offset, offset);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
+                                break;
                             case MBIM_CID_MS_UICC_RESET:
-                                proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
+                                if (msg_type == MBIM_COMMAND_DONE) {
+                                    proto_tree_add_item(subtree, hf_mbim_ms_reset_pass_through_action, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                                } else {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                                }
                                 break;
                             case MBIM_CID_MS_UICC_APP_LIST:
                                 if (msg_type == MBIM_COMMAND_DONE) {
@@ -8451,7 +9255,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item_set_hidden(ti);
 
     subtree = proto_tree_add_subtree(mbim_tree, tvb, 0, 0, ett_mbim_msg_header, NULL, "NCM Transfer Header");
-    proto_tree_add_item(subtree, hf_mbim_bulk_nth_signature, tvb, 0, 4, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_bulk_nth_signature, tvb, 0, 4, ENC_ASCII);
     proto_tree_add_item_ret_uint(subtree, hf_mbim_bulk_nth_header_length, tvb, 4, 2, ENC_LITTLE_ENDIAN, &length);
     proto_item_set_len(ti, length);
     proto_tree_add_item(subtree, hf_mbim_bulk_nth_sequence_number, tvb, 6, 2, ENC_LITTLE_ENDIAN);
@@ -8988,9 +9792,159 @@ proto_register_mbim(void)
                FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_tlv_ie_data_int32,
+            { "Data", "mbim.control.tlv_ie.int32_data",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_tlv_ie_data_guid,
+            { "Data", "mbim.control.tlv_ie.guid_data",
+               FT_GUID, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_tlv_ie_padding,
             { "Padding", "mbim.control.tlv_ie.padding",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_length,
+            { "Length", "mbim.control.ursp.tc_length",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_precedence,
+            { "Precedence", "mbim.control.ursp.precedence",
                FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_type,
+            { "Type", "mbim.control.ursp.tc_type",
+               FT_UINT8, BASE_DEC, VALS(ursp_tc_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_os_id,
+            { "Os Id", "mbim.control.ursp.tc_os_id",
+               FT_GUID, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_dnn,
+            { "DNN", "mbim.control.ursp.tc_dnn",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_fqdn,
+            { "FQDN", "mbim.control.ursp.tc_fqdn",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_ipv4,
+            { "IPv4 Address", "mbim.control.ursp.tc_ipv4",
+               FT_IPv4, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_ipv4_mask,
+            { "IPv4 Mask", "mbim.control.ursp.tc_ipv4_mask",
+               FT_IPv4, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_ipv6,
+            { "IPv6 Address", "mbim.control.ursp.tc_ipv6",
+               FT_IPv6, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_ipv6_prefix_length,
+            { "IPv6 Prefix Length", "mbim.control.ursp.tc_ipv6_prefix_length",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_proto_id,
+            { "Protocol Identifier", "mbim.control.ursp.tc_proto_id",
+               FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_port,
+            { "Port", "mbim.control.ursp.tc_port",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_port_range_low,
+            { "Port Range Low", "mbim.control.ursp.tc_port_range_low",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_port_range_high,
+            { "Port Range high", "mbim.control.ursp.tc_port_range_high",
+               FT_UINT16, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_app_id,
+            { "App Id", "mbim.control.ursp.tc_app_id",
+               FT_STRING, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_byte_value,
+            { "Value", "mbim.control.ursp.tc_byte_value",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_capability,
+            { "Capability", "mbim.control.ursp.tc_capability",
+               FT_UINT8, BASE_HEX, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_connection_capability_flag_ims,
+            { "IMS", "mbim.control.ursp.tc_capability_ims",
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_connection_capability_flag_mms,
+            { "MMS", "mbim.control.ursp.tc_capability_mms",
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_connection_capability_flag_supl,
+            { "SUPL", "mbim.control.ursp.tc_capability_supl",
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_ursp_tc_connection_capability_flag_internet,
+            { "Internet", "mbim.control.ursp.tc_capability_internet",
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_snssai_length,
+            { "Length", "mbim.control.snssai.length",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_snssai_slice_service_type,
+            { "SST", "mbim.control.snssai.sst",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_snssai_slice_differentiator,
+            { "SD", "mbim.control.snssai.sd",
+               FT_UINT24, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_snssai_mapped_slice_service_type,
+            { "Mapped SST", "mbim.control.snssai.mapped_sst",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_snssai_mapped_slice_differentiator,
+            { "Mapped SD", "mbim.control.snssai.mapped_sd",
+               FT_UINT24, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_rej_snssai_cause,
+            { "Rejected Cause", "mbim.control.rej_snssai.cause",
+               FT_UINT8, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_pre_dflt_nssai_info_access_type,
+            { "Access Type", "mbim.control.pre_dflt_nssai_info.access_type",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_pre_dflt_nssai_info_access_type_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_device_caps_info_device_type,
@@ -9183,6 +10137,11 @@ proto_register_mbim(void)
                FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000080,
               NULL, HFILL }
         },
+        { &hf_mbim_device_caps_info_control_caps_use_ursp_rule_on_epc_capable,
+            { "Use URSP Rule On EPC Capable", "mbim.control.device_caps_info.control_caps.use_ursp_rule_on_epc_capable",
+               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000100,
+              NULL, HFILL }
+        },
         { &hf_mbim_device_caps_info_max_sessions,
             { "Max Sessions", "mbim.control.device_caps_info.max_sessions",
                FT_UINT32, BASE_DEC, NULL, 0,
@@ -9300,17 +10259,22 @@ proto_register_mbim(void)
         },
         { &hf_mbim_subscr_ready_status_flag_esim,
             { "ESIM", "mbim.control.subscriber_ready_status.flags.esim",
-               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000001,
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
               NULL, HFILL }
         },
         { &hf_mbim_subscr_ready_status_flag_sim_removability_known,
             { "SIM Removability Known", "mbim.control.subscriber_ready_status.flags.sim_removability_known",
-               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000002,
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
               NULL, HFILL }
         },
         { &hf_mbim_subscr_ready_status_flag_sim_removable,
             { "SIM Removable", "mbim.control.subscriber_ready_status.flags.sim_removable",
-               FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00000004,
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000004,
+              NULL, HFILL }
+        },
+        { &hf_mbim_subscr_ready_status_flag_sim_slot_active,
+            { "SIM Slot Active", "mbim.control.subscriber_ready_status.flags.sim_slot_active",
+               FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000008,
               NULL, HFILL }
         },
         { &hf_mbim_subscr_ready_status_susbcr_id_offset,
@@ -9695,7 +10659,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ms_tai_list_type,
             { "TAI List Type", "mbim.control.ms_tai.list_type",
-               FT_UINT8, BASE_DEC, NULL, 0,
+               FT_UINT8, BASE_DEC, VALS(mbim_tai_list_type_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_tai_list_single_plmn_tac_element,
@@ -9841,6 +10805,11 @@ proto_register_mbim(void)
         { &hf_mbim_set_connect_activation_command,
             { "Activation Command", "mbim.control.set_connect.activation_command",
                FT_UINT32, BASE_DEC, VALS(mbim_activation_command_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_connect_activation_option,
+            { "Activation Option", "mbim.control.set_connect.activation_option",
+               FT_UINT32, BASE_DEC, VALS(mbim_activation_option_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_set_connect_access_string_offset,
@@ -10540,7 +11509,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_sms_cdma_record_encoded_message_text,
             { "Text", "mbim.control.sms_cdma_record.encoded_message.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_mbim_sms_read_req_format,
@@ -10645,7 +11614,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_sms_send_cdma_encoded_message_text,
             { "Text", "mbim.control.sms_send_cdma.encoded_message.text",
-            FT_STRING, STR_UNICODE, NULL, 0,
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_mbim_set_sms_send_format,
@@ -10715,7 +11684,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_set_ussd_ussd_payload_text,
             { "USSD Payload Text", "mbim.control.set_ussd.ussd_payload.text",
-               FT_STRING, STR_UNICODE, NULL, 0,
+               FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_ussd_info_ussd_response,
@@ -10750,7 +11719,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ussd_info_ussd_payload_text,
             { "USSD Payload Text", "mbim.control.ussd_info.ussd_payload.text",
-               FT_STRING, STR_UNICODE, NULL, 0,
+               FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_phonebook_configuration_info_phonebook_state,
@@ -12703,6 +13672,16 @@ proto_register_mbim(void)
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_ms_network_params_info_mico_indication,
+            { "MICO indication", "mbim.control.ms_network_params_info.mico_indication",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_mico_indication_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_network_params_info_drx_params,
+            { "DRX Params", "mbim.control.ms_network_params_info.drx_params",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_drx_params_vals), 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_ms_wake_reason_wake_type,
             { "Wake Type", "mbim.control.ms_wake_reason.wake_type",
                FT_UINT32, BASE_DEC, VALS(hf_mbim_ms_wake_reason_wake_type_vals), 0,
@@ -12748,6 +13727,111 @@ proto_register_mbim(void)
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_ms_slot_id,
+            { "Slot Id", "mbim.control.ms_dual_sim.slot_id",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_open_channel_app_id_size,
+            { "App Id Size", "mbim.control.ms_open_channel.app_id_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_open_channel_app_id_offset,
+            { "App Id Offset", "mbim.control.ms_open_channel.app_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_open_channel_select_p2_arg,
+            { "Select P2 Arg", "mbim.control.ms_open_channel.select_p2_arg",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_uicc_channel_group,
+            { "Channel Group", "mbim.control.ms_uicc.channel_group",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_open_channel_app_id,
+            { "App Id", "mbim.control.ms_open_channel.app_id",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_uicc_status,
+            { "Status", "mbim.control.ms_uicc.status",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_uicc_channel,
+            { "Channel", "mbim.control.ms_uicc.channel",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_uicc_response_length,
+            { "Response Length", "mbim.control.ms_uicc.response_length",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_uicc_response_offset,
+            { "Response Offset", "mbim.control.ms_uicc.response_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_uicc_response,
+            { "Response", "mbim.control.ms_uicc.response",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_apdu_secure_messaging,
+            { "Secure messaging", "mbim.control.ms_apdu.secure_messaging",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_apdu_secure_messaging_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_apdu_type,
+            { "Type", "mbim.control.ms_apdu.type",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_apdu_type_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_apdu_command_size,
+            { "Command Size", "mbim.control.ms_apdu.command_size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_apdu_command_offset,
+            { "Command Offset", "mbim.control.ms_apdu.command_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_apdu_command,
+            { "Command", "mbim.control.ms_apdu.command",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_terminal_capability_count,
+            { "Capability Count", "mbim.control.ms_terminal_capability.count",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_terminal_capability_offset,
+            { "Capability offset", "mbim.control.ms_terminal_capability.offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_terminal_capability_size,
+            { "Capability size", "mbim.control.ms_terminal_capability.size",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_terminal_capability,
+            { "Capability", "mbim.control.ms_terminal_capability.capability",
+               FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_reset_pass_through_action,
+            { "Type", "mbim.control.ms_reset.pass_through_action",
+               FT_UINT32, BASE_DEC, VALS(mbim_ms_reset_pass_through_action_vals), 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_ms_atr_info_atr_offset,
             { "ATR Offset", "mbim.control.ms_atr_info.atr_offset",
                FT_UINT32, BASE_DEC, NULL, 0,
@@ -12763,6 +13847,11 @@ proto_register_mbim(void)
                FT_UINT32, BASE_DEC, VALS(mbim_ms_uicc_app_type_vals), 0,
               NULL, HFILL }
         },
+        { &hf_mbim_ms_app_info_app_id_offset,
+            { "App ID Offset", "mbim.control.ms_app_info.app_id_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
         { &hf_mbim_ms_app_info_app_id_size,
             { "App ID Size", "mbim.control.ms_app_info.app_id_size",
                FT_UINT32, BASE_DEC, NULL, 0,
@@ -12773,8 +13862,13 @@ proto_register_mbim(void)
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_mbim_ms_app_info_app_name_length,
-            { "App Name Length", "mbim.control.ms_app_info.app_name_length",
+        { &hf_mbim_ms_app_info_app_name_offset,
+            { "App Name Offset", "mbim.control.ms_app_info.app_name_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_app_name_size,
+            { "App Name Size", "mbim.control.ms_app_info.app_name_size",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
@@ -12785,6 +13879,16 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ms_app_info_num_pins,
             { "Num Pins", "mbim.control.ms_app_info.num_pins",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_pin_ref_offset,
+            { "Pin Ref Offset", "mbim.control.ms_app_info.pin_ref_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_info_pin_ref_size,
+            { "Pin Ref Size", "mbim.control.ms_app_info.pin_ref_size",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
@@ -12808,13 +13912,18 @@ proto_register_mbim(void)
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_mbim_ms_app_list_app_list_offset,
-            { "App List Offset", "mbim.control.ms_app_list.app_list_offset",
+        { &hf_mbim_ms_app_list_size,
+            { "App List Size", "mbim.control.ms_app_list.app_list_size",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
-        { &hf_mbim_ms_app_list_app_list_size,
-            { "App List Size", "mbim.control.ms_app_list.app_list_size",
+        { &hf_mbim_ms_app_list_app_info_offset,
+            { "App Info Offset", "mbim.control.ms_app_list.app_info_offset",
+               FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_ms_app_list_app_info_size,
+            { "App Info Size", "mbim.control.ms_app_list.app_info_size",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },

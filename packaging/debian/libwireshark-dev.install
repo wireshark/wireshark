@@ -1,0 +1,3 @@
+usr/lib/*/libwireshark.so
+usr/lib/*/pkgconfig/wireshark.pc
+usr/include/wireshark/epan/*

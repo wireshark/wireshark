@@ -21,15 +21,15 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
+        uses: microsoft/setup-msbuild@v1.1
         with:
-          vs-version: 16.4
+          vs-version: 16.8
       - name: Set MSVC command prompt
         uses: ilammy/msvc-dev-cmd@v1
       - name: Mkdir
         run: mkdir build
       - name: Cmake
-        run: cmake -A x64 ..
+        run: cmake -DCMAKE_SYSTEM_VERSION=10.0.20348.0 -A x64 ..
         env:
           PLATFORM: x64
           WIRESHARK_BASE_DIR: C:/wireshark-libs
@@ -60,12 +60,8 @@ jobs:
           msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
           msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
         working-directory: build
-      - name: Move Windows packages
-        run: |
-          mkdir exe
-          mv build/packaging/nsis/*exe exe/
       - name: Upload Windows packages
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
-          name: packages
-          path: exe
+          name: package
+          path: build/packaging/nsis/*exe

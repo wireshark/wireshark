@@ -1,4 +1,5 @@
-/* processes.h
+/** @file
+ *
  * Process utility definitions
  *
  * Wireshark - Network traffic analyzer

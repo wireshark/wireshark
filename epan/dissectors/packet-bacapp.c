@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -3510,7 +3511,7 @@ BACnetEngineeringUnits [] = {
     {  96, "Parts Per Million"},
     {  97, "Parts Per Billion"},
     {  98, "Percent"},
-    {  99, "Pecent Per Second"},
+    {  99, "Percent Per Second"},
     { 100, "Per Minute"},
     { 101, "Per Second"},
     { 102, "Psi Per Degree Fahrenheit"},
@@ -7000,7 +7001,7 @@ fUnsignedTag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, 
     /* only support up to an 8 byte (64-bit) integer */
     if (fUnsigned64(tvb, offset + tag_len, lvt, &val))
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
-            ett_bacapp_tag, NULL, "%s(Unsigned) %" G_GINT64_MODIFIER "u", label, val);
+            ett_bacapp_tag, NULL, "%s(Unsigned) %" PRIu64, label, val);
     else
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL, "%s - %u octets (Unsigned)", label, lvt);
@@ -7087,7 +7088,7 @@ fSignedTag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, co
     tag_len = fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
     if (fSigned64(tvb, offset + tag_len, lvt, &val))
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
-            ett_bacapp_tag, NULL, "%s(Signed) %" G_GINT64_MODIFIER "d", label, val);
+            ett_bacapp_tag, NULL, "%s(Signed) %" PRId64, label, val);
     else
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
             ett_bacapp_tag, NULL, "%s - %u octets (Signed)", label, lvt);
@@ -8686,13 +8687,13 @@ fAbstractSyntaxNType(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     gboolean do_default_handling;
 
     if (propertyIdentifier >= 0) {
-        g_snprintf(ar, sizeof(ar), "%s: ",
+        snprintf(ar, sizeof(ar), "%s: ",
             val_to_split_str(propertyIdentifier, 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
                 Vendor_Proprietary_Fmt));
     } else {
-        g_snprintf(ar, sizeof(ar), "Abstract Type: ");
+        snprintf(ar, sizeof(ar), "Abstract Type: ");
     }
 
     unsigned recursion_depth = p_get_proto_depth(pinfo, proto_bacapp);
@@ -14121,7 +14122,7 @@ fPriorityArray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* exit loop if nothing happens inside */
         lastoffset = offset;
-        g_snprintf(ar, sizeof(ar), "%s[%d]: ",
+        snprintf(ar, sizeof(ar), "%s[%d]: ",
             val_to_split_str(87 , 512,
                 BACnetPropertyIdentifier,
                 ASHRAE_Reserved_Fmt,
@@ -15890,7 +15891,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_object_name,
           { "Object Name",           "bacapp.object_name",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_instanceNumber,
           { "Instance Number",           "bacapp.instance_number",
@@ -15954,7 +15955,7 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_present_value_null,
           { "Present Value (null)", "bacapp.present_value.null",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_bool,
           { "Present Value (bool)", "bacapp.present_value.boolean",
@@ -15982,11 +15983,11 @@ proto_register_bacapp(void)
         },
         { &hf_bacapp_present_value_char_string,
           { "Present Value (char string)", "bacapp.present_value.char_string",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_bit_string,
           { "Present Value (bit string)", "bacapp.present_value.bit_string",
-            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_bacapp_present_value_enum_index,
           { "Present Value (enum index)", "bacapp.present_value.enum_index",

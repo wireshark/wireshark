@@ -711,7 +711,7 @@ static void dissect_uftp_fileinfo_30(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset += 2;
     proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_fsize, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_name, tvb, offset, MAXPATHNAME, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_name, tvb, offset, MAXPATHNAME, ENC_ASCII);
     offset += MAXPATHNAME;
     if (destcount > 0) {
         destlist = proto_tree_add_item(fileinfo_tree, hf_uftp_destlist, tvb, offset, destcount * 4, ENC_NA);
@@ -767,7 +767,7 @@ static void dissect_uftp_fileinfo(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 8;
     proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_ftstamp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_name, tvb, offset, MAXPATHNAME, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(fileinfo_tree, hf_uftp_fileinfo_name, tvb, offset, MAXPATHNAME, ENC_ASCII);
     offset += MAXPATHNAME;
     if (destcount > 0) {
         destlist = proto_tree_add_item(fileinfo_tree, hf_uftp_destlist, tvb, offset, destcount * 4, ENC_NA);
@@ -1370,7 +1370,7 @@ static void dissect_uftp_abort(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset += 2;
     proto_tree_add_item(abort_tree, hf_uftp_abort_host, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(abort_tree, hf_uftp_abort_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(abort_tree, hf_uftp_abort_message, tvb, offset, -1, ENC_ASCII);
 }
 
 static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

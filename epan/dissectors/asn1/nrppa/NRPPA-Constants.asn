@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V16.5.0 (2021-10)
+-- 3GPP TS 38.455 V16.6.0 (2021-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -162,5 +162,7 @@ id-CGI-NR														ProtocolIE-ID ::= 58
 id-SFNInitialisationTime-NR										ProtocolIE-ID ::= 59
 id-Cell-ID														ProtocolIE-ID ::= 60
 id-SrsFrequency													ProtocolIE-ID ::= 61
+id-TRPType														ProtocolIE-ID ::= 62
+id-SRSSpatialRelationPerSRSResource								ProtocolIE-ID ::= 63
 
 END

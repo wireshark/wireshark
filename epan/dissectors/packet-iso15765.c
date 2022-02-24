@@ -249,44 +249,44 @@ update_config_can_addr_mappings(void *r, char **err) {
     config_can_addr_mapping_t *rec = (config_can_addr_mapping_t *)r;
 
     if (rec->source_addr_mask == 0 && rec->target_addr_mask == 0 && rec->ecu_addr_mask == 0) {
-        *err = g_strdup_printf("You need to define the ECU Mask OR Source Mask/Target Mask!");
+        *err = ws_strdup_printf("You need to define the ECU Mask OR Source Mask/Target Mask!");
         return FALSE;
     }
 
     if ((rec->source_addr_mask != 0 || rec->target_addr_mask != 0) && rec->ecu_addr_mask != 0) {
-        *err = g_strdup_printf("You can only use Source Address Mask/Target Address Mask OR ECU Address Mask! Not both at the same time!");
+        *err = ws_strdup_printf("You can only use Source Address Mask/Target Address Mask OR ECU Address Mask! Not both at the same time!");
         return FALSE;
     }
 
     if ((rec->source_addr_mask == 0 || rec->target_addr_mask == 0) && rec->ecu_addr_mask == 0) {
-        *err = g_strdup_printf("You can only use Source Address Mask and Target Address Mask in combination!");
+        *err = ws_strdup_printf("You can only use Source Address Mask and Target Address Mask in combination!");
         return FALSE;
     }
 
     if (rec->extended_address) {
         if ((rec->source_addr_mask & ~CAN_EFF_MASK) != 0) {
-            *err = g_strdup_printf("Source Address Mask covering bits not allowed for extended IDs (29bit)!");
+            *err = ws_strdup_printf("Source Address Mask covering bits not allowed for extended IDs (29bit)!");
             return FALSE;
         }
         if ((rec->target_addr_mask & ~CAN_EFF_MASK) != 0) {
-            *err = g_strdup_printf("Target Address Mask covering bits not allowed for extended IDs (29bit)!");
+            *err = ws_strdup_printf("Target Address Mask covering bits not allowed for extended IDs (29bit)!");
             return FALSE;
         }
         if ((rec->ecu_addr_mask & ~CAN_EFF_MASK) != 0) {
-            *err = g_strdup_printf("ECU Address Mask covering bits not allowed for extended IDs (29bit)!");
+            *err = ws_strdup_printf("ECU Address Mask covering bits not allowed for extended IDs (29bit)!");
             return FALSE;
         }
     } else {
         if ((rec->source_addr_mask & ~CAN_SFF_MASK) != 0) {
-            *err = g_strdup_printf("Source Address Mask covering bits not allowed for standard IDs (11bit)!");
+            *err = ws_strdup_printf("Source Address Mask covering bits not allowed for standard IDs (11bit)!");
             return FALSE;
         }
         if ((rec->target_addr_mask & ~CAN_SFF_MASK) != 0) {
-            *err = g_strdup_printf("Target Address Mask covering bits not allowed for standard IDs (11bit)!");
+            *err = ws_strdup_printf("Target Address Mask covering bits not allowed for standard IDs (11bit)!");
             return FALSE;
         }
         if ((rec->ecu_addr_mask & ~CAN_SFF_MASK) != 0) {
-            *err = g_strdup_printf("ECU Address Mask covering bits not allowed for standard IDs (11bit)!");
+            *err = ws_strdup_printf("ECU Address Mask covering bits not allowed for standard IDs (11bit)!");
             return FALSE;
         }
     }
@@ -310,12 +310,18 @@ masked_guint16_value(const guint16 value, const guint16 mask)
     return (value & mask) >> ws_ctz(mask);
 }
 
+static guint32
+masked_guint32_value(const guint32 value, const guint32 mask)
+{
+    return (value & mask) >> ws_ctz(mask);
+}
+
 /*
  * setting addresses to 0xffffffff, if not found or configured
  * returning number of addresses (0: none, 1:ecu (both addr same), 2:source+target)
  */
 static guint8
-find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_addr, guint16 *target_addr) {
+find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint32 *source_addr, guint32 *target_addr) {
     config_can_addr_mapping_t *tmp = NULL;
     guint32 i;
 
@@ -334,13 +340,13 @@ find_config_can_addr_mapping(gboolean ext_id, guint32 can_id, guint16 *source_ad
 
     if (tmp != NULL) {
         if (tmp->ecu_addr_mask != 0) {
-            *source_addr = masked_guint16_value(can_id, tmp->ecu_addr_mask);
+            *source_addr = masked_guint32_value(can_id, tmp->ecu_addr_mask);
             *target_addr = *source_addr;
             return 1;
         }
         if (tmp->source_addr_mask != 0 && tmp->target_addr_mask != 0) {
-            *source_addr = masked_guint16_value(can_id, tmp->source_addr_mask);
-            *target_addr = masked_guint16_value(can_id, tmp->target_addr_mask);
+            *source_addr = masked_guint32_value(can_id, tmp->source_addr_mask);
+            *target_addr = masked_guint32_value(can_id, tmp->target_addr_mask);
             return 2;
         }
     }

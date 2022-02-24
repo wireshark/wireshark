@@ -24,6 +24,7 @@
 #include <epan/expert.h>
 #include <epan/rtp_pt.h>
 #include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 
 /* For setting up RTP/RTCP dissectors based on the RTPproxy's answers */
 #include "packet-rtp.h"
@@ -272,7 +273,10 @@ static gint ett_rtpproxy_reply = -1;
 static gint ett_rtpproxy_ng_bencode = -1;
 
 /* Default values */
-#define RTPPROXY_PORT 22222  /* Not IANA registered */
+#define RTPPROXY_PORT "22222"  /* Not IANA registered */
+static range_t* rtpproxy_tcp_range = NULL;
+static range_t* rtpproxy_udp_range = NULL;
+
 static gboolean rtpproxy_establish_conversation = TRUE;
 /* See - https://www.opensips.org/html/docs/modules/1.10.x/rtpproxy.html#id293555 */
 /* See - http://www.kamailio.org/docs/modules/4.3.x/modules/rtpproxy.html#idp15794952 */
@@ -899,6 +903,14 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return tvb_captured_length(tvb);
 }
 
+/* Preference callbacks */
+static void
+rtpproxy_prefs_apply(void) {
+
+    rtpproxy_tcp_range = prefs_get_range_value("rtpproxy", "tcp.port");
+    rtpproxy_udp_range = prefs_get_range_value("rtpproxy", "udp.port");
+}
+
 void
 proto_register_rtpproxy(void)
 {
@@ -1447,7 +1459,7 @@ proto_register_rtpproxy(void)
     expert_rtpproxy_module = expert_register_protocol(proto_rtpproxy);
     expert_register_field_array(expert_rtpproxy_module, ei, array_length(ei));
 
-    rtpproxy_module = prefs_register_protocol(proto_rtpproxy, proto_reg_handoff_rtpproxy);
+    rtpproxy_module = prefs_register_protocol(proto_rtpproxy, rtpproxy_prefs_apply);
 
     prefs_register_bool_preference(rtpproxy_module, "establish_conversation",
                                  "Establish Media Conversation",
@@ -1474,8 +1486,9 @@ proto_reg_handoff_rtpproxy(void)
         rtpproxy_udp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
 
         /* Register TCP port for dissection */
-        dissector_add_uint_with_preference("tcp.port", RTPPROXY_PORT, rtpproxy_tcp_handle);
-        dissector_add_uint_with_preference("udp.port", RTPPROXY_PORT, rtpproxy_udp_handle);
+        dissector_add_uint_range_with_preference("tcp.port", RTPPROXY_PORT, rtpproxy_tcp_handle);
+        dissector_add_uint_range_with_preference("udp.port", RTPPROXY_PORT, rtpproxy_udp_handle);
+        rtpproxy_prefs_apply();
         rtpproxy_initialized = TRUE;
     }
 

@@ -1,4 +1,4 @@
-/* report_message.h
+/** @file
  * Declarations of routines for code that can run in GUI and command-line
  * environments to use to report errors and warnings to the user (e.g.,
  * I/O errors, or problems with preference settings) if the message should

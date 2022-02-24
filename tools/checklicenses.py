@@ -32,7 +32,7 @@ Examples:
 
 
 ALLOWED_LICENSES = [
-    'BSD',
+    'BSD (1 clause)',
     'BSD (2 clause)',
     'BSD (2 clause) GPL (v2 or later)',
     'BSD (3 clause)',

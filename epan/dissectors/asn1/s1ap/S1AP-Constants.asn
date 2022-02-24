@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.7.0 (2021-10)
+-- 3GPP TS 36.413 V16.8.0 (2021-12)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -512,5 +512,6 @@ id-WUS-Assistance-Information						ProtocolIE-ID ::= 323
 id-NB-IoT-PagingDRX									ProtocolIE-ID ::= 324
 id-TraceCollectionEntityURI							ProtocolIE-ID ::= 325
 id-EmergencyIndicator								ProtocolIE-ID ::= 326
+id-UERadioCapabilityForPaging-NR-Format 			ProtocolIE-ID ::= 327
 
 END

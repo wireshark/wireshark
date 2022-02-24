@@ -499,7 +499,7 @@ static void ipv6_prompt(packet_info *pinfo, gchar *result)
 {
     gpointer value = ipv6_value(pinfo);
 
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", GPOINTER_TO_UINT(value));
+    snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IP protocol %u as", GPOINTER_TO_UINT(value));
 }
 
 static const char* ipv6_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
@@ -564,7 +564,7 @@ ipv6_filter_valid(packet_info *pinfo)
 static gchar*
 ipv6_build_filter(packet_info *pinfo)
 {
-    return g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
+    return ws_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
                 address_to_str(pinfo->pool, &pinfo->net_dst));
 }
@@ -3292,17 +3292,17 @@ proto_register_ipv6(void)
 
         { &hf_geoip_country,
             { "Source or Destination GeoIP Country", "ipv6.geoip.country",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_country_iso,
             { "Source or Destination GeoIP ISO Two Letter Country Code", "ipv6.geoip.country_iso",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_city,
             { "Source or Destination GeoIP City", "ipv6.geoip.city",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_as_number,
@@ -3312,7 +3312,7 @@ proto_register_ipv6(void)
         },
         { &hf_geoip_as_org,
             { "Source or Destination GeoIP AS Organization", "ipv6.geoip.org",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_latitude,
@@ -3327,22 +3327,22 @@ proto_register_ipv6(void)
         },
         { &hf_geoip_src_summary,
             { "Source GeoIP", "ipv6.geoip.src_summary",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_src_country,
             { "Source GeoIP Country", "ipv6.geoip.src_country",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_src_country_iso,
             { "Source GeoIP ISO Two Letter Country Code", "ipv6.geoip.src_country_iso",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_src_city,
             { "Source GeoIP City", "ipv6.geoip.src_city",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_src_as_number,
@@ -3352,7 +3352,7 @@ proto_register_ipv6(void)
         },
         { &hf_geoip_src_as_org,
             { "Source GeoIP AS Organization", "ipv6.geoip.src_org",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_src_latitude,
@@ -3367,22 +3367,22 @@ proto_register_ipv6(void)
         },
         { &hf_geoip_dst_summary,
             { "Destination GeoIP", "ipv6.geoip.dst_summary",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_dst_country,
             { "Destination GeoIP Country", "ipv6.geoip.dst_country",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_dst_country_iso,
             { "Destination GeoIP ISO Two Letter Country Code", "ipv6.geoip.dst_country_iso",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_dst_city,
             { "Destination GeoIP City", "ipv6.geoip.dst_city",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_dst_as_number,
@@ -3392,7 +3392,7 @@ proto_register_ipv6(void)
         },
         { &hf_geoip_dst_as_org,
             { "Destination GeoIP AS Organization", "ipv6.geoip.dst_org",
-                FT_STRING, STR_UNICODE, NULL, 0x0,
+                FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_geoip_dst_latitude,

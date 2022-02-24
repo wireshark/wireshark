@@ -558,7 +558,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     const guint8 *boundary = (guint8 *)m_info->boundary;
     gint boundary_len = m_info->boundary_length;
 
-    ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, ENC_ASCII|ENC_NA);
+    ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, ENC_ASCII);
     subtree = proto_item_add_subtree(ti, ett_multipart_body);
 
     /* find the next boundary to find the end of this body part */

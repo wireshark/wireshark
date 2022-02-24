@@ -1,10 +1,10 @@
 // WSUG Chapter BuildInstall
 
-[[ChapterBuildInstall]]
+[#ChapterBuildInstall]
 
 == Building and Installing Wireshark
 
-[[ChBuildInstallIntro]]
+[#ChBuildInstallIntro]
 
 === Introduction
 
@@ -32,7 +32,7 @@ The general steps are the following:
 
 . Install the binaries into their final destinations.
 
-[[ChBuildInstallDistro]]
+[#ChBuildInstallDistro]
 
 === Obtaining the source and binary distributions
 
@@ -55,7 +55,7 @@ This is covered in detail below.
 // Windows
 //
 
-[[ChBuildInstallWinInstall]]
+[#ChBuildInstallWinInstall]
 
 === Installing Wireshark under Windows
 
@@ -69,7 +69,7 @@ Official packages are signed by the *Wireshark Foundation, Inc.*.
 You can choose to install several optional components and select the location of the installed package.
 The default settings are recommended for most users.
 
-[[ChBuildInstallWinComponents]]
+[#ChBuildInstallWinComponents]
 
 ==== Installation Components
 
@@ -111,7 +111,7 @@ On the _Choose Components_ page of the installer you can select from the followi
   most dialogs will require an internet connection to show help pages if the
   User’s Guide is not installed locally.
 
-[[ChBuildInstallWinAdditionalTasks]]
+[#ChBuildInstallWinAdditionalTasks]
 
 ==== Additional Tasks
 
@@ -123,7 +123,7 @@ On the _Choose Components_ page of the installer you can select from the followi
 
 * *Associate file extensions to Wireshark* - Associate standard network trace files to Wireshark.
 
-[[ChBuildInstallWinLocation]]
+[#ChBuildInstallWinLocation]
 
 ==== Install Location
 
@@ -131,7 +131,7 @@ By default Wireshark installs into `%ProgramFiles%\Wireshark` on 32-bit Windows
 and `%ProgramFiles64%\Wireshark` on 64-bit Windows. This expands to `C:\Program
 Files\Wireshark` on most systems.
 
-[[ChBuildInstallNpcap]]
+[#ChBuildInstallNpcap]
 
 ==== Installing Npcap
 
@@ -146,7 +146,7 @@ For more information about Npcap see {npcap-main-url} and
 {wireshark-wiki-url}Npcap.
 
 
-[[ChBuildInstallWinWiresharkCommandLine]]
+[#ChBuildInstallWinWiresharkCommandLine]
 
 ==== Windows installer command line options
 
@@ -191,7 +191,7 @@ Example:
 
 Running the installer without any parameters shows the normal interactive installer.
 
-[[ChBuildInstallNpcapManually]]
+[#ChBuildInstallNpcapManually]
 
 ==== Manual Npcap Installation
 
@@ -200,7 +200,7 @@ If you prefer to install Npcap manually or want to use a different version than 
 one included in the Wireshark installer, you can download Npcap from
 the main Npcap site at {npcap-main-url}.
 
-[[ChBuildInstallWinWiresharkUpdate]]
+[#ChBuildInstallWinWiresharkUpdate]
 
 ==== Update Wireshark
 
@@ -215,7 +215,7 @@ Wireshark is done the same way as installing it. Simply download and start the
 installer exe. A reboot is usually not required and all your personal settings
 remain unchanged.
 
-[[ChBuildInstallNpcapUpdate]]
+[#ChBuildInstallNpcapUpdate]
 
 ==== Update Npcap
 
@@ -224,7 +224,7 @@ Manual Npcap updates instructions can be found on the Npcap web
 site at {npcap-main-url}. You may have to reboot your machine after installing
 a new Npcap version.
 
-[[ChBuildInstallWinUninstall]]
+[#ChBuildInstallWinUninstall]
 
 ==== Uninstall Wireshark
 
@@ -235,7 +235,7 @@ The Wireshark uninstaller provides several options for removal. The default is
 to remove the core components but keep your personal settings and Npcap.
 Npcap is kept in case other programs need it.
 
-[[ChBuildInstallNpcapUninstall]]
+[#ChBuildInstallNpcapUninstall]
 
 ==== Uninstall Npcap
 
@@ -243,7 +243,7 @@ You can uninstall Npcap independently of Wireshark using the _Npcap_ entry
 in the _Programs and Features_ control panel. Remember that if you uninstall
 Npcap you won’t be able to capture anything with Wireshark.
 
-[[ChBuildInstallWinBuild]]
+[#ChBuildInstallWinBuild]
 
 === Building from source under Windows
 
@@ -255,7 +255,7 @@ from the sources see the Developer’s Guide at:
 
 * {wireshark-developers-guide-url}ChSrcObtain
 
-* {wireshark-developers-guide-url}ChSetupWin32
+* {wireshark-developers-guide-url}ChSetupWindows
 
 You may also want to have a look at the Development Wiki
 ({wireshark-wiki-url}Development) for the latest available development
@@ -265,7 +265,7 @@ documentation.
 // macOS
 //
 
-[[ChBuildInstallOSXInstall]]
+[#ChBuildInstallOSXInstall]
 
 === Installing Wireshark under macOS
 
@@ -278,7 +278,7 @@ You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg o
 The installer package includes Wireshark along with ChmodBPF and system path packages.
 See the included _Read me first.html_ file for more details.
 
-[[ChBuildInstallUnixInstallBins]]
+[#ChBuildInstallUnixInstallBins]
 
 === Installing the binaries under UNIX
 
@@ -331,7 +331,7 @@ Apt should take care of all of the dependency issues for you.
 ====
 By installing Wireshark packages non-root, users won’t gain rights automatically
 to capture packets. To allow non-root users to capture packets follow the
-procedure described in {wireshark-code-file-url}debian/README.Debian
+procedure described in {wireshark-code-file-url}packaging/debian/README.Debian
 (file:///usr/share/doc/wireshark-common/README.Debian.gz[/usr/share/doc/wireshark-common/README.Debian.gz])
 ====
 
@@ -354,7 +354,7 @@ pkg_add -r wireshark
 
 pkg_add should take care of all of the dependency issues for you.
 
-[[ChBuildInstallUnixBuild]]
+[#ChBuildInstallUnixBuild]
 
 === Building from source under UNIX or Linux
 

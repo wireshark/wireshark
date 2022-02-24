@@ -1,4 +1,4 @@
-/* secrets.h
+/** @file
  * Secrets management and processing.
  * Copyright 2018, Peter Wu <peter@lekensteyn.nl>
  *

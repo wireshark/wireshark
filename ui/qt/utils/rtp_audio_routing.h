@@ -1,4 +1,5 @@
-/* rtp_audio_routing.h
+/** @file
+ *
  * Declarations of RTP audio routing class
  *
  * Wireshark - Network traffic analyzer

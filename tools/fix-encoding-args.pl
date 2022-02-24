@@ -51,8 +51,9 @@ my $searchReplaceEncNAHRef =
     "1"                  => "ENC_NA",
     "ENC_LITTLE_ENDIAN"  => "ENC_NA",
     "ENC_BIG_ENDIAN"     => "ENC_NA",
-    "ENC_ASCII|ENC_NA"   => "ENC_NA",
-    "ENC_ASCII | ENC_NA" => "ENC_NA"
+# Could be ENC_ASCII or ENC_NA by type?
+#    "ENC_ASCII|ENC_NA"   => "ENC_ASCII",
+#    "ENC_ASCII|ENC_NA"   => "ENC_NA"
    };
 
 # ---------------------------------------------------------------------
@@ -85,25 +86,25 @@ my @types_STRING =
   (
    [qw (FT_STRING FT_STRINGZ)],
    {
-    "FALSE"                        => "ENC_ASCII|ENC_NA",
-    "0"                            => "ENC_ASCII|ENC_NA",
-    "TRUE"                         => "ENC_ASCII|ENC_NA",
-    "1"                            => "ENC_ASCII|ENC_NA",
-    "ENC_LITTLE_ENDIAN"            => "ENC_ASCII|ENC_NA",
-    "ENC_BIG_ENDIAN"               => "ENC_ASCII|ENC_NA",
-    "ENC_NA"                       => "ENC_ASCII|ENC_NA",
+    "FALSE"                        => "ENC_ASCII",
+    "0"                            => "ENC_ASCII",
+    "TRUE"                         => "ENC_ASCII",
+    "1"                            => "ENC_ASCII",
+    "ENC_LITTLE_ENDIAN"            => "ENC_ASCII",
+    "ENC_BIG_ENDIAN"               => "ENC_ASCII",
+    "ENC_NA"                       => "ENC_ASCII",
 
-    "ENC_ASCII"                    => "ENC_ASCII|ENC_NA",
-    "ENC_ASCII|ENC_LITTLE_ENDIAN"  => "ENC_ASCII|ENC_NA",
-    "ENC_ASCII|ENC_BIG_ENDIAN"     => "ENC_ASCII|ENC_NA",
+    "ENC_ASCII|ENC_NA"             => "ENC_ASCII",
+    "ENC_ASCII|ENC_LITTLE_ENDIAN"  => "ENC_ASCII",
+    "ENC_ASCII|ENC_BIG_ENDIAN"     => "ENC_ASCII",
 
-    "ENC_UTF_8"                    => "ENC_UTF_8|ENC_NA",
-    "ENC_UTF_8|ENC_LITTLE_ENDIAN"  => "ENC_UTF_8|ENC_NA",
-    "ENC_UTF_8|ENC_BIG_ENDIAN"     => "ENC_UTF_8|ENC_NA",
+    "ENC_UTF_8|ENC_NA"             => "ENC_UTF_8",
+    "ENC_UTF_8|ENC_LITTLE_ENDIAN"  => "ENC_UTF_8",
+    "ENC_UTF_8|ENC_BIG_ENDIAN"     => "ENC_UTF_8",
 
-    "ENC_EBCDIC"                   => "ENC_EBCDIC|ENC_NA",
-    "ENC_EBCDIC|ENC_LITTLE_ENDIAN" => "ENC_EBCDIC|ENC_NA",
-    "ENC_EBCDIC|ENC_BIG_ENDIAN"    => "ENC_EBCDIC|ENC_NA",
+    "ENC_EBCDIC|ENC_NA"            => "ENC_EBCDIC",
+    "ENC_EBCDIC|ENC_LITTLE_ENDIAN" => "ENC_EBCDIC",
+    "ENC_EBCDIC|ENC_BIG_ENDIAN"    => "ENC_EBCDIC",
    }
   );
 
@@ -127,68 +128,6 @@ my @types_REG_PROTO  =
   (
    [ qw (REG_PROTO)],
    $searchReplaceEncNAHRef
-  );
-
-# ---------------------------------------------------------------------
-# For searching (and doing no substitutions) (obsolete ?)
-
-my @types_TIME =  (
-                    [qw (FT_ABSOLUTE_TIME FT_RELATIVE_TIME)],
-                    {}
-                   );
-
-my @types_ALL =
-  (
-   [qw (
-           FT_NONE
-           FT_PROTOCOL
-           FT_BOOLEAN
-           FT_UINT8
-           FT_UINT16
-           FT_UINT24
-           FT_UINT32
-           FT_UINT64
-           FT_INT8
-           FT_INT16
-           FT_INT24
-           FT_INT32
-           FT_INT64
-           FT_FLOAT
-           FT_DOUBLE
-           FT_ABSOLUTE_TIME
-           FT_RELATIVE_TIME
-           FT_STRING
-           FT_STRINGZ
-           FT_UINT_STRING
-           FT_ETHER
-           FT_BYTES
-           FT_UINT_BYTES
-           FT_IPv4
-           FT_IPv6
-           FT_IPXNET
-           FT_FRAMENUM
-           FT_GUID
-           FT_OID
-	   FT_REL_OID
-           FT_EUI64
-      )],
-   {# valid encoding args
-    "a"=>"ENC_NA",
-    "b"=>"ENC_LITTLE_ENDIAN",
-    "c"=>"ENC_BIG_ENDIAN",
-
-    "d"=>"ENC_ASCII|ENC_NA",
-    "e"=>"ENC_ASCII|ENC_LITTLE_ENDIAN",
-    "f"=>"ENC_ASCII|ENC_BIG_ENDIAN",
-
-    "g"=>"ENC_UTF_8|ENC_NA",
-    "h"=>"ENC_UTF_8|ENC_LITTLE_ENDIAN",
-    "i"=>"ENC_UTF_8|ENC_BIG_ENDIAN",
-
-    "j"=>"ENC_EBCDIC|ENC_NA",
-    "k"=>"ENC_EBCDIC|ENC_LITTLE_ENDIAN",
-    "l"=>"ENC_EBCDIC|ENC_BIG_ENDIAN",
-   }
   );
 
 # ---------------------------------------------------------------------
@@ -324,19 +263,6 @@ while (my $fileName = $ARGV[0]) {
         #  and output same highlighting the encoding arg
         $found_total += find_all(\@findAllFunctionList, \$fileContents, $fileName);
     }
-
-# Optional searches: (kind of obsolete ?)
-# search for (and output) proto_tree_add_item() statements with invalid encoding arg for specified field types
-#    $fcn_name = "proto_tree_add_item";
-#    fix_encoding_args(2, \@types_NA,          $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_INT,         $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_MISC,        $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_STRING,      $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_UINT_STRING, $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_ALL,         $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-# search for (and output) proto_tree_add_item()$fcn_name,  statements with any encoding arg for specified field types
-#    fix_encoding_args(3, \@types_TIME,        $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#
 
 } # while
 
@@ -553,7 +479,7 @@ sub find_hf_array_entries {
             # Find all the <fcn_name>() statements wherein the encoding arg is a value other than
             #      one of the "replace" values.
             #  Uses zero-length negative-lookahead to find <fcn_name>() statements for which the encoding
-            #    arg is something other than one of the the provided replace values.
+            #    arg is something other than one of the provided replace values.
             # Escape any "|" characters in the values to be matched
             #  and then create "alternatives" string containing all the value strings. Ex: "A|B|C\|D|..."
             my $match_str = join "|",  map { my $copy = $_; $copy =~ s{ ( \| ) }{\\$1}gx; $copy } values %$searchReplaceHRef;

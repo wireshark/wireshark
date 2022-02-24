@@ -347,7 +347,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 break;
             if (tree)
             {
-                /* proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_descstr, tvb, offset, 32,  ENC_ASCII|ENC_NA); */
+                /* proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_descstr, tvb, offset, 32,  ENC_ASCII); */
                 curr_str = tvb_format_stringzpad(pinfo->pool, tvb, offset, 32); /* need to append_text this */
                 proto_tree_add_string(ppi_gps_tree, hf_ppi_gps_descstr, tvb, offset, 32, curr_str);
                 proto_item_append_text(gps_line, " (%s)", curr_str);

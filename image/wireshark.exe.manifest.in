@@ -42,9 +42,16 @@
       <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>
       <!-- Windows 8.1 -->
       <supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>
-      <!-- Windows 10 -->
+      <!-- Windows 10 & 11 -->
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
     </application>
+    <!-- Set our process code page to UTF-8
+      https://docs.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page
+      https://nullprogram.com/blog/2021/12/30/
+    -->
+    <windowsSettings>
+      <activeCodePage xmlns="http://schemas.microsoft.com/SMI/2019/WindowsSettings">UTF-8</activeCodePage>
+    </windowsSettings>
   </compatibility>
   <!--
     MSDN recommends setting our DPI awareness to PerMonitorV2 instead

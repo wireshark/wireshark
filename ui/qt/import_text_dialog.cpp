@@ -9,12 +9,6 @@
 
 #include "config.h"
 
-#include <time.h>
-#if !defined(_WIN32) && !defined(HAVE_CLOCK_GETTIME)
-// For gettimeofday()
-#include <sys/time.h>
-#endif
-
 #include "import_text_dialog.h"
 
 #include "wiretap/wtap.h"
@@ -26,9 +20,12 @@
 #include "ui/last_open_dir.h"
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
+#include "ui/capture_globals.h"
 
 #include "file.h"
 #include "wsutil/file_util.h"
+#include "wsutil/inet_addr.h"
+#include "wsutil/time_util.h"
 #include "wsutil/tempfile.h"
 #include "wsutil/filesystem.h"
 
@@ -65,6 +62,8 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     re_has_time_(false),
     ether_type_ok_(true),
     proto_ok_(true),
+    source_addr_ok_(true),
+    dest_addr_ok_(true),
     source_port_ok_(true),
     dest_port_ok_(true),
     tag_ok_(true),
@@ -74,7 +73,7 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
 {
     int encap;
     int i;
-    int pcap_file_type_subtype;
+    int file_type_subtype;
 
     ti_ui_->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("Import From Hex Dump")));
@@ -91,6 +90,8 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     int le_height = ti_ui_->textFileLineEdit->sizeHint().height();
     ti_ui_->ethertypeLineEdit->setMinimumHeight(le_height);
     ti_ui_->protocolLineEdit->setMinimumHeight(le_height);
+    ti_ui_->sourceAddressLineEdit->setMinimumHeight(le_height);
+    ti_ui_->destinationAddressLineEdit->setMinimumHeight(le_height);
     ti_ui_->sourcePortLineEdit->setMinimumHeight(le_height);
     ti_ui_->destinationPortLineEdit->setMinimumHeight(le_height);
     ti_ui_->tagLineEdit->setMinimumHeight(le_height);
@@ -99,11 +100,22 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
 
     on_timestampFormatLineEdit_textChanged(ti_ui_->timestampFormatLineEdit->text());
 
+    encap_buttons = new QButtonGroup(this);
     for (i = 0; i < ti_ui_->headerGridLayout->count(); i++) {
         QRadioButton *rb = qobject_cast<QRadioButton *>(ti_ui_->headerGridLayout->itemAt(i)->widget());
 
-        if (rb) encap_buttons_.append(rb);
+        if (rb) encap_buttons->addButton(rb);
     }
+    /* There are two QButtonGroup::buttonToggled signals from Qt 5.2-5.15 with
+     * different parameters. This breaks connectSlotsByName, which only finds
+     * the deprecated one that doesn't exist in Qt 6. So we have to connect it
+     * manually, and avoid naming the slot in the normal way.
+     */
+    connect(encap_buttons, SIGNAL(buttonToggled(QAbstractButton*, bool)), this, SLOT(encap_buttonsToggled(QAbstractButton*, bool)));
+
+    /* fill the IP version combobox */
+    ti_ui_->ipVersionComboBox->addItem("IPv4", QVariant(4));
+    ti_ui_->ipVersionComboBox->addItem("IPv6", QVariant(6));
 
     /* fill the data encoding dropdown in regex tab*/
     struct {
@@ -128,16 +140,16 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
      * of "for (all encapsulation types)".
      */
     import_info_.encapsulation = WTAP_ENCAP_ETHERNET;
-    pcap_file_type_subtype = wtap_pcap_file_type_subtype();
+    file_type_subtype = wtap_pcapng_file_type_subtype();
     for (encap = import_info_.encapsulation; encap < wtap_get_num_encap_types(); encap++)
     {
-        /* Check if we can write to a PCAP file
+        /* Check if we can write to a pcapng file
          *
          * Exclude wtap encapsulations that require a pseudo header,
          * because we won't setup one from the text we import and
          * wiretap doesn't allow us to write 'raw' frames
          */
-        if (wtap_dump_can_write_encap(pcap_file_type_subtype, encap) &&
+        if (wtap_dump_can_write_encap(file_type_subtype, encap) &&
             !wtap_encap_requires_phdr(encap)) {
             const char *name;
             /* If it has got a name */
@@ -221,6 +233,7 @@ void ImportTextDialog::applyDialogSettings()
         ti_ui_->noOffsetButton->setChecked(true);
     }
     ti_ui_->directionIndicationCheckBox->setChecked(settings["hexdump.hasDirection"].toBool());
+    ti_ui_->asciiIdentificationCheckBox->setChecked(settings["hexdump.identifyAscii"].toBool());
 
     // Regular Expression
     ti_ui_->regexTextEdit->setText(settings["regex.format"].toString());
@@ -262,8 +275,15 @@ void ImportTextDialog::applyDialogSettings()
         ti_ui_->noDummyButton->setChecked(true);
     }
 
+    if (settings["ipVersion"].toUInt() == 6) {
+        ti_ui_->ipVersionComboBox->setCurrentIndex(1);
+    } else {
+        ti_ui_->ipVersionComboBox->setCurrentIndex(0);
+    }
     ti_ui_->ethertypeLineEdit->setText(settings["ethertype"].toString());
     ti_ui_->protocolLineEdit->setText(settings["ipProtocol"].toString());
+    ti_ui_->sourceAddressLineEdit->setText(settings["sourceAddress"].toString());
+    ti_ui_->destinationAddressLineEdit->setText(settings["destinationAddress"].toString());
     ti_ui_->sourcePortLineEdit->setText(settings["sourcePort"].toString());
     ti_ui_->destinationPortLineEdit->setText(settings["destinationPort"].toString());
     ti_ui_->tagLineEdit->setText(settings["sctpTag"].toString());
@@ -276,6 +296,7 @@ void ImportTextDialog::applyDialogSettings()
         ti_ui_->dissectorComboBox->setCurrentText("data");
     }
 
+    ti_ui_->interfaceLineEdit->setText(settings["interfaceName"].toString());
     ti_ui_->maxLengthLineEdit->setText(settings["maxFrameLength"].toString());
 
     // Select mode tab last to enableFieldWidgets()
@@ -305,6 +326,7 @@ void ImportTextDialog::storeDialogSettings()
         settings["hexdump.offsets"] = "none";
     }
     settings["hexdump.hasDirection"] = ti_ui_->directionIndicationCheckBox->isChecked();
+    settings["hexdump.identifyAscii"] = ti_ui_->asciiIdentificationCheckBox->isChecked();
 
     // Regular Expression
     settings["regex.format"] = ti_ui_->regexTextEdit->toPlainText();
@@ -359,14 +381,18 @@ void ImportTextDialog::storeDialogSettings()
         settings["dummyHeader"] = "none";
     }
 
+    settings["ipVersion"] = ti_ui_->ipVersionComboBox->currentData().toUInt();
     settings["ethertype"] = ti_ui_->ethertypeLineEdit->text();
     settings["ipProtocol"] = ti_ui_->protocolLineEdit->text();
+    settings["sourceAddress"] = ti_ui_->sourceAddressLineEdit->text();
+    settings["destinationAddress"] = ti_ui_->destinationAddressLineEdit->text();
     settings["sourcePort"] = ti_ui_->sourcePortLineEdit->text();
     settings["destinationPort"] = ti_ui_->destinationPortLineEdit->text();
     settings["sctpTag"] = ti_ui_->tagLineEdit->text();
     settings["sctpPPI"] = ti_ui_->ppiLineEdit->text();
     settings["pduPayload"] = ti_ui_->dissectorComboBox->currentData().toString();
 
+    settings["interfaceName"] = ti_ui_->interfaceLineEdit->text();
     settings["maxFrameLength"] = ti_ui_->maxLengthLineEdit->text();
 
     saveSettingsFile();
@@ -384,6 +410,7 @@ int ImportTextDialog::exec() {
     gchar *err_info;
     wtap_dump_params params;
     int file_type_subtype;
+    QString interface_name;
 
     QDialog::exec();
 
@@ -445,7 +472,7 @@ int ImportTextDialog::exec() {
 
     encap_val = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
     import_info_.dummy_header_type = HEADER_NONE;
-    if (encap_val.isValid() && (encap_val.toUInt() == WTAP_ENCAP_ETHERNET || encap_val.toUInt() == WTAP_ENCAP_WIRESHARK_UPPER_PDU)
+    if (encap_val.isValid() && (encap_buttons->checkedButton()->isEnabled())
             && !ti_ui_->noDummyButton->isChecked()) {
         // Inputs were validated in the on_xxx_textChanged slots.
         if (ti_ui_->ethernetButton->isChecked()) {
@@ -474,13 +501,19 @@ int ImportTextDialog::exec() {
     wtap_dump_params_init(&params, NULL);
     params.encap = import_info_.encapsulation;
     params.snaplen = import_info_.max_frame_length;
-    params.tsprec = WTAP_TSPREC_USEC; /* XXX - support other precisions? */
+    params.tsprec = WTAP_TSPREC_NSEC; /* XXX - support other precisions? */
     /* Write a pcapng temporary file */
     file_type_subtype = wtap_pcapng_file_type_subtype();
+    if (ti_ui_->interfaceLineEdit->text().length()) {
+        interface_name = ti_ui_->interfaceLineEdit->text();
+    } else {
+        interface_name = ti_ui_->interfaceLineEdit->placeholderText();
+    }
+    text_import_pre_open(&params, file_type_subtype, import_info_.import_text_filename, interface_name.toUtf8().constData());
     /* Use a random name for the temporary import buffer */
-    import_info_.wdh = wtap_dump_open_tempfile(&tmp, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
+    import_info_.wdh = wtap_dump_open_tempfile(global_capture_opts.temp_dir, &tmp, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
     capfile_name_.append(tmp ? tmp : "temporary file");
-    g_free(tmp);
+    import_info_.output_filename = tmp;
 
     if (import_info_.wdh == NULL) {
         cfile_dump_open_failure_alert_box(capfile_name_.toUtf8().constData(), err, err_info, file_type_subtype);
@@ -490,8 +523,8 @@ int ImportTextDialog::exec() {
 
     err = text_import(&import_info_);
 
-    if (err < 0) {
-        failure_alert_box("Can't initialize scanner: %s", g_strerror(err));
+    if (err != 0) {
+        failure_alert_box("Import failed");
         setResult(QDialog::Rejected);
         goto cleanup;
     }
@@ -503,6 +536,8 @@ int ImportTextDialog::exec() {
     }
   cleanup_wtap:
     /* g_free checks for null */
+    g_free(params.idb_inf);
+    g_free(tmp);
     g_free((gpointer) import_info_.payload);
     switch (import_info_.mode) {
       case TEXT_IMPORT_HEXDUMP:
@@ -527,8 +562,14 @@ int ImportTextDialog::exec() {
 
 void ImportTextDialog::updateImportButtonState()
 {
+    /* XXX: This requires even buttons that aren't being used to have valid
+     * entries (addresses, ports, etc.) Fixing that can mean changing the
+     * encapsulation type in order to enable the line edits, which is a little
+     * awkward for the user.
+     */
     if (file_ok_ && timestamp_format_ok_ && ether_type_ok_ &&
-        proto_ok_ && source_port_ok_ && dest_port_ok_ &&
+        proto_ok_ && source_addr_ok_ && dest_addr_ok_ &&
+        source_port_ok_ && dest_port_ok_ &&
         tag_ok_ && ppi_ok_ && payload_ok_ && max_len_ok_ &&
         (
             (
@@ -597,7 +638,11 @@ bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
     int idx = 0;
     int ret = false;
 
-    while ((idx = time_format.indexOf("%", idx)) != -1) {
+    /* XXX: Temporary(?) hack to allow ISO format time, a checkbox is
+     * probably better */
+    if (time_format == "ISO") {
+        ret = true;
+    } else while ((idx = time_format.indexOf("%", idx)) != -1) {
         idx++;
         if ((idx == time_format.size()) || !valid_code.contains(time_format[idx])) {
             return false;
@@ -618,22 +663,8 @@ void ImportTextDialog::on_timestampFormatLineEdit_textChanged(const QString &tim
             char time_str[100];
             QString timefmt = QString(time_format);
 
-#if defined(HAVE_CLOCK_GETTIME)
-            // Newer POSIX API.  Some UN*Xes whose C libraries lack
-            // timespec_get() (C11) have this.
-            clock_gettime(CLOCK_REALTIME, &timenow);
-#elif defined(_WIN32)
-            // At least some Windows C libraries have this.
-            // Some UN*X C libraries do, as well, but they might not
-            // show it unless you're requesting C11 - or C++17.
-            timespec_get(&timenow, TIME_UTC);
-#else
-            // Fall back on gettimeofday().
-            struct timeval usectimenow;
-            gettimeofday(&usectimenow, NULL);
-            timenow.tv_sec = usectimenow.tv_sec;
-            timenow.tv_nsec = usectimenow.tv_usec*1000;
-#endif
+            ws_clock_get_realtime(&timenow);
+
             /* On windows strftime/wcsftime does not support %s yet, this works on all OSs */
             timefmt.replace(QString("%s"), QString::number(timenow.tv_sec));
             /* subsecond example as usec */
@@ -668,6 +699,7 @@ void ImportTextDialog::on_modeTabWidget_currentChanged(int index) {
         import_info_.mode = TEXT_IMPORT_HEXDUMP;
         memset(&import_info_.hexdump, 0, sizeof(import_info_.hexdump));
         on_directionIndicationCheckBox_toggled(ti_ui_->directionIndicationCheckBox->isChecked());
+        on_asciiIdentificationCheckBox_toggled(ti_ui_->asciiIdentificationCheckBox->isChecked());
         enableFieldWidgets(false, true);
         break;
       case 1:
@@ -696,6 +728,11 @@ void ImportTextDialog::on_noOffsetButton_toggled(bool checked)
 void ImportTextDialog::on_directionIndicationCheckBox_toggled(bool checked)
 {
     import_info_.hexdump.has_direction = checked;
+}
+
+void ImportTextDialog::on_asciiIdentificationCheckBox_toggled(bool checked)
+{
+    import_info_.hexdump.identify_ascii = checked;
 }
 
 /*******************************************************************************
@@ -785,26 +822,38 @@ void ImportTextDialog::on_dirOutIndicationLineEdit_textChanged(const QString &ou
  * Encapsulation input
  */
 
-void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool enable_export_pdu_buttons) {
+void ImportTextDialog::enableHeaderWidgets(uint encapsulation) {
     bool ethertype = false;
     bool ipv4_proto = false;
+    bool ip_address = false;
     bool port = false;
     bool sctp_tag = false;
     bool sctp_ppi = false;
     bool export_pdu = false;
+    bool enable_ethernet_buttons = (encapsulation == WTAP_ENCAP_ETHERNET);
+    bool enable_ip_buttons = (encapsulation == WTAP_ENCAP_RAW_IP || encapsulation == WTAP_ENCAP_RAW_IP4 || encapsulation == WTAP_ENCAP_RAW_IP6);
+    bool enable_export_pdu_buttons = (encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
     if (enable_ethernet_buttons) {
         if (ti_ui_->ethernetButton->isChecked()) {
             ethertype = true;
             on_ethertypeLineEdit_textChanged(ti_ui_->ethertypeLineEdit->text());
-        } else if (ti_ui_->ipv4Button->isChecked()) {
+        }
+        enable_ip_buttons = true;
+    }
+
+    if (enable_ip_buttons) {
+        if (ti_ui_->ipv4Button->isChecked()) {
             ipv4_proto = true;
+            ip_address = true;
             on_protocolLineEdit_textChanged(ti_ui_->protocolLineEdit->text());
         } else if (ti_ui_->udpButton->isChecked() || ti_ui_->tcpButton->isChecked()) {
+            ip_address = true;
             port = true;
             on_sourcePortLineEdit_textChanged(ti_ui_->sourcePortLineEdit->text());
             on_destinationPortLineEdit_textChanged(ti_ui_->destinationPortLineEdit->text());
         } else if (ti_ui_->sctpButton->isChecked()) {
+            ip_address = true;
             port = true;
             sctp_tag = true;
             on_sourcePortLineEdit_textChanged(ti_ui_->sourcePortLineEdit->text());
@@ -812,6 +861,7 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
             on_tagLineEdit_textChanged(ti_ui_->tagLineEdit->text());
         }
         if (ti_ui_->sctpDataButton->isChecked()) {
+            ip_address = true;
             port = true;
             sctp_ppi = true;
             on_sourcePortLineEdit_textChanged(ti_ui_->sourcePortLineEdit->text());
@@ -826,17 +876,32 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
         }
     }
 
-    foreach (QRadioButton *rb, encap_buttons_) {
-        rb->setEnabled(enable_ethernet_buttons);
+    foreach (auto &&rb, encap_buttons->buttons()) {
+        rb->setEnabled(enable_ip_buttons);
     }
 
+    ti_ui_->ethernetButton->setEnabled(enable_ethernet_buttons);
     ti_ui_->exportPduButton->setEnabled(enable_export_pdu_buttons);
-    ti_ui_->noDummyButton->setEnabled(enable_export_pdu_buttons || enable_ethernet_buttons);
+    ti_ui_->noDummyButton->setEnabled(enable_export_pdu_buttons || enable_ip_buttons);
 
     ti_ui_->ethertypeLabel->setEnabled(ethertype);
     ti_ui_->ethertypeLineEdit->setEnabled(ethertype);
     ti_ui_->protocolLabel->setEnabled(ipv4_proto);
     ti_ui_->protocolLineEdit->setEnabled(ipv4_proto);
+    ti_ui_->ipVersionLabel->setEnabled(ip_address);
+    if (encapsulation == WTAP_ENCAP_RAW_IP4) {
+        ti_ui_->ipVersionComboBox->setEnabled(false);
+        ti_ui_->ipVersionComboBox->setCurrentIndex(0);
+    } else if (encapsulation == WTAP_ENCAP_RAW_IP6) {
+        ti_ui_->ipVersionComboBox->setEnabled(false);
+        ti_ui_->ipVersionComboBox->setCurrentIndex(1);
+    } else {
+        ti_ui_->ipVersionComboBox->setEnabled(ip_address);
+    }
+    ti_ui_->sourceAddressLabel->setEnabled(ip_address);
+    ti_ui_->sourceAddressLineEdit->setEnabled(ip_address);
+    ti_ui_->destinationAddressLabel->setEnabled(ip_address);
+    ti_ui_->destinationAddressLineEdit->setEnabled(ip_address);
     ti_ui_->sourcePortLabel->setEnabled(port);
     ti_ui_->sourcePortLineEdit->setEnabled(port);
     ti_ui_->destinationPortLabel->setEnabled(port);
@@ -847,68 +912,35 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     ti_ui_->ppiLineEdit->setEnabled(sctp_ppi);
     ti_ui_->payloadLabel->setEnabled(export_pdu);
     ti_ui_->dissectorComboBox->setEnabled(export_pdu);
+
+    if (ti_ui_->noDummyButton->isEnabled() && !(encap_buttons->checkedButton()->isEnabled())) {
+        ti_ui_->noDummyButton->toggle();
+    }
 }
 
 void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
 {
     QVariant val = ti_ui_->encapComboBox->itemData(index);
-    bool enabled_ethernet = false;
-    bool enabled_export_pdu = false;
 
     if (val != QVariant::Invalid) {
         import_info_.encapsulation = val.toUInt();
-
-        if (import_info_.encapsulation == WTAP_ENCAP_ETHERNET) enabled_ethernet = true;
-        if (import_info_.encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU) enabled_export_pdu = true;
+    } else {
+        import_info_.encapsulation = WTAP_ENCAP_UNKNOWN;
     }
 
-    enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
+    enableHeaderWidgets(import_info_.encapsulation);
 }
 
-void ImportTextDialog::on_noDummyButton_toggled(bool checked)
+void ImportTextDialog::encap_buttonsToggled(QAbstractButton *button _U_, bool checked)
 {
-    bool enabled_ethernet = false;
-    bool enabled_export_pdu = false;
-
-    if (import_info_.encapsulation == WTAP_ENCAP_ETHERNET) enabled_ethernet = true;
-    if (import_info_.encapsulation == WTAP_ENCAP_WIRESHARK_UPPER_PDU) enabled_export_pdu = true;
-
-    if (checked) enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
+    if (checked) enableHeaderWidgets(import_info_.encapsulation);
 }
 
-void ImportTextDialog::on_ethernetButton_toggled(bool checked)
+void ImportTextDialog::on_ipVersionComboBox_currentIndexChanged(int index)
 {
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_ipv4Button_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_udpButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_tcpButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_sctpButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_sctpDataButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
-}
-
-void ImportTextDialog::on_exportPduButton_toggled(bool checked)
-{
-    on_noDummyButton_toggled(checked);
+    import_info_.ipv6 = (index == 1) ? 1 : 0;
+    on_sourceAddressLineEdit_textChanged(ti_ui_->sourceAddressLineEdit->text());
+    on_destinationAddressLineEdit_textChanged(ti_ui_->destinationAddressLineEdit->text());
 }
 
 void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, bool &ok_enabled, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr) {
@@ -938,6 +970,52 @@ void ImportTextDialog::check_line_edit(SyntaxLineEdit *le, bool &ok_enabled, con
     updateImportButtonState();
 }
 
+void ImportTextDialog::checkAddress(SyntaxLineEdit *le, bool &ok_enabled, const QString &addr_str, ws_in4_addr *val_ptr) {
+    bool conv_ok;
+    SyntaxLineEdit::SyntaxState syntax_state = SyntaxLineEdit::Empty;
+
+    if (!le || !val_ptr)
+        return;
+
+    ok_enabled = true;
+    if (addr_str.length() < 1) {
+        *val_ptr = 0;
+    } else {
+        conv_ok = ws_inet_pton4(addr_str.toLocal8Bit().data(), (ws_in4_addr*)val_ptr);
+        if (conv_ok) {
+            syntax_state= SyntaxLineEdit::Valid;
+        } else {
+            syntax_state = SyntaxLineEdit::Invalid;
+            ok_enabled = false;
+        }
+    }
+    le->setSyntaxState(syntax_state);
+    updateImportButtonState();
+}
+
+void ImportTextDialog::checkIPv6Address(SyntaxLineEdit *le, bool &ok_enabled, const QString &addr_str, ws_in6_addr *val_ptr) {
+    bool conv_ok;
+    SyntaxLineEdit::SyntaxState syntax_state = SyntaxLineEdit::Empty;
+
+    if (!le || !val_ptr)
+        return;
+
+    ok_enabled = true;
+    if (addr_str.length() < 1) {
+        *val_ptr = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
+    } else {
+        conv_ok = ws_inet_pton6(addr_str.toLocal8Bit().data(), (ws_in6_addr*)val_ptr);
+        if (conv_ok) {
+            syntax_state= SyntaxLineEdit::Valid;
+        } else {
+            syntax_state = SyntaxLineEdit::Invalid;
+            ok_enabled = false;
+        }
+    }
+    le->setSyntaxState(syntax_state);
+    updateImportButtonState();
+}
+
 void ImportTextDialog::on_ethertypeLineEdit_textChanged(const QString &ethertype_str)
 {
     check_line_edit(ti_ui_->ethertypeLineEdit, ether_type_ok_, ethertype_str, 16, 0xffff, true, &import_info_.pid);
@@ -946,6 +1024,24 @@ void ImportTextDialog::on_ethertypeLineEdit_textChanged(const QString &ethertype
 void ImportTextDialog::on_protocolLineEdit_textChanged(const QString &protocol_str)
 {
     check_line_edit(ti_ui_->protocolLineEdit, proto_ok_, protocol_str, 10, 0xff, true, &import_info_.protocol);
+}
+
+void ImportTextDialog::on_sourceAddressLineEdit_textChanged(const QString &source_addr_str)
+{
+    if (ti_ui_->ipVersionComboBox->currentIndex() == 1) {
+        checkIPv6Address(ti_ui_->sourceAddressLineEdit, source_addr_ok_, source_addr_str, &import_info_.ip_src_addr.ipv6);
+    } else {
+        checkAddress(ti_ui_->sourceAddressLineEdit, source_addr_ok_, source_addr_str, &import_info_.ip_src_addr.ipv4);
+    }
+}
+
+void ImportTextDialog::on_destinationAddressLineEdit_textChanged(const QString &destination_addr_str)
+{
+    if (ti_ui_->ipVersionComboBox->currentIndex() == 1) {
+        checkIPv6Address(ti_ui_->destinationAddressLineEdit, dest_addr_ok_, destination_addr_str, &import_info_.ip_dest_addr.ipv6);
+    } else {
+        checkAddress(ti_ui_->destinationAddressLineEdit, dest_addr_ok_, destination_addr_str, &import_info_.ip_dest_addr.ipv4);
+    }
 }
 
 void ImportTextDialog::on_sourcePortLineEdit_textChanged(const QString &source_port_str)

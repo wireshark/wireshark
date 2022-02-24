@@ -3833,7 +3833,6 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "E2AP");
-  /* ensure that parent dissector is not e2ap before clearing fence */
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* create the e2ap protocol tree */
@@ -3920,7 +3919,7 @@ proto_reg_handoff_e2ap(void)
 
 
 /*--- End of included file: packet-e2ap-dis-tab.c ---*/
-#line 211 "./asn1/e2ap/packet-e2ap-template.c"
+#line 210 "./asn1/e2ap/packet-e2ap-template.c"
 
   } else {
     if (SctpPort != 0) {
@@ -4777,7 +4776,7 @@ void proto_register_e2ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-e2ap-hfarr.c ---*/
-#line 231 "./asn1/e2ap/packet-e2ap-template.c"
+#line 230 "./asn1/e2ap/packet-e2ap-template.c"
 
   };
 
@@ -4902,7 +4901,7 @@ void proto_register_e2ap(void) {
     &ett_e2ap_PerQCIReportListItemFormat,
 
 /*--- End of included file: packet-e2ap-ettarr.c ---*/
-#line 238 "./asn1/e2ap/packet-e2ap-template.c"
+#line 237 "./asn1/e2ap/packet-e2ap-template.c"
   };
 
 

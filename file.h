@@ -1,4 +1,5 @@
-/* file.h
+/** @file
+ *
  * Definitions for file structures and routines
  *
  * Wireshark - Network traffic analyzer
@@ -451,6 +452,7 @@ typedef struct {
     print_dissections_e print_dissections;
     gboolean print_hex;           /* TRUE if we should print hex data;
                                    * FALSE if we should print only if not dissected. */
+    guint hexdump_options;        /* Hexdump options if print_hex is TRUE. */
     gboolean print_formfeed;      /* TRUE if a formfeed should be printed before
                                    * each new packet */
 } print_args_t;
@@ -677,7 +679,7 @@ void cf_unignore_frame(capture_file *cf, frame_data *frame);
  * @return one of cf_status_t
  */
 cf_status_t
-cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
+cf_merge_files_to_tempfile(gpointer pd_window, const char *temp_dir, char **out_filenamep,
                            int in_file_count, const char *const *in_filenames,
                            int file_type, gboolean do_append);
 
@@ -733,16 +735,3 @@ gboolean cf_add_ip_name_from_string(capture_file *cf, const char *addr, const ch
 #endif /* __cplusplus */
 
 #endif /* file.h */
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

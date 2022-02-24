@@ -122,7 +122,7 @@ proto_register_at_ldf(void)
         },
         { &hf_at_ldf_text,
             { "Information", "atldf.info",
-            FT_STRINGZPAD, STR_ASCII,
+            FT_STRINGZPAD, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
         }

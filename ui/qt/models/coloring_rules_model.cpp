@@ -202,6 +202,8 @@ bool ColoringRulesModel::insertRows(int row, int count, const QModelIndex& paren
     {
         ColoringRuleItem* item = new ColoringRuleItem(true, tr("New coloring rule"), "", defaultForeground_, defaultBackground_, root_);
         root_->insertChild(i, item);
+        /* Automatically enable the new coloring rule */
+        setData(index(i, colName, parent), Qt::Checked, Qt::CheckStateRole);
     }
 
     endInsertRows();

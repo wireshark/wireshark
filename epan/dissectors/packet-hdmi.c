@@ -196,7 +196,7 @@ dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static void
 hdmi_fmt_edid_version( gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 void
@@ -214,7 +214,7 @@ proto_register_hdmi(void)
                 FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_hdmi_edid_manf_id,
             { "Manufacturer ID", "hdmi.edid.manf_id",
-                FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL } },
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_hdmi_edid_manf_prod_code,
             { "Manufacturer product code", "hdmi.edid.manf_prod_code",
                 FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },

@@ -1,4 +1,4 @@
-/* ipv4.h
+/** @file
  * Definitions of IPv4 address-and-mask structure, which is what an
  * FT_IPV4 value is (even if there's no mask in a packet, those
  * values can be compared against an address+mask in a filter

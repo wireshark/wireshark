@@ -1,4 +1,4 @@
-/* decode_as_utils.h
+/** @file
  *
  * "Decode As" UI utility routines.
  *

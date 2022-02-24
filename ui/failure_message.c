@@ -79,7 +79,7 @@ input_file_description(const char *fname)
         fstring = g_strdup("standard input");
     } else {
         /* We're reading from a file */
-        fstring = g_strdup_printf("file \"%s\"", fname);
+        fstring = ws_strdup_printf("file \"%s\"", fname);
     }
     return fstring;
 }
@@ -90,11 +90,11 @@ output_file_description(const char *fname)
     char *fstring;
 
     if (strcmp(fname, "-") == 0) {
-        /* We're writing to to the standard output */
+        /* We're writing to the standard output */
         fstring = g_strdup("standard output");
     } else {
         /* We're writing to a file */
-        fstring = g_strdup_printf("file \"%s\"", fname);
+        fstring = ws_strdup_printf("file \"%s\"", fname);
     }
     return fstring;
 }
@@ -371,7 +371,7 @@ cfile_write_failure_message(const char *in_filename, const char *out_filename,
         in_frame_string = g_strdup("");
     } else {
         in_file_string = input_file_description(in_filename);
-        in_frame_string = g_strdup_printf(" %u of %s", framenum,
+        in_frame_string = ws_strdup_printf(" %u of %s", framenum,
                                           in_file_string);
         g_free(in_file_string);
     }

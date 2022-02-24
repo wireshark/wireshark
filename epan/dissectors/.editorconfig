@@ -717,6 +717,10 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
+[packet-extrememesh.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-f1ap.[ch]]
 indent_size = 2
 
@@ -2069,9 +2073,6 @@ indent_size = tab
 [packet-tuxedo.[ch]]
 indent_style = tab
 indent_size = tab
-
-[packet-udp.[ch]]
-indent_size = 2
 
 [packet-udt.[ch]]
 indent_style = tab

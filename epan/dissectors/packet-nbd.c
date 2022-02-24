@@ -316,10 +316,10 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 
 		switch(nbd_trans->type){
 		case NBD_CMD_WRITE:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Write Request  Offset:0x%" G_GINT64_MODIFIER "x Length:%d", from, nbd_trans->datalen);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Write Request  Offset:0x%" PRIx64 " Length:%d", from, nbd_trans->datalen);
 			break;
 		case NBD_CMD_READ:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "Read Request  Offset:0x%" G_GINT64_MODIFIER "x Length:%d", from, nbd_trans->datalen);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Read Request  Offset:0x%" PRIx64 " Length:%d", from, nbd_trans->datalen);
 			break;
 		case NBD_CMD_DISC:
 			col_set_str(pinfo->cinfo, COL_INFO, "Disconnect Request");

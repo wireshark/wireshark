@@ -79,16 +79,20 @@ class case_time(unittest.TestCase):
         dfilter = 'frame.time <= "Dec 31, 2002 13:56:31.3"'
         checkDFilterCount(dfilter, 1)
 
+    def test_utc_time_1(self, checkDFilterCount):
+        dfilter = 'frame.time == "Dec 31, 2002 13:55:31.3 UTC"'
+        checkDFilterCount(dfilter, 1)
+
     def test_bad_time_1(self, checkDFilterFail):
-        # No text is permitted after the time.
-        dfilter = 'frame.time == "Dec 31, 2002 13:56:31.3 UTC"'
-        error = '"Dec 31, 2002 13:56:31.3 UTC" is not a valid absolute time. Example: "Nov 12, 1999 08:55:44.123" or "2011-07-04 12:34:56"'
+        # This is an error, only UTC timezone can be used
+        dfilter = 'frame.time == "Dec 31, 2002 13:56:31.3 WET"'
+        error = 'Unexpected data after time value'
         checkDFilterFail(dfilter, error)
 
     def test_bad_time_2(self, checkDFilterFail):
         # Miliseconds can only occur after seconds.
         dfilter = 'frame.time == "2002-12-31 13:55.3"'
-        error = '"2002-12-31 13:55.3" is not a valid absolute time. Example: "Nov 12, 1999 08:55:44.123" or "2011-07-04 12:34:56"'
+        error = 'requires a seconds field'
         checkDFilterFail(dfilter, error)
 
     def test_bad_time_3(self, checkDFilterFail):

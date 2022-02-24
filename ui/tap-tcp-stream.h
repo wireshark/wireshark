@@ -1,4 +1,5 @@
-/* tap-tcp-stream.h
+/** @file
+ *
  * TCP stream statistics
  * Originally from tcp_graph.c by Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com

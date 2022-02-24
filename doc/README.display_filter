@@ -160,7 +160,7 @@ operators ("==", "!=", "eq", "ne", etc.), it finds slice operations
 ( "[0:1]" ), quoted strings, IP addresses, numbers, and any other "special"
 keywords or string types.
 
-Anything it doesn't know how to handle is passed to to grammar parser
+Anything it doesn't know how to handle is passed to the grammar parser
 as an unparsed string (TOKEN_UNPARSED). This includes field names. The
 scanner does not interpret any protocol field names at all.
 

@@ -1,4 +1,4 @@
-/* ws_assert.h
+/** @file
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,50 +14,46 @@
 #include <ws_attributes.h>
 #include <stdbool.h>
 #include <string.h>
+#include <wsutil/wslog.h>
 
-#ifdef WS_LOG_DOMAIN
-#define _ASSERT_DOMAIN WS_LOG_DOMAIN
+#ifdef WS_DISABLE_ASSERT
+#define _ASSERT_ENABLED false
 #else
-#define _ASSERT_DOMAIN ""
+#define _ASSERT_ENABLED true
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-WS_DLL_PUBLIC
-WS_NORETURN
-void ws_assert_failed(const char *file, int line, const char *function,
-                        const char *domain, const char *assertion,
-                        bool unreachable);
-
-#define _ASSERT_FAIL(expr) \
-        ws_assert_failed(__FILE__, __LINE__, __func__, \
-                            _ASSERT_DOMAIN, #expr, false)
-
 /*
- * ws_abort_if_fail() is not conditional on WS_DISABLE_ASSERT.
- * Usually used to appease a static analyzer.
- */
-#define ws_abort_if_fail(expr) \
-        do { if (!(expr)) _ASSERT_FAIL(expr); } while (0)
-
-#ifdef WS_DISABLE_ASSERT
-/*
- * ws_assert() cannot produce side effects, otherwise code will
- * behave differently because of WS_DISABLE_ASSERT, and probably introduce
- * some difficult to track bugs.
- *
  * We don't want to execute the expression with WS_DISABLE_ASSERT because
  * it might be time and space costly and the goal here is to optimize for
  * WS_DISABLE_ASSERT. However removing it completely is not good enough
  * because it might generate many unused variable warnings. So we use
  * if (false) and let the compiler optimize away the dead execution branch.
  */
-#define ws_assert(expr) do { if (false) ws_abort_if_fail(expr); } while (0)
-#else
-#define ws_assert(expr) ws_abort_if_fail(expr)
-#endif
+#define _ASSERT_IF_ACTIVE(active, expr) \
+        do {                                                \
+            if ((active) && !(expr))                        \
+                ws_error("assertion failed: %s", #expr);    \
+        } while (0)
+
+/*
+ * ws_abort_if_fail() is not conditional on WS_DISABLE_ASSERT.
+ * Usually used to appease a static analyzer.
+ */
+#define ws_abort_if_fail(expr) \
+        _ASSERT_IF_ACTIVE(true, expr)
+
+/*
+ * ws_assert() cannot produce side effects, otherwise code will
+ * behave differently because of WS_DISABLE_ASSERT, and probably introduce
+ * some difficult to track bugs.
+ */
+#define ws_assert(expr) \
+        _ASSERT_IF_ACTIVE(_ASSERT_ENABLED, expr)
+
 
 #define ws_assert_streq(s1, s2) \
         ws_assert((s1) && (s2) && strcmp((s1), (s2)) == 0)
@@ -77,8 +73,7 @@ void ws_assert_failed(const char *file, int line, const char *function,
  * ws_assert_not_reached(). There is no reason to ever use a no-op here.
  */
 #define ws_assert_not_reached() \
-        ws_assert_failed(__FILE__, __LINE__, __func__, \
-                            _ASSERT_DOMAIN, NULL, true)
+        ws_error("assertion \"not reached\" failed")
 
 #ifdef __cplusplus
 }

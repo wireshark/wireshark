@@ -346,7 +346,7 @@ dissect_wifi_dpp_attributes(packet_info *pinfo _U_, proto_tree *tree,
       break;
 
     case DPP_CODE_IDENTIFIER:
-      proto_tree_add_item(specific_attr, hf_wifi_dpp_code_identifier, tvb, offset, attribute_len, ENC_UTF_8|ENC_NA);
+      proto_tree_add_item(specific_attr, hf_wifi_dpp_code_identifier, tvb, offset, attribute_len, ENC_UTF_8);
       break;
 
     case DPP_ENCRYPTED_KEY:

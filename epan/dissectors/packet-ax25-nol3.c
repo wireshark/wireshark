@@ -89,7 +89,7 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 		dx_tree = proto_item_add_subtree( ti, ett_dx );
 		offset = 0;
 
-		proto_tree_add_item( dx_tree, hf_dx_report, tvb, offset, data_len, ENC_ASCII|ENC_NA );
+		proto_tree_add_item( dx_tree, hf_dx_report, tvb, offset, data_len, ENC_ASCII );
 	}
 
 	return tvb_captured_length(tvb);
@@ -153,18 +153,18 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	col_clear( pinfo->cinfo, COL_INFO);
 
 	offset = 0;
-	g_snprintf( info_buffer, STRLEN, "Text" );
+	snprintf( info_buffer, STRLEN, "Text" );
 
 	if ( gPREF_APRS )
 		{
 		dti = tvb_get_guint8( tvb, offset );
 		if ( isaprs( dti ) )
-			g_snprintf( info_buffer, STRLEN, "APRS" );
+			snprintf( info_buffer, STRLEN, "APRS" );
 		}
 	if ( gPREF_DX )
 		{
 		if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
-		g_snprintf( info_buffer, STRLEN, "DX cluster" );
+		snprintf( info_buffer, STRLEN, "DX cluster" );
 		}
 
 	col_add_str( pinfo->cinfo, COL_INFO, info_buffer );

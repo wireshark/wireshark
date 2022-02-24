@@ -152,7 +152,7 @@ static wtap_open_return_val detect_camins_file(FILE_T fh)
         else {
             /* We're not searching for a matching block at the moment.
                If we see a size read/write block of one type, the matching
-               block is the the other type and we can start searching. */
+               block is the other type and we can start searching. */
 
             if (block[1] == TRANS_READ_SIZE_LOW) {
                 search_block = TRANS_READ_SIZE_HIGH;
@@ -336,7 +336,7 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len,
     else if (dat_trans_type==TRANS_HOST_CAM)
         buf[1] = DVB_CI_PSEUDO_HDR_HOST_TO_CAM;
     else {
-        *err_info = g_strdup_printf("camins: invalid dat_trans_type %u", dat_trans_type);
+        *err_info = ws_strdup_printf("camins: invalid dat_trans_type %u", dat_trans_type);
         return -1;
     }
 

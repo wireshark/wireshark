@@ -563,7 +563,7 @@ proto_register_adb_service(void)
     static hf_register_info hf[] = {
         { &hf_service,
             { "Service",                         "adb_service.service",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_fragment,
@@ -578,7 +578,7 @@ proto_register_adb_service(void)
         },
         { &hf_hex_ascii_length,
             { "Hex ASCII String Length",         "adb_service.hex_ascii_length",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_length,
@@ -593,7 +593,7 @@ proto_register_adb_service(void)
         },
         { &hf_hex_ascii_version,
             { "Hex ASCII String Version",        "adb_service.hex_ascii_version",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_version,
@@ -708,27 +708,27 @@ proto_register_adb_service(void)
         },
         { &hf_devices,
             { "Devices",                         "adb_service.devices",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_stdin,
             { "Stdin",                           "adb_service.stdin",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_stdout,
             { "Stdout",                          "adb_service.stdout",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_result,
             { "Result",                          "adb_service.result",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pids,
             { "PIDs",                            "adb_service.pids",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
     };

@@ -13,7 +13,7 @@
 
 #include <ui/qt/utils/qt_ui_utils.h>
 
-#include <QRegExp>
+#include <QRegularExpression>
 
 FilesetEntryModel::FilesetEntryModel(QObject * parent) :
     QAbstractItemModel(parent)
@@ -127,7 +127,7 @@ QString FilesetEntryModel::nameToDate(const char *name) const {
         return NULL;
 
     dn = name;
-    dn.remove(QRegExp(".*_"));
+    dn.remove(QRegularExpression(".*_"));
     dn.truncate(14);
     dn.insert(4, '-');
     dn.insert(7, '-');

@@ -530,7 +530,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 			file_type = netxray_2_00x_file_type_subtype;
 		} else {
 			*err = WTAP_ERR_UNSUPPORTED;
-			*err_info = g_strdup_printf("netxray: version \"%.8s\" unsupported", hdr.version);
+			*err_info = ws_strdup_printf("netxray: version \"%.8s\" unsupported", hdr.version);
 			return WTAP_OPEN_ERROR;
 		}
 	}
@@ -558,7 +558,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	default:
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("netxray: the byte after the network type has the value %u, which I don't understand",
+		*err_info = ws_strdup_printf("netxray: the byte after the network type has the value %u, which I don't understand",
 		    hdr.network_plus);
 		return WTAP_OPEN_ERROR;
 	}
@@ -566,7 +566,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	if (network_type >= NUM_NETXRAY_ENCAPS
 	    || netxray_encap[network_type] == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("netxray: network type %u (%u) unknown or unsupported",
+		*err_info = ws_strdup_printf("netxray: network type %u (%u) unknown or unsupported",
 		    network_type, hdr.network_plus);
 		return WTAP_OPEN_ERROR;
 	}
@@ -602,7 +602,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		default:
 			/* "Can't happen" - we rejected that above */
 			*err = WTAP_ERR_INTERNAL;
-			*err_info = g_strdup_printf("netxray: version %d.%d somehow didn't get rejected",
+			*err_info = ws_strdup_printf("netxray: version %d.%d somehow didn't get rejected",
 			                            version_major, version_minor);
 			return WTAP_OPEN_ERROR;
 		}
@@ -623,7 +623,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 			case CAPTYPE_NDIS:
 				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS) {
 					*err = WTAP_ERR_UNSUPPORTED;
-					*err_info = g_strdup_printf(
+					*err_info = ws_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/CAPTYPE_NDIS version %.8s capture",
 					    hdr.timeunit, hdr.version);
 					return WTAP_OPEN_ERROR;
@@ -647,7 +647,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_GIGPOD
 				    || TpS_gigpod[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
-					*err_info = g_strdup_printf(
+					*err_info = ws_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_GIGPOD version %.8s capture",
 					    hdr.timeunit, hdr.version);
 					return WTAP_OPEN_ERROR;
@@ -667,7 +667,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_OTHERPOD
 				    || TpS_otherpod[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
-					*err_info = g_strdup_printf(
+					*err_info = ws_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_OTHERPOD version %.8s capture",
 					    hdr.timeunit, hdr.version);
 					return WTAP_OPEN_ERROR;
@@ -687,7 +687,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_OTHERPOD2
 				    || TpS_otherpod2[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
-					*err_info = g_strdup_printf(
+					*err_info = ws_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_OTHERPOD2 version %.8s capture",
 					    hdr.timeunit, hdr.version);
 					return WTAP_OPEN_ERROR;
@@ -709,7 +709,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 				if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS_GIGPOD2
 				    || TpS_gigpod2[hdr.timeunit] == 0.0) {
 					*err = WTAP_ERR_UNSUPPORTED;
-					*err_info = g_strdup_printf(
+					*err_info = ws_strdup_printf(
 					    "netxray: Unknown timeunit %u for Ethernet/ETH_CAPTYPE_GIGPOD2 version %.8s capture",
 					    hdr.timeunit, hdr.version);
 					return WTAP_OPEN_ERROR;
@@ -729,7 +729,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 			default:
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf(
+				*err_info = ws_strdup_printf(
 				    "netxray: Unknown capture type %u for Ethernet version %.8s capture",
 				    hdr.captype, hdr.version);
 				return WTAP_OPEN_ERROR;
@@ -739,7 +739,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		default:
 			if (hdr.timeunit >= NUM_NETXRAY_TIMEUNITS) {
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf(
+				*err_info = ws_strdup_printf(
 				    "netxray: Unknown timeunit %u for %u/%u version %.8s capture",
 				    hdr.timeunit, network_type, hdr.captype,
 				    hdr.version);
@@ -766,7 +766,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	} else {
 		/* "Can't happen" - we rejected that above */
 		*err = WTAP_ERR_INTERNAL;
-		*err_info = g_strdup_printf("netxray: version %d.%d somehow didn't get rejected",
+		*err_info = ws_strdup_printf("netxray: version %d.%d somehow didn't get rejected",
 		                            version_major, version_minor);
 		return WTAP_OPEN_ERROR;
 	}
@@ -836,7 +836,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 				default:
 					*err = WTAP_ERR_UNSUPPORTED;
-					*err_info = g_strdup_printf("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
+					*err_info = ws_strdup_printf("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
 					   hdr.wan_hdlc_subsub_captype);
 					return WTAP_OPEN_ERROR;
 				}
@@ -858,7 +858,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 			default:
 				*err = WTAP_ERR_UNSUPPORTED;
-				*err_info = g_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
+				*err_info = ws_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
 				   hdr.captype);
 				return WTAP_OPEN_ERROR;
 			}

@@ -1,4 +1,5 @@
-/* tap-iax2-analysis.h
+/** @file
+ *
  * IAX2 analysis addition for Wireshark
  *
  * based on rtp_analysis.c

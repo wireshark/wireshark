@@ -690,12 +690,12 @@ gluster_rpc4_0_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int of
 		if (val_type == 2) {
 			val_len = 8;
 			dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, val_len,
-								NULL, "%s: %"G_GINT64_FORMAT, key,
+								NULL, "%s: %"PRId64, key,
 								tvb_get_gint64(tvb, offset, ENC_BIG_ENDIAN));
 		} else if (val_type == 3) {
 			val_len = 8;
 			dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, val_len,
-								NULL, "%s: %"G_GUINT64_FORMAT, key,
+								NULL, "%s: %"PRIu64, key,
 								tvb_get_guint64(tvb, offset, ENC_BIG_ENDIAN));
 		} else if (val_type == 4) {
 			val_len = 8;

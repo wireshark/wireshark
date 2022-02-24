@@ -77,7 +77,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
      * to allocate space for an immensely-large packet.
      */
     *err = WTAP_ERR_BAD_FILE;
-    *err_info = g_strdup_printf("stanag4607: File has %" G_GUINT32_FORMAT "d-byte packet, "
+    *err_info = ws_strdup_printf("stanag4607: File has %" PRIu32 "d-byte packet, "
       "bigger than maximum of %u", packet_size, WTAP_MAX_PACKET_SIZE_STANDARD);
     return FALSE;
   }
@@ -87,7 +87,7 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, wtap_rec *rec,
      * infinitely if the size is zero.
      */
     *err = WTAP_ERR_BAD_FILE;
-    *err_info = g_strdup_printf("stanag4607: File has %" G_GUINT32_FORMAT "d-byte packet, "
+    *err_info = ws_strdup_printf("stanag4607: File has %" PRIu32 "d-byte packet, "
       "smaller than minimum of %u", packet_size, PKT_HDR_SIZE+SEG_HDR_SIZE);
     return FALSE;
   }

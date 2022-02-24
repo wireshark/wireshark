@@ -176,7 +176,7 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   }
 
   /* heuristic failed. Print remaining bytes as text */
-  proto_tree_add_item (db_lsp_tree, hf_text, tvb, offset, -1, ENC_ASCII|ENC_NA);
+  proto_tree_add_item (db_lsp_tree, hf_text, tvb, offset, -1, ENC_ASCII);
   return tvb_captured_length(tvb);
 }
 

@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 38.455 V16.5.0 (2021-10)
+ * Ref 3GPP TS 38.455 V16.6.0 (2021-12)
  * http://www.3gpp.org
  */
 
@@ -74,6 +74,7 @@ static int hf_nrppa_RelativeTime1900_PDU = -1;    /* RelativeTime1900 */
 static int hf_nrppa_SFNInitialisationTime_EUTRA_PDU = -1;  /* SFNInitialisationTime_EUTRA */
 static int hf_nrppa_SlotNumber_PDU = -1;          /* SlotNumber */
 static int hf_nrppa_SpatialRelationInfo_PDU = -1;  /* SpatialRelationInfo */
+static int hf_nrppa_SpatialRelationPerSRSResource_PDU = -1;  /* SpatialRelationPerSRSResource */
 static int hf_nrppa_SRSConfiguration_PDU = -1;    /* SRSConfiguration */
 static int hf_nrppa_SrsFrequency_PDU = -1;        /* SrsFrequency */
 static int hf_nrppa_SystemFrameNumber_PDU = -1;   /* SystemFrameNumber */
@@ -85,6 +86,7 @@ static int hf_nrppa_TRPInformationListTRPResp_PDU = -1;  /* TRPInformationListTR
 static int hf_nrppa_TRPInformationTypeListTRPReq_PDU = -1;  /* TRPInformationTypeListTRPReq */
 static int hf_nrppa_TRPInformationTypeItem_PDU = -1;  /* TRPInformationTypeItem */
 static int hf_nrppa_TRPList_PDU = -1;             /* TRPList */
+static int hf_nrppa_TRPType_PDU = -1;             /* TRPType */
 static int hf_nrppa_UE_Measurement_ID_PDU = -1;   /* UE_Measurement_ID */
 static int hf_nrppa_UL_AoA_PDU = -1;              /* UL_AoA */
 static int hf_nrppa_WLANMeasurementQuantities_PDU = -1;  /* WLANMeasurementQuantities */
@@ -482,6 +484,8 @@ static int hf_nrppa_nR_PRS_Beam_Information = -1;  /* NR_PRS_Beam_Information */
 static int hf_nrppa_spatialRelationforResourceID = -1;  /* SpatialRelationforResourceID */
 static int hf_nrppa_SpatialRelationforResourceID_item = -1;  /* SpatialRelationforResourceIDItem */
 static int hf_nrppa_referenceSignal = -1;         /* ReferenceSignal */
+static int hf_nrppa_spatialRelationPerSRSResource_List = -1;  /* SpatialRelationPerSRSResource_List */
+static int hf_nrppa_SpatialRelationPerSRSResource_List_item = -1;  /* SpatialRelationPerSRSResourceItem */
 static int hf_nrppa_sSBPos = -1;                  /* SSB */
 static int hf_nrppa_pRSInformationPos = -1;       /* PRSInformationPos */
 static int hf_nrppa_sRSResource_List = -1;        /* SRSResource_List */
@@ -782,6 +786,9 @@ static gint ett_nrppa_SpatialDirectionInformation = -1;
 static gint ett_nrppa_SpatialRelationInfo = -1;
 static gint ett_nrppa_SpatialRelationforResourceID = -1;
 static gint ett_nrppa_SpatialRelationforResourceIDItem = -1;
+static gint ett_nrppa_SpatialRelationPerSRSResource = -1;
+static gint ett_nrppa_SpatialRelationPerSRSResource_List = -1;
+static gint ett_nrppa_SpatialRelationPerSRSResourceItem = -1;
 static gint ett_nrppa_SpatialRelationPos = -1;
 static gint ett_nrppa_SRSConfig = -1;
 static gint ett_nrppa_SRSCarrier_List = -1;
@@ -1027,7 +1034,9 @@ typedef enum _ProtocolIE_ID_enum {
   id_CGI_NR    =  58,
   id_SFNInitialisationTime_NR =  59,
   id_Cell_ID   =  60,
-  id_SrsFrequency =  61
+  id_SrsFrequency =  61,
+  id_TRPType   =  62,
+  id_SRSSpatialRelationPerSRSResource =  63
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nrppa-val.h ---*/
@@ -1210,6 +1219,8 @@ static const value_string nrppa_ProtocolIE_ID_vals[] = {
   { id_SFNInitialisationTime_NR, "id-SFNInitialisationTime-NR" },
   { id_Cell_ID, "id-Cell-ID" },
   { id_SrsFrequency, "id-SrsFrequency" },
+  { id_TRPType, "id-TRPType" },
+  { id_SRSSpatialRelationPerSRSResource, "id-SRSSpatialRelationPerSRSResource" },
   { 0, NULL }
 };
 
@@ -7069,6 +7080,50 @@ dissect_nrppa_SpatialDirectionInformation(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const per_sequence_t SpatialRelationPerSRSResourceItem_sequence[] = {
+  { &hf_nrppa_referenceSignal, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nrppa_ReferenceSignal },
+  { &hf_nrppa_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nrppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nrppa_SpatialRelationPerSRSResourceItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nrppa_SpatialRelationPerSRSResourceItem, SpatialRelationPerSRSResourceItem_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SpatialRelationPerSRSResource_List_sequence_of[1] = {
+  { &hf_nrppa_SpatialRelationPerSRSResource_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nrppa_SpatialRelationPerSRSResourceItem },
+};
+
+static int
+dissect_nrppa_SpatialRelationPerSRSResource_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nrppa_SpatialRelationPerSRSResource_List, SpatialRelationPerSRSResource_List_sequence_of,
+                                                  1, maxnoSRS_ResourcePerSet, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SpatialRelationPerSRSResource_sequence[] = {
+  { &hf_nrppa_spatialRelationPerSRSResource_List, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nrppa_SpatialRelationPerSRSResource_List },
+  { &hf_nrppa_iE_Extensions , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nrppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nrppa_SpatialRelationPerSRSResource(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nrppa_SpatialRelationPerSRSResource, SpatialRelationPerSRSResource_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t UplinkChannelBW_PerSCS_List_sequence_of[1] = {
   { &hf_nrppa_UplinkChannelBW_PerSCS_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nrppa_SCS_SpecificCarrier },
 };
@@ -7667,6 +7722,7 @@ static const value_string nrppa_TRPInformationTypeItem_vals[] = {
   {   5, "sFNInitTime" },
   {   6, "spatialDirectInfo" },
   {   7, "geoCoord" },
+  {   8, "trp-type" },
   { 0, NULL }
 };
 
@@ -7674,7 +7730,7 @@ static const value_string nrppa_TRPInformationTypeItem_vals[] = {
 static int
 dissect_nrppa_TRPInformationTypeItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -7704,6 +7760,25 @@ dissect_nrppa_TRPList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nrppa_TRPList, TRPList_sequence_of,
                                                   1, maxnoTRPs, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nrppa_TRPType_vals[] = {
+  {   0, "prsOnlyTP" },
+  {   1, "srsOnlyRP" },
+  {   2, "tp" },
+  {   3, "rp" },
+  {   4, "trp" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nrppa_TRPType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     5, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -8675,6 +8750,14 @@ static int dissect_SpatialRelationInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SpatialRelationPerSRSResource_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nrppa_SpatialRelationPerSRSResource(tvb, offset, &asn1_ctx, tree, hf_nrppa_SpatialRelationPerSRSResource_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SRSConfiguration_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -8760,6 +8843,14 @@ static int dissect_TRPList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nrppa_TRPList(tvb, offset, &asn1_ctx, tree, hf_nrppa_TRPList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TRPType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nrppa_TRPType(tvb, offset, &asn1_ctx, tree, hf_nrppa_TRPType_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -9246,6 +9337,10 @@ void proto_register_nrppa(void) {
       { "SpatialRelationInfo", "nrppa.SpatialRelationInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nrppa_SpatialRelationPerSRSResource_PDU,
+      { "SpatialRelationPerSRSResource", "nrppa.SpatialRelationPerSRSResource_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nrppa_SRSConfiguration_PDU,
       { "SRSConfiguration", "nrppa.SRSConfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9289,6 +9384,10 @@ void proto_register_nrppa(void) {
     { &hf_nrppa_TRPList_PDU,
       { "TRPList", "nrppa.TRPList",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nrppa_TRPType_PDU,
+      { "TRPType", "nrppa.TRPType",
+        FT_UINT32, BASE_DEC, VALS(nrppa_TRPType_vals), 0,
         NULL, HFILL }},
     { &hf_nrppa_UE_Measurement_ID_PDU,
       { "UE-Measurement-ID", "nrppa.UE_Measurement_ID",
@@ -10878,6 +10977,14 @@ void proto_register_nrppa(void) {
       { "referenceSignal", "nrppa.referenceSignal",
         FT_UINT32, BASE_DEC, VALS(nrppa_ReferenceSignal_vals), 0,
         NULL, HFILL }},
+    { &hf_nrppa_spatialRelationPerSRSResource_List,
+      { "spatialRelationPerSRSResource-List", "nrppa.spatialRelationPerSRSResource_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nrppa_SpatialRelationPerSRSResource_List_item,
+      { "SpatialRelationPerSRSResourceItem", "nrppa.SpatialRelationPerSRSResourceItem_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nrppa_sSBPos,
       { "sSBPos", "nrppa.sSBPos_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11594,6 +11701,9 @@ void proto_register_nrppa(void) {
     &ett_nrppa_SpatialRelationInfo,
     &ett_nrppa_SpatialRelationforResourceID,
     &ett_nrppa_SpatialRelationforResourceIDItem,
+    &ett_nrppa_SpatialRelationPerSRSResource,
+    &ett_nrppa_SpatialRelationPerSRSResource_List,
+    &ett_nrppa_SpatialRelationPerSRSResourceItem,
     &ett_nrppa_SpatialRelationPos,
     &ett_nrppa_SRSConfig,
     &ett_nrppa_SRSCarrier_List,
@@ -11774,8 +11884,10 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_SFNInitialisationTime_NR, create_dissector_handle(dissect_SFNInitialisationTime_EUTRA_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_Cell_ID, create_dissector_handle(dissect_CGI_NR_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_SrsFrequency, create_dissector_handle(dissect_SrsFrequency_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.ies", id_TRPType, create_dissector_handle(dissect_TRPType_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_GeographicalCoordinates, create_dissector_handle(dissect_GeographicalCoordinates_PDU, proto_nrppa));
   dissector_add_uint("nrppa.extension", id_SRSSpatialRelation, create_dissector_handle(dissect_SpatialRelationInfo_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.extension", id_SRSSpatialRelationPerSRSResource, create_dissector_handle(dissect_SpatialRelationPerSRSResource_PDU, proto_nrppa));
   dissector_add_uint("nrppa.proc.imsg", id_errorIndication, create_dissector_handle(dissect_ErrorIndication_PDU, proto_nrppa));
   dissector_add_uint("nrppa.proc.imsg", id_privateMessage, create_dissector_handle(dissect_PrivateMessage_PDU, proto_nrppa));
   dissector_add_uint("nrppa.proc.imsg", id_e_CIDMeasurementInitiation, create_dissector_handle(dissect_E_CIDMeasurementInitiationRequest_PDU, proto_nrppa));

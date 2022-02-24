@@ -108,7 +108,7 @@ static true_false_string tfs_reverse_normal = { "Reverse", "Normal" };
 static void
 version_base_custom(gchar *result, guint32 version)
 {
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%d", (version  >> 8) & 0xFF, (version & 0xFF));
+  snprintf(result, ITEM_LABEL_LENGTH, "%d.%d", (version  >> 8) & 0xFF, (version & 0xFF));
 }
 
 static int

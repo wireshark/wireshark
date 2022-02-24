@@ -101,7 +101,7 @@
 
 /* iSeries IPv6 formatted traces are similar to the IPv4 version above,
  * except that the higher-level headers have "IPv6 Header:" and
- * "ICMPv6  Hdr:", and data data is no longer output in groups of 16 hex
+ * "ICMPv6  Hdr:", and data is no longer output in groups of 16 hex
  * digits.
  *
 
@@ -483,7 +483,7 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
 
   *err = WTAP_ERR_BAD_FILE;
   *err_info =
-    g_strdup_printf ("iseries: next packet header not found within %d lines",
+    ws_strdup_printf ("iseries: next packet header not found within %d lines",
              ISERIES_MAX_TRACE_LEN);
   return -1;
 }
@@ -747,7 +747,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
                * the error message, to avoid an overflow.)
                */
               *err = WTAP_ERR_BAD_FILE;
-              *err_info = g_strdup_printf("iseries: File has %" G_GUINT64_FORMAT "-byte packet, bigger than maximum of %u",
+              *err_info = ws_strdup_printf("iseries: File has %" PRIu64 "-byte packet, bigger than maximum of %u",
                                           (guint64)pkt_len + 14,
                                           WTAP_MAX_PACKET_SIZE_STANDARD);
               return FALSE;

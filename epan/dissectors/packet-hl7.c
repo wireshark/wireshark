@@ -32,7 +32,6 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-#include <stdio.h>
 
 void proto_register_hl7(void);
 void proto_reg_handoff_hl7(void);
@@ -125,7 +124,7 @@ static const string_string hl7_msg_type_vals[] = {
     { "ORM", "Pharmacy/treatment order" },
     { "ORN", "Non-stock requisition - General order acknowledgment" },
     { "ORP", "Pharmacy/treatment order acknowledgment" },
-    { "ORR", "General order response response to any ORM" },
+    { "ORR", "General order response message response to any ORM" },
     { "ORS", "Stock requisition - Order acknowledgment" },
     { "ORU", "Unsolicited transmission of an observation" },
     { "OSQ", "Query response for order status" },
@@ -748,7 +747,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
                 proto_item *hidden_item;
                 hidden_item = proto_tree_add_item(tree, hf_hl7_message_type,
                                                   tvb, offset, 3,
-                                                  ENC_ASCII|ENC_NA);
+                                                  ENC_ASCII);
                 proto_item_set_hidden(hidden_item);
             }
             if (tvb_get_guint8(tvb, offset + 3) == msh->component_separator) {
@@ -760,7 +759,7 @@ parse_msh(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset,
                     proto_item *hidden_item;
                     hidden_item = proto_tree_add_item(tree, hf_hl7_event_type,
                                                       tvb, offset + 4, 3,
-                                                      ENC_ASCII|ENC_NA);
+                                                      ENC_ASCII);
                     proto_item_set_hidden(hidden_item);
                 }
             }
@@ -831,20 +830,20 @@ dissect_hl7_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_,
                                                  tvb, offset, 3, ENC_ASCII);
             ti = proto_tree_add_item(tree, hf_hl7_segment,
                                      tvb, offset, segment_len_crlf,
-                                     ENC_ASCII|ENC_NA);
+                                     ENC_ASCII);
             proto_item_set_text(ti, "%s (%s)", segment_type_id,
                                 str_to_str(segment_type_id, hl7_seg_type_vals,
                                            "Unknown Segment"));
             segment_tree = proto_item_add_subtree(ti, ett_hl7_segment);
             if (global_hl7_raw) {
                 proto_tree_add_item(segment_tree, hf_hl7_raw_segment, tvb, offset,
-                                    segment_len_crlf, ENC_ASCII|ENC_NA);
+                                    segment_len_crlf, ENC_ASCII);
             }
         }
         field_str = tvb_get_string_enc(pinfo->pool,
                                        tvb, offset, field_len, ENC_ASCII);
         ti = proto_tree_add_item(segment_tree, hf_hl7_field,
-                                 tvb, offset, field_len, ENC_ASCII|ENC_NA);
+                                 tvb, offset, field_len, ENC_ASCII);
         proto_item_set_text(ti, "field %d: %s", field_num, field_str);
 
         /* if this is the last field we are done */
@@ -921,7 +920,7 @@ dissect_hl7_message(tvbuff_t *tvb, guint tvb_offset, gint len,
     offset++;
     if (global_hl7_raw) {
         proto_tree_add_item(hl7_tree, hf_hl7_raw, tvb, offset, len - 3,
-                            ENC_ASCII|ENC_NA);
+                            ENC_ASCII);
     }
 
     /* body */

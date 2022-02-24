@@ -1,4 +1,4 @@
-/* pcap-encap.h
+/** @file
  * Declarations for routines to handle pcap/pcapng linktype values
  *
  * Wiretap Library

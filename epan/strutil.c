@@ -192,35 +192,10 @@ get_token_len(const guchar *linep, const guchar *lineend,
 
 #define UNPOOP 0x1F4A9
 
-/*
- * Given a wmem scope, a not-necessarily-null-terminated string,
- * expected to be in UTF-8 but possibly containing invalid sequences
- * (as it may have come from packet data), and the length of the string,
- * generate a valid UTF-8 string from it, allocated in the specified
- * wmem scope, that:
- *
- *   shows printable Unicode characters as themselves;
- *
- *   shows non-printable ASCII characters as C-style escapes (octal
- *   if not one of the standard ones such as LF -> '\n');
- *
- *   shows non-printable Unicode-but-not-ASCII characters as
- *   their universal character names;
- *
- *   shows illegal UTF-8 sequences as a sequence of bytes represented
- *   as C-style hex escapes (XXX: Does not actually do this. Some illegal
- *   sequences, such as overlong encodings, the sequences reserved for
- *   UTF-16 surrogate halves (paired or unpaired), and values outside
- *   Unicode (i.e., the old sequences for code points above U+10FFFF)
- *   will be decoded in a permissive way. Other illegal sequences,
- *   such 0xFE and 0xFF and the presence of a continuation byte where
- *   not expected (or vice versa its absence), are replaced with
- *   REPLACEMENT CHARACTER.)
- *
- * and return a pointer to it.
- */
-gchar *
-format_text(wmem_allocator_t* allocator, const guchar *string, size_t len)
+static gchar *
+format_text_internal(wmem_allocator_t *allocator,
+                        const guchar *string, size_t len,
+                        gboolean replace_space)
 {
     FMTBUF_VARS;
     const guchar *stringend = string + len;
@@ -239,6 +214,17 @@ format_text(wmem_allocator_t* allocator, const guchar *string, size_t len)
              */
             FMTBUF_EXPAND(1);
             FMTBUF_PUTCHAR(c);
+        } else if (replace_space && g_ascii_isspace(c)) {
+            /*
+             * ASCII, so not part of a multi-byte UTF-8 sequence, but
+             * not printable, but is a space character; show it as a
+             * blank.
+             *
+             * Make sure there's enough room for one more byte, and add
+             * the blank.
+             */
+            FMTBUF_EXPAND(1);
+            FMTBUF_PUTCHAR(' ');
         } else if (c < 128) {
             /*
              * ASCII, so not part of a multi-byte UTF-8 sequence, but not
@@ -408,323 +394,7 @@ format_text(wmem_allocator_t* allocator, const guchar *string, size_t len)
                 }
                 fmtbuf[column] = uc | first;
                 column += utf8_len;
-            } else if (c < 128) {
-                /*
-                 * ASCII, but not printable.
-                 * Yes, this could happen with an overlong encoding.
-                 *
-                 * That requires a minimum of 2 bytes, one for the
-                 * backslash and one for a letter, so make sure we
-                 * have enough room for that, plus a trailing '\0'.
-                 */
-                FMTBUF_EXPAND(2);
-                FMTBUF_PUTCHAR('\\');
-                switch (c) {
-
-                    case '\a':
-                        FMTBUF_PUTCHAR('a');
-                        break;
-
-                    case '\b':
-                        FMTBUF_PUTCHAR('b'); /* BS */
-                        break;
-
-                    case '\f':
-                        FMTBUF_PUTCHAR('f'); /* FF */
-                        break;
-
-                    case '\n':
-                        FMTBUF_PUTCHAR('n'); /* NL */
-                        break;
-
-                    case '\r':
-                        FMTBUF_PUTCHAR('r'); /* CR */
-                        break;
-
-                    case '\t':
-                        FMTBUF_PUTCHAR('t'); /* tab */
-                        break;
-
-                    case '\v':
-                        FMTBUF_PUTCHAR('v');
-                        break;
-
-                    default:
-                        /*
-                         * We've already put the backslash, but this
-                         * will put 3 more characters for the octal
-                         * number; make sure we have enough room for
-                         * that, plus the trailing '\0'.
-                         */
-                        FMTBUF_EXPAND(3);
-                        FMTBUF_PUTBYTE_OCTAL(c);
-                        break;
-                }
-            } else {
-                /*
-                 * Unicode, but not printable, and not ASCII;
-                 * put it out as \uxxxx or \Uxxxxxxxx.
-                 */
-                if (uc <= 0xFFFF) {
-                    FMTBUF_EXPAND(6);
-                    FMTBUF_PUTCHAR('\\');
-                    FMTBUF_PUTCHAR('u');
-                    FMTBUF_PUTCHAR(hex[(uc >> 12) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 8) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 4) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 0) & 0xF]);
-                } else {
-                    FMTBUF_EXPAND(10);
-                    FMTBUF_PUTCHAR('\\');
-                    FMTBUF_PUTCHAR('U');
-                    FMTBUF_PUTCHAR(hex[(uc >> 28) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 24) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 20) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 16) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 12) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 8) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 4) & 0xF]);
-                    FMTBUF_PUTCHAR(hex[(uc >> 0) & 0xF]);
-                }
-            }
-        }
-    }
-
-    FMTBUF_ENDSTR;
-    return fmtbuf;
-}
-
-/** Given a wmem scope and a null-terminated string, expected to be in
- *  UTF-8 but possibly containing invalid sequences (as it may have come
- *  from packet data), and the length of the string, generate a valid
- *  UTF-8 string from it, allocated in the specified wmem scope, that:
- *
- *   shows printable Unicode characters as themselves;
- *
- *   shows non-printable ASCII characters as C-style escapes (octal
- *   if not one of the standard ones such as LF -> '\n');
- *
- *   shows non-printable Unicode-but-not-ASCII characters as
- *   their universal character names;
- *
- *   shows illegal UTF-8 sequences as a sequence of bytes represented
- *   as C-style hex escapes;
- *
- *  and return a pointer to it.
- */
-gchar *
-format_text_string(wmem_allocator_t* allocator, const guchar *string)
-{
-	return format_text(allocator, string, strlen(string));
-}
-
-/*
- * Given a string, generate a string from it that shows non-printable
- * characters as C-style escapes except a whitespace character
- * (space, tab, carriage return, new line, vertical tab, or formfeed)
- * which will be replaced by a space, and return a pointer to it.
- */
-gchar *
-format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
-{
-    FMTBUF_VARS;
-    const guchar *stringend = string + len;
-    guchar c;
-
-    while (string < stringend) {
-        /*
-         * Get the first byte of this character.
-         */
-        c = *string++;
-        if (g_ascii_isprint(c)) {
-            /*
-             * Printable ASCII, so not part of a multi-byte UTF-8 sequence.
-             * Make sure there's enough room for one more byte, and add
-             * the character.
-             */
-            FMTBUF_EXPAND(1);
-            FMTBUF_PUTCHAR(c);
-        } else if (g_ascii_isspace(c)) {
-            /*
-             * ASCII, so not part of a multi-byte UTF-8 sequence, but
-             * not printable, but is a space character; show it as a
-             * blank.
-             *
-             * Make sure there's enough room for one more byte, and add
-             * the blank.
-             */
-            FMTBUF_EXPAND(1);
-            FMTBUF_PUTCHAR(' ');
-        } else if (c < 128) {
-            /*
-             * ASCII, so not part of a multi-byte UTF-8 sequence, but not
-             * printable.
-             *
-             * That requires a minimum of 2 bytes, one for the backslash
-             * and one for a letter, so make sure we have enough room
-             * for that, plus a trailing '\0'.
-             */
-            FMTBUF_EXPAND(2);
-            FMTBUF_PUTCHAR('\\');
-            switch (c) {
-
-                case '\a':
-                    FMTBUF_PUTCHAR('a');
-                    break;
-
-                case '\b':
-                    FMTBUF_PUTCHAR('b'); /* BS */
-                    break;
-
-                case '\f':
-                    FMTBUF_PUTCHAR('f'); /* FF */
-                    break;
-
-                case '\n':
-                    FMTBUF_PUTCHAR('n'); /* NL */
-                    break;
-
-                case '\r':
-                    FMTBUF_PUTCHAR('r'); /* CR */
-                    break;
-
-                case '\t':
-                    FMTBUF_PUTCHAR('t'); /* tab */
-                    break;
-
-                case '\v':
-                    FMTBUF_PUTCHAR('v');
-                    break;
-
-                default:
-                    /*
-                     * We've already put the backslash, but this
-                     * will put 3 more characters for the octal
-                     * number; make sure we have enough room for
-                     * that, plus the trailing '\0'.
-                     */
-                    FMTBUF_EXPAND(3);
-                    FMTBUF_PUTBYTE_OCTAL(c);
-                    break;
-            }
-        } else {
-            /*
-             * We've fetched the first byte of a multi-byte UTF-8
-             * sequence into c.
-             */
-            int utf8_len;
-            guchar mask;
-            gunichar uc;
-            guchar first;
-
-            if ((c & 0xe8) == 0xc0) {
-                /* Starts a 2-byte UTF-8 sequence; 1 byte left */
-                utf8_len = 1;
-                mask = 0x1f;
-            } else if ((c & 0xf0) == 0xe0) {
-                /* Starts a 3-byte UTF-8 sequence; 2 bytes left */
-                utf8_len = 2;
-                mask = 0x0f;
-            } else if ((c & 0xf8) == 0xf0) {
-                /* Starts a 4-byte UTF-8 sequence; 3 bytes left */
-                utf8_len = 3;
-                mask = 0x07;
-            } else if ((c & 0xfc) == 0xf8) {
-                /* Starts an old-style 5-byte UTF-8 sequence; 4 bytes left */
-                utf8_len = 4;
-                mask = 0x03;
-            } else if ((c & 0xfe) == 0xfc) {
-                /* Starts an old-style 6-byte UTF-8 sequence; 5 bytes left */
-                utf8_len = 5;
-                mask = 0x01;
-            } else {
-                /* 0xfe or 0xff - not valid */
-                utf8_len = -1;
-            }
-            if (utf8_len > 0) {
-                /* Try to construct the Unicode character */
-                uc = c & mask;
-                for (int i = 0; i < utf8_len; i++) {
-                    if (string >= stringend) {
-                        /*
-                         * Ran out of octets, so the character is
-                         * incomplete.  Put in a REPLACEMENT CHARACTER
-                         * instead, and then continue the loop, which
-                         * will terminate.
-                         */
-                        uc = UNREPL;
-                        break;
-                    }
-                    c = *string;
-                    if ((c & 0xc0) != 0x80) {
-                        /*
-                         * Not valid UTF-8 continuation character; put in
-                         * a replacement character, and then re-process
-                         * this octet as the beginning of a new character.
-                         */
-                        uc = UNREPL;
-                        break;
-                    }
-                    string++;
-                    uc = (uc << 6) | (c & 0x3f);
-                }
-
-                /*
-                 * If this isn't a valid Unicode character, put in
-                 * a REPLACEMENT CHARACTER.
-                 */
-                if (!g_unichar_validate(uc))
-                    uc = UNREPL;
-            } else {
-                /* 0xfe or 0xff; put it a REPLACEMENT CHARACTER */
-                uc = UNREPL;
-            }
-
-            /*
-             * OK, is it a printable Unicode character?
-             */
-            if (g_unichar_isprint(uc)) {
-                /*
-                 * Yes - put it into the string as UTF-8.
-                 * This means that if it was an overlong
-                 * encoding, this will put out the right
-                 * sized encoding.
-                 */
-                if (uc < 0x80) {
-                    first = 0;
-                    utf8_len = 1;
-                } else if (uc < 0x800) {
-                    first = 0xc0;
-                    utf8_len = 2;
-                } else if (uc < 0x10000) {
-                    first = 0xe0;
-                    utf8_len = 3;
-                } else if (uc < 0x200000) {
-                    first = 0xf0;
-                    utf8_len = 4;
-                } else if (uc < 0x4000000) {
-                    /*
-                     * This should never happen, as Unicode doesn't
-                     * go that high.
-                     */
-                    first = 0xf8;
-                    utf8_len = 5;
-                } else {
-                    /*
-                     * This should never happen, as Unicode doesn't
-                     * go that high.
-                     */
-                    first = 0xfc;
-                    utf8_len = 6;
-                }
-                FMTBUF_EXPAND(utf8_len);
-                for (int i = utf8_len - 1; i > 0; i--) {
-                    fmtbuf[column + i] = (uc & 0x3f) | 0x80;
-                    uc >>= 6;
-                }
-                fmtbuf[column] = uc | first;
-                column += utf8_len;
-            } else if (g_unichar_isspace(uc)) {
+            } else if (replace_space && g_unichar_isspace(uc)) {
                 /*
                  * Not printable, but is a space character; show it
                  * as a blank.
@@ -821,6 +491,76 @@ format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
 }
 
 /*
+ * Given a wmem scope, a not-necessarily-null-terminated string,
+ * expected to be in UTF-8 but possibly containing invalid sequences
+ * (as it may have come from packet data), and the length of the string,
+ * generate a valid UTF-8 string from it, allocated in the specified
+ * wmem scope, that:
+ *
+ *   shows printable Unicode characters as themselves;
+ *
+ *   shows non-printable ASCII characters as C-style escapes (octal
+ *   if not one of the standard ones such as LF -> '\n');
+ *
+ *   shows non-printable Unicode-but-not-ASCII characters as
+ *   their universal character names;
+ *
+ *   shows illegal UTF-8 sequences as a sequence of bytes represented
+ *   as C-style hex escapes (XXX: Does not actually do this. Some illegal
+ *   sequences, such as overlong encodings, the sequences reserved for
+ *   UTF-16 surrogate halves (paired or unpaired), and values outside
+ *   Unicode (i.e., the old sequences for code points above U+10FFFF)
+ *   will be decoded in a permissive way. Other illegal sequences,
+ *   such 0xFE and 0xFF and the presence of a continuation byte where
+ *   not expected (or vice versa its absence), are replaced with
+ *   REPLACEMENT CHARACTER.)
+ *
+ * and return a pointer to it.
+ */
+gchar *
+format_text(wmem_allocator_t *allocator,
+                        const guchar *string, size_t len)
+{
+    return format_text_internal(allocator, string, len, FALSE);
+}
+
+/** Given a wmem scope and a null-terminated string, expected to be in
+ *  UTF-8 but possibly containing invalid sequences (as it may have come
+ *  from packet data), and the length of the string, generate a valid
+ *  UTF-8 string from it, allocated in the specified wmem scope, that:
+ *
+ *   shows printable Unicode characters as themselves;
+ *
+ *   shows non-printable ASCII characters as C-style escapes (octal
+ *   if not one of the standard ones such as LF -> '\n');
+ *
+ *   shows non-printable Unicode-but-not-ASCII characters as
+ *   their universal character names;
+ *
+ *   shows illegal UTF-8 sequences as a sequence of bytes represented
+ *   as C-style hex escapes;
+ *
+ *  and return a pointer to it.
+ */
+gchar *
+format_text_string(wmem_allocator_t* allocator, const guchar *string)
+{
+    return format_text_internal(allocator, string, strlen(string), FALSE);
+}
+
+/*
+ * Given a string, generate a string from it that shows non-printable
+ * characters as C-style escapes except a whitespace character
+ * (space, tab, carriage return, new line, vertical tab, or formfeed)
+ * which will be replaced by a space, and return a pointer to it.
+ */
+gchar *
+format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
+{
+    return format_text_internal(allocator, string, len, TRUE);
+}
+
+/*
  * Given a string, generate a string from it that shows non-printable
  * characters as the chr parameter passed, except a whitespace character
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
@@ -828,35 +568,27 @@ format_text_wsp(wmem_allocator_t* allocator, const guchar *string, size_t len)
  *
  * This does *not* treat the input string as UTF-8.
  *
- * XXX - is there any reason to use this?
+ * This is useful for displaying binary data that frequently but not always
+ * contains text; otherwise the number of C escape codes makes it unreadable.
  */
-gchar *
-format_text_chr(wmem_allocator_t* allocator, const guchar *string, const size_t len, const guchar chr)
+char *
+format_text_chr(wmem_allocator_t *allocator, const char *string, size_t len, char chr)
 {
-    FMTBUF_VARS;
-    const guchar *stringend = string + len;
-    guchar c;
+    wmem_strbuf_t *buf;
 
-    while (string < stringend)
-    {
-        FMTBUF_EXPAND(1);
-        c = *string++;
-
-        if (g_ascii_isprint(c))
-        {
-            FMTBUF_PUTCHAR(c);
+    buf = wmem_strbuf_sized_new(allocator, len + 1, 0);
+    for (const char *p = string; p < string + len; p++) {
+        if (g_ascii_isprint(*p)) {
+            wmem_strbuf_append_c(buf, *p);
         }
-        else if (g_ascii_isspace(c))
-        {
-            FMTBUF_PUTCHAR(' ');
+        else if (g_ascii_isspace(*p)) {
+            wmem_strbuf_append_c(buf, ' ');
         }
-        else
-        {
-            FMTBUF_PUTCHAR(chr);
+        else {
+            wmem_strbuf_append_c(buf, chr);
         }
     }
-    FMTBUF_ENDSTR;
-    return fmtbuf;
+    return wmem_strbuf_finalize(buf);
 }
 
 static gboolean
@@ -1156,57 +888,6 @@ uri_str_to_bytes(const char *uri_str, GByteArray *bytes)
     return TRUE;
 }
 
-/*
- * Given a GByteArray, generate a string from it that shows non-printable
- * characters as percent-style escapes, and return a pointer to it.
- */
-gchar *
-format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *reserved_chars)
-{
-    FMTBUF_VARS;
-    static const guchar reserved_def[] = ":/?#[]@!$&'()*+,;= ";
-    const guchar *reserved = reserved_def;
-    guint8 c;
-    guint byte_index, i;
-    gboolean is_reserved = FALSE;
-
-    if (! bytes)
-        return "";
-
-    if (reserved_chars)
-        reserved = reserved_chars;
-
-    for (byte_index = 0; byte_index < bytes->len; byte_index++) {
-        /*
-         * Make sure there is enough room for this character, if it
-         * expands to a percent plus 2 hex digits (which is the most
-	 * it can expand to), and also enough room for a terminating '\0'.
-         */
-        FMTBUF_EXPAND(2);
-        c = bytes->data[byte_index];
-
-        is_reserved = FALSE;
-        if (!g_ascii_isprint(c) || c == '%') {
-            is_reserved = TRUE;
-        } else {
-            for (i = 0; reserved[i]; i++) {
-                if (c == reserved[i])
-                    is_reserved = TRUE;
-            }
-        }
-
-        if (!is_reserved) {
-            FMTBUF_PUTCHAR(c);
-        } else {
-            FMTBUF_PUTCHAR('%');
-            FMTBUF_PUTCHAR(hex[c >> 4]);
-            FMTBUF_PUTCHAR(hex[c & 0xF]);
-        }
-    }
-    fmtbuf[column] = '\0';
-    return fmtbuf;
-}
-
 /**
  * Create a copy of a GByteArray
  *
@@ -1357,37 +1038,6 @@ xml_escape(const gchar *unescaped)
     return g_string_free(buffer, FALSE);
 }
 
-
-/* Return the first occurrence of needle in haystack.
- * If not found, return NULL.
- * If either haystack or needle has 0 length, return NULL.
- * Algorithm copied from GNU's glibc 2.3.2 memmem() under LGPL 2.1+ */
-const guint8 *
-epan_memmem(const guint8 *haystack, guint haystack_len,
-        const guint8 *needle, guint needle_len)
-{
-    const guint8 *begin;
-    const guint8 *const last_possible = haystack + haystack_len - needle_len;
-
-    if (needle_len == 0) {
-        return NULL;
-    }
-
-    if (needle_len > haystack_len) {
-        return NULL;
-    }
-
-    for (begin = haystack ; begin <= last_possible; ++begin) {
-        if (begin[0] == needle[0] &&
-                !memcmp(&begin[1], needle + 1,
-                    needle_len - 1)) {
-            return begin;
-        }
-    }
-
-    return NULL;
-}
-
 /*
  * Scan the search string to make sure it's valid hex.  Return the
  * number of bytes in nbytes.
@@ -1465,7 +1115,7 @@ convert_string_to_hex(const char *string, size_t *nbytes)
 }
 
 /*
- * Copy if if it's a case-sensitive search; uppercase it if it's
+ * Copy if it's a case-sensitive search; uppercase it if it's
  * a case-insensitive search.
  */
 char *
@@ -1477,93 +1127,6 @@ convert_string_case(const char *string, gboolean case_insensitive)
     } else {
         return g_strdup(string);
     }
-}
-
-const char *
-epan_strcasestr(const char *haystack, const char *needle)
-{
-    gsize hlen = strlen(haystack);
-    gsize nlen = strlen(needle);
-
-    while (hlen-- >= nlen) {
-        if (!g_ascii_strncasecmp(haystack, needle, nlen))
-            return haystack;
-        haystack++;
-    }
-    return NULL;
-}
-
-const char *
-string_or_null(const char *string)
-{
-    if (string)
-        return string;
-    return "[NULL]";
-}
-
-int
-escape_string_len(const char *string)
-{
-    const char *p;
-    gchar c;
-    int repr_len;
-
-    repr_len = 0;
-    for (p = string; (c = *p) != '\0'; p++) {
-        /* Backslashes and double-quotes must
-         * be escaped */
-        if (c == '\\' || c == '"') {
-            repr_len += 2;
-        }
-        /* Values that can't nicely be represented
-         * in ASCII need to be escaped. */
-        else if (!g_ascii_isprint(c)) {
-            /* c --> \xNN */
-            repr_len += 4;
-        }
-        /* Other characters are just passed through. */
-        else {
-            repr_len++;
-        }
-    }
-    return repr_len + 2;    /* string plus leading and trailing quotes */
-}
-
-char *
-escape_string(char *buf, const char *string)
-{
-    const gchar *p;
-    gchar c;
-    char *bufp;
-    char hexbuf[3];
-
-    bufp = buf;
-    *bufp++ = '"';
-    for (p = string; (c = *p) != '\0'; p++) {
-        /* Backslashes and double-quotes must
-         * be escaped. */
-        if (c == '\\' || c == '"') {
-            *bufp++ = '\\';
-            *bufp++ = c;
-        }
-        /* Values that can't nicely be represented
-         * in ASCII need to be escaped. */
-        else if (!g_ascii_isprint(c)) {
-            /* c --> \xNN */
-            g_snprintf(hexbuf,sizeof(hexbuf), "%02x", (unsigned char) c);
-            *bufp++ = '\\';
-            *bufp++ = 'x';
-            *bufp++ = hexbuf[0];
-            *bufp++ = hexbuf[1];
-        }
-        /* Other characters are just passed through. */
-        else {
-            *bufp++ = c;
-        }
-    }
-    *bufp++ = '"';
-    *bufp = '\0';
-    return buf;
 }
 
 #define GN_CHAR_ALPHABET_SIZE 128
@@ -1612,81 +1175,6 @@ IA5_7BIT_decode(unsigned char * dest, const unsigned char* src, int len)
         i += g_unichar_to_utf8(buf,&(dest[i]));
     }
     dest[i]=0;
-}
-
-/*
- * This function takes a string and copies it, inserting a 'chr' before
- * every 'chr' in it.
- */
-gchar*
-ws_strdup_escape_char (const gchar *str, const gchar chr)
-{
-    const gchar *p;
-    gchar *q, *new_str;
-
-    if(!str)
-        return NULL;
-
-    p = str;
-    /* Worst case: A string that is full of 'chr' */
-    q = new_str = (gchar *)g_malloc (strlen(str) * 2 + 1);
-
-    while(*p != 0) {
-        if(*p == chr)
-            *q++ = chr;
-
-        *q++ = *p++;
-    }
-    *q = '\0';
-
-    return new_str;
-}
-
-/*
- * This function takes a string and copies it, removing any occurences of double
- * 'chr' with a single 'chr'.
- */
-gchar*
-ws_strdup_unescape_char (const gchar *str, const char chr)
-{
-    const gchar *p;
-    gchar *q, *new_str;
-
-    if(!str)
-        return NULL;
-
-    p = str;
-    /* Worst case: A string that contains no 'chr' */
-    q = new_str = (gchar *)g_malloc (strlen(str) + 1);
-
-    while(*p != 0) {
-        *q++ = *p;
-        if ((*p == chr) && (*(p+1) == chr))
-            p += 2;
-        else
-            p++;
-    }
-    *q = '\0';
-
-    return new_str;
-}
-
-/* Create a newly-allocated string with replacement values. */
-gchar *
-string_replace(const gchar* str, const gchar *old_val, const gchar *new_val)
-{
-    gchar **str_parts;
-    gchar *new_str;
-
-    if (!str || !old_val) {
-        return NULL;
-    }
-
-    str_parts = g_strsplit(str, old_val, 0);
-    new_str = g_strjoinv(new_val, str_parts);
-    g_strfreev(str_parts);
-
-    return new_str;
 }
 
 /* chars allowed: lower case letters, digits, '-', "_", and ".". */

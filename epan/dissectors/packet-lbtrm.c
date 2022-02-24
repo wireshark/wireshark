@@ -328,7 +328,7 @@ static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * tra
 static char * lbtrm_transport_source_string_format(wmem_allocator_t *pool, const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
 {
     /* Returns a packet-scoped string. */
-    return (wmem_strdup_printf(pool, "LBTRM:%s:%" G_GUINT16_FORMAT ":%08x:%s:%" G_GUINT16_FORMAT, address_to_str(pool, source_address), source_port, session_id,
+    return (wmem_strdup_printf(pool, "LBTRM:%s:%" PRIu16 ":%08x:%s:%" PRIu16, address_to_str(pool, source_address), source_port, session_id,
             address_to_str(pool, multicast_group), dest_port));
 }
 
@@ -1082,7 +1082,7 @@ static gboolean dissect_lbtrm_sqn_frame_list_callback(const void *key _U_, void 
     {
         if (sqn_frame->retransmission)
         {
-            transport_item = proto_tree_add_uint_format_value(cb_data->tree, hf_lbtrm_analysis_sqn_frame, cb_data->tvb, 0, 0, sqn_frame->frame, "%" G_GUINT32_FORMAT " (RX)", sqn_frame->frame);
+            transport_item = proto_tree_add_uint_format_value(cb_data->tree, hf_lbtrm_analysis_sqn_frame, cb_data->tvb, 0, 0, sqn_frame->frame, "%" PRIu32 " (RX)", sqn_frame->frame);
         }
         else
         {
@@ -1140,13 +1140,13 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     session_id = tvb_get_ntohl(tvb, O_LBTRM_HDR_T_SESSION_ID);
     if (tag_name != NULL)
     {
-        lbtrm_item = proto_tree_add_protocol_format(tree, proto_lbtrm, tvb, offset, -1, "LBT-RM Protocol (Tag: %s): Version %u, Type %s: Source Unicast Port %" G_GUINT16_FORMAT ", Session ID 0x%08x",
+        lbtrm_item = proto_tree_add_protocol_format(tree, proto_lbtrm, tvb, offset, -1, "LBT-RM Protocol (Tag: %s): Version %u, Type %s: Source Unicast Port %" PRIu16 ", Session ID 0x%08x",
             tag_name, LBTRM_HDR_VER(ver_type), val_to_str(packet_type, lbtrm_packet_type, "Unknown (0x%02x)"),
             src_port, session_id);
     }
     else
     {
-        lbtrm_item = proto_tree_add_protocol_format(tree, proto_lbtrm, tvb, offset, -1, "LBT-RM Protocol: Version %u, Type %s: Source Unicast Port %" G_GUINT16_FORMAT ", Session ID 0x%08x",
+        lbtrm_item = proto_tree_add_protocol_format(tree, proto_lbtrm, tvb, offset, -1, "LBT-RM Protocol: Version %u, Type %s: Source Unicast Port %" PRIu16 ", Session ID 0x%08x",
             LBTRM_HDR_VER(ver_type), val_to_str(packet_type, lbtrm_packet_type, "Unknown (0x%02x)"),
             src_port, session_id);
     }
@@ -1213,24 +1213,24 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             flags_fec_type = tvb_get_guint8(tvb, L_LBTRM_HDR_T + O_LBTRM_DATA_HDR_T_FLAGS_FEC_TYPE);
             if ((flags_fec_type & LBTRM_DATA_RETRANSMISSION_FLAG) != 0)
             {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "DATA(RX) sqn 0x%x Port %" G_GUINT16_FORMAT " ID 0x%08x", sequence, src_port, session_id);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "DATA(RX) sqn 0x%x Port %" PRIu16 " ID 0x%08x", sequence, src_port, session_id);
             }
             else
             {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "DATA sqn 0x%x Port %" G_GUINT16_FORMAT " ID 0x%08x", sequence, src_port, session_id);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "DATA sqn 0x%x Port %" PRIu16 " ID 0x%08x", sequence, src_port, session_id);
             }
             break;
         case LBTRM_PACKET_TYPE_SM:
             sequence = tvb_get_ntohl(tvb, L_LBTRM_HDR_T + O_LBTRM_SM_HDR_T_SM_SQN);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SM sqn 0x%x Port %" G_GUINT16_FORMAT " ID 0x%08x", sequence, src_port, session_id);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "SM sqn 0x%x Port %" PRIu16 " ID 0x%08x", sequence, src_port, session_id);
             break;
         case LBTRM_PACKET_TYPE_NAK:
             num_naks = tvb_get_ntohs(tvb, L_LBTRM_HDR_T + O_LBTRM_NAK_HDR_T_NUM_NAKS);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "NAK %u naks Port %" G_GUINT16_FORMAT " ID 0x%08x", num_naks, src_port, session_id);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "NAK %u naks Port %" PRIu16 " ID 0x%08x", num_naks, src_port, session_id);
             break;
         case LBTRM_PACKET_TYPE_NCF:
             num_ncfs = tvb_get_ntohs(tvb, L_LBTRM_HDR_T + O_LBTRM_NCF_HDR_T_NUM_NCFS);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "NCF %u ncfs Port %" G_GUINT16_FORMAT " ID 0x%08x", num_ncfs, src_port, session_id);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "NCF %u ncfs Port %" PRIu16 " ID 0x%08x", num_ncfs, src_port, session_id);
             break;
         default:
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "Unknown (0x%02x)", packet_type);
@@ -1352,13 +1352,13 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_data_sqn_gap, tvb, 0, 0, frame->sqn_gap);
                                 proto_item_set_generated(transport_item);
-                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_data_gap, "Data sequence gap (%" G_GUINT32_FORMAT ")", frame->sqn_gap);
+                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_data_gap, "Data sequence gap (%" PRIu32 ")", frame->sqn_gap);
                             }
                             if (frame->ooo_gap != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_data_ooo_gap, tvb, 0, 0, frame->ooo_gap);
                                 proto_item_set_generated(transport_item);
-                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_data_ooo, "Data sequence out of order gap (%" G_GUINT32_FORMAT ")", frame->ooo_gap);
+                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_data_ooo, "Data sequence out of order gap (%" PRIu32 ")", frame->ooo_gap);
                             }
                             if (frame->duplicate)
                             {
@@ -1400,13 +1400,13 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_sm_sqn_gap, tvb, 0, 0, frame->sqn_gap);
                                 proto_item_set_generated(transport_item);
-                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_sm_gap, "SM sequence gap (%" G_GUINT32_FORMAT ")", frame->sqn_gap);
+                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_sm_gap, "SM sequence gap (%" PRIu32 ")", frame->sqn_gap);
                             }
                             if (frame->ooo_gap != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_sm_ooo_gap, tvb, 0, 0, frame->ooo_gap);
                                 proto_item_set_generated(transport_item);
-                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_sm_ooo, "SM sequence out of order gap (%" G_GUINT32_FORMAT ")", frame->ooo_gap);
+                                expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_sm_ooo, "SM sequence out of order gap (%" PRIu32 ")", frame->ooo_gap);
                             }
                             if (frame->duplicate)
                             {

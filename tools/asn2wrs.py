@@ -5239,6 +5239,12 @@ class GeneralizedTime (RestrictedCharacterStringType):
     def eth_tsname(self):
         return 'GeneralizedTime'
 
+    def eth_ftype(self, ectx):
+        if (ectx.Ber()):
+            return ('FT_ABSOLUTE_TIME', 'ABSOLUTE_TIME_LOCAL')
+        else:
+            return ('FT_STRING', 'BASE_NONE')
+
     def eth_type_default_body(self, ectx, tname):
         if (ectx.Ber()):
             body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',

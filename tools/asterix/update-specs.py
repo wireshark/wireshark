@@ -15,6 +15,7 @@ import urllib.request
 import json
 from copy import copy
 from itertools import chain, repeat
+from functools import reduce
 import os
 import sys
 import re
@@ -112,13 +113,22 @@ def replace_string(s, mapping):
         s = s.replace(key, val)
     return s
 
-def replace_unicode(s):
-    """Unicode replacement table."""
+def safe_string(s):
+    """String replacement table."""
     return replace_string(s, {
-        u'–': '-',
-        u'“': '',
-        u'”': '',
-        u'°': ' deg',
+        # from C reference manual
+        chr(92): r"\\", # Backslash character.
+        '?':    r"\?",  # Question mark character.
+        "'":    r"\'",  # Single quotation mark.
+        '"':    r'\"',  # Double quotation mark.
+        "\a":   "",     # Audible alert.
+        "\b":   "",     # Backspace character.
+        "\e":   "",     # <ESC> character. (This is a GNU extension.)
+        "\f":   "",     # Form feed.
+        "\n":   "",     # Newline character.
+        "\r":   "",     # Carriage return.
+        "\t":   " ",    # Horizontal tab.
+        "\v":   "",     # Vertical tab.
     })
 
 def get_scaling(content):
@@ -244,7 +254,14 @@ def get_ft(ref, n, content, offset):
     t = content['type']
 
     if t == 'Raw':
-        return 'FT_UINT{}, BASE_DEC, NULL, {}'.format(m, mask)
+        if (n % 8):         # not byte aligned
+            base = 'DEC'
+        else:               # byte aligned
+            if n >= 32:             # long items
+                base = 'HEX'
+            else:                   # short items
+                base = 'HEX_DEC'
+        return 'FT_UINT{}, BASE_{}, NULL, {}'.format(m, base, mask)
     elif t == 'Table':
         return 'FT_UINT{}, BASE_DEC, VALS (valstr_{}), {}'.format(m, ref, mask)
     elif t == 'String':
@@ -297,12 +314,39 @@ def get_bit_size(item):
 
 def get_description(item, content=None):
     """Return item description."""
-    result = item['name']
-    if item['title']:
-        result += ', {}'.format(item['title'])
+    name = item['name'] if not is_generated(item) else None
+    title = item.get('title')
     if content is not None and content.get('unit'):
-        result += ', [{}]'.format(replace_unicode(content['unit']))
-    return result
+        unit = '[{}]'.format(safe_string(content['unit']))
+    else:
+        unit = None
+
+    parts = filter(lambda x: bool(x), [name, title, unit])
+    if not parts:
+        return ''
+    return reduce(lambda a,b: a + ', ' + b, parts)
+
+def generate_group(item, variation=None):
+    """Generate group-item from element-item."""
+    level2 = copy(item)
+    level2['name'] = 'VALUE'
+    level2['is_generated'] = True
+    if variation is None:
+        level1 = copy(item)
+        level1['variation'] = {
+            'type': 'Group',
+            'items': [level2],
+        }
+    else:
+        level2['variation'] = variation['variation']
+        level1 = {
+            'type': "Group",
+            'items': [level2],
+        }
+    return level1
+
+def is_generated(item):
+    return item.get('is_generated') is not None
 
 def part1(ctx, get_ref, catalogue):
     """Generate components in order
@@ -347,7 +391,7 @@ def part1(ctx, get_ref, catalogue):
                 if content['type'] == 'Table':
                     tell('static const value_string valstr_{}[] = {}'.format(ref, '{'))
                     for (a,b) in content['values']:
-                        tell('    {} {}, "{}" {},'.format('{', a, replace_unicode(b), '}'))
+                        tell('    {} {}, "{}" {},'.format('{', a, safe_string(b), '}'))
                     tell('    {} 0, NULL {}'.format('{', '}'))
                     tell('};')
 
@@ -446,13 +490,7 @@ def part1(ctx, get_ref, catalogue):
 
                 # Group is required below this item.
                 if variation['variation']['type'] == 'Element':
-                    subitem = copy(item)
-                    subitem['variation'] = variation['variation']
-                    subitem['name'] = 'VALUE'
-                    subvar = {
-                        'type': "Group",
-                        'items': [subitem],
-                    }
+                    subvar = generate_group(item, variation)
                 else:
                     subvar = variation['variation']
                 handle_variation(path, subvar)
@@ -486,14 +524,7 @@ def part1(ctx, get_ref, catalogue):
                         continue
                     # Group is required below this item.
                     if i['variation']['type'] == 'Element':
-                        level2 = copy(i)
-                        level2['name'] = 'VALUE'
-                        level1 = copy(i)
-                        level1['variation'] = {
-                            'items': [level2],
-                            'type': 'Group',
-                        }
-                        subitem = level1
+                        subitem = generate_group(i)
                     else:
                         subitem = i
                     comp += ' &I{}_{},'.format(ref, subitem['name'])
@@ -513,12 +544,7 @@ def part1(ctx, get_ref, catalogue):
 
         # Group is required on the first level.
         if path == [] and item['variation']['type'] == 'Element':
-            level2 = copy(item)
-            level2['name'] = 'VALUE'
-            variation = {
-                'items': [level2],
-                'type': "Group",
-            }
+            variation = generate_group(item)['variation']
         else:
             variation = item['variation']
         handle_variation(path + [item['name']], variation)

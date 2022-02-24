@@ -1,4 +1,5 @@
-/* tap-voip.h
+/** @file
+ *
  * VoIP packet tap interface   2007 Tomas Kukosa
  *
  * Wireshark - Network traffic analyzer

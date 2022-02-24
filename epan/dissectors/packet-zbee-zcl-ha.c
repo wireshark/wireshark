@@ -226,7 +226,7 @@ dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
         case ZBEE_ZCL_ATTR_ID_APPL_IDT_BASIC_IDENT:
             value64 = tvb_get_letoh56(tvb, *offset);
             sub_tree = proto_tree_add_subtree_format(tree, tvb, *offset, 8, ett_zbee_zcl_appl_idt_basic, NULL,
-                    "Basic Identification: 0x%" G_GINT64_MODIFIER "x", value64);
+                    "Basic Identification: 0x%" PRIx64, value64);
 
             proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_company_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
@@ -1194,12 +1194,12 @@ static void
 decode_zcl_appl_stats_utc_time(gchar *s, guint32 value)
 {
     if (value == ZBEE_ZCL_APPL_STATS_INVALID_TIME)
-        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid UTC Time");
+        snprintf(s, ITEM_LABEL_LENGTH, "Invalid UTC Time");
     else {
         gchar *utc_time;
         value += ZBEE_ZCL_NSTIME_UTC_OFFSET;
         utc_time = abs_time_secs_to_str (NULL, value, ABSOLUTE_TIME_LOCAL, TRUE);
-        g_snprintf(s, ITEM_LABEL_LENGTH, "%s", utc_time);
+        snprintf(s, ITEM_LABEL_LENGTH, "%s", utc_time);
         wmem_free(NULL, utc_time);
     }
 } /* decode_zcl_appl_stats_utc_time */

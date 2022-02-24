@@ -763,7 +763,7 @@ dissect_om2k_negotiation_record1(tvbuff_t *tvb, gint base_offset, proto_tree *tr
 
 		for (j = 0; j < num_vers; j++) {
 			proto_tree_add_item(iwd_tree, hf_om2k_iwd_gen_rev, tvb,
-					    offset, 6, ENC_ASCII|ENC_NA);
+					    offset, 6, ENC_ASCII);
 			offset += 6;
 		}
 	}
@@ -805,7 +805,7 @@ dissect_om2k_negotiation_record2(tvbuff_t *tvb, gint base_offset, proto_tree *tr
 		iwd_tree = proto_item_add_subtree(ti, ett_om2k_iwd);
 
 		proto_tree_add_item(iwd_tree, hf_om2k_iwd_gen_rev, tvb,
-				    offset, 6, ENC_ASCII|ENC_NA);
+				    offset, 6, ENC_ASCII);
 		offset += 6;
 	}
 	return offset - base_offset;
@@ -894,7 +894,7 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			break;
 		case 0x17: /* File Revision */
 			proto_tree_add_item(tree, hf_om2k_file_rev, tvb,
-					    offset, 8, ENC_ASCII|ENC_NA);
+					    offset, 8, ENC_ASCII);
 			offset += 8;
 			break;
 		case 0x1c: /* Filling Marker */
@@ -1003,16 +1003,16 @@ dissect_om2k_attrs(tvbuff_t *tvb, packet_info *pinfo, gint offset, proto_tree *t
 			break;
 		case 0x40: /* BTS Version */
 			proto_tree_add_item(tree, hf_om2k_bts_manuf, tvb,
-					    offset, 3, ENC_ASCII|ENC_NA);
+					    offset, 3, ENC_ASCII);
 			offset += 3;
 			proto_tree_add_item(tree, hf_om2k_bts_gen, tvb,
-					    offset, 3, ENC_ASCII|ENC_NA);
+					    offset, 3, ENC_ASCII);
 			offset += 3;
 			proto_tree_add_item(tree, hf_om2k_bts_rev, tvb,
-					    offset, 3, ENC_ASCII|ENC_NA);
+					    offset, 3, ENC_ASCII);
 			offset += 3;
 			proto_tree_add_item(tree, hf_om2k_bts_var, tvb,
-					    offset, 3, ENC_ASCII|ENC_NA);
+					    offset, 3, ENC_ASCII);
 			offset += 3;
 			break;
 		case 0x43: /* OML Function Map 1 */

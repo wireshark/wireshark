@@ -26,7 +26,7 @@
 
 #include "config.h"
 
-#include <stdio.h>
+#include <stdio.h>      /* for sscanf() */
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
@@ -878,7 +878,7 @@ dcerpc_prompt(packet_info *pinfo, gchar* result)
     g_string_append(str, "&\r\n");
     g_string_append_printf(str, "%s: %u\r\n", address_str->str, pinfo->destport);
     g_string_append_printf(str, "&\r\nContext ID: %u\r\n", decode_data->dcectxid);
-    g_string_append_printf(str, "&\r\nSMB FID: %"G_GINT64_MODIFIER"u\r\n",
+    g_string_append_printf(str, "&\r\nSMB FID: %"PRIu64"\r\n",
                            dcerpc_get_transport_salt(pinfo));
     g_string_append(str, "with:\r\n");
 
@@ -2039,11 +2039,11 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
            &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos) == 13)
     {
         if ((major < 0) || (major > 65535)) {
-            *err = g_strdup_printf("dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535", major);
+            *err = ws_strdup_printf("dcerpcstat_init() Major version number %d is invalid - must be positive and <= 65535", major);
             return pos;
         }
         if ((minor < 0) || (minor > 65535)) {
-            *err = g_strdup_printf("dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535", minor);
+            *err = ws_strdup_printf("dcerpcstat_init() Minor version number %d is invalid - must be positive and <= 65535", minor);
             return pos;
         }
         ver = major;
@@ -2079,7 +2079,7 @@ dcerpcstat_param(register_srt_t* srt, const char* opt_arg, char** err)
     }
     else
     {
-        *err = g_strdup_printf("<uuid>,<major version>.<minor version>[,<filter>]");
+        *err = ws_strdup_printf("<uuid>,<major version>.<minor version>[,<filter>]");
     }
 
     return pos;
@@ -4218,7 +4218,7 @@ dissect_dcerpc_cn_bind_ack(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                    hf_dcerpc_cn_sec_addr_len, &sec_addr_len);
     if (sec_addr_len != 0) {
         proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_sec_addr, tvb, offset,
-                            sec_addr_len, ENC_ASCII|ENC_NA);
+                            sec_addr_len, ENC_ASCII);
         offset += sec_addr_len;
     }
 

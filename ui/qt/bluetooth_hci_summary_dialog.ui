@@ -31,9 +31,6 @@
      <property name="showDropIndicator" stdset="0">
       <bool>false</bool>
      </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
      </property>
@@ -67,14 +64,14 @@
      <attribute name="headerCascadingSectionResizes">
       <bool>false</bool>
      </attribute>
+     <attribute name="headerMinimumSectionSize">
+      <number>100</number>
+     </attribute>
      <attribute name="headerDefaultSectionSize">
       <number>100</number>
      </attribute>
      <attribute name="headerHighlightSections">
       <bool>false</bool>
-     </attribute>
-     <attribute name="headerMinimumSectionSize">
-      <number>100</number>
      </attribute>
      <attribute name="headerShowSortIndicator" stdset="0">
       <bool>false</bool>
@@ -602,7 +599,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0">
      <property name="spacing">
-      <number>-1</number>
+      <number>6</number>
      </property>
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>

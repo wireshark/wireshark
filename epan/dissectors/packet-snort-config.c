@@ -11,7 +11,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -464,7 +463,7 @@ char *expand_reference(SnortConfig_t *snort_config, char *reference)
 
         /* Append prefix and remainder, and return!!!! */
         if (prefix_replacement) {
-            g_snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+1);
+            snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+1);
             return expanded_reference;
         }
         else {

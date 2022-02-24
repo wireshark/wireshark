@@ -858,7 +858,7 @@ void proto_register_nano(void)
     static hf_register_info hf[] = {
         { &hf_nano_magic_number,
           { "Magic Number", "nano.magic_number",
-            FT_STRING, STR_ASCII, NULL, 0x00,
+            FT_STRING, BASE_NONE, NULL, 0x00,
             "Nano Protocol Magic Number", HFILL }
         },
         { &hf_nano_version_max,

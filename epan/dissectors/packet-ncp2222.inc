@@ -2445,13 +2445,19 @@ add_ptvc_field(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, gb
 static void
 padd_date( gchar *result, guint32 date_value )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%04u/%02u/%02u", ((date_value & 0xfe00) >> 9) + 1980, (date_value & 0x01e0) >> 5, date_value & 0x001f);
+    snprintf(result, ITEM_LABEL_LENGTH, "%04u/%02u/%02u",
+                ((date_value & 0xfe00) >> 9) + 1980,
+                (date_value & 0x01e0) >> 5,
+                date_value & 0x001f);
 }
 
 static void
 padd_time( gchar *result, guint32 time_value )
 {
-    g_snprintf( result, ITEM_LABEL_LENGTH, "%02u:%02u:%02u", ((time_value & 0xf800) >> 11), ((time_value & 0x07e0) >> 5), (time_value & 0x001f) * 2);
+    snprintf(result, ITEM_LABEL_LENGTH, "%02u:%02u:%02u",
+                ((time_value & 0xf800) >> 11),
+                ((time_value & 0x07e0) >> 5),
+                (time_value & 0x001f) * 2);
 }
 
 /* Add a value for a ptvc_record, and process the sub-ptvc_record

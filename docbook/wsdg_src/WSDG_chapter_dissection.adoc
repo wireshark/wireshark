@@ -1,10 +1,10 @@
 // WSDG Chapter Dissection
 
-[[ChapterDissection]]
+[#ChapterDissection]
 
 == Packet Dissection
 
-[[ChDissectWorks]]
+[#ChDissectWorks]
 
 === How packet dissection works
 
@@ -37,7 +37,7 @@ The file _doc/README.dissector_ contains detailed information about writing
 a dissector. In many cases it is more up to date than this document.
 ====
 
-[[ChDissectAdd]]
+[#ChDissectAdd]
 
 === Adding a basic dissector
 
@@ -52,7 +52,7 @@ protocol. It consists of the following basic items.
 
 * An IPv4 address.
 
-[[ChDissectSetup]]
+[#ChDissectSetup]
 
 ==== Setting up the dissector
 
@@ -243,7 +243,7 @@ Compile the dissector to a DLL or shared library and either run Wireshark from
 the build directory as detailed in <<ChSrcRunFirstTime>> or copy the plugin
 binary into the plugin directory of your Wireshark installation and run that.
 
-[[ChDissectDetails]]
+[#ChDissectDetails]
 
 ==== Dissecting the protocol's details
 
@@ -607,7 +607,7 @@ isn't found we provide a fallback which just prints the value in hex. We use
 this twice, once in the INFO field of the columns -- if it’s displayed, and
 similarly we append this data to the base of our dissecting tree.
 
-[[ChDissectExpertInfo]]
+[#ChDissectExpertInfo]
 
 === How to add an expert item
 
@@ -726,7 +726,7 @@ Adding the expert item is simply done by calling `expert_add_info()` with refere
 to the `packet_info` structure, the proto item `ti` to add the expert item to and
 the previously defined and registered expert item information.
 
-[[ChDissectTransformed]]
+[#ChDissectTransformed]
 
 === How to handle transformed data
 
@@ -798,7 +798,7 @@ on the old one but starting at the current offset, and extending to the end.
 This makes dissecting the packet from this point on exactly the same regardless
 of compression.
 
-[[ChDissectReassemble]]
+[#ChDissectReassemble]
 
 === How to reassemble split packets
 
@@ -813,7 +813,7 @@ The following sections will guide you through two common cases. For a
 description of all possible functions, structures and parameters, see
 _epan/reassemble.h_.
 
-[[ChDissectReassembleUdp]]
+[#ChDissectReassembleUdp]
 
 ==== How to reassemble split UDP packets
 
@@ -1052,7 +1052,7 @@ packet to another, such as a partial packet having a link to the fully
 reassembled packet. Likewise there are back pointers to the individual packets
 from the reassembled one. The other variables are used for flagging up errors.
 
-[[TcpDissectPdus]]
+[#TcpDissectPdus]
 
 ==== How to reassemble split TCP Packets
 
@@ -1132,7 +1132,7 @@ Protocols which need more data before the message length can be determined can
 return zero. Other values smaller than the fixed length will result in an
 exception.
 
-[[ChDissectTap]]
+[#ChDissectTap]
 
 === How to tap protocols
 
@@ -1201,7 +1201,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 This now enables those interested parties to listen in on the details
 of this protocol conversation.
 
-[[ChDissectStats]]
+[#ChDissectStats]
 
 === How to produce protocol stats
 
@@ -1294,14 +1294,14 @@ In this case the processing of the stats is quite simple. First we call the
 call to `stats_tree_tick_pivot()` on the `st_node_packet_types` subtree allows
 us to record statistics by packet type.
 
-[[ChDissectConversation]]
+[#ChDissectConversation]
 
 === How to use conversations
 
 Some info about how to use conversations in a dissector can be found in the file
 _doc/README.dissector_, chapter 2.2.
 
-[[ChDissectIdl2wrs]]
+[#ChDissectIdl2wrs]
 
 === __idl2wrs__: Creating dissectors from CORBA IDL files
 

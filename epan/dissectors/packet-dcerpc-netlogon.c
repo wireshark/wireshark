@@ -26,6 +26,7 @@
 #include "packet-windows-common.h"
 #include "packet-dcerpc-lsa.h"
 #include "packet-ntlmssp.h"
+#include "packet-dcerpc-misc.h"
 /* for keytab format */
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
@@ -4570,7 +4571,7 @@ netlogon_dissect_UAS_INFO_0(tvbuff_t *tvb, int offset,
         return offset;
     }
 
-    proto_tree_add_item(tree, hf_netlogon_computer_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, hf_netlogon_computer_name, tvb, offset, 16, ENC_ASCII);
     offset += 16;
 
     time_created = tvb_get_guint32(tvb, offset, DREP_ENC_INTEGER(drep));
@@ -7654,14 +7655,14 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
     /* netbios domain name */
     if (messageflags&0x00000001) {
         len = tvb_strsize(tvb, offset);
-        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_domain, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_domain, tvb, offset, len, ENC_ASCII);
         offset += len;
     }
 
     /* netbios host name */
     if (messageflags&0x00000002) {
         len = tvb_strsize(tvb, offset);
-        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_host, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(subtree, hf_netlogon_secchan_nl_nb_host, tvb, offset, len, ENC_ASCII);
         offset += len;
     }
 
@@ -8256,15 +8257,6 @@ dissect_response_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo ,
     return dissect_secchan_verf(tvb,offset,pinfo,tree,drep,1);
 }
 
-/* Secure channel types */
-
-static const value_string sec_chan_type_vals[] = {
-    { SEC_CHAN_WKSTA,  "Workstation" },
-    { SEC_CHAN_DOMAIN, "Domain trust" },
-    { SEC_CHAN_BDC,    "Backup domain controller" },
-    { 0, NULL }
-};
-
 void
 proto_register_dcerpc_netlogon(void)
 {
@@ -8818,7 +8810,7 @@ proto_register_dcerpc_netlogon(void)
 
         { &hf_netlogon_secure_channel_type,
           { "Sec Chan Type", "netlogon.sec_chan_type", FT_UINT16, BASE_DEC,
-            VALS(sec_chan_type_vals), 0x0, "Secure Channel Type", HFILL }},
+            VALS(misc_netr_SchannelType_vals), 0x0, "Secure Channel Type", HFILL }},
 
         { &hf_netlogon_restart_state,
           { "Restart State", "netlogon.restart_state", FT_UINT16, BASE_DEC,

@@ -691,7 +691,7 @@ void proto_register_credssp(void) {
         "OCTET_STRING", HFILL }},
     { &hf_credssp_packageName,
       { "packageName", "credssp.packageName",
-        FT_STRING, STR_UNICODE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_credssp_credBuffer,
       { "credBuffer", "credssp.credBuffer",

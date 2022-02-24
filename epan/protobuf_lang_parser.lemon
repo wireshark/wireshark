@@ -518,9 +518,9 @@ emptyStatement ::= PT_SEMICOLON.
 /* constant = fullIdent | ( [ "-" | "+" ] intLit ) | ( [ "-" | "+" ] floatLit ) | strLit | boolLit */
 constant(A) ::= exIdent(B).  { A = B->v; } /* boolLit is parsed as exIdent */
 constant ::= strLit.
-constant(A) ::= intLit(B). { A = pbl_store_string_token(state, g_strdup_printf("%" G_GUINT64_FORMAT, B)); }
-constant(A) ::= PT_PLUS intLit(B). { A = pbl_store_string_token(state, g_strdup_printf("%" G_GUINT64_FORMAT, B)); }
-constant(A) ::= PT_MINUS intLit(B). { A = pbl_store_string_token(state, g_strdup_printf("-%" G_GUINT64_FORMAT, B)); }
+constant(A) ::= intLit(B). { A = pbl_store_string_token(state, ws_strdup_printf("%" PRIu64, B)); }
+constant(A) ::= PT_PLUS intLit(B). { A = pbl_store_string_token(state, ws_strdup_printf("%" PRIu64, B)); }
+constant(A) ::= PT_MINUS intLit(B). { A = pbl_store_string_token(state, ws_strdup_printf("-%" PRIu64, B)); }
 constant(A) ::= PT_PLUS exIdent(B). { A = pbl_store_string_token(state, g_strconcat("+", B->v, NULL)); } /* This cover floatLit. */
 constant(A) ::= PT_MINUS exIdent(B). { A = pbl_store_string_token(state, g_strconcat("-", B->v, NULL)); }
 
@@ -559,7 +559,7 @@ pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...)
     void* scanner;
     va_list ap;
     va_start(ap, fmt);
-    msg = g_strdup_vprintf(fmt, ap);
+    msg = ws_strdup_vprintf(fmt, ap);
     scanner = state ? state->scanner : NULL;
     protobuf_lang_error(scanner, state, msg);
     va_end(ap);

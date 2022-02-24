@@ -80,7 +80,7 @@ DIAG_ON(frame-larger-than=)
 
 #include <QAction>
 #include <QActionGroup>
-#include <QDesktopWidget>
+#include <QIntValidator>
 #include <QKeyEvent>
 #include <QList>
 #include <QMessageBox>
@@ -426,6 +426,7 @@ MainWindow::MainWindow(QWidget *parent) :
     df_combo_box_ = new DisplayFilterCombo(this);
 
     funnel_statistics_ = new FunnelStatistics(this, capture_file_);
+    connect(df_combo_box_, &QComboBox::editTextChanged, funnel_statistics_, &FunnelStatistics::displayFilterTextChanged);
     connect(funnel_statistics_, &FunnelStatistics::setDisplayFilter, this, &MainWindow::setDisplayFilter);
     connect(funnel_statistics_, SIGNAL(openCaptureFile(QString, QString)),
             this, SLOT(openCaptureFile(QString, QString)));
@@ -490,6 +491,13 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->actionEditPreferences->setMenuRole(QAction::PreferencesRole);
 
 #endif // Q_OS_MAC
+
+// A billion-1 is equivalent to the inputMask 900000000 previously used
+// Avoid QValidator::Intermediate values by using a top value of all 9's
+#define MAX_GOTO_LINE 999999999
+
+QIntValidator *goToLineQiv = new QIntValidator(0,MAX_GOTO_LINE,this);
+main_ui_->goToLineEdit->setValidator(goToLineQiv);
 
 #ifdef HAVE_SOFTWARE_UPDATE
     QAction *update_sep = main_ui_->menuHelp->insertSeparator(main_ui_->actionHelpAbout);
@@ -680,8 +688,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(main_ui_->welcomePage, SIGNAL(captureFilterSyntaxChanged(bool)),
             this, SLOT(captureFilterSyntaxChanged(bool)));
 
-    connect(this->welcome_page_, SIGNAL(showExtcapOptions(QString&)),
-            this, SLOT(showExtcapOptionsDialog(QString&)));
+    connect(this, SIGNAL(showExtcapOptions(QString&, bool)),
+            this, SLOT(showExtcapOptionsDialog(QString&, bool)));
+    connect(this->welcome_page_, SIGNAL(showExtcapOptions(QString&, bool)),
+            this, SLOT(showExtcapOptionsDialog(QString&, bool)));
 
 #endif // HAVE_LIBPCAP
 
@@ -699,6 +709,26 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* Register Interface Toolbar callbacks */
     iface_toolbar_register_cb(mainwindow_add_toolbar, mainwindow_remove_toolbar);
+
+    /* Show tooltips on menu items that go to websites */
+    main_ui_->actionHelpMPWireshark->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_WIRESHARK)));
+    main_ui_->actionHelpMPWireshark_Filter->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_WIRESHARK_FILTER)));
+    main_ui_->actionHelpMPCapinfos->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_CAPINFOS)));
+    main_ui_->actionHelpMPDumpcap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_DUMPCAP)));
+    main_ui_->actionHelpMPEditcap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_EDITCAP)));
+    main_ui_->actionHelpMPMergecap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_MERGECAP)));
+    main_ui_->actionHelpMPRawshark->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_RAWSHARK)));
+    main_ui_->actionHelpMPReordercap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_REORDERCAP)));
+    main_ui_->actionHelpMPText2pcap->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_TEXT2PCAP)));
+    main_ui_->actionHelpMPTShark->setToolTip(gchar_free_to_qstring(topic_action_url(LOCALPAGE_MAN_TSHARK)));
+
+    main_ui_->actionHelpContents->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_USERGUIDE)));
+    main_ui_->actionHelpWebsite->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_HOME)));
+    main_ui_->actionHelpFAQ->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_FAQ)));
+    main_ui_->actionHelpAsk->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_ASK)));
+    main_ui_->actionHelpDownloads->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_DOWNLOAD)));
+    main_ui_->actionHelpWiki->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_WIKI)));
+    main_ui_->actionHelpSampleCaptures->setToolTip(gchar_free_to_qstring(topic_action_url(ONLINEPAGE_SAMPLE_CAPTURES)));
 
     showWelcome();
 }
@@ -1047,7 +1077,7 @@ void MainWindow::dropEvent(QDropEvent *event)
     }
 
     /* merge the files in chronological order */
-    if (cf_merge_files_to_tempfile(this, &tmpname, local_files.size(),
+    if (cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, local_files.size(),
                                    in_filenames,
                                    wtap_pcapng_file_type_subtype(),
                                    FALSE) == CF_OK) {
@@ -1244,17 +1274,17 @@ void MainWindow::mergeCaptureFile()
             /* chronological order */
             in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
             in_filenames[1] = qstring_strdup(file_name);
-            merge_status = cf_merge_files_to_tempfile(this, &tmpname, 2, in_filenames, file_type, FALSE);
+            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, FALSE);
         } else if (merge_dlg.mergeType() <= 0) {
             /* prepend file */
             in_filenames[0] = qstring_strdup(file_name);
             in_filenames[1] = g_strdup(capture_file_.capFile()->filename);
-            merge_status = cf_merge_files_to_tempfile(this, &tmpname, 2, in_filenames, file_type, TRUE);
+            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, TRUE);
         } else {
             /* append file */
             in_filenames[0] = g_strdup(capture_file_.capFile()->filename);
             in_filenames[1] = qstring_strdup(file_name);
-            merge_status = cf_merge_files_to_tempfile(this, &tmpname, 2, in_filenames, file_type, TRUE);
+            merge_status = cf_merge_files_to_tempfile(this, global_capture_opts.temp_dir, &tmpname, 2, in_filenames, file_type, TRUE);
         }
 
         g_free(in_filenames[0]);
@@ -2032,15 +2062,15 @@ void MainWindow::findTextCodecs() {
         if (key.localeAwareCompare("IBM") < 0) {
             rank = 1;
         } else if ((match = ibmRegExp.match(key)).hasMatch()) {
-            rank = match.capturedRef(1).size(); // Up to 5
+            rank = match.captured(1).size(); // Up to 5
         } else if (key.localeAwareCompare("ISO-8859-") < 0) {
             rank = 6;
         } else if ((match = iso8859RegExp.match(key)).hasMatch()) {
-            rank = 6 + match.capturedRef(1).size(); // Up to 6 + 2
+            rank = 6 + match.captured(1).size(); // Up to 6 + 2
         } else if (key.localeAwareCompare("WINDOWS-") < 0) {
             rank = 9;
         } else if ((match = windowsRegExp.match(key)).hasMatch()) {
-            rank = 9 + match.capturedRef(1).size(); // Up to 9 + 4
+            rank = 9 + match.captured(1).size(); // Up to 9 + 4
         } else {
             rank = 14;
         }
@@ -2053,7 +2083,7 @@ void MainWindow::findTextCodecs() {
         // For data about use in HTTP (other protocols can be quite different):
         // https://w3techs.com/technologies/overview/character_encoding
 
-        key.prepend('0' + rank);
+        key.prepend(char('0' + rank));
         // We use a map here because, due to backwards compatibility,
         // the same QTextCodec may be returned for multiple MIBs, which
         // happens for GBK/GB2312, EUC-KR/windows-949/UHC, and others.
@@ -2349,7 +2379,7 @@ QString MainWindow::replaceWindowTitleVariables(QString title)
             // Substitute HOME with ~
             QString homedir(g_getenv("HOME"));
             if (!homedir.isEmpty()) {
-                homedir.remove(QRegExp("[/]+$"));
+                homedir.remove(QRegularExpression("[/]+$"));
                 file.replace(homedir, "~");
             }
 #endif
@@ -2363,8 +2393,8 @@ QString MainWindow::replaceWindowTitleVariables(QString title)
     if (title.contains("%S")) {
         // %S is a conditional separator (" - ") that only shows when surrounded by variables
         // with values or static text. Remove repeating, leading and trailing separators.
-        title.replace(QRegExp("(%S)+"), "%S");
-        title.remove(QRegExp("^%S|%S$"));
+        title.replace(QRegularExpression("(%S)+"), "%S");
+        title.remove(QRegularExpression("^%S|%S$"));
 #ifdef __APPLE__
         // On macOS we separate with a unicode em dash
         title.replace("%S", " " UTF8_EM_DASH " ");

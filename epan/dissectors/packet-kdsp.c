@@ -280,9 +280,9 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_tree_add_item(kdsp_tree, hf_kdsp_version,  tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_server_version,
-                                                     tvb, offset, 32, ENC_ASCII|ENC_NA);
+                                                     tvb, offset, 32, ENC_ASCII);
     offset +=32;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_hostname, tvb, offset, 32, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_hostname, tvb, offset, 32, ENC_ASCII);
     /*offset +=32;*/
     break;
   case STRING:
@@ -290,7 +290,7 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset +=4;
     proto_tree_add_item(kdsp_tree, hf_kdsp_str_len,   tvb, offset, 4, ENC_BIG_ENDIAN);
     offset +=4;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_str_msg,   tvb, offset, -1, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_str_msg,   tvb, offset, -1, ENC_ASCII);
     break;
   case CAPPACKET:
     sub_item = proto_tree_add_item(kdsp_tree, hf_kdsp_cpt_bitmap, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -493,11 +493,11 @@ dissect_kdsp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 16;
     proto_tree_add_item(kdsp_tree, hf_kdsp_source_invalidate,    tvb, offset, 2, ENC_BIG_ENDIAN);
     offset +=2;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_name,          tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_name,          tvb, offset, 16, ENC_ASCII);
     offset +=16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_interface,     tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_interface,     tvb, offset, 16, ENC_ASCII);
     offset += 16;
-    proto_tree_add_item(kdsp_tree, hf_kdsp_source_type,          tvb, offset, 16, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(kdsp_tree, hf_kdsp_source_type,          tvb, offset, 16, ENC_ASCII);
     offset +=16;
     proto_tree_add_item(kdsp_tree, hf_kdsp_source_hop,           tvb, offset, 1, ENC_BIG_ENDIAN);
     offset +=1;

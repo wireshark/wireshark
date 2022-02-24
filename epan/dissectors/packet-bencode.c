@@ -68,7 +68,7 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
          }
          if (tree) {
             proto_tree_add_uint(tree, hf_bencode_str_length, tvb, offset, used, stringlen);
-            proto_tree_add_item(tree, hf_bencode_str, tvb, offset + used, stringlen, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(tree, hf_bencode_str, tvb, offset + used, stringlen, ENC_ASCII);
 
             if (treeadd == 1) {
                proto_item_append_text(ti, " Key: %s",

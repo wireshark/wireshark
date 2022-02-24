@@ -42,21 +42,21 @@ def create_files(version, deb, email, asn, name, iso, rfc):
     """Create all files for the .deb build process."""
     base = asn.lower()[:-5]
 
-    if not os.path.isdir("debian"):
-        os.mkdir("debian")
+    if not os.path.isdir("packaging/debian"):
+        os.mkdir("packaging/debian")
 
-    create_file("debian/rules", """#!/usr/bin/make -f
+    create_file("packaging/debian/rules", """#!/usr/bin/make -f
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/autotools.mk
 
-PREFIX=`pwd`/debian/wireshark-asn1-%s
+PREFIX=`pwd`/packaging/debian/wireshark-asn1-%s
 
 binary-post-install/wireshark-asn1-%s::
 	rm -f $(PREFIX)/usr/lib/wireshark/plugins/%s/*.a
 """ % (base, base, version), 0o755)
 
-    create_file("debian/control", """Source: wireshark-asn1-%s
+    create_file("packaging/debian/control", """Source: wireshark-asn1-%s
 Section: net
 Priority: optional
 Maintainer: %s <%s>
@@ -72,7 +72,7 @@ Description: ASN.1/BER dissector for %s
  Notation 1) file '%s.asn1'.
 """ % (base, name, email, base, deb, base, base))
 
-    create_file("debian/changelog",
+    create_file("packaging/debian/changelog",
             """wireshark-asn1-%s (0.0.1-1) unstable; urgency=low
 
   * Automatically created package.
@@ -80,7 +80,7 @@ Description: ASN.1/BER dissector for %s
  -- %s <%s>  %s
 """ % (base, name, email, rfc + "\n    (" + iso + ")"))
 
-    create_file("debian/copyright",
+    create_file("packaging/debian/copyright",
             """This package has been created automatically be asn2deb on
 %s for Debian GNU/Linux.
 

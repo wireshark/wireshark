@@ -220,7 +220,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     // explicitly set len to 0 if there are no arguments,
     // else use tvb_strnlen() to find the remaining length of tvb
     len = ( size > 0 ) ? tvb_strnlen( tvb, GEARMAN_COMMAND_HEADER_SIZE, -1 ) : 0 ;
-    content_item = proto_tree_add_item(command_tree, hf_gearman_data_content, tvb, GEARMAN_COMMAND_HEADER_SIZE, len, ENC_ASCII|ENC_NA);
+    content_item = proto_tree_add_item(command_tree, hf_gearman_data_content, tvb, GEARMAN_COMMAND_HEADER_SIZE, len, ENC_ASCII);
     content_tree = proto_item_add_subtree(content_item, ett_gearman_content);
   }
 

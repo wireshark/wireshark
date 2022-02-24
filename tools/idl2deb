@@ -34,21 +34,21 @@ def create_files(version, deb, email, idl, name, preserve, iso, rfc):
     """Create all files for the .deb build process."""
     base = os.path.basename(idl.lower().split(".idl")[0])
 
-    if not os.path.isdir("debian"):
-        os.mkdir("debian")
+    if not os.path.isdir("packaging/debian"):
+        os.mkdir("packaging/debian")
 
-    create_file(preserve, "debian/rules", """#!/usr/bin/make -f
+    create_file(preserve, "packaging/debian/rules", """#!/usr/bin/make -f
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/autotools.mk
 
-PREFIX=`pwd`/debian/wireshark-giop-%s
+PREFIX=`pwd`/packaging/debian/wireshark-giop-%s
 
 binary-post-install/wireshark-giop-%s::
 	rm -f $(PREFIX)/usr/lib/wireshark/plugins/%s/*.a
 """ % (base, base, version), 0o755)
 
-    create_file(preserve, "debian/control", """Source: wireshark-giop-%s
+    create_file(preserve, "packaging/debian/control", """Source: wireshark-giop-%s
 Section: net
 Priority: optional
 Maintainer: %s <%s>
@@ -65,7 +65,7 @@ Description: GIOP dissector for CORBA interface %s
  in the IDL (Interface Definition Language) file '%s.idl'.
 """ % (base, name, email, base, deb, base, base))
 
-    create_file(preserve, "debian/changelog",
+    create_file(preserve, "packaging/debian/changelog",
             """wireshark-giop-%s (0.0.1-1) unstable; urgency=low
 
   * Automatically created package.
@@ -73,7 +73,7 @@ Description: GIOP dissector for CORBA interface %s
  -- %s <%s>  %s
 """ % (base, name, email, rfc))
 
-    create_file(preserve, "debian/copyright",
+    create_file(preserve, "packaging/debian/copyright",
             """This package has been created automatically by idl2deb on
 %s for Debian GNU/Linux.
 

@@ -73,37 +73,37 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 2;
 
     string = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &string_length, ENC_ASCII);
-    proto_tree_add_item(fsso_tree, hf_fsso_string, tvb, offset, string_length, ENC_ASCII|ENC_NA);
+    proto_tree_add_item(fsso_tree, hf_fsso_string, tvb, offset, string_length, ENC_ASCII);
     col_set_str(pinfo->cinfo, COL_INFO, string);
 
     if(client_ip == 0xFFFFFFFF) { //if client_ip equal 255.255.255.255 (0xFFFFFFFF) is KeepAlive packet
         /* Domain / KeepAlive (User) / Version */
         len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
         len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
-        proto_tree_add_item(fsso_tree, hf_fsso_version, tvb, offset, string_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fsso_tree, hf_fsso_version, tvb, offset, string_length, ENC_ASCII);
         offset += (string_length);
 
     } else {
         /* Host / Domain / User */
         len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_host, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fsso_tree, hf_fsso_host, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
         len = tvb_find_guint8(tvb, offset, string_length, '/') - offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
         offset += (len + 1);
         string_length -= (len + 1);
 
-        proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, string_length, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, string_length, ENC_ASCII);
         offset += (string_length);
     }
 
@@ -262,7 +262,7 @@ void
 proto_reg_handoff_fortinet_sso(void)
 {
     dissector_add_uint_with_preference("udp.port", 0, fortinet_sso_handle);
-    heur_dissector_add("udp", dissect_fortinet_fsso_heur, "fortinet_sso", "fortinet_sso", proto_fortinet_sso, HEURISTIC_ENABLE);
+    heur_dissector_add("udp", dissect_fortinet_fsso_heur, "Fortinet SSO over UDP", "fortinet_sso", proto_fortinet_sso, HEURISTIC_ENABLE);
 }
 
 /*

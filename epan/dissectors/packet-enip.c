@@ -789,7 +789,7 @@ static const true_false_string dlr_lnknbrstatus_frame_type_vals = {
 
 static void enip_prompt(packet_info *pinfo _U_, gchar* result)
 {
-   g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect unidentified I/O traffic as");
+   snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Dissect unidentified I/O traffic as");
 }
 
 static wmem_map_t *enip_request_hashtable = NULL;
@@ -846,7 +846,7 @@ enip_request_equal(gconstpointer v, gconstpointer w)
 static void
 enip_fmt_lir_revision( gchar *result, guint32 revision )
 {
-   g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   snprintf( result, ITEM_LABEL_LENGTH, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 static guint
@@ -990,7 +990,7 @@ enip_io_conv_filter(packet_info *pinfo)
 
    if (conn->close_frame > 0)
    {
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "  /* Frames between ForwardOpen and ForwardClose reply */
            "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                             /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
@@ -1001,7 +1001,7 @@ enip_io_conv_filter(packet_info *pinfo)
    else
    {
        /* If Forward Close isn't found, don't limit the (end) frame range */
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || (frame.number >= %u)) && "                                            /* Frames starting with ForwardOpen */
            "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                            /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",    /* Connection Triad */
@@ -1036,7 +1036,7 @@ enip_exp_conv_filter(packet_info *pinfo)
 
    if (conn->close_frame > 0)
    {
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "  /* Frames between ForwardOpen and ForwardClose reply */
            "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                             /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
@@ -1047,7 +1047,7 @@ enip_exp_conv_filter(packet_info *pinfo)
    else
    {
        /* If Forward Close isn't found, don't limit the (end) frame range */
-      buf = g_strdup_printf(
+      buf = ws_strdup_printf(
           "((frame.number == %u) || (frame.number >= %u)) && "    /* Frames between ForwardOpen and ForwardClose */
            "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                          /* O->T and T->O Connection IDs */
            "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
@@ -1485,7 +1485,7 @@ dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item 
    proto_tree_add_item(tree, hf_tcpip_ic_name_server2, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
 
    domain_length = tvb_get_letohs( tvb, offset+20);
-   proto_tree_add_item(tree, hf_tcpip_ic_domain_name,  tvb, offset+22, domain_length, ENC_ASCII|ENC_NA);
+   proto_tree_add_item(tree, hf_tcpip_ic_domain_name,  tvb, offset+22, domain_length, ENC_ASCII);
 
    /* Add padding. */
    domain_length += domain_length % 2;
@@ -2133,7 +2133,7 @@ dissect_eip_cert_cert_list(packet_info *pinfo, proto_tree *tree, proto_item *ite
    for (i = 0; i < num; i++)
    {
       path_size = tvb_get_guint8( tvb, offset );
-      proto_tree_add_item(tree, hf_eip_cert_cert_name, tvb, offset+1, path_size, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(tree, hf_eip_cert_cert_name, tvb, offset+1, path_size, ENC_ASCII);
       offset += (1+path_size);
 
       path_size = dissect_padded_epath_len_usint(pinfo, cert_tree, ti, tvb, offset, total_len);

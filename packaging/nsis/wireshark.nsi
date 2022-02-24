@@ -63,7 +63,7 @@ BrandingText "Wireshark${U+00ae} Installer"
 !define MUI_WELCOMEPAGE_TITLE_3LINES
 !define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of ${PROGRAM_NAME}.$\r$\n$\r$\nBefore starting the installation, make sure ${PROGRAM_NAME} is not running.$\r$\n$\r$\nClick 'Next' to continue."
 ;!define MUI_FINISHPAGE_LINK "Install Npcap to be able to capture packets from a network."
-;!define MUI_FINISHPAGE_LINK_LOCATION "https://nmap.org/npcap/"
+;!define MUI_FINISHPAGE_LINK_LOCATION "https://npcap.com/"
 
 ; NSIS shows Readme files by opening the Readme file with the default application for
 ; the file's extension. "README.win32" won't work in most cases, because extension "win32"
@@ -278,6 +278,10 @@ Function .onInit
     ${IfNot} ${RunningX64}
       MessageBox MB_OK "This version of Wireshark only runs on x64 machines.$\nTry installing the 32-bit version instead." /SD IDOK
       Abort
+    ${EndIf}
+  !else
+    ${If} ${RunningX64}
+      MessageBox MB_OK "You are installing a 32-bit version of Wireshark on a 64-bit machine.$\nWe recommend installing the 64-bit version instead." /SD IDOK
     ${EndIf}
   !endif
 
@@ -531,16 +535,16 @@ File "${STAGING_DIR}\extcap.html"
 File "${STAGING_DIR}\ipmap.html"
 
 ; C-runtime redistributable
-; vcredist_x64.exe or vc_redist_x86.exe - copy and execute the redistributable installer
-File "${VCREDIST_EXE}"
+; vc_redist.x64.exe or vc_redist.x86.exe - copy and execute the redistributable installer
+File "${VCREDIST_DIR}\${VCREDIST_EXE}"
 ; If the user already has the redistributable installed they will see a
 ; Big Ugly Dialog by default, asking if they want to uninstall or repair.
 ; Ideally we should add a checkbox for this somewhere. In the meantime,
 ; just do a "quiet" install.
 
 ; http://asawicki.info/news_1597_installing_visual_c_redistributable_package_from_command_line.html
-ExecWait '"$INSTDIR\vcredist_${TARGET_MACHINE}.exe" /install /quiet /norestart' $0
-DetailPrint "vcredist_${TARGET_MACHINE} returned $0"
+ExecWait '"$INSTDIR\${VCREDIST_EXE}" /install /quiet /norestart' $0
+DetailPrint "${VCREDIST_EXE} returned $0"
 
 ; https://docs.microsoft.com/en-us/windows/desktop/Msi/error-codes
 !define ERROR_SUCCESS 0
@@ -556,12 +560,12 @@ ${Switch} $0
     SetRebootFlag true
     ${Break}
   ${Default}
-      MessageBox MB_OK "The Visual C++ Redistributable installer failed with error $0.$\nPlease make sure you have KB2999226 or KB3118401 installed.$\nUnable to continue installation." /SD IDOK
+      MessageBox MB_OK "The Visual C++ Redistributable installer failed with error $0.$\nUnable to continue installation." /SD IDOK
       Abort
     ${Break}
 ${EndSwitch}
 
-Delete "$INSTDIR\vcredist_${TARGET_MACHINE}.exe"
+Delete "$INSTDIR\${VCREDIST_EXE}"
 
 
 ; global config files - don't overwrite if already existing

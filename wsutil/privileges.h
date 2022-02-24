@@ -1,4 +1,4 @@
-/* privileges.h
+/** @file
  * Declarations of routines for handling privileges.
  *
  * Wireshark - Network traffic analyzer

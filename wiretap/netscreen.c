@@ -288,7 +288,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("netscreen: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = ws_strdup_printf("netscreen: File has %u-byte packet, bigger than maximum of %u",
 		    (guint)pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
@@ -359,7 +359,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 		offset += n;
 
 		/* If there was more hex-data than was announced in the len=x
-		 * header, then then there must be an error in the file
+		 * header, then there must be an error in the file
 		 */
 		if (offset > pkt_len) {
 			*err = WTAP_ERR_BAD_FILE;
@@ -382,7 +382,7 @@ parse_netscreen_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 		 * address in the header. If they are, assume ethernet
 		 * LinkLayer or else PPP
 		 */
-		g_snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
+		snprintf(dststr, 13, "%02x%02x%02x%02x%02x%02x",
 		   pd[0], pd[1], pd[2], pd[3], pd[4], pd[5]);
 		if (strncmp(dststr, cap_dst, 12) == 0)
 			rec->rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETHERNET;

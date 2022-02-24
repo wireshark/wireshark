@@ -1,4 +1,5 @@
-/*
+/** @file
+ *
  * Copyright 2012, Pontus Fuchs <pontus.fuchs@gmail.com>
  *
  * Wireshark - Network traffic analyzer

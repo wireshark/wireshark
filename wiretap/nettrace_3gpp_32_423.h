@@ -1,4 +1,4 @@
-/* nettrace_3gpp_32_423.h
+/** @file
  *
  * MIME file format decoder for the Wiretap library.
  *
