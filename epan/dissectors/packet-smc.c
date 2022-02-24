@@ -2,6 +2,7 @@
  * SMC dissector for wireshark
  * By Joe Fowler <fowlerja@us.ibm.com>
  * By Guvenc Gulce <guvenc@linux.ibm.com>
+ * By Karsten Graul <kgraul@linux.ibm.com>
  * (c) Copyright IBM Corporation 2014,2022
  * LICENSE: GNU General Public License, version 2, or (at your option) any
  * version. http://opensource.org/licenses/gpl-2.0.php
@@ -65,6 +66,9 @@
 #define SMCD_CLC_ID 0xe2d4c3c4 /*EBCDIC 'SMCD' */
 #define SMC_CLC_V1    0x10
 #define SMC_CLC_SMC_R 0x01
+#define SMC_MAX_QP_NUM		6
+#define SMCD_MAX_BUFSIZE_NUM	6
+#define SMCR_MAX_BUFSIZE_NUM	5
 
 #define LLC_FLAG_RESP 0x80
 #define RMBE_CTRL 0xfe
@@ -438,6 +442,26 @@ void proto_reg_handoff_smcr(void);
 static dissector_handle_t smc_tcp_handle;
 
 static void
+disect_smc_uncompress_size(proto_item* ti, guint size, guint max_valid)
+{
+	if (size <= max_valid) {
+		proto_item_append_text(ti, " (Size: %dk)", 1 << (size + 4)); /* uncompressed size */
+	} else {
+		proto_item_append_text(ti, " (Size: invalid)");
+	}
+}
+
+static void
+disect_smcr_translate_qp_mtu(proto_item* ti, guint qp_num)
+{
+	if (qp_num > 0 && qp_num < SMC_MAX_QP_NUM) {
+		proto_item_append_text(ti, " (MTU: %d)", 1 << (7 + qp_num)); /* translated MTU size (1-5) */
+	} else {
+		proto_item_append_text(ti, " (MTU: invalid)");
+	}
+}
+
+static void
 disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 {
 	guint offset;
@@ -627,11 +651,12 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 static void
 disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 {
-	guint offset;
+	guint offset, dmbe_size;
 	proto_item* accept_flag_item;
 	proto_tree* accept_flag_tree;
 	proto_item* accept_flag2_item;
 	proto_tree* accept_flag2_tree;
+	proto_item* ti;
 	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
@@ -662,7 +687,9 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 
 	accept_flag2_item = proto_tree_add_item(tree, hf_smcd_accept_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	accept_flag2_tree = proto_item_add_subtree(accept_flag2_item, ett_smcd_accept_flag2);
-	proto_tree_add_item(accept_flag2_tree, hf_accept_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	dmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED; /* reserved */
@@ -700,11 +727,12 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 static void
 disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 {
-	guint offset;
+	guint offset, dmbe_size;
 	proto_item* confirm_flag_item;
 	proto_tree* confirm_flag_tree;
 	proto_item* confirm_flag2_item;
 	proto_tree* confirm_flag2_tree;
+	proto_item* ti;
 	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
@@ -735,7 +763,9 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 
 	confirm_flag2_item = proto_tree_add_item(tree, hf_smcd_confirm_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_smcd_confirm_flag2);
-	proto_tree_add_item(confirm_flag2_tree, hf_smcd_confirm_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(confirm_flag2_tree, hf_smcd_confirm_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	dmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, dmbe_size, SMCD_MAX_BUFSIZE_NUM);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED; /* reserved */
@@ -768,15 +798,15 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 	}
 }
 
-
 static void
 disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint offset;
+	guint offset, qp_num, rmbe_size;
 	proto_item *accept_flag_item;
 	proto_tree *accept_flag_tree;
 	proto_item *accept_flag2_item;
 	proto_tree *accept_flag2_tree;
+	proto_item *ti;
 	guint8 smc_version, first_contact = 0;
 
 	offset = CLC_MSG_START_OFFSET;
@@ -815,8 +845,12 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	offset += ALERT_TOKEN_LEN;
 	accept_flag2_item = proto_tree_add_item(tree, hf_smcr_accept_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	accept_flag2_tree = proto_item_add_subtree(accept_flag2_item, ett_accept_flag2);
-	proto_tree_add_item(accept_flag2_tree, hf_accept_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-	proto_tree_add_item(accept_flag2_tree, hf_accept_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	rmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
+	ti = proto_tree_add_item(accept_flag2_tree, hf_accept_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	qp_num = tvb_get_gint8(tvb, offset) & 0x0F;
+	disect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED; /* reserved */
@@ -858,11 +892,12 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 static void
 disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 {
-	guint offset;
+	guint offset, qp_num, rmbe_size;
 	proto_item *confirm_flag_item;
 	proto_tree *confirm_flag_tree;
 	proto_item *confirm_flag2_item;
 	proto_tree *confirm_flag2_tree;
+	proto_item *ti;
 	guint8 smc_version, first_contact = 0;
 	guint8 gid_list_len;
 
@@ -903,8 +938,12 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	offset += ALERT_TOKEN_LEN;
 	confirm_flag2_item = proto_tree_add_item(tree, hf_smcr_confirm_flags2, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_confirm_flag2);
-	proto_tree_add_item(confirm_flag2_tree, hf_confirm_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
-	proto_tree_add_item(confirm_flag2_tree, hf_confirm_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(confirm_flag2_tree, hf_confirm_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	rmbe_size = tvb_get_gint8(tvb, offset) >> 4;
+	disect_smc_uncompress_size(ti, rmbe_size, SMCR_MAX_BUFSIZE_NUM);
+	ti = proto_tree_add_item(confirm_flag2_tree, hf_confirm_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
+	qp_num = tvb_get_gint8(tvb, offset) & 0x0F;
+	disect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED; /* reserved */
@@ -1038,13 +1077,14 @@ disect_smcr_confirm_link(tvbuff_t *tvb, proto_tree *tree)
 static void
 disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 {
-	guint offset, rkey_count;
+	guint offset, rkey_count, qp_num;
 	proto_item *add_link_flag_item;
 	proto_tree *add_link_flag_tree;
 	proto_item *add_link_flag2_item;
 	proto_tree *add_link_flag2_tree;
 	proto_item *add_link_flag3_item;
 	proto_tree *add_link_flag3_tree;
+	proto_item *ti;
 	bool is_response = tvb_get_guint8(tvb, LLC_CMD_RSP_OFFSET) & LLC_FLAG_RESP;
 
 	offset = LLC_MSG_START_OFFSET;
@@ -1072,7 +1112,9 @@ disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 	offset += 1;
 	add_link_flag2_item = proto_tree_add_item(tree, hf_smcr_add_link_flags2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	add_link_flag2_tree = proto_item_add_subtree(add_link_flag2_item, ett_add_link_flag2);
-	proto_tree_add_item(add_link_flag2_tree, hf_smcr_add_link_qp_mtu_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(add_link_flag2_tree, hf_smcr_add_link_qp_mtu_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+	qp_num = tvb_get_gint8(tvb, offset) & 0x0F;
+	disect_smcr_translate_qp_mtu(ti, qp_num);
 	offset += 1;
 	proto_tree_add_item(tree, hf_smcr_add_link_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
