@@ -463,7 +463,7 @@ get_runtime_version_info(gather_feature_func gather_runtime)
 	}
 #ifdef HAVE_PLUGINS
 	if (g_module_supported()) {
-		with_feature(&l, "binary plugins supported (%d loaded)", plugins_get_count());
+		with_feature(&l, "binary plugins (%d loaded)", plugins_get_count());
 	}
 	else {
 		without_feature(&l, "binary plugins (not supported by the platform)");
