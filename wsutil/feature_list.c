@@ -37,7 +37,7 @@ without_feature(feature_list l, const char *fmt, ...)
 static gint
 feature_sort_alpha(gconstpointer a, gconstpointer b)
 {
-    return strcasecmp((gchar *)a + 1, (gchar *)b + 1);
+    return g_ascii_strcasecmp((gchar *)a + 1, (gchar *)b + 1);
 }
 
 void

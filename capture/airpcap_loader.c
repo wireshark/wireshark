@@ -1192,28 +1192,27 @@ int load_airpcap(void)
  * Append the version of AirPcap with which we were compiled to a GString.
  */
 void
-get_compiled_airpcap_version(GString *str)
+gather_airpcap_compile_info(feature_list l)
 {
-    g_string_append(str, "with AirPcap");
+    with_feature(l, "AirPcap");
 }
 
 /*
  * Append the version of AirPcap with which we're running to a GString.
  */
 void
-get_runtime_airpcap_version(GString *str)
+gather_airpcap_runtime_info(feature_list l)
 {
     guint vmaj, vmin, vrev, build;
 
     /* See if the DLL has been loaded successfully.  Bail if it hasn't */
     if (AirpcapLoaded == FALSE) {
-        g_string_append(str, "without AirPcap");
+        without_feature(l, "AirPcap");
         return;
     }
 
     g_PAirpcapGetVersion(&vmaj, &vmin, &vrev, &build);
-    g_string_append_printf(str, "with AirPcap %d.%d.%d build %d", vmaj, vmin,
-        vrev, build);
+    with_feature(l, "AirPcap %d.%d.%d build %d", vmaj, vmin, vrev, build);
 }
 
 /*

@@ -231,7 +231,7 @@ gather_wireshark_qt_compiled_info(feature_list l)
     }
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP
-    with_feature(l, "AirPcap");
+    gather_airpcap_compile_info(l);
 #else
     without_feature(l, "AirPcap");
 #endif
@@ -259,14 +259,7 @@ gather_wireshark_runtime_info(feature_list l)
     epan_gather_runtime_info(l);
 
 #ifdef HAVE_AIRPCAP
-    /* See if the DLL has been loaded successfully.  Bail if it hasn't */
-    if (AirpcapLoaded == FALSE) {
-        without_feature(l, "AirPcap");
-    }
-    else {
-        g_PAirpcapGetVersion(&vmaj, &vmin, &vrev, &build);
-        with_feature(l, "AirPcap %d.%d.%d build %d", vmaj, vmin, vrev, build);
-    }
+    gather_airpcap_runtime_info(l);
 #endif
 
     if (wsApp) {
