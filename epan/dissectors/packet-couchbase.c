@@ -1067,24 +1067,6 @@ static guint32 get_body_length(tvbuff_t *tvb) {
   return tvb_get_ntohl(tvb, 8);
 }
 
-static guint
-get_couchbase_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
-                      int offset, void *data _U_)
-{
-  guint32 bodylen;
-
-  /* Get the length of the memcache body */
-  bodylen = tvb_get_ntohl(tvb, offset + 8);
-
-  /* That length doesn't include the header; add that in */
-  if ((bodylen + COUCHBASE_HEADER_LEN) > G_MAXUINT32) {
-    return G_MAXUINT32;
-  } else {
-    return bodylen + COUCHBASE_HEADER_LEN;
-  }
-}
-
-
 /* Returns true if the specified opcode's response value is JSON. */
 static gboolean
 has_json_value(gboolean is_request, guint8 opcode)
@@ -3136,18 +3118,28 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   return tvb_reported_length(tvb);
 }
 
-/* Dissect tcp packets based on the type of protocol (text/binary) */
+static guint
+get_couchbase_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset,
+                         void *data _U_) {
+  // See https://github.com/couchbase/kv_engine/blob/master/docs/BinaryProtocol.md#packet-structure
+  // for a description of each packet.
+  // The "length" field is located at offset 8 within the frame and does
+  // not include the fixed header.
+  return tvb_get_ntohl(tvb, offset + 8) + COUCHBASE_HEADER_LEN;
+}
+
+/* Dissect the couchbase packet */
 static int
-dissect_couchbase_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
-{
-  guint8 magic = get_magic(tvb);
-  if (try_val_to_str(magic, magic_vals) == NULL) {
+dissect_couchbase_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                      void *data) {
+  if (try_val_to_str(tvb_get_guint8(tvb, 0), magic_vals) == NULL) {
+    // Magic isn't one of the know magics used by the Couchbase dissector
     return 0;
   }
 
-  tcp_dissect_pdus(tvb, pinfo, tree, couchbase_desegment_body, 12,
-                     get_couchbase_pdu_len, dissect_couchbase, data);
-
+  tcp_dissect_pdus(tvb, pinfo, tree, couchbase_desegment_body,
+                   COUCHBASE_HEADER_LEN,
+                   get_couchbase_pdu_length, dissect_couchbase, data);
   return tvb_captured_length(tvb);
 }
 
@@ -3394,11 +3386,11 @@ proto_register_couchbase(void)
   /* Register our configuration options */
   couchbase_module = prefs_register_protocol(proto_couchbase, &proto_reg_handoff_couchbase);
 
-  couchbase_handle = register_dissector("couchbase", dissect_couchbase_tcp, proto_couchbase);
+  couchbase_handle = register_dissector("couchbase", dissect_couchbase_pdu, proto_couchbase);
 
   prefs_register_bool_preference(couchbase_module, "desegment_pdus",
                                  "Reassemble PDUs spanning multiple TCP segments",
-                                 "Whether the memcache dissector should reassemble PDUs"
+                                 "Whether the Couchbase dissector should reassemble PDUs"
                                  " spanning multiple TCP segments."
                                  " To use this option, you must also enable \"Allow subdissectors"
                                  " to reassemble TCP streams\" in the TCP protocol settings.",
@@ -3408,8 +3400,6 @@ proto_register_couchbase(void)
                                  "The port used for communicating with the data service via SSL/TLS",
                                  10, &couchbase_ssl_port_pref);
   prefs_register_obsolete_preference(couchbase_module, "ssl_port");
-
-
 }
 
 /* Register the tcp couchbase dissector. */
