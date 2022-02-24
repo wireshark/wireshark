@@ -263,8 +263,8 @@ fuzz_init(int argc _U_, char **argv)
 	}
 
 	/* Initialize the version information. */
-	ws_init_version_info("OSS Fuzzshark (Wireshark)", NULL,
-	    epan_get_compiled_version_info, epan_get_runtime_version_info);
+	ws_init_version_info("OSS Fuzzshark",
+	    epan_gather_compile_info, epan_gather_runtime_info);
 
 	init_report_message("fuzzshark", &fuzzshark_report_routines);
 

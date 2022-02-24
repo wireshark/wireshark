@@ -442,9 +442,8 @@ void AboutDialog::updateWiresharkText()
 {
     QString vcs_version_info_str = get_ws_vcs_version_info();
     QString copyright_info_str = get_copyright_info();
-    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(get_wireshark_qt_compiled_info,
-                                              get_gui_compiled_info));
-    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(get_wireshark_runtime_info));
+    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info));
+    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(gather_wireshark_runtime_info));
 
     QString message = ColorUtils::themeLinkStyle();
 
@@ -462,9 +461,8 @@ void AboutDialog::updateWiresharkText()
     /* Save the info for the clipboard copy */
     clipboardInfo = "";
     clipboardInfo += vcs_version_info_str + "\n\n";
-    clipboardInfo += gstring_free_to_qbytearray(get_compiled_version_info(get_wireshark_qt_compiled_info,
-                                                                          get_gui_compiled_info)) + "\n";
-    clipboardInfo += gstring_free_to_qbytearray(get_runtime_version_info(get_wireshark_runtime_info));
+    clipboardInfo += gstring_free_to_qbytearray(get_compiled_version_info(gather_wireshark_qt_compiled_info)) + "\n";
+    clipboardInfo += gstring_free_to_qbytearray(get_runtime_version_info(gather_wireshark_runtime_info));
 }
 
 void AboutDialog::on_copyToClipboard_clicked()

@@ -33,6 +33,8 @@
 #include <wsutil/wslog.h>
 #include <wsutil/ws_assert.h>
 
+#include <ui/version_info.h>
+
 #include "conversation.h"
 #include "except.h"
 #include "packet.h"
@@ -767,91 +769,92 @@ epan_dissect_packet_contains_field(epan_dissect_t* edt,
  * Get compile-time information for libraries used by libwireshark.
  */
 void
-epan_get_compiled_version_info(GString *str)
+epan_gather_compile_info(feature_list l)
 {
 	/* Lua */
 #ifdef HAVE_LUA
-	g_string_append(str, ", with " LUA_RELEASE);
+	with_feature(l, "%s", LUA_RELEASE);
 #else
-	g_string_append(str, ", without Lua");
+	without_feature(l, "Lua");
 #endif /* HAVE_LUA */
 
 	/* GnuTLS */
 #ifdef HAVE_LIBGNUTLS
-	g_string_append(str, ", with GnuTLS " LIBGNUTLS_VERSION);
 #ifdef HAVE_GNUTLS_PKCS11
-	g_string_append(str, " and PKCS #11 support");
+	with_feature(l, "GnuTLS %s and PKCS #11 support", LIBGNUTLS_VERSION);
+#else
+	with_feature(l, "GnuTLS %s", LIBGNUTLS_VERSION);
 #endif /* HAVE_GNUTLS_PKCS11 */
 #else
-	g_string_append(str, ", without GnuTLS");
+	without_feature(l, "GnuTLS");
 #endif /* HAVE_LIBGNUTLS */
 
 	/* Gcrypt */
-	g_string_append(str, ", with Gcrypt " GCRYPT_VERSION);
+	with_feature(l, "Gcrypt %s", GCRYPT_VERSION);
 
 	/* Kerberos */
 #if defined(HAVE_MIT_KERBEROS)
-	g_string_append(str, ", with MIT Kerberos");
+	with_feature(l, "Kerberos (MIT)");
 #elif defined(HAVE_HEIMDAL_KERBEROS)
-	g_string_append(str, ", with Heimdal Kerberos");
+	with_feature(l, "Kerberos (Heimdal)");
 #else
-	g_string_append(str, ", without Kerberos");
+	without_feature(l, "Kerberos");
 #endif /* HAVE_KERBEROS */
 
 	/* MaxMindDB */
 #ifdef HAVE_MAXMINDDB
-	g_string_append(str, ", with MaxMind DB resolver");
+	with_feature(l, "MaxMind");
 #else
-	g_string_append(str, ", without MaxMind DB resolver");
+	without_feature(l, "MaxMind");
 #endif /* HAVE_MAXMINDDB */
 
 	/* nghttp2 */
 #ifdef HAVE_NGHTTP2
-	g_string_append(str, ", with nghttp2 " NGHTTP2_VERSION);
+	with_feature(l, "nghttp2 %s", NGHTTP2_VERSION);
 #else
-	g_string_append(str, ", without nghttp2");
+	without_feature(l, "nghttp2");
 #endif /* HAVE_NGHTTP2 */
 
 	/* brotli */
 #ifdef HAVE_BROTLI
-	g_string_append(str, ", with brotli");
+	with_feature(l, "brotli");
 #else
-	g_string_append(str, ", without brotli");
+	without_feature(l, "brotli");
 #endif /* HAVE_BROTLI */
 
 	/* LZ4 */
 #ifdef HAVE_LZ4
-	g_string_append(str, ", with LZ4");
+	with_feature(l, "LZ4");
 #else
-	g_string_append(str, ", without LZ4");
+	without_feature(l, "LZ4");
 #endif /* HAVE_LZ4 */
 
 	/* Zstandard */
 #ifdef HAVE_ZSTD
-	g_string_append(str, ", with Zstandard");
+	with_feature(l, "Zstandard");
 #else
-	g_string_append(str, ", without Zstandard");
+	without_feature(l, "Zstandard");
 #endif /* HAVE_ZSTD */
 
 	/* Snappy */
 #ifdef HAVE_SNAPPY
-	g_string_append(str, ", with Snappy");
+	with_feature(l, "Snappy");
 #else
-	g_string_append(str, ", without Snappy");
+	without_feature(l, "Snappy");
 #endif /* HAVE_SNAPPY */
 
 	/* libxml2 */
 #ifdef HAVE_LIBXML2
-	g_string_append(str, ", with libxml2 " LIBXML_DOTTED_VERSION);
+	with_feature(l, "libxml2 %s", LIBXML_DOTTED_VERSION);
 #else
-	g_string_append(str, ", without libxml2");
+	without_feature(l, "libxml2");
 #endif /* HAVE_LIBXML2 */
 
 	/* libsmi */
 #ifdef HAVE_LIBSMI
-	g_string_append(str, ", with libsmi " SMI_VERSION_STRING);
+	with_feature(l, "libsmi %s", SMI_VERSION_STRING);
 #else
-	g_string_append(str, ", without libsmi");
+	without_feature(l, "libsmi");
 #endif /* HAVE_LIBSMI */
 }
 
@@ -859,44 +862,44 @@ epan_get_compiled_version_info(GString *str)
  * Get runtime information for libraries used by libwireshark.
  */
 void
-epan_get_runtime_version_info(GString *str)
+epan_gather_runtime_info(feature_list l)
 {
 	/* c-ares */
-	g_string_append_printf(str, ", with c-ares %s", ares_version(NULL));
+	with_feature(l, "c-ares %s", ares_version(NULL));
 
 	/* GnuTLS */
 #ifdef HAVE_LIBGNUTLS
-	g_string_append_printf(str, ", with GnuTLS %s", gnutls_check_version(NULL));
+	with_feature(l, "GnuTLS %s", gnutls_check_version(NULL));
 #endif /* HAVE_LIBGNUTLS */
 
 	/* Gcrypt */
-	g_string_append_printf(str, ", with Gcrypt %s", gcry_check_version(NULL));
+	with_feature(l, "Gcrypt %s", gcry_check_version(NULL));
 
 	/* nghttp2 */
 #if NGHTTP2_VERSION_AGE >= 1
 	nghttp2_info *nghttp2_ptr = nghttp2_version(0);
-	g_string_append_printf(str, ", with nghttp2 %s",  nghttp2_ptr->version_str);
+	with_feature(l, "nghttp2 %s",  nghttp2_ptr->version_str);
 #endif /* NGHTTP2_VERSION_AGE */
 
 	/* brotli */
 #ifdef HAVE_BROTLI
-	g_string_append_printf(str, ", with brotli %d.%d.%d", BrotliDecoderVersion() >> 24,
+	with_feature(l, "brotli %d.%d.%d", BrotliDecoderVersion() >> 24,
 		(BrotliDecoderVersion() >> 12) & 0xFFF, BrotliDecoderVersion() & 0xFFF);
 #endif
 
 	/* LZ4 */
 #if LZ4_VERSION_NUMBER >= 10703
-	g_string_append_printf(str, ", with LZ4 %s", LZ4_versionString());
+	with_feature(l, "LZ4 %s", LZ4_versionString());
 #endif /* LZ4_VERSION_NUMBER */
 
 	/* Zstandard */
 #if ZSTD_VERSION_NUMBER >= 10300
-	g_string_append_printf(str, ", with Zstandard %s", ZSTD_versionString());
+	with_feature(l, "Zstandard %s", ZSTD_versionString());
 #endif /* ZSTD_VERSION_NUMBER */
 
 	/* libsmi */
 #ifdef HAVE_SMI_VERSION_STRING
-	g_string_append_printf(str, ", with libsmi %s", smi_version_string);
+	with_feature(l, "libsmi %s", smi_version_string);
 #endif /* HAVE_SMI_VERSION_STRING */
 }
 

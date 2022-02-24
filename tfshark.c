@@ -264,13 +264,6 @@ print_current_user(void)
     }
 }
 
-static void
-get_tfshark_runtime_version_info(GString *str)
-{
-    /* stuff used by libwireshark */
-    epan_get_runtime_version_info(str);
-}
-
 int
 main(int argc, char *argv[])
 {
@@ -377,10 +370,9 @@ main(int argc, char *argv[])
     initialize_funnel_ops();
 
     /* Initialize the version information. */
-    ws_init_version_info("TFShark (Wireshark)", NULL,
-            epan_get_compiled_version_info,
-            get_tfshark_runtime_version_info);
-
+    ws_init_version_info("TFShark",
+                         epan_gather_compile_info,
+                         epan_gather_runtime_info);
     /*
      * In order to have the -X opts assigned before the wslua machine starts
      * we need to call getopts before epan_init() gets called.

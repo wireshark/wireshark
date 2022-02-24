@@ -14,6 +14,7 @@
 #define __WS_VERSION_INFO_H__
 
 #include <glib.h>
+#include <wsutil/feature_list.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,26 +28,20 @@ extern "C" {
  * if possible.
  *
  * "appname" is a string that appears at the beginning of the information;
- * it should include the application name, followed by "(Wireshark)" if
+ * it should be the application name. "(Wireshark)" will be added if
  * the program isn't Wireshark.
  *
- * "prepend_compile_time_info" is called at the start to prepend any
- * additional build information before the standard library information.
+ * "gather_compile" is called (if non-null) to add any additional build-time
+ * information.
  *
- * "append_compile_time_info" is called at the end to append any additional
- * build information after the standard library information.  This is
- * required in order to, for example, put Qt information at the
- * end of the string, as we don't use Qt in TShark.
- *
- * "additional_info" is called at the end to append any additional
+ * "gather_runtime" is called (if non-null) to add any additional
  * run-time information; this is required in order to, for example,
- * put the libcap information at the end of the string, as we currently
+ * put the libcap information into the string, as we currently
  * don't use libcap in TShark.
  */
 void ws_init_version_info(const char *appname,
-    void (*prepend_compile_time_info)(GString *),
-    void (*append_compile_time_info)(GString *),
-    void (*additional_run_time_info)(GString *));
+		gather_feature_func gather_compile,
+		gather_feature_func gather_runtime);
 
 /*
  * Get a string giving the application name, as provided to
@@ -59,27 +54,21 @@ const char *get_appname_and_version(void);
  * Get various library compile-time versions, put them in a GString,
  * and return the GString.
  *
- * "prepend_info" is called at the start to prepend any additional
- * information before the standard library information.
- *
- * "append_info" is called at the end to append any additional
- * information after the standard library information.  This is
- * required in order to, for example, put Qt information at the
- * end of the string, as we don't use Qt in TShark.
+ * "gather_compile" is called (if non-null) to add any additional build-time
+ * information.
  */
-GString *get_compiled_version_info(void (*prepend_info)(GString *),
-                                                 void (*append_info)(GString *));
+GString *get_compiled_version_info(gather_feature_func gather_compile);
 
 /*
  * Get various library run-time versions, and the OS version, put them in
  * a GString, and return the GString.
  *
- * "additional_info" is called at the end to append any additional
- * information; this is required in order to, for example, put the
- * libcap information at the end of the string, as we currently
+ * "gather_runtime" is called (if non-null) to add any additional
+ * run-time information; this is required in order to, for example,
+ * put the libcap information into the string, as we currently
  * don't use libcap in TShark.
  */
-GString *get_runtime_version_info(void (*additional_info)(GString *));
+GString *get_runtime_version_info(gather_feature_func gather_runtime);
 
 /*
  * Return a version number string for Wireshark, including, for builds

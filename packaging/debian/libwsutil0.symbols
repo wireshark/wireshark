@@ -77,6 +77,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  find_codec@Base 3.1.0
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size_wmem@Base 3.5.0
+ free_features@Base 3.7.0
  free_progdirs@Base 2.3.0
  get_basename@Base 1.12.0~rc1
  get_copyright_info@Base 1.99.0
@@ -212,6 +213,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  sober128_add_entropy@Base 1.99.0
  sober128_read@Base 1.99.0
  sober128_start@Base 1.99.0
+ sort_features@Base 3.7.0
  started_with_special_privs@Base 1.10.0
  test_for_directory@Base 1.12.0~rc1
  test_for_fifo@Base 1.12.0~rc1
@@ -226,6 +228,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  unix_epoch_to_nstime@Base 3.5.0
  update_adler32@Base 1.12.0~rc1
  update_crc10_by_bytes@Base 1.10.0
+ with_feature@Base 3.7.0
+ without_feature@Base 3.7.0
  wmem_alloc0@Base 3.5.0
  wmem_alloc@Base 3.5.0
  wmem_allocator_new@Base 3.5.0

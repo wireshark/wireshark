@@ -3868,8 +3868,10 @@ handle_npcap_bug(char *adapter_name _U_, char *cap_err_str _U_)
     char *msg;
 
     pcap_info_str = g_string_new("");
+    // TODO: test directly for Npcap here, so we can remove
+    // get_runtime_caplibs_version()
     get_runtime_caplibs_version(pcap_info_str);
-    if (!g_str_has_prefix(pcap_info_str->str, "with Npcap")) {
+    if (!g_str_has_prefix(pcap_info_str->str, "Npcap")) {
         /*
          * We're not using Npcap, so don't recomment a user
          * file a bug against Npcap.
@@ -4814,19 +4816,17 @@ out:
 }
 
 static void
-get_dumpcap_compiled_info(GString *str)
+gather_dumpcap_compiled_info(feature_list l)
 {
     /* Capture libraries */
-    g_string_append(str, ", ");
-    get_compiled_caplibs_version(str);
+    gather_caplibs_compile_info(l);
 }
 
 static void
-get_dumpcap_runtime_info(GString *str)
+gather_dumpcap_runtime_info(feature_list l)
 {
     /* Capture libraries */
-    g_string_append(str, ", ");
-    get_runtime_caplibs_version(str);
+    gather_caplibs_runtime_info(l);
 }
 
 #define LONGOPT_IFNAME             LONGOPT_BASE_APPLICATION+1
@@ -4931,8 +4931,8 @@ main(int argc, char *argv[])
 #endif
 
     /* Initialize the version information. */
-    ws_init_version_info("Dumpcap (Wireshark)", NULL, get_dumpcap_compiled_info,
-                         get_dumpcap_runtime_info);
+    ws_init_version_info("Dumpcap", gather_dumpcap_compiled_info,
+                         gather_dumpcap_runtime_info);
 
 #ifdef HAVE_PCAP_REMOTE
 #define OPTSTRING_r "r"

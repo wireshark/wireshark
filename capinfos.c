@@ -1615,7 +1615,7 @@ main(int argc, char *argv[])
     decimal_point = g_strdup(localeconv()->decimal_point);
 
     /* Initialize the version information. */
-    ws_init_version_info("Capinfos (Wireshark)", NULL, NULL, NULL);
+    ws_init_version_info("Capinfos", NULL, NULL);
 
 #ifdef _WIN32
     create_app_running_mutex();

@@ -578,11 +578,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  epan_dissect_run@Base 1.9.1
  epan_dissect_run_with_taps@Base 1.9.1
  epan_free@Base 1.12.0~rc1
- epan_get_compiled_version_info@Base 1.9.1
+ epan_gather_compile_info@Base 3.7.0
+ epan_gather_runtime_info@Base 3.7.0
  epan_get_interface_description@Base 2.3.0
  epan_get_interface_name@Base 1.99.2
  epan_get_modified_block@Base 3.5.0
- epan_get_runtime_version_info@Base 1.9.1
  epan_get_version@Base 1.9.1
  epan_get_version_number@Base 2.5.0
  epan_init@Base 2.9.0

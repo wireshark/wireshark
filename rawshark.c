@@ -449,8 +449,8 @@ main(int argc, char *argv[])
     ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
 
     /* Initialize the version information. */
-    ws_init_version_info("Rawshark (Wireshark)", NULL,
-                         epan_get_compiled_version_info,
+    ws_init_version_info("Rawshark",
+                         epan_gather_compile_info,
                          NULL);
 
 #ifdef _WIN32

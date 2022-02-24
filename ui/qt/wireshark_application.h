@@ -14,6 +14,8 @@
 
 #include <glib.h>
 
+#include "wsutil/feature_list.h"
+
 #include "epan/register.h"
 
 #include "ui/help_url.h"
@@ -229,9 +231,8 @@ private slots:
 
 extern WiresharkApplication *wsApp;
 
-/** Global compile time version string */
-extern void get_wireshark_qt_compiled_info(GString *str);
-extern void get_gui_compiled_info(GString *str);
-/** Global runtime version string */
-extern void get_wireshark_runtime_info(GString *str);
+/** Global compile time version info */
+extern void gather_wireshark_qt_compiled_info(feature_list l);
+/** Global runtime version info */
+extern void gather_wireshark_runtime_info(feature_list l);
 #endif // WIRESHARK_APPLICATION_H

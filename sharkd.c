@@ -143,9 +143,9 @@ main(int argc, char *argv[])
     }
 
     /* Initialize the version information. */
-    ws_init_version_info("Sharkd (Wireshark)", NULL,
-            epan_get_compiled_version_info,
-            epan_get_runtime_version_info);
+    ws_init_version_info("Sharkd",
+                         epan_gather_compile_info,
+                         epan_gather_runtime_info);
 
     if (sharkd_init(argc, argv) < 0)
     {

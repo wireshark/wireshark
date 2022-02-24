@@ -122,7 +122,7 @@ main(int argc, char *argv[])
     ws_log_parse_args(&argc, argv, vcmdarg_err, 1);
 
     /* Initialize the version information. */
-    ws_init_version_info("Captype (Wireshark)", NULL, NULL, NULL);
+    ws_init_version_info("Captype", NULL, NULL);
 
 #ifdef _WIN32
     create_app_running_mutex();

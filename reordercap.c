@@ -207,7 +207,7 @@ main(int argc, char *argv[])
     ws_log_parse_args(&argc, argv, vcmdarg_err, INVALID_OPTION);
 
     /* Initialize the version information. */
-    ws_init_version_info("Reordercap (Wireshark)", NULL, NULL, NULL);
+    ws_init_version_info("Reordercap", NULL, NULL);
 
     /*
      * Get credential information for later use.

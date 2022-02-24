@@ -207,90 +207,72 @@ wireshark_cmdarg_err_cont(const char *fmt, va_list ap)
     fprintf(stderr, "\n");
 }
 
-// xxx based from ../gtk/main.c:get_gtk_compiled_info
 void
-get_wireshark_qt_compiled_info(GString *str)
+gather_wireshark_qt_compiled_info(feature_list l)
 {
-    g_string_append(str, "with ");
-    g_string_append_printf(str,
 #ifdef QT_VERSION
-                    "Qt %s", QT_VERSION_STR);
+    with_feature(l, "Qt %s", QT_VERSION_STR);
 #else
-                    "Qt (version unknown)");
+    with_feature(l, "Qt (version unknown)");
 #endif
-
-    /* Capture libraries */
-    g_string_append(str, ", ");
-    get_compiled_caplibs_version(str);
-}
-
-// xxx copied from ../gtk/main.c
-void
-get_gui_compiled_info(GString *str)
-{
-    epan_get_compiled_version_info(str);
-
-    g_string_append(str, ", ");
+    gather_caplibs_compile_info(l);
+    epan_gather_compile_info(l);
 #ifdef QT_MULTIMEDIA_LIB
-    g_string_append(str, "with QtMultimedia");
+    with_feature(l, "QtMultimedia");
 #else
-    g_string_append(str, "without QtMultimedia");
+    without_feature(l, "QtMultimedia");
 #endif
 
-    g_string_append(str, ", ");
     const char *update_info = software_update_info();
     if (update_info) {
-        g_string_append_printf(str, "with automatic updates using %s", update_info);
+        with_feature(l, "automatic updates using %s", update_info);
     } else {
-        g_string_append_printf(str, "without automatic updates");
+        without_feature(l, "automatic updates");
     }
-
 #ifdef _WIN32
-    g_string_append(str, ", ");
 #ifdef HAVE_AIRPCAP
-    get_compiled_airpcap_version(str);
+    with_feature(l, "AirPcap");
 #else
-    g_string_append(str, "without AirPcap");
+    without_feature(l, "AirPcap");
 #endif
 #endif /* _WIN32 */
-
 #ifdef HAVE_SPEEXDSP
-    g_string_append(str, ", with SpeexDSP (using system library)");
+    with_feature(l, "SpeexDSP (using system library)");
 #else
-    g_string_append(str, ", with SpeexDSP (using bundled resampler)");
+    with_feature(l, "SpeexDSP (using bundled resampler)");
 #endif
 
 #ifdef HAVE_MINIZIP
-    g_string_append(str, ", with Minizip");
+    with_feature(l, "Minizip");
 #else
-    g_string_append(str, ", without Minizip");
+    without_feature(l, "Minizip");
 #endif
 }
 
-// xxx copied from ../gtk/main.c
 void
-get_wireshark_runtime_info(GString *str)
+gather_wireshark_runtime_info(feature_list l)
 {
-    g_string_append_printf(str, ", with Qt %s", qVersion());
-
+    with_feature(l, "Qt %s", qVersion());
 #ifdef HAVE_LIBPCAP
-    /* Capture libraries */
-    g_string_append(str, ", ");
-    get_runtime_caplibs_version(str);
+    gather_caplibs_runtime_info(l);
 #endif
-
-    /* stuff used by libwireshark */
-    epan_get_runtime_version_info(str);
+    epan_gather_runtime_info(l);
 
 #ifdef HAVE_AIRPCAP
-    g_string_append(str, ", ");
-    get_runtime_airpcap_version(str);
+    /* See if the DLL has been loaded successfully.  Bail if it hasn't */
+    if (AirpcapLoaded == FALSE) {
+        without_feature(l, "AirPcap");
+    }
+    else {
+        g_PAirpcapGetVersion(&vmaj, &vmin, &vrev, &build);
+        with_feature(l, "AirPcap %d.%d.%d build %d", vmaj, vmin, vrev, build);
+    }
 #endif
 
     if (wsApp) {
         // Display information
         const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
-        g_string_append_printf(str, ", with %s display mode", display_mode);
+        with_feature(l, "%s display mode", display_mode);
 
         int hidpi_count = 0;
         foreach (QScreen *screen, wsApp->screens()) {
@@ -299,11 +281,11 @@ get_wireshark_runtime_info(GString *str)
             }
         }
         if (hidpi_count == wsApp->screens().count()) {
-            g_string_append(str, ", with HiDPI");
+            with_feature(l, "HiDPI");
         } else if (hidpi_count) {
-            g_string_append(str, ", with mixed DPI");
+            with_feature(l, "mixed DPI");
         } else {
-            g_string_append(str, ", without HiDPI");
+            without_feature(l, "HiDPI");
         }
     }
 }
@@ -638,8 +620,8 @@ int main(int argc, char *qt_argv[])
 #endif /* _WIN32 */
 
     /* Get the compile-time version information string */
-    ws_init_version_info("Wireshark", get_wireshark_qt_compiled_info,
-                         get_gui_compiled_info, get_wireshark_runtime_info);
+    ws_init_version_info("Wireshark", gather_wireshark_qt_compiled_info,
+                         gather_wireshark_runtime_info);
 
     /* Create the user profiles directory */
     if (create_profiles_dir(&rf_path) == -1) {

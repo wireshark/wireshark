@@ -12,6 +12,7 @@
 
 #include <glib.h>
 
+#include <wsutil/feature_list.h>
 #include <epan/tvbuff.h>
 #include <epan/prefs.h>
 #include <epan/frame_data.h>
@@ -273,14 +274,14 @@ epan_custom_set(epan_dissect_t *edt, GSList *ids, gint occurrence,
  */
 WS_DLL_PUBLIC
 void
-epan_get_compiled_version_info(GString *str);
+epan_gather_compile_info(feature_list l);
 
 /**
  * Get runtime information for libraries used by libwireshark.
  */
 WS_DLL_PUBLIC
 void
-epan_get_runtime_version_info(GString *str);
+epan_gather_runtime_info(feature_list l);
 
 #ifdef __cplusplus
 }

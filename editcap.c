@@ -1192,7 +1192,7 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Initialize the version information. */
-    ws_init_version_info("Editcap (Wireshark)", NULL, NULL, NULL);
+    ws_init_version_info("Editcap", NULL, NULL);
 
     /*
      * Get credential information for later use.

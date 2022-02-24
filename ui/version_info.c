@@ -46,12 +46,12 @@ static char *comp_info;
 static char *runtime_info;
 
 static void get_compiler_info(GString *str);
+static void get_mem_info(GString *str);
 
 void
 ws_init_version_info(const char *appname,
-	void (*prepend_compile_time_info)(GString *),
-	void (*append_compile_time_info)(GString *),
-	void (*additional_run_time_info)(GString *))
+		gather_feature_func gather_compile,
+		gather_feature_func gather_runtime)
 {
 	GString *comp_info_str, *runtime_info_str;
 
@@ -60,15 +60,20 @@ ws_init_version_info(const char *appname,
 	 * version - including the VCS version, for a build from
 	 * a checkout.
 	 */
-	appname_with_version = ws_strdup_printf("%s %s",
-		appname, get_ws_vcs_version_info());
+	if (strstr(appname, "Wireshark") != NULL) {
+		appname_with_version = ws_strdup_printf("%s %s",
+			appname, get_ws_vcs_version_info());
+	}
+	else {
+		appname_with_version = ws_strdup_printf("%s (Wireshark) %s",
+			appname, get_ws_vcs_version_info());
+	}
 
 	/* Get the compile-time version information string */
-	comp_info_str = get_compiled_version_info(prepend_compile_time_info,
-		append_compile_time_info);
+	comp_info_str = get_compiled_version_info(gather_compile);
 
 	/* Get the run-time version information string */
-	runtime_info_str = get_runtime_version_info(additional_run_time_info);
+	runtime_info_str = get_runtime_version_info(gather_runtime);
 
 	comp_info = g_string_free(comp_info_str, FALSE);
 	runtime_info = g_string_free(runtime_info_str, FALSE);
@@ -81,10 +86,22 @@ ws_init_version_info(const char *appname,
 		appname_with_version, comp_info, runtime_info);
 }
 
-const char *
-get_appname_and_version(void)
+/*
+ * Take the gathered list of present/absent features (dependencies)
+ * and add them to the given string.
+ * Callback function for g_list_foreach() used in
+ * get_compiled_version_info() and get_runtime_version_info().
+ */
+static void
+feature_to_gstring(gpointer data, gpointer user_data)
 {
-	return appname_with_version;
+	gchar *feature = (gchar *)data;
+	GString *str = (GString *)user_data;
+	if (str->len > 0) {
+		g_string_append(str, ", ");
+	}
+	g_string_append_printf(str, "%s %s",
+			(*feature == '+' ? "with" : "without"), feature + 1);
 }
 
 /*
@@ -117,86 +134,69 @@ end_string(GString *str)
 	}
 }
 
-static const gchar *
-get_zlib_compiled_version_info(void)
+const char *
+get_appname_and_version(void)
+{
+	return appname_with_version;
+}
+
+static void
+get_zlib_feature_info(feature_list l)
 {
 #ifdef HAVE_ZLIB
 #ifdef ZLIB_VERSION
-	return "with zlib "ZLIB_VERSION;
+	with_feature(l, "zlib "ZLIB_VERSION);
 #else
-	return "with zlib (version unknown)";
+	with_feature(l, "zlib (version unknown)");
 #endif /* ZLIB_VERSION */
 #else
-	return "without zlib";
+	without_feature(l, "zlib");
 #endif /* HAVE_ZLIB */
 }
 
 /*
  * Get various library compile-time versions, put them in a GString,
  * and return the GString.
- *
- * "prepend_info" is called at the start to prepend any additional
- * information before the standard library information.
- *
- * "append_info" is called at the end to append any additional
- * information after the standard library information.  This is
- * required in order to, for example, put Qt information at the
- * end of the string, as we don't use Qt in TShark.
  */
 GString *
-get_compiled_version_info(void (*prepend_info)(GString *),
-			void (*append_info)(GString *))
+get_compiled_version_info(gather_feature_func gather_compile)
 {
 	GString *str;
+	GList *l = NULL;
 
 	str = g_string_new("Compiled ");
-
-	if (sizeof(str) == 4)
-		g_string_append(str, "(32-bit) ");
-	else
-		g_string_append(str, "(64-bit) ");
+	g_string_append_printf(str, "(%d-bit) ", (int)sizeof(str) * 8);
 
 	/* Compiler info */
 	g_string_append(str, "using ");
 	get_compiler_info(str);
-	g_string_append(str, ", ");
 
-	if (prepend_info) {
-		(*prepend_info)(str);
-		g_string_append(str, ", ");
-	}
-
-	/* GLIB */
-	g_string_append(str, "with ");
-	g_string_append_printf(str,
 #ifdef GLIB_MAJOR_VERSION
+	with_feature(&l,
 		"GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
 		GLIB_MICRO_VERSION);
 #else
+	with_feature(&l,
 		"GLib (version unknown)");
 #endif
+	with_feature(&l, "PCRE2");
+	get_zlib_feature_info(&l);
 
-	/* PCRE2 */
-	g_string_append(str, ", with PCRE2");
+	if (gather_compile != NULL) {
+		gather_compile(&l);
+	}
 
-	/* zlib */
-	g_string_append_printf(str, ", %s", get_zlib_compiled_version_info());
-
-	/* Additional application-dependent information */
-	if (append_info)
-		(*append_info)(str);
-
+	l = g_list_reverse(l);
+	g_list_foreach(l, feature_to_gstring, str);
 #ifdef WS_DISABLE_DEBUG
 	g_string_append(str, ", release build");
 #endif
-
 #ifdef WS_DISABLE_ASSERT
 	g_string_append(str, ", without assertions");
 #endif
-
 	g_string_append(str, ".");
-
 	end_string(str);
+	free_features(&l);
 
 	return str;
 }
@@ -393,7 +393,7 @@ get_compiler_info(GString *str)
 }
 
 static inline void
-get_pcre2_runtime_version_info(GString *str)
+get_pcre2_runtime_version_info(feature_list l)
 {
 	/* From pcre2_api(3):
 	 *     The where argument should point to a buffer that is at  least  24  code
@@ -407,13 +407,14 @@ get_pcre2_runtime_version_info(GString *str)
 	char *buf_pcre2;
 
 	size = pcre2_config(PCRE2_CONFIG_VERSION, NULL);
-	if (size < 0 || size > 255)
+	if (size < 0 || size > 255) {
+		without_feature(l, "PCRE2 (error querying)");
 		return;
+	}
 	buf_pcre2 = g_malloc(size + 1);
 	pcre2_config(PCRE2_CONFIG_VERSION, buf_pcre2);
 	buf_pcre2[size] = '\0';
-	g_string_append(str, ", with PCRE2 ");
-	g_string_append(str, buf_pcre2);
+	with_feature(l, "PCRE2 %s", buf_pcre2);
 	g_free(buf_pcre2);
 }
 
@@ -427,10 +428,11 @@ get_pcre2_runtime_version_info(GString *str)
  * don't use libcap in TShark.
  */
 GString *
-get_runtime_version_info(void (*additional_info)(GString *))
+get_runtime_version_info(gather_feature_func gather_runtime)
 {
 	GString *str;
 	gchar *lc;
+	GList *l = NULL;
 
 	str = g_string_new("Running on ");
 
@@ -442,46 +444,39 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	/* Get info about installed memory */
 	get_mem_info(str);
 
-	/* GLib */
-	g_string_append_printf(str, ", with GLib %u.%u.%u",
+	with_feature(&l, "GLib %u.%u.%u",
 			glib_major_version, glib_minor_version, glib_micro_version);
-
-	/* PCRE2 */
-	get_pcre2_runtime_version_info(str);
-
-	/* zlib */
+	get_pcre2_runtime_version_info(&l);
 #if defined(HAVE_ZLIB) && !defined(_WIN32)
-	g_string_append_printf(str, ", with zlib %s", zlibVersion());
+	with_feature(&l, "zlib %s", zlibVersion());
 #endif
-
-	/* Additional application-dependent information */
-	if (additional_info)
-		(*additional_info)(str);
-
+	if (gather_runtime != NULL) {
+		gather_runtime(&l);
+	}
 	/*
 	 * Display LC_CTYPE as a relevant, portable and sort of representative
 	 * locale configuration without being exceedingly verbose and including
 	 * the whole shebang of categories using LC_ALL.
 	 */
 	if ((lc = setlocale(LC_CTYPE, NULL)) != NULL) {
-		g_string_append_printf(str, ", with LC_TYPE=%s", lc);
+		with_feature(&l, "LC_TYPE=%s", lc);
 	}
-
-	/* plugins */
 #ifdef HAVE_PLUGINS
 	if (g_module_supported()) {
-		g_string_append_printf(str, ", binary plugins supported (%d loaded)", plugins_get_count());
+		with_feature(&l, "binary plugins supported (%d loaded)", plugins_get_count());
 	}
 	else {
-		g_string_append(str, ", binary plugins not supported by the platform");
+		without_feature(&l, "binary plugins (not supported by the platform)");
 	}
 #else
-	g_string_append(str, ", built without support for binary plugins");
+	without_feature(&l, "binary plugins");
 #endif
 
-	g_string_append(str, ".");
-
+	l = g_list_reverse(l);
+	g_list_foreach(l, feature_to_gstring, str);
+	g_string_append_c(str, '.');
 	end_string(str);
+	free_features(&l);
 
 	return str;
 }

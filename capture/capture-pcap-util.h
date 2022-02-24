@@ -12,6 +12,8 @@
 #ifndef __CAPTURE_PCAP_UTIL_H__
 #define __CAPTURE_PCAP_UTIL_H__
 
+#include <wsutil/feature_list.h>
+
 #ifdef HAVE_LIBPCAP
 
 #include "wspcap.h"
@@ -77,7 +79,7 @@ extern pcap_t *open_capture_device(capture_options *capture_opts,
 
 #endif /* HAVE_LIBPCAP */
 
-extern void get_compiled_caplibs_version(GString *str);
+extern void gather_caplibs_compile_info(feature_list l);
 
 /*
  * Append to a GString an indication of the version of capture libraries
@@ -87,6 +89,7 @@ extern void get_compiled_caplibs_version(GString *str);
  * libpcap/WinPcap/Npcap.
  */
 extern void get_runtime_caplibs_version(GString *str);
+extern void gather_caplibs_runtime_info(feature_list l);
 
 #ifdef __cplusplus
 }
