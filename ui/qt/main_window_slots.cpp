@@ -150,6 +150,7 @@ DIAG_ON(frame-larger-than=)
 #include "sequence_dialog.h"
 #include "show_packet_bytes_dialog.h"
 #include "stats_tree_dialog.h"
+#include "strip_headers_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
 #include "supported_protocols_dialog.h"
 #include "tap_parameter_dialog.h"
@@ -1940,6 +1941,24 @@ void MainWindow::on_actionFileExportPDU_triggered()
     exportpdu_dialog->raise();
     exportpdu_dialog->activateWindow();
 }
+
+void MainWindow::on_actionFileStripHeaders_triggered()
+{
+    StripHeadersDialog *stripheaders_dialog = new StripHeadersDialog(this);
+
+    if (stripheaders_dialog->isMinimized() == true)
+    {
+        stripheaders_dialog->showNormal();
+    }
+    else
+    {
+        stripheaders_dialog->show();
+    }
+
+    stripheaders_dialog->raise();
+    stripheaders_dialog->activateWindow();
+}
+
 
 void MainWindow::on_actionFileExportTLSSessionKeys_triggered()
 {

@@ -194,6 +194,7 @@
     <addaction name="menuFileExportPacketDissections"/>
     <addaction name="actionFileExportPacketBytes"/>
     <addaction name="actionFileExportPDU"/>
+    <addaction name="actionFileStripHeaders"/>
     <addaction name="actionFileExportTLSSessionKeys"/>
     <addaction name="menuFileExportObjects"/>
     <addaction name="separator"/>
@@ -2119,6 +2120,14 @@
   <action name="actionFileExportPDU">
    <property name="text">
     <string>Export PDUs to File…</string>
+   </property>
+  </action>
+  <action name="actionFileStripHeaders">
+   <property name="text">
+    <string>Strip Headers…</string>
+   </property>
+   <property name="toolTip">
+    <string>Strip headers and export higher level encapsulations to file</string>
    </property>
   </action>
   <action name="actionStatisticsIOGraph">

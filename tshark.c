@@ -323,11 +323,11 @@ list_read_capture_types(void)
 static void
 list_export_pdu_taps(void)
 {
-    fprintf(stderr, "tshark: The available export tap names for the \"-U tap_name\" option are:\n");
+    fprintf(stderr, "tshark: The available export tap names and the encapsulation types they produce for the \"-U tap_name\" option are:\n");
     for (GSList *export_pdu_tap_name_list = get_export_pdu_tap_list();
             export_pdu_tap_name_list != NULL;
             export_pdu_tap_name_list = g_slist_next(export_pdu_tap_name_list)) {
-        fprintf(stderr, "    %s\n", (const char*)(export_pdu_tap_name_list->data));
+        fprintf(stderr, "    %s - %s\n", (const char*)(export_pdu_tap_name_list->data), wtap_encap_description(export_pdu_tap_get_encap((const char*)export_pdu_tap_name_list->data)));
     }
 }
 

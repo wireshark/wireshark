@@ -999,17 +999,13 @@ The “Export PDUs to File...” dialog box allows you to filter the captured Pr
 .Export PDUs to File window
 image::wsug_graphics/ws-export-pdus-to-file.png[{screenshot-attrs}]
 
-. To select the data according to your needs, type the filter value into the `Display Filter` field. For more information about filters syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[Wireshark Filters] man page.
+. To select the data according to your needs, optionally type a filter value into the `Display Filter` field. For more information about filter syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[Wireshark Filters] man page.
 
-. In the field below the `Display Filter` field you can choose the level from which you want to export the PDUs to the file. There are nine levels:
+. In the field below the `Display Filter` field you can choose the level from which you want to export the PDUs to the file. There are seven levels:
 +
 .. `DLT User`. You can export a protocol, which is framed in the user data link type table without the need to reconfigure the DLT user table. For more information, see the link:https://gitlab.com/wireshark/wireshark/-/wikis/HowToDissectAnything[How to Dissect Anything] page.
 +
 .. `DVB-CI`. You can use it for the Digital Video Broadcasting (DVB) protocol.
-+
-.. `Ethernet`. You can use it to export Ethernet encapsulated in other protocols.
-+
-.. `IP`. You can use it to export IPv4 and IPv6 encapsulated in other protocols.
 +
 .. `Logcat` and `Logcat Text`. You can use them for the Android logs.
 +
@@ -1025,7 +1021,33 @@ NOTE: As a developer you can add any dissector to the existing list or define a 
 
 . You may save the temporary file just like any captured file. See <<ChIOSaveSection>> for details.
 +
-NOTE: The `Ethernet` and `IP` options produce capture files with common encapsulation types that can be read in virtually any other tool, but the other options produce files with a `Wireshark Upper PDU` encapsulation type that has more limited support outside of Wireshark.
+NOTE: The file produced has a `Wireshark Upper PDU` encapsulation type that has somewhat limited support outside of Wireshark, but is very flexible and can contain PDUs for any protocol for which there is a Wireshark dissector.
+
+[#ChIOStripHeaders]
+
+==== The “Strip Headers...” Dialog Box
+
+The “Strip Headers...” dialog box allows you to filter known encapsulation types on whatever protocol layer they appear and export them into a new capture file, removing lower level protocols. It allows you to export reassembled packets and frames without lower layers such as GPF, GRE, GSE, GTP-U, MPLS, MPE, PPP, and more. If Wireshark has performed decryption, then you can export decrypted IP from protocols like IEEE 802.11 or IPSec without having to save encryption keys.
+
+The procedure is similar to that of <<ChIOExportPDUSDialog>>:
+
+. In the main menu select menu:File[Strip Headers...]. Wireshark will open a corresponding dialog.
+
+. To select the data according to your needs, optionally type a filter value into the `Display Filter` field. For more information about filter syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[Wireshark Filters] man page.
+
+. In the field below the `Display Filter` field you can choose the encapsulation type you want to find and export to the file. There are two encapsulations supported:
++
+.. `Ethernet`. You can use it to export Ethernet encapsulated in other protocols.
++
+.. `IP`. You can use it to export IPv4 and IPv6 encapsulated in other protocols.
++
+NOTE: As a developer you can add encapsulations to the list by using the functions in `epan/exported_pdu.h`.
+
+. To finish exporting to file, click the btn:[OK] button in the bottom-right corner. This will close the originally captured file and open the exported results instead as a temporary file in the main Wireshark window.
+
+. You may save the temporary file just like any captured file. See <<ChIOSaveSection>> for details.
++
+NOTE: The new capture files produced have standard encapsulation types and can be read in nearly any tool.
 
 [#ChIOExportTLSSessionKeys]
 
