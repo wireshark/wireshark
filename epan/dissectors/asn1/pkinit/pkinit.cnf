@@ -13,8 +13,20 @@ PaPkAsRep
 PA-PK-AS-REQ-Win2k
 PA-PK-AS-REP-Win2k
 
-#.FN_BODY PKAuthenticator
+#.FN_BODY PA-PK-AS-REQ-Win2k
+	guint8 v = 1;
+
 	if (kerberos_is_win2k_pkinit(actx)) {
+		p_set_proto_data(actx->pinfo->pool, actx->pinfo, proto_pkinit, 0, &v);
+	}
+%(DEFAULT_BODY)s
+	if (kerberos_is_win2k_pkinit(actx)) {
+		p_remove_proto_data(actx->pinfo->pool, actx->pinfo, proto_pkinit, 0);
+	}
+
+#.FN_BODY PKAuthenticator
+
+	if (p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_pkinit, 0)) {
 		return dissect_pkinit_PKAuthenticator_Win2k(implicit_tag, tvb, offset, actx, tree, hf_index);
 	}
 %(DEFAULT_BODY)s

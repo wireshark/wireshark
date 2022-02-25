@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-pkinit.h"
@@ -189,7 +190,8 @@ static const ber_sequence_t PKAuthenticator_sequence[] = {
 
 static int
 dissect_pkinit_PKAuthenticator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	if (kerberos_is_win2k_pkinit(actx)) {
+
+	if (p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_pkinit, 0)) {
 		return dissect_pkinit_PKAuthenticator_Win2k(implicit_tag, tvb, offset, actx, tree, hf_index);
 	}
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -333,8 +335,18 @@ static const ber_sequence_t PA_PK_AS_REQ_Win2k_sequence[] = {
 
 int
 dissect_pkinit_PA_PK_AS_REQ_Win2k(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	guint8 v = 1;
+
+	if (kerberos_is_win2k_pkinit(actx)) {
+		p_set_proto_data(actx->pinfo->pool, actx->pinfo, proto_pkinit, 0, &v);
+	}
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PA_PK_AS_REQ_Win2k_sequence, hf_index, ett_pkinit_PA_PK_AS_REQ_Win2k);
+
+	if (kerberos_is_win2k_pkinit(actx)) {
+		p_remove_proto_data(actx->pinfo->pool, actx->pinfo, proto_pkinit, 0);
+	}
+
 
   return offset;
 }
