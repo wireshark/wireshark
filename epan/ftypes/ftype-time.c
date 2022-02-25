@@ -405,6 +405,12 @@ relative_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 	return rel_time_to_secs_str(scope, &fv->value.time);
 }
 
+static gboolean
+time_is_true(const fvalue_t *fv)
+{
+	return !nstime_is_zero(&fv->value.time);
+}
+
 void
 ftype_register_time(void)
 {
@@ -425,12 +431,13 @@ ftype_register_time(void)
 		{ .get_value_ptr = value_get },		/* union get_value */
 
 		cmp_order,
-		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		time_is_true,			/* is_true */
 		NULL,
-		NULL
+		NULL,
+		NULL,				/* bitwise_and */
 	};
 	static ftype_t reltime_type = {
 		FT_RELATIVE_TIME,		/* ftype */
@@ -448,12 +455,13 @@ ftype_register_time(void)
 		{ .get_value_ptr = value_get },		/* union get_value */
 
 		cmp_order,
-		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		time_is_true,			/* is_true */
 		NULL,
-		NULL
+		NULL,
+		NULL,				/* bitwise_and */
 	};
 
 	ftype_register(FT_ABSOLUTE_TIME, &abstime_type);

@@ -299,6 +299,13 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 	return rc;
 }
 
+static gboolean
+is_true(const fvalue_t *fv)
+{
+	const protocol_value_t *a = &fv->value.protocol;
+	return a->tvb != NULL || a->proto_string != NULL;
+}
+
 void
 ftype_register_tvbuff(void)
 {
@@ -319,13 +326,13 @@ ftype_register_tvbuff(void)
 		{ .get_value_ptr = value_get },		/* union get_value */
 
 		cmp_order,
-		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
 		cmp_matches,
 
+		is_true,
 		len,
 		slice,
-
+		NULL,
 	};
 
 

@@ -126,8 +126,8 @@ cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	return 0;
 }
 
-static gboolean
-cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+bitwise_and(fvalue_t *dst, const fvalue_t *fv_a, const fvalue_t *fv_b, char **err_ptr _U_)
 {
 	const ipv6_addr_and_prefix *a = &(fv_a->value.ipv6);
 	const ipv6_addr_and_prefix *b = &(fv_b->value.ipv6);
@@ -135,24 +135,20 @@ cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	int pos = 0;
 
 	prefix = MIN(a->prefix, b->prefix);	/* MIN() like in IPv4 */
-	prefix = MIN(prefix, 128);			/* sanitize, max prefix is 128 */
+	prefix = MIN(prefix, 128);		/* sanitize, max prefix is 128 */
 
+	dst->value.ipv6 = fv_a->value.ipv6;
 	while (prefix >= 8) {
-		if (a->addr.bytes[pos] & b->addr.bytes[pos])
-			return TRUE;
+		dst->value.ipv6.addr.bytes[pos] &= b->addr.bytes[pos] & bitmasks[prefix];
 
 		prefix -= 8;
 		pos++;
 	}
 
 	if (prefix != 0) {
-		guint8 byte_a = (a->addr.bytes[pos] & (bitmasks[prefix]));
-		guint8 byte_b = (b->addr.bytes[pos] & (bitmasks[prefix]));
-
-		if (byte_a & byte_b)
-			return TRUE;
+		dst->value.ipv6.addr.bytes[pos] &= b->addr.bytes[pos] & bitmasks[prefix];
 	}
-	return FALSE;
+	return FT_OK;
 }
 
 static void
@@ -163,6 +159,13 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	data = fv->value.ipv6.addr.bytes + offset;
 
 	g_byte_array_append(bytes, data, length);
+}
+
+static gboolean
+is_true(const fvalue_t *fv_a)
+{
+	ws_in6_addr zero = { 0 };
+	return memcmp(&fv_a->value.ipv6.addr, &zero, sizeof(ws_in6_addr)) == 0;
 }
 
 void
@@ -184,12 +187,13 @@ ftype_register_ipv6(void)
 		{ .get_value_ptr = value_get },		/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		NULL, 				/* XXX, cmp_contains, needed? ipv4 doesn't support it */
 		NULL,				/* cmp_matches */
 
+		is_true,
 		NULL,
 		slice,
+		bitwise_and,
 	};
 
 	ftype_register(FT_IPv6, &ipv6_type);

@@ -378,8 +378,8 @@ following bit field operation is supported:
 
     bitwise_and, &	Bitwise AND
 
-The bitwise AND operation allows testing to see if one or more bits are set.
-Bitwise AND operates on integer protocol fields and slices.
+The bitwise AND operation allows masking bits and testing to see if one or
+more bits are set. Bitwise AND operates on integer protocol fields and slices.
 
 When testing for TCP SYN packets, you can write:
 

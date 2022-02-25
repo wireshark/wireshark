@@ -13,6 +13,11 @@
 #include "ftypes.h"
 #include <epan/proto.h>
 
+enum ft_result {
+	FT_OK,
+	FT_ERROR,
+};
+
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
@@ -41,12 +46,13 @@ typedef gint64 (*FvalueGetSignedInteger64Func)(fvalue_t*);
 typedef double (*FvalueGetFloatingFunc)(fvalue_t*);
 
 typedef int (*FvalueCmp)(const fvalue_t*, const fvalue_t*);
-typedef gboolean (*FvalueBitwiseAnd)(const fvalue_t*, const fvalue_t*);
 typedef gboolean (*FvalueContains)(const fvalue_t*, const fvalue_t*);
 typedef gboolean (*FvalueMatches)(const fvalue_t*, const ws_regex_t*);
 
+typedef gboolean (*FvalueIsTrue)(const fvalue_t*);
 typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
+typedef enum ft_result (*FvalueBitwiseAnd)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
 
 struct _ftype_t {
 	ftenum_t		ftype;
@@ -84,12 +90,13 @@ struct _ftype_t {
 	} get_value;
 
 	FvalueCmp		cmp_order;
-	FvalueBitwiseAnd	cmp_bitwise_and;
 	FvalueContains		cmp_contains;
 	FvalueMatches		cmp_matches;
 
+	FvalueIsTrue		is_true;
 	FvalueLen		len;
 	FvalueSlice		slice;
+	FvalueBitwiseAnd	bitwise_and;
 };
 
 void ftype_register(enum ftenum ftype, ftype_t *ft);

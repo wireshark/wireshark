@@ -190,6 +190,10 @@ WS_DLL_PUBLIC
 gboolean
 ftype_can_matches(enum ftenum ftype);
 
+WS_DLL_PUBLIC
+gboolean
+ftype_can_is_true(enum ftenum ftype);
+
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
@@ -344,19 +348,22 @@ gboolean
 fvalue_le(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b);
-
-gboolean
 fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
 fvalue_matches(const fvalue_t *a, const ws_regex_t *re);
+
+gboolean
+fvalue_is_true(const fvalue_t *a);
 
 guint
 fvalue_length(fvalue_t *fv);
 
 fvalue_t*
 fvalue_slice(fvalue_t *fv, drange_t *dr);
+
+fvalue_t*
+fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
 
 #ifdef __cplusplus
 }

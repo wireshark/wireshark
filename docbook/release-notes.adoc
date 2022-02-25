@@ -63,6 +63,8 @@ They previously shipped with Npcap 1.55.
 ** Floats must be written with a leading and ending digit. For example the values ".7" and "7." are now invalid as floats.
    It must be written "7.0" and "0.7" respectively.
 ** The operator "~=" is deprecated and will be removed in a future version. Use "!==" with the same meaning instead.
+** The "bitwise and" operator is now a first-class bit operator, not a boolean operator. In particular this means
+   it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
 
 * text2pcap and "Import from Hex Dump":
 ** text2pcap supports writing the output file in all the capture file formats

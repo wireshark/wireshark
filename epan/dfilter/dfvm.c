@@ -272,9 +272,14 @@ dfvm_dump(FILE *f, dfilter_t *df)
 					id, arg1_str, arg2_str);
 				break;
 
-			case ANY_BITWISE_AND:
-				fprintf(f, "%05d ANY_BITWISE_AND\t%s & %s\n",
-					id, arg1_str, arg2_str);
+			case MK_BITWISE_AND:
+				fprintf(f, "%05d MK_BITWISE_AND\t%s & %s -> %s\n",
+					id, arg1_str, arg2_str, arg3_str);
+				break;
+
+			case ANY_NOTZERO:
+				fprintf(f, "%05d ANY_NOTZERO\t%s\n",
+					id, arg1_str);
 				break;
 
 			case ANY_CONTAINS:
@@ -380,6 +385,7 @@ enum match_how {
 };
 
 typedef gboolean (*DFVMCompareFunc)(const fvalue_t*, const fvalue_t*);
+typedef gboolean (*DFVMTestFunc)(const fvalue_t*);
 
 static gboolean
 cmp_test(enum match_how how, DFVMCompareFunc match_func,
@@ -408,6 +414,39 @@ cmp_test(enum match_how how, DFVMCompareFunc match_func,
 	}
 	/* want_all || !want_any */
 	return want_all;
+}
+
+static gboolean
+cmp_test_unary(enum match_how how, DFVMTestFunc test_func, GSList *arg1)
+{
+	GSList *list1;
+	gboolean want_all = (how == MATCH_ALL);
+	gboolean want_any = (how == MATCH_ANY);
+	gboolean have_match;
+
+	list1 = arg1;
+
+	while (list1) {
+		have_match = test_func(list1->data);
+		if (want_all && !have_match) {
+			return FALSE;
+		}
+		else if (want_any && have_match) {
+			return TRUE;
+		}
+		list1 = g_slist_next(list1);
+	}
+	/* want_all || !want_any */
+	return want_all;
+}
+
+/* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
+static gboolean
+any_test_unary(dfilter_t *df, DFVMTestFunc func, dfvm_value_t *arg1)
+{
+	ws_assert(arg1->type == REGISTER);
+	GSList *list1 = df->registers[arg1->value.numeric];
+	return cmp_test_unary(MATCH_ANY, func, list1);
 }
 
 /* cmp(A) <=> cmp(a1) OR cmp(a2) OR cmp(a3) OR ... */
@@ -562,6 +601,77 @@ call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 	return accum;
 }
 
+static void debug_op_error(fvalue_t *v1, fvalue_t *v2, const char *op, const char *msg)
+{
+	char *s1 = fvalue_to_debug_repr(NULL, v1);
+	char *s2 = fvalue_to_debug_repr(NULL, v2);
+	ws_noisy("Error: %s %s %s: %s", s1, op, s2, msg);
+	g_free(s1);
+	g_free(s2);
+}
+
+
+typedef fvalue_t* (*DFVMBitwiseFunc)(const fvalue_t*, const fvalue_t*, char **);
+
+static void
+mk_bitwise_internal(DFVMBitwiseFunc func,
+			GSList *arg1, GSList *arg2, GSList **retval)
+{
+	GSList *list1, *list2;
+	GSList *to_list = NULL;
+	fvalue_t *val1, *val2;
+	fvalue_t *result;
+	char *err_msg = NULL;
+
+	list1 = arg1;
+	while (list1) {
+		list2 = arg2;
+		while (list2) {
+			val1 = list1->data;
+			val2 = list2->data;
+			result = func(val1, val2, &err_msg);
+			if (result == NULL) {
+				debug_op_error(val1, val2, "&", err_msg);
+				g_free(err_msg);
+				err_msg = NULL;
+			}
+			else {
+				to_list = g_slist_prepend(to_list, result);
+			}
+			list2 = g_slist_next(list2);
+		}
+		list1 = g_slist_next(list1);
+	}
+	*retval = to_list;
+}
+
+static void
+mk_bitwise(dfilter_t *df, DFVMBitwiseFunc func,
+		dfvm_value_t *arg1, dfvm_value_t *arg2, dfvm_value_t *to_arg)
+{
+	ws_assert(arg1->type == REGISTER);
+	GSList *list1 = df->registers[arg1->value.numeric];
+	GSList *result = NULL;
+
+	if (arg2->type == REGISTER) {
+		GSList *list2 = df->registers[arg2->value.numeric];
+
+		mk_bitwise_internal(func, list1, list2, &result);
+	}
+	else if (arg2->type == FVALUE) {
+		GSList list2;
+
+		list2.data = arg2->value.fvalue;
+		list2.next = NULL;
+		mk_bitwise_internal(func, list1, &list2, &result);
+	}
+	else {
+		ws_assert_not_reached();
+	}
+	df->registers[to_arg->value.numeric] = result;
+	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
+}
+
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree)
 {
@@ -646,8 +756,12 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				accum = any_test(df, fvalue_le, arg1, arg2);
 				break;
 
-			case ANY_BITWISE_AND:
-				accum = any_test(df, fvalue_bitwise_and, arg1, arg2);
+			case MK_BITWISE_AND:
+				mk_bitwise(df, fvalue_bitwise_and, arg1, arg2, arg3);
+				break;
+
+			case ANY_NOTZERO:
+				accum = any_test_unary(df, fvalue_is_true, arg1);
 				break;
 
 			case ANY_CONTAINS:

@@ -458,12 +458,6 @@ sinteger64_cmp_order(const fvalue_t *a, const fvalue_t *b)
 	return a->value.sinteger64 < b->value.sinteger64 ? -1 : 1;
 }
 
-static gboolean
-cmp_bitwise_and(const fvalue_t *a, const fvalue_t *b)
-{
-	return ((a->value.uinteger & b->value.uinteger) != 0);
-}
-
 static void
 int64_fvalue_new(fvalue_t *fv)
 {
@@ -746,10 +740,56 @@ uinteger64_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _
 	return result;
 }
 
-static gboolean
-cmp_bitwise_and64(const fvalue_t *a, const fvalue_t *b)
+enum ft_result
+uint_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
 {
-	return ((a->value.uinteger64 & b->value.uinteger64) != 0);
+	dst->value.uinteger = a->value.uinteger & b->value.uinteger;
+	return FT_OK;
+}
+
+gboolean
+uint_is_true(const fvalue_t *fv)
+{
+	return fv->value.uinteger != 0;
+}
+
+enum ft_result
+uint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.uinteger64 = a->value.uinteger64 & b->value.uinteger64;
+	return FT_OK;
+}
+
+gboolean
+uint64_is_true(const fvalue_t *fv)
+{
+	return fv->value.uinteger64 != 0;
+}
+
+enum ft_result
+sint_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.sinteger = a->value.sinteger & b->value.sinteger;
+	return FT_OK;
+}
+
+gboolean
+sint_is_true(const fvalue_t *fv)
+{
+	return fv->value.sinteger != 0;
+}
+
+enum ft_result
+sint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.sinteger64 = a->value.sinteger64 & b->value.sinteger64;
+	return FT_OK;
+}
+
+gboolean
+sint64_is_true(const fvalue_t *fv)
+{
+	return fv->value.sinteger64 != 0;
 }
 
 /* BOOLEAN-specific */
@@ -869,12 +909,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		uinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		uint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint8_type = {
 		FT_UINT8,			/* ftype */
@@ -892,12 +933,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		uinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		uint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint16_type = {
 		FT_UINT16,			/* ftype */
@@ -915,12 +957,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		uinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		uint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint24_type = {
 		FT_UINT24,			/* ftype */
@@ -938,12 +981,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		uinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		uint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint32_type = {
 		FT_UINT32,			/* ftype */
@@ -961,12 +1005,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		uinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		uint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint40_type = {
 		FT_UINT40,			/* ftype */
@@ -984,12 +1029,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		uinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		uint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		uint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint48_type = {
 		FT_UINT48,			/* ftype */
@@ -1007,12 +1053,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		uinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		uint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		uint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint56_type = {
 		FT_UINT56,			/* ftype */
@@ -1030,12 +1077,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		uinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		uint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		uint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t uint64_type = {
 		FT_UINT64,			/* ftype */
@@ -1053,12 +1101,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		uinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		uint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		uint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int8_type = {
 		FT_INT8,			/* ftype */
@@ -1076,12 +1125,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		sinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		sint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int16_type = {
 		FT_INT16,			/* ftype */
@@ -1099,12 +1149,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		sinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		sint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int24_type = {
 		FT_INT24,			/* ftype */
@@ -1122,12 +1173,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		sinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		sint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int32_type = {
 		FT_INT32,			/* ftype */
@@ -1145,12 +1197,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger = get_sinteger },	/* union get_value */
 
 		sinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		sint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		sint_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int40_type = {
 		FT_INT40,			/* ftype */
@@ -1168,12 +1221,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		sinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		sint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		sint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int48_type = {
 		FT_INT48,			/* ftype */
@@ -1191,12 +1245,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		sinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		sint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		sint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int56_type = {
 		FT_INT56,			/* ftype */
@@ -1214,12 +1269,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		sinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		sint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		sint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t int64_type = {
 		FT_INT64,			/* ftype */
@@ -1237,12 +1293,13 @@ ftype_register_integers(void)
 		{ .get_value_sinteger64 = get_sinteger64 },	/* union get_value */
 
 		sinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		sint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		sint64_bitwise_and,		/* bitwise_and */
 	};
 	static ftype_t boolean_type = {
 		FT_BOOLEAN,			/* ftype */
@@ -1260,12 +1317,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		boolean_cmp_order,		/* cmp_eq */
-		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint64_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		NULL,				/* bitwise_and */
 	};
 
 	static ftype_t ipxnet_type = {
@@ -1284,12 +1342,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		uinteger_cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		uint_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t framenum_type = {
@@ -1308,12 +1367,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger = get_uinteger },	/* union get_value */
 
 		uinteger_cmp_order,
-		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		uint_is_true,			/* is_true */
 		NULL,				/* len */
 		NULL,				/* slice */
+		uint_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t eui64_type = {
@@ -1332,12 +1392,13 @@ ftype_register_integers(void)
 		{ .get_value_uinteger64 = get_uinteger64 },	/* union get_value */
 
 		uinteger64_cmp_order,
-		cmp_bitwise_and64,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		uint64_is_true,			/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		uint64_bitwise_and,		/* bitwise_and */
 	};
 
 	ftype_register(FT_CHAR, &char_type);

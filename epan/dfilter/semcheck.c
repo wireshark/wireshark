@@ -38,6 +38,12 @@ semcheck(dfwork_t *dfw, stnode_t *st_node);
 static void
 check_function(dfwork_t *dfw, stnode_t *st_node);
 
+static ftenum_t
+check_bitwise_entity(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg, ftenum_t ftype);
+
+static ftenum_t
+check_bitwise_operation(dfwork_t *dfw, stnode_t *st_node);
+
 static fvalue_t *
 mk_fvalue_from_val_string(dfwork_t *dfw, header_field_info *hfinfo, const char *s);
 
@@ -903,6 +909,36 @@ again:
 	}
 }
 
+static void
+check_relation_LHS_BITWISE(dfwork_t *dfw, test_op_t st_op _U_,
+		FtypeCanFunc can_func _U_, gboolean allow_partial_value,
+		stnode_t *st_node _U_,
+		stnode_t *st_arg1, stnode_t *st_arg2)
+{
+	stnode_t		*bitwise_entity;
+	sttype_id_t		bitwise_entity_type;
+
+	LOG_NODE(st_node);
+
+	/* (arg1: bitwise) <relop> (arg2: rhs) */
+	check_bitwise_operation(dfw, st_arg1);
+
+	sttype_test_get(st_arg1, NULL, &bitwise_entity, NULL);
+	bitwise_entity_type = stnode_type_id(bitwise_entity);
+
+	if (bitwise_entity_type == STTYPE_FIELD) {
+		check_relation_LHS_FIELD(dfw, st_op, can_func, allow_partial_value, st_node, bitwise_entity, st_arg2);
+	}
+	else if (bitwise_entity_type == STTYPE_RANGE) {
+		check_relation_LHS_RANGE(dfw, st_op, can_func, allow_partial_value, st_node, bitwise_entity, st_arg2);
+	}
+	else if (bitwise_entity_type == STTYPE_FUNCTION) {
+		check_relation_LHS_FUNCTION(dfw, st_op, can_func, allow_partial_value, st_node, bitwise_entity, st_arg2);
+	}
+	else {
+		ws_assert_not_reached();
+	}
+}
 
 /* Check the semantics of any relational test. */
 static void
@@ -925,6 +961,10 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 			break;
 		case STTYPE_FUNCTION:
 			check_relation_LHS_FUNCTION(dfw, st_op, can_func,
+					allow_partial_value, st_node, st_arg1, st_arg2);
+			break;
+		case STTYPE_BITWISE:
+			check_relation_LHS_BITWISE(dfw, st_op, can_func,
 					allow_partial_value, st_node, st_arg1, st_arg2);
 			break;
 		default:
@@ -1075,6 +1115,11 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			check_exists(dfw, st_arg1);
 			break;
 
+		case TEST_OP_NOTZERO:
+			ws_assert(stnode_type_id(st_arg1) == STTYPE_BITWISE);
+			check_bitwise_operation(dfw, st_arg1);
+			break;
+
 		case TEST_OP_NOT:
 			semcheck(dfw, st_arg1);
 			break;
@@ -1113,9 +1158,6 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 		case TEST_OP_LE:
 			check_relation(dfw, st_op, ftype_can_cmp, FALSE, st_node, st_arg1, st_arg2);
 			break;
-		case TEST_OP_BITWISE_AND:
-			check_relation(dfw, st_op, ftype_can_bitwise_and, FALSE, st_node, st_arg1, st_arg2);
-			break;
 		case TEST_OP_CONTAINS:
 			check_relation_contains(dfw, st_node, st_arg1, st_arg2);
 			break;
@@ -1131,6 +1173,95 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 	}
 }
 
+static ftenum_t
+check_bitwise_entity(dfwork_t *dfw, stnode_t *st_node, stnode_t *st_arg, ftenum_t lhs_ftype)
+{
+	header_field_info	*hfinfo;
+	ftenum_t		ftype;
+	fvalue_t		*fvalue;
+	sttype_id_t		type;
+	df_func_def_t		*funcdef;
+
+	LOG_NODE(st_arg);
+
+	resolve_unparsed(dfw, st_arg);
+	type = stnode_type_id(st_arg);
+
+	if (type == STTYPE_FIELD) {
+		hfinfo = stnode_data(st_arg);
+		ftype = hfinfo->type;
+
+		if (!ftype_can_bitwise_and(ftype)) {
+			FAIL(dfw, "%s (type=%s) cannot participate in %s comparison.",
+					hfinfo->abbrev, ftype_pretty_name(ftype),
+					stnode_todisplay(st_node));
+		}
+		return ftype;
+	}
+	else if (type == STTYPE_FUNCTION) {
+		check_function(dfw, st_arg);
+
+		funcdef = sttype_function_funcdef(st_arg);
+		ftype = funcdef->retval_ftype;
+
+		if (!ftype_can_bitwise_and(ftype)) {
+			FAIL(dfw, "Function %s (type=%s) cannot participate in %s comparison.",
+					funcdef->name, ftype_pretty_name(ftype),
+					stnode_todisplay(st_node));
+		}
+		return ftype;
+	}
+	else if (type == STTYPE_RANGE) {
+		check_drange_sanity(dfw, st_arg);
+		ftype = FT_BYTES;
+
+		if (!ftype_can_bitwise_and(ftype)) {
+			FAIL(dfw, "Range %s (type=%s) cannot participate in %s comparison.",
+					stnode_todisplay(st_arg), ftype_pretty_name(ftype),
+					stnode_todisplay(st_node));
+		}
+		return ftype;
+	}
+	else if (lhs_ftype != FT_NONE) {
+		/* numeric constant */
+		ftype = lhs_ftype;
+		fvalue = dfilter_fvalue_from_literal(dfw, ftype, st_arg, FALSE, NULL);
+		stnode_replace(st_arg, STTYPE_FVALUE, fvalue);
+	}
+	else {
+		FAIL(dfw, "Invalid bitwise operand %s in comparison %s.",
+				stnode_todisplay(st_arg), stnode_todisplay(st_arg));
+	}
+	return ftype;
+}
+
+static ftenum_t
+check_bitwise_operation(dfwork_t *dfw, stnode_t *st_node)
+{
+	test_op_t		st_op;
+	stnode_t		*st_arg1, *st_arg2;
+	ftenum_t		ftype1, ftype2;
+
+	LOG_NODE(st_node);
+
+	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
+
+	ftype1 = check_bitwise_entity(dfw, st_node, st_arg1, FT_NONE);
+	ftype2 = check_bitwise_entity(dfw, st_node, st_arg2, ftype1);
+
+	if (!ftype_can_is_true(ftype1)) {
+		FAIL(dfw, "Cannot test if %s is true", stnode_todisplay(st_arg1));
+	}
+
+	/* XXX This could be relaxed with type promotions. */
+	if (ftype1 != ftype2) {
+		FAIL(dfw, "%s %s %s: entities have different types",
+			stnode_todisplay(st_arg1),
+			stnode_todisplay(st_node),
+			stnode_todisplay(st_arg2));
+	}
+	return ftype1;
+}
 
 /* Check the entire syntax tree. */
 static void

@@ -189,7 +189,7 @@ ftype_can_bitwise_and(enum ftenum ftype)
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
-	return ft->cmp_bitwise_and ? TRUE : FALSE;
+	return ft->bitwise_and ? TRUE : FALSE;
 }
 
 gboolean
@@ -208,6 +208,15 @@ ftype_can_matches(enum ftenum ftype)
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_matches ? TRUE : FALSE;
+}
+
+gboolean
+ftype_can_is_true(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->is_true ? TRUE : FALSE;
 }
 
 /* ---------------------------------------------------------- */
@@ -730,14 +739,6 @@ fvalue_le(const fvalue_t *a, const fvalue_t *b)
 }
 
 gboolean
-fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b)
-{
-	/* XXX - check compatibility of a and b */
-	ws_assert(a->ftype->cmp_bitwise_and);
-	return a->ftype->cmp_bitwise_and(a, b);
-}
-
-gboolean
 fvalue_contains(const fvalue_t *a, const fvalue_t *b)
 {
 	/* XXX - check compatibility of a and b */
@@ -750,6 +751,28 @@ fvalue_matches(const fvalue_t *a, const ws_regex_t *re)
 {
 	ws_assert(a->ftype->cmp_matches);
 	return a->ftype->cmp_matches(a, re);
+}
+
+gboolean
+fvalue_is_true(const fvalue_t *a)
+{
+	return a->ftype->is_true(a);
+}
+
+fvalue_t *
+fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
+{
+	fvalue_t *result;
+
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->bitwise_and);
+
+	result = fvalue_new(a->ftype->ftype);
+	if (a->ftype->bitwise_and(result, a, b, err_msg) != FT_OK) {
+		fvalue_free(result);
+		return NULL;
+	}
+	return result;
 }
 
 /*

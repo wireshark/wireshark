@@ -140,3 +140,19 @@ class case_equality(unittest.TestCase):
     def test_literal_2(self, checkDFilterCount):
         dfilter = "udp contains <ce:13>"
         checkDFilterCount(dfilter, 1)
+
+@fixtures.uses_fixtures
+class case_bitwise(unittest.TestCase):
+    trace_file = "http.pcap"
+
+    def test_exists_1(self, checkDFilterCount):
+        dfilter = "tcp.flags & 0x8"
+        checkDFilterCount(dfilter, 1)
+
+    def test_exists_1(self, checkDFilterCount):
+        dfilter = "tcp.flags & 0x0F == 8"
+        checkDFilterCount(dfilter, 1)
+
+    def test_exists_1(self, checkDFilterCount):
+        dfilter = "eth[0] & 1"
+        checkDFilterCount(dfilter, 0)

@@ -122,15 +122,12 @@ cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	return addr_a < addr_b ? -1 : 1;
 }
 
-static gboolean
-cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+bitwise_and(fvalue_t *dst, const fvalue_t *fv_a, const fvalue_t *fv_b, char **err_ptr _U_)
 {
-	guint32		addr_a;
-	guint32		addr_b;
-
-	addr_a = fv_a->value.ipv4.addr & fv_a->value.ipv4.nmask;
-	addr_b = fv_b->value.ipv4.addr & fv_b->value.ipv4.nmask;
-	return ((addr_a & addr_b) != 0);
+	dst->value.ipv4 = fv_a->value.ipv4;
+	dst->value.ipv4.addr &= (fv_b->value.ipv4.addr & fv_b->value.ipv4.nmask);
+	return FT_OK;
 }
 
 static void
@@ -140,6 +137,12 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 	guint32 addr = g_htonl(fv->value.ipv4.addr);
 	data = ((guint8*)&addr)+offset;
 	g_byte_array_append(bytes, data, length);
+}
+
+static gboolean
+is_true(const fvalue_t *fv_a)
+{
+	return fv_a->value.ipv4.addr != 0;
 }
 
 void
@@ -162,12 +165,13 @@ ftype_register_ipv4(void)
 		{ .get_value_uinteger = value_get },	/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		is_true,
 		NULL,
 		slice,
+		bitwise_and,
 	};
 
 	ftype_register(FT_IPv4, &ipv4_type);

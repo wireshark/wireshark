@@ -71,7 +71,7 @@ test_todisplay(test_op_t op)
 
 	switch(op) {
 		case TEST_OP_EXISTS:
-			s = "exists";
+			s = "<exists>";
 			break;
 		case TEST_OP_NOT:
 			s = "!";
@@ -106,8 +106,11 @@ test_todisplay(test_op_t op)
 		case TEST_OP_LE:
 			s = "<=";
 			break;
-		case TEST_OP_BITWISE_AND:
+		case OP_BITWISE_AND:
 			s = "&";
+			break;
+		case TEST_OP_NOTZERO:
+			s = "<notzero>";
 			break;
 		case TEST_OP_CONTAINS:
 			s = "contains";
@@ -170,8 +173,11 @@ test_todebug(test_op_t op)
 		case TEST_OP_LE:
 			s = "TEST_LE";
 			break;
-		case TEST_OP_BITWISE_AND:
-			s = "TEST_BITAND";
+		case OP_BITWISE_AND:
+			s = "BITWISE_AND";
+			break;
+		case TEST_OP_NOTZERO:
+			s = "TEST_NOTZERO";
 			break;
 		case TEST_OP_CONTAINS:
 			s = "TEST_CONTAINS";
@@ -214,6 +220,7 @@ num_operands(test_op_t op)
 			break;
 		case TEST_OP_EXISTS:
 		case TEST_OP_NOT:
+		case TEST_OP_NOTZERO:
 			return 1;
 		case TEST_OP_AND:
 		case TEST_OP_OR:
@@ -225,7 +232,7 @@ num_operands(test_op_t op)
 		case TEST_OP_GE:
 		case TEST_OP_LT:
 		case TEST_OP_LE:
-		case TEST_OP_BITWISE_AND:
+		case OP_BITWISE_AND:
 		case TEST_OP_CONTAINS:
 		case TEST_OP_MATCHES:
 		case TEST_OP_IN:
@@ -325,8 +332,18 @@ sttype_register_test(void)
 		test_dup,
 		test_tostr
 	};
+	/* XXX Bitwise ops are not "tests". */
+	static sttype_t bitwise_type = {
+		STTYPE_BITWISE,
+		"BITWISE",
+		test_new,
+		test_free,
+		test_dup,
+		test_tostr
+	};
 
 	sttype_register(&test_type);
+	sttype_register(&bitwise_type);
 }
 
 /*

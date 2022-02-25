@@ -114,9 +114,10 @@ ftype_register_guid(void)
 
         cmp_order,
         NULL,
-        NULL,
         NULL,                /* cmp_matches */
 
+        NULL,
+        NULL,
         NULL,
         NULL,
     };

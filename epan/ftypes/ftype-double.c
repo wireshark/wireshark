@@ -85,6 +85,12 @@ double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _
 	return buf;
 }
 
+static gboolean
+double_is_true(const fvalue_t *fv)
+{
+	return fv->value.floating != 0.0;
+}
+
 static int
 cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
@@ -115,12 +121,13 @@ ftype_register_double(void)
 		{ .get_value_floating = value_get_floating },	/* union get_value */
 
 		cmp_order,
-		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		double_is_true,			/* is_true */
 		NULL,
 		NULL,
+		NULL,				/* bitwise_and */
 	};
 
 	static ftype_t double_type = {
@@ -139,12 +146,13 @@ ftype_register_double(void)
 		{ .get_value_floating = value_get_floating },	/* union get_value */
 
 		cmp_order,
-		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
+		double_is_true,			/* is_true */
 		NULL,
 		NULL,
+		NULL,				/* bitwise_and */
 	};
 
 	ftype_register(FT_FLOAT, &float_type);

@@ -453,9 +453,9 @@ sfloat_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b)
 }
 
 static gboolean
-sfloat_ieee_11073_cmp_bitwise_and(const fvalue_t *a, const fvalue_t *b)
+sfloat_ieee_11073_is_true(const fvalue_t *a)
 {
-    return ((a->value.uinteger & b->value.uinteger) != 0);
+    return a->value.sfloat_ieee_11073 != 0;
 }
 
 /*============================================================================*/
@@ -862,9 +862,9 @@ float_ieee_11073_cmp_order(const fvalue_t *a, const fvalue_t *b)
 }
 
 static gboolean
-float_ieee_11073_cmp_bitwise_and(const fvalue_t *a, const fvalue_t *b)
+float_ieee_11073_is_true(const fvalue_t *a)
 {
-    return ((a->value.uinteger & b->value.uinteger) != 0);
+    return a->value.float_ieee_11073 != 0;
 }
 
 /*============================================================================*/
@@ -914,12 +914,13 @@ Example: 114 is 0x0072
         { .get_value_uinteger = sfloat_ieee_11073_value_get }, /* union get_value */
 
         sfloat_ieee_11073_cmp_order,
-        sfloat_ieee_11073_cmp_bitwise_and,    /* cmp_bitwise_and */
         NULL,                                 /* cmp_contains */
         NULL,                                 /* cmp_matches */
 
-        NULL,                                 /* len */
-        NULL,                                 /* slice */
+        sfloat_ieee_11073_is_true,           /* is_true */
+        NULL,                                /* len */
+        NULL,                                /* slice */
+        NULL,                                /* bitwise_and */
     };
 
 /*
@@ -965,12 +966,13 @@ Example: 36.4 is 0xFF00016C
         { .get_value_uinteger = float_ieee_11073_value_get }, /* union get_value */
 
         float_ieee_11073_cmp_order,
-        float_ieee_11073_cmp_bitwise_and,    /* cmp_bitwise_and */
         NULL,                                /* cmp_contains */
         NULL,                                /* cmp_matches */
 
+        float_ieee_11073_is_true,            /* is_true */
         NULL,                                /* len */
         NULL,                                /* slice */
+        NULL,                                /* bitwise_and */
     };
 
     ftype_register(FT_IEEE_11073_SFLOAT, &sfloat_type);

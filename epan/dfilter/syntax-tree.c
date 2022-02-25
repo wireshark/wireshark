@@ -412,7 +412,8 @@ visit_tree(wmem_strbuf_t *buf, stnode_t *node, int level)
 {
 	stnode_t *left, *right;
 
-	if (stnode_type_id(node) == STTYPE_TEST) {
+	if (stnode_type_id(node) == STTYPE_TEST ||
+			stnode_type_id(node) == STTYPE_BITWISE) {
 		wmem_strbuf_append_printf(buf, "%s(", stnode_todebug(node));
 		sttype_test_get(node, NULL, &left, &right);
 		if (left && right) {

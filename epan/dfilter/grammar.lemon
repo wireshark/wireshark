@@ -127,30 +127,35 @@ logical_test(T) ::= entity(E).
     sttype_test_set1_args(T, E);
 }
 
+logical_test(T) ::= bitwise_term(E).
+{
+    T = new_test(dfw, TEST_OP_NOTZERO, NULL);
+    sttype_test_set1_args(T, E);
+}
 
 
 /* Entities, or things that can be compared/tested/checked */
-entity(E) ::= STRING(S).
+atom(E) ::= STRING(S).
 {
     E = stnode_new_string(df_lval_value(S), df_lval_value(S));
     df_lval_free(S, FALSE);
 }
-entity(E) ::= CHARCONST(C).
+atom(E) ::= CHARCONST(C).
 {
     E = stnode_new_charconst(df_lval_number(C), df_lval_value(C));
     df_lval_free(C, FALSE);
 }
-entity(E) ::= UNPARSED(U).
+atom(E) ::= UNPARSED(U).
 {
     E = stnode_new_unparsed(df_lval_value(U), df_lval_value(U));
     df_lval_free(U, FALSE);
 }
-entity(E) ::= LITERAL(S).
+atom(E) ::= LITERAL(S).
 {
     E = stnode_new_literal(df_lval_value(S), df_lval_value(S));
     df_lval_free(S, FALSE);
 }
-entity(E) ::= IDENTIFIER(F).
+atom(E) ::= IDENTIFIER(F).
 {
     char *name = df_lval_value(F);
     header_field_info *hfinfo = dfilter_resolve_unparsed(dfw, name);
@@ -160,8 +165,20 @@ entity(E) ::= IDENTIFIER(F).
     E = stnode_new(STTYPE_FIELD, hfinfo, name);
     df_lval_free(F, FALSE);
 }
+entity(E) ::= atom(A).          { E = A; }
 entity(E) ::= range(R).         { E = R; }
 entity(E) ::= function(F).      { E = F; }
+
+bitwise_term(T) ::= entity(F) BITWISE_AND(B) entity(M).
+{
+    T = stnode_new(STTYPE_BITWISE, NULL, df_lval_value(B));
+    sttype_test_set2(T, OP_BITWISE_AND, F, M);
+    df_lval_free(B, FALSE);
+}
+
+
+term(T) ::= entity(E).          { T = E; }
+term(T) ::= bitwise_term(E).    { T = E; }
 
 
 /* Ranges */
@@ -207,16 +224,15 @@ cmp_op(O) ::= TEST_GT(L).               { O = new_test(dfw, TEST_OP_GT, L); }
 cmp_op(O) ::= TEST_GE(L).               { O = new_test(dfw, TEST_OP_GE, L); }
 cmp_op(O) ::= TEST_LT(L).               { O = new_test(dfw, TEST_OP_LT, L); }
 cmp_op(O) ::= TEST_LE(L).               { O = new_test(dfw, TEST_OP_LE, L); }
-cmp_op(O) ::= TEST_BITWISE_AND(L).      { O = new_test(dfw, TEST_OP_BITWISE_AND, L); }
 
-comparison_test(T) ::= entity(E) cmp_op(O) entity(F).
+comparison_test(T) ::= term(E) cmp_op(O) term(F).
 {
     T = O;
     sttype_test_set2_args(O, E, F);
 }
 
 /* 'a == b == c' or 'a < b <= c <= d < e' */
-comparison_test(T) ::= entity(E) cmp_op(O) comparison_test(R).
+comparison_test(T) ::= term(E) cmp_op(O) comparison_test(R).
 {
     stnode_t *L, *F;
     /* for now generate it like E O F  TEST_OP_AND  F P G, later it could be optimized

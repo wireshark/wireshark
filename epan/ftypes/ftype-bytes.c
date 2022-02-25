@@ -515,26 +515,29 @@ cmp_order(const fvalue_t *fv_a, const fvalue_t *fv_b)
 	return memcmp(a->data, b->data, a->len);
 }
 
-static gboolean
-cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
+static enum ft_result
+bytes_bitwise_and(fvalue_t *fv_dst, const fvalue_t *fv_a, const fvalue_t *fv_b, char **err_ptr _U_)
 {
 	GByteArray	*a = fv_a->value.bytes;
 	GByteArray	*b = fv_b->value.bytes;
-	guint i = 0;
+	GByteArray	*dst;
 	unsigned char *p_a, *p_b;
 
-	if (b->len != a->len) {
-		return FALSE;
+	guint len = MIN(a->len, b->len);
+	if (len == 0) {
+		fv_dst->value.bytes = g_byte_array_new();
+		return FT_OK;
 	}
+	dst = g_byte_array_sized_new(len);
+
 	p_a = a->data;
 	p_b = b->data;
-	while (i < b->len) {
-		if (p_a[i] & p_b[i])
-			return TRUE;
-		else
-			i++;
+	for (guint i = 0; i < len; i++) {
+		guint8 byte = p_a[i] & p_b[i];
+		g_byte_array_append(dst, &byte, 1);
 	}
-	return FALSE;
+	fv_dst->value.bytes = dst;
+	return FT_OK;
 }
 
 static gboolean
@@ -559,6 +562,22 @@ cmp_matches(const fvalue_t *fv, const ws_regex_t *regex)
 	return ws_regex_matches_length(regex, a->data, a->len);
 }
 
+static gboolean
+bytes_is_true(const fvalue_t *fv_a)
+{
+	GByteArray *a = fv_a->value.bytes;
+
+	if (a->len == 0)
+		return FALSE;
+
+	for (guint i = 0; i < a->len; i++) {
+		if (a->data[i] != 0) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 void
 ftype_register_bytes(void)
 {
@@ -579,12 +598,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		cmp_matches,
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t uint_bytes_type = {
@@ -603,12 +623,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t ax25_type = {
@@ -627,12 +648,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		cmp_matches,
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t vines_type = {
@@ -651,12 +673,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		cmp_matches,
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t ether_type = {
@@ -675,12 +698,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		cmp_matches,
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t oid_type = {
@@ -699,12 +723,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t rel_oid_type = {
@@ -723,12 +748,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t system_id_type = {
@@ -747,12 +773,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		NULL,				/* cmp_matches */
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	static ftype_t fcwwn_type = {
@@ -771,12 +798,13 @@ ftype_register_bytes(void)
 		{ .get_value_ptr = value_get },			/* union get_value */
 
 		cmp_order,
-		cmp_bitwise_and,
 		cmp_contains,
 		cmp_matches,
 
+		bytes_is_true,			/* is_true */
 		len,
 		slice,
+		bytes_bitwise_and,		/* bitwise_and */
 	};
 
 	ftype_register(FT_BYTES, &bytes_type);

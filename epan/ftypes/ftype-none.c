@@ -31,12 +31,13 @@ ftype_register_none(void)
 		{ NULL },			/* union get_value */
 
 		NULL,				/* cmp_order */
-		NULL,				/* cmp_bitwise_and */
 		NULL,				/* cmp_contains */
 		NULL,				/* cmp_matches */
 
-		NULL,
-		NULL,
+		NULL,				/* is_true */
+		NULL,				/* len */
+		NULL,				/* slice */
+		NULL,				/* biwise_and */
 	};
 	ftype_register(FT_NONE, &none_type);
 }
