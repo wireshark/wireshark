@@ -13424,7 +13424,7 @@ proto_register_amqp(void)
     static decode_as_t amqp_da = {"amqp", "amqp.version", 1, 0, &amqp_da_values, NULL, NULL,
                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    proto_amqp = proto_register_protocol("Advanced Message Queueing Protocol", "AMQP", "amqp");
+    proto_amqp = proto_register_protocol("Advanced Message Queuing Protocol", "AMQP", "amqp");
 
     /* Allows versions to be handled through Decode As */
     proto_amqpv0_9 = proto_register_protocol_in_name_only("AMQP Version 0.9", "Version 0.9", "amqp.version.v0_9", proto_amqp, FT_BYTES);
