@@ -226,7 +226,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			case ALL_EQ:
-				fprintf(f, "%05d ALL_EQ\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ALL_EQ\t\treg#%u === reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
@@ -236,37 +236,37 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			case ALL_NE:
-				fprintf(f, "%05d ALL_NE\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ALL_NE\t\treg#%u != reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_NE:
-				fprintf(f, "%05d ANY_NE\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ANY_NE\t\treg#%u !== reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_GT:
-				fprintf(f, "%05d ANY_GT\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ANY_GT\t\treg#%u > reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_GE:
-				fprintf(f, "%05d ANY_GE\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ANY_GE\t\treg#%u >= reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_LT:
-				fprintf(f, "%05d ANY_LT\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ANY_LT\t\treg#%u < reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_LE:
-				fprintf(f, "%05d ANY_LE\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ANY_LE\t\treg#%u <= reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
 			case ANY_BITWISE_AND:
-				fprintf(f, "%05d ANY_BITWISE_AND\t\treg#%u == reg#%u\n",
+				fprintf(f, "%05d ANY_BITWISE_AND\treg#%u & reg#%u\n",
 					id, arg1->value.numeric, arg2->value.numeric);
 				break;
 
