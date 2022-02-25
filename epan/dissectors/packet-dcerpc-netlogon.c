@@ -109,9 +109,6 @@ static int hf_client_credential;
 static int hf_server_credential;
 static int hf_netlogon_logon_dnslogondomainname;
 static int hf_netlogon_logon_upn;
-static int hf_netlogon_group_attrs_mandatory;
-static int hf_netlogon_group_attrs_enabled_by_default;
-static int hf_netlogon_group_attrs_enabled;
 static int hf_netlogon_opnum;
 static int hf_netlogon_data_length;
 static int hf_netlogon_extraflags;
@@ -1465,42 +1462,6 @@ netlogon_dissect_AUTHENTICATOR(tvbuff_t *tvb, int offset,
 }
 
 
-static const true_false_string group_attrs_mandatory = {
-    "The MANDATORY bit is SET",
-    "The mandatory bit is NOT set",
-};
-static const true_false_string group_attrs_enabled_by_default = {
-    "The ENABLED_BY_DEFAULT bit is SET",
-    "The enabled_by_default bit is NOT set",
-};
-static const true_false_string group_attrs_enabled = {
-    "The enabled bit is SET",
-    "The enabled bit is NOT set",
-};
-static int
-netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvbuff_t *tvb, int offset,
-                                             packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep)
-{
-    guint32 mask;
-    static int * const attr[] = {
-        &hf_netlogon_group_attrs_enabled,
-        &hf_netlogon_group_attrs_enabled_by_default,
-        &hf_netlogon_group_attrs_mandatory,
-        NULL
-    };
-
-    if(di->conformant_run){
-        /*just a run to handle conformant arrays, nothing to dissect */
-        return offset;
-    }
-
-    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
-                              -1, &mask);
-
-    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4, hf_netlogon_attrs, ett_group_attrs, attr, mask, BMT_NO_APPEND);
-    return offset;
-}
-
 /*
  * IDL typedef struct {
  * IDL   long user_id;
@@ -1523,8 +1484,7 @@ netlogon_dissect_GROUP_MEMBERSHIP(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
                                 hf_netlogon_group_rid, NULL);
 
-    offset = netlogon_dissect_GROUP_MEMBERSHIP_ATTRIBUTES(tvb, offset,
-                                                          pinfo, tree, di, drep);
+    offset = dissect_ndr_nt_SE_GROUP_ATTRIBUTES(tvb, offset, pinfo, tree, di, drep);
 
     return offset;
 }
@@ -9493,21 +9453,6 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_secchan_verf_nonce,
           { "Nonce", "netlogon.secchan.nonce", FT_BYTES, BASE_NONE, NULL,
             0x0, NULL, HFILL }},
-
-        { &hf_netlogon_group_attrs_mandatory,
-          { "Mandatory", "netlogon.groups.attrs.mandatory",
-            FT_BOOLEAN, 32, TFS(&group_attrs_mandatory), 0x00000001,
-            "The group attributes MANDATORY flag", HFILL }},
-
-        { &hf_netlogon_group_attrs_enabled_by_default,
-          { "Enabled By Default", "netlogon.groups.attrs.enabled_by_default",
-            FT_BOOLEAN, 32, TFS(&group_attrs_enabled_by_default), 0x00000002,
-            "The group attributes ENABLED_BY_DEFAULT flag", HFILL }},
-
-        { &hf_netlogon_group_attrs_enabled,
-          { "Enabled", "netlogon.groups.attrs.enabled",
-            FT_BOOLEAN, 32, TFS(&group_attrs_enabled), 0x00000004,
-            "The group attributes ENABLED flag", HFILL }},
 
         { &hf_netlogon_user_flags_extra_sids,
           { "Extra SIDs", "netlogon.user.flags.extra_sids",
