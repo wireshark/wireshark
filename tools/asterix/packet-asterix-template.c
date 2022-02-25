@@ -123,7 +123,7 @@ static void dissect_asterix_data_block (tvbuff_t *tvb, packet_info *pinfo, guint
 static gint dissect_asterix_fields (tvbuff_t *, packet_info *pinfo, guint, proto_tree *, guint8, const AsterixField *[]);
 
 static void asterix_build_subtree (tvbuff_t *, packet_info *pinfo, guint, proto_tree *, const AsterixField *);
-static void twos_complement (gint64 *, guint8);
+static void twos_complement (gint64 *, gint);
 static guint8 asterix_bit (guint8, guint8);
 static guint asterix_fspec_len (tvbuff_t *, guint);
 static guint8 asterix_field_exists (tvbuff_t *, guint, int);
@@ -684,7 +684,7 @@ static guint8 asterix_bit (guint8 b, guint8 bitNo)
  * bits need to be set to have proper two's complement.
  * If the number is negative, all other bits must be set to 1.
  * If the number is positive, all other bits must remain 0. */
-static void twos_complement (gint64 *v, guint8 bit_len)
+static void twos_complement (gint64 *v, gint bit_len)
 {
     if (*v & (G_GUINT64_CONSTANT(1) << (bit_len - 1))) {
         *v |= (G_GUINT64_CONSTANT(0xffffffffffffffff) << bit_len);
