@@ -167,6 +167,11 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 			dcerpc_info *di, guint8 *drep);
 
 int
+dissect_ndr_nt_SE_GROUP_ATTRIBUTES(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			dcerpc_info *di, guint8 *drep);
+
+int
 dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep);

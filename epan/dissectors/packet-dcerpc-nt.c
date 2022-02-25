@@ -38,6 +38,7 @@ static int hf_nt_midl_hdr_len;
 static gint ett_nt_MIDL_BLOB;
 static gint ett_lsa_String;
 static gint ett_nt_data_blob;
+static gint ett_nt_counted_string;
 static expert_field ei_dcerpc_nt_badsid;
 
 
@@ -160,8 +161,6 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 
 	return offset;
 }
-
-static gint ett_nt_counted_string;
 
 static int
 dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
@@ -1701,7 +1700,63 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 }
 
 static gint ett_nt_sid_and_attributes;
-static int hf_nt_attrib;
+static gint ett_nt_se_group_attrs;
+static int hf_nt_se_group_attrs;
+static int hf_nt_se_group_attrs_mandatory;
+static int hf_nt_se_group_attrs_enabled_by_default;
+static int hf_nt_se_group_attrs_enabled;
+static int hf_nt_se_group_attrs_owner;
+static int hf_nt_se_group_attrs_resource_group;
+
+static const true_false_string group_attrs_mandatory = {
+    "The MANDATORY bit is SET",
+    "The mandatory bit is NOT set",
+};
+static const true_false_string group_attrs_enabled_by_default = {
+    "The ENABLED_BY_DEFAULT bit is SET",
+    "The enabled_by_default bit is NOT set",
+};
+static const true_false_string group_attrs_enabled = {
+    "The ENABLED bit is SET",
+    "The enabled bit is NOT set",
+};
+static const true_false_string group_attrs_owner = {
+    "The OWNER bit is SET",
+    "The owner bit is NOT set",
+};
+static const true_false_string group_attrs_resource_group = {
+    "The RESOURCE GROUP bit is SET",
+    "The resource group bit is NOT set",
+};
+
+int
+dissect_ndr_nt_SE_GROUP_ATTRIBUTES(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			dcerpc_info *di, guint8 *drep)
+{
+    guint32 mask;
+    static int * const attr[] = {
+        &hf_nt_se_group_attrs_mandatory,
+        &hf_nt_se_group_attrs_enabled_by_default,
+        &hf_nt_se_group_attrs_enabled,
+        &hf_nt_se_group_attrs_owner,
+        &hf_nt_se_group_attrs_resource_group,
+        NULL
+    };
+
+    if(di->conformant_run){
+        /*just a run to handle conformant arrays, nothing to dissect */
+        return offset;
+    }
+
+    offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, di, drep,
+                              -1, &mask);
+
+    proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset-4,
+					    hf_nt_se_group_attrs, ett_nt_se_group_attrs,
+					    attr, mask, BMT_NO_APPEND);
+    return offset;
+}
 
 int
 dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
@@ -1716,8 +1771,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
 
-	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
-				     hf_nt_attrib, NULL);
+	offset = dissect_ndr_nt_SE_GROUP_ATTRIBUTES(tvb, offset, pinfo, tree, di, drep);
 
 	return offset;
 }
@@ -1916,10 +1970,6 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 		/* Misc */
 
-		{ &hf_nt_attrib,
-		  { "Attributes", "dcerpc.nt.attr",
-		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
 		{ &hf_lsa_String_name_len,
 		  { "Name Len", "dcerpc.lsa_String.name_len",
 		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1952,6 +2002,35 @@ void dcerpc_smb_init(int proto_dcerpc)
 		  "HDR Length", "nt.midl.hdr_len", FT_UINT16, BASE_DEC,
 		  NULL, 0, "Length of header", HFILL }},
 
+		{ &hf_nt_se_group_attrs,
+		  { "Group Attributes", "dcerpc.nt.groups.attrs",
+		    FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_nt_se_group_attrs_mandatory,
+		   { "Mandatory", "dcerpc.nt.groups.attrs.mandatory",
+		     FT_BOOLEAN, 32, TFS(&group_attrs_mandatory), 0x00000001,
+		     "The group attributes MANDATORY flag", HFILL }},
+
+		{ &hf_nt_se_group_attrs_enabled_by_default, {
+		  "Enabled By Default", "dcerpc.nt.groups.attrs.enabled_by_default",
+		  FT_BOOLEAN, 32, TFS(&group_attrs_enabled_by_default), 0x00000002,
+		  "The group attributes ENABLED_BY_DEFAULT flag", HFILL }},
+
+		{ &hf_nt_se_group_attrs_enabled, {
+		  "Enabled", "dcerpc.nt.groups.attrs.enabled",
+		  FT_BOOLEAN, 32, TFS(&group_attrs_enabled), 0x00000004,
+		  "The group attributes ENABLED flag", HFILL }},
+
+		{ &hf_nt_se_group_attrs_owner, {
+		  "Owner", "dcerpc.nt.groups.attrs.owner",
+		  FT_BOOLEAN, 32, TFS(&group_attrs_owner), 0x00000008,
+		  "The group attributes OWNER flag", HFILL }},
+
+		{ &hf_nt_se_group_attrs_resource_group, {
+		  "Resource Group", "dcerpc.nt.groups.attrs.resource_group",
+		  FT_BOOLEAN, 32, TFS(&group_attrs_resource_group), 0x20000000,
+		  "The group attributes RESOURCE GROUP flag", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -1966,6 +2045,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 		&ett_nt_sid_array,
 		&ett_nt_sid_and_attributes_array,
 		&ett_nt_sid_and_attributes,
+		&ett_nt_se_group_attrs,
 		&ett_nt_counted_ascii_string,
 		&ett_lsa_String,
 		&ett_nt_MIDL_BLOB,
