@@ -3478,7 +3478,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_calipso_doi,
             { "CALIPSO Domain of Interpretation", "ipv6.opt.calipso.doi",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ipv6_opt_calipso_cmpt_length,
