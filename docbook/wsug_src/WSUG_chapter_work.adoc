@@ -316,8 +316,8 @@ Copy the packet bytes to the clipboard as C-style escape sequences.
 This menu item is the same as the File menu item of the same name. It
 allows you to export raw packet bytes to a binary file.
 
-|menu:Wiki Protocol Page[]|| Show the wiki page corresponding to the currently selected protocol in your web browser.
-|menu:Filter Field Reference[]|| Show the filter field reference web page corresponding to the currently selected protocol in your web browser.
+|menu:Wiki Protocol Page[]|| Open the wiki page for the selected protocol in your web browser.
+|menu:Filter Field Reference[]|| Open the filter field reference web page for the selected protocol in your web browser.
 
 |menu:Protocol Preferences[] ||
 Adjust the preferences for the selected protocol.
