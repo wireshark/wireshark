@@ -1,0 +1,17 @@
+// Required attributes:
+// include-dir
+
+include::{include-dir}/attributes.adoc[]
+:stylesheet: {include-dir}/ws.css
+
+== Debugging Symbols for Wireshark
+
+This archive contains the debugging symbols for Wireshark {wireshark-version}.
+The debugging symbols are only necessary if Wireshark is crashing and you need to report an issue to the Wireshark development team.
+
+WARNING: This won't work properly with any version other than Wireshark {wireshark-version}.
+
+To install the symbols, drag _Wireshark.dSYM_ to the same location as _Wireshark_.
+This is usually your _Applications_ folder.
+
+To uninstall, drag _Wireshark.dSYM_ to the trash.

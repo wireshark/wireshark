@@ -97,6 +97,8 @@ They previously shipped with Npcap 1.55.
 
 * Support to display JSON mapping for Protobuf message.
 
+* macOS debugging symbols are now shipped in separate packages.
+
 === Removed Features and Support
 
 * CMake: The options starting with DISABLE_something were renamed ENABLE_something for consistency.

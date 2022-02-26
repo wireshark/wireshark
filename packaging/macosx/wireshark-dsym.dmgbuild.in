@@ -19,15 +19,11 @@ import os.path
 # .. Useful stuff ..............................................................
 
 ws_version = '@VERSION@'
-ws_volname = 'Wireshark ' + ws_version
+ws_volname = 'Wireshark Debugging Symbols' + ws_version
 ws_srcdir = '@CMAKE_SOURCE_DIR@'
 ws_bindir = '@CMAKE_BINARY_DIR@'
-ws_app = 'Wireshark.app'
-ws_readme = 'Read me first.html'
-ws_install_chmodbpf = 'Install ChmodBPF.pkg'
-ws_uninstall_chmodbpf = 'Uninstall ChmodBPF.pkg'
-ws_install_path_helper = 'Add Wireshark to the system path.pkg'
-ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
+ws_app_dsym = 'Wireshark.dSYM'
+ws_readme_dsym = 'Debugging symbols installation.html'
 
 # .. Basics ....................................................................
 
@@ -41,6 +37,7 @@ ws_uninstall_path_helper = 'Remove Wireshark from the system path.pkg'
 # UDZO - UDIF zlib-compressed image
 # UDBZ - UDIF bzip2-compressed image (Mac OS X 10.4+ only)
 # ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
+# ULMO - UDIF lzma-compressed image (macOS 10.15+ only)
 # Volume format (see hdiutil create -help)
 format = defines.get('format', 'UDBZ')
 
@@ -52,17 +49,13 @@ size = None
 
 # Files to include
 files = [
-    os.path.join(ws_bindir, 'run', ws_app),
-    os.path.join(ws_bindir, 'packaging', 'macosx', ws_readme),
+    os.path.join(ws_bindir, 'run', ws_app_dsym),
+    os.path.join(ws_bindir, 'packaging', 'macosx', ws_readme_dsym),
 ]
 
 # Symlinks to create
 symlinks = {
     'Applications': '/Applications',
-    ws_install_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_chmodbpf),
-    ws_uninstall_chmodbpf: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_chmodbpf),
-    ws_install_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_install_path_helper),
-    ws_uninstall_path_helper: os.path.join(ws_app, 'Contents', 'Resources', 'Extras', ws_uninstall_path_helper),
     }
 
 # Volume icon
@@ -76,13 +69,9 @@ badge_icon = os.path.join(ws_srcdir, 'packaging', 'macosx', 'wsiconvol.icns')
 
 # Where to put the icons
 icon_locations = {
-    ws_app:                     ( 80,  64),
+    ws_app_dsym:                     ( 80,  64),
     'Applications':             (240,  64),
-    ws_readme:                  (160, 170),
-    ws_install_chmodbpf:        ( 80, 276),
-    ws_uninstall_chmodbpf:      (250, 276),
-    ws_install_path_helper:     ( 80, 382),
-    ws_uninstall_path_helper:   (250, 382),
+    ws_readme_dsym:                  (160, 170),
     }
 
 # .. Window configuration ......................................................
@@ -117,7 +106,7 @@ show_sidebar = False
 sidebar_width = 180
 
 # Window position in ((x, y), (w, h)) format
-window_rect = ((600, 200), (350, 525))
+window_rect = ((600, 200), (350, 325))
 
 # Select the default view; must be one of
 #

@@ -7,7 +7,8 @@ set -e
 # Defaults
 dmgbuild="@DMGBUILD_EXECUTABLE@"
 version="@VERSION@"
-settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/dmgbuild-settings.py"
+app_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-app.dmgbuild"
+dsym_settings_file="@CMAKE_BINARY_DIR@/packaging/macosx/wireshark-dsym.dmgbuild"
 architecture=""
 
 # Help message
@@ -24,8 +25,8 @@ OPTIONS
 	-h,--help
 		Display this help message.
 
-Icons are positioned and the background image is set in
-dmgbuild-settings.py.in.
+Icons are positioned and the background image is set in wireshark-app.dmgbuild.in
+and wireshark-dsym.dmgbuild.in.
 "
 }
 
@@ -58,27 +59,38 @@ do
 	shift 1
 done
 
-vol_name="Wireshark ${version}"
-img_name="$vol_name $architecture.dmg"
+app_vol_name="Wireshark ${version}"
+app_img_name="$app_vol_name $architecture.dmg"
 
-echo -e "\\nCREATE WIRESHARK DISK IMAGE\\n"
+printf "\nCreating application disk image\n"
 
 "$dmgbuild" \
 	--no-hidpi \
-	-s "$settings_file" \
-	"$vol_name" \
-	"$img_name" || exit 1
+	-s "$app_settings_file" \
+	"$app_vol_name" \
+	"$app_img_name" || exit 1
 
-echo -e "\\nSIGN WIRESHARK DISK IMAGE\\n"
+dsym_vol_name="Wireshark dSYM ${version}"
+dsym_img_name="$dsym_vol_name $architecture.dmg"
+
+printf "\nCreating debugging symbols disk image\n"
+
+"$dmgbuild" \
+	--no-hidpi \
+	-s "$dsym_settings_file" \
+	"$dsym_vol_name" \
+	"$dsym_img_name" || exit 1
+
+printf "\nSigning disk images\n"
 
 # TN2206, "Signing Disk Images"
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
-	echo -e "Signing $img_name"
+	echo -e "Signing $app_img_name and $dsym_img_name"
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
 		--timestamp \
 		--verbose \
-		"$img_name"
+		"$app_img_name" "$dsym_img_name"
 fi
 
 exit 0

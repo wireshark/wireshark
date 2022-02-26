@@ -434,42 +434,69 @@ else
 
 fi
 
-dsymify_file () {
-	echo "    $1"
-	dsymutil --minimize "$1"
-}
+bundle_dsym=$bundle.dSYM
 
-echo "Dsymifying executables:"
-if [ -z "$bundle_binary_list" ] ; then
-	echo "No executables specified for dsymifying."
-	exit 1
-fi
-for binary in $bundle_binary_list ; do
-	if [ -e "$binary" ];then
-		dsymify_file "$binary"
-	fi
-done
-
-echo "Dsymifying frameworks:"
+frameworks=()
 for framework in "$pkglib"/*.framework/Versions/*/* ; do
 	if [ -f "$framework" ];then
-		dsymify_file "$framework"
+		frameworks+=("$framework")
 	fi
 done
 
-echo "Dsymifying libraries:"
-for library in "$pkglib"/*.dylib ; do
-	#
-	# Squelch warnings, in case the .o files from building
-	# support libraries aren't around any more.
-	#
-	dsymify_file "$library" | grep -E -v 'unable to open object file'
-done
+echo "Dsymifying binaries:"
+# shellcheck disable=SC2086
+dsymutil --minimize --out "$bundle_dsym" \
+	$bundle_binary_list \
+	"${frameworks[@]}" \
+	"$pkglib"/*.dylib
 
-echo "Dsymifying plugins:"
-for plugin in "$pkgplugin"/*/*.so ; do
-	dsymify_file "$plugin"
-done
+# echo "Stripping binaries:"
+# # shellcheck disable=SC2086
+# strip -S \
+# 	$bundle_binary_list \
+# 	"${frameworks[@]}" \
+# 	"$pkglib"/*.dylib \
+# 	"$pkgplugin"/*/*.so
+
+# XXX What's the proper directory layout here?
+# dsymify_file () {
+# 	# out_dsym="${1/#$bundle/$bundle_dsym}.dSYM"
+# 	echo "    $1"
+# 	dsymutil --minimize --out "$bundle_dsym" "$1"
+# 	strip "$1"
+# }
+
+# echo "Dsymifying and stripping executables:"
+# if [ -z "$bundle_binary_list" ] ; then
+# 	echo "No executables specified for dsymifying."
+# 	exit 1
+# fi
+# for binary in $bundle_binary_list ; do
+# 	if [ -e "$binary" ];then
+# 		dsymify_file "$binary"
+# 	fi
+# done
+
+# echo "Dsymifying and stripping frameworks:"
+# for framework in "$pkglib"/*.framework/Versions/*/* ; do
+# 	if [ -f "$framework" ];then
+# 		dsymify_file "$framework"
+# 	fi
+# done
+
+# echo "Dsymifying and stripping libraries:"
+# for library in "$pkglib"/*.dylib ; do
+# 	#
+# 	# Squelch warnings, in case the .o files from building
+# 	# support libraries aren't around any more.
+# 	#
+# 	dsymify_file "$library" | grep -E -v 'unable to open object file'
+# done
+
+# echo "Dsymifying and stripping plugins:"
+# for plugin in "$pkgplugin"/*/*.so ; do
+# 	dsymify_file "$plugin"
+# done
 
 codesign_file () {
 	# https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html

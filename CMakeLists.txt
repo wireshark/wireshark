@@ -1702,9 +1702,10 @@ set(CFG_OUT_FILES
 	image/wireshark.exe.manifest
 	image/wireshark.rc
 	packaging/macosx/Info.plist
-	packaging/macosx/dmgbuild-settings.py
 	packaging/macosx/osx-app.sh
 	packaging/macosx/osx-dmg.sh
+	packaging/macosx/wireshark-app.dmgbuild
+	packaging/macosx/wireshark-dsym.dmgbuild
 	packaging/source/git-export-release.sh
 	wireshark.pc
 )
@@ -3168,8 +3169,22 @@ if(ENABLE_APPLICATION_BUNDLE)
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Read_me_first.adoc
 	)
-	add_custom_target(read_me_first_html DEPENDS ${_read_me_first} )
-	add_dependencies(dmg_package_prep read_me_first_html)
+
+	set(_dsym_installation "packaging/macosx/Debugging symbols installation.html")
+	ADD_CUSTOM_COMMAND(
+	OUTPUT
+		${_dsym_installation}
+	COMMAND ${ASCIIDOCTOR_EXECUTABLE}
+		--backend html
+		--out-file ${_dsym_installation}
+		--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Debugging_symbols_installation.adoc
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Debugging_symbols_installation.adoc
+	)
+
+	add_custom_target(dmg_package_readmes DEPENDS ${_read_me_first} ${_dsym_installation} )
+	add_dependencies(dmg_package_prep dmg_package_readmes)
 
 	ADD_CUSTOM_TARGET( dmg_package
 		COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
