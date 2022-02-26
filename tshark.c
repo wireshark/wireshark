@@ -1225,13 +1225,13 @@ main(int argc, char *argv[])
                 break;
             case 'j':
                 if (protocolfilter) {
-                    cmdarg_err("-j or -J was already specified! Overwriting previous protocol filter");
+                    cmdarg_err("-j or -J was already specified. Overwriting previous protocol filter.");
                 }
                 protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
                 break;
             case 'J':
                 if (protocolfilter) {
-                    cmdarg_err("-j or -J was already specified! Overwriting previous protocol filter");
+                    cmdarg_err("-j or -J was already specified. Overwriting previous protocol filter.");
                 }
                 protocolfilter_flags = PF_INCLUDE_CHILDREN;
                 protocolfilter = wmem_strsplit(wmem_epan_scope(), ws_optarg, " ", -1);
