@@ -19,7 +19,7 @@ static int hf_li5g_version = -1;
 static int hf_li5g_pduType = -1;
 static int hf_li5g_headerLen = -1;
 static int hf_li5g_payloadLen = -1;
-static int hf_li5g_payloadFormart = -1;
+static int hf_li5g_payloadFormat = -1;
 static int hf_li5g_payloadDirection = -1;
 static int hf_li5g_xid = -1;
 static int hf_li5g_cid = -1;
@@ -55,7 +55,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_item  *ti, *attr_ti;
     int offset = LI_5G_HEADER_LEN_MIN, hf_attr = -1;
     guint32 headerLen, payloadLen;
-    guint16 pduType, payloadFormart, attrType, attrLen;
+    guint16 pduType, payloadFormat, attrType, attrLen;
 
     address src_addr;
     address dst_addr;
@@ -65,7 +65,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     pduType = tvb_get_ntohs(tvb, 2);
     headerLen = tvb_get_ntohl(tvb, 4);
     payloadLen = tvb_get_ntohl(tvb, 8);
-    payloadFormart = tvb_get_ntohs(tvb, 12);
+    payloadFormat = tvb_get_ntohs(tvb, 12);
 
     ti = proto_tree_add_item(tree, proto_li5g, tvb, 0, headerLen+payloadLen, ENC_NA);
     li5g_tree = proto_item_add_subtree(ti, ett_li5g);
@@ -73,7 +73,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_item(li5g_tree, hf_li5g_pduType, tvb, 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(li5g_tree, hf_li5g_headerLen, tvb, 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(li5g_tree, hf_li5g_payloadLen, tvb, 8, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(li5g_tree, hf_li5g_payloadFormart, tvb, 12, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(li5g_tree, hf_li5g_payloadFormat, tvb, 12, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(li5g_tree, hf_li5g_payloadDirection, tvb, 14, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(li5g_tree, hf_li5g_xid, tvb, 16, 16, ENC_NA);
     proto_tree_add_item(li5g_tree, hf_li5g_cid, tvb, 32, 8, ENC_NA);
@@ -110,8 +110,8 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         li5g_tree->parent=NULL;
     }
 
-    if (subProtocol_handle[payloadFormart])
-        call_dissector(subProtocol_handle[payloadFormart], tvb_new_subset_length(tvb, offset, payloadLen), pinfo, li5g_tree);
+    if (subProtocol_handle[payloadFormat])
+        call_dissector(subProtocol_handle[payloadFormat], tvb_new_subset_length(tvb, offset, payloadLen), pinfo, li5g_tree);
 
     if (parent)
         li5g_tree->parent=parent;
@@ -166,7 +166,7 @@ proto_register_li5g(void)
         { &hf_li5g_pduType, { "PDU Type", "li5g.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_headerLen, { "Header Length", "li5g.hl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_payloadLen, { "Payload Length", "li5g.pl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_li5g_payloadFormart, { "Payload Formart", "li5g.pf", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_payloadFormat, { "Payload Format", "li5g.pf", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_payloadDirection, { "Payload Direction", "li5g.pd", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_xid, { "XID", "li5g.xid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_cid, { "Correlation ID", "li5g.cid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
