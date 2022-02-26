@@ -58,9 +58,9 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint16 pduType, payloadFormart, attrType, attrLen;
 
     address src_addr;
-	address dst_addr;
-	guint32 src_port;
-	guint32 dst_port;
+    address dst_addr;
+    guint32 src_port;
+    guint32 dst_port;
 
     pduType = tvb_get_ntohs(tvb, 2);
     headerLen = tvb_get_ntohl(tvb, 4);
@@ -100,9 +100,9 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* the key is address+port+frame_num for reassemble list, the address/port can be changed in pinfo because of the inner TCP protocol */
     copy_address_shallow(&src_addr, &pinfo->src);
-	copy_address_shallow(&dst_addr, &pinfo->dst);
-	src_port = pinfo->srcport;
-	dst_port = pinfo->destport;
+    copy_address_shallow(&dst_addr, &pinfo->dst);
+    src_port = pinfo->srcport;
+    dst_port = pinfo->destport;
 
     /* to make all the sub protocol(such as DNS) under li5g*/
     if (li5g_tree && li5g_tree->parent){
@@ -129,9 +129,9 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* copy back to the original value when return from innner protocol */
     copy_address_shallow(&pinfo->src, &src_addr);
-	copy_address_shallow(&pinfo->dst, &dst_addr);
-	pinfo->srcport = src_port;
-	pinfo->destport = dst_port;
+    copy_address_shallow(&pinfo->dst, &dst_addr);
+    pinfo->srcport = src_port;
+    pinfo->destport = dst_port;
 
     return tvb_captured_length(tvb);
 }
@@ -162,7 +162,7 @@ proto_register_li5g(void)
     memset(hf_li5g_attrContents, -1, sizeof(hf_li5g_attrContents));
 
     static hf_register_info hf[] = {
-	    { &hf_li5g_version, { "Version", "li5g.ver", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_li5g_version, { "Version", "li5g.ver", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_pduType, { "PDU Type", "li5g.type", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_headerLen, { "Header Length", "li5g.hl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_li5g_payloadLen, { "Payload Length", "li5g.pl", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -192,7 +192,7 @@ proto_register_li5g(void)
     };
 
     static gint *ett[] = {
-	    &ett_li5g,
+        &ett_li5g,
         &ett_attrContents[5],
         &ett_attrContents[6],
         &ett_attrContents[7],
