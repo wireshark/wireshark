@@ -230,5 +230,6 @@ proto_reg_handoff_li5g(void)
 
     li5g_handle = register_dissector("li5g", dissect_li5g, proto_li5g);
     dissector_add_uint_range_with_preference("tcp.port", "", li5g_handle);
+    dissector_add_uint_range_with_preference("udp.port", "", li5g_handle);
     heur_dissector_add("tls", dissect_li5g_heur, "5G LI over TLS", "li5g_tls", proto_li5g, HEURISTIC_ENABLE);
 }
