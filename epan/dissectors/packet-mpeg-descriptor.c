@@ -3631,6 +3631,39 @@ proto_mpeg_descriptor_dissect_xait(tvbuff_t *tvb, guint offset, proto_tree *tree
     proto_tree_add_item(tree, hf_mpeg_descr_xait_update_policy, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
+/* 0x7E FTA Content Management Descriptor */
+static int hf_mpeg_descr_fta_user_defined = -1;
+static int hf_mpeg_descr_fta_reserved_future_use = -1;
+static int hf_mpeg_descr_fta_do_not_scramble = -1;
+static int hf_mpeg_descr_fta_control_remote_access_over_internet = -1;
+static int hf_mpeg_descr_fta_do_not_apply_revocation = -1;
+
+#define MPEG_DESCR_FTA_USER_DEFINED_MASK 0x80
+#define MPEG_DESCR_FTA_RESERVED_MASK 0x70
+#define MPEG_DESCR_FTA_DO_NOT_SCRAMBLE_MASK 0x08
+#define MPEG_DESCR_FTA_REMOTE_MASK 0x06
+#define MPEG_DESCR_FTA_REVOCATION_MASK 0x01
+
+static const value_string fta_control_remote_access_over_internet_vals[] = {
+    { 0, "Redistribution over the Internet is enabled." },
+    { 1, "Redistribution over the Internet is enabled but only within a managed domain." },
+    { 2, "Redistribution over the Internet is enabled but only within a managed domain and after a certain short period of time (e.g. 24 hours)." },
+    { 3, "Redistribution over the Internet is not allowed with the following exception: Redistribution over the Internet within a managed domain is enabled after a specified long (possibly indefinite) period of time." },
+    { 0, NULL }
+};
+
+static const true_false_string tfs_fta_do_not_scramble = { "Scrambling shall not be applied for the purposes of content protection", "Scrambling shall be applied where applicable for content protection" };
+static const true_false_string tfs_fta_do_not_apply_revocation = { "Content revocation process shall not be applied", "Content revocation process shall be applied" };
+
+static void
+proto_mpeg_descriptor_dissect_fta(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+    proto_tree_add_item(tree, hf_mpeg_descr_fta_user_defined, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_fta_reserved_future_use, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_fta_do_not_scramble, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_fta_control_remote_access_over_internet, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_mpeg_descr_fta_do_not_apply_revocation, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
+
 /* 0x7F Extension Descriptor */
 static int hf_mpeg_descr_extension_tag_extension = -1;
 static int hf_mpeg_descr_extension_data = -1;
@@ -4583,6 +4616,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
             break;
         case 0x7D: /* XAIT Content Location Descriptor */
             proto_mpeg_descriptor_dissect_xait(tvb, offset, descriptor_tree);
+            break;
+        case 0x7E: /* FTA Content Management Descriptor */
+            proto_mpeg_descriptor_dissect_fta(tvb, offset, descriptor_tree);
             break;
         case 0x7F: /* Extension Descriptor */
             proto_mpeg_descriptor_dissect_extension(tvb, offset, len, descriptor_tree);
@@ -6357,6 +6393,33 @@ proto_register_mpeg_descriptor(void)
             "Update Policy", "mpeg_descr.xait.update_policy",
             FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(mpeg_descr_xait_update_policy_vals),
             MPEG_DESCR_XAIT_UPDATE_POLICY_MASK, NULL, HFILL
+        } },
+
+        /* 0x7E FTA Content Management Descriptor */
+        { &hf_mpeg_descr_fta_user_defined, {
+            "User Defined", "mpeg_descr.fta.user_defined",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_FTA_USER_DEFINED_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_fta_reserved_future_use, {
+            "Reserved Future Use", "mpeg_descr.fta.reserved",
+            FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_FTA_RESERVED_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_fta_do_not_scramble, {
+            "Do Not Scramble Flag", "mpeg_descr.fta.scramble",
+            FT_BOOLEAN, 8, TFS(&tfs_fta_do_not_scramble), MPEG_DESCR_FTA_DO_NOT_SCRAMBLE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_fta_control_remote_access_over_internet, {
+            "Control Remote Access Over Internet", "mpeg_descr.fta.remote",
+            FT_UINT8, BASE_HEX, VALS(fta_control_remote_access_over_internet_vals),
+            MPEG_DESCR_FTA_REMOTE_MASK, NULL, HFILL
+        } },
+
+        { &hf_mpeg_descr_fta_do_not_apply_revocation, {
+            "Do Not Apply Revocation Flag", "mpeg_descr.fta.revocation",
+            FT_BOOLEAN, 8, TFS(&tfs_fta_do_not_apply_revocation), MPEG_DESCR_FTA_REVOCATION_MASK, NULL, HFILL
         } },
 
         /* 0x7F Extension Descriptor */
