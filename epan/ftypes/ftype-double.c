@@ -92,6 +92,20 @@ val_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
 	return FT_OK;
 }
 
+enum ft_result
+val_add(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.floating = a->value.floating + b->value.floating;
+	return FT_OK;
+}
+
+enum ft_result
+val_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+{
+	dst->value.floating = a->value.floating - b->value.floating;
+	return FT_OK;
+}
+
 static int
 cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
@@ -131,6 +145,8 @@ ftype_register_double(void)
 		NULL,
 		NULL,				/* bitwise_and */
 		val_unary_minus,		/* unary_minus */
+		val_add,			/* add */
+		val_subtract,			/* subtract */
 	};
 
 	static ftype_t double_type = {
@@ -158,6 +174,8 @@ ftype_register_double(void)
 		NULL,
 		NULL,				/* bitwise_and */
 		val_unary_minus,		/* unary_minus */
+		val_add,			/* add */
+		val_subtract,			/* subtract */
 	};
 
 	ftype_register(FT_FLOAT, &float_type);

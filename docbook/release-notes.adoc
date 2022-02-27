@@ -65,6 +65,10 @@ They previously shipped with Npcap 1.55.
    It must be written "0.7" and "7.0" respectively.
 ** The "bitwise and" operator is now a first-class bit operator, not a boolean operator. In particular this means
    it is now possible to mask bits, e.g.: frame[0] & 0x0F == 3.
+** Simple arithmetic expressions are supported in filter expressions (addition and subtraction only).
+   Is is now possible to use expressions such as "tcp.dstport >= tcp.srcport + 1", or using field references
+   to the selected frame: frame.number > ${frame.number} - 5. Note that the last example is only meaningful using
+   the GUI because TShark has no concept of selected frame.
 
 * text2pcap and "Import from Hex Dump":
 ** text2pcap supports writing the output file in all the capture file formats

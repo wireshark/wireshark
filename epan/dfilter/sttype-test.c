@@ -109,7 +109,11 @@ test_todisplay(test_op_t op)
 		case OP_BITWISE_AND:
 			s = "&";
 			break;
+		case OP_ADD:
+			s = "+";
+			break;
 		case OP_UNARY_MINUS:
+		case OP_SUBTRACT:
 			s = "-";
 			break;
 		case TEST_OP_NOTZERO:
@@ -179,6 +183,12 @@ test_todebug(test_op_t op)
 		case OP_UNARY_MINUS:
 			s = "UNARY_MINUS";
 			break;
+		case OP_ADD:
+			s = "ADD";
+			break;
+		case OP_SUBTRACT:
+			s = "SUBTRACT";
+			break;
 		case TEST_OP_NOTZERO:
 			s = "TEST_NOTZERO";
 			break;
@@ -234,6 +244,8 @@ num_operands(test_op_t op)
 		case TEST_OP_LT:
 		case TEST_OP_LE:
 		case OP_BITWISE_AND:
+		case OP_ADD:
+		case OP_SUBTRACT:
 		case TEST_OP_CONTAINS:
 		case TEST_OP_MATCHES:
 		case TEST_OP_IN:

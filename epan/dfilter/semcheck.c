@@ -1341,21 +1341,27 @@ check_bitwise_operation(dfwork_t *dfw, stnode_t *st_node)
 }
 
 ftenum_t
-check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
+check_arithmetic_entity(dfwork_t *dfw, FtypeCanFunc can_func,
+		stnode_t *st_node, stnode_t *st_arg, ftenum_t lhs_ftype)
 {
-	test_op_t		st_op;
-	stnode_t		*st_arg;
 	sttype_id_t		type;
 	ftenum_t		ftype;
-	FtypeCanFunc 		can_func = NULL;
+	test_op_t		st_op;
 
-	sttype_test_get(st_node, &st_op, &st_arg, NULL);
 	resolve_unparsed(dfw, st_arg);
 	type = stnode_type_id(st_arg);
+
+	sttype_test_get(st_node, &st_op, NULL, NULL);
 
 	switch (st_op) {
 		case OP_UNARY_MINUS:
 			can_func = ftype_can_unary_minus;
+			break;
+		case OP_ADD:
+			can_func = ftype_can_add;
+			break;
+		case OP_SUBTRACT:
+			can_func = ftype_can_subtract;
 			break;
 		default:
 			ws_assert_not_reached();
@@ -1368,9 +1374,10 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 		stnode_replace(st_arg, STTYPE_FVALUE, fvalue);
 		ftype = fvalue_type_ftenum(fvalue);
 		if (!can_func(ftype)) {
-			FAIL(dfw, "%s (%s) cannot be negative.",
+			FAIL(dfw, "%s (%s) is not a valid arithmetic operand for %s.",
 					stnode_todisplay(st_arg),
-					fvalue_type_name(fvalue));
+					fvalue_type_name(fvalue),
+					stnode_todisplay(st_node));
 		}
 
 		if (st_op == OP_UNARY_MINUS) {
@@ -1391,8 +1398,9 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 		ftype = hfinfo->type;
 
 		if (!can_func(ftype)) {
-			FAIL(dfw, "%s (type=%s) cannot be negative.",
-					hfinfo->abbrev, ftype_pretty_name(ftype));
+			FAIL(dfw, "%s (type=%s) is not a valid arithmetic operand for %s.",
+					hfinfo->abbrev, ftype_pretty_name(ftype),
+					stnode_todisplay(st_node));
 		}
 	}
 	else if (type == STTYPE_FUNCTION) {
@@ -1402,17 +1410,54 @@ check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
 		ftype = funcdef->retval_ftype;
 
 		if (!can_func(ftype)) {
-			FAIL(dfw, "Function %s (type=%s) cannot be negative.",
-					funcdef->name, ftype_pretty_name(ftype));
+			FAIL(dfw, "Function %s (type=%s) is not a valid arithmetic operand for %s.",
+					funcdef->name, ftype_pretty_name(ftype),
+					stnode_todisplay(st_node));
 		}
 	}
 	else {
-		FAIL(dfw, "%s cannot be a negative value.",
-				stnode_todisplay(st_arg));
+		FAIL(dfw, "%s is not a valid arithmetic operand for %s.",
+				stnode_todisplay(st_arg),
+				stnode_todisplay(st_node));
 	}
 
 	return ftype;
 }
+
+ftenum_t
+check_arithmetic_operation(dfwork_t *dfw, stnode_t *st_node, ftenum_t lhs_ftype)
+{
+	test_op_t		st_op;
+	stnode_t		*st_arg1, *st_arg2;
+	ftenum_t		ftype1, ftype2;
+	FtypeCanFunc 		can_func = NULL;
+
+	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
+
+	switch (st_op) {
+		case OP_UNARY_MINUS:
+			return check_arithmetic_entity(dfw, ftype_can_unary_minus, st_node, st_arg1, lhs_ftype);
+		case OP_ADD:
+			can_func = ftype_can_add;
+			break;
+		case OP_SUBTRACT:
+			can_func = ftype_can_subtract;
+			break;
+		default:
+			ws_assert_not_reached();
+	}
+
+
+	ftype1 = check_arithmetic_entity(dfw, can_func, st_node, st_arg1, lhs_ftype);
+	ftype2 = check_arithmetic_entity(dfw, can_func, st_node, st_arg2, lhs_ftype);
+
+	if (!compatible_ftypes(ftype1, ftype2)) {
+		FAIL(dfw, "%s and %s are not type compatible.",
+			stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
+	}
+	return ftype1;
+}
+
 
 /* Check the entire syntax tree. */
 static void

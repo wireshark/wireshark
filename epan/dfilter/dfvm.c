@@ -7,6 +7,7 @@
  */
 
 #include "config.h"
+#define WS_LOG_DOMAIN LOG_DOMAIN_DFILTER
 
 #include "dfvm.h"
 
@@ -298,6 +299,16 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, gboolean print_references)
 			case ALL_ZERO:
 				wmem_strbuf_append_printf(buf, "%05d ALL_ZERO\t\t%s\n",
 					id, arg1_str);
+				break;
+
+			case DFVM_ADD:
+				wmem_strbuf_append_printf(buf, "%05d ADD\t\t%s + %s -> %s\n",
+					id, arg1_str, arg2_str, arg3_str);
+				break;
+
+			case DFVM_SUBTRACT:
+				wmem_strbuf_append_printf(buf, "%05d SUBRACT\t\t%s - %s -> %s\n",
+					id, arg1_str, arg2_str, arg3_str);
 				break;
 
 			case ANY_CONTAINS:
@@ -707,11 +718,32 @@ static void debug_op_error(fvalue_t *v1, fvalue_t *v2, const char *op, const cha
 	g_free(s2);
 }
 
+static void _U_
+debug_register(GSList *reg, guint32 num)
+{
+	wmem_strbuf_t *buf;
+	GSList *l;
+	char *s;
 
-typedef fvalue_t* (*DFVMBitwiseFunc)(const fvalue_t*, const fvalue_t*, char **);
+	buf = wmem_strbuf_new(NULL, NULL);
+
+	wmem_strbuf_append_printf(buf, "Reg#%"G_GUINT32_FORMAT" = { ", num);
+	for (l = reg; l != NULL; l = l->next) {
+		s = fvalue_to_debug_repr(NULL, l->data);
+		wmem_strbuf_append(buf, s);
+		g_free(s);
+		wmem_strbuf_append_c(buf, ' ');
+	}
+	wmem_strbuf_append_c(buf, '}');
+	ws_noisy("%s", wmem_strbuf_get_str(buf));
+	wmem_strbuf_destroy(buf);
+}
+
+
+typedef fvalue_t* (*DFVMBinaryFunc)(const fvalue_t*, const fvalue_t*, char **);
 
 static void
-mk_bitwise_internal(DFVMBitwiseFunc func,
+mk_binary_internal(DFVMBinaryFunc func,
 			GSList *arg1, GSList *arg2, GSList **retval)
 {
 	GSList *list1, *list2;
@@ -743,28 +775,40 @@ mk_bitwise_internal(DFVMBitwiseFunc func,
 }
 
 static void
-mk_bitwise(dfilter_t *df, DFVMBitwiseFunc func,
+mk_binary(dfilter_t *df, DFVMBinaryFunc func,
 		dfvm_value_t *arg1, dfvm_value_t *arg2, dfvm_value_t *to_arg)
 {
-	ws_assert(arg1->type == REGISTER);
-	GSList *list1 = df->registers[arg1->value.numeric];
+	GSList ls1, ls2;
+	GSList *list1, *list2;
 	GSList *result = NULL;
 
-	if (arg2->type == REGISTER) {
-		GSList *list2 = df->registers[arg2->value.numeric];
-
-		mk_bitwise_internal(func, list1, list2, &result);
+	if (arg1->type == REGISTER) {
+		list1 = df->registers[arg1->value.numeric];
 	}
-	else if (arg2->type == FVALUE) {
-		GSList list2;
-
-		list2.data = arg2->value.fvalue;
-		list2.next = NULL;
-		mk_bitwise_internal(func, list1, &list2, &result);
+	else if (arg1->type == FVALUE) {
+		ls1.data = arg1->value.fvalue;
+		ls1.next = NULL;
+		list1 = &ls1;
 	}
 	else {
 		ws_assert_not_reached();
 	}
+
+	if (arg2->type == REGISTER) {
+		list2 = df->registers[arg2->value.numeric];
+	}
+	else if (arg2->type == FVALUE) {
+		ls2.data = arg2->value.fvalue;
+		ls2.next = NULL;
+		list2 = &ls2;
+	}
+	else {
+		ws_assert_not_reached();
+	}
+
+	mk_binary_internal(func, list1, list2, &result);
+	//debug_register(result, to_arg->value.numeric);
+
 	df->registers[to_arg->value.numeric] = result;
 	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
 }
@@ -897,7 +941,15 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case MK_BITWISE_AND:
-				mk_bitwise(df, fvalue_bitwise_and, arg1, arg2, arg3);
+				mk_binary(df, fvalue_bitwise_and, arg1, arg2, arg3);
+				break;
+
+			case DFVM_ADD:
+				mk_binary(df, fvalue_add, arg1, arg2, arg3);
+				break;
+
+			case DFVM_SUBTRACT:
+				mk_binary(df, fvalue_subtract, arg1, arg2, arg3);
 				break;
 
 			case ANY_ZERO:

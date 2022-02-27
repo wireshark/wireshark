@@ -122,6 +122,8 @@ ftype_register_guid(void)
         NULL,
         NULL,
         NULL,                /* unary_minus */
+        NULL,                /* add */
+        NULL,                /* subtract */
     };
 
     ftype_register(FT_GUID, &guid_type);

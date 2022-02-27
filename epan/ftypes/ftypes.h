@@ -188,6 +188,12 @@ ftype_can_bitwise_and(enum ftenum ftype);
 gboolean
 ftype_can_unary_minus(enum ftenum ftype);
 
+gboolean
+ftype_can_add(enum ftenum ftype);
+
+gboolean
+ftype_can_subtract(enum ftenum ftype);
+
 WS_DLL_PUBLIC
 gboolean
 ftype_can_contains(enum ftenum ftype);
@@ -376,6 +382,12 @@ fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b, char **err_msg);
 
 fvalue_t*
 fvalue_unary_minus(const fvalue_t *fv, char **err_msg);
+
+fvalue_t*
+fvalue_add(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
+
+fvalue_t*
+fvalue_subtract(const fvalue_t *a, const fvalue_t *b, gchar **err_msg);
 
 #ifdef __cplusplus
 }

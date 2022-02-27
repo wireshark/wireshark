@@ -149,6 +149,9 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     '.gitlab/': [
         'UNKNOWN',
     ],
+    'wsutil/safe-math.h': [ # Public domain (CC0)
+        'UNKNOWN',
+    ],
 }
 
 def check_licenses(options, args):

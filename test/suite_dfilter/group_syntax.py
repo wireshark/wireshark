@@ -158,7 +158,7 @@ class case_bitwise(unittest.TestCase):
         checkDFilterCount(dfilter, 1)
 
 @fixtures.uses_fixtures
-class case_arithmetic(unittest.TestCase):
+class case_unary_minus(unittest.TestCase):
     trace_file = "http.pcap"
 
     def test_minus_const_1(self, checkDFilterCount):
@@ -185,3 +185,19 @@ class case_arithmetic(unittest.TestCase):
         error = 'Left side of "==" expression must be a field or function'
         dfilter = "-2 == tcp.dstport"
         checkDFilterFail(dfilter, error)
+
+@fixtures.uses_fixtures
+class case_arithmetic(unittest.TestCase):
+    trace_file = "dhcp.pcap"
+
+    def test_add_1(self, checkDFilterCount):
+        dfilter = "udp.dstport == udp.srcport + 1"
+        checkDFilterCount(dfilter, 2)
+
+    def test_sub_1(self, checkDFilterCount):
+        dfilter = "udp.srcport == udp.dstport - 1"
+        checkDFilterCount(dfilter, 2)
+
+    def test_sub_2(self, checkDFilterCount):
+        dfilter = "udp.length == ip.len - 20"
+        checkDFilterCount(dfilter, 4)

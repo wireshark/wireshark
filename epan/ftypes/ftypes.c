@@ -219,6 +219,24 @@ ftype_can_unary_minus(enum ftenum ftype)
 }
 
 gboolean
+ftype_can_add(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->add != NULL;
+}
+
+gboolean
+ftype_can_subtract(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->subtract != NULL;
+}
+
+gboolean
 ftype_can_contains(enum ftenum ftype)
 {
 	ftype_t	*ft;
@@ -816,6 +834,38 @@ fvalue_bitwise_and(const fvalue_t *a, const fvalue_t *b, char **err_msg)
 
 	result = fvalue_new(a->ftype->ftype);
 	if (a->ftype->bitwise_and(result, a, b, err_msg) != FT_OK) {
+		fvalue_free(result);
+		return NULL;
+	}
+	return result;
+}
+
+fvalue_t *
+fvalue_add(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
+{
+	fvalue_t *result;
+
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->add);
+
+	result = fvalue_new(a->ftype->ftype);
+	if (a->ftype->add(result, a, b, err_msg) != FT_OK) {
+		fvalue_free(result);
+		return NULL;
+	}
+	return result;
+}
+
+fvalue_t *
+fvalue_subtract(const fvalue_t *a, const fvalue_t *b, gchar **err_msg)
+{
+	fvalue_t *result;
+
+	/* XXX - check compatibility of a and b */
+	ws_assert(a->ftype->subtract);
+
+	result = fvalue_new(a->ftype->ftype);
+	if (a->ftype->subtract(result, a, b, err_msg) != FT_OK) {
 		fvalue_free(result);
 		return NULL;
 	}

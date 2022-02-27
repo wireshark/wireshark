@@ -923,6 +923,8 @@ Example: 114 is 0x0072
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */
         NULL,                                 /* unary_minus */
+        NULL,                                 /* add */
+        NULL,                                 /* subtract */
     };
 
 /*
@@ -977,6 +979,8 @@ Example: 36.4 is 0xFF00016C
         NULL,                                /* slice */
         NULL,                                /* bitwise_and */
         NULL,                                /* unary_minus */
+        NULL,                                /* add */
+        NULL,                                /* subtract */
     };
 
     ftype_register(FT_IEEE_11073_SFLOAT, &sfloat_type);

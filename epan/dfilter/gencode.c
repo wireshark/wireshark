@@ -357,7 +357,7 @@ gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 {
 	stnode_t	*left, *right;
 	test_op_t	st_op;
-	dfvm_value_t	*reg_val, *val1;
+	dfvm_value_t	*reg_val, *val1, *val2 = NULL;
 	dfvm_opcode_t	op;
 
 	sttype_test_get(st_arg, &st_op, &left, &right);
@@ -365,14 +365,27 @@ gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	if (st_op == OP_UNARY_MINUS) {
 		op = MK_MINUS;
 	}
+	else if (st_op == OP_ADD) {
+		op = DFVM_ADD;
+	}
+	else if (st_op == OP_SUBTRACT) {
+		op = DFVM_SUBTRACT;
+	}
 	else {
 		ws_assert_not_reached();
 	}
 
-	/* Generate DFVM instruction. */
 	val1 = gen_entity(dfw, left, jumps_ptr);
+	if (right == NULL) {
+		/* Generate unary DFVM instruction. */
+		reg_val = dfvm_value_new_register(dfw->next_register++);
+		gen_relation_insn(dfw, op, val1, reg_val, NULL, NULL);
+		return reg_val;
+	}
+
+	val2 = gen_entity(dfw, right, jumps_ptr);
 	reg_val = dfvm_value_new_register(dfw->next_register++);
-	gen_relation_insn(dfw, op, val1, reg_val, NULL, NULL);
+	gen_relation_insn(dfw, op, val1, val2, reg_val, NULL);
 	return reg_val;
 }
 
@@ -562,6 +575,8 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 		case OP_BITWISE_AND:
 		case OP_UNARY_MINUS:
+		case OP_ADD:
+		case OP_SUBTRACT:
 			ws_assert_not_reached();
 			break;
 	}

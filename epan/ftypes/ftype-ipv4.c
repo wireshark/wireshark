@@ -174,6 +174,8 @@ ftype_register_ipv4(void)
 		slice,
 		bitwise_and,
 		NULL,				/* unary_minus */
+		NULL,				/* add */
+		NULL,				/* subtract */
 	};
 
 	ftype_register(FT_IPv4, &ipv4_type);
