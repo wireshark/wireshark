@@ -53,10 +53,6 @@ binary_strtoul(const char *s, char **endptr)
 {
 	const char *binstr = s;
 
-	if (*binstr == '+') {
-		binstr++;
-	}
-
 	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
 		return strtoul(binstr + 2, endptr, 2);
 	}
@@ -70,19 +66,6 @@ uint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 {
 	unsigned long value;
 	char	*endptr;
-
-	/*
-	 * Try to parse it as a number.
-	 */
-	if (strchr (s, '-') && strtol(s, NULL, 0) < 0) {
-		/*
-		 * Probably a negative integer, but will be
-		 * "converted in the obvious manner" by strtoul().
-		 */
-		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" too small for this field, minimum 0.", s);
-		return FALSE;
-	}
 
 	errno = 0;
 	value = binary_strtoul(s, &endptr);
@@ -155,19 +138,9 @@ static long
 binary_strtol(const char *s, char **endptr)
 {
 	const char *binstr = s;
-	gboolean negative = FALSE;
-
-	if (*binstr == '+') {
-		binstr++;
-	}
-	else if (*binstr == '-') {
-		binstr++;
-		negative = TRUE;
-	}
 
 	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
-		long value = strtol(binstr + 2, endptr, 2);
-		return negative ? -value : +value;
+		return strtol(binstr + 2, endptr, 2);
 	}
 
 	return strtol(s, endptr, 0);
@@ -179,20 +152,6 @@ sint_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 {
 	long value;
 	char *endptr;
-
-	/*
-	 * Try to parse it as a number.
-	 */
-	if (!strchr (s, '-') && strtoul(s, NULL, 0) > G_MAXINT32) {
-		/*
-		 * Probably a positive integer > G_MAXINT32, but
-		 * will be "converted in the obvious manner" by
-		 * strtol().
-		 */
-		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
-		return FALSE;
-	}
 
 	errno = 0;
 	value = binary_strtol(s, &endptr);
@@ -493,10 +452,6 @@ binary_strtoull(const char *s, char **endptr)
 {
 	const char *binstr = s;
 
-	if (*binstr == '+') {
-		binstr++;
-	}
-
 	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
 		return g_ascii_strtoull(binstr + 2, endptr, 2);
 	}
@@ -510,16 +465,6 @@ _uint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 {
 	guint64 value;
 	char	*endptr;
-
-	if (strchr (s, '-') && g_ascii_strtoll(s, NULL, 0) < 0) {
-		/*
-		 * Probably a negative integer, but will be
-		 * "converted in the obvious manner" by g_ascii_strtoull().
-		 */
-		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" causes an integer underflow.", s);
-		return FALSE;
-	}
 
 	errno = 0;
 	value = binary_strtoull(s, &endptr);
@@ -591,19 +536,9 @@ static long long
 binary_strtoll(const char *s, char **endptr)
 {
 	const char *binstr = s;
-	gboolean negative = FALSE;
-
-	if (*binstr == '+') {
-		binstr++;
-	}
-	else if (*binstr == '-') {
-		binstr++;
-		negative = TRUE;
-	}
 
 	if (binstr[0] == '0' && (binstr[1] == 'b' || binstr[1] == 'B')) {
-		long long value = g_ascii_strtoll(binstr + 2, endptr, 2);
-		return negative ? -value : +value;
+		return g_ascii_strtoll(binstr + 2, endptr, 2);
 	}
 
 	return g_ascii_strtoll(s, endptr, 0);
@@ -615,16 +550,6 @@ _sint64_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _
 {
 	gint64 value;
 	char   *endptr;
-
-	if (!strchr (s, '-') && g_ascii_strtoull(s, NULL, 0) > G_MAXINT64) {
-		/*
-		 * Probably a positive integer > G_MAXINT64, but will be
-		 * "converted in the obvious manner" by g_ascii_strtoll().
-		 */
-		if (err_msg != NULL)
-			*err_msg = ws_strdup_printf("\"%s\" causes an integer overflow.", s);
-		return FALSE;
-	}
 
 	errno = 0;
 	value = binary_strtoll(s, &endptr);
@@ -754,6 +679,21 @@ uint_is_zero(const fvalue_t *fv)
 }
 
 enum ft_result
+uint_unary_minus(fvalue_t *dst, const fvalue_t *src, char **err_ptr)
+{
+	/* Unsigned integers are promoted to 32 bits. */
+	if (src->value.uinteger > G_MAXINT32) {
+		if (err_ptr)
+			*err_ptr = ws_strdup_printf("%"G_GUINT32_FORMAT" overflows gint32",
+							src->value.uinteger);
+		return FT_ERR_OVERFLOW;
+	}
+	FTYPE_LOOKUP(FT_INT32, dst->ftype);
+	dst->value.sinteger = -(gint32)src->value.uinteger;
+	return FT_OK;
+}
+
+enum ft_result
 uint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
 {
 	dst->value.uinteger64 = a->value.uinteger64 & b->value.uinteger64;
@@ -764,6 +704,21 @@ gboolean
 uint64_is_zero(const fvalue_t *fv)
 {
 	return fv->value.uinteger64 == 0;
+}
+
+enum ft_result
+uint64_unary_minus(fvalue_t *dst, const fvalue_t *src, char **err_ptr)
+{
+	/* Unsigned64 integers are promoted to 64 bits. */
+	if (src->value.uinteger64 > G_MAXINT64) {
+		if (err_ptr)
+			*err_ptr = ws_strdup_printf("%"G_GUINT64_FORMAT" overflows gint64",
+							src->value.uinteger64);
+		return FT_ERR_OVERFLOW;
+	}
+	FTYPE_LOOKUP(FT_INT64, dst->ftype);
+	dst->value.sinteger64 = -(gint64)src->value.uinteger64;
+	return FT_OK;
 }
 
 enum ft_result
@@ -780,6 +735,13 @@ sint_is_zero(const fvalue_t *fv)
 }
 
 enum ft_result
+sint_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
+{
+	dst->value.sinteger = -src->value.sinteger;
+	return FT_OK;
+}
+
+enum ft_result
 sint64_bitwise_and(fvalue_t *dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
 {
 	dst->value.sinteger64 = a->value.sinteger64 & b->value.sinteger64;
@@ -790,6 +752,13 @@ gboolean
 sint64_is_zero(const fvalue_t *fv)
 {
 	return fv->value.sinteger64 == 0;
+}
+
+enum ft_result
+sint64_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
+{
+	dst->value.sinteger64 = -src->value.sinteger64;
+	return FT_OK;
 }
 
 /* BOOLEAN-specific */
@@ -916,6 +885,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
+		uint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint8_type = {
 		FT_UINT8,			/* ftype */
@@ -940,6 +910,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
+		uint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint16_type = {
 		FT_UINT16,			/* ftype */
@@ -964,6 +935,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
+		uint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint24_type = {
 		FT_UINT24,			/* ftype */
@@ -988,6 +960,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
+		uint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint32_type = {
 		FT_UINT32,			/* ftype */
@@ -1012,6 +985,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
+		uint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint40_type = {
 		FT_UINT40,			/* ftype */
@@ -1036,6 +1010,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
+		uint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint48_type = {
 		FT_UINT48,			/* ftype */
@@ -1060,6 +1035,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
+		uint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint56_type = {
 		FT_UINT56,			/* ftype */
@@ -1084,6 +1060,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
+		uint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t uint64_type = {
 		FT_UINT64,			/* ftype */
@@ -1108,6 +1085,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
+		uint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int8_type = {
 		FT_INT8,			/* ftype */
@@ -1132,6 +1110,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
+		sint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int16_type = {
 		FT_INT16,			/* ftype */
@@ -1156,6 +1135,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
+		sint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int24_type = {
 		FT_INT24,			/* ftype */
@@ -1180,6 +1160,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
+		sint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int32_type = {
 		FT_INT32,			/* ftype */
@@ -1204,6 +1185,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint_bitwise_and,		/* bitwise_and */
+		sint_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int40_type = {
 		FT_INT40,			/* ftype */
@@ -1228,6 +1210,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
+		sint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int48_type = {
 		FT_INT48,			/* ftype */
@@ -1252,6 +1235,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
+		sint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int56_type = {
 		FT_INT56,			/* ftype */
@@ -1276,6 +1260,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
+		sint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t int64_type = {
 		FT_INT64,			/* ftype */
@@ -1300,6 +1285,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		sint64_bitwise_and,		/* bitwise_and */
+		sint64_unary_minus,		/* unary_minus */
 	};
 	static ftype_t boolean_type = {
 		FT_BOOLEAN,			/* ftype */
@@ -1324,6 +1310,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		NULL,				/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t ipxnet_type = {
@@ -1349,6 +1336,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
+		uint_unary_minus,		/* unary_minus */
 	};
 
 	static ftype_t framenum_type = {
@@ -1374,6 +1362,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint_bitwise_and,		/* bitwise_and */
+		uint_unary_minus,		/* unary_minus */
 	};
 
 	static ftype_t eui64_type = {
@@ -1399,6 +1388,7 @@ ftype_register_integers(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		uint64_bitwise_and,		/* bitwise_and */
+		uint64_unary_minus,		/* unary_minus */
 	};
 
 	ftype_register(FT_CHAR, &char_type);

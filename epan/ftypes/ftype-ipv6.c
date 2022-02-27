@@ -195,6 +195,7 @@ ftype_register_ipv6(void)
 		NULL,
 		slice,
 		bitwise_and,
+		NULL,				/* unary_minus */
 	};
 
 	ftype_register(FT_IPv6, &ipv6_type);

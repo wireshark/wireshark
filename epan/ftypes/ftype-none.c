@@ -38,6 +38,7 @@ ftype_register_none(void)
 		NULL,				/* len */
 		NULL,				/* slice */
 		NULL,				/* biwise_and */
+		NULL,				/* unary_minus */
 	};
 	ftype_register(FT_NONE, &none_type);
 }

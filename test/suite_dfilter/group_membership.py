@@ -61,7 +61,7 @@ class case_membership(unittest.TestCase):
         checkDFilterCount(dfilter, 1)
 
     def test_membership_6_both_negative_range_float(self, checkDFilterCount):
-        dfilter = 'frame.time_delta in {-20 .. -.7}'
+        dfilter = 'frame.time_delta in {-20 .. -0.7}'
         checkDFilterCount(dfilter, 0)
 
     def test_membership_7_string(self, checkDFilterCount):

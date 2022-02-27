@@ -176,9 +176,20 @@ bitwise_term(T) ::= entity(F) BITWISE_AND(B) entity(M).
     df_lval_free(B, FALSE);
 }
 
+arithmetic_term(T) ::= PLUS entity(N).
+{
+    T = N;
+}
+
+arithmetic_term(T) ::= MINUS entity(N).
+{
+    T = stnode_new(STTYPE_ARITHMETIC, NULL, NULL);
+    sttype_test_set1(T, OP_UNARY_MINUS, N);
+}
 
 term(T) ::= entity(E).          { T = E; }
 term(T) ::= bitwise_term(E).    { T = E; }
+term(T) ::= arithmetic_term(E). { T = E; }
 
 
 /* Ranges */
@@ -294,13 +305,29 @@ set_list(L) ::= set_list(P) COMMA set_element(N).
     L = g_slist_concat(P, N);
 }
 
-set_element(N) ::= entity(X).
+set_entity(N) ::= atom(X).
+{
+    N = X;
+}
+
+set_entity(N) ::= MINUS atom(X).
+{
+    N = stnode_new(STTYPE_ARITHMETIC, NULL, NULL);
+    sttype_test_set1(N, OP_UNARY_MINUS, X);
+}
+
+set_entity(N) ::= PLUS atom(X).
+{
+    N = X;
+}
+
+set_element(N) ::= set_entity(X).
 {
     N = g_slist_append(NULL, X);
     N = g_slist_append(N, NULL);
 }
 
-set_element(N) ::= entity(X) DOTDOT entity(Y).
+set_element(N) ::= set_entity(X) DOTDOT set_entity(Y).
 {
     N = g_slist_append(NULL, X);
     N = g_slist_append(N, Y);

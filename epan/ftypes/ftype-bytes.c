@@ -605,6 +605,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t uint_bytes_type = {
@@ -630,6 +631,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t ax25_type = {
@@ -655,6 +657,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t vines_type = {
@@ -680,6 +683,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t ether_type = {
@@ -705,6 +709,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t oid_type = {
@@ -730,6 +735,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t rel_oid_type = {
@@ -755,6 +761,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t system_id_type = {
@@ -780,6 +787,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	static ftype_t fcwwn_type = {
@@ -805,6 +813,7 @@ ftype_register_bytes(void)
 		len,
 		slice,
 		bytes_bitwise_and,		/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	ftype_register(FT_BYTES, &bytes_type);

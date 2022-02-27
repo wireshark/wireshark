@@ -67,7 +67,7 @@ test_free(gpointer value)
 static const char *
 test_todisplay(test_op_t op)
 {
-	const char *s;
+	const char *s = "<notset>";
 
 	switch(op) {
 		case TEST_OP_EXISTS:
@@ -109,6 +109,9 @@ test_todisplay(test_op_t op)
 		case OP_BITWISE_AND:
 			s = "&";
 			break;
+		case OP_UNARY_MINUS:
+			s = "-";
+			break;
 		case TEST_OP_NOTZERO:
 			s = "<notzero>";
 			break;
@@ -124,9 +127,6 @@ test_todisplay(test_op_t op)
 		case TEST_OP_UNINITIALIZED:
 			s = "<uninitialized>";
 			break;
-		default:
-			s = "<null>";
-			break;
 	}
 	return s;
 }
@@ -134,7 +134,7 @@ test_todisplay(test_op_t op)
 static const char *
 test_todebug(test_op_t op)
 {
-	const char *s;
+	const char *s = "<notset>";
 
 	switch(op) {
 		case TEST_OP_EXISTS:
@@ -176,6 +176,9 @@ test_todebug(test_op_t op)
 		case OP_BITWISE_AND:
 			s = "BITWISE_AND";
 			break;
+		case OP_UNARY_MINUS:
+			s = "UNARY_MINUS";
+			break;
 		case TEST_OP_NOTZERO:
 			s = "TEST_NOTZERO";
 			break;
@@ -190,9 +193,6 @@ test_todebug(test_op_t op)
 			break;
 		case TEST_OP_UNINITIALIZED:
 			s = "<uninitialized>";
-			break;
-		default:
-			s = "<null>";
 			break;
 	}
 	return s;
@@ -221,6 +221,7 @@ num_operands(test_op_t op)
 		case TEST_OP_EXISTS:
 		case TEST_OP_NOT:
 		case TEST_OP_NOTZERO:
+		case OP_UNARY_MINUS:
 			return 1;
 		case TEST_OP_AND:
 		case TEST_OP_OR:
@@ -341,9 +342,18 @@ sttype_register_test(void)
 		test_dup,
 		test_tostr
 	};
+	static sttype_t arithmetic_type = {
+		STTYPE_ARITHMETIC,
+		"ARITHMETIC",
+		test_new,
+		test_free,
+		test_dup,
+		test_tostr
+	};
 
 	sttype_register(&test_type);
 	sttype_register(&bitwise_type);
+	sttype_register(&arithmetic_type);
 }
 
 /*

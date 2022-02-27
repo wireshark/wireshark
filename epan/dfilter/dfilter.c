@@ -260,6 +260,8 @@ const char *tokenstr(int token)
 		case TOKEN_TEST_CONTAINS: return "TEST_CONTAINS";
 		case TOKEN_TEST_MATCHES: return "TEST_MATCHES";
 		case TOKEN_BITWISE_AND: return "BITWISE_AND";
+		case TOKEN_PLUS:	return "PLUS";
+		case TOKEN_MINUS:	return "MINUS";
 		case TOKEN_TEST_NOT:	return "TEST_NOT";
 		case TOKEN_STRING:	return "STRING";
 		case TOKEN_CHARCONST:	return "CHARCONST";

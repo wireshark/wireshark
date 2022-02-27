@@ -411,6 +411,14 @@ time_is_zero(const fvalue_t *fv)
 	return nstime_is_zero(&fv->value.time);
 }
 
+static enum ft_result
+time_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
+{
+	dst->value.time.secs = -src->value.time.secs;
+	dst->value.time.nsecs = -src->value.time.nsecs;
+	return FT_OK;
+}
+
 void
 ftype_register_time(void)
 {
@@ -438,6 +446,7 @@ ftype_register_time(void)
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 	static ftype_t reltime_type = {
 		FT_RELATIVE_TIME,		/* ftype */
@@ -462,6 +471,7 @@ ftype_register_time(void)
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
+		time_unary_minus,		/* unary_minus */
 	};
 
 	ftype_register(FT_ABSOLUTE_TIME, &abstime_type);

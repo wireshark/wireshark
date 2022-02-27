@@ -186,6 +186,7 @@ ftype_register_string(void)
 		len,
 		slice,
 		NULL,				/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 	static ftype_t stringz_type = {
 		FT_STRINGZ,			/* ftype */
@@ -210,6 +211,7 @@ ftype_register_string(void)
 		len,
 		slice,
 		NULL,				/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 	static ftype_t uint_string_type = {
 		FT_UINT_STRING,		/* ftype */
@@ -234,6 +236,7 @@ ftype_register_string(void)
 		len,
 		slice,
 		NULL,				/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 	static ftype_t stringzpad_type = {
 		FT_STRINGZPAD,			/* ftype */
@@ -258,6 +261,7 @@ ftype_register_string(void)
 		len,
 		slice,
 		NULL,				/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 	static ftype_t stringztrunc_type = {
 		FT_STRINGZTRUNC,		/* ftype */
@@ -282,6 +286,7 @@ ftype_register_string(void)
 		len,
 		slice,
 		NULL,				/* bitwise_and */
+		NULL,				/* unary_minus */
 	};
 
 	ftype_register(FT_STRING, &string_type);

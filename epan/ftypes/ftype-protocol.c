@@ -333,6 +333,7 @@ ftype_register_tvbuff(void)
 		len,
 		slice,
 		NULL,
+		NULL,				/* unary_minus */
 	};
 
 

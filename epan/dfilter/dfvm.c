@@ -302,6 +302,11 @@ dfvm_dump(FILE *f, dfilter_t *df)
 					id, arg1_str, arg2_str, arg3_str);
 				break;
 
+			case MK_MINUS:
+				fprintf(f, "%05d MK_MINUS\t\t-%s -> %s\n",
+					id, arg1_str, arg2_str);
+				break;
+
 			case NOT:
 				fprintf(f, "%05d NOT\n", id);
 				break;
@@ -684,6 +689,45 @@ mk_bitwise(dfilter_t *df, DFVMBitwiseFunc func,
 	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
 }
 
+static void
+mk_minus_internal(GSList *arg1, GSList **retval)
+{
+	GSList *list1;
+	GSList *to_list = NULL;
+	fvalue_t *val1;
+	fvalue_t *result;
+	char *err_msg = NULL;
+
+	list1 = arg1;
+	while (list1) {
+		val1 = list1->data;
+		result = fvalue_unary_minus(val1, &err_msg);
+		if (result == NULL) {
+			ws_noisy("unary_minus: %s", err_msg);
+			g_free(err_msg);
+			err_msg = NULL;
+		}
+		else {
+			to_list = g_slist_prepend(to_list, result);
+		}
+		list1 = g_slist_next(list1);
+	}
+	*retval = to_list;
+}
+
+static void
+mk_minus(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
+{
+	ws_assert(arg1->type == REGISTER);
+	GSList *list1 = df->registers[arg1->value.numeric];
+	GSList *result = NULL;
+
+	mk_minus_internal(list1, &result);
+
+	df->registers[to_arg->value.numeric] = result;
+	df->free_registers[to_arg->value.numeric] = (GDestroyNotify)fvalue_free;
+}
+
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree)
 {
@@ -790,6 +834,10 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case ANY_IN_RANGE:
 				accum = any_in_range(df, arg1, arg2, arg3);
+				break;
+
+			case MK_MINUS:
+				mk_minus(df, arg1, arg2);
 				break;
 
 			case NOT:

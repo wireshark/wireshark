@@ -120,6 +120,7 @@ ftype_register_guid(void)
         NULL,
         NULL,
         NULL,
+        NULL,                /* unary_minus */
     };
 
     ftype_register(FT_GUID, &guid_type);

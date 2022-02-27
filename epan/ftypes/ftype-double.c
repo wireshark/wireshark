@@ -85,6 +85,13 @@ double_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype _
 	return buf;
 }
 
+enum ft_result
+val_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
+{
+	dst->value.floating = -src->value.floating;
+	return FT_OK;
+}
+
 static int
 cmp_order(const fvalue_t *a, const fvalue_t *b)
 {
@@ -122,6 +129,7 @@ ftype_register_double(void)
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
+		val_unary_minus,		/* unary_minus */
 	};
 
 	static ftype_t double_type = {
@@ -147,6 +155,7 @@ ftype_register_double(void)
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
+		val_unary_minus,		/* unary_minus */
 	};
 
 	ftype_register(FT_FLOAT, &float_type);

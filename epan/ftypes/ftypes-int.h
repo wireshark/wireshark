@@ -13,9 +13,17 @@
 #include "ftypes.h"
 #include <epan/proto.h>
 
+extern ftype_t* type_list[FT_NUM_TYPES];
+
+/* Given an ftenum number, return an ftype_t* */
+#define FTYPE_LOOKUP(ftype, result)		\
+	/* Check input */			\
+	ws_assert(ftype < FT_NUM_TYPES);	\
+	result = type_list[ftype];
+
 enum ft_result {
 	FT_OK,
-	FT_ERROR,
+	FT_ERR_OVERFLOW,
 };
 
 typedef void (*FvalueNewFunc)(fvalue_t*);
@@ -53,6 +61,7 @@ typedef gboolean (*FvalueIsZero)(const fvalue_t*);
 typedef guint (*FvalueLen)(fvalue_t*);
 typedef void (*FvalueSlice)(fvalue_t*, GByteArray *, guint offset, guint length);
 typedef enum ft_result (*FvalueBitwiseAnd)(fvalue_t *, const fvalue_t*, const fvalue_t*, gchar **);
+typedef enum ft_result (*FvalueUnaryMinus)(fvalue_t *, const fvalue_t*, gchar **);
 
 struct _ftype_t {
 	ftenum_t		ftype;
@@ -97,6 +106,7 @@ struct _ftype_t {
 	FvalueLen		len;
 	FvalueSlice		slice;
 	FvalueBitwiseAnd	bitwise_and;
+	FvalueUnaryMinus	unary_minus;
 };
 
 void ftype_register(enum ftenum ftype, ftype_t *ft);

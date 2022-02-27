@@ -305,6 +305,30 @@ gen_bitwise(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	return reg_val;
 }
 
+static dfvm_value_t *
+gen_arithmetic(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
+{
+	stnode_t	*left, *right;
+	test_op_t	st_op;
+	dfvm_value_t	*reg_val, *val1;
+	dfvm_opcode_t	op;
+
+	sttype_test_get(st_arg, &st_op, &left, &right);
+
+	if (st_op == OP_UNARY_MINUS) {
+		op = MK_MINUS;
+	}
+	else {
+		ws_assert_not_reached();
+	}
+
+	/* Generate DFVM instruction. */
+	val1 = gen_entity(dfw, left, jumps_ptr);
+	reg_val = dfvm_value_new_register(dfw->next_register++);
+	gen_relation_insn(dfw, op, val1, reg_val, NULL, NULL);
+	return reg_val;
+}
+
 /* Parse an entity, returning the reg that it gets put into.
  * p_jmp will be set if it has to be set by the calling code; it should
  * be set to the place to jump to, to return to the calling code,
@@ -342,6 +366,9 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, GSList **jumps_ptr)
 	}
 	else if (e_type == STTYPE_BITWISE) {
 		val = gen_bitwise(dfw, st_arg, jumps_ptr);
+	}
+	else if (e_type == STTYPE_ARITHMETIC) {
+		val = gen_arithmetic(dfw, st_arg, jumps_ptr);
 	}
 	else {
 		/* printf("sttype_id is %u\n", (unsigned)e_type); */
@@ -464,10 +491,6 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			gen_relation(dfw, ANY_LE, st_arg1, st_arg2);
 			break;
 
-		case OP_BITWISE_AND:
-			ws_assert_not_reached();
-			break;
-
 		case TEST_OP_CONTAINS:
 			gen_relation(dfw, ANY_CONTAINS, st_arg1, st_arg2);
 			break;
@@ -478,6 +501,11 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 		case TEST_OP_IN:
 			gen_relation_in(dfw, st_arg1, st_arg2);
+			break;
+
+		case OP_BITWISE_AND:
+		case OP_UNARY_MINUS:
+			ws_assert_not_reached();
 			break;
 	}
 }
