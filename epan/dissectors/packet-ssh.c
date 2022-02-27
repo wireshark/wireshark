@@ -2783,6 +2783,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
         if ((err = gcry_cipher_setkey(*hd1, k1, iKeyLen))) {
             gcry_cipher_close(*hd1);
             ws_debug("ssh: can't set aes%d cipher key", iKeyLen*8);
+            ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
             return;
         }
 
@@ -2819,6 +2820,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
         if ((err = gcry_cipher_setkey(*hd1, k1, iKeyLen))) {
             gcry_cipher_close(*hd1);
             ws_debug("ssh: can't set aes%d cipher key", iKeyLen*8);
+            ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
             return;
         }
 
@@ -2857,6 +2859,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
         if ((err = gcry_cipher_setkey(*hd1, k1, iKeyLen))) {
             gcry_cipher_close(*hd1);
             ws_debug("ssh: can't set aes%d cipher key", iKeyLen*8);
+            ws_debug("libgcrypt: %d %s %s", gcry_err_code(err), gcry_strsource(err), gcry_strerror(err));
             return;
         }
 
@@ -3100,7 +3103,6 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
     } else if (CIPHER_AES128_GCM == peer_data->cipher_id || CIPHER_AES256_GCM == peer_data->cipher_id) {
 
         mac_len = peer_data->mac_length;
-        message_length = tvb_reported_length_remaining(tvb, offset) - 4 - mac_len;
 
         const gchar *plain_buf = (const gchar *)tvb_get_ptr(tvb, offset, 4);
         message_length = pntoh32(plain_buf);
@@ -3108,7 +3110,6 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         ssh_debug_printf("length: %d, remaining: %d\n", message_length, remaining);
 
         if(message->plain_data && message->data_len){
-            message_length = message->data_len - 4;
         }else{
 
             const gchar *ctl = (const gchar *)tvb_get_ptr(tvb, offset,
@@ -3183,7 +3184,6 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
 
         plain = message->plain_data;
         message_length = message->data_len - 4;
-        mac = (gchar *)tvb_get_ptr(tvb, offset + 4 + message_length, mac_len);
 
 
     } else if (CIPHER_AES128_CBC == peer_data->cipher_id || CIPHER_AES128_CTR == peer_data->cipher_id ||
@@ -3194,7 +3194,6 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
         message_length = tvb_reported_length_remaining(tvb, offset) - 4 - mac_len;
 
         if(message->plain_data && message->data_len){
-            message_length = message->data_len - 4;
         }else{
 // TODO: see how to handle fragmentation...
 //            const gchar *ctext = NULL;
@@ -3208,13 +3207,11 @@ ssh_decrypt_packet(tvbuff_t *tvb, packet_info *pinfo,
                 return offset;
             }
 //            ctext = cypher_buf0;
-            plain = plain0;
             guint message_length_decrypted = pntoh32(plain0);
             guint remaining = tvb_reported_length_remaining(tvb, offset);
 
             if(message_length_decrypted>32768){
                 ws_debug("ssh: unreasonable message length %u/%u", message_length_decrypted, message_length);
-                offset += remaining;
                 return tvb_captured_length(tvb);
             }else{
 
