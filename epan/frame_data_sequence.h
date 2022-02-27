@@ -33,7 +33,7 @@ WS_DLL_PUBLIC frame_data *frame_data_sequence_find(frame_data_sequence *fds,
  */
 WS_DLL_PUBLIC void free_frame_data_sequence(frame_data_sequence *fds);
 
-WS_DLL_PUBLIC void find_and_mark_frame_depended_upon(gpointer data, gpointer user_data);
+WS_DLL_PUBLIC void find_and_mark_frame_depended_upon(gpointer key, gpointer value, gpointer user_data);
 
 
 #ifdef __cplusplus

@@ -146,8 +146,6 @@ typedef struct _packet_info {
 
   GSList* proto_data;          /**< Per packet proto data */
 
-  GSList* dependent_frames;     /**< A list of frames which this one depends on */
-
   GSList* frame_end_routines;
 
   wmem_allocator_t *pool;      /**< Memory pool scoped to the pinfo struct */

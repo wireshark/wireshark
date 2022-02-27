@@ -611,7 +611,7 @@ tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb,packet_info *pinfo, pr
                 sdufrag->frame_num, sdufrag->seq);
         }
 
-        mark_frame_as_depended_upon(pinfo, sdufrag->frame_num);
+        mark_frame_as_depended_upon(pinfo->fd, sdufrag->frame_num);
 
         offset += sdufrag->len;
         sdufrag = sdufrag->next;
