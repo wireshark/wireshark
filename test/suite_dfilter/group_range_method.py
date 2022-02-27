@@ -40,7 +40,7 @@ class case_range(unittest.TestCase):
         checkDFilterFail(dfilter, "Range is not supported for entity \"00\"")
 
     def test_slice_unparsed_1(self, checkDFilterFail):
-        dfilter = "a == b[1]"
+        dfilter = "frame == b[1]"
         checkDFilterFail(dfilter, "Range is not supported for entity \"b\"")
 
     def test_slice_func_1(self, checkDFilterSucceed):

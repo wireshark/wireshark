@@ -61,7 +61,7 @@ They previously shipped with Npcap 1.55.
 ** New syntax to disambiguate literals from identifiers. Every value with a leading dot is a protocol or protocol field.
    Every value with a leading colon or in between angle brackets is a literal value. See the User Guide for details.
 ** Floats must be written with a leading and ending digit. For example the values ".7" and "7." are now invalid as floats.
-   It must be written "0.7" or "7.0".
+   It must be written "7.0" and "0.7" respectively.
 
 * text2pcap and "Import from Hex Dump":
 ** text2pcap supports writing the output file in all the capture file formats
