@@ -1073,7 +1073,13 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		switch (sub_type) {
 		case GSMTAP_E1T1_LAPD:
 			sub_handle = GSMTAP_SUB_LAPD;
-			break;
+			if (sub_handles[sub_handle]) {
+				struct isdn_phdr isdn;
+				isdn.uton = pinfo->p2p_dir == P2P_DIR_SENT ? 1 : 0;
+				isdn.channel = 0;
+				call_dissector_with_data(sub_handles[sub_handle], payload_tvb, pinfo, tree, &isdn);
+			}
+			return tvb_captured_length(tvb);
 		case GSMTAP_E1T1_FR:
 			sub_handle = GSMTAP_SUB_FR;
 			break;
@@ -1214,7 +1220,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_GMR1_LAPSAT] = find_dissector_add_dependency("lapsat", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_GMR1_RACH] = find_dissector_add_dependency("gmr1_rach", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_UMTS_RRC] = find_dissector_add_dependency("rrc", proto_gsmtap);
-	sub_handles[GSMTAP_SUB_LAPD] = find_dissector_add_dependency("lapd", proto_gsmtap);
+	sub_handles[GSMTAP_SUB_LAPD] = find_dissector_add_dependency("lapd-phdr", proto_gsmtap);
 	sub_handles[GSMTAP_SUB_FR] = find_dissector_add_dependency("fr", proto_gsmtap);
 
 	rrc_sub_handles[GSMTAP_RRC_SUB_DL_DCCH_Message] = find_dissector_add_dependency("rrc.dl.dcch", proto_gsmtap);
