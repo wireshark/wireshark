@@ -77,6 +77,7 @@ typedef struct _frame_data {
      are 32 bits. */
   unsigned int passed_dfilter   : 1; /**< 1 = display, 0 = no display */
   unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
+  GSList      *dependent_frames;     /**< A list of frames which this one depends on */
   /* Do NOT use packet_char_enc enum here: MSVC compiler does not handle an enum in a bit field properly */
   unsigned int encoding         : 1; /**< Character encoding (ASCII, EBCDIC...) */
   unsigned int visited          : 1; /**< Has this packet been visited yet? 1=Yes,0=No*/

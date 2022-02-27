@@ -1228,7 +1228,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
              * (potentially not displayed) frames.  Find those frames and mark them
              * as depended upon.
              */
-            g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
+            g_slist_foreach(edt->pi.fd->dependent_frames, find_and_mark_frame_depended_upon, cf->provider.frames);
         }
     } else
         fdata->passed_dfilter = 1;

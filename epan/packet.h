@@ -754,7 +754,7 @@ extern void free_data_sources(packet_info *pinfo);
  * if the user does a File->Save-As of only the Displayed packets and the
  * current frame passed the display filter.
  */
-WS_DLL_PUBLIC void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num);
+WS_DLL_PUBLIC void mark_frame_as_depended_upon(frame_data *fd, guint32 frame_num);
 
 /* Structure passed to the frame dissector */
 typedef struct frame_data_s

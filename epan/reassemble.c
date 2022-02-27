@@ -2697,7 +2697,7 @@ show_fragment(fragment_item *fd, const int offset, const fragment_items *fit,
 			plurality(fd->len, "", "s"));
 	}
 	proto_item_set_generated(fei);
-	mark_frame_as_depended_upon(pinfo, fd->frame);
+	mark_frame_as_depended_upon(pinfo->fd, fd->frame);
 	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
 		/* this fragment has some flags set, create a subtree
