@@ -7,7 +7,7 @@ include::../docbook/attributes.adoc[]
 
 == NAME
 
-udpdump - Provide an UDP receiver that gets packets from network devices (like Aruba routers) and exports them in PCAP format.
+udpdump - Provide a UDP receiver that gets packets from network devices (like Aruba routers) and exports them in PCAP format.
 
 == SYNOPSIS
 
@@ -26,7 +26,7 @@ udpdump - Provide an UDP receiver that gets packets from network devices (like A
 
 == DESCRIPTION
 
-*udpdump* is a extcap tool that provides an UDP receiver that listens for exported datagrams coming from
+*udpdump* is a extcap tool that provides a UDP receiver that listens for exported datagrams coming from
 any source (like Aruba routers) and exports them in PCAP format. This provides the user two basic
 functionalities: the first one is to have a listener that prevents the localhost to send back an ICMP
 port-unreachable packet. The second one is to strip out the lower layers (layer 2, IP, UDP) that are useless
@@ -130,7 +130,7 @@ To capture:
 
     udpdump --extcap-interface=randpkt --fifo=/tmp/randpkt.pcapng --capture
 
-NOTE: To stop capturing CTRL+C/kill/terminate application.
+NOTE: To stop capturing CTRL+C/kill/terminate the application.
 
 == SEE ALSO
 

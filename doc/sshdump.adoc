@@ -275,7 +275,7 @@ To use different capture binaries:
     sshdump --extcap-interface=sshdump --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
     --remote-capture-command='sudo tcpdump -i eth0 -U -w -'
 
-NOTE: To stop capturing CTRL+C/kill/terminate application.
+NOTE: To stop capturing CTRL+C/kill/terminate the application.
 
 The sshdump binary can be renamed to support multiple instances. For instance if we want sshdump
 to show up twice in wireshark (for instance to handle multiple profiles), we can copy sshdump to

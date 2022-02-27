@@ -56,15 +56,15 @@ androiddump - Provide interfaces to capture from Android devices
 == DESCRIPTION
 
 *Androiddump* is a extcap tool that provide interfaces to capture from
-Android device. There is only two requirements:
+an Android device. There are only two requirements:
 
-1. You must have Android SDK and add it PATH environment variable.
+1. You must have the Android SDK and add it to your PATH environment variable.
 PATH should contain directory with tools like "adb" and "android".
 Android SDK for various platform are available on:
 https://developer.android.com/sdk/index.html#Other
 
-2. You must have permission to Android devices. Some Android devices requires
-on-screen authentication.
+2. You must have permission to capture from the Android device.
+Some Android devices require on-screen authentication.
 
 Supported interfaces:
 
@@ -78,7 +78,8 @@ Supported interfaces:
 8. Bluetooth BtsnoopNet [>=Lollipop]
 9. WiFi tcpdump [need tcpdump on phone]
 
-Please note that it will work also for FirefoxOS or other Android-based stuffs.
+Please note that Androiddump will work also for FirefoxOS or other
+Android-based operating systems.
 
 == OPTIONS
 
@@ -133,7 +134,8 @@ List configuration options of specified interface.
 --capture::
 +
 --
-Start capturing from specified interface save saved it in place specified by --fifo.
+Start capturing from the specified interface and save it in the location
+specified with --fifo.
 --
 
 --fifo=<path to file or pipe>::
@@ -145,19 +147,20 @@ Save captured packet to file or send it through pipe.
 --adb-server-ip=<IP address>::
 +
 --
-Use other then default (127.0.0.1) ADB daemon's IP address.
+Use other than default (127.0.0.1) ADB daemon's IP address.
 --
 
 --adb-server-tcp-port=<TCP port>::
 +
 --
-Use other then default (5037) ADB daemon's TCP port.
+Use other than default (5037) ADB daemon's TCP port.
 --
 
 --logcat-text=<TRUE or FALSE>::
 +
 --
-If TRUE then use text logcat rather then binary. This option has effect only on
+If TRUE then use text logcat rather then binary. This option only has an
+effect on
 Logcat interfaces. This have no effect from Lollipop where is no binary Logcat
 available.
 
@@ -167,7 +170,7 @@ Defaults to FALSE.
 --bt-server-tcp-port=<TCP port>::
 +
 --
-Use other then default Bluetooth server TCP port on Android side.
+Use other than default Bluetooth server TCP port on Android side.
 On Lollipop defaults is 8872, earlier 4330.
 --
 
@@ -182,7 +185,7 @@ Defaults to FALSE.
 --bt-local-ip=<IP address>::
 +
 --
-Use other then default (127.0.0.1) IP address on host side for forwarded socket.
+Use other than default (127.0.0.1) IP address on host side for forwarded socket.
 --
 
 --bt-local-tcp-port=<TCP port>::
@@ -257,7 +260,7 @@ To capture:
 
     androiddump --extcap-interface=android-bluetooth-hcidump-MSM7627A --fifo=/tmp/bluetooth.pcapng --capture
 
-NOTE: To stop capturing CTRL+C/kill/terminate application.
+NOTE: To stop capturing CTRL+C/kill/terminate the application.
 
 == SEE ALSO
 

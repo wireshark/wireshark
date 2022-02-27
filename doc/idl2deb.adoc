@@ -32,7 +32,7 @@ idl2deb - Create a Debian package for CORBA monitoring from IDL
 
 This manual page documents briefly the *idl2deb* command. *idl2deb*
 takes an CORBA IDL file as input and creates a Debian package from it. The
-package contains a loadable module for the Wireshark network analyser.
+package contains a loadable module for the Wireshark network analyzer.
 
 == OPTIONS
 

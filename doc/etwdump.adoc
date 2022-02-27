@@ -135,7 +135,7 @@ To capture:
 
     etwdump --extcap-interface etwdump --fifo=/tmp/etw.pcapng --capture --params "--p=Microsoft-Windows-Wmbclass-Opn --p=Microsoft-Windows-wmbclass --k=0xff --l=4"
 
-NOTE: To stop capturing CTRL+C/kill/terminate application.
+NOTE: To stop capturing CTRL+C/kill/terminate the application.
 
 == SEE ALSO
 

@@ -64,7 +64,7 @@ need tweaking if you place these files somewhere else.
 If it complains about being unable to find some modules (eg tempfile.py),
 you may want to check if PYTHONPATH is set correctly.
 
-eg:  PYTHONPATH=/usr/lib/python1.5/
+eg:  PYTHONPATH=/usr/lib/python3/
 
 == SEE ALSO
 
