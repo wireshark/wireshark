@@ -32,14 +32,13 @@ static int hf_li5g_pld = -1;
 #define LI_5G_ATTR_TYPE_MAX 19
 /* the min header length */
 #define LI_5G_HEADER_LEN_MIN 40
-/* 13 payload format */
-#define LI_5G_PAYLOAD_FORMAT_MAX 14
 
 static gint ett_li5g = -1;
 static gint ett_attrContents[LI_5G_ATTR_TYPE_MAX];
 static int hf_li5g_attrContents[LI_5G_ATTR_TYPE_MAX];
 static dissector_handle_t li5g_handle;
-static dissector_handle_t subProtocol_handle[LI_5G_PAYLOAD_FORMAT_MAX]={NULL};
+
+static dissector_table_t li5g_subdissector_table;
 
 static const value_string pdu_type_vals[] = {
     {1, "X2 xIRI"},
@@ -104,6 +103,7 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
     proto_tree  *li5g_tree, *attr_tree, *parent=NULL;
     proto_item  *ti, *attr_ti;
+    tvbuff_t    *payload_tvb;
     int offset = LI_5G_HEADER_LEN_MIN, hf_attr = -1;
     guint32 headerLen, payloadLen, pduType;
     guint16 payloadFormat, attrType, attrLen;
@@ -161,8 +161,10 @@ dissect_li5g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         li5g_tree->parent=NULL;
     }
 
-    if (subProtocol_handle[payloadFormat])
-        call_dissector(subProtocol_handle[payloadFormat], tvb_new_subset_length(tvb, offset, payloadLen), pinfo, li5g_tree);
+    payload_tvb = tvb_new_subset_length(tvb, offset, payloadLen);
+    if (!dissector_try_uint(li5g_subdissector_table, payloadFormat, payload_tvb, pinfo, li5g_tree)) {
+        call_data_dissector(payload_tvb, pinfo, li5g_tree);
+    }
 
     if (parent)
         li5g_tree->parent=parent;
@@ -263,6 +265,11 @@ proto_register_li5g(void)
     };
 
     proto_li5g = proto_register_protocol("5G Lawful Interception", "5GLI", "5gli");
+
+    li5g_handle = register_dissector("li5g", dissect_li5g, proto_li5g);
+
+    li5g_subdissector_table = register_dissector_table("li5g.payload", "LI5G Payload Format", proto_li5g, FT_UINT16, BASE_DEC);
+
     proto_register_field_array(proto_li5g, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
@@ -270,18 +277,17 @@ proto_register_li5g(void)
 void
 proto_reg_handoff_li5g(void)
 {
-    subProtocol_handle[2]=find_dissector_add_dependency("xiri", proto_li5g);
-    subProtocol_handle[5]=find_dissector("ip");
-    subProtocol_handle[6]=find_dissector("ipv6");
-    subProtocol_handle[7]=find_dissector("eth_maybefcs");
-    subProtocol_handle[8]=find_dissector("rtp");
-    subProtocol_handle[9]=find_dissector("sip");
-    subProtocol_handle[10]=find_dissector("dhcp");
-    subProtocol_handle[11]=find_dissector("radius");
-    subProtocol_handle[12]=find_dissector("gtp");
-    subProtocol_handle[13]=find_dissector("msrp");
+    dissector_add_uint("li5g.payload", 2, find_dissector_add_dependency("xiri", proto_li5g));
+    dissector_add_uint("li5g.payload", 5, find_dissector("ip"));
+    dissector_add_uint("li5g.payload", 6, find_dissector("ipv6"));
+    dissector_add_uint("li5g.payload", 7, find_dissector("eth_maybefcs"));
+    dissector_add_uint("li5g.payload", 8, find_dissector("rtp"));
+    dissector_add_uint("li5g.payload", 9, find_dissector("sip"));
+    dissector_add_uint("li5g.payload", 10, find_dissector("dhcp"));
+    dissector_add_uint("li5g.payload", 11, find_dissector("radius"));
+    dissector_add_uint("li5g.payload", 12, find_dissector("gtp"));
+    dissector_add_uint("li5g.payload", 13, find_dissector("msrp"));
 
-    li5g_handle = register_dissector("li5g", dissect_li5g, proto_li5g);
     dissector_add_uint_range_with_preference("tcp.port", "", li5g_handle);
     dissector_add_uint_range_with_preference("udp.port", "", li5g_handle);
     heur_dissector_add("tls", dissect_li5g_heur, "5G LI over TLS", "li5g_tls", proto_li5g, HEURISTIC_ENABLE);
