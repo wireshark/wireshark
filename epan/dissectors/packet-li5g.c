@@ -273,7 +273,7 @@ proto_reg_handoff_li5g(void)
     subProtocol_handle[2]=find_dissector_add_dependency("xiri", proto_li5g);
     subProtocol_handle[5]=find_dissector("ip");
     subProtocol_handle[6]=find_dissector("ipv6");
-    subProtocol_handle[7]=find_dissector("eth");
+    subProtocol_handle[7]=find_dissector("eth_maybefcs");
     subProtocol_handle[8]=find_dissector("rtp");
     subProtocol_handle[9]=find_dissector("sip");
     subProtocol_handle[10]=find_dissector("dhcp");
