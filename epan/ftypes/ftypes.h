@@ -266,6 +266,9 @@ fvalue_from_charconst(ftenum_t ftype, unsigned long number, gchar **err_msg);
 WS_DLL_PUBLIC char *
 fvalue_to_string_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype, int field_display);
 
+#define fvalue_to_debug_repr(scope, fv) \
+	fvalue_to_string_repr(NULL, fv, FTREPR_DFILTER, 0)
+
 WS_DLL_PUBLIC ftenum_t
 fvalue_type_ftenum(fvalue_t *fv);
 

@@ -157,15 +157,31 @@ void
 stnode_set_inside_parens(stnode_t *node, gboolean inside);
 
 void
+log_node_full(enum ws_log_level level,
+			const char *file, int line, const char *func,
+			stnode_t *node, const char *msg);
+
+void
 log_test_full(enum ws_log_level level,
 			const char *file, int line, const char *func,
 			stnode_t *node, const char *msg);
 
 #ifdef WS_DISABLE_DEBUG
+#define log_node(node) (void)0;
 #define log_test(node) (void)0;
+#define LOG_NODE(node) (void)0;
 #else
+#define log_node(node) \
+	log_node_full(LOG_LEVEL_NOISY, __FILE__, __LINE__, __func__, node, #node)
 #define log_test(node) \
 	log_test_full(LOG_LEVEL_NOISY, __FILE__, __LINE__, __func__, node, #node)
+#define LOG_NODE(node) \
+	do { \
+		if (stnode_type_id(node) == STTYPE_TEST) \
+			log_test(node);			\
+		else					\
+			log_node(node);			\
+	} while (0)
 #endif
 
 void

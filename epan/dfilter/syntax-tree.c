@@ -334,8 +334,8 @@ sprint_node(stnode_t *node)
 }
 
 void
-log_test_full(enum ws_log_level level,
-			const char *file _U_, int line _U_, const char *func,
+log_node_full(enum ws_log_level level,
+			const char *file, int line, const char *func,
 			stnode_t *node, const char *msg)
 {
 	if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
@@ -343,7 +343,29 @@ log_test_full(enum ws_log_level level,
 
 	if (node == NULL) {
 		ws_log_write_always_full(WS_LOG_DOMAIN, level,
-					NULL, -1, func, "%s is NULL", msg);
+					file, line, func, "%s is NULL", msg);
+		return;
+	}
+
+	char *str = sprint_node(node);
+
+	ws_log_write_always_full(WS_LOG_DOMAIN, level, file, line, func,
+				"%s = %s", msg, str);
+
+	g_free(str);
+}
+
+void
+log_test_full(enum ws_log_level level,
+			const char *file, int line, const char *func,
+			stnode_t *node, const char *msg)
+{
+	if (!ws_log_msg_is_active(WS_LOG_DOMAIN, level))
+		return;
+
+	if (node == NULL) {
+		ws_log_write_always_full(WS_LOG_DOMAIN, level,
+					file, line, func, "%s is NULL", msg);
 		return;
 	}
 
@@ -358,7 +380,7 @@ log_test_full(enum ws_log_level level,
 	if (st_rhs)
 		rhs = sprint_node(st_rhs);
 
-	ws_log_write_always_full(WS_LOG_DOMAIN, level, NULL, -1, func,
+	ws_log_write_always_full(WS_LOG_DOMAIN, level, file, line, func,
 				"%s: LHS = %s; RHS = %s",
 				stnode_todebug(node),
 				lhs ? lhs : "NULL",

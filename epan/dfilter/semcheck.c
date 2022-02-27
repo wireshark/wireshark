@@ -428,6 +428,8 @@ is_bytes_type(enum ftenum type)
 static void
 check_exists(dfwork_t *dfw, stnode_t *st_arg1)
 {
+	LOG_NODE(st_arg1);
+
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			/* This is OK */
@@ -466,6 +468,8 @@ check_drange_sanity(dfwork_t *dfw, stnode_t *st)
 	stnode_t		*entity1;
 	header_field_info	*hfinfo1;
 	ftenum_t		ftype1;
+
+	LOG_NODE(st);
 
 	entity1 = sttype_range_entity(st);
 	ws_assert(entity1);
@@ -520,6 +524,8 @@ check_function(dfwork_t *dfw, stnode_t *st_node)
 	guint          iparam;
 	guint          nparams;
 
+	LOG_NODE(st_node);
+
 	funcdef  = sttype_function_funcdef(st_node);
 	params   = sttype_function_params(st_node);
 	nparams  = g_slist_length(params);
@@ -568,6 +574,8 @@ check_relation_LHS_FIELD(dfwork_t *dfw, test_op_t st_op,
 	df_func_def_t		*funcdef;
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
+
+	LOG_NODE(st_node);
 
 	type2 = stnode_type_id(st_arg2);
 
@@ -666,6 +674,8 @@ check_relation_LHS_STRING(dfwork_t *dfw, test_op_t st_op _U_,
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 
+	LOG_NODE(st_node);
+
 	type2 = stnode_type_id(st_arg2);
 
 	if (type2 == STTYPE_FIELD) {
@@ -725,6 +735,8 @@ check_relation_LHS_UNPARSED(dfwork_t *dfw, test_op_t st_op _U_,
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 
+	LOG_NODE(st_node);
+
 	type2 = stnode_type_id(st_arg2);
 
 	if (type2 == STTYPE_FIELD) {
@@ -783,6 +795,8 @@ check_relation_LHS_CHARCONST(dfwork_t *dfw, test_op_t st_op _U_,
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
 
+	LOG_NODE(st_node);
+
 	type2 = stnode_type_id(st_arg2);
 
 	if (type2 == STTYPE_FIELD) {
@@ -840,6 +854,8 @@ check_relation_LHS_RANGE(dfwork_t *dfw, test_op_t st_op,
 	header_field_info	*hfinfo2;
 	ftenum_t		ftype2;
 	fvalue_t		*fvalue;
+
+	LOG_NODE(st_node);
 
 	check_drange_sanity(dfw, st_arg1);
 
@@ -915,6 +931,8 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, test_op_t st_op,
 	df_func_def_t		*funcdef;
 	df_func_def_t		*funcdef2;
 	/* GSList          *params; */
+
+	LOG_NODE(st_node);
 
 	check_function(dfw, st_arg1);
 	type2 = stnode_type_id(st_arg2);
@@ -1001,6 +1019,8 @@ check_relation(dfwork_t *dfw, test_op_t st_op,
 		FtypeCanFunc can_func, gboolean allow_partial_value,
 		stnode_t *st_node, stnode_t *st_arg1, stnode_t *st_arg2)
 {
+	LOG_NODE(st_node);
+
 	switch (stnode_type_id(st_arg1)) {
 		case STTYPE_FIELD:
 			check_relation_LHS_FIELD(dfw, st_op, can_func,
@@ -1036,6 +1056,8 @@ static void
 check_relation_contains(dfwork_t *dfw, stnode_t *st_node,
 		stnode_t *st_arg1, stnode_t *st_arg2)
 {
+	LOG_NODE(st_node);
+
 	/* Protocol can only be on LHS for "contains".
 	 * Check to see if protocol is on RHS, and re-interpret it as UNPARSED
 	 * instead. The subsequent functions will parse it according to the
@@ -1096,6 +1118,8 @@ check_relation_matches(dfwork_t *dfw, stnode_t *st_node,
 	char *errmsg = NULL;
 	const char *patt;
 
+	LOG_NODE(st_node);
+
 	if (stnode_type_id(st_arg2) != STTYPE_STRING) {
 		FAIL(dfw, "Matches requires a double quoted string on the right side.");
 	}
@@ -1142,6 +1166,8 @@ check_relation_in(dfwork_t *dfw, stnode_t *st_node _U_,
 	GSList *nodelist;
 	stnode_t *node_left, *node_right;
 
+	LOG_NODE(st_node);
+
 	if (stnode_type_id(st_arg1) != STTYPE_FIELD) {
 		FAIL(dfw, "Only a field may be tested for membership in a set.");
 	}
@@ -1185,7 +1211,7 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 	test_op_t		st_op, st_arg_op;
 	stnode_t		*st_arg1, *st_arg2;
 
-	log_test(st_node);
+	LOG_NODE(st_node);
 
 	sttype_test_get(st_node, &st_op, &st_arg1, &st_arg2);
 
@@ -1259,6 +1285,8 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 static void
 semcheck(dfwork_t *dfw, stnode_t *st_node)
 {
+	LOG_NODE(st_node);
+
 	/* The parser assures that the top-most syntax-tree
 	 * node will be a TEST node, no matter what. So assert that. */
 	switch (stnode_type_id(st_node)) {
