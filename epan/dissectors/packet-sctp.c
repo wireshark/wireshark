@@ -2919,7 +2919,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
 
-          mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+          mark_frame_as_depended_upon(pinfo->fd, frag_i->frame_num);
         }
 
         for (frag_i = msg->fragments;
@@ -2931,7 +2931,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
 
-          mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+          mark_frame_as_depended_upon(pinfo->fd, frag_i->frame_num);
         }
       } else {
         for (frag_i = find_fragment(message->begin, stream_id, stream_seq_num, u_bit);
@@ -2943,7 +2943,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                                      frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
           offset += frag_i->len;
 
-          mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+          mark_frame_as_depended_upon(pinfo->fd, frag_i->frame_num);
         }
       }
 
@@ -3158,7 +3158,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                                  frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
       offset += frag_i->len;
 
-      mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+      mark_frame_as_depended_upon(pinfo->fd, frag_i->frame_num);
     }
 
     for (frag_i = msg->fragments;
@@ -3170,7 +3170,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                                  frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
       offset += frag_i->len;
 
-      mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+      mark_frame_as_depended_upon(pinfo->fd, frag_i->frame_num);
     }
   } else {
     for (frag_i = find_fragment(message->begin, stream_id, stream_seq_num, u_bit);
@@ -3182,7 +3182,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
                                  frag_i->frame_num, offset, offset + frag_i->len - 1, frag_i->len);
       offset += frag_i->len;
 
-      mark_frame_as_depended_upon(pinfo, frag_i->frame_num);
+      mark_frame_as_depended_upon(pinfo->fd, frag_i->frame_num);
     }
   }
 
