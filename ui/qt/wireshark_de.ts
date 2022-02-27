@@ -1475,11 +1475,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optional ein temporäres Verzeichnis für unbenannte Mitschnittdateien konfigurieren.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Directory for temporary files</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis für temporäre Dateien</translation>
     </message>
     <message>
         <source>Capture Options</source>
@@ -1499,7 +1499,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Specify temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis für temporäre Dateien definieren</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -2000,10 +2000,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
         <translation>Standard &quot;Dekodieren als&quot; Verhalten</translation>
-    </message>
-    <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Wenn dieser Wert auf das Protokollfeld zutrifft, soll das Verhalten geändert werden</translation>
     </message>
     <message>
         <source>String</source>
@@ -7324,6 +7320,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Diese Verknüpfung filtern</translation>
     </message>
     <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;I/O Graphs</source>
         <translation>&amp;I/O Graph</translation>
     </message>
@@ -8329,7 +8333,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Configure all extcaps before start of capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Extcaps vor dem Start des Mitschnitts konfigurieren</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
@@ -8889,7 +8893,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Show packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketbytes anzeigen</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -8972,7 +8976,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Zweite Datenquelle inkludieren</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -12945,7 +12949,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Json</source>
-        <translation type="unfinished"></translation>
+        <translation>Json</translation>
     </message>
     <message>
         <source>Raw</source>
@@ -12953,7 +12957,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Rust Array</source>
-        <translation type="unfinished"></translation>
+        <translation>Rust Array</translation>
     </message>
     <message>
         <source>UTF-8</source>
@@ -13063,6 +13067,17 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>Konfiguration für %1 nicht auffindbar.</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">Anzeigefilter:</translation>
     </message>
 </context>
 <context>

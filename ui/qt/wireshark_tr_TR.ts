@@ -1980,11 +1980,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>Alan bu değerle eşleştiğinde davranışı değiştir</translation>
     </message>
     <message>
         <source>Field value type (and base, if Integer)</source>
-        <translation type="unfinished"></translation>
+        <translation>Alan değeri türü (ve Tamsayı ise taban)</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
@@ -1993,10 +1993,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
         <translation>Varsayılan &quot;Kodu Farklı Çöz&quot; davranışı</translation>
-    </message>
-    <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Protokol alanı bu değerle eşleştiğinde davranışı değiştir</translation>
     </message>
     <message>
         <source>String</source>
@@ -7301,6 +7297,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter this Association</source>
         <translation>Bu İlişkilendirmeyi Filtrele</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13029,6 +13033,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>%1 için yapılandırma bulunamadı.</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Diyalog</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">Ekran filtresi:</translation>
     </message>
 </context>
 <context>

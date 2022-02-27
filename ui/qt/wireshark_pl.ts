@@ -2006,10 +2006,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Domyślne ustawiania dekodowania</translation>
     </message>
     <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Zmienia dekodowanie, gdy pole protokołu będzie mieć zadaną wartość</translation>
-    </message>
-    <message>
         <source>String</source>
         <translation type="unfinished">String</translation>
     </message>
@@ -7333,6 +7329,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter this Association</source>
         <translation>Wyfiltruj tą asocjacje</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13078,6 +13082,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>Nie można znaleźć konfiguracji dla %1.</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Okno</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

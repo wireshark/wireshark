@@ -7258,6 +7258,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;I/O Graphs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12962,6 +12970,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">Фільтр відображення:</translation>
     </message>
 </context>
 <context>

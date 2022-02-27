@@ -2009,10 +2009,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&quot;Декодировать Как&quot; поведение по умолчанию</translation>
     </message>
     <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Изменить поведение, когда поле протокола соответствует этой величине</translation>
-    </message>
-    <message>
         <source>String</source>
         <translation>Строка</translation>
     </message>
@@ -7343,6 +7339,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter this Association</source>
         <translation>Фильтровать эту Ассоциацию</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13097,6 +13101,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>Невозможно найти конфигурацию для %1.</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Диалог</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">Дисплейный фильтр:</translation>
     </message>
 </context>
 <context>

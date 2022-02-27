@@ -65,6 +65,10 @@ Wireshark 3.7.0 Release Notes
        timezone) or by appending the suffix "UTC" to the legacy formats.
        Otherwise local time is used.
 
+        • Integer literal constants may be written in binary (in
+       addition to decimal/octal/hexadecimal) using the prefix "0b" or
+       "0B".
+
      • text2pcap and "Import from Hex Dump":
 
         • text2pcap supports writing the output file in all the capture
@@ -184,7 +188,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-02-20 16:06:38 UTC
+  Last updated 2022-02-27 16:06:27 UTC
 
  References
 

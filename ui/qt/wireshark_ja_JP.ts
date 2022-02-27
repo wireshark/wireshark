@@ -1467,11 +1467,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Optionally specify a temporary directory for unnamed capture files.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;オプションで名称未設定のキャプチャファイルの一時ディレクトリを指定します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Directory for temporary files</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ファイルのディレクトリ</translation>
     </message>
     <message>
         <source>Capture Options</source>
@@ -1491,7 +1491,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Specify temporary directory</source>
-        <translation type="unfinished"></translation>
+        <translation>一時ファイルのディレクトリを指定</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -1979,11 +1979,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールドがこの値に一致した場合に動作を変更します</translation>
     </message>
     <message>
         <source>Field value type (and base, if Integer)</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド値の型（整数の場合は基数）</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
@@ -1992,10 +1992,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
         <translation>デフォルトの &quot;...としてデコード &quot; の振る舞い</translation>
-    </message>
-    <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">プロトコルフィールドがこの値に一致した際の振る舞いを変更</translation>
     </message>
     <message>
         <source>String</source>
@@ -7306,6 +7302,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>このアソシエーションをフィルタします</translation>
     </message>
     <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;I/O Graphs</source>
         <translation>入出力グラフ(&amp;I)</translation>
     </message>
@@ -8868,7 +8872,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show packet bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットバイト列を表示</translation>
     </message>
     <message>
         <source>Packet %1</source>
@@ -8951,11 +8955,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Include secondary data sources</source>
-        <translation type="unfinished"></translation>
+        <translation>第２データソースを含む</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate hexdumps for secondary data sources like reassembled or decrypted buffers in addition to the frame&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;フレームに加えて第二データソースに対し再組立てや復号化したバッファなどの16進数ダンプを作成します。&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -13032,6 +13036,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>%1 に対する設定を見つけることができません</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">ダイアログ</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">表示フィルタ:</translation>
     </message>
 </context>
 <context>

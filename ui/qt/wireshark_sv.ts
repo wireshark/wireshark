@@ -2002,10 +2002,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Standard ”avkoda som”-beteende</translation>
     </message>
     <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Ändra beteenden när protokollfältet matchar detta värde</translation>
-    </message>
-    <message>
         <source>String</source>
         <translation>Sträng</translation>
     </message>
@@ -7322,6 +7318,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Filter this Association</source>
         <translation>Filtrera denna association</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13063,6 +13067,17 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>Kan inte hitta konfigurationen för %1.</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">Visningsfilter:</translation>
     </message>
 </context>
 <context>

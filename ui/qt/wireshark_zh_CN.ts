@@ -1993,10 +1993,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>默认“解码为”行为</translation>
     </message>
     <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">协议字段与此值匹配时更改行为</translation>
-    </message>
-    <message>
         <source>String</source>
         <translation>字符串</translation>
     </message>
@@ -7297,6 +7293,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Filter this Association</source>
         <translation>过滤该助手</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13018,6 +13022,17 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>不能为 %1找到配置。</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">对话框</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

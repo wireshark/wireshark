@@ -2002,10 +2002,6 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Comportement &quot;Décoder comme&quot; par défaut</translation>
     </message>
     <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Modifer le comportement lorsque le champ de protocole correspond à cette valeur</translation>
-    </message>
-    <message>
         <source>String</source>
         <translation>Chaine de Caractères</translation>
     </message>
@@ -7322,6 +7318,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Filter this Association</source>
         <translation>Filtrer cette association</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13025,6 +13029,17 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>Impossible de trouver la configuration pour %1.</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialogue</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

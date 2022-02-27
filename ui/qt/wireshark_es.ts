@@ -7256,6 +7256,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;I/O Graphs</source>
         <translation>&amp;Gráficas de E/S</translation>
     </message>
@@ -12951,6 +12959,17 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Dialog</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">Filtro de visualización:</translation>
     </message>
 </context>
 <context>

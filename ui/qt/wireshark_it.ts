@@ -1987,11 +1987,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Change behavior when the field matches this value</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambia il comportamento quando il campo corrisponde a questo valore</translation>
     </message>
     <message>
         <source>Field value type (and base, if Integer)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di valore del campo (e base, se intero)</translation>
     </message>
     <message>
         <source>Current&quot;Decode As&quot; behavior</source>
@@ -2000,10 +2000,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Default &quot;Decode As&quot; behavior</source>
         <translation>Comportamento predefinito di &quot;Decodifica come&quot;</translation>
-    </message>
-    <message>
-        <source>Change behavior when the protocol field matches this value</source>
-        <translation type="vanished">Cambia il comportamento quando il campo del protocollo corrisponde a questo valore</translation>
     </message>
     <message>
         <source>String</source>
@@ -7322,6 +7318,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Filter this Association</source>
         <translation>Filtra questa associazione</translation>
+    </message>
+    <message>
+        <source>Strip Headers…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Strip headers and export higher level encapsulations to file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13063,6 +13067,17 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Unable to find configuration for %1.</source>
         <translation>Impossibile trovare la configurazione per %1.</translation>
+    </message>
+</context>
+<context>
+    <name>StripHeadersDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished">Finestra</translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished">Filtro di visualizzazione:</translation>
     </message>
 </context>
 <context>

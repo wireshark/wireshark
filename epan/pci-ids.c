@@ -6,8 +6,8 @@
  *
  * List of PCI ID's
  *
- * Version: 2022.02.19
- * Date:    2022-02-19 03:15:02
+ * Version: 2022.02.25
+ * Date:    2022-02-25 03:15:01
  *
  * Maintained by Albert Pool, Martin Mares, and other volunteers from
  * the PCI ID Project at https://pci-ids.ucw.cz/.
@@ -1182,7 +1182,7 @@ pci_id_t pci_vid_1002[] = {
 {0x1002, 0x163F, 0xFFFF, 0xFFFF, "VanGogh(0x163F)"},
 {0x1002, 0x164C, 0xFFFF, 0xFFFF, "Lucienne(0x164C)"},
 {0x1002, 0x164D, 0xFFFF, 0xFFFF, "Rembrandt(0x164D)"},
-{0x1002, 0x1681, 0xFFFF, 0xFFFF, "Rembrandt(0x1681)"},
+{0x1002, 0x1681, 0xFFFF, 0xFFFF, "Rembrandt [Radeon 680M](0x1681)"},
 {0x1002, 0x1714, 0xFFFF, 0xFFFF, "BeaverCreek HDMI Audio [Radeon HD 6500D and 6400G-6600G series](0x1714)"},
 {0x1002, 0x1714, 0x103C, 0x168B, "ProBook 4535s(0x103C-0x168B)"},
 {0x1002, 0x3150, 0xFFFF, 0xFFFF, "RV380/M24 [Mobility Radeon X600](0x3150)"},
@@ -13043,6 +13043,7 @@ pci_id_t pci_vid_10DE[] = {
 {0x10DE, 0x1FF0, 0xFFFF, 0xFFFF, "TU117GL [T1000 8GB](0x1FF0)"},
 {0x10DE, 0x1FF2, 0xFFFF, 0xFFFF, "TU117GL [T400 4GB](0x1FF2)"},
 {0x10DE, 0x1FF9, 0xFFFF, 0xFFFF, "TU117GLM [Quadro T1000 Mobile](0x1FF9)"},
+{0x10DE, 0x2082, 0xFFFF, 0xFFFF, "GA100 [CMP 170HX](0x2082)"},
 {0x10DE, 0x20B0, 0xFFFF, 0xFFFF, "GA100 [A100 SXM4 40GB](0x20B0)"},
 {0x10DE, 0x20B1, 0xFFFF, 0xFFFF, "GA100 [A100 PCIe 40GB](0x20B1)"},
 {0x10DE, 0x20B2, 0xFFFF, 0xFFFF, "GA100 [A100 SXM4 80GB](0x20B2)"},
@@ -14495,6 +14496,7 @@ pci_id_t pci_vid_1106[] = {
 {0x1106, 0x9082, 0xFFFF, 0xFFFF, "Standard AHCI 1.0 SATA Controller(0x9082)"},
 {0x1106, 0x9140, 0xFFFF, 0xFFFF, "HDMI Audio Device(0x9140)"},
 {0x1106, 0x9201, 0xFFFF, 0xFFFF, "USB3.0 Controller(0x9201)"},
+{0x1106, 0x9380, 0xFFFF, 0xFFFF, "Ncore Coprocessor(0x9380)"},
 {0x1106, 0x9530, 0xFFFF, 0xFFFF, "VX800/820/900 Series Secure Digital Memory Card Controller(0x9530)"},
 {0x1106, 0x95D0, 0xFFFF, 0xFFFF, "VX800/820/900 Series SDIO Host Controller(0x95D0)"},
 {0x1106, 0xA208, 0xFFFF, 0xFFFF, "PT890 PCI to PCI Bridge Controller(0xA208)"},
@@ -28690,6 +28692,7 @@ pci_id_t pci_vid_1B4B[] = {
 {0x1B4B, 0x2241, 0xFFFF, 0xFFFF, "88NR2241 Non-Volatile memory controller(0x2241)"},
 {0x1B4B, 0x2241, 0x1028, 0x2112, "BOSS-N1 Monolithic(0x1028-0x2112)"},
 {0x1B4B, 0x2241, 0x1028, 0x2113, "BOSS-N1 Modular(0x1028-0x2113)"},
+{0x1B4B, 0x2241, 0x1028, 0x2151, "BOSS-N1 Modular ET(0x1028-0x2151)"},
 {0x1B4B, 0x2241, 0x1D49, 0x0306, "ThinkSystem M.2 NVMe 2-Bay RAID Enablement Kit(0x1D49-0x0306)"},
 {0x1B4B, 0x2241, 0x1D49, 0x0307, "ThinkSystem 7mm NVMe 2-Bay Rear RAID Enablement Kit(0x1D49-0x0307)"},
 {0x1B4B, 0x9120, 0xFFFF, 0xFFFF, "88SE9120 SATA 6Gb/s Controller(0x9120)"},
@@ -30132,6 +30135,11 @@ pci_id_t pci_vid_1EB1[] = {
 {0x1EB1, 0xFFFF, 0xFFFF, 0xFFFF, "VeriSilicon Inc(0x1EB1)"},
 {0x1EB1, 0x1001, 0xFFFF, 0xFFFF, "Video Accelerator(0x1001)"},
 }; /* pci_vid_1EB1[] */
+
+pci_id_t pci_vid_1EB4[] = {
+{0x1EB4, 0xFFFF, 0xFFFF, 0xFFFF, "Quantum Nebula Microelectronics Technology Co.,Ltd.(0x1EB4)"},
+{0x1EB4, 0x3401, 0xFFFF, 0xFFFF, "SSD Contoller(0x3401)"},
+}; /* pci_vid_1EB4[] */
 
 pci_id_t pci_vid_1EBD[] = {
 {0x1EBD, 0xFFFF, 0xFFFF, 0xFFFF, "EMERGETECH Company Ltd.(0x1EBD)"},
@@ -41121,7 +41129,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x10DB, 1, pci_vid_10DB },
 {0x10DC, 6, pci_vid_10DC },
 {0x10DD, 3, pci_vid_10DD },
-{0x10DE, 3105, pci_vid_10DE },
+{0x10DE, 3106, pci_vid_10DE },
 {0x10DF, 122, pci_vid_10DF },
 {0x10E0, 7, pci_vid_10E0 },
 {0x10E1, 5, pci_vid_10E1 },
@@ -41161,7 +41169,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1103, 40, pci_vid_1103 },
 {0x1104, 1, pci_vid_1104 },
 {0x1105, 15, pci_vid_1105 },
-{0x1106, 573, pci_vid_1106 },
+{0x1106, 574, pci_vid_1106 },
 {0x1107, 2, pci_vid_1107 },
 {0x1108, 9, pci_vid_1108 },
 {0x1109, 2, pci_vid_1109 },
@@ -42725,7 +42733,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1B3E, 4, pci_vid_1B3E },
 {0x1B40, 1, pci_vid_1B40 },
 {0x1B47, 3, pci_vid_1B47 },
-{0x1B4B, 42, pci_vid_1B4B },
+{0x1B4B, 43, pci_vid_1B4B },
 {0x1B4C, 1, pci_vid_1B4C },
 {0x1B55, 7, pci_vid_1B55 },
 {0x1B66, 2, pci_vid_1B66 },
@@ -42875,6 +42883,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0x1EAC, 3, pci_vid_1EAC },
 {0x1EAE, 1, pci_vid_1EAE },
 {0x1EB1, 2, pci_vid_1EB1 },
+{0x1EB4, 2, pci_vid_1EB4 },
 {0x1EBD, 2, pci_vid_1EBD },
 {0x1ED2, 2, pci_vid_1ED2 },
 {0x1ED3, 1, pci_vid_1ED3 },
@@ -43137,7 +43146,7 @@ pci_vid_index_t pci_vid_index[] = {
 {0xFFFD, 2, pci_vid_FFFD },
 {0xFFFE, 2, pci_vid_FFFE },
 {0xFFFF, 1, pci_vid_FFFF },
-}; /* We have 2272 VIDs */
+}; /* We have 2273 VIDs */
 
 static pci_vid_index_t *get_vid_index(guint16 vid)
 {
