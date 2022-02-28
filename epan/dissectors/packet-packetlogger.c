@@ -57,6 +57,8 @@ static dissector_table_t hci_h1_table;
 #define PKT_HCI_EVENT       0x01
 #define PKT_SENT_ACL_DATA   0x02
 #define PKT_RECV_ACL_DATA   0x03
+#define PKT_SENT_SCO_DATA   0x08
+#define PKT_RECV_SCO_DATA   0x09
 #define PKT_LMP_SEND        0x0A
 #define PKT_LMP_RECV        0x0B
 #define PKT_SYSLOG          0xF7
@@ -73,6 +75,8 @@ static const value_string type_vals[] = {
   { PKT_HCI_EVENT,       "HCI Event"       },
   { PKT_SENT_ACL_DATA,   "Sent ACL Data"   },
   { PKT_RECV_ACL_DATA,   "Recv ACL Data"   },
+  { PKT_SENT_SCO_DATA,   "Sent SCO Data"   },
+  { PKT_RECV_SCO_DATA,   "Recv SCO Data"   },
   { PKT_LMP_SEND,        "Sent LMP Data"   },
   { PKT_LMP_RECV,        "Recv LMP Data"   },
   { PKT_SYSLOG,          "Syslog"          },
@@ -149,7 +153,7 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   len = tvb_reported_length_remaining (tvb, 1);
   next_tvb = tvb_new_subset_remaining (tvb, 1);
 
-  if (pl_type <= PKT_RECV_ACL_DATA) {
+  if (pl_type <= PKT_RECV_SCO_DATA) {
     /* HCI H1 packages */
     switch (pl_type) {
     case PKT_HCI_COMMAND:
@@ -169,6 +173,16 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
       break;
     case PKT_RECV_ACL_DATA:
       bthci.channel = BTHCI_CHANNEL_ACL;
+      bthci.sent = P2P_DIR_RECV;
+      pinfo->p2p_dir = P2P_DIR_RECV;
+      break;
+    case PKT_SENT_SCO_DATA:
+      bthci.channel = BTHCI_CHANNEL_SCO;
+      bthci.sent = P2P_DIR_SENT;
+      pinfo->p2p_dir = P2P_DIR_SENT;
+      break;
+    case PKT_RECV_SCO_DATA:
+      bthci.channel = BTHCI_CHANNEL_SCO;
       bthci.sent = P2P_DIR_RECV;
       pinfo->p2p_dir = P2P_DIR_RECV;
       break;
