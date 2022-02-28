@@ -90,6 +90,26 @@ static const value_string type_vals[] = {
   { 0, NULL }
 };
 
+static void dissect_bthci_h1(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, proto_item *ti, guint8 pl_type, guint32 channel,
+        gboolean sent, bluetooth_data_t *bluetooth_data)
+{
+  struct bthci_phdr  bthci;
+
+  bthci.channel = channel;
+  bthci.sent = sent;
+  pinfo->p2p_dir = sent ? P2P_DIR_SENT : P2P_DIR_RECV;
+
+  bluetooth_data->previous_protocol_data.bthci = &bthci;
+  proto_item_set_len (ti, 1);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
+  if (!dissector_try_uint_new (hci_h1_table, bthci.channel,
+          tvb, pinfo, tree, TRUE, bluetooth_data)) {
+    call_data_dissector (tvb, pinfo, tree);
+  }
+}
+
 static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti = NULL;
@@ -136,7 +156,6 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   guint8             pl_type;
   gint               len;
   bluetooth_data_t  *bluetooth_data;
-  struct bthci_phdr  bthci;
 
   bluetooth_data = (bluetooth_data_t *) data;
 
@@ -153,74 +172,48 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   len = tvb_reported_length_remaining (tvb, 1);
   next_tvb = tvb_new_subset_remaining (tvb, 1);
 
-  if (pl_type <= PKT_RECV_SCO_DATA) {
-    /* HCI H1 packages */
-    switch (pl_type) {
-    case PKT_HCI_COMMAND:
-      bthci.channel = BTHCI_CHANNEL_COMMAND;
-      bthci.sent = P2P_DIR_SENT;
-      pinfo->p2p_dir = P2P_DIR_SENT;
-      break;
-    case PKT_HCI_EVENT:
-      bthci.channel = BTHCI_CHANNEL_EVENT;
-      bthci.sent = P2P_DIR_RECV;
-      pinfo->p2p_dir = P2P_DIR_RECV;
-      break;
-    case PKT_SENT_ACL_DATA:
-      bthci.channel = BTHCI_CHANNEL_ACL;
-      bthci.sent = P2P_DIR_SENT;
-      pinfo->p2p_dir = P2P_DIR_SENT;
-      break;
-    case PKT_RECV_ACL_DATA:
-      bthci.channel = BTHCI_CHANNEL_ACL;
-      bthci.sent = P2P_DIR_RECV;
-      pinfo->p2p_dir = P2P_DIR_RECV;
-      break;
-    case PKT_SENT_SCO_DATA:
-      bthci.channel = BTHCI_CHANNEL_SCO;
-      bthci.sent = P2P_DIR_SENT;
-      pinfo->p2p_dir = P2P_DIR_SENT;
-      break;
-    case PKT_RECV_SCO_DATA:
-      bthci.channel = BTHCI_CHANNEL_SCO;
-      bthci.sent = P2P_DIR_RECV;
-      pinfo->p2p_dir = P2P_DIR_RECV;
-      break;
-    default:
-      bthci.channel = pl_type;
-      bthci.sent = P2P_DIR_UNKNOWN;
-      pinfo->p2p_dir = P2P_DIR_UNKNOWN;
-      break;
-    }
-    bluetooth_data->previous_protocol_data.bthci = &bthci;
-    proto_item_set_len (ti, 1);
-
+  switch (pl_type) {
+  case PKT_HCI_COMMAND:
+    dissect_bthci_h1 (next_tvb, pinfo, tree, ti, pl_type, BTHCI_CHANNEL_COMMAND,
+            TRUE, bluetooth_data);
+    break;
+  case PKT_HCI_EVENT:
+    dissect_bthci_h1 (next_tvb, pinfo, tree, ti, pl_type, BTHCI_CHANNEL_EVENT,
+            FALSE, bluetooth_data);
+    break;
+  case PKT_SENT_ACL_DATA:
+    dissect_bthci_h1 (next_tvb, pinfo, tree, ti, pl_type, BTHCI_CHANNEL_ACL,
+            TRUE, bluetooth_data);
+    break;
+  case PKT_RECV_ACL_DATA:
+    dissect_bthci_h1 (next_tvb, pinfo, tree, ti, pl_type, BTHCI_CHANNEL_ACL,
+            FALSE, bluetooth_data);
+    break;
+  case PKT_SENT_SCO_DATA:
+    dissect_bthci_h1 (next_tvb, pinfo, tree, ti, pl_type, BTHCI_CHANNEL_SCO,
+            TRUE, bluetooth_data);
+    break;
+  case PKT_RECV_SCO_DATA:
+    dissect_bthci_h1 (next_tvb, pinfo, tree, ti, pl_type, BTHCI_CHANNEL_SCO,
+            FALSE, bluetooth_data);
+    break;
+  case PKT_SYSLOG:
+    dissect_syslog (next_tvb, pinfo, packetlogger_tree);
+    break;
+  case PKT_KERNEL:
+  case PKT_KERNEL_DEBUG:
+  case PKT_ERROR:
+  case PKT_POWER:
+  case PKT_NOTE:
+  case PKT_CONFIG:
+  case PKT_NEW_CONTROLLER:
+    proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII);
+    col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, next_tvb, 0, len));
+    break;
+  default:
+    call_data_dissector(next_tvb, pinfo, tree);
     col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
-    if (!dissector_try_uint_new(hci_h1_table, bthci.channel,
-            next_tvb, pinfo, tree, TRUE, bluetooth_data)) {
-      call_data_dissector(next_tvb, pinfo, tree);
-    }
-  } else {
-    /* PacketLogger data */
-    switch (pl_type) {
-    case PKT_SYSLOG:
-      dissect_syslog (next_tvb, pinfo, packetlogger_tree);
-      break;
-    case PKT_KERNEL:
-    case PKT_KERNEL_DEBUG:
-    case PKT_ERROR:
-    case PKT_POWER:
-    case PKT_NOTE:
-    case PKT_CONFIG:
-    case PKT_NEW_CONTROLLER:
-      proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII);
-      col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (pinfo->pool, next_tvb, 0, len));
-      break;
-    default:
-      call_data_dissector(next_tvb, pinfo, tree);
-      col_add_fstr (pinfo->cinfo, COL_INFO, "%s", val_to_str(pl_type, type_vals, "Unknown 0x%02x"));
-      break;
-    }
+    break;
   }
 
   return tvb_captured_length(tvb);
