@@ -3,11 +3,9 @@
 # USAGE
 # osx-app [-s] [-l /path/to/libraries]
 #
-# This script attempts to build an Wireshark.app bundle for macOS, resolving
+# This script attempts to build an application bundle for macOS, resolving
 # dynamic libraries, etc.
 # It strips the executable and libraries if '-s' is given.
-# The Info.plist file can be found in the base wireshark directory once
-# configure has been run.
 #
 # AUTHORS
 #		 Kees Cook <kees@outflux.net>
@@ -64,15 +62,17 @@ USAGE
 OPTIONS
 	-h,--help
 		Display this help message.
+	-b,--bundle
+		The application bundle name. Default is Wireshark.app.
 	-s
 		Strip the libraries and executables from debugging symbols.
 	-l,--libraries
-		Specify the path to the libraries Wireshark depends on
-		(typically /sw or /opt/local). By default it is
+		Specify the path to the libraries the application depends
+		on (typically /sw or /opt/local). By default it is
 		/usr/local.
 
 EXAMPLE
-	$0 -s -l /opt/local
+	$0 -b Logwolf.app -s -l /opt/local
 "
 }
 
@@ -82,6 +82,9 @@ EXAMPLE
 while [ "$1" != "" ]
 do
 	case $1 in
+		-b|--bundle)
+			bundle="$2"
+			shift 1 ;;
 		-s)
 			strip=true ;;
 		-l|--libraries)
@@ -121,11 +124,14 @@ sparkle_frameworks_dir="@SPARKLE_LIBRARIES@"
 #
 exclude_prefixes="$exclude_prefixes|$qt_frameworks_dir"
 
+app_name=${bundle%%.app}
+app_lower=$(echo "$app_name" | tr '[:upper:]' '[:lower:]')
+
 # Package paths
 pkgexec="$bundle/Contents/MacOS"
 #pkgres="$bundle/Contents/Resources"
 pkglib="$bundle/Contents/Frameworks"
-pkgplugin="$bundle/Contents/PlugIns/wireshark/@PLUGIN_PATH_ID@"
+pkgplugin="$bundle/Contents/PlugIns/$app_lower/@PLUGIN_PATH_ID@"
 
 # Set the 'macosx' directory, usually the current directory.
 #resdir=$( pwd )
@@ -135,9 +141,9 @@ pkgplugin="$bundle/Contents/PlugIns/wireshark/@PLUGIN_PATH_ID@"
 # Treat all plain files with read and execute permissions for all as
 # binaries.
 #
-secondary_binary_list=$( find $pkgexec \! -name Wireshark -type f -perm -0555 -print | sort )
-plugin_library_list=$( find $pkgplugin -name "*.so" -type f -perm -0555 -print | sort )
-bundle_binary_list="$pkgexec/Wireshark $secondary_binary_list $plugin_library_list"
+secondary_binary_list=$( find "$pkgexec" \! -name "$app_name" -type f -perm -0555 -print | sort )
+plugin_library_list=$( find "$pkgplugin" -name "*.so" -type f -perm -0555 -print | sort )
+bundle_binary_list="$pkgexec/$app_name $secondary_binary_list $plugin_library_list"
 
 echo -e "\\nFixing up $bundle..."
 
@@ -239,11 +245,11 @@ fi
 "@QT_MACDEPLOYQT_EXECUTABLE@" "$bundle" -no-strip -verbose=2 || exit 1
 
 #
-# The build process added to the Wireshark binary an rpath entry
-# pointing to the directory containing the Qt frameworks; remove
-# that entry from the Wireshark binary in the package.
+# The build process added to the Wireshark/Logwolf binary an rpath
+# entry pointing to the directory containing the Qt frameworks; remove
+# that entry from the binary in the package.
 #
-/usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" $pkgexec/Wireshark
+/usr/bin/install_name_tool -delete_rpath "$qt_frameworks_dir" "$pkgexec/$app_name"
 
 if [ -d "$sparkle_frameworks_dir" ] ; then
 	cp -R "$sparkle_frameworks_dir" "$pkglib" || exit 1
@@ -569,14 +575,14 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		codesign_file "$library"
 	done
 
-	plugin_list=$( find $bundle/Contents/PlugIns -type f -name "*.dylib" -o -name "*.so" )
+	plugin_list=$( find "$bundle/Contents/PlugIns" -type f -name "*.dylib" -o -name "*.so" )
 	echo "Signing plugins"
 	for plugin in $plugin_list ; do
 		codesign_file "$plugin"
 	done
 
 	echo "Signing extra packages"
-	find $bundle/Contents/Resources/Extras -type f -name "*.pkg" | \
+	find "$bundle/Contents/Resources/Extras" -type f -name "*.pkg" | \
 	while read -r extra_pkg ; do
 		productsign_pkg "$extra_pkg"
 	done
@@ -593,7 +599,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	done
 
 	echo "Signing primary executable"
-	codesign_file "$pkgexec/Wireshark"
+	codesign_file "$pkgexec/$app_name"
 
 	echo "Signing $bundle"
 	codesign_file "$bundle"

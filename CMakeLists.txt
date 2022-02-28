@@ -3186,7 +3186,7 @@ if (MAXMINDDB_FOUND)
 	install(TARGETS mmdbresolve RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
-if(ENABLE_APPLICATION_BUNDLE)
+if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
 	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Wireshark.app/Contents/Resources/Extras")
 
 	# --preserve-xattr is undocumented but ensures that we install
@@ -3361,6 +3361,44 @@ if(ENABLE_APPLICATION_BUNDLE)
 		# We create Wireshark.app in "run". Do our work there.
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
 	)
+
+endif()
+
+if(ENABLE_APPLICATION_BUNDLE AND BUILD_logwolf)
+	add_custom_target(logwolf_app_bundle)
+	set_target_properties(logwolf_app_bundle PROPERTIES FOLDER "Copy Tasks")
+	add_custom_command(TARGET logwolf_app_bundle
+		POST_BUILD
+		COMMAND "${CMAKE_BINARY_DIR}/packaging/macosx/osx-app.sh" --bundle Logwolf.app
+		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/run"
+	)
+
+	# add_custom_target(dmg_package_prep DEPENDS app_bundle)
+
+	# set(_read_me_first "packaging/macosx/Read me first.html")
+	# ADD_CUSTOM_COMMAND(
+	# OUTPUT
+	# 	${_read_me_first}
+	# COMMAND ${ASCIIDOCTOR_EXECUTABLE}
+	# 	--backend html
+	# 	--out-file ${_read_me_first}
+	# 	--attribute include-dir=${CMAKE_SOURCE_DIR}/docbook
+	# 	--attribute min-macos-version=${MIN_MACOS_VERSION}
+	# 	${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Read_me_first.adoc
+	# DEPENDS
+	# 	${CMAKE_CURRENT_SOURCE_DIR}/packaging/macosx/Read_me_first.adoc
+	# )
+	# add_custom_target(read_me_first_html DEPENDS ${_read_me_first} )
+	# add_dependencies(dmg_package_prep read_me_first_html)
+
+	# ADD_CUSTOM_TARGET( dmg_package
+	# 	COMMAND bash -x ${CMAKE_BINARY_DIR}/packaging/macosx/osx-dmg.sh
+	# 	# Unlike nsis_package_prep + nsis_package, we can add a direct
+	# 	# dependency here.
+	# 	DEPENDS dmg_package_prep
+	# 	# We create Wireshark.app in "run". Do our work there.
+	# 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/run
+	# )
 
 endif()
 
