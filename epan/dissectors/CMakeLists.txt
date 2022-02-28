@@ -1629,6 +1629,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pingpongprotocol.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pktap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pktc.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-pldm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pktgen.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pmproxy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-pnrp.c
