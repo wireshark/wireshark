@@ -661,6 +661,7 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
         gboolean fragment_last, enum pid_payload_type pload_type)
 {
     fragment_head   *frag_msg;
+    proto_item      *ti;
     tvbuff_t        *new_tvb;
     const char      *save_proto;
     mp2t_stream_key *stream;
@@ -681,10 +682,25 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             frag_len,
             !fragment_last);
 
-    new_tvb = process_reassembled_data(tvb, offset, pinfo,
-            "Reassembled MP2T",
-            frag_msg, &mp2t_msg_frag_items,
-            NULL, tree);
+    /* We only want to call subdissectors on the last fragment.
+     * processed_reassembled_data checks the frame number and layer number,
+     * but when there is more than one TSP in a frame, the fragment at the
+     * end of one TSP and the first fragment of the next have the same layer
+     * number. So use our own information about whether this is the last
+     * fragment to avoid calling subdissectors early and often.
+     */
+    if (fragment_last) {
+        new_tvb = process_reassembled_data(tvb, offset, pinfo,
+                "Reassembled MP2T",
+                frag_msg, &mp2t_msg_frag_items,
+                NULL, tree);
+    } else {
+        new_tvb = NULL;
+        if (frag_msg != NULL) {
+            ti = proto_tree_add_uint(tree, hf_msg_reassembled_in, tvb, 0, 0, frag_msg->reassembled_in);
+            proto_item_set_generated(ti);
+        }
+    }
 
     if (new_tvb) {
         proto_tree_add_item(tree, hf_msg_ts_packet_reassembled, tvb, 0, 0, ENC_NA);
