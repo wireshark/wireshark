@@ -3682,7 +3682,7 @@ again:
          * Note that the last segment may include more than what
          * we needed.
          */
-        if(ipfd_head->reassembled_in == pinfo->num) {
+        if (ipfd_head->reassembled_in == pinfo->num && ipfd_head->reas_in_layer_num == pinfo->curr_layer_num) {
             /*
              * OK, this is the last segment.
              * Let's call the subdissector with the desegmented
