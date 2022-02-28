@@ -120,6 +120,7 @@
 #include "extcap.h"
 
 #ifdef HAVE_PLUGINS
+#include <wsutil/codecs.h>
 #include <wsutil/plugins.h>
 #endif
 
@@ -1046,6 +1047,7 @@ main(int argc, char *argv[])
                 dissector_dump_heur_decodes();
             else if (strcmp(argv[2], "plugins") == 0) {
 #ifdef HAVE_PLUGINS
+                codecs_init();
                 plugins_dump_all();
 #endif
 #ifdef HAVE_LUA
