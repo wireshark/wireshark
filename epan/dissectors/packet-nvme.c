@@ -777,6 +777,17 @@ typedef enum {
 } nvme_cqe_sc_cmd_t;
 
 typedef enum {
+    NVMEOF_CQE_SC_CMD_INCOMPAT_FORMAT = 0x80,
+    NVMEOF_CQE_SC_CMD_CONT_BUSY = 0x81,
+    NVMEOF_CQE_SC_CMD_CNCT_INV_PARAMS = 0x82,
+    NVMEOF_CQE_SC_CMD_CNCT_RESTART_DISC = 0x83,
+    NVMEOF_CQE_SC_CMD_CNCT_INV_HOST = 0x84,
+    NVMEOF_CQE_SC_CMD_INV_QUEUE_TYPE = 0x85,
+    NVMEOF_CQE_SC_CMD_DISC_RESTART = 0x90,
+    NVMEOF_CQE_SC_CMD_AUTH_REQ = 0x91,
+} nvmeof_cqe_sc_cmd_t;
+
+typedef enum {
     NVME_CQE_SC_MEDIA_WRITE_FAULT = 0x80,
     NVME_CQE_SC_MEDIA_READ_FAULT = 0x81,
     NVME_CQE_SC_MEDIA_ETE_GUARD_CHECK_ERR = 0x82,
@@ -892,6 +903,18 @@ static const value_string nvme_cqe_sc_cmd_tbl[] = {
     { NVME_CQE_SC_CMD_CONFLICTING_ATTRS, "Conflicting Attributes" },
     { NVME_CQE_SC_CMD_INVALID_PROTECTION_INF, "Invalid Protection Information" },
     { NVME_CQE_SC_CMD_WRITE_TO_RO_REGION, "Attempted Write to Read Only Range" },
+    { 0, NULL },
+};
+
+static const value_string nvmeof_cqe_sc_cmd_tbl[] = {
+    { NVMEOF_CQE_SC_CMD_INCOMPAT_FORMAT, "Incompatible Format" },
+    { NVMEOF_CQE_SC_CMD_CONT_BUSY, "Controller Busy" },
+    { NVMEOF_CQE_SC_CMD_CNCT_INV_PARAMS, "Connect Invalid Parameters" },
+    { NVMEOF_CQE_SC_CMD_CNCT_RESTART_DISC, "Connect Restart Discovery" },
+    { NVMEOF_CQE_SC_CMD_CNCT_INV_HOST, "Connect Invalid Host" },
+    { NVMEOF_CQE_SC_CMD_INV_QUEUE_TYPE, "Invalid Queue Type" },
+    { NVMEOF_CQE_SC_CMD_DISC_RESTART, "Discover Restart" },
+    { NVMEOF_CQE_SC_CMD_AUTH_REQ, "Authentication Required" },
     { 0, NULL },
 };
 
@@ -4190,11 +4213,12 @@ nvme_is_io_queue_opcode(guint8  opcode)
             (opcode == NVME_IOQ_OPC_RESV_RELEASE));
 }
 
-static const char *get_cqe_sc_string(guint sct, guint sc)
+static const char *get_cqe_sc_string(guint sct, guint sc, gboolean nvmeof)
 {
     switch (sct) {
         case NVME_CQE_SCT_GENERIC: return val_to_str_const(sc, nvme_cqe_sc_gen_tbl, "Unknown Status Code");
-        case NVME_CQE_SCT_COMMAND: return val_to_str_const(sc, nvme_cqe_sc_cmd_tbl, "Unknown Status Code");
+        case NVME_CQE_SCT_COMMAND: return (nvmeof) ? val_to_str_const(sc, nvmeof_cqe_sc_cmd_tbl, "Unknown Fabrics Status Code") :
+            val_to_str_const(sc, nvme_cqe_sc_cmd_tbl, "Unknown Status Code");
         case NVME_CQE_SCT_MEDIA: return val_to_str_const(sc, nvme_cqe_sc_media_tbl, "Unknown Status Code");
         case NVME_CQE_SCT_PATH: return val_to_str_const(sc, nvme_cqe_sc_path_tbl, "Unknown Status Code");
         case NVME_CQE_SCT_VENDOR: return "Vendor Error";
@@ -4330,7 +4354,7 @@ static void dissect_nvme_cqe_common(tvbuff_t *nvme_tvb, proto_tree *cqe_tree, gu
         proto_tree_add_item(grp, hf_nvme_cqe_status[1], nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
 
     ti = proto_tree_add_item(grp, hf_nvme_cqe_status[2], nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(ti, " (%s)", get_cqe_sc_string((val & 0xE00) >> 1, (val & 0x1FE) >> 9));
+    proto_item_append_text(ti, " (%s)", get_cqe_sc_string((val & 0xE00) >> 9, (val & 0x1FE) >> 1, nvmeof));
 
     for (i = 3; i < array_length(hf_nvme_cqe_status); i++)
         proto_tree_add_item(grp, hf_nvme_cqe_status[i], nvme_tvb, off+14, 2, ENC_LITTLE_ENDIAN);
