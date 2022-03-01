@@ -2790,8 +2790,8 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	} else if (send_meta) {
 		field_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
 		field_metas->count = (guint16)num_fields;
-		field_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, num_fields);
-		field_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, num_fields);
+		field_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, (size_t)num_fields);
+		field_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, (size_t)num_fields);
 		conn_data->field_metas = *field_metas;
 	} else {
 		if (conn_data->stmt_id) {
