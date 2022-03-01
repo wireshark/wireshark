@@ -3749,7 +3749,9 @@ static void dissect_nvme_set_features_transfer(tvbuff_t *tvb, proto_tree *tree, 
             dissect_nvme_set_features_transfer_hbs(tvb, tree, len);
             break;
         default:
-            proto_tree_add_bytes_format_value(tree, hf_nvme_gen_data, tvb, 0, len, NULL, "Unhandled Set Features Transfer");
+            proto_tree_add_bytes_format_value(tree, hf_nvme_gen_data, tvb, 0, len, NULL,
+                (cmd_ctx->opcode == NVME_AQ_OPC_SET_FEATURES) ? "Unhandled Set Features Transfer" : "Unhandled Get Features Transfer");
+            break;
     }
 }
 
@@ -3802,6 +3804,7 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             break;
 
         case NVME_AQ_OPC_SET_FEATURES:
+        case NVME_AQ_OPC_GET_FEATURES:
                 dissect_nvme_set_features_transfer(nvme_tvb, cmd_tree, cmd_ctx, off, len);
             break;
 
