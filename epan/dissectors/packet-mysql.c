@@ -1133,6 +1133,7 @@ static expert_field ei_mysql_streamed_param = EI_INIT;
 static expert_field ei_mysql_prepare_response_needed = EI_INIT;
 static expert_field ei_mysql_unknown_response = EI_INIT;
 static expert_field ei_mysql_command = EI_INIT;
+static expert_field ei_mysql_invalid_length = EI_INIT;
 
 /* type constants */
 static const value_string type_constants[] = {
@@ -1209,6 +1210,7 @@ static const value_string state_vals[] = {
 	{0, NULL}
 };
 
+#define MAX_MY_METADATA_COUNT G_MAXINT16 // Arbitrary; is 32k enough?
 typedef struct {
 	guint16 count;
 	guint16* flags;
@@ -2754,7 +2756,6 @@ static int mariadb_dissect_caps_or_flags(tvbuff_t *tvb, int offset, enum ftenum 
 	return offset;
 }
 
-
 static int
 mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			    proto_tree *tree, mysql_conn_data_t *conn_data)
@@ -2783,14 +2784,14 @@ mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 
 
-	if (send_meta) {
+	if (num_fields > MAX_MY_METADATA_COUNT) {
+		expert_add_info_format(pinfo, tree, &ei_mysql_invalid_length, "Invalid length: %" G_GUINT64_FORMAT, num_fields);
+		return tvb_reported_length_remaining(tvb, 0);
+	} else if (send_meta) {
 		field_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
 		field_metas->count = (guint16)num_fields;
-		int flagsize = (int)(sizeof(guint8) * num_fields);
-		field_metas->flags = (guint16 *)wmem_alloc(wmem_file_scope(), flagsize);
-		memset(field_metas->flags, 0, flagsize);
-		field_metas->types = (guint8 *)wmem_alloc(wmem_file_scope(), flagsize);
-		memset(field_metas->types, 0, flagsize);
+		field_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, num_fields);
+		field_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, num_fields);
 		conn_data->field_metas = *field_metas;
 	} else {
 		if (conn_data->stmt_id) {
@@ -3016,7 +3017,6 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	my_metadata_list_t *param_metas;
 
 	guint32 stmt_id;
-	int flagsize;
 
 	proto_tree_add_item(tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	stmt_id = tvb_get_letohl(tvb, offset);
@@ -3031,20 +3031,14 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 	param_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
 	param_metas->count = conn_data->stmt_num_params;
-	flagsize = (int)param_metas->count;
-	param_metas->flags = (guint16 *)wmem_alloc(wmem_file_scope(), flagsize);
-	memset(param_metas->flags, 0, flagsize);
-	param_metas->types = (guint8 *)wmem_alloc(wmem_file_scope(), flagsize);
-	memset(param_metas->types, 0, flagsize);
+	param_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, param_metas->count);
+	param_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, param_metas->count);
 	stmt_data->param_metas = *param_metas;
 
 	field_metas = wmem_new(wmem_file_scope(), my_metadata_list_t);
 	field_metas->count = conn_data->stmt_num_fields;
-	flagsize = (int)(sizeof(guint8) * field_metas->count);
-	field_metas->flags = (guint16 *)wmem_alloc(wmem_file_scope(), flagsize);
-	memset(field_metas->flags, 0, flagsize);
-	field_metas->types = (guint8 *)wmem_alloc(wmem_file_scope(), flagsize);
-	memset(field_metas->types, 0, flagsize);
+	field_metas->flags = (guint16 *)wmem_alloc0_array(wmem_file_scope(), guint16, field_metas->count);
+	field_metas->types = (guint8 *)wmem_alloc0_array(wmem_file_scope(), guint8, field_metas->count);
 	stmt_data->field_metas = *field_metas;
 	conn_data->field_metas = *field_metas;
 
@@ -4470,6 +4464,7 @@ void proto_register_mysql(void)
 		{ &ei_mysql_prepare_response_needed, { "mysql.prepare_response_needed", PI_UNDECODED, PI_WARN, "PREPARE Response packet is needed to dissect the payload", EXPFILL }},
 		{ &ei_mysql_command, { "mysql.command.invalid", PI_PROTOCOL, PI_WARN, "Unknown/invalid command code", EXPFILL }},
 		{ &ei_mysql_unknown_response, { "mysql.unknown_response", PI_UNDECODED, PI_WARN, "unknown/invalid response", EXPFILL }},
+		{ &ei_mysql_invalid_length, { "mysql.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
 	};
 
 	module_t *mysql_module;
