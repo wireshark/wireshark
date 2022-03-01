@@ -46,20 +46,14 @@ static int hf_cbor_item_map			= -1;
 static int hf_cbor_item_tag			= -1;
 static int hf_cbor_item_float_simple		= -1;
 static int hf_cbor_type_uint5			= -1;
-static int hf_cbor_type_uint8			= -1;
-static int hf_cbor_type_uint16			= -1;
-static int hf_cbor_type_uint32			= -1;
-static int hf_cbor_type_uint64			= -1;
+static int hf_cbor_type_uint			= -1;
 static int hf_cbor_type_nint			= -1;
 static int hf_cbor_type_byte_string		= -1;
 static int hf_cbor_type_byte_string_indef	= -1;
 static int hf_cbor_type_text_string		= -1;
 static int hf_cbor_type_text_string_indef	= -1;
 static int hf_cbor_type_tag5			= -1;
-static int hf_cbor_type_tag8			= -1;
-static int hf_cbor_type_tag16			= -1;
-static int hf_cbor_type_tag32			= -1;
-static int hf_cbor_type_tag64			= -1;
+static int hf_cbor_type_tag			= -1;
 static int hf_cbor_type_simple_data5		= -1;
 static int hf_cbor_type_simple_data8		= -1;
 static int hf_cbor_type_float16			= -1;
@@ -144,7 +138,7 @@ static const value_string float_simple_type_vals[] = {
 };
 
 /* see https://www.iana.org/assignments/cbor-tags/cbor-tags.xhtml#tags */
-static const value_string vals_tags[] = {
+static const value_string tag32_vals[] = {
 	{ 0, "Standard date/time string" },
 	{ 1, "Epoch-based date/time" },
 	{ 2, "Positive bignum" },
@@ -178,7 +172,7 @@ static const value_string vals_tags[] = {
 	{ 0, NULL },
 };
 
-static const val64_string vals64_tags[] = {
+static const val64_string tag64_vals[] = {
 	{ 0, "Standard date/time string" },
 	{ 1, "Epoch-based date/time" },
 	{ 2, "Positive bignum" },
@@ -230,7 +224,6 @@ static gboolean
 dissect_cbor_unsigned_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	guint64 value = 0;
-	guint32 value32;
 	proto_item *item;
 	proto_tree *subtree;
 
@@ -248,22 +241,19 @@ dissect_cbor_unsigned_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbo
 
 	switch (type_minor) {
 	case 0x18:
-		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_uint8, tvb, *offset, 1, ENC_BIG_ENDIAN, &value32);
-		value = value32;
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_uint, tvb, *offset, 1, ENC_BIG_ENDIAN, &value);
 		*offset += 1;
 		break;
 	case 0x19:
-		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_uint16, tvb, *offset, 2, ENC_BIG_ENDIAN, &value32);
-		value = value32;
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_uint, tvb, *offset, 2, ENC_BIG_ENDIAN, &value);
 		*offset += 2;
 		break;
 	case 0x1a:
-		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_uint32, tvb, *offset, 4, ENC_BIG_ENDIAN, &value32);
-		value = value32;
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_uint, tvb, *offset, 4, ENC_BIG_ENDIAN, &value);
 		*offset += 4;
 		break;
 	case 0x1b:
-		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_uint64, tvb, *offset, 8, ENC_BIG_ENDIAN, &value);
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_uint, tvb, *offset, 8, ENC_BIG_ENDIAN, &value);
 		*offset += 8;
 		break;
 	default:
@@ -671,7 +661,6 @@ static gboolean
 dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
 	guint64          tag = 0;
-	guint32          tag32;
 	proto_item      *item;
 	proto_tree      *subtree;
 
@@ -690,22 +679,19 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 
 	switch (type_minor) {
 	case 0x18:
-		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_tag8, tvb, *offset, 1, ENC_BIG_ENDIAN, &tag32);
-		tag = tag32;
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_tag, tvb, *offset, 1, ENC_BIG_ENDIAN, &tag);
 		*offset += 1;
 		break;
 	case 0x19:
-		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_tag16, tvb, *offset, 2, ENC_BIG_ENDIAN, &tag32);
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_tag, tvb, *offset, 2, ENC_BIG_ENDIAN, &tag);
 		*offset += 2;
-		tag = tag32;
 		break;
 	case 0x1a:
-		proto_tree_add_item_ret_uint(subtree, hf_cbor_type_tag32, tvb, *offset, 4, ENC_BIG_ENDIAN, &tag32);
-		tag = tag32;
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_tag, tvb, *offset, 4, ENC_BIG_ENDIAN, &tag);
 		*offset += 4;
 		break;
 	case 0x1b:
-		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_tag64, tvb, *offset, 8, ENC_BIG_ENDIAN, &tag);
+		proto_tree_add_item_ret_uint64(subtree, hf_cbor_type_tag, tvb, *offset, 8, ENC_BIG_ENDIAN, &tag);
 		*offset += 8;
 		break;
 	default:
@@ -721,7 +707,7 @@ dissect_cbor_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint 
 		return FALSE;
 	}
 
-	proto_item_append_text(item, ": %s (%" PRIu64 ")", val64_to_str(tag, vals64_tags, "Unknown"), tag);
+	proto_item_append_text(item, ": %s (%" PRIu64 ")", val64_to_str(tag, tag64_vals, "Unknown"), tag);
 	proto_item_set_end(item, tvb, *offset);
 
 	return TRUE;
@@ -990,23 +976,8 @@ proto_register_cbor(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x1f,
 		    NULL, HFILL }
 		},
-		{ &hf_cbor_type_uint8,
-		  { "Unsigned Integer", "cbor.type.uint8",
-		    FT_UINT8, BASE_DEC, NULL, 0x00,
-		    NULL, HFILL }
-		},
-		{ &hf_cbor_type_uint16,
-		  { "Unsigned Integer", "cbor.type.uint16",
-		    FT_UINT16, BASE_DEC, NULL, 0x00,
-		    NULL, HFILL }
-		},
-		{ &hf_cbor_type_uint32,
-		  { "Unsigned Integer", "cbor.type.uint32",
-		    FT_UINT32, BASE_DEC, NULL, 0x00,
-		    NULL, HFILL }
-		},
-		{ &hf_cbor_type_uint64,
-		  { "Unsigned Integer", "cbor.type.uint64",
+		{ &hf_cbor_type_uint,
+		  { "Unsigned Integer", "cbor.type.uint",
 		    FT_UINT64, BASE_DEC, NULL, 0x00,
 		    NULL, HFILL }
 		},
@@ -1036,37 +1007,22 @@ proto_register_cbor(void)
 		    NULL, HFILL }
 		},
 		{ &hf_cbor_type_tag5,
-		  { "Tag", "cbor.type.tag5",
-		    FT_UINT8, BASE_DEC, VALS(vals_tags), 0x1f,
+		  { "Tag", "cbor.type.tag",
+		    FT_UINT8, BASE_DEC, VALS(tag32_vals), 0x1f,
 		    NULL, HFILL }
 		},
-		{ &hf_cbor_type_tag8,
-		  { "Tag", "cbor.type.tag8",
-		    FT_UINT8, BASE_DEC, VALS(vals_tags), 0x00,
-		    NULL, HFILL }
-		},
-		{ &hf_cbor_type_tag16,
-		  { "Tag", "cbor.type.tag16",
-		    FT_UINT16, BASE_DEC, VALS(vals_tags), 0x00,
-		    NULL, HFILL }
-		},
-		{ &hf_cbor_type_tag32,
-		  { "Tag", "cbor.type.tag32",
-		    FT_UINT32, BASE_DEC, VALS(vals_tags), 0x00,
-		    NULL, HFILL }
-		},
-		{ &hf_cbor_type_tag64,
-		  { "Tag", "cbor.type.tag64",
-		    FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(vals64_tags), 0x00,
+		{ &hf_cbor_type_tag,
+		  { "Tag", "cbor.type.tag",
+		    FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(tag64_vals), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_cbor_type_simple_data5,
-		  { "Simple data", "cbor.type.simple_data5",
+		  { "Simple data", "cbor.type.simple_data",
 		    FT_UINT8, BASE_DEC, VALS(vals_simple_data), 0x1f,
 		    NULL, HFILL }
 		},
 		{ &hf_cbor_type_simple_data8,
-		  { "Simple data", "cbor.type.simple_data8",
+		  { "Simple data", "cbor.type.simple_data",
 		    FT_UINT8, BASE_DEC, VALS(vals_simple_data), 0x00,
 		    NULL, HFILL }
 		},
