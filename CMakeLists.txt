@@ -2489,9 +2489,6 @@ if(ENABLE_APPLICATION_BUNDLE)
 	"-Wl,-headerpad_max_install_names -Wl,-search_paths_first ${CMAKE_EXE_LINKER_FLAGS}"
 	)
 
-	# Create our Frameworks directory
-	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Wireshark.app/Contents/Frameworks")
-
 	# Add files to the app bundle
 	# Wireshark.app/Contents
 	file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/PkgInfo "APPLWshk\n")

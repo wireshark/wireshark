@@ -147,6 +147,13 @@ bundle_binary_list="$pkgexec/$app_name $secondary_binary_list $plugin_library_li
 
 echo -e "\\nFixing up $bundle..."
 
+# Start with a clean Frameworks slate.
+if [ -d "$pkglib" ] ; then
+	printf "Removing %s\n" "$pkglib"
+	rm -v -r -f "$pkglib"
+fi
+mkdir -v -m u=rwx,go=rx "$pkglib"
+
 echo -e "\\nPrepopulating our libraries"
 
 # Copy only <library>.<SOVERSION>.dylib.
