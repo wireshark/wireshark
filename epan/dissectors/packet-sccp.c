@@ -2877,7 +2877,8 @@ dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                     guint16 *optional_pointer_p, guint16 *orig_opt_ptr_p)
 {
   guint16   variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
-  guint16   optional_pointer  = 0, orig_opt_ptr = 0;
+  guint16   optional_pointer  = 0, orig_opt_ptr = 0, optional_pointer1 = 0;
+  guint8    optional_param_type = 0;
   tvbuff_t *new_tvb = NULL;
   guint32   source_local_ref = 0;
   guint     msg_offset = tvb_offset_from_real_beginning(tvb);
@@ -2933,7 +2934,16 @@ dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                                   PARAMETER_CALLING_PARTY_ADDRESS,
                                   variable_pointer2, sccp_info);
 
-  if (tvb_get_guint8(tvb, optional_pointer) == PARAMETER_SEGMENTATION) {
+
+  optional_pointer1 = optional_pointer;
+  while((optional_param_type = tvb_get_guint8(tvb, optional_pointer1)) != PARAMETER_END_OF_OPTIONAL_PARAMETERS) {
+    if (optional_param_type == PARAMETER_SEGMENTATION)
+      break;
+    optional_pointer1 += PARAMETER_TYPE_LENGTH;
+    optional_pointer1 += tvb_get_guint8(tvb, optional_pointer1) + PARAMETER_LENGTH_LENGTH;
+  }
+
+  if (tvb_get_guint8(tvb, optional_pointer1) == PARAMETER_SEGMENTATION) {
     if (!sccp_reassemble) {
       proto_tree_add_item(sccp_tree, hf_sccp_segmented_data, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, ENC_NA);
     } else {
@@ -2950,8 +2960,8 @@ dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
        * The values 0000 to 1111 are possible; the value 0000 indicates
        * the last segment.
        */
-      octet = tvb_get_guint8(tvb, optional_pointer+2);
-      source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
+      octet = tvb_get_guint8(tvb, optional_pointer1+2);
+      source_local_ref = tvb_get_letoh24(tvb, optional_pointer1+3);
 
       if ((octet & 0x0f) == 0)
         more_frag = FALSE;
