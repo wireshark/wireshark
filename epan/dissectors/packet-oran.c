@@ -135,6 +135,8 @@ static int hf_oran_ciQsample = -1;
 static int hf_oran_beamGroupType = -1;
 static int hf_oran_numPortc = -1;
 
+static int hf_oran_csf = -1;
+static int hf_oran_modcompscaler = -1;
 
 /* Computed fields */
 static int hf_oran_c_eAxC_ID = -1;
@@ -177,11 +179,13 @@ static guint pref_sample_bit_width_uplink = 14;
 static guint pref_sample_bit_width_downlink = 14;
 
 
-#define COMP_NONE               0
-#define COMP_BLOCK_FP           1
-#define COMP_BLOCK_SCALE        2
-#define COMP_U_LAW              3
-#define COMP_MODULATION         4
+#define COMP_NONE                  0
+#define COMP_BLOCK_FP              1
+#define COMP_BLOCK_SCALE           2
+#define COMP_U_LAW                 3
+#define COMP_MODULATION            4
+#define BFP_AND_SELECTIVE_RE       5
+#define MOD_COMPR_AND_SELECTIVE_RE 6
 
 static gint pref_iqCompressionUplink = COMP_BLOCK_FP;
 static gint pref_iqCompressionDownlink = COMP_BLOCK_FP;
@@ -195,11 +199,13 @@ static gboolean pref_showIQSampleValues = TRUE;
 
 
 static const enum_val_t compression_options[] = {
-    { "COMP_NONE",        "No Compression",                   COMP_NONE },
-    { "COMP_BLOCK_FP",    "Block Floating Point Compression", COMP_BLOCK_FP },
-    { "COMP_BLOCK_SCALE", "Block Scaling Compression",        COMP_BLOCK_SCALE },
-    { "COMP_U_LAW",       "u-Law Compression",                COMP_U_LAW },
-    { "COMP_MODULATION",  "Modulation Compression",           COMP_MODULATION },
+    { "COMP_NONE",                  "No Compression",                   COMP_NONE },
+    { "COMP_BLOCK_FP",              "Block Floating Point Compression", COMP_BLOCK_FP },
+    { "COMP_BLOCK_SCALE",           "Block Scaling Compression",        COMP_BLOCK_SCALE },
+    { "COMP_U_LAW",                 "u-Law Compression",                COMP_U_LAW },
+    { "COMP_MODULATION",            "Modulation Compression",           COMP_MODULATION },
+    { "BFP_AND_SELECTIVE_RE",       "BFP + selective RE sending",       BFP_AND_SELECTIVE_RE },
+    { "MOD_COMPR_AND_SELECTIVE_RE", "mod-compr + selective RE sending", MOD_COMPR_AND_SELECTIVE_RE },
     { NULL, NULL, 0 }
 };
 
@@ -287,7 +293,9 @@ static const range_string ud_comp_header_meth[] = {
     {2, 2, "Block scaling" },
     {3, 3, "Mu - law" },
     {4, 4, "Modulation compression" },
-    {5, 15, "Reserved"},
+    {5, 5, "BFP + selective RE sending" },
+    {6, 6, "mod-compr + selective RE sending" },
+    {7, 15, "Reserved"},
     {0, 0, NULL}
 };
 
@@ -573,6 +581,9 @@ static int dissect_bfwCompParam(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++; */
             break;
+
+        case BFP_AND_SELECTIVE_RE:
+        case MOD_COMPR_AND_SELECTIVE_RE:
         default:
             /* Not handled */
              break;
@@ -613,6 +624,8 @@ static gfloat decompress_value(guint32 bits, guint32 comp_method, guint8 iq_widt
         case COMP_BLOCK_SCALE:
         case COMP_U_LAW:
         case COMP_MODULATION:
+        case BFP_AND_SELECTIVE_RE:
+        case MOD_COMPR_AND_SELECTIVE_RE:
         default:
             /* Not supported! */
             return 0.0;
@@ -1014,6 +1027,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
                 break;
             }
+
+            case 4: /* Modulation compression params */
+                /* csf */
+                proto_tree_add_item(extension_tree, hf_oran_csf, tvb, offset, 1, ENC_BIG_ENDIAN);
+                /* modCompScaler */
+                proto_tree_add_item(extension_tree, hf_oran_modcompscaler, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
 
             case 6: /* Non-contiguous PRB allocation in time and frequency domain */
                 proto_tree_add_item(extension_tree, hf_oran_repetition, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1554,10 +1575,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         offset += 1;
 
         if (includeUdCompHeader) {
+            /* 5.4.4.10.  Described in 6.3.3.13 */
+            /* TODO: break out into function with subheader and good summary? */
             /* TODO: extract these values to inform how wide IQ samples in each PRB will be? */
             proto_tree_add_item(section_tree, hf_oran_udCompHdrMeth, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(section_tree, hf_oran_udCompHdrIqWidth, tvb, offset, 1, ENC_NA);
             offset += 1;
+
+            /* Not part of udCompHdr */
             proto_tree_add_item(section_tree, hf_oran_rsvd8, tvb, offset, 1, ENC_NA);
             offset += 1;
         }
@@ -2615,6 +2640,23 @@ proto_register_oran(void)
             FT_UINT8, BASE_DEC,
             NULL, 0x3f,
             "The number of eAxC ports",
+            HFILL }
+        },
+
+        /* 5.4.7.4.1 */
+        { &hf_oran_csf,
+          { "csf", "oran_fh_cus.csf",
+            FT_BOOLEAN, 8,
+            NULL, 0x80,
+            "constellation shift flag",
+            HFILL }
+        },
+        /* 5.4.7.4.2 */
+        { &hf_oran_modcompscaler,
+          { "modCompScaler", "oran_fh_cus.modcompscaler",
+            FT_UINT16, BASE_DEC,
+            NULL, 0x7fff,
+            "modulation compression scaler value",
             HFILL }
         }
     };
