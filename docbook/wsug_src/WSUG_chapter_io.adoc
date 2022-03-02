@@ -52,7 +52,7 @@ sections show some examples of the Wireshark “Open File” dialog box. The
 appearance of this dialog depends on the system. However, the functionality
 should be the same across systems.
 
-Common dialog behaviour on all systems:
+Common dialog behavior on all systems:
 
 * Select files and directories.
 
@@ -73,7 +73,7 @@ Wireshark adds the following controls:
   Read filters can be used to exclude various types of traffic, which can be useful for large capture files.
   They use the same syntax as display filters, which are discussed in detail in <<ChWorkDisplayFilterSection>>.
 
-* Optionally force Wireshark to read a file as a particular type using the “Automatically detect file type” dropdown.
+* Optionally force Wireshark to read a file as a particular type using the “Automatically detect file type” drop-down.
 
 [#ChIOOpenFileDialogWin32]
 
@@ -131,7 +131,7 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * RADCOM’s WAN/LAN Analyzer captures
 
-* Viavi (previously Network Instruments)i Observer captures
+* Viavi (previously Network Instruments) Observer captures
 
 * Lucent/Ascend router debug output
 
@@ -256,7 +256,7 @@ You can perform the following actions:
 
 * Select the directory to save the file into.
 
-* Specify the format of the saved capture file by clicking on the “Save as” drop down box.
+* Specify the format of the saved capture file by clicking on the “Save as” drop-down box.
   You can choose from the types described in <<ChIOOutputFormatsSection>>.
   Some capture formats may not be available depending on the packet types captured.
 
@@ -268,7 +268,7 @@ You can perform the following actions:
 
 * Click on the btn:[Cancel] button to go back to Wireshark without saving any packets.
 
-If you don’t provide a file extension to the filename (e.g. `.pcap`) Wireshark will append the standard file extension for that file format.
+If you don’t provide a file extension to the filename (e.g., `.pcap`) Wireshark will append the standard file extension for that file format.
 
 [TIP]
 .Wireshark can convert file formats
@@ -352,7 +352,7 @@ Whether or not the above tools will be more helpful than Wireshark is a differen
 .Third party protocol analyzers may require specific file extensions
 ====
 Wireshark examines a file’s contents to determine its type. Some other protocol
-analyzers only look at a filename extensions. For example, you might need to use
+analyzers only look at a file's extension. For example, you might need to use
 the `.cap` extension in order to open a file using the Windows version
 of _Sniffer_.
 ====
@@ -363,7 +363,7 @@ of _Sniffer_.
 
 Sometimes you need to merge several capture files into one. For example, this can
 be useful if you have captured simultaneously from multiple interfaces at once
-(e.g. using multiple instances of Wireshark).
+(e.g., using multiple instances of Wireshark).
 
 There are three ways to merge capture files using Wireshark:
 
@@ -373,7 +373,7 @@ There are three ways to merge capture files using Wireshark:
 
 * Use _drag and drop_ to drop multiple files on the main window.
   Wireshark will try to merge the packets in chronological order from the dropped files into a newly created temporary file.
-  If you drop a single file it will simply replace the existing capture.
+  If you drop a single file, it will simply replace the existing capture.
 
 * Use the `mergecap` tool from the command line to merge capture files.
   This tool provides the most options to merge capture files.
@@ -429,7 +429,7 @@ temporary libpcap capture file. It can read hex dumps with multiple packets in
 them, and build a capture file of multiple packets. It is also capable of
 generating dummy Ethernet, IP and UDP, TCP, or SCTP headers, in order to build
 fully processable packet dumps from hexdumps of application-level data only.
-Alternatively a Dummy PDU header can be added to specify a dissector the data
+Alternatively, a Dummy PDU header can be added to specify a dissector the data
 should be passed to initially.
 
 Two methods for converting the input are supported:
@@ -460,7 +460,7 @@ that of the previous packet.
 
 Other text in the input data is ignored. Any text before the offset is
 ignored, including email forwarding characters '>'. Any text on a line
-after the bytes is ignored, e.g. an ASCII character dump (but see *-a* to
+after the bytes is ignored, e.g., an ASCII character dump (but see *-a* to
 ensure that hex digits in the character dump are ignored).  Any line where
 the first non-whitespace character is a '#' will be ignored as a comment.
 Any lines of text between the bytestring lines are considered preamble;
@@ -470,8 +470,8 @@ timestamp as mentioned above and otherwise ignored.
 Any line beginning with #TEXT2PCAP is a directive and options
 can be inserted after this command to be processed by Wireshark.
 Currently there are no directives implemented; in the future, these may
-be used to give more fine grained control on the dump and the way it
-should be processed e.g. timestamps, encapsulation type etc.
+be used to give more fine-grained control on the dump and the way it
+should be processed e.g., timestamps, encapsulation type etc.
 
 In general, short of these restrictions, Wireshark is pretty liberal
 about reading in hexdumps and has been tested with a variety of
@@ -494,7 +494,7 @@ I 2019-05-14T19:04:57Z
 
 ==== Regular Text Dumps
 
-Wireshark is also capable of scanning the input using a custom perl regular
+Wireshark is also capable of scanning the input using a custom Perl regular
 expression as specified by GLib's https://developer-old.gnome.org/glib/stable/glib-regex-syntax.html[GRegex here].
 Using a regex capturing a single packet in the given file
 wireshark will search the given file from start to the second to last character
@@ -507,7 +507,7 @@ standard libpcap file retaining packet order.
 Note that each named capturing subgroup has to match _exactly_ once a packet,
 but they may be present multiple times in the regex.
 
-For example the following dump:
+For example, the following dump:
 ----
 > 0:00:00.265620 a130368b000000080060
 > 0:00:00.280836 a1216c8b00000000000089086b0b82020407
@@ -528,7 +528,7 @@ encoding: HEX
 
 Caution has to be applied when discarding the anchors `^` and `$`, as the input
 is searched, not parsed, meaning even most incorrect regexes will produce valid
-looking results when not anchored (however anchors are not guaranteed to prevent
+looking results when not anchored (however, anchors are not guaranteed to prevent
 this). It is generally recommended to sanity check any files created using
 this conversion.
 
@@ -550,7 +550,7 @@ nanoseconds by one each packet.
 * dir: the direction the packet was sent over the wire
 +
 The captured field is expected to be one character in length, any remaining
-characters are ignored (e.g. given "Input" only the 'I' is looked at). This
+characters are ignored (e.g., given "Input" only the 'I' is looked at). This
 character is compared to lists of characters corresponding to inbound and
 outbound and the packet is assigned the corresponding direction.
 If neither list yields a match, the direction is set to unknown.
@@ -559,7 +559,7 @@ If this field is not specified the entire file has no directional information.
 +
 * seqno: an ID for this packet
 +
-Each packet can be assigned a arbitrary ID that can used as field by Wireshark.
+Each packet can be assigned an arbitrary ID that can used as field by Wireshark.
 This field is assumed to be a positive integer base 10. This field can e.g.
 be used to reorder out of order captures after the import.
 +
@@ -635,10 +635,10 @@ Ignored whitespaces are `\r`, `\n`, `\t`, `\v`, ` ` and only for hex `:`, only
 for base64 `=`.
 +
 Any incomplete bytes at the field's end are assumed to be padding to fill the
-last complete byte. These bits should be zero, however this is not checked.
+last complete byte. These bits should be zero, however, this is not checked.
 
 Direction indication::
-The lists of characters indicating incoming vs. outgoing packets. Tese fields
+The lists of characters indicating incoming vs. outgoing packets. These fields
 are only available when the regex contains a `(?<dir>...)` group.
 
 ===== Common items
@@ -646,7 +646,7 @@ are only available when the regex contains a `(?<dir>...)` group.
 Timestamp Format::
 This is the format specifier used to parse the timestamps in the text file to
 import. It uses the same format as `strptime(3)` with the addition of `%f` for
-zero padded fractions of seconds. The precision of `%f` is determined from it's
+zero padded fractions of seconds. The precision of `%f` is determined from its
 length. The most common fields are `%H`, `%M` and `%S` for hours, minutes and
 seconds. The straightforward HH:MM:SS format is covered by %T. For a full
 definition of the syntax look for `strptime(3)`,
@@ -668,7 +668,7 @@ Dummy header::
 When Ethernet encapsulation is selected you have to option to prepend dummy
 headers to the frames to import. These headers can provide artificial Ethernet,
 IP, UDP, TCP or SCTP headers or SCTP data chunks. When selecting a type of
-dummy header the applicable entries are enabled, others are grayed out and
+dummy header, the applicable entries are enabled, others are greyed out and
 default values are used.
 When the _Wireshark Upper PDU export_ encapsulation is selected the option
 _ExportPDU_ becomes available. This allows you to select the name of the
@@ -705,7 +705,7 @@ some features to handle these file sets in a convenient way.
 ****
 A filename in a file set uses the format Prefix_Number_DateTimeSuffix which
 might look something like `test_00001_20220714183910.pcap`. All files of a file
-set share the same prefix (e.g. “test”) and suffix (e.g. “.pcap”) and a
+set share the same prefix (e.g., “test”) and suffix (e.g., “.pcap”) and a
 varying middle part.
 
 To find the files of a file set, Wireshark scans the directory where the
@@ -791,7 +791,7 @@ This lets you save the packet list, packet details, and packet bytes as plain te
 .The “Export Packet Dissections” dialog box
 image::wsug_graphics/ws-export-packet-dissections.png[{medium-screenshot-attrs}]
 
-The format can be selected from the “Export As” dropdown and further customized using the “<<ChIOPacketRangeSection,Packet Range>>” and “<<ChIOPacketRangeSection,Packet Format>>” controls.
+The format can be selected from the “Export As” drop-down and further customized using the “<<ChIOPacketRangeSection,Packet Range>>” and “<<ChIOPacketRangeSection,Packet Format>>” controls.
 Some controls are unavailable for some formats, notably CSV and JSON.
 The following formats are supported:
 
@@ -1027,7 +1027,7 @@ NOTE: The file produced has a `Wireshark Upper PDU` encapsulation type that has 
 
 ==== The “Strip Headers...” Dialog Box
 
-The “Strip Headers...” dialog box allows you to filter known encapsulation types on whatever protocol layer they appear and export them into a new capture file, removing lower level protocols. It allows you to export reassembled packets and frames without lower layers such as GPF, GRE, GSE, GTP-U, MPLS, MPE, PPP, and more. If Wireshark has performed decryption, then you can export decrypted IP from protocols like IEEE 802.11 or IPSec without having to save encryption keys.
+The “Strip Headers...” dialog box allows you to filter known encapsulation types on whatever protocol layer they appear and export them into a new capture file, removing lower-level protocols. It allows you to export reassembled packets and frames without lower layers such as GPF, GRE, GSE, GTP-U, MPLS, MPE, PPP, and more. If Wireshark has performed decryption, then you can export decrypted IP from protocols like IEEE 802.11 or IPSec without having to save encryption keys.
 
 The procedure is similar to that of <<ChIOExportPDUSDialog>>:
 
@@ -1189,7 +1189,7 @@ You can use it to specify which packets will be exported or printed.
 .The “Packet Range” frame
 image::wsug_graphics/ws-packet-range.png[{medium-screenshot-attrs}]
 
-By default the btn:[Displayed] button is set, which only exports or prints the packets that match the current display filter.
+By default, the btn:[Displayed] button is set, which only exports or prints the packets that match the current display filter.
 Selecting btn:[Captured] will export or print all packets.
 You can further limit what you export or print to the following:
 
@@ -1206,7 +1206,7 @@ First to last marked::
 Lets you mark an inclusive range of packets.
 
 Range::
-Lets you manually specify a range of packets, e.g. _5,10-15,20-_ will process the packet number five, the packets from packet number ten to fifteen (inclusive) and every packet from number twenty to the end of the capture.
+Lets you manually specify a range of packets, e.g., _5,10-15,20-_ will process the packet number five, the packets from packet number ten to fifteen (inclusive) and every packet from number twenty to the end of the capture.
 
 Remove ignored packets::
 Don't export or print ignored packets.
@@ -1249,6 +1249,6 @@ For printing and some export formats, put each packet on a separate page.
 For example, when exporting to a text file this will put a form feed character between each packet.
 
 Capture information header::
-Add a header to each page with capture filename and the amount of total packets and shown packets.
+Add a header to each page with capture filename and the number of total packets and shown packets.
 
 // End of WSUG Chapter IO

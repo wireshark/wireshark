@@ -131,7 +131,7 @@ of some or all packets.
 |menu:Packet Comment...[] |menu:Edit[] |
 Opens the “Packet Comment” dialog, which lets you add a comment to a
 single packet. Note that the ability to save packet comments depends on
-your file format. E.g. pcapng supports comments, pcap does not.
+your file format. E.g., pcapng supports comments, pcap does not.
 
 |menu:Edit Resolved Name[]||
 Allows you to enter a name to resolve for the selected address.
@@ -597,7 +597,7 @@ numerical digits respectively:
 +
 `dns.qry.name contains "www.\x77\x69\x72\x65\x73\x68\x61\x72\x6b.org"`
 +
-Alternatively a raw string syntax can be used. Such strings are prefixed with `r` or `R` and treat
+Alternatively, a raw string syntax can be used. Such strings are prefixed with `r` or `R` and treat
 backslash as a literal character.
 +
 `http.user_agent matches r"\(X11;"`
@@ -647,7 +647,7 @@ Comparisons are case-insensitive.
 tcp.flags & 0x02
 ----
 That display filter will match all packets that contain the “tcp.flags” field with the 0x02 bit,
-i.e. the SYN bit, set.
+i.e., the SYN bit, set.
 
 ==== Possible Pitfalls Using Regular Expressions
 
@@ -655,8 +655,8 @@ String literals containing regular expressions are parsed twice. Once by Wiresha
 filter engine and again by the PCRE2 library. It's important to keep this in mind when using
 the "matches" operator with regex escape sequences and special characters.
 
-For example the filter expression `+frame matches "AB\x43"+` uses the string `+"ABC"+` as input
-pattern to PCRE. However the expression `+frame matches "AB\\x43"+` uses the string `+"AB\x43"+`
+For example, the filter expression `+frame matches "AB\x43"+` uses the string `+"ABC"+` as input
+pattern to PCRE. However, the expression `+frame matches "AB\\x43"+` uses the string `+"AB\x43"+`
 as the pattern. In this case both expressions give the same result because Wireshark and PCRE
 both support the same byte escape sequence (0x43 is the ASCII hex code for `C`).
 
@@ -821,7 +821,7 @@ make the transition easier.
 For example, the DHCP dissector was originally developed for the BOOTP
 protocol but as of Wireshark 3.0 all of the “bootp” display filter
 fields have been renamed to their “dhcp” equivalents. You can still use
-the old filter names for the time being, e.g. “bootp.type” is equivalent
+the old filter names for the time being, e.g., “bootp.type” is equivalent
 to “dhcp.type” but Wireshark will show the warning “"bootp" is deprecated”
 when you use it. Support for the deprecated fields may be removed in the future.
 
@@ -831,7 +831,7 @@ when you use it. Support for the deprecated fields may be removed in the future.
 
 When you are accustomed to Wireshark’s filtering system and know what labels you
 wish to use in your filters it can be very quick to simply type a filter string.
-However if you are new to Wireshark or are working with a slightly unfamiliar
+However, if you are new to Wireshark or are working with a slightly unfamiliar
 protocol it can be very confusing to try to figure out what to type. The
 “Display Filter Expression” dialog box helps with this.
 
@@ -986,7 +986,7 @@ You can search using the following criteria:
 Display filter::
   Enter a display filter string into the text entry field and click the btn:[Find] button.
   +
-  For example, to find the three way handshake for a connection from host 192.168.0.1, use the following filter string:
+  For example, to find the three-way handshake for a connection from host 192.168.0.1, use the following filter string:
 +
 ----
 ip.src==192.168.0.1 and tcp.flags.syn==1
@@ -1094,7 +1094,7 @@ with the middle mouse button.
 
 You can ignore packets in the “Packet List” pane. Wireshark will then
 pretend that they not exist in the capture file. An ignored packet will
-be shown with white background and gray foreground, regardless of the
+be shown with white background and grey foreground, regardless of the
 coloring rules set.
 
 Ignored packet information is not stored in the capture file or anywhere
@@ -1167,7 +1167,7 @@ you use Seconds it would show simply 1 and if you use Nanoseconds it shows
 
 The user can set time references to packets. A time reference is the starting
 point for all subsequent packet time calculations. It will be useful, if you
-want to see the time values relative to a special packet, e.g. the start of a
+want to see the time values relative to a special packet, e.g., the start of a
 new request. It’s possible to set multiple time references in the capture file.
 
 The time references will not be saved permanently and will be lost when you

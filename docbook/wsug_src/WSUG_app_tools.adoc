@@ -246,7 +246,7 @@ characters “>”. Any lines of text between the bytestring lines is ignored.
 The offsets are used to track the bytes, so offsets must be correct. Any line
 which has only bytes without a leading offset is ignored. An offset is
 recognized as being a hex number longer than two characters. Any text after the
-bytes is ignored (e.g. the character dump). Any hex numbers in this text are
+bytes is ignored (e.g., the character dump). Any hex numbers in this text are
 also ignored. An offset of zero is indicative of starting a new packet, so a
 single text file with a series of hexdumps can be converted into a packet
 capture with multiple packets. Packets may be preceded by a timestamp. These
@@ -262,8 +262,8 @@ There are a couple of other special features to note. Any line where the first
 non-whitespace character is “#” will be ignored as a comment. Any line beginning
 with #TEXT2PCAP is a directive and options can be inserted after this command to
 be processed by `text2pcap`. Currently there are no directives implemented; in the
-future, these may be used to give more fine grained control on the dump and the
-way it should be processed e.g. timestamps, encapsulation type etc.
+future, these may be used to give more fine-grained control on the dump and the
+way it should be processed e.g., timestamps, encapsulation type etc.
 
 `text2pcap` also allows the user to read in dumps of application-level data, by
 inserting dummy L2, L3 and L4 headers before each packet. Possibilities include

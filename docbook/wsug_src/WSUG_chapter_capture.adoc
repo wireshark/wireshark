@@ -24,7 +24,7 @@ The Wireshark capture engine provides the following features:
 * Filter packets, reducing the amount of data to be captured. See
   <<ChCapCaptureFilterSection>>.
 
-* Save packets in multiple files while doing a long term capture, optionally
+* Save packets in multiple files while doing a long-term capture, optionally
   rotating through a fixed number of files (a “ringbuffer”). See
   <<ChCapCaptureFiles>>.
 
@@ -139,7 +139,7 @@ Note that another application might override this setting.
 
 Snaplen::
 The snapshot length, or the number of bytes to capture for each packet.
-You can set an explicit length if needed, e.g. for performance or privacy reasons.
+You can set an explicit length if needed, e.g., for performance or privacy reasons.
 
 Buffer::
 The size of the kernel buffer that is reserved for capturing packets.
@@ -197,7 +197,7 @@ You can also click on the button to the right of this field to browse through th
 Output format:::
 Allows you to set the format of the capture file.
 pcapng is the default and is more flexible than pcap.
-pcapng might be required, e.g. if more than one interface is chosen for capturing.
+pcapng might be required, e.g., if more than one interface is chosen for capturing.
 See {wireshark-wiki-url}Development/PcapNg for more details on pcapng.
 
 Create a new file automatically...::
@@ -336,8 +336,8 @@ To add a new remote capture interface, click btn:[{plus}] and specify the follow
 
 Host::
 The IP address or host name of the target platform where the Remote Packet Capture Protocol service is listening.
-The drop down list contains the hosts that have previously been successfully contacted.
-The list can be emptied by choosing “Clear list” from the drop down list.
+The drop-down list contains the hosts that have previously been successfully contacted.
+The list can be emptied by choosing “Clear list” from the drop-down list.
 
 Port::
 Set the port number where the Remote Packet Capture Protocol service is listening on.
@@ -346,13 +346,13 @@ Leave blank to use the default port (2002).
 Null authentication::
 Select this if you don’t need authentication to take place for a remote capture to be started.
 This depends on the target platform.
-This is exactly as secure as it appears, i.e. it is not secure at all.
+This is exactly as secure as it appears, i.e., it is not secure at all.
 
 Password authentication::
 Lets you specify the username and password required to connect to the Remote Packet Capture Protocol service.
 
 Each interface can optionally be hidden.
-In contrast to the local interfaces they are not saved in the `preferences` file.
+In contrast to the local interfaces, they are not saved in the `preferences` file.
 
 [NOTE]
 ====
@@ -447,15 +447,15 @@ The results of compiling a filter for the selected interface are shown on the ri
 
 === Capture files and file modes
 
-While capturing the underlying libpcap capturing engine will grab the packets
+While capturing, the underlying libpcap capturing engine will grab the packets
 from the network card and keep the packet data in a (relatively) small kernel
 buffer. This data is read by Wireshark and saved into a capture file.
 
-By default Wireshark saves packets to a temporary file. You can also tell
+By default, Wireshark saves packets to a temporary file. You can also tell
 Wireshark to save to a specific (“permanent”) file and switch to a
 different file after a given time has elapsed or a given number of packets
-have been captured. These options are controlled in the “Output” tab in
-the “Capture Options” dialog.
+have been captured. These options are controlled in the
+“Capture Options” dialog's “Output” tab.
 
 [#ChCapCaptureOptionsOutputDialog]
 .Capture output options
@@ -464,7 +464,7 @@ image::wsug_graphics/ws-capture-options-output.png[{screenshot-attrs}]
 [TIP]
 ====
 Working with large files (several hundred MB) can be quite slow. If you plan to do
-a long term capture or capturing from a high traffic network, think about using
+a long-term capture or capturing from a high traffic network, think about using
 one of the “Multiple files” options. This will spread the captured packets over
 several smaller files which can be much more pleasant to work with.
 ====
@@ -472,7 +472,7 @@ several smaller files which can be much more pleasant to work with.
 Using the “Multiple files” option may cut context related information. Wireshark keeps
 context information of the loaded packet data, so it can report context related
 problems (like a stream error) and keeps information about context related
-protocols (e.g. where data is exchanged at the establishing phase and only
+protocols (e.g., where data is exchanged at the establishing phase and only
 referred to in later packets). As it keeps this information only for the loaded
 file, using one of the multiple file modes may cut these contexts. If the
 establishing phase is saved in one file and the things you would like to see is
@@ -498,7 +498,7 @@ After capturing is stopped this file can be saved later under a user specified n
 
 Single named file::
 A single capture file will be used.
-If you want to place the new capture file in a specific folder choose this mode.
+Choose this mode if you want to place the new capture file in a specific folder.
 
 Multiple files, continuous::
 Like the “Single named file” mode, but a new file is created and used after reaching one of the multiple file switch conditions (one of the “Next file every...” values).
@@ -650,7 +650,7 @@ Please see the pcap-filter man page at {pcap-filter-man-page-url} for more detai
 
 ==== Automatic Remote Traffic Filtering
 
-If Wireshark is running remotely (using e.g. SSH, an exported X11 window, a
+If Wireshark is running remotely (using e.g., SSH, an exported X11 window, a
 terminal server, ...), the remote content has to be transported over the
 network, adding a lot of (usually unimportant) packets to the actually
 interesting traffic.
@@ -710,7 +710,7 @@ A running capture session will be stopped in one of the following ways:
 . Pressing kbd:[Ctrl+E].
 
 . The capture will be automatically stopped if one of the _Stop Conditions_ is
-  met, e.g. the maximum amount of data was captured.
+  met, e.g., the maximum amount of data was captured.
 
 [#ChCapRestartSection]
 

@@ -99,15 +99,15 @@ RTP Player dialog stays open even live capture is stopped and then started again
 
 ==== RTP Decoding Settings
 
-RTP is carried usually in UDP packets, on random source and destination port. Therefore without "help" Wireshark can't recognize it and shows just UDP packets.  Wireshark recognizes RTP streams based on VoIP signaling, e. g. based on SDP message in SIP signaling. When signaling is not captured, Wireshark shows just UDP packets. There are multiple settings which helps Wireshark to recognize RTP even there is no related signaling.
+RTP is carried usually in UDP packets with random source and destination ports. Therefore, Wireshark can only recognize RTP streams based on VoIP signaling, e.g., based on SDP messages in SIP signaling. If signaling is not captured, Wireshark shows just UDP packets. However, there are multiple settings which help Wireshark recognize RTP even when there is no related signaling.
 
 You can use <<ChAdvDecodeAsFig,Decode As...>> function from menu:Analyze[Decode As...] menu or in mouse context menu. Here you can set that traffic on specific source or destination should be decoded as RTP. You can save settings for later use.
 
-Use of menu:Decode As...[] menu works fine, but for many streams it is arduous.
+Use of menu:Decode As...[] menu works fine, but is arduous for many streams.
 
-You can enable heuristic dissector menu:rtp_udp[] in menu:Analyze[Enabled Protocols...]. See <<ChCustProtocolDissectionSection>> for details. Once menu:rtp_udp[] is enabled, Wireshark tries every UDP packet to decode as RTP. If decoding is possible, packet (and entire UDP stream) is decoded as RTP.
+You can enable heuristic dissector menu:rtp_udp[] in menu:Analyze[Enabled Protocols...]. See <<ChCustProtocolDissectionSection>> for details. Once menu:rtp_udp[] is enabled, Wireshark tries to decode every UDP packet as RTP. If decoding is possible, packet (and entire UDP stream) is decoded as RTP.
 
-When RTP stream uses well know port, heuristic dissector ignores it. So you might miss some RTP streams. You can enable setting for udp protocol menu:Preferences[Protocols > udp > Try heuristic sub-dissectors first], see <<ChCustPreferencesSection>>. In this case heuristics dissector tries to decode UDP packet even it uses well known.
+When an RTP stream uses a well-known port, the heuristic dissector ignores it. So you might miss some RTP streams. You can enable setting for udp protocol menu:Preferences[Protocols > udp > Try heuristic sub-dissectors first], see <<ChCustPreferencesSection>>. In this case heuristics dissector tries to decode UDP packet even it uses a well-known port.
 
 [NOTE]
 ====
@@ -525,7 +525,7 @@ Export options available:
 * for just one selected stream
 ** Payload - just payload with no information about coded is stored in the file
 
-Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e.g. 100 channels. For playing a tool with multi-channel support must be used (e.g. https://www.audacityteam.org/).
+Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e.g., 100 channels. For playing a tool with multi-channel support must be used (e.g., https://www.audacityteam.org/).
 
 Export of payload function is useful for codecs not supported by Wireshark.
 

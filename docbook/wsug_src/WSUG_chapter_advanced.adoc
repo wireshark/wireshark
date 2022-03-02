@@ -81,7 +81,7 @@ server to client data.
 You can choose to view the data in one of the following formats:
 
 menu:ASCII[]:: In this view you see the data from each direction in ASCII.
-  Obviously best for ASCII based protocols, e.g. HTTP.
+  Obviously best for ASCII based protocols, e.g., HTTP.
 
 menu:C Arrays[]:: This allows you to import the stream data into your own C
   program.
@@ -200,7 +200,7 @@ field. Count of streams is fixed to 0 and the field is disabled.
 
 === Show Packet Bytes
 
-If a selected packet field does not show all the bytes (i.e. they are truncated
+If a selected packet field does not show all the bytes (i.e., they are truncated
 when displayed) or if they are shown as bytes rather than string or if they require
 more formatting because they contain an image or HTML then this dialog can be used.
 
@@ -275,7 +275,7 @@ pressing btn:[Find Next].
 === Expert Information
 
 Wireshark keeps track of any anomalies and other items of interest it finds in a capture file and shows them in the Expert Information dialog.
-The goal is to give you a better idea of uncommon or notable network behaviour and to let novice and expert users find network problems faster than manually scanning through the packet list.
+The goal is to give you a better idea of uncommon or notable network behavior and to let novice and expert users find network problems faster than manually scanning through the packet list.
 
 [WARNING]
 .Expert information is only a hint
@@ -316,13 +316,13 @@ The following levels are used, from lowest to highest.
 Wireshark marks them using different colors, which are shown in parentheses:
 
 Chat [white blue-background]#(blue)#::
-Information about usual workflow, e.g. a TCP packet with the SYN flag set.
+Information about usual workflow, e.g., a TCP packet with the SYN flag set.
 
 Note [black aqua-background]#(cyan)#::
-Notable events, e.g. an application returned a common error code such as HTTP 404.
+Notable events, e.g., an application returned a common error code such as HTTP 404.
 
 Warn [black yellow-background]#(yellow)#::
-Warnings, e.g. application returned an unusual error code like a connection problem.
+Warnings, e.g., application returned an unusual error code like a connection problem.
 
 Error [white red-background]#(red)#::
 Serious problems, such as malformed packets.
@@ -362,23 +362,23 @@ Malformed packet or dissector has a bug.
 Dissection of this packet aborted.
 
 Protocol::
-Violation of a protocol’s specification (e.g. invalid field values or illegal lengths).
+Violation of a protocol’s specification (e.g., invalid field values or illegal lengths).
 Dissection of this packet probably continued.
 
 Reassemble::
-Problems while reassembling, e.g. not all fragments were available or an exception happened during reassembly.
+Problems while reassembling, e.g., not all fragments were available or an exception happened during reassembly.
 
 Request Code::
-An application request (e.g. File Handle == _x_). Usually assigned the Chat severity level.
+An application request (e.g., File Handle == _x_). Usually assigned the Chat severity level.
 
 Response Code::
-An application response code indicates a potential problem, e.g. HTTP 404 page not found.
+An application response code indicates a potential problem, e.g., HTTP 404 page not found.
 
 Security::
-A security problem, e.g. an insecure implementation.
+A security problem, e.g., an insecure implementation.
 
 Sequence::
-A protocol sequence number was suspicious, e.g. it wasn’t continuous or a retransmission was detected.
+A protocol sequence number was suspicious, e.g., it wasn’t continuous or a retransmission was detected.
 
 Undecoded::
 Dissection incomplete or data can’t be decoded for other reasons.
@@ -456,7 +456,7 @@ Closes the dialog
 .The “Colorized” protocol details tree
 image::wsug_graphics/ws-expert-colored-tree.png[{screenshot-attrs}]
 
-The packet detail tree marks fields with expert information based on their severity level color, e.g. “Warning” severities have a yellow background.
+The packet detail tree marks fields with expert information based on their severity level color, e.g., “Warning” severities have a yellow background.
 This color is propagated to the top-level protocol item in the tree in order to make it easy to find the field that created the expert information.
 
 For the example screenshot above, the IP “Time to live” value is very low (only 1), so the corresponding protocol field is marked with a cyan background.
@@ -530,7 +530,7 @@ Set when all of the following are true:
 
 * The segment size is zero.
 * The window size is non-zero and hasn’t changed.
-* The next expected sequence number and last-seen acknowledgment number are non-zero (i.e. the connection has been established).
+* The next expected sequence number and last-seen acknowledgment number are non-zero (i.e., the connection has been established).
 * SYN, FIN, and RST are not set.
 
 // TCP_A_FAST_RETRANSMISSION
@@ -702,7 +702,7 @@ protocol level.
 ==== TCP Conversation Completeness
 
 TCP conversations are said to be complete when they have both opening and closing
-handshakes, independently of any data transfer. However we might be interested in
+handshakes, independently of any data transfer. However, we might be interested in
 identifying complete conversations with some data sent, and we are using the
 following bit values to build a filter value on the tcp.completeness field :
 
@@ -756,7 +756,7 @@ capturing hardware, this resolution should be adequate.
 Every capture file format that Wireshark knows supports time stamps. The time
 stamp precision supported by a specific capture file format differs widely and
 varies from one second “0” to one nanosecond “0.123456789”. Most file
-formats store the time stamps with a fixed precision (e.g. microseconds), while
+formats store the time stamps with a fixed precision (e.g., microseconds), while
 some file formats are even capable of storing the time stamp precision itself
 (whatever the benefit may be).
 
@@ -774,7 +774,7 @@ precision from nanosecond to microsecond.
 People often ask “Which time stamp accuracy is provided by Wireshark?”. Well,
 Wireshark doesn’t create any time stamps itself but simply gets them from
 “somewhere else” and displays them. So accuracy will depend on the capture
-system (operating system, performance, etc) that you use. Because of this, the
+system (operating system, performance, etc.) that you use. Because of this, the
 above question is difficult to answer in a general way.
 
 [NOTE]
@@ -828,12 +828,12 @@ used as it is slightly incorrect (up to 0.9 seconds difference to UTC). The UTC
 base time equals to 0 (based at Greenwich, England) and all time zones have an
 offset to UTC between -12 to +14 hours!
 
-For example: If you live in Berlin you are in a time zone one hour earlier than
+For example: If you live in Berlin, you are in a time zone one hour earlier than
 UTC, so you are in time zone “+1” (time difference in hours compared to UTC).
 If it’s 3 o’clock in Berlin it’s 2 o’clock in UTC “at the same moment”.
 
 Be aware that at a few places on earth don’t use time zones with even hour
-offsets (e.g. New Delhi uses UTC+05:30)!
+offsets (e.g., New Delhi uses UTC+05:30)!
 
 Further information can be found at: {wikipedia-main-url}Time_zone and
 {wikipedia-main-url}Coordinated_Universal_Time.
@@ -849,7 +849,7 @@ zone calculations”.
 
 Unfortunately, the date at which DST actually takes effect is different
 throughout the world. You may also note, that the northern and southern
-hemispheres have opposite DST’s (e.g. while it’s summer in Europe it’s winter in
+hemispheres have opposite DST’s (e.g., while it’s summer in Europe it’s winter in
 Australia).
 
 Keep in mind: UTC remains the same all year around, regardless of DST!
@@ -879,7 +879,7 @@ networking gear to UTC in order to make coordination and troubleshooting easier.
 
 [TIP]
 ====
-If you travel around the world, it’s an often made mistake to adjust the hours
+If you travel around the world, it’s an often-made mistake to adjust the hours
 of your computer clock to the local time. Don’t adjust the hours but your time
 zone setting instead! For your computer, the time is essentially the same as
 before, you are simply in a different time zone with a different local time.
@@ -940,7 +940,7 @@ in which the packet was captured.
 |_Displayed Time (Local Time)_|02:00|05:00|09:00|10:00|11:00|19:00
 |===
 
-For example let’s assume that someone in Los Angeles captured a packet with
+For example, let’s assume that someone in Los Angeles captured a packet with
 Wireshark at exactly 2 o’clock local time and sends you this capture file. The
 capture file’s time stamp will be represented in UTC as 10 o’clock. You are
 located in Berlin and will see 11 o’clock on your Wireshark display.
@@ -966,8 +966,8 @@ every computer in question has the correct time and time zone setting.
 ==== What Is It?
 
 Network protocols often need to transport large chunks of data which are
-complete in themselves, e.g. when transferring a file. The underlying protocol
-might not be able to handle that chunk size (e.g. limitation of the network
+complete in themselves, e.g., when transferring a file. The underlying protocol
+might not be able to handle that chunk size (e.g., limitation of the network
 packet size), or is stream-based like TCP, which doesn’t know data chunks at
 all.
 
@@ -976,8 +976,8 @@ In that case the network protocol has to handle the chunk boundaries itself and
 mechanism to determine the chunk boundaries on the receiving side.
 
 Wireshark calls this mechanism reassembly, although a specific protocol
-specification might use a different term for this (e.g. desegmentation,
-defragmentation, etc).
+specification might use a different term for this (e.g., desegmentation,
+defragmentation, etc.).
 
 ==== How Wireshark Handles It
 
@@ -1000,7 +1000,7 @@ multiple tabs in the “Packet Bytes” pane appear.
 You will find the reassembled data in the last packet of the chunk.
 ====
 
-For example, in a _HTTP_ GET response, the requested data (e.g. an HTML page) is
+For example, in a _HTTP_ GET response, the requested data (e.g., an HTML page) is
 returned. Wireshark will show the hex dump of the data in a new tab
 “Uncompressed entity body” in the “Packet Bytes” pane.
 
@@ -1008,15 +1008,15 @@ Reassembly is enabled in the preferences by default but can be disabled in the
 preferences for the protocol in question. Enabling or disabling reassembly
 settings for a protocol typically requires two things:
 
-. The lower level protocol (e.g., TCP) must support reassembly. Often this
+. The lower-level protocol (e.g., TCP) must support reassembly. Often this
   reassembly can be enabled or disabled via the protocol preferences.
 
-. The higher level protocol (e.g., HTTP) must use the reassembly mechanism to
+. The higher-level protocol (e.g., HTTP) must use the reassembly mechanism to
   reassemble fragmented protocol data. This too can often be enabled or disabled
   via the protocol preferences.
 
-The tooltip of the higher level protocol setting will notify you if and which
-lower level protocol setting also has to be considered.
+The tooltip of the higher-level protocol setting will notify you if and which
+lower-level protocol setting also has to be considered.
 
 [#ChAdvReassemblyTcp]
 
@@ -1025,13 +1025,13 @@ lower level protocol setting also has to be considered.
 Protocols such as HTTP or TLS are likely to span multiple TCP segments. The
 TCP protocol preference “Allow subdissector to reassemble TCP streams” (enabled
 by default) makes it possible for Wireshark to collect a contiguous sequence of
-TCP segments and hand them over to the higher level protocol (for example, to
+TCP segments and hand them over to the higher-level protocol (for example, to
 reconstruct a full HTTP message). All but the final segment will be marked with
 “[TCP segment of a reassembled PDU]” in the packet list.
 
 Disable this preference to reduce memory and processing overhead if you are only
 interested in TCP sequence number analysis (<<ChAdvTCPAnalysis>>). Keep in mind,
-though, that higher level protocols might be wrongly dissected. For example,
+though, that higher-level protocols might be wrongly dissected. For example,
 HTTP messages could be shown as “Continuation” and TLS records could be shown as
 “Ignored Unknown Record”. Such results can also be observed if you start
 capturing while a TCP connection was already started or when TCP segments
@@ -1042,7 +1042,7 @@ To reassemble of out-of-order TCP segments, the TCP protocol preference
 enabled in addition to the previous preference.
 If all packets are received in-order, this preference will not have any effect.
 Otherwise (if missing segments are encountered while sequentially processing a
-packet capture), it is assumes that the new and missing segments belong to the
+packet capture), it is assuming that the new and missing segments belong to the
 same PDU. Caveats:
 
 * Lost packets are assumed to be received out-of-order or retransmitted later.
@@ -1102,13 +1102,13 @@ you hours of work. Unfortunately, it also has its drawbacks.
   the name is also not found in Wireshark’s configuration files.
 
 * _Resolved names might not be available._
-Wireshark obtains name resolution information from a variety of sources, including DNS servers, the capture file itself (e.g. for a pcapng file), and the _hosts_ files on your system and in your <<ChAppFilesConfigurationSection,profile directory>>.
+Wireshark obtains name resolution information from a variety of sources, including DNS servers, the capture file itself (e.g., for a pcapng file), and the _hosts_ files on your system and in your <<ChAppFilesConfigurationSection,profile directory>>.
 The resolved names might not be available if you open the capture file later or on a different machine. As a result, each time you or someone else opens a particular capture file it may look slightly different due to changing environments.
 
 * _DNS may add additional packets to your capture file._
 You might run into the link:{wikipedia-main-url}Observer_effect_(information_technology)[observer effect] if the extra traffic from Wireshark’s DNS queries and responses affects the problem you're trying to troubleshoot or any subsequent analysis.
 +
-The same sort of thing can happen when capturing over a remote connection, e.g. SSH or RDP.
+The same sort of thing can happen when capturing over a remote connection, e.g., SSH or RDP.
 
 // XXX Are there any other such packets than DNS ones?
 
@@ -1116,7 +1116,7 @@ The same sort of thing can happen when capturing over a remote connection, e.g. 
   performance. However, if the name resolution information should change while
   Wireshark is running, Wireshark won’t notice a change in the name resolution
   information once it gets cached. If this information changes while Wireshark
-  is running, e.g. a new DHCP lease takes effect, Wireshark won’t notice it.
+  is running, e.g., a new DHCP lease takes effect, Wireshark won’t notice it.
 
 // XXX Is this true for all or only for DNS info?
 
@@ -1130,7 +1130,7 @@ However, this isn’t possible while a capture is in progress.
 
 ==== Ethernet Name Resolution (MAC Layer)
 
-Try to resolve an Ethernet MAC address (e.g. 00:09:5b:01:02:03) to a human readable name.
+Try to resolve an Ethernet MAC address (e.g., 00:09:5b:01:02:03) to a human readable name.
 
 __ARP name resolution (system service)__: Wireshark will ask the operating
 system to convert an Ethernet address to the corresponding IP address (e.g.
@@ -1138,7 +1138,7 @@ system to convert an Ethernet address to the corresponding IP address (e.g.
 
 __Ethernet codes (ethers file)__: If the ARP name resolution failed, Wireshark
 tries to convert the Ethernet address to a known device name, which has been
-assigned by the user using an _ethers_ file (e.g. 00:09:5b:01:02:03 →
+assigned by the user using an _ethers_ file (e.g., 00:09:5b:01:02:03 →
 homerouter).
 
 __Ethernet manufacturer codes (manuf file)__: If neither ARP or ethers returns a
@@ -1148,11 +1148,11 @@ an abbreviated manufacturer name, which has been assigned by the IEEE (e.g.
 
 ==== IP Name Resolution (Network Layer)
 
-Try to resolve an IP address (e.g. 216.239.37.99) to a human readable name.
+Try to resolve an IP address (e.g., 216.239.37.99) to a human readable name.
 
 __DNS name resolution (system/library service)__: Wireshark will use a name
 resolver to convert an IP address to the hostname associated with it
-(e.g. 216.239.37.99 -> www.1.google.com).
+(e.g., 216.239.37.99 -> www.1.google.com).
 
 Most applications use synchronously DNS name resolution.
 For example, your web browser must resolve the host name portion of a URL before it can connect to the server.
@@ -1168,10 +1168,10 @@ You can also edit your system __hosts__ file, but that isn’t generally recomme
 
 ==== TCP/UDP Port Name Resolution (Transport Layer)
 
-Try to resolve a TCP/UDP port (e.g. 80) to a human readable name.
+Try to resolve a TCP/UDP port (e.g., 80) to a human readable name.
 
 __TCP/UDP port conversion (system service)__: Wireshark will ask the operating
-system to convert a TCP or UDP port to its well known name (e.g. 80 -> http).
+system to convert a TCP or UDP port to its well-known name (e.g., 80 -> http).
 
 ==== VLAN ID Resolution
 
@@ -1232,14 +1232,14 @@ Further information about checksums can be found at:
 
 ==== Wireshark Checksum Validation
 
-Wireshark will validate the checksums of many protocols, e.g. IP, TCP, UDP, etc.
+Wireshark will validate the checksums of many protocols, e.g., IP, TCP, UDP, etc.
 
 It will do the same calculation as a “normal receiver” would do, and shows the
-checksum fields in the packet details with a comment, e.g. [correct] or
+checksum fields in the packet details with a comment, e.g., [correct] or
 [invalid, must be 0x12345678].
 
 Checksum validation can be switched off for various protocols in the Wireshark
-protocol preferences, e.g. to (very slightly) increase performance.
+protocol preferences, e.g., to (very slightly) increase performance.
 
 If the checksum validation is enabled and it detected an invalid checksum,
 features like packet reassembly won’t be processed. This is avoided as
@@ -1255,7 +1255,7 @@ checksum and the receiving hardware validates this checksum. If the received
 checksum is wrong Wireshark won’t even see the packet, as the Ethernet hardware
 internally throws away the packet.
 
-Higher level checksums are “traditionally” calculated by the protocol
+Higher-level checksums are “traditionally” calculated by the protocol
 implementation and the completed packet is then handed over to the hardware.
 
 Recent network hardware can perform advanced features such as IP checksum
@@ -1284,6 +1284,6 @@ You can do two things to avoid this checksum offloading problem:
 
 * Turn off checksum validation of the specific protocol in the Wireshark preferences.
   Recent releases of Wireshark disable checksum validation by default due to the
-  prevalance of offloading in modern hardware and operating systems.
+  prevalence of offloading in modern hardware and operating systems.
 
 // End of WSUG Chapter Advanced

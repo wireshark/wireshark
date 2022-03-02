@@ -24,7 +24,7 @@ build Wireshark from source should you choose to do so.
 
 The general steps are the following:
 
-. Download the relevant package for your needs, e.g. source or binary
+. Download the relevant package for your needs, e.g., source or binary
   distribution.
 
 . For source distributions, compile the source into a binary.

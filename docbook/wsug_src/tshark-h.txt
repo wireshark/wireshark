@@ -91,11 +91,11 @@ Output:
   -T pdml|ps|psml|json|jsonraw|ek|tabs|text|fields|?
                            format of text output (def: text)
   -j <protocolfilter>      protocols layers filter if -T ek|pdml|json selected
-                           (e.g. "ip ip.flags text", filter does not expand child
+                           (e.g., "ip ip.flags text", filter does not expand child
                            nodes, unless child is specified also in the filter)
   -J <protocolfilter>      top level protocol filter if -T ek|pdml|json selected
-                           (e.g. "http tcp", filter which expands all child nodes)
-  -e <field>               field to print if -Tfields selected (e.g. tcp.port,
+                           (e.g., "http tcp", filter which expands all child nodes)
+  -e <field>               field to print if -Tfields selected (e.g., tcp.port,
                            _ws.col.Info)
                            this option can be repeated to print multiple fields
   -E<fieldsoption>=<value> set options for output when -Tfields selected:
@@ -110,7 +110,7 @@ Output:
                            output format of time stamps (def: r: rel. to first)
   -u s|hms                 output format of seconds (def: s: seconds)
   -l                       flush standard output after each packet
-  -q                       be more quiet on stdout (e.g. when using statistics)
+  -q                       be more quiet on stdout (e.g., when using statistics)
   -Q                       only log true errors to stderr (quieter than -q)
   -g                       enable group read access on the output file(s)
   -W n                     Save extra information in the file, if supported.

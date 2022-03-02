@@ -21,7 +21,7 @@ Malformed packet means that the protocol dissector can’t dissect the contents 
 the packet any further. There can be various reasons:
 
 * __Wrong dissector__: Wireshark erroneously has chosen the wrong protocol
-  dissector for this packet. This will happen e.g. if you are using a protocol
+  dissector for this packet. This will happen e.g., if you are using a protocol
   not on its well known TCP or UDP port. You may try Analyze|Decode As to
   circumvent this problem.
 
@@ -74,7 +74,7 @@ The time between the request and the response packets.
 
 ==== [Stream setup by PROTOCOL (frame 123)]
 
-The session control protocol (SDP, H225, etc) message which signaled the
+The session control protocol (SDP, H225, etc.) message which signaled the
 creation of this session. You can directly jump to the corresponding packet
 by double clicking on this message.
 

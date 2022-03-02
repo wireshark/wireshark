@@ -21,7 +21,7 @@ Input:
   -D                     the text before the packet starts with an I or an O,
                          indicating that the packet is inbound or outbound.
                          This is used when generating dummy headers if the
-                         output format supports it (e.g. pcapng).
+                         output format supports it (e.g., pcapng).
   -a                     enable ASCII text dump identification.
                          The start of the ASCII text dump can be identified
                          and excluded from the packet data, even if it looks

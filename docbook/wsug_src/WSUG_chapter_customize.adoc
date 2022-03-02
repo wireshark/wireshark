@@ -8,7 +8,7 @@
 
 === Introduction
 
-Wireshark’s default behaviour will usually suit your needs pretty well. However,
+Wireshark’s default behavior will usually suit your needs pretty well. However,
 as you become more familiar with Wireshark, it can be customized in various ways
 to suit your needs even better. In this chapter we explore:
 
@@ -308,7 +308,7 @@ addresses received by that machine.
 
 -P <path setting>::
 Special path settings usually detected automatically. This is used for special
-cases, e.g. starting Wireshark from a known location on an USB stick.
+cases, e.g., starting Wireshark from a known location on an USB stick.
 +
 The criterion is of the form key:path, where key is one of:
 +
@@ -785,7 +785,7 @@ dialog works very similarly to that of <<ChCustColorizationSection>>.
 === Display Filter Macros
 
 Display Filter Macros are a mechanism to create shortcuts for complex filters.
-For example defining a display filter macro named _$$tcp_conv$$_ whose text is
+For example, defining a display filter macro named _$$tcp_conv$$_ whose text is
 
 ----
 (ip.src == $1 and ip.dst == $2 and tcp.srcport == $3 and tcp.dstport == $4)
@@ -918,22 +918,22 @@ associated values, the extensibility means that other values may be encountered.
 Wireshark uses this table to allow the user to define the name and syntax of
 Object Identifiers that Wireshark does not know about (for example, a privately
 defined X.400 extension). It also allows the user to override the name and
-syntax of Object Identifiers that Wireshark does know about (e.g. changing the
+syntax of Object Identifiers that Wireshark does know about (e.g., changing the
 name “id-at-countryName” to just “c”).
 
 This table is a user table, as described in <<ChUserTable>>, with the
 following fields:
 
 OID::
-The string representation of the Object Identifier e.g. “2.5.4.6”.
+The string representation of the Object Identifier e.g., “2.5.4.6”.
 
 Name::
 The name that should be displayed by Wireshark when the Object Identifier is
-dissected e.g. (“c”);
+dissected e.g., (“c”);
 
 Syntax::
 The syntax of the value associated with the Object Identifier. This must be one
-of the syntaxes that Wireshark already knows about (e.g. “PrintableString”).
+of the syntaxes that Wireshark already knows about (e.g., “PrintableString”).
 
 [#ChPresContextList]
 
@@ -985,7 +985,7 @@ If your copy of Wireshark supports libSMI, you can specify a list of MIB and PIB
 modules here. The COPS and SNMP dissectors can use them to resolve OIDs.
 
 Module name::
-The name of the module, e.g. IF-MIB.
+The name of the module, e.g., IF-MIB.
 
 [#ChSNMPSMIPaths]
 
@@ -995,7 +995,7 @@ If your copy of Wireshark supports libSMI, you can specify one or more paths to
 MIB and PIB modules here.
 
 Directory name::
-A module directory, e.g. `/usr/local/snmp/mibs`. Wireshark automatically uses
+A module directory, e.g., `/usr/local/snmp/mibs`. Wireshark automatically uses
 the standard SMI path for your system, so you usually don’t have to add anything
 here.
 
@@ -1033,7 +1033,7 @@ following fields:
 
 Engine ID::
 If given this entry will be used only for packets whose engine id is this. This
-field takes an hexadecimal string in the form 0102030405.
+field takes a hexadecimal string in the form 0102030405.
 
 Username::
 This is the userName. When a single user has more than one password for
@@ -1048,16 +1048,16 @@ The authentication password. Use _\xDD_ for unprintable characters. An
 hexadecimal password must be entered as a sequence of _\xDD_ characters. For
 example the hex password 010203040506 must be entered as
 _\x01\x02\x03\x04\x05\x06_. The _\_ character must be treated as an unprintable
-character, i.e. it must be entered as _\x5C_ or _\x5c_.
+character, i.e., it must be entered as _\x5C_ or _\x5c_.
 
 Privacy protocol::
 Which encryption algorithm to use (either “DES” or “AES”).
 
 Privacy password::
-The privacy password. Use _\xDD_ for unprintable characters. An hexadecimal
-password must be entered as a sequence of _\xDD_ characters. For example the hex
+The privacy password. Use _\xDD_ for unprintable characters. A hexadecimal
+password must be entered as a sequence of _\xDD_ characters. For example, the hex
 password 010203040506 must be entered as _\x01\x02\x03\x04\x05\x06_. The _\_
-character must be treated as an unprintable character, i.e. it must be entered
+character must be treated as an unprintable character, i.e., it must be entered
 as _\x5C_ or _\x5c_.
 
 [#ChK12ProtocolsSection]
@@ -1078,7 +1078,7 @@ specific case and a general one the specific one must appear first in the list.
 
 Protocol::
 This is the name of the encapsulating protocol (the lowest layer in the packet
-data) it can be either just the name of the protocol (e.g. mtp2, eth_withoutfcs,
+data) it can be either just the name of the protocol (e.g., mtp2, eth_withoutfcs,
 sscf-nni ) or the name of the encapsulation protocol and the “application”
 protocol over it separated by a colon (e.g sscop:sscf-nni, sscop:alcap,
 sscop:nbap, ...)
@@ -1098,7 +1098,7 @@ One of the user dlts.
 
 Payload protocol::
 This is the name of the payload protocol (the lowest layer in the packet data).
-(e.g. “eth” for ethernet, “ip” for IPv4)
+(e.g., “eth” for ethernet, “ip” for IPv4)
 
 Header size::
 If there is a header protocol (before the payload protocol) this tells which

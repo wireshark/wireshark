@@ -22,7 +22,7 @@ Wireshark also supports the
 link:https://gitlab.com/wireshark/wireshark/-/wikis/Development/LibpcapFileFormat[libpcap] file
 format. This is a much simpler format and is well established. However, it has
 some drawbacks: it’s not extensible and lacks some information that would be
-really helpful (e.g. being able to add a comment to a packet such as “the
+really helpful (e.g., being able to add a comment to a packet such as “the
 problems start here” would be really nice).
 
 In addition to the libpcap format, Wireshark supports several different capture
@@ -36,7 +36,7 @@ formats.
 At the start of each libpcap capture file some basic information is stored like
 a magic number to identify the libpcap file format. The most interesting
 information of this file start is the link layer type (Ethernet, 802.11,
-MPLS, etc).
+MPLS, etc.).
 
 The following data is saved for each packet:
 
@@ -133,7 +133,7 @@ The content format of the configuration files is the same on all platforms.
 On Windows:
 
 * The personal configuration folder for Wireshark is the
-_Wireshark_ sub-folder of that folder, i.e. _%APPDATA%\Wireshark_.
+_Wireshark_ sub-folder of that folder, i.e., _%APPDATA%\Wireshark_.
 
 * The global configuration folder for Wireshark is the Wireshark program
 folder and is also used as the system configuration folder.
@@ -312,7 +312,7 @@ disabled protocols file.
 ethers::
 +
 --
-When Wireshark is trying to translate an hardware MAC address to
+When Wireshark is trying to translate a hardware MAC address to
 a name, it consults the _ethers_ file in the personal configuration
 folder first.  If the address is not found in that file, Wireshark
 consults the _ethers_ file in the system configuration folder.

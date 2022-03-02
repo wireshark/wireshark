@@ -13,7 +13,7 @@ the menu:Statistics[] menu.
 
 These statistics range from general information about the loaded capture file
 (like the number of captured packets), to statistics about specific protocols
-(e.g. statistics about the number of HTTP requests and responses captured).
+(e.g., statistics about the number of HTTP requests and responses captured).
 
 .General statistics
 
@@ -21,9 +21,9 @@ These statistics range from general information about the loaded capture file
 
   - *Protocol Hierarchy* of the captured packets.
 
-  - *Conversations* e.g. traffic between specific IP addresses.
+  - *Conversations* e.g., traffic between specific IP addresses.
 
-  - *Endpoints* e.g. traffic to and from an IP addresses.
+  - *Endpoints* e.g., traffic to and from an IP addresses.
 
   - *I/O Graphs* visualizing the number of packets (or similar) in time.
 
@@ -171,11 +171,11 @@ be counted for each packet. Example: In the screenshot IP has 99.9% and TCP
 Protocol layers can consist of packets that won’t contain any higher layer
 protocol, so the sum of all higher layer packets may not sum up to the protocols
 packet count. Example: In the screenshot TCP has 98.5% but the sum of the
-subprotocols (TLS, HTTP, etc) is much less. This can be caused by continuation
+subprotocols (TLS, HTTP, etc.) is much less. This can be caused by continuation
 frames, TCP protocol overhead, and other undissected data.
 
 A single packet can contain the same protocol more than once. In this case, the
-protocol is counted more than once. For example ICMP replies and many tunneling
+protocol is counted more than once. For example, ICMP replies and many tunneling
 protocols will carry more than one IP header.
 
 [#ChStatConversations]
@@ -303,7 +303,7 @@ This window shows statistics about the endpoints captured.
 image::wsug_graphics/ws-stats-endpoints.png[{screenshot-attrs}]
 
 For each supported protocol, a tab is shown in this window. Each tab label shows
-the number of endpoints captured (e.g. the tab label “Ethernet &#183; 4” tells
+the number of endpoints captured (e.g., the tab label “Ethernet &#183; 4” tells
 you that four ethernet endpoints have been captured). If no endpoints of a
 specific protocol were captured, the tab label will be greyed out (although the
 related page can still be selected).
@@ -410,7 +410,7 @@ Color::
 The color to use for plotting the graph’s lines, bars, or points.
 
 Style::
-How to visually represent the graph’s data, e.g. by drawing a line, bar, circle, plus, etc.
+How to visually represent the graph’s data, e.g., by drawing a line, bar, circle, plus, etc.
 
 Y Axis::
 The value to use for the graph’s Y axis. Can be one of:

@@ -15,7 +15,7 @@ MATE's goal is to enable users to filter frames based on information extracted
 from related frames or information on how frames relate to each other. MATE
 was written to help troubleshooting gateways and other systems where a "use"
 involves more protocols. However MATE can be used as well to analyze other
-issues regarding a interaction between packets like response times,
+issues regarding an interaction between packets like response times,
 incompleteness of transactions, presence/absence of certain attributes in a
 group of PDUs and more.
 
@@ -49,7 +49,7 @@ These are the steps to try out MATE:
 
 * Run Wireshark and check if the plugin is installed correct (MATE should
 appear in Help->About->Plugins)
-* Get a configuration file e.g. tcp.mate (see {wireshark-wiki-url}Mate/Examples[Mate/Examples]
+* Get a configuration file e.g., tcp.mate (see {wireshark-wiki-url}Mate/Examples[Mate/Examples]
 for more) and place it somewhere on your harddisk.
 * Go to Preferences->Protocols->MATE and set the config filename to the file
 you want to use (you don't have to restart Wireshark)
@@ -1086,7 +1086,7 @@ Extract client From ip.src;
 
 Next, we tell MATE to replace ( *dns_resp=1, client* ) with just *dns_resp=1* in
 the Pdu. That way, we'll keep the attribute *client* only in the DNS request
-Pdus (i.e. packets coming from the client).To do so, we have to add a
+Pdus (i.e., packets coming from the client).To do so, we have to add a
 _Transform_ declaration (in this case, with just one clause) before the Pdu
 declaration which uses it:
 
@@ -1154,7 +1154,7 @@ declarations the following way:
   Member dns_req (host, client);
 ----
 
-Now we got it, every "usage" gets it's own Gog.
+Now we got it, every "usage" gets its own Gog.
 
 [#ChMateConfigurationExamples]
 
@@ -1419,7 +1419,7 @@ Lib=proto_name;_+.
 
 For Every protocol with a library entry, we'll find defined what from the PDU is
 needed to create a GoP for that protocol, eventually any criteria and the very
-essential GoP definition (i.e. __GopDef__, _GopStart_ and _GopStop_).
+essential GoP definition (i.e., __GopDef__, _GopStart_ and _GopStop_).
 
 [NOTE]
 ====
@@ -1445,7 +1445,7 @@ _Stop=TRUE;_ so the a TCP PDU is not created where we got already one going on.
 
 ===== DNS
 
-will create a GoP containing every request and it's response (eventually
+will create a GoP containing every request and its response (eventually
 retransmissions too).
 
 ----
@@ -1866,7 +1866,7 @@ Transforms can be used as helpers to manipulate an item's AVPL before the item
 is processed further. An item declaration may contain a Transform clause
 indicating a list of previously declared Transforms. Regardless whether the
 individual transforms succeed or fail, the list is always executed completely
-and in the order given, i.e. left to right.
+and in the order given, i.e., left to right.
 
 In MATE configuration file, a Transform must be declared before declaring any
 item which uses it.
@@ -1931,13 +1931,13 @@ The Pdu's _Proto_, and its _Transport_ list of protocols separated by / tell
 MATE which fields of a frame can get into the Pdu's AVPL. In order that MATE
 would extract an attribute from a frame's protocol tree, the area representing
 the field in the hex display of the frame must be within the area of either the
-_Proto_ or it's relative _Transport_ s. _Transport_ s are chosen moving backwards
+_Proto_ or its relative _Transport_ s. _Transport_ s are chosen moving backwards
 from the protocol area, in the order they are given.
 
 _Proto http Transport tcp/ip_ does what you'd expect it to - it selects the
 nearest tcp range that precedes the current http range, and the nearest ip range
 that precedes that tcp range. If there is another ip range before the nearest
-one (e.g. in case of IP tunneling), that one is not going to be selected.
+one (e.g., in case of IP tunneling), that one is not going to be selected.
 _Transport_ tcp/ip/ip that "logically" should select the encapsulating IP header
 too doesn't work so far.
 
@@ -1988,8 +1988,8 @@ AVPL, an AVPL match type (_Strict_, _Every_, or _Loose_) and the action to be
 performed (_Accept_ or _Reject_) if the match succeeds. Once every attribute has
 been extracted and eventual transform list has been executed, and if the
 _Criteria_ clause is present, the Pdu's AVPL is matched against the match AVPL;
-if the match succeeds, the action specified is executed, i.e. the Pdu is
-accepted or rejected. The default behaviours used if the respective keywords are
+if the match succeeds, the action specified is executed, i.e., the Pdu is
+accepted or rejected. The default behaviors used if the respective keywords are
 omitted are _Strict_ and _Accept_. Accordingly, if the clause is omitted, all
 Pdus are accepted.
 

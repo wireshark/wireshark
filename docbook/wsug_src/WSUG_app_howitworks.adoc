@@ -48,12 +48,12 @@ But how does Wireshark know which dissector to use?
 When Wireshark starts each dissector registers itself in one of two ways:
 
 * _Static_. If the dissector knows a specific value of a lower layer, it can
-  directly register itself there (e.g. the HTTP dissector “knows”, that
-  typically the well known TCP port 80 is used to transport HTTP data).
+  directly register itself there (e.g., the HTTP dissector “knows”, that
+  typically the well-known TCP port 80 is used to transport HTTP data).
 
-* _Heuristic_. If no such well known way exists, the dissector
-  can register itself for the heuristic mechanism. If a lower layer dissector
-  has to handle some packet data where no well known way exists, it can
+* _Heuristic_. If no such well-known way exists, the dissector
+  can register itself for the heuristic mechanism. If a lower-layer dissector
+  has to handle some packet data where no well-known way exists, it can
   handover the packet to Wireshark’s heuristic mechanism. This will ask all
   registered upper layer dissectors, if they “like” that data. These
   dissectors typically look at the first few bytes of the packet, to see if they

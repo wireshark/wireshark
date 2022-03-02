@@ -30,7 +30,7 @@ When starting Wireshark it’s possible to specify optional settings using the
 command line. See <<ChCustCommandLine>> for details.
 ====
 
-In the following chapters a lot of screenshots from Wireshark will be shown. As
+The following chapters contain many screenshots of Wireshark. As
 Wireshark runs on many different platforms with many different window managers,
 different styles applied and there are different versions of the underlying GUI
 toolkit used, your screen might look different from the provided screenshots.
@@ -89,7 +89,7 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 [options="header",cols="1,3"]
 |===
 |Accelerator               |Description
-|kbd:[Tab] or kbd:[Shift+Tab]|Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
+|kbd:[Tab] or kbd:[Shift+Tab]|Move between screen elements, e.g., from the toolbars to the packet list to the packet detail.
 |kbd:[↓]                   |Move to the next packet or detail item.
 |kbd:[↑]                   |Move to the previous packet or detail item.
 |kbd:[Ctrl+↓] or kbd:[F8]  |Move to the next packet, even if the packet list isn’t focused.
@@ -177,7 +177,7 @@ This menu contains various tools available in Wireshark, such as creating
 Firewall ACL Rules. See <<ChUseToolsMenuSection>>.
 
 menu:Help[]::
-This menu contains items to help the user, e.g. access to some basic help,
+This menu contains items to help the user, e.g., access to some basic help,
 manual pages of the various command line tools, online access to some of the
 webpages, and the usual about dialog. See <<ChUseHelpMenuSection>>.
 
@@ -187,7 +187,7 @@ Each of these menu items is described in more detail in the sections that follow
 .Shortcuts make life easier
 ====
 Most common menu items have keyboard shortcuts. For example, you can
-press the Control (or Strg in German) and the K keys together to open the
+press the Control and the K keys together to open the
 “Capture Options” dialog.
 ====
 
@@ -366,11 +366,11 @@ of some or all packets.
 |menu:Packet Comment...[]                      |kbd:[Ctrl+Alt+C] |
 Opens the “Packet Comment” dialog, which lets you add a comment to a
 single packet. Note that the ability to save packet comments depends on
-your file format. E.g. pcapng supports comments, pcap does not.
+your file format. E.g., pcapng supports comments, pcap does not.
 
 |menu:Delete All Packet Comments[]             ||
 This will delete all comments from all packets. Note that the ability to save
-capture comments depends on your file format. E.g. pcapng supports
+capture comments depends on your file format. E.g., pcapng supports
 comments, pcap does not.
 
 |menu:Configuration Profiles...[]             |kbd:[Ctrl+Shift+A]|
@@ -642,7 +642,7 @@ Each menu item brings up a new window showing specific statistics.
 |menu:Conversations[]|| Display a list of conversations (traffic between two endpoints), see <<ChStatConversationsWindow>>.
 |menu:Endpoints[]|| Display a list of endpoints (traffic to/from an address), see <<ChStatEndpointsWindow>>.
 |menu:Packet Lengths[]||See <<ChStatPacketLengths>>
-|menu:I/O Graphs[]|| Display user specified graphs (e.g. the number of packets in the course of time), see <<ChStatIOGraphs>>.
+|menu:I/O Graphs[]|| Display user specified graphs (e.g., the number of packets in the course of time), see <<ChStatIOGraphs>>.
 |menu:Service Response Time[]|| Display the time between a request and the corresponding response, see <<ChStatSRT>>.
 |menu:DHCP (BOOTP)[]||See <<ChStatDHCPBOOTP>>
 |menu:NetPerfMeter[]||See <<ChStatNetPerfMeter>>
@@ -889,7 +889,7 @@ Filter buttons are handy shortcuts that apply a display filter as soon as you pr
 You can create filter buttons by pressing the btn:[{plus}] button, right-clicking in the filter button area, or opening the Filter Button section of the <<ChCustPreferencesSection,Preferences Dialog>>.
 The example shows a filter button with the label “Squirrels”.
 If you have lots of buttons you can arrange them into groups by using “//” as a label separator.
-For example if you create buttons named “Not Squirrels // Rabbits” and “Not Squirrels // Capybaras” they will show up in the toolbar under a single button named “Not Squirrels”.
+For example, if you create buttons named “Not Squirrels // Rabbits” and “Not Squirrels // Capybaras” they will show up in the toolbar under a single button named “Not Squirrels”.
 
 |===
 
@@ -909,7 +909,7 @@ you select a line in this pane, more details will be displayed in the “Packet
 Details” and “Packet Bytes” panes.
 
 While dissecting a packet, Wireshark will place information from the protocol
-dissectors into the columns. As higher level protocols might overwrite
+dissectors into the columns. As higher-level protocols might overwrite
 information from lower levels, you will typically see the information from the
 highest possible level only.
 
@@ -918,8 +918,8 @@ packet. The Ethernet dissector will write its data (such as the Ethernet
 addresses), the IP dissector will overwrite this by its own (such as the IP
 addresses), the TCP dissector will overwrite the IP information, and so on.
 
-There are a lot of different columns available. Which columns are displayed can
-be selected by preference settings. See <<ChCustPreferencesSection>>.
+There are many different columns available. You can choose which columns are
+displayed in the preferences. See <<ChCustPreferencesSection>>.
 
 The default columns will show:
 
@@ -978,7 +978,7 @@ image:wsug_graphics/related-dup-ack.png[{related-attrs}]::
   The selected packet is a duplicate acknowledgement of this packet.
 
 image:wsug_graphics/related-segment.png[{related-attrs}]::
-  The selected packet is related to this packet in some other way, e.g. as part
+  The selected packet is related to this packet in some other way, e.g., as part
   of reassembly.
 
 The packet list has an _Intelligent Scrollbar_ which shows a miniature map of
@@ -1099,7 +1099,7 @@ to change the size.
 .The initial Statusbar
 image::wsug_graphics/ws-statusbar-empty.png[{statusbar-attrs}]
 
-This statusbar is shown while no capture file is loaded, e.g. when Wireshark is started.
+This statusbar is shown while no capture file is loaded, e.g., when Wireshark is started.
 
 [#ChUseWiresharkStatusbarLoaded]
 .The Statusbar with a loaded capture file
