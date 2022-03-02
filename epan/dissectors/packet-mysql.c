@@ -2872,7 +2872,6 @@ mysql_field_add_lestring(tvbuff_t *tvb, int offset, proto_tree *tree, int field)
 static int
 mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_tree *tree, packet_info *pinfo _U_, mysql_conn_data_t *conn_data, mysql_state_t current_state)
 {
-	guint64 fieldpos;
 	guint8 fld_type;
 	guint16 fld_flag;
 	int length = tvb_reported_length(tvb);
@@ -2932,7 +2931,11 @@ mysql_dissect_field_packet(tvbuff_t *tvb, proto_item *pi _U_, int offset, proto_
 
 	if (current_state == FIELD_PACKET || current_state == PREPARED_FIELDS) {
 		if (conn_data->field_metas.count) {
-			fieldpos = conn_data->field_metas.count - mysql_get_remaining_field_packet_count(conn_data);
+			guint64 fieldpos = conn_data->field_metas.count - mysql_get_remaining_field_packet_count(conn_data);
+			if (fieldpos >= conn_data->field_metas.count) {
+				expert_add_info_format(pinfo, tree, &ei_mysql_invalid_length, "Invalid length: %" G_GUINT64_FORMAT, fieldpos);
+				return tvb_reported_length_remaining(tvb, 0);
+			}
 			conn_data->field_metas.types[fieldpos] = fld_type;
 			conn_data->field_metas.flags[fieldpos] = fld_flag;
 		}
