@@ -1249,8 +1249,13 @@ again:
         const char *prefix;
 
         if (msp->first_frame == pinfo->num) {
+            /* This must be after the first pass. */
             prefix = "";
-            col_set_str(pinfo->cinfo, COL_INFO, "[TLS segment of a reassembled PDU]");
+            if (msp->last_frame == pinfo->num) {
+                col_clear(pinfo->cinfo, COL_INFO);
+            } else {
+                col_set_str(pinfo->cinfo, COL_INFO, "[TLS segment of a reassembled PDU]");
+            }
         } else {
             prefix = "Retransmitted ";
         }
