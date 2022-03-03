@@ -109,9 +109,6 @@ dfilter_resolve_unparsed(dfwork_t *dfw, const char *name)
 char *
 dfilter_literal_normalized(const char *token)
 {
-	if (*token == ':')
-		return g_strdup(token + 1);
-
 	if (*token == '<') {
 		char *end = strchr(token, '>');
 		return g_strndup(token + 1, end - (token + 1));
