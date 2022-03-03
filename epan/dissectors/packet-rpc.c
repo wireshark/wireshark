@@ -108,6 +108,7 @@ const value_string rpc_auth_flavor[] = {
 	{ RPCSEC_GSS_SPKM3I,	     "RPCSEC_GSS_SPKM3I" },
 	{ RPCSEC_GSS_SPKM3P,	     "RPCSEC_GSS_SPKM3P" },
 	{ AUTH_GLUSTERFS,	     "AUTH_GLUSTERFS" },
+	{ AUTH_GLUSTERFS_V3,	     "AUTH_GLUSTERFS_V3" },
 	{ 0, NULL }
 };
 
@@ -1227,12 +1228,12 @@ dissect_rpc_authglusterfs_v3_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_uid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_gid, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_rpc_auth_flags, offset);
-	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
+	timestamp.nsecs = tvb_get_ntohl(tvb, offset);
+	timestamp.secs = tvb_get_ntohi64(tvb, offset + 4);
 	if (tree)
 		proto_tree_add_time(tree, hf_rpc_auth_ctime, tvb,
-					offset, 8, &timestamp);
-	offset += 8;
+					offset, 12, &timestamp);
+	offset += 12;
 
 	offset = dissect_rpc_authunix_groups(tvb, tree, offset);
 
