@@ -3661,6 +3661,12 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     struct tcp_analysis* tcpd;
     conversation_t* conversation = find_or_create_conversation(pinfo);
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP2");
+
+    ti = proto_tree_add_item(tree, proto_http2, tvb, 0, -1, ENC_NA);
+
+    http2_tree = proto_item_add_subtree(ti, ett_http2);
+
     if(!p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, 0)) {
         http2_header_data_t *header_data;
 
@@ -3684,7 +3690,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         |                   Frame Payload (0...)                      ...
         +---------------------------------------------------------------+
     */
-    ti = proto_tree_add_item(tree, hf_http2_stream, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(http2_tree, hf_http2_stream, tvb, 0, -1, ENC_NA);
 
     http2_tree = proto_item_add_subtree(ti, ett_http2_header);
 
@@ -3847,17 +3853,12 @@ static int
 dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
               void *data)
 {
-    proto_item *ti;
-    proto_tree *http2_tree;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP2");
+    /* XXX: Should tcp_dissect_pdus() set a fence after each PDU?
+     * If so the col_clear could be moved inside dissect_http2_pdu.
+     */
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_http2, tvb, 0, -1, ENC_NA);
-
-    http2_tree = proto_item_add_subtree(ti, ett_http2);
-
-    tcp_dissect_pdus(tvb, pinfo, http2_tree, TRUE, FRAME_HEADER_LENGTH,
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, FRAME_HEADER_LENGTH,
                      get_http2_message_len, dissect_http2_pdu, data);
 
     return tvb_captured_length(tvb);
