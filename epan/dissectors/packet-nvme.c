@@ -129,7 +129,7 @@ static int hf_nvmeof_cqe_prop_set_rsvd = -1;
 /* tracking Cmd and its respective CQE */
 int hf_nvmeof_cmd_pkt = -1;
 int hf_nvmeof_data_req = -1;
-int hf_nvmeof_data_tr[NVME_CMD_MAX_TRS] = {NEG_LST_16};
+static int hf_nvmeof_data_tr[NVME_CMD_MAX_TRS] = {NEG_LST_16};
 static int hf_nvmeof_cqe_pkt = -1;
 static int hf_nvmeof_cmd_latency = -1;
 
