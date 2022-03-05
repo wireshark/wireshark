@@ -124,7 +124,10 @@ WORD_CHAR			[][:alnum:]_:/+-]
 "==="		return simple(TOKEN_TEST_ALL_EQ);
 "all_eq"	return simple(TOKEN_TEST_ALL_EQ);
 "!=="		return simple(TOKEN_TEST_ANY_NE);
-"~="		return simple(TOKEN_TEST_ANY_NE);
+"~="		{
+	add_deprecated_token(yyextra->dfw, "The operator \"~=\" is deprecated, use \"!==\" instead.");
+	return simple(TOKEN_TEST_ANY_NE);
+}
 "any_ne"	return simple(TOKEN_TEST_ANY_NE);
 ">"		return simple(TOKEN_TEST_GT);
 "gt"		return simple(TOKEN_TEST_GT);

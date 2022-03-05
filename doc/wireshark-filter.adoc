@@ -77,8 +77,6 @@ operators, their aliases and meaning:
         all_eq, ===   All fields must be equal
         any_ne, !==   Any fields must be not equal
 
-The operator !== (any_ne) can also be written as ~=.
-
 === Search and match operators
 
 Additional operators exist expressed only in English, not C-like syntax:
