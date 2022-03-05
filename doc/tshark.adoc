@@ -1329,7 +1329,7 @@ first and last time that it is seen.
 +
 --
 Create a table that lists all conversations that could be seen in the
-capture.  __type__ specifies the conversation endpoint types for which we
+capture.  __type__ specifies the conversation endpoint type for which we
 want to generate the statistics; currently the supported ones are:
 
   "bluetooth" Bluetooth addresses
@@ -1354,10 +1354,10 @@ want to generate the statistics; currently the supported ones are:
   "wpan"      IEEE 802.15.4 addresses
   "zbee_nwk"  ZigBee Network Layer addresses
 
-The table is presented with one line for each conversation and displays
-the number of packets/bytes in each direction as well as the total
-number of packets/bytes.  The table is sorted according to the total
-number of frames.
+The table is presented with one line for each conversation which displays
+the number of frames/bytes in each direction, the total number of 
+frames/bytes, relative start time and duration. 
+The table is sorted according to the total number of frames.
 --
 
 *-z* credentials::
@@ -1468,7 +1468,7 @@ payload) max, min and average values are also displayed.
 +
 --
 Create a table that lists all endpoints that could be seen in the
-capture.  __type__ specifies the endpoint types for which we
+capture.  __type__ specifies the endpoint type for which we
 want to generate the statistics; currently the supported ones are:
 
   "bluetooth" Bluetooth addresses
@@ -1493,10 +1493,10 @@ want to generate the statistics; currently the supported ones are:
   "wpan"      IEEE 802.15.4 addresses
   "zbee_nwk"  ZigBee Network Layer addresses
 
-The table is presented with one line for each conversation and displays
-the number of packets/bytes in each direction as well as the total
-number of packets/bytes.  The table is sorted according to the total
-number of frames.
+The table is presented with one line for each endpoint which displays
+the total number of packets/bytes and the number of packets/bytes in
+each direction.
+The table is sorted according to the total number of packets.
 --
 
 *-z* enrp,stat[,__filter__]::
