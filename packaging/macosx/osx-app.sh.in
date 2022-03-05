@@ -434,7 +434,7 @@ else
 
 fi
 
-bundle_dsym=$bundle.dSYM
+bundle_dsym="${bundle%%.app}.dSYM"
 
 frameworks=()
 for framework in "$pkglib"/*.framework/Versions/*/* ; do
@@ -443,7 +443,7 @@ for framework in "$pkglib"/*.framework/Versions/*/* ; do
 	fi
 done
 
-echo "Dsymifying binaries:"
+echo "Dsymifying binaries to $bundle_dsym:"
 # shellcheck disable=SC2086
 dsymutil --minimize --out "$bundle_dsym" \
 	$bundle_binary_list \
