@@ -136,10 +136,11 @@ static gboolean libpcap_dump_pcap_nokia(wtap_dumper *wdh, const wtap_rec *rec,
  *    there are LINKTYPE_IPV4/DLT_IPV4 and LINKTYPE_IPV6/DLT_IPV6
  *    values if "these are IPv{4,6} and only IPv{4,6} packets"
  *    types are needed.)
+ *
+ *    Or we might be able to use it for other purposes.
  */
 #define LT_LINKTYPE(x)			((x) & 0x0000FFFF)
-#define LT_CLASS(x)			(((x) & 0x3FFF0000) >> 16)
-#define LT_CLASS_LINKTYPE		0x0000
+#define LT_RESERVED1(x)			((x) & 0x03FF0000)
 #define LT_FCS_LENGTH_PRESENT(x)	((x) & 0x04000000)
 #define LT_FCS_LENGTH(x)		(((x) & 0xF0000000) >> 28)
 #define LT_FCS_DATALINK_EXT(x)		(((x) & 0xF) << 28) | 0x04000000)
@@ -418,28 +419,24 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/*
-	 * Check the "class" field of the "network" field in the header.
+	 * Check the main reserved field.
 	 */
-	switch (LT_CLASS(hdr.network)) {
-
-	case LT_CLASS_LINKTYPE:
-		/*
-		 * Map the link-layer type from the "network" field in
-		 * the header to a Wiretap encapsulation.
-		 */
-		wth->file_encap = wtap_pcap_encap_to_wtap_encap(LT_LINKTYPE(hdr.network));
-		if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
-			*err = WTAP_ERR_UNSUPPORTED;
-			*err_info = ws_strdup_printf("pcap: network type %u unknown or unsupported",
-			    hdr.network);
-			return WTAP_OPEN_ERROR;
-		}
-		break;
-
-	default:
+	if (LT_RESERVED1(hdr.network) != 0) {
 		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = ws_strdup_printf("pcap: network type class 0x%04x not supported",
-		    LT_CLASS(hdr.network));
+		*err_info = ws_strdup_printf("pcap: network type reserved field not zero (0x%08x)",
+		    LT_RESERVED1(hdr.network));
+		return WTAP_OPEN_ERROR;
+	}
+
+	/*
+	 * Map the link-layer type from the "network" field in
+	 * the header to a Wiretap encapsulation.
+	 */
+	wth->file_encap = wtap_pcap_encap_to_wtap_encap(LT_LINKTYPE(hdr.network));
+	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
+		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = ws_strdup_printf("pcap: network type %u unknown or unsupported",
+		    hdr.network);
 		return WTAP_OPEN_ERROR;
 	}
 
