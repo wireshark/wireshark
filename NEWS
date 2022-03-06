@@ -69,6 +69,15 @@ Wireshark 3.7.0 Release Notes
        addition to decimal/octal/hexadecimal) using the prefix "0b" or
        "0B".
 
+        • New syntax to disambiguate literals from identifiers. Every
+       value with a leading dot is a protocol or protocol field. Every
+       value with a leading colon or in between angle brackets is a
+       literal value. See the User Guide for details.
+
+        • Floats must be written with a leading and ending digit. For
+       example the values ".7" and "7." are now invalid as floats. It
+       must be written "7.0" and "0.7" respectively.
+
      • text2pcap and "Import from Hex Dump":
 
         • text2pcap supports writing the output file in all the capture
@@ -120,6 +129,10 @@ Wireshark 3.7.0 Release Notes
        strings. There are new buttons to reset a value back to default
        value.
 
+     • Support to display JSON mapping for Protobuf message.
+
+     • macOS debugging symbols are now shipped in separate packages.
+
   Removed Features and Support
 
      • CMake: The options starting with DISABLE_something were renamed
@@ -137,10 +150,11 @@ Wireshark 3.7.0 Release Notes
    Trading Interface 10.0 (XTI), Enhanced Order Book Interface 10.0
    (EOBI), Enhanced Trading Interface 10.0 (ETI), FiveCo’s Legacy
    Register Access Protocol (5co-legacy), Generic Data Transfer Protocol
-   (GDT), Host IP Configuration Protocol (HICP), Mesh Connex (MCX),
-   Microsoft Cluster Remote Control Protocol (RCP), Realtek, Secure File
-   Transfer Protocol (sftp), Secure Host IP Configuration Protocol
-   (SHICP), USB Attached SCSI (UASP), and ZBOSS NCP
+   (GDT), gRPC Web (gRPC-Web), Host IP Configuration Protocol (HICP),
+   Mesh Connex (MCX), Microsoft Cluster Remote Control Protocol (RCP),
+   Realtek, Secure File Transfer Protocol (sftp), Secure Host IP
+   Configuration Protocol (SHICP), USB Attached SCSI (UASP), and ZBOSS
+   NCP
 
   Updated Protocol Support
 
@@ -188,7 +202,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-02-27 16:06:27 UTC
+  Last updated 2022-03-06 16:07:15 UTC
 
  References
 

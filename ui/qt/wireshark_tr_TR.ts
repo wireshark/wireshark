@@ -7300,11 +7300,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Strip Headers…</source>
-        <translation type="unfinished"></translation>
+        <translation>Üst Bilgiler…</translation>
     </message>
     <message>
         <source>Strip headers and export higher level encapsulations to file</source>
-        <translation type="unfinished"></translation>
+        <translation>Üstbilgileri çıkarın ve daha üst düzey kapsüllemeleri dosyaya dışa aktarın</translation>
     </message>
     <message>
         <source>&amp;I/O Graphs</source>
@@ -13039,11 +13039,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>StripHeadersDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Diyalog</translation>
+        <translation>İletişim</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">Ekran filtresi:</translation>
+        <translation>Görüntüleme filtresi:</translation>
     </message>
 </context>
 <context>
