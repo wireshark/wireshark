@@ -436,7 +436,8 @@ macOS Arm Package:
     - for digest in sha256 rmd160 sha1 ; do openssl $digest Wireshark*Arm*.dmg ; done
     - |
       if [ -n "$S3_DESTINATION_MACOS_ARM64" ] ; then
-        aws s3 cp Wireshark*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
+        aws s3 cp Wireshark?[1-9]*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
+        aws s3 cp Wireshark?dSYM*Arm*.dmg "$S3_DESTINATION_MACOS_ARM64/"
       fi
     - cd ..
     - ninja test-programs
@@ -469,7 +470,8 @@ macOS Intel Package:
     - for digest in sha256 rmd160 sha1 ; do openssl $digest Wireshark*Intel*.dmg ; done
     - |
       if [ -n "$S3_DESTINATION_MACOS_INTEL64" ] ; then
-        aws s3 cp Wireshark*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
+        aws s3 cp Wireshark?[1-9]*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
+        aws s3 cp Wireshark?dSYM*Intel*.dmg "$S3_DESTINATION_MACOS_INTEL64/"
       fi
     - cd ..
     - ninja test-programs
