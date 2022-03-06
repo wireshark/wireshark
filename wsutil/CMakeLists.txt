@@ -256,7 +256,7 @@ endif()
 add_library(wsutil
 	${WSUTIL_FILES}
 	$<TARGET_OBJECTS:wmem>
-	${CMAKE_BINARY_DIR}/image/libwsutil.rc
+	${CMAKE_BINARY_DIR}/resources/libwsutil.rc
 )
 
 set_target_properties(wsutil PROPERTIES

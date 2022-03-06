@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/menu/help">
-        <file>wsicon16.png</file>
-        <file>wsicon-ask.png</file>
+        <file alias="wsicon16.png">icons/wsicon16.png</file>
+        <file alias="wsicon-ask.png">icons/wsicon-ask.png</file>
     </qresource>
     <qresource prefix="">
         <file>stock_icons/8x8/list-add.template.png</file>

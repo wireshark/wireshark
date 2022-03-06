@@ -10,15 +10,12 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="32"
-   height="32"
+   width="48"
+   height="48"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="x-capture-file-close@2x.svg"
-   inkscape:export-filename="x-capture-file-close.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   sodipodi:docname="x-capture-file-save@2x.svg">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -36,21 +33,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="17.906231"
-     inkscape:cx="16.000017"
-     inkscape:cy="16.000017"
+     inkscape:zoom="16.09375"
+     inkscape:cx="21.181437"
+     inkscape:cy="23.499795"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="1200"
-     inkscape:window-height="742"
-     inkscape:window-x="226"
-     inkscape:window-y="316"
+     inkscape:window-width="931"
+     inkscape:window-height="683"
+     inkscape:window-x="305"
+     inkscape:window-y="327"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
-       id="grid3064"
-       empspacing="4"
+       id="grid3173"
+       empspacing="2"
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true" />
@@ -63,7 +60,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -71,31 +68,19 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1020.3622)">
+     transform="translate(0,-1004.3622)">
     <image
-       y="1020.3622"
+       y="1004.3622"
        x="0"
-       id="image3272"
-       xlink:href="file:///Users/gcombs/Development/wireshark/image/WiresharkDoc-32.png"
-       height="32"
-       width="32" />
+       id="image4129"
+       xlink:href="../../icons/WiresharkDoc-48.png"
+       height="48"
+       width="48" />
     <path
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       id="path3771"
-       d="m 26,1046.3622 -20,-20"
-       style="fill:#2e3436;stroke:#2e3436;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    <path
-       style="fill:none;stroke:#888a85;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 3,1021.3622 0,30 26,0 0,-22 -8,-8 z"
-       id="path3140"
+       style="fill:none;stroke:#888a85;stroke-width:2;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 5,1005.3622 c 0,46 0,46 0,46 l 37,0 0,-37 -9.000002,-9 z"
+       id="path3240"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
-    <path
-       style="fill:#2e3436;stroke:#2e3436;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 6,1046.3622 20,-20"
-       id="path3769"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
   </g>
 </svg>

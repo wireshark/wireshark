@@ -302,7 +302,7 @@ add_library(epan
 	$<TARGET_OBJECTS:dissector-registration>
 	$<TARGET_OBJECTS:ftypes>
 	$<$<BOOL:${LUA_FOUND}>:$<TARGET_OBJECTS:wslua>>
-	${CMAKE_BINARY_DIR}/image/libwireshark.rc
+	${CMAKE_BINARY_DIR}/resources/libwireshark.rc
 )
 
 set_target_properties(epan PROPERTIES

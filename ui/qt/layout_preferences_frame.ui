@@ -37,7 +37,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/layout.qrc">
+        <iconset resource="../../resources/layout.qrc">
          <normaloff>:/layout/layout_5.png</normaloff>:/layout/layout_5.png</iconset>
        </property>
        <property name="iconSize">
@@ -60,7 +60,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/layout.qrc">
+        <iconset resource="../../resources/layout.qrc">
          <normaloff>:/layout/layout_2.png</normaloff>:/layout/layout_2.png</iconset>
        </property>
        <property name="iconSize">
@@ -83,7 +83,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/layout.qrc">
+        <iconset resource="../../resources/layout.qrc">
          <normaloff>:/layout/layout_1.png</normaloff>:/layout/layout_1.png</iconset>
        </property>
        <property name="iconSize">
@@ -106,7 +106,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/layout.qrc">
+        <iconset resource="../../resources/layout.qrc">
          <normaloff>:/layout/layout_4.png</normaloff>:/layout/layout_4.png</iconset>
        </property>
        <property name="iconSize">
@@ -129,7 +129,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/layout.qrc">
+        <iconset resource="../../resources/layout.qrc">
          <normaloff>:/layout/layout_3.png</normaloff>:/layout/layout_3.png</iconset>
        </property>
        <property name="iconSize">
@@ -152,7 +152,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/layout.qrc">
+        <iconset resource="../../resources/layout.qrc">
          <normaloff>:/layout/layout_6.png</normaloff>:/layout/layout_6.png</iconset>
        </property>
        <property name="iconSize">
@@ -462,7 +462,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../image/layout.qrc"/>
+  <include location="../../resources/layout.qrc"/>
  </resources>
  <connections/>
  <buttongroups>

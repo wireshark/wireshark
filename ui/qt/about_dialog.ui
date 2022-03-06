@@ -42,7 +42,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="../../image/about.qrc">:/about/wssplash.png</pixmap>
+          <pixmap resource="../../resources/about.qrc">:/about/wssplash.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -300,7 +300,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../image/about.qrc"/>
+  <include location="../../resources/about.qrc"/>
  </resources>
  <connections>
   <connection>

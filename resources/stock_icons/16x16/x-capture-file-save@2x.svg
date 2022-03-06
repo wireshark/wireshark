@@ -10,12 +10,15 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="24"
-   height="24"
+   width="32"
+   height="32"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="x-capture-file-save.svg">
+   sodipodi:docname="x-capture-file-open@2x.svg"
+   inkscape:export-filename="x-capture-file-close.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -33,21 +36,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.893359"
-     inkscape:cx="9.6749014"
-     inkscape:cy="13.379973"
+     inkscape:zoom="17.90624"
+     inkscape:cx="16"
+     inkscape:cy="16.000009"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
-     inkscape:window-width="931"
-     inkscape:window-height="683"
-     inkscape:window-x="297"
-     inkscape:window-y="441"
+     inkscape:window-width="1200"
+     inkscape:window-height="742"
+     inkscape:window-x="226"
+     inkscape:window-y="316"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
-       id="grid3173"
-       empspacing="2"
+       id="grid3064"
+       empspacing="4"
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true" />
@@ -68,31 +71,19 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1028.3622)">
+     transform="translate(0,-1020.3622)">
     <image
-       y="1028.3622"
+       y="1020.3622"
        x="0"
-       id="image3237"
-       xlink:href="../../WiresharkDoc-24.png"
-       height="24"
-       width="24" />
+       id="image3272"
+       xlink:href="../../icons/WiresharkDoc-32.png"
+       height="32"
+       width="32" />
     <path
-       style="fill:none;stroke:#888a85;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
-       d="m 2.5000001,1028.8622 c 0,23 0,23 0,23 l 19.0000009,0 0,-17.7728 L 16.5,1028.8622 z"
-       id="path3240"
+       style="fill:none;stroke:#888a85;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 3,1021.3622 0,30 26,0 0,-22 -8,-8 z"
+       id="path3140"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
-    <path
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       id="path3771"
-       d="m 18,1046.3622 -12,-12"
-       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-    <path
-       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-       d="m 6,1046.3622 12,-12"
-       id="path3791"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
   </g>
 </svg>

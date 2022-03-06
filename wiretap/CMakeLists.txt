@@ -164,7 +164,7 @@ set_source_files_properties(
 
 add_library(wiretap
 	${WIRETAP_FILES}
-	${CMAKE_BINARY_DIR}/image/libwiretap.rc
+	${CMAKE_BINARY_DIR}/resources/libwiretap.rc
 )
 
 set_target_properties(wiretap PROPERTIES

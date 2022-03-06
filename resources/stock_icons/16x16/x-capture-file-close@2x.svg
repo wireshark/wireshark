@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="x-capture-file-open@2x.svg"
+   sodipodi:docname="x-capture-file-close@2x.svg"
    inkscape:export-filename="x-capture-file-close.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
@@ -36,9 +36,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="17.90624"
-     inkscape:cx="16"
-     inkscape:cy="16.000009"
+     inkscape:zoom="17.906231"
+     inkscape:cx="16.000017"
+     inkscape:cy="16.000017"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -76,14 +76,26 @@
        y="1020.3622"
        x="0"
        id="image3272"
-       xlink:href="file:///Users/gcombs/Development/wireshark/image/WiresharkDoc-32.png"
+       xlink:href="../../icons/WiresharkDoc-32.png"
        height="32"
        width="32" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path3771"
+       d="m 26,1046.3622 -20,-20"
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     <path
        style="fill:none;stroke:#888a85;stroke-width:2px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 3,1021.3622 0,30 26,0 0,-22 -8,-8 z"
        id="path3140"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
+    <path
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 6,1046.3622 20,-20"
+       id="path3769"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>

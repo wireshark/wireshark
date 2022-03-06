@@ -490,7 +490,7 @@ if(WIN32)
 		# Make sure everyone is using the same API and that it's sufficient
 		# for our needs.
 		# This should match the following:
-		# - The <compatibility><application> section in image\wireshark.exe.manifest.in
+		# - The <compatibility><application> section in resources\wireshark.exe.manifest.in
 		# - The GetWindowsVersion parts of packaging\nsis\wireshark.nsi
 		# - The VersionNT parts of packaging\wix\Prerequisites.wxi
 		#
@@ -1695,18 +1695,18 @@ set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 set(CFG_OUT_FILES
 	doxygen.cfg
-	image/dumpcap.rc
-	image/libwireshark.rc
-	image/libwiretap.rc
-	image/libwsutil.rc
-	image/wireshark.exe.manifest
-	image/wireshark.rc
 	packaging/macosx/Info.plist
 	packaging/macosx/osx-app.sh
 	packaging/macosx/osx-dmg.sh
 	packaging/macosx/wireshark-app.dmgbuild
 	packaging/macosx/wireshark-dsym.dmgbuild
 	packaging/source/git-export-release.sh
+	resources/dumpcap.rc
+	resources/libwireshark.rc
+	resources/libwiretap.rc
+	resources/libwsutil.rc
+	resources/wireshark.exe.manifest
+	resources/wireshark.rc
 	wireshark.pc
 )
 foreach( _cfg_file ${CFG_OUT_FILES} )
@@ -1858,7 +1858,7 @@ if(WIN32)
 		ui/win32/file_dlg_win32.cpp
 	)
 	set(PLATFORM_UI_RC_FILES
-		image/file_dlg_win32.rc
+		resources/file_dlg_win32.rc
 	)
 elseif(APPLE)
 	set(PLATFORM_UI_SRC
@@ -3467,14 +3467,14 @@ if((BUILD_wireshark AND QT_FOUND) AND NOT (WIN32 OR APPLE))
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 	endif()
 	foreach(size 16 24 32 48 64 128 256)
-		install(FILES image/wsicon${size}.png
+		install(FILES resources/icons/wsicon${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
 			RENAME org.wireshark.Wireshark.png)
-		install(FILES image/WiresharkDoc-${size}.png
+		install(FILES resources/icons/WiresharkDoc-${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/mimetypes"
 			RENAME org.wireshark.Wireshark-mimetype.png)
 	endforeach()
-	install(FILES image/wsicon.svg
+	install(FILES resources/icons/wsicon.svg
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
 		RENAME org.wireshark.Wireshark.svg)
 endif()
@@ -3736,7 +3736,7 @@ if(SHELLCHECK_EXECUTABLE)
 	# added support for that.
 	add_custom_command(TARGET shellcheck POST_BUILD
 		COMMAND shellcheck --external-sources
-			image/stock_icons/svg-to-png.sh
+			resources/stock_icons/svg-to-png.sh
 			packaging/appimage/AppRun
 			"packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
 			packaging/macosx/osx-app.sh.in

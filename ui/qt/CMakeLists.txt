@@ -633,11 +633,11 @@ endforeach()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/i18n.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc)
 
 set(WIRESHARK_QT_QRC
-	../../image/about.qrc
-	../../image/languages/languages.qrc
-	../../image/layout.qrc
-	../../image/stock_icons.qrc
-	../../image/wsicon.qrc
+	../../resources/about.qrc
+	../../resources/languages/languages.qrc
+	../../resources/layout.qrc
+	../../resources/stock_icons.qrc
+	../../resources/wsicon.qrc
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 

@@ -103,7 +103,7 @@ open when the capture file closes.
 ===== Names
 
 The code in _ui/qt_ directory uses three APIs: Qt (which uses upper camel case), GLib (which uses snake_case), and the Wireshark
-API (which also uses snake_case). 
+API (which also uses snake_case).
 
 As a general rule, for names, Wireshark’s Qt code:
 
@@ -201,7 +201,7 @@ Qt makes translating the Wireshark UI into different languages easy. To add a ne
 translation, do the following:
 
 - Add your translation (_ui/qt/wireshark_XX.ts_) to _ui/qt/CMakeLists.txt_
-- (Recommended) Add a flag image for your language in _image/languages/XX.svg_. Update _image/languages/languages.qrc_ accordingly.
+- (Recommended) Add a flag image for your language in _resources/languages/XX.svg_. Update _resources/languages/languages.qrc_ accordingly.
 - Run `lupdate ui/qt -ts ui/qt/wireshark_XX.ts` to generate/update your translation file.
 - Add ui/qt/wireshark_XX.ts to `.tx/config`.
 - Translate with Qt Linguist: `linguist ui/qt/wireshark_XX.ts`.
@@ -261,7 +261,7 @@ includes proper dark theme support by doing the following:
 
 * You can use a macOS-style template icon by creating a monochrome SVG
 document with “.template” appended to the name, e.g.
-`image/stock_icons/24x24/edit-find.template.svg`.
+`resources/stock_icons/24x24/edit-find.template.svg`.
 * Qt draws unvisited links *Qt::blue* no matter what. You can work
 around this by using `ColorUtils::themeLinkBrush()` and
 `ColorUtils::themeLinkStyle()`.
@@ -274,7 +274,7 @@ The main window has many QActions which are shared with child widgets. See
 _ui/qt/proto_tree.cpp_ for an example of this.
 
 To demonstrate the functionality of the plugin interface options, a
-demonstration plugin exists (pluginifdemo). See _doc/README.plugins_ and 
+demonstration plugin exists (pluginifdemo). See _doc/README.plugins_ and
 _plugins/epan/pluginifdemo_.
 
 https://www.kdab.com/development-resources/qt-tools/gammaray/[GammaRay] lets you inspect

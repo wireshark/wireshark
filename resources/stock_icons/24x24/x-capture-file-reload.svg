@@ -15,7 +15,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="x-capture-file-save.svg">
+   sodipodi:docname="x-capture-file-reload.svg"
+   inkscape:export-filename="x-capture-file-reload.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -25,6 +28,20 @@
        inkscape:vp_z="744.09448 : 526.18109 : 1"
        inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
        id="perspective10" />
+    <marker
+       inkscape:stockid="TriangleInSxF"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleInSxF"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3031"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill:#204a87;fill-rule:evenodd;stroke:#204a87;stroke-width:1pt;marker-start:none"
+         transform="scale(-0.2,-0.2)" />
+    </marker>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -33,21 +50,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="22.893359"
-     inkscape:cx="9.6749014"
-     inkscape:cy="13.379973"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="6.294321"
+     inkscape:cy="0.53404635"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:window-width="931"
      inkscape:window-height="683"
-     inkscape:window-x="297"
-     inkscape:window-y="441"
+     inkscape:window-x="0"
+     inkscape:window-y="774"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
-       id="grid3173"
-       empspacing="2"
+       id="grid3064"
+       empspacing="5"
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true" />
@@ -70,17 +87,25 @@
      id="layer1"
      transform="translate(0,-1028.3622)">
     <image
-       y="1028.3622"
-       x="0"
-       id="image3237"
-       xlink:href="../../WiresharkDoc-24.png"
+       xlink:href="../../icons/WiresharkDoc-24.png"
+       style="fill:#2e3436;stroke:#2e3436"
+       width="24"
        height="24"
-       width="24" />
+       id="image3836"
+       x="0"
+       y="1028.3622" />
     <path
-       style="fill:none;stroke:#888a85;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1"
-       d="m 2.5000001,1028.8622 c 0,23 0,23 0,23 l 19.0000009,0 0,-17.7728 L 16.5,1028.8622 z"
-       id="path3240"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccccc" />
+       sodipodi:open="true"
+       sodipodi:end="4.712389"
+       sodipodi:start="0"
+       transform="matrix(1.2304762,0,0,1.2295211,-37.085712,1029.5448)"
+       d="M 44.767801,8.8390093 A 4.8761611,4.8390093 0 1 1 39.89164,4"
+       sodipodi:ry="4.8390093"
+       sodipodi:rx="4.8761611"
+       sodipodi:cy="8.8390093"
+       sodipodi:cx="39.89164"
+       id="path2989"
+       style="fill:none;stroke:#204a87;stroke-width:1.62601817000000004;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:none;marker-mid:none;marker-end:url(#TriangleInSxF)"
+       sodipodi:type="arc" />
   </g>
 </svg>

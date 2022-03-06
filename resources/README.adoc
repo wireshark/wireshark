@@ -1,9 +1,9 @@
 = Introduction
 
-This directory contains a set of images and icons for the Wireshark
-suite of applications.  Of particular note for people creating packages
-for distribution are the files wireshark.ico, wiresharkdoc.ico,
-wsicon*.png, and WiresharkDoc-*.png
+This directory contains a set of resources for the Wireshark suite of
+applications. Of particular note for people creating packages for
+distribution are the files wireshark.ico, wiresharkdoc.ico, wsicon*.png,
+and WiresharkDoc-*.png in the icons directory.
 
 File descriptions:
 

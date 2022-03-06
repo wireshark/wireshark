@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="x-capture-file-open.svg"
+   sodipodi:docname="x-capture-file-close.svg"
    inkscape:export-filename="x-capture-file-close.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
@@ -63,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -76,9 +76,15 @@
        y="1036.3622"
        x="0"
        id="image3135"
-       xlink:href="file:///Users/gcombs/Development/wireshark/image/WiresharkDoc-16.png"
+       xlink:href="../../icons/WiresharkDoc-16.png"
        height="16"
        width="16" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path3771"
+       d="m 13,1049.3622 -10,-10"
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
     <path
        style="fill:none;stroke:#888a85;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 1.5,0.5 0,15 13,0 0,-11 -4,-4 z"
@@ -86,5 +92,11 @@
        inkscape:connector-curvature="0"
        transform="translate(0,1036.3622)"
        sodipodi:nodetypes="cccccc" />
+    <path
+       style="fill:#2e3436;stroke:#2e3436;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 3,1049.3622 10,-10"
+       id="path3769"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
   </g>
 </svg>
