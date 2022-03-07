@@ -4093,7 +4093,7 @@ static int
 dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned int bSize, unsigned int bTag)
 {
     proto_item *ti = proto_tree_get_parent(tree);
-    guint32 val;
+    guint32 val = 0;
 
     switch (bTag) {
         case USBHID_MAINITEM_TAG_INPUT:
@@ -4164,8 +4164,8 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
 {
     const char *str = NULL;
     proto_item *ti = proto_tree_get_parent(tree);
-    guint32 val;
-    gint32 val_sig;
+    guint32 val = 0;
+    gint32 val_sig = 0;
 
     switch (bTag) {
         case USBHID_GLOBALITEM_TAG_USAGE_PAGE:
@@ -4255,7 +4255,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbu
     guint32 id = 0xffff;
     proto_item *ti = proto_tree_get_parent(tree);
     gchar *str = NULL;
-    guint32 val;
+    guint32 val = 0;
 
     switch (bTag) {
         case USBHID_LOCALITEM_TAG_USAGE:
