@@ -298,45 +298,39 @@ frame_add_verdict(wtap_block_t block _U_, guint option_id, wtap_opttype_e option
 	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
 
 	if (option_id == OPT_PKT_VERDICT) {
-		GBytes *verdict = option->byteval;
-		const guint8 *verdict_data;
-		gsize len;
+		packet_verdict_opt_t *verdict = &option->packet_verdictval;
 		char *format = fr_user_data->n_changes ? ", %s (%u)" : "%s (%u)";
 
-		if (verdict == NULL)
-			return TRUE;
-
-		verdict_data = (const guint8 *) g_bytes_get_data(verdict, &len);
-
-		if (len == 0)
-			return TRUE;
-
 		proto_item_append_text(fr_user_data->item, format,
-			 get_verdict_type_string(verdict_data[0]), verdict_data[0]);
+				       get_verdict_type_string(verdict->type),
+				       verdict->type);
 
-		len -= 1;
-		switch(verdict_data[0]) {
-			case OPT_VERDICT_TYPE_HW:
-				proto_tree_add_bytes_with_length(fr_user_data->tree, hf_frame_verdict_hardware,
-						fr_user_data->tvb, 0, 0, verdict_data + 1, (gint) len);
-				break;
+		switch(verdict->type) {
 			case OPT_VERDICT_TYPE_TC:
-				if (len == 8) {
-					gint64 val;
-					memcpy(&val, verdict_data + 1, sizeof(val));
-					proto_tree_add_int64(fr_user_data->tree, hf_frame_verdict_tc, fr_user_data->tvb, 0, 0, val);
-				}
+				proto_tree_add_int64(fr_user_data->tree,
+						     hf_frame_verdict_tc,
+						     fr_user_data->tvb, 0, 0,
+						     verdict->data.verdict_linux_ebpf_tc);
 				break;
 			case OPT_VERDICT_TYPE_XDP:
-				if (len == 8) {
-					gint64 val;
-					memcpy(&val, verdict_data + 1, sizeof(val));
-					proto_tree_add_int64(fr_user_data->tree, hf_frame_verdict_xdp, fr_user_data->tvb, 0, 0, val);
-				}
+				proto_tree_add_int64(fr_user_data->tree,
+						     hf_frame_verdict_xdp,
+						     fr_user_data->tvb, 0, 0,
+						     verdict->data.verdict_linux_ebpf_xdp);
+				break;
+			case OPT_VERDICT_TYPE_HW:
+				proto_tree_add_bytes_with_length(fr_user_data->tree,
+								 hf_frame_verdict_hardware,
+								 fr_user_data->tvb, 0, 0,
+								 verdict->data.verdict_bytes->data,
+								 verdict->data.verdict_bytes->len);
 				break;
 			default:
-				proto_tree_add_bytes_with_length(fr_user_data->tree, hf_frame_verdict_unknown,
-						fr_user_data->tvb, 0, 0, verdict_data, (gint) len + 1);
+				proto_tree_add_bytes_with_length(fr_user_data->tree,
+								 hf_frame_verdict_unknown,
+								 fr_user_data->tvb, 0, 0,
+								 verdict->data.verdict_bytes->data,
+								 verdict->data.verdict_bytes->len);
 				break;
 		}
 	}
