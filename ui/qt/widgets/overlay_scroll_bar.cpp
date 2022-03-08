@@ -99,7 +99,7 @@ int OverlayScrollBar::sliderPosition()
     return child_sb_.sliderPosition();
 }
 
-void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int packet_count, int start_pos, int end_pos, QList<int> positions)
+void OverlayScrollBar::setNearOverlayImage(QImage& overlay_image, int packet_count, int start_pos, int end_pos, QList<int> positions, int rowHeight)
 {
     int old_width = packet_map_img_.width();
     packet_map_img_ = overlay_image;
@@ -107,6 +107,7 @@ void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int packet_cou
     start_pos_ = start_pos;
     end_pos_ = end_pos;
     positions_ = positions;
+    row_height_ = rowHeight > devicePixelRatio() ? rowHeight : devicePixelRatio();
 
     if (old_width != packet_map_img_.width()) {
         qreal dp_ratio = devicePixelRatio();
@@ -173,17 +174,12 @@ void OverlayScrollBar::paintEvent(QPaintEvent *event)
         {
             foreach (int selected_pos_, positions_)
             {
-                if (selected_pos_ >= 0 && selected_pos_ < packet_map_img_.height()) {
+                int pmiHeight = packet_map_img_.height();
+                if (selected_pos_ >= 0 && selected_pos_ < pmiHeight) {
                     pm_painter.save();
-                    int no_pos = near_dest.height() * selected_pos_ / packet_map_img_.height();
-                    int height = dp_ratio;
-                    if ((selected_pos_ + 1) < packet_map_img_.height())
-                    {
-                        int nx_pos =  near_dest.height() * ( selected_pos_ + 1 ) / packet_map_img_.height();
-                        height = (nx_pos - no_pos + 1) > dp_ratio ? nx_pos - no_pos + 1 : dp_ratio;
-                    }
+                    int no_pos = near_dest.height() * selected_pos_ / pmiHeight;
                     pm_painter.setBrush(palette().highlight().color());
-                    pm_painter.drawRect(0, no_pos, pm_size.width(), height);
+                    pm_painter.drawRect(0, no_pos, pm_size.width(), row_height_);
                     pm_painter.restore();
                 }
             }

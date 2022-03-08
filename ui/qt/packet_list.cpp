@@ -2059,7 +2059,7 @@ void PacketList::drawNearOverlay()
             }
         }
 
-        overlay_sb_->setNearOverlayImage(overlay, packet_list_model_->rowCount(), start, end, positions);
+        overlay_sb_->setNearOverlayImage(overlay, packet_list_model_->rowCount(), start, end, positions, (o_height / o_rows));
     } else {
         QImage overlay;
         overlay_sb_->setNearOverlayImage(overlay);
