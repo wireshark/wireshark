@@ -83,6 +83,10 @@ class case_extcaps(subprocesstest.SubprocessTestCase):
         ''' extcap interface tests for sshdump '''
         check_extcap_execution("sshdump")
 
+    def test_wifidump(self, check_extcap_execution):
+        ''' extcap interface tests for wifidump '''
+        check_extcap_execution("wifidump")
+
     def test_udpdump(self, check_extcap_execution):
         ''' extcap interface tests for udpdump '''
         check_extcap_execution("udpdump")

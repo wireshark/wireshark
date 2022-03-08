@@ -1592,6 +1592,7 @@ webkit
 websocket
 whoami
 wideband
+wifidump
 wikipedia
 wikis
 wimax

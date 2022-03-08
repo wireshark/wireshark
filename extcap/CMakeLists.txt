@@ -180,6 +180,32 @@ elseif (BUILD_ciscodump)
 	#message( WARNING "Cannot find libssh, cannot build ciscodump" )
 endif()
 
+if(BUILD_wifidump AND LIBSSH_FOUND)
+	set(wifidump_LIBS
+		writecap
+		wsutil
+		${CMAKE_DL_LIBS}
+		${WIN_WS2_32_LIBRARY}
+		${LIBSSH_LIBRARIES}
+	)
+	set(wifidump_FILES
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
+		$<TARGET_OBJECTS:ssh-base>
+		wifidump.c
+	)
+
+	set_executable_resources(wifidump "Wifidump")
+	add_executable(wifidump ${wifidump_FILES})
+	set_extcap_executable_properties(wifidump)
+	target_link_libraries(wifidump ${wifidump_LIBS})
+	target_include_directories(wifidump SYSTEM PRIVATE ${LIBSSH_INCLUDE_DIRS})
+	install(TARGETS wifidump RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	add_dependencies(extcaps wifidump)
+elseif (BUILD_wifidump)
+	#message( WARNING "Cannot find libssh, cannot build wifidump" )
+endif()
+
 if(BUILD_dpauxmon AND HAVE_LIBNL3)
 	set(dpauxmon_LIBS
 		wsutil

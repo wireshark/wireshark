@@ -1182,13 +1182,15 @@ Section /o "Androiddump" SecAndroiddump
 SectionEnd
 !insertmacro CheckExtrasFlag "androiddump"
 
-Section /o "Sshdump and Ciscodump" SecSshdump
+Section /o "Sshdump, Ciscodump, and Wifidump" SecSshdump
 ;-------------------------------------------
   !insertmacro InstallExtcap "sshdump"
   !insertmacro InstallExtcap "ciscodump"
+  !insertmacro InstallExtcap "wifidump"
 SectionEnd
 !insertmacro CheckExtrasFlag "sshdump"
 !insertmacro CheckExtrasFlag "ciscodump"
+!insertmacro CheckExtrasFlag "wifidump"
 
 Section /o "UDPdump" SecUDPdump
 ;-------------------------------------------

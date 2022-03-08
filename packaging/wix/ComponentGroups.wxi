@@ -563,6 +563,26 @@
     </ComponentGroup>
   </Fragment>
 
+  <!-- Wifidump -->
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpWifidump_exe" Guid="*">
+        <File Id="filWifidump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\wifidump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpWifidump_html" Guid="*">
+        <File Id="filWifidump_html" KeyPath="yes" Source="$(var.Staging.Dir)\wifidump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Wifidump">
+      <ComponentRef Id="cmpWifidump_exe" />
+      <ComponentRef Id="cmpWifidump_html" />
+    </ComponentGroup>
+  </Fragment>
+
   <!-- Udpdump -->
   <Fragment>
     <DirectoryRef Id="dirExtcap">

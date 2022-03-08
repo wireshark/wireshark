@@ -60,6 +60,7 @@ ADD_MAN_PAGE(sshdump     1)
 ADD_MAN_PAGE(text2pcap   1)
 ADD_MAN_PAGE(tshark      1)
 ADD_MAN_PAGE(udpdump     1)
+ADD_MAN_PAGE(wifidump    1)
 
 ADD_MAN_PAGE(extcap           4)
 ADD_MAN_PAGE(wireshark-filter 4)

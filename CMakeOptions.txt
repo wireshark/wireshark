@@ -25,6 +25,7 @@ option(BUILD_sshdump       "Build sshdump" ON)
 option(BUILD_ciscodump     "Build ciscodump" ON)
 option(BUILD_dpauxmon      "Build dpauxmon" ON)
 option(BUILD_randpktdump   "Build randpktdump" ON)
+option(BUILD_wifidump      "BUild wifidump" ON)
 if(WIN32 AND NOT MINGW)
 	# XXX - I don't think building etwdump is possible with MinGW-w64 as of
 	# version 9.0 but I would like to be 100% certain.

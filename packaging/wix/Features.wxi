@@ -105,6 +105,9 @@
       <Feature Id="Fe.Tools.Udpdump" Title="Udpdump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide capture interface that gets UDP packets from network devices.">
         <ComponentGroupRef Id="CG.Tools.Udpdump" />
       </Feature>
+      <Feature Id="Fe.Tools.Wifidump" Title="Wifidump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide remote capture of Wi-Fi frames through SSH.">
+        <ComponentGroupRef Id="CG.Tools.Wifidump" />
+      </Feature>
     </Feature>
     <?ifdef DOCBOOK_DIR?>
       <Feature Id="Fe.Documentation" Title="Documentation" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide and FAQ.">

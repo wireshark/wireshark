@@ -1167,7 +1167,7 @@ if (NOT WIN32)
 	find_package(M REQUIRED)
 endif()
 
-if(BUILD_sshdump OR BUILD_ciscodump)
+if(BUILD_sshdump OR BUILD_ciscodump OR BUILD_wifidump)
 	set(ENABLE_LIBSSH ON)
 else()
 	set(ENABLE_LIBSSH OFF)
@@ -1752,7 +1752,7 @@ set_package_properties(LIBXML2 PROPERTIES
 set_package_properties(LIBSSH PROPERTIES
 	DESCRIPTION "Library for implementing SSH clients"
 	URL "https://www.libssh.org/"
-	PURPOSE "extcap remote SSH interfaces (sshdump, ciscodump)"
+	PURPOSE "extcap remote SSH interfaces (sshdump, ciscodump, wifidump)"
 )
 set_package_properties(LZ4 PROPERTIES
 	DESCRIPTION "LZ4 is a fast lossless compression algorithm"
@@ -1949,6 +1949,7 @@ if (ASCIIDOCTOR_FOUND)
 		${CMAKE_BINARY_DIR}/doc/rawshark.html
 		${CMAKE_BINARY_DIR}/doc/reordercap.html
 		${CMAKE_BINARY_DIR}/doc/sshdump.html
+		${CMAKE_BINARY_DIR}/doc/wifidump.html
 		${CMAKE_BINARY_DIR}/doc/text2pcap.html
 		${CMAKE_BINARY_DIR}/doc/tshark.html
 		${CMAKE_BINARY_DIR}/doc/wireshark.html
