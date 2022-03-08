@@ -11,6 +11,7 @@
 #ifndef MPA_H
 #define MPA_H 1
 
+#include <glib.h>
 #include "ws_symbol_export.h"
 
 struct mpa {
@@ -71,6 +72,8 @@ WS_DLL_PUBLIC
 unsigned int mpa_frequency(const struct mpa *);
 WS_DLL_PUBLIC
 unsigned int mpa_padding(const struct mpa *);
+WS_DLL_PUBLIC
+guint32 decode_synchsafe_int(guint32);
 
 #define MPA_DATA_BYTES(mpa) (mpa_bitrate(mpa) * mpa_samples(mpa) \
 		/ mpa_frequency(mpa) / 8)

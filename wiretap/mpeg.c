@@ -163,7 +163,22 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 				}
 			}
 		} else {
-			packet_size = mpeg_resync(fh, err);
+			if ((n & 0xffffff00) == 0x49443300) {
+				/* We have an ID3v2 header; read the size */
+				if (file_seek(fh, 6, SEEK_CUR, err) == -1)
+					return FALSE;
+				if (!wtap_read_bytes_or_eof(fh, &n, sizeof n, err, err_info))
+					return FALSE;
+				if (file_seek(fh, -(gint64)(6+sizeof(n)), SEEK_CUR, err) == -1)
+					return FALSE;
+				n = g_ntohl(n);
+
+				/* ID3v2 size does not include the 10-byte header */
+				packet_size = decode_synchsafe_int(n) + 10;
+			} else {
+				packet_size = mpeg_resync(fh, err);
+			}
+
 			if (packet_size == 0)
 				return FALSE;
 		}
