@@ -41,8 +41,10 @@ enum {
 
 enum {
     present_op_ = 1000,
-    eq_op_,
-    ne_op_,
+    any_eq_op_,
+    all_eq_op_,
+    any_ne_op_,
+    all_ne_op_,
     gt_op_,
     lt_op_,
     ge_op_,
@@ -76,8 +78,10 @@ DisplayFilterExpressionDialog::DisplayFilterExpressionDialog(QWidget *parent) :
 
     // Relation list
     new QListWidgetItem("is present", ui->relationListWidget, present_op_);
-    new QListWidgetItem("==", ui->relationListWidget, eq_op_);
-    new QListWidgetItem("!=", ui->relationListWidget, ne_op_);
+    new QListWidgetItem("==", ui->relationListWidget, any_eq_op_);
+    new QListWidgetItem("!=", ui->relationListWidget, all_ne_op_);
+    new QListWidgetItem("===", ui->relationListWidget, all_eq_op_);
+    new QListWidgetItem("!==", ui->relationListWidget, any_ne_op_);
     new QListWidgetItem(">", ui->relationListWidget, gt_op_);
     new QListWidgetItem("<", ui->relationListWidget, lt_op_);
     new QListWidgetItem(">=", ui->relationListWidget, ge_op_);
@@ -354,8 +358,10 @@ void DisplayFilterExpressionDialog::on_fieldTreeWidget_itemSelectionChanged()
     for (int i = 0; i < ui->relationListWidget->count(); i++) {
         QListWidgetItem *li = ui->relationListWidget->item(i);
         switch (li->type()) {
-        case eq_op_:
-        case ne_op_:
+        case any_eq_op_:
+        case all_eq_op_:
+        case any_ne_op_:
+        case all_ne_op_:
             li->setHidden(!ftype_can_eq(ftype_) && !(ftype_can_slice(ftype_) && ftype_can_eq(FT_BYTES)));
             break;
         case gt_op_:
