@@ -25084,10 +25084,18 @@ ieee80211_tag_ibss_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   return offset;
 }
 
+/* IEEE 802.11-2020, C.3 MIB detail, dot11CountryString */
 static const value_string environment_vals[] = {
-  { 0x20, "Any" },
-  { 0x4f, "Outdoor" },
-  { 0x49, "Indoor" },
+  { 0x1, "Operating classes in the United States" }, /* Table E-1 */
+  { 0x2, "Operating classes in Europe" }, /* Table E-2 */
+  { 0x3, "Operating classes in Japan" }, /* Table E-3 */
+  { 0x4, "Global operating classes" }, /* Table E-4 */
+  { 0x5, "S1G operating classes" }, /* Table E-5 */
+  { 0x6, "Operating classes in China" }, /* Table E-6 */
+  { ' ', "All" }, /* All environments for this band */
+  { 'I', "Indoor" },
+  { 'O', "Outdoor" },
+  { 'X', "Non Country Entity" },
   { 0,    NULL }
 };
 
@@ -25108,6 +25116,7 @@ ieee80211_tag_country_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return 1;
   }
 
+  /* FIXME: If environment is 'X', the only allowed CC is "XX" */
   proto_tree_add_item_ret_string(tree, hf_ieee80211_tag_country_info_code,
                       tvb, offset, 2, ENC_ASCII|ENC_NA, wmem_packet_scope(), &country_code);
   proto_item_append_text(field_data->item_tag, ": Country Code %s", country_code);
