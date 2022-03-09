@@ -42,12 +42,8 @@ endif()
 option(BUILD_udpdump       "Build udpdump" ON)
 
 option(BUILD_sharkd        "Build sharkd" ON)
-if(WIN32)
-	option(BUILD_fuzzshark     "Build fuzzshark" OFF)
-else()
-	option(BUILD_fuzzshark     "Build fuzzshark" ON)
-endif()
 option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
+option(BUILD_fuzzshark     "Build fuzzshark" OFF)
 
 option(ENABLE_WERROR     "Treat warnings as errors" ON)
 option(ENABLE_DEBUG      "Enable debug code" ON)
