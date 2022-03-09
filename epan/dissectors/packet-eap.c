@@ -1817,10 +1817,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         *last_eap_id = eap_identifier;
         if (is_duplicate_id) {
           // Use a dummy value to remember that this packet is a duplicate.
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 1, GINT_TO_POINTER(1));
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID, GINT_TO_POINTER(1));
         }
       } else {
-        is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 1);
+        is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_DUPLICATE_ID);
       }
       if (is_duplicate_id) {
         expert_add_info(pinfo, ti_id, &ei_eap_retransmission);
@@ -2025,7 +2025,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             first pass through the capture.
           */
           /* See if we have a remembered defragmentation EAP ID. */
-          packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 0);
+          packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE);
           if (packet_state == NULL) {
             /*
              * We haven't - does this message require reassembly?
@@ -2088,7 +2088,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                  */
                 packet_state = wmem_new(wmem_file_scope(), frame_state_t);
                 packet_state->info = eap_reass_cookie;
-                p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 0, packet_state);
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE, packet_state);
               }
             }
           } else {
@@ -2217,7 +2217,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          * If so, should we stop here to avoid modifying conversation_state? */
 
         /* See if we've already remembered the state. */
-        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 0);
+        packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE);
         if (packet_state == NULL) {
           /*
            * We haven't - compute the state based on the current
@@ -2238,7 +2238,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
            */
           packet_state = wmem_new(wmem_file_scope(), frame_state_t);
           packet_state->info = leap_state;
-          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 0, packet_state);
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, PROTO_DATA_EAP_FRAME_STATE, packet_state);
 
           /*
            * Update the conversation's state.
