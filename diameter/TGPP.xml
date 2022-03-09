@@ -1537,6 +1537,56 @@
     <avp name="SMS-GMSC-Alert-Event" code="3333" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
+    <avp name="SMSF-3GPP-Absent-User-Diagnostic-SM" code="3334" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="SMSF-Non-3GPP-Absent-User-Diagnostic-SM" code="3335" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <avp name="SMSF-3GPP-SM-Delivery-Outcome" code="3336" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+    <grouped>
+        <gavp name="SM-Delivery-Cause"/>
+        <gavp name="Absent-User-Diagnostic-SM"/>
+    </grouped>
+    </avp>
+    <avp name="SMSF-Non-3GPP-SM-Delivery-Outcome" code="3337" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+    <grouped>
+        <gavp name="SM-Delivery-Cause"/>
+        <gavp name="Absent-User-Diagnostic-SM"/>
+    </grouped>
+    </avp>
+    <avp name="SMSF-3GPP-Number" code="3338" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="SMSF-Non-3GPP-Number" code="3339" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="SMSF-3GPP-Name" code="3340" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+        <type type-name="DiameterIdentity"/>
+    </avp>
+    <avp name="SMSF-Non-3GPP-Name" code="3341" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+        <type type-name="DiameterIdentity"/>
+    </avp>
+    <avp name="SMSF-3GPP-Realm" code="3342" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+        <type type-name="DiameterIdentity"/>
+    </avp>
+    <avp name="SMSF-Non-3GPP-Realm" code="3343" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+        <type type-name="DiameterIdentity"/>
+    </avp>
+    <avp name="SMSF-3GPP-Address" code="3344" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="SMSF-3GPP-Number"/>
+        <gavp name="SMSF-3GPP-Name"/>
+        <gavp name="SMSF-3GPP-Realm"/>
+      </grouped>
+    </avp>
+    <avp name="MSF-Non-3GPP-Address" code="3345" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+      <grouped>
+        <gavp name="SMSF-Non-3GPP-Number"/>
+        <gavp name="SMSF-Non-3GPP-Name"/>
+        <gavp name="SMSF-Non-3GPP-Realm"/>
+      </grouped>
+    </avp>
 </application> <!-- 3GPP S6c -->
 
 <application id="16777335" name="3GPP MB2c" uri="http://www.3gpp.org/DynaReport/29468.htm">
