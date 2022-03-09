@@ -27,7 +27,7 @@
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
  * draft-25, draft-26, draft-27, draft-28, draft-29, draft-30, draft-31, draft-32,
- * draft-33, v1, v2-draft-00
+ * draft-33, draft-34, v1, v2-draft-00
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -452,9 +452,10 @@ static inline guint8 quic_draft_version(guint32 version) {
     if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
         return 29;
     }
-    /* QUIC (final?) constants for v1 are defined in draft-33 */
+    /* QUIC (final?) constants for v1 are defined in draft-33, but draft-34 is the
+       final draft version */
     if (version == 0x00000001) {
-        return 33;
+        return 34;
     }
     /* QUIC Version 2 */
     /* TODO: for the time being use 100 + draft as a number for V2.
@@ -2420,7 +2421,7 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
     } else if (is_quic_draft_max(version, 32)) {
         err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_draft_29, sizeof(handshake_salt_draft_29),
                            cid->cid, cid->len, secret);
-    } else if (is_quic_draft_max(version, 33)) {
+    } else if (is_quic_draft_max(version, 34)) {
         err = hkdf_extract(GCRY_MD_SHA256, handshake_salt_v1, sizeof(handshake_salt_v1),
                            cid->cid, cid->len, secret);
     } else {
@@ -2648,7 +2649,7 @@ quic_hp_cipher_init(quic_hp_cipher *hp_cipher, int hash_algo, guint8 key_length,
 {
     guchar      hp_key[256/8];
     guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
-    char        *label = is_quic_draft_max(version, 33) ? "quic hp" : "quicv2 hp";
+    char        *label = is_quic_draft_max(version, 34) ? "quic hp" : "quicv2 hp";
 
     if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, label, hp_key, key_length)) {
         return FALSE;
@@ -2661,8 +2662,8 @@ quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length,
 {
     guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
     guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
-    char        *key_label = is_quic_draft_max(version, 33) ? "quic key" : "quicv2 key";
-    char        *iv_label = is_quic_draft_max(version, 33) ? "quic iv" : "quicv2 iv";
+    char        *key_label = is_quic_draft_max(version, 34) ? "quic key" : "quicv2 key";
+    char        *iv_label = is_quic_draft_max(version, 34) ? "quic iv" : "quicv2 iv";
 
     if (key_length > sizeof(write_key)) {
         return FALSE;
@@ -2684,7 +2685,7 @@ static void
 quic_update_key(guint32 version, int hash_algo, quic_pp_state_t *pp_state)
 {
     guint hash_len = gcry_md_get_algo_dlen(hash_algo);
-    const char *label = is_quic_draft_max(version, 23) ? "traffic upd" : (is_quic_draft_max(version, 33) ? "quic ku" : "quicv2 ku");
+    const char *label = is_quic_draft_max(version, 23) ? "traffic upd" : (is_quic_draft_max(version, 34) ? "quic ku" : "quicv2 ku");
     gboolean ret = quic_hkdf_expand_label(hash_algo, pp_state->next_secret, hash_len,
                                           label, pp_state->next_secret, hash_len);
     /* This must always succeed as our hash algorithm was already validated. */
@@ -2930,7 +2931,7 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
        err = gcry_cipher_setkey(h, key_draft_25, sizeof(key_draft_25));
     } else if (is_quic_draft_max(version, 32)) {
        err = gcry_cipher_setkey(h, key_draft_29, sizeof(key_draft_29));
-    } else if (is_quic_draft_max(version, 33)) {
+    } else if (is_quic_draft_max(version, 34)) {
        err = gcry_cipher_setkey(h, key_v1, sizeof(key_v1));
     } else {
        err = gcry_cipher_setkey(h, key_v2_draft_00, sizeof(key_v2_draft_00));
@@ -2940,7 +2941,7 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
         err = gcry_cipher_setiv(h, nonce_draft_25, sizeof(nonce_draft_25));
     } else if (is_quic_draft_max(version, 32)) {
         err = gcry_cipher_setiv(h, nonce_draft_29, sizeof(nonce_draft_29));
-    } else if (is_quic_draft_max(version, 33)) {
+    } else if (is_quic_draft_max(version, 34)) {
         err = gcry_cipher_setiv(h, nonce_v1, sizeof(nonce_v1));
     } else {
         err = gcry_cipher_setiv(h, nonce_v2_draft_00, sizeof(nonce_v2_draft_00));
