@@ -133,9 +133,6 @@ void
 stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data);
 
 void
-stnode_change_type(stnode_t *node, sttype_id_t new_type);
-
-void
 stnode_free(stnode_t *node);
 
 const char*

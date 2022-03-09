@@ -141,13 +141,6 @@ stnode_replace(stnode_t *node, sttype_id_t type_id, gpointer data)
 	node->repr_token = repr_token;
 }
 
-void
-stnode_change_type(stnode_t *node, sttype_id_t new_type)
-{
-	/* XXX Check types are "compatible" */
-	node->type = sttype_lookup(new_type);
-}
-
 stnode_t*
 stnode_new(sttype_id_t type_id, gpointer data, char *token)
 {
