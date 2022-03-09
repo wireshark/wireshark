@@ -152,6 +152,19 @@ static int hf_eap_gpsk_pd_payload = -1;
 static int hf_eap_gpsk_payload_mac = -1;
 static int hf_eap_gpsk_failure_code = -1;
 
+static int hf_eap_msauth_tlv_mandatory = -1;
+static int hf_eap_msauth_tlv_reserved = -1;
+static int hf_eap_msauth_tlv_type = -1;
+static int hf_eap_msauth_tlv_len = -1;
+static int hf_eap_msauth_tlv_val = -1;
+static int hf_eap_msauth_tlv_status = -1;
+static int hf_eap_msauth_tlv_crypto_reserved = -1;
+static int hf_eap_msauth_tlv_crypto_version = -1;
+static int hf_eap_msauth_tlv_crypto_rcv_version = -1;
+static int hf_eap_msauth_tlv_crypto_subtype = -1;
+static int hf_eap_msauth_tlv_crypto_nonce = -1;
+static int hf_eap_msauth_tlv_crypto_cmac = -1;
+
 static int hf_eap_data = -1;
 
 static gint ett_eap = -1;
@@ -161,6 +174,8 @@ static gint ett_eap_sake_attr = -1;
 static gint ett_eap_gpsk_csuite_list = -1;
 static gint ett_eap_gpsk_csuite = -1;
 static gint ett_eap_gpsk_csuite_sel = -1;
+static gint ett_eap_msauth_tlv = -1;
+static gint ett_eap_msauth_tlv_tree = -1;
 
 static expert_field ei_eap_ms_chap_v2_length = EI_INIT;
 static expert_field ei_eap_mitm_attacks = EI_INIT;
@@ -523,6 +538,35 @@ static const value_string eap_gpsk_failure_code_vals[] = {
   { 0x00000001, "PSK Not Found" },
   { 0x00000002, "Authentication Failure" },
   { 0x00000003, "Authorization Failure" },
+  { 0, NULL }
+};
+
+#define MSAUTH_TLV_MANDATORY 0x8000
+#define MSAUTH_TLV_RESERVED  0x4000
+#define MSAUTH_TLV_TYPE      0x3FFF
+
+#define MSAUTH_TLV_TYPE_EXTENSION_UNASSIGNED    0
+#define MSAUTH_TLV_TYPE_EXTENSION_RESULT        3
+#define MSAUTH_TLV_TYPE_EXTENSION_CRYPTOBINDING 12
+
+#define MSAUTH_TLV_TYPE_EXPANDED_SOH 33
+
+static const value_string eap_msauth_tlv_type_vals[] = {
+  { MSAUTH_TLV_TYPE_EXTENSION_UNASSIGNED,    "Unassigned" },
+  { MSAUTH_TLV_TYPE_EXTENSION_RESULT,        "Result" },
+  { MSAUTH_TLV_TYPE_EXTENSION_CRYPTOBINDING, "Cryptobinding" },
+  { 0,                                       NULL }
+};
+
+static const value_string eap_msauth_tlv_status_vals[] = {
+  { 1, "Success" },
+  { 2, "Failure" },
+  { 0, NULL }
+};
+
+static const value_string eap_msauth_tlv_crypto_subtype_vals[] = {
+  { 0, "Binding Request" },
+  { 1, "Binding Response" },
   { 0, NULL }
 };
 
@@ -1601,6 +1645,69 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
 }
 
 static int
+dissect_eap_msauth_tlv(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gint size)
+{
+  guint tlv_type, tlv_len;
+  proto_tree *tlv_tree, *tree, *ti_len;
+
+  tlv_tree = proto_tree_add_subtree(eap_tree, tvb, offset, size, ett_eap_msauth_tlv,
+                                    NULL, "Tag Length Values");
+
+next_tlv:
+  tlv_type = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN) & MSAUTH_TLV_TYPE;
+  tlv_len = tvb_get_guint16(tvb, offset + 2, ENC_BIG_ENDIAN);
+
+  tree = proto_tree_add_subtree_format(tlv_tree, tvb, offset, 4 + tlv_len,
+                                       ett_eap_msauth_tlv_tree, NULL, "TLV: t=%s(%d) l=%d",
+                                       val_to_str_const(tlv_type, eap_msauth_tlv_type_vals, "Unknown"),
+                                       tlv_type, 4 + tlv_len);
+
+  proto_tree_add_item(tree, hf_eap_msauth_tlv_mandatory, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_eap_msauth_tlv_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_eap_msauth_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_eap_msauth_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  switch (tlv_type) {
+  case MSAUTH_TLV_TYPE_EXTENSION_RESULT:
+    proto_tree_add_item(tree, hf_eap_msauth_tlv_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    break;
+
+  case MSAUTH_TLV_TYPE_EXTENSION_CRYPTOBINDING:
+    proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_rcv_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_nonce, tvb, offset, 32, ENC_NA);
+    offset += 32;
+    proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_cmac, tvb, offset, 20, ENC_NA);
+    offset += 20;
+    break;
+
+  default:
+    ti_len = proto_tree_add_item(tree, hf_eap_msauth_tlv_val, tvb, offset, tlv_len, ENC_NA);
+    if (4 + tlv_len > (guint)size - offset) {
+      expert_add_info(pinfo, ti_len, &ei_eap_bad_length);
+    }
+    offset += tlv_len;
+  }
+
+  if (offset < size) {
+    goto next_tlv;
+  }
+
+  return offset;
+}
+
+
+static int
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint8          eap_code;
@@ -2291,6 +2398,13 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       } /* EAP_TYPE_IKEV2 */
 
       /*********************************************************************
+            MS-Authentication-TLV - MS-PEAP section 2.2.8.1
+      **********************************************************************/
+      case EAP_TYPE_MSAUTH_TLV:
+        dissect_eap_msauth_tlv(eap_tree, tvb, pinfo, offset, size);
+        break; /* EAP_TYPE_MSAUTH_TLV */
+
+      /*********************************************************************
       **********************************************************************/
       default:
         proto_tree_add_item(eap_tree, hf_eap_data, tvb, offset, size, ENC_NA);
@@ -2957,6 +3071,66 @@ proto_register_eap(void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
+    { &hf_eap_msauth_tlv_mandatory, {
+      "Mandatory", "eap.msauth-tlv.mandatory",
+      FT_BOOLEAN, 16, NULL, MSAUTH_TLV_MANDATORY,
+      NULL, HFILL }},
+
+    { &hf_eap_msauth_tlv_reserved, {
+      "Reserved", "eap.msauth-tlv.reserved",
+      FT_BOOLEAN, 16, NULL, MSAUTH_TLV_RESERVED,
+      NULL, HFILL }},
+
+    { &hf_eap_msauth_tlv_type, {
+      "Type", "eap.msauth-tlv.type",
+      FT_UINT16, BASE_DEC, VALS(eap_msauth_tlv_type_vals), MSAUTH_TLV_TYPE,
+      NULL, HFILL }},
+
+    { &hf_eap_msauth_tlv_len, {
+      "Length", "eap.msauth-tlv.len",
+      FT_UINT16, BASE_DEC, NULL, 0x00,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_val, {
+      "Value", "eap.msauth-tlv.val",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_status, {
+      "Status", "eap.msauth-tlv.status",
+      FT_UINT16, BASE_DEC, VALS(eap_msauth_tlv_status_vals), 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_crypto_reserved, {
+      "Reserved", "eap.msauth-tlv.crypto.reserved",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_crypto_version, {
+      "Version", "eap.msauth-tlv.crypto.version",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_crypto_rcv_version, {
+      "Received Version", "eap.msauth-tlv.crypto.received-version",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_crypto_subtype, {
+      "Subtype", "eap.msauth-tlv.crypto.subtype",
+      FT_UINT8, BASE_DEC, VALS(eap_msauth_tlv_crypto_subtype_vals), 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_crypto_nonce, {
+      "Nonce", "eap.msauth-tlv.crypto.nonce",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_msauth_tlv_crypto_cmac, {
+      "Compound MAC", "eap.msauth-tlv.crypto.cmac",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
     /* Expanded type fields */
     { &hf_eap_ext_vendor_id, {
       "EAP-EXT Vendor Id", "eap.ext.vendor_id",
@@ -3006,6 +3180,8 @@ proto_register_eap(void)
     &ett_eap_gpsk_csuite,
     &ett_eap_gpsk_csuite_sel,
     &ett_eap_sake_attr,
+    &ett_eap_msauth_tlv,
+    &ett_eap_msauth_tlv_tree,
     &ett_eap_tls_fragment,
     &ett_eap_tls_fragments,
     &ett_eap_sim_attr,

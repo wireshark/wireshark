@@ -36,6 +36,7 @@ WS_DLL_PUBLIC const value_string eap_code_vals[];
 #define EAP_TYPE_AKA        23
 #define EAP_TYPE_PEAP       25
 #define EAP_TYPE_MSCHAPV2   26
+#define EAP_TYPE_MSAUTH_TLV 33
 #define EAP_TYPE_FAST       43
 #define EAP_TYPE_PAX        46
 #define EAP_TYPE_PSK        47
