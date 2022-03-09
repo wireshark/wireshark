@@ -18,11 +18,11 @@ InstType "un.Default (keep Personal Settings and Npcap)"
 InstType "un.All (remove all)"
 
 ; Uninstaller icon
-UninstallIcon "..\..\resources\wiresharkinst.ico"
+UninstallIcon "..\..\resources\icons\wiresharkinst.ico"
 
 !include "MUI.nsh"
 
-!define MUI_UNICON "..\..\resources\wiresharkinst.ico"
+!define MUI_UNICON "..\..\resources\icons\wiresharkinst.ico"
 
 ; Uninstall stuff (NSIS 2.08: "\r\n" don't work here)
 !define MUI_UNCONFIRMPAGE_TEXT_TOP "The following ${PROGRAM_NAME} installation will be removed. Click 'Next' to continue."

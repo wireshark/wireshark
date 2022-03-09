@@ -217,7 +217,7 @@ set(WIX_CANDLE_DEFINES
 	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
 	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}
 	-dDiameterDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/diameter
-	-dIconDir=${CMAKE_SOURCE_DIR}/image
+	-dIconDir=${CMAKE_SOURCE_DIR}/resources/icons
 	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
 	-dRadiusDictDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/radius
 	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs

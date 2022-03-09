@@ -40,7 +40,7 @@ ${StrRep}
 ; The file to write
 OutFile "${OUTFILE_DIR}\${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 ; Installer icon
-Icon "${TOP_SRC_DIR}\resources\wiresharkinst.ico"
+Icon "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
 
 ; ============================================================================
 ; Modern UI
@@ -55,7 +55,7 @@ Icon "${TOP_SRC_DIR}\resources\wiresharkinst.ico"
 !include "InstallOptions.nsh"
 ;!addplugindir ".\Plugins"
 
-!define MUI_ICON "${TOP_SRC_DIR}\resources\wiresharkinst.ico"
+!define MUI_ICON "${TOP_SRC_DIR}\resources\icons\wiresharkinst.ico"
 BrandingText "Wireshark${U+00ae} Installer"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
