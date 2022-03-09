@@ -5,7 +5,7 @@
  * This dissector includes items from:
  *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
  *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.27
- *    CIP Volume 8: CIP Security, Edition 1.11
+ *    CIP Volume 8: CIP Security, Edition 1.13
  *
  * Copyright 2003-2004
  * Magnus Hansson <mah@hms.se>
@@ -688,7 +688,7 @@ static const value_string enip_dlr_redundant_gateway_status_vals[] = {
 
 static const value_string cip_security_state_vals[] = {
    { 0,  "Factory Default Configuration" },
-   { 1,  "Initial Commissioning In Progress" },
+   { 1,  "Configuration In Progress" },
    { 2,  "Configured" },
    { 3,  "Incomplete Configuration" },
 
@@ -699,12 +699,19 @@ static const value_string eip_security_state_vals[] = {
    { 0,  "Factory Default Configuration" },
    { 1,  "Configuration In Progress" },
    { 2,  "Configured" },
+   { 3,  "Pull Model In Progress" },
+   { 4,  "Pull Model Completed" },
+   { 5,  "Pull Model Disabled" },
 
    { 0,  NULL }
 };
 
 static const value_string eip_cert_state_vals[] = {
-   { 0,  "Created" },
+   { 0,  "Non-Existent" },
+   { 1,  "Created" },
+   { 2,  "Configuring" },
+   { 3,  "Verified" },
+   { 4,  "Invalid" },
 
    { 0,  NULL }
 };
@@ -3612,7 +3619,7 @@ proto_register_enip(void)
           NULL, HFILL }},
 
       { &hf_enip_eip_security_state,
-        { "EIP Security State", "enip.eip_security_state",
+        { "EtherNet/IP Security State", "enip.eip_security_state",
           FT_UINT8, BASE_DEC, VALS(eip_security_state_vals), 0,
           NULL, HFILL }},
 
