@@ -570,33 +570,38 @@ typedef struct {
   int     info;  /* interpretation depends on EAP message type */
 } frame_state_t;
 
-/*********************************************************************
-                           EAP-TLS
-RFC2716
-**********************************************************************/
-
 /*
-from RFC2716, pg 17
+from RFC5216, pg 21
 
    Flags
 
       0 1 2 3 4 5 6 7 8
       +-+-+-+-+-+-+-+-+
-      |L M S R R Vers |
+      |L M S R R R R R| TLS (RFC5216)
+      +-+-+-+-+-+-+-+-+
+      |L M S R R|  V  | TTLS (RFC5281) and FAST (RFC4851)
+      +-+-+-+-+-+-+-+-+
+      |L M S O R|  V  | TEAP (RFC7170)
+      +-+-+-+-+-+-+-+-+
+      |L M S R R R| V | PEAPv0 (draft-kamath-pppext-peapv0)
+      +-+-+-+-+-+-+-+-+
+      |L M S R R|  V  | PEAPv1 (draft-josefsson-pppext-eap-tls-eap-06) and PEAPv2 (draft-josefsson-pppext-eap-tls-eap-10)
       +-+-+-+-+-+-+-+-+
 
       L = Length included
       M = More fragments
       S = EAP-TLS start
+      O = Outer TLV length included (TEAP only)
       R = Reserved
-      Vers = PEAP version (Reserved for TLS and TTLS)
+      V = TTLS/FAST/TEAP/PEAP version (Reserved for TLS)
 */
 
-#define EAP_TLS_FLAG_L 0x80 /* Length included */
-#define EAP_TLS_FLAG_M 0x40 /* More fragments  */
-#define EAP_TLS_FLAG_S 0x20 /* EAP-TLS start   */
+#define EAP_TLS_FLAG_L             0x80 /* Length included            */
+#define EAP_TLS_FLAG_M             0x40 /* More fragments             */
+#define EAP_TLS_FLAG_S             0x20 /* EAP-TLS start              */
+#define EAP_TLS_FLAG_O             0x10 /* Outer TLV length included  */
 
-#define EAP_TLS_FLAGS_VERSION 0x07 /* Version mask for PEAP, TTLS, FAST */
+#define EAP_TLS_FLAGS_VERSION      0x07 /* Version mask */
 
 /*
  * reassembly of EAP-TLS
@@ -607,6 +612,7 @@ static int hf_eap_tls_flags = -1;
 static int hf_eap_tls_flag_l = -1;
 static int hf_eap_tls_flag_m = -1;
 static int hf_eap_tls_flag_s = -1;
+static int hf_eap_tls_flag_o = -1;
 static int hf_eap_tls_flags_version = -1;
 static int hf_eap_tls_len = -1;
 static int hf_eap_tls_fragment  = -1;
@@ -726,12 +732,6 @@ dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 }
 /* *********************************************************************
 ********************************************************************* */
-
-static gboolean
-test_flag(unsigned char flag, unsigned char mask)
-{
-  return ( ( flag & mask ) != 0 );
-}
 
 static void
 dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
@@ -1802,7 +1802,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       case EAP_TYPE_TLS:
       case EAP_TYPE_TEAP:
       {
-        guint8   flags            = tvb_get_guint8(tvb, offset);
         gboolean more_fragments;
         gboolean has_length;
         gboolean is_start;
@@ -1816,23 +1815,22 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           break;
         }
 
-        more_fragments = test_flag(flags,EAP_TLS_FLAG_M);
-        has_length     = test_flag(flags,EAP_TLS_FLAG_L);
-        is_start       = test_flag(flags,EAP_TLS_FLAG_S);
-
-        if (is_start)
-          conversation_state->eap_tls_seq = -1;
-
         /* Flags field, 1 byte */
         ti = proto_tree_add_item(eap_tree, hf_eap_tls_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         eap_tls_flags_tree = proto_item_add_subtree(ti, ett_eap_tls_flags);
-        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_boolean(eap_tls_flags_tree, hf_eap_tls_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN, &has_length);
+        proto_tree_add_item_ret_boolean(eap_tls_flags_tree, hf_eap_tls_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN, &more_fragments);
+        proto_tree_add_item_ret_boolean(eap_tls_flags_tree, hf_eap_tls_flag_s, tvb, offset, 1, ENC_BIG_ENDIAN, &is_start);
 
-        if ((eap_type == EAP_TYPE_PEAP) || (eap_type == EAP_TYPE_TTLS) ||
-            (eap_type == EAP_TYPE_FAST) || (eap_type == EAP_TYPE_TEAP)) {
+        switch (eap_type) {
+        case EAP_TYPE_TEAP:
+          proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flag_o, tvb, offset, 1, ENC_BIG_ENDIAN);
+          /* FALLTHROUGH */
+        case EAP_TYPE_TTLS:
+        case EAP_TYPE_FAST:
+        case EAP_TYPE_PEAP:
           proto_tree_add_item(eap_tls_flags_tree, hf_eap_tls_flags_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+          break;
         }
         size   -= 1;
         offset += 1;
@@ -1843,6 +1841,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           size   -= 4;
           offset += 4;
         }
+
+        if (is_start)
+          conversation_state->eap_tls_seq = -1;
 
         /* 4.1.1 Authority ID Data https://datatracker.ietf.org/doc/html/rfc4851#section-4.1.1 */
         if (eap_type == EAP_TYPE_FAST && is_start) {
@@ -2239,21 +2240,16 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       **********************************************************************/
       case EAP_TYPE_IKEV2:
       {
-        guint8   flags = tvb_get_guint8(tvb, offset);
         gboolean more_fragments;
         gboolean has_length;
         gboolean icv_present;
 
-        more_fragments = test_flag(flags, EAP_IKEV2_FLAG_M);
-        has_length     = test_flag(flags, EAP_IKEV2_FLAG_L);
-        icv_present    = test_flag(flags, EAP_IKEV2_FLAG_I);
-
         /* Flags field, 1 byte */
         ti = proto_tree_add_item(eap_tree, hf_eap_ikev2_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         eap_tls_flags_tree = proto_item_add_subtree(ti, hf_eap_ikev2_flags);
-        proto_tree_add_item(eap_tls_flags_tree, hf_eap_ikev2_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tls_flags_tree, hf_eap_ikev2_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(eap_tls_flags_tree, hf_eap_ikev2_flag_i, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_boolean(eap_tls_flags_tree, hf_eap_ikev2_flag_l, tvb, offset, 1, ENC_BIG_ENDIAN, &has_length);
+        proto_tree_add_item_ret_boolean(eap_tls_flags_tree, hf_eap_ikev2_flag_m, tvb, offset, 1, ENC_BIG_ENDIAN, &more_fragments);
+        proto_tree_add_item_ret_boolean(eap_tls_flags_tree, hf_eap_ikev2_flag_i, tvb, offset, 1, ENC_BIG_ENDIAN, &icv_present);
 
         size -= 1;
         offset += 1;
@@ -2424,6 +2420,11 @@ proto_register_eap(void)
     { &hf_eap_tls_flag_s, {
       "Start", "eap.tls.flags.start",
       FT_BOOLEAN, 8, NULL, EAP_TLS_FLAG_S,
+      NULL, HFILL }},
+
+    { &hf_eap_tls_flag_o, {
+      "Outer TLV Length Included", "eap.tls.flags.outer_tlv_len_included",
+      FT_BOOLEAN, 8, NULL, EAP_TLS_FLAG_O,
       NULL, HFILL }},
 
     { &hf_eap_tls_flags_version, {
