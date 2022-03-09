@@ -71,3 +71,8 @@ indent_size = 8
 [*.{c,cpp,h}]
 indent_style = space
 indent_size = 4
+
+# Flex (lexical analyzer generator)
+[*.l]
+indent_style = tab
+indent_size = 8
