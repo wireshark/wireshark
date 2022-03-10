@@ -1591,20 +1591,18 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     case RDMA_NOMSG:
         /* Parse rpc_rdma_header_nomsg */
         offset = parse_rdma_header(tvb, offset, rpcordma_tree, &rdma_lists);
-        if (gp_infiniband_info) {
-            if (pinfo->fd->visited) {
-                /* Reassembly was done on the first pass, so just get the reassembled data */
-                next_tvb = get_reassembled_data(tvb, offset, pinfo, tree);
-            } else {
-                next_tvb = process_rdma_lists(tvb, offset, &rdma_lists, pinfo, tree);
-            }
-            if (next_tvb) {
-                /*
-                 * Even though there is no data in this frame, reassembly for
-                 * the reply chunk is done in this frame so dissect upper layer
-                 */
-                call_dissector(rpc_handler, next_tvb, pinfo, tree);
-            }
+        if (pinfo->fd->visited) {
+            /* Reassembly was done on the first pass, so just get the reassembled data */
+            next_tvb = get_reassembled_data(tvb, offset, pinfo, tree);
+        } else {
+            next_tvb = process_rdma_lists(tvb, offset, &rdma_lists, pinfo, tree);
+        }
+        if (next_tvb) {
+            /*
+             * Even though there is no data in this frame, reassembly for
+             * the reply chunk is done in this frame so dissect upper layer
+             */
+            call_dissector(rpc_handler, next_tvb, pinfo, tree);
         }
         break;
 
