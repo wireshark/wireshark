@@ -212,17 +212,17 @@ typedef struct {
 
 /* Send reassembly info structure */
 typedef struct {
-    guint32       destqp;   /* Destination queue pair */
-    guint32       msgid;    /* ID for fragments belonging together */
-    guint32       msgno;    /* Message number base */
-} send_msg_t;
+    guint32  msgid;  /* ID for fragments belonging together */
+    guint32  msgno;  /* Message number base */
+    guint32  rsize;  /* Number of bytes added to reassembly table */
+} send_info_t;
 
 /* State structure per conversation */
 typedef struct {
-    wmem_list_t    *sendmsg_list; /* List of RDMA send reassembly struct info */
     wmem_tree_t    *segment_list; /* Binary tree of segments searched by handle */
     wmem_tree_t    *psn_list;     /* Binary tree of IB requests searched by PSN */
     wmem_tree_t    *msgid_list;   /* Binary tree of segments with same message id */
+    wmem_tree_t    *send_list;    /* Binary tree for mapping PSN -> msgid (IB) */
     segment_info_t *segment_info; /* Current READ/WRITE/REPLY segment info */
     guint32         iosize;       /* Maximum size of data transferred in a
                                      single packet */
@@ -299,10 +299,10 @@ static rdma_conv_info_t *get_rdma_conv_info(packet_info *pinfo)
     if (p_rdma_conv_info == NULL) {
         /* Add state structure for this conversation */
         p_rdma_conv_info = wmem_new(wmem_file_scope(), rdma_conv_info_t);
-        p_rdma_conv_info->sendmsg_list = wmem_list_new(wmem_file_scope());
         p_rdma_conv_info->segment_list = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->psn_list     = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->msgid_list   = wmem_tree_new(wmem_file_scope());
+        p_rdma_conv_info->send_list    = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->segment_info = NULL;
         p_rdma_conv_info->iosize = 1;
         conversation_add_proto_data(p_conversation, proto_rpcordma, p_rdma_conv_info);
@@ -1264,62 +1264,58 @@ process_rdma_lists(tvbuff_t *tvb, guint offset, rdma_lists_t *rdma_lists,
  * Add a fragment to the SEND reassembly table and return the reassembled data
  * if all fragments have been added
  */
-static tvbuff_t *add_send_fragment(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, gboolean more_frags, gboolean init)
+static tvbuff_t *add_send_fragment(rdma_conv_info_t *p_rdma_conv_info,
+        tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint32 msg_num;
+    guint32 msgid = 0;
+    gint32 msgno = -1;
     tvbuff_t *new_tvb = NULL;
-    wmem_list_frame_t *item;
-    send_msg_t *p_send_item;
-    send_msg_t *p_send_msg = NULL;
-    rdma_conv_info_t *p_rdma_conv_info;
+    gboolean first_frag  = FALSE;
+    gboolean last_frag   = FALSE;
+    send_info_t *p_send_info = NULL;
 
-    /* Get conversation state */
-    p_rdma_conv_info = get_rdma_conv_info(pinfo);
+    if (gp_infiniband_info) {
+        first_frag  =  gp_infiniband_info->opCode == RC_SEND_FIRST;
+        last_frag   = (gp_infiniband_info->opCode == RC_SEND_LAST || \
+                       gp_infiniband_info->opCode == RC_SEND_LAST_INVAL);
+    }
 
-    /* Find the correct send_msg_t info struct */
-    for (item = wmem_list_head(p_rdma_conv_info->sendmsg_list); item != NULL; item = wmem_list_frame_next(item)) {
-        p_send_item = (send_msg_t *)wmem_list_frame_data(item);
-        if (pinfo->destport == p_send_item->destqp) {
-            p_send_msg = p_send_item;
-            break;
+    if (pinfo->fd->visited) {
+        return get_reassembled_data(tvb, 0, pinfo, tree);
+    } else if (first_frag) {
+        /* Start of multi-SEND message */
+        p_send_info = wmem_new(wmem_file_scope(), send_info_t);
+        p_send_info->msgid = get_msg_id();
+        p_send_info->rsize = 0;
+
+        if (gp_infiniband_info) {
+            /* Message numbers are relative with respect to current PSN */
+            p_send_info->msgno = gp_infiniband_info->packet_seq_num;
+            wmem_tree_insert32(p_rdma_conv_info->send_list, gp_infiniband_info->packet_seq_num, p_send_info);
+        }
+    } else {
+        /* SEND fragment, get the send reassembly info structure */
+        if (gp_infiniband_info) {
+            p_send_info = wmem_tree_lookup32_le(p_rdma_conv_info->send_list, gp_infiniband_info->packet_seq_num);
         }
     }
-
-    if (p_send_msg == NULL) {
-        /* Create new send_msg_t info */
-        p_send_msg = wmem_new(wmem_file_scope(), send_msg_t);
-        p_send_msg->destqp = pinfo->destport;
-        p_send_msg->msgid  = get_msg_id();
-        p_send_msg->msgno  = gp_infiniband_info->packet_seq_num;
-
-        /* Add info to the list */
-        wmem_list_append(p_rdma_conv_info->sendmsg_list, p_send_msg);
-    }
-
-    if (init) {
-        /* Make sure to set the base message number on SEND First */
-        p_send_msg->msgno = gp_infiniband_info->packet_seq_num;
-        /* Make sure to throw away the current reassembly fragments
-         * if last reassembly was incomplete and not terminated */
-        new_tvb = fragment_delete(&rpcordma_reassembly_table, pinfo, p_send_msg->msgid, NULL);
-        if (new_tvb) {
-            tvb_free(new_tvb);
+    if (p_send_info) {
+        p_send_info->rsize += tvb_reported_length(tvb);
+        msgid = p_send_info->msgid;
+        if (gp_infiniband_info) {
+            /* Message numbers are consecutive starting at zero */
+            msgno = gp_infiniband_info->packet_seq_num - p_send_info->msgno;
         }
     }
-
-    /* Message number of current fragment */
-    msg_num = gp_infiniband_info->packet_seq_num - p_send_msg->msgno;
-
-    /* Add fragment to send reassembly table */
-    new_tvb = add_fragment(tvb, 0, p_send_msg->msgid, msg_num, more_frags, NULL, pinfo, tree);
-
-    if (!more_frags) {
-        /* Set base message number to the next expected value */
-        p_send_msg->msgno = gp_infiniband_info->packet_seq_num + 1;
+    if (msgid > 0 && msgno >= 0) {
+        new_tvb = add_fragment(tvb, 0, msgid, msgno, !last_frag, p_rdma_conv_info, pinfo, tree);
     }
-
-    return new_tvb;
+    if (new_tvb) {
+        /* This is the last fragment, data has been reassembled
+         * and ready to be dissected */
+        return new_tvb;
+    }
+    return tvb;
 }
 
 /*
@@ -1632,19 +1628,12 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
     case RC_SEND_ONLY_INVAL:
         break;
     case RC_SEND_FIRST:
-        add_send_fragment(tvb, pinfo, tree, TRUE, TRUE);
-        return FALSE;
     case RC_SEND_MIDDLE:
-        add_send_fragment(tvb, pinfo, tree, TRUE, FALSE);
+        add_send_fragment(p_rdma_conv_info, tvb, pinfo, tree);
         return FALSE;
     case RC_SEND_LAST:
     case RC_SEND_LAST_INVAL:
-        new_tvb = add_send_fragment(tvb, pinfo, tree, FALSE, FALSE);
-        if (new_tvb) {
-            /* This is the last fragment, data has been reassembled
-             * and ready to be dissected */
-            tvb = new_tvb;
-        }
+        tvb = add_send_fragment(p_rdma_conv_info, tvb, pinfo, tree);
         break;
     case RC_RDMA_WRITE_ONLY:
     case RC_RDMA_WRITE_ONLY_IMM:
