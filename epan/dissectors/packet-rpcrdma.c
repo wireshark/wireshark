@@ -217,6 +217,7 @@ typedef struct {
     wmem_tree_t    *segment_list; /* Binary tree of segments searched by handle */
     wmem_tree_t    *psn_list;     /* Binary tree of IB requests searched by PSN */
     wmem_tree_t    *msgid_list;   /* Binary tree of segments with same message id */
+    wmem_tree_t    *request_list; /* Binary tree of iWarp read requests for mapping sink -> source */
     wmem_tree_t    *send_list;    /* Binary tree for mapping PSN -> msgid (IB) */
     wmem_tree_t    *msn_list;     /* Binary tree for mapping MSN -> msgid (iWarp) */
     segment_info_t *segment_info; /* Current READ/WRITE/REPLY segment info */
@@ -303,6 +304,7 @@ static rdma_conv_info_t *get_rdma_conv_info(packet_info *pinfo)
         p_rdma_conv_info->msgid_list   = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->send_list    = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->msn_list     = wmem_tree_new(wmem_file_scope());
+        p_rdma_conv_info->request_list = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->segment_info = NULL;
         p_rdma_conv_info->iosize = 1;
         conversation_add_proto_data(p_conversation, proto_rpcordma, p_rdma_conv_info);
@@ -599,14 +601,32 @@ static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
         rdma_conv_info_t *p_rdma_conv_info, packet_info *pinfo,
         proto_tree *tree)
 {
+    guint32 sbytes = 0; /* Total bytes for all segments in current reassembly */
+    guint32 rbytes = 0; /* Total bytes received so far */
     guint32 msgno;      /* Message number for this fragment */
     guint32 steering_tag;
     guint64 tagged_offset;
+    gboolean more_frags = TRUE;
+    wmem_list_t *msgid_segments;
+    wmem_list_frame_t *item;
+    segment_info_t *p_seginfo;
     segment_info_t *p_segment_info;
+    rdmap_request_t *p_read_request = NULL;
     tvbuff_t *new_tvb = NULL;
 
     if (pinfo->fd->visited) {
         return get_reassembled_data(tvb, 0, pinfo, tree);
+    } else if (gp_rdmap_info->opcode == RDMA_READ_RESPONSE) {
+        /* Read fragment: map sink -> source using the request info */
+        p_read_request = wmem_tree_lookup32(p_rdma_conv_info->request_list, gp_rdmap_info->steering_tag);
+        if (p_read_request) {
+            /* Map Read Response STag to segment STag */
+            steering_tag = p_read_request->source_stag;
+            /* Map Read Response offset to segment offset */
+            tagged_offset = gp_rdmap_info->tagged_offset - p_read_request->sink_toffset + p_read_request->source_toffset;
+        } else {
+            return NULL;
+        }
     } else {
         /* Write fragment: no need for mapping, use steering tag and offset */
         steering_tag  = gp_rdmap_info->steering_tag;
@@ -624,7 +644,29 @@ static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
         /* Include this fragment's data */
         p_segment_info->rbytes += tvb_captured_length_remaining(tvb, 0);
 
+        if (gp_rdmap_info->last_flag) {
+            /* This is a last fragment so go through all segments
+             * to calculate sbytes and rbytes */
+            msgid_segments = wmem_tree_lookup32(p_rdma_conv_info->msgid_list, p_segment_info->msgid);
+            if (msgid_segments) {
+                for (item = wmem_list_head(msgid_segments); item != NULL; item = wmem_list_frame_next(item)) {
+                    p_seginfo = wmem_list_frame_data(item);
+                    sbytes += p_seginfo->length;
+                    rbytes += p_seginfo->rbytes;
+                }
+            }
+            if (p_read_request && rbytes == sbytes) {
+                /* Complete read chunk reassembly since all fragments
+                 * have been received */
+                more_frags = FALSE;
+            }
+        }
         new_tvb = add_fragment(tvb, 0, p_segment_info->msgid, msgno, TRUE, p_rdma_conv_info, pinfo, tree);
+        if (!new_tvb && !more_frags) {
+            /* Complete reassembly */
+            end_reassembly(p_segment_info->msgid, p_rdma_conv_info, pinfo);
+            new_tvb = get_reassembled_data(tvb, 0, pinfo, tree);
+        }
     }
     return new_tvb;
 }
@@ -1747,7 +1789,9 @@ static gboolean
 dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
+    tvbuff_t *new_tvb;
     rdma_conv_info_t *p_rdma_conv_info;
+    rdmap_request_t  *p_read_request;
 
     /* Initialize global variables for iWarp reassembly */
     g_rpcrdma_reduced  = FALSE;
@@ -1773,6 +1817,20 @@ dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
     case RDMA_WRITE:
         add_iwarp_fragment(tvb, p_rdma_conv_info, pinfo, tree);
         /* Do not dissect here, dissection is done on RDMA_MSG or RDMA_NOMSG */
+        return FALSE;
+    case RDMA_READ_REQUEST:
+        if (!pinfo->fd->visited && gp_rdmap_info->read_request) {
+            p_read_request = wmem_new(wmem_file_scope(), rdmap_request_t);
+            memcpy(p_read_request, gp_rdmap_info->read_request, sizeof(rdmap_request_t));
+            wmem_tree_insert32(p_rdma_conv_info->request_list, gp_rdmap_info->read_request->sink_stag, p_read_request);
+        }
+        return FALSE;
+    case RDMA_READ_RESPONSE:
+        new_tvb = add_iwarp_fragment(tvb, p_rdma_conv_info, pinfo, tree);
+        if (new_tvb) {
+            /* This is the last fragment, data has been reassembled and ready to dissect */
+            return call_dissector(rpc_handler, new_tvb, pinfo, tree);
+        }
         return FALSE;
     default:
         return FALSE;
