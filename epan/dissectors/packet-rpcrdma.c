@@ -591,6 +591,44 @@ static tvbuff_t *add_ib_fragment(tvbuff_t *tvb,
     return new_tvb;
 }
 
+/*
+ * Add an iWarp fragment to the reassembly table and return the
+ * reassembled data if all fragments have been added
+ */
+static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
+        rdma_conv_info_t *p_rdma_conv_info, packet_info *pinfo,
+        proto_tree *tree)
+{
+    guint32 msgno;      /* Message number for this fragment */
+    guint32 steering_tag;
+    guint64 tagged_offset;
+    segment_info_t *p_segment_info;
+    tvbuff_t *new_tvb = NULL;
+
+    if (pinfo->fd->visited) {
+        return get_reassembled_data(tvb, 0, pinfo, tree);
+    } else {
+        /* Write fragment: no need for mapping, use steering tag and offset */
+        steering_tag  = gp_rdmap_info->steering_tag;
+        tagged_offset = gp_rdmap_info->tagged_offset;
+    }
+
+    p_rdma_conv_info->segment_info = NULL;
+    p_segment_info = find_segment_info(p_rdma_conv_info, steering_tag, tagged_offset);
+    if (p_segment_info) {
+        /* Message number is relative with respect to chunk, adding
+         * one since msgno = 0 is reserved for the reduced message */
+        msgno = (guint32)(tagged_offset - p_segment_info->offset) + p_segment_info->msgno + 1;
+        p_rdma_conv_info->segment_info = p_segment_info;
+
+        /* Include this fragment's data */
+        p_segment_info->rbytes += tvb_captured_length_remaining(tvb, 0);
+
+        new_tvb = add_fragment(tvb, 0, p_segment_info->msgid, msgno, TRUE, p_rdma_conv_info, pinfo, tree);
+    }
+    return new_tvb;
+}
+
 static guint get_read_list_size(tvbuff_t *tvb, guint max_offset, guint offset)
 {
     guint32 value_follows;
@@ -1467,17 +1505,16 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         offset = parse_rdma_header(tvb, offset, rpcordma_tree, &rdma_lists);
 
         proto_item_set_len(ti, offset);
-        next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-        if (gp_infiniband_info) {
-            frag_tvb = get_reassembled_data(next_tvb, 0, pinfo, tree);
-            if (frag_tvb) {
-                /* Reassembled message has already been cached -- call upper dissector */
-                return call_dissector(rpc_handler, frag_tvb, pinfo, tree);
-            } else if (pinfo->fd->visited && !g_needs_reassembly && rdma_lists.p_read_list) {
-                /* This frame has already been added as a read fragment */
-                return 0;
-            }
+        frag_tvb = get_reassembled_data(tvb, offset, pinfo, tree);
+        if (frag_tvb) {
+            /* Reassembled message has already been cached -- call upper dissector */
+            return call_dissector(rpc_handler, frag_tvb, pinfo, tree);
+        } else if (pinfo->fd->visited && !g_needs_reassembly && rdma_lists.p_read_list) {
+            /* This frame has already been added as a read fragment */
+            return 0;
+        } else {
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
 
             /*
              * Get the total number of bytes for the write chunk list.
@@ -1735,6 +1772,10 @@ dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
             return FALSE;
         }
         break;
+    case RDMA_WRITE:
+        add_iwarp_fragment(tvb, p_rdma_conv_info, pinfo, tree);
+        /* Do not dissect here, dissection is done on RDMA_MSG or RDMA_NOMSG */
+        return FALSE;
     default:
         return FALSE;
     }
