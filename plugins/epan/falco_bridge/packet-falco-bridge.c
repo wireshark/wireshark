@@ -46,7 +46,7 @@ static gint ett_falco_bridge = -1;
 static gint ett_sinsp_span = -1;
 static dissector_table_t ptype_dissector_table;
 
-static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static int dissect_sinsp_span(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 void register_conversation_filters_mappings(void);
@@ -72,19 +72,19 @@ static int hf_sdp_source_id = -1;
 
 static hf_register_info hf[] = {
     { &hf_sdp_source_id_size,
-        { "Plugin ID size", "falco_plugin.id.size",
+        { "Plugin ID size", "falcobridge.id.size",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sdp_lengths,
-        { "Field Lengths", "falco_plugin.lens",
+        { "Field Lengths", "falcobridge.lens",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sdp_source_id,
-        { "Plugin ID", "falco_plugin.id",
+        { "Plugin ID", "falcobridge.id",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
@@ -94,9 +94,10 @@ static hf_register_info hf[] = {
 /*
  * Conversation filters mappers setup
  */
+#define MAX_CONV_FILTER_STR_LEN 1024
 conv_fld_info conv_fld_infos[MAX_N_CONV_FILTERS];
 DECLARE_CONV_FLTS()
-char conv_flt_vals[MAX_N_CONV_FILTERS][1024];
+char conv_flt_vals[MAX_N_CONV_FILTERS][MAX_CONV_FILTER_STR_LEN];
 guint conv_vals_cnt = 0;
 guint conv_fld_cnt = 0;
 
@@ -236,7 +237,7 @@ import_plugin(char* fname)
 
     static dissector_handle_t ct_handle;
     ct_handle = create_dissector_handle(dissect_sinsp_span, bi->proto);
-    dissector_add_uint("falco_plugin.id", bi->source_id, ct_handle);
+    dissector_add_uint("falcobridge.id", bi->source_id, ct_handle);
 }
 
 static void
@@ -260,8 +261,8 @@ proto_register_falcoplugin(void)
      * Create the dissector table that we will use to route the dissection to
      * the appropriate Falco plugin.
      */
-    ptype_dissector_table = register_dissector_table("falco_plugin.id",
-        "Falco Plugin ID", proto_falco_bridge, FT_UINT32, BASE_DEC);
+    ptype_dissector_table = register_dissector_table("falcobridge.id",
+        "Falco Bridge Plugin ID", proto_falco_bridge, FT_UINT32, BASE_DEC);
 
     /*
      * Create the mapping infrastructure for conversation filtering
@@ -289,7 +290,7 @@ proto_register_falcoplugin(void)
         ws_dir_close(dir);
     }
 
-    bridges = (bridge_info*)g_malloc(nbridges * sizeof(bridge_info));
+    bridges = g_new(bridge_info, nbridges);
     nbridges = 0;
 
     if ((dir = ws_dir_open(dname, 0, NULL)) != NULL) {
@@ -412,7 +413,7 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
             if ((bi->field_flags[fld_idx] & BFF_CONVERSATION) != 0) {
                 char* cvalptr = conv_flt_vals[conv_vals_cnt];
-                sprintf(cvalptr, "%s", sfe.res_str);
+                snprintf(cvalptr, MAX_CONV_FILTER_STR_LEN, "%s", sfe.res_str);
                 p_add_proto_data(pinfo->pool,
                                  pinfo,
                                  proto_falco_bridge,
