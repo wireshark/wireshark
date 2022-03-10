@@ -410,7 +410,7 @@ typedef struct quic_datagram {
  * This assumes that the CIDs are not shared between two different connections
  * (potentially with different versions) as that would break dissection.
  *
- * These mappings are authorative. For example, Initial.SCID is stored in
+ * These mappings are authoritative. For example, Initial.SCID is stored in
  * quic_client_connections while Retry.SCID is stored in
  * quic_server_connections. Retry.DCID should normally correspond to an entry in
  * quic_client_connections.
@@ -445,7 +445,7 @@ static inline guint8 quic_draft_version(guint32 version) {
     /* https://tools.ietf.org/html/draft-ietf-quic-transport-32#section-15
        "Versions that follow the pattern 0x?a?a?a?a are reserved for use in
        forcing version negotiation to be exercised"
-       It is tricky to return a correct draft version: such number is primarly
+       It is tricky to return a correct draft version: such number is primarily
        used to select a proper salt (which depends on the version itself), but
        we don't have a real version here! Let's hope that we need to handle
        only latest drafts... */
