@@ -594,6 +594,33 @@ static tvbuff_t *add_ib_fragment(tvbuff_t *tvb,
 }
 
 /*
+ * Add padding bytes as a separate fragment when last fragment's data is not
+ * on a four-byte boundary. The MPA layer removes the padding bytes from all
+ * iWarp Reads/Writes. The iWarp Send messages are padded correctly.
+ */
+static void add_iwarp_padding(tvbuff_t *tvb, gint offset,
+        guint32 msgid, guint32 msgno, packet_info *pinfo)
+{
+    gchar *pbuf;
+    tvbuff_t *pad_tvb;
+    /* Size of payload data for current iWarp Read/Write */
+    guint32 bsize = tvb_reported_length_remaining(tvb, offset);
+    /* Number of padding bytes needed */
+    guint32 padding = (4 - (bsize%4)) % 4;
+
+    if (padding > 0) {
+        /* Allocate buffer for the number of padding bytes that will be added */
+        pbuf = (gchar *)wmem_alloc(pinfo->pool, padding);
+        memset(pbuf, 0, padding);
+        /* Create tvb buffer */
+        pad_tvb = tvb_new_real_data(pbuf, padding, padding);
+        /* Add padding fragment to the reassembly table */
+        fragment_add_seq_check(&rpcordma_reassembly_table, pad_tvb, 0,
+                pinfo, msgid, NULL, msgno, padding, TRUE);
+    }
+}
+
+/*
  * Add an iWarp fragment to the reassembly table and return the
  * reassembled data if all fragments have been added
  */
@@ -662,6 +689,10 @@ static tvbuff_t *add_iwarp_fragment(tvbuff_t *tvb,
             }
         }
         new_tvb = add_fragment(tvb, 0, p_segment_info->msgid, msgno, TRUE, p_rdma_conv_info, pinfo, tree);
+        if ((!new_tvb && !more_frags) || (gp_rdmap_info->last_flag && !p_read_request && rbytes == sbytes)) {
+            /* This is the very last fragment, include any padding if needed */
+            add_iwarp_padding(tvb, 0, p_segment_info->msgid, msgno+1, pinfo);
+        }
         if (!new_tvb && !more_frags) {
             /* Complete reassembly */
             end_reassembly(p_segment_info->msgid, p_rdma_conv_info, pinfo);
