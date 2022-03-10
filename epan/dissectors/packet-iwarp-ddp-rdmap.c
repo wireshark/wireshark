@@ -540,7 +540,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	tvbuff_t *next_tvb = NULL;
 
 	guint8 ddp_ctrl_field, rdma_ctrl_field;
-	rdmap_info_t info = { 0, 0, 0, 0, 0, 0 };
+	rdmap_info_t info = { 0, 0, 0, {{0, 0}} };
 	guint32 header_end;
 	guint32 offset = 0;
 
@@ -656,11 +656,11 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
 				ett_iwarp_ddp);
 
-		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_stag, tvb,
-				offset, DDP_STAG_LEN, ENC_NA);
+		proto_tree_add_item_ret_uint(ddp_buffer_model_tree, hf_iwarp_ddp_stag, tvb,
+				offset, DDP_STAG_LEN, ENC_BIG_ENDIAN, &info.steering_tag);
 		offset += DDP_STAG_LEN;
-		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_to, tvb,
-				offset, DDP_TO_LEN, ENC_NA);
+		proto_tree_add_item_ret_uint64(ddp_buffer_model_tree, hf_iwarp_ddp_to, tvb,
+				offset, DDP_TO_LEN, ENC_BIG_ENDIAN, &info.tagged_offset);
 		offset += DDP_TO_LEN;
 
 		if( info.opcode == RDMA_READ_RESPONSE
@@ -762,11 +762,11 @@ proto_register_iwarp_ddp_rdmap(void)
 				NULL, HFILL} },
 		{ &hf_iwarp_ddp_stag, {
 				"(Data Sink) Steering Tag", "iwarp_ddp.stag",
-				FT_BYTES, BASE_NONE, NULL, 0x0,
+				FT_UINT32, BASE_HEX, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_ddp_to, {
 				"(Data Sink) Tagged offset", "iwarp_ddp.tagged_offset",
-				FT_BYTES, BASE_NONE, NULL, 0x0,
+				FT_UINT64, BASE_HEX, NULL, 0x0,
 				NULL, HFILL} },
 		{ &hf_iwarp_ddp_qn, {
 				"Queue number", "iwarp_ddp.qn",

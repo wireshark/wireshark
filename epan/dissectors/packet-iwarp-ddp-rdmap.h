@@ -28,9 +28,19 @@ typedef struct rdmapinfo {
 	guint8   opcode;
 	gboolean last_flag;
 	gboolean is_tagged;
-	guint32 queue_number;
-	guint32 message_seq_num;
-	guint32 message_offset;
+	union {
+		/* Tagged Buffer Model */
+		struct {
+			guint32 steering_tag;
+			guint64 tagged_offset;
+		};
+		/* Untagged Buffer Model */
+		struct {
+			guint32 queue_number;
+			guint32 message_seq_num;
+			guint32 message_offset;
+		};
+	};
 } rdmap_info_t;
 
 #endif /* __PACKET_IWARP_DDP_RDMAP_H_ */
