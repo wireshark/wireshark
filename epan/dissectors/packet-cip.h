@@ -479,6 +479,9 @@ typedef struct cip_connID_info {
    guint16 port;
    guint32 type;
 
+   // Requested Packet Interval in microseconds.
+   guint32 rpi;
+
    // Actual Packet Interval in microseconds.
    guint32 api;
 } cip_connID_info_t;
@@ -504,6 +507,7 @@ typedef struct cip_conn_info {
    // Forward Open Data
    cip_connection_triad_t  triad;
    guint8                  TransportClass_trigger;
+   guint32                 timeout_multiplier;
    cip_safety_epath_info_t safety;
    guint32                 ClassID;
    guint32                 ConnPoint;

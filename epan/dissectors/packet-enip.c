@@ -2464,7 +2464,7 @@ static void dissect_item_list_services_response(packet_info* pinfo, tvbuff_t* tv
       tvb_format_stringzpad(pinfo->pool, tvb, offset + 4, 16));
 }
 
-static void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo)
+void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo)
 {
    if (!conn_info->pFwdOpenPathData)
    {

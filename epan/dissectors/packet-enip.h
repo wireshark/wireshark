@@ -102,6 +102,7 @@ typedef struct cip_io_data_input {
 #define ENIP_REQUEST_INFO     0
 #define ENIP_CONNECTION_INFO  1
 
+void display_fwd_open_connection_path(cip_conn_info_t* conn_info, proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo);
 void enip_close_cip_connection(packet_info *pinfo, const cip_connection_triad_t* triad);
 void enip_mark_connection_triad(packet_info *pinfo, const cip_connection_triad_t* triad);
 
