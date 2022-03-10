@@ -20,7 +20,7 @@ build_filter_string_func bfs_func[MAX_N_CONV_FILTERS];
     if (is_right_proto == FALSE) { \
         return FALSE; \
     } \
-    char* bi = p_get_proto_data(pinfo->pool, pinfo, proto_sdplugin, PROTO_DATA_CONVINFO_USER_##N); \
+    char* bi = p_get_proto_data(pinfo->pool, pinfo, proto_falco_bridge, PROTO_DATA_CONVINFO_USER_##N); \
     if (bi == NULL) { \
         return FALSE; \
     } \
@@ -28,10 +28,10 @@ build_filter_string_func bfs_func[MAX_N_CONV_FILTERS];
 } \
 static gchar* \
 conv_filter_build_##N(packet_info *pinfo) { \
-    char* bi = p_get_proto_data(pinfo->pool, pinfo, proto_sdplugin, PROTO_DATA_CONVINFO_USER_##N); \
+    char* bi = p_get_proto_data(pinfo->pool, pinfo, proto_falco_bridge, PROTO_DATA_CONVINFO_USER_##N); \
     const char* fname = conv_fld_infos[N].field_info->hfinfo.abbrev; \
     return g_strdup_printf("%s eq \"%s\"", fname, bi); \
-} 
+}
 
 #define MAP_CONV_FLT_FUNCS(N) fv_func[N] = conv_filter_valid_##N; \
 bfs_func[N] = conv_filter_build_##N;
@@ -51,7 +51,7 @@ DECLARE_CONV_FLT_FUNCS(11) \
 DECLARE_CONV_FLT_FUNCS(12) \
 DECLARE_CONV_FLT_FUNCS(13) \
 DECLARE_CONV_FLT_FUNCS(14) \
-DECLARE_CONV_FLT_FUNCS(15) 
+DECLARE_CONV_FLT_FUNCS(15)
 
 #define MAP_CONV_FLTS() MAP_CONV_FLT_FUNCS(0) \
 MAP_CONV_FLT_FUNCS(1) \
@@ -68,4 +68,4 @@ MAP_CONV_FLT_FUNCS(11) \
 MAP_CONV_FLT_FUNCS(12) \
 MAP_CONV_FLT_FUNCS(13) \
 MAP_CONV_FLT_FUNCS(14) \
-MAP_CONV_FLT_FUNCS(15) 
+MAP_CONV_FLT_FUNCS(15)

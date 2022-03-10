@@ -1,4 +1,4 @@
-/* sinsp-connector.c
+/* sinsp-span.h
  *
  * By Gerald Combs
  * Copyright (C) 2022 Sysdig, Inc.
@@ -45,14 +45,6 @@ typedef struct sinsp_field_info_t {
     bool is_conversation;
     bool is_info;
 } sinsp_field_info_t;
-
-//typedef struct
-//{
-//    uint64_t evtnum;
-//    const uint8_t *data;
-//    uint32_t datalen;
-//    uint64_t ts;
-//} ss_plugin_event;
 
 typedef struct sinsp_field_extract_t {
     uint32_t field_id;          // in

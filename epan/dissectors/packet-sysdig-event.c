@@ -2290,9 +2290,8 @@ dissect_event_params(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int off
 
 
 static int
-dissect_plugin_event(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
+dissect_plugin_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    //json_dissector_handle = find_dissector("json");
     if (!plugin_dissector_handle) {
         return 0;
     }
@@ -2302,7 +2301,7 @@ dissect_plugin_event(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_
 
 static int
 dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+        void *data)
 {
     proto_item *ti;
     proto_tree *se_tree, *syscall_tree;
@@ -2651,7 +2650,7 @@ proto_reg_handoff_sysdig_event(void)
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2, sysdig_event_handle);
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE, sysdig_event_handle);
 
-    plugin_dissector_handle = find_dissector("sdplugin");
+    plugin_dissector_handle = find_dissector("falcobridge");
 }
 
 /*

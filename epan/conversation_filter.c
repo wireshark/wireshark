@@ -20,7 +20,7 @@
 GList *conv_filter_list = NULL;
 
 
-void do_register_conversation_filter(const char *proto_name, const char *display_name,
+static void do_register_conversation_filter(const char *proto_name, const char *display_name,
                                         is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
     conversation_filter_t *entry;
 
@@ -42,7 +42,7 @@ void register_conversation_filter(const char *proto_name, const char *display_na
                                         build_filter_string);
 }
 
-void register_conversation_filter_logshark(const char *proto_name, const char *display_name,
+void register_log_conversation_filter(const char *proto_name, const char *display_name,
                                   is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
     do_register_conversation_filter(proto_name,
                                         display_name,

@@ -1,4 +1,4 @@
-/* sinsp-connector.c
+/* sinsp-span.cpp
  *
  * By Gerald Combs
  * Copyright (C) 2022 Sysdig, Inc.

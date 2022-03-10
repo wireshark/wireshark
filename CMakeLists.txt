@@ -1299,6 +1299,10 @@ ws_find_package(ILBC ENABLE_ILBC HAVE_ILBC)
 
 ws_find_package(OPUS ENABLE_OPUS HAVE_OPUS)
 
+# libsinsp+libscap, required for falco-bridge
+ws_find_package(Sinsp ENABLE_SINSP HAVE_SINSP)
+
+
 # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of the cache entry
 # storing the find_library result. Transfer it to the new cache variable such
 # that reset_find_package can detect and clear outdated cache variables.
@@ -1593,7 +1597,6 @@ if(ENABLE_PLUGINS)
 		plugins/epan/opcua
 		plugins/epan/profinet
 		plugins/epan/stats_tree
-		plugins/epan/sysdig_bridge
 		plugins/epan/transum
 		plugins/epan/unistim
 		plugins/epan/wimax
@@ -1604,6 +1607,11 @@ if(ENABLE_PLUGINS)
 		plugins/codecs/l16_mono
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
+	if(SINSP_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/epan/falco_bridge
+		)
+	endif()
 	if(SPANDSP_FOUND)
 		list(APPEND PLUGIN_SRC_DIRS
 			plugins/codecs/G722
@@ -1815,6 +1823,11 @@ set_package_properties(PCRE2 PROPERTIES
 	URL "https://www.pcre.org"
 	DESCRIPTION "Regular expression pattern matching using the same syntax and semantics as Perl 5"
 	PURPOSE "Support for regular expressions"
+)
+set_package_properties(Sinsp PROPERTIES
+	DESCRIPTION "libsinsp and libscap"
+	URL "https://github.com/falcosecurity/libs/"
+	PURPOSE "Support for Falco plugins"
 )
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)

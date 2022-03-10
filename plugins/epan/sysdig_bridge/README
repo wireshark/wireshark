@@ -1,2 +1,0 @@
-This plugin is a bridge between sysdig plugins and Wireshark, so that sysdig 
-plugins can be used as dissectors.

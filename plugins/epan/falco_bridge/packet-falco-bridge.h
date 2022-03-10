@@ -1,4 +1,4 @@
-/* packet-sysdig-bridge.h
+/* packet-falco-bridge.h
  *
  * By Loris Degioanni
  * Copyright (C) 2021 Sysdig, Inc.
@@ -10,8 +10,8 @@
 * SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#ifndef __PACKET_SYSDIG_BRIDGE_H__
-#define __PACKET_SYSDIG_BRIDGE_H__
+#ifndef __PACKET_FALCO_BRIDGE_H__
+#define __PACKET_FALCO_BRIDGE_H__
 
 /*
  * API versions of this plugin engine
@@ -228,4 +228,4 @@ typedef struct conv_fld_info {
     char field_val[4096];
 } conv_fld_info;
 
-#endif // __PACKET_SYSDIG_BRIDGE_H__
+#endif // __PACKET_FALCO_BRIDGE_H__

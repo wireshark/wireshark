@@ -1,4 +1,4 @@
-/* packet-sysdig-bridge.c
+/* packet-falco-bridge.c
  *
  * By Loris Degioanni
  * Copyright (C) 2021 Sysdig, Inc.
@@ -38,16 +38,16 @@
 #include <epan/conversation_filter.h>
 
 #include "sinsp-span.h"
-#include "packet-sysdig-bridge.h"
+#include "packet-falco-bridge.h"
 #include "conversation-macros.h"
 
-static int proto_sdplugin = -1;
-static gint ett_sdplugin = -1;
-static gint ett_bridge = -1;
+static int proto_falco_bridge = -1;
+static gint ett_falco_bridge = -1;
+static gint ett_sinsp_span = -1;
 static dissector_table_t ptype_dissector_table;
 
-static int dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
-static int dissect_plg_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+static int dissect_sinsp_span(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
 
 void register_conversation_filters_mappings(void);
 
@@ -72,19 +72,19 @@ static int hf_sdp_source_id = -1;
 
 static hf_register_info hf[] = {
     { &hf_sdp_source_id_size,
-        { "Plugin ID size", "sysdig_plugin.id.size",
+        { "Plugin ID size", "falco_plugin.id.size",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sdp_lengths,
-        { "Field Lengths", "sysdig_plugin.lens",
+        { "Field Lengths", "falco_plugin.lens",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sdp_source_id,
-        { "Plugin ID", "sysdig_plugin.id",
+        { "Plugin ID", "falco_plugin.id",
         FT_UINT32, BASE_DEC,
         NULL, 0x0,
         NULL, HFILL }
@@ -202,12 +202,12 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 conv_fld_infos[conv_fld_cnt].field_info = ri;
                 const char *source_name = get_sinsp_source_name(bi->ssi);
                 conv_fld_infos[conv_fld_cnt].proto_name = source_name;
-                register_conversation_filter_logshark(source_name, finfo.hfinfo.name, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
+                register_log_conversation_filter(source_name, finfo.hfinfo.name, fv_func[conv_fld_cnt], bfs_func[conv_fld_cnt]);
                 conv_fld_cnt++;
             }
             fld_cnt++;
         }
-        proto_register_field_array(proto_sdplugin, bi->hf, fld_cnt);
+        proto_register_field_array(proto_falco_bridge, bi->hf, fld_cnt);
     }
 }
 
@@ -235,8 +235,8 @@ import_plugin(char* fname)
         );
 
     static dissector_handle_t ct_handle;
-    ct_handle = create_dissector_handle(dissect_plg_bridge, bi->proto);
-    dissector_add_uint("sysdig_plugin.id", bi->source_id, ct_handle);
+    ct_handle = create_dissector_handle(dissect_sinsp_span, bi->proto);
+    dissector_add_uint("falco_plugin.id", bi->source_id, ct_handle);
 }
 
 static void
@@ -247,21 +247,21 @@ on_wireshark_exit(void)
 }
 
 void
-proto_register_sdplugin(void)
+proto_register_falcoplugin(void)
 {
-    proto_sdplugin = proto_register_protocol (
-        "Sysdig Plugin", /* name       */
-        "SDPLUGIN",      /* short name */
-        "sdplugin"       /* abbrev     */
+    proto_falco_bridge = proto_register_protocol (
+        "Falco Bridge", /* name       */
+        "Falco Bridge", /* short name */
+        "falcobridge"   /* abbrev     */
         );
-    register_dissector("sdplugin", dissect_sdplugin, proto_sdplugin);
+    register_dissector("falcobridge", dissect_falco_bridge, proto_falco_bridge);
 
     /*
      * Create the dissector table that we will use to route the dissection to
-     * the appropriate sysdig plugin.
+     * the appropriate Falco plugin.
      */
-    ptype_dissector_table = register_dissector_table("sysdig_plugin.id",
-        "Plugin ID", proto_sdplugin, FT_UINT32, BASE_DEC);
+    ptype_dissector_table = register_dissector_table("falco_plugin.id",
+        "Falco Plugin ID", proto_falco_bridge, FT_UINT32, BASE_DEC);
 
     /*
      * Create the mapping infrastructure for conversation filtering
@@ -273,10 +273,8 @@ proto_register_sdplugin(void)
      */
     WS_DIR *dir;
     WS_DIRENT *file;
-    gchar *filename;
-    char dname[2048];
-    const char *wspgdname = get_plugins_dir();
-    snprintf(dname, sizeof(dname), "%s/../sysdig", wspgdname);
+    char *filename;
+    char *dname = g_build_filename(get_plugins_dir_with_version(), "falco", NULL);
 
     /*
      * We scan the plugins directory twice. The first time we count how many
@@ -302,17 +300,17 @@ proto_register_sdplugin(void)
         }
         ws_dir_close(dir);
     }
-
+    g_free(dname);
 
     /*
      * Setup protocol subtree array
      */
     static gint *ett[] = {
-        &ett_sdplugin,
-        &ett_bridge,
+        &ett_falco_bridge,
+        &ett_sinsp_span,
     };
 
-    proto_register_field_array(proto_sdplugin, hf, array_length(hf));
+    proto_register_field_array(proto_falco_bridge, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     register_shutdown_routine(on_wireshark_exit);
@@ -333,20 +331,20 @@ get_bridge_info(guint32 source_id)
 }
 
 static int
-dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conv_vals_cnt = 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Sysdig Plugin");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Bridge");
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
 
     // https://github.com/falcosecurity/libs/blob/9c942f27/userspace/libscap/scap.c#L1900
-    proto_item *ti = proto_tree_add_item(tree, proto_sdplugin, tvb, 0, 12, ENC_NA);
-    proto_tree *sdplugin_tree = proto_item_add_subtree(ti, ett_sdplugin);
-    proto_tree_add_item(sdplugin_tree, hf_sdp_source_id_size, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(sdplugin_tree, hf_sdp_lengths, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-    proto_item *idti = proto_tree_add_item(sdplugin_tree, hf_sdp_source_id, tvb, 8, 4, ENC_LITTLE_ENDIAN);
+    proto_item *ti = proto_tree_add_item(tree, proto_falco_bridge, tvb, 0, 12, ENC_NA);
+    proto_tree *fb_tree = proto_item_add_subtree(ti, ett_falco_bridge);
+    proto_tree_add_item(fb_tree, hf_sdp_source_id_size, tvb, 0, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(fb_tree, hf_sdp_lengths, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+    proto_item *idti = proto_tree_add_item(fb_tree, hf_sdp_source_id, tvb, 8, 4, ENC_LITTLE_ENDIAN);
 
     guint32 source_id = tvb_get_guint32(tvb, 8, ENC_LITTLE_ENDIAN);
     bridge_info* bi = get_bridge_info(source_id);
@@ -364,7 +362,7 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     dissector_handle_t dissector = dissector_get_uint_handle(ptype_dissector_table, source_id);
     if (dissector) {
-        p_add_proto_data(pinfo->pool, pinfo, proto_sdplugin, PROTO_DATA_BRIDGE_HANDLE, bi);
+        p_add_proto_data(pinfo->pool, pinfo, proto_falco_bridge, PROTO_DATA_BRIDGE_HANDLE, bi);
         tvbuff_t* next_tvb = tvb_new_subset_length(tvb, 12, tvb_captured_length(tvb) - 12);
         call_dissector_with_data(dissector, next_tvb, pinfo, tree, data);
     }
@@ -373,9 +371,9 @@ dissect_sdplugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 static int
-dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
+dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-    bridge_info* bi = p_get_proto_data(pinfo->pool, pinfo, proto_sdplugin, PROTO_DATA_BRIDGE_HANDLE);
+    bridge_info* bi = p_get_proto_data(pinfo->pool, pinfo, proto_falco_bridge, PROTO_DATA_BRIDGE_HANDLE);
     guint plen = tvb_captured_length(tvb);
     const char *source_name = get_sinsp_source_name(bi->ssi);
 
@@ -384,7 +382,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
     col_clear(pinfo->cinfo, COL_INFO);
 
     proto_item* ti = proto_tree_add_item(tree, bi->proto, tvb, 0, plen, ENC_NA);
-    proto_tree* sdplugin_tree = proto_item_add_subtree(ti, ett_bridge);
+    proto_tree* fb_tree = proto_item_add_subtree(ti, ett_sinsp_span);
 
     guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, plen);
 
@@ -398,14 +396,14 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
 
         bool rc = extract_sisnp_source_field(bi->ssi, pinfo->num, payload, plen, pinfo->pool, &sfe);
         if (!rc) {
-            REPORT_DISSECTOR_BUG("sysdig plugin %s extract error", get_sinsp_source_name(bi->ssi));
+            REPORT_DISSECTOR_BUG("Falco plugin %s extract error", get_sinsp_source_name(bi->ssi));
         }
         if (!sfe.is_present) {
             continue;
         }
 
         if (sfe.type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
-            proto_item *pi = proto_tree_add_string(sdplugin_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_str);
+            proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_str);
             if (bi->field_flags[fld_idx] & BFF_INFO) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe.res_str);
                 // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
@@ -417,7 +415,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
                 sprintf(cvalptr, "%s", sfe.res_str);
                 p_add_proto_data(pinfo->pool,
                                  pinfo,
-                                 proto_sdplugin,
+                                 proto_falco_bridge,
                                  PROTO_DATA_CONVINFO_USER_BASE + conv_vals_cnt, cvalptr);
             }
 
@@ -426,7 +424,7 @@ dissect_plg_bridge(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* da
             }
         }
         else if (sfe.type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
-            proto_tree_add_uint64(sdplugin_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_u64);
+            proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe.res_u64);
         }
         else {
             REPORT_DISSECTOR_BUG("field %s has an unrecognized or mismatched type %u != %u",

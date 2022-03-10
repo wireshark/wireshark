@@ -10,10 +10,10 @@
 include(WiresharkPlugin)
 
 # Plugin name and version info (major minor micro extra)
-set_module_info(sysdig-plugins 0 0 4 0)
+set_module_info(falco-bridge 0 0 4 0)
 
 set(DISSECTOR_SRC
-	packet-sysdig-bridge.c
+	packet-falco-bridge.c
 	sinsp-span.cpp
 )
 
@@ -33,31 +33,29 @@ register_plugin_files(plugin.c
 	${DISSECTOR_SRC}
 )
 
-add_plugin_library(sysdig-plugins epan)
-
-find_package(Sinsp REQUIRED)
+add_plugin_library(falco-bridge epan)
 
 # XXX Hacks; need to fix in falcosecurity-libs.
-target_compile_definitions(sysdig-plugins PRIVATE
+target_compile_definitions(falco-bridge PRIVATE
 	HAVE_STRLCPY=1
 	)
-# target_compile_options(sysdig-plugins PRIVATE -Wno-address-of-packed-member)
+# target_compile_options(falco-bridge PRIVATE -Wno-address-of-packed-member)
 
-target_include_directories(sysdig-plugins SYSTEM PRIVATE
+target_include_directories(falco-bridge SYSTEM PRIVATE
 	${SINSP_INCLUDE_DIRS}
 )
 
-target_link_libraries(sysdig-plugins
+target_link_libraries(falco-bridge
 	epan
 	${SINSP_LIBRARIES}
 )
 
-install_plugin(sysdig-plugins epan)
+install_plugin(falco-bridge epan)
 
 file(GLOB DISSECTOR_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 CHECKAPI(
 	NAME
-	  sysdig-plugins
+	  falco-bridge
 	SWITCHES
 	  --group dissectors-prohibited
 	  --group dissectors-restricted
