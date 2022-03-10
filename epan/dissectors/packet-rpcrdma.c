@@ -152,11 +152,6 @@ static const value_string rpcordma_err[] = {
     {0, NULL}
 };
 
-typedef enum {
-    INFINIBAND, /* RPC-over-RDMA on InfiniBand */
-    IWARP       /* RPC-over-RDMA on iWARP */
-} rpcrdma_type_t;
-
 /* RDMA chunk type */
 typedef enum {
     RDMA_READ_CHUNK,
@@ -223,6 +218,7 @@ typedef struct {
     wmem_tree_t    *psn_list;     /* Binary tree of IB requests searched by PSN */
     wmem_tree_t    *msgid_list;   /* Binary tree of segments with same message id */
     wmem_tree_t    *send_list;    /* Binary tree for mapping PSN -> msgid (IB) */
+    wmem_tree_t    *msn_list;     /* Binary tree for mapping MSN -> msgid (iWarp) */
     segment_info_t *segment_info; /* Current READ/WRITE/REPLY segment info */
     guint32         iosize;       /* Maximum size of data transferred in a
                                      single packet */
@@ -245,6 +241,9 @@ enum {
  * Reassembly is only supported for InfiniBand packets.
  */
 static struct infinibandinfo *gp_infiniband_info = NULL;
+
+/* Global variable set for every iWarp packet */
+static rdmap_info_t *gp_rdmap_info = NULL;
 
 /* Call process_reassembled_data just once per frame */
 static gboolean g_needs_reassembly = FALSE;
@@ -303,6 +302,7 @@ static rdma_conv_info_t *get_rdma_conv_info(packet_info *pinfo)
         p_rdma_conv_info->psn_list     = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->msgid_list   = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->send_list    = wmem_tree_new(wmem_file_scope());
+        p_rdma_conv_info->msn_list     = wmem_tree_new(wmem_file_scope());
         p_rdma_conv_info->segment_info = NULL;
         p_rdma_conv_info->iosize = 1;
         conversation_add_proto_data(p_conversation, proto_rpcordma, p_rdma_conv_info);
@@ -488,10 +488,15 @@ static tvbuff_t *add_fragment(tvbuff_t *tvb, gint offset, guint32 msgid,
         gint32 msg_num, gboolean more_frags, rdma_conv_info_t *p_rdma_conv_info,
         packet_info *pinfo, proto_tree *tree)
 {
+    guint8 pad_count = 0;
     guint32 nbytes, frag_size;
     tvbuff_t *new_tvb = NULL;
     fragment_head *fd_head = NULL;
     guint32 *p_msgid;
+
+    if (gp_infiniband_info) {
+        pad_count = gp_infiniband_info->pad_count;
+    }
 
     /* Get fragment head if reassembly has been completed */
     fd_head = get_fragment_head(pinfo);
@@ -501,14 +506,14 @@ static tvbuff_t *add_fragment(tvbuff_t *tvb, gint offset, guint32 msgid,
             nbytes = tvb_captured_length_remaining(tvb, offset);
             if (nbytes > 0 || more_frags) {
                 /* Add message fragment to reassembly table */
-                if (gp_infiniband_info->pad_count > 0 && p_rdma_conv_info != NULL && \
+                if (pad_count > 0 && p_rdma_conv_info && \
                     p_rdma_conv_info->segment_info != NULL && \
                     p_rdma_conv_info->segment_info->type == RDMA_READ_CHUNK && \
                     p_rdma_conv_info->segment_info->xdrpos == 0) {
                     /* Do not include any padding bytes inserted by Infiniband
                      * layer if this is a PZRC (Position-Zero Read Chunk) since
                      * payload stream already has any necessary padding bytes */
-                    frag_size = tvb_reported_length_remaining(tvb, offset) - gp_infiniband_info->pad_count;
+                    frag_size = tvb_reported_length_remaining(tvb, offset) - pad_count;
                     if (frag_size < nbytes) {
                         nbytes = frag_size;
                     }
@@ -1271,16 +1276,25 @@ static tvbuff_t *add_send_fragment(rdma_conv_info_t *p_rdma_conv_info,
     gint32 msgno = -1;
     tvbuff_t *new_tvb = NULL;
     gboolean first_frag  = FALSE;
+    gboolean middle_frag = FALSE;
     gboolean last_frag   = FALSE;
     send_info_t *p_send_info = NULL;
 
     if (gp_infiniband_info) {
         first_frag  =  gp_infiniband_info->opCode == RC_SEND_FIRST;
+        middle_frag =  gp_infiniband_info->opCode == RC_SEND_MIDDLE;
         last_frag   = (gp_infiniband_info->opCode == RC_SEND_LAST || \
                        gp_infiniband_info->opCode == RC_SEND_LAST_INVAL);
+    } else if (gp_rdmap_info) {
+        first_frag  = !gp_rdmap_info->last_flag && gp_rdmap_info->message_offset == 0;
+        middle_frag = !gp_rdmap_info->last_flag && gp_rdmap_info->message_offset > 0;
+        last_frag   =  gp_rdmap_info->last_flag && gp_rdmap_info->message_offset > 0;
     }
 
-    if (pinfo->fd->visited) {
+    if (!first_frag && !middle_frag && !last_frag) {
+        /* Only one SEND fragment, no need to reassemble */
+        return tvb;
+    } else if (pinfo->fd->visited) {
         return get_reassembled_data(tvb, 0, pinfo, tree);
     } else if (first_frag) {
         /* Start of multi-SEND message */
@@ -1292,11 +1306,17 @@ static tvbuff_t *add_send_fragment(rdma_conv_info_t *p_rdma_conv_info,
             /* Message numbers are relative with respect to current PSN */
             p_send_info->msgno = gp_infiniband_info->packet_seq_num;
             wmem_tree_insert32(p_rdma_conv_info->send_list, gp_infiniband_info->packet_seq_num, p_send_info);
+        } else if (gp_rdmap_info) {
+            /* Message numbers are given by the RDMAP offset -- msgno is not used */
+            p_send_info->msgno = 0;
+            wmem_tree_insert32(p_rdma_conv_info->msn_list, gp_rdmap_info->message_seq_num, p_send_info);
         }
     } else {
         /* SEND fragment, get the send reassembly info structure */
         if (gp_infiniband_info) {
             p_send_info = wmem_tree_lookup32_le(p_rdma_conv_info->send_list, gp_infiniband_info->packet_seq_num);
+        } else if (gp_rdmap_info) {
+            p_send_info = wmem_tree_lookup32(p_rdma_conv_info->msn_list, gp_rdmap_info->message_seq_num);
         }
     }
     if (p_send_info) {
@@ -1305,10 +1325,21 @@ static tvbuff_t *add_send_fragment(rdma_conv_info_t *p_rdma_conv_info,
         if (gp_infiniband_info) {
             /* Message numbers are consecutive starting at zero */
             msgno = gp_infiniband_info->packet_seq_num - p_send_info->msgno;
+        } else if (gp_rdmap_info) {
+            /* Message numbers are given by the RDMAP offset */
+            msgno = gp_rdmap_info->message_offset;
         }
     }
     if (msgid > 0 && msgno >= 0) {
         new_tvb = add_fragment(tvb, 0, msgid, msgno, !last_frag, p_rdma_conv_info, pinfo, tree);
+        if (last_frag && !new_tvb && gp_rdmap_info) {
+            /* Since message numbers are not consecutive for iWarp,
+             * verify there are no missing fragments */
+            if (p_send_info->rsize == msgno + tvb_reported_length(tvb)) {
+                end_reassembly(msgid, NULL, pinfo);
+                new_tvb = get_reassembled_data(tvb, 0, pinfo, tree);
+            }
+        }
     }
     if (new_tvb) {
         /* This is the last fragment, data has been reassembled
@@ -1591,22 +1622,6 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     return offset;
 }
 
-/* Initialize global variables for InfiniBand reassembly */
-static void
-rpcrdma_initialize(rpcrdma_type_t rtype, void *data)
-{
-    g_rpcrdma_reduced = FALSE;
-
-    if (rtype == INFINIBAND) {
-        /* Reassembly is supported only on InifiBand packets */
-        gp_infiniband_info = (struct infinibandinfo *)data;
-        g_needs_reassembly = TRUE;
-    } else {
-        gp_infiniband_info = NULL;
-        g_needs_reassembly = FALSE;
-    }
-}
-
 static gboolean
 dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
@@ -1615,7 +1630,11 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
     gboolean more_frags = FALSE;
     rdma_conv_info_t *p_rdma_conv_info;
 
-    rpcrdma_initialize(INFINIBAND, data);
+    /* Initialize global variables for InfiniBand reassembly */
+    g_rpcrdma_reduced  = FALSE;
+    g_needs_reassembly = TRUE;
+    gp_rdmap_info      = NULL;
+    gp_infiniband_info = (struct infinibandinfo *)data;
 
     if (!gp_infiniband_info)
         return FALSE;
@@ -1693,15 +1712,28 @@ static gboolean
 dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
-    struct rdmapinfo *info = (struct rdmapinfo *)data;
-    rpcrdma_initialize(IWARP, data);
+    rdma_conv_info_t *p_rdma_conv_info;
 
-    if (!info)
+    /* Initialize global variables for iWarp reassembly */
+    g_rpcrdma_reduced  = FALSE;
+    g_needs_reassembly = TRUE;
+    gp_infiniband_info = NULL;
+    gp_rdmap_info = (rdmap_info_t *)data;
+
+    if (!gp_rdmap_info)
         return FALSE;
 
-    switch (info->opcode) {
+    /* Get conversation state */
+    p_rdma_conv_info = get_rdma_conv_info(pinfo);
+
+    switch (gp_rdmap_info->opcode) {
     case RDMA_SEND:
     case RDMA_SEND_INVALIDATE:
+        tvb = add_send_fragment(p_rdma_conv_info, tvb, pinfo, tree);
+        if (!gp_rdmap_info->last_flag) {
+            /* This is a SEND fragment, do not dissect yet */
+            return FALSE;
+        }
         break;
     default:
         return FALSE;
