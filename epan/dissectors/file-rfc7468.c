@@ -135,7 +135,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     int next_offset;
     const guchar *line;
     const guchar *labelp = NULL;
-    int labellen;
+    int labellen = 0;
     char *label;
     proto_tree *rfc7468_tree, *preeb_tree, *posteb_tree;
     proto_item *rfc7468_item, *ti;
