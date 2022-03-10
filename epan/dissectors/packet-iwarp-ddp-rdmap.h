@@ -24,8 +24,13 @@
 #define RDMA_SEND_SE_INVALIDATE 0x06
 #define RDMA_TERMINATE 0x07
 
-struct rdmapinfo {
-	guint8 opcode;
-};
+typedef struct rdmapinfo {
+	guint8   opcode;
+	gboolean last_flag;
+	gboolean is_tagged;
+	guint32 queue_number;
+	guint32 message_seq_num;
+	guint32 message_offset;
+} rdmap_info_t;
 
 #endif /* __PACKET_IWARP_DDP_RDMAP_H_ */

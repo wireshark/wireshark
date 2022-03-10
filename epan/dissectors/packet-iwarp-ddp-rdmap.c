@@ -270,7 +270,7 @@ static heur_dissector_list_t rdmap_heur_subdissector_list;
 
 static void
 dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
-		      proto_tree *tree, struct rdmapinfo *info)
+		      proto_tree *tree, rdmap_info_t *info)
 {
 	heur_dtbl_entry_t *hdtbl_entry;
 
@@ -539,23 +539,23 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	tvbuff_t *next_tvb = NULL;
 
-	gboolean is_tagged_buffer_model;
 	guint8 ddp_ctrl_field, rdma_ctrl_field;
-	struct rdmapinfo info = { 0, };
+	rdmap_info_t info = { 0, 0, 0, 0, 0, 0 };
 	guint32 header_end;
 	guint32 offset = 0;
 
 	ddp_ctrl_field = tvb_get_guint8(tvb, 0);
 	rdma_ctrl_field = tvb_get_guint8(tvb, 1);
 	info.opcode = rdma_ctrl_field & RDMA_OPCODE;
-	is_tagged_buffer_model = ddp_ctrl_field & DDP_TAGGED_FLAG;
+	info.is_tagged = (ddp_ctrl_field & DDP_TAGGED_FLAG) ? TRUE : FALSE;
+	info.last_flag = (ddp_ctrl_field & DDP_LAST_FLAG)   ? TRUE : FALSE;
 
-	ddp_rdma_packetlist(pinfo, ddp_ctrl_field & DDP_LAST_FLAG, info.opcode);
+	ddp_rdma_packetlist(pinfo, info.last_flag, info.opcode);
 
 	offset = 0;
 
 	/* determine header length */
-	if (is_tagged_buffer_model) {
+	if (info.is_tagged) {
 		header_end = DDP_TAGGED_HEADER_LEN;
 	} else {
 		header_end = DDP_UNTAGGED_HEADER_LEN;
@@ -596,13 +596,13 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 
 	/* DDP header field RsvdULP */
-	if (!is_tagged_buffer_model) {
+	if (!info.is_tagged) {
 		proto_tree_add_item(ddp_tree, hf_iwarp_ddp_rsvdulp, tvb,
 				offset, DDP_UNTAGGED_RSVDULP_LEN, ENC_NA);
 	}
 
 	/* RDMA protocol header subtree */
-	if (is_tagged_buffer_model) {
+	if (info.is_tagged) {
 		header_end = RDMA_CONTROL_FIELD_LEN;
 	} else {
 		header_end = RDMA_CONTROL_FIELD_LEN + RDMA_RESERVED_FIELD_LEN;
@@ -642,12 +642,12 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			tvb, offset, RDMA_INVAL_STAG_LEN, ENC_BIG_ENDIAN);
 	}
 
-	if (!is_tagged_buffer_model) {
+	if (!info.is_tagged) {
 		offset += RDMA_RESERVED_FIELD_LEN;
 	}
 
 	/* DDP Buffer Model dissection */
-	if (is_tagged_buffer_model) {
+	if (info.is_tagged) {
 
 		/* Tagged Buffer Model Case */
 		ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
@@ -680,14 +680,14 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
 				ett_iwarp_ddp);
 
-		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_qn, tvb,
-				offset, DDP_QN_LEN, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(ddp_buffer_model_tree, hf_iwarp_ddp_qn, tvb,
+				offset, DDP_QN_LEN, ENC_BIG_ENDIAN, &info.queue_number);
 		offset += DDP_QN_LEN;
-		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_msn, tvb,
-				offset, DDP_MSN_LEN, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(ddp_buffer_model_tree, hf_iwarp_ddp_msn, tvb,
+				offset, DDP_MSN_LEN, ENC_BIG_ENDIAN, &info.message_seq_num);
 		offset += DDP_MSN_LEN;
-		proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_mo, tvb,
-				offset, DDP_MO_LEN, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(ddp_buffer_model_tree, hf_iwarp_ddp_mo, tvb,
+				offset, DDP_MO_LEN, ENC_BIG_ENDIAN, &info.message_offset);
 		offset += DDP_MO_LEN;
 
 		if (info.opcode == RDMA_SEND
