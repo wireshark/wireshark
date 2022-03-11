@@ -78,6 +78,7 @@ WS_DLL_PUBLIC const value_string eap_ms_chap_v2_opcode_vals[];
 typedef enum {
   PROTO_DATA_EAP_DUPLICATE_ID,
   PROTO_DATA_EAP_FRAME_STATE,
+  PROTO_DATA_EAP_TVB,
 } proto_data_eap;
 
 typedef struct _eap_vendor_context {

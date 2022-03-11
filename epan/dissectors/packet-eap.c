@@ -191,6 +191,7 @@ static dissector_handle_t eap_handle;
 
 static dissector_handle_t tls_handle;
 static dissector_handle_t diameter_avps_handle;
+static dissector_handle_t peap_handle;
 static dissector_handle_t teap_handle;
 
 static dissector_handle_t isakmp_handle;
@@ -2170,7 +2171,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 tls_set_appdata_dissector(tls_handle, pinfo, diameter_avps_handle);
                 break;
               case EAP_TYPE_PEAP:
-                tls_set_appdata_dissector(tls_handle, pinfo, eap_handle);
+                p_add_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB, tvb);
+                tls_set_appdata_dissector(tls_handle, pinfo, peap_handle);
                 break;
               case EAP_TYPE_TEAP:
                 tls_set_appdata_dissector(tls_handle, pinfo, teap_handle);
@@ -3232,6 +3234,7 @@ proto_reg_handoff_eap(void)
    */
   tls_handle = find_dissector_add_dependency("tls", proto_eap);
   diameter_avps_handle = find_dissector_add_dependency("diameter_avps", proto_eap);
+  peap_handle = find_dissector_add_dependency("peap", proto_eap);
   teap_handle = find_dissector_add_dependency("teap", proto_eap);
 
   isakmp_handle = find_dissector_add_dependency("isakmp", proto_eap);
