@@ -84,8 +84,10 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			if (show_as_text) {
 				if (uncompr_tvb && uncompr_len > 0) {
 					proto_tree_add_item(data_tree, hf_data_text, uncompr_tvb, 0, uncompr_len, ENC_ASCII);
+					col_add_fstr(pinfo->cinfo, COL_INFO, "%s", tvb_format_text_wsp(pinfo->pool, uncompr_tvb, 0, uncompr_len));
 				} else {
 					proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, ENC_ASCII);
+					col_add_fstr(pinfo->cinfo, COL_INFO, "%s", tvb_format_text_wsp(pinfo->pool, data_tvb, 0, bytes));
 				}
 			}
 
