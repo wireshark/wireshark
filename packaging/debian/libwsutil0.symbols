@@ -61,6 +61,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crypto_scalarmult_curve25519@Base 2.9.0
  crypto_scalarmult_curve25519_base@Base 2.9.0
  data_file_url@Base 2.3.0
+ decode_synchsafe_int@Base 3.7.0
  decrypt_xtea_ecb@Base 2.5.0
  decrypt_xtea_le_ecb@Base 2.5.0
  delete_persconffile_profile@Base 1.12.0~rc1
