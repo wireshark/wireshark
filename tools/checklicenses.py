@@ -61,13 +61,13 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'wsutil/strnatcmp.h': [
         'Zlib',
     ],
-    'dtds': [
+    'resources/protocols/dtds': [
         'UNKNOWN',
     ],
-    'diameter/dictionary.dtd': [
+    'resources/protocols/diameter/dictionary.dtd': [
         'UNKNOWN',
     ],
-    'wimaxasncp/dictionary.dtd': [
+    'resources/protocols/wimaxasncp/dictionary.dtd': [
         'UNKNOWN',
     ],
     'doc/': [

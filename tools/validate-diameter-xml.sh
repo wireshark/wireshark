@@ -25,15 +25,18 @@ then
 	exit 0
 fi
 
+src_dir="$(dirname "$0")/.."
+diameter_dir="$src_dir/resources/protocols/diameter"
+
 # Ideally this would work regardless of our cwd
-if [ ! -r diameter/dictionary.xml ]
+if [ ! -r "$diameter_dir/dictionary.xml" ]
 then
-	echo "Couldn't find diameter/dictionary.xml" 1>&2
+	echo "Couldn't find $diameter_dir/dictionary.xml" 1>&2
 	exit 1
 fi
-if [ ! -r diameter/dictionary.dtd ]
+if [ ! -r "$diameter_dir/dictionary.dtd" ]
 then
-	echo "Couldn't find diameter/dictionary.dtd" 1>&2
+	echo "Couldn't find $diameter_dir/dictionary.dtd" 1>&2
 	exit 1
 fi
 
@@ -65,8 +68,8 @@ done
 # Delete the last character, i.e., the trailing semicolon
 sedopts=${sedopts%?}
 
-cp diameter/dictionary.dtd "$tmpdir" || exit 1
-for f in diameter/*.xml
+cp "$diameter_dir/dictionary.dtd" "$tmpdir" || exit 1
+for f in "$diameter_dir"/*.xml
 do
         sed "${sedopts}" "$f" > "$tmpdir/${f##*/}" || exit 1
 done

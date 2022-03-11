@@ -1907,12 +1907,12 @@ set(TSHARK_TAP_SRC
 )
 
 set(INSTALL_DIRS
-	diameter
-	dtds
+	resources/protocols/diameter
+	resources/protocols/dtds
 	profiles
-	radius
-	tpncp
-	wimaxasncp
+	resources/protocols/radius
+	resources/protocols/tpncp
+	resources/protocols/wimaxasncp
 )
 
 set(INSTALL_FILES
@@ -2241,106 +2241,117 @@ if(LUA_FOUND AND ENABLE_LUA)
 endif(LUA_FOUND AND ENABLE_LUA)
 # doc/*.html handled elsewhere.
 
+set(_protocol_data_dir ${CMAKE_SOURCE_DIR}/resources/protocols)
 # Glob patterns relative to the source directory that should be copied to
 # ${DATAFILE_DIR} (including directory prefixes)
 # TODO shouldn't this use full (relative) paths instead of glob patterns?
 set(DATA_FILES_SRC
-	"tpncp/tpncp.dat"
-	"wimaxasncp/*.dtd"
-	"wimaxasncp/*.xml"
+	${_protocol_data_dir}/tpncp/tpncp.dat
+	${_protocol_data_dir}/wimaxasncp/*.dtd
+	${_protocol_data_dir}/wimaxasncp/*.xml
 )
 
 # Copy all paths from the source tree to the data directory. Directories are
 # automatically created if missing as the filename is given.
-file(GLOB _data_files RELATIVE "${CMAKE_SOURCE_DIR}" ${DATA_FILES_SRC})
+file(GLOB _data_files RELATIVE ${_protocol_data_dir} ${DATA_FILES_SRC})
 foreach(_data_file ${_data_files})
 	add_custom_command(OUTPUT "${DATAFILE_DIR}/${_data_file}"
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${CMAKE_SOURCE_DIR}/${_data_file}"
-			"${DATAFILE_DIR}/${_data_file}"
+			${_protocol_data_dir}/${_data_file}
+			${DATAFILE_DIR}/${_data_file}
 		DEPENDS
-			"${CMAKE_SOURCE_DIR}/${_data_file}"
+			${_protocol_data_dir}/${_data_file}
 	)
-	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_data_file}")
+	list(APPEND copy_data_files_depends ${DATAFILE_DIR}/${_data_file})
 endforeach()
 
-file(GLOB _dtds_src_files RELATIVE "${CMAKE_SOURCE_DIR}" "dtds/*.dtd")
+file(GLOB _dtds_src_files RELATIVE ${_protocol_data_dir} ${_protocol_data_dir}/dtds/*.dtd)
 
 set (_dtds_data_files)
+set (_dtds_dep_files)
 foreach(_data_file ${_dtds_src_files})
-	list(APPEND _dtds_data_files "${DATAFILE_DIR}/${_data_file}")
+	list(APPEND _dtds_data_files ${DATAFILE_DIR}/${_data_file})
+	list(APPEND _dtds_dep_files ${_protocol_data_dir})
 endforeach()
 
 add_custom_command(
 	OUTPUT ${_dtds_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/dtds"
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/dtds
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_dtds_src_files}
-		"${DATAFILE_DIR}/dtds"
+		${DATAFILE_DIR}/dtds
 	VERBATIM
-	DEPENDS ${_dtds_src_files}
-	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	DEPENDS ${_dtds_dep_files}
+	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
-file(GLOB _diameter_src_files RELATIVE "${CMAKE_SOURCE_DIR}"
-	diameter/*.dtd
-	diameter/*.xml
+file(GLOB _diameter_src_files RELATIVE ${_protocol_data_dir}
+	${_protocol_data_dir}/diameter/*.dtd
+	${_protocol_data_dir}/diameter/*.xml
 )
 
 set (_diameter_data_files)
+set (_diameter_dep_files)
 foreach(_data_file ${_diameter_src_files})
-	list(APPEND _diameter_data_files "${DATAFILE_DIR}/${_data_file}")
+	list(APPEND _diameter_data_files ${DATAFILE_DIR}/${_data_file})
+	list(APPEND _diameter_dep_files ${_protocol_data_dir}/${_data_file})
 endforeach()
 
 add_custom_command(
 	OUTPUT ${_diameter_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/diameter"
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/diameter
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_diameter_src_files}
-		"${DATAFILE_DIR}/diameter"
+		${DATAFILE_DIR}/diameter
 	VERBATIM
-	DEPENDS ${_diameter_src_files}
-	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	DEPENDS ${_diameter_dep_files}
+	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
-file(GLOB _radius_src_files RELATIVE "${CMAKE_SOURCE_DIR}"
-	radius/README.radius_dictionary
-	radius/custom.includes
-	radius/dictionary
-	radius/dictionary.*
+file(GLOB _radius_src_files RELATIVE ${_protocol_data_dir}
+	${_protocol_data_dir}/radius/README.radius_dictionary
+	${_protocol_data_dir}/radius/custom.includes
+	${_protocol_data_dir}/radius/dictionary
+	${_protocol_data_dir}/radius/dictionary.*
 )
 
 set (_radius_data_files)
+set (_radius_dep_files)
 foreach(_data_file ${_radius_src_files})
-	list(APPEND _radius_data_files "${DATAFILE_DIR}/${_data_file}")
+	list(APPEND _radius_data_files ${DATAFILE_DIR}/${_data_file})
+	list(APPEND _radius_dep_files ${_protocol_data_dir}/${_data_file})
 endforeach()
 
 add_custom_command(
 	OUTPUT ${_radius_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/radius"
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/radius
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_radius_src_files}
-		"${DATAFILE_DIR}/radius"
+		${DATAFILE_DIR}/radius
 	VERBATIM
-	DEPENDS ${_radius_src_files}
-	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	DEPENDS ${_radius_dep_files}
+	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
-file(GLOB _protobuf_src_files RELATIVE "${CMAKE_SOURCE_DIR}" protobuf/*.proto)
+file(GLOB _protobuf_src_files RELATIVE ${_protocol_data_dir}
+	${_protocol_data_dir}/protobuf/*.proto
+)
 set (_protobuf_data_files)
+set (_protobuf_dep_files)
 foreach(_data_file ${_protobuf_src_files})
-	list(APPEND _protobuf_data_files "${DATAFILE_DIR}/${_data_file}")
+	list(APPEND _protobuf_data_files ${DATAFILE_DIR}/${_data_file})
+	list(APPEND _protobuf_data_files ${_protocol_data_dir}/${_data_file})
 endforeach()
 
 add_custom_command(
 	OUTPUT ${_protobuf_data_files}
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/protobuf"
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${DATAFILE_DIR}/protobuf
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		${_protobuf_src_files}
-		"${DATAFILE_DIR}/protobuf"
+		${DATAFILE_DIR}/protobuf
 	VERBATIM
-	DEPENDS ${_protobuf_src_files}
-	WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+	DEPENDS ${_protobuf_dep_files}
+	WORKING_DIRECTORY ${_protocol_data_dir}
 )
 
 file(GLOB _profiles_src_files RELATIVE "${CMAKE_SOURCE_DIR}" profiles/*/*)
