@@ -2105,9 +2105,9 @@ static int dissect_iec60870_104(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 				type = temp8 & 0x03;
 
 			if (type == I_TYPE)
-				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 7, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 7, 1, ENC_BIG_ENDIAN);
 			else
-				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 6, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_bits_item(it104tree, hf_apcitype, tvb, (Off + 2) * 8 + 6, 2, ENC_BIG_ENDIAN);
 
 			if (len <= APDU_MAX_LEN) {
 				wmem_strbuf_append_printf(res, "%s %s ",
