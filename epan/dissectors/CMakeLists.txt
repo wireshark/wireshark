@@ -1275,6 +1275,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-icmpv6.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-icp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-icq.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-id3v2.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-idp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-idrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-iec104.c

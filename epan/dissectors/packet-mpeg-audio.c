@@ -418,12 +418,12 @@ void proto_reg_handoff_mpeg_audio(void);
 dissector_handle_t mpeg_audio_handle;
 
 static int proto_mpeg_audio = -1;
+static dissector_handle_t id3v2_handle;
 
 static int hf_mpeg_audio_header = -1;
 static int hf_mpeg_audio_data = -1;
 static int hf_mpeg_audio_padbytes = -1;
 static int hf_id3v1 = -1;
-static int hf_id3v2 = -1;
 
 static int ett_mpeg_audio = -1;
 
@@ -529,22 +529,6 @@ dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	proto_item *ti;
-	guint32 frame_len;
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
-	col_clear(pinfo->cinfo, COL_INFO);
-	ti = proto_tree_add_item(tree, hf_id3v2, tvb,
-			0, -1, ENC_NA);
-
-	frame_len = tvb_get_guint32(tvb, 6, ENC_BIG_ENDIAN);
-	frame_len = decode_synchsafe_int(frame_len) + 10;
-	proto_item_set_len(ti, frame_len);
-	return frame_len;
-}
-
-static int
 dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	proto_item *ti;
@@ -564,7 +548,7 @@ dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 				offset += dissect_id3v1(next_tvb, pinfo, mpeg_audio_tree);
 				break;
 			case 0x494433: /* ID3 */
-				offset += dissect_id3v2(next_tvb, pinfo, mpeg_audio_tree);
+				offset += call_dissector(id3v2_handle, tvb, pinfo, mpeg_audio_tree);
 				break;
 			default:
 				frame_len = dissect_mpeg_audio_frame(next_tvb, pinfo, mpeg_audio_tree);
@@ -692,9 +676,6 @@ proto_register_mpeg_audio(void)
 		{ &hf_id3v1,
 			{ "ID3v1", "mpeg-audio.id3v1",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-		{ &hf_id3v2,
-			{ "ID3v2", "mpeg-audio.id3v2",
-				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
@@ -720,4 +701,6 @@ proto_reg_handoff_mpeg_audio(void)
 	dissector_add_string("media_type", "audio/mp3", mpeg_audio_handle);
 
 	heur_dissector_add("mpeg", dissect_mpeg_audio_heur, "MPEG Audio", "mpeg_audio", proto_mpeg_audio, HEURISTIC_ENABLE);
+
+	id3v2_handle = find_dissector("id3v2");
 }
