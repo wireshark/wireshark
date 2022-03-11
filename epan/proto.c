@@ -92,11 +92,11 @@ struct ptvcursor {
 
 /** See inlined comments.
  @param length the length of this item
- @param free_block a code block to call to free resources if this returns
+ @param cleanup_block a code block to call to free resources if this returns
  @return NULL if 'length' is lower -1 or equal 0 */
-#define CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_FREE(length, free_block)	\
+#define CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length, cleanup_block)	\
 	if (length < -1 || length == 0 ) {				\
-		free_block;						\
+		cleanup_block;						\
 		return NULL;						\
 	}
 
@@ -104,7 +104,7 @@ struct ptvcursor {
  @param length the length of this item
  @return NULL if 'length' is lower -1 or equal 0 */
 #define CHECK_FOR_ZERO_OR_MINUS_LENGTH(length) \
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_FREE(length, ((void)0))
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length, ((void)0))
 
 /** See inlined comments.
  @param tree the tree to append this item to
@@ -3085,7 +3085,13 @@ proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				*retval = 0;
+			}
+		} );
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3142,7 +3148,13 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				*retval = 0;
+			}
+		} );
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3370,7 +3382,13 @@ ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hfindex, gint length, const gui
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				*retval = FALSE;
+			}
+		} );
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3425,7 +3443,13 @@ proto_tree_add_item_ret_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				*retval = 0;
+			}
+		} );
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3484,7 +3508,13 @@ proto_tree_add_item_ret_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				*retval = 0;
+			}
+		} );
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -3591,7 +3621,13 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    hfinfo->abbrev);
 	}
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				*retval = FALSE;
+			}
+		} );
 
 	if (encoding & ENC_STRING) {
 		REPORT_DISSECTOR_BUG("wrong encoding");
@@ -4187,7 +4223,13 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
-	CHECK_FOR_ZERO_OR_MINUS_LENGTH(length);
+	CHECK_FOR_ZERO_OR_MINUS_LENGTH_AND_CLEANUP(length,
+		{
+			if(retval)
+			{
+				nstime_set_zero(retval);
+			}
+		} );
 
 	nstime_set_zero(&time_stamp);
 
