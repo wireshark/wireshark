@@ -3467,15 +3467,15 @@ install(FILES ${SHARK_PUBLIC_HEADERS}
 
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
 if((BUILD_wireshark AND QT_FOUND) AND NOT (WIN32 OR APPLE))
-	install(FILES org.wireshark.Wireshark-mime.xml
+	install(FILES resources/freedesktop/org.wireshark.Wireshark-mime.xml
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/mime/packages"
 		RENAME org.wireshark.Wireshark.xml
 	)
-	install(FILES org.wireshark.Wireshark.metainfo.xml
+	install(FILES resources/freedesktop/org.wireshark.Wireshark.metainfo.xml
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo"
 	)
 	if(BUILD_wireshark AND QT_FOUND)
-		install(FILES org.wireshark.Wireshark.desktop
+		install(FILES resources/freedesktop/org.wireshark.Wireshark.desktop
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 	endif()
 	foreach(size 16 24 32 48 64 128 256)

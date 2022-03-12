@@ -353,7 +353,7 @@ wtap_get_all_capture_file_extensions_list(void)
  * NOTE: when adding file formats to this list you may also want to add them
  * to the following files so that the various desktop environments will
  * know that Wireshark can open the file:
- *	1) org.wireshark.Wireshark-mime.xml (for freedesktop.org environments)
+ *	1) resources/freedesktop/org.wireshark.Wireshark-mime.xml (for freedesktop.org environments)
  *	2) packaging/macosx/Info.plist.in (for macOS)
  *	3) packaging/nsis/AdditionalTasksPage.ini, packaging/nsis/common.nsh,
  *	   and packaging/wix/ComponentGroups.wxi (for Windows)

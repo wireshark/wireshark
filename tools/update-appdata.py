@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 #
-# update-appdata.py - Update the <releases/> section of org.wireshark.Wireshark.metainfo.xml.
+# update-appdata.py - Update the <releases/> section of resources/freedesktop/org.wireshark.Wireshark.metainfo.xml.
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
-'''Update the <release> tag in org.wireshark.Wireshark.metainfo.xml
+'''Update the <release> tag in resources/freedesktop/org.wireshark.Wireshark.metainfo.xml
 
 According to https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
-the <releases/> tag in org.wireshark.Wireshark.metainfo.xml should contain release
+the <releases/> tag in resources/freedesktop/org.wireshark.Wireshark.metainfo.xml should contain release
 information sorted newest to oldest.
 
 As part of our release process, when we create release tag x.y.z, we tag
@@ -22,7 +22,7 @@ v3.0.1      2019-04-08 release tag
 v3.0.2rc0   2019-04-08 next commit after v3.0.1
 
 Find a list of release versions based on our most recent rc0 tag and
-update the <releases/> section of org.wireshark.Wireshark.metainfo.xml accordingly.
+update the <releases/> section of resources/freedesktop/org.wireshark.Wireshark.metainfo.xml accordingly.
 Assume that the tag for the most recent release doesn't exist and use
 today's date for it.
 '''
@@ -41,7 +41,7 @@ def main():
         sys.exit(2)
 
     this_dir = os.path.dirname(__file__)
-    appdata_xml = os.path.join(this_dir, '..', 'org.wireshark.Wireshark.metainfo.xml')
+    appdata_xml = os.path.join(this_dir, '..', 'resources', 'freedesktop', 'org.wireshark.Wireshark.metainfo.xml')
 
     try:
         tag_cp = subprocess.run(

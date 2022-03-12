@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 Richard Hughes <richard@hughsie.com> -->
+<!--
+    Copyright 2014 Richard Hughes <richard@hughsie.com>
+    The specification for this file can be found at
+    https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html
+-->
 
 <application>
     <id type="desktop">org.wireshark.Wireshark</id>
