@@ -1,4 +1,4 @@
-Editcap (Wireshark) 3.7.0 (v3.7.0rc0-33-g0d276b47d120)
+Editcap (Wireshark) 3.7.0 (v3.7.0rc0-1506-g9b49cbff2912)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -27,7 +27,7 @@ Duplicate packet removal:
   -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR
                          LESS THAN <dup time window> prior to current packet.
                          A <dup time window> is specified in relative seconds
-                         (e.g., 0.000001).
+                         (e.g. 0.000001).
            NOTE: The use of the 'Duplicate packet removal' options with
            other editcap options except -v may not always work as expected.
            Specifically the -r, -t or -S options will very likely NOT have the
@@ -47,10 +47,10 @@ Packet manipulation:
                          this option more than once, allowing up to 2 chopping
                          regions within a packet provided that at least 1
                          choplen is positive and at least 1 is negative.
-  -L                     adjust the frame (i.e., reported) length when chopping
+  -L                     adjust the frame (i.e. reported) length when chopping
                          and/or snapping.
   -t <time adjustment>   adjust the timestamp of each packet.
-                         <time adjustment> is in relative seconds (e.g., -0.5).
+                         <time adjustment> is in relative seconds (e.g. -0.5).
   -S <strict adjustment> adjust timestamp of packets if necessary to ensure
                          strict chronological increasing order. The <strict
                          adjustment> is specified in relative seconds with
@@ -73,7 +73,7 @@ Packet manipulation:
                          Useful to remove duplicated packets taken on
                          several routers (different mac addresses for
                          example).
-                         e.g., -I 26 in case of Ether/IP will ignore
+                         e.g. -I 26 in case of Ether/IP will ignore
                          ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
   -a <framenum>:<comment> Add or replace comment for given frame number
 

@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-1084-ga9490f354c04)
+Text2pcap (Wireshark) 3.7.0 (v3.7.0rc0-1506-g9b49cbff2912)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -21,7 +21,7 @@ Input:
   -D                     the text before the packet starts with an I or an O,
                          indicating that the packet is inbound or outbound.
                          This is used when generating dummy headers if the
-                         output format supports it (e.g., pcapng).
+                         output format supports it (e.g. pcapng).
   -a                     enable ASCII text dump identification.
                          The start of the ASCII text dump can be identified
                          and excluded from the packet data, even if it looks

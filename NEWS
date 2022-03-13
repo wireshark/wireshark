@@ -56,8 +56,7 @@ Wireshark 3.7.0 Release Notes
 
         • Adds a new strict equality operator "===" or "all_eq". The
        expression "a === b" is true if and only if all a’s are equal to
-       b. The negation of "===" can now be written as "!==" (any_ne), in
-       addition to "~=" (introduced in Wireshark 3.6.0).
+       b. The negation of "===" can now be written as "!==" (any_ne).
 
         • Adds the aliases "any_eq" for "==" and "all_ne" for "!=".
 
@@ -77,6 +76,9 @@ Wireshark 3.7.0 Release Notes
         • Floats must be written with a leading and ending digit. For
        example the values ".7" and "7." are now invalid as floats. It
        must be written "7.0" and "0.7" respectively.
+
+        • The operator "~=" is deprecated and will be removed in a
+       future version. Use "!==" with the same meaning instead.
 
      • text2pcap and "Import from Hex Dump":
 
@@ -202,7 +204,7 @@ Wireshark 3.7.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[6].
 
-  Last updated 2022-03-06 16:07:15 UTC
+  Last updated 2022-03-13 16:06:51 UTC
 
  References
 
