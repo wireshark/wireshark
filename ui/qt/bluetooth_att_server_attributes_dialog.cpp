@@ -282,8 +282,8 @@ tap_packet_status BluetoothAttServerAttributesDialog::tapPacket(void *tapinfo_pt
     }
 
     handle = QString("0x%1").arg(tap_handles->handle, 4, 16, QChar('0'));
-    uuid = QString(print_numeric_uuid(&tap_handles->uuid));
-    uuid_name = QString(print_uuid(&tap_handles->uuid));
+    uuid = QString(print_numeric_bluetooth_uuid(&tap_handles->uuid));
+    uuid_name = QString(print_bluetooth_uuid(&tap_handles->uuid));
 
     if (dialog->ui->removeDuplicatesCheckBox->checkState() == Qt::Checked) {
         QTreeWidgetItemIterator i_item(dialog->ui->tableTreeWidget);

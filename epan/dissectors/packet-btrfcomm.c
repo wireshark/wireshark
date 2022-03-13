@@ -656,7 +656,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             subtree = (wmem_tree_t *) wmem_tree_lookup32_array(service_directions, key);
             service_direction = (subtree) ? (service_direction_t *) wmem_tree_lookup32_le(subtree, k_frame_number) : NULL;
-            if (service_direction && service_direction->end_in == max_disconnect_in_frame) {
+            if (service_direction && service_direction->end_in == bluetooth_max_disconnect_in_frame) {
                 service_direction->end_in = k_frame_number;
             }
 
@@ -667,7 +667,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
             service_direction = wmem_new(wmem_file_scope(), service_direction_t);
             service_direction->direction = (pinfo->p2p_dir == P2P_DIR_RECV) ? P2P_DIR_SENT : P2P_DIR_RECV;
-            service_direction->end_in = max_disconnect_in_frame;
+            service_direction->end_in = bluetooth_max_disconnect_in_frame;
 
             wmem_tree_insert32_array(service_directions, key, service_direction);
         }
@@ -736,7 +736,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == FRAME_TYPE_SABM) && service_info) {
         if (service_info->uuid.size==16)
-            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_uuid(&service_info->uuid));
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(UUID128: %s) ", print_bluetooth_uuid(&service_info->uuid));
         else
             col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
                     val_to_str_ext_const(service_info->uuid.bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
@@ -845,7 +845,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 p_get_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID) == NULL) {
             guint8 *value_data;
 
-            value_data = wmem_strdup(wmem_file_scope(), print_numeric_uuid(&service_info->uuid));
+            value_data = wmem_strdup(wmem_file_scope(), print_numeric_bluetooth_uuid(&service_info->uuid));
 
             p_add_proto_data(pinfo->pool, pinfo, proto_bluetooth, PROTO_DATA_BLUETOOTH_SERVICE_UUID, value_data);
         }
@@ -853,7 +853,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         if (!dissector_try_uint_new(rfcomm_dlci_dissector_table, (guint32) dlci,
                 next_tvb, pinfo, tree, TRUE, rfcomm_data)) {
             if (service_info && (service_info->uuid.size == 0 ||
-                !dissector_try_string(bluetooth_uuid_table, print_numeric_uuid(&service_info->uuid),
+                !dissector_try_string(bluetooth_uuid_table, print_numeric_bluetooth_uuid(&service_info->uuid),
                     next_tvb, pinfo, tree, rfcomm_data))) {
                 decode_by_dissector = find_proto_by_channel(dlci >> 1);
                 if (rfcomm_channels_enabled && decode_by_dissector) {

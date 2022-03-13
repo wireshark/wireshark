@@ -1455,7 +1455,7 @@ dissect_bthci_evt_connect_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
         chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
         chandle_session->connect_in_frame = k_frame_number;
-        chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+        chandle_session->disconnect_in_frame = bluetooth_max_disconnect_in_frame;
         chandle_session->link_type = BT_LINK_TYPE_ACL;
         wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
 
@@ -2565,7 +2565,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
                 chandle_session->connect_in_frame = k_frame_number;
-                chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+                chandle_session->disconnect_in_frame = bluetooth_max_disconnect_in_frame;
                 chandle_session->link_type = BT_LINK_TYPE_LL;
                 wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
             }
@@ -2775,7 +2775,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
                 chandle_session->connect_in_frame = k_frame_number;
-                chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+                chandle_session->disconnect_in_frame = bluetooth_max_disconnect_in_frame;
                 chandle_session->link_type = BT_LINK_TYPE_LL;
                 wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
             }
@@ -3086,7 +3086,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                 chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
                 chandle_session->connect_in_frame = k_frame_number;
-                chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+                chandle_session->disconnect_in_frame = bluetooth_max_disconnect_in_frame;
                 chandle_session->link_type = BT_LINK_TYPE_ISO;
                 wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
             }
@@ -5927,7 +5927,7 @@ dissect_bthci_evt_sync_connection_complete(tvbuff_t *tvb, int offset,
         /* chandle session */
         chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
         chandle_session->connect_in_frame = frame_number;
-        chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+        chandle_session->disconnect_in_frame = bluetooth_max_disconnect_in_frame;
         chandle_session->link_type = BT_LINK_TYPE_SCO;
         wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
 
@@ -6710,16 +6710,16 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             if (bthci_cmd_data && bthci_cmd_data->command_in_frame < frame_number && (
                         (opcode_list_data->command_status == COMMAND_STATUS_NORMAL &&
                     (bthci_cmd_data->response_in_frame == frame_number ||
-                    bthci_cmd_data->response_in_frame == max_disconnect_in_frame)) ||
+                    bthci_cmd_data->response_in_frame == bluetooth_max_disconnect_in_frame)) ||
                         (opcode_list_data->command_status == COMMAND_STATUS_PENDING &&
                     (bthci_cmd_data->pending_in_frame == frame_number ||
-                    ((bthci_cmd_data->response_in_frame == max_disconnect_in_frame ||
+                    ((bthci_cmd_data->response_in_frame == bluetooth_max_disconnect_in_frame ||
                     bthci_cmd_data->response_in_frame > frame_number) &&
-                    bthci_cmd_data->pending_in_frame == max_disconnect_in_frame))) ||
+                    bthci_cmd_data->pending_in_frame == bluetooth_max_disconnect_in_frame))) ||
                         (opcode_list_data->command_status == COMMAND_STATUS_RESULT &&
                     (bthci_cmd_data->response_in_frame == frame_number ||
-                    ((bthci_cmd_data->response_in_frame == max_disconnect_in_frame &&
-                    bthci_cmd_data->pending_in_frame == max_disconnect_in_frame))))
+                    ((bthci_cmd_data->response_in_frame == bluetooth_max_disconnect_in_frame &&
+                    bthci_cmd_data->pending_in_frame == bluetooth_max_disconnect_in_frame))))
                     )) {
                 lastest_bthci_cmd_data = bthci_cmd_data;
                 if (((opcode_list_data->command_status == COMMAND_STATUS_RESULT ||
@@ -6978,20 +6978,20 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
 
         if (!pinfo->fd->visited && opcode_list_data->command_status == COMMAND_STATUS_PENDING &&
-                lastest_bthci_cmd_data->pending_in_frame == max_disconnect_in_frame) {
+                lastest_bthci_cmd_data->pending_in_frame == bluetooth_max_disconnect_in_frame) {
             lastest_bthci_cmd_data->pending_in_frame = frame_number;
             lastest_bthci_cmd_data->pending_abs_ts = pinfo->abs_ts;
         }
 
         if (!pinfo->fd->visited && opcode_list_data->command_status == COMMAND_STATUS_NORMAL &&
-                lastest_bthci_cmd_data->response_in_frame == max_disconnect_in_frame) {
+                lastest_bthci_cmd_data->response_in_frame == bluetooth_max_disconnect_in_frame) {
             lastest_bthci_cmd_data->response_in_frame = frame_number;
             lastest_bthci_cmd_data->response_abs_ts = pinfo->abs_ts;
         }
 
         if (!pinfo->fd->visited && opcode_list_data->command_status == COMMAND_STATUS_RESULT &&
-                lastest_bthci_cmd_data->response_in_frame == max_disconnect_in_frame &&
-                lastest_bthci_cmd_data->pending_in_frame == max_disconnect_in_frame) {
+                lastest_bthci_cmd_data->response_in_frame == bluetooth_max_disconnect_in_frame &&
+                lastest_bthci_cmd_data->pending_in_frame == bluetooth_max_disconnect_in_frame) {
             lastest_bthci_cmd_data->response_in_frame = frame_number;
             lastest_bthci_cmd_data->response_abs_ts = pinfo->abs_ts;
         }
@@ -7000,7 +7000,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             sub_item = proto_tree_add_uint(bthci_evt_tree, hf_command_in_frame, tvb, 0, 0, lastest_bthci_cmd_data->command_in_frame);
             proto_item_set_generated(sub_item);
 
-            if (lastest_bthci_cmd_data->response_in_frame < max_disconnect_in_frame) {
+            if (lastest_bthci_cmd_data->response_in_frame < bluetooth_max_disconnect_in_frame) {
                 sub_item = proto_tree_add_uint(bthci_evt_tree, hf_response_in_frame, tvb, 0, 0, lastest_bthci_cmd_data->response_in_frame);
                 proto_item_set_generated(sub_item);
             }
@@ -7009,7 +7009,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             sub_item = proto_tree_add_double(bthci_evt_tree, hf_command_pending_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
             proto_item_set_generated(sub_item);
 
-            if (lastest_bthci_cmd_data->response_in_frame < max_disconnect_in_frame) {
+            if (lastest_bthci_cmd_data->response_in_frame < bluetooth_max_disconnect_in_frame) {
                 nstime_delta(&delta, &lastest_bthci_cmd_data->response_abs_ts, &lastest_bthci_cmd_data->pending_abs_ts);
                 sub_item = proto_tree_add_double(bthci_evt_tree, hf_pending_response_time_delta, tvb, 0, 0, nstime_to_msec(&delta));
                 proto_item_set_generated(sub_item);
@@ -7020,7 +7020,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             sub_item = proto_tree_add_uint(bthci_evt_tree, hf_command_in_frame, tvb, 0, 0, lastest_bthci_cmd_data->command_in_frame);
             proto_item_set_generated(sub_item);
 
-            if (lastest_bthci_cmd_data->pending_in_frame < max_disconnect_in_frame) {
+            if (lastest_bthci_cmd_data->pending_in_frame < bluetooth_max_disconnect_in_frame) {
                 sub_item = proto_tree_add_uint(bthci_evt_tree, hf_pending_in_frame, tvb, 0, 0, lastest_bthci_cmd_data->pending_in_frame);
                 proto_item_set_generated(sub_item);
 

@@ -1522,7 +1522,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         channels_info->control_remote_cid = l2cap_data->remote_cid;
         channels_info->media_local_cid = BTL2CAP_UNKNOWN_CID;
         channels_info->media_remote_cid = BTL2CAP_UNKNOWN_CID;
-        channels_info->disconnect_in_frame = max_disconnect_in_frame;
+        channels_info->disconnect_in_frame = bluetooth_max_disconnect_in_frame;
         channels_info->l2cap_disconnect_in_frame   = l2cap_data->disconnect_in_frame;
         channels_info->hci_disconnect_in_frame     = l2cap_data->hci_disconnect_in_frame;
         channels_info->adapter_disconnect_in_frame = l2cap_data->adapter_disconnect_in_frame;

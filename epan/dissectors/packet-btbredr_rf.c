@@ -1658,8 +1658,8 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                        acl_data->remote_bd_addr_id  = 0;
                                        acl_data->is_btle = TRUE;
                                        acl_data->is_btle_retransmit = FALSE;
-                                       acl_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
-                                       acl_data->disconnect_in_frame = &max_disconnect_in_frame;
+                                       acl_data->adapter_disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
+                                       acl_data->disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
                                        next_tvb = tvb_new_subset_length(tvb, offset + data_header, pdu_len);
                                        call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
                                        handled = TRUE;
@@ -1757,8 +1757,8 @@ dissect_btbredr_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                                    acl_data->remote_bd_addr_id  = 0;
                                    acl_data->is_btle = TRUE;
                                    acl_data->is_btle_retransmit = FALSE;
-                                   acl_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
-                                   acl_data->disconnect_in_frame = &max_disconnect_in_frame;
+                                   acl_data->adapter_disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
+                                   acl_data->disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
                                    call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
                                    handled = TRUE;
                                    col_set_str(pinfo->cinfo, COL_INFO, "L2CAP Data");

@@ -4265,7 +4265,7 @@ static const value_string bluetooth_pid_vals[] = {
     { 0,    NULL }
 };
 
-guint32 max_disconnect_in_frame = G_MAXUINT32;
+guint32 bluetooth_max_disconnect_in_frame = G_MAXUINT32;
 
 
 void proto_register_bluetooth(void);
@@ -4475,7 +4475,7 @@ get_conversation(packet_info *pinfo,
 }
 
 bluetooth_uuid_t
-get_uuid(tvbuff_t *tvb, gint offset, gint size)
+get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size)
 {
     bluetooth_uuid_t  uuid;
 
@@ -4529,7 +4529,7 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
 }
 
 const gchar *
-print_numeric_uuid(bluetooth_uuid_t *uuid)
+print_numeric_bluetooth_uuid(bluetooth_uuid_t *uuid)
 {
     if (!(uuid && uuid->size > 0))
         return NULL;
@@ -4558,7 +4558,7 @@ print_numeric_uuid(bluetooth_uuid_t *uuid)
 }
 
 const gchar *
-print_uuid(bluetooth_uuid_t *uuid)
+print_bluetooth_uuid(bluetooth_uuid_t *uuid)
 {
     const gchar *description;
 
@@ -4582,7 +4582,7 @@ print_uuid(bluetooth_uuid_t *uuid)
          */
     }
 
-    description = print_numeric_uuid(uuid);
+    description = print_numeric_bluetooth_uuid(uuid);
 
     if (description) {
         description = (const gchar *) wmem_tree_lookup_string(bluetooth_uuids, description, 0);
@@ -4631,7 +4631,7 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
         bluetooth_data->interface_id = HCI_INTERFACE_DEFAULT;
     bluetooth_data->adapter_id = HCI_ADAPTER_DEFAULT;
-    bluetooth_data->adapter_disconnect_in_frame  = &max_disconnect_in_frame;
+    bluetooth_data->adapter_disconnect_in_frame  = &bluetooth_max_disconnect_in_frame;
     bluetooth_data->chandle_sessions             = chandle_sessions;
     bluetooth_data->chandle_to_bdaddr            = chandle_to_bdaddr;
     bluetooth_data->chandle_to_mode              = chandle_to_mode;

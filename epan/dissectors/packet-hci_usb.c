@@ -158,7 +158,7 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     bluetooth_data->adapter_id = usb_conv_info->bus_id << 8 | usb_conv_info->device_address;
 /* TODO: adapter disconnect on some USB action, for now do not support adapter disconnection */
-    bluetooth_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
+    bluetooth_data->adapter_disconnect_in_frame = &bluetooth_max_disconnect_in_frame;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (!pinfo->fd->visited && usb_conv_info->endpoint <= 0x02 &&

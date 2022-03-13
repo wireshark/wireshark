@@ -306,15 +306,15 @@ WS_DLL_PUBLIC wmem_tree_t *bluetooth_uuids;
 
 WS_DLL_PUBLIC value_string_ext  bluetooth_uuid_vals_ext;
 WS_DLL_PUBLIC value_string_ext  bluetooth_company_id_vals_ext;
-extern guint32           max_disconnect_in_frame;
+extern guint32           bluetooth_max_disconnect_in_frame;
 
 extern gint dissect_bd_addr(gint hf_bd_addr, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *tvb, gint offset, gboolean is_local_bd_addr,
         guint32 interface_id, guint32 adapter_id, guint8 *bdaddr);
 
-extern bluetooth_uuid_t  get_uuid(tvbuff_t *tvb, gint offset, gint size);
-WS_DLL_PUBLIC const gchar  *print_uuid(bluetooth_uuid_t *uuid);
-WS_DLL_PUBLIC const gchar  *print_numeric_uuid(bluetooth_uuid_t *uuid);
+extern bluetooth_uuid_t  get_bluetooth_uuid(tvbuff_t *tvb, gint offset, gint size);
+WS_DLL_PUBLIC const gchar  *print_bluetooth_uuid(bluetooth_uuid_t *uuid);
+WS_DLL_PUBLIC const gchar  *print_numeric_bluetooth_uuid(bluetooth_uuid_t *uuid);
 
 extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, guint8 size, bluetooth_data_t *bluetooth_data);

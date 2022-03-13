@@ -1118,18 +1118,18 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_set_string_value@Base 2.3.0
  prefs_set_uint_value@Base 2.3.0
  prime_epan_dissect_with_postdissector_wanted_hfids@Base 2.3.0
+ print_bluetooth_uuid@Base 3.7.0
  print_bookmark@Base 1.12.0~rc1
  print_finale@Base 1.12.0~rc1
  print_hex_data@Base 1.12.0~rc1
  print_line@Base 1.12.0~rc1
  print_line_color@Base 2.5.0
+ print_numeric_bluetooth_uuid@Base 3.7.0
  print_preamble@Base 1.12.0~rc1
  print_stream_ps_new@Base 1.12.0~rc1
  print_stream_ps_stdio_new@Base 1.12.0~rc1
  print_stream_text_new@Base 1.12.0~rc1
  print_stream_text_stdio_new@Base 1.12.0~rc1
- print_uuid@Base 2.0.0
- print_numeric_uuid@Base 2.0.0
  process_reassembled_data@Base 1.9.1
  process_stat_cmd_arg@Base 1.9.1
  proto_all_finfos@Base 1.9.1
