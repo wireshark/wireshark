@@ -309,7 +309,7 @@ static int list_config(char *interface, unsigned int remote_port)
 	printf("arg {number=%u}{call=--remote-capture-command}{display=Remote capture command}"
 		"{type=string}{tooltip=The remote command used to capture}{group=Capture}\n", inc++);
 	printf("arg {number=%u}{call=--remote-sudo}{display=Use sudo on the remote machine}"
-		"{type=boolean}{tooltip=Prepend the capture command with sudo on the remote machine}"
+		"{type=boolflag}{tooltip=Prepend the capture command with sudo on the remote machine}"
 		"{group=Capture}\n", inc++);
 	printf("arg {number=%u}{call=--remote-noprom}{display=No promiscuous mode}"
 		"{type=boolflag}{tooltip=Don't use promiscuous mode on the remote machine}{group=Capture}"
