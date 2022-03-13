@@ -14,7 +14,7 @@ configurable extension(s) of the display filter engine.
 MATE's goal is to enable users to filter frames based on information extracted
 from related frames or information on how frames relate to each other. MATE
 was written to help troubleshooting gateways and other systems where a "use"
-involves more protocols. However MATE can be used as well to analyze other
+involves more protocols. However, MATE can be used as well to analyze other
 issues regarding an interaction between packets like response times,
 incompleteness of transactions, presence/absence of certain attributes in a
 group of PDUs and more.
@@ -22,7 +22,7 @@ group of PDUs and more.
 MATE is a Wireshark plugin that allows the user to specify how different
 frames are related to each other. To do so, MATE extracts data from the frames'
 tree and then, using that information, tries to group the frames based on how
-MATE is configured. Once the PDUs are related MATE will create a "protocol"
+MATE is configured. Once the PDUs are related, MATE will create a "protocol"
 tree with fields the user can filter with. The fields will be almost the same
 for all the related frames, so one can filter a complete session spanning
 several frames containing more protocols based on an attribute appearing in
@@ -53,7 +53,7 @@ appear in Help->About->Plugins)
 for more) and place it somewhere on your harddisk.
 * Go to Preferences->Protocols->MATE and set the config filename to the file
 you want to use (you don't have to restart Wireshark)
-* Load a corresponding capture file (e.g.
+* Load a corresponding capture file (e.g.,
 {wireshark-wiki-url}uploads/27707187aeb30df68e70c8fb9d614981/http.cap[http.cap]) and see if MATE
 has added some new display filter fields, something like: `mate tcp_pdu:1->tcp_ses:1`
 or, at prompt: `path_to/wireshark -o "mate.config: tcp.mate" -r http.cap`.
@@ -70,7 +70,7 @@ image::wsug_graphics/ws-mate-tcp-output.png[]
 
 MATE creates a filterable tree based on information contained in frames that
 share some relationship with information obtained from other frames. The way
-this relationships are made is described in a configuration file. The
+these relationships are made is described in a configuration file. The
 configuration file tells MATE what makes a PDU and how to relate it to other
 PDUs.
 
@@ -225,7 +225,7 @@ an AVPL containing the AVPs from the operand that matched.
 * There's also a <<Merge,Merge>> operation that is to be performed between AVPLs
 where all the AVPs that don't exist in the operand AVPL but exist in the operand
 will be added to the operand AVPL.
-* Other than that there are <<Transform,Transformations>> - a combination
+* Other than that, there are <<Transform,Transformations>> - a combination
 of a match AVPL and an AVPL to merge.
 
 ==== MATE Analysis
@@ -387,7 +387,7 @@ extracted one.
 
 Once the fields have been extracted into the Pdu's AVPL, MATE will apply any
 declared transformation to it. The way transforms are applied and how they work
-is described later on. However it's useful to know that once the AVPL for the
+is described later on. However, it's useful to know that once the AVPL for the
 Pdu is created, it may be transformed before being analyzed. That way we can
 massage the data to simplify the analysis.
 
@@ -869,7 +869,7 @@ Gop my_gop On my_pdu Match (addr,addr,port,port) {
 
 ====== NAT
 
-NAT can create problems when tracing, but we can easily worked around it by
+NAT can create problems when tracing, but we can easily work around it by
 Transforming the NATed IP address and the Ethernet address of the router into
 the non-NAT address:
 
@@ -901,7 +901,7 @@ he was directly involved with.
 === MATE's configuration tutorial
 
 We'll show a MATE configuration that first creates Gops for every DNS and HTTP
-request, then it ties the Gops together in a Gop based on the host. Finally
+request, then it ties the Gops together in a Gop based on the host. Finally,
 we'll separate into different Gogs request coming from different users.
 
 With this MATE configuration loaded we can:
@@ -917,7 +917,7 @@ that take more than 1.5 seconds to complete.
 The complete config file is available on the Wireshark Wiki:
 https://gitlab.com/wireshark/wireshark/-/wikis/Mate/Tutorial
 
-Note: for this example I used _dns.qry.name_ which is defined since Wireshark
+Note: This example uses _dns.qry.name_ which is defined since Wireshark
 version 0.10.9. Supposing you have a mate plugin already installed you can test
 it with the current Wireshark version.
 
@@ -1030,7 +1030,7 @@ Here we've told MATE to import _http.host_ into _http_pdu_ and _dns.qry.name_
 into _dns_pdu_ as _host_. We also have to tell MATE to copy the _host_
 attribute from the Pdus to the Gops, we do this using _Extra_.
 
-Once we've got all the data we need in Pdus and Gops, we tell MATE what makes
+Once we have all the data we need in Pdus and Gops, we tell MATE what makes
 different Gops belong to a certain Gog.
 
 ----
@@ -1041,12 +1041,12 @@ Gog http_use {
 };
 ----
 
-Using the _Gog_ declaration we tell MATE to define a Gog type _Named_
+Using the _Gog_ declaration, we tell MATE to define a Gog type _Named_
 _http_use_ whose expiration is 0.75 seconds after all the Gops that belong to it
 had been stopped. After that time, an eventual new Gop with the same key match
 will create a new Gog instead of been added to the previous Gog.
 
-Using the _Member_ statements we tell MATE that *http_req*s with the same
+Using the _Member_ statements, we tell MATE that *http_req*s with the same
 *host* belong to the same Gog, same thing for *dns_req*s.
 
 So far we have instructed mate to group every packet related to sessions towards
@@ -1588,8 +1588,8 @@ The defined match operators are:
 or the match will fail.
 * <<NotEqual,Not Equal>> _!_ will match only if the value strings aren't equal.
 * <<OneOf,One Of>> _{}_ will match if one of the value strings listed is equal to the
-data AVP's string. Individual tems of the list inside the curly braces are
-separated using | character.
+data AVP's string. Items inside the list's curly braces are
+separated with the | character.
 * <<StartsWith,Starts With>> _^_ will match if the configuration value string matches the
 first characters of the data AVP's value string.
 * <<EndsWith,Ends With>> _$_ will match if the configuration value string matches the

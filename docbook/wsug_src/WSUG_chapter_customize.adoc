@@ -41,7 +41,7 @@ include::wireshark-h.txt[]
 We will examine each of the command line options in turn.
 
 The first thing to notice is that issuing the command `wireshark` by itself will
-bring up Wireshark. However, you can include as many of the command line
+launch Wireshark. However, you can include as many of the command line
 parameters as you like. Their meanings are as follows ( in alphabetical order ):
 
 // XXX - is the alphabetical order a good choice? Maybe better task based?
@@ -522,7 +522,7 @@ Each protocol has its own dissector, so dissecting a complete packet will
 typically involve several dissectors. As Wireshark tries to find the right
 dissector for each packet (using static “routes” and heuristics “guessing”),
 it might choose the wrong dissector in your specific case. For example,
-Wireshark won’t know if you use a common protocol on an uncommon TCP port, e.g.
+Wireshark won’t know if you use a common protocol on an uncommon TCP port, e.g.,
 using HTTP on TCP port 800 instead of the standard port 80.
 
 There are two ways to control the relations between protocol dissectors: disable
@@ -814,7 +814,7 @@ The replacement text for the macro it uses $1, $2, $3, ... as the input argument
 
 === ESS Category Attributes
 
-Wireshark uses this table to map ESS Security Category attributes to textual representations.  The values to put in this table are usually found in a http://www.xmlspif.org/[XML SPIF], which is used for defining security labels.
+Wireshark uses this table to map ESS Security Category attributes to textual representations.  The values to put in this table are usually found in an http://www.xmlspif.org/[XML SPIF], which is used for defining security labels.
 
 This table is a user table, as described in <<ChUserTable>>, with the
 following fields:
@@ -969,10 +969,10 @@ An Integer representing the network indicator for which this association is
 valid.
 
 Called DPCs::
-An range of integers representing the dpcs for which this association is valid.
+A range of integers representing the dpcs for which this association is valid.
 
 Called SSNs::
-An range of integers representing the ssns for which this association is valid.
+A range of integers representing the ssns for which this association is valid.
 
 User protocol::
 The protocol that is carried over this association
@@ -1044,9 +1044,9 @@ Authentication model::
 Which auth model to use (either “MD5” or “SHA1”).
 
 Password::
-The authentication password. Use _\xDD_ for unprintable characters. An
+The authentication password. Use _\xDD_ for unprintable characters. A
 hexadecimal password must be entered as a sequence of _\xDD_ characters. For
-example the hex password 010203040506 must be entered as
+example, the hex password 010203040506 must be entered as
 _\x01\x02\x03\x04\x05\x06_. The _\_ character must be treated as an unprintable
 character, i.e., it must be entered as _\x5C_ or _\x5c_.
 
@@ -1080,7 +1080,7 @@ Protocol::
 This is the name of the encapsulating protocol (the lowest layer in the packet
 data) it can be either just the name of the protocol (e.g., mtp2, eth_withoutfcs,
 sscf-nni ) or the name of the encapsulation protocol and the “application”
-protocol over it separated by a colon (e.g sscop:sscf-nni, sscop:alcap,
+protocol over it separated by a colon (e.g., sscop:sscf-nni, sscop:alcap,
 sscop:nbap, ...)
 
 [#ChUserDLTsSection]

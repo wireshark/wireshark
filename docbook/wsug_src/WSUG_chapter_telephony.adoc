@@ -25,15 +25,15 @@ Some of these statistics are described at the
 
 === Playing VoIP Calls
 
-The tool for playing VoIP calls is called <<ChTelRtpPlayer,RTP Player>>. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. Its capabilities depends on supported codecs.
+The tool for playing VoIP calls is called <<ChTelRtpPlayer,RTP Player>>. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. Its capabilities depend on supported codecs.
 
 ==== Supported codecs
 
-RTP Player is able to play any codec supported by an installed plugins. The codecs supported by RTP Player depend on the version of Wireshark you're using. The official builds contain all of the plugins maintained by the Wireshark developers, but custom/distribution builds might not include some of those codecs. To check your Wireshark follow this procedure:
+RTP Player is able to play any codec supported by an installed plugin. The codecs supported by RTP Player depend on the version of Wireshark you're using. The official builds contain all of the plugins maintained by the Wireshark developers, but custom/distribution builds might not include some of those codecs. To check your Wireshark installation's installed codec plugins, do the following:
 
-* open menu:Help[About Wireshark] window
-* switch to menu:Plugins[] tab
-* select codec as menu:Filter by type[]
+* Open menu:Help[About Wireshark] window
+* Select the menu:Plugins[] tab
+* In the menu:Filter by type[] menu on the top-right, select codec 
 
 .List of supported codecs
 image::wsug_graphics/ws-about-codecs.png[{screenshot-attrs}]
@@ -53,11 +53,11 @@ When RTP Player window is opened, playlist can be modified from other tools (Wir
 .btn:[Play Streams] button with opened action menu
 image::wsug_graphics/ws-tel-rtp-player_button.png[]
 
-btn:[Play Streams] button can be clicked directly and opens RTP Player window directly with btn:[Set playlist] action. All actions are selectable by small down arrow next to button.
+btn:[Play Streams] button can be clicked directly and opens RTP Player window directly with btn:[Set playlist] action. All actions can be selected with the small down arrow next to the button.
 
-When playlist is empty, there is no difference between btn:[Set playlist] and btn:[Add to playlist]. When RTP Player window is not opened, all three actions above open it.
+When the playlist is empty, there is no difference between btn:[Set playlist] and btn:[Add to playlist]. When the RTP Player window is not opened, all three actions above open it.
 
-btn:[Remove from playlist] is useful e. g. in case user selected all RTP streams and wants to remove RTP streams from specific calls found with menu:VoIPCalls[].
+btn:[Remove from playlist] is useful e.g. in case user selected all RTP streams and wants to remove RTP streams from specific calls found with menu:VoIPCalls[].
 
 Tools below can be used to maintain content of playlist, they contain btn:[Play Streams] button. You can use one of procedures (Note: btn:[Add to playlist] action is demonstrated):
 
@@ -94,7 +94,7 @@ When live capture is running, streams are read only till "now" and are shown. Wh
 
 [NOTE]
 ====
-RTP Player dialog stays open even live capture is stopped and then started again. Play list stays unchanged. Therefore btn:[Refresh stream] tries to read same streams as before and shows them if they are still running. Past part of them (from previous live capture) is lost.
+RTP Player dialog stays open even live capture is stopped and then started again. Play list stays unchanged. Therefore, btn:[Refresh stream] tries to read same streams as before and shows them if they are still running. Past part of them (from previous live capture) is lost.
 ====
 
 ==== RTP Decoding Settings
@@ -121,7 +121,7 @@ RTP Player must store decoded data somewhere to be able to play it. When data ar
 * ui.rtp_player_use_disk1 - When set to FALSE (default), audio samples are kept in memory. When set to TRUE, audio samples are stored on temporary file.
 * ui.rtp_player_use_disk2 - When set to FALSE (default), dictionary is kept in memory. When set to TRUE, dictionary is stored on temporary file.
 
-When any data are configured to be stored on disk, one file is created for each stream. Therefore there might be up to two files for one RTP stream (audio samples and dictionary). If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you can see fewer streams that was added to playlist. Warnings are printed on console in this case and you will see fewer streams in the playlist than you send to it from other tools.
+When any data are configured to be stored on disk, one file is created for each stream. Therefore, there might be up to two files for one RTP stream (audio samples and dictionary). If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you can see fewer streams that was added to playlist. Warnings are printed on console in this case and you will see fewer streams in the playlist than you send to it from other tools.
 
 For common use you can use default settings - store everything in memory. When you will be out of memory, switch ui.rtp_player_use_disk1 to TRUE first - it saves much more memory than ui.rtp_player_use_disk2.
 
@@ -280,7 +280,7 @@ This menu shows MTP3 Statistics and MTP3 Summary windows.
 
 === Osmux Windows
 
-OSmux is a multiplex protocol which benefits satellite based GSM back-haul systems by reducing the bandwidth consumption of the voice proxying (RTP-AMR) and signaling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
+OSmux is a multiplex protocol designed to reduce bandwidth usage of satellite-based GSM systems's voice (RTP-AMR) and signaling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
 
 === RTP
 
@@ -432,7 +432,7 @@ Playlist shows information about every stream:
 * Time Span - Start - Stop (Duration) of the stream
 * SR - Sample rate of used codec
 * PR - Decoded play rate used for stream playing
-* Payloads - One or more playload types used by the stream
+* Payloads - One or more payload types used by the stream
 
 [NOTE]
 ====
@@ -531,7 +531,7 @@ Export of payload function is useful for codecs not supported by Wireshark.
 
 [NOTE]
 ====
-Default value of btn:[Output Audio Rate] is btn:[Automatic]. When multiple codecs with different codec rates are captured, Wireshark decodes each stream with its own play audio rate. Therefore each stream can has different play audio rate. When export of audio is used in this case, it will fail because .au or .wav requires one common play audio rate.
+Default value of btn:[Output Audio Rate] is btn:[Automatic]. When multiple codecs with different codec rates are captured, Wireshark decodes each stream with its own play audio rate. Therefore, each stream can have a different audio rate. If you attempt to export audio when there are multiple audio rates, it will fail because .au or .wav require a fixed audio rate.
 
 In this case user must manually select one of rates in btn:[Output Audio Rate], streams will be resampled and audio export succeeds.
 ====
@@ -548,7 +548,7 @@ In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Co
 
 Stream Control Transmission Protocol (SCTP) is a computer network protocol which provides a message transfer in telecommunication in the transport layer. It overcomes some lacks of User Datagram Protocol (UDP) and Transmission Control Protocol (TCP). The SCTP packets consist of the _common header_ and the _data chunks_.
 
-The SCTP Analyze Association window shows the statistics of the captured packets between two Endpoints. You can check the different chunk types by pressing btn:[Chunk Statistics] button in the `Statistics` tab. In the `Endpoint` tabs you can see various statistics, such as IP addresses, ports and others. Also you can check different graphs here.
+The SCTP Analyze Association window shows the statistics of the captured packets between two Endpoints. You can check the different chunk types by pressing btn:[Chunk Statistics] button in the `Statistics` tab. In the `Endpoint` tabs you can see various statistics, such as IP addresses, ports and others. You can also check different graphs here.
 
 .SCTP Analyze Association window
 image::wsug_graphics/ws-sctp-1-association.png[{screenshot-attrs}]

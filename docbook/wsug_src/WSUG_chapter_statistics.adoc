@@ -23,7 +23,7 @@ These statistics range from general information about the loaded capture file
 
   - *Conversations* e.g., traffic between specific IP addresses.
 
-  - *Endpoints* e.g., traffic to and from an IP addresses.
+  - *Endpoints* e.g., traffic to and from IP addresses.
 
   - *I/O Graphs* visualizing the number of packets (or similar) in time.
 
@@ -110,7 +110,7 @@ The Resolved Addresses window shows the list of resolved addresses and their hos
 
 . Select `Use an external network name resolver` in the menu:Preferences[Name Resolution] menu. This option is enabled by default.
 
-NOTE: The resolved addresses are not updated automatically after users change the settings. To display newly available names user have to reopen the dialog.
+NOTE: The resolved addresses are not updated automatically after a user changes the settings. To display newly available names, the user has to reopen the dialog.
 
 The `Ports` tab shows the list of service names, ports and types.
 
@@ -164,7 +164,7 @@ The absolute number of bytes of this protocol where it was the highest protocol 
 End Bits/s::
 The bandwidth of this protocol relative to the capture time where was the highest protocol in the stack (last dissected).
 
-Packets usually contain multiple protocols. As a result more than one protocol will
+Packets usually contain multiple protocols. As a result, more than one protocol will
 be counted for each packet. Example: In the screenshot IP has 99.9% and TCP
 98.5% (which is together much more than 100%).
 
@@ -261,10 +261,10 @@ IPv4:: Identical to the 32-bit IPv4 address.
 
 IPv6:: Identical to the 128-bit IPv6 address.
 
-IPX:: A concatenation of a 32 bit network number and 48 bit node address, by
+IPX:: A concatenation of a 32-bit network number and 48-bit node address, by
 default the Ethernet interface’s MAC-48 address.
 
-JXTA:: A 160 bit SHA-1 URN.
+JXTA:: A 160-bit SHA-1 URN.
 
 NCP:: Similar to IPX.
 
@@ -355,7 +355,7 @@ Count::
 The number of packets that fall into this range.
 
 Average::
-The arithmetic mean length of the packets in this range.
+The arithmetic mean of the packet lengths in this range.
 
 Min Val, Max Val::
 The minimum and maximum lengths in this range.
@@ -570,7 +570,7 @@ The Dynamic Host Configuration Protocol (DHCP) is an option of the Bootstrap Pro
 
 The NetPerfMeter Protocol{nbsp}(NPMP) is the control and data transfer protocol of NetPerfMeter, the transport protocol performance testing tool. It transmits data streams over TCP, SCTP, UDP and DCCP with given parameters, such as frame rate, frame size, saturated flows, etc.
 
-With this statistics you can:
+With these statistics you can:
 
 * Observed number of messages and bytes per message type.
 * The share of messages and bytes for each message type.
@@ -797,7 +797,7 @@ Window Scaling:: Window size and outstanding bytes.
 
 The UDP Multicast Streams window shows statistics for all UDP multicast streams. It includes source addresses and ports, destination addresses and ports, packets counter and other data. You can specify the burst interval, the alarm limits and output speeds. To apply new settings, press btn:[Enter].
 
-With this statistics you can:
+With these statistics you can:
 
 * Measure the burst size for a video stream. This uses the sliding window algorithm.
 * Measure of the output buffer size limit, that no packet drop will occur. This uses the Leaky bucket algorithm.

@@ -117,7 +117,7 @@ _/Applications/Wireshark.app_.  Otherwise, _INSTALLDIR_ is the top-level
 directory under which reside the subdirectories in which components of
 Wireshark are installed.  This will typically be `/usr` if Wireshark is
 bundled with the system (for example, provided as a package with a Linux
-distribution) and _/usr/local_ if, for example, you’ve build Wireshark
+distribution) and _/usr/local_ if, for example, you’ve built Wireshark
 from source and installed it.
 
 [#ChAppFilesConfigurationSection]
@@ -526,7 +526,7 @@ vlans::
 --
 Wireshark uses the _vlans_ file to translate VLAN tag IDs into names.
 
-If there is a _vlans_ file in the currently active profile folder, it is used. Otherwise the _vlans_ file in the personal configuration folder is used.
+If there is a _vlans_ file in the currently active profile folder, it is used. Otherwise, the _vlans_ file in the personal configuration folder is used.
 
 Each line in this file consists of one VLAN tag ID and a describing name separated by whitespace or tab.
 
